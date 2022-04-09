@@ -16,6 +16,7 @@ if (typeof globalThis.process === 'undefined') {
 
 const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
 const $auth = React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
+const $offline = React.lazy(() => import('@xrengine/client/src/pages/offline/offline'))
 const $503 = React.lazy(() => import('../pages/503'))
 const $404 = React.lazy(() => import('../pages/404'))
 
@@ -44,6 +45,7 @@ function RouterComp(props) {
             {customRoutes.map((route, i) => (
               <Route key={`custom-route-${i}`} path={route.route} component={route.component} {...route.props} />
             ))}
+            <Route key={'offline'} path={'/offline'} component={$offline} />
             {/* default to allowing admin access regardless */}
             <Route key={'default-admin'} path={'/admin'} component={$admin} />
             <Route key={'default-auth'} path={'/auth'} component={$auth} />

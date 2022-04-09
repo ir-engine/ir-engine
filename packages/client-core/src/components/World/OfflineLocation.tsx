@@ -1,5 +1,4 @@
 import React from 'react'
-import { Quaternion, Vector3 } from 'three'
 
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { HostUserId } from '@xrengine/common/src/interfaces/UserId'
@@ -12,7 +11,7 @@ import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/rece
 import { client } from '../../feathers'
 import GameServerWarnings from './GameServerWarnings'
 
-export const NetworkInstanceProvisioning = () => {
+export const OfflineLocation = () => {
   const engineState = useEngineState()
   const authState = useAuthState()
 
@@ -60,4 +59,4 @@ export const NetworkInstanceProvisioning = () => {
   return <GameServerWarnings />
 }
 
-export default NetworkInstanceProvisioning
+export default OfflineLocation

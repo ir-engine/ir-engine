@@ -1,9 +1,12 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Redirect, Route, Switch } from 'react-router-dom'
 
 const locationPage = React.lazy(() => import('./[locationName]'))
 
 const LocationRoutes = () => {
+  useEffect(() => {
+    console.log('offline route loaded')
+  }, [])
   return (
     <Switch>
       <Route exact path="/offline/:projectName/:sceneName" component={locationPage} />

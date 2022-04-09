@@ -8,8 +8,11 @@ import { LoadEngineWithScene } from '@xrengine/client-core/src/components/World/
 import LoadLocationScene from '@xrengine/client-core/src/components/World/LoadLocationScene'
 import NetworkInstanceProvisioning from '@xrengine/client-core/src/components/World/NetworkInstanceProvisioning'
 import OfflineLocation from '@xrengine/client-core/src/components/World/OfflineLocation'
-import { LocationAction } from '@xrengine/client-core/src/social/services/LocationService'
+import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
+import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
+import { SceneService } from '@xrengine/client-core/src/world/services/SceneService'
+import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 const LocationPage = () => {
@@ -18,6 +21,7 @@ const LocationPage = () => {
   const { search } = useLocation()
   const dispatch = useDispatch()
   const engineState = useEngineState()
+  const locationState = useLocationState()
   const offline = new URLSearchParams(search).get('offline') === 'true'
 
   const params = match.params as any
@@ -25,7 +29,18 @@ const LocationPage = () => {
 
   useEffect(() => {
     dispatch(LocationAction.setLocationName(locationName))
-  })
+    AuthService.listenForUserPatch()
+  }, [])
+
+  /**
+   * Once we have the location, fetch the current scene data
+   */
+  useHookedEffect(() => {
+    if (locationState.currentLocation.location.sceneId.value) {
+      const [project, scene] = locationState.currentLocation.location.sceneId.value.split('/')
+      SceneService.fetchCurrentScene(project, scene)
+    }
+  }, [locationState.currentLocation.location.sceneId])
 
   return (
     <Layout useLoadingScreenOpacity pageTitle={t('location.locationName.pageTitle')}>
