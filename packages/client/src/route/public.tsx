@@ -24,7 +24,7 @@ function RouterComp(props) {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
 
   useEffect(() => {
-    AuthService.doLoginAuto(true)
+    AuthService.doLoginAuto()
     Network.instance.transportHandler = new ClientTransportHandler()
     createEngine()
     initializeBrowser()
