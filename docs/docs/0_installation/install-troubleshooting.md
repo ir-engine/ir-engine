@@ -137,4 +137,4 @@ or if on windows
 npm run dev-reinit-windows
 ```
 
-[Next =>>](./01.2-running-on-static-IP.md)
+[Next =>>](running-on-static-IP.md)
