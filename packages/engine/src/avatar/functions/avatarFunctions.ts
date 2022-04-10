@@ -7,6 +7,7 @@ import {
   DoubleSide,
   Group,
   Material,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   Object3D,
@@ -179,7 +180,7 @@ export const setupAvatarMaterials = (root) => {
     if (object.isBone) object.visible = false
     if (object.material && object.material.clone) {
       const material = object.material.clone()
-      addBoneOpacityParamsToMaterial(material, 5) // Head bone
+      setupHeadDecap(root, material)
       materialList.push({
         id: object.uuid,
         material: material
@@ -277,22 +278,72 @@ export function getDefaultSkeleton(): SkinnedMesh {
 }
 
 /**
+ * Adds required parameters to mesh's material
+ * to enable avatar's head decapitation (opacity fade)
+ * @param model
+ * @param material
+ * @returns
+ */
+function setupHeadDecap(model: Object3D, material: Material) {
+  const mesh = model.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
+
+  if (!mesh) {
+    console.warn("Could not find object's SkinnedMesh", model)
+    return
+  }
+
+  const bones = mesh.skeleton.bones
+  const headBone = bones.find((bone) => /head/i.test(bone.name))
+
+  if (!headBone) {
+    console.warn("Could not find SkinnedMesh's head bone", mesh)
+    return
+  }
+
+  const bonesIndexes = getBoneChildrenIndexes(bones, headBone)
+  const bonesToFade = new Matrix4()
+  bonesToFade.elements.fill(-1)
+  const loopLength = Math.min(bonesToFade.elements.length, bonesIndexes.length)
+
+  for (let i = 0; i < loopLength; i++) {
+    bonesToFade.elements[i] = bonesIndexes[i]
+  }
+
+  addBoneOpacityParamsToMaterial(material, bonesToFade)
+}
+
+/**
+ * Returns list of a bone's child indexes in bones list
+ * including the starting bone
+ * @param bones list of bones to search
+ * @param startingBone bone to find childrend index from
+ * @returns
+ */
+function getBoneChildrenIndexes(bones: Object3D[], startingBone: Object3D): number[] {
+  const indexes: number[] = []
+
+  startingBone.traverse((c) => {
+    indexes.push(bones.findIndex((b) => c.name === b.name))
+  })
+
+  return indexes
+}
+
+/**
  * Adds opacity setting to a material based on single bone
  *
  * @param material
- * @param boneIndex
+ * @param boneIndexes
  */
-export const addBoneOpacityParamsToMaterial = (material, boneIndex = -1) => {
+export function addBoneOpacityParamsToMaterial(material, boneIndexes: Matrix4) {
   material.transparent = true
   material.needsUpdate = true
   material.onBeforeCompile = (shader, renderer) => {
-    shader.uniforms.boneIndexToFade = { value: boneIndex }
-    shader.uniforms.boneWeightThreshold = { value: 0.9 }
+    shader.uniforms.boneIndexToFade = { value: boneIndexes }
     shader.uniforms.boneOpacity = { value: 1.0 }
 
     // Vertex Uniforms
-    const vertexUniforms = `uniform float boneIndexToFade;
-      uniform float boneWeightThreshold;
+    const vertexUniforms = `uniform mat4 boneIndexToFade;
       varying float vSelectedBone;`
 
     shader.vertexShader = insertBeforeString(shader.vertexShader, 'varying vec3 vViewPosition;', vertexUniforms)
@@ -303,11 +354,18 @@ export const addBoneOpacityParamsToMaterial = (material, boneIndex = -1) => {
       `
       vSelectedBone = 0.0;
 
-      if((skinIndex.x == boneIndexToFade && skinWeight.x >= boneWeightThreshold) || 
-      (skinIndex.y == boneIndexToFade && skinWeight.y >= boneWeightThreshold) ||
-      (skinIndex.z == boneIndexToFade && skinWeight.z >= boneWeightThreshold) ||
-      (skinIndex.w == boneIndexToFade && skinWeight.w >= boneWeightThreshold)){
-          vSelectedBone = 1.0;
+      for(float i=0.0; i<16.0 && vSelectedBone == 0.0; i++){
+          int x = int(i/4.0);
+          int y = int(mod(i,4.0));
+          float boneIndex = boneIndexToFade[x][y];
+          if(boneIndex < 0.0) continue;
+
+          for(int j=0; j<4; j++){
+              if(skinIndex[j] == boneIndex){
+                  vSelectedBone = 1.0;
+                  break;
+              }
+          }
       }
       `
     )
