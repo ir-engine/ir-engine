@@ -3,27 +3,16 @@ import { useTranslation } from 'react-i18next'
 
 import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 
 import { retrieveLocationByName } from './LocationLoadHelper'
 
-interface Props {
-  locationName: string
-}
-
-export const LoadLocationScene = (props: Props) => {
+export const LoadLocationScene = () => {
   const { t } = useTranslation()
   const authState = useAuthState()
   const locationState = useLocationState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const dispatch = useDispatch()
-
-  /**
-   * Try to log in
-   */
-  useEffect(() => {
-    AuthService.doLoginAuto(true)
-  }, [])
 
   /**
    * Once we have logged in, retrieve the location data
@@ -36,10 +25,10 @@ export const LoadLocationScene = (props: Props) => {
       selfUser?.locationBans?.value?.find((ban) => ban.locationId === currentLocation.id.value) != null
     dispatch(LocationAction.socialSelfUserBanned(isUserBanned))
 
-    if (!isUserBanned && !locationState.fetchingCurrentLocation.value) {
-      retrieveLocationByName(authState, props.locationName)
+    if (!isUserBanned && !locationState.fetchingCurrentLocation.value && locationState.locationName.value) {
+      retrieveLocationByName(authState, locationState.locationName.value)
     }
-  }, [authState.isLoggedIn.value, authState.user.id.value])
+  }, [authState.isLoggedIn, authState.user.id, locationState.locationName])
 
   if (isUserBanned) return <div className="banned">{t('location.youHaveBeenBannedMsg')}</div>
 
