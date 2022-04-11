@@ -4,11 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { UserSetting } from '@xrengine/common/src/interfaces/User'
 import { AvatarSettings } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
-import { bindXRHandEvents } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
 
 import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
 import Checkbox from '@mui/material/Checkbox'
@@ -30,7 +28,7 @@ const SettingMenu = (): JSX.Element => {
   const authState = useAuthState()
   const selfUser = authState.user
   const [userSettings, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
-  const [controlTypeSelected, setControlType] = React.useState('')
+  const [controlTypeSelected, setControlType] = React.useState(rendererState.controlType.value)
   const [controlSchemeSelected, setControlScheme] = React.useState(
     AvatarMovementScheme[AvatarSettings.instance.movementScheme]
   )
@@ -44,16 +42,7 @@ const SettingMenu = (): JSX.Element => {
 
   const handleChangeControlType = (event: SelectChangeEvent) => {
     setControlType(event.target.value)
-    if (AvatarControllerType.XRHands == event.target.value) {
-      // dispatchLocal(EngineActions.xrStart() as any)
-      // bindXRHandEvents()
-    }
-
-    if (AvatarControllerType.OculusQuest == event.target.value) {
-    }
-
-    if (AvatarControllerType.None == event.target.value) {
-    }
+    dispatchLocal(EngineRendererAction.setControlType(event.target.value))
   }
 
   const handleChangeControlScheme = (event: SelectChangeEvent) => {
@@ -68,7 +57,6 @@ const SettingMenu = (): JSX.Element => {
           <Typography variant="h4" className={styles.settingHeader}>
             {t('user:usermenu.setting.audio')}
           </Typography>
-          ∏∏
           <div className={styles.row}>
             <span className={styles.materialIconBlock}>
               <VolumeUp color="primary" />
