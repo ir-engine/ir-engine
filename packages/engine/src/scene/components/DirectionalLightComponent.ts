@@ -12,6 +12,7 @@ export type DirectionalLightComponentType = {
   shadowRadius: number
   cameraFar: number
   showCameraHelper: boolean
+  useInCSM: boolean
 }
 
 export const DirectionalLightComponent =

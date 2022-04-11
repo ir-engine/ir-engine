@@ -1,4 +1,4 @@
-import { LinearToneMapping, Mesh, PCFSoftShadowMap, PerspectiveCamera, Vector3 } from 'three'
+import { DirectionalLight, LinearToneMapping, Mesh, PCFSoftShadowMap, PerspectiveCamera, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -15,8 +15,11 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { EngineEvents } from '../../../ecs/classes/EngineEvents'
 import { accessEngineState } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
+import { DirectionalLightComponent } from '../../../scene/components/DirectionalLightComponent'
+import { Object3DComponent } from '../../../scene/components/Object3DComponent'
+import { VisibleComponent } from '../../../scene/components/VisibleComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { RenderSettingComponent, RenderSettingComponentType } from '../../components/RenderSettingComponent'
 
@@ -70,23 +73,47 @@ export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => 
     Engine.renderer.shadowMap.enabled = false
   }
 
-  if (component.csm && Engine.renderer.shadowMap.enabled) {
-    if (accessEngineState().sceneLoaded.value) initializeCSM()
-    else receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, initializeCSM)
+  if (Engine.renderer.shadowMap.enabled) {
+    if (component.csm) {
+      if (accessEngineState().sceneLoaded.value) initializeCSM()
+      else receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, initializeCSM)
+    } else {
+      disposeCSM()
+    }
   }
 }
 
 export const initializeCSM = () => {
-  if (!Engine.isHMD)
+  if (!Engine.isHMD) {
+    let lights
+    let activeCSMLight
+    if (Engine.activeCSMLightEntity) {
+      activeCSMLight = getComponent(Engine.activeCSMLightEntity, Object3DComponent)?.value as DirectionalLight
+      lights = [activeCSMLight]
+
+      if (hasComponent(Engine.activeCSMLightEntity, VisibleComponent))
+        removeComponent(Engine.activeCSMLightEntity, VisibleComponent)
+    }
+
+    Engine.directionalLightEntities.forEach((entity) => {
+      const light = getComponent(entity, Object3DComponent)?.value
+      if (light) light.castShadow = false
+    })
+
     Engine.csm = new CSM({
       camera: Engine.camera as PerspectiveCamera,
       parent: Engine.scene,
-      lights: Engine.directionalLights
+      lights
     })
 
-  Engine.scene.traverse((obj: Mesh) => {
-    if (typeof obj.material !== 'undefined' && obj.receiveShadow) Engine.csm.setupMaterial(obj)
-  })
+    if (activeCSMLight) {
+      activeCSMLight.getWorldDirection(Engine.csm.lightDirection)
+    }
+
+    Engine.scene.traverse((obj: Mesh) => {
+      if (typeof obj.material !== 'undefined' && obj.receiveShadow) Engine.csm.setupMaterial(obj)
+    })
+  }
 }
 
 export const disposeCSM = () => {
@@ -95,6 +122,17 @@ export const disposeCSM = () => {
   Engine.csm.remove()
   Engine.csm.dispose()
   Engine.csm = undefined!
+
+  if (Engine.activeCSMLightEntity) {
+    if (!hasComponent(Engine.activeCSMLightEntity, VisibleComponent)) {
+      addComponent(Engine.activeCSMLightEntity, VisibleComponent, {})
+    }
+  }
+
+  Engine.directionalLightEntities.forEach((entity) => {
+    const light = getComponent(entity, Object3DComponent)?.value
+    if (light) light.castShadow = getComponent(entity, DirectionalLightComponent).castShadow
+  })
 }
 
 export const resetEngineRenderer = (resetLODs = false) => {

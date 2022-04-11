@@ -15,8 +15,6 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { initSystems, SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import {
-  createEngine,
-  initializeBrowser,
   initializeCoreSystems,
   initializeRealtimeSystems,
   initializeSceneSystems
@@ -96,10 +94,6 @@ const injectedSystems: SystemModuleType<any>[] = [
 ]
 
 export const initEngine = async () => {
-  if (Engine.isInitialized) return
-  Network.instance.transportHandler = new ClientTransportHandler()
-  createEngine()
-  initializeBrowser()
   await initializeCoreSystems(injectedSystems)
 }
 

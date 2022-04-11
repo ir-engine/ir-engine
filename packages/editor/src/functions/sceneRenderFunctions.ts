@@ -57,8 +57,6 @@ export const SceneState: SceneStateType = {
 
 export async function initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
   EngineRenderer.instance.disableUpdate = true
-  if (SceneState.isInitialized) disposeScene()
-
   SceneState.isInitialized = false
 
   if (!Engine.scene) Engine.scene = new Scene()
@@ -231,6 +229,8 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
 }*/
 
 export function disposeScene() {
+  Engine.activeCSMLightEntity = null
+  Engine.directionalLightEntities = []
   if (Engine.activeCameraEntity) removeEntity(Engine.activeCameraEntity, true)
   if (SceneState.gizmoEntity) removeEntity(SceneState.gizmoEntity, true)
   if (SceneState.editorEntity) removeEntity(SceneState.editorEntity, true)
@@ -259,6 +259,7 @@ export function disposeScene() {
       removeEntity(entity, true)
     }
     emptyEntityTree(eTree)
+    eTree.entityNodeMap.clear()
     eTree.uuidNodeMap.clear()
     Engine.scene.clear()
   }
