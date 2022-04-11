@@ -1,4 +1,4 @@
-import { createState, none, useState } from '@speigg/hookstate'
+﻿import { createState, none, useState } from '@speigg/hookstate'
 import Hls from 'hls.js'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
@@ -443,7 +443,7 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
     const selfUser = accessAuthState().user.value
     const { message } = params
     if (message != undefined && message.text != undefined) {
-      if (message.text.startsWith('!voice|')) {
+      if (message.text.startsWith('!voice|') || message.text.startsWith('!voiceUrl|')) {
         return
       }
 

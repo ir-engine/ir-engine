@@ -40,7 +40,6 @@ import styles from './MediaIconsBox.module.scss'
 export const soundEvent = new EventEmitter()
 export let soundFunc: Function
 export function setSoundFunction(func: Function) {
-  console.log('sound function set')
   soundFunc = func
 }
 
@@ -123,6 +122,7 @@ const MediaIconsBox = (props) => {
     if (await configureMediaTransports(mediaTransport, ['audio'])) {
       if (MediaStreams.instance?.camAudioProducer == null) {
         await createCamAudioProducer(mediaTransport)
+        soundEvent.emit('updateInput', true)
       } else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
         if (audioPaused) {
