@@ -29,10 +29,10 @@ const Avatar = () => {
   return (
     <React.Fragment>
       <Grid container spacing={1} className={styles.mb10px}>
-        <Grid item md={8} xs={6}>
+        <Grid item xs={12} sm={8}>
           <Search text="avatar" handleChange={handleChange} />
         </Grid>
-        <Grid item md={4} xs={6}>
+        <Grid item xs={12} sm={4}>
           <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={handleClickOpen}>
             {t('user:avatar.createAvatar')}
           </Button>
