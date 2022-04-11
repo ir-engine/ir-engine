@@ -57,8 +57,6 @@ export const SceneState: SceneStateType = {
 
 export async function initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
   EngineRenderer.instance.disableUpdate = true
-  if (SceneState.isInitialized) disposeScene()
-
   SceneState.isInitialized = false
 
   if (!Engine.scene) Engine.scene = new Scene()
@@ -258,6 +256,7 @@ export function disposeScene() {
       removeEntity(entity, true)
     }
     emptyEntityTree(eTree)
+    eTree.entityNodeMap.clear()
     eTree.uuidNodeMap.clear()
     Engine.scene.clear()
   }
