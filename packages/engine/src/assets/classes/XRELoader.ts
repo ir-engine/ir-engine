@@ -1,8 +1,11 @@
 import { FileLoader } from 'three'
 
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { gltfToSceneJson } from '@xrengine/engine/src/scene/functions/GLTFConversion'
-import { loadECSData, loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { loadECSData, loadSceneFromJSON, preCacheAssets } from '@xrengine/engine/src/scene/functions/SceneLoading'
 
 import { AssetLoader } from './AssetLoader'
 
@@ -19,14 +22,16 @@ export class XRELoader {
 
   load(
     _url: string,
-    onLoad = (response: any) => {},
+    onLoad = (response: EntityTreeNode) => {},
     onProgress = (request: ProgressEvent) => {},
     onError = (event: ErrorEvent | Error) => {}
   ) {
     const url = AssetLoader.getAbsolutePath(_url)
     const loadCallback = (response) => {
       const result = gltfToSceneJson(JSON.parse(response))
-      loadECSData(result)
+      return Promise.all(preCacheAssets(result, () => {}))
+        .then(() => loadECSData(result))
+        .then(onLoad)
     }
     this.fileLoader.load(url, loadCallback, onProgress, onError)
   }

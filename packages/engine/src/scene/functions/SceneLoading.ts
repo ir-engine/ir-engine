@@ -48,7 +48,7 @@ export const preCacheAssets = (sceneData: SceneJson, onProgress) => {
   return promises
 }
 
-export const loadECSData = async (sceneData: SceneJson, world = useWorld()) => {
+export const loadECSData = async (sceneData: SceneJson, world = useWorld()): Promise<EntityTreeNode> => {
   const root = world.entityTree.rootNode
   const entityMap = {} as { [key: string]: EntityTreeNode }
   const entities = Object.entries(sceneData.entities)
@@ -60,9 +60,11 @@ export const loadECSData = async (sceneData: SceneJson, world = useWorld()) => {
   entities.forEach(([uuid, data]) => {
     const sceneEntity = data
     const node = entityMap[uuid]
-    if (uuid === sceneData.root) addEntityNodeInTree(node, root)
-    else addEntityNodeInTree(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
+    if (uuid === sceneData.root) {
+      addEntityNodeInTree(node, root)
+    } else addEntityNodeInTree(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
   })
+  return entityMap[sceneData.root]
 }
 
 /**

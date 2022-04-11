@@ -1,22 +1,69 @@
-import { Engine } from 'src/ecs/classes/Engine'
-import { EntityNodeComponent } from 'src/scene/components/EntityNodeComponent'
 import { Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '@xrengine/engine/src/common/constants/PrefabFunctionType'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { AssetComponent, AssetComponentType } from '@xrengine/engine/src/scene/components/AssetComponent'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import {
+  removeEntityNodeFromParent,
+  reparentEntityNode,
+  traverseEntityNode
+} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import {
+  AssetComponent,
+  AssetComponentType,
+  AssetLoadedComponent
+} from '@xrengine/engine/src/scene/components/AssetComponent'
+import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 export const SCENE_COMPONENT_ASSET = 'asset'
 export const SCENE_COMPONENT_ASSET_DEFAULT_VALUES = {
-  path: ''
+  path: '',
+  loaded: false
+}
+
+export const unloadAsset = (entity: Entity) => {
+  //hasComponent(entity, AssetLoadedComponent) && removeComponent(entity, AssetLoadedComponent)
+  const nodeMap = useWorld().entityTree.entityNodeMap
+  const node = nodeMap.get(entity)!
+  const ass = getComponent(entity, AssetComponent)
+
+  traverseEntityNode(node, (child) => {
+    if (child.entity === entity) return
+    removeEntityNodeFromParent(child)
+    removeEntity(child.entity, true)
+  })
+
+  ass.loaded = false
+}
+
+export const loadAsset = async (entity: Entity) => {
+  //!hasComponent(entity, AssetLoadedComponent) && addComponent(entity, AssetLoadedComponent, {})
+  const ass = getComponent(entity, AssetComponent)
+  const nodeMap = useWorld().entityTree.entityNodeMap
+  if (AssetLoader.getAssetType(ass.path) !== AssetType.XRE) {
+    throw Error('only .xre.gltf files currently supported')
+  }
+  const result = await AssetLoader.loadAsync(ass.path)
+  console.log('loaded asset to node', result, 'from', ass.path)
+  reparentEntityNode(result, nodeMap.get(entity)!)
+  ass.loaded = true
 }
 
 export const deserializeAsset: ComponentDeserializeFunction = async (
@@ -32,18 +79,6 @@ export const deserializeAsset: ComponentDeserializeFunction = async (
   addComponent(entity, AssetComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ASSET)
-
-  updateAsset(entity, props)
-}
-
-export const updateAsset: ComponentUpdateFunction = (entity: Entity, props: AssetComponentType) => {
-  const comp = getComponent(entity, AssetComponent) as AssetComponentType
-  if (!comp) return
-
-  if (props.path) {
-    const asset = AssetLoader.getFromCache(props.path)
-    console.log('loaded asset', asset)
-  }
 }
 
 export const serializeAsset: ComponentSerializeFunction = (entity) => {

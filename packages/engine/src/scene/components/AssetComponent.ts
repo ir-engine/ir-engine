@@ -1,7 +1,9 @@
-import { AssetType } from 'src/assets/enum/AssetType'
-import { createMappedComponent } from 'src/ecs/functions/ComponentFunctions'
+import { AssetType } from '../../assets/enum/AssetType'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type AssetId = string
+
+export type AssetLoadedComponentType = {}
 
 export type AssetComponentType = {
   path: AssetId
@@ -13,3 +15,5 @@ export type AssetComponentType = {
 }
 
 export const AssetComponent = createMappedComponent<AssetComponentType>('AssetComponent')
+
+export const AssetLoadedComponent = createMappedComponent<AssetLoadedComponentType>('AssetLoadedComponent')
