@@ -455,7 +455,8 @@
             "shadowBias": -0.0009999999999998899,
             "shadowRadius": 1,
             "cameraFar": 500,
-            "showCameraHelper": false
+            "showCameraHelper": false,
+            "useInCSM": true
           }
         }
       ],
