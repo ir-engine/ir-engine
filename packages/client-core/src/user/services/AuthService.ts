@@ -160,7 +160,7 @@ accessAuthState().attach(() => ({
 
 //Service
 export const AuthService = {
-  doLoginAuto: async (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
+  doLoginAuto: async (forceClientAuthReset?: boolean) => {
     const dispatch = useDispatch()
     try {
       console.log(accessStoredLocalState().attach(Downgraded))
@@ -168,12 +168,8 @@ export const AuthService = {
       let accessToken =
         forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
 
-      if (allowGuest !== true && accessToken == null) {
-        return
-      }
-
       if (forceClientAuthReset === true) await (client as any).authentication.reset()
-      if (allowGuest === true && (accessToken == null || accessToken.length === 0)) {
+      if (accessToken == null || accessToken.length === 0) {
         const newProvider = await client.service('identity-provider').create({
           type: 'guest',
           token: v1()
@@ -397,7 +393,7 @@ export const AuthService = {
       .catch(() => dispatch(AuthAction.didLogout()))
       .finally(() => {
         dispatch(AuthAction.actionProcessing(false))
-        AuthService.doLoginAuto(true, true)
+        AuthService.doLoginAuto(true)
       })
   },
   registerUserByEmail: (form: EmailRegistrationForm) => {
