@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Object3D, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
-  MAX_ALLOWED_TRIANGLES,
   MAX_AVATAR_FILE_SIZE,
   MIN_AVATAR_FILE_SIZE,
   REGEX_VALID_URL,

@@ -13,10 +13,6 @@ import { AvatarService } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
 import ViewAvatar from './ViewAvatar'
 
-if (!global.setImmediate) {
-  global.setImmediate = setTimeout as any
-}
-
 interface Props {
   // locationState?: any
   search: string
