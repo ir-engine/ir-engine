@@ -61,7 +61,8 @@ export class Engine {
   static xrSession: XRSession = null!
   static csm: CSM = null!
   static isCSMEnabled = false
-  static directionalLights: DirectionalLight[] = []
+  static directionalLightEntities: Entity[] = []
+  static activeCSMLightEntity: Entity | null = null
   /**
    * Reference to the three.js scene object.
    */

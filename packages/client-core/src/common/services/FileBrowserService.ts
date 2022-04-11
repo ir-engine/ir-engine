@@ -38,30 +38,20 @@ let _lastDir = null! as string
 export const FileBrowserService = {
   fetchFiles: async (directory: string = _lastDir) => {
     _lastDir = directory
-    const dispatch = useDispatch()
     const files = await client.service('file-browser').get(directory)
-    console.log('FileBrowserService.fetchFiles result', files)
-    dispatch(FileBrowserAction.filesFetched(files))
+    useDispatch()(FileBrowserAction.filesFetched(files))
   },
-  putContent: async (path, body, contentType) => {
-    const result = await client.service('file-browser').patch(path, { body, contentType })
-    console.log('FileBrowserService.putContent result', result)
-    FileBrowserService.fetchFiles()
+  putContent: async (path: string, body: Buffer, contentType: string) => {
+    return client.service('file-browser').patch(path, { body, contentType })
   },
-  moveContent: async (from, destination, isCopy = false, renameTo = null! as string) => {
-    // console.log(from, destination, isCopy, renameTo)
-    // console.warn('[File Browser]: Temporarily disabled for instability. - TODO')
-    const result = await client.service('file-browser').update(from, { destination, isCopy, renameTo })
-    // console.log('FileBrowserService.moveContent result', result)
+  moveContent: async (oldName: string, newName: string, oldPath: string, newPath: string, isCopy = false) => {
+    return client.service('file-browser').update(null, { oldName, newName, oldPath, newPath, isCopy })
   },
   deleteContent: async (contentPath, type) => {
-    const result = await client.service('file-browser').remove(contentPath, { query: { type } })
-    console.log('FileBrowserService.deleteContent result', result)
+    return client.service('file-browser').remove(contentPath, { query: { type } })
   },
-  addNewFolder: async (folderName) => {
-    const result = await client.service(`file-browser`).create(folderName)
-    console.log('FileBrowserService.addNewFolder result', result)
-    FileBrowserService.fetchFiles()
+  addNewFolder: (folderName: string) => {
+    return client.service(`file-browser`).create(folderName)
   }
 }
 

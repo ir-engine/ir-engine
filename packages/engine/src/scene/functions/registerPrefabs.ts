@@ -121,7 +121,8 @@ export const defaultSpatialComponents: ComponentJson[] = [
 
 export const registerPrefabs = (world: World) => {
   world.scenePrefabRegistry.set(ScenePrefabs.directionalLight, [
-    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_DIRECTIONAL_LIGHT, props: SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES }
   ])
 

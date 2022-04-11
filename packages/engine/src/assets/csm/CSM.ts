@@ -10,8 +10,7 @@ import {
   ShaderChunk,
   Shader as ShaderType,
   Vector2,
-  Vector3,
-  WebGLRenderTarget
+  Vector3
 } from 'three'
 
 import Frustum from './Frustum'
@@ -97,6 +96,32 @@ export class CSM {
     this.injectInclude()
   }
 
+  changeLights(light: DirectionalLight): void {
+    this.remove()
+    this.createLights([light])
+    this.updateShadowBounds()
+  }
+
+  updateProperty(key: string, value: any): void {
+    const props = key.split('.')
+    const last = props[props.length - 1]
+    this.lights.forEach((light) => {
+      light.forEach((cascade) => {
+        let obj = cascade
+
+        for (let i = 0; i < props.length - 1; i++) {
+          obj = obj[props[i]]
+        }
+
+        if (obj[last] && typeof obj[last].copy === 'function') {
+          obj[last].copy(value)
+        } else {
+          obj[last] = value
+        }
+      })
+    })
+  }
+
   createLights(lights?: DirectionalLight[]): void {
     // TODO: support multiple lights (requires shader changes)
 
@@ -112,6 +137,8 @@ export class CSM {
         light.visible = true
         this.parent.add(light, light.target)
         this.lights[sourceLightIndex].push(light)
+        light.name = 'CSM_' + light.name
+        light.target.name = 'CSM_' + light.target.name
       }
 
       return
@@ -134,6 +161,8 @@ export class CSM {
 
       this.parent.add(light, light.target)
       this.lights[0].push(light)
+      light.name = 'CSM_' + light.name
+      light.target.name = 'CSM_' + light.target.name
     }
   }
 
@@ -376,9 +405,9 @@ export class CSM {
     const shaders = this.shaders
     shaders.forEach(function (shader: ShaderType, material: Material) {
       material.onBeforeCompile = () => {}
-      material.defines!.USE_CSM = null!
-      material.defines!.CSM_CASCADES = null!
-      material.defines!.CSM_FADE = null!
+      delete material.defines!.USE_CSM
+      delete material.defines!.CSM_CASCADES
+      delete material.defines!.CSM_FADE
 
       if (shader !== null) {
         delete shader.uniforms.CSM_cascades

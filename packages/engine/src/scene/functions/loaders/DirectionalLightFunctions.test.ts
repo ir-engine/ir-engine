@@ -14,14 +14,14 @@ describe('DirectionalLightFunctions', () => {
   describe('deserializeDirectionalLight', async () => {
     // reset globals
     afterEach(() => {
-      Engine.directionalLights = []
+      Engine.directionalLightEntities = []
     })
 
     it('with CSM', () => {
       const world = createWorld()
       Engine.currentWorld = world
       Engine.isCSMEnabled = true
-      Engine.directionalLights = []
+      Engine.directionalLightEntities = []
 
       const entity = createEntity()
 
@@ -33,7 +33,8 @@ describe('DirectionalLightFunctions', () => {
         shadowMapResolution: [32, 32],
         shadowBias: 0.1,
         shadowRadius: 10,
-        cameraFar: 123
+        cameraFar: 123,
+        useInCSM: true
       }
       const sceneComponent: ComponentJson = {
         name: 'directional-light',
@@ -42,9 +43,10 @@ describe('DirectionalLightFunctions', () => {
 
       deserializeDirectionalLight(entity, sceneComponent)
 
-      const light = Engine.directionalLights[0]
+      const activeCSMLightEntity = Engine.directionalLightEntities[0]
+      const light = getComponent(activeCSMLightEntity, Object3DComponent)?.value as DirectionalLight
 
-      assert(!hasComponent(entity, Object3DComponent))
+      console.debug(light.castShadow)
       assert(light)
       assert(light.color instanceof Color)
       assert.deepEqual(light.color.toArray(), color.toArray())
@@ -53,7 +55,7 @@ describe('DirectionalLightFunctions', () => {
       assert.deepEqual(light.shadow.bias, 0.1)
       assert.deepEqual(light.shadow.radius, 10)
       assert.deepEqual(light.shadow.camera.far, 123)
-      assert.deepEqual(light.castShadow, true)
+      assert.deepEqual(light.castShadow, false)
     })
 
     it('without CSM', () => {
