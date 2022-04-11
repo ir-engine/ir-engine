@@ -274,11 +274,11 @@ export const ChatService = {
           }
         }
 
-        const controlType = text
+        const [controlType, param] = text.split(' ')
 
         switch (controlType) {
           case '/playVideo':
-            //d[0].videoSource = videoUrl
+            if (param) videoUrl = param
             if (Hls.isSupported()) {
               console.log('hls is supported')
 
@@ -293,41 +293,6 @@ export const ChatService = {
                 video.muted = true
                 video.play()
               })
-              /*  hls.attachMedia(video)
-              hls.on(Hls.Events.MEDIA_ATTACHED, function () {
-                console.log('media attached')
-                hls.loadSource(videoUrl)
-                hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
-                  console.log('event:', event, 'manifest loaded, found ' + data.levels.length + ' quality level')
-                  video.play()
-                  hls.startLoad(-1)
-                })
-              })
-              hls.on(Hls.Events.ERROR, function (event, data) {
-                var errorType = data.type
-                var errorDetails = data.details
-                var errorFatal = data.fatal
-
-                console.log('Error Type:', errorType, 'Error Details:', errorDetails, 'Error Fatal:', errorFatal)
-
-                if (data.fatal) {
-                  switch (data.type) {
-                    case Hls.ErrorTypes.NETWORK_ERROR:
-                      // try to recover network error
-                      console.log('fatal network error encountered, try to recover')
-                      hls.startLoad()
-                      break
-                    case Hls.ErrorTypes.MEDIA_ERROR:
-                      console.log('fatal media error encountered, try to recover')
-                      hls.recoverMediaError()
-                      break
-                    default:
-                      // cannot recover
-                      hls.destroy()
-                      break
-                  }
-                }
-              })*/
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
               video.src = videoUrl
               video.addEventListener('canplay', function () {
@@ -339,11 +304,21 @@ export const ChatService = {
             video.crossOrigin = 'anonymous';
             video.play() */
             break
+          case '/play':
+            video?.play()
+            break
           case '/pause':
             video?.pause()
             break
           case '/seek':
-            ;(video as any).currentTime = parseFloat(videoUrl)
+            if (!(video as any).paused) {
+              video?.pause()
+            }
+            if (param && parseFloat(param) >= 0) {
+              ;(video as any).currentTime = parseFloat(param)
+            } else {
+              ;(video as any).currentTime = (video as any).currentTime + 0.1
+            }
             break
         }
       }
