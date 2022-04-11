@@ -7,6 +7,7 @@ import { EngineActions } from '../../ecs/classes/EngineService'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 
 export async function overrideXR() {
@@ -121,9 +122,23 @@ export function moveControllerStick(args) {
 // is in world space, so subtract player pos from it
 export function getXRInputPosition() {
   const xrInputs = getComponent(useWorld().localClientEntity, XRInputSourceComponent)
+  const { position } = getComponent(useWorld().localClientEntity, TransformComponent)
+  setInterval(() => {
+    console.log(
+      'position',
+      position.x,
+      position.y,
+      position.z,
+      xrInputs.head.position.x,
+      xrInputs.head.position.y,
+      xrInputs.head.position.z
+    )
+  }, 500)
   const hmd = xrInputs.head.position.toArray().concat(xrInputs.head.quaternion.toArray())
   const left = xrInputs.controllerLeft.position.toArray().concat(xrInputs.controllerLeft.quaternion.toArray())
   const right = xrInputs.controllerRight.position.toArray().concat(xrInputs.controllerRight.quaternion.toArray())
+  console.log(hmd, left, right)
+
   return {
     headInputValue: hmd,
     leftControllerInputValue: left,

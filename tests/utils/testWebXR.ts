@@ -1,7 +1,8 @@
+import assert from 'assert'
+
 import type { XREngineBot } from '@xrengine/bot/src/bot'
 import { XRBotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
 import { compareArrays } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
-import assert from 'assert'
 
 export const setupXR = async (bot: XREngineBot) => {
   await bot.runHook(XRBotHooks.OverrideXR)
@@ -19,6 +20,10 @@ export const testWebXR = (bot: XREngineBot) => {
     const { headInputValue, leftControllerInputValue, rightControllerInputValue } = await bot.runHook(
       XRBotHooks.GetXRInputPosition
     )
+    await bot.delay(10000)
+    console.log(headInputValue)
+    console.log(leftControllerInputValue)
+    console.log(rightControllerInputValue)
     compareArrays(headInputValue, [0, 1.6, 0, 0, 1, 0, 0], 0.01)
     compareArrays(leftControllerInputValue, [-0.5, 1.5, -1, 0, 0, 0, 1], 0.01)
     compareArrays(rightControllerInputValue, [0.5, 1.5, -1, 0, 0, 0, 1], 0.01)
