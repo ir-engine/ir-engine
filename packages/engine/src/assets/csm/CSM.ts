@@ -99,7 +99,7 @@ export class CSM {
   changeLights(light: DirectionalLight): void {
     this.remove()
     this.createLights([light])
-    this.updateFrustums()
+    this.updateShadowBounds()
   }
 
   updateProperty(key: string, value: any): void {

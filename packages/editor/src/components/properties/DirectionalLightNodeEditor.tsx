@@ -31,7 +31,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   useEffect(() => {
     if (!Engine.isCSMEnabled || props.node.entity !== Engine.activeCSMLightEntity) return
 
-    if (selectionState.propertyName.value === 'rotation') {
+    if (selectionState.propertyName.value === 'rotation' && Engine.csm) {
       getComponent(props.node.entity, Object3DComponent)?.value.getWorldDirection(Engine.csm.lightDirection)
     }
 

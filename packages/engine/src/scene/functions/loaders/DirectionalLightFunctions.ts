@@ -25,7 +25,7 @@ export const SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES = {
   intensity: 1,
   castShadow: true,
   shadowMapResolution: [256, 256],
-  shadowBias: 0.5,
+  shadowBias: 0,
   shadowRadius: 1,
   cameraFar: 100,
   showCameraHelper: false,
@@ -99,23 +99,26 @@ export const updateDirectionalLight: ComponentUpdateFunction = (
         activeCSMLight.castShadow = !Engine.isCSMEnabled && activeCSMLightComponent.castShadow
         activeCSMLightComponent.useInCSM = false
 
-        if (activeCSMLight.userData.visibleBeforeCSM && !hasComponent(Engine.activeCSMLightEntity, VisibleComponent)) {
+        if (!hasComponent(Engine.activeCSMLightEntity, VisibleComponent)) {
           addComponent(Engine.activeCSMLightEntity, VisibleComponent, {})
         }
       }
 
-      Engine.csm.changeLights(light)
+      if (Engine.csm) {
+        Engine.csm.changeLights(light)
+        light.getWorldDirection(Engine.csm.lightDirection)
+      }
+
       Engine.activeCSMLightEntity = entity
 
-      light.getWorldDirection(Engine.csm.lightDirection)
-
-      light.userData.visibleBeforeCSM = hasComponent(entity, VisibleComponent)
-      if (light.userData.visibleBeforeCSM) removeComponent(entity, VisibleComponent)
+      if (hasComponent(entity, VisibleComponent)) removeComponent(entity, VisibleComponent)
     } else {
       light.castShadow = !Engine.isCSMEnabled && component.castShadow
       component.useInCSM = false
 
-      if (light.userData.visibleBeforeCSM && !hasComponent(entity, VisibleComponent)) {
+      if (Engine.activeCSMLightEntity === entity) Engine.activeCSMLightEntity = null
+
+      if (!hasComponent(entity, VisibleComponent)) {
         addComponent(entity, VisibleComponent, {})
       }
     }

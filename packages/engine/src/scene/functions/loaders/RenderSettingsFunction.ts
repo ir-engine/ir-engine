@@ -91,12 +91,12 @@ export const initializeCSM = () => {
       activeCSMLight = getComponent(Engine.activeCSMLightEntity, Object3DComponent)?.value as DirectionalLight
       lights = [activeCSMLight]
 
-      activeCSMLight.userData.visibleBeforeCSM = hasComponent(Engine.activeCSMLightEntity, VisibleComponent)
-      if (activeCSMLight.userData.visibleBeforeCSM) removeComponent(Engine.activeCSMLightEntity, VisibleComponent)
+      if (hasComponent(Engine.activeCSMLightEntity, VisibleComponent))
+        removeComponent(Engine.activeCSMLightEntity, VisibleComponent)
     }
 
     Engine.directionalLightEntities.forEach((entity) => {
-      const light = getComponent(entity, Object3DComponent).value
+      const light = getComponent(entity, Object3DComponent)?.value
       if (light) light.castShadow = false
     })
 
@@ -105,6 +105,10 @@ export const initializeCSM = () => {
       parent: Engine.scene,
       lights
     })
+
+    if (activeCSMLight) {
+      activeCSMLight.getWorldDirection(Engine.csm.lightDirection)
+    }
 
     Engine.scene.traverse((obj: Mesh) => {
       if (typeof obj.material !== 'undefined' && obj.receiveShadow) Engine.csm.setupMaterial(obj)
@@ -120,8 +124,7 @@ export const disposeCSM = () => {
   Engine.csm = undefined!
 
   if (Engine.activeCSMLightEntity) {
-    const activeCSMLight = getComponent(Engine.activeCSMLightEntity, Object3DComponent)?.value
-    if (activeCSMLight.userData.visibleBeforeCSM && !hasComponent(Engine.activeCSMLightEntity, VisibleComponent)) {
+    if (!hasComponent(Engine.activeCSMLightEntity, VisibleComponent)) {
       addComponent(Engine.activeCSMLightEntity, VisibleComponent, {})
     }
   }
