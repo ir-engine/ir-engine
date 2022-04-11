@@ -56,7 +56,6 @@ const Dashboard = ({ children }: Props) => {
           <div className={styles.navContainer}>
             <IconButton
               color="inherit"
-              style={{ color: 'white' }}
               aria-label="open drawer"
               onClick={handleDrawerOpen(true)}
               edge="start"
