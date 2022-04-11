@@ -37,7 +37,7 @@ const Projects = () => {
 
   return (
     <div>
-      <Grid container spacing={3} className={styles.mb10px}>
+      <Grid container spacing={1} className={styles.mb10px}>
         <Grid item xs={6}>
           <Button
             className={styles.openModalBtn}
