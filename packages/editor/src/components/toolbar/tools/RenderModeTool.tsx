@@ -28,6 +28,7 @@ const RenderModeTool = () => {
         </div>
       </InfoTooltip>
       <SelectInput
+        key={modeState.renderMode.value}
         className={styles.selectInput}
         onChange={changeRenderMode}
         options={options}

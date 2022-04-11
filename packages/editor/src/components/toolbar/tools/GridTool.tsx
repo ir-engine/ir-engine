@@ -3,14 +3,14 @@ import React, { useEffect, useState } from 'react'
 import GridOnIcon from '@mui/icons-material/GridOn'
 
 import { SceneState } from '../../../functions/sceneRenderFunctions'
-import { useGridToolState } from '../../../services/GridToolServices'
+import { useModeState } from '../../../services/ModeServices'
 import NumericStepperInput from '../../inputs/NumericStepperInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const GridTool = () => {
-  const gridToolState = useGridToolState().value
-  const [isGridVisible, setGridVisible] = useState(gridToolState.visibility)
+  const gridToolState = useModeState().value
+  const [isGridVisible, setGridVisible] = useState(gridToolState.gridVisibility)
   const [gridHeight, setGridHeight] = useState(gridToolState.gridHeight)
 
   useEffect(() => {
@@ -18,8 +18,8 @@ const GridTool = () => {
   }, [gridToolState.gridHeight])
 
   useEffect(() => {
-    updateGridVisibility(gridToolState.visibility)
-  }, [gridToolState.visibility])
+    updateGridVisibility(gridToolState.gridVisibility)
+  }, [gridToolState.gridVisibility])
 
   const updateGridVisibility = (val) => {
     setGridVisible(val)

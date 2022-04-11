@@ -5,16 +5,17 @@ import { store } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 import { RenderModes, RenderModesType } from '../constants/RenderModes'
-import { ModeAction } from '../services/ModeServices'
-import { SceneState } from './sceneRenderFunctions'
+import { accessModeState, ModeAction } from '../services/ModeServices'
 
 /**
  * Change render mode of the renderer
  * @param mode Mode which will be set to renderer
  */
 export function changeRenderMode(mode: RenderModesType): void {
+  const renderMode = accessModeState().renderMode.value
+
   // revert any changes made by a render mode
-  switch (SceneState.renderMode) {
+  switch (renderMode) {
     case RenderModes.UNLIT:
       Engine.scene.traverse((obj: Light) => {
         if (obj.isLight && obj.userData.editor_disabled) {
@@ -26,8 +27,6 @@ export function changeRenderMode(mode: RenderModesType): void {
     default:
       break
   }
-
-  SceneState.renderMode = mode
 
   const passes = Engine.effectComposer?.passes.filter((p) => p.name === 'RenderPass') as any
   const renderPass: RenderPass = passes ? passes[0] : undefined

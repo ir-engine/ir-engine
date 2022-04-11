@@ -78,6 +78,7 @@ const TransformSnapTool = () => {
         </button>
       </InfoTooltip>
       <SelectInput
+        key={modeState.translationSnap.value}
         className={styles.selectInput}
         onChange={onChangeTranslationSnap}
         options={translationSnapOptions}
@@ -86,6 +87,7 @@ const TransformSnapTool = () => {
         isSearchable={false}
       />
       <SelectInput
+        key={modeState.rotationSnap.value}
         className={styles.selectInput}
         onChange={onChangeRotationSnap}
         options={rotationSnapOptions}

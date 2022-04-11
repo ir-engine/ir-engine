@@ -16,11 +16,10 @@ import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
-import { RenderModes, RenderModesType } from '../constants/RenderModes'
 import { ActionSets, EditorMapping } from '../controls/input-mappings'
 import { initInputEvents } from '../controls/InputEvents'
 import { EditorAction } from '../services/EditorServices'
-import { accessModeState } from '../services/ModeServices'
+import { accessModeState, ModeAction } from '../services/ModeServices'
 import { createCameraEntity } from './createCameraEntity'
 import { createEditorEntity } from './createEditorEntity'
 import { createGizmoEntity } from './createGizmoEntity'
@@ -43,7 +42,6 @@ type SceneStateType = {
   gizmoEntity: Entity
   editorEntity: Entity
   onUpdateStats?: (info: WebGLInfo) => void
-  renderMode: RenderModesType
 }
 
 export const SceneState: SceneStateType = {
@@ -51,8 +49,7 @@ export const SceneState: SceneStateType = {
   grid: null!,
   transformGizmo: null!,
   gizmoEntity: null!,
-  editorEntity: null!,
-  renderMode: RenderModes.SHADOW
+  editorEntity: null!
 }
 
 export async function initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
@@ -116,6 +113,7 @@ export function initializeRenderer(): void {
 
     accessEngineRendererState().automatic.set(false)
     dispatchLocal(EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
+    store.dispatch(ModeAction.restoreStorageData())
   } catch (error) {
     console.error(error)
   }
