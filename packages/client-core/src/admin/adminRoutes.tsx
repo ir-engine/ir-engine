@@ -1,15 +1,7 @@
 import React, { Fragment, Suspense, useEffect } from 'react'
 import { Redirect, Switch } from 'react-router-dom'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import {
-  createEngine,
-  initializeBrowser,
-  initializeCoreSystems,
-  initializeSceneSystems
-} from '@xrengine/engine/src/initializeEngine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { initializeCoreSystems, initializeSceneSystems } from '@xrengine/engine/src/initializeEngine'
 
 import CircularProgress from '@mui/material/CircularProgress'
 
@@ -31,8 +23,6 @@ const projects = React.lazy(() => import('./components/Project'))
 const setting = React.lazy(() => import('./components/Setting'))
 
 interface Props {}
-
-const engineRendererCanvasId = 'engine-renderer-canvas'
 
 const ProtectedRoutes = (props: Props) => {
   const admin = useAuthState().user
