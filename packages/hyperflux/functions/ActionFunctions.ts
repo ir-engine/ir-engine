@@ -103,7 +103,7 @@ type PartialAction<T> = Omit<Partial<T>, 'type'>
 type ResolvedActionType<S extends ActionShape<any>> = Required<ActionFromShape<S> & Action>
 
 /**
- *
+ * Defines an action
  * @param actionShape
  * @param options
  *
@@ -191,6 +191,12 @@ function _createActionModifier<A extends Action>(action: A, store: HyperStore) {
   return modifier
 }
 
+/**
+ * Dispatch actions to the store.
+ * @param store
+ * @param action
+ * @returns
+ */
 const dispatchAction = <A extends Action>(store: HyperStore, action: A) => {
   action.$from = action.$from ?? (store.getDispatchId() as UserId)
   action.$to = action.$to ?? 'all'
@@ -202,16 +208,26 @@ const dispatchAction = <A extends Action>(store: HyperStore, action: A) => {
   return _createActionModifier(action, store)
 }
 
+/**
+ * Adds an action receptor to the store
+ * @param store
+ * @param receptor
+ */
 function addActionReceptor(store: HyperStore, receptor: ActionReceptor) {
   store.receptors.push(receptor)
 }
 
+/**
+ * Removes an action receptor from the store
+ * @param store
+ * @param receptor
+ */
 function removeActionReceptor(store: HyperStore, receptor: ActionReceptor) {
   const idx = store.receptors.indexOf(receptor)
   if (idx >= 0) store.reactors.splice(idx, 1)
 }
 
-const updateCachedActions = (store: HyperStore, incomingAction: Required<Action>) => {
+const _updateCachedActions = (store: HyperStore, incomingAction: Required<Action>) => {
   if (incomingAction.$cache) {
     const cachedActions = store.actions.cached
     // see if we must remove any previous actions
@@ -248,12 +264,12 @@ const updateCachedActions = (store: HyperStore, incomingAction: Required<Action>
   }
 }
 
-const applyAndArchiveIncomingAction = (store: HyperStore, action: Required<Action>) => {
+const _applyAndArchiveIncomingAction = (store: HyperStore, action: Required<Action>) => {
   try {
     store[allowStateMutations] = true
     for (const receptor of [...store.receptors]) receptor(action)
     store[allowStateMutations] = false
-    updateCachedActions(store, action)
+    _updateCachedActions(store, action)
     store.actions.history.push(action)
   } catch (e) {
     store.actions.history.push({ $ERROR: e, ...action } as any)
@@ -264,6 +280,12 @@ const applyAndArchiveIncomingAction = (store: HyperStore, action: Required<Actio
   }
 }
 
+/**
+ * This function should be called when an action is received from the network
+ *
+ * @param store
+ * @param action
+ */
 const applyIncomingActions = (store: HyperStore) => {
   const { incoming } = store.actions
   const now = store.getDispatchTime()
@@ -272,10 +294,15 @@ const applyIncomingActions = (store: HyperStore) => {
       continue
     }
     console.log(`${store.name} ACTION ${action.type}`, action)
-    applyAndArchiveIncomingAction(store, action)
+    _applyAndArchiveIncomingAction(store, action)
   }
 }
 
+/**
+ * This function should be called when an authoritative node needs to send actions to the network
+ * and also process the actions locally
+ * @param store
+ */
 const loopbackOutgoingActions = (store: HyperStore) => {
   const { outgoing } = store.actions
   const dispatchId = store.getDispatchId()
@@ -291,7 +318,7 @@ export default {
   dispatchAction,
   addActionReceptor,
   removeActionReceptor,
-  updateCachedActions,
+  updateCachedActions: _updateCachedActions,
   applyIncomingActions,
   loopbackOutgoingActions
 }
