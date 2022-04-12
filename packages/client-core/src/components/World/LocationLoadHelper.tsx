@@ -97,6 +97,10 @@ const injectedSystems: SystemModuleType<any>[] = [
   {
     type: 'PRE_RENDER',
     systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
+  },
+  {
+    type: 'PRE_RENDER',
+    systemModulePromise: import('@xrengine/client-core/src/systems/ChatUISystem')
   }
 ]
 

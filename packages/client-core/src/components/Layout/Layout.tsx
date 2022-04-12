@@ -223,7 +223,7 @@ const Layout = (props: Props): any => {
                 >
                   <Refresh />
                 </button>
-                <InstanceChat animate={styles.animateBottom} />
+                {/*<InstanceChat animate={styles.animateBottom} />*/}
               </div>
             </section>
           </ThemeProvider>
