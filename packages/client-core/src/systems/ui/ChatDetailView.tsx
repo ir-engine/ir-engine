@@ -300,35 +300,29 @@ const ChatDetailView = () => {
           </Card>
         </div>
       </div>
-      {
-        <div
-          style={{
-            margin: '5px 15px 20px 10px',
-            alignItems: 'center',
-            color: '#000',
-            zIndex: '20'
-          }}
+      <div
+        xr-layer=""
+        style={{
+          margin: '5px 15px 20px 10px',
+          alignItems: 'center',
+          zIndex: '20',
+          borderRadius: '50%',
+          color: 'black',
+          width: '50px',
+          height: '50px',
+          fontSize: '20px'
+        }}
+        onClick={() => toggleChatWindow()}
+      >
+        <Badge
+          color="primary"
+          variant="dot"
+          invisible={!unreadMessages}
+          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         >
-          <Badge
-            color="primary"
-            variant="dot"
-            invisible={!unreadMessages}
-            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-          >
-            <Fab
-              style={{ borderRadius: '50%', color: 'black', width: '50px', height: '50px' }}
-              color="primary"
-              onClick={() => toggleChatWindow()}
-            >
-              {!detailState.chatWindowOpen.value ? (
-                <MessageIcon onClick={() => toggleChatWindow()} />
-              ) : (
-                <CloseIcon onClick={() => toggleChatWindow()} />
-              )}
-            </Fab>
-          </Badge>
-        </div>
-      }
+          {!detailState.chatWindowOpen.value ? <MessageIcon /> : <CloseIcon />}
+        </Badge>
+      </div>
     </>
   )
 }
