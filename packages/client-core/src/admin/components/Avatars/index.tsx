@@ -48,6 +48,7 @@ const Avatar = () => {
       {open && (
         <Drawer anchor="right" open={open} onClose={handleClose} classes={{ paper: styles.paperDrawer }}>
           <AvatarSelectMenu
+            adminStyles={styles}
             onAvatarUpload={() => dispatch(AvatarAction.avatarUpdated())}
             changeActiveMenu={handleClose}
           />

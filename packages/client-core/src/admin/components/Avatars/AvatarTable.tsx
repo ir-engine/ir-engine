@@ -142,6 +142,7 @@ const AvatarTable = (props: Props) => {
       {avatarData && viewModal && (
         <Drawer anchor="right" open={viewModal} onClose={closeViewModal} classes={{ paper: styles.paperDrawer }}>
           <AvatarSelectMenu
+            adminStyles={styles}
             onAvatarUpload={() => dispatch(AvatarAction.avatarUpdated())}
             changeActiveMenu={closeViewModal}
             avatarData={avatarData}

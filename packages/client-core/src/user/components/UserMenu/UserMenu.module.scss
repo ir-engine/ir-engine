@@ -194,248 +194,6 @@
     }
   }
 
-  .avatarUploadPanel {
-    position: absolute;
-    bottom: 75px;
-    padding: 0 30px;
-    border-radius: 20px;
-    background-color: var(--purpleLighter);
-    left: 50%;
-    transform: translateX(-50%);
-    box-shadow: 16px 16px 32px 0 #11111159;
-    color: black;
-    max-height: calc(100vh - 100px);
-    overflow: auto;
-    width: 360px;
-    z-index: 1400;
-
-    .avatarHeaderBlock {
-      margin: 30px 0 20px;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-
-      .iconBlock {
-        display: inline-block;
-        cursor: pointer;
-        color: var(--text);
-      }
-
-      h2 {
-        font-size: 18px;
-        color: var(--text);
-        font-weight: bold;
-        display: inline-block;
-        vertical-align: middle;
-        margin-left: 10px;
-      }
-    }
-
-    .controlContainer {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 20px;
-
-      button {
-        height: 35px;
-        background-color: var(--purpleColor1);
-        padding: 0;
-        border: none;
-        color: var(--text);
-        flex-grow: 1;
-        border-radius: 3px;
-        font-size: 14px;
-
-        & > svg {
-          font-size: 18px;
-          margin-left: 5px;
-        }
-
-        &:hover {
-          background-color: var(--purpleColor);
-        }
-      }
-
-      button + button {
-        margin-left: 5px;
-      }
-
-      button[disabled] {
-        background: var(--purpleDarkest);
-        opacity: 1 !important;
-      }
-
-      .browseBtn {
-        & > svg {
-          transform: rotate(180deg);
-        }
-      }
-
-      .uploadBtn {
-        background: var(--purplePinkGradient);
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: bold;
-      }
-
-      button:hover,
-      button:focus {
-        outline: none;
-        opacity: 0.7;
-      }
-
-      .selectBtns {
-        display: flex;
-        justify-content: flex-end;
-        margin: 8px 0;
-      }
-    }
-
-    .stage {
-      border-radius: 5px;
-      overflow: hidden;
-      position: relative;
-
-      .legendContainer {
-        position: absolute;
-        right: 5px;
-        top: 5px;
-
-        & > svg {
-          opacity: 1;
-          color: var(--purpleColor);
-
-          &:hover {
-            opacity: 0.8;
-          }
-        }
-
-        .legend {
-          position: absolute;
-          padding: 10px;
-          background: var(--purplePanel);
-          border-radius: 5px;
-          top: 30px;
-          right: 5px;
-          width: 130px;
-          color: var(--text);
-          font-size: 12px;
-          display: none;
-
-          span {
-            margin-left: 5px;
-          }
-
-          .shiftKey {
-            background: var(--purplePanel);
-            color: var(--text);
-            padding: 2px 4px;
-            border-radius: 4px;
-            font-weight: bold;
-            margin: 0 5px 0 0;
-          }
-
-          svg {
-            font-size: 18px;
-            margin-right: 5px;
-            width: 40px;
-            color: var(--text);
-
-            path {
-              fill: var(--text);
-            }
-          }
-
-          & > div + div {
-            margin-top: 10px;
-          }
-        }
-
-        &:hover {
-          .legend {
-            display: block;
-          }
-        }
-      }
-    }
-
-    .thumbnailContainer {
-      display: flex;
-      width: 100%;
-      margin-top: 8px;
-
-      .thumbnailPreview {
-        max-width: 100px;
-        margin: auto;
-      }
-    }
-
-    .selectLabelContainer {
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-
-      &:last-child {
-        margin-bottom: 10px;
-      }
-
-      .avatarSelectLabel,
-      .thumbnailSelectLabel {
-        margin: 20px 0 8px;
-        font-size: 15px;
-        color: var(--text);
-      }
-    }
-
-    .avatarNameContainer {
-      display: flex;
-      justify-content: space-around;
-      margin: 8px 0;
-
-      .avatarNameInput {
-        color: var(--text);
-        border-color: var(--text);
-        background: transparent;
-
-        input {
-          padding: 5px;
-          font-size: 14px;
-          color: var(--text);
-          border-color: var(--text);
-
-          &::selection {
-            background-color: transparent;
-          }
-        }
-
-        :global(.MuiFormLabel-root) {
-          color: var(--text);
-        }
-
-        :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
-          border-color: white !important;
-        }
-      }
-    }
-
-    .iconBlock {
-      @include icon-block-styling;
-    }
-
-    @media (max-width: 400px) {
-      padding: 0 15px;
-      width: 330px;
-
-      .avatarHeaderBlock {
-        margin-top: 15px;
-      }
-
-      .controlContainer {
-        margin-bottom: 15px;
-      }
-    }
-  }
-
   @media (max-width: 560px) {
     height: 200px;
     bottom: 100px;
@@ -1426,19 +1184,36 @@
 }
 
 .avatarUploadPanel {
-  @include panel-popup-container-styling;
+  position: absolute;
+  bottom: 75px;
+  padding: 0 30px;
+  border-radius: 20px;
+  background-color: var(--purpleLighter);
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 16px 16px 32px 0 #11111159;
+  color: black;
+  max-height: calc(100vh - 100px);
+  overflow: auto;
+  width: 360px;
+  z-index: 1400;
 
   .avatarHeaderBlock {
     margin: 30px 0 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 
     .iconBlock {
       display: inline-block;
-      color: $PurpleButtonColor;
+      cursor: pointer;
+      color: var(--text);
       background: transparent;
     }
 
     h2 {
       font-size: 18px;
+      color: var(--text);
       font-weight: bold;
       display: inline-block;
       vertical-align: middle;
@@ -1449,24 +1224,25 @@
   .controlContainer {
     display: flex;
     flex-direction: column;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 
     button {
       height: 35px;
-      background: var(--purpleColor);
+      background-color: var(--purpleColor1);
       padding: 0;
       border: none;
       color: var(--text);
       flex-grow: 1;
       border-radius: 3px;
       font-size: 14px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
 
       & > svg {
         font-size: 18px;
         margin-left: 5px;
+      }
+
+      &:hover {
+        background-color: var(--purpleColor);
       }
     }
 
@@ -1475,7 +1251,7 @@
     }
 
     button[disabled] {
-      background: grey;
+      background: var(--purpleDarkest);
       opacity: 1 !important;
     }
 
@@ -1487,12 +1263,21 @@
 
     .uploadBtn {
       background: var(--purplePinkGradient);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
     }
 
     button:hover,
     button:focus {
       outline: none;
-      opacity: 0.8;
+      opacity: 0.7;
+    }
+
+    .selectBtns {
+      display: flex;
+      justify-content: flex-end;
+      margin: 8px 0;
     }
   }
 
@@ -1543,7 +1328,7 @@
         svg {
           font-size: 18px;
           margin-right: 5px;
-          vertical-align: middle;
+          width: 40px;
           color: var(--text);
 
           path {
@@ -1578,24 +1363,49 @@
   .selectLabelContainer {
     display: flex;
     justify-content: space-around;
+    padding: 10px 0;
+
+    &:last-child {
+      margin-bottom: 10px;
+    }
 
     .avatarSelectLabel,
     .thumbnailSelectLabel {
-      margin: 20px 3px 8px 0;
+      margin: 20px 0 8px;
       font-size: 15px;
-      color: var(--purpleColor);
-
-      &.avatarSelectError,
-      &.thumbnailSelectError {
-        color: red;
-      }
+      color: var(--text);
     }
   }
 
   .avatarNameContainer {
     display: flex;
     justify-content: space-around;
-    margin-top: 8px;
+    margin: 8px 0;
+
+    .avatarNameInput {
+      color: var(--text);
+      border-color: var(--text);
+      background: transparent;
+
+      input {
+        padding: 5px;
+        font-size: 14px;
+        color: var(--text);
+        border-color: var(--text);
+
+        &::selection {
+          background-color: transparent;
+        }
+      }
+
+      :global(.MuiFormLabel-root) {
+        color: var(--text);
+      }
+
+      :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
+        border-color: white !important;
+      }
+    }
   }
 
   .iconBlock {
