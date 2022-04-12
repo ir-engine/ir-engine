@@ -6,7 +6,7 @@ Please note we have a code of conduct, please follow it in all your interactions
 
 ### Code Standards
 
-We currently have strict formatting rules for all `.ts` and `.tsx` files. Please use the `npm run format` hook before making a commit to ensure the rules are adhered to. The commit hook will fail if the formatter has not been run and there are formatting issues.
+We have strict formatting rules for all `.ts` and `.tsx` files. Please use the `npm run format` hook before making a commit to ensure the rules are adhered to. The commit hook will fail if the formatter has not been run and there are formatting issues.
 
 ### Pull Request Process
 
@@ -34,10 +34,11 @@ Increase the version numbers in any examples files and the README.md to the new 
 * Removed redundant math functions
 
 ## Checklist
-- [ ] Pre-push checks pass npm run check
-  - [ ] Linter passing via npm run lint
-  - [ ] Unit & Integration tests passing via npm run test:packages
-  - [ ] Docker build process passing via npm run build-client
+- [ ] CI/CD checks pass `npm run check`
+  - [ ] Linter passing via `npm run lint`
+  - [ ] Typescript passing via `npm run check-errors`
+  - [ ] Unit & Integration tests passing via `npm run test`
+  - [ ] Docker build process passing via `npm run build-client`
 - [ ] If this PR is still a WIP, convert to a draft 
 - [ ] When this PR is ready, mark it as "Ready for review"
 - [ ] Changes have been manually QA'd
