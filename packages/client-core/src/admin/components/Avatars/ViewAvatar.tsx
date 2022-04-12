@@ -10,7 +10,6 @@ import {
   REGEX_VALID_URL
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { CreateEditAdminAvatar } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
@@ -29,6 +28,7 @@ import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
 import { initialize3D, renderScene } from '../../../user/components/UserMenu/menus/helperFunctions'
+import { AuthService } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
@@ -43,7 +43,7 @@ const Input = styled('input')({
 interface Props {
   openView: boolean
   closeViewModal?: (open: boolean) => void
-  avatarData: AvatarInterface
+  avatarData?: AvatarInterface
 }
 
 let camera: PerspectiveCamera
@@ -117,7 +117,7 @@ const ViewAvatar = (props: Props) => {
 
       controls.minDistance = 0.1
       controls.maxDistance = 10
-      controls.target.set(0, 1.25, 0)
+      controls.target.set(0, 1.5, 0)
       controls.update()
 
       scene.children = scene.children.filter((c) => c.name !== 'avatar')
@@ -220,19 +220,9 @@ const ViewAvatar = (props: Props) => {
   }
 
   const updateAvatar = async () => {
-    const data: CreateEditAdminAvatar = {
-      name: state.name,
-      description: state.description,
-      url: state.url,
-      staticResourceType: 'avatar',
-      key: avatarData?.key
-    }
     let temp = state.formErrors
     if (!state.name) {
       temp.name = t('admin:components.avatar.nameCantEmpty')
-    }
-    if (!state.description) {
-      temp.description = t('admin:components.avatar.descriptionCantEmpty')
     }
     if (!state.url) {
       temp.url = t('admin:components.avatar.avatarUrlCantEmpty')
@@ -249,12 +239,13 @@ const ViewAvatar = (props: Props) => {
       console.log(canvas)
       console.log(imgConvas)
       if (selectedFile) {
-        canvas.toBlob(async (blob) => {
-          await AvatarService.updateAdminAvatar(avatarData.id, new File([blob!], data.name), selectedFile, data)
-        })
+        await AuthService.uploadAvatarModel(url, selectedFile, state.name, true)
       } else {
-        canvas.toBlob(async (blob) => {
-          await AvatarService.updateAdminAvatar(avatarData.id, new File([blob!], data.name), url, data)
+        await new Promise<void>((resolve) => {
+          canvas.toBlob(async (blob) => {
+            await AuthService.uploadAvatarModel(url, blob!, state.name, true)
+            resolve()
+          })
         })
       }
       setEditMode(false)

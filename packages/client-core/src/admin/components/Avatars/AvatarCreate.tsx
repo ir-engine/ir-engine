@@ -25,10 +25,10 @@ import IconButton from '@mui/material/IconButton'
 import { styled } from '@mui/material/styles'
 
 import { initialize3D, renderScene } from '../../../user/components/UserMenu/menus/helperFunctions'
+import { AuthService } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { AvatarService } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
 
 const Input = styled('input')({
@@ -94,16 +94,12 @@ const AvatarCreate = ({ handleClose, open }) => {
   const uploadByUrls = async () => {
     const data: CreateEditAdminAvatar = {
       name: newAvatar.avatarName,
-      description: newAvatar.description,
       url: newAvatar.avatarUrl,
       staticResourceType: 'avatar'
     }
     let temp = formErrors
     if (!newAvatar.avatarName) {
       temp.avatarName = t('admin:components.avatar.nameCantEmpty')
-    }
-    if (!newAvatar.description) {
-      temp.description = t('admin:components.avatar.descriptionCantEmpty')
     }
     if (!selectUse) {
       temp.avatarUrl = !newAvatar.avatarUrl ? t('admin:components.avatar.avatarUrlCantEmpty') : ''
@@ -119,13 +115,13 @@ const AvatarCreate = ({ handleClose, open }) => {
       newContext?.drawImage(renderer.domElement, -20, 20)
       if (selectedFile) {
         canvas.toBlob(async (blob) => {
-          await AvatarService.createAdminAvatar(new File([blob!], data.name), selectedFile, data)
+          await AuthService.uploadAvatarModel(selectedFile, blob!, newAvatar.avatarName)
         })
       }
 
       if (selectedAvatarlUrl) {
         canvas.toBlob(async (blob) => {
-          await AvatarService.createAdminAvatar(new File([blob!], data.name), selectedAvatarlUrl, data)
+          await AuthService.uploadAvatarModel(selectedAvatarlUrl, blob!, data)
         })
       }
       clearState()
@@ -155,7 +151,7 @@ const AvatarCreate = ({ handleClose, open }) => {
 
     controls.minDistance = 0.1
     controls.maxDistance = 10
-    controls.target.set(0, 1.25, 0)
+    controls.target.set(0, 1.5, 0)
     controls.update()
 
     scene.children = scene.children.filter((c) => c.name !== 'avatar')
