@@ -12,7 +12,7 @@ export default async function ChatUISystem(world: World) {
 
   ui.container.then((container) => {
     const el = container.containerElement as HTMLElement
-    // In this caes, it's necessary to keep the element visible in the DOM,
+    // In this case, it's necessary to keep the element visible in the DOM,
     // otherwise it will not receive text input; of course, we don't want to
     // actually display the real DOM elmeent since we are rendering it in 3D,
     // so we simply move it out the way
