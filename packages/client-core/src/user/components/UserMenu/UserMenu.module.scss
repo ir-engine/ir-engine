@@ -1,4 +1,4 @@
-@import "../../../styles/imports.module.scss";
+@import "@xrengine/client-core/src/styles/imports.module.scss";
 
 .primary {
   background: var(--purpleColor);
@@ -963,7 +963,7 @@
       .shareBtn {
         width: 100px;
         height: 35px;
-        background: $PurpleButtonColor;
+        background: var(--purpleButtonColor);
         color: "#fff";
 
         &:hover {
@@ -981,7 +981,7 @@
 
     .newLocation {
       width: 90px;
-      background: $PurpleButtonColor;
+      background: var(--purpleButtonColor);
       margin: 0;
       height: 40px;
       flex-shrink: 0;
@@ -1004,7 +1004,7 @@
 
       &:focus-within {
         svg {
-          color: $PurpleButtonColor;
+          color: var(--purpleButtonColor);
         }
       }
     }
@@ -1018,7 +1018,7 @@
       margin-top: 10px;
 
       .tableHead {
-        background: $PurpleButtonColor;
+        background: var(--purpleButtonColor);
         color: var(--text);
       }
 
@@ -1048,7 +1048,7 @@
       }
 
       button:hover {
-        background: $PurpleButtonColor;
+        background: var(--purpleButtonColor);
         color: var(--text);
       }
     }
@@ -1074,7 +1074,7 @@
         }
 
         &:global(.Mui-checked) svg {
-          color: $PurpleButtonColor;
+          color: var(--purpleButtonColor);
         }
 
         &:hover {
@@ -1149,7 +1149,7 @@
       height: 25px;
       border-radius: 20px;
       background: transparent;
-      color: $PurpleButtonColor;
+      color: var(--purpleButtonColor);
       margin: 0;
       min-width: 0;
       margin-right: 10px;
@@ -1160,7 +1160,7 @@
         width: 0;
         height: 0;
         border-radius: 25px;
-        background: $PurpleButtonColor;
+        background: var(--purpleButtonColor);
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
@@ -1181,7 +1181,7 @@
 
     .savebtn {
       color: var(--text);
-      background: $PurpleButtonColor;
+      background: var(--purpleButtonColor);
       height: 35px;
       width: 150px;
       margin-top: 25px;
@@ -1223,7 +1223,7 @@
             width: 100px;
             height: 35px;
             margin: 20px 10px;
-            background: $PurpleButtonColor;
+            background: var(--purpleButtonColor);
             font-size: 0.8rem;
 
             &.yesbtn {
@@ -1315,7 +1315,7 @@
         right: -5px;
         border: none;
         border-radius: 50%;
-        background: $PurpleButtonColor;
+        background: var(--purpleButtonColor);
         box-shadow: 2px 2px 10px gray;
         color: var(--text);
         transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
@@ -1366,7 +1366,7 @@
           width: 50%;
 
           &:last-child {
-            color: $PurpleButtonColor;
+            color: var(--purpleButtonColor);
           }
 
           svg {
@@ -1433,7 +1433,7 @@
 
     .iconBlock {
       display: inline-block;
-      color: $PurpleButtonColor;
+      color: var(--purpleButtonColor);
       background: transparent;
     }
 
