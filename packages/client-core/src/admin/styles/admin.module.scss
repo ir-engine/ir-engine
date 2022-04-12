@@ -315,6 +315,9 @@
       cursor: pointer;
       font-size: 1rem;
       font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     button:hover,
