@@ -290,7 +290,7 @@ export const ChatService = {
               hls.loadSource(videoUrl)
               hls.attachMedia(video)
               hls.on(Hls.Events.MEDIA_ATTACHED, function () {
-                video.muted = true
+                video.muted = false
                 video.play()
               })
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
