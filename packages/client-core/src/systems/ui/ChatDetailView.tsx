@@ -13,7 +13,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createXRUI, XRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
-import { CloseIcon, Message as MessageIcon, Send } from '@mui/icons-material'
+import { Close as CloseIcon, Message as MessageIcon, Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 import Badge from '@mui/material/Badge'
 import Card from '@mui/material/Card'
