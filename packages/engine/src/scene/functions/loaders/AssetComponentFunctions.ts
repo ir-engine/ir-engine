@@ -19,8 +19,8 @@ import {
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import {
+  addEntityNodeInTree,
   removeEntityNodeFromParent,
-  reparentEntityNode,
   traverseEntityNode
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
@@ -57,13 +57,13 @@ export const loadAsset = async (entity: Entity) => {
   //!hasComponent(entity, AssetLoadedComponent) && addComponent(entity, AssetLoadedComponent, {})
   const ass = getComponent(entity, AssetComponent)
   const nodeMap = useWorld().entityTree.entityNodeMap
+  const aNode = nodeMap.get(entity)!
   if (AssetLoader.getAssetType(ass.path) !== AssetType.XRE) {
     throw Error('only .xre.gltf files currently supported')
   }
   const result = await AssetLoader.loadAsync(ass.path)
   console.log('loaded asset to node', result, 'from', ass.path)
-  reparentEntityNode(result, nodeMap.get(entity)!)
-  ass.loaded = true
+  addComponent(entity, AssetLoadedComponent, { root: aNode })
 }
 
 export const deserializeAsset: ComponentDeserializeFunction = async (

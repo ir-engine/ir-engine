@@ -25,34 +25,15 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { preCacheAssets } from '../functions/SceneLoading'
 
 export default async function AssetSystem(world: World) {
-  //const assetQuery = defineQuery([AssetComponent, AssetLoadedComponent])
-  return () => {}
-  /*
+  const assetQuery = defineQuery([AssetComponent, AssetLoadedComponent])
+
   const nodeMap = world.entityTree.entityNodeMap
   return () => {
     for (const entity of assetQuery.enter()) {
       const ass = getComponent(entity, AssetComponent)
-      if ( AssetLoader.getAssetType(ass.path) !== AssetType.XRE ) {
-        throw Error('only .xre.gltf files currently supported')
-      }
-      AssetLoader.load(ass.path, (result : EntityTreeNode) => {
-        console.log("loaded asset to node", result, "from", ass.path)
-        reparentEntityNode(result, nodeMap.get(entity)!)
-        ass.loaded = true
-      })
+      const load = getComponent(entity, AssetLoadedComponent)
+      reparentEntityNode(load.root, nodeMap.get(entity)!)
+      ass.loaded = true
     }
-
-    for (const entity of assetQuery.exit()) {
-      const node = nodeMap.get(entity)!
-      const ass = getComponent(entity, AssetComponent)
-      const children = new Array()
-      traverseEntityNode(node, (child) => {
-        if (child.entity === entity) return
-        removeEntity(child.entity, true)
-        children.push(child)
-      })
-      children.forEach((child) => removeEntityNodeFromParent(child))
-      ass.loaded = false
-    }
-  }*/
+  }
 }

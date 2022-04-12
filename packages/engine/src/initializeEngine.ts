@@ -264,7 +264,7 @@ export const initializeSceneSystems = async () => {
       systemModulePromise: import('./avatar/AvatarSystem')
     },
     {
-      type: SystemUpdateType.UPDATE,
+      type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./scene/systems/AssetSystem')
     },
     {

@@ -317,6 +317,7 @@ const EditorContainer = () => {
       }
     }
     el.click()
+    el.remove()
   }
 
   const onImportScene = async () => {

@@ -1,9 +1,13 @@
 import { AssetType } from '../../assets/enum/AssetType'
+import { Entity } from '../../ecs/classes/Entity'
+import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type AssetId = string
 
-export type AssetLoadedComponentType = {}
+export type AssetLoadedComponentType = {
+  root: EntityTreeNode
+}
 
 export type AssetComponentType = {
   path: AssetId
