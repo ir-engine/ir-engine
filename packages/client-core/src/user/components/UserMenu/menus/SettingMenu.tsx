@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { UserSetting } from '@xrengine/common/src/interfaces/User'
 import { AvatarSettings } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
+import { AvatarInputAction, useAvatarInputState } from '@xrengine/engine/src/avatar/state/AvatarInputState'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
@@ -24,11 +26,12 @@ import styles from '../UserMenu.module.scss'
 const SettingMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()
-
+  const avatarInputState = useAvatarInputState()
   const authState = useAuthState()
   const selfUser = authState.user
+  const dispatch = useDispatch()
   const [userSettings, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
-  const [controlTypeSelected, setControlType] = React.useState(rendererState.controlType.value)
+  const [controlTypeSelected, setControlType] = React.useState(avatarInputState.controlType.value)
   const [controlSchemeSelected, setControlScheme] = React.useState(
     AvatarMovementScheme[AvatarSettings.instance.movementScheme]
   )
@@ -42,7 +45,7 @@ const SettingMenu = (): JSX.Element => {
 
   const handleChangeControlType = (event: SelectChangeEvent) => {
     setControlType(event.target.value)
-    dispatchLocal(EngineRendererAction.setControlType(event.target.value))
+    dispatch(AvatarInputAction.setControlType(event.target.value))
   }
 
   const handleChangeControlScheme = (event: SelectChangeEvent) => {

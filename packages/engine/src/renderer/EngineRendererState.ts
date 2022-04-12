@@ -1,7 +1,6 @@
 import { createState, State, useState } from '@speigg/hookstate'
 
 import { isIOS } from '@xrengine/common/src/utils/isIOS'
-import { AvatarControllerType } from '@xrengine/engine/src/input/enums/InputEnums'
 
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { Engine } from '../ecs/classes/Engine'
@@ -13,8 +12,7 @@ const state = createState({
   automatic: true,
   // usePBR: true,
   usePostProcessing: isIOS() ? false : true,
-  useShadows: true,
-  controlType: 'None'
+  useShadows: true
 })
 
 type StateType = State<typeof state.value>
@@ -49,22 +47,6 @@ function setUsePostProcessing(s: StateType, usePostProcessing) {
   s.merge({ usePostProcessing })
 }
 
-function setControlType(s: StateType, controlType) {
-  if (AvatarControllerType.XRHands == controlType) {
-    // TO DO Unbind currentType and Bind New Control Type
-    s.merge({ controlType })
-  }
-  if (AvatarControllerType.OculusQuest == controlType) {
-    // TO DO Unbind currentType and Bind New Control Type
-    s.merge({ controlType })
-  }
-
-  if (AvatarControllerType.None == controlType) {
-    // TO DO Unbind currentType and Bind New Control Type
-    s.merge({ controlType })
-  }
-}
-
 export function EngineRendererReceptor(action: EngineRendererActionType) {
   state.batch((s) => {
     switch (action.type) {
@@ -77,8 +59,6 @@ export function EngineRendererReceptor(action: EngineRendererActionType) {
         return setUsePostProcessing(s, action.usePostProcessing)
       case 'WEBGL_RENDERER_SHADOWS':
         return setUseShadows(s, action.useShadows)
-      case 'WEBGL_SET_CONTROL_MODEL':
-        return setControlType(s, action.controlType)
     }
   })
 }
@@ -112,12 +92,6 @@ export const EngineRendererAction = {
     return {
       type: 'WEBGL_RENDERER_SHADOWS' as const,
       useShadows
-    }
-  },
-  setControlType: (controlType: string) => {
-    return {
-      type: 'WEBGL_SET_CONTROL_MODEL' as const,
-      controlType
     }
   }
 }
