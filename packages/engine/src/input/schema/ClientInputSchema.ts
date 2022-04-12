@@ -476,7 +476,6 @@ export const handleKey = (event: KeyboardEvent): any => {
   }
   // const mappedKey = Engine.inputState.schema.keyboardInputMap[];
   const key = event.code
-  console.log(key)
 
   if (keydown) {
     // If the key is in the map but it's in the same state as now, let's skip it (debounce)

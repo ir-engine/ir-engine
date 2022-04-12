@@ -2,17 +2,21 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Button from '@mui/material/Button'
+import Drawer from '@mui/material/Drawer'
 import Grid from '@mui/material/Grid'
 
+import { AvatarAction } from '../../../admin/services/AvatarService'
+import { useDispatch } from '../../../store'
+import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
 import AvatarTable from './AvatarTable'
-import ViewAvatar from './ViewAvatar'
 
 const Avatar = () => {
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
   const { t } = useTranslation()
+  const dispatch = useDispatch()
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -41,7 +45,14 @@ const Avatar = () => {
       <div className={styles.rootTable}>
         <AvatarTable search={search} />
       </div>
-      {open && <ViewAvatar closeViewModal={handleClose} openView={open} />}
+      {open && (
+        <Drawer anchor="right" open={open} onClose={handleClose} classes={{ paper: styles.paperDrawer }}>
+          <AvatarSelectMenu
+            onAvatarUpload={() => dispatch(AvatarAction.avatarUpdated())}
+            changeActiveMenu={handleClose}
+          />
+        </Drawer>
+      )}
     </React.Fragment>
   )
 }

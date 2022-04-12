@@ -1,7 +1,9 @@
 import React, { Fragment, Suspense, useEffect } from 'react'
 import { Redirect, Switch } from 'react-router-dom'
 
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { initializeCoreSystems, initializeSceneSystems } from '@xrengine/engine/src/initializeEngine'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 
 import CircularProgress from '@mui/material/CircularProgress'
 
@@ -57,6 +59,7 @@ const ProtectedRoutes = (props: Props) => {
   useEffect(() => {
     initializeCoreSystems().then(async () => {
       await initializeSceneSystems()
+      dispatchLocal(EngineActions.enableScene({ renderer: false }))
     })
   }, [])
 

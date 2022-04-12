@@ -59,7 +59,6 @@ export const validate = (obj) => {
 export const addAnimationLogic = (
   entity: Entity,
   world: World,
-  setEntity: (entity: Entity) => void,
   panelRef: React.MutableRefObject<HTMLDivElement | undefined>
 ) => {
   addComponent(entity, AnimationComponent, {
@@ -73,8 +72,6 @@ export const addAnimationLogic = (
     hasAvatarAnimations: true,
     action: null!
   })
-
-  setEntity(entity)
 
   async function AvatarSelectRenderSystem(world: World) {
     return () => {

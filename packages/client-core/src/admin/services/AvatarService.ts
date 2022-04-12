@@ -77,8 +77,8 @@ export const AvatarService = {
   removeAdminAvatar: async (id) => {
     const dispatch = useDispatch()
     try {
-      const result = await client.service('static-resource').remove(id)
-      dispatch(AvatarAction.avatarRemoved(result))
+      await client.service('static-resource').remove(id)
+      dispatch(AvatarAction.avatarRemoved())
     } catch (err) {
       console.error(err)
     }
@@ -93,22 +93,19 @@ export const AvatarAction = {
       avatars: avatars
     }
   },
-  avatarCreated: (avatar: AvatarInterface) => {
+  avatarCreated: () => {
     return {
-      type: 'AVATAR_CREATED' as const,
-      avatar: avatar
+      type: 'AVATAR_CREATED' as const
     }
   },
-  avatarRemoved: (avatar: AvatarInterface) => {
+  avatarRemoved: () => {
     return {
-      type: 'AVATAR_REMOVED' as const,
-      avatar: avatar
+      type: 'AVATAR_REMOVED' as const
     }
   },
-  avatarUpdated: (avatar: AvatarInterface) => {
+  avatarUpdated: () => {
     return {
-      type: 'AVATAR_UPDATED' as const,
-      avatar: avatar
+      type: 'AVATAR_UPDATED' as const
     }
   }
 }
