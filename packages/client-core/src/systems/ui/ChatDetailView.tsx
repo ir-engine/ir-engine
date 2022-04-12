@@ -256,6 +256,7 @@ const ChatDetailView = () => {
               style={{ display: 'flex', flexGrow: '1', padding: '0', alignItems: 'flex-end', boxShadow: 'none' }}
             >
               <TextField
+                xr-layer=""
                 style={{ margin: '0', padding: '0 0px 0 10px', width: '100%' }}
                 margin="normal"
                 multiline={isMultiline}
