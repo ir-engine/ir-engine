@@ -161,22 +161,20 @@ const TableComponent = (props: Props) => {
             columns={column}
           />
           <TableBody>
-            {(allowSort ? stableSort(rows, getComparator(order, orderBy)) : rows)
-              //.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, index) => {
-                return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={`${index}${row.name}`}>
-                    {column.map((column, index) => {
-                      const value = row[column.id]
-                      return (
-                        <TableCell key={index} align={column.align} className={styles.tableCellBody}>
-                          {value}
-                        </TableCell>
-                      )
-                    })}
-                  </TableRow>
-                )
-              })}
+            {(allowSort ? stableSort(rows, getComparator(order, orderBy)) : rows).map((row, index) => {
+              return (
+                <TableRow hover role="checkbox" tabIndex={-1} key={`${index}${row.name}`}>
+                  {column.map((column, index) => {
+                    const value = row[column.id]
+                    return (
+                      <TableCell key={index} align={column.align} className={styles.tableCellBody}>
+                        {value}
+                      </TableCell>
+                    )
+                  })}
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </TableContainer>

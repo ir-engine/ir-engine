@@ -47,15 +47,7 @@ interface Props {
 }
 
 const UserMenu = (props: Props): any => {
-  const [engineLoaded, setEngineLoaded] = useState(false)
   const [currentActiveMenu, setCurrentActiveMenu] = useState<typeof Views[keyof typeof Views]>()
-
-  const engineState = useEngineState()
-
-  useEffect(() => {
-    setEngineLoaded(true)
-  }, [engineState.isEngineInitialized.value])
-
   const Panel = UserMenuPanels.get(currentActiveMenu!)!
 
   return (

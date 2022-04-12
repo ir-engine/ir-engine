@@ -88,15 +88,15 @@ const Users = () => {
   return (
     <div>
       <Grid container spacing={1} className={styles.mb10px}>
-        <Grid item md={8} xs={6}>
+        <Grid item sm={8} xs={12}>
           <Search text="user" handleChange={handleChange} />
         </Grid>
-        <Grid item md={3} xs={5}>
+        <Grid item sm={3} xs={8}>
           <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
             {t('admin:components.user.createNewUser')}
           </Button>
         </Grid>
-        <Grid item md={1} xs={1} style={{ display: 'flex', justifyContent: 'center' }}>
+        <Grid item sm={1} xs={4} style={{ display: 'flex', justifyContent: 'center' }}>
           <IconButton
             onClick={handleClick}
             size="small"

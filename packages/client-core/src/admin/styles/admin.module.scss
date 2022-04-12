@@ -61,6 +61,7 @@
 .botRoot {
   width: 100%;
   color: #fff;
+  box-shadow: none;
   background-color: var(--purpleDarkest);
 }
 
@@ -169,7 +170,7 @@
 
 .summary {
   background: var(--purpleColor4);
-  border-bottom: 1px solid #23282c;
+  border-bottom: 1px solid var(--purpleDarkest);
   color: #f1f1f1;
   border-radius: 0;
 
@@ -695,6 +696,7 @@
 .checkboxButton {
   margin: 0;
   padding: 0;
+  width: 100%;
   color: var(--text);
 }
 

@@ -33,11 +33,11 @@ const Location = () => {
 
   return (
     <div>
-      <Grid container spacing={3} className={styles.mb10px}>
-        <Grid item xs={9}>
+      <Grid container spacing={1} className={styles.mb10px}>
+        <Grid item xs={12} sm={8}>
           <Search text="location" handleChange={handleChange} />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={12} sm={4}>
           <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
             {t('admin:components.locationModal.createNewLocation')}
           </Button>
