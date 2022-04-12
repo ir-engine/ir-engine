@@ -16,6 +16,7 @@ import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { SCENE_COMPONENT_SCENE_TAG, SceneTagComponent } from '../components/SceneTagComponent'
+import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { resetEngineRenderer } from './loaders/RenderSettingsFunction'
 import { ScenePrefabTypes } from './registerPrefabs'
@@ -129,6 +130,11 @@ export const loadSceneEntity = (entityNode: EntityTreeNode, sceneEntity: EntityJ
 
   if (!hasComponent(entityNode.entity, TransformComponent))
     addComponent(entityNode.entity, DisableTransformTagComponent, {})
+
+  if (!hasComponent(entityNode.entity, VisibleComponent)) {
+    const obj = getComponent(entityNode.entity, Object3DComponent)?.value
+    if (obj) obj.visible = false
+  }
 
   return entityNode.entity
 }
