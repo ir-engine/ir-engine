@@ -1626,7 +1626,7 @@
     color: var(--text);
     border: none;
     padding: 0;
-    background-color: transparent;
+    background-color: transparent !important;
     top: 18px;
     right: 3px;
     transform: rotate(-45deg);
@@ -1646,7 +1646,7 @@
     }
 
     &.disabled {
-      color: grey;
+      color: var(--text2);
       cursor: initial;
 
       &::before {
@@ -1684,7 +1684,7 @@
     padding: 0;
     top: 18px;
     right: 3px;
-    background-color: transparent;
+    background-color: transparent !important;
     transform: rotate(225deg);
 
     @media (max-width: 360px) {
@@ -1702,7 +1702,7 @@
     }
 
     &.disabled {
-      color: grey;
+      color: var(--text2);
       cursor: initial;
 
       &::before {
