@@ -282,7 +282,6 @@ export function getDefaultSkeleton(): SkinnedMesh {
  * to enable avatar's head decapitation (opacity fade)
  * @param model
  * @param material
- * @returns
  */
 function setupHeadDecap(model: Object3D, material: Material) {
   const mesh = model.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
