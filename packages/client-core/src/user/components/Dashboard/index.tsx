@@ -16,7 +16,7 @@ import Typography from '@mui/material/Typography'
 
 import { useAuthState } from '../../services/AuthService'
 import DashboardMenuItem from './DashboardMenuItem'
-import styles from './styles.module.scss'
+import styles from './index.module.scss'
 
 interface Props {
   children?: JSX.Element
@@ -56,7 +56,6 @@ const Dashboard = ({ children }: Props) => {
           <div className={styles.navContainer}>
             <IconButton
               color="inherit"
-              style={{ color: 'white' }}
               aria-label="open drawer"
               onClick={handleDrawerOpen(true)}
               edge="start"

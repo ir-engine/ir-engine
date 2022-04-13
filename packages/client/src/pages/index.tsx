@@ -8,7 +8,6 @@ import {
   useClientSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 
 const ROOT_REDIRECT: any = globalThis.process.env['VITE_ROOT_REDIRECT']
 
@@ -16,10 +15,6 @@ export const HomePage = (): any => {
   const { t } = useTranslation()
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
-
-  useEffect(() => {
-    AuthService.doLoginAuto(true)
-  }, [])
 
   useEffect(() => {
     !clientSetting && ClientSettingService.fetchClientSettings()

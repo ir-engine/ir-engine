@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import Button from '@mui/material/Button'
 
 import { PublicVideo, useVideoState, VideoService } from '../../services/VideoService'
-import styles from './Videos.module.scss'
+import styles from './index.module.scss'
 
 interface Props {}
 

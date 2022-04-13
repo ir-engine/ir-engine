@@ -24,11 +24,11 @@ const GroupConsole = () => {
   return (
     <React.Fragment>
       <div>
-        <Grid container spacing={3} className={styles.mb10px}>
-          <Grid item xs={12} sm={9}>
+        <Grid container spacing={1} className={styles.mb10px}>
+          <Grid item xs={12} sm={8}>
             <Search text="group" handleChange={handleChange} />
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={4}>
             <Button
               className={styles.openModalBtn}
               type="submit"
