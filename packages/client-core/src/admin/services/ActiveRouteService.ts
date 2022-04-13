@@ -37,7 +37,6 @@ export const useActiveRouteState = () => useState(state) as any as typeof state
 //Service
 export const ActiveRouteService = {
   setRouteActive: async (project: string, route: string, activate: boolean) => {
-    const dispatch = useDispatch()
     const user = accessAuthState().user
     try {
       if (user.userRole.value === 'admin') {

@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react'
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
@@ -43,7 +42,6 @@ const InstanceChat = (props: Props): any => {
   } = props
 
   let activeChannel: Channel | null = null
-  const dispatch = useDispatch()
   const messageRef = React.useRef<HTMLInputElement>()
   const user = useAuthState().user
   const chatState = useChatState()
