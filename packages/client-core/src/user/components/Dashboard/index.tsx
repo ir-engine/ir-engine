@@ -16,7 +16,7 @@ import Typography from '@mui/material/Typography'
 
 import { useAuthState } from '../../services/AuthService'
 import DashboardMenuItem from './DashboardMenuItem'
-import styles from './styles.module.scss'
+import styles from './index.module.scss'
 
 interface Props {
   children?: JSX.Element

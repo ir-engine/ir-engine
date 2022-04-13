@@ -8,7 +8,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
 import { useAuthState } from '../../services/AuthService'
-import styles from './ProfileConnections.module.scss'
+import styles from './index.module.scss'
 import SingleConnection from './SingleConnection'
 
 interface Props {

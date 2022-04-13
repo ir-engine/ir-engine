@@ -1,6 +1,6 @@
 import React from 'react'
 
-import styles from './toast.module.scss'
+import styles from './index.module.scss'
 
 const Toast = ({
   messages = [] as any[],

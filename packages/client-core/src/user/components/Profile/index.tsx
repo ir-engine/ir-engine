@@ -8,7 +8,7 @@ import Modal from '@mui/material/Modal'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 
-import styles from './Profile.module.scss'
+import styles from './index.module.scss'
 import UserProfile from './UserIcon'
 import UserSettings from './UserSettings'
 

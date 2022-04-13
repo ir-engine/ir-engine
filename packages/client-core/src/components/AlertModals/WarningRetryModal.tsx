@@ -7,7 +7,7 @@ import Fade from '@mui/material/Fade'
 import IconButton from '@mui/material/IconButton'
 import Modal from '@mui/material/Modal'
 
-import styles from './AlertModals.module.scss'
+import styles from './index.module.scss'
 
 export interface WarningRetryModalProps {
   open: boolean

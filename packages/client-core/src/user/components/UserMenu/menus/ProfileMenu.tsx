@@ -28,7 +28,7 @@ import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon'
 import { AuthService, useAuthState } from '../../../services/AuthService'
-import styles from '../UserMenu.module.scss'
+import styles from '../index.module.scss'
 import { getAvatarURLForUser, Views } from '../util'
 
 interface Props {
@@ -122,10 +122,6 @@ const ProfileMenu = (props: Props): JSX.Element => {
 
   useEffect(() => {
     !authSetting && AuthSettingService.fetchAuthSetting()
-  }, [])
-
-  useEffect(() => {
-    selfUser?.id.value && AuthService.loadUserData(selfUser?.id.value)
   }, [])
 
   useEffect(() => {

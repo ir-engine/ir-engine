@@ -7,7 +7,7 @@ import secondsToString from '@xrengine/common/src/utils/secondsToString'
 // import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import triggerNavigation from '@xrengine/common/src/utils/triggerNavigation'
 
-import styles from './VideoSeeker.module.scss'
+import styles from './index.module.scss'
 
 const playBtnImageSrc = '/icons/play-shadow.png'
 const pauseBtnImageSrc = '/icons/pause-shadow.png'
