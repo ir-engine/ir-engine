@@ -1,15 +1,14 @@
-@use '../../theme.scss' as theme;
-@import '../../styles/imports.module.scss';
+@import "@xrengine/client-core/src/styles/imports.module.scss";
 
 .openModalBtn {
   height: 50px;
   width: 100%;
-  margin: 0px;
-  background: theme.$purpleLighter;
-  color: theme.$text !important;
+  margin: 0;
+  background: var(--purpleLighter);
+  color: var(--text) !important;
 
   &:hover {
-    background: theme.$purpleColor;
+    background: var(--purpleColor);
   }
 
   @media (max-width: 900px) {
@@ -17,19 +16,482 @@
   }
 }
 
+.avatarUploadPanel {
+  padding: 0 30px;
+  border-radius: 20px;
+  background-color: transparent;
+  color: black;
+  overflow: auto;
+  width: 100%;
+  z-index: 1400;
+
+  .avatarSelectContainer {
+    position: absolute;
+    bottom: 110px;
+    padding: 15px 20px 20px 17px;
+    border-radius: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: black;
+    height: 550px;
+    overflow: hidden;
+    width: 400px;
+    z-index: 1400;
+    background: rgb(255 255 255 / 50%);
+    box-shadow: 0 4px 30px rgb(0 0 0 / 10%);
+    backdrop-filter: blur(4.9px);
+    -webkit-backdrop-filter: blur(4.9px);
+  }
+
+  .paperAvatar {
+    height: 140px;
+    width: 170px;
+    border: none;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: rgb(81 81 255 / 45%);
+    }
+  }
+
+  .avatarContainer {
+    height: 80%;
+    margin-bottom: 70px;
+  }
+
+  .menuContainer {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 8px;
+  }
+
+  .innerMenuContainer {
+    display: flex;
+  }
+
+  .btnDeepColor {
+    background-color: #23af3a !important;
+  }
+
+  .btnDeepColorCancel {
+    background-color: #f87678 !important;
+  }
+
+  .btn {
+    border: none;
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .btnBack {
+    border: none;
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .btnPerson {
+    background-color: rgb(255 255 255 / 70%);
+    color: #808080;
+
+    &:hover {
+      background: rgb(255 255 255 / 100%);
+    }
+  }
+
+  .btnCheck {
+    background-color: #a5f2b2;
+    color: #fff;
+    margin: 0 10px;
+
+    &:hover {
+      background-color: #1e9932 !important;
+    }
+  }
+
+  .btnArrow {
+    background-color: #6e6ef7;
+    color: #fff;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: #5f5ff8;
+    }
+  }
+
+  .btnCancel {
+    color: #fff;
+    background-color: #fca7a8;
+
+    &:hover {
+      background-color: #e76a6c !important;
+    }
+  }
+
+  .avatar {
+    height: 80%;
+    width: 80%;
+    position: absolute;
+    left: 50%;
+    top: 28px;
+    transform: translateX(-50%);
+    cursor: pointer;
+  }
+
+  .size {
+    height: 15px;
+  }
+
+  .selectedAvatar {
+    border: 3px solid rgb(81 81 255 / 45%) !important;
+  }
+
+  .activeAvatar {
+    background: rgb(81 81 255 / 60%);
+    cursor: not-allowed;
+  }
+
+  .disabled {
+    background-color: #a8a8fe !important;
+    cursor: not-allowed;
+  }
+
+  .disabledBtn {
+    cursor: not-allowed !important;
+  }
+
+  .container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 5px;
+  }
+
+  .paper {
+    background: var(--purpleLight);
+    display: flex;
+    align-items: center;
+  }
+
+  .selectPaper {
+    background: #343b41;
+    color: #f1f1f1;
+  }
+
+  .rootBtn {
+    font-size: 13px;
+    width: auto;
+    font-weight: bold;
+    background: var(--purpleColor1);
+    padding: 6px 28px;
+
+    &:hover {
+      background: var(--purpleColor);
+    }
+  }
+
+  .btnContainer {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+  }
+
+  .input {
+    font-size: 14px;
+    color: var(--text);
+    background-color: var(--purpleLight);
+  }
+
+  .tabRoot {
+    min-height: 20px;
+    color: #ccc;
+  }
+
+  .selected {
+    background: var(--text);
+  }
+
+  .color {
+    color: var(--text);
+  }
+
+  .paper2 {
+    background: var(--purpleLight);
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 6px 0;
+  }
+
+  .selectedTab {
+    color: var(--text) !important;
+    font-weight: bold;
+    font-size: 17px;
+    text-transform: capitalize;
+  }
+
+  .unselectedTab {
+    color: var(--purpleDarkest) !important;
+    font-weight: bold;
+    font-size: 17px;
+    text-transform: capitalize;
+  }
+
+  .avatarHeaderBlock {
+    margin: 30px 0 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .iconBlock {
+      display: inline-block;
+      cursor: pointer;
+      color: var(--text);
+      background: transparent;
+    }
+
+    h2 {
+      font-size: 18px;
+      color: var(--text);
+      font-weight: bold;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 10px;
+    }
+  }
+
+  .controlContainer {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+
+    button {
+      height: 35px;
+      background-color: var(--purpleColor1);
+      padding: 0;
+      border: none;
+      color: var(--text);
+      flex-grow: 1;
+      border-radius: 3px;
+      font-size: 14px;
+
+      & > svg {
+        font-size: 18px;
+        margin-left: 5px;
+      }
+
+      &:hover {
+        background-color: var(--purpleColor);
+      }
+    }
+
+    button + button {
+      margin-left: 5px;
+    }
+
+    button[disabled] {
+      background: var(--purpleDarkest);
+      opacity: 1 !important;
+    }
+
+    .browseBtn {
+      & > svg {
+        transform: rotate(180deg);
+      }
+    }
+
+    .uploadBtn {
+      background: var(--purplePinkGradient);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button:hover,
+    button:focus {
+      outline: none;
+      opacity: 0.7;
+    }
+
+    .selectBtns {
+      display: flex;
+      justify-content: flex-end;
+      margin: 8px 0;
+    }
+  }
+
+  .stage {
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+    margin: auto;
+
+    .legendContainer {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+
+      & > svg {
+        opacity: 1;
+        color: var(--purpleColor);
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+
+      .legend {
+        position: absolute;
+        padding: 10px;
+        background: var(--purpleColor1);
+        border-radius: 5px;
+        top: 30px;
+        right: 5px;
+        width: 130px;
+        color: var(--text);
+        font-size: 12px;
+        display: none;
+
+        span {
+          margin-left: 5px;
+        }
+
+        .shiftKey {
+          background: var(--purplePanel);
+          color: var(--text);
+          padding: 2px 4px;
+          border-radius: 4px;
+          font-weight: bold;
+          margin: 0 5px 0 0;
+        }
+
+        svg {
+          font-size: 18px;
+          margin-right: 5px;
+          width: 40px;
+          color: var(--text);
+
+          path {
+            fill: var(--text);
+          }
+        }
+
+        & > div + div {
+          margin-top: 10px;
+        }
+      }
+
+      &:hover {
+        .legend {
+          display: block;
+        }
+      }
+    }
+  }
+
+  .thumbnailContainer {
+    display: flex;
+    width: 100%;
+    margin-top: 8px;
+
+    .thumbnailPreview {
+      max-width: 100px;
+      margin: auto;
+    }
+  }
+
+  .selectLabelContainer {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+
+    &:last-child {
+      margin-bottom: 10px;
+    }
+
+    .avatarSelectLabel,
+    .thumbnailSelectLabel {
+      margin: 20px 0 8px;
+      font-size: 15px;
+      color: var(--text);
+    }
+  }
+
+  .avatarNameContainer {
+    display: flex;
+    justify-content: space-around;
+    margin: 8px 0;
+
+    .avatarNameInput {
+      color: var(--text);
+      border-color: var(--text);
+      background: transparent;
+
+      input {
+        padding: 5px;
+        font-size: 14px;
+        color: var(--text);
+        border-color: var(--text);
+
+        &::selection {
+          background-color: transparent;
+        }
+      }
+
+      :global(.MuiFormLabel-root) {
+        color: var(--text);
+      }
+
+      :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
+        border-color: white !important;
+      }
+    }
+  }
+
+  .iconBlock {
+    @include icon-block-styling;
+  }
+
+  @media (max-width: 400px) {
+    padding: 0 15px;
+    width: 330px;
+
+    .avatarHeaderBlock {
+      margin-top: 15px;
+    }
+
+    .controlContainer {
+      margin-bottom: 15px;
+    }
+  }
+}
+
 .gradientButton {
   height: 50px;
   width: 100%;
-  margin: 0px;
-  background: theme.$purplePinkGradient;
-  color: theme.$text !important;
+  margin: 0;
+  background: var(--purplePinkGradient);
+  color: var(--text) !important;
 
   &:hover {
     opacity: 0.8;
   }
 
   &:disabled {
-    background: theme.$purpleLighter;
+    background: var(--purpleLighter);
   }
 
   @media (max-width: 900px) {
@@ -38,42 +500,43 @@
 }
 
 .submitButton {
-  background: theme.$purplePinkGradient;
-  color: theme.$text !important;
+  background: var(--purplePinkGradient);
+  color: var(--text) !important;
 
   &:hover {
     opacity: 0.8;
   }
 
   &:disabled {
-    background: theme.$purpleLighter;
+    background: var(--purpleLighter);
   }
 }
 
 .cancelButton {
-  background: theme.$purpleLighter;
-  color: theme.$text !important;
+  background: var(--purpleLighter);
+  color: var(--text) !important;
 
   &:hover {
-    background: theme.$purpleColor;
+    background: var(--purpleColor);
   }
 }
 
 .botRoot {
   width: 100%;
   color: #fff;
-  background-color: theme.$purpleDarkest;
+  box-shadow: none;
+  background-color: var(--purpleDarkest);
 }
 
 .botHeader {
   height: 50px;
-  background: theme.$purpleColor4;
+  background: var(--purpleColor4);
   color: #fff;
   display: flex;
   flex-direction: row;
   align-items: center;
   border-bottom: 1px solid #23282c;
-  border-radius: 0px;
+  border-radius: 0;
   padding-left: 20px;
 
   @media (max-width: 900px) {
@@ -104,13 +567,13 @@
   width: 100%;
   color: #fff;
   margin-top: 15px;
-  background: theme.$purplePanel;
+  background: var(--purplePanel);
 }
 
 .botRootLeft {
   width: 100%;
   color: #fff;
-  background: theme.$purplePanel;
+  background: var(--purplePanel);
 }
 
 .smFont {
@@ -126,8 +589,8 @@
 .botSaveBtn {
   margin: 5px 25px 5px auto;
   width: 150px;
-  background: theme.$purplePinkGradient;
-  color: theme.$text !important;
+  background: var(--purplePinkGradient);
+  color: var(--text) !important;
 
   &:hover {
     opacity: 0.8;
@@ -169,10 +632,10 @@
 }
 
 .summary {
-  background: theme.$purpleColor4;
-  border-bottom: 1px solid #23282c;
+  background: var(--purpleColor4);
+  border-bottom: 1px solid var(--purpleDarkest);
   color: #f1f1f1;
-  border-radius: 0px;
+  border-radius: 0;
 
   svg {
     color: white;
@@ -180,12 +643,12 @@
 }
 
 .botDetails {
-  background: theme.$purplePanel;
+  background: var(--purplePanel);
   color: #fff;
 }
 
 .alterContainer {
-  background: theme.$inputBackground;
+  background: var(--inputBackground);
   border: 1px solid #23282c;
   border-radius: 5px;
   width: 100%;
@@ -193,7 +656,7 @@
 }
 
 .createAlterContainer {
-  background: theme.$inputBackground;
+  background: var(--inputBackground);
   border-radius: 5px;
   width: 100%;
   margin-top: 10px;
@@ -204,14 +667,14 @@
   align-items: center;
   margin-top: 10px;
   margin-bottom: 15px;
-  background: theme.$inputBackground;
-  color: theme.$text !important;
+  background: var(--inputBackground);
+  color: var(--text) !important;
 }
 
 .input {
   margin-left: 8px;
   flex: 1;
-  color: theme.$text;
+  color: var(--text);
 }
 
 .redBorder {
@@ -221,25 +684,25 @@
   align-items: center;
   margin-top: 10px;
   margin-bottom: 15px;
-  background: theme.$inputBackground;
-  color: theme.$text !important;
+  background: var(--inputBackground);
+  color: var(--text) !important;
 }
 
 .select {
-  color: theme.$text !important;
+  color: var(--text) !important;
   height: 2.4rem !important;
 }
 
 .selectPaper {
-  background: theme.$inputBackground;
-  color: theme.$text;
+  background: var(--inputBackground);
+  color: var(--text);
 }
 
 .paperDialog {
-  background: theme.$purplePanel !important;
-  color: theme.$text;
+  background: var(--purplePanel) !important;
+  color: var(--text);
   width: 100%;
-  padding: 40px 10px 40px 10px;
+  padding: 40px 10px;
 }
 
 .spanDange {
@@ -251,7 +714,7 @@
 }
 
 .spanWhite {
-  color: theme.$text !important;
+  color: var(--text) !important;
 }
 
 .actionStyle {
@@ -263,13 +726,13 @@
 .textLink {
   margin-left: 5px;
   text-decoration: none;
-  color: #ff9966;
+  color: #f96;
 }
 
 .paperDrawer {
   width: 40%;
-  background-color: theme.$purplePanel;
-  color: theme.$text;
+  background-color: var(--purplePanel);
+  color: var(--text);
   overflow: auto;
 
   @media (max-width: 900px) {
@@ -279,8 +742,10 @@
 
 .paper {
   padding: 24px 32px;
-  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14),
-    0px 1px 14px 0px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 3px 5px -1px rgb(0 0 0 / 20%),
+    0 5px 8px 0 rgb(0 0 0 / 14%),
+    0 1px 14px 0 rgb(0 0 0 / 12%);
   background-color: #fff;
 }
 
@@ -294,7 +759,7 @@
   display: flex;
   flex-direction: column;
   width: 50%;
-  background-color: theme.$purplePanel;
+  background-color: var(--purplePanel);
 
   @media (max-width: 768px) {
     width: 90%;
@@ -310,8 +775,8 @@
   }
 
   input {
-    color: theme.$text;
-    background-color: theme.$inputBackground;
+    color: var(--text);
+    background-color: var(--inputBackground);
   }
 }
 
@@ -338,8 +803,8 @@
 
 .rootPaper {
   min-height: 15vh;
-  background: theme.$purpleLighter;
-  color: theme.$text;
+  background: var(--purpleLighter);
+  color: var(--text);
 
   @media (max-width: 900px) {
     height: 10vh;
@@ -373,9 +838,9 @@
 }
 
 .middlePaper {
-  color: theme.$text;
+  color: var(--text);
   padding: 20px 0 8px 20px;
-  background: theme.$purpleDarkest;
+  background: var(--purpleDarkest);
   height: 10rem;
 }
 
@@ -427,7 +892,7 @@
   margin-bottom: 15px;
 
   @media (max-width: 900px) {
-    margin-bottom: 0px;
+    margin-bottom: 0;
   }
 }
 
@@ -456,7 +921,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  color: theme.$text;
+  color: var(--text);
   max-height: calc(100vh - 112px);
 }
 
@@ -465,7 +930,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  color: theme.$text;
+  color: var(--text);
   max-height: calc(100vh - 172px);
 }
 
@@ -481,7 +946,7 @@
 
 .mt5 {
   margin-top: 5%;
-  margin-left: 0px;
+  margin-left: 0;
 }
 
 .pad {
@@ -498,24 +963,24 @@
 }
 
 .chip {
-  color: theme.$text;
-  background-color: theme.$purpleLighter;
+  color: var(--text);
+  background-color: var(--purpleLighter);
 }
 
 .filterButton {
   svg {
-    color: theme.$purpleLighter;
+    color: var(--purpleLighter);
   }
 }
 
 .checkbox {
-  color: theme.$text;
+  color: var(--text);
 }
 
 .menuPaper {
   min-height: 15vh;
-  background: theme.$purplePanel;
-  color: theme.$text;
+  background: var(--purplePanel);
+  color: var(--text);
 
   @media (max-width: 900px) {
     height: 10vh;
@@ -536,7 +1001,7 @@
 
 .rootList {
   width: 100%;
-  background-color: theme.$purpleLighter;
+  background-color: var(--purpleLighter);
 }
 
 .thead {
@@ -555,8 +1020,8 @@
 
       &.actionCell {
         display: flex;
-        flex-direction: row;
         flex-flow: wrap;
+        flex-direction: row;
 
         :global(.MuiButtonBase-root) {
           width: fit-content;
@@ -572,7 +1037,7 @@
     .tcellSelectable {
       .currentUser {
         color: lighten(white, 0.8);
-        background-color: $FacebookBlue;
+        background-color: var(--facebookBlue);
         padding-top: 5px;
         padding-bottom: 5px;
 
@@ -601,10 +1066,10 @@
 .analyticsPaper {
   padding: 16px;
   text-align: center;
-  color: theme.$text;
+  color: var(--text);
   height: 35rem;
   width: 99.9%;
-  background-color: theme.$purplePanel;
+  background-color: var(--purplePanel);
 }
 
 .btn {
@@ -620,7 +1085,7 @@
 .btnSelected {
   color: white !important;
   border-color: white;
-  background-color: theme.$purpleColor !important;
+  background-color: var(--purpleColor) !important;
 }
 
 .dashboardCardsContainer {
@@ -643,35 +1108,35 @@
 
 .datePickerContainer {
   display: flex;
-  margin: 10px 0px;
+  margin: 10px 0;
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
 
   input {
-    color: theme.$text;
+    color: var(--text);
   }
 
   fieldset {
-    border-color: theme.$text;
+    border-color: var(--text);
   }
 
   fieldset:hover {
-    border-color: rgba(theme.$text, 0.8);
+    border-color: rgb(var(--text) 0.8);
   }
 }
 
 .rootCardNumber {
   min-width: 100%;
-  background-color: theme.$purplePanel;
+  background-color: var(--purplePanel);
 }
 
 .label {
-  color: theme.$text;
+  color: var(--text);
 }
 
 .checkboxContainer {
-  padding: 0px;
+  padding: 0;
 }
 
 .progress {
@@ -687,20 +1152,17 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: theme.$purpleLighter;
-  top: 0px;
+  background-color: var(--purpleLighter);
+  top: 0;
 }
 
 .checkboxButton {
-  margin: 0px;
-  padding: 0px;
-  color: theme.$text;
-}
-
-.mb10px {
-  margin-bottom: 10px;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  color: var(--text);
 }
 
 .accentText {
-  color: theme.$purpleLighter;
+  color: var(--purpleLighter);
 }

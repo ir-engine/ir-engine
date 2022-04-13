@@ -3,7 +3,7 @@ import React from 'react'
 import AppBar from '@mui/material/AppBar'
 
 import NavUserWidget from '../NavUserWidget'
-import styles from './NavMenu.module.scss'
+import styles from './index.module.scss'
 
 interface Props {
   login?: boolean

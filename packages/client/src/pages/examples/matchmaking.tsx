@@ -42,7 +42,7 @@ const Page = () => {
   console.log('RENDER', ticketData, connection)
 
   useEffect(() => {
-    AuthService.doLoginAuto(true).then(async () => {
+    AuthService.doLoginAuto().then(async () => {
       const _ticketData = await findCurrentTicketData()
       setTicketData(_ticketData)
       setIsUpdating(false)

@@ -8,7 +8,7 @@ import TextField from '@mui/material/TextField'
 
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
-import styles from './Profile.module.scss'
+import styles from './index.module.scss'
 
 interface Props {
   avatarUrl?: string
@@ -104,7 +104,7 @@ const UserProfile = (props: Props): JSX.Element => {
           name="file"
           placeholder={t('user:profile.userIcon.ph-uploadImg')}
           type="file"
-          className={styles['signup__fileField']}
+          className={styles.signupFileField}
           onChange={handleChange}
         />
 

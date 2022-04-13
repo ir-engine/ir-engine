@@ -9,7 +9,7 @@ import { v1 } from 'uuid'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { AvatarInterface, AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { resolveUser, resolveWalletUser, User, UserSeed, UserSetting } from '@xrengine/common/src/interfaces/User'
@@ -29,6 +29,7 @@ import { accessPartyState } from '../../social/services/PartyService'
 import { store, useDispatch } from '../../store'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { accessStoredLocalState, StoredLocalAction, StoredLocalActionType } from '../../util/StoredLocalState'
+import { uploadToFeathersService } from '../../util/upload'
 import { userPatched } from '../functions/userPatched'
 
 type AuthStrategies = {
@@ -159,7 +160,7 @@ accessAuthState().attach(() => ({
 
 //Service
 export const AuthService = {
-  doLoginAuto: async (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
+  doLoginAuto: async (forceClientAuthReset?: boolean) => {
     const dispatch = useDispatch()
     try {
       console.log(accessStoredLocalState().attach(Downgraded))
@@ -167,12 +168,8 @@ export const AuthService = {
       let accessToken =
         forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
 
-      if (allowGuest !== true && accessToken == null) {
-        return
-      }
-
       if (forceClientAuthReset === true) await (client as any).authentication.reset()
-      if (allowGuest === true && (accessToken == null || accessToken.length === 0)) {
+      if (accessToken == null || accessToken.length === 0) {
         const newProvider = await client.service('identity-provider').create({
           type: 'guest',
           token: v1()
@@ -396,14 +393,11 @@ export const AuthService = {
       .catch(() => dispatch(AuthAction.didLogout()))
       .finally(() => {
         dispatch(AuthAction.actionProcessing(false))
-        AuthService.doLoginAuto(true, true)
+        AuthService.doLoginAuto(true)
       })
   },
   registerUserByEmail: (form: EmailRegistrationForm) => {
-    console.log('1 registerUserByEmail')
     const dispatch = useDispatch()
-
-    console.log('2 dispatch', dispatch)
     dispatch(AuthAction.actionProcessing(true))
     client
       .service('identity-provider')
@@ -644,8 +638,6 @@ export const AuthService = {
     oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
     userId: string
   ) => {
-    const dispatch = useDispatch()
-
     window.open(`https://${globalThis.process.env['VITE_SERVER_HOST']}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
   },
   removeConnection: async (identityProviderId: number, userId: string) => {
@@ -692,39 +684,18 @@ export const AuthService = {
     dispatch(AuthAction.avatarUpdated(result))
   },
   uploadAvatarModel: async (avatar: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) => {
-    const uploadArguments: AssetUploadType = {
+    await uploadToFeathersService([avatar, thumbnail], 'upload-asset', () => {}, {
       type: 'user-avatar-upload',
-      files: [avatar, thumbnail],
       args: {
         avatarName,
         isPublicAvatar: !!isPublicAvatar
       }
-    }
-    const response = await client.service('upload-asset').create(uploadArguments)
-    if (response && !isPublicAvatar) {
-      const dispatch = useDispatch()
-      dispatch(AuthAction.userAvatarIdUpdated(response))
+    })
+    const avatarDetail = (await client.service('avatar').get(avatarName)) as AvatarProps
+    if (!isPublicAvatar) {
       const selfUser = accessAuthState().user
-      const userId = selfUser.id.value ?? null
-      client
-        .service('user')
-        .patch(userId, { avatarId: avatarName })
-        .then((_) => {
-          AlertService.dispatchAlertSuccess(i18n.t('user:avatar.upload-success-msg'))
-          dispatchFrom(Engine.userId, () =>
-            NetworkWorldAction.avatarDetails({
-              avatarDetail: response
-            })
-          ).cache({ removePrevious: true })
-          const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
-          transport?.sendNetworkStatUpdateMessage({
-            type: MessageTypes.AvatarUpdated,
-            userId: selfUser.id.value,
-            avatarId: avatarName,
-            avatarURL: response.avatarURL,
-            thumbnailURL: response.thumbnailURL
-          })
-        })
+      const userId = selfUser.id.value!
+      AuthService.updateUserAvatarId(userId, avatarName, avatarDetail.avatarURL, avatarDetail.thumbnailURL!)
     }
   },
   removeAvatar: async (keys: string) => {
@@ -779,7 +750,7 @@ export const AuthService = {
       })
       .then((res: any) => {
         // dispatchAlertSuccess(dispatch, 'User Avatar updated');
-        dispatch(AuthAction.userAvatarIdUpdated(res))
+        dispatch(AuthAction.userAvatarIdUpdated(res.avatarId))
         dispatchFrom(Engine.userId, () =>
           NetworkWorldAction.avatarDetails({
             avatarDetail: {
@@ -799,8 +770,6 @@ export const AuthService = {
       })
   },
   removeUser: async (userId: string) => {
-    const dispatch = useDispatch()
-
     await client.service('user').remove(userId)
     await client.service('identity-provider').remove(null, {
       query: {
@@ -816,7 +785,6 @@ export const AuthService = {
     dispatch(AuthAction.apiKeyUpdated(apiKey))
   },
   listenForUserPatch: () => {
-    console.log('listenForUserPatch')
     client.service('user').on('patched', (params) => useDispatch()(AuthAction.userPatched(params)))
     client.service('location-ban').on('created', async (params) => {
       const selfUser = accessAuthState().user
@@ -991,8 +959,7 @@ export const AuthAction = {
       name
     }
   },
-  userAvatarIdUpdated: (result: User) => {
-    const avatarId = result.avatarId
+  userAvatarIdUpdated: (avatarId: string) => {
     return {
       type: 'USERAVATARID_UPDATED' as const,
       avatarId

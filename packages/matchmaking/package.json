@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/matchmaking",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "author": {
     "name": "XRFoundation Collective",
     "email": "hello@xrfoundation.io"
@@ -31,17 +31,17 @@
   },
   "dependencies": {
     "abort-controller": "^3.0.0",
-    "axios": "0.25.0",
+    "axios": "0.26.1",
     "node-fetch": "^2.6.6"
   },
   "devDependencies": {
     "@types/mocha": "9.1.0",
     "create-ts-index": "1.14.0",
     "cross-env": "7.0.3",
-    "mocha": "9.2.0",
+    "mocha": "9.2.2",
     "nock": "13.2.4",
-    "ts-node": "10.5.0",
-    "typescript": "4.5.5",
-    "vite": "2.8.1"
+    "ts-node": "10.7.0",
+    "typescript": "4.6.2",
+    "vite": "2.8.6"
   }
 }
