@@ -15,8 +15,8 @@ import { DialogAction } from '../../../common/services/DialogService'
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../services/AuthService'
 import { AuthService } from '../../services/AuthService'
-import styles from './Auth.module.scss'
 import ForgotPassword from './ForgotPassword'
+import styles from './index.module.scss'
 import SignUp from './Register'
 
 const initialState = { email: '', password: '' }

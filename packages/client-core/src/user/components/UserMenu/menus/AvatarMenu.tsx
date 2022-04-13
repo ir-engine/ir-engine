@@ -13,7 +13,7 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import { LazyImage } from '../../../../common/components/LazyImage'
 import { AuthService, useAuthState } from '../../../services/AuthService'
-import styles from '../UserMenu.module.scss'
+import styles from '../index.module.scss'
 import { Views } from '../util'
 
 interface Props {

@@ -10,7 +10,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import OutlinedInput from '@mui/material/OutlinedInput'
 
 import { AuthService } from '../../services/AuthService'
-import styles from './Auth.module.scss'
+import styles from './index.module.scss'
 
 const initialState = { email: '', password: '' }
 

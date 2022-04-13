@@ -1,6 +1,6 @@
 import React from 'react'
 
-import styles from './SquareLoader.module.scss'
+import styles from './index.module.scss'
 
 const Loader = (): JSX.Element => {
   return (

@@ -10,7 +10,7 @@ import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 
 import { AuthService, useAuthState } from '../../../services/AuthService'
-import styles from '../UserMenu.module.scss'
+import styles from '../index.module.scss'
 import { Views } from '../util'
 
 interface Props {
