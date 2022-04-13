@@ -7,7 +7,7 @@ import MuiDialogActions from '@mui/material/DialogActions'
 import MuiDialogContent from '@mui/material/DialogContent'
 import MuiDialogTitle from '@mui/material/DialogTitle'
 
-import styles from '../Common.module.scss'
+import styles from '../index.module.scss'
 import { BrowserMessages } from './BrowserMessages'
 
 const WarningMessage = ({ setIsHardwareAccelerationEnabled }) => {
