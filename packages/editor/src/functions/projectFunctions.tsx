@@ -4,6 +4,8 @@ import { MultiError } from '@xrengine/client-core/src/util/errors'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 
 import ErrorIcon from '../classes/ErrorIcon'
@@ -62,6 +64,11 @@ export async function runPreprojectLoadTasks(): Promise<void> {
  * Loads scene from provided project file.
  */
 export async function loadProjectScene(projectFile: SceneJson) {
+  dispatchLocal(EngineActions.sceneUnloaded())
+
+  executeCommand(EditorCommands.REPLACE_SELECTION, [])
+  clearHistory()
+
   disposeProject()
 
   await runPreprojectLoadTasks()
@@ -69,9 +76,6 @@ export async function loadProjectScene(projectFile: SceneJson) {
   removeInputEvents()
   disposePlayModeControls()
   const errors = await initializeScene(projectFile)
-
-  executeCommand(EditorCommands.REPLACE_SELECTION, [])
-  clearHistory()
 
   store.dispatch(EditorAction.projectLoaded(true))
   store.dispatch(SelectionAction.changedSceneGraph())

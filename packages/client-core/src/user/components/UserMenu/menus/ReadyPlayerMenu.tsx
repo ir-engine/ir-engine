@@ -50,8 +50,9 @@ export const ReadyPlayerMenu = (props: Props) => {
 
   useEffect(() => {
     const world = useWorld()
-    const entityItem = createEntity()
-    addAnimationLogic(entityItem, world, setEntity, panelRef)
+    const entity = createEntity()
+    setEntity(entity)
+    addAnimationLogic(entity, world, panelRef)
     const init = initialize3D()
     scene = init.scene
     camera = init.camera

@@ -16,7 +16,7 @@ export type CustomRoute = {
  * @return {Promise}
  */
 export const getCustomRoutes = async (): Promise<CustomRoute[]> => {
-  const routes = await client.service('route').find()
+  const routes = await (client as any).service('route').find()
 
   const components: CustomRoute[] = []
 
