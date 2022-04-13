@@ -1,4 +1,5 @@
 import { ArrowHelper, Clock, Material, MathUtils, Matrix4, Quaternion, SkinnedMesh, Vector3 } from 'three'
+import { clamp } from 'three/src/math/MathUtils'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -74,10 +75,11 @@ export const getAvatarBonePosition = (entity: Entity, name: BoneNames, position:
 export const updateAvatarOpacity = (entity: Entity) => {
   if (!entity) return
 
+  const fadeDistance = 0.8
   const followCamera = getComponent(entity, FollowCameraComponent)
-  const distanceRatio = Math.pow(Math.min(followCamera.distance / followCamera.minDistance, 1), 2.5)
+  const opacity = Math.pow(clamp(followCamera.distance / fadeDistance, 0, 1), 6)
 
-  setAvatarHeadOpacity(entity, distanceRatio)
+  setAvatarHeadOpacity(entity, opacity)
 }
 
 export const updateCameraTargetRotation = (entity: Entity, delta: number) => {
