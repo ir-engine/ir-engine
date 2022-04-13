@@ -10,7 +10,7 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
 import { AuthService } from '../../services/AuthService'
-import styles from './Auth.module.scss'
+import styles from './index.module.scss'
 
 interface Props {}
 

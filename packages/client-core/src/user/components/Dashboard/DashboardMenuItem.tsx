@@ -10,7 +10,7 @@ import ListItemText from '@mui/material/ListItemText'
 
 import { useAuthState } from '../../services/AuthService'
 import { SidebarItems } from './DashboardItems'
-import styles from './styles.module.scss'
+import styles from './index.module.scss'
 
 interface Props {
   //authState?: any

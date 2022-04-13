@@ -1,4 +1,4 @@
-@import "../../../styles/imports.module.scss";
+@import "@xrengine/client-core/src/styles/imports.module.scss";
 
 .primary {
   background: var(--purpleColor);
@@ -190,248 +190,6 @@
           position: initial;
           width: 140px;
         }
-      }
-    }
-  }
-
-  .avatarUploadPanel {
-    position: absolute;
-    bottom: 75px;
-    padding: 0 30px;
-    border-radius: 20px;
-    background-color: var(--purpleLighter);
-    left: 50%;
-    transform: translateX(-50%);
-    box-shadow: 16px 16px 32px 0 #11111159;
-    color: black;
-    max-height: calc(100vh - 100px);
-    overflow: auto;
-    width: 360px;
-    z-index: 1400;
-
-    .avatarHeaderBlock {
-      margin: 30px 0 20px;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-
-      .iconBlock {
-        display: inline-block;
-        cursor: pointer;
-        color: var(--text);
-      }
-
-      h2 {
-        font-size: 18px;
-        color: var(--text);
-        font-weight: bold;
-        display: inline-block;
-        vertical-align: middle;
-        margin-left: 10px;
-      }
-    }
-
-    .controlContainer {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 20px;
-
-      button {
-        height: 35px;
-        background-color: var(--purpleColor1);
-        padding: 0;
-        border: none;
-        color: var(--text);
-        flex-grow: 1;
-        border-radius: 3px;
-        font-size: 14px;
-
-        & > svg {
-          font-size: 18px;
-          margin-left: 5px;
-        }
-
-        &:hover {
-          background-color: var(--purpleColor);
-        }
-      }
-
-      button + button {
-        margin-left: 5px;
-      }
-
-      button[disabled] {
-        background: var(--purpleDarkest);
-        opacity: 1 !important;
-      }
-
-      .browseBtn {
-        & > svg {
-          transform: rotate(180deg);
-        }
-      }
-
-      .uploadBtn {
-        background: var(--purplePinkGradient);
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: bold;
-      }
-
-      button:hover,
-      button:focus {
-        outline: none;
-        opacity: 0.7;
-      }
-
-      .selectBtns {
-        display: flex;
-        justify-content: flex-end;
-        margin: 8px 0;
-      }
-    }
-
-    .stage {
-      border-radius: 5px;
-      overflow: hidden;
-      position: relative;
-
-      .legendContainer {
-        position: absolute;
-        right: 5px;
-        top: 5px;
-
-        & > svg {
-          opacity: 1;
-          color: var(--purpleColor);
-
-          &:hover {
-            opacity: 0.8;
-          }
-        }
-
-        .legend {
-          position: absolute;
-          padding: 10px;
-          background: var(--purplePanel);
-          border-radius: 5px;
-          top: 30px;
-          right: 5px;
-          width: 130px;
-          color: var(--text);
-          font-size: 12px;
-          display: none;
-
-          span {
-            margin-left: 5px;
-          }
-
-          .shiftKey {
-            background: var(--purplePanel);
-            color: var(--text);
-            padding: 2px 4px;
-            border-radius: 4px;
-            font-weight: bold;
-            margin: 0 5px 0 0;
-          }
-
-          svg {
-            font-size: 18px;
-            margin-right: 5px;
-            width: 40px;
-            color: var(--text);
-
-            path {
-              fill: var(--text);
-            }
-          }
-
-          & > div + div {
-            margin-top: 10px;
-          }
-        }
-
-        &:hover {
-          .legend {
-            display: block;
-          }
-        }
-      }
-    }
-
-    .thumbnailContainer {
-      display: flex;
-      width: 100%;
-      margin-top: 8px;
-
-      .thumbnailPreview {
-        max-width: 100px;
-        margin: auto;
-      }
-    }
-
-    .selectLabelContainer {
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-
-      &:last-child {
-        margin-bottom: 10px;
-      }
-
-      .avatarSelectLabel,
-      .thumbnailSelectLabel {
-        margin: 20px 0 8px;
-        font-size: 15px;
-        color: var(--text);
-      }
-    }
-
-    .avatarNameContainer {
-      display: flex;
-      justify-content: space-around;
-      margin: 8px 0;
-
-      .avatarNameInput {
-        color: var(--text);
-        border-color: var(--text);
-        background: transparent;
-
-        input {
-          padding: 5px;
-          font-size: 14px;
-          color: var(--text);
-          border-color: var(--text);
-
-          &::selection {
-            background-color: transparent;
-          }
-        }
-
-        :global(.MuiFormLabel-root) {
-          color: var(--text);
-        }
-
-        :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
-          border-color: white !important;
-        }
-      }
-    }
-
-    .iconBlock {
-      @include icon-block-styling;
-    }
-
-    @media (max-width: 400px) {
-      padding: 0 15px;
-      width: 330px;
-
-      .avatarHeaderBlock {
-        margin-top: 15px;
-      }
-
-      .controlContainer {
-        margin-bottom: 15px;
       }
     }
   }
@@ -963,7 +721,7 @@
       .shareBtn {
         width: 100px;
         height: 35px;
-        background: $PurpleButtonColor;
+        background: var(--purpleButtonColor);
         color: "#fff";
 
         &:hover {
@@ -981,7 +739,7 @@
 
     .newLocation {
       width: 90px;
-      background: $PurpleButtonColor;
+      background: var(--purpleButtonColor);
       margin: 0;
       height: 40px;
       flex-shrink: 0;
@@ -1004,7 +762,7 @@
 
       &:focus-within {
         svg {
-          color: $PurpleButtonColor;
+          color: var(--purpleButtonColor);
         }
       }
     }
@@ -1018,7 +776,7 @@
       margin-top: 10px;
 
       .tableHead {
-        background: $PurpleButtonColor;
+        background: var(--purpleButtonColor);
         color: var(--text);
       }
 
@@ -1048,7 +806,7 @@
       }
 
       button:hover {
-        background: $PurpleButtonColor;
+        background: var(--purpleButtonColor);
         color: var(--text);
       }
     }
@@ -1074,7 +832,7 @@
         }
 
         &:global(.Mui-checked) svg {
-          color: $PurpleButtonColor;
+          color: var(--purpleButtonColor);
         }
 
         &:hover {
@@ -1149,7 +907,7 @@
       height: 25px;
       border-radius: 20px;
       background: transparent;
-      color: $PurpleButtonColor;
+      color: var(--purpleButtonColor);
       margin: 0;
       min-width: 0;
       margin-right: 10px;
@@ -1160,7 +918,7 @@
         width: 0;
         height: 0;
         border-radius: 25px;
-        background: $PurpleButtonColor;
+        background: var(--purpleButtonColor);
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
@@ -1181,7 +939,7 @@
 
     .savebtn {
       color: var(--text);
-      background: $PurpleButtonColor;
+      background: var(--purpleButtonColor);
       height: 35px;
       width: 150px;
       margin-top: 25px;
@@ -1223,7 +981,7 @@
             width: 100px;
             height: 35px;
             margin: 20px 10px;
-            background: $PurpleButtonColor;
+            background: var(--purpleButtonColor);
             font-size: 0.8rem;
 
             &.yesbtn {
@@ -1315,7 +1073,7 @@
         right: -5px;
         border: none;
         border-radius: 50%;
-        background: $PurpleButtonColor;
+        background: var(--purpleButtonColor);
         box-shadow: 2px 2px 10px gray;
         color: var(--text);
         transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
@@ -1366,7 +1124,7 @@
           width: 50%;
 
           &:last-child {
-            color: $PurpleButtonColor;
+            color: var(--purpleButtonColor);
           }
 
           svg {
@@ -1426,19 +1184,36 @@
 }
 
 .avatarUploadPanel {
-  @include panel-popup-container-styling;
+  position: absolute;
+  bottom: 75px;
+  padding: 0 30px;
+  border-radius: 20px;
+  background-color: var(--purpleLighter);
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 16px 16px 32px 0 #11111159;
+  color: black;
+  max-height: calc(100vh - 100px);
+  overflow: auto;
+  width: 360px;
+  z-index: 1400;
 
   .avatarHeaderBlock {
     margin: 30px 0 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 
     .iconBlock {
       display: inline-block;
-      color: $PurpleButtonColor;
+      cursor: pointer;
+      color: var(--text);
       background: transparent;
     }
 
     h2 {
       font-size: 18px;
+      color: var(--text);
       font-weight: bold;
       display: inline-block;
       vertical-align: middle;
@@ -1449,24 +1224,25 @@
   .controlContainer {
     display: flex;
     flex-direction: column;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 
     button {
       height: 35px;
-      background: var(--purpleColor);
+      background-color: var(--purpleColor1);
       padding: 0;
       border: none;
       color: var(--text);
       flex-grow: 1;
       border-radius: 3px;
       font-size: 14px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
 
       & > svg {
         font-size: 18px;
         margin-left: 5px;
+      }
+
+      &:hover {
+        background-color: var(--purpleColor);
       }
     }
 
@@ -1475,7 +1251,7 @@
     }
 
     button[disabled] {
-      background: grey;
+      background: var(--purpleDarkest);
       opacity: 1 !important;
     }
 
@@ -1487,12 +1263,21 @@
 
     .uploadBtn {
       background: var(--purplePinkGradient);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
     }
 
     button:hover,
     button:focus {
       outline: none;
-      opacity: 0.8;
+      opacity: 0.7;
+    }
+
+    .selectBtns {
+      display: flex;
+      justify-content: flex-end;
+      margin: 8px 0;
     }
   }
 
@@ -1543,7 +1328,7 @@
         svg {
           font-size: 18px;
           margin-right: 5px;
-          vertical-align: middle;
+          width: 40px;
           color: var(--text);
 
           path {
@@ -1578,24 +1363,49 @@
   .selectLabelContainer {
     display: flex;
     justify-content: space-around;
+    padding: 10px 0;
+
+    &:last-child {
+      margin-bottom: 10px;
+    }
 
     .avatarSelectLabel,
     .thumbnailSelectLabel {
-      margin: 20px 3px 8px 0;
+      margin: 20px 0 8px;
       font-size: 15px;
-      color: var(--purpleColor);
-
-      &.avatarSelectError,
-      &.thumbnailSelectError {
-        color: red;
-      }
+      color: var(--text);
     }
   }
 
   .avatarNameContainer {
     display: flex;
     justify-content: space-around;
-    margin-top: 8px;
+    margin: 8px 0;
+
+    .avatarNameInput {
+      color: var(--text);
+      border-color: var(--text);
+      background: transparent;
+
+      input {
+        padding: 5px;
+        font-size: 14px;
+        color: var(--text);
+        border-color: var(--text);
+
+        &::selection {
+          background-color: transparent;
+        }
+      }
+
+      :global(.MuiFormLabel-root) {
+        color: var(--text);
+      }
+
+      :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
+        border-color: white !important;
+      }
+    }
   }
 
   .iconBlock {
@@ -1816,7 +1626,7 @@
     color: var(--text);
     border: none;
     padding: 0;
-    background-color: transparent;
+    background-color: transparent !important;
     top: 18px;
     right: 3px;
     transform: rotate(-45deg);
@@ -1836,7 +1646,7 @@
     }
 
     &.disabled {
-      color: grey;
+      color: var(--text2);
       cursor: initial;
 
       &::before {
@@ -1874,7 +1684,7 @@
     padding: 0;
     top: 18px;
     right: 3px;
-    background-color: transparent;
+    background-color: transparent !important;
     transform: rotate(225deg);
 
     @media (max-width: 360px) {
@@ -1892,7 +1702,7 @@
     }
 
     &.disabled {
-      color: grey;
+      color: var(--text2);
       cursor: initial;
 
       &::before {
