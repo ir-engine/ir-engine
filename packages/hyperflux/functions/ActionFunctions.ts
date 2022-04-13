@@ -1,8 +1,8 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { deepEqual } from '@xrengine/engine/src/common/functions/deepEqual'
 
-import matches, { Validator } from '../MatchesUtils'
-import StoreFunctions, { allowStateMutations, HyperStore } from './StoreFunctions'
+import { matches, matchesActionFromUser, MatchesWithDefault, Validator } from '../utils/MatchesUtils'
+import { allowStateMutations, HyperStore } from './StoreFunctions'
 
 export type Action = {
   type: string
@@ -50,114 +50,150 @@ export type ActionOptions = {
   $cache?: ActionCacheOptions
 }
 
-type ActionShape<A> = {
-  [key in keyof A]: A[key] extends Validator<unknown, unknown>
+type Shape<A extends any> = {
+  [key in keyof A]: key extends keyof ActionOptions
     ? A[key]
-    : A[key] extends string
-    ? string
-    : A[key] extends number
-    ? number
-    : A[key] extends MatchesCallback<unknown>
+    : A[key] extends Validator<unknown, unknown>
+    ? A[key]
+    : A[key] extends string | number | boolean | any
+    ? A[key] | Validator<unknown, A[key]>
+    : A[key] extends MatchesWithDefault<unknown>
     ? A[key]
     : never
 }
 
-type MatchesCallback<A> = { matches: Validator<unknown, A>; callback: () => A }
+type ActionShape = Shape<Action> // & Shape<{[key:string]:any}>
 
-export type ResolvedActionShape<A extends ActionShape<any>> = {
+export type ResolvedActionShape<A extends ActionShape> = {
   [key in keyof A]: A[key] extends Validator<unknown, infer B>
     ? Validator<unknown, B>
-    : A[key] extends MatchesCallback<infer C>
+    : A[key] extends MatchesWithDefault<infer C>
     ? Validator<unknown, C>
-    : A[key] extends string | number
+    : A[key] extends string | number | boolean | any
     ? Validator<unknown, A[key]>
     : never
 }
 
-type IsNullable<T> = null extends T ? true : undefined extends T ? true : false
-
-type JustOptionalKeys<A extends ActionShape<any>> = {
-  [key in keyof A]: A[key] extends Validator<unknown, infer B> ? (true extends IsNullable<B> ? key : never) : never
-}[keyof A]
-
-type JustRequiredKeys<A extends ActionShape<any>> = {
-  [key in keyof A]: A[key] extends Validator<unknown, infer B> ? (true extends IsNullable<B> ? never : key) : never
-}[keyof A]
-
-type ActionFromShape<S extends ActionShape<any>> = {
-  [key in keyof S]: S[key] extends Validator<unknown, unknown>
-    ? S[key]['_TYPE']
-    : S[key] extends MatchesCallback<S[key]>
-    ? S[key]['matches']
-    : S[key]
+export type PartialActionShape<A extends ActionShape> = {
+  [key in keyof A]: A[key] extends Validator<unknown, infer B>
+    ? Validator<unknown, B>
+    : A[key] extends MatchesWithDefault<infer C>
+    ? Validator<unknown, C | undefined>
+    : A[key] extends string | number | boolean | any
+    ? Validator<unknown, A[key] | undefined>
+    : never
 }
 
-type JustOptionals<S extends ActionShape<any>> = Omit<
-  Partial<Pick<ActionFromShape<S>, JustOptionalKeys<S>>>,
-  JustRequiredKeys<S>
+type ActionTypeFromShape<S> = {
+  [key in keyof S]: S[key] extends Validator<unknown, unknown>
+    ? S[key]['_TYPE']
+    : S[key] extends MatchesWithDefault<S[key]>
+    ? S[key]['matches']
+    : S[key]
+} & Action
+
+type IsOptional<T> = null extends T ? true : undefined extends T ? true : false
+
+type JustOptionalKeys<A> = {
+  [key in keyof A]: A[key] extends Validator<unknown, infer B>
+    ? true extends IsOptional<B>
+      ? key
+      : never
+    : true extends IsOptional<A[key]>
+    ? key
+    : never
+}[keyof A]
+
+type JustRequiredKeys<A> = {
+  [key in keyof A]: A[key] extends Validator<unknown, infer B>
+    ? true extends IsOptional<B>
+      ? never
+      : key
+    : true extends IsOptional<A[key]>
+    ? never
+    : key
+}[keyof A]
+
+type JustOptionals<S> = Pick<S, JustOptionalKeys<S>>
+type JustRequired<S> = Pick<S, JustRequiredKeys<S>>
+
+type PartialActionType<S extends ActionShape> = Partial<JustOptionals<S>> & Required<JustRequired<S>>
+
+export type ResolvedActionFromShape<S extends ActionShape> = ActionTypeFromShape<ResolvedActionShape<S>> &
+  Required<Action>
+export type PartialActionFromShape<S extends ActionShape> = Omit<
+  PartialActionType<ActionTypeFromShape<PartialActionShape<S>>>,
+  'type'
 >
-type JustRequired<S extends ActionShape<any>> = Omit<Pick<ActionFromShape<S>, JustRequiredKeys<S>>, JustOptionalKeys<S>>
-
-type PartialAction<T> = Omit<Partial<T>, 'type'>
-
-type ResolvedActionType<S extends ActionShape<any>> = Required<ActionFromShape<S> & Action>
 
 /**
  * Defines an action
  * @param actionShape
- * @param options
- *
- * @author Gheric Speiginer <github.com/speigg>
+ * @returns a function that creates the defined action
  */
-function defineAction<A extends Action, Shape extends ActionShape<A>>(
-  actionShape: ActionShape<A>,
-  initAction?: (action: ResolvedActionType<ResolvedActionShape<Shape>> & Action) => void
-) {
-  type ResolvedAction = ResolvedActionType<ResolvedActionShape<Shape>>
+function defineAction<Shape extends ActionShape>(actionShape: Shape) {
+  type ResolvedAction = ResolvedActionFromShape<Shape>
+  type PartialAction = PartialActionFromShape<Shape>
 
   const shapeEntries = Object.entries(actionShape)
 
-  // handle callback shape properties
-  const initializerEntries = shapeEntries.filter(([k, v]) => typeof v === 'object' && 'callback' in v) as Array<
-    [string, MatchesCallback<any>]
-  >
-  const initializerMatches = Object.fromEntries(initializerEntries.map(([k, v]) => [k, v.matches]))
+  // handle default callback properties
+  const defaultEntries = shapeEntries.filter(
+    ([k, v]) =>
+      typeof v === 'object' && ('defaultValue' in v || ('parser' in v && v.parser.description.name === 'Default'))
+  ) as Array<[string, MatchesWithDefault<any> | Validator<unknown, unknown>]>
+  const defaultValidators = Object.fromEntries(
+    defaultEntries.map(([k, v]) => [k, v instanceof Validator ? v : v.matches])
+  )
 
   // handle literal shape properties
-  const literalEntries = shapeEntries.filter(([k, v]) => typeof v !== 'object') as Array<[string, string | number]>
+  const literalEntries = shapeEntries.filter(([k, v]) => typeof v !== 'object') as Array<
+    [string, string | number | boolean]
+  >
   const literalValidators = Object.fromEntries(literalEntries.map(([k, v]) => [k, matches.literal(v)]))
-  const resolvedActionShape = Object.assign({}, actionShape, literalValidators, initializerMatches) as any
-  const allValuesNull = Object.fromEntries(Object.entries(resolvedActionShape).map(([k]) => [k, null]))
 
-  const actionCreator = (partialAction: PartialAction<Shape>) => {
-    const initializerValues = Object.fromEntries(
-      initializerEntries.map(([k, v]) => [k, partialAction[k] ?? v.callback()]) as [string, any]
-    )
-    const action = {
-      ...allValuesNull,
-      ...partialAction,
-      ...Object.fromEntries(literalEntries),
-      ...initializerValues
-    } as any
-    initAction?.(action)
-    return action
-  }
+  // handle option properties
+  const optionEntries = shapeEntries.filter(([k, v]) => k.startsWith('$')) as Array<
+    [string, ActionOptions[keyof ActionOptions]]
+  >
+  const optionValidators = Object.fromEntries(
+    optionEntries.map(([k, v]) => [k, matches.guard<unknown, typeof v>((val): val is typeof v => deepEqual(val, v))])
+  )
+
+  // create resolved action shape
+  const resolvedActionShape = Object.assign(
+    {},
+    actionShape,
+    optionValidators,
+    literalValidators,
+    defaultValidators
+  ) as any
+  const allValuesNull = Object.fromEntries(Object.entries(resolvedActionShape).map(([k]) => [k, null]))
 
   const matchesShape = matches.shape(resolvedActionShape) as Validator<unknown, ResolvedAction>
 
-  actionCreator.actionShape = actionShape as Shape
-  actionCreator.resolvedActionShape = resolvedActionShape
+  const actionCreator = (partialAction: PartialAction) => {
+    const defaultValues = Object.fromEntries(
+      defaultEntries.map(([k, v]) => [
+        k,
+        partialAction[k] ?? ('defaultValue' in v ? v.defaultValue() : v.parser['defaultValue'])
+      ]) as [string, any]
+    )
+    let action = {
+      ...allValuesNull,
+      ...Object.fromEntries([...optionEntries, ...literalEntries]),
+      ...defaultValues,
+      ...partialAction
+    }
+    return matchesShape.unsafeCast(action) //as ResolvedAction
+  }
+
+  actionCreator.actionShape = actionShape
+  actionCreator.resolvedActionShape = resolvedActionShape as ResolvedActionShape<Shape>
   actionCreator.type = actionShape.type
   actionCreator.matches = matchesShape
-  /**
-   * @deprecated
-   */
-  actionCreator.matchesFromAny = matchesShape
-  actionCreator.matchesFromUser = (userId: UserId) => matches.every(matchesShape, matches.actionFromUser(userId))
-
-  type ValidatorKeys = 'matches' | 'matchesFromUser' | 'matchesFromAny'
-  type FunctionProps = Pick<typeof actionCreator, 'type' | 'actionShape' | ValidatorKeys>
-  return actionCreator as unknown as ((partialAction: PartialAction<ResolvedAction>) => ResolvedAction) & FunctionProps
+  actionCreator.matchesFromUser = (userId: UserId) => matches.every(matchesShape, matchesActionFromUser(userId))
+  return actionCreator
 }
 
 function _createActionModifier<A extends Action>(action: A, store: HyperStore) {
@@ -224,7 +260,7 @@ function addActionReceptor(store: HyperStore, receptor: ActionReceptor) {
  */
 function removeActionReceptor(store: HyperStore, receptor: ActionReceptor) {
   const idx = store.receptors.indexOf(receptor)
-  if (idx >= 0) store.reactors.splice(idx, 1)
+  if (idx >= 0) store.receptors.splice(idx, 1)
 }
 
 const _updateCachedActions = (store: HyperStore, incomingAction: Required<Action>) => {
@@ -318,7 +354,6 @@ export default {
   dispatchAction,
   addActionReceptor,
   removeActionReceptor,
-  updateCachedActions: _updateCachedActions,
   applyIncomingActions,
   loopbackOutgoingActions
 }

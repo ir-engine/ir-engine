@@ -8,7 +8,7 @@ import {
   Vector3
 } from 'three'
 
-import { matches } from '@xrengine/hyperflux'
+import { matches, matchesVector3 } from '@xrengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -82,7 +82,7 @@ export const AvatarAnimations = {
 
 const matchesMovementType = matches.shape({
   /** Velocity of the avatar */
-  velocity: matches.vector3,
+  velocity: matchesVector3,
   /** Distance from the ground of the avatar */
   distanceFromGround: matches.number
 })

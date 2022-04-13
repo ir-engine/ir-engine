@@ -1,8 +1,8 @@
-import { createState, SetInitialStateAction } from '@speigg/hookstate'
+import { createState, SetInitialStateAction, State } from '@speigg/hookstate'
 import React from 'react'
 import Reconciler from 'react-reconciler'
 
-import { allowStateMutations, HyperStore, reactorRoots } from './StoreFunctions'
+import { allowStateMutations, HyperStore } from './StoreFunctions'
 
 export * from '@speigg/hookstate'
 
@@ -12,20 +12,21 @@ function defineState<S>(name: string, initial: SetInitialStateAction<S>): StateD
   return { name, initial }
 }
 
-function registerState<S extends StateDefinition<any>>(store: HyperStore, State: S) {
-  if (State.name in store.state) throw new Error(`State ${State.name} has already been registered in Store`)
-  store.state[State.name] = createState(State.initial)
+function registerState(store: HyperStore, StateDefinition: StateDefinition<any>) {
+  if (StateDefinition.name in store.state)
+    throw new Error(`State ${StateDefinition.name} has already been registered in Store`)
+  store.state[StateDefinition.name] = createState(StateDefinition.initial)
 }
 
-function getMutableState<S extends StateDefinition<any>>(store: HyperStore, State: S) {
+function getMutableState<S>(store: HyperStore, StateDefinition: StateDefinition<S>) {
   if (!store[allowStateMutations]) throw new Error('Mutable state can only be accessed inside a receptor function')
-  if (!store.state[State.name]) throw new Error(`State ${State.name} is not registered in Store`)
-  return store.state[State.name] as ReturnType<typeof State.initial>
+  if (!store.state[StateDefinition.name]) throw new Error(`State ${StateDefinition.name} is not registered in Store`)
+  return store.state[StateDefinition.name] as State<S>
 }
 
-function getState<S extends StateDefinition<any>>(store: HyperStore, State: S) {
-  if (!store.state[State.name]) throw new Error(`State ${State.name} is not registered in Store`)
-  return store.state[State.name]!.value as Readonly<ReturnType<typeof State.initial>['value']>
+function getState<S>(store: HyperStore, StateDefinition: StateDefinition<S>) {
+  if (!store.state[StateDefinition.name]) throw new Error(`State ${StateDefinition.name} is not registered in Store`)
+  return store.state[StateDefinition.name]!.value as Readonly<S>
 }
 
 const ReactorReconciler = Reconciler({
@@ -58,8 +59,7 @@ const ReactorReconciler = Reconciler({
 })
 
 function addStateReactor(store: HyperStore, reactor: () => void) {
-  const roots = store[reactorRoots]
-  let root = roots.get(reactor)
+  let root = store.reactors.get(reactor)
   if (!root) {
     root = ReactorReconciler.createContainer(reactor, 0, false, null)
     ReactorReconciler.updateContainer(
@@ -70,12 +70,12 @@ function addStateReactor(store: HyperStore, reactor: () => void) {
       root,
       null
     )
+    store.reactors.set(reactor, root)
   }
 }
 
 function removeStateReactor(store: HyperStore, reactorComponent: () => void) {
-  const roots = store[reactorRoots]
-  const root = roots.get(reactorComponent)
+  const root = store.reactors.get(reactorComponent)
   if (root) {
     ReactorReconciler.updateContainer(null, root, null)
   }

@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { HostUserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -21,7 +21,7 @@ export const OfflineLocation = () => {
       const world = Engine.currentWorld
       const userId = authState.authUser.identityProvider.userId.value
       Engine.userId = userId
-      world.hostId = Engine.userId as HostUserId
+      world.hostId = Engine.userId as UserId
 
       const index = 1
       world.userIdToUserIndex.set(userId, index)

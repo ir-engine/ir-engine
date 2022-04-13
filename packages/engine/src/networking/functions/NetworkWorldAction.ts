@@ -1,4 +1,12 @@
-import { defineAction, matches } from '@xrengine/hyperflux'
+import {
+  defineAction,
+  matches,
+  matchesNetworkId,
+  matchesQuaternion,
+  matchesUserId,
+  matchesVector3,
+  matchesWithDefault
+} from '@xrengine/hyperflux'
 
 import { matchesWeightsParameters } from '../../avatar/animation/Util'
 import { Engine } from '../../ecs/classes/Engine'
@@ -25,52 +33,39 @@ export class NetworkWorldAction {
     type: 'network.XR_HANDS_CONNECTED'
   })
 
-  static spawnObject = defineAction(
-    {
-      type: 'network.SPAWN_OBJECT',
-      prefab: matches.string,
-      networkId: matches.withDefault(matches.networkId, () => Engine.currentWorld.createNetworkId()),
-      parameters: matches.any.optional()
-    },
-    (action) => {
-      action.$cache = true
-    }
-  )
+  static spawnObject = defineAction({
+    type: 'network.SPAWN_OBJECT',
+    prefab: matches.string,
+    networkId: matchesWithDefault(matchesNetworkId, () => Engine.currentWorld.createNetworkId()),
+    parameters: matches.any.optional(),
+    $cache: true
+  })
 
-  static spawnDebugPhysicsObject = defineAction(
-    {
-      type: 'network.SPAWN_DEBUG_PHYSICS_OBJECT',
-      config: matches.any.optional()
-    },
-    (action) => {
-      action.$cache = true
-    }
-  )
+  static spawnDebugPhysicsObject = defineAction({
+    type: 'network.SPAWN_DEBUG_PHYSICS_OBJECT',
+    config: matches.any.optional()
+  })
 
-  static spawnAvatar = defineAction(
-    {
-      ...NetworkWorldAction.spawnObject.actionShape,
-      prefab: 'avatar',
-      parameters: matches.shape({
-        position: matches.vector3,
-        rotation: matches.quaternion
-      })
-    },
-    (action) => {
-      action.$cache = true
-    }
-  )
+  static spawnAvatar = defineAction({
+    ...NetworkWorldAction.spawnObject.actionShape,
+    prefab: 'avatar',
+    parameters: matches.shape({
+      position: matchesVector3,
+      rotation: matchesQuaternion
+    }),
+    $cache: true
+  })
 
   static destroyObject = defineAction({
     type: 'network.DESTROY_OBJECT',
-    networkId: matches.networkId
+    networkId: matchesNetworkId
   })
 
   static setEquippedObject = defineAction({
     type: 'network.SET_EQUIPPED_OBJECT',
     object: matches.shape({
-      ownerId: matches.userId,
-      networkId: matches.networkId
+      ownerId: matchesUserId,
+      networkId: matchesNetworkId
     }),
     equip: matches.boolean,
     attachmentPoint: matches.number
@@ -82,21 +77,17 @@ export class NetworkWorldAction {
     params: matchesWeightsParameters
   })
 
-  static avatarDetails = defineAction(
-    {
-      type: 'network.AVATAR_DETAILS',
-      avatarDetail: matchesAvatarProps
-    },
-    (action) => {
-      action.$cache = { removePrevious: true }
-    }
-  )
+  static avatarDetails = defineAction({
+    type: 'network.AVATAR_DETAILS',
+    avatarDetail: matchesAvatarProps,
+    $cache: true
+  })
 
   static teleportObject = defineAction({
     type: 'network.TELEPORT_OBJECT',
     object: matches.shape({
-      ownerId: matches.userId,
-      networkId: matches.networkId
+      ownerId: matchesUserId,
+      networkId: matchesNetworkId
     }),
     pose: matchPose
   })
@@ -104,18 +95,18 @@ export class NetworkWorldAction {
   static requestAuthorityOverObject = defineAction({
     type: 'network.REQUEST_AUTHORITY_OVER_OBJECT',
     object: matches.shape({
-      ownerId: matches.userId,
-      networkId: matches.networkId
+      ownerId: matchesUserId,
+      networkId: matchesNetworkId
     }),
-    requester: matches.userId
+    requester: matchesUserId
   })
 
   static transferAuthorityOfObject = defineAction({
     type: 'network.TRANSFER_AUTHORITY_OF_OBJECT',
     object: matches.shape({
-      ownerId: matches.userId,
-      networkId: matches.networkId
+      ownerId: matchesUserId,
+      networkId: matchesNetworkId
     }),
-    newAuthor: matches.userId
+    newAuthor: matchesUserId
   })
 }

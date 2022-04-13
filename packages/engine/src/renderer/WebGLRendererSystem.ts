@@ -143,7 +143,7 @@ export class EngineRenderer {
 
     configureEffectComposer()
 
-    Engine.currentWorld.receptors.push((action: EngineActionType) => {
+    addActionReceptor(Engine.store, (action: EngineActionType) => {
       switch (action.type) {
         case EngineEvents.EVENTS.ENABLE_SCENE:
           if (typeof action.env.renderer !== 'undefined') this.rendereringEnabled = action.env.renderer

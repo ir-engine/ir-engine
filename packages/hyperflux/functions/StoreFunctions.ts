@@ -3,8 +3,6 @@ import { State } from '@speigg/hookstate'
 import { Action, ActionReceptor } from './ActionFunctions'
 
 export const allowStateMutations = Symbol('allowMutations')
-export const reactorRoots = Symbol('reactorRoots')
-
 export interface HyperStore {
   /**
    * The name of this store, used for logging
@@ -48,8 +46,7 @@ export interface HyperStore {
   /** functions that receive actions */
   receptors: Array<ActionReceptor>
   /** functions that re-run on state changes, compatible w/ React hooks */
-  reactors: Array<() => void>
-  [reactorRoots]: WeakMap<() => void, any>
+  reactors: WeakMap<() => void, any>
 }
 
 function createHyperStore(options: {
@@ -74,8 +71,7 @@ function createHyperStore(options: {
       outgoing: new Array<Action>()
     },
     receptors: new Array<() => {}>(),
-    reactors: new Array<() => {}>(),
-    [reactorRoots]: new WeakMap()
+    reactors: new WeakMap<() => void, any>()
   } as HyperStore
 }
 
