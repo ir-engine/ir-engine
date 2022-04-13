@@ -223,6 +223,8 @@ export const accessChatState = () => state
 
 export const useChatState = () => useState(state) as any as typeof state
 
+let hls: any = undefined
+
 globalThis.chatState = state
 
 //Service
@@ -274,6 +276,8 @@ export const ChatService = {
           }
         }
 
+        const [, video1] = document.getElementsByTagName('video')
+
         const [controlType, param] = text.split(' ')
 
         switch (controlType) {
@@ -286,11 +290,17 @@ export const ChatService = {
                 autoStartLoad: true,
                 startPosition: -1
               }
-              let hls = new Hls(config)
+              if (hls !== undefined && hls) {
+                hls.stopLoad()
+                hls.detachMedia()
+                hls.destroy()
+              }
+              hls = new Hls(config)
               hls.loadSource(videoUrl)
               hls.attachMedia(video)
               hls.on(Hls.Events.MEDIA_ATTACHED, function () {
                 video.muted = false
+                video.loop = false
                 video.play()
               })
               hls.on(Hls.Events.ERROR, function (event, data) {
