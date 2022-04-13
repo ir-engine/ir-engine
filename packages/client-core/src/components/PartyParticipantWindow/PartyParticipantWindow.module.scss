@@ -304,16 +304,6 @@
         width: 20px;
       }
     }
-
-    &:hover,
-    &:focus {
-      .user-controls {
-        padding: 10px 10px 10px 25px;
-        z-index: 10;
-        min-width: 150px;
-        width: auto;
-      }
-    }
   }
 
   @media (max-width: 768px) {

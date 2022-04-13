@@ -11,10 +11,6 @@ import styles from '../../styles/admin.module.scss'
 import ProjectTable from './ProjectTable'
 import UploadProjectModal from './UploadProjectModal'
 
-if (!global.setImmediate) {
-  global.setImmediate = setTimeout as any
-}
-
 const Projects = () => {
   const authState = useAuthState()
   const user = authState.user

@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from 'react'
-
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import React, { useState } from 'react'
 
 import LinkIcon from '@mui/icons-material/Link'
 import PersonIcon from '@mui/icons-material/Person'
@@ -8,11 +6,10 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import EmoteMenu from './menus//EmoteMenu'
-import AvatarMenu from './menus/AvatarMenu'
-import AvatarSelectMenu from './menus/AvatarSelectMenu'
+import AvatarUploadModal from './menus/AvatarSelectMenu'
 import ProfileMenu from './menus/ProfileMenu'
 import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
-import selectAvatarMenu from './menus/SelectAvatar'
+import SelectAvatarMenu from './menus/SelectAvatar'
 import SettingMenu from './menus/SettingMenu'
 import ShareMenu from './menus/ShareMenu'
 import styles from './UserMenu.module.scss'
@@ -30,8 +27,8 @@ export const UserMenuPanels = new Map<string, UserMenuPanelType>()
 UserMenuPanels.set(Views.Profile, ProfileMenu)
 UserMenuPanels.set(Views.Settings, SettingMenu)
 UserMenuPanels.set(Views.Share, ShareMenu)
-UserMenuPanels.set(Views.AvatarSelect, selectAvatarMenu)
-UserMenuPanels.set(Views.AvatarUpload, AvatarSelectMenu)
+UserMenuPanels.set(Views.AvatarSelect, SelectAvatarMenu)
+UserMenuPanels.set(Views.AvatarUpload, AvatarUploadModal)
 UserMenuPanels.set(Views.ReadyPlayer, ReadyPlayerMenu)
 UserMenuPanels.set(Views.Emote, EmoteMenu)
 

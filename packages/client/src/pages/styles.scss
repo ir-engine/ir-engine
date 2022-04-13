@@ -154,6 +154,10 @@
   background: var(--purplePinkGradient);
 }
 
+::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+
 @mixin flex-collapse {
   display: flex;
   flex-direction: column;
