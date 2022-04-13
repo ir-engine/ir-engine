@@ -65,17 +65,6 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
   return viewVector
 }
 
-export const updateAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
-  const object3DComponent = getComponent(entity, Object3DComponent)
-  object3DComponent?.value.traverse((obj) => {
-    if (!(obj as SkinnedMesh).isSkinnedMesh) return
-    const material = (obj as SkinnedMesh).material as Material
-    if (!material.userData || !material.userData.shader) return
-    const shader = material.userData.shader
-    shader.uniforms.boneOpacity.value = opacity
-  })
-}
-
 export const getAvatarBonePosition = (entity: Entity, name: BoneNames, position: Vector3): void => {
   const ikRigComponent = getComponent(entity, IKRigComponent)
   const el = ikRigComponent.boneStructure[name].matrixWorld.elements
