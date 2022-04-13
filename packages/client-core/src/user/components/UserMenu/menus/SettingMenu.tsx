@@ -12,7 +12,7 @@ import Slider from '@mui/material/Slider'
 import Typography from '@mui/material/Typography'
 
 import { AuthService, useAuthState } from '../../../services/AuthService'
-import styles from '../UserMenu.module.scss'
+import styles from '../index.module.scss'
 
 const SettingMenu = (): JSX.Element => {
   const { t } = useTranslation()

@@ -5,6 +5,7 @@ import PersonIcon from '@mui/icons-material/Person'
 import SettingsIcon from '@mui/icons-material/Settings'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
+import styles from './index.module.scss'
 import EmoteMenu from './menus//EmoteMenu'
 import AvatarUploadModal from './menus/AvatarSelectMenu'
 import ProfileMenu from './menus/ProfileMenu'
@@ -12,7 +13,6 @@ import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
 import SelectAvatarMenu from './menus/SelectAvatar'
 import SettingMenu from './menus/SettingMenu'
 import ShareMenu from './menus/ShareMenu'
-import styles from './UserMenu.module.scss'
 import { Views } from './util'
 
 export interface UserMenuProps {
