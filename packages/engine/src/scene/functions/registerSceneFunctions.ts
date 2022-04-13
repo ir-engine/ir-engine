@@ -35,7 +35,6 @@ import {
   deserializeCubemapBake,
   SCENE_COMPONENT_CUBEMAP_BAKE,
   serializeCubemapBake,
-  shouldDeserializeCubemapBake,
   updateCubemapBake
 } from './loaders/CubemapBakeFunctions'
 import {
@@ -465,7 +464,6 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_CUBEMAP_BAKE, {
     deserialize: deserializeCubemapBake,
     serialize: serializeCubemapBake,
-    update: updateCubemapBake,
-    shouldDeserialize: shouldDeserializeCubemapBake
+    update: updateCubemapBake
   })
 }
