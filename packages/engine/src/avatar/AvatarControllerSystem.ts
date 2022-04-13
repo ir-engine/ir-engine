@@ -72,9 +72,9 @@ export default async function AvatarControllerSystem(world: World) {
     }
 
     for (const entity of localXRInputQuery(world)) {
-      // setAvatarHeadOpacity(entity, 0)
+      setAvatarHeadOpacity(entity, 0)
       moveXRAvatar(world, entity, Engine.camera, lastCamPos, displacement)
-      // rotateXRAvatar(world, entity, Engine.camera)
+      rotateXRAvatar(world, entity, Engine.camera)
     }
 
     return world
