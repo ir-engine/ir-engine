@@ -21,7 +21,7 @@ import ListItemAvatar from '@mui/material/ListItemAvatar'
 import ListItemText from '@mui/material/ListItemText'
 import TextField from '@mui/material/TextField'
 
-import defaultStyles from './InstanceChat.module.scss'
+import defaultStyles from './instancechat.module.scss'
 
 interface Props {
   styles?: any

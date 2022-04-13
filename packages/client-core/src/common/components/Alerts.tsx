@@ -8,7 +8,7 @@ import Box from '@mui/material/Box'
 import { useDispatch } from '../../store'
 import { useAlertState } from '../services/AlertService'
 import { AlertService } from '../services/AlertService'
-import styles from './Common.module.scss'
+import styles from './common.module.scss'
 
 interface Props {}
 

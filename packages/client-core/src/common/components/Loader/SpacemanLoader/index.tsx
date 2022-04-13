@@ -1,6 +1,6 @@
 import React from 'react'
 
-import styles from './SpacemanLoader.module.scss'
+import styles from './spacemanloader.module.scss'
 
 const SpaceLoader = (): JSX.Element => {
   return (

@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography'
 import { useDispatch } from '../../../store'
 import { useDialogState } from '../../services/DialogService'
 import { DialogAction } from '../../services/DialogService'
-import styles from './Dialog.module.scss'
+import styles from './dialog.module.scss'
 
 interface Props {}
 
@@ -47,4 +47,7 @@ const DialogComponent = (props: Props): any => {
 }
 
 const DialogWrapper = (props: Props): JSX.Element => <DialogComponent {...props} />
-export const UIDialog = DialogWrapper
+
+const UIDialog = DialogWrapper
+
+export default UIDialog

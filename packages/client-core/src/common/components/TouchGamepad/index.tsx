@@ -5,7 +5,7 @@ import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/In
 
 import TouchAppIcon from '@mui/icons-material/TouchApp'
 
-import styles from './TouchGamepad.module.scss'
+import styles from './touchgamepad.module.scss'
 import { TouchGamepadProps } from './TouchGamepadProps'
 
 export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
