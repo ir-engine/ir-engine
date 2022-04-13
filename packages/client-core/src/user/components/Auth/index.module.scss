@@ -1,5 +1,3 @@
-@import "../../../styles/imports.module.scss";
-
 .paper {
   margin-top: 40px;
   display: flex;
@@ -22,7 +20,7 @@
 }
 
 .MuiButton-contained.facebook {
-  background-color: $FacebookBlue;
+  background-color: var(--facebookBlue);
   color: white;
 }
 

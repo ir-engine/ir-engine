@@ -12,7 +12,7 @@ import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
 
 import { AuthService } from '../../services/AuthService'
-import styles from './Auth.module.scss'
+import styles from './index.module.scss'
 
 interface Props {
   //auth?: any

@@ -1,4 +1,4 @@
-@import "../../styles/imports.module.scss";
+@import "@xrengine/client-core/src/styles/imports.module.scss";
 
 .openModalBtn {
   height: 50px;
@@ -1037,7 +1037,7 @@
     .tcellSelectable {
       .currentUser {
         color: lighten(white, 0.8);
-        background-color: $FacebookBlue;
+        background-color: var(--facebookBlue);
         padding-top: 5px;
         padding-bottom: 5px;
 

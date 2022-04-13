@@ -7,7 +7,7 @@ import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
 
 import { AuthService, useAuthState } from '../../services/AuthService'
-import styles from '../Login/Login.module.scss'
+import styles from '../Login/index.module.scss'
 
 interface Props {
   logo?: string

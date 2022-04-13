@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useRouteMatch } from 'react-router-dom'
 
-import Layout from '@xrengine/client-core/src/components/Layout/Layout'
+import Layout from '@xrengine/client-core/src/components/Layout'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { LoadEngineWithScene } from '@xrengine/client-core/src/components/World/LoadEngineWithScene'
 import LoadLocationScene from '@xrengine/client-core/src/components/World/LoadLocationScene'
