@@ -288,8 +288,18 @@ export const ChatService = {
 
               const config = {
                 autoStartLoad: true,
-                startPosition: -1
+                startPosition: -1,
+                enableWorker: true,
+                lowLatencyMode: true,
+                backBufferLength: 30,
+                chunkDurationTarget: 100,
+                maxChunkCount: 10,
+                progressive: true,
+                startFragPrefetch: true,
+                fragLoadingRetryDelay: 50,
+                maxLoadingDelay: 1
               }
+
               if (hls !== undefined && hls) {
                 hls.stopLoad()
                 hls.detachMedia()
