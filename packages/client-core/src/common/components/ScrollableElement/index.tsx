@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-import styles from './ScrollableElement.module.scss'
+import styles from './index.module.scss'
 
 type ScrollableElementPropsType = {
   children?: JSX.Element

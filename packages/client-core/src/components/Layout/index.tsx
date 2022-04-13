@@ -28,7 +28,7 @@ import InstanceChat from '../InstanceChat'
 import Me from '../Me'
 import MediaIconsBox from '../MediaIconsBox'
 import PartyVideoWindows from '../PartyVideoWindows'
-import styles from './layout.module.scss'
+import styles from './index.module.scss'
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
 

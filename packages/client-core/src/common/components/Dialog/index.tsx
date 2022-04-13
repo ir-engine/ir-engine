@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography'
 import { useDispatch } from '../../../store'
 import { useDialogState } from '../../services/DialogService'
 import { DialogAction } from '../../services/DialogService'
-import styles from './dialog.module.scss'
+import styles from './index.module.scss'
 
 interface Props {}
 

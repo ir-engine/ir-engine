@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import styles from './recorder.module.scss'
+import styles from './index.module.scss'
 
 declare var MediaRecorder: any
 declare const window: any
