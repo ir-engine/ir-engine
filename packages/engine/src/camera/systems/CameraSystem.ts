@@ -86,7 +86,7 @@ export const updateAvatarOpacity = (entity: Entity) => {
   if (!entity) return
 
   const followCamera = getComponent(entity, FollowCameraComponent)
-  const distanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
+  const distanceRatio = Math.pow(Math.min(followCamera.distance / followCamera.minDistance, 1), 2.5)
 
   setAvatarHeadOpacity(entity, distanceRatio)
 }

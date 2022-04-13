@@ -300,6 +300,17 @@ function setupHeadDecap(model: Object3D, material: Material) {
     return
   }
 
+  // Create a copy of the mesh to hide 'internal' polygons when opacity is below 1
+  const skinnedMeshMask = SkeletonUtils.clone(mesh)
+  mesh.parent?.add(skinnedMeshMask)
+  skinnedMeshMask.skeleton = mesh.skeleton
+  skinnedMeshMask.bindMatrix = mesh.bindMatrix
+  skinnedMeshMask.bindMatrixInverse = mesh.bindMatrixInverse
+  skinnedMeshMask.material = new MeshBasicMaterial({ skinning: true, colorWrite: false } as any)
+  skinnedMeshMask.name = skinnedMeshMask.name + '_Mask'
+  skinnedMeshMask.renderOrder = 1
+  ;(mesh.material as any).depthWrite = false
+
   const bonesIndexes = getBoneChildrenIndexes(bones, headBone)
   const bonesToFade = new Matrix4()
   bonesToFade.elements.fill(-1)
