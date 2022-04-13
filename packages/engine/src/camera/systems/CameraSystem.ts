@@ -75,9 +75,9 @@ export const getAvatarBonePosition = (entity: Entity, name: BoneNames, position:
 export const updateAvatarOpacity = (entity: Entity) => {
   if (!entity) return
 
-  const fadeDistance = 0.8
+  const fadeDistance = 0.6
   const followCamera = getComponent(entity, FollowCameraComponent)
-  const opacity = Math.pow(clamp(followCamera.distance / fadeDistance, 0, 1), 6)
+  const opacity = Math.pow(clamp((followCamera.distance - 0.1) / fadeDistance, 0, 1), 6)
 
   setAvatarHeadOpacity(entity, opacity)
 }
@@ -197,7 +197,7 @@ export const updateFollowCamera = (entity: Entity, delta: number) => {
   // }
 
   // Zoom smoothing
-  let smoothingSpeed = isInsideWall ? 0.01 : 0.3
+  let smoothingSpeed = isInsideWall ? 0.1 : 0.3
 
   followCamera.distance = smoothDamp(
     followCamera.distance,
