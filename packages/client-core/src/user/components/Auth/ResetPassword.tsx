@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
 import EmptyLayout from '../../../common/components/EmptyLayout'
-import styles from './Auth.module.scss'
+import styles from './index.module.scss'
 
 interface Props {
   completeAction?: () => void

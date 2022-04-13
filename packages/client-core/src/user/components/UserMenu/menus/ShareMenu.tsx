@@ -14,7 +14,7 @@ import { InviteService } from '../../../../social/services/InviteService'
 import { useInviteState } from '../../../../social/services/InviteService'
 import { useDispatch } from '../../../../store'
 import { useAuthState } from '../../../services/AuthService'
-import styles from '../UserMenu.module.scss'
+import styles from '../index.module.scss'
 
 const ShareMenu = (): JSX.Element => {
   const { t } = useTranslation()
