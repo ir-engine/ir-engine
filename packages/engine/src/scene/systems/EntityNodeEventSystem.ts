@@ -15,7 +15,6 @@ import { SelectTagComponent } from '../components/SelectTagComponent'
 import { SkyboxComponent } from '../components/SkyboxComponent'
 import { VideoComponent } from '../components/VideoComponent'
 import { VolumetricComponent } from '../components/VolumetricComponent'
-import { resetEngineRenderer } from '../functions/loaders/RenderSettingsFunction'
 import { SCENE_PREVIEW_CAMERA_HELPER } from '../functions/loaders/ScenePreviewCameraFunctions'
 
 /**
@@ -72,10 +71,6 @@ export default async function EntityNodeEventSystem(_: World) {
 
     for (const _ of fogQuery.exit()) {
       Engine.scene.fog = null
-    }
-
-    for (const _ of renderSettingQuery.exit()) {
-      resetEngineRenderer()
     }
 
     for (const _ of postProcessingQuery.exit()) {

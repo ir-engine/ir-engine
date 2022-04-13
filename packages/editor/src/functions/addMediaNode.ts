@@ -1,4 +1,5 @@
 import { getContentType } from '@xrengine/common/src/utils/getContentType'
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -98,6 +99,9 @@ export async function addMediaNode(
         false
       )
   }
+
+  AssetLoader.Cache.delete(url)
+  await AssetLoader.loadAsync(url)
 
   if (prefabType) {
     executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, {

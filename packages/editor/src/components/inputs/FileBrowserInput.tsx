@@ -28,8 +28,8 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
       if (isDropType) {
         // Below url fix is applied when item is folder
         let url = item.url
-        if (url.endsWith(item.id) === false) {
-          url += item.id
+        if (!url.endsWith(item.fullName)) {
+          url += item.fullName
         }
 
         onChange(url, item)
@@ -55,7 +55,6 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
 
   return (
     <>
-      <AddCorsProxyButton value={rest.value} onAddCorsProxy={onChange} />
       <ControlledStringInput
         ref={dropRef}
         onChange={(value, e) => onChange(value, {}, e)}
@@ -63,6 +62,7 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
         canDrop={isOver && canDrop}
         {...rest}
       />
+      <AddCorsProxyButton value={rest.value} onAddCorsProxy={onChange} />
     </>
   )
 }

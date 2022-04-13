@@ -1,15 +1,13 @@
-@use "../../../theme.scss"as theme;
-
 .navbar {
   width: 100%;
   display: flex;
   justify-content: center;
   pointer-events: auto;
-  background: theme.$dock;
+  background: var(--dock);
   height: 50px;
 
   .navContainer {
-    width: 98vw;
+    width: 100vw;
     display: flex;
     justify-content: space-between;
     position: relative;
@@ -24,7 +22,7 @@
     .profileButton {
       display: flex;
       align-items: center;
-      color: theme.$text;
+      color: var(--text);
       background: transparent;
 
       span {
@@ -34,7 +32,7 @@
 
       &:hover,
       &:focus-visible {
-        color: theme.$green;
+        color: var(--green);
       }
     }
 
@@ -50,7 +48,8 @@
 
     .profileMenuBlock {
       position: absolute;
-      right: 0;
+      right: 25px;
+      top: 0;
 
       .profileMenuContainer {
         z-index: 100;
@@ -72,7 +71,7 @@
 .projectPage {
   width: 100%;
   display: flex;
-  background-color: theme.$background2;
+  background-color: var(--background2);
   pointer-events: auto;
 }
 
@@ -82,7 +81,7 @@
   align-content: space-between;
   margin: 30px auto;
   width: 90vw;
-  background-color: theme.$panel;
+  background-color: var(--panel);
   padding: 30px;
   border-radius: 10px;
   min-height: calc(100vh - 110px);
@@ -115,7 +114,7 @@
       }
 
       .searchInputRoot {
-        background: theme.$panel2;
+        background: var(--panel2);
         display: flex;
         align-items: center;
         width: 100%;
@@ -124,18 +123,18 @@
         margin: 0 30px;
 
         button {
-          color: theme.$text2;
+          color: var(--text2);
           padding: 10px;
 
           &:hover,
           &:focus-visible {
-            color: theme.$text;
+            color: var(--text);
           }
         }
 
         .inputRoot {
           flex: 1;
-          color: theme.$text;
+          color: var(--text);
         }
       }
 
@@ -143,7 +142,7 @@
         flex-wrap: wrap;
 
         .searchInputRoot {
-          margin: 20px 0 0 0;
+          margin: 20px 0 0;
         }
 
         .btn {
@@ -163,7 +162,7 @@
       flex-direction: column;
 
       .errorMsg {
-        color: theme.$red;
+        color: var(--red);
         text-align: center;
       }
 
@@ -178,7 +177,7 @@
         }
 
         .expansionSummary {
-          color: theme.$text2;
+          color: var(--text2);
           font-size: 15px;
           padding: 0;
           min-height: 30px;
@@ -190,7 +189,7 @@
 
           button {
             padding: 0;
-            color: theme.$text2;
+            color: var(--text2);
             margin-left: -16px;
 
             svg {
@@ -207,7 +206,7 @@
         }
 
         .expansionSummaryExpanded {
-          button>svg {
+          button > svg {
             transform: rotate(90deg);
           }
         }
@@ -226,7 +225,7 @@
           width: 232px;
           padding: 10px;
           flex-shrink: 0;
-          background: theme.$panel2;
+          background: var(--panel2);
           border-radius: 3px;
           position: relative;
           overflow: hidden;
@@ -235,14 +234,14 @@
             text-decoration: none;
 
             &:hover {
-              color: theme.$text;
+              color: var(--text);
             }
           }
 
           &:hover,
           &:focus-within {
             cursor: pointer;
-            outline: solid 1px theme.$blue;
+            outline: solid 1px var(--blue);
           }
 
           .thumbnailContainer {
@@ -259,13 +258,13 @@
               width: calc(100% - 24px);
               font-size: 14px;
               font-weight: bold;
-              color: theme.$text;
+              color: var(--text);
             }
 
             button {
               width: 24px;
               height: 24px;
-              color: theme.$text2;
+              color: var(--text2);
               padding: 0;
 
               svg {
@@ -274,7 +273,7 @@
 
               &:hover,
               &:focus-within {
-                color: theme.$blueHover;
+                color: var(--blueHover);
               }
             }
           }
@@ -292,7 +291,7 @@
             &::before {
               content: "";
               position: absolute;
-              background: theme.$blue;
+              background: var(--blue);
               width: 60px;
               height: 60px;
               border-radius: 50%;
@@ -304,19 +303,19 @@
           .description {
             font-size: 12px;
             margin-top: 8px;
-            color: theme.$text2;
+            color: var(--text2);
             height: 45px;
             overflow: hidden;
             position: relative;
 
             &::after {
-              content: '';
+              content: "";
               position: absolute;
               bottom: 0;
               left: 0;
               width: 100%;
               height: 15px;
-              background: linear-gradient(180deg, transparent 0%, theme.$panel2 100%);
+              background: linear-gradient(180deg, transparent 0%, var(--panel2) 100%);
             }
           }
         }
@@ -326,11 +325,10 @@
 
   .welcomeContainer {
     max-width: 460px;
-    margin: 0 auto 30px auto;
+    margin: 0 auto 30px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-
 
     h1 {
       width: 100%;
@@ -343,7 +341,7 @@
       font-size: 15px;
       text-align: center;
       margin-top: 10px;
-      color: theme.$text2;
+      color: var(--text2);
     }
 
     button {
@@ -356,21 +354,21 @@
 }
 
 .filterMenu {
-  background: theme.$panel;
+  background: var(--panel);
 
   .filterMenuItem {
     position: relative;
-    color: theme.$text;
+    color: var(--text);
     font-size: 14px;
     padding-left: 35px;
 
     &:hover,
     &:focus-visible {
-      background: theme.$blueHover;
+      background: var(--blueHover);
     }
 
-    &>svg,
-    &>.progressbar {
+    & > svg,
+    & > .progressbar {
       position: absolute;
       left: 10px;
       width: 15px;
@@ -380,27 +378,27 @@
 }
 
 .createProjectDialog {
-  background: theme.$panel2;
-  color: theme.$text;
+  background: var(--panel2);
+  color: var(--text);
   width: 300px;
 
   .inputContainer {
-    color: theme.$text;
+    color: var(--text);
     width: 100%;
     font-size: 14px;
   }
 
   .input {
-    border-color: theme.$text;
+    border-color: var(--text);
   }
 
-  .input:hover+.outline {
-    border-color: theme.$text;
+  .input:hover + .outline {
+    border-color: var(--text);
   }
 
-  .input:focus+.outline,
+  .input:focus + .outline,
   .outline {
-    border-color: theme.$text2;
+    border-color: var(--text2);
   }
 
   .btn {
@@ -411,7 +409,7 @@
   }
 
   .errorMessage {
-    color: theme.$red;
+    color: var(--red);
     margin: 5px 2px;
   }
 
@@ -421,19 +419,19 @@
     align-items: center;
 
     svg {
-      color: theme.$blue;
+      color: var(--blue);
     }
 
     .text {
       margin-top: 10px;
-      color: theme.$text2;
+      color: var(--text2);
     }
   }
 }
 
 .deleteDialog {
-  background: theme.$panel2;
-  color: theme.$text;
+  background: var(--panel2);
+  color: var(--text);
   width: 300px;
 
   .contentWrapper {
@@ -446,12 +444,12 @@
       width: 85px;
       font-size: 14px;
       background: transparent;
-      color: theme.$blue;
+      color: var(--blue);
 
       &:hover,
       &:focus-visible {
-        background: theme.$blue;
-        color: theme.$text;
+        background: var(--blue);
+        color: var(--text);
       }
     }
 
@@ -460,7 +458,7 @@
       height: 35px;
       width: 85px;
       font-size: 14px;
-      background: theme.$red;
+      background: var(--red);
 
       &:hover,
       &:focus-visible {
@@ -469,8 +467,8 @@
     }
 
     .confirmBtn[disabled] {
-      background: theme.$disabledText;
-      color: theme.$text;
+      background: var(--disabledText);
+      color: var(--text);
       cursor: initial;
       opacity: 1 !important;
     }
@@ -482,12 +480,14 @@
 }
 
 .selected {
-  background: theme.$purpleColor !important;
+  background: var(--purpleColor) !important;
 }
 
 .menuButton {
-  margin-right: 36px;
+  margin-right: 25px;
   color: white;
+  padding: 16px;
+  margin-left: 0;
 }
 
 .hide {
@@ -519,7 +519,7 @@
   height: 100%;
   z-index: 15;
   transition: width 225ms cubic-bezier(0.4, 0, 0.6, 1);
-  background-color: theme.$purpleColor4;
+  background-color: var(--purpleColor4);
 }
 
 .drawerClose {
@@ -527,11 +527,7 @@
   overflow-x: hidden;
   width: 57px !important;
   transition: width 195ms cubic-bezier(0.4, 0, 0.6, 1);
-  background-color: theme.$purpleColor4;
-
-  @media (max-width: 600px) {
-    width: 72px !important;
-  }
+  background-color: var(--purpleColor4);
 }
 
 .toolbar {
@@ -547,7 +543,7 @@
   overflow: auto;
   position: relative;
   padding: 24px;
-  background-color: theme.$purpleDarkest;
+  background-color: var(--purpleDarkest);
   height: calc(100vh - 50px);
 }
 

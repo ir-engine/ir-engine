@@ -56,6 +56,7 @@ export class MaterialsUnlitLoaderExtension extends LoaderExtension {
         material.alphaTest = materialDef.alphaCutoff !== undefined ? materialDef.alphaCutoff : 0.5
       }
     }
+    material.needsUpdate = true
     await Promise.all(pending)
   }
 }

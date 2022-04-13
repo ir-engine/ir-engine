@@ -42,14 +42,13 @@ export const ServerSettingService = {
   },
   patchServerSetting: async (data: PatchServerSetting, id: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('server-setting').patch(id, data)
-        dispatch(ServerSettingAction.serverSettingPatched())
-      } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
-      }
+
+    try {
+      await client.service('server-setting').patch(id, data)
+      dispatch(ServerSettingAction.serverSettingPatched())
+    } catch (err) {
+      console.log(err)
+      AlertService.dispatchAlertError(err.message)
     }
   }
 }

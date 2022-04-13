@@ -11,8 +11,8 @@ import {
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { loadAudio } from '../../../assets/functions/loadAudio'
-import loadTexture from '../../../assets/functions/loadTexture'
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { AssetClass } from '../../../assets/enum/AssetClass'
 import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
 import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
 import {
@@ -22,7 +22,6 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { resolveMedia } from '../../../common/functions/resolveMedia'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -72,17 +71,16 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
     )
     obj3d.add(obj3d.userData.textureMesh)
     obj3d.userData.textureMesh.userData.disableOutline = true
+    setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.NodeHelper)
 
-    if (!audioTexture) {
+    if (audioTexture) {
+      obj3d.userData.textureMesh.material.map = audioTexture
+    } else {
       // can't use await since component should have to be deserialize for media component to work properly
-      loadTexture(AUDIO_TEXTURE_PATH).then((texture) => {
+      AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((texture) => {
         audioTexture = texture!
         obj3d.userData.textureMesh.material.map = audioTexture
-        setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.NodeHelper)
       })
-    } else {
-      obj3d.userData.textureMesh.material.map = audioTexture
-      setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.NodeHelper)
     }
   }
 
@@ -96,7 +94,7 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
   }
 }
 
-export const updateAudio: ComponentUpdateFunction = async (entity: Entity, properties: AudioComponentType) => {
+export const updateAudio: ComponentUpdateFunction = (entity: Entity, properties: AudioComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value
   const component = getComponent(entity, AudioComponent)
   let audioTypeChanged = false
@@ -115,14 +113,13 @@ export const updateAudio: ComponentUpdateFunction = async (entity: Entity, prope
 
   if (properties.audioSource) {
     try {
-      const { url, contentType } = await resolveMedia(component.audioSource)
-      if (!contentType) {
-        addError(entity, 'error', 'Error while loading audio')
+      const assetType = AssetLoader.getAssetClass(component.audioSource)
+      if (assetType !== AssetClass.Audio) {
+        addError(entity, 'error', `Audio format ${component.audioSource.split('.').pop()}not supported`)
         return
       }
-
-      const audioBuffer = await loadAudio(url)
-      if (!audioBuffer) return
+      const audioBuffer = AssetLoader.getFromCache(component.audioSource)
+      if (!audioBuffer) return addError(entity, 'error', 'Failed to load audio buffer')
 
       if (obj3d.userData.audioEl.isPlaying) obj3d.userData.audioEl.stop()
 

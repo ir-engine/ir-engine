@@ -10,7 +10,7 @@ import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 
 //State
-export const LOCATION_PAGE_LIMIT = 12
+export const LOCATION_PAGE_LIMIT = 100
 
 const state = createState({
   locations: [] as Array<Location>,
@@ -60,86 +60,91 @@ export const useLocationState = () => useState(state) as any as typeof state
 export const LocationService = {
   fetchLocationTypes: async () => {
     const dispatch = useDispatch()
-    {
-      const locationTypes = (await client.service('location-type').find()) as Paginated<LocationType>
-      dispatch(LocationAction.locationTypesRetrieved(locationTypes))
-    }
+
+    const locationTypes = (await client.service('location-type').find()) as Paginated<LocationType>
+    dispatch(LocationAction.locationTypesRetrieved(locationTypes))
   },
   patchLocation: async (id: string, location: any) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const result = await client.service('location').patch(id, location)
-        dispatch(LocationAction.locationPatched(result))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      const result = await client.service('location').patch(id, location)
+      dispatch(LocationAction.locationPatched(result))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   removeLocation: async (id: string) => {
     const dispatch = useDispatch()
-    {
-      const result = await client.service('location').remove(id)
-      dispatch(LocationAction.locationRemoved(result))
-    }
+
+    const result = await client.service('location').remove(id)
+    dispatch(LocationAction.locationRemoved(result))
   },
   createLocation: async (location: any) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const result = await client.service('location').create(location)
-        dispatch(LocationAction.locationCreated(result))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      const result = await client.service('location').create(location)
+      dispatch(LocationAction.locationCreated(result))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   fetchAdminLocations: async (
-    incDec?: 'increment' | 'decrement',
     value: string | null = null,
-    skip = accessLocationState().skip.value
+    skip = accessLocationState().skip.value,
+    sortField = 'name',
+    orderBy = 'asc'
   ) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const locations = (await client.service('location').find({
-          query: {
-            $sort: {
-              name: 1
-            },
-            $skip: skip * LOCATION_PAGE_LIMIT,
-            $limit: accessLocationState().limit.value,
-            adminnedLocations: true,
-            search: value
-          }
-        })) as Paginated<Location>
-        dispatch(LocationAction.locationsRetrieved(locations))
-      } catch (error) {
-        console.error(error)
-        dispatch(ErrorAction.setReadScopeError(error.message, error.statusCode))
+
+    try {
+      let sortData = {}
+      if (sortField.length > 0) {
+        if (sortField === 'tags') {
+          sortData['isFeatured'] = orderBy === 'desc' ? 0 : 1
+          sortData['isLobby'] = orderBy === 'desc' ? 0 : 1
+        } else {
+          sortData[sortField] = orderBy === 'desc' ? 0 : 1
+        }
       }
+
+      const locations = (await client.service('location').find({
+        query: {
+          $sort: {
+            ...sortData
+          },
+          $skip: skip * LOCATION_PAGE_LIMIT,
+          $limit: LOCATION_PAGE_LIMIT,
+          adminnedLocations: true,
+          search: value
+        }
+      })) as Paginated<Location>
+      dispatch(LocationAction.locationsRetrieved(locations))
+    } catch (error) {
+      console.error(error)
+      dispatch(ErrorAction.setReadScopeError(error.message, error.statusCode))
     }
   },
-  searchAdminLocations: async (value) => {
+  searchAdminLocations: async (value, orderBy = 'asc') => {
     const dispatch = useDispatch()
-    {
-      try {
-        const result = (await client.service('location').find({
-          query: {
-            search: value,
-            $sort: {
-              name: 1
-            },
-            $skip: accessLocationState().skip.value,
-            $limit: accessLocationState().limit.value,
-            adminnedLocations: true
-          }
-        })) as Paginated<Location>
-        dispatch(LocationAction.locationsRetrieved(result))
-      } catch (error) {
-        console.error(error)
-        dispatch(ErrorAction.setReadScopeError(error.message, error.statusCode))
-      }
+
+    try {
+      const result = (await client.service('location').find({
+        query: {
+          search: value,
+          $sort: {
+            name: orderBy === 'desc' ? 0 : 1
+          },
+          $skip: accessLocationState().skip.value,
+          $limit: accessLocationState().limit.value,
+          adminnedLocations: true
+        }
+      })) as Paginated<Location>
+      dispatch(LocationAction.locationsRetrieved(result))
+    } catch (error) {
+      console.error(error)
+      dispatch(ErrorAction.setReadScopeError(error.message, error.statusCode))
     }
   }
 }

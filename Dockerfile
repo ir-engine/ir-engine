@@ -6,7 +6,7 @@ RUN apt-get install -y build-essential meson python3-testresources python3-venv 
 # Create app directory
 WORKDIR /app
 
-RUN npm install -g lerna cross-env rimraf --loglevel notice
+RUN npm install -g npm lerna cross-env rimraf --loglevel notice
 
 # to make use of caching, copy only package files and install dependencies
 COPY package.json .
@@ -40,6 +40,7 @@ ARG VITE_CLIENT_HOST
 ARG VITE_CLIENT_PORT
 ARG VITE_SERVER_HOST
 ARG VITE_SERVER_PORT
+ARG VITE_MEDIATOR_SERVER
 ARG VITE_GAMESERVER_HOST
 ARG VITE_GAMESERVER_PORT
 ARG VITE_LOCAL_BUILD
@@ -52,6 +53,7 @@ ENV VITE_CLIENT_HOST=$VITE_CLIENT_HOST
 ENV VITE_CLIENT_PORT=$VITE_CLIENT_PORT
 ENV VITE_SERVER_HOST=$VITE_SERVER_HOST
 ENV VITE_SERVER_PORT=$VITE_SERVER_PORT
+ENV VITE_MEDIATOR_SERVER=$VITE_MEDIATOR_SERVER
 ENV VITE_GAMESERVER_HOST=$VITE_GAMESERVER_HOST
 ENV VITE_GAMESERVER_PORT=$VITE_GAMESERVER_PORT
 ENV VITE_LOCAL_BUILD=$VITE_LOCAL_BUILD

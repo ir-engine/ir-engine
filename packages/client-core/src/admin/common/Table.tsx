@@ -19,6 +19,10 @@ interface Props {
   page: number
   rowsPerPage: number
   count: number
+  fieldOrder?: string
+  allowSort?: boolean
+  setSortField?: (fueld: string) => void
+  setFieldOrder?: (order: string) => void
   handlePageChange: (e: unknown, newPage: number) => void
   handleRowsPerPageChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
@@ -122,12 +126,26 @@ const EnhancedTableHead = (props: EnhancedTableProps) => {
 }
 
 const TableComponent = (props: Props) => {
-  const { rows, column, page, rowsPerPage, count, handlePageChange, handleRowsPerPageChange } = props
-  const [order, setOrder] = React.useState<Order>('asc')
+  const {
+    rows,
+    column,
+    page,
+    rowsPerPage,
+    count,
+    fieldOrder,
+    allowSort,
+    setSortField,
+    setFieldOrder,
+    handlePageChange,
+    handleRowsPerPageChange
+  } = props
+  const [order, setOrder] = React.useState<Order>(fieldOrder === 'desc' ? 'desc' : 'asc')
   const [orderBy, setOrderBy] = React.useState<keyof Data>(column[0].id)
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Data) => {
     const isAsc = orderBy === property && order === 'asc'
     setOrder(isAsc ? 'desc' : 'asc')
+    setSortField && setSortField(property)
+    setFieldOrder && setFieldOrder(order)
     setOrderBy(property)
   }
 
@@ -143,22 +161,20 @@ const TableComponent = (props: Props) => {
             columns={column}
           />
           <TableBody>
-            {stableSort(rows, getComparator(order, orderBy))
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, index) => {
-                return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
-                    {column.map((column, index) => {
-                      const value = row[column.id]
-                      return (
-                        <TableCell key={index} align={column.align} className={styles.tableCellBody}>
-                          {value}
-                        </TableCell>
-                      )
-                    })}
-                  </TableRow>
-                )
-              })}
+            {(allowSort ? stableSort(rows, getComparator(order, orderBy)) : rows).map((row, index) => {
+              return (
+                <TableRow hover role="checkbox" tabIndex={-1} key={`${index}${row.name}`}>
+                  {column.map((column, index) => {
+                    const value = row[column.id]
+                    return (
+                      <TableCell key={index} align={column.align} className={styles.tableCellBody}>
+                        {value}
+                      </TableCell>
+                    )
+                  })}
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </TableContainer>

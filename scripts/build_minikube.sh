@@ -51,6 +51,13 @@ else
   VITE_SERVER_HOST=$VITE_SERVER_HOST
 fi
 
+if [ -z "$VITE_MEDIATOR_SERVER" ]
+then
+  VITE_MEDIATOR_SERVER=https://authn.io
+else
+  VITE_MEDIATOR_SERVER=$VITE_MEDIATOR_SERVER
+fi
+
 if [ -z "$VITE_GAMESERVER_HOST" ]
 then
   VITE_GAMESERVER_HOST=gameserver-local.theoverlay.io
@@ -75,6 +82,7 @@ DOCKER_BUILDKIT=1 docker build -t xrengine \
   --build-arg MYSQL_DATABASE=$MYSQL_DATABASE \
   --build-arg VITE_CLIENT_HOST=$VITE_CLIENT_HOST \
   --build-arg VITE_SERVER_HOST=$VITE_SERVER_HOST \
+  --build-arg VITE_MEDIATOR_SERVER=$VITE_MEDIATOR_SERVER \
   --build-arg VITE_GAMESERVER_HOST=$VITE_GAMESERVER_HOST .
 
 DOCKER_BUILDKIT=1 docker build -t xrengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .

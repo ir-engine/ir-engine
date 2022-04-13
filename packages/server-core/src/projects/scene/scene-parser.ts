@@ -12,7 +12,7 @@ export const corsPath =
     ? `https://${config.server.hostname}:${config.server.corsServerPort}`
     : `https://${config.server.hostname}/cors-proxy`
 
-export const parseSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: string, internal = false) => {
+export const parseSceneDataCacheURLs = (sceneData: any, cacheDomain: string, internal = false) => {
   for (const [key, val] of Object.entries(sceneData)) {
     if (val && typeof val === 'object') {
       sceneData[key] = parseSceneDataCacheURLs(val, cacheDomain, internal)
@@ -32,7 +32,7 @@ export const parseSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: strin
   return sceneData
 }
 
-export const cleanSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: string) => {
+export const cleanSceneDataCacheURLs = (sceneData: any, cacheDomain: string) => {
   for (const [key, val] of Object.entries(sceneData)) {
     if (val && typeof val === 'object') {
       sceneData[key] = cleanSceneDataCacheURLs(val, cacheDomain)

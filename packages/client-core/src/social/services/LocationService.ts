@@ -10,6 +10,7 @@ import { store, useDispatch } from '../../store'
 
 //State
 const state = createState({
+  locationName: null! as string,
   currentLocation: {
     location: LocationSeed as Location,
     bannedUsers: [] as UserId[],
@@ -24,6 +25,10 @@ const state = createState({
 store.receptors.push((action: LocationActionType): any => {
   state.batch((s) => {
     switch (action.type) {
+      case 'LOCATION_NAME_SET':
+        return s.merge({
+          locationName: action.locationName
+        })
       case 'FETCH_CURRENT_LOCATION':
         return s.merge({
           fetchingCurrentLocation: true,
@@ -139,10 +144,16 @@ export const LocationService = {
 
 //Action
 export const LocationAction = {
+  setLocationName: (locationName: string) => {
+    return {
+      type: 'LOCATION_NAME_SET' as const,
+      locationName
+    }
+  },
   socialLocationRetrieved: (location: Location) => {
     return {
       type: 'LOCATION_RETRIEVED' as const,
-      location: location
+      location
     }
   },
   socialLocationBanCreated: () => {

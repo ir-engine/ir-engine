@@ -32,6 +32,7 @@ store.receptors.push((action: PartyActionType): any => {
           skip: action.data.skip,
           limit: action.data.limit,
           total: action.data.total,
+          fetched: true,
           lastFetched: Date.now()
         })
       case 'PARTY_ADMIN_CREATED':
@@ -52,58 +53,57 @@ export const usePartyState = () => useState(state) as any as typeof state
 export const PartyService = {
   createAdminParty: async (data) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const result = (await client.service('party').create(data)) as Party
-        dispatch(PartyAction.partyAdminCreated(result))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      const result = (await client.service('party').create(data)) as Party
+      dispatch(PartyAction.partyAdminCreated(result))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
-  fetchAdminParty: async (incDec?: 'increment' | 'decrement', value: string | null = null) => {
+  fetchAdminParty: async (value: string | null = null, skip = 0, sortField = 'location', orderBy = 'asc') => {
     const dispatch = useDispatch()
-    {
-      const user = accessAuthState().user
-      const adminParty = accessPartyState()
-      const skip = adminParty.skip.value
-      const limit = adminParty.limit.value
-      try {
-        if (user.userRole.value === 'admin') {
-          const parties = (await client.service('party').find({
-            query: {
-              // $sort: {
-              //   createdAt: -1
-              // },
-              $skip: skip,
-              $limit: limit,
-              action: 'admin',
-              search: value
-            }
-          })) as Paginated<Party>
-          dispatch(PartyAction.partyRetrievedAction(parties))
+
+    const user = accessAuthState().user
+
+    try {
+      if (user.userRole.value === 'admin') {
+        let sortData = {}
+        if (sortField.length > 0) {
+          sortData[sortField] = orderBy === 'desc' ? 0 : 1
         }
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
+        const parties = (await client.service('party').find({
+          query: {
+            $sort: {
+              ...sortData
+            },
+            $skip: skip * PARTY_PAGE_LIMIT,
+            $limit: PARTY_PAGE_LIMIT,
+            action: 'admin',
+            search: value
+          }
+        })) as Paginated<Party>
+
+        dispatch(PartyAction.partyRetrievedAction(parties))
       }
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   removeParty: async (id: string) => {
     const dispatch = useDispatch()
-    {
-      const result = (await client.service('party').remove(id)) as Party
-      dispatch(PartyAction.partyRemoved(result))
-    }
+
+    const result = (await client.service('party').remove(id)) as Party
+    dispatch(PartyAction.partyRemoved(result))
   },
   patchParty: async (id: string, party: PatchParty) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const result = (await client.service('party').patch(id, party)) as Party
-        dispatch(PartyAction.partyPatched(result))
-      } catch (error) {
-        AlertService.dispatchAlertError(error)
-      }
+
+    try {
+      const result = (await client.service('party').patch(id, party)) as Party
+      dispatch(PartyAction.partyPatched(result))
+    } catch (error) {
+      AlertService.dispatchAlertError(error)
     }
   }
 }

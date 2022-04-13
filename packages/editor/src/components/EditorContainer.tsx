@@ -1,6 +1,6 @@
 import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
@@ -8,9 +8,12 @@ import styled from 'styled-components'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
+import { getGLTFLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { GLTFExporter } from '@xrengine/engine/src/assets/exporters/gltf/GLTFExporter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { gltfToSceneJson, sceneFromGLTF, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
@@ -22,8 +25,7 @@ import { disposeProject, loadProjectScene, runPreprojectLoadTasks, saveProject }
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import {
   DefaultExportOptions,
-  DefaultExportOptionsType,
-  exportScene,
+  DefaultExportOptionsType, //exportScene,
   initializeRenderer
 } from '../functions/sceneRenderFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
@@ -80,7 +82,7 @@ export const DockContainer = (styled as any).div`
   }
   .dock {
     border-radius: 4px;
-    background: ${(props) => props.theme.dock};
+    background: var(--dock);
   }
   .dock-top .dock-bar {
     font-size: 12px;
@@ -94,13 +96,13 @@ export const DockContainer = (styled as any).div`
   .dock-tab:hover, .dock-tab-active, .dock-tab-active:hover {
     border-bottom: 1px solid #ddd;
   }
-  .dock-tab:hover div, .dock-tab:hover svg { color: ${(props) => props.theme.text}; }
+  .dock-tab:hover div, .dock-tab:hover svg { color: var(--text); }
   .dock-tab > div { padding: 2px 12px; }
   .dock-tab-active {
-    color: ${(props) => props.theme.purpleColor};
+    color: var(--purpleColor);
   }
   .dock-ink-bar {
-    background-color: ${(props) => props.theme.purpleColor};
+    background-color: var(--purpleColor);
   }
 `
 /**
@@ -289,7 +291,7 @@ const EditorContainer = () => {
     }
     setToggleRefetchScenes(!toggleRefetchScenes)
   }
-
+  /*
   const onExportProject = async () => {
     if (!sceneName) return
     const options = await new Promise<DefaultExportOptionsType>((resolve) => {
@@ -324,7 +326,7 @@ const EditorContainer = () => {
       setDialogComponent(null)
 
       const el = document.createElement('a')
-      el.download = Engine.scene.name + '.glb'
+      el.download = Engine.scene.name + '.gltf'
       el.href = URL.createObjectURL(glbBlob)
       document.body.appendChild(el)
       el.click()
@@ -345,7 +347,7 @@ const EditorContainer = () => {
         />
       )
     }
-  }
+  }*/
 
   const onImportScene = async () => {
     const confirm = await new Promise((resolve) => {
@@ -363,14 +365,20 @@ const EditorContainer = () => {
     if (!confirm) return
     const el = document.createElement('input')
     el.type = 'file'
-    el.accept = '.world'
+    el.accept = '.gltf'
     el.style.display = 'none'
     el.onchange = () => {
       if (el.files && el.files.length > 0) {
         const fileReader: any = new FileReader()
         fileReader.onload = () => {
-          const json = JSON.parse((fileReader as any).result)
-          importScene(json)
+          /*const loader = getGLTFLoader()
+          
+          loader.parse(fileReader.result, '', (gltf) => {
+            const json = gltfToSceneJson(gltf)
+            importScene(json)
+          })*/
+          const json = JSON.parse(fileReader.result)
+          importScene(gltfToSceneJson(json))
         }
         fileReader.readAsText(el.files[0])
       }
@@ -379,12 +387,15 @@ const EditorContainer = () => {
   }
 
   const onExportScene = async () => {
-    const projectFile = serializeWorld()
+    /*
+    const projectFile = serializeWorld()*/
+    const projectFile = await sceneToGLTF(Engine.scene as any)
+
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')
     const fileName = Engine.scene.name.toLowerCase().replace(/\s+/g, '-')
-    el.download = fileName + '.world'
+    el.download = fileName + '.gltf'
     el.href = URL.createObjectURL(projectBlob)
     document.body.appendChild(el)
     el.click()
@@ -460,15 +471,16 @@ const EditorContainer = () => {
   }, [toggleRefetchScenes])
 
   useEffect(() => {
-    if (sceneLoaded.value && dockPanelRef.current) {
-      dockPanelRef.current.updateTab('viewPanel', {
-        id: 'viewPanel',
-        title: 'Viewport',
-        content: <div />
-      })
+    if (!dockPanelRef.current) return
 
-      dockPanelRef.current.updateTab('filesPanel', dockPanelRef.current.find('filesPanel') as TabData, true)
-    }
+    dockPanelRef.current.updateTab('viewPanel', {
+      id: 'viewPanel',
+      title: 'Viewport',
+      content: viewPortPanelContent(!sceneLoaded.value)
+    })
+
+    const activePanel = sceneLoaded.value ? 'filesPanel' : 'scenePanel'
+    dockPanelRef.current.updateTab(activePanel, dockPanelRef.current.find(activePanel) as TabData, true)
   }, [sceneLoaded])
 
   useEffect(() => {
@@ -530,6 +542,17 @@ const EditorContainer = () => {
     ]
   }
 
+  const viewPortPanelContent = useCallback((shouldDisplay) => {
+    return shouldDisplay ? (
+      <div className={styles.bgImageBlock}>
+        <img src="/static/xrengine.png" />
+        <h2>{t('editor:selectSceneMsg')}</h2>
+      </div>
+    ) : (
+      <div />
+    )
+  }, [])
+
   const toolbarMenu = generateToolbarMenu()
   if (!editorReady) return <></>
 
@@ -583,12 +606,7 @@ const EditorContainer = () => {
                 {
                   id: 'viewPanel',
                   title: 'Viewport',
-                  content: (
-                    <div className={styles.bgImageBlock}>
-                      <img src="/static/xrengine.png" />
-                      <h2>{t('editor:selectSceneMsg')}</h2>
-                    </div>
-                  )
+                  content: viewPortPanelContent(true)
                 }
               ],
               size: 1

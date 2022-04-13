@@ -9,9 +9,9 @@ import styled from 'styled-components'
  */
 function borderColor(props, defaultColor) {
   if (props.canDrop) {
-    return props.theme.blue
+    return 'var(--blue)'
   } else if (props.error) {
-    return props.theme.error
+    return 'var(--error)'
   } else {
     return defaultColor
   }
@@ -24,24 +24,28 @@ function borderColor(props, defaultColor) {
  * @type {styled component}
  */
 const Input = styled.input`
-  background-color: ${(props) => (props.disabled ? props.theme.disabled : props.theme.inputBackground)};
+  background-color: ${(props) => (props.disabled ? 'var(--disabled)' : 'var(--inputBackground)')};
   border-radius: 4px;
-  border: 1px solid ${(props) => borderColor(props, props.theme.border)};
-  color: ${(props) => (props.disabled ? props.theme.disabledText : props.theme.text)};
+  border: 1px solid ${(props) => borderColor(props, 'var(--border)')};
+  color: ${(props) => (props.disabled ? 'var(--disabledText)' : 'var(--text)')};
   height: 24px;
   padding: 6px 8px;
 
   &:hover {
-    border-color: ${(props) => borderColor(props, props.theme.blueHover)};
+    border-color: 'var(--blueHover)';
   }
 
   &:focus {
-    border-color: ${(props) => borderColor(props, props.theme.blue)};
+    border-color: 'var(--blue)';
   }
 
   &:disabled {
-    background-color: ${(props) => props.theme.disabled};
-    color: ${(props) => props.theme.disabledText};
+    background-color: 'var(--disabled)';
+    color: 'var(--disabledText)';
+  }
+
+  &:focus-visible {
+    outline: none;
   }
 `
 /**

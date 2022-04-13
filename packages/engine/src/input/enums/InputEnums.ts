@@ -74,3 +74,8 @@ export enum CameraInput {
   Widen = 108,
   Open = 109
 }
+
+export enum AvatarMovementScheme {
+  Linear = 150,
+  Teleport = 151
+}

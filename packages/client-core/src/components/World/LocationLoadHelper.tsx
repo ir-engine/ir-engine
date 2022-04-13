@@ -20,8 +20,6 @@ import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classe
 import { initSystems, SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import {
-  createEngine,
-  initializeBrowser,
   initializeCoreSystems,
   initializeRealtimeSystems,
   initializeSceneSystems
@@ -101,10 +99,6 @@ const injectedSystems: SystemModuleType<any>[] = [
 ]
 
 export const initEngine = async () => {
-  if (Engine.isInitialized) return
-  Network.instance.transportHandler = new ClientTransportHandler()
-  createEngine()
-  initializeBrowser()
   await initializeCoreSystems(injectedSystems)
 }
 

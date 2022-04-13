@@ -1,21 +1,35 @@
-@use '../../../theme.scss' as theme;
-@import '../../../styles/imports.module.scss';
+@import "../../../styles/imports.module.scss";
 
 .primary {
-  background: theme.$purpleColor;
+  background: var(--purpleColor);
 }
 
 .primaryForeground {
-  color: theme.$purpleColor;
+  color: var(--purpleColor);
 }
 
 .apiRefresh {
   &:hover {
     cursor: pointer;
-    color: theme.$text;
+    color: var(--text);
     background-color: dimgray;
     border-radius: 100px;
   }
+}
+
+.themeSettingContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  label {
+    margin: 0;
+  }
+}
+
+.themeHeading {
+  font-size: 12px;
+  color: var(--text);
 }
 
 .settingContainer {
@@ -52,29 +66,30 @@
       padding: 1em;
       margin-right: 5px;
       border-radius: 50%;
-      background-color: theme.$purpleColor1;
+      background-color: var(--purpleColor1);
 
       @media (max-width: 500px) {
         padding: 8px;
       }
 
       svg {
-        color: theme.$text;
+        color: var(--text);
       }
 
       &:hover {
         cursor: pointer;
-        background-color: theme.$purpleColor;
+        background-color: var(--purpleColor);
       }
 
       &:last-child {
-        margin-right: 0px;
+        margin-right: 0;
       }
     }
 
     .materialIconBlock.activeMenu {
       color: #a8a8ff;
     }
+
     @media (max-width: 560px) {
       height: 100%;
       flex-direction: column;
@@ -87,13 +102,12 @@
     position: absolute;
     bottom: 75px;
     padding: 0 20px;
-    background-color: theme.$purpleLighter;
+    background-color: var(--purpleLighter);
     border-radius: 20px;
     width: 140px;
     right: 100px;
-    box-shadow: 16px 16px 32px 0px #11111159;
+    box-shadow: 16px 16px 32px 0 #11111159;
     color: black;
-
     max-height: calc(100vh - 100px);
     overflow: auto;
 
@@ -118,7 +132,7 @@
         margin: 5px;
         flex-grow: 0;
         background: white;
-        box-shadow: 0px 2px 18px 0px #11111159;
+        box-shadow: 0 2px 18px 0 #11111159;
         position: relative;
 
         .avatarPreview {
@@ -128,11 +142,11 @@
         }
 
         &.activeAvatar {
-          @include active-avatar();
+          @include active-avatar;
         }
 
         &.selectedAvatar {
-          @include selected-avatar();
+          @include selected-avatar;
         }
       }
     }
@@ -154,7 +168,7 @@
     }
 
     .iconBlock {
-      @include icon-block-styling();
+      @include icon-block-styling;
     }
 
     @media screen and (min-width: 768px) {
@@ -180,248 +194,6 @@
     }
   }
 
-  .avatarUploadPanel {
-    position: absolute;
-    bottom: 75px;
-    padding: 0 30px;
-    border-radius: 20px;
-    background-color: theme.$purpleLighter;
-    left: 50%;
-    transform: translateX(-50%);
-    box-shadow: 16px 16px 32px 0px #11111159;
-    color: black;
-    max-height: calc(100vh - 100px);
-    overflow: auto;
-    width: 360px;
-    z-index: 1400;
-
-    .avatarHeaderBlock {
-      margin: 30px 0 20px 0;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-
-      .iconBlock {
-        display: inline-block;
-        cursor: pointer;
-        color: theme.$text;
-      }
-
-      h2 {
-        font-size: 18px;
-        color: theme.$text;
-        font-weight: bold;
-        display: inline-block;
-        vertical-align: middle;
-        margin-left: 10px;
-      }
-    }
-
-    .controlContainer {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 20px;
-
-      button {
-        height: 35px;
-        background-color: theme.$purpleColor1;
-        padding: 0;
-        border: none;
-        color: theme.$text;
-        flex-grow: 1;
-        border-radius: 3px;
-        font-size: 14px;
-
-        & > svg {
-          font-size: 18px;
-          margin-left: 5px;
-        }
-
-        &:hover {
-          background-color: theme.$purpleColor;
-        }
-      }
-
-      button + button {
-        margin-left: 5px;
-      }
-
-      button[disabled] {
-        background: theme.$purpleDarkest;
-        opacity: 1 !important;
-      }
-
-      .browseBtn {
-        & > svg {
-          transform: rotate(180deg);
-        }
-      }
-
-      .uploadBtn {
-        background: theme.$purplePinkGradient;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: bold;
-      }
-
-      button:hover,
-      button:focus {
-        outline: none;
-        opacity: 0.7;
-      }
-
-      .selectBtns {
-        display: flex;
-        justify-content: flex-end;
-        margin: 8px 0;
-      }
-    }
-
-    .stage {
-      border-radius: 5px;
-      overflow: hidden;
-      position: relative;
-
-      .legendContainer {
-        position: absolute;
-        right: 5px;
-        top: 5px;
-
-        & > svg {
-          opacity: 1;
-          color: theme.$purpleColor;
-
-          &:hover {
-            opacity: 0.8;
-          }
-        }
-
-        .legend {
-          position: absolute;
-          padding: 10px;
-          background: theme.$purplePanel;
-          border-radius: 5px;
-          top: 30px;
-          right: 5px;
-          width: 130px;
-          color: theme.$text;
-          font-size: 12px;
-          display: none;
-
-          span {
-            margin-left: 5px;
-          }
-
-          .shiftKey {
-            background: theme.$purplePanel;
-            color: theme.$text;
-            padding: 2px 4px;
-            border-radius: 4px;
-            font-weight: bold;
-            margin: 0 5px 0 0;
-          }
-
-          svg {
-            font-size: 18px;
-            margin-right: 5px;
-            width: 40px;
-            color: theme.$text;
-
-            path {
-              fill: theme.$text;
-            }
-          }
-
-          & > div + div {
-            margin-top: 10px;
-          }
-        }
-
-        &:hover {
-          .legend {
-            display: block;
-          }
-        }
-      }
-    }
-
-    .thumbnailContainer {
-      display: flex;
-      width: 100%;
-      margin-top: 8px;
-
-      .thumbnailPreview {
-        max-width: 100px;
-        margin: auto;
-      }
-    }
-
-    .selectLabelContainer {
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-
-      &:last-child {
-        margin-bottom: 10px;
-      }
-
-      .avatarSelectLabel,
-      .thumbnailSelectLabel {
-        margin: 20px 0 8px 0;
-        font-size: 15px;
-        color: theme.$text;
-      }
-    }
-
-    .avatarNameContainer {
-      display: flex;
-      justify-content: space-around;
-      margin: 8px 0px;
-
-      .avatarNameInput {
-        color: theme.$text;
-        border-color: theme.$text;
-        background: transparent;
-
-        input {
-          padding: 5px;
-          font-size: 14px;
-          color: theme.$text;
-          border-color: theme.$text;
-
-          &::selection {
-            background-color: transparent;
-          }
-        }
-
-        :global(.MuiFormLabel-root) {
-          color: theme.$text;
-        }
-
-        :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
-          border-color: white !important;
-        }
-      }
-    }
-
-    .iconBlock {
-      @include icon-block-styling();
-    }
-
-    @media (max-width: 400px) {
-      padding: 0 15px;
-      width: 330px;
-
-      .avatarHeaderBlock {
-        margin-top: 15px;
-      }
-
-      .controlContainer {
-        margin-bottom: 15px;
-      }
-    }
-  }
-
   @media (max-width: 560px) {
     height: 200px;
     bottom: 100px;
@@ -434,11 +206,11 @@
   bottom: 75px;
   padding: 0 30px;
   border-radius: 20px;
-  background-color: theme.$purpleLighter;
+  background-color: var(--purpleLighter);
   width: calc(100% - 50px);
   left: 50%;
   transform: translateX(-50%);
-  box-shadow: 16px 16px 32px 0px #11111159;
+  box-shadow: 16px 16px 32px 0 #11111159;
   color: black;
   max-height: calc(100vh - 100px);
   overflow: auto;
@@ -480,7 +252,7 @@
       .avatarBlock {
         width: 80px;
         height: 80px;
-        box-shadow: 0px 2px 18px 0px #11111159;
+        box-shadow: 0 2px 18px 0 #11111159;
         border-radius: 50%;
         background: white;
         position: relative;
@@ -504,8 +276,8 @@
           margin: 0;
           min-width: 30px;
           border-radius: 50%;
-          color: theme.$text;
-          background-color: theme.$purpleColor1;
+          color: var(--text);
+          background-color: var(--purpleColor1);
           box-shadow: 2px 2px 10px gray;
           transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 
@@ -515,7 +287,7 @@
             height: 40px;
             bottom: -15px;
             right: -15px;
-            background-color: theme.$purpleColor;
+            background-color: var(--purpleColor);
           }
 
           svg {
@@ -527,8 +299,7 @@
 
       .headerBlock {
         display: flex;
-        flex-direction: column;
-        flex-wrap: wrap;
+        flex-flow: column wrap;
         width: calc(100% - 110px);
         align-content: center;
 
@@ -536,7 +307,7 @@
           font-size: 14px;
           font-weight: bold;
           margin: 0;
-          color: theme.$text;
+          color: var(--text);
         }
 
         .inputBlock {
@@ -550,24 +321,25 @@
 
             input {
               font-size: 18px;
-              color: theme.$text;
-              border-color: theme.$text;
+              color: var(--text);
+              border-color: var(--text);
             }
 
             :global(.MuiFormLabel-root) {
-              color: theme.$text;
+              color: var(--text);
             }
 
             :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
               border-color: white !important;
             }
+
             @media (max-width: 560px) {
               width: 200px;
             }
           }
 
           .materialIconBlock {
-            @include material-icon-block-styling();
+            @include material-icon-block-styling;
           }
         }
 
@@ -578,11 +350,11 @@
         }
 
         h2 {
-          font-family: 'Roboto';
+          font-family: Roboto;
           font-size: 14px;
           text-align: left;
           opacity: 0.8;
-          color: theme.$text;
+          color: var(--text);
           margin: 5px 0 !important;
 
           span {
@@ -601,7 +373,7 @@
         h4 {
           margin-top: 4px;
           text-align: left;
-          color: theme.$text;
+          color: var(--text);
 
           .logout {
             max-width: 50px;
@@ -623,27 +395,27 @@
         font-size: 14px;
         font-weight: bold;
         margin: 0;
-        color: theme.$text;
+        color: var(--text);
       }
 
       .emailField {
         margin-top: 10px;
         margin-bottom: 20px;
         width: 100%;
-        color: theme.$text;
+        color: var(--text);
         background: transparent;
 
         input {
-          color: theme.$text;
-          border-color: theme.$text;
+          color: var(--text);
+          border-color: var(--text);
         }
 
         :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
-          border-color: theme.$text;
+          border-color: var(--text);
         }
 
         .materialIconBlock {
-          @include material-icon-block-styling();
+          @include material-icon-block-styling;
         }
       }
     }
@@ -652,7 +424,7 @@
       text-align: center;
 
       .textBlock {
-        color: theme.$text;
+        color: var(--text);
         font-size: 14px;
         font-weight: normal;
         text-align: center;
@@ -665,8 +437,8 @@
         font-size: 14px;
         width: 250px;
         max-width: 100%;
-        background: theme.$purplePinkGradient;
-        color: theme.$text;
+        background: var(--purplePinkGradient);
+        color: var(--text);
         border-radius: 20px;
         margin: 15px 0 20px;
 
@@ -704,7 +476,7 @@
 
       .textBlock {
         font-size: 14px;
-        color: theme.$text;
+        color: var(--text);
         font-weight: normal;
         text-align: center;
         display: block;
@@ -713,7 +485,7 @@
 
       .smallTextBlock {
         font-size: 12px;
-        color: theme.$text;
+        color: var(--text);
         font-weight: normal;
         text-align: center;
         display: block;
@@ -724,7 +496,7 @@
 
   .settingPanel {
     .settingSection {
-      color: theme.$text;
+      color: var(--text);
       position: relative;
 
       & + .settingSection {
@@ -749,7 +521,7 @@
 
         :global(.MuiCheckbox-root) {
           padding: 0;
-          color: theme.$purpleColor;
+          color: var(--purpleColor);
           margin-right: 10px;
 
           svg {
@@ -774,7 +546,7 @@
         flex-shrink: 0;
 
         svg {
-          color: theme.$purpleColor;
+          color: var(--purpleColor);
         }
       }
 
@@ -795,13 +567,13 @@
 
       :global(.MuiSlider-root) {
         &.slider {
-          color: theme.$purpleColor;
+          color: var(--purpleColor);
           margin: 0 10px;
         }
 
         :global(.MuiSlider-thumb) {
-          background: theme.$purpleColor;
-          border: theme.$purpleColor;
+          background: var(--purpleColor);
+          border: var(--purpleColor);
           width: 16px;
           height: 16px;
         }
@@ -829,7 +601,7 @@
 
     .panelHeader {
       font-size: 18px;
-      color: theme.$text;
+      color: var(--text);
       font-weight: bold;
     }
 
@@ -846,6 +618,7 @@
       border: none;
       background: transparent;
       scrollbar-width: none;
+
       /* IE */
       resize: none;
       outline: none !important;
@@ -854,6 +627,7 @@
       /* Firefox */
       &::-webkit-scrollbar {
         display: none;
+
         /* Safari and Chrome */
       }
     }
@@ -868,7 +642,7 @@
       .sendInvite {
         width: 125px;
         height: 35px;
-        background: theme.$purplePinkGradient;
+        background: var(--purplePinkGradient);
 
         &:hover {
           opacity: 0.8;
@@ -877,7 +651,7 @@
     }
 
     h5 {
-      color: theme.$text;
+      color: var(--text);
       margin-top: 10px;
       font-size: 14px;
       font-weight: normal;
@@ -886,28 +660,29 @@
     .copyField {
       margin-top: 10px;
       width: 100%;
-      color: theme.$text;
+      color: var(--text);
 
       input {
-        color: theme.$text;
-        border-color: theme.$text;
-        -webkit-text-fill-color: theme.$text;
+        color: var(--text);
+        border-color: var(--text);
+        -webkit-text-fill-color: var(--text);
       }
 
       :global(.MuiOutlinedInput-root) {
         fieldset {
-          border-color: theme.$text;
+          border-color: var(--text);
         }
       }
 
       :global(.MuiInputAdornment-root) {
-        color: theme.$text;
+        color: var(--text);
         cursor: pointer;
 
         &:hover {
           opacity: 0.8;
         }
       }
+
       @media (max-width: 560px) {
         width: 200px;
       }
@@ -916,21 +691,21 @@
     .emailField {
       margin-top: 30px;
       width: 100%;
-      color: theme.$text;
+      color: var(--text);
 
       input {
-        color: theme.$text;
-        border-color: theme.$text;
+        color: var(--text);
+        border-color: var(--text);
       }
 
       :global(.MuiOutlinedInput-root) {
         fieldset {
-          border-color: theme.$text;
+          border-color: var(--text);
         }
       }
 
       :global(.MuiInputAdornment-root) {
-        color: theme.$text;
+        color: var(--text);
         cursor: pointer;
 
         &:hover {
@@ -947,7 +722,7 @@
         width: 100px;
         height: 35px;
         background: $PurpleButtonColor;
-        color: '#fff';
+        color: "#fff";
 
         &:hover {
           opacity: 0.8;
@@ -1002,7 +777,7 @@
 
       .tableHead {
         background: $PurpleButtonColor;
-        color: theme.$text;
+        color: var(--text);
       }
 
       .tablebody {
@@ -1032,7 +807,7 @@
 
       button:hover {
         background: $PurpleButtonColor;
-        color: theme.$text;
+        color: var(--text);
       }
     }
 
@@ -1073,9 +848,7 @@
         :global(.MuiOutlinedInput-notchedOutline) {
           border: solid 1px #444;
         }
-      }
 
-      &:hover {
         .checkbox {
           opacity: 0.7;
         }
@@ -1096,7 +869,7 @@
       .deletebtn {
         width: 50px;
         height: 20px;
-        color: rgb(241, 57, 57);
+        color: rgb(241 57 57);
         background: transparent;
 
         &:disabled {
@@ -1104,12 +877,12 @@
         }
 
         &::before {
-          content: '';
+          content: "";
           position: absolute;
-          width: 0px;
-          height: 0px;
+          width: 0;
+          height: 0;
           border-radius: 25px;
-          background: rgb(241, 57, 57);
+          background: rgb(241 57 57);
           left: 50%;
           top: 50%;
           transform: translate(-50%, -50%);
@@ -1140,10 +913,10 @@
       margin-right: 10px;
 
       &::before {
-        content: '';
+        content: "";
         position: absolute;
-        width: 0px;
-        height: 0px;
+        width: 0;
+        height: 0;
         border-radius: 25px;
         background: $PurpleButtonColor;
         left: 50%;
@@ -1165,7 +938,7 @@
     }
 
     .savebtn {
-      color: theme.$text;
+      color: var(--text);
       background: $PurpleButtonColor;
       height: 35px;
       width: 150px;
@@ -1212,7 +985,7 @@
             font-size: 0.8rem;
 
             &.yesbtn {
-              background: rgb(241, 57, 57);
+              background: rgb(241 57 57);
             }
           }
 
@@ -1250,7 +1023,7 @@
 }
 
 .avatarPanel {
-  @include panel-popup-container-styling();
+  @include panel-popup-container-styling;
 
   & > .avatarContainer {
     margin-top: 40px;
@@ -1274,7 +1047,7 @@
       margin: 5px;
       flex-grow: 0;
       background: white;
-      box-shadow: 0px 2px 18px 0px #11111159;
+      box-shadow: 0 2px 18px 0 #11111159;
       position: relative;
       overflow: visible;
 
@@ -1285,11 +1058,11 @@
       }
 
       &.activeAvatar {
-        @include active-avatar();
+        @include active-avatar;
       }
 
       &.selectedAvatar {
-        @include selected-avatar();
+        @include selected-avatar;
       }
 
       .deleteBlock {
@@ -1302,7 +1075,7 @@
         border-radius: 50%;
         background: $PurpleButtonColor;
         box-shadow: 2px 2px 10px gray;
-        color: theme.$text;
+        color: var(--text);
         transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         display: flex;
         align-items: center;
@@ -1383,7 +1156,7 @@
   }
 
   .iconBlock {
-    @include icon-block-styling();
+    @include icon-block-styling;
   }
 
   @media screen and (min-width: 768px) {
@@ -1411,19 +1184,36 @@
 }
 
 .avatarUploadPanel {
-  @include panel-popup-container-styling();
+  position: absolute;
+  bottom: 75px;
+  padding: 0 30px;
+  border-radius: 20px;
+  background-color: var(--purpleLighter);
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 16px 16px 32px 0 #11111159;
+  color: black;
+  max-height: calc(100vh - 100px);
+  overflow: auto;
+  width: 360px;
+  z-index: 1400;
 
   .avatarHeaderBlock {
-    margin: 30px 0 20px 0;
+    margin: 30px 0 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 
     .iconBlock {
       display: inline-block;
-      color: $PurpleButtonColor;
+      cursor: pointer;
+      color: var(--text);
       background: transparent;
     }
 
     h2 {
       font-size: 18px;
+      color: var(--text);
       font-weight: bold;
       display: inline-block;
       vertical-align: middle;
@@ -1434,24 +1224,25 @@
   .controlContainer {
     display: flex;
     flex-direction: column;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 
     button {
       height: 35px;
-      background: theme.$purpleColor;
+      background-color: var(--purpleColor1);
       padding: 0;
       border: none;
-      color: theme.$text;
+      color: var(--text);
       flex-grow: 1;
       border-radius: 3px;
       font-size: 14px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
 
       & > svg {
         font-size: 18px;
         margin-left: 5px;
+      }
+
+      &:hover {
+        background-color: var(--purpleColor);
       }
     }
 
@@ -1460,7 +1251,7 @@
     }
 
     button[disabled] {
-      background: grey;
+      background: var(--purpleDarkest);
       opacity: 1 !important;
     }
 
@@ -1471,13 +1262,22 @@
     }
 
     .uploadBtn {
-      background: theme.$purplePinkGradient;
+      background: var(--purplePinkGradient);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
     }
 
     button:hover,
     button:focus {
       outline: none;
-      opacity: 0.8;
+      opacity: 0.7;
+    }
+
+    .selectBtns {
+      display: flex;
+      justify-content: flex-end;
+      margin: 8px 0;
     }
   }
 
@@ -1493,7 +1293,7 @@
 
       & > svg {
         opacity: 1;
-        color: theme.$purpleColor;
+        color: var(--purpleColor);
 
         &:hover {
           opacity: 0.8;
@@ -1503,12 +1303,12 @@
       .legend {
         position: absolute;
         padding: 10px;
-        background: theme.$purplePanel;
+        background: var(--purplePanel);
         border-radius: 5px;
         top: 30px;
         right: 5px;
         width: 130px;
-        color: theme.$text;
+        color: var(--text);
         font-size: 12px;
         display: none;
 
@@ -1517,8 +1317,8 @@
         }
 
         .shiftKey {
-          background: theme.$purplePanel;
-          color: theme.$text;
+          background: var(--purplePanel);
+          color: var(--text);
           padding: 2px 4px;
           border-radius: 4px;
           font-weight: bold;
@@ -1528,11 +1328,11 @@
         svg {
           font-size: 18px;
           margin-right: 5px;
-          vertical-align: middle;
-          color: theme.$text;
+          width: 40px;
+          color: var(--text);
 
           path {
-            fill: theme.$text;
+            fill: var(--text);
           }
         }
 
@@ -1563,28 +1363,53 @@
   .selectLabelContainer {
     display: flex;
     justify-content: space-around;
+    padding: 10px 0;
+
+    &:last-child {
+      margin-bottom: 10px;
+    }
 
     .avatarSelectLabel,
     .thumbnailSelectLabel {
-      margin: 20px 3px 8px 0;
+      margin: 20px 0 8px;
       font-size: 15px;
-      color: theme.$purpleColor;
-
-      &.avatarSelectError,
-      &.thumbnailSelectError {
-        color: red;
-      }
+      color: var(--text);
     }
   }
 
   .avatarNameContainer {
     display: flex;
     justify-content: space-around;
-    margin-top: 8px;
+    margin: 8px 0;
+
+    .avatarNameInput {
+      color: var(--text);
+      border-color: var(--text);
+      background: transparent;
+
+      input {
+        padding: 5px;
+        font-size: 14px;
+        color: var(--text);
+        border-color: var(--text);
+
+        &::selection {
+          background-color: transparent;
+        }
+      }
+
+      :global(.MuiFormLabel-root) {
+        color: var(--text);
+      }
+
+      :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
+        border-color: white !important;
+      }
+    }
   }
 
   .iconBlock {
-    @include icon-block-styling();
+    @include icon-block-styling;
   }
 
   @media (max-width: 400px) {
@@ -1602,9 +1427,10 @@
 }
 
 .ReadyPlayerPanel {
-  @include panel-popup-container-styling();
+  @include panel-popup-container-styling;
+
   border-radius: 20px;
-  background-color: theme.$purpleLighter;
+  background-color: var(--purpleLighter);
   padding: 0;
 
   .controlContainer {
@@ -1623,7 +1449,8 @@
   }
 
   .iconBlock {
-    @include icon-block-styling();
+    @include icon-block-styling;
+
     background: transparent;
   }
 
@@ -1692,13 +1519,13 @@
     }
 
     button {
-      color: theme.$text;
+      color: var(--text);
       display: flex;
       padding: 3px 5px;
       flex-direction: row;
       align-items: center;
       justify-content: center;
-      background-color: theme.$purpleColor;
+      background-color: var(--purpleColor);
       border: none;
       border-radius: 3px;
     }
@@ -1741,7 +1568,7 @@
       margin: 0;
       padding: 0;
       min-width: 0;
-      background-color: theme.$text;
+      background-color: var(--text);
       cursor: pointer;
 
       &:hover {
@@ -1762,27 +1589,27 @@
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        background-color: theme.$purpleColor;
+        background-color: var(--purpleColor);
 
         svg {
-          color: theme.$text;
+          color: var(--text);
           font-size: 20px;
         }
       }
 
       &.selectedAvatar {
-        border: solid 2px theme.$purpleColor0;
+        border: solid 2px var(--purpleColor0);
       }
 
       &.activeAvatar {
-        border: solid 2px theme.$purpleColor;
+        border: solid 2px var(--purpleColor);
       }
     }
   }
 }
 
 .itemContainerPrev {
-  content: '';
+  content: "";
   width: 40px;
   height: 70px;
   position: absolute;
@@ -1796,10 +1623,10 @@
 
   .iconBlock {
     position: relative;
-    color: theme.$text;
+    color: var(--text);
     border: none;
     padding: 0;
-    background-color: transparent;
+    background-color: transparent !important;
     top: 18px;
     right: 3px;
     transform: rotate(-45deg);
@@ -1819,7 +1646,7 @@
     }
 
     &.disabled {
-      color: grey;
+      color: var(--text2);
       cursor: initial;
 
       &::before {
@@ -1838,7 +1665,7 @@
 }
 
 .itemContainerNext {
-  content: '';
+  content: "";
   width: 40px;
   height: 70px;
   position: absolute;
@@ -1852,13 +1679,12 @@
 
   .iconBlock {
     position: relative;
-    color: theme.$text;
+    color: var(--text);
     border: none;
     padding: 0;
-    background-color: transparent;
     top: 18px;
     right: 3px;
-    background-color: transparent;
+    background-color: transparent !important;
     transform: rotate(225deg);
 
     @media (max-width: 360px) {
@@ -1876,7 +1702,7 @@
     }
 
     &.disabled {
-      color: grey;
+      color: var(--text2);
       cursor: initial;
 
       &::before {
@@ -1972,8 +1798,8 @@
   overflow: hidden;
   width: 400px;
   z-index: 1400;
-  background: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  background: rgb(255 255 255 / 50%);
+  box-shadow: 0 4px 30px rgb(0 0 0 / 10%);
   backdrop-filter: blur(4.9px);
   -webkit-backdrop-filter: blur(4.9px);
 }
@@ -1985,6 +1811,7 @@
   position: relative;
   cursor: pointer;
   transition: all 0.2s;
+
   &:hover {
     background: rgb(81 81 255 / 45%);
   }
@@ -2024,6 +1851,7 @@
   transition: all 0.2s;
   cursor: pointer;
 }
+
 .btnBack {
   border: none;
   border-radius: 50%;
@@ -2033,11 +1861,13 @@
   align-items: center;
   cursor: pointer;
 }
+
 .btnPerson {
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgb(255 255 255 / 70%);
   color: #808080;
+
   &:hover {
-    background: rgba(255, 255, 255, 1);
+    background: rgb(255 255 255 / 100%);
   }
 }
 
@@ -2045,21 +1875,26 @@
   background-color: #a5f2b2;
   color: #fff;
   margin: 0 10px;
+
   &:hover {
     background-color: #1e9932 !important;
   }
 }
+
 .btnArrow {
   background-color: #6e6ef7;
   color: #fff;
   transition: all 0.2s;
+
   &:hover {
     background-color: #5f5ff8;
   }
 }
+
 .btnCancel {
   color: #fff;
   background-color: #fca7a8;
+
   &:hover {
     background-color: #e76a6c !important;
   }
@@ -2104,7 +1939,7 @@
 }
 
 .paper {
-  background: theme.$purpleLight;
+  background: var(--purpleLight);
   display: flex;
   align-items: center;
 }
@@ -2118,11 +1953,11 @@
   font-size: 13px;
   width: auto;
   font-weight: bold;
-  background: theme.$purpleColor1;
+  background: var(--purpleColor1);
   padding: 6px 28px;
 
   &:hover {
-    background: theme.$purpleColor;
+    background: var(--purpleColor);
   }
 }
 
@@ -2134,8 +1969,8 @@
 
 .input {
   font-size: 14px;
-  color: theme.$text;
-  background-color: theme.$purpleLight;
+  color: var(--text);
+  background-color: var(--purpleLight);
 }
 
 .tabRoot {
@@ -2144,30 +1979,30 @@
 }
 
 .selected {
-  background: theme.$text;
+  background: var(--text);
 }
 
 .color {
-  color: theme.$text;
+  color: var(--text);
 }
 
 .paper2 {
-  background: theme.$purpleLight;
+  background: var(--purpleLight);
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 6px 0px;
+  padding: 6px 0;
 }
 
 .selectedTab {
-  color: theme.$text !important;
+  color: var(--text) !important;
   font-weight: bold;
   font-size: 17px;
   text-transform: capitalize;
 }
 
 .unselectedTab {
-  color: theme.$purpleDarkest !important;
+  color: var(--purpleDarkest) !important;
   font-weight: bold;
   font-size: 17px;
   text-transform: capitalize;

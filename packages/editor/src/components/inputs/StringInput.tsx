@@ -55,8 +55,8 @@ const DropContainer = (styled as any).div`
  * @author Robert Long
  */
 export const ControlledStringInput = React.forwardRef<{}, StringInputProp>((values, ref) => {
-  const { onChange, value, ...rest } = values as any
-  const inputRef = useRef()
+  const { onChange, value, ...rest } = values
+  const inputRef = useRef<HTMLInputElement>()
 
   const [tempValue, setTempValue] = useState(value)
 
@@ -71,7 +71,7 @@ export const ControlledStringInput = React.forwardRef<{}, StringInputProp>((valu
   }, [value])
 
   const onBlur = useCallback(() => {
-    onChange(tempValue)
+    onChange?.(tempValue)
   }, [onChange, tempValue])
 
   const onChangeValue = useCallback(
@@ -80,6 +80,11 @@ export const ControlledStringInput = React.forwardRef<{}, StringInputProp>((valu
     },
     [setTempValue]
   )
+
+  const onFocus = useCallback(() => {
+    inputRef.current?.select()
+    if (rest.onFocus) rest.onFocus()
+  }, [rest.onFocus])
 
   ControlledStringInput.defaultProps = {
     value: '',
@@ -96,6 +101,7 @@ export const ControlledStringInput = React.forwardRef<{}, StringInputProp>((valu
         onBlur={onBlur}
         onKeyUp={onKeyUp}
         value={tempValue}
+        onFocus={onFocus}
         {...rest}
       />
     </DropContainer>

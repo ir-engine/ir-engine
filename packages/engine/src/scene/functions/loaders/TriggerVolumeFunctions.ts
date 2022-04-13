@@ -1,4 +1,4 @@
-import { BoxBufferGeometry, Mesh, MeshBasicMaterial } from 'three'
+import { BoxBufferGeometry, Mesh, MeshBasicMaterial, Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -12,7 +12,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../../../physics/components/ColliderComponent'
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
-import { createCollider } from '../../../physics/functions/createCollider'
+import { createCollider, createColliderForObject3D } from '../../../physics/functions/createCollider'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -26,6 +26,7 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
   json: ComponentJson<TriggerVolumeComponentType>
 ): void => {
   const boxMesh = new Mesh(new BoxBufferGeometry(), new MeshBasicMaterial())
+  boxMesh.material.visible = false
   boxMesh.userData = {
     type: 'box',
     isTrigger: true,
@@ -41,13 +42,10 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
     target: json.props.target,
     active: true
   })
-
   if (Engine.isEditor) {
-    addComponent(entity, Object3DComponent, { value: boxMesh })
-    boxMesh.material.visible = false
+    addComponent(entity, Object3DComponent, { value: boxMesh }, Engine.currentWorld)
+    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRIGGER_VOLUME)
   }
-
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRIGGER_VOLUME)
 }
 
 export const updateTriggerVolume: ComponentUpdateFunction = (entity: Entity, prop: any) => {

@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "cameraMode.schema.json",
+  "title": "cameraMode",
+  "type": "integer",
+  "description": "camera mode enum descriptor",
+  "anyOf": [
+    {
+      "const": 0,
+      "description": "FirstPerson"
+    },
+    {
+      "const": 1,
+      "description": "ShoulderCam"
+    },
+    {
+      "const": 2,
+      "description": "ThirdPerson"
+    },
+    {
+      "const": 3,
+      "description": "TopDown"
+    },
+    {
+      "const": 4,
+      "description": "Strategic"
+    },
+    {
+      "const": 5,
+      "description": "Dynamic"
+    }
+  ]
+}

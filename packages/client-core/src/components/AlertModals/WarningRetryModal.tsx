@@ -87,10 +87,10 @@ const WarningRetryModal = ({
           <div
             className={classNames({
               [styles.paper]: true,
-              [styles['modal-content']]: true
+              [styles.modalContent]: true
             })}
           >
-            <div className={styles['modal-header']}>
+            <div className={styles.modalHeader}>
               <div />
               <div className={styles['title']}>{title}</div>
               <IconButton
