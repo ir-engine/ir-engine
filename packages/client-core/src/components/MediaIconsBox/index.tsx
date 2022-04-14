@@ -33,7 +33,7 @@ import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStrea
 import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
 import FaceIcon from '@mui/icons-material/Face'
 
-import styles from './MediaIconsBox.module.scss'
+import styles from './index.module.scss'
 
 interface Props {
   animate?: any

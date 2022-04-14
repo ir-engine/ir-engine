@@ -17,8 +17,9 @@ const StyledBooleanInput = (styled as any).input`
   display: none;
 
   :disabled ~ label {
-    background-color: var(--disabled);
-    color: var(--disabledText);
+    opacity: 0.8;
+    filter: grayscale(0.8);
+    cursor: initial
   }
 `
 
@@ -79,7 +80,13 @@ export const BooleanInput = (props: BooleanInputProp) => {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <StyledBooleanInput id={checkboxId} type="checkbox" checked={props.value} onChange={onChange} />
+      <StyledBooleanInput
+        id={checkboxId}
+        type="checkbox"
+        checked={props.value}
+        onChange={onChange}
+        disabled={props.disabled}
+      />
       <BooleanInputLabel htmlFor={checkboxId} tabIndex={0} onKeyPress={onChange}>
         {props.value && <BooleanCheck size={12} />}
       </BooleanInputLabel>

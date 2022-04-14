@@ -9,9 +9,9 @@ import InputAdornment from '@mui/material/InputAdornment'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import Typography from '@mui/material/Typography'
 
-import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
+import EmptyLayout from '../../../common/components/EmptyLayout'
 import { AuthService } from '../../services/AuthService'
-import styles from './Auth.module.scss'
+import styles from './index.module.scss'
 
 interface Props {
   token: string

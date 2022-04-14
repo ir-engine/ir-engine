@@ -40,7 +40,7 @@ import Slider from '@mui/material/Slider'
 import Tooltip from '@mui/material/Tooltip'
 
 import Draggable from './Draggable'
-import styles from './PartyParticipantWindow.module.scss'
+import styles from './index.module.scss'
 
 interface ContainerProportions {
   width: number | string

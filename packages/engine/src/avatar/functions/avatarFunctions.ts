@@ -167,7 +167,7 @@ export const animateModel = (entity: Entity) => {
 
   if (component.action) component.action.stop()
   component.action = animationComponent.mixer
-    .clipAction(AnimationClip.findByName(animationComponent.animations, 'dance1'))
+    .clipAction(AnimationClip.findByName(animationComponent.animations, 'wave'))
     .play()
 }
 
