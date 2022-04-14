@@ -8,10 +8,8 @@ import {
   useClientSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
-import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
-import NavMenu from '@xrengine/client-core/src/common/components/NavMenu'
+import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
 import UserToast from '@xrengine/client-core/src/common/components/Toast/UserToast'
-import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
@@ -30,7 +28,7 @@ import InstanceChat from '../InstanceChat'
 import Me from '../Me'
 import MediaIconsBox from '../MediaIconsBox'
 import PartyVideoWindows from '../PartyVideoWindows'
-import styles from './Layout.module.scss'
+import styles from './index.module.scss'
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
 
@@ -64,7 +62,6 @@ const Layout = (props: Props): any => {
   const [showMediaIcons, setShowMediaIcons] = useState(true)
   const [showBottomIcons, setShowBottomIcons] = useState(true)
   const loadingSystemState = useLoadingSystemState()
-  const channelConnectionState = useMediaInstanceConnectionState()
 
   useEffect(() => {
     !clientSetting && ClientSettingService.fetchClientSettings()

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
-import { useDispatch } from '@xrengine/client-core/src/store'
 import {
   initialize3D,
   onWindowResize,
@@ -13,8 +12,6 @@ import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbit
 
 import CircularProgress from '@mui/material/CircularProgress'
 
-import { EditorAction, useEditorState } from '../../../services/EditorServices'
-import { useModeState } from '../../../services/ModeServices'
 import styles from '../styles.module.scss'
 
 /**
@@ -41,8 +38,6 @@ export let scene: Scene
 export let renderer: WebGLRenderer = null!
 
 export const ModelPreviewPanel = (props) => {
-  const modeState = useModeState()
-  const dispatch = useDispatch()
   const url = props.resourceProps.resourceUrl
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
