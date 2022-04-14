@@ -760,7 +760,7 @@ export const AuthService = {
               thumbnailURL
             }
           })
-        ).cache({ removePrevious: true })
+        )
         const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
         transport?.sendNetworkStatUpdateMessage({
           type: MessageTypes.AvatarUpdated,
