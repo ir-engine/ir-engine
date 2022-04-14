@@ -45,7 +45,7 @@ const removeClient = (world: World, userId: UserId, allowRemoveSelf = false) => 
 
   for (const eid of world.getOwnedNetworkObjects(userId)) {
     const { networkId } = getComponent(eid, NetworkObjectComponent)
-    dispatchAction(world.store, NetworkWorldAction.destroyObject({ $from: userId, networkId }))
+    world.store.actions.incoming.push(NetworkWorldAction.destroyObject({ $from: userId, networkId }))
   }
 
   const { userIndex } = world.clients.get(userId)!

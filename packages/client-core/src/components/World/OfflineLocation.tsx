@@ -2,11 +2,11 @@ import React from 'react'
 
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { useHookEffect } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
 import GameServerWarnings from './GameServerWarnings'
@@ -16,7 +16,7 @@ export const OfflineLocation = () => {
   const authState = useAuthState()
 
   /** OFFLINE */
-  useHookedEffect(async () => {
+  useHookEffect(async () => {
     if (engineState.sceneLoaded.value) {
       const world = Engine.currentWorld
       const userId = authState.authUser.identityProvider.userId.value

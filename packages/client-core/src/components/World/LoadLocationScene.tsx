@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useHookEffect } from '@xrengine/hyperflux'
 
 import { retrieveLocationByName } from './LocationLoadHelper'
 
@@ -17,7 +18,7 @@ export const LoadLocationScene = () => {
   /**
    * Once we have logged in, retrieve the location data
    */
-  useEffect(() => {
+  useHookEffect(() => {
     const selfUser = authState.user
     const currentLocation = locationState.currentLocation.location
 
