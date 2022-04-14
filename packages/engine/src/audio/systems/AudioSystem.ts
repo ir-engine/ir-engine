@@ -1,3 +1,4 @@
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
@@ -37,6 +38,7 @@ export default async function AudioSystem(world: World) {
     if (audioReady) return
     console.log('starting audio')
     audioReady = true
+    Engine.camera.add(Engine.audioListener)
     dispatchLocal(EngineActions.startSuspendedContexts() as any)
     window.AudioContext = window.AudioContext || (window as any).webkitAudioContext
     if (window.AudioContext) {
