@@ -18,8 +18,11 @@ function registerState(store: HyperStore, StateDefinition: StateDefinition<any>)
   store.state[StateDefinition.name] = createState(StateDefinition.initial)
 }
 
-function getMutableState<S>(store: HyperStore, StateDefinition: StateDefinition<S>) {
-  if (!store[allowStateMutations]) throw new Error('Mutable state can only be accessed inside a receptor function')
+function getMutableState<S>(store: HyperStore, StateDefinition: StateDefinition<S>, forceAllowMutations = false) {
+  if (!store[allowStateMutations] && !forceAllowMutations)
+    throw new Error(
+      'Mutable state can only be accessed inside a receptor function. Use forceAllowMutations to bypass this restriction.'
+    )
   if (!store.state[StateDefinition.name]) throw new Error(`State ${StateDefinition.name} is not registered in Store`)
   return store.state[StateDefinition.name] as State<S>
 }

@@ -204,6 +204,7 @@ describe('Hyperflux Unit Testss', () => {
     const hospitality = getState(store, HospitalityState)
     assert.equal(hospitality.greetingCount, 0)
     assert.throws(() => getMutableState(store, HospitalityState))
+    assert.equal(getMutableState(store, HospitalityState, true).greetingCount.value, 0)
   })
 
   it('should be able to mutate registered state inside a receptor', () => {
@@ -226,5 +227,9 @@ describe('Hyperflux Unit Testss', () => {
       const hospitality = getMutableState(store, HospitalityState)
       hospitality.greetingCount.set(100)
     })
+
+    dispatchAction(store, greet({}))
+    applyIncomingActions(store)
+    assert.equal(getState(store, HospitalityState).greetingCount, 100)
   })
 })
