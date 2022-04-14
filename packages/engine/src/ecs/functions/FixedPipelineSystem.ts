@@ -28,18 +28,18 @@ export default async function FixedPipelineSystem(world: World, args: { tickRate
 
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
       world.fixedElapsedTime += world.fixedDelta
-      world.fixedTick += 1
+      world.fixedTick = Math.floor(world.fixedElapsedTime / world.fixedDelta)
       accessEngineState().fixedTick.set(world.fixedTick)
 
       for (const s of world.pipelines[SystemUpdateType.FIXED_EARLY]) s.execute()
       for (const s of world.pipelines[SystemUpdateType.FIXED]) s.execute()
       for (const s of world.pipelines[SystemUpdateType.FIXED_LATE]) s.execute()
 
-      accumulator -= timestep
+      accumulator -= world.fixedDelta
       ++updatesCount
 
       timeUsed = nowMilliseconds() - start
-      accumulatorDepleted = accumulator < timestep
+      accumulatorDepleted = accumulator < world.fixedDelta
       timeout = timeUsed > limit
       updatesLimitReached = updatesCount >= updatesLimit
     }
