@@ -24,6 +24,13 @@ export class NetworkWorldAction {
     type: 'network.DESTROY_CLIENT'
   })
 
+  static tickSync = defineAction({
+    type: 'network.TICK_SYNC',
+    tick: matchesWithDefault(matches.number, () => Engine.currentWorld.fixedTick),
+    $time: -1,
+    $to: 'others'
+  })
+
   static setXRMode = defineAction({
     type: 'network.SET_XR_MODE',
     enabled: matches.boolean,

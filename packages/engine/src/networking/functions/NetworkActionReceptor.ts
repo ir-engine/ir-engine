@@ -1,7 +1,7 @@
 import matches from 'ts-matches'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 // import { generatePhysicsObject } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
 import { Engine } from '../../ecs/classes/Engine'
@@ -193,8 +193,11 @@ const setEquippedObject = (world: World, action: ReturnType<typeof NetworkWorldA
  * @author Josh Field <github.com/HexaField>
  */
 const createNetworkActionReceptor = (world: World) =>
-  world.receptors.push(function NetworkActionReceptor(action) {
+  addActionReceptor(world.store, function NetworkActionReceptor(action) {
     matches(action)
+      .when(NetworkWorldAction.tickSync.matchesFromUser(world.hostId), ({ tick }) => {
+        world.fixedTick = tick
+      })
       .when(NetworkWorldAction.createClient.matches, ({ $from, name, index }) => addClient(world, $from, name, index))
       .when(NetworkWorldAction.destroyClient.matches, ({ $from }) => removeClient(world, $from))
       .when(NetworkWorldAction.spawnObject.matches, (a) => spawnObject(world, a))
