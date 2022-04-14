@@ -29,7 +29,7 @@ export const LoadLocationScene = () => {
     if (!isUserBanned && !locationState.fetchingCurrentLocation.value && locationState.locationName.value) {
       retrieveLocationByName(authState, locationState.locationName.value)
     }
-  }, [authState.isLoggedIn, authState.user.id, locationState.locationName])
+  }, [authState.isLoggedIn, locationState.locationName])
 
   if (isUserBanned) return <div className="banned">{t('location.youHaveBeenBannedMsg')}</div>
 

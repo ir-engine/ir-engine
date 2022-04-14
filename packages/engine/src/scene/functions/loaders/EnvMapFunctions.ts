@@ -1,7 +1,17 @@
-import { Color, DataTexture, Mesh, MeshStandardMaterial, RGBAFormat, sRGBEncoding, Vector3 } from 'three'
+import {
+  Color,
+  DataTexture,
+  EquirectangularRefractionMapping,
+  Mesh,
+  MeshStandardMaterial,
+  RGBAFormat,
+  sRGBEncoding,
+  Vector3
+} from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -30,7 +40,7 @@ import {
 import { SceneOptions } from '../../systems/SceneObjectSystem'
 import { CubemapBakeTypes } from '../../types/CubemapBakeTypes'
 import { addError, removeError } from '../ErrorFunctions'
-import { parseCubemapBakeProperties, updateCubemapBakeTexture } from './CubemapBakeFunctions'
+import { parseCubemapBakeProperties } from './CubemapBakeFunctions'
 
 export const SCENE_COMPONENT_ENVMAP = 'envmap'
 export const SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES = {
@@ -133,7 +143,9 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
       receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, async () => {
         switch (options.bakeType) {
           case CubemapBakeTypes.Baked:
-            updateCubemapBakeTexture(options)
+            const texture = AssetLoader.Cache.get(options.envMapOrigin)
+            texture.mapping = EquirectangularRefractionMapping
+            Engine.scene.environment = texture
 
             break
           case CubemapBakeTypes.Realtime:
