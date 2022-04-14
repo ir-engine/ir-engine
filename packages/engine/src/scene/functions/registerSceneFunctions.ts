@@ -81,7 +81,6 @@ import {
   serializeInterior,
   updateInterior
 } from './loaders/InteriorFunctions'
-import { deserializeLink, prepareLinkForGLTFExport, SCENE_COMPONENT_LINK, serializeLink } from './loaders/LinkFunctions'
 import {
   deserializeLoopAnimation,
   SCENE_COMPONENT_LOOP_ANIMATION,
@@ -343,12 +342,6 @@ export const registerDefaultSceneFunctions = (world: World) => {
     deserialize: deserializeLoopAnimation,
     serialize: serializeLoopAnimation,
     update: updateLoopAnimation
-  })
-
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_LINK, {
-    deserialize: deserializeLink,
-    serialize: serializeLink,
-    prepareForGLTFExport: prepareLinkForGLTFExport
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_EMITTER, {
