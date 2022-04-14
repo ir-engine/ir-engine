@@ -1,5 +1,4 @@
 ﻿import { createState, none, useState } from '@speigg/hookstate'
-import Hls from 'hls.js'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { ChannelResult } from '@xrengine/common/src/interfaces/ChannelResult'
@@ -11,11 +10,7 @@ import { Party } from '@xrengine/common/src/interfaces/Party'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
 
 import { AlertService } from '../../common/services/AlertService'
 import { accessLocationInstanceConnectionState } from '../../common/services/LocationInstanceConnectionService'
@@ -23,8 +18,6 @@ import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
 import { getChatMessageSystem, hasSubscribedToChatSystem, removeMessageSystem } from './utils/chatSystem'
-
-const videoQuery = defineQuery([VideoComponent])
 
 interface ChatMessageProps {
   targetObjectId: string
@@ -223,8 +216,6 @@ export const accessChatState = () => state
 
 export const useChatState = () => useState(state) as any as typeof state
 
-let hls: any = undefined
-
 globalThis.chatState = state
 
 //Service
@@ -262,107 +253,6 @@ export const ChatService = {
   },
   createMessage: async (values: ChatMessageProps) => {
     try {
-      const { text } = values
-      if (text.startsWith('/')) {
-        // const [, video] = document.getElementsByTagName('video')
-        let video
-        let videoUrl
-        for (const videoEntity of videoQuery()) {
-          let obj3d = getComponent(videoEntity, Object3DComponent)?.value
-          //TODO: first video entity for now, should expand for multiple videos
-          if (!video) {
-            video = obj3d.userData.videoEl
-            videoUrl = obj3d.userData.videoUrl
-          }
-        }
-
-        const [, video1] = document.getElementsByTagName('video')
-
-        const [controlType, param] = text.split(' ')
-
-        switch (controlType) {
-          case '/playVideo':
-            if (param) videoUrl = param
-            if (Hls.isSupported()) {
-              console.log('hls is supported')
-
-              const config = {
-                autoStartLoad: true,
-                startPosition: -1,
-                enableWorker: true,
-                lowLatencyMode: true,
-                backBufferLength: 30,
-                chunkDurationTarget: 100,
-                maxChunkCount: 10,
-                progressive: true,
-                startFragPrefetch: true,
-                fragLoadingRetryDelay: 50,
-                maxLoadingDelay: 1
-              }
-
-              if (hls !== undefined && hls) {
-                hls.stopLoad()
-                hls.detachMedia()
-                hls.destroy()
-              }
-              hls = new Hls(config)
-              hls.loadSource(videoUrl)
-              hls.attachMedia(video)
-              hls.on(Hls.Events.MEDIA_ATTACHED, function () {
-                video.muted = false
-                video.loop = false
-                video.play()
-              })
-              hls.on(Hls.Events.ERROR, function (event, data) {
-                if (data.fatal) {
-                  switch (data.type) {
-                    case Hls.ErrorTypes.NETWORK_ERROR:
-                      // try to recover network error
-                      console.log('fatal network error encountered, try to recover')
-                      hls.startLoad()
-                      break
-                    case Hls.ErrorTypes.MEDIA_ERROR:
-                      console.log('fatal media error encountered, try to recover')
-                      hls.recoverMediaError()
-                      break
-                    default:
-                      // cannot recover
-                      console.log('cannot recover')
-                      hls.destroy()
-                      break
-                  }
-                }
-              })
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-              video.src = videoUrl
-              video.addEventListener('canplay', function () {
-                video.play()
-              })
-            }
-
-            /* video.src = 'https://localhost:3029/' + videoUrl
-            video.crossOrigin = 'anonymous';
-            video.play() */
-            break
-          case '/play':
-            video?.play()
-            break
-          case '/pause':
-            video?.pause()
-            break
-          case '/seek':
-            if (!(video as any).paused) {
-              video?.pause()
-            }
-            if (param && parseFloat(param) >= 0) {
-              ;(video as any).currentTime = parseFloat(param)
-            } else {
-              ;(video as any).currentTime = (video as any).currentTime + 0.1
-            }
-            break
-        }
-      }
-
       const chatState = accessChatState().value
       const data = {
         targetObjectId: chatState.targetObjectId || values.targetObjectId || '',
