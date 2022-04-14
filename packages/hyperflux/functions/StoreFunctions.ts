@@ -34,14 +34,16 @@ export interface HyperStore {
    */
   state: { [name: string]: State<any> }
   actions: {
-    /** All incoming actions that have been proccessed */
-    history: Array<Required<Action>>
     /** Cached actions */
     cached: Array<Required<Action>>
     /** Incoming actions */
     incoming: Array<Required<Action>>
+    /** All incoming actions that have been proccessed */
+    incomingHistory: Array<Required<Action>>
     /** Outgoing actions */
     outgoing: Array<Required<Action>>
+    /** All actions that have been sent */
+    outgoingHistory: Array<Required<Action>>
   }
   /** functions that receive actions */
   receptors: Array<ActionReceptor>
@@ -65,10 +67,11 @@ function createHyperStore(options: {
     [allowStateMutations]: false,
     state: {},
     actions: {
-      history: new Array<Action>(),
       cached: new Array<Action>(),
       incoming: new Array<Action>(),
-      outgoing: new Array<Action>()
+      incomingHistory: new Array<Action>(),
+      outgoing: new Array<Action>(),
+      outgoingHistory: new Array<Action>()
     },
     receptors: new Array<() => {}>(),
     reactors: new WeakMap<() => void, any>()

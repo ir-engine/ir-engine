@@ -7,7 +7,7 @@ const sendOutgoingActions = (world: World) => {
   const transport = Network.instance.transportHandler?.getWorldTransport()
   if (!transport) return
 
-  const { outgoing } = world.store.actions
+  const { outgoing, outgoingHistory } = world.store.actions
 
   for (const o of outgoing) console.log('OUTGOING ' + o.type)
 
@@ -16,6 +16,8 @@ const sendOutgoingActions = (world: World) => {
   } catch (e) {
     console.error(e)
   }
+
+  outgoingHistory.push(...outgoing)
 
   if (world.isHosting) {
     ActionFunctions.loopbackOutgoingActions(world.store)
