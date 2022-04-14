@@ -32,8 +32,8 @@ export const uploadProjectAssetsFromUpload = async (
   onProgress?
 ): Promise<{ url: string }[]> => {
   const promises = []
-  for (const entry of entries) {
-    await processEntry(entry, projectName, '', promises, onProgress)
+  for (let i = 0; i < entries.length; i++) {
+    await processEntry(entries[i], projectName, '', promises, (progress) => onProgress(i + 1, entries.length, progress))
   }
 
   return await Promise.all(promises)
