@@ -50,7 +50,7 @@ const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
       attachmentPoint: attachmentPoint,
       equip: equip
     })
-  ).cache()
+  )
 }
 
 export const changeHand = (equipperEntity: Entity, attachmentPoint: EquippableAttachmentPoint): void => {

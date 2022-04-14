@@ -221,7 +221,7 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
           prefab: '',
           parameters: { sceneEntityId: node.uuid }
         })
-      ).cache()
+      )
     }
   }
 

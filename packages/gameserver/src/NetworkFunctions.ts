@@ -352,9 +352,10 @@ export const handleJoinWorld = async (
     NetworkWorldAction.createClient({
       $from: joinedUserId,
       name: client.name,
-      index: client.userIndex
+      index: client.userIndex,
+      $to: 'others'
     })
-  ).to('others')
+  )
 }
 
 export function handleIncomingActions(socket, message) {

@@ -26,11 +26,13 @@ export class NetworkWorldAction {
 
   static setXRMode = defineAction({
     type: 'network.SET_XR_MODE',
-    enabled: matches.boolean
+    enabled: matches.boolean,
+    $cache: { removePrevious: true }
   })
 
   static xrHandsConnected = defineAction({
-    type: 'network.XR_HANDS_CONNECTED'
+    type: 'network.XR_HANDS_CONNECTED',
+    $cache: true
   })
 
   static spawnObject = defineAction({
@@ -68,19 +70,25 @@ export class NetworkWorldAction {
       networkId: matchesNetworkId
     }),
     equip: matches.boolean,
-    attachmentPoint: matches.number
+    attachmentPoint: matches.number,
+    $cache: true
   })
 
   static avatarAnimation = defineAction({
     type: 'network.AVATAR_ANIMATION',
     newStateName: matches.string,
-    params: matchesWeightsParameters
+    params: matchesWeightsParameters,
+    $cache: {
+      removePrevious: true
+    }
   })
 
   static avatarDetails = defineAction({
     type: 'network.AVATAR_DETAILS',
     avatarDetail: matchesAvatarProps,
-    $cache: true
+    $cache: {
+      removePrevious: true
+    }
   })
 
   static teleportObject = defineAction({

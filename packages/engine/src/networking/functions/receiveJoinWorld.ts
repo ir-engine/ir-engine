@@ -51,9 +51,7 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
     NetworkWorldAction.spawnAvatar({
       parameters: { ...spawnPose }
     })
-  ).cache()
+  )
 
-  dispatchAction(world.store, NetworkWorldAction.avatarDetails({ avatarDetail })).cache({
-    removePrevious: true
-  })
+  dispatchAction(world.store, NetworkWorldAction.avatarDetails({ avatarDetail }))
 }

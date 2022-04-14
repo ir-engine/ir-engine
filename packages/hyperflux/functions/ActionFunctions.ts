@@ -196,42 +196,10 @@ function defineAction<Shape extends ActionShape>(actionShape: Shape) {
   return actionCreator
 }
 
-function _createActionModifier<A extends Action>(action: A, store: HyperStore) {
-  const modifier = {
-    /**
-     * Dispatch to select recipients
-     */
-    to(to: ActionRecipients) {
-      action.$to = to
-      return modifier
-    },
-    /**
-     * Dispatch in the future
-     * @param timeDelay The time delay
-     */
-    delay(timeDelay: number) {
-      action.$time = store.getDispatchTime() + timeDelay
-      return modifier
-    },
-    /**
-     * Cache this action for possible replay
-     *
-     * @param cache The cache options
-     * - Default: true
-     */
-    cache(cache = true as ActionCacheOptions) {
-      action.$cache = cache
-      return modifier
-    }
-  }
-  return modifier
-}
-
 /**
  * Dispatch actions to the store.
  * @param store
  * @param action
- * @returns
  */
 const dispatchAction = <A extends Action>(store: HyperStore, action: A) => {
   action.$from = action.$from ?? (store.getDispatchId() as UserId)
@@ -241,7 +209,6 @@ const dispatchAction = <A extends Action>(store: HyperStore, action: A) => {
   store.networked
     ? store.actions.outgoing.push(action as Required<Action>)
     : store.actions.incoming.push(action as Required<Action>)
-  return _createActionModifier(action, store)
 }
 
 /**
