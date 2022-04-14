@@ -331,7 +331,7 @@ describe('NetworkActionReceptors', () => {
 
       NetworkActionReceptor.createNetworkActionReceptor(world)
 
-      ActionFunctions.clearOutgoingActions(world.store)
+      ActionFunctions.clearOutgoingActions(world.store, true)
       ActionFunctions.applyIncomingActions(world.store)
       world.execute(0, 0)
 
