@@ -24,6 +24,14 @@ export class NetworkWorldAction {
     type: 'network.DESTROY_CLIENT'
   })
 
+  static timeSync = defineAction({
+    type: 'network.TIME_SYNC',
+    elapsedTime: matchesWithDefault(matches.number, () => Engine.currentWorld.elapsedTime),
+    clockTime: matchesWithDefault(matches.number, () => Date.now()),
+    $time: -1,
+    $to: 'others'
+  })
+
   static setXRMode = defineAction({
     type: 'network.SET_XR_MODE',
     enabled: matches.boolean,

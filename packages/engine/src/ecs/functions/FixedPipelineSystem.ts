@@ -9,20 +9,18 @@ import { SystemUpdateType } from './SystemUpdateType'
  * @author Gheric Speiginer <github.com/speigg>
  */
 export default async function FixedPipelineSystem(world: World, args: { tickRate: number }) {
-  let accumulator = 0
-
   const timestep = 1 / args.tickRate
   const limit = timestep * 1000
   const updatesLimit = args.tickRate
 
-  return () => {
-    world.fixedDelta = timestep
+  world.fixedDelta = timestep
 
+  return () => {
     const start = nowMilliseconds()
     let timeUsed = 0
     let updatesCount = 0
 
-    accumulator += world.delta
+    let accumulator = world.fixedElapsedTime - world.elapsedTime
 
     let accumulatorDepleted = accumulator < timestep
     let timeout = timeUsed > limit
@@ -46,8 +44,12 @@ export default async function FixedPipelineSystem(world: World, args: { tickRate
       updatesLimitReached = updatesCount >= updatesLimit
     }
 
-    if (!accumulatorDepleted) {
-      accumulator = accumulator % timestep
+    if (updatesLimitReached) {
+      console.warn(
+        'FixedPipelineSystem: update limit reached, skipping world.fixedElapsedTime ahead to catch up with world.elapsedTime'
+      )
+      world.fixedElapsedTime = world.elapsedTime
+      world.fixedTick = Math.floor(world.fixedElapsedTime / world.fixedDelta)
     }
   }
 }
