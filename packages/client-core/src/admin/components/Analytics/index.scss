@@ -15,6 +15,16 @@
   }
 }
 
+.apexcharts-menu-icon {
+  svg {
+    fill: var(--text) !important;
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
 .apexcharts-menu.apexcharts-menu-open {
   padding: 0 !important;
   border: none !important;
