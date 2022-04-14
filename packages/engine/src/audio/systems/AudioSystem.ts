@@ -38,6 +38,7 @@ export default async function AudioSystem(world: World) {
     window.removeEventListener('touchstart', startAudio)
     window.removeEventListener('click', startAudio)
     console.log('starting audio')
+    audioReady = true
     Engine.camera.add(Engine.audioListener)
     dispatchLocal(EngineActions.startSuspendedContexts() as any)
     window.AudioContext = window.AudioContext || (window as any).webkitAudioContext
