@@ -13,6 +13,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import WebGLRendererSystem from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 
@@ -29,7 +30,8 @@ enum WarningModalTypes {
   USER_KICKED,
   INVALID_LOCATION,
   INSTANCE_WEBGL_DISCONNECTED,
-  CHANNEL_DISCONNECTED
+  CHANNEL_DISCONNECTED,
+  DETECTED_LOW_FRAME
 }
 
 const GameServerWarnings = () => {
@@ -44,6 +46,9 @@ const GameServerWarnings = () => {
   const { t } = useTranslation()
 
   const currentErrorRef = useRef(currentError)
+  const isWindow = (): boolean => {
+    return navigator.userAgent.includes('Window')
+  }
 
   const setCurrentError = (value) => {
     currentErrorRef.current = value
@@ -91,6 +96,12 @@ const GameServerWarnings = () => {
     // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
     var db = indexedDB.open('test')
     db.onerror = () => updateWarningModal(WarningModalTypes.INDEXED_DB_NOT_SUPPORTED)
+  }, [])
+
+  useEffect(() => {
+    if (isWindow()) {
+      updateWarningModal(WarningModalTypes.DETECTED_LOW_FRAME)
+    }
   }, [])
 
   useEffect(() => {
@@ -186,6 +197,14 @@ const GameServerWarnings = () => {
             'common:gameServer.misspelledOrNotExist'
           )}`,
           noCountdown: true
+        })
+        break
+      case WarningModalTypes.DETECTED_LOW_FRAME:
+        setModalValues({
+          open: true,
+          title: t('common:gameServer.low-frame-title'),
+          body: t('common:gameServer.low-frame-error'),
+          timeout: 5000
         })
         break
       default:
