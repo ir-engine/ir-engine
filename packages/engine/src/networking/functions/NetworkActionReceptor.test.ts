@@ -94,7 +94,7 @@ describe('NetworkActionReceptors', () => {
       NetworkActionReceptor.createNetworkActionReceptor(world)
       NetworkActionReceptor.removeClient(world, userId, true)
 
-      ActionFunctions.loopbackOutgoingActions(world.store)
+      ActionFunctions.clearOutgoingActions(world.store)
       ActionFunctions.applyIncomingActions(world.store)
       world.execute(0, 0)
 
@@ -331,7 +331,7 @@ describe('NetworkActionReceptors', () => {
 
       NetworkActionReceptor.createNetworkActionReceptor(world)
 
-      ActionFunctions.loopbackOutgoingActions(world.store)
+      ActionFunctions.clearOutgoingActions(world.store)
       ActionFunctions.applyIncomingActions(world.store)
       world.execute(0, 0)
 
@@ -397,7 +397,7 @@ describe('NetworkActionReceptors', () => {
 
       NetworkActionReceptor.createNetworkActionReceptor(world)
 
-      ActionFunctions.loopbackOutgoingActions(world.store)
+      ActionFunctions.clearOutgoingActions(world.store)
       ActionFunctions.applyIncomingActions(world.store)
       world.execute(0, 0)
 
