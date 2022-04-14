@@ -21,6 +21,7 @@ export const dispatchAction = dynamicFunctionReference(ActionFunctions, 'dispatc
 export const addActionReceptor = dynamicFunctionReference(ActionFunctions, 'addActionReceptor')
 export const removeActionReceptor = dynamicFunctionReference(ActionFunctions, 'removeActionReceptor')
 export const applyIncomingActions = dynamicFunctionReference(ActionFunctions, 'applyIncomingActions')
+export const clearOutgoingActions = dynamicFunctionReference(ActionFunctions, 'clearOutgoingActions')
 
 export const defineState = dynamicFunctionReference(StateFunctions, 'defineState')
 export const registerState = dynamicFunctionReference(StateFunctions, 'registerState')

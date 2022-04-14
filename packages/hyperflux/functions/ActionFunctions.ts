@@ -282,9 +282,9 @@ const _applyAndArchiveIncomingAction = (store: HyperStore, action: Required<Acti
     for (const receptor of [...store.receptors]) receptor(action)
     store[allowStateMutations] = false
     _updateCachedActions(store, action)
-    store.actions.history.push(action)
+    store.actions.incomingHistory.push(action)
   } catch (e) {
-    store.actions.history.push({ $ERROR: e, ...action } as any)
+    store.actions.incomingHistory.push({ $ERROR: e, ...action } as any)
     console.error(e)
   } finally {
     const idx = store.actions.incoming.indexOf(action)
@@ -311,16 +311,22 @@ const applyIncomingActions = (store: HyperStore) => {
 }
 
 /**
- * This function should be called when an authoritative node needs to send actions to the network
- * and also process the actions locally
+ * Clears the outgoing action queue, and adds them to the outgoing history
  * @param store
+ * @param loopback Redirect outgoing actions back to the incoming queue.
+ * This flag should be set when an authoritative node needs to send actions to the network
+ * and also process the actions locally
  */
-const loopbackOutgoingActions = (store: HyperStore) => {
-  const { outgoing } = store.actions
+const clearOutgoingActions = (store: HyperStore, loopback = false) => {
+  const { outgoing, outgoingHistory, incoming } = store.actions
   const dispatchId = store.getDispatchId()
   for (const action of outgoing) {
-    if (action.$to === 'all' || (action.$to === 'others' && action.$from != dispatchId) || action.$to === dispatchId)
-      store.actions.incoming.push(action)
+    outgoingHistory.push(action)
+    if (
+      loopback &&
+      (action.$to === 'all' || (action.$to === 'others' && action.$from != dispatchId) || action.$to === dispatchId)
+    )
+      incoming.push(action)
   }
   outgoing.length = 0
 }
@@ -331,5 +337,5 @@ export default {
   addActionReceptor,
   removeActionReceptor,
   applyIncomingActions,
-  loopbackOutgoingActions
+  clearOutgoingActions
 }

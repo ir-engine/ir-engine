@@ -3,6 +3,7 @@ import assert from 'assert'
 import {
   addActionReceptor,
   applyIncomingActions,
+  clearOutgoingActions,
   createHyperStore,
   defineAction,
   defineState,
@@ -12,7 +13,6 @@ import {
   registerState,
   removeActionReceptor
 } from '..'
-import ActionFunctions from '../functions/ActionFunctions'
 import { matches, matchesWithDefault } from '../utils/MatchesUtils'
 
 describe('Hyperflux Unit Testss', () => {
@@ -176,7 +176,7 @@ describe('Hyperflux Unit Testss', () => {
     addActionReceptor(store, receptor)
     dispatchAction(store, greet({}))
     assert(greet.matches.test(store.actions.outgoing[0]))
-    ActionFunctions.loopbackOutgoingActions(store)
+    clearOutgoingActions(store, true)
     assert(store.actions.outgoing.length === 0)
     assert(greet.matches.test(store.actions.incoming[0]))
     applyIncomingActions(store)
