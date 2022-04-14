@@ -51,7 +51,7 @@
     "mousetrap": "^1.6.5",
     "oauth-1.0a": "^2.2.6",
     "rc-dock": "3.2.10",
-    "rc-slider": "9.7.5",
+    "rc-slider": "10.0.0",
     "react": "17.0.2",
     "react-color": "2.19.3",
     "react-contextmenu": "2.14.0",
