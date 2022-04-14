@@ -35,6 +35,7 @@ export const uploadToFeathersService = (
         onUploadProgress(e.loaded / e.total)
       }
     })
+    request.timeout = 10 * 60 * 1000 // 10 minutes - need to support big files on slow connections
 
     request.upload.addEventListener('error', (error) => {
       reject(new RethrownError(i18n.t('editor:errors.uploadFailed'), error))
@@ -51,7 +52,7 @@ export const uploadToFeathersService = (
           console.log('The request has been completed successfully')
           resolve()
         } else {
-          console.log('Oh no! There has been an error with the request!')
+          console.log('Oh no! There has been an error with the request!', request, e)
           reject()
         }
       }

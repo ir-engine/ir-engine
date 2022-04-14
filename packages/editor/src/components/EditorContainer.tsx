@@ -272,7 +272,7 @@ const EditorContainer = () => {
           )
         })) as any
         if (result && projectName.value) {
-          const cubemapUrl = await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
+          await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
           await saveScene(projectName.value, result.name, blob, abortController.signal)
           dispatch(EditorAction.sceneModified(false))
         } else {
@@ -436,7 +436,7 @@ const EditorContainer = () => {
 
     try {
       if (projectName.value) {
-        const cubemapUrl = await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
+        await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
         await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
         await saveProject(projectName.value)
       }
