@@ -16,10 +16,6 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 
-type GameServerWarningsProps = {
-  locationName: string
-}
-
 const initialModalValues: WarningRetryModalProps = {
   open: false,
   title: '',
@@ -36,7 +32,7 @@ enum WarningModalTypes {
   CHANNEL_DISCONNECTED
 }
 
-const GameServerWarnings = (props: GameServerWarningsProps) => {
+const GameServerWarnings = () => {
   const locationState = useLocationState()
   const [modalValues, setModalValues] = useState(initialModalValues)
   const [currentError, _setCurrentError] = useState(-1)
@@ -186,7 +182,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
         setModalValues({
           open: true,
           title: t('common:gameServer.invalidLocation'),
-          body: `${t('common:gameServer.cantFindLocation')} '${props.locationName}'. ${t(
+          body: `${t('common:gameServer.cantFindLocation')} '${locationState.locationName.value}'. ${t(
             'common:gameServer.misspelledOrNotExist'
           )}`,
           noCountdown: true

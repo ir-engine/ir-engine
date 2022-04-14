@@ -25,6 +25,7 @@ import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/Re
 import { SimpleMaterialTagComponent } from '@xrengine/engine/src/scene/components/SimpleMaterialTagComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
+import { SCENE_COMPONENT_SIMPLE_MATERIALS } from '@xrengine/engine/src/scene/functions/loaders/SimpleMaterialFunctions'
 
 import LanguageIcon from '@mui/icons-material/Language'
 
@@ -181,6 +182,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
     executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
       operation: {
         component: SimpleMaterialTagComponent,
+        sceneComponentName: SCENE_COMPONENT_SIMPLE_MATERIALS,
         type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
       }
     })

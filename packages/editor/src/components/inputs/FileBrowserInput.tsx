@@ -28,8 +28,8 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
       if (isDropType) {
         // Below url fix is applied when item is folder
         let url = item.url
-        if (url.endsWith(item.id) === false) {
-          url += item.id
+        if (!url.endsWith(item.fullName)) {
+          url += item.fullName
         }
 
         onChange(url, item)

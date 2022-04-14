@@ -16,7 +16,7 @@ import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp'
 import RegisterApp from '../../../user/components/Auth/RegisterApp'
 import ResetPassword from '../../../user/components/Auth/ResetPassword'
 import { AuthService } from '../../services/AuthService'
-import styles from './Login.module.scss'
+import styles from './index.module.scss'
 
 const initialState = {
   jwt: true,

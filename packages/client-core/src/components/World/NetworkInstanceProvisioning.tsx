@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useHistory } from 'react-router'
 
 import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/services/AppService'
 import {
-  LocationInstanceConnectionAction,
   LocationInstanceConnectionService,
   useLocationInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
@@ -15,11 +14,10 @@ import { MediaStreamService } from '@xrengine/client-core/src/media/services/Med
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { UserService, useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
@@ -31,7 +29,7 @@ interface Props {
   locationName: string
 }
 
-export const NetworkInstanceProvisioning = (props: Props) => {
+export const NetworkInstanceProvisioning = () => {
   const authState = useAuthState()
   const selfUser = authState.user
   const userState = useUserState()
@@ -43,14 +41,6 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useEngineState()
   const history = useHistory()
-
-  // 1. Ensure api server connection in and set up reset listener
-  useEffect(() => {
-    AuthService.doLoginAuto(true)
-
-    // start listening for users joining or leaving the location
-    AuthService.listenForUserPatch()
-  }, [])
 
   useHookedEffect(() => {
     const instanceIdValue = instanceConnectionState.instance.id.value
@@ -119,13 +109,6 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     }
   }, [engineState.connectedWorld, engineState.sceneLoaded])
 
-  useHookedEffect(() => {
-    if (engineState.joinedWorld.value) {
-      dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
-      dispatch(AppAction.setAppLoaded(true))
-    }
-  }, [engineState.joinedWorld])
-
   // channel server provisioning (if needed)
   useHookedEffect(() => {
     if (chatState.instanceChannelFetched.value) {
@@ -161,7 +144,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     channelConnectionState.connecting
   ])
 
-  return <GameServerWarnings locationName={props.locationName} />
+  return <GameServerWarnings />
 }
 
 export default NetworkInstanceProvisioning

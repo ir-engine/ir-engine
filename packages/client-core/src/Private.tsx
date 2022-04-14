@@ -1,7 +1,7 @@
 import React from 'react'
 import { Route } from 'react-router'
 
-import Dashboard from './user/components/Dashboard/Dashboard'
+import Dashboard from './user/components/Dashboard'
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
   return (

@@ -1,6 +1,6 @@
 import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
@@ -272,7 +272,7 @@ const EditorContainer = () => {
           )
         })) as any
         if (result && projectName.value) {
-          const cubemapUrl = await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
+          await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
           await saveScene(projectName.value, result.name, blob, abortController.signal)
           dispatch(EditorAction.sceneModified(false))
         } else {
@@ -436,7 +436,7 @@ const EditorContainer = () => {
 
     try {
       if (projectName.value) {
-        const cubemapUrl = await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
+        await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
         await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
         await saveProject(projectName.value)
       }
@@ -471,15 +471,16 @@ const EditorContainer = () => {
   }, [toggleRefetchScenes])
 
   useEffect(() => {
-    if (sceneLoaded.value && dockPanelRef.current) {
-      dockPanelRef.current.updateTab('viewPanel', {
-        id: 'viewPanel',
-        title: 'Viewport',
-        content: <div />
-      })
+    if (!dockPanelRef.current) return
 
-      dockPanelRef.current.updateTab('filesPanel', dockPanelRef.current.find('filesPanel') as TabData, true)
-    }
+    dockPanelRef.current.updateTab('viewPanel', {
+      id: 'viewPanel',
+      title: 'Viewport',
+      content: viewPortPanelContent(!sceneLoaded.value)
+    })
+
+    const activePanel = sceneLoaded.value ? 'filesPanel' : 'scenePanel'
+    dockPanelRef.current.updateTab(activePanel, dockPanelRef.current.find(activePanel) as TabData, true)
   }, [sceneLoaded])
 
   useEffect(() => {
@@ -541,6 +542,17 @@ const EditorContainer = () => {
     ]
   }
 
+  const viewPortPanelContent = useCallback((shouldDisplay) => {
+    return shouldDisplay ? (
+      <div className={styles.bgImageBlock}>
+        <img src="/static/xrengine.png" />
+        <h2>{t('editor:selectSceneMsg')}</h2>
+      </div>
+    ) : (
+      <div />
+    )
+  }, [])
+
   const toolbarMenu = generateToolbarMenu()
   if (!editorReady) return <></>
 
@@ -594,12 +606,7 @@ const EditorContainer = () => {
                 {
                   id: 'viewPanel',
                   title: 'Viewport',
-                  content: (
-                    <div className={styles.bgImageBlock}>
-                      <img src="/static/xrengine.png" />
-                      <h2>{t('editor:selectSceneMsg')}</h2>
-                    </div>
-                  )
+                  content: viewPortPanelContent(true)
                 }
               ],
               size: 1

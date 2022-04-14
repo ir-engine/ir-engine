@@ -239,6 +239,10 @@
           }
         },
         {
+          "name": "visible",
+          "props": {}
+        },
+        {
           "name": "spawn-point",
           "props": {}
         }
@@ -411,9 +415,9 @@
               "z": 0
             },
             "rotation": {
-              "x": -0.5235987755982988,
-              "y": 0.2617993877991494,
-              "z": -1.005714020795104e-16
+              "x": 0.5235987826331087,
+              "y": 0.609119929255003,
+              "z": 0
             },
             "scale": {
               "x": 1,
@@ -439,7 +443,8 @@
             "shadowBias": 0,
             "shadowRadius": 1,
             "cameraFar": 100,
-            "showCameraHelper": false
+            "showCameraHelper": false,
+            "useInCSM": true
           }
         }
       ],

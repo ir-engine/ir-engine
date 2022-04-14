@@ -10,7 +10,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import OutlinedInput from '@mui/material/OutlinedInput'
 
 import { AuthService } from '../../services/AuthService'
-import styles from './Auth.module.scss'
+import styles from './index.module.scss'
 
 const initialState = { email: '', password: '' }
 
@@ -26,7 +26,7 @@ export const PasswordLoginApp = (props: Props): JSX.Element => {
 
   const handleEmailLogin = (e: any): void => {
     e.preventDefault()
-    AuthService.doLoginAuto(true)
+    AuthService.doLoginAuto()
   }
 
   const [showPassword, showHidePassword] = useState(false)
