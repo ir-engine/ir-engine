@@ -8,6 +8,7 @@
 }
 
 .apexcharts-xaxistooltip-bottom {
+  color: var(--text) !important;
   background: var(--purpleLight) !important;
 
   &::after {
