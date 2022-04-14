@@ -206,6 +206,15 @@ const dispatchAction = <A extends Action>(store: HyperStore, action: A) => {
   action.$to = action.$to ?? 'all'
   action.$time = action.$time ?? store.getDispatchTime() + store.defaultDispatchDelay
   action.$cache = action.$cache ?? false
+
+  if (process.env.APP_ENV === 'development') {
+    const trace = { stack: '' }
+    Error.captureStackTrace(trace, dispatchAction)
+    const stack = trace.stack.split('\n')
+    stack.shift()
+    action['$stack'] = stack
+  }
+
   store.networked
     ? store.actions.outgoing.push(action as Required<Action>)
     : store.actions.incoming.push(action as Required<Action>)
@@ -296,7 +305,7 @@ const applyIncomingActions = (store: HyperStore) => {
     if (action.$time > now) {
       continue
     }
-    console.log(`${store.name} ACTION ${action.type}`, action)
+    console.log(`${store.name} ACTION ${action.type}`)
     _applyAndArchiveIncomingAction(store, action)
   }
 }

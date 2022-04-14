@@ -9,7 +9,7 @@ const sendOutgoingActions = (world: World) => {
 
   const { outgoing } = world.store.actions
 
-  for (const o of outgoing) console.log('OUTGOING', o)
+  for (const o of outgoing) console.log('OUTGOING ' + o.type)
 
   try {
     transport.sendActions(outgoing)
