@@ -36,9 +36,11 @@ export default async function AudioSystem(world: World) {
 
   /** Enable and start audio system. */
   const startAudio = (): void => {
-    if (audioReady) return
+    window.removeEventListener('touchstart', startAudio)
+    window.removeEventListener('click', startAudio)
     console.log('starting audio')
     audioReady = true
+    Engine.camera.add(Engine.audioListener)
     dispatchAction(Engine.store, EngineActions.startSuspendedContexts() as any)
     window.AudioContext = window.AudioContext || (window as any).webkitAudioContext
     if (window.AudioContext) {
@@ -60,6 +62,9 @@ export default async function AudioSystem(world: World) {
     callbacks.forEach((cb) => cb())
     callbacks = null!
   }
+
+  window.addEventListener('touchstart', startAudio, true)
+  window.addEventListener('click', startAudio, true)
 
   /**
    * Start Background music if available.
@@ -101,10 +106,6 @@ export default async function AudioSystem(world: World) {
     audio.play()
     removeComponent(ent, PlaySoundEffect)
   }
-
-  window.addEventListener('touchstart', startAudio, true)
-  window.addEventListener('touchend', startAudio, true)
-  window.addEventListener('click', startAudio, true)
 
   return () => {
     for (const entity of soundEffectQuery.enter(world)) {

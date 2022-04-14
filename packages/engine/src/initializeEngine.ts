@@ -67,7 +67,6 @@ export const initializeBrowser = () => {
   Engine.camera.layers.enable(ObjectLayers.Scene)
   Engine.camera.layers.enable(ObjectLayers.Avatar)
   Engine.camera.layers.enable(ObjectLayers.UI)
-  Engine.camera.add(Engine.audioListener)
 
   const browser = detect()
   const os = detectOS(navigator.userAgent)
