@@ -196,7 +196,8 @@ const createNetworkActionReceptor = (world: World) =>
   addActionReceptor(world.store, function NetworkActionReceptor(action) {
     matches(action)
       .when(NetworkWorldAction.timeSync.matchesFromUser(world.hostId), ({ elapsedTime, clockTime }) => {
-        world.elapsedTime = elapsedTime + (Date.now() - clockTime)
+        // todo: smooth out time sync over multiple frames
+        world.elapsedTime = elapsedTime + (Date.now() - clockTime) / 1000
       })
       .when(NetworkWorldAction.createClient.matches, ({ $from, name, index }) => addClient(world, $from, name, index))
       .when(NetworkWorldAction.destroyClient.matches, ({ $from }) => removeClient(world, $from))

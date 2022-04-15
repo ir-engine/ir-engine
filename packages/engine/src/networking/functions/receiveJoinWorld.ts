@@ -37,7 +37,7 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
   dispatchAction(Engine.store, EngineActions.joinedWorld())
   const world = Engine.currentWorld
 
-  world.elapsedTime = elapsedTime + Date.now() - clockTime
+  world.elapsedTime = elapsedTime + (Date.now() - clockTime) / 1000
   world.fixedTick = Math.floor(world.elapsedTime / world.fixedDelta)
   world.fixedElapsedTime = world.fixedTick * world.fixedDelta
 

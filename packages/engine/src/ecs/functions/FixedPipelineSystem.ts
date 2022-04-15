@@ -20,7 +20,7 @@ export default async function FixedPipelineSystem(world: World, args: { tickRate
     let timeUsed = 0
     let updatesCount = 0
 
-    let accumulator = world.fixedElapsedTime - world.elapsedTime
+    let accumulator = world.elapsedTime - world.fixedElapsedTime
 
     let accumulatorDepleted = accumulator < timestep
     let timeout = timeUsed > limit
