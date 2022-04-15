@@ -91,7 +91,7 @@ export const unloadScene = async (world: World, removePersisted = false) => {
   isClient && configureEffectComposer()
 
   for (const world of Engine.worlds) {
-    world.execute(50, world.elapsedTime)
+    world.execute(50)
   }
 }
 
