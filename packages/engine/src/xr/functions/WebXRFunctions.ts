@@ -1,5 +1,7 @@
 import { Group, Object3D, Quaternion, Vector3 } from 'three'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { accessAvatarInputState } from '../../avatar/state/AvatarInputState'
@@ -200,7 +202,7 @@ export const bindXRHandEvents = () => {
       initializeHandModel(controller, xrInputSource.handedness)
 
       if (!eventSent) {
-        dispatchFrom(Engine.userId, () => NetworkWorldAction.xrHandsConnected({})).cache({ removePrevious: true })
+        dispatchAction(world.store, NetworkWorldAction.xrHandsConnected({}))
         eventSent = true
       }
     })

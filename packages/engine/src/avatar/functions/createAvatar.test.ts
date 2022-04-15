@@ -63,10 +63,9 @@ describe('createAvatar', () => {
       parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() },
       type: 'network.SPAWN_OBJECT',
       networkId: networkObject.networkId,
-      ownerIndex: 0,
       $from: Engine.userId,
       $to: 'all',
-      $tick: Engine.currentWorld.fixedTick,
+      $time: 0,
       $cache: true
     })
 

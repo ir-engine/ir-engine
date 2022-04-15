@@ -4,7 +4,6 @@ import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
@@ -36,7 +35,7 @@ const capsuleHeight = defaultAvatarHeight - avatarRadius * 2
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
 export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
-  const world = useWorld()
+  const world = Engine.currentWorld
   const userId = spawnAction.$from
   const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)
 
@@ -164,7 +163,7 @@ export const createAvatarController = (entity: Entity) => {
       data: new Map()
     })
   }
-  const world = useWorld()
+  const world = Engine.currentWorld
   const controller = world.physics.createController({
     isCapsule: true,
     material: world.physics.createMaterial(),

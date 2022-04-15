@@ -58,7 +58,7 @@ export default async function HyperspacePortalSystem(world: World) {
       Engine.scene.add(hyperspaceEffect)
 
       // create receptor for joining the world to end the hyperspace effect
-      receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => {
+      receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, () => {
         hyperspaceEffect.fadeOut(delta).then(() => {
           removeComponent(world.worldEntity, HyperspaceTagComponent)
         })

@@ -7,15 +7,12 @@ import {
   SkinnedMesh,
   Vector3
 } from 'three'
-import matches from 'ts-matches'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { matches, matchesVector3 } from '@xrengine/hyperflux'
+
 import { Entity } from '../../ecs/classes/Entity'
-import { matchesVector3 } from '../../ecs/functions/Action'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 
 /** State of the avatar animation */
