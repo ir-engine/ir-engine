@@ -1,12 +1,13 @@
 // === SETUP WEBXR === //
 import { Quaternion, Vector3 } from 'three'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { EngineActions } from '../../ecs/classes/EngineService'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 
 export async function overrideXR() {
@@ -68,7 +69,7 @@ export function xrInitialized() {
 }
 
 export function startXR() {
-  dispatchLocal(EngineActions.xrStart() as any)
+  dispatchAction(Engine.store, EngineActions.xrStart() as any)
   EngineEvents.instance.dispatchEvent({
     type: 'webxr-pose',
     detail: {

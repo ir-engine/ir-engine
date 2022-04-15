@@ -106,6 +106,7 @@ export const updateAudio: ComponentUpdateFunction = (entity: Entity, properties:
         ? new Audio(Engine.audioListener)
         : new PositionalAudio(Engine.audioListener)
 
+    obj3d.userData.audioEl.matrixAutoUpdate = false
     obj3d.add(obj3d.userData.audioEl)
     updateAutoStartTimeForMedia(entity)
     audioTypeChanged = true

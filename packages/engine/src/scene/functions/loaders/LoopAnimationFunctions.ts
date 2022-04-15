@@ -54,7 +54,7 @@ export const deserializeLoopAnimation: ComponentDeserializeFunction = (
   if (accessEngineState().sceneLoaded.value) {
     updateLoopAnimation(entity)
   } else {
-    receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, () => {
+    receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, () => {
       updateLoopAnimation(entity)
     })
   }

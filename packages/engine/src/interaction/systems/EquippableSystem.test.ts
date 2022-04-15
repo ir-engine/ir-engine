@@ -61,9 +61,8 @@ describe.skip('EquippableSystem Integration Tests', () => {
       networkId: networkObject.networkId,
       $from: Engine.userId,
       $to: 'all',
-      $tick: Engine.currentWorld.fixedTick,
-      $cache: true,
-      ownerIndex: 0
+      $time: 0,
+      $cache: true
     })
 
     const equippedComponent = addComponent(item, EquippedComponent, {
