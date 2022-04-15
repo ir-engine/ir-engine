@@ -16,15 +16,117 @@ import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { Close as CloseIcon, Message as MessageIcon, Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 import Badge from '@mui/material/Badge'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Fab from '@mui/material/Fab'
-import ListItem from '@mui/material/ListItem'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
-import ListItemText from '@mui/material/ListItemText'
-import TextField from '@mui/material/TextField'
 
-import styles from '../../components/InstanceChat/InstanceChat.module.scss'
+const styles = {
+  avatarItem: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: '0',
+    width: '40px',
+    height: '40px',
+    fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
+    fontSize: '1.25rem',
+    lineHeight: '1',
+    borderRadius: '50%',
+    overflow: 'hidden',
+    userSelect: 'none',
+    color: 'rgb(255, 255, 255)',
+    backgroundColor: 'rgb(189, 189, 189)',
+    margin: '0 10px'
+  },
+  avatar: {
+    userSelect: 'none',
+    width: '1em',
+    height: '1em',
+    display: 'inline-block',
+    fill: 'currentcolor',
+    flexShrink: '0',
+    transition: 'fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
+    fontSize: '1.5rem'
+  },
+  chatContainer: {
+    display: 'grid',
+    flexDirection: 'row',
+    width: '500px',
+    margin: '5px 15px 20px 10px',
+    borderRadius: '5px',
+    backgroundColor: '#3c3c6f'
+  },
+  hide: { width: '0', overflow: 'hidden' },
+  messageList: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+    height: '100%',
+    padding: '0px 10px',
+    background: 'transparent'
+  },
+  messageItem: {
+    color: '#fff',
+    display: 'flex',
+    alignItems: 'center',
+    position: 'relative',
+    textDecoration: 'none',
+    width: '100%',
+    boxSizing: 'border-box',
+    paddingTop: '8px',
+    paddingBottom: '8px'
+  },
+  messageEnd: { justifyContent: 'flex-end', textAlign: 'end' },
+  messageStart: { justifyContent: 'flex-start', textAlign: 'start' },
+  messageRow: { width: '100%', display: 'flex' },
+  messageContent: {
+    borderRadius: '10px 10px 0 0,flex: 1 1 auto',
+    minWidth: '0px',
+    marginTop: '4px',
+    marginBottom: '4px'
+  },
+  messageChild: {
+    margin: '0px',
+    fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
+    fontWeight: '400',
+    fontSize: '1rem',
+    lineHeight: '1.5',
+    letterSpacing: '0.00938em',
+    display: 'block'
+  },
+  senderName: {
+    color: '#fff',
+    fontWeight: '700'
+  },
+  senderMessage: {
+    margin: '0px',
+    padding: '0px'
+  },
+  messageBoxContainer: { borderRadius: '40px', background: 'transparent', boxShadow: 'none', width: '500px' },
+  messageInputBox: {
+    font: 'inherit',
+    letterSpacing: 'inherit',
+    padding: '4px 0px 5px',
+    border: '0px',
+    boxSizing: 'content-box',
+    background: 'none',
+    height: '1.4375em',
+    margin: '10px 10px 5px 10px',
+    display: 'block',
+    minWidth: '0px',
+    width: '100%',
+    color: 'white'
+  },
+  chatButton: {
+    margin: '5px 15px 10px 10px',
+    alignItems: 'center',
+    zIndex: '20',
+    borderRadius: '50%',
+    color: 'black',
+    width: '50px',
+    height: '50px',
+    fontSize: '20px'
+  }
+}
 
 export function createChatDetailView() {
   return createXRUI(ChatDetailView, createChatDetailState())
@@ -42,7 +144,6 @@ const ChatDetailView = () => {
   const detailState = useXRUIState() as ChatDetailState
 
   let activeChannel: Channel | null = null
-  const dispatch = useDispatch()
   const messageRef = React.useRef<HTMLInputElement>()
   const user = useAuthState().user
   const chatState = useChatState()
@@ -151,8 +252,8 @@ const ChatDetailView = () => {
   const getAvatar = (message): any => {
     return (
       dimensions.width > 768 && (
-        <ListItemAvatar style={{ width: '20px', height: '20px', margin: '0 10px', minWidth: 'auto' }}>
-          <Avatar src={message.sender?.avatarUrl} />
+        <ListItemAvatar style={styles.avatarItem as {}}>
+          <Avatar src={message.sender?.avatarUrl} style={styles.avatar as {}} />
         </ListItemAvatar>
       )
     )
@@ -162,159 +263,97 @@ const ChatDetailView = () => {
     <>
       <div
         style={{
-          margin: '5px 20px 10px 10px',
-          borderRadius: '5px',
-
-          backgroundColor: '#9a9ae4',
-          width: '40vw',
-          ...((!detailState.chatWindowOpen.value ? { width: '0', overflow: 'hidden' } : {}) as {})
+          ...(styles.chatContainer as {}),
+          ...((detailState.chatWindowOpen.value ? {} : styles.hide) as {})
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <Card
-            square={true}
-            elevation={0}
-            style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'transparent' }}
-          >
-            <CardContent
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'flex-end',
-                height: '100%',
-                background: 'transparent'
-              }}
-            >
-              {activeChannel &&
-                activeChannel.messages &&
-                [...activeChannel.messages]
-                  .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-                  .slice(
-                    activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0,
-                    activeChannel.messages?.length
-                  )
-                  .map((message) => {
-                    if (!Engine.isBot && isCommand(message.text)) return undefined
-                    const system = getChatMessageSystem(message.text)
-                    let chatMessage = message.text
+        <div style={{ display: 'flex', flexDirection: 'column', width: '500px' }}>
+          <div style={styles.messageList as {}}>
+            {activeChannel &&
+              activeChannel.messages &&
+              [...activeChannel.messages]
+                .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+                .slice(
+                  activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0,
+                  activeChannel.messages?.length
+                )
+                .map((message) => {
+                  if (!Engine.isBot && isCommand(message.text)) return undefined
+                  const system = getChatMessageSystem(message.text)
+                  let chatMessage = message.text
 
-                    if (system !== 'none') {
-                      if (Engine.isBot || system === 'jl_system') {
-                        chatMessage = removeMessageSystem(message.text)
-                      } else {
-                        return undefined
-                      }
+                  if (system !== 'none') {
+                    if (Engine.isBot || system === 'jl_system') {
+                      chatMessage = removeMessageSystem(message.text)
+                    } else {
+                      return undefined
                     }
-                    return (
+                  }
+                  return (
+                    <li
+                      key={message.id}
+                      style={{
+                        ...(styles.messageItem as {}),
+                        ...((isMessageSentBySelf(message) ? styles.messageEnd : styles.messageStart) as {})
+                      }}
+                    >
                       <div
                         style={{
-                          color: 'white',
-                          padding: '10px',
-                          ...(isMessageSentBySelf(message)
-                            ? { width: '100%', display: 'flex' }
-                            : { width: '60%', display: 'flex' })
+                          ...(styles.messageRow as {}),
+                          ...((isMessageSentBySelf(message) ? styles.messageEnd : styles.messageStart) as {})
                         }}
                       >
-                        <div
-                          style={
-                            isMessageSentBySelf(message)
-                              ? { justifyContent: 'flex-end', textAlign: 'end' }
-                              : { justifyContent: 'flex-start', textAlign: 'start' }
-                          }
-                        >
-                          {!isMessageSentBySelf(message) && getAvatar(message)}
-
-                          <ListItemText
-                            style={
-                              isMessageSentBySelf(message)
-                                ? { borderRadius: '10px 10px 0' }
-                                : { borderRadius: '10px 10px 10px 0' }
-                            }
-                            primary={
-                              <span
-                                style={
-                                  isMessageSentBySelf(message)
-                                    ? { justifyContent: 'flex-end', textAlign: 'end' }
-                                    : { justifyContent: 'flex-start', textAlign: 'start' }
-                                }
-                              >
-                                <span style={{ color: 'white', fontWeight: 'bold' }}>{getMessageUser(message)}</span>
-                                <p>{chatMessage}</p>
-                              </span>
-                            }
-                          />
-
-                          {isMessageSentBySelf(message) && getAvatar(message)}
+                        {!isMessageSentBySelf(message) && getAvatar(message)}
+                        <div style={styles.messageContent}>
+                          <span style={styles.messageChild}>
+                            <span>
+                              <span style={styles.senderName}>{getMessageUser(message)}</span>
+                              <p style={styles.senderMessage}>{chatMessage}</p>
+                            </span>
+                          </span>
                         </div>
+                        {isMessageSentBySelf(message) && getAvatar(message)}
                       </div>
-                    )
-                  })}
-            </CardContent>
-          </Card>
-          <Card style={{ borderRadius: '40px', background: 'transparent', boxShadow: 'none' }}>
-            <CardContent
-              style={{ display: 'flex', flexGrow: '1', padding: '0', alignItems: 'flex-end', boxShadow: 'none' }}
-            >
-              <TextField
-                xr-layer=""
-                style={{ margin: '0', padding: '0 0px 0 10px', width: '100%' }}
-                margin="normal"
-                multiline={isMultiline}
-                fullWidth
-                id="newMessage"
-                label={'World Chat...'}
-                name="newMessage"
-                variant="standard"
-                autoFocus
-                value={composingMessage}
-                inputProps={{
-                  maxLength: 1000,
-                  'aria-label': 'naked'
-                }}
-                InputLabelProps={{ shrink: false }}
-                onChange={handleComposingMessageChange}
-                inputRef={messageRef}
-                onClick={() => (messageRef as any)?.current?.focus()}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && e.ctrlKey) {
-                    e.preventDefault()
-                    const selectionStart = (e.target as HTMLInputElement).selectionStart
-                    setCursorPosition(selectionStart || 0)
-                    setComposingMessage(
-                      composingMessage.substring(0, selectionStart || 0) +
-                        '\n' +
-                        composingMessage.substring(selectionStart || 0)
-                    )
-                    !isMultiline && setIsMultiline(true)
-                  } else if (e.key === 'Enter' && !e.ctrlKey) {
-                    e.preventDefault()
-                    packageMessage()
-                    isMultiline && setIsMultiline(false)
-                    setCursorPosition(0)
-                  }
-                }}
-              />
-              {/*<span className={styles.sendButton}>
-                <SendButton onClick={packageMessage} />
-              </span>*/}
-            </CardContent>
-          </Card>
+                    </li>
+                  )
+                })}
+          </div>
+          <div style={styles.messageBoxContainer}>
+            <input
+              xr-layer=""
+              ref={messageRef}
+              type="text"
+              placeholder={'World Chat...'}
+              value={composingMessage}
+              onChange={(evt) => handleComposingMessageChange(evt)}
+              onClick={() => (messageRef as any)?.current?.focus()}
+              style={{
+                ...(styles.messageInputBox as {}),
+                ...((detailState.chatWindowOpen.value ? {} : styles.hide) as {})
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                  e.preventDefault()
+                  const selectionStart = (e.target as HTMLInputElement).selectionStart
+                  setCursorPosition(selectionStart || 0)
+                  setComposingMessage(
+                    composingMessage.substring(0, selectionStart || 0) +
+                      '\n' +
+                      composingMessage.substring(selectionStart || 0)
+                  )
+                  !isMultiline && setIsMultiline(true)
+                } else if (e.key === 'Enter' && !e.ctrlKey) {
+                  e.preventDefault()
+                  packageMessage()
+                  isMultiline && setIsMultiline(false)
+                  setCursorPosition(0)
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
-      <div
-        xr-layer=""
-        style={{
-          margin: '5px 15px 20px 10px',
-          alignItems: 'center',
-          zIndex: '20',
-          borderRadius: '50%',
-          color: 'black',
-          width: '50px',
-          height: '50px',
-          fontSize: '20px'
-        }}
-        onClick={() => toggleChatWindow()}
-      >
+      <div xr-layer="" style={styles.chatButton} onClick={() => toggleChatWindow()}>
         <Badge
           color="primary"
           variant="dot"
