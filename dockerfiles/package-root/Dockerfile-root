@@ -11,6 +11,7 @@ RUN npm install -g npm lerna cross-env rimraf ts-eager --loglevel notice
 
 COPY package.json .
 COPY packages/common/package.json ./packages/common/
+COPY packages/hyperflux/package.json ./packages/hyperflux/
 COPY packages/engine/package.json ./packages/engine/
 COPY packages/matchmaking/package.json ./packages/matchmaking/
 COPY packages/projects/package.json ./packages/projects/
