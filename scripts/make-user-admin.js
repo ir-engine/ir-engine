@@ -24,7 +24,7 @@ db.url = process.env.MYSQL_URL ??
 cli.enable('status');
 
 const options = cli.parse({
-    id: '333c02b0-b288-11ec-a584-dbb40bbc8b8c'
+    id: 'e16f6ad0-ba9d-11ec-935c-3b1d76f88e2f'
 });
 
 cli.main(async () => {
