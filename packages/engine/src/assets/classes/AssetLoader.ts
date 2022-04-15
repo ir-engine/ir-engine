@@ -237,7 +237,9 @@ const assetLoadCallback = (url: string, assetType: AssetType, onLoad: (response:
     AssetLoader.processModelAsset(asset.scene)
   }
 
-  AssetLoader.Cache.set(url, asset)
+  if (assetClass !== AssetClass.Asset) {
+    AssetLoader.Cache.set(url, asset)
+  }
   onLoad(asset)
 }
 

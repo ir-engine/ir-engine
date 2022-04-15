@@ -132,11 +132,14 @@
     "asset": {
       "name": "Asset",
       "description": "A grouping of scene components which can be dynamically loaded and unloaded",
+      "lbl-options": "Options",
+      "lbl-assetPath": "Asset Path",
+      "lbl-assetName": "Asset Name",
       "lbl-exportOptions": "Export Options",
-      "lbl-assetId": "Asset ID",
       "lbl-export": "Export Asset",
       "lbl-load": "Load Into Scene",
-      "lbl-unload": "Unload"
+      "lbl-unload": "Unload",
+      "lbl-reload": "Reload"
     },
     "audio": {
       "name": "Audio",

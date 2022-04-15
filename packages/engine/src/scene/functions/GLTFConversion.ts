@@ -1,4 +1,5 @@
 import { Color, Object3D, Scene } from 'three'
+import { generateUUID } from 'three/src/math/MathUtils'
 
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -10,26 +11,30 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { getAllComponents, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
+import { AssetComponentType } from '../components/AssetComponent'
 import { EntityNodeComponent, EntityNodeComponentType } from '../components/EntityNodeComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DWithEntity } from '../components/Object3DComponent'
 
 export const nodeToEntityJson = (node: any): EntityJson => {
-  const parentId = node.extras.parent ? { parent: node.extras.parent } : {}
+  const parentId = node.extras?.parent ? { parent: node.extras.parent } : {}
+  const uuid = node.extras?.uuid ? node.extras.uuid : generateUUID()
   return {
     name: node.name,
-    components: Object.entries(node.extensions).map(([k, v]) => {
-      return { name: k, props: v }
-    }),
-    uuid: node.extras.uuid,
+    components: node.extensions
+      ? Object.entries(node.extensions).map(([k, v]) => {
+          return { name: k, props: v }
+        })
+      : [],
+    uuid: uuid,
     ...parentId
   }
 }
 
-export const gltfToSceneJson = (gltf: any, additive = false): SceneJson => {
+export const gltfToSceneJson = (gltf: any): SceneJson => {
   handleScenePaths(gltf, 'decode')
   const rootGL = gltf.scenes[gltf.scene]
-  const rootUuid = rootGL.extras.uuid
+  const rootUuid = generateUUID()
   const result: SceneJson = {
     entities: {},
     root: rootUuid,
@@ -77,23 +82,23 @@ export interface GLTFExtension {
   writeNode?(node, nodeDef)
 }
 
-const serializeECS = (root: Object3DWithEntity | Scene, world: World = useWorld()) => {
+const serializeECS = (roots: Object3DWithEntity[], asset?: AssetComponentType, world: World = useWorld()) => {
   const eTree = world.entityTree
   const nodeMap = eTree.entityNodeMap
-  let sceneEntity
+  let rootEntities = new Array()
   const idxTable = new Map<Entity, number>()
   const extensionSet = new Set<string>()
   const frontier: Object3DWithEntity[] = []
   const haveChildren = new Array()
   const result = {
     asset: { version: '2.0', generator: 'XREngine glTF Scene Conversion' },
-    scenes: new Array(),
+    scenes: [{ nodes: new Array() }],
     scene: 0,
     nodes: new Array(),
     extensionsUsed: new Array<string>()
   }
 
-  frontier.push(root as Object3D as Object3DWithEntity)
+  frontier.push(...roots)
   do {
     const srcObj = frontier.pop()
     if (srcObj?.userData.gltfExtensions) {
@@ -107,22 +112,16 @@ const serializeECS = (root: Object3DWithEntity | Scene, world: World = useWorld(
       }
       delete srcObj.userData.gltfExtensions
       const children = nodeMap.get(srcObj.entity)?.children
-      const isScene = srcObj === root
+
       if (children) {
         haveChildren.push(nodeMap.get(srcObj.entity))
-        if (isScene) {
-          nodeBase['nodes'] = children
-        } else {
-          nodeBase['children'] = children
-        }
+        nodeBase['children'] = children
       }
-      if (isScene) {
-        sceneEntity = srcObj.entity
-        result.scenes.push(nodeBase)
-      } else {
-        idxTable.set(srcObj.entity, result.nodes.length)
-        result.nodes.push(nodeBase)
+      if (roots.includes(srcObj)) {
+        result.scenes[0].nodes.push(result.nodes.length)
       }
+      idxTable.set(srcObj.entity, result.nodes.length)
+      result.nodes.push(nodeBase)
     }
     if (srcObj?.children) {
       frontier.push(...(srcObj.children as Object3DWithEntity[]))
@@ -130,19 +129,21 @@ const serializeECS = (root: Object3DWithEntity | Scene, world: World = useWorld(
   } while (frontier.length > 0)
   result.extensionsUsed = [...extensionSet.values()]
   for (const parent of haveChildren) {
-    if (parent.entity === sceneEntity) result.scenes[0].nodes = parent.children.map((entity) => idxTable.get(entity))
-    else parent.children = parent.children.map((entity) => idxTable.get(entity))
+    parent.children = parent.children.map((entity) => idxTable.get(entity))
   }
   return result
 }
 
-export const sceneToGLTF = (root: Object3DWithEntity) => {
-  root.traverse((node: Object3DWithEntity) => {
-    if (node.entity) {
-      prepareObjectForGLTFExport(node)
-    }
-  })
-  const gltf = serializeECS(root)
+export const sceneToGLTF = (roots: Object3DWithEntity[]) => {
+  roots.forEach((root) =>
+    root.traverse((node: Object3DWithEntity) => {
+      if (node.entity) {
+        prepareObjectForGLTFExport(node)
+      }
+    })
+  )
+
+  const gltf = serializeECS(roots)
   handleScenePaths(gltf, 'encode')
   return gltf
 }

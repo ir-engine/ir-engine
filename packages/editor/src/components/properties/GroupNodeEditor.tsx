@@ -29,23 +29,12 @@ export const GroupNodeEditor: EditorComponentType = (props) => {
   const world = useWorld()
   const uuid = props.node.uuid
 
-  const projectName = accessEditorState().projectName.value!
-
-  const onExportGroup = () => {
-    const name = obj3d.name
-    const exportable = sceneToGLTF(obj3d as Object3DWithEntity)
-    const uploadable = new File([JSON.stringify(exportable)], `${name}.xre.gltf`)
-    uploadProjectFile(projectName, [uploadable], true)
-  }
-
   return (
     <NodeEditor
       {...props}
       name={t('editor:properties.group.name')}
       description={t('editor:properties.group.description')}
-    >
-      <PropertiesPanelButton onClick={onExportGroup}>{t('editor:properties.asset.lbl-export')}</PropertiesPanelButton>
-    </NodeEditor>
+    ></NodeEditor>
   )
 }
 

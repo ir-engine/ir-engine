@@ -22,7 +22,7 @@ export class XRELoader {
 
   load(
     _url: string,
-    onLoad = (response: EntityTreeNode) => {},
+    onLoad = (response: EntityTreeNode[]) => {},
     onProgress = (request: ProgressEvent) => {},
     onError = (event: ErrorEvent | Error) => {}
   ) {

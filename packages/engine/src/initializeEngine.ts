@@ -15,15 +15,13 @@ import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-
 // import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
-import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
-import { AudioListener } from './audio/StereoAudioListener'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { isClient } from './common/functions/isClient'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
 import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
-import { createWorld, World } from './ecs/classes/World'
+import { createWorld } from './ecs/classes/World'
 import { reset } from './ecs/functions/EngineFunctions'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { useWorld } from './ecs/functions/SystemHooks'
@@ -194,9 +192,14 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./transform/systems/TransformSystem')
     },
+
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./scene/systems/SceneObjectSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: import('./scene/systems/AssetSystem')
     },
     {
       type: SystemUpdateType.FIXED_LATE,
@@ -262,10 +265,6 @@ export const initializeSceneSystems = async () => {
     {
       type: SystemUpdateType.FIXED,
       systemModulePromise: import('./avatar/AvatarSystem')
-    },
-    {
-      type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./scene/systems/AssetSystem')
     },
     {
       type: SystemUpdateType.FIXED_LATE,
@@ -355,9 +354,9 @@ export const initializeSceneSystems = async () => {
         type: SystemUpdateType.PRE_RENDER
       }
     )
-  }
 
-  if (isClient) initializeKTX2Loader(getGLTFLoader())
+    initializeKTX2Loader(getGLTFLoader())
+  }
 
   await initSystems(world, systemsToLoad)
 }

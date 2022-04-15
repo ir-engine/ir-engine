@@ -352,8 +352,7 @@ const EditorContainer = () => {
   }
 
   const onExportScene = async () => {
-    const projectFile = await sceneToGLTF(Engine.scene as any)
-
+    const projectFile = await sceneToGLTF([Engine.scene as any])
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')
