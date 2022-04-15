@@ -1,7 +1,9 @@
+import { dispatchAction } from '@xrengine/hyperflux'
+
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { BackgroundMusic } from '../components/BackgroundMusic'
 import { PlaySoundEffect } from '../components/PlaySoundEffect'
 import { SoundEffect } from '../components/SoundEffect'
@@ -33,11 +35,12 @@ export default async function AudioSystem(world: World) {
   }
 
   /** Enable and start audio system. */
-  const startAudio = (): void => {
-    if (audioReady) return
+  const startAudio = (e) => {
+    window.removeEventListener('pointerdown', startAudio, true)
     console.log('starting audio')
     audioReady = true
-    dispatchLocal(EngineActions.startSuspendedContexts() as any)
+    Engine.camera.add(Engine.audioListener)
+    dispatchAction(Engine.store, EngineActions.startSuspendedContexts())
     window.AudioContext = window.AudioContext || (window as any).webkitAudioContext
     if (window.AudioContext) {
       context = new window.AudioContext()
@@ -58,6 +61,8 @@ export default async function AudioSystem(world: World) {
     callbacks.forEach((cb) => cb())
     callbacks = null!
   }
+
+  window.addEventListener('pointerdown', startAudio, true)
 
   /**
    * Start Background music if available.
@@ -99,10 +104,6 @@ export default async function AudioSystem(world: World) {
     audio.play()
     removeComponent(ent, PlaySoundEffect)
   }
-
-  window.addEventListener('touchstart', startAudio, true)
-  window.addEventListener('touchend', startAudio, true)
-  window.addEventListener('click', startAudio, true)
 
   return () => {
     for (const entity of soundEffectQuery.enter(world)) {

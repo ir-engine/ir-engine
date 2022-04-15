@@ -14,7 +14,6 @@ import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/functions/load
 import { SCENE_COMPONENT_HEMISPHERE_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/HemisphereLightFunctions'
 import { SCENE_COMPONENT_IMAGE } from '@xrengine/engine/src/scene/functions/loaders/ImageFunctions'
 import { SCENE_COMPONENT_INTERIOR } from '@xrengine/engine/src/scene/functions/loaders/InteriorFunctions'
-import { SCENE_COMPONENT_LINK } from '@xrengine/engine/src/scene/functions/loaders/LinkFunctions'
 import { SCENE_COMPONENT_MODEL } from '@xrengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { SCENE_COMPONENT_OCEAN } from '@xrengine/engine/src/scene/functions/loaders/OceanFunctions'
 import { SCENE_COMPONENT_PARTICLE_EMITTER } from '@xrengine/engine/src/scene/functions/loaders/ParticleEmitterFunctions'
@@ -46,7 +45,6 @@ import GroupNodeEditor from '../components/properties/GroupNodeEditor'
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
-import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
 import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterNodeEditor'
@@ -88,7 +86,6 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_GROUND_PLANE]: GroundPlaneNodeEditor,
   [SCENE_COMPONENT_CAMERA_PROPERTIES]: CameraPropertiesNodeEditor,
   [SCENE_COMPONENT_MODEL]: ModelNodeEditor,
-  [SCENE_COMPONENT_LINK]: LinkNodeEditor,
   [SCENE_COMPONENT_PARTICLE_EMITTER]: ParticleEmitterNodeEditor,
   [SCENE_COMPONENT_PORTAL]: PortalNodeEditor,
   [SCENE_COMPONENT_TRIGGER_VOLUME]: TriggerVolumeNodeEditor,
@@ -120,7 +117,6 @@ export const prefabIcons = {
   [ScenePrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
   [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,
   [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
-  [ScenePrefabs.link]: LinkNodeEditor.iconComponent,
   [ScenePrefabs.cameraProperties]: CameraPropertiesNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
   [ScenePrefabs.particleEmitter]: ParticleEmitterNodeEditor.iconComponent,

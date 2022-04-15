@@ -16,6 +16,27 @@
   }
 }
 
+.dateTimePickerDialog {
+  background: var(--purpleLighter);
+  color: var(--text) !important;
+
+  svg {
+    fill: var(--text) !important;
+  }
+
+  span {
+    color: var(--text) !important;
+  }
+
+  input {
+    color: var(--text) !important;
+  }
+
+  fieldset {
+    border-color: var(--text) !important;
+  }
+}
+
 .avatarUploadPanel {
   padding: 0 30px;
   border-radius: 20px;
