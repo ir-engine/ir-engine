@@ -2018,24 +2018,10 @@
   color: var(--white);
 }
 
-.paper {
-  margin-top: 10px;
-  border-radius: 4px;
-  font-size: 11px;
-  background: var(--inputBackground);
-  padding: 0;
-  color: var(--white);
-  max-height: 120px;
-  overflow: auto;
-
-  & ul {
-    width: 100%;
-  }
-}
-
 .menuItem {
   padding: 5px;
   font-size: 12px;
+
   &:hover {
     background: var(--hover);
   }
