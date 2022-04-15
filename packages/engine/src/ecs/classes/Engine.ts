@@ -17,6 +17,7 @@ import {
 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { createHyperStore } from '@xrengine/hyperflux'
 
 import { CSM } from '../../assets/csm/CSM'
 import { isBot } from '../../common/functions/isBot'
@@ -35,6 +36,14 @@ import { Entity } from './Entity'
 export class Engine {
   /** The uuid of the logged-in user */
   public static userId: UserId
+
+  public static store = createHyperStore({
+    name: 'ENGINE',
+    getDispatchId: () => 'engine',
+    getDispatchTime: () => Engine.elapsedTime
+  })
+
+  public static elapsedTime = 0
 
   public static engineTimer: { start: Function; stop: Function; clear: Function } = null!
 

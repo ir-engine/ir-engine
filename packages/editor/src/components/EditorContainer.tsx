@@ -7,7 +7,6 @@ import styled from 'styled-components'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
 import { getGLTFLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { GLTFExporter } from '@xrengine/engine/src/assets/exporters/gltf/GLTFExporter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -15,6 +14,7 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { gltfToSceneJson, sceneFromGLTF, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
+import { useHookEffect } from '@xrengine/hyperflux'
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
@@ -163,7 +163,7 @@ const EditorContainer = () => {
     setSearchElement(searchInput)
   }
 
-  useHookedEffect(() => {
+  useHookEffect(() => {
     if (sceneName.value && editorReady) {
       console.log(`Loading scene ${sceneName.value} via given url`)
       loadScene(sceneName.value)
@@ -272,7 +272,7 @@ const EditorContainer = () => {
           )
         })) as any
         if (result && projectName.value) {
-          const cubemapUrl = await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
+          await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
           await saveScene(projectName.value, result.name, blob, abortController.signal)
           dispatch(EditorAction.sceneModified(false))
         } else {
@@ -436,7 +436,7 @@ const EditorContainer = () => {
 
     try {
       if (projectName.value) {
-        const cubemapUrl = await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
+        await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
         await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
         await saveProject(projectName.value)
       }
@@ -489,7 +489,7 @@ const EditorContainer = () => {
     })
   }, [])
 
-  useHookedEffect(() => {
+  useHookEffect(() => {
     if (editorError) {
       onEditorError(editorError.value)
     }

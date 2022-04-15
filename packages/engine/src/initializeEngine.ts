@@ -12,10 +12,12 @@ import {
 //@ts-ignore
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
+
 // import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
-import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
 import { AudioListener } from './audio/StereoAudioListener'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { isClient } from './common/functions/isClient'
@@ -23,16 +25,14 @@ import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
 import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
-import { createWorld, World } from './ecs/classes/World'
+import { createWorld } from './ecs/classes/World'
 import { reset } from './ecs/functions/EngineFunctions'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
-import { useWorld } from './ecs/functions/SystemHooks'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { removeClientInputListeners } from './input/functions/clientInputListeners'
 import { Network } from './networking/classes/Network'
-import { dispatchLocal } from './networking/functions/dispatchFrom'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
-import { NetworkActionReceptors } from './networking/functions/NetworkActionReceptors'
+import { NetworkActionReceptor } from './networking/functions/NetworkActionReceptor'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { registerPrefabs } from './scene/functions/registerPrefabs'
 import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
@@ -67,7 +67,6 @@ export const initializeBrowser = () => {
   Engine.camera.layers.enable(ObjectLayers.Scene)
   Engine.camera.layers.enable(ObjectLayers.Avatar)
   Engine.camera.layers.enable(ObjectLayers.UI)
-  Engine.camera.add(Engine.audioListener)
 
   const browser = detect()
   const os = detectOS(navigator.userAgent)
@@ -86,21 +85,21 @@ export const initializeBrowser = () => {
   const joinedWorld = () => {
     Engine.hasJoinedWorld = true
   }
-  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
+  receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
 
   setupInitialClickListener()
 
   // maybe needs to be awaited?
   FontManager.instance.getDefaultFont()
 
-  receiveActionOnce(EngineEvents.EVENTS.CONNECT, (action: any) => {
+  receiveActionOnce(Engine.store, EngineEvents.EVENTS.CONNECT, (action: any) => {
     Engine.userId = action.id
   })
 }
 
 const setupInitialClickListener = () => {
   const initialClickListener = () => {
-    dispatchLocal(EngineActions.setUserHasInteracted())
+    dispatchAction(Engine.store, EngineActions.setUserHasInteracted())
     window.removeEventListener('click', initialClickListener)
     window.removeEventListener('touchend', initialClickListener)
   }
@@ -115,10 +114,10 @@ const setupInitialClickListener = () => {
  */
 export const initializeNode = () => {
   const joinedWorld = () => {
-    dispatchLocal(EngineActions.enableScene({ physics: true }))
+    dispatchAction(Engine.store, EngineActions.enableScene({ physics: true }))
     Engine.hasJoinedWorld = true
   }
-  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
+  receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
 }
 
 export const createEngine = () => {
@@ -130,11 +129,19 @@ export const createEngine = () => {
   registerDefaultSceneFunctions(world)
   registerPrefabs(world)
 
-  world.receptors.push(EngineEventReceptor)
+  addActionReceptor(Engine.store, EngineEventReceptor)
 
   globalThis.Engine = Engine
   globalThis.EngineEvents = EngineEvents
   globalThis.Network = Network
+}
+
+const executeWorlds = (delta, elapsedTime) => {
+  Engine.elapsedTime = elapsedTime
+  ActionFunctions.applyIncomingActions(Engine.store)
+  for (const world of Engine.worlds) {
+    world.execute(delta, elapsedTime)
+  }
 }
 
 export const initializeMediaServerSystems = async () => {
@@ -147,31 +154,25 @@ export const initializeMediaServerSystems = async () => {
     },
     {
       type: SystemUpdateType.FIXED_EARLY,
-      systemModulePromise: import('./ecs/functions/ActionDispatchSystem')
+      systemModulePromise: import('./networking/systems/IncomingActionSystem')
     },
     {
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./ecs/functions/ActionCleanupSystem')
+      systemModulePromise: import('./networking/systems/OutgoingActionSystem')
     }
   )
 
-  const world = useWorld()
+  const world = Engine.currentWorld
 
   await initSystems(world, coreSystems)
 
-  const executeWorlds = (delta, elapsedTime) => {
-    for (const world of Engine.worlds) {
-      world.execute(delta, elapsedTime)
-    }
-  }
-
-  NetworkActionReceptors.createNetworkActionReceptor(world)
+  NetworkActionReceptor.createNetworkActionReceptor(world)
 
   Engine.engineTimer = Timer(executeWorlds)
   Engine.engineTimer.start()
 
   Engine.isInitialized = true
-  dispatchLocal(EngineActions.initializeEngine(true) as any)
+  dispatchAction(Engine.store, EngineActions.initializeEngine(true) as any)
 }
 
 export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = []) => {
@@ -184,7 +185,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
     },
     {
       type: SystemUpdateType.FIXED_EARLY,
-      systemModulePromise: import('./ecs/functions/ActionDispatchSystem')
+      systemModulePromise: import('./networking/systems/IncomingActionSystem')
     },
     {
       type: SystemUpdateType.FIXED_LATE,
@@ -200,7 +201,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
     },
     {
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./ecs/functions/ActionCleanupSystem')
+      systemModulePromise: import('./networking/systems/OutgoingActionSystem')
     }
   )
 
@@ -225,23 +226,17 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
     )
   }
 
-  const world = useWorld()
+  const world = Engine.currentWorld
   await initSystems(world, systemsToLoad)
 
   // load injected systems which may rely on core systems
   await initSystems(world, systems)
 
-  const executeWorlds = (delta, elapsedTime) => {
-    for (const world of Engine.worlds) {
-      world.execute(delta, elapsedTime)
-    }
-  }
-
   Engine.engineTimer = Timer(executeWorlds)
   Engine.engineTimer.start()
 
   Engine.isInitialized = true
-  dispatchLocal(EngineActions.initializeEngine(true) as any)
+  dispatchAction(Engine.store, EngineActions.initializeEngine(true) as any)
 }
 
 /**
@@ -249,8 +244,8 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
  */
 
 export const initializeSceneSystems = async () => {
-  const world = useWorld()
-  NetworkActionReceptors.createNetworkActionReceptor(world)
+  const world = Engine.currentWorld
+  NetworkActionReceptor.createNetworkActionReceptor(world)
 
   const systemsToLoad: SystemModuleType<any>[] = []
 
@@ -381,8 +376,7 @@ export const initializeRealtimeSystems = async (media = true, pose = true) => {
     )
   }
 
-  const world = useWorld()
-  await initSystems(world, systemsToLoad)
+  await initSystems(Engine.currentWorld, systemsToLoad)
 }
 
 // export const initializeProjectSystems = async (projects: string[] = [], systems: SystemModuleType<any>[] = []) => {
