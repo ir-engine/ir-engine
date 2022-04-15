@@ -114,7 +114,7 @@ const executeWorlds = (delta, elapsedTime) => {
   Engine.elapsedTime = elapsedTime
   ActionFunctions.applyIncomingActions(Engine.store)
   for (const world of Engine.worlds) {
-    world.execute(delta, elapsedTime)
+    world.execute(delta)
   }
 }
 

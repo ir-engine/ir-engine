@@ -11,7 +11,8 @@ import { AvatarProps } from '../interfaces/WorldState'
 import { NetworkWorldAction } from './NetworkWorldAction'
 
 export type JoinWorldProps = {
-  tick: number
+  elapsedTime: number
+  clockTime: number
   clients: Array<{ userId: UserId; name: string; index: number }>
   cachedActions: Action[]
   avatarDetail: AvatarProps
@@ -23,11 +24,22 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
     dispatchAction(Engine.store, EngineActions.connectToWorldTimeout(true))
     return
   }
-  const { tick, clients, cachedActions, avatarDetail, avatarSpawnPose } = props
-  console.log('RECEIVED JOIN WORLD RESPONSE', tick, clients, cachedActions, avatarDetail, avatarSpawnPose)
+  const { elapsedTime, clockTime, clients, cachedActions, avatarDetail, avatarSpawnPose } = props
+  console.log(
+    'RECEIVED JOIN WORLD RESPONSE',
+    elapsedTime,
+    clockTime,
+    clients,
+    cachedActions,
+    avatarDetail,
+    avatarSpawnPose
+  )
   dispatchAction(Engine.store, EngineActions.joinedWorld())
   const world = Engine.currentWorld
-  world.fixedTick = tick
+
+  world.elapsedTime = elapsedTime + (Date.now() - clockTime) / 1000
+  world.fixedTick = Math.floor(world.elapsedTime / world.fixedDelta)
+  world.fixedElapsedTime = world.fixedTick * world.fixedDelta
 
   const engineState = accessEngineState()
 
