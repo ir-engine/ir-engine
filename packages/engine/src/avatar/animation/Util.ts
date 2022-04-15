@@ -238,6 +238,6 @@ export const processRootAnimation = (clip: AnimationClip, rootBone: Bone | undef
 export const changeAvatarAnimationState = (entity: Entity, newStateName: string) => {
   if (isEntityLocalClient(entity)) {
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-    avatarAnimationComponent.animationGraph.changeState(newStateName)
+    avatarAnimationComponent?.animationGraph?.changeState(newStateName)
   }
 }
