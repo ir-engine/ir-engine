@@ -2,7 +2,8 @@ import * as bitecs from 'bitecs'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { createHyperStore } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
@@ -14,7 +15,6 @@ import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { Physics } from '../../physics/classes/Physics'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
-import { Action } from '../functions/Action'
 import {
   addComponent,
   defineQuery,
@@ -52,6 +52,18 @@ export class World {
 
   static [CreateWorld] = () => new World()
 
+  /**
+   * The UserId of the host
+   */
+  hostId = 'server' as UserId
+
+  /**
+   * Check if this user is hosting the world.
+   */
+  get isHosting() {
+    return Engine.userId === this.hostId
+  }
+
   sceneMetadata = undefined as string | undefined
   worldMetadata = {} as { [key: string]: string }
 
@@ -62,6 +74,14 @@ export class World {
   fixedTick = 0
 
   _pipeline = [] as SystemModuleType<any>[]
+
+  store = createHyperStore({
+    name: 'WORLD',
+    networked: true,
+    getDispatchId: () => Engine.userId,
+    getDispatchTime: () => this.fixedTick,
+    defaultDispatchDelay: 1
+  })
 
   physics = new Physics()
 
@@ -78,18 +98,6 @@ export class World {
   /** Connected clients */
   clients = new Map() as Map<UserId, NetworkClient>
 
-  /** Incoming actions */
-  incomingActions = new Set<Required<Action>>()
-
-  /** Cached actions */
-  cachedActions = new Set<Required<Action>>()
-
-  /** Outgoing actions */
-  outgoingActions = new Set<Action>()
-
-  /** All actions that have been dispatched */
-  actionHistory = new Set<Action>()
-
   /** Map of numerical user index to user client IDs */
   userIndexToUserId = new Map<number, UserId>()
 
@@ -97,18 +105,6 @@ export class World {
   userIdToUserIndex = new Map<UserId, number>()
 
   userIndexCount = 0
-
-  /**
-   * Check if this user is hosting the world.
-   */
-  get isHosting() {
-    return Engine.userId === this.hostId
-  }
-
-  /**
-   * The UserId of the host
-   */
-  hostId = 'server' as HostUserId
 
   /**
    * The world entity
@@ -190,9 +186,11 @@ export class World {
   }
 
   /**
-   * Action receptors
+   * @deprecated Use store.receptors
    */
-  receptors = new Array<(action: Action) => void>()
+  get receptors() {
+    return this.store.receptors
+  }
 
   /**
    * Execute systems on this world
@@ -202,7 +200,7 @@ export class World {
    */
   execute(delta: number, elapsedTime: number) {
     const start = nowMilliseconds()
-    const incomingActions = Array.from(this.incomingActions.values())
+    const incomingActions = [...this.store.actions.incoming]
     const incomingBufferLength = Network.instance?.incomingMessageQueueUnreliable.getBufferLength()
 
     this.delta = delta

@@ -4,7 +4,7 @@ import { decode } from 'jsonwebtoken'
 
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
-import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { accessEngineState, EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
@@ -19,8 +19,8 @@ import {
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 // import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
 // import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
@@ -91,7 +91,7 @@ const loadScene = async (app: Application, scene: string) => {
   await loadSceneFromJSON(sceneData)
 
   console.log('Scene loaded!')
-  dispatchLocal(EngineActions.joinedWorld())
+  dispatchAction(Engine.store, EngineActions.joinedWorld())
 
   // const portals = getAllComponentsOfType(PortalComponent)
   // await Promise.all(
@@ -206,7 +206,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
   if (app.isChannelInstance) {
     Network.instance.transportHandler.mediaTransports.set('media' as UserId, app.transport)
     Engine.publicPath = config.client.url
-    const userId = 'media' as HostUserId
+    const userId = 'media' as UserId
     Engine.userId = userId
     createEngine()
     const world = useWorld()
@@ -222,8 +222,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
     world.userIdToUserIndex.set(userId, hostIndex)
     world.userIndexToUserId.set(hostIndex, userId)
 
-    dispatchLocal(EngineActions.sceneLoaded())
-    dispatchLocal(EngineActions.joinedWorld())
+    dispatchAction(Engine.store, EngineActions.sceneLoaded())
+    dispatchAction(Engine.store, EngineActions.joinedWorld())
   } else {
     Network.instance.transportHandler.worldTransports.set('server' as UserId, app.transport)
     await loadScene(app, sceneId)

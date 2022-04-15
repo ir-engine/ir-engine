@@ -22,7 +22,7 @@ export default async function XRUILoadingSystem(world: World) {
   const transition = createTransitionState(transitionPeriodSeconds)
 
   // todo: push timeout to accumulator
-  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () =>
+  receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, () =>
     setTimeout(() => {
       mesh.visible = false
       transition.setState('OUT')

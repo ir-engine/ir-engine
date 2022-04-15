@@ -4,9 +4,10 @@ import { MultiError } from '@xrengine/client-core/src/util/errors'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import ErrorIcon from '../classes/ErrorIcon'
 import { clearHistory, executeCommand } from '../classes/History'
@@ -64,7 +65,7 @@ export async function runPreprojectLoadTasks(): Promise<void> {
  * Loads scene from provided project file.
  */
 export async function loadProjectScene(projectFile: SceneJson) {
-  dispatchLocal(EngineActions.sceneUnloaded())
+  dispatchAction(Engine.store, EngineActions.sceneUnloaded())
 
   executeCommand(EditorCommands.REPLACE_SELECTION, [])
   clearHistory()

@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UserSetting } from '@xrengine/common/src/interfaces/User'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
 import Checkbox from '@mui/material/Checkbox'
@@ -82,8 +83,8 @@ const SettingMenu = (): JSX.Element => {
             <Slider
               value={rendererState.qualityLevel.value}
               onChange={(_, value: number) => {
-                dispatchLocal(EngineRendererAction.setQualityLevel(value))
-                dispatchLocal(EngineRendererAction.setAutomatic(false))
+                dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(value))
+                dispatchAction(Engine.store, EngineRendererAction.setAutomatic(false))
               }}
               className={styles.slider}
               min={1}
@@ -97,8 +98,8 @@ const SettingMenu = (): JSX.Element => {
               control={<Checkbox checked={rendererState.usePostProcessing.value} size="small" />}
               label={t('user:usermenu.setting.lbl-pp') as string}
               onChange={(_, value) => {
-                dispatchLocal(EngineRendererAction.setPostProcessing(value))
-                dispatchLocal(EngineRendererAction.setAutomatic(false))
+                dispatchAction(Engine.store, EngineRendererAction.setPostProcessing(value))
+                dispatchAction(Engine.store, EngineRendererAction.setAutomatic(false))
               }}
             />
             {/* <FormControlLabel
@@ -116,8 +117,8 @@ const SettingMenu = (): JSX.Element => {
               control={<Checkbox checked={rendererState.useShadows.value} size="small" />}
               label={t('user:usermenu.setting.lbl-shadow') as string}
               onChange={(_, value) => {
-                dispatchLocal(EngineRendererAction.setShadows(value))
-                dispatchLocal(EngineRendererAction.setAutomatic(false))
+                dispatchAction(Engine.store, EngineRendererAction.setShadows(value))
+                dispatchAction(Engine.store, EngineRendererAction.setAutomatic(false))
               }}
             />
           </div>
@@ -128,7 +129,7 @@ const SettingMenu = (): JSX.Element => {
               label={t('user:usermenu.setting.lbl-automatic') as string}
               labelPlacement="start"
               onChange={(_, value) => {
-                dispatchLocal(EngineRendererAction.setAutomatic(value))
+                dispatchAction(Engine.store, EngineRendererAction.setAutomatic(value))
               }}
             />
           </div>
