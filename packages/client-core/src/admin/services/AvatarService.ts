@@ -1,8 +1,7 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { AvatarInterface, CreateEditAdminAvatar } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
-import { AdminAssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
@@ -75,59 +74,11 @@ export const AvatarService = {
     })
     dispatch(AvatarAction.avatarsFetched(avatars))
   },
-  createAdminAvatar: async (blob: Blob, thumbnail: Blob, data: CreateEditAdminAvatar) => {
-    const dispatch = useDispatch()
-    try {
-      if (blob) {
-        const uploadArguments: AdminAssetUploadType = {
-          type: 'admin-file-upload',
-          files: [blob],
-          args: [
-            {
-              key: `avatars/public/${new Date().getTime()}${thumbnail['name']}`,
-              contentType: 'model/gltf-binary',
-              staticResourceType: data.staticResourceType
-            }
-          ]
-        }
-        const response = await client.service('upload-asset').create(uploadArguments)
-        data.url = response[0]
-      }
-      const result = await client.service('static-resource').create(data)
-      dispatch(AvatarAction.avatarCreated(result))
-    } catch (error) {
-      console.error(error)
-    }
-  },
-  updateAdminAvatar: async (id: string, blob: Blob, thumbnail: Blob, data: CreateEditAdminAvatar) => {
-    const dispatch = useDispatch()
-    try {
-      if (blob) {
-        const uploadArguments: AdminAssetUploadType = {
-          type: 'admin-file-upload',
-          files: [blob],
-          args: [
-            {
-              key: data.key!,
-              contentType: 'model/gltf-binary',
-              staticResourceType: data.staticResourceType
-            }
-          ]
-        }
-        const response = await client.service('upload-asset').create(uploadArguments)
-        data.url = response[0]
-      }
-      const result = (await client.service('static-resource').patch(id, data)) as AvatarInterface
-      dispatch(AvatarAction.avatarUpdated(result))
-    } catch (error) {
-      console.error(error)
-    }
-  },
   removeAdminAvatar: async (id) => {
     const dispatch = useDispatch()
     try {
-      const result = await client.service('static-resource').remove(id)
-      dispatch(AvatarAction.avatarRemoved(result))
+      await client.service('static-resource').remove(id)
+      dispatch(AvatarAction.avatarRemoved())
     } catch (err) {
       console.error(err)
     }
@@ -142,22 +93,19 @@ export const AvatarAction = {
       avatars: avatars
     }
   },
-  avatarCreated: (avatar: AvatarInterface) => {
+  avatarCreated: () => {
     return {
-      type: 'AVATAR_CREATED' as const,
-      avatar: avatar
+      type: 'AVATAR_CREATED' as const
     }
   },
-  avatarRemoved: (avatar: AvatarInterface) => {
+  avatarRemoved: () => {
     return {
-      type: 'AVATAR_REMOVED' as const,
-      avatar: avatar
+      type: 'AVATAR_REMOVED' as const
     }
   },
-  avatarUpdated: (avatar: AvatarInterface) => {
+  avatarUpdated: () => {
     return {
-      type: 'AVATAR_UPDATED' as const,
-      avatar: avatar
+      type: 'AVATAR_UPDATED' as const
     }
   }
 }

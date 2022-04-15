@@ -7,7 +7,7 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import TouchApp from '@mui/icons-material/TouchApp'
 import Snackbar from '@mui/material/Snackbar'
 
-import styles from './ToolTipContainer.module.scss'
+import styles from './index.module.scss'
 
 interface Props {
   message?: string

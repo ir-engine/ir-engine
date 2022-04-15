@@ -9,7 +9,7 @@ import Dropdown from '../../../user/components/Profile/ProfileDropdown'
 import { useAuthState } from '../../../user/services/AuthService'
 import { AuthService } from '../../../user/services/AuthService'
 import { DialogAction } from '../../services/DialogService'
-import styles from './NavUserWidget.module.scss'
+import styles from './index.module.scss'
 
 interface Props {
   login?: boolean

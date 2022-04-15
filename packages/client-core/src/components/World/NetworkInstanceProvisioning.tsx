@@ -16,11 +16,11 @@ import { useLocationState } from '@xrengine/client-core/src/social/services/Loca
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { UserService, useUserState } from '@xrengine/client-core/src/user/services/UserService'
-import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { useHookEffect } from '@xrengine/hyperflux'
 
 import { getSearchParamFromURL } from '../../util/getSearchParamFromURL'
 import GameServerWarnings from './GameServerWarnings'
@@ -42,7 +42,7 @@ export const NetworkInstanceProvisioning = () => {
   const engineState = useEngineState()
   const history = useHistory()
 
-  useHookedEffect(() => {
+  useHookEffect(() => {
     const instanceIdValue = instanceConnectionState.instance.id.value
     if (instanceIdValue) {
       const url = new URL(window.location.href)
@@ -54,7 +54,7 @@ export const NetworkInstanceProvisioning = () => {
   }, [instanceConnectionState.instance.id])
 
   // 2. once we have the location, provision the instance server
-  useHookedEffect(() => {
+  useHookEffect(() => {
     const currentLocation = locationState.currentLocation.location
 
     if (currentLocation.id?.value) {
@@ -81,7 +81,7 @@ export const NetworkInstanceProvisioning = () => {
   }, [locationState.currentLocation.location])
 
   // 3. once engine is initialised and the server is provisioned, connect the the instance server
-  useHookedEffect(() => {
+  useHookEffect(() => {
     if (
       engineState.isEngineInitialized.value &&
       !instanceConnectionState.connected.value &&
@@ -96,7 +96,7 @@ export const NetworkInstanceProvisioning = () => {
     instanceConnectionState.provisioned
   ])
 
-  useHookedEffect(() => {
+  useHookEffect(() => {
     const transportRequestData = {
       inviteCode: getSearchParamFromURL('inviteCode')!
     }
@@ -110,7 +110,7 @@ export const NetworkInstanceProvisioning = () => {
   }, [engineState.connectedWorld, engineState.sceneLoaded])
 
   // channel server provisioning (if needed)
-  useHookedEffect(() => {
+  useHookEffect(() => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
       const instanceChannel = Object.values(channels).find(
@@ -121,12 +121,12 @@ export const NetworkInstanceProvisioning = () => {
   }, [chatState.instanceChannelFetched])
 
   // periodically listening for users spatially near
-  useHookedEffect(() => {
+  useHookEffect(() => {
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value) UserService.getLayerUsers(true)
   }, [selfUser?.instanceId, userState.layerUsersUpdateNeeded])
 
   // if a media connection has been provisioned and is ready, connect to it
-  useHookedEffect(() => {
+  useHookEffect(() => {
     if (
       channelConnectionState.provisioned.value === true &&
       channelConnectionState.updateNeeded.value === true &&

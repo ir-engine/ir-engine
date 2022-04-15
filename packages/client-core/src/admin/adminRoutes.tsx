@@ -1,5 +1,10 @@
-import React, { Fragment, Suspense } from 'react'
+import React, { Fragment, Suspense, useEffect } from 'react'
 import { Redirect, Switch } from 'react-router-dom'
+
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { initializeCoreSystems, initializeSceneSystems } from '@xrengine/engine/src/initializeEngine'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import CircularProgress from '@mui/material/CircularProgress'
 
@@ -22,6 +27,19 @@ const setting = React.lazy(() => import('./components/Setting'))
 
 interface Props {}
 
+const canvasStyle = {
+  zIndex: -1,
+  width: '100%',
+  height: '100%',
+  position: 'fixed',
+  WebkitUserSelect: 'none',
+  pointerEvents: 'auto',
+  userSelect: 'none',
+  visibility: 'hidden'
+} as React.CSSProperties
+const engineRendererCanvasId = 'engine-renderer-canvas'
+const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
+
 const ProtectedRoutes = (props: Props) => {
   const admin = useAuthState().user
 
@@ -38,6 +56,13 @@ const ProtectedRoutes = (props: Props) => {
     benchmarking: false
   }
   const scopes = admin?.scopes?.value || []
+
+  useEffect(() => {
+    initializeCoreSystems().then(async () => {
+      await initializeSceneSystems()
+      dispatchAction(Engine.store, EngineActions.enableScene({ renderer: false }))
+    })
+  }, [])
 
   scopes.forEach((scope) => {
     if (Object.keys(allowedRoutes).includes(scope.type.split(':')[0])) {
@@ -56,6 +81,7 @@ const ProtectedRoutes = (props: Props) => {
 
   return (
     <div style={{ pointerEvents: 'auto' }}>
+      {canvas}
       <Fragment>
         <Suspense
           fallback={

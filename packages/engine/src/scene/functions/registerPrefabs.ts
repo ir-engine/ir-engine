@@ -36,7 +36,6 @@ import {
 } from './loaders/HemisphereLightFunctions'
 import { SCENE_COMPONENT_IMAGE, SCENE_COMPONENT_IMAGE_DEFAULT_VALUES } from './loaders/ImageFunctions'
 import { SCENE_COMPONENT_INTERIOR, SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES } from './loaders/InteriorFunctions'
-import { SCENE_COMPONENT_LINK, SCENE_COMPONENT_LINK_DEFAULT_VALUES } from './loaders/LinkFunctions'
 import {
   SCENE_COMPONENT_LOOP_ANIMATION,
   SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
@@ -196,11 +195,6 @@ export const registerPrefabs = (world: World) => {
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_MODEL, props: SCENE_COMPONENT_MODEL_DEFAULT_VALUE },
     { name: SCENE_COMPONENT_LOOP_ANIMATION, props: SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE }
-  ])
-
-  world.scenePrefabRegistry.set(ScenePrefabs.link, [
-    ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_LINK, props: SCENE_COMPONENT_LINK_DEFAULT_VALUES }
   ])
 
   world.scenePrefabRegistry.set(ScenePrefabs.particleEmitter, [

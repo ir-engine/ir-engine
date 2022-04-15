@@ -36,7 +36,6 @@ import {
   deserializeCubemapBake,
   SCENE_COMPONENT_CUBEMAP_BAKE,
   serializeCubemapBake,
-  shouldDeserializeCubemapBake,
   updateCubemapBake
 } from './loaders/CubemapBakeFunctions'
 import {
@@ -83,7 +82,6 @@ import {
   serializeInterior,
   updateInterior
 } from './loaders/InteriorFunctions'
-import { deserializeLink, prepareLinkForGLTFExport, SCENE_COMPONENT_LINK, serializeLink } from './loaders/LinkFunctions'
 import {
   deserializeLoopAnimation,
   SCENE_COMPONENT_LOOP_ANIMATION,
@@ -352,12 +350,6 @@ export const registerDefaultSceneFunctions = (world: World) => {
     update: updateLoopAnimation
   })
 
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_LINK, {
-    deserialize: deserializeLink,
-    serialize: serializeLink,
-    prepareForGLTFExport: prepareLinkForGLTFExport
-  })
-
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_EMITTER, {
     deserialize: deserializeParticleEmitter,
     serialize: serializeParticleEmitter,
@@ -471,7 +463,6 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_CUBEMAP_BAKE, {
     deserialize: deserializeCubemapBake,
     serialize: serializeCubemapBake,
-    update: updateCubemapBake,
-    shouldDeserialize: shouldDeserializeCubemapBake
+    update: updateCubemapBake
   })
 }

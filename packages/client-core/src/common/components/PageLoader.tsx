@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import styles from './Common.module.scss'
+import styles from './index.module.scss'
 
 const PageLoader = (): JSX.Element => {
   const { t } = useTranslation()

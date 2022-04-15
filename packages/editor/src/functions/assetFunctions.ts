@@ -1,5 +1,5 @@
 import { client } from '@xrengine/client-core/src/feathers'
-import { upload } from '@xrengine/client-core/src/util/upload'
+import { uploadToFeathersService } from '@xrengine/client-core/src/util/upload'
 
 export const uploadProjectFile = async (
   projectName: string,
@@ -12,7 +12,7 @@ export const uploadProjectFile = async (
     const pathName = `projects/${projectName}${isAsset ? '/assets' : ''}`
     promises.push(
       new Promise(async (resolve) => {
-        await upload(file, onProgress, null, {
+        await uploadToFeathersService(file, 'media', onProgress, {
           uploadPath: pathName,
           fileId: file.name
         })
@@ -32,8 +32,8 @@ export const uploadProjectAssetsFromUpload = async (
   onProgress?
 ): Promise<{ url: string }[]> => {
   const promises = []
-  for (const entry of entries) {
-    await processEntry(entry, projectName, '', promises, onProgress)
+  for (let i = 0; i < entries.length; i++) {
+    await processEntry(entries[i], projectName, '', promises, (progress) => onProgress(i + 1, entries.length, progress))
   }
 
   return await Promise.all(promises)
@@ -57,7 +57,7 @@ const processEntry = async (item, projectName: string, directory: string, promis
       new Promise(async (resolve) => {
         const file = await getFile(item)
         const pathName = `projects/${projectName}/assets${directory}`
-        await upload(file, onProgress, null, {
+        await uploadToFeathersService(file, 'media', onProgress, {
           uploadPath: pathName,
           fileId: file.name
         })

@@ -7,11 +7,12 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { getWorldTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { SceneAction, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
-import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
+import { useHookEffect } from '@xrengine/hyperflux'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AppAction, GeneralStateList } from '../../common/services/AppService'
 import { initClient, initEngine, loadLocation } from './LocationLoadHelper'
@@ -45,7 +46,7 @@ export const LoadEngineWithScene = () => {
   /**
    * Once we know what projects we need, initialise the client.
    */
-  useHookedEffect(() => {
+  useHookEffect(() => {
     // We assume that the number of projects will always be greater than 0 as the default project is assumed un-deletable
     if (!clientInitialized && engineState.isEngineInitialized.value && sceneState.currentScene.value) {
       setClientInitialized(true)
@@ -58,18 +59,18 @@ export const LoadEngineWithScene = () => {
   /**
    * Once we have the scene data, load the location
    */
-  useHookedEffect(() => {
+  useHookEffect(() => {
     const sceneJSON = sceneState.currentScene.ornull?.scene.value
     if (clientReady && sceneJSON) {
       loadLocation(sceneJSON)
     }
   }, [clientReady, sceneState.currentScene])
 
-  useHookedEffect(() => {
+  useHookEffect(() => {
     if (engineState.joinedWorld.value) {
       if (engineState.isTeleporting.value) {
         // if we are coming from another scene, reset our teleporting status
-        dispatchLocal(EngineActions.setTeleporting(false))
+        dispatchAction(Engine.store, EngineActions.setTeleporting(false))
       } else {
         dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
         dispatch(AppAction.setAppLoaded(true))
@@ -77,7 +78,7 @@ export const LoadEngineWithScene = () => {
     }
   }, [engineState.joinedWorld])
 
-  useHookedEffect(() => {
+  useHookEffect(() => {
     if (engineState.isTeleporting.value) {
       // TODO: this needs to be implemented on the server too
       // Use teleportAvatar function from moveAvatar.ts when required
