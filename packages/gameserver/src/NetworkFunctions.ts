@@ -340,7 +340,8 @@ export const handleJoinWorld = async (
   console.log('Sending cached actions ', cachedActions)
 
   callback({
-    tick: world.fixedTick,
+    elapsedTime: world.elapsedTime,
+    clockTime: Date.now(),
     clients,
     cachedActions,
     avatarDetail: client.avatarDetail!,

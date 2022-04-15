@@ -113,7 +113,6 @@ const setupInitialClickListener = () => {
  * initializes everything for the ndoe context
  */
 export const initializeNode = () => {
-  globalThis.Engine = createEngine
   const joinedWorld = () => {
     dispatchAction(Engine.store, EngineActions.enableScene({ physics: true }))
     Engine.hasJoinedWorld = true
