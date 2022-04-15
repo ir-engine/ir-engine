@@ -7,8 +7,8 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
@@ -42,11 +42,11 @@ export const Debug = () => {
   const [remountCount, setRemountCount] = useState(0)
   const refresh = () => setRemountCount(remountCount + 1)
   const togglePhysicsDebug = () => {
-    dispatchLocal(EngineActions.setPhysicsDebug(!engineState.isPhysicsDebug.value) as any)
+    dispatchAction(Engine.store, EngineActions.setPhysicsDebug(!engineState.isPhysicsDebug.value) as any)
   }
 
   const toggleAvatarDebug = () => {
-    dispatchLocal(EngineActions.setAvatarDebug(!engineState.isAvatarDebug.value) as any)
+    dispatchAction(Engine.store, EngineActions.setAvatarDebug(!engineState.isAvatarDebug.value) as any)
   }
 
   const renderNamedEntities = () => {
@@ -58,8 +58,8 @@ export const Debug = () => {
               return [
                 key + '(' + eid + ')',
                 Object.fromEntries(
-                  getEntityComponents(Engine.currentWorld, eid).reduce(
-                    (components: any, C: MappedComponent<any, any>) => {
+                  getEntityComponents(Engine.currentWorld, eid).reduce<[string, any][]>(
+                    (components, C: MappedComponent<any, any>) => {
                       if (C !== NameComponent) {
                         engineState.fixedTick.value
                         const component = C.isReactive ? getComponent(eid, C).value : getComponent(eid, C)
@@ -67,7 +67,7 @@ export const Debug = () => {
                       }
                       return components
                     },
-                    [] as [string, any][]
+                    []
                   )
                 )
               ]

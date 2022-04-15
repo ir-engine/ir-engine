@@ -14,6 +14,8 @@ import {
 } from 'postprocessing'
 import { PerspectiveCamera, sRGBEncoding, WebGL1Renderer, WebGLRenderer, WebGLRendererParameters } from 'three'
 
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
@@ -21,7 +23,6 @@ import { Engine } from '../ecs/classes/Engine'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { accessEngineState, EngineActions, EngineActionType } from '../ecs/classes/EngineService'
 import { World } from '../ecs/classes/World'
-import { dispatchLocal } from '../networking/functions/dispatchFrom'
 import { receiveActionOnce } from '../networking/functions/matchActionOnce'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { accessEngineRendererState, EngineRendererAction, EngineRendererReceptor } from './EngineRendererState'
@@ -94,7 +95,8 @@ export class EngineRenderer {
     const context = this.supportWebGL2 ? canvas.getContext('webgl2')! : canvas.getContext('webgl')!
 
     if (!context) {
-      dispatchLocal(
+      dispatchAction(
+        Engine.store,
         EngineActions.browserNotSupported(
           'Your browser does not have WebGL enabled. Please enable WebGL, or try another browser.'
         ) as any
@@ -141,7 +143,7 @@ export class EngineRenderer {
 
     configureEffectComposer()
 
-    Engine.currentWorld.receptors.push((action: EngineActionType) => {
+    addActionReceptor(Engine.store, (action: EngineActionType) => {
       switch (action.type) {
         case EngineEvents.EVENTS.ENABLE_SCENE:
           if (typeof action.env.renderer !== 'undefined') this.rendereringEnabled = action.env.renderer
@@ -221,15 +223,15 @@ export class EngineRenderer {
     }
 
     if (qualityLevel !== state.qualityLevel.value) {
-      dispatchLocal(EngineRendererAction.setQualityLevel(qualityLevel))
+      dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(qualityLevel))
     }
   }
 
   doAutomaticRenderQuality() {
     const state = accessEngineRendererState()
-    dispatchLocal(EngineRendererAction.setShadows(state.qualityLevel.value > 1))
-    dispatchLocal(EngineRendererAction.setQualityLevel(state.qualityLevel.value))
-    dispatchLocal(EngineRendererAction.setPostProcessing(state.qualityLevel.value > 2))
+    dispatchAction(Engine.store, EngineRendererAction.setShadows(state.qualityLevel.value > 1))
+    dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(state.qualityLevel.value))
+    dispatchAction(Engine.store, EngineRendererAction.setPostProcessing(state.qualityLevel.value > 2))
   }
 
   async loadGraphicsSettingsFromStorage() {
@@ -240,19 +242,22 @@ export class EngineRenderer {
       // ClientStorage.get(databasePrefix + RENDERER_SETTINGS.PBR) as Promise<boolean>,
       ClientStorage.get(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING) as Promise<boolean>
     ])
-    dispatchLocal(EngineRendererAction.setAutomatic(automatic ?? true))
-    dispatchLocal(EngineRendererAction.setQualityLevel(qualityLevel ?? 1))
-    dispatchLocal(EngineRendererAction.setShadows(useShadows ?? true))
-    // dispatchLocal(EngineRendererAction.setPBR(pbr ?? true))
-    dispatchLocal(EngineRendererAction.setPostProcessing(usePostProcessing ?? true))
+    dispatchAction(Engine.store, EngineRendererAction.setAutomatic(automatic ?? true))
+    dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(qualityLevel ?? 1))
+    dispatchAction(Engine.store, EngineRendererAction.setShadows(useShadows ?? true))
+    // dispatchAction(Engine.store, EngineRendererAction.setPBR(pbr ?? true))
+    dispatchAction(Engine.store, EngineRendererAction.setPostProcessing(usePostProcessing ?? true))
   }
 }
 
 export default async function WebGLRendererSystem(world: World) {
   new EngineRenderer()
 
-  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => EngineRenderer.instance.loadGraphicsSettingsFromStorage())
-  world.receptors.push(EngineRendererReceptor)
+  receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, () =>
+    EngineRenderer.instance.loadGraphicsSettingsFromStorage()
+  )
+
+  addActionReceptor(Engine.store, EngineRendererReceptor)
 
   return () => {
     EngineRenderer.instance.execute(world.delta)

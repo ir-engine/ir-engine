@@ -1,5 +1,7 @@
 import { Group, Object3D, Quaternion, Vector3 } from 'three'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
@@ -8,9 +10,7 @@ import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
@@ -115,7 +115,7 @@ export const startWebXR = async (): Promise<void> => {
   const controllerRight = new Group()
   const controllerGripLeft = new Group()
   const controllerGripRight = new Group()
-  const world = useWorld()
+  const world = Engine.currentWorld
 
   removeComponent(world.localClientEntity, FollowCameraComponent)
   container.add(Engine.camera)
@@ -153,7 +153,7 @@ export const startWebXR = async (): Promise<void> => {
   Engine.xrSession.addEventListener('inputsourceschange', inputSourceChanged)
 
   addComponent(world.localClientEntity, XRInputSourceComponent, inputData)
-  dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ enabled: true })).cache({ removePrevious: true })
+  dispatchAction(world.store, NetworkWorldAction.setXRMode({ enabled: true }))
   bindXRHandEvents()
 }
 
@@ -168,10 +168,11 @@ export const endXR = (): void => {
   Engine.xrManager.setSession(null!)
   Engine.scene.add(Engine.camera)
 
-  addComponent(useWorld().localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
-  removeComponent(useWorld().localClientEntity, XRInputSourceComponent)
+  const world = Engine.currentWorld
+  addComponent(world.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
+  removeComponent(world.localClientEntity, XRInputSourceComponent)
 
-  dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ enabled: false })).cache({ removePrevious: true })
+  dispatchAction(world.store, NetworkWorldAction.setXRMode({ enabled: false }))
 }
 
 /**
@@ -181,7 +182,7 @@ export const endXR = (): void => {
  */
 
 export const bindXRHandEvents = () => {
-  const world = useWorld()
+  const world = Engine.currentWorld
   const hands = [Engine.xrManager.getHand(0), Engine.xrManager.getHand(1)]
   let eventSent = false
 
@@ -202,7 +203,7 @@ export const bindXRHandEvents = () => {
       initializeHandModel(controller, xrInputSource.handedness)
 
       if (!eventSent) {
-        dispatchFrom(Engine.userId, () => NetworkWorldAction.xrHandsConnected({})).cache({ removePrevious: true })
+        dispatchAction(world.store, NetworkWorldAction.xrHandsConnected({}))
         eventSent = true
       }
     })
