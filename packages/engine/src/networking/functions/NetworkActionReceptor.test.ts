@@ -96,7 +96,7 @@ describe('NetworkActionReceptors', () => {
 
       ActionFunctions.clearOutgoingActions(world.store)
       ActionFunctions.applyIncomingActions(world.store)
-      world.execute(0, 0)
+      world.execute(0)
 
       assert(!world.clients.get(userId))
       assert(!world.userIndexToUserId.get(1))
@@ -333,7 +333,7 @@ describe('NetworkActionReceptors', () => {
 
       ActionFunctions.clearOutgoingActions(world.store, true)
       ActionFunctions.applyIncomingActions(world.store)
-      world.execute(0, 0)
+      world.execute(0)
 
       assert.equal(networkObjectEntities.length, 1)
       assert.equal(networkObjectOwnedEntities.length, 0)
@@ -399,7 +399,7 @@ describe('NetworkActionReceptors', () => {
 
       ActionFunctions.clearOutgoingActions(world.store)
       ActionFunctions.applyIncomingActions(world.store)
-      world.execute(0, 0)
+      world.execute(0)
 
       assert.equal(networkObjectEntities.length, 1)
       assert.equal(networkObjectOwnedEntities.length, 0)

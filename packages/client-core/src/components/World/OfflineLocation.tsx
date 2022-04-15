@@ -38,7 +38,8 @@ export const OfflineLocation = () => {
 
       const avatarSpawnPose = SpawnPoints.instance.getRandomSpawnPoint()
       receiveJoinWorld({
-        tick: 0,
+        elapsedTime: 0,
+        clockTime: Date.now(),
         clients: [
           {
             userId,
