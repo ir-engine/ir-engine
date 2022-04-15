@@ -4,6 +4,7 @@
   "main": "index.ts",
   "description": "",
   "scripts": {
+    "check-errors": "tsc --noemit",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "repository": {
