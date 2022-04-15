@@ -25,7 +25,7 @@ describe('CameraPropertiesFunctions', () => {
     '../../../common/functions/isClient': { isClient: true },
     '../setCameraProperties': { setCameraProperties: () => {} },
     '../../../networking/functions/matchActionOnce': {
-      matchActionOnce: (_, callback: Function) => {
+      matchActionOnce: (store, _, callback: Function) => {
         assert(callback({ $from: Engine.userId }), 'Camera property is not set')
         assert(!callback({ $from: Engine.userId + 'fake' }), 'Camera property is set')
       }
