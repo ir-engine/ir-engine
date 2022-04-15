@@ -2,7 +2,7 @@ import approot from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs-extra'
 import fetch from 'node-fetch'
-import path from 'path/posix'
+import path from 'path'
 import { v4 as uuid } from 'uuid'
 
 import LocalStorage from '../../src/media/storageprovider/local.storage'

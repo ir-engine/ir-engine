@@ -134,19 +134,21 @@ export const AvatarUploadModal = (props: Props) => {
 
   const handleAvatarUrlChange = async (event) => {
     event.preventDefault()
+    console.log("handling url change")
+    console.log("event.target.value is", event.target.value)
     setAvatarUrl(event.target.value)
-    if (/\.(?:gltf|glb|vrm)/.test(event.target.value) && REGEX_VALID_URL.test(event.target.value)) {
-      setValidAvatarUrl(true)
-      loadAvatarByURL(event.target.value)
-      fetch(event.target.value)
-        .then((res) => res.blob())
-        .then((data) => setSelectedAvatarUrl(data))
-        .catch((err) => {
-          setError(err.message)
-        })
-    } else {
-      setValidAvatarUrl(false)
-    }
+    // if (/\.(?:gltf|glb|vrm)/.test(event.target.value)) {
+    setValidAvatarUrl(true)
+    loadAvatarByURL(event.target.value)
+    fetch(event.target.value)
+      .then((res) => res.blob())
+      .then((data) => setSelectedAvatarUrl(data))
+      .catch((err) => {
+        setError(err.message)
+      })
+    // } else {
+    //   setValidAvatarUrl(false)
+    // }
   }
 
   const { isPublicAvatar, changeActiveMenu, avatarData, onAvatarUpload } = props
@@ -198,11 +200,11 @@ export const AvatarUploadModal = (props: Props) => {
     const reader = new FileReader()
     reader.onload = (fileData) => {
       try {
-        const assetType = AssetLoader.getAssetType(file.name)
-        if (assetType) {
+        // const assetType = AssetLoader.getAssetType(file.name)
+        // if (assetType) {
           const objectURL = URL.createObjectURL(file) + '#' + file.name
           loadAvatarByURL(objectURL)
-        }
+        // }
       } catch (error) {
         console.error(error)
         setError(t('user:avatar.selectValidFile'))
@@ -248,16 +250,6 @@ export const AvatarUploadModal = (props: Props) => {
   }
 
   const handleThumbnailChange = (e) => {
-    if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
-      setError(
-        t('user:avatar.fileOversized', {
-          minSize: MIN_AVATAR_FILE_SIZE / 1048576,
-          maxSize: MAX_AVATAR_FILE_SIZE / 1048576
-        })
-      )
-      return
-    }
-
     try {
       setSelectedThumbnail(e.target.files[0])
     } catch (error) {
@@ -433,8 +425,6 @@ export const AvatarUploadModal = (props: Props) => {
                 type="button"
                 className={styling.uploadBtn}
                 onClick={uploadAvatar}
-                style={{ cursor: uploadButtonEnabled ? 'pointer' : 'not-allowed' }}
-                disabled={!uploadButtonEnabled}
               >
                 {t('user:avatar.lbl-upload')}
                 <CloudUpload />

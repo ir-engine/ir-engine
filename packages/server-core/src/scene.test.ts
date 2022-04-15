@@ -5,6 +5,7 @@ import path from 'path'
 
 import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
 
+import { createApp } from '../../server/src/app'
 import { Application } from '../declarations'
 import { createFeathersExpressApp } from './createApp'
 import { useStorageProvider } from './media/storageprovider/storageprovider'

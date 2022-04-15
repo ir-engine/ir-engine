@@ -12,7 +12,7 @@ export const patchGameserverLocation = async (app: Application, locationId) => {
       }
     })) as Paginated<LocationDataType>
 
-    if (!location.data.length) {
+    if (!(location as any).data.length) {
       const message = `Failed to patch gameserver. (Location for id '${locationId}' is not found.)`
       console.log(message)
       return { status: false, message }
@@ -25,7 +25,7 @@ export const patchGameserverLocation = async (app: Application, locationId) => {
       ipAddress: freeInstance.ipAddress,
       podName: freeInstance.podName,
       locationId,
-      sceneId: location.data[0].sceneId
+      sceneId: (location as any).data[0].sceneId
     })
 
     return { status: true, message: 'Gameserver patched successfully' }

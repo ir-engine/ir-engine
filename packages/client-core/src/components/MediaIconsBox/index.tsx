@@ -1,3 +1,4 @@
+import EventEmitter from 'events'
 import React, { useEffect, useState } from 'react'
 
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
@@ -35,10 +36,13 @@ import FaceIcon from '@mui/icons-material/Face'
 
 import styles from './index.module.scss'
 
-interface Props {
-  animate?: any
+export const soundEvent = new EventEmitter()
+export let soundFunc: Function
+export function setSoundFunction(func: Function) {
+  soundFunc = func
 }
-const MediaIconsBox = (props: Props) => {
+
+const MediaIconsBox = (props) => {
   const [hasAudioDevice, setHasAudioDevice] = useState(false)
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
 
@@ -66,6 +70,10 @@ const MediaIconsBox = (props: Props) => {
   const engineState = useEngineState()
 
   useEffect(() => {
+    soundEvent.on('updateInput', async function (on) {
+      console.log('sound event, ok:', on)
+      if (soundFunc) soundFunc(on)
+    })
     navigator.mediaDevices
       .enumerateDevices()
       .then((devices) => {
@@ -115,11 +123,20 @@ const MediaIconsBox = (props: Props) => {
   const handleMicClick = async () => {
     const mediaTransport = getMediaTransport()
     if (await configureMediaTransports(mediaTransport, ['audio'])) {
-      if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(mediaTransport)
-      else {
+      if (MediaStreams.instance?.camAudioProducer == null) {
+        await createCamAudioProducer(mediaTransport)
+        soundEvent.emit('updateInput', true)
+      } else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
-        if (audioPaused) await pauseProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
-        else await resumeProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
+        if (audioPaused) {
+          await pauseProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
+          console.log('emiting sound event, false')
+          soundEvent.emit('updateInput', false)
+        } else {
+          await resumeProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
+          console.log('emiting sound event, true')
+          soundEvent.emit('updateInput', true)
+        }
         checkEndVideoChat()
       }
       MediaStreamService.updateCamAudioState()

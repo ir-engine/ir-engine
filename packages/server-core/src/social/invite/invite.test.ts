@@ -1,6 +1,7 @@
 import assert from 'assert'
 import { v1 } from 'uuid'
 
+import { createApp } from '../../../../server/src/app'
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
 import { InviteDataType } from './invite.class'

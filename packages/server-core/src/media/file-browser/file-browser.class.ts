@@ -1,7 +1,7 @@
 import { NullableId, Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
-import path from 'path/posix'
+import path from 'path'
 
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 

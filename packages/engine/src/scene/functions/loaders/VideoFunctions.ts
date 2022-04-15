@@ -117,6 +117,7 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
 
       const texture = new VideoTexture(obj3d.userData.videoEl)
       obj3d.userData.videoEl.currentTime = 1
+      obj3d.userData.videoUrl = url
 
       if (!texture) return
 

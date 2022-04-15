@@ -56,7 +56,7 @@ export default async function (locationName, app: Application) {
   const newInstance = {
     currentUsers: 0,
     sceneId: location.sid,
-    ipAddress: config.kubernetes.enabled ? selfIpAddress : `${localIp.ipAddress}:3031`,
+    ipAddress: config.gameserver.mode === 'local' ? `${localIp.ipAddress}:3031` : selfIpAddress,
     locationId: location.id
   } as any
   app.isChannelInstance = false

@@ -1,6 +1,6 @@
 import assert from 'assert'
 import fs from 'fs'
-import path from 'path/posix'
+import path from 'path'
 
 import { projectsRootFolder } from './file-browser/file-browser.class'
 import { copyRecursiveSync, getIncrementalName } from './FileUtil'

@@ -3,6 +3,7 @@ import { v1 } from 'uuid'
 
 import { User } from '@xrengine/common/src/interfaces/User'
 
+import { createApp } from '../../../../server/src/app'
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
 

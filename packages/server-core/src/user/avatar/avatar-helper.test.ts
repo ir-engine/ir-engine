@@ -1,5 +1,6 @@
 import assert from 'assert'
 
+import { createApp } from '../../../../server/src/app'
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
 import { getAvatarFromStaticResources } from './avatar-helper'

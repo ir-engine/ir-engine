@@ -24,7 +24,7 @@ db.url = process.env.MYSQL_URL ??
 cli.enable('status');
 
 const options = cli.parse({
-    id: [false, 'ID of user to make admin', 'string']
+    id: '333c02b0-b288-11ec-a584-dbb40bbc8b8c'
 });
 
 cli.main(async () => {
