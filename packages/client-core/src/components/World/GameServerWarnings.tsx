@@ -13,7 +13,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import WebGLRendererSystem from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 
@@ -40,6 +40,7 @@ const GameServerWarnings = () => {
   const [currentError, _setCurrentError] = useState(-1)
   const invalidLocationState = locationState.invalidLocation
   const engineState = useEngineState()
+  const engineRendereState = useEngineRendererState()
   const chatState = useChatState()
   const instanceConnectionState = useLocationInstanceConnectionState()
   const [erroredInstanceId, setErroredInstanceId] = useState(null)
@@ -99,18 +100,18 @@ const GameServerWarnings = () => {
   }, [])
 
   useEffect(() => {
-    if (isWindow()) {
-      updateWarningModal(WarningModalTypes.DETECTED_LOW_FRAME)
-    }
-  }, [])
-
-  useEffect(() => {
     if (invalidLocationState.value) {
       updateWarningModal(WarningModalTypes.INVALID_LOCATION)
     } else {
       reset()
     }
   }, [invalidLocationState.value])
+
+  useEffect(() => {
+    if (isWindow() && engineState.joinedWorld.value && engineRendereState.qualityLevel.value == 4) {
+      updateWarningModal(WarningModalTypes.DETECTED_LOW_FRAME)
+    }
+  }, [engineState.joinedWorld.value, engineRendereState.qualityLevel.value])
 
   const updateWarningModal = (type: WarningModalTypes, message?: any) => {
     const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
@@ -204,7 +205,7 @@ const GameServerWarnings = () => {
           open: true,
           title: t('common:gameServer.low-frame-title'),
           body: t('common:gameServer.low-frame-error'),
-          timeout: 5000
+          timeout: 10000
         })
         break
       default:
