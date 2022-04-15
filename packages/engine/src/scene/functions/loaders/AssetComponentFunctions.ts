@@ -1,12 +1,8 @@
 import { Object3D } from 'three'
 
-import { store } from '@xrengine/client-core/src/store'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { executeCommand } from '@xrengine/editor/src/classes/History'
-import EditorCommands from '@xrengine/editor/src/constants/EditorCommands'
 import { uploadProjectFile } from '@xrengine/editor/src/functions/assetFunctions'
-import { accessEditorState, EditorAction } from '@xrengine/editor/src/services/EditorServices'
-import { SelectionAction } from '@xrengine/editor/src/services/SelectionServices'
+import { accessEditorState } from '@xrengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
 import {
@@ -22,9 +18,6 @@ import {
   hasComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import {
   AssetComponent,
   AssetComponentType,
@@ -32,11 +25,9 @@ import {
   LoadState
 } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 import { sceneToGLTF } from '../GLTFConversion'
-import { ScenePrefabs } from '../registerPrefabs'
 
 export const SCENE_COMPONENT_ASSET = 'asset'
 export const SCENE_COMPONENT_ASSET_DEFAULT_VALUES = {

@@ -134,7 +134,7 @@
       "description": "A grouping of scene components which can be dynamically loaded and unloaded",
       "lbl-options": "Options",
       "lbl-assetPath": "Asset Path",
-      "lbl-assetName": "Asset Name",
+      "lbl-assetName": "Export Name",
       "lbl-exportOptions": "Export Options",
       "lbl-export": "Export Asset",
       "lbl-load": "Load Into Scene",

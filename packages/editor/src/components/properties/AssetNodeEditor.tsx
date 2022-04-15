@@ -1,34 +1,14 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { store } from '@xrengine/client-core/src/store'
-import {
-  addComponent,
-  getComponent,
-  hasComponent,
-  removeComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import {
-  AssetComponent,
-  AssetComponentType,
-  AssetLoadedComponent,
-  LoadState
-} from '@xrengine/engine/src/scene/components/AssetComponent'
-import { Object3DComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { AssetComponent, LoadState } from '@xrengine/engine/src/scene/components/AssetComponent'
 import {
   exportAsset,
   loadAsset,
   unloadAsset
 } from '@xrengine/engine/src/scene/functions/loaders/AssetComponentFunctions'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
-import { executeCommand } from '../../classes/History'
-import EditorCommands from '../../constants/EditorCommands'
-import { accessEditorState, EditorAction } from '../../services/EditorServices'
-import { SelectionAction } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
