@@ -97,7 +97,7 @@ export const getEntries = async (directoryReader: FileSystemDirectoryReader): Pr
 export const extractZip = async (path: string): Promise<any> => {
   try {
     const parms = { path: path }
-    //await client.service('asset-library').create(parms)
+    await client.service('asset-library').create(parms)
   } catch (err) {
     throw err
   }
