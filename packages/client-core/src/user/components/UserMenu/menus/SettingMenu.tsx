@@ -11,13 +11,25 @@ import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatc
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 
 import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
+import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
+import Collapse from '@mui/material/Collapse'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
+import IconButton from '@mui/material/IconButton'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Slider from '@mui/material/Slider'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 
 import { AuthService, useAuthState } from '../../../services/AuthService'
@@ -42,7 +54,7 @@ const SettingMenu = (): JSX.Element => {
     setUserSetting(setting)
     AuthService.updateUserSettings(selfUser.user_setting.value?.id, setting)
   }
-
+  const [open, setOpen] = React.useState(false)
   const handleChangeControlType = (event: SelectChangeEvent) => {
     setControlType(event.target.value)
     dispatch(AvatarInputAction.setControlType(event.target.value))
@@ -57,7 +69,7 @@ const SettingMenu = (): JSX.Element => {
     <div className={styles.menuPanel}>
       <div className={styles.settingPanel}>
         <section className={styles.settingSection}>
-          <Typography variant="h4" className={styles.settingHeader}>
+          <Typography variant="h6" className={styles.settingHeader}>
             {t('user:usermenu.setting.audio')}
           </Typography>
           <div className={styles.row}>
@@ -96,7 +108,7 @@ const SettingMenu = (): JSX.Element => {
           </div>
         </section>
         <section className={styles.settingSection}>
-          <Typography variant="h4" className={styles.settingHeader}>
+          <Typography variant="h6" className={styles.settingHeader}>
             {t('user:usermenu.setting.graphics')}
           </Typography>
           <div className={styles.row}>
@@ -159,8 +171,54 @@ const SettingMenu = (): JSX.Element => {
           </div>
         </section>
         <section className={styles.settingSection}>
+          <div className={styles.sectionBar}>
+            <Typography variant="h6" className={styles.settingHeader}>
+              {t('user:usermenu.setting.xrusersetting')}
+            </Typography>
+            <IconButton className={styles.collapseBtn} aria-label="expand" size="small" onClick={() => setOpen(!open)}>
+              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </IconButton>
+          </div>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box margin={1}>
+              <Table size="small" aria-label="purchases">
+                <TableHead>
+                  <TableRow>
+                    <TableCell classes={{ root: styles.tableRow }}>{t('user:usermenu.setting.rotation')}</TableCell>
+                    <TableCell classes={{ root: styles.tableRow }}>
+                      {t('user:usermenu.setting.rotation-angle')}
+                    </TableCell>
+                    <TableCell align="right" classes={{ root: styles.tableRow }}>
+                      {t('user:usermenu.setting.rotation-smooth-speed')}
+                    </TableCell>
+                    <TableCell align="right" classes={{ root: styles.tableRow }}>
+                      {t('user:usermenu.setting.moving')}
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell align="center" classes={{ root: styles.tableRow }} component="th" scope="row">
+                      {avatarInputState.rotation.value}
+                    </TableCell>
+                    <TableCell align="center" classes={{ root: styles.tableRow }}>
+                      {avatarInputState.rotationAngle.value}
+                    </TableCell>
+                    <TableCell align="center" classes={{ root: styles.tableRow }}>
+                      {avatarInputState.rotationSmoothSpeed.value}
+                    </TableCell>
+                    <TableCell align="center" classes={{ root: styles.tableRow }}>
+                      {avatarInputState.moving.value}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </Box>
+          </Collapse>
+        </section>
+        <section className={styles.settingSection}>
           <div className={styles.controlsContainer}>
-            <Typography variant="h4" className={styles.settingHeader}>
+            <Typography variant="h6" className={styles.settingHeader}>
               {t('user:usermenu.setting.controls')}
             </Typography>
             <div className={styles.selectSize}>

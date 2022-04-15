@@ -175,7 +175,7 @@
       width: 320px;
 
       & > .avatarContainer {
-        margin-top: 25px;
+        margin-top: 55px;
       }
 
       .avatarContainer {
@@ -2044,7 +2044,7 @@
 .controlsContainer {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: end;
 }
 
 .selectSize {
@@ -2056,9 +2056,10 @@
   }
 
   & > div > label {
-    top: -10px;
     font-size: 0.9rem;
     color: #fff;
+    margin-bottom: -10px;
+    margin-left: -5px;
   }
 
   & > div > div > svg {
@@ -2068,4 +2069,19 @@
   & > div > div > fieldset {
     border-color: #5f5ff1;
   }
+}
+
+.sectionBar {
+  display: flex;
+  justify-content: space-between;
+  width: 40%;
+}
+
+.collapseBtn {
+  background-color: transparent !important;
+  color: var(--purpleColor);
+}
+.tableRow {
+  border: none;
+  color: #fff;
 }
