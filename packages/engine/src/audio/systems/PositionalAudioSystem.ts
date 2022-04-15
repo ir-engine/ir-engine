@@ -58,7 +58,7 @@ export default async function PositionalAudioSystem(world: World) {
           for (const entity of audioQuery()) {
             const audio = getComponent(entity, Object3DComponent).value
             const audioEl = audio?.userData.audioEl
-            if (audioEl && audioEl.autoplay) console.log(audioEl.play())
+            if (audioEl && audioEl.autoplay) audioEl.play()
           }
         }
         break
