@@ -171,7 +171,7 @@ const setEquippedObject = (world: World, action: ReturnType<typeof NetworkWorldA
 
   if (action.equip) {
     dispatchAction(
-      Engine.store,
+      Engine.currentWorld.store,
       NetworkWorldAction.requestAuthorityOverObject({
         object: action.object,
         requester: action.$from
@@ -179,7 +179,7 @@ const setEquippedObject = (world: World, action: ReturnType<typeof NetworkWorldA
     )
   } else {
     dispatchAction(
-      Engine.store,
+      Engine.currentWorld.store,
       NetworkWorldAction.requestAuthorityOverObject({
         object: action.object,
         requester: Engine.currentWorld.hostId
