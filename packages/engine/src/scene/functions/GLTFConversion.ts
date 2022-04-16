@@ -1,5 +1,4 @@
-import { Color, Object3D, Scene } from 'three'
-import { generateUUID } from 'three/src/math/MathUtils'
+import { Color, MathUtils, Object3D, Scene } from 'three'
 
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -18,7 +17,7 @@ import { Object3DWithEntity } from '../components/Object3DComponent'
 
 export const nodeToEntityJson = (node: any): EntityJson => {
   const parentId = node.extras?.parent ? { parent: node.extras.parent } : {}
-  const uuid = node.extras?.uuid ? node.extras.uuid : generateUUID()
+  const uuid = node.extras?.uuid ? node.extras.uuid : MathUtils.generateUUID()
   return {
     name: node.name,
     components: node.extensions
@@ -34,7 +33,7 @@ export const nodeToEntityJson = (node: any): EntityJson => {
 export const gltfToSceneJson = (gltf: any): SceneJson => {
   handleScenePaths(gltf, 'decode')
   const rootGL = gltf.scenes[gltf.scene]
-  const rootUuid = generateUUID()
+  const rootUuid = MathUtils.generateUUID()
   const result: SceneJson = {
     entities: {},
     root: rootUuid,
