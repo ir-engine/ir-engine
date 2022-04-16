@@ -65,9 +65,6 @@ export const useSimpleMaterial = (obj: Mesh): void => {
     // return
     
     try {
-
-      if (!obj.material.map) return
-
       obj.userData.prevMaterial = obj.material
       // obj.material = new MeshBasicMaterial()
       // MeshBasicMaterial.prototype.copy.call(obj.material, obj.userData.prevMaterial)
@@ -114,10 +111,7 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       //   '}'
       // ].join('\n')
 
-      const hasUV = obj.geometry.hasAttribute('uv')
-      const hasTexture = (<any>obj.material).map !== null
-
-      // const vertex = `
+      // const vertexShader = `
       //   #include <common>
       //   #include <uv_pars_vertex>
       //   #include <uv2_pars_vertex>
@@ -203,45 +197,6 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       //   }
       // `
 
-      vertexShader = `
-        #include <common>
-        #include <uv_pars_vertex>
-        void main() {
-          #include <uv_vertex>
-          #include <color_vertex>
-          #include <begin_vertex>
-          #include <project_vertex>
-        }
-      `
-      fragmentShader = `
-        uniform vec3 diffuse;
-        uniform float opacity;
-        #ifndef FLAT_SHADED
-          varying vec3 vNormal;
-        #endif
-        #include <common>
-        #include <color_pars_fragment>
-        #include <uv_pars_fragment>
-        #include <map_pars_fragment>
-        void main() {
-          vec4 diffuseColor = vec4( diffuse, opacity );
-          #include <map_fragment>
-          #include <color_fragment>
-         
-          ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
-          #ifdef USE_LIGHTMAP
-            vec4 lightMapTexel = texture2D( lightMap, vUv2 );
-            reflectedLight.indirectDiffuse += lightMapTexel.rgb * lightMapIntensity * RECIPROCAL_PI;
-          #else
-            reflectedLight.indirectDiffuse += vec3( 1.0 );
-          #endif
-          reflectedLight.indirectDiffuse *= diffuseColor.rgb;
-          vec3 outgoingLight = reflectedLight.indirectDiffuse;
-          #include <output_fragment>
-          gl_FragColor = linearToOutputTexel( gl_FragColor );
-        }
-      `
-
       var uniforms = {
         diffuse: {
           value: (prevMaterial as any).color
@@ -256,6 +211,7 @@ export const useSimpleMaterial = (obj: Mesh): void => {
         map: {
           value: (prevMaterial as any).map
         },
+
         alphaMap: {
           value: (prevMaterial as any).alphaMap
         },
@@ -263,7 +219,107 @@ export const useSimpleMaterial = (obj: Mesh): void => {
           value: (prevMaterial as any).alphaTest
         },
         
+        envMap: {
+          value: Engine.scene.environment
+        }
       }
+
+      const hasUV = obj.geometry.hasAttribute('uv')
+      const hasMap = (<any>obj.material).map !== null
+      const hasLightMap = (<any>obj.material).lightMap !== null
+      const hasEnvMap = true
+      const hasSpecularMap = (<any>obj.material).specularMap !== null
+      const hasAoMap = (<any>obj.material).aoMap !== null
+      const hasEmissiveMap = (<any>obj.material).emissiveMap !== null
+      const hasAlphaMap = (<any>obj.material).alphaMap !== null
+
+      let defines = {}
+      if (hasMap) {
+        defines["USE_MAP"] = ''
+      }
+      if (hasUV) {
+        defines["USE_UV"] = ''
+      }
+      
+      if (hasLightMap) {
+        defines["USE_LIGHTMAP"] = ''
+      }
+
+      if (hasEnvMap) {
+        defines["USE_ENVMAP"] = ''
+      }
+
+      if (hasSpecularMap) {
+        defines["USE_SPECULARMAP"] = ''
+      }
+
+      if (hasAoMap) {
+        defines["USE_AOMAP"] = ''
+      }
+
+      if (hasAlphaMap) {
+        defines["USE_ALPHAMAP"] = ''
+      }
+
+      vertexShader = `
+        #include <common>
+        #include <uv_pars_vertex>                                         //hasUV
+        #include <envmap_pars_vertex>                                     //hasEnvMap
+        void main() {
+          #include <uv_vertex>                                            //hasUV
+          #include <color_vertex>                                         
+          #if defined ( USE_ENVMAP ) || defined ( USE_SKINNING )          //hasEnvMap
+            #include <beginnormal_vertex>
+            #include <morphnormal_vertex>
+            #include <skinbase_vertex>
+            #include <skinnormal_vertex>
+            #include <defaultnormal_vertex>
+          #endif
+          #include <begin_vertex>
+          #include <project_vertex>
+          #include <worldpos_vertex>
+          #include <envmap_vertex>                                        //hasEnvMap               
+        }
+      `
+
+      fragmentShader = `
+        uniform vec3 diffuse;
+        uniform float opacity;
+        #ifndef FLAT_SHADED
+          varying vec3 vNormal;
+        #endif
+        #include <common>
+        #include <color_pars_fragment>
+        #include <uv_pars_fragment>                                       //hasUV
+        #include <map_pars_fragment>                                      //hasMap
+        #include <alphamap_pars_fragment>                                 //hasAlphaMap
+        #include <alphatest_pars_fragment>
+        #include <aomap_pars_fragment>                                    //hasAoMap
+        #include <envmap_common_pars_fragment>                            //hasEnvMap
+        #include <envmap_pars_fragment>                                   //hasEnvMap
+        #include <specularmap_pars_fragment>                              //hasSpecularMap
+        void main() {
+          vec4 diffuseColor = vec4( diffuse, opacity );
+          #include <map_fragment>                                         //hasMap
+          #include <color_fragment>
+          #include <alphamap_fragment>                                    //hasAlphaMap
+	        #include <alphatest_fragment>
+          #include <specularmap_fragment>                                 //hasSpecularMap
+          ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
+          #ifdef USE_LIGHTMAP
+            vec4 lightMapTexel = texture2D( lightMap, vUv2 );
+            reflectedLight.indirectDiffuse += lightMapTexel.rgb * lightMapIntensity * RECIPROCAL_PI;
+          #else
+            reflectedLight.indirectDiffuse += vec3( 1.0 );
+          #endif
+          #include <aomap_fragment>                                       //hasAoMap
+          reflectedLight.indirectDiffuse *= diffuseColor.rgb;
+          vec3 outgoingLight = reflectedLight.indirectDiffuse;
+          #include <output_fragment>
+          #include <envmap_fragment>                                      //hasEnvMap
+          #include <encodings_fragment>
+        }
+      `
 
       // Object.keys(ShaderLib.basic.uniforms).forEach((original) => {
       //   let key = original
@@ -300,20 +356,14 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       // })
       // uniforms = UniformsUtils.merge([UniformsLib.lights, uniforms])
       
-      let defines = {}
-      if (hasTexture) {
-        defines["USE_MAP"] = ''
-      }
-      if (hasUV) {
-        defines["USE_UV"] = ''
-      }
       obj.material = new ShaderMaterial({
         defines,
         uniforms: uniforms,
         vertexShader,
         fragmentShader,
         // fog: false,
-        lights: false
+        lights: false,
+        transparent: true
       })
       obj.material.needsUpdate = true
     } catch (error) {
