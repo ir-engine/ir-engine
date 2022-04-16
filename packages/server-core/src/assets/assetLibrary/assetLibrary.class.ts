@@ -26,10 +26,6 @@ export class AssetLibrary implements ServiceMethods<any> {
 
   async setup() {}
 
-  /**
-   * query the asset library for assets matching search conditions
-   * @param params
-   */
   async find(params?: Params): Promise<any> {}
 
   /**
@@ -57,19 +53,9 @@ export class AssetLibrary implements ServiceMethods<any> {
 
   async patch(id: NullableId, data: Partial<any>, params?: Params): Promise<any> {}
 
-  /**
-   * overwrite existing asset
-   * @param id
-   * @param data
-   * @param params
-   */
   async update(id: NullableId, data: Partial<any>, params?: Params): Promise<any> {}
 
   async remove(id: NullableId, params?: Params): Promise<any> {}
 
-  async get(id: Id, params?: Params) {
-    if (id.valueOf() === 'storage-provider') {
-      return config.server.storageProvider
-    }
-  }
+  async get(id: Id, params?: Params) {}
 }
