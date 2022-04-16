@@ -1,6 +1,6 @@
 import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
-import { PerspectiveCamera, AudioListener as PositionalAudioListener, Scene } from 'three'
+import { AudioListener, PerspectiveCamera, Scene } from 'three'
 
 import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
@@ -35,8 +35,10 @@ import { FontManager } from './xrui/classes/FontManager'
  */
 export const initializeBrowser = () => {
   Engine.publicPath = location.origin
-  Engine.audioListener = new PositionalAudioListener()
+  Engine.audioListener = new AudioListener()
+  Engine.audioListener.context.resume()
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
+  Engine.camera.add(Engine.audioListener)
   Engine.camera.layers.disableAll()
   Engine.camera.layers.enable(ObjectLayers.Scene)
   Engine.camera.layers.enable(ObjectLayers.Avatar)

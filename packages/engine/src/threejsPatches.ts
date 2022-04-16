@@ -24,6 +24,8 @@ AudioListener.prototype.updateMatrixWorld = function (force) {
   Object3D.prototype.updateMatrixWorld.call(this, force)
 
   const listener = this.context.listener
+  if (this.context.state !== 'running') return
+
   const up = this.up
 
   this.timeDelta = this._clock.getDelta()
@@ -37,15 +39,15 @@ AudioListener.prototype.updateMatrixWorld = function (force) {
 
     const endTime = this.context.currentTime + this.timeDelta
 
-    listener.positionX.setValueAtTime(_position.x, endTime)
-    listener.positionY.setValueAtTime(_position.y, endTime)
-    listener.positionZ.setValueAtTime(_position.z, endTime)
-    listener.forwardX.setValueAtTime(_orientation.x, endTime)
-    listener.forwardY.setValueAtTime(_orientation.y, endTime)
-    listener.forwardZ.setValueAtTime(_orientation.z, endTime)
-    listener.upX.setValueAtTime(up.x, endTime)
-    listener.upY.setValueAtTime(up.y, endTime)
-    listener.upZ.setValueAtTime(up.z, endTime)
+    listener.positionX.linearRampToValueAtTime(_position.x, endTime)
+    listener.positionY.linearRampToValueAtTime(_position.y, endTime)
+    listener.positionZ.linearRampToValueAtTime(_position.z, endTime)
+    listener.forwardX.linearRampToValueAtTime(_orientation.x, endTime)
+    listener.forwardY.linearRampToValueAtTime(_orientation.y, endTime)
+    listener.forwardZ.linearRampToValueAtTime(_orientation.z, endTime)
+    listener.upX.linearRampToValueAtTime(up.x, endTime)
+    listener.upY.linearRampToValueAtTime(up.y, endTime)
+    listener.upZ.linearRampToValueAtTime(up.z, endTime)
   } else {
     listener.setPosition(_position.x, _position.y, _position.z)
     listener.setOrientation(_orientation.x, _orientation.y, _orientation.z, up.x, up.y, up.z)
@@ -53,7 +55,9 @@ AudioListener.prototype.updateMatrixWorld = function (force) {
 }
 
 PositionalAudio.prototype.updateMatrixWorld = function (force) {
-  Audio.prototype.updateMatrixWorld.call(this, force)
+  Object3D.prototype.updateMatrixWorld.call(this, force)
+
+  if (this.context.state !== 'running') return
 
   if (this.hasPlaybackControl === true && this.isPlaying === false) return
 
@@ -68,12 +72,12 @@ PositionalAudio.prototype.updateMatrixWorld = function (force) {
 
     const endTime = this.context.currentTime + this.listener.timeDelta
 
-    panner.positionX.setValueAtTime(_position.x, endTime)
-    panner.positionY.setValueAtTime(_position.y, endTime)
-    panner.positionZ.setValueAtTime(_position.z, endTime)
-    panner.orientationX.setValueAtTime(_orientation.x, endTime)
-    panner.orientationY.setValueAtTime(_orientation.y, endTime)
-    panner.orientationZ.setValueAtTime(_orientation.z, endTime)
+    panner.positionX.linearRampToValueAtTime(_position.x, endTime)
+    panner.positionY.linearRampToValueAtTime(_position.y, endTime)
+    panner.positionZ.linearRampToValueAtTime(_position.z, endTime)
+    panner.orientationX.linearRampToValueAtTime(_orientation.x, endTime)
+    panner.orientationY.linearRampToValueAtTime(_orientation.y, endTime)
+    panner.orientationZ.linearRampToValueAtTime(_orientation.z, endTime)
   } else {
     panner.setPosition(_position.x, _position.y, _position.z)
     panner.setOrientation(_orientation.x, _orientation.y, _orientation.z)
