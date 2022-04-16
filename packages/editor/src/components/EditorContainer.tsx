@@ -131,8 +131,6 @@ const EditorContainer = () => {
   const history = useHistory()
   const dockPanelRef = useRef<DockLayout>(null)
 
-  const importAsset = async (fileName: string, asset: any) => {}
-
   const importScene = async (sceneFile: SceneJson) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     try {

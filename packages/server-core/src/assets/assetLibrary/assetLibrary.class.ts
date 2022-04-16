@@ -13,20 +13,16 @@ export type CreateParams = {
   path: string
 }
 
-export class AssetLibrary implements ServiceMethods<any> {
+export class AssetLibrary extends Service<any> {
   app: Application
-  docs: any
 
   rootPath: string
 
   constructor(app: Application) {
+    super(app)
     this.app = app
     this.rootPath = path.join(appRootPath.path, 'packages/projects/projects/')
   }
-
-  async setup() {}
-
-  async find(params?: Params): Promise<any> {}
 
   /**
    * create a new asset
@@ -49,13 +45,6 @@ export class AssetLibrary implements ServiceMethods<any> {
     } catch (e) {
       throw Error('error unzipping archive:', e)
     }
+    return super.create(data, params)
   }
-
-  async patch(id: NullableId, data: Partial<any>, params?: Params): Promise<any> {}
-
-  async update(id: NullableId, data: Partial<any>, params?: Params): Promise<any> {}
-
-  async remove(id: NullableId, params?: Params): Promise<any> {}
-
-  async get(id: Id, params?: Params) {}
 }

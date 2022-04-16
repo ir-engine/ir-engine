@@ -12,9 +12,8 @@ export default (app: Application) => {
   const options = {}
 
   const libClass = new AssetLibrary(app)
-
   app.use('asset-library', libClass)
-
   const service = app.service('asset-library')
+
   service.hooks(hooks)
 }
