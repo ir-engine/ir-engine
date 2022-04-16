@@ -341,6 +341,7 @@ const EditorContainer = () => {
       }
     }
     el.click()
+    el.remove()
   }
 
   const onExportScene = async () => {
