@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 import {
-  DirectionalLight,
+  AudioListener,
   Object3D,
   OrthographicCamera,
   PerspectiveCamera,
@@ -98,7 +98,7 @@ export class Engine {
    * Reference to the audioListener.
    * This is a virtual listner for all positional and non-positional audio.
    */
-  static audioListener: any = null
+  static audioListener: AudioListener = null!
 
   static inputState = new Map<any, InputValue>()
   static prevInputState = new Map<any, InputValue>()
