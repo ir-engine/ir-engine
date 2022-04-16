@@ -1,6 +1,6 @@
 import { ArrayCamera, sRGBEncoding } from 'three'
 
-import { dispatchAction } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { BinaryValue } from '../../common/enums/BinaryValue'
@@ -63,7 +63,23 @@ export default async function XRSystem(world: World) {
     AssetLoader.loadAsync('/default_assets/controllers/hands/right_controller.glb')
   ])
 
-  Engine.currentWorld.receptors.push((action: EngineActionType) => {
+  addActionReceptor(world.store, (action) => {
+    switch (action.type) {
+      case NetworkWorldAction.setXRMode.type:
+        // Current WebXRManager.getCamera() typedef is incorrect
+        // @ts-ignore
+        const cameras = Engine.xrManager.getCamera() as ArrayCamera
+        cameras.layers.enableAll()
+        cameras.cameras.forEach((camera) => {
+          camera.layers.disableAll()
+          camera.layers.enable(ObjectLayers.Scene)
+          camera.layers.enable(ObjectLayers.Avatar)
+          camera.layers.enable(ObjectLayers.UI)
+        })
+    }
+  })
+
+  addActionReceptor(Engine.store, (action) => {
     switch (action.type) {
       case NetworkWorldAction.setXRMode.type:
         // Current WebXRManager.getCamera() typedef is incorrect
