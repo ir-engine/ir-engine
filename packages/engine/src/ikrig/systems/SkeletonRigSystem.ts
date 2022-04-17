@@ -3,13 +3,12 @@ import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { bonesData2 } from '../../avatar/DefaultSkeletonBones'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { CameraIKComponent } from '../components/CameraIKComponent'
 import { IKPoseComponent } from '../components/IKPoseComponent'
@@ -57,20 +56,25 @@ const mockAvatars = () => {
 
     const networkId = (1000 + i) as NetworkId
 
-    dispatchLocal({ ...NetworkWorldAction.createClient({ name: 'user', index: networkId }), $from: userId })
-    dispatchLocal({
-      ...NetworkWorldAction.spawnAvatar({ parameters, ownerIndex: networkId }),
+    const world = Engine.currentWorld
+
+    dispatchAction(world.store, {
+      ...NetworkWorldAction.createClient({ name: 'user', index: networkId }),
+      $from: userId
+    })
+    dispatchAction(world.store, {
+      ...NetworkWorldAction.spawnAvatar({ parameters, prefab: 'avatar' }),
       networkId,
       $from: userId
     })
-    dispatchLocal({ ...NetworkWorldAction.avatarDetails({ avatarDetail }), $from: userId })
+    dispatchAction(world.store, { ...NetworkWorldAction.avatarDetails({ avatarDetail }), $from: userId })
   }
 }
 
 export default async function SkeletonRigSystem(world: World) {
   const cameraIKQuery = defineQuery([IKRigComponent, CameraIKComponent])
   const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
-  // receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => {
+  // receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, () => {
   //   mockAvatars()
   // })
   return () => {

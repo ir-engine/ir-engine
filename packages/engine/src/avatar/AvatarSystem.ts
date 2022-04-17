@@ -178,12 +178,12 @@ export default async function AvatarSystem(world: World) {
 
     for (const entity of xrLGripQuery.exit()) {
       const inputComponent = getComponent(entity, XRInputSourceComponent, true)
-      playTriggerReleaseAnimation(inputComponent.controllerGripLeft)
+      if (inputComponent) playTriggerReleaseAnimation(inputComponent.controllerGripLeft)
     }
 
     for (const entity of xrRGripQuery.exit()) {
       const inputComponent = getComponent(entity, XRInputSourceComponent, true)
-      playTriggerReleaseAnimation(inputComponent.controllerGripRight)
+      if (inputComponent) playTriggerReleaseAnimation(inputComponent.controllerGripRight)
     }
   }
 }

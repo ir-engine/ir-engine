@@ -6,10 +6,8 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { AvatarSettings } from '../AvatarControllerSystem'
@@ -196,18 +194,18 @@ export const rotateXRAvatar = (world: World, entity: Entity, camera: Perspective
   tempVec1.subVectors(avatarTransform.position, camera.position).applyQuaternion(quat).add(camera.position)
   tempVec2.subVectors(tempVec1, avatarTransform.position).setY(0)
 
-  const displacement = {
-    x: tempVec2.x,
-    y: 0,
-    z: tempVec2.z
-  }
+  // const displacement = {
+  //   x: tempVec2.x,
+  //   y: 0,
+  //   z: tempVec2.z
+  // }
 
-  const velocity = getComponent(entity, VelocityComponent)
-  velocity.linear.setX(displacement.x)
-  velocity.linear.setZ(displacement.z)
+  // const velocity = getComponent(entity, VelocityComponent)
+  // velocity.linear.setX(displacement.x)
+  // velocity.linear.setZ(displacement.z)
 
-  // Rotate around camera
-  moveAvatarController(world, entity, displacement)
+  // // Rotate around camera
+  // moveAvatarController(world, entity, displacement)
 }
 
 /**
@@ -310,17 +308,17 @@ export const moveXRAvatar = (
   tempVec1.subVectors(camPos, lastCameraPos)
   lastCameraPos.copy(camPos)
 
-  const displacement = {
-    x: tempVec1.x,
-    y: 0,
-    z: tempVec1.z
-  }
+  // const displacement = {
+  //   x: tempVec1.x,
+  //   y: 0,
+  //   z: tempVec1.z
+  // }
 
-  const velocity = getComponent(entity, VelocityComponent)
-  velocity.linear.setX(displacement.x)
-  velocity.linear.setZ(displacement.z)
+  // const velocity = getComponent(entity, VelocityComponent)
+  // velocity.linear.setX(displacement.x)
+  // velocity.linear.setZ(displacement.z)
 
-  moveAvatarController(world, entity, displacement)
+  // moveAvatarController(world, entity, displacement)
 }
 
 /**

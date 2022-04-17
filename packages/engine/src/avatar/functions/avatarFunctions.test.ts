@@ -69,10 +69,9 @@ describe('avatarFunctions Integration', async () => {
             parameters: { position: new Vector3(), rotation: new Quaternion() },
             type: 'network.SPAWN_OBJECT',
             networkId: networkObject.networkId,
-            ownerIndex: 0,
             $from: Engine.userId,
             $to: 'all',
-            $tick: Engine.currentWorld.fixedTick,
+            $time: 0,
             $cache: true
           })
 
