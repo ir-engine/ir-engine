@@ -214,7 +214,7 @@ export function computeHip(rig: IKRigComponentType, ikPose: IKPoseComponentType)
  * @param chain
  * @param ikLimb
  */
-export function computeLimb(pose: Pose, chain: Chain, ikLimb) {
+export function computeLimb(pose: Pose, chain: Chain, ikLimb: IKPoseLimbData) {
   // Limb IK tends to be fairly easy to determine. What you need is the direction the end effector is in
   // relation to the beginning of the limb chain, like the Shoulder for an arm chain. After you have the
   // direction, you can use it to get the distance. Distance is important to create a scale value based on

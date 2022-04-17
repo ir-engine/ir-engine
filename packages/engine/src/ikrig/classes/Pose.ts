@@ -175,7 +175,7 @@ class Pose {
     let bones: any[] = []
 
     rootObject.traverse((object: SkinnedMesh) => {
-      if (object.isSkinnedMesh && object.skeleton !== null) {
+      if (object.isSkinnedMesh && object.skeleton) {
         object.skeleton.bones.forEach((bone) => {
           if (bones.indexOf(bone) == -1) {
             if (bone.parent && bone.parent.type !== 'Bone') {
@@ -213,7 +213,7 @@ class Pose {
     let skeleton: Skeleton | null = null
 
     rootObject.traverse((object: SkinnedMesh) => {
-      if (object.isSkinnedMesh && object.skeleton !== null) {
+      if (object.isSkinnedMesh && object.skeleton) {
         if (skeleton && skeleton.bones.length > object.skeleton.bones.length) {
           return
         }

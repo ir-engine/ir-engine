@@ -4,6 +4,7 @@ import {
   AnimationClip,
   AnimationMixer,
   Bone,
+  Box3,
   DoubleSide,
   Group,
   Material,
@@ -11,7 +12,6 @@ import {
   MeshBasicMaterial,
   Object3D,
   PlaneGeometry,
-  RGBAFormat,
   Skeleton,
   SkinnedMesh,
   sRGBEncoding,
@@ -26,9 +26,7 @@ import { isClient } from '../../common/functions/isClient'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { defaultIKPoseComponentValues, IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
 import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
-import { addRig, addTargetRig } from '../../ikrig/functions/RigFunctions'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -37,7 +35,8 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { Updatable } from '../../scene/interfaces/Updatable'
 import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
-import AvatarBoneMatching, { BoneStructure } from '../AvatarBoneMatching'
+import { retargetSkeleton } from '../animation/retargetSkeleton'
+import avatarBoneMatching from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -77,10 +76,10 @@ export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) =>
 
 export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
   const avatar = getComponent(entity, AvatarComponent)
-  avatar.modelContainer.children.forEach((child) => child.removeFromParent())
+  avatar.modelContainer.clear()
 
+  setupAvatarHeight(entity, model)
   setupAvatarModel(entity)(model)
-  setupAvatarHeight(entity, getComponent(entity, IKRigComponent).boneStructure)
 
   const avatarMaterials = setupAvatarMaterials(model)
 
@@ -98,56 +97,58 @@ export const setupAvatarModel = (entity: Entity) =>
 export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
   const assetType = model.userData.type
 
-  const boneStructure = AvatarBoneMatching(model)
-  const rootBone = boneStructure.Root
+  const animationComponent = getComponent(entity, AnimationComponent)
+  animationComponent.rig = avatarBoneMatching(model)
+  const root = model
+  const object3DComponent = getComponent(entity, Object3DComponent)
 
   if (assetType == AssetType.FBX) {
-    rootBone.children[0].scale.setScalar(0.01)
-    const object3DComponent = getComponent(entity, Object3DComponent)
+    // TODO: Should probably be applied to vertexes in the modeling tool
+    root.children[0].scale.setScalar(0.01)
     object3DComponent.value!.userData.scale = 0.01
   } else if (assetType == AssetType.VRM) {
-    if (model) {
-      //@ts-ignore
-      const object3DComponent = getComponent(entity, Object3DComponent)
-      if (object3DComponent.value && (model as UpdateableObject3D).update) {
-        //@ts-ignore
-        addComponent(entity, UpdatableComponent, {})
-        ;(object3DComponent.value as unknown as Updatable).update = (delta: number) => {
-          ;(model as UpdateableObject3D).update(delta)
-        }
+    if (model && object3DComponent.value && (model as UpdateableObject3D).update) {
+      addComponent(entity, UpdatableComponent, {})
+      ;(object3DComponent.value as unknown as Updatable).update = (delta: number) => {
+        ;(model as UpdateableObject3D).update(delta)
       }
     }
   }
 
-  return boneStructure
+  return model
 }
 
-export const rigAvatarModel = (entity: Entity) => (boneStructure: BoneStructure) => {
-  const rootBone = boneStructure.Root
+export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
+  const sourceSkeleton = AnimationManager.instance._defaultSkinnedMesh.skeleton
+  const targetSkeleton = (model.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh)?.skeleton
+  const animationComponent = getComponent(entity, AnimationComponent)
 
-  addTargetRig(entity, rootBone, null, false)
+  if (!targetSkeleton) {
+    console.warn('Could not find target skeleton', model)
+    return model
+  }
 
-  if (hasComponent(entity, IKPoseComponent)) removeComponent(entity, IKPoseComponent)
-  addComponent(entity, IKPoseComponent, defaultIKPoseComponentValues())
+  retargetSkeleton(targetSkeleton, sourceSkeleton)
 
-  // animation will be applied to this skeleton instead of avatar
-  const sourceSkeletonRoot: Group = SkeletonUtils.clone(getDefaultSkeleton().parent)
-  rootBone.add(sourceSkeletonRoot)
-  addRig(entity, sourceSkeletonRoot)
-  getComponent(entity, IKRigComponent).boneStructure = boneStructure
+  const targetHips = animationComponent.rig.Hips
+  const sourceHips = sourceSkeleton.bones[0]
+  animationComponent.rootYRatio = targetHips.position.y / sourceHips.position.y
 
-  return sourceSkeletonRoot
+  return model
 }
 
-export const animateAvatarModel = (entity: Entity) => (sourceSkeletonRoot: Group) => {
+export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   const velocityComponent = getComponent(entity, VelocityComponent)
   const controllerComponent = getComponent(entity, AvatarControllerComponent)
 
   animationComponent.mixer?.stopAllAction()
+  // Mixer has some issues when binding with the target skeleton
+  // We have to bind the mixer with original skeleton and copy resulting bone transforms after update
+  const sourceSkeleton = makeDefaultSkinnedMesh().skeleton
+  animationComponent.mixer = new AnimationMixer(sourceSkeleton.bones[0])
 
-  animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
   if (avatarAnimationComponent)
     (avatarAnimationComponent.animationGraph as AvatarAnimationGraph).initialize(
       entity,
@@ -191,15 +192,11 @@ export const setupAvatarMaterials = (root) => {
   return materialList
 }
 
-export const setupAvatarHeight = (entity: Entity, boneStructure: BoneStructure) => {
-  const eyeTarget = boneStructure.LeftEye ?? boneStructure.Head ?? boneStructure.Neck
-  boneStructure.Neck.updateMatrixWorld(true)
-  boneStructure.Root.updateMatrixWorld(true)
-
-  const eyeHeight = eyeTarget.getWorldPosition(vec3).y
-  const rootHeight = boneStructure.Root.getWorldPosition(vec3).y
-
-  resizeAvatar(entity, eyeHeight - rootHeight)
+export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
+  const mesh = model.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
+  const box = new Box3()
+  box.expandByObject(mesh).getSize(vec3)
+  resizeAvatar(entity, Math.max(vec3.x, vec3.y, vec3.z))
 }
 
 export const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<MaterialMap>) => {
@@ -249,7 +246,12 @@ export const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<M
   })
 }
 
-export function getDefaultSkeleton(): SkinnedMesh {
+/**
+ * Creates an empty skinned mesh with the default skeleton attached.
+ * The skeleton created is compatible with default animation tracks
+ * @returns SkinnedMesh
+ */
+export function makeDefaultSkinnedMesh(): SkinnedMesh {
   const bones: Bone[] = []
   bonesData2.forEach((data) => {
     const bone = new Bone()
@@ -266,12 +268,16 @@ export function getDefaultSkeleton(): SkinnedMesh {
     }
   })
 
+  // we assume that root bone is the first one
+  const hipBone = bones[0]
+  hipBone.updateWorldMatrix(false, true)
+
   const group = new Group()
   const skinnedMesh = new SkinnedMesh()
   const skeleton = new Skeleton(bones)
   skinnedMesh.bind(skeleton)
   group.add(skinnedMesh)
-  group.add(bones[0]) // we assume that root bone is the first one
+  group.add(hipBone)
 
   return skinnedMesh
 }

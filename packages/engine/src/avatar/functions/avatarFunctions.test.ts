@@ -136,7 +136,9 @@ describe('avatarFunctions Unit', async () => {
   describe('boneMatchAvatarModel', () => {
     it('should set up bone matching', async () => {
       const entity = createEntity()
-      const boneStructure = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
+      const animationComponent = addComponent(entity, AnimationComponent, {})
+      boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
+      const boneStructure = animationComponent.rig
 
       assert(boneStructure.Hips)
       assert(boneStructure.Head)
@@ -154,11 +156,10 @@ describe('avatarFunctions Unit', async () => {
   describe('rigAvatarModel', () => {
     it('should add rig to skeleton', async () => {
       const entity = createEntity()
-      const boneStructure = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
-      const rootSkeleton = rigAvatarModel(entity)(boneStructure)
-
-      assert.equal(typeof rootSkeleton, 'object')
-      assert(hasComponent(entity, IKPoseComponent))
+      const animationComponent = addComponent(entity, AnimationComponent, {})
+      const model = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
+      rigAvatarModel(entity)(model)
+      assert(animationComponent.rootYRatio > 0)
     })
   })
 

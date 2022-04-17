@@ -78,17 +78,17 @@ export default async function SkeletonRigSystem(world: World) {
     for (const entity of cameraIKQuery()) {
       const rig = getComponent(entity, IKRigComponent)
       const cameraSolver = getComponent(entity, CameraIKComponent)
-      applyCameraLook(rig, cameraSolver)
+      //applyCameraLook(rig, cameraSolver)
     }
 
-    for (const entity of ikposeQuery()) {
-      const ikPose = getComponent(entity, IKPoseComponent)
-      const rig = getComponent(entity, IKRigComponent)
-      const targetRig = getComponent(entity, IKRigTargetComponent)
+    // for (const entity of ikposeQuery()) {
+    //   const ikPose = getComponent(entity, IKPoseComponent)
+    //   const rig = getComponent(entity, IKRigComponent)
+    //   const targetRig = getComponent(entity, IKRigTargetComponent)
 
-      // logCustomTargetRigBones(targetRig)
-      computeIKPose(rig, ikPose)
-      applyIKPoseToIKRig(targetRig, ikPose)
-    }
+    //   // logCustomTargetRigBones(targetRig)
+    //   computeIKPose(rig, ikPose)
+    //   applyIKPoseToIKRig(targetRig, ikPose)
+    // }
   }
 }
