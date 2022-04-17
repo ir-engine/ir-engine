@@ -110,7 +110,7 @@ export default async function AnimationSystem(world: World) {
 
       // TODO: Find a more elegant way to handle root motion
       const rootPos = AnimationManager.instance._defaultRootBone.position
-      animationComponent.rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
+      if (animationComponent.rig) animationComponent.rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
     }
   }
 }
