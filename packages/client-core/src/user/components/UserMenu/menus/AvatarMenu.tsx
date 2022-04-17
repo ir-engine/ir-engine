@@ -177,7 +177,8 @@ const AvatarMenu = (props: Props) => {
       y = effectiveRadius * Math.sin((itemAngle * Math.PI) / 280)
 
       const avatar = characterAvatar.avatar!
-
+      // Currently avatar is null if deleted from admin backend
+      if(avatar && avatar.id)
       avatarElementList.push(
         <Card
           key={avatar.id}
