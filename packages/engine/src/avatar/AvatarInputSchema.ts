@@ -556,13 +556,8 @@ export const createAvatarInput = () => {
   map.set(GamepadAxis.Left, BaseInput.MOVEMENT_PLAYERONE)
   map.set(GamepadAxis.Right, BaseInput.GAMEPAD_STICK_RIGHT)
 
-  if (avatarInputState.invertRotationAndMoveSticks.value) {
-    map.set(XRAxes.Left, BaseInput.XR_AXIS_LOOK)
-    map.set(XRAxes.Right, BaseInput.XR_AXIS_MOVE)
-  } else {
-    map.set(XRAxes.Left, BaseInput.XR_AXIS_MOVE)
-    map.set(XRAxes.Right, BaseInput.XR_AXIS_LOOK)
-  }
+  map.set(XRAxes.Left, BaseInput.XR_AXIS_LOOK)
+  map.set(XRAxes.Right, BaseInput.XR_AXIS_MOVE)
 
   map.set(XR6DOF.HMD, BaseInput.XR_HEAD)
   map.set(XR6DOF.LeftHand, BaseInput.XR_CONTROLLER_LEFT_HAND)

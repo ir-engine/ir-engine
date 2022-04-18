@@ -30,6 +30,8 @@ store.receptors.push((action: AvatarInputActionType): any => {
     switch (action.type) {
       case 'AVATAR_SET_CONTROL_MODEL':
         return s.merge({ controlType: action.controlType })
+      case 'SET_INVERT_ROTATION_AND_MOVE_STICKS':
+        return s.merge({ invertRotationAndMoveSticks: action.invertRotationAndMoveSticks })
     }
   }, action.type)
 })
@@ -42,6 +44,12 @@ export const AvatarInputAction = {
     return {
       type: 'AVATAR_SET_CONTROL_MODEL' as const,
       controlType
+    }
+  },
+  setInvertRotationAndMoveSticks: (invertRotationAndMoveSticks: boolean) => {
+    return {
+      type: 'SET_INVERT_ROTATION_AND_MOVE_STICKS' as const,
+      invertRotationAndMoveSticks
     }
   }
 }

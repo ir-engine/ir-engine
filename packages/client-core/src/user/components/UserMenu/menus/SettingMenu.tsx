@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { UserSetting } from '@xrengine/common/src/interfaces/User'
-import { AvatarSettings } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
+import { AvatarSettings, updateMap } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
 import { AvatarInputAction, useAvatarInputState } from '@xrengine/engine/src/avatar/state/AvatarInputState'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
@@ -24,6 +24,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Slider from '@mui/material/Slider'
+import Switch from '@mui/material/Switch'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -47,6 +48,10 @@ const SettingMenu = (): JSX.Element => {
   const [controlSchemeSelected, setControlScheme] = React.useState(
     AvatarMovementScheme[AvatarSettings.instance.movementScheme]
   )
+  const [invertRotationAndMoveSticks, setInvertRotationAndMoveSticksState] = React.useState(
+    avatarInputState.invertRotationAndMoveSticks.value
+  )
+  const firstRender = useRef(true)
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
   const controlSchemes = Object.values(AvatarMovementScheme).filter((value) => typeof value === 'string')
   const setUserSettings = (newSetting: any): void => {
@@ -55,6 +60,19 @@ const SettingMenu = (): JSX.Element => {
     AuthService.updateUserSettings(selfUser.user_setting.value?.id, setting)
   }
   const [open, setOpen] = React.useState(false)
+  const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInvertRotationAndMoveSticksState((prev) => !prev)
+    dispatch(AvatarInputAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks))
+  }
+
+  useLayoutEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false
+      return
+    }
+    updateMap()
+  }, [avatarInputState.invertRotationAndMoveSticks])
+
   const handleChangeControlType = (event: SelectChangeEvent) => {
     setControlType(event.target.value)
     dispatch(AvatarInputAction.setControlType(event.target.value))
@@ -178,6 +196,16 @@ const SettingMenu = (): JSX.Element => {
             <IconButton className={styles.collapseBtn} aria-label="expand" size="small" onClick={() => setOpen(!open)}>
               {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
             </IconButton>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={invertRotationAndMoveSticks}
+                  onChange={handleChangeInvertRotationAndMoveSticks}
+                  color="primary"
+                />
+              }
+              label="Invert Rotation And Move Sticks"
+            />
           </div>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box margin={1}>

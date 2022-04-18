@@ -1,4 +1,4 @@
-@import '@xrengine/client-core/src/styles/imports.module.scss';
+@import "@xrengine/client-core/src/styles/imports.module.scss";
 
 .primary {
   background: var(--purpleColor);
@@ -722,7 +722,7 @@
         width: 100px;
         height: 35px;
         background: var(--purpleButtonColor);
-        color: '#fff';
+        color: "#fff";
 
         &:hover {
           opacity: 0.8;
@@ -877,7 +877,7 @@
         }
 
         &::before {
-          content: '';
+          content: "";
           position: absolute;
           width: 0;
           height: 0;
@@ -913,7 +913,7 @@
       margin-right: 10px;
 
       &::before {
-        content: '';
+        content: "";
         position: absolute;
         width: 0;
         height: 0;
@@ -1609,7 +1609,7 @@
 }
 
 .itemContainerPrev {
-  content: '';
+  content: "";
   width: 40px;
   height: 70px;
   position: absolute;
@@ -1665,7 +1665,7 @@
 }
 
 .itemContainerNext {
-  content: '';
+  content: "";
   width: 40px;
   height: 70px;
   position: absolute;
@@ -1942,6 +1942,11 @@
   background: var(--purpleLight);
   display: flex;
   align-items: center;
+
+  & > ul {
+    width: 100%;
+    color: var(--text);
+  }
 }
 
 .selectPaper {
@@ -2023,7 +2028,7 @@
   font-size: 12px;
 
   &:hover {
-    background: var(--hover);
+    background: var(--purpleColor);
   }
 }
 
@@ -2060,13 +2065,14 @@
 .sectionBar {
   display: flex;
   justify-content: space-between;
-  width: 40%;
+  width: 100%;
 }
 
 .collapseBtn {
   background-color: transparent !important;
   color: var(--purpleColor);
 }
+
 .tableRow {
   border: none;
   color: #fff;
