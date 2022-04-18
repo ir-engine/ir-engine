@@ -5,7 +5,6 @@ import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterfac
 
 import { Application } from '../declarations'
 import AnalyticsServices from './analytics/services'
-import AssetServices from './assets/services'
 import BotService from './bot/services'
 import MatchMakingServices from './matchmaking/services'
 import MediaServices from './media/services'
@@ -41,7 +40,6 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
 export default (app: Application): void => {
   ;[
     ...AnalyticsServices,
-    ...AssetServices,
     ...UserServices,
     ...MediaServices,
     ...EntityServices,
