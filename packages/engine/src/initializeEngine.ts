@@ -1,16 +1,6 @@
 import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
-import {
-  BufferGeometry,
-  Euler,
-  Mesh,
-  PerspectiveCamera,
-  AudioListener as PositionalAudioListener,
-  Quaternion,
-  Scene
-} from 'three'
-//@ts-ignore
-import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
+import { AudioListener, PerspectiveCamera, Scene } from 'three'
 
 import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
@@ -18,7 +8,6 @@ import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 // import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
-import { AudioListener } from './audio/StereoAudioListener'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { isClient } from './common/functions/isClient'
 import { Timer } from './common/functions/Timer'
@@ -36,23 +25,8 @@ import { NetworkActionReceptor } from './networking/functions/NetworkActionRecep
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { registerPrefabs } from './scene/functions/registerPrefabs'
 import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
+import './threejsPatches'
 import { FontManager } from './xrui/classes/FontManager'
-
-// threejs overrides
-
-// @ts-ignore
-Quaternion.prototype.toJSON = function () {
-  return { x: this._x, y: this._y, z: this._z, w: this._w }
-}
-
-// @ts-ignore
-Euler.prototype.toJSON = function () {
-  return { x: this._x, y: this._y, z: this._z, order: this._order }
-}
-
-Mesh.prototype.raycast = acceleratedRaycast
-BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
-BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 
 /**
  * initializeBrowser
@@ -61,8 +35,10 @@ BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
  */
 export const initializeBrowser = () => {
   Engine.publicPath = location.origin
-  Engine.audioListener = new PositionalAudioListener()
+  Engine.audioListener = new AudioListener()
+  Engine.audioListener.context.resume()
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
+  Engine.camera.add(Engine.audioListener)
   Engine.camera.layers.disableAll()
   Engine.camera.layers.enable(ObjectLayers.Scene)
   Engine.camera.layers.enable(ObjectLayers.Avatar)

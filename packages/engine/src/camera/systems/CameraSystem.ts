@@ -1,4 +1,5 @@
 import { ArrowHelper, Clock, Material, MathUtils, Matrix4, Quaternion, SkinnedMesh, Vector3 } from 'three'
+import { clamp } from 'three/src/math/MathUtils'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -65,17 +66,6 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
   return viewVector
 }
 
-export const updateAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
-  const object3DComponent = getComponent(entity, Object3DComponent)
-  object3DComponent?.value.traverse((obj) => {
-    if (!(obj as SkinnedMesh).isSkinnedMesh) return
-    const material = (obj as SkinnedMesh).material as Material
-    if (!material.userData || !material.userData.shader) return
-    const shader = material.userData.shader
-    shader.uniforms.boneOpacity.value = opacity
-  })
-}
-
 export const getAvatarBonePosition = (entity: Entity, name: BoneNames, position: Vector3): void => {
   const ikRigComponent = getComponent(entity, IKRigComponent)
   const el = ikRigComponent.boneStructure[name].matrixWorld.elements
@@ -85,10 +75,11 @@ export const getAvatarBonePosition = (entity: Entity, name: BoneNames, position:
 export const updateAvatarOpacity = (entity: Entity) => {
   if (!entity) return
 
+  const fadeDistance = 0.6
   const followCamera = getComponent(entity, FollowCameraComponent)
-  const distanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
+  const opacity = Math.pow(clamp((followCamera.distance - 0.1) / fadeDistance, 0, 1), 6)
 
-  setAvatarHeadOpacity(entity, distanceRatio)
+  setAvatarHeadOpacity(entity, opacity)
 }
 
 export const updateCameraTargetRotation = (entity: Entity, delta: number) => {
@@ -206,7 +197,7 @@ export const updateFollowCamera = (entity: Entity, delta: number) => {
   // }
 
   // Zoom smoothing
-  let smoothingSpeed = isInsideWall ? 0.01 : 0.3
+  let smoothingSpeed = isInsideWall ? 0.1 : 0.3
 
   followCamera.distance = smoothDamp(
     followCamera.distance,

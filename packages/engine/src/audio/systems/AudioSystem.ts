@@ -19,8 +19,6 @@ export default async function AudioSystem(world: World) {
   let callbacks: any[] = []
   /** Audio Element. */
   let audio: any
-  /** Audio Context. */
-  let context: AudioContext
 
   /**
    * Call the callbacks when system is ready or push callbacks in array otherwise.
@@ -39,29 +37,13 @@ export default async function AudioSystem(world: World) {
     window.removeEventListener('pointerdown', startAudio, true)
     console.log('starting audio')
     audioReady = true
-    Engine.camera.add(Engine.audioListener)
+    Engine.audioListener.context.resume()
     dispatchAction(Engine.store, EngineActions.startSuspendedContexts())
-    window.AudioContext = window.AudioContext || (window as any).webkitAudioContext
-    if (window.AudioContext) {
-      context = new window.AudioContext()
-      // Create empty buffer
-      const buffer = context.createBuffer(1, 1, 22050)
-      const source = context.createBufferSource()
-      source.buffer = buffer
-      // Connect to output (speakers)
-      source.connect(context.destination)
-      // Play sound
-      if (source.start) {
-        source.start(0)
-      } else if ((source as any).play) {
-        ;(source as any).play(0)
-      }
-    }
 
     callbacks.forEach((cb) => cb())
     callbacks = null!
   }
-
+  console.log(Engine.audioListener.context, Engine.audioListener.context.state)
   window.addEventListener('pointerdown', startAudio, true)
 
   /**
