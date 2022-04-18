@@ -169,6 +169,7 @@ describe('NetworkActionReceptors', () => {
       NetworkActionReceptor.spawnObject(
         world,
         NetworkWorldAction.spawnObject({
+          $from: userId, // from  user
           prefab: objPrefab, // generic prefab
           parameters: objParams, // arbitrary
           networkId: objNetId
