@@ -23,7 +23,7 @@ const serverURL =
 
 export const uploadToFeathersService = (
   blobs: Blob | Array<Blob>,
-  service = 'media',
+  service = 'uploadMedia',
   onUploadProgress?: (progress: number) => any,
   params: any = {}
 ): Promise<void> => {
