@@ -24,6 +24,7 @@ import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { animateAvatarModel, boneMatchAvatarModel, loadAvatarForUser, rigAvatarModel } from './avatarFunctions'
+import { createAvatar } from './createAvatar'
 
 const githubPath = 'https://raw.githubusercontent.com/XRFoundation/test-assets/main/avatars/'
 const animGLB = '/packages/client/public/default_assets/Animations.glb'
@@ -64,10 +65,13 @@ describe('avatarFunctions Integration', async () => {
             parameters: {}
           })
 
-          NetworkWorldAction.spawnAvatar({
-            parameters: { position: new Vector3(), rotation: new Quaternion() },
-            networkId: networkObject.networkId
-          })
+          createAvatar(
+            NetworkWorldAction.spawnAvatar({
+              $from: Engine.userId,
+              parameters: { position: new Vector3(), rotation: new Quaternion() },
+              networkId: networkObject.networkId
+            })
+          )
 
           const avatar = getComponent(entity, AvatarComponent)
           // make sure this is set later on
