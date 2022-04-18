@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { store } from '@xrengine/client-core/src/store'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AssetComponent, LoadState } from '@xrengine/engine/src/scene/components/AssetComponent'
-import {
-  exportAsset,
-  loadAsset,
-  unloadAsset
-} from '@xrengine/engine/src/scene/functions/loaders/AssetComponentFunctions'
+import { loadAsset, unloadAsset } from '@xrengine/engine/src/scene/functions/loaders/AssetComponentFunctions'
 
+import { exportAsset } from '../../functions/assetFunctions'
+import { EditorAction } from '../../services/EditorServices'
+import { SelectionAction } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
@@ -27,12 +27,16 @@ export const AssetNodeEditor: EditorComponentType = (props) => {
     unloadAsset(entity)
     setIsLoaded(LoadState.UNLOADED)
     await new Promise((resolve) => setTimeout(resolve, 1))
+    store.dispatch(EditorAction.sceneModified(true))
+    store.dispatch(SelectionAction.changedSceneGraph())
   }
 
   const onLoad = async () => {
     setIsLoaded(LoadState.LOADING)
     await loadAsset(entity)
     setIsLoaded(LoadState.LOADED)
+    store.dispatch(EditorAction.sceneModified(true))
+    store.dispatch(SelectionAction.changedSceneGraph())
   }
 
   const onReload = async () => {

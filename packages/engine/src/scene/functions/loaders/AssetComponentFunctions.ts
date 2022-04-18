@@ -1,8 +1,6 @@
 import { Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { uploadProjectFile } from '@xrengine/editor/src/functions/assetFunctions'
-import { accessEditorState } from '@xrengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
 import {
@@ -53,21 +51,6 @@ export const loadAsset = async (entity: Entity) => {
   ass.loaded = LoadState.LOADING
   const result = (await AssetLoader.loadAsync(ass.path)) as EntityTreeNode[]
   addComponent(entity, AssetLoadedComponent, { roots: result })
-}
-
-export const exportAsset = async (node: EntityTreeNode) => {
-  const ass = getComponent(node.entity, AssetComponent)
-  const projectName = accessEditorState().projectName.value!
-  const assetName = ass.name
-  if (!(node.children && node.children.length > 0)) {
-    console.warn('Exporting empty asset')
-  }
-
-  const obj3ds = node.children!.map((root) => getComponent(root, Object3DComponent).value!)
-
-  const exportable = sceneToGLTF(obj3ds as Object3DWithEntity[])
-  const uploadable = new File([JSON.stringify(exportable)], `${assetName}.xre.gltf`)
-  return await uploadProjectFile(projectName, [uploadable], true)
 }
 
 export const deserializeAsset: ComponentDeserializeFunction = async (
