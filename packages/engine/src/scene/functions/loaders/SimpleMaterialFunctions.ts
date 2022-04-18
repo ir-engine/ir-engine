@@ -218,9 +218,25 @@ export const useSimpleMaterial = (obj: Mesh): void => {
 		    alphaTest: {
           value: (prevMaterial as any).alphaTest
         },
-        
+
         envMap: {
           value: Engine.scene.environment
+        },
+        
+        aoMap: {
+          value: (prevMaterial as any).aoMap
+        },
+
+        aoMapIntensity: {
+          value: (prevMaterial as any).aoMapIntensity
+        },
+
+        bumpMap: {
+          value: (prevMaterial as any).bumpMap
+        },
+
+        bumpScale: {
+          value: (prevMaterial as any).bumpScale
         }
       }
 
@@ -265,6 +281,7 @@ export const useSimpleMaterial = (obj: Mesh): void => {
         #include <common>
         #include <uv_pars_vertex>                                         //hasUV
         #include <envmap_pars_vertex>                                     //hasEnvMap
+        #include <normal_pars_vertex>
         void main() {
           #include <uv_vertex>                                            //hasUV
           #include <color_vertex>                                         
@@ -274,6 +291,7 @@ export const useSimpleMaterial = (obj: Mesh): void => {
             #include <skinbase_vertex>
             #include <skinnormal_vertex>
             #include <defaultnormal_vertex>
+            #include <normal_vertex>
           #endif
           #include <begin_vertex>
           #include <project_vertex>
@@ -285,9 +303,6 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       fragmentShader = `
         uniform vec3 diffuse;
         uniform float opacity;
-        #ifndef FLAT_SHADED
-          varying vec3 vNormal;
-        #endif
         #include <common>
         #include <color_pars_fragment>
         #include <uv_pars_fragment>                                       //hasUV
@@ -298,12 +313,17 @@ export const useSimpleMaterial = (obj: Mesh): void => {
         #include <envmap_common_pars_fragment>                            //hasEnvMap
         #include <envmap_pars_fragment>                                   //hasEnvMap
         #include <specularmap_pars_fragment>                              //hasSpecularMap
+        #include <normal_pars_fragment>
+        #include <bumpmap_pars_fragment>
+        #include <normalmap_pars_fragment>
         void main() {
           vec4 diffuseColor = vec4( diffuse, opacity );
           #include <map_fragment>                                         //hasMap
           #include <color_fragment>
           #include <alphamap_fragment>                                    //hasAlphaMap
 	        #include <alphatest_fragment>
+          #include <normal_fragment_begin>
+	        #include <normal_fragment_maps>
           #include <specularmap_fragment>                                 //hasSpecularMap
           ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
           #ifdef USE_LIGHTMAP
