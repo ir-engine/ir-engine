@@ -20,7 +20,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { AuthService } from '../../../services/AuthService'
-import styles from '../UserMenu.module.scss'
+import styles from '../index.module.scss'
 import { Views } from '../util'
 import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
 
@@ -50,8 +50,9 @@ export const ReadyPlayerMenu = (props: Props) => {
 
   useEffect(() => {
     const world = useWorld()
-    const entityItem = createEntity()
-    addAnimationLogic(entityItem, world, setEntity, panelRef)
+    const entity = createEntity()
+    setEntity(entity)
+    addAnimationLogic(entity, world, panelRef)
     const init = initialize3D()
     scene = init.scene
     camera = init.camera

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useRouteMatch } from 'react-router-dom'
 
-import Layout from '@xrengine/client-core/src/components/Layout/Layout'
+import Layout from '@xrengine/client-core/src/components/Layout'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { LoadEngineWithScene } from '@xrengine/client-core/src/components/World/LoadEngineWithScene'
 import LoadLocationScene from '@xrengine/client-core/src/components/World/LoadLocationScene'
@@ -12,8 +12,8 @@ import { LocationAction, useLocationState } from '@xrengine/client-core/src/soci
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import { SceneService } from '@xrengine/client-core/src/world/services/SceneService'
-import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useHookEffect } from '@xrengine/hyperflux'
 
 const LocationPage = () => {
   const { t } = useTranslation()
@@ -35,7 +35,7 @@ const LocationPage = () => {
   /**
    * Once we have the location, fetch the current scene data
    */
-  useHookedEffect(() => {
+  useHookEffect(() => {
     if (locationState.currentLocation.location.sceneId.value) {
       const [project, scene] = locationState.currentLocation.location.sceneId.value.split('/')
       SceneService.fetchCurrentScene(project, scene)

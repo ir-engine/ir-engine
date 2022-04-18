@@ -18,7 +18,7 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
 import { client } from '../../../../feathers'
-import styles from '../UserMenu.module.scss'
+import styles from '../index.module.scss'
 
 interface Props {
   changeActiveLocation: (location: Location) => void

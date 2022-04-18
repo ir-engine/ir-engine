@@ -1,6 +1,6 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
-import { Action } from '../../src/ecs/functions/Action'
 import { NetworkTransportHandler } from '../../src/networking/classes/Network'
 import { NetworkTransport } from '../../src/networking/interfaces/NetworkTransport'
 
@@ -20,12 +20,12 @@ export class TestNetworkTransport implements NetworkTransport {
     return this.packets
   }
 
-  actions: Action[] = []
-  sendActions(actions: Set<Action>): void {
-    actions.forEach((a) => actions.add(a))
+  sentActions: Action[] = []
+  sendActions(actions: Action[]): void {
+    this.sentActions = [...actions]
   }
   public getSentActions(): Action[] {
-    return this.actions
+    return this.sentActions
   }
 
   close(): void {

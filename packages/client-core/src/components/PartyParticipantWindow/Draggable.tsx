@@ -7,6 +7,7 @@ type PropsType = {
 export const Draggable = (props: PropsType) => {
   let prev = { x: 0, y: 0 }
   let MARGIN = 20
+  let PIP_WIDTH = 250
   let dragStarted = false
 
   const clamp = (low, value, high) => {
@@ -76,7 +77,7 @@ export const Draggable = (props: PropsType) => {
       return {
         touchAction: 'none',
         position: 'fixed',
-        right: 120,
+        left: window.innerWidth - MARGIN - PIP_WIDTH,
         top: 20,
         transition: 'all 0.1s linear',
         zIndex: 1500
