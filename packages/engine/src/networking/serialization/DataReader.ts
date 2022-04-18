@@ -143,7 +143,9 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   const netId = readUint32(v) as NetworkId
   const changeMask = readUint8(v)
 
-  const entity = world.getNetworkObject(fromUserId, netId)
+  let entity = world.getNetworkObject(fromUserId, netId)
+  if (entity && !hasComponent(entity, NetworkObjectAuthorityTag)) entity = undefined
+
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readVelocity(v, entity)
