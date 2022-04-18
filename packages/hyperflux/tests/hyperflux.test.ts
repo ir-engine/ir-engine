@@ -1,5 +1,7 @@
 import assert from 'assert'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
 import {
   addActionReceptor,
   applyIncomingActions,
@@ -183,6 +185,68 @@ describe('Hyperflux Unit Testss', () => {
     dispatchAction(store, action)
     applyIncomingActions(store)
     assert.equal(receivedCount, 2)
+  })
+
+  it('should add incoming actions to cache as indicated', () => {
+    const store = createHyperStore({ name: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
+    const greet = defineAction({
+      store: 'TEST_STORE',
+      type: 'TEST_GREETING',
+      greeting: matchesWithDefault(matches.string, () => 'hi')
+    })
+
+    let receivedCount = 0
+    const receptor = (action) => {
+      assert(greet.matches.test(action))
+      receivedCount++
+    }
+
+    addActionReceptor(store, receptor)
+
+    dispatchAction(store, greet({ $cache: true }))
+    dispatchAction(store, greet({ $cache: false }))
+    dispatchAction(store, greet({ $cache: true }))
+    dispatchAction(store, greet({ $cache: true }))
+    dispatchAction(store, greet({ $cache: true }))
+    applyIncomingActions(store)
+
+    assert.equal(receivedCount, 5)
+    assert.equal(store.actions.cached.length, 4)
+
+    dispatchAction(store, greet({ $cache: { removePrevious: true } }))
+    applyIncomingActions(store)
+    assert.equal(receivedCount, 6)
+    assert.equal(store.actions.cached.length, 1)
+
+    dispatchAction(store, greet({ $cache: true }))
+    dispatchAction(store, greet({ $cache: true }))
+    dispatchAction(store, greet({ $cache: true }))
+    dispatchAction(store, greet({ greeting: 'welcome', $cache: true }))
+    applyIncomingActions(store)
+    assert.equal(receivedCount, 10)
+    assert.equal(store.actions.cached.length, 5)
+    assert.equal(store.actions.incomingHistory.at(-1)!['greeting'], 'welcome')
+
+    dispatchAction(store, greet({ greeting: 'welcome', $cache: { removePrevious: ['greeting'], disable: true } }))
+    applyIncomingActions(store)
+    assert.equal(receivedCount, 11)
+    assert.equal(store.actions.cached.length, 4)
+    assert.equal(store.actions.incomingHistory.at(-1)!['greeting'], 'welcome')
+
+    dispatchAction(store, greet({ $from: 'differentUser' as UserId, $cache: { removePrevious: true } }))
+    applyIncomingActions(store)
+    assert.equal(receivedCount, 12)
+    assert.equal(store.actions.cached.length, 5)
+
+    dispatchAction(store, greet({ $cache: { removePrevious: true, disable: true } }))
+    applyIncomingActions(store)
+    assert.equal(receivedCount, 13)
+    assert.equal(store.actions.cached.length, 1)
+
+    dispatchAction(store, greet({ $from: 'differentUser' as UserId, $cache: { removePrevious: true, disable: true } }))
+    applyIncomingActions(store)
+    assert.equal(receivedCount, 14)
+    assert.equal(store.actions.cached.length, 0)
   })
 
   it('should be able to apply incoming actions to receptors in a networked store', () => {

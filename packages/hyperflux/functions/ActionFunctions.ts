@@ -301,7 +301,7 @@ const _updateCachedActions = (store: HyperStore<any>, incomingAction: Required<A
       const remove = incomingAction.$cache.removePrevious
 
       if (remove) {
-        for (const a of cachedActions) {
+        for (const a of [...cachedActions]) {
           if (a.$from === incomingAction.$from && a.type === incomingAction.type) {
             if (remove === true) {
               const idx = cachedActions.indexOf(a)
@@ -340,7 +340,6 @@ const _applyAndArchiveIncomingAction = (store: HyperStore<any>, action: Required
     store[allowStateMutations] = true
     for (const receptor of [...store.receptors]) receptor(action)
     store[allowStateMutations] = false
-    _updateCachedActions(store, action)
     console.log(`${store.name} ACTION ${action.type}`)
     store.actions.incomingHistory.push(action)
     if (forward) store.actions.outgoing.push(action)
@@ -377,6 +376,7 @@ const applyIncomingActions = (store: HyperStore<any>, forwardToOutgoing = false)
     if (action.$time > now) {
       continue
     }
+    _updateCachedActions(store, action)
     _applyAndArchiveIncomingAction(store, action, forwardToOutgoing)
   }
 }
