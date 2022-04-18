@@ -144,14 +144,14 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   const changeMask = readUint8(v)
 
   let entity = world.getNetworkObject(fromUserId, netId)
-  if (entity && !hasComponent(entity, NetworkObjectAuthorityTag)) entity = undefined
+  if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = undefined
 
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readVelocity(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity)
 
-  if (entity !== undefined && hasComponent(entity, NetworkObjectAuthorityTag)) {
+  if (entity !== undefined && !hasComponent(entity, NetworkObjectDirtyTag)) {
     addComponent(entity, NetworkObjectDirtyTag, {})
   }
 }
