@@ -14,6 +14,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
 import { IKRigComponent, IKRigTargetComponent } from '../../ikrig/components/IKRigComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AnimationState } from '../animation/AnimationState'
 import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
@@ -23,7 +24,6 @@ import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { animateAvatarModel, boneMatchAvatarModel, loadAvatarForUser, rigAvatarModel } from './avatarFunctions'
-import { createAvatar } from './createAvatar'
 
 const githubPath = 'https://raw.githubusercontent.com/XRFoundation/test-assets/main/avatars/'
 const animGLB = '/packages/client/public/default_assets/Animations.glb'
@@ -64,15 +64,9 @@ describe('avatarFunctions Integration', async () => {
             parameters: {}
           })
 
-          createAvatar({
-            prefab: 'avatar',
+          NetworkWorldAction.spawnAvatar({
             parameters: { position: new Vector3(), rotation: new Quaternion() },
-            type: 'network.SPAWN_OBJECT',
-            networkId: networkObject.networkId,
-            $from: Engine.userId,
-            $to: 'all',
-            $time: 0,
-            $cache: true
+            networkId: networkObject.networkId
           })
 
           const avatar = getComponent(entity, AvatarComponent)

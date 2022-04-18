@@ -12,6 +12,7 @@ import { addComponent, hasComponent, removeComponent } from '../../ecs/functions
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
 import { EquippedComponent } from '../components/EquippedComponent'
@@ -54,16 +55,13 @@ describe.skip('EquippableSystem Integration Tests', () => {
       parameters: {}
     })
 
-    createAvatar({
-      prefab: 'avatar',
-      parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() },
-      type: 'network.SPAWN_OBJECT',
-      networkId: networkObject.networkId,
-      $from: Engine.userId,
-      $to: 'all',
-      $time: 0,
-      $cache: true
-    })
+    createAvatar(
+      NetworkWorldAction.spawnAvatar({
+        $from: Engine.userId,
+        networkId: networkObject.networkId,
+        parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() }
+      })
+    )
 
     const equippedComponent = addComponent(item, EquippedComponent, {
       equipperEntity: player,

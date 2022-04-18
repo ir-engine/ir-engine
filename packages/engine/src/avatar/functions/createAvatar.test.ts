@@ -11,6 +11,7 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
@@ -58,16 +59,13 @@ describe('createAvatar', () => {
     const prevPhysicsBodies = Engine.currentWorld.physics.bodies.size
     const prevPhysicsColliders = Engine.currentWorld.physics.controllers.size
 
-    createAvatar({
-      prefab: 'avatar',
-      parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() },
-      type: 'network.SPAWN_OBJECT',
-      networkId: networkObject.networkId,
-      $from: Engine.userId,
-      $to: 'all',
-      $time: 0,
-      $cache: true
-    })
+    createAvatar(
+      NetworkWorldAction.spawnAvatar({
+        $from: Engine.userId,
+        networkId: networkObject.networkId,
+        parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() }
+      })
+    )
 
     assert(hasComponent(entity, TransformComponent))
     assert(hasComponent(entity, VelocityComponent))

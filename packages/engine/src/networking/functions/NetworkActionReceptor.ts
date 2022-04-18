@@ -31,7 +31,7 @@ const addClient = (world: World, userId: UserId, name: string, index: number) =>
 
   world.clients.set(userId, {
     userId: userId,
-    userIndex: index,
+    index: index,
     name,
     subscribedChatUpdates: []
   })
@@ -48,7 +48,7 @@ const removeClient = (world: World, userId: UserId, allowRemoveSelf = false) => 
     world.store.actions.incoming.push(NetworkWorldAction.destroyObject({ $from: userId, networkId }))
   }
 
-  const { userIndex } = world.clients.get(userId)!
+  const { index: userIndex } = world.clients.get(userId)!
   world.userIdToUserIndex.delete(userId)
   world.userIndexToUserId.delete(userIndex)
   world.clients.delete(userId)
@@ -199,7 +199,9 @@ const createNetworkActionReceptor = (world: World) =>
         // todo: smooth out time sync over multiple frames
         world.elapsedTime = elapsedTime + (Date.now() - clockTime) / 1000
       })
-      .when(NetworkWorldAction.createClient.matches, ({ $from, name, index }) => addClient(world, $from, name, index))
+      .when(NetworkWorldAction.createClient.matches, ({ $from, name, index: userIndex }) =>
+        addClient(world, $from, name, userIndex)
+      )
       .when(NetworkWorldAction.destroyClient.matches, ({ $from }) => removeClient(world, $from))
       .when(NetworkWorldAction.spawnObject.matches, (a) => spawnObject(world, a))
       .when(NetworkWorldAction.spawnDebugPhysicsObject.matches, (a) => spawnDebugPhysicsObject(world, a))

@@ -83,7 +83,7 @@ const loadScene = async (app: Application, scene: string) => {
     const userId = 'server' as UserId
     Engine.userId = userId
     const hostIndex = world.userIndexCount++
-    world.clients.set(userId, { userId, name: 'server', userIndex: hostIndex })
+    world.clients.set(userId, { userId, name: 'server', index: hostIndex })
     world.userIdToUserIndex.set(userId, hostIndex)
     world.userIndexToUserId.set(hostIndex, userId)
   }
@@ -218,7 +218,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await loadEngineInjection(world, projects)
 
     const hostIndex = world.userIndexCount++
-    world.clients.set(userId, { userId, name: 'media', userIndex: hostIndex })
+    world.clients.set(userId, { userId, name: 'media', index: hostIndex })
     world.userIdToUserIndex.set(userId, hostIndex)
     world.userIndexToUserId.set(hostIndex, userId)
 

@@ -17,7 +17,12 @@ import { matches, matchesWithDefault } from '../utils/MatchesUtils'
 
 describe('Hyperflux Unit Testss', () => {
   it('should be able to define and create an action', () => {
+    // @ts-expect-error - should type error if missing store key
+    const testMissingStore = defineAction({
+      type: 'TEST_ACTION'
+    })
     const test = defineAction({
+      store: 'TEST',
       type: 'TEST_ACTION'
     })
     // @ts-expect-error - should type error if providing unknown fields, but should pass pattern matching
@@ -31,6 +36,7 @@ describe('Hyperflux Unit Testss', () => {
 
   it('should be able to define and create actions with pattern matching', () => {
     const test = defineAction({
+      store: 'TEST',
       type: 'TEST_PATTERN_MATCHING',
       payload: matches.string,
       optionalThing: matches.number.optional()
@@ -45,7 +51,8 @@ describe('Hyperflux Unit Testss', () => {
     assert(action.$cache === false)
     assert(test.matches.test(action))
     assert(
-      test.matches.test({
+      test.matches.unsafeCast({
+        store: 'TEST',
         type: 'TEST_PATTERN_MATCHING',
         payload: 'efgh',
         optionalThing: 123
@@ -57,6 +64,7 @@ describe('Hyperflux Unit Testss', () => {
 
   it('should be able to define and create actions with action options', () => {
     const test = defineAction({
+      store: 'TEST',
       type: 'TEST_OPTIONS',
       $cache: true
     })
@@ -76,6 +84,7 @@ describe('Hyperflux Unit Testss', () => {
   it('should be able to define and create actions with default values', () => {
     let count = 0
     const test = defineAction({
+      store: 'TEST',
       type: 'TEST_DEFAULT_VALUES',
       count: matchesWithDefault(matches.number, () => count++),
       greeting: matchesWithDefault(matches.string, () => 'hi')
@@ -94,11 +103,19 @@ describe('Hyperflux Unit Testss', () => {
   })
 
   it('should be able to dispatch an action to a store', () => {
+    const wrongStore = createHyperStore({
+      name: 'WRONG_STORE',
+      getDispatchId: () => 'id',
+      getDispatchTime: () => Date.now()
+    })
     const store = createHyperStore({ name: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     const greet = defineAction({
+      store: 'TEST_STORE',
       type: 'TEST_GREETING',
       greeting: matchesWithDefault(matches.string, () => 'hi')
     })
+    // @ts-expect-error - should type error if providing wrong store
+    assert.throws(() => dispatchAction(wrongStore, greet({})))
     dispatchAction(store, greet({}))
     assert(greet.matches.test(store.actions.incoming[0]))
     assert(store.actions.incoming[0].$from == 'id')
@@ -115,6 +132,7 @@ describe('Hyperflux Unit Testss', () => {
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
+      store: 'TEST_STORE',
       type: 'TEST_GREETING',
       greeting: matchesWithDefault(matches.string, () => 'hi')
     })
@@ -143,18 +161,28 @@ describe('Hyperflux Unit Testss', () => {
   it('should be able to apply incoming actions to receptors in a local store', () => {
     const store = createHyperStore({ name: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     const greet = defineAction({
+      store: 'TEST_STORE',
       type: 'TEST_GREETING',
       greeting: matchesWithDefault(matches.string, () => 'hi')
     })
-    let receivedAction = false
+    let receivedCount = 0
     const receptor = (action) => {
       assert(greet.matches.test(action))
-      receivedAction = true
+      receivedCount++
     }
     addActionReceptor(store, receptor)
     dispatchAction(store, greet({}))
     applyIncomingActions(store)
-    assert(receivedAction)
+    assert.equal(receivedCount, 1)
+
+    const action = greet({})
+    dispatchAction(store, action)
+    applyIncomingActions(store)
+    assert.equal(receivedCount, 2)
+    // ensure that the same action is not applied twice
+    dispatchAction(store, action)
+    applyIncomingActions(store)
+    assert.equal(receivedCount, 2)
   })
 
   it('should be able to apply incoming actions to receptors in a networked store', () => {
@@ -165,6 +193,7 @@ describe('Hyperflux Unit Testss', () => {
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
+      store: 'TEST_STORE',
       type: 'TEST_GREETING',
       greeting: matchesWithDefault(matches.string, () => 'hi')
     })
@@ -184,20 +213,28 @@ describe('Hyperflux Unit Testss', () => {
   })
 
   it('should be able to define state and register it to a store', () => {
-    const HospitalityState = defineState('hospitality', () => ({
-      greetingCount: 0,
-      lastGreeting: null as string | null
-    }))
+    const HospitalityState = defineState({
+      store: 'TEST_STORE',
+      name: 'hospitality',
+      initial: () => ({
+        greetingCount: 0,
+        lastGreeting: null as string | null
+      })
+    })
     const store = createHyperStore({ name: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     registerState(store, HospitalityState)
     assert(store.state.hospitality)
   })
 
   it('should be able to get immutable registered state', () => {
-    const HospitalityState = defineState('hospitality', () => ({
-      greetingCount: 0,
-      lastGreeting: null as string | null
-    }))
+    const HospitalityState = defineState({
+      store: 'TEST_STORE',
+      name: 'hospitality',
+      initial: () => ({
+        greetingCount: 0,
+        lastGreeting: null as string | null
+      })
+    })
     const store = createHyperStore({ name: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     registerState(store, HospitalityState)
     assert(store.state.hospitality)
@@ -208,12 +245,17 @@ describe('Hyperflux Unit Testss', () => {
   })
 
   it('should be able to mutate registered state inside a receptor', () => {
-    const HospitalityState = defineState('hospitality', () => ({
-      greetingCount: 0,
-      lastGreeting: null as string | null
-    }))
+    const HospitalityState = defineState({
+      store: 'TEST_STORE',
+      name: 'hospitality',
+      initial: () => ({
+        greetingCount: 0,
+        lastGreeting: null as string | null
+      })
+    })
 
     const greet = defineAction({
+      store: 'TEST_STORE',
       type: 'TEST_GREETING',
       greeting: matchesWithDefault(matches.string, () => 'hi')
     })
