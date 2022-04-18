@@ -5,7 +5,7 @@ import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { addIsHelperFlag } from '@xrengine/engine/src/scene/functions/addIsHelperFlag'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
 
-import { ModeAction } from '../services/ModeServices'
+import { EditorHelperAction } from '../services/EditorHelperState'
 
 /**
  * Original Author: Fyrestar
@@ -138,11 +138,11 @@ export default class EditorInfiniteGridHelper extends Mesh {
 
   setGridHeight(value) {
     this.position.y = value
-    store.dispatch(ModeAction.changeGridToolHeight(value))
+    store.dispatch(EditorHelperAction.changeGridToolHeight(value))
   }
 
   toggleGridVisible() {
     this.visible = !this.visible
-    store.dispatch(ModeAction.changeGridToolVisibility(this.visible))
+    store.dispatch(EditorHelperAction.changeGridToolVisibility(this.visible))
   }
 }

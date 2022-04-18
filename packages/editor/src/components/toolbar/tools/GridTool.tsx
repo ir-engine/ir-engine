@@ -3,23 +3,23 @@ import React, { useEffect, useState } from 'react'
 import GridOnIcon from '@mui/icons-material/GridOn'
 
 import { SceneState } from '../../../functions/sceneRenderFunctions'
-import { useModeState } from '../../../services/ModeServices'
+import { useEditorHelperState } from '../../../services/EditorHelperState'
 import NumericStepperInput from '../../inputs/NumericStepperInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const GridTool = () => {
-  const gridToolState = useModeState().value
-  const [isGridVisible, setGridVisible] = useState(gridToolState.gridVisibility)
-  const [gridHeight, setGridHeight] = useState(gridToolState.gridHeight)
+  const editorHelperState = useEditorHelperState().value
+  const [isGridVisible, setGridVisible] = useState(editorHelperState.gridVisibility)
+  const [gridHeight, setGridHeight] = useState(editorHelperState.gridHeight)
 
   useEffect(() => {
-    updateGridHeight(gridToolState.gridHeight)
-  }, [gridToolState.gridHeight])
+    updateGridHeight(editorHelperState.gridHeight)
+  }, [editorHelperState.gridHeight])
 
   useEffect(() => {
-    updateGridVisibility(gridToolState.gridVisibility)
-  }, [gridToolState.gridVisibility])
+    updateGridVisibility(editorHelperState.gridVisibility)
+  }, [editorHelperState.gridVisibility])
 
   const updateGridVisibility = (val) => {
     setGridVisible(val)

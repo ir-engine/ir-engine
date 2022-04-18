@@ -1,18 +1,17 @@
 import { RenderPass } from 'postprocessing'
 import { Light, MeshBasicMaterial, MeshNormalMaterial } from 'three'
 
-import { store } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 import { RenderModes, RenderModesType } from '../constants/RenderModes'
-import { accessModeState, ModeAction } from '../services/ModeServices'
+import { accessEngineRendererState } from '../EngineRendererState'
 
 /**
  * Change render mode of the renderer
  * @param mode Mode which will be set to renderer
  */
 export function changeRenderMode(mode: RenderModesType): void {
-  const renderMode = accessModeState().renderMode.value
+  const renderMode = accessEngineRendererState().renderMode.value
 
   // revert any changes made by a render mode
   switch (renderMode) {
@@ -65,5 +64,4 @@ export function changeRenderMode(mode: RenderModesType): void {
   }
 
   Engine.renderer.shadowMap.needsUpdate = true
-  store.dispatch(ModeAction.changedRenderMode(mode))
 }

@@ -2,31 +2,38 @@ import React, { useCallback, useState } from 'react'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { accessEngineState, EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import {
+  accessEngineRendererState,
+  EngineRendererAction,
+  useEngineRendererState
+} from '@xrengine/engine/src/renderer/EngineRendererState'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import SelectAllIcon from '@mui/icons-material/SelectAll'
 import SquareFootIcon from '@mui/icons-material/SquareFoot'
 
-import { ModeAction, useModeState } from '../../../services/ModeServices'
+import { EditorHelperAction, useEditorHelperState } from '../../../services/EditorHelperState'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 export const HelperToggleTool = () => {
-  const nodeHelperVisibility = useModeState().nodeHelperVisibility.value
+  const nodeHelperVisibility = useEditorHelperState().nodeHelperVisibility.value
   const [, updateState] = useState<any>()
   const forceUpdate = useCallback(() => updateState({}), [])
-  const engineState = useEngineState()
+  const engineRendererState = useEngineRendererState()
 
   const togglePhysicsDebug = () => {
     forceUpdate()
-    dispatchAction(Engine.store, EngineActions.setPhysicsDebug(!accessEngineState().isPhysicsDebug.value) as any)
+    dispatchAction(
+      Engine.store,
+      EngineRendererAction.setPhysicsDebug(!accessEngineRendererState().physicsDebugEnable.value) as any
+    )
   }
 
   const toggleNodeHelpers = () => {
     Engine.camera.layers.toggle(ObjectLayers.NodeHelper)
-    useDispatch()(ModeAction.changeNodeHelperVisibility(!nodeHelperVisibility))
+    useDispatch()(EditorHelperAction.changeNodeHelperVisibility(!nodeHelperVisibility))
   }
 
   return (
@@ -35,7 +42,7 @@ export const HelperToggleTool = () => {
         <InfoTooltip title="Toggle Physics Helpers">
           <button
             onClick={togglePhysicsDebug}
-            className={styles.toolButton + ' ' + (engineState.isPhysicsDebug.value ? styles.selected : '')}
+            className={styles.toolButton + ' ' + (engineRendererState.physicsDebugEnable.value ? styles.selected : '')}
           >
             <SquareFootIcon fontSize="small" />
           </button>

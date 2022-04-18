@@ -1,9 +1,8 @@
 import { createState, useState } from '@speigg/hookstate'
 
 import { store } from '@xrengine/client-core/src/store'
+import { ClientStorage } from '@xrengine/engine/src/common/classes/ClientStorage'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import {
   SnapMode,
@@ -15,12 +14,10 @@ import {
   TransformSpace
 } from '@xrengine/engine/src/scene/constants/transformConstants'
 
-import { RenderModes, RenderModesType } from '../constants/RenderModes'
-import { changeRenderMode } from '../functions/changeRenderMode'
+import { EditorHelperKeys } from '../constants/EditorHelperKeys'
 import { SceneState } from '../functions/sceneRenderFunctions'
 
-type ModeServiceStateType = {
-  renderMode: RenderModesType
+type EditorHelperStateType = {
   isPlayModeEnabled: boolean
   isFlyModeEnabled: boolean
   transformMode: TransformModeType
@@ -37,8 +34,7 @@ type ModeServiceStateType = {
   physicsHelperVisibility: boolean
 }
 
-const state = createState<ModeServiceStateType>({
-  renderMode: RenderModes.SHADOW,
+const state = createState<EditorHelperStateType>({
   isPlayModeEnabled: false,
   isFlyModeEnabled: false,
   transformMode: TransformMode.Translate,
@@ -55,22 +51,54 @@ const state = createState<ModeServiceStateType>({
   physicsHelperVisibility: true
 })
 
-function storeEditorHelperData(): void {
+export async function restoreEditorHelperData(): Promise<void> {
   if (typeof window !== 'undefined') {
-    localStorage.setItem(
-      globalThis.process.env['VITE_EDITOR_LOCAL_STORAGE_KEY'] || 'theoverlay-editor-store-key-v1',
-      JSON.stringify(state.value)
-    )
-  }
-}
+    const s = {} as EditorHelperStateType
 
-function restoreEditorHelperData(): ModeServiceStateType | undefined {
-  if (typeof window !== 'undefined') {
-    const rawState = localStorage.getItem(
-      globalThis.process.env['VITE_EDITOR_LOCAL_STORAGE_KEY'] || 'theoverlay-editor-store-key-v1'
-    )
+    await Promise.all([
+      ClientStorage.get(EditorHelperKeys.TRANSFORM_MODE).then((v) => {
+        if (typeof v !== 'undefined') s.transformMode = v as TransformModeType
+        else ClientStorage.set(EditorHelperKeys.TRANSFORM_MODE, state.transformMode.value)
+      }),
+      ClientStorage.get(EditorHelperKeys.TRANSFORM_PIVOT).then((v) => {
+        if (typeof v !== 'undefined') s.transformPivot = v as TransformPivotType
+        else ClientStorage.set(EditorHelperKeys.TRANSFORM_PIVOT, state.transformPivot.value)
+      }),
+      ClientStorage.get(EditorHelperKeys.TRANSFORM_SPACE).then((v) => {
+        if (typeof v !== 'undefined') s.transformSpace = v as TransformSpace
+        else ClientStorage.set(EditorHelperKeys.TRANSFORM_SPACE, state.transformSpace.value)
+      }),
+      ClientStorage.get(EditorHelperKeys.SNAP_MODE).then((v) => {
+        if (typeof v !== 'undefined') s.snapMode = v as SnapModeType
+        else ClientStorage.set(EditorHelperKeys.SNAP_MODE, state.snapMode.value)
+      }),
+      ClientStorage.get(EditorHelperKeys.TRANSLATION_SNAP).then((v) => {
+        if (typeof v !== 'undefined') s.translationSnap = v as number
+        else ClientStorage.set(EditorHelperKeys.TRANSLATION_SNAP, state.translationSnap.value)
+      }),
+      ClientStorage.get(EditorHelperKeys.ROTATION_SNAP).then((v) => {
+        if (typeof v !== 'undefined') s.rotationSnap = v as number
+        else ClientStorage.set(EditorHelperKeys.ROTATION_SNAP, state.rotationSnap.value)
+      }),
+      ClientStorage.get(EditorHelperKeys.SCALE_SNAP).then((v) => {
+        if (typeof v !== 'undefined') s.scaleSnap = v as number
+        else ClientStorage.set(EditorHelperKeys.SCALE_SNAP, state.scaleSnap.value)
+      }),
+      ClientStorage.get(EditorHelperKeys.GRID_VISIBLE).then((v) => {
+        if (typeof v !== 'undefined') s.gridVisibility = v as boolean
+        else ClientStorage.set(EditorHelperKeys.GRID_VISIBLE, state.gridVisibility.value)
+      }),
+      ClientStorage.get(EditorHelperKeys.GRID_HEIGHT).then((v) => {
+        if (typeof v !== 'undefined') s.gridHeight = v as number
+        else ClientStorage.set(EditorHelperKeys.GRID_HEIGHT, state.gridHeight.value)
+      }),
+      ClientStorage.get(EditorHelperKeys.NODE_HELPER_ENABLE).then((v) => {
+        if (typeof v !== 'undefined') s.nodeHelperVisibility = v as boolean
+        else ClientStorage.set(EditorHelperKeys.NODE_HELPER_ENABLE, state.nodeHelperVisibility.value)
+      })
+    ])
 
-    return JSON.parse(rawState ?? '{}') as ModeServiceStateType
+    store.dispatch(EditorHelperAction.restoreStorageData(s))
   }
 }
 
@@ -83,22 +111,11 @@ function updateHelpers(): void {
 
   if (state.nodeHelperVisibility.value) Engine.camera.layers.enable(ObjectLayers.NodeHelper)
   else Engine.camera.layers.disable(ObjectLayers.NodeHelper)
-
-  dispatchLocal(EngineActions.setPhysicsDebug(state.physicsHelperVisibility.value) as any)
-
-  // TODO: Have to wait because postprocessing enter query reconfigures effect composer
-  setTimeout(() => {
-    changeRenderMode(state.renderMode.value)
-  }, 1000)
 }
 
-store.receptors.push((action: ModeActionType): any => {
+store.receptors.push((action: EditorHelperActionType): any => {
   state.batch((s) => {
     switch (action.type) {
-      case 'RENDER_MODE_CHANGED':
-        s.merge({ renderMode: action.renderMode })
-        storeEditorHelperData()
-        break
       case 'PLAY_MODE_CHANGED':
         s.merge({ isPlayModeEnabled: action.isPlayModeEnabled })
         break
@@ -107,54 +124,49 @@ store.receptors.push((action: ModeActionType): any => {
         break
       case 'TRANSFORM_MODE_CHANGED':
         s.merge({ transformMode: action.mode })
-        storeEditorHelperData()
+        ClientStorage.set(EditorHelperKeys.TRANSFORM_MODE, action.mode)
         break
       case 'TRANSFORM_MODE_ON_CANCEL_CHANGED':
         s.merge({ transformModeOnCancel: action.mode })
-        storeEditorHelperData()
         break
       case 'TRANSFORM_SPACE_CHANGED':
         s.merge({ transformSpace: action.transformSpace })
-        storeEditorHelperData()
+        ClientStorage.set(EditorHelperKeys.TRANSFORM_SPACE, action.transformSpace)
         break
       case 'TRANSFORM_PIVOT_CHANGED':
         s.merge({ transformPivot: action.transformPivot })
-        storeEditorHelperData()
+        ClientStorage.set(EditorHelperKeys.TRANSFORM_PIVOT, action.transformPivot)
         break
       case 'SNAP_MODE_CHANGED':
         s.merge({ snapMode: action.snapMode })
-        storeEditorHelperData()
+        ClientStorage.set(EditorHelperKeys.SNAP_MODE, action.snapMode)
         break
       case 'TRANSLATION_SNAP_CHANGED':
         s.merge({ translationSnap: action.translationSnap })
-        storeEditorHelperData()
+        ClientStorage.set(EditorHelperKeys.TRANSLATION_SNAP, action.translationSnap)
         break
       case 'ROTATION_SNAP_CHANGED':
         s.merge({ rotationSnap: action.rotationSnap })
-        storeEditorHelperData()
+        ClientStorage.set(EditorHelperKeys.ROTATION_SNAP, action.rotationSnap)
         break
       case 'SCALE_SNAP_CHANGED':
         s.merge({ scaleSnap: action.scaleSnap })
-        storeEditorHelperData()
+        ClientStorage.set(EditorHelperKeys.SCALE_SNAP, action.scaleSnap)
         break
       case 'GRID_TOOL_HEIGHT_CHANGED':
         s.merge({ gridHeight: action.gridHeight })
-        storeEditorHelperData()
+        ClientStorage.set(EditorHelperKeys.GRID_HEIGHT, action.gridHeight)
         break
       case 'GRID_TOOL_VISIBILITY_CHANGED':
         s.merge({ gridVisibility: action.visibility })
-        storeEditorHelperData()
+        ClientStorage.set(EditorHelperKeys.GRID_VISIBLE, action.visibility)
         break
       case 'NODE_HELPER_VISIBILITY_CHANGED':
         s.merge({ nodeHelperVisibility: action.visibility })
-        storeEditorHelperData()
-        break
-      case 'PHYSICS_HELPER_VISIBILITY_CHANGED':
-        s.merge({ physicsHelperVisibility: action.visibility })
-        storeEditorHelperData()
+        ClientStorage.set(EditorHelperKeys.NODE_HELPER_ENABLE, action.visibility)
         break
       case 'RESTORE_STORAGE_DATA':
-        s.merge(restoreEditorHelperData() ?? {})
+        s.merge(action.state)
         updateHelpers()
     }
 
@@ -162,24 +174,16 @@ store.receptors.push((action: ModeActionType): any => {
   }, action.type)
 })
 
-export const accessModeState = () => state
+export const accessEditorHelperState = () => state
 
-export const useModeState = () => useState(state) as any as typeof state
-
-//Service
-export const ModeService = {}
+export const useEditorHelperState = () => useState(state) as any as typeof state
 
 //Action
-export const ModeAction = {
-  restoreStorageData: () => {
+export const EditorHelperAction = {
+  restoreStorageData: (state: EditorHelperStateType) => {
     return {
-      type: 'RESTORE_STORAGE_DATA' as const
-    }
-  },
-  changedRenderMode: (renderMode: RenderModesType) => {
-    return {
-      type: 'RENDER_MODE_CHANGED' as const,
-      renderMode
+      type: 'RESTORE_STORAGE_DATA' as const,
+      state
     }
   },
   changedPlayMode: (isEnabled: boolean) => {
@@ -259,13 +263,7 @@ export const ModeAction = {
       type: 'NODE_HELPER_VISIBILITY_CHANGED' as const,
       visibility
     }
-  },
-  changePhysicsHelperVisibility: (visibility: boolean) => {
-    return {
-      type: 'PHYSICS_HELPER_VISIBILITY_CHANGED' as const,
-      visibility
-    }
   }
 }
 
-export type ModeActionType = ReturnType<typeof ModeAction[keyof typeof ModeAction]>
+export type EditorHelperActionType = ReturnType<typeof EditorHelperAction[keyof typeof EditorHelperAction]>

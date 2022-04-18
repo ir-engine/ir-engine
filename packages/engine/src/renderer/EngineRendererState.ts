@@ -1,69 +1,184 @@
-import { createState, State, useState } from '@speigg/hookstate'
+import { createState, useState } from '@speigg/hookstate'
+import { Object3D } from 'three'
 
 import { isIOS } from '@xrengine/common/src/utils/isIOS'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { ClientStorage } from '../common/classes/ClientStorage'
+import { helpersByEntity } from '../debug/systems/DebugHelpersSystem'
 import { Engine } from '../ecs/classes/Engine'
-import { databasePrefix, RENDERER_SETTINGS } from './EngineRnedererConstants'
+import { RenderModes, RenderModesType } from './constants/RenderModes'
+import { RenderSettingKeys } from './EngineRnedererConstants'
+import { changeRenderMode } from './functions/changeRenderMode'
 import { EngineRenderer } from './WebGLRendererSystem'
 
-const state = createState({
+type EngineRendererStateType = {
+  qualityLevel: number
+  automatic: boolean
+  // usePBR: boolean,
+  usePostProcessing: boolean
+  useShadows: boolean
+  physicsDebugEnable: boolean
+  avatarDebugEnable: boolean
+  renderMode: RenderModesType
+}
+
+const state = createState<EngineRendererStateType>({
   qualityLevel: 5,
   automatic: true,
   // usePBR: true,
   usePostProcessing: isIOS() ? false : true,
-  useShadows: true
+  useShadows: true,
+  physicsDebugEnable: false,
+  avatarDebugEnable: false,
+  renderMode: RenderModes.SHADOW as RenderModesType
 })
 
-type StateType = State<typeof state.value>
+export async function restoreEngineRendererData(): Promise<void> {
+  if (typeof window !== 'undefined') {
+    const s = {} as EngineRendererStateType
+
+    await Promise.all([
+      ClientStorage.get(RenderSettingKeys.QUALITY_LEVEL).then((v) => {
+        if (typeof v !== 'undefined') s.qualityLevel = v as number
+        ClientStorage.set(RenderSettingKeys.QUALITY_LEVEL, state.qualityLevel.value)
+      }),
+      ClientStorage.get(RenderSettingKeys.AUTOMATIC).then((v) => {
+        if (typeof v !== 'undefined') s.automatic = v as boolean
+        ClientStorage.set(RenderSettingKeys.AUTOMATIC, state.automatic.value)
+      }),
+      ClientStorage.get(RenderSettingKeys.POST_PROCESSING).then((v) => {
+        if (typeof v !== 'undefined') s.usePostProcessing = v as boolean
+        ClientStorage.set(RenderSettingKeys.POST_PROCESSING, state.usePostProcessing.value)
+      }),
+      ClientStorage.get(RenderSettingKeys.USE_SHADOWS).then((v) => {
+        if (typeof v !== 'undefined') s.useShadows = v as boolean
+        ClientStorage.set(RenderSettingKeys.USE_SHADOWS, state.useShadows.value)
+      }),
+      ClientStorage.get(RenderSettingKeys.PHYSICS_DEBUG_ENABLE).then((v) => {
+        if (typeof v !== 'undefined') s.physicsDebugEnable = v as boolean
+        ClientStorage.set(RenderSettingKeys.PHYSICS_DEBUG_ENABLE, state.physicsDebugEnable.value)
+      }),
+      ClientStorage.get(RenderSettingKeys.AVATAR_DEBUG_ENABLE).then((v) => {
+        if (typeof v !== 'undefined') s.avatarDebugEnable = v as boolean
+        ClientStorage.set(RenderSettingKeys.AVATAR_DEBUG_ENABLE, state.avatarDebugEnable.value)
+      }),
+      ClientStorage.get(RenderSettingKeys.RENDER_MODE).then((v) => {
+        if (typeof v !== 'undefined') s.renderMode = v as RenderModesType
+        ClientStorage.set(RenderSettingKeys.RENDER_MODE, state.renderMode.value)
+      })
+    ])
+
+    dispatchAction(Engine.store, EngineRendererAction.restoreStorageData(s))
+  }
+}
+
+function updateState(): void {
+  setQualityLevel(state.qualityLevel.value)
+  setUsePostProcessing(state.usePostProcessing.value)
+  setUseShadows(state.useShadows.value)
+
+  physicsDebugUpdate(state.physicsDebugEnable.value)
+  avatarDebugUpdate(state.avatarDebugEnable.value)
+
+  changeRenderMode(state.renderMode.value)
+}
 
 export const useEngineRendererState = () => useState(state) as any as typeof state
 export const accessEngineRendererState = () => state
 
-function setUseAutomatic(s: StateType, automatic: boolean) {
-  ClientStorage.set(databasePrefix + RENDERER_SETTINGS.AUTOMATIC, automatic)
-  s.merge({ automatic })
+function avatarDebugUpdate(avatarDebugEnable: boolean) {
+  helpersByEntity.viewVector.forEach((obj: Object3D) => {
+    obj.visible = avatarDebugEnable
+  })
+  helpersByEntity.velocityArrow.forEach((obj: Object3D) => {
+    obj.visible = avatarDebugEnable
+  })
+  helpersByEntity.ikExtents.forEach((entry: Object3D[]) => {
+    entry.forEach((obj) => (obj.visible = avatarDebugEnable))
+  })
 }
 
-function setQualityLevel(s: StateType, qualityLevel) {
+function physicsDebugUpdate(physicsDebugEnable: boolean) {
+  helpersByEntity.helperArrow.forEach((obj: Object3D) => {
+    obj.visible = physicsDebugEnable
+  })
+
+  for (const [_entity, helper] of helpersByEntity.box) {
+    helper.visible = physicsDebugEnable
+  }
+}
+
+function setQualityLevel(qualityLevel) {
   EngineRenderer.instance.scaleFactor = qualityLevel / EngineRenderer.instance.maxQualityLevel
   Engine.renderer.setPixelRatio(window.devicePixelRatio * EngineRenderer.instance.scaleFactor)
   EngineRenderer.instance.needsResize = true
-  ClientStorage.set(databasePrefix + RENDERER_SETTINGS.QUALITY_LEVEL, qualityLevel)
-  s.merge({ qualityLevel })
 }
 
-function setUseShadows(s: StateType, useShadows) {
+function setUseShadows(useShadows) {
   if (state.useShadows.value === useShadows) return
   Engine.renderer.shadowMap.enabled = useShadows
-  ClientStorage.set(databasePrefix + RENDERER_SETTINGS.USE_SHADOWS, useShadows)
-  s.merge({ useShadows })
 }
 
-function setUsePostProcessing(s: StateType, usePostProcessing) {
+function setUsePostProcessing(usePostProcessing) {
   if (state.usePostProcessing.value === usePostProcessing) return
   usePostProcessing = EngineRenderer.instance.supportWebGL2 && usePostProcessing
-  ClientStorage.set(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING, usePostProcessing)
-  s.merge({ usePostProcessing })
 }
 
 export function EngineRendererReceptor(action: EngineRendererActionType) {
   state.batch((s) => {
     switch (action.type) {
       case 'WEBGL_RENDERER_QUALITY_LEVEL':
-        return setQualityLevel(s, action.qualityLevel)
+        s.merge({ qualityLevel: action.qualityLevel })
+        setQualityLevel(action.qualityLevel)
+        ClientStorage.set(RenderSettingKeys.QUALITY_LEVEL, action.qualityLevel)
+        break
       case 'WEBGL_RENDERER_AUTO':
-        return setUseAutomatic(s, action.automatic)
+        s.merge({ automatic: action.automatic })
+        ClientStorage.set(RenderSettingKeys.AUTOMATIC, action.automatic)
+        break
       // case 'WEBGL_RENDERER_PBR': return s.merge({ usePBR: action.usePBR })
       case 'WEBGL_RENDERER_POSTPROCESSING':
-        return setUsePostProcessing(s, action.usePostProcessing)
+        s.merge({ usePostProcessing: action.usePostProcessing })
+        setUsePostProcessing(action.usePostProcessing)
+        ClientStorage.set(RenderSettingKeys.POST_PROCESSING, action.usePostProcessing)
+        break
       case 'WEBGL_RENDERER_SHADOWS':
-        return setUseShadows(s, action.useShadows)
+        s.merge({ useShadows: action.useShadows })
+        setUseShadows(action.useShadows)
+        ClientStorage.set(RenderSettingKeys.USE_SHADOWS, action.useShadows)
+        break
+      case 'PHYSICS_DEBUG_CHANGED':
+        s.merge({ physicsDebugEnable: action.physicsDebugEnable })
+        physicsDebugUpdate(action.physicsDebugEnable)
+        ClientStorage.set(RenderSettingKeys.PHYSICS_DEBUG_ENABLE, action.physicsDebugEnable)
+        break
+      case 'AVATAR_DEBUG_CHANGED':
+        s.merge({ avatarDebugEnable: action.avatarDebugEnable })
+        avatarDebugUpdate(action.avatarDebugEnable)
+        ClientStorage.set(RenderSettingKeys.AVATAR_DEBUG_ENABLE, action.avatarDebugEnable)
+        break
+      case 'RENDER_MODE_CHANGED':
+        s.merge({ renderMode: action.renderMode })
+        changeRenderMode(action.renderMode)
+        ClientStorage.set(RenderSettingKeys.RENDER_MODE, action.renderMode)
+        break
+      case 'RESTORE_ENGINE_RENDERER_STORAGE_DATA':
+        s.merge(action.state)
+        updateState()
     }
+
+    return s
   })
 }
 
 export const EngineRendererAction = {
+  restoreStorageData: (state: EngineRendererStateType) => {
+    return {
+      type: 'RESTORE_ENGINE_RENDERER_STORAGE_DATA' as const,
+      state
+    }
+  },
   setQualityLevel: (qualityLevel: number) => {
     return {
       type: 'WEBGL_RENDERER_QUALITY_LEVEL' as const,
@@ -92,6 +207,24 @@ export const EngineRendererAction = {
     return {
       type: 'WEBGL_RENDERER_SHADOWS' as const,
       useShadows
+    }
+  },
+  setPhysicsDebug: (physicsDebugEnable: boolean) => {
+    return {
+      type: 'PHYSICS_DEBUG_CHANGED' as const,
+      physicsDebugEnable
+    }
+  },
+  setAvatarDebug: (avatarDebugEnable: boolean) => {
+    return {
+      type: 'AVATAR_DEBUG_CHANGED' as const,
+      avatarDebugEnable
+    }
+  },
+  changedRenderMode: (renderMode: RenderModesType) => {
+    return {
+      type: 'RENDER_MODE_CHANGED' as const,
+      renderMode
     }
   }
 }

@@ -15,8 +15,6 @@ const state = createState({
   loadingProgress: 0,
   connectedWorld: false,
   isTeleporting: false,
-  isPhysicsDebug: false,
-  isAvatarDebug: false,
   leaveWorld: false,
   socketInstance: false,
   connectionTimeoutInstance: false,
@@ -32,15 +30,6 @@ export function EngineEventReceptor(action: EngineActionType) {
     switch (action.type) {
       case EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED:
         break
-      case EngineEvents.EVENTS.PHYSICS_DEBUG:
-        return s.merge({
-          isPhysicsDebug: action.isPhysicsDebug
-        })
-      case EngineEvents.EVENTS.AVATAR_DEBUG:
-        return s.merge({
-          isAvatarDebug: action.isAvatarDebug
-        })
-
       case EngineEvents.EVENTS.RESET_ENGINE:
         return s.merge({
           socketInstance: action.instance
@@ -218,19 +207,6 @@ export const EngineActions = {
     return {
       type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
       msg
-    }
-  },
-
-  setPhysicsDebug: (isPhysicsDebug: boolean) => {
-    return {
-      type: EngineEvents.EVENTS.PHYSICS_DEBUG,
-      isPhysicsDebug
-    }
-  },
-  setAvatarDebug: (isAvatarDebug: boolean) => {
-    return {
-      type: EngineEvents.EVENTS.AVATAR_DEBUG,
-      isAvatarDebug
     }
   },
   setUserHasInteracted: () => {

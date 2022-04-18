@@ -7,7 +7,11 @@ import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { accessEngineRendererState, EngineRendererAction } from '@xrengine/engine/src/renderer/EngineRendererState'
+import {
+  accessEngineRendererState,
+  EngineRendererAction,
+  restoreEngineRendererData
+} from '@xrengine/engine/src/renderer/EngineRendererState'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
@@ -18,8 +22,8 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
 import { ActionSets, EditorMapping } from '../controls/input-mappings'
 import { initInputEvents } from '../controls/InputEvents'
+import { restoreEditorHelperData } from '../services/EditorHelperState'
 import { EditorAction } from '../services/EditorServices'
-import { accessModeState, ModeAction } from '../services/ModeServices'
 import { createCameraEntity } from './createCameraEntity'
 import { createEditorEntity } from './createEditorEntity'
 import { createGizmoEntity } from './createGizmoEntity'
@@ -89,7 +93,7 @@ export async function initializeScene(projectFile: SceneJson): Promise<Error[] |
  * @author Robert Long
  * @param  {any} canvas [ contains canvas data ]
  */
-export function initializeRenderer(): void {
+export async function initializeRenderer(): Promise<void> {
   try {
     initInputEvents()
 
@@ -103,17 +107,14 @@ export function initializeRenderer(): void {
       }) as any
     )
 
-    dispatchAction(Engine.store, EngineActions.setPhysicsDebug(true) as any)
-
-    SceneState.grid.setSize(accessModeState().translationSnap.value)
-
     configureEffectComposer()
 
     store.dispatch(EditorAction.rendererInitialized(true))
     EngineRenderer.instance.disableUpdate = false
 
     accessEngineRendererState().automatic.set(false)
-    store.dispatch(ModeAction.restoreStorageData())
+    await restoreEditorHelperData()
+    await restoreEngineRendererData()
     dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
   } catch (error) {
     console.error(error)
