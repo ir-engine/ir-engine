@@ -8,7 +8,7 @@ import { styled } from '@mui/material/styles'
 
 import styles from '../../styles/settings.module.scss'
 
-const MaterialUISwitch = styled(Switch)((props) => ({
+const MaterialUISwitch = styled(Switch)((props: any) => ({
   width: 62,
   height: 34,
   padding: 7,
@@ -59,7 +59,7 @@ const MaterialUISwitch = styled(Switch)((props) => ({
 const ClientTheme = () => {
   const selfUser = useAuthState().user
 
-  const [mode, setMode] = useState(selfUser?.user_setting?.value?.themeMode)
+  const [mode, setMode] = useState(selfUser?.user_setting?.value?.themeMode || 'dark')
   const [themeSetting, setThemeSetting] = useState({
     light: {
       textColor: '#FFF',
