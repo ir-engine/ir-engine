@@ -14,7 +14,6 @@ import { addComponent, getComponent, hasComponent, removeComponent } from '../..
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
 import { AvatarControllerType } from '../../input/enums/InputEnums'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
@@ -156,7 +155,7 @@ export const setupXRInputSourceComponent = (entity: Entity) => {
  */
 
 export const bindXRControllers = () => {
-  const world = useWorld()
+  const world = Engine.currentWorld
   const inputData = setupXRInputSourceComponent(world.localClientEntity)
 
   const inputSourceChanged = (event) => {
@@ -178,7 +177,7 @@ export const bindXRControllers = () => {
  */
 
 export const bindXRHandEvents = () => {
-  const world = useWorld()
+  const world = Engine.currentWorld
 
   setupXRInputSourceComponent(world.localClientEntity)
 
@@ -215,7 +214,7 @@ export const bindXRHandEvents = () => {
  */
 
 export const startWebXR = async (): Promise<void> => {
-  const world = useWorld()
+  const world = Engine.currentWorld
 
   removeComponent(world.localClientEntity, FollowCameraComponent)
   container.add(Engine.camera)
@@ -224,7 +223,7 @@ export const startWebXR = async (): Promise<void> => {
   assignControllerAndGrip(Engine.xrManager, controllerLeft, controllerGripLeft, 0)
   assignControllerAndGrip(Engine.xrManager, controllerRight, controllerGripRight, 1)
 
-  dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ enabled: true })).cache({ removePrevious: true })
+  dispatchAction(world.store, NetworkWorldAction.setXRMode({ enabled: true }))
 
   const avatarInputState = accessAvatarInputState()
   if (avatarInputState.controlType.value === AvatarControllerType.OculusQuest) bindXRControllers()
@@ -242,12 +241,12 @@ export const endXR = (): void => {
   Engine.xrManager.setSession(null!)
   Engine.scene.add(Engine.camera)
 
-  const world = useWorld()
+  const world = Engine.currentWorld
   addComponent(world.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
   removeComponent(world.localClientEntity, XRInputSourceComponent)
   removeComponent(world.localClientEntity, XRHandsInputComponent)
 
-  dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ enabled: false })).cache({ removePrevious: true })
+  dispatchAction(world.store, NetworkWorldAction.setXRMode({ enabled: false }))
 }
 
 /**

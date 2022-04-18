@@ -7,7 +7,6 @@ import { AvatarSettings } from '@xrengine/engine/src/avatar/AvatarControllerSyst
 import { AvatarInputAction, useAvatarInputState } from '@xrengine/engine/src/avatar/state/AvatarInputState'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { dispatchAction } from '@xrengine/hyperflux'
 
