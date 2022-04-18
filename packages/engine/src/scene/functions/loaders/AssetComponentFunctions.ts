@@ -39,17 +39,17 @@ export const unloadAsset = (entity: Entity) => {
 }
 
 export const loadAsset = async (entity: Entity) => {
-  const ass = getComponent(entity, AssetComponent)
+  const asset = getComponent(entity, AssetComponent)
   //check if asset is already loading or loaded
-  if (ass.loaded !== LoadState.UNLOADED) {
-    console.warn('Asset', ass, 'is not unloaded')
+  if (asset.loaded !== LoadState.UNLOADED) {
+    console.warn('Asset', asset, 'is not unloaded')
     return
   }
-  if (AssetLoader.getAssetType(ass.path) !== AssetType.XRE) {
+  if (AssetLoader.getAssetType(asset.path) !== AssetType.XRE) {
     throw Error('only .xre.gltf files currently supported')
   }
-  ass.loaded = LoadState.LOADING
-  const result = (await AssetLoader.loadAsync(ass.path)) as EntityTreeNode[]
+  asset.loaded = LoadState.LOADING
+  const result = (await AssetLoader.loadAsync(asset.path)) as EntityTreeNode[]
   addComponent(entity, AssetLoadedComponent, { roots: result })
 }
 

@@ -9,9 +9,9 @@ import { sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion
 import { accessEditorState } from '../services/EditorServices'
 
 export const exportAsset = async (node: EntityTreeNode) => {
-  const ass = getComponent(node.entity, AssetComponent)
+  const asset = getComponent(node.entity, AssetComponent)
   const projectName = accessEditorState().projectName.value!
-  const assetName = ass.name
+  const assetName = asset.name
   if (!(node.children && node.children.length > 0)) {
     console.warn('Exporting empty asset')
   }

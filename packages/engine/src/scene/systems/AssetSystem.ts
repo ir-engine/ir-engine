@@ -16,7 +16,7 @@ export default async function AssetSystem(world: World) {
   const nodeMap = world.entityTree.entityNodeMap
   return () => {
     for (const entity of assetQuery.enter()) {
-      const ass = getComponent(entity, AssetComponent)
+      const asset = getComponent(entity, AssetComponent)
       const load = getComponent(entity, AssetLoadedComponent)
       const node = nodeMap.get(entity)
       if (!node) continue
@@ -24,7 +24,7 @@ export default async function AssetSystem(world: World) {
         reparentEntityNode(root, node)
         reparentObject3D(root, node)
       })
-      ass.loaded = LoadState.LOADED
+      asset.loaded = LoadState.LOADED
     }
 
     for (const entity of assetQuery.exit()) {
@@ -39,8 +39,8 @@ export default async function AssetSystem(world: World) {
         removeEntityNodeFromParent(child)
         removeEntity(child.entity)
       })
-      const ass = getComponent(entity, AssetComponent)
-      ass.loaded = LoadState.UNLOADED
+      const asset = getComponent(entity, AssetComponent)
+      asset.loaded = LoadState.UNLOADED
     }
   }
 }
