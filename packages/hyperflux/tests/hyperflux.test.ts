@@ -212,6 +212,45 @@ describe('Hyperflux Unit Testss', () => {
     assert(receivedAction)
   })
 
+  it('should be able to apply multiple actions at once to a networked store', () => {
+    const store = createHyperStore({
+      name: 'TEST_STORE',
+      networked: true,
+      getDispatchId: () => 'id',
+      getDispatchTime: () => Date.now()
+    })
+    const greet = defineAction({
+      store: 'TEST_STORE',
+      type: 'TEST_GREETING',
+      greeting: matchesWithDefault(matches.string, () => 'hi')
+    })
+    let receivedCount = 0
+    const receptor = (action) => {
+      assert(greet.matches.test(action))
+      receivedCount++
+    }
+    addActionReceptor(store, receptor)
+    dispatchAction(store, greet({}))
+    dispatchAction(store, greet({}))
+    dispatchAction(store, greet({}))
+    dispatchAction(store, greet({}))
+    assert.equal(receivedCount, 0)
+    assert.equal(store.actions.outgoing.length, 4)
+    clearOutgoingActions(store, true)
+    assert.equal(receivedCount, 0)
+    assert.equal(store.actions.outgoingHistory.length, 4)
+    assert.equal(store.actions.incoming.length, 4)
+    applyIncomingActions(store, true)
+    assert.equal(receivedCount, 4)
+    assert.equal(store.actions.incomingHistory.length, 4)
+    assert.equal(store.actions.incomingHistoryUUIDs.size, 4)
+    clearOutgoingActions(store, true)
+    applyIncomingActions(store, true)
+    assert.equal(receivedCount, 4)
+    assert.equal(store.actions.incomingHistory.length, 4)
+    assert.equal(store.actions.incomingHistoryUUIDs.size, 4)
+  })
+
   it('should be able to define state and register it to a store', () => {
     const HospitalityState = defineState({
       store: 'TEST_STORE',

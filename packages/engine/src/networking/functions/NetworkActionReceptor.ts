@@ -96,8 +96,7 @@ const spawnObject = (world: World, action: ReturnType<typeof NetworkWorldAction.
     ownerId: action.$from,
     networkId: action.networkId,
     prefab: action.prefab,
-    parameters: action.parameters,
-    lastTick: 0
+    parameters: action.parameters
   })
 }
 

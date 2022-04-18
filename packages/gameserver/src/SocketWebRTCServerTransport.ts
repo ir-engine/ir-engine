@@ -50,7 +50,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
     for (const [socketID, socket] of this.app.io.of('/').sockets) {
       const arr: Action<any>[] = []
-      for (const action of actions) {
+      for (const action of [...actions]) {
+        if (world.store.actions.outgoingHistoryUUIDs.has(action.$uuid)) {
+          const idx = world.store.actions.outgoing.indexOf(action)
+          world.store.actions.outgoing.splice(idx, 1)
+        }
         if (!action.$to) continue
         const toUserId = userIdMap[socketID]
         if (action.$to === 'all' || (action.$to === 'others' && toUserId !== action.$from) || action.$to === toUserId) {

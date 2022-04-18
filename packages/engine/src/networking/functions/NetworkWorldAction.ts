@@ -19,8 +19,7 @@ export class NetworkWorldAction {
     type: 'network.CREATE_CLIENT',
     name: matches.string,
     index: matches.number,
-    $cache: true,
-    $to: 'others'
+    $cache: true
   })
 
   static destroyClient = defineAction({

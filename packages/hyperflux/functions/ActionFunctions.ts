@@ -328,7 +328,7 @@ const _updateCachedActions = (store: HyperStore<any>, incomingAction: Required<A
   }
 }
 
-const _applyAndArchiveIncomingAction = (store: HyperStore<any>, action: Required<Action<any>>) => {
+const _applyAndArchiveIncomingAction = (store: HyperStore<any>, action: Required<Action<any>>, forward = false) => {
   // ensure actions are idempotent
   if (store.actions.incomingHistoryUUIDs.has(action.$uuid)) {
     const idx = store.actions.incoming.indexOf(action)
@@ -343,6 +343,7 @@ const _applyAndArchiveIncomingAction = (store: HyperStore<any>, action: Required
     _updateCachedActions(store, action)
     console.log(`${store.name} ACTION ${action.type}`)
     store.actions.incomingHistory.push(action)
+    if (forward) store.actions.outgoing.push(action)
   } catch (e) {
     const message = (e as Error).message
     const stack = (e as Error).stack!.split('\n')
@@ -365,15 +366,18 @@ const _applyAndArchiveIncomingAction = (store: HyperStore<any>, action: Required
  *
  * @param store
  * @param action
+ * @param forwardToOutgoing Whether to forward incoming actions to the outgoing queue.
+ * This flag should be set when an authoritative node needs to forwards actions it receives
+ * on the network, after proocessing them locally.
  */
-const applyIncomingActions = (store: HyperStore<any>) => {
-  const { incoming } = store.actions
+const applyIncomingActions = (store: HyperStore<any>, forwardToOutgoing = false) => {
+  const { incoming, outgoing } = store.actions
   const now = store.getDispatchTime()
   for (const action of [...incoming]) {
     if (action.$time > now) {
       continue
     }
-    _applyAndArchiveIncomingAction(store, action)
+    _applyAndArchiveIncomingAction(store, action, forwardToOutgoing)
   }
 }
 
@@ -385,11 +389,11 @@ const applyIncomingActions = (store: HyperStore<any>) => {
  * and also process the actions locally
  */
 const clearOutgoingActions = (store: HyperStore<any>, loopback = false) => {
-  const { outgoing, outgoingHistory, incoming } = store.actions
-  const dispatchId = store.getDispatchId()
+  const { outgoing, outgoingHistory, outgoingHistoryUUIDs, incoming } = store.actions
   for (const action of outgoing) {
     outgoingHistory.push(action)
-    if (loopback && (action.$to === 'all' || action.$to === dispatchId)) incoming.push(action)
+    outgoingHistoryUUIDs.add(action.$uuid)
+    if (loopback) incoming.push(action)
   }
   outgoing.length = 0
 }

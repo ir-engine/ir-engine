@@ -72,7 +72,6 @@ describe('Equippables Integration Tests', () => {
     // initially the object is owned by server
     const networkObject = addComponent(equippableEntity, NetworkObjectComponent, {
       ownerId: world.hostId,
-      lastTick: 0,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}

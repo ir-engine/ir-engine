@@ -48,6 +48,8 @@ export interface HyperStore<StoreName extends string> {
     outgoing: Array<Required<Action<StoreName>>>
     /** All actions that have been sent */
     outgoingHistory: Array<Required<Action<StoreName>>>
+    /** All incoming action UUIDs that have been processed */
+    outgoingHistoryUUIDs: Set<string>
   }
   /** functions that receive actions */
   receptors: ReadonlyArray<ActionReceptor<StoreName>>
@@ -76,7 +78,8 @@ function createHyperStore<StoreName extends string>(options: {
       incomingHistory: [],
       incomingHistoryUUIDs: new Set(),
       outgoing: [],
-      outgoingHistory: []
+      outgoingHistory: [],
+      outgoingHistoryUUIDs: new Set()
     },
     receptors: [],
     reactors: new WeakMap()
