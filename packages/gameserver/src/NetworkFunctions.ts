@@ -214,7 +214,7 @@ export function handleConnectToWorld(
   const userIndex = world.userIndexCount++
   world.clients.set(userId, {
     userId: userId,
-    userIndex,
+    index: userIndex,
     name: user.dataValues.name,
     avatarDetail,
     socket: socket,
@@ -314,13 +314,13 @@ export const handleJoinWorld = async (
   clearCachedActionsForUser(joinedUserId)
 
   // send all client info
-  const clients = [] as Array<{ userId: UserId; name: string; index: number }>
-  for (const [userId, client] of world.clients) {
-    clients.push({ userId, index: client.userIndex, name: client.name })
-  }
+  // const clients = [] as Array<{ userId: UserId; name: string; index: number }>
+  // for (const [userId, client] of world.clients) {
+  //   clients.push({ userId, index: client.userIndex, name: client.name })
+  // }
 
   // send all cached and outgoing actions to joining user
-  const cachedActions = [] as Action[]
+  const cachedActions = [] as Required<Action<any>>[]
   for (const action of world.store.actions.cached as Array<ReturnType<typeof NetworkWorldAction.spawnAvatar>>) {
     // we may have a need to remove the check for the prefab type to enable this to work for networked objects too
     if (action.type === 'network.SPAWN_OBJECT' && action.prefab === 'avatar') {
@@ -342,21 +342,11 @@ export const handleJoinWorld = async (
   callback({
     elapsedTime: world.elapsedTime,
     clockTime: Date.now(),
-    clients,
+    client: { name: client.name, index: client.index },
     cachedActions,
     avatarDetail: client.avatarDetail!,
     avatarSpawnPose: spawnPose
   })
-
-  dispatchAction(
-    world.store,
-    NetworkWorldAction.createClient({
-      $from: joinedUserId,
-      name: client.name,
-      index: client.userIndex,
-      $to: 'others'
-    })
-  )
 }
 
 export function handleIncomingActions(socket, message) {
@@ -366,11 +356,11 @@ export function handleIncomingActions(socket, message) {
   const userIdMap = {} as { [socketId: string]: UserId }
   for (const [id, client] of world.clients) userIdMap[client.socketId!] = id
 
-  const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
+  const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action<any>>[]
   for (const a of actions) {
     a['$fromSocketId'] = socket.id
     a.$from = userIdMap[socket.id]
-    world.store.actions.outgoing.push(a)
+    world.store.actions.incoming.push(a)
   }
   // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
 }

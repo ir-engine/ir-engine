@@ -18,7 +18,7 @@ export class S3Provider implements StorageProviderInterface {
   cacheDomain =
     config.server.storageProvider === 'aws'
       ? config.aws.cloudfront.domain
-      : `${config.aws.cloudfront.domain}/${this.bucket}/`
+      : `${config.aws.cloudfront.domain}/${this.bucket}`
   provider: AWS.S3 = new AWS.S3({
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey,
@@ -29,7 +29,7 @@ export class S3Provider implements StorageProviderInterface {
 
   bucketAssetURL =
     config.server.storageProvider === 'aws'
-      ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/`
+      ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
       : `https://${config.aws.cloudfront.domain}/${this.bucket}`
 
   blob: typeof S3BlobStore = new S3BlobStore({

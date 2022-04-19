@@ -175,7 +175,7 @@
       width: 320px;
 
       & > .avatarContainer {
-        margin-top: 25px;
+        margin-top: 55px;
       }
 
       .avatarContainer {
@@ -1943,6 +1943,11 @@
   background: var(--purpleLight);
   display: flex;
   align-items: center;
+
+  & > ul {
+    width: 100%;
+    color: var(--text);
+  }
 }
 
 .selectPaper {
@@ -2007,4 +2012,69 @@
   font-weight: bold;
   font-size: 17px;
   text-transform: capitalize;
+}
+
+.select {
+  background: var(--inputBackground);
+  border-radius: 4px;
+  border-width: 0;
+  cursor: pointer;
+  padding: 2px 7px;
+  font-size: 11px;
+  color: var(--white);
+}
+
+.menuItem {
+  padding: 5px;
+  font-size: 12px;
+
+  &:hover {
+    background: var(--purpleColor);
+  }
+}
+
+.controlsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+}
+
+.selectSize {
+  width: 35%;
+
+  & > div > div {
+    padding: 3px;
+    border-radius: 50px;
+  }
+
+  & > div > label {
+    font-size: 0.9rem;
+    color: #fff;
+    margin-bottom: -10px;
+    margin-left: -5px;
+  }
+
+  & > div > div > svg {
+    color: #5f5ff1;
+  }
+
+  & > div > div > fieldset {
+    border-color: #5f5ff1;
+  }
+}
+
+.sectionBar {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.collapseBtn {
+  background-color: transparent !important;
+  color: var(--purpleColor);
+}
+
+.tableRow {
+  border: none;
+  color: #fff;
 }

@@ -7,13 +7,10 @@ import styled from 'styled-components'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { getGLTFLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { GLTFExporter } from '@xrengine/engine/src/assets/exporters/gltf/GLTFExporter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { gltfToSceneJson, sceneFromGLTF, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
-import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
+import { gltfToSceneJson, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 import { useHookEffect } from '@xrengine/hyperflux'
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
@@ -21,13 +18,10 @@ import Inventory2Icon from '@mui/icons-material/Inventory2'
 import TuneIcon from '@mui/icons-material/Tune'
 import Dialog from '@mui/material/Dialog'
 
+import { extractZip, uploadProjectFile } from '../functions/assetFunctions'
 import { disposeProject, loadProjectScene, runPreprojectLoadTasks, saveProject } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
-import {
-  DefaultExportOptions,
-  DefaultExportOptionsType, //exportScene,
-  initializeRenderer
-} from '../functions/sceneRenderFunctions'
+import { initializeRenderer } from '../functions/sceneRenderFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadBakeToServer } from '../functions/uploadCubemapBake'
 import { cmdOrCtrlString } from '../functions/utils'
@@ -39,7 +33,6 @@ import ScenesPanel from './assets/ScenesPanel'
 import { ControlText } from './controlText/ControlText'
 import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
-import ExportProjectDialog from './dialogs/ExportProjectDialog'
 import { ProgressDialog } from './dialogs/ProgressDialog'
 import SaveNewProjectDialog from './dialogs/SaveNewProjectDialog'
 import { DndWrapper } from './dnd/DndWrapper'
@@ -291,63 +284,31 @@ const EditorContainer = () => {
     }
     setToggleRefetchScenes(!toggleRefetchScenes)
   }
-  /*
-  const onExportProject = async () => {
-    if (!sceneName) return
-    const options = await new Promise<DefaultExportOptionsType>((resolve) => {
-      setDialogComponent(
-        <ExportProjectDialog
-          defaultOptions={Object.assign({}, DefaultExportOptions)}
-          onConfirm={resolve}
-          onCancel={resolve}
-        />
-      )
-    })
 
-    if (!options) {
-      setDialogComponent(null)
-      return
-    }
+  const onImportAsset = async () => {
+    const el = document.createElement('input')
+    el.type = 'file'
+    el.multiple = true
+    el.accept = '.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip'
+    el.style.display = 'none'
+    el.onchange = async () => {
+      const pName = projectName.value
+      if (el.files && el.files.length > 0 && pName) {
+        const fList = el.files
+        const files = [...Array(el.files.length).keys()].map((i) => fList[i])
+        const nuUrl = (await uploadProjectFile(pName, files, true)).map((url) => url.url)
 
-    const abortController = new AbortController()
-
-    setDialogComponent(
-      <ProgressDialog
-        title={t('editor:exporting')}
-        message={t('editor:exportingMsg')}
-        cancelable={true}
-        onCancel={() => abortController.abort()}
-      />
-    )
-
-    try {
-      const { glbBlob } = await exportScene(options)
-
-      setDialogComponent(null)
-
-      const el = document.createElement('a')
-      el.download = Engine.scene.name + '.gltf'
-      el.href = URL.createObjectURL(glbBlob)
-      document.body.appendChild(el)
-      el.click()
-      document.body.removeChild(el)
-    } catch (error) {
-      if (error['aborted']) {
-        setDialogComponent(null)
-        return
+        //process zipped files
+        const zipFiles = nuUrl.filter((url) => /\.zip$/.test(url))
+        const extractPromises = [...zipFiles.map((zipped) => extractZip(zipped))]
+        Promise.all(extractPromises).then(() => {
+          console.log('extraction complete')
+        })
       }
-
-      console.error(error)
-
-      setDialogComponent(
-        <ErrorDialog
-          title={t('editor:exportingError')}
-          message={error.message || t('editor:exportingErrorMsg')}
-          error={error}
-        />
-      )
     }
-  }*/
+    el.click()
+    el.remove()
+  }
 
   const onImportScene = async () => {
     const confirm = await new Promise((resolve) => {
@@ -371,12 +332,6 @@ const EditorContainer = () => {
       if (el.files && el.files.length > 0) {
         const fileReader: any = new FileReader()
         fileReader.onload = () => {
-          /*const loader = getGLTFLoader()
-          
-          loader.parse(fileReader.result, '', (gltf) => {
-            const json = gltfToSceneJson(gltf)
-            importScene(json)
-          })*/
           const json = JSON.parse(fileReader.result)
           importScene(gltfToSceneJson(json))
         }
@@ -384,18 +339,16 @@ const EditorContainer = () => {
       }
     }
     el.click()
+    el.remove()
   }
 
   const onExportScene = async () => {
-    /*
-    const projectFile = serializeWorld()*/
-    const projectFile = await sceneToGLTF(Engine.scene as any)
-
+    const projectFile = await sceneToGLTF([Engine.scene as any])
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')
     const fileName = Engine.scene.name.toLowerCase().replace(/\s+/g, '-')
-    el.download = fileName + '.gltf'
+    el.download = fileName + '.xre.gltf'
     el.href = URL.createObjectURL(projectBlob)
     document.body.appendChild(el)
     el.click()
@@ -523,10 +476,10 @@ const EditorContainer = () => {
         name: t('editor:menubar.saveAs'),
         action: onSaveAs
       },
-      // {
-      //   name: t('editor:menubar.exportGLB'), // TODO: Disabled temporarily till workers are working
-      //   action: onExportProject
-      // },
+      {
+        name: t('editor:menubar.importAsset'),
+        action: onImportAsset
+      },
       {
         name: t('editor:menubar.importScene'),
         action: onImportScene

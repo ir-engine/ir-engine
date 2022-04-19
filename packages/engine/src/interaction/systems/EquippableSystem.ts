@@ -1,5 +1,7 @@
 import matches from 'ts-matches'
 
+import { addActionReceptor } from '@xrengine/hyperflux'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import {
@@ -78,7 +80,7 @@ export function equippableQueryExit(entity) {
  * @author Hamza Mushtaq <github.com/hamzzam>
  */
 export default async function EquippableSystem(world: World) {
-  world.receptors.push(equippableActionReceptor)
+  addActionReceptor(world.store, equippableActionReceptor)
 
   const equippableQuery = defineQuery([EquipperComponent])
 

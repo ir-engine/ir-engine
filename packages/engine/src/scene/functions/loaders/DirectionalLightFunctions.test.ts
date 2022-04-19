@@ -46,7 +46,6 @@ describe('DirectionalLightFunctions', () => {
       const activeCSMLightEntity = Engine.directionalLightEntities[0]
       const light = getComponent(activeCSMLightEntity, Object3DComponent)?.value as DirectionalLight
 
-      console.debug(light.castShadow)
       assert(light)
       assert(light.color instanceof Color)
       assert.deepEqual(light.color.toArray(), color.toArray())
