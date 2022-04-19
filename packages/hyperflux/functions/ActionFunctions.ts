@@ -1,14 +1,23 @@
+import { MathUtils } from 'three'
+
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { deepEqual } from '@xrengine/engine/src/common/functions/deepEqual'
 
 import { matches, matchesActionFromUser, MatchesWithDefault, Validator } from '../utils/MatchesUtils'
 import { allowStateMutations, HyperStore } from './StoreFunctions'
 
-export type Action = {
+export type Action<StoreName extends string> = {
+  /**
+   * The name of the store on which the action is dispatched
+   */
+  store: StoreName
+  /**
+   * The type of action
+   */
   type: string
 } & ActionOptions
 
-export type ActionReceptor = (action: Action) => void
+export type ActionReceptor<StoreName extends string> = (action: Action<StoreName>) => void
 
 export type ActionRecipients = UserId | UserId[] | 'all' | 'others'
 
@@ -27,6 +36,11 @@ export type ActionCacheOptions =
     }
 
 export type ActionOptions = {
+  /**
+   * The uuid of this action, uniquely identifying it
+   */
+  $uuid?: string
+
   /**
    * The id of the sender
    */
@@ -48,98 +62,122 @@ export type ActionOptions = {
    * Specifies how this action should be cached for newly joining clients.
    */
   $cache?: ActionCacheOptions
+
+  /**
+   * This action is being replayed from the cache
+   */
+  $fromCache?: true
+
+  /**
+   * The call stack at the time the action was dispatched
+   */
+  $stack?: string[]
+
+  /**
+   * An error that occurred while applying this action
+   */
+  $ERROR?: { message: string; stack: string[] }
 }
 
-type Shape<A extends any> = {
-  [key in keyof A]: key extends keyof ActionOptions
-    ? A[key]
-    : A[key] extends Validator<unknown, unknown>
-    ? A[key]
-    : A[key] extends string | number | boolean | any
-    ? A[key] | Validator<unknown, A[key]>
-    : A[key] extends MatchesWithDefault<unknown>
-    ? A[key]
+type ActionShape<ActionType extends Action<any>> = {
+  [key in keyof ActionType]: key extends ActionType
+    ? ActionType[key]
+    : ActionType[key] extends Validator<unknown, unknown>
+    ? ActionType[key]
+    : ActionType[key] extends string | number | boolean | any
+    ? ActionType[key] | Validator<unknown, ActionType[key]>
+    : ActionType[key] extends MatchesWithDefault<unknown>
+    ? ActionType[key]
     : never
 }
 
-type ActionShape = Shape<Action> // & Shape<{[key:string]:any}>
+// type t = ActionShape<{store:'test', type:'hello', $cache: {removePrevious: true}, count: MatchesWithDefault<number>}>
 
-export type ResolvedActionShape<A extends ActionShape> = {
-  [key in keyof A]: A[key] extends Validator<unknown, infer B>
+export type ResolvedActionShape<Shape extends ActionShape<any>> = {
+  [key in keyof Shape]: Shape[key] extends Validator<unknown, infer B>
     ? Validator<unknown, B>
-    : A[key] extends MatchesWithDefault<infer C>
+    : Shape[key] extends MatchesWithDefault<infer C>
     ? Validator<unknown, C>
-    : A[key] extends string | number | boolean | any
-    ? Validator<unknown, A[key]>
+    : Shape[key] extends string | number | boolean | any
+    ? Validator<unknown, Shape[key]>
     : never
 }
 
-export type PartialActionShape<A extends ActionShape> = {
-  [key in keyof A]: A[key] extends Validator<unknown, infer B>
+// type t = ResolvedActionShape<{store:'test', type:'hello', $cache: {removePrevious: true}, count: MatchesWithDefault<number>}>
+
+export type ResolvedActionShapeWithOptionals<Shape extends ActionShape<any>> = {
+  [key in keyof Shape]: Shape[key] extends Validator<unknown, infer B>
     ? Validator<unknown, B>
-    : A[key] extends MatchesWithDefault<infer C>
-    ? Validator<unknown, C | undefined>
-    : A[key] extends string | number | boolean | any
-    ? Validator<unknown, A[key] | undefined>
+    : Shape[key] extends MatchesWithDefault<infer C>
+    ? Validator<unknown, C | undefined> | C | undefined
+    : Shape[key] extends string | number | boolean | any
+    ? Validator<unknown, Shape[key] | undefined> | Shape[key] | undefined
     : never
 }
 
-type ActionTypeFromShape<S> = {
-  [key in keyof S]: S[key] extends Validator<unknown, unknown>
-    ? S[key]['_TYPE']
-    : S[key] extends MatchesWithDefault<S[key]>
-    ? S[key]['matches']
-    : S[key]
-} & Action
+// type t = PartialActionShape<{store:'test', type:'hello', param: number, count: MatchesWithDefault<number>}>
+
+type ActionTypeFromShape<Shape extends ActionShape<any>> = {
+  [key in keyof Shape]: Shape[key] extends Validator<unknown, infer A>
+    ? Shape[key]['_TYPE'] | A
+    : Shape[key] extends MatchesWithDefault<Shape[key]>
+    ? Shape[key]['matches']
+    : Shape[key]
+}
+
+// type t = ActionTypeFromShape<{store:'test', type:Validator<unknown,'hello'>, name:string, param: Validator<unknown,number>, count: MatchesWithDefault<number>}>
 
 type IsOptional<T> = null extends T ? true : undefined extends T ? true : false
 
-type JustOptionalKeys<A> = {
-  [key in keyof A]: A[key] extends Validator<unknown, infer B>
+type JustOptionalKeys<Shape extends ActionShape<any>> = {
+  [key in keyof Shape]: Shape[key] extends Validator<unknown, infer B>
     ? true extends IsOptional<B>
       ? key
       : never
-    : true extends IsOptional<A[key]>
+    : true extends IsOptional<Shape[key]>
     ? key
     : never
-}[keyof A]
+}[keyof Shape]
 
-type JustRequiredKeys<A> = {
-  [key in keyof A]: A[key] extends Validator<unknown, infer B>
+type JustRequiredKeys<Shape extends ActionShape<any>> = {
+  [key in keyof Shape]: Shape[key] extends Validator<unknown, infer B>
     ? true extends IsOptional<B>
       ? never
       : key
-    : true extends IsOptional<A[key]>
+    : true extends IsOptional<Shape[key]>
     ? never
     : key
-}[keyof A]
+}[keyof Shape]
 
-type JustOptionals<S> = Pick<S, JustOptionalKeys<S>>
-type JustRequired<S> = Pick<S, JustRequiredKeys<S>>
+type JustOptionals<S extends ActionShape<any>> = Pick<S, JustOptionalKeys<S>>
+type JustRequired<S extends ActionShape<any>> = Pick<S, JustRequiredKeys<S>>
 
-type PartialActionType<S extends ActionShape> = Partial<JustOptionals<S>> & Required<JustRequired<S>>
-
-export type ResolvedActionFromShape<S extends ActionShape> = ActionTypeFromShape<ResolvedActionShape<S>> &
-  Required<Action>
-export type PartialActionFromShape<S extends ActionShape> = Omit<
-  PartialActionType<ActionTypeFromShape<PartialActionShape<S>>>,
-  'type'
+export type ResolvedActionType<Shape extends ActionShape<any>> = Required<
+  ActionTypeFromShape<ResolvedActionShape<Shape>> & ActionOptions
 >
+export type PartialActionType<Shape extends ActionShape<any>> = Omit<
+  Partial<ActionTypeFromShape<JustOptionals<ResolvedActionShapeWithOptionals<Shape>>>> &
+    ActionOptions &
+    Required<ActionTypeFromShape<JustRequired<ResolvedActionShapeWithOptionals<Shape>>>>,
+  'type' | 'store'
+>
+
+// type t = PartialActionType<{store:'TEST',type:'TEST',name:string, bla:Validator<unknown, any>}>
 
 /**
  * Defines an action
  * @param actionShape
- * @returns a function that creates the defined action
+ * @returns a function that creates an instance of the defined action
  */
-function defineAction<Shape extends ActionShape>(actionShape: Shape) {
-  type ResolvedAction = ResolvedActionFromShape<Shape>
-  type PartialAction = PartialActionFromShape<Shape>
+function defineAction<StoreName extends string, Shape extends ActionShape<Action<StoreName>>>(actionShape: Shape) {
+  type ResolvedAction = ResolvedActionType<Shape>
+  type PartialAction = PartialActionType<Shape>
 
   const shapeEntries = Object.entries(actionShape)
 
   // handle default callback properties
   const defaultEntries = shapeEntries.filter(
-    ([k, v]) =>
+    ([k, v]: [string, any]) =>
       typeof v === 'object' && ('defaultValue' in v || ('parser' in v && v.parser.description.name === 'Default'))
   ) as Array<[string, MatchesWithDefault<any> | Validator<unknown, unknown>]>
   const defaultValidators = Object.fromEntries(
@@ -185,7 +223,7 @@ function defineAction<Shape extends ActionShape>(actionShape: Shape) {
       ...defaultValues,
       ...partialAction
     }
-    return matchesShape.unsafeCast(action) //as ResolvedAction
+    return matchesShape.unsafeCast(action) as ResolvedAction
   }
 
   actionCreator.actionShape = actionShape
@@ -201,11 +239,19 @@ function defineAction<Shape extends ActionShape>(actionShape: Shape) {
  * @param store
  * @param action
  */
-const dispatchAction = <A extends Action>(store: HyperStore, action: A) => {
-  action.$from = action.$from ?? (store.getDispatchId() as UserId)
+const dispatchAction = <StoreName extends string, A extends Action<StoreName>>(
+  store: HyperStore<StoreName>,
+  action: A
+) => {
+  if (store.name !== action.store) throw new Error('Store mismatch')
+
+  const storeId = store.getDispatchId()
+
+  action.$from = action.$from ?? (storeId as UserId)
   action.$to = action.$to ?? 'all'
   action.$time = action.$time ?? store.getDispatchTime() + store.defaultDispatchDelay
   action.$cache = action.$cache ?? false
+  action.$uuid = action.$uuid ?? MathUtils.generateUUID()
 
   if (process.env.APP_ENV === 'development') {
     const trace = { stack: '' }
@@ -216,8 +262,8 @@ const dispatchAction = <A extends Action>(store: HyperStore, action: A) => {
   }
 
   store.networked
-    ? store.actions.outgoing.push(action as Required<Action>)
-    : store.actions.incoming.push(action as Required<Action>)
+    ? store.actions.outgoing.push(action as Required<Action<StoreName>>)
+    : store.actions.incoming.push(action as Required<Action<StoreName>>)
 }
 
 /**
@@ -225,8 +271,11 @@ const dispatchAction = <A extends Action>(store: HyperStore, action: A) => {
  * @param store
  * @param receptor
  */
-function addActionReceptor(store: HyperStore, receptor: ActionReceptor) {
-  store.receptors.push(receptor)
+function addActionReceptor<StoreName extends string>(
+  store: HyperStore<StoreName>,
+  receptor: ActionReceptor<StoreName>
+) {
+  ;(store.receptors as Array<ActionReceptor<StoreName>>).push(receptor)
 }
 
 /**
@@ -234,12 +283,15 @@ function addActionReceptor(store: HyperStore, receptor: ActionReceptor) {
  * @param store
  * @param receptor
  */
-function removeActionReceptor(store: HyperStore, receptor: ActionReceptor) {
+function removeActionReceptor<StoreName extends string>(
+  store: HyperStore<StoreName>,
+  receptor: ActionReceptor<StoreName>
+) {
   const idx = store.receptors.indexOf(receptor)
-  if (idx >= 0) store.receptors.splice(idx, 1)
+  if (idx >= 0) (store.receptors as Array<ActionReceptor<StoreName>>).splice(idx, 1)
 }
 
-const _updateCachedActions = (store: HyperStore, incomingAction: Required<Action>) => {
+const _updateCachedActions = (store: HyperStore<any>, incomingAction: Required<Action<any>>) => {
   if (incomingAction.$cache) {
     const cachedActions = store.actions.cached
     // see if we must remove any previous actions
@@ -249,7 +301,7 @@ const _updateCachedActions = (store: HyperStore, incomingAction: Required<Action
       const remove = incomingAction.$cache.removePrevious
 
       if (remove) {
-        for (const a of cachedActions) {
+        for (const a of [...cachedActions]) {
           if (a.$from === incomingAction.$from && a.type === incomingAction.type) {
             if (remove === true) {
               const idx = cachedActions.indexOf(a)
@@ -276,17 +328,33 @@ const _updateCachedActions = (store: HyperStore, incomingAction: Required<Action
   }
 }
 
-const _applyAndArchiveIncomingAction = (store: HyperStore, action: Required<Action>) => {
+const _applyAndArchiveIncomingAction = (store: HyperStore<any>, action: Required<Action<any>>, forward = false) => {
+  // ensure actions are idempotent
+  if (store.actions.incomingHistoryUUIDs.has(action.$uuid)) {
+    const idx = store.actions.incoming.indexOf(action)
+    store.actions.incoming.splice(idx, 1)
+    return
+  }
+
   try {
     store[allowStateMutations] = true
     for (const receptor of [...store.receptors]) receptor(action)
     store[allowStateMutations] = false
-    _updateCachedActions(store, action)
+    console.log(`${store.name} ACTION ${action.type}`)
     store.actions.incomingHistory.push(action)
+    if (forward) store.actions.outgoing.push(action)
   } catch (e) {
-    store.actions.incomingHistory.push({ $ERROR: e, ...action } as any)
+    const message = (e as Error).message
+    const stack = (e as Error).stack!.split('\n')
+    stack.shift()
+    store.actions.incomingHistory.push({
+      // @ts-ignore
+      $ERROR: { message, stack },
+      ...action
+    })
     console.error(e)
   } finally {
+    store.actions.incomingHistoryUUIDs.add(action.$uuid)
     const idx = store.actions.incoming.indexOf(action)
     store.actions.incoming.splice(idx, 1)
   }
@@ -297,16 +365,19 @@ const _applyAndArchiveIncomingAction = (store: HyperStore, action: Required<Acti
  *
  * @param store
  * @param action
+ * @param forwardToOutgoing Whether to forward incoming actions to the outgoing queue.
+ * This flag should be set when an authoritative node needs to forwards actions it receives
+ * on the network, after proocessing them locally.
  */
-const applyIncomingActions = (store: HyperStore) => {
-  const { incoming } = store.actions
+const applyIncomingActions = (store: HyperStore<any>, forwardToOutgoing = false) => {
+  const { incoming, outgoing } = store.actions
   const now = store.getDispatchTime()
   for (const action of [...incoming]) {
     if (action.$time > now) {
       continue
     }
-    console.log(`${store.name} ACTION ${action.type}`)
-    _applyAndArchiveIncomingAction(store, action)
+    _updateCachedActions(store, action)
+    _applyAndArchiveIncomingAction(store, action, forwardToOutgoing)
   }
 }
 
@@ -317,16 +388,12 @@ const applyIncomingActions = (store: HyperStore) => {
  * This flag should be set when an authoritative node needs to send actions to the network
  * and also process the actions locally
  */
-const clearOutgoingActions = (store: HyperStore, loopback = false) => {
-  const { outgoing, outgoingHistory, incoming } = store.actions
-  const dispatchId = store.getDispatchId()
+const clearOutgoingActions = (store: HyperStore<any>, loopback = false) => {
+  const { outgoing, outgoingHistory, outgoingHistoryUUIDs, incoming } = store.actions
   for (const action of outgoing) {
     outgoingHistory.push(action)
-    if (
-      loopback &&
-      (action.$to === 'all' || (action.$to === 'others' && action.$from != dispatchId) || action.$to === dispatchId)
-    )
-      incoming.push(action)
+    outgoingHistoryUUIDs.add(action.$uuid)
+    if (loopback) incoming.push(action)
   }
   outgoing.length = 0
 }

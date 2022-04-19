@@ -28,7 +28,7 @@ export const OfflineLocation = () => {
       world.userIndexToUserId.set(index, userId)
       world.clients.set(userId, {
         userId: userId,
-        userIndex: index,
+        index: index,
         name: authState.user.name.value,
         subscribedChatUpdates: []
       })
@@ -40,13 +40,10 @@ export const OfflineLocation = () => {
       receiveJoinWorld({
         elapsedTime: 0,
         clockTime: Date.now(),
-        clients: [
-          {
-            userId,
-            index: 1,
-            name: authState.user.name.value
-          }
-        ],
+        client: {
+          index: 1,
+          name: authState.user.name.value
+        },
         cachedActions: [],
         avatarDetail: {
           avatarURL: avatarDetails.avatarURL,

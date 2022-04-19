@@ -20,7 +20,7 @@ export interface NetworkTransport {
   /**
    * Send actions through reliable channel
    */
-  sendActions(actions: Action[]): void
+  sendActions(actions: Action<'WORLD'>[]): void
 
   /**
    * Sends a message across the connection and resolves with the reponse
