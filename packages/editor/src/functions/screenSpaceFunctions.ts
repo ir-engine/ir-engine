@@ -6,7 +6,7 @@ import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstant
 
 import { executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
-import { accessModeState } from '../services/ModeServices'
+import { accessEditorHelperState } from '../services/EditorHelperState'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 
 /**
@@ -19,7 +19,7 @@ import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 export const getScreenSpacePosition = (() => {
   const raycaster = new Raycaster()
   const raycastTargets: Intersection<Object3D>[] = []
-  const modeState = accessModeState()
+  const editorHelperState = accessEditorHelperState()
 
   return (screenSpacePosition: Vector2, target = new Vector3()): Vector3 => {
     raycastTargets.length = 0
@@ -31,8 +31,8 @@ export const getScreenSpacePosition = (() => {
       raycaster.ray.at(20, target)
     }
 
-    if (modeState.snapMode.value === SnapMode.Grid) {
-      const translationSnap = modeState.translationSnap.value
+    if (editorHelperState.snapMode.value === SnapMode.Grid) {
+      const translationSnap = editorHelperState.translationSnap.value
 
       target.set(
         Math.round(target.x / translationSnap) * translationSnap,

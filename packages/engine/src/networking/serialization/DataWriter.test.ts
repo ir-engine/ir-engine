@@ -199,7 +199,6 @@ describe('DataWriter', () => {
     addComponent(entity, NetworkObjectComponent, {
       networkId,
       ownerId: userId,
-      lastTick: 0,
       prefab: '',
       parameters: {}
     })
@@ -265,7 +264,6 @@ describe('DataWriter', () => {
       addComponent(entity, NetworkObjectComponent, {
         networkId,
         ownerId: userId,
-        lastTick: 0,
         prefab: '',
         parameters: {}
       })
@@ -340,7 +338,6 @@ describe('DataWriter', () => {
       addComponent(entity, NetworkObjectComponent, {
         networkId,
         ownerId: userId,
-        lastTick: 0,
         prefab: '',
         parameters: {}
       })

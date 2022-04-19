@@ -178,7 +178,7 @@ export class World {
    * Get a network object by owner and NetworkId
    * @returns
    */
-  getNetworkObject(ownerId: UserId, networkId: NetworkId) {
+  getNetworkObject(ownerId: UserId, networkId: NetworkId): Entity | undefined {
     return this.networkObjectQuery(this).find((eid) => {
       const networkObject = getComponent(eid, NetworkObjectComponent)
       return networkObject.networkId === networkId && networkObject.ownerId === ownerId

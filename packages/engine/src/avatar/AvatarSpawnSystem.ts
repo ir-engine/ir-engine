@@ -1,6 +1,8 @@
 import { Quaternion, Vector3 } from 'three'
 import matches from 'ts-matches'
 
+import { addActionReceptor } from '@xrengine/hyperflux'
+
 import { AudioTagComponent } from '../audio/components/AudioTagComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
 import { isClient } from '../common/functions/isClient'
@@ -52,7 +54,7 @@ export class SpawnPoints {
 }
 
 export default async function AvatarSpawnSystem(world: World) {
-  world.receptors.push((action) => {
+  function avatarSpawnReceptor(action) {
     matches(action).when(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
       if (isClient) {
         /**
@@ -75,7 +77,8 @@ export default async function AvatarSpawnSystem(world: World) {
         }
       }
     })
-  })
+  }
+  addActionReceptor(world.store, avatarSpawnReceptor)
 
   const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
   return () => {

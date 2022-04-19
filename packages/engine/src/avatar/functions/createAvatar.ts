@@ -37,7 +37,7 @@ export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
   const world = Engine.currentWorld
   const userId = spawnAction.$from
-  const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)
+  const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
 
   const position = createVector3Proxy(TransformComponent.position, entity)
   const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
