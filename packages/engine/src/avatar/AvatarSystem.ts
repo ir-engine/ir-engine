@@ -1,6 +1,8 @@
 import { Group } from 'three'
 import matches from 'ts-matches'
 
+import { addActionReceptor } from '@xrengine/hyperflux'
+
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
@@ -97,7 +99,7 @@ function avatarActionReceptor(action) {
 
     .when(NetworkWorldAction.teleportObject.matches, (a) => {
       const [x, y, z, qX, qY, qZ, qW] = a.pose
-      const entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
+      const entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)!
       const controllerComponent = getComponent(entity, AvatarControllerComponent)
       if (controllerComponent) {
         const velocity = getComponent(entity, VelocityComponent)
@@ -110,7 +112,7 @@ function avatarActionReceptor(action) {
 }
 
 export default async function AvatarSystem(world: World) {
-  world.receptors.push(avatarActionReceptor)
+  addActionReceptor(world.store, avatarActionReceptor)
 
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent])

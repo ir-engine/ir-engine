@@ -66,30 +66,35 @@ export function EngineRendererReceptor(action: EngineRendererActionType) {
 export const EngineRendererAction = {
   setQualityLevel: (qualityLevel: number) => {
     return {
+      store: 'ENGINE' as const,
       type: 'WEBGL_RENDERER_QUALITY_LEVEL' as const,
       qualityLevel
     }
   },
   setAutomatic: (automatic: boolean) => {
     return {
+      store: 'ENGINE' as const,
       type: 'WEBGL_RENDERER_AUTO' as const,
       automatic
     }
   },
   setPBR: (usePBR: boolean) => {
     return {
+      store: 'ENGINE' as const,
       type: 'WEBGL_RENDERER_PBR' as const,
       usePBR
     }
   },
   setPostProcessing: (usePostProcessing: boolean) => {
     return {
+      store: 'ENGINE' as const,
       type: 'WEBGL_RENDERER_POSTPROCESSING' as const,
       usePostProcessing
     }
   },
   setShadows: (useShadows: boolean) => {
     return {
+      store: 'ENGINE' as const,
       type: 'WEBGL_RENDERER_SHADOWS' as const,
       useShadows
     }

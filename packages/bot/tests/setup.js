@@ -5,6 +5,8 @@ require("ts-node").register({
   project: "./tsconfig.json",
 })
 
+process.on('warning', e => console.warn(e.stack));
+
 process.on('SIGTERM', async (err) => {
   console.log('[XREngine Tests]: Server SIGTERM')
   console.log(err)
