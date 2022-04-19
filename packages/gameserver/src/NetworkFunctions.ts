@@ -360,7 +360,7 @@ export function handleIncomingActions(socket, message) {
   for (const a of actions) {
     a['$fromSocketId'] = socket.id
     a.$from = userIdMap[socket.id]
-    world.store.actions.incoming.push(a)
+    dispatchAction(world.store, a)
   }
   // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
 }
