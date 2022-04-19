@@ -1,5 +1,4 @@
 import { createState } from '@speigg/hookstate'
-import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
@@ -144,7 +143,6 @@ const ChatDetailView = () => {
   const detailState = useXRUIState() as ChatDetailState
 
   let activeChannel: Channel | null = null
-  const messageRef = React.useRef<HTMLInputElement>()
   const user = useAuthState().user
   const chatState = useChatState()
   const channelState = chatState.channels
@@ -197,9 +195,6 @@ const ChatDetailView = () => {
     }
   }
 
-  //const [chatWindowOpen, setChatWindowOpen] = React.useState(false)
-  const [isMultiline, setIsMultiline] = React.useState(false)
-  const [cursorPosition, setCursorPosition] = React.useState(0)
   const toggleChatWindow = () => {
     detailState.chatWindowOpen.set(!detailState.chatWindowOpen.value)
     detailState.chatWindowOpen.value && setUnreadMessages(false)
@@ -227,12 +222,6 @@ const ChatDetailView = () => {
       !detailState.chatWindowOpen.value &&
       setUnreadMessages(true)
   }, [activeChannel?.messages])
-
-  useEffect(() => {
-    if (isMultiline) {
-      ;(messageRef.current as HTMLInputElement).selectionStart = cursorPosition + 1
-    }
-  }, [isMultiline])
 
   useEffect(() => {
     window.addEventListener('resize', handleWindowResize)
@@ -321,12 +310,10 @@ const ChatDetailView = () => {
           <div style={styles.messageBoxContainer}>
             <input
               xr-layer=""
-              ref={messageRef}
               type="text"
               placeholder={'World Chat...'}
               value={composingMessage}
               onChange={(evt) => handleComposingMessageChange(evt)}
-              onClick={() => (messageRef as any)?.current?.focus()}
               style={{
                 ...(styles.messageInputBox as {}),
                 ...((detailState.chatWindowOpen.value ? {} : styles.hide) as {})
@@ -335,18 +322,15 @@ const ChatDetailView = () => {
                 if (e.key === 'Enter' && e.ctrlKey) {
                   e.preventDefault()
                   const selectionStart = (e.target as HTMLInputElement).selectionStart
-                  setCursorPosition(selectionStart || 0)
+
                   setComposingMessage(
                     composingMessage.substring(0, selectionStart || 0) +
                       '\n' +
                       composingMessage.substring(selectionStart || 0)
                   )
-                  !isMultiline && setIsMultiline(true)
                 } else if (e.key === 'Enter' && !e.ctrlKey) {
                   e.preventDefault()
                   packageMessage()
-                  isMultiline && setIsMultiline(false)
-                  setCursorPosition(0)
                 }
               }}
             />
