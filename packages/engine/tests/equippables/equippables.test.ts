@@ -31,7 +31,7 @@ describe('Equippables Integration Tests', () => {
     const hostUserId = 'server' as UserId
     world.hostId = hostUserId
     const hostIndex = 0
-    world.clients.set(hostUserId, { userId: hostUserId, name: 'server', userIndex: hostIndex })
+    world.clients.set(hostUserId, { userId: hostUserId, name: 'server', index: hostIndex })
 
     await Engine.currentWorld.physics.createScene({ verbose: true })
 
@@ -72,7 +72,6 @@ describe('Equippables Integration Tests', () => {
     // initially the object is owned by server
     const networkObject = addComponent(equippableEntity, NetworkObjectComponent, {
       ownerId: world.hostId,
-      lastTick: 0,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}
