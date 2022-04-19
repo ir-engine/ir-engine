@@ -141,4 +141,14 @@ export class NetworkWorldAction {
     }),
     newAuthor: matchesUserId
   })
+
+  static userTyping = defineAction({
+    store: 'WORLD',
+    type: 'network.USER_IS_TYPING',
+    object: matches.shape({
+      typing: matches.boolean,
+      notTyping: matches.boolean,
+      user: matchesUserId
+    })
+  })
 }

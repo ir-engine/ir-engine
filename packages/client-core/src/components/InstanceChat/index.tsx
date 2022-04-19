@@ -8,6 +8,7 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { NetworkActionReceptor } from '@xrengine/engine/src/networking/functions/NetworkActionReceptor'
 
 import { Message as MessageIcon, Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
@@ -56,6 +57,14 @@ const InstanceChat = (props: Props): any => {
   }
 
   useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      // Dispatch not typing
+    }, 3000)
+
+    return () => clearTimeout(delayDebounce)
+  }, [composingMessage])
+
+  useEffect(() => {
     if (
       user?.instanceId?.value &&
       instanceConnectionState.instance.id?.value &&
@@ -81,7 +90,17 @@ const InstanceChat = (props: Props): any => {
 
   const handleComposingMessageChange = (event: any): void => {
     const message = event.target.value
+    if (message.length > composingMessage.length) {
+      // Dispatch Typing
+    }
+    if (message.length == 0 || message.length < composingMessage.length) {
+      // Dispatch not Typing
+    }
+
     setComposingMessage(message)
+    // NetworkActionReceptor.setUserTypingStatus(Engine.currentWorld, {
+    //   object: { typing: true, notTyping: false, user: user.id.value }
+    // })
   }
 
   const packageMessage = (): void => {

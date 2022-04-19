@@ -1,6 +1,7 @@
 import { createState } from '@speigg/hookstate'
 import React from 'react'
 
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
@@ -37,6 +38,14 @@ type CharacterDetailState = ReturnType<typeof createAvatarDetailState>
 const CharacterDetailView = () => {
   const detailState = useXRUIState() as CharacterDetailState
   const userState = useUserState()
+
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
-  return user ? <div style={styles.avatarName as {}}>{user.name.value}</div> : <div></div>
+  return user ? (
+    <div style={styles.avatarName as {}}>
+      {user.name.value}
+      <h6 style={{ margin: 0, padding: 0 }}>Typing...</h6>
+    </div>
+  ) : (
+    <div></div>
+  )
 }
