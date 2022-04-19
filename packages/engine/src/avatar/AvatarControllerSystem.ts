@@ -4,14 +4,18 @@ import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
+import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme } from '../input/enums/InputEnums'
+import { XRAxes } from '../input/enums/InputEnums'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
+import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { setAvatarHeadOpacity } from './functions/avatarFunctions'
 import { moveAvatar, moveXRAvatar, rotateXRAvatar } from './functions/moveAvatar'
+import { accessAvatarInputState } from './state/AvatarInputState'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
@@ -78,5 +82,17 @@ export default async function AvatarControllerSystem(world: World) {
     }
 
     return world
+  }
+}
+
+export const updateMap = () => {
+  const avatarInputState = accessAvatarInputState()
+  const inputMap = AvatarInputSchema.inputMap
+  if (avatarInputState.invertRotationAndMoveSticks.value) {
+    inputMap.set(XRAxes.Left, BaseInput.XR_AXIS_LOOK)
+    inputMap.set(XRAxes.Right, BaseInput.XR_AXIS_MOVE)
+  } else {
+    inputMap.set(XRAxes.Left, BaseInput.XR_AXIS_MOVE)
+    inputMap.set(XRAxes.Right, BaseInput.XR_AXIS_LOOK)
   }
 }
