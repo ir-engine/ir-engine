@@ -1,5 +1,27 @@
 import { client } from '@xrengine/client-core/src/feathers'
 import { uploadToFeathersService } from '@xrengine/client-core/src/util/upload'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
+import { Object3DComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
+
+import { accessEditorState } from '../services/EditorServices'
+
+export const exportAsset = async (node: EntityTreeNode) => {
+  const asset = getComponent(node.entity, AssetComponent)
+  const projectName = accessEditorState().projectName.value!
+  const assetName = asset.name
+  if (!(node.children && node.children.length > 0)) {
+    console.warn('Exporting empty asset')
+  }
+
+  const obj3ds = node.children!.map((root) => getComponent(root, Object3DComponent).value!)
+
+  const exportable = sceneToGLTF(obj3ds as Object3DWithEntity[])
+  const uploadable = new File([JSON.stringify(exportable)], `${assetName}.xre.gltf`)
+  return await uploadProjectFile(projectName, [uploadable], true)
+}
 
 export const uploadProjectFile = async (
   projectName: string,
@@ -91,5 +113,14 @@ export const getEntries = async (directoryReader: FileSystemDirectoryReader): Pr
   } catch (err) {
     console.log(err)
     return null!
+  }
+}
+
+export const extractZip = async (path: string): Promise<any> => {
+  try {
+    const parms = { path: path }
+    //await client.service('asset-library').create(parms)
+  } catch (err) {
+    throw err
   }
 }
