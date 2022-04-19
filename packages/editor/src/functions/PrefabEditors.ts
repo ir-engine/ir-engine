@@ -3,6 +3,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { SCENE_COMPONENT_SCENE_TAG } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { SCENE_COMPONENT_AMBIENT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/AmbientLightFunctions'
+import { SCENE_COMPONENT_ASSET } from '@xrengine/engine/src/scene/functions/loaders/AssetComponentFunctions'
 import { SCENE_COMPONENT_AUDIO } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { SCENE_COMPONENT_BOX_COLLIDER } from '@xrengine/engine/src/scene/functions/loaders/BoxColliderFunctions'
 import { SCENE_COMPONENT_CAMERA_PROPERTIES } from '@xrengine/engine/src/scene/functions/loaders/CameraPropertiesFunctions'
@@ -33,6 +34,7 @@ import { SCENE_COMPONENT_WATER } from '@xrengine/engine/src/scene/functions/load
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
+import { AssetNodeEditor } from '../components/properties/AssetNodeEditor'
 import AudioNodeEditor from '../components/properties/AudioNodeEditor'
 import BoxColliderNodeEditor from '../components/properties/BoxColliderNodeEditor'
 import CameraPropertiesNodeEditor from '../components/properties/CameraPropertiesNodeEditor'
@@ -91,6 +93,7 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_TRIGGER_VOLUME]: TriggerVolumeNodeEditor,
   [SCENE_COMPONENT_BOX_COLLIDER]: BoxColliderNodeEditor,
   [SCENE_COMPONENT_GROUP]: GroupNodeEditor,
+  [SCENE_COMPONENT_ASSET]: AssetNodeEditor,
   [SCENE_COMPONENT_POSTPROCESSING]: PostProcessingNodeEditor,
   [SCENE_COMPONENT_SCENE_TAG]: SceneNodeEditor,
   [SCENE_COMPONENT_SCENE_PREVIEW_CAMERA]: ScenePreviewCameraNodeEditor,
@@ -124,6 +127,7 @@ export const prefabIcons = {
   [ScenePrefabs.triggerVolume]: TriggerVolumeNodeEditor.iconComponent,
   [ScenePrefabs.boxCollider]: BoxColliderNodeEditor.iconComponent,
   [ScenePrefabs.group]: GroupNodeEditor.iconComponent,
+  [ScenePrefabs.asset]: InteriorNodeEditor.iconComponent,
   [ScenePrefabs.postProcessing]: PostProcessingNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
   [ScenePrefabs.skybox]: SkyboxNodeEditor.iconComponent,

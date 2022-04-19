@@ -1,7 +1,6 @@
 import { Quaternion, SkinnedMesh, Vector2, Vector3 } from 'three'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import { accessEngineState, EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 // import { boxDynamicConfig } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
@@ -46,15 +45,17 @@ import {
   unequipEntity
 } from '../interaction/functions/equippableFunctions'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
+import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
-import { XR_ROTATION_MODE, XRUserSettings } from '../xr/types/XRUserSettings'
+import { XR_ROTATION_MODE } from '../xr/types/XRUserSettings'
 import { AvatarSettings } from './AvatarControllerSystem'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarSwerveComponent } from './components/AvatarSwerveComponent'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
+import { accessAvatarInputState } from './state/AvatarInputState'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -428,13 +429,14 @@ const moveFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
 
 const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const values = inputValue.value
-  const rotationAngle = XRUserSettings.rotationAngle
+  const avatarInputState = accessAvatarInputState()
+  const rotationAngle = avatarInputState.rotationAngle.value
   let newAngleDiff = 0
-  switch (XRUserSettings.rotation) {
+  switch (avatarInputState.rotation.value) {
     case XR_ROTATION_MODE.ANGLED:
       if (switchChangedToZero && values[0] != 0) {
-        const plus = XRUserSettings.rotationInvertAxes ? -1 : 1
-        const minus = XRUserSettings.rotationInvertAxes ? 1 : -1
+        const plus = avatarInputState.rotationInvertAxes.value ? -1 : 1
+        const minus = avatarInputState.rotationInvertAxes.value ? 1 : -1
         const directedAngle = values[0] > 0 ? rotationAngle * plus : rotationAngle * minus
         newAngleDiff = directedAngle
         switchChangedToZero = false
@@ -447,7 +449,8 @@ const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
       }
       break
     case XR_ROTATION_MODE.SMOOTH:
-      newAngleDiff = values[0] * XRUserSettings.rotationSmoothSpeed * (XRUserSettings.rotationInvertAxes ? -1 : 1)
+      newAngleDiff =
+        values[0] * avatarInputState.rotationSmoothSpeed.value * (avatarInputState.rotationInvertAxes.value ? -1 : 1)
       break
   }
   const transform = getComponent(entity, TransformComponent)
@@ -513,13 +516,16 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
     //   })
     // )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
-    dispatchAction(Engine.store, EngineActions.setPhysicsDebug(!accessEngineState().isPhysicsDebug.value))
+    dispatchAction(
+      Engine.store,
+      EngineRendererAction.setPhysicsDebug(!accessEngineRendererState().physicsDebugEnable.value)
+    )
   }
 }
 
 export const createAvatarInput = () => {
   const map: Map<InputAlias | Array<InputAlias>, InputAlias> = new Map()
-
+  const avatarInputState = accessAvatarInputState()
   map.set(MouseInput.LeftButton, BaseInput.PRIMARY)
   map.set(MouseInput.RightButton, BaseInput.SECONDARY)
   map.set(MouseInput.MiddleButton, BaseInput.INTERACT)
@@ -553,13 +559,8 @@ export const createAvatarInput = () => {
   map.set(GamepadAxis.Left, BaseInput.MOVEMENT_PLAYERONE)
   map.set(GamepadAxis.Right, BaseInput.GAMEPAD_STICK_RIGHT)
 
-  if (XRUserSettings.invertRotationAndMoveSticks) {
-    map.set(XRAxes.Left, BaseInput.XR_AXIS_LOOK)
-    map.set(XRAxes.Right, BaseInput.XR_AXIS_MOVE)
-  } else {
-    map.set(XRAxes.Left, BaseInput.XR_AXIS_MOVE)
-    map.set(XRAxes.Right, BaseInput.XR_AXIS_LOOK)
-  }
+  map.set(XRAxes.Left, BaseInput.XR_AXIS_LOOK)
+  map.set(XRAxes.Right, BaseInput.XR_AXIS_MOVE)
 
   map.set(XR6DOF.HMD, BaseInput.XR_HEAD)
   map.set(XR6DOF.LeftHand, BaseInput.XR_CONTROLLER_LEFT_HAND)

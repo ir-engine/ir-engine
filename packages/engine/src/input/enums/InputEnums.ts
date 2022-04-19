@@ -79,3 +79,9 @@ export enum AvatarMovementScheme {
   Linear = 150,
   Teleport = 151
 }
+
+export enum AvatarControllerType {
+  None = 'None',
+  XRHands = 'XR Hands',
+  OculusQuest = 'Oculus Quest'
+}

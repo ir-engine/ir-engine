@@ -12,6 +12,7 @@ import { createWorld } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AnimationState } from '../animation/AnimationState'
 import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
@@ -63,22 +64,18 @@ describe('avatarFunctions Integration', async () => {
           const networkObject = addComponent(entity, NetworkObjectComponent, {
             // remote owner
             ownerId: Engine.userId,
-            lastTick: 0,
             networkId: i as NetworkId,
             prefab: '',
             parameters: {}
           })
 
-          createAvatar({
-            prefab: 'avatar',
-            parameters: { position: new Vector3(), rotation: new Quaternion() },
-            type: 'network.SPAWN_OBJECT',
-            networkId: networkObject.networkId,
-            $from: Engine.userId,
-            $to: 'all',
-            $time: 0,
-            $cache: true
-          })
+          createAvatar(
+            NetworkWorldAction.spawnAvatar({
+              $from: Engine.userId,
+              parameters: { position: new Vector3(), rotation: new Quaternion() },
+              networkId: networkObject.networkId
+            })
+          )
 
           const avatar = getComponent(entity, AvatarComponent)
           // make sure this is set later on

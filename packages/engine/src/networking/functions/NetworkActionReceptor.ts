@@ -31,7 +31,7 @@ const addClient = (world: World, userId: UserId, name: string, index: number) =>
 
   world.clients.set(userId, {
     userId: userId,
-    userIndex: index,
+    index: index,
     name,
     subscribedChatUpdates: []
   })
@@ -45,14 +45,16 @@ const removeClient = (world: World, userId: UserId, allowRemoveSelf = false) => 
 
   for (const eid of world.getOwnedNetworkObjects(userId)) {
     const { networkId } = getComponent(eid, NetworkObjectComponent)
-    world.store.actions.incoming.push(NetworkWorldAction.destroyObject({ $from: userId, networkId }))
+    const destroyObjectAction = NetworkWorldAction.destroyObject({ $from: userId, networkId })
+    destroyObject(world, destroyObjectAction)
   }
 
-  const { userIndex } = world.clients.get(userId)!
+  const { index: userIndex } = world.clients.get(userId)!
   world.userIdToUserIndex.delete(userId)
   world.userIndexToUserId.delete(userIndex)
   world.clients.delete(userId)
   world.namedEntities.delete(userId)
+  world.store.actions.cached = world.store.actions.cached.filter((action) => action.$from !== userId)
 }
 
 const spawnObject = (world: World, action: ReturnType<typeof NetworkWorldAction.spawnObject>) => {
@@ -96,8 +98,7 @@ const spawnObject = (world: World, action: ReturnType<typeof NetworkWorldAction.
     ownerId: action.$from,
     networkId: action.networkId,
     prefab: action.prefab,
-    parameters: action.parameters,
-    lastTick: 0
+    parameters: action.parameters
   })
 }
 
@@ -199,7 +200,9 @@ const createNetworkActionReceptor = (world: World) =>
         // todo: smooth out time sync over multiple frames
         world.elapsedTime = elapsedTime + (Date.now() - clockTime) / 1000
       })
-      .when(NetworkWorldAction.createClient.matches, ({ $from, name, index }) => addClient(world, $from, name, index))
+      .when(NetworkWorldAction.createClient.matches, ({ $from, name, index: userIndex }) =>
+        addClient(world, $from, name, userIndex)
+      )
       .when(NetworkWorldAction.destroyClient.matches, ({ $from }) => removeClient(world, $from))
       .when(NetworkWorldAction.spawnObject.matches, (a) => spawnObject(world, a))
       .when(NetworkWorldAction.spawnDebugPhysicsObject.matches, (a) => spawnDebugPhysicsObject(world, a))

@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next'
 import JSONTree from 'react-json-tree'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -14,6 +15,7 @@ export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
   const showingStateRef = useRef(isShowing)
   const engineState = useEngineState()
+  const engineRendererState = useEngineRendererState()
   const { t } = useTranslation()
   function setupListener() {
     window.addEventListener('keydown', downHandler)
@@ -42,11 +44,11 @@ export const Debug = () => {
   const [remountCount, setRemountCount] = useState(0)
   const refresh = () => setRemountCount(remountCount + 1)
   const togglePhysicsDebug = () => {
-    dispatchAction(Engine.store, EngineActions.setPhysicsDebug(!engineState.isPhysicsDebug.value) as any)
+    dispatchAction(Engine.store, EngineRendererAction.setPhysicsDebug(!engineRendererState.physicsDebugEnable.value))
   }
 
   const toggleAvatarDebug = () => {
-    dispatchAction(Engine.store, EngineActions.setAvatarDebug(!engineState.isAvatarDebug.value) as any)
+    dispatchAction(Engine.store, EngineRendererAction.setAvatarDebug(!engineRendererState.avatarDebugEnable.value))
   }
 
   const renderNamedEntities = () => {

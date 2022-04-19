@@ -20,11 +20,11 @@ export class TestNetworkTransport implements NetworkTransport {
     return this.packets
   }
 
-  sentActions: Action[] = []
-  sendActions(actions: Action[]): void {
+  sentActions: Action<'WORLD'>[] = []
+  sendActions(actions: Action<'WORLD'>[]): void {
     this.sentActions = [...actions]
   }
-  public getSentActions(): Action[] {
+  public getSentActions(): Action<'WORLD'>[] {
     return this.sentActions
   }
 

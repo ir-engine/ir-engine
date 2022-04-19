@@ -1,5 +1,7 @@
 /** List of Asset Types. */
 export enum AssetType {
+  XRE = 'xre.gltf',
+  glB = 'glb',
   glTF = 'gltf',
   FBX = 'fbx',
   OBJ = 'obj',

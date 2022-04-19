@@ -1,5 +1,7 @@
 import { Audio as AudioObject } from 'three'
 
+import { addActionReceptor } from '@xrengine/hyperflux'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -45,7 +47,7 @@ export default async function PositionalAudioSystem(world: World) {
 
   const avatarAudioStream: Map<Entity, any> = new Map()
 
-  Engine.currentWorld.receptors.push((action: EngineActionType) => {
+  function audioReceptors(action: EngineActionType) {
     switch (action.type) {
       case EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS:
         console.log('starting suspended audio nodes')
@@ -70,7 +72,8 @@ export default async function PositionalAudioSystem(world: World) {
         }
         break
     }
-  })
+  }
+  addActionReceptor(Engine.store, audioReceptors)
 
   let positionalAudioSettings: PositionalAudioSettingsComponentType
 

@@ -1,10 +1,12 @@
 import { dispatchAction } from '@xrengine/hyperflux'
 
+import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { NetworkWorldAction } from './NetworkWorldAction'
 
 export async function validateNetworkObjects(world: World): Promise<void> {
   for (const [userId, client] of world.clients) {
+    if (userId === Engine.userId) continue
     // Validate that user has phoned home recently
     if (Date.now() - client.lastSeenTs > 30000) {
       console.log('Removing client ', userId, ' due to inactivity')

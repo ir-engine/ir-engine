@@ -6,6 +6,7 @@ import {
   shouldDeserializeAmbientLight,
   updateAmbientLight
 } from './loaders/AmbientLightFunctions'
+import { deserializeAsset, SCENE_COMPONENT_ASSET, serializeAsset } from './loaders/AssetComponentFunctions'
 import {
   deserializeAudio,
   prepareAudioForGLTFExport,
@@ -336,6 +337,11 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
     deserialize: deserializeGroup,
     serialize: serializeGroup
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_ASSET, {
+    deserialize: deserializeAsset,
+    serialize: serializeAsset
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_LOOP_ANIMATION, {
