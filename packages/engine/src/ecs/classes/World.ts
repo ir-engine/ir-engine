@@ -96,7 +96,7 @@ export class World {
 
   store = createHyperStore({
     name: 'WORLD',
-    networked: true,
+    getDispatchMode: () => (this.isHosting ? 'host' : 'peer'),
     getDispatchId: () => Engine.userId,
     getDispatchTime: () => this.fixedTick,
     defaultDispatchDelay: 1
