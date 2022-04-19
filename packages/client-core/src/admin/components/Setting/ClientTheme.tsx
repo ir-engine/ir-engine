@@ -318,6 +318,11 @@ const ClientTheme = () => {
           background: ${theme.iconButtonSelectedBackground};
         }
 
+        .iconButtonSelected:hover {
+          opacity: 0.8;
+          background: ${theme.iconButtonHoverColor};
+        }
+
         .iconButton:hover {
           opacity: 0.8;
           background: ${theme.iconButtonHoverColor};
