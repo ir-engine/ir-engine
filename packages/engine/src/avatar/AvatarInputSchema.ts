@@ -1,7 +1,6 @@
 import { Quaternion, SkinnedMesh, Vector2, Vector3 } from 'three'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import { accessEngineState, EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 // import { boxDynamicConfig } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
@@ -46,6 +45,7 @@ import {
   unequipEntity
 } from '../interaction/functions/equippableFunctions'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
+import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
@@ -516,7 +516,10 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
     //   })
     // )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
-    dispatchAction(Engine.store, EngineActions.setPhysicsDebug(!accessEngineState().isPhysicsDebug.value))
+    dispatchAction(
+      Engine.store,
+      EngineRendererAction.setPhysicsDebug(!accessEngineRendererState().physicsDebugEnable.value)
+    )
   }
 }
 

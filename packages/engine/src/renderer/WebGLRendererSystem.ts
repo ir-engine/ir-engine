@@ -16,7 +16,6 @@ import { PerspectiveCamera, sRGBEncoding, WebGL1Renderer, WebGLRenderer, WebGLRe
 
 import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
-import { ClientStorage } from '../common/classes/ClientStorage'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
@@ -25,8 +24,12 @@ import { accessEngineState, EngineActions, EngineActionType } from '../ecs/class
 import { World } from '../ecs/classes/World'
 import { receiveActionOnce } from '../networking/functions/matchActionOnce'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
-import { accessEngineRendererState, EngineRendererAction, EngineRendererReceptor } from './EngineRendererState'
-import { databasePrefix, RENDERER_SETTINGS } from './EngineRnedererConstants'
+import {
+  accessEngineRendererState,
+  EngineRendererAction,
+  EngineRendererReceptor,
+  restoreEngineRendererData
+} from './EngineRendererState'
 import { configureEffectComposer } from './functions/configureEffectComposer'
 import WebGL from './THREE.WebGL'
 
@@ -233,29 +236,12 @@ export class EngineRenderer {
     dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(state.qualityLevel.value))
     dispatchAction(Engine.store, EngineRendererAction.setPostProcessing(state.qualityLevel.value > 2))
   }
-
-  async loadGraphicsSettingsFromStorage() {
-    const [automatic, qualityLevel, useShadows, /* pbr, */ usePostProcessing] = await Promise.all([
-      ClientStorage.get(databasePrefix + RENDERER_SETTINGS.AUTOMATIC) as Promise<boolean>,
-      ClientStorage.get(databasePrefix + RENDERER_SETTINGS.QUALITY_LEVEL) as Promise<number>,
-      ClientStorage.get(databasePrefix + RENDERER_SETTINGS.USE_SHADOWS) as Promise<boolean>,
-      // ClientStorage.get(databasePrefix + RENDERER_SETTINGS.PBR) as Promise<boolean>,
-      ClientStorage.get(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING) as Promise<boolean>
-    ])
-    dispatchAction(Engine.store, EngineRendererAction.setAutomatic(automatic ?? true))
-    dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(qualityLevel ?? 1))
-    dispatchAction(Engine.store, EngineRendererAction.setShadows(useShadows ?? true))
-    // dispatchAction(Engine.store, EngineRendererAction.setPBR(pbr ?? true))
-    dispatchAction(Engine.store, EngineRendererAction.setPostProcessing(usePostProcessing ?? true))
-  }
 }
 
 export default async function WebGLRendererSystem(world: World) {
   new EngineRenderer()
 
-  receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, () =>
-    EngineRenderer.instance.loadGraphicsSettingsFromStorage()
-  )
+  receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, () => restoreEngineRendererData())
 
   addActionReceptor(Engine.store, EngineRendererReceptor)
 
