@@ -50,7 +50,8 @@ export const uploadToFeathersService = (
         const status = request.status
         if (status === 0 || (status >= 200 && status < 400)) {
           console.log('The request has been completed successfully')
-          resolve()
+          const response = JSON.parse(request.responseText)
+          resolve(response)
         } else {
           console.log('Oh no! There has been an error with the request!', request, e)
           reject()
