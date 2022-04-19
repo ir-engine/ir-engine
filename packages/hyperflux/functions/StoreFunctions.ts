@@ -11,10 +11,11 @@ export interface HyperStore<StoreName extends string> {
    */
   name: StringLiteral<StoreName>
   /**
-   *  If this store is networked, actions are dispatched on the outgoing queue.
-   *  If this store is not networked, actions are dispatched on the incoming queue.
+   *  If the store mode is `local`, actions are dispatched on the incoming queue.
+   *  If the store mode is `host`, actions are dispatched on the incoming queue and then forwarded to the outgoing queue.
+   *  If the store mode is `peer`, actions are dispatched on the outgoing queue.
    */
-  networked: boolean
+  getDispatchMode: () => 'local' | 'host' | 'peer'
   /**
    * A function which returns the dispatch id assigned to actions
    * */
@@ -59,14 +60,14 @@ export interface HyperStore<StoreName extends string> {
 
 function createHyperStore<StoreName extends string>(options: {
   name: StringLiteral<StoreName>
-  networked?: boolean
+  getDispatchMode?: () => 'local' | 'host' | 'peer'
   getDispatchId: () => string
   getDispatchTime: () => number
   defaultDispatchDelay?: number
 }) {
   return {
     name: options.name,
-    networked: options.networked ?? false,
+    getDispatchMode: options.getDispatchMode ?? (() => 'local'),
     getDispatchId: options.getDispatchId,
     getDispatchTime: options.getDispatchTime,
     defaultDispatchDelay: options.defaultDispatchDelay ?? 0,
