@@ -338,9 +338,9 @@ const _applyAndArchiveIncomingAction = (store: HyperStore<any>, action: Required
 
   try {
     store[allowStateMutations] = true
+    console.log(`${store.name} ACTION ${action.type}`, action)
     for (const receptor of [...store.receptors]) receptor(action)
     store[allowStateMutations] = false
-    console.log(`${store.name} ACTION ${action.type}`)
     store.actions.incomingHistory.push(action)
     if (forward) store.actions.outgoing.push(action)
   } catch (e) {
