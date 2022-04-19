@@ -14,7 +14,7 @@ import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/com
 
 import { EditorHistory, executeCommand, executeCommandWithHistoryOnSelection, revertHistory } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
-import { accessModeState, ModeAction } from '../services/ModeServices'
+import { accessEditorHelperState, EditorHelperAction } from '../services/EditorHelperState'
 import { accessSelectionState } from '../services/SelectionServices'
 import { SceneState } from './sceneRenderFunctions'
 
@@ -39,41 +39,41 @@ export const setTransformMode = (mode: TransformModeType): void => {
   }
 
   if (mode !== TransformMode.Placement && mode !== TransformMode.Grab) {
-    useDispatch()(ModeAction.changeTransformModeOnCancel(mode))
+    useDispatch()(EditorHelperAction.changeTransformModeOnCancel(mode))
   }
 
   EditorHistory.grabCheckPoint = undefined
   SceneState.transformGizmo.setTransformMode(mode)
-  useDispatch()(ModeAction.changedTransformMode(mode))
+  useDispatch()(EditorHelperAction.changedTransformMode(mode))
 }
 
 export const toggleSnapMode = (): void => {
   useDispatch()(
-    ModeAction.changedSnapMode(
-      accessModeState().snapMode.value === SnapMode.Disabled ? SnapMode.Grid : SnapMode.Disabled
+    EditorHelperAction.changedSnapMode(
+      accessEditorHelperState().snapMode.value === SnapMode.Disabled ? SnapMode.Grid : SnapMode.Disabled
     )
   )
 }
 
 export const setTransformPivot = (pivot: TransformPivotType) => {
-  useDispatch()(ModeAction.changedTransformPivotMode(pivot))
+  useDispatch()(EditorHelperAction.changedTransformPivotMode(pivot))
 }
 
 export const toggleTransformPivot = () => {
   const pivots = Object.keys(TransformPivot)
-  const nextIndex = (pivots.indexOf(accessModeState().transformPivot.value) + 1) % pivots.length
+  const nextIndex = (pivots.indexOf(accessEditorHelperState().transformPivot.value) + 1) % pivots.length
 
-  useDispatch()(ModeAction.changedTransformPivotMode(TransformPivot[pivots[nextIndex]]))
+  useDispatch()(EditorHelperAction.changedTransformPivotMode(TransformPivot[pivots[nextIndex]]))
 }
 
 export const setTransformSpace = (transformSpace: TransformSpace) => {
-  useDispatch()(ModeAction.changedTransformSpaceMode(transformSpace))
+  useDispatch()(EditorHelperAction.changedTransformSpaceMode(transformSpace))
 }
 
 export const toggleTransformSpace = () => {
   useDispatch()(
-    ModeAction.changedTransformSpaceMode(
-      accessModeState().transformSpace.value === TransformSpace.World
+    EditorHelperAction.changedTransformSpaceMode(
+      accessEditorHelperState().transformSpace.value === TransformSpace.World
         ? TransformSpace.LocalSelection
         : TransformSpace.World
     )
@@ -81,13 +81,13 @@ export const toggleTransformSpace = () => {
 }
 
 export const cancelGrabOrPlacement = () => {
-  const modeState = accessModeState()
+  const editorHelperState = accessEditorHelperState()
 
-  if (modeState.transformMode.value === TransformMode.Grab) {
-    setTransformMode(modeState.transformModeOnCancel.value)
+  if (editorHelperState.transformMode.value === TransformMode.Grab) {
+    setTransformMode(editorHelperState.transformModeOnCancel.value)
     if (EditorHistory.grabCheckPoint) revertHistory(EditorHistory.grabCheckPoint)
-  } else if (modeState.transformMode.value === TransformMode.Placement) {
-    setTransformMode(modeState.transformModeOnCancel.value)
+  } else if (editorHelperState.transformMode.value === TransformMode.Placement) {
+    setTransformMode(editorHelperState.transformModeOnCancel.value)
     executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS, {
       deselectObject: true
     })

@@ -12,7 +12,7 @@ export const respawnAvatar = (entity: Entity) => {
   console.log('\n\n\n\n\n\n\n\n\n\n\nRESPAWN AVATAR\n\n\n\n\n\n', position)
   const networkObject = getComponent(entity, NetworkObjectComponent)
   dispatchAction(
-    Engine.store,
+    Engine.currentWorld.store,
     NetworkWorldAction.teleportObject({
       object: {
         ownerId: Engine.userId,

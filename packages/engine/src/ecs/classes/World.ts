@@ -34,6 +34,10 @@ type RemoveIndex<T> = {
   [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
 }
 
+const TimerConfig = {
+  MAX_DELTA: 1 / 10
+}
+
 export const CreateWorld = Symbol('CreateWorld')
 export class World {
   private constructor() {
@@ -67,10 +71,25 @@ export class World {
   sceneMetadata = undefined as string | undefined
   worldMetadata = {} as { [key: string]: string }
 
-  delta = NaN
-  elapsedTime = NaN
-  fixedDelta = NaN
+  /**
+   * The current delta time in seconds
+   */
+  delta = 0
+  /**
+   * The current elapsed time in seconds
+   */
+  elapsedTime = 0
+  /**
+   * The current fixed delta in seconds (generally 1/60)
+   */
+  fixedDelta = 0
+  /**
+   * The current fixed time in seconds
+   */
   fixedElapsedTime = 0
+  /**
+   * The current fixed tick (fixedElapsedTime / fixedDelta)
+   */
   fixedTick = 0
 
   _pipeline = [] as SystemModuleType<any>[]
@@ -159,7 +178,7 @@ export class World {
    * Get a network object by owner and NetworkId
    * @returns
    */
-  getNetworkObject(ownerId: UserId, networkId: NetworkId) {
+  getNetworkObject(ownerId: UserId, networkId: NetworkId): Entity | undefined {
     return this.networkObjectQuery(this).find((eid) => {
       const networkObject = getComponent(eid, NetworkObjectComponent)
       return networkObject.networkId === networkId && networkObject.ownerId === ownerId
@@ -195,16 +214,16 @@ export class World {
   /**
    * Execute systems on this world
    *
-   * @param delta
-   * @param elapsedTime
+   * @param delta in seconds
+   * @param elapsedTime in seconds
    */
-  execute(delta: number, elapsedTime: number) {
+  execute(delta: number) {
     const start = nowMilliseconds()
     const incomingActions = [...this.store.actions.incoming]
     const incomingBufferLength = Network.instance?.incomingMessageQueueUnreliable.getBufferLength()
 
-    this.delta = delta
-    this.elapsedTime = elapsedTime
+    this.delta = Math.min(TimerConfig.MAX_DELTA, delta)
+    this.elapsedTime += delta
 
     for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.execute()
     for (const system of this.pipelines[SystemUpdateType.PRE_RENDER]) system.execute()

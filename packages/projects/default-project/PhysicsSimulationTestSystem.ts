@@ -181,7 +181,7 @@ export const generatePhysicsObject = (
           prefab: '',
           parameters: { sceneEntityId: node.uuid, position: transform.position }
         })
-      ).cache()
+      )
     }
   }
 }
