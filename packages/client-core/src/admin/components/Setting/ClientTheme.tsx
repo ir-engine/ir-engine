@@ -4,7 +4,18 @@ import SketchColorPicker from '@xrengine/client-core/src/admin/common/SketchColo
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 
 import SettingIcon from '@mui/icons-material/Settings'
-import { Box, Divider, FormControlLabel, Grid, IconButton, List, ListItem, ListItemText, Switch } from '@mui/material'
+import {
+  Box,
+  Button,
+  Divider,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Switch
+} from '@mui/material'
 import { styled } from '@mui/material/styles'
 
 import styles from '../../styles/settings.module.scss'
@@ -75,18 +86,20 @@ const ClientTheme = () => {
       textHeading: '#FFF',
       textSubheading: '#FFF',
       textDescription: '#FFF',
-      iconButtonColor: '',
-      iconButtonBackground: '',
-      iconButtonSelected: '',
-      buttonOutlined: '',
-      buttonFilled: '',
-      buttonGradientStart: '',
-      buttonGradientEnd: '',
-      scrollbarThumbXAxisStart: '',
-      scrollbarThumbXAxisEnd: '',
-      scrollbarThumbYAxisStart: '',
-      scrollbarThumbYAxisEnd: '',
-      scrollbarCorner: '',
+      iconButtonColor: '#FFF',
+      iconButtonHoverColor: '#7171f0',
+      iconButtonBackground: '#9898ff',
+      iconButtonSelected: '#363695',
+      buttonOutlined: '#9a9ae4',
+      buttonFilled: '#9a9ae4',
+      buttonGradientStart: '#a798ff',
+      buttonGradientEnd: '#ff5fac',
+      buttonTextColor: '#FFF',
+      scrollbarThumbXAxisStart: '#a798ff',
+      scrollbarThumbXAxisEnd: '#ff5fac',
+      scrollbarThumbYAxisStart: '#a798ff',
+      scrollbarThumbYAxisEnd: '#ff5fac',
+      scrollbarCorner: 'rgba(255, 255, 255, 0)',
       inputOutline: '',
       inputBackground: '',
       dropdownMenuBackground: '',
@@ -107,18 +120,20 @@ const ClientTheme = () => {
       textHeading: '#FFF',
       textSubheading: '#FFF',
       textDescription: '#FFF',
-      iconButtonColor: '',
-      iconButtonBackground: '',
-      iconButtonSelectedBackground: '',
-      buttonOutlined: '',
-      buttonFilled: '',
-      buttonGradientStart: '',
-      buttonGradientEnd: '',
-      scrollbarThumbXAxisStart: '',
-      scrollbarThumbXAxisEnd: '',
-      scrollbarThumbYAxisStart: '',
-      scrollbarThumbYAxisEnd: '',
-      scrollbarCorner: '',
+      iconButtonColor: '#FFF',
+      iconButtonHoverColor: '#7171f0',
+      iconButtonBackground: '#9898ff',
+      iconButtonSelectedBackground: '#4d4df2',
+      buttonOutlined: '#3c3c6f',
+      buttonFilled: '#3c3c6f',
+      buttonGradientStart: '#5236ff',
+      buttonGradientEnd: '#c20560',
+      buttonTextColor: '#FFF',
+      scrollbarThumbXAxisStart: '#5236ff',
+      scrollbarThumbXAxisEnd: '#c20560',
+      scrollbarThumbYAxisStart: '#5236ff',
+      scrollbarThumbYAxisEnd: '#c20560',
+      scrollbarCorner: 'rgba(255, 255, 255, 0)',
       inputOutline: '',
       inputBackground: '',
       dropdownMenuBackground: '',
@@ -148,7 +163,7 @@ const ClientTheme = () => {
         {`
         .themeDemoArea {
           width: 100%;
-          height: 400px;
+          height: 500px;
           color: ${theme.textColor};
           background: white;      
           box-shadow: 0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
@@ -174,15 +189,27 @@ const ClientTheme = () => {
           height: calc(100% - 50px);
         }
 
-        .mainSection::-webkit-scrollbar-thumb {
-          background: ${theme.scrollbarThumbYAxis};
+        .hiddenWidth {
+          width: 120%;
+          height: 0px;
+          visibility: hidden;
+        }
+
+        .contentArea {
+          flex: 1;
+          overflow: auto;
+          background: ${theme.mainBackground};
+        }
+
+        .contentArea::-webkit-scrollbar-thumb {
+          background: linear-gradient(${theme.scrollbarThumbYAxisStart}, ${theme.scrollbarThumbYAxisEnd});
         }
         
-        .mainSection::-webkit-scrollbar-thumb:horizontal {
-          background: ${theme.scrollbarThumbXAxis};
+        .contentArea::-webkit-scrollbar-thumb:horizontal {
+          background: linear-gradient(92.22deg, ${theme.scrollbarThumbXAxisStart}, ${theme.scrollbarThumbXAxisEnd});
         }
         
-        .mainSection::-webkit-scrollbar-corner {
+        .contentArea::-webkit-scrollbar-corner {
           background-color: ${theme.scrollbarCorner};
         }
 
@@ -194,12 +221,6 @@ const ClientTheme = () => {
 
         .sidebarSelectedItem {
           background-color: ${theme.sidebarSelectedBackground} !important;
-        }
-
-        .contentArea {
-          flex: 1;
-          overflow: auto;
-          background: ${theme.mainBackground};
         }
 
         .panel {
@@ -262,6 +283,73 @@ const ClientTheme = () => {
           padding: 0;
           color: ${theme.panelCardIcon};
         }
+
+        .iconButtonContainer {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .iconButtonContainer label {
+          margin: 5px 0px;
+        }
+
+        .buttonContainer {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .buttonContainer label {
+          margin: 5px 0px;
+        }
+
+        .iconButton {
+          width: 40px;
+          height: 40px;
+          border-radius: 4px;
+          color: ${theme.iconButtonColor};
+          background: ${theme.iconButtonBackground};
+        }
+
+        .iconButton:selected {
+          color: ${theme.iconButtonColor};
+          background: ${theme.iconButtonSelectedBackground};
+        }
+
+        .iconButton:hover {
+          opacity: 0.8;
+          background: ${theme.iconButtonHoverColor};
+        }
+
+        .outlinedButton {
+          margin: 0px;
+          color: ${theme.buttonOutlined};
+          background: transparent;
+          border: solid 1px ${theme.buttonOutlined};
+        }
+
+        .outlinedButton:hover {
+          opacity: 0.8;
+        }
+
+        .filledButton {
+          margin: 0px;
+          color: ${theme.buttonTextColor};
+          background: ${theme.buttonFilled};
+        }
+
+        .filledButton:hover {
+          opacity: 0.8;
+        }
+
+        .gradientButton {
+          margin: 0px;
+          color: ${theme.buttonTextColor};
+          background: linear-gradient(92.22deg, ${theme.buttonGradientStart}, ${theme.buttonGradientEnd});
+        }
+
+        .gradientButton:hover {
+          opacity: 0.8;
+        }
         `}
       </style>
       <label>Demo Area:</label>
@@ -287,6 +375,7 @@ const ClientTheme = () => {
             </List>
           </div>
           <div className="contentArea">
+            <div className="hiddenWidth"></div>
             <Box className="panel">
               <div className="textHeading">Heading</div>
               <Box className="panelCardContainer">
@@ -331,6 +420,33 @@ const ClientTheme = () => {
                   <div className="textDescription">This is my description</div>
                 </Box>
               </Box>
+            </Box>
+            <Box className="panel">
+              <div className="textheading">Buttons</div>
+              <div className="buttonContainer">
+                <div className="iconButtonContainer">
+                  <label className="textSubheading">Unselected Button:</label>
+                  <IconButton className="iconButton">
+                    <SettingIcon />
+                  </IconButton>
+                  <label className="textSubheading">Selected Button:</label>
+                  <IconButton className="iconButton" selected>
+                    <SettingIcon />
+                  </IconButton>
+                </div>
+                <label className="textSubheading">Filled Button:</label>
+                <Button variant="outlined" className="outlinedButton">
+                  Cancel
+                </Button>
+                <label className="textSubheading">Outlined Button:</label>
+                <Button variant="contained" className="filledButton">
+                  Submit
+                </Button>
+                <label className="textSubheading">Gradient Button:</label>
+                <Button variant="contained" className="gradientButton">
+                  Save
+                </Button>
+              </div>
             </Box>
           </div>
         </div>
@@ -471,6 +587,14 @@ const ClientTheme = () => {
           />
         </Grid>
         <Divider variant="inset" component="div" className={styles.colorGridDivider} />
+        <Grid item sm={12} md={6} className={styles.colorGridContainer}>
+          <label>Button Text Color:</label>
+          <SketchColorPicker
+            name="buttonTextColor"
+            value={theme.buttonTextColor}
+            onChange={(color) => handleChangeColor('buttonTextColor', color)}
+          />
+        </Grid>
         <Grid item sm={12} md={6} className={styles.colorGridContainer}>
           <label>Button Outlined:</label>
           <SketchColorPicker
