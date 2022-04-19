@@ -3,8 +3,8 @@ import React, { useState } from 'react'
 import SketchColorPicker from '@xrengine/client-core/src/admin/common/SketchColorPicker'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 
-import { Box, FormControlLabel, Grid, List, ListItem, ListItemText, Switch } from '@mui/material'
-import { Divider } from '@mui/material'
+import SettingIcon from '@mui/icons-material/Settings'
+import { Box, Divider, FormControlLabel, Grid, IconButton, List, ListItem, ListItemText, Switch } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
 import styles from '../../styles/settings.module.scss'
@@ -68,12 +68,13 @@ const ClientTheme = () => {
       sidebarBackground: '#6760b0',
       sidebarSelectedBackground: 'rgb(73 66 152 / 100%)',
       mainBackground: '#c2b7f6',
-      panelBackground: '',
-      panelCards: '',
-      panelCardIcon: '',
-      textHeading: '',
-      textSubheading: '',
-      textDescription: '',
+      panelBackground: '#7f78c4',
+      panelCards: '#9a9ae4',
+      panelCardHoverOutline: '#9898ff',
+      panelCardIcon: '#6760b0',
+      textHeading: '#FFF',
+      textSubheading: '#FFF',
+      textDescription: '#FFF',
       iconButtonColor: '',
       iconButtonBackground: '',
       iconButtonSelected: '',
@@ -99,12 +100,13 @@ const ClientTheme = () => {
       sidebarBackground: 'rgb(31 27 72 / 100%)',
       sidebarSelectedBackground: '#5f5ff1',
       mainBackground: '#02022d',
-      panelBackground: '',
-      panelCards: '',
-      panelCardIcon: '',
-      textHeading: '',
-      textSubheading: '',
-      textDescription: '',
+      panelBackground: '#1f1b48',
+      panelCards: '#3c3c6f',
+      panelCardHoverOutline: '#9898ff',
+      panelCardIcon: '#1f1b48',
+      textHeading: '#FFF',
+      textSubheading: '#FFF',
+      textDescription: '#FFF',
       iconButtonColor: '',
       iconButtonBackground: '',
       iconButtonSelectedBackground: '',
@@ -199,6 +201,67 @@ const ClientTheme = () => {
           overflow: auto;
           background: ${theme.mainBackground};
         }
+
+        .panel {
+          display: flex;
+          margin: 20px;
+          padding: 20px;
+          flex-direction: column;
+          border-radius: 8px;
+          background: ${theme.panelBackground};
+        }
+
+        .textHeading {
+          font-size: 16px;
+          color: ${theme.textHeading};
+          margin-bottom: 10px;
+        }
+
+        .textSubheading {
+          font-size: 14px;
+          color: ${theme.textSubheading};
+          margin: 5px 0px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .textDescription {
+          font-size: 12px;
+          color: ${theme.textDescription};
+        }
+
+        .panelCardContainer {
+          display: grid;
+          grid-gap: 10px;
+          grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .panelCard {
+          width: 100%;
+          padding: 10px;
+          border-radius: 4px;
+          background: ${theme.panelCards};
+        }
+
+        .panelCardImage {
+          width: 100%;
+          height: 125px;
+          background-size: cover;
+          background-image: url(/static/xrengine_thumbnail.jpg);
+        }
+
+        .panelCard:hover {
+          border: solid 1px ${theme.panelCardHoverOutline};
+        }
+
+        .panelCardIcon {
+          width: 24px;
+          height: 24px;
+          padding: 0;
+          color: ${theme.panelCardIcon};
+        }
         `}
       </style>
       <label>Demo Area:</label>
@@ -223,7 +286,53 @@ const ClientTheme = () => {
               ))}
             </List>
           </div>
-          <div className="contentArea"></div>
+          <div className="contentArea">
+            <Box className="panel">
+              <div className="textHeading">Heading</div>
+              <Box className="panelCardContainer">
+                <Box className="panelCard">
+                  <img className="panelCardImage" />
+                  <div className="textSubheading">
+                    <label className="text">Subheading</label>
+                    <IconButton className="panelCardIcon">
+                      <SettingIcon />
+                    </IconButton>
+                  </div>
+                  <div className="textDescription">This is my description</div>
+                </Box>
+                <Box className="panelCard">
+                  <img className="panelCardImage" />
+                  <div className="textSubheading">
+                    <label className="text">Subheading</label>
+                    <IconButton className="panelCardIcon">
+                      <SettingIcon />
+                    </IconButton>
+                  </div>
+                  <div className="textDescription">This is my description</div>
+                </Box>
+                <Box className="panelCard">
+                  <img className="panelCardImage" />
+                  <div className="textSubheading">
+                    <label className="text">Subheading</label>
+                    <IconButton className="panelCardIcon">
+                      <SettingIcon />
+                    </IconButton>
+                  </div>
+                  <div className="textDescription">This is my description</div>
+                </Box>
+                <Box className="panelCard">
+                  <img className="panelCardImage" />
+                  <div className="textSubheading">
+                    <label className="text">Subheading</label>
+                    <IconButton className="panelCardIcon">
+                      <SettingIcon />
+                    </IconButton>
+                  </div>
+                  <div className="textDescription">This is my description</div>
+                </Box>
+              </Box>
+            </Box>
+          </div>
         </div>
       </Box>
       <Grid container>
@@ -320,7 +429,15 @@ const ClientTheme = () => {
             onChange={(color) => handleChangeColor('panelCards', color)}
           />
         </Grid>
-        <Grid item sm={12} md={12} className={styles.colorGridContainer}>
+        <Grid item sm={12} md={6} className={styles.colorGridContainer}>
+          <label>Panel Card Hover Outline:</label>
+          <SketchColorPicker
+            name="panelCardHoverOutline"
+            value={theme.panelCardHoverOutline}
+            onChange={(color) => handleChangeColor('panelCardHoverOutline', color)}
+          />
+        </Grid>
+        <Grid item sm={12} md={6} className={styles.colorGridContainer}>
           <label>Panel Card Icon Color:</label>
           <SketchColorPicker
             name="panelCardIcon"
