@@ -241,7 +241,7 @@ export class EngineRenderer {
 export default async function WebGLRendererSystem(world: World) {
   new EngineRenderer()
 
-  receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, async () => await restoreEngineRendererData())
+  receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, () => restoreEngineRendererData())
 
   addActionReceptor(Engine.store, EngineRendererReceptor)
 

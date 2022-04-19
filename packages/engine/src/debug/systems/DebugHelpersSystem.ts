@@ -13,6 +13,8 @@ import {
   Vector3
 } from 'three'
 
+import { addActionReceptor } from '@xrengine/hyperflux'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -27,7 +29,7 @@ import { isStaticBody } from '../../physics/classes/Physics'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { ObstaclesComponent } from '../../physics/components/ObstaclesComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { accessEngineRendererState } from '../../renderer/EngineRendererState'
+import { accessEngineRendererState, EngineRendererActionType } from '../../renderer/EngineRendererState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { DebugArrowComponent } from '../DebugArrowComponent'
@@ -42,18 +44,18 @@ const quat = new Quaternion()
 const cubeGeometry = new ConeBufferGeometry(0.05, 0.25, 4)
 cubeGeometry.rotateX(-Math.PI * 0.5)
 
-export const helpersByEntity = {
-  viewVector: new Map(),
-  ikExtents: new Map(),
-  box: new Map<Entity, Box3Helper>(),
-  helperArrow: new Map(),
-  velocityArrow: new Map(),
-  navmesh: new Map(),
-  navpath: new Map()
-}
-
 export default async function DebugHelpersSystem(world: World) {
   let physicsDebugRenderer = DebugRenderer()
+
+  const helpersByEntity = {
+    viewVector: new Map(),
+    ikExtents: new Map(),
+    box: new Map<Entity, Box3Helper>(),
+    helperArrow: new Map(),
+    velocityArrow: new Map(),
+    navmesh: new Map(),
+    navpath: new Map()
+  }
 
   const obstacleQuery = defineQuery([ObstaclesComponent])
   const avatarDebugQuery = defineQuery([AvatarComponent])
@@ -66,6 +68,40 @@ export default async function DebugHelpersSystem(world: World) {
   // const navpathQuery = defineQuery([AutoPilotComponent])
   // const navpathAddQuery = enterQuery(navpathQuery)
   // const navpathRemoveQuery = exitQuery(navpathQuery)
+
+  function avatarDebugUpdate(avatarDebugEnable: boolean) {
+    helpersByEntity.viewVector.forEach((obj: Object3D) => {
+      obj.visible = avatarDebugEnable
+    })
+    helpersByEntity.velocityArrow.forEach((obj: Object3D) => {
+      obj.visible = avatarDebugEnable
+    })
+    helpersByEntity.ikExtents.forEach((entry: Object3D[]) => {
+      entry.forEach((obj) => (obj.visible = avatarDebugEnable))
+    })
+  }
+
+  function physicsDebugUpdate(physicsDebugEnable: boolean) {
+    helpersByEntity.helperArrow.forEach((obj: Object3D) => {
+      obj.visible = physicsDebugEnable
+    })
+
+    for (const [_entity, helper] of helpersByEntity.box) {
+      helper.visible = physicsDebugEnable
+    }
+  }
+
+  const receptor = (action: EngineRendererActionType) => {
+    switch (action.type) {
+      case 'PHYSICS_DEBUG_CHANGED':
+        physicsDebugUpdate(action.physicsDebugEnable)
+        break
+      case 'AVATAR_DEBUG_CHANGED':
+        avatarDebugUpdate(action.avatarDebugEnable)
+        break
+    }
+  }
+  addActionReceptor(Engine.store, receptor)
 
   return () => {
     // ===== AVATAR ===== //

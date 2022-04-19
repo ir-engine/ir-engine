@@ -1,11 +1,9 @@
 import { createState, useState } from '@speigg/hookstate'
-import { Object3D } from 'three'
 
 import { isIOS } from '@xrengine/common/src/utils/isIOS'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { ClientStorage } from '../common/classes/ClientStorage'
-import { helpersByEntity } from '../debug/systems/DebugHelpersSystem'
 import { Engine } from '../ecs/classes/Engine'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
 import { RenderSettingKeys } from './EngineRnedererConstants'
@@ -78,36 +76,14 @@ function updateState(): void {
   setUsePostProcessing(state.usePostProcessing.value)
   setUseShadows(state.useShadows.value)
 
-  physicsDebugUpdate(state.physicsDebugEnable.value)
-  avatarDebugUpdate(state.avatarDebugEnable.value)
+  dispatchAction(Engine.store, EngineRendererAction.setPhysicsDebug(state.physicsDebugEnable.value))
+  dispatchAction(Engine.store, EngineRendererAction.setAvatarDebug(state.avatarDebugEnable.value))
 
   changeRenderMode(state.renderMode.value)
 }
 
 export const useEngineRendererState = () => useState(state) as any as typeof state
 export const accessEngineRendererState = () => state
-
-function avatarDebugUpdate(avatarDebugEnable: boolean) {
-  helpersByEntity.viewVector.forEach((obj: Object3D) => {
-    obj.visible = avatarDebugEnable
-  })
-  helpersByEntity.velocityArrow.forEach((obj: Object3D) => {
-    obj.visible = avatarDebugEnable
-  })
-  helpersByEntity.ikExtents.forEach((entry: Object3D[]) => {
-    entry.forEach((obj) => (obj.visible = avatarDebugEnable))
-  })
-}
-
-function physicsDebugUpdate(physicsDebugEnable: boolean) {
-  helpersByEntity.helperArrow.forEach((obj: Object3D) => {
-    obj.visible = physicsDebugEnable
-  })
-
-  for (const [_entity, helper] of helpersByEntity.box) {
-    helper.visible = physicsDebugEnable
-  }
-}
 
 function setQualityLevel(qualityLevel) {
   EngineRenderer.instance.scaleFactor = qualityLevel / EngineRenderer.instance.maxQualityLevel
@@ -150,12 +126,10 @@ export function EngineRendererReceptor(action: EngineRendererActionType) {
         break
       case 'PHYSICS_DEBUG_CHANGED':
         s.merge({ physicsDebugEnable: action.physicsDebugEnable })
-        physicsDebugUpdate(action.physicsDebugEnable)
         ClientStorage.set(RenderSettingKeys.PHYSICS_DEBUG_ENABLE, action.physicsDebugEnable)
         break
       case 'AVATAR_DEBUG_CHANGED':
         s.merge({ avatarDebugEnable: action.avatarDebugEnable })
-        avatarDebugUpdate(action.avatarDebugEnable)
         ClientStorage.set(RenderSettingKeys.AVATAR_DEBUG_ENABLE, action.avatarDebugEnable)
         break
       case 'RENDER_MODE_CHANGED':
