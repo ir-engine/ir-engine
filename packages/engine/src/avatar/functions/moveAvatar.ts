@@ -231,8 +231,8 @@ export const getAvatarCameraPosition = (entity: Entity, offset: Vector3, positio
  * @param camera
  */
 export const alignXRCameraPositionWithAvatar = (entity: Entity, camera: PerspectiveCamera | OrthographicCamera) => {
-  const parent = getComponent(entity, XRInputSourceComponent).container
-  const cameraContainerPos = camera.parent!.position
+  const parent = Engine.camera.parent as any
+  const cameraContainerPos = parent!.position
   tempVec1.subVectors(cameraContainerPos, camera.position)
   tempVec2.copy(avatarCameraOffset)
   getAvatarCameraPosition(entity, tempVec2, cameraContainerPos)
@@ -299,9 +299,9 @@ export const moveXRAvatar = (
   const avatarPosition = tempVec1
   getAvatarCameraPosition(entity, avatarCameraOffset, avatarPosition)
 
-  const cameraContainer = getComponent(entity, XRInputSourceComponent).container
+  const parent = Engine.camera.parent as any
   if (
-    !cameraContainer.userData.xrManagerCameraUpdatePending &&
+    !parent.userData.xrManagerCameraUpdatePending &&
     (avatarPosition.subVectors(avatarPosition, cameraPosition).lengthSq() > 0.1 || avatarVelocity.lengthSq() > 0)
   ) {
     lastCameraPos.subVectors(Engine.camera.position, Engine.camera.parent!.position)

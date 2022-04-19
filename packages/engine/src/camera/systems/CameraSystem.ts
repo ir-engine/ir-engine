@@ -293,7 +293,7 @@ export default async function CameraSystem(world: World) {
         // Current WebXRManager.updateCamera() typedef is incorrect
         ;(Engine.xrManager as any).updateCamera(Engine.camera)
 
-        const parent = getComponent(Engine.currentWorld.localClientEntity, XRInputSourceComponent).container
+        const parent = Engine.camera.parent as any
         parent.userData.xrManagerCameraUpdatePending = false
       } else if (followCameraEntity !== undefined) {
         const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
