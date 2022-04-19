@@ -18,6 +18,7 @@ import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -291,6 +292,9 @@ export default async function CameraSystem(world: World) {
       if (Engine.xrManager?.isPresenting) {
         // Current WebXRManager.updateCamera() typedef is incorrect
         ;(Engine.xrManager as any).updateCamera(Engine.camera)
+
+        const parent = getComponent(Engine.currentWorld.localClientEntity, XRInputSourceComponent).container
+        parent.userData.xrManagerCameraUpdatePending = false
       } else if (followCameraEntity !== undefined) {
         const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
         Engine.camera.position.copy(transform.position)
