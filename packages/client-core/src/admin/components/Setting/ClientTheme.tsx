@@ -619,7 +619,7 @@ const ClientTheme = () => {
             onChange={(color) => handleChangeColor('buttonFilled', color)}
           />
         </Grid>
-        <Grid item sm={12} md={12} className={styles.colorGridContainer}>
+        <Grid item sm={12} md={6} className={styles.colorGridContainer}>
           <label>Button Gradient:</label>
           <SketchColorPicker
             name="buttonGradientStart"
