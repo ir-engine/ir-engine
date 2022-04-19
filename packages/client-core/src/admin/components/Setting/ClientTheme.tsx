@@ -310,7 +310,7 @@ const ClientTheme = () => {
           background: ${theme.iconButtonBackground};
         }
 
-        .iconButton:selected {
+        .iconButtonSelected {
           color: ${theme.iconButtonColor};
           background: ${theme.iconButtonSelectedBackground};
         }
@@ -430,7 +430,7 @@ const ClientTheme = () => {
                     <SettingIcon />
                   </IconButton>
                   <label className="textSubheading">Selected Button:</label>
-                  <IconButton className="iconButton" selected>
+                  <IconButton className="iconButtonSelected">
                     <SettingIcon />
                   </IconButton>
                 </div>
