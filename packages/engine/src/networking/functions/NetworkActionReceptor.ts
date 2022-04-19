@@ -45,7 +45,8 @@ const removeClient = (world: World, userId: UserId, allowRemoveSelf = false) => 
 
   for (const eid of world.getOwnedNetworkObjects(userId)) {
     const { networkId } = getComponent(eid, NetworkObjectComponent)
-    world.store.actions.incoming.push(NetworkWorldAction.destroyObject({ $from: userId, networkId }))
+    const destroyObjectAction = NetworkWorldAction.destroyObject({ $from: userId, networkId })
+    destroyObject(world, destroyObjectAction)
   }
 
   const { index: userIndex } = world.clients.get(userId)!
@@ -53,6 +54,7 @@ const removeClient = (world: World, userId: UserId, allowRemoveSelf = false) => 
   world.userIndexToUserId.delete(userIndex)
   world.clients.delete(userId)
   world.namedEntities.delete(userId)
+  world.store.actions.cached = world.store.actions.cached.filter((action) => action.$from !== userId)
 }
 
 const spawnObject = (world: World, action: ReturnType<typeof NetworkWorldAction.spawnObject>) => {
