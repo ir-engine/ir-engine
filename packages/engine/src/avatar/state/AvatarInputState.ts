@@ -1,6 +1,5 @@
 import { createState, State, useState } from '@speigg/hookstate'
 
-import { store } from '@xrengine/client-core/src/store'
 import { XR_FOLLOW_MODE, XR_ROTATION_MODE } from '@xrengine/engine/src/xr/types/XRUserSettings'
 
 type AvatarInputStateType = {
