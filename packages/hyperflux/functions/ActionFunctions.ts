@@ -255,7 +255,7 @@ const dispatchAction = <StoreName extends string, A extends Action<StoreName>>(
 
   if (process.env.APP_ENV === 'development') {
     const trace = { stack: '' }
-    Error.captureStackTrace(trace, dispatchAction)
+    Error.captureStackTrace?.(trace, dispatchAction) // In firefox captureStackTrace is undefined
     const stack = trace.stack.split('\n')
     stack.shift()
     action['$stack'] = stack

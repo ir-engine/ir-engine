@@ -5,7 +5,7 @@ import { TransformPivot } from '@xrengine/engine/src/scene/constants/transformCo
 import AdjustIcon from '@mui/icons-material/Adjust'
 
 import { setTransformPivot, toggleTransformPivot } from '../../../functions/transformFunctions'
-import { useModeState } from '../../../services/ModeServices'
+import { useEditorHelperState } from '../../../services/EditorHelperState'
 import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -21,7 +21,7 @@ const transformPivotOptions = [
 ]
 
 const TransformPivotTool = () => {
-  const modeState = useModeState()
+  const editorHelperState = useEditorHelperState()
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-pivot">
@@ -31,11 +31,11 @@ const TransformPivotTool = () => {
         </button>
       </InfoTooltip>
       <SelectInput
-        key={modeState.transformPivot.value}
+        key={editorHelperState.transformPivot.value}
         className={styles.selectInput}
         onChange={setTransformPivot}
         options={transformPivotOptions}
-        value={modeState.transformPivot.value}
+        value={editorHelperState.transformPivot.value}
         creatable={false}
         isSearchable={false}
       />
