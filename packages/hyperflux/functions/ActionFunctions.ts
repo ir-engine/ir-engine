@@ -261,9 +261,9 @@ const dispatchAction = <StoreName extends string, A extends Action<StoreName>>(
     action['$stack'] = stack
   }
 
-  store.networked
-    ? store.actions.outgoing.push(action as Required<Action<StoreName>>)
-    : store.actions.incoming.push(action as Required<Action<StoreName>>)
+  const mode = store.getDispatchMode()
+  if (mode === 'local' || mode === 'host') store.actions.incoming.push(action as Required<Action<StoreName>>)
+  else store.actions.outgoing.push(action as Required<Action<StoreName>>)
 }
 
 /**
@@ -328,7 +328,7 @@ const _updateCachedActions = (store: HyperStore<any>, incomingAction: Required<A
   }
 }
 
-const _applyAndArchiveIncomingAction = (store: HyperStore<any>, action: Required<Action<any>>, forward = false) => {
+const _applyIncomingAction = (store: HyperStore<any>, action: Required<Action<any>>) => {
   // ensure actions are idempotent
   if (store.actions.incomingHistoryUUIDs.has(action.$uuid)) {
     const idx = store.actions.incoming.indexOf(action)
@@ -342,7 +342,7 @@ const _applyAndArchiveIncomingAction = (store: HyperStore<any>, action: Required
     for (const receptor of [...store.receptors]) receptor(action)
     store[allowStateMutations] = false
     store.actions.incomingHistory.push(action)
-    if (forward) store.actions.outgoing.push(action)
+    if (store.getDispatchMode() === 'host') store.actions.outgoing.push(action)
   } catch (e) {
     const message = (e as Error).message
     const stack = (e as Error).stack!.split('\n')
@@ -361,39 +361,31 @@ const _applyAndArchiveIncomingAction = (store: HyperStore<any>, action: Required
 }
 
 /**
- * This function should be called when an action is received from the network
+ * Process incoming actions
  *
  * @param store
- * @param action
- * @param forwardToOutgoing Whether to forward incoming actions to the outgoing queue.
- * This flag should be set when an authoritative node needs to forwards actions it receives
- * on the network, after proocessing them locally.
  */
-const applyIncomingActions = (store: HyperStore<any>, forwardToOutgoing = false) => {
-  const { incoming, outgoing } = store.actions
+const applyIncomingActions = (store: HyperStore<any>) => {
+  const { incoming } = store.actions
   const now = store.getDispatchTime()
   for (const action of [...incoming]) {
     if (action.$time > now) {
       continue
     }
     _updateCachedActions(store, action)
-    _applyAndArchiveIncomingAction(store, action, forwardToOutgoing)
+    _applyIncomingAction(store, action)
   }
 }
 
 /**
- * Clears the outgoing action queue, and adds them to the outgoing history
+ * Clear the outgoing action queue
  * @param store
- * @param loopback Redirect outgoing actions back to the incoming queue.
- * This flag should be set when an authoritative node needs to send actions to the network
- * and also process the actions locally
  */
-const clearOutgoingActions = (store: HyperStore<any>, loopback = false) => {
-  const { outgoing, outgoingHistory, outgoingHistoryUUIDs, incoming } = store.actions
+const clearOutgoingActions = (store: HyperStore<any>) => {
+  const { outgoing, outgoingHistory, outgoingHistoryUUIDs } = store.actions
   for (const action of outgoing) {
     outgoingHistory.push(action)
     outgoingHistoryUUIDs.add(action.$uuid)
-    if (loopback) incoming.push(action)
   }
   outgoing.length = 0
 }
