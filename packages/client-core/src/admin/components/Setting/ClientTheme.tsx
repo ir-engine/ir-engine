@@ -311,6 +311,9 @@ const ClientTheme = () => {
         }
 
         .iconButtonSelected {
+          width: 40px;
+          height: 40px;
+          border-radius: 4px;
           color: ${theme.iconButtonColor};
           background: ${theme.iconButtonSelectedBackground};
         }
