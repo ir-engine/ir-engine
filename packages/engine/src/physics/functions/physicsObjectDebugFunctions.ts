@@ -50,6 +50,7 @@ function getRandomInt(min, max) {
 let uuidCounter = 0
 function getUUID() {
   uuidCounter++
+  console.log('uuidCounter', uuidCounter)
   return 'physicstestuuid' + uuidCounter
 }
 

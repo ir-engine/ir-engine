@@ -14,7 +14,7 @@ const sendOutgoingActions = (world: World) => {
     console.error(e)
   }
 
-  clearOutgoingActions(world.store, world.isHosting)
+  clearOutgoingActions(world.store)
 
   return world
 }
