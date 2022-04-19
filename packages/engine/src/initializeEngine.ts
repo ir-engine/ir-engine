@@ -171,9 +171,14 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./transform/systems/TransformSystem')
     },
+
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./scene/systems/SceneObjectSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: import('./scene/systems/AssetSystem')
     },
     {
       type: SystemUpdateType.FIXED_LATE,
@@ -322,9 +327,9 @@ export const initializeSceneSystems = async () => {
         type: SystemUpdateType.PRE_RENDER
       }
     )
-  }
 
-  if (isClient) initializeKTX2Loader(getGLTFLoader())
+    initializeKTX2Loader(getGLTFLoader())
+  }
 
   await initSystems(world, systemsToLoad)
 }
