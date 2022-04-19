@@ -81,18 +81,6 @@ export default async function XRSystem(world: World) {
 
   addActionReceptor(Engine.store, (action) => {
     switch (action.type) {
-      case NetworkWorldAction.setXRMode.type:
-        // Current WebXRManager.getCamera() typedef is incorrect
-        // @ts-ignore
-        const cameras = Engine.xrManager.getCamera() as ArrayCamera
-        cameras.layers.enableAll()
-        cameras.cameras.forEach((camera) => {
-          camera.layers.disableAll()
-          camera.layers.enable(ObjectLayers.Scene)
-          camera.layers.enable(ObjectLayers.Avatar)
-          camera.layers.enable(ObjectLayers.UI)
-        })
-        break
       case EngineEvents.EVENTS.XR_START:
         if (accessEngineState().joinedWorld.value && !Engine.xrSession) startXRSession()
         break
