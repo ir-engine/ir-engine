@@ -15,16 +15,21 @@ import { matchesAvatarProps } from '../interfaces/WorldState'
 
 export class NetworkWorldAction {
   static createClient = defineAction({
+    store: 'WORLD',
     type: 'network.CREATE_CLIENT',
     name: matches.string,
-    index: matches.number
+    index: matches.number,
+    $cache: true
   })
 
   static destroyClient = defineAction({
-    type: 'network.DESTROY_CLIENT'
+    store: 'WORLD',
+    type: 'network.DESTROY_CLIENT',
+    $to: 'others'
   })
 
   static timeSync = defineAction({
+    store: 'WORLD',
     type: 'network.TIME_SYNC',
     elapsedTime: matchesWithDefault(matches.number, () => Engine.currentWorld.elapsedTime),
     clockTime: matchesWithDefault(matches.number, () => Date.now()),
@@ -33,17 +38,20 @@ export class NetworkWorldAction {
   })
 
   static setXRMode = defineAction({
+    store: 'WORLD',
     type: 'network.SET_XR_MODE',
     enabled: matches.boolean,
     $cache: { removePrevious: true }
   })
 
   static xrHandsConnected = defineAction({
+    store: 'WORLD',
     type: 'network.XR_HANDS_CONNECTED',
     $cache: true
   })
 
   static spawnObject = defineAction({
+    store: 'WORLD',
     type: 'network.SPAWN_OBJECT',
     prefab: matches.string,
     networkId: matchesWithDefault(matchesNetworkId, () => Engine.currentWorld.createNetworkId()),
@@ -52,6 +60,7 @@ export class NetworkWorldAction {
   })
 
   static spawnDebugPhysicsObject = defineAction({
+    store: 'WORLD',
     type: 'network.SPAWN_DEBUG_PHYSICS_OBJECT',
     config: matches.any.optional()
   })
@@ -67,11 +76,13 @@ export class NetworkWorldAction {
   })
 
   static destroyObject = defineAction({
+    store: 'WORLD',
     type: 'network.DESTROY_OBJECT',
     networkId: matchesNetworkId
   })
 
   static setEquippedObject = defineAction({
+    store: 'WORLD',
     type: 'network.SET_EQUIPPED_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,
@@ -83,6 +94,7 @@ export class NetworkWorldAction {
   })
 
   static avatarAnimation = defineAction({
+    store: 'WORLD',
     type: 'network.AVATAR_ANIMATION',
     newStateName: matches.string,
     params: matchesWeightsParameters,
@@ -92,6 +104,7 @@ export class NetworkWorldAction {
   })
 
   static avatarDetails = defineAction({
+    store: 'WORLD',
     type: 'network.AVATAR_DETAILS',
     avatarDetail: matchesAvatarProps,
     $cache: {
@@ -100,6 +113,7 @@ export class NetworkWorldAction {
   })
 
   static teleportObject = defineAction({
+    store: 'WORLD',
     type: 'network.TELEPORT_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,
@@ -109,6 +123,7 @@ export class NetworkWorldAction {
   })
 
   static requestAuthorityOverObject = defineAction({
+    store: 'WORLD',
     type: 'network.REQUEST_AUTHORITY_OVER_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,
@@ -118,6 +133,7 @@ export class NetworkWorldAction {
   })
 
   static transferAuthorityOfObject = defineAction({
+    store: 'WORLD',
     type: 'network.TRANSFER_AUTHORITY_OF_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,

@@ -14,6 +14,8 @@ import {
   Vector3
 } from 'three'
 
+import { addActionReceptor } from '@xrengine/hyperflux'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -93,7 +95,7 @@ export default async function DebugHelpersSystem(world: World) {
         break
     }
   }
-  Engine.currentWorld.receptors.push(receptor)
+  addActionReceptor(Engine.store, receptor)
 
   const obstacleQuery = defineQuery([ObstaclesComponent])
   const avatarDebugQuery = defineQuery([AvatarComponent])
