@@ -16,8 +16,6 @@ process.on('exit', async (code) => {
   console.log('Server EXIT:', code)
 })
 
-process.on('warning', (e) => console.warn(e.stack))
-
 process.on('SIGTERM', async (err) => {
   console.log('Server SIGTERM')
   console.log(err)
