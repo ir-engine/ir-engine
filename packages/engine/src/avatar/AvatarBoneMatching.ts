@@ -1,7 +1,7 @@
 //TODO:
 // This retargeting logic is based exokitxr retargeting system
 // https://github.com/exokitxr/avatars
-import { Bone, Object3D, Quaternion, SkinnedMesh, Vector3 } from 'three'
+import { Bone, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { traverse } from '../common/functions/traverse'
 
@@ -487,9 +487,24 @@ function findHandBones(handBone: Object3D) {
   }
 }
 
+// Returns the skeleton with largest number of bones
+export function findMainSkeleton(model: Object3D): Skeleton {
+  const skinnedMeshes: SkinnedMesh[] = []
+
+  model.traverse((object: SkinnedMesh) => {
+    if (object.isSkinnedMesh) {
+      skinnedMeshes.push(object)
+    }
+  })
+
+  skinnedMeshes.sort((a: SkinnedMesh, b: SkinnedMesh) => b.skeleton.bones.length - a.skeleton.bones.length)
+
+  return skinnedMeshes[0].skeleton
+}
+
 export default function avatarBoneMatching(model: Object3D): BoneStructure {
   try {
-    const skeleton = (model.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh).skeleton
+    const skeleton = findMainSkeleton(model)
     const Hips = _findHips(skeleton)
     const tailBones = _getTailBones(skeleton)
     const LeftEye = _findEye(tailBones, true)

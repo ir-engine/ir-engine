@@ -41,7 +41,7 @@ export default async function AnimationSystem(world: World) {
     })
   }
 
-  await AnimationManager.instance.getDefaultAnimations()
+  await AnimationManager.instance.loadDefaultAnimations()
 
   return () => {
     const { delta } = world
@@ -110,7 +110,7 @@ export default async function AnimationSystem(world: World) {
 
       // TODO: Find a more elegant way to handle root motion
       const rootPos = AnimationManager.instance._defaultRootBone.position
-      if (animationComponent.rig) animationComponent.rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
+      if (animationComponent.rig.Hips) animationComponent.rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
     }
   }
 }

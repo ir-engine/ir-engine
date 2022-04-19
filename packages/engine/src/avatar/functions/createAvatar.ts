@@ -86,7 +86,8 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(modelContainer),
     animations: [] as AnimationClip[],
-    animationSpeed: 1
+    animationSpeed: 1,
+    rig: {}
   })
 
   addComponent(entity, AvatarAnimationComponent, {

@@ -3,6 +3,7 @@ import { Group, Object3D, Quaternion, Vector3 } from 'three'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
+import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { ParityValue } from '../../common/enums/ParityValue'
@@ -10,7 +11,6 @@ import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
@@ -245,9 +245,9 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
     }
   }
   const bone: BoneNames = hand === ParityValue.RIGHT ? 'RightHand' : 'LeftHand'
-  const rigComponent = getComponent(entity, IKRigComponent)
-  rigComponent.boneStructure[bone].updateWorldMatrix(true, false)
-  const matWorld = rigComponent.boneStructure[bone].matrixWorld
+  const { rig } = getComponent(entity, AnimationComponent)
+  rig[bone].updateWorldMatrix(true, false)
+  const matWorld = rig[bone].matrixWorld
   return vec3.set(matWorld.elements[12], matWorld.elements[13], matWorld.elements[14])
 }
 
@@ -299,9 +299,9 @@ export const getHandTransform = (
     }
   }
   const bone: BoneNames = hand === ParityValue.RIGHT ? 'RightHand' : 'LeftHand'
-  const rigComponent = getComponent(entity, IKRigComponent)
-  rigComponent.boneStructure[bone].updateWorldMatrix(true, false)
-  rigComponent.boneStructure[bone].matrixWorld.decompose(vec3, quat, v3)
+  const { rig } = getComponent(entity, AnimationComponent)
+  rig[bone].updateWorldMatrix(true, false)
+  rig[bone].matrixWorld.decompose(vec3, quat, v3)
   return {
     position: vec3,
     rotation: quat

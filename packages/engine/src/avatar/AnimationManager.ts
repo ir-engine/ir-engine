@@ -19,8 +19,8 @@ export class AnimationManager {
     return animation ? animation.duration : 0
   }
 
-  async getDefaultAnimations() {
-    const gltf = await AssetLoader.loadAsync('/default_assets/Animations.glb')
+  async loadDefaultAnimations(path: string = '/default_assets/Animations.glb') {
+    const gltf = await AssetLoader.loadAsync(path)
     this.getAnimations(gltf)
   }
 

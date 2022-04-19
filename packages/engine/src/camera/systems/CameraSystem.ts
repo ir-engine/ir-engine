@@ -2,6 +2,7 @@ import { ArrowHelper, Clock, Material, MathUtils, Matrix4, Quaternion, SkinnedMe
 import { clamp } from 'three/src/math/MathUtils'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
+import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
@@ -12,7 +13,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -67,8 +67,8 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
 }
 
 export const getAvatarBonePosition = (entity: Entity, name: BoneNames, position: Vector3): void => {
-  const ikRigComponent = getComponent(entity, IKRigComponent)
-  const el = ikRigComponent.boneStructure[name].matrixWorld.elements
+  const animationComponent = getComponent(entity, AnimationComponent)
+  const el = animationComponent.rig[name].matrixWorld.elements
   position.set(el[12], el[13], el[14])
 }
 

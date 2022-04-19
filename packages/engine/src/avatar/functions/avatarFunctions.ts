@@ -27,7 +27,6 @@ import { isClient } from '../../common/functions/isClient'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -37,14 +36,14 @@ import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { Updatable } from '../../scene/interfaces/Updatable'
 import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { retargetSkeleton } from '../animation/retargetSkeleton'
-import avatarBoneMatching from '../AvatarBoneMatching'
+import avatarBoneMatching, { findMainSkeleton } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
-import { bonesData2 } from '../DefaultSkeletonBones'
+import { defaultBonesData } from '../DefaultSkeletonBones'
 import { DissolveEffect } from '../DissolveEffect'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { resizeAvatar } from './resizeAvatar'
@@ -53,12 +52,13 @@ const vec3 = new Vector3()
 
 export const loadAvatarModelAsset = async (avatarURL: string) => {
   const model = await AssetLoader.loadAsync(avatarURL)
-  if (!model.scene) return
+  const scene = model.scene || model // FBX files does not have 'scene' property
+  if (!scene) return
   const parent = new Group()
   const root = new Group()
-  root.add(model.scene)
+  root.add(scene)
   parent.add(root)
-  parent.userData = model.scene.userData
+  parent.userData = scene.userData
   return SkeletonUtils.clone(parent)
 }
 
@@ -121,7 +121,7 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
 
 export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   const sourceSkeleton = AnimationManager.instance._defaultSkinnedMesh.skeleton
-  const targetSkeleton = (model.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh)?.skeleton
+  const targetSkeleton = findMainSkeleton(model)
   const animationComponent = getComponent(entity, AnimationComponent)
 
   if (!targetSkeleton) {
@@ -253,18 +253,26 @@ export const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<M
  * @returns SkinnedMesh
  */
 export function makeDefaultSkinnedMesh(): SkinnedMesh {
+  return makeSkinnedMeshFromBoneData(defaultBonesData)
+}
+
+/**
+ * Creates an empty skinned mesh using list of bones to build skeleton structure
+ * @returns SkinnedMesh
+ */
+export function makeSkinnedMeshFromBoneData(bonesData): SkinnedMesh {
   const bones: Bone[] = []
-  bonesData2.forEach((data) => {
+  bonesData.forEach((data) => {
     const bone = new Bone()
     bone.name = data.name
     bone.position.fromArray(data.position)
     bone.quaternion.fromArray(data.quaternion)
-    bone.scale.fromArray(data.scale)
+    bone.scale.setScalar(1)
     bones.push(bone)
   })
 
-  bonesData2.forEach((data, index) => {
-    if (data.parentIndex !== null) {
+  bonesData.forEach((data, index) => {
+    if (data.parentIndex > -1) {
       bones[data.parentIndex].add(bones[index])
     }
   })
@@ -306,7 +314,7 @@ function setupHeadDecap(model: Object3D, material: Material) {
   }
 
   // Create a copy of the mesh to hide 'internal' polygons when opacity is below 1
-  const skinnedMeshMask = SkeletonUtils.clone(mesh)
+  const skinnedMeshMask = SkeletonUtils.clone(model).getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
   mesh.parent?.add(skinnedMeshMask)
   skinnedMeshMask.skeleton = mesh.skeleton
   skinnedMeshMask.bindMatrix = mesh.bindMatrix
@@ -420,9 +428,9 @@ export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
 }
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
-  const rig = getComponent(entity, IKRigComponent)
-  if (!rig) return false
-  const bone = rig.boneStructure[boneName]
+  const animationComponent = getComponent(entity, AnimationComponent)
+  if (!animationComponent) return false
+  const bone = animationComponent.rig[boneName]
   if (!bone) return false
   bone.updateWorldMatrix(true, false)
   const el = bone.matrixWorld.elements

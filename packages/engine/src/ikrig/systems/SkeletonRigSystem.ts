@@ -5,16 +5,11 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { bonesData2 } from '../../avatar/DefaultSkeletonBones'
+import { defaultBonesData } from '../../avatar/DefaultSkeletonBones'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/ComponentFunctions'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
-import { CameraIKComponent } from '../components/CameraIKComponent'
-import { IKPoseComponent } from '../components/IKPoseComponent'
-import { IKRigComponent, IKRigTargetComponent } from '../components/IKRigComponent'
-import { applyIKPoseToIKRig, computeIKPose } from '../functions/IKFunctions'
-import { applyCameraLook } from '../functions/IKSolvers'
 
 const logCustomTargetRigBones = (targetRig) => {
   if (targetRig.name !== 'custom') {
@@ -22,18 +17,11 @@ const logCustomTargetRigBones = (targetRig) => {
   }
 
   console.log('check bones')
-  bonesData2.forEach((boneData, index) => {
+  defaultBonesData.forEach((boneData, index) => {
     const p = new Vector3(...boneData.position)
     const r = new Quaternion(...boneData.quaternion)
-    const s = new Vector3(...boneData.scale)
     const tbone = targetRig.tpose!.bones[index]
-    console.log(
-      '    ',
-      boneData.name,
-      p.equals(tbone.bone.position),
-      r.equals(tbone.bone.quaternion),
-      s.equals(tbone.bone.scale)
-    )
+    console.log('    ', boneData.name, p.equals(tbone.bone.position), r.equals(tbone.bone.quaternion))
   })
   console.log('---------')
 }
@@ -72,27 +60,8 @@ const mockAvatars = () => {
 }
 
 export default async function SkeletonRigSystem(world: World) {
-  const cameraIKQuery = defineQuery([IKRigComponent, CameraIKComponent])
-  const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
   // receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, () => {
   //   mockAvatars()
   // })
-  return () => {
-    // Apply camera IK to the source skeleton
-    for (const entity of cameraIKQuery()) {
-      const rig = getComponent(entity, IKRigComponent)
-      const cameraSolver = getComponent(entity, CameraIKComponent)
-      //applyCameraLook(rig, cameraSolver)
-    }
-
-    // for (const entity of ikposeQuery()) {
-    //   const ikPose = getComponent(entity, IKPoseComponent)
-    //   const rig = getComponent(entity, IKRigComponent)
-    //   const targetRig = getComponent(entity, IKRigTargetComponent)
-
-    //   // logCustomTargetRigBones(targetRig)
-    //   computeIKPose(rig, ikPose)
-    //   applyIKPoseToIKRig(targetRig, ikPose)
-    // }
-  }
+  return () => {}
 }
