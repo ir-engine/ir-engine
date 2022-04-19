@@ -127,10 +127,10 @@ export default (app: Application): void => {
           }
         }
       }
-    },
-    (req: express.Request, res: express.Response, next: express.NextFunction) => {
-      res.json({})
     }
+    // (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    //   res.json({})
+    // }
   )
   const service = app.service('upload-asset')
   ;(service as any).hooks(hooks)
