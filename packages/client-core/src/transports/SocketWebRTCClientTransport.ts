@@ -82,7 +82,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   dataProducer: DataProducer
   heartbeat: NodeJS.Timer // is there an equivalent browser type for this?
 
-  sendActions(actions: Action[]) {
+  sendActions(actions: Action<'WORLD'>[]) {
     if (actions.length === 0) return
     this.socket?.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
   }

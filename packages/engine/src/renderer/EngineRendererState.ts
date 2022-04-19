@@ -175,57 +175,67 @@ export function EngineRendererReceptor(action: EngineRendererActionType) {
 export const EngineRendererAction = {
   restoreStorageData: (state: EngineRendererStateType) => {
     return {
+      store: 'ENGINE' as const,
       type: 'RESTORE_ENGINE_RENDERER_STORAGE_DATA' as const,
       state
     }
   },
   setQualityLevel: (qualityLevel: number) => {
     return {
+      store: 'ENGINE' as const,
       type: 'WEBGL_RENDERER_QUALITY_LEVEL' as const,
       qualityLevel
     }
   },
   setAutomatic: (automatic: boolean) => {
     return {
+      store: 'ENGINE' as const,
       type: 'WEBGL_RENDERER_AUTO' as const,
       automatic
     }
   },
   setPBR: (usePBR: boolean) => {
     return {
+      store: 'ENGINE' as const,
       type: 'WEBGL_RENDERER_PBR' as const,
       usePBR
     }
   },
   setPostProcessing: (usePostProcessing: boolean) => {
     return {
+      store: 'ENGINE' as const,
       type: 'WEBGL_RENDERER_POSTPROCESSING' as const,
       usePostProcessing
     }
   },
   setShadows: (useShadows: boolean) => {
     return {
+      store: 'ENGINE' as const,
       type: 'WEBGL_RENDERER_SHADOWS' as const,
       useShadows
     }
   },
   setPhysicsDebug: (physicsDebugEnable: boolean) => {
     return {
+      store: 'ENGINE' as const,
       type: 'PHYSICS_DEBUG_CHANGED' as const,
       physicsDebugEnable
     }
   },
   setAvatarDebug: (avatarDebugEnable: boolean) => {
     return {
+      store: 'ENGINE' as const,
       type: 'AVATAR_DEBUG_CHANGED' as const,
       avatarDebugEnable
     }
   },
   changedRenderMode: (renderMode: RenderModesType) => {
     return {
+      store: 'ENGINE' as const,
       type: 'RENDER_MODE_CHANGED' as const,
       renderMode
     }
   }
 }
+
 export type EngineRendererActionType = ReturnType<typeof EngineRendererAction[keyof typeof EngineRendererAction]>

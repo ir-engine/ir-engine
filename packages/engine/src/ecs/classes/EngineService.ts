@@ -92,67 +92,79 @@ export const accessEngineState = () => state
 export const EngineActions = {
   userAvatarTapped: (userId) => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.USER_AVATAR_TAPPED,
       userId
     }
   },
   setTeleporting: (isTeleporting: boolean) => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.SET_TELEPORTING,
       isTeleporting
     }
   },
   resetEngine: (instance: boolean) => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.RESET_ENGINE,
       instance
     }
   },
   initializeEngine: (initialised: boolean) => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.INITIALIZED_ENGINE,
       initialised
     }
   },
   connectToWorld: (connectedWorld: boolean) => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.CONNECT_TO_WORLD,
       connectedWorld
     }
   },
   connectToWorldTimeout: (instance: boolean) => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT,
       instance
     }
   },
   joinedWorld: () => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.JOINED_WORLD
     }
   },
   leaveWorld: () => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.LEAVE_WORLD
     }
   },
   sceneLoading: () => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.SCENE_LOADING
     }
   },
   sceneLoaded: () => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.SCENE_LOADED
     }
   },
   sceneUnloaded: () => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.SCENE_UNLOADED
     }
   },
   sceneLoadingProgress: (progress: number) => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.SCENE_LOADING_PROGRESS,
       progress
     }
@@ -160,6 +172,7 @@ export const EngineActions = {
   ////////////////
   enableScene: (env: any) => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.ENABLE_SCENE,
       env
     }
@@ -167,6 +180,7 @@ export const EngineActions = {
 
   objectActivation: (interactionData: InteractableComponentType) => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.OBJECT_ACTIVATION,
       interactionData
     }
@@ -174,48 +188,57 @@ export const EngineActions = {
 
   xrStart: () => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.XR_START
     }
   },
   xrSession: () => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.XR_SESSION
     }
   },
   xrEnd: () => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.XR_END
     }
   },
   connect: (id: any) => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.CONNECT,
       id
     }
   },
   startSuspendedContexts: () => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS
     }
   },
   suspendPositionalAudio: () => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO
     }
   },
   browserNotSupported: (msg: string) => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
       msg
     }
   },
   setUserHasInteracted: () => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.SET_USER_HAS_INTERACTED
     }
   },
   updateEntityError: (entity: Entity, isResolved = false) => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.ENTITY_ERROR_UPDATE,
       entity,
       isResolved
@@ -223,6 +246,7 @@ export const EngineActions = {
   },
   xrSupported: (xrSupported: boolean) => {
     return {
+      store: 'ENGINE' as const,
       type: EngineEvents.EVENTS.XR_SUPPORTED,
       xrSupported
     }

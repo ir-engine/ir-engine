@@ -111,7 +111,7 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
 export async function onConnectToWorldInstance(networkTransport: SocketWebRTCClientTransport) {
   function actionDataHandler(message) {
     if (!message) return
-    const actions = message as any as Required<Action>[]
+    const actions = message as any as Required<Action<any>>[]
     // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
     for (const a of actions) {
       Engine.currentWorld!.store.actions.incoming.push(a)
