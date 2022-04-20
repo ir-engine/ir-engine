@@ -11,16 +11,20 @@ import { IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AnimationState } from '../animation/AnimationState'
 import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
+import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { animateAvatarModel, boneMatchAvatarModel, rigAvatarModel } from './avatarFunctions'
 
+const animGLB = '/packages/client/public/default_assets/Animations.glb'
+const testGLTF = '/packages/projects/default-project/public/avatars/CyberbotRed.glb'
+
 before(async () => {
   await loadDRACODecoder()
+  const animationGLTF = await loadGLTFAssetNode(animGLB, true)
+  AnimationManager.instance.getAnimations(animationGLTF)
 })
-
-const testGLTF = '/packages/projects/default-project/public/avatars/CyberbotRed.glb'
 
 describe('avatarFunctions Unit', async () => {
   beforeEach(async () => {
