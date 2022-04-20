@@ -44,6 +44,7 @@ const GameServerWarnings = () => {
   const chatState = useChatState()
   const instanceConnectionState = useLocationInstanceConnectionState()
   const [erroredInstanceId, setErroredInstanceId] = useState(null)
+  const [hasShownLowFramerateError, setHasShownLowFramerateError] = useState(false)
   const { t } = useTranslation()
 
   const currentErrorRef = useRef(currentError)
@@ -95,7 +96,7 @@ const GameServerWarnings = () => {
     )
 
     // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
-    var db = indexedDB.open('test')
+    const db = indexedDB.open('test')
     db.onerror = () => updateWarningModal(WarningModalTypes.INDEXED_DB_NOT_SUPPORTED)
   }, [])
 
@@ -108,7 +109,13 @@ const GameServerWarnings = () => {
   }, [invalidLocationState.value])
 
   useEffect(() => {
-    if (isWindow() && engineState.joinedWorld.value && engineRendereState.qualityLevel.value == 4) {
+    if (
+      isWindow() &&
+      engineState.joinedWorld.value &&
+      engineRendereState.qualityLevel.value == 4 &&
+      !hasShownLowFramerateError
+    ) {
+      setHasShownLowFramerateError(true)
       updateWarningModal(WarningModalTypes.DETECTED_LOW_FRAME)
     }
   }, [engineState.joinedWorld.value, engineRendereState.qualityLevel.value])
