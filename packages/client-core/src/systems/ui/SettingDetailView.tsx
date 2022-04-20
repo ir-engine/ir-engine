@@ -281,7 +281,6 @@ const SettingDetailView = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     position: 'relative',
-                    boxSizing: 'border',
                     backgroundColor: 'transparent',
                     outline: '0px',
                     border: '0px',
@@ -387,12 +386,15 @@ const SettingDetailView = () => {
                     backgroundColor: 'transparent',
                     outline: '0px',
                     border: '0px',
-                    borderRadius: '0px',
                     cursor: 'pointer',
                     userSelect: 'none',
                     verticalAlign: 'middle',
                     appearance: 'none',
                     textDecoration: 'none'
+                  }}
+                  onClick={() => {
+                    dispatchAction(Engine.store, EngineRendererAction.setShadows(!rendererState.useShadows.value))
+                    dispatchAction(Engine.store, EngineRendererAction.setAutomatic(false))
                   }}
                 >
                   <input
@@ -410,6 +412,11 @@ const SettingDetailView = () => {
                     }}
                     type="checkbox"
                     data-indeterminate="false"
+                    checked={rendererState.useShadows.value}
+                    onChange={(value: any) => {
+                      dispatchAction(Engine.store, EngineRendererAction.setShadows(value.target.checked))
+                      dispatchAction(Engine.store, EngineRendererAction.setAutomatic(false))
+                    }}
                   />
                   <svg
                     style={{
@@ -424,7 +431,11 @@ const SettingDetailView = () => {
                     aria-hidden="true"
                     viewBox="0 0 24 24"
                   >
-                    <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"></path>
+                    {rendererState.useShadows.value ? (
+                      <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
+                    ) : (
+                      <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"></path>
+                    )}
                   </svg>
                   <span
                     style={{
@@ -510,6 +521,10 @@ const SettingDetailView = () => {
                     }}
                     type="checkbox"
                     data-indeterminate="false"
+                    checked={rendererState.automatic.value}
+                    onChange={(value: any) => {
+                      dispatchAction(Engine.store, EngineRendererAction.setAutomatic(value.target.checked))
+                    }}
                   />
                   <svg
                     style={{
@@ -526,7 +541,11 @@ const SettingDetailView = () => {
                     viewBox="0 0 24 24"
                     data-testid="CheckBoxOutlineBlankIcon"
                   >
-                    <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"></path>
+                    {rendererState.automatic.value ? (
+                      <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
+                    ) : (
+                      <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"></path>
+                    )}
                   </svg>
                   <span
                     style={{
