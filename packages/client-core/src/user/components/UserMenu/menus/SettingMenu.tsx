@@ -1,14 +1,18 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { UserSetting } from '@xrengine/common/src/interfaces/User'
 import { AvatarSettings, updateMap } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
-import { AvatarInputAction, useAvatarInputState } from '@xrengine/engine/src/avatar/state/AvatarInputState'
+import {
+  AvatarInputAction,
+  EngineAvatarInputReceptor,
+  useAvatarInputState
+} from '@xrengine/engine/src/avatar/state/AvatarInputState'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
@@ -62,8 +66,12 @@ const SettingMenu = (): JSX.Element => {
   const [open, setOpen] = React.useState(false)
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInvertRotationAndMoveSticksState((prev) => !prev)
-    dispatch(AvatarInputAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks))
+    dispatchAction(Engine.store, AvatarInputAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks))
   }
+
+  useEffect(() => {
+    addActionReceptor(Engine.store, EngineAvatarInputReceptor)
+  }, [])
 
   useLayoutEffect(() => {
     if (firstRender.current) {
@@ -75,7 +83,7 @@ const SettingMenu = (): JSX.Element => {
 
   const handleChangeControlType = (event: SelectChangeEvent) => {
     setControlType(event.target.value)
-    dispatch(AvatarInputAction.setControlType(event.target.value))
+    dispatchAction(Engine.store, AvatarInputAction.setControlType(event.target.value))
   }
 
   const handleChangeControlScheme = (event: SelectChangeEvent) => {
