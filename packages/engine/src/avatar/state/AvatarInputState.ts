@@ -1,6 +1,5 @@
 import { createState, State, useState } from '@speigg/hookstate'
 
-import { store } from '@xrengine/client-core/src/store'
 import { XR_FOLLOW_MODE, XR_ROTATION_MODE } from '@xrengine/engine/src/xr/types/XRUserSettings'
 
 type AvatarInputStateType = {
@@ -13,7 +12,7 @@ type AvatarInputStateType = {
   rotationInvertAxes: boolean
 }
 
-const state = createState<AvatarInputStateType>({
+export const state = createState<AvatarInputStateType>({
   controlType: 'None',
   invertRotationAndMoveSticks: true,
   moving: XR_FOLLOW_MODE.CONTROLLER,
@@ -24,17 +23,6 @@ const state = createState<AvatarInputStateType>({
 })
 
 type StateType = State<typeof state.value>
-
-store.receptors.push((action: AvatarInputActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'AVATAR_SET_CONTROL_MODEL':
-        return s.merge({ controlType: action.controlType })
-      case 'SET_INVERT_ROTATION_AND_MOVE_STICKS':
-        return s.merge({ invertRotationAndMoveSticks: action.invertRotationAndMoveSticks })
-    }
-  }, action.type)
-})
 
 export const useAvatarInputState = () => useState(state) as any as typeof state
 export const accessAvatarInputState = () => state
