@@ -483,12 +483,16 @@ export async function handleWebRtcTransportConnect(socket, data, callback): Prom
   const { transportId, dtlsParameters } = data,
     transport = Network.instance.transports[transportId]
   if (transport != null) {
-    await transport.connect({ dtlsParameters }).catch((err) => {
-      console.error('handleWebRtcTransportConnect', err, data)
-      callback({ connected: false })
-      return
-    })
-    callback({ connected: true })
+    const pending = Network.instance.transportsConnectPending[transportId] ?? transport.connect({ dtlsParameters })
+    pending
+      .then(() => {
+        callback({ connected: true })
+      })
+      .catch((err) => {
+        console.error('handleWebRtcTransportConnect', err, data)
+        callback({ connected: false })
+      })
+    Network.instance.transportsConnectPending[transportId] = pending
   } else callback({ error: 'invalid transport' })
 }
 

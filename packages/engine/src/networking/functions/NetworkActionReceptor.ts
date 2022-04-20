@@ -3,11 +3,11 @@ import matches from 'ts-matches'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
-// import { generatePhysicsObject } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkWorldAction } from './NetworkWorldAction'
@@ -106,7 +106,7 @@ const spawnDebugPhysicsObject = (
   world: World,
   action: ReturnType<typeof NetworkWorldAction.spawnDebugPhysicsObject>
 ) => {
-  // generatePhysicsObject(action.config, action.config.spawnPosition, true, action.config.spawnScale)
+  generatePhysicsObject(action.config, action.config.spawnPosition, true, action.config.spawnScale)
 }
 
 const destroyObject = (world: World, action: ReturnType<typeof NetworkWorldAction.destroyObject>) => {
