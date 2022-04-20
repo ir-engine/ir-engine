@@ -5,10 +5,9 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { UserSetting } from '@xrengine/common/src/interfaces/User'
 import { AvatarSettings, updateMap } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
 import {
-  AvatarInputAction,
-  EngineAvatarInputReceptor,
-  useAvatarInputState
-} from '@xrengine/engine/src/avatar/state/AvatarInputState'
+  AvatarInputSettingsAction,
+  useAvatarInputSettingsState
+} from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
@@ -43,16 +42,16 @@ import styles from '../index.module.scss'
 const SettingMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()
-  const avatarInputState = useAvatarInputState()
+  const avatarInputState = useAvatarInputSettingsState()
   const authState = useAuthState()
   const selfUser = authState.user
   const dispatch = useDispatch()
   const [userSettings, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
-  const [controlTypeSelected, setControlType] = React.useState(avatarInputState.controlType.value)
-  const [controlSchemeSelected, setControlScheme] = React.useState(
+  const [controlTypeSelected, setControlType] = useState(avatarInputState.controlType.value)
+  const [controlSchemeSelected, setControlScheme] = useState(
     AvatarMovementScheme[AvatarSettings.instance.movementScheme]
   )
-  const [invertRotationAndMoveSticks, setInvertRotationAndMoveSticksState] = React.useState(
+  const [invertRotationAndMoveSticks, setInvertRotationAndMoveSticksState] = useState(
     avatarInputState.invertRotationAndMoveSticks.value
   )
   const firstRender = useRef(true)
@@ -63,15 +62,11 @@ const SettingMenu = (): JSX.Element => {
     setUserSetting(setting)
     AuthService.updateUserSettings(selfUser.user_setting.value?.id, setting)
   }
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useState(false)
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInvertRotationAndMoveSticksState((prev) => !prev)
-    dispatchAction(Engine.store, AvatarInputAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks))
+    dispatchAction(Engine.store, AvatarInputSettingsAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks))
   }
-
-  useEffect(() => {
-    addActionReceptor(Engine.store, EngineAvatarInputReceptor)
-  }, [])
 
   useLayoutEffect(() => {
     if (firstRender.current) {
@@ -82,8 +77,8 @@ const SettingMenu = (): JSX.Element => {
   }, [avatarInputState.invertRotationAndMoveSticks])
 
   const handleChangeControlType = (event: SelectChangeEvent) => {
-    setControlType(event.target.value)
-    dispatchAction(Engine.store, AvatarInputAction.setControlType(event.target.value))
+    setControlType(event.target.value as any)
+    dispatchAction(Engine.store, AvatarInputSettingsAction.setControlType(event.target.value as any))
   }
 
   const handleChangeControlScheme = (event: SelectChangeEvent) => {

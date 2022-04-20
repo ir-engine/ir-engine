@@ -4,7 +4,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { accessAvatarInputState } from '../../avatar/state/AvatarInputState'
+import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
@@ -225,7 +225,7 @@ export const startWebXR = async (): Promise<void> => {
 
   dispatchAction(world.store, NetworkWorldAction.setXRMode({ enabled: true }))
 
-  const avatarInputState = accessAvatarInputState()
+  const avatarInputState = accessAvatarInputSettingsState()
   if (avatarInputState.controlType.value === AvatarControllerType.OculusQuest) bindXRControllers()
   if (avatarInputState.controlType.value === AvatarControllerType.XRHands) bindXRHandEvents()
 }
