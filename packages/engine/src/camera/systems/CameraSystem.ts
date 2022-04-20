@@ -3,6 +3,7 @@ import { clamp } from 'three/src/math/MathUtils'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { XRCameraUpdatePendingTagComponent } from '../../avatar/components/XRCameraUpdatePendingTagComponent'
 import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
@@ -18,7 +19,6 @@ import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -293,8 +293,7 @@ export default async function CameraSystem(world: World) {
         // Current WebXRManager.updateCamera() typedef is incorrect
         ;(Engine.xrManager as any).updateCamera(Engine.camera)
 
-        const parent = Engine.camera.parent as any
-        parent.userData.xrManagerCameraUpdatePending = false
+        removeComponent(Engine.currentWorld.localClientEntity, XRCameraUpdatePendingTagComponent)
       } else if (followCameraEntity !== undefined) {
         const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
         Engine.camera.position.copy(transform.position)

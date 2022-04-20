@@ -5,7 +5,7 @@ import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -13,6 +13,7 @@ import { XRInputSourceComponent } from '../../xr/components/XRInputSourceCompone
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { XRCameraUpdatePendingTagComponent } from '../components/XRCameraUpdatePendingTagComponent'
 import { getAvatarBoneWorldPosition } from './avatarFunctions'
 
 const upVector = new Vector3(0, 1, 0)
@@ -224,6 +225,7 @@ export const getAvatarCameraPosition = (entity: Entity, offset: Vector3, positio
 }
 
 /**
+ * NOTE: Use this function alongwith XRCameraUpdatePendingTagComponent always
  * Aligns the XR camra position with the avatar's neck
  * Note: There is a delay from when the camera parent's position is set and
  * the camera position is updated
@@ -231,17 +233,15 @@ export const getAvatarCameraPosition = (entity: Entity, offset: Vector3, positio
  * @param camera
  */
 export const alignXRCameraPositionWithAvatar = (entity: Entity, camera: PerspectiveCamera | OrthographicCamera) => {
-  const parent = Engine.camera.parent as any
-  const cameraContainerPos = parent!.position
+  const cameraContainerPos = camera.parent!.position
   tempVec1.subVectors(cameraContainerPos, camera.position)
   tempVec2.copy(avatarCameraOffset)
   getAvatarCameraPosition(entity, tempVec2, cameraContainerPos)
   cameraContainerPos.add(tempVec1)
-
-  parent.userData.xrManagerCameraUpdatePending = true
 }
 
 /**
+ * NOTE: Use this function alongwith XRCameraUpdatePendingTagComponent always
  * Aligns the XR camra rotation with the avatar's forward vector
  * @param entity
  * @param camera
@@ -299,14 +299,13 @@ export const moveXRAvatar = (
   const avatarPosition = tempVec1
   getAvatarCameraPosition(entity, avatarCameraOffset, avatarPosition)
 
-  const parent = Engine.camera.parent as any
-  if (
-    !parent.userData.xrManagerCameraUpdatePending &&
-    (avatarPosition.subVectors(avatarPosition, cameraPosition).lengthSq() > 0.1 || avatarVelocity.lengthSq() > 0)
-  ) {
+  if (avatarPosition.subVectors(avatarPosition, cameraPosition).lengthSq() > 0.1 || avatarVelocity.lengthSq() > 0) {
     lastCameraPos.subVectors(Engine.camera.position, Engine.camera.parent!.position)
 
-    alignXRCameraPositionWithAvatar(entity, camera)
+    if (!hasComponent(entity, XRCameraUpdatePendingTagComponent)) {
+      alignXRCameraPositionWithAvatar(entity, Engine.camera)
+      addComponent(entity, XRCameraUpdatePendingTagComponent, {})
+    }
 
     // Calculate new camera world position
     lastCameraPos.add(Engine.camera.parent!.position)
