@@ -157,9 +157,7 @@ const handleScenePaths = (gltf: any, mode: 'encode' | 'decode') => {
   const cacheRe = new RegExp(`${hostPath}:\\d{4}\/projects`)
   const symbolRe = /__\$project\$__/
   const pathSymbol = '__$project$__'
-  const frontier: any[] = []
-  gltf.scenes.forEach((scene) => frontier.push(scene))
-  gltf.nodes.forEach((node) => frontier.push(node))
+  const frontier = [...gltf.scenes, ...gltf.nodes]
   while (frontier.length > 0) {
     const elt = frontier.pop()
     for (const [k, v] of Object.entries(elt)) {
@@ -190,7 +188,6 @@ const addComponentDataToGLTFExtension = (obj3d: Object3D, data: ComponentJson) =
   for (const key in data.props) {
     const value = data.props[key]
     if (value instanceof Color) {
-      //componentProps[key] = `Color { r: ${value.r}, g: ${value.g}, b: ${value.b}, hex: #${value.getHexString()}}`
       componentProps[key] = `#${value.getHexString()}`
     } else {
       componentProps[key] = value
