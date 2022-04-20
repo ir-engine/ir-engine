@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 import {
-  DirectionalLight,
+  AudioListener,
   Object3D,
   OrthographicCamera,
   PerspectiveCamera,
@@ -17,6 +17,7 @@ import {
 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { createHyperStore } from '@xrengine/hyperflux'
 
 import { CSM } from '../../assets/csm/CSM'
 import { isBot } from '../../common/functions/isBot'
@@ -35,6 +36,14 @@ import { Entity } from './Entity'
 export class Engine {
   /** The uuid of the logged-in user */
   public static userId: UserId
+
+  public static store = createHyperStore({
+    name: 'ENGINE',
+    getDispatchId: () => 'engine',
+    getDispatchTime: () => Engine.elapsedTime
+  })
+
+  public static elapsedTime = 0
 
   public static engineTimer: { start: Function; stop: Function; clear: Function } = null!
 
@@ -89,7 +98,7 @@ export class Engine {
    * Reference to the audioListener.
    * This is a virtual listner for all positional and non-positional audio.
    */
-  static audioListener: any = null
+  static audioListener: AudioListener = null!
 
   static inputState = new Map<any, InputValue>()
   static prevInputState = new Map<any, InputValue>()

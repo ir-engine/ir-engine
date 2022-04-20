@@ -20,7 +20,7 @@ export const GroupNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.group.name')}
       description={t('editor:properties.group.description')}
-    />
+    ></NodeEditor>
   )
 }
 

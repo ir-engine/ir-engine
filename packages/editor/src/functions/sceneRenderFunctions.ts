@@ -7,20 +7,23 @@ import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { accessEngineRendererState, EngineRendererAction } from '@xrengine/engine/src/renderer/EngineRendererState'
+import {
+  accessEngineRendererState,
+  EngineRendererAction,
+  restoreEngineRendererData
+} from '@xrengine/engine/src/renderer/EngineRendererState'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
-import { RenderModes, RenderModesType } from '../constants/RenderModes'
 import { ActionSets, EditorMapping } from '../controls/input-mappings'
 import { initInputEvents } from '../controls/InputEvents'
+import { restoreEditorHelperData } from '../services/EditorHelperState'
 import { EditorAction } from '../services/EditorServices'
-import { accessModeState } from '../services/ModeServices'
 import { createCameraEntity } from './createCameraEntity'
 import { createEditorEntity } from './createEditorEntity'
 import { createGizmoEntity } from './createGizmoEntity'
@@ -43,7 +46,6 @@ type SceneStateType = {
   gizmoEntity: Entity
   editorEntity: Entity
   onUpdateStats?: (info: WebGLInfo) => void
-  renderMode: RenderModesType
 }
 
 export const SceneState: SceneStateType = {
@@ -51,8 +53,7 @@ export const SceneState: SceneStateType = {
   grid: null!,
   transformGizmo: null!,
   gizmoEntity: null!,
-  editorEntity: null!,
-  renderMode: RenderModes.SHADOW
+  editorEntity: null!
 }
 
 export async function initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
@@ -92,22 +93,19 @@ export async function initializeScene(projectFile: SceneJson): Promise<Error[] |
  * @author Robert Long
  * @param  {any} canvas [ contains canvas data ]
  */
-export function initializeRenderer(): void {
+export async function initializeRenderer(): Promise<void> {
   try {
     initInputEvents()
 
     addInputActionMapping(ActionSets.EDITOR, EditorMapping)
 
-    dispatchLocal(
+    dispatchAction(
+      Engine.store,
       EngineActions.enableScene({
         renderer: true,
         physics: true
       }) as any
     )
-
-    dispatchLocal(EngineActions.setPhysicsDebug(true) as any)
-
-    SceneState.grid.setSize(accessModeState().translationSnap.value)
 
     configureEffectComposer()
 
@@ -115,7 +113,9 @@ export function initializeRenderer(): void {
     EngineRenderer.instance.disableUpdate = false
 
     accessEngineRendererState().automatic.set(false)
-    dispatchLocal(EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
+    await restoreEditorHelperData()
+    await restoreEngineRendererData()
+    dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
   } catch (error) {
     console.error(error)
   }

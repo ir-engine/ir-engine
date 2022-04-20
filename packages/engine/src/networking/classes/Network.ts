@@ -23,8 +23,8 @@ export class Network {
   static instance: Network = new Network()
   /** Object holding transport details over network. */
   transportHandler: NetworkTransportHandler<NetworkTransport, NetworkTransport>
-  /** Object holding transport details over network. */
-  // transport: NetworkTransport
+  /** Transport connection promises */
+  transportsConnectPending = [] as Promise<any>[]
   /** Network transports. */
   transports = [] as any[]
   /** List of data producer nodes. */

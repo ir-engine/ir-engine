@@ -11,7 +11,6 @@ import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { AvatarInterface, AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { resolveUser, resolveWalletUser, User, UserSeed, UserSetting } from '@xrengine/common/src/interfaces/User'
 import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
@@ -19,8 +18,8 @@ import { isDev } from '@xrengine/common/src/utils/isDev'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
@@ -741,6 +740,7 @@ export const AuthService = {
       })
   },
   updateUserAvatarId: async (userId: string, avatarId: string, avatarURL: string, thumbnailURL: string) => {
+    const world = Engine.currentWorld
     const dispatch = useDispatch()
 
     client
@@ -751,14 +751,15 @@ export const AuthService = {
       .then((res: any) => {
         // dispatchAlertSuccess(dispatch, 'User Avatar updated');
         dispatch(AuthAction.userAvatarIdUpdated(res.avatarId))
-        dispatchFrom(Engine.userId, () =>
+        dispatchAction(
+          world.store,
           NetworkWorldAction.avatarDetails({
             avatarDetail: {
               avatarURL,
               thumbnailURL
             }
           })
-        ).cache({ removePrevious: true })
+        )
         const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
         transport?.sendNetworkStatUpdateMessage({
           type: MessageTypes.AvatarUpdated,

@@ -3,6 +3,7 @@ import { Network } from '../../src/networking/classes/Network'
 import { DummyTransportHandler } from '../util/setupEngine'
 
 export class TestNetwork implements Network {
+  transportsConnectPending: Promise<any>[]
   transports: any[]
   dataProducers: Map<string, any>
   dataConsumers: Map<string, any>

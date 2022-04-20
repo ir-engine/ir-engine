@@ -2,7 +2,8 @@ import * as bitecs from 'bitecs'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { createHyperStore } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
@@ -14,7 +15,6 @@ import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { Physics } from '../../physics/classes/Physics'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
-import { Action } from '../functions/Action'
 import {
   addComponent,
   defineQuery,
@@ -32,6 +32,10 @@ import EntityTree from './EntityTree'
 
 type RemoveIndex<T> = {
   [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
+}
+
+const TimerConfig = {
+  MAX_DELTA: 1 / 10
 }
 
 export const CreateWorld = Symbol('CreateWorld')
@@ -52,16 +56,51 @@ export class World {
 
   static [CreateWorld] = () => new World()
 
+  /**
+   * The UserId of the host
+   */
+  hostId = 'server' as UserId
+
+  /**
+   * Check if this user is hosting the world.
+   */
+  get isHosting() {
+    return Engine.userId === this.hostId
+  }
+
   sceneMetadata = undefined as string | undefined
   worldMetadata = {} as { [key: string]: string }
 
-  delta = NaN
-  elapsedTime = NaN
-  fixedDelta = NaN
+  /**
+   * The current delta time in seconds
+   */
+  delta = 0
+  /**
+   * The current elapsed time in seconds
+   */
+  elapsedTime = 0
+  /**
+   * The current fixed delta in seconds (generally 1/60)
+   */
+  fixedDelta = 0
+  /**
+   * The current fixed time in seconds
+   */
   fixedElapsedTime = 0
+  /**
+   * The current fixed tick (fixedElapsedTime / fixedDelta)
+   */
   fixedTick = 0
 
   _pipeline = [] as SystemModuleType<any>[]
+
+  store = createHyperStore({
+    name: 'WORLD',
+    getDispatchMode: () => (this.isHosting ? 'host' : 'peer'),
+    getDispatchId: () => Engine.userId,
+    getDispatchTime: () => this.fixedTick,
+    defaultDispatchDelay: 1
+  })
 
   physics = new Physics()
 
@@ -78,18 +117,6 @@ export class World {
   /** Connected clients */
   clients = new Map() as Map<UserId, NetworkClient>
 
-  /** Incoming actions */
-  incomingActions = new Set<Required<Action>>()
-
-  /** Cached actions */
-  cachedActions = new Set<Required<Action>>()
-
-  /** Outgoing actions */
-  outgoingActions = new Set<Action>()
-
-  /** All actions that have been dispatched */
-  actionHistory = new Set<Action>()
-
   /** Map of numerical user index to user client IDs */
   userIndexToUserId = new Map<number, UserId>()
 
@@ -97,18 +124,6 @@ export class World {
   userIdToUserIndex = new Map<UserId, number>()
 
   userIndexCount = 0
-
-  /**
-   * Check if this user is hosting the world.
-   */
-  get isHosting() {
-    return Engine.userId === this.hostId
-  }
-
-  /**
-   * The UserId of the host
-   */
-  hostId = 'server' as HostUserId
 
   /**
    * The world entity
@@ -163,7 +178,7 @@ export class World {
    * Get a network object by owner and NetworkId
    * @returns
    */
-  getNetworkObject(ownerId: UserId, networkId: NetworkId) {
+  getNetworkObject(ownerId: UserId, networkId: NetworkId): Entity | undefined {
     return this.networkObjectQuery(this).find((eid) => {
       const networkObject = getComponent(eid, NetworkObjectComponent)
       return networkObject.networkId === networkId && networkObject.ownerId === ownerId
@@ -190,23 +205,25 @@ export class World {
   }
 
   /**
-   * Action receptors
+   * @deprecated Use store.receptors
    */
-  receptors = new Array<(action: Action) => void>()
+  get receptors() {
+    return this.store.receptors
+  }
 
   /**
    * Execute systems on this world
    *
-   * @param delta
-   * @param elapsedTime
+   * @param delta in seconds
+   * @param elapsedTime in seconds
    */
-  execute(delta: number, elapsedTime: number) {
+  execute(delta: number) {
     const start = nowMilliseconds()
-    const incomingActions = Array.from(this.incomingActions.values())
+    const incomingActions = [...this.store.actions.incoming]
     const incomingBufferLength = Network.instance?.incomingMessageQueueUnreliable.getBufferLength()
 
-    this.delta = delta
-    this.elapsedTime = elapsedTime
+    this.delta = Math.min(TimerConfig.MAX_DELTA, delta)
+    this.elapsedTime += delta
 
     for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.execute()
     for (const system of this.pipelines[SystemUpdateType.PRE_RENDER]) system.execute()

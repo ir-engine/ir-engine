@@ -1,5 +1,7 @@
 import { ArrayCamera, sRGBEncoding } from 'three'
 
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
@@ -12,7 +14,6 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
@@ -28,10 +29,10 @@ const startXRSession = async () => {
     Engine.xrSession = session
     Engine.xrManager.setSession(session)
     Engine.xrManager.setFoveation(1)
-    dispatchLocal(EngineActions.xrSession() as any)
+    dispatchAction(Engine.store, EngineActions.xrSession() as any)
 
     Engine.xrManager.addEventListener('sessionend', async () => {
-      dispatchLocal(EngineActions.xrEnd() as any)
+      dispatchAction(Engine.store, EngineActions.xrEnd() as any)
     })
 
     startWebXR()
@@ -50,7 +51,7 @@ export default async function XRSystem(world: World) {
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
 
   ;(navigator as any).xr?.isSessionSupported('immersive-vr').then((supported) => {
-    dispatchLocal(EngineActions.xrSupported(supported) as any)
+    dispatchAction(Engine.store, EngineActions.xrSupported(supported) as any)
   })
 
   // TEMPORARY - precache controller model
@@ -62,7 +63,7 @@ export default async function XRSystem(world: World) {
     AssetLoader.loadAsync('/default_assets/controllers/hands/right_controller.glb')
   ])
 
-  Engine.currentWorld.receptors.push((action: EngineActionType) => {
+  addActionReceptor(world.store, (action) => {
     switch (action.type) {
       case NetworkWorldAction.setXRMode.type:
         // Current WebXRManager.getCamera() typedef is incorrect
@@ -75,7 +76,11 @@ export default async function XRSystem(world: World) {
           camera.layers.enable(ObjectLayers.Avatar)
           camera.layers.enable(ObjectLayers.UI)
         })
-        break
+    }
+  })
+
+  addActionReceptor(Engine.store, (action) => {
+    switch (action.type) {
       case EngineEvents.EVENTS.XR_START:
         if (accessEngineState().joinedWorld.value && !Engine.xrSession) startXRSession()
         break

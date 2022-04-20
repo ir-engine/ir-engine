@@ -14,6 +14,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
 import { IKRigComponent, IKRigTargetComponent } from '../../ikrig/components/IKRigComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AnimationState } from '../animation/AnimationState'
 import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
@@ -58,23 +59,18 @@ describe('avatarFunctions Integration', async () => {
           const networkObject = addComponent(entity, NetworkObjectComponent, {
             // remote owner
             ownerId: Engine.userId,
-            lastTick: 0,
             networkId: i as NetworkId,
             prefab: '',
             parameters: {}
           })
 
-          createAvatar({
-            prefab: 'avatar',
-            parameters: { position: new Vector3(), rotation: new Quaternion() },
-            type: 'network.SPAWN_OBJECT',
-            networkId: networkObject.networkId,
-            ownerIndex: 0,
-            $from: Engine.userId,
-            $to: 'all',
-            $tick: Engine.currentWorld.fixedTick,
-            $cache: true
-          })
+          createAvatar(
+            NetworkWorldAction.spawnAvatar({
+              $from: Engine.userId,
+              parameters: { position: new Vector3(), rotation: new Quaternion() },
+              networkId: networkObject.networkId
+            })
+          )
 
           const avatar = getComponent(entity, AvatarComponent)
           // make sure this is set later on
