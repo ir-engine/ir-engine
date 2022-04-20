@@ -194,18 +194,18 @@ export const rotateXRAvatar = (world: World, entity: Entity, camera: Perspective
   tempVec1.subVectors(avatarTransform.position, camera.position).applyQuaternion(quat).add(camera.position)
   tempVec2.subVectors(tempVec1, avatarTransform.position).setY(0)
 
-  // const displacement = {
-  //   x: tempVec2.x,
-  //   y: 0,
-  //   z: tempVec2.z
-  // }
+  const displacement = {
+    x: tempVec2.x,
+    y: 0,
+    z: tempVec2.z
+  }
 
-  // const velocity = getComponent(entity, VelocityComponent)
-  // velocity.linear.setX(displacement.x)
-  // velocity.linear.setZ(displacement.z)
+  const velocity = getComponent(entity, VelocityComponent)
+  velocity.linear.setX(displacement.x)
+  velocity.linear.setZ(displacement.z)
 
-  // // Rotate around camera
-  // moveAvatarController(world, entity, displacement)
+  // Rotate around camera
+  moveAvatarController(world, entity, displacement)
 }
 
 /**
@@ -316,17 +316,17 @@ export const moveXRAvatar = (
   avatarPosition.subVectors(cameraPosition, lastCameraPos)
   lastCameraPos.copy(cameraPosition)
 
-  // const displacement = {
-  //   x: avatarPosition.x,
-  //   y: 0,
-  //   z: avatarPosition.z
-  // }
+  const displacement = {
+    x: avatarPosition.x,
+    y: 0,
+    z: avatarPosition.z
+  }
 
-  // const velocity = getComponent(entity, VelocityComponent)
-  // velocity.linear.setX(displacement.x)
-  // velocity.linear.setZ(displacement.z)
+  const velocity = getComponent(entity, VelocityComponent)
+  velocity.linear.setX(displacement.x)
+  velocity.linear.setZ(displacement.z)
 
-  // moveAvatarController(world, entity, displacement)
+  moveAvatarController(world, entity, displacement)
 }
 
 /**
