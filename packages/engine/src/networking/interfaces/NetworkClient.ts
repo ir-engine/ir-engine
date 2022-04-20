@@ -3,7 +3,7 @@ import type SocketIO from 'socket.io'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-import type { AvatarProps } from './WorldState'
+import type { AvatarProps, TypingDetailProps } from './WorldState'
 
 export interface NetworkClient {
   userId: UserId
@@ -26,4 +26,5 @@ export interface NetworkClient {
   dataProducers?: Map<string, any> // Key => label of data channel}
   avatarDetail?: AvatarProps
   networkId?: NetworkId // to easily retrieve the network object correspending to this client
+  typingDetail?: TypingDetailProps
 }

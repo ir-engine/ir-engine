@@ -193,7 +193,7 @@ const setUserTypingStatus = (world: World, action: ReturnType<typeof NetworkWorl
   dispatchAction(
     Engine.currentWorld.store,
     NetworkWorldAction.userTyping({
-      object: action.object
+      typingDetail: action.typingDetail
     })
   )
 }

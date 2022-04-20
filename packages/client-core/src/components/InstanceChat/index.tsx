@@ -58,7 +58,9 @@ const InstanceChat = (props: Props): any => {
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
-      // Dispatch not typing
+      NetworkActionReceptor.setUserTypingStatus(Engine.currentWorld, {
+        typingDetail: { typing: false, user: user.id.value }
+      })
     }, 3000)
 
     return () => clearTimeout(delayDebounce)
@@ -89,18 +91,24 @@ const InstanceChat = (props: Props): any => {
   ])
 
   const handleComposingMessageChange = (event: any): void => {
+    const client = Engine.currentWorld.clients.get(user?.id.value)
     const message = event.target.value
     if (message.length > composingMessage.length) {
-      // Dispatch Typing
+      if (!client?.typingDetail?.typing) {
+        NetworkActionReceptor.setUserTypingStatus(Engine.currentWorld, {
+          typingDetail: { typing: true, user: user?.id.value }
+        })
+      }
     }
     if (message.length == 0 || message.length < composingMessage.length) {
-      // Dispatch not Typing
+      if (client?.typingDetail?.typing) {
+        NetworkActionReceptor.setUserTypingStatus(Engine.currentWorld, {
+          typingDetail: { typing: false, user: user?.id.value }
+        })
+      }
     }
 
     setComposingMessage(message)
-    // NetworkActionReceptor.setUserTypingStatus(Engine.currentWorld, {
-    //   object: { typing: true, notTyping: false, user: user.id.value }
-    // })
   }
 
   const packageMessage = (): void => {

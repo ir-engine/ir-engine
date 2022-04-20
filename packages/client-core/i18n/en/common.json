@@ -50,6 +50,7 @@
     "resumeRecording": "Resume recording",
     "stopRecording": "Stop recording"
   },
+  "typing": "Typing...",
   "gameServer": {
     "browserError": "Browser Error",
     "browserErrorMessage": "Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode.",
