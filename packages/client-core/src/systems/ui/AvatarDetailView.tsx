@@ -40,7 +40,7 @@ function createAvatarDetailState(id: string) {
 type CharacterDetailState = ReturnType<typeof createAvatarDetailState>
 interface TypingDetail {
   typing: Boolean
-  user: String
+  userId: String
 }
 const CharacterDetailView = () => {
   const { t } = useTranslation()
@@ -54,15 +54,18 @@ const CharacterDetailView = () => {
     const world = Engine.currentWorld
     matches(action).when(NetworkWorldAction.userTyping.matches, ({ $from, typingDetail }) => {
       const client = world.clients.get($from)
-      world.clients.set($from, { ...client, typingDetail })
-      setUserTypingDetail(typingDetail)
+      world.clients.set($from, JSON.parse(JSON.stringify({ ...client, typingDetail })))
+      setUserTypingDetail({
+        typing: typingDetail.typing,
+        userId: $from
+      })
     })
   }
 
   return user ? (
     <div style={styles.avatarName as {}}>
       {user.name.value}
-      {userTypingDetail && userTypingDetail.typing && user.id.value == userTypingDetail.user && (
+      {userTypingDetail && userTypingDetail.typing && user.id.value == userTypingDetail.userId && (
         <h6 style={{ margin: 0, padding: 0 }}>{t('common:typing')}</h6>
       )}
     </div>

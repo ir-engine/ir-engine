@@ -8,8 +8,7 @@ export const matchesAvatarProps = matches.shape({
 })
 
 export const typingDetailProps = matches.shape({
-  typing: matches.boolean,
-  user: matchesUserId
+  typing: matches.boolean
 })
 
 export type AvatarProps = typeof matchesAvatarProps._TYPE

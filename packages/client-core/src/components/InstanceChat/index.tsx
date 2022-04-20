@@ -8,7 +8,8 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { NetworkActionReceptor } from '@xrengine/engine/src/networking/functions/NetworkActionReceptor'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Message as MessageIcon, Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
@@ -58,9 +59,12 @@ const InstanceChat = (props: Props): any => {
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
-      NetworkActionReceptor.setUserTypingStatus(Engine.currentWorld, {
-        typingDetail: { typing: false, user: user.id.value }
-      })
+      dispatchAction(
+        Engine.currentWorld.store,
+        NetworkWorldAction.userTyping({
+          typingDetail: { typing: false }
+        })
+      )
     }, 3000)
 
     return () => clearTimeout(delayDebounce)
@@ -95,16 +99,22 @@ const InstanceChat = (props: Props): any => {
     const message = event.target.value
     if (message.length > composingMessage.length) {
       if (!client?.typingDetail?.typing) {
-        NetworkActionReceptor.setUserTypingStatus(Engine.currentWorld, {
-          typingDetail: { typing: true, user: user?.id.value }
-        })
+        dispatchAction(
+          Engine.currentWorld.store,
+          NetworkWorldAction.userTyping({
+            typingDetail: { typing: true }
+          })
+        )
       }
     }
     if (message.length == 0 || message.length < composingMessage.length) {
       if (client?.typingDetail?.typing) {
-        NetworkActionReceptor.setUserTypingStatus(Engine.currentWorld, {
-          typingDetail: { typing: false, user: user?.id.value }
-        })
+        dispatchAction(
+          Engine.currentWorld.store,
+          NetworkWorldAction.userTyping({
+            typingDetail: { typing: false }
+          })
+        )
       }
     }
 

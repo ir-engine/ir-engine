@@ -189,15 +189,6 @@ const setEquippedObject = (world: World, action: ReturnType<typeof NetworkWorldA
   }
 }
 
-const setUserTypingStatus = (world: World, action: ReturnType<typeof NetworkWorldAction.userTyping>) => {
-  dispatchAction(
-    Engine.currentWorld.store,
-    NetworkWorldAction.userTyping({
-      typingDetail: action.typingDetail
-    })
-  )
-}
-
 /**
  * @author Gheric Speiginer <github.com/speigg>
  * @author Josh Field <github.com/HexaField>
@@ -232,6 +223,5 @@ export const NetworkActionReceptor = {
   requestAuthorityOverObject,
   transferAuthorityOfObject,
   setEquippedObject,
-  setUserTypingStatus,
   createNetworkActionReceptor
 }
