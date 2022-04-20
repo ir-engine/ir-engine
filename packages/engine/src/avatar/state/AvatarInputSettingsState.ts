@@ -28,7 +28,6 @@ const state = createState<AvatarInputSettingsStateType>({
 
 export function AvatarInputSettingsReceptor(action: AvatarInputSettingsActionType) {
   state.batch((s) => {
-    console.log(action.type)
     switch (action.type) {
       case 'AVATAR_SET_CONTROL_MODEL':
         return s.merge({ controlType: action.controlType })
