@@ -142,9 +142,9 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
     promisesCompleted++
     dispatchAction(
       Engine.store,
-      EngineActions.sceneLoadingProgress(
-        promisesCompleted > promises.length ? 100 : Math.round((100 * promisesCompleted) / promises.length)
-      )
+      EngineActions.sceneLoadingProgress({
+        progress: promisesCompleted > promises.length ? 100 : Math.round((100 * promisesCompleted) / promises.length)
+      })
     )
   }
   const promises = preCacheAssets(sceneData, onProgress)

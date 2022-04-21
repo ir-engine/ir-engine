@@ -76,11 +76,11 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
   }
 
   if (!ConnectToWorldResponse) {
-    dispatchAction(Engine.store, EngineActions.connectToWorldTimeout({ instance: true }) as any)
+    dispatchAction(Engine.store, EngineActions.connectToWorldTimeout({ instance: true }))
     return
   }
   const { routerRtpCapabilities } = ConnectToWorldResponse as any
-  dispatchAction(Engine.store, EngineActions.connectToWorld({ connectedWorld: true }) as any)
+  dispatchAction(Engine.store, EngineActions.connectToWorld({ connectedWorld: true }))
 
   if (networkTransport.mediasoupDevice.loaded !== true)
     await networkTransport.mediasoupDevice.load({ routerRtpCapabilities })
@@ -879,7 +879,7 @@ export async function leave(networkTransport: SocketWebRTCClientTransport, kicke
         })
       ])
       if (result?.error) console.error(result.error)
-      dispatchAction(Engine.store, EngineActions.leaveWorld() as any)
+      dispatchAction(Engine.store, EngineActions.leaveWorld())
     }
 
     networkTransport.leaving = false

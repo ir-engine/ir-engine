@@ -50,7 +50,7 @@ export default async function XRSystem(world: World) {
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
 
   ;(navigator as any).xr?.isSessionSupported('immersive-vr').then((supported) => {
-    dispatchAction(Engine.store, EngineActions.xrSupported(supported) as any)
+    dispatchAction(Engine.store, EngineActions.xrSupported({ xrSupported: supported }))
   })
 
   // TEMPORARY - precache controller model

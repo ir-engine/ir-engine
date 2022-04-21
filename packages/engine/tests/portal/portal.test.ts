@@ -6,7 +6,6 @@ import sceneJson from '@xrengine/projects/default-project/default.scene.json'
 import { parseSceneDataCacheURLs } from '@xrengine/server-core/src/projects/scene/scene-parser'
 
 import { Engine } from '../../src/ecs/classes/Engine'
-import { EngineEvents } from '../../src/ecs/classes/EngineEvents'
 import { unloadScene } from '../../src/ecs/functions/EngineFunctions'
 import { useWorld } from '../../src/ecs/functions/SystemHooks'
 import { loadSceneFromJSON } from '../../src/scene/functions/SceneLoading'

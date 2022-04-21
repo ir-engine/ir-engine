@@ -198,7 +198,7 @@ export const EngineActions = {
     store: 'ENGINE',
     type: 'CORE_ENTITY_ERROR_UPDATE' as const,
     entity: matches.number as Validator<unknown, Entity>,
-    isResolved: matches.boolean
+    isResolved: matches.boolean.optional()
   }),
 
   xrSupported: defineAction({
