@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import SketchColorPicker from '@xrengine/client-core/src/admin/common/SketchColorPicker'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 
+import MenuIcon from '@mui/icons-material/Menu'
 import SettingIcon from '@mui/icons-material/Settings'
 import {
   Box,
@@ -11,11 +12,16 @@ import {
   FormControlLabel,
   Grid,
   IconButton,
+  InputBase,
   List,
   ListItem,
   ListItemText,
+  Menu,
+  MenuItem,
+  Select,
   Switch
 } from '@mui/material'
+import { Drawer } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
 import styles from '../../styles/settings.module.scss'
@@ -71,6 +77,9 @@ const MaterialUISwitch = styled(Switch)((props: any) => ({
 const ClientTheme = () => {
   const selfUser = useAuthState().user
 
+  const [drawerValue, setDrawerValue] = useState(false)
+  const [selectValue, setSelectValue] = useState('')
+  const [anchorEl, setAnchorEl] = useState<any>(null)
   const [mode, setMode] = useState(selfUser?.user_setting?.value?.themeMode || 'dark')
   const [themeSetting, setThemeSetting] = useState({
     light: {
@@ -100,10 +109,10 @@ const ClientTheme = () => {
       scrollbarThumbYAxisStart: '#a798ff',
       scrollbarThumbYAxisEnd: '#ff5fac',
       scrollbarCorner: 'rgba(255, 255, 255, 0)',
-      inputOutline: '',
-      inputBackground: '',
-      dropdownMenuBackground: '',
-      dropdownMenuSelectedBackground: '',
+      inputOutline: '#FFF',
+      inputBackground: '#6868ba',
+      dropdownMenuBackground: '#7f78c4',
+      drawerBackground: '#7f78c4',
       themeSwitchTrack: '#aab4be',
       themeSwitchThumb: '#c2b7f6'
     },
@@ -134,10 +143,10 @@ const ClientTheme = () => {
       scrollbarThumbYAxisStart: '#5236ff',
       scrollbarThumbYAxisEnd: '#c20560',
       scrollbarCorner: 'rgba(255, 255, 255, 0)',
-      inputOutline: '',
-      inputBackground: '',
-      dropdownMenuBackground: '',
-      dropdownMenuSelectedBackground: '',
+      inputOutline: '#FFF',
+      inputBackground: '#3c3c6f',
+      dropdownMenuBackground: '#1f1b48',
+      drawerBackground: '#1f1b48',
       themeSwitchTrack: '#8796a5',
       themeSwitchThumb: '#02022d'
     }
@@ -153,6 +162,14 @@ const ClientTheme = () => {
 
   const handleChangeThemeMode = (event) => {
     setMode(event.target.checked ? 'dark' : 'light')
+  }
+
+  const openMenu = (e) => {
+    setAnchorEl(e.target)
+  }
+
+  const closeMenu = () => {
+    setAnchorEl(null)
   }
 
   const theme = themeSetting[mode]
@@ -358,6 +375,37 @@ const ClientTheme = () => {
         .gradientButton:hover {
           opacity: 0.8;
         }
+
+        .input {
+          border-radius: 4px;
+          color: ${theme.textColor};
+          background: ${theme.inputBackground};
+          border: solid 1px ${theme.inputOutline};
+        }
+
+        .input input {
+          padding: 4px 5px 5px;
+        }
+
+        .select {
+          height: 2.4rem !important;
+          color: ${theme.textColor} !important;
+          background: ${theme.inputBackground};
+          border: solid 1px ${theme.inputOutline};
+        }
+
+        .select svg {
+          color: ${theme.textColor}
+        }
+        
+        .selectPaper {
+          background-color: ${theme.dropdownMenuBackground};
+          color: ${theme.textColor};
+        }
+
+        .drawer {
+          background-color: ${theme.drawerBackground};
+        }
         `}
       </style>
       <label>Demo Area:</label>
@@ -430,7 +478,7 @@ const ClientTheme = () => {
               </Box>
             </Box>
             <Box className="panel">
-              <div className="textheading">Buttons</div>
+              <div className="textHeading">Buttons</div>
               <div className="buttonContainer">
                 <div className="iconButtonContainer">
                   <label className="textSubheading">Unselected Button:</label>
@@ -455,6 +503,57 @@ const ClientTheme = () => {
                   Save
                 </Button>
               </div>
+              <Divider variant="inset" component="div" className={styles.colorGridDivider} />
+              <div className="textHeading">Dropdown</div>
+              <div className="buttonContainer">
+                <label className="textSubheading">Menu Icon Dropdown:</label>
+                <IconButton className="iconButton" onClick={openMenu}>
+                  <MenuIcon />
+                </IconButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={closeMenu}
+                  classes={{ paper: 'selectPaper' }}
+                >
+                  {['Option 1', 'Option 2', 'Option 3', 'Option 4'].map((el, index) => (
+                    <MenuItem value={el} key={index} onClick={closeMenu}>
+                      {el}
+                    </MenuItem>
+                  ))}
+                </Menu>
+                <label className="textSubheading">Select Dropdown:</label>
+                <Select
+                  displayEmpty
+                  value={selectValue}
+                  className="select"
+                  MenuProps={{ classes: { paper: 'selectPaper' } }}
+                  onChange={(e) => setSelectValue(e.target.value)}
+                >
+                  <MenuItem value="" disabled>
+                    Select Option
+                  </MenuItem>
+                  {['Option 1', 'Option 2', 'Option 3', 'Option 4'].map((el, index) => (
+                    <MenuItem value={el} key={index}>
+                      {el}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </div>
+              <Divider variant="inset" component="div" className={styles.colorGridDivider} />
+              <div className="textHeading">Input</div>
+              <InputBase className="input" placeholder="this is the input placeholder" />
+              <Divider variant="inset" component="div" className={styles.colorGridDivider} />
+              <div className="textHeading">Drawer</div>
+              <Button variant="contained" className="filledButton" onClick={() => setDrawerValue(true)}>
+                Open Drawer
+              </Button>
+              <Drawer
+                open={drawerValue}
+                anchor="right"
+                classes={{ paper: 'drawer' }}
+                onClose={() => setDrawerValue(false)}
+              ></Drawer>
             </Box>
           </div>
         </div>
@@ -697,11 +796,11 @@ const ClientTheme = () => {
           />
         </Grid>
         <Grid item sm={12} md={6} className={styles.colorGridContainer}>
-          <label>Dropdown Selected Background:</label>
+          <label>Drawer Background:</label>
           <SketchColorPicker
-            name="dropdownMenuSelectedBackground"
-            value={theme.dropdownMenuSelectedBackground}
-            onChange={(color) => handleChangeColor('dropdownMenuSelectedBackground', color)}
+            name="drawerBackground"
+            value={theme.drawerBackground}
+            onChange={(color) => handleChangeColor('drawerBackground', color)}
           />
         </Grid>
       </Grid>
