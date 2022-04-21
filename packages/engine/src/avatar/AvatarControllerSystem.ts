@@ -1,5 +1,7 @@
 import { Vector3 } from 'three'
 
+import { addActionReceptor } from '@xrengine/hyperflux'
+
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
@@ -15,7 +17,7 @@ import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { setAvatarHeadOpacity } from './functions/avatarFunctions'
 import { moveAvatar, moveXRAvatar, rotateXRAvatar } from './functions/moveAvatar'
-import { accessAvatarInputState } from './state/AvatarInputState'
+import { accessAvatarInputSettingsState, AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
@@ -29,6 +31,8 @@ export class AvatarSettings {
 export default async function AvatarControllerSystem(world: World) {
   const controllerQuery = defineQuery([AvatarControllerComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
+
+  addActionReceptor(Engine.store, AvatarInputSettingsReceptor)
 
   const lastCamPos = new Vector3(),
     displacement = new Vector3()
@@ -86,7 +90,7 @@ export default async function AvatarControllerSystem(world: World) {
 }
 
 export const updateMap = () => {
-  const avatarInputState = accessAvatarInputState()
+  const avatarInputState = accessAvatarInputSettingsState()
   const inputMap = AvatarInputSchema.inputMap
   if (avatarInputState.invertRotationAndMoveSticks.value) {
     inputMap.set(XRAxes.Left, BaseInput.XR_AXIS_LOOK)
