@@ -42,10 +42,10 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
 
   if (isWorldConnection) {
     dispatch(LocationInstanceConnectionAction.instanceServerConnected())
-    EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED })
+    EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.actions.INSTANCE_RECONNECTED })
   } else {
     dispatch(MediaLocationInstanceConnectionAction.serverConnected())
-    EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED })
+    EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.actions.CHANNEL_RECONNECTED })
   }
 
   const authState = accessAuthState()
@@ -98,7 +98,7 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
     await endVideoChat(networkTransport, { endConsumers: true })
     await leave(networkTransport, true)
     EngineEvents.instance.dispatchEvent({
-      type: SocketWebRTCClientTransport.EVENTS.INSTANCE_KICKED,
+      type: SocketWebRTCClientTransport.actions.INSTANCE_KICKED,
       message: message
     })
     console.log('Client has been kicked from the world')
@@ -147,7 +147,7 @@ export async function onConnectToWorldInstance(networkTransport: SocketWebRTCCli
   }
 
   networkTransport.socket.on('disconnect', async () => {
-    EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED })
+    EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.actions.INSTANCE_DISCONNECTED })
     networkTransport.reconnecting = true
     networkTransport.socket.off(MessageTypes.ActionData.toString(), actionDataHandler)
 
@@ -160,7 +160,7 @@ export async function onConnectToWorldInstance(networkTransport: SocketWebRTCCli
     )
   })
   networkTransport.socket.io.on('reconnect', async () => {
-    EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED })
+    EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.actions.INSTANCE_RECONNECTED })
     networkTransport.reconnecting = false
     await onConnectToInstance(networkTransport)
     const transportRequestData = {
@@ -235,7 +235,7 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
 
   const channelConnectionState = accessMediaInstanceConnectionState()
   networkTransport.socket.on('disconnect', async () => {
-    EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED })
+    EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.actions.CHANNEL_DISCONNECTED })
     networkTransport.reconnecting = true
 
     networkTransport.socket.off(MessageTypes.WebRTCPauseConsumer.toString(), webRTCPauseConsumerHandler)
@@ -254,7 +254,7 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
   networkTransport.socket.on(MessageTypes.WebRTCCreateProducer.toString(), webRTCCreateProducerHandler)
 
   networkTransport.socket.io.on('reconnect', async () => {
-    EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED })
+    EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.actions.CHANNEL_RECONNECTED })
     networkTransport.reconnecting = false
     await onConnectToInstance(networkTransport)
     await updateNearbyAvatars()
@@ -442,8 +442,8 @@ export async function createTransport(networkTransport: SocketWebRTCClientTransp
       EngineEvents.instance.dispatchEvent({
         type:
           networkTransport.type === 'world'
-            ? SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED
-            : SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED
+            ? SocketWebRTCClientTransport.actions.INSTANCE_DISCONNECTED
+            : SocketWebRTCClientTransport.actions.CHANNEL_DISCONNECTED
       })
       console.error('Transport', transport, ' transitioned to state', state)
       console.error(
@@ -463,8 +463,8 @@ export async function createTransport(networkTransport: SocketWebRTCClientTransp
         EngineEvents.instance.dispatchEvent({
           type:
             networkTransport.type === 'world'
-              ? SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED
-              : SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED
+              ? SocketWebRTCClientTransport.actions.INSTANCE_RECONNECTED
+              : SocketWebRTCClientTransport.actions.CHANNEL_RECONNECTED
         })
       }, 5000)
       // await request(MessageTypes.WebRTCTransportClose.toString(), {transportId: transport.id});

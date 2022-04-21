@@ -26,7 +26,6 @@ describe.skip('Portal', () => {
   // it('Can load scene', async () => {
   //   const world = useWorld()
   //   await loadSceneFromJSON(sceneData)
-  //   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
   //   assert.equal(world.entityQuery().length, 10)
   //   // TODO: test scene actor removal directly
   //   assert.equal(world.physics.bodies.size, 1)
@@ -42,7 +41,6 @@ describe.skip('Portal', () => {
   // it('Can load new scene', async () => {
   //   await loadSceneFromJSON(sceneData)
   //   const world = useWorld()
-  //   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
   //   assert.equal(world.entityQuery().length, 10)
   //   assert.equal(world.physics.bodies.size, 1)
   // })

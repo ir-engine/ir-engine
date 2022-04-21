@@ -77,11 +77,6 @@ export default async function (locationName, app: Application) {
       })
     }
   }
-  EngineEvents.instance.dispatchEvent({
-    type: EngineEvents.EVENTS.ENABLE_SCENE,
-    renderer: true,
-    physics: true
-  })
   console.log('Pre-loaded location', location.id)
 }
 */

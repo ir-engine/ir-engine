@@ -123,7 +123,7 @@ export const MediaInstanceConnectionService = {
       }
     } else {
       EngineEvents.instance.dispatchEvent({
-        type: SocketWebRTCClientTransport.EVENTS.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE
+        type: SocketWebRTCClientTransport.actions.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE
       })
     }
   },

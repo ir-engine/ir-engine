@@ -12,6 +12,7 @@ import {
 } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
+import { defineAction, matches } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { accessAuthState } from '../user/services/AuthService'
@@ -55,15 +56,37 @@ export const getWorldTransport = () =>
   Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
-  static EVENTS = {
-    PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE: 'WEBRTC_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE',
-    PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE: 'WEBRTC_PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE',
-    INSTANCE_DISCONNECTED: 'WEBRTC_INSTANCE_DISCONNECTED',
-    INSTANCE_WEBGL_DISCONNECTED: 'WEBRTC_INSTANCE_WEBGL_DISCONNECTED',
-    INSTANCE_KICKED: 'WEBRTC_INSTANCE_KICKED',
-    INSTANCE_RECONNECTED: 'WEBRTC_INSTANCE_RECONNECTED',
-    CHANNEL_DISCONNECTED: 'WEBRTC_CHANNEL_DISCONNECTED',
-    CHANNEL_RECONNECTED: 'WEBRTC_CHANNEL_RECONNECTED'
+  static actions = {
+    noWorldServersAvailable: defineAction({
+      store: 'ENGINE',
+      type: 'WEBRTC_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE' as const,
+      instanceId: matches.string
+    }),
+    noMediaServersAvailable: defineAction({
+      store: 'ENGINE',
+      type: 'WEBRTC_PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE' as const
+    }),
+    worldInstanceKicked: defineAction({
+      store: 'ENGINE',
+      type: 'WEBRTC_INSTANCE_KICKED' as const,
+      message: matches.string
+    }),
+    worldInstanceDisconnected: defineAction({
+      store: 'ENGINE',
+      type: 'WEBRTC_INSTANCE_DISCONNECTED' as const
+    }),
+    worldInstanceReconnected: defineAction({
+      store: 'ENGINE',
+      type: 'WEBRTC_INSTANCE_RECONNECTED' as const
+    }),
+    mediaInstanceDisconnected: defineAction({
+      store: 'ENGINE',
+      type: 'WEBRTC_CHANNEL_DISCONNECTED' as const
+    }),
+    mediaInstanceReconnected: defineAction({
+      store: 'ENGINE',
+      type: 'WEBRTC_CHANNEL_RECONNECTED' as const
+    })
   }
 
   type: TransportType

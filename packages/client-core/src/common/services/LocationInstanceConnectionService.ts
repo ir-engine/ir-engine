@@ -112,7 +112,7 @@ export const LocationInstanceConnectionService = {
       dispatch(LocationInstanceConnectionAction.serverProvisioned(provisionResult, locationId!, sceneId!))
     } else {
       EngineEvents.instance.dispatchEvent({
-        type: SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE,
+        type: SocketWebRTCClientTransport.actions.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE,
         instanceId
       })
     }
