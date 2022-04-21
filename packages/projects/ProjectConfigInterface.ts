@@ -65,6 +65,7 @@ type InstallFunctionType = (app: Application) => Promise<any>
  */
 export interface ProjectEventHooks {
   onInstall?: InstallFunctionType
+  onLoad?: InstallFunctionType
   onUpdate?: InstallFunctionType
   onUninstall?: InstallFunctionType
 }

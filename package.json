@@ -60,6 +60,7 @@
     "format-staged": "lint-staged",
     "init-db-production": "cross-env APP_ENV=production FORCE_DB_REFRESH=true EXIT_ON_DB_INIT=true ts-node --transpile-only packages/server/src/index.ts",
     "install-projects": "ts-node scripts/install-projects.js",
+    "install-test-projects": "./scripts/install-test-projects.sh",
     "install-test-e2e": "npm i puppeteer@^13.0.0 sequelize@6.12.3",
     "lint": "prettier --check \"packages/**/*.{ts,tsx}\"",
     "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true concurrently npm:dev-agones-silent \"cd packages/server && npm run start\" \"cd packages/gameserver && npm run start\" \"cd packages/client && npm run local\" \"cd packages/server && npm run serve-local-files\"",
