@@ -56,7 +56,7 @@ import { AvatarControllerComponent } from './components/AvatarControllerComponen
 import { AvatarSwerveComponent } from './components/AvatarSwerveComponent'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
-import { accessAvatarInputState } from './state/AvatarInputState'
+import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -430,7 +430,7 @@ const moveFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
 
 const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const values = inputValue.value
-  const avatarInputState = accessAvatarInputState()
+  const avatarInputState = accessAvatarInputSettingsState()
   const rotationAngle = avatarInputState.rotationAngle.value
   let newAngleDiff = 0
   switch (avatarInputState.rotation.value) {
@@ -527,7 +527,7 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
 
 export const createAvatarInput = () => {
   const map: Map<InputAlias | Array<InputAlias>, InputAlias> = new Map()
-  const avatarInputState = accessAvatarInputState()
+  const avatarInputState = accessAvatarInputSettingsState()
   map.set(MouseInput.LeftButton, BaseInput.PRIMARY)
   map.set(MouseInput.RightButton, BaseInput.SECONDARY)
   map.set(MouseInput.MiddleButton, BaseInput.INTERACT)

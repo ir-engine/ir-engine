@@ -11,7 +11,7 @@ import {
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
-import { accessAvatarInputState } from '../../avatar/state/AvatarInputState'
+import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -28,7 +28,7 @@ const createUICursor = () => {
 }
 
 const setupController = (inputSource, controller) => {
-  const avatarInputState = accessAvatarInputState()
+  const avatarInputState = accessAvatarInputSettingsState()
   if (inputSource) {
     const canUseController =
       inputSource.hand === null && avatarInputState.controlType.value === AvatarControllerType.OculusQuest
