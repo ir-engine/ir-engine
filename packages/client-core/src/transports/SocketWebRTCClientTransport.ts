@@ -1,6 +1,7 @@
 import * as mediasoupClient from 'mediasoup-client'
 import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
 import { io as ioclient, Socket } from 'socket.io-client'
+import { MediaStreamService } from 'src/media/services/MediaStreamService'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -12,7 +13,8 @@ import {
 } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
-import { defineAction, matches } from '@xrengine/hyperflux'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { addActionReceptor, defineAction, matches } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { accessAuthState } from '../user/services/AuthService'
@@ -92,6 +94,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   type: TransportType
   constructor(type: TransportType) {
     this.type = type
+    addActionReceptor(Engine.store, (action) => {
+      matches(action).when(
+        MediaStreams.actions.triggerUpdateConsumers.matches,
+        MediaStreamService.triggerUpdateConsumers
+      )
+    })
   }
 
   mediasoupDevice = new mediasoupClient.Device(Engine.isBot ? { handlerName: 'Chrome74' } : undefined)

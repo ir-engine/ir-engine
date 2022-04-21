@@ -2,9 +2,10 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
 import { MediaStreamService } from '../../media/services/MediaStreamService'
@@ -122,9 +123,7 @@ export const MediaInstanceConnectionService = {
         )
       }
     } else {
-      EngineEvents.instance.dispatchEvent({
-        type: SocketWebRTCClientTransport.actions.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE
-      })
+      dispatchAction(Engine.store, SocketWebRTCClientTransport.actions.noWorldServersAvailable())
     }
   },
   connectToServer: async (channelId: string) => {
@@ -157,10 +156,6 @@ export const MediaInstanceConnectionService = {
 
     await transport.initialize({ sceneId, port, ipAddress, channelId })
     transport.left = false
-    EngineEvents.instance.addEventListener(
-      MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
-      MediaStreamService.triggerUpdateConsumers
-    )
   },
   resetServer: () => {
     const dispatch = useDispatch()
