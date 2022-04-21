@@ -1,7 +1,7 @@
-import { EngineActions } from 'src/ecs/classes/EngineService'
 import { Euler } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineService'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { unloadSystems } from '../../ecs/functions/SystemFunctions'
