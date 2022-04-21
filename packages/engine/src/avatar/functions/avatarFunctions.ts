@@ -35,8 +35,8 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { Updatable } from '../../scene/interfaces/Updatable'
 import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
-import { retargetSkeleton } from '../animation/retargetSkeleton'
-import avatarBoneMatching, { findMainSkeleton } from '../AvatarBoneMatching'
+import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
+import avatarBoneMatching, { createSkeletonFromBone } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -79,8 +79,8 @@ export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
   const avatar = getComponent(entity, AvatarComponent)
   avatar.modelContainer.clear()
 
-  setupAvatarHeight(entity, model)
   setupAvatarModel(entity)(model)
+  setupAvatarHeight(entity, model)
 
   const avatarMaterials = setupAvatarMaterials(model)
 
@@ -121,15 +121,13 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
 
 export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   const sourceSkeleton = AnimationManager.instance._defaultSkinnedMesh.skeleton
-  const targetSkeleton = findMainSkeleton(model)
   const animationComponent = getComponent(entity, AnimationComponent)
-
-  if (!targetSkeleton) {
-    console.warn('Could not find target skeleton', model)
-    return model
-  }
+  const rootBone = animationComponent.rig.Root || animationComponent.rig.Hips
+  rootBone.updateWorldMatrix(false, true)
+  const targetSkeleton = createSkeletonFromBone(rootBone)
 
   retargetSkeleton(targetSkeleton, sourceSkeleton)
+  syncModelSkeletons(model, targetSkeleton)
 
   const targetHips = animationComponent.rig.Hips
   const sourceHips = sourceSkeleton.bones[0]
@@ -194,9 +192,8 @@ export const setupAvatarMaterials = (root) => {
 }
 
 export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
-  const mesh = model.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
   const box = new Box3()
-  box.expandByObject(mesh).getSize(vec3)
+  box.expandByObject(model).getSize(vec3)
   resizeAvatar(entity, Math.max(vec3.x, vec3.y, vec3.z))
 }
 

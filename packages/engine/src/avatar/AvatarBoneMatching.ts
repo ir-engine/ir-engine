@@ -64,21 +64,17 @@ export type BoneStructure = {
   [bone in BoneNames]: Bone
 }
 
-const _getTailBones = (skeleton) => {
+const _getTailBones = (root: Bone): Bone[] => {
   const result: any[] = []
-  const _recurse = (bones) => {
-    for (let i = 0; i < bones.length; i++) {
-      const bone = bones[i]
-      if (bone.children.length === 0) {
-        if (!result.includes(bone)) {
-          result.push(bone)
-        }
-      } else {
-        _recurse(bone.children)
+
+  root.traverse((bone: Bone) => {
+    if (bone.children.length === 0) {
+      if (!result.includes(bone)) {
+        result.push(bone)
       }
     }
-  }
-  _recurse(skeleton.bones)
+  })
+
   return result
 }
 const _findClosestParentBone = (bone, pred) => {
@@ -145,7 +141,16 @@ const _countCharacters = (name, regex) => {
   }
   return result
 }
-const _findHips = (skeleton) => skeleton.bones.find((bone) => /hip|pelvis/i.test(bone.name))
+const _findHips = (root: Bone) => {
+  let hips
+  traverse(root, (bone: Bone) => {
+    if (/hip|pelvis/i.test(bone.name)) {
+      hips = bone
+      return true
+    }
+  })
+  return hips
+}
 const _findHead = (tailBones) => {
   const headBones = tailBones
     .map((tailBone) => {
@@ -487,26 +492,38 @@ function findHandBones(handBone: Object3D) {
   }
 }
 
-// Returns the skeleton with largest number of bones
-export function findMainSkeleton(model: Object3D): Skeleton {
-  const skinnedMeshes: SkinnedMesh[] = []
-
-  model.traverse((object: SkinnedMesh) => {
-    if (object.isSkinnedMesh) {
-      skinnedMeshes.push(object)
-    }
+/**
+ * Creates a skeleton form given bone chain
+ * @param bone first bone in the chain
+ * @returns Skeleton
+ */
+export function createSkeletonFromBone(bone: Bone): Skeleton {
+  let bones: Bone[] = []
+  bone.traverse((b: Bone) => {
+    if (b.isBone) bones.push(b)
   })
+  return new Skeleton(bones)
+}
 
-  skinnedMeshes.sort((a: SkinnedMesh, b: SkinnedMesh) => b.skeleton.bones.length - a.skeleton.bones.length)
+function findRootBone(bone: Bone): Bone {
+  let node = bone
+  while (node.parent && (node.parent as Bone).isBone) {
+    node = node.parent as Bone
+  }
 
-  return skinnedMeshes[0].skeleton
+  // Some models use Object3D as a root bone instead of Bone
+  if (node.parent && /hip|pelvis/i.test(node.parent.name)) {
+    node = node.parent as any
+  }
+
+  return node
 }
 
 export default function avatarBoneMatching(model: Object3D): BoneStructure {
   try {
-    const skeleton = findMainSkeleton(model)
-    const Hips = _findHips(skeleton)
-    const tailBones = _getTailBones(skeleton)
+    let Root = findRootBone(model.getObjectByProperty('type', 'Bone') as Bone)
+    const Hips = _findHips(Root)
+    const tailBones = _getTailBones(Root)
     const LeftEye = _findEye(tailBones, true)
     const RightEye = _findEye(tailBones, false)
     const Head = _findHead(tailBones)
@@ -531,7 +548,9 @@ export default function avatarBoneMatching(model: Object3D): BoneStructure {
     const leftHandBones = findHandBones(LeftHand)
     const rightHandBones = findHandBones(RightHand)
 
-    const Root = Hips.parent && Hips.parent.isBone ? Hips.parent : null
+    if (Root === Hips) {
+      Root = null!
+    }
 
     const targetModelBones = {
       Root,

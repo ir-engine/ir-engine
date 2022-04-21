@@ -1,4 +1,4 @@
-import { Bone, Matrix4, Quaternion, Skeleton, Vector3 } from 'three'
+import { Bone, Matrix4, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 function getBoneBindMatrix(skeleton: Skeleton, index: number, matrix: Matrix4) {
   const bone = skeleton.bones[index]
@@ -48,12 +48,12 @@ export function retargetSkeleton(targetSkeleton: Skeleton, sourceSkeleton: Skele
     // retargetedBindPose[i] = retargetedTranslationMatrix * animBindPoseRotationMatrix[i]
     // retargetedWorldBindPose[i] = retargetedWorldBindPose[p] * retargetedBindPose[i];
 
+    mat1.identity()
+
     if (bone.parent && (bone.parent as Bone).isBone) {
       const parentName = bone.parent.name
       const p = targetSkeleton.bones.findIndex((value) => value.name === parentName)
-      mat1.copy(targetSkeleton.boneInverses[p])
-    } else {
-      mat1.identity()
+      if (p > -1) mat1.copy(targetSkeleton.boneInverses[p])
     }
 
     mat2.copy(targetSkeleton.boneInverses[i]).invert()
@@ -70,4 +70,33 @@ export function retargetSkeleton(targetSkeleton: Skeleton, sourceSkeleton: Skele
   }
 
   targetSkeleton.pose()
+}
+
+/**
+ * Syncs all skinned meshes bone inverses with given skeleton
+ * Bones should be same in all skeletons (e.g. same reference)
+ * @param model
+ * @param skeleton
+ */
+export function syncModelSkeletons(model: Object3D, skeleton: Skeleton) {
+  let meshes: SkinnedMesh[] = []
+  model.traverse((obj: SkinnedMesh) => {
+    if (obj.isSkinnedMesh) {
+      meshes.push(obj)
+    }
+  })
+
+  const { bones, boneInverses } = skeleton
+
+  for (let i = 0; i < skeleton.bones.length; i++) {
+    const bone = bones[i]
+
+    meshes.forEach((mesh) => {
+      const { bones: meshBones, boneInverses: meshBoneInverses } = mesh.skeleton
+      const j = meshBones.findIndex((b) => b === bone)
+      if (j > -1) {
+        meshBoneInverses[j].copy(boneInverses[i])
+      }
+    })
+  }
 }
