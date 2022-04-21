@@ -336,7 +336,7 @@ export class Project extends Service {
         await deleteProjectFilesInStorageProvider(name)
         await super.remove(id, params)
       } catch (e) {
-        logger.error(`[Projects]: failed to remove project "${id}":` + e)
+        logger.error(`[Projects]: failed to remove project "${id}":`, e)
         return e
       }
     }

@@ -45,7 +45,7 @@ export async function sendEmail(app: Application, email: any): Promise<void> {
     try {
       await app.service('email').create(email)
     } catch (error) {
-      logger.error('Error sending email:' + error)
+      logger.error('Error sending email:', error)
     }
 
     logger.info('Email sent.')
@@ -64,5 +64,5 @@ export const sendSms = async (app: Application, sms: any): Promise<void> => {
     .service('sms')
     .create(sms, null!)
     .then(() => logger.info('Sent SMS'))
-    .catch((err: any) => logger.error('Error sending SMS:' + err))
+    .catch((err: any) => logger.error('Error sending SMS:', err))
 }

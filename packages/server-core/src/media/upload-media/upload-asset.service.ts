@@ -99,7 +99,7 @@ export default (app: Application): void => {
       create: async (data: AssetUploadType, params: Params) => {
         if (typeof data.args === 'string') data.args = JSON.parse(data.args)
         const files = params.files
-        logger.info('upload-asset' + { data, files })
+        logger.info('upload-asset', { data, files })
         if (data.type === 'user-avatar-upload') {
           return app.service('avatar').create(
             {

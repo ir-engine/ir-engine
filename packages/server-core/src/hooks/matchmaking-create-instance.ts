@@ -66,9 +66,9 @@ export default (): Hook => {
 
       context.result.gameserver = instanceId
     } catch (e) {
-      logger.error('Matchmaking instance create error: ' + e)
+      logger.error('Matchmaking instance create error:', e)
       // TODO: check error? skip?
-      logger.error('Instance creation failed: ' + e.errors[0].message)
+      logger.error('Instance creation failed:', e.errors[0].message)
     }
 
     return context

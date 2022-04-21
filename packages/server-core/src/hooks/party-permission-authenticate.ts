@@ -75,7 +75,7 @@ export default () => {
 
       return context
     } catch (err) {
-      logger.error('party-permission-authenticate error:' + err)
+      logger.error('party-permission-authenticate error:', err)
       return null!
     }
   }

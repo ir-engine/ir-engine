@@ -13,7 +13,7 @@ export const retriggerBuilderService = async (app: Application) => {
     // invalidate cache for all installed projects
     await useStorageProvider().createInvalidation(['projects*'])
   } catch (e) {
-    logger.error('[Project Rebuild]: Failed to invalidate cache with error: ' + e)
+    logger.error('[Project Rebuild]: Failed to invalidate cache with error: ', e)
   }
 
   // trigger k8s to re-run the builder service

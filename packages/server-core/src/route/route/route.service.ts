@@ -51,7 +51,7 @@ export const getInstalledRoutes = (): any => {
             })
           }
         } catch (e) {
-          logger.warn(`[getProjects]: Failed to read config for project "${project}" with error: ` + e)
+          logger.warn(`[getProjects]: Failed to read config for project "${project}" with error: `, e)
           return
         }
       })

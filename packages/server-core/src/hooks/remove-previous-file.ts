@@ -24,10 +24,10 @@ export default () => {
         (err: Error, result: any) => {
           if (err) {
             logger.info('Storage provider: ' + config.server.storageProvider)
-            logger.error('Error removing previous static resource before updating: ' + err)
+            logger.error('Error removing previous static resource before updating:', err)
             return err
           }
-          logger.info('Successfully removed previous static resource before updating: ' + result)
+          logger.info('Successfully removed previous static resource before updating:', result)
         }
       )
     }

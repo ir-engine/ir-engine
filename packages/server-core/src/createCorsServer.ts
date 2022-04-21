@@ -20,7 +20,7 @@ const createCorsServer = (useSSL, certOptions, port) => {
       removeHeaders: ['cookie', 'cookie2']
     })
     .listen(port, function () {
-      logger.info('Running CORS on port:' + port)
+      logger.info(`Running CORS on port "${port}".`)
     })
 }
 
