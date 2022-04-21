@@ -3,7 +3,6 @@ import { Quaternion, SkinnedMesh, Vector2, Vector3 } from 'three'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-// import { boxDynamicConfig } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { CameraMode } from '../camera/types/CameraMode'
@@ -45,6 +44,8 @@ import {
   unequipEntity
 } from '../interaction/functions/equippableFunctions'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
+import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
+import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -55,7 +56,7 @@ import { AvatarControllerComponent } from './components/AvatarControllerComponen
 import { AvatarSwerveComponent } from './components/AvatarSwerveComponent'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
-import { accessAvatarInputState } from './state/AvatarInputState'
+import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -429,7 +430,7 @@ const moveFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
 
 const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const values = inputValue.value
-  const avatarInputState = accessAvatarInputState()
+  const avatarInputState = accessAvatarInputSettingsState()
   const rotationAngle = avatarInputState.rotationAngle.value
   let newAngleDiff = 0
   switch (avatarInputState.rotation.value) {
@@ -510,11 +511,12 @@ export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputVa
 export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   if (inputValue.lifecycleState !== LifecycleValue.Ended) return
   if (inputKey === PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE) {
-    // dispatchAction(
-    //   NetworkWorldAction.spawnDebugPhysicsObject({
-    //     config: boxDynamicConfig // Any custom config can be provided here
-    //   })
-    // )
+    dispatchAction(
+      Engine.currentWorld.store,
+      NetworkWorldAction.spawnDebugPhysicsObject({
+        config: boxDynamicConfig // Any custom config can be provided here
+      })
+    )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
     dispatchAction(
       Engine.store,
@@ -525,7 +527,7 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
 
 export const createAvatarInput = () => {
   const map: Map<InputAlias | Array<InputAlias>, InputAlias> = new Map()
-  const avatarInputState = accessAvatarInputState()
+  const avatarInputState = accessAvatarInputSettingsState()
   map.set(MouseInput.LeftButton, BaseInput.PRIMARY)
   map.set(MouseInput.RightButton, BaseInput.SECONDARY)
   map.set(MouseInput.MiddleButton, BaseInput.INTERACT)

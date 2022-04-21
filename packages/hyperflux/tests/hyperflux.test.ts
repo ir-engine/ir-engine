@@ -104,7 +104,7 @@ describe('Hyperflux Unit Testss', () => {
     assert(test.matches.test(action2))
   })
 
-  it('should be able to dispatch an action to a store', () => {
+  it('should be able to dispatch an action to a local store', () => {
     const wrongStore = createHyperStore({
       name: 'WRONG_STORE',
       getDispatchId: () => 'id',
@@ -119,17 +119,85 @@ describe('Hyperflux Unit Testss', () => {
     // @ts-expect-error - should type error if providing wrong store
     assert.throws(() => dispatchAction(wrongStore, greet({})))
     dispatchAction(store, greet({}))
+    assert.equal(store.actions.incoming.length, 1)
+    assert.equal(store.actions.outgoing.length, 0)
     assert(greet.matches.test(store.actions.incoming[0]))
     assert(store.actions.incoming[0].$from == 'id')
     assert(store.actions.incoming[0].$to == 'all')
     assert(store.actions.incoming[0].$time <= Date.now())
     assert(store.actions.incoming[0].$cache === false)
+    applyIncomingActions(store)
+    assert.equal(store.actions.incomingHistory.length, 1)
+    assert.equal(store.actions.incoming.length, 0)
+    assert.equal(store.actions.outgoing.length, 0)
+    clearOutgoingActions(store)
+    assert.equal(store.actions.incoming.length, 0)
+    assert.equal(store.actions.outgoing.length, 0)
   })
 
-  it('should be able to dispatch an action to a networked store', () => {
+  it('should be able to dispatch an action to a peer store', () => {
     const store = createHyperStore({
       name: 'TEST_STORE',
-      networked: true,
+      getDispatchMode: () => 'peer',
+      getDispatchId: () => 'id',
+      getDispatchTime: () => Date.now()
+    })
+    const greet = defineAction({
+      store: 'TEST_STORE',
+      type: 'TEST_GREETING',
+      greeting: matchesWithDefault(matches.string, () => 'hi')
+    })
+    dispatchAction(store, greet({}))
+    assert.equal(store.actions.incoming.length, 0)
+    assert.equal(store.actions.outgoing.length, 1)
+    assert(greet.matches.test(store.actions.outgoing[0]))
+    assert(store.actions.outgoing[0].$from == 'id')
+    assert(store.actions.outgoing[0].$to == 'all')
+    assert(store.actions.outgoing[0].$time <= Date.now())
+    assert(store.actions.outgoing[0].$cache === false)
+    applyIncomingActions(store)
+    assert.equal(store.actions.incomingHistory.length, 0)
+    assert.equal(store.actions.incoming.length, 0)
+    assert.equal(store.actions.outgoing.length, 1)
+    assert.equal(store.actions.outgoingHistory.length, 0)
+    clearOutgoingActions(store)
+    assert.equal(store.actions.incomingHistory.length, 0)
+    assert.equal(store.actions.incoming.length, 0)
+    assert.equal(store.actions.outgoing.length, 0)
+    assert.equal(store.actions.outgoingHistory.length, 1)
+  })
+
+  it('should be able to dispatch an action to a host store', () => {
+    const store = createHyperStore({
+      name: 'TEST_STORE',
+      getDispatchMode: () => 'host',
+      getDispatchId: () => 'id',
+      getDispatchTime: () => Date.now()
+    })
+    const greet = defineAction({
+      store: 'TEST_STORE',
+      type: 'TEST_GREETING',
+      greeting: matchesWithDefault(matches.string, () => 'hi')
+    })
+    dispatchAction(store, greet({}))
+    assert(greet.matches.test(store.actions.incoming[0]))
+    assert.equal(store.actions.incoming.length, 1)
+    assert(store.actions.incoming[0].$from == 'id')
+    assert(store.actions.incoming[0].$to == 'all')
+    assert(store.actions.incoming[0].$time <= Date.now())
+    assert(store.actions.incoming[0].$cache === false)
+    applyIncomingActions(store)
+    assert.equal(store.actions.incoming.length, 0)
+    assert.equal(store.actions.outgoing.length, 1)
+    clearOutgoingActions(store)
+    assert.equal(store.actions.incoming.length, 0)
+    assert.equal(store.actions.outgoing.length, 0)
+  })
+
+  it('should be able to dispatch an action to a peer store', () => {
+    const store = createHyperStore({
+      name: 'TEST_STORE',
+      getDispatchMode: () => 'peer',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
@@ -149,7 +217,6 @@ describe('Hyperflux Unit Testss', () => {
   it('should be able to add and remove action receptors in a store', () => {
     const store = createHyperStore({
       name: 'TEST_STORE',
-      networked: true,
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
@@ -249,10 +316,10 @@ describe('Hyperflux Unit Testss', () => {
     assert.equal(store.actions.cached.length, 0)
   })
 
-  it('should be able to apply incoming actions to receptors in a networked store', () => {
+  it('should be able to apply incoming actions to receptors in a peer store', () => {
     const store = createHyperStore({
       name: 'TEST_STORE',
-      networked: true,
+      getDispatchMode: () => 'peer',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
@@ -269,17 +336,18 @@ describe('Hyperflux Unit Testss', () => {
     addActionReceptor(store, receptor)
     dispatchAction(store, greet({}))
     assert(greet.matches.test(store.actions.outgoing[0]))
-    clearOutgoingActions(store, true)
+    store.actions.incoming.push(...store.actions.outgoing)
+    clearOutgoingActions(store)
     assert(store.actions.outgoing.length === 0)
     assert(greet.matches.test(store.actions.incoming[0]))
     applyIncomingActions(store)
     assert(receivedAction)
   })
 
-  it('should be able to apply multiple actions at once to a networked store', () => {
+  it('should be able to apply multiple actions at once to a peer store', () => {
     const store = createHyperStore({
       name: 'TEST_STORE',
-      networked: true,
+      getDispatchMode: () => 'peer',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
@@ -300,19 +368,80 @@ describe('Hyperflux Unit Testss', () => {
     dispatchAction(store, greet({}))
     assert.equal(receivedCount, 0)
     assert.equal(store.actions.outgoing.length, 4)
-    clearOutgoingActions(store, true)
+    clearOutgoingActions(store)
     assert.equal(receivedCount, 0)
     assert.equal(store.actions.outgoingHistory.length, 4)
+    store.actions.incoming.push(...store.actions.outgoingHistory)
     assert.equal(store.actions.incoming.length, 4)
-    applyIncomingActions(store, true)
+    applyIncomingActions(store)
     assert.equal(receivedCount, 4)
     assert.equal(store.actions.incomingHistory.length, 4)
     assert.equal(store.actions.incomingHistoryUUIDs.size, 4)
-    clearOutgoingActions(store, true)
-    applyIncomingActions(store, true)
+    store.actions.incoming.push(...store.actions.outgoingHistory)
+    applyIncomingActions(store)
     assert.equal(receivedCount, 4)
     assert.equal(store.actions.incomingHistory.length, 4)
     assert.equal(store.actions.incomingHistoryUUIDs.size, 4)
+  })
+
+  it('should be able to apply multiple actions at once to a host store', () => {
+    const store = createHyperStore({
+      name: 'TEST_STORE',
+      getDispatchMode: () => 'host',
+      getDispatchId: () => 'id',
+      getDispatchTime: () => Date.now()
+    })
+    const greet = defineAction({
+      store: 'TEST_STORE',
+      type: 'TEST_GREETING',
+      greeting: matchesWithDefault(matches.string, () => 'hi')
+    })
+    let receivedCount = 0
+    const receptor = (action) => {
+      assert(greet.matches.test(action))
+      receivedCount++
+    }
+    addActionReceptor(store, receptor)
+    dispatchAction(store, greet({}))
+    dispatchAction(store, greet({}))
+    dispatchAction(store, greet({}))
+    dispatchAction(store, greet({}))
+    assert.equal(receivedCount, 0)
+    assert.equal(store.actions.incoming.length, 4)
+    assert.equal(store.actions.outgoing.length, 0)
+    clearOutgoingActions(store)
+    assert.equal(receivedCount, 0)
+    assert.equal(store.actions.outgoing.length, 0)
+    assert.equal(store.actions.outgoingHistory.length, 0)
+    assert.equal(store.actions.incoming.length, 4)
+    assert.equal(store.actions.incomingHistory.length, 0)
+    applyIncomingActions(store)
+    assert.equal(receivedCount, 4)
+    assert.equal(store.actions.incomingHistory.length, 4)
+    assert.equal(store.actions.incomingHistoryUUIDs.size, 4)
+    assert.equal(store.actions.outgoing.length, 4)
+    assert.equal(store.actions.outgoingHistory.length, 0)
+    clearOutgoingActions(store)
+    assert.equal(store.actions.incoming.length, 0)
+    assert.equal(store.actions.outgoing.length, 0)
+    assert.equal(store.actions.incomingHistory.length, 4)
+    assert.equal(store.actions.incomingHistoryUUIDs.size, 4)
+    assert.equal(store.actions.outgoingHistory.length, 4)
+    assert.equal(store.actions.outgoingHistoryUUIDs.size, 4)
+    assert.equal(store.actions.incomingHistory[1], store.actions.outgoingHistory[1])
+    assert.equal(store.actions.incomingHistory[2], store.actions.outgoingHistory[2])
+    assert.equal(store.actions.incomingHistory[3], store.actions.outgoingHistory[3])
+    assert.equal(store.actions.incomingHistory[4], store.actions.outgoingHistory[4])
+    assert.equal(receivedCount, 4)
+    store.actions.incoming.push(...store.actions.outgoingHistory)
+    applyIncomingActions(store)
+    assert.equal(receivedCount, 4)
+    assert.equal(store.actions.incoming.length, 0)
+    assert.equal(store.actions.outgoing.length, 0)
+    assert.equal(store.actions.incomingHistory.length, 4)
+    assert.equal(store.actions.incomingHistoryUUIDs.size, 4)
+    assert.equal(store.actions.outgoingHistory.length, 4)
+    assert.equal(store.actions.outgoingHistoryUUIDs.size, 4)
   })
 
   it('should be able to define state and register it to a store', () => {
