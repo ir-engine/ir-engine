@@ -28,6 +28,7 @@ import InstanceChat from '../InstanceChat'
 import Me from '../Me'
 import MediaIconsBox from '../MediaIconsBox'
 import PartyVideoWindows from '../PartyVideoWindows'
+import SubmitBugButton from '../SubmitBug'
 import styles from './index.module.scss'
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
@@ -156,6 +157,7 @@ const Layout = (props: Props): any => {
                 >
                   <MediaIconHider />
                 </button>
+                <SubmitBugButton animate={showMediaIcons ? styles.animateTop : styles.fadeOutTop} />
                 <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOutTop} />
                 <header className={showMediaIcons ? styles.animateTop : styles.fadeOutTop}>
                   {!props.hideVideo && (

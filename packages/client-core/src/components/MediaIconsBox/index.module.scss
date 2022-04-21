@@ -44,7 +44,7 @@
       color: rgb(122 255 100 / 100%);
     }
 
-    >svg {
+    > svg {
       height: 50%;
       width: 50%;
     }
@@ -64,7 +64,7 @@
     }
   }
 
-  @media (max-width: 395px) {
+  @media (max-width: 695px) {
     top: 60px;
     width: auto;
     flex-direction: column;

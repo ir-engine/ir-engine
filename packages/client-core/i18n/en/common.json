@@ -27,7 +27,11 @@
     "errorWasEncountered": "An error was encountered",
     "eventInProgress": "Event in progress",
     "seconds": "seconds",
-    "cancelCountdown": "Closing this modal will cancel the countdown"
+    "cancelCountdown": "Closing this modal will cancel the countdown",
+    "submit-bug": {
+      "report-success": "Issue submitted successfully",
+      "error": "An error was encountered"
+    }
   },
   "debug": {
     "refresh": "Refresh",
