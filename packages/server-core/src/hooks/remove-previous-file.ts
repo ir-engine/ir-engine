@@ -1,6 +1,7 @@
 import { HookContext } from '@feathersjs/feathers'
 
 import config from '../appconfig'
+import logger from '../logger'
 import { useStorageProvider } from '../media/storageprovider/storageprovider'
 import { Application } from './../../declarations.d'
 
@@ -22,11 +23,11 @@ export default () => {
         },
         (err: Error, result: any) => {
           if (err) {
-            console.log('Storage provider:', config.server.storageProvider)
-            console.error('Error removing previous static resource before updating', err)
+            logger.info('Storage provider: ' + config.server.storageProvider)
+            logger.error('Error removing previous static resource before updating: ' + err)
             return err
           }
-          console.log('Successfully removed previous static resource before updating:', result)
+          logger.info('Successfully removed previous static resource before updating: ' + result)
         }
       )
     }

@@ -6,6 +6,7 @@ import { ActiveRoutesInterface, InstalledRoutesInterface } from '@xrengine/commo
 import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
+import logger from '../../logger'
 import { Route } from './route.class'
 import routeDocs from './route.docs'
 import hooks from './route.hooks'
@@ -50,7 +51,7 @@ export const getInstalledRoutes = (): any => {
             })
           }
         } catch (e) {
-          console.warn('[getProjects]: Failed to read config for project', project, 'with error', e)
+          logger.warn(`[getProjects]: Failed to read config for project "${project}" with error: ` + e)
           return
         }
       })

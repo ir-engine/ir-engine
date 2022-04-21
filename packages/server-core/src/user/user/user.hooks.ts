@@ -256,8 +256,8 @@ export default {
           }
           return context
         } catch (err) {
-          console.error('USER AFTER CREATE ERROR')
-          console.error(err)
+          logger.error('USER AFTER CREATE ERROR')
+          logger.error(err)
         }
         return null!
       }

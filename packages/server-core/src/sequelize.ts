@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import config from '@xrengine/server-core/src/appconfig'
-
+import logger from './logger'
 import { Application } from '../declarations'
 import { seeder } from './seeder'
 
@@ -10,11 +10,11 @@ export default (app: Application): void => {
   try {
     const { forceRefresh } = config.db
 
-    console.log('Starting app')
+    logger.info('Starting app')
 
     const sequelize = new Sequelize({
       ...(config.db as any),
-      logging: forceRefresh ? console.log : false,
+      logging: forceRefresh ? logger.info.bind(logger) : false,
       define: {
         freezeTableName: true
       }
@@ -60,7 +60,7 @@ export default (app: Application): void => {
                 try {
                   if (!value.references) await sequelize.getQueryInterface().changeColumn(model, value.fieldName, value)
                 } catch (err) {
-                  console.error(err)
+                  logger.error(err)
                 }
               }
             }
@@ -74,18 +74,18 @@ export default (app: Application): void => {
             // configure seeder and seed
             await seeder(app, forceRefresh, prepareDb)
           } catch (err) {
-            console.log('Feathers seeding error')
-            console.log(err)
+            logger.error('Feathers seeding error')
+            logger.error(err)
             promiseReject()
             throw err
           }
 
           app.set('sequelizeSync', sync)
           await sequelize.query('SET FOREIGN_KEY_CHECKS = 1')
-          console.log('Server Ready')
+          logger.info('Server Ready')
         } catch (err) {
-          console.log('Sequelize sync error')
-          console.log(err)
+          logger.error('Sequelize sync error')
+          logger.error(err)
           promiseReject()
           throw err
         }
@@ -93,8 +93,8 @@ export default (app: Application): void => {
         promiseResolve()
         if ((prepareDb || forceRefresh) && (isDev || process.env.EXIT_ON_DB_INIT === 'true')) process.exit(0)
       } catch (err) {
-        console.log('Sequelize setup error')
-        console.log(err)
+        logger.error('Sequelize setup error')
+        logger.error(err)
         promiseReject()
         throw err
       }
@@ -102,7 +102,7 @@ export default (app: Application): void => {
       return oldSetup.apply(this, args)
     }
   } catch (err) {
-    console.log('Error in app/sequelize.ts')
-    console.log(err)
+    logger.error('Error in app/sequelize.ts')
+    logger.error(err)
   }
 }

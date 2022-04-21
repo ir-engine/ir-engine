@@ -6,6 +6,7 @@ import slugify from 'slugify'
 import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
 
 import { Application } from '../../../declarations'
+import logger from '../../logger'
 import { UserDataType } from '../../user/user/user.class'
 
 export type LocationDataType = LocationType
@@ -58,7 +59,7 @@ export class Location<T = LocationDataType> extends Service<T> {
         )
       },
       (reason: any) => {
-        console.error(reason)
+        logger.error(reason)
       }
     )
   }
@@ -80,10 +81,10 @@ export class Location<T = LocationDataType> extends Service<T> {
                 setTimeout(() => resolve(this.app.services.instance.update(existingInstance.id, element)), 1000)
               ).then(
                 (value: any) => {
-                  console.log(value)
+                  logger.info(value)
                 },
                 (reasone: any) => {
-                  console.error(reasone)
+                  logger.error(reasone)
                 }
               )
             },
@@ -93,10 +94,10 @@ export class Location<T = LocationDataType> extends Service<T> {
                 setTimeout(() => resolve(this.app.services.instance.create(element)), 1000)
               ).then(
                 (value: any) => {
-                  console.log(value)
+                  logger.info(value)
                 },
                 (reasone: any) => {
-                  console.error(reasone)
+                  logger.error(reasone)
                 }
               )
             }
@@ -105,10 +106,10 @@ export class Location<T = LocationDataType> extends Service<T> {
           element.locationId = id
           new Promise((resolve) => setTimeout(() => resolve(this.app.services.instance.create(element)), 1000)).then(
             (value: any) => {
-              console.log(value)
+              logger.info(value)
             },
             (reason: any) => {
-              console.error(reason)
+              logger.error(reason)
             }
           )
         }
@@ -283,7 +284,7 @@ export class Location<T = LocationDataType> extends Service<T> {
 
       return location as T
     } catch (err) {
-      console.log(err)
+      logger.error(err)
       await t.rollback()
       if (err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('Name is in use.')
@@ -340,7 +341,7 @@ export class Location<T = LocationDataType> extends Service<T> {
 
       return location as T
     } catch (err) {
-      console.log(err)
+      logger.error(err)
       await t.rollback()
       if (err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('That name is already in use')
@@ -371,7 +372,7 @@ export class Location<T = LocationDataType> extends Service<T> {
           }
         })
       } catch (err) {
-        console.log('Could not remove location-admin')
+        logger.error('Could not remove location-admin')
       }
     }
     return (await super.remove(id)) as T

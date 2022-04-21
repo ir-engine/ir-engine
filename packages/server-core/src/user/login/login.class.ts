@@ -52,13 +52,13 @@ export class Login implements ServiceMethods<Data> {
         }
       })
       if (result == null) {
-        console.log('Invalid login token')
+        logger.info('Invalid login token')
         return {
           error: 'invalid login token'
         }
       }
       if (moment().utc().toDate() > result.expiresAt) {
-        console.log('Login Token has expired')
+        logger.info('Login Token has expired')
         return { error: 'Login link has expired' }
       }
       const identityProvider = await this.app.service('identity-provider').get(result.identityProviderId)

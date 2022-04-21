@@ -1,12 +1,12 @@
 import { Params } from '@feathersjs/feathers'
 import express from 'express'
-import _ from 'lodash'
 import multer from 'multer'
 
 import { AdminAssetUploadArgumentsType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 
 import { Application } from '../../../declarations'
 import restrictUserRole from '../../hooks/restrict-user-role'
+import logger from '../../logger'
 import { AvatarUploadArguments } from '../../user/avatar/avatar-helper'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
 import { useStorageProvider } from '../storageprovider/storageprovider'
@@ -99,7 +99,7 @@ export default (app: Application): void => {
       create: async (data: AssetUploadType, params: Params) => {
         if (typeof data.args === 'string') data.args = JSON.parse(data.args)
         const files = params.files
-        console.log('upload-asset', data, files)
+        logger.info('upload-asset' + { data, files })
         if (data.type === 'user-avatar-upload') {
           return app.service('avatar').create(
             {
