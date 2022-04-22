@@ -97,9 +97,10 @@ describe('TriggerVolumeFunctions', () => {
 
       addComponent(entity, TransformComponent, transform1)
       addComponent(entity, ColliderComponent, {
+        // @ts-ignore
         body: {
           getGlobalPose: () => transform2,
-          setGlobalPose: (t: TransformComponentType) => (transform2 = t),
+          setGlobalPose: (t) => (transform2 = t),
           _debugNeedsUpdate: false
         }
       })
