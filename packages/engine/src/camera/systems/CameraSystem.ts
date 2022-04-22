@@ -2,7 +2,7 @@ import { ArrowHelper, Clock, Material, MathUtils, Matrix4, Quaternion, SkinnedMe
 import { clamp } from 'three/src/math/MathUtils'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
-import { AnimationComponent } from '../../avatar/components/AnimationComponent'
+import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
@@ -67,7 +67,7 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
 }
 
 export const getAvatarBonePosition = (entity: Entity, name: BoneNames, position: Vector3): void => {
-  const animationComponent = getComponent(entity, AnimationComponent)
+  const animationComponent = getComponent(entity, AvatarAnimationComponent)
   const el = animationComponent.rig[name].matrixWorld.elements
   position.set(el[12], el[13], el[14])
 }

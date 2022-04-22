@@ -264,10 +264,6 @@ export const initializeSceneSystems = async () => {
       },
       {
         type: SystemUpdateType.UPDATE,
-        systemModulePromise: import('./ikrig/systems/SkeletonRigSystem')
-      },
-      {
-        type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./camera/systems/CameraSystem')
       },
       {

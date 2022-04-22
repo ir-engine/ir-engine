@@ -98,7 +98,7 @@ export const setupAvatarModel = (entity: Entity) =>
 export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
   const assetType = model.userData.type
 
-  const animationComponent = getComponent(entity, AnimationComponent)
+  const animationComponent = getComponent(entity, AvatarAnimationComponent)
   animationComponent.rig = avatarBoneMatching(model)
   const root = model
   const object3DComponent = getComponent(entity, Object3DComponent)
@@ -121,17 +121,17 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
 
 export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   const sourceSkeleton = AnimationManager.instance._defaultSkinnedMesh.skeleton
-  const animationComponent = getComponent(entity, AnimationComponent)
-  const rootBone = animationComponent.rig.Root || animationComponent.rig.Hips
+  const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+  const rootBone = avatarAnimationComponent.rig.Root || avatarAnimationComponent.rig.Hips
   rootBone.updateWorldMatrix(false, true)
   const targetSkeleton = createSkeletonFromBone(rootBone)
 
   retargetSkeleton(targetSkeleton, sourceSkeleton)
   syncModelSkeletons(model, targetSkeleton)
 
-  const targetHips = animationComponent.rig.Hips
+  const targetHips = avatarAnimationComponent.rig.Hips
   const sourceHips = sourceSkeleton.bones[0]
-  animationComponent.rootYRatio = targetHips.position.y / sourceHips.position.y
+  avatarAnimationComponent.rootYRatio = targetHips.position.y / sourceHips.position.y
 
   return model
 }
@@ -425,7 +425,7 @@ export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
 }
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
-  const animationComponent = getComponent(entity, AnimationComponent)
+  const animationComponent = getComponent(entity, AvatarAnimationComponent)
   if (!animationComponent) return false
   const bone = animationComponent.rig[boneName]
   if (!bone) return false

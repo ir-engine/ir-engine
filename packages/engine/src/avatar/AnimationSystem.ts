@@ -80,10 +80,17 @@ export default async function AnimationSystem(world: World) {
     for (const entity of animationQuery(world)) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const modifiedDelta = delta * animationComponent.animationSpeed
-      const mixer = animationComponent.mixer
-      mixer.update(modifiedDelta)
-      const rootBone = mixer.getRoot() as Bone
-      const rig = animationComponent.rig
+      animationComponent.mixer.update(modifiedDelta)
+    }
+
+    for (const entity of avatarAnimationQuery(world)) {
+      const animationComponent = getComponent(entity, AnimationComponent)
+      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+      const deltaTime = delta * animationComponent.animationSpeed
+      avatarAnimationComponent.animationGraph.update(deltaTime)
+
+      const rootBone = animationComponent.mixer.getRoot() as Bone
+      const rig = avatarAnimationComponent.rig
 
       rootBone.traverse((bone: Bone) => {
         if (!bone.isBone) return
@@ -98,20 +105,13 @@ export default async function AnimationSystem(world: World) {
         // Only copy the root position
         if (targetBone === rig.Hips) {
           targetBone.position.copy(bone.position)
-          targetBone.position.y *= animationComponent.rootYRatio
+          targetBone.position.y *= avatarAnimationComponent.rootYRatio
         }
       })
-    }
-
-    for (const entity of avatarAnimationQuery(world)) {
-      const animationComponent = getComponent(entity, AnimationComponent)
-      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-      const deltaTime = delta * animationComponent.animationSpeed
-      avatarAnimationComponent.animationGraph.update(deltaTime)
 
       // TODO: Find a more elegant way to handle root motion
       const rootPos = AnimationManager.instance._defaultRootBone.position
-      if (animationComponent.rig.Hips) animationComponent.rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
+      if (avatarAnimationComponent.rig.Hips) avatarAnimationComponent.rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
     }
   }
 }

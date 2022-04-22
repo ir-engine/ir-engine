@@ -4,6 +4,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
+import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
@@ -283,7 +284,7 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
     }
   }
   const bone: BoneNames = hand === ParityValue.RIGHT ? 'RightHand' : 'LeftHand'
-  const { rig } = getComponent(entity, AnimationComponent)
+  const { rig } = getComponent(entity, AvatarAnimationComponent)
   rig[bone].updateWorldMatrix(true, false)
   const matWorld = rig[bone].matrixWorld
   return vec3.set(matWorld.elements[12], matWorld.elements[13], matWorld.elements[14])
@@ -337,7 +338,7 @@ export const getHandTransform = (
     }
   }
   const bone: BoneNames = hand === ParityValue.RIGHT ? 'RightHand' : 'LeftHand'
-  const { rig } = getComponent(entity, AnimationComponent)
+  const { rig } = getComponent(entity, AvatarAnimationComponent)
   rig[bone].updateWorldMatrix(true, false)
   rig[bone].matrixWorld.decompose(vec3, quat, v3)
   return {

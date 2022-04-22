@@ -86,15 +86,15 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(modelContainer),
     animations: [] as AnimationClip[],
-    animationSpeed: 1,
-    rig: {}
+    animationSpeed: 1
   })
 
   addComponent(entity, AvatarAnimationComponent, {
     animationGraph: new AvatarAnimationGraph(),
     currentState: new AnimationState(),
     prevState: new AnimationState(),
-    prevVelocity: new Vector3()
+    prevVelocity: new Vector3(),
+    rig: {}
   })
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
