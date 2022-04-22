@@ -26,7 +26,7 @@ export const uploadToFeathersService = (
   files: Blob | Array<Blob>,
   params: any = {},
   onUploadProgress?: (progress: number) => any
-): Promise<void> => {
+): Promise<any> => {
   const token = accessAuthState().authUser.accessToken.value
 
   return new Promise<void>((resolve, reject) => {
