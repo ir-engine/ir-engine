@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import SketchColorPicker from '@xrengine/client-core/src/admin/common/SketchColorPicker'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import defaultThemeSettings from '@xrengine/common/src/constants/DefaultThemeSettings'
 
 import MenuIcon from '@mui/icons-material/Menu'
 import SettingIcon from '@mui/icons-material/Settings'
@@ -24,6 +24,9 @@ import {
 import { Drawer } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
+import { useAuthState } from '../../../user/services/AuthService'
+import SketchColorPicker from '../../common/SketchColorPicker'
+import { ClientSettingService, useClientSettingState } from '../../services/Setting/ClientSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const MaterialUISwitch = styled(Switch)((props: any) => ({
@@ -76,81 +79,17 @@ const MaterialUISwitch = styled(Switch)((props: any) => ({
 
 const ClientTheme = () => {
   const selfUser = useAuthState().user
+  const clientSettingState = useClientSettingState()
+  const [clientSetting] = clientSettingState?.client?.value || []
+  const id = clientSetting?.id
+
+  const { t } = useTranslation()
 
   const [drawerValue, setDrawerValue] = useState(false)
   const [selectValue, setSelectValue] = useState('')
   const [anchorEl, setAnchorEl] = useState<any>(null)
   const [mode, setMode] = useState(selfUser?.user_setting?.value?.themeMode || 'dark')
-  const [themeSetting, setThemeSetting] = useState({
-    light: {
-      textColor: '#FFF',
-      navbarBackground: 'rgb(73 66 152 / 85%)',
-      sidebarBackground: '#6760b0',
-      sidebarSelectedBackground: 'rgb(73 66 152 / 100%)',
-      mainBackground: '#c2b7f6',
-      panelBackground: '#7f78c4',
-      panelCards: '#9a9ae4',
-      panelCardHoverOutline: '#9898ff',
-      panelCardIcon: '#6760b0',
-      textHeading: '#FFF',
-      textSubheading: '#FFF',
-      textDescription: '#FFF',
-      iconButtonColor: '#FFF',
-      iconButtonHoverColor: '#7171f0',
-      iconButtonBackground: '#9898ff',
-      iconButtonSelected: '#363695',
-      buttonOutlined: '#9a9ae4',
-      buttonFilled: '#9a9ae4',
-      buttonGradientStart: '#a798ff',
-      buttonGradientEnd: '#ff5fac',
-      buttonTextColor: '#FFF',
-      scrollbarThumbXAxisStart: '#a798ff',
-      scrollbarThumbXAxisEnd: '#ff5fac',
-      scrollbarThumbYAxisStart: '#a798ff',
-      scrollbarThumbYAxisEnd: '#ff5fac',
-      scrollbarCorner: 'rgba(255, 255, 255, 0)',
-      inputOutline: '#FFF',
-      inputBackground: '#6868ba',
-      dropdownMenuBackground: '#7f78c4',
-      drawerBackground: '#7f78c4',
-      themeSwitchTrack: '#aab4be',
-      themeSwitchThumb: '#c2b7f6'
-    },
-    dark: {
-      textColor: '#FFF',
-      navbarBackground: 'rgb(31 27 72 / 85%)',
-      sidebarBackground: 'rgb(31 27 72 / 100%)',
-      sidebarSelectedBackground: '#5f5ff1',
-      mainBackground: '#02022d',
-      panelBackground: '#1f1b48',
-      panelCards: '#3c3c6f',
-      panelCardHoverOutline: '#9898ff',
-      panelCardIcon: '#1f1b48',
-      textHeading: '#FFF',
-      textSubheading: '#FFF',
-      textDescription: '#FFF',
-      iconButtonColor: '#FFF',
-      iconButtonHoverColor: '#7171f0',
-      iconButtonBackground: '#9898ff',
-      iconButtonSelectedBackground: '#4d4df2',
-      buttonOutlined: '#3c3c6f',
-      buttonFilled: '#3c3c6f',
-      buttonGradientStart: '#5236ff',
-      buttonGradientEnd: '#c20560',
-      buttonTextColor: '#FFF',
-      scrollbarThumbXAxisStart: '#5236ff',
-      scrollbarThumbXAxisEnd: '#c20560',
-      scrollbarThumbYAxisStart: '#5236ff',
-      scrollbarThumbYAxisEnd: '#c20560',
-      scrollbarCorner: 'rgba(255, 255, 255, 0)',
-      inputOutline: '#FFF',
-      inputBackground: '#3c3c6f',
-      dropdownMenuBackground: '#1f1b48',
-      drawerBackground: '#1f1b48',
-      themeSwitchTrack: '#8796a5',
-      themeSwitchThumb: '#02022d'
-    }
-  })
+  const [themeSetting, setThemeSetting] = useState(clientSetting?.themeSettings || defaultThemeSettings)
 
   const handleChangeColor = (name, value) => {
     const tempSetting = JSON.parse(JSON.stringify(themeSetting))
@@ -170,6 +109,21 @@ const ClientTheme = () => {
 
   const closeMenu = () => {
     setAnchorEl(null)
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+
+    ClientSettingService.patchClientSetting(
+      {
+        themeSettings: JSON.stringify(themeSetting)
+      },
+      id
+    )
+  }
+
+  const handleCancel = () => {
+    setThemeSetting(clientSetting?.themeSettings)
   }
 
   const theme = themeSetting[mode]
@@ -804,6 +758,18 @@ const ClientTheme = () => {
           />
         </Grid>
       </Grid>
+      <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
+        {t('admin:components.setting.cancel')}
+      </Button>
+      <Button
+        sx={{ maxWidth: '100%' }}
+        variant="contained"
+        className={styles.saveBtn}
+        type="submit"
+        onClick={handleSubmit}
+      >
+        {t('admin:components.setting.save')}
+      </Button>
     </div>
   )
 }
