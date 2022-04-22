@@ -29,6 +29,7 @@ import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
 import { detectUserInCollisions } from './functions/detectUserInCollisions'
+import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 function avatarActionReceptor(action) {
   const world = useWorld()
@@ -131,6 +132,8 @@ export default async function AvatarSystem(world: World) {
         xrInputSourceComponent.controllerGripRightParent
       )
 
+      xrInputSourceComponent.container.name = 'XR Container'
+      xrInputSourceComponent.head.name = 'XR Head'
       Engine.scene.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
 
       // Add head IK Solver

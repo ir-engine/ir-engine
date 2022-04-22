@@ -156,13 +156,13 @@ export const setupXRInputSourceComponent = (entity: Entity) => {
 
 export const bindXRControllers = () => {
   const world = Engine.currentWorld
-  const inputData = setupXRInputSourceComponent(world.localClientEntity)
+  const xrInputSourceComponent = getComponent(world.localClientEntity, XRInputSourceComponent)
 
   const inputSourceChanged = (event) => {
     // Map input sources
-    mapXRControllers(inputData)
+    mapXRControllers(xrInputSourceComponent)
     // Proxify only after input handedness is determined
-    proxifyXRInputs(world.localClientEntity, inputData)
+    proxifyXRInputs(world.localClientEntity, xrInputSourceComponent)
     Engine.xrSession.removeEventListener('inputsourceschange', inputSourceChanged)
   }
 
@@ -179,11 +179,10 @@ export const bindXRControllers = () => {
 export const bindXRHandEvents = () => {
   const world = Engine.currentWorld
 
-  setupXRInputSourceComponent(world.localClientEntity)
-
   const hands = [Engine.xrManager.getHand(0), Engine.xrManager.getHand(1)]
   let eventSent = false
 
+  // TODO: we should unify the logic here and in AvatarSystem xrHandsConnected receptor
   hands.forEach((controller: any) => {
     controller.addEventListener('connected', (ev) => {
       const xrInputSource = ev.data
@@ -219,15 +218,16 @@ export const startWebXR = async (): Promise<void> => {
   removeComponent(world.localClientEntity, FollowCameraComponent)
   container.add(Engine.camera)
 
+  setupXRInputSourceComponent(world.localClientEntity)
+
   // Default mapping
   assignControllerAndGrip(Engine.xrManager, controllerLeft, controllerGripLeft, 0)
   assignControllerAndGrip(Engine.xrManager, controllerRight, controllerGripRight, 1)
 
   dispatchAction(world.store, NetworkWorldAction.setXRMode({ enabled: true }))
 
-  const avatarInputState = accessAvatarInputSettingsState()
-  if (avatarInputState.controlType.value === AvatarControllerType.OculusQuest) bindXRControllers()
-  if (avatarInputState.controlType.value === AvatarControllerType.XRHands) bindXRHandEvents()
+  bindXRControllers()
+  bindXRHandEvents()
 }
 
 /**
@@ -236,7 +236,7 @@ export const startWebXR = async (): Promise<void> => {
  */
 
 export const endXR = (): void => {
-  Engine.xrSession?.end()
+  // Engine.xrSession?.end()
   Engine.xrSession = null!
   Engine.xrManager.setSession(null!)
   Engine.scene.add(Engine.camera)
