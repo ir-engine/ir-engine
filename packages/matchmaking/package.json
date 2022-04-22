@@ -35,7 +35,7 @@
     "node-fetch": "^2.6.6"
   },
   "devDependencies": {
-    "@types/mocha": "9.1.0",
+    "@types/mocha": "9.1.1",
     "create-ts-index": "1.14.0",
     "cross-env": "7.0.3",
     "mocha": "9.2.2",
