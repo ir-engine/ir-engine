@@ -26,7 +26,7 @@ export class AvatarSettings {
   walkSpeed = 1.6762927669761485
   runSpeed = 3.769894125544925
   jumpHeight = 4
-  movementScheme = Engine.isHMD ? AvatarMovementScheme.Teleport : AvatarMovementScheme.Linear
+  movementScheme = AvatarMovementScheme.Linear
 }
 
 export default async function AvatarControllerSystem(world: World) {
