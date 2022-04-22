@@ -2,23 +2,9 @@ import { Sequelize } from 'sequelize'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import config from '@xrengine/server-core/src/appconfig'
-import seeder from '@xrengine/server-core/src/util/seeder'
 
 import { Application } from '../declarations'
-import { copyDefaultProject, uploadLocalProjectToProvider } from './projects/project/project.class'
-import seederConfig from './seeder-config'
-
-const settingsServiceNames = [
-  'analytics-setting',
-  'authentication-setting',
-  'aws-setting',
-  'chargebee-setting',
-  'client-setting',
-  'email-setting',
-  'game-server-setting',
-  'redis-setting',
-  'server-setting'
-]
+import { seeder } from './seeder'
 
 export default (app: Application): void => {
   try {
@@ -84,45 +70,9 @@ export default (app: Application): void => {
         try {
           // connect to sequelize
           const sync = await sequelize.sync()
-
-          if (forceRefresh || prepareDb)
-            for (let config of seederConfig) {
-              if (config.path) {
-                const templates = config.templates
-                const service = app.service(config.path as any)
-                if (templates)
-                  for (let template of templates) {
-                    let isSeeded
-                    if (settingsServiceNames.indexOf(config.path) > -1) {
-                      const result = await service.find()
-                      isSeeded = result.total > 0
-                    } else {
-                      const searchTemplate = {}
-
-                      const sequelizeModel = service.Model
-                      const uniqueField = Object.values(sequelizeModel.rawAttributes).find(
-                        (value: any) => value.unique
-                      ) as any
-                      if (uniqueField) searchTemplate[uniqueField.fieldName] = template[uniqueField.fieldName]
-                      else
-                        for (let key of Object.keys(template))
-                          if (typeof template[key] !== 'object') searchTemplate[key] = template[key]
-                      const result = await service.find({
-                        query: searchTemplate
-                      })
-                      isSeeded = result.total > 0
-                    }
-                    if (!isSeeded) await service.create(template)
-                  }
-              }
-            }
-          // configure seeder and seed
           try {
-            if (forceRefresh) {
-              copyDefaultProject()
-              await app.service('project')._seedProject('default-project')
-              await uploadLocalProjectToProvider('default-project')
-            }
+            // configure seeder and seed
+            await seeder(app, forceRefresh, prepareDb)
           } catch (err) {
             console.log('Feathers seeding error')
             console.log(err)
