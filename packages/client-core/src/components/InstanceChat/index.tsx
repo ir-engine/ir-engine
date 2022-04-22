@@ -1,5 +1,6 @@
+import { useState } from '@speigg/hookstate'
 import classNames from 'classnames'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
@@ -9,7 +10,8 @@ import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { UsersTypingState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { Message as MessageIcon, Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
@@ -49,15 +51,17 @@ const InstanceChat = (props: Props): any => {
   const chatState = useChatState()
   const channelState = chatState.channels
   const channels = channelState.channels.value
-  const [composingMessage, setComposingMessage] = useState('')
-  const [unreadMessages, setUnreadMessages] = useState(false)
+  const [composingMessage, setComposingMessage] = React.useState('')
+  const [unreadMessages, setUnreadMessages] = React.useState(false)
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
   const instanceConnectionState = useLocationInstanceConnectionState()
+  const usersTyping = useState(getState(Engine.currentWorld.store, UsersTypingState)[user?.id.value]).value
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
 
   useEffect(() => {
+    if (!composingMessage) return
     const delayDebounce = setTimeout(() => {
       dispatchAction(
         Engine.currentWorld.store,
@@ -95,10 +99,9 @@ const InstanceChat = (props: Props): any => {
   ])
 
   const handleComposingMessageChange = (event: any): void => {
-    const client = Engine.currentWorld.clients.get(user?.id.value)
     const message = event.target.value
     if (message.length > composingMessage.length) {
-      if (!client?.typing) {
+      if (!usersTyping) {
         dispatchAction(
           Engine.currentWorld.store,
           NetworkWorldAction.userTyping({
@@ -108,7 +111,7 @@ const InstanceChat = (props: Props): any => {
       }
     }
     if (message.length == 0 || message.length < composingMessage.length) {
-      if (client?.typing) {
+      if (usersTyping) {
         dispatchAction(
           Engine.currentWorld.store,
           NetworkWorldAction.userTyping({
@@ -139,7 +142,7 @@ const InstanceChat = (props: Props): any => {
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
   }
-  const [dimensions, setDimensions] = useState({
+  const [dimensions, setDimensions] = React.useState({
     height: window.innerHeight,
     width: window.innerWidth
   })
