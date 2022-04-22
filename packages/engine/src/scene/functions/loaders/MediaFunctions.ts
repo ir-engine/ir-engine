@@ -78,7 +78,7 @@ export const updateAutoStartTimeForMedia = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent).value
 
   if (component.startTimer) clearTimeout(component.startTimer)
-  if (component.autoStartTime === 0) return
+  if (!component.autoStartTime) return
 
   const timeDiff = component.autoStartTime - Date.now()
 
