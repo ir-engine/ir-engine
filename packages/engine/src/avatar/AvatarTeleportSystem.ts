@@ -109,7 +109,7 @@ export default async function AvatarTeleportSystem(world: World) {
   const guideCursorEntity = createEntity()
   addComponent(guideCursorEntity, Object3DComponent, { value: guideCursor })
 
-  let guidingController = new Group()
+  let guidingController = null! as Group
   let canTeleport = false
 
   const avatarTeleportQuery = defineQuery([AvatarTeleportTagComponent])
