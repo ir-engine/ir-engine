@@ -25,6 +25,7 @@ import { beforeMaterialCompile } from '../../classes/BPCEMShader'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import { SceneOptions } from '../../systems/SceneObjectSystem'
+import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 
 // import { extendMaterial, CustomMaterial } from './ExtendMaterial'
 
@@ -54,7 +55,13 @@ export const serializeSimpleMaterial: ComponentSerializeFunction = (entity) => {
 }
 
 export const useSimpleMaterial = (obj: Mesh): void => {
-  if (!obj.material || !obj.material.color) return
+  
+  const isStandardMaterial = obj.material instanceof MeshStandardMaterial
+  const isBasicMaterial = obj.material instanceof MeshBasicMaterial
+
+  if (!obj.material || !obj.material.color || isBasicMaterial) return
+  if (obj.entity && hasComponent(entity, XRUIComponent)) return
+  
   try {
     obj.userData.prevMaterial = obj.material
 
@@ -65,12 +72,8 @@ export const useSimpleMaterial = (obj: Mesh): void => {
     // https://github.com/mrdoob/three.js/blob/master/src/renderers/webgl/WebGLProgram.js
 
     const prevMaterial = obj.material
-    let vertexShader = ShaderLib.basic.vertexShader
-    let fragmentShader = ShaderLib.basic.fragmentShader
-    const isStandardMaterial = obj.material instanceof MeshStandardMaterial
-    const isBasicMaterial = obj.material instanceof MeshBasicMaterial
-
-    const lightEnbled = !isBasicMaterial
+    // const lightEnbled = !isBasicMaterial
+    const lightEnbled = true
     const hasUV = obj.geometry.hasAttribute('uv')
     const hasMap = (<any>obj.material).map !== null
     const hasEnvMap = isStandardMaterial
@@ -140,27 +143,21 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       diffuse: {
         value: (prevMaterial as any).color
       },
-      
       opacity: {
         value: (prevMaterial as any).opacity
       },
-
       uvTransform: { value: new Matrix3() },
       uv2Transform: { value: new Matrix3() },
-
       map: {
         value: (prevMaterial as any).map
       },
-
       alphaMap: {
         value: (prevMaterial as any).alphaMap
       },
-
       alphaTest: {
         value: (prevMaterial as any).alphaTest
       }
     }
-
     
     // var uniforms = {}
     Object.keys(ShaderLib.standard.uniforms).forEach((original) => {
@@ -189,7 +186,7 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       uniforms = UniformsUtils.merge([UniformsLib.lights, uniforms])
     }
 
-    vertexShader = [
+    const vertexShader = [
       `varying vec3 vViewPosition;`,
       `#ifdef USE_TRANSMISSION
         varying vec3 vWorldPosition;
@@ -235,7 +232,7 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       `}`
     ].join('\n')
 
-    fragmentShader = [
+    const fragmentShader = [
       // `
       // #ifdef PHYSICAL
       //   #define IOR
