@@ -75,4 +75,5 @@ export interface PatchClientSetting {
   appSubtitle: string
   appDescription: string
   appSocialLinks: string
+  themeSettings: string
 }
