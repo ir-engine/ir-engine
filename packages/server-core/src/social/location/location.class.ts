@@ -147,14 +147,14 @@ export class Location<T = LocationDataType> extends Service<T> {
       })
 
     if (joinableLocations) {
-      const locationResult = await (this.app.service('location') as any).Model.findAndCountAll({
+      const locationResult = await this.app.service('location').Model.findAndCountAll({
         offset: $skip,
         limit: $limit,
         where: strippedQuery,
         order: order,
         include: [
           {
-            model: (this.app.service('instance') as any).Model,
+            model: this.app.service('instance').Model,
             required: false,
             where: {
               currentUsers: {
@@ -164,11 +164,11 @@ export class Location<T = LocationDataType> extends Service<T> {
             }
           },
           {
-            model: (this.app.service('location-settings') as any).Model,
+            model: this.app.service('location-settings').Model,
             required: false
           },
           {
-            model: (this.app.service('location-ban') as any).Model,
+            model: this.app.service('location-ban').Model,
             required: false
           }
         ],
@@ -184,18 +184,18 @@ export class Location<T = LocationDataType> extends Service<T> {
       const loggedInUser = params!.user as UserDataType
       const include = [
         {
-          model: (this.app.service('location-settings') as any).Model,
+          model: this.app.service('location-settings').Model,
           required: false
         },
         {
-          model: (this.app.service('location-ban') as any).Model,
+          model: this.app.service('location-ban').Model,
           required: false
         }
       ]
 
       if (loggedInUser.userRole !== 'admin') {
         ;(include as any).push({
-          model: (this.app.service('location-admin') as any).Model,
+          model: this.app.service('location-admin').Model,
           where: {
             userId: loggedInUser.id
           }
@@ -216,7 +216,7 @@ export class Location<T = LocationDataType> extends Service<T> {
           ]
         }
       }
-      const locationResult = await (this.app.service('location') as any).Model.findAndCountAll({
+      const locationResult = await this.app.service('location').Model.findAndCountAll({
         offset: $skip,
         limit: $limit,
         where: { ...strippedQuery, ...q },
@@ -255,7 +255,7 @@ export class Location<T = LocationDataType> extends Service<T> {
       if (locationData.isLobby) await this.makeLobby(t, params)
 
       const location = await this.Model.create(locationData, { transaction: t })
-      await (this.app.service('location-settings') as any).Model.create(
+      await this.app.service('location-settings').Model.create(
         {
           videoEnabled: !!location_settings.videoEnabled,
           audioEnabled: !!location_settings.audioEnabled,
@@ -270,7 +270,7 @@ export class Location<T = LocationDataType> extends Service<T> {
       )
 
       if (loggedInUser) {
-        await (this.app.service('location-admin') as any).Model.create(
+        await this.app.service('location-admin').Model.create(
           {
             locationId: location.id,
             userId: loggedInUser.id
@@ -310,7 +310,7 @@ export class Location<T = LocationDataType> extends Service<T> {
 
       const old = await this.Model.findOne({
         where: { id },
-        include: [(this.app.service('location-settings') as any).Model]
+        include: [this.app.service('location-settings').Model]
       })
       const oldSettings = old.location_setting ?? old.location_settings
 
@@ -319,7 +319,7 @@ export class Location<T = LocationDataType> extends Service<T> {
 
       await this.Model.update(locationData, { where: { id }, transaction: t }) // super.patch(id, locationData, params);
 
-      await (this.app.service('location-settings') as any).Model.update(
+      await this.app.service('location-settings').Model.update(
         {
           videoEnabled: !!location_settings.videoEnabled,
           audioEnabled: !!location_settings.audioEnabled,
@@ -335,7 +335,7 @@ export class Location<T = LocationDataType> extends Service<T> {
       await t.commit()
       const location = await this.Model.findOne({
         where: { id },
-        include: [(this.app.service('location-settings') as any).Model]
+        include: [this.app.service('location-settings').Model]
       })
 
       return location as T

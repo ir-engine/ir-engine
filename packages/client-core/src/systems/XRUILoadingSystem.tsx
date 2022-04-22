@@ -2,10 +2,10 @@ import type { WebLayer3D } from '@etherealjs/web-layer/three'
 import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { receiveActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
+import { matchActionOnce, receiveActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { textureLoader } from '@xrengine/engine/src/scene/constants/Util'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
@@ -22,12 +22,12 @@ export default async function XRUILoadingSystem(world: World) {
   const transition = createTransitionState(transitionPeriodSeconds)
 
   // todo: push timeout to accumulator
-  receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, () =>
+  matchActionOnce(Engine.store, EngineActions.joinedWorld.matches, () => {
     setTimeout(() => {
       mesh.visible = false
       transition.setState('OUT')
     }, 250)
-  )
+  })
 
   const sceneState = accessSceneState()
   const thumbnailUrl = sceneState.currentScene.ornull?.thumbnailUrl.value.replace('thumbnail.jpeg', 'cubemap.png')

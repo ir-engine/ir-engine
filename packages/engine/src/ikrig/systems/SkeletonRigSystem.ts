@@ -7,8 +7,10 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { bonesData2 } from '../../avatar/DefaultSkeletonBones'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { CameraIKComponent } from '../components/CameraIKComponent'
 import { IKPoseComponent } from '../components/IKPoseComponent'
@@ -74,9 +76,7 @@ const mockAvatars = () => {
 export default async function SkeletonRigSystem(world: World) {
   const cameraIKQuery = defineQuery([IKRigComponent, CameraIKComponent])
   const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
-  // receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, () => {
-  //   mockAvatars()
-  // })
+  // matchActionOnce(Engine.store, EngineActions.joinedWorld.matches, mockAvatars)
   return () => {
     // Apply camera IK to the source skeleton
     for (const entity of cameraIKQuery()) {

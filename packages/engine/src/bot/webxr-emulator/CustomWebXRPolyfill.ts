@@ -1,5 +1,4 @@
 // @ts-nocheck
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import EX_API from './api/index'
 import XRHitTestResult from './api/XRHitTestResult'
 import XRHitTestSource from './api/XRHitTestSource'
@@ -13,6 +12,7 @@ import XRSession, { PRIVATE as XRSESSION_PRIVATE } from './webxr-polyfill/api/XR
 import XRSystem from './webxr-polyfill/api/XRSystem'
 import { XR_COMPATIBLE } from './webxr-polyfill/constants'
 import WebXRPolyfill from './webxr-polyfill/WebXRPolyfill'
+import { WebXREventDispatcher } from './WebXREventDispatcher'
 
 /**
  * Adapted from the mozilla webxr emulator
@@ -59,7 +59,7 @@ export class XREngineWebXRPolyfill extends WebXRPolyfill {
       })
     }
 
-    EngineEvents.instance.addEventListener('webxr-exit-immersive', (event) => {
+    WebXREventDispatcher.instance.addEventListener('webxr-exit-immersive', (event) => {
       if (activeImmersiveSession && !activeImmersiveSession.ended) {
         activeImmersiveSession.end().then(() => {
           activeImmersiveSession = null
@@ -170,7 +170,7 @@ const requestXRDevice = async () => {
   // resolve when receiving configuration parameters from content-script as an event
   return new Promise((resolve, reject) => {
     const callback = (event) => {
-      EngineEvents.instance.removeEventListener('webxr-device-init', callback)
+      WebXREventDispatcher.instance.removeEventListener('webxr-device-init', callback)
       resolve(
         new EmulatedXRDevice(
           globalThis,
@@ -178,7 +178,7 @@ const requestXRDevice = async () => {
         )
       )
     }
-    EngineEvents.instance.addEventListener('webxr-device-init', callback, false)
+    WebXREventDispatcher.instance.addEventListener('webxr-device-init', callback, false)
   })
 }
 

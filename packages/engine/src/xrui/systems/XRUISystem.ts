@@ -1,5 +1,6 @@
 import { Color, Mesh, Raycaster } from 'three'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -69,11 +70,11 @@ export default async function XRUISystem(world: World) {
       const intersectObjects = screenRaycaster.intersectObject(model, true)
       if (intersectObjects.length > 0) {
         const userId = getComponent(entity, NetworkObjectComponent).ownerId
-        dispatchAction(Engine.store, EngineActions.userAvatarTapped(userId))
+        dispatchAction(Engine.store, EngineActions.userAvatarTapped({ userId }))
         return
       }
     }
-    dispatchAction(Engine.store, EngineActions.userAvatarTapped(null!))
+    dispatchAction(Engine.store, EngineActions.userAvatarTapped({ userId: '' as UserId }))
   }
 
   const updateControllerRayInteraction = (inputComponent: XRInputSourceComponentType) => {
