@@ -2,7 +2,7 @@ import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
 import { AudioListener, PerspectiveCamera, Scene } from 'three'
 
-import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, registerState } from '@xrengine/hyperflux'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
 // import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
@@ -22,6 +22,7 @@ import { removeClientInputListeners } from './input/functions/clientInputListene
 import { Network } from './networking/classes/Network'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
 import { NetworkActionReceptor } from './networking/functions/NetworkActionReceptor'
+import { UsersTypingState } from './networking/interfaces/WorldState'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { registerPrefabs } from './scene/functions/registerPrefabs'
 import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
@@ -104,7 +105,7 @@ export const createEngine = () => {
 
   registerDefaultSceneFunctions(world)
   registerPrefabs(world)
-
+  registerState(Engine.currentWorld.store, UsersTypingState)
   addActionReceptor(Engine.store, EngineEventReceptor)
 
   globalThis.Engine = Engine

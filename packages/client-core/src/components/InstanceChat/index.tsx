@@ -62,7 +62,7 @@ const InstanceChat = (props: Props): any => {
       dispatchAction(
         Engine.currentWorld.store,
         NetworkWorldAction.userTyping({
-          typingDetail: { typing: false }
+          typing: false
         })
       )
     }, 3000)
@@ -98,21 +98,21 @@ const InstanceChat = (props: Props): any => {
     const client = Engine.currentWorld.clients.get(user?.id.value)
     const message = event.target.value
     if (message.length > composingMessage.length) {
-      if (!client?.typingDetail?.typing) {
+      if (!client?.typing) {
         dispatchAction(
           Engine.currentWorld.store,
           NetworkWorldAction.userTyping({
-            typingDetail: { typing: true }
+            typing: true
           })
         )
       }
     }
     if (message.length == 0 || message.length < composingMessage.length) {
-      if (client?.typingDetail?.typing) {
+      if (client?.typing) {
         dispatchAction(
           Engine.currentWorld.store,
           NetworkWorldAction.userTyping({
-            typingDetail: { typing: false }
+            typing: false
           })
         )
       }

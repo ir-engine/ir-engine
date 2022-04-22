@@ -11,7 +11,7 @@ import {
 import { matchesWeightsParameters } from '../../avatar/animation/Util'
 import { Engine } from '../../ecs/classes/Engine'
 import { matchPose } from '../../transform/TransformInterfaces'
-import { matchesAvatarProps, typingDetailProps } from '../interfaces/WorldState'
+import { matchesAvatarProps } from '../interfaces/WorldState'
 
 export class NetworkWorldAction {
   static createClient = defineAction({
@@ -145,6 +145,6 @@ export class NetworkWorldAction {
   static userTyping = defineAction({
     store: 'WORLD',
     type: 'network.USER_IS_TYPING',
-    typingDetail: typingDetailProps
+    typing: matches.boolean
   })
 }
