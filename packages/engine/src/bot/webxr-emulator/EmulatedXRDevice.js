@@ -830,6 +830,7 @@ export default class EmulatedXRDevice extends XRDevice {
       const positionArray = event.detail.position;
       const quaternionArray = event.detail.quaternion;
       const objectName = event.detail.objectName;
+      console.log('webxr-input-pose',positionArray, quaternionArray, objectName)
 
       if (this.arDevice) {
         // In AR-mode, right controller corresponds to pointer and left controller corresponds to tablet

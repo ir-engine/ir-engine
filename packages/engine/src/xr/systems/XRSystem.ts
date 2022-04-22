@@ -144,6 +144,11 @@ export default async function XRSystem(world: World) {
       const head = xrInputSourceComponent.head
       head.quaternion.copy(Engine.camera.quaternion)
       head.position.copy(Engine.camera.position)
+      console.log(
+        xrInputSourceComponent.controllerLeft.position.x,
+        xrInputSourceComponent.controllerLeft.position.y,
+        xrInputSourceComponent.controllerLeft.position.z
+      )
     }
   }
 }
