@@ -1,11 +1,10 @@
 import { Audio as AudioObject } from 'three'
 
-import { addActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, matches } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { EngineActionType } from '../../ecs/classes/EngineService'
+import { EngineActions, EngineActionType } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -48,8 +47,8 @@ export default async function PositionalAudioSystem(world: World) {
   const avatarAudioStream: Map<Entity, any> = new Map()
 
   function audioReceptors(action: EngineActionType) {
-    switch (action.type) {
-      case EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS:
+    matches(action)
+      .when(EngineActions.startSuspendedContexts.matches, () => {
         console.log('starting suspended audio nodes')
         for (const entity of avatarAudioQuery()) {
           const audio = getComponent(entity, Object3DComponent).value
@@ -63,15 +62,14 @@ export default async function PositionalAudioSystem(world: World) {
             if (audioEl && audioEl.autoplay) audioEl.play()
           }
         }
-        break
-      case EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO:
+      })
+      .when(EngineActions.suspendPositionalAudio.matches, () => {
         for (const entity of avatarAudioQuery()) {
           const audio = getComponent(entity, Object3DComponent).value
           const audioEl = audio?.userData.audioEl
           if (audioEl && audioEl.context) audioEl.context.suspend()
         }
-        break
-    }
+      })
   }
   addActionReceptor(Engine.store, audioReceptors)
 

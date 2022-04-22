@@ -1,30 +1,29 @@
 import assert from 'assert'
-import { AnimationClip, Group, Vector3 } from 'three'
+import { AnimationClip, Bone, Group, Vector3 } from 'three'
 
 import { loadGLTFAssetNode } from '../../../tests/util/loadGLTFAssetNode'
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { createWorld } from '../../ecs/classes/World'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AnimationState } from '../animation/AnimationState'
 import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { AnimationManager } from '../AnimationManager'
+import { BoneStructure } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
-import { animateAvatarModel, boneMatchAvatarModel, rigAvatarModel } from './avatarFunctions'
+import { animateAvatarModel, boneMatchAvatarModel, makeDefaultSkinnedMesh, rigAvatarModel } from './avatarFunctions'
 
 const animGLB = '/packages/client/public/default_assets/Animations.glb'
-const testGLTF = '/packages/projects/default-project/public/avatars/CyberbotRed.glb'
 
 before(async () => {
   await loadDRACODecoder()
-  const animationGLTF = await loadGLTFAssetNode(animGLB, true)
-  AnimationManager.instance.getAnimations(animationGLTF)
 })
+
+const testGLTF = '/packages/projects/default-project/public/avatars/CyberbotRed.glb'
 
 describe('avatarFunctions Unit', async () => {
   beforeEach(async () => {
@@ -40,7 +39,9 @@ describe('avatarFunctions Unit', async () => {
   describe('boneMatchAvatarModel', () => {
     it('should set up bone matching', async () => {
       const entity = createEntity()
-      const boneStructure = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
+      const animationComponent = addComponent(entity, AvatarAnimationComponent, {} as any)
+      boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
+      const boneStructure = animationComponent.rig
 
       assert(boneStructure.Hips)
       assert(boneStructure.Head)
@@ -58,16 +59,16 @@ describe('avatarFunctions Unit', async () => {
   describe('rigAvatarModel', () => {
     it('should add rig to skeleton', async () => {
       const entity = createEntity()
-      const boneStructure = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
-      const rootSkeleton = rigAvatarModel(entity)(boneStructure)
-
-      assert.equal(typeof rootSkeleton, 'object')
-      assert(hasComponent(entity, IKPoseComponent))
+      const animationComponent = addComponent(entity, AvatarAnimationComponent, {} as any)
+      const model = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
+      AnimationManager.instance._defaultSkinnedMesh = makeDefaultSkinnedMesh()
+      rigAvatarModel(entity)(model)
+      assert(animationComponent.rootYRatio > 0)
     })
   })
 
   describe('animateAvatarModel', () => {
-    it('should assign passed group as new animation mixer root', () => {
+    it('should use default skeleton hip bone as mixer root', async () => {
       const entity = createEntity()
 
       const animationComponentData = {
@@ -83,13 +84,23 @@ describe('avatarFunctions Unit', async () => {
         animationGraph: new AvatarAnimationGraph(),
         currentState: new AnimationState(),
         prevState: new AnimationState(),
-        prevVelocity: new Vector3()
+        prevVelocity: new Vector3(),
+        rig: {} as BoneStructure,
+        rootYRatio: 1
       })
+
+      const animationGLTF = await loadGLTFAssetNode(animGLB)
+      AnimationManager.instance.getAnimations(animationGLTF)
 
       const group = new Group()
       animateAvatarModel(entity)(group)
 
-      assert.equal(getComponent(entity, AnimationComponent).mixer.getRoot(), group)
+      const sourceHips = makeDefaultSkinnedMesh().skeleton.bones[0]
+      const mixerRoot = getComponent(entity, AnimationComponent).mixer.getRoot() as Bone
+
+      assert(mixerRoot.isBone)
+      assert.equal(mixerRoot.name, sourceHips.name)
+      assert.deepEqual(sourceHips.matrix, mixerRoot.matrix)
     })
   })
 })

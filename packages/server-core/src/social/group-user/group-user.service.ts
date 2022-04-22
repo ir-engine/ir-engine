@@ -43,7 +43,7 @@ export default (app: Application) => {
       await app.service('group').emit('refresh', {
         userId: data.userId
       })
-      // const channel = await (app.service('channel') as any).Model.findOne({
+      // const channel = await (app.service('channel')).Model.findOne({
       //   where: {
       //     groupId: data.groupId
       //   }
@@ -99,7 +99,7 @@ export default (app: Application) => {
    */
   service.publish('patched', async (data): Promise<any> => {
     try {
-      // const channel = await (app.service('channel') as any).Model.findOne({
+      // const channel = await (app.service('channel')).Model.findOne({
       //   where: {
       //     groupId: data.groupId
       //   }
@@ -157,7 +157,7 @@ export default (app: Application) => {
    */
   service.publish('removed', async (data): Promise<any> => {
     try {
-      // const channel = await (app.service('channel') as any).Model.findOne({
+      // const channel = await (app.service('channel')).Model.findOne({
       //   where: {
       //     groupId: data.groupId
       //   }

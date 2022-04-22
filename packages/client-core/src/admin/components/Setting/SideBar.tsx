@@ -35,7 +35,9 @@ const settings = ({
   chargebeeFocused,
   redisFocused,
   analyticsFocused,
-  projectFocused
+  projectFocused,
+  handleClientTheme,
+  clientThemeFocused
 }) => {
   return (
     <div>
@@ -91,6 +93,19 @@ const settings = ({
             </Avatar>
           </ListItemAvatar>
           <ListItemText primary="Client" />
+        </ListItem>
+        <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
+        <ListItem
+          button
+          onClick={handleClientTheme}
+          className={clientThemeFocused ? `${styles.focused}` : `${styles.notFocused}`}
+        >
+          <ListItemAvatar>
+            <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
+              <ViewCompactIcon />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText primary="Client Theme" />
         </ListItem>
         <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
         <ListItem
