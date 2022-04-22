@@ -1,6 +1,8 @@
 import { Euler } from 'three'
 import matches from 'ts-matches'
 
+import { addActionReceptor } from '@xrengine/hyperflux'
+
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { IKRigComponent } from '../ikrig/components/IKRigComponent'
@@ -25,8 +27,6 @@ const animationQuery = defineQuery([AnimationComponent])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, IKRigComponent])
 
 export default async function AnimationSystem(world: World) {
-  world.receptors.push(animationActionReceptor)
-
   function animationActionReceptor(action) {
     matches(action).when(NetworkWorldAction.avatarAnimation.matches, ({ $from }) => {
       const avatarEntity = world.getUserAvatarEntity($from)
@@ -41,6 +41,7 @@ export default async function AnimationSystem(world: World) {
       avatarAnimationComponent.animationGraph.changeState(action.newStateName)
     })
   }
+  addActionReceptor(world.store, animationActionReceptor)
 
   await AnimationManager.instance.getDefaultAnimations()
 

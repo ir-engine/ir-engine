@@ -14,8 +14,6 @@ export type NetworkObjectComponentType = {
   prefab: string
   /** The parameters by which the prefab was created */
   parameters: any
-  /** The last tick when a packet containing state for this object was received */
-  lastTick: number
 }
 
 const SCHEMA = {

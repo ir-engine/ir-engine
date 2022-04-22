@@ -219,6 +219,37 @@ export function traverseEntityNode(
 }
 
 /**
+ * Iteratively traverse parent nodes for given Entity Tree Node
+ * @param node Node for which traversal will occur
+ * @param cb Callback function which will be called for every traverse
+ * @param pred Predicate function which will not process a node or its children if return false
+ * @param tree Entity Tree
+ */
+export function iterateEntityNode(
+  node: EntityTreeNode,
+  cb: (node: EntityTreeNode, index: number) => void,
+  pred: (node: EntityTreeNode) => boolean = (x) => true,
+  tree = useWorld().entityTree
+): void {
+  const frontier = [[node]]
+  while (frontier.length > 0) {
+    const items = frontier.pop()!
+    let idx = 0
+    for (let i = 0; i < items.length; i += 1) {
+      const item = items[i]
+      if (pred(item)) {
+        cb(item, idx)
+        idx += 1
+        const children = item.children
+        if (children && children.length > 0) {
+          frontier.push(children.filter((x) => tree.entityNodeMap.has(x)).map((x) => tree.entityNodeMap.get(x)!))
+        }
+      }
+    }
+  }
+}
+
+/**
  * Traverse parent nodes for given Entity Tree Node
  * @param node Node for which traversal will occur
  * @param cb Callback function which will be called for every traverse

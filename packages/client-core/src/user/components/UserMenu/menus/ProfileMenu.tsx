@@ -28,7 +28,7 @@ import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon'
 import { AuthService, useAuthState } from '../../../services/AuthService'
-import styles from '../UserMenu.module.scss'
+import styles from '../index.module.scss'
 import { getAvatarURLForUser, Views } from '../util'
 
 interface Props {
@@ -122,10 +122,6 @@ const ProfileMenu = (props: Props): JSX.Element => {
 
   useEffect(() => {
     !authSetting && AuthSettingService.fetchAuthSetting()
-  }, [])
-
-  useEffect(() => {
-    selfUser?.id.value && AuthService.loadUserData(selfUser?.id.value)
   }, [])
 
   useEffect(() => {
@@ -380,7 +376,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
                   {selfUser?.userRole?.value === 'admin'
                     ? t('user:usermenu.profile.youAreAn')
                     : t('user:usermenu.profile.youAreA')}{' '}
-                  <span>{selfUser?.userRole?.value}</span>.
+                  <span id="user-role">{selfUser?.userRole?.value}</span>.
                 </h2>
               </Grid>
               <Grid
@@ -391,7 +387,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
                 direction="column"
               >
                 <Tooltip title="Show User ID" placement="right">
-                  <h2 className={styles.showUserId} onClick={handleShowId}>
+                  <h2 className={styles.showUserId} id="show-user-id" onClick={handleShowId}>
                     {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}{' '}
                   </h2>
                 </Tooltip>

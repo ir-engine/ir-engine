@@ -14,6 +14,7 @@ import { AnalyticsService } from '../../services/AnalyticsService'
 import styles from '../../styles/admin.module.scss'
 import ActivityGraph from './ActivityGraph'
 import Card from './CardNumber'
+import './index.scss'
 import UserGraph from './UserGraph'
 
 interface Props {}
@@ -202,12 +203,22 @@ const Analytics = (props: Props) => {
             <LocalizationProvider dateAdapter={DateAdapter}>
               <MobileDateTimePicker
                 value={startDate}
+                DialogProps={{
+                  PaperProps: {
+                    className: styles.dateTimePickerDialog
+                  }
+                }}
                 onChange={(value) => onDateRangeStartChange(value)}
                 renderInput={(params) => <TextField {...params} />}
               />
               <Box sx={{ mx: 2 }}> to </Box>
               <MobileDateTimePicker
                 value={endDate}
+                DialogProps={{
+                  PaperProps: {
+                    className: styles.dateTimePickerDialog
+                  }
+                }}
                 minDateTime={minEndDate}
                 onChange={(value) => onDateRangeEndChange(value)}
                 renderInput={(params) => <TextField {...params} />}

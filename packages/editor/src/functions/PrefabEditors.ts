@@ -3,6 +3,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { SCENE_COMPONENT_SCENE_TAG } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { SCENE_COMPONENT_AMBIENT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/AmbientLightFunctions'
+import { SCENE_COMPONENT_ASSET } from '@xrengine/engine/src/scene/functions/loaders/AssetComponentFunctions'
 import { SCENE_COMPONENT_AUDIO } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { SCENE_COMPONENT_BOX_COLLIDER } from '@xrengine/engine/src/scene/functions/loaders/BoxColliderFunctions'
 import { SCENE_COMPONENT_CAMERA_PROPERTIES } from '@xrengine/engine/src/scene/functions/loaders/CameraPropertiesFunctions'
@@ -14,7 +15,6 @@ import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/functions/load
 import { SCENE_COMPONENT_HEMISPHERE_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/HemisphereLightFunctions'
 import { SCENE_COMPONENT_IMAGE } from '@xrengine/engine/src/scene/functions/loaders/ImageFunctions'
 import { SCENE_COMPONENT_INTERIOR } from '@xrengine/engine/src/scene/functions/loaders/InteriorFunctions'
-import { SCENE_COMPONENT_LINK } from '@xrengine/engine/src/scene/functions/loaders/LinkFunctions'
 import { SCENE_COMPONENT_MODEL } from '@xrengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { SCENE_COMPONENT_OCEAN } from '@xrengine/engine/src/scene/functions/loaders/OceanFunctions'
 import { SCENE_COMPONENT_PARTICLE_EMITTER } from '@xrengine/engine/src/scene/functions/loaders/ParticleEmitterFunctions'
@@ -34,6 +34,7 @@ import { SCENE_COMPONENT_WATER } from '@xrengine/engine/src/scene/functions/load
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
+import { AssetNodeEditor } from '../components/properties/AssetNodeEditor'
 import AudioNodeEditor from '../components/properties/AudioNodeEditor'
 import BoxColliderNodeEditor from '../components/properties/BoxColliderNodeEditor'
 import CameraPropertiesNodeEditor from '../components/properties/CameraPropertiesNodeEditor'
@@ -46,7 +47,6 @@ import GroupNodeEditor from '../components/properties/GroupNodeEditor'
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
-import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
 import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterNodeEditor'
@@ -88,12 +88,12 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_GROUND_PLANE]: GroundPlaneNodeEditor,
   [SCENE_COMPONENT_CAMERA_PROPERTIES]: CameraPropertiesNodeEditor,
   [SCENE_COMPONENT_MODEL]: ModelNodeEditor,
-  [SCENE_COMPONENT_LINK]: LinkNodeEditor,
   [SCENE_COMPONENT_PARTICLE_EMITTER]: ParticleEmitterNodeEditor,
   [SCENE_COMPONENT_PORTAL]: PortalNodeEditor,
   [SCENE_COMPONENT_TRIGGER_VOLUME]: TriggerVolumeNodeEditor,
   [SCENE_COMPONENT_BOX_COLLIDER]: BoxColliderNodeEditor,
   [SCENE_COMPONENT_GROUP]: GroupNodeEditor,
+  [SCENE_COMPONENT_ASSET]: AssetNodeEditor,
   [SCENE_COMPONENT_POSTPROCESSING]: PostProcessingNodeEditor,
   [SCENE_COMPONENT_SCENE_TAG]: SceneNodeEditor,
   [SCENE_COMPONENT_SCENE_PREVIEW_CAMERA]: ScenePreviewCameraNodeEditor,
@@ -120,7 +120,6 @@ export const prefabIcons = {
   [ScenePrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
   [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,
   [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
-  [ScenePrefabs.link]: LinkNodeEditor.iconComponent,
   [ScenePrefabs.cameraProperties]: CameraPropertiesNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
   [ScenePrefabs.particleEmitter]: ParticleEmitterNodeEditor.iconComponent,
@@ -128,6 +127,7 @@ export const prefabIcons = {
   [ScenePrefabs.triggerVolume]: TriggerVolumeNodeEditor.iconComponent,
   [ScenePrefabs.boxCollider]: BoxColliderNodeEditor.iconComponent,
   [ScenePrefabs.group]: GroupNodeEditor.iconComponent,
+  [ScenePrefabs.asset]: InteriorNodeEditor.iconComponent,
   [ScenePrefabs.postProcessing]: PostProcessingNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
   [ScenePrefabs.skybox]: SkyboxNodeEditor.iconComponent,

@@ -13,12 +13,9 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
-
-type GameServerWarningsProps = {
-  locationName: string
-}
 
 const initialModalValues: WarningRetryModalProps = {
   open: false,
@@ -33,21 +30,27 @@ enum WarningModalTypes {
   USER_KICKED,
   INVALID_LOCATION,
   INSTANCE_WEBGL_DISCONNECTED,
-  CHANNEL_DISCONNECTED
+  CHANNEL_DISCONNECTED,
+  DETECTED_LOW_FRAME
 }
 
-const GameServerWarnings = (props: GameServerWarningsProps) => {
+const GameServerWarnings = () => {
   const locationState = useLocationState()
   const [modalValues, setModalValues] = useState(initialModalValues)
   const [currentError, _setCurrentError] = useState(-1)
   const invalidLocationState = locationState.invalidLocation
   const engineState = useEngineState()
+  const engineRendereState = useEngineRendererState()
   const chatState = useChatState()
   const instanceConnectionState = useLocationInstanceConnectionState()
   const [erroredInstanceId, setErroredInstanceId] = useState(null)
+  const [hasShownLowFramerateError, setHasShownLowFramerateError] = useState(false)
   const { t } = useTranslation()
 
   const currentErrorRef = useRef(currentError)
+  const isWindow = (): boolean => {
+    return navigator.userAgent.includes('Window')
+  }
 
   const setCurrentError = (value) => {
     currentErrorRef.current = value
@@ -93,7 +96,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
     )
 
     // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
-    var db = indexedDB.open('test')
+    const db = indexedDB.open('test')
     db.onerror = () => updateWarningModal(WarningModalTypes.INDEXED_DB_NOT_SUPPORTED)
   }, [])
 
@@ -104,6 +107,18 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
       reset()
     }
   }, [invalidLocationState.value])
+
+  useEffect(() => {
+    if (
+      isWindow() &&
+      engineState.joinedWorld.value &&
+      engineRendereState.qualityLevel.value == 4 &&
+      !hasShownLowFramerateError
+    ) {
+      setHasShownLowFramerateError(true)
+      updateWarningModal(WarningModalTypes.DETECTED_LOW_FRAME)
+    }
+  }, [engineState.joinedWorld.value, engineRendereState.qualityLevel.value])
 
   const updateWarningModal = (type: WarningModalTypes, message?: any) => {
     const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
@@ -186,10 +201,18 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
         setModalValues({
           open: true,
           title: t('common:gameServer.invalidLocation'),
-          body: `${t('common:gameServer.cantFindLocation')} '${props.locationName}'. ${t(
+          body: `${t('common:gameServer.cantFindLocation')} '${locationState.locationName.value}'. ${t(
             'common:gameServer.misspelledOrNotExist'
           )}`,
           noCountdown: true
+        })
+        break
+      case WarningModalTypes.DETECTED_LOW_FRAME:
+        setModalValues({
+          open: true,
+          title: t('common:gameServer.low-frame-title'),
+          body: t('common:gameServer.low-frame-error'),
+          timeout: 10000
         })
         break
       default:

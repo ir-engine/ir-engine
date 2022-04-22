@@ -1,7 +1,6 @@
 import {
   BoxBufferGeometry,
   BoxHelper,
-  EquirectangularRefractionMapping,
   Mesh,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
@@ -17,17 +16,11 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
-  ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import {
-  addComponent,
-  getComponent,
-  getComponentCountOfType,
-  hasComponent
-} from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
 import { CubemapBakeComponent, CubemapBakeComponentType } from '../../components/CubemapBakeComponent'
@@ -35,9 +28,7 @@ import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
-import { textureLoader } from '../../constants/Util'
 import { CubemapBakeRefreshTypes } from '../../types/CubemapBakeRefreshTypes'
-import { CubemapBakeSettings } from '../../types/CubemapBakeSettings'
 import { CubemapBakeTypes } from '../../types/CubemapBakeTypes'
 import { setObjectLayers } from '../setObjectLayers'
 
@@ -66,7 +57,7 @@ export const deserializeCubemapBake: ComponentDeserializeFunction = (
   if (!Engine.isEditor) return
 
   const props = parseCubemapBakeProperties(json.props)
-  const bakeComponent = addComponent(entity, CubemapBakeComponent, props)
+  addComponent(entity, CubemapBakeComponent, props)
   addComponent(entity, PreventBakeTagComponent, {})
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CUBEMAP_BAKE)
 
@@ -83,7 +74,6 @@ export const deserializeCubemapBake: ComponentDeserializeFunction = (
 
   setObjectLayers(obj3d, ObjectLayers.NodeHelper)
   updateCubemapBake(entity)
-  updateCubemapBakeTexture(bakeComponent.options)
 }
 
 export const updateCubemapBake: ComponentUpdateFunction = (entity: Entity) => {
@@ -91,13 +81,6 @@ export const updateCubemapBake: ComponentUpdateFunction = (entity: Entity) => {
   const bakeComponent = getComponent(entity, CubemapBakeComponent)
   if (obj3d.userData.gizmo)
     obj3d.userData.gizmo.matrix.compose(bakeComponent.options.bakePositionOffset, quat, bakeComponent.options.bakeScale)
-}
-
-export const updateCubemapBakeTexture = (options: CubemapBakeSettings) => {
-  textureLoader.load(options.envMapOrigin, (texture) => {
-    Engine.scene.environment = texture
-    texture.mapping = EquirectangularRefractionMapping
-  })
 }
 
 export const serializeCubemapBake: ComponentSerializeFunction = (entity) => {
@@ -110,10 +93,6 @@ export const serializeCubemapBake: ComponentSerializeFunction = (entity) => {
       options: component.options
     }
   }
-}
-
-export const shouldDeserializeCubemapBake: ComponentShouldDeserializeFunction = () => {
-  return getComponentCountOfType(CubemapBakeComponent) <= 0
 }
 
 export const prepareSceneForBake = (world = useWorld()): Scene => {

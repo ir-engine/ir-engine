@@ -7,7 +7,7 @@ import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { unloadSystems } from '../../ecs/functions/SystemFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
-import { NetworkActionReceptors } from '../../networking/functions/NetworkActionReceptors'
+import { NetworkActionReceptor } from '../../networking/functions/NetworkActionReceptor'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
 
@@ -20,7 +20,7 @@ export const teleportToScene = async () => {
   addComponent(world.worldEntity, HyperspaceTagComponent, {})
 
   // remove all network clients but own (will be updated when new connection is established)
-  NetworkActionReceptors.removeAllNetworkClients(world, false)
+  NetworkActionReceptor.removeAllNetworkClients(world, false)
 
   // remove this scene's injected systems
   unloadSystems(world, true)
@@ -30,7 +30,7 @@ export const teleportToScene = async () => {
 
   // wait until the world has been joined
   await new Promise((resolve) => {
-    receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, resolve)
+    receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, resolve)
   })
 
   // teleport player to where the portal is

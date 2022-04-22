@@ -22,7 +22,7 @@ export const store = {
   // },
 
   dispatch(action: { type: string; [key: string]: any }) {
-    console.log(action)
+    console.log('CLIENT ACTION ' + action.type)
     for (const r of store.receptors) r(action)
   }
 }

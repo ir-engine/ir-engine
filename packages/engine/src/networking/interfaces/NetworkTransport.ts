@@ -1,4 +1,4 @@
-import { Action } from '../../ecs/functions/Action'
+import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 /** Interface for the Transport. */
 export interface NetworkTransport {
@@ -20,7 +20,7 @@ export interface NetworkTransport {
   /**
    * Send actions through reliable channel
    */
-  sendActions(actions: Set<Action>): void
+  sendActions(actions: Action<'WORLD'>[]): void
 
   /**
    * Sends a message across the connection and resolves with the reponse

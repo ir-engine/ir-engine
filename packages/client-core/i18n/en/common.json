@@ -64,7 +64,9 @@
     "invalidLocation": "Invalid location",
     "cantFindLocation": "We can't find the location",
     "misspelledOrNotExist": "It may be misspelled, or it may not exist.",
-    "loading": "loading"
+    "loading": "loading",
+    "low-frame-error": "Detected a poor perfomance consider enabling Use Hardware acceleration in your browser and relauch your browser",
+    "low-frame-title": "Enable hardware acceleration for better experience!"
   },
   "error": {
     "loading-error": "Failed to load user data",

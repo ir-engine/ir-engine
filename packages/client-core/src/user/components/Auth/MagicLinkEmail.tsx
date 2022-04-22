@@ -14,7 +14,7 @@ import { AuthSettingService } from '../../../admin/services/Setting/AuthSettingS
 import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
-import styles from './Auth.module.scss'
+import styles from './index.module.scss'
 
 const initialState = {
   jwt: true,

@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { areEqual, FixedSizeList } from 'react-window'
 
-import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -16,6 +15,7 @@ import {
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { useHookEffect } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
 import { executeCommandWithHistory, setPropertyOnEntityNode } from '../../classes/History'
@@ -105,7 +105,7 @@ export default function HierarchyPanel() {
   )
 
   useEffect(updateNodeHierarchy, [collapsedNodes])
-  useHookedEffect(updateNodeHierarchy, [selectionState.selectedEntities, selectionState.sceneGraphChangeCounter])
+  useHookEffect(updateNodeHierarchy, [selectionState.selectedEntities, selectionState.sceneGraphChangeCounter])
 
   /* Expand & Collapse Functions */
   const expandNode = useCallback(

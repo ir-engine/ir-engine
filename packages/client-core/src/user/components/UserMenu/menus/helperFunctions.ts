@@ -33,7 +33,7 @@ let renderer: WebGLRenderer = null!
 let camera: PerspectiveCamera = null!
 export const validate = (obj) => {
   const objBoundingBox = new Box3().setFromObject(obj)
-  let maxBB = new Vector3(2, 2, 2)
+  let maxBB = new Vector3(2, 3, 2)
 
   let bone = false
   let skinnedMesh = false
@@ -59,7 +59,6 @@ export const validate = (obj) => {
 export const addAnimationLogic = (
   entity: Entity,
   world: World,
-  setEntity: (entity: Entity) => void,
   panelRef: React.MutableRefObject<HTMLDivElement | undefined>
 ) => {
   addComponent(entity, AnimationComponent, {
@@ -73,8 +72,6 @@ export const addAnimationLogic = (
     hasAvatarAnimations: true,
     action: null!
   })
-
-  setEntity(entity)
 
   async function AvatarSelectRenderSystem(world: World) {
     return () => {
@@ -96,18 +93,18 @@ export const addAnimationLogic = (
 export const initialize3D = () => {
   const container = document.getElementById('stage')!
   const bounds = container.getBoundingClientRect()
-  camera = new PerspectiveCamera(45, bounds.width / bounds.height, 0.25, 20)
-  camera.position.set(0, 1.25, 1.25)
+  camera = new PerspectiveCamera(60, bounds.width / bounds.height, 0.25, 20)
+  camera.position.set(0, 1.5, 0.6)
 
   scene = new Scene()
 
-  const backLight = new DirectionalLight(0xfafaff, 1)
+  const backLight = new DirectionalLight(0xfafaff, 0.5)
   backLight.position.set(1, 3, -1)
   backLight.target.position.set(0, 1.5, 0)
-  const frontLight = new DirectionalLight(0xfafaff, 0.7)
+  const frontLight = new DirectionalLight(0xfafaff, 0.4)
   frontLight.position.set(-1, 3, 1)
   frontLight.target.position.set(0, 1.5, 0)
-  const hemi = new HemisphereLight(0xffffff, 0xffffff, 2)
+  const hemi = new HemisphereLight(0xffffff, 0xffffff, 1)
   scene.add(backLight)
   scene.add(backLight.target)
   scene.add(frontLight)

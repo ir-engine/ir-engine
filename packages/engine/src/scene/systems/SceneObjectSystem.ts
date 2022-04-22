@@ -83,8 +83,7 @@ export default async function SceneObjectSystem(world: World) {
       const obj3d = getComponent(entity, Object3DComponent, true).value
 
       if (!obj3d.parent) console.warn('[Object3DComponent]: Scene object has been removed manually.')
-
-      obj3d.removeFromParent()
+      else obj3d.removeFromParent()
     }
 
     for (const entity of sceneObjectQuery.enter()) {

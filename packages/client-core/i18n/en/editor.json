@@ -34,6 +34,7 @@
     "newScene": "New Scene",
     "saveScene": "Save Scene",
     "saveAs": "Save As",
+    "importAsset": "Import Asset",
     "exportGLB": "Export as binary glTF (.glb) ...",
     "importScene": "Import scene",
     "exportScene": "Export scene",
@@ -128,6 +129,18 @@
       "lbl-intensity": "Intensity",
       "lbl-color": "Color"
     },
+    "asset": {
+      "name": "Asset",
+      "description": "A grouping of scene components which can be dynamically loaded and unloaded",
+      "lbl-options": "Options",
+      "lbl-assetPath": "Asset Path",
+      "lbl-assetName": "Export Name",
+      "lbl-exportOptions": "Export Options",
+      "lbl-export": "Export Asset",
+      "lbl-load": "Load Into Scene",
+      "lbl-unload": "Unload",
+      "lbl-reload": "Reload"
+    },
     "audio": {
       "name": "Audio",
       "description": "Dynamically loads audio.",
@@ -175,7 +188,9 @@
       "lbl-cameraBottom": "Camera Bottom",
       "lbl-cameraLeft": "Camera Left",
       "lbl-cameraRight": "Camera Right",
+      "lbl-useInCSM": "Use in CSM",
       "lbl-castShadow": "Cast Shadow",
+      "lbl-disableForCSM": "Disabled because Cascade shadow map is enabled.",
       "lbl-shadowmapResolution": "Shadow Map Resolution",
       "lbl-shadowBias": "Shadow Bias",
       "lbl-shadowRadius": "Shadow Radius",
