@@ -1,3 +1,5 @@
+import defaultThemeSettings from '@xrengine/common/src/constants/DefaultThemeSettings'
+
 export const clientSeed = {
   path: 'client-setting',
   templates: [
@@ -22,7 +24,8 @@ export const clientSeed = {
       appSocialLinks: JSON.stringify([
         { icon: 'static/discord.svg', link: 'https://discord.gg/xrf' },
         { icon: 'static/github.svg', link: 'https://github.com/XRFoundation' }
-      ])
+      ]),
+      themeSettings: defaultThemeSettings
     }
   ]
 }
