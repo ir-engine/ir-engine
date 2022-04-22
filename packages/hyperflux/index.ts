@@ -26,7 +26,6 @@ export const clearOutgoingActions = dynamicFunctionReference(ActionFunctions, 'c
 export const defineState = dynamicFunctionReference(StateFunctions, 'defineState')
 export const registerState = dynamicFunctionReference(StateFunctions, 'registerState')
 export const getState = dynamicFunctionReference(StateFunctions, 'getState')
-export const getMutableState = dynamicFunctionReference(StateFunctions, 'getMutableState')
 export const addStateReactor = dynamicFunctionReference(StateFunctions, 'addStateReactor')
 export const removeStateReactor = dynamicFunctionReference(StateFunctions, 'removeStateReactor')
 
