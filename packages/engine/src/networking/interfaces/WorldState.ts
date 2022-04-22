@@ -8,7 +8,7 @@ export const matchesAvatarProps = matches.shape({
 })
 export const UsersTypingState = defineState({
   store: 'WORLD',
-  name: 'usersTyping',
+  name: 'UsersTyping',
   initial: () => ({} as { [key: string]: true })
 })
 export type AvatarProps = typeof matchesAvatarProps._TYPE

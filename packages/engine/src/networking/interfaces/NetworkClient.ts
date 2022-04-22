@@ -26,5 +26,4 @@ export interface NetworkClient {
   dataProducers?: Map<string, any> // Key => label of data channel}
   avatarDetail?: AvatarProps
   networkId?: NetworkId // to easily retrieve the network object correspending to this client
-  typing?: Boolean
 }
