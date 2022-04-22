@@ -99,9 +99,13 @@ const injectedSystems: SystemModuleType<any>[] = [
     type: 'PRE_RENDER',
     systemModulePromise: import('@xrengine/client-core/src/systems/ShareLocationUISystem')
   },*/
-  {
+  /*{
     type: 'PRE_RENDER',
     systemModulePromise: import('@xrengine/client-core/src/systems/SettingUISystem')
+  },*/
+  {
+    type: 'PRE_RENDER',
+    systemModulePromise: import('@xrengine/client-core/src/systems/EmoteUISystem')
   }
 ]
 
