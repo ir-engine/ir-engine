@@ -11,6 +11,7 @@ import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AnimationState } from '../animation/AnimationState'
 import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { AnimationManager } from '../AnimationManager'
+import { BoneStructure } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
@@ -38,7 +39,7 @@ describe('avatarFunctions Unit', async () => {
   describe('boneMatchAvatarModel', () => {
     it('should set up bone matching', async () => {
       const entity = createEntity()
-      const animationComponent = addComponent(entity, AvatarAnimationComponent, {})
+      const animationComponent = addComponent(entity, AvatarAnimationComponent, {} as any)
       boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
       const boneStructure = animationComponent.rig
 
@@ -58,7 +59,7 @@ describe('avatarFunctions Unit', async () => {
   describe('rigAvatarModel', () => {
     it('should add rig to skeleton', async () => {
       const entity = createEntity()
-      const animationComponent = addComponent(entity, AvatarAnimationComponent, {})
+      const animationComponent = addComponent(entity, AvatarAnimationComponent, {} as any)
       const model = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
       AnimationManager.instance._defaultSkinnedMesh = makeDefaultSkinnedMesh()
       rigAvatarModel(entity)(model)
@@ -83,7 +84,9 @@ describe('avatarFunctions Unit', async () => {
         animationGraph: new AvatarAnimationGraph(),
         currentState: new AnimationState(),
         prevState: new AnimationState(),
-        prevVelocity: new Vector3()
+        prevVelocity: new Vector3(),
+        rig: {} as BoneStructure,
+        rootYRatio: 1
       })
 
       const animationGLTF = await loadGLTFAssetNode(animGLB)
