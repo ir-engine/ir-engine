@@ -31,16 +31,18 @@ export const uploadProjectFile = async (
 ): Promise<{ url: string }[]> => {
   const promises: Promise<{ url: string }>[] = []
   for (const file of files) {
-    const pathName = `projects/${projectName}${isAsset ? '/assets' : ''}`
+    const filePath = `projects/${projectName}${isAsset ? '/assets' : ''}/${file.name}`
+
     promises.push(
       new Promise(async (resolve) => {
-        await uploadToFeathersService(file, 'media', onProgress, {
-          uploadPath: pathName,
-          fileId: file.name
-        })
-        const response = (await client.service('project').patch(projectName, {
-          files: [`${pathName}/${file.name}`]
-        })) as any[]
+        await uploadToFeathersService(
+          'file-browser/upload',
+          file as any,
+          { path: filePath, contentType: '' },
+          onProgress
+        )
+
+        const response = (await client.service('project').patch(projectName, { files: [filePath] })) as any[]
         resolve({ url: response[0] })
       })
     )
@@ -78,14 +80,16 @@ const processEntry = async (item, projectName: string, directory: string, promis
     promises.push(
       new Promise(async (resolve) => {
         const file = await getFile(item)
-        const pathName = `projects/${projectName}/assets${directory}`
-        await uploadToFeathersService(file, 'media', onProgress, {
-          uploadPath: pathName,
-          fileId: file.name
-        })
-        const response = (await client.service('project').patch(projectName, {
-          files: [`${pathName}/${file.name}`]
-        })) as any[]
+        const filePath = `projects/${projectName}/assets${directory}/${file.name}`
+
+        await uploadToFeathersService(
+          'file-browser/upload',
+          file as any,
+          { path: filePath, contentType: '' },
+          onProgress
+        )
+
+        const response = (await client.service('project').patch(projectName, { files: [filePath] })) as any[]
 
         resolve({ url: response[0] })
       })

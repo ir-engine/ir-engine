@@ -97,7 +97,6 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
 
   if (properties.videoSource) {
     try {
-      const assetClass = AssetLoader.getAssetClass(component.videoSource)
       if (isHLS(component.videoSource)) {
         if (component.hls) component.hls.destroy()
         component.hls = setupHLS(entity, component.videoSource)

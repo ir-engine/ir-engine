@@ -1,7 +1,7 @@
 import { MathUtils } from 'three'
 
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
+import { precacheSupport } from '@xrengine/engine/src/assets/enum/AssetType'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -40,7 +40,7 @@ export const preCacheAssets = (sceneData: any, onProgress) => {
       promises.push(...preCacheAssets(val, onProgress))
     } else if (typeof val === 'string') {
       if (AssetLoader.isSupported(val)) {
-        if (AssetLoader.getAssetType(val) === AssetType.XRE) continue
+        if (!precacheSupport[AssetLoader.getAssetType(val)]) continue
         try {
           const promise = AssetLoader.loadAsync(val, onProgress)
           promises.push(promise)
