@@ -21,12 +21,6 @@ import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneL
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-// Maybe do this using system injection node
-// receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, () => {
-//     console.log("gltf parse scene loaded")
-//     generateSimulationData(5)
-// })
-
 /**
  * Returns a random number between min (inclusive) and max (exclusive)
  */

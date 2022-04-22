@@ -32,7 +32,7 @@ export class Message<T = MessageDataType> extends Service<T> {
     const userId = loggedInUser?.id
     const targetObjectId = data.targetObjectId
     const targetObjectType = data.targetObjectType
-    const channelModel = (this.app.service('channel') as any).Model
+    const channelModel = this.app.service('channel').Model
     console.log(data)
 
     if (targetObjectType === 'user') {

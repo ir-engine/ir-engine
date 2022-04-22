@@ -100,7 +100,11 @@ export const NetworkInstanceProvisioning = () => {
     const transportRequestData = {
       inviteCode: getSearchParamFromURL('inviteCode')!
     }
-
+    console.log(
+      'engineState.connectedWorld.value && engineState.sceneLoaded.value',
+      engineState.connectedWorld.value,
+      engineState.sceneLoaded.value
+    )
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
       Network.instance.transportHandler
         .getWorldTransport()

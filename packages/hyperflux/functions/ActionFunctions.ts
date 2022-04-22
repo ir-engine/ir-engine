@@ -210,7 +210,7 @@ function defineAction<StoreName extends string, Shape extends ActionShape<Action
 
   const matchesShape = matches.shape(resolvedActionShape) as Validator<unknown, ResolvedAction>
 
-  const actionCreator = (partialAction: PartialAction) => {
+  const actionCreator = (partialAction: PartialAction = {} as any) => {
     const defaultValues = Object.fromEntries(
       defaultEntries.map(([k, v]) => [
         k,

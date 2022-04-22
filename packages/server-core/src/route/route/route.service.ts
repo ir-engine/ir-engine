@@ -61,7 +61,7 @@ export const getInstalledRoutes = (): any => {
 
 export const activateRoute = (routeService: Route): any => {
   return async (data: { project: string; route: string; activate: boolean }, params: Params) => {
-    const activatedRoutes = ((await routeService.find(null!)) as any).data as ActiveRoutesInterface[]
+    const activatedRoutes = (await routeService.find(null!)).data as ActiveRoutesInterface[]
     const installedRoutes = (await getInstalledRoutes()()).data
     if (data.activate) {
       const routeToActivate = installedRoutes.find((r) => r.project === data.project && r.routes.includes(data.route))

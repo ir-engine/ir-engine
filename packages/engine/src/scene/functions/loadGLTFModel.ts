@@ -8,13 +8,12 @@ import { parseGeometry } from '../../common/functions/parseGeometry'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { accessEngineState } from '../../ecs/classes/EngineService'
+import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentMap, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
-import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
+import { matchActionOnce, receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
 import { TransformChildComponent } from '../../transform/components/TransformChildComponent'
@@ -175,7 +174,7 @@ export const overrideTexture = (entity: Entity, object3d?: Object3D, world = Eng
 
     return
   } else {
-    receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, () => {
+    matchActionOnce(Engine.store, EngineActions.sceneLoaded.matches, () => {
       overrideTexture(entity, object3d, world)
     })
   }
