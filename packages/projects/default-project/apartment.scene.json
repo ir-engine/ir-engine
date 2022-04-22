@@ -443,7 +443,8 @@
             "shadowBias": 0,
             "shadowRadius": 1,
             "cameraFar": 100,
-            "showCameraHelper": false
+            "showCameraHelper": false,
+            "useInCSM": true
           }
         }
       ],

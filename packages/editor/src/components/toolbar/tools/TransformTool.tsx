@@ -7,12 +7,12 @@ import OpenWithIcon from '@mui/icons-material/OpenWith'
 import SyncIcon from '@mui/icons-material/Sync'
 
 import { setTransformMode } from '../../../functions/transformFunctions'
-import { useModeState } from '../../../services/ModeServices'
+import { useEditorHelperState } from '../../../services/EditorHelperState'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const TransformTool = () => {
-  const transformMode = useModeState().transformMode.value
+  const transformMode = useEditorHelperState().transformMode.value
 
   return (
     <div className={styles.toolbarInputGroup}>

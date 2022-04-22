@@ -5,8 +5,7 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 import { GeneralStateList } from '../../services/AppService'
 import { useAppState } from '../../services/AppService'
-import styles from './Loader.module.scss'
-import LottieLoader from './LottieLoader'
+import styles from './loader.module.scss'
 
 interface Props {
   //Loader?: any

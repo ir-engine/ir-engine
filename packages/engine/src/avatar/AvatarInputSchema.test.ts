@@ -6,7 +6,7 @@ import { TargetCameraRotationComponent } from '../camera/components/TargetCamera
 import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { NumericalType } from '../common/types/NumericalTypes'
 import { Engine } from '../ecs/classes/Engine'
-import { createWorld } from '../ecs/classes/World'
+import { createWorld, World } from '../ecs/classes/World'
 import { addComponent, getComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { InputType } from '../input/enums/InputType'
@@ -21,11 +21,12 @@ import {
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 
 describe('avatarInputSchema', () => {
-  let world
+  let world: World
 
   beforeEach(async () => {
     world = createWorld()
     Engine.currentWorld = world
+    delete (globalThis as any).PhysX
     await world.physics.createScene()
   })
 
@@ -121,6 +122,8 @@ describe('avatarInputSchema', () => {
         0,
         0
       ),
+      currentSpeed: 0,
+      speedVelocity: { value: 0 },
       collisions: [false, false, false],
       movementEnabled: true,
       isJumping: false,

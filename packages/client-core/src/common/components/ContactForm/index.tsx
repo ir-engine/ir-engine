@@ -6,7 +6,7 @@ import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 
-import styles from './ContactForm.module.scss'
+import styles from './index.module.scss'
 
 export const ContactForm = () => {
   const { t } = useTranslation()

@@ -2,7 +2,8 @@ import assert from 'assert'
 import { Mesh, MeshNormalMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '../../src/ecs/classes/Engine'
 import { createWorld } from '../../src/ecs/classes/World'
@@ -21,18 +22,16 @@ import { createBody, getAllShapesFromObject3D, ShapeOptions } from '../../src/ph
 import { BodyType, ColliderTypes } from '../../src/physics/types/PhysicsTypes'
 import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
 import { TransformComponent } from '../../src/transform/components/TransformComponent'
-import { mockProgressWorldForNetworkActions } from '../networking/NetworkTestHelpers'
-import { TestNetwork } from '../networking/TestNetwork'
 
 describe('Equippables Integration Tests', () => {
   it('Can equip and unequip', async () => {
     const world = createWorld()
     Engine.currentWorld = world
 
-    const hostUserId = 'server' as HostUserId
+    const hostUserId = 'server' as UserId
     world.hostId = hostUserId
     const hostIndex = 0
-    world.clients.set(hostUserId, { userId: hostUserId, name: 'server', userIndex: hostIndex })
+    world.clients.set(hostUserId, { userId: hostUserId, name: 'server', index: hostIndex })
 
     await Engine.currentWorld.physics.createScene({ verbose: true })
 
@@ -73,7 +72,6 @@ describe('Equippables Integration Tests', () => {
     // initially the object is owned by server
     const networkObject = addComponent(equippableEntity, NetworkObjectComponent, {
       ownerId: world.hostId,
-      lastTick: 0,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}
@@ -92,8 +90,9 @@ describe('Equippables Integration Tests', () => {
     // world.receptors.push(
     //     (a) => matches(a).when(NetworkWorldAction.setEquippedObject.matches, setEquippedObjectReceptor)
     // )
+    ActionFunctions.clearOutgoingActions(world.store)
+    ActionFunctions.applyIncomingActions(world.store)
 
-    mockProgressWorldForNetworkActions(world)
     equippableQueryEnter(equipperEntity)
 
     // validations for equip
@@ -108,7 +107,9 @@ describe('Equippables Integration Tests', () => {
     // unequip stuff
     unequipEntity(equipperEntity)
 
-    mockProgressWorldForNetworkActions(world)
+    ActionFunctions.clearOutgoingActions(world.store)
+    ActionFunctions.applyIncomingActions(world.store)
+
     equippableQueryExit(equipperEntity)
 
     // validations for unequip

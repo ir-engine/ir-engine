@@ -97,6 +97,22 @@ export class Project extends Service {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
+
+    this.app.isSetup.then(() => this._callOnLoad())
+  }
+
+  async _callOnLoad() {
+    const projects = (
+      (await super.find({
+        query: { $select: ['name'] }
+      })) as any
+    ).data as Array<{ name }>
+    await Promise.all(
+      projects.map(async ({ name }) => {
+        const config = await getProjectConfig(name)
+        if (config.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onLoad')
+      })
+    )
   }
 
   async _seedProject(projectName: string): Promise<any> {
@@ -147,6 +163,7 @@ export class Project extends Service {
     }
 
     await Promise.all(promises)
+    await this._callOnLoad()
 
     for (const { name, id } of data) {
       if (!locallyInstalledProjects.includes(name)) {

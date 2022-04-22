@@ -11,9 +11,11 @@ import {
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
+import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { AvatarControllerType } from '../../input/enums/InputEnums'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { XRHandMeshModel } from '../classes/XRHandMeshModel'
@@ -26,11 +28,17 @@ const createUICursor = () => {
 }
 
 const setupController = (inputSource, controller) => {
+  const avatarInputState = accessAvatarInputSettingsState()
   if (inputSource) {
-    const targetRay = createController(inputSource)
-    if (targetRay) {
-      controller.add(targetRay)
-      controller.targetRay = targetRay
+    const canUseController =
+      inputSource.hand === null && avatarInputState.controlType.value === AvatarControllerType.OculusQuest
+    const canUseHands = inputSource.hand !== null && avatarInputState.controlType.value === AvatarControllerType.XRHands
+    if (canUseController || canUseHands) {
+      const targetRay = createController(inputSource)
+      if (targetRay) {
+        controller.add(targetRay)
+        controller.targetRay = targetRay
+      }
     }
   }
 
@@ -62,7 +70,7 @@ export const initializeXRInputs = (entity: Entity) => {
         }
 
         if (!controller.targetRay) {
-          setupController(ev.data, controller)
+          setupController(xrInputSource, controller)
         }
       })
 
@@ -125,6 +133,7 @@ export const cleanXRInputs = (entity) => {
     if (controller.userData.mesh) {
       controller.remove(controller.userData.mesh)
       controller.userData.mesh = null
+      controller.userData.initialized = false
     }
   })
 }

@@ -1,18 +1,12 @@
-import {
-  BlendFunction,
-  DepthDownsamplingPass,
-  EffectComposer,
-  EffectPass,
-  NormalPass,
-  RenderPass,
-  TextureEffect
-} from 'postprocessing'
+import { BlendFunction, DepthDownsamplingPass, EffectPass, NormalPass, RenderPass, TextureEffect } from 'postprocessing'
 import { NearestFilter, RGBAFormat, WebGLRenderTarget } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { getAllComponentsOfType } from '../../ecs/functions/ComponentFunctions'
 import { PostprocessingComponent } from '../../scene/components/PostprocessingComponent'
 import { EffectMap, Effects, OutlineEffectProps } from '../../scene/constants/PostProcessing'
+import { accessEngineRendererState } from '../EngineRendererState'
+import { changeRenderMode } from './changeRenderMode'
 
 export const configureEffectComposer = (remove?: boolean): void => {
   Engine.effectComposer.removeAllPasses()
@@ -92,4 +86,6 @@ export const configureEffectComposer = (remove?: boolean): void => {
     Engine.effectComposer.addPass(depthDownsamplingPass)
     Engine.effectComposer.addPass(new EffectPass(Engine.camera, ...effects, textureEffect))
   }
+
+  changeRenderMode(accessEngineRendererState().renderMode.value)
 }

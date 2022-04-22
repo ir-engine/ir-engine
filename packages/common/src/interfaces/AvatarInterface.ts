@@ -14,11 +14,3 @@ export type AvatarProps = {
   avatarURL: string
   thumbnailURL?: string
 }
-
-export interface CreateEditAdminAvatar {
-  name: string
-  description: string
-  url: string
-  staticResourceType: string
-  key?: string
-}

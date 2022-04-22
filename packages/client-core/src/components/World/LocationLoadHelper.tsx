@@ -1,4 +1,3 @@
-import { Downgraded } from '@speigg/hookstate'
 import { useHistory } from 'react-router-dom'
 import { Quaternion, Vector3 } from 'three'
 import matches from 'ts-matches'
@@ -11,26 +10,20 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { ClientTransportHandler } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { AuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
-import { accessSceneState } from '@xrengine/client-core/src/world/services/SceneService'
 import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { initSystems, SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import {
-  createEngine,
-  initializeBrowser,
   initializeCoreSystems,
   initializeRealtimeSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
@@ -78,15 +71,15 @@ const createOfflineUser = (sceneData: SceneJson) => {
     rotation: new Quaternion()
   }
 
-  const world = useWorld()
+  const world = Engine.currentWorld
   world.hostId = userId as any
 
   // it is needed by AvatarSpawnSystem
   Engine.userId = userId
   // Replicate the server behavior
-  dispatchLocal(NetworkWorldAction.createClient({ name: 'user', index: 0 }) as any)
-  dispatchLocal(NetworkWorldAction.spawnAvatar({ parameters, ownerIndex: 0 }))
-  dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }))
+  dispatchAction(world.store, NetworkWorldAction.createClient({ name: 'user', index: 0 }))
+  dispatchAction(world.store, NetworkWorldAction.spawnAvatar({ parameters }))
+  dispatchAction(world.store, NetworkWorldAction.avatarDetails({ avatarDetail }))
 }
 
 const injectedSystems: SystemModuleType<any>[] = [
@@ -101,17 +94,13 @@ const injectedSystems: SystemModuleType<any>[] = [
 ]
 
 export const initEngine = async () => {
-  if (Engine.isInitialized) return
-  Network.instance.transportHandler = new ClientTransportHandler()
-  createEngine()
-  initializeBrowser()
   await initializeCoreSystems(injectedSystems)
 }
 
 export const initClient = async (sceneData: SceneData) => {
   const systems = getSystemsFromSceneData(sceneData.project, sceneData.scene, true)
   const projects = accessProjectState().projects.value.map((project) => project.name)
-  const world = useWorld()
+  const world = Engine.currentWorld
 
   await Promise.all([
     initializeRealtimeSystems(),
@@ -121,7 +110,7 @@ export const initClient = async (sceneData: SceneData) => {
   ])
 
   // add extraneous receptors
-  useWorld().receptors.push((action) => {
+  addActionReceptor(world.store, (action) => {
     matches(action)
       .when(NetworkWorldAction.createClient.matches, () => {
         updateNearbyAvatars()
