@@ -90,7 +90,7 @@ export function createAvatarContextMenuView() {
 }
 
 export const UserMenuState = createState({
-  id: null! as UserId
+  id: '' as UserId
 })
 
 const AvatarContextMenu = () => {

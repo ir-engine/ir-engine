@@ -18,7 +18,7 @@ const state = createState({
   leaveWorld: false,
   socketInstance: false,
   connectionTimeoutInstance: false,
-  avatarTappedId: null! as UserId,
+  avatarTappedId: '' as UserId,
   userHasInteracted: false,
   interactionData: null! as InteractableComponentType,
   xrSupported: false,
@@ -44,11 +44,14 @@ export function EngineEventReceptor(a: EngineActionType) {
       .when(EngineActions.sceneLoading.matches, (action) =>
         s.merge({ sceneLoaded: false, sceneLoading: true, loadingProgress: 0 })
       )
+      .when(EngineActions.sceneLoaded.matches, (action) =>
+        s.merge({ sceneLoaded: true, sceneLoading: false, loadingProgress: 0 })
+      )
       .when(EngineActions.joinedWorld.matches, (action) => {
         s.merge({ joinedWorld: true })
-        if (s.sceneLoaded.value) {
-          s.merge({ loadingProgress: 100 })
-        }
+        // if (s.sceneLoaded.value) {
+        //   s.merge({ loadingProgress: 100 })
+        // }
       })
       .when(EngineActions.sceneLoadingProgress.matches, (action) => s.merge({ loadingProgress: action.progress }))
       .when(EngineActions.leaveWorld.matches, (action) => s.merge({ joinedWorld: false }))
