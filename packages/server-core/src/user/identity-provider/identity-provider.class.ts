@@ -160,7 +160,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
 
     const code = await getFreeInviteCode(this.app)
     // if there is no user with userId, then we create a user and a identity provider.
-    const adminCount = await (this.app.service('user') as any).Model.count({
+    const adminCount = await this.app.service('user').Model.count({
       where: {
         userRole: 'admin'
       }

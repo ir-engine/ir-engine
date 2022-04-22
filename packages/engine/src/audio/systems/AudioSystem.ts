@@ -43,7 +43,6 @@ export default async function AudioSystem(world: World) {
     callbacks.forEach((cb) => cb())
     callbacks = null!
   }
-  console.log(Engine.audioListener.context, Engine.audioListener.context.state)
   window.addEventListener('pointerdown', startAudio, true)
 
   /**

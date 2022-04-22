@@ -45,7 +45,7 @@ export default (app): void => {
       sequelize: {
         include: [
           {
-            model: (app.service('location') as any).Model
+            model: app.service('location').Model
           }
         ]
       },

@@ -99,14 +99,6 @@ export async function initializeRenderer(): Promise<void> {
 
     addInputActionMapping(ActionSets.EDITOR, EditorMapping)
 
-    dispatchAction(
-      Engine.store,
-      EngineActions.enableScene({
-        renderer: true,
-        physics: true
-      }) as any
-    )
-
     configureEffectComposer()
 
     store.dispatch(EditorAction.rendererInitialized(true))

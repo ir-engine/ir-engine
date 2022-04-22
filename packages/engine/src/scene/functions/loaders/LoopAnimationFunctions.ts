@@ -13,11 +13,10 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineEvents } from '../../../ecs/classes/EngineEvents'
-import { accessEngineState } from '../../../ecs/classes/EngineService'
+import { accessEngineState, EngineActions } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
+import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
@@ -54,7 +53,7 @@ export const deserializeLoopAnimation: ComponentDeserializeFunction = (
   if (accessEngineState().sceneLoaded.value) {
     updateLoopAnimation(entity)
   } else {
-    receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, () => {
+    matchActionOnce(Engine.store, EngineActions.sceneLoaded.matches, () => {
       updateLoopAnimation(entity)
     })
   }

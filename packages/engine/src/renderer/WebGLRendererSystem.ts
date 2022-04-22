@@ -19,10 +19,9 @@ import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
-import { EngineEvents } from '../ecs/classes/EngineEvents'
-import { accessEngineState, EngineActions, EngineActionType } from '../ecs/classes/EngineService'
+import { accessEngineState, EngineActions } from '../ecs/classes/EngineService'
 import { World } from '../ecs/classes/World'
-import { receiveActionOnce } from '../networking/functions/matchActionOnce'
+import { matchActionOnce } from '../networking/functions/matchActionOnce'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import {
   accessEngineRendererState,
@@ -100,9 +99,9 @@ export class EngineRenderer {
     if (!context) {
       dispatchAction(
         Engine.store,
-        EngineActions.browserNotSupported(
-          'Your browser does not have WebGL enabled. Please enable WebGL, or try another browser.'
-        ) as any
+        EngineActions.browserNotSupported({
+          msg: 'Your browser does not have WebGL enabled. Please enable WebGL, or try another browser.'
+        }) as any
       )
     }
 
@@ -145,14 +144,6 @@ export class EngineRenderer {
     Engine.effectComposer = new EffectComposer(Engine.renderer) as any
 
     configureEffectComposer()
-
-    addActionReceptor(Engine.store, (action: EngineActionType) => {
-      switch (action.type) {
-        case EngineEvents.EVENTS.ENABLE_SCENE:
-          if (typeof action.env.renderer !== 'undefined') this.rendereringEnabled = action.env.renderer
-          break
-      }
-    })
   }
 
   /** Called on resize, sets resize flag. */
@@ -241,7 +232,9 @@ export class EngineRenderer {
 export default async function WebGLRendererSystem(world: World) {
   new EngineRenderer()
 
-  receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, () => restoreEngineRendererData())
+  matchActionOnce(Engine.store, EngineActions.joinedWorld.matches, () => {
+    restoreEngineRendererData()
+  })
 
   addActionReceptor(Engine.store, EngineRendererReceptor)
 
