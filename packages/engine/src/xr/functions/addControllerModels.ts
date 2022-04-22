@@ -99,10 +99,16 @@ export const initializeXRInputs = (entity: Entity) => {
 export const initializeHandModel = (controller: any, handedness: string, isGrip: boolean = false) => {
   const avatarInputState = accessAvatarInputSettingsState()
 
-  // if is not grip and not hands controller type enabled
-  if (!isGrip && avatarInputState.controlType.value !== AvatarControllerType.XRHands) return
-  // if is grip and not controller controller type enabled
+  // if is grip and not 'controller' type enabled
   if (isGrip && avatarInputState.controlType.value !== AvatarControllerType.OculusQuest) return
+
+  // if is hands and 'none' type enabled (instead we use IK to move hands in avatar model)
+  if (!isGrip && avatarInputState.controlType.value === AvatarControllerType.None) return
+
+  /**
+   * TODO: both model types we have are hands, we also want to have an oculus quest controller model
+   *    (as well as other hardware models) and appropriately set based on the controller type selected
+   */
 
   const fileName = isGrip ? `${handedness}_controller.glb` : `${handedness}.glb`
   const gltf = AssetLoader.getFromCache(`/default_assets/controllers/hands/${fileName}`)
