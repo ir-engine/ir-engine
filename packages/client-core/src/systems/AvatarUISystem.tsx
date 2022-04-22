@@ -37,7 +37,6 @@ export const renderAvatarContextMenu = (world: World, userId: UserId, contextMen
 export default async function AvatarUISystem(world: World) {
   const userQuery = defineQuery([AvatarComponent, TransformComponent, NetworkObjectComponent])
   const AvatarContextMenuUI = createAvatarContextMenuView()
-  addActionReceptor(Engine.currentWorld.store, NetworkActionReceptor.userTypingActionReceptor)
   return () => {
     for (const userEntity of userQuery.enter()) {
       if (userEntity === world.localClientEntity) continue

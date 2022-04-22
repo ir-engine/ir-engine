@@ -6,9 +6,12 @@ export const matchesAvatarProps = matches.shape({
   avatarURL: matches.string,
   thumbnailURL: matches.string
 })
-export const UsersTypingState = defineState({
-  store: 'WORLD',
-  name: 'UsersTyping',
-  initial: () => ({} as { [key: string]: true })
-})
 export type AvatarProps = typeof matchesAvatarProps._TYPE
+
+export const WorldState = defineState({
+  store: 'WORLD',
+  name: 'WorldState',
+  initial: () => ({
+    usersTyping: {} as { [key: string]: true }
+  })
+})

@@ -10,7 +10,7 @@ import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
-import { UsersTypingState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { Message as MessageIcon, Send } from '@mui/icons-material'
@@ -55,7 +55,7 @@ const InstanceChat = (props: Props): any => {
   const [unreadMessages, setUnreadMessages] = React.useState(false)
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
   const instanceConnectionState = useLocationInstanceConnectionState()
-  const usersTyping = useState(getState(Engine.currentWorld.store, UsersTypingState)[user?.id.value]).value
+  const usersTyping = useState(getState(Engine.currentWorld.store, WorldState)[user?.id.value]).value
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
@@ -65,7 +65,7 @@ const InstanceChat = (props: Props): any => {
     const delayDebounce = setTimeout(() => {
       dispatchAction(
         Engine.currentWorld.store,
-        NetworkWorldAction.userTyping({
+        NetworkWorldAction.setUserTyping({
           typing: false
         })
       )
@@ -104,7 +104,7 @@ const InstanceChat = (props: Props): any => {
       if (!usersTyping) {
         dispatchAction(
           Engine.currentWorld.store,
-          NetworkWorldAction.userTyping({
+          NetworkWorldAction.setUserTyping({
             typing: true
           })
         )
@@ -114,7 +114,7 @@ const InstanceChat = (props: Props): any => {
       if (usersTyping) {
         dispatchAction(
           Engine.currentWorld.store,
-          NetworkWorldAction.userTyping({
+          NetworkWorldAction.setUserTyping({
             typing: false
           })
         )

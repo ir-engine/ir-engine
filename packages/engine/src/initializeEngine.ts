@@ -22,7 +22,7 @@ import { removeClientInputListeners } from './input/functions/clientInputListene
 import { Network } from './networking/classes/Network'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
 import { NetworkActionReceptor } from './networking/functions/NetworkActionReceptor'
-import { UsersTypingState } from './networking/interfaces/WorldState'
+import { WorldState } from './networking/interfaces/WorldState'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { registerPrefabs } from './scene/functions/registerPrefabs'
 import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
@@ -105,7 +105,7 @@ export const createEngine = () => {
 
   registerDefaultSceneFunctions(world)
   registerPrefabs(world)
-  registerState(Engine.currentWorld.store, UsersTypingState)
+  registerState(Engine.currentWorld.store, WorldState)
   addActionReceptor(Engine.store, EngineEventReceptor)
 
   globalThis.Engine = Engine

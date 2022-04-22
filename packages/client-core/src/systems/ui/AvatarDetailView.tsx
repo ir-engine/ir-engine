@@ -4,7 +4,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { UsersTypingState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { getState } from '@xrengine/hyperflux'
@@ -44,9 +44,8 @@ const AvatarDetailView = () => {
   const detailState = useXRUIState() as AvatarDetailState
   const userState = useUserState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
-  const usersTyping = user
-    ? useState(getState(Engine.currentWorld.store, UsersTypingState)[user.id.value]).value
-    : undefined
+  const worldState = getState(Engine.currentWorld.store, WorldState)
+  const usersTyping = useState(worldState.usersTyping[detailState.id.value]).value
 
   return user ? (
     <div style={styles.avatarName as {}}>

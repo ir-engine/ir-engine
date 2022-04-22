@@ -11,7 +11,7 @@ import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { UsersTypingState } from '../interfaces/WorldState'
+import { WorldState } from '../interfaces/WorldState'
 import { NetworkWorldAction } from './NetworkWorldAction'
 
 const removeAllNetworkClients = (world: World, removeSelf = false) => {
@@ -191,9 +191,9 @@ const setEquippedObject = (world: World, action: ReturnType<typeof NetworkWorldA
   }
 }
 
-const userTypingActionReceptor = (action) => {
-  matches(action).when(NetworkWorldAction.userTyping.matches, ({ $from, typing }) => {
-    getState(Engine.currentWorld.store, UsersTypingState)[$from].set(typing ? true : none)
+const setUserTyping = (action) => {
+  matches(action).when(NetworkWorldAction.setUserTyping.matches, ({ $from, typing }) => {
+    getState(Engine.currentWorld.store, WorldState).usersTyping[$from].set(typing ? true : none)
   })
 }
 
@@ -218,6 +218,7 @@ const createNetworkActionReceptor = (world: World) =>
       .when(NetworkWorldAction.requestAuthorityOverObject.matches, (a) => requestAuthorityOverObject(world, a))
       .when(NetworkWorldAction.transferAuthorityOfObject.matches, (a) => transferAuthorityOfObject(world, a))
       .when(NetworkWorldAction.setEquippedObject.matches, (a) => setEquippedObject(world, a))
+      .when(NetworkWorldAction.setUserTyping.matches, (a) => setUserTyping(a))
   })
 
 export const NetworkActionReceptor = {
@@ -230,6 +231,6 @@ export const NetworkActionReceptor = {
   requestAuthorityOverObject,
   transferAuthorityOfObject,
   setEquippedObject,
-  createNetworkActionReceptor,
-  userTypingActionReceptor
+  setUserTyping,
+  createNetworkActionReceptor
 }
