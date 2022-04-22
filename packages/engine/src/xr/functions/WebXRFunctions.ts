@@ -236,7 +236,7 @@ export const startWebXR = async (): Promise<void> => {
  */
 
 export const endXR = (): void => {
-  Engine.xrSession?.end()
+  // Engine.xrSession?.end()
   Engine.xrSession = null!
   Engine.xrManager.setSession(null!)
   Engine.scene.add(Engine.camera)

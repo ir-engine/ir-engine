@@ -31,10 +31,8 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
     .map((dirent) => {
       const avatarName = dirent.name.substring(0, dirent.name.lastIndexOf('.')) // remove extension
       const avatarFileType = dirent.name.substring(dirent.name.lastIndexOf('.') + 1, dirent.name.length) // just extension
-
-      const thumbnail = fs.existsSync(path.join(avatarsFolder, avatarName + '.png'))
-        ? fs.readFileSync(path.join(avatarsFolder, avatarName + '.png'))
-        : Buffer.from([])
+      const pngPath = path.join(avatarsFolder, avatarName + '.png')
+      const thumbnail = fs.existsSync(pngPath) ? fs.readFileSync(pngPath) : Buffer.from([])
 
       return {
         avatar: fs.readFileSync(path.join(avatarsFolder, dirent.name)),
@@ -69,7 +67,7 @@ export const uploadAvatarStaticResource = async (app: Application, data: AvatarU
 
   const thumbnailPromise = addGenericAssetToS3AndStaticResources(app, data.thumbnail, {
     userId: data.userId!,
-    key: `${key}.png`,
+    key: `${key}.${data.avatarFileType ?? 'glb'}.png`,
     staticResourceType: 'user-thumbnail',
     contentType: CommonKnownContentTypes.png,
     name

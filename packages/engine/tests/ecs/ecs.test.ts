@@ -125,6 +125,18 @@ describe('ECS', () => {
     assert.equal(enter[0], entity)
     assert.equal(exit.length, 1)
     assert.equal(exit[0], entity)
+
+    removeComponent(entity, MockComponent)
+    // @ts-expect-error - should have type error for wrong unknown property
+    addComponent(entity, MockComponent, { mockValueWrong: 44 })
+
+    removeComponent(entity, MockComponent)
+    // @ts-expect-error - should have type error for wrong missing required property
+    addComponent(entity, MockComponent, {})
+
+    removeComponent(entity, MockComponent)
+    // @ts-expect-error - should have type error for wrong value type
+    addComponent(entity, MockComponent, { mockValue: 'hi' })
   })
 
   it('should add component', async () => {

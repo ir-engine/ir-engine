@@ -132,6 +132,8 @@ export default async function AvatarSystem(world: World) {
         xrInputSourceComponent.controllerGripRightParent
       )
 
+      xrInputSourceComponent.container.name = 'XR Container'
+      xrInputSourceComponent.head.name = 'XR Head'
       Engine.scene.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
 
       // Add head IK Solver

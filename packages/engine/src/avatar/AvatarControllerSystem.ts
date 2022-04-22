@@ -51,6 +51,12 @@ export default async function AvatarControllerSystem(world: World) {
       }
     }
 
+    for (const entity of localXRInputQuery(world)) {
+      setAvatarHeadOpacity(entity, 0)
+      moveXRAvatar(world, entity, Engine.camera, lastCamPos, displacement)
+      rotateXRAvatar(world, entity, Engine.camera)
+    }
+
     for (const entity of controllerQuery(world)) {
       const displace = moveAvatar(world, entity, Engine.camera)
       displacement.set(displace.x, displace.y, displace.z)
@@ -77,12 +83,6 @@ export default async function AvatarControllerSystem(world: World) {
         // respawnAvatar(entity)
         continue
       }
-    }
-
-    for (const entity of localXRInputQuery(world)) {
-      setAvatarHeadOpacity(entity, 0)
-      moveXRAvatar(world, entity, Engine.camera, lastCamPos, displacement)
-      rotateXRAvatar(world, entity, Engine.camera)
     }
 
     return world
