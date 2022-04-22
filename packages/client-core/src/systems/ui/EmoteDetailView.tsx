@@ -7,10 +7,93 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createXRUI, XRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
-import { NavigateBefore, NavigateNext } from '@mui/icons-material'
 import Button from '@mui/material/Button'
 
-const styles = {}
+const styles = {
+  actionImg: { opacity: '0.8', display: 'block', width: '100%' },
+  container: {
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  itemContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '50%',
+    border: 'solid 100px rgba(51, 51, 110, 0.5)',
+    borderBottomColor: 'transparent',
+    opacity: '0.9',
+    position: 'relative',
+    width: '220px',
+    height: '220px',
+    borderWidth: '70px'
+  },
+  itemContainerPrev: {
+    width: '40px',
+    height: '70px',
+    position: 'absolute',
+    left: '2px',
+    top: '191px',
+    backgroundColor: 'rgb(51, 51, 110, 0.5)',
+    transform: 'rotate(-45deg)',
+    borderTopRightRadius: '50px',
+    borderBottomRightRadius: '50px',
+    opacity: '1'
+  },
+  iconBlockPrev: {
+    position: 'relative',
+    border: 'none',
+    padding: '0',
+    backgroundColor: 'transparent',
+    top: '18px',
+    right: '3px',
+    transform: 'rotate(50deg)'
+  },
+  arrowSvg: {
+    position: 'relative',
+    zIndex: '1',
+    fontSize: '30px',
+    userSelect: 'none',
+    width: '1em',
+    height: '1em',
+    display: 'inline-block',
+    fill: 'currentColor',
+    flexShrink: '0'
+  },
+  itemContainerNext: {
+    content: '',
+    width: '40px',
+    height: '70px',
+    position: 'absolute',
+    right: '2px',
+    top: '191px',
+    backgroundColor: 'rgb(51 51 110 / 50%)',
+    transform: 'rotate(225deg)',
+    borderTopRightRadius: '50px',
+    borderBottomRightRadius: '50px',
+    opacity: '1'
+  },
+  iconBlockNext: {
+    position: 'relative',
+    border: 'none',
+    padding: '0',
+    top: '18px',
+    right: '3px',
+    backgroundColor: 'transparent',
+    transform: 'rotate(130deg)'
+  },
+  menuItem: {
+    borderRadius: '50%',
+    position: 'absolute',
+    top: '-50%',
+    left: '-50%',
+    margin: '0',
+    padding: '0',
+    minWidth: '0',
+    backgroundColor: 'transparent',
+    border: 'none'
+  }
+}
 
 export function createEmoteDetailView() {
   return createXRUI(EmoteDetailView, createEmoteDetailState())
@@ -44,71 +127,67 @@ const EmoteDetailView = () => {
 
   let [items, setItems] = useState([
     {
-      body: (
-        <img src="/static/grinning.svg" style={{ opacity: '0.8', display: 'block', width: '100%' }} alt="Dance 4" />
-      ),
+      body: <img src="/static/grinning.svg" style={styles.actionImg as {}} alt="Dance 4" key="Dance4" />,
       containerProps: {
         onClick: () => runAnimation(AvatarStates.DANCE4)
       }
     },
     {
-      body: <img src="/static/sad.svg" style={{ opacity: '0.8', display: 'block', width: '100%' }} alt="sad" />,
+      body: <img src="/static/sad.svg" style={styles.actionImg as {}} alt="sad" key="sad" />,
       containerProps: {
         onClick: () => runAnimation(AvatarStates.CLAP)
       }
     },
     {
-      body: <img src="/static/Kiss.svg" style={{ opacity: '0.8', display: 'block', width: '100%' }} alt="Kiss" />,
+      body: <img src="/static/Kiss.svg" style={styles.actionImg as {}} alt="Kiss" key="Kiss" />,
       containerProps: {
         onClick: () => runAnimation(AvatarStates.KISS)
       }
     },
     {
-      body: <img src="/static/Cry.svg" style={{ opacity: '0.8', display: 'block', width: '100%' }} alt="Cry" />,
+      body: <img src="/static/Cry.svg" style={styles.actionImg as {}} alt="Cry" key="Cry" />,
       containerProps: {
         onClick: () => runAnimation(AvatarStates.CRY)
       }
     },
     {
-      body: (
-        <img src="/static/dance_new1.svg" style={{ opacity: '0.8', display: 'block', width: '100%' }} alt="Dance 1" />
-      ),
+      body: <img src="/static/dance_new1.svg" style={styles.actionImg as {}} alt="Dance 1" key="Dance1" />,
       containerProps: {
         onClick: () => runAnimation(AvatarStates.DANCE1)
       }
     },
     {
-      body: <img src="/static/clap1.svg" style={{ opacity: '0.8', display: 'block', width: '100%' }} alt="Dance 2" />,
+      body: <img src="/static/clap1.svg" style={styles.actionImg as {}} alt="Dance 2" key="Dance2" />,
       containerProps: {
         onClick: () => runAnimation(AvatarStates.DANCE2)
       }
     },
     {
-      body: <img src="/static/victory.svg" style={{ opacity: '0.8', display: 'block', width: '100%' }} alt="Dance 3" />,
+      body: <img src="/static/victory.svg" style={styles.actionImg as {}} alt="Dance 3" key="Dance3" />,
       containerProps: {
         onClick: () => runAnimation(AvatarStates.DANCE3)
       }
     },
     {
-      body: <img src="/static/Laugh.svg" style={{ opacity: '0.8', display: 'block', width: '100%' }} alt="Laugh" />,
+      body: <img src="/static/Laugh.svg" style={styles.actionImg as {}} alt="Laugh" key="Laugh" />,
       containerProps: {
         onClick: () => runAnimation(AvatarStates.LAUGH)
       }
     },
     {
-      body: <img src="/static/Defeat.svg" style={{ opacity: '0.8', display: 'block', width: '100%' }} alt="Defeat" />,
+      body: <img src="/static/Defeat.svg" style={styles.actionImg as {}} alt="Defeat" key="Defeat" />,
       containerProps: {
         onClick: () => runAnimation(AvatarStates.DEFEAT)
       }
     },
     {
-      body: <img src="/static/Wave.svg" style={{ opacity: '0.8', display: 'block', width: '100%' }} alt="Wave" />,
+      body: <img src="/static/Wave.svg" style={styles.actionImg as {}} alt="Wave" key="Wave" />,
       containerProps: {
         onClick: () => runAnimation(AvatarStates.WAVE)
       }
     },
     {
-      body: <img src="/static/restart.svg" style={{ opacity: '0.8', display: 'block', width: '100%' }} />,
+      body: <img src="/static/restart.svg" style={styles.actionImg as {}} key="restart" />,
       containerProps: {
         //onClick: () => runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.IDLE })
       }
@@ -160,20 +239,14 @@ const EmoteDetailView = () => {
         <div key={i}>
           <Button
             {...emoticon.containerProps}
-            style={{
-              width: menuItemWidth,
-              height: menuItemWidth,
-              transform: `translate(${x}px , ${y}px)`,
-              borderRadius: '50%',
-              position: 'absolute',
-              top: '-50%',
-              left: '-50%',
-              margin: '0',
-              padding: '0',
-              minWidth: '0',
-              backgroundColor: 'transparent',
-              border: 'none'
-            }}
+            style={
+              {
+                width: menuItemWidth,
+                height: menuItemWidth,
+                transform: `translate(${x}px , ${y}px)`,
+                ...styles.menuItem
+              } as {}
+            }
           >
             {emoticon.body}
           </Button>
@@ -181,17 +254,7 @@ const EmoteDetailView = () => {
       )
     }
 
-    return (
-      <div
-        style={{
-          width: menuItemRadius,
-          height: menuItemRadius,
-          position: 'relative'
-        }}
-      >
-        {itemList}
-      </div>
-    )
+    return itemList
   }
 
   const loadNextEmotes = (e) => {
@@ -206,69 +269,22 @@ const EmoteDetailView = () => {
   }
 
   return (
-    <section
-      style={{
-        position: 'fixed',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-
-          borderRadius: '50%',
-          border: 'solid 100px rgba(51, 51, 110, 0.5)',
-          borderBottomColor: 'transparent',
-          opacity: '0.9',
-
-          width: '361.4px !important',
-          height: '361.4px !important',
-          borderWidth: '70px !important'
-        }}
-      >
-        <div
-          style={{
-            width: '40px',
-            height: '70px',
-            position: 'absolute',
-            left: '2px',
-            top: '192.7px',
-            backgroundColor: 'rgb(51, 51, 110, 0.5)',
-            transform: 'rotate(-45deg)',
-            borderTopRightRadius: '50px',
-            borderBottomRightRadius: '50px',
-            opacity: '1'
-          }}
-        >
+    <section style={styles.container as {}}>
+      <div style={styles.itemContainer as {}}>
+        <div style={styles.itemContainerPrev as {}}>
           <button
             xr-layer=""
             type="button"
-            style={{
-              position: 'relative',
-              border: 'none',
-              padding: '0',
-              backgroundColor: 'transparent',
-              top: '18px',
-              right: '3px',
-              transform: 'rotate(50deg)',
-              ...(page === 0 ? { color: '#c3c3c3', cursor: 'initial' } : { color: '#ffffff' })
-            }}
+            style={
+              {
+                ...styles.iconBlockPrev,
+                ...(page === 0 ? { color: '#c3c3c3', cursor: 'initial' } : { color: '#ffffff' })
+              } as {}
+            }
             onClick={loadPreviousEmotes}
           >
             <svg
-              style={{
-                position: 'relative',
-                zIndex: '1',
-                fontSize: '30px',
-                userSelect: 'none',
-                width: '1em',
-                height: '1em',
-                display: 'inline-block',
-                fill: 'currentColor',
-                flexShrink: '0'
-              }}
+              style={styles.arrowSvg as {}}
               focusable="false"
               aria-hidden="true"
               viewBox="0 0 24 24"
@@ -279,57 +295,31 @@ const EmoteDetailView = () => {
           </button>
         </div>
 
-        {renderEmoteList()}
-
         <div
           style={{
-            content: '',
-            width: '40px',
-            height: '70px',
-            position: 'absolute',
-            right: '2px',
-            top: '192.7px',
-            backgroundColor: 'rgb(51 51 110 / 50%)',
-            transform: 'rotate(240deg)',
-            borderTopRightRadius: '50px',
-            borderBottomRightRadius: '50px',
-            opacity: '1'
+            width: menuItemRadius,
+            height: menuItemRadius,
+            position: 'relative'
           }}
         >
+          {renderEmoteList()}
+        </div>
+
+        <div style={styles.itemContainerNext as {}}>
           <button
             xr-layer=""
             type="button"
-            style={{
-              position: 'relative',
-              border: 'none',
-              padding: '0',
-              top: '18px',
-              right: '3px',
-              backgroundColor: 'transparent',
-              transform: 'rotate(120deg)',
-              ...((page + 1) * imgPerPage >= items.length
-                ? { color: '#c3c3c3', cursor: 'initial' }
-                : { color: '#ffffff' })
-            }}
+            style={
+              {
+                ...styles.iconBlockNext,
+                ...((page + 1) * imgPerPage >= items.length
+                  ? { color: '#c3c3c3', cursor: 'initial' }
+                  : { color: '#ffffff' })
+              } as {}
+            }
             onClick={loadNextEmotes}
           >
-            <svg
-              style={{
-                position: 'relative',
-                fontSize: '30px',
-                userSelect: 'none',
-                width: '1em',
-                height: '1em',
-                display: 'inline-block',
-                fill: 'currentColor',
-                flexShrink: '0',
-                transition: 'fill 200ms cubic-bezier(0.4,0,0.2,1) 0ms'
-              }}
-              focusable="false"
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              data-testid="NavigateNextIcon"
-            >
+            <svg style={styles.arrowSvg as {}} focusable="false" aria-hidden="true" viewBox="0 0 24 24">
               <path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path>
             </svg>
           </button>
