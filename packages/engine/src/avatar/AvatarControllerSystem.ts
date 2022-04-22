@@ -17,6 +17,7 @@ import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { setAvatarHeadOpacity } from './functions/avatarFunctions'
 import { moveAvatar, moveXRAvatar, rotateXRAvatar } from './functions/moveAvatar'
+import { respawnAvatar } from './functions/respawnAvatar'
 import { accessAvatarInputSettingsState, AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
 export class AvatarSettings {
@@ -80,7 +81,7 @@ export default async function AvatarControllerSystem(world: World) {
 
       // TODO: implement scene lower bounds parameter
       if (transform.position.y < -10) {
-        // respawnAvatar(entity)
+        respawnAvatar(entity)
         continue
       }
     }
