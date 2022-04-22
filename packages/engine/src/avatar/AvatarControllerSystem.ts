@@ -25,7 +25,7 @@ export class AvatarSettings {
   walkSpeed = 1.6762927669761485
   runSpeed = 3.769894125544925
   jumpHeight = 4
-  movementScheme = Engine.isHMD ? AvatarMovementScheme.Teleport : AvatarMovementScheme.Linear
+  movementScheme = AvatarMovementScheme.Linear
 }
 
 export default async function AvatarControllerSystem(world: World) {
@@ -49,6 +49,12 @@ export default async function AvatarControllerSystem(world: World) {
       if (avatar) {
         avatar.isGrounded = false
       }
+    }
+
+    for (const entity of localXRInputQuery(world)) {
+      setAvatarHeadOpacity(entity, 0)
+      moveXRAvatar(world, entity, Engine.camera, lastCamPos, displacement)
+      rotateXRAvatar(world, entity, Engine.camera)
     }
 
     for (const entity of controllerQuery(world)) {
@@ -77,12 +83,6 @@ export default async function AvatarControllerSystem(world: World) {
         // respawnAvatar(entity)
         continue
       }
-    }
-
-    for (const entity of localXRInputQuery(world)) {
-      setAvatarHeadOpacity(entity, 0)
-      moveXRAvatar(world, entity, Engine.camera, lastCamPos, displacement)
-      rotateXRAvatar(world, entity, Engine.camera)
     }
 
     return world

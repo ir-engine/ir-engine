@@ -122,6 +122,8 @@ describe('avatarInputSchema', () => {
         0,
         0
       ),
+      currentSpeed: 0,
+      speedVelocity: { value: 0 },
       collisions: [false, false, false],
       movementEnabled: true,
       isJumping: false,
