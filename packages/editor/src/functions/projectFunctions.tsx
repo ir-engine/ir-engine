@@ -55,7 +55,7 @@ export async function runPreprojectLoadTasks(): Promise<void> {
   if (editorState.preprojectLoadTaskStatus.value === TaskStatus.NOT_STARTED) {
     store.dispatch(EditorAction.updatePreprojectLoadTask(TaskStatus.IN_PROGRESS))
 
-    await Promise.all([ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.getDefaultAnimations()])
+    await Promise.all([ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.loadDefaultAnimations()])
 
     store.dispatch(EditorAction.updatePreprojectLoadTask(TaskStatus.COMPLETED))
   }

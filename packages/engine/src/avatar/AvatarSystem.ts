@@ -14,8 +14,6 @@ import {
   removeComponent
 } from '../ecs/functions/ComponentFunctions'
 import { useWorld } from '../ecs/functions/SystemHooks'
-import { CameraIKComponent } from '../ikrig/components/CameraIKComponent'
-import { AvatarControllerType } from '../input/enums/InputEnums'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
@@ -141,11 +139,6 @@ export default async function AvatarSystem(world: World) {
       // Add head IK Solver
       if (!isEntityLocalClient(entity)) {
         proxifyXRInputs(entity, xrInputSourceComponent)
-        addComponent(entity, CameraIKComponent, {
-          boneIndex: 5, // Head bone
-          camera: xrInputSourceComponent.head,
-          rotationClamp: 0.785398
-        })
       }
     }
 
@@ -153,7 +146,6 @@ export default async function AvatarSystem(world: World) {
       const xrInputComponent = getComponent(entity, XRInputSourceComponent, true)
       xrInputComponent.container.removeFromParent()
       xrInputComponent.head.removeFromParent()
-      removeComponent(entity, CameraIKComponent)
     }
 
     for (const entity of xrHandsInputQuery.enter(world)) {

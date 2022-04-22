@@ -6,6 +6,7 @@ import { QuaternionSchema, Vector3Schema } from '../../transform/components/Tran
 export type XRInputSourceComponentType = {
   // Flatten the controller hirearchy
   // to be able to send the data over network
+  // (do not use directly)
   controllerLeftParent: Group
   controllerRightParent: Group
   controllerGripLeftParent: Group
