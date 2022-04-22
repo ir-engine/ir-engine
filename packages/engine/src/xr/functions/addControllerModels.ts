@@ -11,7 +11,7 @@ import {
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
-import { accessAvatarInputState } from '../../avatar/state/AvatarInputState'
+import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -28,7 +28,7 @@ const createUICursor = () => {
 }
 
 const setupController = (inputSource, controller) => {
-  const avatarInputState = accessAvatarInputState()
+  const avatarInputState = accessAvatarInputSettingsState()
   if (inputSource) {
     const canUseController =
       inputSource.hand === null && avatarInputState.controlType.value === AvatarControllerType.OculusQuest
@@ -91,16 +91,25 @@ export const initializeXRInputs = (entity: Entity) => {
     controller.userData.initialized = true
 
     const handedness = controller === xrInputSourceComponent.controllerGripLeft ? 'left' : 'right'
-    const winding = handedness == 'left' ? 1 : -1
     initializeHandModel(controller, handedness, true)
     initializeXRControllerAnimations(controller)
-    controller.userData.mesh.rotation.x = Math.PI * 0.25
-    controller.userData.mesh.rotation.y = Math.PI * 0.5 * winding
-    controller.userData.mesh.rotation.z = Math.PI * 0.02 * -winding
   })
 }
 
 export const initializeHandModel = (controller: any, handedness: string, isGrip: boolean = false) => {
+  const avatarInputState = accessAvatarInputSettingsState()
+
+  // if is grip and not 'controller' type enabled
+  if (isGrip && avatarInputState.controlType.value !== AvatarControllerType.OculusQuest) return
+
+  // if is hands and 'none' type enabled (instead we use IK to move hands in avatar model)
+  if (!isGrip && avatarInputState.controlType.value === AvatarControllerType.None) return
+
+  /**
+   * TODO: both model types we have are hands, we also want to have an oculus quest controller model
+   *    (as well as other hardware models) and appropriately set based on the controller type selected
+   */
+
   const fileName = isGrip ? `${handedness}_controller.glb` : `${handedness}.glb`
   const gltf = AssetLoader.getFromCache(`/default_assets/controllers/hands/${fileName}`)
   let handMesh = gltf?.scene?.children[0]
@@ -122,6 +131,13 @@ export const initializeHandModel = (controller: any, handedness: string, isGrip:
 
   if (gltf?.animations?.length) {
     controller.userData.animations = gltf.animations
+  }
+
+  if (isGrip) {
+    const winding = handedness == 'left' ? 1 : -1
+    controller.userData.mesh.rotation.x = Math.PI * 0.25
+    controller.userData.mesh.rotation.y = Math.PI * 0.5 * winding
+    controller.userData.mesh.rotation.z = Math.PI * 0.02 * -winding
   }
 }
 
