@@ -116,6 +116,18 @@ const ClientTheme = () => {
 
     ClientSettingService.patchClientSetting(
       {
+        logo: clientSetting?.logo,
+        title: clientSetting?.title,
+        icon192px: clientSetting?.icon192px,
+        icon512px: clientSetting?.icon512px,
+        favicon16px: clientSetting?.favicon16px,
+        favicon32px: clientSetting?.favicon32px,
+        siteDescription: clientSetting?.siteDescription,
+        appTitle: clientSetting?.appTitle,
+        appSubtitle: clientSetting?.appSubtitle,
+        appDescription: clientSetting?.appDescription,
+        appBackground: clientSetting?.appBackground,
+        appSocialLinks: JSON.stringify(clientSetting?.appSocialLinks),
         themeSettings: JSON.stringify(themeSetting)
       },
       id
