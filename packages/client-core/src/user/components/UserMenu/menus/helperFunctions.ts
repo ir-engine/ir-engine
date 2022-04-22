@@ -33,7 +33,7 @@ let renderer: WebGLRenderer = null!
 let camera: PerspectiveCamera = null!
 export const validate = (obj) => {
   const objBoundingBox = new Box3().setFromObject(obj)
-  let maxBB = new Vector3(2, 2, 2)
+  let maxBB = new Vector3(2, 3, 2)
 
   let bone = false
   let skinnedMesh = false

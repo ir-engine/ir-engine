@@ -1,6 +1,27 @@
 {
     "version": "0.2.0",
     "configurations": [
+    {
+        "command": "npm run dev",
+        "name": "npm run dev",
+        "request": "launch",
+        "type": "node-terminal",
+        "port": 3000
+    },
+    {
+        "command": "npm run dev-reinit",
+        "name": "npm run dev-reinit",
+        "request": "launch",
+        "type": "node-terminal",
+        "port": 3000
+    },
+    {
+        "command": "npm run check-errors",
+        "name": "npm run check-errors",
+        "request": "launch",
+        "type": "node-terminal",
+        "port": 3000
+    },
         {
             "type": "node",
             "request": "launch",

@@ -2,7 +2,6 @@ import assert, { strictEqual } from 'assert'
 
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
-import '../../patchEngineNode'
 import { GamepadAxis, GamepadButtons, MouseInput, TouchInputs } from '../enums/InputEnums'
 import {
   handleKey,

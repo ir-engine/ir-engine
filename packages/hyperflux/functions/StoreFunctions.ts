@@ -3,16 +3,19 @@ import { State } from '@speigg/hookstate'
 import { Action, ActionReceptor } from './ActionFunctions'
 
 export const allowStateMutations = Symbol('allowMutations')
-export interface HyperStore {
+
+export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
+export interface HyperStore<StoreName extends string> {
   /**
-   * The name of this store, used for logging
+   * The name of this store, used for logging and type checking.
    */
-  name: string
+  name: StringLiteral<StoreName>
   /**
-   *  If this store is networked, actions are dispatched on the outgoing queue.
-   *  If this store is not networked, actions are dispatched on the incoming queue.
+   *  If the store mode is `local`, actions are dispatched on the incoming queue.
+   *  If the store mode is `host`, actions are dispatched on the incoming queue and then forwarded to the outgoing queue.
+   *  If the store mode is `peer`, actions are dispatched on the outgoing queue.
    */
-  networked: boolean
+  getDispatchMode: () => 'local' | 'host' | 'peer'
   /**
    * A function which returns the dispatch id assigned to actions
    * */
@@ -35,47 +38,53 @@ export interface HyperStore {
   state: { [name: string]: State<any> }
   actions: {
     /** Cached actions */
-    cached: Array<Required<Action>>
+    cached: Array<Required<Action<StoreName>>>
     /** Incoming actions */
-    incoming: Array<Required<Action>>
+    incoming: Array<Required<Action<StoreName>>>
     /** All incoming actions that have been proccessed */
-    incomingHistory: Array<Required<Action>>
+    incomingHistory: Array<Required<Action<StoreName>>>
+    /** All incoming action UUIDs that have been processed */
+    incomingHistoryUUIDs: Set<string>
     /** Outgoing actions */
-    outgoing: Array<Required<Action>>
+    outgoing: Array<Required<Action<StoreName>>>
     /** All actions that have been sent */
-    outgoingHistory: Array<Required<Action>>
+    outgoingHistory: Array<Required<Action<StoreName>>>
+    /** All incoming action UUIDs that have been processed */
+    outgoingHistoryUUIDs: Set<string>
   }
   /** functions that receive actions */
-  receptors: Array<ActionReceptor>
+  receptors: ReadonlyArray<ActionReceptor<StoreName>>
   /** functions that re-run on state changes, compatible w/ React hooks */
   reactors: WeakMap<() => void, any>
 }
 
-function createHyperStore(options: {
-  name: string
-  networked?: boolean
+function createHyperStore<StoreName extends string>(options: {
+  name: StringLiteral<StoreName>
+  getDispatchMode?: () => 'local' | 'host' | 'peer'
   getDispatchId: () => string
   getDispatchTime: () => number
   defaultDispatchDelay?: number
 }) {
   return {
     name: options.name,
-    networked: options.networked ?? false,
+    getDispatchMode: options.getDispatchMode ?? (() => 'local'),
     getDispatchId: options.getDispatchId,
     getDispatchTime: options.getDispatchTime,
     defaultDispatchDelay: options.defaultDispatchDelay ?? 0,
     [allowStateMutations]: false,
     state: {},
     actions: {
-      cached: new Array<Action>(),
-      incoming: new Array<Action>(),
-      incomingHistory: new Array<Action>(),
-      outgoing: new Array<Action>(),
-      outgoingHistory: new Array<Action>()
+      cached: [],
+      incoming: [],
+      incomingHistory: [],
+      incomingHistoryUUIDs: new Set(),
+      outgoing: [],
+      outgoingHistory: [],
+      outgoingHistoryUUIDs: new Set()
     },
-    receptors: new Array<() => {}>(),
-    reactors: new WeakMap<() => void, any>()
-  } as HyperStore
+    receptors: [],
+    reactors: new WeakMap()
+  } as HyperStore<StoreName>
 }
 
 // function destroyStore(store = getStore()) {

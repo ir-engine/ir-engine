@@ -1,6 +1,8 @@
 import { Group } from 'three'
 import matches from 'ts-matches'
 
+import { addActionReceptor } from '@xrengine/hyperflux'
+
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
@@ -13,6 +15,7 @@ import {
 } from '../ecs/functions/ComponentFunctions'
 import { useWorld } from '../ecs/functions/SystemHooks'
 import { CameraIKComponent } from '../ikrig/components/CameraIKComponent'
+import { AvatarControllerType } from '../input/enums/InputEnums'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
@@ -28,6 +31,7 @@ import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
 import { detectUserInCollisions } from './functions/detectUserInCollisions'
+import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 function avatarActionReceptor(action) {
   const world = useWorld()
@@ -97,7 +101,7 @@ function avatarActionReceptor(action) {
 
     .when(NetworkWorldAction.teleportObject.matches, (a) => {
       const [x, y, z, qX, qY, qZ, qW] = a.pose
-      const entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
+      const entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)!
       const controllerComponent = getComponent(entity, AvatarControllerComponent)
       if (controllerComponent) {
         const velocity = getComponent(entity, VelocityComponent)
@@ -110,7 +114,7 @@ function avatarActionReceptor(action) {
 }
 
 export default async function AvatarSystem(world: World) {
-  world.receptors.push(avatarActionReceptor)
+  addActionReceptor(world.store, avatarActionReceptor)
 
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent])
@@ -130,6 +134,8 @@ export default async function AvatarSystem(world: World) {
         xrInputSourceComponent.controllerGripRightParent
       )
 
+      xrInputSourceComponent.container.name = 'XR Container'
+      xrInputSourceComponent.head.name = 'XR Head'
       Engine.scene.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
 
       // Add head IK Solver

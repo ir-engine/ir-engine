@@ -7,11 +7,9 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
-import { MediaStreamService } from '../../media/services/MediaStreamService'
 import { accessLocationState } from '../../social/services/LocationService'
 import { store, useDispatch } from '../../store'
 import { leave } from '../../transports/SocketWebRTCClientFunctions'
@@ -139,12 +137,7 @@ export const LocationInstanceConnectionService = {
 
       const authState = accessAuthState()
       const user = authState.user.value
-      dispatchAction(Engine.store, EngineActions.connect(user.id) as any)
-
-      EngineEvents.instance.addEventListener(
-        MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
-        MediaStreamService.triggerUpdateConsumers
-      )
+      dispatchAction(Engine.store, EngineActions.connect(user.id))
     } catch (error) {
       console.error('Network transport could not initialize, transport is: ', transport)
     }

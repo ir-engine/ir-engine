@@ -14,7 +14,7 @@ const sendOutgoingActions = (world: World) => {
     console.error(e)
   }
 
-  clearOutgoingActions(world.store, world.isHosting)
+  clearOutgoingActions(world.store)
 
   return world
 }
@@ -22,7 +22,7 @@ const sendOutgoingActions = (world: World) => {
 export default async function OutgoingActionSystem(world: World) {
   let lastTickSync = 0
   return () => {
-    if (world.isHosting && world.fixedTick - lastTickSync > 60 * 20) {
+    if (world.isHosting && world.fixedTick - lastTickSync > 60 * 60 * 2) {
       dispatchAction(world.store, NetworkWorldAction.timeSync({}))
       lastTickSync = world.fixedTick
     }

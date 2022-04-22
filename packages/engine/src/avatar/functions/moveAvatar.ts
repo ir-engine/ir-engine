@@ -5,7 +5,7 @@ import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -13,6 +13,7 @@ import { XRInputSourceComponent } from '../../xr/components/XRInputSourceCompone
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { XRCameraUpdatePendingTagComponent } from '../components/XRCameraUpdatePendingTagComponent'
 import { getAvatarBoneWorldPosition } from './avatarFunctions'
 
 const upVector = new Vector3(0, 1, 0)
@@ -194,18 +195,18 @@ export const rotateXRAvatar = (world: World, entity: Entity, camera: Perspective
   tempVec1.subVectors(avatarTransform.position, camera.position).applyQuaternion(quat).add(camera.position)
   tempVec2.subVectors(tempVec1, avatarTransform.position).setY(0)
 
-  // const displacement = {
-  //   x: tempVec2.x,
-  //   y: 0,
-  //   z: tempVec2.z
-  // }
+  const displacement = {
+    x: tempVec2.x,
+    y: 0,
+    z: tempVec2.z
+  }
 
-  // const velocity = getComponent(entity, VelocityComponent)
-  // velocity.linear.setX(displacement.x)
-  // velocity.linear.setZ(displacement.z)
+  const velocity = getComponent(entity, VelocityComponent)
+  velocity.linear.setX(displacement.x)
+  velocity.linear.setZ(displacement.z)
 
-  // // Rotate around camera
-  // moveAvatarController(world, entity, displacement)
+  // Rotate around camera
+  moveAvatarController(world, entity, displacement)
 }
 
 /**
@@ -224,6 +225,7 @@ export const getAvatarCameraPosition = (entity: Entity, offset: Vector3, positio
 }
 
 /**
+ * NOTE: Use this function alongwith XRCameraUpdatePendingTagComponent always
  * Aligns the XR camra position with the avatar's neck
  * Note: There is a delay from when the camera parent's position is set and
  * the camera position is updated
@@ -239,6 +241,7 @@ export const alignXRCameraPositionWithAvatar = (entity: Entity, camera: Perspect
 }
 
 /**
+ * NOTE: Use this function alongwith XRCameraUpdatePendingTagComponent always
  * Aligns the XR camra rotation with the avatar's forward vector
  * @param entity
  * @param camera
@@ -292,33 +295,37 @@ export const moveXRAvatar = (
   lastCameraPos: Vector3,
   avatarVelocity: Vector3
 ): void => {
-  const camPos = camera.position
-  getAvatarCameraPosition(entity, avatarCameraOffset, tempVec1)
+  const cameraPosition = camera.position
+  const avatarPosition = tempVec1
+  getAvatarCameraPosition(entity, avatarCameraOffset, avatarPosition)
 
-  if (tempVec1.subVectors(tempVec1, camPos).lengthSq() > 0.1 || avatarVelocity.lengthSq() > 0) {
+  if (avatarPosition.subVectors(avatarPosition, cameraPosition).lengthSq() > 0.1 || avatarVelocity.lengthSq() > 0) {
     lastCameraPos.subVectors(Engine.camera.position, Engine.camera.parent!.position)
 
-    alignXRCameraPositionWithAvatar(entity, camera)
+    if (!hasComponent(entity, XRCameraUpdatePendingTagComponent)) {
+      alignXRCameraPositionWithAvatar(entity, Engine.camera)
+      addComponent(entity, XRCameraUpdatePendingTagComponent, {})
+    }
 
     // Calculate new camera world position
     lastCameraPos.add(Engine.camera.parent!.position)
     return
   }
 
-  tempVec1.subVectors(camPos, lastCameraPos)
-  lastCameraPos.copy(camPos)
+  avatarPosition.subVectors(cameraPosition, lastCameraPos)
+  lastCameraPos.copy(cameraPosition)
 
-  // const displacement = {
-  //   x: tempVec1.x,
-  //   y: 0,
-  //   z: tempVec1.z
-  // }
+  const displacement = {
+    x: avatarPosition.x,
+    y: 0,
+    z: avatarPosition.z
+  }
 
-  // const velocity = getComponent(entity, VelocityComponent)
-  // velocity.linear.setX(displacement.x)
-  // velocity.linear.setZ(displacement.z)
+  const velocity = getComponent(entity, VelocityComponent)
+  velocity.linear.setX(displacement.x)
+  velocity.linear.setZ(displacement.z)
 
-  // moveAvatarController(world, entity, displacement)
+  moveAvatarController(world, entity, displacement)
 }
 
 /**

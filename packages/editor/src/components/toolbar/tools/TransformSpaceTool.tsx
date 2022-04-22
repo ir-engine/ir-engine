@@ -5,7 +5,7 @@ import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformCo
 import LanguageIcon from '@mui/icons-material/Language'
 
 import { setTransformSpace, toggleTransformSpace } from '../../../functions/transformFunctions'
-import { useModeState } from '../../../services/ModeServices'
+import { useEditorHelperState } from '../../../services/EditorHelperState'
 import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -20,7 +20,7 @@ const transformSpaceOptions = [
 ]
 
 const TransformSpaceTool = () => {
-  const modeState = useModeState()
+  const editorHelperState = useEditorHelperState()
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-space">
@@ -30,11 +30,11 @@ const TransformSpaceTool = () => {
         </button>
       </InfoTooltip>
       <SelectInput
-        key={modeState.transformSpace.value}
+        key={editorHelperState.transformSpace.value}
         className={styles.selectInput}
         onChange={setTransformSpace}
         options={transformSpaceOptions}
-        value={modeState.transformSpace.value}
+        value={editorHelperState.transformSpace.value}
         creatable={false}
         isSearchable={false}
       />

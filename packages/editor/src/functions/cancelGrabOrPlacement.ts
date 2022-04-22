@@ -2,17 +2,17 @@ import { TransformMode } from '@xrengine/engine/src/scene/constants/transformCon
 
 import { EditorHistory, executeCommandWithHistoryOnSelection, revertHistory } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
-import { accessModeState } from '../services/ModeServices'
+import { accessEditorHelperState } from '../services/EditorHelperState'
 import { setTransformMode } from './transformFunctions'
 
 export const cancelGrabOrPlacement = () => {
-  const modeState = accessModeState()
+  const editorHelperState = accessEditorHelperState()
 
-  if (modeState.transformMode.value === TransformMode.Grab) {
-    setTransformMode(modeState.transformModeOnCancel.value)
+  if (editorHelperState.transformMode.value === TransformMode.Grab) {
+    setTransformMode(editorHelperState.transformModeOnCancel.value)
     if (EditorHistory.grabCheckPoint) revertHistory(EditorHistory.grabCheckPoint)
-  } else if (modeState.transformMode.value === TransformMode.Placement) {
-    setTransformMode(modeState.transformModeOnCancel.value)
+  } else if (editorHelperState.transformMode.value === TransformMode.Placement) {
+    setTransformMode(editorHelperState.transformModeOnCancel.value)
     executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS, {
       deselectObject: true
     })
