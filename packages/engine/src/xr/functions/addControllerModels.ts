@@ -91,16 +91,19 @@ export const initializeXRInputs = (entity: Entity) => {
     controller.userData.initialized = true
 
     const handedness = controller === xrInputSourceComponent.controllerGripLeft ? 'left' : 'right'
-    const winding = handedness == 'left' ? 1 : -1
     initializeHandModel(controller, handedness, true)
     initializeXRControllerAnimations(controller)
-    controller.userData.mesh.rotation.x = Math.PI * 0.25
-    controller.userData.mesh.rotation.y = Math.PI * 0.5 * winding
-    controller.userData.mesh.rotation.z = Math.PI * 0.02 * -winding
   })
 }
 
 export const initializeHandModel = (controller: any, handedness: string, isGrip: boolean = false) => {
+  const avatarInputState = accessAvatarInputSettingsState()
+
+  // if is not grip and not hands controller type enabled
+  if (!isGrip && avatarInputState.controlType.value !== AvatarControllerType.XRHands) return
+  // if is grip and not controller controller type enabled
+  if (isGrip && avatarInputState.controlType.value !== AvatarControllerType.OculusQuest) return
+
   const fileName = isGrip ? `${handedness}_controller.glb` : `${handedness}.glb`
   const gltf = AssetLoader.getFromCache(`/default_assets/controllers/hands/${fileName}`)
   let handMesh = gltf?.scene?.children[0]
@@ -122,6 +125,13 @@ export const initializeHandModel = (controller: any, handedness: string, isGrip:
 
   if (gltf?.animations?.length) {
     controller.userData.animations = gltf.animations
+  }
+
+  if (isGrip) {
+    const winding = handedness == 'left' ? 1 : -1
+    controller.userData.mesh.rotation.x = Math.PI * 0.25
+    controller.userData.mesh.rotation.y = Math.PI * 0.5 * winding
+    controller.userData.mesh.rotation.z = Math.PI * 0.02 * -winding
   }
 }
 

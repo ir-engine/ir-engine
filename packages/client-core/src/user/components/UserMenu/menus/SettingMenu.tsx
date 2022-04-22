@@ -265,12 +265,7 @@ const SettingMenu = (): JSX.Element => {
                   MenuProps={{ classes: { paper: styles.paper } }}
                 >
                   {controlSchemes.map((el) => (
-                    <MenuItem
-                      value={el}
-                      key={el}
-                      classes={{ root: styles.menuItem }}
-                      disabled={!Engine.isHMD && el == 'Teleport'}
-                    >
+                    <MenuItem value={el} key={el} classes={{ root: styles.menuItem }}>
                       {el}
                     </MenuItem>
                   ))}
