@@ -9,6 +9,7 @@ import hooks from './file-browser.hooks'
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'file-browser': FileBrowserService
+    'file-browser/upload': any
   }
 }
 

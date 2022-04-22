@@ -29,8 +29,7 @@ async function fileBrowserUpload(
   onProgress: (progress: number) => any
 ): Promise<{ url: string }> {
   const response = await uploadToFeathersService('file-browser/upload', file as any, params, onProgress)
-
-  return { url: response.result[0] }
+  return { url: response[0] }
 }
 
 export const uploadProjectFile = async (
