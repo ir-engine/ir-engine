@@ -12,7 +12,6 @@ import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { isClient } from './common/functions/isClient'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
-import { EngineEvents } from './ecs/classes/EngineEvents'
 import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
 import { createWorld } from './ecs/classes/World'
 import { reset } from './ecs/functions/EngineFunctions'
@@ -20,7 +19,7 @@ import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { removeClientInputListeners } from './input/functions/clientInputListeners'
 import { Network } from './networking/classes/Network'
-import { receiveActionOnce } from './networking/functions/matchActionOnce'
+import { matchActionOnce, receiveActionOnce } from './networking/functions/matchActionOnce'
 import { NetworkActionReceptor } from './networking/functions/NetworkActionReceptor'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { registerPrefabs } from './scene/functions/registerPrefabs'
@@ -61,14 +60,14 @@ export const initializeBrowser = () => {
   const joinedWorld = () => {
     Engine.hasJoinedWorld = true
   }
-  receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
+  matchActionOnce(Engine.store, EngineActions.joinedWorld.matches, joinedWorld)
 
   setupInitialClickListener()
 
   // maybe needs to be awaited?
   FontManager.instance.getDefaultFont()
 
-  receiveActionOnce(Engine.store, EngineEvents.EVENTS.CONNECT, (action: any) => {
+  matchActionOnce(Engine.store, EngineActions.connect.matches, (action: any) => {
     Engine.userId = action.id
   })
 }
@@ -90,10 +89,9 @@ const setupInitialClickListener = () => {
  */
 export const initializeNode = () => {
   const joinedWorld = () => {
-    dispatchAction(Engine.store, EngineActions.enableScene({ physics: true }))
     Engine.hasJoinedWorld = true
   }
-  receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
+  matchActionOnce(Engine.store, EngineActions.joinedWorld.matches, joinedWorld)
 }
 
 export const createEngine = () => {
@@ -108,7 +106,6 @@ export const createEngine = () => {
   addActionReceptor(Engine.store, EngineEventReceptor)
 
   globalThis.Engine = Engine
-  globalThis.EngineEvents = EngineEvents
   globalThis.Network = Network
 }
 
@@ -148,7 +145,7 @@ export const initializeMediaServerSystems = async () => {
   Engine.engineTimer.start()
 
   Engine.isInitialized = true
-  dispatchAction(Engine.store, EngineActions.initializeEngine(true) as any)
+  dispatchAction(Engine.store, EngineActions.initializeEngine({ initialised: true }))
 }
 
 export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = []) => {
@@ -217,7 +214,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
   Engine.engineTimer.start()
 
   Engine.isInitialized = true
-  dispatchAction(Engine.store, EngineActions.initializeEngine(true) as any)
+  dispatchAction(Engine.store, EngineActions.initializeEngine({ initialised: true }))
 }
 
 /**
@@ -261,10 +258,6 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./scene/systems/HyperspacePortalSystem')
-      },
-      {
-        type: SystemUpdateType.UPDATE,
-        systemModulePromise: import('./ikrig/systems/SkeletonRigSystem')
       },
       {
         type: SystemUpdateType.UPDATE,

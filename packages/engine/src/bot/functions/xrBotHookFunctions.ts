@@ -4,12 +4,12 @@ import { Quaternion, Vector3 } from 'three'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { EngineActions } from '../../ecs/classes/EngineService'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
+import { WebXREventDispatcher } from '../webxr-emulator/WebXREventDispatcher'
 
 export async function overrideXR() {
   // inject the webxr polyfill from the webxr emulator source - this is a script added by the bot
@@ -55,7 +55,7 @@ export async function overrideXR() {
   }
 
   // send our device info to the polyfill API so it knows our capabilities
-  EngineEvents.instance.dispatchEvent({
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-device-init',
     detail: { stereoEffect: false, deviceDefinition }
   })
@@ -71,14 +71,14 @@ export function xrInitialized() {
 
 export function startXR() {
   dispatchAction(Engine.store, EngineActions.xrStart() as any)
-  EngineEvents.instance.dispatchEvent({
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-pose',
     detail: {
       position: [0, 1.6, 0],
       quaternion: [0, 0, 0, 1]
     }
   })
-  EngineEvents.instance.dispatchEvent({
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-input-pose',
     detail: {
       objectName: 'rightController',
@@ -86,7 +86,7 @@ export function startXR() {
       quaternion: [0, 0, 0, 1]
     }
   })
-  EngineEvents.instance.dispatchEvent({
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-input-pose',
     detail: {
       objectName: 'leftController',
@@ -104,7 +104,7 @@ export function startXR() {
  * @returns {function}
  */
 export function pressControllerButton(args) {
-  EngineEvents.instance.dispatchEvent({ type: 'webxr-input-button', detail: args })
+  WebXREventDispatcher.instance.dispatchEvent({ type: 'webxr-input-button', detail: args })
   // )
 }
 
@@ -116,7 +116,7 @@ export function pressControllerButton(args) {
  * @returns {function}
  */
 export function moveControllerStick(args) {
-  EngineEvents.instance.dispatchEvent({ type: 'webxr-input-axes', detail: args })
+  WebXREventDispatcher.instance.dispatchEvent({ type: 'webxr-input-axes', detail: args })
   // )
 }
 
@@ -170,7 +170,7 @@ let tweensDirty = false
 export const sendXRInputData = () => {
   tweens.forEach((call) => call())
   if (!tweensDirty) return
-  EngineEvents.instance.dispatchEvent({
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-pose',
     detail: {
       position: headPosition.toArray(),
@@ -178,7 +178,7 @@ export const sendXRInputData = () => {
     }
   })
   // )
-  EngineEvents.instance.dispatchEvent({
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-input-pose',
     detail: {
       objectName: 'leftController',
@@ -187,7 +187,7 @@ export const sendXRInputData = () => {
     }
   })
   // )
-  EngineEvents.instance.dispatchEvent({
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-input-pose',
     detail: {
       objectName: 'rightController',
@@ -205,14 +205,14 @@ type SetXRInputPoseProps = {
 }
 
 export function setXRInputPosition(args: SetXRInputPoseProps) {
-  EngineEvents.instance.dispatchEvent({
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-pose',
     detail: {
       position: [args.head[0], args.head[1], args.head[2]],
       quaternion: [args.head[3], args.head[4], args.head[5], args.head[6]]
     }
   })
-  EngineEvents.instance.dispatchEvent({
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-input-pose',
     detail: {
       objectName: 'leftController',
@@ -220,7 +220,7 @@ export function setXRInputPosition(args: SetXRInputPoseProps) {
       quaternion: [args.left[3], args.left[4], args.left[5], args.left[6]]
     }
   })
-  EngineEvents.instance.dispatchEvent({
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-input-pose',
     detail: {
       objectName: 'rightController',

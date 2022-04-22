@@ -1,12 +1,11 @@
-import { ArrayCamera, sRGBEncoding } from 'three'
+import { ArrayCamera } from 'three'
 
-import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, matches } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { accessEngineState, EngineActions, EngineActionType } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -29,10 +28,10 @@ const startXRSession = async () => {
     Engine.xrSession = session
     Engine.xrManager.setSession(session)
     Engine.xrManager.setFoveation(1)
-    dispatchAction(Engine.store, EngineActions.xrSession() as any)
+    dispatchAction(Engine.store, EngineActions.xrSession())
 
     Engine.xrManager.addEventListener('sessionend', async () => {
-      dispatchAction(Engine.store, EngineActions.xrEnd() as any)
+      dispatchAction(Engine.store, EngineActions.xrEnd())
     })
 
     startWebXR()
@@ -51,7 +50,7 @@ export default async function XRSystem(world: World) {
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
 
   ;(navigator as any).xr?.isSessionSupported('immersive-vr').then((supported) => {
-    dispatchAction(Engine.store, EngineActions.xrSupported(supported) as any)
+    dispatchAction(Engine.store, EngineActions.xrSupported({ xrSupported: supported }))
   })
 
   // TEMPORARY - precache controller model
@@ -79,18 +78,17 @@ export default async function XRSystem(world: World) {
     }
   })
 
-  addActionReceptor(Engine.store, (action) => {
-    switch (action.type) {
-      case EngineEvents.EVENTS.XR_START:
+  addActionReceptor(Engine.store, (a: EngineActionType) => {
+    matches(a)
+      .when(EngineActions.xrStart.matches, (action) => {
         if (accessEngineState().joinedWorld.value && !Engine.xrSession) startXRSession()
-        break
-      case EngineEvents.EVENTS.XR_END:
+      })
+      .when(EngineActions.xrEnd.matches, (action) => {
         for (const entity of xrControllerQuery()) {
           cleanXRInputs(entity)
         }
         endXR()
-        break
-    }
+      })
   })
 
   return () => {

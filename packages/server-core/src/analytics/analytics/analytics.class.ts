@@ -30,7 +30,7 @@ export class Analytics<T = AnalyticsDataType> extends Service<T> {
       }
       const currentDate = new Date()
       for (let i = 0; i < limit; i++) {
-        const instanceAttendance = await (this.app.service('instance-attendance') as any).Model.count({
+        const instanceAttendance = await this.app.service('instance-attendance').Model.count({
           where: {
             createdAt: {
               [Op.gt]: new Date().setDate(currentDate.getDate() - (i + 1)),
@@ -54,7 +54,7 @@ export class Analytics<T = AnalyticsDataType> extends Service<T> {
       }
       const currentDate = new Date()
       for (let i = 0; i < limit; i++) {
-        const newUsers = await (this.app.service('user') as any).Model.count({
+        const newUsers = await this.app.service('user').Model.count({
           where: {
             createdAt: {
               [Op.gt]: new Date().setDate(currentDate.getDate() - (i + 1)),

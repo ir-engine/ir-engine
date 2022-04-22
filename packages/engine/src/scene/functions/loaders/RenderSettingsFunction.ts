@@ -12,11 +12,10 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineEvents } from '../../../ecs/classes/EngineEvents'
-import { accessEngineState } from '../../../ecs/classes/EngineService'
+import { accessEngineState, EngineActions } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
+import { matchActionOnce, receiveActionOnce } from '../../../networking/functions/matchActionOnce'
 import { DirectionalLightComponent } from '../../../scene/components/DirectionalLightComponent'
 import { Object3DComponent } from '../../../scene/components/Object3DComponent'
 import { VisibleComponent } from '../../../scene/components/VisibleComponent'
@@ -57,7 +56,7 @@ export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => 
   if (typeof component.overrideRendererSettings === 'undefined' || !component.overrideRendererSettings) {
     Engine.isCSMEnabled = true
     if (accessEngineState().sceneLoaded.value) initializeCSM()
-    else receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, initializeCSM)
+    else matchActionOnce(Engine.store, EngineActions.sceneLoaded.matches, initializeCSM)
     return
   }
 
@@ -76,7 +75,7 @@ export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => 
   if (Engine.renderer.shadowMap.enabled) {
     if (component.csm) {
       if (accessEngineState().sceneLoaded.value) initializeCSM()
-      else receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, initializeCSM)
+      else matchActionOnce(Engine.store, EngineActions.sceneLoaded.matches, initializeCSM)
     } else {
       disposeCSM()
     }
