@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { Bone, Matrix4, Quaternion, Vector3 } from 'three'
+import { Bone, Group, Matrix4, Quaternion, Vector3 } from 'three'
 
 import avatarBoneMatching from '../AvatarBoneMatching'
 import { makeDefaultSkinnedMesh, makeSkinnedMeshFromBoneData } from '../functions/avatarFunctions'
@@ -35,8 +35,12 @@ describe('retargetSkeleton', () => {
     const defaultSkeleton = makeDefaultSkinnedMesh().skeleton
     const targetMesh = makeSkinnedMeshFromBoneData(targetSkeletonData)
     const targetSkeleton = targetMesh.skeleton
+    const parent = new Group()
+    parent.add(targetMesh)
+    parent.add(targetSkeleton.bones[0])
+
     // renames the bones to be compatible with the default skeleton
-    const rig = avatarBoneMatching(targetMesh)
+    const rig = avatarBoneMatching(parent)
     retargetSkeleton(targetSkeleton, defaultSkeleton)
 
     // Check for same bone orientations of source and target skeleton
@@ -61,8 +65,12 @@ describe('retargetSkeleton', () => {
     const defaultSkeleton = makeDefaultSkinnedMesh().skeleton
     const targetMesh = makeSkinnedMeshFromBoneData(targetSkeletonData)
     const targetSkeleton = targetMesh.skeleton
+    const parent = new Group()
+    parent.add(targetMesh)
+    parent.add(targetSkeleton.bones[0])
+
     // renames the bones to be compatible with the default skeleton
-    const rig = avatarBoneMatching(targetMesh)
+    const rig = avatarBoneMatching(parent)
     retargetSkeleton(targetSkeleton, defaultSkeleton)
 
     const targetSkeletonUnmodified = makeSkinnedMeshFromBoneData(targetSkeletonData).skeleton
