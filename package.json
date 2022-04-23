@@ -97,6 +97,7 @@
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "3.2.0",
     "@types/mocha": "9.1.0",
+    "@types/pino": "^7.0.5",
     "cli": "1.0.1",
     "concurrently": "7.1.0",
     "depcheck": "1.4.3",
@@ -106,7 +107,6 @@
     "lint-staged": "12.3.7",
     "mocha": "9.2.2",
     "no-master-commits": "1.1.1",
-    "pino-pretty": "^7.6.1",
     "pre-commit": "1.2.2",
     "prettier": "2.6.0",
     "react-dnd": "16.0.0",
@@ -122,8 +122,9 @@
     "typescript": "4.6.2"
   },
   "dependencies": {
-    "@types/pino": "^7.0.5",
     "dotenv": "14.3.2",
+    "pino": "^7.10.0",
+    "pino-pretty": "^7.6.1",
     "react-json-view": "^1.21.3"
   }
 }
