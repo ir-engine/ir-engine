@@ -124,7 +124,7 @@ export default async function ClientInputSystem(world: World) {
   addClientInputListeners()
 
   return () => {
-    if (!EngineRenderer.instance.xrSession) {
+    if (!EngineRenderer.instance?.xrSession) {
       handleGamepads()
     }
 
