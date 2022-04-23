@@ -83,8 +83,8 @@ export class Location<T = LocationDataType> extends Service<T> {
                 (value: any) => {
                   logger.info(value)
                 },
-                (reasone: any) => {
-                  logger.error(reasone)
+                (reason: any) => {
+                  logger.error(reason)
                 }
               )
             },
@@ -372,7 +372,7 @@ export class Location<T = LocationDataType> extends Service<T> {
           }
         })
       } catch (err) {
-        logger.error('Could not remove location-admin')
+        logger.error(err, `Could not remove location-admin: ${err.message}`)
       }
     }
     return (await super.remove(id)) as T

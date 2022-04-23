@@ -22,7 +22,7 @@ export default () => {
         }
       })
       if (partyUserResult.total === 0) {
-        logger.warn('INVALID PARTY ID.')
+        logger.err(`Could not find results for partyId "${partyId}", userId: "${userId}".`)
         throw new BadRequest('Invalid party ID in party-user-permission')
       }
     }

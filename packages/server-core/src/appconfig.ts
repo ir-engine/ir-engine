@@ -2,11 +2,10 @@ import appRootPath from 'app-root-path'
 import * as chargebeeInst from 'chargebee'
 import dotenv from 'dotenv-flow'
 import path from 'path'
+import { register } from 'trace-unhandled'
 import url from 'url'
 
 import logger from './logger'
-
-const { register } = require('trace-unhandled')
 
 register()
 
@@ -15,31 +14,27 @@ const testEnabled = process.env.TEST === 'true'
 
 // ensure process fails properly
 process.on('exit', async (code) => {
-  logger.fatal('Server EXIT:', code)
+  logger.fatal(`Server EXIT(${code}).`)
 })
 
 process.on('SIGTERM', async (err) => {
-  logger.fatal('Server SIGTERM')
-  logger.fatal(err)
+  logger.fatal(err, 'Server SIGTERM.')
   process.exit(1)
 })
 process.on('SIGINT', () => {
-  logger.fatal('RECEIVED SIGINT')
+  logger.fatal('RECEIVED SIGINT.')
   process.exit(1)
 })
 
-//emitted when an uncaught JavaScript exception bubbles
+// emitted when an uncaught JavaScript exception bubbles
 process.on('uncaughtException', (err) => {
-  logger.fatal('UNCAUGHT EXCEPTION')
-  logger.fatal(err)
+  logger.fatal(err, 'UNCAUGHT EXCEPTION.')
   process.exit(1)
 })
 
 //emitted whenever a Promise is rejected and no error handler is attached to it
 process.on('unhandledRejection', (reason, p) => {
-  logger.fatal('UNHANDLED REJECTION')
-  logger.fatal(reason)
-  logger.fatal(p)
+  logger.fatal({ reason, promise: p }, 'UNHANDLED PROMISE REJECTION.')
   process.exit(1)
 })
 

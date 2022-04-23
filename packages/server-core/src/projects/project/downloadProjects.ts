@@ -35,7 +35,7 @@ export const download = async (projectName) => {
 
     logger.info(`[ProjectLoader]: Successfully downloaded and mounted project "${projectName}".`)
   } catch (e) {
-    logger.error(`[ProjectLoader]: Failed to download project with error ${e}`)
+    logger.error(e, `[ProjectLoader]: Failed to download project with error: ${e.message}`)
     return false
   }
 

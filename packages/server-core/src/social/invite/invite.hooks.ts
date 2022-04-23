@@ -51,8 +51,7 @@ export default {
           )
           return context
         } catch (err) {
-          logger.error('INVITE AFTER HOOK ERROR')
-          logger.error(err)
+          logger.error(err, `INVITE AFTER HOOK ERROR: ${err.message}`)
           return null!
         }
       }

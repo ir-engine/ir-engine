@@ -88,7 +88,7 @@ export class Login implements ServiceMethods<Data> {
         token: token
       }
     } catch (err) {
-      logger.error(err)
+      logger.error(err, `Error finding login token: ${err}`)
       throw err
     }
   }

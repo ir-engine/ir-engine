@@ -44,8 +44,8 @@ export async function sendEmail(app: Application, email: any): Promise<void> {
 
     try {
       await app.service('email').create(email)
-    } catch (error) {
-      logger.error('Error sending email:', error)
+    } catch (err) {
+      logger.error(err, `Error sending email: ${err.message}`)
     }
 
     logger.info('Email sent.')
@@ -59,10 +59,10 @@ export async function sendEmail(app: Application, email: any): Promise<void> {
  * @author Vyacheslav Solovjov
  */
 export const sendSms = async (app: Application, sms: any): Promise<void> => {
-  logger.info('sendSMS() to:', sms)
+  logger.info(`sendSMS() to "${sms}."`)
   await app
     .service('sms')
     .create(sms, null!)
     .then(() => logger.info('Sent SMS'))
-    .catch((err: any) => logger.error('Error sending SMS:', err))
+    .catch((err: any) => logger.error(err, `Error sending SMS: ${err.message}`))
 }

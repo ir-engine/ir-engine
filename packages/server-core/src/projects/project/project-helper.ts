@@ -13,7 +13,7 @@ export const retriggerBuilderService = async (app: Application) => {
     // invalidate cache for all installed projects
     await useStorageProvider().createInvalidation(['projects*'])
   } catch (e) {
-    logger.error('[Project Rebuild]: Failed to invalidate cache with error: ', e)
+    logger.error(e, `[Project Rebuild]: Failed to invalidate cache with error: ${e.message}`)
   }
 
   // trigger k8s to re-run the builder service
@@ -44,7 +44,7 @@ export const retriggerBuilderService = async (app: Application) => {
           }
         }
       )
-      logger.info('restartClientsResponse', restartClientsResponse)
+      logger.info(restartClientsResponse, 'restartClientsResponse')
       return restartClientsResponse
     } catch (e) {
       logger.error(e)
@@ -70,7 +70,9 @@ export const getProjectConfig = async (projectName: string): Promise<ProjectConf
     return (await import(`@xrengine/projects/projects/${projectName}/xrengine.config.ts`)).default
   } catch (e) {
     logger.error(
-      `[Projects]: WARNING project with name ${projectName} has no xrengine.config.ts file - this is not recommended`
+      e,
+      '[Projects]: WARNING project with ' +
+        `name ${projectName} has no xrengine.config.ts file - this is not recommended.`
     )
     return null!
   }

@@ -36,7 +36,7 @@ export function getGitData(dir): GitData {
   try {
     return format(ini.parse(data.toString())) as GitData
   } catch (e) {
-    logger.error(e)
+    logger.error(e, `Error getting git data: ${e.message}`)
   }
   return null!
 }

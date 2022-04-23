@@ -91,7 +91,7 @@ export const configureRedis = () => (app: Application) => {
       })
     )
     app.sync.ready.then(() => {
-      logger.info('Feathers-sync started')
+      logger.info('Feathers-sync started.')
     })
   }
   return app

@@ -55,8 +55,7 @@ export const refreshAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      logger.warn('[updateAppConfig]: Failed to read serverSetting')
-      logger.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
     })
   promises.push(serverSettingPromise)
   await Promise.all(promises)
@@ -100,8 +99,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      logger.warn('[updateAppConfig]: Failed to read analyticsSetting')
-      logger.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read analyticsSetting: ${e.message}`)
     })
   promises.push(analyticsSettingPromise)
 
@@ -195,8 +193,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      logger.warn('[updateAppConfig]: Failed to read authenticationSetting')
-      logger.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read authenticationSetting: ${e.message}`)
     })
   promises.push(authenticationSettingPromise)
 
@@ -255,8 +252,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      logger.warn('[updateAppConfig]: Failed to read awsSetting')
-      logger.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read awsSetting: ${e.message}`)
     })
   promises.push(promisePromise)
 
@@ -285,8 +281,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      logger.warn('[updateAppConfig]: Failed to read chargebeeSetting')
-      logger.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read chargebeeSetting: ${e.message}`)
     })
   promises.push(chargebeeSettingPromise)
 
@@ -350,8 +345,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      logger.warn('[updateAppConfig]: Failed to read clientSetting')
-      logger.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read clientSetting: ${message}`)
     })
   promises.push(clientSettingPromise)
 
@@ -398,8 +392,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      logger.warn('[updateAppConfig]: Failed to read emailSetting')
-      logger.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read emailSetting: ${e.message}`)
     })
   promises.push(emailSettingPromise)
 
@@ -472,8 +465,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      logger.warn('[updateAppConfig]: Failed to read gameServerSetting')
-      logger.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read gameServerSetting: ${e.message}`)
     })
   promises.push(gameServerSettingPromise)
 
@@ -512,8 +504,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      logger.warn('[updateAppConfig]: Failed to read redisSetting')
-      logger.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read redisSetting: ${e.message}`)
     })
   promises.push(redisSettingPromise)
 
@@ -624,8 +615,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      logger.warn('[updateAppConfig]: Failed to read serverSetting')
-      logger.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
     })
   promises.push(serverSettingPromise)
   await Promise.all(promises)

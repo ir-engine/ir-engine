@@ -2,15 +2,16 @@ import { Sequelize } from 'sequelize'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import config from '@xrengine/server-core/src/appconfig'
-import logger from './logger'
+
 import { Application } from '../declarations'
+import logger from './logger'
 import { seeder } from './seeder'
 
 export default (app: Application): void => {
   try {
     const { forceRefresh } = config.db
 
-    logger.info('Starting app')
+    logger.info('Starting app.')
 
     const sequelize = new Sequelize({
       ...(config.db as any),

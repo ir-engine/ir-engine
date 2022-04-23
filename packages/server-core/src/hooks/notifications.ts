@@ -14,8 +14,7 @@ export async function addFeedFire(context: HookContext): Promise<HookContext> {
     })
     return context
   } catch (err) {
-    logger.error('NOTIFICATION AFTER FEED FIRE ERROR')
-    logger.error(err)
+    logger.error(err, `NOTIFICATION AFTER FEED FIRE ERROR: ${err.message}`)
     return null!
   }
 }
@@ -29,8 +28,7 @@ export async function removeFeedFire(context: HookContext): Promise<HookContext>
     await context.app.service('notifications').remove(notification.id)
     return context
   } catch (err) {
-    logger.error('NOTIFICATION AFTER REMOVE FEED FIRE ERROR')
-    logger.error(err)
+    logger.error(err, `NOTIFICATION AFTER REMOVE FEED FIRE ERROR: ${err.message}`)
     return null!
   }
 }
@@ -47,8 +45,7 @@ export async function addFeedBookmark(context: HookContext): Promise<HookContext
     })
     return context
   } catch (err) {
-    logger.error('NOTIFICATION AFTER FEED FIRE ERROR')
-    logger.error(err)
+    logger.error(err, `NOTIFICATION AFTER FEED FIRE ERROR: ${err.message}`)
     return null!
   }
 }
@@ -62,8 +59,7 @@ export async function removeFeedBookmark(context: HookContext): Promise<HookCont
     await context.app.service('notifications').remove(notification.id)
     return context
   } catch (err) {
-    logger.error('NOTIFICATION AFTER REMOVE FEED FIRE ERROR')
-    logger.error(err)
+    logger.error(err, `NOTIFICATION AFTER REMOVE FEED FIRE ERROR: ${err.message}`)
     return null!
   }
 }
@@ -81,8 +77,7 @@ export async function addFeedComment(context: HookContext): Promise<HookContext>
     })
     return context
   } catch (err) {
-    logger.error('NOTIFICATION AFTER ADD COMMENT TO FEED ERROR')
-    logger.error(err)
+    logger.error(err, `NOTIFICATION AFTER ADD COMMENT TO FEED ERROR: ${err.message}`)
     return null!
   }
 }
@@ -101,8 +96,7 @@ export async function addFeedCommentFire(context: HookContext): Promise<HookCont
     })
     return context
   } catch (err) {
-    logger.error('NOTIFICATION AFTER ADD FIRE TO COMMENT TO FEED ERROR')
-    logger.error(err)
+    logger.error(err, `NOTIFICATION AFTER ADD FIRE TO COMMENT TO FEED ERROR: ${err.message}`)
     return null!
   }
 }
@@ -122,8 +116,7 @@ export async function removeFeedCommentFire(context: HookContext): Promise<HookC
     await context.app.service('notifications').remove(notification.id)
     return context
   } catch (err) {
-    logger.error('NOTIFICATION AFTER REMOVE FEED FIRE ERROR')
-    logger.error(err)
+    logger.error(err, `NOTIFICATION AFTER REMOVE FEED FIRE ERROR: ${err.message}`)
     return null!
   }
 }
@@ -138,8 +131,7 @@ export async function addFollowCreator(context: HookContext): Promise<HookContex
     })
     return context
   } catch (err) {
-    logger.error('NOTIFICATION AFTER FOLLOW CREATOR ERROR')
-    logger.error(err)
+    logger.error(err, `NOTIFICATION AFTER FOLLOW CREATOR ERROR: ${err.message}`)
     return null!
   }
 }
@@ -154,8 +146,7 @@ export async function addBlockCreator(context: HookContext): Promise<HookContext
     })
     return context
   } catch (err) {
-    logger.error('NOTIFICATION AFTER FOLLOW CREATOR ERROR')
-    logger.error(err)
+    logger.error(err, `NOTIFICATION AFTER FOLLOW CREATOR ERROR: ${err.message}`)
     return null!
   }
 }
@@ -170,8 +161,7 @@ export async function removeFollowCreator(context: HookContext): Promise<HookCon
     })
     return context
   } catch (err) {
-    logger.error('NOTIFICATION AFTER UNFOLLOW CREATOR ERROR')
-    logger.error(err)
+    logger.error(err, `NOTIFICATION AFTER UNFOLLOW CREATOR ERROR: ${err.message}`)
     return null!
   }
 }
