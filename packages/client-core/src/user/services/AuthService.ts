@@ -683,7 +683,7 @@ export const AuthService = {
     dispatch(AuthAction.avatarUpdated(result))
   },
   uploadAvatarModel: async (avatar: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) => {
-    await uploadToFeathersService([avatar, thumbnail], 'upload-asset', () => {}, {
+    await uploadToFeathersService('upload-asset', [avatar, thumbnail], {
       type: 'user-avatar-upload',
       args: {
         avatarName,

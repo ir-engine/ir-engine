@@ -92,7 +92,6 @@ export default function useUpload(options: Props = {}) {
             />
           )
         })
-        console.log(assets)
         setDialogComponent(null)
       } catch (error) {
         console.error(error)
