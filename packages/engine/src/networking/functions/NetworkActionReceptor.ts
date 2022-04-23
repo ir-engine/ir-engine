@@ -21,9 +21,6 @@ const removeAllNetworkClients = (world: World, removeSelf = false) => {
 }
 
 const addClient = (world: World, userId: UserId, name: string, index: number) => {
-  // host adds the client manually during connectToWorld
-  if (world.isHosting) return
-
   // set utility maps - override if moving through portal
   world.userIdToUserIndex.set(userId, index)
   world.userIndexToUserId.set(index, userId)
