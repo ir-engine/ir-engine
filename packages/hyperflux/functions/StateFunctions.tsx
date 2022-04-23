@@ -2,7 +2,7 @@ import { createState, SetInitialStateAction, State } from '@speigg/hookstate'
 import React from 'react'
 import Reconciler from 'react-reconciler'
 
-import { allowStateMutations, HyperStore, StringLiteral } from './StoreFunctions'
+import { HyperStore, StringLiteral } from './StoreFunctions'
 
 export * from '@speigg/hookstate'
 
@@ -25,25 +25,12 @@ function registerState<StoreName extends string, S>(
   store.state[StateDefinition.name] = createState(StateDefinition.initial)
 }
 
-function getMutableState<StoreName extends string, S>(
-  store: HyperStore<StoreName>,
-  StateDefinition: StateDefinition<StoreName, S>,
-  forceAllowMutations = false
-) {
-  if (!store[allowStateMutations] && !forceAllowMutations)
-    throw new Error(
-      'Mutable state can only be accessed inside a receptor function. Use forceAllowMutations to bypass this restriction.'
-    )
-  if (!store.state[StateDefinition.name]) throw new Error(`State ${StateDefinition.name} is not registered in Store`)
-  return store.state[StateDefinition.name] as State<S>
-}
-
 function getState<StoreName extends string, S>(
   store: HyperStore<StoreName>,
   StateDefinition: StateDefinition<StoreName, S>
 ) {
   if (!store.state[StateDefinition.name]) throw new Error(`State ${StateDefinition.name} is not registered in Store`)
-  return store.state[StateDefinition.name]!.value as Readonly<S>
+  return store.state[StateDefinition.name] as State<S>
 }
 
 const ReactorReconciler = Reconciler({
@@ -101,7 +88,6 @@ function removeStateReactor(store: HyperStore<any>, reactorComponent: () => void
 export default {
   defineState,
   registerState,
-  getMutableState,
   getState,
   addStateReactor,
   removeStateReactor

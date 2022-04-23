@@ -4,7 +4,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { deepEqual } from '@xrengine/engine/src/common/functions/deepEqual'
 
 import { matches, matchesActionFromUser, MatchesWithDefault, Validator } from '../utils/MatchesUtils'
-import { allowStateMutations, HyperStore } from './StoreFunctions'
+import { HyperStore } from './StoreFunctions'
 
 export type Action<StoreName extends string> = {
   /**
@@ -337,10 +337,8 @@ const _applyIncomingAction = (store: HyperStore<any>, action: Required<Action<an
   }
 
   try {
-    store[allowStateMutations] = true
     console.log(`${store.name} ACTION ${action.type}`, action)
     for (const receptor of [...store.receptors]) receptor(action)
-    store[allowStateMutations] = false
     store.actions.incomingHistory.push(action)
     if (store.getDispatchMode() === 'host') store.actions.outgoing.push(action)
   } catch (e) {
