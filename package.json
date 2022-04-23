@@ -109,10 +109,10 @@
     "prettier": "2.6.0",
     "react-dnd": "16.0.1",
     "react-router-dom": "5.3.1",
-    "rimraf": "^3.0.2",
-    "stylelint": "^14.6.1",
-    "stylelint-config-standard-scss": "^3.0.0",
-    "stylelint-scss": "^4.2.0",
+    "rimraf": "3.0.2",
+    "stylelint": "14.7.1",
+    "stylelint-config-standard-scss": "3.0.0",
+    "stylelint-scss": "4.2.0",
     "supertest": "6.2.2",
     "trace-unhandled": "2.0.1",
     "ts-node": "10.7.0",
@@ -121,6 +121,6 @@
   },
   "dependencies": {
     "dotenv": "14.3.2",
-    "react-json-view": "^1.21.3"
+    "react-json-view": "1.21.3"
   }
 }
