@@ -104,7 +104,6 @@
     "lint-staged": "12.3.7",
     "mocha": "9.2.2",
     "no-master-commits": "1.1.1",
-    "pino-pretty": "^7.6.1",
     "pre-commit": "1.2.2",
     "prettier": "2.6.0",
     "react-dnd": "16.0.0",
