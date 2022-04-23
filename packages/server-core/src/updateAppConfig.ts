@@ -345,7 +345,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read clientSetting: ${message}`)
+      logger.error(e, `[updateAppConfig]: Failed to read clientSetting: ${e.message}`)
     })
   promises.push(clientSettingPromise)
 
