@@ -2,11 +2,11 @@ import appRootPath from 'app-root-path'
 import * as chargebeeInst from 'chargebee'
 import dotenv from 'dotenv-flow'
 import path from 'path'
-import { register } from 'trace-unhandled'
 import url from 'url'
 
 import logger from './logger'
 
+const { register } = require('trace-unhandled')
 register()
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
