@@ -1,6 +1,6 @@
 export interface UserAvatar {
   avatar?: AvatarItem
-  'user-thumbnail'?: UserThumbnail
+  userThumbnail?: UserThumbnail
 }
 
 interface AvatarItem {
