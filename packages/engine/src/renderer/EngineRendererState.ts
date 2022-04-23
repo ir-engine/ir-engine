@@ -87,13 +87,13 @@ export const accessEngineRendererState = () => state
 
 function setQualityLevel(qualityLevel) {
   EngineRenderer.instance.scaleFactor = qualityLevel / EngineRenderer.instance.maxQualityLevel
-  Engine.renderer.setPixelRatio(window.devicePixelRatio * EngineRenderer.instance.scaleFactor)
+  EngineRenderer.instance.renderer.setPixelRatio(window.devicePixelRatio * EngineRenderer.instance.scaleFactor)
   EngineRenderer.instance.needsResize = true
 }
 
 function setUseShadows(useShadows) {
   if (state.useShadows.value === useShadows) return
-  Engine.renderer.shadowMap.enabled = useShadows
+  EngineRenderer.instance.renderer.shadowMap.enabled = useShadows
 }
 
 function setUsePostProcessing(usePostProcessing) {

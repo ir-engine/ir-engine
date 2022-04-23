@@ -58,11 +58,6 @@ export const initializeBrowser = () => {
 
   globalThis.botHooks = BotHookFunctions
 
-  const joinedWorld = () => {
-    Engine.hasJoinedWorld = true
-  }
-  matchActionOnce(Engine.store, EngineActions.joinedWorld.matches, joinedWorld)
-
   setupInitialClickListener()
 
   // maybe needs to be awaited?
@@ -86,17 +81,15 @@ const setupInitialClickListener = () => {
 /**
  * initializeNode
  *
- * initializes everything for the ndoe context
+ * initializes everything for the node context
  */
 export const initializeNode = () => {
-  const joinedWorld = () => {
-    Engine.hasJoinedWorld = true
-  }
-  matchActionOnce(Engine.store, EngineActions.joinedWorld.matches, joinedWorld)
+  // node currently does not need to initialize anything
 }
 
 export const createEngine = () => {
   const world = createWorld()
+  Engine.instance = new Engine()
   Engine.currentWorld = world
   Engine.scene = new Scene()
   Engine.scene.layers.set(ObjectLayers.Scene)
@@ -145,7 +138,6 @@ export const initializeMediaServerSystems = async () => {
   Engine.engineTimer = Timer(executeWorlds)
   Engine.engineTimer.start()
 
-  Engine.isInitialized = true
   dispatchAction(Engine.store, EngineActions.initializeEngine({ initialised: true }))
 }
 
@@ -214,7 +206,6 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
   Engine.engineTimer = Timer(executeWorlds)
   Engine.engineTimer.start()
 
-  Engine.isInitialized = true
   dispatchAction(Engine.store, EngineActions.initializeEngine({ initialised: true }))
 }
 

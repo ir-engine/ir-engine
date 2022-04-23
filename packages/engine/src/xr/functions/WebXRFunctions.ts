@@ -15,6 +15,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { AvatarControllerType } from '../../input/enums/InputEnums'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
 import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
@@ -35,7 +36,7 @@ const assignControllerAndGrip = (xrManager, controller, grip, i): void => {
  */
 
 export const mapXRControllers = (xrInput: XRInputSourceComponentType): void => {
-  const xrm = Engine.xrManager
+  const xrm = EngineRenderer.instance.xrManager
   const session = xrm.getSession()
 
   for (let i = 0; i < 2; i++) {
@@ -163,10 +164,10 @@ export const bindXRControllers = () => {
     mapXRControllers(xrInputSourceComponent)
     // Proxify only after input handedness is determined
     proxifyXRInputs(world.localClientEntity, xrInputSourceComponent)
-    Engine.xrSession.removeEventListener('inputsourceschange', inputSourceChanged)
+    EngineRenderer.instance.xrSession.removeEventListener('inputsourceschange', inputSourceChanged)
   }
 
-  Engine.xrSession.addEventListener('inputsourceschange', inputSourceChanged)
+  EngineRenderer.instance.xrSession.addEventListener('inputsourceschange', inputSourceChanged)
 }
 
 /**
@@ -179,7 +180,7 @@ export const bindXRControllers = () => {
 export const bindXRHandEvents = () => {
   const world = Engine.currentWorld
 
-  const hands = [Engine.xrManager.getHand(0), Engine.xrManager.getHand(1)]
+  const hands = [EngineRenderer.instance.xrManager.getHand(0), EngineRenderer.instance.xrManager.getHand(1)]
   let eventSent = false
 
   // TODO: we should unify the logic here and in AvatarSystem xrHandsConnected receptor
@@ -221,8 +222,8 @@ export const startWebXR = async (): Promise<void> => {
   setupXRInputSourceComponent(world.localClientEntity)
 
   // Default mapping
-  assignControllerAndGrip(Engine.xrManager, controllerLeft, controllerGripLeft, 0)
-  assignControllerAndGrip(Engine.xrManager, controllerRight, controllerGripRight, 1)
+  assignControllerAndGrip(EngineRenderer.instance.xrManager, controllerLeft, controllerGripLeft, 0)
+  assignControllerAndGrip(EngineRenderer.instance.xrManager, controllerRight, controllerGripRight, 1)
 
   dispatchAction(world.store, NetworkWorldAction.setXRMode({ enabled: true }))
 
@@ -236,9 +237,9 @@ export const startWebXR = async (): Promise<void> => {
  */
 
 export const endXR = (): void => {
-  // Engine.xrSession?.end()
-  Engine.xrSession = null!
-  Engine.xrManager.setSession(null!)
+  // EngineRenderer.instance.xrSession?.end()
+  EngineRenderer.instance.xrSession = null!
+  EngineRenderer.instance.xrManager.setSession(null!)
   Engine.scene.add(Engine.camera)
 
   const world = Engine.currentWorld

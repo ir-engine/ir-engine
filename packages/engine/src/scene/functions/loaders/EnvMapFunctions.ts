@@ -149,7 +149,7 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
 
             break
           case CubemapBakeTypes.Realtime:
-            // const map = new CubemapCapturer(Engine.renderer, Engine.scene, options.resolution)
+            // const map = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.scene, options.resolution)
             // const EnvMap = (await map.update(options.bakePosition)).cubeRenderTarget.texture
             // Engine.scene.environment = EnvMap
             break

@@ -14,7 +14,6 @@ import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
 export const teleportToScene = async () => {
   const world = useWorld()
   console.log('teleportToScene', world.activePortal)
-  Engine.hasJoinedWorld = false
 
   // trigger hyperspace effect by simply adding tag component to the world's entity
   addComponent(world.worldEntity, HyperspaceTagComponent, {})

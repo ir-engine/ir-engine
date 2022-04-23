@@ -7,6 +7,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineService'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { WebXREventDispatcher } from '../webxr-emulator/WebXREventDispatcher'
 
@@ -65,7 +66,7 @@ export async function xrSupported() {
 }
 
 export function xrInitialized() {
-  return Boolean(Engine.xrSession)
+  return Boolean(EngineRenderer.instance.xrSession)
 }
 
 export function startXR() {

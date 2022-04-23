@@ -18,6 +18,7 @@ import {
   getComponentCountOfType,
   hasComponent
 } from '../../../ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
 import { Sky } from '../../classes/Sky'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -126,7 +127,7 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
 
       setSkyDirection(component.sky.sunPosition)
       Engine.scene.background = getPmremGenerator().fromCubemap(
-        component.sky.generateSkyboxTextureCube(Engine.renderer)
+        component.sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)
       ).texture
 
       break
@@ -157,7 +158,7 @@ export const serializeSkybox: ComponentSerializeFunction = (entity) => {
 }
 
 const setSkyDirection = (direction: Vector3): void => {
-  Engine.csm?.lightDirection.copy(direction).multiplyScalar(-1)
+  EngineRenderer.instance.csm?.lightDirection.copy(direction).multiplyScalar(-1)
 }
 
 export const shouldDeserializeSkybox: ComponentShouldDeserializeFunction = () => {

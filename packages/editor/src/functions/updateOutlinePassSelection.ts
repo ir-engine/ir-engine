@@ -1,12 +1,12 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
 
 import { accessSelectionState } from '../services/SelectionServices'
 
 export const updateOutlinePassSelection = (): void => {
-  if (!Engine.effectComposer || !Engine.effectComposer[Effects.OutlineEffect]) return
+  if (!EngineRenderer.instance.effectComposer || !EngineRenderer.instance.effectComposer[Effects.OutlineEffect]) return
 
   const meshes = [] as any[]
   const parentEntities = accessSelectionState().selectedParentEntities.value
@@ -23,5 +23,5 @@ export const updateOutlinePassSelection = (): void => {
     })
   }
 
-  Engine.effectComposer[Effects.OutlineEffect].selection.set(meshes)
+  EngineRenderer.instance.effectComposer[Effects.OutlineEffect].selection.set(meshes)
 }

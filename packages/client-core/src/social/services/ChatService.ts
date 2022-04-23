@@ -378,15 +378,15 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
           const system = getChatMessageSystem(message.text)
           if (system !== 'none') {
             message.text = removeMessageSystem(message.text)
-            if (!Engine.isBot && !hasSubscribedToChatSystem(selfUser.id, system)) return
+            if (!hasSubscribedToChatSystem(selfUser.id, system)) return
           }
         }
       } else {
         const system = getChatMessageSystem(message.text)
         if (system !== 'none') {
           message.text = removeMessageSystem(message.text)
-          if (!Engine.isBot && !hasSubscribedToChatSystem(selfUser.id, system)) return
-        } else if (isCommand(message.text) && !Engine.isBot) return
+          if (!hasSubscribedToChatSystem(selfUser.id, system)) return
+        } else if (isCommand(message.text)) return
       }
     }
 

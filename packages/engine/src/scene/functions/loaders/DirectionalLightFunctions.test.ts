@@ -7,6 +7,7 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { createWorld } from '../../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { deserializeDirectionalLight } from './DirectionalLightFunctions'
 
@@ -14,14 +15,14 @@ describe('DirectionalLightFunctions', () => {
   describe('deserializeDirectionalLight', async () => {
     // reset globals
     afterEach(() => {
-      Engine.directionalLightEntities = []
+      EngineRenderer.instance.directionalLightEntities = []
     })
 
     it('with CSM', () => {
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.isCSMEnabled = true
-      Engine.directionalLightEntities = []
+      EngineRenderer.instance.isCSMEnabled = true
+      EngineRenderer.instance.directionalLightEntities = []
 
       const entity = createEntity()
 
@@ -43,7 +44,7 @@ describe('DirectionalLightFunctions', () => {
 
       deserializeDirectionalLight(entity, sceneComponent)
 
-      const activeCSMLightEntity = Engine.directionalLightEntities[0]
+      const activeCSMLightEntity = EngineRenderer.instance.directionalLightEntities[0]
       const light = getComponent(activeCSMLightEntity, Object3DComponent)?.value as DirectionalLight
 
       assert(light)
@@ -60,7 +61,7 @@ describe('DirectionalLightFunctions', () => {
     it('without CSM', () => {
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.isCSMEnabled = false
+      EngineRenderer.instance.isCSMEnabled = false
 
       const entity = createEntity()
 
