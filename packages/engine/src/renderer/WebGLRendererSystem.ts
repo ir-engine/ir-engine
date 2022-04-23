@@ -59,7 +59,7 @@ export interface EffectComposerWithSchema extends EffectComposer {
 let lastRenderTime = 0
 
 export class EngineRenderer {
-  static instance: EngineRenderer
+  static instance = new EngineRenderer()
 
   /** Is resize needed? */
   needsResize: boolean
@@ -101,9 +101,7 @@ export class EngineRenderer {
   directionalLightEntities: Entity[] = []
   activeCSMLightEntity: Entity | null = null
 
-  /** Constructs WebGL Renderer System. */
-  constructor() {
-    EngineRenderer.instance = this
+  initialize() {
     this.onResize = this.onResize.bind(this)
 
     this.supportWebGL2 = WebGL.isWebGL2Available()
@@ -249,7 +247,7 @@ export class EngineRenderer {
 }
 
 export default async function WebGLRendererSystem(world: World) {
-  new EngineRenderer()
+  EngineRenderer.instance.initialize()
 
   matchActionOnce(Engine.store, EngineActions.joinedWorld.matches, () => {
     restoreEngineRendererData()
