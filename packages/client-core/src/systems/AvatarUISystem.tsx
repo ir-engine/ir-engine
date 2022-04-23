@@ -70,7 +70,7 @@ export default async function AvatarUISystem(world: World) {
       AvatarUI.delete(userEntity)
     }
 
-    if (AvatarContextMenuUI.state.id.value) {
+    if (AvatarContextMenuUI.state.id.value !== '') {
       renderAvatarContextMenu(world, AvatarContextMenuUI.state.id.value, AvatarContextMenuUI.entity)
     }
   }

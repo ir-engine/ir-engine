@@ -20,7 +20,7 @@ export type JoinWorldProps = {
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
   if (!props) {
-    dispatchAction(Engine.store, EngineActions.connectToWorldTimeout(true))
+    dispatchAction(Engine.store, EngineActions.connectToWorldTimeout({ instance: true }))
     return
   }
   const { elapsedTime, clockTime, client, cachedActions, avatarDetail, avatarSpawnPose } = props

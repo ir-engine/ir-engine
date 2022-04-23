@@ -6,12 +6,12 @@ import { createAvatarController } from '../../avatar/functions/createAvatar'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { CameraMode } from '../../camera/types/CameraMode'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { EngineActions } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
-import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
+import { matchActionOnce, receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { PortalEffect } from '../classes/PortalEffect'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -58,10 +58,11 @@ export default async function HyperspacePortalSystem(world: World) {
       Engine.scene.add(hyperspaceEffect)
 
       // create receptor for joining the world to end the hyperspace effect
-      receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, () => {
+      matchActionOnce(Engine.store, EngineActions.joinedWorld.matches, () => {
         hyperspaceEffect.fadeOut(delta).then(() => {
           removeComponent(world.worldEntity, HyperspaceTagComponent)
         })
+        return true
       })
     }
 

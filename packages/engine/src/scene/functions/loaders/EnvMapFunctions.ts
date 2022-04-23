@@ -19,10 +19,10 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineEvents } from '../../../ecs/classes/EngineEvents'
+import { EngineActions } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
+import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { EnvmapComponent, EnvmapComponentType } from '../../components/EnvmapComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '../../constants/EnvMapEnum'
@@ -140,7 +140,7 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
       SceneOptions.instance.bpcemOptions.bakeScale = options.bakeScale!
       SceneOptions.instance.bpcemOptions.bakePositionOffset = options.bakePositionOffset!
 
-      receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, async () => {
+      matchActionOnce(Engine.store, EngineActions.sceneLoaded.matches, () => {
         switch (options.bakeType) {
           case CubemapBakeTypes.Baked:
             const texture = AssetLoader.Cache.get(options.envMapOrigin)

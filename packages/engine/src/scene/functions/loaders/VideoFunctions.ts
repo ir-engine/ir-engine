@@ -12,11 +12,10 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineEvents } from '../../../ecs/classes/EngineEvents'
-import { accessEngineState } from '../../../ecs/classes/EngineService'
+import { accessEngineState, EngineActions } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
+import { matchActionOnce, receiveActionOnce } from '../../../networking/functions/matchActionOnce'
 import { ImageProjection } from '../../classes/ImageUtils'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ImageComponent } from '../../components/ImageComponent'
@@ -135,8 +134,9 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
             if (accessEngineState().userHasInteracted.value) {
               obj3d.userData.videoEl.play()
             } else {
-              receiveActionOnce(Engine.store, EngineEvents.EVENTS.SET_USER_HAS_INTERACTED, () => {
+              matchActionOnce(Engine.store, EngineActions.setUserHasInteracted.matches, () => {
                 obj3d.userData.videoEl.play()
+                return true
               })
             }
           }

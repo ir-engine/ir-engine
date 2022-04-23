@@ -8,7 +8,7 @@ import {
   quat,
   mat4
 } from 'gl-matrix';
-import { EngineEvents } from '../../ecs/classes/EngineEvents';
+import { WebXREventDispatcher } from './WebXREventDispatcher';
 // import ARScene from './ARScene';
 
 const DEFAULT_MODES = ['inline'];
@@ -26,7 +26,7 @@ const DEFAULT_DEVICE_SIZE = {width: 0.05, height: 0.1, depth: 0.005};
 
 // @TODO: Duplicated with content-scripts.js. Move to somewhere common place?
 const dispatchCustomEvent = (type, detail) => {
-  EngineEvents.instance.dispatchEvent({ 
+  WebXREventDispatcher.instance.dispatchEvent({ 
     type, 
     detail: typeof cloneInto !== 'undefined' ? cloneInto(detail, window) : detail 
   });
@@ -781,7 +781,7 @@ export default class EmulatedXRDevice extends XRDevice {
   // Set up event listeners. Events are sent from panel via background.
 
   _setupEventListeners() {
-    EngineEvents.instance.addEventListener('webxr-device', event => {
+    WebXREventDispatcher.instance.addEventListener('webxr-device', event => {
       const config = event.detail.deviceDefinition;
 
       this.modes = config.modes || DEFAULT_MODES;
@@ -812,7 +812,7 @@ export default class EmulatedXRDevice extends XRDevice {
       });
     });
 
-    EngineEvents.instance.addEventListener('webxr-pose', event => {
+    WebXREventDispatcher.instance.addEventListener('webxr-pose', event => {
       const positionArray = event.detail.position;
       const quaternionArray = event.detail.quaternion;
       if (this.arDevice) {
@@ -826,7 +826,7 @@ export default class EmulatedXRDevice extends XRDevice {
       }
     }, false);
 
-    EngineEvents.instance.addEventListener('webxr-input-pose', event => {
+    WebXREventDispatcher.instance.addEventListener('webxr-input-pose', event => {
       const positionArray = event.detail.position;
       const quaternionArray = event.detail.quaternion;
       const objectName = event.detail.objectName;
@@ -858,7 +858,7 @@ export default class EmulatedXRDevice extends XRDevice {
       }
     });
 
-    EngineEvents.instance.addEventListener('webxr-input-button', event => {
+    WebXREventDispatcher.instance.addEventListener('webxr-input-button', event => {
       // Ignore button trigger in AR mode
       // @TODO: Disable button in devtool panel in AR mode
       if (this.arDevice) {
@@ -879,7 +879,7 @@ export default class EmulatedXRDevice extends XRDevice {
       }
     }, false);
 
-    EngineEvents.instance.addEventListener('webxr-input-axes', event => {
+    WebXREventDispatcher.instance.addEventListener('webxr-input-axes', event => {
       if (this.arDevice) {
         return;
       }
@@ -898,11 +898,11 @@ export default class EmulatedXRDevice extends XRDevice {
       }
     }, false);
 
-    EngineEvents.instance.addEventListener('webxr-stereo-effect', event => {
+    WebXREventDispatcher.instance.addEventListener('webxr-stereo-effect', event => {
       this._updateStereoEffect(event.detail.enabled);
     });
 
-    EngineEvents.instance.addEventListener('webxr-virtual-room-response', event => {
+    WebXREventDispatcher.instance.addEventListener('webxr-virtual-room-response', event => {
       const virtualRoomAssetBuffer = event.detail.buffer;
       this.arScene.loadVirtualRoomAsset(virtualRoomAssetBuffer);
     });

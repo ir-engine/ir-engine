@@ -71,19 +71,19 @@ export default (app: Application) => {
         targetIds = []
       } else if (data.channelType === 'group') {
         if (data.group == null) {
-          data.group = await (app.service('group') as any).Model.findOne({
+          data.group = await app.service('group').Model.findOne({
             where: {
               id: data.groupId
             }
           })
         }
-        const groupUsers = await (app.service('group-user') as any).Model.findAll({
+        const groupUsers = await app.service('group-user').Model.findAll({
           where: {
             groupId: data.groupId
           },
           include: [
             {
-              model: (app.service('user') as any).Model
+              model: app.service('user').Model
             }
           ]
         })
@@ -110,19 +110,19 @@ export default (app: Application) => {
         targetIds = groupUsers.map((groupUser) => groupUser.userId)
       } else if (data.channelType === 'party') {
         if (data.party == null) {
-          data.party = await (app.service('party') as any).Model.findOne({
+          data.party = await app.service('party').Model.findOne({
             where: {
               id: data.partyId
             }
           })
         }
-        const partyUsers = await (app.service('party-user') as any).Model.findAll({
+        const partyUsers = await app.service('party-user').Model.findAll({
           where: {
             partyId: data.partyId
           },
           include: [
             {
-              model: (app.service('user') as any).Model
+              model: app.service('user').Model
             }
           ]
         })
@@ -148,14 +148,14 @@ export default (app: Application) => {
         targetIds = partyUsers.map((partyUser) => partyUser.userId)
       } else if (data.channelType === 'instance') {
         if (data.instance == null) {
-          data.instance = await (app.service('instance') as any).Model.findOne({
+          data.instance = await app.service('instance').Model.findOne({
             where: {
               id: data.instanceId,
               ended: false
             }
           })
         }
-        const instanceUsers = await (app.service('user') as any).Model.findAll({
+        const instanceUsers = await app.service('user').Model.findAll({
           where: {
             instanceId: data.instanceId
           }
@@ -232,19 +232,19 @@ export default (app: Application) => {
         targetIds = [data.userId1, data.userId2]
       } else if (data.channelType === 'group') {
         if (data.group == null) {
-          data.group = await (app.service('group') as any).Model.findOne({
+          data.group = await app.service('group').Model.findOne({
             where: {
               id: data.groupId
             }
           })
         }
-        const groupUsers = await (app.service('group-user') as any).Model.findAll({
+        const groupUsers = await app.service('group-user').Model.findAll({
           where: {
             groupId: data.groupId
           },
           include: [
             {
-              model: (app.service('user') as any).Model
+              model: app.service('user').Model
             }
           ]
         })
@@ -271,19 +271,19 @@ export default (app: Application) => {
         targetIds = groupUsers.map((groupUser) => groupUser.userId)
       } else if (data.channelType === 'party') {
         if (data.party == null) {
-          data.party = await (app.service('party') as any).Model.findOne({
+          data.party = await app.service('party').Model.findOne({
             where: {
               id: data.partyId
             }
           })
         }
-        const partyUsers = await (app.service('party-user') as any).Model.findAll({
+        const partyUsers = await app.service('party-user').Model.findAll({
           where: {
             partyId: data.partyId
           },
           include: [
             {
-              model: (app.service('user') as any).Model
+              model: app.service('user').Model
             }
           ]
         })
@@ -309,14 +309,14 @@ export default (app: Application) => {
         targetIds = partyUsers.map((partyUser) => partyUser.userId)
       } else if (data.channelType === 'instance') {
         if (data.instance == null) {
-          data.instance = await (app.service('instance') as any).Model.findOne({
+          data.instance = await app.service('instance').Model.findOne({
             where: {
               id: data.instanceId,
               ended: false
             }
           })
         }
-        const instanceUsers = await (app.service('user') as any).Model.findAll({
+        const instanceUsers = await app.service('user').Model.findAll({
           where: {
             instanceId: data.instanceId
           }
@@ -368,21 +368,21 @@ export default (app: Application) => {
     if (data.channelType === 'user') {
       targetIds = [data.userId1, data.userId2]
     } else if (data.channelType === 'group') {
-      const groupUsers = await (app.service('group-user') as any).Model.findAll({
+      const groupUsers = await app.service('group-user').Model.findAll({
         where: {
           groupId: data.groupId
         }
       })
       targetIds = groupUsers.map((groupUser) => groupUser.userId)
     } else if (data.channelType === 'party') {
-      const partyUsers = await (app.service('party-user') as any).Model.findAll({
+      const partyUsers = await app.service('party-user').Model.findAll({
         where: {
           partyId: data.partyId
         }
       })
       targetIds = partyUsers.map((partyUser) => partyUser.userId)
     } else if (data.channelType === 'instance') {
-      const instanceUsers = await (app.service('user') as any).Model.findAll({
+      const instanceUsers = await app.service('user').Model.findAll({
         where: {
           instanceId: data.instanceId
         }

@@ -187,7 +187,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         }
       }
     })
-    const instanceModel = (this.app.service('instance') as any).Model
+    const instanceModel = this.app.service('instance').Model
     const instanceUserSort = _.orderBy(availableLocationInstances, ['currentUsers'], ['desc'])
     const nonPressuredInstances = instanceUserSort.filter((instance: typeof instanceModel) => {
       return instance.currentUsers < pressureThresholdPercent * instance.location.maxUsersPerInstance
@@ -308,7 +308,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
             throw new BadRequest('Invalid user credentials')
           }
         }
-        const channelInstance = await (this.app.service('instance') as any).Model.findOne({
+        const channelInstance = await this.app.service('instance').Model.findOne({
           where: {
             channelId: channelId,
             ended: false
@@ -418,17 +418,17 @@ export class InstanceProvision implements ServiceMethods<Data> {
         //     }
         //   }
         // }
-        const friendsAtLocationResult = await (this.app.service('user') as any).Model.findAndCountAll({
+        const friendsAtLocationResult = await this.app.service('user').Model.findAndCountAll({
           include: [
             {
-              model: (this.app.service('user-relationship') as any).Model,
+              model: this.app.service('user-relationship').Model,
               where: {
                 relatedUserId: userId,
                 userRelationshipType: 'friend'
               }
             },
             {
-              model: (this.app.service('instance') as any).Model,
+              model: this.app.service('instance').Model,
               where: {
                 locationId: locationId,
                 ended: false
@@ -473,14 +473,14 @@ export class InstanceProvision implements ServiceMethods<Data> {
             port: ipAddressSplit[1]
           }
         }
-        const availableLocationInstances = await (this.app.service('instance') as any).Model.findAll({
+        const availableLocationInstances = await this.app.service('instance').Model.findAll({
           where: {
             locationId: location.id,
             ended: false
           },
           include: [
             {
-              model: (this.app.service('location') as any).Model,
+              model: this.app.service('location').Model,
               where: {
                 maxUsersPerInstance: {
                   [Op.gt]: Sequelize.col('instance.currentUsers')
@@ -488,7 +488,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
               }
             },
             {
-              model: (this.app.service('instance-authorized-user') as any).Model,
+              model: this.app.service('instance-authorized-user').Model,
               required: false
             }
           ]

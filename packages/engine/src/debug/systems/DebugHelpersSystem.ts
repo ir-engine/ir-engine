@@ -9,7 +9,6 @@ import {
   MeshBasicMaterial,
   Object3D,
   Quaternion,
-  SkeletonHelper,
   Vector3
 } from 'three'
 
@@ -20,7 +19,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { IKObj } from '../../ikrig/components/IKObj'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createGraphHelper } from '../../navigation/GraphHelper'
@@ -59,7 +57,6 @@ export default async function DebugHelpersSystem(world: World) {
 
   const obstacleQuery = defineQuery([ObstaclesComponent])
   const avatarDebugQuery = defineQuery([AvatarComponent])
-  const ikDebugQuery = defineQuery([IKObj])
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
   const colliderQuery = defineQuery([ColliderComponent])
   const arrowHelperQuery = defineQuery([DebugArrowComponent])
@@ -106,18 +103,6 @@ export default async function DebugHelpersSystem(world: World) {
   return () => {
     // ===== AVATAR ===== //
 
-    for (const entity of ikDebugQuery.enter()) {
-      const ikobj = getComponent(entity, IKObj)
-      const helper = new SkeletonHelper(ikobj.ref)
-      ;(ikobj.ref as any).helper = helper
-      ikobj.ref.add(helper)
-      console.log(helper)
-    }
-    for (const entity of ikDebugQuery.exit()) {
-      const ikobj = getComponent(entity, IKObj, true)
-      const helper = (ikobj.ref as any).helper
-      ikobj.ref.remove(helper)
-    }
     for (const entity of avatarDebugQuery.enter()) {
       // velocity
       const velocityColor = 0x0000ff
