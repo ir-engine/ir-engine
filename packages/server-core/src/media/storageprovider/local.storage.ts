@@ -168,9 +168,6 @@ export class LocalStorage implements StorageProviderInterface {
       res.url = this.getSignedUrl(res.key, 3600, null).url
       res.size = this.formatBytes(totalSize)
     } else {
-      // const regex = /(?:.*)\/(?<name>.*)\.(?<extension>.*)/g
-      // const query = regex.exec(res.key)
-
       res.type = path.extname(res.key).substring(1) // remove '.' from extension
       res.name = path.basename(res.key, '.' + res.type)
       res.size = this.formatBytes(fs.lstatSync(pathString).size)
