@@ -10,6 +10,7 @@ import {
   hasComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { beforeMaterialCompile } from '@xrengine/engine/src/scene/classes/BPCEMShader'
 import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
 import { convertCubemapToEquiImageData } from '@xrengine/engine/src/scene/classes/ImageUtils'
@@ -84,7 +85,11 @@ export const uploadBakeToServer = async (entity: Entity) => {
     )
   })
 
-  const cubemapCapturer = new CubemapCapturer(Engine.renderer, Engine.scene, bakeComponent.options.resolution)
+  const cubemapCapturer = new CubemapCapturer(
+    EngineRenderer.instance.renderer,
+    Engine.scene,
+    bakeComponent.options.resolution
+  )
   const renderTarget = cubemapCapturer.update(position)
 
   // remove injected bpcem logic from material
@@ -99,7 +104,7 @@ export const uploadBakeToServer = async (entity: Entity) => {
   if (isSceneEntity) Engine.scene.environment = renderTarget.texture
 
   const { blob } = await convertCubemapToEquiImageData(
-    Engine.renderer,
+    EngineRenderer.instance.renderer,
     renderTarget,
     bakeComponent.options.resolution,
     bakeComponent.options.resolution,

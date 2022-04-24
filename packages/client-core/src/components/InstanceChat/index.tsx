@@ -212,12 +212,12 @@ const InstanceChat = (props: Props): any => {
                     activeChannel.messages?.length
                   )
                   .map((message) => {
-                    if (!Engine.isBot && isCommand(message.text)) return undefined
+                    if (isCommand(message.text)) return undefined
                     const system = getChatMessageSystem(message.text)
                     let chatMessage = message.text
 
                     if (system !== 'none') {
-                      if (Engine.isBot || system === 'jl_system') {
+                      if (system === 'jl_system') {
                         chatMessage = removeMessageSystem(message.text)
                       } else {
                         return undefined

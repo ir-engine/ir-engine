@@ -42,7 +42,6 @@ describe('createAvatar', () => {
 
   it('check the create avatar function', () => {
     Engine.userId = world.hostId
-    Engine.hasJoinedWorld = true
 
     // mock entity to apply incoming unreliable updates to
     const entity = createEntity()

@@ -17,6 +17,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { AvatarControllerType } from '../../input/enums/InputEnums'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { XRHandMeshModel } from '../classes/XRHandMeshModel'
 import { initializeXRControllerAnimations } from './controllerAnimation'
@@ -74,7 +75,7 @@ export const initializeXRInputs = (entity: Entity) => {
         }
       })
 
-      const session = Engine.xrManager.getSession()
+      const session = EngineRenderer.instance.xrManager.getSession()
 
       if (session) {
         const inputSource = session.inputSources[i]

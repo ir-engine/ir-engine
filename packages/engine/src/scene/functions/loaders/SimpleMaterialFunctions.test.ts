@@ -17,6 +17,7 @@ import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import { SceneOptions } from '../../systems/SceneObjectSystem'
@@ -134,7 +135,7 @@ describe('SimpleMaterialFunctions', () => {
       const mat = new MeshStandardMaterial()
       const obj3d = new Mesh(new BoxGeometry(), new MeshPhongMaterial())
       obj3d.receiveShadow = true
-      Engine.csm = { setupMaterial() {} } as any
+      EngineRenderer.instance.csm = { setupMaterial() {} } as any
       obj3d.userData.prevMaterial = mat
 
       useStandardMaterial(obj3d)

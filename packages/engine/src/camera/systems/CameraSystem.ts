@@ -14,6 +14,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -289,9 +290,9 @@ export default async function CameraSystem(world: World) {
         updateCameraTargetRotation(entity, delta)
       }
 
-      if (Engine.xrManager?.isPresenting) {
+      if (EngineRenderer.instance.xrManager?.isPresenting) {
         // Current WebXRManager.updateCamera() typedef is incorrect
-        ;(Engine.xrManager as any).updateCamera(Engine.camera)
+        ;(EngineRenderer.instance.xrManager as any).updateCamera(Engine.camera)
 
         removeComponent(Engine.currentWorld.localClientEntity, XRCameraUpdatePendingTagComponent)
       } else if (followCameraEntity !== undefined) {
