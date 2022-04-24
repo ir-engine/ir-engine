@@ -61,7 +61,7 @@ api:
         access_key_id: <SNS_USER_ACCESS_KEY>
         application_id: <AWS_SMS_APPLICATION_ID>
         region: <SNS_REGION>
-        secret_access_key: <SNS_USER_SECRET_KEY
+        secret_access_key: <SNS_USER_SECRET_KEY>
         sender_id: <AWS_SMS_SENDER_ID>
     host: https://local.theoverlay.io/
   extraEnv:
@@ -85,7 +85,7 @@ api:
     GITHUB_CLIENT_SECRET: "<GITHUB_CLIENT_SECRET>"
     GOOGLE_CALLBACK_URL: https://local.theoverlay.io/auth/oauth/google
     GOOGLE_CLIENT_ID: "<GOOGLE_CLIENT_ID>"
-    GOOGLE_CLIENT_SECRET: "<GOOGLE_CLIENT_SECRET"
+    GOOGLE_CLIENT_SECRET: "<GOOGLE_CLIENT_SECRET>"
     LOCAL: "true"
     MAGICLINK_EMAIL_SUBJECT: Login to XR3ngine
     MAIL_FROM: info@login.theoverlay.io
@@ -163,7 +163,7 @@ media:
         access_key_id: <SNS_USER_ACCESS_KEY>
         application_id: <AWS_SMS_APPLICATION_ID>
         region: <SNS_REGION>
-        secret_access_key: <SNS_USER_SECRET_KEY
+        secret_access_key: <SNS_USER_SECRET_KEY>
         sender_id: <AWS_SMS_SENDER_ID>
     host: https://local.theoverlay.io/
   extraEnv:
@@ -188,7 +188,7 @@ media:
     GITHUB_CLIENT_SECRET: "<GITHUB_CLIENT_SECRET>"
     GOOGLE_CALLBACK_URL: https://local.theoverlay.io/auth/oauth/google
     GOOGLE_CLIENT_ID: "<GOOGLE_CLIENT_ID>"
-    GOOGLE_CLIENT_SECRET: "<GOOGLE_CLIENT_SECRET"
+    GOOGLE_CLIENT_SECRET: "<GOOGLE_CLIENT_SECRET>"
     LOCAL: "true"
     MAGICLINK_EMAIL_SUBJECT: Login to XR3ngine
     MAIL_FROM: info@login.theoverlay.io
