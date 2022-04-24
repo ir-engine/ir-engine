@@ -7,6 +7,7 @@ import { AssetLoader, disposeDracoLoaderWorkers } from '../../assets/classes/Ass
 import { isClient } from '../../common/functions/isClient'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import disposeScene from '../../renderer/functions/disposeScene'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { Engine } from '../classes/Engine'
 import { EngineActions } from '../classes/EngineService'
@@ -26,10 +27,6 @@ import {
 export function reset() {
   console.log('RESETTING ENGINE')
   dispatchAction(Engine.store, EngineActions.sceneUnloaded())
-
-  // Stop all running workers
-  Engine.workers.forEach((w) => w.terminate())
-  Engine.workers.length = 0
 
   disposeDracoLoaderWorkers()
 
@@ -66,21 +63,20 @@ export function reset() {
 
   Engine.camera = null!
 
-  if (Engine.renderer) {
-    Engine.renderer.clear(true, true, true)
-    Engine.renderer.dispose()
-    Engine.renderer = null!
+  if (EngineRenderer.instance.renderer) {
+    EngineRenderer.instance.renderer.clear(true, true, true)
+    EngineRenderer.instance.renderer.dispose()
+    EngineRenderer.instance.renderer = null!
   }
 
   AssetLoader.Cache.clear()
 
-  Engine.isInitialized = false
+  dispatchAction(Engine.store, EngineActions.initializeEngine({ initialised: false }))
   Engine.inputState.clear()
   Engine.prevInputState.clear()
 }
 
 export const unloadScene = async (world: World, removePersisted = false) => {
-  await Promise.all(Engine.sceneLoadPromises)
   unloadAllEntities(world, removePersisted)
 
   dispatchAction(Engine.store, EngineActions.sceneUnloaded())

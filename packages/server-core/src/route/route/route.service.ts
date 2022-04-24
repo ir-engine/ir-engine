@@ -6,6 +6,7 @@ import { ActiveRoutesInterface, InstalledRoutesInterface } from '@xrengine/commo
 import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
+import logger from '../../logger'
 import { Route } from './route.class'
 import routeDocs from './route.docs'
 import hooks from './route.hooks'
@@ -50,7 +51,7 @@ export const getInstalledRoutes = (): any => {
             })
           }
         } catch (e) {
-          console.warn('[getProjects]: Failed to read config for project', project, 'with error', e)
+          logger.error(e, `[getProjects]: Failed to read config for project "${project}" with error: ${e.message}`)
           return
         }
       })
@@ -61,7 +62,7 @@ export const getInstalledRoutes = (): any => {
 
 export const activateRoute = (routeService: Route): any => {
   return async (data: { project: string; route: string; activate: boolean }, params: Params) => {
-    const activatedRoutes = ((await routeService.find(null!)) as any).data as ActiveRoutesInterface[]
+    const activatedRoutes = (await routeService.find(null!)).data as ActiveRoutesInterface[]
     const installedRoutes = (await getInstalledRoutes()()).data
     if (data.activate) {
       const routeToActivate = installedRoutes.find((r) => r.project === data.project && r.routes.includes(data.route))

@@ -18,9 +18,7 @@ export const deserializeMetaData: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<MetaDataComponentType>
 ) => {
-  //if (isClient && Engine.isBot) {
   addComponent(entity, MetaDataComponent, { meta_data: json.props.meta_data ?? '' })
-  //}
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_METADATA)
 

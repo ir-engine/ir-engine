@@ -121,7 +121,6 @@ export const initClient = async (sceneData: SceneData) => {
         MediaStreamService.triggerUpdateNearbyLayerUsers()
       })
   })
-  Engine.isReady = true
 }
 
 export const loadLocation = (sceneData: SceneJson) => {

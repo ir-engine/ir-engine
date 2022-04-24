@@ -44,13 +44,13 @@ export class User<T = UserDataType> extends Service<T> {
     if (action === 'friends') {
       delete params.query.action
       const loggedInUser = params!.user as UserDataType
-      const userResult = await (this.app.service('user') as any).Model.findAndCountAll({
+      const userResult = await this.app.service('user').Model.findAndCountAll({
         offset: skip,
         limit: limit,
         order: [['name', 'ASC']],
         include: [
           {
-            model: (this.app.service('user-relationship') as any).Model,
+            model: this.app.service('user-relationship').Model,
             where: {
               relatedUserId: loggedInUser.id,
               userRelationshipType: 'friend'
@@ -78,7 +78,7 @@ export class User<T = UserDataType> extends Service<T> {
       if (!params.isInternal && loggedInUser.userRole !== 'admin')
         throw new Forbidden('Must be system admin to execute this action')
 
-      const searchedUser = await (this.app.service('user') as any).Model.findAll({
+      const searchedUser = await this.app.service('user').Model.findAll({
         where: {
           name: {
             [Op.like]: `%${search}%`
@@ -113,7 +113,7 @@ export class User<T = UserDataType> extends Service<T> {
     } else if (action === 'search') {
       const searchUser = params.query.data
       delete params.query.action
-      const searchedUser = await (this.app.service('user') as any).Model.findAll({
+      const searchedUser = await this.app.service('user').Model.findAll({
         where: {
           name: {
             [Op.like]: `%${searchUser}%`

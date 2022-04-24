@@ -1,5 +1,6 @@
 import { Color, Mesh, Raycaster } from 'three'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -11,14 +12,15 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent } from '../components/XRUIComponent'
 
 export default async function XRUISystem(world: World) {
-  const renderer = Engine.renderer
-  if (!renderer) throw new Error('Engine.renderer must exist before initializing XRUISystem')
+  const renderer = EngineRenderer.instance.renderer
+  if (!renderer) throw new Error('EngineRenderer.instance.renderer must exist before initializing XRUISystem')
 
   const hitColor = new Color(0x00e6e6)
   const normalColor = new Color(0xffffff)
@@ -69,11 +71,11 @@ export default async function XRUISystem(world: World) {
       const intersectObjects = screenRaycaster.intersectObject(model, true)
       if (intersectObjects.length > 0) {
         const userId = getComponent(entity, NetworkObjectComponent).ownerId
-        dispatchAction(Engine.store, EngineActions.userAvatarTapped(userId))
+        dispatchAction(Engine.store, EngineActions.userAvatarTapped({ userId }))
         return
       }
     }
-    dispatchAction(Engine.store, EngineActions.userAvatarTapped(null!))
+    dispatchAction(Engine.store, EngineActions.userAvatarTapped({ userId: '' as UserId }))
   }
 
   const updateControllerRayInteraction = (inputComponent: XRInputSourceComponentType) => {
@@ -131,7 +133,7 @@ export default async function XRUISystem(world: World) {
 
   return () => {
     if (!addedEventListeners) {
-      const canvas = Engine.renderer.getContext().canvas
+      const canvas = EngineRenderer.instance.renderer.getContext().canvas
       canvas.addEventListener('click', redirectDOMEvent)
       canvas.addEventListener('contextmenu', redirectDOMEvent)
       canvas.addEventListener('dblclick', redirectDOMEvent)
@@ -172,7 +174,7 @@ export default async function XRUISystem(world: World) {
     }
 
     // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.camera.projectionMatrix)
-    // Engine.renderer.getSize(xrui.layoutSystem.viewResolution)
+    // EngineRenderer.instance.renderer.getSize(xrui.layoutSystem.viewResolution)
     // xrui.layoutSystem.update(world.delta, world.elapsedTime)
   }
 }

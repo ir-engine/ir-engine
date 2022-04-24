@@ -34,44 +34,35 @@ import { Entity } from './Entity'
  * @author Josh, Vyacheslav, Gheric and the XREngine Team
  */
 export class Engine {
-  /** The uuid of the logged-in user */
-  public static userId: UserId
+  static instance: Engine
 
-  public static store = createHyperStore({
+  /** The uuid of the logged-in user */
+  static userId: UserId
+
+  static store = createHyperStore({
     name: 'ENGINE',
     getDispatchId: () => 'engine',
     getDispatchTime: () => Engine.elapsedTime
   })
 
-  public static elapsedTime = 0
+  static elapsedTime = 0
 
-  public static engineTimer: { start: Function; stop: Function; clear: Function } = null!
+  static engineTimer: { start: Function; stop: Function; clear: Function } = null!
 
-  public static isBot = 'window' in globalThis ? isBot(window) : false
+  static isBot = false
 
-  public static isHMD = false
+  static isHMD = false
 
   /**
    * The current world
    */
-  public static currentWorld: World = null!
+  static currentWorld: World = null!
 
   /**
    * All worlds that are currently instantiated
    */
-  public static worlds: World[] = []
+  static worlds: World[] = []
 
-  /**
-   * Reference to the three.js renderer object.
-   */
-  static renderer: WebGLRenderer = null!
-  static effectComposer: EffectComposerWithSchema = null!
-  static xrManager: WebXRManager = null!
-  static xrSession: XRSession = null!
-  static csm: CSM = null!
-  static isCSMEnabled = false
-  static directionalLightEntities: Entity[] = []
-  static activeCSMLightEntity: Entity | null = null
   /**
    * Reference to the three.js scene object.
    */
@@ -103,14 +94,12 @@ export class Engine {
   static inputState = new Map<any, InputValue>()
   static prevInputState = new Map<any, InputValue>()
 
-  static isInitialized = false
-  static isReady = false
-
-  static hasJoinedWorld = false
+  static get isInitialized() {
+    return accessEngineState().isEngineInitialized.value
+  }
 
   static publicPath: string
 
-  static workers = [] as any[]
   static simpleMaterials = false
   static xrFrame: XRFrame
 

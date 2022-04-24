@@ -7,6 +7,7 @@ import path from 'path/posix'
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 
 import config from '../../appconfig'
+import logger from '../../logger'
 import { getContentType } from '../../util/fileUtils'
 import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
 import {
@@ -108,7 +109,7 @@ export class LocalStorage implements StorageProviderInterface {
         return new Promise<boolean>((resolve) => {
           blobs.exists(key, (err, exists) => {
             if (err) {
-              console.error(err)
+              logger.error(err)
               resolve(false)
               return
             }
@@ -121,7 +122,7 @@ export class LocalStorage implements StorageProviderInterface {
                     resolve(true)
                   } else {
                     resolve(false)
-                    console.error(err)
+                    logger.error(err)
                     return
                   }
                 }
@@ -168,9 +169,6 @@ export class LocalStorage implements StorageProviderInterface {
       res.url = this.getSignedUrl(res.key, 3600, null).url
       res.size = this.formatBytes(totalSize)
     } else {
-      // const regex = /(?:.*)\/(?<name>.*)\.(?<extension>.*)/g
-      // const query = regex.exec(res.key)
-
       res.type = path.extname(res.key).substring(1) // remove '.' from extension
       res.name = path.basename(res.key, '.' + res.type)
       res.size = this.formatBytes(fs.lstatSync(pathString).size)

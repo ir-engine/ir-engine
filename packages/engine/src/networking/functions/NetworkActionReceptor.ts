@@ -1,7 +1,8 @@
+import { none } from '@speigg/hookstate'
 import matches from 'ts-matches'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
@@ -10,6 +11,7 @@ import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { WorldState } from '../interfaces/WorldState'
 import { NetworkWorldAction } from './NetworkWorldAction'
 
 const removeAllNetworkClients = (world: World, removeSelf = false) => {
@@ -189,6 +191,12 @@ const setEquippedObject = (world: World, action: ReturnType<typeof NetworkWorldA
   }
 }
 
+const setUserTyping = (action) => {
+  matches(action).when(NetworkWorldAction.setUserTyping.matches, ({ $from, typing }) => {
+    getState(Engine.currentWorld.store, WorldState).usersTyping[$from].set(typing ? true : none)
+  })
+}
+
 /**
  * @author Gheric Speiginer <github.com/speigg>
  * @author Josh Field <github.com/HexaField>
@@ -210,11 +218,11 @@ const createNetworkActionReceptor = (world: World) =>
       .when(NetworkWorldAction.requestAuthorityOverObject.matches, (a) => requestAuthorityOverObject(world, a))
       .when(NetworkWorldAction.transferAuthorityOfObject.matches, (a) => transferAuthorityOfObject(world, a))
       .when(NetworkWorldAction.setEquippedObject.matches, (a) => setEquippedObject(world, a))
+      .when(NetworkWorldAction.setUserTyping.matches, (a) => setUserTyping(a))
   })
 
 export const NetworkActionReceptor = {
   removeAllNetworkClients,
-
   addClient,
   removeClient,
   spawnObject,
@@ -223,6 +231,6 @@ export const NetworkActionReceptor = {
   requestAuthorityOverObject,
   transferAuthorityOfObject,
   setEquippedObject,
-
+  setUserTyping,
   createNetworkActionReceptor
 }

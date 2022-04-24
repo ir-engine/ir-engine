@@ -3,11 +3,13 @@ import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarCo
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
+import { NetworkActionReceptor } from '@xrengine/engine/src/networking/functions/NetworkActionReceptor'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import { addActionReceptor } from '@xrengine/hyperflux'
 
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { createAvatarContextMenuView } from './ui/UserMenuView'
@@ -35,7 +37,6 @@ export const renderAvatarContextMenu = (world: World, userId: UserId, contextMen
 export default async function AvatarUISystem(world: World) {
   const userQuery = defineQuery([AvatarComponent, TransformComponent, NetworkObjectComponent])
   const AvatarContextMenuUI = createAvatarContextMenuView()
-
   return () => {
     for (const userEntity of userQuery.enter()) {
       if (userEntity === world.localClientEntity) continue
@@ -69,7 +70,7 @@ export default async function AvatarUISystem(world: World) {
       AvatarUI.delete(userEntity)
     }
 
-    if (AvatarContextMenuUI.state.id.value) {
+    if (AvatarContextMenuUI.state.id.value !== '') {
       renderAvatarContextMenu(world, AvatarContextMenuUI.state.id.value, AvatarContextMenuUI.entity)
     }
   }

@@ -4,8 +4,9 @@ import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
 
-const { register } = require('trace-unhandled')
+import logger from './logger'
 
+const { register } = require('trace-unhandled')
 register()
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
@@ -13,31 +14,27 @@ const testEnabled = process.env.TEST === 'true'
 
 // ensure process fails properly
 process.on('exit', async (code) => {
-  console.log('Server EXIT:', code)
+  logger.fatal(`Server EXIT(${code}).`)
 })
 
 process.on('SIGTERM', async (err) => {
-  console.log('Server SIGTERM')
-  console.log(err)
+  logger.fatal(err, 'Server SIGTERM.')
   process.exit(1)
 })
 process.on('SIGINT', () => {
-  console.log('RECEIVED SIGINT')
+  logger.fatal('RECEIVED SIGINT.')
   process.exit(1)
 })
 
-//emitted when an uncaught JavaScript exception bubbles
+// emitted when an uncaught JavaScript exception bubbles
 process.on('uncaughtException', (err) => {
-  console.log('UNCAUGHT EXCEPTION')
-  console.log(err)
+  logger.fatal(err, 'UNCAUGHT EXCEPTION.')
   process.exit(1)
 })
 
 //emitted whenever a Promise is rejected and no error handler is attached to it
 process.on('unhandledRejection', (reason, p) => {
-  console.log('UNHANDLED REJECTION')
-  console.log(reason)
-  console.log(p)
+  logger.fatal({ reason, promise: p }, 'UNHANDLED PROMISE REJECTION.')
   process.exit(1)
 })
 

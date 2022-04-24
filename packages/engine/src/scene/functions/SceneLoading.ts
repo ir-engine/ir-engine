@@ -1,7 +1,7 @@
 import { MathUtils } from 'three'
 
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
+import { precacheSupport } from '@xrengine/engine/src/assets/enum/AssetType'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -40,7 +40,7 @@ export const preCacheAssets = (sceneData: any, onProgress) => {
       promises.push(...preCacheAssets(val, onProgress))
     } else if (typeof val === 'string') {
       if (AssetLoader.isSupported(val)) {
-        if (AssetLoader.getAssetType(val) === AssetType.XRE) continue
+        if (!precacheSupport[AssetLoader.getAssetType(val)]) continue
         try {
           const promise = AssetLoader.loadAsync(val, onProgress)
           promises.push(promise)
@@ -142,19 +142,20 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
     promisesCompleted++
     dispatchAction(
       Engine.store,
-      EngineActions.sceneLoadingProgress(
-        promisesCompleted > promises.length ? 100 : Math.round((100 * promisesCompleted) / promises.length)
-      )
+      EngineActions.sceneLoadingProgress({
+        progress: promisesCompleted > promises.length ? 100 : Math.round((100 * promisesCompleted) / promises.length)
+      })
     )
   }
   const promises = preCacheAssets(sceneData, onProgress)
 
-  Engine.sceneLoadPromises = promises
+  // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
+  if (!accessEngineState().isTeleporting.value) Engine.camera?.layers.disable(ObjectLayers.Scene)
+
   promises.forEach((promise) => promise.then(onComplete))
   await Promise.all(promises)
 
   const entityMap = {} as { [key: string]: EntityTreeNode }
-  Engine.sceneLoadPromises = []
 
   // reset renderer settings for if we are teleporting and the new scene does not have an override
   resetEngineRenderer(true)
@@ -177,11 +178,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   if (Engine.isEditor) {
     getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
   }
-
-  // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
-  if (!accessEngineState().isTeleporting.value) Engine.camera?.layers.disable(ObjectLayers.Scene)
-
-  await Promise.all(Engine.sceneLoadPromises)
 
   if (!accessEngineState().isTeleporting.value) Engine.camera?.layers.enable(ObjectLayers.Scene)
 

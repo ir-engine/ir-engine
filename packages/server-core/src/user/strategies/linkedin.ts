@@ -28,7 +28,7 @@ export class LinkedInStrategy extends CustomOAuthStrategy {
     )
     const identityProvider = authResult['identity-provider']
     const user = await this.app.service('user').get(entity.userId)
-    const adminCount = await (this.app.service('user') as any).Model.count({
+    const adminCount = await this.app.service('user').Model.count({
       where: {
         userRole: 'admin'
       }

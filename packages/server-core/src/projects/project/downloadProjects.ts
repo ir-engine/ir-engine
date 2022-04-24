@@ -2,6 +2,7 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
+import logger from '../../logger'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
@@ -10,31 +11,31 @@ const storageProvider = useStorageProvider()
 
 export const download = async (projectName) => {
   try {
-    console.log('[ProjectLoader]: Installing project', projectName, '...')
+    logger.info(`[ProjectLoader]: Installing project "${projectName}"...`)
     const files = await getFileKeysRecursive(`projects/${projectName}/`)
-    console.log('[ProjectLoader]: Found files', files)
+    logger.info('[ProjectLoader]: Found files:' + files)
 
     const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects', projectName)
     if (fs.existsSync(localProjectDirectory)) {
-      console.log('[Project temp debug]: fs exists, deleting')
+      logger.info('[Project temp debug]: fs exists, deleting')
       deleteFolderRecursive(localProjectDirectory)
     }
 
     await Promise.all(
       files.map(async (filePath) => {
-        console.log(`[ProjectLoader]: - downloading "${filePath}"`)
+        logger.info(`[ProjectLoader]: - downloading "${filePath}"`)
         const fileResult = await storageProvider.getObject(filePath)
 
         if (fileResult.Body.length === 0) {
-          console.log(`[ProjectLoader]: WARNING file "${filePath}" is empty`)
+          logger.info(`[ProjectLoader]: WARNING file "${filePath}" is empty`)
         }
         writeFileSyncRecursive(path.join(appRootPath.path, 'packages/projects', filePath), fileResult.Body)
       })
     )
 
-    console.log('[ProjectLoader]: Successfully downloaded and mounted project', projectName)
+    logger.info(`[ProjectLoader]: Successfully downloaded and mounted project "${projectName}".`)
   } catch (e) {
-    console.log(`[ProjectLoader]: Failed to download project with error ${e}`)
+    logger.error(e, `[ProjectLoader]: Failed to download project with error: ${e.message}`)
     return false
   }
 

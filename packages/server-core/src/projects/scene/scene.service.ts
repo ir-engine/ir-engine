@@ -6,6 +6,7 @@ import path from 'path'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Application } from '../../../declarations'
+import logger from '../../logger'
 import { getAllPortals, getCubemapBake, getPortal } from './scene-helper'
 import { getSceneData, Scene } from './scene.class'
 import projectDocs from './scene.docs'
@@ -56,7 +57,7 @@ export const getScenesForProject = (app: Application) => {
         data: sceneData
       }
     } catch (e) {
-      console.log(e)
+      logger.error(e)
       return null!
     }
   }

@@ -22,6 +22,7 @@ import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../animation/AnimationState'
 import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
+import { BoneStructure } from '../AvatarBoneMatching'
 import { AvatarInputSchema } from '../AvatarInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
@@ -93,7 +94,9 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
     animationGraph: new AvatarAnimationGraph(),
     currentState: new AnimationState(),
     prevState: new AnimationState(),
-    prevVelocity: new Vector3()
+    prevVelocity: new Vector3(),
+    rig: {} as BoneStructure,
+    rootYRatio: 1
   })
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })

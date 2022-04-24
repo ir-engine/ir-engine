@@ -2,6 +2,7 @@ import { ArrowHelper, Clock, Material, MathUtils, Matrix4, Quaternion, SkinnedMe
 import { clamp } from 'three/src/math/MathUtils'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
+import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { XRCameraUpdatePendingTagComponent } from '../../avatar/components/XRCameraUpdatePendingTagComponent'
 import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
@@ -13,7 +14,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -68,8 +69,8 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
 }
 
 export const getAvatarBonePosition = (entity: Entity, name: BoneNames, position: Vector3): void => {
-  const ikRigComponent = getComponent(entity, IKRigComponent)
-  const el = ikRigComponent.boneStructure[name].matrixWorld.elements
+  const animationComponent = getComponent(entity, AvatarAnimationComponent)
+  const el = animationComponent.rig[name].matrixWorld.elements
   position.set(el[12], el[13], el[14])
 }
 
@@ -289,9 +290,9 @@ export default async function CameraSystem(world: World) {
         updateCameraTargetRotation(entity, delta)
       }
 
-      if (Engine.xrManager?.isPresenting) {
+      if (EngineRenderer.instance.xrManager?.isPresenting) {
         // Current WebXRManager.updateCamera() typedef is incorrect
-        ;(Engine.xrManager as any).updateCamera(Engine.camera)
+        ;(EngineRenderer.instance.xrManager as any).updateCamera(Engine.camera)
 
         removeComponent(Engine.currentWorld.localClientEntity, XRCameraUpdatePendingTagComponent)
       } else if (followCameraEntity !== undefined) {

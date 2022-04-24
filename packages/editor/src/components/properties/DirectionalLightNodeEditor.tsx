@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
@@ -29,34 +30,37 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   const lightComponent = getComponent(props.node.entity, DirectionalLightComponent)
 
   useEffect(() => {
-    if (!Engine.isCSMEnabled || props.node.entity !== Engine.activeCSMLightEntity) return
+    if (!EngineRenderer.instance.isCSMEnabled || props.node.entity !== EngineRenderer.instance.activeCSMLightEntity)
+      return
 
-    if (selectionState.propertyName.value === 'rotation' && Engine.csm) {
-      getComponent(props.node.entity, Object3DComponent)?.value.getWorldDirection(Engine.csm.lightDirection)
+    if (selectionState.propertyName.value === 'rotation' && EngineRenderer.instance.csm) {
+      getComponent(props.node.entity, Object3DComponent)?.value.getWorldDirection(
+        EngineRenderer.instance.csm.lightDirection
+      )
     }
 
     if (selectionState.propertyName.value === 'color') {
-      Engine.csm.updateProperty('color', lightComponent.color)
+      EngineRenderer.instance.csm.updateProperty('color', lightComponent.color)
     }
 
     if (selectionState.propertyName.value === 'intensity') {
-      Engine.csm.updateProperty('intensity', lightComponent.intensity)
+      EngineRenderer.instance.csm.updateProperty('intensity', lightComponent.intensity)
     }
 
     if (selectionState.propertyName.value === 'shadowBias') {
-      Engine.csm.updateProperty('shadow.bias', lightComponent.shadowBias)
+      EngineRenderer.instance.csm.updateProperty('shadow.bias', lightComponent.shadowBias)
     }
 
     if (selectionState.propertyName.value === 'shadowRadius') {
-      Engine.csm.updateProperty('shadow.radius', lightComponent.shadowRadius)
+      EngineRenderer.instance.csm.updateProperty('shadow.radius', lightComponent.shadowRadius)
     }
 
     if (selectionState.propertyName.value === 'shadowMapResolution') {
-      Engine.csm.updateProperty('shadow.mapSize', lightComponent.shadowMapResolution)
+      EngineRenderer.instance.csm.updateProperty('shadow.mapSize', lightComponent.shadowMapResolution)
     }
 
     if (selectionState.propertyName.value === 'cameraFar') {
-      Engine.csm.updateProperty('shadow.camera.far', lightComponent.cameraFar)
+      EngineRenderer.instance.csm.updateProperty('shadow.camera.far', lightComponent.cameraFar)
     }
   }, [selectionState.objectChangeCounter.value])
 
@@ -80,7 +84,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
         onChange={updateProperty(DirectionalLightComponent, 'intensity')}
         unit="cd"
       />
-      {Engine.isCSMEnabled && (
+      {EngineRenderer.instance.isCSMEnabled && (
         <InputGroup name="Use in CSM" label={t('editor:properties.directionalLight.lbl-useInCSM')}>
           <BooleanInput
             value={lightComponent.useInCSM}

@@ -5,6 +5,7 @@ import { Vector2 } from 'three'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
 
 import { setPropertyOnSelectionEntities } from '../../classes/History'
@@ -66,7 +67,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   }
 
   const lightComponent = getComponent(props.node.entity, props.comp)
-  const csmEnabled = Engine.isCSMEnabled && props.comp === DirectionalLightComponent
+  const csmEnabled = EngineRenderer.instance.isCSMEnabled && props.comp === DirectionalLightComponent
 
   return (
     <Fragment>

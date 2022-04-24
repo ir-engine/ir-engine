@@ -22,6 +22,7 @@ import { World } from '../../ecs/classes/World'
 import { getGeometryType, isControllerBody, isTriggerShape } from '../../physics/classes/Physics'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { BodyType } from '../../physics/types/PhysicsTypes'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
@@ -246,7 +247,7 @@ export const DebugRenderer = () => {
       enabled = _enabled
       setEnabled(_enabled)
       // @ts-ignore
-      const xrCameras = Engine.xrManager?.getCamera() as ArrayCamera
+      const xrCameras = EngineRenderer.instance.xrManager?.getCamera() as ArrayCamera
       if (enabled) {
         Engine.camera.layers.enable(ObjectLayers.PhysicsHelper)
         if (xrCameras) xrCameras.cameras.forEach((camera) => camera.layers.enable(ObjectLayers.PhysicsHelper))

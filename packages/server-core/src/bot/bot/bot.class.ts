@@ -17,16 +17,16 @@ export class Bot<T = AdminBotDataType> extends Service<T> {
   }
 
   async find(params?: Params): Promise<T[] | Paginated<T>> {
-    const bots = await (this.app.service('bot') as any).Model.findAll({
+    const bots = await this.app.service('bot').Model.findAll({
       include: [
         {
-          model: (this.app.service('bot-command') as any).Model
+          model: this.app.service('bot-command').Model
         },
         {
-          model: (this.app.service('location') as any).Model
+          model: this.app.service('location').Model
         },
         {
-          model: (this.app.service('instance') as any).Model
+          model: this.app.service('instance').Model
         }
       ]
     })

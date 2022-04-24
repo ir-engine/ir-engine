@@ -11,6 +11,7 @@ import {
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { VisibleComponent } from '../../../scene/components/VisibleComponent'
 import EditorDirectionalLightHelper from '../../classes/EditorDirectionalLightHelper'
 import { DirectionalLightComponent, DirectionalLightComponentType } from '../../components/DirectionalLightComponent'
@@ -56,7 +57,7 @@ export const deserializeDirectionalLight: ComponentDeserializeFunction = (
     setObjectLayers(cameraHelper, ObjectLayers.NodeHelper)
   }
 
-  Engine.directionalLightEntities.push(entity)
+  EngineRenderer.instance.directionalLightEntities.push(entity)
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, DirectionalLightComponent, props)
 
@@ -77,7 +78,8 @@ export const updateDirectionalLight: ComponentUpdateFunction = (
   if (typeof properties.cameraFar !== 'undefined') light.shadow.camera.far = component.cameraFar
   if (typeof properties.shadowBias !== 'undefined') light.shadow.bias = component.shadowBias
   if (typeof properties.shadowRadius !== 'undefined') light.shadow.radius = component.shadowRadius
-  if (typeof properties.castShadow !== 'undefined') light.castShadow = !Engine.isCSMEnabled && component.castShadow
+  if (typeof properties.castShadow !== 'undefined')
+    light.castShadow = !EngineRenderer.instance.isCSMEnabled && component.castShadow
 
   if (typeof properties.shadowMapResolution !== 'undefined') {
     light.shadow.mapSize.copy(component.shadowMapResolution)
@@ -90,33 +92,37 @@ export const updateDirectionalLight: ComponentUpdateFunction = (
 
   if (typeof properties.useInCSM !== 'undefined') {
     if (component.useInCSM) {
-      if (Engine.activeCSMLightEntity) {
-        if (Engine.activeCSMLightEntity === entity) return
+      if (EngineRenderer.instance.activeCSMLightEntity) {
+        if (EngineRenderer.instance.activeCSMLightEntity === entity) return
 
-        const activeCSMLight = getComponent(Engine.activeCSMLightEntity, Object3DComponent)?.value as DirectionalLight
-        const activeCSMLightComponent = getComponent(Engine.activeCSMLightEntity, DirectionalLightComponent)
+        const activeCSMLight = getComponent(EngineRenderer.instance.activeCSMLightEntity, Object3DComponent)
+          ?.value as DirectionalLight
+        const activeCSMLightComponent = getComponent(
+          EngineRenderer.instance.activeCSMLightEntity,
+          DirectionalLightComponent
+        )
 
-        activeCSMLight.castShadow = !Engine.isCSMEnabled && activeCSMLightComponent.castShadow
+        activeCSMLight.castShadow = !EngineRenderer.instance.isCSMEnabled && activeCSMLightComponent.castShadow
         activeCSMLightComponent.useInCSM = false
 
-        if (!hasComponent(Engine.activeCSMLightEntity, VisibleComponent)) {
-          addComponent(Engine.activeCSMLightEntity, VisibleComponent, {})
+        if (!hasComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent)) {
+          addComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent, {})
         }
       }
 
-      if (Engine.csm) {
-        Engine.csm.changeLights(light)
-        light.getWorldDirection(Engine.csm.lightDirection)
+      if (EngineRenderer.instance.csm) {
+        EngineRenderer.instance.csm.changeLights(light)
+        light.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
       }
 
-      Engine.activeCSMLightEntity = entity
+      EngineRenderer.instance.activeCSMLightEntity = entity
 
       if (hasComponent(entity, VisibleComponent)) removeComponent(entity, VisibleComponent)
     } else {
-      light.castShadow = !Engine.isCSMEnabled && component.castShadow
+      light.castShadow = !EngineRenderer.instance.isCSMEnabled && component.castShadow
       component.useInCSM = false
 
-      if (Engine.activeCSMLightEntity === entity) Engine.activeCSMLightEntity = null
+      if (EngineRenderer.instance.activeCSMLightEntity === entity) EngineRenderer.instance.activeCSMLightEntity = null
 
       if (!hasComponent(entity, VisibleComponent)) {
         addComponent(entity, VisibleComponent, {})
