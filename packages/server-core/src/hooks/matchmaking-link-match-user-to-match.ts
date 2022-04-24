@@ -2,6 +2,8 @@ import { Hook, HookContext } from '@feathersjs/feathers'
 
 import { OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
 
+import logger from '../logger'
+
 interface AssignmentResponse extends OpenMatchTicketAssignment {
   instanceId: string
   locationName: string
@@ -26,7 +28,7 @@ export default (): Hook => {
     })
 
     if (!matchUserResult.data.length) {
-      console.log('match user not found?!')
+      logger.info('match user not found?!')
       return context
     }
 
@@ -49,17 +51,17 @@ export default (): Hook => {
           gamemode: matchUser.gamemode
         })
       } catch (e) {
-        console.log('failed to create new match-instance')
+        logger.error('Failed to create new match-instance')
         const isConnectionDuplicateError =
           e.errors?.[0]?.type === 'unique violation' && e.errors?.[0]?.path === 'connection'
         if (!isConnectionDuplicateError) {
           // ignore only duplicate error
           throw e
         }
-        console.log('^-- server instance probably exists but not provisioned', matchServerInstance)
+        logger.warn('^-- Server instance probably exists but not provisioned: ' + matchServerInstance)
       }
     } else {
-      console.log('server instance probably exists but not provisioned', matchServerInstance)
+      logger.info('Server instance probably exists but not provisioned: ' + matchServerInstance)
     }
 
     if (!matchServerInstance?.gameserver) {
@@ -77,7 +79,7 @@ export default (): Hook => {
     }
     if (!matchServerInstance?.gameserver) {
       // say that no connection yet, on next query it will have gameserver and same connection
-      console.log('Failed to find provisioned server. Need to retry again.')
+      logger.info('Failed to find provisioned server. Need to retry again.')
       result.connection = ''
       return context
     }
