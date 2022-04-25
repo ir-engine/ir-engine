@@ -57,6 +57,7 @@ interface ThemeOptions {
   inputOutline: string
   inputBackground: string
   dropdownMenuBackground: string
+  dropdownMenuHoverBackground: string
   drawerBackground: string
   themeSwitchTrack: string
   themeSwitchThumb: string
