@@ -1,10 +1,78 @@
 @import "@xrengine/client-core/src/styles/imports.module.scss";
 
-:root[data-theme="light"] {
+:root {
   --lato: "Lato", sans-serif;
   --zilla: "Zilla Slab", sans-serif;
-  --background: rgb(0 0 0 / 0%);
+  --red: #f44336;
+  --pink: #e91e63;
+  --purple: #9c27b0;
+  --deepPurple: #673ab7;
+  --indigo: #3f51b5;
+  --blue: #006eff;
+  --lightBlue: #03a9f4;
+  --cyan: #00bcd4;
+  --teal: #009688;
+  --green: #4caf50;
+  --lightGreen: #8bc34a;
+  --lime: #cddc39;
+  --yellow: #ffeb3b;
+  --amber: #ffc107;
+  --orange: #ff9800;
+  --deepOrange: #ff5722;
+  --brown: #795548;
+  --blueHover: #4d93f1;
+  --bluePressed: #0554bc;
+  --disabled: #222;
+  --disabledText: grey;
+  --deemphasized: grey;
+  --toolbar: rgb(0 0 0 / 0%);
+  --toolbar2: rgb(0 0 0 / 0%);
+  --header: #1b1b1b;
+  --white: #fff;
+  --purpleButtonColor: #5f5ff1;
+  --facebookBlue: #4267b2;
+  --lightRed: #ef5350;
+  --mediumBlue: #3838b2;
+  --shadow15: 0 4px 4px rgb(0 0 0 / 15%);
+  --shadow30: 0 4px 4px rgb(0 0 0 / 30%);
+  --borderStyle: 1px solid #5d646c;
+  --borderStyleLight: 1px solid #b9b9b9;
+}
+
+:root[data-theme="light"] {
+  --textColor: #fff;
+  --navbarBackground: rgb(73 66 152 / 85%);
+  --sidebarBackground: #6760b0;
+  --sidebarSelectedBackground: rgb(73 66 152 / 100%);
+  --mainBackground: #c2b7f6;
+  --panelBackground: #7f78c4;
+  --panelCards: #9a9ae4;
+  --panelCardHoverOutline: #9898ff;
+  --panelCardIcon: #6760b0;
+  --textHeading: #fff;
+  --textSubheading: #fff;
+  --textDescription: #fff;
+  --iconButtonColor: #fff;
+  --iconButtonHoverColor: #7171f0;
+  --iconButtonBackground: #9898ff;
+  --iconButtonSelected: #363695;
+  --buttonOutlined: #9a9ae4;
+  --buttonFilled: #9a9ae4;
+  --buttonGradientStart: #a798ff;
+  --buttonGradientEnd: #ff5fac;
+  --buttonTextColor: #fff;
+  --scrollbarThumbXAxisStart: #a798ff;
+  --scrollbarThumbXAxisEnd: #ff5fac;
+  --scrollbarThumbYAxisStart: #a798ff;
+  --scrollbarThumbYAxisEnd: #ff5fac;
+  --scrollbarCorner: rgb(255 255 255 / 0%);
+  --inputOutline: #fff;
   --inputBackground: #6868ba;
+  --dropdownMenuBackground: #7f78c4;
+  --drawerBackground: #7f78c4;
+  --themeSwitchTrack: #aab4be;
+  --themeSwitchThumb: #c2b7f6;
+  --background: rgb(0 0 0 / 0%);
   --border: #5d646c;
   --background2: #15171b;
   --panel: #282c31;
@@ -31,49 +99,42 @@
   --text2: #9fa4b5;
   --text3: #aaa;
   --dropdown: #3c3c6f;
-  --red: #f44336;
-  --pink: #e91e63;
-  --purple: #9c27b0;
-  --deepPurple: #673ab7;
-  --indigo: #3f51b5;
-  --blue: #006eff;
-  --lightBlue: #03a9f4;
-  --cyan: #00bcd4;
-  --teal: #009688;
-  --green: #4caf50;
-  --lightGreen: #8bc34a;
-  --lime: #cddc39;
-  --yellow: #ffeb3b;
-  --amber: #ffc107;
-  --orange: #ff9800;
-  --deepOrange: #ff5722;
-  --brown: #795548;
-  --blueHover: #4d93f1;
-  --bluePressed: #0554bc;
-  --disabled: #222;
-  --disabledText: grey;
-  --deemphasized: grey;
-  --toolbar: rgb(0 0 0 / 0%);
-  --toolbar2: rgb(0 0 0 / 0%);
-  --header: #1b1b1b;
-  --white: #fff;
-  --purpleButtonColor: #5f5ff1;
-  --facebookBlue: #4267b2;
-  --lightRed: #ef5350;
-  --mediumBlue: #3838b2;
-  --shadow15: 0 4px 4px rgb(0 0 0 / 15%);
-  --shadow30: 0 4px 4px rgb(0 0 0 / 30%);
-  --borderStyle: 1px solid #5d646c;
-  --borderStyleLight: 1px solid #b9b9b9;
-  --themeSwitchTrack: #aab4be;
-  --themeSwitchThumb: #c2b7f6;
 }
 
 :root[data-theme="dark"] {
-  --lato: "Lato", sans-serif;
-  --zilla: "Zilla Slab", sans-serif;
-  --background: rgb(0 0 0 / 0%);
+  --textColor: #fff;
+  --navbarBackground: rgb(31 27 72 / 85%);
+  --sidebarBackground: rgb(31 27 72 / 100%);
+  --sidebarSelectedBackground: #5f5ff1;
+  --mainBackground: #02022d;
+  --panelBackground: #1f1b48;
+  --panelCards: #3c3c6f;
+  --panelCardHoverOutline: #9898ff;
+  --panelCardIcon: #1f1b48;
+  --textHeading: #fff;
+  --textSubheading: #fff;
+  --textDescription: #fff;
+  --iconButtonColor: #fff;
+  --iconButtonHoverColor: #7171f0;
+  --iconButtonBackground: #9898ff;
+  --iconButtonSelectedBackground: #4d4df2;
+  --buttonOutlined: #3c3c6f;
+  --buttonFilled: #3c3c6f;
+  --buttonGradientStart: #5236ff;
+  --buttonGradientEnd: #c20560;
+  --buttonTextColor: #fff;
+  --scrollbarThumbXAxisStart: #5236ff;
+  --scrollbarThumbXAxisEnd: #c20560;
+  --scrollbarThumbYAxisStart: #5236ff;
+  --scrollbarThumbYAxisEnd: #c20560;
+  --scrollbarCorner: rgb(255 255 255 / 0%);
+  --inputOutline: #fff;
   --inputBackground: #3c3c6f;
+  --dropdownMenuBackground: #1f1b48;
+  --drawerBackground: #1f1b48;
+  --themeSwitchTrack: #8796a5;
+  --themeSwitchThumb: #02022d;
+  --background: rgb(0 0 0 / 0%);
   --border: #5d646c;
   --background2: #15171b;
   --panel: #282c31;
@@ -100,42 +161,6 @@
   --text2: #9fa4b5;
   --text3: #aaa;
   --dropdown: #3c3c6f;
-  --red: #f44336;
-  --pink: #e91e63;
-  --purple: #9c27b0;
-  --deepPurple: #673ab7;
-  --indigo: #3f51b5;
-  --blue: #006eff;
-  --lightBlue: #03a9f4;
-  --cyan: #00bcd4;
-  --teal: #009688;
-  --green: #4caf50;
-  --lightGreen: #8bc34a;
-  --lime: #cddc39;
-  --yellow: #ffeb3b;
-  --amber: #ffc107;
-  --orange: #ff9800;
-  --deepOrange: #ff5722;
-  --brown: #795548;
-  --blueHover: #4d93f1;
-  --bluePressed: #0554bc;
-  --disabled: #222;
-  --disabledText: grey;
-  --deemphasized: grey;
-  --toolbar: rgb(0 0 0 / 0%);
-  --toolbar2: rgb(0 0 0 / 0%);
-  --header: #1b1b1b;
-  --white: #fff;
-  --purpleButtonColor: #5f5ff1;
-  --facebookBlue: #4267b2;
-  --lightRed: #ef5350;
-  --mediumBlue: #3838b2;
-  --shadow15: 0 4px 4px rgb(0 0 0 / 15%);
-  --shadow30: 0 4px 4px rgb(0 0 0 / 30%);
-  --borderStyle: 1px solid #5d646c;
-  --borderStyleLight: 1px solid #b9b9b9;
-  --themeSwitchTrack: #8796a5;
-  --themeSwitchThumb: #02022d;
 }
 
 ::-webkit-scrollbar {
@@ -147,15 +172,15 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--purplePinkGradientTB);
+  background: linear-gradient(92.22deg, var(--scrollbarThumbYAxisStart), var(--scrollbarThumbYAxisEnd));
 }
 
 ::-webkit-scrollbar-thumb:horizontal {
-  background: var(--purplePinkGradient);
+  background: linear-gradient(92.22deg, var(--scrollbarThumbXAxisStart), var(--scrollbarThumbXAxisEnd));
 }
 
 ::-webkit-scrollbar-corner {
-  background-color: transparent;
+  background-color: var(--scrollbarCorner);
 }
 
 @mixin flex-collapse {
