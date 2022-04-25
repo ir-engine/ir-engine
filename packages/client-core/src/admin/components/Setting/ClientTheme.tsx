@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import defaultThemeSettings from '@xrengine/common/src/constants/DefaultThemeSettings'
+import { ThemeSetting } from '@xrengine/common/src/interfaces/ClientSetting'
 
 import MenuIcon from '@mui/icons-material/Menu'
 import SettingIcon from '@mui/icons-material/Settings'
@@ -89,7 +90,7 @@ const ClientTheme = () => {
   const [selectValue, setSelectValue] = useState('')
   const [anchorEl, setAnchorEl] = useState<any>(null)
   const [mode, setMode] = useState(selfUser?.user_setting?.value?.themeMode || 'dark')
-  const [themeSetting, setThemeSetting] = useState({
+  const [themeSetting, setThemeSetting] = useState<ThemeSetting>({
     light: { ...defaultThemeSettings.light, ...clientSetting?.themeSettings?.light },
     dark: { ...defaultThemeSettings.dark, ...clientSetting?.themeSettings?.dark }
   })

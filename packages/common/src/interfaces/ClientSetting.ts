@@ -22,7 +22,7 @@ interface SocialLink {
   icon: string
 }
 
-interface ThemeSetting {
+export interface ThemeSetting {
   light: ThemeOptions
   dark: ThemeOptions
 }
