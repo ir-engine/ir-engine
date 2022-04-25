@@ -27,7 +27,6 @@ export interface User {
   userRole?: string
   avatarId?: string
   identityProviders?: IdentityProvider[]
-  locationAdmins?: LocationAdmin[]
   relationType?: RelationshipType
   inverseRelationType?: RelationshipType
   avatarUrl?: string
@@ -52,8 +51,7 @@ export const UserSeed: User = {
     token: '',
     userId: '' as UserId
   },
-  identityProviders: [],
-  locationAdmins: []
+  identityProviders: []
 }
 
 export interface CreateEditUser {
@@ -69,12 +67,6 @@ export function resolveUser(user: any): User {
     returned = {
       ...returned,
       identityProviders: user.identity_providers
-    }
-  }
-  if (user?.location_admins && user.location_admins.length > 0) {
-    returned = {
-      ...returned,
-      locationAdmins: user.location_admins
     }
   }
   if (user?.location_bans && user.location_bans.length > 0) {
@@ -103,7 +95,6 @@ export function resolveWalletUser(credentials: any): User {
     userRole: 'guest',
     avatarId: credentials.user.id,
     identityProviders: [],
-    locationAdmins: [],
     avatarUrl: credentials.user.icon,
     apiKey: credentials.user.apiKey || { id: '', token: '', userId: '' as UserId }
   }

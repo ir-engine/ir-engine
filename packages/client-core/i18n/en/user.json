@@ -163,6 +163,7 @@
       "phoneError": "Invalid phone #",
       "emailError": "Invalid email address",
       "loginWithReadyPlayerMe": "Login with Ready Player Me",
+      "loginWithXRWallet": "Login with XR Wallet",
       "connectSocial": "Connect with social accounts",
       "createOne": "If you don't have an account, a new one will be created for you",
       "connections": {

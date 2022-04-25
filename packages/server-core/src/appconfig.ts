@@ -16,17 +16,20 @@ const testEnabled = process.env.TEST === 'true'
 
 // ensure process fails properly
 process.on('exit', async (code) => {
-  if (code) {
-    logger.fatal(`Server EXIT(${code}).`)
+  const message = `Server EXIT(${code}).`
+  if (code === 0) {
+    logger.info(message)
+  } else {
+    logger.fatal(message)
   }
 })
 
 process.on('SIGTERM', async (err) => {
-  logger.fatal(err, 'Server SIGTERM.')
+  logger.warn(err, 'Server SIGTERM.')
   process.exit(1)
 })
 process.on('SIGINT', () => {
-  logger.fatal('RECEIVED SIGINT.')
+  logger.warn('RECEIVED SIGINT.')
   process.exit(1)
 })
 
@@ -196,7 +199,7 @@ const authentication = {
   service: 'identity-provider',
   entity: 'identity-provider',
   secret: process.env.AUTH_SECRET!,
-  authStrategies: ['jwt', 'local', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter'],
+  authStrategies: ['jwt', 'local', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'did-auth'],
   local: {
     usernameField: 'email',
     passwordField: 'password'

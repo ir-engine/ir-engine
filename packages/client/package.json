@@ -48,6 +48,7 @@
     "@xrengine/projects": "^0.5.3",
     "app-root-path": "3.0.0",
     "classnames": "2.3.1",
+    "credential-handler-polyfill": "^2.3.0",
     "cli": "1.0.1",
     "cross-env": "7.0.3",
     "file-regex": "3.1.0",

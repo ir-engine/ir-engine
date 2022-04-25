@@ -14,15 +14,6 @@ export default {
       async (context): Promise<HookContext> => {
         const { app, data, params } = context
         const loggedInUser = params.user as UserDataType
-        const locationAdmins = await app.service('location-admin').find({
-          query: {
-            locationId: data.locationId,
-            userId: loggedInUser.id
-          }
-        })
-        if (locationAdmins.total === 0) {
-          throw new Forbidden('Not an admin of that location')
-        }
         return context
       }
     ],

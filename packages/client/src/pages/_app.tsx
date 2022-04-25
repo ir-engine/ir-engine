@@ -1,3 +1,4 @@
+import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { BrowserRouter } from 'react-router-dom'
@@ -86,6 +87,13 @@ const App = (): any => {
   }, [selfUser?.user_setting?.value])
 
   useEffect(initApp, [])
+
+  useEffect(() => {
+    chapiWalletPolyfill
+      .loadOnce()
+      .then(() => console.log('CHAPI wallet polyfill loaded.'))
+      .catch((e) => console.error('Error loading polyfill:', e))
+  }, [])
 
   useEffect(() => {
     ProjectService.fetchProjects()

@@ -156,23 +156,27 @@ accessAuthState().attach(() => ({
   })
 }))
 
-//Service
+// Service
 export const AuthService = {
   doLoginAuto: async (forceClientAuthReset?: boolean) => {
     const dispatch = useDispatch()
+    console.log(`doLoginAuto(), forceClientAuthReset: ${forceClientAuthReset}`)
     try {
       console.log(accessStoredLocalState().attach(Downgraded))
       const authData = accessStoredLocalState().attach(Downgraded).authData.value
       let accessToken =
         forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
 
-      if (forceClientAuthReset === true) await (client as any).authentication.reset()
-      if (accessToken == null || accessToken.length === 0) {
+      if (forceClientAuthReset === true) {
+        await (client as any).authentication.reset()
+      }
+      if (!accessToken) {
         const newProvider = await client.service('identity-provider').create({
           type: 'guest',
           token: v1()
         })
         accessToken = newProvider.accessToken
+        console.log(`Created new guest accessToken: ${accessToken}`)
       }
 
       await (client as any).authentication.setAccessToken(accessToken as string)
@@ -208,7 +212,7 @@ export const AuthService = {
         }
         const authUser = resolveAuthUser(res)
         dispatch(AuthAction.loginUserSuccess(authUser))
-        await AuthService.loadUserData(authUser.identityProvider.userId)
+        await AuthService.loadUserData(authUser.identityProvider?.userId)
       } else {
         console.log('****************')
       }
@@ -221,47 +225,29 @@ export const AuthService = {
       // }
     }
   },
-  loadUserData: (userId: string): any => {
-    return client
-      .service('user')
-      .get(userId)
-      .then((res: any) => {
-        if (res.user_setting == null) {
-          return client
-            .service('user-settings')
-            .find({
-              query: {
-                userId: userId
-              }
-            })
-            .then((settingsRes: Paginated<UserSetting>) => {
-              if (settingsRes.total === 0) {
-                return client
-                  .service('user-settings')
-                  .create({
-                    userId: userId
-                  })
-                  .then((newSettings) => {
-                    res.user_setting = newSettings
+  async loadUserData(userId: string) {
+    try {
+      const res: any = await client.service('user').get(userId)
+      if (res.user_setting == null) {
+        const settingsRes = (await client
+          .service('user-settings')
+          .find({ query: { userId: userId } })) as Paginated<UserSetting>
 
-                    return Promise.resolve(res)
-                  })
-              }
-              res.user_setting = settingsRes.data[0]
-              return Promise.resolve(res)
-            })
+        if (settingsRes.total === 0) {
+          res.user_setting = await client.service('user-settings').create({ userId: userId })
+        } else {
+          res.user_setting = settingsRes.data[0]
         }
-        return Promise.resolve(res)
-      })
-      .then((res: any) => {
-        const dispatch = useDispatch()
-        const user = resolveUser(res)
-        dispatch(AuthAction.loadedUserData(user))
-      })
-      .catch((err: any) => {
-        AlertService.dispatchAlertError(new Error(i18n.t('common:error.loading-error')))
-      })
+      }
+      const dispatch = useDispatch()
+      const user = resolveUser(res)
+      dispatch(AuthAction.loadedUserData(user))
+    } catch (err) {
+      console.error(err)
+      AlertService.dispatchAlertError(new Error(i18n.t('common:error.loading-error')))
+    }
   },
+
   loginUserByPassword: async (form: EmailLoginForm) => {
     const dispatch = useDispatch()
 
@@ -282,7 +268,7 @@ export const AuthService = {
       .then((res: any) => {
         const authUser = resolveAuthUser(res)
 
-        if (!authUser.identityProvider.isVerified) {
+        if (!authUser.identityProvider?.isVerified) {
           ;(client as any).logout()
 
           dispatch(AuthAction.registerUserByEmailSuccess(authUser.identityProvider))
@@ -299,23 +285,49 @@ export const AuthService = {
       })
       .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
-  loginUserByXRWallet: async (wallet: any) => {
+
+  /**
+   * Example vprResult:
+   * {
+   *   "type": "web",
+   *   "dataType": "VerifiablePresentation",
+   *   "data": { "presentation": vp }
+   * }
+   * Where `vp` is a VerifiablePresentation containing multiple VCs
+   * (LoginDisplayCredential, UserPreferencesCredential).
+   *
+   * @param vprResult {object} - VPR Query result from a user's wallet.
+   */
+  async loginUserByXRWallet(vprResult: any) {
     const dispatch = useDispatch()
 
     try {
       dispatch(AuthAction.actionProcessing(true))
 
-      const credentials: any = parseUserWalletCredentials(wallet)
+      const credentials: any = parseUserWalletCredentials(vprResult)
       console.log(credentials)
 
       const walletUser = resolveWalletUser(credentials)
+      const authUser = {
+        accessToken: '',
+        authentication: { strategy: 'did-auth' },
+        identityProvider: {
+          id: 0,
+          token: '',
+          type: 'chapiWallet',
+          isVerified: true,
+          userId: walletUser.id
+        }
+      }
 
-      //TODO: This is temp until we move completely to XR wallet
+      // TODO: This is temp until we move completely to XR wallet
       const oldId = accessAuthState().user.id.value
       walletUser.id = oldId
 
       // loadXRAvatarForUpdatedUser(walletUser) // TODO
       dispatch(AuthAction.loadedUserData(walletUser))
+      console.log('Dispatching user success, authUser:', authUser)
+      dispatch(AuthAction.loginUserSuccess(authUser))
     } catch (err) {
       dispatch(AuthAction.loginUserError(i18n.t('common:error.login-error')))
       AlertService.dispatchAlertError(err)
@@ -323,6 +335,7 @@ export const AuthService = {
       dispatch(AuthAction.actionProcessing(false))
     }
   },
+
   loginUserByOAuth: async (service: string, location: any) => {
     const dispatch = useDispatch()
     dispatch(AuthAction.actionProcessing(true))
@@ -351,7 +364,7 @@ export const AuthService = {
       const authUser = resolveAuthUser(res)
 
       dispatch(AuthAction.loginUserSuccess(authUser))
-      await AuthService.loadUserData(authUser.identityProvider.userId)
+      await AuthService.loadUserData(authUser.identityProvider?.userId)
       dispatch(AuthAction.actionProcessing(false))
       window.location.href = redirectSuccess
     } catch (err) {

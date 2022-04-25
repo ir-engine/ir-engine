@@ -148,11 +148,7 @@ export const MediaInstanceConnectionService = {
     dispatch(
       MediaLocationInstanceConnectionAction.enableVideo(
         currentLocation?.locationSetting?.videoEnabled?.value === true ||
-          !(
-            currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
-            user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value) ==
-              null
-          )
+          !(currentLocation?.locationSetting?.locationType?.value === 'showroom')
       )
     )
 

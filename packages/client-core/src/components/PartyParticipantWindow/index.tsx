@@ -76,9 +76,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const userHasInteracted = useEngineState().userHasInteracted
   const selfUser = useAuthState().user.value
   const currentLocation = useLocationState().currentLocation.location
-  const enableGlobalMute =
-    currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
-    selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
+  const enableGlobalMute = currentLocation?.locationSetting?.locationType?.value === 'showroom'
   const user = userState.layerUsers.find((user) => user.id.value === peerId)?.attach(Downgraded).value
 
   const isCamVideoEnabled = mediastream.isCamVideoEnabled
