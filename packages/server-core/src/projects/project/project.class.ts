@@ -110,8 +110,9 @@ export class Project extends Service {
     ).data as Array<{ name }>
     await Promise.all(
       projects.map(async ({ name }) => {
+        if (!fs.existsSync(path.join(projectsRootFolder, name))) return
         const config = await getProjectConfig(name)
-        if (config.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onLoad')
+        if (config?.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onLoad')
       })
     )
   }
@@ -177,17 +178,16 @@ export class Project extends Service {
 
   async create(data: { name: string }, params?: Params) {
     const projectName = cleanString(data.name)
+    const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
 
-    if (fs.existsSync(path.resolve(projectsRootFolder, projectName)))
+    if (fs.existsSync(projectLocalDirectory))
       throw new Error(`[Projects]: Project with name ${projectName} already exists`)
 
     if ((!config.db.forceRefresh && projectName === 'default-project') || projectName === 'template-project')
       throw new Error(`[Projects]: Project name ${projectName} not allowed`)
 
-    const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
-
     copyFolderRecursiveSync(templateFolderDirectory, projectsRootFolder)
-    fs.renameSync(path.resolve(projectsRootFolder, 'template-project'), path.resolve(projectsRootFolder, projectName))
+    fs.renameSync(path.resolve(projectsRootFolder, 'template-project'), projectLocalDirectory)
 
     fs.mkdirSync(path.resolve(projectLocalDirectory, '.git'), { recursive: true })
 
