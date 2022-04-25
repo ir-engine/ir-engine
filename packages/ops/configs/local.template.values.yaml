@@ -59,19 +59,19 @@ api:
         domain: resources.theoverlay.io
       sns:
         access_key_id: <SNS_USER_ACCESS_KEY>
-        application_id: <AWS_SMS_APPLICATION_ID>
+        application_id: <SNS_APPLICATION_ID>
         region: <SNS_REGION>
         secret_access_key: <SNS_USER_SECRET_KEY>
-        sender_id: <AWS_SMS_SENDER_ID>
+        sender_id: <SNS_SENDER_ID>
     host: https://local.theoverlay.io/
   extraEnv:
     APP_HOST: local.theoverlay.io
     APP_URL: https://local.theoverlay.io
-    AUTH_SECRET: <ENTER_A_UUID_OR_SIMILAR>
-    AWS_SMS_ACCESS_KEY_ID: <SMS_USER_ACCESS_KEY>
-    AWS_SMS_REGION: <SMS_REGION>
-    AWS_SMS_SECRET_ACCESS_KEY: <SMS_USER_SECRET_KEY>
-    AWS_SMS_TOPIC_ARN: arn:aws:sns:<SMS_REGION>:<AWS_ACCOUNT_ID>:<SMS_TOPIC_NAME>
+    AUTH_SECRET: <AUTH_SECRET_UUID_OR_SIMILAR>
+    AWS_SMS_ACCESS_KEY_ID: <SNS_USER_ACCESS_KEY>
+    AWS_SMS_REGION: <SNS_REGION>
+    AWS_SMS_SECRET_ACCESS_KEY: <SNS_USER_SECRET_KEY>
+    AWS_SMS_TOPIC_ARN: arn:aws:sns:<SNS_REGION>:<AWS_ACCOUNT_ID>:<SNS_TOPIC_NAME>
     CERT: certs/cert.pem
     KEY: certs/key.pem
     CORS_SERVER_PORT: "3036"
@@ -95,7 +95,7 @@ api:
     SERVER_PORT: "3030"
     SMTP_FROM_EMAIL: info@login.theoverlay.io
     SMTP_FROM_NAME: noreply
-    SMTP_HOST: email-smtp.<AWS_REGION>.amazonaws.com
+    SMTP_HOST: email-smtp.<SMTP_REGION>.amazonaws.com
     SMTP_PASS: <SMTP_PASSWORD>
     SMTP_PORT: "465"
     SMTP_SECURE: "true"
@@ -161,19 +161,19 @@ media:
         domain: resources.theoverlay.io
       sns:
         access_key_id: <SNS_USER_ACCESS_KEY>
-        application_id: <AWS_SMS_APPLICATION_ID>
+        application_id: <SNS_APPLICATION_ID>
         region: <SNS_REGION>
         secret_access_key: <SNS_USER_SECRET_KEY>
-        sender_id: <AWS_SMS_SENDER_ID>
+        sender_id: <SNS_SENDER_ID>
     host: https://local.theoverlay.io/
   extraEnv:
     APP_HOST: local.theoverlay.io
     APP_URL: https://local.theoverlay.io
-    AUTH_SECRET: <ENTER_A_UUID_OR_SIMILAR>
-    AWS_SMS_ACCESS_KEY_ID: <SMS_USER_ACCESS_KEY>
-    AWS_SMS_REGION: <SMS_REGION>
-    AWS_SMS_SECRET_ACCESS_KEY: <SMS_USER_SECRET_KEY>
-    AWS_SMS_TOPIC_ARN: arn:aws:sns:<SMS_REGION>:<AWS_ACCOUNT_ID>:<SMS_TOPIC_NAME>
+    AUTH_SECRET: <AUTH_SECRET_UUID_OR_SIMILAR>
+    AWS_SMS_ACCESS_KEY_ID: <SNS_USER_ACCESS_KEY>
+    AWS_SMS_REGION: <SNS_REGION>
+    AWS_SMS_SECRET_ACCESS_KEY: <SNS_USER_SECRET_KEY>
+    AWS_SMS_TOPIC_ARN: arn:aws:sns:<SNS_REGION>:<AWS_ACCOUNT_ID>:<SNS_TOPIC_NAME>
     CLIENT_ENABLED: "false"
     CERT: certs/cert.pem
     KEY: certs/key.pem
@@ -197,7 +197,7 @@ media:
     SERVER_PORT: "3030"
     SMTP_FROM_EMAIL: info@login.theoverlay.io
     SMTP_FROM_NAME: noreply
-    SMTP_HOST: email-smtp.<AWS_REGION>.amazonaws.com
+    SMTP_HOST: email-smtp.<SMTP_REGION>.amazonaws.com
     SMTP_PASS: <SMTP_PASSWORD>
     SMTP_PORT: "465"
     SMTP_SECURE: "true"
@@ -237,7 +237,7 @@ gameserver:
     pullPolicy: IfNotPresent
   extraEnv:
     APP_HOST: local.theoverlay.io
-    AUTH_SECRET: <SAME_AUTH_SECRET_AS_API>
+    AUTH_SECRET: <AUTH_SECRET_UUID_OR_SIMILAR>
     APP_URL: https://local.theoverlay.io
     CERT: certs/cert.pem
     KEY: certs/key.pem
