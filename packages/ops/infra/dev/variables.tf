@@ -30,13 +30,13 @@ variable "kubernetes_version" {
 variable "vpc_id"{
   type = string
   description = "vpc id"
-  default = ""
+  default = "vpc-09923f7ecc88171ee"
 }
 
 variable "subnets" {
   type = list(string)
   description = "list of subnets"
-  default = []
+  default = ["subnet-0b0d6a4d12cc06478","subnet-06ef1cebf80d8e6f1","subnet-012499dce65afd1e2"]
 
 }
 
@@ -71,8 +71,8 @@ variable "map_roles" {
 
   default =[
     {
-      rolearn = ""
-      username "admin"
+      rolearn = "arn:aws:iam::007136193514:role/AWSServiceRoleForAmazonEKSNodegroup"
+      username = "admin"
       groups = ["system:masters"]
     }
   ]

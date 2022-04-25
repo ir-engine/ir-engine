@@ -1,51 +1,44 @@
-module "eks_cluster" {
-  source = "terraform-aws-modules/eks/aws"
-  cluster_name = "${var.cluster_name}-${var.environment}"
-  cluster_version = var.kubernetes_version
-  subnets = var.subnets
-  vpc_id  = var.vpc_id
+module "eks" {
+  source          = "terraform-aws-modules/eks/aws"
+  version         = "17.24.0"
+  cluster_name    = "test-cluster"
+  cluster_version = "1.20"
+  subnets         = ["subnet-0b0d6a4d12cc06478","subnet-06ef1cebf80d8e6f1","subnet-012499dce65afd1e2"]
+
+  vpc_id = var.vpc_id
+
   map_users = length(var.map_users) > 0 ? var.map_users : []
   map_roles = var.map_roles
   enable_irsa = true
   write_kubeconfig = false
-  tags   = local.common_tags
+  manage_aws_auth = false
 
-  node_group_default = {
-    disk_size = 40
+  workers_group_defaults = {
+    root_volume_type = "gp2"
   }
 
-  node_groups = {
-    "${var.environment}-ng-gpu-01" = {
-      desired_capacity = 1
-      min_capacity = 1
-      max_capacity = 5
-      ami_type = ""
-      version = var.kubernetes_version
-      instance_types = var.gpu_instance_types
-      capacity_type = "ON_DEMAND"
-      public_ip = true
+  worker_groups = [
+    {
+      name                          = "worker-group-1"
+      instance_type                 = "t3.xlarge"
+      additional_userdata           = "echo foo bar"
+      additional_security_group_ids = "sg-0a9c668c2d9230485"
+      asg_desired_capacity          = 2
+    },
+    {
+      name                          = "worker-group-2"
+      instance_type                 = "t2.medium"
+      additional_userdata           = "echo foo bar"
+      additional_security_group_ids = "sg-0a9c668c2d9230485"
+      asg_desired_capacity          = 1
+    },
+  ]
+}
 
-      k8s_labels = {
-        project_name = var.project_name
-        environment = var.environment
-        region  = var.aws_region
-      }
-    }
-    "${var.environment}-ng-nogpu-01" = {
-      desired_capacity =1
-      min_capacity = 1
-      max_capacity = 5
-      ami_type = ""
-      version = var.kubernetes_version
-      instance_types = var.no_gpu_instance_types
-      capacity_type = "ON_DEMAND
-      public_ip = true
+data "aws_eks_cluster" "cluster" {
+  name = module.eks.cluster_id
+}
 
-      k8s_labels = {
-        project_name = var.project_name
-        environment = var.environment
-        region = var.aws_region
-      }
-    }
-  }
+data "aws_eks_cluster_auth" "cluster" {
+  name = module.eks.cluster_id
 }
