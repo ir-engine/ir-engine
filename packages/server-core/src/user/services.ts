@@ -6,6 +6,7 @@ import IdentityProvider from './identity-provider/identity-provider.service'
 import LoginToken from './login-token/login-token.service'
 import Login from './login/login.service'
 import MagicLink from './magic-link/magic-link.service'
+import ReportIssue from './report-issue/report-issue.service'
 import SMS from './sms/sms.service'
 import UserApiKey from './user-api-key/user-api-key.service'
 import UserRelationshipType from './user-relationship-type/user-relationship-type.service'
@@ -29,5 +30,6 @@ export default [
   LoginToken,
   MagicLink,
   Email,
-  SMS
+  SMS,
+  ReportIssue
 ]

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { Help } from '@mui/icons-material'
 import { Error } from '@mui/icons-material'
@@ -6,6 +6,7 @@ import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
 
 import { reportIssueService } from '../../common/services/ReportIssueService'
+import { prepareReportIssue } from '../../util/prepareReportIssue'
 import styles from './index.module.scss'
 
 interface Props {
@@ -18,9 +19,15 @@ const SubmitBugButton = (props: Props) => {
   const handleHelpClick = () => {
     setShowHelpLoading(true)
   }
-  const handleReportClick = () => {
+  useEffect(() => {
+    setTimeout(() => {
+      prepareReportIssue()
+    }, 2000)
+  }, [])
+  const handleReportClick = async () => {
     setShowReportLoading(true)
-    reportIssueService.submitIssue()
+    const reportData = prepareReportIssue()
+    reportIssueService.submitIssue(reportData)
     setShowReportLoading(false)
   }
 
