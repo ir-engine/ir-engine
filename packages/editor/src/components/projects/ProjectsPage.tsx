@@ -71,15 +71,6 @@ const OfficialProjectData = [
       'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.'
   },
   {
-    id: '1570ae13-889a-11ec-886e-b126f7590685',
-    name: 'e-commerce',
-    repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-e-commerce',
-    storageProviderPath: '',
-    thumbnail: '/static/xrengine_thumbnail.jpg',
-    description:
-      'Join the digital economy with 3D storefronts full of purchasable items from Shopify, Wucommerce and more!'
-  },
-  {
     id: '1570ae14-889a-11ec-886e-b126f7590685',
     name: 'Digital Beings',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-Digital-Beings',
@@ -89,8 +80,8 @@ const OfficialProjectData = [
   },
   {
     id: '1570ae15-889a-11ec-886e-b126f7590685',
-    name: 'harmony',
-    repositoryPath: 'https://github.com/XRFoundation/harmony',
+    name: 'Harmony Chat',
+    repositoryPath: 'https://github.com/XRFoundation/Harmony-Chat',
     storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description:
@@ -98,16 +89,7 @@ const OfficialProjectData = [
   }
 ]
 
-const CommunityProjectData = [
-  /*{
-    id: '1570ae16-889a-11ec-886e-b126f7590685',
-    name: 'puttclub',
-    repositoryPath: 'https://github.com/puttclub/puttclub',
-    storageProviderPath: '',
-    thumbnail: '/static/xrengine_thumbnail.jpg',
-    description: 'Mini-golf in WebXR!'
-  }*/
-] as any
+const CommunityProjectData = [] as any
 
 const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summary: string }>) => {
   return (
