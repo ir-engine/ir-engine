@@ -34,7 +34,7 @@ const StepperButton = (styled as any).button`
   align-items: center;
   background-color: ${(props) => (props.value ? 'var(--blue)' : 'var(--toolbar)')};
 
-  border: 1px solid var(--border);
+  border: 1px solid var(--inputOutline);
   color: var(--text);
 
   width: 20px;

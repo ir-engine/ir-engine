@@ -136,7 +136,7 @@ const GlobalStyle = createGlobalStyle<{ theme: EditorTheme }>`
   body {
     font-family: var(--lato);
     font-size: 12px;
-    color: var(--text);
+    color: var(--textColor);
     background-color: var(--background);
     scrollbar-color: #282c31 #5d646c;
   }

@@ -40,7 +40,7 @@ const NumericInputContainer = (styled as any).div`
   display: flex;
   flex: 1;
   background-color: var(--inputBackground);
-  border: 1px solid var(--border);
+  border: 1px solid var(--inputOutline);
   border-radius: 4px;
   height: 24px;
   overflow: hidden;

@@ -37,6 +37,8 @@
   --shadow30: 0 4px 4px rgb(0 0 0 / 30%);
   --borderStyle: 1px solid #5d646c;
   --borderStyleLight: 1px solid #b9b9b9;
+  --background: rgb(0 0 0 / 0%);
+  --border: #5d646c;
 }
 
 :root[data-theme="light"] {
@@ -72,8 +74,6 @@
   --drawerBackground: #7f78c4;
   --themeSwitchTrack: #aab4be;
   --themeSwitchThumb: #c2b7f6;
-  --background: rgb(0 0 0 / 0%);
-  --border: #5d646c;
   --background2: #15171b;
   --panel: #282c31;
   --dock: rgb(73 66 152 / 85%);
@@ -98,7 +98,6 @@
   --text: #fff;
   --text2: #9fa4b5;
   --text3: #aaa;
-  --dropdown: #3c3c6f;
 }
 
 :root[data-theme="dark"] {
@@ -134,8 +133,6 @@
   --drawerBackground: #1f1b48;
   --themeSwitchTrack: #8796a5;
   --themeSwitchThumb: #02022d;
-  --background: rgb(0 0 0 / 0%);
-  --border: #5d646c;
   --background2: #15171b;
   --panel: #282c31;
   --dock: rgb(31 27 72 / 85%);
@@ -149,7 +146,7 @@
   --purplePanel: #1f1b48;
   --purpleLight: #9898ff;
   --purpleLighter: #3c3c6f;
-  --purplePinkGradient: linear-gradient(92.22deg, #5236ff, #c20560);
+  --purplePinkGradient: linear-gradient(90deg, #5236ff, #c20560);
   --purplePinkGradientTB: linear-gradient(#5236ff, #c20560);
   --panel2: #3a4048;
   --panel2Opaque: #3a4048e0;
@@ -160,7 +157,6 @@
   --text: #fff;
   --text2: #9fa4b5;
   --text3: #aaa;
-  --dropdown: #3c3c6f;
 }
 
 ::-webkit-scrollbar {
@@ -172,11 +168,11 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(92.22deg, var(--scrollbarThumbYAxisStart), var(--scrollbarThumbYAxisEnd));
+  background: linear-gradient(var(--scrollbarThumbYAxisStart), var(--scrollbarThumbYAxisEnd));
 }
 
 ::-webkit-scrollbar-thumb:horizontal {
-  background: linear-gradient(92.22deg, var(--scrollbarThumbXAxisStart), var(--scrollbarThumbXAxisEnd));
+  background: linear-gradient(90deg, var(--scrollbarThumbXAxisStart), var(--scrollbarThumbXAxisEnd));
 }
 
 ::-webkit-scrollbar-corner {

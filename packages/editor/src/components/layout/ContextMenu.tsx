@@ -25,7 +25,7 @@ export const ContextMenuTrigger = _ContextMenuTrigger
  */
 export const ContextMenuStyles = createGlobalStyle<{ theme: EditorTheme }>`
   .react-contextmenu {
-    background-color: var(--dropdown);
+    background-color: var(--dropdownMenuBackground);
     background-clip: padding-box;
     border-radius: 4px;
     margin: 2px 0 0;

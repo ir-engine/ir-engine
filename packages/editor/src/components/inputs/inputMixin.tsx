@@ -8,7 +8,7 @@ import { css } from 'styled-components'
 export default css`
   background-color: var(--inputBackground);
   border-radius: 4px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--inputOutline);
   color: var(--text);
   height: 24px;
   padding: 6px 8px;
