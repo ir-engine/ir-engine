@@ -35,6 +35,7 @@ import { EditorAction } from '../../services/EditorServices'
 import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
+import { InstallProjectDialog } from './InstallProjectDialog'
 import styles from './styles.module.scss'
 
 function sortAlphabetical(a, b) {
@@ -141,6 +142,7 @@ const ProjectsPage = () => {
   const [projectAnchorEl, setProjectAnchorEl] = useState<any>(null)
   const [filter, setFilter] = useState({ installed: false, official: true, community: true })
   const [isCreateDialogOpen, setCreateDialogOpen] = useState(false)
+  const [isInstallDialogOpen, setInstallDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [updatingProject, setUpdatingProject] = useState(false)
 
@@ -226,6 +228,8 @@ const ProjectsPage = () => {
   const closeDeleteConfirm = () => setDeleteDialogOpen(false)
   const openCreateDialog = () => setCreateDialogOpen(true)
   const closeCreateDialog = () => setCreateDialogOpen(false)
+  const openInstallDialog = () => setInstallDialogOpen(true)
+  const closeInstallDialog = () => setInstallDialogOpen(false)
 
   const deleteProject = async () => {
     closeDeleteConfirm()
@@ -248,16 +252,21 @@ const ProjectsPage = () => {
 
   const installProject = async () => {
     if (updatingProject || !activeProject?.repositoryPath) return
+    installProjectFromURL(activeProject?.repositoryPath)
+    closeProjectContextMenu()
+  }
+
+  const installProjectFromURL = async (url: string) => {
+    if (!url) return
 
     setUpdatingProject(true)
     try {
-      await ProjectService.uploadProject(activeProject.repositoryPath)
+      await ProjectService.uploadProject(url)
       fetchInstalledProjects()
     } catch (err) {
       console.error(err)
     }
 
-    closeProjectContextMenu()
     setUpdatingProject(false)
   }
 
@@ -385,9 +394,14 @@ const ProjectsPage = () => {
                 </IconButton>
               )}
             </Paper>
-            <Button onClick={openCreateDialog} className={styles.btn}>
-              {t(`editor.projects.lbl-createProject`)}
-            </Button>
+            <div className={styles.buttonContainer}>
+              <Button onClick={openInstallDialog} className={styles.btn}>
+                {t(`editor.projects.install`)}
+              </Button>
+              <Button onClick={openCreateDialog} className={styles.btn}>
+                {t(`editor.projects.lbl-createProject`)}
+              </Button>
+            </div>
           </div>
           <div className={styles.projectGrid}>
             {error && <div className={styles.errorMsg}>{error.message}</div>}
@@ -447,6 +461,11 @@ const ProjectsPage = () => {
         </Menu>
       )}
       <CreateProjectDialog createProject={onCreateProject} open={isCreateDialogOpen} handleClose={closeCreateDialog} />
+      <InstallProjectDialog
+        installProject={installProjectFromURL}
+        open={isInstallDialogOpen}
+        handleClose={closeInstallDialog}
+      />
       <DeleteDialog
         open={isDeleteDialogOpen}
         isProjectMenu
