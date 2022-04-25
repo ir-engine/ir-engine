@@ -56,7 +56,7 @@ export const deserializePointLight: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, PointLightComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POINT_LIGHT)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POINT_LIGHT)
 
   updatePointLight(entity, props)
 }

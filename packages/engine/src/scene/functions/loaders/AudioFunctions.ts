@@ -62,9 +62,9 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
   const props = parseAudioProperties(json.props)
   addComponent(entity, AudioComponent, props)
 
-  if (Engine.isEditor) {
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO)
 
+  if (Engine.isEditor) {
     obj3d.userData.textureMesh = new Mesh(
       new PlaneBufferGeometry(),
       new MeshBasicMaterial({ transparent: true, side: DoubleSide })

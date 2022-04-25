@@ -56,11 +56,9 @@ export const deserializeOcean: ComponentDeserializeFunction = (
   addComponent(entity, OceanComponent, props)
   addComponent(entity, UpdatableComponent, {})
 
-  if (Engine.isEditor) {
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_OCEAN)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_OCEAN)
 
-    obj3d.userData.disableOutline = true
-  }
+  if (Engine.isEditor) obj3d.userData.disableOutline = true
 
   updateOcean(entity, props)
 }

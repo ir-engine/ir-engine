@@ -52,26 +52,26 @@ describe('TriggerVolumeFunctions', () => {
       assert.deepEqual(triggervolumeComponent, { ...sceneComponentData, active: true })
     })
 
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
+
+      triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
+
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_TRIGGER_VOLUME))
+    })
+
     describe('Editor vs Location', () => {
       it('creates TriggerVolume in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
         triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_TRIGGER_VOLUME))
         assert(!getComponent(entity, Object3DComponent))
       })
 
       it('creates TriggerVolume in Editor', () => {
         Engine.isEditor = true
 
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
         triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_TRIGGER_VOLUME))
 
         const obj3d = getComponent(entity, Object3DComponent)?.value as Mesh<any, MeshBasicMaterial>
         assert(obj3d && obj3d.material.visible === false, 'TriggerVolume outline is not disabled')

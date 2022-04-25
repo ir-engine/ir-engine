@@ -7,7 +7,6 @@ import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction
 } from '@xrengine/engine/src/common/constants/PrefabFunctionType'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
@@ -64,7 +63,7 @@ export const deserializeAsset: ComponentDeserializeFunction = async (
   }
   const props = parseAssetProperties(json.props)
   addComponent(entity, AssetComponent, props)
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ASSET)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ASSET)
 }
 
 export const serializeAsset: ComponentSerializeFunction = (entity) => {

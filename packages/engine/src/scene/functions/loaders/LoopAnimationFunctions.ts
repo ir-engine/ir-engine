@@ -48,7 +48,7 @@ export const deserializeLoopAnimation: ComponentDeserializeFunction = (
     animationSpeed: 1
   })
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_LOOP_ANIMATION)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_LOOP_ANIMATION)
 
   if (accessEngineState().sceneLoaded.value) {
     updateLoopAnimation(entity)

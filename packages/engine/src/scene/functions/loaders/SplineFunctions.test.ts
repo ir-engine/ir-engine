@@ -51,25 +51,27 @@ describe('SplineFunctions', () => {
       assert(getComponent(entity, Object3DComponent)?.value, 'Spline is not created')
     })
 
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
+
+      deserializeSpline(entity, sceneComponent)
+
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SPLINE))
+    })
+
     describe('Editor vs Location', () => {
       it('creates Spline in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
         deserializeSpline(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_SPLINE))
+        const obj3d = getComponent(entity, Object3DComponent)?.value
+        assert(obj3d.children.length === 0 && !obj3d.userData.helper)
       })
 
       it('creates Spline in Editor', () => {
         Engine.isEditor = true
 
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
         deserializeSpline(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SPLINE))
 
         const obj3d = getComponent(entity, Object3DComponent)?.value
         assert(obj3d.children.length > 0 && obj3d.userData.helper)

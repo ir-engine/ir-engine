@@ -85,10 +85,17 @@ describe('BoxColliderFunctions', () => {
       assert(collision && collision.collisions.length <= 0, 'CollisionComponent is not created')
     })
 
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
+
+      boxcolliderFunctions.deserializeBoxCollider(entity, sceneComponent)
+
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_BOX_COLLIDER))
+    })
+
     describe('Editor vs Location', () => {
       it('creates BoxCollider in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
         const parent = new Object3D()
         const obj3d = new Object3D()
         parent.add(obj3d)
@@ -98,8 +105,6 @@ describe('BoxColliderFunctions', () => {
         sceneComponentData.removeMesh = true
         boxcolliderFunctions.deserializeBoxCollider(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_BOX_COLLIDER))
         assert(!getComponent(entity, Object3DComponent)?.value)
         assert(!parent.children.includes(obj3d))
       })
@@ -107,12 +112,7 @@ describe('BoxColliderFunctions', () => {
       it('creates BoxCollider in Editor', () => {
         Engine.isEditor = true
 
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
         boxcolliderFunctions.deserializeBoxCollider(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_BOX_COLLIDER))
 
         assert(getComponent(entity, Object3DComponent)?.value)
         Engine.isEditor = false

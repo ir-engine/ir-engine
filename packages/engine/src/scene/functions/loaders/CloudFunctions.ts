@@ -43,11 +43,8 @@ export const deserializeCloud: ComponentDeserializeFunction = (
   addComponent(entity, CloudComponent, props)
   addComponent(entity, UpdatableComponent, {})
 
-  if (Engine.isEditor) {
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CLOUD)
-
-    obj3d.userData.disableOutline = true
-  }
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CLOUD)
+  if (Engine.isEditor) obj3d.userData.disableOutline = true
 
   updateCloud(entity, props)
 }

@@ -71,25 +71,28 @@ describe('SpawnPointFunctions', () => {
       assert(getComponent(entity, Object3DComponent)?.value === obj3d)
     })
 
+    it('will include this component into EntityNodeComponent', async () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
+
+      await spawnPointFunctions.deserializeSpawnPoint(entity, sceneComponent)
+
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SPAWN_POINT))
+    })
+
     describe('Editor vs Location', () => {
       it('creates SpawnPoint in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
         deserializeSpawnPoint(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_SPAWN_POINT))
+        const obj3d = getComponent(entity, Object3DComponent)?.value
+        assert(!obj3d.children.includes(obj3d.userData.helperModel))
+        assert(!obj3d.children.includes(obj3d.userData.helperBox))
       })
 
       it('creates SpawnPoint in Editor', async () => {
         Engine.isEditor = true
 
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
         await spawnPointFunctions.deserializeSpawnPoint(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SPAWN_POINT))
 
         const obj3d = getComponent(entity, Object3DComponent)?.value
         assert(obj3d.children.includes(obj3d.userData.helperModel))

@@ -61,7 +61,7 @@ export const deserializeDirectionalLight: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, DirectionalLightComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_DIRECTIONAL_LIGHT)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_DIRECTIONAL_LIGHT)
 
   updateDirectionalLight(entity, props)
 }

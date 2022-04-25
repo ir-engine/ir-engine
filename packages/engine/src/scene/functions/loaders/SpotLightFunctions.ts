@@ -65,7 +65,7 @@ export const deserializeSpotLight: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, SpotLightComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPOT_LIGHT)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPOT_LIGHT)
 
   updateSpotLight(entity, props)
 }

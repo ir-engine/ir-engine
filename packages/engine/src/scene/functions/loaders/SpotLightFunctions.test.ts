@@ -81,25 +81,28 @@ describe('SpotLightFunctions', () => {
       assert(obj3d.children.includes(obj3d.target))
     })
 
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
+
+      deserializeSpotLight(entity, sceneComponent)
+
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SPOT_LIGHT))
+    })
+
     describe('Editor vs Location', () => {
       it('creates SpotLight in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
         deserializeSpotLight(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_SPOT_LIGHT))
+        const obj3d = getComponent(entity, Object3DComponent)?.value
+        assert(!obj3d.children.includes(obj3d.userData.ring))
+        assert(!obj3d.children.includes(obj3d.userData.cone))
       })
 
       it('creates SpotLight in Editor', () => {
         Engine.isEditor = true
 
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
         deserializeSpotLight(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SPOT_LIGHT))
 
         const obj3d = getComponent(entity, Object3DComponent)?.value
         assert(obj3d.children.includes(obj3d.userData.ring) && obj3d.userData.ring.userData.isHelper)

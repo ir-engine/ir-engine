@@ -33,9 +33,9 @@ export const deserializeSpawnPoint: ComponentDeserializeFunction = async (entity
     addComponent(entity, Object3DComponent, { value: obj3d })
   }
 
-  if (Engine.isEditor) {
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPAWN_POINT)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPAWN_POINT)
 
+  if (Engine.isEditor) {
     if (!spawnPointHelperModel) {
       const { scene } = await AssetLoader.loadAsync(GLTF_PATH)
       spawnPointHelperModel = scene

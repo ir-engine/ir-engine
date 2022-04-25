@@ -105,25 +105,27 @@ describe('CloudFunctions', () => {
       assert(obj3d && obj3d instanceof Clouds, 'Cloud is not created')
     })
 
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
+
+      cloudFunctions.deserializeCloud(entity, sceneComponent)
+
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_CLOUD))
+    })
+
     describe('Editor vs Location', () => {
       it('creates Cloud in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
         cloudFunctions.deserializeCloud(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_CLOUD))
+        const obj3d = getComponent(entity, Object3DComponent)?.value
+        assert(obj3d && !obj3d.userData.disableOutline, 'Cloud outline is disabled')
       })
 
       it('creates Cloud in Editor', () => {
         Engine.isEditor = true
 
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
         cloudFunctions.deserializeCloud(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_CLOUD))
 
         const obj3d = getComponent(entity, Object3DComponent)?.value
         assert(obj3d && obj3d.userData.disableOutline, 'Cloud outline is not disabled')

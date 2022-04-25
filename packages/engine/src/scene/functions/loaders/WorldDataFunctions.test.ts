@@ -68,27 +68,13 @@ describe('WorldDataFunctions', () => {
       assert((obj3d as any)._data === sceneComponentData.data)
     })
 
-    describe('Editor vs Location', () => {
-      it('creates World Data in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        deserializeWorldData(entity, sceneComponent)
+      deserializeWorldData(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_WORLDDATA))
-      })
-
-      it('creates World Data in Editor', () => {
-        Engine.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        deserializeWorldData(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_WORLDDATA))
-        Engine.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_WORLDDATA))
     })
   })
 

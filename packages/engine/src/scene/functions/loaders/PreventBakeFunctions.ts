@@ -11,10 +11,9 @@ export const SCENE_COMPONENT_PREVENT_BAKE = 'prevent-bake'
 export const SCENE_COMPONENT_PREVENT_BAKE_DEFAULT_VALUES = {}
 
 export const deserializePreventBake: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson<{}>) => {
-  if (Engine.isEditor) {
-    addComponent(entity, PreventBakeTagComponent, {})
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PREVENT_BAKE)
-  }
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PREVENT_BAKE)
+
+  if (Engine.isEditor) addComponent(entity, PreventBakeTagComponent, {})
 }
 
 export const serializePreventBake: ComponentSerializeFunction = (entity) => {

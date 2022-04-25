@@ -57,27 +57,13 @@ describe('SystemFunctions', () => {
       assert(getComponent(entity, PreventBakeTagComponent))
     })
 
-    describe('Editor vs Location', () => {
-      it('creates System in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        deserializeSystem(entity, sceneComponent)
+      deserializeSystem(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_SYSTEM))
-      })
-
-      it('creates System in Editor', () => {
-        Engine.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        deserializeSystem(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SYSTEM))
-        Engine.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SYSTEM))
     })
   })
 

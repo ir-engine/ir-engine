@@ -138,25 +138,13 @@ describe('AudioFunctions', () => {
       })
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Audio in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        audioFunctions.deserializeAudio(entity, sceneComponent)
+      audioFunctions.deserializeAudio(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_AUDIO))
-      })
-
-      it('creates Audio in Editor', () => {
-        Engine.isEditor = true
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        audioFunctions.deserializeAudio(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AUDIO))
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AUDIO))
     })
 
     describe('Editor Tests', () => {

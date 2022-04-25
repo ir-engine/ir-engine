@@ -30,11 +30,9 @@ export const deserializeWater: ComponentDeserializeFunction = (
   addComponent(entity, WaterComponent, { ...json.props })
   addComponent(entity, UpdatableComponent, {})
 
-  if (Engine.isEditor) {
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_WATER)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_WATER)
 
-    obj3d.userData.disableOutline = true
-  }
+  if (Engine.isEditor) obj3d.userData.disableOutline = true
 
   updateWater(entity, json.props)
 }

@@ -42,10 +42,10 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
     target: json.props.target,
     active: true
   })
-  if (Engine.isEditor) {
-    addComponent(entity, Object3DComponent, { value: boxMesh }, Engine.currentWorld)
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRIGGER_VOLUME)
-  }
+
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRIGGER_VOLUME)
+
+  if (Engine.isEditor) addComponent(entity, Object3DComponent, { value: boxMesh }, Engine.currentWorld)
 }
 
 export const updateTriggerVolume: ComponentUpdateFunction = (entity: Entity, prop: any) => {

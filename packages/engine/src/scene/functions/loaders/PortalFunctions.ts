@@ -65,7 +65,7 @@ export const deserializePortal: ComponentDeserializeFunction = (
     addComponent(spawnHelperEntity, Object3DComponent, { value: spawnHelperMesh })
   }
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PORTAL)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PORTAL)
 
   updatePortal(entity)
 }

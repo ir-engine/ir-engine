@@ -58,27 +58,13 @@ describe('VisibleFunctions', () => {
       assert(!getComponent(entity, Object3DComponent)?.value)
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Visible in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        visibleFunctions.deserializeVisible(entity, sceneComponent)
+      visibleFunctions.deserializeVisible(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_VISIBLE))
-      })
-
-      it('creates Visible in Editor', () => {
-        Engine.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        visibleFunctions.deserializeVisible(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_VISIBLE))
-        Engine.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_VISIBLE))
     })
   })
 
