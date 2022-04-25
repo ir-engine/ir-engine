@@ -55,7 +55,7 @@
       color: var(--white);
 
       &:global(.Mui-focused) {
-        background: var(--hover);
+        background: var(--dropdownMenuHoverBackground);
       }
     }
   }
@@ -92,6 +92,6 @@
   font-size: 12px;
 
   &:hover {
-    background: var(--hover);
+    background: var(--dropdownMenuHoverBackground);
   }
 }

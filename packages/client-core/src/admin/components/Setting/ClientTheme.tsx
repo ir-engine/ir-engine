@@ -89,7 +89,10 @@ const ClientTheme = () => {
   const [selectValue, setSelectValue] = useState('')
   const [anchorEl, setAnchorEl] = useState<any>(null)
   const [mode, setMode] = useState(selfUser?.user_setting?.value?.themeMode || 'dark')
-  const [themeSetting, setThemeSetting] = useState(clientSetting?.themeSettings || defaultThemeSettings)
+  const [themeSetting, setThemeSetting] = useState({
+    light: { ...defaultThemeSettings.light, ...clientSetting?.themeSettings?.light },
+    dark: { ...defaultThemeSettings.dark, ...clientSetting?.themeSettings?.dark }
+  })
 
   const handleChangeColor = (name, value) => {
     const tempSetting = JSON.parse(JSON.stringify(themeSetting))
@@ -369,6 +372,14 @@ const ClientTheme = () => {
           color: ${theme.textColor};
         }
 
+        .option:global(.Mui-focused){
+          background-color: ${theme.dropdownMenuHoverBackground};
+        }
+        
+        .option:hover {
+          background-color: ${theme.dropdownMenuHoverBackground};
+        }
+
         .drawer {
           background-color: ${theme.drawerBackground};
         }
@@ -483,7 +494,7 @@ const ClientTheme = () => {
                   classes={{ paper: 'selectPaper' }}
                 >
                   {['Option 1', 'Option 2', 'Option 3', 'Option 4'].map((el, index) => (
-                    <MenuItem value={el} key={index} onClick={closeMenu}>
+                    <MenuItem value={el} key={index} onClick={closeMenu} classes={{ root: 'option' }}>
                       {el}
                     </MenuItem>
                   ))}
@@ -496,11 +507,11 @@ const ClientTheme = () => {
                   MenuProps={{ classes: { paper: 'selectPaper' } }}
                   onChange={(e) => setSelectValue(e.target.value)}
                 >
-                  <MenuItem value="" disabled>
+                  <MenuItem value="" disabled classes={{ root: 'option' }}>
                     Select Option
                   </MenuItem>
                   {['Option 1', 'Option 2', 'Option 3', 'Option 4'].map((el, index) => (
-                    <MenuItem value={el} key={index}>
+                    <MenuItem value={el} key={index} classes={{ root: 'option' }}>
                       {el}
                     </MenuItem>
                   ))}
@@ -759,6 +770,14 @@ const ClientTheme = () => {
             name="dropdownMenuBackground"
             value={theme.dropdownMenuBackground}
             onChange={(color) => handleChangeColor('dropdownMenuBackground', color)}
+          />
+        </Grid>
+        <Grid item sm={12} md={6} className={styles.colorGridContainer}>
+          <label>Dropdown Menu Hover Background:</label>
+          <SketchColorPicker
+            name="dropdownMenuHoverBackground"
+            value={theme.dropdownMenuHoverBackground}
+            onChange={(color) => handleChangeColor('dropdownMenuHoverBackground', color)}
           />
         </Grid>
         <Grid item sm={12} md={6} className={styles.colorGridContainer}>

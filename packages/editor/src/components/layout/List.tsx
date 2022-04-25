@@ -23,7 +23,7 @@ export const ListItem = (styled as any).li`
 
   :hover,
   :focus {
-    background-color: ${(props) => (props.selected ? 'var(--blueHover)' : 'var(--hover)')};
+    background-color: ${(props) => (props.selected ? 'var(--blueHover)' : 'var(--dropdownMenuHoverBackground)')};
     color: var(--textColor);
   }
 

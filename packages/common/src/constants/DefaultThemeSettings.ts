@@ -29,6 +29,7 @@ const defaultThemeSettings = {
     inputOutline: '#FFF',
     inputBackground: '#6868ba',
     dropdownMenuBackground: '#7f78c4',
+    dropdownMenuHoverBackground: '#6D61B5',
     drawerBackground: '#7f78c4',
     themeSwitchTrack: '#aab4be',
     themeSwitchThumb: '#c2b7f6'
@@ -63,6 +64,7 @@ const defaultThemeSettings = {
     inputOutline: '#FFF',
     inputBackground: '#3c3c6f',
     dropdownMenuBackground: '#1f1b48',
+    dropdownMenuHoverBackground: '#2A2567',
     drawerBackground: '#1f1b48',
     themeSwitchTrack: '#8796a5',
     themeSwitchThumb: '#02022d'

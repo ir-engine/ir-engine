@@ -77,15 +77,15 @@ export const LargeButton = styled(Button)`
  * @type {Styled component}
  */
 export const SecondaryButton = styled(Button)`
-  background-color: var(--hover);
+  background-color: var(--buttonFilled);
   color: var(--textColor);
 
   &:hover {
-    background-color: var(--text2);
+    opacity: 0.8;
   }
 
   &:active {
-    background-color: var(--text2);
+    opacity: 0.8;
   }
 
   &:disabled {
