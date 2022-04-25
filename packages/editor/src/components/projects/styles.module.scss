@@ -22,7 +22,7 @@
     .profileButton {
       display: flex;
       align-items: center;
-      color: var(--text);
+      color: var(--textColor);
       background: transparent;
 
       span {
@@ -129,13 +129,13 @@
 
           &:hover,
           &:focus-visible {
-            color: var(--text);
+            color: var(--textColor);
           }
         }
 
         .inputRoot {
           flex: 1;
-          color: var(--text);
+          color: var(--textColor);
         }
       }
 
@@ -235,7 +235,7 @@
             text-decoration: none;
 
             &:hover {
-              color: var(--text);
+              color: var(--textColor);
             }
           }
 
@@ -259,7 +259,7 @@
               width: calc(100% - 24px);
               font-size: 14px;
               font-weight: bold;
-              color: var(--text);
+              color: var(--textColor);
             }
 
             button {
@@ -304,7 +304,7 @@
           .description {
             font-size: 12px;
             margin-top: 8px;
-            color: var(--text);
+            color: var(--textColor);
             opacity: 0.9;
             height: 45px;
             overflow: hidden;
@@ -359,7 +359,7 @@
 
   .filterMenuItem {
     position: relative;
-    color: var(--text);
+    color: var(--textColor);
     font-size: 14px;
     padding-left: 35px;
 
@@ -382,28 +382,28 @@
   background: var(--purpleLighter);
   box-shadow: 16px 16px 32px 0 #11111159;
   backdrop-filter: blur(50px);
-  color: var(--text);
+  color: var(--textColor);
   width: 300px;
 
   .inputContainer {
-    color: var(--text);
+    color: var(--textColor);
     width: 100%;
     font-size: 14px;
     background-color: var(--inputBackground);
   }
 
   .input {
-    border-color: var(--text);
+    border-color: var(--inputOutline);
     background-color: var(--inputBackground);
   }
 
   .input:hover + .outline {
-    border-color: var(--text);
+    border-color: var(--inputOutline);
   }
 
   .input:focus + .outline,
   .outline {
-    border-color: var(--text2);
+    border-color: var(--inputOutline);
   }
 
   .btn {
@@ -441,7 +441,7 @@
 
 .deleteDialog {
   background: var(--panel2);
-  color: var(--text);
+  color: var(--textColor);
   width: 300px;
 
   .contentWrapper {
@@ -459,7 +459,7 @@
       &:hover,
       &:focus-visible {
         background: var(--blue);
-        color: var(--text);
+        color: var(--textColor);
       }
     }
 
@@ -478,7 +478,7 @@
 
     .confirmBtn[disabled] {
       background: var(--disabledText);
-      color: var(--text);
+      color: var(--textColor);
       cursor: initial;
       opacity: 1 !important;
     }

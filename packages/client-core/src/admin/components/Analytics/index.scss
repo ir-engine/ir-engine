@@ -8,7 +8,7 @@
 }
 
 .apexcharts-xaxistooltip-bottom {
-  color: var(--text) !important;
+  color: var(--textColor) !important;
   background: var(--purpleLight) !important;
 
   &::after {
@@ -18,7 +18,7 @@
 
 .apexcharts-menu-icon {
   svg {
-    fill: var(--text) !important;
+    fill: var(--iconButtonColor) !important;
   }
 
   &:hover {

@@ -13,7 +13,7 @@ export const ListItem = (styled as any).li`
   min-height: 24px;
   padding: 0 4px;
   align-items: center;
-  color: var(--text);
+  color: var(--textColor);
 
   background-color: ${(props) => (props.selected ? 'var(--selected)' : 'var(--panel2)')};
 
@@ -24,12 +24,12 @@ export const ListItem = (styled as any).li`
   :hover,
   :focus {
     background-color: ${(props) => (props.selected ? 'var(--blueHover)' : 'var(--hover)')};
-    color: var(--text);
+    color: var(--textColor);
   }
 
   :active {
     background-color: var(--bluePressed);
-    color: var(--text);
+    color: var(--textColor);
   }
 `
 

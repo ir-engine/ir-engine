@@ -94,10 +94,7 @@
   --selected: #5f5ff1;
   --selectedText: #fff;
   --hover: #4b5562;
-  --hover2: #636f80;
-  --text: #fff;
   --text2: #9fa4b5;
-  --text3: #aaa;
 }
 
 :root[data-theme="dark"] {
@@ -152,10 +149,7 @@
   --selected: #5f5ff1;
   --selectedText: #fff;
   --hover: #4b5562;
-  --hover2: #636f80;
-  --text: #fff;
   --text2: #9fa4b5;
-  --text3: #aaa;
 }
 
 ::-webkit-scrollbar {
@@ -272,7 +266,7 @@
 
 body {
   overflow: auto;
-  color: var(--text);
+  color: var(--textColor);
   overscroll-behavior-y: contain;
 }
 

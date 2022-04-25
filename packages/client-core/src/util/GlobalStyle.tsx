@@ -100,12 +100,12 @@ const GlobalStyle = createGlobalStyle<{ theme: EditorTheme }>`
   }
 
   ::selection {
-    color: var(--text);
+    color: var(--textColor);
     background-color: var(--selected);
   }
 
   a {
-    color: var(--text);
+    color: var(--textColor);
 
     &:hover {
       color: var(--blueHover);

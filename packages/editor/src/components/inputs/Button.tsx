@@ -28,12 +28,12 @@ export const Button = styled.button.attrs((props) => ({
   margin-right: 15px;
 
   &:hover {
-    color: var(--text);
+    color: var(--textColor);
     opacity: 0.8;
   }
 
   &:active {
-    color: var(--text);
+    color: var(--textColor);
   }
 
   &:disabled {
@@ -78,7 +78,7 @@ export const LargeButton = styled(Button)`
  */
 export const SecondaryButton = styled(Button)`
   background-color: var(--hover);
-  color: var(--text);
+  color: var(--textColor);
 
   &:hover {
     background-color: var(--text2);

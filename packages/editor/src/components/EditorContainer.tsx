@@ -89,7 +89,7 @@ export const DockContainer = (styled as any).div`
   .dock-tab:hover, .dock-tab-active, .dock-tab-active:hover {
     border-bottom: 1px solid #ddd;
   }
-  .dock-tab:hover div, .dock-tab:hover svg { color: var(--text); }
+  .dock-tab:hover div, .dock-tab:hover svg { color: var(--textColor); }
   .dock-tab > div { padding: 2px 12px; }
   .dock-tab-active {
     color: var(--purpleColor);

@@ -21,7 +21,7 @@ export const Vector3InputContainer = (styled as any).div`
 export const Vector3Scrubber = (styled as any)(Scrubber)`
   display: flex;
   align-items: center;
-  color: var(--text);
+  color: var(--textColor);
   padding: 4px;
   background: ${(props) => (props.axis === 'x' ? 'var(--red)' : props.axis === 'y' ? 'var(--green)' : 'var(--blue)')};
 `

@@ -22,7 +22,7 @@
     .profileButton {
       display: flex;
       align-items: center;
-      color: var(--text);
+      color: var(--textColor);
       background: transparent;
 
       span {
@@ -90,7 +90,7 @@
 .appBarHeadingContainer {
   flex: 1;
   display: flex;
-  color: var(--text);
+  color: var(--textColor);
   flex-direction: row;
   align-items: center;
   justify-content: space-between;

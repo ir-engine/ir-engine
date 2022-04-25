@@ -22,7 +22,7 @@ export const DnsInfoIcon = (styled as any)(DnsIcon)`
   align-self: center;
 
   &:hover {
-    color: var(--text);
+    color: var(--textColor);
   }
 `
 

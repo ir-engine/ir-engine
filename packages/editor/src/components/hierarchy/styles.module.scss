@@ -26,7 +26,7 @@
   &:hover,
   &:focus {
     background-color: var(--dock);
-    color: var(--text);
+    color: var(--textColor);
   }
 
   &.rootNode {
@@ -36,7 +36,7 @@
 
   &.selected {
     background: var(--selected);
-    color: var(--text);
+    color: var(--textColor);
 
     &:hover,
     &:focus {
@@ -65,7 +65,7 @@
       top: -3px;
       width: 100%;
       background-color: var(--inputBackground);
-      color: var(--text);
+      color: var(--textColor);
       border: var(--borderStyleLight);
       padding: 2px 4px;
       outline: none;
@@ -86,7 +86,7 @@
 
       &.dropTarget {
         background-color: rgb(255 255 255 / 30%);
-        color: var(--text);
+        color: var(--textColor);
       }
     }
   }
@@ -107,8 +107,8 @@
   color: var(--text2);
 
   &:hover {
-    color: var(--text);
-    background-color: var(--hover2);
+    opacity: 0.8;
+    color: var(--textColor);
     border-radius: 3px;
   }
 }

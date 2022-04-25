@@ -63,7 +63,7 @@ export const DialogContent = (styled as any).div`
 
   h1 {
     font-size: 2em;
-    color: var(--text);
+    color: var(--textColor);
     margin-bottom: 16px;
   }
 

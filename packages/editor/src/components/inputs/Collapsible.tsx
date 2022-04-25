@@ -28,7 +28,7 @@ const CollapsibleLabel = (styled as any).div`
   display: inline-block;
 
   :hover {
-    color: var(--text);
+    color: var(--textColor);
   }
 `
 

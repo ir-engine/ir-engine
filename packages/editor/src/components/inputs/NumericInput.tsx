@@ -63,7 +63,7 @@ const NumericInputContainer = (styled as any).div`
  * @author Robert Long
  */
 const StyledNumericInput = (styled as any).input`
-  color: var(--text);
+  color: var(--textColor);
   background-color: var(--inputBackground);
   border: none;
   font-size: 12px;

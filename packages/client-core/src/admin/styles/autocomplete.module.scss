@@ -1,5 +1,5 @@
 .root {
-  color: var(--text);
+  color: var(--textColor);
   font-size: 14px;
 }
 
@@ -7,7 +7,7 @@
   padding: 0 0 10px;
   line-height: 1.5;
   display: block;
-  color: var(--text);
+  color: var(--textColor);
 }
 
 .inputWrapper {
@@ -21,7 +21,7 @@
 
   input {
     background-color: var(--inputBackground);
-    color: var(--text);
+    color: var(--textColor);
     height: 30px;
     box-sizing: border-box;
     padding: 4px 6px;
@@ -41,7 +41,7 @@
   position: absolute;
   list-style: none;
   background-color: var(--inputBackground);
-  color: var(--text);
+  color: var(--textColor);
   overflow: auto;
   max-height: 30vh;
   border-radius: 4px;
@@ -67,7 +67,7 @@
     font-weight: 600;
 
     & svg {
-      color: var(--text);
+      color: var(--textColor);
     }
   }
 
@@ -76,7 +76,7 @@
     cursor: pointer;
 
     & svg {
-      color: var(--text);
+      color: var(--textColor);
     }
   }
 }
@@ -94,7 +94,7 @@
   padding: 0 4px 0 10px;
   outline: 0;
   overflow: hidden;
-  color: var(--text);
+  color: var(--textColor);
 
   span {
     overflow: hidden;
@@ -106,6 +106,6 @@
     font-size: 12px;
     cursor: pointer;
     padding: 4px;
-    color: var(--text);
+    color: var(--textColor);
   }
 }

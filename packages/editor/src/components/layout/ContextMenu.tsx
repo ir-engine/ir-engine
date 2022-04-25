@@ -60,12 +60,12 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: EditorTheme }>`
     display: flex;
     flex: 1;
     justify-content: space-between;
-    color: var(--text);
+    color: var(--textColor);
   }
 
   .react-contextmenu-item.react-contextmenu-item--active,
   .react-contextmenu-item.react-contextmenu-item--selected {
-    color: var(--text);
+    color: var(--textColor);
     background-color: var(--selected);
     border-color: transparent;
     text-decoration: none;
@@ -75,7 +75,7 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: EditorTheme }>`
   .react-contextmenu-item.react-contextmenu-item--disabled:hover {
     background-color: transparent;
     border-color: rgba(0,0,0,.15);
-    color: var(--text);
+    color: var(--textColor);
   }
 
   .react-contextmenu-item--divider {

@@ -27,7 +27,7 @@ const Input = styled.input`
   background-color: ${(props) => (props.disabled ? 'var(--disabled)' : 'var(--inputBackground)')};
   border-radius: 4px;
   border: 1px solid ${(props) => borderColor(props, 'var(--inputOutline)')};
-  color: ${(props) => (props.disabled ? 'var(--disabledText)' : 'var(--text)')};
+  color: ${(props) => (props.disabled ? 'var(--disabledText)' : 'var(--textColor)')};
   height: 24px;
   padding: 6px 8px;
 

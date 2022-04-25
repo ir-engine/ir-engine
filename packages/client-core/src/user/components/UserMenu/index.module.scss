@@ -11,7 +11,7 @@
 .apiRefresh {
   &:hover {
     cursor: pointer;
-    color: var(--text);
+    color: var(--textColor);
     background-color: dimgray;
     border-radius: 100px;
   }
@@ -29,7 +29,7 @@
 
 .themeHeading {
   font-size: 12px;
-  color: var(--text);
+  color: var(--textColor);
 }
 
 .settingContainer {
@@ -73,7 +73,7 @@
       }
 
       svg {
-        color: var(--text);
+        color: var(--textColor);
       }
 
       &:hover {
@@ -276,7 +276,7 @@
           margin: 0;
           min-width: 30px;
           border-radius: 50%;
-          color: var(--text);
+          color: var(--textColor);
           background-color: var(--purpleColor1);
           box-shadow: 2px 2px 10px gray;
           transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
@@ -307,7 +307,7 @@
           font-size: 14px;
           font-weight: bold;
           margin: 0;
-          color: var(--text);
+          color: var(--textColor);
         }
 
         .inputBlock {
@@ -321,12 +321,12 @@
 
             input {
               font-size: 18px;
-              color: var(--text);
-              border-color: var(--text);
+              color: var(--textColor);
+              border-color: var(--inputOutline);
             }
 
             :global(.MuiFormLabel-root) {
-              color: var(--text);
+              color: var(--textColor);
             }
 
             :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
@@ -354,7 +354,7 @@
           font-size: 14px;
           text-align: left;
           opacity: 0.8;
-          color: var(--text);
+          color: var(--textColor);
           margin: 5px 0 !important;
 
           span {
@@ -373,7 +373,7 @@
         h4 {
           margin-top: 4px;
           text-align: left;
-          color: var(--text);
+          color: var(--textColor);
 
           .logout {
             max-width: 50px;
@@ -396,23 +396,23 @@
         font-size: 14px;
         font-weight: bold;
         margin: 0;
-        color: var(--text);
+        color: var(--textColor);
       }
 
       .emailField {
         margin-top: 10px;
         margin-bottom: 20px;
         width: 100%;
-        color: var(--text);
+        color: var(--textColor);
         background: transparent;
 
         input {
-          color: var(--text);
-          border-color: var(--text);
+          color: var(--textColor);
+          border-color: var(--inputOutline);
         }
 
         :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
-          border-color: var(--text);
+          border-color: var(--inputOutline);
         }
 
         .materialIconBlock {
@@ -425,7 +425,7 @@
       text-align: center;
 
       .textBlock {
-        color: var(--text);
+        color: var(--textColor);
         font-size: 14px;
         font-weight: normal;
         text-align: center;
@@ -439,7 +439,7 @@
         width: 250px;
         max-width: 100%;
         background: var(--purplePinkGradient);
-        color: var(--text);
+        color: var(--textColor);
         border-radius: 20px;
         margin: 15px 0 20px;
 
@@ -477,7 +477,7 @@
 
       .textBlock {
         font-size: 14px;
-        color: var(--text);
+        color: var(--textColor);
         font-weight: normal;
         text-align: center;
         display: block;
@@ -486,7 +486,7 @@
 
       .smallTextBlock {
         font-size: 12px;
-        color: var(--text);
+        color: var(--textColor);
         font-weight: normal;
         text-align: center;
         display: block;
@@ -497,7 +497,7 @@
 
   .settingPanel {
     .settingSection {
-      color: var(--text);
+      color: var(--textColor);
       position: relative;
 
       & + .settingSection {
@@ -602,7 +602,7 @@
 
     .panelHeader {
       font-size: 18px;
-      color: var(--text);
+      color: var(--textColor);
       font-weight: bold;
     }
 
@@ -652,7 +652,7 @@
     }
 
     h5 {
-      color: var(--text);
+      color: var(--textColor);
       margin-top: 10px;
       font-size: 14px;
       font-weight: normal;
@@ -661,22 +661,22 @@
     .copyField {
       margin-top: 10px;
       width: 100%;
-      color: var(--text);
+      color: var(--textColor);
 
       input {
-        color: var(--text);
-        border-color: var(--text);
-        -webkit-text-fill-color: var(--text);
+        color: var(--textColor);
+        border-color: var(--inputOutline);
+        -webkit-text-fill-color: var(--textColor);
       }
 
       :global(.MuiOutlinedInput-root) {
         fieldset {
-          border-color: var(--text);
+          border-color: var(--inputOutline);
         }
       }
 
       :global(.MuiInputAdornment-root) {
-        color: var(--text);
+        color: var(--textColor);
         cursor: pointer;
 
         &:hover {
@@ -692,21 +692,21 @@
     .emailField {
       margin-top: 30px;
       width: 100%;
-      color: var(--text);
+      color: var(--textColor);
 
       input {
-        color: var(--text);
-        border-color: var(--text);
+        color: var(--textColor);
+        border-color: var(--inputOutline);
       }
 
       :global(.MuiOutlinedInput-root) {
         fieldset {
-          border-color: var(--text);
+          border-color: var(--inputOutline);
         }
       }
 
       :global(.MuiInputAdornment-root) {
-        color: var(--text);
+        color: var(--textColor);
         cursor: pointer;
 
         &:hover {
@@ -778,7 +778,7 @@
 
       .tableHead {
         background: var(--purpleButtonColor);
-        color: var(--text);
+        color: var(--textColor);
       }
 
       .tablebody {
@@ -808,7 +808,7 @@
 
       button:hover {
         background: var(--purpleButtonColor);
-        color: var(--text);
+        color: var(--textColor);
       }
     }
 
@@ -939,7 +939,7 @@
     }
 
     .savebtn {
-      color: var(--text);
+      color: var(--textColor);
       background: var(--purpleButtonColor);
       height: 35px;
       width: 150px;
@@ -1076,7 +1076,7 @@
         border-radius: 50%;
         background: var(--purpleButtonColor);
         box-shadow: 2px 2px 10px gray;
-        color: var(--text);
+        color: var(--textColor);
         transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         display: flex;
         align-items: center;
@@ -1208,13 +1208,13 @@
     .iconBlock {
       display: inline-block;
       cursor: pointer;
-      color: var(--text);
+      color: var(--textColor);
       background: transparent;
     }
 
     h2 {
       font-size: 18px;
-      color: var(--text);
+      color: var(--textColor);
       font-weight: bold;
       display: inline-block;
       vertical-align: middle;
@@ -1232,7 +1232,7 @@
       background-color: var(--purpleColor1);
       padding: 0;
       border: none;
-      color: var(--text);
+      color: var(--textColor);
       flex-grow: 1;
       border-radius: 3px;
       font-size: 14px;
@@ -1309,7 +1309,7 @@
         top: 30px;
         right: 5px;
         width: 130px;
-        color: var(--text);
+        color: var(--textColor);
         font-size: 12px;
         display: none;
 
@@ -1319,7 +1319,7 @@
 
         .shiftKey {
           background: var(--purplePanel);
-          color: var(--text);
+          color: var(--textColor);
           padding: 2px 4px;
           border-radius: 4px;
           font-weight: bold;
@@ -1330,10 +1330,10 @@
           font-size: 18px;
           margin-right: 5px;
           width: 40px;
-          color: var(--text);
+          color: var(--iconButtonColor);
 
           path {
-            fill: var(--text);
+            fill: var(--iconButtonColor);
           }
         }
 
@@ -1374,7 +1374,7 @@
     .thumbnailSelectLabel {
       margin: 20px 0 8px;
       font-size: 15px;
-      color: var(--text);
+      color: var(--textColor);
     }
   }
 
@@ -1384,15 +1384,15 @@
     margin: 8px 0;
 
     .avatarNameInput {
-      color: var(--text);
-      border-color: var(--text);
+      color: var(--textColor);
+      border-color: var(--inputOutline);
       background: transparent;
 
       input {
         padding: 5px;
         font-size: 14px;
-        color: var(--text);
-        border-color: var(--text);
+        color: var(--textColor);
+        border-color: var(--inputOutline);
 
         &::selection {
           background-color: transparent;
@@ -1400,7 +1400,7 @@
       }
 
       :global(.MuiFormLabel-root) {
-        color: var(--text);
+        color: var(--textColor);
       }
 
       :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
@@ -1520,7 +1520,7 @@
     }
 
     button {
-      color: var(--text);
+      color: var(--textColor);
       display: flex;
       padding: 3px 5px;
       flex-direction: row;
@@ -1569,7 +1569,7 @@
       margin: 0;
       padding: 0;
       min-width: 0;
-      background-color: var(--text);
+      background-color: white;
       cursor: pointer;
 
       &:hover {
@@ -1593,7 +1593,7 @@
         background-color: var(--purpleColor);
 
         svg {
-          color: var(--text);
+          color: var(--textColor);
           font-size: 20px;
         }
       }
@@ -1624,7 +1624,7 @@
 
   .iconBlock {
     position: relative;
-    color: var(--text);
+    color: var(--textColor);
     border: none;
     padding: 0;
     background-color: transparent !important;
@@ -1680,7 +1680,7 @@
 
   .iconBlock {
     position: relative;
-    color: var(--text);
+    color: var(--textColor);
     border: none;
     padding: 0;
     top: 18px;
@@ -1946,7 +1946,7 @@
 
   & > ul {
     width: 100%;
-    color: var(--text);
+    color: var(--textColor);
   }
 }
 
@@ -1975,7 +1975,7 @@
 
 .input {
   font-size: 14px;
-  color: var(--text);
+  color: var(--textColor);
   background-color: var(--purpleLight);
 }
 
@@ -1985,11 +1985,11 @@
 }
 
 .selected {
-  background: var(--text);
+  background: white;
 }
 
 .color {
-  color: var(--text);
+  color: var(--textColor);
 }
 
 .paper2 {
@@ -2001,7 +2001,7 @@
 }
 
 .selectedTab {
-  color: var(--text) !important;
+  color: var(--textColor) !important;
   font-weight: bold;
   font-size: 17px;
   text-transform: capitalize;
