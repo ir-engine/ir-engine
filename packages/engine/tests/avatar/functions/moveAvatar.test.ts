@@ -81,6 +81,8 @@ const createMovingAvatar = (world) => {
       movementEnabled: true,
       isJumping: false,
       isWalking: false,
+      isInAir: false,
+      previousFrameVelocity: new Vector3(),
       // set input to move in a straight line on X/Z axis / horizontal diagonal
       localMovementDirection: new Vector3(1, 0, 1),
       velocitySimulator,
