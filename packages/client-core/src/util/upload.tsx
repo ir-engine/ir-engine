@@ -1,14 +1,8 @@
 import i18n from 'i18next'
 
 import { accessAuthState } from '../user/services/AuthService'
+import { serverHost } from './config'
 import { RethrownError } from './errors'
-
-const serverURL =
-  process.env.APP_ENV === 'development'
-    ? `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}:${
-        (globalThis as any).process.env['VITE_SERVER_PORT']
-      }`
-    : `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}`
 
 /**
  * upload used to upload image as blob data.
@@ -70,7 +64,7 @@ export const uploadToFeathersService = (
       formData.set('media', files)
     }
 
-    request.open('post', `${serverURL}/${service}`, true)
+    request.open('post', `${serverHost}/${service}`, true)
     request.setRequestHeader('Authorization', `Bearer ${token}`)
     request.send(formData)
   })
