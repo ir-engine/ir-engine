@@ -69,8 +69,6 @@ const loadScene = async (app: Application, scene: string) => {
     const systems = await getSystemsFromSceneData(projectName, sceneData, false)
     const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
     Engine.instance.publicPath = config.client.url
-    createEngine()
-    initializeNode()
     await initializeCoreSystems()
     await initializeRealtimeSystems(false, true)
     await initializeSceneSystems()
@@ -206,10 +204,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
     Engine.instance.publicPath = config.client.url
     const userId = 'media' as UserId
     Engine.instance.userId = userId
-    createEngine()
     const world = useWorld()
     world.hostId = userId
-    initializeNode()
     await initializeMediaServerSystems()
     await initializeRealtimeSystems(true, false)
     const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
@@ -589,6 +585,9 @@ export default (app: Application): void => {
     // If no real-time functionality has been configured just return
     return
   }
+
+  createEngine()
+  initializeNode()
 
   app.service('gameserver-load').on('patched', async (params) => {
     const { id, ipAddress, podName, locationId, sceneId } = params
