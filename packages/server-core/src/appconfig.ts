@@ -130,7 +130,7 @@ const client = {
   title: process.env.APP_TITLE!,
   url:
     process.env.APP_URL ||
-    (process.env.LOCAL_BUILD
+    (process.env.VITE_LOCAL_BUILD
       ? 'http://' + process.env.APP_HOST + ':' + process.env.APP_PORT
       : 'https://' + process.env.APP_HOST + ':' + process.env.APP_PORT),
   releaseName: process.env.RELEASE_NAME!
@@ -336,7 +336,7 @@ const config = {
     tcpPort: process.env.KUBERNETES_PORT_443_TCP_PORT!
   },
   noSSL: process.env.NOSSL === 'true',
-  localBuild: process.env.LOCAL_BUILD === 'true'
+  localBuild: process.env.VITE_LOCAL_BUILD === 'true'
 }
 
 chargebeeInst.configure({
