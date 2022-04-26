@@ -3,9 +3,8 @@ import proxyquire from 'proxyquire'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { createEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
@@ -15,15 +14,13 @@ import { VisibleComponent } from '../../components/VisibleComponent'
 import { SCENE_COMPONENT_VISIBLE } from './VisibleFunctions'
 
 describe('VisibleFunctions', () => {
-  let world: World
   let entity: Entity
   let visibleFunctions = proxyquire('./VisibleFunctions', {
     '../../../common/functions/isClient': { isClient: true }
   })
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.instance.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 

@@ -2,9 +2,8 @@ import assert from 'assert'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { createEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import {
@@ -21,13 +20,10 @@ import {
 } from './AudioSettingFunctions'
 
 describe('AudioSettingFunctions', () => {
-  let world: World
   let entity: Entity
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.instance.currentWorld = world
-    Engine.instance.isEditor = false
+    createEngine()
     entity = createEntity()
   })
 

@@ -1,8 +1,7 @@
 import assert from 'assert'
 import { BoxBufferGeometry, Mesh, MeshNormalMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three'
 
-import { Engine } from '../src/ecs/classes/Engine'
-import { createWorld } from '../src/ecs/classes/World'
+import { createEngine, Engine } from '../src/ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../src/ecs/functions/EntityFunctions'
 import { useWorld } from '../src/ecs/functions/SystemHooks'
@@ -24,7 +23,7 @@ const mockDelta = 1 / 60
 
 describe('Physics Interation Tests', () => {
   beforeEach(async () => {
-    Engine.instance.currentWorld = createWorld()
+    createEngine()
     await Engine.instance.currentWorld.physics.createScene({ verbose: true })
   })
 

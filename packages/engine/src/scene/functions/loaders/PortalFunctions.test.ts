@@ -3,22 +3,16 @@ import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
-import { createWorld } from '../../../ecs/classes/World'
+import { createEngine, Engine } from '../../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { ColliderComponent } from '../../../physics/components/ColliderComponent'
-import { CollisionComponent } from '../../../physics/components/CollisionComponent'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { PortalComponent } from '../../components/PortalComponent'
-import { TriggerVolumeComponent } from '../../components/TriggerVolumeComponent'
 import { deserializePortal } from './PortalFunctions'
 
 describe('PortalFunctions', () => {
   it('deserializePortal', async () => {
-    const world = createWorld()
-    Engine.instance.currentWorld = world
-    Engine.instance.currentWorld = world
+    createEngine()
     await Engine.instance.currentWorld.physics.createScene({ verbose: true })
 
     const entity = createEntity()

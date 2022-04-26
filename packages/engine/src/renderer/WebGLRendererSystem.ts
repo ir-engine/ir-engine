@@ -59,7 +59,7 @@ export interface EffectComposerWithSchema extends EffectComposer {
 let lastRenderTime = 0
 
 export class EngineRenderer {
-  static instance = new EngineRenderer()
+  static instance
 
   /** Is resize needed? */
   needsResize: boolean

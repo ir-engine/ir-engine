@@ -1,15 +1,23 @@
 import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene, XRFrame } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createHyperStore } from '@xrengine/hyperflux'
+import { addActionReceptor, createHyperStore, registerState } from '@xrengine/hyperflux'
 
 import { InputValue } from '../../input/interfaces/InputValue'
+import { WorldState } from '../../networking/interfaces/WorldState'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { createWorld, World } from '../classes/World'
-import { accessEngineState } from './EngineService'
+import { accessEngineState, EngineEventReceptor } from './EngineService'
 import { Entity } from './Entity'
 
 export const CreateEngine = Symbol('CreateEngine')
 
+/**
+ * Creates a new instance of the engine. This initializes all properties and state for the engine,
+ * adds action receptors and creates a new world.
+ * @returns {Engine}
+ */
 export function createEngine() {
   return Engine[CreateEngine]()
 }
@@ -19,7 +27,13 @@ export class Engine {
   static instance: Engine
 
   constructor() {
+    Engine.instance = this
     this.currentWorld = createWorld()
+    this.scene = new Scene()
+    this.scene.layers.set(ObjectLayers.Scene)
+    EngineRenderer.instance = new EngineRenderer()
+    registerState(this.currentWorld.store, WorldState)
+    addActionReceptor(this.store, EngineEventReceptor)
   }
 
   /** The uuid of the logged-in user */
@@ -91,3 +105,5 @@ export class Engine {
 
   isEditor = false
 }
+
+globalThis.Engine = Engine

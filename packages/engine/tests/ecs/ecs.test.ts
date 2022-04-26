@@ -1,8 +1,8 @@
 import assert from 'assert'
 import * as bitecs from 'bitecs'
 
-import { Engine } from '../../src/ecs/classes/Engine'
-import { createWorld, World } from '../../src/ecs/classes/World'
+import { createEngine, Engine } from '../../src/ecs/classes/Engine'
+import { World } from '../../src/ecs/classes/World'
 import {
   addComponent,
   createMappedComponent,
@@ -57,7 +57,7 @@ async function MockSystemInitialiser(world: World, args: {}) {
 
 describe('ECS', () => {
   beforeEach(async () => {
-    const world = (Engine.instance.currentWorld = createWorld())
+    const world = createEngine().currentWorld
     await initSystems(world, [
       {
         type: SystemUpdateType.UPDATE,

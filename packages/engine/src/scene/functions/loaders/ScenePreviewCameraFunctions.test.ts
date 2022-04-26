@@ -4,9 +4,8 @@ import { Object3D, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { createEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
@@ -19,15 +18,13 @@ import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, SCENE_PREVIEW_CAMERA_HELPER } fro
 const EPSILON = 10e-8
 
 describe('ScenePreviewCameraFunctions', () => {
-  let world: World
   let entity: Entity
   let scenePreviewCameraFunctions = proxyquire('./ScenePreviewCameraFunctions', {
     '../../../common/functions/isClient': { isClient: true }
   })
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.instance.currentWorld = world
+    createEngine()
     Engine.instance.isEditor = false
     entity = createEntity()
     addComponent(entity, TransformComponent, {

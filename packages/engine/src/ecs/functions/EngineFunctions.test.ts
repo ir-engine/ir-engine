@@ -1,25 +1,17 @@
 import assert from 'assert'
-import { Object3D, Scene } from 'three'
+import { Object3D } from 'three'
 
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
-import { Engine } from '../classes/Engine'
-import { createWorld } from '../classes/World'
+import { createEngine, Engine } from '../classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from './ComponentFunctions'
 import { unloadAllEntities, unloadScene } from './EngineFunctions'
 import { createEntity } from './EntityFunctions'
 
 describe('EngineFunctions', () => {
-  afterEach(() => {
-    Engine.instance.currentWorld = null!
-    Engine.instance.scene = null!
-  })
-
   describe('unloadAllEntities', () => {
     it('can unload all scene entities', () => {
-      const world = createWorld()
-      Engine.instance.currentWorld = world
-      Engine.instance.scene = new Scene()
+      const world = createEngine().currentWorld
       const object3dQuery = defineQuery([Object3DComponent])
       const persistQuery = defineQuery([PersistTagComponent])
 
@@ -50,9 +42,7 @@ describe('EngineFunctions', () => {
     })
 
     it('can unload all non-persisted scene entities', () => {
-      const world = createWorld()
-      Engine.instance.currentWorld = world
-      Engine.instance.scene = new Scene()
+      const world = createEngine().currentWorld
       const getEntities = defineQuery([Object3DComponent])
       const persistQuery = defineQuery([PersistTagComponent])
 
@@ -90,7 +80,6 @@ describe('EngineFunctions', () => {
 
   //   it('can unload scene while persisting', () => {
 
-  //     const world = createWorld()
   //     unloadScene()
 
   //   })

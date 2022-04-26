@@ -15,6 +15,8 @@ import { UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
+import { registerPrefabs } from '../functions/registerPrefabs'
+import { registerDefaultSceneFunctions } from '../functions/registerSceneFunctions'
 import { reparentObject3D } from '../functions/ReparentFunction'
 import { Updatable } from '../interfaces/Updatable'
 
@@ -71,6 +73,9 @@ const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
 
 export default async function SceneObjectSystem(world: World) {
   SceneOptions.instance = new SceneOptions()
+
+  registerDefaultSceneFunctions(world)
+  registerPrefabs(world)
 
   if (isNode) {
     await loadDRACODecoder()

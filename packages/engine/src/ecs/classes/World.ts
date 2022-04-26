@@ -30,10 +30,6 @@ import { Engine } from './Engine'
 import { Entity } from './Entity'
 import EntityTree from './EntityTree'
 
-type RemoveIndex<T> = {
-  [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
-}
-
 const TimerConfig = {
   MAX_DELTA: 1 / 10
 }
@@ -47,11 +43,12 @@ export class World {
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
 
-    if (!Engine.instance.currentWorld) Engine.instance.currentWorld = this
-
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
 
     initializeEntityTree(this)
+
+    // @TODO support multiple networks per world
+    Network.instance = new Network()
   }
 
   static [CreateWorld] = () => new World()

@@ -6,9 +6,8 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
-import { Engine } from '../../ecs/classes/Engine'
+import { createEngine, Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { createWorld, CreateWorld, World } from '../../ecs/classes/World'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -41,12 +40,8 @@ import { Vector3SoA, Vector4SoA } from './Utils'
 import { createViewCursor, readFloat32, readUint8, readUint32, sliceViewCursor, writeProp } from './ViewCursor'
 
 describe('DataReader', () => {
-  // todo: should be beforeEach?
-  before(() => {
-    Engine.instance.currentWorld = createWorld()
-  })
-  afterEach(() => {
-    Engine.instance.userId = undefined as any
+  beforeEach(() => {
+    createEngine()
   })
 
   it('should checkBitflag', () => {

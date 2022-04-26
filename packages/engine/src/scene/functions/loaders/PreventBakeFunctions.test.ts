@@ -1,11 +1,9 @@
 import assert from 'assert'
-import { Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { createEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
@@ -13,15 +11,11 @@ import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 import { deserializePreventBake, SCENE_COMPONENT_PREVENT_BAKE, serializePreventBake } from './PreventBakeFunctions'
 
-class FakePreventBake extends Object3D {}
-
 describe('PreventBakeFunctions', () => {
-  let world: World
   let entity: Entity
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.instance.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 
@@ -61,11 +55,13 @@ describe('PreventBakeFunctions', () => {
 
   describe('serializePreventBake()', () => {
     it('should properly serialize preventbake', () => {
+      Engine.instance.isEditor = true
       deserializePreventBake(entity, sceneComponent)
       assert.deepEqual(serializePreventBake(entity), sceneComponent)
     })
 
     it('should return undefine if there is no preventbake component', () => {
+      Engine.instance.isEditor = true
       assert(serializePreventBake(entity) === undefined)
     })
   })

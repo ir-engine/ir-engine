@@ -5,6 +5,9 @@ import { ArrayByType, ISchema, Type } from 'bitecs'
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 
+/**
+ * @todo move this to engine scope
+ */
 export const ComponentMap = new Map<string, ComponentType<any>>()
 globalThis.ComponentMap = ComponentMap
 
@@ -233,7 +236,7 @@ export const addComponent = <T, S extends bitECS.ISchema>(
   if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[addComponent]: entity is undefined')
   }
-  if (hasComponent(entity, component)) throw new Error('component already exists' + entity + component._name)
+  if (hasComponent(entity, component, world)) throw new Error('component already exists' + entity + component._name)
   bitECS.addComponent(world, component, entity, false) // don't clear data on-add
   if ((component as any)._schema) {
     for (const [key] of Object.entries((component as any)._schema as any)) {
@@ -263,7 +266,7 @@ export const removeComponent = <T, S extends bitECS.ISchema>(
   if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[removeComponent]: entity is undefined')
   }
-  ;(component as any)._setPrevious(entity, getComponent(entity, component))
+  ;(component as any)._setPrevious(entity, getComponent(entity, component, false, world))
   bitECS.removeComponent(world, component, entity, true) // clear data on-remove
 }
 

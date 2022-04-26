@@ -3,8 +3,7 @@ import { AnimationClip, Bone, Group, Vector3 } from 'three'
 
 import { loadGLTFAssetNode } from '../../../tests/util/loadGLTFAssetNode'
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
-import { Engine } from '../../ecs/classes/Engine'
-import { createWorld } from '../../ecs/classes/World'
+import { createEngine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
@@ -27,8 +26,7 @@ const testGLTF = '/packages/projects/default-project/public/avatars/CyberbotRed.
 
 describe('avatarFunctions Unit', async () => {
   beforeEach(async () => {
-    const world = createWorld()
-    Engine.instance.currentWorld = world
+    createEngine()
   })
 
   let assetModel

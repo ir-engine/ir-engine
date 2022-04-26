@@ -4,8 +4,7 @@ import { AvatarInputSchema } from '../../avatar/AvatarInputSchema'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
-import { Engine } from '../../ecs/classes/Engine'
-import { createWorld } from '../../ecs/classes/World'
+import { createEngine, Engine } from '../../ecs/classes/Engine'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../components/InputComponent'
@@ -18,14 +17,12 @@ import ClientInputSystem, { processCombinationLifecycle, processEngineInputState
 const stickPosition: NumericalType = [0, 0, 0]
 
 describe('ClientInputSystem Unit Tests', () => {
-  beforeEach(async () => {
-    const world = createWorld()
-    Engine.instance.currentWorld = world
-    Engine.instance.inputState = new Map()
+  beforeEach(() => {
+    createEngine()
   })
 
   describe('processEngineInputState', () => {
-    it('add new input - Started state', async () => {
+    it('add new input - Started state', () => {
       Engine.instance.inputState.set(GamepadAxis.Left, {
         type: InputType.TWODIM,
         value: stickPosition,
@@ -37,7 +34,7 @@ describe('ClientInputSystem Unit Tests', () => {
       assert.strictEqual(Engine.instance.inputState.size, 1)
     })
 
-    it('add new input - Ended state', async () => {
+    it('add new input - Ended state', () => {
       Engine.instance.inputState.set(GamepadAxis.Right, {
         type: InputType.TWODIM,
         value: stickPosition,
@@ -54,12 +51,7 @@ describe('ClientInputSystem Unit Tests', () => {
       assert.strictEqual(Engine.instance.inputState.get(GamepadAxis.Right)?.lifecycleState, LifecycleValue.Ended)
     })
 
-    it('run the input cycle', async () => {
-      Engine.instance.inputState.set(GamepadAxis.Right, {
-        type: InputType.TWODIM,
-        value: stickPosition,
-        lifecycleState: LifecycleValue.Ended
-      })
+    it('Two similar state becomes unchanged', () => {
       Engine.instance.inputState.set(GamepadAxis.Left, {
         type: InputType.TWODIM,
         value: stickPosition,
@@ -67,13 +59,20 @@ describe('ClientInputSystem Unit Tests', () => {
       })
 
       processEngineInputState()
-      assert.strictEqual(Engine.instance.inputState.get(GamepadAxis.Left)?.lifecycleState, LifecycleValue.Unchanged)
-      assert.strictEqual(Engine.instance.inputState.size, 2)
+      assert.strictEqual(Engine.instance.inputState.get(GamepadAxis.Left)?.lifecycleState, LifecycleValue.Started)
+      assert.strictEqual(Engine.instance.inputState.size, 1)
+
+      Engine.instance.inputState.set(GamepadAxis.Left, {
+        type: InputType.TWODIM,
+        value: stickPosition,
+        lifecycleState: LifecycleValue.Started
+      })
       processEngineInputState()
+      assert.strictEqual(Engine.instance.inputState.get(GamepadAxis.Left)?.lifecycleState, LifecycleValue.Unchanged)
       assert.strictEqual(Engine.instance.inputState.size, 1)
     })
 
-    it('set the first input into ended', async () => {
+    it('set the first input into ended', () => {
       Engine.instance.inputState.set(GamepadAxis.Left, {
         type: InputType.TWODIM,
         value: stickPosition,
@@ -233,77 +232,5 @@ describe('ClientInputSystem Unit Tests', () => {
 
       assert(!inputComponent.data.has(mapping))
     })
-  })
-})
-
-describe('ClientInputSystem Integration Tests', () => {
-  let world
-  let clientInputSystem
-
-  beforeEach(async () => {
-    world = createWorld()
-    Engine.instance.currentWorld = world
-    Engine.instance.inputState = new Map()
-    clientInputSystem = await ClientInputSystem(world)
-  })
-  it('add new input - Started state', async () => {
-    Engine.instance.inputState.set(GamepadAxis.Left, {
-      type: InputType.TWODIM,
-      value: stickPosition,
-      lifecycleState: LifecycleValue.Started
-    })
-
-    assert.strictEqual(Engine.instance.inputState.size, 1)
-    clientInputSystem()
-    assert.strictEqual(Engine.instance.inputState.size, 1)
-  })
-
-  it('add new input - Ended state', async () => {
-    Engine.instance.inputState.set(GamepadAxis.Right, {
-      type: InputType.TWODIM,
-      value: stickPosition,
-      lifecycleState: LifecycleValue.Ended
-    })
-    Engine.instance.inputState.set(GamepadAxis.Left, {
-      type: InputType.TWODIM,
-      value: stickPosition,
-      lifecycleState: LifecycleValue.Started
-    })
-
-    assert.strictEqual(Engine.instance.inputState.size, 2)
-    assert.strictEqual(Engine.instance.inputState.get(GamepadAxis.Left)?.lifecycleState, LifecycleValue.Started)
-    assert.strictEqual(Engine.instance.inputState.get(GamepadAxis.Right)?.lifecycleState, LifecycleValue.Ended)
-  })
-
-  it('run the input cycle', async () => {
-    Engine.instance.inputState.set(GamepadAxis.Right, {
-      type: InputType.TWODIM,
-      value: stickPosition,
-      lifecycleState: LifecycleValue.Ended
-    })
-    Engine.instance.inputState.set(GamepadAxis.Left, {
-      type: InputType.TWODIM,
-      value: stickPosition,
-      lifecycleState: LifecycleValue.Started
-    })
-
-    clientInputSystem()
-    assert.strictEqual(Engine.instance.inputState.get(GamepadAxis.Left)?.lifecycleState, LifecycleValue.Unchanged)
-    assert.strictEqual(Engine.instance.inputState.size, 2)
-    clientInputSystem()
-    assert.strictEqual(Engine.instance.inputState.size, 1)
-  })
-
-  it('set the first input into ended', async () => {
-    Engine.instance.inputState.set(GamepadAxis.Left, {
-      type: InputType.TWODIM,
-      value: stickPosition,
-      lifecycleState: LifecycleValue.Ended
-    })
-    clientInputSystem()
-    assert.strictEqual(Engine.instance.inputState.size, 1)
-    assert.strictEqual(Engine.instance.inputState.get(GamepadAxis.Left)?.lifecycleState, LifecycleValue.Ended)
-    clientInputSystem()
-    assert.strictEqual(Engine.instance.inputState.size, 0)
   })
 })

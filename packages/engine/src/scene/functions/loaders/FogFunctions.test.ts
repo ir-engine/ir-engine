@@ -3,8 +3,7 @@ import { Color, Fog, Scene } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
-import { createWorld } from '../../../ecs/classes/World'
+import { createEngine, Engine } from '../../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { FogComponent } from '../../components/FogComponent'
@@ -13,9 +12,7 @@ import { deserializeFog } from './FogFunctions'
 
 describe('FogFunctions', () => {
   it('deserializeFog', () => {
-    const world = createWorld()
-    Engine.instance.currentWorld = world
-    Engine.instance.scene = new Scene()
+    createEngine()
 
     const entity = createEntity()
 

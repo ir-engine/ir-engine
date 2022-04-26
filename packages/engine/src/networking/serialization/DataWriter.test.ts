@@ -5,9 +5,8 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
-import { Engine } from '../../ecs/classes/Engine'
+import { createEngine, Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { createWorld } from '../../ecs/classes/World'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -26,7 +25,7 @@ import { createViewCursor, readFloat32, readUint8, readUint32, sliceViewCursor }
 
 describe('DataWriter', () => {
   before(() => {
-    Engine.instance.currentWorld = createWorld()
+    createEngine()
   })
 
   it('should writeComponent', () => {
@@ -314,7 +313,7 @@ describe('DataWriter', () => {
   })
 
   it('should createDataWriter', () => {
-    const world = createWorld()
+    const world = Engine.instance.currentWorld
 
     const write = createDataWriter()
 

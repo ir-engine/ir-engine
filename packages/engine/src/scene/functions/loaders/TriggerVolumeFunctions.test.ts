@@ -1,13 +1,12 @@
 import assert from 'assert'
 import proxyquire from 'proxyquire'
-import { Mesh, MeshBasicMaterial, Object3D } from 'three'
+import { Mesh, MeshBasicMaterial } from 'three'
 import { Quaternion, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { createEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
@@ -18,18 +17,14 @@ import { Object3DComponent } from '../../components/Object3DComponent'
 import { TriggerVolumeComponent } from '../../components/TriggerVolumeComponent'
 import { SCENE_COMPONENT_TRIGGER_VOLUME } from './TriggerVolumeFunctions'
 
-class FakeTriggerVolume extends Object3D {}
-
 describe('TriggerVolumeFunctions', () => {
-  let world: World
   let entity: Entity
   let triggervolumeFunctions = proxyquire('./TriggerVolumeFunctions', {
     '../../../physics/functions/createCollider': { createCollider: () => {} }
   })
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.instance.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 

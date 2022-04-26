@@ -2,7 +2,7 @@ import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
 import { AudioListener, PerspectiveCamera, Scene } from 'three'
 
-import { addActionReceptor, dispatchAction, registerState } from '@xrengine/hyperflux'
+import { dispatchAction } from '@xrengine/hyperflux'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
 // import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
@@ -12,19 +12,14 @@ import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { isClient } from './common/functions/isClient'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
-import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
-import { createWorld } from './ecs/classes/World'
+import { EngineActions } from './ecs/classes/EngineService'
 import { reset } from './ecs/functions/EngineFunctions'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { removeClientInputListeners } from './input/functions/clientInputListeners'
-import { Network } from './networking/classes/Network'
-import { matchActionOnce, receiveActionOnce } from './networking/functions/matchActionOnce'
+import { matchActionOnce } from './networking/functions/matchActionOnce'
 import { NetworkActionReceptor } from './networking/functions/NetworkActionReceptor'
-import { WorldState } from './networking/interfaces/WorldState'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
-import { registerPrefabs } from './scene/functions/registerPrefabs'
-import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
 import './threejsPatches'
 import { FontManager } from './xrui/classes/FontManager'
 
@@ -85,21 +80,6 @@ const setupInitialClickListener = () => {
  */
 export const initializeNode = () => {
   // node currently does not need to initialize anything
-}
-
-export const createEngine = () => {
-  createEngine()
-  const world = Engine.instance.currentWorld
-  Engine.instance.scene = new Scene()
-  Engine.instance.scene.layers.set(ObjectLayers.Scene)
-
-  registerDefaultSceneFunctions(world)
-  registerPrefabs(world)
-  registerState(Engine.instance.currentWorld.store, WorldState)
-  addActionReceptor(Engine.instance.store, EngineEventReceptor)
-
-  globalThis.Engine = Engine
-  globalThis.Network = Network
 }
 
 const executeWorlds = (delta, elapsedTime) => {

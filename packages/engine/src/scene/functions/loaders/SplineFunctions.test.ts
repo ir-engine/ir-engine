@@ -3,9 +3,8 @@ import { Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { createEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
@@ -15,12 +14,10 @@ import { SplineComponent } from '../../components/SplineComponent'
 import { deserializeSpline, parseSplineProperties, SCENE_COMPONENT_SPLINE, serializeSpline } from './SplineFunctions'
 
 describe('SplineFunctions', () => {
-  let world: World
   let entity: Entity
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.instance.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 

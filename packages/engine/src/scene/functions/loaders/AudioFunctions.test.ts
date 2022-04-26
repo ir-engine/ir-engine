@@ -7,9 +7,8 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
 import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
-import { Engine } from '../../../ecs/classes/Engine'
+import { createEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -67,7 +66,6 @@ class Audio extends Object3D {
 class PositionalAudio extends Audio {}
 
 describe('AudioFunctions', () => {
-  let world: World
   let entity: Entity
   let audioFunctions = proxyquire('./AudioFunctions', {
     '../../../common/functions/isClient': { isClient: true },
@@ -78,9 +76,7 @@ describe('AudioFunctions', () => {
   })
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.instance.currentWorld = world
-    Engine.instance.isEditor = false
+    createEngine()
     entity = createEntity()
   })
 

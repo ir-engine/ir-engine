@@ -4,8 +4,7 @@ import { Quaternion, Vector3 } from 'three'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
 import { TestNetwork } from '../../../tests/networking/TestNetwork'
-import { Engine } from '../../ecs/classes/Engine'
-import { createWorld } from '../../ecs/classes/World'
+import { createEngine, Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
@@ -25,22 +24,18 @@ import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { createAvatar } from './createAvatar'
 
 describe('createAvatar', () => {
-  let world
-
   beforeEach(async () => {
-    /* hoist */
+    createEngine()
     Network.instance = new TestNetwork()
-    world = createWorld()
-    Engine.instance.currentWorld = world
     await Engine.instance.currentWorld.physics.createScene({ verbose: true })
   })
 
   afterEach(() => {
-    Engine.instance.currentWorld = null!
     delete (globalThis as any).PhysX
   })
 
   it('check the create avatar function', () => {
+    const world = Engine.instance.currentWorld
     Engine.instance.userId = world.hostId
 
     // mock entity to apply incoming unreliable updates to

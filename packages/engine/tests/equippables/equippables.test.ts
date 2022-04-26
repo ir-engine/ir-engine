@@ -5,16 +5,13 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
-import { Engine } from '../../src/ecs/classes/Engine'
-import { createWorld } from '../../src/ecs/classes/World'
+import { createEngine, Engine } from '../../src/ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../src/ecs/functions/EntityFunctions'
 import { EquippedComponent } from '../../src/interaction/components/EquippedComponent'
 import { EquipperComponent } from '../../src/interaction/components/EquipperComponent'
 import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
 import { equippableQueryEnter, equippableQueryExit } from '../../src/interaction/systems/EquippableSystem'
-import { Network } from '../../src/networking/classes/Network'
-import { NetworkObjectAuthorityTag } from '../../src/networking/components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
 import { ColliderComponent } from '../../src/physics/components/ColliderComponent'
 import { CollisionComponent } from '../../src/physics/components/CollisionComponent'
@@ -25,8 +22,7 @@ import { TransformComponent } from '../../src/transform/components/TransformComp
 
 describe('Equippables Integration Tests', () => {
   it('Can equip and unequip', async () => {
-    const world = createWorld()
-    Engine.instance.currentWorld = world
+    const world = createEngine().currentWorld
 
     const hostUserId = 'server' as UserId
     world.hostId = hostUserId
