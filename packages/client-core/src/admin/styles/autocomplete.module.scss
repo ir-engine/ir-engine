@@ -63,7 +63,7 @@
   }
 
   & li[aria-selected="true"] {
-    background-color: var(--purpleColor);
+    background-color: var(--dropdownMenuHoverBackground);
     font-weight: 600;
 
     & svg {
@@ -72,7 +72,7 @@
   }
 
   & li[data-focus="true"] {
-    background-color: var(--purpleColor) !important;
+    background-color: var(--dropdownMenuHoverBackground) !important;
     cursor: pointer;
 
     & svg {
@@ -87,8 +87,8 @@
   height: 24px;
   margin: 2px;
   line-height: 22px;
-  background-color: var(--purpleLight);
-  border: 1px solid var(--purpleLight);
+  background-color: var(--panelBackground);
+  border: 1px solid var(--panelBackground);
   border-radius: 2px;
   box-sizing: content-box;
   padding: 0 4px 0 10px;

@@ -28,14 +28,14 @@
 }
 
 .menuBtn {
-  color: #fff;
+  color: var(--iconButtonColor);
   font-size: 3rem;
-  background: var(--purpleLight);
+  background: var(--iconButtonBackground);
   position: fixed;
 }
 
 .saveBtn {
-  background: var(--purplePinkGradient);
+  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
 }
 
 .settings {
@@ -51,10 +51,10 @@
 
 .hoverSettings {
   display: flex;
-  z-index: 1;
+  z-index: 3;
   flex-direction: column;
   text-align: center;
-  background: var(--purplePanel);
+  background: var(--sidebarBackground);
   color: var(--textColor);
   max-width: 310px;
   position: absolute;
@@ -89,7 +89,7 @@
 
 .contents {
   padding: 10px;
-  background: var(--purplePanel) !important;
+  background: var(--panelBackground) !important;
 }
 
 .input {
@@ -147,7 +147,7 @@
 .Paper {
   border-radius: 0;
   padding: 0 10px 6px;
-  background: var(--purpleDarkest);
+  background: var(--panelCards);
 }
 
 .Paper2 {
@@ -155,7 +155,7 @@
   padding: 5px 10px;
   border-radius: 0;
   flex-direction: row;
-  background: var(--purpleDarkest);
+  background: var(--panelCards);
 
   & > div {
     margin: 5px;
@@ -167,26 +167,26 @@
 }
 
 .focused {
-  background: var(--purpleColor);
+  background: var(--sidebarSelectedBackground);
 
   &:hover {
-    background-color: var(--purpleColor);
+    background-color: var(--sidebarSelectedBackground);
   }
 }
 
 .autoFocused {
-  background: var(--purpleColor);
+  background: var(--sidebarSelectedBackground);
 
   &:hover {
-    background-color: var(--purpleColor);
+    background-color: var(--sidebarSelectedBackground);
   }
 }
 
 .notFocused {
-  background: var(--purplePanel);
+  background: var(--sidebarBackground);
 
   &:hover {
-    background-color: var(--purpleColor);
+    background-color: var(--sidebarSelectedBackground);
   }
 }
 
