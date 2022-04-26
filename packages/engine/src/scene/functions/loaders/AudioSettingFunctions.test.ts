@@ -27,7 +27,6 @@ describe('AudioSettingFunctions', () => {
   beforeEach(() => {
     world = createWorld()
     Engine.currentWorld = world
-    Engine.isEditor = false
     entity = createEntity()
   })
 

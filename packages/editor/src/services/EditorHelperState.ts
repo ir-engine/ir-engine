@@ -30,8 +30,6 @@ type EditorHelperStateType = {
   scaleSnap: number
   gridVisibility: boolean
   gridHeight: number
-  nodeHelperVisibility: boolean
-  physicsHelperVisibility: boolean
 }
 
 const state = createState<EditorHelperStateType>({
@@ -46,9 +44,7 @@ const state = createState<EditorHelperStateType>({
   rotationSnap: 10,
   scaleSnap: 0.1,
   gridVisibility: true,
-  gridHeight: 0,
-  nodeHelperVisibility: true,
-  physicsHelperVisibility: true
+  gridHeight: 0
 })
 
 export async function restoreEditorHelperData(): Promise<void> {
@@ -91,10 +87,6 @@ export async function restoreEditorHelperData(): Promise<void> {
       ClientStorage.get(EditorHelperKeys.GRID_HEIGHT).then((v) => {
         if (typeof v !== 'undefined') s.gridHeight = v as number
         else ClientStorage.set(EditorHelperKeys.GRID_HEIGHT, state.gridHeight.value)
-      }),
-      ClientStorage.get(EditorHelperKeys.NODE_HELPER_ENABLE).then((v) => {
-        if (typeof v !== 'undefined') s.nodeHelperVisibility = v as boolean
-        else ClientStorage.set(EditorHelperKeys.NODE_HELPER_ENABLE, state.nodeHelperVisibility.value)
       })
     ])
 
@@ -108,9 +100,6 @@ function updateHelpers(): void {
   SceneState.grid.setSize(state.translationSnap.value)
   SceneState.grid.setGridHeight(state.gridHeight.value)
   SceneState.grid.visible = state.gridVisibility.value
-
-  if (state.nodeHelperVisibility.value) Engine.camera.layers.enable(ObjectLayers.NodeHelper)
-  else Engine.camera.layers.disable(ObjectLayers.NodeHelper)
 }
 
 store.receptors.push((action: EditorHelperActionType): any => {
@@ -160,10 +149,6 @@ store.receptors.push((action: EditorHelperActionType): any => {
       case 'GRID_TOOL_VISIBILITY_CHANGED':
         s.merge({ gridVisibility: action.visibility })
         ClientStorage.set(EditorHelperKeys.GRID_VISIBLE, action.visibility)
-        break
-      case 'NODE_HELPER_VISIBILITY_CHANGED':
-        s.merge({ nodeHelperVisibility: action.visibility })
-        ClientStorage.set(EditorHelperKeys.NODE_HELPER_ENABLE, action.visibility)
         break
       case 'RESTORE_STORAGE_DATA':
         s.merge(action.state)
@@ -255,12 +240,6 @@ export const EditorHelperAction = {
   changeGridToolVisibility: (visibility: boolean) => {
     return {
       type: 'GRID_TOOL_VISIBILITY_CHANGED' as const,
-      visibility
-    }
-  },
-  changeNodeHelperVisibility: (visibility: boolean) => {
-    return {
-      type: 'NODE_HELPER_VISIBILITY_CHANGED' as const,
       visibility
     }
   }

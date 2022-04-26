@@ -94,29 +94,9 @@ describe('BoxColliderFunctions', () => {
       assert(entityNodeComponent.components.includes(SCENE_COMPONENT_BOX_COLLIDER))
     })
 
-    describe('Editor vs Location', () => {
-      it('creates BoxCollider in Location', () => {
-        const parent = new Object3D()
-        const obj3d = new Object3D()
-        parent.add(obj3d)
-
-        addComponent(entity, Object3DComponent, { value: obj3d })
-
-        sceneComponentData.removeMesh = true
-        boxcolliderFunctions.deserializeBoxCollider(entity, sceneComponent)
-
-        assert(!getComponent(entity, Object3DComponent)?.value)
-        assert(!parent.children.includes(obj3d))
-      })
-
-      it('creates BoxCollider in Editor', () => {
-        Engine.isEditor = true
-
-        boxcolliderFunctions.deserializeBoxCollider(entity, sceneComponent)
-
-        assert(getComponent(entity, Object3DComponent)?.value)
-        Engine.isEditor = false
-      })
+    it('creates Object3d Component', () => {
+      boxcolliderFunctions.deserializeBoxCollider(entity, sceneComponent)
+      assert(getComponent(entity, Object3DComponent)?.value)
     })
   })
 

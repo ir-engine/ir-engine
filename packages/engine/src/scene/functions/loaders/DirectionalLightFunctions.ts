@@ -45,17 +45,19 @@ export const deserializeDirectionalLight: ComponentDeserializeFunction = (
   light.target.name = 'light-target'
   light.add(light.target)
 
-  if (Engine.isEditor) {
-    const helper = new EditorDirectionalLightHelper()
-    helper.visible = true
-    light.add(helper)
-    light.userData.helper = helper
+  const helper = new EditorDirectionalLightHelper()
+  helper.visible = true
+  helper.userData.isHelper = true
+  light.add(helper)
+  light.userData.helper = helper
 
-    const cameraHelper = new CameraHelper(light.shadow.camera)
-    cameraHelper.visible = false
-    light.userData.cameraHelper = cameraHelper
-    setObjectLayers(cameraHelper, ObjectLayers.NodeHelper)
-  }
+  const cameraHelper = new CameraHelper(light.shadow.camera)
+  cameraHelper.visible = false
+  light.userData.cameraHelper = cameraHelper
+  cameraHelper.userData.isHelper = true
+
+  setObjectLayers(helper, ObjectLayers.NodeHelper)
+  setObjectLayers(cameraHelper, ObjectLayers.NodeHelper)
 
   EngineRenderer.instance.directionalLightEntities.push(entity)
   addComponent(entity, Object3DComponent, { value: light })
@@ -130,18 +132,16 @@ export const updateDirectionalLight: ComponentUpdateFunction = (
     }
   }
 
-  if (Engine.isEditor) {
-    light.userData.helper.update()
-    light.userData.cameraHelper.visible = component.showCameraHelper
+  light.userData.helper.update()
+  light.userData.cameraHelper.visible = component.showCameraHelper
 
-    if (component.showCameraHelper) {
-      Engine.scene.add(light.userData.cameraHelper)
-    } else {
-      Engine.scene.remove(light.userData.cameraHelper)
-    }
-
-    light.userData.cameraHelper.update()
+  if (component.showCameraHelper) {
+    Engine.scene.add(light.userData.cameraHelper)
+  } else {
+    Engine.scene.remove(light.userData.cameraHelper)
   }
+
+  light.userData.cameraHelper.update()
 }
 
 export const serializeDirectionalLight: ComponentSerializeFunction = (entity) => {

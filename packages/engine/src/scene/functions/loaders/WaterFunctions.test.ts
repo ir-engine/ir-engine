@@ -62,6 +62,7 @@ describe('WaterFunctions', () => {
 
       const obj3d = getComponent(entity, Object3DComponent)?.value
       assert(obj3d && obj3d instanceof FakeWater, 'Water is not created')
+      assert(obj3d.userData.disableOutline, 'Water outline is not disabled')
     })
 
     it('will include this component into EntityNodeComponent', () => {
@@ -71,25 +72,6 @@ describe('WaterFunctions', () => {
 
       const entityNodeComponent = getComponent(entity, EntityNodeComponent)
       assert(entityNodeComponent.components.includes(SCENE_COMPONENT_WATER))
-    })
-
-    describe('Editor vs Location', () => {
-      it('creates Water in Location', () => {
-        waterFunctions.deserializeWater(entity, sceneComponent)
-
-        const obj3d = getComponent(entity, Object3DComponent)?.value
-        assert(obj3d && !obj3d.userData.disableOutline, 'Water outline is disabled')
-      })
-
-      it('creates Water in Editor', () => {
-        Engine.isEditor = true
-
-        waterFunctions.deserializeWater(entity, sceneComponent)
-
-        const obj3d = getComponent(entity, Object3DComponent)?.value
-        assert(obj3d && obj3d.userData.disableOutline, 'Water outline is not disabled')
-        Engine.isEditor = false
-      })
     })
   })
 

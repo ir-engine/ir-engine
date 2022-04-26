@@ -1,5 +1,4 @@
 import assert from 'assert'
-import { Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -12,8 +11,6 @@ import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 import { deserializePreventBake, SCENE_COMPONENT_PREVENT_BAKE, serializePreventBake } from './PreventBakeFunctions'
-
-class FakePreventBake extends Object3D {}
 
 describe('PreventBakeFunctions', () => {
   let world: World
@@ -42,16 +39,7 @@ describe('PreventBakeFunctions', () => {
       assert(entityNodeComponent.components.includes(SCENE_COMPONENT_PREVENT_BAKE))
     })
 
-    it('does not create PreventBake Component if not in editor', () => {
-      Engine.isEditor = false
-      deserializePreventBake(entity, sceneComponent)
-
-      const preventbakeComponent = getComponent(entity, PreventBakeTagComponent)
-      assert(!preventbakeComponent)
-    })
-
     it('creates PreventBake Component with provided component data', () => {
-      Engine.isEditor = true
       deserializePreventBake(entity, sceneComponent)
 
       const preventbakeComponent = getComponent(entity, PreventBakeTagComponent)
