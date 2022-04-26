@@ -24,19 +24,19 @@ export class ReportIssue implements ServiceMethods<Data> {
 
   async sendEmail(data: any, user: any): Promise<void> {
     const appPath = path.dirname(requireMainFilename())
-    const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'account')
-    const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-email.pug')
+    const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'report-issue')
+    const templatePath = path.join(emailAccountTemplatesPath, 'report-issue.pug')
 
     const compiledHTML = pug.compileFile(templatePath)({
       title: config.client.title,
       data,
-      username: user.username
+      username: user.name
     })
     const mailSender = config.email.from
     const email = {
       from: mailSender,
-      to: user.toEmail,
-      subject: config.email.subject,
+      to: 'irankundafabrice9@gmail.com', // For testing purpose,
+      subject: config.email.subject.report,
       html: compiledHTML
     }
 
@@ -71,7 +71,8 @@ export class ReportIssue implements ServiceMethods<Data> {
   async create(data: any, params?: Params): Promise<Data> {
     const loggedInUser = params!.user as any
     // To DO
-    // await this.sendEmail(data, loggedInUser)
+    console.log('...........', JSON.stringify(data))
+    await this.sendEmail(data, loggedInUser)
     return data
   }
 }

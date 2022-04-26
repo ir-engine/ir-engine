@@ -180,7 +180,8 @@ const email = {
     login: 'XREngine login link',
     friend: 'XREngine friend request',
     group: 'XREngine group invitation',
-    party: 'XREngine party invitation'
+    party: 'XREngine party invitation',
+    report: 'XREngine Reported Issue'
   },
   smsNameCharacterLimit: 20
 }

@@ -27,7 +27,7 @@ const SubmitBugButton = (props: Props) => {
   const handleReportClick = async () => {
     setShowReportLoading(true)
     const reportData = prepareReportIssue()
-    reportIssueService.submitIssue(reportData)
+    await reportIssueService.submitIssue(reportData)
     setShowReportLoading(false)
   }
 
