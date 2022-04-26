@@ -54,11 +54,11 @@ export class Instance<T = InstanceDataType> extends Service<T> {
             order.push([name, sort[name] === 0 ? 'DESC' : 'ASC'])
           }
         })
-      const foundLocation = await (this.app.service('instance') as any).Model.findAndCountAll({
+      const foundLocation = await this.app.service('instance').Model.findAndCountAll({
         offset: skip,
         limit: limit,
         include: {
-          model: (this.app.service('location') as any).Model,
+          model: this.app.service('location').Model,
           required: true,
           where: { ...name }
         },

@@ -17,6 +17,7 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -88,7 +89,7 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
 
       obj3d.userData.player = new DracosisPlayer({
         scene: obj3d,
-        renderer: Engine.renderer,
+        renderer: EngineRenderer.instance.renderer,
         paths,
         isLoadingEffect: isClient,
         isVideoTexture: false,

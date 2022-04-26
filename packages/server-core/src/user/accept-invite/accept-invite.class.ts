@@ -60,14 +60,14 @@ export class AcceptInvite implements ServiceMethods<Data> {
       } catch (err) {}
 
       if (invite == null) {
-        console.log('INVALID INVITE ID')
+        logger.info('INVALID INVITE ID')
         return {
           error: 'Invalid Invite ID'
         }
       }
 
       if (params.query!.passcode !== invite.passcode) {
-        console.log('INVALID INVITE PASSCODE')
+        logger.info('INVALID INVITE PASSCODE')
         return {
           error: 'Invalid Invite Passcode'
         }

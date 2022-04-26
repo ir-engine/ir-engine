@@ -10,10 +10,11 @@ import { useChatState } from '@xrengine/client-core/src/social/services/ChatServ
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import WEBGL from '@xrengine/engine/src/renderer/THREE.WebGL'
+import { addActionReceptor, matches } from '@xrengine/hyperflux'
 
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 
@@ -43,7 +44,7 @@ const GameServerWarnings = () => {
   const engineRendereState = useEngineRendererState()
   const chatState = useChatState()
   const instanceConnectionState = useLocationInstanceConnectionState()
-  const [erroredInstanceId, setErroredInstanceId] = useState(null)
+  const [erroredInstanceId, setErroredInstanceId] = useState<string>(null!)
   const [hasShownLowFramerateError, setHasShownLowFramerateError] = useState(false)
   const { t } = useTranslation()
 
@@ -58,42 +59,36 @@ const GameServerWarnings = () => {
   }
 
   useEffect(() => {
-    EngineEvents.instance.addEventListener(
-      SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE,
-      ({ instanceId }) => {
-        setErroredInstanceId(instanceId)
-        updateWarningModal(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
-        setCurrentError(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
-      }
-    )
-
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_WEBGL_DISCONNECTED, () => {
-      updateWarningModal(WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED)
-      setCurrentError(WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED)
+    addActionReceptor(Engine.store, function GameServerWarningsReceptor(action) {
+      matches(action)
+        .when(SocketWebRTCClientTransport.actions.noWorldServersAvailable.matches, ({ instanceId }) => {
+          setErroredInstanceId(instanceId)
+          updateWarningModal(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
+          setCurrentError(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
+        })
+        .when(WEBGL.EVENTS.webglDisconnected.matches, () => {
+          updateWarningModal(WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED)
+          setCurrentError(WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED)
+        })
+        .when(SocketWebRTCClientTransport.actions.worldInstanceDisconnected.matches, () => {
+          updateWarningModal(WarningModalTypes.INSTANCE_DISCONNECTED)
+          setCurrentError(WarningModalTypes.INSTANCE_DISCONNECTED)
+        })
+        .when(SocketWebRTCClientTransport.actions.worldInstanceKicked.matches, ({ message }) => {
+          updateWarningModal(WarningModalTypes.USER_KICKED, message)
+          setCurrentError(WarningModalTypes.USER_KICKED)
+        })
+        .when(SocketWebRTCClientTransport.actions.mediaInstanceDisconnected.matches, () => {
+          updateWarningModal(WarningModalTypes.CHANNEL_DISCONNECTED)
+          setCurrentError(WarningModalTypes.CHANNEL_DISCONNECTED)
+        })
+        .when(SocketWebRTCClientTransport.actions.worldInstanceReconnected.matches, () => {
+          reset(WarningModalTypes.INSTANCE_DISCONNECTED)
+        })
+        .when(SocketWebRTCClientTransport.actions.mediaInstanceReconnected.matches, () => {
+          reset(WarningModalTypes.CHANNEL_DISCONNECTED)
+        })
     })
-
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () => {
-      updateWarningModal(WarningModalTypes.INSTANCE_DISCONNECTED)
-      setCurrentError(WarningModalTypes.INSTANCE_DISCONNECTED)
-    })
-
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_KICKED, ({ message }) => {
-      updateWarningModal(WarningModalTypes.USER_KICKED, message)
-      setCurrentError(WarningModalTypes.USER_KICKED)
-    })
-
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED, () => {
-      updateWarningModal(WarningModalTypes.CHANNEL_DISCONNECTED)
-      setCurrentError(WarningModalTypes.CHANNEL_DISCONNECTED)
-    })
-
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED, () =>
-      reset(WarningModalTypes.INSTANCE_DISCONNECTED)
-    )
-
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED, () =>
-      reset(WarningModalTypes.CHANNEL_DISCONNECTED)
-    )
 
     // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
     const db = indexedDB.open('test')

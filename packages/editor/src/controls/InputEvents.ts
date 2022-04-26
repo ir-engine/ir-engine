@@ -1,5 +1,5 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 
 import { InputComponent, InputComponentType } from '../classes/InputComponent'
 import isInputSelected from '../functions/isInputSelected'
@@ -19,7 +19,7 @@ const InputData: InputDataType = {
 let inputComponent: InputComponentType
 
 export function initInputEvents() {
-  const canvas = Engine.renderer.domElement
+  const canvas = EngineRenderer.instance.renderer.domElement
   InputData.boundingClientRect = canvas.getBoundingClientRect()
   window.addEventListener('keydown', onKeyDown)
   window.addEventListener('keyup', onKeyUp)
@@ -116,7 +116,10 @@ function onWindowMouseDown(event: MouseEvent): void {
 }
 
 function onWindowMouseUp(event: MouseEvent): void {
-  if (event.target !== Engine.renderer.domElement && InputData.mouseDownTarget === Engine.renderer.domElement) {
+  if (
+    event.target !== EngineRenderer.instance.renderer.domElement &&
+    InputData.mouseDownTarget === EngineRenderer.instance.renderer.domElement
+  ) {
     onMouseUp(event)
   }
 
@@ -187,9 +190,9 @@ function onMouseMove(event: MouseEvent): void {
     if (actionName === 'movementX' || actionName === 'movementY') {
       inputComponent.actionState[key] += event[actionName]
     } else if (actionName === 'normalizedMovementX') {
-      inputComponent.actionState[key] += -event.movementX / Engine.renderer.domElement.clientWidth
+      inputComponent.actionState[key] += -event.movementX / EngineRenderer.instance.renderer.domElement.clientWidth
     } else if (actionName === 'normalizedMovementY') {
-      inputComponent.actionState[key] += -event.movementY / Engine.renderer.domElement.clientHeight
+      inputComponent.actionState[key] += -event.movementY / EngineRenderer.instance.renderer.domElement.clientHeight
     } else if (actionName === 'position') {
       handlePosition(inputComponent.actionState, key, event)
     } else {
@@ -261,7 +264,7 @@ function onContextMenu(event: Event): void {
 }
 
 function onResize(): void {
-  InputData.boundingClientRect = Engine.renderer.domElement.getBoundingClientRect()
+  InputData.boundingClientRect = EngineRenderer.instance.renderer.domElement.getBoundingClientRect()
 }
 
 function onWindowBlur(): void {
@@ -277,7 +280,7 @@ function onWindowBlur(): void {
 }
 
 export function removeInputEvents(): void {
-  const canvas = Engine.renderer.domElement
+  const canvas = EngineRenderer.instance.renderer.domElement
   window.removeEventListener('keydown', onKeyDown)
   window.removeEventListener('keyup', onKeyUp)
   canvas.removeEventListener('wheel', onWheel)

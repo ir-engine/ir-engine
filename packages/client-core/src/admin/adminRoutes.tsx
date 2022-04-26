@@ -60,7 +60,6 @@ const ProtectedRoutes = (props: Props) => {
   useEffect(() => {
     initializeCoreSystems().then(async () => {
       await initializeSceneSystems()
-      dispatchAction(Engine.store, EngineActions.enableScene({ renderer: false }))
     })
   }, [])
 

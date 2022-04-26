@@ -32,7 +32,6 @@ describe.skip('EquippableSystem Integration Tests', () => {
     Network.instance = new TestNetwork()
     Engine.currentWorld = world
     Engine.userId = world.hostId
-    Engine.hasJoinedWorld = true
     await Engine.currentWorld.physics.createScene({ verbose: true })
 
     equippableSystem = await EquippableSystem(world)

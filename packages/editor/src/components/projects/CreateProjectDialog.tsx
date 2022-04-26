@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Dialog, DialogContent, DialogTitle, TextField } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export const CreateProjectDialog = (props: Props): any => {
+  const { t } = useTranslation()
   const { open, handleClose, createProject } = props
 
   const [processing, setProcessing] = useState(false)
@@ -55,12 +57,12 @@ export const CreateProjectDialog = (props: Props): any => {
       TransitionComponent={Fade}
       TransitionProps={{ in: props.open }}
     >
-      <DialogTitle>Create Project</DialogTitle>
+      <DialogTitle>{t('editor.projects.createProject')}</DialogTitle>
       <DialogContent>
         {processing ? (
           <div className={styles.processing}>
             <CircularProgress size={30} />
-            <div className={styles.text}>Processing</div>
+            <div className={styles.text}>{t('editor.projects.processing')}</div>
           </div>
         ) : (
           <FormControl>
@@ -68,7 +70,7 @@ export const CreateProjectDialog = (props: Props): any => {
               id="outlined-basic"
               variant="outlined"
               size="small"
-              placeholder="Project Name"
+              placeholder={t('editor.projects.projectName')}
               InputProps={{
                 classes: {
                   root: styles.inputContainer,
@@ -82,7 +84,7 @@ export const CreateProjectDialog = (props: Props): any => {
             />
             {error && error.length > 0 && <h2 className={styles.errorMessage}>{error}</h2>}
             <Button onClick={onCreateProject} className={styles.btn} disabled={!projectName}>
-              Create
+              {t('editor.projects.lbl-createProject')}
             </Button>
           </FormControl>
         )}

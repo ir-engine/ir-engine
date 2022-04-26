@@ -4,6 +4,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { InputComponent, InputComponentType } from '../components/InputComponent'
 import { LocalInputTagComponent } from '../components/LocalInputTagComponent'
 import { InputType } from '../enums/InputType'
@@ -123,7 +124,7 @@ export default async function ClientInputSystem(world: World) {
   addClientInputListeners()
 
   return () => {
-    if (!Engine.xrSession) {
+    if (!EngineRenderer.instance?.xrSession) {
       handleGamepads()
     }
 

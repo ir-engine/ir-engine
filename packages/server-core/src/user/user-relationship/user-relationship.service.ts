@@ -71,14 +71,14 @@ export default (app: Application) => {
 
   service.publish('patched', async (data: UserRelationshipInterface): Promise<any> => {
     try {
-      const inverseRelationship = await (app.service('user-relationship') as any).Model.findOne({
+      const inverseRelationship = await app.service('user-relationship').Model.findOne({
         where: {
           relatedUserId: data.userId,
           userId: data.relatedUserId
         }
       })
       if (data.userRelationshipType === 'friend' && inverseRelationship != null) {
-        // const channel = await (app.service('channel') as any).Model.findOne({
+        // const channel = await (app.service('channel')).Model.findOne({
         //   where: {
         //     [Op.or]: [
         //       {
@@ -156,7 +156,7 @@ export default (app: Application) => {
 
   service.publish('removed', async (data: UserRelationshipInterface): Promise<any> => {
     try {
-      const channel = await (app.service('channel') as any).Model.findOne({
+      const channel = await app.service('channel').Model.findOne({
         where: {
           [Op.or]: [
             {

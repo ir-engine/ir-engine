@@ -34,7 +34,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
     const limit = query?.limit || 10
     const loggedInUser = params!.user as UserDataType
     const userId = loggedInUser.id
-    const Model = (this.app.service('channel') as any).Model
+    const Model = this.app.service('channel').Model
     try {
       const subParams = {
         subQuery: false,
@@ -45,36 +45,36 @@ export class Channel<T = ChannelDataType> extends Service<T> {
           'user1',
           'user2',
           {
-            model: (this.app.service('group') as any).Model,
+            model: this.app.service('group').Model,
             include: [
               {
-                model: (this.app.service('group-user') as any).Model,
+                model: this.app.service('group-user').Model,
                 include: [
                   {
-                    model: (this.app.service('user') as any).Model
+                    model: this.app.service('user').Model
                   }
                 ]
               }
             ]
           },
           {
-            model: (this.app.service('party') as any).Model,
+            model: this.app.service('party').Model,
             include: [
               {
-                model: (this.app.service('party-user') as any).Model,
+                model: this.app.service('party-user').Model,
                 include: [
                   {
-                    model: (this.app.service('user') as any).Model
+                    model: this.app.service('user').Model
                   }
                 ]
               }
             ]
           },
           {
-            model: (this.app.service('instance') as any).Model,
+            model: this.app.service('instance').Model,
             include: [
               {
-                model: (this.app.service('user') as any).Model
+                model: this.app.service('user').Model
               }
             ]
           },
@@ -84,7 +84,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
             order: [['createdAt', 'DESC']],
             include: [
               {
-                model: (this.app.service('user') as any).Model,
+                model: this.app.service('user').Model,
                 as: 'sender'
               }
             ]
@@ -141,8 +141,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
         return super.find(params)
       }
     } catch (err) {
-      logger.error('Channel find failed')
-      logger.error(err)
+      logger.error(err, `Channel find failed: ${err.message}`)
       throw err
     }
   }

@@ -4,6 +4,8 @@
 import fs from 'fs'
 import ini from 'ini'
 
+import logger from '../logger'
+
 export interface GitData {
   core: {
     repositoryformatversion: number
@@ -27,14 +29,14 @@ export interface GitData {
 
 export function getGitData(dir): GitData {
   if (!fs.existsSync(dir)) {
-    console.log('[Projects]: Could not find git config file at', dir)
+    logger.warn('[Projects]: Could not find git config file at: ' + dir)
     return null!
   }
   const data = fs.readFileSync(dir)
   try {
     return format(ini.parse(data.toString())) as GitData
   } catch (e) {
-    console.log(e)
+    logger.error(e, `Error getting git data: ${e.message}`)
   }
   return null!
 }

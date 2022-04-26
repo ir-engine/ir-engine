@@ -6,7 +6,6 @@ import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/Identit
 import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { accessEngineState, EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
@@ -589,10 +588,6 @@ export default (app: Application): void => {
     // If no real-time functionality has been configured just return
     return
   }
-
-  const shouldLoadGameserver = config.kubernetes.enabled || process.env.APP_ENV === 'development'
-
-  if (!shouldLoadGameserver) return
 
   app.service('gameserver-load').on('patched', async (params) => {
     const { id, ipAddress, podName, locationId, sceneId } = params

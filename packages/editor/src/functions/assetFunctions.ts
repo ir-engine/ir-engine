@@ -23,6 +23,15 @@ export const exportAsset = async (node: EntityTreeNode) => {
   return await uploadProjectFile(projectName, [uploadable], true)
 }
 
+async function fileBrowserUpload(
+  file: Blob,
+  params: { path: string; contentType: string },
+  onProgress: (progress: number) => any
+): Promise<{ url: string }> {
+  const response = await uploadToFeathersService('file-browser/upload', file as any, params, onProgress)
+  return { url: response[0] }
+}
+
 export const uploadProjectFile = async (
   projectName: string,
   files: File[],
@@ -30,21 +39,12 @@ export const uploadProjectFile = async (
   onProgress?
 ): Promise<{ url: string }[]> => {
   const promises: Promise<{ url: string }>[] = []
+
   for (const file of files) {
-    const pathName = `projects/${projectName}${isAsset ? '/assets' : ''}`
-    promises.push(
-      new Promise(async (resolve) => {
-        await uploadToFeathersService(file, 'media', onProgress, {
-          uploadPath: pathName,
-          fileId: file.name
-        })
-        const response = (await client.service('project').patch(projectName, {
-          files: [`${pathName}/${file.name}`]
-        })) as any[]
-        resolve({ url: response[0] })
-      })
-    )
+    const filePath = `projects/${projectName}${isAsset ? '/assets' : ''}/${file.name}`
+    promises.push(fileBrowserUpload(file, { path: filePath, contentType: '' }, onProgress))
   }
+
   return await Promise.all(promises)
 }
 
@@ -75,21 +75,9 @@ const processEntry = async (item, projectName: string, directory: string, promis
   }
 
   if (item.isFile) {
-    promises.push(
-      new Promise(async (resolve) => {
-        const file = await getFile(item)
-        const pathName = `projects/${projectName}/assets${directory}`
-        await uploadToFeathersService(file, 'media', onProgress, {
-          uploadPath: pathName,
-          fileId: file.name
-        })
-        const response = (await client.service('project').patch(projectName, {
-          files: [`${pathName}/${file.name}`]
-        })) as any[]
-
-        resolve({ url: response[0] })
-      })
-    )
+    const file = await getFile(item)
+    const filePath = `projects/${projectName}/assets${directory}/${file.name}`
+    promises.push(fileBrowserUpload(file, { path: filePath, contentType: '' }, onProgress))
   }
 }
 

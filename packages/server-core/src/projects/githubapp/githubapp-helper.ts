@@ -5,6 +5,7 @@ import { Octokit } from '@octokit/rest'
 import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
 
 import config from '../../appconfig'
+import logger from '../../logger'
 
 let app, appOctokit
 
@@ -35,7 +36,7 @@ export const createGitHubApp = () => {
       }
     })
   } catch (error) {
-    console.error(error)
+    logger.error(error)
   }
 }
 
@@ -55,7 +56,7 @@ export const getGitHubAppRepos = async () => {
     }
     return repos
   } catch (error) {
-    console.error(error)
+    logger.error(error)
     return []
   }
 }
@@ -71,7 +72,7 @@ export const getAuthenticatedRepo = async (repositoryPath) => {
     }
     return null
   } catch (error) {
-    console.error(error)
+    logger.error(error)
     return null
   }
 }

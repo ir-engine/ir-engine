@@ -46,23 +46,23 @@ export class Login implements ServiceMethods<Data> {
    */
   async get(id: Id, params?: Params): Promise<any> {
     try {
-      const result = await (this.app.service('login-token') as any).Model.findOne({
+      const result = await this.app.service('login-token').Model.findOne({
         where: {
           token: id
         }
       })
       if (result == null) {
-        console.log('Invalid login token')
+        logger.info('Invalid login token')
         return {
           error: 'invalid login token'
         }
       }
       if (moment().utc().toDate() > result.expiresAt) {
-        console.log('Login Token has expired')
+        logger.info('Login Token has expired')
         return { error: 'Login link has expired' }
       }
       const identityProvider = await this.app.service('identity-provider').get(result.identityProviderId)
-      const adminCount = await (this.app.service('user') as any).Model.count({
+      const adminCount = await this.app.service('user').Model.count({
         where: {
           userRole: 'admin'
         }
@@ -80,16 +80,15 @@ export class Login implements ServiceMethods<Data> {
         await this.app.service('user-api-key').create({
           userId: identityProvider.userId
         })
-      const token = await (this.app.service('authentication') as any).createAccessToken(
-        {},
-        { subject: identityProvider.id.toString() }
-      )
+      const token = await this.app
+        .service('authentication')
+        .createAccessToken({}, { subject: identityProvider.id.toString() })
       await this.app.service('login-token').remove(result.id)
       return {
         token: token
       }
     } catch (err) {
-      logger.error(err)
+      logger.error(err, `Error finding login token: ${err}`)
       throw err
     }
   }
