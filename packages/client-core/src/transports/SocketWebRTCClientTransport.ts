@@ -17,16 +17,11 @@ import { addActionReceptor, defineAction, matches } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { accessAuthState } from '../user/services/AuthService'
+import { gameserverHost } from '../util/config'
 import { MediaStreamService } from './../media/services/MediaStreamService'
 import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 
 // import { encode, decode } from 'msgpackr'
-const gameserverAddress =
-  process.env.APP_ENV === 'development' || process.env['VITE_LOCAL_BUILD'] === 'true'
-    ? `https://${(globalThis as any).process.env['VITE_GAMESERVER_HOST']}:${
-        (globalThis as any).process.env['VITE_GAMESERVER_PORT']
-      }`
-    : `https://${(globalThis as any).process.env['VITE_GAMESERVER_HOST']}`
 
 // Adds support for Promise to socket.io-client
 const promisedRequest = (socket: Socket) => {
@@ -173,7 +168,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         query
       })
     } else {
-      this.socket = ioclient(gameserverAddress, {
+      this.socket = ioclient(gameserverHost, {
         path: `/socket.io/${ipAddress as string}/${port.toString()}`,
         query
       })
