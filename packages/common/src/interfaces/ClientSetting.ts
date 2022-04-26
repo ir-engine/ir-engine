@@ -27,7 +27,7 @@ export interface ThemeSetting {
   dark: ThemeOptions
 }
 
-interface ThemeOptions {
+export interface ThemeOptions {
   textColor: string
   navbarBackground: string
   sidebarBackground: string
@@ -43,7 +43,7 @@ interface ThemeOptions {
   iconButtonColor: string
   iconButtonHoverColor: string
   iconButtonBackground: string
-  iconButtonSelected: string
+  iconButtonSelectedBackground: string
   buttonOutlined: string
   buttonFilled: string
   buttonGradientStart: string
