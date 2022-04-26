@@ -20,7 +20,7 @@ describe('DirectionalLightFunctions', () => {
 
     it('with CSM', () => {
       const world = createWorld()
-      Engine.currentWorld = world
+      Engine.instance.currentWorld = world
       EngineRenderer.instance.isCSMEnabled = true
       EngineRenderer.instance.directionalLightEntities = []
 
@@ -60,7 +60,7 @@ describe('DirectionalLightFunctions', () => {
 
     it('without CSM', () => {
       const world = createWorld()
-      Engine.currentWorld = world
+      Engine.instance.currentWorld = world
       EngineRenderer.instance.isCSMEnabled = false
 
       const entity = createEntity()

@@ -30,15 +30,15 @@ describe.skip('EquippableSystem Integration Tests', () => {
   before(async () => {
     world = createWorld()
     Network.instance = new TestNetwork()
-    Engine.currentWorld = world
-    Engine.userId = world.hostId
-    await Engine.currentWorld.physics.createScene({ verbose: true })
+    Engine.instance.currentWorld = world
+    Engine.instance.userId = world.hostId
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
 
     equippableSystem = await EquippableSystem(world)
   })
 
   after(() => {
-    Engine.currentWorld = null!
+    Engine.instance.currentWorld = null!
     delete (globalThis as any).PhysX
   })
 
@@ -47,7 +47,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     const item = createEntity(world)
 
     const networkObject = addComponent(player, NetworkObjectComponent, {
-      ownerId: Engine.userId,
+      ownerId: Engine.instance.userId,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}
@@ -55,7 +55,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     createAvatar(
       NetworkWorldAction.spawnAvatar({
-        $from: Engine.userId,
+        $from: Engine.instance.userId,
         networkId: networkObject.networkId,
         parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() }
       })

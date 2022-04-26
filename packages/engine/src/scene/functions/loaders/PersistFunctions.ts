@@ -12,7 +12,7 @@ export const SCENE_COMPONENT_PERSIST = 'persist'
 
 export const deserializePersist: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson<{}>) => {
   if (isClient) addComponent(entity, PersistTagComponent, {})
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PERSIST)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PERSIST)
 }
 
 export const serializePersist: ComponentSerializeFunction = (entity) => {

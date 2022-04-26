@@ -30,7 +30,7 @@ describe('SystemFunctions', () => {
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
   })
 
@@ -68,7 +68,7 @@ describe('SystemFunctions', () => {
       })
 
       it('creates System in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 
@@ -76,7 +76,7 @@ describe('SystemFunctions', () => {
 
         const entityNodeComponent = getComponent(entity, EntityNodeComponent)
         assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SYSTEM))
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })

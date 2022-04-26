@@ -11,15 +11,15 @@ import { createEntity } from './EntityFunctions'
 
 describe('EngineFunctions', () => {
   afterEach(() => {
-    Engine.currentWorld = null!
-    Engine.scene = null!
+    Engine.instance.currentWorld = null!
+    Engine.instance.scene = null!
   })
 
   describe('unloadAllEntities', () => {
     it('can unload all scene entities', () => {
       const world = createWorld()
-      Engine.currentWorld = world
-      Engine.scene = new Scene()
+      Engine.instance.currentWorld = world
+      Engine.instance.scene = new Scene()
       const object3dQuery = defineQuery([Object3DComponent])
       const persistQuery = defineQuery([PersistTagComponent])
 
@@ -35,7 +35,7 @@ describe('EngineFunctions', () => {
       const objectEntities = object3dQuery(world)
 
       // add obejcts to scene
-      for (const entity of objectEntities) Engine.scene.add(getComponent(entity, Object3DComponent).value)
+      for (const entity of objectEntities) Engine.instance.scene.add(getComponent(entity, Object3DComponent).value)
 
       assert.equal(objectEntities.length, 5)
 
@@ -51,8 +51,8 @@ describe('EngineFunctions', () => {
 
     it('can unload all non-persisted scene entities', () => {
       const world = createWorld()
-      Engine.currentWorld = world
-      Engine.scene = new Scene()
+      Engine.instance.currentWorld = world
+      Engine.instance.scene = new Scene()
       const getEntities = defineQuery([Object3DComponent])
       const persistQuery = defineQuery([PersistTagComponent])
 
@@ -68,7 +68,7 @@ describe('EngineFunctions', () => {
       const objectEntities = getEntities(world)
 
       // add obejcts to scene
-      for (const entity of objectEntities) Engine.scene.add(getComponent(entity, Object3DComponent).value)
+      for (const entity of objectEntities) Engine.instance.scene.add(getComponent(entity, Object3DComponent).value)
 
       assert.equal(objectEntities.length, 5)
 

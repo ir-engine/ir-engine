@@ -27,7 +27,7 @@ describe('PostprocessingFunctions', () => {
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
   })
 
@@ -78,7 +78,7 @@ describe('PostprocessingFunctions', () => {
       })
 
       it('creates Postprocessing in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 
@@ -87,7 +87,7 @@ describe('PostprocessingFunctions', () => {
         const entityNodeComponent = getComponent(entity, EntityNodeComponent)
         assert(entityNodeComponent.components.includes(SCENE_COMPONENT_POSTPROCESSING))
 
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })

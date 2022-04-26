@@ -115,7 +115,7 @@ export class EngineRenderer {
 
     if (!context) {
       dispatchAction(
-        Engine.store,
+        Engine.instance.store,
         EngineActions.browserNotSupported({
           msg: 'Your browser does not have WebGL enabled. Please enable WebGL, or try another browser.'
         }) as any
@@ -131,7 +131,7 @@ export class EngineRenderer {
       depth: false,
       canvas,
       context,
-      preserveDrawingBuffer: !Engine.isHMD
+      preserveDrawingBuffer: !Engine.instance.isHMD
     }
 
     this.canvas = canvas
@@ -169,13 +169,13 @@ export class EngineRenderer {
   }
 
   /**
-   * Executes the system. Called each frame by default from the Engine.
+   * Executes the system. Called each frame by default from the Engine.instance.
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
     if (this.xrManager.isPresenting) {
       this.csm?.update()
-      this.renderer.render(Engine.scene, Engine.camera)
+      this.renderer.render(Engine.instance.scene, Engine.instance.camera)
     } else {
       const state = accessEngineRendererState()
       const engineState = accessEngineState()
@@ -190,8 +190,8 @@ export class EngineRenderer {
           const width = window.innerWidth
           const height = window.innerHeight
 
-          if ((Engine.camera as PerspectiveCamera).isPerspectiveCamera) {
-            const cam = Engine.camera as PerspectiveCamera
+          if ((Engine.instance.camera as PerspectiveCamera).isPerspectiveCamera) {
+            const cam = Engine.instance.camera as PerspectiveCamera
             cam.aspect = width / height
             cam.updateProjectionMatrix()
           }
@@ -207,7 +207,7 @@ export class EngineRenderer {
           this.effectComposer.render(delta)
         } else {
           this.renderer.autoClear = true
-          this.renderer.render(Engine.scene, Engine.camera)
+          this.renderer.render(Engine.instance.scene, Engine.instance.camera)
         }
       }
     }
@@ -234,26 +234,26 @@ export class EngineRenderer {
     }
 
     if (qualityLevel !== state.qualityLevel.value) {
-      dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(qualityLevel))
+      dispatchAction(Engine.instance.store, EngineRendererAction.setQualityLevel(qualityLevel))
     }
   }
 
   doAutomaticRenderQuality() {
     const state = accessEngineRendererState()
-    dispatchAction(Engine.store, EngineRendererAction.setShadows(state.qualityLevel.value > 1))
-    dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(state.qualityLevel.value))
-    dispatchAction(Engine.store, EngineRendererAction.setPostProcessing(state.qualityLevel.value > 2))
+    dispatchAction(Engine.instance.store, EngineRendererAction.setShadows(state.qualityLevel.value > 1))
+    dispatchAction(Engine.instance.store, EngineRendererAction.setQualityLevel(state.qualityLevel.value))
+    dispatchAction(Engine.instance.store, EngineRendererAction.setPostProcessing(state.qualityLevel.value > 2))
   }
 }
 
 export default async function WebGLRendererSystem(world: World) {
   EngineRenderer.instance.initialize()
 
-  matchActionOnce(Engine.store, EngineActions.joinedWorld.matches, () => {
+  matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, () => {
     restoreEngineRendererData()
   })
 
-  addActionReceptor(Engine.store, EngineRendererReceptor)
+  addActionReceptor(Engine.instance.store, EngineRendererReceptor)
 
   return () => {
     EngineRenderer.instance.execute(world.delta)

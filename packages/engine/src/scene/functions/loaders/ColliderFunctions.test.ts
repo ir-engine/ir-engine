@@ -37,9 +37,9 @@ describe('ColliderFunctions', () => {
 
   beforeEach(async () => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
-    await Engine.currentWorld.physics.createScene({ verbose: true })
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
 
     body = {
       getGlobalPose: () => transform2,
@@ -49,7 +49,7 @@ describe('ColliderFunctions', () => {
   })
 
   afterEach(() => {
-    Engine.currentWorld = null!
+    Engine.instance.currentWorld = null!
     delete (globalThis as any).PhysX
   })
 
@@ -90,7 +90,7 @@ describe('ColliderFunctions', () => {
       })
 
       it('creates Collider in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 
@@ -99,7 +99,7 @@ describe('ColliderFunctions', () => {
         const entityNodeComponent = getComponent(entity, EntityNodeComponent)
         assert(entityNodeComponent.components.includes(SCENE_COMPONENT_COLLIDER))
 
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })

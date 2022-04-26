@@ -36,7 +36,7 @@ describe('SpawnPointFunctions', () => {
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
   })
 
@@ -82,7 +82,7 @@ describe('SpawnPointFunctions', () => {
       })
 
       it('creates SpawnPoint in Editor', async () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 
@@ -96,7 +96,7 @@ describe('SpawnPointFunctions', () => {
         assert(obj3d.children.includes(obj3d.userData.helperBox))
         assert(obj3d.userData.helperModel.layers.isEnabled(ObjectLayers.NodeHelper))
         assert(obj3d.userData.helperBox.layers.isEnabled(ObjectLayers.NodeHelper))
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })

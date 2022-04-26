@@ -47,7 +47,7 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
   addComponent(entity, ColliderComponent, { body })
   addComponent(entity, CollisionComponent, { collisions: [] })
 
-  if (Engine.isEditor) {
+  if (Engine.instance.isEditor) {
     if (!hasComponent(entity, Object3DComponent)) addComponent(entity, Object3DComponent, { value: new Object3D() })
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_BOX_COLLIDER)
   } else {

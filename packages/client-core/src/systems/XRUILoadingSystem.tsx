@@ -22,7 +22,7 @@ export default async function XRUILoadingSystem(world: World) {
   const transition = createTransitionState(transitionPeriodSeconds)
 
   // todo: push timeout to accumulator
-  matchActionOnce(Engine.store, EngineActions.joinedWorld.matches, () => {
+  matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, () => {
     setTimeout(() => {
       mesh.visible = false
       transition.setState('OUT')
@@ -42,15 +42,15 @@ export default async function XRUILoadingSystem(world: World) {
   )
   // flip inside out
   mesh.scale.set(-1, 1, 1)
-  Engine.camera.add(mesh)
-  Engine.scene.add(Engine.camera)
+  Engine.instance.camera.add(mesh)
+  Engine.instance.scene.add(Engine.instance.camera)
 
   setObjectLayers(mesh, ObjectLayers.UI)
 
   return () => {
     // add a slow rotation to animate on desktop, otherwise just keep it static for VR
     // if (!EngineRenderer.instance.xrSession && !accessEngineState().joinedWorld.value) {
-    //   Engine.camera.rotateY(world.delta * 0.35)
+    //   Engine.instance.camera.rotateY(world.delta * 0.35)
     // } else {
     //   // todo: figure out how to make this work properly for VR
     // }
@@ -66,7 +66,7 @@ export default async function XRUILoadingSystem(world: World) {
       const scale = ObjectFitFunctions.computeContentFitScaleForCamera(dist, contentWidth, contentHeight, 'cover')
       xrui.container.scale.x = xrui.container.scale.y = scale * 1.1
       xrui.container.position.z = -dist
-      xrui.container.parent = Engine.camera
+      xrui.container.parent = Engine.instance.camera
 
       transition.update(world, (opacity) => {
         if (opacity !== LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(opacity)

@@ -34,7 +34,8 @@ export const deserializeHemisphereLight: ComponentDeserializeFunction = (
   addComponent(entity, DisableTransformTagComponent, {})
   addComponent(entity, HemisphereLightComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_HEMISPHERE_LIGHT)
+  if (Engine.instance.isEditor)
+    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_HEMISPHERE_LIGHT)
 
   updateHemisphereLight(entity, props)
 }

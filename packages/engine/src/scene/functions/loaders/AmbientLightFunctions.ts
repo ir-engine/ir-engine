@@ -33,7 +33,8 @@ export const deserializeAmbientLight: ComponentDeserializeFunction = (
   addComponent(entity, DisableTransformTagComponent, {})
   addComponent(entity, AmbientLightComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AMBIENT_LIGHT)
+  if (Engine.instance.isEditor)
+    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AMBIENT_LIGHT)
 
   updateAmbientLight(entity, props)
 }

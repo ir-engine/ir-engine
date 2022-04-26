@@ -36,7 +36,7 @@ export const deserializeInterior: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, InteriorComponent, props)
 
-  if (Engine.isEditor) {
+  if (Engine.instance.isEditor) {
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_INTERIOR)
 
     obj3d.userData.disableOutline = true

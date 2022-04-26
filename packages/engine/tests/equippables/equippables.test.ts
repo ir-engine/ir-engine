@@ -26,19 +26,19 @@ import { TransformComponent } from '../../src/transform/components/TransformComp
 describe('Equippables Integration Tests', () => {
   it('Can equip and unequip', async () => {
     const world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
 
     const hostUserId = 'server' as UserId
     world.hostId = hostUserId
     const hostIndex = 0
     world.clients.set(hostUserId, { userId: hostUserId, name: 'server', index: hostIndex })
 
-    await Engine.currentWorld.physics.createScene({ verbose: true })
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
 
     const userId = 'user id' as UserId
     const userName = 'user name'
     const userIndex = 1
-    Engine.userId = userId
+    Engine.instance.userId = userId
 
     const equippableEntity = createEntity()
 

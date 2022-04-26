@@ -43,7 +43,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
   public sendActions = (actions: Array<Required<Action<'WORLD'>>>): any => {
     if (actions.length === 0 || this.app.io == null) return
-    const world = Engine.currentWorld
+    const world = Engine.instance.currentWorld
     const clients = world.clients
     const userIdMap = {} as { [socketId: string]: UserId }
     for (const [id, client] of clients) userIdMap[client.socketId!] = id

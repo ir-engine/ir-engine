@@ -56,7 +56,7 @@ export const deserializeImage: ComponentDeserializeFunction = (
   const props = parseImageProperties(json.props)
   addComponent(entity, ImageComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_IMAGE)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_IMAGE)
 
   updateImage(entity, props)
 }

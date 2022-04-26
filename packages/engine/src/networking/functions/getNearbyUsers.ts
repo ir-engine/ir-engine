@@ -9,9 +9,9 @@ export type NearbyUser = { id: UserId; distance: number }
 const compareDistance = (a: NearbyUser, b: NearbyUser) => a.distance - b.distance
 
 export function getNearbyUsers(userId: UserId, maxMediaUsers = 8): Array<NearbyUser> {
-  const userAvatar = Engine.currentWorld.getUserAvatarEntity(userId)
+  const userAvatar = Engine.instance.currentWorld.getUserAvatarEntity(userId)
   const otherUsers = [] as UserId[]
-  for (const [otherUserId] of Engine.currentWorld.clients) {
+  for (const [otherUserId] of Engine.instance.currentWorld.clients) {
     if (userId === otherUserId) continue
     otherUsers.push(otherUserId)
   }
@@ -20,7 +20,7 @@ export function getNearbyUsers(userId: UserId, maxMediaUsers = 8): Array<NearbyU
     if (userPosition) {
       const userDistances = [] as Array<{ id: UserId; distance: number }>
       for (const id of otherUsers) {
-        const avatar = Engine.currentWorld.getUserAvatarEntity(id)
+        const avatar = Engine.instance.currentWorld.getUserAvatarEntity(id)
         if (typeof avatar === 'number') {
           const position = getComponent(avatar, TransformComponent).position
           if (position) {

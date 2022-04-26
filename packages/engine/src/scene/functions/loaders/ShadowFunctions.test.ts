@@ -20,7 +20,7 @@ describe('ShadowFunctions', () => {
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
   })
 
@@ -68,7 +68,7 @@ describe('ShadowFunctions', () => {
       })
 
       it('creates Shadow in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 
@@ -77,7 +77,7 @@ describe('ShadowFunctions', () => {
         const entityNodeComponent = getComponent(entity, EntityNodeComponent)
         assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SHADOW))
 
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })

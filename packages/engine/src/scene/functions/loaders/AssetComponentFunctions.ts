@@ -64,7 +64,7 @@ export const deserializeAsset: ComponentDeserializeFunction = async (
   }
   const props = parseAssetProperties(json.props)
   addComponent(entity, AssetComponent, props)
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ASSET)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ASSET)
 }
 
 export const serializeAsset: ComponentSerializeFunction = (entity) => {

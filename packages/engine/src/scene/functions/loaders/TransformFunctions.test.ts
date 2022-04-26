@@ -27,7 +27,7 @@ describe('TransformFunctions', () => {
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
   })
 
@@ -74,7 +74,7 @@ describe('TransformFunctions', () => {
       })
 
       it('creates Transform in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 
@@ -83,7 +83,7 @@ describe('TransformFunctions', () => {
         const entityNodeComponent = getComponent(entity, EntityNodeComponent)
         assert(entityNodeComponent.components.includes(SCENE_COMPONENT_TRANSFORM))
 
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })

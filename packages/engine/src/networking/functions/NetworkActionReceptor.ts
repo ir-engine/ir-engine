@@ -42,7 +42,7 @@ const addClient = (world: World, userId: UserId, name: string, index: number) =>
 const removeClient = (world: World, userId: UserId, allowRemoveSelf = false) => {
   if (!world.clients.has(userId))
     return console.warn(`[NetworkActionReceptors]: tried to remove client with userId ${userId} that doesn't exit`)
-  if (!allowRemoveSelf && userId === Engine.userId)
+  if (!allowRemoveSelf && userId === Engine.instance.userId)
     return console.warn(`[NetworkActionReceptors]: tried to remove local client`)
 
   for (const eid of world.getOwnedNetworkObjects(userId)) {
@@ -67,7 +67,7 @@ const spawnObject = (world: World, action: ReturnType<typeof NetworkWorldAction.
    */
   if (
     isSpawningAvatar &&
-    Engine.userId === action.$from &&
+    Engine.instance.userId === action.$from &&
     hasComponent(world.localClientEntity, NetworkObjectComponent)
   ) {
     const networkComponent = getComponent(world.localClientEntity, NetworkObjectComponent)
@@ -78,7 +78,7 @@ const spawnObject = (world: World, action: ReturnType<typeof NetworkWorldAction.
     return
   }
   const params = action.parameters
-  const isOwnedByMe = action.$from === Engine.userId
+  const isOwnedByMe = action.$from === Engine.instance.userId
   let entity
   if (isSpawningAvatar && isOwnedByMe) {
     entity = world.localClientEntity
@@ -126,7 +126,7 @@ const requestAuthorityOverObject = (
   action: ReturnType<typeof NetworkWorldAction.requestAuthorityOverObject>
 ) => {
   // Authority request can only be processed by host
-  if (Engine.currentWorld.isHosting === false) return
+  if (Engine.instance.currentWorld.isHosting === false) return
 
   const ownerId = action.object.ownerId
   const entity = world.getNetworkObject(ownerId, action.object.networkId)
@@ -150,7 +150,7 @@ const transferAuthorityOfObject = (
   action: ReturnType<typeof NetworkWorldAction.transferAuthorityOfObject>
 ) => {
   // Transfer authority action can only be originated from host
-  if (action.$from !== Engine.currentWorld.hostId) return
+  if (action.$from !== Engine.instance.currentWorld.hostId) return
 
   const ownerId = action.object.ownerId
   const entity = world.getNetworkObject(ownerId, action.object.networkId)
@@ -159,9 +159,9 @@ const transferAuthorityOfObject = (
       `Warning - tried to get entity belonging to ${action.object.ownerId} with ID ${action.object.networkId}, but it doesn't exist`
     )
 
-  if (Engine.userId === action.newAuthor) {
+  if (Engine.instance.userId === action.newAuthor) {
     if (getComponent(entity, NetworkObjectAuthorityTag))
-      return console.warn(`Warning - User ${Engine.userId} already has authority over entity ${entity}.`)
+      return console.warn(`Warning - User ${Engine.instance.userId} already has authority over entity ${entity}.`)
 
     addComponent(entity, NetworkObjectAuthorityTag, {})
   } else {
@@ -170,11 +170,11 @@ const transferAuthorityOfObject = (
 }
 
 const setEquippedObject = (world: World, action: ReturnType<typeof NetworkWorldAction.setEquippedObject>) => {
-  if (Engine.currentWorld.isHosting === false) return
+  if (Engine.instance.currentWorld.isHosting === false) return
 
   if (action.equip) {
     dispatchAction(
-      Engine.currentWorld.store,
+      Engine.instance.currentWorld.store,
       NetworkWorldAction.requestAuthorityOverObject({
         object: action.object,
         requester: action.$from
@@ -182,10 +182,10 @@ const setEquippedObject = (world: World, action: ReturnType<typeof NetworkWorldA
     )
   } else {
     dispatchAction(
-      Engine.currentWorld.store,
+      Engine.instance.currentWorld.store,
       NetworkWorldAction.requestAuthorityOverObject({
         object: action.object,
-        requester: Engine.currentWorld.hostId
+        requester: Engine.instance.currentWorld.hostId
       })
     )
   }
@@ -193,7 +193,7 @@ const setEquippedObject = (world: World, action: ReturnType<typeof NetworkWorldA
 
 const setUserTyping = (action) => {
   matches(action).when(NetworkWorldAction.setUserTyping.matches, ({ $from, typing }) => {
-    getState(Engine.currentWorld.store, WorldState).usersTyping[$from].set(typing ? true : none)
+    getState(Engine.instance.currentWorld.store, WorldState).usersTyping[$from].set(typing ? true : none)
   })
 }
 

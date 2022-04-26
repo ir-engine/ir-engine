@@ -14,7 +14,7 @@ import { createBoxComponent } from './createBoxComponent'
 
 describe('createBoxComponent', () => {
   beforeEach(() => {
-    Engine.currentWorld = createWorld()
+    Engine.instance.currentWorld = createWorld()
   })
 
   it('createBoxComponent', () => {

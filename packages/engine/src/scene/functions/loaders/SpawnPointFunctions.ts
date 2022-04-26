@@ -33,7 +33,7 @@ export const deserializeSpawnPoint: ComponentDeserializeFunction = async (entity
     addComponent(entity, Object3DComponent, { value: obj3d })
   }
 
-  if (Engine.isEditor) {
+  if (Engine.instance.isEditor) {
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPAWN_POINT)
 
     if (!spawnPointHelperModel) {

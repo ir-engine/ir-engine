@@ -99,7 +99,7 @@ describe('moveAvatar function tests', () => {
   beforeEach(async () => {
     /* hoist */
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     // instantiate physics scene (depended on by world.physics.createMaterial())
     await world.physics.createScene()
   })

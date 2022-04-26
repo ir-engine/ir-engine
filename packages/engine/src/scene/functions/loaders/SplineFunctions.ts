@@ -30,7 +30,7 @@ export const deserializeSpline: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, SplineComponent, props)
 
-  if (Engine.isEditor) {
+  if (Engine.instance.isEditor) {
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPLINE)
 
     const helper = new Spline()

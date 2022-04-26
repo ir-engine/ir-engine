@@ -35,7 +35,8 @@ export const deserializePostprocessing: ComponentDeserializeFunction = async fun
   addComponent(entity, DisableTransformTagComponent, {})
   addComponent(entity, IgnoreRaycastTagComponent, {})
   addComponent(entity, Object3DComponent, { value: new Object3D() })
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POSTPROCESSING)
+  if (Engine.instance.isEditor)
+    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POSTPROCESSING)
 }
 
 export const updatePostprocessing: ComponentUpdateFunction = (_: Entity) => {

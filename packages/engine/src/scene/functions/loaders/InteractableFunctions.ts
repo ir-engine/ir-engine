@@ -25,7 +25,7 @@ export const deserializeInteractable: ComponentDeserializeFunction = (
   const props = parseInteractableProperties(json.props)
   addComponent(entity, InteractableComponent, createState(props))
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_INTERACTABLE)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_INTERACTABLE)
 
   updateInteractable(entity, props)
 }

@@ -40,7 +40,8 @@ export const deserializeRenderSetting: ComponentDeserializeFunction = (
   const props = parseRenderSettingsProperties(json.props)
   addComponent(entity, RenderSettingComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_RENDERER_SETTINGS)
+  if (Engine.instance.isEditor)
+    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_RENDERER_SETTINGS)
 
   updateRenderSetting(entity)
 }
@@ -57,7 +58,7 @@ export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => 
   if (typeof component.overrideRendererSettings === 'undefined' || !component.overrideRendererSettings) {
     EngineRenderer.instance.isCSMEnabled = true
     if (accessEngineState().sceneLoaded.value) initializeCSM()
-    else matchActionOnce(Engine.store, EngineActions.sceneLoaded.matches, initializeCSM)
+    else matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, initializeCSM)
     return
   }
 
@@ -76,7 +77,7 @@ export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => 
   if (EngineRenderer.instance.renderer.shadowMap.enabled) {
     if (component.csm) {
       if (accessEngineState().sceneLoaded.value) initializeCSM()
-      else matchActionOnce(Engine.store, EngineActions.sceneLoaded.matches, initializeCSM)
+      else matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, initializeCSM)
     } else {
       disposeCSM()
     }
@@ -84,7 +85,7 @@ export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => 
 }
 
 export const initializeCSM = () => {
-  if (!Engine.isHMD) {
+  if (!Engine.instance.isHMD) {
     let lights
     let activeCSMLight
     if (EngineRenderer.instance.activeCSMLightEntity) {
@@ -102,8 +103,8 @@ export const initializeCSM = () => {
     })
 
     EngineRenderer.instance.csm = new CSM({
-      camera: Engine.camera as PerspectiveCamera,
-      parent: Engine.scene,
+      camera: Engine.instance.camera as PerspectiveCamera,
+      parent: Engine.instance.scene,
       lights
     })
 
@@ -111,7 +112,7 @@ export const initializeCSM = () => {
       activeCSMLight.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
     }
 
-    Engine.scene.traverse((obj: Mesh) => {
+    Engine.instance.scene.traverse((obj: Mesh) => {
       if (typeof obj.material !== 'undefined' && obj.receiveShadow) EngineRenderer.instance.csm.setupMaterial(obj)
     })
   }

@@ -11,7 +11,7 @@ import { deserializeMetaData } from './MetaDataFunctions'
 describe('MetadataFunctions', () => {
   describe('deserializeMetaData', () => {
     const world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
 
     const entity = createEntity()
     const testData = MathUtils.generateUUID()

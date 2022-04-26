@@ -13,7 +13,7 @@ import { deserializeHemisphereLight } from './HemisphereLightFunctions'
 describe('HemisphereLightFunctions', () => {
   it('deserializeHemisphereLight', async () => {
     const world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
 
     const entity = createEntity()
 

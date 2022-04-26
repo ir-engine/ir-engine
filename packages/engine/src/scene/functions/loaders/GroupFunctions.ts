@@ -16,7 +16,7 @@ export const SCENE_COMPONENT_GROUP_DEFAULT_VALUES = {}
 export const deserializeGroup: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson<{}>) => {
   addComponent(entity, GroupComponent, {})
   addComponent(entity, Object3DComponent, { value: new Object3D() })
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_GROUP)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_GROUP)
 }
 
 export const serializeGroup: ComponentSerializeFunction = (entity) => {

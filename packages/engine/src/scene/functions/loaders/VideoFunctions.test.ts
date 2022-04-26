@@ -50,7 +50,7 @@ describe('VideoFunctions', () => {
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
     addComponent(entity, MediaComponent, { autoplay: true })
     const obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
@@ -119,7 +119,7 @@ describe('VideoFunctions', () => {
       })
 
       it('creates Video in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 
@@ -128,7 +128,7 @@ describe('VideoFunctions', () => {
         const entityNodeComponent = getComponent(entity, EntityNodeComponent)
         assert(entityNodeComponent.components.includes(SCENE_COMPONENT_VIDEO))
 
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })

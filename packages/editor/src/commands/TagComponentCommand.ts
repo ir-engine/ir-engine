@@ -109,12 +109,13 @@ export default class TagComponentCommand extends Command {
 
   addTagComponent(object: EntityTreeNode, operation: TagComponentOperationType) {
     addComponent(object.entity, operation.component, {})
-    if (Engine.isEditor) getComponent(object.entity, EntityNodeComponent)?.components.push(operation.sceneComponentName)
+    if (Engine.instance.isEditor)
+      getComponent(object.entity, EntityNodeComponent)?.components.push(operation.sceneComponentName)
   }
 
   removeTagComponent(object: EntityTreeNode, operation: TagComponentOperationType) {
     removeComponent(object.entity, operation.component)
-    if (Engine.isEditor) {
+    if (Engine.instance.isEditor) {
       const comps = getComponent(object.entity, EntityNodeComponent)?.components
       const index = comps.indexOf(operation.sceneComponentName)
 

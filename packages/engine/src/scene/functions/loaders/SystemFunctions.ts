@@ -30,7 +30,7 @@ export const deserializeSystem: ComponentDeserializeFunction = (
   addComponent(entity, SystemComponent, props)
   addComponent(entity, PreventBakeTagComponent, {})
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SYSTEM)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SYSTEM)
 
   updateSystem(entity)
 }

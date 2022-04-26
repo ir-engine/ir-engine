@@ -14,8 +14,8 @@ import { deserializeFog } from './FogFunctions'
 describe('FogFunctions', () => {
   it('deserializeFog', () => {
     const world = createWorld()
-    Engine.currentWorld = world
-    Engine.scene = new Scene()
+    Engine.instance.currentWorld = world
+    Engine.instance.scene = new Scene()
 
     const entity = createEntity()
 
@@ -41,9 +41,9 @@ describe('FogFunctions', () => {
     assert.equal(near, 0.1)
     assert.equal(far, 1000)
 
-    assert(Engine.scene.fog instanceof Fog)
+    assert(Engine.instance.scene.fog instanceof Fog)
 
     // TODO: unnecessary once engine global scope is refactored
-    Engine.scene = null!
+    Engine.instance.scene = null!
   })
 })

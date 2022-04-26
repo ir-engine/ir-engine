@@ -16,7 +16,7 @@ export const deserializeCollider: ComponentDeserializeFunction = (
   json: ComponentJson<ShapeOptions>
 ): void => {
   createColliderForObject3D(entity, json.props, false)
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_COLLIDER)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_COLLIDER)
 }
 
 export const serializeCollider: ComponentSerializeFunction = (entity) => {

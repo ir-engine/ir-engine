@@ -25,7 +25,7 @@ describe('WorldDataFunctions', () => {
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
     addComponent(entity, TransformComponent, {
       position: new Vector3(Math.random(), Math.random(), Math.random())
@@ -79,7 +79,7 @@ describe('WorldDataFunctions', () => {
       })
 
       it('creates World Data in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 
@@ -87,7 +87,7 @@ describe('WorldDataFunctions', () => {
 
         const entityNodeComponent = getComponent(entity, EntityNodeComponent)
         assert(entityNodeComponent.components.includes(SCENE_COMPONENT_WORLDDATA))
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })

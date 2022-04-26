@@ -12,7 +12,7 @@ import { deserializeInteractable } from './InteractableFunctions'
 describe('InteractableFunctions', () => {
   it('deserializeInteractable', () => {
     const world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
 
     const entity = createEntity()
 

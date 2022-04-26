@@ -29,7 +29,7 @@ describe('TriggerVolumeFunctions', () => {
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
   })
 
@@ -64,7 +64,7 @@ describe('TriggerVolumeFunctions', () => {
       })
 
       it('creates TriggerVolume in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 
@@ -75,7 +75,7 @@ describe('TriggerVolumeFunctions', () => {
 
         const obj3d = getComponent(entity, Object3DComponent)?.value as Mesh<any, MeshBasicMaterial>
         assert(obj3d && obj3d.material.visible === false, 'TriggerVolume outline is not disabled')
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })
@@ -114,7 +114,7 @@ describe('TriggerVolumeFunctions', () => {
     })
 
     it('should not update collider body', () => {
-      Engine.isEditor = true
+      Engine.instance.isEditor = true
       triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
       triggervolumeFunctions.updateTriggerVolume(entity)
 
@@ -124,7 +124,7 @@ describe('TriggerVolumeFunctions', () => {
         rotation: transform1.rotation
       })
       assert(collider.body._debugNeedsUpdate)
-      Engine.isEditor = false
+      Engine.instance.isEditor = false
     })
   })
 

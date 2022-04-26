@@ -35,7 +35,7 @@ export const deserializeTransform: ComponentDeserializeFunction = (
   transform.rotation.copy(props.rotation)
   transform.scale.copy(props.scale)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRANSFORM)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRANSFORM)
 }
 
 export const serializeTransform: ComponentSerializeFunction = (entity) => {

@@ -31,35 +31,35 @@ describe('createAvatar', () => {
     /* hoist */
     Network.instance = new TestNetwork()
     world = createWorld()
-    Engine.currentWorld = world
-    await Engine.currentWorld.physics.createScene({ verbose: true })
+    Engine.instance.currentWorld = world
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
   })
 
   afterEach(() => {
-    Engine.currentWorld = null!
+    Engine.instance.currentWorld = null!
     delete (globalThis as any).PhysX
   })
 
   it('check the create avatar function', () => {
-    Engine.userId = world.hostId
+    Engine.instance.userId = world.hostId
 
     // mock entity to apply incoming unreliable updates to
     const entity = createEntity()
 
     const networkObject = addComponent(entity, NetworkObjectComponent, {
       // remote owner
-      ownerId: Engine.userId,
+      ownerId: Engine.instance.userId,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}
     })
 
-    const prevPhysicsBodies = Engine.currentWorld.physics.bodies.size
-    const prevPhysicsColliders = Engine.currentWorld.physics.controllers.size
+    const prevPhysicsBodies = Engine.instance.currentWorld.physics.bodies.size
+    const prevPhysicsColliders = Engine.instance.currentWorld.physics.controllers.size
 
     createAvatar(
       NetworkWorldAction.spawnAvatar({
-        $from: Engine.userId,
+        $from: Engine.instance.userId,
         networkId: networkObject.networkId,
         parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() }
       })
@@ -76,8 +76,8 @@ describe('createAvatar', () => {
     assert(hasComponent(entity, SpawnPoseComponent))
     assert(hasComponent(entity, AvatarControllerComponent))
     assert(hasComponent(entity, InteractorComponent))
-    strictEqual(Engine.currentWorld.physics.bodies.size, prevPhysicsBodies + 2)
-    strictEqual(Engine.currentWorld.physics.controllers.size, prevPhysicsColliders + 1)
-    strictEqual(getComponent(entity, NameComponent).name, Engine.userId)
+    strictEqual(Engine.instance.currentWorld.physics.bodies.size, prevPhysicsBodies + 2)
+    strictEqual(Engine.instance.currentWorld.physics.controllers.size, prevPhysicsColliders + 1)
+    strictEqual(getComponent(entity, NameComponent).name, Engine.instance.userId)
   })
 })

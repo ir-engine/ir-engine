@@ -27,7 +27,7 @@ describe('CloudFunctions', () => {
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
   })
 
@@ -116,7 +116,7 @@ describe('CloudFunctions', () => {
       })
 
       it('creates Cloud in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 
@@ -127,7 +127,7 @@ describe('CloudFunctions', () => {
 
         const obj3d = getComponent(entity, Object3DComponent)?.value
         assert(obj3d && obj3d.userData.disableOutline, 'Cloud outline is not disabled')
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })

@@ -68,7 +68,7 @@ export const deserializeVolumetric: ComponentDeserializeFunction = (
   const props = parseVolumetricProperties(json.props)
   addComponent(entity, VolumetricComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VOLUMETRIC)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VOLUMETRIC)
 
   updateVolumetric(entity, props)
 }
@@ -148,7 +148,7 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
         return VolumetricCallbacks
       }
       //TODO: it is breaking the video play. need to check later
-      // const audioSource = Engine.audioListener.context.createMediaElementSource(obj3d.userData.player.video)
+      // const audioSource = Engine.instance.audioListener.context.createMediaElementSource(obj3d.userData.player.video)
       // obj3d.userData.audioEl.setNodeSource(audioSource)
     } catch (error) {
       addError(entity, 'error', error.message)

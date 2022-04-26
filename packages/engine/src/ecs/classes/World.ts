@@ -42,12 +42,12 @@ export const CreateWorld = Symbol('CreateWorld')
 export class World {
   private constructor() {
     bitecs.createWorld(this)
-    Engine.worlds.push(this)
+    Engine.instance.worlds.push(this)
 
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
 
-    if (!Engine.currentWorld) Engine.currentWorld = this
+    if (!Engine.instance.currentWorld) Engine.instance.currentWorld = this
 
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
 
@@ -65,7 +65,7 @@ export class World {
    * Check if this user is hosting the world.
    */
   get isHosting() {
-    return Engine.userId === this.hostId
+    return Engine.instance.userId === this.hostId
   }
 
   sceneMetadata = undefined as string | undefined
@@ -97,7 +97,7 @@ export class World {
   store = createHyperStore({
     name: 'WORLD',
     getDispatchMode: () => (this.isHosting ? 'host' : 'peer'),
-    getDispatchId: () => Engine.userId,
+    getDispatchId: () => Engine.instance.userId,
     getDispatchTime: () => this.fixedTick,
     defaultDispatchDelay: 1
   })

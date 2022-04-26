@@ -68,7 +68,7 @@ export const deserializeSkybox: ComponentDeserializeFunction = (
     addComponent(entity, SkyboxComponent, props)
     addComponent(entity, DisableTransformTagComponent, {})
     addComponent(entity, IgnoreRaycastTagComponent, {})
-    if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SKYBOX)
+    if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SKYBOX)
     updateSkybox(entity)
   }
 }
@@ -78,7 +78,7 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
 
   switch (component.backgroundType) {
     case SkyTypeEnum.color:
-      Engine.scene.background = component.backgroundColor
+      Engine.instance.scene.background = component.backgroundColor
       break
 
     case SkyTypeEnum.cubemap:
@@ -86,7 +86,7 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
         [posx, negx, posy, negy, posz, negz],
         (texture) => {
           texture.encoding = sRGBEncoding
-          Engine.scene.background = texture
+          Engine.instance.scene.background = texture
           removeError(entity, 'error')
         },
         (_res) => {
@@ -103,7 +103,7 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
         component.equirectangularPath,
         (texture) => {
           texture.encoding = sRGBEncoding
-          Engine.scene.background = getPmremGenerator().fromEquirectangular(texture).texture
+          Engine.instance.scene.background = getPmremGenerator().fromEquirectangular(texture).texture
           removeError(entity, 'error')
         },
         undefined,
@@ -126,7 +126,7 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
       component.sky.luminance = component.skyboxProps.luminance
 
       setSkyDirection(component.sky.sunPosition)
-      Engine.scene.background = getPmremGenerator().fromCubemap(
+      Engine.instance.scene.background = getPmremGenerator().fromCubemap(
         component.sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)
       ).texture
 

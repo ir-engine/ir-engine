@@ -29,7 +29,7 @@ export const deserializeShadow: ComponentDeserializeFunction = (
     receiveShadow: json.props.receive ?? SCENE_COMPONENT_SHADOW_DEFAULT_VALUES.receive
   })
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SHADOW)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SHADOW)
 
   updateShadow(entity)
 }

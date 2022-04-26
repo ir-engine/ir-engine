@@ -18,7 +18,7 @@ import { equipEntity, unequipEntity } from './equippableFunctions'
 describe('equippableFunctions', () => {
   beforeEach(() => {
     const world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     Network.instance = new TestNetwork()
   })
 

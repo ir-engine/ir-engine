@@ -34,7 +34,7 @@ export const deserializeModel: ComponentDeserializeFunction = (
   const props = parseModelProperties(component.props)
   addComponent(entity, ModelComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
   updateModel(entity, props)
 }
 

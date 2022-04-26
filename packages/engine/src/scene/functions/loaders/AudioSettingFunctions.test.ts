@@ -26,8 +26,8 @@ describe('AudioSettingFunctions', () => {
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
-    Engine.isEditor = false
+    Engine.instance.currentWorld = world
+    Engine.instance.isEditor = false
     entity = createEntity()
   })
 
@@ -74,7 +74,7 @@ describe('AudioSettingFunctions', () => {
       })
 
       it('creates Audio setting component in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 

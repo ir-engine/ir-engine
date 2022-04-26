@@ -21,7 +21,7 @@ describe('PreventBakeFunctions', () => {
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
   })
 
@@ -34,7 +34,7 @@ describe('PreventBakeFunctions', () => {
 
   describe('deserializePreventBake()', () => {
     it('does not create PreventBake Component if not in editor', () => {
-      Engine.isEditor = false
+      Engine.instance.isEditor = false
       addComponent(entity, EntityNodeComponent, { components: [] })
       deserializePreventBake(entity, sceneComponent)
 
@@ -46,7 +46,7 @@ describe('PreventBakeFunctions', () => {
     })
 
     it('creates PreventBake Component with provided component data', () => {
-      Engine.isEditor = true
+      Engine.instance.isEditor = true
       addComponent(entity, EntityNodeComponent, { components: [] })
       deserializePreventBake(entity, sceneComponent)
 

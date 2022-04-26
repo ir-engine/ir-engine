@@ -26,15 +26,15 @@ describe('CameraPropertiesFunctions', () => {
     '../setCameraProperties': { setCameraProperties: () => {} },
     '../../../networking/functions/matchActionOnce': {
       matchActionOnce: (store, _, callback: Function) => {
-        assert(callback({ $from: Engine.userId }), 'Camera property is not set')
-        assert(!callback({ $from: Engine.userId + 'fake' }), 'Camera property is set')
+        assert(callback({ $from: Engine.instance.userId }), 'Camera property is not set')
+        assert(!callback({ $from: Engine.instance.userId + 'fake' }), 'Camera property is set')
       }
     }
   })
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
   })
 
@@ -79,7 +79,7 @@ describe('CameraPropertiesFunctions', () => {
       })
 
       it('creates CameraProperties in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 
@@ -88,7 +88,7 @@ describe('CameraPropertiesFunctions', () => {
         const entityNodeComponent = getComponent(entity, EntityNodeComponent)
         assert(entityNodeComponent.components.includes(SCENE_COMPONENT_CAMERA_PROPERTIES))
 
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })

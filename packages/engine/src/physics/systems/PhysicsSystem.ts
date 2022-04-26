@@ -25,7 +25,7 @@ import { teleportRigidbody } from '../functions/teleportRigidbody'
 
 // Receptor
 function physicsActionReceptor(action: unknown) {
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   matches(action).when(NetworkWorldAction.teleportObject.matches, (a) => {
     const [x, y, z, qX, qY, qZ, qW] = a.pose
     const entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)!
@@ -83,7 +83,7 @@ const processNetworkBodies = (world: World) => {
 
     // Ignore if we own this object or no new network state has been received for this object
     // (i.e. packet loss and/or state not sent out from server because no change in state since last frame)
-    if (network.ownerId === Engine.userId) {
+    if (network.ownerId === Engine.instance.userId) {
       // console.log('ignoring state for:', nameComponent)
       continue
     }
@@ -121,7 +121,7 @@ const processBodies = (world: World) => {
 
     if (hasComponent(entity, AvatarComponent)) continue
 
-    if (Engine.isEditor || isStaticBody(collider.body)) {
+    if (Engine.instance.isEditor || isStaticBody(collider.body)) {
       const body = collider.body as PhysX.PxRigidDynamic
       const currentPose = body.getGlobalPose()
 
@@ -221,7 +221,7 @@ export default async function PhysicsSystem(world: World) {
       }
     }
 
-    if (Engine.isEditor) return
+    if (Engine.instance.isEditor) return
 
     simulationPipeline(world)
 

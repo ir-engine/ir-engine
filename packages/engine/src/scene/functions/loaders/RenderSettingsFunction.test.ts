@@ -11,7 +11,7 @@ import { deserializeRenderSetting } from './RenderSettingsFunction'
 describe('RenderSettingFunctions', () => {
   it('deserializeRenderSetting', () => {
     const world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     EngineRenderer.instance.isCSMEnabled = false
 
     const entity = createEntity()

@@ -20,7 +20,7 @@ import { useWorld } from './SystemHooks'
 describe('ComponentFunctions', async () => {
   beforeEach(() => {
     const world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     ComponentMap.clear()
   })
 

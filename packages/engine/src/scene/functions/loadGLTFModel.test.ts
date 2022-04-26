@@ -27,7 +27,7 @@ describe('loadGLTFModel', () => {
   // TODO: - this needs to be broken down and more comprehensive
   it('loadGLTFModel', async () => {
     const world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
 
     const mockComponentData = { src: 'https://mock.site/asset.glb' } as any
     const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')

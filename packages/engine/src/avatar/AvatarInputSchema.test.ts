@@ -25,7 +25,7 @@ describe('avatarInputSchema', () => {
 
   beforeEach(async () => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     delete (globalThis as any).PhysX
     await world.physics.createScene()
   })
@@ -92,7 +92,7 @@ describe('avatarInputSchema', () => {
   })
 
   it('check setWalking', async () => {
-    await Engine.currentWorld.physics.createScene({ verbose: true })
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
     const entity = createEntity(world)
 
     const controller = world.physics.createController({

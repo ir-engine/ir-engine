@@ -11,7 +11,7 @@ import { TransformComponent } from '../src/transform/components/TransformCompone
 describe('Structure of Array Synchronization', () => {
   it('should synchronize values between transform objects and SoA data', () => {
     /* mock */
-    Engine.currentWorld = createWorld()
+    Engine.instance.currentWorld = createWorld()
 
     const entity = createEntity()
     const transform = addComponent(entity, TransformComponent, {

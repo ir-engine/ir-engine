@@ -28,7 +28,7 @@ describe('AmbientLightFunctions', () => {
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
   })
 
@@ -75,7 +75,7 @@ describe('AmbientLightFunctions', () => {
       })
 
       it('creates Ambient light in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 
@@ -83,7 +83,7 @@ describe('AmbientLightFunctions', () => {
 
         const entityNodeComponent = getComponent(entity, EntityNodeComponent)
         assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AMBIENT_LIGHT))
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })

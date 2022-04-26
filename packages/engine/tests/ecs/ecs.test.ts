@@ -57,7 +57,7 @@ async function MockSystemInitialiser(world: World, args: {}) {
 
 describe('ECS', () => {
   beforeEach(async () => {
-    const world = (Engine.currentWorld = createWorld())
+    const world = (Engine.instance.currentWorld = createWorld())
     await initSystems(world, [
       {
         type: SystemUpdateType.UPDATE,
@@ -67,11 +67,11 @@ describe('ECS', () => {
   })
 
   // afterEach(() => {
-  //   // deletEngine.currentWorld
+  //   // deletEngine.instance.currentWorld
   // })
 
   it('should create ECS world', () => {
-    const world = Engine.currentWorld
+    const world = Engine.instance.currentWorld
     assert(world)
     const entities = world.entityQuery()
     console.log(entities)
@@ -197,9 +197,9 @@ describe('ECS', () => {
     assert.deepStrictEqual(state, [])
 
     const newMockValue = 1 + Math.random()
-    assert.equal(bitecs.hasComponent(Engine.currentWorld!, MockComponent, entity), false)
+    assert.equal(bitecs.hasComponent(Engine.instance.currentWorld!, MockComponent, entity), false)
     addComponent(entity, MockComponent, { mockValue: newMockValue })
-    assert.equal(bitecs.hasComponent(Engine.currentWorld!, MockComponent, entity), true)
+    assert.equal(bitecs.hasComponent(Engine.instance.currentWorld!, MockComponent, entity), true)
     const component = getComponent(entity, MockComponent)
     console.log(component)
     assert(component)

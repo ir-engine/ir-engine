@@ -109,8 +109,8 @@ function updateHelpers(): void {
   SceneState.grid.setGridHeight(state.gridHeight.value)
   SceneState.grid.visible = state.gridVisibility.value
 
-  if (state.nodeHelperVisibility.value) Engine.camera.layers.enable(ObjectLayers.NodeHelper)
-  else Engine.camera.layers.disable(ObjectLayers.NodeHelper)
+  if (state.nodeHelperVisibility.value) Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
+  else Engine.instance.camera.layers.disable(ObjectLayers.NodeHelper)
 }
 
 store.receptors.push((action: EditorHelperActionType): any => {

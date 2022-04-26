@@ -29,7 +29,7 @@ describe('SystemFunctions', () => {
   describe('initSystems', () => {
     it('can initialize systems', async () => {
       const world = createWorld()
-      Engine.currentWorld = world
+      Engine.instance.currentWorld = world
       const fixedPipeline = SystemUpdateType.FIXED
       await initSystems(world, [
         {
@@ -48,7 +48,7 @@ describe('SystemFunctions', () => {
 
     it('can initialize multiple systems of same type', async () => {
       const world = createWorld()
-      Engine.currentWorld = world
+      Engine.instance.currentWorld = world
       const fixedPipeline = SystemUpdateType.FIXED
       await initSystems(world, [
         {
@@ -76,7 +76,7 @@ describe('SystemFunctions', () => {
 
     it('can initialize multiple systems of different type', async () => {
       const world = createWorld()
-      Engine.currentWorld = world
+      Engine.instance.currentWorld = world
       const fixedPipeline = SystemUpdateType.FIXED
       const updatePipeline = SystemUpdateType.UPDATE
       await initSystems(world, [
@@ -109,7 +109,7 @@ describe('SystemFunctions', () => {
   describe('unloadSystems', () => {
     it('can remove scene system', async () => {
       const world = createWorld()
-      Engine.currentWorld = world
+      Engine.instance.currentWorld = world
       const pipelineType = SystemUpdateType.FIXED
       await initSystems(world, [
         {
@@ -128,7 +128,7 @@ describe('SystemFunctions', () => {
 
     it('can remove all systems', async () => {
       const world = createWorld()
-      Engine.currentWorld = world
+      Engine.instance.currentWorld = world
       const pipelineType = SystemUpdateType.FIXED
       await initSystems(world, [
         {
@@ -152,7 +152,7 @@ describe('SystemFunctions', () => {
 
     it('can remove only scene systems', async () => {
       const world = createWorld()
-      Engine.currentWorld = world
+      Engine.instance.currentWorld = world
       const pipelineType = SystemUpdateType.FIXED
       await initSystems(world, [
         {

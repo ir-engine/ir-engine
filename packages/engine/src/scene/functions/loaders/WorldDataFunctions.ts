@@ -33,7 +33,7 @@ export const deserializeWorldData: ComponentDeserializeFunction = (
     createState({ action: '_metadata', interactionUserData: data } as InteractableComponentType)
   )
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_WORLDDATA)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_WORLDDATA)
 
   updateWorldData(entity, json.props)
 }

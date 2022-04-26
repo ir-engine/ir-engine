@@ -79,8 +79,8 @@ describe('AudioFunctions', () => {
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
-    Engine.isEditor = false
+    Engine.instance.currentWorld = world
+    Engine.instance.isEditor = false
     entity = createEntity()
   })
 
@@ -149,7 +149,7 @@ describe('AudioFunctions', () => {
       })
 
       it('creates Audio in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
         addComponent(entity, EntityNodeComponent, { components: [] })
 
         audioFunctions.deserializeAudio(entity, sceneComponent)
@@ -161,7 +161,7 @@ describe('AudioFunctions', () => {
 
     describe('Editor Tests', () => {
       it('creates texture mesh for audio', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
         audioFunctions.deserializeAudio(entity, sceneComponent)
 
         const obj3d = getComponent(entity, Object3DComponent).value
@@ -171,7 +171,7 @@ describe('AudioFunctions', () => {
       })
 
       it('caches audio texture', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
         const entity2 = createEntity()
 
         audioFunctions.deserializeAudio(entity, sceneComponent)

@@ -84,7 +84,7 @@ export const deserializeVideo: ComponentDeserializeFunction = (
 
   addComponent(entity, VideoComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VIDEO)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VIDEO)
 
   updateVideo(entity, props)
 }
@@ -133,7 +133,7 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
             if (accessEngineState().userHasInteracted.value) {
               obj3d.userData.videoEl.play()
             } else {
-              matchActionOnce(Engine.store, EngineActions.setUserHasInteracted.matches, () => {
+              matchActionOnce(Engine.instance.store, EngineActions.setUserHasInteracted.matches, () => {
                 obj3d.userData.videoEl.play()
                 return true
               })
@@ -144,7 +144,7 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
           mesh.material.map.image.width = mesh.material.map.image.videoWidth
           if (getComponent(entity, ImageComponent)?.projection === ImageProjection.Flat) resizeImageMesh(mesh)
 
-          const audioSource = Engine.audioListener.context.createMediaElementSource(obj3d.userData.videoEl)
+          const audioSource = Engine.instance.audioListener.context.createMediaElementSource(obj3d.userData.videoEl)
           obj3d.userData.audioEl.setNodeSource(audioSource)
 
           updateAutoStartTimeForMedia(entity)

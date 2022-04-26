@@ -40,7 +40,7 @@ export const deserializePortal: ComponentDeserializeFunction = (
 
   addComponent(entity, PortalComponent, props)
 
-  if (Engine.isEditor) {
+  if (Engine.instance.isEditor) {
     const spawnHelperEntity = createEntity()
     const portalComponent = getComponent(entity, PortalComponent)
     portalComponent.helper = spawnHelperEntity
@@ -65,13 +65,13 @@ export const deserializePortal: ComponentDeserializeFunction = (
     addComponent(spawnHelperEntity, Object3DComponent, { value: spawnHelperMesh })
   }
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PORTAL)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PORTAL)
 
   updatePortal(entity)
 }
 
 export const updatePortal: ComponentUpdateFunction = (entity: Entity) => {
-  if (Engine.isEditor) {
+  if (Engine.instance.isEditor) {
     const portalComponent = getComponent(entity, PortalComponent)
     const helperTransform = getComponent(portalComponent.helper, TransformComponent)
     if (portalComponent.spawnPosition) {

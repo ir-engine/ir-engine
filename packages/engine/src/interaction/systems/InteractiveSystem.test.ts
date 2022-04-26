@@ -22,7 +22,7 @@ describe('interactiveSystem', () => {
   // let interactiveSystem
   // before(async () => {
   //   world = createWorld()
-  //   Engine.currentWorld = world
+  //   Engine.instance.currentWorld = world
   //   interactiveSystem = await InteractiveSystem(world)
   // })
   // it('interactorsQuery & interactiveQuery', () => {

@@ -36,7 +36,7 @@ export const deserializePointLight: ComponentDeserializeFunction = (
   const light = new PointLight()
   const props = parsePointLightProperties(json.props)
 
-  if (Engine.isEditor) {
+  if (Engine.instance.isEditor) {
     const ball = new Mesh(new IcosahedronGeometry(0.15), new MeshBasicMaterial({ fog: false }))
     const rangeBall = new Mesh(
       new IcosahedronGeometry(0.25),
@@ -56,7 +56,7 @@ export const deserializePointLight: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, PointLightComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POINT_LIGHT)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POINT_LIGHT)
 
   updatePointLight(entity, props)
 }
@@ -82,7 +82,7 @@ export const updatePointLight: ComponentUpdateFunction = (entity: Entity, proper
     light.shadow.needsUpdate = true
   }
 
-  if (Engine.isEditor) {
+  if (Engine.instance.isEditor) {
     light.userData.ball.material.color = component.color
     light.userData.rangeBall.material.color = component.color
   }

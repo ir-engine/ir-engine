@@ -17,9 +17,9 @@ import { deserializePortal } from './PortalFunctions'
 describe('PortalFunctions', () => {
   it('deserializePortal', async () => {
     const world = createWorld()
-    Engine.currentWorld = world
-    Engine.currentWorld = world
-    await Engine.currentWorld.physics.createScene({ verbose: true })
+    Engine.instance.currentWorld = world
+    Engine.instance.currentWorld = world
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
 
     const entity = createEntity()
 
@@ -57,7 +57,7 @@ describe('PortalFunctions', () => {
     const portalComponent = getComponent(entity, PortalComponent)
     assert.equal(portalComponent.location, 'test')
     assert.equal(portalComponent.linkedPortalId, linkedPortalId)
-    assert(Engine.currentWorld.portalQuery().includes(entity))
+    assert(Engine.instance.currentWorld.portalQuery().includes(entity))
 
     // clean up physx
     delete (globalThis as any).PhysX

@@ -42,7 +42,7 @@ export const deserializeSpotLight: ComponentDeserializeFunction = (
   light.target.name = 'light-target'
   light.add(light.target)
 
-  if (Engine.isEditor) {
+  if (Engine.instance.isEditor) {
     const ring = new Mesh(new TorusGeometry(0.1, 0.025, 8, 12), new MeshBasicMaterial({ fog: false }))
     const cone = new Mesh(
       new ConeGeometry(0.25, 0.5, 8, 1, true),
@@ -65,7 +65,7 @@ export const deserializeSpotLight: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, SpotLightComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPOT_LIGHT)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPOT_LIGHT)
 
   updateSpotLight(entity, props)
 }
@@ -93,7 +93,7 @@ export const updateSpotLight: ComponentUpdateFunction = (entity: Entity, propert
     light.shadow.needsUpdate = true
   }
 
-  if (Engine.isEditor) {
+  if (Engine.instance.isEditor) {
     light.userData.ring.material.color = component.color
     light.userData.cone.material.color = component.color
   }

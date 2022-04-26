@@ -62,7 +62,7 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
   const props = parseAudioProperties(json.props)
   addComponent(entity, AudioComponent, props)
 
-  if (Engine.isEditor) {
+  if (Engine.instance.isEditor) {
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO)
 
     obj3d.userData.textureMesh = new Mesh(
@@ -103,8 +103,8 @@ export const updateAudio: ComponentUpdateFunction = (entity: Entity, properties:
     if (obj3d.userData.audioEl) obj3d.userData.audioEl.removeFromParent()
     obj3d.userData.audioEl =
       component.audioType === AudioType.Stereo
-        ? new Audio(Engine.audioListener)
-        : new PositionalAudio(Engine.audioListener)
+        ? new Audio(Engine.instance.audioListener)
+        : new PositionalAudio(Engine.instance.audioListener)
 
     obj3d.userData.audioEl.matrixAutoUpdate = false
     obj3d.add(obj3d.userData.audioEl)

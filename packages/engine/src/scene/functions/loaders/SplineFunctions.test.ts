@@ -20,7 +20,7 @@ describe('SplineFunctions', () => {
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
   })
 
@@ -62,7 +62,7 @@ describe('SplineFunctions', () => {
       })
 
       it('creates Spline in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 
@@ -73,7 +73,7 @@ describe('SplineFunctions', () => {
 
         const obj3d = getComponent(entity, Object3DComponent)?.value
         assert(obj3d.children.length > 0 && obj3d.userData.helper)
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })

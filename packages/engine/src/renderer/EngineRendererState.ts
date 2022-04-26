@@ -67,7 +67,7 @@ export async function restoreEngineRendererData(): Promise<void> {
       })
     ])
 
-    dispatchAction(Engine.store, EngineRendererAction.restoreStorageData(s))
+    dispatchAction(Engine.instance.store, EngineRendererAction.restoreStorageData(s))
   }
 }
 
@@ -76,8 +76,8 @@ function updateState(): void {
   setUsePostProcessing(state.usePostProcessing.value)
   setUseShadows(state.useShadows.value)
 
-  dispatchAction(Engine.store, EngineRendererAction.setPhysicsDebug(state.physicsDebugEnable.value))
-  dispatchAction(Engine.store, EngineRendererAction.setAvatarDebug(state.avatarDebugEnable.value))
+  dispatchAction(Engine.instance.store, EngineRendererAction.setPhysicsDebug(state.physicsDebugEnable.value))
+  dispatchAction(Engine.instance.store, EngineRendererAction.setAvatarDebug(state.avatarDebugEnable.value))
 
   changeRenderMode(state.renderMode.value)
 }

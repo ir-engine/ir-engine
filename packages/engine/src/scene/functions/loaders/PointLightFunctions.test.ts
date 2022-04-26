@@ -13,7 +13,7 @@ import { deserializePointLight } from './PointLightFunctions'
 describe('PointLightFunctions', () => {
   it('deserializePointLight', () => {
     const world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
 
     const entity = createEntity()
     const color = new Color('pink')

@@ -36,14 +36,14 @@ describe('BoxColliderFunctions', () => {
 
   beforeEach(async () => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
     addComponent(entity, TransformComponent, {
       position: new Vector3(Math.random(), Math.random(), Math.random()),
       rotation: new Quaternion(Math.random(), Math.random(), Math.random(), Math.random()),
       scale: new Vector3(Math.random(), Math.random(), Math.random())
     })
-    await Engine.currentWorld.physics.createScene({ verbose: true })
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
 
     world.physics = {
       createShape: () => ({ shape: 'box' }),
@@ -58,7 +58,7 @@ describe('BoxColliderFunctions', () => {
   })
 
   afterEach(() => {
-    Engine.currentWorld = null!
+    Engine.instance.currentWorld = null!
     delete (globalThis as any).PhysX
   })
 
@@ -105,7 +105,7 @@ describe('BoxColliderFunctions', () => {
       })
 
       it('creates BoxCollider in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 
@@ -115,7 +115,7 @@ describe('BoxColliderFunctions', () => {
         assert(entityNodeComponent.components.includes(SCENE_COMPONENT_BOX_COLLIDER))
 
         assert(getComponent(entity, Object3DComponent)?.value)
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })

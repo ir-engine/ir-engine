@@ -44,23 +44,29 @@ export const Debug = () => {
   const [remountCount, setRemountCount] = useState(0)
   const refresh = () => setRemountCount(remountCount + 1)
   const togglePhysicsDebug = () => {
-    dispatchAction(Engine.store, EngineRendererAction.setPhysicsDebug(!engineRendererState.physicsDebugEnable.value))
+    dispatchAction(
+      Engine.instance.store,
+      EngineRendererAction.setPhysicsDebug(!engineRendererState.physicsDebugEnable.value)
+    )
   }
 
   const toggleAvatarDebug = () => {
-    dispatchAction(Engine.store, EngineRendererAction.setAvatarDebug(!engineRendererState.avatarDebugEnable.value))
+    dispatchAction(
+      Engine.instance.store,
+      EngineRendererAction.setAvatarDebug(!engineRendererState.avatarDebugEnable.value)
+    )
   }
 
   const renderNamedEntities = () => {
     return {
       ...Object.fromEntries(
-        [...Engine.currentWorld.namedEntities.entries()]
+        [...Engine.instance.currentWorld.namedEntities.entries()]
           .map(([key, eid]) => {
             try {
               return [
                 key + '(' + eid + ')',
                 Object.fromEntries(
-                  getEntityComponents(Engine.currentWorld, eid).reduce<[string, any][]>(
+                  getEntityComponents(Engine.instance.currentWorld, eid).reduce<[string, any][]>(
                     (components, C: MappedComponent<any, any>) => {
                       if (C !== NameComponent) {
                         engineState.fixedTick.value
@@ -120,7 +126,7 @@ export const Debug = () => {
             </div>
             <div>
               <h1>{t('common:debug.networkClients')}</h1>
-              <JSONTree data={Object.fromEntries(Engine.currentWorld.clients.entries())} />
+              <JSONTree data={Object.fromEntries(Engine.instance.currentWorld.clients.entries())} />
             </div>
           </div>
         )}

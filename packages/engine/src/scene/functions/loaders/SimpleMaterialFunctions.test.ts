@@ -38,7 +38,7 @@ describe('SimpleMaterialFunctions', () => {
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
   })
 
@@ -78,7 +78,7 @@ describe('SimpleMaterialFunctions', () => {
       })
 
       it('creates SimpleMaterial in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 
@@ -87,7 +87,7 @@ describe('SimpleMaterialFunctions', () => {
         const entityNodeComponent = getComponent(entity, EntityNodeComponent)
         assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SIMPLE_MATERIALS))
 
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })

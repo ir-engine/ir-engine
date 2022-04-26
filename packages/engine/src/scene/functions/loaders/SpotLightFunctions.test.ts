@@ -29,7 +29,7 @@ describe('SpotLightFunctions', () => {
 
   beforeEach(() => {
     world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
     entity = createEntity()
   })
 
@@ -92,7 +92,7 @@ describe('SpotLightFunctions', () => {
       })
 
       it('creates SpotLight in Editor', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
 
         addComponent(entity, EntityNodeComponent, { components: [] })
 
@@ -107,7 +107,7 @@ describe('SpotLightFunctions', () => {
         assert(obj3d.userData.ring.layers.isEnabled(ObjectLayers.NodeHelper))
         assert(obj3d.userData.cone.layers.isEnabled(ObjectLayers.NodeHelper))
 
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })
@@ -333,7 +333,7 @@ describe('SpotLightFunctions', () => {
     })
 
     it('should update color of helpers in editor', () => {
-      Engine.isEditor = true
+      Engine.instance.isEditor = true
       const entity = createEntity()
       deserializeSpotLight(entity, sceneComponent)
 
@@ -346,7 +346,7 @@ describe('SpotLightFunctions', () => {
 
       assert(obj3d.userData.ring.material.color.getHex() === newColor.getHex())
       assert(obj3d.userData.cone.material.color.getHex() === newColor.getHex())
-      Engine.isEditor = false
+      Engine.instance.isEditor = false
     })
   })
 

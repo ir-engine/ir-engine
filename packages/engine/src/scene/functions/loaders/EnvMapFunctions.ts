@@ -64,7 +64,7 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (
   const props = parseEnvMapProperties(json.props)
   addComponent(entity, EnvmapComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ENVMAP)
+  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ENVMAP)
 
   updateEnvMap(entity)
 }
@@ -88,7 +88,7 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
       texture.needsUpdate = true
       texture.encoding = sRGBEncoding
 
-      Engine.scene.environment = getPmremGenerator().fromEquirectangular(texture).texture
+      Engine.instance.scene.environment = getPmremGenerator().fromEquirectangular(texture).texture
       break
 
     case EnvMapSourceType.Texture:
@@ -99,7 +99,7 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
             (texture) => {
               const EnvMap = getPmremGenerator().fromCubemap(texture).texture
               EnvMap.encoding = sRGBEncoding
-              Engine.scene.environment = EnvMap
+              Engine.instance.scene.environment = EnvMap
               removeError(entity, 'envmapError')
               texture.dispose()
             },
@@ -118,7 +118,7 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
             (texture) => {
               const EnvMap = getPmremGenerator().fromEquirectangular(texture).texture
               EnvMap.encoding = sRGBEncoding
-              Engine.scene.environment = EnvMap
+              Engine.instance.scene.environment = EnvMap
               removeError(entity, 'envmapError')
               texture.dispose()
             },
@@ -140,18 +140,18 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
       SceneOptions.instance.bpcemOptions.bakeScale = options.bakeScale!
       SceneOptions.instance.bpcemOptions.bakePositionOffset = options.bakePositionOffset!
 
-      matchActionOnce(Engine.store, EngineActions.sceneLoaded.matches, () => {
+      matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, () => {
         switch (options.bakeType) {
           case CubemapBakeTypes.Baked:
             const texture = AssetLoader.Cache.get(options.envMapOrigin)
             texture.mapping = EquirectangularRefractionMapping
-            Engine.scene.environment = texture
+            Engine.instance.scene.environment = texture
 
             break
           case CubemapBakeTypes.Realtime:
-            // const map = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.scene, options.resolution)
+            // const map = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, options.resolution)
             // const EnvMap = (await map.update(options.bakePosition)).cubeRenderTarget.texture
-            // Engine.scene.environment = EnvMap
+            // Engine.instance.scene.environment = EnvMap
             break
         }
       })
@@ -170,7 +170,7 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
 
   if (SceneOptions.instance.envMapIntensity !== component.envMapIntensity) {
     SceneOptions.instance.envMapIntensity = component.envMapIntensity
-    Engine.scene.traverse((obj: Mesh) => {
+    Engine.instance.scene.traverse((obj: Mesh) => {
       if (!obj.material) return
 
       if (Array.isArray(obj.material)) {

@@ -34,7 +34,8 @@ export const deserializeAudioSetting: ComponentDeserializeFunction = (
   const props = parseAudioSettingProperties(json.props)
 
   addComponent(entity, PositionalAudioSettingsComponent, props)
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO_SETTINGS)
+  if (Engine.instance.isEditor)
+    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO_SETTINGS)
 }
 
 export const serializeAudioSetting: ComponentSerializeFunction = (entity) => {

@@ -58,7 +58,8 @@ export const deserializeParticleEmitter: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: mesh })
   addComponent(entity, RenderedComponent, {})
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PARTICLE_EMITTER)
+  if (Engine.instance.isEditor)
+    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PARTICLE_EMITTER)
 }
 
 export const updateParticleEmitter: ComponentUpdateFunction = (entity: Entity, props: any): void => {

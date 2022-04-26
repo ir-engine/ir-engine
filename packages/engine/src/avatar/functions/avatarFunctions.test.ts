@@ -28,7 +28,7 @@ const testGLTF = '/packages/projects/default-project/public/avatars/CyberbotRed.
 describe('avatarFunctions Unit', async () => {
   beforeEach(async () => {
     const world = createWorld()
-    Engine.currentWorld = world
+    Engine.instance.currentWorld = world
   })
 
   let assetModel
