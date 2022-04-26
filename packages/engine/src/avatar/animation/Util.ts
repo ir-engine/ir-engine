@@ -19,7 +19,9 @@ import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent
 
 export const AvatarStates = {
   LOCOMOTION: 'LOCOMOTION',
-  JUMP: 'JUMP',
+  JUMP_UP: 'JUMP_UP',
+  JUMP_DOWN: 'JUMP_DOWN',
+  FALL_IDLE: 'FALL_IDLE',
   //Emotes
   CLAP: 'CLAP',
   CRY: 'CRY',
@@ -39,10 +41,9 @@ export const matchesAvatarState = matches.some(
 
 export const AvatarAnimations = {
   // Jump and falling
-  JUMP: 'jump',
-  FALLING: 'falling',
-  LANDING_AFTER_FALL: 'falling_to_land',
-  ROLLING_AFTER_FALL: 'falling_to_roll',
+  JUMP_UP: 'jump_up',
+  JUMP_DOWN: 'jump_down',
+  FALL_IDLE: 'falling_idle',
 
   // Walking and running
   // TODO: Probably can remove non-root

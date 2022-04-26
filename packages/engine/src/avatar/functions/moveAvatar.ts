@@ -116,7 +116,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
       !controller.isJumping
     ) {
       // jump
-      velocity.linear.y = (AvatarSettings.instance.jumpHeight * 1) / 60
+      velocity.linear.y = AvatarSettings.instance.jumpHeight / 60
       controller.isJumping = true
     } else if (controller.isJumping) {
       // reset isJumping the following frame
@@ -156,6 +156,10 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
     y: velocity.linear.y,
     z: newVelocity.z
   }
+
+  // Ignore the current frame's isInAir value if the last frame was non-zero
+  controller.isInAir = Math.abs(velocity.linear.y) > 0 || controller.previousFrameVelocity.y > 0
+  controller.previousFrameVelocity.copy(displacement as any)
 
   moveAvatarController(world, entity, displacement)
 
