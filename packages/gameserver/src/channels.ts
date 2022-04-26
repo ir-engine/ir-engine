@@ -590,10 +590,6 @@ export default (app: Application): void => {
     return
   }
 
-  const shouldLoadGameserver = config.kubernetes.enabled || process.env.APP_ENV === 'development'
-
-  if (!shouldLoadGameserver) return
-
   app.service('gameserver-load').on('patched', async (params) => {
     const { id, ipAddress, podName, locationId, sceneId } = params
 

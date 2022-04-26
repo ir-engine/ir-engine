@@ -21,7 +21,7 @@ export const start = async (): Promise<void> => {
   app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
   app.configure(channels)
 
-  if (process.env.APP_ENV === 'development' && !config.db.forceRefresh) {
+  if (!config.kubernetes.enabled && !config.db.forceRefresh) {
     app.isSetup.then(() => {
       app.service('project')._fetchDevLocalProjects()
     })
@@ -87,5 +87,5 @@ export const start = async (): Promise<void> => {
     logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
   )
 
-  if (process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD) StartCorsServer(useSSL, certOptions)
+  if (!config.kubernetes.enabled) StartCorsServer(useSSL, certOptions)
 }
