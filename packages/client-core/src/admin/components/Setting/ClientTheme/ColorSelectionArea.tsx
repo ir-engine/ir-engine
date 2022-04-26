@@ -112,6 +112,31 @@ const ColorSelectionArea = (props: ColorSelectionAreaProps) => {
       </Grid>
       <Divider variant="inset" component="div" className={styles.colorGridDivider} />
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
+        <label>Table Header Background:</label>
+        <SketchColorPicker
+          name="tableHeaderBackground"
+          value={theme.tableHeaderBackground}
+          onChange={(color) => handleChangeColor('tableHeaderBackground', color)}
+        />
+      </Grid>
+      <Grid item sm={12} md={6} className={styles.colorGridContainer}>
+        <label>Table Cell Background:</label>
+        <SketchColorPicker
+          name="tableCellBackground"
+          value={theme.tableCellBackground}
+          onChange={(color) => handleChangeColor('tableCellBackground', color)}
+        />
+      </Grid>
+      <Grid item sm={12} md={12} className={styles.colorGridContainer}>
+        <label>Table Footer Background:</label>
+        <SketchColorPicker
+          name="tableFooterBackground"
+          value={theme.tableFooterBackground}
+          onChange={(color) => handleChangeColor('tableFooterBackground', color)}
+        />
+      </Grid>
+      <Divider variant="inset" component="div" className={styles.colorGridDivider} />
+      <Grid item sm={12} md={6} className={styles.colorGridContainer}>
         <label>Text Color:</label>
         <SketchColorPicker
           name="textColor"

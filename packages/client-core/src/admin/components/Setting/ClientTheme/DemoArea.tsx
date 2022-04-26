@@ -14,7 +14,14 @@ import {
   ListItemText,
   Menu,
   MenuItem,
-  Select
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow
 } from '@mui/material'
 
 import styles from '../../../styles/settings.module.scss'
@@ -31,6 +38,94 @@ const DemoArea = () => {
   const closeMenu = () => {
     setAnchorEl(null)
   }
+
+  const columns = [
+    { id: 'name', label: 'Name', minWidth: 65, align: 'left' },
+    {
+      id: 'userRole',
+      label: 'Status',
+      minWidth: 65,
+      align: 'right'
+    },
+    {
+      id: 'location',
+      label: 'Location',
+      minWidth: 65,
+      align: 'right'
+    },
+    {
+      id: 'inviteCode',
+      label: 'Invite code',
+      minWidth: 65,
+      align: 'right'
+    },
+    {
+      id: 'instanceId',
+      label: 'Instance',
+      minWidth: 65,
+      align: 'right'
+    },
+    {
+      id: 'action',
+      label: 'Action',
+      minWidth: 65,
+      align: 'right'
+    }
+  ]
+
+  const rows = [
+    {
+      name: 'Josh',
+      userRole: 'Admin',
+      location: 'test',
+      inviteCode: 'NULL',
+      instanceId: 'koqwndpkqwndpkqwndpqkwndm',
+      action: (
+        <>
+          <a href="#h" className="actionStyle" onClick={() => {}}>
+            <span className="spanWhite">View</span>
+          </a>
+          <a href="#h" className="actionStyle" onClick={() => {}}>
+            <span className="spanDange">Delete</span>
+          </a>
+        </>
+      )
+    },
+    {
+      name: 'Liam',
+      userRole: 'User',
+      location: 'apartment',
+      inviteCode: 'NULL',
+      instanceId: 'alksdnvoakewndawepdnpqwdew',
+      action: (
+        <>
+          <a href="#h" className="actionStyle" onClick={() => {}}>
+            <span className="spanWhite">View</span>
+          </a>
+          <a href="#h" className="actionStyle" onClick={() => {}}>
+            <span className="spanDange">Delete</span>
+          </a>
+        </>
+      )
+    },
+    {
+      name: 'Gheric',
+      userRole: 'Moderator',
+      location: 'test',
+      inviteCode: 'NULL',
+      instanceId: 'qkpwejdpqwdmpqlcmnpqwmndqow',
+      action: (
+        <>
+          <a href="#h" className="actionStyle" onClick={() => {}}>
+            <span className="spanWhite">View</span>
+          </a>
+          <a href="#h" className="actionStyle" onClick={() => {}}>
+            <span className="spanDange">Delete</span>
+          </a>
+        </>
+      )
+    }
+  ]
 
   return (
     <>
@@ -58,6 +153,53 @@ const DemoArea = () => {
           </div>
           <div className="contentArea">
             <div className="hiddenWidth"></div>
+            <Box className="tableBox">
+              <TableContainer className="tableContainer">
+                <Table stickyHeader aria-label="sticky table">
+                  <TableHead>
+                    <TableRow>
+                      {columns.map((headCell) => (
+                        <TableCell
+                          key={headCell.id}
+                          align="right"
+                          padding="normal"
+                          className="tableCellHeader"
+                          style={{ minWidth: headCell.minWidth }}
+                        >
+                          {headCell.label}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {rows.map((row, index) => {
+                      return (
+                        <TableRow hover role="checkbox" tabIndex={-1} key={`${index}${row.name}`}>
+                          {columns.map((column, index) => {
+                            const value = row[column.id]
+                            return (
+                              <TableCell key={index} align="right" className="tableCellBody">
+                                {value}
+                              </TableCell>
+                            )
+                          })}
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[12]}
+                component="div"
+                count={rows.length}
+                rowsPerPage={100}
+                page={0}
+                onPageChange={() => {}}
+                onRowsPerPageChange={() => {}}
+                className="tableFooter"
+              />
+            </Box>
             <Box className="panel">
               <div className="textHeading">Heading</div>
               <Box className="panelCardContainer">

@@ -31,6 +31,9 @@ const defaultThemeSettings = {
     dropdownMenuBackground: '#7f78c4',
     dropdownMenuHoverBackground: '#6D61B5',
     drawerBackground: '#7f78c4',
+    tableHeaderBackground: '#7f78c4',
+    tableCellBackground: '#9a9ae4',
+    tableFooterBackground: '#7f78c4',
     themeSwitchTrack: '#aab4be',
     themeSwitchThumb: '#c2b7f6'
   },
@@ -66,6 +69,9 @@ const defaultThemeSettings = {
     dropdownMenuBackground: '#1f1b48',
     dropdownMenuHoverBackground: '#2A2567',
     drawerBackground: '#1f1b48',
+    tableHeaderBackground: '#1f1b48',
+    tableCellBackground: '#3c3c6f',
+    tableFooterBackground: '#1f1b48',
     themeSwitchTrack: '#8796a5',
     themeSwitchThumb: '#02022d'
   }

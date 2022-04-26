@@ -248,6 +248,46 @@ const DemoStyle = (props: DemoStyleProps) => {
       .drawer {
         background-color: ${theme.drawerBackground};
       }
+
+      .tableBox {
+        margin: 20px 20px 0px;
+      }
+
+      .tableContainer {
+        max-height: 100%;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        min-height: 0;
+      }
+      
+      .tableCellHeader {
+        background: ${theme.tableHeaderBackground} !important;
+        color: ${theme.textColor} !important;
+        border-bottom: 2px solid ${theme.mainBackground} !important;
+      }
+      
+      .tableCellBody {
+        border-bottom: 1px solid ${theme.mainBackground} !important;
+        color: ${theme.textColor} !important;
+        background: ${theme.tableCellBackground} !important;
+      }
+      
+      .tableFooter {
+        background: ${theme.tableFooterBackground} !important;
+        color: ${theme.textColor} !important;
+        overflow: unset;
+      }
+
+      .actionStyle {
+        text-decoration: none;
+        color: ${theme.textColor};
+        margin-right: 10px;
+      }
+      
+      .spanWhite {
+        color: ${theme.textColor} !important;
+      }
     `}
     </style>
   )
