@@ -1,11 +1,12 @@
 import { Color, DoubleSide, Mesh, Plane, PlaneBufferGeometry, ShaderMaterial, Vector3 } from 'three'
 
-import { store } from '@xrengine/client-core/src/store'
-import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { addIsHelperFlag } from '@xrengine/engine/src/scene/functions/addIsHelperFlag'
-import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
+import { dispatchAction } from '@xrengine/hyperflux'
 
-import { EditorHelperAction } from '../services/EditorHelperState'
+import { Engine } from '../../ecs/classes/Engine'
+import { EngineRendererAction } from '../../renderer/EngineRendererState'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { addIsHelperFlag } from '../../scene/functions/addIsHelperFlag'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
 /**
  * Original Author: Fyrestar
@@ -60,7 +61,8 @@ void main() {
 
 const GRID_INCREAMENT = 1.5
 
-export default class EditorInfiniteGridHelper extends Mesh {
+export default class InfiniteGridHelper extends Mesh {
+  static instance: InfiniteGridHelper
   plane: Plane
   intersectionPointWorld: Vector3
   intersection: any
@@ -98,7 +100,7 @@ export default class EditorInfiniteGridHelper extends Mesh {
     super(geometry, material)
 
     this.visible = true
-    this.name = 'EditorInfiniteGridHelper'
+    this.name = 'InfiniteGridHelper'
     setObjectLayers(this, ObjectLayers.Gizmos)
     addIsHelperFlag(this)
     this.frustumCulled = false
@@ -138,11 +140,11 @@ export default class EditorInfiniteGridHelper extends Mesh {
 
   setGridHeight(value) {
     this.position.y = value
-    store.dispatch(EditorHelperAction.changeGridToolHeight(value))
+    dispatchAction(Engine.store, EngineRendererAction.changeGridToolHeight(value))
   }
 
   toggleGridVisible() {
     this.visible = !this.visible
-    store.dispatch(EditorHelperAction.changeGridToolVisibility(this.visible))
+    dispatchAction(Engine.store, EngineRendererAction.changeGridToolVisibility(this.visible))
   }
 }

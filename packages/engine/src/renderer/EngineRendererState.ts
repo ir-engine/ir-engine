@@ -5,6 +5,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { Engine } from '../ecs/classes/Engine'
+import InfiniteGridHelper from '../scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
 import { RenderSettingKeys } from './EngineRnedererConstants'
@@ -21,6 +22,8 @@ type EngineRendererStateType = {
   avatarDebugEnable: boolean
   renderMode: RenderModesType
   nodeHelperVisibility: boolean
+  gridVisibility: boolean
+  gridHeight: number
 }
 
 const state = createState<EngineRendererStateType>({
@@ -32,7 +35,9 @@ const state = createState<EngineRendererStateType>({
   physicsDebugEnable: false,
   avatarDebugEnable: false,
   renderMode: RenderModes.SHADOW as RenderModesType,
-  nodeHelperVisibility: true
+  nodeHelperVisibility: true,
+  gridVisibility: true,
+  gridHeight: 0
 })
 
 export async function restoreEngineRendererData(): Promise<void> {
@@ -75,6 +80,14 @@ export async function restoreEngineRendererData(): Promise<void> {
         ClientStorage.get(RenderSettingKeys.NODE_HELPER_ENABLE).then((v) => {
           if (typeof v !== 'undefined') s.nodeHelperVisibility = v as boolean
           else ClientStorage.set(RenderSettingKeys.NODE_HELPER_ENABLE, state.nodeHelperVisibility.value)
+        }),
+        ClientStorage.get(RenderSettingKeys.GRID_VISIBLE).then((v) => {
+          if (typeof v !== 'undefined') s.gridVisibility = v as boolean
+          else ClientStorage.set(RenderSettingKeys.GRID_VISIBLE, state.gridVisibility.value)
+        }),
+        ClientStorage.get(RenderSettingKeys.GRID_HEIGHT).then((v) => {
+          if (typeof v !== 'undefined') s.gridHeight = v as number
+          else ClientStorage.set(RenderSettingKeys.GRID_HEIGHT, state.gridHeight.value)
         })
       )
     }
@@ -97,6 +110,11 @@ function updateState(): void {
 
   if (Engine.isEditor && state.nodeHelperVisibility.value) Engine.camera.layers.enable(ObjectLayers.NodeHelper)
   else Engine.camera.layers.disable(ObjectLayers.NodeHelper)
+
+  if (Engine.isEditor) {
+    InfiniteGridHelper.instance.setGridHeight(state.gridHeight.value)
+    InfiniteGridHelper.instance.visible = state.gridVisibility.value
+  }
 }
 
 export const useEngineRendererState = () => useState(state) as any as typeof state
@@ -157,6 +175,14 @@ export function EngineRendererReceptor(action: EngineRendererActionType) {
       case 'NODE_HELPER_VISIBILITY_CHANGED':
         s.merge({ nodeHelperVisibility: action.visibility })
         ClientStorage.set(RenderSettingKeys.NODE_HELPER_ENABLE, action.visibility)
+        break
+      case 'GRID_TOOL_HEIGHT_CHANGED':
+        s.merge({ gridHeight: action.gridHeight })
+        ClientStorage.set(RenderSettingKeys.GRID_HEIGHT, action.gridHeight)
+        break
+      case 'GRID_TOOL_VISIBILITY_CHANGED':
+        s.merge({ gridVisibility: action.visibility })
+        ClientStorage.set(RenderSettingKeys.GRID_VISIBLE, action.visibility)
         break
       case 'RESTORE_ENGINE_RENDERER_STORAGE_DATA':
         s.merge(action.state)
@@ -235,6 +261,20 @@ export const EngineRendererAction = {
     return {
       store: 'ENGINE' as const,
       type: 'NODE_HELPER_VISIBILITY_CHANGED' as const,
+      visibility
+    }
+  },
+  changeGridToolHeight: (gridHeight: number) => {
+    return {
+      store: 'ENGINE' as const,
+      type: 'GRID_TOOL_HEIGHT_CHANGED' as const,
+      gridHeight
+    }
+  },
+  changeGridToolVisibility: (visibility: boolean) => {
+    return {
+      store: 'ENGINE' as const,
+      type: 'GRID_TOOL_VISIBILITY_CHANGED' as const,
       visibility
     }
   }

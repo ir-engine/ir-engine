@@ -2,8 +2,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { store } from '@xrengine/client-core/src/store'
 import { ClientStorage } from '@xrengine/engine/src/common/classes/ClientStorage'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import {
   SnapMode,
   SnapModeType,
@@ -28,8 +27,6 @@ type EditorHelperStateType = {
   translationSnap: number
   rotationSnap: number
   scaleSnap: number
-  gridVisibility: boolean
-  gridHeight: number
 }
 
 const state = createState<EditorHelperStateType>({
@@ -42,9 +39,7 @@ const state = createState<EditorHelperStateType>({
   snapMode: SnapMode.Grid,
   translationSnap: 0.5,
   rotationSnap: 10,
-  scaleSnap: 0.1,
-  gridVisibility: true,
-  gridHeight: 0
+  scaleSnap: 0.1
 })
 
 export async function restoreEditorHelperData(): Promise<void> {
@@ -79,14 +74,6 @@ export async function restoreEditorHelperData(): Promise<void> {
       ClientStorage.get(EditorHelperKeys.SCALE_SNAP).then((v) => {
         if (typeof v !== 'undefined') s.scaleSnap = v as number
         else ClientStorage.set(EditorHelperKeys.SCALE_SNAP, state.scaleSnap.value)
-      }),
-      ClientStorage.get(EditorHelperKeys.GRID_VISIBLE).then((v) => {
-        if (typeof v !== 'undefined') s.gridVisibility = v as boolean
-        else ClientStorage.set(EditorHelperKeys.GRID_VISIBLE, state.gridVisibility.value)
-      }),
-      ClientStorage.get(EditorHelperKeys.GRID_HEIGHT).then((v) => {
-        if (typeof v !== 'undefined') s.gridHeight = v as number
-        else ClientStorage.set(EditorHelperKeys.GRID_HEIGHT, state.gridHeight.value)
       })
     ])
 
@@ -96,10 +83,7 @@ export async function restoreEditorHelperData(): Promise<void> {
 
 function updateHelpers(): void {
   SceneState.transformGizmo.setTransformMode(state.transformMode.value)
-
-  SceneState.grid.setSize(state.translationSnap.value)
-  SceneState.grid.setGridHeight(state.gridHeight.value)
-  SceneState.grid.visible = state.gridVisibility.value
+  InfiniteGridHelper.instance.setSize(state.translationSnap.value)
 }
 
 store.receptors.push((action: EditorHelperActionType): any => {
@@ -141,14 +125,6 @@ store.receptors.push((action: EditorHelperActionType): any => {
       case 'SCALE_SNAP_CHANGED':
         s.merge({ scaleSnap: action.scaleSnap })
         ClientStorage.set(EditorHelperKeys.SCALE_SNAP, action.scaleSnap)
-        break
-      case 'GRID_TOOL_HEIGHT_CHANGED':
-        s.merge({ gridHeight: action.gridHeight })
-        ClientStorage.set(EditorHelperKeys.GRID_HEIGHT, action.gridHeight)
-        break
-      case 'GRID_TOOL_VISIBILITY_CHANGED':
-        s.merge({ gridVisibility: action.visibility })
-        ClientStorage.set(EditorHelperKeys.GRID_VISIBLE, action.visibility)
         break
       case 'RESTORE_STORAGE_DATA':
         s.merge(action.state)
@@ -229,18 +205,6 @@ export const EditorHelperAction = {
     return {
       type: 'SCALE_SNAP_CHANGED' as const,
       scaleSnap
-    }
-  },
-  changeGridToolHeight: (gridHeight: number) => {
-    return {
-      type: 'GRID_TOOL_HEIGHT_CHANGED' as const,
-      gridHeight
-    }
-  },
-  changeGridToolVisibility: (visibility: boolean) => {
-    return {
-      type: 'GRID_TOOL_VISIBILITY_CHANGED' as const,
-      visibility
     }
   }
 }

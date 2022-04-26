@@ -9,5 +9,7 @@ export const RenderSettingKeys = {
   PHYSICS_DEBUG_ENABLE: RenderSettingDBPrefix + 'physicsDebugEnable',
   AVATAR_DEBUG_ENABLE: RenderSettingDBPrefix + 'avatarDebugEnable',
   RENDER_MODE: RenderSettingDBPrefix + 'renderMode',
-  NODE_HELPER_ENABLE: RenderSettingDBPrefix + 'NodeHelperEnable'
+  NODE_HELPER_ENABLE: RenderSettingDBPrefix + 'NodeHelperEnable',
+  GRID_VISIBLE: RenderSettingDBPrefix + 'gridVisible',
+  GRID_HEIGHT: RenderSettingDBPrefix + 'gridHeight'
 }

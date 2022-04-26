@@ -95,6 +95,14 @@ export const Debug = () => {
     )
   }
 
+  const toggleGridHelper = () => {
+    Engine.camera.layers.toggle(ObjectLayers.Gizmos)
+    dispatchAction(
+      Engine.store,
+      EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value)
+    )
+  }
+
   if (isShowing)
     return (
       <div
@@ -120,6 +128,9 @@ export const Debug = () => {
         </button>
         <button type="button" value="Node Debug" onClick={toggleNodeHelpers}>
           {t('common:debug.nodeHelperDebug')}
+        </button>
+        <button type="button" value="Grid Debug" onClick={toggleGridHelper}>
+          {t('common:debug.gridDebug')}
         </button>
         {Network.instance !== null && (
           <div>

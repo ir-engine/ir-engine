@@ -3,7 +3,6 @@ import { Group, Object3D, Scene, Vector3, WebGLInfo } from 'three'
 import { store } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
@@ -14,12 +13,12 @@ import {
 } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
 import { ActionSets, EditorMapping } from '../controls/input-mappings'
 import { initInputEvents } from '../controls/InputEvents'
 import { restoreEditorHelperData } from '../services/EditorHelperState'
@@ -41,7 +40,6 @@ export const DefaultExportOptions: DefaultExportOptionsType = {
 
 type SceneStateType = {
   isInitialized: boolean
-  grid: EditorInfiniteGridHelper
   transformGizmo: TransformGizmo
   gizmoEntity: Entity
   editorEntity: Entity
@@ -50,7 +48,6 @@ type SceneStateType = {
 
 export const SceneState: SceneStateType = {
   isInitialized: false,
-  grid: null!,
   transformGizmo: null!,
   gizmoEntity: null!,
   editorEntity: null!
@@ -71,7 +68,6 @@ export async function initializeScene(projectFile: SceneJson): Promise<Error[] |
   Engine.camera.layers.enable(ObjectLayers.NodeHelper)
   Engine.camera.layers.enable(ObjectLayers.Gizmos)
 
-  SceneState.grid = new EditorInfiniteGridHelper()
   SceneState.transformGizmo = new TransformGizmo()
 
   SceneState.gizmoEntity = createGizmoEntity(SceneState.transformGizmo)
@@ -79,8 +75,13 @@ export async function initializeScene(projectFile: SceneJson): Promise<Error[] |
   SceneState.editorEntity = createEditorEntity()
 
   Engine.scene.add(Engine.camera)
-  Engine.scene.add(SceneState.grid)
   Engine.scene.add(SceneState.transformGizmo)
+
+  // Require when changing scene
+  if (!Engine.scene.children.includes(InfiniteGridHelper.instance)) {
+    InfiniteGridHelper.instance = new InfiniteGridHelper()
+    Engine.scene.add(InfiniteGridHelper.instance)
+  }
 
   SceneState.isInitialized = true
 
@@ -227,8 +228,6 @@ export function disposeScene() {
   if (SceneState.editorEntity) removeEntity(SceneState.editorEntity, true)
 
   if (Engine.scene) {
-    if (SceneState.grid) Engine.scene.remove(SceneState.grid)
-
     // Empty existing scene
     Engine.scene.traverse((child: any) => {
       if (child.geometry) child.geometry.dispose()
