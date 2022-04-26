@@ -12,23 +12,23 @@ import styles from './styles.module.scss'
 interface Props {
   open: boolean
   handleClose: any
-  createProject: (name: string) => Promise<void>
+  installProject: (url: string) => Promise<void>
 }
 
-export const CreateProjectDialog = (props: Props): any => {
+export const InstallProjectDialog = (props: Props): any => {
   const { t } = useTranslation()
-  const { open, handleClose, createProject } = props
+  const { open, handleClose, installProject } = props
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
-  const [projectName, setProjectName] = useState('')
+  const [projectUrl, setProjectUrl] = useState('')
 
-  const onCreateProject = async () => {
-    if (!projectName) return
+  const onInstallProject = async () => {
+    if (!projectUrl) return
 
     setProcessing(true)
     try {
-      await createProject(projectName)
+      await installProject(projectUrl)
       closeDialog()
     } catch (err) {
       setError(err.message)
@@ -39,12 +39,12 @@ export const CreateProjectDialog = (props: Props): any => {
 
   const handleSubmitOnEnter = (event) => {
     if (event.key === 'Enter') {
-      onCreateProject()
+      onInstallProject()
     }
   }
 
   const closeDialog = () => {
-    setProjectName('')
+    setProjectUrl('')
     handleClose()
   }
 
@@ -57,7 +57,7 @@ export const CreateProjectDialog = (props: Props): any => {
       TransitionComponent={Fade}
       TransitionProps={{ in: props.open }}
     >
-      <DialogTitle>{t('editor.projects.createProject')}</DialogTitle>
+      <DialogTitle>{t('editor.projects.installProject')}</DialogTitle>
       <DialogContent>
         {processing ? (
           <div className={styles.processing}>
@@ -70,7 +70,7 @@ export const CreateProjectDialog = (props: Props): any => {
               id="outlined-basic"
               variant="outlined"
               size="small"
-              placeholder={t('editor.projects.projectName')}
+              placeholder={t('editor.projects.projectURL')}
               InputProps={{
                 classes: {
                   root: styles.inputContainer,
@@ -78,13 +78,13 @@ export const CreateProjectDialog = (props: Props): any => {
                   input: styles.input
                 }
               }}
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
+              value={projectUrl}
+              onChange={(e) => setProjectUrl(e.target.value)}
               onKeyDown={handleSubmitOnEnter}
             />
             {error && error.length > 0 && <h2 className={styles.errorMessage}>{error}</h2>}
-            <Button onClick={onCreateProject} className={styles.btn} disabled={!projectName}>
-              {t('editor.projects.lbl-createProject')}
+            <Button onClick={onInstallProject} className={styles.btn} disabled={!projectUrl}>
+              {t('editor.projects.install')}
             </Button>
           </FormControl>
         )}

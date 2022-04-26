@@ -68,11 +68,11 @@ it('should apply the entire algorithm correctly', () => {
 
 ## System tests
 
-System tests can be thought of much like unit tests, but on a grand level. These focus on ensuring that one particular system/module is functioning as expected from the outside. Using e-commerce as an example: one may test that browsing for items is working correctly (one system test), that the cart is working correctly (a second system test), and that checkout is working correctly (a third system test).
+System tests can be thought of much like unit tests, but on a grand level. These focus on ensuring that one particular system/module is functioning as expected from the outside. Using maps as an example: one may test that map API download is working correctly (one system test), that the mesh construction is working (a second system test), and that procedural mesh loading is working correctly (a third system test).
 
 ## End-to-end tests
 
-End-to-end tests can be thought of much like integration tests, but also on a grand level. These focus on flows between systems. Using the previous e-commerce example, an end-to-end test would ensure that the entire flow of browsing for items, adding them to cart, and checkout all work together in one continuous flow (one whole end-to-end test for this entire flow).
+End-to-end tests can be thought of much like integration tests, but also on a grand level. These focus on flows between systems. Using the previous maps example, an end-to-end test would ensure that the entire flow of map API download, constructing meshes, and procedural loading together in one continuous flow (one whole end-to-end test for this entire flow).
 
 ## System vs End-to-end Tests ([source](https://www.geeksforgeeks.org/difference-between-system-testing-and-end-to-end-testing/))
 
