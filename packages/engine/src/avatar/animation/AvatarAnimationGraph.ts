@@ -159,7 +159,7 @@ export class AvatarAnimationGraph extends AnimationGraph {
       ]
 
       this.transitionRules[AvatarStates.JUMP_DOWN] = [
-        new AnimationTimeTransitionRule(AvatarStates.LOCOMOTION, jumpDownState.action, 0.9)
+        new AnimationTimeTransitionRule(AvatarStates.LOCOMOTION, jumpDownState.action, 0.65)
       ]
     }
 

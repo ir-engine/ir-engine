@@ -47,6 +47,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   if (!controller.movementEnabled) return
 
   const onGround = controller.collisions[0] || avatar.isGrounded
+  controller.isInAir = !onGround
 
   // move vec3 to controller input direction
   tempVec1.copy(controller.localMovementDirection).multiplyScalar(timeStep)
@@ -156,10 +157,6 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
     y: velocity.linear.y,
     z: newVelocity.z
   }
-
-  // Ignore the current frame's isInAir value if the last frame was non-zero
-  controller.isInAir = Math.abs(velocity.linear.y) > 0 || controller.previousFrameVelocity.y > 0
-  controller.previousFrameVelocity.copy(displacement as any)
 
   moveAvatarController(world, entity, displacement)
 

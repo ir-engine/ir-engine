@@ -11,7 +11,6 @@ export type AvatarControllerComponentType = {
   isJumping: boolean
   isWalking: boolean
   isInAir: boolean
-  previousFrameVelocity: Vector3
   localMovementDirection: Vector3
   velocitySimulator: VectorSpringSimulator
   // Below two values used to smoothly transition between
