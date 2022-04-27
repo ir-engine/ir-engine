@@ -22,6 +22,7 @@ import { Network } from './networking/classes/Network'
 import { matchActionOnce, receiveActionOnce } from './networking/functions/matchActionOnce'
 import { NetworkActionReceptor } from './networking/functions/NetworkActionReceptor'
 import { WorldState } from './networking/interfaces/WorldState'
+import InfiniteGridHelper from './scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { registerPrefabs } from './scene/functions/registerPrefabs'
 import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
@@ -43,6 +44,9 @@ export const initializeBrowser = () => {
   Engine.camera.layers.enable(ObjectLayers.Scene)
   Engine.camera.layers.enable(ObjectLayers.Avatar)
   Engine.camera.layers.enable(ObjectLayers.UI)
+
+  InfiniteGridHelper.instance = new InfiniteGridHelper()
+  Engine.scene.add(InfiniteGridHelper.instance)
 
   const browser = detect()
   const os = detectOS(navigator.userAgent)

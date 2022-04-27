@@ -38,8 +38,9 @@ export const deserializeCameraProperties: ComponentDeserializeFunction = (
   const props = parseCameraPropertiesProperties(json.props)
   addComponent(entity, CameraPropertiesComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CAMERA_PROPERTIES)
-  else if (isClient) {
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CAMERA_PROPERTIES)
+
+  if (isClient) {
     matchActionOnce(Engine.currentWorld.store, NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
       if (spawnAction.$from === Engine.userId) {
         setCameraProperties(useWorld().localClientEntity, json.props)

@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { Color, DirectionalLight } from 'three'
+import { Color, DirectionalLight, Scene } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -21,6 +21,7 @@ describe('DirectionalLightFunctions', () => {
     it('with CSM', () => {
       const world = createWorld()
       Engine.currentWorld = world
+      Engine.scene = new Scene()
       EngineRenderer.instance.isCSMEnabled = true
       EngineRenderer.instance.directionalLightEntities = []
 

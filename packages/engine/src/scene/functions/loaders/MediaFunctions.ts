@@ -31,7 +31,7 @@ export const deserializeMedia: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: new UpdateableObject3D() })
   addComponent(entity, UpdatableComponent, {})
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MEDIA)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MEDIA)
 
   updateMedia(entity, props)
 }

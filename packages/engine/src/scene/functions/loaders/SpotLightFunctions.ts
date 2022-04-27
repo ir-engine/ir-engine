@@ -8,7 +8,6 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -42,30 +41,28 @@ export const deserializeSpotLight: ComponentDeserializeFunction = (
   light.target.name = 'light-target'
   light.add(light.target)
 
-  if (Engine.isEditor) {
-    const ring = new Mesh(new TorusGeometry(0.1, 0.025, 8, 12), new MeshBasicMaterial({ fog: false }))
-    const cone = new Mesh(
-      new ConeGeometry(0.25, 0.5, 8, 1, true),
-      new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5, side: DoubleSide })
-    )
-    light.add(ring)
-    light.add(cone)
-    cone.userData.isHelper = true
-    ring.userData.isHelper = true
-    light.userData.ring = ring
-    light.userData.cone = cone
+  const ring = new Mesh(new TorusGeometry(0.1, 0.025, 8, 12), new MeshBasicMaterial({ fog: false }))
+  const cone = new Mesh(
+    new ConeGeometry(0.25, 0.5, 8, 1, true),
+    new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5, side: DoubleSide })
+  )
+  light.add(ring)
+  light.add(cone)
+  cone.userData.isHelper = true
+  ring.userData.isHelper = true
+  light.userData.ring = ring
+  light.userData.cone = cone
 
-    ring.rotateX(Math.PI / 2)
-    cone.position.setY(-0.25)
+  ring.rotateX(Math.PI / 2)
+  cone.position.setY(-0.25)
 
-    setObjectLayers(ring, ObjectLayers.NodeHelper)
-    setObjectLayers(cone, ObjectLayers.NodeHelper)
-  }
+  setObjectLayers(ring, ObjectLayers.NodeHelper)
+  setObjectLayers(cone, ObjectLayers.NodeHelper)
 
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, SpotLightComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPOT_LIGHT)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPOT_LIGHT)
 
   updateSpotLight(entity, props)
 }
@@ -93,10 +90,8 @@ export const updateSpotLight: ComponentUpdateFunction = (entity: Entity, propert
     light.shadow.needsUpdate = true
   }
 
-  if (Engine.isEditor) {
-    light.userData.ring.material.color = component.color
-    light.userData.cone.material.color = component.color
-  }
+  light.userData.ring.material.color = component.color
+  light.userData.cone.material.color = component.color
 }
 
 export const serializeSpotLight: ComponentSerializeFunction = (entity) => {

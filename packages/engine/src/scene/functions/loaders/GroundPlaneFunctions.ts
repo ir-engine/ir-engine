@@ -55,9 +55,9 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
 
   const props = parseGroundPlaneProperties(json.props)
   addComponent(entity, GroundPlaneComponent, props)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_GROUND_PLANE)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_GROUND_PLANE)
-  else createCollider(entity, groundPlane.userData.mesh)
+  if (!Engine.isEditor) createCollider(entity, groundPlane.userData.mesh)
 
   updateGroundPlane(entity, props)
 }

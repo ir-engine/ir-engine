@@ -1,7 +1,6 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../../../physics/components/ColliderComponent'
@@ -16,7 +15,7 @@ export const deserializeCollider: ComponentDeserializeFunction = (
   json: ComponentJson<ShapeOptions>
 ): void => {
   createColliderForObject3D(entity, json.props, false)
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_COLLIDER)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_COLLIDER)
 }
 
 export const serializeCollider: ComponentSerializeFunction = (entity) => {

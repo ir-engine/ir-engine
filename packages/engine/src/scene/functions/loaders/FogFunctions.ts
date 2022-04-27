@@ -27,7 +27,7 @@ export const deserializeFog: ComponentDeserializeFunction = (entity: Entity, jso
   const props = parseFogProperties(json.props)
   addComponent(entity, FogComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_FOG)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_FOG)
 
   updateFog(entity, props)
 }
