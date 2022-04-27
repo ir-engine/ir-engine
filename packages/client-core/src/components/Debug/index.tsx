@@ -145,11 +145,11 @@ export const Debug = () => {
             </div>
             <div>
               <h1>{t('common:debug.engineStore')}</h1>
-              <JSONTree data={Engine.store} />
+              <JSONTree data={Engine.instance.store} />
             </div>
             <div>
               <h1>{t('common:debug.worldStore')}</h1>
-              <JSONTree data={Engine.currentWorld.store} />
+              <JSONTree data={Engine.instance.currentWorld.store} />
             </div>
             <div>
               <h1>{t('common:debug.namedEntities')}</h1>
