@@ -14,7 +14,7 @@ const testEnabled = process.env.TEST === 'true'
 
 // ensure process fails properly
 process.on('exit', async (code) => {
-  logger.fatal(`Server EXIT(${code}).`)
+  if (code !== 0) logger.fatal(`Server EXIT(${code}).`)
 })
 
 process.on('SIGTERM', async (err) => {
