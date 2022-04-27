@@ -300,7 +300,7 @@ export default class TransformGizmo extends Object3D {
     this.scaleXZPlane.visible = visible
   }
 
-  raycastAxis(target: Vector2, camera = Engine.camera): Intersection<Object3D> | undefined {
+  raycastAxis(target: Vector2, camera = Engine.instance.camera): Intersection<Object3D> | undefined {
     if (!this.activeControls) return
 
     this.raycasterResults.length = 0
@@ -311,7 +311,7 @@ export default class TransformGizmo extends Object3D {
       .find((result) => (result.object as MeshWithAxisInfo).axisInfo !== undefined)
   }
 
-  selectAxisWithRaycaster(target: Vector2, camera = Engine.camera): TransformAxisType | undefined {
+  selectAxisWithRaycaster(target: Vector2, camera = Engine.instance.camera): TransformAxisType | undefined {
     this.deselectAxis()
 
     const axisResult = this.raycastAxis(target, camera)
@@ -329,7 +329,7 @@ export default class TransformGizmo extends Object3D {
     return newAxisInfo.axis
   }
 
-  highlightHoveredAxis(target: Vector2, camera = Engine.camera): void {
+  highlightHoveredAxis(target: Vector2, camera = Engine.instance.camera): void {
     if (!this.activeControls) return
     if (this.hoveredAxis) this.hoveredAxis.axisInfo.selectionColorTarget.opacity = 0.5
 

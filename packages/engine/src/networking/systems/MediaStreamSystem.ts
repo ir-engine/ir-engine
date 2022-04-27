@@ -316,14 +316,14 @@ export class MediaStreams {
 }
 
 export const updateNearbyAvatars = () => {
-  MediaStreams.instance.nearbyLayerUsers = getNearbyUsers(Engine.userId)
+  MediaStreams.instance.nearbyLayerUsers = getNearbyUsers(Engine.instance.userId)
   if (!MediaStreams.instance.nearbyLayerUsers.length) return
   const nearbyUserIds = MediaStreams.instance.nearbyLayerUsers.map((user) => user.id)
 
-  dispatchAction(Engine.store, MediaStreams.actions.updateNearbyLayerUsers())
+  dispatchAction(Engine.instance.store, MediaStreams.actions.updateNearbyLayerUsers())
   MediaStreams.instance.consumers.forEach((consumer) => {
     if (!nearbyUserIds.includes(consumer._appData.peerId)) {
-      dispatchAction(Engine.store, MediaStreams.actions.closeConsumer({ consumer }))
+      dispatchAction(Engine.instance.store, MediaStreams.actions.closeConsumer({ consumer }))
     }
   })
 }

@@ -53,7 +53,7 @@ export const deserializeLoopAnimation: ComponentDeserializeFunction = (
   if (accessEngineState().sceneLoaded.value) {
     updateLoopAnimation(entity)
   } else {
-    matchActionOnce(Engine.store, EngineActions.sceneLoaded.matches, () => {
+    matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, () => {
       updateLoopAnimation(entity)
     })
   }
@@ -85,7 +85,7 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
     ? AnimationManager.instance._animations
     : object3d.animations
 
-  if (!Engine.isEditor) {
+  if (!Engine.instance.isEditor) {
     if (component.action) component.action.stop()
     if (component.activeClipIndex >= 0) {
       component.action = animationComponent.mixer

@@ -111,7 +111,7 @@ export const LocationInstanceConnectionService = {
       dispatch(LocationInstanceConnectionAction.serverProvisioned(provisionResult, locationId!, sceneId!))
     } else {
       dispatchAction(
-        Engine.store,
+        Engine.instance.store,
         SocketWebRTCClientTransport.actions.noWorldServersAvailable({ instanceId: instanceId! })
       )
     }
@@ -136,7 +136,7 @@ export const LocationInstanceConnectionService = {
 
       const authState = accessAuthState()
       const user = authState.user.value
-      dispatchAction(Engine.store, EngineActions.connect({ id: user.id! }))
+      dispatchAction(Engine.instance.store, EngineActions.connect({ id: user.id! }))
     } catch (error) {
       console.error('Network transport could not initialize, transport is: ', transport)
     }

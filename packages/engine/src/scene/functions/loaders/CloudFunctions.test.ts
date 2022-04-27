@@ -4,9 +4,8 @@ import { Color, Vector2, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { createEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
@@ -19,15 +18,13 @@ import { UpdatableComponent } from '../../components/UpdatableComponent'
 import { SCENE_COMPONENT_CLOUD, SCENE_COMPONENT_CLOUD_DEFAULT_VALUES } from './CloudFunctions'
 
 describe('CloudFunctions', () => {
-  let world: World
   let entity: Entity
   let cloudFunctions = proxyquire('./CloudFunctions', {
     '../../../common/functions/isClient': { isClient: true }
   })
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 

@@ -5,9 +5,8 @@ import { LinearFilter, Mesh, Object3D, sRGBEncoding } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { createEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
@@ -37,7 +36,6 @@ const testURLs = {
 }
 
 describe('VideoFunctions', () => {
-  let world: World
   let entity: Entity
   let videoFunctions = proxyquire('./VideoFunctions', {
     '../../../common/functions/isClient': { isClient: true }
@@ -49,8 +47,7 @@ describe('VideoFunctions', () => {
   })
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
     addComponent(entity, MediaComponent, { autoplay: true })
     const obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value

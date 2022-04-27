@@ -156,7 +156,7 @@ export const setupXRInputSourceComponent = (entity: Entity) => {
  */
 
 export const bindXRControllers = () => {
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   const xrInputSourceComponent = getComponent(world.localClientEntity, XRInputSourceComponent)
 
   const inputSourceChanged = (event) => {
@@ -178,7 +178,7 @@ export const bindXRControllers = () => {
  */
 
 export const bindXRHandEvents = () => {
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
 
   const hands = [EngineRenderer.instance.xrManager.getHand(0), EngineRenderer.instance.xrManager.getHand(1)]
   let eventSent = false
@@ -214,10 +214,10 @@ export const bindXRHandEvents = () => {
  */
 
 export const startWebXR = async (): Promise<void> => {
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
 
   removeComponent(world.localClientEntity, FollowCameraComponent)
-  container.add(Engine.camera)
+  container.add(Engine.instance.camera)
 
   setupXRInputSourceComponent(world.localClientEntity)
 
@@ -240,9 +240,9 @@ export const endXR = (): void => {
   // EngineRenderer.instance.xrSession?.end()
   EngineRenderer.instance.xrSession = null!
   EngineRenderer.instance.xrManager.setSession(null!)
-  Engine.scene.add(Engine.camera)
+  Engine.instance.scene.add(Engine.instance.camera)
 
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   addComponent(world.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
   removeComponent(world.localClientEntity, XRInputSourceComponent)
   removeComponent(world.localClientEntity, XRHandsInputComponent)
@@ -358,14 +358,14 @@ export const getHandTransform = (
 export const getHeadTransform = (entity: Entity): { position: Vector3; rotation: Quaternion; scale: Vector3 } => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
-    Engine.camera.matrix.decompose(vec3, quat, v3)
+    Engine.instance.camera.matrix.decompose(vec3, quat, v3)
     return {
       position: vec3,
       rotation: quat,
       scale: uniformScale
     }
   }
-  const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
+  const cameraTransform = getComponent(Engine.instance.activeCameraEntity, TransformComponent)
   return {
     position: cameraTransform.position,
     rotation: cameraTransform.rotation,

@@ -4,9 +4,8 @@ import { Object3D, Quaternion, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { createEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../../physics/components/ColliderComponent'
@@ -23,7 +22,6 @@ let transform2 = {
 }
 
 describe('BoxColliderFunctions', () => {
-  let world: World
   let entity: Entity
   let body: any
   let boxcolliderFunctions = proxyquire('./BoxColliderFunctions', {
@@ -35,15 +33,14 @@ describe('BoxColliderFunctions', () => {
   })
 
   beforeEach(async () => {
-    world = createWorld()
-    Engine.currentWorld = world
+    const world = createEngine().currentWorld
     entity = createEntity()
     addComponent(entity, TransformComponent, {
       position: new Vector3(Math.random(), Math.random(), Math.random()),
       rotation: new Quaternion(Math.random(), Math.random(), Math.random(), Math.random()),
       scale: new Vector3(Math.random(), Math.random(), Math.random())
     })
-    await Engine.currentWorld.physics.createScene({ verbose: true })
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
 
     world.physics = {
       createShape: () => ({ shape: 'box' }),
@@ -58,7 +55,7 @@ describe('BoxColliderFunctions', () => {
   })
 
   afterEach(() => {
-    Engine.currentWorld = null!
+    Engine.instance.currentWorld = null!
     delete (globalThis as any).PhysX
   })
 

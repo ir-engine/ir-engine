@@ -27,7 +27,7 @@ export const deserializeMetaData: ComponentDeserializeFunction = (
 
 export const updateMetaData: ComponentUpdateFunction = (entity: Entity) => {
   console.log('updateMetaData', getComponent(entity, MetaDataComponent))
-  if (!Engine.isEditor) useWorld().sceneMetadata = getComponent(entity, MetaDataComponent).meta_data
+  if (!Engine.instance.isEditor) useWorld().sceneMetadata = getComponent(entity, MetaDataComponent).meta_data
 }
 
 export const serializeMetaData: ComponentSerializeFunction = (entity) => {

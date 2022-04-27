@@ -2,9 +2,8 @@ import assert from 'assert'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { createEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
@@ -13,12 +12,10 @@ import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponen
 import { deserializePreventBake, SCENE_COMPONENT_PREVENT_BAKE, serializePreventBake } from './PreventBakeFunctions'
 
 describe('PreventBakeFunctions', () => {
-  let world: World
   let entity: Entity
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 
@@ -40,6 +37,8 @@ describe('PreventBakeFunctions', () => {
     })
 
     it('creates PreventBake Component with provided component data', () => {
+      Engine.instance.isEditor = true
+      addComponent(entity, EntityNodeComponent, { components: [] })
       deserializePreventBake(entity, sceneComponent)
 
       const preventbakeComponent = getComponent(entity, PreventBakeTagComponent)
@@ -50,11 +49,13 @@ describe('PreventBakeFunctions', () => {
 
   describe('serializePreventBake()', () => {
     it('should properly serialize preventbake', () => {
+      Engine.instance.isEditor = true
       deserializePreventBake(entity, sceneComponent)
       assert.deepEqual(serializePreventBake(entity), sceneComponent)
     })
 
     it('should return undefine if there is no preventbake component', () => {
+      Engine.instance.isEditor = true
       assert(serializePreventBake(entity) === undefined)
     })
   })

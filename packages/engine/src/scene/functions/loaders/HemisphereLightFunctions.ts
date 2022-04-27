@@ -32,7 +32,6 @@ export const deserializeHemisphereLight: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, DisableTransformTagComponent, {})
   addComponent(entity, HemisphereLightComponent, props)
-
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_HEMISPHERE_LIGHT)
 
   updateHemisphereLight(entity, props)
