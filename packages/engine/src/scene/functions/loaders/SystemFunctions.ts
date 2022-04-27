@@ -5,7 +5,6 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
@@ -30,7 +29,7 @@ export const deserializeSystem: ComponentDeserializeFunction = (
   addComponent(entity, SystemComponent, props)
   addComponent(entity, PreventBakeTagComponent, {})
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SYSTEM)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SYSTEM)
 
   updateSystem(entity)
 }

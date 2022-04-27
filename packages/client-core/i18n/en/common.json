@@ -33,6 +33,8 @@
     "refresh": "Refresh",
     "physicsDebug": "Physics Debug",
     "avatarDebug": "Avatar Debug",
+    "nodeHelperDebug": "Node Helper Debug",
+    "gridDebug": "Grid Debug",
     "tick": "Tick",
     "namedEntities": "Named Entities",
     "networkObject": "Network Object",

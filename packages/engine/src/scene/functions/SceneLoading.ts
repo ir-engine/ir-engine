@@ -175,9 +175,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
 
   addComponent(tree.rootNode.entity, Object3DComponent, { value: Engine.scene })
   addComponent(tree.rootNode.entity, SceneTagComponent, {})
-  if (Engine.isEditor) {
-    getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
-  }
+  getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
 
   if (!accessEngineState().isTeleporting.value) Engine.camera?.layers.enable(ObjectLayers.Scene)
 
@@ -191,7 +189,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
  */
 export const loadSceneEntity = (entityNode: EntityTreeNode, sceneEntity: EntityJson): Entity => {
   addComponent(entityNode.entity, NameComponent, { name: sceneEntity.name })
-  if (Engine.isEditor) addComponent(entityNode.entity, EntityNodeComponent, { components: [] })
+  addComponent(entityNode.entity, EntityNodeComponent, { components: [] })
 
   sceneEntity.components.forEach((component) => {
     try {

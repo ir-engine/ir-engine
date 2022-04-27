@@ -32,6 +32,8 @@ export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (enti
   if (!isClient) return
 
   addComponent(entity, ScenePreviewCameraTagComponent, {})
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
+
   if (Engine.isEditor) {
     const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
     camera.userData.helper = new CameraHelper(camera)
@@ -39,7 +41,6 @@ export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (enti
     setObjectLayers(camera.userData.helper, ObjectLayers.NodeHelper)
 
     addComponent(entity, Object3DComponent, { value: camera })
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
   } else if (Engine.activeCameraEntity) {
     const transformComponent = getComponent(entity, TransformComponent)
     Engine.camera.position.copy(transformComponent.position)

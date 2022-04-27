@@ -9,7 +9,6 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ParticleEmitterComponent } from '../../../particles/components/ParticleEmitter'
@@ -58,7 +57,7 @@ export const deserializeParticleEmitter: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: mesh })
   addComponent(entity, RenderedComponent, {})
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PARTICLE_EMITTER)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PARTICLE_EMITTER)
 }
 
 export const updateParticleEmitter: ComponentUpdateFunction = (entity: Entity, props: any): void => {
