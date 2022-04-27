@@ -2,9 +2,11 @@ import { Group, Object3D, Scene, Vector3, WebGLInfo } from 'three'
 
 import { store } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { initializeCameraComponent } from '@xrengine/engine/src/camera/systems/CameraSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import {
@@ -19,6 +21,7 @@ import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction } from '@xrengine/hyperflux'
 
+import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
 import { ActionSets, EditorMapping } from '../controls/input-mappings'
 import { initInputEvents } from '../controls/InputEvents'
@@ -75,7 +78,17 @@ export async function initializeScene(projectFile: SceneJson): Promise<Error[] |
   SceneState.transformGizmo = new TransformGizmo()
 
   SceneState.gizmoEntity = createGizmoEntity(SceneState.transformGizmo)
-  Engine.activeCameraEntity = createCameraEntity()
+
+  const cameraEntity = initializeCameraComponent(Engine.currentWorld)
+  addComponent(cameraEntity, EditorCameraComponent, {
+    center: new Vector3(),
+    zoomDelta: 0,
+    isOrbiting: false,
+    isPanning: false,
+    cursorDeltaX: 0,
+    cursorDeltaY: 0,
+    focusedObjects: []
+  })
   SceneState.editorEntity = createEditorEntity()
 
   Engine.scene.add(Engine.camera)

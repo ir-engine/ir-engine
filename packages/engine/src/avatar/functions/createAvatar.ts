@@ -35,7 +35,13 @@ const defaultAvatarHeight = 1.8
 const capsuleHeight = defaultAvatarHeight - avatarRadius * 2
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
-export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
+export const createAvatar = (entity: Entity, _position?: Vector3, _rotation?: Quaternion, _scale?: Vector3) => {
+  const position = _position ? _position : new Vector3()
+  const rotation = _rotation ? _rotation : new Quaternion(0, 0, 0, 1)
+  const scale = _scale ? _scale : new Vector3(1, 1, 1)
+}
+
+export const createSpawnedAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
   const world = Engine.currentWorld
   const userId = spawnAction.$from
   const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!

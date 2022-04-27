@@ -1,6 +1,8 @@
 import { ArrowHelper, Clock, Material, MathUtils, Matrix4, Quaternion, SkinnedMesh, Vector3 } from 'three'
 import { clamp } from 'three/src/math/MathUtils'
 
+import { addActionReceptor } from '@xrengine/hyperflux'
+
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -9,18 +11,33 @@ import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
 import { Engine } from '../../ecs/classes/Engine'
-import { accessEngineState } from '../../ecs/classes/EngineService'
+import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
+import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { EntityNodeComponent } from '../../scene/components/EntityNodeComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES } from '../../scene/functions/loaders/TransformFunctions'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { CameraComponent } from '../components/CameraComponent'
+import {
+  CameraComponent,
+  SCENE_COMPONENT_CAMERA,
+  SCENE_COMPONENT_CAMERA_DEFAULT_VALUES
+} from '../components/CameraComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 
@@ -31,7 +48,7 @@ const empty = new Vector3()
 const mx = new Matrix4()
 const tempVec = new Vector3()
 const tempVec1 = new Vector3()
-const cameraRayCount = 6
+//const cameraRayCount = 1
 const cameraRays: Vector3[] = []
 const rayConeAngle = Math.PI / 6
 const coneDebugHelpers: ArrowHelper[] = []
@@ -41,6 +58,8 @@ const camRayCastCache = {
   maxDistance: -1,
   targetHit: false
 }
+
+const getCamComponent = () => getComponent(Engine.activeCameraEntity, CameraComponent)
 
 /**
  * Calculates and returns view vector for give angle. View vector will be at the given angle after the calculation
@@ -103,13 +122,15 @@ export const updateCameraTargetRotation = (entity: Entity, delta: number) => {
 
 export const getMaxCamDistance = (entity: Entity, target: Vector3) => {
   // Cache the raycast result for 0.1 seconds
-  // if (camRayCastCache.maxDistance != -1 && camRayCastClock.getElapsedTime() < 0.1) {
-  //   return camRayCastCache
-  // }
+  const camComp = getCamComponent()
+  if (camRayCastCache.maxDistance != -1 && camRayCastClock.getElapsedTime() < camComp.rayFrequency) {
+    return camRayCastCache
+  }
 
   camRayCastClock.start()
 
-  const sceneObjects = Array.from(Engine.objectLayerList[ObjectLayers.Scene] || [])
+  //const sceneObjects = Array.from(Engine.objectLayerList[ObjectLayers.Scene] || [])
+  const sceneObjects = Array.from(Engine.objectLayerList[ObjectLayers.Scene])
 
   const followCamera = getComponent(entity, FollowCameraComponent)
 
@@ -120,7 +141,7 @@ export const getMaxCamDistance = (entity: Entity, target: Vector3) => {
 
   createConeOfVectors(targetToCamVec, cameraRays, rayConeAngle)
 
-  let maxDistance = followCamera.maxDistance
+  let maxDistance = Math.min(followCamera.maxDistance, camComp.rayLength)
 
   // Check hit with mid ray
   followCamera.raycaster.set(target, targetToCamVec.normalize())
@@ -169,7 +190,7 @@ export const calculateCameraTarget = (entity: Entity, target: Vector3) => {
 
 export const updateFollowCamera = (entity: Entity, delta: number) => {
   if (!entity) return
-
+  const camComp = getCamComponent()
   const followCamera = getComponent(entity, FollowCameraComponent)
   const object3DComponent = getComponent(entity, Object3DComponent)
   object3DComponent?.value.updateWorldMatrix(false, true)
@@ -183,7 +204,7 @@ export const updateFollowCamera = (entity: Entity, delta: number) => {
   let isInsideWall = false
 
   // Run only if not in first person mode
-  if (followCamera.zoomLevel >= followCamera.minDistance) {
+  if (camComp.raycasting && followCamera.zoomLevel >= followCamera.minDistance) {
     const distanceResults = getMaxCamDistance(entity, tempVec)
     maxDistance = distanceResults.maxDistance
     isInsideWall = distanceResults.targetHit
@@ -235,40 +256,57 @@ export const updateFollowCamera = (entity: Entity, delta: number) => {
   }
 }
 
+export const initializeCameraComponent = (world: World) => {
+  //add reference component for editing in the scene root
+  const root = world.entityTree.rootNode
+  if (!hasComponent(root.entity, CameraComponent)) {
+    addComponent(root.entity, CameraComponent, SCENE_COMPONENT_CAMERA_DEFAULT_VALUES)
+  }
+  const rootCamComp = getComponent(root.entity, CameraComponent)
+  const cameraEntity = createEntity()
+  addComponent(cameraEntity, CameraComponent, rootCamComp)
+  addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
+  addComponent(cameraEntity, PersistTagComponent, {})
+  if (!Engine.isEditor) {
+    addComponent(cameraEntity, TransformComponent, {
+      position: new Vector3(),
+      rotation: new Quaternion(0, 0, 0, 1),
+      scale: new Vector3(1, 1, 1)
+    })
+  }
+  Engine.activeCameraEntity = cameraEntity
+
+  return cameraEntity
+}
+
 export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
   const targetCameraRotationQuery = defineQuery([FollowCameraComponent, TargetCameraRotationComponent])
-
-  const cameraEntity = createEntity()
-  addComponent(cameraEntity, CameraComponent, {})
-
-  // addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
-  addComponent(cameraEntity, TransformComponent, {
-    position: new Vector3(),
-    rotation: new Quaternion(),
-    scale: new Vector3(1, 1, 1)
-  })
-  addComponent(cameraEntity, PersistTagComponent, {})
-  Engine.activeCameraEntity = cameraEntity
-
+  let cameraInitialized = false
   return () => {
     const { delta } = world
+    if (accessEngineState().sceneLoaded.value && !cameraInitialized) {
+      initializeCameraComponent(world)
+      cameraInitialized = true
+    }
+    if (cameraInitialized) {
+      const camComp = getCamComponent()
+      for (const entity of followCameraQuery.enter()) {
+        const cameraFollow = getComponent(entity, FollowCameraComponent)
+        cameraFollow.raycaster.layers.set(ObjectLayers.Scene) // Ignore avatars
+        ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
+        cameraFollow.raycaster.far = cameraFollow.maxDistance
+        Engine.activeCameraFollowTarget = entity
 
-    for (const entity of followCameraQuery.enter()) {
-      const cameraFollow = getComponent(entity, FollowCameraComponent)
-      cameraFollow.raycaster.layers.set(ObjectLayers.Scene) // Ignore avatars
-      ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
-      cameraFollow.raycaster.far = cameraFollow.maxDistance
-      Engine.activeCameraFollowTarget = entity
+        for (let i = 0; i < camComp.rayCount; i++) {
+          cameraRays.push(new Vector3())
 
-      for (let i = 0; i < cameraRayCount; i++) {
-        cameraRays.push(new Vector3())
-
-        if (debugRays) {
-          const arrow = new ArrowHelper()
-          coneDebugHelpers.push(arrow)
-          setObjectLayers(arrow, ObjectLayers.Gizmos)
-          Engine.scene.add(arrow)
+          if (debugRays) {
+            const arrow = new ArrowHelper()
+            coneDebugHelpers.push(arrow)
+            setObjectLayers(arrow, ObjectLayers.Gizmos)
+            Engine.scene.add(arrow)
+          }
         }
       }
     }

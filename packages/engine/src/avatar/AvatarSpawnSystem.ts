@@ -1,12 +1,13 @@
 import { Quaternion, Vector3 } from 'three'
 import matches from 'ts-matches'
 
-import { addActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { AudioTagComponent } from '../audio/components/AudioTagComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineActions } from '../ecs/classes/EngineService'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
@@ -17,7 +18,7 @@ import { ShadowComponent } from '../scene/components/ShadowComponent'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { AvatarComponent } from './components/AvatarComponent'
-import { createAvatar } from './functions/createAvatar'
+import { createSpawnedAvatar } from './functions/createAvatar'
 
 const randomPositionCentered = (area: Vector3) => {
   return new Vector3((Math.random() - 0.5) * area.x, (Math.random() - 0.5) * area.y, (Math.random() - 0.5) * area.z)
@@ -65,7 +66,7 @@ export default async function AvatarSpawnSystem(world: World) {
           return
         }
       }
-      const entity = createAvatar(spawnAction)
+      const entity = createSpawnedAvatar(spawnAction)
       if (isClient) {
         addComponent(entity, AudioTagComponent, {})
         addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
@@ -75,6 +76,13 @@ export default async function AvatarSpawnSystem(world: World) {
           addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
           addComponent(entity, PersistTagComponent, {})
         }
+
+        dispatchAction(
+          Engine.store,
+          EngineActions.setupAnimation({
+            entity: entity
+          })
+        )
       }
     })
   }

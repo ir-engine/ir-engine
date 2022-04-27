@@ -4,7 +4,7 @@ import { Quaternion, Vector3 } from 'three'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
 import { TestNetwork } from '../../../tests/networking/TestNetwork'
-import { createAvatar } from '../../avatar/functions/createAvatar'
+import { createSpawnedAvatar } from '../../avatar/functions/createAvatar'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { createWorld } from '../../ecs/classes/World'
@@ -53,7 +53,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
       parameters: {}
     })
 
-    createAvatar(
+    createSpawnedAvatar(
       NetworkWorldAction.spawnAvatar({
         $from: Engine.userId,
         networkId: networkObject.networkId,

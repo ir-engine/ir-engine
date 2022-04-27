@@ -8,6 +8,13 @@ import {
   AvatarInputSettingsAction,
   useAvatarInputSettingsState
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
+import {
+  getCamComponent,
+  setRaycasting,
+  setRayCount,
+  setRayFrequency,
+  setRayLength
+} from '@xrengine/engine/src/camera/functions/CameraComponentFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
@@ -148,6 +155,56 @@ const SettingMenu = (): JSX.Element => {
               max={5}
               step={1}
             />
+          </div>
+          <div className={styles.row}>
+            <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-camera-raycast')}</span>
+            <Box margin={1}>
+              <div>
+                <FormControlLabel
+                  className={styles.checkboxBlock}
+                  control={<Checkbox checked={getCamComponent().raycasting} size="small" />}
+                  label={t('user:usermenu.setting.lbl-camera-raycast-toggle') as string}
+                  onChange={(_, value) => {
+                    setRaycasting(value)
+                  }}
+                />
+              </div>
+              <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-camera-raycast-count')}</span>
+              <Slider
+                value={getCamComponent().rayCount}
+                onChange={(_, value: number) => {
+                  setRayCount(value)
+                }}
+                className={styles.slider}
+                min={1}
+                max={9}
+                step={1}
+              />
+
+              <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-camera-raycast-length')}</span>
+              <Slider
+                value={getCamComponent().rayLength}
+                onChange={(_, value: number) => {
+                  setRayLength(value)
+                }}
+                className={styles.slider}
+                min={0.01}
+                max={150}
+                step={0.5}
+              />
+
+              <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-camera-raycast-frequency')}</span>
+              <Slider
+                value={getCamComponent().rayFrequency}
+                onChange={(_, value: number) => {
+                  setRayFrequency(value)
+                }}
+                className={styles.slider}
+                min={0.01}
+                max={5}
+                step={0.01}
+              />
+            </Box>
           </div>
           <div className={`${styles.row} ${styles.FlexWrap}`}>
             <FormControlLabel

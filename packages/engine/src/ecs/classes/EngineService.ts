@@ -208,6 +208,12 @@ export const EngineActions = {
     store: 'ENGINE',
     type: 'CORE_XR_SUPPORTED' as const,
     xrSupported: matches.boolean
+  }),
+
+  setupAnimation: defineAction({
+    store: 'ENGINE',
+    type: 'network.SETUP_ANIMATION' as const,
+    entity: matches.number
   })
 }
 

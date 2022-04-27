@@ -4,6 +4,7 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { AnimationManager } from '../../../avatar/AnimationManager'
 import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
+import { AvatarComponent } from '../../../avatar/components/AvatarComponent'
 import { LoopAnimationComponent, LoopAnimationComponentType } from '../../../avatar/components/LoopAnimationComponent'
 import { setupAvatarModel } from '../../../avatar/functions/avatarFunctions'
 import {
@@ -15,7 +16,7 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { accessEngineState, EngineActions } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -49,14 +50,17 @@ export const deserializeLoopAnimation: ComponentDeserializeFunction = (
   })
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_LOOP_ANIMATION)
-
+  /*
   if (accessEngineState().sceneLoaded.value) {
     updateLoopAnimation(entity)
   } else {
-    matchActionOnce(Engine.store, EngineActions.sceneLoaded.matches, () => {
+    matchActionOnce(Engine.store, EngineActions.setupAnimation.matches, () => {
       updateLoopAnimation(entity)
     })
-  }
+  }*/
+  matchActionOnce(Engine.store, EngineActions.setupAnimation.matches, (action) => {
+    updateLoopAnimation(entity)
+  })
 }
 
 let lastModel: Group = null!

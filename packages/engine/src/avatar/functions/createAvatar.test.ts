@@ -22,7 +22,7 @@ import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
-import { createAvatar } from './createAvatar'
+import { createSpawnedAvatar } from './createAvatar'
 
 describe('createAvatar', () => {
   let world
@@ -57,7 +57,7 @@ describe('createAvatar', () => {
     const prevPhysicsBodies = Engine.currentWorld.physics.bodies.size
     const prevPhysicsColliders = Engine.currentWorld.physics.controllers.size
 
-    createAvatar(
+    createSpawnedAvatar(
       NetworkWorldAction.spawnAvatar({
         $from: Engine.userId,
         networkId: networkObject.networkId,

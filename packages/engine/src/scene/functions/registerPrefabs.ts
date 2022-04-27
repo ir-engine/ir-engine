@@ -86,6 +86,7 @@ export const ScenePrefabs = {
   metadata: 'Metadata' as const,
   model: 'Model' as const,
   link: 'Link' as const,
+  camera: 'Camera' as const,
   cameraProperties: 'Camera Properties' as const,
   particleEmitter: 'Particle Emitter' as const,
   portal: 'Portal' as const,

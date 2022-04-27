@@ -177,6 +177,15 @@
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
       "lbl-isTrigger": "Trigger"
     },
+    "camera": {
+      "name": "Camera",
+      "description": "Camera settings.",
+      "lbl-camera-raycast": "Camera Raycasting",
+      "lbl-camera-raycast-toggle": "Enabled",
+      "lbl-camera-raycast-frequency": "Frequency",
+      "lbl-camera-raycast-count": "Ray Count",
+      "lbl-camera-raycast-length": "Ray Length"
+    },
     "directionalLight": {
       "name": "Directional Light",
       "description": "A light which illuminates the entire scene, but emits along a single direction.",
