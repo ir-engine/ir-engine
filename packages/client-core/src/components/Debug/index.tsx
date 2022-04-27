@@ -144,6 +144,14 @@ export const Debug = () => {
               {t('common:debug.tick')}: {engineState.fixedTick.value}
             </div>
             <div>
+              <h1>{t('common:debug.engineStore')}</h1>
+              <JSONTree data={Engine.store} />
+            </div>
+            <div>
+              <h1>{t('common:debug.worldStore')}</h1>
+              <JSONTree data={Engine.currentWorld.store} />
+            </div>
+            <div>
               <h1>{t('common:debug.namedEntities')}</h1>
               <JSONTree data={renderNamedEntities()} />
             </div>
