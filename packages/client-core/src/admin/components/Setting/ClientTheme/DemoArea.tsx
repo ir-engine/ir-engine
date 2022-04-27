@@ -5,6 +5,7 @@ import SettingIcon from '@mui/icons-material/Settings'
 import {
   Box,
   Button,
+  Dialog,
   Divider,
   Drawer,
   IconButton,
@@ -27,6 +28,7 @@ import {
 import styles from '../../../styles/settings.module.scss'
 
 const DemoArea = () => {
+  const [dialog, setDialog] = useState(false)
   const [drawerValue, setDrawerValue] = useState(false)
   const [selectValue, setSelectValue] = useState('')
   const [anchorEl, setAnchorEl] = useState<any>(null)
@@ -322,6 +324,16 @@ const DemoArea = () => {
                 classes={{ paper: 'drawer' }}
                 onClose={() => setDrawerValue(false)}
               ></Drawer>
+              <div className="textHeading">Popup</div>
+              <Button variant="contained" className="filledButton" onClick={() => setDialog(true)}>
+                Open Popup
+              </Button>
+              <Dialog
+                open={dialog}
+                className="drawer"
+                PaperProps={{ className: 'drawerPaper' }}
+                onClose={() => setDialog(false)}
+              ></Dialog>
             </Box>
           </div>
         </div>

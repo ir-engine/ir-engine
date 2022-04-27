@@ -288,6 +288,18 @@ const DemoStyle = (props: DemoStyleProps) => {
       .spanWhite {
         color: ${theme.textColor} !important;
       }
+
+      .drawer {
+        background: unset;
+      }
+
+      .drawerPaper {
+        width: 100%;
+        height: 100%;
+        max-width: 600px;
+        max-height: 500px; 
+        background: ${theme.popupBackground};
+      }
     `}
     </style>
   )

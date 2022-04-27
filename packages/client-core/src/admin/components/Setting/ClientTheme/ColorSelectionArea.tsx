@@ -344,6 +344,14 @@ const ColorSelectionArea = (props: ColorSelectionAreaProps) => {
           onChange={(color) => handleChangeColor('drawerBackground', color)}
         />
       </Grid>
+      <Grid item sm={12} md={6} className={styles.colorGridContainer}>
+        <label>Popup Background:</label>
+        <SketchColorPicker
+          name="popupBackground"
+          value={theme.popupBackground}
+          onChange={(color) => handleChangeColor('popupBackground', color)}
+        />
+      </Grid>
     </Grid>
   )
 }
