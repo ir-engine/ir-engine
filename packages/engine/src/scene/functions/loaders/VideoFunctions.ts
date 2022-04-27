@@ -15,7 +15,7 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { accessEngineState, EngineActions } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { matchActionOnce, receiveActionOnce } from '../../../networking/functions/matchActionOnce'
+import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { ImageProjection } from '../../classes/ImageUtils'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ImageComponent } from '../../components/ImageComponent'
@@ -84,7 +84,7 @@ export const deserializeVideo: ComponentDeserializeFunction = (
 
   addComponent(entity, VideoComponent, props)
 
-  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VIDEO)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VIDEO)
 
   updateVideo(entity, props)
 }

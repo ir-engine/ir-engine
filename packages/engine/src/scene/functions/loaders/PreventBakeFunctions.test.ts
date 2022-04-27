@@ -27,16 +27,13 @@ describe('PreventBakeFunctions', () => {
   }
 
   describe('deserializePreventBake()', () => {
-    it('does not create PreventBake Component if not in editor', () => {
-      Engine.instance.isEditor = false
+    it('will include this component into EntityNodeComponent', () => {
       addComponent(entity, EntityNodeComponent, { components: [] })
+
       deserializePreventBake(entity, sceneComponent)
 
-      const preventbakeComponent = getComponent(entity, PreventBakeTagComponent)
-      assert(!preventbakeComponent)
-
       const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_PREVENT_BAKE))
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_PREVENT_BAKE))
     })
 
     it('creates PreventBake Component with provided component data', () => {
@@ -47,9 +44,6 @@ describe('PreventBakeFunctions', () => {
       const preventbakeComponent = getComponent(entity, PreventBakeTagComponent)
       assert(preventbakeComponent)
       assert(Object.keys(preventbakeComponent).length === 0)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_PREVENT_BAKE))
     })
   })
 

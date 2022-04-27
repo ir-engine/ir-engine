@@ -59,26 +59,13 @@ describe('AudioSettingFunctions', () => {
       assert.deepEqual(ambientLightComponent, sceneComponentData)
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Audio setting component in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        deserializeAudioSetting(entity, sceneComponent)
+      deserializeAudioSetting(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_AUDIO_SETTINGS))
-      })
-
-      it('creates Audio setting component in Editor', () => {
-        Engine.instance.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        deserializeAudioSetting(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AUDIO_SETTINGS))
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AUDIO_SETTINGS))
     })
   })
 

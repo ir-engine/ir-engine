@@ -19,6 +19,7 @@ import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { removeClientInputListeners } from './input/functions/clientInputListeners'
 import { matchActionOnce } from './networking/functions/matchActionOnce'
 import { NetworkActionReceptor } from './networking/functions/NetworkActionReceptor'
+import InfiniteGridHelper from './scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import './threejsPatches'
 import { FontManager } from './xrui/classes/FontManager'
@@ -38,6 +39,9 @@ export const initializeBrowser = () => {
   Engine.instance.camera.layers.enable(ObjectLayers.Scene)
   Engine.instance.camera.layers.enable(ObjectLayers.Avatar)
   Engine.instance.camera.layers.enable(ObjectLayers.UI)
+
+  InfiniteGridHelper.instance = new InfiniteGridHelper()
+  Engine.instance.scene.add(InfiniteGridHelper.instance)
 
   const browser = detect()
   const os = detectOS(navigator.userAgent)

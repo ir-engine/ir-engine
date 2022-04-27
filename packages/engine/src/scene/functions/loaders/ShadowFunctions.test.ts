@@ -54,28 +54,13 @@ describe('ShadowFunctions', () => {
       )
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Shadow in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        deserializeShadow(entity, sceneComponent)
+      deserializeShadow(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_SHADOW))
-      })
-
-      it('creates Shadow in Editor', () => {
-        Engine.instance.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        deserializeShadow(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SHADOW))
-
-        Engine.instance.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SHADOW))
     })
   })
 

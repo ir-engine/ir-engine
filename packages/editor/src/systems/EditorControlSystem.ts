@@ -17,6 +17,7 @@ import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import {
@@ -131,7 +132,7 @@ export default async function EditorControlSystem(_: World) {
     )
 
     findIntersectObjects(Engine.instance.scene, os, raycastIgnoreLayers)
-    findIntersectObjects(SceneState.grid)
+    findIntersectObjects(InfiniteGridHelper.instance)
 
     raycasterResults.sort((a, b) => a.distance - b.distance)
     if (raycasterResults[0] && raycasterResults[0].distance < 100) target.copy(raycasterResults[0].point)
@@ -485,9 +486,9 @@ export default async function EditorControlSystem(_: World) {
       } else if (getInput(EditorActionSet.toggleTransformSpace)) {
         toggleTransformSpace()
       } else if (getInput(EditorActionSet.incrementGridHeight)) {
-        SceneState.grid.incrementGridHeight()
+        InfiniteGridHelper.instance.incrementGridHeight()
       } else if (getInput(EditorActionSet.decrementGridHeight)) {
-        SceneState.grid.decrementGridHeight()
+        InfiniteGridHelper.instance.decrementGridHeight()
       } else if (getInput(EditorActionSet.undo)) {
         undoCommand()
       } else if (getInput(EditorActionSet.redo)) {

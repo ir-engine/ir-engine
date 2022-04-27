@@ -60,28 +60,29 @@ describe('ScenePreviewCameraFunctions', () => {
       assert(Object.keys(scenePreviewCameraComponent).length === 0)
     })
 
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
+
+      scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
+
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA))
+    })
+
     describe('Editor vs Location', () => {
       it('creates ScenePreviewCamera in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
         Engine.instance.activeCameraEntity = createEntity()
         Engine.instance.camera = new PerspectiveCamera()
 
         scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA))
         assert(Engine.instance.camera.position.equals(getComponent(entity, TransformComponent).position))
       })
 
       it('creates ScenePreviewCamera in Editor', () => {
         Engine.instance.isEditor = true
 
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
         scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA))
 
         const obj3d = getComponent(entity, Object3DComponent)?.value
         assert(obj3d && obj3d instanceof PerspectiveCamera)

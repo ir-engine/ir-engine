@@ -65,28 +65,13 @@ describe('PostprocessingFunctions', () => {
       assert(getComponent(entity, IgnoreRaycastTagComponent))
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Postprocessing in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        postprocessingFunctions.deserializePostprocessing(entity, sceneComponent)
+      postprocessingFunctions.deserializePostprocessing(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_POSTPROCESSING))
-      })
-
-      it('creates Postprocessing in Editor', () => {
-        Engine.instance.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        postprocessingFunctions.deserializePostprocessing(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_POSTPROCESSING))
-
-        Engine.instance.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_POSTPROCESSING))
     })
   })
 

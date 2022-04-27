@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react'
 
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import {
   accessEngineRendererState,
@@ -13,12 +12,11 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import SelectAllIcon from '@mui/icons-material/SelectAll'
 import SquareFootIcon from '@mui/icons-material/SquareFoot'
 
-import { EditorHelperAction, useEditorHelperState } from '../../../services/EditorHelperState'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 export const HelperToggleTool = () => {
-  const nodeHelperVisibility = useEditorHelperState().nodeHelperVisibility.value
+  const engineRenderState = accessEngineRendererState()
   const [, updateState] = useState<any>()
   const forceUpdate = useCallback(() => updateState({}), [])
   const engineRendererState = useEngineRendererState()
@@ -27,13 +25,16 @@ export const HelperToggleTool = () => {
     forceUpdate()
     dispatchAction(
       Engine.instance.store,
-      EngineRendererAction.setPhysicsDebug(!accessEngineRendererState().physicsDebugEnable.value) as any
+      EngineRendererAction.setPhysicsDebug(!engineRenderState.physicsDebugEnable.value) as any
     )
   }
 
   const toggleNodeHelpers = () => {
     Engine.instance.camera.layers.toggle(ObjectLayers.NodeHelper)
-    useDispatch()(EditorHelperAction.changeNodeHelperVisibility(!nodeHelperVisibility))
+    dispatchAction(
+      Engine.instance.store,
+      EngineRendererAction.changeNodeHelperVisibility(!engineRenderState.nodeHelperVisibility.value)
+    )
   }
 
   return (
@@ -52,7 +53,7 @@ export const HelperToggleTool = () => {
         <InfoTooltip title="Toggle Node Helpers">
           <button
             onClick={toggleNodeHelpers}
-            className={styles.toolButton + ' ' + (nodeHelperVisibility ? styles.selected : '')}
+            className={styles.toolButton + ' ' + (engineRenderState.nodeHelperVisibility.value ? styles.selected : '')}
           >
             <SelectAllIcon fontSize="small" />
           </button>

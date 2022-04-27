@@ -134,28 +134,16 @@ describe('AudioFunctions', () => {
       })
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Audio in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        audioFunctions.deserializeAudio(entity, sceneComponent)
+      audioFunctions.deserializeAudio(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_AUDIO))
-      })
-
-      it('creates Audio in Editor', () => {
-        Engine.instance.isEditor = true
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        audioFunctions.deserializeAudio(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AUDIO))
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AUDIO))
     })
 
-    describe('Editor Tests', () => {
+    describe('Texture mesh Tests', () => {
       it('creates texture mesh for audio', () => {
         Engine.instance.isEditor = true
         audioFunctions.deserializeAudio(entity, sceneComponent)
@@ -164,6 +152,7 @@ describe('AudioFunctions', () => {
 
         assert(obj3d.userData.textureMesh && obj3d.children.includes(obj3d.userData.textureMesh))
         assert(obj3d.userData.textureMesh.userData.disableOutline, 'Outline is not disabled for helper mesh')
+        assert(obj3d.userData.textureMesh.userData.isHelper, 'Outline is not disabled for helper mesh')
       })
 
       it('caches audio texture', () => {

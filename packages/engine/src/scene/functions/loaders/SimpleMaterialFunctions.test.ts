@@ -64,28 +64,13 @@ describe('SimpleMaterialFunctions', () => {
       assert(Object.keys(simplematerialComponent).length === 0)
     })
 
-    describe('Editor vs Location', () => {
-      it('creates SimpleMaterial in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        deserializeSimpleMaterial(entity, sceneComponent)
+      deserializeSimpleMaterial(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_SIMPLE_MATERIALS))
-      })
-
-      it('creates SimpleMaterial in Editor', () => {
-        Engine.instance.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        deserializeSimpleMaterial(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SIMPLE_MATERIALS))
-
-        Engine.instance.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SIMPLE_MATERIALS))
     })
   })
 

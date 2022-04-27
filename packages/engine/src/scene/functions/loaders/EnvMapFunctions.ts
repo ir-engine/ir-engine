@@ -64,7 +64,7 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (
   const props = parseEnvMapProperties(json.props)
   addComponent(entity, EnvmapComponent, props)
 
-  if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ENVMAP)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ENVMAP)
 
   updateEnvMap(entity)
 }

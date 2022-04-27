@@ -68,7 +68,7 @@ export const deserializeSkybox: ComponentDeserializeFunction = (
     addComponent(entity, SkyboxComponent, props)
     addComponent(entity, DisableTransformTagComponent, {})
     addComponent(entity, IgnoreRaycastTagComponent, {})
-    if (Engine.instance.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SKYBOX)
+    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SKYBOX)
     updateSkybox(entity)
   }
 }

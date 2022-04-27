@@ -11,6 +11,7 @@ import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SplineComponent } from '../../components/SplineComponent'
+import { ObjectLayers } from '../../constants/ObjectLayers'
 import { deserializeSpline, parseSplineProperties, SCENE_COMPONENT_SPLINE, serializeSpline } from './SplineFunctions'
 
 describe('SplineFunctions', () => {
@@ -45,33 +46,20 @@ describe('SplineFunctions', () => {
 
     it('creates Spline Object3D with provided component data', () => {
       deserializeSpline(entity, sceneComponent)
-      assert(getComponent(entity, Object3DComponent)?.value, 'Spline is not created')
+      const obj3d = getComponent(entity, Object3DComponent)?.value
+
+      assert(obj3d, 'Spline is not created')
+      assert(obj3d.children.length > 0 && obj3d.userData.helper && obj3d.userData.helper.userData.isHelper)
+      assert(obj3d.userData.helper.layers.isEnabled(ObjectLayers.NodeHelper))
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Spline in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        deserializeSpline(entity, sceneComponent)
+      deserializeSpline(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_SPLINE))
-      })
-
-      it('creates Spline in Editor', () => {
-        Engine.instance.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        deserializeSpline(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SPLINE))
-
-        const obj3d = getComponent(entity, Object3DComponent)?.value
-        assert(obj3d.children.length > 0 && obj3d.userData.helper)
-        Engine.instance.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SPLINE))
     })
   })
 

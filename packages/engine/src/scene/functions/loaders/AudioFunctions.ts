@@ -62,26 +62,25 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
   const props = parseAudioProperties(json.props)
   addComponent(entity, AudioComponent, props)
 
-  if (Engine.instance.isEditor) {
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO)
 
-    obj3d.userData.textureMesh = new Mesh(
-      new PlaneBufferGeometry(),
-      new MeshBasicMaterial({ transparent: true, side: DoubleSide })
-    )
-    obj3d.add(obj3d.userData.textureMesh)
-    obj3d.userData.textureMesh.userData.disableOutline = true
-    setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.NodeHelper)
+  obj3d.userData.textureMesh = new Mesh(
+    new PlaneBufferGeometry(),
+    new MeshBasicMaterial({ transparent: true, side: DoubleSide })
+  )
+  obj3d.add(obj3d.userData.textureMesh)
+  obj3d.userData.textureMesh.userData.disableOutline = true
+  obj3d.userData.textureMesh.userData.isHelper = true
+  setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.NodeHelper)
 
-    if (audioTexture) {
+  if (audioTexture) {
+    obj3d.userData.textureMesh.material.map = audioTexture
+  } else {
+    // can't use await since component should have to be deserialize for media component to work properly
+    AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((texture) => {
+      audioTexture = texture!
       obj3d.userData.textureMesh.material.map = audioTexture
-    } else {
-      // can't use await since component should have to be deserialize for media component to work properly
-      AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((texture) => {
-        audioTexture = texture!
-        obj3d.userData.textureMesh.material.map = audioTexture
-      })
-    }
+    })
   }
 
   updateAudio(entity, props)

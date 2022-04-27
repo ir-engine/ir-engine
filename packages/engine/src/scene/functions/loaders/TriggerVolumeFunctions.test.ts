@@ -45,33 +45,19 @@ describe('TriggerVolumeFunctions', () => {
 
       const triggervolumeComponent = getComponent(entity, TriggerVolumeComponent)
       assert.deepEqual(triggervolumeComponent, { ...sceneComponentData, active: true })
+
+      const obj3d = getComponent(entity, Object3DComponent)?.value as Mesh<any, MeshBasicMaterial>
+      assert(obj3d && obj3d.material.visible === false, 'TriggerVolume outline is not disabled')
+      assert(obj3d && obj3d.userData.isHelper, 'TriggerVolume outline is not disabled')
     })
 
-    describe('Editor vs Location', () => {
-      it('creates TriggerVolume in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
+      triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_TRIGGER_VOLUME))
-        assert(!getComponent(entity, Object3DComponent))
-      })
-
-      it('creates TriggerVolume in Editor', () => {
-        Engine.instance.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_TRIGGER_VOLUME))
-
-        const obj3d = getComponent(entity, Object3DComponent)?.value as Mesh<any, MeshBasicMaterial>
-        assert(obj3d && obj3d.material.visible === false, 'TriggerVolume outline is not disabled')
-        Engine.instance.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_TRIGGER_VOLUME))
     })
   })
 
@@ -101,13 +87,6 @@ describe('TriggerVolumeFunctions', () => {
       })
     })
 
-    it('should not update anything', () => {
-      triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
-      triggervolumeFunctions.updateTriggerVolume(entity)
-
-      assert.deepEqual(getComponent(entity, ColliderComponent).body.getGlobalPose(), transform2)
-    })
-
     it('should not update collider body', () => {
       Engine.instance.isEditor = true
       triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
@@ -119,7 +98,6 @@ describe('TriggerVolumeFunctions', () => {
         rotation: transform1.rotation
       })
       assert(collider.body._debugNeedsUpdate)
-      Engine.instance.isEditor = false
     })
   })
 

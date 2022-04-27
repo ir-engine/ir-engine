@@ -1,5 +1,4 @@
 import { store } from '@xrengine/client-core/src/store'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
@@ -109,17 +108,14 @@ export default class TagComponentCommand extends Command {
 
   addTagComponent(object: EntityTreeNode, operation: TagComponentOperationType) {
     addComponent(object.entity, operation.component, {})
-    if (Engine.instance.isEditor)
-      getComponent(object.entity, EntityNodeComponent)?.components.push(operation.sceneComponentName)
+    getComponent(object.entity, EntityNodeComponent)?.components.push(operation.sceneComponentName)
   }
 
   removeTagComponent(object: EntityTreeNode, operation: TagComponentOperationType) {
     removeComponent(object.entity, operation.component)
-    if (Engine.instance.isEditor) {
-      const comps = getComponent(object.entity, EntityNodeComponent)?.components
-      const index = comps.indexOf(operation.sceneComponentName)
+    const comps = getComponent(object.entity, EntityNodeComponent)?.components
+    const index = comps.indexOf(operation.sceneComponentName)
 
-      if (index !== -1) comps.splice(index, 1)
-    }
+    if (index !== -1) comps.splice(index, 1)
   }
 }

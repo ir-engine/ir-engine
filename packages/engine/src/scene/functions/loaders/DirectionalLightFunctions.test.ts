@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { Color, DirectionalLight } from 'three'
+import { Color, DirectionalLight, Scene } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 

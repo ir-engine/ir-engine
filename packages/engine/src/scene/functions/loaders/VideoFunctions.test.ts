@@ -105,28 +105,13 @@ describe('VideoFunctions', () => {
       assert(obj3d.userData.videoEl)
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Video in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        videoFunctions.deserializeVideo(entity, sceneComponent)
+      videoFunctions.deserializeVideo(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_VIDEO))
-      })
-
-      it('creates Video in Editor', () => {
-        Engine.instance.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        videoFunctions.deserializeVideo(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_VIDEO))
-
-        Engine.instance.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_VIDEO))
     })
   })
 

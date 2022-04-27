@@ -65,28 +65,13 @@ describe('CameraPropertiesFunctions', () => {
       assert.deepEqual(camerapropertiesComponent, sceneComponentData)
     })
 
-    describe('Editor vs Location', () => {
-      it('creates CameraProperties in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        camerapropertiesFunctions.deserializeCameraProperties(entity, sceneComponent)
+      camerapropertiesFunctions.deserializeCameraProperties(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_CAMERA_PROPERTIES))
-      })
-
-      it('creates CameraProperties in Editor', () => {
-        Engine.instance.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        camerapropertiesFunctions.deserializeCameraProperties(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_CAMERA_PROPERTIES))
-
-        Engine.instance.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_CAMERA_PROPERTIES))
     })
   })
 

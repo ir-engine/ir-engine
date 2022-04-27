@@ -53,13 +53,13 @@ export const deserializeCubemapBake: ComponentDeserializeFunction = (
 ) => {
   const obj3d = new Object3D()
   addComponent(entity, Object3DComponent, { value: obj3d })
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CUBEMAP_BAKE)
 
   if (!Engine.instance.isEditor) return
 
   const props = parseCubemapBakeProperties(json.props)
   addComponent(entity, CubemapBakeComponent, props)
   addComponent(entity, PreventBakeTagComponent, {})
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CUBEMAP_BAKE)
 
   obj3d.userData.centerBall = new Mesh(
     new SphereGeometry(0.75),

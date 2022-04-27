@@ -60,28 +60,13 @@ describe('TransformFunctions', () => {
       assert(Math.abs(transformComponent.scale.z - sceneComponentData.scale.z) < EPSILON)
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Transform in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        deserializeTransform(entity, sceneComponent)
+      deserializeTransform(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_TRANSFORM))
-      })
-
-      it('creates Transform in Editor', () => {
-        Engine.instance.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        deserializeTransform(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_TRANSFORM))
-
-        Engine.instance.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_TRANSFORM))
     })
   })
 

@@ -61,27 +61,13 @@ describe('AmbientLightFunctions', () => {
       assert(obj3d.intensity === sceneComponentData.intensity)
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Ambient light in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        deserializeAmbientLight(entity, sceneComponent)
+      deserializeAmbientLight(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_AMBIENT_LIGHT))
-      })
-
-      it('creates Ambient light in Editor', () => {
-        Engine.instance.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        deserializeAmbientLight(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AMBIENT_LIGHT))
-        Engine.instance.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AMBIENT_LIGHT))
     })
   })
 

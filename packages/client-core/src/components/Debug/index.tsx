@@ -7,8 +7,13 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import {
+  accessEngineRendererState,
+  EngineRendererAction,
+  useEngineRendererState
+} from '@xrengine/engine/src/renderer/EngineRendererState'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 export const Debug = () => {
@@ -88,6 +93,22 @@ export const Debug = () => {
     }
   }
 
+  const toggleNodeHelpers = () => {
+    Engine.camera.layers.toggle(ObjectLayers.NodeHelper)
+    dispatchAction(
+      Engine.store,
+      EngineRendererAction.changeNodeHelperVisibility(!accessEngineRendererState().nodeHelperVisibility.value)
+    )
+  }
+
+  const toggleGridHelper = () => {
+    Engine.camera.layers.toggle(ObjectLayers.Gizmos)
+    dispatchAction(
+      Engine.store,
+      EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value)
+    )
+  }
+
   if (isShowing)
     return (
       <div
@@ -110,6 +131,12 @@ export const Debug = () => {
         </button>
         <button type="button" value="Avatar Debug" onClick={toggleAvatarDebug}>
           {t('common:debug.avatarDebug')}
+        </button>
+        <button type="button" value="Node Debug" onClick={toggleNodeHelpers}>
+          {t('common:debug.nodeHelperDebug')}
+        </button>
+        <button type="button" value="Grid Debug" onClick={toggleGridHelper}>
+          {t('common:debug.gridDebug')}
         </button>
         {Network.instance !== null && (
           <div>
