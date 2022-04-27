@@ -5,6 +5,8 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { Engine } from '../ecs/classes/Engine'
+import InfiniteGridHelper from '../scene/classes/InfiniteGridHelper'
+import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
 import { RenderSettingKeys } from './EngineRnedererConstants'
 import { changeRenderMode } from './functions/changeRenderMode'
@@ -19,6 +21,9 @@ type EngineRendererStateType = {
   physicsDebugEnable: boolean
   avatarDebugEnable: boolean
   renderMode: RenderModesType
+  nodeHelperVisibility: boolean
+  gridVisibility: boolean
+  gridHeight: number
 }
 
 const state = createState<EngineRendererStateType>({
@@ -29,14 +34,17 @@ const state = createState<EngineRendererStateType>({
   useShadows: true,
   physicsDebugEnable: false,
   avatarDebugEnable: false,
-  renderMode: RenderModes.SHADOW as RenderModesType
+  renderMode: RenderModes.SHADOW as RenderModesType,
+  nodeHelperVisibility: true,
+  gridVisibility: true,
+  gridHeight: 0
 })
 
 export async function restoreEngineRendererData(): Promise<void> {
   if (typeof window !== 'undefined') {
     const s = {} as EngineRendererStateType
 
-    await Promise.all([
+    const promises = [
       ClientStorage.get(RenderSettingKeys.QUALITY_LEVEL).then((v) => {
         if (typeof v !== 'undefined') s.qualityLevel = v as number
         ClientStorage.set(RenderSettingKeys.QUALITY_LEVEL, state.qualityLevel.value)
@@ -52,22 +60,41 @@ export async function restoreEngineRendererData(): Promise<void> {
       ClientStorage.get(RenderSettingKeys.USE_SHADOWS).then((v) => {
         if (typeof v !== 'undefined') s.useShadows = v as boolean
         ClientStorage.set(RenderSettingKeys.USE_SHADOWS, state.useShadows.value)
-      }),
-      ClientStorage.get(RenderSettingKeys.PHYSICS_DEBUG_ENABLE).then((v) => {
-        if (typeof v !== 'undefined') s.physicsDebugEnable = v as boolean
-        ClientStorage.set(RenderSettingKeys.PHYSICS_DEBUG_ENABLE, state.physicsDebugEnable.value)
-      }),
-      ClientStorage.get(RenderSettingKeys.AVATAR_DEBUG_ENABLE).then((v) => {
-        if (typeof v !== 'undefined') s.avatarDebugEnable = v as boolean
-        ClientStorage.set(RenderSettingKeys.AVATAR_DEBUG_ENABLE, state.avatarDebugEnable.value)
-      }),
-      ClientStorage.get(RenderSettingKeys.RENDER_MODE).then((v) => {
-        if (typeof v !== 'undefined') s.renderMode = v as RenderModesType
-        ClientStorage.set(RenderSettingKeys.RENDER_MODE, state.renderMode.value)
       })
-    ])
+    ]
 
-    dispatchAction(Engine.store, EngineRendererAction.restoreStorageData(s))
+    if (Engine.instance.isEditor) {
+      promises.push(
+        ClientStorage.get(RenderSettingKeys.PHYSICS_DEBUG_ENABLE).then((v) => {
+          if (typeof v !== 'undefined') s.physicsDebugEnable = v as boolean
+          ClientStorage.set(RenderSettingKeys.PHYSICS_DEBUG_ENABLE, state.physicsDebugEnable.value)
+        }),
+        ClientStorage.get(RenderSettingKeys.AVATAR_DEBUG_ENABLE).then((v) => {
+          if (typeof v !== 'undefined') s.avatarDebugEnable = v as boolean
+          ClientStorage.set(RenderSettingKeys.AVATAR_DEBUG_ENABLE, state.avatarDebugEnable.value)
+        }),
+        ClientStorage.get(RenderSettingKeys.RENDER_MODE).then((v) => {
+          if (typeof v !== 'undefined') s.renderMode = v as RenderModesType
+          ClientStorage.set(RenderSettingKeys.RENDER_MODE, state.renderMode.value)
+        }),
+        ClientStorage.get(RenderSettingKeys.NODE_HELPER_ENABLE).then((v) => {
+          if (typeof v !== 'undefined') s.nodeHelperVisibility = v as boolean
+          else ClientStorage.set(RenderSettingKeys.NODE_HELPER_ENABLE, state.nodeHelperVisibility.value)
+        }),
+        ClientStorage.get(RenderSettingKeys.GRID_VISIBLE).then((v) => {
+          if (typeof v !== 'undefined') s.gridVisibility = v as boolean
+          else ClientStorage.set(RenderSettingKeys.GRID_VISIBLE, state.gridVisibility.value)
+        }),
+        ClientStorage.get(RenderSettingKeys.GRID_HEIGHT).then((v) => {
+          if (typeof v !== 'undefined') s.gridHeight = v as number
+          else ClientStorage.set(RenderSettingKeys.GRID_HEIGHT, state.gridHeight.value)
+        })
+      )
+    }
+
+    await Promise.all(promises)
+
+    dispatchAction(Engine.instance.store, EngineRendererAction.restoreStorageData(s))
   }
 }
 
@@ -76,10 +103,19 @@ function updateState(): void {
   setUsePostProcessing(state.usePostProcessing.value)
   setUseShadows(state.useShadows.value)
 
-  dispatchAction(Engine.store, EngineRendererAction.setPhysicsDebug(state.physicsDebugEnable.value))
-  dispatchAction(Engine.store, EngineRendererAction.setAvatarDebug(state.avatarDebugEnable.value))
+  dispatchAction(Engine.instance.store, EngineRendererAction.setPhysicsDebug(state.physicsDebugEnable.value))
+  dispatchAction(Engine.instance.store, EngineRendererAction.setAvatarDebug(state.avatarDebugEnable.value))
 
   changeRenderMode(state.renderMode.value)
+
+  if (Engine.instance.isEditor && state.nodeHelperVisibility.value)
+    Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
+  else Engine.instance.camera.layers.disable(ObjectLayers.NodeHelper)
+
+  if (Engine.instance.isEditor) {
+    InfiniteGridHelper.instance.setGridHeight(state.gridHeight.value)
+    InfiniteGridHelper.instance.visible = state.gridVisibility.value
+  }
 }
 
 export const useEngineRendererState = () => useState(state) as any as typeof state
@@ -136,6 +172,18 @@ export function EngineRendererReceptor(action: EngineRendererActionType) {
         s.merge({ renderMode: action.renderMode })
         changeRenderMode(action.renderMode)
         ClientStorage.set(RenderSettingKeys.RENDER_MODE, action.renderMode)
+        break
+      case 'NODE_HELPER_VISIBILITY_CHANGED':
+        s.merge({ nodeHelperVisibility: action.visibility })
+        ClientStorage.set(RenderSettingKeys.NODE_HELPER_ENABLE, action.visibility)
+        break
+      case 'GRID_TOOL_HEIGHT_CHANGED':
+        s.merge({ gridHeight: action.gridHeight })
+        ClientStorage.set(RenderSettingKeys.GRID_HEIGHT, action.gridHeight)
+        break
+      case 'GRID_TOOL_VISIBILITY_CHANGED':
+        s.merge({ gridVisibility: action.visibility })
+        ClientStorage.set(RenderSettingKeys.GRID_VISIBLE, action.visibility)
         break
       case 'RESTORE_ENGINE_RENDERER_STORAGE_DATA':
         s.merge(action.state)
@@ -208,6 +256,27 @@ export const EngineRendererAction = {
       store: 'ENGINE' as const,
       type: 'RENDER_MODE_CHANGED' as const,
       renderMode
+    }
+  },
+  changeNodeHelperVisibility: (visibility: boolean) => {
+    return {
+      store: 'ENGINE' as const,
+      type: 'NODE_HELPER_VISIBILITY_CHANGED' as const,
+      visibility
+    }
+  },
+  changeGridToolHeight: (gridHeight: number) => {
+    return {
+      store: 'ENGINE' as const,
+      type: 'GRID_TOOL_HEIGHT_CHANGED' as const,
+      gridHeight
+    }
+  },
+  changeGridToolVisibility: (visibility: boolean) => {
+    return {
+      store: 'ENGINE' as const,
+      type: 'GRID_TOOL_VISIBILITY_CHANGED' as const,
+      visibility
     }
   }
 }

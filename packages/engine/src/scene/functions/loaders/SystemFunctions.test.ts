@@ -3,9 +3,8 @@ import { Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { createEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
@@ -22,15 +21,11 @@ import {
   serializeSystem
 } from './SystemFunctions'
 
-class FakeSystem extends Object3D {}
-
 describe('SystemFunctions', () => {
-  let world: World
   let entity: Entity
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 
@@ -57,27 +52,13 @@ describe('SystemFunctions', () => {
       assert(getComponent(entity, PreventBakeTagComponent))
     })
 
-    describe('Editor vs Location', () => {
-      it('creates System in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        deserializeSystem(entity, sceneComponent)
+      deserializeSystem(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_SYSTEM))
-      })
-
-      it('creates System in Editor', () => {
-        Engine.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        deserializeSystem(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SYSTEM))
-        Engine.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SYSTEM))
     })
   })
 

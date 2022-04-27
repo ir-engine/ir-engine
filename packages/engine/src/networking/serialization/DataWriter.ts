@@ -195,7 +195,7 @@ export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
 }
 
 export const writeMetadata = (v: ViewCursor, world: World) => {
-  writeUint32(v, world.userIdToUserIndex.get(Engine.userId)!)
+  writeUint32(v, world.userIdToUserIndex.get(Engine.instance.userId)!)
   writeUint32(v, world.fixedTick)
 }
 

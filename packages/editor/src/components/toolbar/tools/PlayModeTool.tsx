@@ -25,7 +25,7 @@ const PlayModeTool = () => {
     <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="preview">
       <InfoTooltip title={editorHelperState.isPlayModeEnabled.value ? 'Stop Previewing Scene' : 'Preview Scene'}>
         <button
-          disabled={!Engine.sceneLoaded}
+          disabled={!Engine.instance.sceneLoaded}
           onClick={onTogglePlayMode}
           className={styles.toolButton + ' ' + (editorHelperState.isPlayModeEnabled.value ? styles.selected : '')}
         >

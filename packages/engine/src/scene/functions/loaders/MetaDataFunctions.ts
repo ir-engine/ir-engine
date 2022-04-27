@@ -20,14 +20,14 @@ export const deserializeMetaData: ComponentDeserializeFunction = (
 ) => {
   addComponent(entity, MetaDataComponent, { meta_data: json.props.meta_data ?? '' })
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_METADATA)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_METADATA)
 
   updateMetaData(entity)
 }
 
 export const updateMetaData: ComponentUpdateFunction = (entity: Entity) => {
   console.log('updateMetaData', getComponent(entity, MetaDataComponent))
-  if (!Engine.isEditor) useWorld().sceneMetadata = getComponent(entity, MetaDataComponent).meta_data
+  if (!Engine.instance.isEditor) useWorld().sceneMetadata = getComponent(entity, MetaDataComponent).meta_data
 }
 
 export const serializeMetaData: ComponentSerializeFunction = (entity) => {

@@ -62,7 +62,7 @@
     "install-projects": "ts-node scripts/install-projects.js",
     "install-test-e2e": "npm i puppeteer@^13.0.0 sequelize@6.12.3",
     "lint": "prettier --check \"packages/**/*.{ts,tsx}\"",
-    "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true concurrently -n agones,server,gameserver,client,files npm:dev-agones-silent \"cd packages/server && npm run start\" \"cd packages/gameserver && npm run start\" \"cd packages/client && npm run local\" \"cd packages/server && npm run serve-local-files\"",
+    "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true concurrently -n agones,server,gameserver,mediaserver,client,files npm:dev-agones-silent \"cd packages/server && npm run start\" \"cd packages/gameserver && npm run start\" \"cd packages/gameserver && npm run start-channel\" \"cd packages/client && npm run local\" \"cd packages/server && npm run serve-local-files\"",
     "make-user-admin": "ts-node scripts/make-user-admin.js",
     "precommit": "no-master-commits -b master",
     "prepare-database": "cross-env APP_ENV=production PREPARE_DATABASE=true EXIT_ON_DB_INIT=true ts-node --transpile-only packages/server/src/index.ts",

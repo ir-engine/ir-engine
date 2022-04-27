@@ -28,7 +28,7 @@ export default async function XRUISystem(world: World) {
   const avatar = defineQuery([AvatarComponent, NetworkObjectComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent])
   const controllerLastHitTarget: string[] = []
-  const hoverSfxPath = Engine.publicPath + '/default_assets/audio/ui-hover.mp3'
+  const hoverSfxPath = Engine.instance.publicPath + '/default_assets/audio/ui-hover.mp3'
   const hoverAudio = new Audio()
   hoverAudio.src = hoverSfxPath
   let idCounter = 0
@@ -71,11 +71,11 @@ export default async function XRUISystem(world: World) {
       const intersectObjects = screenRaycaster.intersectObject(model, true)
       if (intersectObjects.length > 0) {
         const userId = getComponent(entity, NetworkObjectComponent).ownerId
-        dispatchAction(Engine.store, EngineActions.userAvatarTapped({ userId }))
+        dispatchAction(Engine.instance.store, EngineActions.userAvatarTapped({ userId }))
         return
       }
     }
-    dispatchAction(Engine.store, EngineActions.userAvatarTapped({ userId: '' as UserId }))
+    dispatchAction(Engine.instance.store, EngineActions.userAvatarTapped({ userId: '' as UserId }))
   }
 
   const updateControllerRayInteraction = (inputComponent: XRInputSourceComponentType) => {
@@ -143,7 +143,7 @@ export default async function XRUISystem(world: World) {
     const input = getComponent(world.localClientEntity, InputComponent)
     const screenXY = input?.data?.get(BaseInput.SCREENXY)?.value
     if (screenXY) {
-      screenRaycaster.setFromCamera({ x: screenXY[0], y: screenXY[1] }, Engine.camera)
+      screenRaycaster.setFromCamera({ x: screenXY[0], y: screenXY[1] }, Engine.instance.camera)
     } else {
       screenRaycaster.ray.origin.set(Infinity, Infinity, Infinity)
       screenRaycaster.ray.direction.set(0, -1, 0)
@@ -173,7 +173,7 @@ export default async function XRUISystem(world: World) {
       xrui.container.update()
     }
 
-    // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.camera.projectionMatrix)
+    // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.instance.camera.projectionMatrix)
     // EngineRenderer.instance.renderer.getSize(xrui.layoutSystem.viewResolution)
     // xrui.layoutSystem.update(world.delta, world.elapsedTime)
   }

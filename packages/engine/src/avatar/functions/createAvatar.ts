@@ -35,14 +35,8 @@ const defaultAvatarHeight = 1.8
 const capsuleHeight = defaultAvatarHeight - avatarRadius * 2
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
-export const createAvatar = (entity: Entity, _position?: Vector3, _rotation?: Quaternion, _scale?: Vector3) => {
-  const position = _position ? _position : new Vector3()
-  const rotation = _rotation ? _rotation : new Quaternion(0, 0, 0, 1)
-  const scale = _scale ? _scale : new Vector3(1, 1, 1)
-}
-
-export const createSpawnedAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
-  const world = Engine.currentWorld
+export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
+  const world = Engine.instance.currentWorld
   const userId = spawnAction.$from
   const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
 
@@ -126,7 +120,7 @@ export const createSpawnedAvatar = (spawnAction: typeof NetworkWorldAction.spawn
   addComponent(entity, CollisionComponent, { collisions: [] })
 
   // If local player's avatar
-  if (userId === Engine.userId) {
+  if (userId === Engine.instance.userId) {
     addComponent(entity, SpawnPoseComponent, {
       position: new Vector3().copy(spawnAction.parameters.position),
       rotation: new Quaternion().copy(spawnAction.parameters.rotation)
@@ -172,7 +166,7 @@ export const createAvatarController = (entity: Entity) => {
       data: new Map()
     })
   }
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   const controller = world.physics.createController({
     isCapsule: true,
     material: world.physics.createMaterial(),

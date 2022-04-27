@@ -3,14 +3,10 @@ import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
-import { TestNetwork } from '../../../tests/networking/TestNetwork'
-import { createSpawnedAvatar } from '../../avatar/functions/createAvatar'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { createWorld } from '../../ecs/classes/World'
+import { createAvatar } from '../../avatar/functions/createAvatar'
+import { createEngine, Engine } from '../../ecs/classes/Engine'
 import { addComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -24,30 +20,25 @@ import EquippableSystem from './EquippableSystem'
 // @TODO this needs to be re-thought
 
 describe.skip('EquippableSystem Integration Tests', () => {
-  let world
   let equippableSystem
 
   before(async () => {
-    world = createWorld()
-    Network.instance = new TestNetwork()
-    Engine.currentWorld = world
-    Engine.userId = world.hostId
-    await Engine.currentWorld.physics.createScene({ verbose: true })
-
+    const world = createEngine().currentWorld
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
     equippableSystem = await EquippableSystem(world)
   })
 
   after(() => {
-    Engine.currentWorld = null!
     delete (globalThis as any).PhysX
   })
 
   it('system test', async () => {
+    const world = Engine.instance.currentWorld
     const player = createEntity(world)
     const item = createEntity(world)
 
     const networkObject = addComponent(player, NetworkObjectComponent, {
-      ownerId: Engine.userId,
+      ownerId: Engine.instance.userId,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}
@@ -55,7 +46,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     createSpawnedAvatar(
       NetworkWorldAction.spawnAvatar({
-        $from: Engine.userId,
+        $from: Engine.instance.userId,
         networkId: networkObject.networkId,
         parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() }
       })

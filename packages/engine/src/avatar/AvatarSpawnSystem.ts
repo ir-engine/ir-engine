@@ -18,7 +18,7 @@ import { ShadowComponent } from '../scene/components/ShadowComponent'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { AvatarComponent } from './components/AvatarComponent'
-import { createSpawnedAvatar } from './functions/createAvatar'
+import { createAvatar } from './functions/createAvatar'
 
 const randomPositionCentered = (area: Vector3) => {
   return new Vector3((Math.random() - 0.5) * area.x, (Math.random() - 0.5) * area.y, (Math.random() - 0.5) * area.z)
@@ -62,27 +62,27 @@ export default async function AvatarSpawnSystem(world: World) {
          * When changing location via a portal, the local client entity will be
          * defined when the new world dispatches this action, so ignore it
          */
-        if (Engine.userId === spawnAction.$from && hasComponent(world.localClientEntity, AvatarComponent)) {
+        if (Engine.instance.userId === spawnAction.$from && hasComponent(world.localClientEntity, AvatarComponent)) {
           return
         }
       }
-      const entity = createSpawnedAvatar(spawnAction)
+      const entity = createAvatar(spawnAction)
       if (isClient) {
         addComponent(entity, AudioTagComponent, {})
         addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
 
-        if (spawnAction.$from === Engine.userId) {
+        if (spawnAction.$from === Engine.instance.userId) {
           addComponent(entity, LocalInputTagComponent, {})
           addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
           addComponent(entity, PersistTagComponent, {})
         }
-
+        /*
         dispatchAction(
           Engine.store,
           EngineActions.setupAnimation({
             entity: entity
           })
-        )
+        )*/
       }
     })
   }

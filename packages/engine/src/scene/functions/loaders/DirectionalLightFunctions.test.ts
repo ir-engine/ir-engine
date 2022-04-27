@@ -1,10 +1,9 @@
 import assert from 'assert'
-import { Color, DirectionalLight } from 'three'
+import { Color, DirectionalLight, Scene } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
-import { createWorld } from '../../../ecs/classes/World'
+import { createEngine } from '../../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
@@ -13,14 +12,8 @@ import { deserializeDirectionalLight } from './DirectionalLightFunctions'
 
 describe('DirectionalLightFunctions', () => {
   describe('deserializeDirectionalLight', async () => {
-    // reset globals
-    afterEach(() => {
-      EngineRenderer.instance.directionalLightEntities = []
-    })
-
     it('with CSM', () => {
-      const world = createWorld()
-      Engine.currentWorld = world
+      createEngine()
       EngineRenderer.instance.isCSMEnabled = true
       EngineRenderer.instance.directionalLightEntities = []
 
@@ -59,8 +52,7 @@ describe('DirectionalLightFunctions', () => {
     })
 
     it('without CSM', () => {
-      const world = createWorld()
-      Engine.currentWorld = world
+      const world = createEngine().currentWorld
       EngineRenderer.instance.isCSMEnabled = false
 
       const entity = createEntity()

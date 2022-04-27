@@ -49,7 +49,7 @@ export default async function OutgoingNetworkSystem(world: World) {
   const serialize = createDataWriter()
 
   return () => {
-    if (!Engine.isInitialized) return
+    if (!Engine.instance.isInitialized) return
 
     serializeAndSend(world, serialize, sendData)
   }

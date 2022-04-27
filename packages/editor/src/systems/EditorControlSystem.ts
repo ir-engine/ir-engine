@@ -17,6 +17,7 @@ import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import {
@@ -123,15 +124,15 @@ export default async function EditorControlSystem(_: World) {
   }
 
   const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount: number = 0): void => {
-    raycaster.setFromCamera(coords, Engine.camera)
+    raycaster.setFromCamera(coords, Engine.instance.camera)
     raycasterResults.length = 0
     raycastIgnoreLayers.set(1)
     const os = selectionState.selectedParentEntities.value.map(
       (entity) => getComponent(entity, Object3DComponent).value
     )
 
-    findIntersectObjects(Engine.scene, os, raycastIgnoreLayers)
-    findIntersectObjects(SceneState.grid)
+    findIntersectObjects(Engine.instance.scene, os, raycastIgnoreLayers)
+    findIntersectObjects(InfiniteGridHelper.instance)
 
     raycasterResults.sort((a, b) => a.distance - b.distance)
     if (raycasterResults[0] && raycasterResults[0].distance < 100) target.copy(raycasterResults[0].point)
@@ -247,8 +248,8 @@ export default async function EditorControlSystem(_: World) {
           )
           constraint = TransformAxisConstraints.XYZ
         } else {
-          ray.origin.setFromMatrixPosition(Engine.camera.matrixWorld)
-          ray.direction.set(cursorPosition.x, cursorPosition.y, 0).unproject(Engine.camera).sub(ray.origin)
+          ray.origin.setFromMatrixPosition(Engine.instance.camera.matrixWorld)
+          ray.direction.set(cursorPosition.x, cursorPosition.y, 0).unproject(Engine.instance.camera).sub(ray.origin)
           ray.intersectPlane(transformPlane, planeIntersection)
           constraint = TransformAxisConstraints[gizmoObj.selectedAxis!]
         }
@@ -338,7 +339,7 @@ export default async function EditorControlSystem(_: World) {
               selectedAxisInfo.startMarkerLocal!.position.copy(gizmoObj.position)
               selectedAxisInfo.startMarkerLocal!.quaternion.copy(gizmoObj.quaternion)
               selectedAxisInfo.startMarkerLocal!.scale.copy(gizmoObj.scale)
-              Engine.scene.add(selectedAxisInfo.startMarkerLocal!)
+              Engine.instance.scene.add(selectedAxisInfo.startMarkerLocal!)
             }
           }
 
@@ -361,7 +362,7 @@ export default async function EditorControlSystem(_: World) {
             selectedAxisInfo.rotationTarget!.rotation.set(0, 0, 0)
             if (transformSpace !== TransformSpace.World) {
               const startMarkerLocal = selectedAxisInfo.startMarkerLocal
-              if (startMarkerLocal) Engine.scene.remove(startMarkerLocal)
+              if (startMarkerLocal) Engine.instance.scene.remove(startMarkerLocal)
             }
           }
         } else if (transformMode === TransformMode.Scale) {
@@ -377,7 +378,10 @@ export default async function EditorControlSystem(_: World) {
           let scaleFactor =
             gizmoObj.selectedAxis === TransformAxis.XYZ
               ? 1 +
-                Engine.camera.getWorldDirection(viewDirection).applyQuaternion(gizmoObj.quaternion).dot(deltaDragVector)
+                Engine.instance.camera
+                  .getWorldDirection(viewDirection)
+                  .applyQuaternion(gizmoObj.quaternion)
+                  .dot(deltaDragVector)
               : 1 + constraint.dot(deltaDragVector)
 
           curScale.set(
@@ -409,7 +413,7 @@ export default async function EditorControlSystem(_: World) {
       }
 
       selectionCounter = selectionState.selectionCounter.value
-      cameraComponent = getComponent(Engine.activeCameraEntity, EditorCameraComponent)
+      cameraComponent = getComponent(Engine.instance.activeCameraEntity, EditorCameraComponent)
       const shift = getInput(EditorActionSet.shift)
 
       if (selectEnd) {
@@ -482,9 +486,9 @@ export default async function EditorControlSystem(_: World) {
       } else if (getInput(EditorActionSet.toggleTransformSpace)) {
         toggleTransformSpace()
       } else if (getInput(EditorActionSet.incrementGridHeight)) {
-        SceneState.grid.incrementGridHeight()
+        InfiniteGridHelper.instance.incrementGridHeight()
       } else if (getInput(EditorActionSet.decrementGridHeight)) {
-        SceneState.grid.decrementGridHeight()
+        InfiniteGridHelper.instance.decrementGridHeight()
       } else if (getInput(EditorActionSet.undo)) {
         undoCommand()
       } else if (getInput(EditorActionSet.redo)) {

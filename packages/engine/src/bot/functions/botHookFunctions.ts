@@ -40,7 +40,7 @@ export const BotHookFunctions = {
 }
 
 export function initializeBot() {
-  Engine.isBot = true
+  Engine.instance.isBot = true
 }
 
 // === ENGINE === //
@@ -50,7 +50,7 @@ export function locationLoaded() {
 }
 
 export function sceneLoaded() {
-  return Engine.sceneLoaded
+  return Engine.instance.sceneLoaded
 }
 
 export function getPlayerPosition() {

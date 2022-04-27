@@ -3,8 +3,7 @@ import { Color, HemisphereLight } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
-import { createWorld } from '../../../ecs/classes/World'
+import { createEngine } from '../../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -12,8 +11,7 @@ import { deserializeHemisphereLight } from './HemisphereLightFunctions'
 
 describe('HemisphereLightFunctions', () => {
   it('deserializeHemisphereLight', async () => {
-    const world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
 
     const entity = createEntity()
 

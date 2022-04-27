@@ -732,7 +732,7 @@ export const AuthService = {
       })
   },
   updateUserAvatarId: async (userId: string, avatarId: string, avatarURL: string, thumbnailURL: string) => {
-    const world = Engine.currentWorld
+    const world = Engine.instance.currentWorld
     const dispatch = useDispatch()
 
     client

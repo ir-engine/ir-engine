@@ -27,7 +27,7 @@ function equippableActionReceptor(action) {
   const world = useWorld()
 
   matches(action).when(NetworkWorldAction.setEquippedObject.matches, (a) => {
-    if (a.$from === Engine.userId) return
+    if (a.$from === Engine.instance.userId) return
     const equipper = world.getUserAvatarEntity(a.$from)
     const equipped = world.getNetworkObject(a.object.ownerId, a.object.networkId)
     const attachmentPoint = a.attachmentPoint

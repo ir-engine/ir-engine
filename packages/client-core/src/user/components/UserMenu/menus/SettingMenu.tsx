@@ -72,7 +72,10 @@ const SettingMenu = (): JSX.Element => {
   const [open, setOpen] = useState(false)
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInvertRotationAndMoveSticksState((prev) => !prev)
-    dispatchAction(Engine.store, AvatarInputSettingsAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks))
+    dispatchAction(
+      Engine.instance.store,
+      AvatarInputSettingsAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks)
+    )
   }
 
   useLayoutEffect(() => {
@@ -85,7 +88,7 @@ const SettingMenu = (): JSX.Element => {
 
   const handleChangeControlType = (event: SelectChangeEvent) => {
     setControlType(event.target.value as any)
-    dispatchAction(Engine.store, AvatarInputSettingsAction.setControlType(event.target.value as any))
+    dispatchAction(Engine.instance.store, AvatarInputSettingsAction.setControlType(event.target.value as any))
   }
 
   const handleChangeControlScheme = (event: SelectChangeEvent) => {
@@ -147,8 +150,8 @@ const SettingMenu = (): JSX.Element => {
             <Slider
               value={rendererState.qualityLevel.value}
               onChange={(_, value: number) => {
-                dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(value))
-                dispatchAction(Engine.store, EngineRendererAction.setAutomatic(false))
+                dispatchAction(Engine.instance.store, EngineRendererAction.setQualityLevel(value))
+                dispatchAction(Engine.instance.store, EngineRendererAction.setAutomatic(false))
               }}
               className={styles.slider}
               min={1}
@@ -212,8 +215,8 @@ const SettingMenu = (): JSX.Element => {
               control={<Checkbox checked={rendererState.usePostProcessing.value} size="small" />}
               label={t('user:usermenu.setting.lbl-pp') as string}
               onChange={(_, value) => {
-                dispatchAction(Engine.store, EngineRendererAction.setPostProcessing(value))
-                dispatchAction(Engine.store, EngineRendererAction.setAutomatic(false))
+                dispatchAction(Engine.instance.store, EngineRendererAction.setPostProcessing(value))
+                dispatchAction(Engine.instance.store, EngineRendererAction.setAutomatic(false))
               }}
             />
             {/* <FormControlLabel
@@ -231,8 +234,8 @@ const SettingMenu = (): JSX.Element => {
               control={<Checkbox checked={rendererState.useShadows.value} size="small" />}
               label={t('user:usermenu.setting.lbl-shadow') as string}
               onChange={(_, value) => {
-                dispatchAction(Engine.store, EngineRendererAction.setShadows(value))
-                dispatchAction(Engine.store, EngineRendererAction.setAutomatic(false))
+                dispatchAction(Engine.instance.store, EngineRendererAction.setShadows(value))
+                dispatchAction(Engine.instance.store, EngineRendererAction.setAutomatic(false))
               }}
             />
           </div>
@@ -243,7 +246,7 @@ const SettingMenu = (): JSX.Element => {
               label={t('user:usermenu.setting.lbl-automatic') as string}
               labelPlacement="start"
               onChange={(_, value) => {
-                dispatchAction(Engine.store, EngineRendererAction.setAutomatic(value))
+                dispatchAction(Engine.instance.store, EngineRendererAction.setAutomatic(value))
               }}
             />
           </div>

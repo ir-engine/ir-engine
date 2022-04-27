@@ -89,7 +89,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   type: TransportType
   constructor(type: TransportType) {
     this.type = type
-    addActionReceptor(Engine.store, (action) => {
+    addActionReceptor(Engine.instance.store, (action) => {
       matches(action).when(
         MediaStreams.actions.triggerUpdateConsumers.matches,
         MediaStreamService.triggerUpdateConsumers
@@ -97,7 +97,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     })
   }
 
-  mediasoupDevice = new mediasoupClient.Device(Engine.isBot ? { handlerName: 'Chrome74' } : undefined)
+  mediasoupDevice = new mediasoupClient.Device(Engine.instance.isBot ? { handlerName: 'Chrome74' } : undefined)
   leaving = false
   left = false
   reconnecting = false

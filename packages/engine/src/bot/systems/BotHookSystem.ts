@@ -5,7 +5,7 @@ import { sendXRInputData } from '../functions/xrBotHookFunctions'
 
 export default async function BotHookSystem(world: World) {
   return () => {
-    if (Engine.isBot && Boolean(EngineRenderer.instance.xrSession)) {
+    if (Engine.instance.isBot && Boolean(EngineRenderer.instance.xrSession)) {
       sendXRInputData()
     }
   }

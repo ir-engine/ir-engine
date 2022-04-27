@@ -36,27 +36,25 @@ export const deserializePointLight: ComponentDeserializeFunction = (
   const light = new PointLight()
   const props = parsePointLightProperties(json.props)
 
-  if (Engine.isEditor) {
-    const ball = new Mesh(new IcosahedronGeometry(0.15), new MeshBasicMaterial({ fog: false }))
-    const rangeBall = new Mesh(
-      new IcosahedronGeometry(0.25),
-      new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5 })
-    )
-    light.add(ball)
-    light.add(rangeBall)
-    rangeBall.userData.isHelper = true
-    ball.userData.isHelper = true
-    light.userData.rangeBall = rangeBall
-    light.userData.ball = ball
+  const ball = new Mesh(new IcosahedronGeometry(0.15), new MeshBasicMaterial({ fog: false }))
+  const rangeBall = new Mesh(
+    new IcosahedronGeometry(0.25),
+    new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5 })
+  )
+  light.add(ball)
+  light.add(rangeBall)
+  rangeBall.userData.isHelper = true
+  ball.userData.isHelper = true
+  light.userData.rangeBall = rangeBall
+  light.userData.ball = ball
 
-    setObjectLayers(ball, ObjectLayers.NodeHelper)
-    setObjectLayers(rangeBall, ObjectLayers.NodeHelper)
-  }
+  setObjectLayers(ball, ObjectLayers.NodeHelper)
+  setObjectLayers(rangeBall, ObjectLayers.NodeHelper)
 
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, PointLightComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POINT_LIGHT)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POINT_LIGHT)
 
   updatePointLight(entity, props)
 }
@@ -82,10 +80,8 @@ export const updatePointLight: ComponentUpdateFunction = (entity: Entity, proper
     light.shadow.needsUpdate = true
   }
 
-  if (Engine.isEditor) {
-    light.userData.ball.material.color = component.color
-    light.userData.rangeBall.material.color = component.color
-  }
+  light.userData.ball.material.color = component.color
+  light.userData.rangeBall.material.color = component.color
 }
 
 export const serializePointLight: ComponentSerializeFunction = (entity) => {

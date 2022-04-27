@@ -4,9 +4,8 @@ import { Object3D, Quaternion, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { createEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../../physics/components/ColliderComponent'
@@ -21,7 +20,6 @@ let transform2 = {
 }
 
 describe('ColliderFunctions', () => {
-  let world: World
   let entity: Entity
   let body: any
   let colliderFunctions = proxyquire('./ColliderFunctions', {
@@ -36,10 +34,9 @@ describe('ColliderFunctions', () => {
   })
 
   beforeEach(async () => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
-    await Engine.currentWorld.physics.createScene({ verbose: true })
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
 
     body = {
       getGlobalPose: () => transform2,
@@ -49,7 +46,7 @@ describe('ColliderFunctions', () => {
   })
 
   afterEach(() => {
-    Engine.currentWorld = null!
+    Engine.instance.currentWorld = null!
     delete (globalThis as any).PhysX
   })
 
@@ -79,28 +76,13 @@ describe('ColliderFunctions', () => {
       assert(collision && collision.collisions.length <= 0, 'CollisionComponent is not created')
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Collider in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        colliderFunctions.deserializeCollider(entity, sceneComponent)
+      colliderFunctions.deserializeCollider(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_COLLIDER))
-      })
-
-      it('creates Collider in Editor', () => {
-        Engine.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        colliderFunctions.deserializeCollider(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_COLLIDER))
-
-        Engine.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_COLLIDER))
     })
   })
 
