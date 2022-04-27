@@ -289,6 +289,10 @@ const DemoStyle = (props: DemoStyleProps) => {
         color: ${theme.textColor} !important;
       }
 
+      .spanDange {
+        color: var(--orange) !important;
+      }
+
       .drawer {
         background: unset;
       }
