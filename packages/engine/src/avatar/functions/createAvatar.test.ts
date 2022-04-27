@@ -4,7 +4,7 @@ import { Quaternion, Vector3 } from 'three'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
 import { TestNetwork } from '../../../tests/networking/TestNetwork'
-import { createEngine, Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'

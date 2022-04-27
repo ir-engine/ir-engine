@@ -3,9 +3,10 @@ import { Color, Fog, Scene } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { createEngine, Engine } from '../../../ecs/classes/Engine'
+import { Engine } from '../../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { FogComponent } from '../../components/FogComponent'
 import { FogType } from '../../constants/FogType'
 import { deserializeFog } from './FogFunctions'

@@ -3,8 +3,8 @@ import { MathUtils } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { createEngine } from '../../../ecs/classes/Engine'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { deserializeMetaData } from './MetaDataFunctions'
 
 describe('MetadataFunctions', () => {
