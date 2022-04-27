@@ -131,7 +131,7 @@ export const loadECSData = async (
  * @param sceneData
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()) => {
-  dispatchAction(Engine.store, EngineActions.sceneLoading())
+  dispatchAction(Engine.instance.store, EngineActions.sceneLoading())
 
   let promisesCompleted = 0
   const onProgress = () => {
@@ -141,7 +141,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   const onComplete = () => {
     promisesCompleted++
     dispatchAction(
-      Engine.store,
+      Engine.instance.store,
       EngineActions.sceneLoadingProgress({
         progress: promisesCompleted > promises.length ? 100 : Math.round((100 * promisesCompleted) / promises.length)
       })
@@ -150,7 +150,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   const promises = preCacheAssets(sceneData, onProgress)
 
   // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
-  if (!accessEngineState().isTeleporting.value) Engine.camera?.layers.disable(ObjectLayers.Scene)
+  if (!accessEngineState().isTeleporting.value) Engine.instance.camera?.layers.disable(ObjectLayers.Scene)
 
   promises.forEach((promise) => promise.then(onComplete))
   await Promise.all(promises)
@@ -173,15 +173,13 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
     addEntityNodeInTree(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
   })
 
-  addComponent(tree.rootNode.entity, Object3DComponent, { value: Engine.scene })
+  addComponent(tree.rootNode.entity, Object3DComponent, { value: Engine.instance.scene })
   addComponent(tree.rootNode.entity, SceneTagComponent, {})
-  if (Engine.isEditor) {
-    getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
-  }
+  getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
 
-  if (!accessEngineState().isTeleporting.value) Engine.camera?.layers.enable(ObjectLayers.Scene)
+  if (!accessEngineState().isTeleporting.value) Engine.instance.camera?.layers.enable(ObjectLayers.Scene)
 
-  dispatchAction(Engine.store, EngineActions.sceneLoaded()) //.delay(0.1)
+  dispatchAction(Engine.instance.store, EngineActions.sceneLoaded()) //.delay(0.1)
 }
 
 /**
@@ -191,7 +189,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
  */
 export const loadSceneEntity = (entityNode: EntityTreeNode, sceneEntity: EntityJson): Entity => {
   addComponent(entityNode.entity, NameComponent, { name: sceneEntity.name })
-  if (Engine.isEditor) addComponent(entityNode.entity, EntityNodeComponent, { components: [] })
+  addComponent(entityNode.entity, EntityNodeComponent, { components: [] })
 
   sceneEntity.components.forEach((component) => {
     try {

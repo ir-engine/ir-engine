@@ -23,9 +23,9 @@ export default async function IncomingNetworkSystem(world: World) {
   const VALIDATE_NETWORK_INTERVAL = 300 // TODO: /** world.tickRate * 5 */
 
   return () => {
-    if (!Engine.isInitialized) return
+    if (!Engine.instance.isInitialized) return
     applyIncomingNetworkState(world)
-    if (Engine.userId === world.hostId && world.fixedTick % VALIDATE_NETWORK_INTERVAL === 0)
+    if (Engine.instance.userId === world.hostId && world.fixedTick % VALIDATE_NETWORK_INTERVAL === 0)
       validateNetworkObjects(world)
   }
 }

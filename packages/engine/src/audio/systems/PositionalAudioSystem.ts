@@ -55,7 +55,7 @@ export default async function PositionalAudioSystem(world: World) {
           const audioEl = audio?.userData.audioEl
           if (audioEl && audioEl.context?.state === 'suspended') audioEl.context.resume()
         }
-        if (!Engine.isEditor) {
+        if (!Engine.instance.isEditor) {
           for (const entity of audioQuery()) {
             const audio = getComponent(entity, Object3DComponent).value
             const audioEl = audio?.userData.audioEl
@@ -71,7 +71,7 @@ export default async function PositionalAudioSystem(world: World) {
         }
       })
   }
-  addActionReceptor(Engine.store, audioReceptors)
+  addActionReceptor(Engine.instance.store, audioReceptors)
 
   let positionalAudioSettings: PositionalAudioSettingsComponentType
 

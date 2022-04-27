@@ -80,7 +80,7 @@ function avatarActionReceptor(action) {
     })
 
     .when(NetworkWorldAction.xrHandsConnected.matches, (a) => {
-      if (a.$from === Engine.userId) return
+      if (a.$from === Engine.instance.userId) return
       const entity = world.getUserAvatarEntity(a.$from)
       if (!entity) return
 
@@ -134,7 +134,7 @@ export default async function AvatarSystem(world: World) {
 
       xrInputSourceComponent.container.name = 'XR Container'
       xrInputSourceComponent.head.name = 'XR Head'
-      Engine.scene.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
+      Engine.instance.scene.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
 
       // Add head IK Solver
       if (!isEntityLocalClient(entity)) {

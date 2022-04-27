@@ -9,7 +9,6 @@ import {
   ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
 import { configureEffectComposer } from '../../../renderer/functions/configureEffectComposer'
@@ -35,7 +34,7 @@ export const deserializePostprocessing: ComponentDeserializeFunction = async fun
   addComponent(entity, DisableTransformTagComponent, {})
   addComponent(entity, IgnoreRaycastTagComponent, {})
   addComponent(entity, Object3DComponent, { value: new Object3D() })
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POSTPROCESSING)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POSTPROCESSING)
 }
 
 export const updatePostprocessing: ComponentUpdateFunction = (_: Entity) => {

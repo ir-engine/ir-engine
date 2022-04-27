@@ -1,9 +1,7 @@
 import assert from 'assert'
 import { Group, Quaternion, Vector3 } from 'three'
 
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { createWorld } from '../../ecs/classes/World'
+import { createEngine } from '../../ecs/classes/Engine'
 import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -13,12 +11,9 @@ import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 import { createBoxComponent } from './createBoxComponent'
 
 describe('createBoxComponent', () => {
-  beforeEach(() => {
-    Engine.currentWorld = createWorld()
-  })
-
   it('createBoxComponent', () => {
-    const entity: Entity = createEntity()
+    createEngine()
+    const entity = createEntity()
 
     const tiltContainer = new Group()
     tiltContainer.name = 'Actor (tiltContainer)' + entity
