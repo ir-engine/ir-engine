@@ -33,9 +33,10 @@ export class ReportIssue implements ServiceMethods<Data> {
       username: user.name
     })
     const mailSender = config.email.from
+    const mailReceiver = config.email.to
     const email = {
-      from: mailSender,
-      to: 'irankundafabrice9@gmail.com', // For testing purpose,
+      from: mailSender, // Should be the mail of user who is reporting the issue
+      to: mailReceiver,
       subject: config.email.subject.report,
       html: compiledHTML
     }
