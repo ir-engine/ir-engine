@@ -32,7 +32,7 @@ export default async function AvatarControllerSystem(world: World) {
   const controllerQuery = defineQuery([AvatarControllerComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
 
-  addActionReceptor(Engine.store, AvatarInputSettingsReceptor)
+  addActionReceptor(Engine.instance.store, AvatarInputSettingsReceptor)
 
   const lastCamPos = new Vector3(),
     displacement = new Vector3()
@@ -53,12 +53,12 @@ export default async function AvatarControllerSystem(world: World) {
 
     for (const entity of localXRInputQuery(world)) {
       setAvatarHeadOpacity(entity, 0)
-      moveXRAvatar(world, entity, Engine.camera, lastCamPos, displacement)
-      rotateXRAvatar(world, entity, Engine.camera)
+      moveXRAvatar(world, entity, Engine.instance.camera, lastCamPos, displacement)
+      rotateXRAvatar(world, entity, Engine.instance.camera)
     }
 
     for (const entity of controllerQuery(world)) {
-      const displace = moveAvatar(world, entity, Engine.camera)
+      const displace = moveAvatar(world, entity, Engine.instance.camera)
       displacement.set(displace.x, displace.y, displace.z)
 
       const controller = getComponent(entity, AvatarControllerComponent)

@@ -244,7 +244,7 @@ const EditorContainer = () => {
 
   const onSaveAs = async () => {
     // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-    if (!Engine.sceneLoaded) {
+    if (!Engine.instance.sceneLoaded) {
       setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
       return
     }
@@ -258,7 +258,7 @@ const EditorContainer = () => {
           setDialogComponent(
             <SaveNewProjectDialog
               thumbnailUrl={URL.createObjectURL(blob!)}
-              initialName={Engine.scene.name}
+              initialName={Engine.instance.scene.name}
               onConfirm={resolve}
               onCancel={resolve}
             />
@@ -343,11 +343,11 @@ const EditorContainer = () => {
   }
 
   const onExportScene = async () => {
-    const projectFile = await sceneToGLTF([Engine.scene as any])
+    const projectFile = await sceneToGLTF([Engine.instance.scene as any])
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')
-    const fileName = Engine.scene.name.toLowerCase().replace(/\s+/g, '-')
+    const fileName = Engine.instance.scene.name.toLowerCase().replace(/\s+/g, '-')
     el.download = fileName + '.xre.gltf'
     el.href = URL.createObjectURL(projectBlob)
     document.body.appendChild(el)
@@ -357,7 +357,7 @@ const EditorContainer = () => {
 
   const onSaveScene = async () => {
     // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-    if (!Engine.sceneLoaded) {
+    if (!Engine.instance.sceneLoaded) {
       setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
       return
     }

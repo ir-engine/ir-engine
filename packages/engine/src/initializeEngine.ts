@@ -2,7 +2,7 @@ import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
 import { AudioListener, PerspectiveCamera, Scene } from 'three'
 
-import { addActionReceptor, dispatchAction, registerState } from '@xrengine/hyperflux'
+import { dispatchAction } from '@xrengine/hyperflux'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
 // import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
@@ -12,19 +12,15 @@ import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { isClient } from './common/functions/isClient'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
-import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
-import { createWorld } from './ecs/classes/World'
+import { EngineActions } from './ecs/classes/EngineService'
 import { reset } from './ecs/functions/EngineFunctions'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { removeClientInputListeners } from './input/functions/clientInputListeners'
-import { Network } from './networking/classes/Network'
-import { matchActionOnce, receiveActionOnce } from './networking/functions/matchActionOnce'
+import { matchActionOnce } from './networking/functions/matchActionOnce'
 import { NetworkActionReceptor } from './networking/functions/NetworkActionReceptor'
-import { WorldState } from './networking/interfaces/WorldState'
+import InfiniteGridHelper from './scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
-import { registerPrefabs } from './scene/functions/registerPrefabs'
-import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
 import './threejsPatches'
 import { FontManager } from './xrui/classes/FontManager'
 
@@ -34,15 +30,18 @@ import { FontManager } from './xrui/classes/FontManager'
  * initializes everything for the browser context
  */
 export const initializeBrowser = () => {
-  Engine.publicPath = location.origin
-  Engine.audioListener = new AudioListener()
-  Engine.audioListener.context.resume()
-  Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
-  Engine.camera.add(Engine.audioListener)
-  Engine.camera.layers.disableAll()
-  Engine.camera.layers.enable(ObjectLayers.Scene)
-  Engine.camera.layers.enable(ObjectLayers.Avatar)
-  Engine.camera.layers.enable(ObjectLayers.UI)
+  Engine.instance.publicPath = location.origin
+  Engine.instance.audioListener = new AudioListener()
+  Engine.instance.audioListener.context.resume()
+  Engine.instance.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
+  Engine.instance.camera.add(Engine.instance.audioListener)
+  Engine.instance.camera.layers.disableAll()
+  Engine.instance.camera.layers.enable(ObjectLayers.Scene)
+  Engine.instance.camera.layers.enable(ObjectLayers.Avatar)
+  Engine.instance.camera.layers.enable(ObjectLayers.UI)
+
+  InfiniteGridHelper.instance = new InfiniteGridHelper()
+  Engine.instance.scene.add(InfiniteGridHelper.instance)
 
   const browser = detect()
   const os = detectOS(navigator.userAgent)
@@ -54,7 +53,7 @@ export const initializeBrowser = () => {
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
   ;(window as any).safariWebBrowser = browser?.name === 'safari'
 
-  Engine.isHMD = /Oculus/i.test(navigator.userAgent) // TODO: more HMDs;
+  Engine.instance.isHMD = /Oculus/i.test(navigator.userAgent) // TODO: more HMDs;
 
   globalThis.botHooks = BotHookFunctions
 
@@ -63,14 +62,14 @@ export const initializeBrowser = () => {
   // maybe needs to be awaited?
   FontManager.instance.getDefaultFont()
 
-  matchActionOnce(Engine.store, EngineActions.connect.matches, (action: any) => {
-    Engine.userId = action.id
+  matchActionOnce(Engine.instance.store, EngineActions.connect.matches, (action: any) => {
+    Engine.instance.userId = action.id
   })
 }
 
 const setupInitialClickListener = () => {
   const initialClickListener = () => {
-    dispatchAction(Engine.store, EngineActions.setUserHasInteracted())
+    dispatchAction(Engine.instance.store, EngineActions.setUserHasInteracted())
     window.removeEventListener('click', initialClickListener)
     window.removeEventListener('touchend', initialClickListener)
   }
@@ -87,26 +86,10 @@ export const initializeNode = () => {
   // node currently does not need to initialize anything
 }
 
-export const createEngine = () => {
-  const world = createWorld()
-  Engine.instance = new Engine()
-  Engine.currentWorld = world
-  Engine.scene = new Scene()
-  Engine.scene.layers.set(ObjectLayers.Scene)
-
-  registerDefaultSceneFunctions(world)
-  registerPrefabs(world)
-  registerState(Engine.currentWorld.store, WorldState)
-  addActionReceptor(Engine.store, EngineEventReceptor)
-
-  globalThis.Engine = Engine
-  globalThis.Network = Network
-}
-
 const executeWorlds = (delta, elapsedTime) => {
-  Engine.elapsedTime = elapsedTime
-  ActionFunctions.applyIncomingActions(Engine.store)
-  for (const world of Engine.worlds) {
+  Engine.instance.elapsedTime = elapsedTime
+  ActionFunctions.applyIncomingActions(Engine.instance.store)
+  for (const world of Engine.instance.worlds) {
     world.execute(delta)
   }
 }
@@ -129,16 +112,16 @@ export const initializeMediaServerSystems = async () => {
     }
   )
 
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
 
   await initSystems(world, coreSystems)
 
   NetworkActionReceptor.createNetworkActionReceptor(world)
 
-  Engine.engineTimer = Timer(executeWorlds)
-  Engine.engineTimer.start()
+  Engine.instance.engineTimer = Timer(executeWorlds)
+  Engine.instance.engineTimer.start()
 
-  dispatchAction(Engine.store, EngineActions.initializeEngine({ initialised: true }))
+  dispatchAction(Engine.instance.store, EngineActions.initializeEngine({ initialised: true }))
 }
 
 export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = []) => {
@@ -197,16 +180,16 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
     )
   }
 
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   await initSystems(world, systemsToLoad)
 
   // load injected systems which may rely on core systems
   await initSystems(world, systems)
 
-  Engine.engineTimer = Timer(executeWorlds)
-  Engine.engineTimer.start()
+  Engine.instance.engineTimer = Timer(executeWorlds)
+  Engine.instance.engineTimer.start()
 
-  dispatchAction(Engine.store, EngineActions.initializeEngine({ initialised: true }))
+  dispatchAction(Engine.instance.store, EngineActions.initializeEngine({ initialised: true }))
 }
 
 /**
@@ -214,7 +197,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
  */
 
 export const initializeSceneSystems = async () => {
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   NetworkActionReceptor.createNetworkActionReceptor(world)
 
   const systemsToLoad: SystemModuleType<any>[] = []
@@ -342,7 +325,7 @@ export const initializeRealtimeSystems = async (media = true, pose = true) => {
     )
   }
 
-  await initSystems(Engine.currentWorld, systemsToLoad)
+  await initSystems(Engine.instance.currentWorld, systemsToLoad)
 }
 
 // export const initializeProjectSystems = async (projects: string[] = [], systems: SystemModuleType<any>[] = []) => {
@@ -354,8 +337,8 @@ export const initializeRealtimeSystems = async (media = true, pose = true) => {
 export const shutdownEngine = async () => {
   removeClientInputListeners()
 
-  Engine.engineTimer?.clear()
-  Engine.engineTimer = null!
+  Engine.instance.engineTimer?.clear()
+  Engine.instance.engineTimer = null!
 
   reset()
 }

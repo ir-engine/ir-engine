@@ -29,10 +29,10 @@ const startXRSession = async () => {
     EngineRenderer.instance.xrSession = session
     EngineRenderer.instance.xrManager.setSession(session)
     EngineRenderer.instance.xrManager.setFoveation(1)
-    dispatchAction(Engine.store, EngineActions.xrSession())
+    dispatchAction(Engine.instance.store, EngineActions.xrSession())
 
     EngineRenderer.instance.xrManager.addEventListener('sessionend', async () => {
-      dispatchAction(Engine.store, EngineActions.xrEnd())
+      dispatchAction(Engine.instance.store, EngineActions.xrEnd())
     })
 
     startWebXR()
@@ -51,7 +51,7 @@ export default async function XRSystem(world: World) {
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
 
   ;(navigator as any).xr?.isSessionSupported('immersive-vr').then((supported) => {
-    dispatchAction(Engine.store, EngineActions.xrSupported({ xrSupported: supported }))
+    dispatchAction(Engine.instance.store, EngineActions.xrSupported({ xrSupported: supported }))
   })
 
   // TEMPORARY - precache controller model
@@ -79,7 +79,7 @@ export default async function XRSystem(world: World) {
     }
   })
 
-  addActionReceptor(Engine.store, (a: EngineActionType) => {
+  addActionReceptor(Engine.instance.store, (a: EngineActionType) => {
     matches(a)
       .when(EngineActions.xrStart.matches, (action) => {
         if (accessEngineState().joinedWorld.value && !EngineRenderer.instance.xrSession) startXRSession()
@@ -94,16 +94,16 @@ export default async function XRSystem(world: World) {
 
   return () => {
     if (EngineRenderer.instance.xrManager?.isPresenting) {
-      const session = Engine.xrFrame.session
+      const session = Engine.instance.xrFrame.session
       for (const source of session.inputSources) {
         if (source.gamepad) {
           const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness]
           source.gamepad?.buttons.forEach((button, index) => {
             // TODO : support button.touched and button.value
-            const prev = Engine.prevInputState.get(mapping.buttons[index])
+            const prev = Engine.instance.prevInputState.get(mapping.buttons[index])
             if (!prev && button.pressed == false) return
             const continued = prev?.value && button.pressed
-            Engine.inputState.set(mapping.buttons[index], {
+            Engine.instance.inputState.set(mapping.buttons[index], {
               type: InputType.BUTTON,
               value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
               lifecycleState: button.pressed
@@ -123,7 +123,7 @@ export default async function XRSystem(world: World) {
           if (Math.abs(inputData[1]) < 0.05) {
             inputData[1] = 0
           }
-          Engine.inputState.set(mapping.axes, {
+          Engine.instance.inputState.set(mapping.axes, {
             type: InputType.TWODIM,
             value: inputData,
             lifecycleState: LifecycleValue.Started
@@ -141,8 +141,8 @@ export default async function XRSystem(world: World) {
     for (const entity of localXRControllerQuery()) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       const head = xrInputSourceComponent.head
-      head.quaternion.copy(Engine.camera.quaternion)
-      head.position.copy(Engine.camera.position)
+      head.quaternion.copy(Engine.instance.camera.quaternion)
+      head.position.copy(Engine.instance.camera.position)
     }
   }
 }

@@ -30,10 +30,6 @@ import { Engine } from './Engine'
 import { Entity } from './Entity'
 import EntityTree from './EntityTree'
 
-type RemoveIndex<T> = {
-  [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
-}
-
 const TimerConfig = {
   MAX_DELTA: 1 / 10
 }
@@ -42,16 +38,17 @@ export const CreateWorld = Symbol('CreateWorld')
 export class World {
   private constructor() {
     bitecs.createWorld(this)
-    Engine.worlds.push(this)
+    Engine.instance.worlds.push(this)
 
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
 
-    if (!Engine.currentWorld) Engine.currentWorld = this
-
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
 
     initializeEntityTree(this)
+
+    // @TODO support multiple networks per world
+    Network.instance = new Network()
   }
 
   static [CreateWorld] = () => new World()
@@ -65,7 +62,7 @@ export class World {
    * Check if this user is hosting the world.
    */
   get isHosting() {
-    return Engine.userId === this.hostId
+    return Engine.instance.userId === this.hostId
   }
 
   sceneMetadata = undefined as string | undefined
@@ -97,7 +94,7 @@ export class World {
   store = createHyperStore({
     name: 'WORLD',
     getDispatchMode: () => (this.isHosting ? 'host' : 'peer'),
-    getDispatchId: () => Engine.userId,
+    getDispatchId: () => Engine.instance.userId,
     getDispatchTime: () => this.fixedTick,
     defaultDispatchDelay: 1
   })

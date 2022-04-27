@@ -5,8 +5,7 @@ import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/comp
 import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { NumericalType } from '../common/types/NumericalTypes'
-import { Engine } from '../ecs/classes/Engine'
-import { createWorld, World } from '../ecs/classes/World'
+import { createEngine, Engine } from '../ecs/classes/Engine'
 import { addComponent, getComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { InputType } from '../input/enums/InputType'
@@ -21,16 +20,15 @@ import {
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 
 describe('avatarInputSchema', () => {
-  let world: World
-
   beforeEach(async () => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     delete (globalThis as any).PhysX
+    const world = Engine.instance.currentWorld
     await world.physics.createScene()
   })
 
   it('check fixedCameraBehindAvatar', () => {
+    const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
     const follower = addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
@@ -45,6 +43,7 @@ describe('avatarInputSchema', () => {
   })
 
   it('check switchShoulderSide', () => {
+    const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
     const follower = addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
@@ -59,6 +58,7 @@ describe('avatarInputSchema', () => {
   })
 
   it('check setTargetCameraRotation', () => {
+    const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
     const phi = 5
@@ -72,6 +72,7 @@ describe('avatarInputSchema', () => {
   })
 
   it('check setTargetCameraRotation with having the component already', () => {
+    const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
     const tcr = addComponent(entity, TargetCameraRotationComponent, {
@@ -92,7 +93,8 @@ describe('avatarInputSchema', () => {
   })
 
   it('check setWalking', async () => {
-    await Engine.currentWorld.physics.createScene({ verbose: true })
+    const world = Engine.instance.currentWorld
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
     const entity = createEntity(world)
 
     const controller = world.physics.createController({

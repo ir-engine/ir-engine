@@ -37,8 +37,8 @@ export default async function AudioSystem(world: World) {
     window.removeEventListener('pointerdown', startAudio, true)
     console.log('starting audio')
     audioReady = true
-    Engine.audioListener.context.resume()
-    dispatchAction(Engine.store, EngineActions.startSuspendedContexts())
+    Engine.instance.audioListener.context.resume()
+    dispatchAction(Engine.instance.store, EngineActions.startSuspendedContexts())
 
     callbacks.forEach((cb) => cb())
     callbacks = null!

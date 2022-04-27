@@ -6,7 +6,6 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Water } from '../../classes/Water'
@@ -25,16 +24,13 @@ export const deserializeWater: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const obj3d = new Water()
+  obj3d.userData.disableOutline = true
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, WaterComponent, { ...json.props })
   addComponent(entity, UpdatableComponent, {})
 
-  if (Engine.isEditor) {
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_WATER)
-
-    obj3d.userData.disableOutline = true
-  }
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_WATER)
 
   updateWater(entity, json.props)
 }

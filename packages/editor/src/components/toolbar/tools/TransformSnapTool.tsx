@@ -1,11 +1,11 @@
 import React from 'react'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
+import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 import AttractionsIcon from '@mui/icons-material/Attractions'
 
-import { SceneState } from '../../../functions/sceneRenderFunctions'
 import { toggleSnapMode } from '../../../functions/transformFunctions'
 import { EditorHelperAction, useEditorHelperState } from '../../../services/EditorHelperState'
 import SelectInput from '../../inputs/SelectInput'
@@ -45,7 +45,7 @@ const TransformSnapTool = () => {
   const dispatch = useDispatch()
 
   const onChangeTranslationSnap = (snapValue: number) => {
-    SceneState.grid.setSize(snapValue)
+    InfiniteGridHelper.instance.setSize(snapValue)
     dispatch(EditorHelperAction.changeTranslationSnap(snapValue))
 
     if (editorHelperState.snapMode.value !== SnapMode.Grid) {

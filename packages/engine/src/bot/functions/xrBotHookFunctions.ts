@@ -70,7 +70,7 @@ export function xrInitialized() {
 }
 
 export function startXR() {
-  dispatchAction(Engine.store, EngineActions.xrStart() as any)
+  dispatchAction(Engine.instance.store, EngineActions.xrStart() as any)
   WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-pose',
     detail: {
@@ -249,9 +249,9 @@ export function updateController(args: { objectName: string; position: number[];
 }
 
 export async function simulateXR() {
-  // await loadScript(Engine.publicPath + '/scripts/webxr-polyfill.js')
+  // await loadScript(Engine.instance.publicPath + '/scripts/webxr-polyfill.js')
   await overrideXR()
   await xrSupported()
-  Engine.isBot = true
+  Engine.instance.isBot = true
   await startXR()
 }

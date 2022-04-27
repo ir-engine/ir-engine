@@ -44,7 +44,7 @@ export function Timer(update: TimerUpdateCallback) {
       tpsPrintReport(time)
     }
 
-    Engine.xrFrame = xrFrame
+    Engine.instance.xrFrame = xrFrame
 
     delta = (time - lastTime) / 1000
     elapsedTime = (time - startTime) / 1000

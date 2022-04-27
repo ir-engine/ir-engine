@@ -1,7 +1,6 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -11,10 +10,8 @@ export const SCENE_COMPONENT_PREVENT_BAKE = 'prevent-bake'
 export const SCENE_COMPONENT_PREVENT_BAKE_DEFAULT_VALUES = {}
 
 export const deserializePreventBake: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson<{}>) => {
-  if (Engine.isEditor) {
-    addComponent(entity, PreventBakeTagComponent, {})
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PREVENT_BAKE)
-  }
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PREVENT_BAKE)
+  addComponent(entity, PreventBakeTagComponent, {})
 }
 
 export const serializePreventBake: ComponentSerializeFunction = (entity) => {
