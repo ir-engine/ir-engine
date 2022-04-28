@@ -1,5 +1,4 @@
 import { useState } from '@speigg/hookstate'
-import classNames from 'classnames'
 import React, { useEffect } from 'react'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
@@ -13,15 +12,12 @@ import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/Ne
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { Message as MessageIcon, Send } from '@mui/icons-material'
+import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 import Badge from '@mui/material/Badge'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Fab from '@mui/material/Fab'
-import ListItem from '@mui/material/ListItem'
-import ListItemAvatar from '@mui/material/ListItemAvatar'
-import ListItemText from '@mui/material/ListItemText'
 import TextField from '@mui/material/TextField'
 
 import defaultStyles from './index.module.scss'
@@ -40,13 +36,13 @@ const InstanceChat = (props: Props): any => {
   const {
     styles = defaultStyles,
     MessageButton = MessageIcon,
-    CloseButton = MessageIcon,
+    CloseButton = CancelIcon,
     SendButton = Send,
     newMessageLabel = 'World Chat...'
   } = props
 
   let activeChannel: Channel | null = null
-  const messageRef = React.useRef<HTMLInputElement>()
+  const messageRefInput = React.useRef<HTMLInputElement>()
   const user = useAuthState().user
   const chatState = useChatState()
   const channelState = chatState.channels
@@ -55,13 +51,17 @@ const InstanceChat = (props: Props): any => {
   const [unreadMessages, setUnreadMessages] = React.useState(false)
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
   const instanceConnectionState = useLocationInstanceConnectionState()
-  const usersTyping = useState(getState(Engine.instance.currentWorld.store, WorldState)[user?.id.value]).value
+  const usersTyping = useState(
+    getState(Engine.instance.currentWorld.store, WorldState).usersTyping[user?.id.value]
+  ).value
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
+  const messageRef = React.useRef<any>()
+  const messageEl = messageRef.current
 
   useEffect(() => {
-    if (!composingMessage) return
+    if (!composingMessage || !usersTyping) return
     const delayDebounce = setTimeout(() => {
       dispatchAction(
         Engine.instance.currentWorld.store,
@@ -98,6 +98,10 @@ const InstanceChat = (props: Props): any => {
     chatState.instanceChannelFetching.value
   ])
 
+  React.useEffect(() => {
+    if (messageEl) messageEl.scrollTop = messageEl?.scrollHeight
+  }, [chatState])
+
   const handleComposingMessageChange = (event: any): void => {
     const message = event.target.value
     if (message.length > composingMessage.length) {
@@ -126,6 +130,15 @@ const InstanceChat = (props: Props): any => {
 
   const packageMessage = (): void => {
     if (composingMessage?.length && user.instanceId.value) {
+      if (usersTyping) {
+        dispatchAction(
+          Engine.instance.currentWorld.store,
+          NetworkWorldAction.setUserTyping({
+            typing: false
+          })
+        )
+      }
+
       ChatService.createMessage({
         targetObjectId: user.instanceId.value,
         targetObjectType: 'instance',
@@ -147,17 +160,6 @@ const InstanceChat = (props: Props): any => {
     width: window.innerWidth
   })
 
-  const getMessageUser = (message): string => {
-    let returned = message.sender?.name
-    if (message.senderId === user.id.value) returned += ' (you)'
-    //returned += ': '
-    return returned
-  }
-
-  const isMessageSentBySelf = (message): boolean => {
-    return message.senderId === user.id.value
-  }
-
   useEffect(() => {
     activeChannel &&
       activeChannel.messages &&
@@ -168,7 +170,7 @@ const InstanceChat = (props: Props): any => {
 
   useEffect(() => {
     if (isMultiline) {
-      ;(messageRef.current as HTMLInputElement).selectionStart = cursorPosition + 1
+      ;(messageRefInput.current as HTMLInputElement).selectionStart = cursorPosition + 1
     }
   }, [isMultiline])
 
@@ -187,19 +189,13 @@ const InstanceChat = (props: Props): any => {
     })
   }
 
-  const getAvatar = (message): any => {
-    return (
-      dimensions.width > 768 && (
-        <ListItemAvatar className={styles['message-sender-avatar']}>
-          <Avatar src={message.sender?.avatarUrl} />
-        </ListItemAvatar>
-      )
-    )
+  const isLeftOrLeaveText = (text) => {
+    return / left the layer|joined the layer/.test(text)
   }
 
   return (
-    <>
-      <div className={styles['instance-chat-container'] + ' ' + (!chatWindowOpen && styles['messageContainerClosed'])}>
+    <div className={styles['instance-chat-container'] + ' ' + (!chatWindowOpen && styles['messageContainerClosed'])}>
+      <div ref={messageRef} className={styles['instance-chat-msg-container']}>
         <div className={styles['list-container']}>
           <Card square={true} elevation={0} className={styles['message-wrapper']}>
             <CardContent className={styles['message-container']}>
@@ -207,11 +203,7 @@ const InstanceChat = (props: Props): any => {
                 activeChannel.messages &&
                 [...activeChannel.messages]
                   .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-                  .slice(
-                    activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0,
-                    activeChannel.messages?.length
-                  )
-                  .map((message) => {
+                  .map((message, index, messages) => {
                     if (isCommand(message.text)) return undefined
                     const system = getChatMessageSystem(message.text)
                     let chatMessage = message.text
@@ -224,83 +216,95 @@ const InstanceChat = (props: Props): any => {
                       }
                     }
                     return (
-                      <ListItem
-                        className={classNames({
-                          [styles.message]: true,
-                          [styles.self]: isMessageSentBySelf(message),
-                          [styles.other]: !isMessageSentBySelf(message)
-                        })}
-                        disableGutters={true}
-                        key={message.id}
-                      >
-                        <div className={styles[isMessageSentBySelf(message) ? 'message-right' : 'message-left']}>
-                          {!isMessageSentBySelf(message) && getAvatar(message)}
-
-                          <ListItemText
-                            className={
-                              styles[isMessageSentBySelf(message) ? 'message-right-text' : 'message-left-text']
-                            }
-                            primary={
-                              <span>
-                                <span className={styles.userName}>{getMessageUser(message)}</span>
-                                <p>{chatMessage}</p>
-                              </span>
-                            }
-                          />
-
-                          {isMessageSentBySelf(message) && getAvatar(message)}
-                        </div>
-                      </ListItem>
+                      <>
+                        {!isLeftOrLeaveText(message.text) ? (
+                          <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
+                            {message.senderId !== user?.id.value && (
+                              <div className={`${styles.selfEnd} ${styles.noMargin}`}>
+                                <div className={styles.dFlex}>
+                                  {index !== 0 && message.senderId !== messages[index - 1].senderId && (
+                                    <Avatar src={message.sender?.avatarUrl} />
+                                  )}
+                                  {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
+                                  <div className={`${styles.msgContainer} ${styles.mx2}`}>
+                                    <p className={styles.text}>{message.text}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {message.senderId === user?.id.value && (
+                              <div className={`${styles.selfEnd} ${styles.noMargin}`}>
+                                <div className={styles.dFlex}>
+                                  <div className={`${styles.msgReplyContainer} ${styles.mx2}`}>
+                                    <p className={styles.text}>{message.text}</p>
+                                  </div>
+                                  {index !== 0 && message.senderId !== messages[index - 1].senderId && (
+                                    <Avatar src={message.sender?.avatarUrl} />
+                                  )}
+                                  {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
+                            <div className={styles.dFlex}>
+                              <div className={`${styles.msgNotification} ${styles.mx2}`}>
+                                <p className={styles.greyText}>{message.text}</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )
                   })}
             </CardContent>
           </Card>
-          <Card className={styles['chat-view']} style={{ boxShadow: 'none' }}>
-            <CardContent className={styles['chat-box']} style={{ boxShadow: 'none' }}>
-              <TextField
-                className={styles.messageFieldContainer}
-                margin="normal"
-                multiline={isMultiline}
-                fullWidth
-                id="newMessage"
-                label={newMessageLabel}
-                name="newMessage"
-                variant="standard"
-                autoFocus
-                value={composingMessage}
-                inputProps={{
-                  maxLength: 1000,
-                  'aria-label': 'naked'
-                }}
-                InputLabelProps={{ shrink: false }}
-                onChange={handleComposingMessageChange}
-                inputRef={messageRef}
-                onClick={() => (messageRef as any)?.current?.focus()}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && e.ctrlKey) {
-                    e.preventDefault()
-                    const selectionStart = (e.target as HTMLInputElement).selectionStart
-                    setCursorPosition(selectionStart || 0)
-                    setComposingMessage(
-                      composingMessage.substring(0, selectionStart || 0) +
-                        '\n' +
-                        composingMessage.substring(selectionStart || 0)
-                    )
-                    !isMultiline && setIsMultiline(true)
-                  } else if (e.key === 'Enter' && !e.ctrlKey) {
-                    e.preventDefault()
-                    packageMessage()
-                    isMultiline && setIsMultiline(false)
-                    setCursorPosition(0)
-                  }
-                }}
-              />
-              {/*<span className={styles.sendButton}>
-                <SendButton onClick={packageMessage} />
-              </span>*/}
-            </CardContent>
-          </Card>
         </div>
+      </div>
+      <div className={`${styles['chat-input']} ${chatWindowOpen ? '' : styles.invisible} `}>
+        <Card className={styles['chat-view']} style={{ boxShadow: 'none' }}>
+          <CardContent className={styles['chat-box']} style={{ boxShadow: 'none' }}>
+            <TextField
+              className={styles.messageFieldContainer}
+              margin="normal"
+              multiline={isMultiline}
+              fullWidth
+              id="newMessage"
+              label={newMessageLabel}
+              name="newMessage"
+              variant="standard"
+              autoFocus
+              value={composingMessage}
+              inputProps={{
+                maxLength: 1000,
+                'aria-label': 'naked'
+              }}
+              InputLabelProps={{ shrink: false }}
+              onChange={handleComposingMessageChange}
+              inputRef={messageRefInput}
+              onClick={() => (messageRefInput as any)?.current?.focus()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                  e.preventDefault()
+                  const selectionStart = (e.target as HTMLInputElement).selectionStart
+                  setCursorPosition(selectionStart || 0)
+                  setComposingMessage(
+                    composingMessage.substring(0, selectionStart || 0) +
+                      '\n' +
+                      composingMessage.substring(selectionStart || 0)
+                  )
+                  !isMultiline && setIsMultiline(true)
+                } else if (e.key === 'Enter' && !e.ctrlKey) {
+                  e.preventDefault()
+                  packageMessage()
+                  isMultiline && setIsMultiline(false)
+                  setCursorPosition(0)
+                }
+              }}
+            />
+          </CardContent>
+        </Card>
       </div>
       {unreadMessages && (
         <div className={`${styles.iconCallChat} ${props.animate}`}>
@@ -316,7 +320,7 @@ const InstanceChat = (props: Props): any => {
           </Badge>
         </div>
       )}
-    </>
+    </div>
   )
 }
 

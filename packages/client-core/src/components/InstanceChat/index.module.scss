@@ -3,10 +3,10 @@
   position: fixed;
   right: 0;
   bottom: 0;
-  margin: 5px 15px 20px 10px;
+  margin: 5px 18px 25px 10px;
   align-items: center;
   color: #000;
-  z-index: 20;
+  z-index: 2000;
 
   @media (max-width: 450px) {
     margin: 5px 10px 20px;
@@ -43,13 +43,22 @@
   }
 }
 
+.invisible {
+  display: none;
+}
+
+.instance-chat-msg-container {
+  height: 400px;
+  overflow-y: scroll;
+  margin-bottom: 40px;
+}
+
 .instance-chat-container {
   position: absolute;
   bottom: 0;
   display: grid;
   flex-direction: row;
   right: 0;
-  width: 40vw;
   justify-content: flex-end;
   z-index: 20;
   margin: 5px 15px 20px 10px;
@@ -70,6 +79,13 @@
   .chat-view {
     border-radius: 40px;
     background: transparent;
+  }
+
+  .chat-input {
+    position: fixed;
+    z-index: 100;
+    bottom: 15px;
+    width: 40%;
   }
 
   .chat-box {
@@ -154,7 +170,7 @@
   .list-container {
     display: flex;
     flex-direction: column;
-    width: 40vw;
+    padding: 0 10px;
 
     @media (max-width: 768px) {
       width: 96vw;
@@ -250,4 +266,66 @@
       border-radius: 10px 10px 0;
     }
   }
+}
+
+.dFlex {
+  display: flex;
+}
+
+.flexColumn {
+  flex-direction: column;
+}
+
+.mgSmall {
+  margin: 5px 0;
+}
+
+.noMargin {
+  margin: 0 !important;
+}
+
+.selfStart {
+  align-self: flex-start;
+  margin: 10px;
+}
+
+.msgContainer {
+  background-color: var(--purpleColor);
+  padding: 5px 10px;
+  border-radius: 30px;
+  max-width: 300px;
+  word-wrap: break-word;
+}
+
+.mx2 {
+  margin: 7px 10px;
+}
+
+.selfEnd {
+  align-self: flex-end;
+  margin: 10px;
+}
+
+.msgReplyContainer {
+  background-color: #935cff;
+  padding: 5px 10px;
+  border-radius: 30px;
+  max-width: 300px;
+  word-wrap: break-word;
+}
+
+.msgNotification {
+  background-color: transparent;
+}
+
+.text {
+  color: #fff;
+  margin-left: 5px;
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.greyText {
+  color: #888686;
+  font-size: 0.7rem;
 }
