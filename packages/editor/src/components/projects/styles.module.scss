@@ -71,7 +71,7 @@
 .projectPage {
   width: 100%;
   display: flex;
-  background-color: var(--purpleDarkest);
+  background-color: var(--mainBackground);
   pointer-events: auto;
 }
 
@@ -422,7 +422,8 @@
     background: var(--purplePinkGradient);
 
     &:disabled {
-      background: var(--purpleDarkest);
+      cursor: not-allowed;
+      background: var(--disabled);
     }
   }
 
@@ -448,7 +449,7 @@
 }
 
 .deleteDialog {
-  background: var(--panel2);
+  background: var(--popupBackground);
   color: var(--textColor);
   width: 300px;
 

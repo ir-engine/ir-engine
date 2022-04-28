@@ -262,7 +262,7 @@
   }
 
   .unselectedTab {
-    color: var(--purpleDarkest) !important;
+    color: var(--buttonFilled) !important;
     font-weight: bold;
     font-size: 17px;
     text-transform: capitalize;
@@ -321,7 +321,7 @@
     }
 
     button[disabled] {
-      background: var(--purpleDarkest);
+      background: var(--disabled);
       opacity: 1 !important;
     }
 
@@ -546,7 +546,7 @@
   width: 100%;
   color: #fff;
   box-shadow: none;
-  background-color: var(--purpleDarkest);
+  background-color: var(--mainBackground);
 }
 
 .botHeader {
@@ -654,7 +654,7 @@
 
 .summary {
   background: var(--purpleColor4);
-  border-bottom: 1px solid var(--purpleDarkest);
+  border-bottom: 1px solid var(--mainBackground);
   color: #f1f1f1;
   border-radius: 0;
 
@@ -861,7 +861,7 @@
 .middlePaper {
   color: var(--textColor);
   padding: 20px 0 8px 20px;
-  background: var(--purpleDarkest);
+  background: var(--mainBackground);
   height: 10rem;
 }
 

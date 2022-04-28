@@ -1252,7 +1252,7 @@
     }
 
     button[disabled] {
-      background: var(--purpleDarkest);
+      background: var(--disabled);
       opacity: 1 !important;
     }
 
@@ -2008,7 +2008,7 @@
 }
 
 .unselectedTab {
-  color: var(--purpleDarkest) !important;
+  color: var(--buttonFilled) !important;
   font-weight: bold;
   font-size: 17px;
   text-transform: capitalize;
