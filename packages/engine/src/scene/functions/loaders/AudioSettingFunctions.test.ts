@@ -4,9 +4,9 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import {
   PositionalAudioSettingsComponent,
   PositionalAudioSettingsComponentType
@@ -21,12 +21,10 @@ import {
 } from './AudioSettingFunctions'
 
 describe('AudioSettingFunctions', () => {
-  let world: World
   let entity: Entity
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 

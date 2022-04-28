@@ -37,7 +37,7 @@ export const ObjectFitFunctions = {
     contentWidth: number,
     contentHeight: number,
     fit: 'cover' | 'contain' | 'vertical' | 'horizontal' = 'contain',
-    camera = Engine.camera as PerspectiveCamera
+    camera = Engine.instance.camera as PerspectiveCamera
   ) => {
     const vFOV = MathUtils.degToRad(camera.fov)
     const targetHeight = Math.tan(vFOV / 2) * Math.abs(distance) * 2

@@ -7,10 +7,10 @@ import { CameraMode } from '../../../camera/types/CameraMode'
 import { ProjectionType } from '../../../camera/types/ProjectionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { CameraPropertiesComponent } from '../../components/CameraPropertiesComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import {
@@ -19,22 +19,20 @@ import {
 } from './CameraPropertiesFunctions'
 
 describe('CameraPropertiesFunctions', () => {
-  let world: World
   let entity: Entity
   let camerapropertiesFunctions = proxyquire('./CameraPropertiesFunctions', {
     '../../../common/functions/isClient': { isClient: true },
     '../setCameraProperties': { setCameraProperties: () => {} },
     '../../../networking/functions/matchActionOnce': {
       matchActionOnce: (store, _, callback: Function) => {
-        assert(callback({ $from: Engine.userId }), 'Camera property is not set')
-        assert(!callback({ $from: Engine.userId + 'fake' }), 'Camera property is set')
+        assert(callback({ $from: Engine.instance.userId }), 'Camera property is not set')
+        assert(!callback({ $from: Engine.instance.userId + 'fake' }), 'Camera property is set')
       }
     }
   })
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 

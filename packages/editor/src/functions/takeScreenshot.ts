@@ -36,7 +36,11 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
     deserializeScenePreviewCamera(entity, null!)
 
     scenePreviewCamera = getComponent(entity, Object3DComponent).value as PerspectiveCamera
-    Engine.camera.matrix.decompose(scenePreviewCamera.position, scenePreviewCamera.quaternion, scenePreviewCamera.scale)
+    Engine.instance.camera.matrix.decompose(
+      scenePreviewCamera.position,
+      scenePreviewCamera.quaternion,
+      scenePreviewCamera.scale
+    )
   }
 
   const prevAspect = scenePreviewCamera.aspect
@@ -45,7 +49,7 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
   EngineRenderer.instance.renderer.setSize(width, height, false)
-  EngineRenderer.instance.renderer.render(Engine.scene, scenePreviewCamera)
+  EngineRenderer.instance.renderer.render(Engine.instance.scene, scenePreviewCamera)
   const blob = await getCanvasBlob(EngineRenderer.instance.renderer.domElement)
   scenePreviewCamera.aspect = prevAspect
   scenePreviewCamera.updateProjectionMatrix()

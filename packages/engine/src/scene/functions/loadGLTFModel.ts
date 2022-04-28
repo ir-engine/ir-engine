@@ -54,7 +54,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${key}'`)
     } else {
-      addComponent(entity, component, value, Engine.currentWorld)
+      addComponent(entity, component, value, Engine.instance.currentWorld)
     }
   }
 
@@ -109,7 +109,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     addComponent(e, Object3DComponent, { value: mesh })
 
     // to ensure colliders and other entities from gltf metadata move with models in the editor, we need to add a child transform component
-    if (Engine.isEditor)
+    if (Engine.instance.isEditor)
       addComponent(e, TransformChildComponent, {
         parent: entity,
         offsetPosition: localPosition,
@@ -142,7 +142,7 @@ export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
     navMesh.fromPolygons(polygons)
 
     // const helper = createConvexRegionHelper(navMesh)
-    // Engine.scene.add(helper)
+    // Engine.instance.scene.add(helper)
 
     addComponent(entity, NavMeshComponent, {
       yukaNavMesh: navMesh,
@@ -152,7 +152,7 @@ export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
   }
 }
 
-export const overrideTexture = (entity: Entity, object3d?: Object3D, world = Engine.currentWorld): void => {
+export const overrideTexture = (entity: Entity, object3d?: Object3D, world = Engine.instance.currentWorld): void => {
   const state = accessEngineState()
 
   if (state.sceneLoaded.value) {
@@ -174,7 +174,7 @@ export const overrideTexture = (entity: Entity, object3d?: Object3D, world = Eng
 
     return
   } else {
-    matchActionOnce(Engine.store, EngineActions.sceneLoaded.matches, () => {
+    matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, () => {
       overrideTexture(entity, object3d, world)
     })
   }
@@ -202,7 +202,7 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
     })
   }
 
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
 
   if (props.textureOverride) {
     // TODO: we should push this to ECS, something like a SceneObjectLoadComponent,
@@ -225,7 +225,7 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
   }
 
   // ignore disabling matrix auto update in the editor as we need to be able move things around with the transform tools
-  if (!Engine.isEditor && props.matrixAutoUpdate === false) {
+  if (!Engine.instance.isEditor && props.matrixAutoUpdate === false) {
     const transform = getComponent(entity, TransformComponent)
     obj3d.position.copy(transform.position)
     obj3d.quaternion.copy(transform.rotation)

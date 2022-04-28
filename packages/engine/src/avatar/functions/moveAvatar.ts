@@ -250,7 +250,7 @@ export const alignXRCameraPositionWithAvatar = (entity: Entity, camera: Perspect
 export const alignXRCameraRotationWithAvatar = (entity: Entity, camera: PerspectiveCamera | OrthographicCamera) => {
   const avatarTransform = getComponent(entity, TransformComponent)
   const camParentRot = camera.parent!.quaternion
-  tempVec1.set(0, 0, 1).applyQuaternion(Engine.camera.quaternion).setY(0).normalize()
+  tempVec1.set(0, 0, 1).applyQuaternion(Engine.instance.camera.quaternion).setY(0).normalize()
   quat.setFromUnitVectors(tempVec2.set(0, 0, 1), tempVec1).invert()
   tempVec1.set(0, 0, -1).applyQuaternion(avatarTransform.rotation).setY(0).normalize()
   camParentRot.setFromUnitVectors(tempVec2.set(0, 0, 1), tempVec1).multiply(quat)
@@ -301,15 +301,15 @@ export const moveXRAvatar = (
   getAvatarCameraPosition(entity, avatarCameraOffset, avatarPosition)
 
   if (avatarPosition.subVectors(avatarPosition, cameraPosition).lengthSq() > 0.1 || avatarVelocity.lengthSq() > 0) {
-    lastCameraPos.subVectors(Engine.camera.position, Engine.camera.parent!.position)
+    lastCameraPos.subVectors(Engine.instance.camera.position, Engine.instance.camera.parent!.position)
 
     if (!hasComponent(entity, XRCameraUpdatePendingTagComponent)) {
-      alignXRCameraPositionWithAvatar(entity, Engine.camera)
+      alignXRCameraPositionWithAvatar(entity, Engine.instance.camera)
       addComponent(entity, XRCameraUpdatePendingTagComponent, {})
     }
 
     // Calculate new camera world position
-    lastCameraPos.add(Engine.camera.parent!.position)
+    lastCameraPos.add(Engine.instance.camera.parent!.position)
     return
   }
 

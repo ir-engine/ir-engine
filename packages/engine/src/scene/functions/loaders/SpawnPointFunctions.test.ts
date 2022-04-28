@@ -6,10 +6,10 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SpawnPointComponent } from '../../components/SpawnPointComponent'
@@ -23,15 +23,13 @@ class AssetLoader {
 }
 
 describe('SpawnPointFunctions', () => {
-  let world: World
   let entity: Entity
   let spawnPointFunctions = proxyquire('./SpawnPointFunctions', {
     '../../../assets/classes/AssetLoader': { AssetLoader }
   })
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 

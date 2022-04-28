@@ -40,7 +40,7 @@ export const updateMedia: ComponentUpdateFunction = (entity: Entity, properties:
   const obj3d = getComponent(entity, Object3DComponent).value
   const component = getComponent(entity, MediaComponent)
 
-  if (!Engine.isEditor) {
+  if (!Engine.instance.isEditor) {
     if (obj3d.userData.player) {
       if (typeof properties.autoplay !== 'undefined') obj3d.userData.player.autoplay = component.autoplay
     } else if (obj3d.userData.videoEl) {

@@ -6,9 +6,9 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { createWorld } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../initializeEngine'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkActionReceptor } from './NetworkActionReceptor'
@@ -16,14 +16,12 @@ import { NetworkWorldAction } from './NetworkWorldAction'
 
 describe('NetworkActionReceptors', () => {
   beforeEach(() => {
-    Engine.userId = undefined!
-    Engine.currentWorld = undefined!
+    createEngine()
   })
 
   describe('addClient', () => {
     it('should add client', () => {
-      const world = createWorld()
-      Engine.currentWorld = world
+      const world = Engine.instance.currentWorld
       const userId = 'user id' as UserId
       const userName = 'user name'
       const userIndex = 1
@@ -38,13 +36,12 @@ describe('NetworkActionReceptors', () => {
     })
 
     it('should not add client if host', () => {
-      const world = createWorld()
-      Engine.currentWorld = world
+      const world = Engine.instance.currentWorld
       const userId = 'user id' as UserId
       const userName = 'user name'
       const userIndex = 1
       world.hostId = userId as UserId
-      Engine.userId = userId
+      Engine.instance.userId = userId
 
       NetworkActionReceptor.addClient(world, userId, userName, userIndex)
 
@@ -52,14 +49,13 @@ describe('NetworkActionReceptors', () => {
       assert(!world.userIndexToUserId.get(userIndex))
       assert(!world.userIdToUserIndex.get(userId))
 
-      Engine.userId = undefined!
+      Engine.instance.userId = undefined!
     })
   })
 
   describe('removeClient', () => {
     it('should remove client', () => {
-      const world = createWorld()
-      Engine.currentWorld = world
+      const world = Engine.instance.currentWorld
       const userId = 'user id' as UserId
       const userName = 'user name'
       const userIndex = 1
@@ -73,8 +69,7 @@ describe('NetworkActionReceptors', () => {
     })
 
     it('should remove client and owned network objects', () => {
-      const world = createWorld()
-      Engine.currentWorld = world
+      const world = Engine.instance.currentWorld
       const userId = 'user id' as UserId
       const userName = 'user name'
       const userIndex = 1
@@ -112,8 +107,8 @@ describe('NetworkActionReceptors', () => {
       const hostUserId = 'server' as UserId
       const userId = 'user id' as UserId
 
-      Engine.userId = userId
-      const world = (Engine.currentWorld = createWorld())
+      Engine.instance.userId = userId
+      const world = Engine.instance.currentWorld
 
       world.hostId = hostUserId
       NetworkActionReceptor.addClient(world, hostUserId, 'host', 0)
@@ -153,10 +148,9 @@ describe('NetworkActionReceptors', () => {
       const userId = 'user id' as UserId
       const hostId = 'host' as UserId
 
-      Engine.userId = userId
+      Engine.instance.userId = userId
 
-      const world = createWorld()
-      Engine.currentWorld = world
+      const world = Engine.instance.currentWorld
 
       world.hostId = hostId
       NetworkActionReceptor.addClient(world, hostId, 'host', 0)
@@ -197,8 +191,8 @@ describe('NetworkActionReceptors', () => {
       const userId = 'user id' as UserId
       const userId2 = 'second user id' as UserId
 
-      Engine.userId = userId
-      const world = (Engine.currentWorld = createWorld())
+      Engine.instance.userId = userId
+      const world = Engine.instance.currentWorld
 
       world.hostId = hostUserId
       NetworkActionReceptor.addClient(world, hostUserId, 'server', 0)
@@ -241,8 +235,8 @@ describe('NetworkActionReceptors', () => {
     it('should spawn avatar owned by user', () => {
       const userId = 'user id' as UserId
 
-      Engine.userId = userId
-      const world = (Engine.currentWorld = createWorld())
+      Engine.instance.userId = userId
+      const world = Engine.instance.currentWorld
       world.localClientEntity = createEntity(world)
 
       NetworkActionReceptor.addClient(world, userId, 'user name', 1)
@@ -280,8 +274,8 @@ describe('NetworkActionReceptors', () => {
       const userId = 'user id' as UserId
 
       // Run as host
-      Engine.userId = hostUserId
-      const world = (Engine.currentWorld = createWorld())
+      Engine.instance.userId = hostUserId
+      const world = Engine.instance.currentWorld
 
       world.hostId = hostUserId
       world.store.defaultDispatchDelay = 0
@@ -343,11 +337,11 @@ describe('NetworkActionReceptors', () => {
       const userId = 'user id' as UserId
       const userName = 'user name'
       const userIndex = 1
-      Engine.userId = userId
+      Engine.instance.userId = userId
 
-      const world = createWorld()
+      const world = Engine.instance.currentWorld
       NetworkActionReceptor.addClient(world, userId, userName, userIndex)
-      Engine.currentWorld = world
+      Engine.instance.currentWorld = world
 
       const hostIndex = 0
       world.clients.set(world.hostId, { userId: world.hostId, name: 'server', index: hostIndex })

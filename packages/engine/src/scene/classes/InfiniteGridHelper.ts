@@ -140,11 +140,11 @@ export default class InfiniteGridHelper extends Mesh {
 
   setGridHeight(value) {
     this.position.y = value
-    dispatchAction(Engine.store, EngineRendererAction.changeGridToolHeight(value))
+    dispatchAction(Engine.instance.store, EngineRendererAction.changeGridToolHeight(value))
   }
 
   toggleGridVisible() {
     this.visible = !this.visible
-    dispatchAction(Engine.store, EngineRendererAction.changeGridToolVisibility(this.visible))
+    dispatchAction(Engine.instance.store, EngineRendererAction.changeGridToolVisibility(this.visible))
   }
 }

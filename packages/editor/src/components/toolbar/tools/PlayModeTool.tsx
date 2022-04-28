@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { accessEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
@@ -21,11 +22,13 @@ const PlayModeTool = () => {
     }
   }
 
+  const sceneLoaded = accessEngineState().sceneLoaded.value
+
   return (
     <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="preview">
       <InfoTooltip title={editorHelperState.isPlayModeEnabled.value ? 'Stop Previewing Scene' : 'Preview Scene'}>
         <button
-          disabled={!Engine.sceneLoaded}
+          disabled={!sceneLoaded}
           onClick={onTogglePlayMode}
           className={styles.toolButton + ' ' + (editorHelperState.isPlayModeEnabled.value ? styles.selected : '')}
         >

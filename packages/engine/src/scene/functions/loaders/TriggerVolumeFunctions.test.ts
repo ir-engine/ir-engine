@@ -7,10 +7,10 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { ColliderComponent } from '../../../physics/components/ColliderComponent'
 import { TransformComponent, TransformComponentType } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -19,15 +19,13 @@ import { TriggerVolumeComponent } from '../../components/TriggerVolumeComponent'
 import { SCENE_COMPONENT_TRIGGER_VOLUME } from './TriggerVolumeFunctions'
 
 describe('TriggerVolumeFunctions', () => {
-  let world: World
   let entity: Entity
   let triggervolumeFunctions = proxyquire('./TriggerVolumeFunctions', {
     '../../../physics/functions/createCollider': { createCollider: () => {} }
   })
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 
@@ -91,6 +89,7 @@ describe('TriggerVolumeFunctions', () => {
     })
 
     it('should not update collider body', () => {
+      Engine.instance.isEditor = true
       triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
       triggervolumeFunctions.updateTriggerVolume(entity)
 

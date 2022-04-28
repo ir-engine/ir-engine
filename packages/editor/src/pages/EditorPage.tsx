@@ -96,7 +96,7 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
   useEffect(() => {
     if (clientInitialized || projectState.projects.value.length <= 0) return
     setClientInitialized(true)
-    Engine.isEditor = true
+    Engine.instance.isEditor = true
     initializeCoreSystems(systems).then(async () => {
       await initializeSceneSystems()
       const projects = projectState.projects.value.map((project) => project.name)

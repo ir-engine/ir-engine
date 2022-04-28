@@ -54,7 +54,7 @@ const UserSettings = (props: Props): JSX.Element => {
     AuthService.updateUserSettings(selfUser?.user_setting?.id, {
       spatialAudioEnabled: newValue
     })
-    // if (Engine.spatialAudio) {
+    // if (Engine.instance.spatialAudio) {
     // TODO
     // if (newValue === true) PositionalAudioSystem.instance.resume()
     // else if (newValue === false) PositionalAudioSystem.instance.suspend()

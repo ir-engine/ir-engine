@@ -63,7 +63,7 @@ export async function restoreEngineRendererData(): Promise<void> {
       })
     ]
 
-    if (Engine.isEditor) {
+    if (Engine.instance.isEditor) {
       promises.push(
         ClientStorage.get(RenderSettingKeys.PHYSICS_DEBUG_ENABLE).then((v) => {
           if (typeof v !== 'undefined') s.physicsDebugEnable = v as boolean
@@ -94,7 +94,7 @@ export async function restoreEngineRendererData(): Promise<void> {
 
     await Promise.all(promises)
 
-    dispatchAction(Engine.store, EngineRendererAction.restoreStorageData(s))
+    dispatchAction(Engine.instance.store, EngineRendererAction.restoreStorageData(s))
   }
 }
 
@@ -103,15 +103,16 @@ function updateState(): void {
   setUsePostProcessing(state.usePostProcessing.value)
   setUseShadows(state.useShadows.value)
 
-  dispatchAction(Engine.store, EngineRendererAction.setPhysicsDebug(state.physicsDebugEnable.value))
-  dispatchAction(Engine.store, EngineRendererAction.setAvatarDebug(state.avatarDebugEnable.value))
+  dispatchAction(Engine.instance.store, EngineRendererAction.setPhysicsDebug(state.physicsDebugEnable.value))
+  dispatchAction(Engine.instance.store, EngineRendererAction.setAvatarDebug(state.avatarDebugEnable.value))
 
   changeRenderMode(state.renderMode.value)
 
-  if (Engine.isEditor && state.nodeHelperVisibility.value) Engine.camera.layers.enable(ObjectLayers.NodeHelper)
-  else Engine.camera.layers.disable(ObjectLayers.NodeHelper)
+  if (Engine.instance.isEditor && state.nodeHelperVisibility.value)
+    Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
+  else Engine.instance.camera.layers.disable(ObjectLayers.NodeHelper)
 
-  if (Engine.isEditor) {
+  if (Engine.instance.isEditor) {
     InfiniteGridHelper.instance.setGridHeight(state.gridHeight.value)
     InfiniteGridHelper.instance.visible = state.gridVisibility.value
   }

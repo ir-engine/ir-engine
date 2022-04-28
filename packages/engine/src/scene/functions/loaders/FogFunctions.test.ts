@@ -4,18 +4,16 @@ import { Color, Fog, Scene } from 'three'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
-import { createWorld } from '../../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { FogComponent } from '../../components/FogComponent'
 import { FogType } from '../../constants/FogType'
 import { deserializeFog } from './FogFunctions'
 
 describe('FogFunctions', () => {
   it('deserializeFog', () => {
-    const world = createWorld()
-    Engine.currentWorld = world
-    Engine.scene = new Scene()
+    createEngine()
 
     const entity = createEntity()
 
@@ -41,9 +39,9 @@ describe('FogFunctions', () => {
     assert.equal(near, 0.1)
     assert.equal(far, 1000)
 
-    assert(Engine.scene.fog instanceof Fog)
+    assert(Engine.instance.scene.fog instanceof Fog)
 
     // TODO: unnecessary once engine global scope is refactored
-    Engine.scene = null!
+    Engine.instance.scene = null!
   })
 })

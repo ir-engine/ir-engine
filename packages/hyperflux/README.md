@@ -10,12 +10,12 @@ The ENGINE store is _non-networked_, meaning actions are dispatched directly on 
 createHyperStore({
     name: 'ENGINE',
     getDispatchId: () => 'engine',
-    getDispatchTime: () => Engine.elapsedTime
+    getDispatchTime: () => Engine.instance.elapsedTime
 })
 // Engine timer callback:
 const executeWorlds = (delta, elapsedTime) => {
-  Engine.elapsedTime = elapsedTime
-  ActionFunctions.applyIncomingActions(Engine.store)
+  Engine.instance.elapsedTime = elapsedTime
+  ActionFunctions.applyIncomingActions(Engine.instance.store)
   // ...
 }
 ```
@@ -26,7 +26,7 @@ The WORLD store is _networked_, meaning actions are dispatched directly on the _
 createHyperStore({
     name: 'WORLD',
     networked: true,
-    getDispatchId: () => Engine.userId,
+    getDispatchId: () => Engine.instance.userId,
     getDispatchTime: () => this.fixedTick, // world.fixedTick
     defaultDispatchDelay: 1
 })

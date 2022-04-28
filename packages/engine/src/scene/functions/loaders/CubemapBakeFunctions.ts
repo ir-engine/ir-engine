@@ -55,7 +55,7 @@ export const deserializeCubemapBake: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: obj3d })
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CUBEMAP_BAKE)
 
-  if (!Engine.isEditor) return
+  if (!Engine.instance.isEditor) return
 
   const props = parseCubemapBakeProperties(json.props)
   addComponent(entity, CubemapBakeComponent, props)
@@ -96,7 +96,7 @@ export const serializeCubemapBake: ComponentSerializeFunction = (entity) => {
 }
 
 export const prepareSceneForBake = (world = useWorld()): Scene => {
-  const scene = Engine.scene.clone(false)
+  const scene = Engine.instance.scene.clone(false)
   const parents = {
     [world.entityTree.rootNode.entity]: scene
   } as { [key: Entity]: Object3D }
