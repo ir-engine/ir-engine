@@ -1,14 +1,15 @@
+import { defineAction } from '@xrengine/hyperflux'
+
+import { matchesWeightsParameters } from '../../avatar/animation/Util'
 import {
-  defineAction,
   matches,
+  matchesHost,
   matchesNetworkId,
   matchesQuaternion,
   matchesUserId,
   matchesVector3,
   matchesWithDefault
-} from '@xrengine/hyperflux'
-
-import { matchesWeightsParameters } from '../../avatar/animation/Util'
+} from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
@@ -34,6 +35,7 @@ export class NetworkWorldAction {
     elapsedTime: matchesWithDefault(matches.number, () => Engine.instance.currentWorld.elapsedTime),
     clockTime: matchesWithDefault(matches.number, () => Date.now()),
     $time: -1,
+    $from: matchesHost,
     $to: 'others'
   })
 

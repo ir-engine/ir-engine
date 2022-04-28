@@ -5,11 +5,12 @@ import { decode } from 'jsonwebtoken'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createEngine, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { accessEngineState, EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import {
+  createEngine,
   initializeCoreSystems,
   initializeMediaServerSystems,
   initializeNode,
@@ -65,7 +66,9 @@ const loadScene = async (app: Application, scene: string) => {
   const sceneResult = await app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
   const sceneData = sceneResult.data.scene as any // SceneData
 
-  if (!Engine.instance.isInitialized) {
+  const isInitialized = accessEngineState().isEngineInitialized.value
+
+  if (!isInitialized) {
     const systems = await getSystemsFromSceneData(projectName, sceneData, false)
     const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
     Engine.instance.publicPath = config.client.url

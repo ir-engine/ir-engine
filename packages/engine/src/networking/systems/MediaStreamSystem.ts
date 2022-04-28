@@ -1,7 +1,8 @@
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
-import { defineAction, dispatchAction, matches } from '@xrengine/hyperflux'
+import { defineAction, dispatchAction } from '@xrengine/hyperflux'
 
 import { isClient } from '../../common/functions/isClient'
+import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { Network } from '../classes/Network'
 import { localAudioConstraints, localVideoConstraints } from '../constants/VideoConstants'
