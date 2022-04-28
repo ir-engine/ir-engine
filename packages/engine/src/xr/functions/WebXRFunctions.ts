@@ -197,7 +197,7 @@ export const bindXRHandEvents = () => {
         })
       }
 
-      initializeHandModel(controller, xrInputSource.handedness)
+      initializeHandModel(world.localClientEntity, controller, xrInputSource.handedness)
 
       if (!eventSent) {
         dispatchAction(world.store, NetworkWorldAction.xrHandsConnected({}))

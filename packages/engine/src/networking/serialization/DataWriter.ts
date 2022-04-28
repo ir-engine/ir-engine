@@ -176,12 +176,20 @@ export const writeXRHandInputs = (v: ViewCursor, entity: Entity) => {
   console.log('writing XR hands data')
 
   const hand = getComponent(entity as Entity, XRHandsInputComponent)
-  const handMesh = hand.hands[0].userData.mesh
+  let handMesh = hand.hands[0].userData.mesh
   console.log(handMesh)
 
   for (let i = 0; i < handMesh.bones.length; i++) {
     const bone = handMesh.bones[i]
-    if (bone.jointName === 'wrist') console.log(bone.position, bone.rotation)
+    if (bone.jointName === 'wrist') console.log(bone.position.x, bone.position.y, bone.position.z, bone.rotation)
+  }
+
+  handMesh = hand.hands[1].userData.mesh
+  console.log(handMesh)
+
+  for (let i = 0; i < handMesh.bones.length; i++) {
+    const bone = handMesh.bones[i]
+    if (bone.jointName === 'wrist') console.log(bone.position.x, bone.position.y, bone.position.z, bone.rotation)
   }
 
   const rewind = rewindViewCursor(v)

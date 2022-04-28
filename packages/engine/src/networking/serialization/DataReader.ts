@@ -154,6 +154,23 @@ export const readXRHandInputs = (v: ViewCursor, entity: Entity | undefined) => {
   if (checkBitflag(changeMask, 1 << b++)) readXRHandWristPosition(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRHandWristRotation(v, entity)
 
+  const hand = getComponent(entity as Entity, XRHandsInputComponent)
+  let handMesh = hand.hands[0].userData.mesh
+  console.log(handMesh)
+
+  for (let i = 0; i < handMesh.bones.length; i++) {
+    const bone = handMesh.bones[i]
+    if (bone.jointName === 'wrist') console.log(bone.position.x, bone.position.y, bone.position.z, bone.rotation)
+  }
+
+  handMesh = hand.hands[1].userData.mesh
+  console.log(handMesh)
+
+  for (let i = 0; i < handMesh.bones.length; i++) {
+    const bone = handMesh.bones[i]
+    if (bone.jointName === 'wrist') console.log(bone.position.x, bone.position.y, bone.position.z, bone.rotation)
+  }
+
   // const hand = getComponent(entity as Entity, XRHandsInputComponent)
   // console.log(hand.left.wrist.position, hand.left.wrist.quaternion)
 }

@@ -91,12 +91,12 @@ export const initializeXRInputs = (entity: Entity) => {
     controller.userData.initialized = true
 
     const handedness = controller === xrInputSourceComponent.controllerGripLeft ? 'left' : 'right'
-    initializeHandModel(controller, handedness, true)
+    initializeHandModel(entity, controller, handedness, true)
     initializeXRControllerAnimations(controller)
   })
 }
 
-export const initializeHandModel = (controller: any, handedness: string, isGrip: boolean = false) => {
+export const initializeHandModel = (entity: Entity, controller: any, handedness: string, isGrip: boolean = false) => {
   const avatarInputState = accessAvatarInputSettingsState()
 
   console.log('init hands')
@@ -128,7 +128,7 @@ export const initializeHandModel = (controller: any, handedness: string, isGrip:
     controller.remove(controller.userData.mesh)
   }
 
-  controller.userData.mesh = isGrip ? handMesh : new XRHandMeshModel(controller, handMesh, handedness)
+  controller.userData.mesh = isGrip ? handMesh : new XRHandMeshModel(entity, controller, handMesh, handedness)
   controller.add(controller.userData.mesh)
   controller.userData.handedness = handedness
 

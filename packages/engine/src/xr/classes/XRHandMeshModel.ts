@@ -1,6 +1,7 @@
 import { Group, Object3D, SkinnedMesh } from 'three'
 
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
+import { Entity } from '../../ecs/classes/Entity'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
 
@@ -8,7 +9,7 @@ export class XRHandMeshModel extends Object3D {
   controller: Group
   bones: any[]
 
-  constructor(controller: Group, model: Object3D, handedness: string) {
+  constructor(entity: Entity, controller: Group, model: Object3D, handedness: string) {
     super()
 
     const world = useWorld()
@@ -56,12 +57,8 @@ export class XRHandMeshModel extends Object3D {
       if (bone) {
         ;(bone as any).jointName = jointName
 
-        proxifyVector3(XRHandsInputComponent[handedness][jointName].position, world.localClientEntity, bone.position)
-        proxifyQuaternion(
-          XRHandsInputComponent[handedness][jointName].quaternion,
-          world.localClientEntity,
-          bone.quaternion
-        )
+        proxifyVector3(XRHandsInputComponent[handedness][jointName].position, entity, bone.position)
+        proxifyQuaternion(XRHandsInputComponent[handedness][jointName].quaternion, entity, bone.quaternion)
 
         this.bones.push(bone)
       } else {

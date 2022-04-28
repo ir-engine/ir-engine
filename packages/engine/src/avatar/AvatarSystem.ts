@@ -95,7 +95,7 @@ function avatarActionReceptor(action) {
       const xrInputSource = getComponent(entity, XRHandsInputComponent)
 
       xrInputSource.hands.forEach((controller: any, i: number) => {
-        initializeHandModel(controller, i === 0 ? 'left' : 'right')
+        initializeHandModel(entity, controller, i === 0 ? 'left' : 'right')
       })
     })
 
