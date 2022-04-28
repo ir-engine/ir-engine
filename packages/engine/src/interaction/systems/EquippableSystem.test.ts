@@ -44,7 +44,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
       parameters: {}
     })
 
-    createSpawnedAvatar(
+    createAvatar(
       NetworkWorldAction.spawnAvatar({
         $from: Engine.instance.userId,
         networkId: networkObject.networkId,
