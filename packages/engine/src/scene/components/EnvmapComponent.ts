@@ -11,6 +11,7 @@ export type EnvmapComponentType = {
   envMapSourceURL: string
   envMapIntensity: number
   envMapCubemapBake: CubemapBakeSettings
+  forModel: boolean
 }
 
 export const EnvmapComponent = createMappedComponent<EnvmapComponentType>('EnvmapComponent')
