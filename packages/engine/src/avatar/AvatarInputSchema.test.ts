@@ -131,6 +131,7 @@ describe('avatarInputSchema', () => {
       movementEnabled: true,
       isJumping: false,
       isWalking: false,
+      isInAir: false,
       localMovementDirection: new Vector3(),
       velocitySimulator
     })
