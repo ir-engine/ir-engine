@@ -7,7 +7,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { EnvmapComponent } from '@xrengine/engine/src/scene/components/EnvmapComponent'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
-import { deserializeEnvMap } from '@xrengine/engine/src/scene/functions/loaders/EnvMapFunctions'
+import { deserializeEnvMap, SCENE_COMPONENT_ENVMAP } from '@xrengine/engine/src/scene/functions/loaders/EnvMapFunctions'
 
 import { setPropertyOnSelectionEntities } from '../../classes/History'
 import ColorInput from '../inputs/ColorInput'
@@ -81,7 +81,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
 
   // if component is not there for previously saved model entities then create one
   if (!envmapComponent) {
-    deserializeEnvMap(props.node.entity, { name: 'envmap', props: { forModel: true } })
+    deserializeEnvMap(props.node.entity, { name: SCENE_COMPONENT_ENVMAP, props: { forModel: true } })
     envmapComponent = getComponent(entity, EnvmapComponent)
   }
 
