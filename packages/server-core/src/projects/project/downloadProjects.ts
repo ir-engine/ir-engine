@@ -37,7 +37,7 @@ export const download = async (projectName) => {
     logger.info(`[ProjectLoader]: Successfully downloaded and mounted project "${projectName}".`)
     if (projectName !== 'default-project') {
       const npmInstallPromise = new Promise((resolve) => {
-        const npmInstallProcess = spawn('npm', ['install'], { cwd: localProjectDirectory })
+        const npmInstallProcess = spawn('npm', ['install', '--legacy-peer-deps'], { cwd: localProjectDirectory })
         npmInstallProcess.once('exit', resolve)
         npmInstallProcess.once('error', resolve)
         npmInstallProcess.once('disconnect', resolve)
