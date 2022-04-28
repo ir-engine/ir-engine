@@ -4,11 +4,12 @@ import { Color, Vector2, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { createEngine, Engine } from '../../../ecs/classes/Engine'
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { Clouds } from '../../classes/Clouds'
 import { CloudComponent, CloudComponentType } from '../../components/CloudComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'

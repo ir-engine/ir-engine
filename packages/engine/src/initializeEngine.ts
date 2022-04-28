@@ -2,7 +2,7 @@ import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
 import { AudioListener, PerspectiveCamera, Scene } from 'three'
 
-import { dispatchAction } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, registerState } from '@xrengine/hyperflux'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
 // import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
@@ -12,17 +12,35 @@ import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { isClient } from './common/functions/isClient'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
-import { EngineActions } from './ecs/classes/EngineService'
+import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
+import { createWorld } from './ecs/classes/World'
 import { reset } from './ecs/functions/EngineFunctions'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { removeClientInputListeners } from './input/functions/clientInputListeners'
 import { matchActionOnce } from './networking/functions/matchActionOnce'
 import { NetworkActionReceptor } from './networking/functions/NetworkActionReceptor'
+import { WorldState } from './networking/interfaces/WorldState'
+import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import InfiniteGridHelper from './scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import './threejsPatches'
 import { FontManager } from './xrui/classes/FontManager'
+
+/**
+ * Creates a new instance of the engine and engine renderer. This initializes all properties and state for the engine,
+ * adds action receptors and creates a new world.
+ * @returns {Engine}
+ */
+export const createEngine = () => {
+  Engine.instance = new Engine()
+  Engine.instance.currentWorld = createWorld()
+  Engine.instance.scene = new Scene()
+  Engine.instance.scene.layers.set(ObjectLayers.Scene)
+  EngineRenderer.instance = new EngineRenderer()
+  registerState(Engine.instance.currentWorld.store, WorldState)
+  addActionReceptor(Engine.instance.store, EngineEventReceptor)
+}
 
 /**
  * initializeBrowser

@@ -1,6 +1,7 @@
 import assert from 'assert'
 
-import { createEngine } from '../classes/Engine'
+import { createEngine } from '../../initializeEngine'
+import { Engine } from '../classes/Engine'
 import { World } from '../classes/World'
 import { initSystems, unloadSystems } from './SystemFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
@@ -28,7 +29,8 @@ async function AnotherMockSystemInitialiser(world: World) {
 describe('SystemFunctions', () => {
   describe('initSystems', () => {
     it('can initialize systems', async () => {
-      const world = createEngine().currentWorld
+      createEngine()
+      const world = Engine.instance.currentWorld
       const fixedPipeline = SystemUpdateType.FIXED
       await initSystems(world, [
         {
@@ -46,7 +48,8 @@ describe('SystemFunctions', () => {
     })
 
     it('can initialize multiple systems of same type', async () => {
-      const world = createEngine().currentWorld
+      createEngine()
+      const world = Engine.instance.currentWorld
       const fixedPipeline = SystemUpdateType.FIXED
       await initSystems(world, [
         {
@@ -73,7 +76,8 @@ describe('SystemFunctions', () => {
     })
 
     it('can initialize multiple systems of different type', async () => {
-      const world = createEngine().currentWorld
+      createEngine()
+      const world = Engine.instance.currentWorld
       const fixedPipeline = SystemUpdateType.FIXED
       const updatePipeline = SystemUpdateType.UPDATE
       await initSystems(world, [
@@ -105,7 +109,8 @@ describe('SystemFunctions', () => {
 
   describe('unloadSystems', () => {
     it('can remove scene system', async () => {
-      const world = createEngine().currentWorld
+      createEngine()
+      const world = Engine.instance.currentWorld
       const pipelineType = SystemUpdateType.FIXED
       await initSystems(world, [
         {
@@ -123,7 +128,8 @@ describe('SystemFunctions', () => {
     })
 
     it('can remove all systems', async () => {
-      const world = createEngine().currentWorld
+      createEngine()
+      const world = Engine.instance.currentWorld
       const pipelineType = SystemUpdateType.FIXED
       await initSystems(world, [
         {
@@ -146,7 +152,8 @@ describe('SystemFunctions', () => {
     })
 
     it('can remove only scene systems', async () => {
-      const world = createEngine().currentWorld
+      createEngine()
+      const world = Engine.instance.currentWorld
       const pipelineType = SystemUpdateType.FIXED
       await initSystems(world, [
         {

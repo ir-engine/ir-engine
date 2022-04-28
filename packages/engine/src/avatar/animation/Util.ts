@@ -8,8 +8,7 @@ import {
   Vector3
 } from 'three'
 
-import { matches, matchesVector3 } from '@xrengine/hyperflux'
-
+import { matches, matchesVector3 } from '../../common/functions/MatchesUtils'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
