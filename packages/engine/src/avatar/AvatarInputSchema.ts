@@ -454,9 +454,11 @@ const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
         values[0] * avatarInputState.rotationSmoothSpeed.value * (avatarInputState.rotationInvertAxes.value ? -1 : 1)
       break
   }
-  const transform = getComponent(entity, TransformComponent)
-  quat.setFromAxisAngle(upVec, newAngleDiff * deg2rad)
-  transform.rotation.multiply(quat)
+
+  if (Math.abs(newAngleDiff) > 0.001) {
+    quat.setFromAxisAngle(upVec, newAngleDiff * deg2rad)
+    Engine.instance.camera.parent?.quaternion.multiply(quat)
+  }
 }
 
 const axisLookSensitivity = 320
