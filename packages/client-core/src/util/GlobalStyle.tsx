@@ -101,7 +101,7 @@ const GlobalStyle = createGlobalStyle<{ theme: EditorTheme }>`
 
   ::selection {
     color: var(--textColor);
-    background-color: var(--selected);
+    background-color: var(--dropdownMenuHoverBackground);
   }
 
   a {

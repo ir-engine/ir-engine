@@ -14,11 +14,10 @@ const StyledToolButton = (styled as any).button`
   color: var(--white);
   cursor: pointer;
   position: relative;
-
   background-color: ${(props) => (props.isSelected ? 'var(--blue)' : 'var(--toolbar)')};
 
   &:hover {
-    background-color: ${(props) => (props.isSelected ? 'var(--blueHover)' : 'var(--panel)')};
+    background-color: ${(props) => (props.isSelected ? 'var(--blueHover)' : 'var(--iconButtonHoverColor)')};
   }
 `
 

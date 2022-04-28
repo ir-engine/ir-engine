@@ -15,10 +15,10 @@ export const ListItem = (styled as any).li`
   align-items: center;
   color: var(--textColor);
 
-  background-color: ${(props) => (props.selected ? 'var(--selected)' : 'var(--panel2)')};
+  background-color: ${(props) => (props.selected ? 'var(--dropdownMenuHoverBackground)' : 'var(--panel2)')};
 
   :nth-child(odd) {
-    background-color: ${(props) => (props.selected ? 'var(--selected)' : 'var(--dock)')};
+    background-color: ${(props) => (props.selected ? 'var(--dropdownMenuHoverBackground)' : 'var(--dock)')};
   }
 
   :hover,

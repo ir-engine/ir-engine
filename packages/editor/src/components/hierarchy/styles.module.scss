@@ -35,18 +35,18 @@
   }
 
   &.selected {
-    background: var(--selected);
+    background: var(--dropdownMenuHoverBackground);
     color: var(--textColor);
 
     &:hover,
     &:focus {
-      background-color: var(--selected);
+      background-color: var(--dropdownMenuHoverBackground);
     }
   }
 
   &:active,
   &.active {
-    background: var(--selected);
+    background: var(--dropdownMenuHoverBackground);
   }
 }
 

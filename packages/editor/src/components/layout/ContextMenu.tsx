@@ -66,7 +66,7 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: EditorTheme }>`
   .react-contextmenu-item.react-contextmenu-item--active,
   .react-contextmenu-item.react-contextmenu-item--selected {
     color: var(--textColor);
-    background-color: var(--selected);
+    background-color: var(--dropdownMenuHoverBackground);
     border-color: transparent;
     text-decoration: none;
   }
