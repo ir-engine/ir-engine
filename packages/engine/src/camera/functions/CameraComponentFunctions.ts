@@ -4,15 +4,16 @@ import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { removeEntity } from '../../ecs/functions/EntityFunctions'
-import { removeEntityNodeFromParent } from '../../ecs/functions/EntityTreeFunctions'
 import { EntityNodeComponent } from '../../scene/components/EntityNodeComponent'
-import {
-  CameraComponent,
-  CameraComponentType,
-  SCENE_COMPONENT_CAMERA,
-  SCENE_COMPONENT_CAMERA_DEFAULT_VALUES
-} from '../components/CameraComponent'
+import { CameraComponent, CameraComponentType } from '../components/CameraComponent'
+
+export const SCENE_COMPONENT_CAMERA = 'camera'
+export const SCENE_COMPONENT_CAMERA_DEFAULT_VALUES = {
+  raycasting: false,
+  rayCount: 1,
+  rayLength: 15,
+  rayFrequency: 0.5
+}
 
 export const getCamComponent = () => getComponent(Engine.instance.activeCameraEntity, CameraComponent)
 
@@ -38,7 +39,6 @@ export const setRaycasting = (raycasting) => {
 
 export const serializeCamera: ComponentSerializeFunction = (entity: Entity) => {
   if (hasComponent(entity, CameraComponent)) {
-    const activeComp = getComponent(Engine.instance.activeCameraEntity, CameraComponent)
     const comp = getComponent(entity, CameraComponent)
     return {
       name: SCENE_COMPONENT_CAMERA,
@@ -57,12 +57,12 @@ export const deserializeCamera: ComponentDeserializeFunction = (
   json: ComponentJson<CameraComponentType>
 ): void => {
   const props = parseCameraProperties(json.props)
-  if (!Engine.instance.isEditor) {
+  getComponent(entity, EntityNodeComponent).components.push(SCENE_COMPONENT_CAMERA)
+  if (Engine.instance.isEditor) {
+    addComponent(entity, CameraComponent, props)
+  } else {
     const camComp = getComponent(Engine.instance.activeCameraEntity, CameraComponent)
     Object.entries(props).forEach(([k, v]) => (camComp[k] = v))
-  } else {
-    const editComp = addComponent(entity, CameraComponent, props)
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CAMERA)
   }
 }
 

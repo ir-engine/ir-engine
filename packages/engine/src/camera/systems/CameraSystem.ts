@@ -1,8 +1,6 @@
 import { ArrowHelper, Clock, Material, MathUtils, Matrix4, Quaternion, SkinnedMesh, Vector3 } from 'three'
 import { clamp } from 'three/src/math/MathUtils'
 
-import { addActionReceptor } from '@xrengine/hyperflux'
-
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -11,7 +9,7 @@ import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
 import { Engine } from '../../ecs/classes/Engine'
-import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
+import { accessEngineState } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
@@ -22,24 +20,16 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
-import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { EntityNodeComponent } from '../../scene/components/EntityNodeComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES } from '../../scene/functions/loaders/TransformFunctions'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import {
-  CameraComponent,
-  SCENE_COMPONENT_CAMERA,
-  SCENE_COMPONENT_CAMERA_DEFAULT_VALUES
-} from '../components/CameraComponent'
+import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
+import { SCENE_COMPONENT_CAMERA_DEFAULT_VALUES } from '../functions/CameraComponentFunctions'
 
 const direction = new Vector3()
 const quaternion = new Quaternion()
