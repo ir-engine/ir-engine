@@ -19,7 +19,7 @@ const SliderGlobalStyles = createGlobalStyle`
   .rc-slider-track {
     position: absolute;
     height: 2px;
-    background-color: var(--purpleColor);
+    background-color: var(--buttonOutlined);
     border-radius: 2px;
   }
 
@@ -44,12 +44,12 @@ const SliderGlobalStyles = createGlobalStyle`
     outline: none;
 
       &:hover {
-        border: solid 2px var(--purpleColor);
+        border: solid 2px var(--buttonOutlined);
         background-color: var(--white);
       }
 
       &:active {
-        border:  2px solid var(--purpleColor);
+        border:  2px solid var(--buttonOutlined);
         background-color: var(--white);
       }
     }

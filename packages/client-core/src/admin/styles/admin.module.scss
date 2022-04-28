@@ -204,20 +204,15 @@
     align-items: center;
   }
 
-  .selectPaper {
-    background: #343b41;
-    color: #f1f1f1;
-  }
-
   .rootBtn {
     font-size: 13px;
     width: auto;
     font-weight: bold;
-    background: var(--purpleColor1);
+    background: var(--buttonFilled);
     padding: 6px 28px;
 
     &:hover {
-      background: var(--purpleColor);
+      opacity: 0.8;
     }
   }
 
@@ -298,7 +293,7 @@
 
     button {
       height: 35px;
-      background-color: var(--purpleColor1);
+      background-color: var(--buttonFilled);
       padding: 0;
       border: none;
       color: var(--textColor);
@@ -312,7 +307,7 @@
       }
 
       &:hover {
-        background-color: var(--purpleColor);
+        opacity: 0.8;
       }
     }
 
@@ -367,7 +362,7 @@
 
       & > svg {
         opacity: 1;
-        color: var(--purpleColor);
+        color: var(--iconButtonColor);
 
         &:hover {
           opacity: 0.8;
@@ -534,11 +529,12 @@
 }
 
 .cancelButton {
-  background: var(--purpleLighter);
-  color: var(--textColor) !important;
+  background: transparent;
+  border-color: var(--buttonOutlined);
+  color: var(--buttonOutlined) !important;
 
   &:hover {
-    background: var(--purpleColor);
+    opacity: 0.8;
   }
 }
 
@@ -1106,7 +1102,7 @@
 .btnSelected {
   color: white !important;
   border-color: white;
-  background-color: var(--purpleColor) !important;
+  background-color: var(--buttonFilled) !important;
 }
 
 .dashboardCardsContainer {

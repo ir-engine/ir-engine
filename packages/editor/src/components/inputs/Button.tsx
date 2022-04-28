@@ -12,7 +12,7 @@ export const Button = styled.button.attrs((props) => ({
   display: flex;
   border: none;
   border-radius: 4px;
-  background: var(--purpleColor);
+  background: var(--buttonFilled);
   color: var(--white);
   white-space: nowrap;
   min-height: 24px;

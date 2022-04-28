@@ -35,7 +35,7 @@
     &:hover,
     &:focus-visible {
       color: var(--textColor);
-      background: var(--purpleColor);
+      background: var(--dropdownMenuHoverBackground);
     }
   }
 }

@@ -1,11 +1,7 @@
 @import "@xrengine/client-core/src/styles/imports.module.scss";
 
-.primary {
-  background: var(--purpleColor);
-}
-
 .primaryForeground {
-  color: var(--purpleColor);
+  color: var(--iconButtonHoverColor);
 }
 
 .apiRefresh {
@@ -66,7 +62,7 @@
       padding: 1em;
       margin-right: 5px;
       border-radius: 50%;
-      background-color: var(--purpleColor1);
+      background-color: var(--iconButtonBackground);
 
       @media (max-width: 500px) {
         padding: 8px;
@@ -78,7 +74,7 @@
 
       &:hover {
         cursor: pointer;
-        background-color: var(--purpleColor);
+        background-color: var(--iconButtonSelected);
       }
 
       &:last-child {
@@ -277,7 +273,7 @@
           min-width: 30px;
           border-radius: 50%;
           color: var(--textColor);
-          background-color: var(--purpleColor1);
+          background-color: var(--iconButtonBackground);
           box-shadow: 2px 2px 10px gray;
           transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 
@@ -287,7 +283,7 @@
             height: 40px;
             bottom: -15px;
             right: -15px;
-            background-color: var(--purpleColor);
+            background-color: var(--iconButtonSelected);
           }
 
           svg {
@@ -522,7 +518,7 @@
 
         :global(.MuiCheckbox-root) {
           padding: 0;
-          color: var(--purpleColor);
+          color: var(--buttonOutlined);
           margin-right: 10px;
 
           svg {
@@ -547,7 +543,7 @@
         flex-shrink: 0;
 
         svg {
-          color: var(--purpleColor);
+          color: var(--buttonOutlined);
         }
       }
 
@@ -568,13 +564,13 @@
 
       :global(.MuiSlider-root) {
         &.slider {
-          color: var(--purpleColor);
+          color: var(--buttonOutlined);
           margin: 0 10px;
         }
 
         :global(.MuiSlider-thumb) {
-          background: var(--purpleColor);
-          border: var(--purpleColor);
+          background: var(--buttonOutlined);
+          border: var(--buttonOutlined);
           width: 16px;
           height: 16px;
         }
@@ -1229,7 +1225,7 @@
 
     button {
       height: 35px;
-      background-color: var(--purpleColor1);
+      background-color: var(--iconButtonBackground);
       padding: 0;
       border: none;
       color: var(--textColor);
@@ -1243,7 +1239,7 @@
       }
 
       &:hover {
-        background-color: var(--purpleColor);
+        background-color: var(--iconButtonSelected);
       }
     }
 
@@ -1294,7 +1290,7 @@
 
       & > svg {
         opacity: 1;
-        color: var(--purpleColor);
+        color: var(--iconButtonColor);
 
         &:hover {
           opacity: 0.8;
@@ -1526,7 +1522,7 @@
       flex-direction: row;
       align-items: center;
       justify-content: center;
-      background-color: var(--purpleColor);
+      background-color: var(--iconButtonBackground);
       border: none;
       border-radius: 3px;
     }
@@ -1590,7 +1586,7 @@
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        background-color: var(--purpleColor);
+        background-color: var(--iconButtonBackground);
 
         svg {
           color: var(--textColor);
@@ -1599,11 +1595,11 @@
       }
 
       &.selectedAvatar {
-        border: solid 2px var(--purpleColor0);
+        border: solid 2px var(--iconButtonSelected);
       }
 
       &.activeAvatar {
-        border: solid 2px var(--purpleColor);
+        border: solid 2px var(--iconButtonSelected);
       }
     }
   }
@@ -1959,11 +1955,11 @@
   font-size: 13px;
   width: auto;
   font-weight: bold;
-  background: var(--purpleColor1);
+  background: var(--buttonFilled);
   padding: 6px 28px;
 
   &:hover {
-    background: var(--purpleColor);
+    opacity: 0.8;
   }
 }
 
@@ -2029,7 +2025,7 @@
   font-size: 12px;
 
   &:hover {
-    background: var(--purpleColor);
+    background: var(--dropdownMenuHoverBackground);
   }
 }
 
@@ -2071,7 +2067,7 @@
 
 .collapseBtn {
   background-color: transparent !important;
-  color: var(--purpleColor);
+  color: var(--buttonOutlined);
 }
 
 .tableRow {
