@@ -47,6 +47,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   if (!controller.movementEnabled) return
 
   const onGround = controller.collisions[0] || avatar.isGrounded
+  controller.isInAir = !onGround
 
   // move vec3 to controller input direction
   tempVec1.copy(controller.localMovementDirection).multiplyScalar(timeStep)
@@ -116,7 +117,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
       !controller.isJumping
     ) {
       // jump
-      velocity.linear.y = (AvatarSettings.instance.jumpHeight * 1) / 60
+      velocity.linear.y = AvatarSettings.instance.jumpHeight / 60
       controller.isJumping = true
     } else if (controller.isJumping) {
       // reset isJumping the following frame

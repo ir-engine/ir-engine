@@ -8,7 +8,7 @@ import styled from 'styled-components'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { accessEngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { gltfToSceneJson, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 import { useHookEffect } from '@xrengine/hyperflux'
@@ -243,8 +243,10 @@ const EditorContainer = () => {
   }
 
   const onSaveAs = async () => {
+    const sceneLoaded = accessEngineState().sceneLoaded.value
+
     // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-    if (!Engine.instance.sceneLoaded) {
+    if (!sceneLoaded) {
       setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
       return
     }
@@ -356,8 +358,10 @@ const EditorContainer = () => {
   }
 
   const onSaveScene = async () => {
+    const sceneLoaded = accessEngineState().sceneLoaded.value
+
     // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-    if (!Engine.instance.sceneLoaded) {
+    if (!sceneLoaded) {
       setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
       return
     }

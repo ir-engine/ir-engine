@@ -2,7 +2,8 @@ import assert from 'assert'
 import { Types } from 'bitecs'
 import * as bitECS from 'bitecs'
 
-import { createEngine, Engine } from '../classes/Engine'
+import { createEngine } from '../../initializeEngine'
+import { Engine } from '../classes/Engine'
 import {
   addComponent,
   ComponentMap,

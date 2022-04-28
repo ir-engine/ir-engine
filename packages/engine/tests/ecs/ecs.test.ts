@@ -1,7 +1,7 @@
 import assert from 'assert'
 import * as bitecs from 'bitecs'
 
-import { createEngine, Engine } from '../../src/ecs/classes/Engine'
+import { Engine } from '../../src/ecs/classes/Engine'
 import { World } from '../../src/ecs/classes/World'
 import {
   addComponent,
@@ -14,6 +14,7 @@ import { createEntity, removeEntity } from '../../src/ecs/functions/EntityFuncti
 import { initSystems } from '../../src/ecs/functions/SystemFunctions'
 import { useWorld } from '../../src/ecs/functions/SystemHooks'
 import { SystemUpdateType } from '../../src/ecs/functions/SystemUpdateType'
+import { createEngine } from '../../src/initializeEngine'
 
 const mockDelta = 1 / 60
 
@@ -57,7 +58,8 @@ async function MockSystemInitialiser(world: World, args: {}) {
 
 describe('ECS', () => {
   beforeEach(async () => {
-    const world = createEngine().currentWorld
+    createEngine()
+    const world = Engine.instance.currentWorld
     await initSystems(world, [
       {
         type: SystemUpdateType.UPDATE,
