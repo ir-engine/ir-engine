@@ -1,9 +1,10 @@
 import assert from 'assert'
 import { Group, Layers, Mesh, Quaternion, Scene, Vector3 } from 'three'
 
-import { createEngine, Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, createMappedComponent, defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'

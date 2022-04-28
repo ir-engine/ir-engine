@@ -1,6 +1,7 @@
 import assert from 'assert'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { matches, matchesWithDefault } from '@xrengine/engine/src/common/functions/MatchesUtils'
 
 import {
   addActionReceptor,
@@ -14,7 +15,6 @@ import {
   registerState,
   removeActionReceptor
 } from '..'
-import { matches, matchesWithDefault } from '../utils/MatchesUtils'
 
 describe('Hyperflux Unit Testss', () => {
   it('should be able to define and create an action', () => {

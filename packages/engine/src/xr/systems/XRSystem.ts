@@ -1,10 +1,11 @@
 import { ArrayCamera } from 'three'
 
-import { addActionReceptor, dispatchAction, matches } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
+import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { accessEngineState, EngineActions, EngineActionType } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
