@@ -3,6 +3,7 @@ import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/
 import { io as ioclient, Socket } from 'socket.io-client'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import {
   Network,
@@ -13,7 +14,7 @@ import {
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { addActionReceptor, defineAction, matches } from '@xrengine/hyperflux'
+import { addActionReceptor, defineAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { accessAuthState } from '../user/services/AuthService'

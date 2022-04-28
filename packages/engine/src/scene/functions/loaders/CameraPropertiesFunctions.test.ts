@@ -5,11 +5,12 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { CameraMode } from '../../../camera/types/CameraMode'
 import { ProjectionType } from '../../../camera/types/ProjectionType'
-import { createEngine, Engine } from '../../../ecs/classes/Engine'
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { CameraPropertiesComponent } from '../../components/CameraPropertiesComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import {

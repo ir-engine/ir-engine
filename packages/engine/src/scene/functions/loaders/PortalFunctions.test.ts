@@ -3,9 +3,10 @@ import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { createEngine, Engine } from '../../../ecs/classes/Engine'
+import { Engine } from '../../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { PortalComponent } from '../../components/PortalComponent'
 import { deserializePortal } from './PortalFunctions'

@@ -1,9 +1,9 @@
 import assert from 'assert'
 import { Group, Quaternion, Vector3 } from 'three'
 
-import { createEngine } from '../../ecs/classes/Engine'
 import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../initializeEngine'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'

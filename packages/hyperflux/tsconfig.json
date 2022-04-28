@@ -39,5 +39,5 @@
     "./**/*.tsx",
     "../../PhysX.d.ts",
     "../../PhysXDebug.d.ts"
-  ]
+, "../engine/src/common/functions/MatchesUtils.ts"  ]
 }
