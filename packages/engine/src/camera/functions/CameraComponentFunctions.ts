@@ -14,7 +14,7 @@ import {
   SCENE_COMPONENT_CAMERA_DEFAULT_VALUES
 } from '../components/CameraComponent'
 
-export const getCamComponent = () => getComponent(Engine.activeCameraEntity, CameraComponent)
+export const getCamComponent = () => getComponent(Engine.instance.activeCameraEntity, CameraComponent)
 
 export const setRayFrequency = (rayFreq) => {
   const camComp = getCamComponent()
@@ -38,7 +38,7 @@ export const setRaycasting = (raycasting) => {
 
 export const serializeCamera: ComponentSerializeFunction = (entity: Entity) => {
   if (hasComponent(entity, CameraComponent)) {
-    const activeComp = getComponent(Engine.activeCameraEntity, CameraComponent)
+    const activeComp = getComponent(Engine.instance.activeCameraEntity, CameraComponent)
     const comp = getComponent(entity, CameraComponent)
     return {
       name: SCENE_COMPONENT_CAMERA,
@@ -57,8 +57,8 @@ export const deserializeCamera: ComponentDeserializeFunction = (
   json: ComponentJson<CameraComponentType>
 ): void => {
   const props = parseCameraProperties(json.props)
-  if (!Engine.isEditor) {
-    const camComp = getComponent(Engine.activeCameraEntity, CameraComponent)
+  if (!Engine.instance.isEditor) {
+    const camComp = getComponent(Engine.instance.activeCameraEntity, CameraComponent)
     Object.entries(props).forEach(([k, v]) => (camComp[k] = v))
   } else {
     const editComp = addComponent(entity, CameraComponent, props)
