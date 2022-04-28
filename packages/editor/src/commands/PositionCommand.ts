@@ -38,7 +38,7 @@ export default class PositionCommand extends Command {
     this.addToPosition = params.addToPosition
 
     if (this.keepHistory) {
-      this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent).position.clone())
+      this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent)?.position.clone())
     }
   }
 
