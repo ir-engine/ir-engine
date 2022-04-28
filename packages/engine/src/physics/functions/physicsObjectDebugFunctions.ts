@@ -51,7 +51,7 @@ function getUUID() {
 let simulationObjectsGenerated = false
 export default async function PhysicsSimulationTestSystem(world: World) {
   return () => {
-    if (!Engine.isInitialized || !world.physics.physics || simulationObjectsGenerated) return
+    if (!Engine.instance.isInitialized || !world.physics.physics || simulationObjectsGenerated) return
     simulationObjectsGenerated = true
     generateSimulationData(0)
   }
@@ -155,7 +155,7 @@ export const generatePhysicsObject = (
   addComponent(entity, Object3DComponent, { value: obj3d })
   parseGLTFModel(entity, getComponent(entity, ModelComponent), obj3d)
 
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   addEntityNodeInTree(entityTreeNode, world.entityTree.rootNode)
 
   const transform = getComponent(entity, TransformComponent)

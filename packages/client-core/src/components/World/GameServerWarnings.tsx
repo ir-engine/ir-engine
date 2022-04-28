@@ -59,7 +59,7 @@ const GameServerWarnings = () => {
   }
 
   useEffect(() => {
-    addActionReceptor(Engine.store, function GameServerWarningsReceptor(action) {
+    addActionReceptor(Engine.instance.store, function GameServerWarningsReceptor(action) {
       matches(action)
         .when(SocketWebRTCClientTransport.actions.noWorldServersAvailable.matches, ({ instanceId }) => {
           setErroredInstanceId(instanceId)
@@ -140,7 +140,7 @@ const GameServerWarnings = () => {
         break
 
       case WarningModalTypes.INSTANCE_DISCONNECTED:
-        if (!Engine.userId) return
+        if (!Engine.instance.userId) return
         if (transport.left || engineState.isTeleporting.value || transport.reconnecting) return
 
         setModalValues({
@@ -154,7 +154,7 @@ const GameServerWarnings = () => {
         break
 
       case WarningModalTypes.CHANNEL_DISCONNECTED:
-        if (!Engine.userId) return
+        if (!Engine.instance.userId) return
         if (transport.left || transport.reconnecting) return
 
         const channels = chatState.channels.channels.value

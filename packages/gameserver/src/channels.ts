@@ -5,12 +5,11 @@ import { decode } from 'jsonwebtoken'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { createEngine, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { accessEngineState, EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import {
-  createEngine,
   initializeCoreSystems,
   initializeMediaServerSystems,
   initializeNode,
@@ -66,12 +65,10 @@ const loadScene = async (app: Application, scene: string) => {
   const sceneResult = await app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
   const sceneData = sceneResult.data.scene as any // SceneData
 
-  if (!Engine.isInitialized) {
+  if (!Engine.instance.isInitialized) {
     const systems = await getSystemsFromSceneData(projectName, sceneData, false)
     const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
-    Engine.publicPath = config.client.url
-    createEngine()
-    initializeNode()
+    Engine.instance.publicPath = config.client.url
     await initializeCoreSystems()
     await initializeRealtimeSystems(false, true)
     await initializeSceneSystems()
@@ -80,7 +77,7 @@ const loadScene = async (app: Application, scene: string) => {
     await loadEngineInjection(world, projects)
 
     const userId = 'server' as UserId
-    Engine.userId = userId
+    Engine.instance.userId = userId
     const hostIndex = world.userIndexCount++
     world.clients.set(userId, { userId, name: 'server', index: hostIndex, lastSeenTs: Date.now() })
     world.userIdToUserIndex.set(userId, hostIndex)
@@ -90,7 +87,7 @@ const loadScene = async (app: Application, scene: string) => {
   await loadSceneFromJSON(sceneData)
 
   console.log('Scene loaded!')
-  dispatchAction(Engine.store, EngineActions.joinedWorld())
+  dispatchAction(Engine.instance.store, EngineActions.joinedWorld())
 
   // const portals = getAllComponentsOfType(PortalComponent)
   // await Promise.all(
@@ -204,13 +201,11 @@ const handleInstance = async (
 const loadEngine = async (app: Application, sceneId: string) => {
   if (app.isChannelInstance) {
     Network.instance.transportHandler.mediaTransports.set('media' as UserId, app.transport)
-    Engine.publicPath = config.client.url
+    Engine.instance.publicPath = config.client.url
     const userId = 'media' as UserId
-    Engine.userId = userId
-    createEngine()
+    Engine.instance.userId = userId
     const world = useWorld()
     world.hostId = userId
-    initializeNode()
     await initializeMediaServerSystems()
     await initializeRealtimeSystems(true, false)
     const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
@@ -221,8 +216,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
     world.userIdToUserIndex.set(userId, hostIndex)
     world.userIndexToUserId.set(hostIndex, userId)
 
-    dispatchAction(Engine.store, EngineActions.sceneLoaded())
-    dispatchAction(Engine.store, EngineActions.joinedWorld())
+    dispatchAction(Engine.instance.store, EngineActions.sceneLoaded())
+    dispatchAction(Engine.instance.store, EngineActions.joinedWorld())
   } else {
     Network.instance.transportHandler.worldTransports.set('server' as UserId, app.transport)
     await loadScene(app, sceneId)
@@ -436,8 +431,10 @@ const shutdownGameserver = async (app: Application, instanceId: string) => {
 
 // todo: this could be more elegant
 const getActiveUsersCount = (userToIgnore) => {
-  const activeClients = Engine.currentWorld.clients
-  const activeUsers = [...activeClients].filter(([, v]) => v.userId !== Engine.userId && v.userId !== userToIgnore.id)
+  const activeClients = Engine.instance.currentWorld.clients
+  const activeUsers = [...activeClients].filter(
+    ([, v]) => v.userId !== Engine.instance.userId && v.userId !== userToIgnore.id
+  )
   return activeUsers.length
 }
 
@@ -588,6 +585,9 @@ export default (app: Application): void => {
     // If no real-time functionality has been configured just return
     return
   }
+
+  createEngine()
+  initializeNode()
 
   app.service('gameserver-load').on('patched', async (params) => {
     const { id, ipAddress, podName, locationId, sceneId } = params

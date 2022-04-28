@@ -29,7 +29,7 @@ export const teleportToScene = async () => {
 
   // wait until the world has been joined
   await new Promise((resolve) => {
-    matchActionOnce(Engine.store, EngineActions.joinedWorld.matches, resolve)
+    matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, resolve)
   })
 
   // teleport player to where the portal is

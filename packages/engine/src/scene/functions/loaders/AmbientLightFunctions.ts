@@ -8,7 +8,6 @@ import {
   ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
 import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
@@ -33,7 +32,7 @@ export const deserializeAmbientLight: ComponentDeserializeFunction = (
   addComponent(entity, DisableTransformTagComponent, {})
   addComponent(entity, AmbientLightComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AMBIENT_LIGHT)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AMBIENT_LIGHT)
 
   updateAmbientLight(entity, props)
 }

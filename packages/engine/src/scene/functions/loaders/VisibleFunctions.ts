@@ -2,7 +2,6 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -13,7 +12,7 @@ export const SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES = {}
 
 export const deserializeVisible: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson<{}>) => {
   if (isClient) addComponent(entity, VisibleComponent, {})
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VISIBLE)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VISIBLE)
 }
 
 export const serializeVisible: ComponentSerializeFunction = (entity) => {

@@ -121,7 +121,7 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue):
   if (interactiveComponent.interactionType === 'equippable') {
     if (
       !interactiveComponent.validUserId ||
-      (interactiveComponent.validUserId && interactiveComponent.validUserId === Engine.userId)
+      (interactiveComponent.validUserId && interactiveComponent.validUserId === Engine.instance.userId)
     ) {
       const attachmentPoint = getAttachmentPoint(parityValue)
       equipEntity(entity, interactor.focusedInteractive, attachmentPoint)
@@ -512,14 +512,14 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
   if (inputValue.lifecycleState !== LifecycleValue.Ended) return
   if (inputKey === PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE) {
     dispatchAction(
-      Engine.currentWorld.store,
+      Engine.instance.currentWorld.store,
       NetworkWorldAction.spawnDebugPhysicsObject({
         config: boxDynamicConfig // Any custom config can be provided here
       })
     )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
     dispatchAction(
-      Engine.store,
+      Engine.instance.store,
       EngineRendererAction.setPhysicsDebug(!accessEngineRendererState().physicsDebugEnable.value)
     )
   }

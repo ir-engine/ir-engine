@@ -7,13 +7,14 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import Spline from '../../classes/Spline'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SplineComponent, SplineComponentType } from '../../components/SplineComponent'
+import { ObjectLayers } from '../../constants/ObjectLayers'
+import { setObjectLayers } from '../setObjectLayers'
 
 export const SCENE_COMPONENT_SPLINE = 'spline'
 export const SCENE_COMPONENT_SPLINE_DEFAULT_VALUES = {
@@ -30,15 +31,16 @@ export const deserializeSpline: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, SplineComponent, props)
 
-  if (Engine.isEditor) {
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPLINE)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPLINE)
 
-    const helper = new Spline()
-    obj3d.add(helper)
-    obj3d.userData.helper = helper
+  const helper = new Spline()
+  helper.userData.isHelper = true
+  setObjectLayers(helper, ObjectLayers.NodeHelper)
 
-    helper.init(props.splinePositions)
-  }
+  obj3d.add(helper)
+  obj3d.userData.helper = helper
+
+  helper.init(props.splinePositions)
 
   updateSpline(entity, props)
 }

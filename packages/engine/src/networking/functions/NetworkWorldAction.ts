@@ -31,7 +31,7 @@ export class NetworkWorldAction {
   static timeSync = defineAction({
     store: 'WORLD',
     type: 'network.TIME_SYNC',
-    elapsedTime: matchesWithDefault(matches.number, () => Engine.currentWorld.elapsedTime),
+    elapsedTime: matchesWithDefault(matches.number, () => Engine.instance.currentWorld.elapsedTime),
     clockTime: matchesWithDefault(matches.number, () => Date.now()),
     $time: -1,
     $to: 'others'
@@ -54,7 +54,7 @@ export class NetworkWorldAction {
     store: 'WORLD',
     type: 'network.SPAWN_OBJECT',
     prefab: matches.string,
-    networkId: matchesWithDefault(matchesNetworkId, () => Engine.currentWorld.createNetworkId()),
+    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.currentWorld.createNetworkId()),
     parameters: matches.any.optional(),
     $cache: true
   })

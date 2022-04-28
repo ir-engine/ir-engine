@@ -7,7 +7,6 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -34,7 +33,7 @@ export const deserializeModel: ComponentDeserializeFunction = (
   const props = parseModelProperties(component.props)
   addComponent(entity, ModelComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
   updateModel(entity, props)
 }
 

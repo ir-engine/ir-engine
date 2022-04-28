@@ -1,10 +1,8 @@
 import assert from 'assert'
 import { Types } from 'bitecs'
 import * as bitECS from 'bitecs'
-import { Vector3 } from 'three'
 
-import { Engine } from '../classes/Engine'
-import { createWorld } from '../classes/World'
+import { createEngine, Engine } from '../classes/Engine'
 import {
   addComponent,
   ComponentMap,
@@ -19,12 +17,7 @@ import { useWorld } from './SystemHooks'
 
 describe('ComponentFunctions', async () => {
   beforeEach(() => {
-    const world = createWorld()
-    Engine.currentWorld = world
-    ComponentMap.clear()
-  })
-
-  afterEach(() => {
+    createEngine()
     ComponentMap.clear()
   })
 
