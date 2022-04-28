@@ -132,7 +132,7 @@
 }
 
 @mixin purple-pink-linear-gradient() {
-  background: var(--purplePinkGradient);
+  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
 }
 
 @mixin paper-modal() {

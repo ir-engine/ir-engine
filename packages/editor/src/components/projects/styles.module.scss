@@ -116,7 +116,7 @@
         width: 90px;
         font-size: 16px;
         flex-shrink: 0;
-        background: var(--purplePinkGradient);
+        background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
       }
 
       .searchInputRoot {
@@ -419,7 +419,7 @@
     height: 35px;
     width: 85px;
     font-size: 15px;
-    background: var(--purplePinkGradient);
+    background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
 
     &:disabled {
       cursor: not-allowed;

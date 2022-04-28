@@ -332,7 +332,7 @@
     }
 
     .uploadBtn {
-      background: var(--purplePinkGradient);
+      background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
       cursor: pointer;
       font-size: 1rem;
       font-weight: bold;
@@ -504,7 +504,7 @@
   height: 50px;
   width: 100%;
   margin: 0;
-  background: var(--purplePinkGradient);
+  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
   color: var(--textColor) !important;
 
   &:hover {
@@ -521,7 +521,7 @@
 }
 
 .submitButton {
-  background: var(--purplePinkGradient);
+  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
   color: var(--textColor) !important;
 
   &:hover {
@@ -610,7 +610,7 @@
 .botSaveBtn {
   margin: 5px 25px 5px auto;
   width: 150px;
-  background: var(--purplePinkGradient);
+  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
   color: var(--textColor) !important;
 
   &:hover {

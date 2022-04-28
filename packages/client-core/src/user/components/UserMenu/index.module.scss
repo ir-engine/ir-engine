@@ -438,7 +438,7 @@
         font-size: 14px;
         width: 250px;
         max-width: 100%;
-        background: var(--purplePinkGradient);
+        background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
         color: var(--textColor);
         border-radius: 20px;
         margin: 15px 0 20px;
@@ -643,7 +643,7 @@
       .sendInvite {
         width: 125px;
         height: 35px;
-        background: var(--purplePinkGradient);
+        background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
 
         &:hover {
           opacity: 0.8;
@@ -1263,7 +1263,7 @@
     }
 
     .uploadBtn {
-      background: var(--purplePinkGradient);
+      background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
       cursor: pointer;
       font-size: 1rem;
       font-weight: bold;
