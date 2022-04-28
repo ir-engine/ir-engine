@@ -9,6 +9,7 @@ import { addComponent, getComponent, hasComponent } from '../../ecs/functions/Co
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
@@ -120,6 +121,8 @@ export const readXRInputs = (v: ViewCursor, entity: Entity | undefined) => {
   const changeMask = readUint16(v)
   let b = 0
 
+  // console.log("reading XR data")
+
   if (checkBitflag(changeMask, 1 << b++)) readXRContainerPosition(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRContainerRotation(v, entity)
 
@@ -139,6 +142,22 @@ export const readXRInputs = (v: ViewCursor, entity: Entity | undefined) => {
   if (checkBitflag(changeMask, 1 << b++)) readXRControllerGripRightRotation(v, entity)
 }
 
+export const readXRHandWristPosition = readVector3(XRHandsInputComponent.left.wrist.position)
+export const readXRHandWristRotation = readVector4(XRHandsInputComponent.left.wrist.quaternion)
+
+export const readXRHandInputs = (v: ViewCursor, entity: Entity | undefined) => {
+  const changeMask = readUint16(v)
+  let b = 0
+
+  console.log('reading XR hands data')
+
+  if (checkBitflag(changeMask, 1 << b++)) readXRHandWristPosition(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readXRHandWristRotation(v, entity)
+
+  // const hand = getComponent(entity as Entity, XRHandsInputComponent)
+  // console.log(hand.left.wrist.position, hand.left.wrist.quaternion)
+}
+
 export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   const netId = readUint32(v) as NetworkId
   const changeMask = readUint8(v)
@@ -150,6 +169,7 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readVelocity(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readXRHandInputs(v, entity)
 
   if (entity !== undefined && !hasComponent(entity, NetworkObjectDirtyTag)) {
     addComponent(entity, NetworkObjectDirtyTag, {})

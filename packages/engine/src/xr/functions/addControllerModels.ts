@@ -99,11 +99,14 @@ export const initializeXRInputs = (entity: Entity) => {
 export const initializeHandModel = (controller: any, handedness: string, isGrip: boolean = false) => {
   const avatarInputState = accessAvatarInputSettingsState()
 
-  // if is grip and not 'controller' type enabled
-  if (isGrip && avatarInputState.controlType.value !== AvatarControllerType.OculusQuest) return
+  console.log('init hands')
+  // avatar control type in xr action and then use here
 
-  // if is hands and 'none' type enabled (instead we use IK to move hands in avatar model)
-  if (!isGrip && avatarInputState.controlType.value === AvatarControllerType.None) return
+  // if is grip and not 'controller' type enabled
+  // if (isGrip && avatarInputState.controlType.value !== AvatarControllerType.OculusQuest) return
+
+  // // if is hands and 'none' type enabled (instead we use IK to move hands in avatar model)
+  // if (!isGrip && avatarInputState.controlType.value === AvatarControllerType.None) return
 
   /**
    * TODO: both model types we have are hands, we also want to have an oculus quest controller model

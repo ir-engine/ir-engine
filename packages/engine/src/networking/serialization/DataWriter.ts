@@ -3,9 +3,10 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
@@ -138,6 +139,8 @@ export const writeXRControllerGripRightRotation = writeVector4(
 export const writeXRInputs = (v: ViewCursor, entity: Entity) => {
   if (!hasComponent(entity, XRInputSourceComponent)) return
 
+  // console.log("writing XR data")
+
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint16(v)
   let changeMask = 0
@@ -164,6 +167,34 @@ export const writeXRInputs = (v: ViewCursor, entity: Entity) => {
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
+export const writeXRHandWristPosition = writeVector3(XRHandsInputComponent.left.wrist.position)
+export const writeXRHandWristRotation = writeVector4(XRHandsInputComponent.left.wrist.quaternion)
+
+export const writeXRHandInputs = (v: ViewCursor, entity: Entity) => {
+  if (!hasComponent(entity, XRHandsInputComponent)) return
+
+  console.log('writing XR hands data')
+
+  const hand = getComponent(entity as Entity, XRHandsInputComponent)
+  const handMesh = hand.hands[0].userData.mesh
+  console.log(handMesh)
+
+  for (let i = 0; i < handMesh.bones.length; i++) {
+    const bone = handMesh.bones[i]
+    if (bone.jointName === 'wrist') console.log(bone.position, bone.rotation)
+  }
+
+  const rewind = rewindViewCursor(v)
+  const writeChangeMask = spaceUint16(v)
+  let changeMask = 0
+  let b = 0
+
+  changeMask |= writeXRHandWristPosition(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeXRHandWristRotation(v, entity) ? 1 << b++ : b++ && 0
+
+  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
+}
+
 export const writeEntity = (v: ViewCursor, networkId: NetworkId, entity: Entity) => {
   const rewind = rewindViewCursor(v)
 
@@ -176,6 +207,8 @@ export const writeEntity = (v: ViewCursor, networkId: NetworkId, entity: Entity)
   changeMask |= writeTransform(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeVelocity(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeXRInputs(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeXRHandInputs(v, entity) ? 1 << b++ : b++ && 0
+  //wrtie xr hands data here
 
   return (changeMask > 0 && writeNetworkId(networkId) && writeChangeMask(changeMask)) || rewind()
 }

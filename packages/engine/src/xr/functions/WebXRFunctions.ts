@@ -187,9 +187,9 @@ export const bindXRHandEvents = () => {
     controller.addEventListener('connected', (ev) => {
       const xrInputSource = ev.data
 
-      if (!xrInputSource.hand || controller.userData.mesh) {
-        return
-      }
+      // if (!xrInputSource.hand || controller.userData.mesh) {
+      //   return
+      // }
 
       if (!hasComponent(world.localClientEntity, XRHandsInputComponent)) {
         addComponent(world.localClientEntity, XRHandsInputComponent, {
