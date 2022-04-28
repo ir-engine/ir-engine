@@ -2,9 +2,9 @@ import assert from 'assert'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { createEngine } from '../../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { InteractableComponent } from '../../../interaction/components/InteractableComponent'
 import { deserializeInteractable } from './InteractableFunctions'
 

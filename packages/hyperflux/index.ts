@@ -2,7 +2,6 @@ import ActionFunctions from './functions/ActionFunctions'
 import StateFunctions from './functions/StateFunctions'
 import StoreFunctions, { HyperStore } from './functions/StoreFunctions'
 
-export * from './utils/MatchesUtils'
 export * from './utils/useHookEffect'
 
 function dynamicFunctionReference<M extends { [name: string]: Function }, K extends keyof M>(

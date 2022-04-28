@@ -50,7 +50,7 @@ export function locationLoaded() {
 }
 
 export function sceneLoaded() {
-  return Engine.instance.sceneLoaded
+  return accessEngineState().sceneLoaded.value
 }
 
 export function getPlayerPosition() {
