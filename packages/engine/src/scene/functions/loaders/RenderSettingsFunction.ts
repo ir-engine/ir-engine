@@ -42,35 +42,54 @@ export const deserializeRenderSetting: ComponentDeserializeFunction = (
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_RENDERER_SETTINGS)
 
-  updateRenderSetting(entity)
+  updateRenderSetting(entity, props)
 }
 
-export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => {
+export const updateRenderSetting: ComponentUpdateFunction = (
+  entity: Entity,
+  properties: RenderSettingComponentType
+) => {
   if (!isClient) return
+
+  if (
+    typeof properties.LODs === 'undefined' &&
+    typeof properties.overrideRendererSettings === 'undefined' &&
+    typeof properties.csm === 'undefined' &&
+    typeof properties.toneMapping === 'undefined' &&
+    typeof properties.toneMappingExposure === 'undefined' &&
+    typeof properties.shadowMapType === 'undefined'
+  ) {
+    return
+  }
+
   const component = getComponent(entity, RenderSettingComponent)
 
   resetEngineRenderer()
 
-  if (component.LODs)
+  if (typeof properties.LODs !== 'undefined' && component.LODs)
     AssetLoader.LOD_DISTANCES = { '0': component.LODs.x, '1': component.LODs.y, '2': component.LODs.z }
 
-  if (typeof component.overrideRendererSettings === 'undefined' || !component.overrideRendererSettings) {
+  if (typeof properties.overrideRendererSettings === 'undefined' || !component.overrideRendererSettings) {
     EngineRenderer.instance.isCSMEnabled = true
     if (accessEngineState().sceneLoaded.value) initializeCSM()
     else matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, initializeCSM)
     return
   }
 
-  EngineRenderer.instance.isCSMEnabled = component.csm
-  EngineRenderer.instance.renderer.toneMapping = component.toneMapping
-  EngineRenderer.instance.renderer.toneMappingExposure = component.toneMappingExposure
+  if (typeof properties.csm !== 'undefined') EngineRenderer.instance.isCSMEnabled = component.csm
+  if (typeof properties.toneMapping !== 'undefined')
+    EngineRenderer.instance.renderer.toneMapping = component.toneMapping
+  if (typeof properties.toneMappingExposure !== 'undefined')
+    EngineRenderer.instance.renderer.toneMappingExposure = component.toneMappingExposure
 
-  if (component.shadowMapType) {
-    EngineRenderer.instance.renderer.shadowMap.enabled = true
-    EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
-    EngineRenderer.instance.renderer.shadowMap.type = component.shadowMapType
-  } else {
-    EngineRenderer.instance.renderer.shadowMap.enabled = false
+  if (typeof properties.shadowMapType !== 'undefined') {
+    if (component.shadowMapType) {
+      EngineRenderer.instance.renderer.shadowMap.enabled = true
+      EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
+      EngineRenderer.instance.renderer.shadowMap.type = component.shadowMapType
+    } else {
+      EngineRenderer.instance.renderer.shadowMap.enabled = false
+    }
   }
 
   if (EngineRenderer.instance.renderer.shadowMap.enabled) {
