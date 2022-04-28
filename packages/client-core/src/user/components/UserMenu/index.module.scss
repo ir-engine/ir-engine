@@ -74,7 +74,7 @@
 
       &:hover {
         cursor: pointer;
-        background-color: var(--iconButtonSelected);
+        background-color: var(--iconButtonSelectedBackground);
       }
 
       &:last-child {
@@ -202,7 +202,7 @@
   bottom: 75px;
   padding: 0 30px;
   border-radius: 20px;
-  background-color: var(--purpleLighter);
+  background-color: var(--popupBackground);
   width: calc(100% - 50px);
   left: 50%;
   transform: translateX(-50%);
@@ -283,7 +283,7 @@
             height: 40px;
             bottom: -15px;
             right: -15px;
-            background-color: var(--iconButtonSelected);
+            background-color: var(--iconButtonSelectedBackground);
           }
 
           svg {
@@ -1239,7 +1239,7 @@
       }
 
       &:hover {
-        background-color: var(--iconButtonSelected);
+        background-color: var(--iconButtonSelectedBackground);
       }
     }
 
@@ -1595,11 +1595,11 @@
       }
 
       &.selectedAvatar {
-        border: solid 2px var(--iconButtonSelected);
+        border: solid 2px var(--iconButtonSelectedBackground);
       }
 
       &.activeAvatar {
-        border: solid 2px var(--iconButtonSelected);
+        border: solid 2px var(--iconButtonSelectedBackground);
       }
     }
   }
@@ -2040,7 +2040,6 @@
 
   & > div > div {
     padding: 3px;
-    border-radius: 50px;
   }
 
   & > div > label {
@@ -2051,11 +2050,7 @@
   }
 
   & > div > div > svg {
-    color: #5f5ff1;
-  }
-
-  & > div > div > fieldset {
-    border-color: #5f5ff1;
+    color: var(--iconButtonColor);
   }
 }
 
