@@ -1,9 +1,10 @@
 import assert from 'assert'
 import { Object3D } from 'three'
 
+import { createEngine } from '../../initializeEngine'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
-import { createEngine, Engine } from '../classes/Engine'
+import { Engine } from '../classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from './ComponentFunctions'
 import { unloadAllEntities, unloadScene } from './EngineFunctions'
 import { createEntity } from './EntityFunctions'
@@ -11,7 +12,8 @@ import { createEntity } from './EntityFunctions'
 describe('EngineFunctions', () => {
   describe('unloadAllEntities', () => {
     it('can unload all scene entities', () => {
-      const world = createEngine().currentWorld
+      createEngine()
+      const world = Engine.instance.currentWorld
       const object3dQuery = defineQuery([Object3DComponent])
       const persistQuery = defineQuery([PersistTagComponent])
 
@@ -42,7 +44,8 @@ describe('EngineFunctions', () => {
     })
 
     it('can unload all non-persisted scene entities', () => {
-      const world = createEngine().currentWorld
+      createEngine()
+      const world = Engine.instance.currentWorld
       const getEntities = defineQuery([Object3DComponent])
       const persistQuery = defineQuery([PersistTagComponent])
 

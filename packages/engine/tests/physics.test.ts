@@ -1,10 +1,11 @@
 import assert from 'assert'
 import { BoxBufferGeometry, Mesh, MeshNormalMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three'
 
-import { createEngine, Engine } from '../src/ecs/classes/Engine'
+import { Engine } from '../src/ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../src/ecs/functions/EntityFunctions'
 import { useWorld } from '../src/ecs/functions/SystemHooks'
+import { createEngine } from '../src/initializeEngine'
 import { getGeometryType } from '../src/physics/classes/Physics'
 import { ColliderComponent } from '../src/physics/components/ColliderComponent'
 import { CollisionComponent } from '../src/physics/components/CollisionComponent'

@@ -5,10 +5,11 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
-import { createEngine, Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import {

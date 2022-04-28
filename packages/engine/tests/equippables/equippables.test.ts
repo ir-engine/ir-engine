@@ -5,9 +5,10 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
-import { createEngine, Engine } from '../../src/ecs/classes/Engine'
+import { Engine } from '../../src/ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../src/ecs/functions/EntityFunctions'
+import { createEngine } from '../../src/initializeEngine'
 import { EquippedComponent } from '../../src/interaction/components/EquippedComponent'
 import { EquipperComponent } from '../../src/interaction/components/EquipperComponent'
 import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
@@ -22,7 +23,8 @@ import { TransformComponent } from '../../src/transform/components/TransformComp
 
 describe('Equippables Integration Tests', () => {
   it('Can equip and unequip', async () => {
-    const world = createEngine().currentWorld
+    createEngine()
+    const world = Engine.instance.currentWorld
 
     const hostUserId = 'server' as UserId
     world.hostId = hostUserId
