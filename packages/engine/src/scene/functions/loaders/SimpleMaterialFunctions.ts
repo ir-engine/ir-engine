@@ -60,7 +60,9 @@ export const useSimpleMaterial = (obj: Mesh): void => {
   const isStandardMaterial = obj.material instanceof MeshStandardMaterial
   const isBasicMaterial = obj.material instanceof MeshBasicMaterial
 
+  //@ts-ignore
   if (!obj.material || !obj.material.color || isBasicMaterial) return
+  //@ts-ignore
   if (obj.entity && hasComponent(entity, XRUIComponent)) return
   
   try {
@@ -76,17 +78,16 @@ export const useSimpleMaterial = (obj: Mesh): void => {
     // const lightEnbled = !isBasicMaterial
     const lightEnbled = true
     const hasUV = obj.geometry.hasAttribute('uv')
-    const hasMap = (<any>obj.material).map !== null
+    const hasMap = (<any>obj.material).map != null
     const hasEnvMap = isStandardMaterial
-    const hasLightMap = (<any>obj.material).lightMap !== null
-    const hasAoMap = (<any>obj.material).aoMap !== null
-    const hasEmissiveMap = (<any>obj.material).emissiveMap !== null
-    const hasBumpMap = (<any>obj.material).bumpMap !== null
-    const hasNormalMap = (<any>obj.material).normalMap !== null
-    const hasSpecularMap  = (<any>obj.material).specularMap !== null
-    const hasRoughnessMap  = (<any>obj.material).roughnessMap !== null
-    const hasMetalnessMap   = (<any>obj.material).metalnessMap !== null
-    const hasAlphaMap = (<any>obj.material).alphaMap !== null
+    const hasLightMap = (<any>obj.material).lightMap != null
+    const hasAoMap = (<any>obj.material).aoMap != null
+    const hasEmissiveMap = (<any>obj.material).emissiveMap != null
+    const hasBumpMap = (<any>obj.material).bumpMap != null
+    const hasSpecularMap  = (<any>obj.material).specularMap != null
+    const hasRoughnessMap  = (<any>obj.material).roughnessMap != null
+    const hasMetalnessMap   = (<any>obj.material).metalnessMap != null
+    const hasAlphaMap = (<any>obj.material).alphaMap != null
 
     let defines = {}
     if (lightEnbled) {
@@ -128,10 +129,6 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       defines["USE_BUMPMAP"] = ''
     }
 
-    if (hasNormalMap) {
-      defines["hasNormalMap"] = ''
-    }
-
     if (hasRoughnessMap) {
       defines["USE_ROUGHNESSMAP"] = ''
     }
@@ -149,12 +146,6 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       },
       uvTransform: { value: new Matrix3() },
       uv2Transform: { value: new Matrix3() },
-      map: {
-        value: (prevMaterial as any).map
-      },
-      alphaMap: {
-        value: (prevMaterial as any).alphaMap
-      },
       alphaTest: {
         value: (prevMaterial as any).alphaTest
       }
@@ -175,9 +166,6 @@ export const useSimpleMaterial = (obj: Mesh): void => {
           //@ts-ignore
           uniforms[key] = {
             value: (prevMaterial as any)[key]
-          }
-          if ((prevMaterial as any)[key].isTexture) {
-            obj.material[key] = true
           }
         }
       }
@@ -301,7 +289,7 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       `#include <transmission_pars_fragment>`,
       lightEnbled ? `#include <shadowmap_pars_fragment>` : ``,           //lightEnbled
       hasBumpMap ? `#include <bumpmap_pars_fragment>` : ``,
-      hasNormalMap ? `#include <normalmap_pars_fragment>` : ``,
+      `#include <normalmap_pars_fragment>`,
       //`#include <clearcoat_pars_fragment>`,
       lightEnbled ? `#include <roughnessmap_pars_fragment>` : ``,     //lightEnbled
       lightEnbled ?`#include <metalnessmap_pars_fragment>` : ``,      //lightEnbled
@@ -377,6 +365,13 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       lights: lightEnbled,
       transparent: true
     })
+
+    Object.keys(uniforms).forEach((key) => {
+      if (uniforms[key].value?.isTexture) {
+        obj.material[key] = true
+      }
+    })
+
     if (hasEnvMap) {
       //@ts-ignore
       obj.material.envMap = Engine.scene?.environment
