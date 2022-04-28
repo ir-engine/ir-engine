@@ -1,5 +1,8 @@
-import { SCENE_COMPONENT_CAMERA } from '../../camera/components/CameraComponent'
-import { deserializeCamera, serializeCamera } from '../../camera/functions/CameraComponentFunctions'
+import {
+  deserializeCamera,
+  SCENE_COMPONENT_CAMERA,
+  serializeCamera
+} from '../../camera/functions/CameraComponentFunctions'
 import { World } from '../../ecs/classes/World'
 import {
   deserializeAmbientLight,
