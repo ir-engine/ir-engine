@@ -22,6 +22,7 @@ import {
   XRSession
 } from 'three'
 
+import { isDev } from '@xrengine/common/src/utils/isDev'
 import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { CSM } from '../assets/csm/CSM'
@@ -147,7 +148,7 @@ export class EngineRenderer {
     this.renderer.outputEncoding = sRGBEncoding
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
-    // Engine.renderer.debug.checkShaderErrors = false
+    this.renderer.debug.checkShaderErrors = isDev
 
     this.xrManager = renderer.xr
     //@ts-ignore

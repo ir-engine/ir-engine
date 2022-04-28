@@ -1,9 +1,13 @@
-import { AnimationClip, AnimationMixer, Group } from 'three'
+import { AnimationClip, AnimationMixer, Group, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
+import { AnimationState } from '../../../avatar/animation/AnimationState'
+import { AvatarAnimationGraph } from '../../../avatar/animation/AvatarAnimationGraph'
 import { AnimationManager } from '../../../avatar/AnimationManager'
+import { BoneStructure } from '../../../avatar/AvatarBoneMatching'
 import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
+import { AvatarAnimationComponent } from '../../../avatar/components/AvatarAnimationComponent'
 import { LoopAnimationComponent, LoopAnimationComponentType } from '../../../avatar/components/LoopAnimationComponent'
 import { setupAvatarModel } from '../../../avatar/functions/avatarFunctions'
 import {
@@ -15,8 +19,9 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { accessEngineState, EngineActions } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
+import { VelocityComponent } from '../../../physics/components/VelocityComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
@@ -74,10 +79,25 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
   if (component.hasAvatarAnimations) {
     if (lastModel !== object3d) {
       lastModel = object3d as Group
+      if (!hasComponent(entity, AvatarAnimationComponent)) {
+        addComponent(entity, AvatarAnimationComponent, {
+          animationGraph: new AvatarAnimationGraph(),
+          currentState: new AnimationState(),
+          prevState: new AnimationState(),
+          prevVelocity: new Vector3(),
+          rig: {} as BoneStructure,
+          rootYRatio: 1
+        })
+        addComponent(entity, VelocityComponent, { linear: new Vector3(), angular: new Vector3() })
+      }
       const setupLoopableAvatarModel = setupAvatarModel(entity)
       setupLoopableAvatarModel(object3d)
     }
   } else {
+    if (hasComponent(entity, AvatarAnimationComponent)) {
+      removeComponent(entity, VelocityComponent)
+      removeComponent(entity, AvatarAnimationComponent)
+    }
     animationComponent.mixer = new AnimationMixer(object3d)
   }
 
