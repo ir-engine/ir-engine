@@ -13,13 +13,18 @@ import {
 } from 'three'
 
 import { MAX_ALLOWED_TRIANGLES } from '@xrengine/common/src/constants/AvatarConstants'
+import { AnimationState } from '@xrengine/engine/src/avatar/animation/AnimationState'
+import { AvatarAnimationGraph } from '@xrengine/engine/src/avatar/animation/AvatarAnimationGraph'
+import { BoneStructure } from '@xrengine/engine/src/avatar/AvatarBoneMatching'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
+import { AvatarAnimationComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 
 const t = i18next.t
 interface SceneProps {
@@ -72,6 +77,15 @@ export const addAnimationLogic = (
     hasAvatarAnimations: true,
     action: null!
   })
+  addComponent(entity, AvatarAnimationComponent, {
+    animationGraph: new AvatarAnimationGraph(),
+    currentState: new AnimationState(),
+    prevState: new AnimationState(),
+    prevVelocity: new Vector3(),
+    rig: {} as BoneStructure,
+    rootYRatio: 1
+  })
+  addComponent(entity, VelocityComponent, { linear: new Vector3(), angular: new Vector3() })
 
   async function AvatarSelectRenderSystem(world: World) {
     return () => {
