@@ -136,21 +136,14 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       defines["USE_METALNESSMAP"] = ''
     }
 
-    var uniforms = {
-      diffuse: {
-        value: prevMaterial.color
-      },
-      opacity: {
-        value: (prevMaterial.opacity
-      },
-      uvTransform: { value: new Matrix3() },
-      uv2Transform: { value: new Matrix3() },
-      alphaTest: {
-        value: prevMaterial.alphaTest
-      }
-    }
-    
-    // var uniforms = {}
+    let uniforms = {}
+    //@ts-ignore
+    uniforms['diffuse'] = { value: (prevMaterial as any).color }
+    uniforms['opacity'] = { value: (prevMaterial as any).opacity }
+    uniforms['alphaTest'] = { value: (prevMaterial as any).alphaTest }
+    uniforms['uvTransform'] = { value: new Matrix3() }
+    uniforms['uv2Transform'] = { value: new Matrix3() }
+
     Object.keys(ShaderLib.standard.uniforms).forEach((original) => {
       let key = original
       if (original == 'diffuse') key = 'color'
@@ -376,6 +369,7 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       obj.material.envMap = Engine.scene?.environment
       //@ts-ignore
       obj.material.uniforms.envMap = {
+      //@ts-ignore
         value: Engine.scene?.environment
       }
       //@ts-ignore
