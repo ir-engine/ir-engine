@@ -8,6 +8,7 @@ import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
 export class XRHandMeshModel extends Object3D {
   controller: Group
   bones: any[]
+  handedness: string
 
   constructor(entity: Entity, controller: Group, model: Object3D, handedness: string) {
     super()
@@ -16,6 +17,7 @@ export class XRHandMeshModel extends Object3D {
 
     this.controller = controller
     this.bones = []
+    this.handedness = handedness
     this.add(model)
 
     const mesh = model.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
