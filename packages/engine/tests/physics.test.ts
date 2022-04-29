@@ -29,7 +29,6 @@ describe('Physics Interation Tests', () => {
   })
 
   afterEach(() => {
-    Engine.instance.currentWorld = null!
     delete (globalThis as any).PhysX
   })
 
