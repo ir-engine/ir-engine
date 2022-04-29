@@ -129,6 +129,10 @@
       "lbl-intensity": "Intensity",
       "lbl-color": "Color"
     },
+    "envmap": {
+      "name": "Environment Map",
+      "description": "environment map properties"
+    },
     "asset": {
       "name": "Asset",
       "description": "A grouping of scene components which can be dynamically loaded and unloaded",

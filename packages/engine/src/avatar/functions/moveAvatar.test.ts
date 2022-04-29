@@ -1,9 +1,10 @@
 import assert, { strictEqual } from 'assert'
 import { Group, PerspectiveCamera, Vector3 } from 'three'
 
-import { createEngine, Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../initializeEngine'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -80,6 +81,7 @@ const createMovingAvatar = (world) => {
       movementEnabled: true,
       isJumping: false,
       isWalking: false,
+      isInAir: false,
       // set input to move in a straight line on X/Z axis / horizontal diagonal
       localMovementDirection: new Vector3(1, 0, 1),
       velocitySimulator,
@@ -95,8 +97,8 @@ const createMovingAvatar = (world) => {
 describe('moveAvatar function tests', () => {
   beforeEach(async () => {
     /* hoist */
-    const world = createEngine().currentWorld
-    Engine.instance.currentWorld = world
+    createEngine()
+    const world = Engine.instance.currentWorld
     // instantiate physics scene (depended on by world.physics.createMaterial())
     await world.physics.createScene()
   })

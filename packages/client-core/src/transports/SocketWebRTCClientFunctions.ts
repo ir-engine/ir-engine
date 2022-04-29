@@ -1,6 +1,7 @@
 import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
 
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
+import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network, TransportTypes } from '@xrengine/engine/src/networking/classes/Network'
@@ -10,7 +11,7 @@ import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { addActionReceptor, dispatchAction, matches, removeActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { LocationInstanceConnectionAction } from '../common/services/LocationInstanceConnectionService'

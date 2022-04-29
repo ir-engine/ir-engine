@@ -3,9 +3,10 @@ import { Color, DirectionalLight, Scene } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { createEngine } from '../../../ecs/classes/Engine'
+import { Engine } from '../../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { deserializeDirectionalLight } from './DirectionalLightFunctions'
@@ -52,7 +53,8 @@ describe('DirectionalLightFunctions', () => {
     })
 
     it('without CSM', () => {
-      const world = createEngine().currentWorld
+      createEngine()
+      const world = Engine.instance.currentWorld
       EngineRenderer.instance.isCSMEnabled = false
 
       const entity = createEntity()

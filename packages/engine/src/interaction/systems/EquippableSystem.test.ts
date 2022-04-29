@@ -4,9 +4,10 @@ import { Quaternion, Vector3 } from 'three'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
 import { createAvatar } from '../../avatar/functions/createAvatar'
-import { createEngine, Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../initializeEngine'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -23,7 +24,8 @@ describe.skip('EquippableSystem Integration Tests', () => {
   let equippableSystem
 
   before(async () => {
-    const world = createEngine().currentWorld
+    createEngine()
+    const world = Engine.instance.currentWorld
     await Engine.instance.currentWorld.physics.createScene({ verbose: true })
     equippableSystem = await EquippableSystem(world)
   })
