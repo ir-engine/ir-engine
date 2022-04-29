@@ -34,20 +34,20 @@ const SubmitBugButton = (props: Props) => {
   return (
     <React.Fragment>
       <div className={`${styles.container} ${props.animate}`}>
-        <Chip
+        {/* <Chip
           className={styles.helpBtn}
           icon={showHelpLoading ? <CircularProgress size={10} /> : <Help />}
           label="Help"
           onClick={handleHelpClick}
           variant="outlined"
-        />
-        <Chip
+        /> */}
+        {/* <Chip
           className={styles.reportBtn}
           icon={showReportLoading ? <CircularProgress size={10} /> : <Error />}
           label="Report Issue"
           onClick={handleReportClick}
           variant="outlined"
-        />
+        /> */}
       </div>
     </React.Fragment>
   )
