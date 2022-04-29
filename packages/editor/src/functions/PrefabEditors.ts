@@ -1,4 +1,4 @@
-import { SCENE_COMPONENT_CAMERA } from '@xrengine/engine/src/camera/components/CameraComponent'
+import { SCENE_COMPONENT_CAMERA } from '@xrengine/engine/src/camera/functions/CameraComponentFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'

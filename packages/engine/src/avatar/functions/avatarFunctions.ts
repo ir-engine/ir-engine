@@ -93,30 +93,8 @@ export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
   model.children.forEach((child) => avatar.modelContainer.add(child))
 }
 
-export const initializeAvatarRig = (entity: Entity) => {
-  if (!hasComponent(entity, AvatarAnimationComponent)) {
-    addComponent(entity, AvatarAnimationComponent, {
-      animationGraph: new AvatarAnimationGraph(),
-      currentState: new AnimationState(),
-      prevState: new AnimationState(),
-      prevVelocity: new Vector3(),
-      rig: {} as BoneStructure,
-      rootYRatio: 1
-    })
-  }
-
-  if (!hasComponent(entity, VelocityComponent)) {
-    addComponent(entity, VelocityComponent, {
-      angular: new Vector3(),
-      linear: new Vector3()
-    })
-  }
-}
-
-export const setupAvatarModel = (entity: Entity) => {
-  initializeAvatarRig(entity)
-  return pipe(boneMatchAvatarModel(entity), rigAvatarModel(entity), animateAvatarModel(entity))
-}
+export const setupAvatarModel = (entity: Entity) =>
+  pipe(boneMatchAvatarModel(entity), rigAvatarModel(entity), animateAvatarModel(entity))
 
 export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
   const assetType = model.userData.type
