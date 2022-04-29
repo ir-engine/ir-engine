@@ -8,7 +8,6 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
@@ -33,7 +32,7 @@ export const deserializeWorldData: ComponentDeserializeFunction = (
     createState({ action: '_metadata', interactionUserData: data } as InteractableComponentType)
   )
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_WORLDDATA)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_WORLDDATA)
 
   updateWorldData(entity, json.props)
 }

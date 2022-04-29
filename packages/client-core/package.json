@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-core",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -43,9 +43,9 @@
     "@speigg/hookstate": "3.0.13-stable-state",
     "@types/react-router-dom": "5.3.3",
     "@types/styled-components": "5.1.24",
-    "@xrengine/common": "^0.5.2",
-    "@xrengine/engine": "^0.5.2",
-    "@xrengine/hyperflux": "^0.5.2",
+    "@xrengine/common": "^0.5.3",
+    "@xrengine/engine": "^0.5.3",
+    "@xrengine/hyperflux": "^0.5.3",
     "apexcharts": "^3.28.3",
     "axios": "0.26.1",
     "classnames": "2.3.1",

@@ -1,5 +1,7 @@
 import { HookContext } from '@feathersjs/feathers'
 
+import logger from '../logger'
+
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
@@ -24,7 +26,7 @@ export default () => {
         context.params
       )
     } catch (error) {
-      console.error(error)
+      logger.error(error)
     }
     await context.app.service('user').patch(user.id, {
       partyId: result.id

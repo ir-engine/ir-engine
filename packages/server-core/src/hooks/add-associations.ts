@@ -33,8 +33,7 @@ export default (options: any = {}): Hook => {
       context.params.sequelize = sequelize
     } catch (err) {
       context.params = {}
-      logger.error('Add association error')
-      logger.error(err)
+      logger.error(err, `Add association error: ${err.message}`)
     }
     return context
   }

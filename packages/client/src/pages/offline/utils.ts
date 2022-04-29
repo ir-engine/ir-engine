@@ -1,16 +1,12 @@
 import { useDispatch } from '@xrengine/client-core/src/store'
+import { corsProxyPath } from '@xrengine/client-core/src/util/config'
 import { SceneAction } from '@xrengine/client-core/src/world/services/SceneService'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 
 const sceneRelativePathIdentifier = '__$project$__'
 const sceneCorsPathIdentifier = '__$cors-proxy$__'
 const fileServer = process.env[`VITE_FILE_SERVER`] ?? `https://localhost:8642`
-const corsPath = process.env[`VITE_CORS_SERVER_PORT`]
-  ? isDev || process.env.VITE_LOCAL_BUILD
-    ? `https://${process.env[`VITE_SERVER_HOST`]}:${process.env[`VITE_CORS_SERVER_PORT`]}`
-    : `https://${process.env[`VITE_SERVER_HOST`]}/cors-proxy`
-  : `https://localhost:3029`
+const corsPath = process.env[`VITE_CORS_SERVER_PORT`] ? corsProxyPath : `https://localhost:3029`
 
 const parseSceneDataCacheURLsLocal = (projectName: string, sceneData: any) => {
   for (const [key, val] of Object.entries(sceneData)) {

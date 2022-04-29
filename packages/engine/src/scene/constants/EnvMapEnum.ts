@@ -1,7 +1,8 @@
 export const enum EnvMapSourceType {
   'Default',
   'Texture',
-  'Color'
+  'Color',
+  'None'
 }
 
 export const enum EnvMapTextureType {

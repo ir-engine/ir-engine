@@ -53,7 +53,7 @@ issues. Make sure you are running Node 16, and check your dependencies.
 cd path/to/xrengine
 npm install
 npm run dev-docker
-npm run dev-reinit # press Ctrl-C after it finishes/'Server Ready'
+npm run dev-reinit
 npm run dev
 ```
 

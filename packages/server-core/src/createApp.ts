@@ -5,12 +5,10 @@ import * as k8s from '@kubernetes/client-node'
 import compress from 'compression'
 import cors from 'cors'
 import { EventEmitter } from 'events'
-import feathersLogger from 'feathers-logger'
 import swagger from 'feathers-swagger'
 import sync from 'feathers-sync'
 import helmet from 'helmet'
 import path from 'path'
-import winston from 'winston'
 
 import { pipe } from '@xrengine/common/src/utils/pipe'
 import { Application } from '@xrengine/server-core/declarations'
@@ -93,7 +91,7 @@ export const configureRedis = () => (app: Application) => {
       })
     )
     app.sync.ready.then(() => {
-      logger.info('Feathers-sync started')
+      logger.info('Feathers-sync started.')
     })
   }
   return app
@@ -152,9 +150,6 @@ export const createFeathersExpressApp = (configurationPipe = serverPipe): Applic
 
   // Configure other middleware (see `middleware/index.js`)
   app.configure(authentication)
-
-  // Set up our logger
-  app.configure(feathersLogger(winston))
 
   // Set up our services (see `services/index.js`)
   app.configure(services)

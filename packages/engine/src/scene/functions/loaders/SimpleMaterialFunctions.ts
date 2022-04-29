@@ -6,6 +6,7 @@ import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { beforeMaterialCompile } from '../../classes/BPCEMShader'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
@@ -20,9 +21,9 @@ export const deserializeSimpleMaterial: ComponentDeserializeFunction = (
   if (!json.props.simpleMaterials) return
 
   addComponent(entity, SimpleMaterialTagComponent, {})
-  Engine.simpleMaterials = json.props.simpleMaterials
+  Engine.instance.simpleMaterials = json.props.simpleMaterials
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SIMPLE_MATERIALS)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SIMPLE_MATERIALS)
 }
 
 export const serializeSimpleMaterial: ComponentSerializeFunction = (entity) => {
@@ -65,5 +66,5 @@ export const useStandardMaterial = (obj: Mesh<any, Material>): void => {
     obj.userData.prevMaterial = undefined
   }
 
-  if (obj.receiveShadow) Engine.csm?.setupMaterial(obj)
+  if (obj.receiveShadow) EngineRenderer.instance.csm?.setupMaterial(obj)
 }

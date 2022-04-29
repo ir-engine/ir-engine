@@ -1,7 +1,7 @@
 import { Intersection, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 import { executeCommand } from '../classes/History'
@@ -68,7 +68,7 @@ export const getSpawnPositionAtCenter = (() => {
  * @returns
  */
 export function getCursorSpawnPosition(mousePos: Vector2, target = new Vector3()): Vector3 {
-  const rect = Engine.renderer.domElement.getBoundingClientRect()
+  const rect = EngineRenderer.instance.renderer.domElement.getBoundingClientRect()
   const position = new Vector2()
   position.x = ((mousePos.x - rect.left) / rect.width) * 2 - 1
   position.y = ((mousePos.y - rect.top) / rect.height) * -2 + 1

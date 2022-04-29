@@ -27,7 +27,7 @@ export const deserializeFog: ComponentDeserializeFunction = (entity: Entity, jso
   const props = parseFogProperties(json.props)
   addComponent(entity, FogComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_FOG)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_FOG)
 
   updateFog(entity, props)
 }
@@ -37,26 +37,26 @@ export const updateFog: ComponentUpdateFunction = (entity: Entity, _properties: 
 
   switch (component.type) {
     case FogType.Linear:
-      if (Engine.scene.fog instanceof Fog) {
-        Engine.scene.fog.color = component.color
-        Engine.scene.fog.near = component.near
-        Engine.scene.fog.far = component.far
+      if (Engine.instance.scene.fog instanceof Fog) {
+        Engine.instance.scene.fog.color = component.color
+        Engine.instance.scene.fog.near = component.near
+        Engine.instance.scene.fog.far = component.far
       } else {
-        Engine.scene.fog = new Fog(component.color, component.near, component.far)
+        Engine.instance.scene.fog = new Fog(component.color, component.near, component.far)
       }
       break
 
     case FogType.Exponential:
-      if (Engine.scene.fog instanceof FogExp2) {
-        Engine.scene.fog.color = component.color
-        Engine.scene.fog.density = component.density
+      if (Engine.instance.scene.fog instanceof FogExp2) {
+        Engine.instance.scene.fog.color = component.color
+        Engine.instance.scene.fog.density = component.density
       } else {
-        Engine.scene.fog = new FogExp2(component.color.getHexString(), component.density)
+        Engine.instance.scene.fog = new FogExp2(component.color.getHexString(), component.density)
       }
       break
 
     default:
-      Engine.scene.fog = null
+      Engine.instance.scene.fog = null
       break
   }
 }

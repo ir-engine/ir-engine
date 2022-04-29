@@ -8,7 +8,6 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Interior } from '../../classes/Interior'
@@ -31,16 +30,13 @@ export const deserializeInterior: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const obj3d = new Interior(entity)
+  obj3d.userData.disableOutline = true
   const props = parseInteriorProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, InteriorComponent, props)
 
-  if (Engine.isEditor) {
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_INTERIOR)
-
-    obj3d.userData.disableOutline = true
-  }
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_INTERIOR)
 
   updateInterior(entity, props)
 }

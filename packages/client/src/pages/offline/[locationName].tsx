@@ -22,7 +22,7 @@ const LocationPage = () => {
 
   useEffect(() => {
     dispatch(LocationAction.setLocationName(`${params.projectName}/${params.sceneName}`))
-    loadSceneJsonOffline(params.sceneName, params.sceneName)
+    loadSceneJsonOffline(params.projectName, params.sceneName)
   }, [])
 
   return (

@@ -9,9 +9,9 @@ import { AudioComponent, AudioComponentType } from '../../../audio/components/Au
 import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ErrorComponent } from '../../components/ErrorComponent'
 import { MediaComponent, MediaComponentType } from '../../components/MediaComponent'
@@ -67,7 +67,6 @@ class Audio extends Object3D {
 class PositionalAudio extends Audio {}
 
 describe('AudioFunctions', () => {
-  let world: World
   let entity: Entity
   let audioFunctions = proxyquire('./AudioFunctions', {
     '../../../common/functions/isClient': { isClient: true },
@@ -78,9 +77,7 @@ describe('AudioFunctions', () => {
   })
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
-    Engine.isEditor = false
+    createEngine()
     entity = createEntity()
   })
 
@@ -138,40 +135,29 @@ describe('AudioFunctions', () => {
       })
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Audio in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        audioFunctions.deserializeAudio(entity, sceneComponent)
+      audioFunctions.deserializeAudio(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_AUDIO))
-      })
-
-      it('creates Audio in Editor', () => {
-        Engine.isEditor = true
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        audioFunctions.deserializeAudio(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AUDIO))
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AUDIO))
     })
 
-    describe('Editor Tests', () => {
+    describe('Texture mesh Tests', () => {
       it('creates texture mesh for audio', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
         audioFunctions.deserializeAudio(entity, sceneComponent)
 
         const obj3d = getComponent(entity, Object3DComponent).value
 
         assert(obj3d.userData.textureMesh && obj3d.children.includes(obj3d.userData.textureMesh))
         assert(obj3d.userData.textureMesh.userData.disableOutline, 'Outline is not disabled for helper mesh')
+        assert(obj3d.userData.textureMesh.userData.isHelper, 'Outline is not disabled for helper mesh')
       })
 
       it('caches audio texture', () => {
-        Engine.isEditor = true
+        Engine.instance.isEditor = true
         const entity2 = createEntity()
 
         audioFunctions.deserializeAudio(entity, sceneComponent)

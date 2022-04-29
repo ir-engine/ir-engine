@@ -22,7 +22,7 @@ import { getCanvasBlob } from './thumbnails'
 export async function takeScreenshot(width: number, height: number): Promise<Blob | null> {
   EngineRenderer.instance.disableUpdate = true
   const size = new Vector2()
-  Engine.renderer.getSize(size)
+  EngineRenderer.instance.renderer.getSize(size)
 
   let scenePreviewCamera: PerspectiveCamera = null!
   const query = defineQuery([ScenePreviewCameraTagComponent])
@@ -36,7 +36,11 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
     deserializeScenePreviewCamera(entity, null!)
 
     scenePreviewCamera = getComponent(entity, Object3DComponent).value as PerspectiveCamera
-    Engine.camera.matrix.decompose(scenePreviewCamera.position, scenePreviewCamera.quaternion, scenePreviewCamera.scale)
+    Engine.instance.camera.matrix.decompose(
+      scenePreviewCamera.position,
+      scenePreviewCamera.quaternion,
+      scenePreviewCamera.scale
+    )
   }
 
   const prevAspect = scenePreviewCamera.aspect
@@ -44,12 +48,12 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
   scenePreviewCamera.updateProjectionMatrix()
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
-  Engine.renderer.setSize(width, height, false)
-  Engine.renderer.render(Engine.scene, scenePreviewCamera)
-  const blob = await getCanvasBlob(Engine.renderer.domElement)
+  EngineRenderer.instance.renderer.setSize(width, height, false)
+  EngineRenderer.instance.renderer.render(Engine.instance.scene, scenePreviewCamera)
+  const blob = await getCanvasBlob(EngineRenderer.instance.renderer.domElement)
   scenePreviewCamera.aspect = prevAspect
   scenePreviewCamera.updateProjectionMatrix()
-  Engine.renderer.setSize(size.x, size.y, false)
+  EngineRenderer.instance.renderer.setSize(size.x, size.y, false)
   EngineRenderer.instance.disableUpdate = false
   return blob
 }

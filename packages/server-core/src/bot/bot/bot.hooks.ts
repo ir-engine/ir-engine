@@ -32,8 +32,7 @@ export default {
           })
           return context
         } catch (error) {
-          logger.error('BOT AFTER CREATE ERROR')
-          logger.error(error)
+          logger.error(error, 'BOT AFTER CREATE ERROR')
           return null!
         }
       }
