@@ -31,9 +31,10 @@ export const FileBrowserAction = {
       files
     }
   },
-  filesDeleted: () => {
+  filesDeleted: (contentPath) => {
     return {
-      type: 'FILES_DELETED' as const
+      type: 'FILES_DELETED' as const,
+      contentPath
     }
   }
 }
@@ -63,7 +64,7 @@ export const FileBrowserService = {
       })
       staticResource?.data?.length > 0 && (await client.service('static-resource').remove(staticResource?.data[0]?.id))
     }
-    useDispatch()(FileBrowserAction.filesDeleted())
+    useDispatch()(FileBrowserAction.filesDeleted(contentPath))
   },
   addNewFolder: (folderName: string) => {
     return client.service(`file-browser`).create(folderName)
