@@ -21,15 +21,14 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { CameraPropertiesComponent } from '../../scene/components/CameraPropertiesComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
-import { SCENE_COMPONENT_CAMERA_DEFAULT_VALUES } from '../functions/CameraComponentFunctions'
 
 const direction = new Vector3()
 const quaternion = new Quaternion()
@@ -48,8 +47,6 @@ const camRayCastCache = {
   maxDistance: -1,
   targetHit: false
 }
-
-const getCamComponent = () => getComponent(Engine.instance.activeCameraEntity, CameraComponent)
 
 /**
  * Calculates and returns view vector for give angle. View vector will be at the given angle after the calculation
@@ -112,7 +109,7 @@ export const updateCameraTargetRotation = (entity: Entity, delta: number) => {
 
 export const getMaxCamDistance = (entity: Entity, target: Vector3) => {
   // Cache the raycast result for 0.1 seconds
-  const camComp = getCamComponent()
+  const camComp = getComponent(entity, CameraPropertiesComponent).raycastProps
   if (camRayCastCache.maxDistance != -1 && camRayCastClock.getElapsedTime() < camComp.rayFrequency) {
     return camRayCastCache
   }
@@ -179,7 +176,6 @@ export const calculateCameraTarget = (entity: Entity, target: Vector3) => {
 
 export const updateFollowCamera = (entity: Entity, delta: number) => {
   if (!entity) return
-  const camComp = getCamComponent()
   const followCamera = getComponent(entity, FollowCameraComponent)
   const object3DComponent = getComponent(entity, Object3DComponent)
   object3DComponent?.value.updateWorldMatrix(false, true)
@@ -193,7 +189,7 @@ export const updateFollowCamera = (entity: Entity, delta: number) => {
   let isInsideWall = false
 
   // Run only if not in first person mode
-  if (camComp.raycasting && followCamera.zoomLevel >= followCamera.minDistance) {
+  if (followCamera.raycastProps.enabled && followCamera.zoomLevel >= followCamera.minDistance) {
     const distanceResults = getMaxCamDistance(entity, tempVec)
     maxDistance = distanceResults.maxDistance
     isInsideWall = distanceResults.targetHit
@@ -246,14 +242,7 @@ export const updateFollowCamera = (entity: Entity, delta: number) => {
 }
 
 export const initializeCameraComponent = (world: World) => {
-  //add reference component for editing in the scene root
-  const root = world.entityTree.rootNode
-  if (!hasComponent(root.entity, CameraComponent)) {
-    addComponent(root.entity, CameraComponent, SCENE_COMPONENT_CAMERA_DEFAULT_VALUES)
-  }
-  const rootCamComp = getComponent(root.entity, CameraComponent)
   const cameraEntity = createEntity()
-  addComponent(cameraEntity, CameraComponent, rootCamComp)
   addComponent(cameraEntity, Object3DComponent, { value: Engine.instance.camera })
   addComponent(cameraEntity, PersistTagComponent, {})
   if (!Engine.instance.isEditor) {
@@ -279,7 +268,6 @@ export default async function CameraSystem(world: World) {
       cameraInitialized = true
     }
     if (cameraInitialized) {
-      const camComp = getCamComponent()
       for (const entity of followCameraQuery.enter()) {
         const cameraFollow = getComponent(entity, FollowCameraComponent)
         cameraFollow.raycaster.layers.set(ObjectLayers.Scene) // Ignore avatars
@@ -287,7 +275,7 @@ export default async function CameraSystem(world: World) {
         cameraFollow.raycaster.far = cameraFollow.maxDistance
         Engine.instance.activeCameraFollowTarget = entity
 
-        for (let i = 0; i < camComp.rayCount; i++) {
+        for (let i = 0; i < cameraFollow.raycastProps.rayCount; i++) {
           cameraRays.push(new Vector3())
 
           if (debugRays) {

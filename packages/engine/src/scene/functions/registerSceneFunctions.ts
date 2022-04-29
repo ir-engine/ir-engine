@@ -1,8 +1,3 @@
-import {
-  deserializeCamera,
-  SCENE_COMPONENT_CAMERA,
-  serializeCamera
-} from '../../camera/functions/CameraComponentFunctions'
 import { World } from '../../ecs/classes/World'
 import {
   deserializeAmbientLight,
@@ -253,11 +248,6 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SIMPLE_MATERIALS, {
     deserialize: deserializeSimpleMaterial,
     serialize: serializeSimpleMaterial
-  })
-
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_CAMERA, {
-    deserialize: deserializeCamera,
-    serialize: serializeCamera
   })
 
   /** NODES */

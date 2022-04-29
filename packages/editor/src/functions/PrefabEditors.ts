@@ -1,4 +1,3 @@
-import { SCENE_COMPONENT_CAMERA } from '@xrengine/engine/src/camera/functions/CameraComponentFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
@@ -38,7 +37,6 @@ import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEdi
 import { AssetNodeEditor } from '../components/properties/AssetNodeEditor'
 import AudioNodeEditor from '../components/properties/AudioNodeEditor'
 import BoxColliderNodeEditor from '../components/properties/BoxColliderNodeEditor'
-import CameraNodeEditor from '../components/properties/CameraNodeEditor'
 import CameraPropertiesNodeEditor from '../components/properties/CameraPropertiesNodeEditor'
 import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
 import CubemapBakeNodeEditor from '../components/properties/CubemapBakeNodeEditor'
@@ -88,7 +86,6 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_POINT_LIGHT]: PointLightNodeEditor,
   [SCENE_COMPONENT_SPOT_LIGHT]: SpotLightNodeEditor,
   [SCENE_COMPONENT_GROUND_PLANE]: GroundPlaneNodeEditor,
-  [SCENE_COMPONENT_CAMERA]: CameraNodeEditor,
   [SCENE_COMPONENT_CAMERA_PROPERTIES]: CameraPropertiesNodeEditor,
   [SCENE_COMPONENT_MODEL]: ModelNodeEditor,
   [SCENE_COMPONENT_PARTICLE_EMITTER]: ParticleEmitterNodeEditor,

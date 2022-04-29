@@ -83,15 +83,6 @@
               }
             }
           }
-        },
-        {
-          "name": "camera",
-          "props": {
-            "raycasting": false,
-            "rayCount": 1,
-            "rayLength": 50,
-            "rayFrequency": 0.5
-          }
         }
       ],
       "name": "empty_scene"
