@@ -154,7 +154,7 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
       entity,
       animationComponent.mixer,
       velocityComponent.linear,
-      controllerComponent
+      controllerComponent ?? {}
     )
 
   // advance animation for a frame to eliminate potential t-pose
