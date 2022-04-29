@@ -52,7 +52,7 @@ export const PanelContainer = (styled as any).div`
   flex: 1;
   flex-direction: column;
   border-radius: 4px;
-  background-color: var(--dock);
+  background-color: var(--dockBackground);
   overflow: hidden;
   user-select: none;
 `

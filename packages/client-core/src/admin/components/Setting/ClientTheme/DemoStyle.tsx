@@ -18,6 +18,7 @@ const DemoStyle = (props: DemoStyleProps) => {
         color: ${theme.textColor};
         background: white;      
         box-shadow: 0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
+        position: relative;
       }
 
       .navbar {
@@ -303,6 +304,24 @@ const DemoStyle = (props: DemoStyleProps) => {
         max-width: 600px;
         max-height: 500px; 
         background: ${theme.popupBackground};
+      }
+
+      .dockClickAway {
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+
+      .dockBackground {
+        width: 30%;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        background: ${theme.dockBackground};
       }
     `}
     </style>

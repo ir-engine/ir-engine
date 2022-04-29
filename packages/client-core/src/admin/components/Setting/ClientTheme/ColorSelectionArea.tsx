@@ -85,12 +85,20 @@ const ColorSelectionArea = (props: ColorSelectionAreaProps) => {
         />
       </Grid>
       <Divider variant="inset" component="div" className={styles.colorGridDivider} />
-      <Grid item sm={12} md={12} className={styles.colorGridContainer}>
+      <Grid item sm={12} md={6} className={styles.colorGridContainer}>
         <label>Navbar Background:</label>
         <SketchColorPicker
           name="navbarBackground"
           value={theme.navbarBackground}
           onChange={(color) => handleChangeColor('navbarBackground', color)}
+        />
+      </Grid>
+      <Grid item sm={12} md={6} className={styles.colorGridContainer}>
+        <label>Editor Dock Background:</label>
+        <SketchColorPicker
+          name="dockBackground"
+          value={theme.dockBackground}
+          onChange={(color) => handleChangeColor('dockBackground', color)}
         />
       </Grid>
       <Divider variant="inset" component="div" className={styles.colorGridDivider} />

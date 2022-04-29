@@ -25,13 +25,12 @@
 
   &:hover,
   &:focus {
-    background-color: var(--dock);
+    background-color: var(--dropdownMenuHoverBackground);
     color: var(--textColor);
   }
 
   &.rootNode {
-    border-bottom: rgba($color: var(--panel2), $alpha: 80%);
-    background: var(--dock);
+    background: var(--dropdownMenuHoverBackground);
   }
 
   &.selected {

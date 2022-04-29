@@ -14,11 +14,12 @@ export const ListItem = (styled as any).li`
   padding: 0 4px;
   align-items: center;
   color: var(--textColor);
-
-  background-color: ${(props) => (props.selected ? 'var(--dropdownMenuHoverBackground)' : 'var(--panel2)')};
+  background-color: ${(props) =>
+    props.selected ? 'var(--dropdownMenuHoverBackground)' : 'var(--dropdownMenuBackground)'};
 
   :nth-child(odd) {
-    background-color: ${(props) => (props.selected ? 'var(--dropdownMenuHoverBackground)' : 'var(--dock)')};
+    background-color: ${(props) =>
+      props.selected ? 'var(--dropdownMenuHoverBackground)' : 'var(--dropdownMenuBackground)'};
   }
 
   :hover,

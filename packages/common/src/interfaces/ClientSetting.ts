@@ -63,6 +63,7 @@ export interface ThemeOptions {
   tableHeaderBackground: string
   tableCellBackground: string
   tableFooterBackground: string
+  dockBackground: string
   themeSwitchTrack: string
   themeSwitchThumb: string
 }

@@ -3,7 +3,7 @@
   display: flex;
   justify-content: center;
   pointer-events: auto;
-  background: var(--dock);
+  background: var(--dockBackground);
   height: 50px;
 
   .navContainer {
@@ -363,7 +363,7 @@
 }
 
 .filterMenu {
-  background: var(--dock);
+  background: var(--dropdownMenuBackground);
 
   .filterMenuItem {
     position: relative;

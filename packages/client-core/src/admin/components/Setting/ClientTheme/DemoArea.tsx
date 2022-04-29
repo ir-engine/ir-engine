@@ -28,6 +28,7 @@ import {
 import styles from '../../../styles/settings.module.scss'
 
 const DemoArea = () => {
+  const [dock, setDock] = useState(false)
   const [dialog, setDialog] = useState(false)
   const [drawerValue, setDrawerValue] = useState(false)
   const [selectValue, setSelectValue] = useState('')
@@ -334,6 +335,16 @@ const DemoArea = () => {
                 PaperProps={{ className: 'drawerPaper' }}
                 onClose={() => setDialog(false)}
               ></Dialog>
+              <div className="textHeading">Editor Dock</div>
+              <Button variant="contained" className="filledButton" onClick={() => setDock(true)}>
+                Open Dock
+              </Button>
+              <div
+                className="dockClickAway"
+                style={{ display: dock ? 'block' : 'none' }}
+                onClick={() => setDock(false)}
+              ></div>
+              <div className="dockBackground" style={{ display: dock ? 'block' : 'none' }}></div>
             </Box>
           </div>
         </div>

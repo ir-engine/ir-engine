@@ -36,7 +36,8 @@ const defaultThemeSettings = {
     tableCellBackground: '#9a9ae4',
     tableFooterBackground: '#7f78c4',
     themeSwitchTrack: '#aab4be',
-    themeSwitchThumb: '#c2b7f6'
+    themeSwitchThumb: '#c2b7f6',
+    dockBackground: 'rgb(73 66 152 / 85%)'
   },
   dark: {
     textColor: '#FFF',
@@ -75,7 +76,8 @@ const defaultThemeSettings = {
     tableCellBackground: '#3c3c6f',
     tableFooterBackground: '#1f1b48',
     themeSwitchTrack: '#8796a5',
-    themeSwitchThumb: '#02022d'
+    themeSwitchThumb: '#02022d',
+    dockBackground: 'rgb(73 66 152 / 85%)'
   }
 }
 
