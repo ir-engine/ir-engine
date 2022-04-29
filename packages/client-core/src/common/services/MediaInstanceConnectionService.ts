@@ -123,7 +123,7 @@ export const MediaInstanceConnectionService = {
       }
     } else {
       dispatchAction(
-        Engine.store,
+        Engine.instance.store,
         SocketWebRTCClientTransport.actions.noWorldServersAvailable({ instanceId: channelId! })
       )
     }

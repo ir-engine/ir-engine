@@ -44,7 +44,7 @@ const AvatarDetailView = () => {
   const detailState = useXRUIState() as AvatarDetailState
   const userState = useUserState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
-  const worldState = getState(Engine.currentWorld.store, WorldState)
+  const worldState = getState(Engine.instance.currentWorld.store, WorldState)
   const usersTyping = useState(worldState.usersTyping[detailState.id.value]).value
 
   return user ? (

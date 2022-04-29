@@ -5,10 +5,11 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
+import { World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
@@ -18,7 +19,6 @@ import { defaultPostProcessingSchema } from '../../constants/PostProcessing'
 import { SCENE_COMPONENT_POSTPROCESSING } from './PostprocessingFunctions'
 
 describe('PostprocessingFunctions', () => {
-  let world: World
   let entity: Entity
   let postprocessingFunctions = proxyquire('./PostprocessingFunctions', {
     '@xrengine/engine/src/common/functions/isClient': { isClient: true },
@@ -26,8 +26,7 @@ describe('PostprocessingFunctions', () => {
   })
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 
@@ -67,28 +66,13 @@ describe('PostprocessingFunctions', () => {
       assert(getComponent(entity, IgnoreRaycastTagComponent))
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Postprocessing in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        postprocessingFunctions.deserializePostprocessing(entity, sceneComponent)
+      postprocessingFunctions.deserializePostprocessing(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_POSTPROCESSING))
-      })
-
-      it('creates Postprocessing in Editor', () => {
-        Engine.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        postprocessingFunctions.deserializePostprocessing(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_POSTPROCESSING))
-
-        Engine.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_POSTPROCESSING))
     })
   })
 

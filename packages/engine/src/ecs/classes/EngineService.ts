@@ -1,8 +1,9 @@
 import { createState, useState } from '@speigg/hookstate'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { defineAction, matches, matchesUserId, Validator } from '@xrengine/hyperflux'
+import { defineAction } from '@xrengine/hyperflux'
 
+import { matches, matchesUserId, Validator } from '../../common/functions/MatchesUtils'
 import { InteractableComponentType } from '../../interaction/components/InteractableComponent'
 import { Entity } from './Entity'
 

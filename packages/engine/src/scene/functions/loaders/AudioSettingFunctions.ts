@@ -1,7 +1,6 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import {
@@ -34,7 +33,7 @@ export const deserializeAudioSetting: ComponentDeserializeFunction = (
   const props = parseAudioSettingProperties(json.props)
 
   addComponent(entity, PositionalAudioSettingsComponent, props)
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO_SETTINGS)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO_SETTINGS)
 }
 
 export const serializeAudioSetting: ComponentSerializeFunction = (entity) => {

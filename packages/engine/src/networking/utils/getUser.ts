@@ -5,7 +5,7 @@ import { UserNameComponent } from '../../scene/components/UserNameComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export function getUserEntityByName(name: string, localUserId) {
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
 
   for (let [_, client] of world.clients) {
     if (client.userId !== localUserId && client.name === name) {
@@ -18,7 +18,7 @@ export function getPlayerName(eid): string {
   const uid = getComponent(eid, NetworkObjectComponent)?.ownerId
   if (uid === undefined || uid === '') return ''
 
-  for (let [_, client] of Engine.currentWorld.clients) {
+  for (let [_, client] of Engine.instance.currentWorld.clients) {
     if (client.userId === uid) {
       if (client.name !== undefined) {
         return client.name
@@ -35,8 +35,8 @@ export function getPlayerName(eid): string {
 }
 
 export function getEid(userId) {
-  if (!Engine.currentWorld) return undefined
-  for (let [_, client] of Engine.currentWorld.clients) {
+  if (!Engine.instance.currentWorld) return undefined
+  for (let [_, client] of Engine.instance.currentWorld.clients) {
     if (client.userId == userId) {
       return useWorld().getUserAvatarEntity(client.userId)
     }

@@ -4,22 +4,17 @@ import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
-import { createWorld } from '../../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { ColliderComponent } from '../../../physics/components/ColliderComponent'
-import { CollisionComponent } from '../../../physics/components/CollisionComponent'
+import { createEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { PortalComponent } from '../../components/PortalComponent'
-import { TriggerVolumeComponent } from '../../components/TriggerVolumeComponent'
 import { deserializePortal } from './PortalFunctions'
 
 describe('PortalFunctions', () => {
   it('deserializePortal', async () => {
-    const world = createWorld()
-    Engine.currentWorld = world
-    Engine.currentWorld = world
-    await Engine.currentWorld.physics.createScene({ verbose: true })
+    createEngine()
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
 
     const entity = createEntity()
 
@@ -57,7 +52,7 @@ describe('PortalFunctions', () => {
     const portalComponent = getComponent(entity, PortalComponent)
     assert.equal(portalComponent.location, 'test')
     assert.equal(portalComponent.linkedPortalId, linkedPortalId)
-    assert(Engine.currentWorld.portalQuery().includes(entity))
+    assert(Engine.instance.currentWorld.portalQuery().includes(entity))
 
     // clean up physx
     delete (globalThis as any).PhysX

@@ -21,9 +21,9 @@ export const deserializeSimpleMaterial: ComponentDeserializeFunction = (
   if (!json.props.simpleMaterials) return
 
   addComponent(entity, SimpleMaterialTagComponent, {})
-  Engine.simpleMaterials = json.props.simpleMaterials
+  Engine.instance.simpleMaterials = json.props.simpleMaterials
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SIMPLE_MATERIALS)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SIMPLE_MATERIALS)
 }
 
 export const serializeSimpleMaterial: ComponentSerializeFunction = (entity) => {
