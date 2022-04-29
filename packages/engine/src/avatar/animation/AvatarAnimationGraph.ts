@@ -145,23 +145,24 @@ export class AvatarAnimationGraph extends AnimationGraph {
 
     const movementTransitionRule = new VectorLengthTransitionRule(locomotionState.name, velocity)
 
-    if (jumpValue) {
-      this.transitionRules[AvatarStates.LOCOMOTION] = [
-        new BooleanTransitionRule(AvatarStates.JUMP_UP, jumpValue, 'isJumping')
-      ]
+    this.transitionRules[AvatarStates.LOCOMOTION] = [
+      // Jump
+      new BooleanTransitionRule(AvatarStates.JUMP_UP, jumpValue, 'isJumping'),
+      // Fall
+      new BooleanTransitionRule(AvatarStates.FALL_IDLE, jumpValue, 'isInAir')
+    ]
 
-      this.transitionRules[AvatarStates.JUMP_UP] = [
-        new AnimationTimeTransitionRule(AvatarStates.FALL_IDLE, jumpUpState.action, 0.9)
-      ]
+    this.transitionRules[AvatarStates.JUMP_UP] = [
+      new AnimationTimeTransitionRule(AvatarStates.FALL_IDLE, jumpUpState.action, 0.9)
+    ]
 
-      this.transitionRules[AvatarStates.FALL_IDLE] = [
-        new BooleanTransitionRule(AvatarStates.JUMP_DOWN, jumpValue, 'isInAir', true)
-      ]
+    this.transitionRules[AvatarStates.FALL_IDLE] = [
+      new BooleanTransitionRule(AvatarStates.JUMP_DOWN, jumpValue, 'isInAir', true)
+    ]
 
-      this.transitionRules[AvatarStates.JUMP_DOWN] = [
-        new AnimationTimeTransitionRule(AvatarStates.LOCOMOTION, jumpDownState.action, 0.65)
-      ]
-    }
+    this.transitionRules[AvatarStates.JUMP_DOWN] = [
+      new AnimationTimeTransitionRule(AvatarStates.LOCOMOTION, jumpDownState.action, 0.65)
+    ]
 
     this.transitionRules[AvatarStates.CLAP] = [
       new CompositeTransitionRule(
