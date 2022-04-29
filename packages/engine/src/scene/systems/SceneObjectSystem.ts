@@ -57,14 +57,14 @@ const processObject3d = (entity: Entity) => {
       obj.castShadow = shadowComponent.castShadow
     }
 
-    // if (Engine.simpleMaterials || Engine.isHMD) {
-    //   useSimpleMaterial(obj)
-    // } else {
-    //   useStandardMaterial(obj)
-    // }
+    if (Engine.simpleMaterials || Engine.isHMD) {
+      useSimpleMaterial(obj)
+    } else {
+      useStandardMaterial(obj)
+    }
 
     // useStandardMaterial(obj)
-    useSimpleMaterial(obj)
+    // useSimpleMaterial(obj)
   })
 }
 

@@ -28,8 +28,6 @@ import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagCo
 import { SceneOptions } from '../../systems/SceneObjectSystem'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 
-// import { extendMaterial, CustomMaterial } from './ExtendMaterial'
-
 export const SCENE_COMPONENT_SIMPLE_MATERIALS = 'simple-materials'
 
 export const deserializeSimpleMaterial: ComponentDeserializeFunction = (
@@ -75,8 +73,9 @@ export const useSimpleMaterial = (obj: Mesh): void => {
     // https://github.com/mrdoob/three.js/blob/master/src/renderers/webgl/WebGLProgram.js
 
     const prevMaterial = obj.material
-    // const lightEnbled = !isBasicMaterial
-    const lightEnbled = true
+    // const lightEnabled = !isBasicMaterial
+    const lightEnabled = true
+    const fogEnabled = false
     const hasUV = obj.geometry.hasAttribute('uv')
     const hasMap = (<any>obj.material).map != null
     const hasEnvMap = isStandardMaterial
@@ -90,7 +89,7 @@ export const useSimpleMaterial = (obj: Mesh): void => {
     const hasAlphaMap = (<any>obj.material).alphaMap != null
 
     let defines = {}
-    if (lightEnbled) {
+    if (lightEnabled) {
       defines["USE_LIGHT_ENABLE"] = ''
     }
 
@@ -139,15 +138,15 @@ export const useSimpleMaterial = (obj: Mesh): void => {
 
     var uniforms = {
       diffuse: {
-        value: (prevMaterial as any).color
+        value: prevMaterial.color
       },
       opacity: {
-        value: (prevMaterial as any).opacity
+        value: (prevMaterial.opacity
       },
       uvTransform: { value: new Matrix3() },
       uv2Transform: { value: new Matrix3() },
       alphaTest: {
-        value: (prevMaterial as any).alphaTest
+        value: prevMaterial.alphaTest
       }
     }
     
@@ -155,23 +154,23 @@ export const useSimpleMaterial = (obj: Mesh): void => {
     Object.keys(ShaderLib.standard.uniforms).forEach((original) => {
       let key = original
       if (original == 'diffuse') key = 'color'
-      if ((prevMaterial as any)[key] !== undefined && (prevMaterial as any)[key] !== null) {
+      if (prevMaterial[key] !== undefined && prevMaterial[key] !== null) {
         // console.error(key)
         if (key == 'color') {
           //@ts-ignore
           uniforms.diffuse = {
-            value: (prevMaterial as any)[key]
+            value: prevMaterial[key]
           }
         } else {
           //@ts-ignore
           uniforms[key] = {
-            value: (prevMaterial as any)[key]
+            value: prevMaterial[key]
           }
         }
       }
     })
 
-    if (lightEnbled) {
+    if (lightEnabled) {
       uniforms = UniformsUtils.merge([UniformsLib.lights, uniforms])
     }
 
@@ -185,11 +184,11 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       (hasLightMap || hasAoMap) ? `#include <uv2_pars_vertex>` : '',
       // `#include <displacementmap_pars_vertex>`,
       `#include <color_pars_vertex>`,
-      // `#include <fog_pars_vertex>`,
+      fogEnabled ? `#include <fog_pars_vertex>` : ``,
       `#include <normal_pars_vertex>`,
       // `#include <morphtarget_pars_vertex>`,
       // `#include <skinning_pars_vertex>`,
-      lightEnbled ? `#include <shadowmap_pars_vertex> ` : '',                    //lightEnbled
+      lightEnabled ? `#include <shadowmap_pars_vertex> ` : '',                    //lightEnabled
       //`#include <logdepthbuf_pars_vertex>`,
       //`#include <clipping_planes_pars_vertex>`,
 
@@ -213,8 +212,8 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       `vViewPosition = - mvPosition.xyz;`,
 
       `#include <worldpos_vertex>`,
-      lightEnbled ? `#include <shadowmap_vertex>` : '',
-      // `#include <fog_vertex>`,
+      lightEnabled ? `#include <shadowmap_vertex>` : '',
+      fogEnabled ? `#include <fog_vertex>` : ``,
       `#ifdef USE_TRANSMISSION`,
       `vWorldPosition = worldPosition.xyz;`,
       `#endif`,
@@ -277,22 +276,22 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       hasAoMap ? `#include <aomap_pars_fragment>` : ``,
       hasLightMap ? `#include <lightmap_pars_fragment>` : ``,
       hasEmissiveMap ? `#include <emissivemap_pars_fragment>` : ``,
-      lightEnbled ? `#include <bsdfs>` : ``,                             //lightEnbled
+      lightEnabled ? `#include <bsdfs>` : ``,                             //lightEnabled
       hasEnvMap ? `#include <cube_uv_reflection_fragment>` : ``,
       hasEnvMap ? `#include <envmap_common_pars_fragment>` : ``,
       hasEnvMap ?  `#include <envmap_physical_pars_fragment>` : ``,
-      //`#include <fog_pars_fragment>`,
+      fogEnabled ? `#include <fog_pars_fragment>` : ``,
       hasSpecularMap ? `#include <specularmap_pars_fragment>` : ``,
-      lightEnbled ? `#include <lights_pars_begin>` : ``,                 //lightEnbled
-      lightEnbled ? `#include <normal_pars_fragment>` : ``,              //lightEnbled
-      lightEnbled ? `#include <lights_physical_pars_fragment>` : ``,     //lightEnbled
+      lightEnabled ? `#include <lights_pars_begin>` : ``,                 //lightEnabled
+      lightEnabled ? `#include <normal_pars_fragment>` : ``,              //lightEnabled
+      lightEnabled ? `#include <lights_physical_pars_fragment>` : ``,     //lightEnabled
       `#include <transmission_pars_fragment>`,
-      lightEnbled ? `#include <shadowmap_pars_fragment>` : ``,           //lightEnbled
+      lightEnabled ? `#include <shadowmap_pars_fragment>` : ``,           //lightEnabled
       hasBumpMap ? `#include <bumpmap_pars_fragment>` : ``,
       `#include <normalmap_pars_fragment>`,
       //`#include <clearcoat_pars_fragment>`,
-      lightEnbled ? `#include <roughnessmap_pars_fragment>` : ``,     //lightEnbled
-      lightEnbled ?`#include <metalnessmap_pars_fragment>` : ``,      //lightEnbled
+      lightEnabled ? `#include <roughnessmap_pars_fragment>` : ``,     //lightEnabled
+      lightEnabled ?`#include <metalnessmap_pars_fragment>` : ``,      //lightEnabled
       //`#include <logdepthbuf_pars_fragment>`,
       //`#include <clipping_planes_pars_fragment>`,
       `void main() {`,
@@ -308,14 +307,14 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       hasAlphaMap ? `#include <alphamap_fragment>` : ``,
       `#include <alphatest_fragment>`,
       hasSpecularMap ? `#include <specularmap_fragment>` : ``,
-      lightEnbled ? `#include <roughnessmap_fragment>` : ``,
-      lightEnbled ? `#include <metalnessmap_fragment>` : ``,
-      lightEnbled ? `#include <normal_fragment_begin>` : ``,
-      lightEnbled ? `#include <normal_fragment_maps>` : ``,
+      lightEnabled ? `#include <roughnessmap_fragment>` : ``,
+      lightEnabled ? `#include <metalnessmap_fragment>` : ``,
+      lightEnabled ? `#include <normal_fragment_begin>` : ``,
+      lightEnabled ? `#include <normal_fragment_maps>` : ``,
       //`#include <clearcoat_normal_fragment_begin>`,
       //`#include <clearcoat_normal_fragment_maps>`,
       hasEmissiveMap ? `#include <emissivemap_fragment>` : ``,
-      lightEnbled ? `
+      lightEnabled ? `
         // accumulation
         #include <lights_physical_fragment>
         #include <lights_fragment_begin>
@@ -350,7 +349,7 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       `#include <output_fragment>`,
       //`#include <tonemapping_fragment>`,
       `#include <encodings_fragment>`,
-      //`#include <fog_fragment>`,
+      fogEnabled ? `#include <fog_fragment>` : ``,
       //`#include <premultiplied_alpha_fragment>`,
       //`#include <dithering_fragment>`,
       `}`
@@ -361,8 +360,8 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       uniforms: uniforms,
       vertexShader,
       fragmentShader,
-      // fog: false,
-      lights: lightEnbled,
+      fog: fogEnabled,
+      lights: lightEnabled,
       transparent: true
     })
 
