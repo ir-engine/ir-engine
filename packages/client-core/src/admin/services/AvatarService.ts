@@ -74,10 +74,19 @@ export const AvatarService = {
     })
     dispatch(AvatarAction.avatarsFetched(avatars))
   },
-  removeAdminAvatar: async (id) => {
+  removeAdminAvatar: async (id: string, name: string) => {
     const dispatch = useDispatch()
     try {
       await client.service('static-resource').remove(id)
+      const avatarThumbnail = await client.service('static-resource').find({
+        query: {
+          name: name,
+          staticResourceType: 'user-thumbnail',
+          $limit: 1
+        }
+      })
+      avatarThumbnail?.data?.length > 0 &&
+        (await client.service('static-resource').remove(avatarThumbnail?.data[0]?.id))
       dispatch(AvatarAction.avatarRemoved())
     } catch (err) {
       console.error(err)
