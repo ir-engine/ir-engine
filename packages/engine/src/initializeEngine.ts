@@ -156,10 +156,6 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
     },
     {
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./scene/systems/NamedEntitiesSystem')
-    },
-    {
-      type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./transform/systems/TransformSystem')
     },
 

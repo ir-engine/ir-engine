@@ -109,7 +109,7 @@ const AvatarTable = (props: Props) => {
   })
 
   const submitRemoveAvatar = async () => {
-    await AvatarService.removeAdminAvatar(avatarId)
+    await AvatarService.removeAdminAvatar(avatarId, avatarName)
     setPopConfirmOpen(false)
   }
 

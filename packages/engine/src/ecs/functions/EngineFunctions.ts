@@ -141,8 +141,6 @@ export const unloadAllEntities = (world: World, removePersisted = false) => {
     sceneObjectsToRemove.push(o)
   })
 
-  world.namedEntities.clear()
-
   sceneObjectsToRemove.forEach((o) => Engine.instance.scene.remove(o))
   entitiesToRemove.forEach((entity) => removeEntity(entity, true))
 }

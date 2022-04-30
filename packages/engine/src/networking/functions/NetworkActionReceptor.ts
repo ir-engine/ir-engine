@@ -52,7 +52,6 @@ const removeClient = (world: World, userId: UserId, allowRemoveSelf = false) => 
   world.userIdToUserIndex.delete(userId)
   world.userIndexToUserId.delete(userIndex)
   world.clients.delete(userId)
-  world.namedEntities.delete(userId)
   world.store.actions.cached = world.store.actions.cached.filter((action) => action.$from !== userId)
 }
 
