@@ -55,15 +55,6 @@ export const FileBrowserService = {
   },
   deleteContent: async (contentPath, type) => {
     await client.service('file-browser').remove(contentPath, { query: { type } })
-    if (type === 'file') {
-      const staticResource = await client.service('static-resource').find({
-        where: {
-          key: contentPath,
-          $limit: 1
-        }
-      })
-      staticResource?.data?.length > 0 && (await client.service('static-resource').remove(staticResource?.data[0]?.id))
-    }
     useDispatch()(FileBrowserAction.filesDeleted(contentPath))
   },
   addNewFolder: (folderName: string) => {
