@@ -70,3 +70,6 @@ services:
       - 5601:5601
     depends_on:
       - elasticsearch
+volumes:
+  elasticsearch-data:
+    driver: local

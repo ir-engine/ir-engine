@@ -50,6 +50,7 @@
     "dev-agones-silent": "npm run dev-agones &> /dev/null",
     "dev-client": "cd packages/client && npm run dev",
     "dev-docker": "cd scripts && docker-compose up -d",
+    "dev-docker:logging": "cd scripts && docker-compose --profile logging up -d",
     "dev-nginx": "",
     "dev-reinit": "cd packages/server && npm run dev-reinit-db",
     "dev-server": "cd packages/server && npm run dev",
