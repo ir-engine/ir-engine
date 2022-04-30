@@ -109,7 +109,7 @@ export const updateCameraTargetRotation = (entity: Entity, delta: number) => {
 
 export const getMaxCamDistance = (entity: Entity, target: Vector3) => {
   // Cache the raycast result for 0.1 seconds
-  const camComp = getComponent(entity, CameraPropertiesComponent).raycastProps
+  const camComp = getComponent(entity, FollowCameraComponent).raycastProps
   if (camRayCastCache.maxDistance != -1 && camRayCastClock.getElapsedTime() < camComp.rayFrequency) {
     return camRayCastCache
   }
@@ -243,13 +243,14 @@ export const updateFollowCamera = (entity: Entity, delta: number) => {
 
 export const initializeCameraComponent = (world: World) => {
   const cameraEntity = createEntity()
-  addComponent(cameraEntity, Object3DComponent, { value: Engine.instance.camera })
+  const camObj = Engine.instance.camera
+  addComponent(cameraEntity, Object3DComponent, { value: camObj })
   addComponent(cameraEntity, PersistTagComponent, {})
   if (!Engine.instance.isEditor) {
     addComponent(cameraEntity, TransformComponent, {
-      position: new Vector3(),
-      rotation: new Quaternion(0, 0, 0, 1),
-      scale: new Vector3(1, 1, 1)
+      position: camObj.position,
+      rotation: camObj.quaternion,
+      scale: camObj.scale
     })
   }
   Engine.instance.activeCameraEntity = cameraEntity
