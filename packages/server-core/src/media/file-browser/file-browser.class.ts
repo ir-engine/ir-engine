@@ -26,6 +26,8 @@ interface PatchParams {
   contentType: string
 }
 
+interface ServiceOptions {}
+
 /**
  * A class for Managing files in FileBrowser
  *
@@ -35,9 +37,11 @@ interface PatchParams {
 export class FileBrowserService implements ServiceMethods<any> {
   store: StorageProviderInterface
   app: Application
+  options: ServiceOptions
 
-  constructor(app: Application) {
+  constructor(options: ServiceOptions = {}, app: Application) {
     this.app = app
+    this.options = options
   }
 
   async setup(_app, _path: string): Promise<void> {
