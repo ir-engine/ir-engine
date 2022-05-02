@@ -1,5 +1,10 @@
 import pino from 'pino'
 
+let node = "http://elasticsearch:9200"
+if (process.env.APP_ENV === 'development') {
+  node = "http://localhost:9200"
+}
+
 const logger = pino({
   transport: {
     targets: [
@@ -15,9 +20,9 @@ const logger = pino({
         level: 'debug',
         target: 'pino-elasticsearch',
         options: {
-          index: 'xr-server',
+          index: 'xr-engine',
           consistency: 'one',
-          node: 'http://elasticsearch:9200'
+          node: node
         }
       }
     ]
