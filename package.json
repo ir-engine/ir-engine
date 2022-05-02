@@ -94,6 +94,14 @@
       "git add"
     ]
   },
+  "peerDependencies": {
+    "@feathers/authentication-client": "5.0.0-pre.10",
+    "@feathers/commons": "5.0.0-pre.10",
+    "@feathers/errors": "5.0.0-pre.10",
+    "@feathers/socketio-client": "5.0.0-pre.10",
+    "@feathers/feathers": "5.0.0-pre.10",
+    "@feathers/rest-client": "5.0.0-pre.10"
+  },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "3.2.0",
     "@types/mocha": "9.1.0",
