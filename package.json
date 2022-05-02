@@ -94,6 +94,14 @@
       "git add"
     ]
   },
+  "peerDependencies": {
+    "@feathersjs/authentication-client": "5.0.0-pre.10",
+    "@feathersjs/commons": "5.0.0-pre.10",
+    "@feathersjs/errors": "5.0.0-pre.10",
+    "@feathersjs/socketio-client": "5.0.0-pre.10",
+    "@feathersjs/feathers": "5.0.0-pre.10",
+    "@feathersjs/rest-client": "5.0.0-pre.10"
+  },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "3.2.0",
     "@types/mocha": "9.1.0",
@@ -116,12 +124,6 @@
     "ts-node-dev": "1.1.8"
   },
   "dependencies": {
-    "@feathers/authentication-client": "5.0.0-pre.10",
-    "@feathers/commons": "5.0.0-pre.10",
-    "@feathers/errors": "5.0.0-pre.10",
-    "@feathers/socketio-client": "5.0.0-pre.10",
-    "@feathers/feathers": "5.0.0-pre.10",
-    "@feathers/rest-client": "5.0.0-pre.10",
     "cli": "1.0.1",
     "dotenv": "14.3.2",
     "lerna": "4.0.0",
