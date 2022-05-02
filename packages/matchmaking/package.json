@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/matchmaking",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "author": {
     "name": "XRFoundation Collective",
     "email": "hello@xrfoundation.io"
@@ -20,6 +20,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
+    "cross-env": "7.0.3",
     "dev": "vite",
     "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env APP_ENV=production vite build --config vite.build.js",
     "test": "mocha --config .mocharc.json",
@@ -27,6 +28,8 @@
     "local-minikube-start": "minikube start",
     "local-minikube-stop": "minikube stop",
     "open-frontend-service-port": "kubectl port-forward --namespace open-match service/open-match-frontend 51504:51504",
+    "ts-node": "10.7.0",
+    "typescript": "4.6.2",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "dependencies": {
@@ -37,11 +40,8 @@
   "devDependencies": {
     "@types/mocha": "9.1.0",
     "create-ts-index": "1.14.0",
-    "cross-env": "7.0.3",
     "mocha": "9.2.2",
     "nock": "13.2.4",
-    "ts-node": "10.7.0",
-    "typescript": "4.6.2",
     "vite": "2.9.4"
   }
 }
