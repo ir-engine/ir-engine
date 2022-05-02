@@ -13,6 +13,8 @@ import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { Physics } from '../../physics/classes/Physics'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import {
@@ -144,10 +146,27 @@ export class World {
     [SystemUpdateType.POST_RENDER]: []
   } as { [pipeline: string]: SystemInstanceType[] }
 
+  #nameMap = new Map<string, Entity>()
+  #nameQuery = defineQuery([NameComponent])
+
   /**
    * Entities mapped by name
    */
-  namedEntities = new Map<string, Entity>()
+  get namedEntities() {
+    const nameMap = this.#nameMap
+    for (const entity of this.#nameQuery.enter()) {
+      const { name } = getComponent(entity, NameComponent)
+      if (nameMap.has(name)) console.warn(`An Entity with name "${name}" already exists.`)
+      nameMap.set(name, entity)
+      const obj3d = getComponent(entity, Object3DComponent)?.value
+      if (obj3d) obj3d.name = name
+    }
+    for (const entity of this.#nameQuery.exit()) {
+      const { name } = getComponent(entity, NameComponent, true)
+      nameMap.delete(name)
+    }
+    return nameMap as ReadonlyMap<string, Entity>
+  }
 
   /**
    * Network object query
