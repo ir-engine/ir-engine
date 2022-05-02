@@ -57,6 +57,23 @@ npm run dev-reinit
 npm run dev
 ```
 
+## Setup Elastic Search & Grafana for logging(Optional)
+
+if you wish to setup Elastic Search & Grafana along with the databases,
+Run 
+
+```
+npm run dev-docker:logging
+```
+
+Instead of running
+
+```
+npm run dev-docker
+```
+
+
+
 This will automatically set up and run Redis/MariaDB docker
 containers, and XRengine client/server/game-server instances.
 
