@@ -4,6 +4,8 @@ let node = "http://elasticsearch:9200"
 if (process.env.APP_ENV === 'development') {
   node = "http://localhost:9200"
 }
+console.log(node);
+
 
 const logger = pino({
   transport: {
