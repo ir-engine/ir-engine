@@ -55,6 +55,7 @@ import { AvatarSettings } from './AvatarControllerSystem'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarSwerveComponent } from './components/AvatarSwerveComponent'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
+import { XRCameraRotateYComponent } from './components/XRCameraRotateYComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
 import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
@@ -456,8 +457,8 @@ const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
   }
 
   if (Math.abs(newAngleDiff) > 0.001) {
-    quat.setFromAxisAngle(upVec, newAngleDiff * deg2rad)
-    Engine.instance.camera.parent?.quaternion.multiply(quat)
+    if (!hasComponent(entity, XRCameraRotateYComponent))
+      addComponent(entity, XRCameraRotateYComponent, { angle: newAngleDiff * deg2rad })
   }
 }
 
