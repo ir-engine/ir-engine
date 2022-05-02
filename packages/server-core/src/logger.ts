@@ -29,6 +29,9 @@ const logger = pino({
       }
     ]
   }
+}).error(err => {
+  console.log(err);
+  
 })
 
 export default logger
