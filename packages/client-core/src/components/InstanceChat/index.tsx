@@ -103,15 +103,7 @@ const InstanceChat = (props: Props): any => {
   }, [chatState])
 
   const handleComposingMessageChange = (event: any): void => {
-    let message = event.target.value
-    if (message.length > 10 && message.slice(-1) == ' ') message += `${message} \n`
-    console.log(
-      '>>>>>>>>>>>>>>>>>>>>>>>',
-      message.length > 10 && message.slice(-1) == ' ',
-      message.slice(-1),
-      message.length,
-      message
-    )
+    const message = event.target.value
     if (message.length > composingMessage.length) {
       if (!usersTyping) {
         dispatchAction(
@@ -197,7 +189,7 @@ const InstanceChat = (props: Props): any => {
     })
   }
 
-  const isLeftOrLeaveText = (text) => {
+  const isLeftOrJoinText = (text) => {
     return / left the layer|joined the layer/.test(text)
   }
 
@@ -225,7 +217,7 @@ const InstanceChat = (props: Props): any => {
                     }
                     return (
                       <>
-                        {!isLeftOrLeaveText(message.text) ? (
+                        {!isLeftOrJoinText(message.text) ? (
                           <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
                             {message.senderId !== user?.id.value && (
                               <div className={`${styles.selfEnd} ${styles.noMargin}`}>
