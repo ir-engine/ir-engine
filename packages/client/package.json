@@ -34,7 +34,7 @@
   "dependencies": {
     "@feathersjs/client": "5.0.0-pre.10",
     "@mui/icons-material": "5.6.2",
-    "@mui/material": "5.6.3",
+    "@mui/material": "5.6.4",
     "@mui/styled-engine-sc": "5.6.1",
     "@mui/styles": "5.6.2",
     "@rollup/plugin-inject": "4.0.4",
