@@ -4,8 +4,6 @@ let node = "http://localhost:9200"
 if (process.env.APP_ENV === 'production') {
   node = "http://elasticsearch:9200"
 }
-console.log(node);
-
 
 const logger = pino({
   transport: {
@@ -29,9 +27,6 @@ const logger = pino({
       }
     ]
   }
-}).error(err => {
-  console.log(err);
-  
 })
 
 export default logger
