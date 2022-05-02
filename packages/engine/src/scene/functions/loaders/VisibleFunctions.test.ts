@@ -5,25 +5,23 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VisibleComponent } from '../../components/VisibleComponent'
 import { SCENE_COMPONENT_VISIBLE } from './VisibleFunctions'
 
 describe('VisibleFunctions', () => {
-  let world: World
   let entity: Entity
   let visibleFunctions = proxyquire('./VisibleFunctions', {
     '../../../common/functions/isClient': { isClient: true }
   })
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 
@@ -58,27 +56,13 @@ describe('VisibleFunctions', () => {
       assert(!getComponent(entity, Object3DComponent)?.value)
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Visible in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        visibleFunctions.deserializeVisible(entity, sceneComponent)
+      visibleFunctions.deserializeVisible(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_VISIBLE))
-      })
-
-      it('creates Visible in Editor', () => {
-        Engine.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        visibleFunctions.deserializeVisible(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_VISIBLE))
-        Engine.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_VISIBLE))
     })
   })
 

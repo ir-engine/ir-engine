@@ -497,6 +497,7 @@
 .appBarHeadingContainer {
   flex: 1;
   display: flex;
+  color: var(--text);
   flex-direction: row;
   align-items: center;
   justify-content: space-between;

@@ -8,6 +8,7 @@ import { isDev } from '@xrengine/common/src/utils/isDev'
 import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
 
 import { Application } from '../../../declarations'
+import logger from '../../logger'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { cleanString } from '../../util/cleanString'
@@ -106,7 +107,7 @@ export class Scene implements ServiceMethods<any> {
 
   async create(data: any, params?: Params): Promise<any> {
     const { projectName } = data
-    console.log('[scene.create]:', projectName)
+    logger.info('[scene.create]: ' + projectName)
 
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
@@ -181,7 +182,7 @@ export class Scene implements ServiceMethods<any> {
 
   async update(projectName: string, data: UpdateParams, params?: Params): Promise<any> {
     const { sceneName, sceneData, thumbnailBuffer } = data
-    console.log('[scene.update]:', projectName, data)
+    logger.info('[scene.update]: ', { projectName, data })
 
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)

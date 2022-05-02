@@ -4,7 +4,6 @@ import { createState, useState } from '@speigg/hookstate'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -111,10 +110,10 @@ export const LocationInstanceConnectionService = {
     if (provisionResult.ipAddress && provisionResult.port) {
       dispatch(LocationInstanceConnectionAction.serverProvisioned(provisionResult, locationId!, sceneId!))
     } else {
-      EngineEvents.instance.dispatchEvent({
-        type: SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE,
-        instanceId
-      })
+      dispatchAction(
+        Engine.instance.store,
+        SocketWebRTCClientTransport.actions.noWorldServersAvailable({ instanceId: instanceId! })
+      )
     }
   },
   connectToServer: async () => {
@@ -137,7 +136,7 @@ export const LocationInstanceConnectionService = {
 
       const authState = accessAuthState()
       const user = authState.user.value
-      dispatchAction(Engine.store, EngineActions.connect(user.id))
+      dispatchAction(Engine.instance.store, EngineActions.connect({ id: user.id! }))
     } catch (error) {
       console.error('Network transport could not initialize, transport is: ', transport)
     }

@@ -5,7 +5,6 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { AudioComponent } from '../../audio/components/AudioComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -15,7 +14,7 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
+import { matchActionOnce, receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { VideoComponent } from '../../scene/components/VideoComponent'
@@ -55,7 +54,7 @@ export default async function InteractiveSystem() {
     for (const entity of interactableQuery.enter()) {
       // TODO: quick hack while objects to not load immediately #5352
       if (accessEngineState().sceneLoaded.value) setupInteractable(entity)
-      else receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, () => setupInteractable(entity))
+      else matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, () => setupInteractable(entity))
     }
 
     for (const entity of interactableQuery.exit()) {
@@ -89,7 +88,7 @@ export default async function InteractiveSystem() {
       } else if (hasComponent(entity, VolumetricComponent)) {
         toggleVolumetric(entity)
       } else {
-        dispatchAction(Engine.store, EngineActions.objectActivation(interactiveComponent))
+        dispatchAction(Engine.instance.store, EngineActions.objectActivation({ interactionData: interactiveComponent }))
       }
       removeComponent(entity, InteractedComponent)
     }

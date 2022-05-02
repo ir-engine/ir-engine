@@ -61,9 +61,8 @@ export default {
             })
           })
           return context
-        } catch (error) {
-          logger.error('GROUP AFTER CREATE ERROR')
-          logger.error(error)
+        } catch (err) {
+          logger.error(err, `GROUP AFTER CREATE ERROR: ${err.error}`)
           return null!
         }
       }

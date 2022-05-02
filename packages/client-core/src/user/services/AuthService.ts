@@ -27,6 +27,7 @@ import { accessLocationState } from '../../social/services/LocationService'
 import { accessPartyState } from '../../social/services/PartyService'
 import { store, useDispatch } from '../../store'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { serverHost } from '../../util/config'
 import { accessStoredLocalState, StoredLocalAction, StoredLocalActionType } from '../../util/StoredLocalState'
 import { uploadToFeathersService } from '../../util/upload'
 import { userPatched } from '../functions/userPatched'
@@ -327,26 +328,17 @@ export const AuthService = {
   },
   loginUserByOAuth: async (service: string, location: any) => {
     const dispatch = useDispatch()
-    const serverHost =
-      process.env.APP_ENV === 'development'
-        ? `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}:${
-            (globalThis as any).process.env['VITE_SERVER_PORT']
-          }`
-        : `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}`
-    {
-      dispatch(AuthAction.actionProcessing(true))
-      const token = accessAuthState().authUser.accessToken.value
-      const path = location?.state?.from || location.pathname
-      const queryString = querystring.parse(window.location.search.slice(1))
-      const redirectObject = {
-        path: path
-      } as any
-      if (queryString.instanceId && queryString.instanceId.length > 0)
-        redirectObject.instanceId = queryString.instanceId
-      window.location.href = `${serverHost}/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(
-        redirectObject
-      )}`
-    }
+    dispatch(AuthAction.actionProcessing(true))
+    const token = accessAuthState().authUser.accessToken.value
+    const path = location?.state?.from || location.pathname
+    const queryString = querystring.parse(window.location.search.slice(1))
+    const redirectObject = {
+      path: path
+    } as any
+    if (queryString.instanceId && queryString.instanceId.length > 0) redirectObject.instanceId = queryString.instanceId
+    window.location.href = `${serverHost}/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(
+      redirectObject
+    )}`
   },
   loginUserByJwt: async (accessToken: string, redirectSuccess: string, redirectError: string) => {
     const dispatch = useDispatch()
@@ -683,7 +675,7 @@ export const AuthService = {
     dispatch(AuthAction.avatarUpdated(result))
   },
   uploadAvatarModel: async (avatar: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) => {
-    await uploadToFeathersService([avatar, thumbnail], 'upload-asset', () => {}, {
+    await uploadToFeathersService('upload-asset', [avatar, thumbnail], {
       type: 'user-avatar-upload',
       args: {
         avatarName,
@@ -740,7 +732,7 @@ export const AuthService = {
       })
   },
   updateUserAvatarId: async (userId: string, avatarId: string, avatarURL: string, thumbnailURL: string) => {
-    const world = Engine.currentWorld
+    const world = Engine.instance.currentWorld
     const dispatch = useDispatch()
 
     client

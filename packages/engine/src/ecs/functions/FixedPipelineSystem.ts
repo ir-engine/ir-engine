@@ -15,6 +15,10 @@ export default async function FixedPipelineSystem(world: World, args: { tickRate
 
   world.fixedDelta = timestep
 
+  // If the difference between fixedElapsedTime and elapsedTime becomes too large,
+  // we should simply skip ahead.
+  const maxTimeDifference = 2
+
   return () => {
     const start = nowMilliseconds()
     let timeUsed = 0
@@ -44,7 +48,7 @@ export default async function FixedPipelineSystem(world: World, args: { tickRate
       updatesLimitReached = updatesCount >= updatesLimit
     }
 
-    if (updatesLimitReached) {
+    if (updatesLimitReached || accumulator > maxTimeDifference) {
       console.warn(
         'FixedPipelineSystem: update limit reached, skipping world.fixedElapsedTime ahead to catch up with world.elapsedTime'
       )

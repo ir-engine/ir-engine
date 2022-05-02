@@ -4,11 +4,12 @@ import { Quaternion, Vector3 } from 'three'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { EngineActions } from '../../ecs/classes/EngineService'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
+import { WebXREventDispatcher } from '../webxr-emulator/WebXREventDispatcher'
 
 export async function overrideXR() {
   // inject the webxr polyfill from the webxr emulator source - this is a script added by the bot
@@ -54,7 +55,7 @@ export async function overrideXR() {
   }
 
   // send our device info to the polyfill API so it knows our capabilities
-  EngineEvents.instance.dispatchEvent({
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-device-init',
     detail: { stereoEffect: false, deviceDefinition }
   })
@@ -65,19 +66,19 @@ export async function xrSupported() {
 }
 
 export function xrInitialized() {
-  return Boolean(Engine.xrSession)
+  return Boolean(EngineRenderer.instance.xrSession)
 }
 
 export function startXR() {
-  dispatchAction(Engine.store, EngineActions.xrStart() as any)
-  EngineEvents.instance.dispatchEvent({
+  dispatchAction(Engine.instance.store, EngineActions.xrStart() as any)
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-pose',
     detail: {
       position: [0, 1.6, 0],
       quaternion: [0, 0, 0, 1]
     }
   })
-  EngineEvents.instance.dispatchEvent({
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-input-pose',
     detail: {
       objectName: 'rightController',
@@ -85,7 +86,7 @@ export function startXR() {
       quaternion: [0, 0, 0, 1]
     }
   })
-  EngineEvents.instance.dispatchEvent({
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-input-pose',
     detail: {
       objectName: 'leftController',
@@ -103,7 +104,7 @@ export function startXR() {
  * @returns {function}
  */
 export function pressControllerButton(args) {
-  EngineEvents.instance.dispatchEvent({ type: 'webxr-input-button', detail: args })
+  WebXREventDispatcher.instance.dispatchEvent({ type: 'webxr-input-button', detail: args })
   // )
 }
 
@@ -115,7 +116,7 @@ export function pressControllerButton(args) {
  * @returns {function}
  */
 export function moveControllerStick(args) {
-  EngineEvents.instance.dispatchEvent({ type: 'webxr-input-axes', detail: args })
+  WebXREventDispatcher.instance.dispatchEvent({ type: 'webxr-input-axes', detail: args })
   // )
 }
 
@@ -166,7 +167,7 @@ const tweens: any[] = []
 
 export const sendXRInputData = () => {
   tweens.forEach((call) => call())
-  EngineEvents.instance.dispatchEvent({
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-pose',
     detail: {
       position: headPosition.toArray(),
@@ -174,7 +175,7 @@ export const sendXRInputData = () => {
     }
   })
   // )
-  EngineEvents.instance.dispatchEvent({
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-input-pose',
     detail: {
       objectName: 'leftController',
@@ -183,7 +184,7 @@ export const sendXRInputData = () => {
     }
   })
   // )
-  EngineEvents.instance.dispatchEvent({
+  WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-input-pose',
     detail: {
       objectName: 'rightController',
@@ -248,9 +249,9 @@ export function updateController(args: { objectName: string; position: number[];
 }
 
 export async function simulateXR() {
-  // await loadScript(Engine.publicPath + '/scripts/webxr-polyfill.js')
+  // await loadScript(Engine.instance.publicPath + '/scripts/webxr-polyfill.js')
   await overrideXR()
   await xrSupported()
-  Engine.isBot = true
+  Engine.instance.isBot = true
   await startXR()
 }

@@ -55,7 +55,7 @@ export async function runPreprojectLoadTasks(): Promise<void> {
   if (editorState.preprojectLoadTaskStatus.value === TaskStatus.NOT_STARTED) {
     store.dispatch(EditorAction.updatePreprojectLoadTask(TaskStatus.IN_PROGRESS))
 
-    await Promise.all([ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.getDefaultAnimations()])
+    await Promise.all([ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.loadDefaultAnimations()])
 
     store.dispatch(EditorAction.updatePreprojectLoadTask(TaskStatus.COMPLETED))
   }
@@ -65,7 +65,7 @@ export async function runPreprojectLoadTasks(): Promise<void> {
  * Loads scene from provided project file.
  */
 export async function loadProjectScene(projectFile: SceneJson) {
-  dispatchAction(Engine.store, EngineActions.sceneUnloaded())
+  dispatchAction(Engine.instance.store, EngineActions.sceneUnloaded())
 
   executeCommand(EditorCommands.REPLACE_SELECTION, [])
   clearHistory()

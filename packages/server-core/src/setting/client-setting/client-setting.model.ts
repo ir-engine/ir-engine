@@ -70,6 +70,10 @@ export default (app: Application) => {
       appSocialLinks: {
         type: DataTypes.JSON,
         allowNull: true
+      },
+      themeSettings: {
+        type: DataTypes.JSON,
+        allowNull: true
       }
     },
     {

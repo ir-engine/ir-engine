@@ -26,7 +26,12 @@
       "community": "Community Projects",
       "install": "Install",
       "uninstall": "Uninstall",
-      "rename": "Rename"
+      "rename": "Rename",
+      "createProject": "Create Project",
+      "installProject": "Install Project",
+      "processing": "Processing",
+      "projectName": "Project Name",
+      "projectURL": "Project URL"
     }
   },
   "error": {

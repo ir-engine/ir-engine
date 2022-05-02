@@ -112,8 +112,7 @@ export default () => {
       }
       return context
     } catch (err) {
-      logger.error('check-party-instance error')
-      logger.error(err)
+      logger.error(err, `check-party-instance error: ${err.message}`)
       return null!
     }
   }

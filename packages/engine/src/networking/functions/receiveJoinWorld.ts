@@ -20,7 +20,7 @@ export type JoinWorldProps = {
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
   if (!props) {
-    dispatchAction(Engine.store, EngineActions.connectToWorldTimeout(true))
+    dispatchAction(Engine.instance.store, EngineActions.connectToWorldTimeout({ instance: true }))
     return
   }
   const { elapsedTime, clockTime, client, cachedActions, avatarDetail, avatarSpawnPose } = props
@@ -33,8 +33,8 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
     avatarDetail,
     avatarSpawnPose
   )
-  dispatchAction(Engine.store, EngineActions.joinedWorld())
-  const world = Engine.currentWorld
+  dispatchAction(Engine.instance.store, EngineActions.joinedWorld())
+  const world = Engine.instance.currentWorld
 
   world.elapsedTime = elapsedTime + (Date.now() - clockTime) / 1000
   world.fixedTick = Math.floor(world.elapsedTime / world.fixedDelta)
@@ -49,7 +49,8 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
       }
     : avatarSpawnPose
 
-  for (const action of cachedActions) Engine.currentWorld.store.actions.incoming.push({ ...action, $fromCache: true })
+  for (const action of cachedActions)
+    Engine.instance.currentWorld.store.actions.incoming.push({ ...action, $fromCache: true })
 
   dispatchAction(world.store, NetworkWorldAction.createClient(client))
   dispatchAction(world.store, NetworkWorldAction.spawnAvatar({ parameters: spawnPose }))

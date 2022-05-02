@@ -252,6 +252,7 @@
 
 body {
   overflow: auto;
+  color: var(--text);
   overscroll-behavior-y: contain;
 }
 
@@ -510,5 +511,9 @@ body {
 }
 
 [class*="MuiModal-root"] {
+  pointer-events: auto;
+}
+
+vite-error-overlay {
   pointer-events: auto;
 }

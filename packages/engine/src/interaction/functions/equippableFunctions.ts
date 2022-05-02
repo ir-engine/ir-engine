@@ -33,8 +33,8 @@ export const unequipEntity = (equipperEntity: Entity): void => {
 }
 
 const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
-  const world = Engine.currentWorld
-  if (Engine.userId === world.hostId) return
+  const world = Engine.instance.currentWorld
+  if (Engine.instance.userId === world.hostId) return
 
   const equippedComponent = getComponent(equippedEntity, EquippedComponent)
   const attachmentPoint = equippedComponent.attachmentPoint

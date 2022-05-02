@@ -25,11 +25,11 @@ export default async function TriggerSystem(world: World) {
       if (getComponent(triggerEntity, PortalComponent)) {
         const portalComponent = getComponent(triggerEntity, PortalComponent)
         if (isClient && portalComponent.redirect) {
-          window.location.href = Engine.publicPath + '/location/' + portalComponent.location
+          window.location.href = Engine.instance.publicPath + '/location/' + portalComponent.location
           continue
         }
         world.activePortal = portalComponent
-        dispatchAction(Engine.store, EngineActions.setTeleporting(true))
+        dispatchAction(Engine.instance.store, EngineActions.setTeleporting({ isTeleporting: true }))
         continue
       }
 

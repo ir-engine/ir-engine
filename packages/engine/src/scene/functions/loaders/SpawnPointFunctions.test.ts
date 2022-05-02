@@ -6,20 +6,15 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SpawnPointComponent } from '../../components/SpawnPointComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
-import {
-  deserializeSpawnPoint,
-  prepareSpawnPointForGLTFExport,
-  SCENE_COMPONENT_SPAWN_POINT,
-  serializeSpawnPoint
-} from './SpawnPointFunctions'
+import { prepareSpawnPointForGLTFExport, SCENE_COMPONENT_SPAWN_POINT, serializeSpawnPoint } from './SpawnPointFunctions'
 
 class AssetLoader {
   static async loadAsync() {
@@ -28,15 +23,13 @@ class AssetLoader {
 }
 
 describe('SpawnPointFunctions', () => {
-  let world: World
   let entity: Entity
   let spawnPointFunctions = proxyquire('./SpawnPointFunctions', {
     '../../../assets/classes/AssetLoader': { AssetLoader }
   })
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 
@@ -49,7 +42,7 @@ describe('SpawnPointFunctions', () => {
 
   describe('deserializeSpawnPoint()', () => {
     it('creates SpawnPoint Component with provided component data', () => {
-      deserializeSpawnPoint(entity, sceneComponent)
+      spawnPointFunctions.deserializeSpawnPoint(entity, sceneComponent)
 
       const spawnpointComponent = getComponent(entity, SpawnPointComponent)
       assert(spawnpointComponent)
@@ -57,53 +50,37 @@ describe('SpawnPointFunctions', () => {
     })
 
     it('creates SpawnPoint Object3D if Not created', () => {
-      deserializeSpawnPoint(entity, sceneComponent)
+      spawnPointFunctions.deserializeSpawnPoint(entity, sceneComponent)
 
       const obj3d = getComponent(entity, Object3DComponent)?.value
       assert(obj3d, 'SpawnPoint is not created')
+      assert(obj3d.children.includes(obj3d.userData.helperModel))
+      assert(obj3d.children.includes(obj3d.userData.helperBox))
+      assert(obj3d.userData.helperModel.layers.isEnabled(ObjectLayers.NodeHelper))
+      assert(obj3d.userData.helperBox.layers.isEnabled(ObjectLayers.NodeHelper))
     })
 
     it('does not create SpawnPoint Object3D if already created', () => {
       const obj3d = new Object3D()
       addComponent(entity, Object3DComponent, { value: obj3d })
 
-      deserializeSpawnPoint(entity, sceneComponent)
+      spawnPointFunctions.deserializeSpawnPoint(entity, sceneComponent)
       assert(getComponent(entity, Object3DComponent)?.value === obj3d)
     })
 
-    describe('Editor vs Location', () => {
-      it('creates SpawnPoint in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', async () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        deserializeSpawnPoint(entity, sceneComponent)
+      await spawnPointFunctions.deserializeSpawnPoint(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_SPAWN_POINT))
-      })
-
-      it('creates SpawnPoint in Editor', async () => {
-        Engine.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        await spawnPointFunctions.deserializeSpawnPoint(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SPAWN_POINT))
-
-        const obj3d = getComponent(entity, Object3DComponent)?.value
-        assert(obj3d.children.includes(obj3d.userData.helperModel))
-        assert(obj3d.children.includes(obj3d.userData.helperBox))
-        assert(obj3d.userData.helperModel.layers.isEnabled(ObjectLayers.NodeHelper))
-        assert(obj3d.userData.helperBox.layers.isEnabled(ObjectLayers.NodeHelper))
-        Engine.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SPAWN_POINT))
     })
   })
 
   describe('serializeSpawnPoint()', () => {
     it('should properly serialize spawnpoint', () => {
-      deserializeSpawnPoint(entity, sceneComponent)
+      spawnPointFunctions.deserializeSpawnPoint(entity, sceneComponent)
       assert.deepEqual(serializeSpawnPoint(entity), sceneComponent)
     })
 

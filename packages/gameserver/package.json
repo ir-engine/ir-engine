@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/gameserver",
   "description": "Multiplayer Gameserver for XREngine",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "private": true,
   "homepage": "",
   "main": "./src",
@@ -33,7 +33,8 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "start": "cross-env APP_ENV=production ts-node --transpile-only src/index.ts",
-    "dev": "APP_ENV=development ts-node-dev --inspect=2995 --respawn --transpile-only src/index.ts",
+    "start-channel": "cross-env APP_ENV=production GAMESERVER_PORT=3032 ts-node --transpile-only src/index.ts",
+    "dev": "cross-env APP_ENV=development ts-node-dev --inspect=2995 --respawn --transpile-only src/index.ts",
     "dev-channel": "APP_ENV=development cross-env GAMESERVER_PORT=3032 ts-node-dev --inspect=2996 --respawn --transpile-only src/index.ts",
     "dev-nossl": "cross-env NOSSL=true ts-node-dev --respawn --transpile-only src/index.ts",
     "test": "exit 0",
@@ -47,12 +48,13 @@
     "@feathersjs/transport-commons": "5.0.0-pre.10",
     "@google-cloud/agones-sdk": "1.22.0",
     "@kubernetes/client-node": "0.16.3",
-    "@xrengine/engine": "^0.5.2",
-    "@xrengine/projects": "^0.5.2",
-    "@xrengine/server-core": "^0.5.2",
+    "@xrengine/engine": "^0.5.3",
+    "@xrengine/projects": "^0.5.3",
+    "@xrengine/server-core": "^0.5.3",
     "aws-sdk": "2.1113.0",
     "compression": "1.7.4",
     "cors": "2.8.5",
+    "cross-env": "7.0.3",
     "feathers-logger": "0.3.2",
     "feathers-sync": "2.4.0",
     "helmet": "5.0.2",
@@ -61,18 +63,16 @@
     "ps-list": "7.2.0",
     "serve-favicon": "2.5.0",
     "socket.io": "4.4.1",
+    "ts-node": "10.7.0",
     "trace-unhandled": "2.0.1",
-    "winston": "3.7.2"
+    "typescript": "4.6.2"
   },
   "devDependencies": {
     "@types/compression": "1.7.2",
     "@types/cors": "2.8.12",
     "@types/node": "16.11.26",
     "@types/serve-favicon": "2.5.3",
-    "cross-env": "7.0.3",
-    "ts-node": "10.7.0",
-    "ts-node-dev": "1.1.8",
-    "typescript": "4.6.2"
+    "ts-node-dev": "1.1.8"
   },
   "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
 }

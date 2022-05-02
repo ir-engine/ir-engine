@@ -6,6 +6,7 @@ import { Op } from 'sequelize'
 import { Message as MessageInterface } from '@xrengine/common/src/interfaces/Message'
 
 import { Application } from '../../../declarations'
+import logger from '../../logger'
 import { UserDataType } from '../../user/user/user.class'
 
 export type MessageDataType = MessageInterface
@@ -32,8 +33,8 @@ export class Message<T = MessageDataType> extends Service<T> {
     const userId = loggedInUser?.id
     const targetObjectId = data.targetObjectId
     const targetObjectType = data.targetObjectType
-    const channelModel = (this.app.service('channel') as any).Model
-    console.log(data)
+    const channelModel = this.app.service('channel').Model
+    logger.info(data)
 
     if (targetObjectType === 'user') {
       const targetUser = await this.app.service('user').get(targetObjectId)

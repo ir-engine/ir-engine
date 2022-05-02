@@ -2,6 +2,7 @@ import cors_proxy from 'cors-anywhere'
 import net from 'net'
 
 import config from './appconfig'
+import logger from './logger'
 
 const createCorsServer = (useSSL, certOptions, port) => {
   cors_proxy
@@ -19,7 +20,7 @@ const createCorsServer = (useSSL, certOptions, port) => {
       removeHeaders: ['cookie', 'cookie2']
     })
     .listen(port, function () {
-      console.info('Running CORS on port:' + port)
+      logger.info(`Running CORS on port "${port}".`)
     })
 }
 
@@ -34,7 +35,7 @@ const isPortTaken = (port, fn) => {
   const tester = net
     .createServer()
     .once('error', (err) => {
-      console.error(err)
+      logger.error(err)
     })
     .once('listening', () => {
       tester

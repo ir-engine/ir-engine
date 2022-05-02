@@ -1,7 +1,6 @@
-import { Params } from '@feathersjs/feathers'
-
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import logger from '../../logger'
 
 /**
  * A method which get link
@@ -41,16 +40,15 @@ export function getInviteLink(type: string, id: string, passcode: string): strin
 export async function sendEmail(app: Application, email: any): Promise<void> {
   if (email.to) {
     email.html = email.html.replace(/&amp;/g, '&')
-
-    console.log('sendEmail() to:', email)
+    logger.info('sendEmail() to: ' + email)
 
     try {
       await app.service('email').create(email)
-    } catch (error) {
-      console.error('Error sending email', error)
+    } catch (err) {
+      logger.error(err, `Error sending email: ${err.message}`)
     }
 
-    console.log('Email sent.')
+    logger.info('Email sent.')
   }
 }
 /**
@@ -61,10 +59,10 @@ export async function sendEmail(app: Application, email: any): Promise<void> {
  * @author Vyacheslav Solovjov
  */
 export const sendSms = async (app: Application, sms: any): Promise<void> => {
-  console.log('sendSMS() to:', sms)
+  logger.info(`sendSMS() to "${sms}."`)
   await app
     .service('sms')
     .create(sms, null!)
-    .then(() => console.log('Sent SMS'))
-    .catch((err: any) => console.log('Error sending SMS', err))
+    .then(() => logger.info('Sent SMS'))
+    .catch((err: any) => logger.error(err, `Error sending SMS: ${err.message}`))
 }

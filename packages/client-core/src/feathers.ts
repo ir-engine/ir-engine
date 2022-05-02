@@ -5,18 +5,14 @@ import io from 'socket.io-client'
 
 import type { ServiceTypes } from '@xrengine/common/declarations'
 
+import { serverHost } from './util/config'
+
 const feathersClient = feathers() as FeathersApplication<ServiceTypes> & {
   io: SocketIO.Server
   authentication?: {
     authenticated: boolean
   }
 }
-const serverHost =
-  process.env.APP_ENV === 'development' || process.env['VITE_LOCAL_BUILD'] === 'true'
-    ? `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}:${
-        (globalThis as any).process.env['VITE_SERVER_PORT']
-      }`
-    : `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}`
 
 const socket = io(serverHost, {
   withCredentials: true

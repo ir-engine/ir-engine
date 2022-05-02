@@ -8,6 +8,7 @@ import removePartyUsers from '@xrengine/server-core/src/hooks/remove-party-users
 import addAssociations from '../../hooks/add-associations'
 import authenticate from '../../hooks/authenticate'
 import restrictUserRole from '../../hooks/restrict-user-role'
+import logger from '../../logger'
 import { UserDataType } from '../../user/user/user.class'
 
 // Don't remove this comment. It's needed to format import lines nicely.
@@ -44,7 +45,7 @@ export default {
           try {
             await context.app.service('party-user').remove(currentPartyUser.data[0].id)
           } catch (error) {
-            console.error(error)
+            logger.error(error)
           }
           await context.app.service('user').patch(loggedInUser.id, {
             partyId: null

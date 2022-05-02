@@ -1,3 +1,5 @@
+import defaultThemeSettings from '@xrengine/common/src/constants/DefaultThemeSettings'
+
 export const clientSeed = {
   path: 'client-setting',
   templates: [
@@ -8,7 +10,7 @@ export const clientSeed = {
       siteDescription: process.env.SITE_DESC,
       url:
         process.env.APP_URL ||
-        (process.env.LOCAL_BUILD
+        (process.env.VITE_LOCAL_BUILD
           ? 'http://' + process.env.APP_HOST + ':' + process.env.APP_PORT
           : 'https://' + process.env.APP_HOST + ':' + process.env.APP_PORT),
       favicon32px: '/favicon-32x32.png',
@@ -22,7 +24,8 @@ export const clientSeed = {
       appSocialLinks: JSON.stringify([
         { icon: 'static/discord.svg', link: 'https://discord.gg/xrf' },
         { icon: 'static/github.svg', link: 'https://github.com/XRFoundation' }
-      ])
+      ]),
+      themeSettings: JSON.stringify(defaultThemeSettings)
     }
   ]
 }

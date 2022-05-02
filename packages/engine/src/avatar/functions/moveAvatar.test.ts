@@ -1,17 +1,17 @@
 import assert, { strictEqual } from 'assert'
 import { Group, PerspectiveCamera, Vector3 } from 'three'
 
-import { AvatarComponent } from '../../../src/avatar/components/AvatarComponent'
-import { AvatarControllerComponent } from '../../../src/avatar/components/AvatarControllerComponent'
-import { moveAvatar } from '../../../src/avatar/functions/moveAvatar'
-import { Engine } from '../../../src/ecs/classes/Engine'
-import { createWorld } from '../../../src/ecs/classes/World'
-import { addComponent, getComponent } from '../../../src/ecs/functions/ComponentFunctions'
-import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
-import { VectorSpringSimulator } from '../../../src/physics/classes/springs/VectorSpringSimulator'
-import { VelocityComponent } from '../../../src/physics/components/VelocityComponent'
-import { CollisionGroups } from '../../../src/physics/enums/CollisionGroups'
-import { Object3DComponent } from '../../../src/scene/components/Object3DComponent'
+import { Engine } from '../../ecs/classes/Engine'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../initializeEngine'
+import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { AvatarComponent } from '../components/AvatarComponent'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { moveAvatar } from './moveAvatar'
 
 // all components depended on by the moveAvatar function
 const createMovingAvatar = (world) => {
@@ -81,6 +81,7 @@ const createMovingAvatar = (world) => {
       movementEnabled: true,
       isJumping: false,
       isWalking: false,
+      isInAir: false,
       // set input to move in a straight line on X/Z axis / horizontal diagonal
       localMovementDirection: new Vector3(1, 0, 1),
       velocitySimulator,
@@ -94,17 +95,16 @@ const createMovingAvatar = (world) => {
 }
 
 describe('moveAvatar function tests', () => {
-  let world
-
   beforeEach(async () => {
     /* hoist */
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
+    const world = Engine.instance.currentWorld
     // instantiate physics scene (depended on by world.physics.createMaterial())
     await world.physics.createScene()
   })
 
   it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', () => {
+    const world = Engine.instance.currentWorld
     /* mock */
     world.physics.timeScale = 1
     world.fixedDelta = 1000 / 60
@@ -130,6 +130,7 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', () => {
+    const world = Engine.instance.currentWorld
     /* mock */
     world.physics.timeScale = 1
     world.fixedDelta = 1000 / 120
@@ -155,6 +156,7 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', () => {
+    const world = Engine.instance.currentWorld
     /* mock */
     world.physics.timeScale = 1 / 2
     world.fixedDelta = 1000 / 60
@@ -180,6 +182,7 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should not allow velocity to breach a full unit through multiple frames', () => {
+    const world = Engine.instance.currentWorld
     /* mock */
     world.physics.timeScale = 1
     world.fixedDelta = 1000 / 60

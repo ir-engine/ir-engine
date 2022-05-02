@@ -7,7 +7,6 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { InteractableComponent, InteractableComponentType } from '../../../interaction/components/InteractableComponent'
@@ -25,7 +24,7 @@ export const deserializeInteractable: ComponentDeserializeFunction = (
   const props = parseInteractableProperties(json.props)
   addComponent(entity, InteractableComponent, createState(props))
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_INTERACTABLE)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_INTERACTABLE)
 
   updateInteractable(entity, props)
 }

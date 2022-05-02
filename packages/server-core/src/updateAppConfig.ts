@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 import { DataTypes, Sequelize } from 'sequelize'
 
 import appConfig from './appconfig'
+import logger from './logger'
 
 dotenv.config()
 const db = {
@@ -54,15 +55,14 @@ export const refreshAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read serverSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
     })
   promises.push(serverSettingPromise)
   await Promise.all(promises)
 }
 
 export const updateAppConfig = async (): Promise<void> => {
-  if (appConfig.db.forceRefresh || process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD) return
+  if (appConfig.db.forceRefresh || !appConfig.kubernetes.enabled) return
   const sequelizeClient = new Sequelize({
     ...(db as any),
     define: {
@@ -99,8 +99,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read analyticsSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read analyticsSetting: ${e.message}`)
     })
   promises.push(analyticsSettingPromise)
 
@@ -194,8 +193,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read authenticationSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read authenticationSetting: ${e.message}`)
     })
   promises.push(authenticationSettingPromise)
 
@@ -254,8 +252,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read awsSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read awsSetting: ${e.message}`)
     })
   promises.push(promisePromise)
 
@@ -284,8 +281,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read chargebeeSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read chargebeeSetting: ${e.message}`)
     })
   promises.push(chargebeeSettingPromise)
 
@@ -349,8 +345,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read clientSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read clientSetting: ${e.message}`)
     })
   promises.push(clientSettingPromise)
 
@@ -397,8 +392,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read emailSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read emailSetting: ${e.message}`)
     })
   promises.push(emailSettingPromise)
 
@@ -471,8 +465,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read gameServerSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read gameServerSetting: ${e.message}`)
     })
   promises.push(gameServerSettingPromise)
 
@@ -511,8 +504,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read redisSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read redisSetting: ${e.message}`)
     })
   promises.push(redisSettingPromise)
 
@@ -623,8 +615,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read serverSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
     })
   promises.push(serverSettingPromise)
   await Promise.all(promises)
