@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import JSONTree from 'react-json-tree'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import {
@@ -16,10 +15,17 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { dispatchAction } from '@xrengine/hyperflux'
 
+import RefreshIcon from '@mui/icons-material/Refresh'
+
+import { StatsPanel } from './StatsPanel'
+import styles from './styles.module.scss'
+import { Tick } from './Tick'
+
 export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
+  const [remountCount, setRemountCount] = useState(0)
+  const [resetStats, setResetStats] = useState(0)
   const showingStateRef = useRef(isShowing)
-  const engineState = useEngineState()
   const engineRendererState = useEngineRendererState()
   const { t } = useTranslation()
   function setupListener() {
@@ -46,8 +52,11 @@ export const Debug = () => {
     }
   }, [])
 
-  const [remountCount, setRemountCount] = useState(0)
-  const refresh = () => setRemountCount(remountCount + 1)
+  const refresh = () => {
+    setResetStats(resetStats + 1)
+    setRemountCount(remountCount + 1)
+  }
+
   const togglePhysicsDebug = () => {
     dispatchAction(
       Engine.instance.store,
@@ -74,7 +83,6 @@ export const Debug = () => {
                   getEntityComponents(Engine.instance.currentWorld, eid).reduce<[string, any][]>(
                     (components, C: MappedComponent<any, any>) => {
                       if (C !== NameComponent) {
-                        engineState.fixedTick.value
                         const component = C.isReactive ? getComponent(eid, C).value : getComponent(eid, C)
                         components.push([C._name, { ...component }])
                       }
@@ -111,37 +119,48 @@ export const Debug = () => {
 
   if (isShowing)
     return (
-      <div
-        style={{
-          position: 'absolute',
-          overflowY: 'auto',
-          top: 0,
-          zIndex: 100000,
-          height: 'auto',
-          maxHeight: '95%',
-          width: 'auto',
-          maxWidth: '50%'
-        }}
-      >
-        <button type="submit" value="Refresh" onClick={refresh}>
-          {t('common:debug.refresh')}
-        </button>
-        <button type="button" value="Physics Debug" onClick={togglePhysicsDebug}>
-          {t('common:debug.physicsDebug')}
-        </button>
-        <button type="button" value="Avatar Debug" onClick={toggleAvatarDebug}>
-          {t('common:debug.avatarDebug')}
-        </button>
-        <button type="button" value="Node Debug" onClick={toggleNodeHelpers}>
-          {t('common:debug.nodeHelperDebug')}
-        </button>
-        <button type="button" value="Grid Debug" onClick={toggleGridHelper}>
-          {t('common:debug.gridDebug')}
-        </button>
+      <div className={styles.debugContiner}>
+        <StatsPanel show={showingStateRef.current} resetCounter={resetStats} />
+        <div className={styles.debugContainer}>
+          <h1>{t('common:debug.debugOptions')}</h1>
+          <div className={styles.flagContainer}>
+            <button
+              type="button"
+              onClick={togglePhysicsDebug}
+              className={styles.flagBtn + (engineRendererState.physicsDebugEnable.value ? ' ' + styles.active : '')}
+            >
+              {t('common:debug.physicsDebug')}
+            </button>
+            <button
+              type="button"
+              onClick={toggleAvatarDebug}
+              className={styles.flagBtn + (engineRendererState.avatarDebugEnable.value ? ' ' + styles.active : '')}
+            >
+              {t('common:debug.avatarDebug')}
+            </button>
+            <button
+              type="button"
+              onClick={toggleNodeHelpers}
+              className={styles.flagBtn + (engineRendererState.nodeHelperVisibility.value ? ' ' + styles.active : '')}
+            >
+              {t('common:debug.nodeHelperDebug')}
+            </button>
+            <button
+              type="button"
+              onClick={toggleGridHelper}
+              className={styles.flagBtn + (engineRendererState.gridVisibility.value ? ' ' + styles.active : '')}
+            >
+              {t('common:debug.gridDebug')}
+            </button>
+          </div>
+        </div>
         {Network.instance !== null && (
           <div>
-            <div>
-              {t('common:debug.tick')}: {engineState.fixedTick.value}
+            <div className={styles.refreshBlock}>
+              <Tick />
+              <button type="submit" title={t('common:debug.refresh')} onClick={refresh} className={styles.refreshBtn}>
+                <RefreshIcon fontSize="inherit" />
+              </button>
             </div>
             <div>
               <h1>{t('common:debug.engineStore')}</h1>
