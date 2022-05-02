@@ -1,8 +1,8 @@
 import pino from 'pino'
 
-let node = "http://elasticsearch:9200"
-if (process.env.APP_ENV === 'development') {
-  node = "http://localhost:9200"
+let node = "http://localhost:9200"
+if (process.env.APP_ENV === 'production') {
+  node = "http://elasticsearch:9200"
 }
 console.log(node);
 
