@@ -203,6 +203,7 @@ export default function ProjectTable() {
   return (
     <div>
       <TableComponent
+        allowSort={true}
         rows={rows}
         column={projectsColumns}
         page={page}

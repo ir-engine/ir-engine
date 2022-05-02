@@ -2,7 +2,7 @@ import { Forbidden } from '@feathersjs/errors'
 import { NullableId, Params } from '@feathersjs/feathers'
 import { Paginated } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import { Op } from 'sequelize'
+import Sequelize, { Op } from 'sequelize'
 
 import { User as UserInterface } from '@xrengine/common/src/interfaces/User'
 
@@ -39,18 +39,18 @@ export class User<T = UserDataType> extends Service<T> {
 
     delete query.search
 
-    const loggedInUser = params!.user as UserDataType
+    const loggedInUser = params!.user as any
 
     if (action === 'friends') {
       delete params.query.action
       const loggedInUser = params!.user as UserDataType
-      const userResult = await (this.app.service('user') as any).Model.findAndCountAll({
+      const userResult = await this.app.service('user').Model.findAndCountAll({
         offset: skip,
         limit: limit,
         order: [['name', 'ASC']],
         include: [
           {
-            model: (this.app.service('user-relationship') as any).Model,
+            model: this.app.service('user-relationship').Model,
             where: {
               relatedUserId: loggedInUser.id,
               userRelationshipType: 'friend'
@@ -78,7 +78,7 @@ export class User<T = UserDataType> extends Service<T> {
       if (!params.isInternal && loggedInUser.userRole !== 'admin')
         throw new Forbidden('Must be system admin to execute this action')
 
-      const searchedUser = await (this.app.service('user') as any).Model.findAll({
+      const searchedUser = await this.app.service('user').Model.findAll({
         where: {
           name: {
             [Op.like]: `%${search}%`
@@ -92,11 +92,28 @@ export class User<T = UserDataType> extends Service<T> {
           $in: searchedUser.map((user) => user.id)
         }
       }
+
+      const order: any[] = []
+      const { $sort } = params?.query ?? {}
+      if ($sort != null)
+        Object.keys($sort).forEach((name, val) => {
+          if (name === 'location') {
+            order.push([Sequelize.literal('`party.location.name`'), $sort[name] === 0 ? 'DESC' : 'ASC'])
+          } else {
+            order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
+          }
+        })
+
+      if (order.length > 0) {
+        params.sequelize.order = order
+      }
+      delete params?.query?.$sort
+      params.sequelize.subQuery = false
       return super.find(params)
     } else if (action === 'search') {
       const searchUser = params.query.data
       delete params.query.action
-      const searchedUser = await (this.app.service('user') as any).Model.findAll({
+      const searchedUser = await this.app.service('user').Model.findAll({
         where: {
           name: {
             [Op.like]: `%${searchUser}%`
@@ -125,6 +142,6 @@ export class User<T = UserDataType> extends Service<T> {
   }
 
   patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
-    return super.patch(id, data)
+    return super.patch(id, data, params)
   }
 }

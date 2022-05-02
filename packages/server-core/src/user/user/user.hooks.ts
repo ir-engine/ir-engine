@@ -63,6 +63,14 @@ export default {
           },
           {
             model: 'scope'
+          },
+          {
+            model: 'party',
+            include: [
+              {
+                model: 'location'
+              }
+            ]
           }
         ]
       })
@@ -90,6 +98,14 @@ export default {
           },
           {
             model: 'scope'
+          },
+          {
+            model: 'party',
+            include: [
+              {
+                model: 'location'
+              }
+            ]
           }
         ]
       })
@@ -240,8 +256,7 @@ export default {
           }
           return context
         } catch (err) {
-          console.error('USER AFTER CREATE ERROR')
-          console.error(err)
+          logger.error(err, `USER AFTER CREATE ERROR: ${err.message}`)
         }
         return null!
       }
@@ -260,8 +275,7 @@ export default {
             })
           }
         } catch (err) {
-          logger.error('USER AFTER PATCH ERROR')
-          logger.error(err)
+          logger.error(err, `USER AFTER PATCH ERROR: ${err.message}`)
         }
         return context
       }

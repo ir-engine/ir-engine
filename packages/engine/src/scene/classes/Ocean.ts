@@ -22,8 +22,9 @@ import {
   WebGLRenderTarget
 } from 'three'
 
-import loadTexture from '../../assets/functions/loadTexture'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
+import { Entity } from '../../ecs/classes/Entity'
 import { Object3DWithEntity } from '../components/Object3DComponent'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
@@ -149,12 +150,14 @@ export class Ocean extends Mesh<PlaneBufferGeometry, MeshPhongMaterial> {
   _normalMap: string
   _distortionMap: string
   _distortionTexture: Texture
+  entity: Entity
 
-  constructor() {
+  constructor(entity: Entity) {
     const planeGeometry = new PlaneBufferGeometry(10, 10, 100, 100)
     super(planeGeometry, new MeshPhongMaterial({ color: 'red' }))
     this.rotation.x = -Math.PI * 0.5
 
+    this.entity = entity
     this.shouldResize = true
     this._shallowWaterColor = new Color()
     this._opacityRange = new Vector2()
@@ -266,14 +269,12 @@ export class Ocean extends Mesh<PlaneBufferGeometry, MeshPhongMaterial> {
     const size = new Vector2(window.innerWidth, window.innerHeight)
     this.depthMap = new WebGLRenderTarget(size.x, size.y)
 
-    this.depthMap.texture.format = RGBAFormat
     this.depthMap.texture.minFilter = NearestFilter
     this.depthMap.texture.magFilter = NearestFilter
     this.depthMap.texture.generateMipmaps = false
     this.depthMap.stencilBuffer = false
     this.depthMap.depthBuffer = true
     this.depthMap.depthTexture = new DepthTexture(size.x, size.y)
-    this.depthMap.depthTexture.format = DepthFormat
     this.depthMap.depthTexture.type = UnsignedShortType
   }
 
@@ -333,15 +334,15 @@ export class Ocean extends Mesh<PlaneBufferGeometry, MeshPhongMaterial> {
   set distortionMap(path: string) {
     this._distortionMap = path
 
-    loadTexture(path)
+    AssetLoader.loadAsync(path)
       .then((texture) => {
         texture.wrapS = RepeatWrapping
         texture.wrapT = RepeatWrapping
         this._distortionTexture = texture
-        removeError((this as Object3D as Object3DWithEntity).entity, 'distortionMapError')
+        removeError(this.entity, 'distortionMapError')
       })
       .catch((error) => {
-        addError((this as Object3D as Object3DWithEntity).entity, 'distortionMapError', error.message)
+        addError(this.entity, 'distortionMapError', error.message)
       })
   }
 
@@ -353,15 +354,15 @@ export class Ocean extends Mesh<PlaneBufferGeometry, MeshPhongMaterial> {
   set envMap(path: string) {
     this._envMap = path
 
-    loadTexture(path)
+    AssetLoader.loadAsync(path)
       .then((texture) => {
         texture.mapping = EquirectangularReflectionMapping
         texture.encoding = sRGBEncoding
         this._material.envMap = texture
-        removeError((this as Object3D as Object3DWithEntity).entity, 'envMapError')
+        removeError(this.entity, 'envMapError')
       })
       .catch((error) => {
-        addError((this as Object3D as Object3DWithEntity).entity, 'envMapError', error.message)
+        addError(this.entity, 'envMapError', error.message)
       })
   }
 
@@ -372,15 +373,15 @@ export class Ocean extends Mesh<PlaneBufferGeometry, MeshPhongMaterial> {
   set normalMap(path: string) {
     this._normalMap = path
 
-    loadTexture(path)
+    AssetLoader.loadAsync(path)
       .then((texture) => {
         texture.wrapS = RepeatWrapping
         texture.wrapT = RepeatWrapping
         this._material.normalMap = texture
-        removeError((this as Object3D as Object3DWithEntity).entity, 'normalMapError')
+        removeError(this.entity, 'normalMapError')
       })
       .catch((error) => {
-        addError((this as Object3D as Object3DWithEntity).entity, 'normalMapError', error.message)
+        addError(this.entity, 'normalMapError', error.message)
       })
   }
 

@@ -4,10 +4,14 @@ import { useHistory } from 'react-router-dom'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { MoreVert } from '@mui/icons-material'
 import { IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
+import { disposeProject } from '../../functions/projectFunctions'
 import { deleteScene, getScenes, renameScene } from '../../functions/sceneFunctions'
 import { EditorAction, useEditorState } from '../../services/EditorServices'
 import { Button } from '../inputs/Button'
@@ -73,6 +77,8 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
       await deleteScene(editorState.projectName.value, activeScene.name)
       if (editorState.sceneName.value === activeScene.name) {
         dispatch(EditorAction.sceneChanged(null))
+        dispatchAction(Engine.instance.store, EngineActions.sceneUnloaded())
+        disposeProject()
         history.push(`/editor/${editorState.projectName.value}`)
       }
 

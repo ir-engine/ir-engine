@@ -2,10 +2,10 @@ import assert from 'assert'
 import { BoxBufferGeometry, Mesh, MeshNormalMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three'
 
 import { Engine } from '../src/ecs/classes/Engine'
-import { createWorld } from '../src/ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../src/ecs/functions/EntityFunctions'
 import { useWorld } from '../src/ecs/functions/SystemHooks'
+import { createEngine } from '../src/initializeEngine'
 import { getGeometryType } from '../src/physics/classes/Physics'
 import { ColliderComponent } from '../src/physics/components/ColliderComponent'
 import { CollisionComponent } from '../src/physics/components/CollisionComponent'
@@ -24,12 +24,11 @@ const mockDelta = 1 / 60
 
 describe('Physics Interation Tests', () => {
   beforeEach(async () => {
-    Engine.currentWorld = createWorld()
-    await Engine.currentWorld.physics.createScene({ verbose: true })
+    createEngine()
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
   })
 
   afterEach(() => {
-    Engine.currentWorld = null!
     delete (globalThis as any).PhysX
   })
 
@@ -92,6 +91,7 @@ describe('Physics Interation Tests', () => {
     const runPhysics = await PhysicsSystem(world)
 
     const execute = () => {
+      world.fixedDelta = mockDelta
       world.fixedTick += 1
       world.elapsedTime += mockDelta
       runPhysics()
@@ -182,7 +182,7 @@ describe('Physics Interation Tests', () => {
   })
 
   it('Should create static trimesh', async () => {
-    const world = Engine.currentWorld
+    const world = Engine.instance.currentWorld
     const entity = createEntity(world)
     const type = 'trimesh'
     let geom = new SphereBufferGeometry()
@@ -209,7 +209,7 @@ describe('Physics Interation Tests', () => {
     assert(hasComponent(entity, ColliderComponent))
     const body = getComponent(entity, ColliderComponent).body
     assert.deepEqual(body._type, bodyOptions.bodyType)
-    const shapes = Engine.currentWorld.physics.getRigidbodyShapes(body)
+    const shapes = Engine.instance.currentWorld.physics.getRigidbodyShapes(body)
     assert.deepEqual(shapes.length, 1)
     const geometryType = getGeometryType(shapes[0])
     const actorType = body.getType()
@@ -219,7 +219,7 @@ describe('Physics Interation Tests', () => {
   })
 
   it('Should create kinematic box', async () => {
-    const world = Engine.currentWorld
+    const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
     const type = 'box'
@@ -248,7 +248,7 @@ describe('Physics Interation Tests', () => {
     assert(hasComponent(entity, ColliderComponent))
     const body = getComponent(entity, ColliderComponent).body
     assert.deepEqual(body._type, bodyOptions.bodyType)
-    const shapes = Engine.currentWorld.physics.getRigidbodyShapes(body)
+    const shapes = Engine.instance.currentWorld.physics.getRigidbodyShapes(body)
     assert.deepEqual(shapes.length, 1)
     const geometryType = getGeometryType(shapes[0])
     const actorType = body.getType()
@@ -260,7 +260,7 @@ describe('Physics Interation Tests', () => {
   })
 
   it('Should create dynamic box', async () => {
-    const world = Engine.currentWorld
+    const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
     const type = 'box'
@@ -289,7 +289,7 @@ describe('Physics Interation Tests', () => {
     assert(hasComponent(entity, ColliderComponent))
     const body = getComponent(entity, ColliderComponent).body
     assert.deepEqual(body._type, bodyOptions.bodyType)
-    const shapes = Engine.currentWorld.physics.getRigidbodyShapes(body)
+    const shapes = Engine.instance.currentWorld.physics.getRigidbodyShapes(body)
     assert.deepEqual(shapes.length, 1)
     const geometryType = getGeometryType(shapes[0])
     const actorType = body.getType()

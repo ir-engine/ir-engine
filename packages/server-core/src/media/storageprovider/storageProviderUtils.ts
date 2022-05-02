@@ -1,3 +1,4 @@
+import logger from '../../logger'
 import { useStorageProvider } from './storageprovider'
 
 const storageProvider = useStorageProvider()
@@ -13,7 +14,7 @@ export const getFileKeysRecursive = async (path: string) => {
       }
     }
   } catch (e) {
-    console.log(e)
+    logger.error(e)
   }
   return files
 }

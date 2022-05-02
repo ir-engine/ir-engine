@@ -6,6 +6,7 @@ import slugify from 'slugify'
 import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
 
 import { Application } from '../../../declarations'
+import logger from '../../logger'
 import { UserDataType } from '../../user/user/user.class'
 
 export type LocationDataType = LocationType
@@ -58,7 +59,7 @@ export class Location<T = LocationDataType> extends Service<T> {
         )
       },
       (reason: any) => {
-        console.error(reason)
+        logger.error(reason)
       }
     )
   }
@@ -80,10 +81,10 @@ export class Location<T = LocationDataType> extends Service<T> {
                 setTimeout(() => resolve(this.app.services.instance.update(existingInstance.id, element)), 1000)
               ).then(
                 (value: any) => {
-                  console.log(value)
+                  logger.info(value)
                 },
-                (reasone: any) => {
-                  console.error(reasone)
+                (reason: any) => {
+                  logger.error(reason)
                 }
               )
             },
@@ -93,10 +94,10 @@ export class Location<T = LocationDataType> extends Service<T> {
                 setTimeout(() => resolve(this.app.services.instance.create(element)), 1000)
               ).then(
                 (value: any) => {
-                  console.log(value)
+                  logger.info(value)
                 },
                 (reasone: any) => {
-                  console.error(reasone)
+                  logger.error(reasone)
                 }
               )
             }
@@ -105,10 +106,10 @@ export class Location<T = LocationDataType> extends Service<T> {
           element.locationId = id
           new Promise((resolve) => setTimeout(() => resolve(this.app.services.instance.create(element)), 1000)).then(
             (value: any) => {
-              console.log(value)
+              logger.info(value)
             },
             (reason: any) => {
-              console.error(reason)
+              logger.error(reason)
             }
           )
         }
@@ -132,18 +133,29 @@ export class Location<T = LocationDataType> extends Service<T> {
     const order: any[] = []
     if ($sort != null)
       Object.keys($sort).forEach((name, val) => {
-        order.push([name, $sort[name] === -1 ? 'DESC' : 'ASC'])
+        if (name === 'type') {
+          order.push([Sequelize.literal('`location_setting.locationType`'), $sort[name] === 0 ? 'DESC' : 'ASC'])
+        } else if (name === 'instanceMediaChatEnabled') {
+          order.push([
+            Sequelize.literal('`location_setting.instanceMediaChatEnabled`'),
+            $sort[name] === 0 ? 'DESC' : 'ASC'
+          ])
+        } else if (name === 'videoEnabled') {
+          order.push([Sequelize.literal('`location_setting.videoEnabled`'), $sort[name] === 0 ? 'DESC' : 'ASC'])
+        } else {
+          order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
+        }
       })
 
     if (joinableLocations) {
-      const locationResult = await (this.app.service('location') as any).Model.findAndCountAll({
+      const locationResult = await this.app.service('location').Model.findAndCountAll({
         offset: $skip,
         limit: $limit,
         where: strippedQuery,
         order: order,
         include: [
           {
-            model: (this.app.service('instance') as any).Model,
+            model: this.app.service('instance').Model,
             required: false,
             where: {
               currentUsers: {
@@ -153,14 +165,15 @@ export class Location<T = LocationDataType> extends Service<T> {
             }
           },
           {
-            model: (this.app.service('location-settings') as any).Model,
+            model: this.app.service('location-settings').Model,
             required: false
           },
           {
-            model: (this.app.service('location-ban') as any).Model,
+            model: this.app.service('location-ban').Model,
             required: false
           }
-        ]
+        ],
+        subQuery: false
       })
       return {
         skip: $skip,
@@ -172,18 +185,18 @@ export class Location<T = LocationDataType> extends Service<T> {
       const loggedInUser = params!.user as UserDataType
       const include = [
         {
-          model: (this.app.service('location-settings') as any).Model,
+          model: this.app.service('location-settings').Model,
           required: false
         },
         {
-          model: (this.app.service('location-ban') as any).Model,
+          model: this.app.service('location-ban').Model,
           required: false
         }
       ]
 
       if (loggedInUser.userRole !== 'admin') {
         ;(include as any).push({
-          model: (this.app.service('location-admin') as any).Model,
+          model: this.app.service('location-admin').Model,
           where: {
             userId: loggedInUser.id
           }
@@ -204,12 +217,13 @@ export class Location<T = LocationDataType> extends Service<T> {
           ]
         }
       }
-      const locationResult = await (this.app.service('location') as any).Model.findAndCountAll({
+      const locationResult = await this.app.service('location').Model.findAndCountAll({
         offset: $skip,
         limit: $limit,
         where: { ...strippedQuery, ...q },
         order: order,
-        include: include
+        include: include,
+        subQuery: false
       })
       return {
         skip: $skip,
@@ -242,7 +256,7 @@ export class Location<T = LocationDataType> extends Service<T> {
       if (locationData.isLobby) await this.makeLobby(t, params)
 
       const location = await this.Model.create(locationData, { transaction: t })
-      await (this.app.service('location-settings') as any).Model.create(
+      await this.app.service('location-settings').Model.create(
         {
           videoEnabled: !!location_settings.videoEnabled,
           audioEnabled: !!location_settings.audioEnabled,
@@ -257,7 +271,7 @@ export class Location<T = LocationDataType> extends Service<T> {
       )
 
       if (loggedInUser) {
-        await (this.app.service('location-admin') as any).Model.create(
+        await this.app.service('location-admin').Model.create(
           {
             locationId: location.id,
             userId: loggedInUser.id
@@ -270,7 +284,7 @@ export class Location<T = LocationDataType> extends Service<T> {
 
       return location as T
     } catch (err) {
-      console.log(err)
+      logger.error(err)
       await t.rollback()
       if (err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('Name is in use.')
@@ -297,7 +311,7 @@ export class Location<T = LocationDataType> extends Service<T> {
 
       const old = await this.Model.findOne({
         where: { id },
-        include: [(this.app.service('location-settings') as any).Model]
+        include: [this.app.service('location-settings').Model]
       })
       const oldSettings = old.location_setting ?? old.location_settings
 
@@ -306,7 +320,7 @@ export class Location<T = LocationDataType> extends Service<T> {
 
       await this.Model.update(locationData, { where: { id }, transaction: t }) // super.patch(id, locationData, params);
 
-      await (this.app.service('location-settings') as any).Model.update(
+      await this.app.service('location-settings').Model.update(
         {
           videoEnabled: !!location_settings.videoEnabled,
           audioEnabled: !!location_settings.audioEnabled,
@@ -322,12 +336,12 @@ export class Location<T = LocationDataType> extends Service<T> {
       await t.commit()
       const location = await this.Model.findOne({
         where: { id },
-        include: [(this.app.service('location-settings') as any).Model]
+        include: [this.app.service('location-settings').Model]
       })
 
       return location as T
     } catch (err) {
-      console.log(err)
+      logger.error(err)
       await t.rollback()
       if (err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('That name is already in use')
@@ -358,7 +372,7 @@ export class Location<T = LocationDataType> extends Service<T> {
           }
         })
       } catch (err) {
-        console.log('Could not remove location-admin')
+        logger.error(err, `Could not remove location-admin: ${err.message}`)
       }
     }
     return (await super.remove(id)) as T

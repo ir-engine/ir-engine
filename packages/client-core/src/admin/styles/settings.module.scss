@@ -1,5 +1,3 @@
-@use "../../theme.scss"as theme;
-
 .root {
   flex-grow: 1;
 }
@@ -20,8 +18,8 @@
 }
 
 .selectPaper {
-  background: theme.$inputBackground;
-  color: theme.$text;
+  background: var(--inputBackground);
+  color: var(--text);
 }
 
 .divider {
@@ -32,23 +30,23 @@
 .menuBtn {
   color: #fff;
   font-size: 3rem;
-  background: theme.$purpleLight;
+  background: var(--purpleLight);
   position: fixed;
 }
 
 .saveBtn {
-  background: theme.$purplePinkGradient;
+  background: var(--purplePinkGradient);
 }
 
 .settings {
   display: flex;
   flex-direction: column;
   text-align: center;
-  background: #43484F;
-  color: #FFF;
+  background: #43484f;
+  color: #fff;
   max-width: 310px;
   position: fixed;
-  padding: 2px 18px 2px 18px;
+  padding: 2px 18px;
 }
 
 .hoverSettings {
@@ -56,15 +54,17 @@
   z-index: 1;
   flex-direction: column;
   text-align: center;
-  background: theme.$purplePanel;
-  color: #FFF;
+  background: var(--purplePanel);
+  color: var(--text);
   max-width: 310px;
   position: absolute;
-  padding: 2px 18px 2px 18px;
+  padding: 2px 18px;
+  left: 0;
+  top: 0;
 }
 
 .settingsHeading {
-  color: orange;
+  color: var(--text);
   text-align: center;
   margin-bottom: 10px;
   font-weight: 300;
@@ -73,7 +73,7 @@
 }
 
 .hoverSettingsHeading {
-  color: orange;
+  color: var(--text);
   text-align: center;
   font-weight: 300;
   line-height: 1.7;
@@ -89,15 +89,15 @@
 
 .contents {
   padding: 10px;
-  background: theme.$purplePanel !important;
+  background: var(--purplePanel) !important;
 }
 
 .input {
   margin-left: 8px;
   flex: 1;
   width: 100%;
-  color: #f1f1f1;
-  background: theme.$inputBackground;
+  color: var(--text);
+  background: var(--inputBackground);
 }
 
 .selectInput {
@@ -105,9 +105,9 @@
   padding: 2px 4px;
   margin-top: 10px;
   margin-bottom: 15px;
-  background: theme.$inputBackground;
+  background: var(--inputBackground);
   border: 1px solid #23282c;
-  color: #f1f1f1 !important;
+  color: var(--text) !important;
 }
 
 .createInput {
@@ -117,9 +117,9 @@
   align-items: center;
   margin-top: 10px;
   margin-bottom: 15px;
-  background: theme.$inputBackground;
+  background: var(--inputBackground);
   border: 1px solid #23282c;
-  color: #f1f1f1 !important;
+  color: var(--text) !important;
 }
 
 .container {
@@ -129,7 +129,7 @@
 }
 
 .loginBtn {
-  background: #F0FFF0;
+  background: #f0fff0;
 }
 
 .nested {
@@ -145,17 +145,19 @@
 }
 
 .Paper {
-  padding: 0px 10px 6px 10px;
-  background: theme.$purpleDarkest;
+  border-radius: 0;
+  padding: 0 10px 6px;
+  background: var(--purpleDarkest);
 }
 
 .Paper2 {
   display: flex;
   padding: 5px 10px;
+  border-radius: 0;
   flex-direction: row;
-  background: theme.$purpleDarkest;
+  background: var(--purpleDarkest);
 
-  &>div {
+  & > div {
     margin: 5px;
   }
 
@@ -165,38 +167,38 @@
 }
 
 .focused {
-  background: theme.$purpleColor;
+  background: var(--purpleColor);
 
   &:hover {
-    background-color: theme.$purpleColor;
+    background-color: var(--purpleColor);
   }
 }
 
 .autoFocused {
-  background: theme.$purpleColor;
+  background: var(--purpleColor);
 
   &:hover {
-    background-color: theme.$purpleColor;
+    background-color: var(--purpleColor);
   }
 }
 
 .notFocused {
-  background: theme.$purplePanel;
+  background: var(--purplePanel);
 
   &:hover {
-    background-color: theme.$purpleColor;
+    background-color: var(--purpleColor);
   }
 }
 
 .spanDange {
-  color: #FF8C00 !important;
+  color: #ff8c00 !important;
   margin-bottom: 0.8rem;
   position: fixed;
 }
 
 .clearMenuBg {
-  background: #43484F;
-  border: 1px solid #43484F;
+  background: #43484f;
+  border: 1px solid #43484f;
   border-radius: 50%;
   position: fixed;
   z-index: 3;
@@ -204,17 +206,40 @@
 
 .invisible {
   display: none;
+  color: var(--text);
 
   @media (max-width: 1200px) {
     display: inline-block;
-    marginBottom: 3rem;
+    margin-bottom: 3rem;
   }
 }
 
 .visible {
+  color: var(--text);
   display: inline-block;
 
   @media (max-width: 1200px) {
     display: none;
   }
+}
+
+.colorGridContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  label:nth-child(1) {
+    margin-right: 20px;
+  }
+
+  label:nth-child(3) {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}
+
+.colorGridDivider {
+  width: 100%;
+  border-color: rgb(255 255 255 / 80%);
+  margin: 10px 0;
 }

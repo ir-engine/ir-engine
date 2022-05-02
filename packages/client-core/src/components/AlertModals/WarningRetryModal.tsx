@@ -7,7 +7,7 @@ import Fade from '@mui/material/Fade'
 import IconButton from '@mui/material/IconButton'
 import Modal from '@mui/material/Modal'
 
-import styles from './AlertModals.module.scss'
+import styles from './index.module.scss'
 
 export interface WarningRetryModalProps {
   open: boolean
@@ -87,10 +87,10 @@ const WarningRetryModal = ({
           <div
             className={classNames({
               [styles.paper]: true,
-              [styles['modal-content']]: true
+              [styles.modalContent]: true
             })}
           >
-            <div className={styles['modal-header']}>
+            <div className={styles.modalHeader}>
               <div />
               <div className={styles['title']}>{title}</div>
               <IconButton

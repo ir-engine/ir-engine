@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "XRE_directionLight glTF extension",
+  "$id": "XRE_directionLight.schema.json",
+  "type": "object",
+  "description": "serialization extension for XREngine direction light components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "color": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "intensity": {
+      "type": "number",
+      "default": 1.0
+    },
+    "castShadow": {
+      "type": "boolean",
+      "default": true
+    },
+    "shadowMapResolution": {
+      "type": "array",
+      "items": {
+        "$ref": "resolution.schema.json"
+      },
+      "minItems": 2,
+      "maxItems": 2,
+      "default": [256, 256]
+    },
+    "shadowBias": {
+      "type": "number",
+      "default": 0.5
+    },
+    "shadowRadius": {
+      "type": "number",
+      "default": 1.0
+    },
+    "cameraFar": {
+      "type": "number",
+      "default": 100.0
+    },
+    "showCameraHelper": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "extensions": {},
+  "extras": {}
+}

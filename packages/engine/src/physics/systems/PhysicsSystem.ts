@@ -2,14 +2,16 @@ import { pipe } from 'bitecs'
 import { Box3, Mesh, Quaternion, Vector3 } from 'three'
 import matches from 'ts-matches'
 
+import { addActionReceptor } from '@xrengine/hyperflux'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
+import { defineQuery, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObjectDirtyTag'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -23,10 +25,10 @@ import { teleportRigidbody } from '../functions/teleportRigidbody'
 
 // Receptor
 function physicsActionReceptor(action: unknown) {
-  const world = useWorld()
+  const world = Engine.instance.currentWorld
   matches(action).when(NetworkWorldAction.teleportObject.matches, (a) => {
     const [x, y, z, qX, qY, qZ, qW] = a.pose
-    const entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
+    const entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)!
     const colliderComponent = getComponent(entity, ColliderComponent)
     if (colliderComponent) {
       teleportRigidbody(colliderComponent.body, new Vector3(x, y, z), new Quaternion(qX, qY, qZ, qW))
@@ -36,7 +38,7 @@ function physicsActionReceptor(action: unknown) {
 
 // Queries
 const boxQuery = defineQuery([BoundingBoxComponent, Object3DComponent])
-const networkColliderQuery = defineQuery([NetworkObjectComponent, ColliderComponent])
+const networkColliderQuery = defineQuery([NetworkObjectComponent, ColliderComponent, NetworkObjectDirtyTag])
 const raycastQuery = defineQuery([RaycastComponent])
 const colliderQuery = defineQuery([ColliderComponent])
 const collisionComponent = defineQuery([CollisionComponent])
@@ -77,11 +79,11 @@ const processNetworkBodies = (world: World) => {
   for (const entity of networkColliderQuery()) {
     const network = getComponent(entity, NetworkObjectComponent)
 
-    const nameComponent = getComponent(entity, NameComponent)
+    // const nameComponent = getComponent(entity, NameComponent)
 
     // Ignore if we own this object or no new network state has been received for this object
     // (i.e. packet loss and/or state not sent out from server because no change in state since last frame)
-    if (network.ownerId === Engine.userId || network.lastTick < world.fixedTick) {
+    if (network.ownerId === Engine.instance.userId) {
       // console.log('ignoring state for:', nameComponent)
       continue
     }
@@ -97,10 +99,11 @@ const processNetworkBodies = (world: World) => {
     body.setLinearVelocity(linearVelocity, true)
     body.setAngularVelocity(angularVelocity, true)
 
+    removeComponent(entity, NetworkObjectDirtyTag)
+
     // console.log(
     //   'physics velocity of network object:',
     //   nameComponent.name,
-    //   network.lastTick,
     //   world.fixedTick,
     //   angularVelocity.x,
     //   angularVelocity.y,
@@ -118,7 +121,7 @@ const processBodies = (world: World) => {
 
     if (hasComponent(entity, AvatarComponent)) continue
 
-    if (Engine.isEditor || isStaticBody(collider.body)) {
+    if (Engine.instance.isEditor || isStaticBody(collider.body)) {
       const body = collider.body as PhysX.PxRigidDynamic
       const currentPose = body.getGlobalPose()
 
@@ -203,7 +206,7 @@ const processCollisions = (world: World) => {
 const simulationPipeline = pipe(processRaycasts, processNetworkBodies, processBodies, processCollisions)
 
 export default async function PhysicsSystem(world: World) {
-  world.receptors.push(physicsActionReceptor)
+  addActionReceptor(world.store, physicsActionReceptor)
   await world.physics.createScene()
 
   return () => {
@@ -218,7 +221,7 @@ export default async function PhysicsSystem(world: World) {
       }
     }
 
-    if (Engine.isEditor) return
+    if (Engine.instance.isEditor) return
 
     simulationPipeline(world)
 

@@ -99,7 +99,8 @@ const Client = (props: clientProps) => {
         appSubtitle: appSubtitle,
         appDescription: appDescription,
         appBackground: appBackground,
-        appSocialLinks: JSON.stringify(appSocialLinks)
+        appSocialLinks: JSON.stringify(appSocialLinks),
+        themeSettings: JSON.stringify(clientSetting?.themeSettings)
       },
       id
     )

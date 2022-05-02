@@ -7,6 +7,7 @@ import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-u
 
 import authenticate from '../../hooks/authenticate'
 import restrictUserRole from '../../hooks/restrict-user-role'
+import logger from '../../logger'
 
 export default {
   before: {
@@ -20,10 +21,10 @@ export default {
         if (!context.data.uri && context.params.file) {
           const file = context.params.file
           const uri = dauria.getBase64DataURI(file.buffer, file.mimetype)
-          console.log('uri is', uri)
+          logger.info(`uri is: ${uri}`)
           const url = dauria.getBase64DataURI(file.buffer, file.mimetype)
           const mimeType = context.data.mimeType ?? file.mimetype
-          console.log('mimeType is', file.mimetype)
+          logger.info(`mimeType is: ${file.mimetype}`)
           const name = context.data.name ?? file.name
           context.data = { uri: uri, mimeType: mimeType, name: name }
         }

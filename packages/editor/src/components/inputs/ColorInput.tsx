@@ -64,7 +64,7 @@ const ColorText = (styled as any).div`
  * @type {styled component}
  */
 const ColorInputPopover = (styled as any).div`
-  box-shadow: ${(props) => props.theme.shadow30};
+  box-shadow: var(--shadow30);
   margin-bottom: 3px;
 `
 

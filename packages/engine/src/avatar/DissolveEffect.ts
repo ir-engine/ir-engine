@@ -1,4 +1,6 @@
-import { Mesh, Object3D, ShaderMaterial } from 'three'
+import { Mesh, Object3D, ShaderLib, ShaderMaterial, UniformsLib, UniformsUtils } from 'three'
+
+import { Engine } from '../ecs/classes/Engine'
 
 export class DissolveEffect {
   time = 0
@@ -26,7 +28,9 @@ export class DissolveEffect {
     if (this.time <= this.maxHeight) {
       this.object.traverse((child) => {
         if (child['material'] && child.name !== 'light_obj' && child.name !== 'plate_obj') {
-          if (child.material.uniforms) child.material.uniforms.time.value = this.time
+          if (child.material.uniforms && child.material.uniforms.time) {
+            child.material.uniforms.time.value = this.time
+          }
         }
       })
 
@@ -37,107 +41,171 @@ export class DissolveEffect {
     return true
   }
 
-  static getDissolveTexture(object: Mesh): ShaderMaterial {
-    const vertexNonUVShader = [
-      'varying float posY;',
-      'varying vec2 vUv;',
-      '#include <skinning_pars_vertex>',
-      'void main() {',
-      '#include <skinbase_vertex>',
-      '#include <begin_vertex>',
-      '#include <skinning_vertex>',
-      '#include <project_vertex>',
-      'vec2 clipSpace = gl_Position.xy / gl_Position.w;',
-      'vUv = clipSpace * 0.5 + 0.5;',
-      'posY = position.y;',
-      '}'
-    ].join('\n')
-
-    const vertexUVShader = [
-      'varying vec2 vUv;',
-      'varying float posY;',
-      '#include <skinning_pars_vertex>',
-      'void main() {',
-      '#include <skinbase_vertex>',
-      '#include <begin_vertex>',
-      '#include <skinning_vertex>',
-      '#include <project_vertex>',
-      'vUv = uv;',
-      'posY = position.y;',
-      '}'
-    ].join('\n')
-
-    const fragmentColorShader = [
-      'uniform vec3 color;',
-      'varying vec2 vUv;',
-      'varying float posY;',
-      'uniform float time;',
-      'uniform sampler2D texture_dissolve;',
-      'float rand(float co) { return fract(sin(co*(91.3458)) * 47453.5453); }',
-      'void main() {',
-      // ' vec4 dissolveData = texture2D( texture_dissolve, vUv );',
-      // ' float greyValue = dissolveData.g;',
-      // ' float difference = greyValue - time;',
-      '	gl_FragColor = vec4(color.r, color.g, color.b, 1.0);',
-      '	float offset = posY - time;',
-      ' if(offset > (-0.01 - rand(time) * 0.3)){',
-      '   gl_FragColor.r = 0.0;',
-      '   gl_FragColor.g = 1.0;',
-      '   gl_FragColor.b = 0.0;',
-      ' }',
-      ' if(offset > 0.0){',
-      '   discard;',
-      ' }',
-      '}'
-    ].join('\n')
-
-    const fragmentTextureShader = [
-      'uniform vec3 color;',
-      'varying vec2 vUv;',
-      'varying float posY;',
-      'uniform float time;',
-      'uniform sampler2D texture_dissolve;',
-      'uniform sampler2D origin_texture;',
-      'float rand(float co) { return fract(sin(co*(91.3458)) * 47453.5453); }',
-      'void main() {',
-      // ' vec4 dissolveData = texture2D( texture_dissolve, vUv );',
-      // ' float greyValue = dissolveData.g;',
-      // ' float difference = greyValue - time;',
-      '	gl_FragColor = texture2D(origin_texture, vUv);',
-      '	float offset = posY - time;',
-      ' if(offset > (-0.01 - rand(time) * 0.3)){',
-      '   gl_FragColor.r = 0.0;',
-      '   gl_FragColor.g = 1.0;',
-      '   gl_FragColor.b = 0.0;',
-      ' }',
-      ' if(offset > 0.0){',
-      '   discard;',
-      ' }',
-      '}'
-    ].join('\n')
-
+  static getDissolveTexture(object: Mesh): any {
     const hasUV = object.geometry.hasAttribute('uv')
-    const hasTexture = (object.material as any).map !== null
+    const material = object.material as any
+    const hasTexture = !!material.map
+    const isShaderMaterial = material.type == 'ShaderMaterial'
+    const isPhysicMaterial = material.type == 'MeshStandardMaterial'
 
-    const mat = new ShaderMaterial({
-      uniforms: {
-        color: {
-          value: (object.material as any).color
-        },
-        origin_texture: {
-          value: (object.material as any).map
-        },
-        // texture_dissolve: {
-        //   value: textureNoise
-        // },
-        time: {
-          value: -200
-        }
+    const shaderNameMapping = {
+      MeshLambertMaterial: 'lambert',
+      MeshBasicMaterial: 'basic',
+      MeshStandardMaterial: 'standard',
+      MeshPhongMaterial: 'phong',
+      MeshMatcapMaterial: 'matcap',
+      MeshToonMaterial: 'toon',
+      PointsMaterial: 'points',
+      LineDashedMaterial: 'dashed',
+      MeshDepthMaterial: 'depth',
+      MeshNormalMaterial: 'normal',
+      MeshDistanceMaterial: 'distanceRGBA',
+      SpriteMaterial: 'sprite'
+    }
+
+    let uniforms = {
+      color: {
+        value: (material as any).color
       },
-      vertexShader: hasUV ? vertexUVShader : vertexNonUVShader,
-      fragmentShader: hasTexture ? fragmentTextureShader : fragmentColorShader
-    })
+      diffuse: {
+        value: (material as any).color
+      },
+      time: {
+        value: -200
+      }
+    }
 
-    return mat
+    let fragmentShader = ''
+    let vertexShader = ''
+
+    if (isShaderMaterial) {
+      uniforms = UniformsUtils.merge([material.uniforms, uniforms])
+      fragmentShader = material.fragmentShader
+      vertexShader = material.vertexShader
+    } else {
+      // built-in material
+      const shader = ShaderLib[shaderNameMapping[material.type] ?? 'standard']
+      fragmentShader = shader.fragmentShader
+      vertexShader = shader.vertexShader
+      Object.keys(shader.uniforms).forEach((key) => {
+        if (material[key]) {
+          uniforms[key] = { value: material[key] }
+        }
+      })
+    }
+
+    uniforms = UniformsUtils.merge([UniformsLib['lights'], uniforms])
+
+    const vertexNonUVShader = `
+      #include <fog_vertex>
+      vec2 clipSpace = gl_Position.xy / gl_Position.w;
+      vUv3 = clipSpace * 0.5 + 0.5;
+      vPosition = position.y;
+    `
+
+    const vertexUVShader = `
+      #include <fog_vertex>
+      vUv3 = uv;
+      vPosition = position.y;
+    `
+
+    const fragmentColorShader = `
+      #include <output_fragment>
+      float offset = vPosition - time;
+      if(offset > (-0.01 - rand(time) * 0.3)){
+      gl_FragColor = vec4(color.r, color.g, color.b, 1.0);
+      gl_FragColor.r = 0.0;
+      gl_FragColor.g = 1.0;
+      gl_FragColor.b = 0.0;
+      }
+      if(offset > 0.0){
+      discard;
+      }
+    `
+
+    let textureShader = `gl_FragColor = textureColor;`
+    if (hasTexture && (material as any).map.isVideoTexture) {
+      textureShader = `gl_FragColor = sRGBToLinear(textureColor);`
+    }
+
+    const fragmentTextureShader = `
+      #include <output_fragment>
+      float offset = vPosition - time;
+      vec4 textureColor = texture2D(origin_texture, vUv3);
+      ${textureShader}
+      if(offset > (-0.01 - rand(time) * 0.3)){
+      gl_FragColor.r = 0.0;
+      gl_FragColor.g = 1.0;
+      gl_FragColor.b = 0.0;
+      }
+      if(offset > 0.0){
+      discard;
+      }
+    `
+
+    const vertexHeaderShader = `
+      #include <clipping_planes_pars_vertex>
+      varying vec2 vUv3;
+      varying float vPosition;
+    `
+
+    const fragmentHeaderShader = `
+      #include <clipping_planes_pars_fragment>
+      uniform vec3 color;
+      varying vec2 vUv3;
+      varying float vPosition;
+      uniform float time;
+      uniform sampler2D texture_dissolve;
+      uniform sampler2D origin_texture;
+      float rand(float co) { return fract(sin(co*(91.3458)) * 47453.5453); }
+      vec4 sRGBToLinear( in vec4 value ) {
+        return vec4( mix( pow( value.rgb * 0.9478672986 + vec3( 0.0521327014 ), vec3( 2.4 ) ), value.rgb * 0.0773993808, vec3( lessThanEqual( value.rgb, vec3( 0.04045 ) ) ) ), value.a );
+      }
+    `
+
+    vertexShader = vertexShader.replace('#include <clipping_planes_pars_vertex>', vertexHeaderShader)
+    vertexShader = vertexShader.replace('#include <fog_vertex>', hasUV ? vertexUVShader : vertexNonUVShader)
+    fragmentShader = fragmentShader.replace('#include <clipping_planes_pars_fragment>', fragmentHeaderShader)
+    fragmentShader = fragmentShader.replace(
+      '#include <output_fragment>',
+      hasTexture ? fragmentTextureShader : fragmentColorShader
+    )
+
+    if (isShaderMaterial) {
+      material.vertexShader = vertexShader
+      material.fragmentShader = fragmentShader
+      material.uniforms = uniforms
+      material.needsUpdate = true
+      return material
+    } else {
+      const myMaterial = new ShaderMaterial({
+        uniforms,
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader,
+        lights: true,
+        fog: false
+      })
+
+      if (myMaterial.uniforms.map) {
+        myMaterial.uniforms.map.value = (material as any).map
+      }
+
+      myMaterial.uniforms.origin_texture = {
+        value: (material as any).map
+      }
+      if (isPhysicMaterial) {
+        //@ts-ignore
+        myMaterial.envMap = Engine.instance.scene?.environment
+        //@ts-ignore
+        myMaterial.envMapIntensity = { value: 1 }
+        myMaterial.uniforms.envMap = {
+          value: Engine.instance.scene?.environment
+        }
+        myMaterial.uniforms.envMapIntensity = { value: 1 }
+      }
+
+      myMaterial.needsUpdate = true
+      return myMaterial
+    }
   }
 }

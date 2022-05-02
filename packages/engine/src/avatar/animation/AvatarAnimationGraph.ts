@@ -1,8 +1,9 @@
 import { AnimationClip, AnimationMixer, Vector3 } from 'three'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { AnimationManager } from '../AnimationManager'
@@ -85,8 +86,12 @@ export class AvatarAnimationGraph extends AnimationGraph {
 
     // Jump
 
-    const jumpState = new SingleAnimationState(AvatarStates.JUMP, false, true)
-    jumpState.action = getAnimationAction(AvatarAnimations.JUMP, mixer)
+    const jumpUpState = new SingleAnimationState(AvatarStates.JUMP_UP, false, true)
+    jumpUpState.action = getAnimationAction(AvatarAnimations.JUMP_UP, mixer)
+    const jumpDownState = new SingleAnimationState(AvatarStates.JUMP_DOWN, false, true)
+    jumpDownState.action = getAnimationAction(AvatarAnimations.JUMP_DOWN, mixer)
+    const fallState = new SingleAnimationState(AvatarStates.FALL_IDLE, true, false)
+    fallState.action = getAnimationAction(AvatarAnimations.FALL_IDLE, mixer)
 
     // Emotes
 
@@ -122,7 +127,9 @@ export class AvatarAnimationGraph extends AnimationGraph {
 
     // Add states to the graph
     this.states[AvatarStates.LOCOMOTION] = locomotionState
-    this.states[AvatarStates.JUMP] = jumpState
+    this.states[AvatarStates.JUMP_UP] = jumpUpState
+    this.states[AvatarStates.FALL_IDLE] = fallState
+    this.states[AvatarStates.JUMP_DOWN] = jumpDownState
     this.states[AvatarStates.CLAP] = clapState
     this.states[AvatarStates.CRY] = cryState
     this.states[AvatarStates.KISS] = kissState
@@ -138,19 +145,24 @@ export class AvatarAnimationGraph extends AnimationGraph {
 
     const movementTransitionRule = new VectorLengthTransitionRule(locomotionState.name, velocity)
 
-    if (jumpValue) {
-      this.transitionRules[AvatarStates.LOCOMOTION] = [
-        new BooleanTransitionRule(jumpState.name, jumpValue, 'isJumping')
-      ]
-      this.transitionRules[AvatarStates.JUMP] = [
-        new CompositeTransitionRule(
-          locomotionState.name,
-          'and',
-          new BooleanTransitionRule(locomotionState.name, jumpValue, 'isJumping', true),
-          new AnimationTimeTransitionRule(locomotionState.name, jumpState.action, 0.9)
-        )
-      ]
-    }
+    this.transitionRules[AvatarStates.LOCOMOTION] = [
+      // Jump
+      new BooleanTransitionRule(AvatarStates.JUMP_UP, jumpValue, 'isJumping'),
+      // Fall
+      new BooleanTransitionRule(AvatarStates.FALL_IDLE, jumpValue, 'isInAir')
+    ]
+
+    this.transitionRules[AvatarStates.JUMP_UP] = [
+      new AnimationTimeTransitionRule(AvatarStates.FALL_IDLE, jumpUpState.action, 0.9)
+    ]
+
+    this.transitionRules[AvatarStates.FALL_IDLE] = [
+      new BooleanTransitionRule(AvatarStates.JUMP_DOWN, jumpValue, 'isInAir', true)
+    ]
+
+    this.transitionRules[AvatarStates.JUMP_DOWN] = [
+      new AnimationTimeTransitionRule(AvatarStates.LOCOMOTION, jumpDownState.action, 0.65)
+    ]
 
     this.transitionRules[AvatarStates.CLAP] = [
       new CompositeTransitionRule(
@@ -214,7 +226,7 @@ export class AvatarAnimationGraph extends AnimationGraph {
     super.changeState(newStateName)
     if (isEntityLocalClient(this.entity)) {
       const params = {}
-      dispatchFrom(Engine.userId, () => NetworkWorldAction.avatarAnimation({ newStateName, params }))
+      dispatchAction(Engine.instance.currentWorld.store, NetworkWorldAction.avatarAnimation({ newStateName, params }))
     }
   }
 }

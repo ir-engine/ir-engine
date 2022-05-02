@@ -1,6 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
@@ -22,6 +23,12 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
   const imageComponent = getComponent(entity, ImageComponent)
   const hasError = engineState.errorEntities[entity].get() || hasComponent(entity, ErrorComponent)
 
+  const updateSrc = async (src: string) => {
+    AssetLoader.Cache.delete(src)
+    await AssetLoader.loadAsync(src)
+    updateProperty(ImageComponent, 'imageSource')(src)
+  }
+
   return (
     <NodeEditor
       {...props}
@@ -30,7 +37,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
     >
       {!hasComponent(entity, VideoComponent) && (
         <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
-          <ImageInput value={imageComponent.imageSource} onChange={updateProperty(ImageComponent, 'imageSource')} />
+          <ImageInput value={imageComponent.imageSource} onChange={updateSrc} />
           {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.image.error-url')}</div>}
         </InputGroup>
       )}

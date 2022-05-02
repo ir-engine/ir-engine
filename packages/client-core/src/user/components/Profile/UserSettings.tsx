@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography'
 import { useDispatch } from '../../../store'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
-import styles from './Profile.module.scss'
+import styles from './index.module.scss'
 
 interface Props {}
 
@@ -54,7 +54,7 @@ const UserSettings = (props: Props): JSX.Element => {
     AuthService.updateUserSettings(selfUser?.user_setting?.id, {
       spatialAudioEnabled: newValue
     })
-    // if (Engine.spatialAudio) {
+    // if (Engine.instance.spatialAudio) {
     // TODO
     // if (newValue === true) PositionalAudioSystem.instance.resume()
     // else if (newValue === false) PositionalAudioSystem.instance.suspend()

@@ -22,7 +22,10 @@ export const reparentObject3D = (
 
   const obj3d = getComponent(_node.entity, Object3DComponent)?.value
   if (!obj3d) return
-  const parentObj3d = _parent.parentEntity ? getComponent(_parent.entity, Object3DComponent).value : Engine.scene
+  const parentObj3d =
+    _parent.parentEntity && getComponent(_parent.entity, Object3DComponent)
+      ? getComponent(_parent.entity, Object3DComponent).value
+      : Engine.instance.scene
 
   if (obj3d.parent && obj3d.parent !== parentObj3d) {
     // Maintain world position when reparenting.

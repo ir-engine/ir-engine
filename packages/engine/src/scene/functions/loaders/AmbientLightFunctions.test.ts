@@ -3,12 +3,11 @@ import { AmbientLight, Color } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { AmbientLightComponent, AmbientLightComponentType } from '../../components/AmbientLightComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -23,12 +22,10 @@ import {
 } from './AmbientLightFunctions'
 
 describe('AmbientLightFunctions', () => {
-  let world: World
   let entity: Entity
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 
@@ -64,27 +61,13 @@ describe('AmbientLightFunctions', () => {
       assert(obj3d.intensity === sceneComponentData.intensity)
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Ambient light in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        deserializeAmbientLight(entity, sceneComponent)
+      deserializeAmbientLight(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_AMBIENT_LIGHT))
-      })
-
-      it('creates Ambient light in Editor', () => {
-        Engine.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        deserializeAmbientLight(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AMBIENT_LIGHT))
-        Engine.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AMBIENT_LIGHT))
     })
   })
 

@@ -1,12 +1,12 @@
 import { Intersection, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 import { executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
-import { accessModeState } from '../services/ModeServices'
+import { accessEditorHelperState } from '../services/EditorHelperState'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 
 /**
@@ -19,7 +19,7 @@ import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 export const getScreenSpacePosition = (() => {
   const raycaster = new Raycaster()
   const raycastTargets: Intersection<Object3D>[] = []
-  const modeState = accessModeState()
+  const editorHelperState = accessEditorHelperState()
 
   return (screenSpacePosition: Vector2, target = new Vector3()): Vector3 => {
     raycastTargets.length = 0
@@ -31,8 +31,8 @@ export const getScreenSpacePosition = (() => {
       raycaster.ray.at(20, target)
     }
 
-    if (modeState.snapMode.value === SnapMode.Grid) {
-      const translationSnap = modeState.translationSnap.value
+    if (editorHelperState.snapMode.value === SnapMode.Grid) {
+      const translationSnap = editorHelperState.translationSnap.value
 
       target.set(
         Math.round(target.x / translationSnap) * translationSnap,
@@ -68,7 +68,7 @@ export const getSpawnPositionAtCenter = (() => {
  * @returns
  */
 export function getCursorSpawnPosition(mousePos: Vector2, target = new Vector3()): Vector3 {
-  const rect = Engine.renderer.domElement.getBoundingClientRect()
+  const rect = EngineRenderer.instance.renderer.domElement.getBoundingClientRect()
   const position = new Vector2()
   position.x = ((mousePos.x - rect.left) / rect.width) * 2 - 1
   position.y = ((mousePos.y - rect.top) / rect.height) * -2 + 1

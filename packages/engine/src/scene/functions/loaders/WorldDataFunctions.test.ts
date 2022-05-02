@@ -5,9 +5,9 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { InteractableComponent, InteractableComponentType } from '../../../interaction/components/InteractableComponent'
 import { TransformComponent, TransformComponentType } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -20,12 +20,10 @@ import {
 } from './WorldDataFunctions'
 
 describe('WorldDataFunctions', () => {
-  let world: World
   let entity: Entity
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
     addComponent(entity, TransformComponent, {
       position: new Vector3(Math.random(), Math.random(), Math.random())
@@ -68,27 +66,13 @@ describe('WorldDataFunctions', () => {
       assert((obj3d as any)._data === sceneComponentData.data)
     })
 
-    describe('Editor vs Location', () => {
-      it('creates World Data in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        deserializeWorldData(entity, sceneComponent)
+      deserializeWorldData(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_WORLDDATA))
-      })
-
-      it('creates World Data in Editor', () => {
-        Engine.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        deserializeWorldData(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_WORLDDATA))
-        Engine.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_WORLDDATA))
     })
   })
 
@@ -103,6 +87,7 @@ describe('WorldDataFunctions', () => {
     })
 
     it('should not update property', () => {
+      const world = Engine.instance.currentWorld
       updateWorldData(entity, {})
       const { x, y, z } = getComponent(entity, TransformComponent).position
 
@@ -112,6 +97,7 @@ describe('WorldDataFunctions', () => {
     })
 
     it('should update property', () => {
+      const world = Engine.instance.currentWorld
       const props = { data: 'Some other random string' }
       const position = getComponent(entity, TransformComponent).position
       position.set(Math.random(), Math.random(), Math.random())

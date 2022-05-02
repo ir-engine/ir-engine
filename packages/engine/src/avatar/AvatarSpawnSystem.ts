@@ -1,6 +1,8 @@
 import { Quaternion, Vector3 } from 'three'
 import matches from 'ts-matches'
 
+import { addActionReceptor } from '@xrengine/hyperflux'
+
 import { AudioTagComponent } from '../audio/components/AudioTagComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
 import { isClient } from '../common/functions/isClient'
@@ -52,14 +54,14 @@ export class SpawnPoints {
 }
 
 export default async function AvatarSpawnSystem(world: World) {
-  world.receptors.push((action) => {
+  function avatarSpawnReceptor(action) {
     matches(action).when(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
       if (isClient) {
         /**
          * When changing location via a portal, the local client entity will be
          * defined when the new world dispatches this action, so ignore it
          */
-        if (Engine.userId === spawnAction.$from && hasComponent(world.localClientEntity, AvatarComponent)) {
+        if (Engine.instance.userId === spawnAction.$from && hasComponent(world.localClientEntity, AvatarComponent)) {
           return
         }
       }
@@ -68,14 +70,15 @@ export default async function AvatarSpawnSystem(world: World) {
         addComponent(entity, AudioTagComponent, {})
         addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
 
-        if (spawnAction.$from === Engine.userId) {
+        if (spawnAction.$from === Engine.instance.userId) {
           addComponent(entity, LocalInputTagComponent, {})
           addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
           addComponent(entity, PersistTagComponent, {})
         }
       }
     })
-  })
+  }
+  addActionReceptor(world.store, avatarSpawnReceptor)
 
   const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
   return () => {

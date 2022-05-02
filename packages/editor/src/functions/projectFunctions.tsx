@@ -4,7 +4,10 @@ import { MultiError } from '@xrengine/client-core/src/util/errors'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import ErrorIcon from '../classes/ErrorIcon'
 import { clearHistory, executeCommand } from '../classes/History'
@@ -52,7 +55,7 @@ export async function runPreprojectLoadTasks(): Promise<void> {
   if (editorState.preprojectLoadTaskStatus.value === TaskStatus.NOT_STARTED) {
     store.dispatch(EditorAction.updatePreprojectLoadTask(TaskStatus.IN_PROGRESS))
 
-    await Promise.all([ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.getDefaultAnimations()])
+    await Promise.all([ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.loadDefaultAnimations()])
 
     store.dispatch(EditorAction.updatePreprojectLoadTask(TaskStatus.COMPLETED))
   }
@@ -62,6 +65,11 @@ export async function runPreprojectLoadTasks(): Promise<void> {
  * Loads scene from provided project file.
  */
 export async function loadProjectScene(projectFile: SceneJson) {
+  dispatchAction(Engine.instance.store, EngineActions.sceneUnloaded())
+
+  executeCommand(EditorCommands.REPLACE_SELECTION, [])
+  clearHistory()
+
   disposeProject()
 
   await runPreprojectLoadTasks()
@@ -69,9 +77,6 @@ export async function loadProjectScene(projectFile: SceneJson) {
   removeInputEvents()
   disposePlayModeControls()
   const errors = await initializeScene(projectFile)
-
-  executeCommand(EditorCommands.REPLACE_SELECTION, [])
-  clearHistory()
 
   store.dispatch(EditorAction.projectLoaded(true))
   store.dispatch(SelectionAction.changedSceneGraph())

@@ -3,13 +3,10 @@ import assert from 'assert'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-import { TestNetwork } from '../../../tests/networking/TestNetwork'
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { createWorld } from '../../ecs/classes/World'
 import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { Network } from '../../networking/classes/Network'
+import { createEngine } from '../../initializeEngine'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
@@ -17,9 +14,7 @@ import { equipEntity, unequipEntity } from './equippableFunctions'
 
 describe('equippableFunctions', () => {
   beforeEach(() => {
-    const world = createWorld()
-    Engine.currentWorld = world
-    Network.instance = new TestNetwork()
+    createEngine()
   })
 
   it('equipEntity', () => {
@@ -31,7 +26,6 @@ describe('equippableFunctions', () => {
 
     const networkObject = addComponent(entity2, NetworkObjectComponent, {
       ownerId: 'server' as UserId,
-      lastTick: 0,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}
@@ -47,7 +41,6 @@ describe('equippableFunctions', () => {
     const entity2: Entity = createEntity()
     const networkObject = addComponent(entity2, NetworkObjectComponent, {
       ownerId: 'server' as UserId,
-      lastTick: 0,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}

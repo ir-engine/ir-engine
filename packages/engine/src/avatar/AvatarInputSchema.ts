@@ -1,9 +1,8 @@
 import { Quaternion, SkinnedMesh, Vector2, Vector3 } from 'three'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import { accessEngineState, EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { dispatchAction } from '@xrengine/hyperflux'
 
-// import { boxDynamicConfig } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { CameraMode } from '../camera/types/CameraMode'
@@ -13,12 +12,13 @@ import { throttle } from '../common/functions/FunctionHelpers'
 import { clamp } from '../common/functions/MathLerpFunctions'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
-import { addComponent, getComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
 import { useWorld } from '../ecs/functions/SystemHooks'
 import { InputComponent } from '../input/components/InputComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import { PhysicsDebugInput } from '../input/enums/DebugEnum'
 import {
+  AvatarMovementScheme,
   CameraInput,
   GamepadAxis,
   GamepadButtons,
@@ -44,14 +44,19 @@ import {
   unequipEntity
 } from '../interaction/functions/equippableFunctions'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
-import { dispatchFrom, dispatchLocal } from '../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
+import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
+import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
-import { XR_ROTATION_MODE, XRUserSettings } from '../xr/types/XRUserSettings'
+import { XR_ROTATION_MODE } from '../xr/types/XRUserSettings'
+import { AvatarSettings } from './AvatarControllerSystem'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
+import { AvatarSwerveComponent } from './components/AvatarSwerveComponent'
+import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
+import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -116,7 +121,7 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue):
   if (interactiveComponent.interactionType === 'equippable') {
     if (
       !interactiveComponent.validUserId ||
-      (interactiveComponent.validUserId && interactiveComponent.validUserId === Engine.userId)
+      (interactiveComponent.validUserId && interactiveComponent.validUserId === Engine.instance.userId)
     ) {
       const attachmentPoint = getAttachmentPoint(parityValue)
       equipEntity(entity, interactor.focusedInteractive, attachmentPoint)
@@ -388,28 +393,51 @@ const setLocalMovementDirection: InputBehaviorType = (
   controller.localMovementDirection.normalize()
 }
 
+let switchChangedToZero = true
+const deg2rad = Math.PI / 180
+const quat = new Quaternion()
+const upVec = new Vector3(0, 1, 0)
+const swerveVec = new Vector3()
+
 const moveFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
   const values = inputValue.value
   controller.localMovementDirection.x = values[0] ?? controller.localMovementDirection.x
   controller.localMovementDirection.z = values[1] ?? controller.localMovementDirection.z
   controller.localMovementDirection.normalize()
-}
 
-let switchChangedToZero = true
-const deg2rad = Math.PI / 180
-const quat = new Quaternion()
-const upVec = new Vector3(0, 1, 0)
+  const avatarMovementScheme = AvatarSettings.instance.movementScheme
+  if (avatarMovementScheme === AvatarMovementScheme.Teleport) {
+    const controller = getComponent(entity, AvatarControllerComponent)
+    if (controller.localMovementDirection.z < -0.75 && !hasComponent(entity, AvatarTeleportTagComponent)) {
+      addComponent(entity, AvatarTeleportTagComponent, {})
+    } else if (controller.localMovementDirection.z === 0.0) {
+      removeComponent(entity, AvatarTeleportTagComponent)
+    }
+
+    if (Math.abs(controller.localMovementDirection.x) > 0.75 && !hasComponent(entity, AvatarSwerveComponent)) {
+      swerveVec.copy(upVec)
+      if (controller.localMovementDirection.x > 0) swerveVec.multiplyScalar(-1)
+      addComponent(entity, AvatarSwerveComponent, { axis: swerveVec })
+    } else if (controller.localMovementDirection.x === 0.0) {
+      removeComponent(entity, AvatarSwerveComponent)
+    }
+
+    // This is required because we want to disable any direct movement of avatar as a result of joystick
+    controller.localMovementDirection.setScalar(0)
+  }
+}
 
 const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const values = inputValue.value
-  const rotationAngle = XRUserSettings.rotationAngle
+  const avatarInputState = accessAvatarInputSettingsState()
+  const rotationAngle = avatarInputState.rotationAngle.value
   let newAngleDiff = 0
-  switch (XRUserSettings.rotation) {
+  switch (avatarInputState.rotation.value) {
     case XR_ROTATION_MODE.ANGLED:
       if (switchChangedToZero && values[0] != 0) {
-        const plus = XRUserSettings.rotationInvertAxes ? -1 : 1
-        const minus = XRUserSettings.rotationInvertAxes ? 1 : -1
+        const plus = avatarInputState.rotationInvertAxes.value ? -1 : 1
+        const minus = avatarInputState.rotationInvertAxes.value ? 1 : -1
         const directedAngle = values[0] > 0 ? rotationAngle * plus : rotationAngle * minus
         newAngleDiff = directedAngle
         switchChangedToZero = false
@@ -422,7 +450,8 @@ const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
       }
       break
     case XR_ROTATION_MODE.SMOOTH:
-      newAngleDiff = values[0] * XRUserSettings.rotationSmoothSpeed * (XRUserSettings.rotationInvertAxes ? -1 : 1)
+      newAngleDiff =
+        values[0] * avatarInputState.rotationSmoothSpeed.value * (avatarInputState.rotationInvertAxes.value ? -1 : 1)
       break
   }
   const transform = getComponent(entity, TransformComponent)
@@ -482,19 +511,23 @@ export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputVa
 export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   if (inputValue.lifecycleState !== LifecycleValue.Ended) return
   if (inputKey === PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE) {
-    // dispatchFrom(Engine.userId, () =>
-    //   NetworkWorldAction.spawnDebugPhysicsObject({
-    //     config: boxDynamicConfig // Any custom config can be provided here
-    //   })
-    // )
+    dispatchAction(
+      Engine.instance.currentWorld.store,
+      NetworkWorldAction.spawnDebugPhysicsObject({
+        config: boxDynamicConfig // Any custom config can be provided here
+      })
+    )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
-    dispatchLocal(EngineActions.setPhysicsDebug(!accessEngineState().isPhysicsDebug.value))
+    dispatchAction(
+      Engine.instance.store,
+      EngineRendererAction.setPhysicsDebug(!accessEngineRendererState().physicsDebugEnable.value)
+    )
   }
 }
 
 export const createAvatarInput = () => {
   const map: Map<InputAlias | Array<InputAlias>, InputAlias> = new Map()
-
+  const avatarInputState = accessAvatarInputSettingsState()
   map.set(MouseInput.LeftButton, BaseInput.PRIMARY)
   map.set(MouseInput.RightButton, BaseInput.SECONDARY)
   map.set(MouseInput.MiddleButton, BaseInput.INTERACT)
@@ -528,13 +561,8 @@ export const createAvatarInput = () => {
   map.set(GamepadAxis.Left, BaseInput.MOVEMENT_PLAYERONE)
   map.set(GamepadAxis.Right, BaseInput.GAMEPAD_STICK_RIGHT)
 
-  if (XRUserSettings.invertRotationAndMoveSticks) {
-    map.set(XRAxes.Left, BaseInput.XR_AXIS_LOOK)
-    map.set(XRAxes.Right, BaseInput.XR_AXIS_MOVE)
-  } else {
-    map.set(XRAxes.Left, BaseInput.XR_AXIS_MOVE)
-    map.set(XRAxes.Right, BaseInput.XR_AXIS_LOOK)
-  }
+  map.set(XRAxes.Left, BaseInput.XR_AXIS_LOOK)
+  map.set(XRAxes.Right, BaseInput.XR_AXIS_MOVE)
 
   map.set(XR6DOF.HMD, BaseInput.XR_HEAD)
   map.set(XR6DOF.LeftHand, BaseInput.XR_CONTROLLER_LEFT_HAND)

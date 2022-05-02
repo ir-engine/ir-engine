@@ -13,13 +13,18 @@ import {
 } from 'three'
 
 import { MAX_ALLOWED_TRIANGLES } from '@xrengine/common/src/constants/AvatarConstants'
+import { AnimationState } from '@xrengine/engine/src/avatar/animation/AnimationState'
+import { AvatarAnimationGraph } from '@xrengine/engine/src/avatar/animation/AvatarAnimationGraph'
+import { BoneStructure } from '@xrengine/engine/src/avatar/AvatarBoneMatching'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
+import { AvatarAnimationComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 
 const t = i18next.t
 interface SceneProps {
@@ -33,7 +38,7 @@ let renderer: WebGLRenderer = null!
 let camera: PerspectiveCamera = null!
 export const validate = (obj) => {
   const objBoundingBox = new Box3().setFromObject(obj)
-  let maxBB = new Vector3(2, 2, 2)
+  let maxBB = new Vector3(2, 3, 2)
 
   let bone = false
   let skinnedMesh = false
@@ -59,7 +64,6 @@ export const validate = (obj) => {
 export const addAnimationLogic = (
   entity: Entity,
   world: World,
-  setEntity: (entity: Entity) => void,
   panelRef: React.MutableRefObject<HTMLDivElement | undefined>
 ) => {
   addComponent(entity, AnimationComponent, {
@@ -73,8 +77,15 @@ export const addAnimationLogic = (
     hasAvatarAnimations: true,
     action: null!
   })
-
-  setEntity(entity)
+  addComponent(entity, AvatarAnimationComponent, {
+    animationGraph: new AvatarAnimationGraph(),
+    currentState: new AnimationState(),
+    prevState: new AnimationState(),
+    prevVelocity: new Vector3(),
+    rig: {} as BoneStructure,
+    rootYRatio: 1
+  })
+  addComponent(entity, VelocityComponent, { linear: new Vector3(), angular: new Vector3() })
 
   async function AvatarSelectRenderSystem(world: World) {
     return () => {
@@ -96,18 +107,18 @@ export const addAnimationLogic = (
 export const initialize3D = () => {
   const container = document.getElementById('stage')!
   const bounds = container.getBoundingClientRect()
-  camera = new PerspectiveCamera(45, bounds.width / bounds.height, 0.25, 20)
-  camera.position.set(0, 1.25, 1.25)
+  camera = new PerspectiveCamera(60, bounds.width / bounds.height, 0.25, 20)
+  camera.position.set(0, 1.5, 0.6)
 
   scene = new Scene()
 
-  const backLight = new DirectionalLight(0xfafaff, 1)
+  const backLight = new DirectionalLight(0xfafaff, 0.5)
   backLight.position.set(1, 3, -1)
   backLight.target.position.set(0, 1.5, 0)
-  const frontLight = new DirectionalLight(0xfafaff, 0.7)
+  const frontLight = new DirectionalLight(0xfafaff, 0.4)
   frontLight.position.set(-1, 3, 1)
   frontLight.target.position.set(0, 1.5, 0)
-  const hemi = new HemisphereLight(0xffffff, 0xffffff, 2)
+  const hemi = new HemisphereLight(0xffffff, 0xffffff, 1)
   scene.add(backLight)
   scene.add(backLight.target)
   scene.add(frontLight)

@@ -6,9 +6,9 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { ColliderComponent } from '../../../physics/components/ColliderComponent'
 import { CollisionComponent } from '../../../physics/components/CollisionComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../../physics/enums/CollisionGroups'
@@ -23,7 +23,6 @@ let transform2 = {
 }
 
 describe('BoxColliderFunctions', () => {
-  let world: World
   let entity: Entity
   let body: any
   let boxcolliderFunctions = proxyquire('./BoxColliderFunctions', {
@@ -35,15 +34,15 @@ describe('BoxColliderFunctions', () => {
   })
 
   beforeEach(async () => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
+    const world = Engine.instance.currentWorld
     entity = createEntity()
     addComponent(entity, TransformComponent, {
       position: new Vector3(Math.random(), Math.random(), Math.random()),
       rotation: new Quaternion(Math.random(), Math.random(), Math.random(), Math.random()),
       scale: new Vector3(Math.random(), Math.random(), Math.random())
     })
-    await Engine.currentWorld.physics.createScene({ verbose: true })
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
 
     world.physics = {
       createShape: () => ({ shape: 'box' }),
@@ -58,7 +57,6 @@ describe('BoxColliderFunctions', () => {
   })
 
   afterEach(() => {
-    Engine.currentWorld = null!
     delete (globalThis as any).PhysX
   })
 
@@ -85,38 +83,18 @@ describe('BoxColliderFunctions', () => {
       assert(collision && collision.collisions.length <= 0, 'CollisionComponent is not created')
     })
 
-    describe('Editor vs Location', () => {
-      it('creates BoxCollider in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        const parent = new Object3D()
-        const obj3d = new Object3D()
-        parent.add(obj3d)
+      boxcolliderFunctions.deserializeBoxCollider(entity, sceneComponent)
 
-        addComponent(entity, Object3DComponent, { value: obj3d })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_BOX_COLLIDER))
+    })
 
-        sceneComponentData.removeMesh = true
-        boxcolliderFunctions.deserializeBoxCollider(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_BOX_COLLIDER))
-        assert(!getComponent(entity, Object3DComponent)?.value)
-        assert(!parent.children.includes(obj3d))
-      })
-
-      it('creates BoxCollider in Editor', () => {
-        Engine.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        boxcolliderFunctions.deserializeBoxCollider(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_BOX_COLLIDER))
-
-        assert(getComponent(entity, Object3DComponent)?.value)
-        Engine.isEditor = false
-      })
+    it('creates Object3d Component', () => {
+      boxcolliderFunctions.deserializeBoxCollider(entity, sceneComponent)
+      assert(getComponent(entity, Object3DComponent)?.value)
     })
   })
 

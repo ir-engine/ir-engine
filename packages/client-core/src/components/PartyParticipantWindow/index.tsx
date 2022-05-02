@@ -40,7 +40,7 @@ import Slider from '@mui/material/Slider'
 import Tooltip from '@mui/material/Tooltip'
 
 import Draggable from './Draggable'
-import styles from './PartyParticipantWindow.module.scss'
+import styles from './index.module.scss'
 
 interface ContainerProportions {
   width: number | string
@@ -172,7 +172,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     // if (selfUser?.user_setting?.spatialAudioEnabled === true && audioRef.current != null) audioRef.current.volume = 0
     // else audioRef.current!.volume = volume / 100
     // (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) &&
-    // Engine.spatialAudio
+    // Engine.instance.spatialAudio
   }, [selfUser])
 
   useEffect(() => {
@@ -219,7 +219,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
       // PositionalAudioSystem.instance?.suspend()
       // }
       // selfUser?.user_setting?.spatialAudioEnabled === false ||
-      // (selfUser?.user_setting?.spatialAudioEnabled === 0 && Engine.spatialAudio)
+      // (selfUser?.user_setting?.spatialAudioEnabled === 0 && Engine.instance.spatialAudio)
       setVolume(volume)
     }
 

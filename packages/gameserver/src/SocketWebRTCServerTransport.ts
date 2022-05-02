@@ -3,11 +3,10 @@ import { DataProducer, Router, Transport, Worker } from 'mediasoup/node/lib/type
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Action } from '@xrengine/engine/src/ecs/functions/Action'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NetworkTransportHandler } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
+import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
 
 import { setupSubdomain } from './NetworkFunctions'
@@ -42,16 +41,20 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     this.app = app
   }
 
-  public sendActions = (actions: Set<Required<Action>>): any => {
-    if (actions.size === 0 || this.app.io == null) return
-    const world = useWorld()
+  public sendActions = (actions: Array<Required<Action<'WORLD'>>>): any => {
+    if (actions.length === 0 || this.app.io == null) return
+    const world = Engine.instance.currentWorld
     const clients = world.clients
     const userIdMap = {} as { [socketId: string]: UserId }
     for (const [id, client] of clients) userIdMap[client.socketId!] = id
 
     for (const [socketID, socket] of this.app.io.of('/').sockets) {
-      const arr: Action[] = []
-      for (const action of actions) {
+      const arr: Action<any>[] = []
+      for (const action of [...actions]) {
+        if (world.store.actions.outgoingHistoryUUIDs.has(action.$uuid)) {
+          const idx = world.store.actions.outgoing.indexOf(action)
+          world.store.actions.outgoing.splice(idx, 1)
+        }
         if (!action.$to) continue
         const toUserId = userIdMap[socketID]
         if (action.$to === 'all' || (action.$to === 'others' && toUserId !== action.$from) || action.$to === toUserId) {
@@ -59,16 +62,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         }
       }
       if (arr.length) socket.emit(MessageTypes.ActionData.toString(), /*encode(*/ arr) //)
-    }
-
-    for (const action of actions) {
-      if (
-        action.$to === 'all' ||
-        (action.$to === 'others' && action.$from != Engine.userId) ||
-        action.$to === 'local' ||
-        action.$to === Engine.userId
-      )
-        world.incomingActions.add(action)
     }
   }
 

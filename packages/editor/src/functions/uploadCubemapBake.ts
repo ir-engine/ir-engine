@@ -1,4 +1,4 @@
-import { Mesh, MeshBasicMaterial, Scene, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -10,19 +10,17 @@ import {
   hasComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { beforeMaterialCompile } from '@xrengine/engine/src/scene/classes/BPCEMShader'
 import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
 import { convertCubemapToEquiImageData } from '@xrengine/engine/src/scene/classes/ImageUtils'
 import { CubemapBakeComponent } from '@xrengine/engine/src/scene/components/CubemapBakeComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import {
   parseCubemapBakeProperties,
-  prepareSceneForBake,
   SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES,
-  updateCubemapBake,
-  updateCubemapBakeTexture
+  updateCubemapBake
 } from '@xrengine/engine/src/scene/functions/loaders/CubemapBakeFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
@@ -47,6 +45,17 @@ const getScenePositionForBake = (world: World, entity: Entity | null) => {
   return new Vector3(0, 2, 5)
 }
 
+/**
+ * Uploads a cubemap for a specific entity to the current project
+ * If the entity provided is the root node for the scene, it will set this as the environment map
+ *
+ * TODO: make this not the default behavior, instead we want an option in the envmap properties of the scene node,
+ *   which will dictate where the envmap is source from see issue #5751
+ *
+ * @param entity
+ * @returns
+ */
+
 export const uploadBakeToServer = async (entity: Entity) => {
   const world = useWorld()
   const isSceneEntity = entity === world.entityTree.rootNode.entity
@@ -66,7 +75,7 @@ export const uploadBakeToServer = async (entity: Entity) => {
   const position = getScenePositionForBake(world, isSceneEntity ? null : entity)
 
   // inject bpcem logic into material
-  Engine.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
+  Engine.instance.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
     if (!child.material) return
     if (typeof child.material.onBeforeCompile === 'function')
       child.material.userData.previousOnBeforeCompile = child.material.onBeforeCompile
@@ -76,11 +85,15 @@ export const uploadBakeToServer = async (entity: Entity) => {
     )
   })
 
-  const cubemapCapturer = new CubemapCapturer(Engine.renderer, Engine.scene, bakeComponent.options.resolution)
+  const cubemapCapturer = new CubemapCapturer(
+    EngineRenderer.instance.renderer,
+    Engine.instance.scene,
+    bakeComponent.options.resolution
+  )
   const renderTarget = cubemapCapturer.update(position)
 
   // remove injected bpcem logic from material
-  Engine.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
+  Engine.instance.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
     if (!child.material) return
     if (typeof child.material.userData.previousOnBeforeCompile === 'function') {
       child.material.onBeforeCompile = child.material.userData.previousOnBeforeCompile
@@ -88,10 +101,10 @@ export const uploadBakeToServer = async (entity: Entity) => {
     }
   })
 
-  Engine.scene.environment = renderTarget.texture
+  if (isSceneEntity) Engine.instance.scene.environment = renderTarget.texture
 
   const { blob } = await convertCubemapToEquiImageData(
-    Engine.renderer,
+    EngineRenderer.instance.renderer,
     renderTarget,
     bakeComponent.options.resolution,
     bakeComponent.options.resolution,
@@ -110,8 +123,6 @@ export const uploadBakeToServer = async (entity: Entity) => {
   const value = await uploadProjectFile(projectName, [new File([blob], filename)])
 
   bakeComponent.options.envMapOrigin = value[0].url
-
-  updateCubemapBakeTexture(bakeComponent.options)
 
   return value[0].url
 }

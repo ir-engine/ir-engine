@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_audioSettings.schema.json",
+  "title": "XRE_audioSettings glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine audio settings components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "usePositionalAudio": {
+      "type": "boolean",
+      "default": true
+    },
+    "avatarDistanceModel": {
+      "allOf": [{ "$ref": "distanceModel.schema.json" }],
+      "default": "inverse"
+    },
+    "avatarRolloffFactor": {
+      "type": "number",
+      "default": 2.0
+    },
+    "avatarRefDistance": {
+      "type": "number",
+      "default": 1.0
+    },
+    "avatarMaxDistance": {
+      "type": "number",
+      "default": 10000.0
+    },
+    "mediaVolume": {
+      "type": "number",
+      "default": 1.0
+    },
+    "mediaDistanceModel": {
+      "allOf": [{ "$ref": "distanceModel.schema.json" }],
+      "default": "inverse"
+    },
+    "mediaRolloffFactor": {
+      "type": "number",
+      "default": 1.0
+    },
+    "mediaRefDistance": {
+      "type": "number",
+      "default": 20.0
+    },
+    "mediaMaxDistance": {
+      "type": "number",
+      "default": 10000.0
+    },
+    "mediaConeInnerAngle": {
+      "type": "number",
+      "default": 360.0
+    },
+    "mediaConeOuterAngle": {
+      "type": "number",
+      "default": 0.0
+    },
+    "mediaConeOuterGain": {
+      "type": "number",
+      "default": 0.0
+    }
+  },
+  "extensions": {},
+  "extras": {}
+}

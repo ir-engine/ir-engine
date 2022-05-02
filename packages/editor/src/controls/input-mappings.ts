@@ -1,4 +1,4 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 
 import { getInput } from '../functions/parseInputActionMapping'
 
@@ -200,7 +200,7 @@ export const EditorMapping: InputActionMapping = {
       left: { key: EditorActionSet.selectStart, defaultValue: 0 },
       position: { key: EditorActionSet.selectStartPosition, defaultValue: 0 },
       right: {
-        callback: (_event) => Engine.renderer.domElement.requestPointerLock(),
+        callback: (_event) => EngineRenderer.instance.renderer.domElement.requestPointerLock(),
         key: EditorActionSet.enableFlyMode,
         defaultValue: 0
       }
@@ -210,7 +210,7 @@ export const EditorMapping: InputActionMapping = {
       position: { key: EditorActionSet.selectEndPosition, defaultValue: 0 },
       right: {
         callback: (_event) => {
-          if (document.pointerLockElement === Engine.renderer.domElement) {
+          if (document.pointerLockElement === EngineRenderer.instance.renderer.domElement) {
             document.exitPointerLock()
           }
         },

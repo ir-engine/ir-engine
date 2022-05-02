@@ -3,6 +3,7 @@ import { LinearFilter, Mesh, MeshStandardMaterial, Object3D, sRGBEncoding, Video
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
@@ -10,13 +11,11 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { resolveMedia } from '../../../common/functions/resolveMedia'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineEvents } from '../../../ecs/classes/EngineEvents'
-import { accessEngineState } from '../../../ecs/classes/EngineService'
+import { accessEngineState, EngineActions } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
+import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { ImageProjection } from '../../classes/ImageUtils'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ImageComponent } from '../../components/ImageComponent'
@@ -85,22 +84,21 @@ export const deserializeVideo: ComponentDeserializeFunction = (
 
   addComponent(entity, VideoComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VIDEO)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VIDEO)
 
   updateVideo(entity, props)
 }
 
-export const updateVideo: ComponentUpdateFunction = async (entity: Entity, properties: VideoComponentType) => {
+export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties: VideoComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value as Mesh<any, MeshStandardMaterial>
   const mesh = obj3d.userData.mesh
   const component = getComponent(entity, VideoComponent)
 
   if (properties.videoSource) {
     try {
-      const { url, contentType } = await resolveMedia(component.videoSource)
-      if (isHLS(url, contentType)) {
+      if (isHLS(component.videoSource)) {
         if (component.hls) component.hls.destroy()
-        component.hls = setupHLS(entity, url)
+        component.hls = setupHLS(entity, component.videoSource)
         component.hls?.attachMedia(obj3d.userData.videoEl)
       }
       // else if (isDash(url)) {
@@ -112,7 +110,7 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
       else {
         obj3d.userData.videoEl.addEventListener('error', () => addError(entity, 'error', 'Error Loading video'))
         obj3d.userData.videoEl.addEventListener('loadeddata', () => removeError(entity, 'error'))
-        obj3d.userData.videoEl.src = url
+        obj3d.userData.videoEl.src = component.videoSource
       }
 
       const texture = new VideoTexture(obj3d.userData.videoEl)
@@ -135,8 +133,9 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
             if (accessEngineState().userHasInteracted.value) {
               obj3d.userData.videoEl.play()
             } else {
-              receiveActionOnce(EngineEvents.EVENTS.SET_USER_HAS_INTERACTED, () => {
+              matchActionOnce(Engine.instance.store, EngineActions.setUserHasInteracted.matches, () => {
                 obj3d.userData.videoEl.play()
+                return true
               })
             }
           }
@@ -145,7 +144,7 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
           mesh.material.map.image.width = mesh.material.map.image.videoWidth
           if (getComponent(entity, ImageComponent)?.projection === ImageProjection.Flat) resizeImageMesh(mesh)
 
-          const audioSource = Engine.audioListener.context.createMediaElementSource(obj3d.userData.videoEl)
+          const audioSource = Engine.instance.audioListener.context.createMediaElementSource(obj3d.userData.videoEl)
           obj3d.userData.audioEl.setNodeSource(audioSource)
 
           updateAutoStartTimeForMedia(entity)

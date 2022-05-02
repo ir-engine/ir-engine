@@ -42,12 +42,12 @@ export async function getFreeGameserver(
   if (!config.kubernetes.enabled) {
     //Clear any instance assignments older than 30 seconds - those assignments have not been
     //used, so they should be cleared and the GS they were attached to can be used for something else.
-    console.log('Local server spinning up new instance')
+    logger.info('Local server spinning up new instance')
     const localIp = await getLocalServerIp(channelId != null)
     const stringIp = `${localIp.ipAddress}:${localIp.port}`
     return checkForDuplicatedAssignments(app, stringIp, iteration, locationId, channelId)
   }
-  console.log('Getting free gameserver')
+  logger.info('Getting free gameserver')
   const serverResult = await (app as any).k8AgonesClient.listNamespacedCustomObject(
     'agones.dev',
     'v1',
@@ -133,7 +133,7 @@ export async function checkForDuplicatedAssignments(
       if (iteration < 10) {
         return getFreeGameserver(app, iteration + 1, locationId, channelId)
       } else {
-        console.log('Made 10 attempts to get free gameserver without success, returning null')
+        logger.info('Made 10 attempts to get free gameserver without success, returning null')
         return {
           id: null,
           ipAddress: null,
@@ -187,7 +187,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         }
       }
     })
-    const instanceModel = (this.app.service('instance') as any).Model
+    const instanceModel = this.app.service('instance').Model
     const instanceUserSort = _.orderBy(availableLocationInstances, ['currentUsers'], ['desc'])
     const nonPressuredInstances = instanceUserSort.filter((instance: typeof instanceModel) => {
       return instance.currentUsers < pressureThresholdPercent * instance.location.maxUsersPerInstance
@@ -308,7 +308,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
             throw new BadRequest('Invalid user credentials')
           }
         }
-        const channelInstance = await (this.app.service('instance') as any).Model.findOne({
+        const channelInstance = await this.app.service('instance').Model.findOne({
           where: {
             channelId: channelId,
             ended: false
@@ -418,17 +418,17 @@ export class InstanceProvision implements ServiceMethods<Data> {
         //     }
         //   }
         // }
-        const friendsAtLocationResult = await (this.app.service('user') as any).Model.findAndCountAll({
+        const friendsAtLocationResult = await this.app.service('user').Model.findAndCountAll({
           include: [
             {
-              model: (this.app.service('user-relationship') as any).Model,
+              model: this.app.service('user-relationship').Model,
               where: {
                 relatedUserId: userId,
                 userRelationshipType: 'friend'
               }
             },
             {
-              model: (this.app.service('instance') as any).Model,
+              model: this.app.service('instance').Model,
               where: {
                 locationId: locationId,
                 ended: false
@@ -473,14 +473,14 @@ export class InstanceProvision implements ServiceMethods<Data> {
             port: ipAddressSplit[1]
           }
         }
-        const availableLocationInstances = await (this.app.service('instance') as any).Model.findAll({
+        const availableLocationInstances = await this.app.service('instance').Model.findAll({
           where: {
             locationId: location.id,
             ended: false
           },
           include: [
             {
-              model: (this.app.service('location') as any).Model,
+              model: this.app.service('location').Model,
               where: {
                 maxUsersPerInstance: {
                   [Op.gt]: Sequelize.col('instance.currentUsers')
@@ -488,7 +488,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
               }
             },
             {
-              model: (this.app.service('instance-authorized-user') as any).Model,
+              model: this.app.service('instance-authorized-user').Model,
               required: false
             }
           ]

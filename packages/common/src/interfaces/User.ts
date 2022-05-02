@@ -13,6 +13,7 @@ export interface UserSetting {
   volume?: number
   audio: number
   microphone: number
+  themeMode: string
 }
 
 export interface UserScope {
@@ -21,7 +22,7 @@ export interface UserScope {
 }
 
 export interface User {
-  id?: UserId
+  id: UserId
   name: string
   userRole?: string
   avatarId?: string

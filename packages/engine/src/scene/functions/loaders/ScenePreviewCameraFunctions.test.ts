@@ -6,10 +6,10 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -19,16 +19,14 @@ import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, SCENE_PREVIEW_CAMERA_HELPER } fro
 const EPSILON = 10e-8
 
 describe('ScenePreviewCameraFunctions', () => {
-  let world: World
   let entity: Entity
   let scenePreviewCameraFunctions = proxyquire('./ScenePreviewCameraFunctions', {
     '../../../common/functions/isClient': { isClient: true }
   })
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
-    Engine.isEditor = false
+    createEngine()
+    Engine.instance.isEditor = false
     entity = createEntity()
     addComponent(entity, TransformComponent, {
       position: new Vector3(Math.random(), Math.random(), Math.random()),
@@ -63,48 +61,49 @@ describe('ScenePreviewCameraFunctions', () => {
       assert(Object.keys(scenePreviewCameraComponent).length === 0)
     })
 
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
+
+      scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
+
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA))
+    })
+
     describe('Editor vs Location', () => {
       it('creates ScenePreviewCamera in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
-        Engine.activeCameraEntity = createEntity()
-        Engine.camera = new PerspectiveCamera()
+        Engine.instance.activeCameraEntity = createEntity()
+        Engine.instance.camera = new PerspectiveCamera()
 
         scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA))
-        assert(Engine.camera.position.equals(getComponent(entity, TransformComponent).position))
+        assert(Engine.instance.camera.position.equals(getComponent(entity, TransformComponent).position))
       })
 
       it('creates ScenePreviewCamera in Editor', () => {
-        Engine.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
+        Engine.instance.isEditor = true
 
         scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA))
 
         const obj3d = getComponent(entity, Object3DComponent)?.value
         assert(obj3d && obj3d instanceof PerspectiveCamera)
         assert(obj3d.userData.helper && obj3d.userData.helper.name === SCENE_PREVIEW_CAMERA_HELPER)
-        Engine.isEditor = false
+        Engine.instance.isEditor = false
       })
     })
   })
 
   describe('updateScenePreviewCamera()', () => {
     it('should set view port of preview camera to active camera', () => {
-      Engine.isEditor = true
+      Engine.instance.isEditor = true
 
       scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
 
-      Engine.camera = new PerspectiveCamera()
-      Engine.camera.position.set(1, 2, 3)
-      Engine.camera.rotation.set(4, 5, 6)
-      Engine.camera.scale.set(7, 8, 9)
-      Engine.camera.updateMatrixWorld()
+      Engine.instance.camera = new PerspectiveCamera()
+      Engine.instance.camera.position.set(1, 2, 3)
+      Engine.instance.camera.rotation.set(4, 5, 6)
+      Engine.instance.camera.scale.set(7, 8, 9)
+      Engine.instance.camera.updateMatrixWorld()
 
       const parent = new Object3D()
       parent.add(getComponent(entity, Object3DComponent)?.value)
@@ -134,7 +133,7 @@ describe('ScenePreviewCameraFunctions', () => {
       assert(Math.abs(transform.scale.y - scale.y) < EPSILON)
       assert(Math.abs(transform.scale.z - scale.z) < EPSILON)
 
-      Engine.isEditor = false
+      Engine.instance.isEditor = false
     })
   })
 

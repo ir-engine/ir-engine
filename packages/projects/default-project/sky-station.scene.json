@@ -81,7 +81,8 @@
                 "y": 1,
                 "z": 1
               }
-            }
+            },
+            "forModel": false
           }
         }
       ],
@@ -365,6 +366,39 @@
             "activeClipIndex": -1,
             "hasAvatarAnimations": false
           }
+        },
+        {
+          "name": "envmap",
+          "props": {
+            "type": 3,
+            "envMapTextureType": 0,
+            "envMapSourceColor": 1193046,
+            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapIntensity": 1,
+            "envMapCubemapBake": {
+              "bakeType": 1,
+              "resolution": 1024,
+              "refreshMode": 0,
+              "envMapOrigin": "",
+              "boxProjection": true,
+              "bakePosition": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakePositionOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakeScale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            },
+            "forModel": true
+          }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
@@ -455,7 +489,8 @@
             "shadowBias": -0.0009999999999998899,
             "shadowRadius": 1,
             "cameraFar": 500,
-            "showCameraHelper": false
+            "showCameraHelper": false,
+            "useInCSM": true
           }
         }
       ],
@@ -666,9 +701,40 @@
         {
           "name": "interactable",
           "props": {
-            "interactable": true,
-            "interactionType": "equippable",
-            "intensity": 2
+            "interactionType": "equippable"
+          }
+        },
+        {
+          "name": "envmap",
+          "props": {
+            "type": 3,
+            "envMapTextureType": 0,
+            "envMapSourceColor": 1193046,
+            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapIntensity": 1,
+            "envMapCubemapBake": {
+              "bakeType": 1,
+              "resolution": 1024,
+              "refreshMode": 0,
+              "envMapOrigin": "",
+              "boxProjection": true,
+              "bakePosition": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakePositionOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakeScale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            },
+            "forModel": true
           }
         }
       ],
@@ -783,6 +849,39 @@
           "props": {
             "activeClipIndex": -1,
             "hasAvatarAnimations": false
+          }
+        },
+        {
+          "name": "envmap",
+          "props": {
+            "type": 3,
+            "envMapTextureType": 0,
+            "envMapSourceColor": 1193046,
+            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapIntensity": 1,
+            "envMapCubemapBake": {
+              "bakeType": 1,
+              "resolution": 1024,
+              "refreshMode": 0,
+              "envMapOrigin": "",
+              "boxProjection": true,
+              "bakePosition": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakePositionOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakeScale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            },
+            "forModel": true
           }
         }
       ],

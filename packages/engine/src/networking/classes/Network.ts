@@ -20,11 +20,11 @@ export interface NetworkTransportHandler<W extends NetworkTransport, M extends N
 /** Component Class for Network. */
 export class Network {
   /** Static instance to access everywhere. */
-  static instance: Network = new Network()
+  static instance: Network
   /** Object holding transport details over network. */
   transportHandler: NetworkTransportHandler<NetworkTransport, NetworkTransport>
-  /** Object holding transport details over network. */
-  // transport: NetworkTransport
+  /** Transport connection promises */
+  transportsConnectPending = [] as Promise<any>[]
   /** Network transports. */
   transports = [] as any[]
   /** List of data producer nodes. */
@@ -41,3 +41,5 @@ export class Network {
   /** Buffer holding Mediasoup operations */
   mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 }
+
+globalThis.Network = Network

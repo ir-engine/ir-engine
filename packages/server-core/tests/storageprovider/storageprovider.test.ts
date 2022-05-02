@@ -2,7 +2,7 @@ import approot from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs-extra'
 import fetch from 'node-fetch'
-import path from 'path'
+import path from 'path/posix'
 import { v4 as uuid } from 'uuid'
 
 import LocalStorage from '../../src/media/storageprovider/local.storage'
@@ -28,7 +28,7 @@ describe('storageprovider', () => {
     process.env.STORAGE_AWS_ACCESS_KEY_SECRET
   ) {
     const s3Provider = new S3Provider()
-    storageProviders.push(s3Provider)
+    storageProviders.push(s3Provider as any)
   }
 
   storageProviders.forEach((provider) => {
@@ -94,12 +94,12 @@ describe('storageprovider', () => {
       const fileKeyTemp2 = path.join(testFolderName, 'temp2', testFileName)
 
       //check copy functionality
-      await provider.moveObject(fileKeyOriginal, folderKeyTemp, true)
+      await provider.moveObject(fileKeyOriginal, path.join(testFolderName, 'temp'), true, testFileName)
       await assert.rejects(provider.checkObjectExistence(fileKeyOriginal))
       await assert.rejects(provider.checkObjectExistence(fileKeyTemp))
 
       //check move functionality
-      await provider.moveObject(fileKeyTemp, folderKeyTemp2)
+      await provider.moveObject(fileKeyTemp, path.join(testFolderName, 'temp2'), false, testFileName)
       await assert.rejects(provider.checkObjectExistence(fileKeyTemp2))
       await assert.doesNotReject(provider.checkObjectExistence(fileKeyTemp))
     })

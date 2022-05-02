@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 
 import { randomNumber } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
 
-import styles from '../Loader.module.scss'
+import styles from '../loader.module.scss'
 
 const Loaders = [
   '4-dots',

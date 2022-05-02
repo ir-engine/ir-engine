@@ -22,7 +22,10 @@ enum PropertyTypes {
   Number,
   Boolean,
   Color,
-  KernelSize
+  KernelSize,
+  SMAAPreset,
+  EdgeDetectionMode,
+  PredicationMode
 }
 
 type EffectPropertyDetail = { propertyType: PropertyTypes; name: string; min?: number; max?: number; step?: number }
@@ -30,8 +33,14 @@ type EffectPropertiesType = { [key: string]: EffectPropertyDetail }
 type EffectOptionsType = { [key in Effects]: EffectPropertiesType }
 
 const EffectsOptions: EffectOptionsType = {
-  FXAAEffect: {
-    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' }
+  // FXAAEffect: {
+  //   blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' }
+  // },
+  SMAAEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+    preset: { propertyType: PropertyTypes.SMAAPreset, name: 'Preset' },
+    edgeDetectionMode: { propertyType: PropertyTypes.EdgeDetectionMode, name: 'Edge Detection Mode' },
+    predicationMode: { propertyType: PropertyTypes.PredicationMode, name: 'Predication Mode' }
   },
   OutlineEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
@@ -135,6 +144,25 @@ const KernelSizeSelect = [
   { label: 'HUGE', value: 5 }
 ]
 
+const SMAAPreset = [
+  { label: 'LOW', value: 0 },
+  { label: 'MEDIUM', value: 1 },
+  { label: 'HIGH', value: 2 },
+  { label: 'ULTRA', value: 3 }
+]
+
+const EdgeDetectionMode = [
+  { label: 'DEPTH', value: 0 },
+  { label: 'LUMA', value: 1 },
+  { label: 'COLOR', value: 2 }
+]
+
+const PredicationMode = [
+  { label: 'DISABLED', value: 0 },
+  { label: 'DEPTH', value: 1 },
+  { label: 'CUSTOM', value: 2 }
+]
+
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
@@ -223,6 +251,36 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
           />
         )
         break
+
+      case PropertyTypes.SMAAPreset:
+        renderVal = (
+          <SelectInput
+            options={SMAAPreset}
+            onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
+            value={getPropertyValue(propertyPath)}
+          />
+        )
+        break
+
+      case PropertyTypes.EdgeDetectionMode:
+        renderVal = (
+          <SelectInput
+            options={EdgeDetectionMode}
+            onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
+            value={getPropertyValue(propertyPath)}
+          />
+        )
+        break
+
+      case PropertyTypes.PredicationMode:
+        renderVal = (
+          <SelectInput
+            options={PredicationMode}
+            onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
+            value={getPropertyValue(propertyPath)}
+          />
+        )
+        break
       default:
         renderVal = <>Can't Determine type of property</>
     }
@@ -254,10 +312,10 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
         <div key={effect}>
           <Checkbox
             onChange={(e) => onChangeCheckBox(e, effect)}
-            checked={postprocessingComponent.options[effect].isActive}
+            checked={postprocessingComponent.options[effect]?.isActive}
           />
           <span style={{ color: '#9FA4B5' }}>{effect}</span>
-          {postprocessingComponent.options[effect].isActive && <div>{renderEffectsTypes(effect)}</div>}
+          {postprocessingComponent.options[effect]?.isActive && <div>{renderEffectsTypes(effect)}</div>}
         </div>
       )
     })

@@ -2,10 +2,10 @@ import type { WebLayer3D } from '@etherealjs/web-layer/three'
 import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { receiveActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
+import { matchActionOnce, receiveActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { textureLoader } from '@xrengine/engine/src/scene/constants/Util'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
@@ -22,12 +22,12 @@ export default async function XRUILoadingSystem(world: World) {
   const transition = createTransitionState(transitionPeriodSeconds)
 
   // todo: push timeout to accumulator
-  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () =>
+  matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, () => {
     setTimeout(() => {
       mesh.visible = false
       transition.setState('OUT')
     }, 250)
-  )
+  })
 
   const sceneState = accessSceneState()
   const thumbnailUrl = sceneState.currentScene.ornull?.thumbnailUrl.value.replace('thumbnail.jpeg', 'cubemap.png')
@@ -42,15 +42,15 @@ export default async function XRUILoadingSystem(world: World) {
   )
   // flip inside out
   mesh.scale.set(-1, 1, 1)
-  Engine.camera.add(mesh)
-  Engine.scene.add(Engine.camera)
+  Engine.instance.camera.add(mesh)
+  Engine.instance.scene.add(Engine.instance.camera)
 
   setObjectLayers(mesh, ObjectLayers.UI)
 
   return () => {
     // add a slow rotation to animate on desktop, otherwise just keep it static for VR
-    // if (!Engine.xrSession && !Engine.hasJoinedWorld) {
-    //   Engine.camera.rotateY(world.delta * 0.35)
+    // if (!EngineRenderer.instance.xrSession && !accessEngineState().joinedWorld.value) {
+    //   Engine.instance.camera.rotateY(world.delta * 0.35)
     // } else {
     //   // todo: figure out how to make this work properly for VR
     // }
@@ -66,7 +66,7 @@ export default async function XRUILoadingSystem(world: World) {
       const scale = ObjectFitFunctions.computeContentFitScaleForCamera(dist, contentWidth, contentHeight, 'cover')
       xrui.container.scale.x = xrui.container.scale.y = scale * 1.1
       xrui.container.position.z = -dist
-      xrui.container.parent = Engine.camera
+      xrui.container.parent = Engine.instance.camera
 
       transition.update(world, (opacity) => {
         if (opacity !== LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(opacity)

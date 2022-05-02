@@ -128,6 +128,27 @@ describe('user service', () => {
     }
   })
 
+  it('should patch a user with a query without affecting users not part of that query', async () => {
+    const newName = v1()
+    const user1 = users[0]
+    const user2 = users[1]
+    await app.service('user').patch(
+      null,
+      {
+        name: newName
+      },
+      {
+        query: {
+          id: user1.id
+        }
+      }
+    )
+    const updatedUser1 = await app.service('user').get(user1.id)
+    const updatedUser2 = await app.service('user').get(user2.id)
+    assert.equal(newName, updatedUser1.name)
+    assert.notEqual(newName, updatedUser2.name)
+  })
+
   it('should remove users', async () => {
     for (const user of users) {
       const item = await app.service('user').remove(user.id)

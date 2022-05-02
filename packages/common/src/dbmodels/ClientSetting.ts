@@ -14,4 +14,5 @@ export interface ClientSettingInterface {
   appSubtitle: string
   appDescription: string
   appSocialLinks: string
+  themeSettings: string
 }

@@ -18,6 +18,7 @@ const setVisible = (entity: Entity, visible: boolean): void => {
         ;(mat as Material).opacity = 0
         ;(mat as Material).transparent = true
       }
+      ;(mat as Material).needsUpdate = true
     }
   })
 }

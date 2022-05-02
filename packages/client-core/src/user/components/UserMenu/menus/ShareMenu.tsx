@@ -12,9 +12,8 @@ import Typography from '@mui/material/Typography'
 import { AlertService } from '../../../../common/services/AlertService'
 import { InviteService } from '../../../../social/services/InviteService'
 import { useInviteState } from '../../../../social/services/InviteService'
-import { useDispatch } from '../../../../store'
 import { useAuthState } from '../../../services/AuthService'
-import styles from '../UserMenu.module.scss'
+import styles from '../index.module.scss'
 
 const ShareMenu = (): JSX.Element => {
   const { t } = useTranslation()
@@ -22,7 +21,6 @@ const ShareMenu = (): JSX.Element => {
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
   const postTitle = 'AR/VR world'
   const siteTitle = 'XREngine'
-  const dispatch = useDispatch()
   const inviteState = useInviteState()
   const copyLinkToClipboard = () => {
     navigator.clipboard.writeText(refLink.current.value)

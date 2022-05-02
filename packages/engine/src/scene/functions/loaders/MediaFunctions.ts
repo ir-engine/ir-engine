@@ -31,16 +31,16 @@ export const deserializeMedia: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: new UpdateableObject3D() })
   addComponent(entity, UpdatableComponent, {})
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MEDIA)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MEDIA)
 
   updateMedia(entity, props)
 }
 
-export const updateMedia: ComponentUpdateFunction = async (entity: Entity, properties: MediaComponentType) => {
+export const updateMedia: ComponentUpdateFunction = (entity: Entity, properties: MediaComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value
   const component = getComponent(entity, MediaComponent)
 
-  if (!Engine.isEditor) {
+  if (!Engine.instance.isEditor) {
     if (obj3d.userData.player) {
       if (typeof properties.autoplay !== 'undefined') obj3d.userData.player.autoplay = component.autoplay
     } else if (obj3d.userData.videoEl) {
@@ -78,7 +78,7 @@ export const updateAutoStartTimeForMedia = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent).value
 
   if (component.startTimer) clearTimeout(component.startTimer)
-  if (component.autoStartTime === 0) return
+  if (!component.autoStartTime) return
 
   const timeDiff = component.autoStartTime - Date.now()
 

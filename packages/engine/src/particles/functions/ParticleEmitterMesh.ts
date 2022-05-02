@@ -17,7 +17,6 @@ import {
   Vector3
 } from 'three'
 
-import loadTexture from '../../assets/functions/loadTexture'
 import * as EasingFunctions from '../../common/functions/EasingFunctions'
 import { clamp, lerp } from '../../common/functions/MathLerpFunctions'
 import { DEG2RAD, fragmentShader, vertexShader } from './particleHelpers'

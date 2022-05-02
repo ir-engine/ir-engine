@@ -18,7 +18,7 @@ export class S3Provider implements StorageProviderInterface {
   cacheDomain =
     config.server.storageProvider === 'aws'
       ? config.aws.cloudfront.domain
-      : `${config.aws.cloudfront.domain}/${this.bucket}/`
+      : `${config.aws.cloudfront.domain}/${this.bucket}`
   provider: AWS.S3 = new AWS.S3({
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey,
@@ -29,7 +29,7 @@ export class S3Provider implements StorageProviderInterface {
 
   bucketAssetURL =
     config.server.storageProvider === 'aws'
-      ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/`
+      ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
       : `https://${config.aws.cloudfront.domain}/${this.bucket}`
 
   blob: typeof S3BlobStore = new S3BlobStore({
@@ -98,13 +98,18 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   putObject = async (params: StorageObjectInterface): Promise<any> => {
+    if (!params.Key) return
+
+    // key should not contain '/' at the begining
+    let key = params.Key[0] === '/' ? params.Key.substring(1) : params.Key
+
     const data = await this.provider
       .putObject({
         ACL: 'public-read',
         Body: params.Body,
         Bucket: this.bucket,
         ContentType: params.ContentType,
-        Key: params.Key!
+        Key: key
       })
       .promise()
 
@@ -175,6 +180,23 @@ export class S3Provider implements StorageProviderInterface {
     const folderContent = await this.listObjects(folderName, [], recursive, null!)
     // console.log('folderContent', folderContent)
     const promises: Promise<FileContentType>[] = []
+
+    // Folders
+    for (let i = 0; i < folderContent.CommonPrefixes!.length; i++) {
+      promises.push(
+        new Promise(async (resolve) => {
+          const key = folderContent.CommonPrefixes![i].Prefix.slice(0, -1)
+          const cont: FileContentType = {
+            key,
+            url: `${this.bucketAssetURL}/${key}`,
+            name: key.split('/').pop()!,
+            type: 'folder'
+          }
+          resolve(cont)
+        })
+      )
+    }
+
     // Files
     for (let i = 0; i < folderContent.Contents.length; i++) {
       const key = folderContent.Contents[i].Key
@@ -194,21 +216,7 @@ export class S3Provider implements StorageProviderInterface {
         )
       }
     }
-    // Folders
-    for (let i = 0; i < folderContent.CommonPrefixes!.length; i++) {
-      promises.push(
-        new Promise(async (resolve) => {
-          const key = folderContent.CommonPrefixes![i].Prefix.slice(0, -1)
-          const cont: FileContentType = {
-            key,
-            url: `${this.bucketAssetURL}/${key}`,
-            name: key.split('/').pop()!,
-            type: 'folder'
-          }
-          resolve(cont)
-        })
-      )
-    }
+
     return await Promise.all(promises)
   }
 

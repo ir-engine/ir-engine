@@ -4,17 +4,16 @@ import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
-import checkValidPositionOnGround from '@xrengine/engine/src/common/functions/checkValidPositionOnGround'
+import checkPositionIsValid from '@xrengine/engine/src/common/functions/checkPositionIsValid'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
+import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import config from '@xrengine/server-core/src/appconfig'
 import { localConfig } from '@xrengine/server-core/src/config'
 import logger from '@xrengine/server-core/src/logger'
@@ -191,7 +190,7 @@ export async function cleanupOldGameservers(transport: SocketWebRTCServerTranspo
 }
 
 export function getUserIdFromSocketId(socketId) {
-  const client = Array.from(Engine.currentWorld.clients.values()).find((c) => c.socketId === socketId)
+  const client = Array.from(Engine.instance.currentWorld.clients.values()).find((c) => c.socketId === socketId)
   return client?.userId
 }
 
@@ -211,11 +210,11 @@ export function handleConnectToWorld(
 
   // Create a new client object
   // and add to the dictionary
-  const world = useWorld()
+  const world = Engine.instance.currentWorld
   const userIndex = world.userIndexCount++
   world.clients.set(userId, {
     userId: userId,
-    userIndex,
+    index: userIndex,
     name: user.dataValues.name,
     avatarDetail,
     socket: socket,
@@ -241,7 +240,7 @@ export function handleConnectToWorld(
 
 function disconnectClientIfConnected(socket, userId: UserId) {
   // If we are already logged in, kick the other socket
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   if (world.clients.has(userId) && world.clients.get(userId)!.socketId !== socket.id) {
     // const client = world.clients.get(userId)!
     console.log('Client already logged in, disallowing new connection')
@@ -284,14 +283,14 @@ export const handleJoinWorld = async (
       const inviterUser = users[0]
       if (inviterUser.instanceId === user.instanceId) {
         const inviterUserId = inviterUser.id
-        const inviterUserAvatarEntity = Engine.currentWorld.getUserAvatarEntity(inviterUserId as UserId)
+        const inviterUserAvatarEntity = Engine.instance.currentWorld.getUserAvatarEntity(inviterUserId as UserId)
         const inviterUserTransform = getComponent(inviterUserAvatarEntity, TransformComponent)
 
         // Translate infront of the inviter
         const inviterUserObject3d = getComponent(inviterUserAvatarEntity, Object3DComponent)
         inviterUserObject3d.value.translateZ(2)
 
-        const validSpawnablePosition = checkValidPositionOnGround(inviterUserObject3d.value.position)
+        const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.value.position, false)
 
         if (validSpawnablePosition) {
           spawnPose = {
@@ -306,7 +305,7 @@ export const handleJoinWorld = async (
   }
 
   console.info('JoinWorld received', joinedUserId, data, spawnPose)
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   const client = world.clients.get(joinedUserId)!
 
   if (!client) return callback(null! as any)
@@ -315,14 +314,14 @@ export const handleJoinWorld = async (
   clearCachedActionsForUser(joinedUserId)
 
   // send all client info
-  const clients = [] as Array<{ userId: UserId; name: string; index: number }>
-  for (const [userId, client] of world.clients) {
-    clients.push({ userId, index: client.userIndex, name: client.name })
-  }
+  // const clients = [] as Array<{ userId: UserId; name: string; index: number }>
+  // for (const [userId, client] of world.clients) {
+  //   clients.push({ userId, index: client.userIndex, name: client.name })
+  // }
 
   // send all cached and outgoing actions to joining user
-  const cachedActions = [] as Action[]
-  for (const action of world.cachedActions as Set<ReturnType<typeof NetworkWorldAction.spawnAvatar>>) {
+  const cachedActions = [] as Required<Action<any>>[]
+  for (const action of world.store.actions.cached as Array<ReturnType<typeof NetworkWorldAction.spawnAvatar>>) {
     // we may have a need to remove the check for the prefab type to enable this to work for networked objects too
     if (action.type === 'network.SPAWN_OBJECT' && action.prefab === 'avatar') {
       const ownerId = action.$from
@@ -341,34 +340,27 @@ export const handleJoinWorld = async (
   console.log('Sending cached actions ', cachedActions)
 
   callback({
-    tick: world.fixedTick,
-    clients,
+    elapsedTime: world.elapsedTime,
+    clockTime: Date.now(),
+    client: { name: client.name, index: client.index },
     cachedActions,
     avatarDetail: client.avatarDetail!,
     avatarSpawnPose: spawnPose
   })
-
-  dispatchFrom(world.hostId, () =>
-    NetworkWorldAction.createClient({
-      $from: joinedUserId,
-      name: client.name,
-      index: client.userIndex
-    })
-  ).to('others')
 }
 
 export function handleIncomingActions(socket, message) {
   if (!message) return
 
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   const userIdMap = {} as { [socketId: string]: UserId }
   for (const [id, client] of world.clients) userIdMap[client.socketId!] = id
 
-  const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
+  const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action<any>>[]
   for (const a of actions) {
     a['$fromSocketId'] = socket.id
     a.$from = userIdMap[socket.id]
-    world.outgoingActions.add(a)
+    dispatchAction(world.store, a)
   }
   // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
 }
@@ -376,11 +368,12 @@ export function handleIncomingActions(socket, message) {
 export async function handleHeartbeat(socket): Promise<any> {
   const userId = getUserIdFromSocketId(socket.id)!
   // console.log('Got heartbeat from user ' + userId + ' at ' + Date.now());
-  if (Engine.currentWorld.clients.has(userId)) Engine.currentWorld.clients.get(userId)!.lastSeenTs = Date.now()
+  if (Engine.instance.currentWorld.clients.has(userId))
+    Engine.instance.currentWorld.clients.get(userId)!.lastSeenTs = Date.now()
 }
 
 export async function handleDisconnect(socket): Promise<any> {
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   const userId = getUserIdFromSocketId(socket.id) as UserId
   const disconnectedClient = world?.clients.get(userId)
   if (!disconnectedClient)
@@ -391,7 +384,7 @@ export async function handleDisconnect(socket): Promise<any> {
   //The new connection will overwrite the socketID for the user's client.
   //This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
-    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ $from: userId }))
+    dispatchAction(world.store, NetworkWorldAction.destroyClient({ $from: userId }))
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
@@ -403,29 +396,33 @@ export async function handleDisconnect(socket): Promise<any> {
 }
 
 export async function handleLeaveWorld(socket, data, callback): Promise<any> {
-  const world = useWorld()
+  const world = Engine.instance.currentWorld
   const userId = getUserIdFromSocketId(socket.id)!
   if (Network.instance.transports)
     for (const [, transport] of Object.entries(Network.instance.transports))
       if ((transport as any).appData.peerId === userId) closeTransport(transport)
   if (world.clients.has(userId)) {
-    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ $from: userId }))
+    dispatchAction(world.store, NetworkWorldAction.destroyClient({ $from: userId }))
   }
   if (callback !== undefined) callback({})
 }
 
 export function clearCachedActionsForDisconnectedUsers() {
-  for (const action of Engine.currentWorld.cachedActions) {
-    if (Engine.currentWorld.clients.has(action.$from) === false) {
-      Engine.currentWorld.cachedActions.delete(action)
+  const cached = Engine.instance.currentWorld.store.actions.cached
+  for (const action of [...cached]) {
+    if (Engine.instance.currentWorld.clients.has(action.$from) === false) {
+      const idx = cached.indexOf(action)
+      cached.splice(idx, 1)
     }
   }
 }
 
 export function clearCachedActionsForUser(user: UserId) {
-  for (const action of Engine.currentWorld.cachedActions) {
+  const cached = Engine.instance.currentWorld.store.actions.cached
+  for (const action of [...cached]) {
     if (action.$from === user) {
-      Engine.currentWorld.cachedActions.delete(action)
+      const idx = cached.indexOf(action)
+      cached.splice(idx, 1)
     }
   }
 }

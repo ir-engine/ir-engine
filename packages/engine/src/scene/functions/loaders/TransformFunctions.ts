@@ -4,7 +4,6 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { createQuaternionProxy, createVector3Proxy } from '../../../common/proxies/three'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { TransformComponent, TransformComponentType } from '../../../transform/components/TransformComponent'
@@ -35,7 +34,7 @@ export const deserializeTransform: ComponentDeserializeFunction = (
   transform.rotation.copy(props.rotation)
   transform.scale.copy(props.scale)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRANSFORM)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRANSFORM)
 }
 
 export const serializeTransform: ComponentSerializeFunction = (entity) => {
@@ -46,7 +45,7 @@ export const serializeTransform: ComponentSerializeFunction = (entity) => {
     name: SCENE_COMPONENT_TRANSFORM,
     props: {
       position: component.position,
-      rotation: euler.setFromQuaternion(component.rotation).toVector3(),
+      rotation: new Vector3().setFromEuler(euler.setFromQuaternion(component.rotation)),
       scale: component.scale
     }
   }

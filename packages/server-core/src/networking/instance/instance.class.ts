@@ -31,7 +31,7 @@ export class Instance<T = InstanceDataType> extends Service<T> {
     const search = params?.query?.search
     const skip = params?.query?.$skip ? params.query.$skip : 0
     const limit = params?.query?.$limit ? params.query.$limit : 10
-
+    const sort = params?.query?.$sort
     if (action === 'admin') {
       //TODO: uncomment here
       // const loggedInUser = params.user as UserDataType
@@ -45,12 +45,20 @@ export class Instance<T = InstanceDataType> extends Service<T> {
       } else {
         name = search ? { name: { [Op.like]: `%${search}%` } } : {}
       }
-
-      const foundLocation = await (this.app.service('instance') as any).Model.findAndCountAll({
+      const order: any[] = []
+      if (sort != null)
+        Object.keys(sort).forEach((name, val) => {
+          if (name === 'locationId') {
+            order.push([Sequelize.literal('`location.name`'), sort[name] === 0 ? 'DESC' : 'ASC'])
+          } else {
+            order.push([name, sort[name] === 0 ? 'DESC' : 'ASC'])
+          }
+        })
+      const foundLocation = await this.app.service('instance').Model.findAndCountAll({
         offset: skip,
         limit: limit,
         include: {
-          model: (this.app.service('location') as any).Model,
+          model: this.app.service('location').Model,
           required: true,
           where: { ...name }
         },

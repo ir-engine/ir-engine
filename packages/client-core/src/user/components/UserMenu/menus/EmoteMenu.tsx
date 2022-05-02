@@ -9,7 +9,7 @@ import Button from '@mui/material/Button'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 // @ts-ignore
-import styles from '../UserMenu.module.scss'
+import styles from '../index.module.scss'
 
 type Props = { changeActiveMenu: (menu: any) => {} }
 
@@ -122,7 +122,7 @@ const EmoteMenu = (props: Props): JSX.Element => {
   }
 
   const runAnimation = (stateName: string) => {
-    const entity = Engine.currentWorld.localClientEntity
+    const entity = Engine.instance.currentWorld.localClientEntity
     changeAvatarAnimationState(entity, stateName)
     // close Menu after playing animation
     props.changeActiveMenu(null)

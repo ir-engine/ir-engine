@@ -61,4 +61,21 @@ export class Object3DUtils {
     quaternion.premultiply(parentQuatInverse)
     return quaternion
   }
+
+  /**
+   * Object3D traverse function with abort ability
+   * @param object
+   * @param callback
+   * @returns
+   */
+  static traverse(object: Object3D, callback) {
+    if (!object) return false
+
+    if (callback(object)) return true
+    const children = object.children
+
+    for (let i = 0, l = children.length; i < l; i++) {
+      if (Object3DUtils.traverse(children[i], callback)) return true
+    }
+  }
 }

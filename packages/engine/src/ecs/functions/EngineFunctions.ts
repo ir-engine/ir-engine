@@ -1,11 +1,13 @@
 /** Functions to provide engine level functionalities. */
 import { Color, Object3D } from 'three'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { AssetLoader, disposeDracoLoaderWorkers } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import disposeScene from '../../renderer/functions/disposeScene'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { Engine } from '../classes/Engine'
 import { EngineActions } from '../classes/EngineService'
@@ -24,17 +26,13 @@ import {
 /** Reset the engine and remove everything from memory. */
 export function reset() {
   console.log('RESETTING ENGINE')
-  dispatchLocal(EngineActions.sceneUnloaded())
-
-  // Stop all running workers
-  Engine.workers.forEach((w) => w.terminate())
-  Engine.workers.length = 0
+  dispatchAction(Engine.instance.store, EngineActions.sceneUnloaded())
 
   disposeDracoLoaderWorkers()
 
   // clear all entities components
   // await new Promise<void>((resolve) => {
-  //   Engine.currentWorld.entities.forEach((entity) => {
+  //   Engine.instance.currentWorld.entities.forEach((entity) => {
   //     removeAllComponents(entity)
   //   })
   //   setTimeout(() => {
@@ -52,45 +50,44 @@ export function reset() {
   //   }, 500)
   // })
 
-  // if (Engine.currentWorld.entities.length) {
-  //   console.log('Engine.currentWorld.entities.length', Engine.currentWorld.entities.length)
-  //   throw new Error('Engine.currentWorld.entities cleanup not complete')
+  // if (Engine.instance.currentWorld.entities.length) {
+  //   console.log('Engine.instance.currentWorld.entities.length', Engine.instance.currentWorld.entities.length)
+  //   throw new Error('Engine.instance.currentWorld.entities cleanup not complete')
   // }
 
   // delete all what is left on scene
-  if (Engine.scene) {
-    disposeScene(Engine.scene)
-    Engine.scene = null!
+  if (Engine.instance.scene) {
+    disposeScene(Engine.instance.scene)
+    Engine.instance.scene = null!
   }
 
-  Engine.camera = null!
+  Engine.instance.camera = null!
 
-  if (Engine.renderer) {
-    Engine.renderer.clear(true, true, true)
-    Engine.renderer.dispose()
-    Engine.renderer = null!
+  if (EngineRenderer.instance.renderer) {
+    EngineRenderer.instance.renderer.clear(true, true, true)
+    EngineRenderer.instance.renderer.dispose()
+    EngineRenderer.instance.renderer = null!
   }
 
   AssetLoader.Cache.clear()
 
-  Engine.isInitialized = false
-  Engine.inputState.clear()
-  Engine.prevInputState.clear()
+  dispatchAction(Engine.instance.store, EngineActions.initializeEngine({ initialised: false }))
+  Engine.instance.inputState.clear()
+  Engine.instance.prevInputState.clear()
 }
 
 export const unloadScene = async (world: World, removePersisted = false) => {
-  await Promise.all(Engine.sceneLoadPromises)
   unloadAllEntities(world, removePersisted)
 
-  dispatchLocal(EngineActions.sceneUnloaded())
+  dispatchAction(Engine.instance.store, EngineActions.sceneUnloaded())
 
-  Engine.scene.background = new Color('black')
-  Engine.scene.environment = null
+  Engine.instance.scene.background = new Color('black')
+  Engine.instance.scene.environment = null
 
   isClient && configureEffectComposer()
 
-  for (const world of Engine.worlds) {
-    world.execute(50, world.elapsedTime)
+  for (const world of Engine.instance.worlds) {
+    world.execute(50)
   }
 }
 
@@ -123,7 +120,7 @@ export const unloadAllEntities = (world: World, removePersisted = false) => {
     entityNodesToRemove.forEach((node) => removeEntityNodeFromParent(node, world.entityTree))
   }
 
-  Engine.scene.traverse((o: any) => {
+  Engine.instance.scene.traverse((o: any) => {
     if (!o.entity) return
     if (!entitiesToRemove.includes(o.entity)) return
 
@@ -144,8 +141,6 @@ export const unloadAllEntities = (world: World, removePersisted = false) => {
     sceneObjectsToRemove.push(o)
   })
 
-  world.namedEntities.clear()
-
-  sceneObjectsToRemove.forEach((o) => Engine.scene.remove(o))
+  sceneObjectsToRemove.forEach((o) => Engine.instance.scene.remove(o))
   entitiesToRemove.forEach((entity) => removeEntity(entity, true))
 }

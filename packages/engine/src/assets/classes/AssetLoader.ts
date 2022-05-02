@@ -1,5 +1,6 @@
 import {
   AnimationClip,
+  AudioLoader,
   FileLoader,
   Group,
   Loader,
@@ -23,6 +24,8 @@ import { AssetType } from '../enum/AssetType'
 import { createGLTFLoader } from '../functions/createGLTFLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import type { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
+import { TGALoader } from '../loaders/tga/TGALoader'
+import { XRELoader } from './XRELoader'
 
 // import { instanceGLTF } from '../functions/transformGLTF'
 
@@ -37,13 +40,13 @@ export interface LoadGLTFResultInterface {
 }
 
 // TODO: refactor global scope
-const loader = createGLTFLoader()
+const gltfLoader = createGLTFLoader()
 export function getGLTFLoader(): GLTFLoader {
-  return loader
+  return gltfLoader
 }
 
 export function disposeDracoLoaderWorkers(): void {
-  loader.dracoLoader?.dispose()
+  gltfLoader.dracoLoader?.dispose()
 }
 
 export const loadExtensions = async (gltf: GLTF) => {
@@ -132,11 +135,19 @@ const handleLODs = (asset: Object3D): Object3D => {
  * @returns Asset type of the file.
  */
 const getAssetType = (assetFileName: string): AssetType => {
-  if (/\.(?:gltf|glb)$/.test(assetFileName)) return AssetType.glTF
+  if (/\.xre\.gltf$/.test(assetFileName)) return AssetType.XRE
+  else if (/\.(?:gltf)$/.test(assetFileName)) return AssetType.glTF
+  else if (/\.(?:glb)$/.test(assetFileName)) return AssetType.glB
   else if (/\.(?:fbx)$/.test(assetFileName)) return AssetType.FBX
   else if (/\.(?:vrm)$/.test(assetFileName)) return AssetType.VRM
+  else if (/\.(?:tga)$/.test(assetFileName)) return AssetType.TGA
   else if (/\.(?:png)$/.test(assetFileName)) return AssetType.PNG
   else if (/\.(?:jpg|jpeg|)$/.test(assetFileName)) return AssetType.JPEG
+  else if (/\.(?:mp3)$/.test(assetFileName)) return AssetType.MP3
+  else if (/\.(?:aac)$/.test(assetFileName)) return AssetType.AAC
+  else if (/\.(?:ogg)$/.test(assetFileName)) return AssetType.OGG
+  else if (/\.(?:m4a)$/.test(assetFileName)) return AssetType.M4A
+
   return null!
 }
 
@@ -146,10 +157,16 @@ const getAssetType = (assetFileName: string): AssetType => {
  * @returns Asset class of the file.
  */
 const getAssetClass = (assetFileName: string): AssetClass => {
-  if (/\.(?:gltf|glb|vrm|fbx|obj)$/.test(assetFileName)) {
+  if (/\.xre\.gltf$/.test(assetFileName)) {
+    return AssetClass.Asset
+  } else if (/\.(?:gltf|glb|vrm|fbx|obj)$/.test(assetFileName)) {
     return AssetClass.Model
-  } else if (/\.png|jpg|jpeg$/.test(assetFileName)) {
+  } else if (/\.png|jpg|jpeg|tga$/.test(assetFileName)) {
     return AssetClass.Image
+  } else if (/\.mp4|avi|webm|mov$/.test(assetFileName)) {
+    return AssetClass.Video
+  } else if (/\.mp3|ogg|m4a|flac|wav$/.test(assetFileName)) {
+    return AssetClass.Audio
   } else {
     return null!
   }
@@ -164,24 +181,37 @@ const getAssetClass = (assetFileName: string): AssetClass => {
 const isSupported = (assetFileName: string) => {
   const assetClass = getAssetClass(assetFileName)
   if (isClient) return !!assetClass
-  return assetClass === AssetClass.Model
+  return assetClass === AssetClass.Model || assetClass === AssetClass.Asset
 }
 
 //@ts-ignore
 const fbxLoader = new FBXLoader()
 const textureLoader = new TextureLoader()
 const fileLoader = new FileLoader()
+const audioLoader = new AudioLoader()
+const tgaLoader = new TGALoader()
+const xreLoader = new XRELoader(fileLoader)
 
 export const getLoader = (assetType: AssetType) => {
   switch (assetType) {
+    case AssetType.XRE:
+      return xreLoader
     case AssetType.glTF:
+    case AssetType.glB:
     case AssetType.VRM:
-      return getGLTFLoader()
+      return gltfLoader
     case AssetType.FBX:
       return fbxLoader
+    case AssetType.TGA:
+      return tgaLoader
     case AssetType.PNG:
     case AssetType.JPEG:
       return textureLoader
+    case AssetType.AAC:
+    case AssetType.MP3:
+    case AssetType.OGG:
+    case AssetType.M4A:
+      return audioLoader
     default:
       return fileLoader
   }
@@ -190,7 +220,7 @@ export const getLoader = (assetType: AssetType) => {
 const assetLoadCallback = (url: string, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
   const assetClass = AssetLoader.getAssetClass(url)
   if (assetClass === AssetClass.Model) {
-    if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
+    if (assetType === AssetType.glB || assetType === AssetType.VRM) {
       await loadExtensions(asset)
     }
 
@@ -207,11 +237,13 @@ const assetLoadCallback = (url: string, assetType: AssetType, onLoad: (response:
     AssetLoader.processModelAsset(asset.scene)
   }
 
-  AssetLoader.Cache.set(url, asset)
+  if (assetClass !== AssetClass.Asset) {
+    AssetLoader.Cache.set(url, asset)
+  }
   onLoad(asset)
 }
 
-const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.publicPath + url)
+const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.instance.publicPath + url)
 
 const load = async (
   _url: string,

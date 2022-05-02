@@ -50,27 +50,23 @@ export const start = async (): Promise<Application> => {
 
   const agonesSDK = new AgonesSDK()
 
-  if (config.kubernetes.enabled || process.env.APP_ENV === 'development') {
-    agonesSDK.connect()
-    agonesSDK.ready().catch((err) => {
-      console.log(err)
-      throw new Error(
-        '\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m'
-      )
-    })
-    app.agonesSDK = agonesSDK
-    setInterval(() => agonesSDK.health(), 1000)
+  agonesSDK.connect()
+  agonesSDK.ready().catch((err) => {
+    console.log(err)
+    throw new Error(
+      '\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m'
+    )
+  })
+  app.agonesSDK = agonesSDK
+  setInterval(() => agonesSDK.health(), 1000)
 
-    app.configure(channels)
-  } else {
-    console.warn('Did not create gameserver')
-  }
+  app.configure(channels)
 
   /**
    * When using local dev, to properly test multiple worlds for portals we
    * need to programatically shut down and restart the gameserver process.
    */
-  if (process.env.APP_ENV === 'development' && !config.kubernetes.enabled) {
+  if (!config.kubernetes.enabled) {
     app.restart = () => {
       require('child_process').spawn('npm', ['run', 'dev'], {
         cwd: process.cwd(),

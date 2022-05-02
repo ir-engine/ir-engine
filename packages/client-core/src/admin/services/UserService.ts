@@ -9,7 +9,7 @@ import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
 
 //State
-export const USER_PAGE_LIMIT = 12
+export const USER_PAGE_LIMIT = 100
 
 const state = createState({
   users: [] as Array<User>,
@@ -81,101 +81,97 @@ export const useUserState = () => useState(state) as any as typeof state
 
 //Service
 export const UserService = {
-  fetchUsersAsAdmin: async (
-    incDec?: 'increment' | 'decrement',
-    value: string | null = null,
-    skip = accessUserState().skip.value
-  ) => {
+  fetchUsersAsAdmin: async (value: string | null = null, skip = 0, sortField = 'name', orderBy = 'asc') => {
     const dispatch = useDispatch()
-    {
-      const userState = accessUserState()
-      const user = accessAuthState().user
-      const limit = userState.limit.value
-      const skipGuests = userState.skipGuests.value
-      const userRole = userState.userRole.value
-      try {
-        if (user.userRole.value === 'admin') {
-          const params = {
-            query: {
-              $sort: {
-                name: 1
-              },
-              $skip: skip * USER_PAGE_LIMIT,
-              $limit: limit,
-              action: 'admin',
-              search: value
-            }
-          }
-          if (skipGuests) {
-            ;(params.query as any).userRole = {
-              $ne: 'guest'
-            }
-          }
-          if (userRole) {
-            ;(params.query as any).userRole = {
-              $eq: userRole
-            }
-          }
-          const users = (await client.service('user').find(params)) as Paginated<User>
-          dispatch(UserAction.loadedUsers(users))
+
+    const userState = accessUserState()
+    const user = accessAuthState().user
+    const skipGuests = userState.skipGuests.value
+    const userRole = userState.userRole.value
+    try {
+      if (user.userRole.value === 'admin') {
+        let sortData = {}
+
+        if (sortField.length > 0) {
+          sortData[sortField] = orderBy === 'desc' ? 0 : 1
         }
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
+
+        const params = {
+          query: {
+            $sort: {
+              ...sortData
+            },
+            $skip: skip * USER_PAGE_LIMIT,
+            $limit: USER_PAGE_LIMIT,
+            action: 'admin',
+            search: value
+          }
+        }
+        if (skipGuests) {
+          ;(params.query as any).userRole = {
+            $ne: 'guest'
+          }
+        }
+        if (userRole) {
+          ;(params.query as any).userRole = {
+            $eq: userRole
+          }
+        }
+        const users = (await client.service('user').find(params)) as Paginated<User>
+        dispatch(UserAction.loadedUsers(users))
       }
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   createUser: async (user: CreateEditUser) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const result = (await client.service('user').create(user)) as User
-        dispatch(UserAction.userCreated(result))
-      } catch (error) {
-        console.error(error)
-        AlertService.dispatchAlertError(error.message)
-      }
+
+    try {
+      const result = (await client.service('user').create(user)) as User
+      dispatch(UserAction.userCreated(result))
+    } catch (error) {
+      console.error(error)
+      AlertService.dispatchAlertError(error.message)
     }
   },
   patchUser: async (id: string, user: CreateEditUser) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const result = (await client.service('user').patch(id, user)) as User
-        dispatch(UserAction.userPatched(result))
-      } catch (error) {
-        AlertService.dispatchAlertError(error.message)
-      }
+
+    try {
+      const result = (await client.service('user').patch(id, user)) as User
+      dispatch(UserAction.userPatched(result))
+    } catch (error) {
+      AlertService.dispatchAlertError(error.message)
     }
   },
   removeUserAdmin: async (id: string) => {
     const dispatch = useDispatch()
-    {
-      const result = (await client.service('user').remove(id)) as User
-      dispatch(UserAction.userAdminRemoved(result))
-    }
+
+    const result = (await client.service('user').remove(id)) as User
+    dispatch(UserAction.userAdminRemoved(result))
   },
   searchUserAction: async (data: any) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const userState = accessUserState()
-        const skip = userState.skip.value
-        const limit = userState.limit.value
-        const result = (await client.service('user').find({
-          query: {
-            $sort: {
-              name: 1
-            },
-            $skip: skip || 0,
-            $limit: limit,
-            action: 'search',
-            data
-          }
-        })) as Paginated<User>
-        dispatch(UserAction.searchedUser(result))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      const userState = accessUserState()
+      const skip = userState.skip.value
+      const limit = userState.limit.value
+      const result = (await client.service('user').find({
+        query: {
+          $sort: {
+            name: 1
+          },
+          $skip: skip || 0,
+          $limit: limit,
+          action: 'search',
+          data
+        }
+      })) as Paginated<User>
+      dispatch(UserAction.searchedUser(result))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   refetchSingleUserAdmin: async () => {},

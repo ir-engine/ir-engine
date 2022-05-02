@@ -5,12 +5,13 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
 import { TestNetwork } from '../../../tests/networking/TestNetwork'
 import { Engine } from '../../ecs/classes/Engine'
-import { createWorld } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../initializeEngine'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
@@ -24,51 +25,41 @@ import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { createAvatar } from './createAvatar'
 
 describe('createAvatar', () => {
-  let world
-
   beforeEach(async () => {
-    /* hoist */
+    createEngine()
     Network.instance = new TestNetwork()
-    world = createWorld()
-    Engine.currentWorld = world
-    await Engine.currentWorld.physics.createScene({ verbose: true })
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
   })
 
   afterEach(() => {
-    Engine.currentWorld = null!
     delete (globalThis as any).PhysX
   })
 
   it('check the create avatar function', () => {
-    Engine.userId = world.hostId
-    Engine.hasJoinedWorld = true
+    const world = Engine.instance.currentWorld
+    Engine.instance.userId = world.hostId
 
     // mock entity to apply incoming unreliable updates to
     const entity = createEntity()
 
     const networkObject = addComponent(entity, NetworkObjectComponent, {
       // remote owner
-      ownerId: Engine.userId,
-      lastTick: 0,
+      ownerId: Engine.instance.userId,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}
     })
 
-    const prevPhysicsBodies = Engine.currentWorld.physics.bodies.size
-    const prevPhysicsColliders = Engine.currentWorld.physics.controllers.size
+    const prevPhysicsBodies = Engine.instance.currentWorld.physics.bodies.size
+    const prevPhysicsColliders = Engine.instance.currentWorld.physics.controllers.size
 
-    createAvatar({
-      prefab: 'avatar',
-      parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() },
-      type: 'network.SPAWN_OBJECT',
-      networkId: networkObject.networkId,
-      ownerIndex: 0,
-      $from: Engine.userId,
-      $to: 'all',
-      $tick: Engine.currentWorld.fixedTick,
-      $cache: true
-    })
+    createAvatar(
+      NetworkWorldAction.spawnAvatar({
+        $from: Engine.instance.userId,
+        networkId: networkObject.networkId,
+        parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() }
+      })
+    )
 
     assert(hasComponent(entity, TransformComponent))
     assert(hasComponent(entity, VelocityComponent))
@@ -81,8 +72,8 @@ describe('createAvatar', () => {
     assert(hasComponent(entity, SpawnPoseComponent))
     assert(hasComponent(entity, AvatarControllerComponent))
     assert(hasComponent(entity, InteractorComponent))
-    strictEqual(Engine.currentWorld.physics.bodies.size, prevPhysicsBodies + 2)
-    strictEqual(Engine.currentWorld.physics.controllers.size, prevPhysicsColliders + 1)
-    strictEqual(getComponent(entity, NameComponent).name, Engine.userId)
+    strictEqual(Engine.instance.currentWorld.physics.bodies.size, prevPhysicsBodies + 2)
+    strictEqual(Engine.instance.currentWorld.physics.controllers.size, prevPhysicsColliders + 1)
+    strictEqual(getComponent(entity, NameComponent).name, Engine.instance.userId)
   })
 })

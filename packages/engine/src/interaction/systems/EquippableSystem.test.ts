@@ -3,15 +3,13 @@ import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
-import { TestNetwork } from '../../../tests/networking/TestNetwork'
 import { createAvatar } from '../../avatar/functions/createAvatar'
 import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { createWorld } from '../../ecs/classes/World'
 import { addComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { Network } from '../../networking/classes/Network'
+import { createEngine } from '../../initializeEngine'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
 import { EquippedComponent } from '../components/EquippedComponent'
@@ -23,48 +21,38 @@ import EquippableSystem from './EquippableSystem'
 // @TODO this needs to be re-thought
 
 describe.skip('EquippableSystem Integration Tests', () => {
-  let world
   let equippableSystem
 
   before(async () => {
-    world = createWorld()
-    Network.instance = new TestNetwork()
-    Engine.currentWorld = world
-    Engine.userId = world.hostId
-    Engine.hasJoinedWorld = true
-    await Engine.currentWorld.physics.createScene({ verbose: true })
-
+    createEngine()
+    const world = Engine.instance.currentWorld
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
     equippableSystem = await EquippableSystem(world)
   })
 
   after(() => {
-    Engine.currentWorld = null!
     delete (globalThis as any).PhysX
   })
 
   it('system test', async () => {
+    const world = Engine.instance.currentWorld
     const player = createEntity(world)
     const item = createEntity(world)
 
     const networkObject = addComponent(player, NetworkObjectComponent, {
-      ownerId: Engine.userId,
-      lastTick: 0,
+      ownerId: Engine.instance.userId,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}
     })
 
-    createAvatar({
-      prefab: 'avatar',
-      parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() },
-      type: 'network.SPAWN_OBJECT',
-      networkId: networkObject.networkId,
-      $from: Engine.userId,
-      $to: 'all',
-      $tick: Engine.currentWorld.fixedTick,
-      $cache: true,
-      ownerIndex: 0
-    })
+    createAvatar(
+      NetworkWorldAction.spawnAvatar({
+        $from: Engine.instance.userId,
+        networkId: networkObject.networkId,
+        parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() }
+      })
+    )
 
     const equippedComponent = addComponent(item, EquippedComponent, {
       equipperEntity: player,
