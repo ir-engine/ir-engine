@@ -57,7 +57,7 @@ npm run dev-reinit
 npm run dev
 ```
 
-## Setup Elastic Search & Grafana for logging(Optional)
+### Setup Elastic Search & Grafana for logging(Optional)
 
 if you wish to setup Elastic Search & Grafana along with the databases,
 Run 
