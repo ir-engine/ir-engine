@@ -29,6 +29,10 @@ export default (app: Application) => {
       },
       smsNameCharacterLimit: {
         type: DataTypes.INTEGER
+      },
+      to: {
+        type: DataTypes.STRING,
+        allowNull: true
       }
     },
     {

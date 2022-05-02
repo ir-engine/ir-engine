@@ -71,8 +71,6 @@ export class ReportIssue implements ServiceMethods<Data> {
 
   async create(data: any, params?: Params): Promise<Data> {
     const loggedInUser = params!.user as any
-    // To DO
-    console.log('...........', JSON.stringify(data))
     await this.sendEmail(data, loggedInUser)
     return data
   }

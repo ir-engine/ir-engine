@@ -13,6 +13,7 @@ export const emailSeed = {
       }),
       // Name and email of default sender (for login emails, etc)
       from: `${process.env.SMTP_FROM_NAME}` + ` <${process.env.SMTP_FROM_EMAIL}>` || 'test',
+      to: `<${process.env.SMTP_TO_EMAIL}>` || 'test',
       subject: JSON.stringify({
         // Subject of the Login Link email
         login: 'XREngine login link',

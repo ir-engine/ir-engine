@@ -2,6 +2,7 @@ export interface EmailSetting {
   id: string
   smtp: EmailSmtp
   from: string
+  to: string
   subject: EmailSubject
   smsNameCharacterLimit: number
 }
@@ -28,5 +29,6 @@ export interface EmailAuth {
 export interface PatchEmailSetting {
   smtp: string
   from: string
+  to: string
   subject: string
 }
