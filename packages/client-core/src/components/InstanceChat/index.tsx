@@ -103,7 +103,15 @@ const InstanceChat = (props: Props): any => {
   }, [chatState])
 
   const handleComposingMessageChange = (event: any): void => {
-    const message = event.target.value
+    let message = event.target.value
+    if (message.length > 10 && message.slice(-1) == ' ') message += `${message} \n`
+    console.log(
+      '>>>>>>>>>>>>>>>>>>>>>>>',
+      message.length > 10 && message.slice(-1) == ' ',
+      message.slice(-1),
+      message.length,
+      message
+    )
     if (message.length > composingMessage.length) {
       if (!usersTyping) {
         dispatchAction(
@@ -262,64 +270,56 @@ const InstanceChat = (props: Props): any => {
           </Card>
         </div>
       </div>
-      <div className={`${styles['chat-input']} ${chatWindowOpen ? '' : styles.invisible} `}>
-        <Card className={styles['chat-view']} style={{ boxShadow: 'none' }}>
-          <CardContent className={styles['chat-box']} style={{ boxShadow: 'none' }}>
-            <TextField
-              className={styles.messageFieldContainer}
-              margin="normal"
-              multiline={isMultiline}
-              fullWidth
-              id="newMessage"
-              label={newMessageLabel}
-              name="newMessage"
-              variant="standard"
-              autoFocus
-              value={composingMessage}
-              inputProps={{
-                maxLength: 1000,
-                'aria-label': 'naked'
-              }}
-              InputLabelProps={{ shrink: false }}
-              onChange={handleComposingMessageChange}
-              inputRef={messageRefInput}
-              onClick={() => (messageRefInput as any)?.current?.focus()}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && e.ctrlKey) {
-                  e.preventDefault()
-                  const selectionStart = (e.target as HTMLInputElement).selectionStart
-                  setCursorPosition(selectionStart || 0)
-                  setComposingMessage(
-                    composingMessage.substring(0, selectionStart || 0) +
-                      '\n' +
-                      composingMessage.substring(selectionStart || 0)
-                  )
-                  !isMultiline && setIsMultiline(true)
-                } else if (e.key === 'Enter' && !e.ctrlKey) {
-                  e.preventDefault()
-                  packageMessage()
-                  isMultiline && setIsMultiline(false)
-                  setCursorPosition(0)
-                }
-              }}
-            />
-          </CardContent>
-        </Card>
-      </div>
-      {unreadMessages && (
-        <div className={`${styles.iconCallChat} ${props.animate}`}>
-          <Badge
-            color="primary"
-            variant="dot"
-            invisible={!unreadMessages}
-            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-          >
-            <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
-              {!chatWindowOpen ? <MessageButton /> : <CloseButton onClick={() => toggleChatWindow()} />}
-            </Fab>
-          </Badge>
+      <div className={styles['bottom-box']}>
+        <div className={`${styles['chat-input']} ${chatWindowOpen ? '' : styles.invisible} `}>
+          <Card className={styles['chat-view']} style={{ boxShadow: 'none' }}>
+            <CardContent className={styles['chat-box']} style={{ boxShadow: 'none' }}>
+              <TextField
+                className={styles.messageFieldContainer}
+                margin="normal"
+                multiline={true}
+                maxRows={10}
+                fullWidth
+                id="newMessage"
+                label={newMessageLabel}
+                name="newMessage"
+                variant="standard"
+                autoFocus
+                value={composingMessage}
+                inputProps={{
+                  maxLength: 1000,
+                  'aria-label': 'naked'
+                }}
+                InputLabelProps={{ shrink: false }}
+                onChange={handleComposingMessageChange}
+                inputRef={messageRefInput}
+                onClick={() => (messageRefInput as any)?.current?.focus()}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.ctrlKey) {
+                    e.preventDefault()
+                    packageMessage()
+                    setCursorPosition(0)
+                  }
+                }}
+              />
+            </CardContent>
+          </Card>
         </div>
-      )}
+        {unreadMessages && (
+          <div className={`${styles.iconCallChat} ${props.animate}`}>
+            <Badge
+              color="primary"
+              variant="dot"
+              invisible={!unreadMessages}
+              anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+            >
+              <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
+                {!chatWindowOpen ? <MessageButton /> : <CloseButton onClick={() => toggleChatWindow()} />}
+              </Fab>
+            </Badge>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

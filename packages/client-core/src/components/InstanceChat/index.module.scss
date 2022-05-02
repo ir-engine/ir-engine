@@ -1,12 +1,7 @@
 .iconCallChat {
   display: flex;
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  margin: 5px 18px 25px 10px;
   align-items: center;
   color: #000;
-  z-index: 2000;
 
   @media (max-width: 450px) {
     margin: 5px 10px 20px;
@@ -48,8 +43,8 @@
 }
 
 .instance-chat-msg-container {
-  height: 400px;
-  overflow-y: scroll;
+  max-height: 400px;
+  overflow-y: auto;
   margin-bottom: 40px;
 }
 
@@ -59,8 +54,8 @@
   display: grid;
   flex-direction: row;
   right: 0;
+  z-index: 8;
   justify-content: flex-end;
-  z-index: 20;
   margin: 5px 15px 20px 10px;
   transition: all 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
   border-radius: 5px;
@@ -82,10 +77,17 @@
   }
 
   .chat-input {
+    margin-right: 10px;
+  }
+
+  .bottom-box {
     position: fixed;
-    z-index: 100;
-    bottom: 15px;
-    width: 40%;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    width: auto;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .chat-box {
@@ -93,6 +95,8 @@
     flex-grow: 1;
     padding: 0;
     align-items: flex-end;
+    background: rgb(0 0 0 / 50%);
+    width: 300px;
 
     input {
       color: white;
@@ -137,6 +141,7 @@
       :global(.MuiInput-root) {
         margin-top: 8px;
         margin-bottom: 8px;
+        color: #fff;
       }
 
       :global(.MuiFormLabel-root.Mui-focused):not(.MuiFormLabel-filled),
@@ -293,7 +298,7 @@
   background-color: var(--purpleColor);
   padding: 5px 10px;
   border-radius: 30px;
-  max-width: 300px;
+  max-width: 290px;
   word-wrap: break-word;
 }
 
@@ -310,7 +315,7 @@
   background-color: #935cff;
   padding: 5px 10px;
   border-radius: 30px;
-  max-width: 300px;
+  max-width: 290px;
   word-wrap: break-word;
 }
 
