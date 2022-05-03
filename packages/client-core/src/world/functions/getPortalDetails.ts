@@ -7,7 +7,7 @@ import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/cr
 import { client } from '../../feathers'
 
 export const getPortalDetails = () => {
-  Engine.currentWorld.portalQuery().map(async (entity: Entity): Promise<void> => {
+  Engine.instance.currentWorld.portalQuery().map(async (entity: Entity): Promise<void> => {
     const portalComponent = getComponent(entity, PortalComponent)
     try {
       const portalDetails = await client.service('portal').get(portalComponent.linkedPortalId)

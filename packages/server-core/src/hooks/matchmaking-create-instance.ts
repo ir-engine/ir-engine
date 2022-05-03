@@ -4,6 +4,7 @@ import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
 
 import { Application } from '../../declarations'
+import logger from '../logger'
 import { getFreeGameserver } from '../networking/instance-provision/instance-provision.class'
 
 export default (): Hook => {
@@ -65,9 +66,8 @@ export default (): Hook => {
 
       context.result.gameserver = instanceId
     } catch (e) {
-      console.log('matchmaking instance create error', e)
+      logger.error(e, `Matchmaking instance create error: ${e.message || e.errors[0].message}`)
       // TODO: check error? skip?
-      console.log('instance creation failed:', e.errors[0].message)
     }
 
     return context

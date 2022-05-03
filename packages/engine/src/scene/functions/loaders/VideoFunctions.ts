@@ -15,7 +15,7 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { accessEngineState, EngineActions } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { matchActionOnce, receiveActionOnce } from '../../../networking/functions/matchActionOnce'
+import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { ImageProjection } from '../../classes/ImageUtils'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ImageComponent } from '../../components/ImageComponent'
@@ -84,7 +84,7 @@ export const deserializeVideo: ComponentDeserializeFunction = (
 
   addComponent(entity, VideoComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VIDEO)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VIDEO)
 
   updateVideo(entity, props)
 }
@@ -96,7 +96,6 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
 
   if (properties.videoSource) {
     try {
-      const assetClass = AssetLoader.getAssetClass(component.videoSource)
       if (isHLS(component.videoSource)) {
         if (component.hls) component.hls.destroy()
         component.hls = setupHLS(entity, component.videoSource)
@@ -134,7 +133,7 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
             if (accessEngineState().userHasInteracted.value) {
               obj3d.userData.videoEl.play()
             } else {
-              matchActionOnce(Engine.store, EngineActions.setUserHasInteracted.matches, () => {
+              matchActionOnce(Engine.instance.store, EngineActions.setUserHasInteracted.matches, () => {
                 obj3d.userData.videoEl.play()
                 return true
               })
@@ -145,7 +144,7 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
           mesh.material.map.image.width = mesh.material.map.image.videoWidth
           if (getComponent(entity, ImageComponent)?.projection === ImageProjection.Flat) resizeImageMesh(mesh)
 
-          const audioSource = Engine.audioListener.context.createMediaElementSource(obj3d.userData.videoEl)
+          const audioSource = Engine.instance.audioListener.context.createMediaElementSource(obj3d.userData.videoEl)
           obj3d.userData.audioEl.setNodeSource(audioSource)
 
           updateAutoStartTimeForMedia(entity)

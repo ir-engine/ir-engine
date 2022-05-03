@@ -13,6 +13,8 @@ import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { Physics } from '../../physics/classes/Physics'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import {
@@ -30,10 +32,6 @@ import { Engine } from './Engine'
 import { Entity } from './Entity'
 import EntityTree from './EntityTree'
 
-type RemoveIndex<T> = {
-  [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
-}
-
 const TimerConfig = {
   MAX_DELTA: 1 / 10
 }
@@ -42,16 +40,17 @@ export const CreateWorld = Symbol('CreateWorld')
 export class World {
   private constructor() {
     bitecs.createWorld(this)
-    Engine.worlds.push(this)
+    Engine.instance.worlds.push(this)
 
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
 
-    if (!Engine.currentWorld) Engine.currentWorld = this
-
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
 
     initializeEntityTree(this)
+
+    // @TODO support multiple networks per world
+    Network.instance = new Network()
   }
 
   static [CreateWorld] = () => new World()
@@ -65,7 +64,7 @@ export class World {
    * Check if this user is hosting the world.
    */
   get isHosting() {
-    return Engine.userId === this.hostId
+    return Engine.instance.userId === this.hostId
   }
 
   sceneMetadata = undefined as string | undefined
@@ -97,7 +96,7 @@ export class World {
   store = createHyperStore({
     name: 'WORLD',
     getDispatchMode: () => (this.isHosting ? 'host' : 'peer'),
-    getDispatchId: () => Engine.userId,
+    getDispatchId: () => Engine.instance.userId,
     getDispatchTime: () => this.fixedTick,
     defaultDispatchDelay: 1
   })
@@ -147,10 +146,27 @@ export class World {
     [SystemUpdateType.POST_RENDER]: []
   } as { [pipeline: string]: SystemInstanceType[] }
 
+  #nameMap = new Map<string, Entity>()
+  #nameQuery = defineQuery([NameComponent])
+
   /**
    * Entities mapped by name
    */
-  namedEntities = new Map<string, Entity>()
+  get namedEntities() {
+    const nameMap = this.#nameMap
+    for (const entity of this.#nameQuery.enter()) {
+      const { name } = getComponent(entity, NameComponent)
+      if (nameMap.has(name)) console.warn(`An Entity with name "${name}" already exists.`)
+      nameMap.set(name, entity)
+      const obj3d = getComponent(entity, Object3DComponent)?.value
+      if (obj3d) obj3d.name = name
+    }
+    for (const entity of this.#nameQuery.exit()) {
+      const { name } = getComponent(entity, NameComponent, true)
+      nameMap.delete(name)
+    }
+    return nameMap as ReadonlyMap<string, Entity>
+  }
 
   /**
    * Network object query

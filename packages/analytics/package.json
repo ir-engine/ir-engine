@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/analytics",
   "description": "Analytics generator for XREngine platform",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -43,18 +43,17 @@
     "@feathersjs/express": "5.0.0-pre.10",
     "@feathersjs/feathers": "5.0.0-pre.10",
     "@feathersjs/socketio": "5.0.0-pre.10",
-    "@xrengine/server-core": "^0.5.2",
+    "@xrengine/server-core": "^0.5.3",
     "compression": "1.7.4",
     "cors": "2.8.5",
+    "cross-env": "7.0.3",
     "feathers-logger": "0.3.2",
     "helmet": "5.0.2",
-    "winston": "3.7.2"
+    "typescript": "4.6.2"
   },
   "devDependencies": {
     "@types/compression": "1.7.2",
     "@types/node": "16.11.26",
-    "cross-env": "7.0.3",
-    "ts-node-dev": "1.1.8",
-    "typescript": "4.6.2"
+    "ts-node-dev": "1.1.8"
   }
 }

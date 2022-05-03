@@ -4,14 +4,14 @@ import { MathUtils } from 'three'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
-import { createWorld } from '../../../ecs/classes/World'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { deserializeMetaData } from './MetaDataFunctions'
 
 describe('MetadataFunctions', () => {
   describe('deserializeMetaData', () => {
-    const world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
+    const world = Engine.instance.currentWorld
 
     const entity = createEntity()
     const testData = MathUtils.generateUUID()

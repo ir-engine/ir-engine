@@ -1,6 +1,7 @@
 import assert from 'assert'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { matches, matchesWithDefault } from '@xrengine/engine/src/common/functions/MatchesUtils'
 
 import {
   addActionReceptor,
@@ -10,12 +11,10 @@ import {
   defineAction,
   defineState,
   dispatchAction,
-  getMutableState,
   getState,
   registerState,
   removeActionReceptor
 } from '..'
-import { matches, matchesWithDefault } from '../utils/MatchesUtils'
 
 describe('Hyperflux Unit Testss', () => {
   it('should be able to define and create an action', () => {
@@ -470,10 +469,8 @@ describe('Hyperflux Unit Testss', () => {
     const store = createHyperStore({ name: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     registerState(store, HospitalityState)
     assert(store.state.hospitality)
-    const hospitality = getState(store, HospitalityState)
+    const hospitality = getState(store, HospitalityState).value
     assert.equal(hospitality.greetingCount, 0)
-    assert.throws(() => getMutableState(store, HospitalityState))
-    assert.equal(getMutableState(store, HospitalityState, true).greetingCount.value, 0)
   })
 
   it('should be able to mutate registered state inside a receptor', () => {
@@ -498,12 +495,12 @@ describe('Hyperflux Unit Testss', () => {
 
     addActionReceptor(store, (action) => {
       matches(action).when(greet.matches, () => {})
-      const hospitality = getMutableState(store, HospitalityState)
+      const hospitality = getState(store, HospitalityState)
       hospitality.greetingCount.set(100)
     })
 
     dispatchAction(store, greet({}))
     applyIncomingActions(store)
-    assert.equal(getState(store, HospitalityState).greetingCount, 100)
+    assert.equal(getState(store, HospitalityState).greetingCount.value, 100)
   })
 })

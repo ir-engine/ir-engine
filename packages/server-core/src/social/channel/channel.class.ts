@@ -141,8 +141,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
         return super.find(params)
       }
     } catch (err) {
-      logger.error('Channel find failed')
-      logger.error(err)
+      logger.error(err, `Channel find failed: ${err.message}`)
       throw err
     }
   }

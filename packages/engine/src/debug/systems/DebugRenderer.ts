@@ -22,6 +22,7 @@ import { World } from '../../ecs/classes/World'
 import { getGeometryType, isControllerBody, isTriggerShape } from '../../physics/classes/Physics'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { BodyType } from '../../physics/types/PhysicsTypes'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
@@ -65,13 +66,13 @@ export const DebugRenderer = () => {
     enabled = _enabled
     if (!_enabled) {
       _meshes.forEach((mesh) => {
-        Engine.scene.remove(mesh)
+        Engine.instance.scene.remove(mesh)
       })
       _raycasts.forEach((mesh) => {
-        Engine.scene.remove(mesh)
+        Engine.instance.scene.remove(mesh)
       })
       _obstacles.forEach((mesh) => {
-        Engine.scene.remove(mesh)
+        Engine.instance.scene.remove(mesh)
       })
       _meshes.clear()
       _raycasts.clear()
@@ -92,7 +93,7 @@ export const DebugRenderer = () => {
       }
       const mesh = new Mesh(geom, _materials[5])
       setObjectLayers(mesh, ObjectLayers.PhysicsHelper)
-      Engine.scene.add(mesh)
+      Engine.instance.scene.add(mesh)
       _obstacles.set(id, mesh)
     }
     const mesh = _obstacles.get(id)
@@ -107,7 +108,7 @@ export const DebugRenderer = () => {
     let needsUpdate = false
     if (body._debugNeedsUpdate) {
       if (mesh) {
-        Engine.scene.remove(mesh)
+        Engine.instance.scene.remove(mesh)
         needsUpdate = true
       }
       body._debugNeedsUpdate = false
@@ -137,7 +138,7 @@ export const DebugRenderer = () => {
       }
       _meshes.set(id, mesh)
       setObjectLayers(mesh, ObjectLayers.PhysicsHelper)
-      Engine.scene.add(mesh)
+      Engine.instance.scene.add(mesh)
     }
   }
 
@@ -146,7 +147,7 @@ export const DebugRenderer = () => {
     let needsUpdate = false
     if (shape._debugNeedsUpdate) {
       if (mesh) {
-        Engine.scene.remove(mesh)
+        Engine.instance.scene.remove(mesh)
         needsUpdate = true
       }
       delete shape._debugNeedsUpdate
@@ -235,7 +236,7 @@ export const DebugRenderer = () => {
 
     if (mesh && mesh.geometry) {
       setObjectLayers(mesh, ObjectLayers.PhysicsHelper)
-      Engine.scene.add(mesh)
+      Engine.instance.scene.add(mesh)
     }
 
     return mesh
@@ -246,12 +247,12 @@ export const DebugRenderer = () => {
       enabled = _enabled
       setEnabled(_enabled)
       // @ts-ignore
-      const xrCameras = Engine.xrManager?.getCamera() as ArrayCamera
+      const xrCameras = EngineRenderer.instance.xrManager?.getCamera() as ArrayCamera
       if (enabled) {
-        Engine.camera.layers.enable(ObjectLayers.PhysicsHelper)
+        Engine.instance.camera.layers.enable(ObjectLayers.PhysicsHelper)
         if (xrCameras) xrCameras.cameras.forEach((camera) => camera.layers.enable(ObjectLayers.PhysicsHelper))
       } else {
-        Engine.camera.layers.disable(ObjectLayers.PhysicsHelper)
+        Engine.instance.camera.layers.disable(ObjectLayers.PhysicsHelper)
         if (xrCameras) xrCameras.cameras.forEach((camera) => camera.layers.disable(ObjectLayers.PhysicsHelper))
       }
     }
@@ -290,13 +291,13 @@ export const DebugRenderer = () => {
     })
     _obstacles.forEach((mesh, id) => {
       if (!world.physics.obstacles.has(id)) {
-        Engine.scene.remove(mesh)
+        Engine.instance.scene.remove(mesh)
         _meshes.delete(id)
       }
     })
     _meshes.forEach((mesh, id) => {
       if (!world.physics.shapes.has(id)) {
-        Engine.scene.remove(mesh)
+        Engine.instance.scene.remove(mesh)
         _meshes.delete(id)
       }
     })

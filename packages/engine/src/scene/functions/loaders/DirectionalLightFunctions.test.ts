@@ -1,27 +1,22 @@
 import assert from 'assert'
-import { Color, DirectionalLight } from 'three'
+import { Color, DirectionalLight, Scene } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
-import { createWorld } from '../../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
+import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { deserializeDirectionalLight } from './DirectionalLightFunctions'
 
 describe('DirectionalLightFunctions', () => {
   describe('deserializeDirectionalLight', async () => {
-    // reset globals
-    afterEach(() => {
-      Engine.directionalLightEntities = []
-    })
-
     it('with CSM', () => {
-      const world = createWorld()
-      Engine.currentWorld = world
-      Engine.isCSMEnabled = true
-      Engine.directionalLightEntities = []
+      createEngine()
+      EngineRenderer.instance.isCSMEnabled = true
+      EngineRenderer.instance.directionalLightEntities = []
 
       const entity = createEntity()
 
@@ -43,7 +38,7 @@ describe('DirectionalLightFunctions', () => {
 
       deserializeDirectionalLight(entity, sceneComponent)
 
-      const activeCSMLightEntity = Engine.directionalLightEntities[0]
+      const activeCSMLightEntity = EngineRenderer.instance.directionalLightEntities[0]
       const light = getComponent(activeCSMLightEntity, Object3DComponent)?.value as DirectionalLight
 
       assert(light)
@@ -58,9 +53,9 @@ describe('DirectionalLightFunctions', () => {
     })
 
     it('without CSM', () => {
-      const world = createWorld()
-      Engine.currentWorld = world
-      Engine.isCSMEnabled = false
+      createEngine()
+      const world = Engine.instance.currentWorld
+      EngineRenderer.instance.isCSMEnabled = false
 
       const entity = createEntity()
 

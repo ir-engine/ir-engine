@@ -1,6 +1,7 @@
 import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
 
 import { Application } from '../../../declarations'
+import logger from '../../logger'
 import { Party } from './party.class'
 import partyDocs from './party.docs'
 import hooks from './party.hooks'
@@ -74,7 +75,7 @@ export default (app: Application): void => {
         })
       )
     } catch (err) {
-      console.error(err)
+      logger.error(err)
       return err
     }
   })

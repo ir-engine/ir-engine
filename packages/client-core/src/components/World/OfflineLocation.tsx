@@ -18,10 +18,10 @@ export const OfflineLocation = () => {
   /** OFFLINE */
   useHookEffect(async () => {
     if (engineState.sceneLoaded.value) {
-      const world = Engine.currentWorld
+      const world = Engine.instance.currentWorld
       const userId = authState.authUser.identityProvider.userId.value
-      Engine.userId = userId
-      world.hostId = Engine.userId as UserId
+      Engine.instance.userId = userId
+      world.hostId = Engine.instance.userId as UserId
 
       const index = 1
       world.userIdToUserIndex.set(userId, index)
@@ -33,7 +33,7 @@ export const OfflineLocation = () => {
         subscribedChatUpdates: []
       })
 
-      const user = await client.service('user').get(Engine.userId)
+      const user = await client.service('user').get(Engine.instance.userId)
       const avatarDetails = await client.service('avatar').get(user.avatarId!)
 
       const avatarSpawnPose = SpawnPoints.instance.getRandomSpawnPoint()

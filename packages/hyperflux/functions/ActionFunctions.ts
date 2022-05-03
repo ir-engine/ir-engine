@@ -1,10 +1,10 @@
 import { MathUtils } from 'three'
+import { matches, Validator } from 'ts-matches'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { deepEqual } from '@xrengine/engine/src/common/functions/deepEqual'
 
-import { matches, matchesActionFromUser, MatchesWithDefault, Validator } from '../utils/MatchesUtils'
-import { allowStateMutations, HyperStore } from './StoreFunctions'
+import { HyperStore } from './StoreFunctions'
 
 export type Action<StoreName extends string> = {
   /**
@@ -230,7 +230,7 @@ function defineAction<StoreName extends string, Shape extends ActionShape<Action
   actionCreator.resolvedActionShape = resolvedActionShape as ResolvedActionShape<Shape>
   actionCreator.type = actionShape.type
   actionCreator.matches = matchesShape
-  actionCreator.matchesFromUser = (userId: UserId) => matches.every(matchesShape, matchesActionFromUser(userId))
+
   return actionCreator
 }
 
@@ -337,10 +337,8 @@ const _applyIncomingAction = (store: HyperStore<any>, action: Required<Action<an
   }
 
   try {
-    store[allowStateMutations] = true
     console.log(`${store.name} ACTION ${action.type}`, action)
     for (const receptor of [...store.receptors]) receptor(action)
-    store[allowStateMutations] = false
     store.actions.incomingHistory.push(action)
     if (store.getDispatchMode() === 'host') store.actions.outgoing.push(action)
   } catch (e) {
@@ -366,6 +364,7 @@ const _applyIncomingAction = (store: HyperStore<any>, action: Required<Action<an
  * @param store
  */
 const applyIncomingActions = (store: HyperStore<any>) => {
+  const states = Object.values(store.state)
   const { incoming } = store.actions
   const now = store.getDispatchTime()
   for (const action of [...incoming]) {
@@ -373,7 +372,15 @@ const applyIncomingActions = (store: HyperStore<any>) => {
       continue
     }
     _updateCachedActions(store, action)
-    _applyIncomingAction(store, action)
+    const batchStateUpdatesAndApplyAction = states.reduce<() => void>(
+      (prev, state) => {
+        return () => {
+          state.batch(() => prev(), action.$uuid + '')
+        }
+      },
+      () => _applyIncomingAction(store, action)
+    )
+    batchStateUpdatesAndApplyAction()
   }
 }
 
@@ -398,3 +405,5 @@ export default {
   applyIncomingActions,
   clearOutgoingActions
 }
+
+export type MatchesWithDefault<A> = { matches: Validator<unknown, A>; defaultValue: () => A }

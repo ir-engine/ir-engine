@@ -5,10 +5,10 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import {
@@ -22,12 +22,10 @@ import {
 const EPSILON = 10e-8
 
 describe('TransformFunctions', () => {
-  let world: World
   let entity: Entity
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 
@@ -63,28 +61,13 @@ describe('TransformFunctions', () => {
       assert(Math.abs(transformComponent.scale.z - sceneComponentData.scale.z) < EPSILON)
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Transform in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        deserializeTransform(entity, sceneComponent)
+      deserializeTransform(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_TRANSFORM))
-      })
-
-      it('creates Transform in Editor', () => {
-        Engine.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        deserializeTransform(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_TRANSFORM))
-
-        Engine.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_TRANSFORM))
     })
   })
 

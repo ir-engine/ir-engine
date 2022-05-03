@@ -55,9 +55,10 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
 
   const props = parseGroundPlaneProperties(json.props)
   addComponent(entity, GroundPlaneComponent, props)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_GROUND_PLANE)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_GROUND_PLANE)
-  else createCollider(entity, groundPlane.userData.mesh)
+  // @TODO: make this isomorphic with editor
+  if (!Engine.instance.isEditor) createCollider(entity, groundPlane.userData.mesh)
 
   updateGroundPlane(entity, props)
 }
@@ -74,15 +75,15 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity, prope
 
   if (component.generateNavmesh === component.isNavmeshGenerated) return
 
-  if (isClient && !Engine.isEditor) {
+  if (isClient && !Engine.instance.isEditor) {
     if (component.generateNavmesh) {
       if (!navigationRaycastTarget) navigationRaycastTarget = new Group()
 
       navigationRaycastTarget.scale.setScalar(getComponent(entity, TransformComponent).scale.x)
-      Engine.scene.add(navigationRaycastTarget)
+      Engine.instance.scene.add(navigationRaycastTarget)
       addComponent(entity, NavMeshComponent, { navTarget: navigationRaycastTarget })
     } else {
-      Engine.scene.remove(navigationRaycastTarget)
+      Engine.instance.scene.remove(navigationRaycastTarget)
       removeComponent(entity, NavMeshComponent)
     }
   }

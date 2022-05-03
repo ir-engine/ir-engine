@@ -3,6 +3,7 @@ import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/
 import { io as ioclient, Socket } from 'socket.io-client'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import {
   Network,
@@ -13,20 +14,15 @@ import {
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { addActionReceptor, defineAction, matches } from '@xrengine/hyperflux'
+import { addActionReceptor, defineAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { accessAuthState } from '../user/services/AuthService'
+import { gameserverHost } from '../util/config'
 import { MediaStreamService } from './../media/services/MediaStreamService'
 import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 
 // import { encode, decode } from 'msgpackr'
-const gameserverAddress =
-  process.env.APP_ENV === 'development' || process.env['VITE_LOCAL_BUILD'] === 'true'
-    ? `https://${(globalThis as any).process.env['VITE_GAMESERVER_HOST']}:${
-        (globalThis as any).process.env['VITE_GAMESERVER_PORT']
-      }`
-    : `https://${(globalThis as any).process.env['VITE_GAMESERVER_HOST']}`
 
 // Adds support for Promise to socket.io-client
 const promisedRequest = (socket: Socket) => {
@@ -94,7 +90,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   type: TransportType
   constructor(type: TransportType) {
     this.type = type
-    addActionReceptor(Engine.store, (action) => {
+    addActionReceptor(Engine.instance.store, (action) => {
       matches(action).when(
         MediaStreams.actions.triggerUpdateConsumers.matches,
         MediaStreamService.triggerUpdateConsumers
@@ -102,7 +98,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     })
   }
 
-  mediasoupDevice = new mediasoupClient.Device(Engine.isBot ? { handlerName: 'Chrome74' } : undefined)
+  mediasoupDevice = new mediasoupClient.Device(Engine.instance.isBot ? { handlerName: 'Chrome74' } : undefined)
   leaving = false
   left = false
   reconnecting = false
@@ -173,7 +169,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         query
       })
     } else {
-      this.socket = ioclient(gameserverAddress, {
+      this.socket = ioclient(gameserverHost, {
         path: `/socket.io/${ipAddress as string}/${port.toString()}`,
         query
       })

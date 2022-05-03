@@ -22,7 +22,7 @@ export interface UserScope {
 }
 
 export interface User {
-  id?: UserId
+  id: UserId
   name: string
   userRole?: string
   avatarId?: string
