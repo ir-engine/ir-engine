@@ -194,125 +194,135 @@ const InstanceChat = (props: Props): any => {
   }
 
   return (
-    <div className={styles['instance-chat-container'] + ' ' + (!chatWindowOpen && styles['messageContainerClosed'])}>
-      <div ref={messageRef} className={styles['instance-chat-msg-container']}>
-        <div className={styles['list-container']}>
-          <Card square={true} elevation={0} className={styles['message-wrapper']}>
-            <CardContent className={styles['message-container']}>
-              {activeChannel &&
-                activeChannel.messages &&
-                [...activeChannel.messages]
-                  .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-                  .map((message, index, messages) => {
-                    if (isCommand(message.text)) return undefined
-                    const system = getChatMessageSystem(message.text)
-                    let chatMessage = message.text
+    <>
+      <div
+        onClick={() => setChatWindowOpen(false)}
+        className={styles['backdrop'] + ' ' + (!chatWindowOpen && styles['hideBackDrop'])}
+      ></div>
+      <div className={styles['instance-chat-container'] + ' ' + (!chatWindowOpen && styles['messageContainerClosed'])}>
+        <div ref={messageRef} className={styles['instance-chat-msg-container']}>
+          <div className={styles['list-container']}>
+            <Card square={true} elevation={0} className={styles['message-wrapper']}>
+              <CardContent className={styles['message-container']}>
+                {activeChannel &&
+                  activeChannel.messages &&
+                  [...activeChannel.messages]
+                    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+                    .map((message, index, messages) => {
+                      if (isCommand(message.text)) return undefined
+                      const system = getChatMessageSystem(message.text)
+                      let chatMessage = message.text
 
-                    if (system !== 'none') {
-                      if (system === 'jl_system') {
-                        chatMessage = removeMessageSystem(message.text)
-                      } else {
-                        return undefined
+                      if (system !== 'none') {
+                        if (system === 'jl_system') {
+                          chatMessage = removeMessageSystem(message.text)
+                        } else {
+                          return undefined
+                        }
                       }
-                    }
-                    return (
-                      <>
-                        {!isLeftOrJoinText(message.text) ? (
-                          <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
-                            {message.senderId !== user?.id.value && (
-                              <div className={`${styles.selfEnd} ${styles.noMargin}`}>
-                                <div className={styles.dFlex}>
-                                  {index !== 0 && message.senderId !== messages[index - 1].senderId && (
-                                    <Avatar src={message.sender?.avatarUrl} />
-                                  )}
-                                  {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
-                                  <div className={`${styles.msgContainer} ${styles.mx2}`}>
-                                    <p className={styles.text}>{message.text}</p>
+                      return (
+                        <>
+                          {!isLeftOrJoinText(message.text) ? (
+                            <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
+                              {message.senderId !== user?.id.value && (
+                                <div className={`${styles.selfEnd} ${styles.noMargin}`}>
+                                  <div className={styles.dFlex}>
+                                    {index !== 0 && message.senderId !== messages[index - 1].senderId && (
+                                      <Avatar src={message.sender?.avatarUrl} />
+                                    )}
+                                    {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
+                                    <div className={`${styles.msgContainer} ${styles.mx2}`}>
+                                      <p className={styles.text}>{message.text}</p>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            )}
-                            {message.senderId === user?.id.value && (
-                              <div className={`${styles.selfEnd} ${styles.noMargin}`}>
-                                <div className={styles.dFlex}>
-                                  <div className={`${styles.msgReplyContainer} ${styles.mx2}`}>
-                                    <p className={styles.text}>{message.text}</p>
+                              )}
+                              {message.senderId === user?.id.value && (
+                                <div className={`${styles.selfEnd} ${styles.noMargin}`}>
+                                  <div className={styles.dFlex}>
+                                    <div className={`${styles.msgReplyContainer} ${styles.mx2}`}>
+                                      <p className={styles.text}>{message.text}</p>
+                                    </div>
+                                    {index !== 0 && message.senderId !== messages[index - 1].senderId && (
+                                      <Avatar src={message.sender?.avatarUrl} />
+                                    )}
+                                    {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
                                   </div>
-                                  {index !== 0 && message.senderId !== messages[index - 1].senderId && (
-                                    <Avatar src={message.sender?.avatarUrl} />
-                                  )}
-                                  {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
                                 </div>
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
-                            <div className={styles.dFlex}>
-                              <div className={`${styles.msgNotification} ${styles.mx2}`}>
-                                <p className={styles.greyText}>{message.text}</p>
+                              )}
+                            </div>
+                          ) : (
+                            <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
+                              <div className={styles.dFlex}>
+                                <div className={`${styles.msgNotification} ${styles.mx2}`}>
+                                  <p className={styles.greyText}>{message.text}</p>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )}
-                      </>
-                    )
-                  })}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-      <div className={styles['bottom-box']}>
-        <div className={`${styles['chat-input']} ${chatWindowOpen ? '' : styles.invisible} `}>
-          <Card className={styles['chat-view']} style={{ boxShadow: 'none' }}>
-            <CardContent className={styles['chat-box']} style={{ boxShadow: 'none' }}>
-              <TextField
-                className={styles.messageFieldContainer}
-                margin="normal"
-                multiline={true}
-                maxRows={10}
-                fullWidth
-                id="newMessage"
-                label={newMessageLabel}
-                name="newMessage"
-                variant="standard"
-                autoFocus
-                value={composingMessage}
-                inputProps={{
-                  maxLength: 1000,
-                  'aria-label': 'naked'
-                }}
-                InputLabelProps={{ shrink: false }}
-                onChange={handleComposingMessageChange}
-                inputRef={messageRefInput}
-                onClick={() => (messageRefInput as any)?.current?.focus()}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.ctrlKey) {
-                    e.preventDefault()
-                    packageMessage()
-                    setCursorPosition(0)
-                  }
-                }}
-              />
-            </CardContent>
-          </Card>
-        </div>
-        {unreadMessages && (
-          <div className={`${styles.iconCallChat} ${props.animate}`}>
-            <Badge
-              color="primary"
-              variant="dot"
-              invisible={!unreadMessages}
-              anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-            >
-              <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
-                {!chatWindowOpen ? <MessageButton /> : <CloseButton onClick={() => toggleChatWindow()} />}
-              </Fab>
-            </Badge>
+                          )}
+                        </>
+                      )
+                    })}
+              </CardContent>
+            </Card>
           </div>
-        )}
+        </div>
+        <div
+          className={`${styles['bottom-box']} ${!chatWindowOpen ? styles.bttm : ''} ${
+            !chatWindowOpen ? styles.fixedPos : ''
+          } ${chatWindowOpen ? styles.mgBtm : ''}`}
+        >
+          <div className={`${styles['chat-input']} ${chatWindowOpen ? '' : styles.invisible} `}>
+            <Card className={styles['chat-view']} style={{ boxShadow: 'none' }}>
+              <CardContent className={styles['chat-box']} style={{ boxShadow: 'none' }}>
+                <TextField
+                  className={styles.messageFieldContainer}
+                  margin="normal"
+                  multiline={true}
+                  maxRows={10}
+                  fullWidth
+                  id="newMessage"
+                  label={newMessageLabel}
+                  name="newMessage"
+                  variant="standard"
+                  autoFocus
+                  value={composingMessage}
+                  inputProps={{
+                    maxLength: 1000,
+                    'aria-label': 'naked'
+                  }}
+                  InputLabelProps={{ shrink: false }}
+                  onChange={handleComposingMessageChange}
+                  inputRef={messageRefInput}
+                  onClick={() => (messageRefInput as any)?.current?.focus()}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.ctrlKey) {
+                      e.preventDefault()
+                      packageMessage()
+                      setCursorPosition(0)
+                    }
+                  }}
+                />
+              </CardContent>
+            </Card>
+          </div>
+          {unreadMessages && (
+            <div className={`${styles.iconCallChat} ${props.animate} ${!chatWindowOpen ? '' : styles.iconCallPos}`}>
+              <Badge
+                color="primary"
+                variant="dot"
+                invisible={!unreadMessages}
+                anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+              >
+                <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
+                  {!chatWindowOpen ? <MessageButton /> : <CloseButton onClick={() => toggleChatWindow()} />}
+                </Fab>
+              </Badge>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

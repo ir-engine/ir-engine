@@ -213,7 +213,7 @@ body {
   width: 50px;
   height: 50px;
   cursor: pointer;
-  z-index: 20;
+  z-index: 5;
   border: none;
   padding: 0;
   border-radius: 50%;
@@ -270,16 +270,12 @@ body {
 
 .animateTop {
   animation: moveInTop 0.3s ease 0.3s;
-  -webkit-animation: moveintop 0.3s ease 0.3s;
   animation-fill-mode: backwards;
-  -webkit-animation-fill-mode: backwards;
 }
 
 .animateBottom {
   animation: moveInBottom 0.3s ease 0.3s;
-  -webkit-animation: moveinbottom 0.3s ease 0.3s;
   animation-fill-mode: backwards;
-  -webkit-animation-fill-mode: backwards;
 }
 
 @keyframes moveInBottom {

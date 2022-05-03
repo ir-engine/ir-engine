@@ -38,6 +38,17 @@
   }
 }
 
+.iconCallPos {
+  @media (max-width: 768px) {
+    position: absolute;
+    bottom: calc(100vh * 2 / 3);
+  }
+
+  @media (max-width: 450px) {
+    margin: 5px 10px 20px;
+  }
+}
+
 .invisible {
   display: none;
 }
@@ -45,7 +56,26 @@
 .instance-chat-msg-container {
   max-height: 400px;
   overflow-y: auto;
-  margin-bottom: 40px;
+  overflow-x: clip;
+  margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    max-height: 76vh;
+  }
+}
+
+.hideBackDrop {
+  display: none;
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  width: 100vh;
+  height: 100vh;
 }
 
 .instance-chat-container {
@@ -77,17 +107,37 @@
   }
 
   .chat-input {
-    margin-right: 10px;
+    margin-left: 10px;
+  }
+
+  .fixedPos {
+    position: fixed;
   }
 
   .bottom-box {
-    position: fixed;
     bottom: 20px;
     right: 20px;
     display: flex;
+    flex-direction: row-reverse;
     width: auto;
     align-items: center;
     justify-content: space-between;
+
+    @media (max-width: 450px) {
+      max-width: 95%;
+    }
+  }
+
+  .mgBtm {
+    @media (max-width: 768px) {
+      margin-bottom: 20px;
+    }
+  }
+
+  .bttm {
+    @media (max-width: 450px) {
+      bottom: 0;
+    }
   }
 
   .chat-box {
@@ -170,6 +220,10 @@
         cursor: pointer;
       }
     }
+
+    @media (max-width: 768px) {
+      background: rgb(0 0 0 / 85%);
+    }
   }
 
   .list-container {
@@ -180,13 +234,11 @@
     @media (max-width: 768px) {
       width: 96vw;
       margin: 15px 15px 20px;
-      height: 100%;
     }
 
     @media (max-width: 450px) {
-      width: 92vw;
+      width: 100vw;
       margin: 10px 10px 16px;
-      height: 100%;
     }
   }
 
