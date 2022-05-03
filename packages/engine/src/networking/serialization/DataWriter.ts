@@ -174,21 +174,31 @@ export const writeXRHandInputs = (v: ViewCursor, entity: Entity, handMesh: XRHan
 
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint16(v)
+  const writeHandedness = spaceUint8(v)
   let changeMask = 0
   let b = 0
 
   const handedness = handMesh.handedness
+  const handednessBitValue = handedness === 'left' ? 0 : 1
 
   handMesh.bones.forEach((bone) => {
     const jointName = bone.jointName
 
-    changeMask |= writeVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity) ? 1 << b++ : b++ && 0
-    changeMask |= writeVector4(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity) ? 1 << b++ : b++ && 0
-
     // console.log(bone.position.x, bone.position.y, bone.position.z, bone.rotation)
+
+    // ignoring some bones for dev purposes to handle changeMask overflow bug
+    if (!bone.name.includes('pinky') && !bone.name.includes('ring')) {
+      changeMask |= writeVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity) ? 1 << b++ : b++ && 0
+      changeMask |= writeVector4(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity)
+        ? 1 << b++
+        : b++ && 0
+    }
+
+    console.log('change mask for ', handedness, jointName, changeMask)
   })
 
-  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
+  console.log('inner changemask', changeMask)
+  return (changeMask > 0 && writeChangeMask(changeMask) && writeHandedness(handednessBitValue)) || rewind()
 }
 
 export const writeXRHands = (v: ViewCursor, entity: Entity) => {
@@ -203,8 +213,13 @@ export const writeXRHands = (v: ViewCursor, entity: Entity) => {
 
   const xrHandsComponent = getComponent(entity as Entity, XRHandsInputComponent)
   xrHandsComponent.hands.forEach((hand) => {
-    changeMask |= writeXRHandInputs(v, entity, hand.userData.mesh) ? 1 << b++ : b++ && 0
+    // Only write if hand is connected.
+    if (hand.userData.mesh) {
+      changeMask |= writeXRHandInputs(v, entity, hand.userData.mesh) ? 1 << b++ : b++ && 0
+    }
   })
+
+  console.log('main changemask', changeMask)
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
