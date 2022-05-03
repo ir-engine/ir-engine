@@ -5,7 +5,6 @@ import { AudioListener, PerspectiveCamera, Scene } from 'three'
 import { addActionReceptor, dispatchAction, registerState } from '@xrengine/hyperflux'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
-// import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
@@ -341,12 +340,6 @@ export const initializeRealtimeSystems = async (media = true, pose = true) => {
 
   await initSystems(Engine.instance.currentWorld, systemsToLoad)
 }
-
-// export const initializeProjectSystems = async (projects: string[] = [], systems: SystemModuleType<any>[] = []) => {
-//   const world = useWorld()
-//   await initSystems(world, systems)
-//   await loadEngineInjection(world, projects)
-// }
 
 export const shutdownEngine = async () => {
   removeClientInputListeners()
