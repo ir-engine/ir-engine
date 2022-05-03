@@ -2,9 +2,9 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import dotenv from 'dotenv-flow'
 
-import sceneJson from '@xrengine/projects/default-project/default.scene.json'
 import { parseSceneDataCacheURLs } from '@xrengine/server-core/src/projects/scene/scene-parser'
 
+import sceneJson from '../../../projects/default-project/default.scene.json'
 import { Engine } from '../../src/ecs/classes/Engine'
 import { unloadScene } from '../../src/ecs/functions/EngineFunctions'
 import { useWorld } from '../../src/ecs/functions/SystemHooks'
