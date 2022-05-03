@@ -75,7 +75,6 @@ npm run dev-docker
 Elasticsearch & Grafana will be running on localhost port 9200 & 5601 respectively.
 
 
-
 This will automatically set up and run Redis/MariaDB docker
 containers, and XRengine client/server/game-server instances.
 
