@@ -4,8 +4,12 @@ import { Entity } from '../../ecs/classes/Entity'
 
 const { defineProperties } = Object
 
-export const proxifyVector3 = (store, entity: Entity, vector3): Vector3 =>
-  defineProperties(vector3, {
+export const proxifyVector3 = (store, entity: Entity, vector3): Vector3 => {
+  // Set the initial values
+  store.x[entity] = vector3.x
+  store.y[entity] = vector3.y
+  store.z[entity] = vector3.z
+  return defineProperties(vector3, {
     _eid: { value: entity },
     _store: { value: store },
     x: {
@@ -33,11 +37,17 @@ export const proxifyVector3 = (store, entity: Entity, vector3): Vector3 =>
       }
     }
   })
+}
 
 export const createVector3Proxy = (store, entity: Entity) => proxifyVector3(store, entity, new Vector3())
 
-export const proxifyQuaternion = (store, entity: Entity, quaternion: Quaternion): Quaternion =>
-  defineProperties(quaternion, {
+export const proxifyQuaternion = (store, entity: Entity, quaternion: Quaternion): Quaternion => {
+  // Set the initial values
+  store.x[entity] = quaternion.x
+  store.y[entity] = quaternion.y
+  store.z[entity] = quaternion.z
+  store.w[entity] = quaternion.w
+  return defineProperties(quaternion, {
     _eid: { value: entity },
     _store: { value: store },
     _x: {
@@ -73,6 +83,7 @@ export const proxifyQuaternion = (store, entity: Entity, quaternion: Quaternion)
       }
     }
   })
+}
 
 export const createQuaternionProxy = (store, entity: Entity): Quaternion =>
   proxifyQuaternion(store, entity, new Quaternion())

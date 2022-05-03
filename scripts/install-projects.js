@@ -50,6 +50,7 @@ async function installAllProjects() {
     const projects = await Projects.findAll()
     logger.info('found projects', projects)
     await Promise.all(projects.map((project) => download(project.name)))
+    process.exit(0)
   } catch (e) {
     logger.fatal(e)
   }
