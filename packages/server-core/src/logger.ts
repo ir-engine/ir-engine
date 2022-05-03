@@ -1,8 +1,8 @@
 import pino from 'pino'
 
-let node = "http://localhost:9200"
+let node = process.env.ELASTIC_HOST_DEV
 if (process.env.APP_ENV === 'production') {
-  node = "http://elasticsearch:9200"
+  node = process.env.ELASTIC_HOST_PROD
 }
 
 const logger = pino({
