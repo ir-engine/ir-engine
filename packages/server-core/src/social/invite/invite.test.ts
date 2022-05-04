@@ -8,6 +8,7 @@ import { InviteDataType } from './invite.class'
 let invites: any = []
 let user: any = null
 
+// for some reason this is causing CI/CD failures
 describe('invite service', () => {
   let app: Application
 
