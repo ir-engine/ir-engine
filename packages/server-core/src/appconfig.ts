@@ -160,6 +160,10 @@ const analytics = {
   processInterval: process.env.ANALYTICS_PROCESS_INTERVAL_SECONDS!
 }
 
+const logging = {
+  elastic_host: process.env.ELASTIC_HOST!
+}
+
 /**
  * Email / SMTP
  */
@@ -319,6 +323,7 @@ const blockchain = {
 const config = {
   deployStage: process.env.DEPLOY_STAGE!,
   analytics,
+  logging,
   authentication,
   aws,
   chargebee,
