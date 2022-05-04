@@ -1,5 +1,5 @@
 import pino from 'pino'
-import config from '@xrengine/server-core/src/appconfig'
+import config from './appconfig'
 
 let node = config.logging.elastic_host;
 console.log(node);
