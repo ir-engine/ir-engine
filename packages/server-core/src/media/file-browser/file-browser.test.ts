@@ -304,12 +304,32 @@ describe('file browser service', () => {
       fs.writeFileSync(filePath, 'Hello world')
       fs.writeFileSync(fileStoragePath, 'Hello world')
 
+      await app.service('static-resource').create(
+        {
+          name: 'Hello world',
+          mimeType: 'txt',
+          url: fileStoragePath,
+          key: filePath
+        },
+        {
+          isInternal: true
+        }
+      )
+
       const result = await app.service('file-browser').remove(path.join(TEST_PROJECT, fileName))
 
       result.forEach((r) => assert(r === true))
 
+      const staticResource = await app.service('static-resource').find({
+        where: {
+          key: filePath,
+          $limit: 1
+        }
+      })
+
       assert(!fs.existsSync(filePath))
       assert(!fs.existsSync(fileStoragePath))
+      assert.notEqual(staticResource.length, 1)
     })
 
     it('removes dir recursively', async () => {
