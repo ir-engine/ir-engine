@@ -1,18 +1,29 @@
 import pino from 'pino'
 
+const pinoMultiStream = require('pino-multi-stream').multistream;
+const pinoElastic = require('pino-elasticsearch')
+const pretty = require('pino-pretty')
+
 let node = process.env.ELASTIC_HOST || "http://localhost:9200";
 
-const pinoElastic = require('pino-elasticsearch')
+const streamToPretty = pretty({
+  colorize: true
+})
 
 const streamToElastic = pinoElastic({
-  index: 'an-index',
+  index: 'xr-engine',
   consistency: 'one',
-  node: 'http://localhost:9200',
+  node: node,
   'es-version': 7,
   'flush-bytes': 1000
 })
 
-const logger = pino({ level: 'info' }, streamToElastic);
+const pinoOptions = {};
+
+const logger =  pino(pinoOptions, pinoMultiStream([
+  { stream: streamToPretty },
+  { stream: streamToElastic },
+]));
 
 // const logger = pino({
 //   transport: {
