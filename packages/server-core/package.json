@@ -82,7 +82,7 @@
     "node-fetch": "^2.6.7",
     "nodemailer-smtp-transport": "^2.4.2",
     "octokit": "1.7.1",
-    "pino": "^6.14.0",
+    "pino": "^7.2.0",
     "pino-elasticsearch": "^6.2.0",
     "pino-pretty": "^7.6.1",
     "pug": "^3.0.0",
