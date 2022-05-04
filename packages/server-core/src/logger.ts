@@ -25,28 +25,4 @@ const logger =  pino(pinoOptions, pinoMultiStream([
   { stream: streamToElastic },
 ]));
 
-// const logger = pino({
-//   transport: {
-//     targets: [
-//       {
-//         level: 'debug',
-//         target: 'pino-pretty',
-//         options: {
-//           colorize: true,
-//           translateTime: true
-//         }
-//       },
-//       {
-//         level: 'debug',
-//         target: 'pino-elasticsearch',
-//         options: {
-//           index: 'xr-engine',
-//           consistency: 'one',
-//           node: node
-//         }
-//       }
-//     ]
-//   }
-// })
-
 export default logger
