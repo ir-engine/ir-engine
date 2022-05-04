@@ -301,15 +301,15 @@ export const moveXRAvatar = (
   getAvatarCameraPosition(entity, avatarCameraOffset, avatarPosition)
 
   if (avatarPosition.subVectors(avatarPosition, cameraPosition).lengthSq() > 0.1 || avatarVelocity.lengthSq() > 0) {
-    lastCameraPos.subVectors(Engine.instance.camera.position, Engine.instance.camera.parent!.position)
+    lastCameraPos.subVectors(camera.position, camera.parent!.position)
 
     if (!hasComponent(entity, XRCameraUpdatePendingTagComponent)) {
-      alignXRCameraPositionWithAvatar(entity, Engine.instance.camera)
+      alignXRCameraPositionWithAvatar(entity, camera)
       addComponent(entity, XRCameraUpdatePendingTagComponent, {})
     }
 
     // Calculate new camera world position
-    lastCameraPos.add(Engine.instance.camera.parent!.position)
+    lastCameraPos.add(camera.parent!.position)
     return
   }
 

@@ -263,7 +263,7 @@ export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: 
   const shapes: any[] = []
   shapes.push(createShape(entity, asset as any, data))
 
-  const shapeObjs: any[] = []
+  const shapeObjs: Object3D[] = []
   asset.traverse((mesh: Mesh) => {
     if (typeof mesh.userData['type'] === 'string') {
       shapeObjs.push(mesh)
@@ -278,15 +278,15 @@ export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: 
 
     if (mesh.userData.type === 'obstacle') {
       createObstacleFromMesh(entity, mesh)
-      mesh.visible = false
       return
     }
 
     const shape = createShape(entity, mesh, mesh.userData as any)
     if (!shape) return
     shapes.push(shape)
-    mesh.visible = false
   })
+
+  shapeObjs.forEach((mesh) => mesh.removeFromParent())
 
   return shapes.filter((val) => {
     return !!val
