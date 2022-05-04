@@ -1,8 +1,8 @@
 import {
   Color,
   Material,
-  Mesh,
   Matrix3,
+  Mesh,
   MeshBasicMaterial,
   MeshLambertMaterial,
   MeshPhongMaterial,
@@ -16,6 +16,7 @@ import {
 import { object } from 'ts-matches'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -26,7 +27,6 @@ import { beforeMaterialCompile } from '../../classes/BPCEMShader'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import { SceneOptions } from '../../systems/SceneObjectSystem'
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 
 export const SCENE_COMPONENT_SIMPLE_MATERIALS = 'simple-materials'
 
@@ -53,8 +53,7 @@ export const serializeSimpleMaterial: ComponentSerializeFunction = (entity) => {
   }
 }
 
-export const useSimpleMaterial = (obj: Mesh): void => {
-  
+export const useSimpleMaterial = (obj: Mesh<any, any>): void => {
   const isStandardMaterial = obj.material instanceof MeshStandardMaterial
   const isBasicMaterial = obj.material instanceof MeshBasicMaterial
 
@@ -62,7 +61,7 @@ export const useSimpleMaterial = (obj: Mesh): void => {
   if (!obj.material || !obj.material.color || isBasicMaterial) return
   //@ts-ignore
   if (obj.entity && hasComponent(entity, XRUIComponent)) return
-  
+
   try {
     obj.userData.prevMaterial = obj.material
 
@@ -77,18 +76,18 @@ export const useSimpleMaterial = (obj: Mesh): void => {
     const lightEnabled = true
     const fogEnabled = false
     const hasUV = obj.geometry.hasAttribute('uv')
-    const hasMap = (<any>obj.material).map != null
+    const hasMap = obj.material.map != null
     const hasEnvMap = isStandardMaterial
-    const hasLightMap = (<any>obj.material).lightMap != null
-    const hasAoMap = (<any>obj.material).aoMap != null
-    const hasEmissiveMap = (<any>obj.material).emissiveMap != null
-    const hasBumpMap = (<any>obj.material).bumpMap != null
-    const hasSpecularMap  = (<any>obj.material).specularMap != null
-    const hasRoughnessMap  = (<any>obj.material).roughnessMap != null
-    const hasMetalnessMap   = (<any>obj.material).metalnessMap != null
-    const hasDisplacementMap   = (<any>obj.material).displacementMap != null
-    const hasAlphaMap = (<any>obj.material).alphaMap != null
-    
+    const hasLightMap = obj.material.lightMap != null
+    const hasAoMap = obj.material.aoMap != null
+    const hasEmissiveMap = obj.material.emissiveMap != null
+    const hasBumpMap = obj.material.bumpMap != null
+    const hasSpecularMap = obj.material.specularMap != null
+    const hasRoughnessMap = obj.material.roughnessMap != null
+    const hasMetalnessMap = obj.material.metalnessMap != null
+    const hasDisplacementMap = obj.material.displacementMap != null
+    const hasAlphaMap = obj.material.alphaMap != null
+
     const hasSkinning = true
     const hasMorphTarget = false
     const hasClippingPanel = false
@@ -97,57 +96,57 @@ export const useSimpleMaterial = (obj: Mesh): void => {
 
     let defines = {}
     if (lightEnabled) {
-      defines["USE_LIGHT_ENABLE"] = ''
+      defines['USE_LIGHT_ENABLE'] = ''
     }
 
     if (hasMap) {
-      defines["USE_MAP"] = ''
+      defines['USE_MAP'] = ''
     }
     if (hasUV) {
-      defines["USE_UV"] = ''
+      defines['USE_UV'] = ''
     }
-    
+
     if (hasLightMap) {
-      defines["USE_LIGHTMAP"] = ''
+      defines['USE_LIGHTMAP'] = ''
     }
 
     if (hasEnvMap) {
-      defines["USE_ENVMAP"] = ''
+      defines['USE_ENVMAP'] = ''
     }
 
     if (hasSpecularMap) {
-      defines["USE_SPECULARMAP"] = ''
+      defines['USE_SPECULARMAP'] = ''
     }
 
     if (hasAoMap) {
-      defines["USE_AOMAP"] = ''
+      defines['USE_AOMAP'] = ''
     }
 
     if (hasAlphaMap) {
-      defines["USE_ALPHAMAP"] = ''
+      defines['USE_ALPHAMAP'] = ''
     }
 
     if (hasEmissiveMap) {
-      defines["USE_EMISSIVEMAP"] = ''
+      defines['USE_EMISSIVEMAP'] = ''
     }
 
     if (hasBumpMap) {
-      defines["USE_BUMPMAP"] = ''
+      defines['USE_BUMPMAP'] = ''
     }
 
     if (hasRoughnessMap) {
-      defines["USE_ROUGHNESSMAP"] = ''
+      defines['USE_ROUGHNESSMAP'] = ''
     }
 
     if (hasMetalnessMap) {
-      defines["USE_METALNESSMAP"] = ''
+      defines['USE_METALNESSMAP'] = ''
     }
 
     let uniforms = {}
-    //@ts-ignore
-    uniforms['diffuse'] = { value: (prevMaterial as any).color }
-    uniforms['opacity'] = { value: (prevMaterial as any).opacity }
-    uniforms['alphaTest'] = { value: (prevMaterial as any).alphaTest }
+    // prettier-ignore
+    uniforms['diffuse'] = { value: prevMaterial.color }
+    uniforms['opacity'] = { value: prevMaterial.opacity }
+    uniforms['alphaTest'] = { value: prevMaterial.alphaTest }
     uniforms['uvTransform'] = { value: new Matrix3() }
     uniforms['uv2Transform'] = { value: new Matrix3() }
 
@@ -181,20 +180,20 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       #endif`,
       `#include <common>`,
       hasUV ? `#include <uv_pars_vertex>` : '',
-      (hasLightMap || hasAoMap) ? `#include <uv2_pars_vertex>` : '',
+      hasLightMap || hasAoMap ? `#include <uv2_pars_vertex>` : '',
       hasDisplacementMap ? `#include <displacementmap_pars_vertex>` : ``,
       `#include <color_pars_vertex>`,
       fogEnabled ? `#include <fog_pars_vertex>` : ``,
       `#include <normal_pars_vertex>`,
-      hasMorphTarget? `#include <morphtarget_pars_vertex>` : ``,
+      hasMorphTarget ? `#include <morphtarget_pars_vertex>` : ``,
       hasSkinning ? `#include <skinning_pars_vertex>` : ``,
-      lightEnabled ? `#include <shadowmap_pars_vertex> ` : ``,                    
+      lightEnabled ? `#include <shadowmap_pars_vertex> ` : ``,
       hasLogdepthbuf ? `#include <logdepthbuf_pars_vertex>` : ``,
       hasClippingPanel ? `#include <clipping_planes_pars_vertex>` : ``,
 
       `void main() {`,
       hasUV ? `#include <uv_vertex>` : '',
-      (hasLightMap || hasAoMap) ? `#include <uv2_vertex>` : '',
+      hasLightMap || hasAoMap ? `#include <uv2_vertex>` : '',
       `#include <color_vertex>`,
       `#include <beginnormal_vertex>
       #include <morphnormal_vertex>
@@ -241,22 +240,24 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       // #ifdef SPECULAR
       //   uniform float specularIntensity;
       //   uniform vec3 specularTint;
-      
+
       //   #ifdef USE_SPECULARINTENSITYMAP
       //     uniform sampler2D specularIntensityMap;
       //   #endif
-      
+
       //   #ifdef USE_SPECULARTINTMAP
       //     uniform sampler2D specularTintMap;
       //   #endif
       // #endif
       // `,
       // `
-      hasClearCoat ? `#ifdef USE_CLEARCOAT
+      hasClearCoat
+        ? `#ifdef USE_CLEARCOAT
         uniform float clearcoat;
         uniform float clearcoatRoughness;
       #endif
-      ` : ``,
+      `
+        : ``,
       // `
       // #ifdef USE_SHEEN
       //   uniform vec3 sheenTint;
@@ -269,29 +270,29 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       //`#include <dithering_pars_fragment>`,
       `#include <color_pars_fragment>`,
       hasUV ? `#include <uv_pars_fragment>` : ``,
-      (hasLightMap || hasAoMap) ? `#include <uv2_pars_fragment>` : ``,
+      hasLightMap || hasAoMap ? `#include <uv2_pars_fragment>` : ``,
       hasMap ? `#include <map_pars_fragment>` : ``,
       hasAlphaMap ? `#include <alphamap_pars_fragment>` : ``,
       `#include <alphatest_pars_fragment>`,
       hasAoMap ? `#include <aomap_pars_fragment>` : ``,
       hasLightMap ? `#include <lightmap_pars_fragment>` : ``,
       hasEmissiveMap ? `#include <emissivemap_pars_fragment>` : ``,
-      lightEnabled ? `#include <bsdfs>` : ``,                             
+      lightEnabled ? `#include <bsdfs>` : ``,
       hasEnvMap ? `#include <cube_uv_reflection_fragment>` : ``,
       hasEnvMap ? `#include <envmap_common_pars_fragment>` : ``,
-      hasEnvMap ?  `#include <envmap_physical_pars_fragment>` : ``,
+      hasEnvMap ? `#include <envmap_physical_pars_fragment>` : ``,
       fogEnabled ? `#include <fog_pars_fragment>` : ``,
       hasSpecularMap ? `#include <specularmap_pars_fragment>` : ``,
-      lightEnabled ? `#include <lights_pars_begin>` : ``,                 
-      lightEnabled ? `#include <normal_pars_fragment>` : ``,              
-      lightEnabled ? `#include <lights_physical_pars_fragment>` : ``,     
+      lightEnabled ? `#include <lights_pars_begin>` : ``,
+      lightEnabled ? `#include <normal_pars_fragment>` : ``,
+      lightEnabled ? `#include <lights_physical_pars_fragment>` : ``,
       `#include <transmission_pars_fragment>`,
-      lightEnabled ? `#include <shadowmap_pars_fragment>` : ``,           
+      lightEnabled ? `#include <shadowmap_pars_fragment>` : ``,
       hasBumpMap ? `#include <bumpmap_pars_fragment>` : ``,
       `#include <normalmap_pars_fragment>`,
       hasClearCoat ? `#include <clearcoat_pars_fragment>` : ``,
-      lightEnabled ? `#include <roughnessmap_pars_fragment>` : ``,     
-      lightEnabled ?`#include <metalnessmap_pars_fragment>` : ``,      
+      lightEnabled ? `#include <roughnessmap_pars_fragment>` : ``,
+      lightEnabled ? `#include <metalnessmap_pars_fragment>` : ``,
       hasLogdepthbuf ? `#include <logdepthbuf_pars_fragment>` : ``,
       hasClippingPanel ? `#include <clipping_planes_pars_fragment>` : ``,
       `void main() {`,
@@ -314,7 +315,8 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       hasClearCoat ? `#include <clearcoat_normal_fragment_begin>` : ``,
       hasClearCoat ? `#include <clearcoat_normal_fragment_maps>` : ``,
       hasEmissiveMap ? `#include <emissivemap_fragment>` : ``,
-      lightEnabled ? `
+      lightEnabled
+        ? `
         // accumulation
         #include <lights_physical_fragment>
         #include <lights_fragment_begin>
@@ -326,7 +328,8 @@ export const useSimpleMaterial = (obj: Mesh): void => {
         vec3 totalSpecular = reflectedLight.directSpecular + reflectedLight.indirectSpecular;
         #include <transmission_fragment>
         vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;
-      ` : `
+      `
+        : `
       // accumulation (baked indirect lighting only
         #ifdef USE_LIGHTMAP
         vec4 lightMapTexel= texture2D( lightMap, vUv2 );
@@ -339,13 +342,15 @@ export const useSimpleMaterial = (obj: Mesh): void => {
         reflectedLight.indirectDiffuse *= diffuseColor.rgb;
         vec3 outgoingLight = reflectedLight.indirectDiffuse;
       `,
-      hasClearCoat ? `
+      hasClearCoat
+        ? `
       #ifdef USE_CLEARCOAT
         float dotNVcc = saturate( dot( geometry.clearcoatNormal, geometry.viewDir ) );
         vec3 Fcc = F_Schlick( material.clearcoatF0, material.clearcoatF90, dotNVcc );
         outgoingLight = outgoingLight * ( 1.0 - clearcoat * Fcc ) + clearcoatSpecular * clearcoat;
       #endif
-      ` : ``,
+      `
+        : ``,
       `#include <output_fragment>`,
       //`#include <tonemapping_fragment>`,
       `#include <encodings_fragment>`,
@@ -354,7 +359,7 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       //`#include <dithering_fragment>`,
       `}`
     ].join('\n')
-    
+
     obj.material = new ShaderMaterial({
       defines,
       uniforms: uniforms,
@@ -376,7 +381,7 @@ export const useSimpleMaterial = (obj: Mesh): void => {
       obj.material.envMap = Engine.scene?.environment
       //@ts-ignore
       obj.material.uniforms.envMap = {
-      //@ts-ignore
+        //@ts-ignore
         value: Engine.scene?.environment
       }
       //@ts-ignore
