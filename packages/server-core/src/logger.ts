@@ -20,7 +20,7 @@ const streamToElastic = pinoElastic({
 
 const pinoOptions = {};
 
-const logger =  pino(pinoOptions, pinoMultiStream([
+const logger = pino(pinoOptions, pinoMultiStream([
   { stream: streamToPretty },
   { stream: streamToElastic },
 ]));
