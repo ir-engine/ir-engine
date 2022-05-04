@@ -1,9 +1,6 @@
 import pino from 'pino'
 
-let node = process.env.ELASTIC_HOST_DEV
-if (process.env.APP_ENV === 'production') {
-  node = process.env.ELASTIC_HOST_PROD
-}
+let node = process.env.ELASTIC_HOST
 
 const logger = pino({
   transport: {
