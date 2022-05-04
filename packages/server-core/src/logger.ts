@@ -24,6 +24,11 @@ const transport = pino.transport({
   ]
 })
 
+transport.on('ready', function () {
+  process.exit(0)
+})
+
+
 const logger = pino(transport)
 
 // const logger = pino({
