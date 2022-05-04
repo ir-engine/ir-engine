@@ -1,6 +1,8 @@
 import pino from 'pino'
 
 let node = process.env.ELASTIC_HOST
+console.log(node);
+
 
 const logger = pino({
   transport: {
