@@ -14,7 +14,7 @@ interface Data {}
 
 interface ServiceOptions {}
 
-const emailAccountTemplatesPath = path.join(appRootPath, 'packages', 'server-core', 'email-templates', 'account')
+const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'account')
 export class Magiclink implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions

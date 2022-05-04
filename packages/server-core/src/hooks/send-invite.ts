@@ -17,7 +17,7 @@ import { Application } from './../../declarations.d'
 
 export type InviteDataType = InviteType & { targetObjectId: UserId; passcode: string }
 
-const emailAccountTemplatesPath = path.join(appRootPath, 'packages', 'server-core', 'email-templates', 'invite')
+const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'invite')
 
 async function generateEmail(
   app: Application,

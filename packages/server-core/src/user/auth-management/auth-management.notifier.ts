@@ -6,7 +6,7 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getLink, sendEmail } from './auth-management.utils'
 
-const emailAccountTemplatesPath = path.join(appRootPath, 'packages', 'server-core', 'email-templates', 'account')
+const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'account')
 
 /**
  * A function which sent an email for authentication
