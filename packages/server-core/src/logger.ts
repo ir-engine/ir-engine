@@ -1,10 +1,10 @@
 import pino from 'pino'
 
-const pinoMultiStream = require('pino-multi-stream').multistream;
+const pinoMultiStream = require('pino-multi-stream').multistream
 const pinoElastic = require('pino-elasticsearch')
 const pretty = require('pino-pretty')
 
-let node = process.env.ELASTIC_HOST || "http://localhost:9200";
+let node = process.env.ELASTIC_HOST || 'http://localhost:9200'
 
 const streamToPretty = pretty({
   colorize: true
@@ -18,11 +18,8 @@ const streamToElastic = pinoElastic({
   'flush-bytes': 1000
 })
 
-const pinoOptions = {};
+const pinoOptions = {}
 
-const logger = pino(pinoOptions, pinoMultiStream([
-  { stream: streamToPretty },
-  { stream: streamToElastic },
-]));
+const logger = pino(pinoOptions, pinoMultiStream([{ stream: streamToPretty }, { stream: streamToElastic }]))
 
 export default logger
