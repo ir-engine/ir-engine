@@ -1,9 +1,6 @@
 import pino from 'pino'
-import config from './appconfig'
 
-let node = config.logging.elastic_host;
-console.log(node);
-
+let node = process.env.ELASTIC_HOST || "http://localhost:9200";
 
 const logger = pino({
   transport: {
