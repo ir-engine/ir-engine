@@ -4,7 +4,13 @@ import { useTranslation } from 'react-i18next'
 import JSONTree from 'react-json-tree'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  MappedComponent,
+  removeComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import {
   accessEngineRendererState,
@@ -12,6 +18,7 @@ import {
   useEngineRendererState
 } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { SimpleMaterialTagComponent } from '@xrengine/engine/src/scene/components/SimpleMaterialTagComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -117,6 +124,16 @@ export const Debug = () => {
     )
   }
 
+  const simpleMaterials = () => {
+    if (hasComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent))
+      removeComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent)
+    else addComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent, {})
+    dispatchAction(
+      Engine.instance.store,
+      EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value)
+    )
+  }
+
   if (isShowing)
     return (
       <div className={styles.debugContiner}>
@@ -151,6 +168,18 @@ export const Debug = () => {
               className={styles.flagBtn + (engineRendererState.gridVisibility.value ? ' ' + styles.active : '')}
             >
               {t('common:debug.gridDebug')}
+            </button>
+            <button
+              type="button"
+              onClick={simpleMaterials}
+              className={
+                styles.flagBtn +
+                (hasComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent)
+                  ? ' ' + styles.active
+                  : '')
+              }
+            >
+              {t('common:debug.simpleMaterials')}
             </button>
           </div>
         </div>
