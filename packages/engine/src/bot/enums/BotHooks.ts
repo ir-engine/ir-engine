@@ -18,5 +18,6 @@ export enum XRBotHooks {
   PressControllerButton = 'XRBotHooks_PressControllerButton',
   MoveControllerStick = 'XRBotHooks_MoveControllerStick',
   GetXRInputPosition = 'XRBotHooks_GetXRInputPosition',
+  SetXRInputPosition = 'XRBotHooks_SetXRInputPosition',
   TweenXRInputSource = 'XRBotHooks_TweenXRInputSource'
 }
