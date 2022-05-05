@@ -1,10 +1,12 @@
+import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
-import requireMainFilename from 'require-main-filename'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getLink, sendEmail } from './auth-management.utils'
+
+const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'account')
 
 /**
  * A function which sent an email for authentication
@@ -30,8 +32,6 @@ export default (app: Application) => {
         return
       }
 
-      const appPath = path.dirname(requireMainFilename())
-      const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'account')
       let hashLink
       let email
       let templatePath

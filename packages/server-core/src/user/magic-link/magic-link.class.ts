@@ -1,8 +1,8 @@
 import { BadRequest } from '@feathersjs/errors'
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
-import requireMainFilename from 'require-main-filename'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -14,6 +14,7 @@ interface Data {}
 
 interface ServiceOptions {}
 
+const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'account')
 export class Magiclink implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions
@@ -104,9 +105,6 @@ export class Magiclink implements ServiceMethods<Data> {
     subscriptionId?: string
   ): Promise<void> {
     const hashLink = getLink(type, token, subscriptionId ?? '')
-    const appPath = path.dirname(requireMainFilename())
-    const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'account')
-
     let subscription
     let username
     if (subscriptionId != null) {
@@ -156,8 +154,6 @@ export class Magiclink implements ServiceMethods<Data> {
 
   async sendSms(mobile: string, token: string, type: 'connection' | 'login'): Promise<void> {
     const hashLink = getLink(type, token, '')
-    const appPath = path.dirname(requireMainFilename())
-    const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'account')
     const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-sms.pug')
     const compiledHTML = pug
       .compileFile(templatePath)({
