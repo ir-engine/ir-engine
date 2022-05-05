@@ -91,7 +91,7 @@ describe('SimpleMaterialFunctions', () => {
     it('replaces materials with ShaderMaterial', () => {
       const mat = new MeshStandardMaterial()
       const obj3d = new Mesh(new BoxGeometry(), mat)
-      useSimpleMaterial(obj3d)
+      useSimpleMaterial(obj3d as any)
 
       assert(obj3d.material instanceof ShaderMaterial)
       assert(obj3d.userData.prevMaterial === mat)
