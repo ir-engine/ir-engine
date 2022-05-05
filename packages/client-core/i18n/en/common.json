@@ -35,6 +35,7 @@
     "avatarDebug": "Avatar Debug",
     "nodeHelperDebug": "Node Helper Debug",
     "gridDebug": "Grid Debug",
+    "simpleMaterials": "Simple Materials",
     "tick": "Tick",
     "worldStore": "World Store",
     "engineStore": "Engine Store",

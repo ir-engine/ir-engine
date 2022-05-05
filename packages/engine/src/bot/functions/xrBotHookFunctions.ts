@@ -120,12 +120,13 @@ export function moveControllerStick(args) {
   // )
 }
 
-// is in world space, so subtract player pos from it
 export function getXRInputPosition() {
   const xrInputs = getComponent(useWorld().localClientEntity, XRInputSourceComponent)
+
   const hmd = xrInputs.head.position.toArray().concat(xrInputs.head.quaternion.toArray())
   const left = xrInputs.controllerLeft.position.toArray().concat(xrInputs.controllerLeft.quaternion.toArray())
   const right = xrInputs.controllerRight.position.toArray().concat(xrInputs.controllerRight.quaternion.toArray())
+
   return {
     headInputValue: hmd,
     leftControllerInputValue: left,
@@ -141,7 +142,7 @@ const leftControllerPosition = new Vector3(-0.5, 1.5, -1)
 const leftControllerRotation = new Quaternion()
 const rightControllerPosition = new Vector3(0.5, 1.5, -1)
 const rightControllerRotation = new Quaternion()
-
+// console.warn = () => {} // less annoying warnings
 export const getInputSourcePosition = (inputSource: InputSource) => {
   switch (inputSource) {
     case 'head':
@@ -164,9 +165,11 @@ export const getInputSourceRotation = (inputSource: InputSource) => {
 }
 
 const tweens: any[] = []
+let tweensDirty = false
 
 export const sendXRInputData = () => {
   tweens.forEach((call) => call())
+  if (!tweensDirty) return
   WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-pose',
     detail: {
@@ -195,6 +198,38 @@ export const sendXRInputData = () => {
   // )
 }
 
+type SetXRInputPoseProps = {
+  head: number[]
+  left: number[]
+  right: number[]
+}
+
+export function setXRInputPosition(args: SetXRInputPoseProps) {
+  WebXREventDispatcher.instance.dispatchEvent({
+    type: 'webxr-pose',
+    detail: {
+      position: [args.head[0], args.head[1], args.head[2]],
+      quaternion: [args.head[3], args.head[4], args.head[5], args.head[6]]
+    }
+  })
+  WebXREventDispatcher.instance.dispatchEvent({
+    type: 'webxr-input-pose',
+    detail: {
+      objectName: 'leftController',
+      position: [args.left[0], args.left[1], args.left[2]],
+      quaternion: [args.left[3], args.left[4], args.left[5], args.left[6]]
+    }
+  })
+  WebXREventDispatcher.instance.dispatchEvent({
+    type: 'webxr-input-pose',
+    detail: {
+      objectName: 'rightController',
+      position: [args.right[0], args.right[1], args.right[2]],
+      quaternion: [args.right[3], args.right[4], args.right[5], args.right[6]]
+    }
+  })
+}
+
 export type InputSourceTweenProps = {
   objectName: InputSource
   time: number // in frames
@@ -217,6 +252,7 @@ export function tweenXRInputSource(args: InputSourceTweenProps) {
       args.callback()
     }
     counter++
+    tweensDirty = true
   }
   tweens.push(tweenFunction)
 }

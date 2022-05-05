@@ -10,7 +10,7 @@ import { SystemUpdateType } from './SystemUpdateType'
  */
 export default async function FixedPipelineSystem(world: World, args: { tickRate: number }) {
   const timestep = 1 / args.tickRate
-  const limit = timestep * 1000
+  const limit = timestep * 2000
   const updatesLimit = args.tickRate
 
   world.fixedDelta = timestep

@@ -6,7 +6,8 @@ import {
   MeshLambertMaterial,
   MeshPhongMaterial,
   MeshStandardMaterial,
-  Object3D
+  Object3D,
+  ShaderMaterial
 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -87,21 +88,13 @@ describe('SimpleMaterialFunctions', () => {
   })
 
   describe('useSimpleMaterial()', () => {
-    it('replaces MeshStandardMaterial to MeshPhongMaterial', () => {
+    it('replaces materials with ShaderMaterial', () => {
       const mat = new MeshStandardMaterial()
       const obj3d = new Mesh(new BoxGeometry(), mat)
-      useSimpleMaterial(obj3d)
+      useSimpleMaterial(obj3d as any)
 
-      assert(obj3d.material instanceof MeshPhongMaterial)
+      assert(obj3d.material instanceof ShaderMaterial)
       assert(obj3d.userData.prevMaterial === mat)
-    })
-
-    it('does not replace material other than MeshStandardMaterial', () => {
-      const mat = new MeshLambertMaterial()
-      const obj3d = new Mesh(new BoxGeometry(), mat)
-      useSimpleMaterial(obj3d)
-
-      assert(obj3d.material instanceof MeshLambertMaterial)
     })
   })
 

@@ -11,6 +11,7 @@ import {
   moveControllerStick,
   overrideXR,
   pressControllerButton,
+  setXRInputPosition,
   startXR,
   tweenXRInputSource,
   updateController,
@@ -36,6 +37,7 @@ export const BotHookFunctions = {
   [XRBotHooks.PressControllerButton]: pressControllerButton,
   [XRBotHooks.MoveControllerStick]: moveControllerStick,
   [XRBotHooks.GetXRInputPosition]: getXRInputPosition,
+  [XRBotHooks.SetXRInputPosition]: setXRInputPosition,
   [XRBotHooks.TweenXRInputSource]: tweenXRInputSource
 }
 
