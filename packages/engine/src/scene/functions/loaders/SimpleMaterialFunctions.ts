@@ -1,19 +1,15 @@
 import {
-  Color,
+  IUniform,
   Material,
   Matrix3,
   Mesh,
   MeshBasicMaterial,
-  MeshLambertMaterial,
-  MeshPhongMaterial,
   MeshStandardMaterial,
-  ShaderChunk,
   ShaderLib,
   ShaderMaterial,
   UniformsLib,
   UniformsUtils
 } from 'three'
-import { object } from 'ts-matches'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
@@ -25,6 +21,7 @@ import { addComponent, getComponent, hasComponent } from '../../../ecs/functions
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { beforeMaterialCompile } from '../../classes/BPCEMShader'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { Object3DWithEntity } from '../../components/Object3DComponent'
 import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import { SceneOptions } from '../../systems/SceneObjectSystem'
 
@@ -53,14 +50,12 @@ export const serializeSimpleMaterial: ComponentSerializeFunction = (entity) => {
   }
 }
 
-export const useSimpleMaterial = (obj: Mesh<any, any>): void => {
+export const useSimpleMaterial = (obj: Object3DWithEntity & Mesh<any, any>): void => {
   const isStandardMaterial = obj.material instanceof MeshStandardMaterial
   const isBasicMaterial = obj.material instanceof MeshBasicMaterial
 
-  //@ts-ignore
   if (!obj.material || !obj.material.color || isBasicMaterial) return
-  //@ts-ignore
-  if (obj.entity && hasComponent(entity, XRUIComponent)) return
+  if (obj.entity && hasComponent(obj.entity, XRUIComponent)) return
 
   try {
     obj.userData.prevMaterial = obj.material
@@ -142,8 +137,7 @@ export const useSimpleMaterial = (obj: Mesh<any, any>): void => {
       defines['USE_METALNESSMAP'] = ''
     }
 
-    let uniforms = {}
-    // prettier-ignore
+    let uniforms = {} as { [uniform: string]: IUniform }
     uniforms['diffuse'] = { value: prevMaterial.color }
     uniforms['opacity'] = { value: prevMaterial.opacity }
     uniforms['alphaTest'] = { value: prevMaterial.alphaTest }
@@ -154,14 +148,11 @@ export const useSimpleMaterial = (obj: Mesh<any, any>): void => {
       let key = original
       if (original == 'diffuse') key = 'color'
       if (prevMaterial[key] !== undefined && prevMaterial[key] !== null) {
-        // console.error(key)
         if (key == 'color') {
-          //@ts-ignore
           uniforms.diffuse = {
             value: prevMaterial[key]
           }
         } else {
-          //@ts-ignore
           uniforms[key] = {
             value: prevMaterial[key]
           }
@@ -377,16 +368,11 @@ export const useSimpleMaterial = (obj: Mesh<any, any>): void => {
     })
 
     if (hasEnvMap) {
-      //@ts-ignore
-      obj.material.envMap = Engine.scene?.environment
-      //@ts-ignore
+      obj.material.envMap = Engine.instance.scene?.environment
       obj.material.uniforms.envMap = {
-        //@ts-ignore
-        value: Engine.scene?.environment
+        value: Engine.instance.scene?.environment
       }
-      //@ts-ignore
       obj.material.uniforms.envMapIntensity = { value: 1 }
-      //@ts-ignore
       obj.material.uniforms.flipEnvMap = { value: 1 }
     }
     obj.material.needsUpdate = true

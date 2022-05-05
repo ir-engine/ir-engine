@@ -62,9 +62,6 @@ const processObject3d = (entity: Entity) => {
     } else {
       useStandardMaterial(obj)
     }
-
-    // useStandardMaterial(obj)
-    // useSimpleMaterial(obj)
   })
 }
 
