@@ -1,91 +1,237 @@
-import { strictEqual } from 'assert'
+import assert from 'assert'
+
+import { AvatarInputSchema } from '../../avatar/AvatarInputSchema'
+import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
-import { createWorld } from '../../ecs/classes/World'
+import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../initializeEngine'
+import { InputComponent } from '../components/InputComponent'
 import { GamepadAxis } from '../enums/InputEnums'
 import { InputType } from '../enums/InputType'
-import ClientInputSystem, { enableInput } from './ClientInputSystem'
+import { InputValue } from '../interfaces/InputValue'
+import { InputAlias } from '../types/InputAlias'
+import ClientInputSystem, { processCombinationLifecycle, processEngineInputState } from './ClientInputSystem'
 
-describe('clientInputSystem', () => {
-  let world
-  let clientInputSystem
-  const GAMEPAD_STICK = GamepadAxis.Left
-  const GAMEPAD_STICKR = GamepadAxis.Right
-  const stickPosition: NumericalType = [0, 0, 0]
+const stickPosition: NumericalType = [0, 0, 0]
 
-  beforeEach(async () => {
-    world = createWorld()
-    Engine.currentWorld = world
-    Engine.inputState = new Map()
-    clientInputSystem = await ClientInputSystem(world)
+describe('ClientInputSystem Unit Tests', () => {
+  beforeEach(() => {
+    createEngine()
   })
 
-  it('check if enable input works', () => {
-    enableInput({ keyboard: true, mouse: true })
+  describe('processEngineInputState', () => {
+    it('add new input - Started state', () => {
+      Engine.instance.inputState.set(GamepadAxis.Left, {
+        type: InputType.TWODIM,
+        value: stickPosition,
+        lifecycleState: LifecycleValue.Started
+      })
 
-    strictEqual(Engine.keyboardInputEnabled, true)
-    strictEqual(Engine.mouseInputEnabled, true)
+      assert.strictEqual(Engine.instance.inputState.size, 1)
+      processEngineInputState()
+      assert.strictEqual(Engine.instance.inputState.size, 1)
+    })
+
+    it('add new input - Ended state', () => {
+      Engine.instance.inputState.set(GamepadAxis.Right, {
+        type: InputType.TWODIM,
+        value: stickPosition,
+        lifecycleState: LifecycleValue.Ended
+      })
+      Engine.instance.inputState.set(GamepadAxis.Left, {
+        type: InputType.TWODIM,
+        value: stickPosition,
+        lifecycleState: LifecycleValue.Started
+      })
+
+      assert.strictEqual(Engine.instance.inputState.size, 2)
+      assert.strictEqual(Engine.instance.inputState.get(GamepadAxis.Left)?.lifecycleState, LifecycleValue.Started)
+      assert.strictEqual(Engine.instance.inputState.get(GamepadAxis.Right)?.lifecycleState, LifecycleValue.Ended)
+    })
+
+    it('Two similar state becomes unchanged', () => {
+      Engine.instance.inputState.set(GamepadAxis.Left, {
+        type: InputType.TWODIM,
+        value: stickPosition,
+        lifecycleState: LifecycleValue.Started
+      })
+
+      processEngineInputState()
+      assert.strictEqual(Engine.instance.inputState.get(GamepadAxis.Left)?.lifecycleState, LifecycleValue.Started)
+      assert.strictEqual(Engine.instance.inputState.size, 1)
+
+      Engine.instance.inputState.set(GamepadAxis.Left, {
+        type: InputType.TWODIM,
+        value: stickPosition,
+        lifecycleState: LifecycleValue.Started
+      })
+      processEngineInputState()
+      assert.strictEqual(Engine.instance.inputState.get(GamepadAxis.Left)?.lifecycleState, LifecycleValue.Unchanged)
+      assert.strictEqual(Engine.instance.inputState.size, 1)
+    })
+
+    it('set the first input into ended', () => {
+      Engine.instance.inputState.set(GamepadAxis.Left, {
+        type: InputType.TWODIM,
+        value: stickPosition,
+        lifecycleState: LifecycleValue.Ended
+      })
+      processEngineInputState()
+      assert.strictEqual(Engine.instance.inputState.size, 1)
+      assert.strictEqual(Engine.instance.inputState.get(GamepadAxis.Left)?.lifecycleState, LifecycleValue.Ended)
+      processEngineInputState()
+      assert.strictEqual(Engine.instance.inputState.size, 0)
+    })
   })
 
-  it('add new input - Started state', async () => {
-    Engine.inputState.set(GAMEPAD_STICK, {
-      type: InputType.TWODIM,
-      value: stickPosition,
-      lifecycleState: LifecycleValue.Started
+  describe('processCombinationLifecycle', () => {
+    it('should start combination', () => {
+      const entity = createEntity()
+      const inputComponent = addComponent(entity, InputComponent, {
+        schema: AvatarInputSchema,
+        data: new Map<InputAlias, InputValue>()
+      })
+      const prevData = new Map<InputAlias, InputValue>()
+
+      const mapping = 'mapping'
+      const input = ['KeyV', 'KeyA']
+
+      Engine.instance.inputState.set('KeyV', {
+        type: InputType.BUTTON,
+        value: [BinaryValue.ON],
+        lifecycleState: LifecycleValue.Started
+      })
+      Engine.instance.inputState.set('KeyA', {
+        type: InputType.BUTTON,
+        value: [BinaryValue.ON],
+        lifecycleState: LifecycleValue.Started
+      })
+
+      processCombinationLifecycle(inputComponent, prevData, mapping, input)
+
+      assert(inputComponent.data.has(mapping))
+      const resultData = inputComponent.data.get(mapping)!
+      assert.strictEqual(resultData.type, InputType.BUTTON)
+      assert.strictEqual(resultData.value.length, 1)
+      assert.strictEqual(resultData.value[0], BinaryValue.ON)
+      assert.strictEqual(resultData.lifecycleState, LifecycleValue.Started)
     })
 
-    strictEqual(Engine.inputState.size, 1)
-    clientInputSystem()
-    strictEqual(Engine.inputState.size, 1)
-  })
+    it('should continue combination', () => {
+      const entity = createEntity()
+      const inputComponent = addComponent(entity, InputComponent, {
+        schema: AvatarInputSchema,
+        data: new Map<InputAlias, InputValue>()
+      })
+      const prevData = new Map<InputAlias, InputValue>()
 
-  it('add new input - Ended state', async () => {
-    Engine.inputState.set(GAMEPAD_STICKR, {
-      type: InputType.TWODIM,
-      value: stickPosition,
-      lifecycleState: LifecycleValue.Ended
-    })
-    Engine.inputState.set(GAMEPAD_STICK, {
-      type: InputType.TWODIM,
-      value: stickPosition,
-      lifecycleState: LifecycleValue.Started
+      const mapping = 'mapping'
+      const input = ['KeyV', 'KeyA']
+
+      Engine.instance.inputState.set('KeyV', {
+        type: InputType.BUTTON,
+        value: [BinaryValue.ON],
+        lifecycleState: LifecycleValue.Started
+      })
+      Engine.instance.inputState.set('KeyA', {
+        type: InputType.BUTTON,
+        value: [BinaryValue.ON],
+        lifecycleState: LifecycleValue.Started
+      })
+
+      prevData.set(mapping, {
+        type: InputType.BUTTON,
+        value: [BinaryValue.ON],
+        lifecycleState: LifecycleValue.Started
+      })
+
+      processCombinationLifecycle(inputComponent, prevData, mapping, input)
+
+      assert(inputComponent.data.has(mapping))
+      const resultData = inputComponent.data.get(mapping)!
+      assert.strictEqual(resultData.type, InputType.BUTTON)
+      assert.strictEqual(resultData.value.length, 1)
+      assert.strictEqual(resultData.value[0], BinaryValue.ON)
+      assert.strictEqual(resultData.lifecycleState, LifecycleValue.Continued)
     })
 
-    strictEqual(Engine.inputState.size, 2)
-    strictEqual(Engine.inputState.get(GAMEPAD_STICK)?.lifecycleState, LifecycleValue.Started)
-    strictEqual(Engine.inputState.get(GAMEPAD_STICKR)?.lifecycleState, LifecycleValue.Ended)
-  })
+    it('should end combination when previously started', () => {
+      const entity = createEntity()
+      const inputComponent = addComponent(entity, InputComponent, {
+        schema: AvatarInputSchema,
+        data: new Map<InputAlias, InputValue>()
+      })
+      const prevData = new Map<InputAlias, InputValue>()
 
-  it('run the input cycle', async () => {
-    Engine.inputState.set(GAMEPAD_STICKR, {
-      type: InputType.TWODIM,
-      value: stickPosition,
-      lifecycleState: LifecycleValue.Ended
-    })
-    Engine.inputState.set(GAMEPAD_STICK, {
-      type: InputType.TWODIM,
-      value: stickPosition,
-      lifecycleState: LifecycleValue.Started
+      const mapping = 'mapping'
+      const input = ['KeyV', 'KeyA']
+
+      prevData.set(mapping, {
+        type: InputType.BUTTON,
+        value: [BinaryValue.ON],
+        lifecycleState: LifecycleValue.Started
+      })
+
+      processCombinationLifecycle(inputComponent, prevData, mapping, input)
+
+      assert(inputComponent.data.has(mapping))
+      const resultData = inputComponent.data.get(mapping)!
+      assert.strictEqual(resultData.type, InputType.BUTTON)
+      assert.strictEqual(resultData.value.length, 1)
+      assert.strictEqual(resultData.value[0], BinaryValue.OFF)
+      assert.strictEqual(resultData.lifecycleState, LifecycleValue.Ended)
     })
 
-    clientInputSystem()
-    strictEqual(Engine.inputState.get(GAMEPAD_STICK)?.lifecycleState, LifecycleValue.Unchanged)
-    strictEqual(Engine.inputState.size, 2)
-    clientInputSystem()
-    strictEqual(Engine.inputState.size, 1)
-  })
+    it('should end combination when previously continued', () => {
+      const entity = createEntity()
+      const inputComponent = addComponent(entity, InputComponent, {
+        schema: AvatarInputSchema,
+        data: new Map<InputAlias, InputValue>()
+      })
+      const prevData = new Map<InputAlias, InputValue>()
 
-  it('set the first input into ended', async () => {
-    Engine.inputState.set(GAMEPAD_STICK, {
-      type: InputType.TWODIM,
-      value: stickPosition,
-      lifecycleState: LifecycleValue.Ended
+      const mapping = 'mapping'
+      const input = ['KeyV', 'KeyA']
+
+      prevData.set(mapping, {
+        type: InputType.BUTTON,
+        value: [BinaryValue.ON],
+        lifecycleState: LifecycleValue.Continued
+      })
+
+      processCombinationLifecycle(inputComponent, prevData, mapping, input)
+
+      assert(inputComponent.data.has(mapping))
+      const resultData = inputComponent.data.get(mapping)!
+      assert.strictEqual(resultData.type, InputType.BUTTON)
+      assert.strictEqual(resultData.value.length, 1)
+      assert.strictEqual(resultData.value[0], BinaryValue.OFF)
+      assert.strictEqual(resultData.lifecycleState, LifecycleValue.Ended)
     })
-    clientInputSystem()
-    strictEqual(Engine.inputState.size, 1)
-    strictEqual(Engine.inputState.get(GAMEPAD_STICK)?.lifecycleState, LifecycleValue.Ended)
-    clientInputSystem()
-    strictEqual(Engine.inputState.size, 0)
+
+    it('should remove combination when previously ended', () => {
+      const entity = createEntity()
+      const inputComponent = addComponent(entity, InputComponent, {
+        schema: AvatarInputSchema,
+        data: new Map<InputAlias, InputValue>()
+      })
+      const prevData = new Map<InputAlias, InputValue>()
+
+      const mapping = 'mapping'
+      const input = ['KeyV', 'KeyA']
+
+      prevData.set(mapping, {
+        type: InputType.BUTTON,
+        value: [BinaryValue.ON],
+        lifecycleState: LifecycleValue.Ended
+      })
+
+      processCombinationLifecycle(inputComponent, prevData, mapping, input)
+
+      assert(!inputComponent.data.has(mapping))
+    })
   })
 })

@@ -1,18 +1,20 @@
+import { BadRequest } from '@feathersjs/errors'
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import Paginated from '../../types/PageObject'
-import { Application } from '../../../declarations'
-import { getLink, sendEmail, sendSms } from '../auth-management/auth-management.utils'
+import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
-import { IdentityProvider } from '../identity-provider/identity-provider.class'
-import { BadRequest } from '@feathersjs/errors'
+
+import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import requireMainFilename from 'require-main-filename'
+import Paginated from '../../types/PageObject'
+import { getLink, sendEmail, sendSms } from '../auth-management/auth-management.utils'
+import { IdentityProvider } from '../identity-provider/identity-provider.class'
 
 interface Data {}
 
 interface ServiceOptions {}
 
+const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'account')
 export class Magiclink implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions
@@ -32,7 +34,7 @@ export class Magiclink implements ServiceMethods<Data> {
    * @returns {@Array} all magic link
    * @author Vyacheslav Solovjov
    */
-  async find(params: Params): Promise<Data[] | Paginated<Data>> {
+  async find(params?: Params): Promise<Data[] | Paginated<Data>> {
     return []
   }
 
@@ -44,7 +46,7 @@ export class Magiclink implements ServiceMethods<Data> {
    * @returns {@Object} contains id of magic link and message
    * @author Vyacheslav Solovjov
    */
-  async get(id: Id, params: Params): Promise<Data> {
+  async get(id: Id, params?: Params): Promise<Data> {
     return {
       id,
       text: `A new message with ID: ${id}!`
@@ -59,7 +61,7 @@ export class Magiclink implements ServiceMethods<Data> {
    * @returns updated data
    * @author Vyacheslav Solovjov
    */
-  async update(id: NullableId, data: Data, params: Params): Promise<Data> {
+  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
   }
 
@@ -71,7 +73,7 @@ export class Magiclink implements ServiceMethods<Data> {
    * @param params
    * @returns data
    */
-  async patch(id: NullableId, data: Data, params: Params): Promise<Data> {
+  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
   }
   /**
@@ -81,7 +83,7 @@ export class Magiclink implements ServiceMethods<Data> {
    * @param params
    * @returns id
    */
-  async remove(id: NullableId, params: Params): Promise<Data> {
+  async remove(id: NullableId, params?: Params): Promise<Data> {
     return { id }
   }
 
@@ -103,13 +105,10 @@ export class Magiclink implements ServiceMethods<Data> {
     subscriptionId?: string
   ): Promise<void> {
     const hashLink = getLink(type, token, subscriptionId ?? '')
-    const appPath = path.dirname(requireMainFilename())
-    const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'account')
-
     let subscription
     let username
     if (subscriptionId != null) {
-      subscription = await this.app.service('subscription').find({
+      subscription = await this.app.service('subscription' as any).find({
         id: subscriptionId
       })
 
@@ -155,8 +154,6 @@ export class Magiclink implements ServiceMethods<Data> {
 
   async sendSms(mobile: string, token: string, type: 'connection' | 'login'): Promise<void> {
     const hashLink = getLink(type, token, '')
-    const appPath = path.dirname(requireMainFilename())
-    const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'account')
     const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-sms.pug')
     const compiledHTML = pug
       .compileFile(templatePath)({
@@ -180,7 +177,7 @@ export class Magiclink implements ServiceMethods<Data> {
    * @author Vyacheslav Solovjov
    */
 
-  async create(data: any, params: Params): Promise<Data> {
+  async create(data: any, params?: Params): Promise<Data> {
     const identityProviderService = this.app.service('identity-provider')
 
     // check magiclink type

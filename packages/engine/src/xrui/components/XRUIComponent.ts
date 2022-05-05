@@ -1,4 +1,5 @@
-import { WebContainer3D } from '@etherealjs/web-layer/three'
+import type { WebContainer3D } from '@etherealjs/web-layer/three'
+
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type XRUIComponentType = {

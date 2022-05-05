@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_transform.schema.json",
+  "title": "XRE_transform glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine transform components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "position": {
+      "$ref": "vec3.schema.json",
+      "default": { "x": 0, "y": 0, "z": 0 }
+    },
+    "rotation": {
+      "$ref": "vec3.schema.json",
+      "default": { "x": 0, "y": 0, "z": 0 }
+    },
+    "scale": {
+      "$ref": "vec3.schema.json",
+      "default": { "x": 1, "y": 1, "z": 1 }
+    },
+    "extensions": {},
+    "extras": {}
+  }
+}

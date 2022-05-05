@@ -1,12 +1,15 @@
 import { Icon } from '@iconify/react'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { Button, Grid, Paper, Typography } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 import InputBase from '@mui/material/InputBase'
 import Switch from '@mui/material/Switch'
-import React, { useEffect, useState } from 'react'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import { AuthSettingService, useAdminAuthSettingState } from '../../services/Setting/AuthSettingService'
-import { useStyles } from './styles'
+import styles from '../../styles/settings.module.scss'
 
 interface Props {}
 
@@ -33,10 +36,10 @@ const OAUTH_TYPES = {
 }
 
 const Account = (props: Props) => {
-  const classes = useStyles()
   const authSettingState = useAdminAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const id = authSetting?.id
+  const { t } = useTranslation()
   const [state, setState] = useState(initialState)
   const [holdAuth, setHoldAuth] = useState(initialState)
   const [keySecret, setKeySecret] = useState({
@@ -194,49 +197,49 @@ const Account = (props: Props) => {
   }
 
   return (
-    <div className={`${classes.root} ${classes.container}`}>
-      <Typography component="h1" className={classes.settingsHeading}>
-        AUTHENTICATION
+    <div className={`${styles.root} ${styles.container}`}>
+      <Typography component="h1" className={styles.settingsHeading}>
+        {t('admin:components.setting.authentication')}
       </Typography>
       <form autoComplete="off" onSubmit={handleSubmit}>
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6} md={4}>
-            <label> Service</label>
-            <Paper component="div" className={classes.createInput}>
+            <label> {t('admin:components.setting.service')}</label>
+            <Paper component="div" className={styles.createInput}>
               <InputBase
                 value={authSetting?.service || ''}
                 name="service"
                 style={{ color: '#fff' }}
                 disabled
-                className={classes.input}
+                className={styles.input}
               />
             </Paper>
-            <label>Secret</label>
-            <Paper component="div" className={classes.createInput}>
+            <label>{t('admin:components.setting.secret')}</label>
+            <Paper component="div" className={styles.createInput}>
               <InputBase
                 value={authSetting?.secret || ''}
                 name="secret"
                 style={{ color: '#fff' }}
                 disabled
-                className={classes.input}
+                className={styles.input}
               />
             </Paper>
-            <label>Entity</label>
-            <Paper component="div" className={classes.createInput}>
+            <label>{t('admin:components.setting.entity')}</label>
+            <Paper component="div" className={styles.createInput}>
               <InputBase
                 value={authSetting?.entity || ''}
                 name="entity"
                 style={{ color: '#fff' }}
                 disabled
-                className={classes.input}
+                className={styles.input}
               />
             </Paper>
-            <Typography component="h1" className={classes.settingsHeading}>
-              Authentication Strategies
+            <Typography component="h1" className={styles.settingsHeading}>
+              {t('admin:components.setting.authStrategies')}
             </Typography>
             {Object.keys(state).map((strategyName, i) => (
               <React.Fragment key={i}>
-                <Paper component="div" className={classes.createInput} style={{ height: '2.5rem' }}>
+                <Paper component="div" className={styles.createInput} style={{ height: '2.5rem' }}>
                   <Grid container direction="row" justifyContent="space-between" alignItems="stretch">
                     <label>{strategyName}</label>
                     <Switch
@@ -253,25 +256,25 @@ const Account = (props: Props) => {
             ))}
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
-            <label>Local</label>
-            <Paper component="div" className={classes.createInput}>
-              <label>User Name:</label>
+            <label>{t('admin:components.setting.local')}</label>
+            <Paper component="div" className={styles.createInput}>
+              <label>{t('admin:components.setting.userName')}:</label>
               <InputBase
                 value={authSetting?.local.usernameField || ''}
                 name="username"
                 style={{ color: '#fff' }}
                 disabled
-                className={classes.input}
+                className={styles.input}
               />
             </Paper>
-            <Paper component="div" className={classes.createInput}>
-              <label>Password:</label>
+            <Paper component="div" className={styles.createInput}>
+              <label>{t('admin:components.setting.password')}:</label>
               <InputBase
                 value={authSetting?.local.passwordField || ''}
                 name="password"
                 style={{ color: '#fff' }}
                 disabled
-                className={classes.input}
+                className={styles.input}
                 type={showPassword.password.secret ? 'text' : 'password'}
               />
               <IconButton onClick={() => handleShowPassword('password-secret')} size="large">
@@ -282,41 +285,41 @@ const Account = (props: Props) => {
               </IconButton>
             </Paper>
 
-            <Typography component="h1" className={classes.settingsHeading}>
-              OAUTH
+            <Typography component="h1" className={styles.settingsHeading}>
+              {t('admin:components.setting.oauth')}
             </Typography>
-            <label>Defaults</label>
-            <Paper component="div" className={classes.createInput}>
-              <label>Host:</label>
+            <label>{t('admin:components.setting.defaults')}</label>
+            <Paper component="div" className={styles.createInput}>
+              <label>{t('admin:components.setting.host')}:</label>
               <InputBase
                 value={authSetting?.oauth?.defaults?.host || ''}
                 name="host"
                 style={{ color: '#fff' }}
                 disabled
-                className={classes.input}
+                className={styles.input}
               />
             </Paper>
-            <Paper component="div" className={classes.createInput}>
-              <label>Protocol:</label>
+            <Paper component="div" className={styles.createInput}>
+              <label>{t('admin:components.setting.protocol')}:</label>
               <InputBase
                 value={authSetting?.oauth?.defaults?.protocol || ''}
                 name="protocol"
                 style={{ color: '#fff' }}
                 disabled
-                className={classes.input}
+                className={styles.input}
               />
             </Paper>
             {holdAuth?.discord && (
-              <Paper className={classes.Paper} elevation={0}>
-                <label style={{ color: '#fff' }}>Discord</label>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Key:</label>
+              <Paper className={styles.Paper} elevation={0}>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.discord')}</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.key')}:</label>
                   <InputBase
                     value={keySecret?.discord?.key || ''}
                     name="key"
                     style={{ color: '#fff' }}
-                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.FACEBOOK)}
-                    className={classes.input}
+                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.DISCORD)}
+                    className={styles.input}
                     type={showPassword.discord.key ? 'text' : 'password'}
                   />
                   <IconButton onClick={() => handleShowPassword('discord-key')} size="large">
@@ -326,14 +329,14 @@ const Account = (props: Props) => {
                     />
                   </IconButton>
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Secret:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.secret')}:</label>
                   <InputBase
                     value={keySecret?.discord?.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
-                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.FACEBOOK)}
-                    className={classes.input}
+                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.DISCORD)}
+                    className={styles.input}
                     type={showPassword.discord.secret ? 'text' : 'password'}
                   />
                   <IconButton onClick={() => handleShowPassword('discord-secret')} size="large">
@@ -343,29 +346,29 @@ const Account = (props: Props) => {
                     />
                   </IconButton>
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Callback:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.callback')}:</label>
                   <InputBase
                     value={authSetting?.callback?.discord || ''}
                     name="callbackGithub"
                     style={{ color: '#fff' }}
                     disabled
-                    className={classes.input}
+                    className={styles.input}
                   />
                 </Paper>
               </Paper>
             )}
             {holdAuth?.facebook && (
-              <Paper className={classes.Paper} elevation={0}>
-                <label style={{ color: '#fff' }}>Facebook</label>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Key:</label>
+              <Paper className={styles.Paper} elevation={0}>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.facebook')}</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.key')}:</label>
                   <InputBase
                     value={keySecret?.facebook?.key || ''}
                     name="key"
                     style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.FACEBOOK)}
-                    className={classes.input}
+                    className={styles.input}
                     type={showPassword.facebook.key ? 'text' : 'password'}
                   />
                   <IconButton onClick={() => handleShowPassword('facebook-key')} size="large">
@@ -375,14 +378,14 @@ const Account = (props: Props) => {
                     />
                   </IconButton>
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Secret:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.secret')}</label>
                   <InputBase
                     value={keySecret?.facebook?.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.FACEBOOK)}
-                    className={classes.input}
+                    className={styles.input}
                     type={showPassword.facebook.secret ? 'text' : 'password'}
                   />
                   <IconButton onClick={() => handleShowPassword('facebook-secret')} size="large">
@@ -392,29 +395,29 @@ const Account = (props: Props) => {
                     />
                   </IconButton>
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Callback:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.callback')}:</label>
                   <InputBase
                     value={authSetting?.callback?.facebook || ''}
                     name="callbackGithub"
                     style={{ color: '#fff' }}
                     disabled
-                    className={classes.input}
+                    className={styles.input}
                   />
                 </Paper>
               </Paper>
             )}
             {holdAuth?.github && (
-              <Paper className={classes.Paper} style={{ marginTop: '10px' }} elevation={0}>
-                <label style={{ color: '#fff' }}>Github</label>
-                <Paper component="div" className={classes.createInput}>
-                  <label>App ID:</label>
+              <Paper className={styles.Paper} style={{ marginTop: '10px' }} elevation={0}>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.github')}</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.appId')}:</label>
                   <InputBase
                     value={keySecret?.github?.appid || ''}
                     name="key"
                     style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeAppId(e, OAUTH_TYPES.GITHUB)}
-                    className={classes.input}
+                    className={styles.input}
                     type={showPassword.github.appid ? 'text' : 'password'}
                   />
                   <IconButton onClick={() => handleShowPassword('github-appid')} size="large">
@@ -424,14 +427,14 @@ const Account = (props: Props) => {
                     />
                   </IconButton>
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Key:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.key')}:</label>
                   <InputBase
                     value={keySecret?.github?.key || ''}
                     name="key"
                     style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GITHUB)}
-                    className={classes.input}
+                    className={styles.input}
                     type={showPassword.github.key ? 'text' : 'password'}
                   />
                   <IconButton onClick={() => handleShowPassword('github-key')} size="large">
@@ -441,14 +444,14 @@ const Account = (props: Props) => {
                     />
                   </IconButton>
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Secret:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.secret')}:</label>
                   <InputBase
                     value={keySecret?.github?.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GITHUB)}
-                    className={classes.input}
+                    className={styles.input}
                     type={showPassword.github.secret ? 'text' : 'password'}
                   />
                   <IconButton onClick={() => handleShowPassword('github-secret')} size="large">
@@ -459,14 +462,14 @@ const Account = (props: Props) => {
                   </IconButton>
                 </Paper>
 
-                <Paper component="div" className={classes.createInput}>
-                  <label>Callback:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.callback')}:</label>
                   <InputBase
                     value={authSetting?.callback?.github || ''}
                     name="callbackGithub"
                     style={{ color: '#fff' }}
                     disabled
-                    className={classes.input}
+                    className={styles.input}
                   />
                 </Paper>
               </Paper>
@@ -474,17 +477,17 @@ const Account = (props: Props) => {
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             {holdAuth?.google && (
-              <Paper className={classes.Paper} style={{ marginBottom: '10px' }} elevation={0}>
-                <label style={{ color: '#fff' }}>Google</label>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Key:</label>
+              <Paper className={styles.Paper} style={{ marginBottom: '10px' }} elevation={0}>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.google')}</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.key')}:</label>
                   <InputBase
                     type={showPassword.google.key ? 'text' : 'password'}
                     value={keySecret?.google?.key || ''}
                     name="key"
                     style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GOOGLE)}
-                    className={classes.input}
+                    className={styles.input}
                   />
 
                   <IconButton onClick={() => handleShowPassword('google-key')} size="large">
@@ -494,14 +497,14 @@ const Account = (props: Props) => {
                     />
                   </IconButton>
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Secret:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.secret')}:</label>
                   <InputBase
                     value={keySecret?.google?.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GOOGLE)}
-                    className={classes.input}
+                    className={styles.input}
                     type={showPassword.google.secret ? 'text' : 'password'}
                   />
                   <IconButton onClick={() => handleShowPassword('google-secret')} size="large">
@@ -512,29 +515,29 @@ const Account = (props: Props) => {
                   </IconButton>
                 </Paper>
 
-                <Paper component="div" className={classes.createInput}>
-                  <label>Callback:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.callback')}:</label>
                   <InputBase
                     value={authSetting?.callback?.google || ''}
                     name="callbackGoogle"
                     style={{ color: '#fff' }}
                     disabled
-                    className={classes.input}
+                    className={styles.input}
                   />
                 </Paper>
               </Paper>
             )}
             {holdAuth?.linkedin && (
-              <Paper className={classes.Paper} style={{ marginBottom: '10px' }} elevation={0}>
-                <label style={{ color: '#fff' }}>LinkedIn</label>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Key:</label>
+              <Paper className={styles.Paper} style={{ marginBottom: '10px' }} elevation={0}>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.linkedIn')}</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.key')}:</label>
                   <InputBase
                     value={keySecret?.linkedin?.key || ''}
                     name="key"
                     style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.LINKEDIN)}
-                    className={classes.input}
+                    className={styles.input}
                     type={showPassword.linkedin.key ? 'text' : 'password'}
                   />
                   <IconButton onClick={() => handleShowPassword('linkedin-key')} size="large">
@@ -544,14 +547,14 @@ const Account = (props: Props) => {
                     />
                   </IconButton>
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Secret:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.secret')}:</label>
                   <InputBase
                     value={keySecret?.linkedin?.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.LINKEDIN)}
-                    className={classes.input}
+                    className={styles.input}
                     type={showPassword.linkedin.secret ? 'text' : 'password'}
                   />
                   <IconButton onClick={() => handleShowPassword('linkedin-secret')} size="large">
@@ -561,29 +564,29 @@ const Account = (props: Props) => {
                     />
                   </IconButton>
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Callback:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.callback')}:</label>
                   <InputBase
                     value={authSetting?.callback?.linkedin || ''}
                     name="callbackLinkedin"
                     style={{ color: '#fff' }}
                     disabled
-                    className={classes.input}
+                    className={styles.input}
                   />
                 </Paper>
               </Paper>
             )}
             {holdAuth?.twitter && (
-              <Paper className={classes.Paper} elevation={0} style={{ marginBottom: '10px' }}>
-                <label style={{ color: '#ffff' }}>Twitter</label>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Key:</label>
+              <Paper className={styles.Paper} elevation={0} style={{ marginBottom: '10px' }}>
+                <label style={{ color: '#ffff' }}>{t('admin:components.setting.twitter')}</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.key')}:</label>
                   <InputBase
                     value={keySecret?.twitter?.key || ''}
                     name="key"
                     style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.TWITTER)}
-                    className={classes.input}
+                    className={styles.input}
                     type={showPassword.twitter.key ? 'text' : 'password'}
                   />
                   <IconButton onClick={() => handleShowPassword('twitter-key')} size="large">
@@ -593,14 +596,14 @@ const Account = (props: Props) => {
                     />
                   </IconButton>
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Secret:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.secret')}:</label>
                   <InputBase
                     value={keySecret?.twitter?.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.TWITTER)}
-                    className={classes.input}
+                    className={styles.input}
                     type={showPassword.twitter.secret ? 'text' : 'password'}
                   />
                   <IconButton onClick={() => handleShowPassword('twitter-secret')} size="large">
@@ -611,14 +614,14 @@ const Account = (props: Props) => {
                   </IconButton>
                 </Paper>
 
-                <Paper component="div" className={classes.createInput}>
-                  <label>Callback:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.callback')}:</label>
                   <InputBase
                     value={authSetting?.callback?.twitter || ''}
                     name="callbackTwitter"
                     style={{ color: '#fff' }}
                     disabled
-                    className={classes.input}
+                    className={styles.input}
                   />
                 </Paper>
               </Paper>
@@ -626,11 +629,11 @@ const Account = (props: Props) => {
           </Grid>
         </Grid>
         <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
-          Cancel
+          {t('admin:components.setting.cancel')}
         </Button>
         &nbsp; &nbsp;
-        <Button sx={{ maxWidth: '100%' }} variant="contained" onClick={handleSubmit}>
-          Save
+        <Button sx={{ maxWidth: '100%' }} variant="contained" className={styles.saveBtn} onClick={handleSubmit}>
+          {t('admin:components.setting.save')}
         </Button>
       </form>
     </div>

@@ -1,75 +1,114 @@
-import React, { useCallback, useEffect, memo, useState, MouseEventHandler } from 'react'
-import { MediaGrid } from '../layout/MediaGrid'
-import { unique } from '../../functions/utils'
-import { ContextMenuTrigger, ContextMenu, MenuItem } from '../layout/ContextMenu'
+import React, { MouseEventHandler, MutableRefObject, useCallback, useEffect, useState } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
-import { ItemTypes } from '../../constants/AssetTypes'
 import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
-import { FileDataType } from './FileDataType'
-import InfiniteScroll from 'react-infinite-scroller'
-import { CircularProgress } from '@mui/material'
-import FolderIcon from '@mui/icons-material/Folder'
+
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
 import DescriptionIcon from '@mui/icons-material/Description'
+import FolderIcon from '@mui/icons-material/Folder'
+import InputBase from '@mui/material/InputBase'
+import Paper from '@mui/material/Paper'
+
+import { SupportedFileTypes } from '../../constants/AssetTypes'
+import { addMediaNode } from '../../functions/addMediaNode'
+import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
+import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
+import { FileDataType } from './FileDataType'
 import styles from './styles.module.scss'
 
 type FileListItemProps = {
-  label: string
-  iconComponent: any
+  item: FileDataType
   isRenaming: boolean
   onDoubleClick?: MouseEventHandler<HTMLDivElement>
   onClick?: MouseEventHandler<HTMLDivElement>
-  onNameChanged: (event: Event) => void
+  onNameChanged: (newName: string) => void
 }
 
 export const FileListItem: React.FC<FileListItemProps> = (props) => {
-  // const inputref = useRef(null)
+  const [newFileName, setNewFileName] = React.useState(props.item.name)
 
-  // const inputLabel = (
-  //   <MediaGridInputLabel placeholder={label} disabled={!isRenaming} onKeyDown={onNameChanged} ref={inputref} />
-  // )
+  const handleChange = (e) => {
+    setNewFileName(e.target.value)
+  }
 
-  // useEffect(() => {
-  //   if (props.isRenaming) inputref.current.focus()
-  // }, [props.isRenaming])
-
-  return (
-    <div className={styles.fileListItemContainer} onDoubleClick={props.onDoubleClick} onClick={props.onClick}>
+  return !props.isRenaming ? (
+    <div
+      className={styles.fileListItemContainer}
+      onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
+      onClick={props.item.isFolder ? undefined : props.onClick}
+    >
       <div className={styles.fileNameContainer}>
-        {props.iconComponent ? <props.iconComponent width={15} /> : <DescriptionIcon width={15} />}
+        {props.item.isFolder ? (
+          <FolderIcon width={15} />
+        ) : props.item.Icon ? (
+          <props.item.Icon width={15} />
+        ) : (
+          <DescriptionIcon width={15} />
+        )}
       </div>
-      {props.label}
+      {props.item.fullName}
     </div>
+  ) : (
+    <Paper component="div" className={styles.inputContainer}>
+      <InputBase
+        className={styles.input}
+        name="name"
+        style={{ color: '#fff' }}
+        autoComplete="off"
+        value={newFileName}
+        onChange={(e) => handleChange(e)}
+        onKeyPress={async (e) => {
+          if (e.key == 'Enter') {
+            props.onNameChanged(newFileName)
+          }
+        }}
+      />
+    </Paper>
   )
-}
-
-MediaGrid.defaultProps = {
-  minWidth: '100px'
 }
 
 type FileBrowserItemType = {
   contextMenuId: string
   item: FileDataType
-  currentContent: any
-  deleteContent: (contentPath: string, type: string) => Promise<void>
+  currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
+  deleteContent: (contentPath: string, type: string) => void
   onClick: (params: FileDataType) => void
-  moveContent: (from: string, to: string, isCopy?: boolean, renameTo?: string) => Promise<void>
+  setFileProperties: any
+  setOpenPropertiesModal: any
+  dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
+  moveContent: (oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean) => Promise<void>
 }
 
-function FileBrowserItem(props: FileBrowserItemType) {
-  const { contextMenuId, item, currentContent, deleteContent, onClick, moveContent } = props
+export function FileBrowserItem(props: FileBrowserItemType) {
+  const {
+    contextMenuId,
+    item,
+    currentContent,
+    deleteContent,
+    onClick,
+    moveContent,
+    setOpenPropertiesModal,
+    setFileProperties,
+    dropItemsOnPanel
+  } = props
   const { t } = useTranslation()
   const [renamingAsset, setRenamingAsset] = useState(false)
 
   const onClickItem = (_) => onClick(item)
 
   const placeObject = useCallback((_, trigger) => {
-    CommandManager.instance.addMedia({ url: trigger.item.url })
+    if (AssetLoader.getAssetType(trigger.item.url) === AssetType.XRE) AssetLoader.load(trigger.item.url)
+    else addMediaNode(trigger.item.url)
   }, [])
 
-  const placeObjectAtOrigin = useCallback((_, trigger) => {
-    CommandManager.instance.addMedia({ url: trigger.item.url }, undefined, undefined, false)
+  const placeObjectAtOrigin = useCallback(async (_, trigger) => {
+    const node = await addMediaNode(trigger.item.url)
+    const transformComponent = getComponent(node.entity, TransformComponent)
+    if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
   }, [])
 
   const copyURL = useCallback((_, trigger) => {
@@ -83,41 +122,36 @@ function FileBrowserItem(props: FileBrowserItemType) {
   }, [])
 
   const Copy = useCallback((_, trigger) => {
-    currentContent.current = { itemid: trigger.item.id, isCopy: true }
+    currentContent.current = { item: trigger.item, isCopy: true }
   }, [])
 
   const Cut = useCallback((_, trigger) => {
-    currentContent.current = { itemid: trigger.item.id, isCopy: false }
+    currentContent.current = { item: trigger.item, isCopy: false }
+  }, [])
+
+  const viewAssetProperties = useCallback((_, trigger) => {
+    if (trigger.item.isFolder) {
+      setFileProperties({
+        ...trigger.item,
+        url: trigger.item.url + '/' + trigger.item.key
+      })
+    } else {
+      setFileProperties(trigger.item)
+    }
+    setOpenPropertiesModal(true)
   }, [])
 
   const deleteContentCallback = (_, trigger) => {
-    deleteContent(trigger.item.id, trigger.item.type)
+    deleteContent(trigger.item.key, trigger.item.type)
   }
 
-  const onNameChanged = (event) => {
-    if (event.key !== 'Enter') return
-
-    const fileName = event.currentTarget.value
+  const onNameChanged = async (fileName: string): Promise<void> => {
     setRenamingAsset(false)
 
-    if (item.type !== 'folder') {
-      const re = /(?<dir>.*\/)(?:.*)(?<ext>\..*)/
-      const matchgroups = item.id.match(re)?.groups
-
-      if (matchgroups) {
-        const newName = `${fileName}${matchgroups.ext}`
-        moveContent(item.id, matchgroups.dir, false, newName)
-      }
-    } else {
-      const re2 = /(?<dir>.*\/)(.*)\//
-      const group = item.id.match(re2)?.groups
-      if (group) moveContent(item.id, group.dir, false, fileName)
-    }
+    await moveContent(item.fullName, item.isFolder ? fileName : `${fileName}.${item.type}`, item.path, item.path, false)
   }
 
-  const rename = () => {
-    setRenamingAsset(true)
-  }
+  const rename = () => setRenamingAsset(true)
 
   const [_dragProps, drag, preview] = useDrag(() => ({
     type: item.type,
@@ -125,11 +159,9 @@ function FileBrowserItem(props: FileBrowserItemType) {
     multiple: false
   }))
 
-  const [{ isOver, canDrop, moni }, drop] = useDrop({
-    accept: [...ItemTypes.FileBrowserContent],
-    drop: (dropItem) => {
-      moveContent((dropItem as any).id, item.id)
-    },
+  const [{ isOver }, drop] = useDrop({
+    accept: [...SupportedFileTypes],
+    drop: (dropItem) => dropItemsOnPanel(dropItem, item),
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: !!monitor.canDrop(),
@@ -147,30 +179,20 @@ function FileBrowserItem(props: FileBrowserItemType) {
   }
 
   return (
-    <div ref={drop}>
+    <div ref={drop} style={{ border: item.isFolder ? (isOver ? '3px solid #ccc' : '') : '' }}>
       <div ref={drag}>
         <ContextMenuTrigger id={contextMenuId} holdToDisplay={-1} collect={collectMenuProps}>
-          {item.type === 'folder' ? (
-            <FileListItem
-              iconComponent={FolderIcon}
-              onDoubleClick={onClickItem}
-              label={item.label}
-              isRenaming={renamingAsset}
-              onNameChanged={onNameChanged}
-            />
-          ) : (
-            <FileListItem
-              iconComponent={item.iconComponent}
-              onClick={onClickItem}
-              label={item.label}
-              isRenaming={renamingAsset}
-              onNameChanged={onNameChanged}
-            />
-          )}
+          <FileListItem
+            item={item}
+            onClick={onClickItem}
+            onDoubleClick={onClickItem}
+            isRenaming={renamingAsset}
+            onNameChanged={onNameChanged}
+          />
         </ContextMenuTrigger>
 
         <ContextMenu id={contextMenuId} hideOnLeave={true}>
-          {item.type !== 'folder' && (
+          {item.isFolder && (
             <>
               <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
               <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
@@ -182,50 +204,9 @@ function FileBrowserItem(props: FileBrowserItemType) {
           <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>
           <MenuItem onClick={rename}>{t('editor:layout.filebrowser.renameAsset')}</MenuItem>
           <MenuItem onClick={deleteContentCallback}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>
+          <MenuItem onClick={viewAssetProperties}>{t('editor:layout.filebrowser.viewAssetProperties')}</MenuItem>
         </ContextMenu>
       </div>
     </div>
   )
 }
-
-const MemoFileGridItem = memo(FileBrowserItem)
-
-type FileBrowserGridTypes = {
-  isLoading: boolean
-  items: FileDataType[]
-  onSelect: (params: FileDataType) => void
-  moveContent: (from: string, to: string, isCopy?: boolean, renameTo?: string) => Promise<void>
-  deleteContent: (contentPath: string, type: string) => Promise<void>
-  currentContent: any
-}
-
-export const FileBrowserGrid: React.FC<FileBrowserGridTypes> = (props) => {
-  const { items, onSelect, moveContent, deleteContent, currentContent } = props
-
-  const itemsRendered = unique(items, (item) => item.id).map((item, i) => (
-    <MemoFileGridItem
-      key={item.id}
-      contextMenuId={i.toString()}
-      item={item}
-      onClick={onSelect}
-      moveContent={moveContent}
-      deleteContent={deleteContent}
-      currentContent={currentContent}
-    />
-  ))
-
-  return (
-    <InfiniteScroll
-      pageStart={0}
-      hasMore={false}
-      loader={<CircularProgress />}
-      threshold={100}
-      useWindow={false}
-      loadMore={() => {}}
-    >
-      {itemsRendered}
-    </InfiniteScroll>
-  )
-}
-
-export default FileBrowserGrid

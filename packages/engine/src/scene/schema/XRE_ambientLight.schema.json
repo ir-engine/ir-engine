@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_ambientLight.schema.json",
+  "title": "XRE_ambientLight glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine ambient light components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "color": {
+      "type": "number",
+      "description": "color of light"
+    },
+    "intensity": {
+      "type": "number",
+      "description": "ambient light intensity",
+      "minimum": 0.0,
+      "default": 1.0
+    }
+  },
+  "extensions": {},
+  "extras": {}
+}

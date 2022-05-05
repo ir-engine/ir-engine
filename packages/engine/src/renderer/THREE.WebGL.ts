@@ -1,12 +1,17 @@
-import { EngineEvents } from '../ecs/classes/EngineEvents'
+import { defineAction, dispatchAction } from '@xrengine/hyperflux'
+
+import { Engine } from '../ecs/classes/Engine'
 
 export default class WEBGL {
   static EVENTS = {
-    INSTANCE_WEBGL_DISCONNECTED: 'CORE_INSTANCE_DISCONNECTED'
+    webglDisconnected: defineAction({
+      store: 'ENGINE',
+      type: 'WEBGL_DISCONNECTED' as const
+    })
   }
 
   static dispatchWebGLDisconnectedEvent() {
-    EngineEvents.instance.dispatchEvent({ type: this.EVENTS.INSTANCE_WEBGL_DISCONNECTED })
+    dispatchAction(Engine.instance.store, WEBGL.EVENTS.webglDisconnected())
   }
 
   static isWebGLAvailable() {

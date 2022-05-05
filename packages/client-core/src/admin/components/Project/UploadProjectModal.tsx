@@ -1,43 +1,39 @@
 import classNames from 'classnames'
 import React, { useState } from 'react'
-import styles from './Projects.module.scss'
-import { ProjectService } from '../../../common/services/ProjectService'
-import { useDispatch } from '../../../store'
+import { useTranslation } from 'react-i18next'
+
+import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
+
+import GitHubIcon from '@mui/icons-material/GitHub'
+import GroupIcon from '@mui/icons-material/Group'
+import { Grid } from '@mui/material'
 import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
-import Modal from '@mui/material/Modal'
 import MenuItem from '@mui/material/MenuItem'
+import Modal from '@mui/material/Modal'
 import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
-import CircularProgress from '@mui/material/CircularProgress'
-import GroupIcon from '@mui/icons-material/Group'
-import GitHubIcon from '@mui/icons-material/GitHub'
-import { useAuthState, AuthService } from '@xrengine/client-core/src/user/services/AuthService'
-import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
+
+import { ProjectService } from '../../../common/services/ProjectService'
+import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  repos: any
-  handleClose: any
-  scenes?: any
-  avatars?: any
-  projects?: any
+  repos: GithubAppInterface[]
+  handleClose: () => void
 }
 
 const UploadProjectModal = (props: Props): any => {
-  const authState = useAuthState()
-  const authType = useAuthState().authUser.identityProvider.type.value
-
-  const { open, handleClose, scenes, repos } = props
-
+  const { open, handleClose, repos } = props
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
   const [projectURL, setProjectURL] = useState('')
   const [isPublicUrl, setIsPublicUrl] = useState(false)
-  const dispatch = useDispatch()
+  const { t } = useTranslation()
+
   const showError = (err: string) => {
     setError(err)
     setTimeout(() => {
@@ -82,12 +78,12 @@ const UploadProjectModal = (props: Props): any => {
           <div
             className={classNames({
               [styles.paper]: true,
-              [styles['modal-content']]: true
+              [styles.modalContent]: true
             })}
           >
-            {processing === false && createOrPatch === 'patch' && (
+            {!processing && createOrPatch === 'patch' && (
               <FormControl>
-                <div className={styles.inputConatiner}>
+                <div className={styles.inputContainer}>
                   {!isPublicUrl && repos && repos.length != 0 ? (
                     <Select
                       labelId="demo-controlled-open-select-label"
@@ -99,61 +95,67 @@ const UploadProjectModal = (props: Props): any => {
                       name="projectURL"
                     >
                       <MenuItem value="" disabled>
-                        <em>Select Project</em>
+                        <em>{t('admin:components.project.selectProject')}</em>
                       </MenuItem>
                       {repos &&
                         repos.map((el: any, i) => (
-                          <MenuItem value={`${el.repositoryPath.value}`} key={i}>
-                            {el.name.value} ({el.user.value})
+                          <MenuItem value={`${el.repositoryPath}`} key={i}>
+                            {el.name} ({el.user})
                           </MenuItem>
                         ))}
                     </Select>
                   ) : (
-                    <div>
-                      <label>Please insert github public url</label>
-                      <TextField
-                        className={styles['pack-select']}
-                        id="urlSelect"
-                        value={projectURL}
-                        placeholder={'URL'}
-                        onChange={(e) => setProjectURL(e.target.value)}
-                      />
-                    </div>
+                    <Grid container spacing={1} direction="column">
+                      <Grid item>
+                        <label>{t('admin:components.project.insertPublicUrl')}</label>
+                      </Grid>
+                      <Grid item>
+                        <TextField
+                          id="urlSelect"
+                          fullWidth
+                          value={projectURL}
+                          placeholder={'URL'}
+                          onChange={(e) => setProjectURL(e.target.value)}
+                        />
+                      </Grid>
+                    </Grid>
                   )}
                 </div>
-                <div className={styles.buttonConatiner}>
+                <div className={styles.buttonContainer}>
                   <Button
                     type="submit"
                     startIcon={<GitHubIcon />}
                     variant="contained"
                     color="primary"
+                    className={styles.gradientButton}
                     onClick={tryUploadProject}
                   >
-                    Upload Project
+                    {t('admin:components.project.uploadProject')}
                   </Button>
-                  {repos && repos.length != 0 ? (
+                  {repos && repos.length != 0 && (
                     <Button
                       type="submit"
                       startIcon={<GroupIcon />}
                       variant="contained"
                       color="primary"
+                      className={styles.gradientButton}
                       onClick={trySelectPublicUrl}
                     >
-                      {!isPublicUrl ? 'Custom Public Url' : 'Select From List'}
+                      {!isPublicUrl
+                        ? t('admin:components.project.customPublicUrl')
+                        : t('admin:components.project.selectFromList')}
                     </Button>
-                  ) : (
-                    <></>
                   )}
                 </div>
               </FormControl>
             )}
-            {processing === true && (
-              <div className={styles.processing}>
+            {processing && (
+              <div>
                 <CircularProgress color="primary" />
-                <div className={styles.text}>Processing</div>
+                <div className={styles.accentText}>{t('admin:components.project.processing')}</div>
               </div>
             )}
-            {error && error.length > 0 && <h2 className={styles['error-message']}>{error}</h2>}
+            {error && error.length > 0 && <h2 className={styles.errorMessage}>{error}</h2>}
           </div>
         </Fade>
       </Modal>

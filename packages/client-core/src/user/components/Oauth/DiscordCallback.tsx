@@ -1,15 +1,13 @@
-import { useLocation, withRouter } from 'react-router-dom'
-import React, { useState, useEffect } from 'react'
-import { AuthService } from '../../services/AuthService'
-import Container from '@mui/material/Container'
-import { useAuthState } from '../../services/AuthService'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useLocation, withRouter } from 'react-router-dom'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
+import Container from '@mui/material/Container'
 
-const DiscordCallbackComponent = (props): any => {
+import { AuthService } from '../../services/AuthService'
+import { useAuthState } from '../../services/AuthService'
+
+const DiscordCallbackComponent = (props): JSX.Element => {
   const { t } = useTranslation()
   const initialState = { error: '', token: '' }
   const [state, setState] = useState(initialState)
@@ -32,7 +30,7 @@ const DiscordCallbackComponent = (props): any => {
         AuthService.loginUserByJwt(token, redirectSuccess || '/', '/')
       }
     } else {
-      if (error === 'access_denied') window.location.href = '/login'
+      if (error === 'access_denied') window.location.href = '/'
     }
 
     setState({ ...state, error, token })

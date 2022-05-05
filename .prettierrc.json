@@ -8,8 +8,12 @@
   "jsxSingleQuote": false,
   "trailingComma": "none",
   "bracketSpacing": true,
-  "jsxBracketSameLine": false,
+  "bracketSameLine": false,
   "arrowParens": "always",
   "proseWrap": "never",
-  "endOfLine": "lf"
-} 
+  "endOfLine": "lf",
+  "importOrder": ["<THIRD_PARTY_MODULES>", "^@xrengine/(.*)$", "^@mui/(.*)$", "^[./]"],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "importOrderCaseInsensitive": true
+}

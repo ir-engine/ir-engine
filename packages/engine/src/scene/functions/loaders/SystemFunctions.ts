@@ -1,16 +1,16 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { SystemComponent, SystemComponentType } from '../../components/SystemComponent'
+
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { Engine } from '../../../ecs/classes/Engine'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
+import { SystemComponent, SystemComponentType } from '../../components/SystemComponent'
 
 export const SCENE_COMPONENT_SYSTEM = 'system'
 export const SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES = {
@@ -29,7 +29,7 @@ export const deserializeSystem: ComponentDeserializeFunction = (
   addComponent(entity, SystemComponent, props)
   addComponent(entity, PreventBakeTagComponent, {})
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SYSTEM)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SYSTEM)
 
   updateSystem(entity)
 }
@@ -52,7 +52,7 @@ export const serializeSystem: ComponentSerializeFunction = (entity) => {
   }
 }
 
-const parseSystemProperties = (props): SystemComponentType => {
+export const parseSystemProperties = (props): SystemComponentType => {
   return {
     filePath: props.filePath ?? SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES.filePath,
     systemUpdateType: props.systemUpdateType ?? SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES.systemUpdateType,

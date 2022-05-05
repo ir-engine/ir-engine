@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Euler } from 'three'
+
+import { client } from '@xrengine/client-core/src/feathers'
+import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
+
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
+
+import BooleanInput from '../inputs/BooleanInput'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { CommandManager } from '../../managers/CommandManager'
-import { client } from '@xrengine/client-core/src/feathers'
-import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
-import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
-import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { EditorComponentType, updateProperty } from './Util'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Euler } from 'three'
 
 type PortalOptions = {
   name: string
@@ -38,13 +41,6 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   const [portals, setPortals] = useState<Array<{ value: string; label: string }>>([])
   const [entityId, setEntityId] = useState('')
   const { t } = useTranslation()
-
-  const onChangeValue = (prop) => (value) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: PortalComponent,
-      properties: { [prop]: value }
-    })
-  }
 
   const loadPortals = async () => {
     const portalsDetail: PortalDetail[] = []
@@ -96,10 +92,13 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
           getOptionLabel={(data) => data.name}
         />
       </InputGroup>
+      <InputGroup name="Portal" label={t('editor:properties.portal.lbl-redirect')}>
+        <BooleanInput onChange={updateProperty(PortalComponent, 'redirect')} value={portalComponent.redirect} />
+      </InputGroup>
       {/* TODO */}
       {/* <InputGroup name="Cubemap Bake" label={t('editor:properties.portal.lbl-cubemapBake')}>
         <SelectInput
-          options={Engine.scene.children
+          options={Engine.instance.scene.children
             .filter((obj: Object3D) => {
               return (obj as any).nodeName === CubemapBakeportalComponent.nodeName
             })

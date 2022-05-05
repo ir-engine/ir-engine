@@ -1,20 +1,22 @@
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
-import styles from './Auth.module.scss'
+
+import EmptyLayout from '../../../common/components/EmptyLayout'
+import styles from './index.module.scss'
 
 interface Props {
-  completeAction?: any
-  resetPassword: any
+  completeAction?: () => void
+  resetPassword: (token: string, password: string) => void
   token: string
   type?: string
 }
 
-export default (props: Props): any => {
+export default (props: Props): JSX.Element => {
   const { resetPassword, token } = props
   const initialState = { password: '' }
   const [state, setState] = useState(initialState)

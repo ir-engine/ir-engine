@@ -1,13 +1,16 @@
+import { Paginated } from '@feathersjs/feathers'
+import { createState, useState } from '@speigg/hookstate'
+
+import { SceneMetadata } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
-import { createState, useState } from '@speigg/hookstate'
-import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
 //State
 export const SCENE_PAGE_LIMIT = 100
 
 const state = createState({
-  scenes: [] as Array<SceneDetailInterface>,
+  scenes: [] as Array<SceneMetadata>,
   skip: 0,
   limit: SCENE_PAGE_LIMIT,
   total: 0,
@@ -48,7 +51,7 @@ export const SceneService = {
 
 //Action
 export const SceneAction = {
-  scenesFetched: (sceneData: SceneDetailInterface[]) => {
+  scenesFetched: (sceneData: SceneMetadata[]) => {
     return {
       type: 'ADMIN_SCENES_RETRIEVED' as const,
       sceneData

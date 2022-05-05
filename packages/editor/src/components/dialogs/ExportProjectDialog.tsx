@@ -1,9 +1,10 @@
-import React, { useState, useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import styled from 'styled-components'
+
 import BooleanInput from '../inputs/BooleanInput'
 import FormField from '../inputs/FormField'
 import Dialog from './Dialog'
-import styled from 'styled-components'
-import { useTranslation } from 'react-i18next'
 
 /**
  * FormContainer used as a wrapper element for FormFields.
@@ -32,18 +33,18 @@ export function ExportProjectDialog({ defaultOptions, onConfirm, onCancel }) {
   // initializing options using defaultOptions
   const [options, setOptions] = useState(defaultOptions)
 
-  //callback function used to handle changes in options.combinedMesh property
+  //callback function used to handle changes in options.shouldCombineMeshes property
   const onChangeCombineMeshes = useCallback(
-    (combineMeshes) => {
-      setOptions({ ...options, combineMeshes })
+    (shouldCombineMeshes) => {
+      setOptions({ ...options, shouldCombineMeshes })
     },
     [options, setOptions]
   )
 
-  // callback function used to handle change in options.removeUnusedObjects property
+  // callback function used to handle change in options.shouldRemoveUnusedObjects property
   const onChangeRemoveUnusedObjects = useCallback(
-    (removeUnusedObjects) => {
-      setOptions({ ...options, removeUnusedObjects })
+    (shouldRemoveUnusedObjects) => {
+      setOptions({ ...options, shouldRemoveUnusedObjects })
     },
     [options, setOptions]
   )
@@ -77,13 +78,13 @@ export function ExportProjectDialog({ defaultOptions, onConfirm, onCancel }) {
       <FormContainer>
         <FormField>
           <label htmlFor="combineMeshes">{t('editor:dialog.exportProject.lbl-combineMesh')}</label>
-          <BooleanInput id="combineMeshes" value={options.combineMeshes} onChange={onChangeCombineMeshes} />
+          <BooleanInput id="combineMeshes" value={options.shouldCombineMeshes} onChange={onChangeCombineMeshes} />
         </FormField>
         <FormField>
           <label htmlFor="removeUnusedObjects">{t('editor:dialog.exportProject.lbl-removeUnused')}</label>
           <BooleanInput
             id="removeUnusedObjects"
-            value={options.removeUnusedObjects}
+            value={options.shouldRemoveUnusedObjects}
             onChange={onChangeRemoveUnusedObjects}
           />
         </FormField>

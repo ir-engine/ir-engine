@@ -1,15 +1,18 @@
 import React from 'react'
-import Grid from '@mui/material/Grid'
+import { useTranslation } from 'react-i18next'
+
 import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+
 import Search from '../../common/Search'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
+import CreateLocation from './CreateLocation'
 import LocationTable from './LocationTable'
-import CreateLocation from './createLocation'
 
 const Location = () => {
-  const classes = useStyles()
-  const [locationModelOpen, setLocationModelOpen] = React.useState(false)
+  const [locationModalOpen, setLocationModalOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
+  const { t } = useTranslation()
 
   const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
@@ -18,10 +21,10 @@ const Location = () => {
     ) {
       return
     }
-    setLocationModelOpen(open)
+    setLocationModalOpen(open)
   }
-  const closeViewModel = (open: boolean) => {
-    setLocationModelOpen(open)
+  const closeViewModal = (open: boolean) => {
+    setLocationModalOpen(open)
   }
 
   const handleChange = (e: any) => {
@@ -30,20 +33,20 @@ const Location = () => {
 
   return (
     <div>
-      <Grid container spacing={3} className={classes.marginBottom}>
-        <Grid item xs={9}>
+      <Grid container spacing={1} className={styles.mb10px}>
+        <Grid item xs={12} sm={8}>
           <Search text="location" handleChange={handleChange} />
         </Grid>
-        <Grid item xs={3}>
-          <Button className={classes.createBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
-            Create New Location
+        <Grid item xs={12} sm={4}>
+          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
+            {t('admin:components.locationModal.createNewLocation')}
           </Button>
         </Grid>
       </Grid>
-      <div className={classes.rootTable}>
+      <div className={styles.rootTableWithSearch}>
         <LocationTable search={search} />
       </div>
-      <CreateLocation open={locationModelOpen} handleClose={openModalCreate} closeViewModel={closeViewModel} />
+      <CreateLocation open={locationModalOpen} handleClose={openModalCreate} closeViewModal={closeViewModal} />
     </div>
   )
 }

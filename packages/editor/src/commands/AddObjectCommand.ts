@@ -1,17 +1,27 @@
-import Command, { CommandParams } from './Command'
-import { serializeObject3D } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
-import EditorCommands from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
-import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
-import makeUniqueName from '../functions/makeUniqueName'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { store } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { createNewEditorNode, loadSceneEntity } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import {
+  addEntityNodeInTree,
+  getEntityNodeArrayFromEntities,
+  traverseEntityNode
+} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { createNewEditorNode, loadSceneEntity } from '@xrengine/engine/src/scene/functions/SceneLoading'
+
+import { executeCommand } from '../classes/History'
+import EditorCommands from '../constants/EditorCommands'
+import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
+import { serializeObject3D } from '../functions/debug'
+import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
+import makeUniqueName from '../functions/makeUniqueName'
+import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
+import { EditorAction } from '../services/EditorServices'
+import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
+import Command, { CommandParams } from './Command'
 
 export interface AddObjectCommandParams extends CommandParams {
   prefabTypes?: ScenePrefabTypes | ScenePrefabTypes[]
@@ -57,7 +67,7 @@ export default class AddObjectCommand extends Command {
       : undefined
 
     if (this.keepHistory) {
-      this.oldSelection = CommandManager.instance.selected.slice(0)
+      this.oldSelection = accessSelectionState().selectedEntities.value.slice(0)
     }
   }
 
@@ -68,13 +78,13 @@ export default class AddObjectCommand extends Command {
   }
 
   undo(): void {
-    CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.affectedObjects, {
+    executeCommand(EditorCommands.REMOVE_OBJECTS, this.affectedObjects, {
       deselectObject: false,
       skipSerialization: true
     })
 
     if (this.oldSelection) {
-      CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)
+      executeCommand(EditorCommands.REPLACE_SELECTION, getEntityNodeArrayFromEntities(this.oldSelection))
     }
   }
 
@@ -85,15 +95,20 @@ export default class AddObjectCommand extends Command {
   }
 
   emitBeforeExecuteEvent() {
-    if (this.shouldEmitEvent && this.isSelected)
-      CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
+    if (this.shouldEmitEvent && this.isSelected) {
+      cancelGrabOrPlacement()
+      store.dispatch(SelectionAction.changedBeforeSelection())
+    }
   }
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      if (this.isSelected) CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+      if (this.isSelected) {
+        updateOutlinePassSelection()
+      }
 
-      CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
+      store.dispatch(EditorAction.sceneModified(true))
+      store.dispatch(SelectionAction.changedSceneGraph())
     }
   }
 
@@ -115,26 +130,28 @@ export default class AddObjectCommand extends Command {
       } else if (sceneData) {
         const data = sceneData[i] ?? sceneData[0]
 
-        object.traverse((node) => {
+        traverseEntityNode(object, (node) => {
           node.entity = createEntity()
           loadSceneEntity(node, data.entities[node.uuid])
-          if (node.uuid !== data.root) reparentObject3D(node, node.parentNode)
+
+          if (node.parentEntity && node.uuid !== data.root)
+            reparentObject3D(node, node.parentEntity, undefined, world.entityTree)
         })
       }
 
       let parent = parents ? parents[i] ?? parents[0] : world.entityTree.rootNode
       let before = befores ? befores[i] ?? befores[0] : undefined
 
-      const index = before ? parent.children?.indexOf(before) : undefined
-      world.entityTree.addEntityNode(object, parent, index)
+      const index = before && parent.children ? parent.children.indexOf(before.entity) : undefined
+      addEntityNodeInTree(object, parent, index, false, world.entityTree)
 
-      reparentObject3D(object, parent, before)
+      reparentObject3D(object, parent, before, world.entityTree)
 
-      if (this.useUniqueName) object.traverse((node) => makeUniqueName(node, world))
+      if (this.useUniqueName) traverseEntityNode(object, (node) => makeUniqueName(node, world))
     }
 
     if (this.isSelected) {
-      CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.affectedObjects, {
+      executeCommand(EditorCommands.REPLACE_SELECTION, this.affectedObjects, {
         shouldEmitEvent: false
       })
     }

@@ -1,5 +1,7 @@
+import { Color, IcosahedronGeometry, Mesh, MeshBasicMaterial, PointLight, Vector2 } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Vector2, Color, PointLight, IcosahedronGeometry, MeshBasicMaterial, Mesh } from 'three'
+
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
@@ -34,27 +36,25 @@ export const deserializePointLight: ComponentDeserializeFunction = (
   const light = new PointLight()
   const props = parsePointLightProperties(json.props)
 
-  if (Engine.isEditor) {
-    const ball = new Mesh(new IcosahedronGeometry(0.15), new MeshBasicMaterial({ fog: false }))
-    const rangeBall = new Mesh(
-      new IcosahedronGeometry(0.25),
-      new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5 })
-    )
-    light.add(ball)
-    light.add(rangeBall)
-    rangeBall.userData.isHelper = true
-    ball.userData.isHelper = true
-    light.userData.rangeBall = rangeBall
-    light.userData.ball = ball
+  const ball = new Mesh(new IcosahedronGeometry(0.15), new MeshBasicMaterial({ fog: false }))
+  const rangeBall = new Mesh(
+    new IcosahedronGeometry(0.25),
+    new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5 })
+  )
+  light.add(ball)
+  light.add(rangeBall)
+  rangeBall.userData.isHelper = true
+  ball.userData.isHelper = true
+  light.userData.rangeBall = rangeBall
+  light.userData.ball = ball
 
-    setObjectLayers(ball, ObjectLayers.NodeHelper)
-    setObjectLayers(rangeBall, ObjectLayers.NodeHelper)
-  }
+  setObjectLayers(ball, ObjectLayers.NodeHelper)
+  setObjectLayers(rangeBall, ObjectLayers.NodeHelper)
 
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, PointLightComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POINT_LIGHT)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POINT_LIGHT)
 
   updatePointLight(entity, props)
 }
@@ -69,7 +69,7 @@ export const updatePointLight: ComponentUpdateFunction = (entity: Entity, proper
   if (typeof properties.decay !== 'undefined') light.decay = component.decay
   if (typeof properties.shadowBias !== 'undefined') light.shadow.bias = component.shadowBias
   if (typeof properties.shadowRadius !== 'undefined') light.shadow.radius = component.shadowRadius
-  // if (typeof properties.castShadow !== 'undefined') light.castShadow = component.castShadow
+  if (typeof properties.castShadow !== 'undefined') light.castShadow = component.castShadow
 
   if (typeof properties.shadowMapResolution !== 'undefined') {
     light.shadow.mapSize.copy(component.shadowMapResolution)
@@ -80,10 +80,8 @@ export const updatePointLight: ComponentUpdateFunction = (entity: Entity, proper
     light.shadow.needsUpdate = true
   }
 
-  if (Engine.isEditor) {
-    light.userData.ball.material.color = component.color
-    light.userData.rangeBall.material.color = component.color
-  }
+  light.userData.ball.material.color = component.color
+  light.userData.rangeBall.material.color = component.color
 }
 
 export const serializePointLight: ComponentSerializeFunction = (entity) => {

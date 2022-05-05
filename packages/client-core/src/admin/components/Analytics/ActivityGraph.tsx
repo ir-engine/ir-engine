@@ -1,10 +1,12 @@
-import React from 'react'
-
 import ApexCharts from 'apexcharts'
+import React from 'react'
 import ReactApexChart from 'react-apexcharts'
 
-const ActivityGraph = ({ data /* see data tab */ }) => {
+const ActivityGraph = ({ data, startDate, endDate }) => {
   let maxY = 0
+  let minX = new Date(startDate).getTime()
+  let maxX = new Date(endDate).getTime()
+
   if (data) {
     for (let analytic of data) {
       if (analytic) {
@@ -25,12 +27,12 @@ const ActivityGraph = ({ data /* see data tab */ }) => {
       chart: {
         id: 'area-datetime',
         type: 'area',
-        height: 350,
+        height: '100%',
         width: '100%',
         zoom: {
           autoScaleYaxis: true
         },
-        background: '#323845',
+        background: 'var(--purplePanel)',
         toolbar: {
           tools: {
             zoomin: false,
@@ -59,8 +61,8 @@ const ActivityGraph = ({ data /* see data tab */ }) => {
       },
       xaxis: {
         type: 'datetime',
-        min: data[0].data[0] ? data[0].data[0][0] : new Date().setTime(new Date().getTime() - 60000),
-        max: data[0].data[0] ? data[0].data[data[0].data.length - 1][0] : new Date().getTime(),
+        min: minX,
+        max: maxX,
         tickAmount: 6,
         labels: {
           style: {
@@ -87,7 +89,7 @@ const ActivityGraph = ({ data /* see data tab */ }) => {
       },
       tooltip: {
         x: {
-          format: 'dd MMM yyy'
+          format: 'dd MMM yyyy'
         }
       },
       plotOptions: {
@@ -111,7 +113,7 @@ const ActivityGraph = ({ data /* see data tab */ }) => {
   }
 
   return (
-    <div id="chart-timeline" style={{ height: '30rem' }}>
+    <div id="chart-timeline" style={{ height: '25rem' }}>
       <ReactApexChart options={graphData.options} series={graphData.series} height="100%" type="line" width="100%" />
     </div>
   )

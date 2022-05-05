@@ -1,10 +1,10 @@
 import { Application } from '../../../declarations'
 import { Bot } from './bot.class'
-import createModel from './bot.model'
-import hooks from './bot.hooks'
 import docs from './bot.docs'
+import hooks from './bot.hooks'
+import createModel from './bot.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     bot: Bot
   }

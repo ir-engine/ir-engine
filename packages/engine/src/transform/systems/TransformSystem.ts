@@ -1,33 +1,24 @@
 import { Euler } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 import { CopyTransformComponent } from '../components/CopyTransformComponent'
-import { DesiredTransformComponent } from '../components/DesiredTransformComponent'
 import { TransformChildComponent } from '../components/TransformChildComponent'
 import { TransformComponent } from '../components/TransformComponent'
 import { TransformParentComponent } from '../components/TransformParentComponent'
-import { TweenComponent } from '../components/TweenComponent'
 
-const euler1YXZ = new Euler()
-euler1YXZ.order = 'YXZ'
-const euler2YXZ = new Euler()
-euler2YXZ.order = 'YXZ'
+const parentQuery = defineQuery([TransformParentComponent, TransformComponent])
+const childQuery = defineQuery([TransformChildComponent, TransformComponent])
+const copyTransformQuery = defineQuery([CopyTransformComponent])
+const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
+const spawnPointQuery = defineQuery([SpawnPointComponent])
 
 export default async function TransformSystem(world: World) {
-  const parentQuery = defineQuery([TransformParentComponent, TransformComponent])
-  const childQuery = defineQuery([TransformChildComponent, TransformComponent])
-  const copyTransformQuery = defineQuery([CopyTransformComponent])
-  const desiredTransformQuery = defineQuery([DesiredTransformComponent])
-  const tweenQuery = defineQuery([TweenComponent])
-  const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
-  const spawnPointQuery = defineQuery([SpawnPointComponent])
-
   return () => {
-    const { fixedDelta } = world
     for (const entity of parentQuery(world)) {
       const parentTransform = getComponent(entity, TransformComponent)
       const parentingComponent = getComponent(entity, TransformParentComponent)
@@ -83,36 +74,6 @@ export default async function TransformSystem(world: World) {
       removeComponent(entity, CopyTransformComponent)
     }
 
-    for (const entity of desiredTransformQuery(world)) {
-      const desiredTransform = getComponent(entity, DesiredTransformComponent)
-
-      const mutableTransform = getComponent(entity, TransformComponent)
-      mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionRate * fixedDelta)
-
-      // store rotation before interpolation
-      euler1YXZ.setFromQuaternion(mutableTransform.rotation)
-      // lerp to desired rotation
-
-      mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * fixedDelta)
-      euler2YXZ.setFromQuaternion(mutableTransform.rotation)
-      // use axis locks - yes this is correct, the axis order is weird because quaternions
-      if (desiredTransform.lockRotationAxis[0]) {
-        euler2YXZ.x = euler1YXZ.x
-      }
-      if (desiredTransform.lockRotationAxis[2]) {
-        euler2YXZ.y = euler1YXZ.y
-      }
-      if (desiredTransform.lockRotationAxis[1]) {
-        euler2YXZ.z = euler1YXZ.z
-      }
-      mutableTransform.rotation.setFromEuler(euler2YXZ)
-    }
-
-    for (const entity of tweenQuery(world)) {
-      const tween = getComponent(entity, TweenComponent)
-      tween.tween.update()
-    }
-
     for (const entity of transformObjectQuery(world)) {
       const transform = getComponent(entity, TransformComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)
@@ -128,7 +89,7 @@ export default async function TransformSystem(world: World) {
       if (!hasComponent(entity, AvatarComponent)) object3DComponent.value.updateMatrixWorld()
     }
 
-    if (Engine.isEditor) {
+    if (Engine.instance.isEditor) {
       for (let entity of spawnPointQuery()) {
         const obj3d = getComponent(entity, Object3DComponent)?.value
         if (obj3d) obj3d.userData.helperModel?.scale.set(1 / obj3d.scale.x, 1 / obj3d.scale.y, 1 / obj3d.scale.z)

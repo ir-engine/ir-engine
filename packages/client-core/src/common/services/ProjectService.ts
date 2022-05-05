@@ -1,7 +1,9 @@
+import { createState, useState } from '@speigg/hookstate'
+
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
-import { createState, useState } from '@speigg/hookstate'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
 //State
 export const PROJECT_PAGE_LIMIT = 100
@@ -31,7 +33,6 @@ export const useProjectState = () => useState(state) as any as typeof state
 export const ProjectService = {
   fetchProjects: async () => {
     const projects = await client.service('project').find({ paginate: false })
-    console.log(projects)
     store.dispatch(ProjectAction.projectsFetched(projects.data))
   },
 
@@ -64,6 +65,16 @@ export const ProjectService = {
   triggerReload: async () => {
     const result = await client.service('project-build').patch({ rebuild: true })
     console.log('Remove project result', result)
+  },
+
+  // restricted to admin scope
+  invalidateProjectCache: async (projectName: string) => {
+    try {
+      await client.service('project-invalidate').patch({ projectName })
+      ProjectService.fetchProjects()
+    } catch (err) {
+      console.log(err)
+    }
   }
 }
 // TODO

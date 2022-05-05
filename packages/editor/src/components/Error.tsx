@@ -1,6 +1,7 @@
 import React from 'react'
-import styled from 'styled-components'
 import { useTranslation } from 'react-i18next'
+import styled from 'styled-components'
+
 import { ThemeContext } from '@xrengine/client-core/src/util/theme'
 
 /**
@@ -16,7 +17,7 @@ const StyledError = (styled as any).div`
   align-items: center;
   height: 100vh;
   width: 100vw;
-  color: ${(props) => props.theme.red};
+  color: var(--red);
 
   svg {
     margin-bottom: 20px;

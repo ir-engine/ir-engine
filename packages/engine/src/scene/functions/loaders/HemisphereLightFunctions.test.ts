@@ -1,17 +1,17 @@
 import assert from 'assert'
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Color, HemisphereLight } from 'three'
-import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { createWorld } from '../../../ecs/classes/World'
-import { Engine } from '../../../ecs/classes/Engine'
-import { deserializeHemisphereLight } from './HemisphereLightFunctions'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import { deserializeHemisphereLight } from './HemisphereLightFunctions'
 
 describe('HemisphereLightFunctions', () => {
   it('deserializeHemisphereLight', async () => {
-    const world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
 
     const entity = createEntity()
 

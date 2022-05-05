@@ -1,9 +1,11 @@
-import { client } from '../../../feathers'
-import { AlertService } from '../../../common/services/AlertService'
-import { useDispatch, store } from '../../../store'
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
+
 import { SettingAnalytics } from '@xrengine/common/src/interfaces/SettingAnalytics'
-import { SettingAnalyticsResult } from '@xrengine/common/src/interfaces/SettingAnalyticsResult'
+
+import { AlertService } from '../../../common/services/AlertService'
+import { client } from '../../../feathers'
+import { store, useDispatch } from '../../../store'
 
 //State
 const state = createState({
@@ -29,7 +31,7 @@ export const SettingAnalyticsService = {
   fetchSettingsAnalytics: async (inDec?: 'increment' | 'decrement') => {
     const dispatch = useDispatch()
     try {
-      const analytics = await client.service('analytics-setting').find()
+      const analytics = (await client.service('analytics-setting').find()) as Paginated<SettingAnalytics>
       dispatch(SettingAnalyticsAction.fetchedAnalytics(analytics))
     } catch (error) {
       console.error(error.message)
@@ -40,7 +42,7 @@ export const SettingAnalyticsService = {
 
 //Action
 export const SettingAnalyticsAction = {
-  fetchedAnalytics: (settingAnalyticsResult: SettingAnalyticsResult) => {
+  fetchedAnalytics: (settingAnalyticsResult: Paginated<SettingAnalytics>) => {
     return {
       type: 'SETTING_ANALYIS_DISPLAY' as const,
       settingAnalyticsResult: settingAnalyticsResult

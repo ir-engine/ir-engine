@@ -1,33 +1,28 @@
-import {
-  ArrowHelper,
-  Clock,
-  Material,
-  MathUtils,
-  Matrix4,
-  Object3D,
-  Quaternion,
-  Raycaster,
-  SkinnedMesh,
-  Vector3
-} from 'three'
+import { ArrowHelper, Clock, Material, MathUtils, Matrix4, Quaternion, SkinnedMesh, Vector3 } from 'three'
+import { clamp } from 'three/src/math/MathUtils'
+
+import { BoneNames } from '../../avatar/AvatarBoneMatching'
+import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { XRCameraUpdatePendingTagComponent } from '../../avatar/components/XRCameraUpdatePendingTagComponent'
+import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
+import { smoothDamp } from '../../common/functions/MathLerpFunctions'
+import { createConeOfVectors } from '../../common/functions/vectorHelpers'
 import { Engine } from '../../ecs/classes/Engine'
+import { accessEngineState } from '../../ecs/classes/EngineService'
+import { Entity } from '../../ecs/classes/Entity'
+import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
-import { Entity } from '../../ecs/classes/Entity'
-import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
-import { World } from '../../ecs/classes/World'
-import { lerp, smoothDamp } from '../../common/functions/MathLerpFunctions'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
-import { createConeOfVectors } from '../../common/functions/vectorHelpers'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { BoneNames } from '../../avatar/AvatarBoneMatching'
-import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
 
 const direction = new Vector3()
 const quaternion = new Quaternion()
@@ -73,31 +68,20 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
   return viewVector
 }
 
-export const setAvatarOpacity = (entity: Entity, opacity: number): void => {
-  const object3DComponent = getComponent(entity, Object3DComponent)
-  object3DComponent?.value.traverse((obj) => {
-    if (!(obj as SkinnedMesh).isSkinnedMesh) return
-    const material = (obj as SkinnedMesh).material as Material
-    if (!material.userData.shader) return
-    const shader = material.userData.shader
-    shader.uniforms.boneOpacity.value = opacity
-  })
-}
-
 export const getAvatarBonePosition = (entity: Entity, name: BoneNames, position: Vector3): void => {
-  const object3DComponent = getComponent(entity, Object3DComponent)
-  const ikRigComponent = getComponent(entity, IKRigComponent)
-  const el = ikRigComponent.boneStructure[name].matrixWorld.elements
+  const animationComponent = getComponent(entity, AvatarAnimationComponent)
+  const el = animationComponent.rig[name].matrixWorld.elements
   position.set(el[12], el[13], el[14])
 }
 
 export const updateAvatarOpacity = (entity: Entity) => {
   if (!entity) return
 
+  const fadeDistance = 0.6
   const followCamera = getComponent(entity, FollowCameraComponent)
-  const distanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
+  const opacity = Math.pow(clamp((followCamera.distance - 0.1) / fadeDistance, 0, 1), 6)
 
-  setAvatarOpacity(entity, distanceRatio)
+  setAvatarHeadOpacity(entity, opacity)
 }
 
 export const updateCameraTargetRotation = (entity: Entity, delta: number) => {
@@ -125,12 +109,12 @@ export const getMaxCamDistance = (entity: Entity, target: Vector3) => {
 
   camRayCastClock.start()
 
-  const sceneObjects = Array.from(Engine.objectLayerList[ObjectLayers.Scene] || [])
+  const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
 
   const followCamera = getComponent(entity, FollowCameraComponent)
 
   // Raycast to keep the line of sight with avatar
-  const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
+  const cameraTransform = getComponent(Engine.instance.activeCameraEntity, TransformComponent)
   const targetToCamVec = tempVec1.subVectors(cameraTransform.position, target)
   // followCamera.raycaster.ray.origin.sub(targetToCamVec.multiplyScalar(0.1)) // move origin behind camera
 
@@ -178,12 +162,6 @@ export const calculateCameraTarget = (entity: Entity, target: Vector3) => {
   const avatar = getComponent(entity, AvatarComponent)
   const avatarTransform = getComponent(entity, TransformComponent)
 
-  // const followCamera = getComponent(entity, FollowCameraComponent)
-  // const minDistanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
-  // const side = followCamera.shoulderSide ? -1 : 1
-  // const shoulderOffset = lerp(0, 0.2, minDistanceRatio) * side
-  //const heightOffset = lerp(0, 0.25, minDistanceRatio)
-
   target.set(0, avatar.avatarHeight, 0.2)
   target.applyQuaternion(avatarTransform.rotation)
   target.add(avatarTransform.position)
@@ -221,7 +199,7 @@ export const updateFollowCamera = (entity: Entity, delta: number) => {
   // }
 
   // Zoom smoothing
-  let smoothingSpeed = isInsideWall ? 0.01 : 0.3
+  let smoothingSpeed = isInsideWall ? 0.1 : 0.3
 
   followCamera.distance = smoothDamp(
     followCamera.distance,
@@ -235,7 +213,7 @@ export const updateFollowCamera = (entity: Entity, delta: number) => {
   const thetaRad = MathUtils.degToRad(theta)
   const phiRad = MathUtils.degToRad(followCamera.phi)
 
-  const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
+  const cameraTransform = getComponent(Engine.instance.activeCameraEntity, TransformComponent)
   cameraTransform.position.set(
     tempVec.x + followCamera.distance * Math.sin(thetaRad) * Math.cos(phiRad),
     tempVec.y + followCamera.distance * Math.sin(phiRad),
@@ -264,14 +242,14 @@ export default async function CameraSystem(world: World) {
   const cameraEntity = createEntity()
   addComponent(cameraEntity, CameraComponent, {})
 
-  // addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
+  // addComponent(cameraEntity, Object3DComponent, { value: Engine.instance.camera })
   addComponent(cameraEntity, TransformComponent, {
     position: new Vector3(),
     rotation: new Quaternion(),
     scale: new Vector3(1, 1, 1)
   })
   addComponent(cameraEntity, PersistTagComponent, {})
-  Engine.activeCameraEntity = cameraEntity
+  Engine.instance.activeCameraEntity = cameraEntity
 
   return () => {
     const { delta } = world
@@ -281,7 +259,7 @@ export default async function CameraSystem(world: World) {
       cameraFollow.raycaster.layers.set(ObjectLayers.Scene) // Ignore avatars
       ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
       cameraFollow.raycaster.far = cameraFollow.maxDistance
-      Engine.activeCameraFollowTarget = entity
+      Engine.instance.activeCameraFollowTarget = entity
 
       for (let i = 0; i < cameraRayCount; i++) {
         cameraRays.push(new Vector3())
@@ -289,35 +267,41 @@ export default async function CameraSystem(world: World) {
         if (debugRays) {
           const arrow = new ArrowHelper()
           coneDebugHelpers.push(arrow)
-          setObjectLayers(arrow, ObjectLayers.Render, ObjectLayers.Gizmos)
-          Engine.scene.add(arrow)
+          setObjectLayers(arrow, ObjectLayers.Gizmos)
+          Engine.instance.scene.add(arrow)
         }
       }
     }
 
     for (const entity of followCameraQuery.exit()) {
-      setAvatarOpacity(entity, 1)
-      Engine.activeCameraFollowTarget = null
+      setAvatarHeadOpacity(entity, 1)
+      Engine.instance.activeCameraFollowTarget = null
       camRayCastCache.maxDistance = -1
     }
 
-    for (const entity of followCameraQuery(world)) {
-      updateFollowCamera(entity, delta)
-      updateAvatarOpacity(entity)
-    }
+    if (accessEngineState().sceneLoaded.value) {
+      const [followCameraEntity] = followCameraQuery(world)
+      if (followCameraEntity !== undefined) {
+        updateFollowCamera(followCameraEntity, delta)
+        updateAvatarOpacity(followCameraEntity)
+      }
 
-    for (const entity of targetCameraRotationQuery(world)) {
-      updateCameraTargetRotation(entity, delta)
-    }
+      for (const entity of targetCameraRotationQuery(world)) {
+        updateCameraTargetRotation(entity, delta)
+      }
 
-    if (Engine.xrManager?.isPresenting) {
-      Engine.xrManager.updateCamera(Engine.camera)
-    } else if (Engine.activeCameraEntity !== undefined) {
-      const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
-      Engine.camera.position.copy(transform.position)
-      Engine.camera.quaternion.copy(transform.rotation)
-      Engine.camera.scale.copy(transform.scale)
-      Engine.camera.updateMatrixWorld()
+      if (EngineRenderer.instance.xrManager?.isPresenting) {
+        // Current WebXRManager.updateCamera() typedef is incorrect
+        ;(EngineRenderer.instance.xrManager as any).updateCamera(Engine.instance.camera)
+
+        removeComponent(Engine.instance.currentWorld.localClientEntity, XRCameraUpdatePendingTagComponent)
+      } else if (followCameraEntity !== undefined) {
+        const transform = getComponent(Engine.instance.activeCameraEntity, TransformComponent)
+        Engine.instance.camera.position.copy(transform.position)
+        Engine.instance.camera.quaternion.copy(transform.rotation)
+        Engine.instance.camera.scale.copy(transform.scale)
+        Engine.instance.camera.updateMatrixWorld()
+      }
     }
   }
 }

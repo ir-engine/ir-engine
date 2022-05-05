@@ -1,17 +1,20 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import ImageInput from '../inputs/ImageInput'
-import Vector2Input from '../inputs/Vector2Input'
 import { useTranslation } from 'react-i18next'
-import ColorInput from '../inputs/ColorInput'
-import WaterIcon from '@mui/icons-material/Water'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { OceanComponent } from '@xrengine/engine/src/scene/components/OceanComponent'
-import { EditorComponentType, updateProperty } from './Util'
+
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { OceanComponent } from '@xrengine/engine/src/scene/components/OceanComponent'
+
+import WaterIcon from '@mui/icons-material/Water'
+
+import ColorInput from '../inputs/ColorInput'
+import ImageInput from '../inputs/ImageInput'
+import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import Vector2Input from '../inputs/Vector2Input'
+import NodeEditor from './NodeEditor'
+import { EditorComponentType, updateProperty } from './Util'
 
 /**
  * Ocean Editor provides the editor to customize properties.
@@ -85,7 +88,11 @@ export const OceanNodeEditor: EditorComponentType = (props) => {
         onChange={updateProperty(OceanComponent, 'opacityFadeDistance')}
       />
       <InputGroup name="Opacity Range" label={t('editor:properties.ocean.lbl-opacityRange')}>
-        <Vector2Input value={oceanComponent.opacityRange} onChange={updateProperty(OceanComponent, 'opacityRange')} />
+        <Vector2Input
+          value={oceanComponent.opacityRange}
+          onChange={updateProperty(OceanComponent, 'opacityRange')}
+          hideLabels
+        />
       </InputGroup>
       <NumericInputGroup
         name="Shininess"

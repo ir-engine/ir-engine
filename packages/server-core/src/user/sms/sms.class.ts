@@ -1,6 +1,7 @@
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import Paginated from '../../types/PageObject'
+
 import { Application } from '../../../declarations'
+import Paginated from '../../types/PageObject'
 import { sendSmsWithAWS } from './awssns'
 
 interface Data {}
@@ -24,18 +25,18 @@ export class Sms implements ServiceMethods<Data> {
 
   async setup() {}
 
-  async find(params: Params): Promise<Data[] | Paginated<Data>> {
+  async find(params?: Params): Promise<Data[] | Paginated<Data>> {
     return []
   }
 
-  async get(id: Id, params: Params): Promise<Data> {
+  async get(id: Id, params?: Params): Promise<Data> {
     return {
       id,
       text: `A new message with ID: ${id}!`
     }
   }
 
-  async create(data: any, params: Params): Promise<Data> {
+  async create(data: any, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
       return await Promise.all(data.map((current) => this.create(current, params)))
     }
@@ -44,15 +45,15 @@ export class Sms implements ServiceMethods<Data> {
     return data
   }
 
-  async update(id: NullableId, data: Data, params: Params): Promise<Data> {
+  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
   }
 
-  async patch(id: NullableId, data: Data, params: Params): Promise<Data> {
+  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
   }
 
-  async remove(id: NullableId, params: Params): Promise<Data> {
+  async remove(id: NullableId, params?: Params): Promise<Data> {
     return { id }
   }
 }

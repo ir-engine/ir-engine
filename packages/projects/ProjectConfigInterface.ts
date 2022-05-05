@@ -1,4 +1,4 @@
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import type { World } from '@xrengine/engine/src/ecs/classes/World'
 import type { Application } from '@xrengine/server-core/declarations'
 
 export interface ProjectConfigInterface {
@@ -54,6 +54,8 @@ export interface ProjectConfigInterface {
    * @returns {Array<ServicesSeedConfig>}
    */
   databaseSeed?: string
+
+  settings?: Array<ProjectSettingSchema>
 }
 
 type InstallFunctionType = (app: Application) => Promise<any>
@@ -63,8 +65,15 @@ type InstallFunctionType = (app: Application) => Promise<any>
  */
 export interface ProjectEventHooks {
   onInstall?: InstallFunctionType
+  onLoad?: InstallFunctionType
   onUpdate?: InstallFunctionType
   onUninstall?: InstallFunctionType
+}
+
+export interface ProjectSettingSchema {
+  key: string
+  type: string
+  scopes: Array<string>
 }
 
 export type ProjectEventHookType = keyof ProjectEventHooks

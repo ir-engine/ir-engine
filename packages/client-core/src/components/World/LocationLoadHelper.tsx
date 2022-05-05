@@ -1,46 +1,39 @@
-import { GeneralStateList, AppAction } from '@xrengine/client-core/src/common/services/AppService'
+import { useHistory } from 'react-router-dom'
+import { Quaternion, Vector3 } from 'three'
+import matches from 'ts-matches'
+
+import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/services/AppService'
+import { accessProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { ClientTransportHandler } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import { AuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
+import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
-import { Quaternion, Vector3 } from 'three'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { initSystems, SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import {
-  createEngine,
-  initializeBrowser,
   initializeCoreSystems,
-  initializeProjectSystems,
   initializeRealtimeSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
-import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import matches from 'ts-matches'
-import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { accessProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
-import { accessSceneState } from '@xrengine/client-core/src/world/services/SceneService'
-import { Downgraded } from '@speigg/hookstate'
+import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
+import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
-export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
-  if (
-    authState.isLoggedIn?.value === true &&
-    authState.user?.id?.value != null &&
-    authState.user?.id?.value.length > 0
-  ) {
+export const retrieveLocationByName = (authState: AuthState, locationName: string) => {
+  if (authState.isLoggedIn.value === true && authState.user.id.value) {
     if (locationName === globalThis.process.env['VITE_LOBBY_LOCATION_NAME']) {
+      const history = useHistory()
       LocationService.getLobby()
         .then((lobby) => {
-          history.replace('/location/' + lobby.slugifiedName)
+          history.replace('/location/' + lobby?.slugifiedName)
         })
         .catch((err) => console.log('getLobby error', err))
     } else {
@@ -78,48 +71,46 @@ const createOfflineUser = (sceneData: SceneJson) => {
     rotation: new Quaternion()
   }
 
-  const world = useWorld()
+  const world = Engine.instance.currentWorld
   world.hostId = userId as any
 
   // it is needed by AvatarSpawnSystem
-  Engine.userId = userId
+  Engine.instance.userId = userId
   // Replicate the server behavior
-  dispatchLocal(NetworkWorldAction.createClient({ name: 'user', index: 0 }) as any)
-  dispatchLocal(NetworkWorldAction.spawnAvatar({ parameters, ownerIndex: 0 }))
-  dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }))
+  dispatchAction(world.store, NetworkWorldAction.createClient({ name: 'user', index: 0 }))
+  dispatchAction(world.store, NetworkWorldAction.spawnAvatar({ parameters }))
+  dispatchAction(world.store, NetworkWorldAction.avatarDetails({ avatarDetail }))
 }
 
 const injectedSystems: SystemModuleType<any>[] = [
   {
-    type: 'FIXED',
+    type: 'PRE_RENDER',
     systemModulePromise: import('@xrengine/client-core/src/systems/XRUILoadingSystem')
   },
   {
-    type: 'FIXED',
+    type: 'PRE_RENDER',
     systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
   }
 ]
 
 export const initEngine = async () => {
-  if (Engine.isInitialized) return
-  Network.instance = new Network()
-  Network.instance.transportHandler = new ClientTransportHandler()
-  createEngine()
-  initializeBrowser()
   await initializeCoreSystems(injectedSystems)
 }
 
-export const initClient = async (project) => {
-  await initializeRealtimeSystems()
-  await initializeSceneSystems()
-
-  const sceneData = accessSceneState().currentScene.scene.attach(Downgraded).value!
-  const systems = await getSystemsFromSceneData(project, sceneData, true)
+export const initClient = async (sceneData: SceneData) => {
+  const systems = getSystemsFromSceneData(sceneData.project, sceneData.scene, true)
   const projects = accessProjectState().projects.value.map((project) => project.name)
-  await initializeProjectSystems(projects, systems)
+  const world = Engine.instance.currentWorld
+
+  await Promise.all([
+    initializeRealtimeSystems(),
+    initializeSceneSystems(),
+    initSystems(world, systems),
+    loadEngineInjection(world, projects)
+  ])
 
   // add extraneous receptors
-  useWorld().receptors.push((action) => {
+  addActionReceptor(world.store, (action) => {
     matches(action)
       .when(NetworkWorldAction.createClient.matches, () => {
         updateNearbyAvatars()
@@ -130,37 +121,14 @@ export const initClient = async (project) => {
         MediaStreamService.triggerUpdateNearbyLayerUsers()
       })
   })
-  Engine.isReady = true
 }
 
-export const loadLocation = () => {
-  dispatchLocal(EngineActions.loadingStateChanged(0, 'Loading objects...'))
-
+export const loadLocation = (sceneData: SceneJson) => {
   const dispatch = useDispatch()
-
   // 4. Start scene loading
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
-  let entitiesToLoad = 0
-
-  const receptor = (action: EngineActionType) => {
-    switch (action.type) {
-      case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
-        const entitesCompleted = entitiesToLoad - Engine.sceneLoadPromises.length
-        dispatchLocal(
-          EngineActions.loadingStateChanged(Math.round((100 * entitesCompleted) / entitiesToLoad), 'Loading Complete!')
-        )
-        break
-    }
-  }
-  Engine.currentWorld.receptors.push(receptor)
-
-  const sceneData = accessSceneState().currentScene.scene.attach(Downgraded).value!
   loadSceneFromJSON(sceneData).then(() => {
-    dispatchLocal(EngineActions.loadingStateChanged(100, 'Joining world...'))
-
     getPortalDetails()
     dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
   })
-
-  entitiesToLoad = Engine.sceneLoadPromises.length
 }

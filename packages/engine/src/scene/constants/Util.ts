@@ -1,5 +1,6 @@
-import { CubeTextureLoader, TextureLoader, PMREMGenerator } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
+import { CubeTextureLoader, PMREMGenerator, TextureLoader } from 'three'
+
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 
 export const negx = 'negx.jpg'
 export const negy = 'negy.jpg'
@@ -13,6 +14,6 @@ export const textureLoader = new TextureLoader()
 let pmremGenerator: PMREMGenerator
 
 export const getPmremGenerator = (): PMREMGenerator => {
-  if (!pmremGenerator) pmremGenerator = new PMREMGenerator(Engine.renderer)
+  if (!pmremGenerator) pmremGenerator = new PMREMGenerator(EngineRenderer.instance.renderer)
   return pmremGenerator
 }

@@ -1,18 +1,21 @@
-import config from '@xrengine/server-core/src/appconfig'
-import seeder from '@xrengine/server-core/src/util/seeder'
 import { Sequelize } from 'sequelize'
+
+import { isDev } from '@xrengine/common/src/utils/isDev'
+import config from '@xrengine/server-core/src/appconfig'
+
 import { Application } from '../declarations'
-import seederConfig from './seeder-config'
+import logger from './logger'
+import { seeder } from './seeder'
 
 export default (app: Application): void => {
   try {
     const { forceRefresh } = config.db
 
-    console.log('Starting app')
+    logger.info('Starting app.')
 
     const sequelize = new Sequelize({
       ...(config.db as any),
-      logging: forceRefresh ? console.log : false,
+      logging: forceRefresh ? logger.info.bind(logger) : false,
       define: {
         freezeTableName: true
       }
@@ -27,53 +30,72 @@ export default (app: Application): void => {
       promiseReject = reject
     })
 
-    // @ts-ignore
     app.setup = async function (...args: any) {
       try {
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
-        const [results] = await sequelize.query("SHOW TABLES LIKE 'user';")
-        if (!forceRefresh && results.length === 0) {
-          throw new Error('\n\nUser table does not exist - make sure you have initialised the database\n\n')
-        }
+
+        const tableCount = await sequelize.query(
+          `select table_schema as xrengine,count(*) as tables from information_schema.tables where table_type = \'BASE TABLE\' and table_schema not in (\'information_schema\', \'sys\', \'performance_schema\', \'mysql\') group by table_schema order by table_schema;`
+        )
+        const prepareDb = process.env.PREPARE_DATABASE === 'true' || (isDev && tableCount[0] && !tableCount[0][0])
         // Sync to the database
         for (const model of Object.keys(sequelize.models)) {
-          if (forceRefresh) console.log('creating associations for =>', sequelize.models[model])
-          if (typeof (sequelize.models[model] as any).associate === 'function') {
-            ;(sequelize.models[model] as any).associate(sequelize.models)
+          const sequelizeModel = sequelize.models[model]
+          if (typeof (sequelizeModel as any).associate === 'function') {
+            ;(sequelizeModel as any).associate(sequelize.models)
+          }
+          await sequelizeModel.sync({ force: forceRefresh })
+
+          if (prepareDb) {
+            const columnResult = await sequelize.query(`DESCRIBE \`${model}\``)
+            const columns = columnResult[0]
+            const columnKeys = columns.map((column: any) => column.Field)
+            for (let item in sequelizeModel.rawAttributes) {
+              const value = sequelizeModel.rawAttributes[item] as any
+              if (columnKeys.indexOf(value.fieldName) < 0) {
+                if (value.oldColumn && columnKeys.indexOf(value.oldColumn) >= 0)
+                  await sequelize.getQueryInterface().renameColumn(model, value.oldColumn, value.fieldName)
+                else await sequelize.getQueryInterface().addColumn(model, value.fieldName, value)
+              }
+              if (columnKeys.indexOf(value.fieldName) >= 0 && !value.primaryKey) {
+                try {
+                  if (!value.references) await sequelize.getQueryInterface().changeColumn(model, value.fieldName, value)
+                } catch (err) {
+                  logger.error(err)
+                }
+              }
+            }
           }
         }
 
         try {
           // connect to sequelize
-          const sync = await sequelize.sync({ force: forceRefresh })
-
-          // configure seeder and seed
+          const sync = await sequelize.sync()
           try {
-            if (forceRefresh) {
-              await app.configure(seeder(seederConfig)).seed()
-            }
+            // configure seeder and seed
+            await seeder(app, forceRefresh, prepareDb)
           } catch (err) {
-            console.log('Feathers seeding error')
-            console.log(err)
+            logger.error('Feathers seeding error')
+            logger.error(err)
             promiseReject()
             throw err
           }
 
           app.set('sequelizeSync', sync)
           await sequelize.query('SET FOREIGN_KEY_CHECKS = 1')
-          console.log('Server Ready')
+          logger.info('Server Ready')
         } catch (err) {
-          console.log('Sequelize sync error')
-          console.log(err)
+          logger.error('Sequelize sync error')
+          logger.error(err)
           promiseReject()
           throw err
         }
 
         promiseResolve()
-        if (forceRefresh && process.env.APP_ENV === 'development') process.exit(0)
+        if ((prepareDb || forceRefresh) && (isDev || process.env.EXIT_ON_DB_INIT === 'true')) process.exit(0)
       } catch (err) {
-        console.log('Sequelize setup error')
-        console.log(err)
+        logger.error('Sequelize setup error')
+        logger.error(err)
         promiseReject()
         throw err
       }
@@ -81,7 +103,7 @@ export default (app: Application): void => {
       return oldSetup.apply(this, args)
     }
   } catch (err) {
-    console.log('Error in app/sequelize.ts')
-    console.log(err)
+    logger.error('Error in app/sequelize.ts')
+    logger.error(err)
   }
 }

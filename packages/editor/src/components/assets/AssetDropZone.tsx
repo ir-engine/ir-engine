@@ -1,10 +1,18 @@
 import React from 'react'
-import styled from 'styled-components'
 import { useDrop } from 'react-dnd'
-import { ItemTypes } from '../../constants/AssetTypes'
-import useUpload from './useUpload'
 import { useTranslation } from 'react-i18next'
+import styled from 'styled-components'
+import { Vector2 } from 'three'
+
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+
+import { SupportedFileTypes } from '../../constants/AssetTypes'
+import { addMediaNode } from '../../functions/addMediaNode'
+import { getCursorSpawnPosition } from '../../functions/screenSpaceFunctions'
+import useUpload from './useUpload'
 
 /**
  * DropZoneBackground provides styles for the view port area where we drag and drop objects.
@@ -23,7 +31,7 @@ const DropZoneBackground = (styled as any).div`
   background-color: rgba(0, 0, 0, 0.3);
   justify-content: center;
   align-items: center;
-  opacity: ${({ isOver, canDrop }) => (isOver && canDrop ? '1' : '0')};
+  opacity: ${({ isOver, canDrop, isUploaded }) => (isOver && canDrop && !isUploaded ? '1' : '0')};
   pointer-events: ${({ isDragging }) => (isDragging ? 'auto' : 'none')};
 
   h3 {
@@ -31,11 +39,6 @@ const DropZoneBackground = (styled as any).div`
     margin-top: 12px;
   }
 `
-
-interface AssetDropZoneProp {
-  afterUpload?: any
-  uploadOptions?: any
-}
 
 /**
  * AssetDropZone function used to create view port where we can drag and drop objects.
@@ -45,35 +48,53 @@ interface AssetDropZoneProp {
  * @param       {any} uploadOptions
  * @constructor
  */
-export function AssetDropZone({ afterUpload }: AssetDropZoneProp) {
+export function AssetDropZone() {
   const { t } = useTranslation()
 
   const onUpload = useUpload()
 
-  const [{ canDrop, isOver, isDragging }, onDropTarget] = useDrop({
-    accept: [ItemTypes.File],
-    drop(item: any, monitor) {
-      const dndItem: any = monitor.getItem()
-      const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
+  const [{ canDrop, isOver, isDragging, isUploaded }, onDropTarget] = useDrop({
+    accept: [...SupportedFileTypes],
+    async drop(item: any, monitor) {
+      const mousePos = monitor.getClientOffset() as Vector2
 
-      onUpload(entries).then((assets) => {
-        if (assets) {
-          if (afterUpload) {
-            afterUpload(assets)
-          }
-        }
-      })
+      if (item.files) {
+        // When user drags files from her file system
+        const entries = Array.from(item.items).map((item: any) => item.webkitGetAsEntry())
+
+        onUpload(entries).then((assets) => {
+          if (!assets) return
+
+          assets.map(async (asset) => {
+            const node = await addMediaNode(asset.url)
+            const transformComponent = getComponent(node.entity, TransformComponent)
+            if (transformComponent) getCursorSpawnPosition(mousePos, transformComponent.position)
+          })
+        })
+      } else {
+        // When user drags files from files panel
+        const node = await addMediaNode(item.url)
+        const transformComponent = getComponent(node.entity, TransformComponent)
+        if (transformComponent) getCursorSpawnPosition(mousePos, transformComponent.position)
+      }
     },
     collect: (monitor) => ({
       canDrop: monitor.canDrop(),
       isOver: monitor.isOver(),
-      isDragging: monitor.getItem() !== null && monitor.canDrop()
+      isDragging: monitor.getItem() !== null && monitor.canDrop(),
+      isUploaded: !monitor.getItem()?.files
     })
   })
 
   //returning dropzone view
   return (
-    <DropZoneBackground ref={onDropTarget} isDragging={isDragging} canDrop={canDrop} isOver={isOver}>
+    <DropZoneBackground
+      ref={onDropTarget}
+      isDragging={isDragging}
+      canDrop={canDrop}
+      isOver={isOver}
+      isUploaded={isUploaded}
+    >
       <CloudUploadIcon fontSize="large" />
       <h3>{t('editor:asset.dropZone.title')}</h3>
     </DropZoneBackground>

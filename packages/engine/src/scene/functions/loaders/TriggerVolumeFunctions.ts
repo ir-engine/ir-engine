@@ -1,11 +1,12 @@
+import { BoxBufferGeometry, Mesh, MeshBasicMaterial, Object3D } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { BoxBufferGeometry, Mesh, MeshBasicMaterial } from 'three'
+
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../../../physics/components/ColliderComponent'
@@ -24,9 +25,11 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
   json: ComponentJson<TriggerVolumeComponentType>
 ): void => {
   const boxMesh = new Mesh(new BoxBufferGeometry(), new MeshBasicMaterial())
+  boxMesh.material.visible = false
   boxMesh.userData = {
     type: 'box',
     isTrigger: true,
+    isHelper: true,
     collisionLayer: CollisionGroups.Trigger,
     collisionMask: CollisionGroups.Default
   }
@@ -40,24 +43,19 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
     active: true
   })
 
-  if (Engine.isEditor) {
-    addComponent(entity, Object3DComponent, { value: boxMesh })
-    boxMesh.material.visible = false
-  }
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRIGGER_VOLUME)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRIGGER_VOLUME)
+  addComponent(entity, Object3DComponent, { value: boxMesh })
 }
 
 export const updateTriggerVolume: ComponentUpdateFunction = (entity: Entity, prop: any) => {
-  if (Engine.isEditor) {
-    const transform = getComponent(entity, TransformComponent)
-    const component = getComponent(entity, ColliderComponent)
-    const pose = component.body.getGlobalPose()
-    pose.translation = transform.position
-    pose.rotation = transform.rotation
-    component.body.setGlobalPose(pose, false)
-    component.body._debugNeedsUpdate = true
-  }
+  const transform = getComponent(entity, TransformComponent)
+  const component = getComponent(entity, ColliderComponent)
+  const pose = component.body.getGlobalPose()
+  pose.translation = transform.position
+  pose.rotation = transform.rotation
+  component.body.setGlobalPose(pose, false)
+  component.body._debugNeedsUpdate = true
 }
 
 export const serializeTriggerVolume: ComponentSerializeFunction = (entity) => {

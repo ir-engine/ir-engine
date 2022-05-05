@@ -1,15 +1,17 @@
-import assert from 'assert'
-import fetch from 'node-fetch'
-import path from 'path'
-const https = require('https')
-import S3Provider from '../../src/media/storageprovider/s3.storage'
-import LocalStorage from '../../src/media/storageprovider/local.storage'
-import { StorageProviderInterface } from '../../src/media/storageprovider/storageprovider.interface'
-import { providerBeforeTest, providerAfterTest } from './storageproviderconfig'
-import { getContentType } from '../../src/util/fileUtils'
 import approot from 'app-root-path'
+import assert from 'assert'
 import fs from 'fs-extra'
+import fetch from 'node-fetch'
+import path from 'path/posix'
 import { v4 as uuid } from 'uuid'
+
+import LocalStorage from '../../src/media/storageprovider/local.storage'
+import S3Provider from '../../src/media/storageprovider/s3.storage'
+import { StorageProviderInterface } from '../../src/media/storageprovider/storageprovider.interface'
+import { getContentType } from '../../src/util/fileUtils'
+import { providerAfterTest, providerBeforeTest } from './storageproviderconfig'
+
+const https = require('https')
 
 describe('storageprovider', () => {
   const testFileName = 'TestFile.txt'
@@ -25,7 +27,8 @@ describe('storageprovider', () => {
     process.env.STORAGE_AWS_ACCESS_KEY_ID &&
     process.env.STORAGE_AWS_ACCESS_KEY_SECRET
   ) {
-    storageProviders.push(new S3Provider())
+    const s3Provider = new S3Provider()
+    storageProviders.push(s3Provider as any)
   }
 
   storageProviders.forEach((provider) => {
@@ -91,12 +94,12 @@ describe('storageprovider', () => {
       const fileKeyTemp2 = path.join(testFolderName, 'temp2', testFileName)
 
       //check copy functionality
-      await provider.moveObject(fileKeyOriginal, folderKeyTemp, true)
+      await provider.moveObject(fileKeyOriginal, path.join(testFolderName, 'temp'), true, testFileName)
       await assert.rejects(provider.checkObjectExistence(fileKeyOriginal))
       await assert.rejects(provider.checkObjectExistence(fileKeyTemp))
 
       //check move functionality
-      await provider.moveObject(fileKeyTemp, folderKeyTemp2)
+      await provider.moveObject(fileKeyTemp, path.join(testFolderName, 'temp2'), false, testFileName)
       await assert.rejects(provider.checkObjectExistence(fileKeyTemp2))
       await assert.doesNotReject(provider.checkObjectExistence(fileKeyTemp))
     })

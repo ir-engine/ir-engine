@@ -1,14 +1,14 @@
+import appRootPath from 'app-root-path'
 import assert from 'assert'
-import { unloadScene } from '../../src/ecs/functions/EngineFunctions'
-import sceneJson from '@xrengine/projects/default-project/empty.scene.json'
-import { loadSceneFromJSON } from '../../src/scene/functions/SceneLoading'
-import { useWorld } from '../../src/ecs/functions/SystemHooks'
-import { Engine } from '../../src/ecs/classes/Engine'
-import { EngineEvents } from '../../src/ecs/classes/EngineEvents'
+import dotenv from 'dotenv-flow'
+
 import { parseSceneDataCacheURLs } from '@xrengine/server-core/src/projects/scene/scene-parser'
 
-import appRootPath from 'app-root-path'
-import dotenv from 'dotenv-flow'
+import sceneJson from '../../../projects/default-project/default.scene.json'
+import { Engine } from '../../src/ecs/classes/Engine'
+import { unloadScene } from '../../src/ecs/functions/EngineFunctions'
+import { useWorld } from '../../src/ecs/functions/SystemHooks'
+import { loadSceneFromJSON } from '../../src/scene/functions/SceneLoading'
 
 dotenv.config({
   path: appRootPath.path,
@@ -25,7 +25,6 @@ describe.skip('Portal', () => {
   // it('Can load scene', async () => {
   //   const world = useWorld()
   //   await loadSceneFromJSON(sceneData)
-  //   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
   //   assert.equal(world.entityQuery().length, 10)
   //   // TODO: test scene actor removal directly
   //   assert.equal(world.physics.bodies.size, 1)
@@ -41,7 +40,6 @@ describe.skip('Portal', () => {
   // it('Can load new scene', async () => {
   //   await loadSceneFromJSON(sceneData)
   //   const world = useWorld()
-  //   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
   //   assert.equal(world.entityQuery().length, 10)
   //   assert.equal(world.physics.bodies.size, 1)
   // })

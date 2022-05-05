@@ -1,35 +1,25 @@
-import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
-import { HighlightComponent } from './components/HighlightComponent'
-import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
+import { Object3D } from 'three'
 
-export default async function HighlightSystem(world: World) {
-  const highlightsQuery = defineQuery([Object3DComponent, HighlightComponent])
+import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
+import { Object3DComponent } from '../scene/components/Object3DComponent'
+import { HighlightComponent } from './components/HighlightComponent'
+import { EngineRenderer } from './WebGLRendererSystem'
+
+export default async function HighlightSystem() {
+  const highlightedObjectQuery = defineQuery([Object3DComponent, HighlightComponent])
+
+  const addToSelection = (obj: Object3D) => {
+    EngineRenderer.instance.effectComposer.OutlineEffect.selection.add(obj)
+  }
 
   return () => {
-    if (!Engine.effectComposer.OutlineEffect) return
+    if (!EngineRenderer.instance.effectComposer.OutlineEffect) return
 
-    for (const entity of highlightsQuery.enter()) {
-      const highlightedObject = getComponent(entity, Object3DComponent)
-      const compHL = getComponent(entity, HighlightComponent)
-      if (!compHL) continue
-      highlightedObject?.value?.traverse((obj) => {
-        if (obj !== undefined) {
-          Engine.effectComposer.OutlineEffect.selection.add(obj)
-          Engine.effectComposer.OutlineEffect.visibleEdgeColor = compHL.color
-          Engine.effectComposer.OutlineEffect.hiddenEdgeColor = compHL.hiddenColor
-        }
-      })
-    }
+    EngineRenderer.instance.effectComposer.OutlineEffect.selection.clear()
 
-    for (const entity of highlightsQuery.exit()) {
-      const highlightedObject = getComponent(entity, Object3DComponent, true)
-      highlightedObject?.value?.traverse((obj) => {
-        if (obj !== undefined) {
-          Engine.effectComposer.OutlineEffect.selection.delete(obj)
-        }
-      })
+    for (const entity of highlightedObjectQuery()) {
+      const highlightedObject = getComponent(entity, Object3DComponent).value
+      highlightedObject?.traverse(addToSelection)
     }
   }
 }

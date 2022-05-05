@@ -8,7 +8,13 @@ export type Party = {
   instance?: Instance
   instanceId?: string
   location?: Location
+  locationId?: string
   name?: string | null
   createdAt?: string
   updatedAt?: string
+}
+
+export interface PatchParty {
+  instanceId: string
+  locationId: string
 }

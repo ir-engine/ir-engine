@@ -5,8 +5,8 @@ export interface AdminAwsSetting {
   s3?: S3
   cloudfront?: CloudFront
   sms?: Sms
-  createdAt: string
-  updatedAt: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 interface Keys {
@@ -43,4 +43,8 @@ interface Sms {
   region: string
   senderId: string
   secretAccessKey: string
+}
+
+export interface PatchAwsSetting {
+  sms: string
 }

@@ -1,10 +1,10 @@
 import { Application } from '../../../declarations'
 import { MessageStatus } from './message-status.class'
-import createModel from './message-status.model'
-import hooks from './message-status.hooks'
 import messageStatusDocs from './message-status.docs'
+import hooks from './message-status.hooks'
+import createModel from './message-status.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'message-status': MessageStatus
   }

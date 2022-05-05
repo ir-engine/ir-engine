@@ -8,8 +8,13 @@ import PkgConfig from 'vite-plugin-package-config'
 import { injectHtml } from 'vite-plugin-html'
 import dotenv from 'dotenv'
 import { getClientSetting } from './scripts/getClientSettings'
+import appRootPath from 'app-root-path'
 
 const copyProjectDependencies = () => {
+  if(!fs.existsSync(path.resolve(__dirname, '../projects/projects/'))){
+    // create directory
+    fs.mkdirSync(path.resolve(__dirname, '../projects/projects/'))
+  }
   const projects = fs
     .readdirSync(path.resolve(__dirname, '../projects/projects/'), { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
@@ -54,7 +59,9 @@ const getDependenciesToOptimize = () => {
 
 export default defineConfig(async (command) => {
   const env = loadEnv('', process.cwd() + '../../');
-  dotenv.config()
+  dotenv.config({
+    path: appRootPath.path + '/.env.local'
+  })
   const clientSetting = await getClientSetting()
   process.env = {
     ...process.env,
@@ -118,19 +125,6 @@ export default defineConfig(async (command) => {
       key: fs.readFileSync('../../certs/key.pem'),
       cert: fs.readFileSync('../../certs/cert.pem'),
       maxSessionMemory: 100
-    }
-  }
-  if (command.command === 'build' && process.env.VITE_LOCAL_BUILD !== 'true') {
-   returned.build.rollupOptions.plugins = [
-       inject({
-         process: 'process'
-       })
-   ]
-  }
-  if(command.command !=='build' || process.env.VITE_LOCAL_BUILD === 'true') { 
-    returned.define = {
-      'process.env': process.env,
-      'process.browser': process.browser,
     }
   }
   return returned

@@ -1,16 +1,13 @@
-import React, { Suspense, useEffect } from 'react'
-import CircularProgress from '@mui/material/CircularProgress'
-import FormDialog from '@xrengine/client-core/src/admin/components/UI/SubmitDialog'
-import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
-import { userHasAccess } from '@xrengine/client-core/src/user/userHasAccess'
+import React, { Suspense } from 'react'
+
+import FormDialog from '@xrengine/client-core/src/admin/common/SubmitDialog'
+import { userHasAccessHook } from '@xrengine/client-core/src/user/userHasAccess'
 import ProjectEditor from '@xrengine/editor/src/pages/editor'
 
-const EditorProtectedRoutes = () => {
-  const isSceneAllowed = userHasAccess('editor:write')
+import CircularProgress from '@mui/material/CircularProgress'
 
-  useEffect(() => {
-    AuthService.doLoginAuto(false)
-  }, [])
+const EditorProtectedRoutes = () => {
+  const isSceneAllowed = userHasAccessHook('editor:write')
 
   return (
     <Suspense

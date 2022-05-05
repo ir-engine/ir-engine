@@ -1,11 +1,17 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
-import { Params } from '@feathersjs/feathers'
 import { BadRequest } from '@feathersjs/errors'
+import { Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
-export class Message extends Service {
+import { Message as MessageInterface } from '@xrengine/common/src/interfaces/Message'
+
+import { Application } from '../../../declarations'
+import logger from '../../logger'
+import { UserDataType } from '../../user/user/user.class'
+
+export type MessageDataType = MessageInterface
+
+export class Message<T = MessageDataType> extends Service<T> {
   app: Application
   docs: any
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -20,15 +26,15 @@ export class Message extends Service {
    * @param params contain user info
    * @returns {@Object} created message
    */
-  async create(data: any, params: Params): Promise<any> {
+  async create(data: any, params?: Params): Promise<T> {
     let channel, channelId
     let userIdList: any[] = []
-    const loggedInUser = extractLoggedInUserFromParams(params)
+    const loggedInUser = params!.user as UserDataType
     const userId = loggedInUser?.id
     const targetObjectId = data.targetObjectId
     const targetObjectType = data.targetObjectType
-    const channelModel = (this.app.service('channel') as any).Model
-    console.log(data)
+    const channelModel = this.app.service('channel').Model
+    logger.info(data)
 
     if (targetObjectType === 'user') {
       const targetUser = await this.app.service('user').get(targetObjectId)
@@ -137,11 +143,12 @@ export class Message extends Service {
       })
     }
 
-    const newMessage = await super.create({
+    const messageData: any = {
       senderId: userId,
       channelId: channelId,
       text: data.text
-    })
+    }
+    const newMessage: any = await super.create({ ...messageData })
 
     await Promise.all(
       userIdList.map((mappedUserId: string) => {

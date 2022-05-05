@@ -1,17 +1,18 @@
-import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { createState, useState } from '@speigg/hookstate'
+
+import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
+import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { accessAuthState } from '../../user/services/AuthService'
-import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-import { accessLocationState } from '../../social/services/LocationService'
-import { MediaStreamService } from '../../media/services/MediaStreamService'
+import { dispatchAction } from '@xrengine/hyperflux'
 
-import { createState, useState } from '@speigg/hookstate'
-import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
-import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
+import { client } from '../../feathers'
+import { accessLocationState } from '../../social/services/LocationService'
+import { store, useDispatch } from '../../store'
+import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { accessAuthState } from '../../user/services/AuthService'
 
 //State
 const state = createState({
@@ -121,9 +122,10 @@ export const MediaInstanceConnectionService = {
         )
       }
     } else {
-      EngineEvents.instance.dispatchEvent({
-        type: SocketWebRTCClientTransport.EVENTS.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE
-      })
+      dispatchAction(
+        Engine.instance.store,
+        SocketWebRTCClientTransport.actions.noWorldServersAvailable({ instanceId: channelId! })
+      )
     }
   },
   connectToServer: async (channelId: string) => {
@@ -145,9 +147,9 @@ export const MediaInstanceConnectionService = {
 
     dispatch(
       MediaLocationInstanceConnectionAction.enableVideo(
-        currentLocation?.locationSettings?.videoEnabled?.value === true ||
+        currentLocation?.locationSetting?.videoEnabled?.value === true ||
           !(
-            currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
+            currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
             user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value) ==
               null
           )
@@ -156,10 +158,6 @@ export const MediaInstanceConnectionService = {
 
     await transport.initialize({ sceneId, port, ipAddress, channelId })
     transport.left = false
-    EngineEvents.instance.addEventListener(
-      MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
-      MediaStreamService.triggerUpdateConsumers
-    )
   },
   resetServer: () => {
     const dispatch = useDispatch()

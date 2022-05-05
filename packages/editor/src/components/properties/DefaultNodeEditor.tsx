@@ -1,5 +1,7 @@
 import React from 'react'
+
 import LanguageIcon from '@mui/icons-material/Language'
+
 import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
 

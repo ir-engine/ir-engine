@@ -1,4 +1,5 @@
 import authenticate from '../../hooks/authenticate'
+
 export default {
   before: {
     all: [authenticate()],

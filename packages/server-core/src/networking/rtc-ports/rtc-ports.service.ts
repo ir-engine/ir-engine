@@ -1,12 +1,12 @@
 // Initializes the `rtc-ports` service on path `/rtc-ports`
 import { Application } from '../../../declarations'
 import { RtcPorts } from './rtc-ports.class'
-import createModel from './rtc-ports.model'
-import hooks from './rtc-ports.hooks'
 import rtcPortsDocs from './rtc-ports.docs'
+import hooks from './rtc-ports.hooks'
+import createModel from './rtc-ports.model'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'rtc-ports': RtcPorts
   }

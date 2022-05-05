@@ -1,9 +1,12 @@
 import React from 'react'
-import Paper from '@mui/material/Paper'
+import { useTranslation } from 'react-i18next'
+
 import FormControl from '@mui/material/FormControl'
-import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
-import { useStyles } from '../styles/ui'
+import Paper from '@mui/material/Paper'
+import Select from '@mui/material/Select'
+
+import styles from '../styles/admin.module.scss'
 
 interface Props {
   formErrors: any
@@ -14,9 +17,10 @@ interface Props {
 }
 
 const InputSelect = ({ formErrors, value, handleInputChange, name, menu }: Props) => {
-  const classes = useStyles()
+  const { t } = useTranslation()
+
   return (
-    <Paper component="div" className={formErrors.length > 0 ? classes.redBorder : classes.createInput}>
+    <Paper component="div" className={formErrors.length > 0 ? styles.redBorder : styles.createInput}>
       <FormControl fullWidth disabled={menu.length > 0 ? false : true}>
         <Select
           labelId="demo-controlled-open-select-label"
@@ -26,11 +30,13 @@ const InputSelect = ({ formErrors, value, handleInputChange, name, menu }: Props
           onChange={handleInputChange}
           name={name}
           displayEmpty
-          className={classes.select}
-          MenuProps={{ classes: { paper: classes.selectPaper } }}
+          className={styles.select}
+          MenuProps={{ classes: { paper: styles.selectPaper } }}
         >
           <MenuItem value="" disabled>
-            <em>Select {name}</em>
+            <em>
+              {t('admin:components.common.select')} {name}
+            </em>
           </MenuItem>
           {menu.map((el, index) => (
             <MenuItem value={el.value} key={index}>

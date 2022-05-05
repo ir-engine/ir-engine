@@ -1,31 +1,32 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import {
-  MeshBasicMaterial,
-  Mesh,
   DoubleSide,
-  PlaneBufferGeometry,
-  MeshStandardMaterial,
-  sRGBEncoding,
   LinearFilter,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  Object3D,
+  PlaneBufferGeometry,
   SphereBufferGeometry,
-  Object3D
+  sRGBEncoding
 } from 'three'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { AssetClass } from '../../../assets/enum/AssetClass'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
+import { isClient } from '../../../common/functions/isClient'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
-import { ImageComponent, ImageComponentType } from '../../components/ImageComponent'
 import { ImageAlphaMode, ImageProjection } from '../../classes/ImageUtils'
-import { resolveMedia } from '../../../common/functions/resolveMedia'
-import loadTexture from '../../../assets/functions/loadTexture'
-import { isClient } from '../../../common/functions/isClient'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { ImageComponent, ImageComponentType } from '../../components/ImageComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
 import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_IMAGE = 'image'
@@ -54,12 +55,12 @@ export const deserializeImage: ComponentDeserializeFunction = (
   const props = parseImageProperties(json.props)
   addComponent(entity, ImageComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_IMAGE)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_IMAGE)
 
   updateImage(entity, props)
 }
 
-export const updateImage: ComponentUpdateFunction = async (entity: Entity, properties: ImageComponentType) => {
+export const updateImage: ComponentUpdateFunction = (entity: Entity, properties: ImageComponentType) => {
   if (!isClient) return
   const obj3d = getComponent(entity, Object3DComponent).value as Mesh<any, MeshStandardMaterial>
   const mesh = obj3d.userData.mesh
@@ -67,12 +68,12 @@ export const updateImage: ComponentUpdateFunction = async (entity: Entity, prope
 
   if (properties.imageSource) {
     try {
-      const { url } = await resolveMedia(component.imageSource)
-      const texture = await loadTexture(url)
-      if (!texture) {
-        addError(entity, 'error', 'Error Loading image')
+      const assetType = AssetLoader.getAssetClass(component.imageSource)
+      if (assetType !== AssetClass.Image) {
+        addError(entity, 'error', `Image format ${component.imageSource.split('.').pop()}not supported`)
         return
       }
+      const texture = AssetLoader.getFromCache(component.imageSource)
 
       texture.encoding = sRGBEncoding
       texture.minFilter = LinearFilter

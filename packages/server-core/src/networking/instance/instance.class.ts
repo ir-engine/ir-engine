@@ -1,14 +1,19 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
-import { Params } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
+
+import { Instance as InstanceInterface } from '@xrengine/common/src/interfaces/Instance'
+
+import { Application } from '../../../declarations'
+
+export type InstanceDataType = InstanceInterface
 
 /**
  * A class for Intance service
  *
  * @author Vyacheslav Solovjov
  */
-export class Instance extends Service {
+export class Instance<T = InstanceDataType> extends Service<T> {
   app: Application
   docs: any
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -21,15 +26,15 @@ export class Instance extends Service {
    * @param params of query with an acton or user role
    * @returns user object
    */
-  async find(params: Params): Promise<any> {
-    const action = params.query?.action
-    const search = params.query?.search
-    const skip = params.query?.$skip ? params.query.$skip : 0
-    const limit = params.query?.$limit ? params.query.$limit : 10
-
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
+    const action = params?.query?.action
+    const search = params?.query?.search
+    const skip = params?.query?.$skip ? params.query.$skip : 0
+    const limit = params?.query?.$limit ? params.query.$limit : 10
+    const sort = params?.query?.$sort
     if (action === 'admin') {
       //TODO: uncomment here
-      // const loggedInUser = extractLoggedInUserFromParams(params)
+      // const loggedInUser = params.user as UserDataType
       // const user = await super.get(loggedInUser.userId);
       // console.log(user);
       // if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');
@@ -40,17 +45,25 @@ export class Instance extends Service {
       } else {
         name = search ? { name: { [Op.like]: `%${search}%` } } : {}
       }
-
-      const foundLocation = await (this.app.service('instance') as any).Model.findAndCountAll({
+      const order: any[] = []
+      if (sort != null)
+        Object.keys(sort).forEach((name, val) => {
+          if (name === 'locationId') {
+            order.push([Sequelize.literal('`location.name`'), sort[name] === 0 ? 'DESC' : 'ASC'])
+          } else {
+            order.push([name, sort[name] === 0 ? 'DESC' : 'ASC'])
+          }
+        })
+      const foundLocation = await this.app.service('instance').Model.findAndCountAll({
         offset: skip,
         limit: limit,
         include: {
-          model: (this.app.service('location') as any).Model,
+          model: this.app.service('location').Model,
           required: true,
           where: { ...name }
         },
         nest: false,
-        where: { ended: true, ...ip }
+        where: { ended: false, ...ip }
       })
 
       return {

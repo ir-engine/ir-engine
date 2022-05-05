@@ -1,10 +1,12 @@
-import { SoundEffect } from '../components/SoundEffect'
+import { dispatchAction } from '@xrengine/hyperflux'
+
+import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineService'
+import { World } from '../../ecs/classes/World'
+import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { BackgroundMusic } from '../components/BackgroundMusic'
 import { PlaySoundEffect } from '../components/PlaySoundEffect'
-import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { World } from '../../ecs/classes/World'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
+import { SoundEffect } from '../components/SoundEffect'
 
 export default async function AudioSystem(world: World) {
   const soundEffectQuery = defineQuery([SoundEffect])
@@ -17,8 +19,6 @@ export default async function AudioSystem(world: World) {
   let callbacks: any[] = []
   /** Audio Element. */
   let audio: any
-  /** Audio Context. */
-  let context: AudioContext
 
   /**
    * Call the callbacks when system is ready or push callbacks in array otherwise.
@@ -33,31 +33,17 @@ export default async function AudioSystem(world: World) {
   }
 
   /** Enable and start audio system. */
-  const startAudio = (): void => {
-    if (audioReady) return
+  const startAudio = (e) => {
+    window.removeEventListener('pointerdown', startAudio, true)
     console.log('starting audio')
     audioReady = true
-    dispatchLocal(EngineActions.startSuspendedContexts() as any)
-    window.AudioContext = window.AudioContext || (window as any).webkitAudioContext
-    if (window.AudioContext) {
-      context = new window.AudioContext()
-      // Create empty buffer
-      const buffer = context.createBuffer(1, 1, 22050)
-      const source = context.createBufferSource()
-      source.buffer = buffer
-      // Connect to output (speakers)
-      source.connect(context.destination)
-      // Play sound
-      if (source.start) {
-        source.start(0)
-      } else if ((source as any).play) {
-        ;(source as any).play(0)
-      }
-    }
+    Engine.instance.audioListener.context.resume()
+    dispatchAction(Engine.instance.store, EngineActions.startSuspendedContexts())
 
     callbacks.forEach((cb) => cb())
     callbacks = null!
   }
+  window.addEventListener('pointerdown', startAudio, true)
 
   /**
    * Start Background music if available.
@@ -99,10 +85,6 @@ export default async function AudioSystem(world: World) {
     audio.play()
     removeComponent(ent, PlaySoundEffect)
   }
-
-  window.addEventListener('touchstart', startAudio, true)
-  window.addEventListener('touchend', startAudio, true)
-  window.addEventListener('click', startAudio, true)
 
   return () => {
     for (const entity of soundEffectQuery.enter(world)) {

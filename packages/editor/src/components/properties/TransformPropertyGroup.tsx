@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import PropertyGroup from './PropertyGroup'
-import { Euler } from 'three'
-import InputGroup from '../inputs/InputGroup'
-import Vector3Input from '../inputs/Vector3Input'
-import EulerInput from '../inputs/EulerInput'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
-import EditorCommands from '../../constants/EditorCommands'
-import EditorEvents from '../../constants/EditorEvents'
+import { Euler } from 'three'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
+import { executeCommandWithHistoryOnSelection } from '../../classes/History'
+import EditorCommands from '../../constants/EditorCommands'
+import { useSelectionState } from '../../services/SelectionServices'
+import EulerInput from '../inputs/EulerInput'
+import InputGroup from '../inputs/InputGroup'
+import Vector3Input from '../inputs/Vector3Input'
+import PropertyGroup from './PropertyGroup'
 import { EditorComponentType } from './Util'
 
 const euler = new Euler()
@@ -20,36 +22,32 @@ const euler = new Euler()
  * @type {class component}
  */
 export const TransformPropertyGroup: EditorComponentType = (props) => {
-  const [, updateState] = useState<any>()
+  const selectionState = useSelectionState()
   const { t } = useTranslation()
   const [rotEulerValue, setState] = useState({ x: 0, y: 0, z: 0 })
 
-  const forceUpdate = useCallback(() => updateState({}), [])
-
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), forceUpdate)
     euler.setFromQuaternion(transfromComponent.rotation)
     setState({ x: euler.x, y: euler.y, z: euler.z })
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), forceUpdate)
-    }
   }, [])
+
+  // access state to detect the change
+  selectionState.objectChangeCounter.value
 
   //function to handle the position properties
   const onChangePosition = (value) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.POSITION, { positions: value })
+    executeCommandWithHistoryOnSelection(EditorCommands.POSITION, { positions: value })
   }
 
   //function to handle changes rotation properties
   const onChangeRotation = (value) => {
     setState({ x: value.x, y: value.y, z: value.z })
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATION, { rotations: value })
+    executeCommandWithHistoryOnSelection(EditorCommands.ROTATION, { rotations: value })
   }
 
   //function to handle changes in scale properties
   const onChangeScale = (value) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.SCALE, {
+    executeCommandWithHistoryOnSelection(EditorCommands.SCALE, {
       scales: value,
       overrideScale: true
     })

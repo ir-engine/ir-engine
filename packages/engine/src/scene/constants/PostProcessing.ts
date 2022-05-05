@@ -1,22 +1,28 @@
-import { ColorRepresentation, Texture } from 'three'
 import {
   BlendFunction,
   BloomEffect,
   BrightnessContrastEffect,
   ColorDepthEffect,
-  Resizer,
   DepthOfFieldEffect,
+  EdgeDetectionMode,
   HueSaturationEffect,
   KernelSize,
   OutlineEffect,
+  PredicationMode,
+  Resolution,
+  SMAAEffect,
+  SMAAPreset,
   SSAOEffect,
   ToneMappingEffect
 } from 'postprocessing'
-import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
+import { ColorRepresentation, Texture } from 'three'
+
 import { FXAAEffect } from '../../renderer/effects/FXAAEffect'
+import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
 
 export enum Effects {
-  FXAAEffect = 'FXAAEffect',
+  // FXAAEffect = 'FXAAEffect',
+  SMAAEffect = 'SMAAEffect',
   OutlineEffect = 'OutlineEffect',
   SSAOEffect = 'SSAOEffect',
   DepthOfFieldEffect = 'DepthOfFieldEffect',
@@ -33,7 +39,9 @@ export type EffectType = {
 }
 
 export const EffectMap = new Map<Effects, EffectType>()
-EffectMap.set(Effects.FXAAEffect, { EffectClass: FXAAEffect })
+// TODO: FXAA recently broke due to new threejs & postprocessing version #5568
+// EffectMap.set(Effects.FXAAEffect, { EffectClass: FXAAEffect })
+EffectMap.set(Effects.SMAAEffect, { EffectClass: SMAAEffect })
 EffectMap.set(Effects.OutlineEffect, { EffectClass: OutlineEffect })
 EffectMap.set(Effects.SSAOEffect, { EffectClass: SSAOEffect })
 EffectMap.set(Effects.DepthOfFieldEffect, { EffectClass: DepthOfFieldEffect })
@@ -50,6 +58,12 @@ export type EffectProps = {
 }
 
 export type FXAAEffectProps = EffectProps
+
+export type SMAAEffectProps = EffectProps & {
+  preset: SMAAPreset
+  edgeDetectionMode: EdgeDetectionMode
+  predicationMode: PredicationMode
+}
 
 export type OutlineEffectProps = EffectProps & {
   patternTexture: Texture | null
@@ -118,7 +132,8 @@ export type ColorDepthEffectProps = EffectProps & {
 export type LinearTosRGBEffectProps = EffectProps
 
 export type EffectPropsSchema = {
-  [Effects.FXAAEffect]: FXAAEffectProps
+  // [Effects.FXAAEffect]: FXAAEffectProps
+  [Effects.SMAAEffect]: SMAAEffectProps
   [Effects.OutlineEffect]: OutlineEffectProps
   [Effects.SSAOEffect]: SSAOEffectProps
   [Effects.DepthOfFieldEffect]: DepthOfFieldEffectProps
@@ -131,26 +146,33 @@ export type EffectPropsSchema = {
 }
 
 export const defaultPostProcessingSchema: EffectPropsSchema = {
-  FXAAEffect: {
+  // FXAAEffect: {
+  //   isActive: true,
+  //   blendFunction: BlendFunction.NORMAL
+  // },
+  [Effects.SMAAEffect]: {
     isActive: true,
-    blendFunction: BlendFunction.NORMAL
+    blendFunction: BlendFunction.NORMAL,
+    preset: SMAAPreset.MEDIUM,
+    edgeDetectionMode: EdgeDetectionMode.COLOR,
+    predicationMode: PredicationMode.DISABLED
   },
-  OutlineEffect: {
+  [Effects.OutlineEffect]: {
     isActive: true,
     blendFunction: BlendFunction.SCREEN,
     patternTexture: null,
-    edgeStrength: 1.0,
+    edgeStrength: 2.0,
     pulseSpeed: 0.0,
     visibleEdgeColor: 0xffffff,
-    hiddenEdgeColor: 0x22090a,
+    hiddenEdgeColor: 0xffffff,
     resolutionScale: 0.5,
-    width: Resizer.AUTO_SIZE,
-    height: Resizer.AUTO_SIZE,
+    width: Resolution.AUTO_SIZE,
+    height: Resolution.AUTO_SIZE,
     kernelSize: KernelSize.VERY_SMALL,
     blur: false,
     xRay: true
   },
-  SSAOEffect: {
+  [Effects.SSAOEffect]: {
     isActive: false,
     blendFunction: BlendFunction.MULTIPLY,
     distanceScaling: true,
@@ -165,14 +187,14 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     intensity: 2,
     fade: 0.05
   },
-  DepthOfFieldEffect: {
+  [Effects.DepthOfFieldEffect]: {
     isActive: false,
     blendFunction: BlendFunction.NORMAL,
     focusDistance: 0.02,
     focalLength: 0.5,
     bokehScale: 1
   },
-  BloomEffect: {
+  [Effects.BloomEffect]: {
     isActive: true,
     blendFunction: BlendFunction.SCREEN,
     kernelSize: KernelSize.MEDIUM,
@@ -180,7 +202,7 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     luminanceSmoothing: 0.1,
     intensity: 0.2
   },
-  ToneMappingEffect: {
+  [Effects.ToneMappingEffect]: {
     isActive: false,
     blendFunction: BlendFunction.NORMAL,
     adaptive: true,
@@ -190,21 +212,21 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     averageLuminance: 1.0,
     adaptationRate: 2.0
   },
-  BrightnessContrastEffect: {
+  [Effects.BrightnessContrastEffect]: {
     isActive: false,
     brightness: 0.05,
     contrast: 0.1
   },
-  HueSaturationEffect: {
+  [Effects.HueSaturationEffect]: {
     isActive: false,
     hue: 0,
     saturation: -0.15
   },
-  ColorDepthEffect: {
+  [Effects.ColorDepthEffect]: {
     isActive: false,
     bits: 16
   },
-  LinearTosRGBEffect: {
+  [Effects.LinearTosRGBEffect]: {
     isActive: false
   }
 }

@@ -1,18 +1,21 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import InputGroup from '../inputs/InputGroup'
-import { CommandManager } from '../../managers/CommandManager'
-import NodeEditor from './NodeEditor'
-import ExtensionIcon from '@mui/icons-material/Extension'
+
 import { validatePath } from '@xrengine/common/src/utils/validatePath'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { SelectInput } from '../inputs/SelectInput'
-import BooleanInput from '../inputs/BooleanInput'
-import StringInput from '../inputs/StringInput'
-import ScriptInput from '../inputs/ScriptInput'
-import { EditorComponentType, updateProperty } from './Util'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { SystemComponent } from '@xrengine/engine/src/scene/components/SystemComponent'
+
+import ExtensionIcon from '@mui/icons-material/Extension'
+
+import { setPropertyOnSelectionEntities } from '../../classes/History'
+import BooleanInput from '../inputs/BooleanInput'
+import InputGroup from '../inputs/InputGroup'
+import ScriptInput from '../inputs/ScriptInput'
+import { SelectInput } from '../inputs/SelectInput'
+import StringInput from '../inputs/StringInput'
+import NodeEditor from './NodeEditor'
+import { EditorComponentType, updateProperty } from './Util'
 
 /**
  * Define properties for Script component.
@@ -65,7 +68,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
 
   const onChangePath = (path) => {
     if (validatePath(path)) {
-      CommandManager.instance.setPropertyOnSelectionEntities({
+      setPropertyOnSelectionEntities({
         component: SystemComponent,
         properties: { filePath: path }
       })

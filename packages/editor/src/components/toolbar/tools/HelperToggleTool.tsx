@@ -1,47 +1,59 @@
 import React, { useCallback, useState } from 'react'
-import * as styles from '../styles.module.scss'
-import SquareFootIcon from '@mui/icons-material/SquareFoot'
-import SelectAllIcon from '@mui/icons-material/SelectAll'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import {
+  accessEngineRendererState,
+  EngineRendererAction,
+  useEngineRendererState
+} from '@xrengine/engine/src/renderer/EngineRendererState'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { dispatchAction } from '@xrengine/hyperflux'
+
+import SelectAllIcon from '@mui/icons-material/SelectAll'
+import SquareFootIcon from '@mui/icons-material/SquareFoot'
+
 import { InfoTooltip } from '../../layout/Tooltip'
+import * as styles from '../styles.module.scss'
 
 export const HelperToggleTool = () => {
+  const engineRenderState = accessEngineRendererState()
   const [, updateState] = useState<any>()
   const forceUpdate = useCallback(() => updateState({}), [])
+  const engineRendererState = useEngineRendererState()
 
   const togglePhysicsDebug = () => {
-    Engine.camera.layers.toggle(ObjectLayers.PhysicsHelper)
     forceUpdate()
+    dispatchAction(
+      Engine.instance.store,
+      EngineRendererAction.setPhysicsDebug(!engineRenderState.physicsDebugEnable.value) as any
+    )
   }
+
   const toggleNodeHelpers = () => {
-    Engine.camera.layers.toggle(ObjectLayers.NodeHelper)
-    forceUpdate()
+    Engine.instance.camera.layers.toggle(ObjectLayers.NodeHelper)
+    dispatchAction(
+      Engine.instance.store,
+      EngineRendererAction.changeNodeHelperVisibility(!engineRenderState.nodeHelperVisibility.value)
+    )
   }
 
   return (
     <>
       <div id="transform-grid" className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer}>
-        <InfoTooltip info="Toggle Physics Helpers">
+        <InfoTooltip title="Toggle Physics Helpers">
           <button
             onClick={togglePhysicsDebug}
-            className={
-              styles.toolButton +
-              ' ' +
-              (Engine.camera.layers.isEnabled(ObjectLayers.PhysicsHelper) ? styles.selected : '')
-            }
+            className={styles.toolButton + ' ' + (engineRendererState.physicsDebugEnable.value ? styles.selected : '')}
           >
             <SquareFootIcon fontSize="small" />
           </button>
         </InfoTooltip>
       </div>
       <div id="transform-grid" className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer}>
-        <InfoTooltip info="Toggle Node Helpers">
+        <InfoTooltip title="Toggle Node Helpers">
           <button
             onClick={toggleNodeHelpers}
-            className={
-              styles.toolButton + ' ' + (Engine.camera.layers.isEnabled(ObjectLayers.NodeHelper) ? styles.selected : '')
-            }
+            className={styles.toolButton + ' ' + (engineRenderState.nodeHelperVisibility.value ? styles.selected : '')}
           >
             <SelectAllIcon fontSize="small" />
           </button>

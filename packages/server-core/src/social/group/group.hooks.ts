@@ -1,8 +1,10 @@
-import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate'
-import createGroupOwner from '@xrengine/server-core/src/hooks/create-group-owner'
-import removeGroupUsers from '@xrengine/server-core/src/hooks/remove-group-users'
-import authenticate from '../../hooks/authenticate'
 import { HookContext } from '@feathersjs/feathers'
+
+import createGroupOwner from '@xrengine/server-core/src/hooks/create-group-owner'
+import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate'
+import removeGroupUsers from '@xrengine/server-core/src/hooks/remove-group-users'
+
+import authenticate from '../../hooks/authenticate'
 import logger from '../../logger'
 
 export default {
@@ -59,9 +61,8 @@ export default {
             })
           })
           return context
-        } catch (error) {
-          logger.error('GROUP AFTER CREATE ERROR')
-          logger.error(error)
+        } catch (err) {
+          logger.error(err, `GROUP AFTER CREATE ERROR: ${err.error}`)
           return null!
         }
       }

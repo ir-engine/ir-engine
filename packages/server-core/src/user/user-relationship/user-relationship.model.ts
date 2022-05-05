@@ -1,9 +1,12 @@
-import { DataTypes, Sequelize } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { UserRelationshipInterface } from '@xrengine/common/src/dbmodels/UserRelationship'
+
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const userRelationship = sequelizeClient.define(
+  const userRelationship = sequelizeClient.define<Model<UserRelationshipInterface>>(
     'user_relationship',
     {
       id: {
@@ -12,7 +15,7 @@ export default (app: Application) => {
         allowNull: false,
         primaryKey: true
       }
-    },
+    } as any,
     {
       hooks: {
         beforeCount(options: any): any {

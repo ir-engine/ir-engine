@@ -1,10 +1,12 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { AlertService } from '../../common/services/AlertService'
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
-import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
+
 import { User } from '@xrengine/common/src/interfaces/User'
-import { UserRoleResult } from '@xrengine/common/src/interfaces/UserRoleResult'
+import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
+
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 
 //State
 export const USER_PAGE_LIMIT = 100
@@ -24,7 +26,7 @@ store.receptors.push((action: UserActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'USER_ROLE_RETRIEVED':
-        return s.merge({ userRole: action.types.data, updateNeeded: false })
+        return s.merge({ userRole: action.types, updateNeeded: false })
       case 'USER_ROLE_CREATED':
         return s.merge({ updateNeeded: true })
       case 'USER_ROLE_UPDATED':
@@ -38,44 +40,41 @@ export const accessUserRoleState = () => state
 export const useUserRoleState = () => useState(state) as any as typeof state
 
 //Service
-export const UserROleService = {
+export const UserRoleService = {
   fetchUserRole: async () => {
     const dispatch = useDispatch()
-    {
-      try {
-        const userRole = await client.service('user-role').find()
-        dispatch(UserRoleAction.userRoleRetrieved(userRole))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      const userRole = (await client.service('user-role').find()) as Paginated<UserRole>
+      dispatch(UserRoleAction.userRoleRetrieved(userRole))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   createUserRoleAction: async (data) => {
     const dispatch = useDispatch()
-    {
-      const result = await client.service('user-role').create(data)
-      dispatch(UserRoleAction.userRoleCreated(result))
-    }
+
+    const result = (await client.service('user-role').create(data)) as UserRole
+    dispatch(UserRoleAction.userRoleCreated(result))
   },
   updateUserRole: async (id: string, role: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const userRole = await client.service('user').patch(id, { userRole: role })
-        dispatch(UserRoleAction.userRoleUpdated(userRole))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      const userRole = (await client.service('user').patch(id, { userRole: role })) as User
+      dispatch(UserRoleAction.userRoleUpdated(userRole))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   }
 }
 
 //Action
 export const UserRoleAction = {
-  userRoleRetrieved: (data: UserRoleResult) => {
+  userRoleRetrieved: (data: Paginated<UserRole>) => {
     return {
       type: 'USER_ROLE_RETRIEVED' as const,
-      types: data
+      types: data.data
     }
   },
   userRoleCreated: (data: UserRole) => {

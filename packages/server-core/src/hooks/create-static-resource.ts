@@ -1,4 +1,5 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
+
 import getBasicMimetype from '../util/get-basic-mimetype'
 
 export default (): Hook => {
@@ -6,7 +7,7 @@ export default (): Hook => {
     const { data, params } = context
     const body = params.body || {}
 
-    const resourceData = {
+    const resourceData: any = {
       name: data.name || body.name || context.params.file.originalname,
       description: data.description || body.description,
       url: data.uri || data.url,
@@ -27,10 +28,10 @@ export default (): Hook => {
       })
     } else {
       if (context.params.parentResourceId) {
-        ;(resourceData as any).parentResourceId = context.params.parentResourceId
+        resourceData.parentResourceId = context.params.parentResourceId
       }
       if (context.params.uuid && context.params.parentResourceId == null) {
-        ;(resourceData as any).id = context.params.uuid
+        resourceData.id = context.params.uuid
       }
 
       if (resourceData.staticResourceType === 'user-thumbnail') {
@@ -42,11 +43,11 @@ export default (): Hook => {
         })
 
         await Promise.all(
-          existingThumbnails.data.map(async (item: any) => {
+          existingThumbnails.data.map(async (item) => {
             return context.app.service('static-resource').remove(item.id)
           })
         )
-        ;(resourceData as any).userId = body.userId
+        resourceData.userId = body.userId
       }
       context.result = await context.app.service('static-resource').create(resourceData)
     }

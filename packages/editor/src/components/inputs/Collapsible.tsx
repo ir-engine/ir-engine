@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import styled from 'styled-components'
-import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
 /**
  * CollapsibleContainer used to provide styles for Collapsible div.
@@ -22,12 +23,12 @@ const CollapsibleContainer = (styled as any).div`
  * @type {styled container}
  */
 const CollapsibleLabel = (styled as any).div`
-  color: ${(props) => props.theme.text2};
+  color: var(--text2);
   cursor: pointer;
   display: inline-block;
 
   :hover {
-    color: ${(props) => props.theme.text};
+    color: var(--text);
   }
 `
 

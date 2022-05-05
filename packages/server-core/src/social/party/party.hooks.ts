@@ -1,12 +1,16 @@
-import authenticate from '../../hooks/authenticate'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
-import partyPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-permission-authenticate'
-import createPartyOwner from '@xrengine/server-core/src/hooks/create-party-owner'
-import removePartyUsers from '@xrengine/server-core/src/hooks/remove-party-users'
 import { HookContext } from '@feathersjs/feathers'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
+
+import createPartyOwner from '@xrengine/server-core/src/hooks/create-party-owner'
+import partyPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-permission-authenticate'
+import removePartyUsers from '@xrengine/server-core/src/hooks/remove-party-users'
+
 import addAssociations from '../../hooks/add-associations'
+import authenticate from '../../hooks/authenticate'
 import restrictUserRole from '../../hooks/restrict-user-role'
+import logger from '../../logger'
+import { UserDataType } from '../../user/user/user.class'
+
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
@@ -31,7 +35,7 @@ export default {
     get: [],
     create: [
       async (context): Promise<HookContext> => {
-        const loggedInUser = extractLoggedInUserFromParams(context.params)
+        const loggedInUser = context.params.user as UserDataType
         const currentPartyUser = await context.app.service('party-user').find({
           query: {
             userId: loggedInUser.id
@@ -41,7 +45,7 @@ export default {
           try {
             await context.app.service('party-user').remove(currentPartyUser.data[0].id)
           } catch (error) {
-            console.error(error)
+            logger.error(error)
           }
           await context.app.service('user').patch(loggedInUser.id, {
             partyId: null

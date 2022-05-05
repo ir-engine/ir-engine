@@ -1,5 +1,6 @@
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { CommandManager } from '../../managers/CommandManager'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 export type HeirarchyTreeNodeType = {
   depth: number
@@ -22,12 +23,13 @@ export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
  */
 export function* heirarchyTreeWalker(
   treeNode: EntityTreeNode,
-  collapsedNodes: HeirarchyTreeCollapsedNodeType
+  selectedEntities: Entity[],
+  collapsedNodes: HeirarchyTreeCollapsedNodeType,
+  tree = useWorld().entityTree
 ): Generator<HeirarchyTreeNodeType> {
   if (!treeNode) return
 
   const stack = [] as HeirarchyTreeNodeType[]
-  const selected = CommandManager.instance.selected
 
   stack.push({ depth: 0, entityNode: treeNode, childIndex: 0, lastChild: true })
 
@@ -40,20 +42,24 @@ export function* heirarchyTreeWalker(
       isCollapsed,
       depth,
       entityNode: entityNode,
-      selected: selected.indexOf(entityNode) !== -1,
-      active: selected.length > 0 && entityNode === selected[selected.length - 1],
+      selected: selectedEntities.includes(entityNode.entity),
+      active: selectedEntities.length > 0 && entityNode.entity === selectedEntities[selectedEntities.length - 1],
       childIndex,
       lastChild
     }
 
     if (entityNode.children && entityNode.children.length !== 0 && !isCollapsed) {
       for (let i = entityNode.children.length - 1; i >= 0; i--) {
-        stack.push({
-          depth: depth + 1,
-          entityNode: entityNode.children[i],
-          childIndex: i,
-          lastChild: i === 0
-        })
+        const node = tree.entityNodeMap.get(entityNode.children[i])
+
+        if (node) {
+          stack.push({
+            depth: depth + 1,
+            entityNode: node,
+            childIndex: i,
+            lastChild: i === 0
+          })
+        }
       }
     }
   }

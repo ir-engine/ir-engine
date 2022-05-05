@@ -1,6 +1,8 @@
-import { Button } from '@mui/material'
 import React from 'react'
 import { Link, withRouter } from 'react-router-dom'
+
+import { Button } from '@mui/material'
+
 import { useStyle, useStyles } from './style'
 
 const UnauthorisedPage = (props) => {
@@ -10,7 +12,7 @@ const UnauthorisedPage = (props) => {
     <div className={classx.paper}>
       <div className={classes.notFound}>
         <p className={classes.typo}>{props.message}</p>
-        <Link style={{ textDecoration: 'none' }} to="/location/test">
+        <Link style={{ textDecoration: 'none' }} to="/location/default">
           <Button className={classes.Btn}>location page</Button>
         </Link>
       </div>

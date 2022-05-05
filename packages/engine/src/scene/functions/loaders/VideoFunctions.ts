@@ -1,30 +1,31 @@
+import Hls from 'hls.js'
+import { LinearFilter, Mesh, MeshStandardMaterial, Object3D, sRGBEncoding, VideoTexture } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Mesh, MeshStandardMaterial, sRGBEncoding, LinearFilter, VideoTexture, Object3D } from 'three'
+
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
+import { accessEngineState, EngineActions } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
+import { ImageProjection } from '../../classes/ImageUtils'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { ImageComponent } from '../../components/ImageComponent'
+import { MediaComponent } from '../../components/MediaComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VideoComponent, VideoComponentType } from '../../components/VideoComponent'
-import { resolveMedia } from '../../../common/functions/resolveMedia'
-import { isClient } from '../../../common/functions/isClient'
-import { ImageComponent } from '../../components/ImageComponent'
-import { ImageProjection } from '../../classes/ImageUtils'
+import { addError, removeError } from '../ErrorFunctions'
+import isHLS from '../isHLS'
 import { resizeImageMesh } from './ImageFunctions'
 import { updateAutoStartTimeForMedia } from './MediaFunctions'
-import { MediaComponent } from '../../components/MediaComponent'
-import isHLS from '../isHLS'
-import Hls from 'hls.js'
-import { accessEngineState } from '../../../ecs/classes/EngineService'
-import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
-import { EngineEvents } from '../../../ecs/classes/EngineEvents'
-import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_VIDEO = 'video'
 export const VIDEO_MESH_NAME = 'VideoMesh'
@@ -46,10 +47,11 @@ export const deserializeVideo: ComponentDeserializeFunction = (
 
   if (!obj3d) {
     obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
+    obj3d.userData.mesh = new Mesh()
   }
 
-  const video = obj3d.userData.mesh
-  video.name = VIDEO_MESH_NAME
+  if (!obj3d.userData.mesh) obj3d.userData.mesh = { name: VIDEO_MESH_NAME }
+  else obj3d.userData.mesh.name = VIDEO_MESH_NAME
 
   const el = document.createElement('video')
   el.setAttribute('crossOrigin', 'anonymous')
@@ -82,22 +84,21 @@ export const deserializeVideo: ComponentDeserializeFunction = (
 
   addComponent(entity, VideoComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VIDEO)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VIDEO)
 
   updateVideo(entity, props)
 }
 
-export const updateVideo: ComponentUpdateFunction = async (entity: Entity, properties: VideoComponentType) => {
+export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties: VideoComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value as Mesh<any, MeshStandardMaterial>
   const mesh = obj3d.userData.mesh
   const component = getComponent(entity, VideoComponent)
 
   if (properties.videoSource) {
     try {
-      const { url, contentType } = await resolveMedia(component.videoSource)
-      if (isHLS(url, contentType)) {
+      if (isHLS(component.videoSource)) {
         if (component.hls) component.hls.destroy()
-        component.hls = setupHLS(entity, url)
+        component.hls = setupHLS(entity, component.videoSource)
         component.hls?.attachMedia(obj3d.userData.videoEl)
       }
       // else if (isDash(url)) {
@@ -109,7 +110,7 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
       else {
         obj3d.userData.videoEl.addEventListener('error', () => addError(entity, 'error', 'Error Loading video'))
         obj3d.userData.videoEl.addEventListener('loadeddata', () => removeError(entity, 'error'))
-        obj3d.userData.videoEl.src = url
+        obj3d.userData.videoEl.src = component.videoSource
       }
 
       const texture = new VideoTexture(obj3d.userData.videoEl)
@@ -132,8 +133,9 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
             if (accessEngineState().userHasInteracted.value) {
               obj3d.userData.videoEl.play()
             } else {
-              receiveActionOnce(EngineEvents.EVENTS.SET_USER_HAS_INTERACTED, () => {
+              matchActionOnce(Engine.instance.store, EngineActions.setUserHasInteracted.matches, () => {
                 obj3d.userData.videoEl.play()
+                return true
               })
             }
           }
@@ -142,7 +144,7 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
           mesh.material.map.image.width = mesh.material.map.image.videoWidth
           if (getComponent(entity, ImageComponent)?.projection === ImageProjection.Flat) resizeImageMesh(mesh)
 
-          const audioSource = Engine.audioListener.context.createMediaElementSource(obj3d.userData.videoEl)
+          const audioSource = Engine.instance.audioListener.context.createMediaElementSource(obj3d.userData.videoEl)
           obj3d.userData.audioEl.setNodeSource(audioSource)
 
           updateAutoStartTimeForMedia(entity)
@@ -172,7 +174,7 @@ export const serializeVideo: ComponentSerializeFunction = (entity) => {
 
 export const prepareVideoForGLTFExport: ComponentPrepareForGLTFExportFunction = (video) => {
   if (video.userData.videoEl) {
-    if (video.userData.videoEl.parent) video.userData.videoEl.remove()
+    if (video.userData.videoEl.parent) video.userData.videoEl.removeFromParent()
     delete video.userData.videoEl
   }
 
@@ -182,7 +184,7 @@ export const prepareVideoForGLTFExport: ComponentPrepareForGLTFExportFunction = 
   }
 }
 
-const setupHLS = (entity: Entity, url: string): Hls => {
+export const setupHLS = (entity: Entity, url: string): Hls => {
   const hls = new Hls()
   hls.on(Hls.Events.ERROR, function (event, data) {
     if (data.fatal) {
@@ -231,7 +233,7 @@ export const toggleVideo = (entity: Entity) => {
   }
 }
 
-const parseVideoProperties = (props): Partial<VideoComponentType> => {
+export const parseVideoProperties = (props): Partial<VideoComponentType> => {
   return {
     videoSource: props.videoSource ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.videoSource,
     elementId: props.elementId ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.elementId

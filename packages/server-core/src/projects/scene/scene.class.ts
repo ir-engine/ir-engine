@@ -1,21 +1,24 @@
-import { NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import { Application } from '../../../declarations'
-import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
+import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
-import appRootPath from 'app-root-path'
+
+import { SceneData, SceneJson, SceneMetadata } from '@xrengine/common/src/interfaces/SceneInterface'
+import { isDev } from '@xrengine/common/src/utils/isDev'
+import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
+
+import { Application } from '../../../declarations'
+import logger from '../../logger'
+import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { cleanString } from '../../util/cleanString'
 import { uploadLocalProjectToProvider } from '../project/project.class'
-import { isDev } from '@xrengine/common/src/utils/isDev'
-import defaultSceneSeed from '@xrengine/projects/default-project/empty.scene.json'
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser'
 
 const storageProvider = useStorageProvider()
 const NEW_SCENE_NAME = 'New-Scene'
 
-export const getSceneData = (projectName, sceneName, metadataOnly) => {
+export const getSceneData = (projectName, sceneName, metadataOnly, internal) => {
   const newSceneJsonPath = path.resolve(
     appRootPath.path,
     `packages/projects/projects/${projectName}/${sceneName}.scene.json`
@@ -25,17 +28,20 @@ export const getSceneData = (projectName, sceneName, metadataOnly) => {
 
   const sceneThumbnailPath = getCachedAsset(
     `projects/${projectName}/${sceneName}.thumbnail.jpeg`,
-    storageProvider.cacheDomain
+    storageProvider.cacheDomain,
+    internal
   )
 
-  const sceneData: SceneDetailInterface = {
+  const sceneData: SceneData = {
     name: sceneName,
+    project: projectName,
     thumbnailUrl: sceneThumbnailPath + `?${Date.now()}`,
     scene: metadataOnly
-      ? undefined
+      ? undefined!
       : parseSceneDataCacheURLs(
           JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath), 'utf8')),
-          storageProvider.cacheDomain
+          storageProvider.cacheDomain,
+          internal
         )
   }
 
@@ -45,7 +51,7 @@ export const getSceneData = (projectName, sceneName, metadataOnly) => {
 interface UpdateParams {
   sceneName: string
   sceneData?: SceneJson
-  thumbnailBuffer?: Buffer
+  thumbnailBuffer?: ArrayBuffer | Buffer // ArrayBuffer on client, Buffer on server
 }
 
 interface RenameParams {
@@ -64,12 +70,14 @@ export class Scene implements ServiceMethods<any> {
 
   async setup() {}
 
-  async find(params): Promise<{ data: SceneDetailInterface[] }> {
+  async find(params?: Params): Promise<{ data: SceneData[] }> {
     const projects = await this.app.service('project').find(params)
 
-    const scenes: SceneDetailInterface[] = []
+    const scenes: SceneData[] = []
     for (const project of projects.data) {
-      const { data } = await this.app.service('scenes').get({ projectName: project.name, metadataOnly: true }, params)
+      const { data } = await this.app
+        .service('scenes')
+        .get({ projectName: project.name, metadataOnly: true, internal: true }, params!)
       scenes.push(
         ...data.map((d) => {
           d.project = project.name
@@ -82,26 +90,24 @@ export class Scene implements ServiceMethods<any> {
       scenes[index].thumbnailUrl += `?${Date.now()}`
     }
 
-    return {
-      data: scenes
-    }
+    return { data: scenes }
   }
 
   // @ts-ignore
-  async get({ projectName, sceneName, metadataOnly }, params: Params): Promise<{ data: SceneDetailInterface }> {
+  async get({ projectName, sceneName, metadataOnly }, params?: Params): Promise<{ data: SceneData }> {
     const project = await this.app.service('project').get(projectName, params)
     if (!project?.data) throw new Error(`No project named ${projectName} exists`)
 
-    const sceneData = getSceneData(projectName, sceneName, metadataOnly)
+    const sceneData = getSceneData(projectName, sceneName, metadataOnly, params!.provider == null)
 
     return {
       data: sceneData
     }
   }
 
-  async create(data: any, params: any): Promise<any> {
+  async create(data: any, params?: Params): Promise<any> {
     const { projectName } = data
-    console.log('[scene.create]:', projectName)
+    logger.info('[scene.create]: ' + projectName)
 
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
@@ -119,12 +125,12 @@ export class Scene implements ServiceMethods<any> {
     }
 
     fs.copyFileSync(
-      path.resolve(appRootPath.path, `packages/projects/default-project/empty.thumbnail.jpeg`),
+      path.resolve(appRootPath.path, `packages/projects/default-project/default.thumbnail.jpeg`),
       path.resolve(projectPath + newSceneName + '.thumbnail.jpeg')
     )
 
     fs.copyFileSync(
-      path.resolve(appRootPath.path, `packages/projects/default-project/empty.scene.json`),
+      path.resolve(appRootPath.path, `packages/projects/default-project/default.scene.json`),
       path.resolve(projectPath + newSceneName + '.scene.json')
     )
 
@@ -139,7 +145,7 @@ export class Scene implements ServiceMethods<any> {
     return { projectName, sceneName: newSceneName }
   }
 
-  async patch(id: NullableId, data: RenameParams, params: Params): Promise<any> {
+  async patch(id: NullableId, data: RenameParams, params?: Params): Promise<any> {
     const { newSceneName, oldSceneName, projectName } = data
 
     const project = await this.app.service('project').get(projectName, params)
@@ -174,9 +180,9 @@ export class Scene implements ServiceMethods<any> {
     return
   }
 
-  async update(projectName: string, data: UpdateParams, params: Params): Promise<any> {
+  async update(projectName: string, data: UpdateParams, params?: Params): Promise<any> {
     const { sceneName, sceneData, thumbnailBuffer } = data
-    console.log('[scene.update]:', projectName, data)
+    logger.info('[scene.update]: ', { projectName, data })
 
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
@@ -191,7 +197,7 @@ export class Scene implements ServiceMethods<any> {
         appRootPath.path,
         `packages/projects/projects/${projectName}/${sceneName}.thumbnail.jpeg`
       )
-      fs.writeFileSync(path.resolve(sceneThumbnailPath), thumbnailBuffer)
+      fs.writeFileSync(path.resolve(sceneThumbnailPath), thumbnailBuffer as Buffer)
     }
 
     fs.writeFileSync(
@@ -211,7 +217,7 @@ export class Scene implements ServiceMethods<any> {
   // async patch(sceneId: NullableId, data: PatchData, params: Params): Promise<SceneDetailInterface> {}
 
   // @ts-ignore
-  async remove({ projectName, sceneName }, params: Params): Promise<any> {
+  async remove({ projectName, sceneName }, params?: Params): Promise<any> {
     const name = cleanString(sceneName)
 
     const project = await this.app.service('project').get(projectName, params)

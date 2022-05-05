@@ -1,9 +1,12 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { AlertService } from '../../common/services/AlertService'
 import { createState, useState } from '@speigg/hookstate'
+
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { User } from '@xrengine/common/src/interfaces/User'
+
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
+
 //State
 export const USER_PAGE_LIMIT = 100
 
@@ -37,14 +40,13 @@ export const useSingleUserState = () => useState(state) as any as typeof state
 export const SingleUserService = {
   fetchSingleUserAdmin: async (id: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const result = await client.service('user').get(id)
-        dispatch(SingleUserAction.fetchedSingleUser(result))
-      } catch (error) {
-        console.error(error)
-        AlertService.dispatchAlertError(error.message)
-      }
+
+    try {
+      const result = await client.service('user').get(id)
+      dispatch(SingleUserAction.fetchedSingleUser(result))
+    } catch (error) {
+      console.error(error)
+      AlertService.dispatchAlertError(error.message)
     }
   },
   refetchSingleUserAdmin: async () => {}

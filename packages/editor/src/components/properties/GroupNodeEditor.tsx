@@ -1,7 +1,9 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import GridViewIcon from '@mui/icons-material/GridView'
 import { useTranslation } from 'react-i18next'
+
+import GridViewIcon from '@mui/icons-material/GridView'
+
+import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
 
 /**
@@ -18,7 +20,7 @@ export const GroupNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.group.name')}
       description={t('editor:properties.group.description')}
-    />
+    ></NodeEditor>
   )
 }
 

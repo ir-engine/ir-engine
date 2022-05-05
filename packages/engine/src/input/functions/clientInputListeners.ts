@@ -1,4 +1,5 @@
-import { handleGamepadConnected, handleGamepadDisconnected } from './GamepadInput'
+import { isClient } from '../../common/functions/isClient'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import {
   handleContextMenu,
   handleKey,
@@ -13,34 +14,13 @@ import {
   handleVisibilityChange,
   handleWindowFocus
 } from '../schema/ClientInputSchema'
-
-const supportsPassive = (function () {
-  let supportsPassiveValue = false
-  try {
-    const opts = Object.defineProperty({}, 'passive', {
-      get: function () {
-        supportsPassiveValue = true
-      }
-    })
-    window.addEventListener('testPassive', null!, opts)
-    window.removeEventListener('testPassive', null!, opts)
-  } catch (error) {}
-  return supportsPassiveValue
-})()
+import { handleGamepadConnected, handleGamepadDisconnected } from './GamepadInput'
 
 const keys = { 37: 1, 38: 1, 39: 1, 40: 1 }
 
 function preventDefault(e) {
   e.preventDefault()
 }
-
-function preventDefaultForScrollKeys(e) {
-  if (keys[e.keyCode]) {
-    preventDefault(e)
-    return false
-  }
-}
-
 interface ListenerBindingData {
   domElement: any
   eventName: string
@@ -49,16 +29,20 @@ interface ListenerBindingData {
 
 const boundListeners: ListenerBindingData[] = []
 
-export const addClientInputListeners = (canvas: HTMLCanvasElement) => {
-  window.addEventListener('DOMMouseScroll', preventDefault, false)
-  window.addEventListener('keydown', preventDefaultForScrollKeys, false)
+export const addClientInputListeners = () => {
+  if (!isClient) return
+  const canvas = EngineRenderer.instance.canvas
 
-  const addListener = (domElement, eventName, callback, passive = false) => {
-    if (passive && supportsPassive) {
-      domElement.addEventListener(eventName, callback, { passive })
-    } else {
-      domElement.addEventListener(eventName, callback)
-    }
+  window.addEventListener('DOMMouseScroll', preventDefault, false)
+  window.addEventListener('touchmove', preventDefault, { capture: true, passive: false })
+
+  const addListener = (
+    domElement: HTMLElement | Document | Window,
+    eventName,
+    callback: (event: Event) => void,
+    options?: boolean | AddEventListenerOptions
+  ) => {
+    domElement.addEventListener(eventName, callback, options)
     boundListeners.push({
       domElement,
       eventName,
@@ -72,20 +56,23 @@ export const addClientInputListeners = (canvas: HTMLCanvasElement) => {
   addListener(canvas, 'mouseup', handleMouseButton)
   addListener(canvas, 'mousedown', handleMouseButton)
   addListener(canvas, 'mouseleave', handleMouseLeave)
-  addListener(canvas, 'wheel', handleMouseWheel, true)
+  addListener(canvas, 'wheel', handleMouseWheel, { passive: true, capture: true })
 
   addListener(
     canvas,
     'touchstart',
-    (e) => {
+    (e: TouchEvent) => {
       handleTouch(e)
       handleTouchMove(e)
     },
-    true
+    {
+      passive: true,
+      capture: true
+    }
   )
-  addListener(canvas, 'touchend', handleTouch, true)
-  addListener(canvas, 'touchcancel', handleTouch, true)
-  addListener(canvas, 'touchmove', handleTouchMove, true)
+  addListener(canvas, 'touchend', handleTouch, { passive: true })
+  addListener(canvas, 'touchcancel', handleTouch, { passive: true })
+  addListener(canvas, 'touchmove', handleTouchMove, { passive: true })
 
   addListener(document, 'keyup', handleKey)
   addListener(document, 'keydown', handleKey)
@@ -107,10 +94,12 @@ export const removeClientInputListeners = () => {
   if (!boundListeners.length) return
 
   window.removeEventListener('DOMMouseScroll', preventDefault, false)
-  window.removeEventListener('keydown', preventDefaultForScrollKeys, false)
+  window.removeEventListener('touchmove', preventDefault, { capture: true })
 
   boundListeners.forEach(({ domElement, eventName, callback }) => {
     domElement.removeEventListener(eventName, callback)
   })
   boundListeners.splice(0, boundListeners.length - 1)
 }
+
+export default {}

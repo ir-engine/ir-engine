@@ -1,22 +1,24 @@
 import React from 'react'
-import Grid from '@mui/material/Grid'
+import { useTranslation } from 'react-i18next'
+
 import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+
 import Search from '../../common/Search'
-import PartyTable from './PartyTable'
+import styles from '../../styles/admin.module.scss'
 import CreateParty from './CreateParty'
-import { useStyles } from '../../styles/ui'
+import PartyTable from './PartyTable'
 
 const Party = () => {
-  const classes = useStyles()
-  const [partyModelOpen, setPartyModelOpen] = React.useState(false)
+  const [partyModalOpen, setPartyModalOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
-
+  const { t } = useTranslation()
   const openModalCreate = () => {
-    setPartyModelOpen(true)
+    setPartyModalOpen(true)
   }
 
   const handleCreatePartyClose = () => {
-    setPartyModelOpen(false)
+    setPartyModalOpen(false)
   }
   const handleChange = (e: any) => {
     setSearch(e.target.value)
@@ -24,20 +26,20 @@ const Party = () => {
 
   return (
     <div>
-      <Grid container spacing={3} className={classes.marginBottom}>
-        <Grid item xs={9}>
+      <Grid container spacing={1} className={styles.mb10px}>
+        <Grid item xs={12} sm={8}>
           <Search text="party" handleChange={handleChange} />
         </Grid>
-        <Grid item xs={3}>
-          <Button className={classes.createBtn} type="submit" variant="contained" onClick={() => openModalCreate()}>
-            Create New Party
+        <Grid item xs={12} sm={4}>
+          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={() => openModalCreate()}>
+            {t('admin:components.party.createNewParty')}
           </Button>
         </Grid>
       </Grid>
-      <div className={classes.rootTable}>
+      <div className={styles.rootTableWithSearch}>
         <PartyTable search={search} />
       </div>
-      <CreateParty open={partyModelOpen} handleClose={handleCreatePartyClose} />
+      <CreateParty open={partyModalOpen} handleClose={handleCreatePartyClose} />
     </div>
   )
 }

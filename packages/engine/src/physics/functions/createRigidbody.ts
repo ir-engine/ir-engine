@@ -1,7 +1,3 @@
-import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { VelocityComponent } from '../components/VelocityComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import {
   BoxBufferGeometry,
   CylinderBufferGeometry,
@@ -11,9 +7,15 @@ import {
   SphereBufferGeometry,
   Vector3
 } from 'three'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { BodyType } from '../types/PhysicsTypes'
+
 import { CapsuleBufferGeometry } from '../../common/classes/CapsuleBufferGeometry'
+import { createVector3Proxy } from '../../common/proxies/three'
+import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { VelocityComponent } from '../components/VelocityComponent'
+import { BodyType } from '../types/PhysicsTypes'
 
 export const createRigidbody = (world, type) => {
   const entity = createEntity(world)
@@ -38,9 +40,9 @@ export const createRigidbody = (world, type) => {
     bodyType: BodyType.DYNAMIC
   }
 
-  addComponent(entity, VelocityComponent, {
-    velocity: new Vector3()
-  })
+  const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity)
+  const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity)
+  addComponent(entity, VelocityComponent, { linear: linearVelocity, angular: angularVelocity })
 
   addComponent(entity, Object3DComponent, {
     value: mesh

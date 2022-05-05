@@ -1,5 +1,7 @@
 import { TypedArray } from 'bitecs'
+
 import { Entity } from '../../ecs/classes/Entity'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export type ViewCursor = DataView & { cursor: number; shadowMap: Map<TypedArray, TypedArray> }
@@ -47,7 +49,8 @@ export const writePropIfChanged = (v: ViewCursor, prop: TypedArray, entity: Enti
 
   const shadow = shadowMap.get(prop)! || (shadowMap.set(prop, prop.slice().fill(0)) && shadowMap.get(prop))!
 
-  const changed = shadow[entity] !== prop[entity]
+  // TODO: we should be handling the fixedDelta check more explicitly, passing down through all the functions
+  const changed = shadow[entity] !== prop[entity] || useWorld().fixedTick % 60 === 0
 
   shadow[entity] = prop[entity]
 

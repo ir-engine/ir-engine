@@ -8,15 +8,19 @@ import {
   SphereGeometry,
   XRInputSource
 } from 'three'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
+import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { AvatarControllerType } from '../../input/enums/InputEnums'
+import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { XRHandMeshModel } from '../classes/XRHandMeshModel'
 import { initializeXRControllerAnimations } from './controllerAnimation'
-import { mapXRControllers } from './WebXRFunctions'
 
 const createUICursor = () => {
   const geometry = new SphereGeometry(0.01, 16, 16)
@@ -25,11 +29,17 @@ const createUICursor = () => {
 }
 
 const setupController = (inputSource, controller) => {
+  const avatarInputState = accessAvatarInputSettingsState()
   if (inputSource) {
-    const targetRay = createController(inputSource)
-    if (targetRay) {
-      controller.add(targetRay)
-      controller.targetRay = targetRay
+    const canUseController =
+      inputSource.hand === null && avatarInputState.controlType.value === AvatarControllerType.OculusQuest
+    const canUseHands = inputSource.hand !== null && avatarInputState.controlType.value === AvatarControllerType.XRHands
+    if (canUseController || canUseHands) {
+      const targetRay = createController(inputSource)
+      if (targetRay) {
+        controller.add(targetRay)
+        controller.targetRay = targetRay
+      }
     }
   }
 
@@ -43,33 +53,36 @@ const setupController = (inputSource, controller) => {
 export const initializeXRInputs = (entity: Entity) => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
 
-  const session = Engine.xrManager.getSession()
   const controllers = [xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight]
   const controllersGrip = [xrInputSourceComponent.controllerGripLeft, xrInputSourceComponent.controllerGripRight]
 
-  controllers.forEach((controller: any, i) => {
-    if (controller.userData.initialized) {
-      return
-    }
-    controller.userData.initialized = true
-
-    controller.parent.addEventListener('connected', (ev) => {
-      mapXRControllers(xrInputSourceComponent)
-
-      const xrInputSource = ev.data as XRInputSource
-
-      if (xrInputSource.targetRayMode !== 'tracked-pointer' && xrInputSource.targetRayMode !== 'gaze') {
+  if (isEntityLocalClient(entity)) {
+    controllers.forEach((controller: any, i) => {
+      if (controller.userData.initialized) {
         return
       }
+      controller.userData.initialized = true
 
-      if (!controller.targetRay) {
-        setupController(ev.data, controller)
+      controller.parent.addEventListener('connected', (ev) => {
+        const xrInputSource = ev.data as XRInputSource
+
+        if (xrInputSource.targetRayMode !== 'tracked-pointer' && xrInputSource.targetRayMode !== 'gaze') {
+          return
+        }
+
+        if (!controller.targetRay) {
+          setupController(xrInputSource, controller)
+        }
+      })
+
+      const session = EngineRenderer.instance.xrManager.getSession()
+
+      if (session) {
+        const inputSource = session.inputSources[i]
+        setupController(inputSource, controller)
       }
     })
-
-    const inputSource = session.inputSources[i]
-    setupController(inputSource, controller)
-  })
+  }
 
   controllersGrip.forEach((controller: any) => {
     if (controller.userData.initialized) {
@@ -79,16 +92,25 @@ export const initializeXRInputs = (entity: Entity) => {
     controller.userData.initialized = true
 
     const handedness = controller === xrInputSourceComponent.controllerGripLeft ? 'left' : 'right'
-    const winding = handedness == 'left' ? 1 : -1
     initializeHandModel(controller, handedness, true)
     initializeXRControllerAnimations(controller)
-    controller.userData.mesh.rotation.x = Math.PI * 0.25
-    controller.userData.mesh.rotation.y = Math.PI * 0.5 * winding
-    controller.userData.mesh.rotation.z = Math.PI * 0.02 * -winding
   })
 }
 
 export const initializeHandModel = (controller: any, handedness: string, isGrip: boolean = false) => {
+  const avatarInputState = accessAvatarInputSettingsState()
+
+  // if is grip and not 'controller' type enabled
+  if (isGrip && avatarInputState.controlType.value !== AvatarControllerType.OculusQuest) return
+
+  // if is hands and 'none' type enabled (instead we use IK to move hands in avatar model)
+  if (!isGrip && avatarInputState.controlType.value === AvatarControllerType.None) return
+
+  /**
+   * TODO: both model types we have are hands, we also want to have an oculus quest controller model
+   *    (as well as other hardware models) and appropriately set based on the controller type selected
+   */
+
   const fileName = isGrip ? `${handedness}_controller.glb` : `${handedness}.glb`
   const gltf = AssetLoader.getFromCache(`/default_assets/controllers/hands/${fileName}`)
   let handMesh = gltf?.scene?.children[0]
@@ -111,6 +133,13 @@ export const initializeHandModel = (controller: any, handedness: string, isGrip:
   if (gltf?.animations?.length) {
     controller.userData.animations = gltf.animations
   }
+
+  if (isGrip) {
+    const winding = handedness == 'left' ? 1 : -1
+    controller.userData.mesh.rotation.x = Math.PI * 0.25
+    controller.userData.mesh.rotation.y = Math.PI * 0.5 * winding
+    controller.userData.mesh.rotation.z = Math.PI * 0.02 * -winding
+  }
 }
 
 export const cleanXRInputs = (entity) => {
@@ -121,6 +150,7 @@ export const cleanXRInputs = (entity) => {
     if (controller.userData.mesh) {
       controller.remove(controller.userData.mesh)
       controller.userData.mesh = null
+      controller.userData.initialized = false
     }
   })
 }

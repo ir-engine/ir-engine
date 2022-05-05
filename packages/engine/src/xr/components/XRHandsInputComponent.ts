@@ -1,4 +1,5 @@
 import { Group } from 'three'
+
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { QuaternionSchema, Vector3Schema } from '../../transform/components/TransformComponent'
 

@@ -1,40 +1,42 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
+
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { accessEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
-import { ControlManager } from '../../../managers/ControlManager'
-import { CommandManager } from '../../../managers/CommandManager'
-import EditorEvents from '../../../constants/EditorEvents'
+
+import { enterPlayMode, leavePlayMode } from '../../../controls/PlayModeControls'
+import { useEditorHelperState } from '../../../services/EditorHelperState'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const PlayModeTool = () => {
-  const [isInPlayMode, setInPlayMode] = useState(false)
-
-  useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.PLAY_MODE_CHANGED.toString(), updatePlayModeSetting)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.PLAY_MODE_CHANGED.toString(), updatePlayModeSetting)
-    }
-  }, [])
-
-  const updatePlayModeSetting = () => {
-    setInPlayMode(ControlManager.instance.isInPlayMode)
-  }
+  const editorHelperState = useEditorHelperState()
 
   const onTogglePlayMode = () => {
-    if (isInPlayMode) {
-      ControlManager.instance.leavePlayMode()
+    if (editorHelperState.isPlayModeEnabled.value) {
+      leavePlayMode()
     } else {
-      ControlManager.instance.enterPlayMode()
+      enterPlayMode()
     }
   }
+
+  const sceneLoaded = accessEngineState().sceneLoaded.value
 
   return (
     <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="preview">
-      <InfoTooltip info={isInPlayMode ? 'Stop Previewing Scene' : 'Preview Scene'}>
-        <button onClick={onTogglePlayMode} className={styles.toolButton + ' ' + (isInPlayMode ? styles.selected : '')}>
-          {isInPlayMode ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />}
+      <InfoTooltip title={editorHelperState.isPlayModeEnabled.value ? 'Stop Previewing Scene' : 'Preview Scene'}>
+        <button
+          disabled={!sceneLoaded}
+          onClick={onTogglePlayMode}
+          className={styles.toolButton + ' ' + (editorHelperState.isPlayModeEnabled.value ? styles.selected : '')}
+        >
+          {editorHelperState.isPlayModeEnabled.value ? (
+            <PauseIcon fontSize="small" />
+          ) : (
+            <PlayArrowIcon fontSize="small" />
+          )}
         </button>
       </InfoTooltip>
     </div>

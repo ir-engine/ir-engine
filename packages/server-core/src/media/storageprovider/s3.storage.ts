@@ -1,8 +1,10 @@
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 import AWS from 'aws-sdk'
 import { PresignedPost } from 'aws-sdk/clients/s3'
 import path from 'path'
 import S3BlobStore from 's3-blob-store'
+
+import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+
 import config from '../../appconfig'
 import {
   SignedURLResponse,
@@ -16,7 +18,7 @@ export class S3Provider implements StorageProviderInterface {
   cacheDomain =
     config.server.storageProvider === 'aws'
       ? config.aws.cloudfront.domain
-      : `${config.aws.cloudfront.domain}/${this.bucket}/`
+      : `${config.aws.cloudfront.domain}/${this.bucket}`
   provider: AWS.S3 = new AWS.S3({
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey,
@@ -27,7 +29,7 @@ export class S3Provider implements StorageProviderInterface {
 
   bucketAssetURL =
     config.server.storageProvider === 'aws'
-      ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/`
+      ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
       : `https://${config.aws.cloudfront.domain}/${this.bucket}`
 
   blob: typeof S3BlobStore = new S3BlobStore({
@@ -47,66 +49,29 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   checkObjectExistence = (key: string): Promise<any> => {
-    return new Promise((resolve, reject) => {
-      this.provider.getObjectAcl(
-        {
-          Bucket: this.bucket,
-          Key: key
-        },
-        (err, data) => {
-          if (err) {
-            if (err.code === 'NoSuchKey') resolve(null)
-            else {
-              console.error(err)
-              reject(err)
-            }
-          } else {
-            reject(new Error(`Object of key ${key} already exists`))
-          }
-        }
-      )
+    return new Promise(async (resolve, reject) => {
+      try {
+        await this.provider
+          .getObjectAcl({
+            Bucket: this.bucket,
+            Key: key
+          })
+          .promise()
+        reject(new Error(`Object of key ${key} already exists`))
+      } catch (err) {
+        resolve(err.code === 'NoSuchKey' ? null : err)
+      }
     })
   }
 
   getObject = async (key: string): Promise<StorageObjectInterface> => {
-    return new Promise((resolve, reject) =>
-      this.provider.getObject(
-        {
-          Bucket: this.bucket,
-          Key: key
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            resolve({
-              Body: data.Body as Buffer,
-              ContentType: data.ContentType!
-            })
-          }
-        }
-      )
-    )
+    const data = await this.provider.getObject({ Bucket: this.bucket, Key: key }).promise()
+    return { Body: data.Body as Buffer, ContentType: data.ContentType! }
   }
 
   getObjectContentType = async (key: string): Promise<any> => {
-    return new Promise((resolve, reject) => {
-      this.provider.headObject(
-        {
-          Bucket: this.bucket,
-          Key: key
-        },
-        (err, data) => {
-          if (err) {
-            console.log('Error:' + err)
-            reject(err)
-          } else {
-            resolve(data.ContentType)
-          }
-        }
-      )
-    })
+    const data = await this.provider.headObject({ Bucket: this.bucket, Key: key }).promise()
+    return data.ContentType
   }
 
   listObjects = async (
@@ -116,77 +81,58 @@ export class S3Provider implements StorageProviderInterface {
     continuationToken: string | undefined
   ): Promise<StorageListObjectInterface> => {
     const self = this
+    const data = await this.provider
+      .listObjectsV2({
+        Bucket: this.bucket,
+        ContinuationToken: continuationToken,
+        Prefix: prefix,
+        Delimiter: recursive ? undefined : '/'
+      })
+      .promise()
 
-    return new Promise((resolve, reject) =>
-      this.provider.listObjectsV2(
-        {
-          Bucket: this.bucket,
-          ContinuationToken: continuationToken,
-          Prefix: prefix,
-          Delimiter: recursive ? undefined : '/'
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            data.Contents = results.concat(data.Contents)
-            if (data.IsTruncated)
-              self.listObjects(prefix, data.Contents, true, data.NextContinuationToken).then((data) => resolve(data))
-            else resolve(data as StorageListObjectInterface)
-          }
-        }
-      )
-    )
+    data.Contents = results.concat(data.Contents)
+    if (data.IsTruncated) {
+      return await self.listObjects(prefix, data.Contents, true, data.NextContinuationToken)
+    }
+    return data as StorageListObjectInterface
   }
 
   putObject = async (params: StorageObjectInterface): Promise<any> => {
-    return new Promise((resolve, reject) =>
-      this.provider.putObject(
-        {
-          ACL: 'public-read',
-          Body: params.Body,
-          Bucket: this.bucket,
-          ContentType: params.ContentType,
-          Key: params.Key!
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            resolve(data)
-          }
-        }
-      )
-    )
+    if (!params.Key) return
+
+    // key should not contain '/' at the begining
+    let key = params.Key[0] === '/' ? params.Key.substring(1) : params.Key
+
+    const data = await this.provider
+      .putObject({
+        ACL: 'public-read',
+        Body: params.Body,
+        Bucket: this.bucket,
+        ContentType: params.ContentType,
+        Key: key
+      })
+      .promise()
+
+    return data
   }
 
   createInvalidation = async (invalidationItems: any[]): Promise<any> => {
     // for non-standard s3 setups, we don't use cloudfront
     if (config.server.storageProvider !== 'aws') return
-    return new Promise((resolve, reject) => {
-      this.cloudfront.createInvalidation(
-        {
-          DistributionId: config.aws.cloudfront.distributionId,
-          InvalidationBatch: {
-            CallerReference: Date.now().toString(),
-            Paths: {
-              Quantity: invalidationItems.length,
-              Items: invalidationItems.map((item) => (item[0] !== '/' ? `/${item}` : item))
-            }
-          }
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            resolve(data)
+    const data = await this.cloudfront
+      .createInvalidation({
+        DistributionId: config.aws.cloudfront.distributionId,
+        InvalidationBatch: {
+          CallerReference: Date.now().toString(),
+          Paths: {
+            Quantity: invalidationItems.length,
+            Items: invalidationItems.map((item) => (item[0] !== '/' ? `/${item}` : item))
           }
         }
-      )
-    })
+      })
+      .promise()
+
+    return data
   }
 
   getStorage = (): typeof S3BlobStore => this.blob
@@ -216,29 +162,41 @@ export class S3Provider implements StorageProviderInterface {
     }
   }
 
-  deleteResources = (keys: string[]): Promise<any> => {
-    return new Promise((resolve, reject) => {
-      this.provider.deleteObjects(
-        {
-          Bucket: this.bucket,
-          Delete: {
-            Objects: keys.map((key) => {
-              return { Key: key }
-            })
-          }
-        },
-        (err, data) => {
-          if (err) reject(err)
-          else resolve(data)
+  deleteResources = async (keys: string[]): Promise<any> => {
+    const data = await this.provider
+      .deleteObjects({
+        Bucket: this.bucket,
+        Delete: {
+          Objects: keys.map((key) => {
+            return { Key: key }
+          })
         }
-      )
-    })
+      })
+      .promise()
+    return data
   }
 
   listFolderContent = async (folderName: string, recursive = false): Promise<FileContentType[]> => {
     const folderContent = await this.listObjects(folderName, [], recursive, null!)
     // console.log('folderContent', folderContent)
     const promises: Promise<FileContentType>[] = []
+
+    // Folders
+    for (let i = 0; i < folderContent.CommonPrefixes!.length; i++) {
+      promises.push(
+        new Promise(async (resolve) => {
+          const key = folderContent.CommonPrefixes![i].Prefix.slice(0, -1)
+          const cont: FileContentType = {
+            key,
+            url: `${this.bucketAssetURL}/${key}`,
+            name: key.split('/').pop()!,
+            type: 'folder'
+          }
+          resolve(cont)
+        })
+      )
+    }
+
     // Files
     for (let i = 0; i < folderContent.Contents.length; i++) {
       const key = folderContent.Contents[i].Key
@@ -258,21 +216,7 @@ export class S3Provider implements StorageProviderInterface {
         )
       }
     }
-    // Folders
-    for (let i = 0; i < folderContent.CommonPrefixes!.length; i++) {
-      promises.push(
-        new Promise(async (resolve) => {
-          const key = folderContent.CommonPrefixes![i].Prefix.slice(0, -1)
-          const cont: FileContentType = {
-            key,
-            url: `${this.bucketAssetURL}/${key}`,
-            name: key.split('/').pop()!,
-            type: 'folder'
-          }
-          resolve(cont)
-        })
-      )
-    }
+
     return await Promise.all(promises)
   }
 

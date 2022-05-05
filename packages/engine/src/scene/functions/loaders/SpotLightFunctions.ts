@@ -1,12 +1,13 @@
+import { Color, ConeGeometry, DoubleSide, Mesh, MeshBasicMaterial, SpotLight, TorusGeometry, Vector2 } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Vector2, Color, SpotLight, MeshBasicMaterial, Mesh, TorusGeometry, ConeGeometry, DoubleSide } from 'three'
+
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -21,11 +22,11 @@ export const SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES = {
   intensity: 10,
   range: 0,
   decay: 2,
-  angle: Math.PI / 2,
+  angle: Math.PI / 3,
   penumbra: 1,
   castShadow: true,
   shadowMapResolution: [256, 256],
-  shadowBias: 0.5,
+  shadowBias: 0,
   shadowRadius: 1
 }
 
@@ -40,30 +41,28 @@ export const deserializeSpotLight: ComponentDeserializeFunction = (
   light.target.name = 'light-target'
   light.add(light.target)
 
-  if (Engine.isEditor) {
-    const ring = new Mesh(new TorusGeometry(0.1, 0.025, 8, 12), new MeshBasicMaterial({ fog: false }))
-    const cone = new Mesh(
-      new ConeGeometry(0.25, 0.5, 8, 1, true),
-      new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5, side: DoubleSide })
-    )
-    light.add(ring)
-    light.add(cone)
-    cone.userData.isHelper = true
-    ring.userData.isHelper = true
-    light.userData.ring = ring
-    light.userData.cone = cone
+  const ring = new Mesh(new TorusGeometry(0.1, 0.025, 8, 12), new MeshBasicMaterial({ fog: false }))
+  const cone = new Mesh(
+    new ConeGeometry(0.25, 0.5, 8, 1, true),
+    new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5, side: DoubleSide })
+  )
+  light.add(ring)
+  light.add(cone)
+  cone.userData.isHelper = true
+  ring.userData.isHelper = true
+  light.userData.ring = ring
+  light.userData.cone = cone
 
-    ring.rotateX(Math.PI / 2)
-    cone.position.setY(-0.25)
+  ring.rotateX(Math.PI / 2)
+  cone.position.setY(-0.25)
 
-    setObjectLayers(ring, ObjectLayers.NodeHelper)
-    setObjectLayers(cone, ObjectLayers.NodeHelper)
-  }
+  setObjectLayers(ring, ObjectLayers.NodeHelper)
+  setObjectLayers(cone, ObjectLayers.NodeHelper)
 
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, SpotLightComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPOT_LIGHT)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPOT_LIGHT)
 
   updateSpotLight(entity, props)
 }
@@ -80,7 +79,7 @@ export const updateSpotLight: ComponentUpdateFunction = (entity: Entity, propert
   if (typeof properties.angle !== 'undefined') light.angle = component.angle
   if (typeof properties.shadowBias !== 'undefined') light.shadow.bias = component.shadowBias
   if (typeof properties.shadowRadius !== 'undefined') light.shadow.radius = component.shadowRadius
-  // if (typeof properties.castShadow !== 'undefined') light.castShadow = component.castShadow
+  if (typeof properties.castShadow !== 'undefined') light.castShadow = component.castShadow
 
   if (typeof properties.shadowMapResolution !== 'undefined') {
     light.shadow.mapSize.copy(component.shadowMapResolution)
@@ -91,10 +90,8 @@ export const updateSpotLight: ComponentUpdateFunction = (entity: Entity, propert
     light.shadow.needsUpdate = true
   }
 
-  if (Engine.isEditor) {
-    light.userData.ring.material.color = component.color
-    light.userData.cone.material.color = component.color
-  }
+  light.userData.ring.material.color = component.color
+  light.userData.cone.material.color = component.color
 }
 
 export const serializeSpotLight: ComponentSerializeFunction = (entity) => {
@@ -130,7 +127,7 @@ export const prepareSpotLightForGLTFExport: ComponentPrepareForGLTFExportFunctio
   }
 }
 
-const parseSpotLightProperties = (props): SpotLightComponentType => {
+export const parseSpotLightProperties = (props): SpotLightComponentType => {
   return {
     color: new Color(props.color ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.color),
     intensity: props.intensity ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.intensity,

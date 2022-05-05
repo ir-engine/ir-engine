@@ -1,5 +1,5 @@
-import { CallEnd, VideoCall } from '@mui/icons-material'
-import Fab from '@mui/material/Fab'
+import * as React from 'react'
+
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import {
   configureMediaTransports,
@@ -8,7 +8,9 @@ import {
 import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import * as React from 'react'
+
+import { CallEnd, VideoCall } from '@mui/icons-material'
+import Fab from '@mui/material/Fab'
 
 interface Props {}
 

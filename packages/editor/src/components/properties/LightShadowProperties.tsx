@@ -1,14 +1,19 @@
 import React, { Fragment } from 'react'
-import InputGroup from '../inputs/InputGroup'
-import SelectInput from '../inputs/SelectInput'
-import BooleanInput from '../inputs/BooleanInput'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import { Vector2 } from 'three'
 import { useTranslation } from 'react-i18next'
-import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Vector2 } from 'three'
+
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
+
+import { setPropertyOnSelectionEntities } from '../../classes/History'
+import BooleanInput from '../inputs/BooleanInput'
+import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import SelectInput from '../inputs/SelectInput'
 import { updateProperty } from './Util'
-import { CommandManager } from '../../managers/CommandManager'
 
 /**
  *  Array containing options for shadow resolution
@@ -55,18 +60,29 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   const { t } = useTranslation()
 
   const changeShadowMapResolution = (resolution) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
+    setPropertyOnSelectionEntities({
       component: props.comp,
       properties: { shadowMapResolution: new Vector2(resolution, resolution) }
     })
   }
 
   const lightComponent = getComponent(props.node.entity, props.comp)
+  const csmEnabled = EngineRenderer.instance.isCSMEnabled && props.comp === DirectionalLightComponent
 
   return (
     <Fragment>
-      <InputGroup name="Cast Shadow" label={t('editor:properties.directionalLight.lbl-castShadow')}>
-        <BooleanInput value={lightComponent.castShadow} onChange={updateProperty(props.comp, 'castShadow')} />
+      <InputGroup
+        name="Cast Shadow"
+        label={
+          t('editor:properties.directionalLight.lbl-castShadow') +
+          (csmEnabled ? '. ' + t('editor:properties.directionalLight.lbl-disableForCSM') : '')
+        }
+      >
+        <BooleanInput
+          value={lightComponent.castShadow}
+          onChange={updateProperty(props.comp, 'castShadow')}
+          disabled={csmEnabled}
+        />
       </InputGroup>
       <InputGroup name="Shadow Map Resolution" label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}>
         <SelectInput

@@ -1,20 +1,21 @@
+import { Color, Vector2, Vector3 } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { Clouds } from '../../classes/Clouds'
+import { CloudComponent, CloudComponentType } from '../../components/CloudComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { CloudComponent, CloudComponentType } from '../../components/CloudComponent'
-import { resolveMedia } from '../../../common/functions/resolveMedia'
-import { isClient } from '../../../common/functions/isClient'
-import { Clouds } from '../../classes/Clouds'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
-import { Color, Vector2, Vector3 } from 'three'
 import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_CLOUD = 'cloud'
@@ -35,34 +36,25 @@ export const deserializeCloud: ComponentDeserializeFunction = (
 ) => {
   if (!isClient) return
 
-  const obj3d = new Clouds()
+  const obj3d = new Clouds(entity)
+  obj3d.userData.disableOutline = true
   const props = parseCloudProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, CloudComponent, props)
   addComponent(entity, UpdatableComponent, {})
 
-  if (Engine.isEditor) {
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CLOUD)
-
-    obj3d.userData.disableOutline = true
-  }
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CLOUD)
 
   updateCloud(entity, props)
 }
 
-export const updateCloud: ComponentUpdateFunction = async (entity: Entity, properties: CloudComponentType) => {
+export const updateCloud: ComponentUpdateFunction = (entity: Entity, properties: CloudComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value as Clouds
   const component = getComponent(entity, CloudComponent)
 
   if (properties.texture) {
-    try {
-      const { url } = await resolveMedia(component.texture)
-      obj3d.texture = url
-      removeError(entity, 'error')
-    } catch (error) {
-      addError(entity, 'error', error.message)
-    }
+    obj3d.texture = component.texture
   }
 
   if (typeof properties.worldScale !== 'undefined') obj3d.worldScale = component.worldScale
@@ -93,7 +85,7 @@ export const serializeCloud: ComponentSerializeFunction = (entity) => {
   }
 }
 
-const parseCloudProperties = (props: any): CloudComponentType => {
+export const parseCloudProperties = (props: any): CloudComponentType => {
   const result = {
     texture: props.texture ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.texture,
     fogColor: new Color(props.fogColor ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.fogColor)

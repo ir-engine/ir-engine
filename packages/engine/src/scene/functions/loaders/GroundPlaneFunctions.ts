@@ -1,19 +1,7 @@
 import { CircleBufferGeometry, Color, Group, Mesh, MeshStandardMaterial, Object3D } from 'three'
-import { Entity } from '../../../ecs/classes/Entity'
-import {
-  addComponent,
-  getComponent,
-  getComponentCountOfType,
-  removeComponent
-} from '../../../ecs/functions/ComponentFunctions'
-import { createCollider } from '../../../physics/functions/createCollider'
-import { GroundPlaneComponent, GroundPlaneComponentType } from '../../components/GroundPlaneComponent'
-import { Engine } from '../../../ecs/classes/Engine'
-import { Object3DComponent } from '../../components/Object3DComponent'
-import { isClient } from '../../../common/functions/isClient'
-import { NavMeshComponent } from '../../../navigation/component/NavMeshComponent'
-import { TransformComponent } from '../../../transform/components/TransformComponent'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
@@ -21,8 +9,22 @@ import {
   ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { isClient } from '../../../common/functions/isClient'
+import { Engine } from '../../../ecs/classes/Engine'
+import { Entity } from '../../../ecs/classes/Entity'
+import {
+  addComponent,
+  getComponent,
+  getComponentCountOfType,
+  removeComponent
+} from '../../../ecs/functions/ComponentFunctions'
+import { NavMeshComponent } from '../../../navigation/component/NavMeshComponent'
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
+import { createCollider } from '../../../physics/functions/createCollider'
+import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { GroundPlaneComponent, GroundPlaneComponentType } from '../../components/GroundPlaneComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const SCENE_COMPONENT_GROUND_PLANE = 'ground-plane'
 export const SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES = {
@@ -53,9 +55,10 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
 
   const props = parseGroundPlaneProperties(json.props)
   addComponent(entity, GroundPlaneComponent, props)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_GROUND_PLANE)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_GROUND_PLANE)
-  else createCollider(entity, groundPlane.userData.mesh)
+  // @TODO: make this isomorphic with editor
+  if (!Engine.instance.isEditor) createCollider(entity, groundPlane.userData.mesh)
 
   updateGroundPlane(entity, props)
 }
@@ -72,15 +75,15 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity, prope
 
   if (component.generateNavmesh === component.isNavmeshGenerated) return
 
-  if (isClient && !Engine.isEditor) {
+  if (isClient && !Engine.instance.isEditor) {
     if (component.generateNavmesh) {
       if (!navigationRaycastTarget) navigationRaycastTarget = new Group()
 
       navigationRaycastTarget.scale.setScalar(getComponent(entity, TransformComponent).scale.x)
-      Engine.scene.add(navigationRaycastTarget)
+      Engine.instance.scene.add(navigationRaycastTarget)
       addComponent(entity, NavMeshComponent, { navTarget: navigationRaycastTarget })
     } else {
-      Engine.scene.remove(navigationRaycastTarget)
+      Engine.instance.scene.remove(navigationRaycastTarget)
       removeComponent(entity, NavMeshComponent)
     }
   }
@@ -107,13 +110,13 @@ export const shouldDeserializeGroundPlane: ComponentShouldDeserializeFunction = 
 
 export const prepareGroundPlaneForGLTFExport: ComponentPrepareForGLTFExportFunction = (groundPlane) => {
   if (!groundPlane.userData.mesh) return
-
+  /*
   const collider = new Object3D()
   collider.scale.set(groundPlane.userData.mesh.scale.x, 0.1, groundPlane.userData.mesh.scale.z)
 
   groundPlane.add(collider)
   groundPlane.userData.mesh.removeFromParent()
-  delete groundPlane.userData.mesh
+  delete groundPlane.userData.mesh*/
 }
 
 const parseGroundPlaneProperties = (props): GroundPlaneComponentType => {

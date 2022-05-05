@@ -1,11 +1,12 @@
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import { Application } from '../../../declarations'
 import { BadRequest } from '@feathersjs/errors'
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import _ from 'lodash'
 import Sequelize, { Op } from 'sequelize'
-import getLocalServerIp from '../../util/get-local-server-ip'
-import logger from '../../logger'
+
+import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import logger from '../../logger'
+import getLocalServerIp from '../../util/get-local-server-ip'
 
 const releaseRegex = /^([a-zA-Z0-9]+)-/
 
@@ -41,12 +42,12 @@ export async function getFreeGameserver(
   if (!config.kubernetes.enabled) {
     //Clear any instance assignments older than 30 seconds - those assignments have not been
     //used, so they should be cleared and the GS they were attached to can be used for something else.
-    console.log('Local server spinning up new instance')
+    logger.info('Local server spinning up new instance')
     const localIp = await getLocalServerIp(channelId != null)
     const stringIp = `${localIp.ipAddress}:${localIp.port}`
     return checkForDuplicatedAssignments(app, stringIp, iteration, locationId, channelId)
   }
-  console.log('Getting free gameserver')
+  logger.info('Getting free gameserver')
   const serverResult = await (app as any).k8AgonesClient.listNamespacedCustomObject(
     'agones.dev',
     'v1',
@@ -58,7 +59,7 @@ export async function getFreeGameserver(
     return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName
   })
   const ipAddresses = readyServers.map((server) => `${server.status.address}:${server.status.ports[0].port}`)
-  const assignedInstances = await app.service('instance').find({
+  const assignedInstances: any = await app.service('instance').find({
     query: {
       ipAddress: {
         $in: ipAddresses
@@ -74,10 +75,16 @@ export async function getFreeGameserver(
     return {
       id: null,
       ipAddress: null,
-      port: null
+      port: null,
+      podName: null
     }
   }
-  return checkForDuplicatedAssignments(app, instanceIpAddress, iteration, locationId, channelId)
+  const split = instanceIpAddress.split(':')
+  const pod = readyServers.find(
+    (server) => server.status.address === split[0] && server.status.ports[0].port == split[1]
+  )
+
+  return checkForDuplicatedAssignments(app, instanceIpAddress, iteration, locationId, channelId, pod.metadata.name)
 }
 
 export async function checkForDuplicatedAssignments(
@@ -85,18 +92,20 @@ export async function checkForDuplicatedAssignments(
   ipAddress: string,
   iteration: number,
   locationId: string,
-  channelId: string
+  channelId: string,
+  podName = undefined as undefined | string
 ) {
   //Create an assigned instance at this IP
-  const assignResult = await app.service('instance').create({
+  const assignResult: any = await app.service('instance').create({
     ipAddress: ipAddress,
     locationId: locationId,
+    podName: podName,
     channelId: channelId,
     assigned: true,
     assignedAt: new Date()
   })
   //Check to see if there are any other non-ended instances assigned to this IP
-  const duplicateAssignment = await app.service('instance').find({
+  const duplicateAssignment: any = await app.service('instance').find({
     query: {
       ipAddress: ipAddress,
       assigned: true,
@@ -124,11 +133,12 @@ export async function checkForDuplicatedAssignments(
       if (iteration < 10) {
         return getFreeGameserver(app, iteration + 1, locationId, channelId)
       } else {
-        console.log('Made 10 attempts to get free gameserver without success, returning null')
+        logger.info('Made 10 attempts to get free gameserver without success, returning null')
         return {
           id: null,
           ipAddress: null,
-          port: null
+          port: null,
+          podName: null
         }
       }
     }
@@ -138,7 +148,8 @@ export async function checkForDuplicatedAssignments(
   return {
     id: assignResult.id,
     ipAddress: split[0],
-    port: split[1]
+    port: split[1],
+    podName: assignResult.podName
   }
 }
 
@@ -176,7 +187,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         }
       }
     })
-    const instanceModel = (this.app.service('instance') as any).Model
+    const instanceModel = this.app.service('instance').Model
     const instanceUserSort = _.orderBy(availableLocationInstances, ['currentUsers'], ['desc'])
     const nonPressuredInstances = instanceUserSort.filter((instance: typeof instanceModel) => {
       return instance.currentUsers < pressureThresholdPercent * instance.location.maxUsersPerInstance
@@ -235,9 +246,10 @@ export class InstanceProvision implements ServiceMethods<Data> {
       return gs.status.address === ip && inputPort?.port?.toString() === port
     })
     if (match == null) {
-      await this.app.service('instance').patch(instance.id, {
+      const patchInstance: any = {
         ended: true
-      })
+      }
+      await this.app.service('instance').patch(instance.id, { ...patchInstance })
       await this.app.service('gameserver-subdomain-provision').patch(
         null,
         {
@@ -275,13 +287,13 @@ export class InstanceProvision implements ServiceMethods<Data> {
    */
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async find(params: Params): Promise<any> {
+  async find(params?: Params): Promise<any> {
     try {
       let userId
-      const locationId = params.query!.locationId
-      const instanceId = params.query!.instanceId
-      const channelId = params.query!.channelId
-      const token = params.query!.token
+      const locationId = params?.query?.locationId
+      const instanceId = params?.query?.instanceId
+      const channelId = params?.query?.channelId
+      const token = params?.query?.token
       if (channelId != null) {
         // Check if JWT resolves to a user
         if (token != null) {
@@ -296,7 +308,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
             throw new BadRequest('Invalid user credentials')
           }
         }
-        const channelInstance = await (this.app.service('instance') as any).Model.findOne({
+        const channelInstance = await this.app.service('instance').Model.findOne({
           where: {
             channelId: channelId,
             ended: false
@@ -337,7 +349,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
           throw new BadRequest('Invalid location ID')
         }
         if (instanceId != null) {
-          const instance = await this.app.service('instance').get(instanceId)
+          const instance: any = await this.app.service('instance').get(instanceId)
           if (instance == null || instance.ended === true) return getFreeGameserver(this.app, 0, locationId, null!)
           let gsCleanup
           if (config.kubernetes.enabled) gsCleanup = await this.gsCleanup(instance)
@@ -406,17 +418,17 @@ export class InstanceProvision implements ServiceMethods<Data> {
         //     }
         //   }
         // }
-        const friendsAtLocationResult = await (this.app.service('user') as any).Model.findAndCountAll({
+        const friendsAtLocationResult = await this.app.service('user').Model.findAndCountAll({
           include: [
             {
-              model: (this.app.service('user-relationship') as any).Model,
+              model: this.app.service('user-relationship').Model,
               where: {
                 relatedUserId: userId,
                 userRelationshipType: 'friend'
               }
             },
             {
-              model: (this.app.service('instance') as any).Model,
+              model: this.app.service('instance').Model,
               where: {
                 locationId: locationId,
                 ended: false
@@ -461,14 +473,14 @@ export class InstanceProvision implements ServiceMethods<Data> {
             port: ipAddressSplit[1]
           }
         }
-        const availableLocationInstances = await (this.app.service('instance') as any).Model.findAll({
+        const availableLocationInstances = await this.app.service('instance').Model.findAll({
           where: {
             locationId: location.id,
             ended: false
           },
           include: [
             {
-              model: (this.app.service('location') as any).Model,
+              model: this.app.service('location').Model,
               where: {
                 maxUsersPerInstance: {
                   [Op.gt]: Sequelize.col('instance.currentUsers')
@@ -476,7 +488,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
               }
             },
             {
-              model: (this.app.service('instance-authorized-user') as any).Model,
+              model: this.app.service('instance-authorized-user').Model,
               required: false
             }
           ]
@@ -505,7 +517,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
    * @returns id and text
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async get(id: Id, params: Params): Promise<Data> {
+  async get(id: Id, params?: Params): Promise<Data> {
     return {
       id,
       text: `A new message with ID: ${id}!`
@@ -520,7 +532,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
    * @returns data of instance
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async create(data: Data, params: Params): Promise<Data> {
+  async create(data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
       return Promise.all(data.map((current) => this.create(current, params)))
     }
@@ -536,7 +548,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
    * @returns data of updated instance
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async update(id: NullableId, data: Data, params: Params): Promise<Data> {
+  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
   }
 
@@ -547,7 +559,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
    * @param params
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async patch(id: NullableId, data: Data, params: Params): Promise<Data> {
+  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
   }
 
@@ -559,7 +571,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
    * @returns id
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async remove(id: NullableId, params: Params): Promise<Data> {
+  async remove(id: NullableId, params?: Params): Promise<Data> {
     return { id }
   }
 }

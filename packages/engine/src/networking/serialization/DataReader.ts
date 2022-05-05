@@ -1,22 +1,28 @@
+import { TypedArray } from 'bitecs'
+
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { TypedArray } from 'bitecs'
-import { Engine } from '../../ecs/classes/Engine'
+
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
+import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkObjectDirtyTag } from '../components/NetworkObjectDirtyTag'
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
 import {
   createViewCursor,
-  ViewCursor,
   readProp,
+  readUint8,
   readUint16,
   readUint32,
-  readUint8,
   readUint64,
-  scrollViewCursor
+  scrollViewCursor,
+  ViewCursor
 } from './ViewCursor'
 
 export const checkBitflag = (mask: number, flag: number) => (mask & flag) === flag
@@ -49,12 +55,12 @@ export const readComponent = (component: any) => {
   }
 }
 
-export const readComponentProp = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
+export const readComponentProp = (v: ViewCursor, prop: TypedArray, entity: Entity | undefined) => {
   if (entity !== undefined) prop[entity] = readProp(v, prop)
   else readProp(v, prop)
 }
 
-export const readVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Entity) => {
+export const readVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Entity | undefined) => {
   const changeMask = readUint8(v)
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readComponentProp(v, vector3.x, entity)
@@ -62,7 +68,7 @@ export const readVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Enti
   if (checkBitflag(changeMask, 1 << b++)) readComponentProp(v, vector3.z, entity)
 }
 
-export const readVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity) => {
+export const readVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity | undefined) => {
   const changeMask = readUint8(v)
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readComponentProp(v, vector4.x, entity)
@@ -72,21 +78,22 @@ export const readVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Enti
 }
 
 export const readPosition = readVector3(TransformComponent.position)
-export const readLinearVelocity = readVector3(VelocityComponent.velocity)
+export const readLinearVelocity = readVector3(VelocityComponent.linear)
+export const readAngularVelocity = readVector3(VelocityComponent.angular)
 export const readRotation = readVector4(TransformComponent.rotation)
 
-export const readTransform = (v: ViewCursor, entity: Entity) => {
+export const readTransform = (v: ViewCursor, entity: Entity | undefined) => {
   const changeMask = readUint8(v)
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readPosition(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readRotation(v, entity)
 }
 
-export const readVelocity = (v: ViewCursor, entity: Entity) => {
+export const readVelocity = (v: ViewCursor, entity: Entity | undefined) => {
   const changeMask = readUint8(v)
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readLinearVelocity(v, entity)
-  // if (checkBitflag(changeMask, 1 << b++)) readAngularVelocity(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readAngularVelocity(v, entity)
 }
 
 export const readXRContainerPosition = readVector3(XRInputSourceComponent.container.position)
@@ -95,19 +102,21 @@ export const readXRContainerRotation = readVector4(XRInputSourceComponent.contai
 export const readXRHeadPosition = readVector3(XRInputSourceComponent.head.position)
 export const readXRHeadRotation = readVector4(XRInputSourceComponent.head.quaternion)
 
-export const readXRControllerLeftPosition = readVector3(XRInputSourceComponent.controllerLeft.position)
-export const readXRControllerLeftRotation = readVector4(XRInputSourceComponent.controllerLeft.quaternion)
+export const readXRControllerLeftPosition = readVector3(XRInputSourceComponent.controllerLeftParent.position)
+export const readXRControllerLeftRotation = readVector4(XRInputSourceComponent.controllerLeftParent.quaternion)
 
-export const readXRControllerGripLeftPosition = readVector3(XRInputSourceComponent.controllerGripLeft.position)
-export const readXRControllerGripLeftRotation = readVector4(XRInputSourceComponent.controllerGripLeft.quaternion)
+export const readXRControllerGripLeftPosition = readVector3(XRInputSourceComponent.controllerGripLeftParent.position)
+export const readXRControllerGripLeftRotation = readVector4(XRInputSourceComponent.controllerGripLeftParent.quaternion)
 
-export const readXRControllerRightPosition = readVector3(XRInputSourceComponent.controllerRight.position)
-export const readXRControllerRightRotation = readVector4(XRInputSourceComponent.controllerRight.quaternion)
+export const readXRControllerRightPosition = readVector3(XRInputSourceComponent.controllerRightParent.position)
+export const readXRControllerRightRotation = readVector4(XRInputSourceComponent.controllerRightParent.quaternion)
 
-export const readXRControllerGripRightPosition = readVector3(XRInputSourceComponent.controllerGripRight.position)
-export const readXRControllerGripRightRotation = readVector4(XRInputSourceComponent.controllerGripRight.quaternion)
+export const readXRControllerGripRightPosition = readVector3(XRInputSourceComponent.controllerGripRightParent.position)
+export const readXRControllerGripRightRotation = readVector4(
+  XRInputSourceComponent.controllerGripRightParent.quaternion
+)
 
-export const readXRInputs = (v: ViewCursor, entity: Entity) => {
+export const readXRInputs = (v: ViewCursor, entity: Entity | undefined) => {
   const changeMask = readUint16(v)
   let b = 0
 
@@ -130,52 +139,44 @@ export const readXRInputs = (v: ViewCursor, entity: Entity) => {
   if (checkBitflag(changeMask, 1 << b++)) readXRControllerGripRightRotation(v, entity)
 }
 
-const Vector3ByteLength = Float32Array.BYTES_PER_ELEMENT * 3
-const Vector4ByteLength = Float32Array.BYTES_PER_ELEMENT * 3
-
-const EntityDataByteLength =
-  16 + // changemask
-  +(8 * Vector3ByteLength) + // position + velocity + 6 XR position
-  7 * Vector4ByteLength // rotation + 6 XR rotation
-
-export const readEntity = (v: ViewCursor, world: World) => {
-  const userIndex = readUint32(v)
-  const userId = world.userIndexToUserId.get(userIndex)!
+export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   const netId = readUint32(v) as NetworkId
-
-  // ignore data for our avatar
-  if (userId === Engine.userId) {
-    scrollViewCursor(v, EntityDataByteLength)
-    return
-  }
-  const entity = world.getNetworkObject(userId, netId)
-
   const changeMask = readUint8(v)
+
+  let entity = world.getNetworkObject(fromUserId, netId)
+  if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = undefined
 
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readVelocity(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity)
+
+  if (entity !== undefined && !hasComponent(entity, NetworkObjectDirtyTag)) {
+    addComponent(entity, NetworkObjectDirtyTag, {})
+  }
 }
 
-export const readEntities = (v: ViewCursor, world: World, byteLength: number) => {
+export const readEntities = (v: ViewCursor, world: World, byteLength: number, fromUserId: UserId) => {
   while (v.cursor < byteLength) {
     const count = readUint32(v)
     for (let i = 0; i < count; i++) {
-      readEntity(v, world)
+      readEntity(v, world, fromUserId)
     }
   }
 }
 
 export const readMetadata = (v: ViewCursor, world: World) => {
-  world.fixedTick = readUint32(v)
-  // const time = readUint32(v)
+  const userIndex = readUint32(v)
+  const fixedTick = readUint32(v)
+  // if (userIndex === world.userIdToUserIndex.get(world.hostId)! && !world.isHosting) world.fixedTick = fixedTick
+  return userIndex
 }
 
 export const createDataReader = () => {
   return (world: World, packet: ArrayBuffer) => {
     const view = createViewCursor(packet)
-    readMetadata(view, world)
-    readEntities(view, world, packet.byteLength)
+    const userIndex = readMetadata(view, world)
+    const fromUserId = world.userIndexToUserId.get(userIndex)
+    if (fromUserId) readEntities(view, world, packet.byteLength, fromUserId)
   }
 }

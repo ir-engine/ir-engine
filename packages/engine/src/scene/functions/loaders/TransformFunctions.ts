@@ -1,10 +1,12 @@
-import { Vector3, Quaternion, Euler } from 'three'
+import { Euler, Quaternion, Vector3 } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
+import { createQuaternionProxy, createVector3Proxy } from '../../../common/proxies/three'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { TransformComponent, TransformComponentType } from '../../../transform/components/TransformComponent'
-import { Engine } from '../../../ecs/classes/Engine'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 
 export const SCENE_COMPONENT_TRANSFORM = 'transform'
@@ -22,9 +24,17 @@ export const deserializeTransform: ComponentDeserializeFunction = (
   json: ComponentJson<TransformComponentType>
 ) => {
   const props = parseTransformProperties(json.props)
-  addComponent(entity, TransformComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRANSFORM)
+  const position = createVector3Proxy(TransformComponent.position, entity)
+  const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
+  const scale = createVector3Proxy(TransformComponent.scale, entity)
+
+  const transform = addComponent(entity, TransformComponent, { position, rotation, scale })
+  transform.position.copy(props.position)
+  transform.rotation.copy(props.rotation)
+  transform.scale.copy(props.scale)
+
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRANSFORM)
 }
 
 export const serializeTransform: ComponentSerializeFunction = (entity) => {
@@ -35,13 +45,13 @@ export const serializeTransform: ComponentSerializeFunction = (entity) => {
     name: SCENE_COMPONENT_TRANSFORM,
     props: {
       position: component.position,
-      rotation: euler.setFromQuaternion(component.rotation).toVector3(),
+      rotation: new Vector3().setFromEuler(euler.setFromQuaternion(component.rotation)),
       scale: component.scale
     }
   }
 }
 
-const parseTransformProperties = (props: any): TransformComponentType => {
+export const parseTransformProperties = (props: any): TransformComponentType => {
   const result = {} as TransformComponentType
 
   let tempV3 = props.position ?? SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.position

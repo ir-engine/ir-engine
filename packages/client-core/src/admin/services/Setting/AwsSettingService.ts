@@ -1,8 +1,11 @@
-import { client } from '../../../feathers'
-import { AlertService } from '../../../common/services/AlertService'
-import { useDispatch, store } from '../../../store'
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
-import { AdminAwsSetting } from '@xrengine/common/src/interfaces/AdminAwsSetting'
+
+import { AdminAwsSetting, PatchAwsSetting } from '@xrengine/common/src/interfaces/AdminAwsSetting'
+
+import { AlertService } from '../../../common/services/AlertService'
+import { client } from '../../../feathers'
+import { store, useDispatch } from '../../../store'
 
 //State
 const state = createState({
@@ -17,7 +20,7 @@ store.receptors.push((action: AwsSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_AWS_SETTING_FETCHED':
-        return s.merge({ awsSettings: action.adminAWSSettingResult.data, updateNeeded: false })
+        return s.merge({ awsSettings: action.adminAWSSetting.data, updateNeeded: false })
       case 'ADMIN_AWS_SETTING_PATCHED':
         return s.updateNeeded.set(true)
     }
@@ -32,25 +35,23 @@ export const useAdminAwsSettingState = () => useState(state) as any as typeof st
 export const AwsSettingService = {
   fetchAwsSetting: async () => {
     const dispatch = useDispatch()
-    {
-      try {
-        const awsSetting = await client.service('aws-setting').find()
-        dispatch(AwsSettingAction.awsSettingRetrieved(awsSetting))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      const awsSetting = (await client.service('aws-setting').find()) as Paginated<AdminAwsSetting>
+      dispatch(AwsSettingAction.awsSettingRetrieved(awsSetting))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
-  patchAwsSetting: async (data: any, id: string) => {
+  patchAwsSetting: async (data: PatchAwsSetting, id: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('aws-setting').patch(id, data)
-        dispatch(AwsSettingAction.awsSettingPatched())
-      } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
-      }
+
+    try {
+      await client.service('aws-setting').patch(id, data)
+      dispatch(AwsSettingAction.awsSettingPatched())
+    } catch (err) {
+      console.log(err)
+      AlertService.dispatchAlertError(err.message)
     }
   }
 }
@@ -58,10 +59,10 @@ export const AwsSettingService = {
 //Action
 export const AwsSettingAction = {
   // TODO: add interface
-  awsSettingRetrieved: (adminAWSSettingResult: any) => {
+  awsSettingRetrieved: (adminAWSSetting: Paginated<AdminAwsSetting>) => {
     return {
       type: 'ADMIN_AWS_SETTING_FETCHED' as const,
-      adminAWSSettingResult: adminAWSSettingResult
+      adminAWSSetting: adminAWSSetting
     }
   },
   awsSettingPatched: () => {

@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from 'react'
-import LanguageIcon from '@mui/icons-material/Language'
-import { CommandManager } from '../../../managers/CommandManager'
-import EditorEvents from '../../../constants/EditorEvents'
-import { InfoTooltip } from '../../layout/Tooltip'
-import SelectInput from '../../inputs/SelectInput'
-import * as styles from '../styles.module.scss'
+import React from 'react'
+
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EditorControlComponent } from '../../../classes/EditorControlComponent'
-import { SceneManager } from '../../../managers/SceneManager'
-import { setTransformSpace, toggleTransformSpace } from '../../../systems/EditorControlSystem'
+
+import LanguageIcon from '@mui/icons-material/Language'
+
+import { setTransformSpace, toggleTransformSpace } from '../../../functions/transformFunctions'
+import { useEditorHelperState } from '../../../services/EditorHelperState'
+import SelectInput from '../../inputs/SelectInput'
+import { InfoTooltip } from '../../layout/Tooltip'
+import * as styles from '../styles.module.scss'
 
 /**
  *
@@ -21,41 +20,21 @@ const transformSpaceOptions = [
 ]
 
 const TransformSpaceTool = () => {
-  const [transformSpace, changeTransformSpace] = useState(TransformSpace.World)
-
-  useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.TRANSFORM_SPACE_CHANGED.toString(), updateTransformSpace)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.TRANSFORM_SPACE_CHANGED.toString(), updateTransformSpace)
-    }
-  }, [])
-
-  const updateTransformSpace = () => {
-    const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
-    changeTransformSpace(editorControlComponent.transformSpace)
-  }
-
-  const onChangeTransformSpace = (transformSpace) => {
-    setTransformSpace(transformSpace)
-  }
-
-  const onToggleTransformSpace = () => {
-    toggleTransformSpace()
-  }
+  const editorHelperState = useEditorHelperState()
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-space">
-      <InfoTooltip info="[Z] Toggle Transform Space">
-        <button onClick={onToggleTransformSpace} className={styles.toolButton}>
+      <InfoTooltip title="[Z] Toggle Transform Space">
+        <button onClick={toggleTransformSpace as any} className={styles.toolButton}>
           <LanguageIcon fontSize="small" />
         </button>
       </InfoTooltip>
       <SelectInput
+        key={editorHelperState.transformSpace.value}
         className={styles.selectInput}
-        onChange={onChangeTransformSpace}
+        onChange={setTransformSpace}
         options={transformSpaceOptions}
-        value={transformSpace}
+        value={editorHelperState.transformSpace.value}
         creatable={false}
         isSearchable={false}
       />

@@ -1,10 +1,15 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-// import { Params, Id, NullableId } from '@feathersjs/feathers'
-
-import { Application } from '../../../declarations'
-import { Params } from '@feathersjs/feathers'
+import { NotFound } from '@feathersjs/errors/lib'
+import { Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { Sequelize } from 'sequelize'
+
+import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
+
+// import { Params, Id, NullableId } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import { UserDataType } from '../../user/user/user.class'
+
 // import { Forbidden } from '@feathersjs/errors'
 
 /**
@@ -12,7 +17,7 @@ import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-m
  *
  * @author Vyacheslav Solovjov
  */
-export class Party extends Service {
+export class Party<T = PartyDataType> extends Service<T> {
   app: Application
   docs: any
 
@@ -21,11 +26,33 @@ export class Party extends Service {
     this.app = app
   }
 
-  async find(params: Params): Promise<any> {
-    const { action, $skip, $limit, search, ...query } = params.query!
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
+    const { action, $skip, $limit, search, ...query } = params?.query ?? {}
     const skip = $skip ? $skip : 0
     const limit = $limit ? $limit : 10
+
     if (action === 'admin') {
+      const sort = params?.query?.$sort
+      delete query.$sort
+      const order: any[] = []
+      if (sort != null) {
+        Object.keys(sort).forEach((name, val) => {
+          const item: any[] = []
+
+          if (name === 'instance') {
+            //item.push(this.app.service('instance').Model)
+            item.push(Sequelize.literal('`instance.ipAddress`'))
+          } else if (name === 'location') {
+            //item.push(this.app.service('location').Model)
+            item.push(Sequelize.literal('`location.name`'))
+          } else {
+            item.push(name)
+          }
+          item.push(sort[name] === 0 ? 'DESC' : 'ASC')
+
+          order.push(item)
+        })
+      }
       let ip = {}
       let name = {}
       if (!isNaN(search)) {
@@ -37,6 +64,7 @@ export class Party extends Service {
       const party = await (this.app.service('party') as any).Model.findAndCountAll({
         offset: skip,
         limit: limit,
+        order: order,
         include: [
           {
             model: (this.app.service('location') as any).Model,
@@ -77,9 +105,9 @@ export class Party extends Service {
    * @returns {@Object} of single party
    * @author Vyacheslav Solovjov
    */
-  async get(id: string, params: Params): Promise<any> {
-    if (id == null) {
-      const loggedInUser = extractLoggedInUserFromParams(params)
+  async get(id: string, params?: Params): Promise<T> {
+    if (id == null || id == '') {
+      const loggedInUser = params!.user as UserDataType
       const partyUserResult = await this.app.service('party-user').find({
         query: {
           userId: loggedInUser.id
@@ -87,12 +115,12 @@ export class Party extends Service {
       })
 
       if ((partyUserResult as any).total === 0) {
-        return null
+        throw new NotFound('User party not found')
       }
 
       const partyId = (partyUserResult as any).data[0].partyId
 
-      const party = await super.get(partyId)
+      const party: any = await super.get(partyId)
 
       const partyUsers = await (this.app.service('party-user') as any).Model.findAll({
         where: {

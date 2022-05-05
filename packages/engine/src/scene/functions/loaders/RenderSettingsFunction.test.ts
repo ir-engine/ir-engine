@@ -1,15 +1,16 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import assert from 'assert'
-import { Engine } from '../../../ecs/classes/Engine'
-import { createWorld } from '../../../ecs/classes/World'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
+import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { deserializeRenderSetting } from './RenderSettingsFunction'
 
 describe('RenderSettingFunctions', () => {
   it('deserializeRenderSetting', () => {
-    const world = createWorld()
-    Engine.currentWorld = world
-    Engine.isCSMEnabled = false
+    createEngine()
+    EngineRenderer.instance.isCSMEnabled = false
 
     const entity = createEntity()
 
@@ -23,10 +24,10 @@ describe('RenderSettingFunctions', () => {
 
     deserializeRenderSetting(entity, sceneComponent)
 
-    assert.equal(Engine.isCSMEnabled, true)
+    assert.equal(EngineRenderer.instance.isCSMEnabled, false)
     // TODO: currently renderer only is created on client
 
     // TODO: unnecessary once engine global scope is refactored
-    Engine.isCSMEnabled = false
+    EngineRenderer.instance.isCSMEnabled = false
   })
 })

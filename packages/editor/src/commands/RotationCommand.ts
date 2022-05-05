@@ -1,14 +1,17 @@
-import Command, { CommandParams, IDENTITY_MAT_4 } from './Command'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import arrayShallowEqual from '../functions/arrayShallowEqual'
-import { serializeObject3DArray, serializeEuler } from '../functions/debug'
-import { Matrix4, Quaternion, Euler } from 'three'
-import EditorEvents from '../constants/EditorEvents'
-import { CommandManager } from '../managers/CommandManager'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { Euler, Quaternion } from 'three'
+
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
+import arrayShallowEqual from '../functions/arrayShallowEqual'
+import { serializeEuler, serializeObject3DArray } from '../functions/debug'
+import { EditorAction } from '../services/EditorServices'
+import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
+import Command, { CommandParams, IDENTITY_MAT_4 } from './Command'
 
 export interface RotationCommandParams extends CommandParams {
   rotations: Euler | Euler[]
@@ -63,7 +66,8 @@ export default class RotationCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects, 'rotation')
+      store.dispatch(EditorAction.sceneModified(true))
+      store.dispatch(SelectionAction.changedObject(this.affectedObjects, 'rotation'))
     }
   }
 
@@ -73,9 +77,11 @@ export default class RotationCommand extends Command {
     let spaceMatrix = IDENTITY_MAT_4
 
     if (space === TransformSpace.LocalSelection) {
-      if (CommandManager.instance.selected.length > 0) {
-        const lastSelectedObject = CommandManager.instance.selected[CommandManager.instance.selected.length - 1]
-        const obj3d = getComponent(lastSelectedObject.entity, Object3DComponent).value
+      const selectedEntities = accessSelectionState().selectedEntities.value
+
+      if (selectedEntities.length > 0) {
+        const lastSelectedEntity = selectedEntities[selectedEntities.length - 1]
+        const obj3d = getComponent(lastSelectedEntity, Object3DComponent).value
         obj3d.updateMatrixWorld()
         spaceMatrix = obj3d.parent!.matrixWorld
       }

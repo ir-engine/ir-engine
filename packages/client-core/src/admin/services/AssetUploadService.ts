@@ -1,6 +1,7 @@
-import { useDispatch } from '../../store'
-import { client } from '../../feathers'
 import { AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
+
+import { client } from '../../feathers'
+import { useDispatch } from '../../store'
 
 // const state = createState({})
 
@@ -25,7 +26,7 @@ export const AdminAssetUploadService = {
       files,
       args
     }
-    const result = await client.service('asset-upload').create(uploadArguments)
+    const result = await client.service('upload-asset').create(uploadArguments)
     const dispatch = useDispatch()
     dispatch(AssetUploadAction.fetchedAssets(result))
   }

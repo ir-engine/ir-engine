@@ -1,10 +1,10 @@
 import { Application } from '../../../declarations'
 import { SeatStatus } from './seat-status.class'
-import createModel from './seat-status.model'
-import hooks from './seat-status.hooks'
 import seatStatusDocs from './seat-status.docs'
+import hooks from './seat-status.hooks'
+import createModel from './seat-status.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'seat-status': SeatStatus
   }

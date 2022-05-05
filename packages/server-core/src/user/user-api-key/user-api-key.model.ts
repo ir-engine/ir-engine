@@ -1,4 +1,7 @@
-import { DataTypes, Sequelize } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { UserApiKeyInterface } from '@xrengine/common/src/dbmodels/UserApiKey'
+
 import { Application } from '../../../declarations'
 
 /**
@@ -6,7 +9,7 @@ import { Application } from '../../../declarations'
  */
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const UserApiKey = sequelizeClient.define(
+  const UserApiKey = sequelizeClient.define<Model<UserApiKeyInterface>>(
     'user_api_key',
     {
       id: {

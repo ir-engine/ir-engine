@@ -1,7 +1,16 @@
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { strictEqual } from 'assert'
+import { Quaternion, Vector3 } from 'three'
+
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
+import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { TransformComponent, Vector3Schema } from '../../transform/components/TransformComponent'
+import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../initializeEngine'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import {
   createDataWriter,
@@ -13,24 +22,17 @@ import {
   writeTransform,
   writeVector3
 } from './DataWriter'
-import { createViewCursor, readFloat32, readUint32, readUint8, sliceViewCursor } from './ViewCursor'
-import { Vector3SoA } from './Utils'
-import { createWorld } from '../../ecs/classes/World'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
-import { Quaternion, Vector3 } from 'three'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { Engine } from '../../ecs/classes/Engine'
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { createViewCursor, readFloat32, readUint8, readUint32, sliceViewCursor } from './ViewCursor'
 
 describe('DataWriter', () => {
   before(() => {
-    Engine.currentWorld = createWorld()
+    createEngine()
   })
 
   it('should writeComponent', () => {
     const writeView = createViewCursor()
     const entity = 1234 as Entity
+    Engine.instance.currentWorld.fixedTick = 1
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -197,24 +199,20 @@ describe('DataWriter', () => {
     addComponent(entity, NetworkObjectComponent, {
       networkId,
       ownerId: userId,
-      ownerIndex: userIndex,
       prefab: '',
       parameters: {}
     })
 
     NetworkObjectComponent.networkId[entity] = networkId
 
-    writeEntity(writeView, userIndex, networkId, entity)
+    writeEntity(writeView, networkId, entity)
 
     const readView = createViewCursor(writeView.buffer)
 
     strictEqual(
       writeView.cursor,
-      2 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 7 * Float32Array.BYTES_PER_ELEMENT
+      1 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 7 * Float32Array.BYTES_PER_ELEMENT
     )
-
-    // read userIndex
-    strictEqual(readUint32(readView), userIndex)
 
     // read networkId
     strictEqual(readUint32(readView), networkId)
@@ -266,7 +264,6 @@ describe('DataWriter', () => {
       addComponent(entity, NetworkObjectComponent, {
         networkId,
         ownerId: userId,
-        ownerIndex: userIndex,
         prefab: '',
         parameters: {}
       })
@@ -277,7 +274,7 @@ describe('DataWriter', () => {
 
     const expectedBytes =
       1 * Uint32Array.BYTES_PER_ELEMENT +
-      n * (2 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 7 * Float32Array.BYTES_PER_ELEMENT)
+      n * (1 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 7 * Float32Array.BYTES_PER_ELEMENT)
 
     strictEqual(writeView.cursor, 0)
     strictEqual(packet.byteLength, expectedBytes)
@@ -288,9 +285,6 @@ describe('DataWriter', () => {
     strictEqual(count, entities.length)
 
     for (let i = 0; i < count; i++) {
-      // read userIndex
-      strictEqual(readUint32(readView), entities[i])
-
       // read networkId
       strictEqual(readUint32(readView), entities[i])
 
@@ -320,7 +314,7 @@ describe('DataWriter', () => {
   })
 
   it('should createDataWriter', () => {
-    const world = createWorld()
+    const world = Engine.instance.currentWorld
 
     const write = createDataWriter()
 
@@ -344,7 +338,6 @@ describe('DataWriter', () => {
       addComponent(entity, NetworkObjectComponent, {
         networkId,
         ownerId: userId,
-        ownerIndex: userIndex,
         prefab: '',
         parameters: {}
       })
@@ -353,22 +346,20 @@ describe('DataWriter', () => {
     const packet = write(world, entities)
 
     const expectedBytes =
-      2 * Uint32Array.BYTES_PER_ELEMENT +
-      n * (2 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 7 * Float32Array.BYTES_PER_ELEMENT)
+      3 * Uint32Array.BYTES_PER_ELEMENT +
+      n * (1 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 7 * Float32Array.BYTES_PER_ELEMENT)
 
     strictEqual(packet.byteLength, expectedBytes)
 
     const readView = createViewCursor(packet)
 
     const tick = readUint32(readView)
+    const userIndex = readUint32(readView)
 
     const count = readUint32(readView)
     strictEqual(count, entities.length)
 
     for (let i = 0; i < count; i++) {
-      // read userIndex
-      strictEqual(readUint32(readView), entities[i])
-
       // read networkId
       strictEqual(readUint32(readView), entities[i])
 

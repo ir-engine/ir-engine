@@ -6,7 +6,6 @@
       "dom",
       "dom.iterable"
     ],
-    "baseUrl": ".",
     "paths": {
       "@mui/styled-engine": ["./node_modules/@mui/styled-engine-sc"]
     },
@@ -14,7 +13,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    "module": "esnext",
+    "module": "CommonJS",
     "strict": false,
     "strictNullChecks": true,
     "noImplicitAny": false,
@@ -35,6 +34,7 @@
     "**/node_modules/**"
   ],
   "include": [
+    "../server-core/src/",
     "./**/*.ts",
     "./**/*.tsx",
     "../../PhysX.d.ts",

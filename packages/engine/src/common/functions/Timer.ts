@@ -1,22 +1,17 @@
+import { Engine } from '../../ecs/classes/Engine'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { isClient } from './isClient'
 import { nowMilliseconds } from './nowMilliseconds'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineActionType } from '../../ecs/classes/EngineService'
+import { ServerLoop } from './ServerLoop'
 
 type TimerUpdateCallback = (delta: number, elapsedTime: number) => any
 
 const TPS_REPORTS_ENABLED = false
 const TPS_REPORT_INTERVAL_MS = 10000
 
-const TimerConfig = {
-  MAX_DELTA: 1 / 10
-}
-
-export function Timer(update: TimerUpdateCallback, _config: Partial<typeof TimerConfig> = {}) {
-  const config = Object.assign({}, TimerConfig, _config)
-
-  let lastTime = null
+export function Timer(update: TimerUpdateCallback) {
+  let startTime = 0
+  let lastTime = 0
   let elapsedTime = 0
   let delta = 0
   let debugTick = 0
@@ -40,7 +35,7 @@ export function Timer(update: TimerUpdateCallback, _config: Partial<typeof Timer
   let nextTpsReportTime = 0
   let timerRuns = 0
   let prevTimerRuns = 0
-  let serverLoop
+  let serverLoop = null! as ServerLoop
 
   function onFrame(time, xrFrame) {
     timerRuns += 1
@@ -49,16 +44,14 @@ export function Timer(update: TimerUpdateCallback, _config: Partial<typeof Timer
       tpsPrintReport(time)
     }
 
-    Engine.xrFrame = xrFrame
-    if (lastTime !== null) {
-      delta = Math.min((time - lastTime) / 1000, config.MAX_DELTA)
+    Engine.instance.xrFrame = xrFrame
 
-      elapsedTime += delta
+    delta = (time - lastTime) / 1000
+    elapsedTime = (time - startTime) / 1000
 
-      tpsSubMeasureStart('update')
-      update(delta, elapsedTime)
-      tpsSubMeasureEnd('update')
-    }
+    tpsSubMeasureStart('update')
+    update(delta, elapsedTime)
+    tpsSubMeasureEnd('update')
 
     lastTime = time
   }
@@ -139,32 +132,27 @@ export function Timer(update: TimerUpdateCallback, _config: Partial<typeof Timer
     prevTimerRuns = timerRuns
   }
 
-  const expectedDelta = 1000 / 60
-
   function start() {
+    startTime = nowMilliseconds()
     elapsedTime = 0
-    lastTime = null
+    lastTime = startTime
     if (isClient) {
-      Engine.renderer.setAnimationLoop(onFrame)
+      EngineRenderer.instance.renderer.setAnimationLoop(onFrame)
     } else {
-      serverLoop = () => {
+      const _update = () => {
         const time = nowMilliseconds()
-        if (time - lastTime! >= expectedDelta) {
-          onFrame(time, null)
-          lastTime = time
-        }
-        setImmediate(serverLoop)
+        onFrame(time, null)
       }
-      serverLoop()
+      serverLoop = new ServerLoop(_update, 60).start()
     }
     tpsReset()
   }
 
   function stop() {
     if (isClient) {
-      Engine.renderer.setAnimationLoop(null)
+      EngineRenderer.instance.renderer.setAnimationLoop(null)
     } else {
-      clearImmediate(serverLoop)
+      serverLoop.stop()
     }
   }
 

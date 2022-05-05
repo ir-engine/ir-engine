@@ -1,9 +1,21 @@
-import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyTypeEnum'
-import CloudIcon from '@mui/icons-material/Cloud'
-import { getDirectoryFromUrl } from '@xrengine/common/src/utils/getDirectoryFromUrl'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
+import { Color } from 'three'
+
+import { getDirectoryFromUrl } from '@xrengine/common/src/utils/getDirectoryFromUrl'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import {
+  SkyboxComponent,
+  SkyboxComponentType,
+  SkyBoxShaderProps
+} from '@xrengine/engine/src/scene/components/SkyboxComponent'
+import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyTypeEnum'
+
+import CloudIcon from '@mui/icons-material/Cloud'
+
+import { setPropertyOnSelectionEntities } from '../../classes/History'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import FolderInput from '../inputs/FolderInput'
@@ -13,16 +25,7 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import RadianNumericInputGroup from '../inputs/RadianNumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import {
-  SkyboxComponent,
-  SkyboxComponentType,
-  SkyBoxShaderProps
-} from '@xrengine/engine/src/scene/components/SkyboxComponent'
-import { Color } from 'three'
 import { EditorComponentType, updateProperty } from './Util'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 
 const hoursToRadians = (hours: number) => hours / 24
 const radiansToHours = (rads: number) => rads * 24
@@ -66,7 +69,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
 
   const onChangeEquirectangularPathOption = (equirectangularPath) => {
     if (equirectangularPath !== skyComponent.equirectangularPath) {
-      CommandManager.instance.setPropertyOnSelectionEntities({
+      setPropertyOnSelectionEntities({
         component: SkyboxComponent,
         properties: { equirectangularPath }
       })
@@ -77,7 +80,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
     const directory = getDirectoryFromUrl(path)
 
     if (directory !== skyComponent.cubemapPath) {
-      CommandManager.instance.setPropertyOnSelectionEntities({
+      setPropertyOnSelectionEntities({
         component: SkyboxComponent,
         properties: { cubemapPath: directory }
       })

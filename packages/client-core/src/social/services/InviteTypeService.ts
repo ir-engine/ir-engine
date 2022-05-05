@@ -1,9 +1,11 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { AlertService } from '../../common/services/AlertService'
-import { InviteTypeResult } from '@xrengine/common/src/interfaces/InviteTypeResult'
-import { InviteType } from '@xrengine/common/src/interfaces/InviteType'
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
+
+import { InviteType } from '@xrengine/common/src/interfaces/InviteType'
+
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 
 //State
 const state = createState({
@@ -39,21 +41,20 @@ export const useInviteTypeState = () => useState(state) as any as typeof state
 export const InviteTypeService = {
   retrieveInvites: async () => {
     const dispatch = useDispatch()
-    {
-      dispatch(InviteTypeAction.fetchingInvitesTypes())
-      try {
-        const inviteTypeResult = await client.service('invite-type').find()
-        dispatch(InviteTypeAction.retrievedInvitesTypes(inviteTypeResult))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    dispatch(InviteTypeAction.fetchingInvitesTypes())
+    try {
+      const inviteTypeResult = (await client.service('invite-type').find()) as Paginated<InviteType>
+      dispatch(InviteTypeAction.retrievedInvitesTypes(inviteTypeResult))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   }
 }
 
 //Action
 export const InviteTypeAction = {
-  retrievedInvitesTypes: (inviteType: InviteTypeResult) => {
+  retrievedInvitesTypes: (inviteType: Paginated<InviteType>) => {
     return {
       type: 'LOAD_INVITE_TYPE' as const,
       total: inviteType.total,

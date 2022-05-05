@@ -1,17 +1,19 @@
-import Button from '@mui/material/Button'
-import CardMedia from '@mui/material/CardMedia'
-import Typography from '@mui/material/Typography'
 import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
+
+import Button from '@mui/material/Button'
+import CardMedia from '@mui/material/CardMedia'
+import Typography from '@mui/material/Typography'
+
 import { AuthService, useAuthState } from '../../services/AuthService'
-import styles from '../Login/Login.module.scss'
+import styles from '../Login/index.module.scss'
 
 interface Props {
   logo?: string
 }
 
-const ConfirmEmail = (props: Props): any => {
+const ConfirmEmail = (props: Props): JSX.Element => {
   const history = useHistory()
   const auth = useAuthState()
   const { t } = useTranslation()
@@ -35,12 +37,16 @@ const ConfirmEmail = (props: Props): any => {
       <section className={styles.content}>
         <Typography variant="body2" color="textSecondary" align="center">
           <Trans t={t} i18nKey="user:auth.confirmEmail.resendEmail">
-            Please check your email to verify your account. If you didn&apos;t get an email, please click
-            <Button variant="contained" color="primary" onClick={(e) => handleResendEmail(e)}>
-              here
-            </Button>
-            <br />
-            to resend the verification email.
+            {t('user:auth.confirmEmail.resendEmail', {
+              here: `${(
+                <>
+                  <Button variant="contained" color="primary" onClick={(e) => handleResendEmail(e)}>
+                    here
+                  </Button>
+                  <br />
+                </>
+              )}`
+            })}
           </Trans>
         </Typography>
       </section>
@@ -48,7 +54,8 @@ const ConfirmEmail = (props: Props): any => {
       <section className={styles.footer}>
         <p>
           <Trans t={t} i18nKey="user:auth.confirmEmail.resendEmail">
-            Have an account? <span onClick={() => history.push('/login')}> Log in</span>
+            {t('user:auth.confirmEmail.haveAnAccount')}{' '}
+            <span onClick={() => history.push('/')}>{t('user:auth.register.login')}</span>
           </Trans>
         </p>
       </section>

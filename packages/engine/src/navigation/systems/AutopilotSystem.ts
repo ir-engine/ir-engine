@@ -1,8 +1,11 @@
 import { Intersection, Quaternion, Raycaster, Vector3 } from 'three'
 import { NavMesh, Path, Vector3 as YukaVector3 } from 'yuka'
+
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
+import { World } from '../../ecs/classes/World'
 import {
   addComponent,
   defineQuery,
@@ -10,18 +13,16 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { GamepadAxis } from '../../input/enums/InputEnums'
 import { InputType } from '../../input/enums/InputType'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AutoPilotClickRequestComponent } from '../component/AutoPilotClickRequestComponent'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { AutoPilotComponent } from '../component/AutoPilotComponent'
+import { AutoPilotOverrideComponent } from '../component/AutoPilotOverrideComponent'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { NavMeshComponent } from '../component/NavMeshComponent'
-import { AutoPilotOverrideComponent } from '../component/AutoPilotOverrideComponent'
-import { World } from '../../ecs/classes/World'
 import createSpeedFunction from '../functions/createSpeedFunction'
-import { Entity } from '../../ecs/classes/Entity'
 
 export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
   // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
@@ -68,7 +69,7 @@ export default async function AutopilotSystem(world: World) {
 
   const vec3 = new Vector3()
   function getCameraDirection() {
-    Engine.camera.getWorldDirection(vec3)
+    Engine.instance.camera.getWorldDirection(vec3)
 
     vec3.setY(0).normalize()
     quat.setFromUnitVectors(forward, vec3)
@@ -79,7 +80,7 @@ export default async function AutopilotSystem(world: World) {
     for (const entity of navClickQuery.enter()) {
       const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
       const overrideComponent = getComponent(entity, AutoPilotOverrideComponent)
-      raycaster.setFromCamera(coords, Engine.camera)
+      raycaster.setFromCamera(coords, Engine.instance.camera)
 
       const raycasterResults: Intersection[] = []
       let _entity = -1 as Entity
@@ -178,7 +179,7 @@ export default async function AutopilotSystem(world: World) {
         if (targetFlatDistance < ARRIVED_DISTANCE) {
           if (autopilot.path.finished()) {
             // Path is finished!
-            Engine.inputState.set(GAMEPAD_STICK, {
+            Engine.instance.inputState.set(GAMEPAD_STICK, {
               type: InputType.TWODIM,
               value: [0, 0, 0],
               lifecycleState: LifecycleValue.Changed
@@ -202,10 +203,12 @@ export default async function AutopilotSystem(world: World) {
 
           const stickPosition: NumericalType = [stickValue.z, stickValue.x, targetAngle]
           // If position not set, set it with lifecycle started
-          Engine.inputState.set(GAMEPAD_STICK, {
+          Engine.instance.inputState.set(GAMEPAD_STICK, {
             type: InputType.TWODIM,
             value: stickPosition,
-            lifecycleState: Engine.inputState.has(GAMEPAD_STICK) ? LifecycleValue.Started : LifecycleValue.Changed
+            lifecycleState: Engine.instance.inputState.has(GAMEPAD_STICK)
+              ? LifecycleValue.Started
+              : LifecycleValue.Changed
           })
 
           avatarRotation.copy(quat.setFromUnitVectors(forward, direction))
@@ -215,7 +218,7 @@ export default async function AutopilotSystem(world: World) {
 
     if (autopilotQuery.exit(world).length) {
       // send one relaxed gamepad state to stop movement
-      Engine.inputState.set(GAMEPAD_STICK, {
+      Engine.instance.inputState.set(GAMEPAD_STICK, {
         type: InputType.TWODIM,
         value: [0, 0],
         lifecycleState: LifecycleValue.Changed

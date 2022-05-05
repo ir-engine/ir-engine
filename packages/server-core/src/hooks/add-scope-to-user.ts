@@ -1,10 +1,12 @@
 import { HookContext } from '@feathersjs/feathers'
+
 import config from '../appconfig'
 import { scopeTypeSeed } from '../scope/scope-type/scope-type.seed'
+import { Application } from './../../declarations.d'
 
 export default () => {
-  return async (context: HookContext): Promise<HookContext> => {
-    const foundItem = await (context.app.service('scope') as any).Model.findAll({
+  return async (context: HookContext<Application>): Promise<HookContext> => {
+    const foundItem = await context.app.service('scope').Model.findAll({
       where: {
         userId: context.arguments[0]
       }
@@ -28,8 +30,8 @@ export default () => {
         })
       }
 
-      if (context.arguments[1]?.scopeTypes) {
-        context.arguments[1]?.scopeTypes?.forEach(async (el) => {
+      if (context.arguments[1]?.scopes) {
+        context.arguments[1]?.scopes?.forEach(async (el) => {
           await context.app.service('scope').create({
             type: el.type,
             userId: context.arguments[0]
@@ -38,7 +40,7 @@ export default () => {
       }
     } else {
       if (context.arguments[1].userRole && context.arguments[1].userRole !== 'admin') {
-        const user = await (context.app.service('user') as any).Model.findOne({
+        const user = await context.app.service('user').Model.findOne({
           where: { id: context.arguments[0] }
         })
 
@@ -63,11 +65,11 @@ export default () => {
         })
       }
 
-      if (context.arguments[1].scopeTypes) {
+      if (context.arguments[1].scopes) {
         foundItem.forEach(async (scp) => {
           await context.app.service('scope').remove(scp.dataValues.id)
         })
-        context.arguments[1]?.scopeTypes?.forEach(async (el) => {
+        context.arguments[1]?.scopes?.forEach(async (el) => {
           await context.app.service('scope').create({
             type: el.type,
             userId: context.arguments[0]

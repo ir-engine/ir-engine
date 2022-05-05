@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { SceneManager } from '../../../managers/SceneManager'
+
+import SsidChartIcon from '@mui/icons-material/SsidChart'
+
+import { SceneState } from '../../../functions/sceneRenderFunctions'
 import { InfoTooltip } from '../../layout/Tooltip'
 import styles from '../styles.module.scss'
-import SsidChartIcon from '@mui/icons-material/SsidChart'
 
 /**
  * Stats used to show stats of  memory and  render.
@@ -17,7 +19,7 @@ const StatsTool = () => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    SceneManager.instance.onUpdateStats = (info) => {
+    SceneState.onUpdateStats = (info) => {
       setInfo({
         geometries: info.memory.geometries,
         textures: info.memory.textures,
@@ -31,7 +33,7 @@ const StatsTool = () => {
     }
 
     return () => {
-      SceneManager.instance.onUpdateStats = undefined
+      SceneState.onUpdateStats = undefined
     }
   }, [])
 
@@ -47,7 +49,7 @@ const StatsTool = () => {
   return (
     <>
       <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="stats">
-        <InfoTooltip info="Toggle Stats">
+        <InfoTooltip title="Toggle Stats">
           <button onClick={toggleStats} className={styles.toolButton + ' ' + (isVisible ? styles.selected : '')}>
             <SsidChartIcon fontSize="small" />
           </button>

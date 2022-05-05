@@ -1,32 +1,34 @@
 import { AnimationClip, AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+
+import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
-import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AvatarInputSchema } from '../AvatarInputSchema'
-import { AnimationComponent } from '../components/AnimationComponent'
-import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
-import { RaycastComponent } from '../../physics/components/RaycastComponent'
-import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
-import { Engine } from '../../ecs/classes/Engine'
-import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { useWorld } from '../../ecs/functions/SystemHooks'
+import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
-import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
-import { AvatarAnimationGraph } from '../animations/AvatarAnimationGraph'
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
+import { RaycastComponent } from '../../physics/components/RaycastComponent'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { AnimationState } from '../animation/AnimationState'
+import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
+import { BoneStructure } from '../AvatarBoneMatching'
+import { AvatarInputSchema } from '../AvatarInputSchema'
+import { AnimationComponent } from '../components/AnimationComponent'
+import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
+import { AvatarComponent } from '../components/AvatarComponent'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 const avatarRadius = 0.25
 const defaultAvatarHeight = 1.8
@@ -34,25 +36,29 @@ const capsuleHeight = defaultAvatarHeight - avatarRadius * 2
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
 export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
-  const world = useWorld()
+  const world = Engine.instance.currentWorld
   const userId = spawnAction.$from
-  const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)
+  const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
 
   const position = createVector3Proxy(TransformComponent.position, entity)
-
   const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
-  // todo: figure out why scale makes avatar disappear
-  // const scale = createVector3Proxy(TransformComponent.scale, entity)
-  const scale = new Vector3().copy(new Vector3(1, 1, 1))
+  const scale = createVector3Proxy(TransformComponent.scale, entity)
 
   const transform = addComponent(entity, TransformComponent, { position, rotation, scale })
   transform.position.copy(spawnAction.parameters.position)
   transform.rotation.copy(spawnAction.parameters.rotation)
+  transform.scale.copy(new Vector3(1, 1, 1))
 
-  const velocity = createVector3Proxy(VelocityComponent.velocity, entity)
+  // set cached action refs to the new components so they stay up to date with future movements
+  spawnAction.parameters.position = position
+  spawnAction.parameters.rotation = rotation
+
+  const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity)
+  const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity)
 
   addComponent(entity, VelocityComponent, {
-    velocity
+    linear: linearVelocity,
+    angular: angularVelocity
   })
 
   // The visuals group is centered for easy actor tilting
@@ -66,7 +72,6 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   tiltContainer.add(modelContainer)
 
   addComponent(entity, AvatarComponent, {
-    ...world.clients.get(userId)?.avatarDetail,
     avatarHalfHeight: defaultAvatarHalfHeight,
     avatarHeight: defaultAvatarHeight,
     modelContainer,
@@ -76,7 +81,8 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   addComponent(entity, NameComponent, {
     name: userId as string
   })
-  console.log('userID: ' + userId)
+
+  addComponent(entity, VisibleComponent, {})
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(modelContainer),
@@ -88,14 +94,16 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
     animationGraph: new AvatarAnimationGraph(),
     currentState: new AnimationState(),
     prevState: new AnimationState(),
-    prevVelocity: new Vector3()
+    prevVelocity: new Vector3(),
+    rig: {} as BoneStructure,
+    rootYRatio: 1
   })
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
-  setObjectLayers(tiltContainer, ObjectLayers.Render, ObjectLayers.Avatar)
+  setObjectLayers(tiltContainer, ObjectLayers.Avatar)
 
   const filterData = new PhysX.PxQueryFilterData()
-  filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger, 0)
+  filterData.setWords(AvatarCollisionMask, 0)
   const flags = PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
   filterData.setFlags(flags)
 
@@ -112,7 +120,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   addComponent(entity, CollisionComponent, { collisions: [] })
 
   // If local player's avatar
-  if (userId === Engine.userId) {
+  if (userId === Engine.instance.userId) {
     addComponent(entity, SpawnPoseComponent, {
       position: new Vector3().copy(spawnAction.parameters.position),
       rotation: new Quaternion().copy(spawnAction.parameters.rotation)
@@ -158,7 +166,7 @@ export const createAvatarController = (entity: Entity) => {
       data: new Map()
     })
   }
-  const world = useWorld()
+  const world = Engine.instance.currentWorld
   const controller = world.physics.createController({
     isCapsule: true,
     material: world.physics.createMaterial(),
@@ -176,9 +184,8 @@ export const createAvatarController = (entity: Entity) => {
       entity
     }
   }) as PhysX.PxCapsuleController
-  console.log(controller.getPosition())
 
-  const frustumCamera = new PerspectiveCamera(60, 2, 0.1, 3)
+  const frustumCamera = new PerspectiveCamera(60, 4, 0.1, 3)
   frustumCamera.position.setY(defaultAvatarHalfHeight)
   frustumCamera.rotateY(Math.PI)
 
@@ -205,8 +212,11 @@ export const createAvatarController = (entity: Entity) => {
       movementEnabled: true,
       isJumping: false,
       isWalking: false,
+      isInAir: false,
       localMovementDirection: new Vector3(),
-      velocitySimulator
+      velocitySimulator,
+      currentSpeed: 0,
+      speedVelocity: { value: 0 }
     })
   }
 }

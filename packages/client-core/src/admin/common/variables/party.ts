@@ -1,17 +1,9 @@
 export interface PartyProps {
   open: boolean
-  handleClose: any
-  fetchAdminLocations?: any
-  authState?: any
-  fetchAdminInstances?: any
-  createAdminParty?: any
-  adminLocationState?: any
+  handleClose: () => void
 }
 
 export interface PartyPropsTable {
-  fetchAdminParty?: any
-  authState?: any
-  adminPartyState?: any
   search: string
 }
 

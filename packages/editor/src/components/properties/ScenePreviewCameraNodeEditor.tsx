@@ -1,13 +1,16 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import { Vector3, Quaternion } from 'three'
-import { PropertiesPanelButton } from '../inputs/Button'
 import { useTranslation } from 'react-i18next'
+import { Quaternion, Vector3 } from 'three'
+
 import { updateCameraTransform } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
-import CameraAltIcon from '@mui/icons-material/CameraAlt'
-import { EditorComponentType } from './Util'
-import { CommandManager } from '../../managers/CommandManager'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
+import CameraAltIcon from '@mui/icons-material/CameraAlt'
+
+import { executeModifyPropertyCommand } from '../../classes/History'
+import { PropertiesPanelButton } from '../inputs/Button'
+import NodeEditor from './NodeEditor'
+import { EditorComponentType } from './Util'
 
 /**
  * ScenePreviewCameraNodeEditor provides the editor view to customize properties.
@@ -25,7 +28,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     const scale = new Vector3()
 
     updatedTransform.decompose(position, rotation, scale)
-    CommandManager.instance.setProperty([props.node], {
+    executeModifyPropertyCommand([props.node], {
       component: TransformComponent,
       properties: { position, rotation }
     })

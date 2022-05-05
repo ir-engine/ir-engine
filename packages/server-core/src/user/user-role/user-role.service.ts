@@ -1,10 +1,10 @@
 import { Application } from '../../../declarations'
 import { UserRole } from './user-role.class'
-import createModel from './user-role.model'
-import hooks from './user-role.hooks'
 import userRoleDocs from './user-role.docs'
+import hooks from './user-role.hooks'
+import createModel from './user-role.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'user-role': UserRole
   }

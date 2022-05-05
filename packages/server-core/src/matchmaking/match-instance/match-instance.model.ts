@@ -1,4 +1,7 @@
-import { DataTypes, Sequelize } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { MatchInstanceInterface } from '@xrengine/common/src/dbmodels/MatchInstance'
+
 import { Application } from '../../../declarations'
 
 /**
@@ -6,7 +9,7 @@ import { Application } from '../../../declarations'
  */
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const MatchInstance = sequelizeClient.define(
+  const MatchInstance = sequelizeClient.define<Model<MatchInstanceInterface>>(
     'match_instance',
     {
       id: {

@@ -1,20 +1,21 @@
-import { Engine } from '../../ecs/classes/Engine'
 import { Group, Object3D, Quaternion, Vector3 } from 'three'
+
+import { dispatchAction } from '@xrengine/hyperflux'
+
+import { BoneNames } from '../../avatar/AvatarBoneMatching'
+import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
-import { Entity } from '../../ecs/classes/Entity'
 import { ParityValue } from '../../common/enums/ParityValue'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
+import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
-import { useWorld } from '../../ecs/functions/SystemHooks'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
 import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
 import { initializeHandModel } from './addControllerModels'
-import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
-import { World } from '../../ecs/classes/World'
-import { isClient } from '../../common/functions/isClient'
 
 const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
@@ -31,16 +32,22 @@ const assignControllerAndGrip = (xrManager, controller, grip, i): void => {
  */
 
 export const mapXRControllers = (xrInput: XRInputSourceComponentType): void => {
-  const xrm = Engine.xrManager
+  const xrm = EngineRenderer.instance.xrManager
   const session = xrm.getSession()
 
   for (let i = 0; i < 2; i++) {
     const j = 1 - i
-    const inputSource = session.inputSources[i]
+    const inputSource = session?.inputSources[i]
     if (!inputSource) {
       console.log('No xr input source available for index', i)
       continue
     }
+
+    if (inputSource.hand) {
+      console.log('XR hand input source should not be mapped to controller')
+      continue
+    }
+
     if (inputSource.handedness === 'left') {
       assignControllerAndGrip(xrm, xrInput.controllerLeft, xrInput.controllerGripLeft, i)
       assignControllerAndGrip(xrm, xrInput.controllerRight, xrInput.controllerGripRight, j)
@@ -51,90 +58,75 @@ export const mapXRControllers = (xrInput: XRInputSourceComponentType): void => {
       console.warn('Could not determine xr input source handedness', i)
     }
   }
+
+  if (xrInput.controllerGripLeft.parent) {
+    xrInput.controllerGripLeftParent = xrInput.controllerGripLeft.parent as Group
+  }
+
+  if (xrInput.controllerGripRight.parent) {
+    xrInput.controllerGripRightParent = xrInput.controllerGripRight.parent as Group
+  }
+
+  if (xrInput.controllerLeft.parent) {
+    xrInput.controllerLeftParent = xrInput.controllerLeft.parent as Group
+  }
+
+  if (xrInput.controllerRight.parent) {
+    xrInput.controllerRightParent = xrInput.controllerRight.parent as Group
+  }
 }
 
-const proxifyXRInputs = (entity: Entity, inputData: XRInputSourceComponentType) => {
-  const { head, container, controllerLeft, controllerGripLeft, controllerRight, controllerGripRight } = inputData
-
-  // todo: make isomorphic
+export const proxifyXRInputs = (entity: Entity, inputData: XRInputSourceComponentType) => {
+  const {
+    head,
+    container,
+    controllerLeftParent,
+    controllerGripLeftParent,
+    controllerRightParent,
+    controllerGripRightParent
+  } = inputData
 
   proxifyVector3(XRInputSourceComponent.head.position, entity, head.position)
+  proxifyQuaternion(XRInputSourceComponent.head.quaternion, entity, head.quaternion)
   proxifyVector3(XRInputSourceComponent.container.position, entity, container.position)
-  proxifyVector3(
-    XRInputSourceComponent.controllerLeft.position,
+  proxifyQuaternion(XRInputSourceComponent.container.quaternion, entity, container.quaternion)
+
+  proxifyVector3(XRInputSourceComponent.controllerLeftParent.position, entity, controllerLeftParent.position)
+  proxifyVector3(XRInputSourceComponent.controllerRightParent.position, entity, controllerRightParent.position)
+  proxifyVector3(XRInputSourceComponent.controllerGripLeftParent.position, entity, controllerGripLeftParent.position)
+  proxifyVector3(XRInputSourceComponent.controllerGripRightParent.position, entity, controllerGripRightParent.position)
+  proxifyQuaternion(XRInputSourceComponent.controllerLeftParent.quaternion, entity, controllerLeftParent.quaternion)
+  proxifyQuaternion(XRInputSourceComponent.controllerRightParent.quaternion, entity, controllerRightParent.quaternion)
+  proxifyQuaternion(
+    XRInputSourceComponent.controllerGripLeftParent.quaternion,
     entity,
-    isClient ? controllerLeft.parent!.position : controllerLeft.position
-  )
-  proxifyVector3(
-    XRInputSourceComponent.controllerRight.position,
-    entity,
-    isClient ? controllerRight.parent!.position : controllerRight.position
-  )
-  proxifyVector3(
-    XRInputSourceComponent.controllerGripLeft.position,
-    entity,
-    isClient ? controllerGripLeft.parent!.position : controllerGripLeft.position
-  )
-  proxifyVector3(
-    XRInputSourceComponent.controllerGripRight.position,
-    entity,
-    isClient ? controllerGripRight.parent!.position : controllerGripRight.position
+    controllerGripLeftParent.quaternion
   )
   proxifyQuaternion(
-    XRInputSourceComponent.head.quaternion,
+    XRInputSourceComponent.controllerGripRightParent.quaternion,
     entity,
-    isClient ? head.parent!.quaternion : head.quaternion
-  )
-  proxifyQuaternion(
-    XRInputSourceComponent.container.quaternion,
-    entity,
-    isClient ? container.parent!.quaternion : container.quaternion
-  )
-  proxifyQuaternion(
-    XRInputSourceComponent.controllerLeft.quaternion,
-    entity,
-    isClient ? controllerLeft.parent!.quaternion : controllerLeft.quaternion
-  )
-  proxifyQuaternion(
-    XRInputSourceComponent.controllerRight.quaternion,
-    entity,
-    isClient ? controllerRight.parent!.quaternion : controllerRight.quaternion
-  )
-  proxifyQuaternion(
-    XRInputSourceComponent.controllerGripLeft.quaternion,
-    entity,
-    isClient ? controllerGripLeft.parent!.quaternion : controllerGripLeft.quaternion
-  )
-  proxifyQuaternion(
-    XRInputSourceComponent.controllerGripRight.quaternion,
-    entity,
-    isClient ? controllerGripRight.parent!.quaternion : controllerGripRight.quaternion
+    controllerGripRightParent.quaternion
   )
 }
 
+const container = new Group()
+const head = new Group()
+const controllerLeft = new Group()
+const controllerRight = new Group()
+const controllerGripLeft = new Group()
+const controllerGripRight = new Group()
+
 /**
- * @author Josh Field <github.com/HexaField>
- * @returns {void}
+ * Setup XRInputSourceComponent on entity, required for all input control types
+ * @author Hamza Mushtaq <github.com/hamzzam>
+ * @returns XRInputSourceComponentType
  */
 
-export const startWebXR = (): void => {
-  const container = new Group()
-  const head = new Group()
-  const controllerLeft = new Group()
-  const controllerRight = new Group()
-  const controllerGripLeft = new Group()
-  const controllerGripRight = new Group()
-
-  const world = useWorld()
-
-  removeComponent(world.localClientEntity, FollowCameraComponent)
-
-  Engine.scene.remove(Engine.camera)
-  container.add(Engine.camera)
-
-  // Default mapping
-  assignControllerAndGrip(Engine.xrManager, controllerLeft, controllerGripLeft, 0)
-  assignControllerAndGrip(Engine.xrManager, controllerRight, controllerGripRight, 1)
+export const setupXRInputSourceComponent = (entity: Entity) => {
+  const controllerLeftParent = controllerLeft.parent as Group,
+    controllerGripLeftParent = controllerGripLeft.parent as Group,
+    controllerRightParent = controllerRight.parent as Group,
+    controllerGripRightParent = controllerGripRight.parent as Group
 
   const inputData = {
     head,
@@ -142,50 +134,52 @@ export const startWebXR = (): void => {
     controllerLeft,
     controllerRight,
     controllerGripLeft,
-    controllerGripRight
+    controllerGripRight,
+    controllerLeftParent,
+    controllerGripLeftParent,
+    controllerRightParent,
+    controllerGripRightParent
   }
 
-  // Map input sources
-  // Sometimes the input sources are not available immidiately
-  setTimeout(() => {
-    mapXRControllers(inputData)
-    proxifyXRInputs(world.localClientEntity, inputData)
-  }, 1000)
-
-  addComponent(world.localClientEntity, XRInputSourceComponent, inputData)
-
-  bindXRHandEvents()
-  dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ enabled: true })).cache({ removePrevious: true })
+  addComponent(entity, XRInputSourceComponent, inputData)
+  return inputData
 }
 
 /**
- * @author Josh Field <github.com/HexaField>
+ * Initializes XR controllers for local client
+ * @author Hamza Mushtaq <github.com/hamzzam>
  * @returns {void}
  */
 
-export const endXR = (): void => {
-  Engine.xrSession.end()
-  Engine.xrSession = null!
-  Engine.xrManager.setSession(null)
-  Engine.scene.add(Engine.camera)
+export const bindXRControllers = () => {
+  const world = Engine.instance.currentWorld
+  const xrInputSourceComponent = getComponent(world.localClientEntity, XRInputSourceComponent)
 
-  addComponent(useWorld().localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
-  removeComponent(useWorld().localClientEntity, XRInputSourceComponent)
+  const inputSourceChanged = (event) => {
+    // Map input sources
+    mapXRControllers(xrInputSourceComponent)
+    // Proxify only after input handedness is determined
+    proxifyXRInputs(world.localClientEntity, xrInputSourceComponent)
+    EngineRenderer.instance.xrSession.removeEventListener('inputsourceschange', inputSourceChanged)
+  }
 
-  dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ enabled: false })).cache({ removePrevious: true })
+  EngineRenderer.instance.xrSession.addEventListener('inputsourceschange', inputSourceChanged)
 }
 
 /**
  * Initializes XR hand controllers for local client
  * @author Mohsen Heydari <github.com/mohsenheydari>
+ * @coauthor Hamza Mushtaq <github.com/hamzzam>
  * @returns {void}
  */
 
 export const bindXRHandEvents = () => {
-  const world = useWorld()
-  const hands = [Engine.xrManager.getHand(0), Engine.xrManager.getHand(1)]
+  const world = Engine.instance.currentWorld
+
+  const hands = [EngineRenderer.instance.xrManager.getHand(0), EngineRenderer.instance.xrManager.getHand(1)]
   let eventSent = false
 
+  // TODO: we should unify the logic here and in AvatarSystem xrHandsConnected receptor
   hands.forEach((controller: any) => {
     controller.addEventListener('connected', (ev) => {
       const xrInputSource = ev.data
@@ -203,11 +197,53 @@ export const bindXRHandEvents = () => {
       initializeHandModel(controller, xrInputSource.handedness)
 
       if (!eventSent) {
-        dispatchFrom(Engine.userId, () => NetworkWorldAction.xrHandsConnected({})).cache({ removePrevious: true })
+        dispatchAction(world.store, NetworkWorldAction.xrHandsConnected({}))
         eventSent = true
       }
     })
   })
+}
+
+/**
+ * @author Josh Field <github.com/HexaField>
+ * @returns {void}
+ */
+
+export const startWebXR = async (): Promise<void> => {
+  const world = Engine.instance.currentWorld
+
+  removeComponent(world.localClientEntity, FollowCameraComponent)
+  container.add(Engine.instance.camera)
+
+  setupXRInputSourceComponent(world.localClientEntity)
+
+  // Default mapping
+  assignControllerAndGrip(EngineRenderer.instance.xrManager, controllerLeft, controllerGripLeft, 0)
+  assignControllerAndGrip(EngineRenderer.instance.xrManager, controllerRight, controllerGripRight, 1)
+
+  dispatchAction(world.store, NetworkWorldAction.setXRMode({ enabled: true }))
+
+  bindXRControllers()
+  bindXRHandEvents()
+}
+
+/**
+ * @author Josh Field <github.com/HexaField>
+ * @returns {void}
+ */
+
+export const endXR = (): void => {
+  // EngineRenderer.instance.xrSession?.end()
+  EngineRenderer.instance.xrSession = null!
+  EngineRenderer.instance.xrManager.setSession(null!)
+  Engine.instance.scene.add(Engine.instance.camera)
+
+  const world = Engine.instance.currentWorld
+  addComponent(world.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
+  removeComponent(world.localClientEntity, XRInputSourceComponent)
+  removeComponent(world.localClientEntity, XRHandsInputComponent)
+
+  dispatchAction(world.store, NetworkWorldAction.setXRMode({ enabled: false }))
 }
 
 /**
@@ -233,8 +269,6 @@ const quat = new Quaternion()
  */
 
 export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.NONE): Vector3 => {
-  const avatar = getComponent(entity, AvatarComponent)
-  const transform = getComponent(entity, TransformComponent)
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
     const rigHand: Object3D =
@@ -244,8 +278,11 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
       return rigHand.getWorldPosition(vec3)
     }
   }
-  // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
-  return vec3.set(-0.35, 1, 0).applyQuaternion(transform.rotation).add(transform.position)
+  const bone: BoneNames = hand === ParityValue.RIGHT ? 'RightHand' : 'LeftHand'
+  const { rig } = getComponent(entity, AvatarAnimationComponent)
+  rig[bone].updateWorldMatrix(true, false)
+  const matWorld = rig[bone].matrixWorld
+  return vec3.set(matWorld.elements[12], matWorld.elements[13], matWorld.elements[14])
 }
 
 /**
@@ -257,7 +294,6 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
  */
 
 export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.NONE): Quaternion => {
-  const avatar = getComponent(entity, AvatarComponent)
   const transform = getComponent(entity, TransformComponent)
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
@@ -283,7 +319,6 @@ export const getHandTransform = (
   entity: Entity,
   hand: ParityValue = ParityValue.NONE
 ): { position: Vector3; rotation: Quaternion } => {
-  const transform = getComponent(entity, TransformComponent)
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
     const rigHand: Object3D =
@@ -296,14 +331,13 @@ export const getHandTransform = (
       }
     }
   }
-  const mul = hand === ParityValue.RIGHT ? -1 : 1
+  const bone: BoneNames = hand === ParityValue.RIGHT ? 'RightHand' : 'LeftHand'
+  const { rig } = getComponent(entity, AvatarAnimationComponent)
+  rig[bone].updateWorldMatrix(true, false)
+  rig[bone].matrixWorld.decompose(vec3, quat, v3)
   return {
-    // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
-    position: vec3
-      .set(mul * 0.35, 1, 0)
-      .applyQuaternion(transform.rotation)
-      .add(transform.position),
-    rotation: quat.copy(transform.rotation).multiply(rotate180onY)
+    position: vec3,
+    rotation: quat
   }
 }
 
@@ -317,14 +351,14 @@ export const getHandTransform = (
 export const getHeadTransform = (entity: Entity): { position: Vector3; rotation: Quaternion; scale: Vector3 } => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
-    Engine.camera.matrix.decompose(vec3, quat, v3)
+    Engine.instance.camera.matrix.decompose(vec3, quat, v3)
     return {
       position: vec3,
       rotation: quat,
       scale: uniformScale
     }
   }
-  const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
+  const cameraTransform = getComponent(Engine.instance.activeCameraEntity, TransformComponent)
   return {
     position: cameraTransform.position,
     rotation: cameraTransform.rotation,

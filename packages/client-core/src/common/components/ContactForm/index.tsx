@@ -1,10 +1,12 @@
-import Dialog from '@mui/material/Dialog'
-import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
 import emailjs from 'emailjs-com'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import styles from './ContactForm.module.scss'
+
+import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+
+import styles from './index.module.scss'
 
 export const ContactForm = () => {
   const { t } = useTranslation()

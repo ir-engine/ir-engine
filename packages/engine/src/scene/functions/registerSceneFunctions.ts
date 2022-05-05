@@ -6,143 +6,7 @@ import {
   shouldDeserializeAmbientLight,
   updateAmbientLight
 } from './loaders/AmbientLightFunctions'
-import {
-  deserializeAudioSetting,
-  SCENE_COMPONENT_AUDIO_SETTINGS,
-  serializeAudioSetting
-} from './loaders/AudioSettingFunctions'
-import {
-  deserializeDirectionalLight,
-  prepareDirectionalLightForGLTFExport,
-  SCENE_COMPONENT_DIRECTIONAL_LIGHT,
-  serializeDirectionalLight,
-  updateDirectionalLight
-} from './loaders/DirectionalLightFunctions'
-import { SCENE_COMPONENT_ENVMAP, deserializeEnvMap, serializeEnvMap, updateEnvMap } from './loaders/EnvMapFunctions'
-import { SCENE_COMPONENT_FOG, deserializeFog, serializeFog, updateFog } from './loaders/FogFunctions'
-import {
-  SCENE_COMPONENT_GROUND_PLANE,
-  deserializeGround,
-  serializeGroundPlane,
-  updateGroundPlane,
-  shouldDeserializeGroundPlane,
-  prepareGroundPlaneForGLTFExport
-} from './loaders/GroundPlaneFunctions'
-import { deserializeGroup, SCENE_COMPONENT_GROUP, serializeGroup } from './loaders/GroupFunctions'
-import {
-  SCENE_COMPONENT_HEMISPHERE_LIGHT,
-  deserializeHemisphereLight,
-  serializeHemisphereLight,
-  updateHemisphereLight,
-  shouldDeserializeHemisphereLight
-} from './loaders/HemisphereLightFunctions'
-import {
-  SCENE_COMPONENT_PREVENT_BAKE,
-  deserializePreventBake,
-  serializePreventBake
-} from './loaders/PreventBakeFunctions'
-import {
-  SCENE_COMPONENT_METADATA,
-  deserializeMetaData,
-  serializeMetaData,
-  updateMetaData
-} from './loaders/MetaDataFunctions'
-import { deserializeModel, SCENE_COMPONENT_MODEL, serializeModel, updateModel } from './loaders/ModelFunctions'
-import { SCENE_COMPONENT_PERSIST, deserializePersist, serializePersist } from './loaders/PersistFunctions'
-import {
-  SCENE_COMPONENT_POSTPROCESSING,
-  deserializePostprocessing,
-  serializePostprocessing,
-  updatePostProcessing,
-  shouldDeserializePostprocessing
-} from './loaders/PostprocessingFunctions'
-import {
-  SCENE_COMPONENT_RENDERER_SETTINGS,
-  deserializeRenderSetting,
-  serializeRenderSettings,
-  updateRenderSetting
-} from './loaders/RenderSettingsFunction'
-import {
-  SCENE_COMPONENT_SCENE_PREVIEW_CAMERA,
-  deserializeScenePreviewCamera,
-  serializeScenePreviewCamera,
-  updateScenePreviewCamera,
-  shouldDeserializeScenePreviewCamera
-} from './loaders/ScenePreviewCameraFunctions'
-import { SCENE_COMPONENT_SHADOW, deserializeShadow, serializeShadow, updateShadow } from './loaders/ShadowFunctions'
-import {
-  SCENE_COMPONENT_SIMPLE_MATERIALS,
-  deserializeSimpleMaterial,
-  serializeSimpleMaterial
-} from './loaders/SimpleMaterialFunctions'
-import {
-  SCENE_COMPONENT_SKYBOX,
-  deserializeSkybox,
-  serializeSkybox,
-  updateSkybox,
-  shouldDeserializeSkybox
-} from './loaders/SkyboxFunctions'
-import {
-  SCENE_COMPONENT_SPAWN_POINT,
-  deserializeSpawnPoint,
-  serializeSpawnPoint,
-  prepareSpawnPointForGLTFExport
-} from './loaders/SpawnPointFunctions'
-import { SCENE_COMPONENT_TRANSFORM, deserializeTransform, serializeTransform } from './loaders/TransformFunctions'
-import { SCENE_COMPONENT_VISIBLE, deserializeVisible, serializeVisible } from './loaders/VisibleFunctions'
-import {
-  deserializeLoopAnimation,
-  SCENE_COMPONENT_LOOP_ANIMATION,
-  serializeLoopAnimation,
-  updateLoopAnimation
-} from './loaders/LoopAnimationFunctions'
-import {
-  deserializePointLight,
-  preparePointLightForGLTFExport,
-  SCENE_COMPONENT_POINT_LIGHT,
-  serializePointLight,
-  updatePointLight
-} from './loaders/PointLightFunctions'
-import {
-  deserializeSpotLight,
-  prepareSpotLightForGLTFExport,
-  SCENE_COMPONENT_SPOT_LIGHT,
-  serializeSpotLight,
-  updateSpotLight
-} from './loaders/SpotLightFunctions'
-import { deserializeLink, prepareLinkForGLTFExport, SCENE_COMPONENT_LINK, serializeLink } from './loaders/LinkFunctions'
-import {
-  deserializeParticleEmitter,
-  SCENE_COMPONENT_PARTICLE_EMITTER,
-  serializeParticleEmitter,
-  updateParticleEmitter
-} from './loaders/ParticleEmitterFunctions'
-import {
-  deserializeCameraProperties,
-  SCENE_COMPONENT_CAMERA_PROPERTIES,
-  serializeCameraProperties
-} from './loaders/CameraPropertiesFunctions'
-import { deserializePortal, SCENE_COMPONENT_PORTAL, serializePortal, updatePortal } from './loaders/PortalFunctions'
-import {
-  deserializeTriggerVolume,
-  SCENE_COMPONENT_TRIGGER_VOLUME,
-  serializeTriggerVolume,
-  updateTriggerVolume
-} from './loaders/TriggerVolumeFunctions'
-import { deserializeCollider, SCENE_COMPONENT_COLLIDER, serializeCollider } from './loaders/ColliderFunctions'
-import {
-  deserializeBoxCollider,
-  SCENE_COMPONENT_BOX_COLLIDER,
-  serializeBoxCollider,
-  updateBoxCollider
-} from './loaders/BoxColliderFunctions'
-import {
-  deserializeImage,
-  prepareImageForGLTFExport,
-  SCENE_COMPONENT_IMAGE,
-  serializeImage,
-  updateImage
-} from './loaders/ImageFunctions'
+import { deserializeAsset, SCENE_COMPONENT_ASSET, serializeAsset } from './loaders/AssetComponentFunctions'
 import {
   deserializeAudio,
   prepareAudioForGLTFExport,
@@ -151,13 +15,61 @@ import {
   updateAudio
 } from './loaders/AudioFunctions'
 import {
-  deserializeVideo,
-  prepareVideoForGLTFExport,
-  SCENE_COMPONENT_VIDEO,
-  serializeVideo,
-  updateVideo
-} from './loaders/VideoFunctions'
-import { deserializeMedia, SCENE_COMPONENT_MEDIA, serializeMedia, updateMedia } from './loaders/MediaFunctions'
+  deserializeAudioSetting,
+  SCENE_COMPONENT_AUDIO_SETTINGS,
+  serializeAudioSetting
+} from './loaders/AudioSettingFunctions'
+import {
+  deserializeBoxCollider,
+  SCENE_COMPONENT_BOX_COLLIDER,
+  serializeBoxCollider,
+  updateBoxCollider
+} from './loaders/BoxColliderFunctions'
+import {
+  deserializeCameraProperties,
+  SCENE_COMPONENT_CAMERA_PROPERTIES,
+  serializeCameraProperties
+} from './loaders/CameraPropertiesFunctions'
+import { deserializeCloud, SCENE_COMPONENT_CLOUD, serializeCloud, updateCloud } from './loaders/CloudFunctions'
+import { deserializeCollider, SCENE_COMPONENT_COLLIDER, serializeCollider } from './loaders/ColliderFunctions'
+import {
+  deserializeCubemapBake,
+  SCENE_COMPONENT_CUBEMAP_BAKE,
+  serializeCubemapBake,
+  updateCubemapBake
+} from './loaders/CubemapBakeFunctions'
+import {
+  deserializeDirectionalLight,
+  prepareDirectionalLightForGLTFExport,
+  SCENE_COMPONENT_DIRECTIONAL_LIGHT,
+  serializeDirectionalLight,
+  updateDirectionalLight
+} from './loaders/DirectionalLightFunctions'
+import { deserializeEnvMap, SCENE_COMPONENT_ENVMAP, serializeEnvMap, updateEnvMap } from './loaders/EnvMapFunctions'
+import { deserializeFog, SCENE_COMPONENT_FOG, serializeFog, updateFog } from './loaders/FogFunctions'
+import {
+  deserializeGround,
+  prepareGroundPlaneForGLTFExport,
+  SCENE_COMPONENT_GROUND_PLANE,
+  serializeGroundPlane,
+  shouldDeserializeGroundPlane,
+  updateGroundPlane
+} from './loaders/GroundPlaneFunctions'
+import { deserializeGroup, SCENE_COMPONENT_GROUP, serializeGroup } from './loaders/GroupFunctions'
+import {
+  deserializeHemisphereLight,
+  SCENE_COMPONENT_HEMISPHERE_LIGHT,
+  serializeHemisphereLight,
+  shouldDeserializeHemisphereLight,
+  updateHemisphereLight
+} from './loaders/HemisphereLightFunctions'
+import {
+  deserializeImage,
+  prepareImageForGLTFExport,
+  SCENE_COMPONENT_IMAGE,
+  serializeImage,
+  updateImage
+} from './loaders/ImageFunctions'
 import {
   deserializeInteractable,
   SCENE_COMPONENT_INTERACTABLE,
@@ -165,30 +77,117 @@ import {
   updateInteractable
 } from './loaders/InteractableFunctions'
 import {
+  deserializeInterior,
+  SCENE_COMPONENT_INTERIOR,
+  serializeInterior,
+  updateInterior
+} from './loaders/InteriorFunctions'
+import {
+  deserializeLoopAnimation,
+  SCENE_COMPONENT_LOOP_ANIMATION,
+  serializeLoopAnimation,
+  updateLoopAnimation
+} from './loaders/LoopAnimationFunctions'
+import { deserializeMedia, SCENE_COMPONENT_MEDIA, serializeMedia, updateMedia } from './loaders/MediaFunctions'
+import {
+  deserializeMetaData,
+  SCENE_COMPONENT_METADATA,
+  serializeMetaData,
+  updateMetaData
+} from './loaders/MetaDataFunctions'
+import { deserializeModel, SCENE_COMPONENT_MODEL, serializeModel, updateModel } from './loaders/ModelFunctions'
+import { deserializeOcean, SCENE_COMPONENT_OCEAN, serializeOcean, updateOcean } from './loaders/OceanFunctions'
+import {
+  deserializeParticleEmitter,
+  SCENE_COMPONENT_PARTICLE_EMITTER,
+  serializeParticleEmitter,
+  updateParticleEmitter
+} from './loaders/ParticleEmitterFunctions'
+import { deserializePersist, SCENE_COMPONENT_PERSIST, serializePersist } from './loaders/PersistFunctions'
+import {
+  deserializePointLight,
+  preparePointLightForGLTFExport,
+  SCENE_COMPONENT_POINT_LIGHT,
+  serializePointLight,
+  updatePointLight
+} from './loaders/PointLightFunctions'
+import { deserializePortal, SCENE_COMPONENT_PORTAL, serializePortal, updatePortal } from './loaders/PortalFunctions'
+import {
+  deserializePostprocessing,
+  SCENE_COMPONENT_POSTPROCESSING,
+  serializePostprocessing,
+  shouldDeserializePostprocessing,
+  updatePostprocessing
+} from './loaders/PostprocessingFunctions'
+import {
+  deserializePreventBake,
+  SCENE_COMPONENT_PREVENT_BAKE,
+  serializePreventBake
+} from './loaders/PreventBakeFunctions'
+import {
+  deserializeRenderSetting,
+  SCENE_COMPONENT_RENDERER_SETTINGS,
+  serializeRenderSettings,
+  updateRenderSetting
+} from './loaders/RenderSettingsFunction'
+import {
+  deserializeScenePreviewCamera,
+  SCENE_COMPONENT_SCENE_PREVIEW_CAMERA,
+  serializeScenePreviewCamera,
+  shouldDeserializeScenePreviewCamera,
+  updateScenePreviewCamera
+} from './loaders/ScenePreviewCameraFunctions'
+import { deserializeShadow, SCENE_COMPONENT_SHADOW, serializeShadow, updateShadow } from './loaders/ShadowFunctions'
+import {
+  deserializeSimpleMaterial,
+  SCENE_COMPONENT_SIMPLE_MATERIALS,
+  serializeSimpleMaterial
+} from './loaders/SimpleMaterialFunctions'
+import {
+  deserializeSkybox,
+  SCENE_COMPONENT_SKYBOX,
+  serializeSkybox,
+  shouldDeserializeSkybox,
+  updateSkybox
+} from './loaders/SkyboxFunctions'
+import {
+  deserializeSpawnPoint,
+  prepareSpawnPointForGLTFExport,
+  SCENE_COMPONENT_SPAWN_POINT,
+  serializeSpawnPoint
+} from './loaders/SpawnPointFunctions'
+import { deserializeSpline, SCENE_COMPONENT_SPLINE, serializeSpline, updateSpline } from './loaders/SplineFunctions'
+import {
+  deserializeSpotLight,
+  prepareSpotLightForGLTFExport,
+  SCENE_COMPONENT_SPOT_LIGHT,
+  serializeSpotLight,
+  updateSpotLight
+} from './loaders/SpotLightFunctions'
+import { deserializeSystem, SCENE_COMPONENT_SYSTEM, serializeSystem, updateSystem } from './loaders/SystemFunctions'
+import { deserializeTransform, SCENE_COMPONENT_TRANSFORM, serializeTransform } from './loaders/TransformFunctions'
+import {
+  deserializeTriggerVolume,
+  SCENE_COMPONENT_TRIGGER_VOLUME,
+  serializeTriggerVolume,
+  updateTriggerVolume
+} from './loaders/TriggerVolumeFunctions'
+import {
+  deserializeVideo,
+  prepareVideoForGLTFExport,
+  SCENE_COMPONENT_VIDEO,
+  serializeVideo,
+  updateVideo
+} from './loaders/VideoFunctions'
+import { deserializeVisible, SCENE_COMPONENT_VISIBLE, serializeVisible } from './loaders/VisibleFunctions'
+import {
   deserializeVolumetric,
   prepareVolumetricForGLTFExport,
   SCENE_COMPONENT_VOLUMETRIC,
   serializeVolumetric,
   updateVolumetric
 } from './loaders/VolumetricFunctions'
-import { deserializeCloud, SCENE_COMPONENT_CLOUD, serializeCloud, updateCloud } from './loaders/CloudFunctions'
-import { deserializeOcean, SCENE_COMPONENT_OCEAN, serializeOcean, updateOcean } from './loaders/OceanFunctions'
 import { deserializeWater, SCENE_COMPONENT_WATER, serializeWater, updateWater } from './loaders/WaterFunctions'
-import {
-  deserializeInterior,
-  SCENE_COMPONENT_INTERIOR,
-  serializeInterior,
-  updateInterior
-} from './loaders/InteriorFunctions'
-import { deserializeSystem, SCENE_COMPONENT_SYSTEM, serializeSystem, updateSystem } from './loaders/SystemFunctions'
-import { deserializeSpline, SCENE_COMPONENT_SPLINE, serializeSpline, updateSpline } from './loaders/SplineFunctions'
-import {
-  deserializeCubemapBake,
-  SCENE_COMPONENT_CUBEMAP_BAKE,
-  serializeCubemapBake,
-  shouldDeserializeCubemapBake,
-  updateCubemapBake
-} from './loaders/CubemapBakeFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
 
@@ -305,7 +304,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_POSTPROCESSING, {
     deserialize: deserializePostprocessing,
     serialize: serializePostprocessing,
-    update: updatePostProcessing,
+    update: updatePostprocessing,
     shouldDeserialize: shouldDeserializePostprocessing
   })
 
@@ -340,16 +339,15 @@ export const registerDefaultSceneFunctions = (world: World) => {
     serialize: serializeGroup
   })
 
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_ASSET, {
+    deserialize: deserializeAsset,
+    serialize: serializeAsset
+  })
+
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_LOOP_ANIMATION, {
     deserialize: deserializeLoopAnimation,
     serialize: serializeLoopAnimation,
     update: updateLoopAnimation
-  })
-
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_LINK, {
-    deserialize: deserializeLink,
-    serialize: serializeLink,
-    prepareForGLTFExport: prepareLinkForGLTFExport
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_EMITTER, {
@@ -465,7 +463,6 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_CUBEMAP_BAKE, {
     deserialize: deserializeCubemapBake,
     serialize: serializeCubemapBake,
-    update: updateCubemapBake,
-    shouldDeserialize: shouldDeserializeCubemapBake
+    update: updateCubemapBake
   })
 }

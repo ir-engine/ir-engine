@@ -1,30 +1,36 @@
-import Command, { CommandParams } from './Command'
-import { serializeProperties, serializeObject3DArray } from '../functions/debug'
-import EditorEvents from '../constants/EditorEvents'
-import { CommandManager } from '../managers/CommandManager'
-import arrayShallowEqual from '../functions/arrayShallowEqual'
-import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
+import {
+  ComponentConstructor,
+  ComponentType,
+  getComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
+
+import arrayShallowEqual from '../functions/arrayShallowEqual'
+import { serializeObject3DArray, serializeProperties } from '../functions/debug'
+import { EditorAction } from '../services/EditorServices'
+import { SelectionAction } from '../services/SelectionServices'
+import Command, { CommandParams } from './Command'
 
 type PropertyType = {
   [key: string]: any
 }
 
-export interface ModifyPropertyCommandParams extends CommandParams {
-  properties: PropertyType
-  component: ComponentConstructor<any, any>
+export interface ModifyPropertyCommandParams<C extends ComponentConstructor<any, any>> extends CommandParams {
+  properties: Partial<ComponentType<C>>
+  component: C
 }
 
-export default class ModifyPropertyCommand extends Command {
+export default class ModifyPropertyCommand<C extends ComponentConstructor<any, any>> extends Command {
   properties: PropertyType = {}
 
   component: ComponentConstructor<any, any>
 
   oldProperties?: PropertyType[]
 
-  constructor(objects: EntityTreeNode[], params: ModifyPropertyCommandParams) {
+  constructor(objects: EntityTreeNode[], params: ModifyPropertyCommandParams<C>) {
     super(objects, params)
 
     this.component = params.component
@@ -56,7 +62,7 @@ export default class ModifyPropertyCommand extends Command {
     this.updateProperties(this.affectedObjects, this.properties, this.component)
   }
 
-  shouldUpdate(newCommand: ModifyPropertyCommand): boolean {
+  shouldUpdate(newCommand: ModifyPropertyCommand<any>): boolean {
     return (
       this.component === newCommand.component &&
       arrayShallowEqual(Object.keys(this.properties), Object.keys(newCommand.properties)) &&
@@ -64,7 +70,7 @@ export default class ModifyPropertyCommand extends Command {
     )
   }
 
-  update(command: ModifyPropertyCommand) {
+  update(command: ModifyPropertyCommand<any>) {
     this.properties = command.properties
     this.updateProperties(this.affectedObjects, command.properties, this.component)
   }
@@ -98,6 +104,13 @@ export default class ModifyPropertyCommand extends Command {
             if (value && value.copy) {
               if (!result[finalProp]) result[finalProp] = new value.constructor()
               result[finalProp].copy(value)
+            } else if (
+              value &&
+              typeof result[finalProp] === 'object' &&
+              'set' in result[finalProp] &&
+              typeof result[finalProp].set === 'function'
+            ) {
+              result[finalProp].set(value)
             } else {
               result[finalProp] = value
             }
@@ -112,8 +125,10 @@ export default class ModifyPropertyCommand extends Command {
     }
 
     for (const propertyName of propertyNames) {
-      CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects, propertyName)
+      store.dispatch(SelectionAction.changedObject(this.affectedObjects, propertyName))
     }
+
+    store.dispatch(EditorAction.sceneModified(true))
   }
 
   getNestedObject(object: any, propertyName: string): { result: any; finalProp: string } {

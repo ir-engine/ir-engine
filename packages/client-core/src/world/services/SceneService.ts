@@ -1,29 +1,18 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
 import { createState, useState } from '@speigg/hookstate'
-import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
-//State
-export interface PublicScenesState {
-  scenes: PublicScene[]
-  currentScene: PublicScene
-  error: string
-}
+import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 
-export interface PublicScene {
-  url: string
-  name: string
-  thumbnailUrl?: string
-}
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 
 const state = createState({
-  currentScene: null! as SceneDetailInterface
+  currentScene: null as SceneData | null
 })
 
 store.receptors.push((action: SceneActionType): any => {
   state.batch((s) => {
     switch (action.type) {
-      case 'LOCATION_SCENE_LOADED':
+      case 'SCENE_CHANGED':
         return s.merge({ currentScene: action.sceneData })
     }
   }, action.type)
@@ -34,17 +23,17 @@ export const accessSceneState = () => state
 export const useSceneState = () => useState(state) as any as typeof state
 
 export const SceneService = {
-  getSceneData: async (projectName: string, sceneName: string) => {
-    const sceneData = await client.service('scene').get({ projectName, sceneName })
+  fetchCurrentScene: async (projectName: string, sceneName: string) => {
+    const sceneData = await client.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
     const dispatch = useDispatch()
-    dispatch(SceneAction.sceneLoaded(sceneData.data))
+    dispatch(SceneAction.currentSceneChanged(sceneData.data))
   }
 }
 
 export const SceneAction = {
-  sceneLoaded: (sceneData: SceneDetailInterface) => {
+  currentSceneChanged: (sceneData: SceneData | null) => {
     return {
-      type: 'LOCATION_SCENE_LOADED' as const,
+      type: 'SCENE_CHANGED' as const,
       sceneData
     }
   }

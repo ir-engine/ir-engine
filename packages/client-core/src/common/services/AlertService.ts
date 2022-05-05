@@ -1,6 +1,9 @@
-import { store, useDispatch } from '../../store'
 import { createState, useState } from '@speigg/hookstate'
+
 import { AlertColor } from '@mui/material/Alert'
+
+import { store, useDispatch } from '../../store'
+
 //State
 const state = createState({
   type: 'none' as AlertType,
@@ -32,21 +35,18 @@ if (globalThis.process.env['VITE_ALERT_TIMEOUT']) alertTimeout = parseInt(global
 export const AlertService = {
   alertSuccess: async (message: string) => {
     const dispatch = useDispatch()
-    {
-      dispatch(AlertAction.showAlert('success', message))
-    }
+
+    dispatch(AlertAction.showAlert('success', message))
   },
   alertWarning: async (message: string) => {
     const dispatch = useDispatch()
-    {
-      dispatch(AlertAction.showAlert('warning', message))
-    }
+
+    dispatch(AlertAction.showAlert('warning', message))
   },
   alertError: async (message: string) => {
     const dispatch = useDispatch()
-    {
-      dispatch(AlertAction.showAlert('error', message))
-    }
+
+    dispatch(AlertAction.showAlert('error', message))
   },
   alertCancel: () => {
     useDispatch()(AlertAction.hideAlert())

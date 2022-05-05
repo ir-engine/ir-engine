@@ -1,4 +1,5 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { NetworkTransport } from '../interfaces/NetworkTransport'
 
@@ -22,8 +23,8 @@ export class Network {
   static instance: Network
   /** Object holding transport details over network. */
   transportHandler: NetworkTransportHandler<NetworkTransport, NetworkTransport>
-  /** Object holding transport details over network. */
-  // transport: NetworkTransport
+  /** Transport connection promises */
+  transportsConnectPending = [] as Promise<any>[]
   /** Network transports. */
   transports = [] as any[]
   /** List of data producer nodes. */
@@ -40,3 +41,5 @@ export class Network {
   /** Buffer holding Mediasoup operations */
   mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 }
+
+globalThis.Network = Network

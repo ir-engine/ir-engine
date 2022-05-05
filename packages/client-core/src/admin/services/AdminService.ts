@@ -1,23 +1,25 @@
-import axios from 'axios'
-import { client } from '../../feathers'
-import { AlertService } from '../../common/services/AlertService'
-import { PublicVideo, VideoAction } from '../../media/services/VideoService'
-import { useAuthState } from '../../user/services/AuthService'
-import { useDispatch, store } from '../../store'
 import { createState, useState } from '@speigg/hookstate'
+import axios from 'axios'
+
 import {
-  VideoCreationForm,
-  VideoUpdateForm,
   VideoCreatedResponse,
+  VideoCreationForm,
+  VideoDeletedResponse,
   VideoUpdatedResponse,
-  VideoDeletedResponse
+  VideoUpdateForm
 } from '@xrengine/common/src/interfaces/AdminService'
+
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { PublicVideo, VideoAction } from '../../media/services/VideoService'
+import { store, useDispatch } from '../../store'
+import { useAuthState } from '../../user/services/AuthService'
 
 //State
 export const ADMIN_PAGE_LIMIT = 100
 
 const state = createState({
-  data: {}
+  data: {} as VideoCreatedResponse
 })
 
 store.receptors.push((action: AdminActionType): any => {
@@ -53,48 +55,45 @@ export const AdminService = {
   },
   updateVideo: async (data: VideoUpdateForm) => {
     const dispatch = useDispatch()
-    {
-      client
-        .service('static-resource')
-        .patch(data.id, data)
-        .then((updatedVideo) => {
-          AlertService.dispatchAlertSuccess('Video updated')
-          dispatch(AdminAction.videoUpdated(updatedVideo))
-        })
-    }
+
+    client
+      .service('static-resource')
+      .patch(data.id, data)
+      .then((updatedVideo: VideoUpdatedResponse) => {
+        AlertService.dispatchAlertSuccess('Video updated')
+        dispatch(AdminAction.videoUpdated(updatedVideo))
+      })
   },
   deleteVideo: async (id: string) => {
     const dispatch = useDispatch()
-    {
-      client
-        .service('static-resource')
-        .remove(id)
-        .then((removedVideo) => {
-          AlertService.dispatchAlertSuccess('Video deleted')
-          dispatch(AdminAction.videoDeleted(removedVideo))
-        })
-    }
+
+    client
+      .service('static-resource')
+      .remove(id)
+      .then((removedVideo: VideoUpdatedResponse) => {
+        AlertService.dispatchAlertSuccess('Video deleted')
+        dispatch(AdminAction.videoDeleted(removedVideo))
+      })
   },
   fetchAdminVideos: async () => {
     const dispatch = useDispatch()
-    {
-      client
-        .service('static-resource')
-        .find({
-          query: {
-            $limit: 100,
-            mimeType: 'application/dash+xml'
-          }
-        })
-        .then((res: any) => {
-          for (const video of res.data) {
-            video.metadata = JSON.parse(video.metadata)
-          }
-          const videos = res.data as PublicVideo[]
-          return dispatch(VideoAction.videosFetchedSuccess(videos))
-        })
-        .catch(() => dispatch(VideoAction.videosFetchedError('Failed to fetch videos')))
-    }
+
+    client
+      .service('static-resource')
+      .find({
+        query: {
+          $limit: 100,
+          mimeType: 'application/dash+xml'
+        }
+      })
+      .then((res: any) => {
+        for (const video of res.data) {
+          video.metadata = JSON.parse(video.metadata)
+        }
+        const videos = res.data as PublicVideo[]
+        return dispatch(VideoAction.videosFetchedSuccess(videos))
+      })
+      .catch(() => dispatch(VideoAction.videosFetchedError('Failed to fetch videos')))
   }
 }
 

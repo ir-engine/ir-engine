@@ -1,4 +1,5 @@
 import { Material, SkinnedMesh } from 'three'
+
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { CameraMode } from '../../camera/types/CameraMode'
 import { Entity } from '../../ecs/classes/Entity'
@@ -17,6 +18,7 @@ const setVisible = (entity: Entity, visible: boolean): void => {
         ;(mat as Material).opacity = 0
         ;(mat as Material).transparent = true
       }
+      ;(mat as Material).needsUpdate = true
     }
   })
 }

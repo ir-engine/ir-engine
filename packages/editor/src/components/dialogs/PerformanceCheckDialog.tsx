@@ -1,9 +1,10 @@
-import React, { useContext } from 'react'
-import styled, { ThemeContext } from 'styled-components'
-import Dialog from './Dialog'
-import { bytesToSize } from '../../functions/utils'
 import i18n from 'i18next'
+import React, { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
+import styled, { ThemeContext } from 'styled-components'
+
+import { bytesToSize } from '../../functions/utils'
+import Dialog from './Dialog'
 
 /**
  * ColoredText used to provide color property Dynamically.
@@ -24,8 +25,8 @@ const ColoredText = (styled as any).span`
 const PerformanceItemContainer = (styled as any).li`
   display: flex;
   min-height: 100px;
-  background-color: ${(props) => props.theme.toolbar};
-  border: 1px solid ${(props) => props.theme.panel};
+  background-color: var(--toolbar);
+  border: 1px solid var(--panel);
   border-radius: 4px;
   margin: 4px;
   color: white;
@@ -44,7 +45,7 @@ const PerformanceItemContainer = (styled as any).li`
     flex-direction: column;
     flex: 1;
     padding: 12px;
-    border-left: 1px solid ${(props) => props.theme.panel2};
+    border-left: 1px solid var(--panel2);
   }
 
   h5 {
@@ -57,7 +58,7 @@ const PerformanceItemContainer = (styled as any).li`
 
   a {
     white-space: nowrap;
-    color: ${(props) => props.theme.blue};
+    color: var(--blue);
   }
 
   p {

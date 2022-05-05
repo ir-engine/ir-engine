@@ -1,8 +1,9 @@
-import React from 'react'
-import Dialog from './Dialog'
-import ProgressBar from '../inputs/ProgressBar'
-import styled from 'styled-components'
 import i18n from 'i18next'
+import React from 'react'
+import styled from 'styled-components'
+
+import ProgressBar from '../inputs/ProgressBar'
+import Dialog from './Dialog'
 
 /**
  * ProgressContainer used as a wrapper element for the ProgressMessage and ProgressBar components.
@@ -11,7 +12,7 @@ import i18n from 'i18next'
  * @type {Styled component}
  */
 const ProgressContainer = (styled as any).div`
-  color: ${(props) => props.theme.text2};
+  color: var(--text2);
   display: flex;
   flex: 1;
   flex-direction: column;

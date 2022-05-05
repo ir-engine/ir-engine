@@ -1,8 +1,10 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
 import { createState, useState } from '@speigg/hookstate'
+
 import { StaticResource } from '@xrengine/common/src/interfaces/StaticResource'
 import { StaticResourceResult } from '@xrengine/common/src/interfaces/StaticResourceResult'
+
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 
 //State
 export const USER_PAGE_LIMIT = 100
@@ -40,17 +42,16 @@ export const useStaticResourceState = () => useState(state) as any as typeof sta
 export const staticResourceService = {
   fetchStaticResource: async () => {
     const dispatch = useDispatch()
-    {
-      try {
-        const result = await client.service('static-resource').find({
-          query: {
-            staticResourceType: 'avatar'
-          }
-        })
-        dispatch(StaticResourceAction.fetchedStaticResource(result))
-      } catch (error) {
-        console.error(error)
-      }
+
+    try {
+      const result = await client.service('static-resource').find({
+        query: {
+          staticResourceType: 'avatar'
+        }
+      })
+      dispatch(StaticResourceAction.fetchedStaticResource(result))
+    } catch (error) {
+      console.error(error)
     }
   },
   refetchSingleUserAdmin: async () => {}

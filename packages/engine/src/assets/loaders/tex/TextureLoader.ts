@@ -1,4 +1,5 @@
-import { RGBAFormat, RGBFormat, ImageLoader, ImageBitmapLoader, Texture, Loader, LoadingManager } from 'three'
+import { ImageBitmapLoader, ImageLoader, Loader, LoadingManager, RGBAFormat, Texture } from 'three'
+
 import { isWebWorker } from '../../../common/functions/getEnvironment'
 
 export class TextureLoader extends Loader {
@@ -18,9 +19,6 @@ export class TextureLoader extends Loader {
       url,
       (image) => {
         texture.image = image
-        // JPEGs can't have an alpha channel, so memory can be saved by storing them as RGB.
-        const isJPEG = url.search(/\.jpe?g($|\?)/i) > 0 || url.search(/^data\:image\/jpeg/) === 0
-        texture.format = isJPEG ? RGBFormat : RGBAFormat
         texture.needsUpdate = true
         if (onLoad !== undefined) {
           onLoad(texture)

@@ -1,15 +1,17 @@
 import {
+  CubeTexture,
+  CubeTextureLoader,
   Mesh,
+  Object3D,
   PlaneBufferGeometry,
   ShaderMaterial,
-  CubeTextureLoader,
-  CubeTexture,
   sRGBEncoding,
   Texture,
-  Vector2,
-  Object3D
+  Vector2
 } from 'three'
+
 import { DDSLoader } from '../../assets/loaders/dds/DDSLoader'
+import { Entity } from '../../ecs/classes/Entity'
 import { Object3DWithEntity } from '../components/Object3DComponent'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
@@ -91,8 +93,9 @@ function loadDDS(path): Promise<Texture> {
 export class Interior extends Mesh<PlaneBufferGeometry, ShaderMaterial> {
   _cubePath: string
   _size: Vector2
+  entity: Entity
 
-  constructor() {
+  constructor(entity: Entity) {
     const material = new ShaderMaterial({
       uniforms: {
         cubemap: { value: null },
@@ -108,6 +111,7 @@ export class Interior extends Mesh<PlaneBufferGeometry, ShaderMaterial> {
     super(geometry, material)
 
     this._size = new Vector2(1, 1)
+    this.entity = entity
   }
 
   get _material(): ShaderMaterial {
@@ -132,10 +136,10 @@ export class Interior extends Mesh<PlaneBufferGeometry, ShaderMaterial> {
       .then((texture) => {
         texture.encoding = sRGBEncoding
         this._material.uniforms.cubemap.value = texture
-        removeError((this as Object3D as Object3DWithEntity).entity, 'error')
+        removeError(this.entity, 'error')
       })
       .catch((error) => {
-        addError((this as Object3D as Object3DWithEntity).entity, 'error', error.message)
+        addError(this.entity, 'error', error.message)
       })
   }
 

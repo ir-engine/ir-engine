@@ -1,11 +1,11 @@
 import { Application } from '../../../declarations'
-import { Instance } from './instance.class'
-import createModel from './instance.model'
-import hooks from './instance.hooks'
 import logger from '../../logger'
+import { Instance } from './instance.class'
 import instanceDocs from './instance.docs'
+import hooks from './instance.hooks'
+import createModel from './instance.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     instance: Instance
   }

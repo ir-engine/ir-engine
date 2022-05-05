@@ -6,23 +6,23 @@ import { css } from 'styled-components'
  * @author Robert Long
  */
 export default css`
-  background-color: ${(props) => props.theme.inputBackground};
+  background-color: var(--inputBackground);
   border-radius: 4px;
-  border: 1px solid ${(props) => props.theme.border};
-  color: ${(props) => props.theme.text};
+  border: 1px solid var(--border);
+  color: var(--text);
   height: 24px;
   padding: 6px 8px;
 
   &:hover {
-    border-color: ${(props) => props.theme.blueHover};
+    border-color: var(--blueHover);
   }
 
   &:focus {
-    border-color: ${(props) => props.theme.blue};
+    border-color: var(--blue);
   }
 
   &:disabled {
-    background-color: ${(props) => props.theme.disabled};
-    color: ${(props) => props.theme.disabledText};
+    background-color: var(--disabled);
+    color: var(--disabledText);
   }
 `

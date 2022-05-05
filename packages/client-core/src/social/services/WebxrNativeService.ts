@@ -1,9 +1,10 @@
 /**
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
+import { createState, useState } from '@speigg/hookstate'
+
 import { AlertService } from '../../common/services/AlertService'
 import { useDispatch } from '../../store'
-import { createState, useState } from '@speigg/hookstate'
 import { store } from '../../store'
 
 //State
@@ -30,23 +31,21 @@ export const WebxrNativeService = {
   getWebXrNative: () => {
     console.log('getWebXrNative Service')
     const dispatch = useDispatch()
-    {
-      try {
-        dispatch(WebxrNativeAction.setWebXrNative())
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      dispatch(WebxrNativeAction.setWebXrNative())
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   changeWebXrNative: () => {
     console.log('changeWebXrNative Service')
     const dispatch = useDispatch()
-    {
-      try {
-        dispatch(WebxrNativeAction.tougleWebXrNative())
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      dispatch(WebxrNativeAction.tougleWebXrNative())
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   }
 }

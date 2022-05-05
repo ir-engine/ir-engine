@@ -1,12 +1,17 @@
-import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
-import { Params } from '@feathersjs/feathers'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
 import slugify from 'slugify'
 
-export class Location extends Service {
+import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
+
+import { Application } from '../../../declarations'
+import logger from '../../logger'
+import { UserDataType } from '../../user/user/user.class'
+
+export type LocationDataType = LocationType
+
+export class Location<T = LocationDataType> extends Service<T> {
   app: Application
   docs: any
 
@@ -54,7 +59,7 @@ export class Location extends Service {
         )
       },
       (reason: any) => {
-        console.error(reason)
+        logger.error(reason)
       }
     )
   }
@@ -65,7 +70,7 @@ export class Location extends Service {
    * @param param0 data of instance
    * @author Vyacheslav Solovjov
    */
-  async createInstances({ id, instance }: { id: any; instance: any }): Promise<any> {
+  async createInstances({ id, instance }: { id: any; instance: any }): Promise<void> {
     if (instance) {
       await instance.forEach((element: any) => {
         if (element.id) {
@@ -76,10 +81,10 @@ export class Location extends Service {
                 setTimeout(() => resolve(this.app.services.instance.update(existingInstance.id, element)), 1000)
               ).then(
                 (value: any) => {
-                  console.log(value)
+                  logger.info(value)
                 },
-                (reasone: any) => {
-                  console.error(reasone)
+                (reason: any) => {
+                  logger.error(reason)
                 }
               )
             },
@@ -89,10 +94,10 @@ export class Location extends Service {
                 setTimeout(() => resolve(this.app.services.instance.create(element)), 1000)
               ).then(
                 (value: any) => {
-                  console.log(value)
+                  logger.info(value)
                 },
                 (reasone: any) => {
-                  console.error(reasone)
+                  logger.error(reasone)
                 }
               )
             }
@@ -101,10 +106,10 @@ export class Location extends Service {
           element.locationId = id
           new Promise((resolve) => setTimeout(() => resolve(this.app.services.instance.create(element)), 1000)).then(
             (value: any) => {
-              console.log(value)
+              logger.info(value)
             },
             (reason: any) => {
-              console.error(reason)
+              logger.error(reason)
             }
           )
         }
@@ -119,8 +124,8 @@ export class Location extends Service {
    * @returns {@Array} of all locations
    * @author Vyacheslav Solovjov
    */
-  async find(params: Params): Promise<any> {
-    let { $skip, $limit, $sort, joinableLocations, adminnedLocations, search, ...strippedQuery } = params.query!
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
+    let { $skip, $limit, $sort, joinableLocations, adminnedLocations, search, ...strippedQuery } = params?.query ?? {}
 
     if ($skip == null) $skip = 0
     if ($limit == null) $limit = 10
@@ -128,18 +133,29 @@ export class Location extends Service {
     const order: any[] = []
     if ($sort != null)
       Object.keys($sort).forEach((name, val) => {
-        order.push([name, $sort[name] === -1 ? 'DESC' : 'ASC'])
+        if (name === 'type') {
+          order.push([Sequelize.literal('`location_setting.locationType`'), $sort[name] === 0 ? 'DESC' : 'ASC'])
+        } else if (name === 'instanceMediaChatEnabled') {
+          order.push([
+            Sequelize.literal('`location_setting.instanceMediaChatEnabled`'),
+            $sort[name] === 0 ? 'DESC' : 'ASC'
+          ])
+        } else if (name === 'videoEnabled') {
+          order.push([Sequelize.literal('`location_setting.videoEnabled`'), $sort[name] === 0 ? 'DESC' : 'ASC'])
+        } else {
+          order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
+        }
       })
 
     if (joinableLocations) {
-      const locationResult = await (this.app.service('location') as any).Model.findAndCountAll({
+      const locationResult = await this.app.service('location').Model.findAndCountAll({
         offset: $skip,
         limit: $limit,
         where: strippedQuery,
         order: order,
         include: [
           {
-            model: (this.app.service('instance') as any).Model,
+            model: this.app.service('instance').Model,
             required: false,
             where: {
               currentUsers: {
@@ -149,14 +165,15 @@ export class Location extends Service {
             }
           },
           {
-            model: (this.app.service('location-settings') as any).Model,
+            model: this.app.service('location-settings').Model,
             required: false
           },
           {
-            model: (this.app.service('location-ban') as any).Model,
+            model: this.app.service('location-ban').Model,
             required: false
           }
-        ]
+        ],
+        subQuery: false
       })
       return {
         skip: $skip,
@@ -165,21 +182,21 @@ export class Location extends Service {
         data: locationResult.rows
       }
     } else if (adminnedLocations) {
-      const loggedInUser = extractLoggedInUserFromParams(params)
+      const loggedInUser = params!.user as UserDataType
       const include = [
         {
-          model: (this.app.service('location-settings') as any).Model,
+          model: this.app.service('location-settings').Model,
           required: false
         },
         {
-          model: (this.app.service('location-ban') as any).Model,
+          model: this.app.service('location-ban').Model,
           required: false
         }
       ]
 
       if (loggedInUser.userRole !== 'admin') {
         ;(include as any).push({
-          model: (this.app.service('location-admin') as any).Model,
+          model: this.app.service('location-admin').Model,
           where: {
             userId: loggedInUser.id
           }
@@ -200,12 +217,13 @@ export class Location extends Service {
           ]
         }
       }
-      const locationResult = await (this.app.service('location') as any).Model.findAndCountAll({
+      const locationResult = await this.app.service('location').Model.findAndCountAll({
         offset: $skip,
         limit: $limit,
         where: { ...strippedQuery, ...q },
         order: order,
-        include: include
+        include: include,
+        subQuery: false
       })
       return {
         skip: $skip,
@@ -226,19 +244,19 @@ export class Location extends Service {
    * @returns new location object
    * @author Vyacheslav Solovjov
    */
-  async create(data: LocationType, params: Params): Promise<any> {
+  async create(data: any, params?: Params): Promise<T> {
     const t = await this.app.get('sequelizeClient').transaction()
 
     try {
       // @ts-ignore
       let { location_settings, ...locationData } = data
-      const loggedInUser = extractLoggedInUserFromParams(params)
+      const loggedInUser = params!.user as UserDataType
       locationData.slugifiedName = slugify(locationData.name, { lower: true })
 
-      if (locationData.isLobby) await this.makeLobby(params, t)
+      if (locationData.isLobby) await this.makeLobby(t, params)
 
       const location = await this.Model.create(locationData, { transaction: t })
-      await (this.app.service('location-settings') as any).Model.create(
+      await this.app.service('location-settings').Model.create(
         {
           videoEnabled: !!location_settings.videoEnabled,
           audioEnabled: !!location_settings.audioEnabled,
@@ -253,7 +271,7 @@ export class Location extends Service {
       )
 
       if (loggedInUser) {
-        await (this.app.service('location-admin') as any).Model.create(
+        await this.app.service('location-admin').Model.create(
           {
             locationId: location.id,
             userId: loggedInUser.id
@@ -264,9 +282,9 @@ export class Location extends Service {
 
       await t.commit()
 
-      return location
+      return location as T
     } catch (err) {
-      console.log(err)
+      logger.error(err)
       await t.rollback()
       if (err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('Name is in use.')
@@ -283,7 +301,7 @@ export class Location extends Service {
    * @returns updated location
    * @author Vyacheslav Solovjov
    */
-  async patch(id: string, data: LocationType, params: Params): Promise<any> {
+  async patch(id: string, data: any, params?: Params): Promise<T> {
     const t = await this.app.get('sequelizeClient').transaction()
 
     try {
@@ -293,16 +311,16 @@ export class Location extends Service {
 
       const old = await this.Model.findOne({
         where: { id },
-        include: [(this.app.service('location-settings') as any).Model]
+        include: [this.app.service('location-settings').Model]
       })
       const oldSettings = old.location_setting ?? old.location_settings
 
       if (locationData.name) locationData.slugifiedName = slugify(locationData.name, { lower: true })
-      if (!old.isLobby && locationData.isLobby) await this.makeLobby(params, t)
+      if (!old.isLobby && locationData.isLobby) await this.makeLobby(t, params)
 
       await this.Model.update(locationData, { where: { id }, transaction: t }) // super.patch(id, locationData, params);
 
-      await (this.app.service('location-settings') as any).Model.update(
+      await this.app.service('location-settings').Model.update(
         {
           videoEnabled: !!location_settings.videoEnabled,
           audioEnabled: !!location_settings.audioEnabled,
@@ -318,12 +336,12 @@ export class Location extends Service {
       await t.commit()
       const location = await this.Model.findOne({
         where: { id },
-        include: [(this.app.service('location-settings') as any).Model]
+        include: [this.app.service('location-settings').Model]
       })
 
-      return location
+      return location as T
     } catch (err) {
-      console.log(err)
+      logger.error(err)
       await t.rollback()
       if (err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('That name is already in use')
@@ -340,9 +358,9 @@ export class Location extends Service {
    * @author Vyacheslav Solovjov
    */
 
-  async remove(id: string, params: Params): Promise<any> {
+  async remove(id: string, params?: Params): Promise<T> {
     if (id != null) {
-      const selfUser = extractLoggedInUserFromParams(params)
+      const selfUser = params!.user as UserDataType
       const location = await this.app.service('location').get(id)
       if (location.locationSettingsId != null)
         await this.app.service('location-settings').remove(location.locationSettingsId)
@@ -354,14 +372,14 @@ export class Location extends Service {
           }
         })
       } catch (err) {
-        console.log('Could not remove location-admin')
+        logger.error(err, `Could not remove location-admin: ${err.message}`)
       }
     }
-    return super.remove(id)
+    return (await super.remove(id)) as T
   }
 
-  async makeLobby(params: Params, t): Promise<void> {
-    const selfUser = extractLoggedInUserFromParams(params)
+  async makeLobby(t, params?: Params): Promise<void> {
+    const selfUser = params!.user as UserDataType
 
     if (!selfUser || selfUser.userRole !== 'admin') throw new Error('Only Admin can set Lobby')
 

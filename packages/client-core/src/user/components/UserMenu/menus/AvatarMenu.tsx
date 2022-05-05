@@ -1,26 +1,42 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
+import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
+import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+
+import { Check, Close, Delete, NavigateBefore, NavigateNext, PersonAdd } from '@mui/icons-material'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
-import { NavigateNext, NavigateBefore, Check, PersonAdd, Delete, Close } from '@mui/icons-material'
-import styles from '../UserMenu.module.scss'
-import { useTranslation } from 'react-i18next'
-import { LazyImage } from '../../../../common/components/LazyImage'
-import { Views } from '../util'
-import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 
-const AvatarMenu = (props: any): any => {
+import { LazyImage } from '../../../../common/components/LazyImage'
+import { AuthService, useAuthState } from '../../../services/AuthService'
+import styles from '../index.module.scss'
+import { Views } from '../util'
+
+interface Props {
+  changeActiveMenu: Function
+}
+
+const AvatarMenu = (props: Props) => {
   const MAX_AVATARS_PER_PAGE = 6
   const MIN_AVATARS_PER_PAGE = 5
 
   const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
   const { t } = useTranslation()
 
+  const authState = useAuthState()
+  const avatarId = authState.user?.avatarId?.value
+  const avatarList = authState.avatarList.value
+
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(getAvatarPerPage())
   const [selectedAvatarId, setSelectedAvatarId] = useState('')
   const [isAvatarLoaded, setAvatarLoaded] = useState(false)
-  const [avatarTobeDeleted, setAvatarTobeDeleted] = useState<any>(null!)
+  const [avatarTobeDeleted, setAvatarTobeDeleted] = useState<UserAvatar | null>()
+
   let [menuRadius, setMenuRadius] = useState(window.innerWidth > 360 ? 182 : 150)
 
   let menuPadding = window.innerWidth > 360 ? 15 : 10
@@ -42,19 +58,26 @@ const AvatarMenu = (props: any): any => {
   }) as any)
 
   useEffect(() => {
-    props.fetchAvatarList()
+    AuthService.fetchAvatarList()
   }, [isAvatarLoaded])
 
   useEffect(() => {
-    if (page * imgPerPage >= props.avatarList.length) {
+    if (page * imgPerPage >= authState.avatarList.value.length) {
       if (page === 0) return
       setPage(page - 1)
     }
-  }, [props.avatarList])
+  }, [authState.avatarList.value])
 
   useEffect(() => {
     window.addEventListener('resize', calculateMenuRadius)
   }, [])
+
+  const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
+    if (hasComponent(useWorld().localClientEntity, AvatarEffectComponent)) return
+    if (authState.user?.value) {
+      AuthService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
+    }
+  }
 
   const calculateMenuRadius = (): void => {
     setMenuRadius(window.innerWidth > 360 ? 182 : 150)
@@ -70,7 +93,7 @@ const AvatarMenu = (props: any): any => {
 
   const loadNextAvatars = (e) => {
     e.preventDefault()
-    if ((page + 1) * imgPerPage >= props.avatarList.length) return
+    if ((page + 1) * imgPerPage >= avatarList.length) return
     setPage(page + 1)
   }
   const loadPreviousAvatars = (e) => {
@@ -79,22 +102,17 @@ const AvatarMenu = (props: any): any => {
     setPage(page - 1)
   }
 
-  const selectAvatar = (avatarResources: any) => {
+  const selectAvatar = (avatarResources: UserAvatar) => {
     const avatar = avatarResources.avatar
-    setSelectedAvatarId(avatar.name)
-    if (!isBot(window) && props.avatarId !== avatar.name) {
-      props.setAvatar(avatar.name, avatar.url, avatarResources['user-thumbnail'].url)
+    setSelectedAvatarId(avatar?.name || '')
+    if (avatarId !== avatar?.name) {
+      setAvatar(avatar?.name || '', avatar?.url || '', avatarResources?.userThumbnail?.url || '')
     }
   }
 
   const closeMenu = (e) => {
     e.preventDefault()
     props.changeActiveMenu(null)
-  }
-
-  const openProfileMenu = (e) => {
-    e.preventDefault()
-    props.changeActiveMenu(Views.Profile)
   }
 
   const openAvatarSelectMenu = (e) => {
@@ -109,17 +127,17 @@ const AvatarMenu = (props: any): any => {
 
   const removeAvatar = (e, confirmation) => {
     e.stopPropagation()
-    if (confirmation) {
-      props.removeAvatar([avatarTobeDeleted.avatar.key, avatarTobeDeleted['user-thumbnail'].key])
+    if (confirmation && avatarTobeDeleted?.avatar?.key) {
+      AuthService.removeAvatar(avatarTobeDeleted.avatar.key)
     }
 
     setAvatarTobeDeleted(null)
   }
 
   const renderAvatarList = () => {
-    const avatarList = [] as JSX.Element[]
+    const avatarElementList = [] as JSX.Element[]
     const startIndex = page * imgPerPage
-    const endIndex = Math.min(startIndex + imgPerPage, props.avatarList.length)
+    const endIndex = Math.min(startIndex + imgPerPage, avatarList.length)
     let angle = 0
     let index = 0
     let itemAngle = 0
@@ -133,8 +151,9 @@ const AvatarMenu = (props: any): any => {
       y = effectiveRadius * Math.sin((itemAngle * Math.PI) / 280)
       index++
 
-      avatarList.push(
+      avatarElementList.push(
         <div
+          key={`avatarMenuItem${index}`}
           className={styles.menuItem}
           style={{
             width: menuItemWidth,
@@ -152,18 +171,20 @@ const AvatarMenu = (props: any): any => {
     }
 
     for (let i = startIndex; i < endIndex; i++, index++) {
-      const characterAvatar = props.avatarList[i]
+      const characterAvatar = avatarList[i]!
       itemAngle = angle * index + 270
       x = effectiveRadius * Math.cos((itemAngle * Math.PI) / 280)
       y = effectiveRadius * Math.sin((itemAngle * Math.PI) / 280)
 
-      avatarList.push(
+      const avatar = characterAvatar.avatar!
+
+      avatarElementList.push(
         <Card
-          key={characterAvatar.avatar.id}
+          key={avatar.id}
           className={`
             ${styles.menuItem}
-						${characterAvatar.avatar.name === selectedAvatarId ? styles.selectedAvatar : ''}
-						${characterAvatar.avatar.name === props.avatarId ? styles.activeAvatar : ''}
+						${avatar.name === selectedAvatarId ? styles.selectedAvatar : ''}
+						${avatar.name === avatarId ? styles.activeAvatar : ''}
 					`}
           style={{
             width: menuItemWidth,
@@ -172,13 +193,9 @@ const AvatarMenu = (props: any): any => {
           }}
         >
           <CardContent onClick={() => selectAvatar(characterAvatar)}>
-            <LazyImage
-              key={characterAvatar.avatar.id}
-              src={characterAvatar['user-thumbnail'].url}
-              alt={characterAvatar.avatar.name}
-            />
-            {characterAvatar.avatar.userId ? (
-              avatarTobeDeleted && avatarTobeDeleted.avatar.url === characterAvatar.avatar.url ? (
+            <LazyImage key={avatar.id} src={characterAvatar?.userThumbnail?.url || ''} alt={avatar.name} />
+            {avatar.userId ? (
+              avatarTobeDeleted && avatarTobeDeleted?.avatar?.url === avatar.url ? (
                 <div className={styles.confirmationBlock}>
                   <p>{t('user:usermenu.avatar.confirmation')}</p>
                   <button
@@ -205,9 +222,9 @@ const AvatarMenu = (props: any): any => {
                   type="button"
                   className={styles.deleteBlock}
                   onClick={(e) => setRemovingAvatar(e, characterAvatar)}
-                  disabled={characterAvatar.avatar.name === props.avatarId}
+                  disabled={avatar.name === avatarId}
                   title={
-                    characterAvatar.avatar.name === props.avatarId
+                    avatar.name === avatarId
                       ? t('user:usermenu.avatar.canNotBeRemoved')
                       : t('user:usermenu.avatar.remove')
                   }
@@ -221,7 +238,7 @@ const AvatarMenu = (props: any): any => {
       )
     }
 
-    return avatarList
+    return avatarElementList
   }
 
   return (
@@ -256,9 +273,7 @@ const AvatarMenu = (props: any): any => {
           <div className={styles.itemContainerNext}>
             <button
               type="button"
-              className={`${styles.iconBlock} ${
-                (page + 1) * imgPerPage >= props.avatarList.length ? styles.disabled : ''
-              }`}
+              className={`${styles.iconBlock} ${(page + 1) * imgPerPage >= avatarList.length ? styles.disabled : ''}`}
               onClick={loadNextAvatars}
             >
               <NavigateNext />

@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 import { DataTypes, Sequelize } from 'sequelize'
 
 import appConfig from './appconfig'
+import logger from './logger'
 
 dotenv.config()
 const db = {
@@ -54,15 +55,14 @@ export const refreshAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read serverSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
     })
   promises.push(serverSettingPromise)
   await Promise.all(promises)
 }
 
 export const updateAppConfig = async (): Promise<void> => {
-  if (appConfig.db.forceRefresh || process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD) return
+  if (appConfig.db.forceRefresh || !appConfig.kubernetes.enabled) return
   const sequelizeClient = new Sequelize({
     ...(db as any),
     define: {
@@ -99,8 +99,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read analyticsSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read analyticsSetting: ${e.message}`)
     })
   promises.push(analyticsSettingPromise)
 
@@ -145,18 +144,31 @@ export const updateAppConfig = async (): Promise<void> => {
   const authenticationSettingPromise = authenticationSetting
     .findAll()
     .then(([dbAuthentication]) => {
-      const oauth = JSON.parse(JSON.parse(dbAuthentication.oauth))
+      let oauth = JSON.parse(dbAuthentication.oauth)
+      let authStrategies = JSON.parse(dbAuthentication.authStrategies)
+      let local = JSON.parse(dbAuthentication.local)
+      let jwtOptions = JSON.parse(dbAuthentication.jwtOptions)
+      let bearerToken = JSON.parse(dbAuthentication.bearerToken)
+      let callback = JSON.parse(dbAuthentication.callback)
+
+      if (typeof oauth === 'string') oauth = JSON.parse(oauth)
+      if (typeof authStrategies === 'string') authStrategies = JSON.parse(authStrategies)
+      if (typeof local === 'string') local = JSON.parse(local)
+      if (typeof jwtOptions === 'string') jwtOptions = JSON.parse(jwtOptions)
+      if (typeof bearerToken === 'string') bearerToken = JSON.parse(bearerToken)
+      if (typeof callback === 'string') callback = JSON.parse(callback)
+
       const dbAuthenticationConfig = dbAuthentication && {
         service: dbAuthentication.service,
         entity: dbAuthentication.entity,
         secret: dbAuthentication.secret,
-        authStrategies: JSON.parse(JSON.parse(dbAuthentication.authStrategies)),
-        local: JSON.parse(JSON.parse(dbAuthentication.local)),
-        jwtOptions: JSON.parse(JSON.parse(dbAuthentication.jwtOptions)),
-        bearerToken: JSON.parse(JSON.parse(dbAuthentication.bearerToken)),
-        callback: JSON.parse(JSON.parse(dbAuthentication.callback)),
+        authStrategies: authStrategies,
+        local: local,
+        jwtOptions: jwtOptions,
+        bearerToken: bearerToken,
+        callback: callback,
         oauth: {
-          ...JSON.parse(JSON.parse(dbAuthentication.oauth))
+          ...oauth
         }
       }
       if (dbAuthenticationConfig) {
@@ -181,8 +193,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read authenticationSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read authenticationSetting: ${e.message}`)
     })
   promises.push(authenticationSettingPromise)
 
@@ -211,15 +222,27 @@ export const updateAppConfig = async (): Promise<void> => {
   const promisePromise = awsSetting
     .findAll()
     .then(([dbAws]) => {
+      let keys = JSON.parse(dbAws.keys)
+      let route53 = JSON.parse(dbAws.route53)
+      let s3 = JSON.parse(dbAws.s3)
+      let cloudfront = JSON.parse(dbAws.cloudfront)
+      let sms = JSON.parse(dbAws.sms)
+
+      if (typeof keys === 'string') keys = JSON.parse(keys)
+      if (typeof route53 === 'string') route53 = JSON.parse(route53)
+      if (typeof s3 === 'string') s3 = JSON.parse(s3)
+      if (typeof cloudfront === 'string') cloudfront = JSON.parse(cloudfront)
+      if (typeof sms === 'string') sms = JSON.parse(sms)
+
       const dbAwsConfig = dbAws && {
-        keys: JSON.parse(JSON.parse(dbAws.keys)),
+        keys: keys,
         route53: {
-          ...JSON.parse(JSON.parse(dbAws.route53)),
-          keys: JSON.parse(JSON.parse(JSON.parse(dbAws.route53)).keys)
+          ...route53,
+          keys: JSON.parse(route53.keys)
         },
-        s3: JSON.parse(JSON.parse(dbAws.s3)),
-        cloudfront: JSON.parse(JSON.parse(dbAws.cloudfront)),
-        sms: JSON.parse(JSON.parse(dbAws.sms))
+        s3: s3,
+        cloudfront: cloudfront,
+        sms: sms
       }
       if (dbAwsConfig) {
         appConfig.aws = {
@@ -229,8 +252,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read awsSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read awsSetting: ${e.message}`)
     })
   promises.push(promisePromise)
 
@@ -259,8 +281,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read chargebeeSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read chargebeeSetting: ${e.message}`)
     })
   promises.push(chargebeeSettingPromise)
 
@@ -324,8 +345,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read clientSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read clientSetting: ${e.message}`)
     })
   promises.push(clientSettingPromise)
 
@@ -349,14 +369,20 @@ export const updateAppConfig = async (): Promise<void> => {
   const emailSettingPromise = emailSetting
     .findAll()
     .then(([dbEmail]) => {
+      let smtp = JSON.parse(dbEmail.smtp)
+      let subject = JSON.parse(dbEmail.subject)
+
+      if (typeof smtp === 'string') smtp = JSON.parse(smtp)
+      if (typeof subject === 'string') subject = JSON.parse(subject)
+
       const dbEmailConfig = dbEmail && {
         from: dbEmail.from,
         smsNameCharacterLimit: dbEmail.smsNameCharacterLimit,
         smtp: {
-          ...JSON.parse(JSON.parse(dbEmail.smtp)),
-          auth: JSON.parse(JSON.parse(JSON.parse(dbEmail.smtp)).auth)
+          ...smtp,
+          auth: JSON.parse(smtp.auth)
         },
-        subject: JSON.parse(JSON.parse(dbEmail.subject))
+        subject: subject
       }
       if (dbEmailConfig) {
         appConfig.email = {
@@ -366,8 +392,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read emailSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read emailSetting: ${e.message}`)
     })
   promises.push(emailSettingPromise)
 
@@ -440,8 +465,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read gameServerSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read gameServerSetting: ${e.message}`)
     })
   promises.push(gameServerSettingPromise)
 
@@ -480,8 +504,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read redisSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read redisSetting: ${e.message}`)
     })
   promises.push(redisSettingPromise)
 
@@ -562,6 +585,10 @@ export const updateAppConfig = async (): Promise<void> => {
   const serverSettingPromise = serverSetting
     .findAll()
     .then(([dbServer]) => {
+      let hub = JSON.parse(dbServer.hub)
+
+      if (typeof hub === 'string') hub = JSON.parse(hub)
+
       const dbServerConfig = dbServer && {
         hostname: dbServer.hostname,
         mode: dbServer.mode,
@@ -580,7 +607,7 @@ export const updateAppConfig = async (): Promise<void> => {
         gitPem: dbServer.gitPem,
         local: dbServer.local,
         releaseName: dbServer.releaseName,
-        hub: JSON.parse(JSON.parse(dbServer.hub))
+        hub: hub
       }
       appConfig.server = {
         ...appConfig.server,
@@ -588,8 +615,7 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      console.warn('[updateAppConfig]: Failed to read serverSetting')
-      console.warn(e)
+      logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
     })
   promises.push(serverSettingPromise)
   await Promise.all(promises)

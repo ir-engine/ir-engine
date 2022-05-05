@@ -1,4 +1,6 @@
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { findIndexOfEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+
 import traverseEarlyOut from './traverseEarlyOut'
 
 export function getDetachedObjectsRoots(objects: EntityTreeNode[], target: EntityTreeNode[] = []): EntityTreeNode[] {
@@ -19,7 +21,7 @@ export function getDetachedObjectsRoots(objects: EntityTreeNode[], target: Entit
     }
 
     if (!validCandidate) {
-      const index = target.indexOf(object)
+      const index = findIndexOfEntityNode(target, object)
       if (index === -1) throw new Error('Object not found')
 
       target.splice(index, 1)
@@ -30,6 +32,6 @@ export function getDetachedObjectsRoots(objects: EntityTreeNode[], target: Entit
 }
 
 export const isAncestor = (parent: EntityTreeNode, potentialChild: EntityTreeNode): boolean => {
-  if (parent === potentialChild) return false
-  return traverseEarlyOut(parent, (child) => child === potentialChild)
+  if (parent.entity === potentialChild?.entity) return false
+  return traverseEarlyOut(parent, (child) => child.entity === potentialChild.entity)
 }

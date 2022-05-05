@@ -1,37 +1,44 @@
-import React from 'react'
-import Drawer from '@mui/material/Drawer'
-import Container from '@mui/material/Container'
-import { useGroupStyles, useGroupStyle } from './styles'
-import DialogTitle from '@mui/material/DialogTitle'
-import Paper from '@mui/material/Paper'
-import InputBase from '@mui/material/InputBase'
+import _ from 'lodash'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { GroupScope } from '@xrengine/common/src/interfaces/Group'
+
 import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
-import { formValid } from './validation'
-import Autocomplete from '@mui/material/Autocomplete'
-import { GroupService } from '../../services/GroupService'
-import TextField from '@mui/material/TextField'
-import { useScopeTypeState, ScopeTypeService } from '../../services/ScopeTypeService'
+import DialogTitle from '@mui/material/DialogTitle'
+import Drawer from '@mui/material/Drawer'
+import InputBase from '@mui/material/InputBase'
+import Paper from '@mui/material/Paper'
+
 import { useAuthState } from '../../../user/services/AuthService'
+import AutoComplete from '../../common/AutoComplete'
+import { validateForm } from '../../common/validation/formValidation'
+import { GroupService } from '../../services/GroupService'
+import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
   handleClose: (open: boolean) => void
-  adminGroupState?: any
+  //adminGroupState?: any
+}
+
+interface ScopeData {
+  type: string
 }
 
 const CreateGroup = (props: Props) => {
   const { open, handleClose } = props
-  const classes = useGroupStyles()
-  const classx = useGroupStyle()
   const user = useAuthState().user
   const adminScopeTypeState = useScopeTypeState()
-  const adminScopeTypes = adminScopeTypeState.scopeTypes
+  const { t } = useTranslation()
 
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     name: '',
     description: '',
-    scopeTypes: [] as any[],
+    scopeTypes: [] as GroupScope[],
     formErrors: {
       name: '',
       description: '',
@@ -39,7 +46,7 @@ const CreateGroup = (props: Props) => {
     }
   })
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (adminScopeTypeState.updateNeeded.value && user.id.value) {
       ScopeTypeService.getScopeTypeService()
     }
@@ -48,15 +55,7 @@ const CreateGroup = (props: Props) => {
   const handleChange = (event) => {
     const { name, value } = event.target
     let temp = state.formErrors
-
-    switch (name) {
-      case 'name':
-        temp.name = value.length < 2 ? 'Name is required' : ''
-        break
-      case 'description':
-        temp.description = value.length < 2 ? 'Description is required' : ''
-    }
-
+    temp[name] = value.length < 2 ? `${_.upperFirst(name)} is required` : ''
     setState({ ...state, [name]: value, formErrors: temp })
   }
 
@@ -64,15 +63,10 @@ const CreateGroup = (props: Props) => {
     event.preventDefault()
     const { name, description, scopeTypes } = state
     let temp = state.formErrors
-
-    if (!state.name) {
-      temp.name = "Name can't be empty"
-    }
-    if (!state.description) {
-      temp.description = "Description can't be empty"
-    }
+    temp.name = !state.name ? t('admin:components.group.nameCantEmpty') : ''
+    temp.description = !state.description ? t('admin:components.group.descriptionCantEmpty') : ''
     setState({ ...state, formErrors: temp })
-    if (formValid(state, state.formErrors)) {
+    if (validateForm(state, state.formErrors)) {
       GroupService.createGroupByAdmin({ name, description, scopeTypes })
       setState({
         ...state,
@@ -80,74 +74,59 @@ const CreateGroup = (props: Props) => {
         description: '',
         scopeTypes: []
       })
+      handleClose(false)
     }
-    handleClose(false)
+  }
+
+  const scopeData: ScopeData[] = adminScopeTypeState.scopeTypes.value.map((el) => {
+    return {
+      type: el.type
+    }
+  })
+
+  const handleChangeScopeType = (scope) => {
+    if (scope.length) setState({ ...state, scopeTypes: scope, formErrors: { ...state.formErrors, scopeTypes: '' } })
   }
 
   return (
     <React.Fragment>
-      <Drawer classes={{ paper: classes.paper }} anchor="right" open={open} onClose={() => handleClose(false)}>
-        <Container maxWidth="sm" className={classes.marginTp}>
+      <Drawer classes={{ paper: styles.paperDrawer }} anchor="right" open={open} onClose={() => handleClose(false)}>
+        <Container maxWidth="sm" className={styles.mt20}>
           <form onSubmit={(e) => onSubmitHandler(e)}>
-            <DialogTitle id="form-dialog-title" className={classes.texAlign}>
-              Create New Group
+            <DialogTitle id="form-dialog-title" className={styles.textAlign}>
+              {t('admin:components.group.createNewGroup')}
             </DialogTitle>
-            <label>Name</label>
-            <Paper
-              component="div"
-              className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}
-            >
+            <label>{t('admin:components.group.name')}</label>
+            <Paper component="div" className={state.formErrors.name.length > 0 ? styles.redBorder : styles.createInput}>
               <InputBase
-                className={classes.input}
+                className={styles.input}
                 name="name"
-                placeholder="Enter group name"
+                placeholder={t('admin:components.group.enterGroupName')}
                 style={{ color: '#fff' }}
                 autoComplete="off"
                 value={state.name}
                 onChange={handleChange}
               />
             </Paper>
-            <label>Description</label>
+            <label>{t('admin:components.group.description')}</label>
             <Paper
               component="div"
-              className={state.formErrors.description.length > 0 ? classes.redBorder : classes.createInput}
+              className={state.formErrors.description.length > 0 ? styles.redBorder : styles.createInput}
             >
               <InputBase
-                className={classes.input}
+                className={styles.input}
                 name="description"
-                placeholder="Enter description"
+                placeholder={t('admin:components.group.enterGroupDescription')}
                 style={{ color: '#fff' }}
                 autoComplete="off"
                 value={state.description}
                 onChange={handleChange}
               />
             </Paper>
-
-            <label>Grant access</label>
-            <Paper component="div" className={classes.createInput}>
-              <Autocomplete
-                onChange={(event, value) =>
-                  setState({ ...state, scopeTypes: value, formErrors: { ...state.formErrors, scopeTypes: '' } })
-                }
-                multiple
-                className={classes.selector}
-                classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
-                id="tags-standard"
-                options={adminScopeTypes.value}
-                disableCloseOnSelect
-                filterOptions={(options: any) =>
-                  options.filter(
-                    (option) => state.scopeTypes.find((scopeType) => scopeType.type === option.type) == null
-                  )
-                }
-                getOptionLabel={(option: any) => option.type}
-                renderInput={(params) => <TextField {...params} placeholder="Select access" />}
-              />
-            </Paper>
-
-            <DialogActions className={classes.marginTp}>
-              <Button type="submit" className={classes.saveBtn}>
-                Submit
+            <AutoComplete data={scopeData} label="Grant Scope" handleChangeScopeType={handleChangeScopeType} />
+            <DialogActions className={styles.mt20}>
+              <Button type="submit" className={styles.submitButton}>
+                {t('admin:components.group.submit')}
               </Button>
               <Button
                 onClick={() => {
@@ -159,9 +138,9 @@ const CreateGroup = (props: Props) => {
                   })
                   handleClose(false)
                 }}
-                className={classes.saveBtn}
+                className={styles.cancelButton}
               >
-                Cancel
+                {t('admin:components.group.cancel')}
               </Button>
             </DialogActions>
           </form>

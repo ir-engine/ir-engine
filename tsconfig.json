@@ -12,6 +12,7 @@
     "noEmit": true,
     "module": "CommonJS",
     "strict": false,
+    "strictNullChecks": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -27,9 +28,7 @@
   },
   "exclude": [
     "**/node_modules/**",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.test.js"
+    "./packages/server/upload/**"
   ],
   "include": [
     "./**/*.ts",

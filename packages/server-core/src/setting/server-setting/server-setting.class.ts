@@ -1,7 +1,13 @@
-import { Params, NullableId } from '@feathersjs/feathers'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { NullableId, Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
+import { ServerSetting as ServerSettingInterface } from '@xrengine/common/src/interfaces/ServerSetting'
+
 import { Application } from '../../../declarations'
-export class ServerSetting extends Service {
+
+export type ServerSettingDataType = ServerSettingInterface
+
+export class ServerSetting<T = ServerSettingDataType> extends Service<T> {
   app: Application
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -9,12 +15,16 @@ export class ServerSetting extends Service {
     this.app = app
   }
 
-  async find(params: Params): Promise<any> {
+  async find(): Promise<T[] | Paginated<T>> {
     const serverSetting = (await super.find()) as any
     const data = serverSetting.data.map((el) => {
+      let hub = JSON.parse(el.hub)
+
+      if (typeof hub === 'string') hub = JSON.parse(hub)
+
       return {
         ...el,
-        hub: JSON.parse(JSON.parse(el.hub))
+        hub: hub
       }
     })
 

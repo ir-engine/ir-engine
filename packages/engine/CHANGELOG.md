@@ -11,6 +11,41 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [0.5.2](https://github.com/XRFoundation/XREngine/compare/v0.5.1...v0.5.2) (2022-04-07)
+
+
+### Reverts
+
+* Revert "Fix some interactive system errors while scene is loading" ([126fef5](https://github.com/XRFoundation/XREngine/commit/126fef5e884e4c4cf7087ad0c49d7ba0b90ddca0))
+
+
+
+
+
+
+
+**Note:** Version bump only for package @xrengine/engine
+
+
+
+
+
+
+
+**Note:** Version bump only for package @xrengine/engine
+
+
+
+
+
+
+
+**Note:** Version bump only for package @xrengine/engine
+
+
+
+
+
 
 
 **Note:** Version bump only for package @xrengine/engine

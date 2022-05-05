@@ -1,10 +1,10 @@
 import { Application } from '../../../declarations'
 import { Subscription } from './subscription.class'
-import createModel from './subscription.model'
-import hooks from './subscription.hooks'
 import subscription from './subscription.docs'
+import hooks from './subscription.hooks'
+import createModel from './subscription.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     subscription: Subscription
   }

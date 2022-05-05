@@ -1,11 +1,11 @@
-import CustomOAuthStrategy from './custom-oauth'
 import { Params } from '@feathersjs/feathers'
-import config from '../../appconfig'
+
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
+import CustomOAuthStrategy from './custom-oauth'
 
 export class Googlestrategy extends CustomOAuthStrategy {
-  app: Application
-  constructor(app) {
+  constructor(app: Application) {
     super()
     this.app = app
   }
@@ -28,7 +28,7 @@ export class Googlestrategy extends CustomOAuthStrategy {
     )
     const identityProvider = authResult['identity-provider']
     const user = await this.app.service('user').get(entity.userId)
-    const adminCount = await (this.app.service('user') as any).Model.count({
+    const adminCount = await this.app.service('user').Model.count({
       where: {
         userRole: 'admin'
       }

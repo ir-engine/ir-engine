@@ -1,34 +1,35 @@
+import React from 'react'
+import { useHistory } from 'react-router'
+
 import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/services/AppService'
-import {
-  MediaInstanceConnectionService,
-  useMediaInstanceConnectionState
-} from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import {
   LocationInstanceConnectionService,
   useLocationInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+import {
+  MediaInstanceConnectionService,
+  useMediaInstanceConnectionState
+} from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { UserService, useUserState } from '@xrengine/client-core/src/user/services/UserService'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import React, { useEffect } from 'react'
-import { retriveLocationByName } from './LocationLoadHelper'
+import { useHookEffect } from '@xrengine/hyperflux'
+
+import { getSearchParamFromURL } from '../../util/getSearchParamFromURL'
 import GameServerWarnings from './GameServerWarnings'
-import { usePartyState } from '../../social/services/PartyService'
 
 interface Props {
   locationName: string
 }
 
-export const NetworkInstanceProvisioning = (props: Props) => {
+export const NetworkInstanceProvisioning = () => {
   const authState = useAuthState()
   const selfUser = authState.user
   const userState = useUserState()
@@ -39,26 +40,21 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   const channelConnectionState = useMediaInstanceConnectionState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useEngineState()
+  const history = useHistory()
 
-  // 1. Ensure api server connection in and set up reset listener
-  useEffect(() => {
-    AuthService.doLoginAuto(true)
-  }, [])
-
-  useEffect(() => {
-    const action = async (ev: any) => {
-      if (!ev.instance) return
-      await shutdownEngine()
-      LocationInstanceConnectionService.resetServer()
-      if (!isUserBanned) {
-        retriveLocationByName(authState, props.locationName, history)
-      }
+  useHookEffect(() => {
+    const instanceIdValue = instanceConnectionState.instance.id.value
+    if (instanceIdValue) {
+      const url = new URL(window.location.href)
+      const searchParams = url.searchParams
+      const instanceId = searchParams.get('instanceId')
+      if (instanceId !== instanceIdValue) searchParams.set('instanceId', instanceIdValue)
+      history.push(url.pathname + url.search)
     }
-    if (engineState.socketInstance.value) action({ instance: true })
-  }, [engineState.socketInstance.value])
+  }, [instanceConnectionState.instance.id])
 
   // 2. once we have the location, provision the instance server
-  useEffect(() => {
+  useHookEffect(() => {
     const currentLocation = locationState.currentLocation.location
 
     if (currentLocation.id?.value) {
@@ -74,7 +70,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
         LocationInstanceConnectionService.provisionServer(
           currentLocation.id.value,
           instanceId || undefined,
-          locationState.currentLocation.location.sceneId.value
+          currentLocation.sceneId.value
         )
       }
     } else {
@@ -82,10 +78,10 @@ export const NetworkInstanceProvisioning = (props: Props) => {
         dispatch(AppAction.setAppSpecificOnBoardingStep(GeneralStateList.FAILED, false))
       }
     }
-  }, [locationState.currentLocation.location.value])
+  }, [locationState.currentLocation.location])
 
   // 3. once engine is initialised and the server is provisioned, connect the the instance server
-  useEffect(() => {
+  useHookEffect(() => {
     if (
       engineState.isEngineInitialized.value &&
       !instanceConnectionState.connected.value &&
@@ -94,31 +90,31 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     )
       LocationInstanceConnectionService.connectToServer()
   }, [
-    engineState.isEngineInitialized.value,
-    instanceConnectionState.connected.value,
-    instanceConnectionState.connecting.value,
-    instanceConnectionState.provisioned.value
+    engineState.isEngineInitialized,
+    instanceConnectionState.connected,
+    instanceConnectionState.connecting,
+    instanceConnectionState.provisioned
   ])
 
-  useEffect(() => {
+  useHookEffect(() => {
+    const transportRequestData = {
+      inviteCode: getSearchParamFromURL('inviteCode')!
+    }
+    console.log(
+      'engineState.connectedWorld.value && engineState.sceneLoaded.value',
+      engineState.connectedWorld.value,
+      engineState.sceneLoaded.value
+    )
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
       Network.instance.transportHandler
         .getWorldTransport()
-        .request(MessageTypes.JoinWorld.toString())
+        .request(MessageTypes.JoinWorld.toString(), transportRequestData)
         .then(receiveJoinWorld)
     }
-  }, [engineState.connectedWorld.value, engineState.sceneLoaded.value])
-
-  useEffect(() => {
-    if (engineState.joinedWorld.value) {
-      if (engineState.isTeleporting.value) dispatchLocal(EngineActions.setTeleporting(null!))
-      dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
-      dispatch(AppAction.setAppLoaded(true))
-    }
-  }, [engineState.joinedWorld.value])
+  }, [engineState.connectedWorld, engineState.sceneLoaded])
 
   // channel server provisioning (if needed)
-  useEffect(() => {
+  useHookEffect(() => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
       const instanceChannel = Object.values(channels).find(
@@ -126,15 +122,15 @@ export const NetworkInstanceProvisioning = (props: Props) => {
       )
       MediaInstanceConnectionService.provisionServer(instanceChannel?.id, true)
     }
-  }, [chatState.instanceChannelFetched.value])
+  }, [chatState.instanceChannelFetched])
 
   // periodically listening for users spatially near
-  useEffect(() => {
+  useHookEffect(() => {
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value) UserService.getLayerUsers(true)
-  }, [selfUser, userState.layerUsersUpdateNeeded.value])
+  }, [selfUser?.instanceId, userState.layerUsersUpdateNeeded])
 
   // if a media connection has been provisioned and is ready, connect to it
-  useEffect(() => {
+  useHookEffect(() => {
     if (
       channelConnectionState.provisioned.value === true &&
       channelConnectionState.updateNeeded.value === true &&
@@ -146,13 +142,13 @@ export const NetworkInstanceProvisioning = (props: Props) => {
       MediaStreamService.updateCamAudioState()
     }
   }, [
-    channelConnectionState.connected.value,
-    channelConnectionState.updateNeeded.value,
-    channelConnectionState.provisioned.value,
-    channelConnectionState.connecting.value
+    channelConnectionState.connected,
+    channelConnectionState.updateNeeded,
+    channelConnectionState.provisioned,
+    channelConnectionState.connecting
   ])
 
-  return <GameServerWarnings locationName={props.locationName} />
+  return <GameServerWarnings />
 }
 
 export default NetworkInstanceProvisioning

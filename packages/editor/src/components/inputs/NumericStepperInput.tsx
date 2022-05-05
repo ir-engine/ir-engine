@@ -1,9 +1,11 @@
 import React from 'react'
-import NumericInput from './NumericInput'
 import styled from 'styled-components'
+
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+
 import { InfoTooltip } from '../layout/Tooltip'
+import NumericInput from './NumericInput'
 
 /**
  *
@@ -30,10 +32,10 @@ const StepperButton = (styled as any).button`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: ${(props) => (props.value ? props.theme.blue : props.theme.toolbar)};
+  background-color: ${(props) => (props.value ? 'var(--blue)' : 'var(--toolbar)')};
 
-  border: 1px solid ${(props) => props.theme.border};
-  color: ${(props) => props.theme.text};
+  border: 1px solid var(--border);
+  color: var(--text);
 
   width: 20px;
   padding: 0;
@@ -44,11 +46,11 @@ const StepperButton = (styled as any).button`
       : `border-top-right-radius: 4px; border-bottom-right-radius: 4px;`}
 
   :hover {
-    background-color: ${(props) => props.theme.blueHover};
+    background-color: var(--blueHover);
   }
 
   :active {
-    background-color: ${(props) => props.theme.blue};
+    background-color: var(--blue);
   }
 `
 
@@ -78,13 +80,13 @@ export function NumericStepperInput({
 
   return (
     <StepperInputContainer style={style} className={className}>
-      <InfoTooltip info={decrementTooltip} position="bottom">
+      <InfoTooltip title={decrementTooltip} placement="bottom">
         <StepperButton left onClick={onDecrement}>
           <ArrowLeftIcon fontSize="small" />
         </StepperButton>
       </InfoTooltip>
       <NumericInput {...rest} onChange={onChange} value={value} mediumStep={mediumStep} />
-      <InfoTooltip info={incrementTooltip} position="bottom">
+      <InfoTooltip title={incrementTooltip} placement="bottom">
         <StepperButton right onClick={onIncrement}>
           <ArrowRightIcon fontSize="small" />
         </StepperButton>

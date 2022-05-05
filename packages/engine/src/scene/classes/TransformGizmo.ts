@@ -1,5 +1,6 @@
-import { Color, Object3D, Raycaster, Vector3, Intersection, Mesh, MeshStandardMaterial, Vector2 } from 'three'
-import { LoadGLTF } from '../../assets/functions/LoadGLTF'
+import { Color, Intersection, Mesh, MeshStandardMaterial, Object3D, Raycaster, Vector2, Vector3 } from 'three'
+
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import {
@@ -63,7 +64,7 @@ export default class TransformGizmo extends Object3D {
 
   static async load() {
     if (gizmoGltf) return Promise.resolve(gizmoGltf)
-    gizmoGltf = await LoadGLTF(GLTF_PATH)
+    gizmoGltf = await AssetLoader.loadAsync(GLTF_PATH)
     return gizmoGltf
   }
 
@@ -299,7 +300,7 @@ export default class TransformGizmo extends Object3D {
     this.scaleXZPlane.visible = visible
   }
 
-  raycastAxis(target: Vector2, camera = Engine.camera): Intersection<Object3D> | undefined {
+  raycastAxis(target: Vector2, camera = Engine.instance.camera): Intersection<Object3D> | undefined {
     if (!this.activeControls) return
 
     this.raycasterResults.length = 0
@@ -310,7 +311,7 @@ export default class TransformGizmo extends Object3D {
       .find((result) => (result.object as MeshWithAxisInfo).axisInfo !== undefined)
   }
 
-  selectAxisWithRaycaster(target: Vector2, camera = Engine.camera): TransformAxisType | undefined {
+  selectAxisWithRaycaster(target: Vector2, camera = Engine.instance.camera): TransformAxisType | undefined {
     this.deselectAxis()
 
     const axisResult = this.raycastAxis(target, camera)
@@ -328,7 +329,7 @@ export default class TransformGizmo extends Object3D {
     return newAxisInfo.axis
   }
 
-  highlightHoveredAxis(target: Vector2, camera = Engine.camera): void {
+  highlightHoveredAxis(target: Vector2, camera = Engine.instance.camera): void {
     if (!this.activeControls) return
     if (this.hoveredAxis) this.hoveredAxis.axisInfo.selectionColorTarget.opacity = 0.5
 

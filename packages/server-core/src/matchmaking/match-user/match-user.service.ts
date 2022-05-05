@@ -1,10 +1,10 @@
 import { Application } from '../../../declarations'
 import { MatchUser } from './match-user.class'
-import hooks from './match-user.hooks'
 import matchUserDocs from './match-user.docs'
+import hooks from './match-user.hooks'
 import createModel from './match-user.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'match-user': MatchUser
   }

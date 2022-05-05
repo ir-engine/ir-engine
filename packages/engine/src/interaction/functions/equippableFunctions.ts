@@ -1,10 +1,10 @@
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { ParityValue } from '../../common/enums/ParityValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
@@ -33,14 +33,15 @@ export const unequipEntity = (equipperEntity: Entity): void => {
 }
 
 const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
-  const world = useWorld()
-  if (Engine.userId === world.hostId) return
+  const world = Engine.instance.currentWorld
+  if (Engine.instance.userId === world.hostId) return
 
   const equippedComponent = getComponent(equippedEntity, EquippedComponent)
   const attachmentPoint = equippedComponent.attachmentPoint
   const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
 
-  dispatchFrom(Engine.userId, () =>
+  dispatchAction(
+    world.store,
     NetworkWorldAction.setEquippedObject({
       object: {
         ownerId: networkComponet.ownerId,
@@ -49,7 +50,7 @@ const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
       attachmentPoint: attachmentPoint,
       equip: equip
     })
-  ).cache()
+  )
 }
 
 export const changeHand = (equipperEntity: Entity, attachmentPoint: EquippableAttachmentPoint): void => {

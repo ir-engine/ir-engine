@@ -1,23 +1,26 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
 import { Id, Params } from '@feathersjs/feathers'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import appRootPath from 'app-root-path'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import fs from 'fs'
 import path from 'path'
+
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-import { getGitData } from '../../util/getGitData'
-import { useGit } from '../../util/gitHelperFunctions'
-import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
-import appRootPath from 'app-root-path'
 import templateProjectJson from '@xrengine/projects/template-project/package.json'
+
+import { Application } from '../../../declarations'
+import config from '../../appconfig'
+import logger from '../../logger'
+import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
-import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
-import config from '../../appconfig'
-import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
-import { getProjectConfig, onProjectEvent } from './project-helper'
+import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
+import { getGitData } from '../../util/getGitData'
+import { useGit } from '../../util/gitHelperFunctions'
 import { getAuthenticatedRepo } from '../githubapp/githubapp-helper'
+import { getProjectConfig, onProjectEvent } from './project-helper'
 
 const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
 
@@ -56,7 +59,7 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string) =
  */
 export const uploadLocalProjectToProvider = async (projectName, remove = true) => {
   // remove exiting storage provider files
-  console.log('uploadLocalProjectToProvider for project', projectName, 'started at ', new Date())
+  logger.info(`uploadLocalProjectToProvider for project "${projectName}" started at "${new Date()}".`)
   if (remove) {
     await deleteProjectFilesInStorageProvider(projectName)
   }
@@ -76,15 +79,15 @@ export const uploadLocalProjectToProvider = async (projectName, remove = true) =
               ContentType: getContentType(file),
               Key: `projects/${projectName}${filePathRelative}`
             })
-            resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`, storageProvider.cacheDomain))
+            resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`, storageProvider.cacheDomain, true))
           } catch (e) {
-            console.log(e)
+            logger.error(e)
             resolve(null)
           }
         })
       })
   )
-  console.log('uploadLocalProjectToProvider for project', projectName, 'ended at', new Date())
+  logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   return results.filter((success) => !!success) as string[]
 }
 
@@ -95,10 +98,27 @@ export class Project extends Service {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
+
+    this.app.isSetup.then(() => this._callOnLoad())
+  }
+
+  async _callOnLoad() {
+    const projects = (
+      (await super.find({
+        query: { $select: ['name'] }
+      })) as any
+    ).data as Array<{ name }>
+    await Promise.all(
+      projects.map(async ({ name }) => {
+        if (!fs.existsSync(path.join(projectsRootFolder, name))) return
+        const config = await getProjectConfig(name)
+        if (config?.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onLoad')
+      })
+    )
   }
 
   async _seedProject(projectName: string): Promise<any> {
-    console.warn('[Projects]: Found new locally installed project', projectName)
+    logger.warn('[Projects]: Found new locally installed project: ' + projectName)
     const projectConfig = (await getProjectConfig(projectName)) ?? {}
     await super.create({
       thumbnail: projectConfig.thumbnail,
@@ -110,6 +130,7 @@ export class Project extends Service {
     if (projectConfig.onEvent) {
       return onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
     }
+
     return Promise.resolve()
   }
 
@@ -136,7 +157,7 @@ export class Project extends Service {
         try {
           promises.push(this._seedProject(projectName))
         } catch (e) {
-          console.log(e)
+          logger.error(e)
         }
       }
 
@@ -144,28 +165,29 @@ export class Project extends Service {
     }
 
     await Promise.all(promises)
+    await this._callOnLoad()
 
     for (const { name, id } of data) {
       if (!locallyInstalledProjects.includes(name)) {
-        console.warn(`[Projects]: Project ${name} not found, assuming removed`)
+        await deleteProjectFilesInStorageProvider(name)
+        logger.warn(`[Projects]: Project ${name} not found, assuming removed`)
         await super.remove(id)
       }
     }
   }
 
-  async create(data: { name: string }, params: Params) {
+  async create(data: { name: string }, params?: Params) {
     const projectName = cleanString(data.name)
+    const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
 
-    if (fs.existsSync(path.resolve(projectsRootFolder, projectName)))
+    if (fs.existsSync(projectLocalDirectory))
       throw new Error(`[Projects]: Project with name ${projectName} already exists`)
 
     if ((!config.db.forceRefresh && projectName === 'default-project') || projectName === 'template-project')
       throw new Error(`[Projects]: Project name ${projectName} not allowed`)
 
-    const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
-
     copyFolderRecursiveSync(templateFolderDirectory, projectsRootFolder)
-    fs.renameSync(path.resolve(projectsRootFolder, 'template-project'), path.resolve(projectsRootFolder, projectName))
+    fs.renameSync(path.resolve(projectsRootFolder, 'template-project'), projectLocalDirectory)
 
     fs.mkdirSync(path.resolve(projectLocalDirectory, '.git'), { recursive: true })
 
@@ -173,7 +195,7 @@ export class Project extends Service {
     try {
       await git.init(true)
     } catch (e) {
-      console.warn(e)
+      logger.warn(e)
     }
 
     const packageData = Object.assign({}, templateProjectJson) as any
@@ -199,7 +221,7 @@ export class Project extends Service {
    * @returns
    */
   // @ts-ignore
-  async update(data: { url: string }, params: Params) {
+  async update(data: { url: string }, params?: Params) {
     if (data.url === 'default-project') {
       copyDefaultProject()
       await uploadLocalProjectToProvider('default-project', true)
@@ -209,8 +231,8 @@ export class Project extends Service {
     const urlParts = data.url.split('/')
     let projectName = urlParts.pop()
     if (!projectName) throw new Error('Git repo must be plain URL')
-    if (projectName.substr(-4) === '.git') projectName = projectName.slice(0, -4)
-    if (projectName.substr(-1) === '/') projectName = projectName.slice(0, -1)
+    if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
+    if (projectName.substring(projectName.length - 1) === '/') projectName = projectName.slice(0, -1)
 
     const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
 
@@ -261,10 +283,11 @@ export class Project extends Service {
    * downloads file from storage provider to project
    *   OR
    * uploads project to the storage provider
-   * @param app
+   * @param projectName The name of the project
+   * @param data The names of the files in the project
    * @returns
    */
-  async patch(projectName: string, data: { files: string[] }, params: Params) {
+  async patch(projectName: string, data: { files: string[] }, params?: Params) {
     const projectConfig = await getProjectConfig(projectName)
     if (!projectConfig) return
 
@@ -283,7 +306,7 @@ export class Project extends Service {
             if (!fs.existsSync(path.dirname(metadataPath)))
               fs.mkdirSync(path.dirname(metadataPath), { recursive: true })
             fs.writeFileSync(metadataPath, fileResult.Body)
-            resolve(getCachedAsset(filePath, storageProvider.cacheDomain))
+            resolve(getCachedAsset(filePath, storageProvider.cacheDomain, params && params.provider == null))
           })
         )
       }
@@ -293,7 +316,7 @@ export class Project extends Service {
     }
   }
 
-  async remove(id: Id, params: Params) {
+  async remove(id: Id, params?: Params) {
     if (id) {
       try {
         const { name } = await super.get(id, params)
@@ -305,17 +328,21 @@ export class Project extends Service {
           await onProjectEvent(this.app, name, projectConfig.onEvent, 'onUninstall')
         }
 
-        console.log('[Projects]: removing project', id, name)
+        if (fs.existsSync(path.resolve(projectsRootFolder, name))) {
+          fs.rmSync(path.resolve(projectsRootFolder, name), { recursive: true })
+        }
+
+        logger.info(`[Projects]: removing project id "${id}", name: "${name}".`)
         await deleteProjectFilesInStorageProvider(name)
         await super.remove(id, params)
       } catch (e) {
-        console.log(`[Projects]: failed to remove project ${id}`, e)
+        logger.error(e, `[Projects]: failed to remove project "${id}": ${e.message}`)
         return e
       }
     }
   }
 
-  async get(name: string, params: Params): Promise<{ data: ProjectInterface }> {
+  async get(name: string, params?: Params): Promise<{ data: ProjectInterface }> {
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     const project = data.find((e) => e.name === name)
     if (!project) return null!
@@ -324,8 +351,20 @@ export class Project extends Service {
     }
   }
 
+  async updateSettings(id: Id, data: { settings: string }) {
+    return super.patch(id, data)
+  }
+
   //@ts-ignore
-  async find(params: Params): Promise<{ data: ProjectInterface[] }> {
+  async find(params?: Params): Promise<{ data: ProjectInterface[] }> {
+    params = {
+      ...params,
+      query: {
+        ...params?.query,
+        $select: params?.query?.$select || ['id', 'name', 'thumbnail', 'repositoryPath', 'storageProviderPath']
+      }
+    }
+
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     return {
       data

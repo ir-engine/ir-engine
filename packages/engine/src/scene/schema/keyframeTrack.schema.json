@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "keyframeTrack.schema.json",
+  "title": "keyframeTrack",
+  "type": "object",
+  "description": "serialization of threejs KeyframeTrack class",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "name": { "type": "string" },
+    "times": {
+      "type": "array",
+      "items": { "type": "number" }
+    },
+    "values": {
+      "type": "array",
+      "items": { "type": "number" }
+    },
+    "ValueTypeName": { "type": "string" },
+    "TimeBufferType": {
+      "type": "array",
+      "items": { "type": "number" }
+    },
+    "ValueBufferType": {
+      "type": "array",
+      "items": { "type": "number" }
+    },
+    "DefaultInterpolation": {
+      "type": "integer",
+      "anyOf": [
+        {
+          "const": 0,
+          "description": "InterpolationDiscrete"
+        },
+        {
+          "const": 1,
+          "description": "InterpolationLinear"
+        },
+        {
+          "const": 2,
+          "description": "InterpolationSmooth"
+        }
+      ]
+    }
+  },
+  "extensions": {},
+  "extras": {}
+}

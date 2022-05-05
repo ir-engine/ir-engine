@@ -1,9 +1,12 @@
-import { DataTypes, Sequelize } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { GroupUserInterface } from '@xrengine/common/src/dbmodels/GroupUser'
+
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const groupUser = sequelizeClient.define(
+  const groupUser = sequelizeClient.define<Model<GroupUserInterface>>(
     'group_user',
     {
       id: {

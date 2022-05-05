@@ -1,4 +1,7 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { UserSetting } from '@xrengine/common/src/interfaces/User'
+
 import { Application } from '../../../declarations'
 
 /**
@@ -9,7 +12,7 @@ import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const UserSettings = sequelizeClient.define(
+  const UserSettings = sequelizeClient.define<Model<UserSetting>>(
     'user_settings',
     {
       id: {
@@ -29,6 +32,11 @@ export default (app: Application) => {
       spatialAudioEnabled: {
         type: DataTypes.BOOLEAN,
         defaultValue: true
+      },
+      themeMode: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: (): string => 'dark'
       }
     },
     {

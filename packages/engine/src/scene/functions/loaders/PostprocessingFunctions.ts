@@ -1,22 +1,23 @@
-import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '../../components/Object3DComponent'
-import { isClient } from '@xrengine/engine/src/common/functions/isClient'
-import { PostprocessingComponent, PostprocessingComponentType } from '../../components/PostprocessingComponent'
 import { Object3D } from 'three'
-import { configureEffectComposer } from '../../../renderer/functions/configureEffectComposer'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { isClient } from '@xrengine/engine/src/common/functions/isClient'
+
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { Engine } from '../../../ecs/classes/Engine'
-import { defaultPostProcessingSchema } from '../../constants/PostProcessing'
-import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
+import { configureEffectComposer } from '../../../renderer/functions/configureEffectComposer'
 import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
+import { PostprocessingComponent, PostprocessingComponentType } from '../../components/PostprocessingComponent'
+import { defaultPostProcessingSchema } from '../../constants/PostProcessing'
 
 export const SCENE_COMPONENT_POSTPROCESSING = 'postprocessing'
 export const SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES = {
@@ -29,14 +30,14 @@ export const deserializePostprocessing: ComponentDeserializeFunction = async fun
 ): Promise<void> {
   if (!isClient) return
 
-  addComponent(entity, PostprocessingComponent, json.props)
+  addComponent(entity, PostprocessingComponent, parsePostprocessingProperties(json.props))
   addComponent(entity, DisableTransformTagComponent, {})
   addComponent(entity, IgnoreRaycastTagComponent, {})
   addComponent(entity, Object3DComponent, { value: new Object3D() })
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POSTPROCESSING)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POSTPROCESSING)
 }
 
-export const updatePostProcessing: ComponentUpdateFunction = (_: Entity) => {
+export const updatePostprocessing: ComponentUpdateFunction = (_: Entity) => {
   configureEffectComposer()
 }
 
@@ -54,4 +55,17 @@ export const serializePostprocessing: ComponentSerializeFunction = (entity) => {
 
 export const shouldDeserializePostprocessing: ComponentShouldDeserializeFunction = () => {
   return getComponentCountOfType(PostprocessingComponent) <= 0
+}
+
+const parsePostprocessingProperties = (props): PostprocessingComponentType => {
+  return {
+    options: Object.assign(
+      {},
+      ...Object.keys(SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES.options).map((k) => {
+        return {
+          [k]: props.options[k] ?? SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES.options[k]
+        }
+      })
+    )
+  }
 }

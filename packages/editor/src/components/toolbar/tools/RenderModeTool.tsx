@@ -1,16 +1,19 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback } from 'react'
+
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { RenderModesType } from '@xrengine/engine/src/renderer/constants/RenderModes'
+import { RenderModes } from '@xrengine/engine/src/renderer/constants/RenderModes'
+import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
-import { CommandManager } from '../../../managers/CommandManager'
-import EditorEvents from '../../../constants/EditorEvents'
+
 import SelectInput from '../../inputs/SelectInput'
-import * as styles from '../styles.module.scss'
-import { RenderModes, RenderModesType } from '../../../constants/RenderModes'
-import { SceneManager } from '../../../managers/SceneManager'
 import { InfoTooltip } from '../../layout/Tooltip'
+import * as styles from '../styles.module.scss'
 
 const RenderModeTool = () => {
-  const [renderMode, setRenderMode] = useState<RenderModesType>(RenderModes.SHADOW)
-
+  const engineRendererState = useEngineRendererState()
   const options = [] as { label: string; value: string }[]
 
   for (let key of Object.keys(RenderModes)) {
@@ -20,29 +23,23 @@ const RenderModeTool = () => {
     })
   }
 
-  useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.RENDER_MODE_CHANGED.toString(), changeRenderMode)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.RENDER_MODE_CHANGED.toString(), changeRenderMode)
-    }
+  const onChangeRenderMode = useCallback((mode: RenderModesType) => {
+    dispatchAction(Engine.instance.store, EngineRendererAction.changedRenderMode(mode))
   }, [])
-
-  const onChangeRenderMode = useCallback((mode) => SceneManager.instance.changeRenderMode(mode), [])
-  const changeRenderMode = useCallback(() => setRenderMode(SceneManager.instance.renderMode), [])
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-pivot">
-      <InfoTooltip info="Render Mode">
+      <InfoTooltip title="Render Mode">
         <div className={styles.toolIcon}>
           <WbSunnyOutlinedIcon fontSize="small" />
         </div>
       </InfoTooltip>
       <SelectInput
+        key={engineRendererState.renderMode.value}
         className={styles.selectInput}
         onChange={onChangeRenderMode}
         options={options}
-        value={renderMode}
+        value={engineRendererState.renderMode.value}
         creatable={false}
         isSearchable={false}
       />

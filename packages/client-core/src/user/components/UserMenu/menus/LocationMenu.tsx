@@ -1,23 +1,31 @@
+import { Paginated } from '@feathersjs/feathers'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Typography from '@mui/material/Typography'
+
+import { Location, LocationSeed } from '@xrengine/common/src/interfaces/Location'
+
 import AddIcon from '@mui/icons-material/Add'
 import SearchIcon from '@mui/icons-material/Search'
+import Button from '@mui/material/Button'
+import InputAdornment from '@mui/material/InputAdornment'
 import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
-import TableBody from '@mui/material/TableBody'
-import TableRow from '@mui/material/TableRow'
-import Button from '@mui/material/Button'
-import TextField from '@mui/material/TextField'
 import TablePagination from '@mui/material/TablePagination'
-import InputAdornment from '@mui/material/InputAdornment'
-import { client } from '../../../../feathers'
-import styles from '../UserMenu.module.scss'
+import TableRow from '@mui/material/TableRow'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
 
-const LocationMenu = ({ changeActiveLocation }) => {
+import { client } from '../../../../feathers'
+import styles from '../index.module.scss'
+
+interface Props {
+  changeActiveLocation: (location: Location) => void
+}
+const LocationMenu = (props: Props) => {
   const [page, setPage] = useState(0)
-  const [locationDetails, setLocationsDetails] = useState<any>(null!)
+  const [locationDetails, setLocationsDetails] = useState<Paginated<Location>>(null!)
   const ROWS_PER_PAGE = 10
   const { t } = useTranslation()
   const tableHeaders = [
@@ -46,7 +54,7 @@ const LocationMenu = ({ changeActiveLocation }) => {
           search
         }
       })
-      .then((res) => {
+      .then((res: Paginated<Location>) => {
         setLocationsDetails(res)
       })
   }
@@ -94,7 +102,7 @@ const LocationMenu = ({ changeActiveLocation }) => {
                   )
                 }}
               />
-              <Button className={styles.newLocation} onClick={() => changeActiveLocation({ location_setting: {} })}>
+              <Button className={styles.newLocation} onClick={() => props.changeActiveLocation(LocationSeed)}>
                 <AddIcon />
                 {t('user:usermenu.locationTable.lbl-new')}
               </Button>
@@ -118,9 +126,9 @@ const LocationMenu = ({ changeActiveLocation }) => {
                         key={i}
                         tabIndex={0}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter') changeActiveLocation(row)
+                          if (e.key === 'Enter') props.changeActiveLocation(row)
                         }}
-                        onClick={() => changeActiveLocation(row)}
+                        onClick={() => props.changeActiveLocation(row)}
                       >
                         {tableHeaders.map((headCell) => (
                           <TableCell className={styles.tableCell} key={headCell.id}>

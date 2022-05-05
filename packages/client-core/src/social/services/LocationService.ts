@@ -1,12 +1,16 @@
-import { AlertService } from '../../common/services/AlertService'
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
+
 import { Location, LocationSeed } from '@xrengine/common/src/interfaces/Location'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
+
 //State
 const state = createState({
+  locationName: null! as string,
   currentLocation: {
     location: LocationSeed as Location,
     bannedUsers: [] as UserId[],
@@ -21,6 +25,10 @@ const state = createState({
 store.receptors.push((action: LocationActionType): any => {
   state.batch((s) => {
     switch (action.type) {
+      case 'LOCATION_NAME_SET':
+        return s.merge({
+          locationName: action.locationName
+        })
       case 'FETCH_CURRENT_LOCATION':
         return s.merge({
           fetchingCurrentLocation: true,
@@ -42,7 +50,7 @@ store.receptors.push((action: LocationActionType): any => {
           currentLocation: {
             location: {
               ...action.location,
-              locationSettings: (action.location as any).location_setting
+              locationSetting: (action.location as any).location_setting
             },
             bannedUsers,
             selfUserBanned: false
@@ -68,7 +76,7 @@ store.receptors.push((action: LocationActionType): any => {
 
       case 'LOCATION_LOCAL_USER_BANNED':
         s.merge({ currentLocationUpdateNeeded: true })
-        s.currentLocation.merge({ selfUserBanned: true })
+        s.currentLocation.merge({ selfUserBanned: action.banned })
         return
     }
   }, action.type)
@@ -82,76 +90,70 @@ export const useLocationState = () => useState(state) as any as typeof state
 export const LocationService = {
   getLocation: async (locationId: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        dispatch(LocationAction.fetchingCurrentSocialLocation())
-        const location = await client.service('location').get(locationId)
-        dispatch(LocationAction.socialLocationRetrieved(location))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+    try {
+      dispatch(LocationAction.fetchingCurrentSocialLocation())
+      const location = await client.service('location').get(locationId)
+      dispatch(LocationAction.socialLocationRetrieved(location))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   getLocationByName: async (locationName: string) => {
     const dispatch = useDispatch()
-    {
-      const locationResult = await client
-        .service('location')
-        .find({
-          query: {
-            slugifiedName: locationName,
-            joinableLocations: true
-          }
-        })
-        .catch((error) => {
-          console.log("Couldn't get location by name", error)
-        })
-      if (locationResult && locationResult.total > 0) {
-        dispatch(LocationAction.socialLocationRetrieved(locationResult.data[0]))
-      } else {
-        dispatch(LocationAction.socialLocationNotFound())
+    dispatch(LocationAction.fetchingCurrentSocialLocation())
+    const locationResult = (await client.service('location').find({
+      query: {
+        slugifiedName: locationName,
+        joinableLocations: true
       }
+    })) as Paginated<Location>
+
+    if (locationResult && locationResult.total > 0) {
+      dispatch(LocationAction.socialLocationRetrieved(locationResult.data[0]))
+    } else {
+      dispatch(LocationAction.socialLocationNotFound())
     }
   },
   getLobby: async () => {
-    const lobbyResult = await client
-      .service('location')
-      .find({
-        query: {
-          isLobby: true,
-          $limit: 1
-        }
-      })
-      .catch((error) => {
-        console.log("Couldn't get Lobby", error)
-      })
+    const lobbyResult = (await client.service('location').find({
+      query: {
+        isLobby: true,
+        $limit: 1
+      }
+    })) as Paginated<Location>
 
     if (lobbyResult && lobbyResult.total > 0) {
       return lobbyResult.data[0]
+    } else {
+      return null
     }
   },
   banUserFromLocation: async (userId: string, locationId: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('location-ban').create({
-          userId: userId,
-          locationId: locationId
-        })
-        dispatch(LocationAction.socialLocationBanCreated())
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+    try {
+      await client.service('location-ban').create({
+        userId: userId,
+        locationId: locationId
+      })
+      dispatch(LocationAction.socialLocationBanCreated())
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   }
 }
 
 //Action
 export const LocationAction = {
+  setLocationName: (locationName: string) => {
+    return {
+      type: 'LOCATION_NAME_SET' as const,
+      locationName
+    }
+  },
   socialLocationRetrieved: (location: Location) => {
     return {
       type: 'LOCATION_RETRIEVED' as const,
-      location: location
+      location
     }
   },
   socialLocationBanCreated: () => {

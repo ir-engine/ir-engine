@@ -1,11 +1,13 @@
 import React, { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+
+import { getEntries, uploadProjectAssetsFromUpload } from '../../functions/assetFunctions'
+import { accessEditorState } from '../../services/EditorServices'
 import ErrorDialog from '../dialogs/ErrorDialog'
 import { ProgressDialog } from '../dialogs/ProgressDialog'
-import { useTranslation } from 'react-i18next'
-import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { useDialog } from '../hooks/useDialog'
-import { getEntries, uploadProjectAssetFromEntries } from '../../functions/assetFunctions'
-import { accessEditorState } from '../../services/EditorServices'
 
 type Props = {
   multiple?: boolean
@@ -73,7 +75,7 @@ export default function useUpload(options: Props = {}) {
           />
         )
         const { projectName } = accessEditorState().value
-        assets = await uploadProjectAssetFromEntries(projectName!, entries, (item, total, progress) => {
+        assets = await uploadProjectAssetsFromUpload(projectName!, entries, (item, total, progress) => {
           setDialogComponent(
             <ProgressDialog
               title={t('editor:asset.useUpload.progressTitle')}
@@ -90,7 +92,6 @@ export default function useUpload(options: Props = {}) {
             />
           )
         })
-        console.log(assets)
         setDialogComponent(null)
       } catch (error) {
         console.error(error)

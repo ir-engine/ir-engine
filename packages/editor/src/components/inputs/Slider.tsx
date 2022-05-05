@@ -1,6 +1,6 @@
 // @ts-nocheck
-import React from 'react'
 import RCSlider from 'rc-slider/es/Slider'
+import React from 'react'
 import { createGlobalStyle } from 'styled-components'
 
 /**
@@ -19,7 +19,7 @@ const SliderGlobalStyles = createGlobalStyle`
   .rc-slider-track {
     position: absolute;
     height: 2px;
-    background-color: ${(props) => props.theme.blue};
+    background-color: var(--purpleColor);
     border-radius: 2px;
   }
 
@@ -27,7 +27,7 @@ const SliderGlobalStyles = createGlobalStyle`
     position: absolute;
     width: calc(100% + 16px);
     height: 2px;
-    background-color: ${(props) => props.theme.border};
+    background-color: var(--border);
     border-radius: 2px;
   }
 
@@ -38,34 +38,34 @@ const SliderGlobalStyles = createGlobalStyle`
     height: 12px;
     cursor: pointer;
     border-radius: 50%;
-    border: solid 2px ${(props) => props.theme.white};
-    background-color: ${(props) => props.theme.border};
+    border: solid 2px var(--white);
+    background-color: var(--border);
     touch-action: pan-x;
     outline: none;
 
       &:hover {
-        border: solid 2px ${(props) => props.theme.blue};
-        background-color: ${(props) => props.theme.white};
+        border: solid 2px var(--purpleColor);
+        background-color: var(--white);
       }
 
       &:active {
-        border:  2px solid ${(props) => props.theme.blue};
-        background-color: ${(props) => props.theme.white};
+        border:  2px solid var(--purpleColor);
+        background-color: var(--white);
       }
     }
 
   .rc-slider-disabled {
-    background-color: ${(props) => props.theme.panel2};
+    background-color: var(--panel2);
     border-radius: 2px;
 
     .rc-slider-track {
-      background-color: ${(props) => props.theme.panel2};
+      background-color: var(--panel2);
     }
 
     .rc-slider-handle, .rc-slider-dot {
-      border-color: ${(props) => props.theme.panel2};
+      border-color: var(--panel2);
       box-shadow: none;
-      background-color: ${(props) => props.theme.toolbar};
+      background-color: var(--toolbar);
       cursor: not-allowed;
     }
 

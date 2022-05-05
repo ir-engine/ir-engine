@@ -1,3 +1,7 @@
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router-dom'
+
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined'
 import GoogleIcon from '@mui/icons-material/Google'
@@ -5,16 +9,14 @@ import Button from '@mui/material/Button'
 import CardMedia from '@mui/material/CardMedia'
 import Fab from '@mui/material/Fab'
 import Typography from '@mui/material/Typography'
-import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
+
 import { AuthSettingService, useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import ForgotPassword from '../../../user/components/Auth/ForgotPassword'
 import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp'
 import RegisterApp from '../../../user/components/Auth/RegisterApp'
 import ResetPassword from '../../../user/components/Auth/ResetPassword'
 import { AuthService } from '../../services/AuthService'
-import styles from './Login.module.scss'
+import styles from './index.module.scss'
 
 const initialState = {
   jwt: true,
@@ -29,7 +31,7 @@ const initialState = {
 }
 
 interface Props {
-  auth?: any
+  //auth?: any
   enableFacebookSocial?: boolean
   enableGithubSocial?: boolean
   enableGoogleSocial?: boolean
@@ -40,7 +42,7 @@ const FlatSignIn = (props: Props) => {
   const [view, setView] = useState('login')
 
   const { t } = useTranslation()
-  const location: any = useLocation()
+  const location = useLocation()
 
   const authSettingState = useAdminAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
@@ -82,12 +84,12 @@ const FlatSignIn = (props: Props) => {
     AuthService.loginUserByOAuth('facebook', location)
   }
 
-  const handleResetPassword = (token: string, password: string): any => {
+  const handleResetPassword = (token: string, password: string): void => {
     AuthService.resetPassword(token, password)
   }
 
-  let component = null! as any
-  let footer = null! as any
+  let component: JSX.Element
+  let footer: JSX.Element
 
   switch (view) {
     case 'sign-up':

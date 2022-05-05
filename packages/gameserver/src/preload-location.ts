@@ -1,5 +1,4 @@
 // import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
-// import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 // import { Application } from '@xrengine/server-core/declarations'
 // import config from '@xrengine/server-core/src/appconfig'
 // import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
@@ -56,7 +55,7 @@ export default async function (locationName, app: Application) {
   const newInstance = {
     currentUsers: 0,
     sceneId: location.sid,
-    ipAddress: config.gameserver.mode === 'local' ? `${localIp.ipAddress}:3031` : selfIpAddress,
+    ipAddress: config.kubernetes.enabled ? selfIpAddress : `${localIp.ipAddress}:3031`,
     locationId: location.id
   } as any
   app.isChannelInstance = false
@@ -77,11 +76,6 @@ export default async function (locationName, app: Application) {
       })
     }
   }
-  EngineEvents.instance.dispatchEvent({
-    type: EngineEvents.EVENTS.ENABLE_SCENE,
-    renderer: true,
-    physics: true
-  })
   console.log('Pre-loaded location', location.id)
 }
 */

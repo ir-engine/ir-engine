@@ -1,12 +1,17 @@
-import Command, { CommandParams } from './Command'
-import { serializeObject3DArray, serializeObject3D } from '../functions/debug'
-import EditorCommands from '../constants/EditorCommands'
-import { CommandManager } from '../managers/CommandManager'
-import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
-import EditorEvents from '../constants/EditorEvents'
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { shouldNodeDeserialize } from '../functions/shouldDeserialiez'
+import { cloneEntityNode, getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
+
+import { executeCommand } from '../classes/History'
+import EditorCommands from '../constants/EditorCommands'
+import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
+import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
+import { shouldNodeDeserialize } from '../functions/shouldDeserialize'
+import { EditorAction } from '../services/EditorServices'
+import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
+import Command, { CommandParams } from './Command'
 
 export interface DuplicateObjectCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */
@@ -32,13 +37,13 @@ export default class DuplicateObjectCommand extends Command {
     this.duplicatedObjects = []
 
     if (this.keepHistory) {
-      this.oldSelection = CommandManager.instance.selected.slice(0)
+      this.oldSelection = accessSelectionState().selectedEntities.value.slice(0)
     }
   }
 
   execute(isRedoCommand?: boolean) {
     if (isRedoCommand) {
-      CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, {
+      executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, {
         parents: this.parents,
         befores: this.befores,
         shouldEmitEvent: false,
@@ -46,12 +51,23 @@ export default class DuplicateObjectCommand extends Command {
       })
     } else {
       const roots = getDetachedObjectsRoots(this.affectedObjects)
-      this.duplicatedObjects = roots.map((object) => object.clone())
+      this.duplicatedObjects = roots.map((object) => cloneEntityNode(object))
       const sceneData = this.duplicatedObjects.map((obj) => serializeWorld(obj, true))
+      const tree = useWorld().entityTree
 
-      if (!this.parents) this.parents = this.duplicatedObjects.map((o) => o.parentNode)
+      if (!this.parents) {
+        this.parents = []
 
-      CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, {
+        for (let o of this.duplicatedObjects) {
+          if (!o.parentEntity) throw new Error('Parent is not defined')
+          const parent = tree.entityNodeMap.get(o.parentEntity)
+
+          if (!parent) throw new Error('Parent is not defined')
+          this.parents.push(parent)
+        }
+      }
+
+      executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, {
         parents: this.parents,
         befores: this.befores,
         shouldEmitEvent: false,
@@ -60,23 +76,20 @@ export default class DuplicateObjectCommand extends Command {
       })
 
       if (this.isSelected) {
-        CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.duplicatedObjects, {
-          shouldGizmoUpdate: false
-        })
+        executeCommand(EditorCommands.REPLACE_SELECTION, this.duplicatedObjects)
       }
-
-      CommandManager.instance.updateTransformRoots()
     }
 
     this.emitAfterExecuteEvent()
   }
 
   undo() {
-    CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.duplicatedObjects, {
+    executeCommand(EditorCommands.REMOVE_OBJECTS, this.duplicatedObjects, {
       deselectObject: false,
       skipSerialization: true
     })
-    CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)
+
+    executeCommand(EditorCommands.REPLACE_SELECTION, getEntityNodeArrayFromEntities(this.oldSelection))
   }
 
   toString() {
@@ -87,7 +100,8 @@ export default class DuplicateObjectCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
+      store.dispatch(EditorAction.sceneModified(true))
+      store.dispatch(SelectionAction.changedSceneGraph())
     }
   }
 }

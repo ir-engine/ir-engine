@@ -1,12 +1,12 @@
 // Initializes the `instance-provision` service on path `/instance-provision`
 import { Application } from '../../../declarations'
 import { Analytics } from './analytics.class'
-import createModel from './analytics.model'
 import instanceProvisionDocs from './analytics.docs'
 import hooks from './analytics.hooks'
+import createModel from './analytics.model'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     analytics: Analytics
   }

@@ -1,7 +1,9 @@
-import { HookContext } from '@feathersjs/feathers'
-import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { HookContext } from '@feathersjs/feathers'
 import _ from 'lodash'
+
+import logger from '../logger'
+import { UserDataType } from '../user/user/user.class'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
@@ -9,7 +11,7 @@ export default () => {
     try {
       let fetchedPartyId
       const { id, data, method, params, app, path } = context
-      const loggedInUser = extractLoggedInUserFromParams(params)
+      const loggedInUser = params.user as UserDataType
       if (path === 'party-user' && method === 'remove') {
         const partyUser = await app.service('party-user').get(id!)
         fetchedPartyId = partyUser.partyId
@@ -28,7 +30,8 @@ export default () => {
       }
       const userId = path === 'party' ? loggedInUser?.id : params.query?.userId || loggedInUser?.id || partyId
       const paramsCopy = _.cloneDeep(params)
-      const partyResult = await app.service('party').find(paramsCopy.query)
+      if (!paramsCopy.query) paramsCopy.query = {}
+      const partyResult = await app.service('party').find(paramsCopy)
       const party = partyResult.data[0]
       if ((path === 'party-user' || path === 'party') && method === 'create' && party.locationId != null) {
         const user = await app.service('user').get(userId)
@@ -36,7 +39,7 @@ export default () => {
         if (isAdmin != null) {
           data.isOwner = 1
         }
-        await app.service('user').patch(loggedInUser.id, {
+        await app.service('user').patch(loggedInUser.id!, {
           partyId: data.partyId
         })
       } else {
@@ -72,7 +75,7 @@ export default () => {
 
       return context
     } catch (err) {
-      console.log('party-permission-authenticate error', err)
+      logger.error('party-permission-authenticate error:', err)
       return null!
     }
   }

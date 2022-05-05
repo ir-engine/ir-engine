@@ -1,18 +1,18 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
+import { isClient } from '../../../common/functions/isClient'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { Water } from '../../classes/Water'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { WaterComponent, WaterComponentType } from '../../components/WaterComponent'
-import { isClient } from '../../../common/functions/isClient'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
-import { Water } from '../../classes/Water'
+import { WaterComponent, WaterComponentType } from '../../components/WaterComponent'
 
 export const SCENE_COMPONENT_WATER = 'water'
 export const SCENE_COMPONENT_WATER_DEFAULT_VALUES = {}
@@ -24,21 +24,18 @@ export const deserializeWater: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const obj3d = new Water()
+  obj3d.userData.disableOutline = true
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, WaterComponent, { ...json.props })
   addComponent(entity, UpdatableComponent, {})
 
-  if (Engine.isEditor) {
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_WATER)
-
-    obj3d.userData.disableOutline = true
-  }
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_WATER)
 
   updateWater(entity, json.props)
 }
 
-export const updateWater: ComponentUpdateFunction = async (_entity: Entity, _properties: WaterComponentType) => {}
+export const updateWater: ComponentUpdateFunction = (_entity: Entity, _properties: WaterComponentType) => {}
 
 export const serializeWater: ComponentSerializeFunction = (entity) => {
   const component = getComponent(entity, WaterComponent) as WaterComponentType

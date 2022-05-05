@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react'
-import { Button, SecondaryButton } from '../inputs/Button'
 import styled from 'styled-components'
+
+import { Button, SecondaryButton } from '../inputs/Button'
 
 /**
  * DialogContainer used as container element for DialogHeader, DialogContent and DialogBottomNav.
@@ -51,7 +52,7 @@ const DialogHeader = (styled as any).div`
  * @type {Styled component}
  */
 export const DialogContent = (styled as any).div`
-  color: ${(props) => props.theme.text2};
+  color: var(--text2);
   display: flex;
   flex: 1;
   flex-direction: row;
@@ -62,7 +63,7 @@ export const DialogContent = (styled as any).div`
 
   h1 {
     font-size: 2em;
-    color: ${(props) => props.theme.text};
+    color: var(--text);
     margin-bottom: 16px;
   }
 
@@ -90,7 +91,7 @@ const DialogBottomNav = (styled as any).div`
   padding: 8px;
 
   a {
-    color: ${(props) => props.theme.text2};
+    color: var(--text2);
   }
 
   button {

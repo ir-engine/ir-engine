@@ -1,18 +1,21 @@
+// import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem'
+import React, { ChangeEvent, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
+import { Image, Mic, SurroundSound, VolumeUp } from '@mui/icons-material'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import Slider from '@mui/material/Slider'
 import Typography from '@mui/material/Typography'
-import { Image, Mic, SurroundSound, VolumeUp } from '@mui/icons-material'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-// import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem'
-import React, { ChangeEvent, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { useDispatch } from '../../../store'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
-import styles from './Profile.module.scss'
+import styles from './index.module.scss'
 
 interface Props {}
 
@@ -51,7 +54,7 @@ const UserSettings = (props: Props): JSX.Element => {
     AuthService.updateUserSettings(selfUser?.user_setting?.id, {
       spatialAudioEnabled: newValue
     })
-    // if (Engine.spatialAudio) {
+    // if (Engine.instance.spatialAudio) {
     // TODO
     // if (newValue === true) PositionalAudioSystem.instance.resume()
     // else if (newValue === false) PositionalAudioSystem.instance.suspend()

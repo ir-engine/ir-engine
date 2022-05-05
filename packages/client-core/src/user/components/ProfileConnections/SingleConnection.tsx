@@ -1,30 +1,36 @@
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
+
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import React, { useEffect, useState } from 'react'
-import { useDispatch } from '../../../store'
+
 import { AlertAction } from '../../../common/services/AlertService'
 import { DialogAction } from '../../../common/services/DialogService'
+import { useDispatch } from '../../../store'
+import { AuthService } from '../../services/AuthService'
+import { useAuthState } from '../../services/AuthService'
 import MagicLinkEmail from '../Auth/MagicLinkEmail'
 import PasswordLogin from '../Auth/PasswordLogin'
-import { AuthService } from '../../services/AuthService'
 import { ConnectionTexts } from './ConnectionTexts'
-import { useTranslation } from 'react-i18next'
-import styles from './ProfileConnections.module.scss'
-import { useAuthState } from '../../services/AuthService'
+import styles from './index.module.scss'
 
 interface Props {
   auth?: any
-  classes?: any
+  //classes?: any
   connectionType: 'facebook' | 'github' | 'google' | 'email' | 'sms' | 'password' | 'linkedin'
 }
 
-const SingleConnection = (props: Props): any => {
-  const { auth, classes, connectionType } = props
+const SingleConnection = (props: Props): JSX.Element => {
+  const { connectionType } = props
   const { t } = useTranslation()
   const dispatch = useDispatch()
+  const authState = useAuthState()
+  const user = authState.user.value
+
   const initialState = {
     identityProvider: IdentityProviderSeed,
     userId: ''
@@ -32,7 +38,6 @@ const SingleConnection = (props: Props): any => {
   const [state, setState] = useState(initialState)
 
   useEffect(() => {
-    const user = useAuthState().user.value
     if (!user) {
       return
     }
@@ -43,9 +48,9 @@ const SingleConnection = (props: Props): any => {
     })
   }, [])
 
-  const disconnect = (): any => {
+  const disconnect = (): void => {
     const identityProvider = state.identityProvider
-    const authIdentityProvider = props.auth.get('authUser').identityProvider
+    const authIdentityProvider = authState.identityProvider.value
     if (authIdentityProvider.id === identityProvider.id) {
       dispatch(AlertAction.showAlert('error', t('user:profile.connections.ipError')))
       return
@@ -54,7 +59,7 @@ const SingleConnection = (props: Props): any => {
     AuthService.removeConnection(identityProvider.id, state.userId)
   }
 
-  const connect = (): any => {
+  const connect = (): void => {
     const { userId } = state
 
     switch (connectionType) {
@@ -150,6 +155,6 @@ const SingleConnection = (props: Props): any => {
   )
 }
 
-const SingleConnectionWrapper = (props: Props): any => <SingleConnection {...props} />
+const SingleConnectionWrapper = (props: Props): JSX.Element => <SingleConnection {...props} />
 
 export default SingleConnectionWrapper

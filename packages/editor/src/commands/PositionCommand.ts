@@ -1,14 +1,17 @@
-import Command, { CommandParams } from './Command'
-import { serializeVector3, serializeObject3D } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
 import { Matrix4, Vector3 } from 'three'
-import EditorEvents from '../constants/EditorEvents'
-import arrayShallowEqual from '../functions/arrayShallowEqual'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
+import arrayShallowEqual from '../functions/arrayShallowEqual'
+import { serializeObject3D, serializeVector3 } from '../functions/debug'
+import { EditorAction } from '../services/EditorServices'
+import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
+import Command, { CommandParams } from './Command'
 
 export interface PositionCommandParams extends CommandParams {
   positions: Vector3 | Vector3[]
@@ -35,7 +38,7 @@ export default class PositionCommand extends Command {
     this.addToPosition = params.addToPosition
 
     if (this.keepHistory) {
-      this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent).position.clone())
+      this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent)?.position.clone())
     }
   }
 
@@ -68,7 +71,8 @@ export default class PositionCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects, 'position')
+      store.dispatch(EditorAction.sceneModified(true))
+      store.dispatch(SelectionAction.changedObject(this.affectedObjects, 'position'))
     }
   }
 
@@ -80,10 +84,12 @@ export default class PositionCommand extends Command {
     let transformComponent
     let spaceMatrix
 
+    const selectedEntities = accessSelectionState().selectedEntities.value
+
     if (space === TransformSpace.LocalSelection) {
-      if (CommandManager.instance.selected.length > 0) {
-        const lastSelectedObject = CommandManager.instance.selected[CommandManager.instance.selected.length - 1]
-        obj3d = getComponent(lastSelectedObject.entity, Object3DComponent).value
+      if (selectedEntities.length > 0) {
+        const lastSelectedEntity = selectedEntities[selectedEntities.length - 1]
+        obj3d = getComponent(lastSelectedEntity, Object3DComponent).value
         obj3d.updateMatrixWorld()
         spaceMatrix = obj3d.parent!.matrixWorld
       } else {
@@ -94,13 +100,15 @@ export default class PositionCommand extends Command {
     for (let i = 0; i < objects.length; i++) {
       const object = objects[i]
       const pos = positions[i] ?? positions[0]
-      obj3d = getComponent(object.entity, Object3DComponent).value
+
       transformComponent = getComponent(object.entity, TransformComponent)
 
       if (space === TransformSpace.Local) {
         if (this.addToPosition && !isUndo) transformComponent.position.add(pos)
         else transformComponent.position.copy(pos)
       } else {
+        obj3d = getComponent(object.entity, Object3DComponent)?.value
+        if (!obj3d) continue
         obj3d.updateMatrixWorld() // Update parent world matrices
 
         if (this.addToPosition && !isUndo) {

@@ -1,10 +1,11 @@
 import React from 'react'
+
+import TableCell from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-import TableCell from '@mui/material/TableCell'
 import TableSortLabel from '@mui/material/TableSortLabel'
 
-import styles from './Admin.module.scss'
+import styles from '../styles/admin.module.scss'
 
 type Order = 'asc' | 'desc'
 interface EnhancedTableProps {

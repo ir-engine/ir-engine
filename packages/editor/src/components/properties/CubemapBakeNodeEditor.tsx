@@ -1,17 +1,20 @@
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
-
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import { CubemapBakeProperties } from './CubemapBakeProperties'
-import SportsGolfIcon from '@mui/icons-material/SportsGolf'
-import { EditorComponentType } from './Util'
+import styled from 'styled-components'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { CubemapBakeComponent } from '@xrengine/engine/src/scene/components/CubemapBakeComponent'
 import { CubemapBakeTypes } from '@xrengine/engine/src/scene/types/CubemapBakeTypes'
-import { PropertiesPanelButton } from '../inputs/Button'
+
+import SportsGolfIcon from '@mui/icons-material/SportsGolf'
+
 import { uploadBakeToServer } from '../../functions/uploadCubemapBake'
+import { PropertiesPanelButton } from '../inputs/Button'
+import { CubemapBakeProperties } from './CubemapBakeProperties'
+import NodeEditor from './NodeEditor'
+import { EditorComponentType } from './Util'
 
 export const enum BakePropertyTypes {
   'Boolean',
@@ -20,6 +23,18 @@ export const enum BakePropertyTypes {
   'Resolution',
   'Vector'
 }
+
+const TitleLabel = (styled as any).div`
+  display: flex;
+  flex-direction: row;
+  align-items: left;
+  font-weight: bold;
+  color: var(--text2);
+  padding: 0 8px 8px;
+  :last-child {
+    margin-left: auto;
+  }
+`
 
 const DefaultCubemapBakeSettings = [
   {
@@ -84,7 +99,7 @@ export const CubemapBakeNodeEditor: EditorComponentType = (props) => {
         return <div key={id + 'Realtime'} />
       }
 
-      const renderProp = element.label ? [<div key={id + 'title'}>{element.label}</div>] : []
+      const renderProp = element.label ? [<TitleLabel key={id + 'title'}>{element.label}</TitleLabel>] : []
 
       element.options?.forEach((property, propertyid) => {
         renderProp.push(

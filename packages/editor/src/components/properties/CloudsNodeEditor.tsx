@@ -1,17 +1,20 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import ImageInput from '../inputs/ImageInput'
-import Vector3Input from '../inputs/Vector3Input'
-import Vector2Input from '../inputs/Vector2Input'
 import { useTranslation } from 'react-i18next'
-import ColorInput from '../inputs/ColorInput'
-import CloudIcon from '@mui/icons-material/Cloud'
-import { EditorComponentType, updateProperty } from './Util'
+
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { CloudComponent } from '@xrengine/engine/src/scene/components/CloudComponent'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+
+import CloudIcon from '@mui/icons-material/Cloud'
+
+import ColorInput from '../inputs/ColorInput'
+import ImageInput from '../inputs/ImageInput'
+import InputGroup from '../inputs/InputGroup'
+import Vector2Input from '../inputs/Vector2Input'
+import Vector3Input from '../inputs/Vector3Input'
+import NodeEditor from './NodeEditor'
+import { EditorComponentType, updateProperty } from './Util'
 
 /**
  * Clouds Editor provides the editor to customize properties.
@@ -88,7 +91,11 @@ export const CloudsNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
 
       <InputGroup name="Fog Range" label={t('editor:properties.clouds.lbl-fogRange')}>
-        <Vector2Input value={cloudComponent.fogRange} onChange={updateProperty(CloudComponent, 'fogRange')} />
+        <Vector2Input
+          value={cloudComponent.fogRange}
+          onChange={updateProperty(CloudComponent, 'fogRange')}
+          hideLabels
+        />
       </InputGroup>
     </NodeEditor>
   )

@@ -1,30 +1,39 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import BooleanInput from '../inputs/BooleanInput'
-import InputGroup from '../inputs/InputGroup'
-import SelectInput from '../inputs/SelectInput'
-import NodeEditor from './NodeEditor'
-import ModelInput from '../inputs/ModelInput'
-import { getComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import ViewInArIcon from '@mui/icons-material/ViewInAr'
-import { EditorComponentType, updateProperty } from './Util'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import ShadowProperties from './ShadowProperties'
-import InteractableGroup from '../inputs/InteractableGroup'
-import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
-import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
+import { AnimationClip, Object3D } from 'three'
+
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
+import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
+import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { getComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
+import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import {
   deserializeInteractable,
   SCENE_COMPONENT_INTERACTABLE,
   SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES
 } from '@xrengine/engine/src/scene/functions/loaders/InteractableFunctions'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+
+import ViewInArIcon from '@mui/icons-material/ViewInAr'
+
+import BooleanInput from '../inputs/BooleanInput'
+import { PropertiesPanelButton } from '../inputs/Button'
+import InputGroup from '../inputs/InputGroup'
+import InteractableGroup from '../inputs/InteractableGroup'
+import ModelInput from '../inputs/ModelInput'
+import SelectInput from '../inputs/SelectInput'
+import EnvMapEditor from './EnvMapEditor'
+import NodeEditor from './NodeEditor'
+import ShadowProperties from './ShadowProperties'
+import { EditorComponentType, updateProperty } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -35,17 +44,47 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const [isInteractable, setInteractable] = useState(false)
+  const [animationPlaying, setAnimationPlaying] = useState(false)
   const engineState = useEngineState()
   const entity = props.node.entity
 
   const modelComponent = getComponent(entity, ModelComponent)
-  const obj3d = getComponent(entity, Object3DComponent).value
+  const animationComponent = getComponent(entity, AnimationComponent)
+  const obj3d = getComponent(entity, Object3DComponent)?.value ?? new Object3D() // quick hack to not crash
   const hasError = engineState.errorEntities[entity].get()
   const errorComponent = getComponent(entity, ErrorComponent)
 
   useEffect(() => {
     setInteractable(hasComponent(entity, InteractableComponent))
   }, [])
+
+  const updateSrc = async (src: string) => {
+    // if(src !== modelComponent.src)
+    AssetLoader.Cache.delete(src)
+    await AssetLoader.loadAsync(src)
+    updateProperty(ModelComponent, 'src')(src)
+  }
+
+  const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+  const onPlayAnimation = () => {
+    if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
+    if (!animationPlaying) {
+      if (
+        loopAnimationComponent.activeClipIndex >= 0 &&
+        animationComponent.animations[loopAnimationComponent.activeClipIndex]
+      ) {
+        loopAnimationComponent.action = animationComponent.mixer
+          .clipAction(
+            AnimationClip.findByName(
+              animationComponent.animations,
+              animationComponent.animations[loopAnimationComponent.activeClipIndex].name
+            )
+          )
+          .play()
+      }
+    }
+    setAnimationPlaying(!animationPlaying)
+  }
 
   const onChangeInteractable = (interact) => {
     setInteractable(interact)
@@ -57,10 +96,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       removeComponent(entity, InteractableComponent)
     }
   }
-  const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
 
   const textureOverrideEntities = [] as { label: string; value: string }[]
-  useWorld().entityTree.traverse((node) => {
+  traverseEntityNode(useWorld().entityTree.rootNode, (node) => {
     if (node.entity === entity) return
 
     textureOverrideEntities.push({
@@ -78,14 +116,8 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor description={t('editor:properties.model.description')} {...props}>
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
-        <ModelInput value={modelComponent.src} onChange={updateProperty(ModelComponent, 'src')} />
-        {hasError && errorComponent.srcError && (
-          <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
-        )}
-      </InputGroup>
-      <InputGroup name="Environment Map" label={t('editor:properties.model.lbl-envmapUrl')}>
-        <ModelInput value={modelComponent.envMapOverride} onChange={updateProperty(ModelComponent, 'envMapOverride')} />
-        {hasError && errorComponent.envMapError && (
+        <ModelInput value={modelComponent.src} onChange={updateSrc} />
+        {hasError && errorComponent?.srcError && (
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
       </InputGroup>
@@ -128,10 +160,14 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
+      <PropertiesPanelButton onClick={onPlayAnimation}>
+        {t(animationPlaying ? 'editor:properties.video.lbl-pause' : 'editor:properties.video.lbl-play')}
+      </PropertiesPanelButton>
       <InputGroup name="Interactable" label={t('editor:properties.model.lbl-interactable')}>
         <BooleanInput value={isInteractable} onChange={onChangeInteractable} />
       </InputGroup>
       {isInteractable && <InteractableGroup node={props.node}></InteractableGroup>}
+      <EnvMapEditor node={props.node} />
       <ShadowProperties node={props.node} />
     </NodeEditor>
   )

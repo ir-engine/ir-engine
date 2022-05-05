@@ -1,3 +1,18 @@
+import { useState } from '@speigg/hookstate'
+import classNames from 'classnames'
+import React, { useEffect } from 'react'
+
+import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
+
 import { Message as MessageIcon, Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 import Badge from '@mui/material/Badge'
@@ -8,17 +23,8 @@ import ListItem from '@mui/material/ListItem'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 import ListItemText from '@mui/material/ListItemText'
 import TextField from '@mui/material/TextField'
-import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
-import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
-import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
-import { isBot } from '@xrengine/engine/src/common/functions/isBot'
-import classNames from 'classnames'
-import React, { useEffect, useState } from 'react'
-import defaultStyles from './InstanceChat.module.scss'
+
+import defaultStyles from './index.module.scss'
 
 interface Props {
   styles?: any
@@ -27,6 +33,7 @@ interface Props {
   SendButton?: any
   newMessageLabel?: string
   setBottomDrawerOpen?: any
+  animate?: any
 }
 
 const InstanceChat = (props: Props): any => {
@@ -39,19 +46,33 @@ const InstanceChat = (props: Props): any => {
   } = props
 
   let activeChannel: Channel | null = null
-  const dispatch = useDispatch()
   const messageRef = React.useRef<HTMLInputElement>()
   const user = useAuthState().user
   const chatState = useChatState()
   const channelState = chatState.channels
   const channels = channelState.channels.value
-  const [composingMessage, setComposingMessage] = useState('')
-  const [unreadMessages, setUnreadMessages] = useState(false)
+  const [composingMessage, setComposingMessage] = React.useState('')
+  const [unreadMessages, setUnreadMessages] = React.useState(false)
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
   const instanceConnectionState = useLocationInstanceConnectionState()
+  const usersTyping = useState(getState(Engine.instance.currentWorld.store, WorldState)[user?.id.value]).value
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
+
+  useEffect(() => {
+    if (!composingMessage) return
+    const delayDebounce = setTimeout(() => {
+      dispatchAction(
+        Engine.instance.currentWorld.store,
+        NetworkWorldAction.setUserTyping({
+          typing: false
+        })
+      )
+    }, 3000)
+
+    return () => clearTimeout(delayDebounce)
+  }, [composingMessage])
 
   useEffect(() => {
     if (
@@ -65,14 +86,13 @@ const InstanceChat = (props: Props): any => {
       console.log(user?.instanceId?.value, instanceConnectionState.instance.id?.value)
     }
     if (
-      user?.instanceId?.value === instanceConnectionState.instance.id?.value &&
+      instanceConnectionState.instance.id?.value &&
       instanceConnectionState.connected.value &&
       !chatState.instanceChannelFetching.value
     ) {
       ChatService.getInstanceChannel()
     }
   }, [
-    user?.instanceId?.value,
     instanceConnectionState.instance.id?.value,
     instanceConnectionState.connected?.value,
     chatState.instanceChannelFetching.value
@@ -80,6 +100,27 @@ const InstanceChat = (props: Props): any => {
 
   const handleComposingMessageChange = (event: any): void => {
     const message = event.target.value
+    if (message.length > composingMessage.length) {
+      if (!usersTyping) {
+        dispatchAction(
+          Engine.instance.currentWorld.store,
+          NetworkWorldAction.setUserTyping({
+            typing: true
+          })
+        )
+      }
+    }
+    if (message.length == 0 || message.length < composingMessage.length) {
+      if (usersTyping) {
+        dispatchAction(
+          Engine.instance.currentWorld.store,
+          NetworkWorldAction.setUserTyping({
+            typing: false
+          })
+        )
+      }
+    }
+
     setComposingMessage(message)
   }
 
@@ -101,7 +142,7 @@ const InstanceChat = (props: Props): any => {
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
   }
-  const [dimensions, setDimensions] = useState({
+  const [dimensions, setDimensions] = React.useState({
     height: window.innerHeight,
     width: window.innerWidth
   })
@@ -171,12 +212,12 @@ const InstanceChat = (props: Props): any => {
                     activeChannel.messages?.length
                   )
                   .map((message) => {
-                    if (!isBot(window) && isCommand(message.text)) return undefined
+                    if (isCommand(message.text)) return undefined
                     const system = getChatMessageSystem(message.text)
                     let chatMessage = message.text
 
                     if (system !== 'none') {
-                      if (isBot(window) || system === 'jl_system') {
+                      if (system === 'jl_system') {
                         chatMessage = removeMessageSystem(message.text)
                       } else {
                         return undefined
@@ -261,18 +302,20 @@ const InstanceChat = (props: Props): any => {
           </Card>
         </div>
       </div>
-      <div className={styles.iconCallChat}>
-        <Badge
-          color="primary"
-          variant="dot"
-          invisible={!unreadMessages}
-          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        >
-          <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
-            {!chatWindowOpen ? <MessageButton /> : <CloseButton onClick={() => toggleChatWindow()} />}
-          </Fab>
-        </Badge>
-      </div>
+      {unreadMessages && (
+        <div className={`${styles.iconCallChat} ${props.animate}`}>
+          <Badge
+            color="primary"
+            variant="dot"
+            invisible={!unreadMessages}
+            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+          >
+            <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
+              {!chatWindowOpen ? <MessageButton /> : <CloseButton onClick={() => toggleChatWindow()} />}
+            </Fab>
+          </Badge>
+        </div>
+      )}
     </>
   )
 }

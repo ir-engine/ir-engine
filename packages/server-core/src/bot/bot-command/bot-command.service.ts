@@ -1,10 +1,10 @@
-import hooks from './Bot-command.hooks'
 import { Application } from '../../../declarations'
 import { BotCommand } from './bot-command.class'
-import createModel from './bot-command.model'
 import docs from './bot-command.docs'
+import hooks from './Bot-command.hooks'
+import createModel from './bot-command.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'bot-command': BotCommand
   }

@@ -1,22 +1,24 @@
 import React, { useRef, useState } from 'react'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import Container from '@mui/material/Container'
-import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
-import { AuthService } from '../../services/AuthService'
-import styles from './Auth.module.scss'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import InputAdornment from '@mui/material/InputAdornment'
-import IconButton from '@mui/material/IconButton'
-import { Visibility, VisibilityOff } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
+
+import { Visibility, VisibilityOff } from '@mui/icons-material'
+import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
+import IconButton from '@mui/material/IconButton'
+import InputAdornment from '@mui/material/InputAdornment'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import Typography from '@mui/material/Typography'
+
+import EmptyLayout from '../../../common/components/EmptyLayout'
+import { AuthService } from '../../services/AuthService'
+import styles from './index.module.scss'
 
 interface Props {
   token: string
   completeAction: () => void
 }
 
-export const ResetPassword = (props: Props): any => {
+export const ResetPassword = (props: Props): JSX.Element => {
   const { token, completeAction } = props
   const initialState = { password: '', isSubmitted: false }
   const [state, setState] = useState(initialState)
@@ -61,10 +63,10 @@ export const ResetPassword = (props: Props): any => {
           {state.isSubmitted ? (
             <>
               <Typography component="h1" variant="h5" align="center">
-                Your password was successfully reset!
+                {t('user:auth.resetPassword.yourPasswordResetSuccess')}
               </Typography>
               <Typography variant="body2" align="center">
-                You can now log into the your account.
+                {t('user:auth.resetPassword.nowLoginYourAccount')}.
               </Typography>
               <Button fullWidth variant="contained" color="primary" className={styles.submit} onClick={completeAction}>
                 {t('user:auth.resetPassword.login')}

@@ -1,13 +1,17 @@
-import { Application } from '../../../declarations'
-import { User } from './user.class'
-import createModel from './user.model'
-import hooks from './user.hooks'
+import { Paginated } from '@feathersjs/feathers/lib'
 import _ from 'lodash'
-import logger from '../../logger'
-import userDocs from './user.docs'
-import config from '../../appconfig'
 
-declare module '../../../declarations' {
+import { User as UserInterface } from '@xrengine/common/src/interfaces/User'
+
+import { Application } from '../../../declarations'
+import config from '../../appconfig'
+import logger from '../../logger'
+import { User } from './user.class'
+import userDocs from './user.docs'
+import hooks from './user.hooks'
+import createModel from './user.model'
+
+declare module '@xrengine/common/declarations' {
   /**
    * Interface for users input
    */
@@ -40,7 +44,8 @@ export default (app: Application): void => {
    * @returns users
    */
 
-  service.publish('patched', async (data, params): Promise<any> => {
+  // @ts-ignore
+  service.publish('patched', async (data: UserInterface, params): Promise<any> => {
     try {
       const groupUsers = await app.service('group-user').Model.findAll({
         where: {
@@ -59,7 +64,7 @@ export default (app: Application): void => {
         }
       })
 
-      let targetIds = [data.id]
+      let targetIds = [data.id!]
       const updatePromises: any[] = []
 
       if (data.instanceId != null || params.params?.instanceId != null) {

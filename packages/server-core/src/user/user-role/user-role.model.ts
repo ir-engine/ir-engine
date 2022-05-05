@@ -1,4 +1,7 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { UserRole as UserRoleInterface } from '@xrengine/common/src/interfaces/UserRole'
+
 import { Application } from '../../../declarations'
 
 /**
@@ -8,7 +11,7 @@ import { Application } from '../../../declarations'
  */
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const userRole = sequelizeClient.define(
+  const userRole = sequelizeClient.define<Model<UserRoleInterface>>(
     'user_role',
     {
       role: {

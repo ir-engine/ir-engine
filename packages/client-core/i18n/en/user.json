@@ -2,8 +2,8 @@
   "auth": {
     "confirmEmail": {
       "header": "Confirmation Email",
-      "resendEmail": "Please check your email to verify your account. If you didn't get an email, please click <1>here</1> to resend the verification email.",
-      "login": "Have an account? <1>Log in</1>"
+      "resendEmail": "Please check your email to verify your account. If you didn't get an email, please click {{here}} to resend the verification email.",
+      "haveAnAccount": "Have an account?"
     },
     "forgotPassword": {
       "header": "Forgot Password",
@@ -28,7 +28,10 @@
       "lbl-phone": "Phone number",
       "agree": "I agree to the ",
       "terms": "Terms & Conditions",
-      "lbl-submit": "Send Login Link"
+      "lbl-submit": "Send Login Link",
+      "email-sent-msg": "Login Magic Link was sent. Please check your Email.",
+      "success-msg": "Login Magic Link was sent. Please check your Email or SMS.",
+      "sms-sent-msg": "Login Magic Link was sent. Please check your SMS."
     },
     "passwordLogin": {
       "header": "Sign In",
@@ -66,7 +69,9 @@
       "lbl-submit": "Reset Password",
       "lbl-password": "Password",
       "lbl-confirmPassword": "Password Confirm",
-      "passwordNotMatch": "Passwords Don't Match"
+      "passwordNotMatch": "Passwords Don't Match",
+      "nowLoginYourAccount": "You can now log into the your account",
+      "yourPasswordResetSuccess": "Your password was successfully reset!"
     },
     "verifyEmail": {
       "header": "Verify Email",
@@ -118,16 +123,25 @@
       "lbl-volume": "Volume",
       "lbl-microphone": "Microphone",
       "graphics": "Graphics",
+      "controls": "Controls",
+      "lbl-control-type": "Controller Type",
+      "lbl-control-scheme": "Control Scheme",
       "lbl-resolution": "Resolution",
       "lbl-shadow": "Shadows",
       "lbl-pp": "Post Processing",
       "lbl-pbr": "Full PBR",
-      "lbl-automatic": "Automatic"
+      "lbl-automatic": "Automatic",
+      "xrusersetting": "XR User Settings",
+      "rotation": "Rotation",
+      "rotation-smooth-speed": "Rotation Smooth Speed",
+      "rotation-angle": "Rotation Angle",
+      "moving": "Moving"
     },
     "profile": {
       "lbl-profile": "Profile",
       "lbl-settings": "Settings",
       "lbl-username": "Username",
+      "update-msg": "Username updated",
       "inviteCode": "Invite Code",
       "youAreAn": "You are an",
       "youAreA": "You are a",
@@ -135,6 +149,7 @@
       "hideUserId": "Hide User ID",
       "showApiKey": "Show API key",
       "hideApiKey": "Hide API key",
+      "apiKey": "API key",
       "logout": "Log out",
       "connectPhone": "Connect your phone number",
       "connectEmail": "Connect your email",
@@ -165,7 +180,7 @@
       "userIcon": {
         "lbl-name": "Your name",
         "lbl-update": "Update",
-        "userId": "User ID",
+        "userId": "User id",
         "ph-uploadImg": "Upload Product Image",
         "lbl-selectAcvatar": "Select Avatar",
         "lbl-submit": "Submit"
@@ -181,11 +196,11 @@
       }
     },
     "oauth": {
-        "authenticating": "Authenticating...",
-        "authFailed": "{{service}} authentication failed."
+      "authenticating": "Authenticating...",
+      "authFailed": "{{service}} authentication failed."
     },
     "magikLink": {
-        "wait": "Please wait a moment while processing..."
+      "wait": "Please wait a moment while processing..."
     },
     "dashboard": {
       "header": "Dashboard",
@@ -253,14 +268,42 @@
     "fileOversized": "Avatar file size must be between {{minSize}} MB and {{maxSize}} MB",
     "confirmation": "Are you sure?",
     "canNotBeRemoved": "Active Avatar can not be removed",
-    "remove": "Remove avatar"
+    "remove": "Remove avatar",
+    "uploadFiles": "Upload files",
+    "useUrlInstead": "Use url instead",
+    "avatar": "Avatar",
+    "cancel": "Cancel",
+    "createAvatar": "Create Avatar",
+    "delete": "Delete",
+    "view": "View",
+    "uploadAvatarInfo": "Update avatar Information",
+    "name": "Name",
+    "enterName": "Enter name",
+    "avatarInformation": "Avatar Information",
+    "description": "Description",
+    "key": "Key",
+    "none": "None",
+    "submit": "Submit",
+    "edit": "Edit",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "Avatar Uploaded Successfully.",
+    "remove-success-msg": "Avatar Uploaded Successfully.",
+    "warning-msg": "Avatar resource is empty, have you synced avatars to your static file storage?"
   },
-  "personMenu":{
-    "inviteToParty":"Invite To Party",
-    "addAsFriend":"Add As Friend",
-    "trade":"Trade",
-    "pay":"Pay",
-    "mute":"Mute",
-    "block":"Block"
+  "personMenu": {
+    "inviteToParty": "Invite To Party",
+    "addAsFriend": "Add As Friend",
+    "mute": "Mute",
+    "block": "Block"
+  },
+  "person": {
+    "you": "You",
+    "muteForEveryone": "Mute for everyone",
+    "unmuteForEveryone": "Unmute for everyone",
+    "muteMe": "Mute me",
+    "unmuteMe": "Unmute me",
+    "muteThisPerson": "Mute this person",
+    "unmuteThisPerson": "Unmute this person",
+    "openPictureInPicture": "Open Picture in Picture"
   }
 }

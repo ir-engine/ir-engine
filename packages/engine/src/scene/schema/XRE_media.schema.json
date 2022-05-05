@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_media.schema.json",
+  "title": "XRE_media glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine media components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "controls": { "type": "boolean" },
+    "autoplay": { "type": "boolean" },
+    "autoStartTime": { "type": "number" },
+    "loop": { "type": "boolean" }
+  },
+  "extensions": {},
+  "extras": {}
+}

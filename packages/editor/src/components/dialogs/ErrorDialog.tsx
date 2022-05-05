@@ -1,7 +1,7 @@
 import React from 'react'
+import styled from 'styled-components'
 
 import Dialog, { DialogContent } from './Dialog'
-import styled from 'styled-components'
 
 /**
  * ErrorDialogContainer used as wrapper element for ErrorMessage.
@@ -30,7 +30,7 @@ const ErrorMessage = (styled as any).code`
   overflow-x: hidden;
   overflow-y: auto;
   padding: 16px;
-  color: ${(props) => props.theme.red};
+  color: var(--red);
 `
 
 /**

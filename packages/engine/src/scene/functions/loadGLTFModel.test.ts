@@ -1,32 +1,24 @@
+import assert from 'assert'
 import { Group, Layers, Mesh, Quaternion, Scene, Vector3 } from 'three'
-import {
-  addComponent,
-  createMappedComponent,
-  defineQuery,
-  getComponent,
-  hasComponent
-} from '../../ecs/functions/ComponentFunctions'
+
+import { Engine } from '../../ecs/classes/Engine'
+import { addComponent, createMappedComponent, defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../initializeEngine'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { parseGLTFModel } from './loadGLTFModel'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import assert from 'assert'
-import { createWorld } from '../../ecs/classes/World'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { SpawnPointComponent } from '../components/SpawnPointComponent'
-import { Engine } from '../../ecs/classes/Engine'
+import { parseGLTFModel } from './loadGLTFModel'
 
 describe('loadGLTFModel', () => {
-  // force close until we can reset the engine properly
-  // after(async () => {
-  //   setTimeout(() => process.exit(0), 1000)
-  // })
+  beforeEach(() => {
+    createEngine()
+  })
 
   // TODO: - this needs to be broken down and more comprehensive
   it('loadGLTFModel', async () => {
-    const world = createWorld()
-    Engine.currentWorld = world
+    const world = Engine.instance.currentWorld
 
     const mockComponentData = { src: 'https://mock.site/asset.glb' } as any
     const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')
@@ -74,8 +66,6 @@ describe('loadGLTFModel', () => {
 
   // TODO
   it.skip('Can load physics objects from gltf metadata', async () => {
-    const world = createWorld()
-
     const entity = createEntity()
     addComponent(entity, TransformComponent, {
       position: new Vector3(),

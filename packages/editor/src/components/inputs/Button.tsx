@@ -12,8 +12,8 @@ export const Button = styled.button.attrs((props) => ({
   display: flex;
   border: none;
   border-radius: 4px;
-  background: ${(props) => props.theme.blue};
-  color: ${(props) => props.theme.white};
+  background: var(--purpleColor);
+  color: var(--white);
   white-space: nowrap;
   min-height: 24px;
   font-size: 15px;
@@ -28,21 +28,20 @@ export const Button = styled.button.attrs((props) => ({
   margin-right: 15px;
 
   &:hover {
-    color: ${(props) => props.theme.text};
-    background-color: ${(props) => props.theme.bluePressed};
+    color: var(--text);
+    opacity: 0.8;
   }
 
   &:active {
-    color: ${(props) => props.theme.text};
-    background-color: ${(props) => props.theme.bluePressed};
+    color: var(--text);
   }
 
   &:disabled {
-    background: ${(props) => props.theme.disabled};
-    color: ${(props) => props.theme.disabledText};
+    background: var(--disabled);
+    color: var(--disabledText);
 
     &:hover {
-      background-color: ${(props) => props.theme.disabled};
+      background-color: var(--disabled);
     }
   }
 `
@@ -78,20 +77,20 @@ export const LargeButton = styled(Button)`
  * @type {Styled component}
  */
 export const SecondaryButton = styled(Button)`
-  background-color: ${(props) => props.theme.hover};
-  color: ${(props) => props.theme.text};
+  background-color: var(--hover);
+  color: var(--text);
 
   &:hover {
-    background-color: ${(props) => props.theme.text2};
+    background-color: var(--text2);
   }
 
   &:active {
-    background-color: ${(props) => props.theme.text2};
+    background-color: var(--text2);
   }
 
   &:disabled {
-    background-color: ${(props) => props.theme.disabled};
-    color: ${(props) => props.theme.disabledText};
+    background-color: var(--disabled);
+    color: var(--disabledText);
 
     &:hover {
       background-color: transparent;
@@ -107,7 +106,7 @@ export const SecondaryButton = styled(Button)`
  */
 export const MenuButton = styled(Button)`
   background-color: transparent;
-  color: ${(props) => props.theme.text2};
+  color: var(--text2);
   padding: 1px 8px;
   width: 20px;
   margin-right: 0px;
@@ -122,7 +121,7 @@ export const MenuButton = styled(Button)`
 
   &:disabled {
     background-color: transparent;
-    color: ${(props) => props.theme.disabledText};
+    color: var(--disabledText);
 
     &:hover {
       background-color: transparent;

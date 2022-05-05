@@ -1,33 +1,44 @@
 import { Color, Mesh, Raycaster } from 'three'
-import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
+
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { dispatchAction } from '@xrengine/hyperflux'
+
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent } from '../components/XRUIComponent'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
-import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader'
 
 export default async function XRUISystem(world: World) {
+  const renderer = EngineRenderer.instance.renderer
+  if (!renderer) throw new Error('EngineRenderer.instance.renderer must exist before initializing XRUISystem')
+
   const hitColor = new Color(0x00e6e6)
   const normalColor = new Color(0xffffff)
   const xruiQuery = defineQuery([XRUIComponent])
   const avatar = defineQuery([AvatarComponent, NetworkObjectComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent])
   const controllerLastHitTarget: string[] = []
-  const hoverSfxPath = Engine.publicPath + '/default_assets/audio/ui-hover.mp3'
+  const hoverSfxPath = Engine.instance.publicPath + '/default_assets/audio/ui-hover.mp3'
   const hoverAudio = new Audio()
   hoverAudio.src = hoverSfxPath
   let idCounter = 0
 
   const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealjs/web-layer/three')))
-  xrui.WebLayerModule.WebLayerManager.initialize(Engine.renderer)
+  xrui.WebLayerModule.WebLayerManager.initialize(renderer)
+  xrui.WebLayerModule.WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
+
+  // @ts-ignore
+  // console.log(JSON.stringify(xrui.WebLayerModule.WebLayerManager.instance.textureLoader.workerConfig))
   // xrui.WebLayerModule.WebLayerManager.instance.textureLoader.workerConfig = {
   //   astcSupported: false,
   //   etc1Supported: renderer.extensions.has( 'WEBGL_compressed_texture_etc1' ),
@@ -38,6 +49,7 @@ export default async function XRUISystem(world: World) {
   // }
 
   const screenRaycaster = new Raycaster()
+  screenRaycaster.layers.enableAll()
   xrui.interactionRays = [screenRaycaster.ray]
 
   // redirect DOM events from the canvas, to the 3D scene,
@@ -47,23 +59,23 @@ export default async function XRUISystem(world: World) {
     for (const entity of xruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).container
       const hit = layer.hitTest(screenRaycaster.ray)
-      if (hit) {
+      if (hit && hit.intersection.object.visible) {
         hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
         hit.target.focus()
+        return
       }
     }
 
     for (const entity of avatar(world)) {
-      const modelContainer = getComponent(entity, AvatarComponent).modelContainer
-      const intersectObjects = screenRaycaster.intersectObjects([modelContainer])
+      const model = getComponent(entity, Object3DComponent).value
+      const intersectObjects = screenRaycaster.intersectObject(model, true)
       if (intersectObjects.length > 0) {
         const userId = getComponent(entity, NetworkObjectComponent).ownerId
-        dispatchLocal(EngineActions.userAvatarTapped(userId))
+        dispatchAction(Engine.instance.store, EngineActions.userAvatarTapped({ userId }))
         return
-      } else {
-        dispatchLocal(EngineActions.userAvatarTapped(''))
       }
     }
+    dispatchAction(Engine.instance.store, EngineActions.userAvatarTapped({ userId: '' as UserId }))
   }
 
   const updateControllerRayInteraction = (inputComponent: XRInputSourceComponentType) => {
@@ -121,8 +133,9 @@ export default async function XRUISystem(world: World) {
 
   return () => {
     if (!addedEventListeners) {
-      const canvas = Engine.renderer.getContext().canvas
+      const canvas = EngineRenderer.instance.renderer.getContext().canvas
       canvas.addEventListener('click', redirectDOMEvent)
+      canvas.addEventListener('contextmenu', redirectDOMEvent)
       canvas.addEventListener('dblclick', redirectDOMEvent)
       addedEventListeners = true
     }
@@ -130,7 +143,7 @@ export default async function XRUISystem(world: World) {
     const input = getComponent(world.localClientEntity, InputComponent)
     const screenXY = input?.data?.get(BaseInput.SCREENXY)?.value
     if (screenXY) {
-      screenRaycaster.setFromCamera({ x: screenXY[0], y: screenXY[1] }, Engine.camera)
+      screenRaycaster.setFromCamera({ x: screenXY[0], y: screenXY[1] }, Engine.instance.camera)
     } else {
       screenRaycaster.ray.origin.set(Infinity, Infinity, Infinity)
       screenRaycaster.ray.direction.set(0, -1, 0)
@@ -156,12 +169,12 @@ export default async function XRUISystem(world: World) {
     }
 
     for (const entity of xruiQuery()) {
-      const layer = getComponent(entity, XRUIComponent).container
-      layer.update()
+      const xrui = getComponent(entity, XRUIComponent)
+      xrui.container.update()
     }
 
-    // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.camera.projectionMatrix)
-    // Engine.renderer.getSize(xrui.layoutSystem.viewResolution)
+    // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.instance.camera.projectionMatrix)
+    // EngineRenderer.instance.renderer.getSize(xrui.layoutSystem.viewResolution)
     // xrui.layoutSystem.update(world.delta, world.elapsedTime)
   }
 }

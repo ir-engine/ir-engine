@@ -1,9 +1,11 @@
 import { Mesh } from 'three'
+
 import { GenerateMeshBVHWorker } from '../../common/classes/GenerateMeshBVHWorker'
+import { isClient } from '../../common/functions/isClient'
+
+let poolSize = isClient ? 2 : 1
 
 //TODO: Find number of cores on server side
-let poolSize = 2
-
 // if (isClient) {
 //   poolSize = window.navigator?.hardwareConcurrency || 2
 // }
@@ -42,7 +44,7 @@ function runBVHGenerator() {
     worker.generate(mesh.geometry).then((bvh) => {
       ;(mesh.geometry as any).boundsTree = bvh
       runBVHGenerator()
-      console.log('resolvePromiseBVH')
+      // console.log('resolvePromiseBVH')
       ;(mesh as any).resolvePromiseBVH && (mesh as any).resolvePromiseBVH()
     })
   }

@@ -1,11 +1,12 @@
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { WebLayer3D } from '@etherealjs/web-layer/three'
+
+import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { createMediaControlsUI, getMediaControlsUI, removeMediaControlsUI } from '../functions/mediaControlsUI'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
-import { Entity } from '../../ecs/classes/Entity'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
-import { WebLayer3D } from '@etherealjs/web-layer/three'
+import { createMediaControlsUI, getMediaControlsUI, removeMediaControlsUI } from '../functions/mediaControlsUI'
 
 export const MediaFadeTransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
 
@@ -26,7 +27,7 @@ export default async function MediaControlSystem(world: World) {
       if (!xrui?.container) continue
       const transition = MediaFadeTransitions.get(entity)!
       const buttonLayer = xrui.container.rootLayer.querySelector('button')!
-      const hover = xrui.container.rootLayer.pseudoStates.hover || buttonLayer.pseudoStates.hover
+      const hover = xrui.container.rootLayer.domState?.pseudo.hover || buttonLayer.domState?.pseudo.hover
       if (hover && !mediaControls.state.mouseOver.value) {
         transition.setState('IN')
         mediaControls.state.mouseOver.set(true)

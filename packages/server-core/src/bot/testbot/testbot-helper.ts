@@ -1,6 +1,8 @@
-import { Application } from '../../../declarations'
-import { TestBot, SpawnTestBot } from '@xrengine/common/src/interfaces/TestBot'
+import { SpawnTestBot, TestBot } from '@xrengine/common/src/interfaces/TestBot'
 import config from '@xrengine/server-core/src/appconfig'
+import logger from '@xrengine/server-core/src/logger'
+
+import { Application } from '../../../declarations'
 
 export const getTestbotPod = async (app: Application) => {
   if (app.k8DefaultClient) {
@@ -19,7 +21,7 @@ export const getTestbotPod = async (app: Application) => {
       }
       return pods
     } catch (e) {
-      console.log(e)
+      logger.error(e)
       return e
     }
   }
@@ -64,7 +66,7 @@ export const runTestbotJob = async (app: Application): Promise<SpawnTestBot> => 
         }
       }
     } catch (e) {
-      console.log(e)
+      logger.error(e)
       return { status: false, message: `Failed to spawn bot. (${e.body.reason})` }
     }
   }

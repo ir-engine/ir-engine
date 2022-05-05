@@ -1,32 +1,32 @@
 import React, { useRef } from 'react'
-import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
+
+import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+
+import { FileCopy, Send } from '@mui/icons-material'
+import Button from '@mui/material/Button'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
-import { Send, FileCopy } from '@mui/icons-material'
-import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import styles from '../UserMenu.module.scss'
+import Typography from '@mui/material/Typography'
+
+import { AlertService } from '../../../../common/services/AlertService'
 import { InviteService } from '../../../../social/services/InviteService'
-import { useDispatch } from '../../../../store'
-import { useTranslation } from 'react-i18next'
 import { useInviteState } from '../../../../social/services/InviteService'
+import { useAuthState } from '../../../services/AuthService'
+import styles from '../index.module.scss'
 
-interface Props {
-  alertSuccess?: any
-}
-
-const ShareMenu = (props: Props): any => {
+const ShareMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const [email, setEmail] = React.useState('')
-  const refLink = useRef<any>(null!)
+  const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
   const postTitle = 'AR/VR world'
   const siteTitle = 'XREngine'
-  const dispatch = useDispatch()
   const inviteState = useInviteState()
   const copyLinkToClipboard = () => {
     navigator.clipboard.writeText(refLink.current.value)
-    props.alertSuccess(t('user:usermenu.share.linkCopied'))
+    AlertService.alertSuccess(t('user:usermenu.share.linkCopied'))
   }
+  const selfUser = useAuthState().user
 
   const shareOnApps = () => {
     navigator
@@ -60,6 +60,18 @@ const ShareMenu = (props: Props): any => {
     setEmail(e.target.value)
   }
 
+  const getInviteLink = () => {
+    const location = new URL(window.location as any)
+    let params = new URLSearchParams(location.search)
+    if (selfUser?.inviteCode.value != null) {
+      params.append('inviteCode', selfUser.inviteCode.value)
+      location.search = params.toString()
+      return location
+    } else {
+      return location
+    }
+  }
+
   return (
     <div className={styles.menuPanel}>
       <div className={styles.sharePanel}>
@@ -70,7 +82,7 @@ const ShareMenu = (props: Props): any => {
           className={styles.copyField}
           size="small"
           variant="outlined"
-          value={window.location.href}
+          value={getInviteLink()}
           disabled={true}
           inputRef={refLink}
           InputProps={{

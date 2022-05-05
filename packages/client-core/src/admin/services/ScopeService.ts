@@ -1,9 +1,11 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { AlertService } from '../../common/services/AlertService'
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
-import { AdminScopeResult } from '@xrengine/common/src/interfaces/AdminScopeResult'
+
 import { AdminScope } from '@xrengine/common/src/interfaces/AdminScope'
+
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 
 //State
 export const SCOPE_PAGE_LIMIT = 100
@@ -56,59 +58,55 @@ export const useScopeState = () => useState(state) as any as typeof state
 export const ScopeService = {
   createScope: async (scopeItem: any) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const newItem = await client.service('scope').create({
-          ...scopeItem
-        })
-        dispatch(ScopeAction.addAdminScope(newItem))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      const newItem = (await client.service('scope').create({
+        ...scopeItem
+      })) as AdminScope
+      dispatch(ScopeAction.addAdminScope(newItem))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   getScopeService: async (incDec?: 'increment' | 'decrement') => {
     const dispatch = useDispatch()
-    {
-      const scopeState = accessScopeState()
-      const skip = scopeState.skip.value
-      const limit = scopeState.limit.value
-      try {
-        dispatch(ScopeAction.fetchingScope())
-        const list = await client.service('scope').find({
-          query: {
-            $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
-            $limit: limit
-          }
-        })
-        dispatch(ScopeAction.setAdminScope(list))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    const scopeState = accessScopeState()
+    const skip = scopeState.skip.value
+    const limit = scopeState.limit.value
+    try {
+      dispatch(ScopeAction.fetchingScope())
+      const list = (await client.service('scope').find({
+        query: {
+          $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+          $limit: limit
+        }
+      })) as Paginated<AdminScope>
+      dispatch(ScopeAction.setAdminScope(list))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   updateScopeService: async (scopeId, scopeItem) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const updatedScope = await client.service('scope').patch(scopeId, {
-          ...scopeItem
-        })
-        dispatch(ScopeAction.updateAdminScope(updatedScope))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      const updatedScope = (await client.service('scope').patch(scopeId, {
+        ...scopeItem
+      })) as AdminScope
+      dispatch(ScopeAction.updateAdminScope(updatedScope))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   removeScope: async (scopeId: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('scope').remove(scopeId)
-        dispatch(ScopeAction.removeScopeItem(scopeId))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      await client.service('scope').remove(scopeId)
+      dispatch(ScopeAction.removeScopeItem(scopeId))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   }
 }
@@ -120,7 +118,7 @@ export const ScopeAction = {
       type: 'SCOPE_FETCHING' as const
     }
   },
-  setAdminScope: (adminScopeResult: AdminScopeResult) => {
+  setAdminScope: (adminScopeResult: Paginated<AdminScope>) => {
     return {
       type: 'SCOPE_ADMIN_RETRIEVED' as const,
       adminScopeResult: adminScopeResult

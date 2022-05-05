@@ -1,11 +1,13 @@
-import { Application } from '../../../declarations'
-import { PartyUser } from './party-user.class'
-import createModel from './party-user.model'
-import hooks from './party-user.hooks'
-import logger from '../../logger'
-import partyUserDocs from './party-user.docs'
+import '@feathersjs/transport-commons'
 
-declare module '../../../declarations' {
+import { Application } from '../../../declarations'
+import logger from '../../logger'
+import { PartyUser } from './party-user.class'
+import partyUserDocs from './party-user.docs'
+import hooks from './party-user.hooks'
+import createModel from './party-user.model'
+
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'party-user': PartyUser
   }
@@ -43,7 +45,7 @@ export default (app: Application): void => {
   service.publish('created', async (data): Promise<any> => {
     data.isOwner = data.isOwner === 1 ? true : data.isOwner === 0 ? false : data.isOwner
     try {
-      // const channel = await (app.service('channel') as any).Model.findOne({
+      // const channel = await (app.service('channel')).Model.findOne({
       //   where: {
       //     partyId: data.partyId
       //   }
@@ -101,7 +103,7 @@ export default (app: Application): void => {
   service.publish('patched', async (data): Promise<any> => {
     data.isOwner = data.isOwner === 1 ? true : data.isOwner === 0 ? false : data.isOwner
     try {
-      // const channel = await (app.service('channel') as any).Model.findOne({
+      // const channel = await (app.service('channel')).Model.findOne({
       //   where: {
       //     partyId: data.partyId
       //   }
@@ -162,7 +164,7 @@ export default (app: Application): void => {
   service.publish('removed', async (data): Promise<any> => {
     data.isOwner = data.isOwner === 1 ? true : data.isOwner === 0 ? false : data.isOwner
     try {
-      // const channel = await (app.service('channel') as any).Model.findOne({
+      // const channel = await (app.service('channel')).Model.findOne({
       //   where: {
       //     partyId: data.partyId
       //   }
@@ -188,7 +190,7 @@ export default (app: Application): void => {
       })
       targetIds.push(data.userId)
       await app.service('user').patch(data.userId, {
-        partyId: null
+        partyId: null!
       })
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return Promise.all(

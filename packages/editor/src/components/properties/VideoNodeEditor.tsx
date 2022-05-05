@@ -1,18 +1,21 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import VideoInput from '../inputs/VideoInput'
-import VideocamIcon from '@mui/icons-material/Videocam'
-import { EditorComponentType, updateProperty } from './Util'
-import { ControlledStringInput } from '../inputs/StringInput'
 import { useTranslation } from 'react-i18next'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
-import { PropertiesPanelButton } from '../inputs/Button'
-import MediaSourceProperties from './MediaSourceProperties'
-import { toggleVideo } from '@xrengine/engine/src/scene/functions/loaders/VideoFunctions'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
+import { toggleVideo } from '@xrengine/engine/src/scene/functions/loaders/VideoFunctions'
+
+import VideocamIcon from '@mui/icons-material/Videocam'
+
+import { PropertiesPanelButton } from '../inputs/Button'
+import InputGroup from '../inputs/InputGroup'
+import { ControlledStringInput } from '../inputs/StringInput'
+import VideoInput from '../inputs/VideoInput'
+import MediaSourceProperties from './MediaSourceProperties'
+import NodeEditor from './NodeEditor'
+import { EditorComponentType, updateProperty } from './Util'
 
 /**
  * VideoNodeEditor used to render editor view for property customization.

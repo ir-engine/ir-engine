@@ -1,24 +1,28 @@
 import appRootPath from 'app-root-path'
-import config from '../../appconfig'
 import fs from 'fs'
 import fsStore from 'fs-blob-store'
 import glob from 'glob'
 import path from 'path/posix'
+
+import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+
+import config from '../../appconfig'
+import logger from '../../logger'
+import { getContentType } from '../../util/fileUtils'
+import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
 import {
   BlobStore,
   StorageListObjectInterface,
   StorageObjectInterface,
   StorageProviderInterface
 } from './storageprovider.interface'
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
-import { getContentType } from '../../util/fileUtils'
 
 export class LocalStorage implements StorageProviderInterface {
   STORAGE_DIR = 'server/upload'
   PATH_PREFIX: string
 
   cacheDomain = config.server.localStorageProvider
-  _store: fsStore
+  _store: typeof fsStore
 
   constructor() {
     this.PATH_PREFIX = path.join(appRootPath.path.replaceAll('\\', path.sep), 'packages', this.STORAGE_DIR)
@@ -58,17 +62,19 @@ export class LocalStorage implements StorageProviderInterface {
 
   putObject = async (params: StorageObjectInterface): Promise<any> => {
     const filePath = path.join(this.PATH_PREFIX, params.Key!)
-    const pathWithoutFile = path.dirname(filePath)
-    if (filePath.substr(-1) === '/') {
+
+    if (filePath.substring(filePath.length - 1) === '/') {
       if (!fs.existsSync(filePath)) {
         await fs.promises.mkdir(filePath, { recursive: true })
         return true
       }
       return false
     }
+
+    const pathWithoutFile = path.dirname(filePath)
     if (pathWithoutFile == null) throw new Error('Invalid file path in local putObject')
-    const pathWithoutFileExists = fs.existsSync(pathWithoutFile)
-    if (!pathWithoutFileExists) await fs.promises.mkdir(pathWithoutFile, { recursive: true })
+    if (!fs.existsSync(pathWithoutFile)) await fs.promises.mkdir(pathWithoutFile, { recursive: true })
+
     return fs.promises.writeFile(filePath, params.Body)
   }
 
@@ -96,7 +102,6 @@ export class LocalStorage implements StorageProviderInterface {
   }
 
   deleteResources(keys: string[]) {
-    //Currently Not able to delete dir
     const blobs = this.getStorage()
 
     return Promise.all<boolean>(
@@ -104,16 +109,22 @@ export class LocalStorage implements StorageProviderInterface {
         return new Promise<boolean>((resolve) => {
           blobs.exists(key, (err, exists) => {
             if (err) {
-              console.error(err)
+              logger.error(err)
               resolve(false)
               return
             }
             if (exists) {
               blobs.remove(key, (err) => {
                 if (err) {
-                  console.error(err)
-                  resolve(false)
-                  return
+                  const filePath = path.join(this.PATH_PREFIX, key)
+                  if (fs.lstatSync(filePath).isDirectory()) {
+                    fs.rmSync(filePath, { force: true, recursive: true })
+                    resolve(true)
+                  } else {
+                    resolve(false)
+                    logger.error(err)
+                    return
+                  }
                 }
                 resolve(true)
               })
@@ -126,21 +137,41 @@ export class LocalStorage implements StorageProviderInterface {
     )
   }
 
+  formatBytes = (bytes, decimals = 2) => {
+    if (bytes === 0) return '0 Bytes'
+
+    const k = 1024
+    const dm = decimals < 0 ? 0 : decimals
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+  }
+
   processContent = (dirPath: string, pathString: string, isDir = false): FileContentType => {
     const res = { key: pathString.replace(this.PATH_PREFIX, '') } as FileContentType
     const signedUrl = this.getSignedUrl(res.key, 3600, null)
 
     if (isDir) {
+      const filePaths = glob.sync('**', {
+        // "**" means you search on the whole folder
+        cwd: pathString, // folder path
+        absolute: true // you have to set glob to return absolute path not only file names
+      })
+      let totalSize = 0
+      filePaths.forEach((file) => {
+        const stat = fs.lstatSync(file)
+        totalSize += stat.size
+      })
       res.name = res.key.replace(`${dirPath}`, '').split(path.sep)[0]
       res.type = 'folder'
       res.url = this.getSignedUrl(res.key, 3600, null).url
+      res.size = this.formatBytes(totalSize)
     } else {
-      // const regex = /(?:.*)\/(?<name>.*)\.(?<extension>.*)/g
-      // const query = regex.exec(res.key)
-
       res.type = path.extname(res.key).substring(1) // remove '.' from extension
       res.name = path.basename(res.key, '.' + res.type)
-
+      res.size = this.formatBytes(fs.lstatSync(pathString).size)
       res.url = signedUrl.url + path.sep + signedUrl.fields.Key
     }
 
@@ -177,24 +208,18 @@ export class LocalStorage implements StorageProviderInterface {
     renameTo: string = null!
   ): Promise<boolean> => {
     const contentpath = path.join(this.PATH_PREFIX)
-    let fileName = renameTo != null ? renameTo : path.basename(current)
-    let fileCount = 1
-    const file = fileName.split('.')
     current = path.join(contentpath, current)
     destination = path.join(contentpath, destination)
-    while (fs.existsSync(path.join(destination, fileName))) {
-      fileName = ''
-      for (let i = 0; i < file.length - 1; i++) fileName += file[i]
-      fileName = `${fileName}(${fileCount}).${file[file.length - 1]}`
-      fileCount++
-    }
+    let fileName = renameTo != null ? getIncrementalName(renameTo, destination) : path.basename(current)
+
     try {
       isCopy
-        ? await fs.promises.copyFile(current, path.join(destination, fileName))
+        ? await copyRecursiveSync(current, path.join(destination, fileName))
         : await fs.promises.rename(current, path.join(destination, fileName))
     } catch (err) {
       return false
     }
+
     return true
   }
 }

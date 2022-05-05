@@ -1,10 +1,12 @@
 export type FileDataType = {
-  description: string
-  id: string
-  label: string
-  nodeClass: any
+  key: string
+  path: string
+  name: string
+  fullName: string
+  size?: string
   url: string
   type: string
-  initialProps: any
-  iconComponent: any
+  isFolder: boolean
+  Icon: any
+  prefabType: string
 }

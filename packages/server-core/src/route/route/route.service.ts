@@ -1,52 +1,69 @@
 import { Params } from '@feathersjs/feathers'
-import hooks from './route.hooks'
-import { Application } from '../../../declarations'
-import { Route } from './route.class'
-import createModel from './route.model'
-import routeDocs from './route.docs'
 import fs from 'fs'
 import path from 'path'
-import { InstalledRoutesInterface, ActiveRoutesInterface } from '@xrengine/common/src/interfaces/Route'
+
+import { ActiveRoutesInterface, InstalledRoutesInterface } from '@xrengine/common/src/interfaces/Route'
 import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
 
-declare module '../../../declarations' {
+import { Application } from '../../../declarations'
+import logger from '../../logger'
+import { Route } from './route.class'
+import routeDocs from './route.docs'
+import hooks from './route.hooks'
+import createModel from './route.model'
+
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     route: Route
   }
+
+  interface ServiceTypes {
+    'route-activate': {
+      create: ReturnType<typeof activateRoute>
+    }
+  }
+
+  interface ServiceTypes {
+    'routes-installed': {
+      find: ReturnType<typeof getInstalledRoutes>
+    }
+  }
 }
 
-export const getInstalledRoutes = async () => {
-  const projects = fs
-    .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => dirent.name)
+export const getInstalledRoutes = (): any => {
+  return async () => {
+    const projects = fs
+      .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name)
 
-  const data: InstalledRoutesInterface[] = []
-  await Promise.all(
-    projects.map(async (project) => {
-      try {
-        if (fs.existsSync(path.resolve(__dirname, `../../../../projects/projects/${project}/xrengine.config.ts`))) {
-          const projectConfig: ProjectConfigInterface = (
-            await import(`@xrengine/projects/projects/${project}/xrengine.config.ts`)
-          ).default
-          data.push({
-            routes: Object.keys(projectConfig.routes!),
-            project
-          })
+    const data: InstalledRoutesInterface[] = []
+    await Promise.all(
+      projects.map(async (project) => {
+        try {
+          if (fs.existsSync(path.resolve(__dirname, `../../../../projects/projects/${project}/xrengine.config.ts`))) {
+            const projectConfig: ProjectConfigInterface = (
+              await import(`@xrengine/projects/projects/${project}/xrengine.config.ts`)
+            ).default
+            data.push({
+              routes: Object.keys(projectConfig.routes!),
+              project
+            })
+          }
+        } catch (e) {
+          logger.error(e, `[getProjects]: Failed to read config for project "${project}" with error: ${e.message}`)
+          return
         }
-      } catch (e) {
-        console.warn('[getProjects]: Failed to read config for project', project, 'with error', e)
-        return
-      }
-    })
-  )
-  return { data }
+      })
+    )
+    return { data }
+  }
 }
 
 export const activateRoute = (routeService: Route): any => {
   return async (data: { project: string; route: string; activate: boolean }, params: Params) => {
-    const activatedRoutes = ((await routeService.find(null!)) as any).data as ActiveRoutesInterface[]
-    const installedRoutes = (await getInstalledRoutes()).data
+    const activatedRoutes = (await routeService.find(null!)).data as ActiveRoutesInterface[]
+    const installedRoutes = (await getInstalledRoutes()()).data
     if (data.activate) {
       const routeToActivate = installedRoutes.find((r) => r.project === data.project && r.routes.includes(data.route))
       if (routeToActivate) {
@@ -83,7 +100,7 @@ export default (app: Application): void => {
   app.use('route', event)
   // @ts-ignore
   app.use('routes-installed', {
-    find: getInstalledRoutes
+    find: getInstalledRoutes()
   })
   // @ts-ignore
   app.use('route-activate', {

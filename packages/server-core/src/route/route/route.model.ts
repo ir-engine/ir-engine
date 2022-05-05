@@ -1,9 +1,12 @@
-import { DataTypes, Sequelize } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { RouteInterface } from '@xrengine/common/src/dbmodels/Route'
+
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Route = sequelizeClient.define(
+  const Route = sequelizeClient.define<Model<RouteInterface>>(
     'route',
     {
       id: {

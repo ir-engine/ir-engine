@@ -1,9 +1,11 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { AlertService } from '../../common/services/AlertService'
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
+
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
-import { AdminScopTypeResult } from '@xrengine/common/src/interfaces/AdminScopeTypeResult'
+
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 
 //State
 export const SCOPE_PAGE_LIMIT = 100
@@ -46,28 +48,27 @@ export const useScopeTypeState = () => useState(state) as any as typeof state
 export const ScopeTypeService = {
   getScopeTypeService: async (incDec?: 'increment' | 'decrement') => {
     const dispatch = useDispatch()
-    {
-      const scopeState = accessScopeTypeState()
-      const skip = scopeState.skip.value
-      const limit = scopeState.limit.value
-      try {
-        const result = await client.service('scope-type').find({
-          query: {
-            $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
-            $limit: limit
-          }
-        })
-        dispatch(ScopeTypeAction.getScopeTypes(result))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    const scopeState = accessScopeTypeState()
+    const skip = scopeState.skip.value
+    const limit = scopeState.limit.value
+    try {
+      const result = (await client.service('scope-type').find({
+        query: {
+          $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+          $limit: limit
+        }
+      })) as Paginated<AdminScopeType>
+      dispatch(ScopeTypeAction.getScopeTypes(result))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   }
 }
 
 //Action
 export const ScopeTypeAction = {
-  getScopeTypes: (adminScopeTypeResult: AdminScopTypeResult) => {
+  getScopeTypes: (adminScopeTypeResult: Paginated<AdminScopeType>) => {
     return {
       type: 'SCOPE_TYPES_RETRIEVED' as const,
       adminScopeTypeResult: adminScopeTypeResult

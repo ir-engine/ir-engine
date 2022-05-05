@@ -1,11 +1,14 @@
-import { World } from '../../ecs/classes/World'
+import { dispatchAction } from '@xrengine/hyperflux'
+
+import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
-import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
-import { PortalComponent } from '../components/PortalComponent'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
+import { World } from '../../ecs/classes/World'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
+import { PortalComponent } from '../components/PortalComponent'
+import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
+import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 
 /**
  * @author Hamza Mushtaq <github.com/hamzzam>
@@ -21,8 +24,13 @@ export default async function TriggerSystem(world: World) {
 
       if (getComponent(triggerEntity, PortalComponent)) {
         const portalComponent = getComponent(triggerEntity, PortalComponent)
-        if (Engine.currentWorld.isInPortal) continue
-        dispatchLocal(EngineActions.portalRedirectEvent(portalComponent) as any)
+        if (isClient && portalComponent.redirect) {
+          window.location.href = Engine.instance.publicPath + '/location/' + portalComponent.location
+          continue
+        }
+        world.activePortal = portalComponent
+        dispatchAction(Engine.instance.store, EngineActions.setTeleporting({ isTeleporting: true }))
+        continue
       }
 
       const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
@@ -36,7 +44,7 @@ export default async function TriggerSystem(world: World) {
         const filtedData: any = filtered[0]
         targetObj = filtedData.object
       } else {
-        targetObj = world.entityTree.findNodeFromUUID(triggerComponent.target)
+        targetObj = world.entityTree.uuidNodeMap.get(triggerComponent.target)
         if (targetObj) {
           sceneEntityCaches.push({
             target: triggerComponent.target,
@@ -45,10 +53,16 @@ export default async function TriggerSystem(world: World) {
         }
       }
       if (targetObj) {
-        if (targetObj[onEnter]) {
-          targetObj[onEnter]()
-        } else if (targetObj.execute) {
-          targetObj.execute(onEnter)
+        // if (targetObj[onEnter]) {
+        //   targetObj[onEnter]()
+        // } else if (targetObj.execute) {
+        //   targetObj.execute(onEnter)
+        // }
+        const obj3d = getComponent(targetObj.entity, Object3DComponent).value as any
+        if (obj3d[onEnter]) {
+          obj3d[onEnter]()
+        } else if (obj3d.execute) {
+          obj3d.execute(onEnter)
         }
       }
     }
@@ -66,7 +80,7 @@ export default async function TriggerSystem(world: World) {
         const filtedData: any = filtered[0]
         targetObj = filtedData.object
       } else {
-        targetObj = world.entityTree.findNodeFromUUID(triggerComponent.target)
+        targetObj = world.entityTree.uuidNodeMap.get(triggerComponent.target)
         if (targetObj) {
           sceneEntityCaches.push({
             target: triggerComponent.target,
@@ -75,10 +89,16 @@ export default async function TriggerSystem(world: World) {
         }
       }
       if (targetObj) {
-        if (targetObj[onExit]) {
-          targetObj[onExit]()
-        } else if (targetObj.execute) {
-          targetObj.execute(onExit)
+        // if (targetObj[onExit]) {
+        //   targetObj[onExit]()
+        // } else if (targetObj.execute) {
+        //   targetObj.execute(onExit)
+        // }
+        const obj3d = getComponent(targetObj.entity, Object3DComponent).value as any
+        if (obj3d[onExit]) {
+          obj3d[onExit]()
+        } else if (obj3d.execute) {
+          obj3d.execute(onExit)
         }
       }
     }

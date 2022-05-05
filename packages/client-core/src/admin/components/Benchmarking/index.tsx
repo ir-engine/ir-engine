@@ -1,15 +1,17 @@
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { useStyles } from './styles'
+
 import { TestBotService, useTestBotState } from '../../services/TestBotService'
+import styles from '../../styles/admin.module.scss'
 
 const Benchmarking = () => {
   const testbotState = useTestBotState()
-  const classes = useStyles()
   const { bots, spawn, spawning } = testbotState.value
-
+  const { t } = useTranslation()
   const REFRESH_MS = 10000
 
   useEffect(() => {
@@ -24,27 +26,27 @@ const Benchmarking = () => {
 
   return (
     <div>
-      <Grid container spacing={3}>
-        <Grid item xs={4}>
+      <Grid container spacing={1}>
+        <Grid item xs={6} sm={4}>
           <Button
             type="button"
             variant="contained"
-            color="primary"
+            className={styles.openModalBtn}
             disabled={spawning}
             onClick={() => {
               TestBotService.spawnTestBot()
             }}
           >
-            {'Spawn Bot'}
+            {t('admin:components.bot.spawnBot')}
           </Button>
         </Grid>
       </Grid>
 
-      {spawn && <Typography className={classes.heading}>Spawn bot status: {spawn.message}</Typography>}
+      {spawn && <Typography className={styles.heading}>Spawn bot status: {spawn.message}</Typography>}
 
       {bots && bots.length > 0 && (
-        <Typography className={classes.secondaryHeading}>
-          Last run status: {bots[0].status} (auto refreshing in 10s)
+        <Typography className={styles.secondaryHeading}>
+          {t('admin:components.bot.lastRunStatus')}: {bots[0].status} ({t('admin:components.bot.autoRefreshing')})
         </Typography>
       )}
     </div>

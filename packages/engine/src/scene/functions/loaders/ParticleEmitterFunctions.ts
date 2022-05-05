@@ -1,22 +1,21 @@
+import { Color, ShaderMaterial, Vector3 } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { Color, ShaderMaterial, Vector3 } from 'three'
-import { Object3DComponent } from '../../components/Object3DComponent'
-import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ParticleEmitterComponent } from '../../../particles/components/ParticleEmitter'
 import { ParticleEmitterMesh } from '../../../particles/functions/ParticleEmitterMesh'
-import { RenderedComponent } from '../../components/RenderedComponent'
-import { Engine } from '../../../ecs/classes/Engine'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { registerSceneLoadPromise } from '../SceneLoading'
-import { addError, removeError } from '../ErrorFunctions'
+import { Object3DComponent } from '../../components/Object3DComponent'
+import { RenderedComponent } from '../../components/RenderedComponent'
 
 export const SCENE_COMPONENT_PARTICLE_EMITTER = 'particle-emitter'
 export const SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES = {
@@ -52,36 +51,27 @@ export const deserializeParticleEmitter: ComponentDeserializeFunction = (
 
   const props = parseParticleEmitterProperties(json.props)
 
-  registerSceneLoadPromise(
-    new Promise<void>((resolve) => {
-      AssetLoader.load({ url: props.src }, (texture) => {
-        const mesh = new ParticleEmitterMesh(props, texture)
-        addComponent(entity, ParticleEmitterComponent, mesh)
-        addComponent(entity, Object3DComponent, { value: mesh })
-        addComponent(entity, RenderedComponent, {})
-        resolve()
-      })
-    })
-  )
+  const texture = AssetLoader.getFromCache(props.src)
+  const mesh = new ParticleEmitterMesh(props, texture)
+  addComponent(entity, ParticleEmitterComponent, mesh)
+  addComponent(entity, Object3DComponent, { value: mesh })
+  addComponent(entity, RenderedComponent, {})
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PARTICLE_EMITTER)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PARTICLE_EMITTER)
 }
 
 export const updateParticleEmitter: ComponentUpdateFunction = (entity: Entity, props: any): void => {
   if (props.src) {
-    AssetLoader.load(
-      { url: props.src },
-      (texture) => {
-        const component = getComponent(entity, ParticleEmitterComponent)
-        ;(component.material as ShaderMaterial).uniforms.map.value = texture
-        component.updateParticles()
-        removeError(entity, 'error')
-      },
-      undefined,
-      (error) => {
-        addError(entity, 'error', error.message)
-      }
-    )
+    const texture = AssetLoader.getFromCache(props.src)
+    const component = getComponent(entity, ParticleEmitterComponent)
+    ;(component.material as ShaderMaterial).uniforms.map.value = texture
+    component.updateParticles()
+    // removeError(entity, 'error')
+    // },
+    //   undefined,
+    //   (error) => {
+    //     addError(entity, 'error', error.message)
+    //   }
   }
 }
 

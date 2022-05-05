@@ -1,20 +1,22 @@
+import SimplexNoise from 'simplex-noise'
 import {
-  Mesh,
-  InstancedBufferGeometry,
-  PlaneBufferGeometry,
-  ShaderMaterial,
-  Vector3,
+  Color,
   InstancedBufferAttribute,
+  InstancedBufferGeometry,
+  Mesh,
+  Object3D,
+  PlaneBufferGeometry,
   RawShaderMaterial,
+  ShaderMaterial,
   UniformsUtils,
   Vector2,
-  Color,
-  Object3D
+  Vector3
 } from 'three'
-import SimplexNoise from 'simplex-noise'
-import loadTexture from '../../assets/functions/loadTexture'
-import { addError, removeError } from '../functions/ErrorFunctions'
+
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { Entity } from '../../ecs/classes/Entity'
 import { Object3DWithEntity } from '../components/Object3DComponent'
+import { addError, removeError } from '../functions/ErrorFunctions'
 
 const vertexShader = `
 precision highp float;
@@ -70,7 +72,9 @@ export class Clouds extends Mesh<InstancedBufferGeometry, ShaderMaterial> {
   _noise: SimplexNoise
   needsUpdate: boolean
 
-  constructor() {
+  entity: Entity
+
+  constructor(entity: Entity) {
     const planeGeometry = new PlaneBufferGeometry(1, 1, 1, 1)
     const geometry = new InstancedBufferGeometry()
     geometry.index = planeGeometry.index
@@ -91,6 +95,7 @@ export class Clouds extends Mesh<InstancedBufferGeometry, ShaderMaterial> {
     })
 
     super(geometry, material)
+    this.entity = entity
 
     this.frustumCulled = false
     this._noise = new SimplexNoise('seed')
@@ -200,13 +205,13 @@ export class Clouds extends Mesh<InstancedBufferGeometry, ShaderMaterial> {
 
   set texture(path: string) {
     this._texture = path
-    loadTexture(path)
+    AssetLoader.loadAsync(path)
       .then((texture) => {
         this.material.uniforms.map.value = texture
-        removeError((this as Object3D as Object3DWithEntity).entity, 'error')
+        removeError(this.entity, 'error')
       })
       .catch((error) => {
-        addError((this as Object3D as Object3DWithEntity).entity, 'error', error.message)
+        addError(this.entity, 'error', error.message)
       })
   }
 

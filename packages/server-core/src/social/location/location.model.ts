@@ -1,10 +1,13 @@
 // A place in physical or virtual space, with many copies (instances)
-import { Sequelize, DataTypes } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { LocationInterface } from '@xrengine/common/src/dbmodels/Location'
+
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const location = sequelizeClient.define(
+  const location = sequelizeClient.define<Model<LocationInterface>>(
     'location',
     {
       id: {
