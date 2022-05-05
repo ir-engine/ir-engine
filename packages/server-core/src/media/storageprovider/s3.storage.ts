@@ -50,7 +50,7 @@ export class S3Provider implements StorageProviderInterface {
     return this
   }
 
-  async isExists(fileName: string, directoryPath: string): Promise<boolean> {
+  async doesExist(fileName: string, directoryPath: string): Promise<boolean> {
     // have to use listOBjectsV2 since other object related methods does not check existance of a folder on S3
     const result = await this.provider
       .listObjectsV2({

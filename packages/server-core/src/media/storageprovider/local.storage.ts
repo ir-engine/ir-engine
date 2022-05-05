@@ -85,7 +85,7 @@ export class LocalStorage implements StorageProviderInterface {
   getProvider = (): StorageProviderInterface => this
   getStorage = (): BlobStore => this._store
 
-  isExists(fileName: string, directoryPath: string): Promise<boolean> {
+  doesExist(fileName: string, directoryPath: string): Promise<boolean> {
     return fs.promises
       .access(path.join(this.PATH_PREFIX, directoryPath, fileName))
       .then(() => true)

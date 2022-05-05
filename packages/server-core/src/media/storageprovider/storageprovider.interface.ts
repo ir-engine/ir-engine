@@ -43,7 +43,7 @@ export interface StorageProviderInterface {
    * @param key
    * @returns {Promise<boolean>}
    */
-  isExists(fileName: string, directoryPath: string): Promise<boolean>
+  doesExist(fileName: string, directoryPath: string): Promise<boolean>
 
   /**
    * Checks if an object is directory or not

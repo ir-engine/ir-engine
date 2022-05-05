@@ -24,7 +24,7 @@ export const getIncrementalName = async function (
 ): Promise<string> {
   let filename = name
 
-  if (!(await store.isExists(filename, directoryPath))) return filename
+  if (!(await store.doesExist(filename, directoryPath))) return filename
 
   let count = 1
 
@@ -32,7 +32,7 @@ export const getIncrementalName = async function (
     do {
       filename = `${name}(${count})`
       count++
-    } while (await store.isExists(filename, directoryPath))
+    } while (await store.doesExist(filename, directoryPath))
   } else {
     const extension = path.extname(name)
     const baseName = path.basename(name, extension)
@@ -40,7 +40,7 @@ export const getIncrementalName = async function (
     do {
       filename = `${baseName}(${count})${extension}`
       count++
-    } while (await store.isExists(filename, directoryPath))
+    } while (await store.doesExist(filename, directoryPath))
   }
 
   return filename
