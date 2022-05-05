@@ -142,64 +142,65 @@ export const Debug = () => {
   if (isShowing)
     return (
       <div className={styles.debugContainer}>
-        <div className={styles.refreshBlock}>
-          {Network.instance != null && <Tick />}
-          <button type="submit" title={t('common:debug.refresh')} onClick={refresh} className={styles.refreshBtn}>
-            <RefreshIcon fontSize="small" />
-          </button>
-        </div>
-        <StatsPanel show={showingStateRef.current} resetCounter={resetStats} />
-
         <div className={styles.debugOptionContainer}>
           <h1>{t('common:debug.debugOptions')}</h1>
-          <div className={styles.flagContainer}>
-            <button
-              type="button"
-              onClick={togglePhysicsDebug}
-              className={styles.flagBtn + (engineRendererState.physicsDebugEnable.value ? ' ' + styles.active : '')}
-              title={t('common:debug.physicsDebug')}
-            >
-              <SquareFootIcon fontSize="small" />
-            </button>
-            <button
-              type="button"
-              onClick={toggleAvatarDebug}
-              className={styles.flagBtn + (engineRendererState.avatarDebugEnable.value ? ' ' + styles.active : '')}
-              title={t('common:debug.avatarDebug')}
-            >
-              <ManIcon fontSize="small" />
-            </button>
-            <button
-              type="button"
-              onClick={toggleNodeHelpers}
-              className={styles.flagBtn + (engineRendererState.nodeHelperVisibility.value ? ' ' + styles.active : '')}
-              title={t('common:debug.nodeHelperDebug')}
-            >
-              <SelectAllIcon fontSize="small" />
-            </button>
-            <button
-              type="button"
-              onClick={toggleGridHelper}
-              className={styles.flagBtn + (engineRendererState.gridVisibility.value ? ' ' + styles.active : '')}
-              title={t('common:debug.gridDebug')}
-            >
-              <GridOnIcon fontSize="small" />
-            </button>
-            <button
-              type="button"
-              onClick={simpleMaterials}
-              className={
-                styles.flagBtn +
-                (hasComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent)
-                  ? ' ' + styles.active
-                  : '')
-              }
-              title={t('common:debug.simpleMaterials')}
-            >
-              <BlurOffIcon fontSize="small" />
-            </button>
+          <div className={styles.optionBlock}>
+            <div className={styles.flagContainer}>
+              <button
+                type="button"
+                onClick={togglePhysicsDebug}
+                className={styles.flagBtn + (engineRendererState.physicsDebugEnable.value ? ' ' + styles.active : '')}
+                title={t('common:debug.physicsDebug')}
+              >
+                <SquareFootIcon fontSize="small" />
+              </button>
+              <button
+                type="button"
+                onClick={toggleAvatarDebug}
+                className={styles.flagBtn + (engineRendererState.avatarDebugEnable.value ? ' ' + styles.active : '')}
+                title={t('common:debug.avatarDebug')}
+              >
+                <ManIcon fontSize="small" />
+              </button>
+              <button
+                type="button"
+                onClick={toggleNodeHelpers}
+                className={styles.flagBtn + (engineRendererState.nodeHelperVisibility.value ? ' ' + styles.active : '')}
+                title={t('common:debug.nodeHelperDebug')}
+              >
+                <SelectAllIcon fontSize="small" />
+              </button>
+              <button
+                type="button"
+                onClick={toggleGridHelper}
+                className={styles.flagBtn + (engineRendererState.gridVisibility.value ? ' ' + styles.active : '')}
+                title={t('common:debug.gridDebug')}
+              >
+                <GridOnIcon fontSize="small" />
+              </button>
+              <button
+                type="button"
+                onClick={simpleMaterials}
+                className={
+                  styles.flagBtn +
+                  (hasComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent)
+                    ? ' ' + styles.active
+                    : '')
+                }
+                title={t('common:debug.simpleMaterials')}
+              >
+                <BlurOffIcon fontSize="small" />
+              </button>
+            </div>
+            <div className={styles.refreshBlock}>
+              {Network.instance != null && <Tick />}
+              <button type="submit" title={t('common:debug.refresh')} onClick={refresh} className={styles.refreshBtn}>
+                <RefreshIcon fontSize="small" />
+              </button>
+            </div>
           </div>
         </div>
+        <StatsPanel show={showingStateRef.current} resetCounter={resetStats} />
         {Network.instance !== null && (
           <>
             <div className={styles.jsonPanel}>

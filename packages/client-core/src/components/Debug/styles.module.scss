@@ -6,7 +6,8 @@
   height: 95vh;
   padding: 7px;
   background: #00000082;
-  width: min(435px, 45vw);
+  width: calc(100vw - 50px);
+  max-width: 450px;
 
   & > * + * {
     margin-top: 10px;
@@ -22,6 +23,14 @@
   background: var(--panel);
   padding: 10px;
   border-radius: 5px;
+
+  .optionBlock {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 5px;
+    gap: 5px;
+  }
 }
 
 .flagContainer {
@@ -29,7 +38,6 @@
   flex-wrap: wrap;
   overflow: hidden;
   gap: 5px;
-  margin-top: 5px;
 
   .flagBtn {
     background: var(--panel2);
