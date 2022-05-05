@@ -74,11 +74,14 @@ export const uploadLocalProjectToProvider = async (projectName, remove = true) =
           try {
             const fileResult = fs.readFileSync(file)
             const filePathRelative = file.slice(projectPath.length)
-            await storageProvider.putObject({
-              Body: fileResult,
-              ContentType: getContentType(file),
-              Key: `projects/${projectName}${filePathRelative}`
-            })
+            await storageProvider.putObject(
+              {
+                Body: fileResult,
+                ContentType: getContentType(file),
+                Key: `projects/${projectName}${filePathRelative}`
+              },
+              { isDirectory: false }
+            )
             resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`, storageProvider.cacheDomain, true))
           } catch (e) {
             logger.error(e)

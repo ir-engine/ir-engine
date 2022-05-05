@@ -43,11 +43,16 @@ export const addGenericAssetToS3AndStaticResources = async (
   promises.push(
     new Promise<void>(async (resolve) => {
       await provider.createInvalidation([key])
-      await provider.putObject({
-        Key: key,
-        Body: file,
-        ContentType: args.contentType
-      })
+      await provider.putObject(
+        {
+          Key: key,
+          Body: file,
+          ContentType: args.contentType
+        },
+        {
+          isDirectory: false
+        }
+      )
       resolve()
     })
   )
