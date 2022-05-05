@@ -47,7 +47,7 @@ describe('storageprovider', () => {
     })
 
     it(`should have object in ${provider.constructor.name}`, async function () {
-      assert(await provider.isExists(testFileName, testFolderName))
+      assert(await provider.doesExist(testFileName, testFolderName))
     })
 
     it(`should get object in ${provider.constructor.name}`, async function () {
@@ -93,13 +93,13 @@ describe('storageprovider', () => {
 
       //check copy functionality
       await provider.moveObject(testFileName, testFileName, testFolderName, newFolder1, true)
-      assert(await provider.isExists(testFileName, testFolderName))
-      assert(await provider.isExists(testFileName, newFolder1))
+      assert(await provider.doesExist(testFileName, testFolderName))
+      assert(await provider.doesExist(testFileName, newFolder1))
 
       //check move functionality
       await provider.moveObject(testFileName, testFileName, newFolder1, newFolder2, false)
-      assert(await provider.isExists(testFileName, newFolder2))
-      assert(!(await provider.isExists(testFileName, newFolder1)))
+      assert(await provider.doesExist(testFileName, newFolder2))
+      assert(!(await provider.doesExist(testFileName, newFolder1)))
     })
 
     it(`should be able to rename object in ${provider.constructor.name}`, async function () {
