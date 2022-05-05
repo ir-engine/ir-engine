@@ -30,32 +30,37 @@ describe('Sky Station Bot Tests', () => {
   })
 })
 
-describe.only('Sky Station Multiple Bot Tests', () => {
+describe('Sky Station Multiple Bot Tests', () => {
   const bots = Array.apply(null, Array(3)).map((_, index) => new XREngineBot({ name: `bot-${index}`, verbose: true }))
   const vector3 = new Vector3()
 
-  before(async () => {
-    for (let bot of bots) {
-      await bot.launchBrowser()
-      await bot.enterLocation(`https://${domain}/location/${locationName}`)
-      await bot.awaitHookPromise(BotHooks.LocationLoaded)
-      await bot.runHook(BotHooks.InitializeBot)
-      await bot.delay(1000)
-    }
-  })
+  before(() =>
+    Promise.all(
+      bots.map(async (bot) => {
+        await bot.launchBrowser()
+        await bot.enterLocation(`https://${domain}/location/${locationName}`)
+        await bot.awaitHookPromise(BotHooks.LocationLoaded)
+        await bot.runHook(BotHooks.InitializeBot)
+        await bot.delay(1000)
+      })
+    )
+  )
 
-  after(async () => {
-    for (let bot of bots) {
-      await bot.delay(1500)
-      await bot.quit()
-    }
-  })
+  after(() =>
+    Promise.all(
+      bots.map(async (bot) => {
+        await bot.delay(1500)
+        await bot.quit()
+      })
+    )
+  )
 
-  it('Can spawn multiple bots in sky station world', async () => {
-    for (let bot of bots) {
-      await bot.delay(1000)
-      const pos = await bot.runHook(BotHooks.GetPlayerPosition)
-      assert(vector3.copy(pos).length() < 45)
-    }
-  })
+  it('Can spawn multiple bots in sky station world', () =>
+    Promise.all(
+      bots.map(async (bot) => {
+        await bot.delay(1000)
+        const pos = await bot.runHook(BotHooks.GetPlayerPosition)
+        assert(vector3.copy(pos).length() < 45)
+      })
+    ))
 })
