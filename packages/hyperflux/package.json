@@ -3,7 +3,6 @@
   "version": "0.5.3",
   "main": "index.ts",
   "description": "State Management for XREngine",
-  "private": true,
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
