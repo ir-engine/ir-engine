@@ -23,11 +23,11 @@ export default async function ChatUISystem(world: World) {
   return () => {
     const chatXRUI = getComponent(ui.entity, XRUIComponent)
     chatXRUI.container.scale.setScalar(0.5)
-    chatXRUI.container.position.copy(Engine.camera.position)
+    chatXRUI.container.position.copy(Engine.instance.camera.position)
     //chatXRUI.container.position.y += Engine.scene.position.y
     //chatXRUI.container.position.x += Engine.scene.position.x
-    chatXRUI.container.position.z += chatXRUI.container.position.z > Engine.camera.position.z ? -0.4 : 0.4
+    chatXRUI.container.position.z += chatXRUI.container.position.z > Engine.instance.camera.position.z ? -0.4 : 0.4
 
-    chatXRUI.container.rotation.setFromRotationMatrix(Engine.camera.matrix)
+    chatXRUI.container.rotation.setFromRotationMatrix(Engine.instance.camera.matrix)
   }
 }

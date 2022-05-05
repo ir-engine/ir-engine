@@ -213,7 +213,7 @@ const EmoteDetailView = () => {
   }
 
   const runAnimation = (stateName: string) => {
-    const entity = Engine.currentWorld.localClientEntity
+    const entity = Engine.instance.currentWorld.localClientEntity
     changeAvatarAnimationState(entity, stateName)
     // close Menu after playing animation
     //props.changeActiveMenu(null)

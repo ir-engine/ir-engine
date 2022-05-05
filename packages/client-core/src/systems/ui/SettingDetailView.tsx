@@ -262,8 +262,11 @@ const SettingDetailView = () => {
                 step="1"
                 value={rendererState.qualityLevel.value}
                 onChange={(event: any) => {
-                  dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(parseInt(event.target.value)))
-                  dispatchAction(Engine.store, EngineRendererAction.setAutomatic(false))
+                  dispatchAction(
+                    Engine.instance.store,
+                    EngineRendererAction.setQualityLevel(parseInt(event.target.value))
+                  )
+                  dispatchAction(Engine.instance.store, EngineRendererAction.setAutomatic(false))
                 }}
               ></input>
             </div>
@@ -274,10 +277,10 @@ const SettingDetailView = () => {
                   style={styles.checkBoxSpan as {}}
                   onClick={() => {
                     dispatchAction(
-                      Engine.store,
+                      Engine.instance.store,
                       EngineRendererAction.setPostProcessing(!rendererState.usePostProcessing.value)
                     )
-                    dispatchAction(Engine.store, EngineRendererAction.setAutomatic(false))
+                    dispatchAction(Engine.instance.store, EngineRendererAction.setAutomatic(false))
                   }}
                 >
                   <input
@@ -286,8 +289,11 @@ const SettingDetailView = () => {
                     type="checkbox"
                     data-indeterminate="false"
                     onChange={(value: any) => {
-                      dispatchAction(Engine.store, EngineRendererAction.setPostProcessing(value.target.checked))
-                      dispatchAction(Engine.store, EngineRendererAction.setAutomatic(false))
+                      dispatchAction(
+                        Engine.instance.store,
+                        EngineRendererAction.setPostProcessing(value.target.checked)
+                      )
+                      dispatchAction(Engine.instance.store, EngineRendererAction.setAutomatic(false))
                     }}
                   />
                   <svg style={styles.checkBoxSvg as {}} focusable="false" aria-hidden="true" viewBox="0 0 24 24">
@@ -304,8 +310,11 @@ const SettingDetailView = () => {
                 <span
                   style={styles.checkBoxSpan as {}}
                   onClick={() => {
-                    dispatchAction(Engine.store, EngineRendererAction.setShadows(!rendererState.useShadows.value))
-                    dispatchAction(Engine.store, EngineRendererAction.setAutomatic(false))
+                    dispatchAction(
+                      Engine.instance.store,
+                      EngineRendererAction.setShadows(!rendererState.useShadows.value)
+                    )
+                    dispatchAction(Engine.instance.store, EngineRendererAction.setAutomatic(false))
                   }}
                 >
                   <input
@@ -314,8 +323,8 @@ const SettingDetailView = () => {
                     data-indeterminate="false"
                     checked={rendererState.useShadows.value}
                     onChange={(value: any) => {
-                      dispatchAction(Engine.store, EngineRendererAction.setShadows(value.target.checked))
-                      dispatchAction(Engine.store, EngineRendererAction.setAutomatic(false))
+                      dispatchAction(Engine.instance.store, EngineRendererAction.setShadows(value.target.checked))
+                      dispatchAction(Engine.instance.store, EngineRendererAction.setAutomatic(false))
                     }}
                   />
                   <svg style={styles.checkBoxSvg as {}} focusable="false" aria-hidden="true" viewBox="0 0 24 24">
@@ -338,7 +347,7 @@ const SettingDetailView = () => {
                     data-indeterminate="false"
                     checked={rendererState.automatic.value}
                     onChange={(value: any) => {
-                      dispatchAction(Engine.store, EngineRendererAction.setAutomatic(value.target.checked))
+                      dispatchAction(Engine.instance.store, EngineRendererAction.setAutomatic(value.target.checked))
                     }}
                   />
                   <svg style={styles.checkBoxSvg as {}} focusable="false" aria-hidden="true" viewBox="0 0 24 24">

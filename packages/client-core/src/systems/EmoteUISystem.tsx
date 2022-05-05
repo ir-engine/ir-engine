@@ -23,11 +23,11 @@ export default async function EmoteUISystem(world: World) {
   return () => {
     const emoteXRUI = getComponent(ui.entity, XRUIComponent)
     emoteXRUI.container.scale.setScalar(0.5)
-    emoteXRUI.container.position.copy(Engine.camera.position)
+    emoteXRUI.container.position.copy(Engine.instance.camera.position)
     //emoteXRUI.container.position.y += Engine.scene.position.y
     //emoteXRUI.container.position.x += Engine.scene.position.x
-    emoteXRUI.container.position.z += emoteXRUI.container.position.z > Engine.camera.position.z ? -0.4 : 0.4
+    emoteXRUI.container.position.z += emoteXRUI.container.position.z > Engine.instance.camera.position.z ? -0.4 : 0.4
 
-    emoteXRUI.container.rotation.setFromRotationMatrix(Engine.camera.matrix)
+    emoteXRUI.container.rotation.setFromRotationMatrix(Engine.instance.camera.matrix)
   }
 }
