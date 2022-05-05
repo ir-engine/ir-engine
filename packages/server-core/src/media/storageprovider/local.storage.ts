@@ -1,7 +1,6 @@
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import fsStore from 'fs-blob-store'
-import { access, lstat } from 'fs/promises'
 import glob from 'glob'
 import path from 'path/posix'
 
@@ -87,13 +86,15 @@ export class LocalStorage implements StorageProviderInterface {
   getStorage = (): BlobStore => this._store
 
   isExists(fileName: string, directoryPath: string): Promise<boolean> {
-    return access(path.join(this.PATH_PREFIX, directoryPath, fileName))
+    return fs.promises
+      .access(path.join(this.PATH_PREFIX, directoryPath, fileName))
       .then(() => true)
       .catch(() => false)
   }
 
   isDirectory(fileName: string, directoryPath: string): Promise<boolean> {
-    return lstat(path.join(this.PATH_PREFIX, directoryPath, fileName))
+    return fs.promises
+      .lstat(path.join(this.PATH_PREFIX, directoryPath, fileName))
       .then((res) => res.isDirectory())
       .catch(() => false)
   }
