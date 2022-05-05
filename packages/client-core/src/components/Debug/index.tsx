@@ -22,7 +22,12 @@ import { SimpleMaterialTagComponent } from '@xrengine/engine/src/scene/component
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { dispatchAction } from '@xrengine/hyperflux'
 
+import BlurOffIcon from '@mui/icons-material/BlurOff'
+import GridOnIcon from '@mui/icons-material/GridOn'
+import ManIcon from '@mui/icons-material/Man'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import SelectAllIcon from '@mui/icons-material/SelectAll'
+import SquareFootIcon from '@mui/icons-material/SquareFoot'
 
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
@@ -136,38 +141,49 @@ export const Debug = () => {
 
   if (isShowing)
     return (
-      <div className={styles.debugContiner}>
+      <div className={styles.debugContainer}>
+        <div className={styles.refreshBlock}>
+          {Network.instance != null && <Tick />}
+          <button type="submit" title={t('common:debug.refresh')} onClick={refresh} className={styles.refreshBtn}>
+            <RefreshIcon fontSize="small" />
+          </button>
+        </div>
         <StatsPanel show={showingStateRef.current} resetCounter={resetStats} />
-        <div className={styles.debugContainer}>
+
+        <div className={styles.debugOptionContainer}>
           <h1>{t('common:debug.debugOptions')}</h1>
           <div className={styles.flagContainer}>
             <button
               type="button"
               onClick={togglePhysicsDebug}
               className={styles.flagBtn + (engineRendererState.physicsDebugEnable.value ? ' ' + styles.active : '')}
+              title={t('common:debug.physicsDebug')}
             >
-              {t('common:debug.physicsDebug')}
+              <SquareFootIcon fontSize="small" />
             </button>
             <button
               type="button"
               onClick={toggleAvatarDebug}
               className={styles.flagBtn + (engineRendererState.avatarDebugEnable.value ? ' ' + styles.active : '')}
+              title={t('common:debug.avatarDebug')}
             >
-              {t('common:debug.avatarDebug')}
+              <ManIcon fontSize="small" />
             </button>
             <button
               type="button"
               onClick={toggleNodeHelpers}
               className={styles.flagBtn + (engineRendererState.nodeHelperVisibility.value ? ' ' + styles.active : '')}
+              title={t('common:debug.nodeHelperDebug')}
             >
-              {t('common:debug.nodeHelperDebug')}
+              <SelectAllIcon fontSize="small" />
             </button>
             <button
               type="button"
               onClick={toggleGridHelper}
               className={styles.flagBtn + (engineRendererState.gridVisibility.value ? ' ' + styles.active : '')}
+              title={t('common:debug.gridDebug')}
             >
-              {t('common:debug.gridDebug')}
+              <GridOnIcon fontSize="small" />
             </button>
             <button
               type="button"
@@ -178,40 +194,35 @@ export const Debug = () => {
                   ? ' ' + styles.active
                   : '')
               }
+              title={t('common:debug.simpleMaterials')}
             >
-              {t('common:debug.simpleMaterials')}
+              <BlurOffIcon fontSize="small" />
             </button>
           </div>
         </div>
         {Network.instance !== null && (
-          <div>
-            <div className={styles.refreshBlock}>
-              <Tick />
-              <button type="submit" title={t('common:debug.refresh')} onClick={refresh} className={styles.refreshBtn}>
-                <RefreshIcon fontSize="inherit" />
-              </button>
-            </div>
-            <div>
+          <>
+            <div className={styles.jsonPanel}>
               <h1>{t('common:debug.engineStore')}</h1>
               <JSONTree data={Engine.instance.store} />
             </div>
-            <div>
+            <div className={styles.jsonPanel}>
               <h1>{t('common:debug.worldStore')}</h1>
               <JSONTree data={Engine.instance.currentWorld.store} />
             </div>
-            <div>
+            <div className={styles.jsonPanel}>
               <h1>{t('common:debug.namedEntities')}</h1>
               <JSONTree data={renderNamedEntities()} />
             </div>
-            <div>
+            <div className={styles.jsonPanel}>
               <h1>{t('common:debug.networkObject')}</h1>
               <JSONTree data={{ ...Network.instance }} />
             </div>
-            <div>
+            <div className={styles.jsonPanel}>
               <h1>{t('common:debug.networkClients')}</h1>
               <JSONTree data={Object.fromEntries(Engine.instance.currentWorld.clients.entries())} />
             </div>
-          </div>
+          </>
         )}
       </div>
     )

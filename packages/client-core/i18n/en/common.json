@@ -31,6 +31,7 @@
   },
   "debug": {
     "refresh": "Refresh",
+    "stats": "Stats",
     "debugOptions": "Debug Options",
     "physicsDebug": "Physics",
     "avatarDebug": "Avatar",

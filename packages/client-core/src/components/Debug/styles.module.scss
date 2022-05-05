@@ -1,36 +1,47 @@
-.debugContiner {
+.debugContainer {
   position: fixed;
   overflow-y: auto;
   top: 0;
   z-index: 100000;
   height: 95vh;
-  padding: 5px;
+  padding: 7px;
   background: #00000082;
   width: min(435px, 45vw);
 
   & > * + * {
-    margin-top: 5px;
+    margin-top: 10px;
   }
+}
+
+.debugOptionContainer {
+  display: flex;
+  flex-flow: column;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: left;
+  background: var(--panel);
+  padding: 10px;
+  border-radius: 5px;
 }
 
 .flagContainer {
   display: flex;
-  gap: 5px;
   flex-wrap: wrap;
+  overflow: hidden;
+  gap: 5px;
   margin-top: 5px;
 
   .flagBtn {
-    min-width: 100px;
     background: var(--panel2);
     color: var(--text);
     border: none;
-    border-radius: 4px;
     flex-shrink: 0;
     height: 30px;
+    border-radius: 3px;
 
     &:hover,
-    &:focus {
-      background: var(--panel);
+    &:focus-visible {
+      background: var(--bluePressed) !important;
       color: var(--text);
     }
 
@@ -43,15 +54,27 @@
 .statsContainer {
   display: flex;
   gap: 5px;
+  flex-direction: column;
+  padding: 10px;
+  background: var(--panel);
+  border-radius: 5px;
 
-  div {
-    position: initial !important;
+  .statsBlock {
+    display: flex;
+    gap: 5px;
+
+    div {
+      position: initial !important;
+      border-radius: 5px;
+      overflow: hidden;
+    }
   }
 }
 
 .refreshBlock {
   display: flex;
   justify-content: end;
+  gap: 10px;
 
   .refreshBtn {
     background: var(--panel2);
@@ -59,32 +82,37 @@
     border: none;
     border-radius: 4px;
     flex-shrink: 0;
-    padding: 5px;
-    font-size: 15px;
-    line-height: 15px;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    margin-left: 5px;
+    height: 30px;
+    width: 30px;
+    padding: 0;
 
     &:hover,
-    &:focus {
-      background: var(--panel);
+    &:focus-visible {
+      background: var(--bluePressed);
       color: var(--text);
     }
   }
 }
 
 .tickBlock {
-  background: var(--panel2);
-  padding: 0 5px;
   color: var(--text3);
-  line-height: 25px;
+  line-height: 30px;
   border-radius: 4px;
   opacity: 0.7;
 
   span {
     color: var(--text);
     margin-left: 5px;
+  }
+}
+
+.jsonPanel {
+  background-color: var(--panel);
+  border-radius: 5px;
+  padding: 10px;
+
+  ul {
+    background: transparent !important;
+    margin-left: 0 !important;
   }
 }

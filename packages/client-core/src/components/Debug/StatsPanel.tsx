@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import Stats from 'stats.js'
 
 import styles from './styles.module.scss'
 
 export const StatsPanel = (props: { show: boolean; resetCounter: number }) => {
+  const { t } = useTranslation()
   const [statsArray, setStatsArray] = useState<Stats[]>([])
   const statsRef = useRef<HTMLDivElement>(null)
   let animateId = 0
@@ -37,5 +39,10 @@ export const StatsPanel = (props: { show: boolean; resetCounter: number }) => {
     animateId = requestAnimationFrame(animate)
   }
 
-  return <div ref={statsRef} className={styles.statsContainer} />
+  return (
+    <div className={styles.statsContainer}>
+      <h1>{t('common:debug.stats')}</h1>
+      <div ref={statsRef} className={styles.statsBlock} />
+    </div>
+  )
 }
