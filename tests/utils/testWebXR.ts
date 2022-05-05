@@ -1,5 +1,4 @@
 import assert from 'assert'
-import { Quaternion, Vector3 } from 'three'
 
 import type { XREngineBot } from '@xrengine/bot/src/bot'
 import { XRBotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
@@ -40,9 +39,6 @@ export const testWebXR = (bot: XREngineBot) => {
       const { headInputValue, leftControllerInputValue, rightControllerInputValue } = await bot.runHook(
         XRBotHooks.GetXRInputPosition
       )
-      console.log(headInputValue)
-      console.log(leftControllerInputValue)
-      console.log(rightControllerInputValue)
       compareArrays(headInputValue, posesToTest[0], 0.01)
       compareArrays(leftControllerInputValue, posesToTest[1], 0.01)
       compareArrays(rightControllerInputValue, posesToTest[2], 0.01)
