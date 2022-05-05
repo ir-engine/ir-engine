@@ -43,13 +43,14 @@ describe('FixedPipelineSystem', () => {
     assert.equal(world.fixedTick, 0)
     assert.equal(mockState.count.value, 0)
 
-    const delta = 10 / 60
+    const ticks = 3
+    const delta = ticks / 60
     world.execute(delta)
     assert.equal(world.elapsedTime, delta)
     assert.equal(world.fixedElapsedTime, delta)
-    assert.equal(world.fixedTick, 10)
+    assert.equal(world.fixedTick, ticks)
     assert.equal(world.fixedDelta, 1 / 60)
-    assert.equal(mockState.count.value, 10)
+    assert.equal(mockState.count.value, ticks)
   })
 
   it('can skip fixed ticks to catch up to elapsed time', async () => {
