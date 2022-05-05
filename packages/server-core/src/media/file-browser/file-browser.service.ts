@@ -16,7 +16,7 @@ declare module '@xrengine/common/declarations' {
 const multipartMiddleware = multer({ limits: { fieldSize: Infinity, files: 1 } })
 
 export default (app: Application): any => {
-  const fileBrowser = new FileBrowserService()
+  const fileBrowser = new FileBrowserService(app)
   // fileBrowser.docs = projectDocs
 
   app.use(

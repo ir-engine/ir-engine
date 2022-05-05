@@ -30,6 +30,12 @@ export const FileBrowserAction = {
       type: 'FILES_FETCHED' as const,
       files
     }
+  },
+  filesDeleted: (contentPath) => {
+    return {
+      type: 'FILES_DELETED' as const,
+      contentPath
+    }
   }
 }
 
@@ -48,7 +54,8 @@ export const FileBrowserService = {
     return client.service('file-browser').update(null, { oldName, newName, oldPath, newPath, isCopy })
   },
   deleteContent: async (contentPath, type) => {
-    return client.service('file-browser').remove(contentPath, { query: { type } })
+    await client.service('file-browser').remove(contentPath, { query: { type } })
+    useDispatch()(FileBrowserAction.filesDeleted(contentPath))
   },
   addNewFolder: (folderName: string) => {
     return client.service(`file-browser`).create(folderName)

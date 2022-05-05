@@ -460,12 +460,12 @@ class SkeletonUtils {
 
       clonedMesh.skeleton.bones = sourceBones.map((bone) => {
         if (!cloneLookup.has(bone)) {
-          console.warn(
-            'Bone was not cloned',
-            bone,
-            '. Common reason is that bones parent is out of clone source',
-            source
-          )
+          // console.warn(
+          //   'Bone was not cloned',
+          //   bone,
+          //   '. Common reason is that bones parent is out of clone source',
+          //   source
+          // )
         }
         return cloneLookup.get(bone)
       })

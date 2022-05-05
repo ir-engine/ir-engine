@@ -5,6 +5,7 @@ import path from 'path/posix'
 
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 
+import { Application } from '../../../declarations'
 import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
 import { useStorageProvider } from '../storageprovider/storageprovider'
@@ -35,6 +36,11 @@ interface PatchParams {
 
 export class FileBrowserService implements ServiceMethods<any> {
   store: StorageProviderInterface
+  app: Application
+
+  constructor(app: Application) {
+    this.app = app
+  }
 
   async setup(_app, _path: string): Promise<void> {
     this.store = useStorageProvider()
@@ -143,6 +149,14 @@ export class FileBrowserService implements ServiceMethods<any> {
     } else {
       fs.unlinkSync(filePath)
     }
+
+    const staticResource = await this.app.service('static-resource').find({
+      where: {
+        key: key,
+        $limit: 1
+      }
+    })
+    staticResource?.data?.length > 0 && (await this.app.service('static-resource').remove(staticResource?.data[0]?.id))
 
     return result
   }

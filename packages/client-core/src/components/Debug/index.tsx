@@ -5,7 +5,13 @@ import JSONTree from 'react-json-tree'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  MappedComponent,
+  removeComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import {
   accessEngineRendererState,
@@ -13,6 +19,7 @@ import {
   useEngineRendererState
 } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { SimpleMaterialTagComponent } from '@xrengine/engine/src/scene/components/SimpleMaterialTagComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -109,6 +116,16 @@ export const Debug = () => {
     )
   }
 
+  const simpleMaterials = () => {
+    if (hasComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent))
+      removeComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent)
+    else addComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent, {})
+    dispatchAction(
+      Engine.instance.store,
+      EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value)
+    )
+  }
+
   if (isShowing)
     return (
       <div
@@ -137,6 +154,9 @@ export const Debug = () => {
         </button>
         <button type="button" value="Grid Debug" onClick={toggleGridHelper}>
           {t('common:debug.gridDebug')}
+        </button>
+        <button type="button" value="Simple Materials" onClick={simpleMaterials}>
+          {t('common:debug.simpleMaterials')}
         </button>
         {Network.instance !== null && (
           <div>

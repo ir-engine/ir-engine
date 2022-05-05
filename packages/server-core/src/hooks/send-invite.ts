@@ -1,7 +1,7 @@
 import { HookContext, Paginated } from '@feathersjs/feathers'
+import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
-import requireMainFilename from 'require-main-filename'
 
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { Invite as InviteType } from '@xrengine/common/src/interfaces/Invite'
@@ -17,6 +17,8 @@ import { Application } from './../../declarations.d'
 
 export type InviteDataType = InviteType & { targetObjectId: UserId; passcode: string }
 
+const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'invite')
+
 async function generateEmail(
   app: Application,
   result: InviteDataType,
@@ -27,8 +29,6 @@ async function generateEmail(
 ): Promise<void> {
   let groupName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
-  const appPath = path.dirname(requireMainFilename())
-  const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'invite')
 
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-email-invite-${inviteType}.pug`)
 
@@ -65,8 +65,6 @@ async function generateSMS(
 ): Promise<void> {
   let groupName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
-  const appPath = path.dirname(requireMainFilename())
-  const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'invite')
   if (inviteType === 'group') {
     const group = await app.service('group').get(targetObjectId!)
     groupName = group.name
