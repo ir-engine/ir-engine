@@ -5,11 +5,11 @@ import path from 'path'
 
 import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
 
-import { Application } from '../declarations'
-import { createFeathersExpressApp } from './createApp'
-import { useStorageProvider } from './media/storageprovider/storageprovider'
-import { parseSceneDataCacheURLs } from './projects/scene/scene-parser'
-import { deleteFolderRecursive } from './util/fsHelperFunctions'
+import { Application } from '../../../declarations'
+import { createFeathersExpressApp } from '../../createApp'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
+import { parseSceneDataCacheURLs } from './scene-parser'
 
 const storageProvider = useStorageProvider()
 const parsedData = parseSceneDataCacheURLs(_.cloneDeep(defaultSceneSeed) as any, storageProvider.cacheDomain)

@@ -42,12 +42,12 @@ export async function getFreeGameserver(
   if (!config.kubernetes.enabled) {
     //Clear any instance assignments older than 30 seconds - those assignments have not been
     //used, so they should be cleared and the GS they were attached to can be used for something else.
-    console.log('Local server spinning up new instance')
+    logger.info('Local server spinning up new instance')
     const localIp = await getLocalServerIp(channelId != null)
     const stringIp = `${localIp.ipAddress}:${localIp.port}`
     return checkForDuplicatedAssignments(app, stringIp, iteration, locationId, channelId)
   }
-  console.log('Getting free gameserver')
+  logger.info('Getting free gameserver')
   const serverResult = await (app as any).k8AgonesClient.listNamespacedCustomObject(
     'agones.dev',
     'v1',
@@ -133,7 +133,7 @@ export async function checkForDuplicatedAssignments(
       if (iteration < 10) {
         return getFreeGameserver(app, iteration + 1, locationId, channelId)
       } else {
-        console.log('Made 10 attempts to get free gameserver without success, returning null')
+        logger.info('Made 10 attempts to get free gameserver without success, returning null')
         return {
           id: null,
           ipAddress: null,

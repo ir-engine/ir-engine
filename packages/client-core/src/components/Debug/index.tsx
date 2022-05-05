@@ -5,10 +5,22 @@ import JSONTree from 'react-json-tree'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  MappedComponent,
+  removeComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import {
+  accessEngineRendererState,
+  EngineRendererAction,
+  useEngineRendererState
+} from '@xrengine/engine/src/renderer/EngineRendererState'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { SimpleMaterialTagComponent } from '@xrengine/engine/src/scene/components/SimpleMaterialTagComponent'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 export const Debug = () => {
@@ -44,23 +56,29 @@ export const Debug = () => {
   const [remountCount, setRemountCount] = useState(0)
   const refresh = () => setRemountCount(remountCount + 1)
   const togglePhysicsDebug = () => {
-    dispatchAction(Engine.store, EngineRendererAction.setPhysicsDebug(!engineRendererState.physicsDebugEnable.value))
+    dispatchAction(
+      Engine.instance.store,
+      EngineRendererAction.setPhysicsDebug(!engineRendererState.physicsDebugEnable.value)
+    )
   }
 
   const toggleAvatarDebug = () => {
-    dispatchAction(Engine.store, EngineRendererAction.setAvatarDebug(!engineRendererState.avatarDebugEnable.value))
+    dispatchAction(
+      Engine.instance.store,
+      EngineRendererAction.setAvatarDebug(!engineRendererState.avatarDebugEnable.value)
+    )
   }
 
   const renderNamedEntities = () => {
     return {
       ...Object.fromEntries(
-        [...Engine.currentWorld.namedEntities.entries()]
+        [...Engine.instance.currentWorld.namedEntities.entries()]
           .map(([key, eid]) => {
             try {
               return [
                 key + '(' + eid + ')',
                 Object.fromEntries(
-                  getEntityComponents(Engine.currentWorld, eid).reduce<[string, any][]>(
+                  getEntityComponents(Engine.instance.currentWorld, eid).reduce<[string, any][]>(
                     (components, C: MappedComponent<any, any>) => {
                       if (C !== NameComponent) {
                         engineState.fixedTick.value
@@ -80,6 +98,32 @@ export const Debug = () => {
           .filter((exists) => !!exists)
       )
     }
+  }
+
+  const toggleNodeHelpers = () => {
+    Engine.instance.camera.layers.toggle(ObjectLayers.NodeHelper)
+    dispatchAction(
+      Engine.instance.store,
+      EngineRendererAction.changeNodeHelperVisibility(!accessEngineRendererState().nodeHelperVisibility.value)
+    )
+  }
+
+  const toggleGridHelper = () => {
+    Engine.instance.camera.layers.toggle(ObjectLayers.Gizmos)
+    dispatchAction(
+      Engine.instance.store,
+      EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value)
+    )
+  }
+
+  const simpleMaterials = () => {
+    if (hasComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent))
+      removeComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent)
+    else addComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent, {})
+    dispatchAction(
+      Engine.instance.store,
+      EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value)
+    )
   }
 
   if (isShowing)
@@ -105,10 +149,27 @@ export const Debug = () => {
         <button type="button" value="Avatar Debug" onClick={toggleAvatarDebug}>
           {t('common:debug.avatarDebug')}
         </button>
+        <button type="button" value="Node Debug" onClick={toggleNodeHelpers}>
+          {t('common:debug.nodeHelperDebug')}
+        </button>
+        <button type="button" value="Grid Debug" onClick={toggleGridHelper}>
+          {t('common:debug.gridDebug')}
+        </button>
+        <button type="button" value="Simple Materials" onClick={simpleMaterials}>
+          {t('common:debug.simpleMaterials')}
+        </button>
         {Network.instance !== null && (
           <div>
             <div>
               {t('common:debug.tick')}: {engineState.fixedTick.value}
+            </div>
+            <div>
+              <h1>{t('common:debug.engineStore')}</h1>
+              <JSONTree data={Engine.instance.store} />
+            </div>
+            <div>
+              <h1>{t('common:debug.worldStore')}</h1>
+              <JSONTree data={Engine.instance.currentWorld.store} />
             </div>
             <div>
               <h1>{t('common:debug.namedEntities')}</h1>
@@ -120,7 +181,7 @@ export const Debug = () => {
             </div>
             <div>
               <h1>{t('common:debug.networkClients')}</h1>
-              <JSONTree data={Object.fromEntries(Engine.currentWorld.clients.entries())} />
+              <JSONTree data={Object.fromEntries(Engine.instance.currentWorld.clients.entries())} />
             </div>
           </div>
         )}

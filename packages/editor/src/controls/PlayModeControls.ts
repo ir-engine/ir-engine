@@ -1,5 +1,6 @@
 import { store, useDispatch } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
 import { executeCommandWithHistory } from '../classes/History'
@@ -10,15 +11,15 @@ import { ActionSets, EditorMapping, FlyMapping } from './input-mappings'
 
 export function enterPlayMode(): void {
   executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
-  Engine.camera.layers.set(ObjectLayers.Scene)
+  Engine.instance.camera.layers.set(ObjectLayers.Scene)
 
-  Engine.renderer.domElement.addEventListener('click', onClickCanvas)
+  EngineRenderer.instance.renderer.domElement.addEventListener('click', onClickCanvas)
   document.addEventListener('pointerlockchange', onPointerLockChange)
   store.dispatch(EditorHelperAction.changedPlayMode(true))
 }
 
 export function leavePlayMode(): void {
-  Engine.camera.layers.enableAll()
+  Engine.instance.camera.layers.enableAll()
 
   addInputActionMapping(ActionSets.EDITOR, EditorMapping)
 
@@ -26,7 +27,7 @@ export function leavePlayMode(): void {
   dispatch(EditorHelperAction.changedFlyMode(false))
   removeInputActionMapping(ActionSets.FLY)
 
-  Engine.renderer.domElement.removeEventListener('click', onClickCanvas)
+  EngineRenderer.instance.renderer.domElement.removeEventListener('click', onClickCanvas)
   document.removeEventListener('pointerlockchange', onPointerLockChange)
   document.exitPointerLock()
 
@@ -34,13 +35,13 @@ export function leavePlayMode(): void {
 }
 
 function onClickCanvas(): void {
-  Engine.renderer.domElement.requestPointerLock()
+  EngineRenderer.instance.renderer.domElement.requestPointerLock()
 }
 
 function onPointerLockChange(): void {
   const dispatch = useDispatch()
 
-  if (document.pointerLockElement === Engine.renderer.domElement) {
+  if (document.pointerLockElement === EngineRenderer.instance.renderer.domElement) {
     dispatch(EditorHelperAction.changedFlyMode(true))
     addInputActionMapping(ActionSets.FLY, FlyMapping)
 
@@ -54,6 +55,6 @@ function onPointerLockChange(): void {
 }
 
 export function disposePlayModeControls(): void {
-  Engine.renderer.domElement.removeEventListener('click', onClickCanvas)
+  EngineRenderer.instance.renderer.domElement.removeEventListener('click', onClickCanvas)
   document.removeEventListener('pointerlockchange', onPointerLockChange)
 }

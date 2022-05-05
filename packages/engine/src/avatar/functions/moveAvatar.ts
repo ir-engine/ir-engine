@@ -47,6 +47,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   if (!controller.movementEnabled) return
 
   const onGround = controller.collisions[0] || avatar.isGrounded
+  controller.isInAir = !onGround
 
   // move vec3 to controller input direction
   tempVec1.copy(controller.localMovementDirection).multiplyScalar(timeStep)
@@ -116,7 +117,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
       !controller.isJumping
     ) {
       // jump
-      velocity.linear.y = (AvatarSettings.instance.jumpHeight * 1) / 60
+      velocity.linear.y = AvatarSettings.instance.jumpHeight / 60
       controller.isJumping = true
     } else if (controller.isJumping) {
       // reset isJumping the following frame
@@ -249,7 +250,7 @@ export const alignXRCameraPositionWithAvatar = (entity: Entity, camera: Perspect
 export const alignXRCameraRotationWithAvatar = (entity: Entity, camera: PerspectiveCamera | OrthographicCamera) => {
   const avatarTransform = getComponent(entity, TransformComponent)
   const camParentRot = camera.parent!.quaternion
-  tempVec1.set(0, 0, 1).applyQuaternion(Engine.camera.quaternion).setY(0).normalize()
+  tempVec1.set(0, 0, 1).applyQuaternion(Engine.instance.camera.quaternion).setY(0).normalize()
   quat.setFromUnitVectors(tempVec2.set(0, 0, 1), tempVec1).invert()
   tempVec1.set(0, 0, -1).applyQuaternion(avatarTransform.rotation).setY(0).normalize()
   camParentRot.setFromUnitVectors(tempVec2.set(0, 0, 1), tempVec1).multiply(quat)
@@ -300,15 +301,15 @@ export const moveXRAvatar = (
   getAvatarCameraPosition(entity, avatarCameraOffset, avatarPosition)
 
   if (avatarPosition.subVectors(avatarPosition, cameraPosition).lengthSq() > 0.1 || avatarVelocity.lengthSq() > 0) {
-    lastCameraPos.subVectors(Engine.camera.position, Engine.camera.parent!.position)
+    lastCameraPos.subVectors(camera.position, camera.parent!.position)
 
     if (!hasComponent(entity, XRCameraUpdatePendingTagComponent)) {
-      alignXRCameraPositionWithAvatar(entity, Engine.camera)
+      alignXRCameraPositionWithAvatar(entity, camera)
       addComponent(entity, XRCameraUpdatePendingTagComponent, {})
     }
 
     // Calculate new camera world position
-    lastCameraPos.add(Engine.camera.parent!.position)
+    lastCameraPos.add(camera.parent!.position)
     return
   }
 

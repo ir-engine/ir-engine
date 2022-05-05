@@ -56,7 +56,7 @@ export function createInteractUI(modelEntity: Entity) {
   const nameComponent = getComponent(modelEntity, NameComponent)
   addComponent(ui.entity, NameComponent, { name: 'interact-ui-' + nameComponent.name })
 
-  if (!Engine.isEditor) {
+  if (!Engine.instance.isEditor) {
     // for some reason, using the transform component creates extremely jittery transitions
     removeComponent(modelEntity, TransformComponent)
   }
@@ -71,7 +71,7 @@ export function createInteractUI(modelEntity: Entity) {
     const centeringGroup = new Group()
     boundingBoxComponent.box.getCenter(centeringGroup.position)
 
-    Engine.scene.add(centeringGroup)
+    Engine.instance.scene.add(centeringGroup)
     centeringGroup.attach(modelObj)
     c.position.copy(centeringGroup.position)
 
@@ -192,7 +192,7 @@ export function createInteractUI(modelEntity: Entity) {
 const transitionStartTime = new Map<Entity, number>()
 
 export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
-  if (Engine.isEditor) return
+  if (Engine.instance.isEditor) return
 
   const world = useWorld()
   const uiContainer = getComponent(xrui.entity, XRUIComponent)?.container
@@ -223,9 +223,9 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     transitionStartTime.set(modelEntity, world.elapsedTime)
     xrui.state.mode.set(nextMode)
     if (nextMode === 'interacting') {
-      Engine.camera.attach(uiContainer)
+      Engine.instance.camera.attach(uiContainer)
     } else {
-      Engine.scene.attach(uiContainer)
+      Engine.instance.scene.attach(uiContainer)
     }
     modelGroup.traverse((obj) => {
       const mesh = obj as Mesh<BufferGeometry, MeshBasicMaterial>
@@ -270,13 +270,13 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
   const linkMat = link.contentMesh.material as MeshBasicMaterial
 
   if (nextMode === 'inactive') {
-    const uiContainerScale = Math.max(1, Engine.camera.position.distanceTo(anchoredPosition)) * 0.8
+    const uiContainerScale = Math.max(1, Engine.instance.camera.position.distanceTo(anchoredPosition)) * 0.8
     uiContainer.position.lerp(anchoredPosition, alpha)
-    uiContainer.quaternion.slerp(_quat.setFromRotationMatrix(Engine.camera.matrix), alpha)
+    uiContainer.quaternion.slerp(_quat.setFromRotationMatrix(Engine.instance.camera.matrix), alpha)
     uiContainer.scale.lerp(_vect.setScalar(uiContainerScale), alpha)
 
-    if (modelGroup.parent !== Engine.scene) {
-      Engine.scene.attach(modelGroup)
+    if (modelGroup.parent !== Engine.instance.scene) {
+      Engine.instance.scene.attach(modelGroup)
     }
 
     modelGroup.position.lerp(anchoredPosition, alpha)
@@ -306,13 +306,13 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
       mat.opacity = MathUtils.lerp(mat.opacity, 0, alpha)
     }
   } else if (nextMode === 'active') {
-    const uiContainerScale = Math.max(1, Engine.camera.position.distanceTo(anchoredPosition)) * 0.8
+    const uiContainerScale = Math.max(1, Engine.instance.camera.position.distanceTo(anchoredPosition)) * 0.8
     uiContainer.position.lerp(anchoredPosition, alpha)
-    uiContainer.quaternion.slerp(_quat.setFromRotationMatrix(Engine.camera.matrix), alpha)
+    uiContainer.quaternion.slerp(_quat.setFromRotationMatrix(Engine.instance.camera.matrix), alpha)
     uiContainer.scale.lerp(_vect.setScalar(uiContainerScale), alpha)
 
-    if (modelGroup.parent !== Engine.scene) {
-      Engine.scene.attach(modelGroup)
+    if (modelGroup.parent !== Engine.instance.scene) {
+      Engine.instance.scene.attach(modelGroup)
     }
 
     const modelTargetPosition = _vect.copy(anchoredPosition)
@@ -368,7 +368,7 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     }
 
     modelGroup.position.lerp(_vect.setScalar(0), alpha)
-    modelGroup.quaternion.slerp(_quat.copy(Engine.camera.quaternion).invert(), alpha)
+    modelGroup.quaternion.slerp(_quat.copy(Engine.instance.camera.quaternion).invert(), alpha)
     modelGroup.scale.lerp(_vect.setScalar(modelScale), alpha)
 
     rootMat.opacity = MathUtils.lerp(rootMat.opacity, 1, alpha)

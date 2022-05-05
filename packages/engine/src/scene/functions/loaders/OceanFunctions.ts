@@ -8,7 +8,6 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Ocean } from '../../classes/Ocean'
@@ -50,17 +49,14 @@ export const deserializeOcean: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const obj3d = new Ocean(entity)
+  obj3d.userData.disableOutline = true
   const props = parseOceanProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, OceanComponent, props)
   addComponent(entity, UpdatableComponent, {})
 
-  if (Engine.isEditor) {
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_OCEAN)
-
-    obj3d.userData.disableOutline = true
-  }
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_OCEAN)
 
   updateOcean(entity, props)
 }

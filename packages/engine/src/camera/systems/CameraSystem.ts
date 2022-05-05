@@ -14,6 +14,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -108,12 +109,12 @@ export const getMaxCamDistance = (entity: Entity, target: Vector3) => {
 
   camRayCastClock.start()
 
-  const sceneObjects = Array.from(Engine.objectLayerList[ObjectLayers.Scene] || [])
+  const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
 
   const followCamera = getComponent(entity, FollowCameraComponent)
 
   // Raycast to keep the line of sight with avatar
-  const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
+  const cameraTransform = getComponent(Engine.instance.activeCameraEntity, TransformComponent)
   const targetToCamVec = tempVec1.subVectors(cameraTransform.position, target)
   // followCamera.raycaster.ray.origin.sub(targetToCamVec.multiplyScalar(0.1)) // move origin behind camera
 
@@ -212,7 +213,7 @@ export const updateFollowCamera = (entity: Entity, delta: number) => {
   const thetaRad = MathUtils.degToRad(theta)
   const phiRad = MathUtils.degToRad(followCamera.phi)
 
-  const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
+  const cameraTransform = getComponent(Engine.instance.activeCameraEntity, TransformComponent)
   cameraTransform.position.set(
     tempVec.x + followCamera.distance * Math.sin(thetaRad) * Math.cos(phiRad),
     tempVec.y + followCamera.distance * Math.sin(phiRad),
@@ -241,14 +242,14 @@ export default async function CameraSystem(world: World) {
   const cameraEntity = createEntity()
   addComponent(cameraEntity, CameraComponent, {})
 
-  // addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
+  // addComponent(cameraEntity, Object3DComponent, { value: Engine.instance.camera })
   addComponent(cameraEntity, TransformComponent, {
     position: new Vector3(),
     rotation: new Quaternion(),
     scale: new Vector3(1, 1, 1)
   })
   addComponent(cameraEntity, PersistTagComponent, {})
-  Engine.activeCameraEntity = cameraEntity
+  Engine.instance.activeCameraEntity = cameraEntity
 
   return () => {
     const { delta } = world
@@ -258,7 +259,7 @@ export default async function CameraSystem(world: World) {
       cameraFollow.raycaster.layers.set(ObjectLayers.Scene) // Ignore avatars
       ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
       cameraFollow.raycaster.far = cameraFollow.maxDistance
-      Engine.activeCameraFollowTarget = entity
+      Engine.instance.activeCameraFollowTarget = entity
 
       for (let i = 0; i < cameraRayCount; i++) {
         cameraRays.push(new Vector3())
@@ -267,14 +268,14 @@ export default async function CameraSystem(world: World) {
           const arrow = new ArrowHelper()
           coneDebugHelpers.push(arrow)
           setObjectLayers(arrow, ObjectLayers.Gizmos)
-          Engine.scene.add(arrow)
+          Engine.instance.scene.add(arrow)
         }
       }
     }
 
     for (const entity of followCameraQuery.exit()) {
       setAvatarHeadOpacity(entity, 1)
-      Engine.activeCameraFollowTarget = null
+      Engine.instance.activeCameraFollowTarget = null
       camRayCastCache.maxDistance = -1
     }
 
@@ -289,17 +290,17 @@ export default async function CameraSystem(world: World) {
         updateCameraTargetRotation(entity, delta)
       }
 
-      if (Engine.xrManager?.isPresenting) {
+      if (EngineRenderer.instance.xrManager?.isPresenting) {
         // Current WebXRManager.updateCamera() typedef is incorrect
-        ;(Engine.xrManager as any).updateCamera(Engine.camera)
+        ;(EngineRenderer.instance.xrManager as any).updateCamera(Engine.instance.camera)
 
-        removeComponent(Engine.currentWorld.localClientEntity, XRCameraUpdatePendingTagComponent)
+        removeComponent(Engine.instance.currentWorld.localClientEntity, XRCameraUpdatePendingTagComponent)
       } else if (followCameraEntity !== undefined) {
-        const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
-        Engine.camera.position.copy(transform.position)
-        Engine.camera.quaternion.copy(transform.rotation)
-        Engine.camera.scale.copy(transform.scale)
-        Engine.camera.updateMatrixWorld()
+        const transform = getComponent(Engine.instance.activeCameraEntity, TransformComponent)
+        Engine.instance.camera.position.copy(transform.position)
+        Engine.instance.camera.quaternion.copy(transform.rotation)
+        Engine.instance.camera.scale.copy(transform.scale)
+        Engine.instance.camera.updateMatrixWorld()
       }
     }
   }

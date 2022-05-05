@@ -1,4 +1,5 @@
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { isClient } from './isClient'
 import { nowMilliseconds } from './nowMilliseconds'
 import { ServerLoop } from './ServerLoop'
@@ -43,7 +44,7 @@ export function Timer(update: TimerUpdateCallback) {
       tpsPrintReport(time)
     }
 
-    Engine.xrFrame = xrFrame
+    Engine.instance.xrFrame = xrFrame
 
     delta = (time - lastTime) / 1000
     elapsedTime = (time - startTime) / 1000
@@ -136,7 +137,7 @@ export function Timer(update: TimerUpdateCallback) {
     elapsedTime = 0
     lastTime = startTime
     if (isClient) {
-      Engine.renderer.setAnimationLoop(onFrame)
+      EngineRenderer.instance.renderer.setAnimationLoop(onFrame)
     } else {
       const _update = () => {
         const time = nowMilliseconds()
@@ -149,7 +150,7 @@ export function Timer(update: TimerUpdateCallback) {
 
   function stop() {
     if (isClient) {
-      Engine.renderer.setAnimationLoop(null)
+      EngineRenderer.instance.renderer.setAnimationLoop(null)
     } else {
       serverLoop.stop()
     }

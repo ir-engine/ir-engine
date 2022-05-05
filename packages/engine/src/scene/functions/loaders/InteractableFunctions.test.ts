@@ -2,17 +2,15 @@ import assert from 'assert'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
-import { createWorld } from '../../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { InteractableComponent } from '../../../interaction/components/InteractableComponent'
 import { deserializeInteractable } from './InteractableFunctions'
 
 describe('InteractableFunctions', () => {
   it('deserializeInteractable', () => {
-    const world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
 
     const entity = createEntity()
 

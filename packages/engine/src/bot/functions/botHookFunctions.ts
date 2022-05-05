@@ -1,6 +1,7 @@
 import { MathUtils, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
+import { accessEngineState } from '../../ecs/classes/EngineService'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -10,6 +11,7 @@ import {
   moveControllerStick,
   overrideXR,
   pressControllerButton,
+  setXRInputPosition,
   startXR,
   tweenXRInputSource,
   updateController,
@@ -35,21 +37,22 @@ export const BotHookFunctions = {
   [XRBotHooks.PressControllerButton]: pressControllerButton,
   [XRBotHooks.MoveControllerStick]: moveControllerStick,
   [XRBotHooks.GetXRInputPosition]: getXRInputPosition,
+  [XRBotHooks.SetXRInputPosition]: setXRInputPosition,
   [XRBotHooks.TweenXRInputSource]: tweenXRInputSource
 }
 
 export function initializeBot() {
-  Engine.isBot = true
+  Engine.instance.isBot = true
 }
 
 // === ENGINE === //
 
 export function locationLoaded() {
-  return Engine.hasJoinedWorld
+  return accessEngineState().joinedWorld.value
 }
 
 export function sceneLoaded() {
-  return Engine.sceneLoaded
+  return accessEngineState().sceneLoaded.value
 }
 
 export function getPlayerPosition() {

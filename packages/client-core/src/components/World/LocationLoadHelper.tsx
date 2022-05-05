@@ -71,11 +71,11 @@ const createOfflineUser = (sceneData: SceneJson) => {
     rotation: new Quaternion()
   }
 
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   world.hostId = userId as any
 
   // it is needed by AvatarSpawnSystem
-  Engine.userId = userId
+  Engine.instance.userId = userId
   // Replicate the server behavior
   dispatchAction(world.store, NetworkWorldAction.createClient({ name: 'user', index: 0 }))
   dispatchAction(world.store, NetworkWorldAction.spawnAvatar({ parameters }))
@@ -100,7 +100,7 @@ export const initEngine = async () => {
 export const initClient = async (sceneData: SceneData) => {
   const systems = getSystemsFromSceneData(sceneData.project, sceneData.scene, true)
   const projects = accessProjectState().projects.value.map((project) => project.name)
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
 
   await Promise.all([
     initializeRealtimeSystems(),
@@ -121,7 +121,6 @@ export const initClient = async (sceneData: SceneData) => {
         MediaStreamService.triggerUpdateNearbyLayerUsers()
       })
   })
-  Engine.isReady = true
 }
 
 export const loadLocation = (sceneData: SceneJson) => {

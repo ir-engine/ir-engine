@@ -55,7 +55,7 @@ const InstanceChat = (props: Props): any => {
   const [unreadMessages, setUnreadMessages] = React.useState(false)
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
   const instanceConnectionState = useLocationInstanceConnectionState()
-  const usersTyping = useState(getState(Engine.currentWorld.store, WorldState)[user?.id.value]).value
+  const usersTyping = useState(getState(Engine.instance.currentWorld.store, WorldState)[user?.id.value]).value
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
@@ -64,7 +64,7 @@ const InstanceChat = (props: Props): any => {
     if (!composingMessage) return
     const delayDebounce = setTimeout(() => {
       dispatchAction(
-        Engine.currentWorld.store,
+        Engine.instance.currentWorld.store,
         NetworkWorldAction.setUserTyping({
           typing: false
         })
@@ -103,7 +103,7 @@ const InstanceChat = (props: Props): any => {
     if (message.length > composingMessage.length) {
       if (!usersTyping) {
         dispatchAction(
-          Engine.currentWorld.store,
+          Engine.instance.currentWorld.store,
           NetworkWorldAction.setUserTyping({
             typing: true
           })
@@ -113,7 +113,7 @@ const InstanceChat = (props: Props): any => {
     if (message.length == 0 || message.length < composingMessage.length) {
       if (usersTyping) {
         dispatchAction(
-          Engine.currentWorld.store,
+          Engine.instance.currentWorld.store,
           NetworkWorldAction.setUserTyping({
             typing: false
           })
@@ -212,12 +212,12 @@ const InstanceChat = (props: Props): any => {
                     activeChannel.messages?.length
                   )
                   .map((message) => {
-                    if (!Engine.isBot && isCommand(message.text)) return undefined
+                    if (isCommand(message.text)) return undefined
                     const system = getChatMessageSystem(message.text)
                     let chatMessage = message.text
 
                     if (system !== 'none') {
-                      if (Engine.isBot || system === 'jl_system') {
+                      if (system === 'jl_system') {
                         chatMessage = removeMessageSystem(message.text)
                       } else {
                         return undefined

@@ -1,7 +1,6 @@
 import { Box3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import { AvatarDissolveComponent } from '@xrengine/engine/src/avatar/components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { DissolveEffect } from '@xrengine/engine/src/avatar/DissolveEffect'
@@ -14,9 +13,9 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -67,7 +66,7 @@ export const deserializeVolumetric: ComponentDeserializeFunction = (
   const props = parseVolumetricProperties(json.props)
   addComponent(entity, VolumetricComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VOLUMETRIC)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VOLUMETRIC)
 
   updateVolumetric(entity, props)
 }
@@ -88,7 +87,7 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
 
       obj3d.userData.player = new DracosisPlayer({
         scene: obj3d,
-        renderer: Engine.renderer,
+        renderer: EngineRenderer.instance.renderer,
         paths,
         isLoadingEffect: isClient,
         isVideoTexture: false,
@@ -147,7 +146,7 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
         return VolumetricCallbacks
       }
       //TODO: it is breaking the video play. need to check later
-      // const audioSource = Engine.audioListener.context.createMediaElementSource(obj3d.userData.player.video)
+      // const audioSource = Engine.instance.audioListener.context.createMediaElementSource(obj3d.userData.player.video)
       // obj3d.userData.audioEl.setNodeSource(audioSource)
     } catch (error) {
       addError(entity, 'error', error.message)

@@ -15,11 +15,9 @@ import {
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { createGLTFLoader } from '@xrengine/engine/src/assets/functions/createGLTFLoader'
-// import { createCanvas } from 'canvas'
-// import gl from '@fable/gl'
 import { loadDRACODecoder } from '@xrengine/engine/src/assets/loaders/gltf/NodeDracoLoader'
 
-// import encode from 'image-encode'
+import logger from '../../logger'
 
 /**
  * @todo gl is problematic, we need to look into a better way to handle this
@@ -59,7 +57,7 @@ const createThreeScene = () => {
   // canvas = createCanvas(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
   canvas.addEventListener = () => {} // mock function to avoid errors inside THREE.WebGlRenderer()
   // context = gl(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, { preserveDrawingBuffer: true })
-  console.log(canvas, context)
+  logger.info({ canvas, context })
   renderer = new WebGLRenderer({
     canvas,
     // context,

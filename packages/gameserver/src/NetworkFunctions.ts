@@ -190,7 +190,7 @@ export async function cleanupOldGameservers(transport: SocketWebRTCServerTranspo
 }
 
 export function getUserIdFromSocketId(socketId) {
-  const client = Array.from(Engine.currentWorld.clients.values()).find((c) => c.socketId === socketId)
+  const client = Array.from(Engine.instance.currentWorld.clients.values()).find((c) => c.socketId === socketId)
   return client?.userId
 }
 
@@ -210,7 +210,7 @@ export function handleConnectToWorld(
 
   // Create a new client object
   // and add to the dictionary
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   const userIndex = world.userIndexCount++
   world.clients.set(userId, {
     userId: userId,
@@ -240,7 +240,7 @@ export function handleConnectToWorld(
 
 function disconnectClientIfConnected(socket, userId: UserId) {
   // If we are already logged in, kick the other socket
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   if (world.clients.has(userId) && world.clients.get(userId)!.socketId !== socket.id) {
     // const client = world.clients.get(userId)!
     console.log('Client already logged in, disallowing new connection')
@@ -283,7 +283,7 @@ export const handleJoinWorld = async (
       const inviterUser = users[0]
       if (inviterUser.instanceId === user.instanceId) {
         const inviterUserId = inviterUser.id
-        const inviterUserAvatarEntity = Engine.currentWorld.getUserAvatarEntity(inviterUserId as UserId)
+        const inviterUserAvatarEntity = Engine.instance.currentWorld.getUserAvatarEntity(inviterUserId as UserId)
         const inviterUserTransform = getComponent(inviterUserAvatarEntity, TransformComponent)
 
         // Translate infront of the inviter
@@ -305,7 +305,7 @@ export const handleJoinWorld = async (
   }
 
   console.info('JoinWorld received', joinedUserId, data, spawnPose)
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   const client = world.clients.get(joinedUserId)!
 
   if (!client) return callback(null! as any)
@@ -352,7 +352,7 @@ export const handleJoinWorld = async (
 export function handleIncomingActions(socket, message) {
   if (!message) return
 
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   const userIdMap = {} as { [socketId: string]: UserId }
   for (const [id, client] of world.clients) userIdMap[client.socketId!] = id
 
@@ -368,11 +368,12 @@ export function handleIncomingActions(socket, message) {
 export async function handleHeartbeat(socket): Promise<any> {
   const userId = getUserIdFromSocketId(socket.id)!
   // console.log('Got heartbeat from user ' + userId + ' at ' + Date.now());
-  if (Engine.currentWorld.clients.has(userId)) Engine.currentWorld.clients.get(userId)!.lastSeenTs = Date.now()
+  if (Engine.instance.currentWorld.clients.has(userId))
+    Engine.instance.currentWorld.clients.get(userId)!.lastSeenTs = Date.now()
 }
 
 export async function handleDisconnect(socket): Promise<any> {
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   const userId = getUserIdFromSocketId(socket.id) as UserId
   const disconnectedClient = world?.clients.get(userId)
   if (!disconnectedClient)
@@ -395,7 +396,7 @@ export async function handleDisconnect(socket): Promise<any> {
 }
 
 export async function handleLeaveWorld(socket, data, callback): Promise<any> {
-  const world = Engine.currentWorld
+  const world = Engine.instance.currentWorld
   const userId = getUserIdFromSocketId(socket.id)!
   if (Network.instance.transports)
     for (const [, transport] of Object.entries(Network.instance.transports))
@@ -407,9 +408,9 @@ export async function handleLeaveWorld(socket, data, callback): Promise<any> {
 }
 
 export function clearCachedActionsForDisconnectedUsers() {
-  const cached = Engine.currentWorld.store.actions.cached
+  const cached = Engine.instance.currentWorld.store.actions.cached
   for (const action of [...cached]) {
-    if (Engine.currentWorld.clients.has(action.$from) === false) {
+    if (Engine.instance.currentWorld.clients.has(action.$from) === false) {
       const idx = cached.indexOf(action)
       cached.splice(idx, 1)
     }
@@ -417,7 +418,7 @@ export function clearCachedActionsForDisconnectedUsers() {
 }
 
 export function clearCachedActionsForUser(user: UserId) {
-  const cached = Engine.currentWorld.store.actions.cached
+  const cached = Engine.instance.currentWorld.store.actions.cached
   for (const action of [...cached]) {
     if (action.$from === user) {
       const idx = cached.indexOf(action)

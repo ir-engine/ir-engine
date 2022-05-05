@@ -98,7 +98,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       {/* TODO */}
       {/* <InputGroup name="Cubemap Bake" label={t('editor:properties.portal.lbl-cubemapBake')}>
         <SelectInput
-          options={Engine.scene.children
+          options={Engine.instance.scene.children
             .filter((obj: Object3D) => {
               return (obj as any).nodeName === CubemapBakeportalComponent.nodeName
             })

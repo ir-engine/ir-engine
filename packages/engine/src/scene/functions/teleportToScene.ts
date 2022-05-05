@@ -14,7 +14,6 @@ import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
 export const teleportToScene = async () => {
   const world = useWorld()
   console.log('teleportToScene', world.activePortal)
-  Engine.hasJoinedWorld = false
 
   // trigger hyperspace effect by simply adding tag component to the world's entity
   addComponent(world.worldEntity, HyperspaceTagComponent, {})
@@ -30,7 +29,7 @@ export const teleportToScene = async () => {
 
   // wait until the world has been joined
   await new Promise((resolve) => {
-    matchActionOnce(Engine.store, EngineActions.joinedWorld.matches, resolve)
+    matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, resolve)
   })
 
   // teleport player to where the portal is
