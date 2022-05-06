@@ -66,7 +66,7 @@
     margin: 0 4px;
 
     &:hover {
-      background: var(--purpleColor1);
+      background: var(--iconButtonHoverColor);
     }
   }
 }
@@ -95,11 +95,11 @@
     border-radius: 4px;
 
     &:hover {
-      background-color: var(--purpleColor1);
+      background-color: var(--iconButtonHoverColor);
     }
 
     &.selected {
-      background-color: var(--purpleColor2);
+      background-color: var(--iconButtonSelectedBackground);
 
       &:hover {
         opacity: 0.8;
@@ -159,7 +159,7 @@
     height: 31px;
 
     &:hover {
-      background-color: var(--purpleColor1);
+      background-color: var(--iconButtonHoverColor);
     }
 
     .selected {

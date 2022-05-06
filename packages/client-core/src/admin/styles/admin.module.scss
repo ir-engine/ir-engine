@@ -372,7 +372,7 @@
       .legend {
         position: absolute;
         padding: 10px;
-        background: var(--purpleColor1);
+        background: var(--popupBackground);
         border-radius: 5px;
         top: 30px;
         right: 5px;
@@ -386,7 +386,7 @@
         }
 
         .shiftKey {
-          background: var(--purplePanel);
+          background: var(--popupBackground);
           color: var(--textColor);
           padding: 2px 4px;
           border-radius: 4px;
@@ -547,7 +547,7 @@
 
 .botHeader {
   height: 50px;
-  background: var(--purpleColor4);
+  background: var(--panelCards);
   color: #fff;
   display: flex;
   flex-direction: row;
@@ -649,7 +649,7 @@
 }
 
 .summary {
-  background: var(--purpleColor4);
+  background: var(--panelCards);
   border-bottom: 1px solid var(--mainBackground);
   color: #f1f1f1;
   border-radius: 0;
