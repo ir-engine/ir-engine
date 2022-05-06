@@ -27,18 +27,16 @@ import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
-export const retrieveLocationByName = (authState: AuthState, locationName: string) => {
-  if (authState.isLoggedIn.value === true && authState.user.id.value) {
-    if (locationName === globalThis.process.env['VITE_LOBBY_LOCATION_NAME']) {
-      const history = useHistory()
-      LocationService.getLobby()
-        .then((lobby) => {
-          history.replace('/location/' + lobby?.slugifiedName)
-        })
-        .catch((err) => console.log('getLobby error', err))
-    } else {
-      LocationService.getLocationByName(locationName)
-    }
+export const retrieveLocationByName = (locationName: string) => {
+  if (locationName === globalThis.process.env['VITE_LOBBY_LOCATION_NAME']) {
+    const history = useHistory()
+    LocationService.getLobby()
+      .then((lobby) => {
+        history.replace('/location/' + lobby?.slugifiedName)
+      })
+      .catch((err) => console.log('getLobby error', err))
+  } else {
+    LocationService.getLocationByName(locationName)
   }
 }
 
