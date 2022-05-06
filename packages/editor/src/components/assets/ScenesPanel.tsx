@@ -9,11 +9,14 @@ import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { MoreVert } from '@mui/icons-material'
+import { ClickAwayListener } from '@mui/material'
 import { IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { disposeProject } from '../../functions/projectFunctions'
-import { deleteScene, getScenes, renameScene } from '../../functions/sceneFunctions'
+import { deleteScene, getScenes, renameScene, saveScene } from '../../functions/sceneFunctions'
 import { EditorAction, useEditorState } from '../../services/EditorServices'
+import ErrorDialog from '../dialogs/ErrorDialog'
+import { useDialog } from '../hooks/useDialog'
 import { Button } from '../inputs/Button'
 import { InfoTooltip } from '../layout/Tooltip'
 import { DeleteDialog } from '../projects/DeleteDialog'
@@ -36,6 +39,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const dispatch = useDispatch()
   const history = useHistory()
   const editorState = useEditorState()
+  const [DialogComponent, setDialogComponent] = useDialog()
 
   const fetchItems = async () => {
     try {
@@ -102,21 +106,29 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   }
 
   const startRenaming = () => {
+    if (editorState.sceneModified.value) {
+      setDialogComponent(
+        <ErrorDialog title={t('editor:errors.unsavedChanges')} message={t('editor:errors.unsavedChangesMsg')} />
+      )
+      return
+    }
     setContextMenuOpen(false)
     setAnchorEl(null)
     setRenaming(true)
     setNewName(activeScene!.name)
   }
 
+  const finishRenaming = async () => {
+    setRenaming(false)
+    await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
+    dispatch(EditorAction.sceneChanged(newName))
+    history.push(`/editor/${editorState.projectName.value}/${newName}`)
+    setNewName('')
+    fetchItems()
+  }
+
   const renameSceneToNewName = async (e) => {
-    if (e.key == 'Enter' && activeScene) {
-      await renameScene(editorState.projectName.value as string, newName, activeScene.name)
-      dispatch(EditorAction.sceneChanged(newName))
-      history.push(`/editor/${editorState.projectName.value}/${newName}`)
-      setRenaming(false)
-      setNewName('')
-      fetchItems()
-    }
+    if (e.key == 'Enter' && activeScene) finishRenaming()
   }
 
   return (
@@ -138,19 +150,21 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
                   <div className={styles.detailBlock}>
                     {activeScene === scene && isRenaming ? (
                       <Paper component="div" className={styles.inputContainer}>
-                        <InputBase
-                          className={styles.input}
-                          name="name"
-                          style={{ color: '#fff' }}
-                          autoComplete="off"
-                          autoFocus
-                          value={newName}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                          }}
-                          onChange={(e) => setNewName(e.target.value)}
-                          onKeyPress={renameSceneToNewName}
-                        />
+                        <ClickAwayListener onClickAway={finishRenaming}>
+                          <InputBase
+                            className={styles.input}
+                            name="name"
+                            style={{ color: '#fff' }}
+                            autoComplete="off"
+                            autoFocus
+                            value={newName}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                            }}
+                            onChange={(e) => setNewName(e.target.value)}
+                            onKeyPress={renameSceneToNewName}
+                          />
+                        </ClickAwayListener>
                       </Paper>
                     ) : (
                       <InfoTooltip title={scene.name}>

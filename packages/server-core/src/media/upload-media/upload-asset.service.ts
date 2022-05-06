@@ -96,7 +96,7 @@ export default (app: Application): void => {
     multipartMiddleware.any(),
     (req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (req?.feathers && req.method !== 'GET') {
-        req.feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
+        ;(req as any).feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
       }
       next()
     },

@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import JSONTree from 'react-json-tree'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import {
   addComponent,
   getComponent,
@@ -23,10 +22,22 @@ import { SimpleMaterialTagComponent } from '@xrengine/engine/src/scene/component
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { dispatchAction } from '@xrengine/hyperflux'
 
+import BlurOffIcon from '@mui/icons-material/BlurOff'
+import GridOnIcon from '@mui/icons-material/GridOn'
+import ManIcon from '@mui/icons-material/Man'
+import RefreshIcon from '@mui/icons-material/Refresh'
+import SelectAllIcon from '@mui/icons-material/SelectAll'
+import SquareFootIcon from '@mui/icons-material/SquareFoot'
+
+import { StatsPanel } from './StatsPanel'
+import styles from './styles.module.scss'
+import { Tick } from './Tick'
+
 export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
+  const [remountCount, setRemountCount] = useState(0)
+  const [resetStats, setResetStats] = useState(0)
   const showingStateRef = useRef(isShowing)
-  const engineState = useEngineState()
   const engineRendererState = useEngineRendererState()
   const { t } = useTranslation()
   function setupListener() {
@@ -53,8 +64,11 @@ export const Debug = () => {
     }
   }, [])
 
-  const [remountCount, setRemountCount] = useState(0)
-  const refresh = () => setRemountCount(remountCount + 1)
+  const refresh = () => {
+    setResetStats(resetStats + 1)
+    setRemountCount(remountCount + 1)
+  }
+
   const togglePhysicsDebug = () => {
     dispatchAction(
       Engine.instance.store,
@@ -81,7 +95,6 @@ export const Debug = () => {
                   getEntityComponents(Engine.instance.currentWorld, eid).reduce<[string, any][]>(
                     (components, C: MappedComponent<any, any>) => {
                       if (C !== NameComponent) {
-                        engineState.fixedTick.value
                         const component = C.isReactive ? getComponent(eid, C).value : getComponent(eid, C)
                         components.push([C._name, { ...component }])
                       }
@@ -128,62 +141,89 @@ export const Debug = () => {
 
   if (isShowing)
     return (
-      <div
-        style={{
-          position: 'absolute',
-          overflowY: 'auto',
-          top: 0,
-          zIndex: 100000,
-          height: 'auto',
-          maxHeight: '95%',
-          width: 'auto',
-          maxWidth: '50%'
-        }}
-      >
-        <button type="submit" value="Refresh" onClick={refresh}>
-          {t('common:debug.refresh')}
-        </button>
-        <button type="button" value="Physics Debug" onClick={togglePhysicsDebug}>
-          {t('common:debug.physicsDebug')}
-        </button>
-        <button type="button" value="Avatar Debug" onClick={toggleAvatarDebug}>
-          {t('common:debug.avatarDebug')}
-        </button>
-        <button type="button" value="Node Debug" onClick={toggleNodeHelpers}>
-          {t('common:debug.nodeHelperDebug')}
-        </button>
-        <button type="button" value="Grid Debug" onClick={toggleGridHelper}>
-          {t('common:debug.gridDebug')}
-        </button>
-        <button type="button" value="Simple Materials" onClick={simpleMaterials}>
-          {t('common:debug.simpleMaterials')}
-        </button>
-        {Network.instance !== null && (
-          <div>
-            <div>
-              {t('common:debug.tick')}: {engineState.fixedTick.value}
+      <div className={styles.debugContainer}>
+        <div className={styles.debugOptionContainer}>
+          <h1>{t('common:debug.debugOptions')}</h1>
+          <div className={styles.optionBlock}>
+            <div className={styles.flagContainer}>
+              <button
+                type="button"
+                onClick={togglePhysicsDebug}
+                className={styles.flagBtn + (engineRendererState.physicsDebugEnable.value ? ' ' + styles.active : '')}
+                title={t('common:debug.physicsDebug')}
+              >
+                <SquareFootIcon fontSize="small" />
+              </button>
+              <button
+                type="button"
+                onClick={toggleAvatarDebug}
+                className={styles.flagBtn + (engineRendererState.avatarDebugEnable.value ? ' ' + styles.active : '')}
+                title={t('common:debug.avatarDebug')}
+              >
+                <ManIcon fontSize="small" />
+              </button>
+              <button
+                type="button"
+                onClick={toggleNodeHelpers}
+                className={styles.flagBtn + (engineRendererState.nodeHelperVisibility.value ? ' ' + styles.active : '')}
+                title={t('common:debug.nodeHelperDebug')}
+              >
+                <SelectAllIcon fontSize="small" />
+              </button>
+              <button
+                type="button"
+                onClick={toggleGridHelper}
+                className={styles.flagBtn + (engineRendererState.gridVisibility.value ? ' ' + styles.active : '')}
+                title={t('common:debug.gridDebug')}
+              >
+                <GridOnIcon fontSize="small" />
+              </button>
+              <button
+                type="button"
+                onClick={simpleMaterials}
+                className={
+                  styles.flagBtn +
+                  (hasComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent)
+                    ? ' ' + styles.active
+                    : '')
+                }
+                title={t('common:debug.simpleMaterials')}
+              >
+                <BlurOffIcon fontSize="small" />
+              </button>
             </div>
-            <div>
+            <div className={styles.refreshBlock}>
+              {Network.instance != null && <Tick />}
+              <button type="submit" title={t('common:debug.refresh')} onClick={refresh} className={styles.refreshBtn}>
+                <RefreshIcon fontSize="small" />
+              </button>
+            </div>
+          </div>
+        </div>
+        <StatsPanel show={showingStateRef.current} resetCounter={resetStats} />
+        {Network.instance !== null && (
+          <>
+            <div className={styles.jsonPanel}>
               <h1>{t('common:debug.engineStore')}</h1>
               <JSONTree data={Engine.instance.store} />
             </div>
-            <div>
+            <div className={styles.jsonPanel}>
               <h1>{t('common:debug.worldStore')}</h1>
               <JSONTree data={Engine.instance.currentWorld.store} />
             </div>
-            <div>
+            <div className={styles.jsonPanel}>
               <h1>{t('common:debug.namedEntities')}</h1>
               <JSONTree data={renderNamedEntities()} />
             </div>
-            <div>
+            <div className={styles.jsonPanel}>
               <h1>{t('common:debug.networkObject')}</h1>
               <JSONTree data={{ ...Network.instance }} />
             </div>
-            <div>
+            <div className={styles.jsonPanel}>
               <h1>{t('common:debug.networkClients')}</h1>
               <JSONTree data={Object.fromEntries(Engine.instance.currentWorld.clients.entries())} />
             </div>
-          </div>
+          </>
         )}
       </div>
     )
