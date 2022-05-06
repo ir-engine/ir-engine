@@ -50,9 +50,7 @@ export const FollowCameraDefaultValues: FollowCameraComponentType = {
   shoulderSide: true,
   locked: true,
   raycaster: new Raycaster(),
-  raycastProps: {
-    ...SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.raycastProps
-  }
+  raycastProps: SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.raycastProps
 }
 
 export const FollowCameraComponent = createMappedComponent<FollowCameraComponentType>('FollowCameraComponent')
