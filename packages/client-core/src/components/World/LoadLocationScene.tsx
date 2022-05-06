@@ -26,8 +26,13 @@ export const LoadLocationScene = () => {
       selfUser?.locationBans?.value?.find((ban) => ban.locationId === currentLocation.id.value) != null
     dispatch(LocationAction.socialSelfUserBanned(isUserBanned))
 
-    if (!isUserBanned && !locationState.fetchingCurrentLocation.value && locationState.locationName.value) {
-      retrieveLocationByName(authState, locationState.locationName.value)
+    if (
+      !isUserBanned &&
+      !locationState.fetchingCurrentLocation.value &&
+      locationState.locationName.value &&
+      authState.isLoggedIn.value
+    ) {
+      retrieveLocationByName(locationState.locationName.value)
     }
   }, [authState.isLoggedIn, locationState.locationName])
 

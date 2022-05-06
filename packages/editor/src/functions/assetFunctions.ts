@@ -51,7 +51,7 @@ export const exportAsset = async (node: EntityTreeNode) => {
 
 async function fileBrowserUpload(
   file: Blob,
-  params: { path: string; contentType: string },
+  params: { fileName: string; path: string; contentType: string },
   onProgress: (progress: number) => any
 ): Promise<{ url: string }> {
   const response = await uploadToFeathersService('file-browser/upload', file as any, params, onProgress)
@@ -67,8 +67,8 @@ export const uploadProjectFile = async (
   const promises: Promise<{ url: string }>[] = []
 
   for (const file of files) {
-    const filePath = `projects/${projectName}${isAsset ? '/assets' : ''}/${file.name}`
-    promises.push(fileBrowserUpload(file, { path: filePath, contentType: '' }, onProgress))
+    const path = `projects/${projectName}${isAsset ? '/assets' : ''}`
+    promises.push(fileBrowserUpload(file, { fileName: file.name, path, contentType: '' }, onProgress))
   }
 
   return await Promise.all(promises)
@@ -102,8 +102,8 @@ const processEntry = async (item, projectName: string, directory: string, promis
 
   if (item.isFile) {
     const file = await getFile(item)
-    const filePath = `projects/${projectName}/assets${directory}/${file.name}`
-    promises.push(fileBrowserUpload(file, { path: filePath, contentType: '' }, onProgress))
+    const path = `projects/${projectName}/assets${directory}`
+    promises.push(fileBrowserUpload(file, { fileName: file.name, path, contentType: '' }, onProgress))
   }
 }
 

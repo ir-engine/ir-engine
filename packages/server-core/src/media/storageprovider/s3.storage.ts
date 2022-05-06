@@ -1,12 +1,13 @@
 import AWS from 'aws-sdk'
-import { PresignedPost } from 'aws-sdk/clients/s3'
-import path from 'path'
+import { ObjectIdentifierList, PresignedPost } from 'aws-sdk/clients/s3'
+import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
 
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 
 import config from '../../appconfig'
 import {
+  PutObjectParams,
   SignedURLResponse,
   StorageListObjectInterface,
   StorageObjectInterface,
@@ -24,7 +25,8 @@ export class S3Provider implements StorageProviderInterface {
     secretAccessKey: config.aws.keys.secretAccessKey,
     endpoint: config.aws.s3.endpoint,
     region: config.aws.s3.region,
-    s3ForcePathStyle: true
+    s3ForcePathStyle: true,
+    maxRetries: 1
   })
 
   bucketAssetURL =
@@ -48,20 +50,35 @@ export class S3Provider implements StorageProviderInterface {
     return this
   }
 
-  checkObjectExistence = (key: string): Promise<any> => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        await this.provider
-          .getObjectAcl({
-            Bucket: this.bucket,
-            Key: key
-          })
-          .promise()
-        reject(new Error(`Object of key ${key} already exists`))
-      } catch (err) {
-        resolve(err.code === 'NoSuchKey' ? null : err)
-      }
-    })
+  async doesExist(fileName: string, directoryPath: string): Promise<boolean> {
+    // have to use listOBjectsV2 since other object related methods does not check existance of a folder on S3
+    const result = await this.provider
+      .listObjectsV2({
+        Bucket: this.bucket,
+        Prefix: path.join(directoryPath, fileName),
+        MaxKeys: 1
+      })
+      .promise()
+      .then((res) => (res.Contents && res.Contents.length > 0) || false)
+      .catch(() => false)
+
+    return result
+  }
+
+  async isDirectory(fileName: string, directoryPath: string): Promise<boolean> {
+    // last character of the key of directory is '/'
+    // https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-folders.htmlhow to
+    const result = await this.provider
+      .listObjectsV2({
+        Bucket: this.bucket,
+        Prefix: path.join(directoryPath, fileName),
+        MaxKeys: 1
+      })
+      .promise()
+      .then((res) => res?.Contents?.[0]?.Key?.endsWith('/') || false)
+      .catch(() => false)
+
+    return result
   }
 
   getObject = async (key: string): Promise<StorageObjectInterface> => {
@@ -76,11 +93,9 @@ export class S3Provider implements StorageProviderInterface {
 
   listObjects = async (
     prefix: string,
-    results: any[],
     recursive = true,
-    continuationToken: string | undefined
+    continuationToken?: string
   ): Promise<StorageListObjectInterface> => {
-    const self = this
     const data = await this.provider
       .listObjectsV2({
         Bucket: this.bucket,
@@ -90,30 +105,43 @@ export class S3Provider implements StorageProviderInterface {
       })
       .promise()
 
-    data.Contents = results.concat(data.Contents)
+    if (!data.Contents) data.Contents = []
+    if (!data.CommonPrefixes) data.CommonPrefixes = []
+
     if (data.IsTruncated) {
-      return await self.listObjects(prefix, data.Contents, true, data.NextContinuationToken)
+      const _data = await this.listObjects(prefix, recursive, data.NextContinuationToken)
+      data.Contents = data.Contents.concat(_data.Contents)
+      if (_data.CommonPrefixes) data.CommonPrefixes = data.CommonPrefixes.concat(_data.CommonPrefixes)
     }
+
     return data as StorageListObjectInterface
   }
 
-  putObject = async (params: StorageObjectInterface): Promise<any> => {
-    if (!params.Key) return
+  putObject = async (data: StorageObjectInterface, params: PutObjectParams = {}): Promise<any> => {
+    if (!data.Key) return
 
     // key should not contain '/' at the begining
-    let key = params.Key[0] === '/' ? params.Key.substring(1) : params.Key
+    let key = data.Key[0] === '/' ? data.Key.substring(1) : data.Key
 
-    const data = await this.provider
-      .putObject({
-        ACL: 'public-read',
-        Body: params.Body,
-        Bucket: this.bucket,
-        ContentType: params.ContentType,
-        Key: key
-      })
-      .promise()
+    const args = params.isDirectory
+      ? {
+          ACL: 'public-read',
+          Body: Buffer.alloc(0),
+          Bucket: this.bucket,
+          ContentType: 'application/x-empty',
+          Key: key + '/'
+        }
+      : {
+          ACL: 'public-read',
+          Body: data.Body,
+          Bucket: this.bucket,
+          ContentType: data.ContentType,
+          Key: key
+        }
 
-    return data
+    const result = await this.provider.putObject(args).promise()
+
+    return result
   }
 
   createInvalidation = async (invalidationItems: any[]): Promise<any> => {
@@ -163,22 +191,33 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   deleteResources = async (keys: string[]): Promise<any> => {
-    const data = await this.provider
-      .deleteObjects({
-        Bucket: this.bucket,
-        Delete: {
-          Objects: keys.map((key) => {
-            return { Key: key }
+    // Create batches of 1000 since S3 supports deletion of 1000 object max per request
+    const batches = [] as ObjectIdentifierList[]
+
+    let index = 0
+    for (let i = 0; i < keys.length; i++) {
+      index = Math.floor(i / 1000)
+      if (!batches[index]) batches[index] = []
+      batches[index].push({ Key: keys[i] })
+    }
+
+    const data = await Promise.all(
+      batches.map((batch) =>
+        this.provider
+          .deleteObjects({
+            Bucket: this.bucket,
+            Delete: { Objects: batch }
           })
-        }
-      })
-      .promise()
+          .promise()
+      )
+    )
+
     return data
   }
 
   listFolderContent = async (folderName: string, recursive = false): Promise<FileContentType[]> => {
-    const folderContent = await this.listObjects(folderName, [], recursive, null!)
-    // console.log('folderContent', folderContent)
+    const folderContent = await this.listObjects(folderName, recursive)
+
     const promises: Promise<FileContentType>[] = []
 
     // Folders
@@ -220,62 +259,41 @@ export class S3Provider implements StorageProviderInterface {
     return await Promise.all(promises)
   }
 
-  async moveObject(current: string, destination: string, isCopy: boolean = false, renameTo: string = null!) {
-    const promises: any[] = []
-    promises.push(...(await this._moveObject(current, destination, isCopy, renameTo)))
-    await Promise.all(promises)
-    return
-  }
+  /**
+   * @author Nayankumar Patel
+   * @param oldName
+   * @param oldPath
+   * @param newName
+   * @param newPath
+   * @param isCopy
+   * @returns
+   */
+  moveObject = async (
+    oldName: string,
+    newName: string,
+    oldPath: string,
+    newPath: string,
+    isCopy = false
+  ): Promise<any[]> => {
+    const oldFilePath = path.join(oldPath, oldName)
+    const newFilePath = path.join(newPath, newName)
+    const listResponse = await this.listObjects(oldFilePath, true)
 
-  private async _moveObject(current: string, destination: string, isCopy: boolean = false, renameTo: string = null!) {
-    const promises: any[] = []
-    const listResponse = await this.listObjects(current, [], true, null!)
-
-    promises.push(
-      ...listResponse.Contents.map(async (file) => {
-        const dest = `${destination}${file.Key.replace(listResponse.Prefix!, '')}`
-        let fileName = renameTo != null ? renameTo : path.basename(current)
-        let isDestAvailable = false
-        const f = fileName.split('.')
-        let fileCount = 1
-        while (!isDestAvailable) {
-          try {
-            await this.checkObjectExistence(path.join(dest, fileName))
-            isDestAvailable = true
-          } catch {
-            fileName = ''
-            for (let i = 0; i < f.length - 1; i++) fileName += f[i]
-            fileName = `${fileName}(${fileCount}).${f[f.length - 1]}`
-            fileCount++
-          }
-        }
-        await this.provider
+    const result = await Promise.all([
+      ...listResponse.Contents.map(async (file) =>
+        this.provider
           .copyObject({
             Bucket: this.bucket,
             CopySource: `/${this.bucket}/${file.Key}`,
-            Key: path.join(dest, fileName)
+            Key: path.join(newFilePath, file.Key.replace(oldFilePath, ''))
           })
           .promise()
-        // we have to do these one by one after the copy
-        if (!isCopy) {
-          await this.deleteResources([file.Key])
-        }
-      })
-    )
-
-    // recursive copy sub-folders
-    promises.push(
-      ...listResponse.CommonPrefixes!.map(async (folder) =>
-        this._moveObject(
-          `${folder.Prefix}`,
-          `${destination}${folder.Prefix.replace(listResponse.Prefix!, '')}`,
-          isCopy,
-          null!
-        )
       )
-    )
+    ])
 
-    return promises
+    if (!isCopy) await this.deleteResources(listResponse.Contents.map((file) => file.Key))
+
+    return result
   }
 }
 export default S3Provider

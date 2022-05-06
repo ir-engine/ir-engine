@@ -54,6 +54,8 @@
     "mediaSearchAborted": "Media search aborted",
     "methodNotImplemented": "Method not implemented.",
     "saveProjectAborted": "Save scene aborted",
+    "unsavedChanges": "Unsaved Changes",
+    "unsavedChangesMsg": "The scene has been modified. Please save your changes.",
     "projectCreationFail": "Project creation failed. {{reason}}",
     "projectDeletionFail": "Project deletion failed. {{reason}}",
     "savingProjectFail": "Saving Project failed. {{reason}}",
