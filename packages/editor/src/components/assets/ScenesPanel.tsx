@@ -9,6 +9,7 @@ import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { MoreVert } from '@mui/icons-material'
+import { ClickAwayListener } from '@mui/material'
 import { IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { disposeProject } from '../../functions/projectFunctions'
@@ -108,15 +109,17 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
     setNewName(activeScene!.name)
   }
 
+  const finishRenaming = async () => {
+    setRenaming(false)
+    await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
+    dispatch(EditorAction.sceneChanged(newName))
+    history.push(`/editor/${editorState.projectName.value}/${newName}`)
+    setNewName('')
+    fetchItems()
+  }
+
   const renameSceneToNewName = async (e) => {
-    if (e.key == 'Enter' && activeScene) {
-      await renameScene(editorState.projectName.value as string, newName, activeScene.name)
-      dispatch(EditorAction.sceneChanged(newName))
-      history.push(`/editor/${editorState.projectName.value}/${newName}`)
-      setRenaming(false)
-      setNewName('')
-      fetchItems()
-    }
+    if (e.key == 'Enter' && activeScene) finishRenaming()
   }
 
   return (
@@ -138,19 +141,21 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
                   <div className={styles.detailBlock}>
                     {activeScene === scene && isRenaming ? (
                       <Paper component="div" className={styles.inputContainer}>
-                        <InputBase
-                          className={styles.input}
-                          name="name"
-                          style={{ color: '#fff' }}
-                          autoComplete="off"
-                          autoFocus
-                          value={newName}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                          }}
-                          onChange={(e) => setNewName(e.target.value)}
-                          onKeyPress={renameSceneToNewName}
-                        />
+                        <ClickAwayListener onClickAway={finishRenaming}>
+                          <InputBase
+                            className={styles.input}
+                            name="name"
+                            style={{ color: '#fff' }}
+                            autoComplete="off"
+                            autoFocus
+                            value={newName}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                            }}
+                            onChange={(e) => setNewName(e.target.value)}
+                            onKeyPress={renameSceneToNewName}
+                          />
+                        </ClickAwayListener>
                       </Paper>
                     ) : (
                       <InfoTooltip title={scene.name}>
