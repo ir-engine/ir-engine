@@ -76,7 +76,8 @@ Add the following lines:
 `<Output of 'minikube ip'>  local.theoverlay.io api-local.theoverlay.io gameserver-local.theoverlay.io 00000.gameserver-local.theoverlay.io 00001.gameserver-local.theoverlay.io 00002.gameserver-local.theoverlay.io 00003.gameserver-local.theoverlay.io`
 
 
-Update Minikube host by replacing minikube gateway e.g. if `minikube ip` is `192.168.49.2` then value should be `192.168.49.1`
+Update Minikube host by replacing minikube gateway e.g. if `minikube ip` is `192.168.49.2` then minikube gateway value should be `192.168.49.1`
+
 `<minikube gateway>   host.minikube.internal`
 
 The first line says to point several *-local.theoverlay.io domains internally to the minikube cluster,
