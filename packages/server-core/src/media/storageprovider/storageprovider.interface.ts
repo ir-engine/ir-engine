@@ -1,5 +1,8 @@
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 
+export interface PutObjectParams {
+  isDirectory?: boolean
+}
 export interface StorageObjectInterface {
   Key?: string
   Body: Buffer
@@ -38,11 +41,16 @@ export interface StorageProviderInterface {
   /**
    * Checks if an object exists
    * @param key
-   * @returns {Promise<null>}
-   * @throws {Error}
-   *
+   * @returns {Promise<boolean>}
    */
-  checkObjectExistence(key: string): Promise<any>
+  doesExist(fileName: string, directoryPath: string): Promise<boolean>
+
+  /**
+   * Checks if an object is directory or not
+   * @param key
+   * @returns {Promise<boolean>}
+   */
+  isDirectory(fileName: string, directoryPath: string): Promise<boolean>
 
   /**
    * Gets the object
@@ -74,24 +82,18 @@ export interface StorageProviderInterface {
   /**
    * Get a list of keys under a path
    * @param prefix
-   * @param results
    * @param recursive
    * @param continuationToken
    * @returns {Promise<StorageListObjectInterface>}
    */
-  listObjects(
-    prefix: string,
-    results,
-    recursive?: boolean,
-    continuationToken?: string
-  ): Promise<StorageListObjectInterface>
+  listObjects(prefix: string, recursive?: boolean, continuationToken?: string): Promise<StorageListObjectInterface>
 
   /**
    * Puts an object into the store
    * @param object
    * @returns {any}
    */
-  putObject(object: StorageObjectInterface): Promise<any>
+  putObject(object: StorageObjectInterface, params?: PutObjectParams): Promise<any>
 
   /**
    * Deletes resources in the store
@@ -112,11 +114,12 @@ export interface StorageProviderInterface {
   listFolderContent(folderName: string, recursive?: boolean): Promise<FileContentType[]>
 
   /**
-   * Moves a directory
-   * @param current
-   * @param destination
+   * Moves or copy object from one place to another
+   * @param oldName
+   * @param oldPath
+   * @param newName
+   * @param newPath
    * @param isCopy
-   * @param isRename
    */
-  moveObject(current: string, destination: string, isCopy?: boolean, isRename?: string): Promise<any>
+  moveObject(oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean): Promise<any>
 }
