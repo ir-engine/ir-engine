@@ -117,8 +117,6 @@ const App = (): any => {
   useEffect(() => {
     const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
 
-    console.log('I WAS HERE 2', clientThemeSettings?.dark?.mainBackground)
-
     if (clientThemeSettings) {
       if (currentTheme === 'light' && clientThemeSettings?.light) {
         for (let variable of Object.keys(clientThemeSettings.light)) {

@@ -27,7 +27,7 @@ import {
 
 import styles from '../../../styles/settings.module.scss'
 
-const DemoArea = () => {
+const ThemePlayground = () => {
   const [dock, setDock] = useState(false)
   const [dialog, setDialog] = useState(false)
   const [drawerValue, setDrawerValue] = useState(false)
@@ -132,7 +132,7 @@ const DemoArea = () => {
 
   return (
     <>
-      <label>Demo Area:</label>
+      <label>Theme Playground:</label>
       <br />
       <br />
       <Box className="themeDemoArea">
@@ -353,4 +353,4 @@ const DemoArea = () => {
   )
 }
 
-export default DemoArea
+export default ThemePlayground

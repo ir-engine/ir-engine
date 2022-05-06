@@ -10,8 +10,8 @@ import { useAuthState } from '../../../../user/services/AuthService'
 import { ClientSettingService, useClientSettingState } from '../../../services/Setting/ClientSettingService'
 import styles from '../../../styles/settings.module.scss'
 import ColorSelectionArea from './ColorSelectionArea'
-import DemoArea from './DemoArea'
 import DemoStyle from './DemoStyle'
+import ThemePlayground from './ThemePlayground'
 
 const ClientTheme = () => {
   const selfUser = useAuthState().user
@@ -23,17 +23,9 @@ const ClientTheme = () => {
 
   const [mode, setMode] = useState(selfUser?.user_setting?.value?.themeMode || 'dark')
 
-  const defaultValue = {}
-
-  for (const setting of defaultThemeSettings) {
-    defaultValue[setting] = (document.querySelector(`[data-theme=${mode}]`) as any)?.style.getPropertyValue(
-      '--' + setting
-    )
-  }
-
   const [themeSetting, setThemeSetting] = useState<ThemeSetting>({
-    light: { ...defaultValue, ...clientSetting?.themeSettings?.light },
-    dark: { ...defaultValue, ...clientSetting?.themeSettings?.dark }
+    light: { ...defaultThemeSettings.light, ...clientSetting?.themeSettings?.light },
+    dark: { ...defaultThemeSettings.dark, ...clientSetting?.themeSettings?.dark }
   })
 
   const handleChangeColor = (name, value) => {
@@ -72,8 +64,6 @@ const ClientTheme = () => {
 
     const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
 
-    console.log('I WAS HERE 0', themeSetting?.dark?.mainBackground)
-
     if (currentTheme === 'light' && themeSetting?.light) {
       for (let variable of Object.keys(themeSetting.light)) {
         ;(document.querySelector(`[data-theme=light]`) as any)?.style.setProperty(
@@ -100,7 +90,7 @@ const ClientTheme = () => {
   return (
     <div>
       <DemoStyle theme={theme} />
-      <DemoArea />
+      <ThemePlayground />
       <ColorSelectionArea
         mode={mode}
         theme={theme}
