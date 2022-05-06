@@ -564,13 +564,13 @@
 
       :global(.MuiSlider-root) {
         &.slider {
-          color: var(--buttonOutlined);
+          color: var(--iconButtonHoverColor);
           margin: 0 10px;
         }
 
         :global(.MuiSlider-thumb) {
-          background: var(--buttonOutlined);
-          border: var(--buttonOutlined);
+          background: var(--iconButtonHoverColor);
+          border: var(--iconButtonHoverColor);
           width: 16px;
           height: 16px;
         }
