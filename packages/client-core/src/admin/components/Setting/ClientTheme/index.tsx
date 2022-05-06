@@ -22,9 +22,18 @@ const ClientTheme = () => {
   const { t } = useTranslation()
 
   const [mode, setMode] = useState(selfUser?.user_setting?.value?.themeMode || 'dark')
+
+  const defaultValue = {}
+
+  for (const setting of defaultThemeSettings) {
+    defaultValue[setting] = (document.querySelector(`[data-theme=${mode}]`) as any)?.style.getPropertyValue(
+      '--' + setting
+    )
+  }
+
   const [themeSetting, setThemeSetting] = useState<ThemeSetting>({
-    light: { ...defaultThemeSettings.light, ...clientSetting?.themeSettings?.light },
-    dark: { ...defaultThemeSettings.dark, ...clientSetting?.themeSettings?.dark }
+    light: { ...defaultValue, ...clientSetting?.themeSettings?.light },
+    dark: { ...defaultValue, ...clientSetting?.themeSettings?.dark }
   })
 
   const handleChangeColor = (name, value) => {
@@ -60,6 +69,26 @@ const ClientTheme = () => {
       },
       id
     )
+
+    const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
+
+    console.log('I WAS HERE 0', themeSetting?.dark?.mainBackground)
+
+    if (currentTheme === 'light' && themeSetting?.light) {
+      for (let variable of Object.keys(themeSetting.light)) {
+        ;(document.querySelector(`[data-theme=light]`) as any)?.style.setProperty(
+          '--' + variable,
+          themeSetting.light[variable]
+        )
+      }
+    } else if (currentTheme === 'dark' && themeSetting?.dark) {
+      for (let variable of Object.keys(themeSetting.dark)) {
+        ;(document.querySelector(`[data-theme=dark]`) as any)?.style.setProperty(
+          '--' + variable,
+          themeSetting.dark[variable]
+        )
+      }
+    }
   }
 
   const handleCancel = () => {
