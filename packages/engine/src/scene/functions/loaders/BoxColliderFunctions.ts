@@ -1,4 +1,4 @@
-import { Object3D } from 'three'
+import { Mesh, Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -49,6 +49,12 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_BOX_COLLIDER)
 
   if (!hasComponent(entity, Object3DComponent)) addComponent(entity, Object3DComponent, { value: new Object3D() })
+  const obj3d = getComponent(entity, Object3DComponent).value
+  const meshObjs: Object3D[] = []
+  obj3d.traverse((mesh: Mesh) => {
+    if (typeof mesh.userData['type'] === 'string') meshObjs.push(mesh)
+  })
+  meshObjs.forEach((mesh) => mesh.removeFromParent())
 }
 
 export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity, props: BoxColliderProps) => {

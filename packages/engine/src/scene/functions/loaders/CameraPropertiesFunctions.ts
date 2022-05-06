@@ -30,10 +30,10 @@ export const SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES = {
   maxPhi: 85,
   startPhi: 10,
   raycastProps: {
-    enabled: false,
-    rayCount: 1,
+    enabled: true,
+    rayCount: 3,
     rayLength: 15.0,
-    rayFrequency: 0.5
+    rayFrequency: 0.1
   }
 }
 
