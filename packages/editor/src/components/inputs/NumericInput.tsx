@@ -84,7 +84,7 @@ const StyledNumericInput = (styled as any).input`
  * @author Robert Long
  */
 const NumericInputUnit = (styled as any).div`
-  color: var(--text2);
+  color: var(--textColor);
   background-color: var(--inputBackground);
   padding-right: 4px;
   border-top-right-radius: 4px;

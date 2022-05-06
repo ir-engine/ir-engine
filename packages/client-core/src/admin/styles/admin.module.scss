@@ -199,7 +199,7 @@
   }
 
   .paper {
-    background: var(--purpleLight);
+    background: var(--inputBackground);
     display: flex;
     align-items: center;
   }
@@ -225,7 +225,7 @@
   .input {
     font-size: 14px;
     color: var(--textColor);
-    background-color: var(--purpleLight);
+    background-color: var(--inputBackground);
   }
 
   .tabRoot {
@@ -242,7 +242,7 @@
   }
 
   .paper2 {
-    background: var(--purpleLight);
+    background: var(--inputBackground);
     display: flex;
     align-items: center;
     width: 100%;
@@ -507,7 +507,7 @@
   }
 
   &:disabled {
-    background: var(--purpleLighter);
+    background: var(--disabled);
   }
 
   @media (max-width: 900px) {
@@ -524,7 +524,7 @@
   }
 
   &:disabled {
-    background: var(--purpleLighter);
+    background: var(--disabled);
   }
 }
 
@@ -584,13 +584,13 @@
   width: 100%;
   color: #fff;
   margin-top: 15px;
-  background: var(--purplePanel);
+  background: var(--panelBackground);
 }
 
 .botRootLeft {
   width: 100%;
   color: #fff;
-  background: var(--purplePanel);
+  background: var(--panelBackground);
 }
 
 .smFont {
@@ -660,7 +660,7 @@
 }
 
 .botDetails {
-  background: var(--purplePanel);
+  background: var(--panelBackground);
   color: #fff;
 }
 
@@ -716,7 +716,7 @@
 }
 
 .paperDialog {
-  background: var(--purplePanel) !important;
+  background: var(--popupBackground) !important;
   color: var(--textColor);
   width: 100%;
   padding: 40px 10px;
@@ -756,7 +756,7 @@
 
 .paperDrawer {
   width: 40%;
-  background-color: var(--purplePanel);
+  background-color: var(--drawerBackground);
   color: var(--textColor);
   overflow: auto;
 
@@ -781,7 +781,7 @@
   display: flex;
   flex-direction: column;
   width: 50%;
-  background-color: var(--purplePanel);
+  background-color: var(--popupBackground);
 
   @media (max-width: 768px) {
     width: 90%;
@@ -825,7 +825,7 @@
 
 .rootPaper {
   min-height: 15vh;
-  background: var(--purpleLighter);
+  background: var(--panelCards);
   color: var(--textColor);
 
   @media (max-width: 900px) {
@@ -986,12 +986,12 @@
 
 .chip {
   color: var(--textColor);
-  background-color: var(--purpleLighter);
+  background-color: var(--panelCards);
 }
 
 .filterButton {
   svg {
-    color: var(--purpleLighter);
+    color: var(--panelCards);
   }
 }
 
@@ -1001,7 +1001,7 @@
 
 .menuPaper {
   min-height: 15vh;
-  background: var(--purplePanel);
+  background: var(--dropdownMenuBackground);
   color: var(--textColor);
 
   @media (max-width: 900px) {
@@ -1023,7 +1023,7 @@
 
 .rootList {
   width: 100%;
-  background-color: var(--purpleLighter);
+  background-color: var(--panelCards);
 }
 
 .thead {
@@ -1091,7 +1091,7 @@
   color: var(--textColor);
   height: 35rem;
   width: 99.9%;
-  background-color: var(--purplePanel);
+  background-color: var(--panelBackground);
 }
 
 .btn {
@@ -1150,7 +1150,7 @@
 
 .rootCardNumber {
   min-width: 100%;
-  background-color: var(--purplePanel);
+  background-color: var(--panelBackground);
 }
 
 .label {
@@ -1174,7 +1174,7 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: var(--purpleLighter);
+  background-color: var(--inputBackground);
   top: 0;
 }
 
@@ -1186,5 +1186,5 @@
 }
 
 .accentText {
-  color: var(--purpleLighter);
+  color: var(--textColor);
 }

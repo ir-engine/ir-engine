@@ -29,7 +29,7 @@
 }
 
 .paperDialog {
-  background: rgb(58 65 73) !important;
+  background: var(--popupBackground) !important;
   color: #f1f1f1;
   width: 100%;
   padding: 40px 10px;
@@ -132,7 +132,7 @@
 
     &:hover,
     &:focus-visible {
-      outline: solid 2px var(--purpleLight);
+      outline: solid 2px var(--panelCardHoverOutline);
 
       .detailBlock {
         color: var(--textColor);

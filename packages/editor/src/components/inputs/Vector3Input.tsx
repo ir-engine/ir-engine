@@ -39,7 +39,7 @@ export const UniformButtonContainer = (styled as any).div`
   }
 
   label {
-    color: var(--text2);
+    color: var(--textColor);
   }
 
   label:hover {

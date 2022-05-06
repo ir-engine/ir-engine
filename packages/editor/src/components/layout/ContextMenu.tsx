@@ -11,8 +11,6 @@ import {
 } from 'react-contextmenu'
 import { createGlobalStyle } from 'styled-components'
 
-import { EditorTheme } from '@xrengine/client-core/src/util/theme'
-
 export const MenuItem = _MenuItem
 export const showMenu = _showMenu
 export const SubMenu = _SubMenu
@@ -23,7 +21,7 @@ export const ContextMenuTrigger = _ContextMenuTrigger
  * @author Robert Long
  * @author Abhishek Pathak
  */
-export const ContextMenuStyles = createGlobalStyle<{ theme: EditorTheme }>`
+export const ContextMenuStyles = createGlobalStyle<any>`
   .react-contextmenu {
     background-color: var(--dropdownMenuBackground);
     background-clip: padding-box;

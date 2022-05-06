@@ -45,7 +45,7 @@ const PerformanceItemContainer = (styled as any).li`
     flex-direction: column;
     flex: 1;
     padding: 12px;
-    border-left: 1px solid var(--panel2);
+    border-left: 1px solid var(--panelCardHoverOutline);
   }
 
   h5 {

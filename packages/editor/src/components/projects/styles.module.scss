@@ -81,7 +81,7 @@
   align-content: space-between;
   margin: 30px auto;
   width: 90vw;
-  background-color: var(--purplePanel);
+  background-color: var(--panelBackground);
   padding: 30px;
   border-radius: 10px;
   min-height: calc(100vh - 110px);
@@ -129,7 +129,7 @@
         margin: 0 30px;
 
         button {
-          color: var(--text2);
+          color: var(--textColor);
           padding: 10px;
 
           &:hover,
@@ -186,7 +186,7 @@
         }
 
         .expansionSummary {
-          color: var(--text2);
+          color: var(--textColor);
           font-size: 15px;
           padding: 0;
           min-height: 30px;
@@ -198,7 +198,7 @@
 
           button {
             padding: 0;
-            color: var(--text2);
+            color: var(--textColor);
             margin-left: -16px;
 
             svg {
@@ -234,7 +234,7 @@
           width: 232px;
           padding: 10px;
           flex-shrink: 0;
-          background: var(--purpleLighter);
+          background: var(--dropdownMenuBackground);
           border-radius: 3px;
           position: relative;
           overflow: hidden;
@@ -250,7 +250,7 @@
           &:hover,
           &:focus-within {
             cursor: pointer;
-            outline: solid 1px var(--purpleLight);
+            outline: solid 1px var(--panelCardHoverOutline);
           }
 
           .thumbnailContainer {
@@ -300,7 +300,7 @@
             &::before {
               content: "";
               position: absolute;
-              background: var(--purpleLight);
+              background: var(--iconButtonSelectedBackground);
               width: 60px;
               height: 60px;
               border-radius: 50%;
@@ -350,7 +350,7 @@
       font-size: 15px;
       text-align: center;
       margin-top: 10px;
-      color: var(--text2);
+      color: var(--textColor);
     }
 
     button {
@@ -387,7 +387,7 @@
 }
 
 .createProjectDialog {
-  background: var(--purpleLighter);
+  background: var(--popupBackground);
   box-shadow: 16px 16px 32px 0 #11111159;
   backdrop-filter: blur(50px);
   color: var(--textColor);
@@ -443,7 +443,7 @@
 
     .text {
       margin-top: 10px;
-      color: var(--text2);
+      color: var(--textColor);
     }
   }
 }

@@ -6,7 +6,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  color: var(--text2);
+  color: var(--textColor);
 }
 
 .nodeContent {
@@ -21,7 +21,7 @@
   outline: none;
   overflow: hidden;
   background: transparent;
-  color: var(--text2);
+  color: var(--textColor);
 
   &:hover,
   &:focus {
@@ -103,7 +103,7 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: var(--text2);
+  color: var(--textColor);
 
   &:hover {
     opacity: 0.8;

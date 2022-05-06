@@ -20,7 +20,7 @@
   flex-wrap: wrap;
   gap: 5px;
   align-items: left;
-  background: var(--panel);
+  background: var(--panelBackground);
   padding: 10px;
   border-radius: 5px;
 
@@ -39,7 +39,7 @@
   gap: 5px;
 
   .flagBtn {
-    background: var(--panel2);
+    background: var(--buttonFilled);
     color: var(--text);
     border: none;
     flex-shrink: 0;
@@ -48,7 +48,7 @@
 
     &:hover,
     &:focus-visible {
-      background: var(--bluePressed) !important;
+      opacity: 0.8;
       color: var(--text);
     }
 
@@ -63,7 +63,7 @@
   gap: 5px;
   flex-direction: column;
   padding: 10px;
-  background: var(--panel);
+  background: var(--panelBackground);
   border-radius: 5px;
 
   .statsBlock {
@@ -84,7 +84,7 @@
   gap: 10px;
 
   .refreshBtn {
-    background: var(--panel2);
+    background: var(--buttonFilled);
     color: var(--text);
     border: none;
     border-radius: 4px;
@@ -95,7 +95,7 @@
 
     &:hover,
     &:focus-visible {
-      background: var(--bluePressed);
+      opacity: 0.8;
       color: var(--text);
     }
   }
@@ -114,7 +114,7 @@
 }
 
 .jsonPanel {
-  background-color: var(--panel);
+  background-color: var(--panelBackground);
   border-radius: 5px;
   padding: 10px;
 

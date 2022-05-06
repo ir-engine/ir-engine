@@ -55,15 +55,15 @@ const SliderGlobalStyles = createGlobalStyle`
     }
 
   .rc-slider-disabled {
-    background-color: var(--panel2);
+    background-color: var(--inputBackground);
     border-radius: 2px;
 
     .rc-slider-track {
-      background-color: var(--panel2);
+      background-color: var(--inputBackground);
     }
 
     .rc-slider-handle, .rc-slider-dot {
-      border-color: var(--panel2);
+      border-color: var(--inputBackground);
       box-shadow: none;
       background-color: var(--toolbar);
       cursor: not-allowed;

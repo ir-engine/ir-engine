@@ -106,7 +106,7 @@ export const SecondaryButton = styled(Button)`
  */
 export const MenuButton = styled(Button)`
   background-color: transparent;
-  color: var(--text2);
+  color: var(--textColor);
   padding: 1px 8px;
   width: 20px;
   margin-right: 0px;

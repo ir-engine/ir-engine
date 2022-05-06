@@ -52,7 +52,7 @@ const DialogHeader = (styled as any).div`
  * @type {Styled component}
  */
 export const DialogContent = (styled as any).div`
-  color: var(--text2);
+  color: var(--textColor);
   display: flex;
   flex: 1;
   flex-direction: row;
@@ -91,7 +91,7 @@ const DialogBottomNav = (styled as any).div`
   padding: 8px;
 
   a {
-    color: var(--text2);
+    color: var(--textColor);
   }
 
   button {

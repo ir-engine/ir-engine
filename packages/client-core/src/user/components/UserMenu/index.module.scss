@@ -98,7 +98,7 @@
     position: absolute;
     bottom: 75px;
     padding: 0 20px;
-    background-color: var(--purpleLighter);
+    background-color: var(--popupBackground);
     border-radius: 20px;
     width: 140px;
     right: 100px;
@@ -1185,7 +1185,7 @@
   bottom: 75px;
   padding: 0 30px;
   border-radius: 20px;
-  background-color: var(--purpleLighter);
+  background-color: var(--popupBackground);
   left: 50%;
   transform: translateX(-50%);
   box-shadow: 16px 16px 32px 0 #11111159;
@@ -1300,7 +1300,7 @@
       .legend {
         position: absolute;
         padding: 10px;
-        background: var(--purplePanel);
+        background: var(--popupBackground);
         border-radius: 5px;
         top: 30px;
         right: 5px;
@@ -1314,7 +1314,7 @@
         }
 
         .shiftKey {
-          background: var(--purplePanel);
+          background: var(--popupBackground);
           color: var(--textColor);
           padding: 2px 4px;
           border-radius: 4px;
@@ -1427,7 +1427,7 @@
   @include panel-popup-container-styling;
 
   border-radius: 20px;
-  background-color: var(--purpleLighter);
+  background-color: var(--popupBackground);
   padding: 0;
 
   .controlContainer {
@@ -1643,7 +1643,7 @@
     }
 
     &.disabled {
-      color: var(--text2);
+      opacity: 0.8;
       cursor: initial;
 
       &::before {
@@ -1699,7 +1699,7 @@
     }
 
     &.disabled {
-      color: var(--text2);
+      opacity: 0.8;
       cursor: initial;
 
       &::before {
@@ -1936,7 +1936,7 @@
 }
 
 .paper {
-  background: var(--purpleLight);
+  background: var(--inputBackground);
   display: flex;
   align-items: center;
 
@@ -1972,7 +1972,7 @@
 .input {
   font-size: 14px;
   color: var(--textColor);
-  background-color: var(--purpleLight);
+  background-color: var(--inputBackground);
 }
 
 .tabRoot {
@@ -1989,7 +1989,7 @@
 }
 
 .paper2 {
-  background: var(--purpleLight);
+  background: var(--inputBackground);
   display: flex;
   align-items: center;
   width: 100%;
