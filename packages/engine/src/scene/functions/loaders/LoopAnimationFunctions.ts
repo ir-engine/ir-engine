@@ -166,7 +166,7 @@ export const serializeLoopAnimation: ComponentSerializeFunction = (entity) => {
   }
 }
 
-const parseLoopAnimationProperties = (props): LoopAnimationComponentType => {
+export const parseLoopAnimationProperties = (props): LoopAnimationComponentType => {
   return {
     activeClipIndex: props.activeClipIndex ?? SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE.activeClipIndex,
     hasAvatarAnimations: props.hasAvatarAnimations ?? SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE.hasAvatarAnimations
