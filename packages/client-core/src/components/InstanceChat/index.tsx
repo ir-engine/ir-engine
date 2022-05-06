@@ -30,6 +30,8 @@ interface Props {
   newMessageLabel?: string
   setBottomDrawerOpen?: any
   animate?: any
+  hideOtherMenus?: any
+  setShowTouchPad?: any
 }
 
 const InstanceChat = (props: Props): any => {
@@ -38,6 +40,8 @@ const InstanceChat = (props: Props): any => {
     MessageButton = MessageIcon,
     CloseButton = CancelIcon,
     SendButton = Send,
+    hideOtherMenus,
+    setShowTouchPad,
     newMessageLabel = 'World Chat...'
   } = props
 
@@ -59,7 +63,7 @@ const InstanceChat = (props: Props): any => {
   }
   const messageRef = React.useRef<any>()
   const messageEl = messageRef.current
-
+  const isMobile = /Mobi/i.test(window.navigator.userAgent)
   useEffect(() => {
     if (!composingMessage || !usersTyping) return
     const delayDebounce = setTimeout(() => {
@@ -152,6 +156,7 @@ const InstanceChat = (props: Props): any => {
   const [isMultiline, setIsMultiline] = React.useState(false)
   const [cursorPosition, setCursorPosition] = React.useState(0)
   const toggleChatWindow = () => {
+    if (!chatWindowOpen && isMobile) hideOtherMenus()
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
   }
@@ -196,7 +201,10 @@ const InstanceChat = (props: Props): any => {
   return (
     <>
       <div
-        onClick={() => setChatWindowOpen(false)}
+        onClick={() => {
+          setChatWindowOpen(false)
+          if (isMobile) setShowTouchPad(true)
+        }}
         className={styles['backdrop'] + ' ' + (!chatWindowOpen && styles['hideBackDrop'])}
       ></div>
       <div className={styles['instance-chat-container'] + ' ' + (!chatWindowOpen && styles['messageContainerClosed'])}>
@@ -315,7 +323,16 @@ const InstanceChat = (props: Props): any => {
                 anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
               >
                 <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
-                  {!chatWindowOpen ? <MessageButton /> : <CloseButton onClick={() => toggleChatWindow()} />}
+                  {!chatWindowOpen ? (
+                    <MessageButton />
+                  ) : (
+                    <CloseButton
+                      onClick={() => {
+                        toggleChatWindow()
+                        if (isMobile) setShowTouchPad(true)
+                      }}
+                    />
+                  )}
                 </Fab>
               </Badge>
             </div>

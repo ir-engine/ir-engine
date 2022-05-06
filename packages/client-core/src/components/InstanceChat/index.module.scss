@@ -41,7 +41,7 @@
 .iconCallPos {
   @media (max-width: 768px) {
     position: absolute;
-    bottom: calc(100vh * 2 / 3);
+    bottom: calc(100vh * 4.5 / 5);
   }
 
   @media (max-width: 450px) {
@@ -130,7 +130,7 @@
 
   .mgBtm {
     @media (max-width: 768px) {
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
   }
 
