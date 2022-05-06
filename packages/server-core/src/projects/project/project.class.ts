@@ -327,7 +327,7 @@ export class Project extends Service {
         const projectConfig = await getProjectConfig(name)
 
         // run project uninstall script
-        if (projectConfig.onEvent) {
+        if (projectConfig?.onEvent) {
           await onProjectEvent(this.app, name, projectConfig.onEvent, 'onUninstall')
         }
 
