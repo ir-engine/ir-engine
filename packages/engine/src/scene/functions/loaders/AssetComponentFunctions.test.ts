@@ -8,9 +8,18 @@ import Sinon from 'sinon'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import {
+  addComponent,
+  getAllComponentsOfType,
+  getComponent,
+  hasComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import {
+  addEntityNodeInTree,
+  createEntityNode,
+  removeEntityNodeFromParent
+} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine, initializeCoreSystems } from '@xrengine/engine/src/initializeEngine'
 import '@xrengine/engine/src/patchEngineNode'
 import { AssetComponent, AssetLoadedComponent, LoadState } from '@xrengine/engine/src/scene/components/AssetComponent'
@@ -181,14 +190,13 @@ describe('AssetComponentFunctions', async () => {
       })
       //call load
       await loadAsset(entity, setContent(loadXRE('empty.xre.gltf')))
-      //unload asset before system execution
-      unloadAsset(entity)
-      //execute frame
+      //delete entity
+      removeEntityNodeFromParent(node, world.entityTree)
+      removeEntity(entity)
+      //check that frame executes
       world.execute(world.fixedDelta)
-      //ensure that asset system does not try to load asset
-      assert(!hasComponent(entity, AssetLoadedComponent), 'AssetLoaded component does not exist')
-      const assetComp = getComponent(entity, AssetComponent)
-      assert.equal(assetComp.loaded, LoadState.UNLOADED, 'Asset state is set to unloaded')
+      assert.equal(getAllComponentsOfType(AssetComponent, world).length, 0, 'no Asset components in scene')
+      assert.equal(getAllComponentsOfType(AssetLoadedComponent, world).length, 0, 'no AssetLoaded components in scene')
     })
   })
 

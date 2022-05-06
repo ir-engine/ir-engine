@@ -30,18 +30,19 @@ export default async function AssetSystem(world: World) {
 
     for (const entity of assetQuery.exit()) {
       const node = nodeMap().get(entity)
-      if (node === undefined) continue
-      const children = new Array()
-      iterateEntityNode(node, (child, idx) => {
-        if (child === node) return
-        children.push(child)
-      })
-      children.forEach((child) => {
-        removeEntityNodeFromParent(child)
-        removeEntity(child.entity)
-      })
+      if (node) {
+        const children = new Array()
+        iterateEntityNode(node, (child, idx) => {
+          if (child === node) return
+          children.push(child)
+        })
+        children.forEach((child) => {
+          removeEntityNodeFromParent(child)
+          removeEntity(child.entity)
+        })
+      }
       const asset = getComponent(entity, AssetComponent)
-      asset.loaded = LoadState.UNLOADED
+      if (asset) asset.loaded = LoadState.UNLOADED
     }
   }
 }

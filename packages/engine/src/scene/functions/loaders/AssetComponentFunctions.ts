@@ -39,7 +39,7 @@ export const unloadAsset = (entity: Entity) => {
   } else {
     const assetComp = getComponent(entity, AssetComponent)
     if (assetComp.loaded !== LoadState.LOADED) {
-      console.warn('asset is not in loaded state')
+      console.warn('asset', assetComp, 'is not in loaded state')
     }
     if (!hasComponent(entity, AssetLoadedComponent)) {
       console.warn('no AssetLoaded component')
