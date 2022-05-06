@@ -272,17 +272,16 @@ describe('file browser service', () => {
     fs.writeFileSync(filePath, 'Hello world')
     fs.writeFileSync(fileStoragePath, 'Hello world')
 
-    const result = await app.service('file-browser').patch(path.join(TEST_PROJECT, fileName), {
+    const result = await app.service('file-browser').patch(null, {
+      fileName,
+      path: TEST_PROJECT,
       body: Buffer.from(newData, 'utf-8'),
       contentType: 'any'
     })
 
-    assert(
-      result ===
-        `https://${(app.service('file-browser').store as LocalStorage).cacheDomain}/${path.join(
-          TEST_PROJECT,
-          fileName
-        )}`
+    assert.equal(
+      result,
+      `https://${(app.service('file-browser').store as LocalStorage).cacheDomain}/${path.join(TEST_PROJECT, fileName)}`
     )
 
     assert(fs.existsSync(filePath))

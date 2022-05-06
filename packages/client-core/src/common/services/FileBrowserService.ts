@@ -47,8 +47,8 @@ export const FileBrowserService = {
     const files = await client.service('file-browser').get(directory)
     useDispatch()(FileBrowserAction.filesFetched(files))
   },
-  putContent: async (path: string, body: Buffer, contentType: string) => {
-    return client.service('file-browser').patch(path, { body, contentType })
+  putContent: async (fileName: string, path: string, body: Buffer, contentType: string) => {
+    return client.service('file-browser').patch(null, { fileName, path, body, contentType })
   },
   moveContent: async (oldName: string, newName: string, oldPath: string, newPath: string, isCopy = false) => {
     return client.service('file-browser').update(null, { oldName, newName, oldPath, newPath, isCopy })

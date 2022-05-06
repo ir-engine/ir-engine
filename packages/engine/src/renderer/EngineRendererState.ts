@@ -35,8 +35,8 @@ const state = createState<EngineRendererStateType>({
   physicsDebugEnable: false,
   avatarDebugEnable: false,
   renderMode: RenderModes.SHADOW as RenderModesType,
-  nodeHelperVisibility: true,
-  gridVisibility: true,
+  nodeHelperVisibility: false,
+  gridVisibility: false,
   gridHeight: 0
 })
 
