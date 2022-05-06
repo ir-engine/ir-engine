@@ -5,10 +5,7 @@ FROM root-builder as builder
 # Create app directory
 WORKDIR /app
 
-COPY packages/bot/package.json ./packages/bot/
-
 RUN npm install --production=false --loglevel notice --legacy-peer-deps
-RUN npm run install-test-e2e
 # copy then compile the code
 COPY . .
 
