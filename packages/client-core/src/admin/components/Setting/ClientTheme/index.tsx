@@ -40,6 +40,50 @@ const ClientTheme = () => {
     setMode(event.target.checked ? 'dark' : 'light')
   }
 
+  const resetThemeToDefault = () => {
+    setThemeSetting({
+      light: { ...defaultThemeSettings.light },
+      dark: { ...defaultThemeSettings.dark }
+    })
+
+    ClientSettingService.patchClientSetting(
+      {
+        logo: clientSetting?.logo,
+        title: clientSetting?.title,
+        icon192px: clientSetting?.icon192px,
+        icon512px: clientSetting?.icon512px,
+        favicon16px: clientSetting?.favicon16px,
+        favicon32px: clientSetting?.favicon32px,
+        siteDescription: clientSetting?.siteDescription,
+        appTitle: clientSetting?.appTitle,
+        appSubtitle: clientSetting?.appSubtitle,
+        appDescription: clientSetting?.appDescription,
+        appBackground: clientSetting?.appBackground,
+        appSocialLinks: JSON.stringify(clientSetting?.appSocialLinks),
+        themeSettings: JSON.stringify(defaultThemeSettings)
+      },
+      id
+    )
+
+    const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
+
+    if (currentTheme === 'light' && defaultThemeSettings?.light) {
+      for (let variable of Object.keys(defaultThemeSettings.light)) {
+        ;(document.querySelector(`[data-theme=light]`) as any)?.style.setProperty(
+          '--' + variable,
+          defaultThemeSettings.light[variable]
+        )
+      }
+    } else if (currentTheme === 'dark' && defaultThemeSettings?.dark) {
+      for (let variable of Object.keys(defaultThemeSettings.dark)) {
+        ;(document.querySelector(`[data-theme=dark]`) as any)?.style.setProperty(
+          '--' + variable,
+          defaultThemeSettings.dark[variable]
+        )
+      }
+    }
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault()
 
@@ -99,6 +143,10 @@ const ClientTheme = () => {
       />
       <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
         {t('admin:components.setting.cancel')}
+      </Button>
+      &nbsp; &nbsp;
+      <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={resetThemeToDefault}>
+        {t('admin:components.setting.resetTheme')}
       </Button>
       &nbsp; &nbsp;
       <Button

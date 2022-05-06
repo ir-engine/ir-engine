@@ -15,7 +15,7 @@ const defaultThemeSettings = {
     iconButtonColor: '#FFF',
     iconButtonHoverColor: '#7171f0',
     iconButtonBackground: '#9898ff',
-    iconButtonSelected: '#363695',
+    iconButtonSelectedBackground: '#363695',
     buttonOutlined: '#9a9ae4',
     buttonFilled: '#9a9ae4',
     buttonGradientStart: '#a798ff',
