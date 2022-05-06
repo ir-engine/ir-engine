@@ -1,14 +1,12 @@
 import { createGlobalStyle } from 'styled-components'
 
-import { EditorTheme } from './theme'
-
 /**
  * GlobalStyle component used to provide common styles all over application.
  *
  * @author Robert Long
  * @type {styled component}
  */
-const GlobalStyle = createGlobalStyle<{ theme: EditorTheme }>`
+const GlobalStyle = createGlobalStyle<{ theme: any }>`
   /*! minireset.css v0.0.4 | MIT License | github.com/jgthms/minireset.css */
   html,
   body,
