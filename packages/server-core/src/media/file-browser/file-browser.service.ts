@@ -35,7 +35,9 @@ export default (app: Application): any => {
 
         const result = await Promise.all(
           params.files.map((file) =>
-            app.service('file-browser').patch(data.path, { body: file.buffer, contentType: file.mimeType })
+            app
+              .service('file-browser')
+              .patch(null, { fileName: data.fileName, path: data.path, body: file.buffer, contentType: file.mimeType })
           )
         )
 

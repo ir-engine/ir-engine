@@ -156,7 +156,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           if (!file.type) {
             await FileBrowserService.addNewFolder(`${path}${file.name}`)
           } else {
-            await FileBrowserService.putContent(`${path}${file.name}`, file as any, file.type)
+            await FileBrowserService.putContent(file.name, path, file as any, file.type)
           }
         })
       )
@@ -227,6 +227,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     setLoading(true)
     setConfirmModal(false)
     await FileBrowserService.deleteContent(contentToDeletePath, contentToDeleteType)
+    props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '' })
     await onRefreshDirectory()
   }
 
