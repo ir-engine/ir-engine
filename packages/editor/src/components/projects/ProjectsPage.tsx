@@ -46,12 +46,20 @@ function sortAlphabetical(a, b) {
 
 const OfficialProjectData = [
   {
-    id: '1570ae10-889a-11ec-886e-b126f7590685',
+    id: '1570ae01-889a-11ec-886e-b126f7590685',
     name: 'Development Test Suite',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-development-test-suite',
     storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description: 'Assets and tests for xrengine core development'
+  },
+  {
+    id: '1570ae02-889a-11ec-886e-b126f7590685',
+    name: 'Test Bot',
+    repositoryPath: 'https://github.com/XRFoundation/XREngine-bot',
+    storageProviderPath: '',
+    thumbnail: '/static/xrengine_thumbnail.jpg',
+    description: 'A test bot using puppeteer'
   },
   {
     id: '1570ae11-889a-11ec-886e-b126f7590685',

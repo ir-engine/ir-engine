@@ -1,6 +1,8 @@
 import fs from 'fs'
 import path from 'path'
 
+import { StorageProviderInterface } from './storageprovider/storageprovider.interface'
+
 export const copyRecursiveSync = function (src: string, dest: string): void {
   if (!fs.existsSync(src)) return
 
@@ -14,19 +16,23 @@ export const copyRecursiveSync = function (src: string, dest: string): void {
   }
 }
 
-export const getIncrementalName = function (name: string, parentPath: string): string {
+export const getIncrementalName = async function (
+  name: string,
+  directoryPath: string,
+  store: StorageProviderInterface,
+  isDirectory?: boolean
+): Promise<string> {
   let filename = name
-  const _path = path.join(parentPath, name)
 
-  if (!fs.existsSync(_path)) return filename
+  if (!(await store.doesExist(filename, directoryPath))) return filename
 
   let count = 1
 
-  if (fs.lstatSync(_path).isDirectory()) {
+  if (isDirectory) {
     do {
       filename = `${name}(${count})`
       count++
-    } while (fs.existsSync(path.join(parentPath, filename)))
+    } while (await store.doesExist(filename, directoryPath))
   } else {
     const extension = path.extname(name)
     const baseName = path.basename(name, extension)
@@ -34,7 +40,7 @@ export const getIncrementalName = function (name: string, parentPath: string): s
     do {
       filename = `${baseName}(${count})${extension}`
       count++
-    } while (fs.existsSync(path.join(parentPath, filename)))
+    } while (await store.doesExist(filename, directoryPath))
   }
 
   return filename
