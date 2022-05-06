@@ -5,6 +5,7 @@
  * @type {Object}
  */
 export const CommonKnownContentTypes = {
+  xre: 'asset/xre',
   gltf: 'model/gltf',
   glb: 'model/gltf-binary',
   png: 'image/png',

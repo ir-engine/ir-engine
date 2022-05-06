@@ -130,6 +130,7 @@ export default async function SceneObjectSystem(world: World) {
     }
 
     for (const entity of visibleQuery.enter()) {
+      if (!hasComponent(entity, Object3DComponent)) return
       getComponent(entity, Object3DComponent).value.visible = true
     }
 
