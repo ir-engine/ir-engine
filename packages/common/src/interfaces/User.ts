@@ -1,6 +1,6 @@
 import { AdminScopeType } from './AdminScopeType'
 import { IdentityProvider } from './IdentityProvider'
-import { LocationAdmin } from './LocationAdmin'
+// import { LocationAdmin } from './LocationAdmin'
 import { LocationBan } from './LocationBan'
 import { Party } from './Party'
 import { UserApiKey } from './UserApiKey'
@@ -89,8 +89,8 @@ export function resolveUser(user: any): User {
 
 export function resolveWalletUser(credentials: any): User {
   let returned = {
-    id: '' as UserId,
-    instanceId: credentials.user.id,
+    id: credentials.user.id as UserId,
+    instanceId: '',
     name: credentials.user.displayName,
     userRole: 'guest',
     avatarId: credentials.user.id,

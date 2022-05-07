@@ -136,6 +136,14 @@ const ProfileMenu = (props: Props): JSX.Element => {
     }
   }, [authSettingState?.updateNeeded?.value])
 
+  useEffect(() => {
+    loadCredentialHandler()
+  }, []) // Only run once
+
+  useEffect(() => {
+    selfUser && setUsername(selfUser.name.value)
+  }, [selfUser.name.value])
+
   const handleChangeUserThemeMode = (event) => {
     const settings = { ...userSettings, themeMode: event.target.checked ? 'dark' : 'light' }
     selfUser?.user_setting?.value?.id &&
@@ -156,14 +164,6 @@ const ProfileMenu = (props: Props): JSX.Element => {
       console.error('Error loading polyfill:', e)
     }
   }
-
-  useEffect(() => {
-    loadCredentialHandler()
-  }, []) // Only run once
-
-  useEffect(() => {
-    selfUser && setUsername(selfUser.name.value)
-  }, [selfUser.name.value])
 
   const updateUserName = (e) => {
     e.preventDefault()
@@ -211,8 +211,11 @@ const ProfileMenu = (props: Props): JSX.Element => {
   }
 
   const handleLogout = async (e) => {
-    if (changeActiveMenu != null) changeActiveMenu(null)
-    else if (setProfileMenuOpen != null) setProfileMenuOpen(false)
+    if (changeActiveMenu) {
+      changeActiveMenu(null)
+    } else if (setProfileMenuOpen) {
+      setProfileMenuOpen(false)
+    }
     setShowUserId(false)
     setShowApiKey(false)
     setUserIdState({ ...userIdState, open: false })
@@ -232,7 +235,50 @@ const ProfileMenu = (props: Props): JSX.Element => {
         VerifiablePresentation: {
           query: [
             {
+              // A request for the controller's DID
               type: 'DIDAuth'
+            },
+            {
+              // A request for a SolidOIDC access token.
+              type: 'SolidOidcCredential',
+              vp: {
+                '@context': ['https://www.w3.org/2018/credentials/v1'],
+                type: 'VerifiablePresentation',
+                verifiableCredential: {
+                  '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
+                  type: ['VerifiableCredential', 'XrAgentCredential'],
+                  credentialSubject: {
+                    // the app's / agent's DID
+                    id: 'did:key:z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv'
+                  },
+                  proof: {
+                    type: 'Ed25519Signature2020',
+                    created: '2021-09-16T03:02:08Z',
+                    verificationMethod:
+                      'did:key:z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv#z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
+                    proofPurpose: 'authentication',
+                    proofValue:
+                      'zxFfvBhwcFa99uLFaJgJ3VYFfomD5qQgpb6vvKR2TgRjHbB4WcCS8mLfvNdu9WrDUTt1m6xZHVc7Cjux5RkNynfc'
+                  }
+                }
+              }
+            },
+            {
+              type: 'QueryByExample',
+              credentialQuery: [
+                {
+                  example: {
+                    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
+                    type: 'LoginDisplayCredential'
+                  }
+                },
+                {
+                  example: {
+                    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
+                    type: 'UserPreferencesCredential'
+                  }
+                }
+              ]
             }
           ],
           challenge,
@@ -240,6 +286,8 @@ const ProfileMenu = (props: Props): JSX.Element => {
         }
       }
     }
+
+    console.log(didAuthQuery)
 
     // Use Credential Handler API to authenticate and receive basic login display credentials
     const vprResult: any = await navigator.credentials.get(didAuthQuery)

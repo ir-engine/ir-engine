@@ -164,8 +164,7 @@ export const AuthService = {
     try {
       console.log(accessStoredLocalState().attach(Downgraded))
       const authData = accessStoredLocalState().attach(Downgraded).authData.value
-      let accessToken =
-        forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
+      let accessToken = !forceClientAuthReset && authData?.authUser?.accessToken
 
       if (forceClientAuthReset === true) {
         await (client as any).authentication.reset()
@@ -805,14 +804,38 @@ export const AuthService = {
   }
 }
 
-const parseUserWalletCredentials = (wallet) => {
+/**
+ * Parses user's credential from a CHAPI Wallet VP Request.
+ *
+ * @example Example result:
+ * {
+ *   "type": "web",
+ *   "dataType": "VerifiablePresentation",
+ *   "data": {
+ *     "presentation": {  }
+ *   }
+ * }
+ * The "presentation" property is a Verifiable Presentation, which should contain
+ * at least: a LoginDisplayCredential, a UserPreferencesCredential.
+ *
+ * @param vprResult {object} Result of a CHAPI VP Request query.
+ */
+export function parseUserWalletCredentials(vprResult: any) {
+  const vp = vprResult?.data?.presentation
+  const vcList = Array.isArray(vp.verifiableCredential) ? vp.verifiableCredential : [vp.verifiableCredential]
+  const loginDisplayCredential = vcList.find((v) => v.type.includes('LoginDisplayCredential'))
+  const userPreferencesCredential = vcList.find((v) => v.type.includes('UserPreferencesCredential'))
+  const DEFAULT_AVATAR = 'https://material-ui.com/static/images/avatar/1.jpg'
+  const userDid = vp.holder
   return {
     user: {
-      id: 'did:web:example.com',
-      displayName: 'alice',
-      icon: 'https://material-ui.com/static/images/avatar/1.jpg'
+      id: userDid,
+      displayName: loginDisplayCredential.credentialSubject.displayName,
+      icon: loginDisplayCredential.credentialSubject.displayIcon || DEFAULT_AVATAR
       // session // this will contain the access token and helper methods
-    }
+    },
+    loginDisplayCredential,
+    userPreferencesCredential
   }
 }
 
