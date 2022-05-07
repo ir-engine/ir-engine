@@ -13,13 +13,14 @@ import { reparentObject3D } from '../functions/ReparentFunction'
 export default async function AssetSystem(world: World) {
   const assetQuery = defineQuery([AssetComponent, AssetLoadedComponent])
 
-  const nodeMap = world.entityTree.entityNodeMap
+  const nodeMap = () => world.entityTree.entityNodeMap
   return () => {
     for (const entity of assetQuery.enter()) {
       const asset = getComponent(entity, AssetComponent)
       const load = getComponent(entity, AssetLoadedComponent)
-      const node = nodeMap.get(entity)
-      if (!node) continue
+      if (asset == undefined || load == undefined) continue
+      const node = nodeMap().get(entity)
+      if (node === undefined) continue
       load.roots.forEach((root) => {
         reparentEntityNode(root, node)
         reparentObject3D(root, node)
@@ -28,19 +29,20 @@ export default async function AssetSystem(world: World) {
     }
 
     for (const entity of assetQuery.exit()) {
-      const node = nodeMap.get(entity)
-      if (!node) continue
-      const children = new Array()
-      iterateEntityNode(node, (child, idx) => {
-        if (child === node) return
-        children.push(child)
-      })
-      children.forEach((child) => {
-        removeEntityNodeFromParent(child)
-        removeEntity(child.entity)
-      })
+      const node = nodeMap().get(entity)
+      if (node) {
+        const children = new Array()
+        iterateEntityNode(node, (child, idx) => {
+          if (child === node) return
+          children.push(child)
+        })
+        children.forEach((child) => {
+          removeEntityNodeFromParent(child)
+          removeEntity(child.entity)
+        })
+      }
       const asset = getComponent(entity, AssetComponent)
-      asset.loaded = LoadState.UNLOADED
+      if (asset) asset.loaded = LoadState.UNLOADED
     }
   }
 }
