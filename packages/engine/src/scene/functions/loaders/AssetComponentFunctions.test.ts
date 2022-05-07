@@ -24,7 +24,7 @@ import { createEngine, initializeCoreSystems } from '@xrengine/engine/src/initia
 import '@xrengine/engine/src/patchEngineNode'
 import { AssetComponent, AssetLoadedComponent, LoadState } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { gltfToSceneJson } from '@xrengine/engine/src/scene/functions/GLTFConversion'
+import { gltfToSceneJson, handleScenePaths } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 import {
   deserializeAsset,
   loadAsset,
@@ -44,17 +44,25 @@ describe('AssetComponentFunctions', async () => {
   let entity: Entity
   let node: EntityTreeNode
   let world: World
+  let sandbox: Sinon.SinonSandbox
   const initEntity = () => {
     entity = createEntity()
     node = createEntityNode(entity)
     world = Engine.instance.currentWorld
+
     addEntityNodeInTree(node)
   }
   const testDir = 'packages/engine/tests/assets/'
   beforeEach(async () => {
+    sandbox = Sinon.createSandbox()
     createEngine()
+    Engine.instance.publicPath = ''
     await initializeCoreSystems()
     initEntity()
+  })
+
+  afterEach(() => {
+    sandbox.restore()
   })
 
   function dupeLoader(): any {
@@ -71,6 +79,7 @@ describe('AssetComponentFunctions', async () => {
 
   function setContent(content) {
     const dudLoader = dupeLoader()
+
     dudLoader.loadAsync = async (url) => {
       return content
     }
@@ -88,6 +97,7 @@ describe('AssetComponentFunctions', async () => {
   async function loadXRE(file) {
     const scenePath = path.join(appRootPath.path, testDir, file)
     const xreLoader = new XRELoader()
+
     const result = await xreLoader.parse(fs.readFileSync(scenePath, { encoding: 'utf-8' }))
     return result
   }
