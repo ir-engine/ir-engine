@@ -49,7 +49,13 @@ describe('CameraPropertiesFunctions', () => {
     startInFreeLook: true,
     minPhi: Math.random(),
     maxPhi: Math.random(),
-    startPhi: Math.random()
+    startPhi: Math.random(),
+    raycastProps: {
+      enabled: Math.random() > 0.5,
+      rayCount: Math.floor(Math.random() * 10),
+      rayLength: Math.random() * 100,
+      rayFrequency: Math.random()
+    }
   }
 
   const sceneComponent: ComponentJson = {

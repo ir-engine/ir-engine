@@ -28,7 +28,13 @@ export const SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES = {
   startInFreeLook: false,
   minPhi: -70,
   maxPhi: 85,
-  startPhi: 10
+  startPhi: 10,
+  raycastProps: {
+    enabled: true,
+    rayCount: 3,
+    rayLength: 15.0,
+    rayFrequency: 0.1
+  }
 }
 
 export const deserializeCameraProperties: ComponentDeserializeFunction = (
@@ -70,7 +76,8 @@ export const serializeCameraProperties: ComponentSerializeFunction = (entity) =>
       startInFreeLook: component.startInFreeLook,
       minPhi: component.minPhi,
       maxPhi: component.maxPhi,
-      startPhi: component.startPhi
+      startPhi: component.startPhi,
+      raycastProps: component.raycastProps
     }
   }
 }
@@ -90,6 +97,7 @@ export const parseCameraPropertiesProperties = (props): CameraPropertiesComponen
     startInFreeLook: props.startInFreeLook ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.startInFreeLook,
     minPhi: props.minPhi ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.minPhi,
     maxPhi: props.maxPhi ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.maxPhi,
-    startPhi: props.startPhi ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.startPhi
+    startPhi: props.startPhi ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.startPhi,
+    raycastProps: props.raycastProps ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.raycastProps
   }
 }

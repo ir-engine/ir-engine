@@ -42,7 +42,7 @@ export class GLTFHubsLightMapExtension {
         lightMap.repeat.y = transform.scale[1]
       }
       material.lightMap = lightMap
-      material.lightMapIntensity = extensionDef.intensity !== undefined ? extensionDef.intensity : 1
+      material.lightMapIntensity = extensionDef.intensity ?? 1.0
       return material
     })
   }
