@@ -1,12 +1,13 @@
 import { Quaternion, Vector3 } from 'three'
 import matches from 'ts-matches'
 
-import { addActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { AudioTagComponent } from '../audio/components/AudioTagComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineActions } from '../ecs/classes/EngineService'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
@@ -75,6 +76,13 @@ export default async function AvatarSpawnSystem(world: World) {
           addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
           addComponent(entity, PersistTagComponent, {})
         }
+        /*
+        dispatchAction(
+          Engine.store,
+          EngineActions.setupAnimation({
+            entity: entity
+          })
+        )*/
       }
     })
   }
