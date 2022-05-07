@@ -152,7 +152,7 @@ export const sceneToGLTF = (roots: Object3DWithEntity[]) => {
  * @param gltf
  * @param mode 'encode' or 'decode'
  */
-const handleScenePaths = (gltf: any, mode: 'encode' | 'decode') => {
+export const handleScenePaths = (gltf: any, mode: 'encode' | 'decode') => {
   const hostPath = Engine.instance.publicPath.replace(/:\d{4}$/, '')
   const cacheRe = new RegExp(`${hostPath}:\\d{4}\/projects`)
   const symbolRe = /__\$project\$__/

@@ -101,8 +101,7 @@ export function FileBrowserItem(props: FileBrowserItemType) {
   const onClickItem = (_) => onClick(item)
 
   const placeObject = useCallback((_, trigger) => {
-    if (AssetLoader.getAssetType(trigger.item.url) === AssetType.XRE) AssetLoader.load(trigger.item.url)
-    else addMediaNode(trigger.item.url)
+    addMediaNode(trigger.item.url)
   }, [])
 
   const placeObjectAtOrigin = useCallback(async (_, trigger) => {
