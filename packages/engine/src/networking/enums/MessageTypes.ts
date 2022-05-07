@@ -28,10 +28,7 @@ export enum MessageTypes {
   Kick = 26,
   ConnectToWorld = 28, // TODO: refactor this to be entirely network aciton dispatch
   WebRTCRequestCurrentProducers = 29,
-  UpdateNetworkState = 30, // TODO: we should remove this and replace it with an appropriate network action dispatch
   InitializeRouter = 31,
   WebRTCRequestNearbyUsers = 32,
-  ActionData = 42,
-  Test = 250,
-  AvatarUpdated = 254
+  ActionData = 42
 }
