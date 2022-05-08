@@ -114,9 +114,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.socket?.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
   }
 
-  sendNetworkStatUpdateMessage(message): void {
-    this.socket?.emit(MessageTypes.UpdateNetworkState.toString(), message)
-  }
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
   sendData(data: ArrayBuffer): void {
     if (this.dataProducer && this.dataProducer.closed !== true && this.dataProducer.readyState === 'open')

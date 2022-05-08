@@ -43,11 +43,16 @@ export const addGenericAssetToS3AndStaticResources = async (
   promises.push(
     new Promise<void>(async (resolve) => {
       await provider.createInvalidation([key])
-      await provider.putObject({
-        Key: key,
-        Body: file,
-        ContentType: args.contentType
-      })
+      await provider.putObject(
+        {
+          Key: key,
+          Body: file,
+          ContentType: args.contentType
+        },
+        {
+          isDirectory: false
+        }
+      )
       resolve()
     })
   )
@@ -91,7 +96,7 @@ export default (app: Application): void => {
     multipartMiddleware.any(),
     (req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (req?.feathers && req.method !== 'GET') {
-        req.feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
+        ;(req as any).feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
       }
       next()
     },

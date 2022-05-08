@@ -79,7 +79,9 @@ store.receptors.push((action: AuthActionType | StoredLocalActionType): void => {
       case 'ACTION_PROCESSING':
         return s.merge({ isProcessing: action.processing, error: '' })
       case 'LOGIN_USER_SUCCESS':
-        return s.merge({ isLoggedIn: true, authUser: action.authUser })
+        return s.merge({ authUser: action.authUser })
+      case 'LOADED_USER_DATA':
+        return s.merge({ isLoggedIn: true, user: action.user })
       case 'LOGIN_USER_ERROR':
         return s.merge({ error: action.message })
       case 'LOGIN_USER_BY_GITHUB_SUCCESS':
@@ -98,9 +100,6 @@ store.receptors.push((action: AuthActionType | StoredLocalActionType): void => {
         return s.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
       case 'DID_VERIFY_EMAIL':
         return s.identityProvider.merge({ isVerified: action.result })
-
-      case 'LOADED_USER_DATA':
-        return s.merge({ user: action.user })
       case 'RESTORE': {
         const stored = accessStoredLocalState().attach(Downgraded).authData.value
         return s.merge({
@@ -752,14 +751,6 @@ export const AuthService = {
             }
           })
         )
-        const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
-        transport?.sendNetworkStatUpdateMessage({
-          type: MessageTypes.AvatarUpdated,
-          userId,
-          avatarId,
-          avatarURL,
-          thumbnailURL
-        })
       })
   },
   removeUser: async (userId: string) => {

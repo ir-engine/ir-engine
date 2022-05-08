@@ -9,9 +9,10 @@ import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType
 import config from '../../appconfig'
 import logger from '../../logger'
 import { getContentType } from '../../util/fileUtils'
-import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
+import { copyRecursiveSync } from '../FileUtil'
 import {
   BlobStore,
+  PutObjectParams,
   StorageListObjectInterface,
   StorageObjectInterface,
   StorageProviderInterface
@@ -46,7 +47,6 @@ export class LocalStorage implements StorageProviderInterface {
 
   listObjects = async (
     prefix: string,
-    results: any[],
     recursive = false,
     continuationToken: string
   ): Promise<StorageListObjectInterface> => {
@@ -60,12 +60,12 @@ export class LocalStorage implements StorageProviderInterface {
     }
   }
 
-  putObject = async (params: StorageObjectInterface): Promise<any> => {
-    const filePath = path.join(this.PATH_PREFIX, params.Key!)
+  putObject = async (data: StorageObjectInterface, params: PutObjectParams = {}): Promise<any> => {
+    const filePath = path.join(this.PATH_PREFIX, data.Key!)
 
-    if (filePath.substring(filePath.length - 1) === '/') {
+    if (params.isDirectory) {
       if (!fs.existsSync(filePath)) {
-        await fs.promises.mkdir(filePath, { recursive: true })
+        fs.mkdirSync(filePath, { recursive: true })
         return true
       }
       return false
@@ -73,9 +73,11 @@ export class LocalStorage implements StorageProviderInterface {
 
     const pathWithoutFile = path.dirname(filePath)
     if (pathWithoutFile == null) throw new Error('Invalid file path in local putObject')
-    if (!fs.existsSync(pathWithoutFile)) await fs.promises.mkdir(pathWithoutFile, { recursive: true })
+    if (!fs.existsSync(pathWithoutFile)) fs.mkdirSync(pathWithoutFile, { recursive: true })
 
-    return fs.promises.writeFile(filePath, params.Body)
+    fs.writeFileSync(filePath, data.Body)
+
+    return true
   }
 
   createInvalidation = async (): Promise<any> => Promise.resolve()
@@ -83,13 +85,18 @@ export class LocalStorage implements StorageProviderInterface {
   getProvider = (): StorageProviderInterface => this
   getStorage = (): BlobStore => this._store
 
-  checkObjectExistence = (key: string): Promise<any> => {
-    return new Promise((resolve, reject) => {
-      const filePath = path.join(this.PATH_PREFIX, key)
-      const exists = fs.existsSync(filePath)
-      if (exists) reject(new Error('Object already exists'))
-      else resolve(null)
-    })
+  doesExist(fileName: string, directoryPath: string): Promise<boolean> {
+    return fs.promises
+      .access(path.join(this.PATH_PREFIX, directoryPath, fileName))
+      .then(() => true)
+      .catch(() => false)
+  }
+
+  isDirectory(fileName: string, directoryPath: string): Promise<boolean> {
+    return fs.promises
+      .lstat(path.join(this.PATH_PREFIX, directoryPath, fileName))
+      .then((res) => res.isDirectory())
+      .catch(() => false)
   }
 
   getSignedUrl = (key: string, _expiresAfter: number, _conditions): any => {
@@ -194,28 +201,26 @@ export class LocalStorage implements StorageProviderInterface {
   }
 
   /**
-   * @author Abhishek Pathak
-   * @param current
-   * @param destination
+   * @author Nayankumar Patel
+   * @param oldName
+   * @param oldPath
+   * @param newName
+   * @param newPath
    * @param isCopy
-   * @param renameTo
    * @returns
    */
   moveObject = async (
-    current: string,
-    destination: string,
-    isCopy = false,
-    renameTo: string = null!
+    oldName: string,
+    newName: string,
+    oldPath: string,
+    newPath: string,
+    isCopy = false
   ): Promise<boolean> => {
-    const contentpath = path.join(this.PATH_PREFIX)
-    current = path.join(contentpath, current)
-    destination = path.join(contentpath, destination)
-    let fileName = renameTo != null ? getIncrementalName(renameTo, destination) : path.basename(current)
+    const oldFilePath = path.join(this.PATH_PREFIX, oldPath, oldName)
+    const newFilePath = path.join(this.PATH_PREFIX, newPath, newName)
 
     try {
-      isCopy
-        ? await copyRecursiveSync(current, path.join(destination, fileName))
-        : await fs.promises.rename(current, path.join(destination, fileName))
+      isCopy ? copyRecursiveSync(oldFilePath, newFilePath) : fs.renameSync(oldFilePath, newFilePath)
     } catch (err) {
       return false
     }
