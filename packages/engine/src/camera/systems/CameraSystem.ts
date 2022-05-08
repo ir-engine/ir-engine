@@ -290,7 +290,6 @@ export default async function CameraSystem(world: World) {
     }
 
     for (const entity of followCameraQuery.exit()) {
-      setAvatarHeadOpacity(entity, 1)
       Engine.instance.activeCameraFollowTarget = null
       camRayCastCache.maxDistance = -1
     }
