@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk'
 import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 
+import { UserInterface } from '@xrengine/common/src/dbmodels/UserInterface'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
@@ -10,6 +11,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { AvatarProps } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -194,19 +196,19 @@ export function getUserIdFromSocketId(socketId) {
   return client?.userId
 }
 
-export function handleConnectToWorld(
+export async function handleConnectToWorld(
   transport: SocketWebRTCServerTransport,
   socket,
   data,
   callback,
   userId: UserId,
-  user,
-  avatarDetail
+  user: UserInterface
 ) {
-  console.log('Connect to world from ' + userId)
-  // console.log("Avatar detail is", avatarDetail);
+  logger.info('Connect to world from ' + userId)
 
   if (disconnectClientIfConnected(socket, userId)) return callback(null! as any)
+
+  const avatarDetail = (await transport.app.service('avatar').get(user.avatarId)) as AvatarProps
 
   // Create a new client object
   // and add to the dictionary
@@ -215,7 +217,7 @@ export function handleConnectToWorld(
   world.clients.set(userId, {
     userId: userId,
     index: userIndex,
-    name: user.dataValues.name,
+    name: user.name,
     avatarDetail,
     socket: socket,
     socketId: socket.id,

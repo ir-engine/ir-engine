@@ -6,9 +6,8 @@ import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/Identit
 import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { accessEngineState, EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { accessEngineState, EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import {
   createEngine,
   initializeCoreSystems,
@@ -75,7 +74,7 @@ const loadScene = async (app: Application, scene: string) => {
     await initializeCoreSystems()
     await initializeRealtimeSystems(false, true)
     await initializeSceneSystems()
-    const world = useWorld()
+    const world = Engine.instance.currentWorld
     await initSystems(world, systems)
     await loadEngineInjection(world, projects)
 
@@ -203,11 +202,11 @@ const handleInstance = async (
 
 const loadEngine = async (app: Application, sceneId: string) => {
   if (app.isChannelInstance) {
-    Network.instance.transportHandler.mediaTransports.set('media' as UserId, app.transport)
-    Engine.instance.publicPath = config.client.url
     const userId = 'media' as UserId
+    Network.instance.transportHandler.mediaTransports.set(userId, app.transport)
+    Engine.instance.publicPath = config.client.url
     Engine.instance.userId = userId
-    const world = useWorld()
+    const world = Engine.instance.currentWorld
     world.hostId = userId
     await initializeMediaServerSystems()
     await initializeRealtimeSystems(true, false)
@@ -215,7 +214,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await loadEngineInjection(world, projects)
 
     const hostIndex = world.userIndexCount++
-    world.clients.set(userId, { userId, name: 'media', index: hostIndex, lastSeenTs: Date.now() })
+    world.clients.set(userId, { userId, name: userId, index: hostIndex, lastSeenTs: Date.now() })
     world.userIdToUserIndex.set(userId, hostIndex)
     world.userIndexToUserId.set(hostIndex, userId)
 

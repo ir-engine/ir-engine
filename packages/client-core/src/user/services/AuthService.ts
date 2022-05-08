@@ -751,14 +751,6 @@ export const AuthService = {
             }
           })
         )
-        const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
-        transport?.sendNetworkStatUpdateMessage({
-          type: MessageTypes.AvatarUpdated,
-          userId,
-          avatarId,
-          avatarURL,
-          thumbnailURL
-        })
       })
   },
   removeUser: async (userId: string) => {
