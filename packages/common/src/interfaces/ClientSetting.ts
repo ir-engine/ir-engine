@@ -22,12 +22,12 @@ interface SocialLink {
   icon: string
 }
 
-interface ThemeSetting {
+export interface ThemeSetting {
   light: ThemeOptions
   dark: ThemeOptions
 }
 
-interface ThemeOptions {
+export interface ThemeOptions {
   textColor: string
   navbarBackground: string
   sidebarBackground: string
@@ -43,7 +43,7 @@ interface ThemeOptions {
   iconButtonColor: string
   iconButtonHoverColor: string
   iconButtonBackground: string
-  iconButtonSelected: string
+  iconButtonSelectedBackground: string
   buttonOutlined: string
   buttonFilled: string
   buttonGradientStart: string
@@ -57,7 +57,13 @@ interface ThemeOptions {
   inputOutline: string
   inputBackground: string
   dropdownMenuBackground: string
+  dropdownMenuHoverBackground: string
   drawerBackground: string
+  popupBackground: string
+  tableHeaderBackground: string
+  tableCellBackground: string
+  tableFooterBackground: string
+  dockBackground: string
   themeSwitchTrack: string
   themeSwitchThumb: string
 }

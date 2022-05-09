@@ -40,7 +40,7 @@ const NumericInputContainer = (styled as any).div`
   display: flex;
   flex: 1;
   background-color: var(--inputBackground);
-  border: 1px solid var(--border);
+  border: 1px solid var(--inputOutline);
   border-radius: 4px;
   height: 24px;
   overflow: hidden;
@@ -63,7 +63,7 @@ const NumericInputContainer = (styled as any).div`
  * @author Robert Long
  */
 const StyledNumericInput = (styled as any).input`
-  color: var(--text);
+  color: var(--textColor);
   background-color: var(--inputBackground);
   border: none;
   font-size: 12px;
@@ -84,7 +84,7 @@ const StyledNumericInput = (styled as any).input`
  * @author Robert Long
  */
 const NumericInputUnit = (styled as any).div`
-  color: var(--text2);
+  color: var(--textColor);
   background-color: var(--inputBackground);
   padding-right: 4px;
   border-top-right-radius: 4px;
