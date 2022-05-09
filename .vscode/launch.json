@@ -2,6 +2,13 @@
     "version": "0.2.0",
     "configurations": [
     {
+        "command": "cd packages/engine && npm run test",
+        "name": "npm run test",
+        "request": "launch",
+        "type": "node-terminal",
+        "port": 3000
+    },
+    {
         "command": "npm run dev",
         "name": "npm run dev",
         "request": "launch",

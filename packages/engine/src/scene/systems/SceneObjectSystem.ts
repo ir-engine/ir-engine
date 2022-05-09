@@ -58,7 +58,7 @@ const processObject3d = (entity: Entity) => {
     }
 
     if (Engine.instance.simpleMaterials || Engine.instance.isHMD) {
-      useSimpleMaterial(obj)
+      useSimpleMaterial(obj as any)
     } else {
       useStandardMaterial(obj)
     }
@@ -130,6 +130,7 @@ export default async function SceneObjectSystem(world: World) {
     }
 
     for (const entity of visibleQuery.enter()) {
+      if (!hasComponent(entity, Object3DComponent)) return
       getComponent(entity, Object3DComponent).value.visible = true
     }
 
@@ -146,7 +147,7 @@ export default async function SceneObjectSystem(world: World) {
     for (const _ of simpleMaterialsQuery.enter()) {
       Engine.instance.simpleMaterials = true
       Engine.instance.scene.traverse((obj) => {
-        useSimpleMaterial(obj as Mesh)
+        useSimpleMaterial(obj as any)
       })
     }
 

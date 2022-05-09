@@ -69,10 +69,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     if (this.app.io != null) this.app.io.of('/').emit(MessageTypes.ReliableMessage.toString(), message)
   }
 
-  public sendNetworkStatUpdateMessage = (message: any): any => {
-    if (this.app.io != null) this.app.io.of('/').emit(MessageTypes.UpdateNetworkState.toString(), message)
-  }
-
   public sendData = (data: Buffer): void => {
     if (this.outgoingDataProducer != null) this.outgoingDataProducer.send(Buffer.from(new Uint8Array(data)))
   }

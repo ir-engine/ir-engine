@@ -6,8 +6,17 @@ import React from 'react'
  * @returns
  */
 
-export const PreviewUnavailable = (props) => {
-  const url = props.resourceProps.resourceUrl
-
-  return <div>Preview of this Asset is unavailable</div>
+export const PreviewUnavailable = () => {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: 'var(--text)'
+      }}
+    >
+      Preview is Unavailable
+    </div>
+  )
 }

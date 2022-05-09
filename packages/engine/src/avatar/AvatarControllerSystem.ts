@@ -1,22 +1,25 @@
-import { Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { addActionReceptor } from '@xrengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme } from '../input/enums/InputEnums'
 import { XRAxes } from '../input/enums/InputEnums'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
+import { VelocityComponent } from '../physics/components/VelocityComponent'
+import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { setAvatarHeadOpacity } from './functions/avatarFunctions'
-import { moveAvatar, moveXRAvatar, rotateXRAvatar } from './functions/moveAvatar'
+import { XRCameraRotateYComponent } from './components/XRCameraRotateYComponent'
+import { alignXRCameraPositionWithAvatar, moveAvatar, moveXRAvatar, rotateXRAvatar } from './functions/moveAvatar'
+import { respawnAvatar } from './functions/respawnAvatar'
 import { accessAvatarInputSettingsState, AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
 export class AvatarSettings {
@@ -31,11 +34,14 @@ export class AvatarSettings {
 export default async function AvatarControllerSystem(world: World) {
   const controllerQuery = defineQuery([AvatarControllerComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
+  const cameraRotationQuery = defineQuery([XRCameraRotateYComponent])
 
   addActionReceptor(Engine.instance.store, AvatarInputSettingsReceptor)
 
   const lastCamPos = new Vector3(),
-    displacement = new Vector3()
+    displacement = new Vector3(),
+    camRotation = new Quaternion(),
+    up = new Vector3(0, 1, 0)
 
   return () => {
     for (const entity of controllerQuery.exit(world)) {
@@ -52,9 +58,31 @@ export default async function AvatarControllerSystem(world: World) {
     }
 
     for (const entity of localXRInputQuery(world)) {
-      setAvatarHeadOpacity(entity, 0)
-      moveXRAvatar(world, entity, Engine.instance.camera, lastCamPos, displacement)
-      rotateXRAvatar(world, entity, Engine.instance.camera)
+      if (!hasComponent(entity, XRCameraRotateYComponent)) {
+        moveXRAvatar(world, entity, Engine.instance.camera, lastCamPos, displacement)
+        rotateXRAvatar(world, entity, Engine.instance.camera)
+      }
+    }
+
+    for (const entity of cameraRotationQuery.exit(world)) {
+      const camera = Engine.instance.camera
+      lastCamPos.subVectors(camera.position, camera.parent!.position)
+      alignXRCameraPositionWithAvatar(entity, Engine.instance.camera)
+      lastCamPos.add(camera.parent!.position)
+    }
+
+    for (const entity of cameraRotationQuery.enter(world)) {
+      const avatarTransform = getComponent(entity, TransformComponent)
+      const rotation = getComponent(entity, XRCameraRotateYComponent)
+      const cam = Engine.instance.camera
+      const camParent = cam.parent!
+
+      camRotation.setFromAxisAngle(up, rotation.angle)
+      avatarTransform.rotation.premultiply(camRotation)
+      camParent.quaternion.premultiply(camRotation)
+      camParent.position.copy(cam.position).multiplyScalar(-1)
+
+      removeComponent(entity, XRCameraRotateYComponent)
     }
 
     for (const entity of controllerQuery(world)) {
@@ -80,7 +108,7 @@ export default async function AvatarControllerSystem(world: World) {
 
       // TODO: implement scene lower bounds parameter
       if (transform.position.y < -10) {
-        // respawnAvatar(entity)
+        respawnAvatar(entity)
         continue
       }
     }

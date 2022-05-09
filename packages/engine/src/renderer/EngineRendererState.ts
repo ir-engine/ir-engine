@@ -30,13 +30,13 @@ const state = createState<EngineRendererStateType>({
   qualityLevel: 5,
   automatic: true,
   // usePBR: true,
-  usePostProcessing: isIOS() ? false : true,
-  useShadows: true,
+  usePostProcessing: false,
+  useShadows: false,
   physicsDebugEnable: false,
   avatarDebugEnable: false,
   renderMode: RenderModes.SHADOW as RenderModesType,
-  nodeHelperVisibility: true,
-  gridVisibility: true,
+  nodeHelperVisibility: false,
+  gridVisibility: false,
   gridHeight: 0
 })
 

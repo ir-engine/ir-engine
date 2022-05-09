@@ -1,5 +1,6 @@
 import { HookContext } from '@feathersjs/feathers'
 import dauria from 'dauria'
+import { iff, isProvider } from 'feathers-hooks-common'
 
 import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 import replaceThumbnailLink from '@xrengine/server-core/src/hooks/replace-thumbnail-link'
@@ -33,7 +34,11 @@ export default {
     ],
     update: [authenticate(), restrictUserRole('admin')],
     patch: [authenticate(), restrictUserRole('admin'), replaceThumbnailLink()],
-    remove: [authenticate(), restrictUserRole('admin'), attachOwnerIdInQuery('userId')]
+    remove: [
+      authenticate(),
+      iff(isProvider('external'), restrictUserRole('admin') as any),
+      attachOwnerIdInQuery('userId')
+    ]
   },
 
   after: {

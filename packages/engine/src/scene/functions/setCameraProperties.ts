@@ -38,4 +38,6 @@ export const setCameraProperties = (entity: Entity, data: CameraPropertiesCompon
   cameraFollow.locked = !data.startInFreeLook
   Engine.instance.camera.updateProjectionMatrix()
   switchCameraMode(useWorld().localClientEntity, data, true)
+
+  cameraFollow.raycastProps = data.raycastProps
 }

@@ -16,7 +16,7 @@ declare module '@xrengine/common/declarations' {
 const multipartMiddleware = multer({ limits: { fieldSize: Infinity, files: 1 } })
 
 export default (app: Application): any => {
-  const fileBrowser = new FileBrowserService()
+  const fileBrowser = new FileBrowserService(app)
   // fileBrowser.docs = projectDocs
 
   app.use(
@@ -24,7 +24,7 @@ export default (app: Application): any => {
     multipartMiddleware.any(),
     (req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (req?.feathers && req.method !== 'GET') {
-        req.feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
+        ;(req as any).feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
       }
 
       next()
@@ -35,7 +35,9 @@ export default (app: Application): any => {
 
         const result = await Promise.all(
           params.files.map((file) =>
-            app.service('file-browser').patch(data.path, { body: file.buffer, contentType: file.mimeType })
+            app
+              .service('file-browser')
+              .patch(null, { fileName: data.fileName, path: data.path, body: file.buffer, contentType: file.mimeType })
           )
         )
 

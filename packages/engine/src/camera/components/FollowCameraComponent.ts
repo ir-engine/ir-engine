@@ -1,6 +1,8 @@
 import { Raycaster } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { RaycastPropsType } from '../../scene/components/CameraPropertiesComponent'
+import { SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES } from '../../scene/functions/loaders/CameraPropertiesFunctions'
 import { CameraMode } from '../types/CameraMode'
 
 export type FollowCameraComponentType = {
@@ -30,6 +32,8 @@ export type FollowCameraComponentType = {
   locked: boolean
   /** Camera raycaster */
   raycaster: Raycaster
+  /** Raycast properties */
+  raycastProps: RaycastPropsType
 }
 
 export const FollowCameraDefaultValues: FollowCameraComponentType = {
@@ -45,7 +49,13 @@ export const FollowCameraDefaultValues: FollowCameraComponentType = {
   maxPhi: 85,
   shoulderSide: true,
   locked: true,
-  raycaster: new Raycaster()
+  raycaster: new Raycaster(),
+  raycastProps: {
+    enabled: true,
+    rayCount: 3,
+    rayLength: 15.0,
+    rayFrequency: 0.1
+  }
 }
 
 export const FollowCameraComponent = createMappedComponent<FollowCameraComponentType>('FollowCameraComponent')

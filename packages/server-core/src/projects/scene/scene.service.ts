@@ -58,7 +58,7 @@ export const getScenesForProject = (app: Application) => {
       }
     } catch (e) {
       logger.error(e)
-      return null!
+      return { data: [] }
     }
   }
 }

@@ -4,7 +4,6 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
@@ -270,8 +269,6 @@ const quat = new Quaternion()
  */
 
 export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.NONE): Vector3 => {
-  const avatar = getComponent(entity, AvatarComponent)
-  const transform = getComponent(entity, TransformComponent)
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
     const rigHand: Object3D =
