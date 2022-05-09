@@ -310,29 +310,6 @@ body {
   }
 }
 
-.plugintest {
-  background: rgb(0 0 0 / 0%);
-}
-
-.plugintestReadout {
-  background: rgb(255 255 255 / 12800%);
-  width: 100vw;
-  height: 50vh;
-  position: fixed;
-  bottom: 0;
-  left: auto;
-  right: auto;
-  margin: auto;
-  padding: 1em;
-}
-
-.plugintestControls {
-  width: 100vw;
-  height: 50vh;
-  position: fixed;
-  bottom: 0;
-}
-
 .lander {
   min-height: 100vh;
   background-image: linear-gradient(150deg, #00022e, #dbdbdb 100%);

@@ -1,8 +1,11 @@
 import { Socket } from 'socket.io'
 
-import { accessEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { accessEngineState, EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { handleNetworkStateUpdate } from '@xrengine/engine/src/networking/functions/updateNetworkState'
+import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
+import logger from '@xrengine/server-core/src/logger'
 import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
 
 import {
@@ -33,98 +36,55 @@ import {
   handleWebRtcTransportCreate
 } from './WebRTCFunctions'
 
-function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
-  return typeof obj === 'undefined' || obj === null
-}
-
 export const setupSocketFunctions = (transport: SocketWebRTCServerTransport) => async (socket: Socket) => {
   const app = transport.app
 
   if (!accessEngineState().joinedWorld.value)
-    await new Promise<void>((resolve) => {
-      const interval = setInterval(() => {
-        if (accessEngineState().joinedWorld.value) {
-          clearInterval(interval)
-          resolve()
-        }
-      }, 100)
-    })
+    await new Promise((resolve) => matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, resolve))
 
-  // Authorize user and make sure everything is valid before allowing them to join the world
+  logger.info('initialized new socket connection with id', socket.id)
+
+  /**
+   * Authorize user and make sure everything is valid before allowing them to join the world
+   **/
   socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
-    console.log('AUTHORIZATION CALL HANDLER', data.userId)
+    logger.info('[MessageTypes.Authorization]: got auth request for', data.userId)
     const accessToken = data.accessToken
 
-    // userId or access token were undefined, so something is wrong. Return failure
-    if (isNullOrUndefined(accessToken)) {
-      const message = 'accessToken is undefined'
-      console.error(message)
-      callback({ success: false, message })
+    /**
+     * userId or access token were undefined, so something is wrong. Return failure
+     */
+    if (typeof accessToken === 'undefined' || accessToken === null) {
+      callback({ success: false, message: 'accessToken is undefined' })
       return
     }
 
-    const authResult = await (app.service('authentication') as any).strategies.jwt.authenticate(
+    const authResult = await app.service('authentication').strategies.jwt.authenticate!(
       { accessToken: accessToken },
       {}
     )
-    const identityProvider = authResult['identity-provider']
-    const userId = identityProvider.userId
+    const userId = authResult['identity-provider'].userId as UserId
 
     // Check database to verify that user ID is valid
-    const user = await app
-      .service('user')
-      .Model.findOne({
-        attributes: ['id', 'name', 'instanceId', 'avatarId'],
-        where: {
-          id: userId
-        }
-      })
-      .catch((error) => {
-        // They weren't found in the dabase, so send the client an error message and return
-        callback({ success: false, message: error })
-        return console.warn('Failed to authorize user')
-      })
-
-    // Check database to verify that user ID is valid
-    const avatarResources = await app
-      .service('static-resource')
-      .find({
-        query: {
-          $select: ['name', 'url', 'staticResourceType', 'userId'],
-          $or: [{ userId: null }, { userId: user.id }],
-          name: user.avatarId,
-          staticResourceType: {
-            $in: ['user-thumbnail', 'avatar']
-          }
-        }
-      })
-      .catch((error) => {
-        // They weren't found in the database, so send the client an error message and return
-        callback({ success: false, message: error })
-        return console.warn('User avatar not found')
-      })
-
-    const avatar = {
-      thumbnailURL: '',
-      avatarURL: ''
-    } as any
-    avatarResources?.data.forEach((a) => {
-      if (a.staticResourceType === 'avatar') avatar.avatarURL = a.url
-      else avatar.thumbnailURL = a.url
+    const user = await app.service('user').Model.findOne({
+      attributes: ['id', 'name', 'instanceId', 'avatarId'],
+      where: { id: userId }
     })
 
-    // TODO: Check that they are supposed to be in this instance
-    // TODO: Check that token is valid (to prevent users hacking with a manipulated user ID payload)
+    if (!user) {
+      callback({ success: false, message: 'user not found' })
+      return
+    }
 
-    // Return an authorization success message to client
+    /**
+     * @todo Check that they are supposed to be in this instance
+     * @todo Check that token is valid (to prevent users hacking with a manipulated user ID payload)
+     */
+
     callback({ success: true })
 
     socket.on(MessageTypes.ConnectToWorld.toString(), async (data, callback) => {
-      // console.log('Got ConnectToWorld:');
-      // console.log(data);
-      // console.log(userId);
-      // console.log("Avatar", avatar)
-      handleConnectToWorld(transport, socket, data, callback, userId, user, avatar)
+      handleConnectToWorld(transport, socket, data, callback, userId, user)
     })
 
     socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) =>
@@ -194,11 +154,10 @@ export const setupSocketFunctions = (transport: SocketWebRTCServerTransport) => 
     socket.on(MessageTypes.WebRTCRequestNearbyUsers.toString(), async (data, callback) =>
       handleWebRtcRequestNearbyUsers(transport, socket, data, callback)
     )
+
     socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async (data, callback) =>
       handleWebRtcRequestCurrentProducers(socket, data, callback)
     )
-
-    socket.on(MessageTypes.UpdateNetworkState.toString(), async (data) => handleNetworkStateUpdate(socket, data, true))
 
     socket.on(MessageTypes.InitializeRouter.toString(), async (data, callback) =>
       handleWebRtcInitializeRouter(transport, socket, data, callback)

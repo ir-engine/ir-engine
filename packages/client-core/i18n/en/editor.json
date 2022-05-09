@@ -54,6 +54,8 @@
     "mediaSearchAborted": "Media search aborted",
     "methodNotImplemented": "Method not implemented.",
     "saveProjectAborted": "Save scene aborted",
+    "unsavedChanges": "Unsaved Changes",
+    "unsavedChangesMsg": "The scene has been modified. Please save your changes.",
     "projectCreationFail": "Project creation failed. {{reason}}",
     "projectDeletionFail": "Project deletion failed. {{reason}}",
     "savingProjectFail": "Saving Project failed. {{reason}}",
@@ -180,6 +182,15 @@
     "boxCollider": {
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
       "lbl-isTrigger": "Trigger"
+    },
+    "camera": {
+      "name": "Camera",
+      "description": "Camera settings.",
+      "lbl-camera-raycast": "Camera Raycasting",
+      "lbl-camera-raycast-toggle": "Enabled",
+      "lbl-camera-raycast-frequency": "Frequency",
+      "lbl-camera-raycast-count": "Ray Count",
+      "lbl-camera-raycast-length": "Ray Length"
     },
     "directionalLight": {
       "name": "Directional Light",
