@@ -10,12 +10,19 @@ const newProjectName = 'ProjectTest_test_project_name'
 
 const params = { isInternal: true }
 
+const cleanup = async (app: Application) => {
+  const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName}/`)
+  deleteFolderRecursive(projectDir)
+  try {
+    await app.service('project').Model.destroy({ where: { name: newProjectName } })
+  } catch (e) {}
+}
+
 describe('project.test', () => {
   let app: Application
-  before(() => {
-    const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName}/`)
-    deleteFolderRecursive(projectDir)
+  before(async () => {
     app = createFeathersExpressApp()
+    await cleanup(app)
   })
 
   describe("'project' service'", () => {
@@ -30,6 +37,17 @@ describe('project.test', () => {
         const { data } = await app.service('project').get(newProjectName, params)
         assert.strictEqual(data.name, newProjectName)
       })
+
+      it('should not add new project with same name as existing project', function () {
+        assert.rejects(async () => {
+          await app.service('project').create(
+            {
+              name: newProjectName
+            },
+            params
+          )
+        })
+      })
     })
 
     describe('remove', () => {
@@ -41,9 +59,8 @@ describe('project.test', () => {
       })
     })
 
-    after(() => {
-      const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName}/`)
-      deleteFolderRecursive(projectDir)
+    after(async () => {
+      await cleanup(app)
     })
   })
 })
