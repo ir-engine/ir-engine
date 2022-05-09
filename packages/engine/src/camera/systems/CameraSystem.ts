@@ -246,13 +246,13 @@ export const initializeCameraComponent = (world: World) => {
   const camObj = Engine.instance.camera
   addComponent(cameraEntity, Object3DComponent, { value: camObj })
   addComponent(cameraEntity, PersistTagComponent, {})
-  if (!Engine.instance.isEditor) {
-    addComponent(cameraEntity, TransformComponent, {
-      position: camObj.position,
-      rotation: camObj.quaternion,
-      scale: camObj.scale
-    })
-  }
+
+  addComponent(cameraEntity, TransformComponent, {
+    position: camObj.position,
+    rotation: camObj.quaternion,
+    scale: camObj.scale
+  })
+
   Engine.instance.activeCameraEntity = cameraEntity
 
   return cameraEntity
@@ -261,7 +261,7 @@ export const initializeCameraComponent = (world: World) => {
 export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
   const targetCameraRotationQuery = defineQuery([FollowCameraComponent, TargetCameraRotationComponent])
-  let cameraInitialized = false
+  let cameraInitialized = Engine.instance.isEditor
   return () => {
     const { delta } = world
     if (accessEngineState().sceneLoaded.value && !cameraInitialized) {
