@@ -78,4 +78,18 @@ export class Object3DUtils {
       if (Object3DUtils.traverse(children[i], callback)) return true
     }
   }
+
+  /**
+   * Finds the topmost object in the Object3D hierarchy
+   * @param object
+   * @returns
+   */
+  static findRoot(object: Object3D) {
+    if (!object) return null
+    let node = object
+    while (node.parent) {
+      node = node.parent
+    }
+    return node
+  }
 }
