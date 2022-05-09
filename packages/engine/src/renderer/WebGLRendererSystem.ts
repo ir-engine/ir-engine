@@ -238,13 +238,6 @@ export class EngineRenderer {
       dispatchAction(Engine.instance.store, EngineRendererAction.setQualityLevel(qualityLevel))
     }
   }
-
-  doAutomaticRenderQuality() {
-    const state = accessEngineRendererState()
-    dispatchAction(Engine.instance.store, EngineRendererAction.setShadows(state.qualityLevel.value > 1))
-    dispatchAction(Engine.instance.store, EngineRendererAction.setQualityLevel(state.qualityLevel.value))
-    dispatchAction(Engine.instance.store, EngineRendererAction.setPostProcessing(state.qualityLevel.value > 2))
-  }
 }
 
 export default async function WebGLRendererSystem(world: World) {
