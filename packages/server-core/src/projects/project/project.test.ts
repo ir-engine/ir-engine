@@ -6,13 +6,15 @@ import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
 
-const newProjectName = 'test_project_name'
+const newProjectName = 'ProjectTest_test_project_name'
 
 const params = { isInternal: true }
 
 describe('project.test', () => {
   let app: Application
   before(() => {
+    const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName}/`)
+    deleteFolderRecursive(projectDir)
     app = createFeathersExpressApp()
   })
 

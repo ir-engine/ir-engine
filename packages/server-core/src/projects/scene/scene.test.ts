@@ -16,15 +16,18 @@ const parsedData = parseSceneDataCacheURLs(_.cloneDeep(defaultSceneSeed) as any,
 
 const defaultProjectName = 'default-project'
 const defaultSceneName = 'default'
-const newProjectName = 'test_project_name'
-const newSceneName = 'test_scene_name'
-const newestSceneName = 'test_scene_rename'
+
+const newProjectName = 'SceneTest_test_project_name'
+const newSceneName = 'SceneTest_test_scene_name'
+const newestSceneName = 'SceneTest_test_scene_rename'
 
 const params = { isInternal: true }
 
 describe('scene.test', () => {
   let app: Application
   before(() => {
+    const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName}/`)
+    deleteFolderRecursive(projectDir)
     app = createFeathersExpressApp()
   })
 
