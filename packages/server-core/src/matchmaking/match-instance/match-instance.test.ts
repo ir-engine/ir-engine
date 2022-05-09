@@ -5,7 +5,7 @@ import { FRONTEND_SERVICE_URL } from '@xrengine/matchmaking/src/functions'
 import type { OpenMatchTicket } from '@xrengine/matchmaking/src/interfaces'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp } from '../../../src/createApp'
+import { createFeathersExpressApp } from '../../createApp'
 
 interface User {
   id: string
