@@ -57,24 +57,11 @@ npm run dev-reinit
 npm run dev
 ```
 
-### Setup Elastic Search & Grafana for logging(Optional)
+### Setup Elastic Search & Grafana
 
-if you wish to setup Elastic Search & Grafana along with the databases,
-
-Run 
-
-```
-npm run dev-docker:logging
-```
-
-Instead of running
-
-```
-npm run dev-docker
-```
+Elastic Search and Grafana will be automatically launched with `npm run dev`.
 
 Elasticsearch & Grafana will be running on localhost port 9200 & 5601 respectively.
-
 
 This will automatically set up and run Redis/MariaDB docker
 containers, and XRengine client/server/game-server instances.
