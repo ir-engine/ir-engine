@@ -63,6 +63,10 @@ const InstanceChat = (props: Props): any => {
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
+  const sortedMessages =
+    activeChannel &&
+    activeChannel.messages &&
+    [...activeChannel?.messages].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
   const messageRef = React.useRef<any>()
   const messageEl = messageRef.current
   const isMobile = /Mobi/i.test(window.navigator.userAgent)
@@ -113,13 +117,7 @@ const InstanceChat = (props: Props): any => {
   }, [chatState])
 
   React.useEffect(() => {
-    if (
-      activeChannel &&
-      activeChannel.messages &&
-      [...activeChannel?.messages].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())[
-        activeChannel.messages.length - 1
-      ]?.senderId !== user?.id.value
-    ) {
+    if (sortedMessages && sortedMessages[sortedMessages.length - 1]?.senderId !== user?.id.value) {
       setNoUnReadMessage(false)
     }
   }, [chatState])
@@ -223,6 +221,7 @@ const InstanceChat = (props: Props): any => {
       <div
         onClick={() => {
           setChatWindowOpen(false)
+          setNoUnReadMessage(true)
           if (isMobile) setShowTouchPad(true)
         }}
         className={styles['backdrop'] + ' ' + (!chatWindowOpen && styles['hideBackDrop'])}
@@ -232,65 +231,62 @@ const InstanceChat = (props: Props): any => {
           <div className={styles['list-container']}>
             <Card square={true} elevation={0} className={styles['message-wrapper']}>
               <CardContent className={styles['message-container']}>
-                {activeChannel &&
-                  activeChannel.messages &&
-                  [...activeChannel.messages]
-                    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-                    .map((message, index, messages) => {
-                      if (isCommand(message.text)) return undefined
-                      const system = getChatMessageSystem(message.text)
-                      let chatMessage = message.text
+                {sortedMessages &&
+                  sortedMessages.map((message, index, messages) => {
+                    if (isCommand(message.text)) return undefined
+                    const system = getChatMessageSystem(message.text)
+                    let chatMessage = message.text
 
-                      if (system !== 'none') {
-                        if (system === 'jl_system') {
-                          chatMessage = removeMessageSystem(message.text)
-                        } else {
-                          return undefined
-                        }
+                    if (system !== 'none') {
+                      if (system === 'jl_system') {
+                        chatMessage = removeMessageSystem(message.text)
+                      } else {
+                        return undefined
                       }
-                      return (
-                        <>
-                          {!isLeftOrJoinText(message.text) ? (
-                            <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
-                              {message.senderId !== user?.id.value && (
-                                <div className={`${styles.selfEnd} ${styles.noMargin}`}>
-                                  <div className={styles.dFlex}>
-                                    {index !== 0 && message.senderId !== messages[index - 1].senderId && (
-                                      <Avatar src={message.sender?.avatarUrl} />
-                                    )}
-                                    {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
-                                    <div className={`${styles.msgContainer} ${styles.mx2}`}>
-                                      <p className={styles.text}>{message.text}</p>
-                                    </div>
+                    }
+                    return (
+                      <>
+                        {!isLeftOrJoinText(message.text) ? (
+                          <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
+                            {message.senderId !== user?.id.value && (
+                              <div className={`${styles.selfEnd} ${styles.noMargin}`}>
+                                <div className={styles.dFlex}>
+                                  {index !== 0 && message.senderId !== messages[index - 1].senderId && (
+                                    <Avatar src={message.sender?.avatarUrl} />
+                                  )}
+                                  {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
+                                  <div className={`${styles.msgContainer} ${styles.mx2}`}>
+                                    <p className={styles.text}>{message.text}</p>
                                   </div>
-                                </div>
-                              )}
-                              {message.senderId === user?.id.value && (
-                                <div className={`${styles.selfEnd} ${styles.noMargin}`}>
-                                  <div className={styles.dFlex}>
-                                    <div className={`${styles.msgReplyContainer} ${styles.mx2}`}>
-                                      <p className={styles.text}>{message.text}</p>
-                                    </div>
-                                    {index !== 0 && message.senderId !== messages[index - 1].senderId && (
-                                      <Avatar src={message.sender?.avatarUrl} />
-                                    )}
-                                    {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
-                              <div className={styles.dFlex}>
-                                <div className={`${styles.msgNotification} ${styles.mx2}`}>
-                                  <p className={styles.greyText}>{message.text}</p>
                                 </div>
                               </div>
+                            )}
+                            {message.senderId === user?.id.value && (
+                              <div className={`${styles.selfEnd} ${styles.noMargin}`}>
+                                <div className={styles.dFlex}>
+                                  <div className={`${styles.msgReplyContainer} ${styles.mx2}`}>
+                                    <p className={styles.text}>{message.text}</p>
+                                  </div>
+                                  {index !== 0 && message.senderId !== messages[index - 1].senderId && (
+                                    <Avatar src={message.sender?.avatarUrl} />
+                                  )}
+                                  {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
+                            <div className={styles.dFlex}>
+                              <div className={`${styles.msgNotification} ${styles.mx2}`}>
+                                <p className={styles.greyText}>{message.text}</p>
+                              </div>
                             </div>
-                          )}
-                        </>
-                      )
-                    })}
+                          </div>
+                        )}
+                      </>
+                    )
+                  })}
               </CardContent>
             </Card>
           </div>
