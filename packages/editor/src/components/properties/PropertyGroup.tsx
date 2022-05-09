@@ -17,7 +17,7 @@ const PropertyGroupHeader = (styled as any).div`
   flex-direction: row;
   align-items: left;
   font-weight: bold;
-  color: var(--text2);
+  color: var(--textColor);
   padding: 0 8px 8px;
   :last-child {
     margin-left: auto;
@@ -26,7 +26,7 @@ const PropertyGroupHeader = (styled as any).div`
 
 // PropertyGroupDescription used to show the property group description
 const PropertyGroupDescription = (styled as any).div`
-  color: var(--text2);
+  color: var(--textColor);
   white-space: pre-wrap;
   padding: 0 8px 8px;
 `

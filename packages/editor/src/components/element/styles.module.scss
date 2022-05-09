@@ -11,7 +11,7 @@
   align-content: start;
   overflow-y: auto;
   pointer-events: auto;
-  background: var(--dock);
+  background: var(--dockBackground);
   padding: 5px;
   border-radius: 5px;
 
@@ -24,7 +24,7 @@
     width: 45px;
     height: 45px;
     padding: 5px;
-    color: var(--text2);
+    color: var(--textColor);
     border-radius: 4px;
 
     svg {
@@ -34,8 +34,8 @@
 
     &:hover,
     &:focus-visible {
-      color: var(--text);
-      background: var(--purpleColor);
+      color: var(--textColor);
+      background: var(--dropdownMenuHoverBackground);
     }
   }
 }
