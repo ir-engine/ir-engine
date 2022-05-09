@@ -185,7 +185,7 @@
 
       :global(.MuiInputLabel-formControl) {
         color: white;
-        transform: translate(0, 16px) scale(1);
+        transform: translate(0, 12px) scale(1);
       }
 
       :global(.MuiInput-root) {
@@ -385,4 +385,38 @@
 .greyText {
   color: #888686;
   font-size: 0.7rem;
+}
+
+.animateTop {
+  animation: moveBottom 0.4s ease 0.4s;
+  animation-fill-mode: backwards;
+}
+
+.animateLeft {
+  animation: moveLeft 0.4s ease 0.4s;
+  animation-fill-mode: backwards;
+}
+
+@keyframes moveLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-2rem);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(0);
+  }
+}
+
+@keyframes moveBottom {
+  0% {
+    opacity: 0;
+    transform: translateY(-2rem);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(0);
+  }
 }

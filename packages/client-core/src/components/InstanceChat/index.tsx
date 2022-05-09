@@ -55,6 +55,8 @@ const InstanceChat = (props: Props): any => {
   const [unreadMessages, setUnreadMessages] = React.useState(false)
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
   const instanceConnectionState = useLocationInstanceConnectionState()
+  const [isInitRender, setIsInitRender] = React.useState<Boolean>()
+  const [noUnReadMessage, setNoUnReadMessage] = React.useState<any>()
   const usersTyping = useState(
     getState(Engine.instance.currentWorld.store, WorldState).usersTyping[user?.id.value]
   ).value
@@ -77,6 +79,10 @@ const InstanceChat = (props: Props): any => {
 
     return () => clearTimeout(delayDebounce)
   }, [composingMessage])
+
+  useEffect(() => {
+    setIsInitRender(true)
+  }, [])
 
   useEffect(() => {
     if (
@@ -104,6 +110,18 @@ const InstanceChat = (props: Props): any => {
 
   React.useEffect(() => {
     if (messageEl) messageEl.scrollTop = messageEl?.scrollHeight
+  }, [chatState])
+
+  React.useEffect(() => {
+    if (
+      activeChannel &&
+      activeChannel.messages &&
+      [...activeChannel?.messages].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())[
+        activeChannel.messages.length - 1
+      ]?.senderId !== user?.id.value
+    ) {
+      setNoUnReadMessage(false)
+    }
   }, [chatState])
 
   const handleComposingMessageChange = (event: any): void => {
@@ -159,6 +177,8 @@ const InstanceChat = (props: Props): any => {
     if (!chatWindowOpen && isMobile) hideOtherMenus()
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
+    setIsInitRender(false)
+    setNoUnReadMessage(true)
   }
   const [dimensions, setDimensions] = React.useState({
     height: window.innerHeight,
@@ -315,11 +335,21 @@ const InstanceChat = (props: Props): any => {
             </Card>
           </div>
           {unreadMessages && (
-            <div className={`${styles.iconCallChat} ${props.animate} ${!chatWindowOpen ? '' : styles.iconCallPos}`}>
+            <div
+              className={`${styles.iconCallChat} ${
+                isInitRender
+                  ? props.animate
+                  : !chatWindowOpen
+                  ? isMobile
+                    ? styles.animateTop
+                    : styles.animateLeft
+                  : ''
+              } ${!chatWindowOpen ? '' : styles.iconCallPos}`}
+            >
               <Badge
                 color="primary"
                 variant="dot"
-                invisible={!unreadMessages}
+                invisible={noUnReadMessage}
                 anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
               >
                 <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
