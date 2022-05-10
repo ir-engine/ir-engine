@@ -1,7 +1,4 @@
 import { Params } from '@feathersjs/feathers'
-import appRootPath from 'app-root-path'
-import fs from 'fs'
-import path from 'path'
 
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 
