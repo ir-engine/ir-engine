@@ -35,6 +35,9 @@ interface Props {
   setShowTouchPad?: any
 }
 
+const audio = document.createElement('audio')
+audio.src = notificationAlertURL
+
 const InstanceChat = (props: Props): any => {
   const {
     styles = defaultStyles,
@@ -124,7 +127,6 @@ const InstanceChat = (props: Props): any => {
       chatState.messageCreated.value
     ) {
       setNoUnReadMessage(false)
-      const audio = new Audio(notificationAlertURL)
       audio.play()
     }
   }, [chatState])
@@ -179,7 +181,7 @@ const InstanceChat = (props: Props): any => {
   const [isMultiline, setIsMultiline] = React.useState(false)
   const [cursorPosition, setCursorPosition] = React.useState(0)
   const toggleChatWindow = () => {
-    if (!chatWindowOpen && isMobile) hideOtherMenus()
+    if (!chatWindowOpen) hideOtherMenus()
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
     setIsInitRender(false)
