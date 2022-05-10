@@ -7,11 +7,11 @@ import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getAllPortals, getCubemapBake, getPortal } from './scene-helper'
 import { getSceneData, Scene } from './scene.class'
 import projectDocs from './scene.docs'
 import hooks from './scene.hooks'
-import {useStorageProvider} from "../../media/storageprovider/storageprovider";
 
 const storageProvider = useStorageProvider()
 
@@ -46,14 +46,15 @@ export const getScenesForProject = (app: Application) => {
       const newSceneJsonPath = `projects/${projectName}/`
 
       const fileResults = await storageProvider.listObjects(newSceneJsonPath, false)
-      const files = fileResults.Contents
-          .map((dirent) => dirent.Key)
-          .filter((name) => name.endsWith('.scene.json'))
-          .map((name) => name.slice(0, -'.scene.json'.length))
+      const files = fileResults.Contents.map((dirent) => dirent.Key)
+        .filter((name) => name.endsWith('.scene.json'))
+        .map((name) => name.slice(0, -'.scene.json'.length))
 
-      const sceneData: SceneData[] = await Promise.all(files.map(async (sceneName) =>
-        getSceneData(projectName, sceneName.replace(newSceneJsonPath, ''), metadataOnly, internal)
-      ))
+      const sceneData: SceneData[] = await Promise.all(
+        files.map(async (sceneName) =>
+          getSceneData(projectName, sceneName.replace(newSceneJsonPath, ''), metadataOnly, internal)
+        )
+      )
 
       return {
         data: sceneData

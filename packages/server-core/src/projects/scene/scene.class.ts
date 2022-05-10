@@ -22,11 +22,7 @@ export const getSceneData = async (projectName, sceneName, metadataOnly, interna
   const scenePath = `projects/${projectName}/${sceneName}.scene.json`
   const thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.jpeg`
 
-  const thumbnailUrl = getCachedAsset(
-    thumbnailPath,
-    storageProvider.cacheDomain,
-    internal
-  )
+  const thumbnailUrl = getCachedAsset(thumbnailPath, storageProvider.cacheDomain, internal)
 
   const sceneExists = await storageProvider.doesExist(`${sceneName}.scene.json`, `projects/${projectName}/`)
   if (sceneExists) {
@@ -36,12 +32,8 @@ export const getSceneData = async (projectName, sceneName, metadataOnly, interna
       project: projectName,
       thumbnailUrl: thumbnailUrl + `?${Date.now()}`,
       scene: metadataOnly
-          ? undefined!
-          : parseSceneDataCacheURLs(
-              JSON.parse(sceneResult.Body.toString()),
-              storageProvider.cacheDomain,
-              internal
-          )
+        ? undefined!
+        : parseSceneDataCacheURLs(JSON.parse(sceneResult.Body.toString()), storageProvider.cacheDomain, internal)
     }
     return sceneData
   }
@@ -119,13 +111,25 @@ export class Scene implements ServiceMethods<any> {
 
     while (true) {
       if (counter > 1) newSceneName = NEW_SCENE_NAME + '-' + counter
-      if (!await storageProvider.doesExist(`${newSceneName}.scene.json`, projectPath)) break
+      if (!(await storageProvider.doesExist(`${newSceneName}.scene.json`, projectPath))) break
 
       counter++
     }
 
-    await storageProvider.moveObject(`default.thumbnail.jpeg`, `${newSceneName}.thumbnail.jpeg`, `projects/default-project`, projectPath, true)
-    await storageProvider.moveObject(`default.scene.json`, `${newSceneName}.scene.json`, `projects/default-project`, projectPath, true)
+    await storageProvider.moveObject(
+      `default.thumbnail.jpeg`,
+      `${newSceneName}.thumbnail.jpeg`,
+      `projects/default-project`,
+      projectPath,
+      true
+    )
+    await storageProvider.moveObject(
+      `default.scene.json`,
+      `${newSceneName}.scene.json`,
+      `projects/default-project`,
+      projectPath,
+      true
+    )
 
     return { projectName, sceneName: newSceneName }
   }
@@ -171,7 +175,9 @@ export class Scene implements ServiceMethods<any> {
 
     const result = await storageProvider.putObject({
       Key: newSceneJsonPath,
-      Body: Buffer.from(JSON.stringify(cleanSceneDataCacheURLs(sceneData ?? defaultSceneSeed, storageProvider.cacheDomain))),
+      Body: Buffer.from(
+        JSON.stringify(cleanSceneDataCacheURLs(sceneData ?? defaultSceneSeed, storageProvider.cacheDomain))
+      ),
       ContentType: 'application/json'
     })
   }
@@ -198,6 +204,9 @@ export class Scene implements ServiceMethods<any> {
       fs.rmSync(path.resolve(thumbnailPath))
     }
 
-    await storageProvider.deleteResources([`projects/${projectName}/${name}.scene.json`, `projects${projectName}/${name}.thumbnail.jpeg`])
+    await storageProvider.deleteResources([
+      `projects/${projectName}/${name}.scene.json`,
+      `projects${projectName}/${name}.thumbnail.jpeg`
+    ])
   }
 }
