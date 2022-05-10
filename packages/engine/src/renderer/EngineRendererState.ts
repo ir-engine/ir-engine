@@ -10,6 +10,7 @@ import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
 import { RenderSettingKeys } from './EngineRnedererConstants'
 import { changeRenderMode } from './functions/changeRenderMode'
+import { configureEffectComposer } from './functions/configureEffectComposer'
 import { EngineRenderer } from './WebGLRendererSystem'
 
 type EngineRendererStateType = {
@@ -52,14 +53,6 @@ export async function restoreEngineRendererData(): Promise<void> {
       ClientStorage.get(RenderSettingKeys.AUTOMATIC).then((v) => {
         if (typeof v !== 'undefined') s.automatic = v as boolean
         ClientStorage.set(RenderSettingKeys.AUTOMATIC, state.automatic.value)
-      }),
-      ClientStorage.get(RenderSettingKeys.POST_PROCESSING).then((v) => {
-        if (typeof v !== 'undefined') s.usePostProcessing = v as boolean
-        ClientStorage.set(RenderSettingKeys.POST_PROCESSING, state.usePostProcessing.value)
-      }),
-      ClientStorage.get(RenderSettingKeys.USE_SHADOWS).then((v) => {
-        if (typeof v !== 'undefined') s.useShadows = v as boolean
-        ClientStorage.set(RenderSettingKeys.USE_SHADOWS, state.useShadows.value)
       })
     ]
 
@@ -88,6 +81,17 @@ export async function restoreEngineRendererData(): Promise<void> {
         ClientStorage.get(RenderSettingKeys.GRID_HEIGHT).then((v) => {
           if (typeof v !== 'undefined') s.gridHeight = v as number
           else ClientStorage.set(RenderSettingKeys.GRID_HEIGHT, state.gridHeight.value)
+        })
+      )
+    } else {
+      promises.push(
+        ClientStorage.get(RenderSettingKeys.POST_PROCESSING).then((v) => {
+          if (typeof v !== 'undefined') s.usePostProcessing = v as boolean
+          ClientStorage.set(RenderSettingKeys.POST_PROCESSING, state.usePostProcessing.value)
+        }),
+        ClientStorage.get(RenderSettingKeys.USE_SHADOWS).then((v) => {
+          if (typeof v !== 'undefined') s.useShadows = v as boolean
+          ClientStorage.set(RenderSettingKeys.USE_SHADOWS, state.useShadows.value)
         })
       )
     }
@@ -128,13 +132,15 @@ function setQualityLevel(qualityLevel) {
 }
 
 function setUseShadows(useShadows) {
-  if (state.useShadows.value === useShadows) return
+  if (state.useShadows.value === useShadows || Engine.instance.isEditor) return
   EngineRenderer.instance.renderer.shadowMap.enabled = useShadows
 }
 
 function setUsePostProcessing(usePostProcessing) {
-  if (state.usePostProcessing.value === usePostProcessing) return
+  if (state.usePostProcessing.value === usePostProcessing || Engine.instance.isEditor) return
   usePostProcessing = EngineRenderer.instance.supportWebGL2 && usePostProcessing
+
+  configureEffectComposer(!usePostProcessing)
 }
 
 export function EngineRendererReceptor(action: EngineRendererActionType) {
@@ -151,8 +157,8 @@ export function EngineRendererReceptor(action: EngineRendererActionType) {
         break
       // case 'WEBGL_RENDERER_PBR': return s.merge({ usePBR: action.usePBR })
       case 'WEBGL_RENDERER_POSTPROCESSING':
-        s.merge({ usePostProcessing: action.usePostProcessing })
         setUsePostProcessing(action.usePostProcessing)
+        s.merge({ usePostProcessing: action.usePostProcessing })
         ClientStorage.set(RenderSettingKeys.POST_PROCESSING, action.usePostProcessing)
         break
       case 'WEBGL_RENDERER_SHADOWS':

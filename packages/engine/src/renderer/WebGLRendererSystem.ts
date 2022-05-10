@@ -40,7 +40,6 @@ import {
   EngineRendererReceptor,
   restoreEngineRendererData
 } from './EngineRendererState'
-import { configureEffectComposer } from './functions/configureEffectComposer'
 import WebGL from './THREE.WebGL'
 
 export interface EffectComposerWithSchema extends EffectComposer {
@@ -60,7 +59,7 @@ export interface EffectComposerWithSchema extends EffectComposer {
 let lastRenderTime = 0
 
 export class EngineRenderer {
-  static instance
+  static instance: EngineRenderer
 
   /** Is resize needed? */
   needsResize: boolean
@@ -160,8 +159,6 @@ export class EngineRenderer {
 
     this.renderer.autoClear = true
     this.effectComposer = new EffectComposer(this.renderer) as any
-
-    configureEffectComposer()
   }
 
   /** Called on resize, sets resize flag. */

@@ -13,7 +13,6 @@ import {
   EngineRendererAction,
   restoreEngineRendererData
 } from '@xrengine/engine/src/renderer/EngineRendererState'
-import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
@@ -101,8 +100,6 @@ export async function initializeRenderer(): Promise<void> {
     initInputEvents()
 
     addInputActionMapping(ActionSets.EDITOR, EditorMapping)
-
-    configureEffectComposer()
 
     store.dispatch(EditorAction.rendererInitialized(true))
     EngineRenderer.instance.disableUpdate = false

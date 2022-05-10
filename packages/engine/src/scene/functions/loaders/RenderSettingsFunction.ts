@@ -51,54 +51,64 @@ export const updateRenderSetting: ComponentUpdateFunction = (
 ) => {
   if (!isClient) return
 
-  if (
-    typeof properties.LODs === 'undefined' &&
-    typeof properties.overrideRendererSettings === 'undefined' &&
-    typeof properties.csm === 'undefined' &&
-    typeof properties.toneMapping === 'undefined' &&
-    typeof properties.toneMappingExposure === 'undefined' &&
-    typeof properties.shadowMapType === 'undefined'
-  ) {
-    return
-  }
-
   const component = getComponent(entity, RenderSettingComponent)
-
-  resetEngineRenderer()
 
   if (typeof properties.LODs !== 'undefined' && component.LODs)
     AssetLoader.LOD_DISTANCES = { '0': component.LODs.x, '1': component.LODs.y, '2': component.LODs.z }
 
-  if (typeof properties.overrideRendererSettings === 'undefined' || !component.overrideRendererSettings) {
-    EngineRenderer.instance.isCSMEnabled = true
-    if (accessEngineState().sceneLoaded.value) initializeCSM()
-    else matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, initializeCSM)
+  if (typeof properties.overrideRendererSettings !== 'undefined') {
+    if (properties.overrideRendererSettings) {
+      EngineRenderer.instance.isCSMEnabled = component.csm
+      EngineRenderer.instance.renderer.toneMapping = component.toneMapping
+      EngineRenderer.instance.renderer.toneMappingExposure = component.toneMappingExposure
+
+      if (component.shadowMapType > -1) {
+        EngineRenderer.instance.renderer.shadowMap.enabled = true
+        EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
+        EngineRenderer.instance.renderer.shadowMap.type = component.shadowMapType
+      } else {
+        EngineRenderer.instance.renderer.shadowMap.enabled = false
+      }
+
+      if (component.csm) enableCSM()
+      else disposeCSM()
+    } else {
+      EngineRenderer.instance.isCSMEnabled = true
+      resetEngineRenderer(false, false)
+      enableCSM()
+    }
+
     return
   }
 
-  if (typeof properties.csm !== 'undefined') EngineRenderer.instance.isCSMEnabled = component.csm
-  if (typeof properties.toneMapping !== 'undefined')
-    EngineRenderer.instance.renderer.toneMapping = component.toneMapping
-  if (typeof properties.toneMappingExposure !== 'undefined')
-    EngineRenderer.instance.renderer.toneMappingExposure = component.toneMappingExposure
+  if (component.overrideRendererSettings) {
+    if (typeof properties.toneMapping !== 'undefined')
+      EngineRenderer.instance.renderer.toneMapping = component.toneMapping
+    if (typeof properties.toneMappingExposure !== 'undefined')
+      EngineRenderer.instance.renderer.toneMappingExposure = component.toneMappingExposure
 
-  if (typeof properties.shadowMapType !== 'undefined') {
-    if (component.shadowMapType) {
-      EngineRenderer.instance.renderer.shadowMap.enabled = true
-      EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
-      EngineRenderer.instance.renderer.shadowMap.type = component.shadowMapType
-    } else {
-      EngineRenderer.instance.renderer.shadowMap.enabled = false
+    if (typeof properties.shadowMapType !== 'undefined') {
+      if (component.shadowMapType > -1) {
+        EngineRenderer.instance.renderer.shadowMap.enabled = true
+        EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
+        EngineRenderer.instance.renderer.shadowMap.type = component.shadowMapType
+      } else {
+        EngineRenderer.instance.renderer.shadowMap.enabled = false
+      }
+    }
+
+    if (typeof properties.csm !== 'undefined') {
+      EngineRenderer.instance.isCSMEnabled = component.csm
+      if (component.csm) enableCSM()
+      else disposeCSM()
     }
   }
+}
 
-  if (EngineRenderer.instance.renderer.shadowMap.enabled) {
-    if (component.csm) {
-      if (accessEngineState().sceneLoaded.value) initializeCSM()
-      else matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, initializeCSM)
-    } else {
-      disposeCSM()
-    }
+const enableCSM = () => {
+  if (!EngineRenderer.instance.csm && EngineRenderer.instance.renderer.shadowMap.enabled) {
+    if (accessEngineState().sceneLoaded.value) initializeCSM()
+    else matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, initializeCSM)
   }
 }
 
@@ -155,7 +165,7 @@ export const disposeCSM = () => {
   })
 }
 
-export const resetEngineRenderer = (resetLODs = false) => {
+export const resetEngineRenderer = (resetLODs = false, resetCSM = true) => {
   if (!isClient) return
 
   EngineRenderer.instance.renderer.shadowMap.enabled = true
@@ -167,7 +177,7 @@ export const resetEngineRenderer = (resetLODs = false) => {
 
   if (resetLODs) AssetLoader.LOD_DISTANCES = Object.assign({}, DEFAULT_LOD_DISTANCES)
 
-  disposeCSM()
+  if (resetCSM) disposeCSM()
 }
 
 export const serializeRenderSettings: ComponentSerializeFunction = (entity) => {
