@@ -1,4 +1,4 @@
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { addActionReceptor } from '@xrengine/hyperflux'
 
@@ -10,14 +10,13 @@ import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme } from '../input/enums/InputEnums'
 import { XRAxes } from '../input/enums/InputEnums'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
-import { VelocityComponent } from '../physics/components/VelocityComponent'
-import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { XRCameraRotateYComponent } from './components/XRCameraRotateYComponent'
+import { detectUserInCollisions } from './functions/detectUserInCollisions'
 import { alignXRCameraPositionWithAvatar, moveAvatar, moveXRAvatar, rotateXRAvatar } from './functions/moveAvatar'
 import { respawnAvatar } from './functions/respawnAvatar'
 import { accessAvatarInputSettingsState, AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
@@ -97,6 +96,8 @@ export default async function AvatarControllerSystem(world: World) {
 
       const pose = controller.controller.getPosition()
       transform.position.set(pose.x, pose.y - avatar.avatarHalfHeight, pose.z)
+
+      detectUserInCollisions(entity)
 
       collider.body.setGlobalPose(
         {

@@ -108,7 +108,6 @@ export class User<T = UserDataType> extends Service<T> {
         params.sequelize.order = order
       }
       delete params?.query?.$sort
-      params.sequelize.subQuery = false
       return super.find(params)
     } else if (action === 'search') {
       const searchUser = params.query.data
