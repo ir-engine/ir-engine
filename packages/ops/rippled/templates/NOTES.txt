@@ -1,4 +1,8 @@
-1. Get the application URL by running these commands:
+Thank you for installing Rippled by XREngine
+
+1. Rippled is configured based on rippled.cfg and validators.txt files in ./config folder of charts.
+2. You can exec into rippled pod to run cli commands.
+3. Get the application URL by running these commands:
 {{- if .Values.ingress.enabled }}
 {{- range $host := .Values.ingress.hosts }}
   {{- range .paths }}
@@ -20,3 +24,7 @@
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
 {{- end }}
+
+We would love to hear your feedback:
+- contact us on https://xrfoundation.io/
+- join our Discord on https://discord.gg/xrf
