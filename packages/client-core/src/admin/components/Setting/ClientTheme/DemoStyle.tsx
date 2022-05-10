@@ -241,6 +241,10 @@ const DemoStyle = (props: DemoStyleProps) => {
       .option:global(.Mui-focused){
         background-color: ${theme.dropdownMenuHoverBackground};
       }
+
+      .optionSelected{
+        background-color: ${theme.dropdownMenuSelectedBackground} !important;
+      }
       
       .option:hover {
         background-color: ${theme.dropdownMenuHoverBackground};

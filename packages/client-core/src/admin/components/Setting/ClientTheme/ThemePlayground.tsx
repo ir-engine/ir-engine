@@ -301,11 +301,11 @@ const ThemePlayground = () => {
                   MenuProps={{ classes: { paper: 'selectPaper' } }}
                   onChange={(e) => setSelectValue(e.target.value)}
                 >
-                  <MenuItem value="" disabled classes={{ root: 'option' }}>
+                  <MenuItem value="" key={-1} disabled classes={{ root: 'option', selected: 'optionSelected' }}>
                     Select Option
                   </MenuItem>
                   {['Option 1', 'Option 2', 'Option 3', 'Option 4'].map((el, index) => (
-                    <MenuItem value={el} key={index} classes={{ root: 'option' }}>
+                    <MenuItem value={el} key={index} classes={{ root: 'option', selected: 'optionSelected' }}>
                       {el}
                     </MenuItem>
                   ))}

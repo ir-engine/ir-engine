@@ -353,6 +353,14 @@ const ColorSelectionArea = (props: ColorSelectionAreaProps) => {
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
+        <label>Dropdown Menu Selected Background:</label>
+        <SketchColorPicker
+          name="dropdownMenuSelectedBackground"
+          value={theme.dropdownMenuSelectedBackground}
+          onChange={(color) => handleChangeColor('dropdownMenuSelectedBackground', color)}
+        />
+      </Grid>
+      <Grid item sm={12} md={6} className={styles.colorGridContainer}>
         <label>Drawer Background:</label>
         <SketchColorPicker
           name="drawerBackground"

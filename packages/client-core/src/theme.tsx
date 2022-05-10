@@ -184,7 +184,7 @@ const theme = createTheme({
             backgroundColor: 'var(--dropdownMenuHoverBackground)'
           },
           MuiSelected: {
-            backgroundColor: 'var(--dropdownMenuHoverBackground)'
+            backgroundColor: 'var(--dropdownMenuSelectedBackground)'
           }
         }
       }
@@ -300,7 +300,7 @@ const theme = createTheme({
             backgroundColor: 'var(--dropdownMenuHoverBackground)'
           },
           MuiSelected: {
-            backgroundColor: 'var(--dropdownMenuHoverBackground)'
+            backgroundColor: 'var(--dropdownMenuSelectedBackground)'
           }
         }
       }
