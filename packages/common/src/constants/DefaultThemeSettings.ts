@@ -1,8 +1,8 @@
 const defaultThemeSettings = {
   light: {
     textColor: '#585858',
-    navbarBackground: '#E6E4F0',
-    sidebarBackground: '#E6E3E7',
+    navbarBackground: '#e7e7e7',
+    sidebarBackground: '#e1e1e1',
     sidebarSelectedBackground: '#B8B8B8',
     mainBackground: '#FFFFFF',
     panelBackground: '#c0c0c0',
@@ -14,7 +14,7 @@ const defaultThemeSettings = {
     textDescription: '#898989',
     iconButtonColor: '#585858',
     iconButtonHoverColor: '#c9c9c9',
-    iconButtonBackground: '#E6E3E7',
+    iconButtonBackground: '#e1e1e1',
     iconButtonSelectedBackground: '#B8B8B8',
     buttonOutlined: '#969696',
     buttonFilled: '#969696',
@@ -33,7 +33,7 @@ const defaultThemeSettings = {
     drawerBackground: '#c6c6c6',
     popupBackground: '#c6c6c6',
     tableHeaderBackground: '#c0c0c0',
-    tableCellBackground: '#DADAE2',
+    tableCellBackground: '#e1e1e1',
     tableFooterBackground: '#c0c0c0',
     themeSwitchTrack: '#aab4be',
     themeSwitchThumb: '#e5d200',
