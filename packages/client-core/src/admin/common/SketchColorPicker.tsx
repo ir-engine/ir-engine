@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { SketchPicker } from 'react-color'
 
+import { Button, Popover } from '@mui/material'
+
 interface SketchColorPickerProps {
   name: string
   value: string
@@ -9,7 +11,15 @@ interface SketchColorPickerProps {
 
 const SketchColorPicker = (props: SketchColorPickerProps) => {
   const [color, setColor] = useState(props.value)
-  const [displayColorPicker, setDisplayColorPicker] = useState(false)
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null)
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
 
   useEffect(() => {
     if (color !== props.value) {
@@ -24,19 +34,15 @@ const SketchColorPicker = (props: SketchColorPickerProps) => {
     props.onChange(rgbaColor)
   }
 
-  const handleClick = () => {
-    setDisplayColorPicker(!displayColorPicker)
-  }
-
-  const handleClose = () => {
-    setDisplayColorPicker(false)
-  }
+  const open = Boolean(anchorEl)
+  const id = open ? 'simple-popover' : undefined
 
   return (
     <div id={props.name}>
       <style>
         {`
           #${props.name} .color {
+            margin: 0px;
             width: 36px;
             height: 14px;
             border-radius: 2px;
@@ -45,36 +51,30 @@ const SketchColorPicker = (props: SketchColorPickerProps) => {
 
           #${props.name} .swatch {
             padding: 5px;
+            width: 46px;
+            min-width: 46px;
             background: #fff;
             border-radius: 1px;
-            boxShadow: 0 0 0 1px rgba(0,0,0,.1);
             display: inline-block;
             cursor: pointer;
           }
-
-          #${props.name} .popover {
-            position: absolute;
-            zIndex: 2
-          }
-
-          #${props.name} .cover {
-            position: fixed;
-            top: 0px;
-            right: 0px;
-            bottom: 0px;
-            left: 0px;
-          }
         `}
       </style>
-      <div className="swatch" onClick={handleClick}>
+      <Button className="swatch" onClick={handleClick}>
         <div className="color" />
-      </div>
-      {displayColorPicker ? (
-        <div className="popover">
-          <div className="cover" onClick={handleClose} />
-          <SketchPicker color={color} onChange={handleChange} />
-        </div>
-      ) : null}
+      </Button>
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left'
+        }}
+      >
+        <SketchPicker color={color} onChange={handleChange} />
+      </Popover>
     </div>
   )
 }

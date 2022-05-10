@@ -62,7 +62,7 @@ const Layout = (props: Props): any => {
   const [showMediaIcons, setShowMediaIcons] = useState(true)
   const [showBottomIcons, setShowBottomIcons] = useState(true)
   const loadingSystemState = useLoadingSystemState()
-
+  const [showTouchPad, setShowTouchPad] = useState(true)
   useEffect(() => {
     !clientSetting && ClientSettingService.fetchClientSettings()
     const topButtonsState = localStorage.getItem('isTopButtonsShown')
@@ -106,6 +106,12 @@ const Layout = (props: Props): any => {
 
   const respawnCallback = (): void => {
     respawnAvatar(useWorld().localClientEntity)
+  }
+
+  const hideOtherMenus = (): void => {
+    setShowMediaIcons(false)
+    setShowBottomIcons(false)
+    setShowTouchPad(false)
   }
 
   const handleShowMediaIcons = () => {
@@ -179,9 +185,10 @@ const Layout = (props: Props): any => {
                 </button>
                 <UIDialog />
                 <Alerts />
-                {isTouchAvailable && (
+                {isTouchAvailable && showTouchPad && (
                   <Suspense fallback={<></>}>
-                    <TouchGamepad layout="default" />
+                    {' '}
+                    <TouchGamepad layout="default" />{' '}
                   </Suspense>
                 )}
 
@@ -220,7 +227,11 @@ const Layout = (props: Props): any => {
                 >
                   <Refresh />
                 </button>
-                <InstanceChat animate={styles.animateBottom} />
+                <InstanceChat
+                  animate={styles.animateBottom}
+                  hideOtherMenus={hideOtherMenus}
+                  setShowTouchPad={setShowTouchPad}
+                />
               </div>
             </section>
           </ThemeProvider>

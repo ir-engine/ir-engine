@@ -7,19 +7,19 @@
 }
 
 .tableCellHeader {
-  background: var(--purplePanel) !important;
+  background: var(--tableHeaderBackground) !important;
   color: #f1f1f1 !important;
-  border-bottom: 2px solid var(--purpleDarkest) !important;
+  border-bottom: 2px solid var(--mainBackground) !important;
 }
 
 .tableCellBody {
-  border-bottom: 1px solid var(--purpleDarkest) !important;
+  border-bottom: 1px solid var(--mainBackground) !important;
   color: #f1f1f1 !important;
-  background: var(--purpleLighter) !important;
+  background: var(--tableCellBackground) !important;
 }
 
 .tableFooter {
-  background: var(--purplePanel) !important;
+  background: var(--tableFooterBackground) !important;
   color: #f1f1f1 !important;
   overflow: unset;
 }
