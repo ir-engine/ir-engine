@@ -55,13 +55,7 @@ export const deserializeLoopAnimation: ComponentDeserializeFunction = (
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_LOOP_ANIMATION)
 
-  if (accessEngineState().sceneLoaded.value) {
-    updateLoopAnimation(entity)
-  } else {
-    matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, () => {
-      updateLoopAnimation(entity)
-    })
-  }
+  updateLoopAnimation(entity)
 }
 
 let lastModel: Group = null!
