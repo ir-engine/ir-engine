@@ -314,8 +314,6 @@ export class Project extends Service {
         )
       }
       return Promise.all(promises)
-    } else {
-      return uploadLocalProjectToProvider(projectName)
     }
   }
 
