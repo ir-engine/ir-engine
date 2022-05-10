@@ -11,7 +11,7 @@ const StyledToolButton = (styled as any).button`
   width: 40px;
   height: 40px;
   border: none;
-  color: var(--white);
+  color: var(--iconButtonColor);
   cursor: pointer;
   position: relative;
   background-color: ${(props) => (props.isSelected ? 'var(--iconButtonHoverColor)' : 'var(--toolbar)')};

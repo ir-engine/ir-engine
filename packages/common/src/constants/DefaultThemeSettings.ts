@@ -15,7 +15,7 @@ const defaultThemeSettings = {
     iconButtonColor: '#585858',
     iconButtonHoverColor: '#c9c9c9',
     iconButtonBackground: '#e1e1e1',
-    iconButtonSelectedBackground: '#ACACAC',
+    iconButtonSelectedBackground: '#a3a3a3',
     buttonOutlined: '#969696',
     buttonFilled: '#969696',
     buttonGradientStart: '#d1d1d1',
@@ -38,7 +38,7 @@ const defaultThemeSettings = {
     tableFooterBackground: '#c0c0c0',
     themeSwitchTrack: '#aab4be',
     themeSwitchThumb: '#e5d200',
-    dockBackground: '#bdbdbdcd'
+    dockBackground: '#bdbdbda6'
   },
   dark: {
     textColor: '#FFF',

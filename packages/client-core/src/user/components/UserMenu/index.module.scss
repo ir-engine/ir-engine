@@ -2027,6 +2027,10 @@
   &:hover {
     background: var(--dropdownMenuHoverBackground);
   }
+
+  &:global(.Mui-selected) {
+    background: var(--dropdownMenuSelectedBackground);
+  }
 }
 
 .controlsContainer {
