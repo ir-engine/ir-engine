@@ -20,7 +20,7 @@ declare module '@xrengine/common/declarations' {
     portal: any
   }
   interface ServiceTypes {
-    scenes: {
+    'scene-data': {
       get: ReturnType<typeof getScenesForProject>
       find: ReturnType<typeof getAllScenes>
     }
@@ -98,7 +98,7 @@ export default (app: Application) => {
 
   app.use('scene', event)
 
-  app.use('scenes', {
+  app.use('scene-data', {
     get: getScenesForProject(app),
     find: getAllScenes(app)
   })

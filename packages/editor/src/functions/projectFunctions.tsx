@@ -34,19 +34,6 @@ export const getProjects = async (): Promise<ProjectInterface[]> => {
 }
 
 /**
- * Saves a project
- * @param projectName
- */
-export const saveProject = async (projectName: string) => {
-  try {
-    await client.service('project').patch(projectName, null!)
-  } catch (error) {
-    console.log('Error saving project', projectName)
-    throw new Error(error)
-  }
-}
-
-/**
  * Runs tasks require prior to the project load.
  */
 export async function runPreprojectLoadTasks(): Promise<void> {
