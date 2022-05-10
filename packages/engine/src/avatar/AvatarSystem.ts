@@ -28,8 +28,6 @@ import { proxifyXRInputs } from '../xr/functions/WebXRFunctions'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
-import { detectUserInCollisions } from './functions/detectUserInCollisions'
-import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 function avatarActionReceptor(action) {
   const world = useWorld()
@@ -161,7 +159,6 @@ export default async function AvatarSystem(world: World) {
       const avatar = getComponent(entity, AvatarComponent)
       raycastComponent.origin.copy(transform.position).y += avatar.avatarHalfHeight
       avatar.isGrounded = Boolean(raycastComponent.hits.length > 0)
-      detectUserInCollisions(entity)
     }
 
     for (const entity of xrLGripQuery.enter()) {
