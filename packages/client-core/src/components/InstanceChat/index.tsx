@@ -13,7 +13,7 @@ import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/Ne
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { Cancel as CancelIcon, Key, Message as MessageIcon, Send } from '@mui/icons-material'
+import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 import Badge from '@mui/material/Badge'
 import Card from '@mui/material/Card'
