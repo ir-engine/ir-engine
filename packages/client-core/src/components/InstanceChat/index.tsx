@@ -5,6 +5,7 @@ import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/co
 import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { notificationAlertURL } from '@xrengine/common/src/constants/URL'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -12,7 +13,7 @@ import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/Ne
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
+import { Cancel as CancelIcon, Key, Message as MessageIcon, Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 import Badge from '@mui/material/Badge'
 import Card from '@mui/material/Card'
@@ -117,8 +118,14 @@ const InstanceChat = (props: Props): any => {
   }, [chatState])
 
   React.useEffect(() => {
-    if (sortedMessages && sortedMessages[sortedMessages.length - 1]?.senderId !== user?.id.value) {
+    if (
+      sortedMessages &&
+      sortedMessages[sortedMessages.length - 1]?.senderId !== user?.id.value &&
+      chatState.messageCreated.value
+    ) {
       setNoUnReadMessage(false)
+      const audio = new Audio(notificationAlertURL)
+      audio.play()
     }
   }, [chatState])
 
@@ -245,7 +252,7 @@ const InstanceChat = (props: Props): any => {
                       }
                     }
                     return (
-                      <>
+                      <React.Fragment key={message.id}>
                         {!isLeftOrJoinText(message.text) ? (
                           <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
                             {message.senderId !== user?.id.value && (
@@ -284,7 +291,7 @@ const InstanceChat = (props: Props): any => {
                             </div>
                           </div>
                         )}
-                      </>
+                      </React.Fragment>
                     )
                   })}
               </CardContent>

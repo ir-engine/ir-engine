@@ -42,7 +42,8 @@ const state = createState({
   updateMessageScroll: false,
   messageScrollInit: false,
   instanceChannelFetching: false,
-  instanceChannelFetched: false
+  instanceChannelFetched: false,
+  messageCreated: false
 })
 
 store.receptors.push((action: ChatActionType) => {
@@ -72,6 +73,7 @@ store.receptors.push((action: ChatActionType) => {
             instanceChannelFetching: false
           })
         }
+        s.merge({ messageCreated: true })
         return
       }
 
@@ -88,7 +90,7 @@ store.receptors.push((action: ChatActionType) => {
         }
 
         s.updateMessageScroll.set(true)
-
+        s.merge({ messageCreated: true })
         if (s.targetChannelId.value.length === 0 && channel) {
           const channelType = channel.channelType.value
           const targetObject =
@@ -173,7 +175,7 @@ store.receptors.push((action: ChatActionType) => {
         } else {
           s.channels.channels[s.channels.channels.length].set(action.channel)
         }
-
+        s.merge({ messageCreated: false })
         return
       }
 
