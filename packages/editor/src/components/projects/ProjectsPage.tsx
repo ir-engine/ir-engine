@@ -228,7 +228,7 @@ const ProjectsPage = () => {
     if (activeProject) {
       try {
         // TODO: using repo path as IDs & names are not properly implemented for official projects
-        const proj = installedProjects.find((proj) => proj.repositoryPath === activeProject.repositoryPath)!
+        const proj = installedProjects.find((proj) => proj.id === activeProject.id)!
         await ProjectService.removeProject(proj.id)
         fetchInstalledProjects()
       } catch (err) {

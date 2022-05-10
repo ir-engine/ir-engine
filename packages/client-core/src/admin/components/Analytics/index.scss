@@ -1,24 +1,24 @@
 .apexcharts-tooltip.apexcharts-theme-light {
   border: none !important;
-  background: var(--purpleLight) !important;
+  background: var(--dropdownMenuBackground) !important;
 
   .apexcharts-tooltip-title {
-    background: var(--purpleLighter) !important;
+    background: var(--dropdownMenuBackground) !important;
   }
 }
 
 .apexcharts-xaxistooltip-bottom {
-  color: var(--text) !important;
-  background: var(--purpleLight) !important;
+  color: var(--textColor) !important;
+  background: var(--dropdownMenuBackground) !important;
 
   &::after {
-    border-bottom-color: var(--purpleLight) !important;
+    border-bottom-color: var(--dropdownMenuBackground) !important;
   }
 }
 
 .apexcharts-menu-icon {
   svg {
-    fill: var(--text) !important;
+    fill: var(--iconButtonColor) !important;
   }
 
   &:hover {
@@ -35,10 +35,10 @@
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    background: var(--purpleLight) !important;
+    background: var(--dropdownMenuBackground) !important;
 
     &:hover {
-      opacity: 0.8;
+      background: var(--dropdownMenuHoverBackground) !important;
     }
   }
 }

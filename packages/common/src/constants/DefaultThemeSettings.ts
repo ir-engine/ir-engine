@@ -15,7 +15,7 @@ const defaultThemeSettings = {
     iconButtonColor: '#FFF',
     iconButtonHoverColor: '#7171f0',
     iconButtonBackground: '#9898ff',
-    iconButtonSelected: '#363695',
+    iconButtonSelectedBackground: '#363695',
     buttonOutlined: '#9a9ae4',
     buttonFilled: '#9a9ae4',
     buttonGradientStart: '#a798ff',
@@ -29,9 +29,15 @@ const defaultThemeSettings = {
     inputOutline: '#FFF',
     inputBackground: '#6868ba',
     dropdownMenuBackground: '#7f78c4',
+    dropdownMenuHoverBackground: '#6D61B5',
     drawerBackground: '#7f78c4',
+    popupBackground: '#9a9ae4',
+    tableHeaderBackground: '#7f78c4',
+    tableCellBackground: '#9a9ae4',
+    tableFooterBackground: '#7f78c4',
     themeSwitchTrack: '#aab4be',
-    themeSwitchThumb: '#c2b7f6'
+    themeSwitchThumb: '#c2b7f6',
+    dockBackground: 'rgb(73 66 152 / 85%)'
   },
   dark: {
     textColor: '#FFF',
@@ -63,9 +69,15 @@ const defaultThemeSettings = {
     inputOutline: '#FFF',
     inputBackground: '#3c3c6f',
     dropdownMenuBackground: '#1f1b48',
+    dropdownMenuHoverBackground: '#2A2567',
     drawerBackground: '#1f1b48',
+    popupBackground: '#3c3c6f',
+    tableHeaderBackground: '#1f1b48',
+    tableCellBackground: '#3c3c6f',
+    tableFooterBackground: '#1f1b48',
     themeSwitchTrack: '#8796a5',
-    themeSwitchThumb: '#02022d'
+    themeSwitchThumb: '#02022d',
+    dockBackground: 'rgb(73 66 152 / 85%)'
   }
 }
 

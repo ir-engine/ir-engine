@@ -57,6 +57,12 @@ npm run dev-reinit
 npm run dev
 ```
 
+### Setup Elastic Search & Grafana
+
+Elastic Search and Grafana will be automatically launched with `npm run dev`.
+
+Elasticsearch & Grafana will be running on localhost port 9200 & 5601 respectively.
+
 This will automatically set up and run Redis/MariaDB docker
 containers, and XRengine client/server/game-server instances.
 

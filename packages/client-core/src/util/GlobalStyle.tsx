@@ -1,14 +1,12 @@
 import { createGlobalStyle } from 'styled-components'
 
-import { EditorTheme } from './theme'
-
 /**
  * GlobalStyle component used to provide common styles all over application.
  *
  * @author Robert Long
  * @type {styled component}
  */
-const GlobalStyle = createGlobalStyle<{ theme: EditorTheme }>`
+const GlobalStyle = createGlobalStyle<{ theme: any }>`
   /*! minireset.css v0.0.4 | MIT License | github.com/jgthms/minireset.css */
   html,
   body,
@@ -100,12 +98,12 @@ const GlobalStyle = createGlobalStyle<{ theme: EditorTheme }>`
   }
 
   ::selection {
-    color: var(--text);
-    background-color: var(--selected);
+    color: var(--textColor);
+    background-color: var(--dropdownMenuHoverBackground);
   }
 
   a {
-    color: var(--text);
+    color: var(--textColor);
 
     &:hover {
       color: var(--blueHover);
@@ -136,7 +134,7 @@ const GlobalStyle = createGlobalStyle<{ theme: EditorTheme }>`
   body {
     font-family: var(--lato);
     font-size: 12px;
-    color: var(--text);
+    color: var(--textColor);
     background-color: var(--background);
     scrollbar-color: #282c31 #5d646c;
   }

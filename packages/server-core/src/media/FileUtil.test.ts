@@ -6,13 +6,13 @@ import { projectsRootFolder } from './file-browser/file-browser.class'
 import { copyRecursiveSync, getIncrementalName } from './FileUtil'
 import LocalStorage from './storageprovider/local.storage'
 
-const TEST_DIR = 'test-project'
+const TEST_DIR = 'FileUtil-test-project'
 const store = new LocalStorage()
 const PROJECT_PATH = path.join(projectsRootFolder, TEST_DIR)
 const STORAGE_PATH = path.join(store.PATH_PREFIX, TEST_DIR)
 
 describe('FileUtil functions', () => {
-  before(async () => {
+  before(() => {
     if (fs.existsSync(PROJECT_PATH)) fs.rmSync(PROJECT_PATH, { force: true, recursive: true })
 
     fs.mkdirSync(PROJECT_PATH)
