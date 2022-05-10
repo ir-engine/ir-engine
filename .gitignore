@@ -162,6 +162,7 @@ certs/
 /packages/projects/projects/*
 
 # ignore all files other than template in ripple config folder
+/packages/ops/rippled/config/
 !/packages/ops/rippled/config/rippled.template.cfg
 !/packages/ops/rippled/config/validators.template.txt
 
