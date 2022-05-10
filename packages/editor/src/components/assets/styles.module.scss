@@ -20,7 +20,7 @@
   cursor: pointer;
 
   &:hover {
-    background: var(--hover);
+    background: var(--dropdownMenuHoverBackground);
   }
 
   .fileNameContainer {
@@ -29,7 +29,7 @@
 }
 
 .paperDialog {
-  background: rgb(58 65 73) !important;
+  background: var(--popupBackground) !important;
   color: #f1f1f1;
   width: 100%;
   padding: 40px 10px;
@@ -77,7 +77,7 @@
     width: 100px;
     font-size: 14px;
     flex-shrink: 0;
-    background-color: var(--purpleColor);
+    background-color: var(--buttonFilled);
   }
 }
 
@@ -117,7 +117,7 @@
 
       .inputContainer {
         background: var(--inputBackground);
-        color: var(--text);
+        color: var(--textColor);
 
         .input {
           font-size: 12px;
@@ -127,15 +127,15 @@
     }
 
     button {
-      color: var(--text);
+      color: var(--textColor);
     }
 
     &:hover,
     &:focus-visible {
-      outline: solid 2px var(--purpleLight);
+      outline: solid 2px var(--panelCardHoverOutline);
 
       .detailBlock {
-        color: var(--text);
+        color: var(--textColor);
       }
     }
   }
@@ -143,14 +143,14 @@
 
 .sceneContextMenu {
   background: var(--inputBackground);
-  color: var(--text);
+  color: var(--textColor);
 
   .menuItem {
     font-size: 14px;
 
     &:hover,
     &:focus-visible {
-      background: var(--purpleColor);
+      background: var(--dropdownMenuHoverBackground);
     }
   }
 }

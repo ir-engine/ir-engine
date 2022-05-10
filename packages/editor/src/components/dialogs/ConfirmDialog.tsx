@@ -19,7 +19,7 @@ import Dialog from './Dialog'
  * @type {Styled component}
  */
 const ConfirmContainer = (styled as any).div`
-  color: var(--text2);
+  color: var(--textColor);
   display: flex;
   flex: 1;
   flex-direction: column;
