@@ -1,6 +1,7 @@
 import { useTheme as styledUseTheme } from 'styled-components'
 
 import { createTheme } from '@mui/material/styles'
+import { borderColor } from '@mui/system'
 
 const theme = createTheme({
   palette: {
@@ -176,14 +177,18 @@ const theme = createTheme({
     //     }
     //   }
     // },
-    // MuiMenuItem: {
-    //   styleOverrides: {
-    //     root: {
-    //       padding: '5px',
-    //       borderRadius: '8px'
-    //     }
-    //   }
-    // },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          '&hover:': {
+            backgroundColor: 'var(--dropdownMenuHoverBackground)'
+          },
+          MuiSelected: {
+            backgroundColor: 'var(--dropdownMenuHoverBackground)'
+          }
+        }
+      }
+    },
     // MuiSnackbar: {
     //   styleOverrides: {
     //     root: {
@@ -288,15 +293,18 @@ const theme = createTheme({
     //     }
     //   }
     // },
-    // MuiListItem: {
-    //   styleOverrides: {
-    //     root: {
-    //       padding: '0px',
-    //       paddingTop: '0px',
-    //       margin: '2px 0'
-    //     }
-    //   }
-    // },
+    MuiListItem: {
+      styleOverrides: {
+        root: {
+          '&hover': {
+            backgroundColor: 'var(--dropdownMenuHoverBackground)'
+          },
+          MuiSelected: {
+            backgroundColor: 'var(--dropdownMenuHoverBackground)'
+          }
+        }
+      }
+    },
     // MuiListItemText: {
     //   styleOverrides: {
     //     root: {
@@ -355,16 +363,29 @@ const theme = createTheme({
           textTransform: 'capitalize'
         },
         outlined: {
-          background: 'transparent'
+          backgroundColor: 'transparent',
+          borderColor: 'var(--buttonOutlined)',
+          '&:hover': {
+            backgroundColor: 'transparent',
+            borderColor: 'var(--buttonOutlined)'
+          }
+        },
+        contained: {
+          backgroundColor: 'var(--buttonFilled)',
+
+          '&:hover': {
+            opacity: 0.8,
+            backgroundColor: 'var(--buttonFilled)'
+          }
         },
         outlinedPrimary: {
           '&:hover': {
-            boxShadow: '0 0 10px #5151FF'
+            boxShadow: '0 0 10px var(--buttonOutlined)'
           }
         },
         outlinedSecondary: {
           '&:hover': {
-            boxShadow: '0 0 10px #FFFFFF'
+            boxShadow: '0 0 10px var(--buttonOutlined)'
           }
         }
       }

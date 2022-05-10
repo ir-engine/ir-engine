@@ -103,7 +103,7 @@ const Dashboard = ({ children }: Props) => {
         onClose={handleDrawerOpen(false)}
       >
         <div className={styles.toolbar}>
-          <IconButton onClick={handleDrawerOpen(false)} style={{ color: '#fff' }} size="large">
+          <IconButton onClick={handleDrawerOpen(false)} style={{ color: 'var(--iconButtonColor)' }} size="large">
             {theme.direction === 'rtl' ? <ChevronRight /> : <ChevronLeft />}
           </IconButton>
         </div>

@@ -261,11 +261,11 @@ const ThemePlayground = () => {
                     <SettingIcon />
                   </IconButton>
                 </div>
-                <label className="textSubheading">Filled Button:</label>
+                <label className="textSubheading">Outlined Button:</label>
                 <Button variant="outlined" className="outlinedButton">
                   Cancel
                 </Button>
-                <label className="textSubheading">Outlined Button:</label>
+                <label className="textSubheading">Filled Button:</label>
                 <Button variant="contained" className="filledButton">
                   Submit
                 </Button>
@@ -331,7 +331,7 @@ const ThemePlayground = () => {
               </Button>
               <Dialog
                 open={dialog}
-                className="drawer"
+                className="popupMainBackground"
                 PaperProps={{ className: 'drawerPaper' }}
                 onClose={() => setDialog(false)}
               ></Dialog>

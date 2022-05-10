@@ -226,7 +226,15 @@ const ColorSelectionArea = (props: ColorSelectionAreaProps) => {
           onChange={(color) => handleChangeColor('iconButtonBackground', color)}
         />
       </Grid>
-      <Grid item sm={12} md={12} className={styles.colorGridContainer}>
+      <Grid item sm={12} md={6} className={styles.colorGridContainer}>
+        <label>Icon Button Hover Background/Color:</label>
+        <SketchColorPicker
+          name="iconButtonHoverColor"
+          value={theme.iconButtonHoverColor}
+          onChange={(color) => handleChangeColor('iconButtonHoverColor', color)}
+        />
+      </Grid>
+      <Grid item sm={12} md={6} className={styles.colorGridContainer}>
         <label>Icon Button Selected Background:</label>
         <SketchColorPicker
           name="iconButtonSelectedBackground"

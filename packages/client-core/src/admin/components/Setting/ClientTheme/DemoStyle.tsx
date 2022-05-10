@@ -294,7 +294,7 @@ const DemoStyle = (props: DemoStyleProps) => {
         color: var(--orange) !important;
       }
 
-      .drawer {
+      .popupMainBackground {
         background: unset;
       }
 
