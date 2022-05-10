@@ -25,6 +25,7 @@ import { CameraPropertiesComponent } from '../../scene/components/CameraProperti
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/functions/loaders/CameraPropertiesFunctions'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
@@ -275,7 +276,10 @@ export default async function CameraSystem(world: World) {
         ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
         cameraFollow.raycaster.far = cameraFollow.maxDistance
         Engine.instance.activeCameraFollowTarget = entity
-
+        //check for initialized raycast properties
+        if (!cameraFollow.raycastProps) {
+          cameraFollow.raycastProps = RAYCAST_PROPERTIES_DEFAULT_VALUES
+        }
         for (let i = 0; i < cameraFollow.raycastProps.rayCount; i++) {
           cameraRays.push(new Vector3())
 
