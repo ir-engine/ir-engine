@@ -172,8 +172,7 @@ export class Location<T = LocationDataType> extends Service<T> {
             model: this.app.service('location-ban').Model,
             required: false
           }
-        ],
-        subQuery: false
+        ]
       })
       return {
         skip: $skip,
@@ -222,8 +221,7 @@ export class Location<T = LocationDataType> extends Service<T> {
         limit: $limit,
         where: { ...strippedQuery, ...q },
         order: order,
-        include: include,
-        subQuery: false
+        include: include
       })
       return {
         skip: $skip,
