@@ -53,7 +53,7 @@
   },
   "devDependencies": {
     "@types/compression": "1.7.2",
-    "@types/node": "16.11.33",
+    "@types/node": "16.11.34",
     "ts-node-dev": "1.1.8"
   }
 }
