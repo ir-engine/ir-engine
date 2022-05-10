@@ -19,7 +19,7 @@ import TuneIcon from '@mui/icons-material/Tune'
 import Dialog from '@mui/material/Dialog'
 
 import { extractZip, uploadProjectFile } from '../functions/assetFunctions'
-import { disposeProject, loadProjectScene, runPreprojectLoadTasks, saveProject } from '../functions/projectFunctions'
+import { disposeProject, loadProjectScene, runPreprojectLoadTasks } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { initializeRenderer } from '../functions/sceneRenderFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
@@ -253,7 +253,6 @@ const EditorContainer = () => {
 
     const abortController = new AbortController()
     try {
-      let saveProjectFlag = true
       if (sceneName.value || modified.value) {
         const blob = await takeScreenshot(512, 320)
         const result: { name: string } = (await new Promise((resolve) => {
@@ -270,12 +269,7 @@ const EditorContainer = () => {
           await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
           await saveScene(projectName.value, result.name, blob, abortController.signal)
           dispatch(EditorAction.sceneModified(false))
-        } else {
-          saveProjectFlag = false
         }
-      }
-      if (saveProjectFlag && projectName.value) {
-        await saveProject(projectName.value)
       }
       setDialogComponent(null)
     } catch (error) {
@@ -395,7 +389,6 @@ const EditorContainer = () => {
       if (projectName.value) {
         await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
         await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
-        await saveProject(projectName.value)
       }
 
       dispatch(EditorAction.sceneModified(false))

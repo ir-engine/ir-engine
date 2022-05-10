@@ -18,6 +18,15 @@ const cleanup = async (app: Application) => {
   } catch (e) {}
 }
 
+/**
+ * @todo
+ * - refactor storage provider to be create as part of createFeathersExpressApp() to eliminate global scope
+ * - use this to force a local storage provider and test specific files in the upload folder
+ * - add tests for all combinations of state for projects
+ *
+ * - figure out how to mock git clone functionality (maybe override the function?)
+ */
+
 describe('project.test', () => {
   let app: Application
   before(async () => {

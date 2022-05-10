@@ -93,7 +93,8 @@ describe('scene.test', () => {
     })
 
     after(async () => {
-      await app.service('project').remove(newProjectName, params)
+      const { data } = await app.service('project').get(newProjectName, params)
+      await app.service('project').remove(data.id, params)
     })
 
     describe('get', () => {
