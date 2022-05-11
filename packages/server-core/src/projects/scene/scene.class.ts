@@ -162,7 +162,7 @@ export class Scene implements ServiceMethods<any> {
 
     if (await storageProvider.doesExist(oldSceneThumbnailName, projectPath))
       await storageProvider.moveObject(oldSceneThumbnailName, newSceneThumbnailName, projectPath, projectPath)
-
+    logger.info('isDev', isDev)
     if (isDev) {
       const oldSceneJsonPath = path.resolve(
         appRootPath.path,
@@ -196,7 +196,7 @@ export class Scene implements ServiceMethods<any> {
 
   async update(projectName: string, data: UpdateParams, params?: Params): Promise<any> {
     const { sceneName, sceneData, thumbnailBuffer } = data
-    logger.info('[scene.update]: ', { projectName, data })
+    logger.info('[scene.update]: ', projectName, data)
 
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
@@ -212,13 +212,33 @@ export class Scene implements ServiceMethods<any> {
       })
     }
 
-    const result = await storageProvider.putObject({
+    await storageProvider.putObject({
       Key: newSceneJsonPath,
       Body: Buffer.from(
         JSON.stringify(cleanSceneDataCacheURLs(sceneData ?? defaultSceneSeed, storageProvider.cacheDomain))
       ),
       ContentType: 'application/json'
     })
+
+    if (isDev) {
+      const newSceneJsonPathLocal = path.resolve(
+        appRootPath.path,
+        `packages/projects/projects/${projectName}/${sceneName}.scene.json`
+      )
+
+      if (thumbnailBuffer) {
+        const sceneThumbnailPath = path.resolve(
+          appRootPath.path,
+          `packages/projects/projects/${projectName}/${sceneName}.thumbnail.jpeg`
+        )
+        fs.writeFileSync(path.resolve(sceneThumbnailPath), thumbnailBuffer as Buffer)
+      }
+
+      fs.writeFileSync(
+        path.resolve(newSceneJsonPathLocal),
+        JSON.stringify(cleanSceneDataCacheURLs(sceneData ?? defaultSceneSeed, storageProvider.cacheDomain), null, 2)
+      )
+    }
   }
 
   // async patch(sceneId: NullableId, data: PatchData, params: Params): Promise<SceneDetailInterface> {}
