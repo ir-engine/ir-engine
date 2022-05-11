@@ -362,7 +362,8 @@ const theme = createTheme({
           width: '220px',
           margin: '10px auto',
           cursor: 'pointer',
-          fontSize: 16
+          fontSize: 16,
+          color: 'var(--textColor)'
         },
         //@ts-ignore // TODO
         label: {
