@@ -72,7 +72,9 @@ const loadScene = async (app: Application, scene: string) => {
   if (!isInitialized) {
     const projectsPromise = app.service('project').find(null!)
 
-    await Promise.all([initializeCoreSystems(), initializeRealtimeSystems(false, true), initializeSceneSystems()])
+    await initializeCoreSystems()
+    await initializeRealtimeSystems(false, true)
+    await initializeSceneSystems()
 
     Engine.instance.publicPath = config.client.url
     const world = Engine.instance.currentWorld
