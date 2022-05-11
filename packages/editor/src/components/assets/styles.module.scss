@@ -30,18 +30,18 @@
 
 .paperDialog {
   background: var(--popupBackground) !important;
-  color: #f1f1f1;
+  color: var(--textColor);
   width: 100%;
   padding: 40px 10px;
 }
 
 .primaryText {
-  color: #f1f1f1;
+  color: var(--textColor);
   font-size: 1.3rem;
 }
 
 .secondaryText {
-  color: #b3b3b3;
+  color: var(--textColor);
 }
 
 .inputContainer {
@@ -51,12 +51,12 @@
   margin-left: 5px;
   background: #343b41;
   border: 1px solid #23282c;
-  color: #f1f1f1 !important;
+  color: var(--textColor) !important;
 }
 
 .input {
   flex: 1;
-  color: #f1f1f1;
+  color: var(--textColor);
 }
 
 .contentContainer {

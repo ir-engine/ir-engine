@@ -1,7 +1,7 @@
 @import "@xrengine/client-core/src/styles/imports.module.scss";
 
 .primaryForeground {
-  color: var(--iconButtonHoverColor);
+  color: var(--textColor);
 }
 
 .apiRefresh {
@@ -69,12 +69,16 @@
       }
 
       svg {
-        color: var(--textColor);
+        color: var(--iconButtonColor);
+      }
+
+      img {
+        color: var(--iconButtonColor);
       }
 
       &:hover {
         cursor: pointer;
-        background-color: var(--iconButtonSelectedBackground);
+        background-color: var(--iconButtonHoverColor);
       }
 
       &:last-child {

@@ -292,6 +292,7 @@ const UpdateBot = (props: Props) => {
               setFormErrors({ name: '', description: '', location: '' })
               handleClose()
             }}
+            className={styles.submitButton}
           >
             {t('admin:components.bot.cancel')}
           </Button>
