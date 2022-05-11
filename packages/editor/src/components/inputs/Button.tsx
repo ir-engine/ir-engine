@@ -105,22 +105,22 @@ export const SecondaryButton = styled(Button)`
  * @type {styled component}
  */
 export const MenuButton = styled(Button)`
-  background-color: transparent;
+  background-color: buttonFilled;
   color: var(--textColor);
   padding: 1px 8px;
   width: 20px;
   margin-right: 0px;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    opacity: 0.8;
   }
 
   &:active {
-    background-color: rgba(255, 255, 255, 0.2);
+    opacity: 0.8;
   }
 
   &:disabled {
-    background-color: transparent;
+    background-color: var(--disabled);
     color: var(--disabledText);
 
     &:hover {

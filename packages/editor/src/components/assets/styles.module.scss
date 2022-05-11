@@ -16,7 +16,7 @@
   flex-direction: row;
   align-items: center;
   padding-left: 5px;
-  color: white;
+  color: var(--textColor);
   cursor: pointer;
 
   &:hover {
@@ -174,5 +174,9 @@
 }
 
 .separator {
-  color: #5d646c;
+  color: var(--textColor);
+}
+
+.breadcrumb {
+  color: var(--textColor);
 }

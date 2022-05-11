@@ -817,7 +817,7 @@
         display: block;
         transform: none;
         margin-bottom: 5px;
-        color: #666;
+        color: var(--textColor);
         font-size: 0.8rem;
       }
 
@@ -829,7 +829,7 @@
         }
 
         &:global(.Mui-checked) svg {
-          color: var(--purpleButtonColor);
+          color: var(--iconButtonColor);
         }
 
         &:hover {
