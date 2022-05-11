@@ -4,6 +4,7 @@ import fs from 'fs'
 import path from 'path'
 
 import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { isDev } from '@xrengine/common/src/utils/isDev'
 import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
 
 import { Application } from '../../../declarations'
@@ -129,6 +130,18 @@ export class Scene implements ServiceMethods<any> {
       true
     )
 
+    if (isDev) {
+      const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects/' + projectName) + '/'
+      fs.copyFileSync(
+        path.resolve(appRootPath.path, `packages/projects/default-project/default.thumbnail.jpeg`),
+        path.resolve(projectPathLocal + newSceneName + '.thumbnail.jpeg')
+      )
+      fs.copyFileSync(
+        path.resolve(appRootPath.path, `packages/projects/default-project/default.scene.json`),
+        path.resolve(projectPathLocal + newSceneName + '.scene.json')
+      )
+    }
+
     return { projectName, sceneName: newSceneName }
   }
 
@@ -149,6 +162,34 @@ export class Scene implements ServiceMethods<any> {
 
     if (await storageProvider.doesExist(oldSceneThumbnailName, projectPath))
       await storageProvider.moveObject(oldSceneThumbnailName, newSceneThumbnailName, projectPath, projectPath)
+
+    if (isDev) {
+      const oldSceneJsonPath = path.resolve(
+        appRootPath.path,
+        `packages/projects/projects/${projectName}/${oldSceneName}.scene.json`
+      )
+
+      const oldSceneThumbNailPath = path.resolve(
+        appRootPath.path,
+        `packages/projects/projects/${projectName}/${oldSceneName}.thumbnail.jpeg`
+      )
+
+      if (fs.existsSync(oldSceneJsonPath)) {
+        const newSceneJsonPath = path.resolve(
+          appRootPath.path,
+          `packages/projects/projects/${projectName}/${newSceneName}.scene.json`
+        )
+        fs.renameSync(oldSceneJsonPath, newSceneJsonPath)
+      }
+
+      if (fs.existsSync(oldSceneThumbNailPath)) {
+        const newSceneThumbNailPath = path.resolve(
+          appRootPath.path,
+          `packages/projects/projects/${projectName}/${newSceneName}.thumbnail.jpeg`
+        )
+        fs.renameSync(oldSceneThumbNailPath, newSceneThumbNailPath)
+      }
+    }
 
     return
   }
