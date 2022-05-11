@@ -4,10 +4,12 @@ import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
 
-import logger from './logger'
+import multiLogger from './logger'
 
 const { register } = require('trace-unhandled')
 register()
+
+const logger = multiLogger.child({ component: 'server-core:config' })
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 const testEnabled = process.env.TEST === 'true'

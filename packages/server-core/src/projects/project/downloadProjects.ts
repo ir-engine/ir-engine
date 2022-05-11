@@ -41,13 +41,13 @@ export const download = async (projectName) => {
         npmInstallProcess.once('exit', resolve)
         npmInstallProcess.once('error', resolve)
         npmInstallProcess.once('disconnect', resolve)
-        npmInstallProcess.stdout.on('data', (data) => console.log(data.toString()))
-      }).then(console.log)
+        npmInstallProcess.stdout.on('data', (data) => logger.info(data.toString()))
+      }).then((result) => logger.info(result))
       await Promise.race([
         npmInstallPromise,
         new Promise<void>((resolve) => {
           setTimeout(() => {
-            console.log(`WARNING: npm installing ${projectName} too long!`)
+            logger.warn(`WARNING: npm installing ${projectName} too long!`)
             resolve()
           }, 20 * 60 * 1000) // timeout after 10 minutes
         })
