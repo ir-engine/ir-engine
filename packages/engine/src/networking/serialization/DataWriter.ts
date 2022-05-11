@@ -10,7 +10,7 @@ import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
-import { XRHandJoints } from '../../xr/types/XRHandJoints'
+import { XRHandBones } from '../../xr/types/XRHandBones'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
 import {
@@ -142,8 +142,6 @@ export const writeXRControllerGripRightRotation = writeVector4(
 export const writeXRInputs = (v: ViewCursor, entity: Entity) => {
   if (!hasComponent(entity, XRInputSourceComponent)) return
 
-  // console.log("writing XR data")
-
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint16(v)
   let changeMask = 0
@@ -179,14 +177,10 @@ export const writeXRHandBoneJoints = (v: ViewCursor, entity: Entity, handedness,
   let count = 0
 
   bone.forEach((jointName) => {
-    if (jointName.includes('wrist') || jointName.includes('thumb')) {
-      changeMask |= writeVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity) ? 1 << b++ : b++ && 0
-      changeMask |= writeVector4(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity)
-        ? 1 << b++
-        : b++ && 0
+    changeMask |= writeVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity) ? 1 << b++ : b++ && 0
+    changeMask |= writeVector4(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity) ? 1 << b++ : b++ && 0
 
-      count++
-    }
+    count++
   })
 
   console.log('total bone written', count)
@@ -206,7 +200,7 @@ export const writeXRHandBones = (v: ViewCursor, entity: Entity, handMesh: XRHand
   const handedness = handMesh.handedness
   const handednessBitValue = handedness === 'left' ? 0 : 1
 
-  XRHandJoints.forEach((bone) => {
+  XRHandBones.forEach((bone) => {
     changeMask |= writeXRHandBoneJoints(v, entity, handedness, bone) ? 1 << b++ : b++ && 0
   })
 

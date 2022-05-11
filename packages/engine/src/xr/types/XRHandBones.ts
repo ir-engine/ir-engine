@@ -29,7 +29,7 @@ const pinkyFingerJoints = [
   'pinky-finger-tip'
 ]
 
-export const XRHandJoints = [
+export const XRHandBones = [
   wristJoints,
   thumbJoints,
   indexFingerJoints,

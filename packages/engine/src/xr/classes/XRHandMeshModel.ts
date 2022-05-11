@@ -4,7 +4,7 @@ import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Entity } from '../../ecs/classes/Entity'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
-import { XRHandJoints } from '../types/XRHandJoints'
+import { XRHandBones } from '../types/XRHandBones'
 
 export class XRHandMeshModel extends Object3D {
   controller: Group
@@ -27,11 +27,9 @@ export class XRHandMeshModel extends Object3D {
     mesh.receiveShadow = true
 
     let joints = []
-    XRHandJoints.forEach((bone) => {
+    XRHandBones.forEach((bone) => {
       joints = joints.concat(bone as any)
     })
-
-    console.log(joints)
 
     joints.forEach((jointName) => {
       const bone = model.getObjectByName(jointName)
