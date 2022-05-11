@@ -42,49 +42,57 @@ export const addGenericAssetToS3AndStaticResources = async (
   // upload asset to storage provider
   promises.push(
     new Promise<void>(async (resolve) => {
-      await provider.createInvalidation([key])
-      await provider.putObject(
-        {
-          Key: key,
-          Body: file,
-          ContentType: args.contentType
-        },
-        {
-          isDirectory: false
-        }
-      )
+      try {
+        await provider.createInvalidation([key])
+        await provider.putObject(
+          {
+            Key: key,
+            Body: file,
+            ContentType: args.contentType
+          },
+          {
+            isDirectory: false
+          }
+        )
+      } catch (e) {
+        logger.info('[ERROR addGenericAssetToS3AndStaticResources while uploading to storage provider]:', e)
+      }
       resolve()
     })
   )
 
   // add asset to static resources
   const assetURL = getCachedAsset(key, provider.cacheDomain)
-  if (existingAsset.rows.length) {
-    promises.push(provider.deleteResources([existingAsset.rows[0].id]))
-    promises.push(
-      app.service('static-resource').patch(
-        existingAsset.rows[0].id,
-        {
-          url: assetURL,
-          key: key
-        },
-        { isInternal: true }
+  try {
+    if (existingAsset.rows.length) {
+      promises.push(provider.deleteResources([existingAsset.rows[0].id]))
+      promises.push(
+        app.service('static-resource').patch(
+          existingAsset.rows[0].id,
+          {
+            url: assetURL,
+            key: key
+          },
+          { isInternal: true }
+        )
       )
-    )
-  } else {
-    promises.push(
-      app.service('static-resource').create(
-        {
-          name: args.name ?? null,
-          mimeType: args.contentType,
-          url: assetURL,
-          key: key,
-          staticResourceType: args.staticResourceType,
-          ...userIdQuery
-        },
-        { isInternal: true }
+    } else {
+      promises.push(
+        app.service('static-resource').create(
+          {
+            name: args.name ?? null,
+            mimeType: args.contentType,
+            url: assetURL,
+            key: key,
+            staticResourceType: args.staticResourceType,
+            ...userIdQuery
+          },
+          { isInternal: true }
+        )
       )
-    )
+    }
+  } catch (e) {
+    logger.info('[ERROR addGenericAssetToS3AndStaticResources while adding to static resources]:', e)
   }
   await Promise.all(promises)
   return assetURL
@@ -104,7 +112,6 @@ export default (app: Application): void => {
       create: async (data: AssetUploadType, params: Params) => {
         if (typeof data.args === 'string') data.args = JSON.parse(data.args)
         const files = params.files
-        logger.info({ data, files }, 'upload-asset')
         if (data.type === 'user-avatar-upload') {
           return app.service('avatar').create(
             {
