@@ -1,12 +1,12 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { isIOS } from '@xrengine/common/src/utils/isIOS'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { Engine } from '../ecs/classes/Engine'
 import InfiniteGridHelper from '../scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
+import { updateShadowMap } from '../scene/functions/loaders/RenderSettingsFunction'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
 import { RenderSettingKeys } from './EngineRnedererConstants'
 import { changeRenderMode } from './functions/changeRenderMode'
@@ -133,7 +133,7 @@ function setQualityLevel(qualityLevel) {
 
 function setUseShadows(useShadows) {
   if (state.useShadows.value === useShadows || Engine.instance.isEditor) return
-  EngineRenderer.instance.renderer.shadowMap.enabled = useShadows
+  updateShadowMap(useShadows)
 }
 
 function setUsePostProcessing(usePostProcessing) {

@@ -1,4 +1,4 @@
-import { DirectionalLight, LinearToneMapping, Mesh, PCFSoftShadowMap, PerspectiveCamera, Vector3 } from 'three'
+import { DirectionalLight, Light, LinearToneMapping, Mesh, PCFSoftShadowMap, PerspectiveCamera, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -58,22 +58,14 @@ export const updateRenderSetting: ComponentUpdateFunction = (
 
   if (typeof properties.overrideRendererSettings !== 'undefined') {
     if (properties.overrideRendererSettings) {
-      EngineRenderer.instance.isCSMEnabled = component.csm
       EngineRenderer.instance.renderer.toneMapping = component.toneMapping
       EngineRenderer.instance.renderer.toneMappingExposure = component.toneMappingExposure
 
-      if (component.shadowMapType > -1) {
-        EngineRenderer.instance.renderer.shadowMap.enabled = true
-        EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
-        EngineRenderer.instance.renderer.shadowMap.type = component.shadowMapType
-      } else {
-        EngineRenderer.instance.renderer.shadowMap.enabled = false
-      }
+      updateShadowMap(component.shadowMapType > -1, component.shadowMapType)
 
       if (component.csm) enableCSM()
       else disposeCSM()
     } else {
-      EngineRenderer.instance.isCSMEnabled = true
       resetEngineRenderer(false, false)
       enableCSM()
     }
@@ -87,22 +79,31 @@ export const updateRenderSetting: ComponentUpdateFunction = (
     if (typeof properties.toneMappingExposure !== 'undefined')
       EngineRenderer.instance.renderer.toneMappingExposure = component.toneMappingExposure
 
-    if (typeof properties.shadowMapType !== 'undefined') {
-      if (component.shadowMapType > -1) {
-        EngineRenderer.instance.renderer.shadowMap.enabled = true
-        EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
-        EngineRenderer.instance.renderer.shadowMap.type = component.shadowMapType
-      } else {
-        EngineRenderer.instance.renderer.shadowMap.enabled = false
-      }
-    }
+    if (typeof properties.shadowMapType !== 'undefined')
+      updateShadowMap(component.shadowMapType > -1, component.shadowMapType)
 
     if (typeof properties.csm !== 'undefined') {
-      EngineRenderer.instance.isCSMEnabled = component.csm
       if (component.csm) enableCSM()
       else disposeCSM()
     }
   }
+}
+
+export const updateShadowMap = (enable: boolean, shadowMapType?: number) => {
+  if (enable) {
+    EngineRenderer.instance.renderer.shadowMap.enabled = true
+    EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
+    if (typeof shadowMapType !== 'undefined') EngineRenderer.instance.renderer.shadowMap.type = shadowMapType
+  } else {
+    EngineRenderer.instance.renderer.shadowMap.enabled = false
+  }
+
+  Engine.instance.scene.traverse((node: Light) => {
+    if (node.isLight) {
+      node.shadow?.map?.dispose()
+      node.castShadow = enable
+    }
+  })
 }
 
 const enableCSM = () => {
@@ -144,6 +145,8 @@ export const initializeCSM = () => {
       if (typeof obj.material !== 'undefined' && obj.receiveShadow) EngineRenderer.instance.csm.setupMaterial(obj)
     })
   }
+
+  EngineRenderer.instance.isCSMEnabled = true
 }
 
 export const disposeCSM = () => {
@@ -163,14 +166,14 @@ export const disposeCSM = () => {
     const light = getComponent(entity, Object3DComponent)?.value
     if (light) light.castShadow = getComponent(entity, DirectionalLightComponent).castShadow
   })
+
+  EngineRenderer.instance.isCSMEnabled = false
 }
 
 export const resetEngineRenderer = (resetLODs = false, resetCSM = true) => {
   if (!isClient) return
 
-  EngineRenderer.instance.renderer.shadowMap.enabled = true
-  EngineRenderer.instance.renderer.shadowMap.type = PCFSoftShadowMap
-  EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
+  updateShadowMap(true, PCFSoftShadowMap)
 
   EngineRenderer.instance.renderer.toneMapping = LinearToneMapping
   EngineRenderer.instance.renderer.toneMappingExposure = 0.8
