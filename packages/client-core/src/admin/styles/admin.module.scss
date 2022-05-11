@@ -713,6 +713,10 @@
 .selectPaper {
   background: var(--inputBackground);
   color: var(--textColor);
+
+  &:global(.Mui-selected) {
+    background: var(--dropdownMenuSelectedBackground);
+  }
 }
 
 .paperDialog {
@@ -1068,7 +1072,7 @@
 }
 
 .btnSelected {
-  color: var(--buttonOutlined) !important;
+  color: var(--textColor) !important;
   border-color: var(--buttonOutlined);
   background-color: var(--buttonFilled) !important;
 }
@@ -1122,6 +1126,11 @@
 
 .checkboxContainer {
   padding: 0;
+  color: var(--textColor);
+}
+
+.routeCheckedCheckbox {
+  color: var(--iconButtonColor) !important;
 }
 
 .progress {

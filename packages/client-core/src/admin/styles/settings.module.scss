@@ -20,6 +20,10 @@
 .selectPaper {
   background: var(--inputBackground);
   color: var(--textColor);
+
+  &:global(.Mui-selected) {
+    background: var(--dropdownMenuSelectedBackground);
+  }
 }
 
 .divider {

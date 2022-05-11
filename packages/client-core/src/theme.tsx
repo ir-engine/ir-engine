@@ -180,11 +180,14 @@ const theme = createTheme({
     MuiMenuItem: {
       styleOverrides: {
         root: {
-          '&hover:': {
+          '&:hover': {
             backgroundColor: 'var(--dropdownMenuHoverBackground)'
           },
-          MuiSelected: {
-            backgroundColor: 'var(--dropdownMenuSelectedBackground)'
+          '&.Mui-selected': {
+            backgroundColor: 'var(--dropdownMenuSelectedBackground)',
+            '&:hover': {
+              backgroundColor: 'var(--dropdownMenuSelectedBackground)'
+            }
           }
         }
       }
@@ -296,11 +299,14 @@ const theme = createTheme({
     MuiListItem: {
       styleOverrides: {
         root: {
-          '&hover': {
+          '&:hover': {
             backgroundColor: 'var(--dropdownMenuHoverBackground)'
           },
-          MuiSelected: {
-            backgroundColor: 'var(--dropdownMenuSelectedBackground)'
+          '&.Mui-selected': {
+            backgroundColor: 'var(--dropdownMenuSelectedBackground)',
+            '&:hover': {
+              backgroundColor: 'var(--dropdownMenuSelectedBackground)'
+            }
           }
         }
       }

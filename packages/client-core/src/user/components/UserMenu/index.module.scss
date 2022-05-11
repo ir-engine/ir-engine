@@ -1947,8 +1947,12 @@
 }
 
 .selectPaper {
-  background: #343b41;
-  color: #f1f1f1;
+  background: var(--inputBackground);
+  color: var(--textColor);
+
+  &:global(.Mui-selected) {
+    background: var(--dropdownMenuSelectedBackground);
+  }
 }
 
 .rootBtn {
