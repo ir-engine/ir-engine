@@ -1,4 +1,3 @@
-import { XRHandMeshModel } from 'src/xr/classes/XRHandMeshModel'
 import { Group } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
@@ -175,23 +174,15 @@ export const writeXRHandBoneJoints = (v: ViewCursor, entity: Entity, handedness,
   let changeMask = 0
   let b = 0
 
-  let count = 0
-
   bone.forEach((jointName) => {
     changeMask |= writeVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity) ? 1 << b++ : b++ && 0
     changeMask |= writeVector4(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity) ? 1 << b++ : b++ && 0
-
-    count++
   })
-
-  console.log('total bone written', count)
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
 export const writeXRHandBones = (v: ViewCursor, entity: Entity, hand: Group) => {
-  console.log('writing XR hand bone')
-
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint16(v)
   const writeHandedness = spaceUint8(v)
@@ -211,14 +202,11 @@ export const writeXRHandBones = (v: ViewCursor, entity: Entity, hand: Group) => 
     })
   }
 
-  console.log('inner changemask', changeMask)
   return (changeMask > 0 && writeChangeMask(changeMask) && writeHandedness(handednessBitValue)) || rewind()
 }
 
 export const writeXRHands = (v: ViewCursor, entity: Entity, networkId) => {
   if (!hasComponent(entity, XRHandsInputComponent)) return
-
-  console.log('writing XR hands data for entity: ', entity, networkId)
 
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint16(v)
@@ -229,8 +217,6 @@ export const writeXRHands = (v: ViewCursor, entity: Entity, networkId) => {
   xrHandsComponent.hands.forEach((hand) => {
     changeMask |= writeXRHandBones(v, entity, hand) ? 1 << b++ : b++ && 0
   })
-
-  console.log('main changemask', changeMask)
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }

@@ -140,32 +140,23 @@ export const readXRInputs = (v: ViewCursor, entity: Entity | undefined) => {
   if (checkBitflag(changeMask, 1 << b++)) readXRControllerGripRightRotation(v, entity)
 }
 
-export const readXRHandBoneJoints = (v: ViewCursor, entity: Entity | undefined, handedness, bone: string[]) => {
+export const readXRHandBoneJoints = (v: ViewCursor, entity: Entity | undefined, handedness: string, bone: string[]) => {
   const changeMask = readUint16(v)
   let b = 0
-
-  let count3 = 0
-  let count4 = 0
 
   bone.forEach((jointName) => {
     if (checkBitflag(changeMask, 1 << b++)) {
       readVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity)
-      count3++
     }
     if (checkBitflag(changeMask, 1 << b++)) {
       readVector4(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity)
-      count4++
     }
   })
-
-  console.log('total bones read:', handedness, count3, count4)
 }
 export const readXRHandBones = (v: ViewCursor, entity: Entity | undefined) => {
   const changeMask = readUint16(v)
   const handednessBitValue = readUint8(v)
   let b = 0
-
-  console.log('reading XR hand data')
 
   const handedness = handednessBitValue === 0 ? 'left' : 'right'
 
@@ -174,11 +165,9 @@ export const readXRHandBones = (v: ViewCursor, entity: Entity | undefined) => {
   })
 }
 
-export const readXRHands = (v: ViewCursor, entity: Entity | undefined, netId) => {
+export const readXRHands = (v: ViewCursor, entity: Entity | undefined) => {
   const changeMask = readUint16(v)
   let b = 0
-
-  console.log('reading XR hands data for entity: ', entity, netId)
 
   for (let i = 0; i < 2; i++) {
     if (checkBitflag(changeMask, 1 << b++)) readXRHandBones(v, entity)
@@ -196,7 +185,7 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readVelocity(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readXRHands(v, entity, netId)
+  if (checkBitflag(changeMask, 1 << b++)) readXRHands(v, entity)
 
   if (entity !== undefined && !hasComponent(entity, NetworkObjectDirtyTag)) {
     addComponent(entity, NetworkObjectDirtyTag, {})
