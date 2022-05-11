@@ -32,7 +32,6 @@ import { AvatarControllerComponent } from './components/AvatarControllerComponen
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
 import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
-import { detectUserInCollisions } from './functions/detectUserInCollisions'
 
 function avatarActionReceptor(action) {
   const world = useWorld()
@@ -211,7 +210,6 @@ export default async function AvatarSystem(world: World) {
       const avatar = getComponent(entity, AvatarComponent)
       raycastComponent.origin.copy(transform.position).y += avatar.avatarHalfHeight
       avatar.isGrounded = Boolean(raycastComponent.hits.length > 0)
-      detectUserInCollisions(entity)
     }
 
     for (const entity of xrLGripQuery.enter()) {

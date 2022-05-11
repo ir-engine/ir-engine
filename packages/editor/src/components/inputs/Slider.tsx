@@ -19,7 +19,7 @@ const SliderGlobalStyles = createGlobalStyle`
   .rc-slider-track {
     position: absolute;
     height: 2px;
-    background-color: var(--purpleColor);
+    background-color: var(--buttonOutlined);
     border-radius: 2px;
   }
 
@@ -44,26 +44,26 @@ const SliderGlobalStyles = createGlobalStyle`
     outline: none;
 
       &:hover {
-        border: solid 2px var(--purpleColor);
+        border: solid 2px var(--buttonOutlined);
         background-color: var(--white);
       }
 
       &:active {
-        border:  2px solid var(--purpleColor);
+        border:  2px solid var(--buttonOutlined);
         background-color: var(--white);
       }
     }
 
   .rc-slider-disabled {
-    background-color: var(--panel2);
+    background-color: var(--inputBackground);
     border-radius: 2px;
 
     .rc-slider-track {
-      background-color: var(--panel2);
+      background-color: var(--inputBackground);
     }
 
     .rc-slider-handle, .rc-slider-dot {
-      border-color: var(--panel2);
+      border-color: var(--inputBackground);
       box-shadow: none;
       background-color: var(--toolbar);
       cursor: not-allowed;

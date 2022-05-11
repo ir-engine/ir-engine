@@ -25,6 +25,7 @@ import { CameraPropertiesComponent } from '../../scene/components/CameraProperti
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/functions/loaders/CameraPropertiesFunctions'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
@@ -246,13 +247,13 @@ export const initializeCameraComponent = (world: World) => {
   const camObj = Engine.instance.camera
   addComponent(cameraEntity, Object3DComponent, { value: camObj })
   addComponent(cameraEntity, PersistTagComponent, {})
-  if (!Engine.instance.isEditor) {
-    addComponent(cameraEntity, TransformComponent, {
-      position: camObj.position,
-      rotation: camObj.quaternion,
-      scale: camObj.scale
-    })
-  }
+
+  addComponent(cameraEntity, TransformComponent, {
+    position: camObj.position,
+    rotation: camObj.quaternion,
+    scale: camObj.scale
+  })
+
   Engine.instance.activeCameraEntity = cameraEntity
 
   return cameraEntity
@@ -261,7 +262,7 @@ export const initializeCameraComponent = (world: World) => {
 export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
   const targetCameraRotationQuery = defineQuery([FollowCameraComponent, TargetCameraRotationComponent])
-  let cameraInitialized = false
+  let cameraInitialized = Engine.instance.isEditor
   return () => {
     const { delta } = world
     if (accessEngineState().sceneLoaded.value && !cameraInitialized) {
@@ -275,7 +276,10 @@ export default async function CameraSystem(world: World) {
         ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
         cameraFollow.raycaster.far = cameraFollow.maxDistance
         Engine.instance.activeCameraFollowTarget = entity
-
+        //check for initialized raycast properties
+        if (!cameraFollow.raycastProps) {
+          cameraFollow.raycastProps = RAYCAST_PROPERTIES_DEFAULT_VALUES
+        }
         for (let i = 0; i < cameraFollow.raycastProps.rayCount; i++) {
           cameraRays.push(new Vector3())
 

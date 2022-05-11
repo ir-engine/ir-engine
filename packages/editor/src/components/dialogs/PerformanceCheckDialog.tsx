@@ -26,7 +26,7 @@ const PerformanceItemContainer = (styled as any).li`
   display: flex;
   min-height: 100px;
   background-color: var(--toolbar);
-  border: 1px solid var(--panel);
+  border: 1px solid var(--deepPurple);
   border-radius: 4px;
   margin: 4px;
   color: white;
@@ -45,7 +45,7 @@ const PerformanceItemContainer = (styled as any).li`
     flex-direction: column;
     flex: 1;
     padding: 12px;
-    border-left: 1px solid var(--panel2);
+    border-left: 1px solid var(--panelCardHoverOutline);
   }
 
   h5 {

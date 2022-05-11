@@ -15,6 +15,14 @@ import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { setCameraProperties } from '../setCameraProperties'
 
 export const SCENE_COMPONENT_CAMERA_PROPERTIES = 'cameraproperties'
+
+export const RAYCAST_PROPERTIES_DEFAULT_VALUES = {
+  enabled: true,
+  rayCount: 3,
+  rayLength: 15.0,
+  rayFrequency: 0.1
+}
+
 export const SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES = {
   fov: 50,
   cameraNearClip: 0.01,
