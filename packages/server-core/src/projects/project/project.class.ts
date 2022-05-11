@@ -50,7 +50,9 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string) =
         storageProvider.createInvalidation([`projects/${projectName}*`])
       ])
     }
-  } catch (e) {}
+  } catch (e) {
+    logger.info('[ERROR deleteProjectFilesInStorageProvider]:', e)
+  }
 }
 
 /**
@@ -241,8 +243,10 @@ export class Project extends Service {
 
     const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
 
-    if (await this.Model.count({ where: { name: projectName } })) {
-      throw new Error('Cannot create project - already exists')
+    // if project exists already, remove it and re-clone it
+    if (fs.existsSync(projectLocalDirectory)) {
+      if (isDev) throw new Error('Cannot create project - already exists')
+      deleteFolderRecursive(projectLocalDirectory)
     }
 
     let repoPath = await getAuthenticatedRepo(data.url)
