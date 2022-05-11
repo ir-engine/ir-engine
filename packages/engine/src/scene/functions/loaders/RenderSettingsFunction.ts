@@ -89,6 +89,14 @@ export const updateRenderSetting: ComponentUpdateFunction = (
   }
 }
 
+export const updateShadowMapOnSceneLoad = (enable: boolean, shadowMapType?: number) => {
+  if (accessEngineState().sceneLoaded.value) updateShadowMap(enable, shadowMapType)
+  else
+    matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, () => {
+      updateShadowMap(enable, shadowMapType)
+    })
+}
+
 export const updateShadowMap = (enable: boolean, shadowMapType?: number) => {
   if (enable) {
     EngineRenderer.instance.renderer.shadowMap.enabled = true
@@ -99,8 +107,8 @@ export const updateShadowMap = (enable: boolean, shadowMapType?: number) => {
   }
 
   Engine.instance.scene.traverse((node: Light) => {
-    if (node.isLight) {
-      node.shadow?.map?.dispose()
+    if (node.isLight && node.shadow) {
+      node.shadow.map?.dispose()
       node.castShadow = enable
     }
   })

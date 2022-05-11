@@ -6,7 +6,7 @@ import { ClientStorage } from '../common/classes/ClientStorage'
 import { Engine } from '../ecs/classes/Engine'
 import InfiniteGridHelper from '../scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { updateShadowMap } from '../scene/functions/loaders/RenderSettingsFunction'
+import { updateShadowMapOnSceneLoad } from '../scene/functions/loaders/RenderSettingsFunction'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
 import { RenderSettingKeys } from './EngineRnedererConstants'
 import { changeRenderMode } from './functions/changeRenderMode'
@@ -110,15 +110,16 @@ function updateState(): void {
   dispatchAction(Engine.instance.store, EngineRendererAction.setPhysicsDebug(state.physicsDebugEnable.value))
   dispatchAction(Engine.instance.store, EngineRendererAction.setAvatarDebug(state.avatarDebugEnable.value))
 
-  changeRenderMode(state.renderMode.value)
-
-  if (Engine.instance.isEditor && state.nodeHelperVisibility.value)
-    Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
-  else Engine.instance.camera.layers.disable(ObjectLayers.NodeHelper)
-
   if (Engine.instance.isEditor) {
+    changeRenderMode(state.renderMode.value)
+
+    if (state.nodeHelperVisibility.value) Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
+    else Engine.instance.camera.layers.disable(ObjectLayers.NodeHelper)
+
     InfiniteGridHelper.instance.setGridHeight(state.gridHeight.value)
     InfiniteGridHelper.instance.visible = state.gridVisibility.value
+  } else {
+    Engine.instance.camera.layers.disable(ObjectLayers.NodeHelper)
   }
 }
 
@@ -132,8 +133,7 @@ function setQualityLevel(qualityLevel) {
 }
 
 function setUseShadows(useShadows) {
-  if (state.useShadows.value === useShadows || Engine.instance.isEditor) return
-  updateShadowMap(useShadows)
+  if (!Engine.instance.isEditor) updateShadowMapOnSceneLoad(useShadows)
 }
 
 function setUsePostProcessing(usePostProcessing) {
@@ -162,8 +162,8 @@ export function EngineRendererReceptor(action: EngineRendererActionType) {
         ClientStorage.set(RenderSettingKeys.POST_PROCESSING, action.usePostProcessing)
         break
       case 'WEBGL_RENDERER_SHADOWS':
-        s.merge({ useShadows: action.useShadows })
         setUseShadows(action.useShadows)
+        s.merge({ useShadows: action.useShadows })
         ClientStorage.set(RenderSettingKeys.USE_SHADOWS, action.useShadows)
         break
       case 'PHYSICS_DEBUG_CHANGED':
