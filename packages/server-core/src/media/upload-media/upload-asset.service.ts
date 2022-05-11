@@ -44,19 +44,19 @@ export const addGenericAssetToS3AndStaticResources = async (
     new Promise<void>(async (resolve) => {
       try {
         await provider.createInvalidation([key])
-        await provider.putObject(
-          {
-            Key: key,
-            Body: file,
-            ContentType: args.contentType
-          },
-          {
-            isDirectory: false
-          }
-        )
       } catch (e) {
-        logger.info('[ERROR addGenericAssetToS3AndStaticResources while uploading to storage provider]:', e)
+        logger.info(`[ERROR addGenericAssetToS3AndStaticResources while invalidating ${key}]:`, e)
       }
+      await provider.putObject(
+        {
+          Key: key,
+          Body: file,
+          ContentType: args.contentType
+        },
+        {
+          isDirectory: false
+        }
+      )
       resolve()
     })
   )
@@ -91,10 +91,11 @@ export const addGenericAssetToS3AndStaticResources = async (
         )
       )
     }
+    await Promise.all(promises)
   } catch (e) {
     logger.info('[ERROR addGenericAssetToS3AndStaticResources while adding to static resources]:', e)
+    return null!
   }
-  await Promise.all(promises)
   return assetURL
 }
 
