@@ -1,5 +1,7 @@
 import { Paginated } from '@feathersjs/feathers/lib'
+
 import '@feathersjs/transport-commons'
+
 import { decode } from 'jsonwebtoken'
 
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'

@@ -23,7 +23,9 @@ import { WorldState } from './networking/interfaces/WorldState'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import InfiniteGridHelper from './scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
+
 import './threejsPatches'
+
 import { FontManager } from './xrui/classes/FontManager'
 
 /**
