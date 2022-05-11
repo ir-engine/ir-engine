@@ -90,9 +90,6 @@ export class EngineRenderer {
   /** init ExponentialMovingAverage */
   movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
 
-  /** To Disable update for renderer */
-  disableUpdate = false
-
   renderer: WebGLRenderer = null!
   effectComposer: EffectComposerWithSchema = null!
   xrManager: WebXRManager = null!
