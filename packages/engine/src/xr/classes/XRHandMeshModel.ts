@@ -4,6 +4,7 @@ import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Entity } from '../../ecs/classes/Entity'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
+import { XRHandJoints } from '../types/XRHandJoints'
 
 export class XRHandMeshModel extends Object3D {
   controller: Group
@@ -25,33 +26,12 @@ export class XRHandMeshModel extends Object3D {
     mesh.castShadow = true
     mesh.receiveShadow = true
 
-    const joints = [
-      'wrist',
-      'thumb-metacarpal',
-      'thumb-phalanx-proximal',
-      'thumb-phalanx-distal',
-      'thumb-tip',
-      'index-finger-metacarpal',
-      'index-finger-phalanx-proximal',
-      'index-finger-phalanx-intermediate',
-      'index-finger-phalanx-distal',
-      'index-finger-tip',
-      'middle-finger-metacarpal',
-      'middle-finger-phalanx-proximal',
-      'middle-finger-phalanx-intermediate',
-      'middle-finger-phalanx-distal',
-      'middle-finger-tip',
-      'ring-finger-metacarpal',
-      'ring-finger-phalanx-proximal',
-      'ring-finger-phalanx-intermediate',
-      'ring-finger-phalanx-distal',
-      'ring-finger-tip',
-      'pinky-finger-metacarpal',
-      'pinky-finger-phalanx-proximal',
-      'pinky-finger-phalanx-intermediate',
-      'pinky-finger-phalanx-distal',
-      'pinky-finger-tip'
-    ]
+    let joints = []
+    XRHandJoints.forEach((bone) => {
+      joints = joints.concat(bone as any)
+    })
+
+    console.log(joints)
 
     joints.forEach((jointName) => {
       const bone = model.getObjectByName(jointName)

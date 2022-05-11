@@ -1,5 +1,4 @@
 import { TypedArray } from 'bitecs'
-import { XRHandMeshModel } from 'src/xr/classes/XRHandMeshModel'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -12,6 +11,7 @@ import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
+import { XRHandJoints } from '../../xr/types/XRHandJoints'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectDirtyTag } from '../components/NetworkObjectDirtyTag'
@@ -84,9 +84,10 @@ export const readLinearVelocity = readVector3(VelocityComponent.linear)
 export const readAngularVelocity = readVector3(VelocityComponent.angular)
 export const readRotation = readVector4(TransformComponent.rotation)
 
-export const readTransform = (v: ViewCursor, entity: Entity | undefined) => {
+export const readTransform = (v: ViewCursor, entity: Entity | undefined, netId) => {
   const changeMask = readUint8(v)
   let b = 0
+  console.log('reading transform data for entity: ', entity, netId)
   if (checkBitflag(changeMask, 1 << b++)) readPosition(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readRotation(v, entity)
 }
@@ -143,7 +144,31 @@ export const readXRInputs = (v: ViewCursor, entity: Entity | undefined) => {
   if (checkBitflag(changeMask, 1 << b++)) readXRControllerGripRightRotation(v, entity)
 }
 
-export const readXRHandInputs = (v: ViewCursor, entity: Entity | undefined, handMesh: XRHandMeshModel) => {
+export const readXRHandBoneJoints = (v: ViewCursor, entity: Entity | undefined, handedness, bone: string[]) => {
+  const changeMask = readUint16(v)
+  let b = 0
+
+  let count3 = 0
+  let count4 = 0
+
+  bone.forEach((jointName) => {
+    // ignoring some bones for dev purposes to handle changeMask overflow bug
+    if (jointName.includes('wrist') || jointName.includes('thumb')) {
+      if (checkBitflag(changeMask, 1 << b++)) {
+        readVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity)
+        count3++
+      }
+      if (checkBitflag(changeMask, 1 << b++)) {
+        readVector4(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity)
+        count4++
+      }
+    }
+    // console.log(bone.position.x, bone.position.y, bone.position.z, bone.rotation)
+  })
+
+  console.log('total bones read:', handedness, count3, count4)
+}
+export const readXRHandInputs = (v: ViewCursor, entity: Entity | undefined) => {
   const changeMask = readUint16(v)
   const handednessBitValue = readUint8(v)
   let b = 0
@@ -152,31 +177,20 @@ export const readXRHandInputs = (v: ViewCursor, entity: Entity | undefined, hand
 
   const handedness = handednessBitValue === 0 ? 'left' : 'right'
 
-  handMesh.bones.forEach((bone) => {
-    const jointName = bone.jointName
-
-    // ignoring some bones for dev purposes to handle changeMask overflow bug
-    if (!bone.name.includes('pinky') && !bone.name.includes('ring')) {
-      if (checkBitflag(changeMask, 1 << b++))
-        readVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity)
-      if (checkBitflag(changeMask, 1 << b++))
-        readVector4(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity)
-    }
-    // console.log(bone.position.x, bone.position.y, bone.position.z, bone.rotation)
+  XRHandJoints.forEach((bone) => {
+    if (checkBitflag(changeMask, 1 << b++)) readXRHandBoneJoints(v, entity, handedness, bone)
   })
 }
 
-export const readXRHands = (v: ViewCursor, entity: Entity | undefined) => {
-  if (!entity) return
+export const readXRHands = (v: ViewCursor, entity: Entity | undefined, netId) => {
   const changeMask = readUint16(v)
   let b = 0
 
-  console.log('reading XR hands data')
+  console.log('reading XR hands data for entity: ', entity, netId)
 
-  const xrHandsComponent = getComponent(entity as Entity, XRHandsInputComponent)
-  xrHandsComponent.hands.forEach((hand) => {
-    if (checkBitflag(changeMask, 1 << b++)) readXRHandInputs(v, entity, hand.userData.mesh)
-  })
+  for (let i = 0; i < 2; i++) {
+    if (checkBitflag(changeMask, 1 << b++)) readXRHandInputs(v, entity)
+  }
 }
 
 export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
@@ -187,10 +201,10 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = undefined
 
   let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity, netId)
   if (checkBitflag(changeMask, 1 << b++)) readVelocity(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readXRHands(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readXRHands(v, entity, netId)
 
   if (entity !== undefined && !hasComponent(entity, NetworkObjectDirtyTag)) {
     addComponent(entity, NetworkObjectDirtyTag, {})
