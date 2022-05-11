@@ -21,7 +21,7 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineActions } from '../../../ecs/classes/EngineService'
+import { EngineActions } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'

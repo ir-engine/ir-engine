@@ -1,7 +1,7 @@
 import { MathUtils, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { accessEngineState } from '../../ecs/classes/EngineService'
+import { getEngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -48,11 +48,11 @@ export function initializeBot() {
 // === ENGINE === //
 
 export function locationLoaded() {
-  return accessEngineState().joinedWorld.value
+  return getEngineState().joinedWorld.value
 }
 
 export function sceneLoaded() {
-  return accessEngineState().sceneLoaded.value
+  return getEngineState().sceneLoaded.value
 }
 
 export function getPlayerPosition() {

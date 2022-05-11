@@ -9,7 +9,7 @@ import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
 import { Engine } from '../../ecs/classes/Engine'
-import { accessEngineState } from '../../ecs/classes/EngineService'
+import { getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
@@ -265,7 +265,7 @@ export default async function CameraSystem(world: World) {
   let cameraInitialized = Engine.instance.isEditor
   return () => {
     const { delta } = world
-    if (accessEngineState().sceneLoaded.value && !cameraInitialized) {
+    if (getEngineState().sceneLoaded.value && !cameraInitialized) {
       initializeCameraComponent(world)
       cameraInitialized = true
     }
@@ -298,7 +298,7 @@ export default async function CameraSystem(world: World) {
       camRayCastCache.maxDistance = -1
     }
 
-    if (accessEngineState().sceneLoaded.value) {
+    if (getEngineState().sceneLoaded.value) {
       const [followCameraEntity] = followCameraQuery(world)
       if (followCameraEntity !== undefined) {
         updateFollowCamera(followCameraEntity, delta)

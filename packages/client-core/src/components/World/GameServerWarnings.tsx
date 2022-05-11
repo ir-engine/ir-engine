@@ -11,7 +11,7 @@ import { useLocationState } from '@xrengine/client-core/src/social/services/Loca
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import WEBGL from '@xrengine/engine/src/renderer/THREE.WebGL'

@@ -2,7 +2,7 @@ import { Socket } from 'socket.io'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { accessEngineState, EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import logger from '@xrengine/server-core/src/logger'
@@ -39,7 +39,7 @@ import {
 export const setupSocketFunctions = (transport: SocketWebRTCServerTransport) => async (socket: Socket) => {
   const app = transport.app
 
-  if (!accessEngineState().joinedWorld.value)
+  if (!getEngineState().joinedWorld.value)
     await new Promise((resolve) => matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, resolve))
 
   logger.info('initialized new socket connection with id', socket.id)

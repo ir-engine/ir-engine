@@ -28,12 +28,14 @@ describe('FixedPipelineSystem', () => {
   it('can run multiple fixed ticks to catch up to elapsed time', async () => {
     createEngine()
 
-    await initializeCoreSystems([
+    Engine.instance.injectedSystems = [
       {
         systemModulePromise: MockSystemModulePromise(),
         type: SystemUpdateType.FIXED
       }
-    ])
+    ]
+
+    await initializeCoreSystems()
 
     const world = Engine.instance.currentWorld
     const mockState = getState(world.store, MockState)
@@ -56,12 +58,14 @@ describe('FixedPipelineSystem', () => {
   it('can skip fixed ticks to catch up to elapsed time', async () => {
     createEngine()
 
-    await initializeCoreSystems([
+    Engine.instance.injectedSystems = [
       {
         systemModulePromise: MockSystemModulePromise(),
         type: SystemUpdateType.FIXED
       }
-    ])
+    ]
+
+    await initializeCoreSystems()
 
     const world = Engine.instance.currentWorld
     const mockState = getState(world.store, MockState)
