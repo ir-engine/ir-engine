@@ -154,7 +154,6 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
                           <InputBase
                             className={styles.input}
                             name="name"
-                            style={{ color: '#fff' }}
                             autoComplete="off"
                             autoFocus
                             value={newName}

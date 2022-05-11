@@ -49,19 +49,13 @@ const Analytics = (props: AnalyticsProps) => {
             <Grid item xs={6} sm={4}>
               <label> {t('admin:components.analytics.port')} </label>
               <Paper component="div" className={styles.createInput}>
-                <InputBase name="port" className={styles.input} value={Data.port} disabled style={{ color: '#fff' }} />
+                <InputBase name="port" className={styles.input} value={Data.port} disabled />
               </Paper>
             </Grid>
             <Grid item xs={6} sm={4}>
               <label> {t('admin:components.analytics.processInterval')} </label>
               <Paper component="div" className={styles.createInput}>
-                <InputBase
-                  name="processinterval"
-                  className={styles.input}
-                  value={Data.processInterval}
-                  disabled
-                  style={{ color: '#fff' }}
-                />
+                <InputBase name="processinterval" className={styles.input} value={Data.processInterval} disabled />
               </Paper>
             </Grid>
           </Grid>

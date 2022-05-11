@@ -22,7 +22,6 @@ const InputText = ({ value, handleInputChange, formErrors, name }: Props) => {
           name={name}
           className={styles.input}
           placeholder={`Enter ${name}`}
-          style={{ color: '#fff' }}
           value={value}
           onChange={handleInputChange}
         />

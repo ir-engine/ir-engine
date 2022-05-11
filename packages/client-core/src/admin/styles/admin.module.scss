@@ -582,14 +582,14 @@
 
 .botRootRight {
   width: 100%;
-  color: #fff;
+  color: var(--textColor);
   margin-top: 15px;
   background: var(--panelBackground);
 }
 
 .botRootLeft {
   width: 100%;
-  color: #fff;
+  color: var(--textColor);
   background: var(--panelBackground);
 }
 
@@ -634,11 +634,11 @@
 
 .secondaryHeading {
   font-size: 1rem;
-  color: #c0c0c0;
+  color: var(--textColor);
 }
 
 .thirdHeading {
-  color: #c0c0c0;
+  color: var(--textColor);
   margin-top: 15px;
 }
 
@@ -651,22 +651,22 @@
 .summary {
   background: var(--panelCards);
   border-bottom: 1px solid var(--mainBackground);
-  color: #f1f1f1;
+  color: var(--textColor);
   border-radius: 0;
 
   svg {
-    color: white;
+    color: var(--iconButtonColor);
   }
 }
 
 .botDetails {
   background: var(--panelBackground);
-  color: #fff;
+  color: var(--textColor);
 }
 
 .alterContainer {
   background: var(--inputBackground);
-  border: 1px solid #23282c;
+  border: 1px solid var(--inputOutline);
   border-radius: 5px;
   width: 100%;
   margin-top: 10px;
@@ -731,7 +731,7 @@
 }
 
 .spanNone {
-  color: #808080;
+  color: var(--textColor);
 }
 
 .mgBottom {
@@ -991,12 +991,16 @@
 
 .filterButton {
   svg {
-    color: var(--panelCards);
+    color: var(--iconButtonColor);
   }
 }
 
 .checkbox {
   color: var(--textColor);
+
+  .checkedCheckbox {
+    color: var(--iconButtonColor);
+  }
 }
 
 .menuPaper {
@@ -1006,6 +1010,20 @@
 
   @media (max-width: 900px) {
     height: 10vh;
+  }
+}
+
+.menuItem {
+  &:hover {
+    background: var(--dropdownMenuHoverBackground);
+  }
+
+  &:global(.Mui-selected) {
+    background: var(--dropdownMenuSelectedBackground);
+
+    &:hover {
+      background: var(--dropdownMenuSelectedBackground);
+    }
   }
 }
 
@@ -1026,61 +1044,6 @@
   background-color: var(--panelCards);
 }
 
-.thead {
-  .trow {
-    .tcell {
-      color: lighten(white, 0.8);
-      background-color: black;
-
-      .iconsContainer {
-        display: flex;
-
-        h3 {
-          margin-right: 5px;
-        }
-      }
-
-      &.actionCell {
-        display: flex;
-        flex-flow: wrap;
-        flex-direction: row;
-
-        :global(.MuiButtonBase-root) {
-          width: fit-content;
-          margin-right: 5px;
-        }
-      }
-
-      :global(.MuiButtonBase-root) {
-        color: lighten(white, 0.8);
-      }
-    }
-
-    .tcellSelectable {
-      .currentUser {
-        color: lighten(white, 0.8);
-        background-color: var(--facebookBlue);
-        padding-top: 5px;
-        padding-bottom: 5px;
-
-        &:hover {
-          background-color: #145cee;
-          cursor: pointer;
-        }
-      }
-    }
-  }
-
-  .trowHover {
-    cursor: pointer;
-
-    .tcell {
-      color: lighten(white, 0.8);
-      background-color: black;
-    }
-  }
-}
-
 .root {
   flex-grow: 1;
 }
@@ -1095,8 +1058,8 @@
 }
 
 .btn {
-  color: white;
-  border-color: white;
+  color: var(--buttonOutlined);
+  border-color: var(--buttonOutlined);
   font-size: 0.875rem;
 
   @media (max-width: 900px) {
@@ -1105,8 +1068,8 @@
 }
 
 .btnSelected {
-  color: white !important;
-  border-color: white;
+  color: var(--buttonOutlined) !important;
+  border-color: var(--buttonOutlined);
   background-color: var(--buttonFilled) !important;
 }
 
