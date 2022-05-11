@@ -584,12 +584,6 @@ export async function handleWebRtcReceiveTrack(
         ? p.appData.channelType === channelType
         : p.appData.channelType === channelType && p.appData.channelId === channelId)
   )
-  const router = networkTransport.routers[`${channelType}:${channelId}`][0]
-  if (producer == null || !router.canConsume({ producerId: producer.id, rtpCapabilities })) {
-    const msg = `client cannot consume ${mediaPeerId}:${mediaTag}`
-    console.error(`recv-track: ${userId} ${msg}`)
-    return callback({ error: msg })
-  }
 
   const transport = Object.values(Network.instance.transports).find(
     (t) =>
@@ -600,6 +594,14 @@ export async function handleWebRtcReceiveTrack(
         : (t as any).appData.channelType === channelType && (t as any).appData.channelId === channelId) &&
       (t as any).closed === false
   )
+  const router = networkTransport.routers[`${channelType}:${channelId}`].find(
+    (router) => router.id === transport.internal.routerId
+  )
+  if (producer == null || router == null || !router.canConsume({ producerId: producer.id, rtpCapabilities })) {
+    const msg = `client cannot consume ${mediaPeerId}:${mediaTag}, ${producer}`
+    console.error(`recv-track: ${userId} ${msg}`)
+    return callback({ error: msg })
+  }
 
   if (transport != null) {
     try {
@@ -689,7 +691,7 @@ export async function handleWebRtcPauseConsumer(socket, data, callback): Promise
 export async function handleWebRtcResumeConsumer(socket, data, callback): Promise<any> {
   const { consumerId } = data,
     consumer = MediaStreams.instance?.consumers.find((c) => c.id === consumerId)
-  if (consumer != null) {
+  if (consumer) {
     Network.instance.mediasoupOperationQueue.add({
       object: consumer,
       action: 'resume'

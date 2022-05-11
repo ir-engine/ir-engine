@@ -37,6 +37,8 @@ store.receptors.push((action: MediaStreamActionType): any => {
 export const accessMediaStreamState = () => state
 export const useMediaStreamState = () => useState(state)
 
+let updateConsumerTimeout
+
 //Service
 export const MediaStreamService = {
   updateCamVideoState: () => {
@@ -44,8 +46,13 @@ export const MediaStreamService = {
     store.dispatch(MediaStreamAction.setCamVideoState(ms != null && ms.camVideoProducer != null && !ms.videoPaused))
   },
   triggerUpdateConsumers: () => {
-    const ms = MediaStreams.instance
-    store.dispatch(MediaStreamAction.setConsumers(ms != null ? ms.consumers : []))
+    if (!updateConsumerTimeout) {
+      updateConsumerTimeout = setTimeout(() => {
+        const ms = MediaStreams.instance
+        store.dispatch(MediaStreamAction.setConsumers(ms != null ? ms.consumers : []))
+        updateConsumerTimeout = null
+      }, 1000)
+    }
   },
   triggerUpdateNearbyLayerUsers: () => {
     const ms = MediaStreams.instance
