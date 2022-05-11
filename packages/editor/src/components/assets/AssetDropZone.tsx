@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { Vector2 } from 'three'
 
+import { store } from '@xrengine/client-core/src/store'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
@@ -12,6 +13,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { getCursorSpawnPosition } from '../../functions/screenSpaceFunctions'
+import { SelectionAction } from '../../services/SelectionServices'
 import useUpload from './useUpload'
 
 /**
@@ -68,14 +70,20 @@ export function AssetDropZone() {
           assets.map(async (asset) => {
             const node = await addMediaNode(asset.url)
             const transformComponent = getComponent(node.entity, TransformComponent)
-            if (transformComponent) getCursorSpawnPosition(mousePos, transformComponent.position)
+            if (transformComponent) {
+              getCursorSpawnPosition(mousePos, transformComponent.position)
+              store.dispatch(SelectionAction.changedObject([node], 'position'))
+            }
           })
         })
       } else {
         // When user drags files from files panel
         const node = await addMediaNode(item.url)
         const transformComponent = getComponent(node.entity, TransformComponent)
-        if (transformComponent) getCursorSpawnPosition(mousePos, transformComponent.position)
+        if (transformComponent) {
+          getCursorSpawnPosition(mousePos, transformComponent.position)
+          store.dispatch(SelectionAction.changedObject([node], 'position'))
+        }
       }
     },
     collect: (monitor) => ({
