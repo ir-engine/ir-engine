@@ -1,4 +1,4 @@
-import { PerspectiveCamera, Vector2 } from 'three'
+import { PerspectiveCamera } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -11,6 +11,15 @@ import { deserializeScenePreviewCamera } from '@xrengine/engine/src/scene/functi
 
 import { getCanvasBlob } from './thumbnails'
 
+function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
+  const tmpCanvas = document.createElement('canvas')
+  tmpCanvas.width = width
+  tmpCanvas.height = height
+  const ctx = tmpCanvas.getContext('2d')
+  if (ctx) ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, width, height)
+  return tmpCanvas
+}
+
 /**
  * Function takeScreenshot used for taking screenshots.
  *
@@ -20,10 +29,7 @@ import { getCanvasBlob } from './thumbnails'
  * @return {Promise}        [generated screenshot according to height and width]
  */
 export async function takeScreenshot(width: number, height: number): Promise<Blob | null> {
-  EngineRenderer.instance.disableUpdate = true
-  const size = new Vector2()
-  EngineRenderer.instance.renderer.getSize(size)
-
+  // Getting Scene preview camera or creating one if not exists
   let scenePreviewCamera: PerspectiveCamera = null!
   const query = defineQuery([ScenePreviewCameraTagComponent])
 
@@ -44,16 +50,20 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
   }
 
   const prevAspect = scenePreviewCamera.aspect
+
+  // Setting up scene preview camera
   scenePreviewCamera.aspect = width / height
   scenePreviewCamera.updateProjectionMatrix()
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
-  EngineRenderer.instance.renderer.setSize(width, height, false)
+
+  // Rendering the scene to the new canvas with given size
   EngineRenderer.instance.renderer.render(Engine.instance.scene, scenePreviewCamera)
-  const blob = await getCanvasBlob(EngineRenderer.instance.renderer.domElement)
+  const blob = await getCanvasBlob(getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height))
+
+  // Restoring previous state
   scenePreviewCamera.aspect = prevAspect
   scenePreviewCamera.updateProjectionMatrix()
-  EngineRenderer.instance.renderer.setSize(size.x, size.y, false)
-  EngineRenderer.instance.disableUpdate = false
+
   return blob
 }

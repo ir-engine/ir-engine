@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Euler } from 'three'
+import { Euler, Quaternion } from 'three'
 
 import { client } from '@xrengine/client-core/src/feathers'
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
@@ -9,6 +9,7 @@ import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalCom
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 
+import { setPropertyOnSelectionEntities } from '../../classes/History'
 import BooleanInput from '../inputs/BooleanInput'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
@@ -29,7 +30,7 @@ type PortalFilterOption = {
   data: PortalOptions
 }
 
-const euler = new Euler()
+const rotation = new Quaternion()
 
 /**
  * PortalNodeEditor provides the editor for properties of PortalNode.
@@ -71,10 +72,16 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     loadPortals()
   }, [])
 
-  const portalComponent = getComponent(props.node.entity, PortalComponent)
+  const changeSpawnRotation = (value: Euler) => {
+    rotation.setFromEuler(value)
 
-  if (portalComponent.spawnRotation) euler.setFromQuaternion(portalComponent.spawnRotation)
-  else euler.set(0, 0, 0)
+    setPropertyOnSelectionEntities({
+      component: PortalComponent,
+      properties: { spawnRotation: rotation }
+    })
+  }
+
+  const portalComponent = getComponent(props.node.entity, PortalComponent)
 
   return (
     <NodeEditor description={t('editor:properties.portal.description')} {...props}>
@@ -119,7 +126,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="Spawn Rotation" label={t('editor:properties.portal.lbl-spawnRotation')}>
-        <EulerInput value={euler} onChange={updateProperty(PortalComponent, 'spawnRotation')} />
+        <EulerInput quaternion={portalComponent.spawnRotation ?? rotation} onChange={changeSpawnRotation} />
       </InputGroup>
     </NodeEditor>
   )
