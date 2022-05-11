@@ -8,7 +8,9 @@ import { LoadEngineWithScene } from '@xrengine/client-core/src/components/World/
 import OfflineLocation from '@xrengine/client-core/src/components/World/OfflineLocation'
 import { LocationAction } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { DefaultLocationSystems } from '@xrengine/client-core/src/systems/DefaultLocationSystems'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 
 import { loadSceneJsonOffline } from './utils'
 
@@ -23,6 +25,7 @@ const LocationPage = () => {
   useEffect(() => {
     dispatch(LocationAction.setLocationName(`${params.projectName}/${params.sceneName}`))
     loadSceneJsonOffline(params.projectName, params.sceneName)
+    Engine.instance.injectedSystems.push(...DefaultLocationSystems)
   }, [])
 
   return (

@@ -6,7 +6,7 @@ import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/Identit
 import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { accessEngineState, EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import {
   createEngine,
@@ -62,20 +62,19 @@ type InstanceMetadata = {
 const loadScene = async (app: Application, scene: string) => {
   const [projectName, sceneName] = scene.split('/')
   // const sceneRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
-  const sceneResult = await app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
-  const sceneData = sceneResult.data.scene as any // SceneData
 
-  const isInitialized = accessEngineState().isEngineInitialized.value
+  const isInitialized = getEngineState().isEngineInitialized.value
+
+  const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
 
   if (!isInitialized) {
-    const systems = await getSystemsFromSceneData(projectName, sceneData, false)
-    const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
+    const projectsPromise = app.service('project').find(null!)
+
+    await Promise.all([initializeCoreSystems(), initializeRealtimeSystems(false, true), initializeSceneSystems()])
+
     Engine.instance.publicPath = config.client.url
-    await initializeCoreSystems()
-    await initializeRealtimeSystems(false, true)
-    await initializeSceneSystems()
     const world = Engine.instance.currentWorld
-    await initSystems(world, systems)
+    const projects = (await projectsPromise).data.map((project) => project.name)
     await loadEngineInjection(world, projects)
 
     const userId = 'server' as UserId
@@ -86,7 +85,9 @@ const loadScene = async (app: Application, scene: string) => {
     world.userIndexToUserId.set(hostIndex, userId)
   }
 
-  await loadSceneFromJSON(sceneData)
+  const sceneData = (await sceneResultPromise).data.scene as any // SceneData
+  const sceneSystems = getSystemsFromSceneData(projectName, sceneData, false)
+  await loadSceneFromJSON(sceneData, sceneSystems)
 
   console.log('Scene loaded!')
   dispatchAction(Engine.instance.store, EngineActions.joinedWorld())

@@ -2,10 +2,11 @@ import type { WebLayer3D } from '@etherealjs/web-layer/three'
 import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { matchActionOnce, receiveActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
+import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
+import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { textureLoader } from '@xrengine/engine/src/scene/constants/Util'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
@@ -36,20 +37,25 @@ export default async function XRUILoadingSystem(world: World) {
     thumbnailUrl ? textureLoader.loadAsync(thumbnailUrl) : undefined
   ])
 
+  addComponent(ui.entity, PersistTagComponent, {})
+
   const mesh = new Mesh(
-    new SphereGeometry(0.3),
-    new MeshBasicMaterial({ side: DoubleSide, map: texture, transparent: true })
+    new SphereGeometry(10),
+    new MeshBasicMaterial({ side: DoubleSide, map: texture, transparent: true, depthWrite: true, depthTest: false })
   )
   // flip inside out
   mesh.scale.set(-1, 1, 1)
+  mesh.renderOrder = 1
   Engine.instance.camera.add(mesh)
   Engine.instance.scene.add(Engine.instance.camera)
 
   setObjectLayers(mesh, ObjectLayers.UI)
 
   return () => {
+    mesh.quaternion.copy(Engine.instance.camera.quaternion).invert()
+
     // add a slow rotation to animate on desktop, otherwise just keep it static for VR
-    // if (!EngineRenderer.instance.xrSession && !accessEngineState().joinedWorld.value) {
+    // if (!getEngineState().joinedWorld.value) {
     //   Engine.instance.camera.rotateY(world.delta * 0.35)
     // } else {
     //   // todo: figure out how to make this work properly for VR

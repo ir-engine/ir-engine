@@ -66,8 +66,8 @@ describe('LoopAnimationFunctions', () => {
   let entity: Entity
   let loopAnimationFunctions = proxyquire('./LoopAnimationFunctions', {
     '../../../common/functions/isClient': { isClient: true },
-    '../../../ecs/classes/EngineService': {
-      accessEngineState: () => {
+    '../../../ecs/classes/EngineState': {
+      getEngineState: () => {
         return {
           sceneLoaded: {
             value: true

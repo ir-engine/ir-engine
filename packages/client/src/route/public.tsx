@@ -25,9 +25,7 @@ function RouterComp(props) {
 
   useEffect(() => {
     AuthService.doLoginAuto()
-    createEngine()
     Network.instance.transportHandler = new ClientTransportHandler()
-    initializeBrowser()
     getCustomRoutes().then((routes) => {
       setCustomRoutes(routes)
     })

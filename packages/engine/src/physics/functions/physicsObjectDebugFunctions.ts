@@ -21,7 +21,7 @@ import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneL
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { accessEngineState } from '../../ecs/classes/EngineService'
+import { getEngineState } from '../../ecs/classes/EngineState'
 
 /**
  * Returns a random number between min (inclusive) and max (exclusive)
@@ -53,7 +53,7 @@ function getUUID() {
 let simulationObjectsGenerated = false
 export default async function PhysicsSimulationTestSystem(world: World) {
   return () => {
-    const isInitialized = accessEngineState().isEngineInitialized.value
+    const isInitialized = getEngineState().isEngineInitialized.value
     if (!isInitialized || !world.physics.physics || simulationObjectsGenerated) return
     simulationObjectsGenerated = true
     generateSimulationData(0)

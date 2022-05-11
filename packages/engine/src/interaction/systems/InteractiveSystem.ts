@@ -5,7 +5,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { AudioComponent } from '../../audio/components/AudioComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
+import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
