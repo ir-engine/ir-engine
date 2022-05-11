@@ -29,14 +29,25 @@ export class Object3DUtils {
   }
 
   /**
-   * Extracts the quaternion part of the object's matrixWorld
+   * Extracts the quaternion part of the object's matrixWorld.
    * Does not update the matrix chain
    * @param {Object3D} object
-   * @param {Quaternion} outQuat
+   * @param {Quaternion} outQuaternion
    */
-  static getWorldQuaternion(object: Object3D, outQuat: Quaternion): Quaternion {
-    object.matrixWorld.decompose(_pos, outQuat, _scale)
-    return outQuat
+  static getWorldQuaternion(object: Object3D, outQuaternion: Quaternion): Quaternion {
+    object?.matrixWorld.decompose(_pos, outQuaternion, _scale)
+    return outQuaternion
+  }
+
+  /**
+   * Extracts the position part of the object's matrixWorld.
+   * Does not update the matrix chain
+   * @param {Object3D} object
+   * @param {Vector3} outPosition
+   */
+  static getWorldPosition(object: Object3D, outPosition: Vector3): Vector3 {
+    object?.matrixWorld.decompose(outPosition, _quat, _scale)
+    return outPosition
   }
 
   /**
