@@ -11,7 +11,7 @@ import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { isClient } from './common/functions/isClient'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
-import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
+import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
 import { createWorld } from './ecs/classes/World'
 import { reset } from './ecs/functions/EngineFunctions'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
@@ -37,6 +37,8 @@ export const createEngine = () => {
   Engine.instance.scene = new Scene()
   Engine.instance.scene.layers.set(ObjectLayers.Scene)
   EngineRenderer.instance = new EngineRenderer()
+  if (isClient) EngineRenderer.instance.initialize()
+  registerState(Engine.instance.store, EngineState)
   registerState(Engine.instance.currentWorld.store, WorldState)
   addActionReceptor(Engine.instance.store, EngineEventReceptor)
 }
@@ -141,7 +143,7 @@ export const initializeMediaServerSystems = async () => {
   dispatchAction(Engine.instance.store, EngineActions.initializeEngine({ initialised: true }))
 }
 
-export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = []) => {
+export const initializeCoreSystems = async () => {
   const systemsToLoad: SystemModuleType<any>[] = []
   systemsToLoad.push(
     {
@@ -197,7 +199,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
   await initSystems(world, systemsToLoad)
 
   // load injected systems which may rely on core systems
-  await initSystems(world, systems)
+  await initSystems(world, Engine.instance.injectedSystems)
 
   Engine.instance.engineTimer = Timer(executeWorlds)
   Engine.instance.engineTimer.start()

@@ -29,7 +29,7 @@ import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
-import { accessEngineState, EngineActions } from '../ecs/classes/EngineService'
+import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { matchActionOnce } from '../networking/functions/matchActionOnce'
@@ -179,7 +179,7 @@ export class EngineRenderer {
       this.renderer.render(Engine.instance.scene, Engine.instance.camera)
     } else {
       const state = accessEngineRendererState()
-      const engineState = accessEngineState()
+      const engineState = getEngineState()
       if (state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
       if (this.rendereringEnabled) {
         if (this.needsResize) {
@@ -241,8 +241,6 @@ export class EngineRenderer {
 }
 
 export default async function WebGLRendererSystem(world: World) {
-  EngineRenderer.instance.initialize()
-
   matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, () => {
     restoreEngineRendererData()
   })

@@ -12,7 +12,9 @@ import { LocationAction, useLocationState } from '@xrengine/client-core/src/soci
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import { SceneService } from '@xrengine/client-core/src/world/services/SceneService'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { useHookEffect } from '@xrengine/hyperflux'
 
 const LocationPage = () => {
@@ -30,6 +32,19 @@ const LocationPage = () => {
   useEffect(() => {
     dispatch(LocationAction.setLocationName(locationName))
     AuthService.listenForUserPatch()
+
+    const injectedSystems: SystemModuleType<any>[] = [
+      {
+        type: 'PRE_RENDER',
+        systemModulePromise: import('@xrengine/client-core/src/systems/XRUILoadingSystem')
+      },
+      {
+        type: 'PRE_RENDER',
+        systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
+      }
+    ]
+
+    Engine.instance.injectedSystems.push(...injectedSystems)
   }, [])
 
   /**

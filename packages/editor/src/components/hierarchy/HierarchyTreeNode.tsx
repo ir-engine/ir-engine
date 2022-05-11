@@ -2,7 +2,7 @@ import React, { KeyboardEvent, StyleHTMLAttributes, useCallback, useEffect } fro
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'

@@ -2,7 +2,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineService'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'

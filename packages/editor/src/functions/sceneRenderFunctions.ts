@@ -62,7 +62,7 @@ export async function initializeScene(projectFile: SceneJson): Promise<Error[] |
   if (!Engine.instance.scene) Engine.instance.scene = new Scene()
 
   // getting scene data
-  await loadSceneFromJSON(projectFile)
+  await loadSceneFromJSON(projectFile, [])
 
   Engine.instance.camera.position.set(0, 5, 10)
   Engine.instance.camera.lookAt(new Vector3())

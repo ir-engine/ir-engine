@@ -8,7 +8,7 @@ import { parseGeometry } from '../../common/functions/parseGeometry'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
+import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentMap, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -153,7 +153,7 @@ export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
 }
 
 export const overrideTexture = (entity: Entity, object3d?: Object3D, world = Engine.instance.currentWorld): void => {
-  const state = accessEngineState()
+  const state = getEngineState()
 
   if (state.sceneLoaded.value) {
     const modelComponent = getComponent(entity, ModelComponent)

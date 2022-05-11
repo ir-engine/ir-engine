@@ -4,7 +4,7 @@ import { createState, useState } from '@speigg/hookstate'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { dispatchAction } from '@xrengine/hyperflux'
 

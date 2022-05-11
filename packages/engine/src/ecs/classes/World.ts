@@ -46,6 +46,7 @@ export class World {
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
 
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
+    if (this.localClientEntity) addComponent(this.localClientEntity, PersistTagComponent, {}, this)
 
     initializeEntityTree(this)
 

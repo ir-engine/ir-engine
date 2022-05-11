@@ -6,12 +6,14 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
-import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
+import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
+import { initSystems, SystemModuleType } from '../../ecs/functions/SystemFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -130,7 +132,13 @@ export const loadECSData = async (
  * Loads a scene from scene json
  * @param sceneData
  */
-export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()) => {
+export const loadSceneFromJSON = async (
+  sceneData: SceneJson,
+  sceneSystems: SystemModuleType<any>[],
+  world = useWorld()
+) => {
+  unloadScene(world)
+
   dispatchAction(Engine.instance.store, EngineActions.sceneLoading())
 
   let promisesCompleted = 0
@@ -150,10 +158,12 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   const promises = preCacheAssets(sceneData, onProgress)
 
   // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
-  if (!accessEngineState().isTeleporting.value) Engine.instance.camera?.layers.disable(ObjectLayers.Scene)
+  if (!getEngineState().isTeleporting.value) Engine.instance.camera?.layers.disable(ObjectLayers.Scene)
 
   promises.forEach((promise) => promise.then(onComplete))
   await Promise.all(promises)
+
+  initSystems(world, sceneSystems)
 
   const entityMap = {} as { [key: string]: EntityTreeNode }
 
@@ -177,7 +187,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   addComponent(tree.rootNode.entity, SceneTagComponent, {})
   getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
 
-  if (!accessEngineState().isTeleporting.value) Engine.instance.camera?.layers.enable(ObjectLayers.Scene)
+  if (!getEngineState().isTeleporting.value) Engine.instance.camera?.layers.enable(ObjectLayers.Scene)
 
   dispatchAction(Engine.instance.store, EngineActions.sceneLoaded()) //.delay(0.1)
 }
