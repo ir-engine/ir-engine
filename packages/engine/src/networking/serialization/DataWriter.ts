@@ -1,4 +1,5 @@
 import { XRHandMeshModel } from 'src/xr/classes/XRHandMeshModel'
+import { Group } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
@@ -188,7 +189,7 @@ export const writeXRHandBoneJoints = (v: ViewCursor, entity: Entity, handedness,
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
-export const writeXRHandBones = (v: ViewCursor, entity: Entity, handMesh: XRHandMeshModel) => {
+export const writeXRHandBones = (v: ViewCursor, entity: Entity, hand: Group) => {
   console.log('writing XR hand bone')
 
   const rewind = rewindViewCursor(v)
@@ -197,12 +198,18 @@ export const writeXRHandBones = (v: ViewCursor, entity: Entity, handMesh: XRHand
   let changeMask = 0
   let b = 0
 
-  const handedness = handMesh.handedness
-  const handednessBitValue = handedness === 'left' ? 0 : 1
+  let handednessBitValue = 0
 
-  XRHandBones.forEach((bone) => {
-    changeMask |= writeXRHandBoneJoints(v, entity, handedness, bone) ? 1 << b++ : b++ && 0
-  })
+  // Only write if hand is connected.
+  if (hand.userData.mesh) {
+    const handMesh = hand.userData.mesh
+    const handedness = handMesh.handedness
+    handednessBitValue = handedness === 'left' ? 0 : 1
+
+    XRHandBones.forEach((bone) => {
+      changeMask |= writeXRHandBoneJoints(v, entity, handedness, bone) ? 1 << b++ : b++ && 0
+    })
+  }
 
   console.log('inner changemask', changeMask)
   return (changeMask > 0 && writeChangeMask(changeMask) && writeHandedness(handednessBitValue)) || rewind()
@@ -220,10 +227,7 @@ export const writeXRHands = (v: ViewCursor, entity: Entity, networkId) => {
 
   const xrHandsComponent = getComponent(entity as Entity, XRHandsInputComponent)
   xrHandsComponent.hands.forEach((hand) => {
-    // Only write if hand is connected.
-    if (hand.userData.mesh) {
-      changeMask |= writeXRHandBones(v, entity, hand.userData.mesh) ? 1 << b++ : b++ && 0
-    }
+    changeMask |= writeXRHandBones(v, entity, hand) ? 1 << b++ : b++ && 0
   })
 
   console.log('main changemask', changeMask)
