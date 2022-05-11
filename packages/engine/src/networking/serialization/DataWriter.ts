@@ -205,7 +205,7 @@ export const writeXRHandBones = (v: ViewCursor, entity: Entity, hand: Group) => 
   return (changeMask > 0 && writeChangeMask(changeMask) && writeHandedness(handednessBitValue)) || rewind()
 }
 
-export const writeXRHands = (v: ViewCursor, entity: Entity, networkId) => {
+export const writeXRHands = (v: ViewCursor, entity: Entity) => {
   if (!hasComponent(entity, XRHandsInputComponent)) return
 
   const rewind = rewindViewCursor(v)
@@ -233,7 +233,7 @@ export const writeEntity = (v: ViewCursor, networkId: NetworkId, entity: Entity)
   changeMask |= writeTransform(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeVelocity(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeXRInputs(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeXRHands(v, entity, networkId) ? 1 << b++ : b++ && 0
+  changeMask |= writeXRHands(v, entity) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeNetworkId(networkId) && writeChangeMask(changeMask)) || rewind()
 }
