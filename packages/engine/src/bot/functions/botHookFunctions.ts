@@ -68,5 +68,5 @@ export function rotatePlayer({ angle }) {
 }
 
 export function getClients() {
-  return useWorld().clients
+  return Array.from(useWorld().clients)
 }
