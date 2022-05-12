@@ -2,10 +2,10 @@ import { Socket } from 'socket.io'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { accessEngineState, EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import logger from '@xrengine/server-core/src/logger'
+import multiLogger from '@xrengine/server-core/src/logger'
 import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
 
 import {
@@ -36,19 +36,21 @@ import {
   handleWebRtcTransportCreate
 } from './WebRTCFunctions'
 
+const logger = multiLogger.child({ component: 'gameserver:socket' })
+
 export const setupSocketFunctions = (transport: SocketWebRTCServerTransport) => async (socket: Socket) => {
   const app = transport.app
 
-  if (!accessEngineState().joinedWorld.value)
+  if (!getEngineState().joinedWorld.value)
     await new Promise((resolve) => matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, resolve))
 
-  logger.info('initialized new socket connection with id', socket.id)
+  logger.info('Initialized new socket connection with id %s', socket.id)
 
   /**
    * Authorize user and make sure everything is valid before allowing them to join the world
    **/
   socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
-    logger.info('[MessageTypes.Authorization]: got auth request for', data.userId)
+    logger.info('[MessageTypes.Authorization]: got auth request for %s', data.userId)
     const accessToken = data.accessToken
 
     /**

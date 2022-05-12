@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'

@@ -12,7 +12,7 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
-import { accessEngineState, EngineActions } from '../../../ecs/classes/EngineService'
+import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
@@ -71,7 +71,7 @@ export const updateRenderSetting: ComponentUpdateFunction = (
 
   if (typeof properties.overrideRendererSettings === 'undefined' || !component.overrideRendererSettings) {
     EngineRenderer.instance.isCSMEnabled = true
-    if (accessEngineState().sceneLoaded.value) initializeCSM()
+    if (getEngineState().sceneLoaded.value) initializeCSM()
     else matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, initializeCSM)
     return
   }
@@ -94,7 +94,7 @@ export const updateRenderSetting: ComponentUpdateFunction = (
 
   if (EngineRenderer.instance.renderer.shadowMap.enabled) {
     if (component.csm) {
-      if (accessEngineState().sceneLoaded.value) initializeCSM()
+      if (getEngineState().sceneLoaded.value) initializeCSM()
       else matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, initializeCSM)
     } else {
       disposeCSM()
