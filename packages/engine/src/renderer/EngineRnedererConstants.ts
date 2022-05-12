@@ -6,6 +6,8 @@ export const RenderSettingKeys = {
   POST_PROCESSING: RenderSettingDBPrefix + 'usePostProcessing',
   USE_SHADOWS: RenderSettingDBPrefix + 'shadowQuality',
   QUALITY_LEVEL: RenderSettingDBPrefix + 'qualityLevel',
+  AUDIO: RenderSettingDBPrefix + 'audio',
+  MICROPHONE: RenderSettingDBPrefix + 'microphone',
   PHYSICS_DEBUG_ENABLE: RenderSettingDBPrefix + 'physicsDebugEnable',
   AVATAR_DEBUG_ENABLE: RenderSettingDBPrefix + 'avatarDebugEnable',
   RENDER_MODE: RenderSettingDBPrefix + 'renderMode',

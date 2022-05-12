@@ -7,10 +7,23 @@ import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { notificationAlertURL } from '@xrengine/common/src/constants/URL'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
+import {
+  SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
+  updateAudio
+} from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
@@ -34,7 +47,7 @@ interface Props {
   hideOtherMenus?: any
   setShowTouchPad?: any
 }
-
+let entity: Entity = null!
 const audio = document.createElement('audio')
 audio.src = notificationAlertURL
 
@@ -61,6 +74,8 @@ const InstanceChat = (props: Props): any => {
   const instanceConnectionState = useLocationInstanceConnectionState()
   const [isInitRender, setIsInitRender] = React.useState<Boolean>()
   const [noUnReadMessage, setNoUnReadMessage] = React.useState<any>()
+  const rendererState = useEngineRendererState()
+  audio.volume = rendererState.audio.value / 100
   const usersTyping = useState(
     getState(Engine.instance.currentWorld.store, WorldState).usersTyping[user?.id.value]
   ).value
@@ -89,7 +104,22 @@ const InstanceChat = (props: Props): any => {
   }, [composingMessage])
 
   useEffect(() => {
+    const loadAudio = async () => {
+      AssetLoader.Cache.delete(notificationAlertURL)
+      await AssetLoader.loadAsync(notificationAlertURL)
+    }
     setIsInitRender(true)
+    entity = createEntity(Engine.instance.currentWorld)
+    addComponent(entity, AudioComponent, {
+      ...SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
+      volume: rendererState.audio.value / 100,
+      audioSource: notificationAlertURL
+    })
+
+    // TO DO Fix Adding AudioComponent
+    // createNewEditorNode(entity, ScenePrefabs.audio)
+    loadAudio()
+    // updateAudio(entity, { volume: rendererState.audio.value / 100, audioSource: notificationAlertURL })
   }, [])
 
   useEffect(() => {
@@ -128,6 +158,9 @@ const InstanceChat = (props: Props): any => {
     ) {
       setNoUnReadMessage(false)
       audio.play()
+
+      // TO DO Fix play audio
+      // toggleAudio(entity)
     }
   }, [chatState])
 

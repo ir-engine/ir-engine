@@ -24,6 +24,8 @@ type EngineRendererStateType = {
   nodeHelperVisibility: boolean
   gridVisibility: boolean
   gridHeight: number
+  audio: number
+  microphone: number
 }
 
 const state = createState<EngineRendererStateType>({
@@ -37,7 +39,9 @@ const state = createState<EngineRendererStateType>({
   renderMode: RenderModes.SHADOW as RenderModesType,
   nodeHelperVisibility: false,
   gridVisibility: false,
-  gridHeight: 0
+  gridHeight: 0,
+  audio: 50,
+  microphone: 50
 })
 
 export async function restoreEngineRendererData(): Promise<void> {
@@ -48,6 +52,14 @@ export async function restoreEngineRendererData(): Promise<void> {
       ClientStorage.get(RenderSettingKeys.QUALITY_LEVEL).then((v) => {
         if (typeof v !== 'undefined') s.qualityLevel = v as number
         ClientStorage.set(RenderSettingKeys.QUALITY_LEVEL, state.qualityLevel.value)
+      }),
+      ClientStorage.get(RenderSettingKeys.AUDIO).then((v) => {
+        if (typeof v !== 'undefined') s.audio = v as number
+        ClientStorage.set(RenderSettingKeys.AUDIO, state.audio.value)
+      }),
+      ClientStorage.get(RenderSettingKeys.MICROPHONE).then((v) => {
+        if (typeof v !== 'undefined') s.microphone = v as number
+        ClientStorage.set(RenderSettingKeys.MICROPHONE, state.microphone.value)
       }),
       ClientStorage.get(RenderSettingKeys.AUTOMATIC).then((v) => {
         if (typeof v !== 'undefined') s.automatic = v as boolean
@@ -145,6 +157,14 @@ export function EngineRendererReceptor(action: EngineRendererActionType) {
         setQualityLevel(action.qualityLevel)
         ClientStorage.set(RenderSettingKeys.QUALITY_LEVEL, action.qualityLevel)
         break
+      case 'AUDIO_VOLUME':
+        s.merge({ audio: action.audio })
+        ClientStorage.set(RenderSettingKeys.AUDIO, action.audio)
+        break
+      case 'MICROPHONE_VOLUME':
+        s.merge({ microphone: action.microphone })
+        ClientStorage.set(RenderSettingKeys.MICROPHONE, action.microphone)
+        break
       case 'WEBGL_RENDERER_AUTO':
         s.merge({ automatic: action.automatic })
         ClientStorage.set(RenderSettingKeys.AUTOMATIC, action.automatic)
@@ -207,6 +227,20 @@ export const EngineRendererAction = {
       store: 'ENGINE' as const,
       type: 'WEBGL_RENDERER_QUALITY_LEVEL' as const,
       qualityLevel
+    }
+  },
+  setAudio: (audio: number) => {
+    return {
+      store: 'ENGINE' as const,
+      type: 'AUDIO_VOLUME' as const,
+      audio
+    }
+  },
+  setMicrophone: (microphone: number) => {
+    return {
+      store: 'ENGINE' as const,
+      type: 'MICROPHONE_VOLUME' as const,
+      microphone
     }
   },
   setAutomatic: (automatic: boolean) => {
