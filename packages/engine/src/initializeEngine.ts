@@ -2,30 +2,27 @@ import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
 import { AudioListener, PerspectiveCamera, Scene } from 'three'
 
+import { BotUserAgent } from '@xrengine/common/src/constants/BotUserAgent'
 import { addActionReceptor, dispatchAction, registerState } from '@xrengine/hyperflux'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
-import { getGLTFLoader } from './assets/classes/AssetLoader'
-import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
-import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { isClient } from './common/functions/isClient'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
 import { createWorld } from './ecs/classes/World'
-import { reset } from './ecs/functions/EngineFunctions'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
-import { removeClientInputListeners } from './input/functions/clientInputListeners'
 import { matchActionOnce } from './networking/functions/matchActionOnce'
 import { NetworkActionReceptor } from './networking/functions/NetworkActionReceptor'
 import { WorldState } from './networking/interfaces/WorldState'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
-import InfiniteGridHelper from './scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 
 import './threejsPatches'
 
+import { getGLTFLoader } from './assets/classes/AssetLoader'
+import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { FontManager } from './xrui/classes/FontManager'
 
 /**
@@ -61,8 +58,8 @@ export const initializeBrowser = () => {
   Engine.instance.camera.layers.enable(ObjectLayers.Avatar)
   Engine.instance.camera.layers.enable(ObjectLayers.UI)
 
-  InfiniteGridHelper.instance = new InfiniteGridHelper()
-  Engine.instance.scene.add(InfiniteGridHelper.instance)
+  console.log('navigator.userAgent', navigator.userAgent)
+  Engine.instance.isBot = navigator.userAgent === BotUserAgent
 
   const browser = detect()
   const os = detectOS(navigator.userAgent)
@@ -75,8 +72,6 @@ export const initializeBrowser = () => {
   ;(window as any).safariWebBrowser = browser?.name === 'safari'
 
   Engine.instance.isHMD = /Oculus/i.test(navigator.userAgent) // TODO: more HMDs;
-
-  globalThis.botHooks = BotHookFunctions
 
   setupInitialClickListener()
 
@@ -313,6 +308,7 @@ export const initializeSceneSystems = async () => {
       }
     )
 
+    // todo: figure out the race condition that is stopping us from moving this to SceneObjectSystem
     initializeKTX2Loader(getGLTFLoader())
   }
 
@@ -343,13 +339,4 @@ export const initializeRealtimeSystems = async (media = true, pose = true) => {
   }
 
   await initSystems(Engine.instance.currentWorld, systemsToLoad)
-}
-
-export const shutdownEngine = async () => {
-  removeClientInputListeners()
-
-  Engine.instance.engineTimer?.clear()
-  Engine.instance.engineTimer = null!
-
-  reset()
 }

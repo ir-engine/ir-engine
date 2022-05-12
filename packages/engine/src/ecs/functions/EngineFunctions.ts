@@ -5,6 +5,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader, disposeDracoLoaderWorkers } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
+import { removeClientInputListeners } from '../../input/functions/clientInputListeners'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import disposeScene from '../../renderer/functions/disposeScene'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
@@ -23,6 +24,15 @@ import {
   traverseEntityNodeParent
 } from './EntityTreeFunctions'
 import { unloadSystems } from './SystemFunctions'
+
+export const shutdownEngine = async () => {
+  removeClientInputListeners()
+
+  Engine.instance.engineTimer?.clear()
+  Engine.instance.engineTimer = null!
+
+  reset()
+}
 
 /** Reset the engine and remove everything from memory. */
 export function reset() {

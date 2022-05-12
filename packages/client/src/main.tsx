@@ -9,6 +9,22 @@ import { createEngine, initializeBrowser } from '@xrengine/engine/src/initialize
 
 import { initialize } from './util'
 
+/**
+ * Performance benchmark logging
+ */
+
+// const log = console.log
+// console.log = (...args) => log(`${Math.round(performance.now()/100) / 10}s`, ...args)
+
+// const info = console.info
+// console.info = (...args) => info(`${Math.round(performance.now()/100) / 10}s`, ...args)
+
+// const warn = console.warn
+// console.warn = (...args) => warn(`${Math.round(performance.now()/100) / 10}s`, ...args)
+
+// const error = console.error
+// console.error = (...args) => error(`${Math.round(performance.now()/100) / 10}s`, ...args)
+
 const AppPage = React.lazy(() => import('./pages/_app'))
 
 const canvasStyle = {

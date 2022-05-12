@@ -24,6 +24,7 @@ function RouterComp(props) {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
 
   useEffect(() => {
+    console.log('[main]: login')
     AuthService.doLoginAuto()
     Network.instance.transportHandler = new ClientTransportHandler()
     getCustomRoutes().then((routes) => {
