@@ -37,7 +37,7 @@
     "@feathersjs/client": "5.0.0-pre.10",
     "@feathersjs/socketio-client": "5.0.0-pre.10",
     "@feathersjs/rest-client": "5.0.0-pre.10",
-    "@google/model-viewer": "1.11.1",
+    "@google/model-viewer": "1.12.0",
     "@mui/icons-material": "5.6.2",
     "@mui/lab": "^5.0.0-alpha.73",
     "@mui/material": "5.7.0",
