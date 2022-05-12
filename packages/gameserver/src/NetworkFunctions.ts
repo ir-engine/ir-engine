@@ -18,12 +18,13 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import config from '@xrengine/server-core/src/appconfig'
 import { localConfig } from '@xrengine/server-core/src/config'
-import logger from '@xrengine/server-core/src/logger'
+import multiLogger from '@xrengine/server-core/src/logger'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { closeTransport } from './WebRTCFunctions'
 
+const logger = multiLogger.child({ component: 'gameserver:network' })
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
 export const setupSubdomain = async (transport: SocketWebRTCServerTransport) => {
@@ -245,10 +246,10 @@ function disconnectClientIfConnected(socket, userId: UserId) {
   const world = Engine.instance.currentWorld
   if (world.clients.has(userId) && world.clients.get(userId)!.socketId !== socket.id) {
     // const client = world.clients.get(userId)!
-    console.log('Client already logged in, disallowing new connection')
+    logger.info('Client already logged in, disallowing new connection')
 
     // todo: kick old client instead of new one
-    // console.log('Client already exists, kicking the old client and disconnecting')
+    // logger.info('Client already exists, kicking the old client and disconnecting')
     // client.socket?.emit(MessageTypes.Kick.toString(), 'You joined this world on another device')
     // client.socket?.disconnect()
     // for (const eid of world.getOwnedNetworkObjects(userId)) {
@@ -301,12 +302,12 @@ export const handleJoinWorld = async (
           }
         }
       } else {
-        console.warn('The user who invited this user in no longer on this instnace!')
+        logger.warn('The user who invited this user in no longer on this instance.')
       }
     }
   }
 
-  console.info('JoinWorld received', joinedUserId, data, spawnPose)
+  logger.info('JoinWorld received: %o', { joinedUserId, data, spawnPose })
   const world = Engine.instance.currentWorld
   const client = world.clients.get(joinedUserId)!
 
@@ -339,7 +340,7 @@ export const handleJoinWorld = async (
     if (action.$to === 'all' || action.$to === joinedUserId) cachedActions.push(action)
   }
 
-  console.log('Sending cached actions ', cachedActions)
+  logger.info('Sending cached actions: %o', cachedActions)
 
   callback({
     elapsedTime: world.elapsedTime,
@@ -364,12 +365,12 @@ export function handleIncomingActions(socket, message) {
     a.$from = userIdMap[socket.id]
     dispatchAction(world.store, a)
   }
-  // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
+  // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
 }
 
 export async function handleHeartbeat(socket): Promise<any> {
   const userId = getUserIdFromSocketId(socket.id)!
-  // console.log('Got heartbeat from user ' + userId + ' at ' + Date.now());
+  // logger.info('Got heartbeat from user ' + userId + ' at ' + Date.now())
   if (Engine.instance.currentWorld.clients.has(userId))
     Engine.instance.currentWorld.clients.get(userId)!.lastSeenTs = Date.now()
 }
@@ -379,12 +380,12 @@ export async function handleDisconnect(socket): Promise<any> {
   const userId = getUserIdFromSocketId(socket.id) as UserId
   const disconnectedClient = world?.clients.get(userId)
   if (!disconnectedClient)
-    return console.warn(
-      'Disconnecting client ' + userId + ' was undefined, probably already handled from JoinWorld handshake'
+    return logger.warn(
+      'Disconnecting client ' + userId + ' was undefined, probably already handled from JoinWorld handshake.'
     )
-  //On local, new connections can come in before the old sockets are disconnected.
-  //The new connection will overwrite the socketID for the user's client.
-  //This will only clear transports if the client's socketId matches the socket that's disconnecting.
+  // On local, new connections can come in before the old sockets are disconnected.
+  // The new connection will overwrite the socketID for the user's client.
+  // This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
     dispatchAction(world.store, NetworkWorldAction.destroyClient({ $from: userId }))
     logger.info('Disconnecting clients for user ' + userId)
@@ -393,7 +394,7 @@ export async function handleDisconnect(socket): Promise<any> {
     if (disconnectedClient?.channelRecvTransport) disconnectedClient.channelRecvTransport.close()
     if (disconnectedClient?.channelSendTransport) disconnectedClient.channelSendTransport.close()
   } else {
-    console.warn("Socket didn't match for disconnecting client")
+    logger.warn("Socket didn't match for disconnecting client.")
   }
 }
 
@@ -412,7 +413,7 @@ export async function handleLeaveWorld(socket, data, callback): Promise<any> {
 export function clearCachedActionsForDisconnectedUsers() {
   const cached = Engine.instance.currentWorld.store.actions.cached
   for (const action of [...cached]) {
-    if (Engine.instance.currentWorld.clients.has(action.$from) === false) {
+    if (!Engine.instance.currentWorld.clients.has(action.$from)) {
       const idx = cached.indexOf(action)
       cached.splice(idx, 1)
     }
