@@ -14,7 +14,6 @@ const ROOT_REDIRECT: any = globalThis.process.env['VITE_ROOT_REDIRECT']
 export const HomePage = (): any => {
   const { t } = useTranslation()
   const clientSettingState = useClientSettingState()
-  const [isHardwareAccelerationEnabled, setIsHardwareAccelerationEnabled] = useState(true)
   const [clientSetting] = clientSettingState?.client?.value || []
 
   useEffect(() => {

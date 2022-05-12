@@ -242,6 +242,7 @@
       "link": "Link",
       "cancel": "Cancel",
       "save": "Save",
+      "resetTheme": "Reset to Default",
       "aws": "AWS",
       "keys": "Keys",
       "accessKeyId": "Access Key ID",
@@ -321,8 +322,8 @@
     },
     "dialog": {
       "notAccess": "No access",
-      "askAccessResourceMessage": "To access this resource, please enter your username here to ask for access.",
-      "cancel": "Cancel",
+      "askAccessResourceMessage": "To access this resource, please enter your username here to ask for access or login to continue.",
+      "login": "Login",
       "submit": "Submit"
     },
     "user": {

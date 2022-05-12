@@ -253,7 +253,6 @@ const ViewUser = (props: Props) => {
                   className={styles.input}
                   name="name"
                   placeholder={t('admin:components.user.enterName')}
-                  style={{ color: '#fff' }}
                   autoComplete="off"
                   value={state.name}
                   onChange={handleInputChange}

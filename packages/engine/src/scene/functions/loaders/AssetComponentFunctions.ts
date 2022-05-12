@@ -7,7 +7,6 @@ import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction
 } from '@xrengine/engine/src/common/constants/PrefabFunctionType'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
@@ -35,22 +34,39 @@ export const SCENE_COMPONENT_ASSET_DEFAULT_VALUES = {
 }
 
 export const unloadAsset = (entity: Entity) => {
-  hasComponent(entity, AssetLoadedComponent) && removeComponent(entity, AssetLoadedComponent)
+  if (!hasComponent(entity, AssetComponent)) {
+    console.warn('no Asset component')
+  } else {
+    const assetComp = getComponent(entity, AssetComponent)
+    if (assetComp.loaded !== LoadState.LOADED) {
+      console.warn('asset', assetComp, 'is not in loaded state')
+    }
+    if (!hasComponent(entity, AssetLoadedComponent)) {
+      console.warn('no AssetLoaded component')
+    } else {
+      removeComponent(entity, AssetLoadedComponent)
+    }
+  }
 }
 
-export const loadAsset = async (entity: Entity) => {
+export const loadAsset = async (entity: Entity, loader = AssetLoader) => {
   const asset = getComponent(entity, AssetComponent)
   //check if asset is already loading or loaded
   if (asset.loaded !== LoadState.UNLOADED) {
     console.warn('Asset', asset, 'is not unloaded')
     return
   }
-  if (AssetLoader.getAssetType(asset.path) !== AssetType.XRE) {
+  if (loader.getAssetType(asset.path) !== AssetType.XRE) {
     throw Error('only .xre.gltf files currently supported')
   }
-  asset.loaded = LoadState.LOADING
-  const result = (await AssetLoader.loadAsync(asset.path)) as EntityTreeNode[]
-  addComponent(entity, AssetLoadedComponent, { roots: result })
+  try {
+    asset.loaded = LoadState.LOADING
+    const result = (await loader.loadAsync(asset.path)) as EntityTreeNode[]
+    addComponent(entity, AssetLoadedComponent, { roots: result })
+  } catch (e) {
+    asset.loaded = LoadState.UNLOADED
+    throw e
+  }
 }
 
 export const deserializeAsset: ComponentDeserializeFunction = async (
@@ -64,7 +80,7 @@ export const deserializeAsset: ComponentDeserializeFunction = async (
   }
   const props = parseAssetProperties(json.props)
   addComponent(entity, AssetComponent, props)
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ASSET)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ASSET)
 }
 
 export const serializeAsset: ComponentSerializeFunction = (entity) => {

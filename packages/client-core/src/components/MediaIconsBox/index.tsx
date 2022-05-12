@@ -21,7 +21,7 @@ import {
 import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
   startFaceTracking,
   startLipsyncTracking,
@@ -142,7 +142,7 @@ const MediaIconsBox = (props: Props) => {
     }
   }
 
-  const handleVRClick = () => dispatchAction(Engine.store, EngineActions.xrStart())
+  const handleVRClick = () => dispatchAction(Engine.instance.store, EngineActions.xrStart())
 
   const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
   const MicIcon = isCamAudioEnabled.value ? Mic : MicOff

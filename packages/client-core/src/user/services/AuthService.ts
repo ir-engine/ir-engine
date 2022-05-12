@@ -14,7 +14,6 @@ import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/int
 import { resolveUser, resolveWalletUser, User, UserSeed, UserSetting } from '@xrengine/common/src/interfaces/User'
 import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
@@ -27,6 +26,7 @@ import { accessLocationState } from '../../social/services/LocationService'
 import { accessPartyState } from '../../social/services/PartyService'
 import { store, useDispatch } from '../../store'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { serverHost } from '../../util/config'
 import { accessStoredLocalState, StoredLocalAction, StoredLocalActionType } from '../../util/StoredLocalState'
 import { uploadToFeathersService } from '../../util/upload'
 import { userPatched } from '../functions/userPatched'
@@ -78,7 +78,9 @@ store.receptors.push((action: AuthActionType | StoredLocalActionType): void => {
       case 'ACTION_PROCESSING':
         return s.merge({ isProcessing: action.processing, error: '' })
       case 'LOGIN_USER_SUCCESS':
-        return s.merge({ isLoggedIn: true, authUser: action.authUser })
+        return s.merge({ authUser: action.authUser })
+      case 'LOADED_USER_DATA':
+        return s.merge({ isLoggedIn: true, user: action.user })
       case 'LOGIN_USER_ERROR':
         return s.merge({ error: action.message })
       case 'LOGIN_USER_BY_GITHUB_SUCCESS':
@@ -97,9 +99,6 @@ store.receptors.push((action: AuthActionType | StoredLocalActionType): void => {
         return s.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
       case 'DID_VERIFY_EMAIL':
         return s.identityProvider.merge({ isVerified: action.result })
-
-      case 'LOADED_USER_DATA':
-        return s.merge({ user: action.user })
       case 'RESTORE': {
         const stored = accessStoredLocalState().attach(Downgraded).authData.value
         return s.merge({
@@ -208,7 +207,6 @@ export const AuthService = {
           res = await (client as any).reAuthenticate()
         }
         const authUser = resolveAuthUser(res)
-        if (isDev) globalThis.userId = authUser.identityProvider.userId
         dispatch(AuthAction.loginUserSuccess(authUser))
         await AuthService.loadUserData(authUser.identityProvider.userId)
       } else {
@@ -327,26 +325,17 @@ export const AuthService = {
   },
   loginUserByOAuth: async (service: string, location: any) => {
     const dispatch = useDispatch()
-    const serverHost =
-      process.env.APP_ENV === 'development'
-        ? `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}:${
-            (globalThis as any).process.env['VITE_SERVER_PORT']
-          }`
-        : `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}`
-    {
-      dispatch(AuthAction.actionProcessing(true))
-      const token = accessAuthState().authUser.accessToken.value
-      const path = location?.state?.from || location.pathname
-      const queryString = querystring.parse(window.location.search.slice(1))
-      const redirectObject = {
-        path: path
-      } as any
-      if (queryString.instanceId && queryString.instanceId.length > 0)
-        redirectObject.instanceId = queryString.instanceId
-      window.location.href = `${serverHost}/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(
-        redirectObject
-      )}`
-    }
+    dispatch(AuthAction.actionProcessing(true))
+    const token = accessAuthState().authUser.accessToken.value
+    const path = location?.state?.from || location.pathname
+    const queryString = querystring.parse(window.location.search.slice(1))
+    const redirectObject = {
+      path: path
+    } as any
+    if (queryString.instanceId && queryString.instanceId.length > 0) redirectObject.instanceId = queryString.instanceId
+    window.location.href = `${serverHost}/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(
+      redirectObject
+    )}`
   },
   loginUserByJwt: async (accessToken: string, redirectSuccess: string, redirectError: string) => {
     const dispatch = useDispatch()
@@ -683,7 +672,7 @@ export const AuthService = {
     dispatch(AuthAction.avatarUpdated(result))
   },
   uploadAvatarModel: async (avatar: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) => {
-    await uploadToFeathersService([avatar, thumbnail], 'upload-asset', () => {}, {
+    await uploadToFeathersService('upload-asset', [avatar, thumbnail], {
       type: 'user-avatar-upload',
       args: {
         avatarName,
@@ -740,7 +729,7 @@ export const AuthService = {
       })
   },
   updateUserAvatarId: async (userId: string, avatarId: string, avatarURL: string, thumbnailURL: string) => {
-    const world = Engine.currentWorld
+    const world = Engine.instance.currentWorld
     const dispatch = useDispatch()
 
     client
@@ -760,14 +749,6 @@ export const AuthService = {
             }
           })
         )
-        const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
-        transport?.sendNetworkStatUpdateMessage({
-          type: MessageTypes.AvatarUpdated,
-          userId,
-          avatarId,
-          avatarURL,
-          thumbnailURL
-        })
       })
   },
   removeUser: async (userId: string) => {

@@ -18,7 +18,7 @@ export default async function GizmoSystem(_: World) {
       const gizmoObj = getComponent(entity, Object3DComponent)?.value as TransformGizmo
       if (!gizmoObj || !gizmoObj.visible) return
 
-      const eyeDistance = gizmoObj.position.distanceTo(Engine.camera.position) / GIZMO_SIZE
+      const eyeDistance = gizmoObj.position.distanceTo(Engine.instance.camera.position) / GIZMO_SIZE
       gizmoObj.scale.set(eyeDistance, eyeDistance, eyeDistance)
     }
   }

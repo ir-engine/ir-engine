@@ -1,11 +1,26 @@
-import { createLogger, format, transports } from 'winston'
+import pino from 'pino'
+import pinoElastic from 'pino-elasticsearch'
+import pinoMs from 'pino-multi-stream'
+import pretty from 'pino-pretty'
 
-// Configure the Winston logger. For the complete documentation see https://github.com/winstonjs/winston
-const logger = createLogger({
-  // To see more detailed errors, change this to 'debug'
-  level: 'debug',
-  format: format.combine(format.splat(), format.simple()),
-  transports: [new transports.Console(), new transports.File({ filename: 'combined.log' })]
+let node = process.env.ELASTIC_HOST || 'http://localhost:9200'
+
+const streamToPretty = pretty({
+  colorize: true
+})
+
+const streamToElastic = pinoElastic({
+  index: 'xr-engine',
+  consistency: 'one',
+  node: node,
+  'es-version': 7,
+  'flush-bytes': 1000
+})
+
+const pinoOptions = {}
+
+const logger = pino(pinoOptions, pinoMs.multistream([{ stream: streamToPretty }, { stream: streamToElastic }])).child({
+  component: 'server-core'
 })
 
 export default logger

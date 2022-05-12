@@ -2,8 +2,6 @@ import { State } from '@speigg/hookstate'
 
 import { Action, ActionReceptor } from './ActionFunctions'
 
-export const allowStateMutations = Symbol('allowMutations')
-
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
 export interface HyperStore<StoreName extends string> {
   /**
@@ -28,10 +26,6 @@ export interface HyperStore<StoreName extends string> {
    * The default dispatch delay (default is 0)
    */
   defaultDispatchDelay: number
-  /**
-   *
-   */
-  [allowStateMutations]: boolean
   /**
    * State dictionary
    */
@@ -71,7 +65,6 @@ function createHyperStore<StoreName extends string>(options: {
     getDispatchId: options.getDispatchId,
     getDispatchTime: options.getDispatchTime,
     defaultDispatchDelay: options.defaultDispatchDelay ?? 0,
-    [allowStateMutations]: false,
     state: {},
     actions: {
       cached: [],

@@ -53,9 +53,15 @@ issues. Make sure you are running Node 16, and check your dependencies.
 cd path/to/xrengine
 npm install
 npm run dev-docker
-npm run dev-reinit # press Ctrl-C after it finishes/'Server Ready'
+npm run dev-reinit
 npm run dev
 ```
+
+### Setup Elastic Search & Grafana
+
+Elastic Search and Grafana will be automatically launched with `npm run dev`.
+
+Elasticsearch & Grafana will be running on localhost port 9200 & 5601 respectively.
 
 This will automatically set up and run Redis/MariaDB docker
 containers, and XRengine client/server/game-server instances.

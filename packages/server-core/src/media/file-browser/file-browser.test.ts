@@ -272,17 +272,16 @@ describe('file browser service', () => {
     fs.writeFileSync(filePath, 'Hello world')
     fs.writeFileSync(fileStoragePath, 'Hello world')
 
-    const result = await app.service('file-browser').patch(path.join(TEST_PROJECT, fileName), {
+    const result = await app.service('file-browser').patch(null, {
+      fileName,
+      path: TEST_PROJECT,
       body: Buffer.from(newData, 'utf-8'),
       contentType: 'any'
     })
 
-    assert(
-      result ===
-        `https://${(app.service('file-browser').store as LocalStorage).cacheDomain}/${path.join(
-          TEST_PROJECT,
-          fileName
-        )}`
+    assert.equal(
+      result,
+      `https://${(app.service('file-browser').store as LocalStorage).cacheDomain}/${path.join(TEST_PROJECT, fileName)}`
     )
 
     assert(fs.existsSync(filePath))
@@ -304,12 +303,32 @@ describe('file browser service', () => {
       fs.writeFileSync(filePath, 'Hello world')
       fs.writeFileSync(fileStoragePath, 'Hello world')
 
+      await app.service('static-resource').create(
+        {
+          name: 'Hello world',
+          mimeType: 'txt',
+          url: fileStoragePath,
+          key: filePath
+        },
+        {
+          isInternal: true
+        }
+      )
+
       const result = await app.service('file-browser').remove(path.join(TEST_PROJECT, fileName))
 
       result.forEach((r) => assert(r === true))
 
+      const staticResource = await app.service('static-resource').find({
+        where: {
+          key: filePath,
+          $limit: 1
+        }
+      })
+
       assert(!fs.existsSync(filePath))
       assert(!fs.existsSync(fileStoragePath))
+      assert.notEqual(staticResource.length, 1)
     })
 
     it('removes dir recursively', async () => {

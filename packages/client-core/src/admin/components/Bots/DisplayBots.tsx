@@ -152,7 +152,7 @@ const DisplayBots = () => {
                   <Grid item xs={4} style={{ display: 'flex' }}>
                     <div style={{ marginLeft: 'auto' }}>
                       <IconButton onClick={() => handleOpenModal(bot)} size="large">
-                        <Edit style={{ color: '#fff' }} />
+                        <Edit style={{ color: 'var(--iconButtonColor)' }} />
                       </IconButton>
                       <IconButton
                         onClick={() => {
@@ -162,7 +162,7 @@ const DisplayBots = () => {
                         }}
                         size="large"
                       >
-                        <DeleteIcon style={{ color: '#fff' }} />
+                        <DeleteIcon style={{ color: 'var(--iconButtonColor)' }} />
                       </IconButton>
                     </div>
                   </Grid>

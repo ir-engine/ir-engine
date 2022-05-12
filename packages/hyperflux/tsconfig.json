@@ -6,7 +6,6 @@
       "dom",
       "dom.iterable"
     ],
-    "baseUrl": ".",
     "paths": {
       "@mui/styled-engine": ["./node_modules/@mui/styled-engine-sc"]
     },
@@ -40,5 +39,5 @@
     "./**/*.tsx",
     "../../PhysX.d.ts",
     "../../PhysXDebug.d.ts"
-  ]
+, "../engine/src/common/functions/MatchesUtils.ts"  ]
 }

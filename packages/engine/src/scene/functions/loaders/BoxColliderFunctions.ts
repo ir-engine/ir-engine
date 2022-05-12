@@ -1,4 +1,4 @@
-import { Object3D } from 'three'
+import { Mesh, Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -7,9 +7,8 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
 import { isTriggerShape, setTriggerShape } from '../../../physics/classes/Physics'
 import { ColliderComponent } from '../../../physics/components/ColliderComponent'
@@ -47,21 +46,15 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
   addComponent(entity, ColliderComponent, { body })
   addComponent(entity, CollisionComponent, { collisions: [] })
 
-  if (Engine.isEditor) {
-    if (!hasComponent(entity, Object3DComponent)) addComponent(entity, Object3DComponent, { value: new Object3D() })
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_BOX_COLLIDER)
-  } else {
-    if (
-      boxColliderProps.removeMesh === 'true' ||
-      (typeof boxColliderProps.removeMesh === 'boolean' && boxColliderProps.removeMesh === true)
-    ) {
-      const obj = getComponent(entity, Object3DComponent)
-      if (obj?.value) {
-        if (obj.value.parent) obj.value.removeFromParent()
-        removeComponent(entity, Object3DComponent)
-      }
-    }
-  }
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_BOX_COLLIDER)
+
+  if (!hasComponent(entity, Object3DComponent)) addComponent(entity, Object3DComponent, { value: new Object3D() })
+  const obj3d = getComponent(entity, Object3DComponent).value
+  const meshObjs: Object3D[] = []
+  obj3d.traverse((mesh: Mesh) => {
+    if (typeof mesh.userData['type'] === 'string') meshObjs.push(mesh)
+  })
+  meshObjs.forEach((mesh) => mesh.removeFromParent())
 }
 
 export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity, props: BoxColliderProps) => {

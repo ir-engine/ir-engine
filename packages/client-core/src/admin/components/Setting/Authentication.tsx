@@ -206,33 +206,15 @@ const Account = (props: Props) => {
           <Grid item xs={12} sm={6} md={4}>
             <label> {t('admin:components.setting.service')}</label>
             <Paper component="div" className={styles.createInput}>
-              <InputBase
-                value={authSetting?.service || ''}
-                name="service"
-                style={{ color: '#fff' }}
-                disabled
-                className={styles.input}
-              />
+              <InputBase value={authSetting?.service || ''} name="service" disabled className={styles.input} />
             </Paper>
             <label>{t('admin:components.setting.secret')}</label>
             <Paper component="div" className={styles.createInput}>
-              <InputBase
-                value={authSetting?.secret || ''}
-                name="secret"
-                style={{ color: '#fff' }}
-                disabled
-                className={styles.input}
-              />
+              <InputBase value={authSetting?.secret || ''} name="secret" disabled className={styles.input} />
             </Paper>
             <label>{t('admin:components.setting.entity')}</label>
             <Paper component="div" className={styles.createInput}>
-              <InputBase
-                value={authSetting?.entity || ''}
-                name="entity"
-                style={{ color: '#fff' }}
-                disabled
-                className={styles.input}
-              />
+              <InputBase value={authSetting?.entity || ''} name="entity" disabled className={styles.input} />
             </Paper>
             <Typography component="h1" className={styles.settingsHeading}>
               {t('admin:components.setting.authStrategies')}
@@ -262,7 +244,6 @@ const Account = (props: Props) => {
               <InputBase
                 value={authSetting?.local.usernameField || ''}
                 name="username"
-                style={{ color: '#fff' }}
                 disabled
                 className={styles.input}
               />
@@ -272,7 +253,6 @@ const Account = (props: Props) => {
               <InputBase
                 value={authSetting?.local.passwordField || ''}
                 name="password"
-                style={{ color: '#fff' }}
                 disabled
                 className={styles.input}
                 type={showPassword.password.secret ? 'text' : 'password'}
@@ -294,7 +274,6 @@ const Account = (props: Props) => {
               <InputBase
                 value={authSetting?.oauth?.defaults?.host || ''}
                 name="host"
-                style={{ color: '#fff' }}
                 disabled
                 className={styles.input}
               />
@@ -304,20 +283,18 @@ const Account = (props: Props) => {
               <InputBase
                 value={authSetting?.oauth?.defaults?.protocol || ''}
                 name="protocol"
-                style={{ color: '#fff' }}
                 disabled
                 className={styles.input}
               />
             </Paper>
             {holdAuth?.discord && (
               <Paper className={styles.Paper} elevation={0}>
-                <label style={{ color: '#fff' }}>{t('admin:components.setting.discord')}</label>
+                <label>{t('admin:components.setting.discord')}</label>
                 <Paper component="div" className={styles.createInput}>
                   <label>{t('admin:components.setting.key')}:</label>
                   <InputBase
                     value={keySecret?.discord?.key || ''}
                     name="key"
-                    style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.DISCORD)}
                     className={styles.input}
                     type={showPassword.discord.key ? 'text' : 'password'}
@@ -334,7 +311,6 @@ const Account = (props: Props) => {
                   <InputBase
                     value={keySecret?.discord?.secret || ''}
                     name="secret"
-                    style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.DISCORD)}
                     className={styles.input}
                     type={showPassword.discord.secret ? 'text' : 'password'}
@@ -351,7 +327,6 @@ const Account = (props: Props) => {
                   <InputBase
                     value={authSetting?.callback?.discord || ''}
                     name="callbackGithub"
-                    style={{ color: '#fff' }}
                     disabled
                     className={styles.input}
                   />
@@ -360,13 +335,12 @@ const Account = (props: Props) => {
             )}
             {holdAuth?.facebook && (
               <Paper className={styles.Paper} elevation={0}>
-                <label style={{ color: '#fff' }}>{t('admin:components.setting.facebook')}</label>
+                <label>{t('admin:components.setting.facebook')}</label>
                 <Paper component="div" className={styles.createInput}>
                   <label>{t('admin:components.setting.key')}:</label>
                   <InputBase
                     value={keySecret?.facebook?.key || ''}
                     name="key"
-                    style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.FACEBOOK)}
                     className={styles.input}
                     type={showPassword.facebook.key ? 'text' : 'password'}
@@ -383,7 +357,6 @@ const Account = (props: Props) => {
                   <InputBase
                     value={keySecret?.facebook?.secret || ''}
                     name="secret"
-                    style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.FACEBOOK)}
                     className={styles.input}
                     type={showPassword.facebook.secret ? 'text' : 'password'}
@@ -400,7 +373,6 @@ const Account = (props: Props) => {
                   <InputBase
                     value={authSetting?.callback?.facebook || ''}
                     name="callbackGithub"
-                    style={{ color: '#fff' }}
                     disabled
                     className={styles.input}
                   />
@@ -409,13 +381,12 @@ const Account = (props: Props) => {
             )}
             {holdAuth?.github && (
               <Paper className={styles.Paper} style={{ marginTop: '10px' }} elevation={0}>
-                <label style={{ color: '#fff' }}>{t('admin:components.setting.github')}</label>
+                <label>{t('admin:components.setting.github')}</label>
                 <Paper component="div" className={styles.createInput}>
                   <label>{t('admin:components.setting.appId')}:</label>
                   <InputBase
                     value={keySecret?.github?.appid || ''}
                     name="key"
-                    style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeAppId(e, OAUTH_TYPES.GITHUB)}
                     className={styles.input}
                     type={showPassword.github.appid ? 'text' : 'password'}
@@ -432,7 +403,6 @@ const Account = (props: Props) => {
                   <InputBase
                     value={keySecret?.github?.key || ''}
                     name="key"
-                    style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GITHUB)}
                     className={styles.input}
                     type={showPassword.github.key ? 'text' : 'password'}
@@ -449,7 +419,6 @@ const Account = (props: Props) => {
                   <InputBase
                     value={keySecret?.github?.secret || ''}
                     name="secret"
-                    style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GITHUB)}
                     className={styles.input}
                     type={showPassword.github.secret ? 'text' : 'password'}
@@ -467,7 +436,6 @@ const Account = (props: Props) => {
                   <InputBase
                     value={authSetting?.callback?.github || ''}
                     name="callbackGithub"
-                    style={{ color: '#fff' }}
                     disabled
                     className={styles.input}
                   />
@@ -478,14 +446,13 @@ const Account = (props: Props) => {
           <Grid item xs={12} sm={6} md={4}>
             {holdAuth?.google && (
               <Paper className={styles.Paper} style={{ marginBottom: '10px' }} elevation={0}>
-                <label style={{ color: '#fff' }}>{t('admin:components.setting.google')}</label>
+                <label>{t('admin:components.setting.google')}</label>
                 <Paper component="div" className={styles.createInput}>
                   <label>{t('admin:components.setting.key')}:</label>
                   <InputBase
                     type={showPassword.google.key ? 'text' : 'password'}
                     value={keySecret?.google?.key || ''}
                     name="key"
-                    style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GOOGLE)}
                     className={styles.input}
                   />
@@ -502,7 +469,6 @@ const Account = (props: Props) => {
                   <InputBase
                     value={keySecret?.google?.secret || ''}
                     name="secret"
-                    style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GOOGLE)}
                     className={styles.input}
                     type={showPassword.google.secret ? 'text' : 'password'}
@@ -520,7 +486,6 @@ const Account = (props: Props) => {
                   <InputBase
                     value={authSetting?.callback?.google || ''}
                     name="callbackGoogle"
-                    style={{ color: '#fff' }}
                     disabled
                     className={styles.input}
                   />
@@ -529,13 +494,12 @@ const Account = (props: Props) => {
             )}
             {holdAuth?.linkedin && (
               <Paper className={styles.Paper} style={{ marginBottom: '10px' }} elevation={0}>
-                <label style={{ color: '#fff' }}>{t('admin:components.setting.linkedIn')}</label>
+                <label>{t('admin:components.setting.linkedIn')}</label>
                 <Paper component="div" className={styles.createInput}>
                   <label>{t('admin:components.setting.key')}:</label>
                   <InputBase
                     value={keySecret?.linkedin?.key || ''}
                     name="key"
-                    style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.LINKEDIN)}
                     className={styles.input}
                     type={showPassword.linkedin.key ? 'text' : 'password'}
@@ -552,7 +516,6 @@ const Account = (props: Props) => {
                   <InputBase
                     value={keySecret?.linkedin?.secret || ''}
                     name="secret"
-                    style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.LINKEDIN)}
                     className={styles.input}
                     type={showPassword.linkedin.secret ? 'text' : 'password'}
@@ -569,7 +532,6 @@ const Account = (props: Props) => {
                   <InputBase
                     value={authSetting?.callback?.linkedin || ''}
                     name="callbackLinkedin"
-                    style={{ color: '#fff' }}
                     disabled
                     className={styles.input}
                   />
@@ -584,7 +546,6 @@ const Account = (props: Props) => {
                   <InputBase
                     value={keySecret?.twitter?.key || ''}
                     name="key"
-                    style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.TWITTER)}
                     className={styles.input}
                     type={showPassword.twitter.key ? 'text' : 'password'}
@@ -601,7 +562,6 @@ const Account = (props: Props) => {
                   <InputBase
                     value={keySecret?.twitter?.secret || ''}
                     name="secret"
-                    style={{ color: '#fff' }}
                     onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.TWITTER)}
                     className={styles.input}
                     type={showPassword.twitter.secret ? 'text' : 'password'}
@@ -619,7 +579,6 @@ const Account = (props: Props) => {
                   <InputBase
                     value={authSetting?.callback?.twitter || ''}
                     name="callbackTwitter"
-                    style={{ color: '#fff' }}
                     disabled
                     className={styles.input}
                   />
@@ -628,7 +587,7 @@ const Account = (props: Props) => {
             )}
           </Grid>
         </Grid>
-        <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
+        <Button sx={{ maxWidth: '100%' }} variant="outlined" className={styles.cancelButton} onClick={handleCancel}>
           {t('admin:components.setting.cancel')}
         </Button>
         &nbsp; &nbsp;

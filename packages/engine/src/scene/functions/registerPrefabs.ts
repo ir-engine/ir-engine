@@ -25,6 +25,7 @@ import {
   SCENE_COMPONENT_DIRECTIONAL_LIGHT,
   SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES
 } from './loaders/DirectionalLightFunctions'
+import { SCENE_COMPONENT_ENVMAP, SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES } from './loaders/EnvMapFunctions'
 import {
   SCENE_COMPONENT_GROUND_PLANE,
   SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES
@@ -194,6 +195,7 @@ export const registerPrefabs = (world: World) => {
   world.scenePrefabRegistry.set(ScenePrefabs.model, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_MODEL, props: SCENE_COMPONENT_MODEL_DEFAULT_VALUE },
+    { name: SCENE_COMPONENT_ENVMAP, props: SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_LOOP_ANIMATION, props: SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE }
   ])
 

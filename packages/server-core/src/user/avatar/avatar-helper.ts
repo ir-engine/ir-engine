@@ -3,10 +3,10 @@ import fs from 'fs'
 import path from 'path'
 
 import { AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
-// import { generateAvatarThumbnail } from './generateAvatarThumbnail'
 import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownContentTypes'
 
 import { Application } from '../../../declarations'
+import logger from '../../logger'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { addGenericAssetToS3AndStaticResources } from '../../media/upload-media/upload-asset.service'
 
@@ -51,6 +51,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
 
 export const uploadAvatarStaticResource = async (app: Application, data: AvatarUploadArguments, params?: Params) => {
   const key = `avatars/${data.userId ?? 'public'}/${data.avatarName}`
+  logger.info('uploadAvatarStaticResource', key)
 
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
   // if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')
@@ -75,7 +76,7 @@ export const uploadAvatarStaticResource = async (app: Application, data: AvatarU
 
   const [avatarURL, thumbnailURL] = await Promise.all([modelPromise, thumbnailPromise])
 
-  console.log('Successfully uploaded avatar!', avatarURL)
+  logger.info(`Successfully uploaded avatar: ${avatarURL}`)
 
   return {
     avatarURL,

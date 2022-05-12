@@ -1,15 +1,16 @@
 import { Params } from '@feathersjs/feathers'
-import appRootPath from 'app-root-path'
-import fs from 'fs'
-import path from 'path'
 
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Application } from '../../../declarations'
+import logger from '../../logger'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getAllPortals, getCubemapBake, getPortal } from './scene-helper'
 import { getSceneData, Scene } from './scene.class'
 import projectDocs from './scene.docs'
 import hooks from './scene.hooks'
+
+const storageProvider = useStorageProvider()
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
@@ -19,7 +20,7 @@ declare module '@xrengine/common/declarations' {
     portal: any
   }
   interface ServiceTypes {
-    scenes: {
+    'scene-data': {
       get: ReturnType<typeof getScenesForProject>
       find: ReturnType<typeof getAllScenes>
     }
@@ -39,25 +40,25 @@ export const getScenesForProject = (app: Application) => {
       const project = await app.service('project').get(projectName, params)
       if (!project || !project.data) throw new Error(`No project named ${projectName} exists`)
 
-      const newSceneJsonPath = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}`)
+      const newSceneJsonPath = `projects/${projectName}/`
 
-      const files = fs
-        .readdirSync(newSceneJsonPath, { withFileTypes: true })
-        .filter((dirent) => !dirent.isDirectory())
-        .map((dirent) => dirent.name)
+      const fileResults = await storageProvider.listObjects(newSceneJsonPath, false)
+      const files = fileResults.Contents.map((dirent) => dirent.Key)
         .filter((name) => name.endsWith('.scene.json'))
         .map((name) => name.slice(0, -'.scene.json'.length))
 
-      const sceneData: SceneData[] = files.map((sceneName) =>
-        getSceneData(projectName, sceneName, metadataOnly, internal)
+      const sceneData: SceneData[] = await Promise.all(
+        files.map(async (sceneName) =>
+          getSceneData(projectName, sceneName.replace(newSceneJsonPath, ''), metadataOnly, internal)
+        )
       )
 
       return {
         data: sceneData
       }
     } catch (e) {
-      console.log(e)
-      return null!
+      logger.error(e)
+      return { data: [] }
     }
   }
 }
@@ -97,7 +98,7 @@ export default (app: Application) => {
 
   app.use('scene', event)
 
-  app.use('scenes', {
+  app.use('scene-data', {
     get: getScenesForProject(app),
     find: getAllScenes(app)
   })

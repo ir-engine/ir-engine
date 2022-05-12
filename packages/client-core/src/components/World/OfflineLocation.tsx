@@ -4,24 +4,24 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { useHookEffect } from '@xrengine/hyperflux'
+import { useHookEffect, useState } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
 import GameServerWarnings from './GameServerWarnings'
 
 export const OfflineLocation = () => {
-  const engineState = useEngineState()
+  const engineState = useState(getEngineState())
   const authState = useAuthState()
 
   /** OFFLINE */
   useHookEffect(async () => {
     if (engineState.sceneLoaded.value) {
-      const world = Engine.currentWorld
+      const world = Engine.instance.currentWorld
       const userId = authState.authUser.identityProvider.userId.value
-      Engine.userId = userId
-      world.hostId = Engine.userId as UserId
+      Engine.instance.userId = userId
+      world.hostId = Engine.instance.userId as UserId
 
       const index = 1
       world.userIdToUserIndex.set(userId, index)
@@ -33,7 +33,7 @@ export const OfflineLocation = () => {
         subscribedChatUpdates: []
       })
 
-      const user = await client.service('user').get(Engine.userId)
+      const user = await client.service('user').get(Engine.instance.userId)
       const avatarDetails = await client.service('avatar').get(user.avatarId!)
 
       const avatarSpawnPose = SpawnPoints.instance.getRandomSpawnPoint()

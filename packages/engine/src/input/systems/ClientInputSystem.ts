@@ -4,6 +4,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { InputComponent, InputComponentType } from '../components/InputComponent'
 import { LocalInputTagComponent } from '../components/LocalInputTagComponent'
 import { InputType } from '../enums/InputType'
@@ -14,36 +15,36 @@ import { InputAlias } from '../types/InputAlias'
 
 export const processEngineInputState = () => {
   // for continuous input, figure out if the current data and previous data is the same
-  Engine.inputState.forEach((value: InputValue, key: InputAlias) => {
-    if (Engine.prevInputState.has(key)) {
+  Engine.instance.inputState.forEach((value: InputValue, key: InputAlias) => {
+    if (Engine.instance.prevInputState.has(key)) {
       if (value.type === InputType.BUTTON) {
         if (
           value.lifecycleState === LifecycleValue.Started &&
-          Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.Started
+          Engine.instance.prevInputState.get(key)?.lifecycleState === LifecycleValue.Started
         ) {
           value.lifecycleState = LifecycleValue.Continued
         }
       } else {
         if (value.lifecycleState !== LifecycleValue.Ended) {
           value.lifecycleState =
-            JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key)?.value)
+            JSON.stringify(value.value) === JSON.stringify(Engine.instance.prevInputState.get(key)?.value)
               ? LifecycleValue.Unchanged
               : LifecycleValue.Changed
         }
       }
 
       if (
-        Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.Ended &&
+        Engine.instance.prevInputState.get(key)?.lifecycleState === LifecycleValue.Ended &&
         value.lifecycleState === LifecycleValue.Ended
       ) {
-        Engine.inputState.delete(key)
+        Engine.instance.inputState.delete(key)
       }
     }
   })
 
-  Engine.prevInputState.clear()
-  Engine.inputState.forEach((value: InputValue, key: InputAlias) => {
-    Engine.prevInputState.set(key, value)
+  Engine.instance.prevInputState.clear()
+  Engine.instance.inputState.forEach((value: InputValue, key: InputAlias) => {
+    Engine.instance.prevInputState.set(key, value)
   })
 }
 
@@ -54,7 +55,7 @@ export const processCombinationLifecycle = (
   input: InputAlias[]
 ) => {
   const prev = prevData.get(mapping)
-  const isActive = input.map((c) => Engine.inputState.has(c)).filter((a) => !a).length === 0
+  const isActive = input.map((c) => Engine.instance.inputState.has(c)).filter((a) => !a).length === 0
   const wasActive = prev?.lifecycleState === LifecycleValue.Started || prev?.lifecycleState === LifecycleValue.Continued
 
   if (isActive) {
@@ -104,8 +105,8 @@ export const processInputComponentData = (entity: Entity) => {
     if (typeof input === 'object') {
       processCombinationLifecycle(inputComponent, prevData, mapping, input)
     } else {
-      if (Engine.inputState.has(input))
-        inputComponent.data.set(mapping, JSON.parse(JSON.stringify(Engine.inputState.get(input))))
+      if (Engine.instance.inputState.has(input))
+        inputComponent.data.set(mapping, JSON.parse(JSON.stringify(Engine.instance.inputState.get(input))))
     }
   }
 
@@ -123,7 +124,7 @@ export default async function ClientInputSystem(world: World) {
   addClientInputListeners()
 
   return () => {
-    if (!Engine.xrSession) {
+    if (!EngineRenderer.instance?.xrSession) {
       handleGamepads()
     }
 

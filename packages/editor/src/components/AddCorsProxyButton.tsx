@@ -2,7 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
-import { corsProxyPath } from '@xrengine/client-core/src/util/getCorsProxyPath'
+import { corsProxyPath } from '@xrengine/client-core/src/util/config'
 
 import DnsIcon from '@mui/icons-material/Dns'
 
@@ -17,12 +17,12 @@ export const DnsInfoIcon = (styled as any)(DnsIcon)`
   width: 18px;
   display: flex;
   margin-left: 5px;
-  color: var(--purpleColor);
+  color: var(--iconButtonColor);
   cursor: pointer;
   align-self: center;
 
   &:hover {
-    color: var(--text);
+    color: var(--iconButtonHoverColor);
   }
 `
 

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
 import { getDirectoryFromUrl } from '@xrengine/common/src/utils/getDirectoryFromUrl'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import {

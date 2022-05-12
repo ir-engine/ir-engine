@@ -40,54 +40,51 @@ export const deserializePortal: ComponentDeserializeFunction = (
 
   addComponent(entity, PortalComponent, props)
 
-  if (Engine.isEditor) {
-    const spawnHelperEntity = createEntity()
-    const portalComponent = getComponent(entity, PortalComponent)
-    portalComponent.helper = spawnHelperEntity
-    addComponent(spawnHelperEntity, TransformComponent, {
-      position: new Vector3(),
-      rotation: new Quaternion(),
-      scale: new Vector3(1, 1, 1)
-    })
-    const spawnHelperMesh = new Mesh(
-      new CylinderGeometry(1, 1, 0.3, 6, 1, false, (30 * Math.PI) / 180),
-      new MeshBasicMaterial({ color: 0x2b59c3 })
-    )
-    const spawnDirection = new Mesh(
-      new ConeGeometry(0.15, 0.5, 4, 1, false, Math.PI / 4),
-      new MeshBasicMaterial({ color: 0xd36582 })
-    )
-    spawnDirection.position.set(0, 0, 1.25)
-    spawnDirection.rotateX(Math.PI / 2)
-    spawnHelperMesh.add(spawnDirection)
+  const spawnHelperEntity = createEntity()
+  const portalComponent = getComponent(entity, PortalComponent)
+  portalComponent.helper = spawnHelperEntity
+  addComponent(spawnHelperEntity, TransformComponent, {
+    position: new Vector3(),
+    rotation: new Quaternion(),
+    scale: new Vector3(1, 1, 1)
+  })
+  const spawnHelperMesh = new Mesh(
+    new CylinderGeometry(1, 1, 0.3, 6, 1, false, (30 * Math.PI) / 180),
+    new MeshBasicMaterial({ color: 0x2b59c3 })
+  )
+  const spawnDirection = new Mesh(
+    new ConeGeometry(0.15, 0.5, 4, 1, false, Math.PI / 4),
+    new MeshBasicMaterial({ color: 0xd36582 })
+  )
+  spawnDirection.position.set(0, 0, 1.25)
+  spawnDirection.rotateX(Math.PI / 2)
+  spawnHelperMesh.add(spawnDirection)
+  spawnHelperMesh.userData.isHelper = true
 
-    setObjectLayers(spawnHelperMesh, ObjectLayers.NodeHelper)
-    addComponent(spawnHelperEntity, Object3DComponent, { value: spawnHelperMesh })
-  }
+  setObjectLayers(spawnHelperMesh, ObjectLayers.NodeHelper)
+  addComponent(spawnHelperEntity, Object3DComponent, { value: spawnHelperMesh })
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PORTAL)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PORTAL)
 
   updatePortal(entity)
 }
 
 export const updatePortal: ComponentUpdateFunction = (entity: Entity) => {
-  if (Engine.isEditor) {
-    const portalComponent = getComponent(entity, PortalComponent)
-    const helperTransform = getComponent(portalComponent.helper, TransformComponent)
-    if (portalComponent.spawnPosition) {
-      helperTransform.position.set(
-        portalComponent.spawnPosition.x || 0,
-        portalComponent.spawnPosition.y || 0,
-        portalComponent.spawnPosition.z || 0
-      )
-    }
-    if (portalComponent.spawnRotation) {
-      const euler = new Euler().setFromQuaternion(helperTransform.rotation)
-      euler.x = portalComponent.spawnRotation.x ?? euler.x
-      euler.y = portalComponent.spawnRotation.y ?? euler.y
-      euler.z = portalComponent.spawnRotation.z ?? euler.z
-      helperTransform.rotation.setFromEuler(euler)
-    }
+  const portalComponent = getComponent(entity, PortalComponent)
+  const helperTransform = getComponent(portalComponent.helper, TransformComponent)
+  if (portalComponent.spawnPosition) {
+    helperTransform.position.set(
+      portalComponent.spawnPosition.x || 0,
+      portalComponent.spawnPosition.y || 0,
+      portalComponent.spawnPosition.z || 0
+    )
+  }
+  if (portalComponent.spawnRotation) {
+    const euler = new Euler().setFromQuaternion(helperTransform.rotation)
+    euler.x = portalComponent.spawnRotation.x ?? euler.x
+    euler.y = portalComponent.spawnRotation.y ?? euler.y
+    euler.z = portalComponent.spawnRotation.z ?? euler.z
+    helperTransform.rotation.setFromEuler(euler)
   }
 }
 

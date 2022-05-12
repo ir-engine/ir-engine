@@ -17,10 +17,12 @@ import {
   createFeathersExpressApp,
   serverPipe
 } from '@xrengine/server-core/src/createApp'
-import logger from '@xrengine/server-core/src/logger'
+import multiLogger from '@xrengine/server-core/src/logger'
 
 import channels from './channels'
 import { ServerTransportHandler, SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+
+const logger = multiLogger.child({ component: 'gameserver' })
 
 // import preloadLocation from './preload-location'
 
@@ -29,7 +31,7 @@ import { ServerTransportHandler, SocketWebRTCServerTransport } from './SocketWeb
  */
 
 process.on('unhandledRejection', (error, promise) => {
-  console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').')
+  logger.error(error, 'UNHANDLED REJECTION - Promise: %o', promise)
 })
 
 const onSocketIO = (app: Application) => {
@@ -50,27 +52,23 @@ export const start = async (): Promise<Application> => {
 
   const agonesSDK = new AgonesSDK()
 
-  if (config.kubernetes.enabled || process.env.APP_ENV === 'development') {
-    agonesSDK.connect()
-    agonesSDK.ready().catch((err) => {
-      console.log(err)
-      throw new Error(
-        '\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m'
-      )
-    })
-    app.agonesSDK = agonesSDK
-    setInterval(() => agonesSDK.health(), 1000)
+  agonesSDK.connect()
+  agonesSDK.ready().catch((err) => {
+    logger.error(err)
+    throw new Error(
+      '\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m'
+    )
+  })
+  app.agonesSDK = agonesSDK
+  setInterval(() => agonesSDK.health(), 1000)
 
-    app.configure(channels)
-  } else {
-    console.warn('Did not create gameserver')
-  }
+  app.configure(channels)
 
   /**
    * When using local dev, to properly test multiple worlds for portals we
    * need to programatically shut down and restart the gameserver process.
    */
-  if (process.env.APP_ENV === 'development' && !config.kubernetes.enabled) {
+  if (!config.kubernetes.enabled) {
     app.restart = () => {
       require('child_process').spawn('npm', ['run', 'dev'], {
         cwd: process.cwd(),
@@ -115,11 +113,13 @@ export const start = async (): Promise<Application> => {
     cert: useSSL ? fs.readFileSync(certPath) : null
   } as any
   const port = config.gameserver.port
-  if (useSSL) console.log('Starting gameserver with HTTPS on', port)
-  else
-    console.log(
+  if (useSSL) {
+    logger.info(`Starting gameserver with HTTPS on port ${port}.`)
+  } else {
+    logger.info(
       `Starting gameserver with NO HTTPS on ${port}, if you meant to use HTTPS try 'sudo bash generate-certs'`
     )
+  }
 
   // http redirects for development
   if (useSSL) {
@@ -140,26 +140,29 @@ export const start = async (): Promise<Application> => {
 
   const server = useSSL ? https.createServer(certOptions, app as any).listen(port) : await app.listen(port)
 
-  if (useSSL === true) app.setup(server)
+  if (useSSL) {
+    app.setup(server)
+  }
 
   // if (config.gameserver.locationName != null) {
-  //   console.log('PRELOADING WORLD WITH LOCATION NAME', config.gameserver.locationName)
+  //   logger.info('PRELOADING WORLD WITH LOCATION NAME %s', config.gameserver.locationName)
   //   preloadLocation(config.gameserver.locationName, app)
   // }
 
-  process.on('unhandledRejection', (reason, p) => logger.error('Unhandled Rejection at: Promise ', p, reason))
+  process.on('unhandledRejection', (error, promise) => {
+    logger.error(error, 'UNHANDLED REJECTION - Promise: %o', promise)
+  })
   // if (process.env.APP_ENV === 'production' && fs.existsSync('/var/log')) {
   //   try {
-  //     console.log("Writing access log to ", '/var/log/api.access.log');
+  //     logger.info("Writing access log to '/var/log/api.access.log'");
   //     const access = fs.createWriteStream('/var/log/api.access.log');
   //     process.stdout.write = process.stderr.write = access.write.bind(access);
-  //     console.log('Log file write setup successfully');
+  //     logger.info('Log file write setup successfully');
   //   } catch(err) {
-  //     console.log('access log write error');
-  //     console.log(err);
+  //     logger.error(err, 'Access log write error');
   //   }
   // } else {
-  //   console.warn("Directory /var/log not found, not writing access log");
+  //   logger.warn("Directory /var/log not found, not writing access log");
   // }
   server.on('listening', () =>
     logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)

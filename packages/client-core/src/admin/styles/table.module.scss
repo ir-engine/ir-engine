@@ -7,23 +7,23 @@
 }
 
 .tableCellHeader {
-  background: var(--purplePanel) !important;
-  color: #f1f1f1 !important;
-  border-bottom: 2px solid var(--purpleDarkest) !important;
+  background: var(--tableHeaderBackground) !important;
+  color: var(--textColor) !important;
+  border-bottom: 2px solid var(--mainBackground) !important;
 }
 
 .tableCellBody {
-  border-bottom: 1px solid var(--purpleDarkest) !important;
-  color: #f1f1f1 !important;
-  background: var(--purpleLighter) !important;
+  border-bottom: 1px solid var(--mainBackground) !important;
+  color: var(--textColor) !important;
+  background: var(--tableCellBackground) !important;
 }
 
 .tableFooter {
-  background: var(--purplePanel) !important;
-  color: #f1f1f1 !important;
+  background: var(--tableFooterBackground) !important;
+  color: var(--textColor) !important;
   overflow: unset;
 }
 
 .spanWhite {
-  color: #f1f1f1 !important;
+  color: var(--textColor) !important;
 }

@@ -1,14 +1,8 @@
 import i18n from 'i18next'
 
 import { accessAuthState } from '../user/services/AuthService'
+import { serverHost } from './config'
 import { RethrownError } from './errors'
-
-const serverURL =
-  process.env.APP_ENV === 'development'
-    ? `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}:${
-        (globalThis as any).process.env['VITE_SERVER_PORT']
-      }`
-    : `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}`
 
 /**
  * upload used to upload image as blob data.
@@ -22,20 +16,20 @@ const serverURL =
  */
 
 export const uploadToFeathersService = (
-  blobs: Blob | Array<Blob>,
-  service = 'media',
-  onUploadProgress?: (progress: number) => any,
-  params: any = {}
-): Promise<void> => {
+  service = 'upload-asset',
+  files: Blob | Array<Blob>,
+  params: any = {},
+  onUploadProgress?: (progress: number) => any
+): Promise<any> => {
   const token = accessAuthState().authUser.accessToken.value
+
   return new Promise<void>((resolve, reject) => {
     const request = new XMLHttpRequest()
-    request.upload.addEventListener('progress', (e) => {
-      if (onUploadProgress) {
-        onUploadProgress(e.loaded / e.total)
-      }
-    })
     request.timeout = 10 * 60 * 1000 // 10 minutes - need to support big files on slow connections
+
+    request.upload.addEventListener('progress', (e) => {
+      if (onUploadProgress) onUploadProgress(e.loaded / e.total)
+    })
 
     request.upload.addEventListener('error', (error) => {
       reject(new RethrownError(i18n.t('editor:errors.uploadFailed'), error))
@@ -45,15 +39,13 @@ export const uploadToFeathersService = (
     // request.upload.addEventListener('loadend', console.log)
 
     request.addEventListener('readystatechange', (e) => {
-      // console.log('readystatechange', e, request.readyState)
       if (request.readyState === XMLHttpRequest.DONE) {
         const status = request.status
+
         if (status === 0 || (status >= 200 && status < 400)) {
-          console.log('The request has been completed successfully')
-          const response = JSON.parse(request.responseText)
-          resolve(response)
+          resolve(JSON.parse(request.responseText))
         } else {
-          console.log('Oh no! There has been an error with the request!', request, e)
+          console.error('Oh no! There has been an error with the request!', request, e)
           reject()
         }
       }
@@ -64,16 +56,15 @@ export const uploadToFeathersService = (
       formData.set(key, typeof val === 'object' ? JSON.stringify(val) : val)
     })
 
-    if (Array.isArray(blobs)) {
-      blobs.forEach((blob) => {
-        formData.append('media[]', blob)
+    if (Array.isArray(files)) {
+      files.forEach((file) => {
+        formData.append('media[]', file)
       })
     } else {
-      formData.set('media', blobs)
+      formData.set('media', files)
     }
 
-    console.log('Posting to: ', `${serverURL}/${service}`)
-    request.open('post', `${serverURL}/${service}`, true)
+    request.open('post', `${serverHost}/${service}`, true)
     request.setRequestHeader('Authorization', `Bearer ${token}`)
     request.send(formData)
   })

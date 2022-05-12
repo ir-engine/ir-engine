@@ -1,30 +1,36 @@
-import { Euler } from 'three'
+import { Bone, Euler, Vector3 } from 'three'
 import matches from 'ts-matches'
 
 import { addActionReceptor } from '@xrengine/hyperflux'
 
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
-import { IKRigComponent } from '../ikrig/components/IKRigComponent'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
+import { getForwardVector, solveLookIK } from './animation/LookAtIKSolver'
+import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
 import { AnimationManager } from './AnimationManager'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
+import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
+import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
 
 const euler1YXZ = new Euler()
 euler1YXZ.order = 'YXZ'
 const euler2YXZ = new Euler()
 euler2YXZ.order = 'YXZ'
 
+const vrIKQuery = defineQuery([AvatarHandsIKComponent, AvatarAnimationComponent])
+const headIKQuery = defineQuery([AvatarHeadIKComponent, AvatarAnimationComponent])
 const desiredTransformQuery = defineQuery([DesiredTransformComponent])
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent])
-const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, IKRigComponent])
+const forward = new Vector3()
+const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
 
 export default async function AnimationSystem(world: World) {
   function animationActionReceptor(action) {
@@ -43,7 +49,7 @@ export default async function AnimationSystem(world: World) {
   }
   addActionReceptor(world.store, animationActionReceptor)
 
-  await AnimationManager.instance.getDefaultAnimations()
+  await AnimationManager.instance.loadDefaultAnimations()
 
   return () => {
     const { delta } = world
@@ -90,10 +96,66 @@ export default async function AnimationSystem(world: World) {
       const deltaTime = delta * animationComponent.animationSpeed
       avatarAnimationComponent.animationGraph.update(deltaTime)
 
+      const rootBone = animationComponent.mixer.getRoot() as Bone
+      const rig = avatarAnimationComponent.rig
+
+      rootBone.traverse((bone: Bone) => {
+        if (!bone.isBone) return
+
+        const targetBone = rig[bone.name]
+        if (!targetBone) {
+          return
+        }
+
+        targetBone.quaternion.copy(bone.quaternion)
+
+        // Only copy the root position
+        if (targetBone === rig.Hips) {
+          targetBone.position.copy(bone.position)
+          targetBone.position.y *= avatarAnimationComponent.rootYRatio
+        }
+      })
+
       // TODO: Find a more elegant way to handle root motion
-      const bones = getComponent(entity, IKRigComponent).boneStructure
       const rootPos = AnimationManager.instance._defaultRootBone.position
-      bones.Hips.position.setX(rootPos.x).setZ(rootPos.z)
+      if (avatarAnimationComponent.rig.Hips) avatarAnimationComponent.rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
+    }
+
+    for (const entity of vrIKQuery()) {
+      const ik = getComponent(entity, AvatarHandsIKComponent)
+      const rig = getComponent(entity, AvatarAnimationComponent).rig
+
+      if (!rig) return
+
+      solveTwoBoneIK(
+        rig.LeftArm,
+        rig.LeftForeArm,
+        rig.LeftHand,
+        ik.leftTarget,
+        ik.leftHint,
+        ik.leftTargetOffset,
+        ik.leftTargetPosWeight,
+        ik.leftTargetRotWeight,
+        ik.leftHintWeight
+      )
+      solveTwoBoneIK(
+        rig.RightArm,
+        rig.RightForeArm,
+        rig.RightHand,
+        ik.rightTarget,
+        ik.rightHint,
+        ik.rightTargetOffset,
+        ik.rightTargetPosWeight,
+        ik.rightTargetRotWeight,
+        ik.rightHintWeight
+      )
+    }
+
+    for (const entity of headIKQuery(world)) {
+      const rig = getComponent(entity, AvatarAnimationComponent).rig
+      const ik = getComponent(entity, AvatarHeadIKComponent)
+      getForwardVector(ik.camera.matrixWorld, forward).multiplyScalar(-1)
+      solveLookIK(rig.Head, forward, ik.rotationClamp)
     }
   }
 }

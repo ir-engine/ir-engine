@@ -6,15 +6,13 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '../../src/ecs/classes/Engine'
-import { createWorld } from '../../src/ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../src/ecs/functions/EntityFunctions'
+import { createEngine } from '../../src/initializeEngine'
 import { EquippedComponent } from '../../src/interaction/components/EquippedComponent'
 import { EquipperComponent } from '../../src/interaction/components/EquipperComponent'
 import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
 import { equippableQueryEnter, equippableQueryExit } from '../../src/interaction/systems/EquippableSystem'
-import { Network } from '../../src/networking/classes/Network'
-import { NetworkObjectAuthorityTag } from '../../src/networking/components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
 import { ColliderComponent } from '../../src/physics/components/ColliderComponent'
 import { CollisionComponent } from '../../src/physics/components/CollisionComponent'
@@ -25,20 +23,20 @@ import { TransformComponent } from '../../src/transform/components/TransformComp
 
 describe('Equippables Integration Tests', () => {
   it('Can equip and unequip', async () => {
-    const world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
+    const world = Engine.instance.currentWorld
 
     const hostUserId = 'server' as UserId
     world.hostId = hostUserId
     const hostIndex = 0
     world.clients.set(hostUserId, { userId: hostUserId, name: 'server', index: hostIndex })
 
-    await Engine.currentWorld.physics.createScene({ verbose: true })
+    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
 
     const userId = 'user id' as UserId
     const userName = 'user name'
     const userIndex = 1
-    Engine.userId = userId
+    Engine.instance.userId = userId
 
     const equippableEntity = createEntity()
 

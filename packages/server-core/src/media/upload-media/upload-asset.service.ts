@@ -1,12 +1,12 @@
 import { Params } from '@feathersjs/feathers'
 import express from 'express'
-import _ from 'lodash'
 import multer from 'multer'
 
 import { AdminAssetUploadArgumentsType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 
 import { Application } from '../../../declarations'
 import restrictUserRole from '../../hooks/restrict-user-role'
+import logger from '../../logger'
 import { AvatarUploadArguments } from '../../user/avatar/avatar-helper'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
 import { useStorageProvider } from '../storageprovider/storageprovider'
@@ -42,46 +42,60 @@ export const addGenericAssetToS3AndStaticResources = async (
   // upload asset to storage provider
   promises.push(
     new Promise<void>(async (resolve) => {
-      await provider.createInvalidation([key])
-      await provider.putObject({
-        Key: key,
-        Body: file,
-        ContentType: args.contentType
-      })
+      try {
+        await provider.createInvalidation([key])
+      } catch (e) {
+        logger.info(`[ERROR addGenericAssetToS3AndStaticResources while invalidating ${key}]:`, e)
+      }
+      await provider.putObject(
+        {
+          Key: key,
+          Body: file,
+          ContentType: args.contentType
+        },
+        {
+          isDirectory: false
+        }
+      )
       resolve()
     })
   )
 
   // add asset to static resources
   const assetURL = getCachedAsset(key, provider.cacheDomain)
-  if (existingAsset.rows.length) {
-    promises.push(provider.deleteResources([existingAsset.rows[0].id]))
-    promises.push(
-      app.service('static-resource').patch(
-        existingAsset.rows[0].id,
-        {
-          url: assetURL,
-          key: key
-        },
-        { isInternal: true }
+  try {
+    if (existingAsset.rows.length) {
+      promises.push(provider.deleteResources([existingAsset.rows[0].id]))
+      promises.push(
+        app.service('static-resource').patch(
+          existingAsset.rows[0].id,
+          {
+            url: assetURL,
+            key: key
+          },
+          { isInternal: true }
+        )
       )
-    )
-  } else {
-    promises.push(
-      app.service('static-resource').create(
-        {
-          name: args.name ?? null,
-          mimeType: args.contentType,
-          url: assetURL,
-          key: key,
-          staticResourceType: args.staticResourceType,
-          ...userIdQuery
-        },
-        { isInternal: true }
+    } else {
+      promises.push(
+        app.service('static-resource').create(
+          {
+            name: args.name ?? null,
+            mimeType: args.contentType,
+            url: assetURL,
+            key: key,
+            staticResourceType: args.staticResourceType,
+            ...userIdQuery
+          },
+          { isInternal: true }
+        )
       )
-    )
+    }
+    await Promise.all(promises)
+  } catch (e) {
+    logger.info('[ERROR addGenericAssetToS3AndStaticResources while adding to static resources]:', e)
+    return null!
   }
-  await Promise.all(promises)
   return assetURL
 }
 
@@ -91,7 +105,7 @@ export default (app: Application): void => {
     multipartMiddleware.any(),
     (req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (req?.feathers && req.method !== 'GET') {
-        req.feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
+        ;(req as any).feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
       }
       next()
     },
@@ -99,7 +113,6 @@ export default (app: Application): void => {
       create: async (data: AssetUploadType, params: Params) => {
         if (typeof data.args === 'string') data.args = JSON.parse(data.args)
         const files = params.files
-        console.log('upload-asset', data, files)
         if (data.type === 'user-avatar-upload') {
           return app.service('avatar').create(
             {

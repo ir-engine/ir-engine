@@ -12,7 +12,7 @@ export const Button = styled.button.attrs((props) => ({
   display: flex;
   border: none;
   border-radius: 4px;
-  background: var(--purpleColor);
+  background: var(--buttonFilled);
   color: var(--white);
   white-space: nowrap;
   min-height: 24px;
@@ -28,12 +28,12 @@ export const Button = styled.button.attrs((props) => ({
   margin-right: 15px;
 
   &:hover {
-    color: var(--text);
+    color: var(--textColor);
     opacity: 0.8;
   }
 
   &:active {
-    color: var(--text);
+    color: var(--textColor);
   }
 
   &:disabled {
@@ -77,15 +77,15 @@ export const LargeButton = styled(Button)`
  * @type {Styled component}
  */
 export const SecondaryButton = styled(Button)`
-  background-color: var(--hover);
-  color: var(--text);
+  background-color: var(--buttonFilled);
+  color: var(--textColor);
 
   &:hover {
-    background-color: var(--text2);
+    opacity: 0.8;
   }
 
   &:active {
-    background-color: var(--text2);
+    opacity: 0.8;
   }
 
   &:disabled {
@@ -105,22 +105,22 @@ export const SecondaryButton = styled(Button)`
  * @type {styled component}
  */
 export const MenuButton = styled(Button)`
-  background-color: transparent;
-  color: var(--text2);
+  background-color: buttonFilled;
+  color: var(--textColor);
   padding: 1px 8px;
   width: 20px;
   margin-right: 0px;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    opacity: 0.8;
   }
 
   &:active {
-    background-color: rgba(255, 255, 255, 0.2);
+    opacity: 0.8;
   }
 
   &:disabled {
-    background-color: transparent;
+    background-color: var(--disabled);
     color: var(--disabledText);
 
     &:hover {

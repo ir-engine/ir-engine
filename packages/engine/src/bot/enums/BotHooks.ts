@@ -1,5 +1,4 @@
 export enum BotHooks {
-  InitializeBot = 'BotHooks_InitializeBot',
   LocationLoaded = 'BotHooks_LocationLoaded',
   SceneLoaded = 'BotHooks_SceneLoaded',
   GetPlayerPosition = 'BotHooks_GetPlayerPosition',
@@ -18,5 +17,6 @@ export enum XRBotHooks {
   PressControllerButton = 'XRBotHooks_PressControllerButton',
   MoveControllerStick = 'XRBotHooks_MoveControllerStick',
   GetXRInputPosition = 'XRBotHooks_GetXRInputPosition',
+  SetXRInputPosition = 'XRBotHooks_SetXRInputPosition',
   TweenXRInputSource = 'XRBotHooks_TweenXRInputSource'
 }

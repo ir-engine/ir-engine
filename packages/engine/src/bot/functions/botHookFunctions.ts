@@ -1,7 +1,8 @@
 import { MathUtils, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getEngineState } from '../../ecs/classes/EngineState'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BotHooks, XRBotHooks } from '../enums/BotHooks'
@@ -10,6 +11,7 @@ import {
   moveControllerStick,
   overrideXR,
   pressControllerButton,
+  setXRInputPosition,
   startXR,
   tweenXRInputSource,
   updateController,
@@ -19,7 +21,6 @@ import {
 } from './xrBotHookFunctions'
 
 export const BotHookFunctions = {
-  [BotHooks.InitializeBot]: initializeBot,
   [BotHooks.LocationLoaded]: locationLoaded,
   [BotHooks.SceneLoaded]: sceneLoaded,
   [BotHooks.GetPlayerPosition]: getPlayerPosition,
@@ -35,25 +36,22 @@ export const BotHookFunctions = {
   [XRBotHooks.PressControllerButton]: pressControllerButton,
   [XRBotHooks.MoveControllerStick]: moveControllerStick,
   [XRBotHooks.GetXRInputPosition]: getXRInputPosition,
+  [XRBotHooks.SetXRInputPosition]: setXRInputPosition,
   [XRBotHooks.TweenXRInputSource]: tweenXRInputSource
-}
-
-export function initializeBot() {
-  Engine.isBot = true
 }
 
 // === ENGINE === //
 
 export function locationLoaded() {
-  return Engine.hasJoinedWorld
+  return getEngineState().joinedWorld.value
 }
 
 export function sceneLoaded() {
-  return Engine.sceneLoaded
+  return getEngineState().sceneLoaded.value
 }
 
 export function getPlayerPosition() {
-  return getComponent(useWorld().localClientEntity, TransformComponent)?.position
+  return getComponent(Engine.instance.currentWorld.localClientEntity, TransformComponent)?.position
 }
 
 export function getSceneMetadata() {
@@ -70,5 +68,5 @@ export function rotatePlayer({ angle }) {
 }
 
 export function getClients() {
-  return useWorld().clients
+  return Array.from(useWorld().clients)
 }

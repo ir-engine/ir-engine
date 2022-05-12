@@ -6,7 +6,7 @@ import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
@@ -30,6 +30,7 @@ import InputGroup from '../inputs/InputGroup'
 import InteractableGroup from '../inputs/InteractableGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
+import EnvMapEditor from './EnvMapEditor'
 import NodeEditor from './NodeEditor'
 import ShadowProperties from './ShadowProperties'
 import { EditorComponentType, updateProperty } from './Util'
@@ -120,12 +121,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
       </InputGroup>
-      <InputGroup name="Environment Map" label={t('editor:properties.model.lbl-envmapUrl')}>
-        <ModelInput value={modelComponent.envMapOverride} onChange={updateProperty(ModelComponent, 'envMapOverride')} />
-        {hasError && errorComponent?.envMapError && (
-          <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
-        )}
-      </InputGroup>
       <InputGroup name="Texture Override" label={t('editor:properties.model.lbl-textureOverride')}>
         <SelectInput
           options={textureOverrideEntities}
@@ -172,6 +167,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         <BooleanInput value={isInteractable} onChange={onChangeInteractable} />
       </InputGroup>
       {isInteractable && <InteractableGroup node={props.node}></InteractableGroup>}
+      <EnvMapEditor node={props.node} />
       <ShadowProperties node={props.node} />
     </NodeEditor>
   )

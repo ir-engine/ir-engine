@@ -98,7 +98,7 @@ export async function faceToInput(detection) {
       // If the detected value of the expression is more than 1/3rd-ish of total, record it
       // This should allow up to 3 expressions but usually 1-2
       const inputKey = nameToInputValue[expression]
-      Engine.inputState.set(inputKey, {
+      Engine.instance.inputState.set(inputKey, {
         type: InputType.ONEDIM,
         value: detection.expressions[expression] < EXPRESSION_THRESHOLD ? 0 : detection.expressions[expression],
         lifecycleState: LifecycleValue.Changed
@@ -186,30 +186,33 @@ export const startLipsyncTracking = () => {
 
 export const lipToInput = (pucker, widen, open) => {
   if (pucker > 0.2)
-    Engine.inputState.set(nameToInputValue['pucker'], {
+    Engine.instance.inputState.set(nameToInputValue['pucker'], {
       type: InputType.ONEDIM,
       value: pucker,
       lifecycleState: LifecycleValue.Changed
     })
-  else if (Engine.inputState.has(nameToInputValue['pucker'])) Engine.inputState.delete(nameToInputValue['pucker'])
+  else if (Engine.instance.inputState.has(nameToInputValue['pucker']))
+    Engine.instance.inputState.delete(nameToInputValue['pucker'])
 
   // Calculate lips widing and apply as input
   if (widen > 0.2)
-    Engine.inputState.set(nameToInputValue['widen'], {
+    Engine.instance.inputState.set(nameToInputValue['widen'], {
       type: InputType.ONEDIM,
       value: widen,
       lifecycleState: LifecycleValue.Changed
     })
-  else if (Engine.inputState.has(nameToInputValue['widen'])) Engine.inputState.delete(nameToInputValue['widen'])
+  else if (Engine.instance.inputState.has(nameToInputValue['widen']))
+    Engine.instance.inputState.delete(nameToInputValue['widen'])
 
   // Calculate mouth opening and apply as input
   if (open > 0.2)
-    Engine.inputState.set(nameToInputValue['open'], {
+    Engine.instance.inputState.set(nameToInputValue['open'], {
       type: InputType.ONEDIM,
       value: open,
       lifecycleState: LifecycleValue.Changed
     })
-  else if (Engine.inputState.has(nameToInputValue['open'])) Engine.inputState.delete(nameToInputValue['open'])
+  else if (Engine.instance.inputState.has(nameToInputValue['open']))
+    Engine.instance.inputState.delete(nameToInputValue['open'])
 }
 
 function getRMS(spectrum) {

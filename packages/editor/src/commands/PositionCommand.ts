@@ -2,7 +2,7 @@ import { Matrix4, Vector3 } from 'three'
 
 import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -38,7 +38,7 @@ export default class PositionCommand extends Command {
     this.addToPosition = params.addToPosition
 
     if (this.keepHistory) {
-      this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent).position.clone())
+      this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent)?.position.clone())
     }
   }
 
@@ -100,13 +100,15 @@ export default class PositionCommand extends Command {
     for (let i = 0; i < objects.length; i++) {
       const object = objects[i]
       const pos = positions[i] ?? positions[0]
-      obj3d = getComponent(object.entity, Object3DComponent).value
+
       transformComponent = getComponent(object.entity, TransformComponent)
 
       if (space === TransformSpace.Local) {
         if (this.addToPosition && !isUndo) transformComponent.position.add(pos)
         else transformComponent.position.copy(pos)
       } else {
+        obj3d = getComponent(object.entity, Object3DComponent)?.value
+        if (!obj3d) continue
         obj3d.updateMatrixWorld() // Update parent world matrices
 
         if (this.addToPosition && !isUndo) {

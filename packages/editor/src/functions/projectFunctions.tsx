@@ -5,7 +5,7 @@ import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterfa
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -34,19 +34,6 @@ export const getProjects = async (): Promise<ProjectInterface[]> => {
 }
 
 /**
- * Saves a project
- * @param projectName
- */
-export const saveProject = async (projectName: string) => {
-  try {
-    await client.service('project').patch(projectName, null!)
-  } catch (error) {
-    console.log('Error saving project', projectName)
-    throw new Error(error)
-  }
-}
-
-/**
  * Runs tasks require prior to the project load.
  */
 export async function runPreprojectLoadTasks(): Promise<void> {
@@ -55,7 +42,7 @@ export async function runPreprojectLoadTasks(): Promise<void> {
   if (editorState.preprojectLoadTaskStatus.value === TaskStatus.NOT_STARTED) {
     store.dispatch(EditorAction.updatePreprojectLoadTask(TaskStatus.IN_PROGRESS))
 
-    await Promise.all([ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.getDefaultAnimations()])
+    await Promise.all([ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.loadDefaultAnimations()])
 
     store.dispatch(EditorAction.updatePreprojectLoadTask(TaskStatus.COMPLETED))
   }
@@ -65,7 +52,7 @@ export async function runPreprojectLoadTasks(): Promise<void> {
  * Loads scene from provided project file.
  */
 export async function loadProjectScene(projectFile: SceneJson) {
-  dispatchAction(Engine.store, EngineActions.sceneUnloaded())
+  dispatchAction(Engine.instance.store, EngineActions.sceneUnloaded())
 
   executeCommand(EditorCommands.REPLACE_SELECTION, [])
   clearHistory()

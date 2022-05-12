@@ -15,6 +15,14 @@ import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { setCameraProperties } from '../setCameraProperties'
 
 export const SCENE_COMPONENT_CAMERA_PROPERTIES = 'cameraproperties'
+
+export const RAYCAST_PROPERTIES_DEFAULT_VALUES = {
+  enabled: true,
+  rayCount: 3,
+  rayLength: 15.0,
+  rayFrequency: 0.1
+}
+
 export const SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES = {
   fov: 50,
   cameraNearClip: 0.01,
@@ -28,7 +36,13 @@ export const SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES = {
   startInFreeLook: false,
   minPhi: -70,
   maxPhi: 85,
-  startPhi: 10
+  startPhi: 10,
+  raycastProps: {
+    enabled: true,
+    rayCount: 3,
+    rayLength: 15.0,
+    rayFrequency: 0.1
+  }
 }
 
 export const deserializeCameraProperties: ComponentDeserializeFunction = (
@@ -38,10 +52,11 @@ export const deserializeCameraProperties: ComponentDeserializeFunction = (
   const props = parseCameraPropertiesProperties(json.props)
   addComponent(entity, CameraPropertiesComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CAMERA_PROPERTIES)
-  else if (isClient) {
-    matchActionOnce(Engine.currentWorld.store, NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
-      if (spawnAction.$from === Engine.userId) {
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CAMERA_PROPERTIES)
+
+  if (isClient) {
+    matchActionOnce(Engine.instance.currentWorld.store, NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
+      if (spawnAction.$from === Engine.instance.userId) {
         setCameraProperties(useWorld().localClientEntity, json.props)
         return true
       }
@@ -69,7 +84,8 @@ export const serializeCameraProperties: ComponentSerializeFunction = (entity) =>
       startInFreeLook: component.startInFreeLook,
       minPhi: component.minPhi,
       maxPhi: component.maxPhi,
-      startPhi: component.startPhi
+      startPhi: component.startPhi,
+      raycastProps: component.raycastProps
     }
   }
 }
@@ -89,6 +105,7 @@ export const parseCameraPropertiesProperties = (props): CameraPropertiesComponen
     startInFreeLook: props.startInFreeLook ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.startInFreeLook,
     minPhi: props.minPhi ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.minPhi,
     maxPhi: props.maxPhi ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.maxPhi,
-    startPhi: props.startPhi ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.startPhi
+    startPhi: props.startPhi ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.startPhi,
+    raycastProps: props.raycastProps ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.raycastProps
   }
 }

@@ -12,17 +12,27 @@ import {
   SSAOEffect,
   ToneMappingEffect
 } from 'postprocessing'
-import { PerspectiveCamera, sRGBEncoding, WebGL1Renderer, WebGLRenderer, WebGLRendererParameters } from 'three'
+import {
+  PerspectiveCamera,
+  sRGBEncoding,
+  WebGL1Renderer,
+  WebGLRenderer,
+  WebGLRendererParameters,
+  WebXRManager,
+  XRSession
+} from 'three'
 
+import { isDev } from '@xrengine/common/src/utils/isDev'
 import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
+import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
-import { EngineEvents } from '../ecs/classes/EngineEvents'
-import { accessEngineState, EngineActions, EngineActionType } from '../ecs/classes/EngineService'
+import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
+import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { receiveActionOnce } from '../networking/functions/matchActionOnce'
+import { matchActionOnce } from '../networking/functions/matchActionOnce'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import {
   accessEngineRendererState,
@@ -30,7 +40,6 @@ import {
   EngineRendererReceptor,
   restoreEngineRendererData
 } from './EngineRendererState'
-import { configureEffectComposer } from './functions/configureEffectComposer'
 import WebGL from './THREE.WebGL'
 
 export interface EffectComposerWithSchema extends EffectComposer {
@@ -80,12 +89,16 @@ export class EngineRenderer {
   /** init ExponentialMovingAverage */
   movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
 
-  /** To Disable update for renderer */
-  disableUpdate = false
+  renderer: WebGLRenderer = null!
+  effectComposer: EffectComposerWithSchema = null!
+  xrManager: WebXRManager = null!
+  xrSession: XRSession = null!
+  csm: CSM = null!
+  isCSMEnabled = false
+  directionalLightEntities: Entity[] = []
+  activeCSMLightEntity: Entity | null = null
 
-  /** Constructs WebGL Renderer System. */
-  constructor() {
-    EngineRenderer.instance = this
+  initialize() {
     this.onResize = this.onResize.bind(this)
 
     this.supportWebGL2 = WebGL.isWebGL2Available()
@@ -99,10 +112,10 @@ export class EngineRenderer {
 
     if (!context) {
       dispatchAction(
-        Engine.store,
-        EngineActions.browserNotSupported(
-          'Your browser does not have WebGL enabled. Please enable WebGL, or try another browser.'
-        ) as any
+        Engine.instance.store,
+        EngineActions.browserNotSupported({
+          msg: 'Your browser does not have WebGL enabled. Please enable WebGL, or try another browser.'
+        }) as any
       )
     }
 
@@ -115,7 +128,7 @@ export class EngineRenderer {
       depth: false,
       canvas,
       context,
-      preserveDrawingBuffer: !Engine.isHMD
+      preserveDrawingBuffer: !Engine.instance.isHMD
     }
 
     this.canvas = canvas
@@ -126,33 +139,23 @@ export class EngineRenderer {
     }
 
     const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options)
-    Engine.renderer = renderer
-    Engine.renderer.physicallyCorrectLights = true
-    Engine.renderer.outputEncoding = sRGBEncoding
+    this.renderer = renderer
+    this.renderer.physicallyCorrectLights = true
+    this.renderer.outputEncoding = sRGBEncoding
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
-    Engine.renderer.debug.checkShaderErrors = false
+    this.renderer.debug.checkShaderErrors = isDev
 
-    Engine.xrManager = renderer.xr
+    this.xrManager = renderer.xr
     //@ts-ignore
     renderer.xr.cameraAutoUpdate = false
-    Engine.xrManager.enabled = true
+    this.xrManager.enabled = true
 
     window.addEventListener('resize', this.onResize, false)
     this.onResize()
 
-    Engine.renderer.autoClear = true
-    Engine.effectComposer = new EffectComposer(Engine.renderer) as any
-
-    configureEffectComposer()
-
-    addActionReceptor(Engine.store, (action: EngineActionType) => {
-      switch (action.type) {
-        case EngineEvents.EVENTS.ENABLE_SCENE:
-          if (typeof action.env.renderer !== 'undefined') this.rendereringEnabled = action.env.renderer
-          break
-      }
-    })
+    this.renderer.autoClear = true
+    this.effectComposer = new EffectComposer(this.renderer) as any
   }
 
   /** Called on resize, sets resize flag. */
@@ -161,45 +164,45 @@ export class EngineRenderer {
   }
 
   /**
-   * Executes the system. Called each frame by default from the Engine.
+   * Executes the system. Called each frame by default from the Engine.instance.
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    if (Engine.xrManager.isPresenting) {
-      Engine.csm?.update()
-      Engine.renderer.render(Engine.scene, Engine.camera)
+    if (this.xrManager.isPresenting) {
+      this.csm?.update()
+      this.renderer.render(Engine.instance.scene, Engine.instance.camera)
     } else {
       const state = accessEngineRendererState()
-      const engineState = accessEngineState()
+      const engineState = getEngineState()
       if (state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
       if (this.rendereringEnabled) {
         if (this.needsResize) {
-          const curPixelRatio = Engine.renderer.getPixelRatio()
+          const curPixelRatio = this.renderer.getPixelRatio()
           const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
 
-          if (curPixelRatio !== scaledPixelRatio) Engine.renderer.setPixelRatio(scaledPixelRatio)
+          if (curPixelRatio !== scaledPixelRatio) this.renderer.setPixelRatio(scaledPixelRatio)
 
           const width = window.innerWidth
           const height = window.innerHeight
 
-          if ((Engine.camera as PerspectiveCamera).isPerspectiveCamera) {
-            const cam = Engine.camera as PerspectiveCamera
+          if ((Engine.instance.camera as PerspectiveCamera).isPerspectiveCamera) {
+            const cam = Engine.instance.camera as PerspectiveCamera
             cam.aspect = width / height
             cam.updateProjectionMatrix()
           }
 
-          state.qualityLevel.value > 0 && Engine.csm?.updateFrustums()
+          state.qualityLevel.value > 0 && this.csm?.updateFrustums()
           // Effect composer calls renderer.setSize internally
-          Engine.effectComposer.setSize(width, height, true)
+          this.effectComposer.setSize(width, height, true)
           this.needsResize = false
         }
 
-        state.qualityLevel.value > 0 && Engine.csm?.update()
+        state.qualityLevel.value > 0 && this.csm?.update()
         if (state.usePostProcessing.value) {
-          Engine.effectComposer.render(delta)
+          this.effectComposer.render(delta)
         } else {
-          Engine.renderer.autoClear = true
-          Engine.renderer.render(Engine.scene, Engine.camera)
+          this.renderer.autoClear = true
+          this.renderer.render(Engine.instance.scene, Engine.instance.camera)
         }
       }
     }
@@ -226,24 +229,17 @@ export class EngineRenderer {
     }
 
     if (qualityLevel !== state.qualityLevel.value) {
-      dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(qualityLevel))
+      dispatchAction(Engine.instance.store, EngineRendererAction.setQualityLevel(qualityLevel))
     }
-  }
-
-  doAutomaticRenderQuality() {
-    const state = accessEngineRendererState()
-    dispatchAction(Engine.store, EngineRendererAction.setShadows(state.qualityLevel.value > 1))
-    dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(state.qualityLevel.value))
-    dispatchAction(Engine.store, EngineRendererAction.setPostProcessing(state.qualityLevel.value > 2))
   }
 }
 
 export default async function WebGLRendererSystem(world: World) {
-  new EngineRenderer()
+  matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, () => {
+    restoreEngineRendererData()
+  })
 
-  receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, () => restoreEngineRendererData())
-
-  addActionReceptor(Engine.store, EngineRendererReceptor)
+  addActionReceptor(Engine.instance.store, EngineRendererReceptor)
 
   return () => {
     EngineRenderer.instance.execute(world.delta)

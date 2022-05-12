@@ -1,9 +1,10 @@
-import { Group } from 'three'
+import { Group, Object3D, Vector3 } from 'three'
 import matches from 'ts-matches'
 
 import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { isClient } from '../common/functions/isClient'
+import { Object3DUtils } from '../common/functions/Object3DUtils'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import {
@@ -14,8 +15,6 @@ import {
   removeComponent
 } from '../ecs/functions/ComponentFunctions'
 import { useWorld } from '../ecs/functions/SystemHooks'
-import { CameraIKComponent } from '../ikrig/components/CameraIKComponent'
-import { AvatarControllerType } from '../input/enums/InputEnums'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
@@ -27,11 +26,13 @@ import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { initializeHandModel, initializeXRInputs } from '../xr/functions/addControllerModels'
 import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/functions/controllerAnimation'
 import { proxifyXRInputs } from '../xr/functions/WebXRFunctions'
+import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarInputControllerTypeUpdatePendingComponent } from './components/AvatarControllerTypeUpdatePendingComponent'
+import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
+import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
-import { detectUserInCollisions } from './functions/detectUserInCollisions'
 import { AvatarInputSettingsAction } from './state/AvatarInputSettingsState'
 
 function avatarActionReceptor(action) {
@@ -77,7 +78,10 @@ function avatarActionReceptor(action) {
 
           addComponent(entity, XRInputSourceComponent, inputData as any)
 
-          dispatchAction(Engine.store, AvatarInputSettingsAction.setControlType(a.avatarInputControllerType as any))
+          dispatchAction(
+            Engine.instance.store,
+            AvatarInputSettingsAction.setControlType(a.avatarInputControllerType as any)
+          )
           // This is required because state is updated in the next frame and some functionality that requires updated controller type might run in the current frame.
           // This component can be used at such places.
           addComponent(entity, AvatarInputControllerTypeUpdatePendingComponent, {
@@ -90,7 +94,7 @@ function avatarActionReceptor(action) {
     })
 
     .when(NetworkWorldAction.xrHandsConnected.matches, (a) => {
-      if (a.$from === Engine.userId) return
+      if (a.$from === Engine.instance.userId) return
       const entity = world.getUserAvatarEntity(a.$from)
       if (!entity) return
 
@@ -125,7 +129,7 @@ export default async function AvatarSystem(world: World) {
   addActionReceptor(world.store, avatarActionReceptor)
 
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
-  const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent])
+  const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent, AvatarAnimationComponent])
   const xrHandsInputQuery = defineQuery([AvatarComponent, XRHandsInputComponent, XRInputSourceComponent])
   const xrLGripQuery = defineQuery([AvatarComponent, XRLGripButtonComponent, XRInputSourceComponent])
   const xrRGripQuery = defineQuery([AvatarComponent, XRRGripButtonComponent, XRInputSourceComponent])
@@ -144,25 +148,66 @@ export default async function AvatarSystem(world: World) {
 
       xrInputSourceComponent.container.name = 'XR Container'
       xrInputSourceComponent.head.name = 'XR Head'
-      Engine.scene.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
+      Engine.instance.scene.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
 
       // Add head IK Solver
       if (!isEntityLocalClient(entity)) {
         proxifyXRInputs(entity, xrInputSourceComponent)
-        addComponent(entity, CameraIKComponent, {
-          boneIndex: 5, // Head bone
+        addComponent(entity, AvatarHeadIKComponent, {
           camera: xrInputSourceComponent.head,
           rotationClamp: 0.785398
         })
       }
+
+      // Hands IK solver
+      const leftHint = new Object3D()
+      const rightHint = new Object3D()
+      const leftOffset = new Object3D()
+      const rightOffset = new Object3D()
+      const vec = new Vector3()
+
+      const animation = getComponent(entity, AvatarAnimationComponent)
+
+      Object3DUtils.getWorldPosition(animation.rig.LeftShoulder, leftHint.position)
+      Object3DUtils.getWorldPosition(animation.rig.LeftArm, vec)
+      vec.subVectors(vec, leftHint.position).normalize()
+      leftHint.position.add(vec)
+      animation.rig.LeftShoulder.attach(leftHint)
+
+      Object3DUtils.getWorldPosition(animation.rig.RightShoulder, rightHint.position)
+      Object3DUtils.getWorldPosition(animation.rig.RightArm, vec)
+      vec.subVectors(vec, rightHint.position).normalize()
+      rightHint.position.add(vec)
+      animation.rig.RightShoulder.attach(rightHint)
+
+      addComponent(entity, AvatarHandsIKComponent, {
+        leftTarget: xrInputSourceComponent.controllerGripLeftParent,
+        leftHint: leftHint,
+        leftTargetOffset: leftOffset,
+        leftTargetPosWeight: 1,
+        leftTargetRotWeight: 0,
+        leftHintWeight: 1,
+
+        rightTarget: xrInputSourceComponent.controllerGripRightParent,
+        rightHint: rightHint,
+        rightTargetOffset: rightOffset,
+        rightTargetPosWeight: 1,
+        rightTargetRotWeight: 0,
+        rightHintWeight: 1
+      })
     }
 
     for (const entity of xrInputQuery.exit(world)) {
       const xrInputComponent = getComponent(entity, XRInputSourceComponent, true)
       xrInputComponent.container.removeFromParent()
       xrInputComponent.head.removeFromParent()
-      removeComponent(entity, CameraIKComponent)
+      removeComponent(entity, AvatarHeadIKComponent)
       removeComponent(entity, AvatarInputControllerTypeUpdatePendingComponent)
+
+      const ik = getComponent(entity, AvatarHandsIKComponent)
+      ik.leftHint?.removeFromParent()
+      ik.rightHint?.removeFromParent()
+      removeComponent(entity, AvatarHandsIKComponent)
     }
 
     for (const entity of xrHandsInputQuery.enter(world)) {
@@ -178,7 +223,6 @@ export default async function AvatarSystem(world: World) {
       const avatar = getComponent(entity, AvatarComponent)
       raycastComponent.origin.copy(transform.position).y += avatar.avatarHalfHeight
       avatar.isGrounded = Boolean(raycastComponent.hits.length > 0)
-      detectUserInCollisions(entity)
     }
 
     for (const entity of xrLGripQuery.enter()) {

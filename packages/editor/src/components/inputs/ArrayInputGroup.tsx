@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import FileBrowserInput from './FileBrowserInput'
 import { InputGroupContent, InputGroupVerticalContainer, InputGroupVerticalContent } from './InputGroup'
-import StringInput from './StringInput'
+import StringInput, { ControlledStringInput } from './StringInput'
 
 export interface ArrayInputGroupProp {
   name?: string
@@ -27,6 +27,7 @@ export interface ArrayInputGroupState {
  */
 
 const onChangeSize = (text, values, onChange) => {
+  console.log('onChangeSize', text, values, onChange)
   const count = parseInt(text)
   let preCount = 0
   if (!values) {
@@ -99,7 +100,7 @@ export function ArrayInputGroup({
         <InputGroupVerticalContent>
           <ArrayInputGroupContent>
             <label> Size: </label>
-            <StringInput
+            <ControlledStringInput
               value={count}
               onChange={(text) => {
                 onChangeSize(text, values, onChange)

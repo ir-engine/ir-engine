@@ -61,7 +61,7 @@ export default async function AvatarSpawnSystem(world: World) {
          * When changing location via a portal, the local client entity will be
          * defined when the new world dispatches this action, so ignore it
          */
-        if (Engine.userId === spawnAction.$from && hasComponent(world.localClientEntity, AvatarComponent)) {
+        if (Engine.instance.userId === spawnAction.$from && hasComponent(world.localClientEntity, AvatarComponent)) {
           return
         }
       }
@@ -70,11 +70,17 @@ export default async function AvatarSpawnSystem(world: World) {
         addComponent(entity, AudioTagComponent, {})
         addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
 
-        if (spawnAction.$from === Engine.userId) {
+        if (spawnAction.$from === Engine.instance.userId) {
           addComponent(entity, LocalInputTagComponent, {})
           addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
-          addComponent(entity, PersistTagComponent, {})
         }
+        /*
+        dispatchAction(
+          Engine.store,
+          EngineActions.setupAnimation({
+            entity: entity
+          })
+        )*/
       }
     })
   }

@@ -8,7 +8,7 @@ import styled from 'styled-components'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { getEngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { gltfToSceneJson, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 import { useHookEffect } from '@xrengine/hyperflux'
@@ -19,7 +19,7 @@ import TuneIcon from '@mui/icons-material/Tune'
 import Dialog from '@mui/material/Dialog'
 
 import { extractZip, uploadProjectFile } from '../functions/assetFunctions'
-import { disposeProject, loadProjectScene, runPreprojectLoadTasks, saveProject } from '../functions/projectFunctions'
+import { disposeProject, loadProjectScene, runPreprojectLoadTasks } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { initializeRenderer } from '../functions/sceneRenderFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
@@ -75,7 +75,7 @@ export const DockContainer = (styled as any).div`
   }
   .dock {
     border-radius: 4px;
-    background: var(--dock);
+    background: var(--dockBackground);
   }
   .dock-top .dock-bar {
     font-size: 12px;
@@ -89,13 +89,16 @@ export const DockContainer = (styled as any).div`
   .dock-tab:hover, .dock-tab-active, .dock-tab-active:hover {
     border-bottom: 1px solid #ddd;
   }
-  .dock-tab:hover div, .dock-tab:hover svg { color: var(--text); }
+  .dock-tab:hover div, .dock-tab:hover svg { color: var(--textColor); }
   .dock-tab > div { padding: 2px 12px; }
   .dock-tab-active {
-    color: var(--purpleColor);
+    color: var(--textColor);
   }
   .dock-ink-bar {
-    background-color: var(--purpleColor);
+    background-color: var(--textColor);
+  }
+  .dock-panel-max-btn:before {
+    border-color: var(--iconButtonColor);
   }
 `
 /**
@@ -243,22 +246,23 @@ const EditorContainer = () => {
   }
 
   const onSaveAs = async () => {
+    const sceneLoaded = getEngineState().sceneLoaded.value
+
     // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-    if (!Engine.sceneLoaded) {
+    if (!sceneLoaded) {
       setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
       return
     }
 
     const abortController = new AbortController()
     try {
-      let saveProjectFlag = true
       if (sceneName.value || modified.value) {
         const blob = await takeScreenshot(512, 320)
         const result: { name: string } = (await new Promise((resolve) => {
           setDialogComponent(
             <SaveNewProjectDialog
               thumbnailUrl={URL.createObjectURL(blob!)}
-              initialName={Engine.scene.name}
+              initialName={Engine.instance.scene.name}
               onConfirm={resolve}
               onCancel={resolve}
             />
@@ -268,12 +272,7 @@ const EditorContainer = () => {
           await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
           await saveScene(projectName.value, result.name, blob, abortController.signal)
           dispatch(EditorAction.sceneModified(false))
-        } else {
-          saveProjectFlag = false
         }
-      }
-      if (saveProjectFlag && projectName.value) {
-        await saveProject(projectName.value)
       }
       setDialogComponent(null)
     } catch (error) {
@@ -343,11 +342,11 @@ const EditorContainer = () => {
   }
 
   const onExportScene = async () => {
-    const projectFile = await sceneToGLTF([Engine.scene as any])
+    const projectFile = await sceneToGLTF([Engine.instance.scene as any])
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')
-    const fileName = Engine.scene.name.toLowerCase().replace(/\s+/g, '-')
+    const fileName = Engine.instance.scene.name.toLowerCase().replace(/\s+/g, '-')
     el.download = fileName + '.xre.gltf'
     el.href = URL.createObjectURL(projectBlob)
     document.body.appendChild(el)
@@ -356,8 +355,10 @@ const EditorContainer = () => {
   }
 
   const onSaveScene = async () => {
+    const sceneLoaded = getEngineState().sceneLoaded.value
+
     // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-    if (!Engine.sceneLoaded) {
+    if (!sceneLoaded) {
       setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
       return
     }
@@ -391,7 +392,6 @@ const EditorContainer = () => {
       if (projectName.value) {
         await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
         await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
-        await saveProject(projectName.value)
       }
 
       dispatch(EditorAction.sceneModified(false))

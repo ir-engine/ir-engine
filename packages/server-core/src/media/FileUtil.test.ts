@@ -4,15 +4,19 @@ import path from 'path/posix'
 
 import { projectsRootFolder } from './file-browser/file-browser.class'
 import { copyRecursiveSync, getIncrementalName } from './FileUtil'
+import LocalStorage from './storageprovider/local.storage'
 
-const TEST_DIR = 'test-project'
+const TEST_DIR = 'FileUtil-test-project'
+const store = new LocalStorage()
 const PROJECT_PATH = path.join(projectsRootFolder, TEST_DIR)
+const STORAGE_PATH = path.join(store.PATH_PREFIX, TEST_DIR)
 
 describe('FileUtil functions', () => {
-  before(async () => {
+  before(() => {
     if (fs.existsSync(PROJECT_PATH)) fs.rmSync(PROJECT_PATH, { force: true, recursive: true })
 
     fs.mkdirSync(PROJECT_PATH)
+    fs.mkdirSync(STORAGE_PATH)
   })
 
   describe('copyRecursiveSync', () => {
@@ -81,49 +85,50 @@ describe('FileUtil functions', () => {
   })
 
   describe('getIncrementalName', () => {
-    it('should return given name if provided path does not exist', () => {
+    it('should return given name if provided path does not exist', async () => {
       const fileName = 'FileUtil_Incremental_Name_File_Test_' + Math.round(Math.random() * 100) + '.txt'
-      assert(getIncrementalName(fileName, PROJECT_PATH) === fileName)
+      assert((await getIncrementalName(fileName, TEST_DIR, store)) === fileName)
     })
 
-    it('should return incremental name for file if it exist already', () => {
+    it('should return incremental name for file if it exist already', async () => {
       const fileName = 'FileUtil_Incremental_Name_File_Test.txt'
       const fileName_1 = 'FileUtil_Incremental_Name_File_Test(1).txt'
       const fileName_2 = 'FileUtil_Incremental_Name_File_Test(2).txt'
 
-      fs.writeFileSync(path.join(PROJECT_PATH, fileName), 'Hello world')
+      fs.writeFileSync(path.join(STORAGE_PATH, fileName), 'Hello world')
 
-      let name = getIncrementalName(fileName, PROJECT_PATH)
+      let name = await getIncrementalName(fileName, TEST_DIR, store)
       assert.equal(name, fileName_1)
 
-      fs.writeFileSync(path.join(PROJECT_PATH, fileName_1), 'Hello world')
-      name = getIncrementalName(fileName, PROJECT_PATH)
+      fs.writeFileSync(path.join(STORAGE_PATH, fileName_1), 'Hello world')
+      name = await getIncrementalName(fileName, TEST_DIR, store)
       assert.equal(name, fileName_2)
 
-      fs.unlinkSync(path.join(PROJECT_PATH, fileName))
-      fs.unlinkSync(path.join(PROJECT_PATH, fileName_1))
+      fs.unlinkSync(path.join(STORAGE_PATH, fileName))
+      fs.unlinkSync(path.join(STORAGE_PATH, fileName_1))
     })
 
-    it('should return incremental name for file if it exist already', () => {
+    it('should return incremental name for directory if it exist already', async () => {
       const dirName = 'FileUtil_Incremental_Name_Dir_Test'
       const dirName_1 = 'FileUtil_Incremental_Name_Dir_Test(1)'
       const dirName_2 = 'FileUtil_Incremental_Name_Dir_Test(2)'
 
-      fs.mkdirSync(path.join(PROJECT_PATH, dirName))
+      fs.mkdirSync(path.join(STORAGE_PATH, dirName))
 
-      let name = getIncrementalName(dirName, PROJECT_PATH)
+      let name = await getIncrementalName(dirName, TEST_DIR, store, true)
       assert.equal(name, dirName_1)
 
-      fs.mkdirSync(path.join(PROJECT_PATH, dirName_1))
-      name = getIncrementalName(dirName, PROJECT_PATH)
+      fs.mkdirSync(path.join(STORAGE_PATH, dirName_1))
+      name = await getIncrementalName(dirName, TEST_DIR, store, true)
       assert.equal(name, dirName_2)
 
-      fs.rmdirSync(path.join(PROJECT_PATH, dirName))
-      fs.rmdirSync(path.join(PROJECT_PATH, dirName_1))
+      fs.rmdirSync(path.join(STORAGE_PATH, dirName))
+      fs.rmdirSync(path.join(STORAGE_PATH, dirName_1))
     })
   })
 
   after(() => {
     fs.rmSync(PROJECT_PATH, { force: true, recursive: true })
+    fs.rmSync(STORAGE_PATH, { force: true, recursive: true })
   })
 })

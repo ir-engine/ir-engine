@@ -35,6 +35,7 @@ import { EditorAction } from '../../services/EditorServices'
 import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
+import { InstallProjectDialog } from './InstallProjectDialog'
 import styles from './styles.module.scss'
 
 function sortAlphabetical(a, b) {
@@ -45,12 +46,20 @@ function sortAlphabetical(a, b) {
 
 const OfficialProjectData = [
   {
-    id: '1570ae10-889a-11ec-886e-b126f7590685',
+    id: '1570ae01-889a-11ec-886e-b126f7590685',
     name: 'Development Test Suite',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-development-test-suite',
     storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description: 'Assets and tests for xrengine core development'
+  },
+  {
+    id: '1570ae02-889a-11ec-886e-b126f7590685',
+    name: 'Test Bot',
+    repositoryPath: 'https://github.com/XRFoundation/XREngine-bot',
+    storageProviderPath: '',
+    thumbnail: '/static/xrengine_thumbnail.jpg',
+    description: 'A test bot using puppeteer'
   },
   {
     id: '1570ae11-889a-11ec-886e-b126f7590685',
@@ -70,15 +79,6 @@ const OfficialProjectData = [
       'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.'
   },
   {
-    id: '1570ae13-889a-11ec-886e-b126f7590685',
-    name: 'e-commerce',
-    repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-e-commerce',
-    storageProviderPath: '',
-    thumbnail: '/static/xrengine_thumbnail.jpg',
-    description:
-      'Join the digital economy with 3D storefronts full of purchasable items from Shopify, Wucommerce and more!'
-  },
-  {
     id: '1570ae14-889a-11ec-886e-b126f7590685',
     name: 'Digital Beings',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-Digital-Beings',
@@ -88,8 +88,8 @@ const OfficialProjectData = [
   },
   {
     id: '1570ae15-889a-11ec-886e-b126f7590685',
-    name: 'harmony',
-    repositoryPath: 'https://github.com/XRFoundation/harmony',
+    name: 'Harmony Chat',
+    repositoryPath: 'https://github.com/XRFoundation/Harmony-Chat',
     storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description:
@@ -97,16 +97,7 @@ const OfficialProjectData = [
   }
 ]
 
-const CommunityProjectData = [
-  /*{
-    id: '1570ae16-889a-11ec-886e-b126f7590685',
-    name: 'puttclub',
-    repositoryPath: 'https://github.com/puttclub/puttclub',
-    storageProviderPath: '',
-    thumbnail: '/static/xrengine_thumbnail.jpg',
-    description: 'Mini-golf in WebXR!'
-  }*/
-] as any
+const CommunityProjectData = [] as any
 
 const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summary: string }>) => {
   return (
@@ -141,6 +132,7 @@ const ProjectsPage = () => {
   const [projectAnchorEl, setProjectAnchorEl] = useState<any>(null)
   const [filter, setFilter] = useState({ installed: false, official: true, community: true })
   const [isCreateDialogOpen, setCreateDialogOpen] = useState(false)
+  const [isInstallDialogOpen, setInstallDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [updatingProject, setUpdatingProject] = useState(false)
 
@@ -226,6 +218,8 @@ const ProjectsPage = () => {
   const closeDeleteConfirm = () => setDeleteDialogOpen(false)
   const openCreateDialog = () => setCreateDialogOpen(true)
   const closeCreateDialog = () => setCreateDialogOpen(false)
+  const openInstallDialog = () => setInstallDialogOpen(true)
+  const closeInstallDialog = () => setInstallDialogOpen(false)
 
   const deleteProject = async () => {
     closeDeleteConfirm()
@@ -234,7 +228,7 @@ const ProjectsPage = () => {
     if (activeProject) {
       try {
         // TODO: using repo path as IDs & names are not properly implemented for official projects
-        const proj = installedProjects.find((proj) => proj.repositoryPath === activeProject.repositoryPath)!
+        const proj = installedProjects.find((proj) => proj.id === activeProject.id)!
         await ProjectService.removeProject(proj.id)
         fetchInstalledProjects()
       } catch (err) {
@@ -248,16 +242,21 @@ const ProjectsPage = () => {
 
   const installProject = async () => {
     if (updatingProject || !activeProject?.repositoryPath) return
+    installProjectFromURL(activeProject?.repositoryPath)
+    closeProjectContextMenu()
+  }
+
+  const installProjectFromURL = async (url: string) => {
+    if (!url) return
 
     setUpdatingProject(true)
     try {
-      await ProjectService.uploadProject(activeProject.repositoryPath)
+      await ProjectService.uploadProject(url)
       fetchInstalledProjects()
     } catch (err) {
       console.error(err)
     }
 
-    closeProjectContextMenu()
     setUpdatingProject(false)
   }
 
@@ -385,9 +384,14 @@ const ProjectsPage = () => {
                 </IconButton>
               )}
             </Paper>
-            <Button onClick={openCreateDialog} className={styles.btn}>
-              {t(`editor.projects.lbl-createProject`)}
-            </Button>
+            <div className={styles.buttonContainer}>
+              <Button onClick={openInstallDialog} className={styles.btn}>
+                {t(`editor.projects.install`)}
+              </Button>
+              <Button onClick={openCreateDialog} className={styles.btn}>
+                {t(`editor.projects.lbl-createProject`)}
+              </Button>
+            </div>
           </div>
           <div className={styles.projectGrid}>
             {error && <div className={styles.errorMsg}>{error.message}</div>}
@@ -447,6 +451,11 @@ const ProjectsPage = () => {
         </Menu>
       )}
       <CreateProjectDialog createProject={onCreateProject} open={isCreateDialogOpen} handleClose={closeCreateDialog} />
+      <InstallProjectDialog
+        installProject={installProjectFromURL}
+        open={isInstallDialogOpen}
+        handleClose={closeInstallDialog}
+      />
       <DeleteDialog
         open={isDeleteDialogOpen}
         isProjectMenu

@@ -23,12 +23,12 @@ const CollapsibleContainer = (styled as any).div`
  * @type {styled container}
  */
 const CollapsibleLabel = (styled as any).div`
-  color: var(--text2);
+  color: var(--textColor);
   cursor: pointer;
   display: inline-block;
 
   :hover {
-    color: var(--text);
+    color: var(--textColor);
   }
 `
 

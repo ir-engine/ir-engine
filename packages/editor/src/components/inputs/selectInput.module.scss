@@ -47,15 +47,19 @@
   margin-top: 10px !important;
 
   .paper {
-    background: var(--dropdown);
+    background: var(--dropdownMenuBackground);
     font-size: 12px;
 
     .option {
       padding: 5px 10px;
-      color: var(--white);
+      color: var(--textColor);
 
       &:global(.Mui-focused) {
-        background: var(--hover);
+        background: var(--dropdownMenuHoverBackground);
+      }
+
+      &:global(.Mui-selected) {
+        background: var(--dropdownMenuSelectedBackground);
       }
     }
   }
@@ -68,11 +72,11 @@
   cursor: pointer;
   padding: 2px 7px;
   font-size: 11px;
-  color: var(--white);
+  color: var(--textColor);
 }
 
 .icon {
-  color: var(--white);
+  color: var(--iconButtonColor);
   font-size: 15px;
 }
 
@@ -82,7 +86,7 @@
   font-size: 11px;
   background: var(--inputBackground);
   padding: 0;
-  color: var(--white);
+  color: var(--textColor);
   max-height: 120px;
   overflow: auto;
 }
@@ -92,6 +96,10 @@
   font-size: 12px;
 
   &:hover {
-    background: var(--hover);
+    background: var(--dropdownMenuHoverBackground);
+  }
+
+  &:global(.Mui-selected) {
+    background: var(--dropdownMenuSelectedBackground);
   }
 }

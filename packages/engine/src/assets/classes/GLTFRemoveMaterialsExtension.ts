@@ -13,7 +13,7 @@ export class GLTFRemoveMaterialsExtension {
     json.textures = []
     json.materials = []
     json.samplers = []
-    json.meshes.forEach((mesh) => {
+    json.meshes?.forEach((mesh) => {
       mesh.primitives.forEach((primitive) => {
         delete primitive.material
       })

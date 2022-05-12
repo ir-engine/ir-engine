@@ -3,7 +3,7 @@ import matches, { Validator } from 'ts-matches'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 import { HyperStore } from '@xrengine/hyperflux/functions/StoreFunctions'
 
-import { EngineActionType } from '../../ecs/classes/EngineService'
+import { EngineActionType } from '../../ecs/classes/EngineState'
 
 /**
  *
@@ -14,13 +14,14 @@ import { EngineActionType } from '../../ecs/classes/EngineService'
 export const matchActionOnce = <A, B>(
   store: HyperStore<any>,
   match: Validator<A, B>,
-  callback: (match: B) => boolean
+  callback: (match: B) => boolean | void
 ) => {
   function receptor(action) {
     matches(action).when(match, cb)
   }
   function cb(ac) {
-    if (callback(ac)) {
+    const response = callback(ac)
+    if (typeof response === 'undefined' || response === true) {
       removeActionReceptor(store, receptor)
     }
   }

@@ -18,7 +18,7 @@ import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWe
 import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 
@@ -172,7 +172,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     // if (selfUser?.user_setting?.spatialAudioEnabled === true && audioRef.current != null) audioRef.current.volume = 0
     // else audioRef.current!.volume = volume / 100
     // (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) &&
-    // Engine.spatialAudio
+    // Engine.instance.spatialAudio
   }, [selfUser])
 
   useEffect(() => {
@@ -219,7 +219,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
       // PositionalAudioSystem.instance?.suspend()
       // }
       // selfUser?.user_setting?.spatialAudioEnabled === false ||
-      // (selfUser?.user_setting?.spatialAudioEnabled === 0 && Engine.spatialAudio)
+      // (selfUser?.user_setting?.spatialAudioEnabled === 0 && Engine.instance.spatialAudio)
       setVolume(volume)
     }
 

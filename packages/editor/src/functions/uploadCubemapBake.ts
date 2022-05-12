@@ -10,6 +10,7 @@ import {
   hasComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { beforeMaterialCompile } from '@xrengine/engine/src/scene/classes/BPCEMShader'
 import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
 import { convertCubemapToEquiImageData } from '@xrengine/engine/src/scene/classes/ImageUtils'
@@ -74,7 +75,7 @@ export const uploadBakeToServer = async (entity: Entity) => {
   const position = getScenePositionForBake(world, isSceneEntity ? null : entity)
 
   // inject bpcem logic into material
-  Engine.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
+  Engine.instance.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
     if (!child.material) return
     if (typeof child.material.onBeforeCompile === 'function')
       child.material.userData.previousOnBeforeCompile = child.material.onBeforeCompile
@@ -84,11 +85,15 @@ export const uploadBakeToServer = async (entity: Entity) => {
     )
   })
 
-  const cubemapCapturer = new CubemapCapturer(Engine.renderer, Engine.scene, bakeComponent.options.resolution)
+  const cubemapCapturer = new CubemapCapturer(
+    EngineRenderer.instance.renderer,
+    Engine.instance.scene,
+    bakeComponent.options.resolution
+  )
   const renderTarget = cubemapCapturer.update(position)
 
   // remove injected bpcem logic from material
-  Engine.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
+  Engine.instance.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
     if (!child.material) return
     if (typeof child.material.userData.previousOnBeforeCompile === 'function') {
       child.material.onBeforeCompile = child.material.userData.previousOnBeforeCompile
@@ -96,10 +101,10 @@ export const uploadBakeToServer = async (entity: Entity) => {
     }
   })
 
-  if (isSceneEntity) Engine.scene.environment = renderTarget.texture
+  if (isSceneEntity) Engine.instance.scene.environment = renderTarget.texture
 
   const { blob } = await convertCubemapToEquiImageData(
-    Engine.renderer,
+    EngineRenderer.instance.renderer,
     renderTarget,
     bakeComponent.options.resolution,
     bakeComponent.options.resolution,
