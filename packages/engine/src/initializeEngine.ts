@@ -58,7 +58,6 @@ export const initializeBrowser = () => {
   Engine.instance.camera.layers.enable(ObjectLayers.Avatar)
   Engine.instance.camera.layers.enable(ObjectLayers.UI)
 
-  console.log('navigator.userAgent', navigator.userAgent)
   Engine.instance.isBot = navigator.userAgent === BotUserAgent
 
   const browser = detect()

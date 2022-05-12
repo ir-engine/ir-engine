@@ -5,7 +5,6 @@ import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoun
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { ClientTransportHandler } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
-import { createEngine, initializeBrowser } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
@@ -24,7 +23,6 @@ function RouterComp(props) {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
 
   useEffect(() => {
-    console.log('[main]: login')
     AuthService.doLoginAuto()
     Network.instance.transportHandler = new ClientTransportHandler()
     getCustomRoutes().then((routes) => {

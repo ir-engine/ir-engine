@@ -51,11 +51,6 @@ export function sceneLoaded() {
 }
 
 export function getPlayerPosition() {
-  // console.log('get player position', Engine.instance.currentWorld.localClientEntity, hasComponent(Engine.instance.currentWorld.localClientEntity, TransformComponent))
-  const pos = getComponent(Engine.instance.currentWorld.localClientEntity, TransformComponent)?.position
-  // console.log(pos)
-  if (!pos) return
-  console.log(pos.x, pos.y, pos.z)
   return getComponent(Engine.instance.currentWorld.localClientEntity, TransformComponent)?.position
 }
 
