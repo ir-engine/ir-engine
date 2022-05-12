@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useHistory } from 'react-router'
 
 import { LocationInstanceConnectionAction } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
@@ -8,61 +8,36 @@ import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFu
 import { getWorldTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { SceneAction, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
-import { useHookEffect } from '@xrengine/hyperflux'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppAction, GeneralStateList } from '../../common/services/AppService'
-import { initClient, initEngine, loadLocation } from './LocationLoadHelper'
-
-const engineRendererCanvasId = 'engine-renderer-canvas'
-
-const canvasStyle = {
-  zIndex: 0,
-  width: '100%',
-  height: '100%',
-  position: 'fixed',
-  WebkitUserSelect: 'none',
-  pointerEvents: 'auto',
-  userSelect: 'none'
-} as React.CSSProperties
-
-const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
+import { initClient, loadScene } from './LocationLoadHelper'
 
 export const LoadEngineWithScene = () => {
   const history = useHistory()
   const dispatch = useDispatch()
   const engineState = useEngineState()
   const sceneState = useSceneState()
-  const [clientInitialized, setClientInitialized] = useState(false)
   const [clientReady, setClientReady] = useState(false)
 
-  useEffect(() => {
-    initEngine()
+  /**
+   * initialise the client
+   */
+  useHookEffect(() => {
+    initClient().then(() => {
+      setClientReady(true)
+    })
   }, [])
 
   /**
-   * Once we know what projects we need, initialise the client.
+   * load the scene whenever it changes
    */
   useHookEffect(() => {
-    // We assume that the number of projects will always be greater than 0 as the default project is assumed un-deletable
-    if (!clientInitialized && engineState.isEngineInitialized.value && sceneState.currentScene.value) {
-      setClientInitialized(true)
-      initClient(sceneState.currentScene.value!).then(() => {
-        setClientReady(true)
-      })
-    }
-  }, [engineState.isEngineInitialized, sceneState.currentScene])
-
-  /**
-   * Once we have the scene data, load the location
-   */
-  useHookEffect(() => {
-    const sceneJSON = sceneState.currentScene.ornull?.scene.value
-    if (clientReady && sceneJSON) {
-      loadLocation(sceneJSON)
+    const sceneData = sceneState.currentScene.value
+    if (clientReady && sceneData) {
+      loadScene(sceneData)
     }
   }, [clientReady, sceneState.currentScene])
 
@@ -93,7 +68,7 @@ export const LoadEngineWithScene = () => {
 
       console.log('reseting connection for portal teleport')
 
-      const world = useWorld()
+      const world = Engine.instance.currentWorld
 
       dispatch(SceneAction.currentSceneChanged(null))
       history.push('/location/' + world.activePortal.location)
@@ -107,5 +82,5 @@ export const LoadEngineWithScene = () => {
     }
   }, [engineState.isTeleporting])
 
-  return canvas
+  return <></>
 }

@@ -98,7 +98,7 @@ const ToneMappingOptions = [
 const ShadowTypeOptions = [
   {
     label: 'No Shadow Map',
-    value: undefined
+    value: -1
   },
   {
     label: 'Basic Shadow Map',
@@ -451,13 +451,13 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             />
           </InputGroup>
           <InputGroup
-            name="Tone Mapping Exposure"
+            name="Shadow Map Type"
             label={t('editor:properties.scene.lbl-shadowMapType')}
             info={t('editor:properties.scene.info-shadowMapType')}
           >
             <SelectInput
               options={ShadowTypeOptions}
-              value={renderSettingComponent.shadowMapType}
+              value={renderSettingComponent.shadowMapType ?? -1}
               onChange={updateProperty(RenderSettingComponent, 'shadowMapType')}
             />
           </InputGroup>

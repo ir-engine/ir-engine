@@ -64,11 +64,10 @@ class AnimationClip {
 
 describe('LoopAnimationFunctions', () => {
   let entity: Entity
-  let direct = true
   let loopAnimationFunctions = proxyquire('./LoopAnimationFunctions', {
     '../../../common/functions/isClient': { isClient: true },
-    '../../../ecs/classes/EngineService': {
-      accessEngineState: () => {
+    '../../../ecs/classes/EngineState': {
+      getEngineState: () => {
         return {
           sceneLoaded: {
             value: true
@@ -128,38 +127,6 @@ describe('LoopAnimationFunctions', () => {
 
       const entityNode = getComponent(entity, EntityNodeComponent)
       assert(entityNode && entityNode.components.includes(SCENE_COMPONENT_LOOP_ANIMATION))
-    })
-
-    it('will call updateLoopAnimation function if scene is loaded', () => {
-      addComponent(entity, Object3DComponent, { value: new Object3D() })
-      loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponent)
-      assert.equal(direct, true)
-    })
-
-    it('will wait for the scene to be loaded and then call updateLoopAnimation function', () => {
-      addComponent(entity, Object3DComponent, { value: new Object3D() })
-      const _loopAnimationFunctions = proxyquire('./LoopAnimationFunctions', {
-        '../../../common/functions/isClient': { isClient: true },
-        '../../../networking/functions/matchActionOnce': {
-          matchActionOnce: (_a, _b, callback: Function) => {
-            direct = false
-            callback()
-          }
-        },
-        '../../../ecs/classes/EngineService': {
-          accessEngineState: () => {
-            return {
-              sceneLoaded: {
-                value: false
-              }
-            }
-          },
-          EngineActions: { sceneLoaded: {} }
-        }
-      })
-
-      _loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponent)
-      assert.equal(direct, false)
     })
   })
 

@@ -5,11 +5,11 @@ import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { FogComponent } from '../components/FogComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { PostprocessingComponent } from '../components/PostprocessingComponent'
-import { RenderSettingComponent } from '../components/RenderSettingComponent'
 import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
 import { SelectTagComponent } from '../components/SelectTagComponent'
 import { SkyboxComponent } from '../components/SkyboxComponent'
@@ -23,13 +23,13 @@ import { SCENE_PREVIEW_CAMERA_HELPER } from '../functions/loaders/ScenePreviewCa
 export default async function EntityNodeEventSystem(_: World) {
   const skyboxQuery = defineQuery([SkyboxComponent])
   const fogQuery = defineQuery([FogComponent])
-  const renderSettingQuery = defineQuery([RenderSettingComponent])
   const postProcessingQuery = defineQuery([PostprocessingComponent])
   const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraTagComponent])
   const videoQuery = defineQuery([VideoComponent])
   const videoAudioQuery = defineQuery([VideoComponent, AudioComponent])
   const volumetricAudioQuery = defineQuery([VolumetricComponent, AudioComponent])
 
+  const directionalLightQuery = defineQuery([DirectionalLightComponent])
   const directionalLightSelectQuery = defineQuery([DirectionalLightComponent, SelectTagComponent])
   const scenePreviewCameraSelectQuery = defineQuery([ScenePreviewCameraTagComponent, SelectTagComponent])
 
@@ -73,12 +73,14 @@ export default async function EntityNodeEventSystem(_: World) {
       Engine.instance.scene.fog = null
     }
 
-    for (const _ of postProcessingQuery.exit()) {
-      configureEffectComposer(true)
-    }
+    if (Engine.instance.isEditor) {
+      for (const _ of postProcessingQuery.exit()) {
+        configureEffectComposer(true)
+      }
 
-    for (const _ of postProcessingQuery.enter()) {
-      configureEffectComposer()
+      for (const _ of postProcessingQuery.enter()) {
+        configureEffectComposer()
+      }
     }
 
     for (const _ of scenePreviewCameraQuery.exit()) {
@@ -100,6 +102,15 @@ export default async function EntityNodeEventSystem(_: World) {
     for (const entity of volumetricAudioQuery.enter()) {
       const obj3d = getComponent(entity, Object3DComponent).value
       obj3d.userData.textureMesh?.removeFromParent()
+    }
+
+    for (const entity of directionalLightQuery.enter()) {
+      const lightComponent = getComponent(entity, DirectionalLightComponent)
+
+      if (lightComponent.useInCSM && EngineRenderer.instance.csm) {
+        const obj3d = getComponent(entity, Object3DComponent).value
+        if (obj3d) obj3d.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
+      }
     }
   }
 }

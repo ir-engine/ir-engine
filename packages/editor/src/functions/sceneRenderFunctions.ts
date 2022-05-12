@@ -2,10 +2,8 @@ import { Group, Object3D, Scene, Vector3, WebGLInfo } from 'three'
 
 import { store } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { initializeCameraComponent } from '@xrengine/engine/src/camera/systems/CameraSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import {
@@ -13,7 +11,6 @@ import {
   EngineRendererAction,
   restoreEngineRendererData
 } from '@xrengine/engine/src/renderer/EngineRendererState'
-import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
@@ -56,13 +53,12 @@ export const SceneState: SceneStateType = {
 }
 
 export async function initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
-  EngineRenderer.instance.disableUpdate = true
   SceneState.isInitialized = false
 
   if (!Engine.instance.scene) Engine.instance.scene = new Scene()
 
   // getting scene data
-  await loadSceneFromJSON(projectFile)
+  await loadSceneFromJSON(projectFile, [])
 
   Engine.instance.camera.position.set(0, 5, 10)
   Engine.instance.camera.lookAt(new Vector3())
@@ -102,10 +98,7 @@ export async function initializeRenderer(): Promise<void> {
 
     addInputActionMapping(ActionSets.EDITOR, EditorMapping)
 
-    configureEffectComposer()
-
     store.dispatch(EditorAction.rendererInitialized(true))
-    EngineRenderer.instance.disableUpdate = false
 
     accessEngineRendererState().automatic.set(false)
     await restoreEditorHelperData()

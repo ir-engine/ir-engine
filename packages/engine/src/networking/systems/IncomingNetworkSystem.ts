@@ -1,5 +1,5 @@
 import { Engine } from '../../ecs/classes/Engine'
-import { accessEngineState } from '../../ecs/classes/EngineService'
+import { getEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { Network } from '../classes/Network'
 import { validateNetworkObjects } from '../functions/validateNetworkObjects'
@@ -23,7 +23,7 @@ export default async function IncomingNetworkSystem(world: World) {
 
   const VALIDATE_NETWORK_INTERVAL = 300 // TODO: /** world.tickRate * 5 */
 
-  const engineState = accessEngineState()
+  const engineState = getEngineState()
 
   return () => {
     if (!engineState.isEngineInitialized.value) return

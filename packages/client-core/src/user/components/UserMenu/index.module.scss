@@ -1,17 +1,13 @@
 @import "@xrengine/client-core/src/styles/imports.module.scss";
 
-.primary {
-  background: var(--purpleColor);
-}
-
 .primaryForeground {
-  color: var(--purpleColor);
+  color: var(--textColor);
 }
 
 .apiRefresh {
   &:hover {
     cursor: pointer;
-    color: var(--text);
+    color: var(--textColor);
     background-color: dimgray;
     border-radius: 100px;
   }
@@ -29,14 +25,14 @@
 
 .themeHeading {
   font-size: 12px;
-  color: var(--text);
+  color: var(--textColor);
 }
 
 .settingContainer {
   position: fixed;
   bottom: 20px;
   width: 100vw;
-  z-index: 15;
+  z-index: 5;
   display: flex;
   align-items: center;
 
@@ -66,19 +62,23 @@
       padding: 1em;
       margin-right: 5px;
       border-radius: 50%;
-      background-color: var(--purpleColor1);
+      background-color: var(--iconButtonBackground);
 
       @media (max-width: 500px) {
         padding: 8px;
       }
 
       svg {
-        color: var(--text);
+        color: var(--iconButtonColor);
+      }
+
+      img {
+        color: var(--iconButtonColor);
       }
 
       &:hover {
         cursor: pointer;
-        background-color: var(--purpleColor);
+        background-color: var(--iconButtonHoverColor);
       }
 
       &:last-child {
@@ -102,7 +102,7 @@
     position: absolute;
     bottom: 75px;
     padding: 0 20px;
-    background-color: var(--purpleLighter);
+    background-color: var(--popupBackground);
     border-radius: 20px;
     width: 140px;
     right: 100px;
@@ -206,7 +206,7 @@
   bottom: 75px;
   padding: 0 30px;
   border-radius: 20px;
-  background-color: var(--purpleLighter);
+  background-color: var(--popupBackground);
   width: calc(100% - 50px);
   left: 50%;
   transform: translateX(-50%);
@@ -276,8 +276,8 @@
           margin: 0;
           min-width: 30px;
           border-radius: 50%;
-          color: var(--text);
-          background-color: var(--purpleColor1);
+          color: var(--textColor);
+          background-color: var(--iconButtonBackground);
           box-shadow: 2px 2px 10px gray;
           transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 
@@ -287,7 +287,7 @@
             height: 40px;
             bottom: -15px;
             right: -15px;
-            background-color: var(--purpleColor);
+            background-color: var(--iconButtonSelectedBackground);
           }
 
           svg {
@@ -307,7 +307,7 @@
           font-size: 14px;
           font-weight: bold;
           margin: 0;
-          color: var(--text);
+          color: var(--textColor);
         }
 
         .inputBlock {
@@ -321,12 +321,12 @@
 
             input {
               font-size: 18px;
-              color: var(--text);
-              border-color: var(--text);
+              color: var(--textColor);
+              border-color: var(--inputOutline);
             }
 
             :global(.MuiFormLabel-root) {
-              color: var(--text);
+              color: var(--textColor);
             }
 
             :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
@@ -354,7 +354,7 @@
           font-size: 14px;
           text-align: left;
           opacity: 0.8;
-          color: var(--text);
+          color: var(--textColor);
           margin: 5px 0 !important;
 
           span {
@@ -373,7 +373,7 @@
         h4 {
           margin-top: 4px;
           text-align: left;
-          color: var(--text);
+          color: var(--textColor);
 
           .logout {
             max-width: 50px;
@@ -396,23 +396,23 @@
         font-size: 14px;
         font-weight: bold;
         margin: 0;
-        color: var(--text);
+        color: var(--textColor);
       }
 
       .emailField {
         margin-top: 10px;
         margin-bottom: 20px;
         width: 100%;
-        color: var(--text);
+        color: var(--textColor);
         background: transparent;
 
         input {
-          color: var(--text);
-          border-color: var(--text);
+          color: var(--textColor);
+          border-color: var(--inputOutline);
         }
 
         :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
-          border-color: var(--text);
+          border-color: var(--inputOutline);
         }
 
         .materialIconBlock {
@@ -425,7 +425,7 @@
       text-align: center;
 
       .textBlock {
-        color: var(--text);
+        color: var(--textColor);
         font-size: 14px;
         font-weight: normal;
         text-align: center;
@@ -438,8 +438,8 @@
         font-size: 14px;
         width: 250px;
         max-width: 100%;
-        background: var(--purplePinkGradient);
-        color: var(--text);
+        background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+        color: var(--textColor);
         border-radius: 20px;
         margin: 15px 0 20px;
 
@@ -477,7 +477,7 @@
 
       .textBlock {
         font-size: 14px;
-        color: var(--text);
+        color: var(--textColor);
         font-weight: normal;
         text-align: center;
         display: block;
@@ -486,7 +486,7 @@
 
       .smallTextBlock {
         font-size: 12px;
-        color: var(--text);
+        color: var(--textColor);
         font-weight: normal;
         text-align: center;
         display: block;
@@ -497,7 +497,7 @@
 
   .settingPanel {
     .settingSection {
-      color: var(--text);
+      color: var(--textColor);
       position: relative;
 
       & + .settingSection {
@@ -522,7 +522,7 @@
 
         :global(.MuiCheckbox-root) {
           padding: 0;
-          color: var(--purpleColor);
+          color: var(--buttonOutlined);
           margin-right: 10px;
 
           svg {
@@ -547,7 +547,7 @@
         flex-shrink: 0;
 
         svg {
-          color: var(--purpleColor);
+          color: var(--buttonOutlined);
         }
       }
 
@@ -568,13 +568,13 @@
 
       :global(.MuiSlider-root) {
         &.slider {
-          color: var(--purpleColor);
+          color: var(--iconButtonSelectedBackground);
           margin: 0 10px;
         }
 
         :global(.MuiSlider-thumb) {
-          background: var(--purpleColor);
-          border: var(--purpleColor);
+          background: var(--iconButtonSelectedBackground);
+          border: var(--iconButtonSelectedBackground);
           width: 16px;
           height: 16px;
         }
@@ -602,7 +602,7 @@
 
     .panelHeader {
       font-size: 18px;
-      color: var(--text);
+      color: var(--textColor);
       font-weight: bold;
     }
 
@@ -643,7 +643,7 @@
       .sendInvite {
         width: 125px;
         height: 35px;
-        background: var(--purplePinkGradient);
+        background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
 
         &:hover {
           opacity: 0.8;
@@ -652,7 +652,7 @@
     }
 
     h5 {
-      color: var(--text);
+      color: var(--textColor);
       margin-top: 10px;
       font-size: 14px;
       font-weight: normal;
@@ -661,22 +661,22 @@
     .copyField {
       margin-top: 10px;
       width: 100%;
-      color: var(--text);
+      color: var(--textColor);
 
       input {
-        color: var(--text);
-        border-color: var(--text);
-        -webkit-text-fill-color: var(--text);
+        color: var(--textColor);
+        border-color: var(--inputOutline);
+        -webkit-text-fill-color: var(--textColor);
       }
 
       :global(.MuiOutlinedInput-root) {
         fieldset {
-          border-color: var(--text);
+          border-color: var(--inputOutline);
         }
       }
 
       :global(.MuiInputAdornment-root) {
-        color: var(--text);
+        color: var(--textColor);
         cursor: pointer;
 
         &:hover {
@@ -692,21 +692,21 @@
     .emailField {
       margin-top: 30px;
       width: 100%;
-      color: var(--text);
+      color: var(--textColor);
 
       input {
-        color: var(--text);
-        border-color: var(--text);
+        color: var(--textColor);
+        border-color: var(--inputOutline);
       }
 
       :global(.MuiOutlinedInput-root) {
         fieldset {
-          border-color: var(--text);
+          border-color: var(--inputOutline);
         }
       }
 
       :global(.MuiInputAdornment-root) {
-        color: var(--text);
+        color: var(--textColor);
         cursor: pointer;
 
         &:hover {
@@ -778,7 +778,7 @@
 
       .tableHead {
         background: var(--purpleButtonColor);
-        color: var(--text);
+        color: var(--textColor);
       }
 
       .tablebody {
@@ -808,7 +808,7 @@
 
       button:hover {
         background: var(--purpleButtonColor);
-        color: var(--text);
+        color: var(--textColor);
       }
     }
 
@@ -821,7 +821,7 @@
         display: block;
         transform: none;
         margin-bottom: 5px;
-        color: #666;
+        color: var(--textColor);
         font-size: 0.8rem;
       }
 
@@ -833,7 +833,7 @@
         }
 
         &:global(.Mui-checked) svg {
-          color: var(--purpleButtonColor);
+          color: var(--iconButtonColor);
         }
 
         &:hover {
@@ -939,7 +939,7 @@
     }
 
     .savebtn {
-      color: var(--text);
+      color: var(--textColor);
       background: var(--purpleButtonColor);
       height: 35px;
       width: 150px;
@@ -1076,7 +1076,7 @@
         border-radius: 50%;
         background: var(--purpleButtonColor);
         box-shadow: 2px 2px 10px gray;
-        color: var(--text);
+        color: var(--textColor);
         transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         display: flex;
         align-items: center;
@@ -1189,7 +1189,7 @@
   bottom: 75px;
   padding: 0 30px;
   border-radius: 20px;
-  background-color: var(--purpleLighter);
+  background-color: var(--popupBackground);
   left: 50%;
   transform: translateX(-50%);
   box-shadow: 16px 16px 32px 0 #11111159;
@@ -1208,13 +1208,13 @@
     .iconBlock {
       display: inline-block;
       cursor: pointer;
-      color: var(--text);
+      color: var(--textColor);
       background: transparent;
     }
 
     h2 {
       font-size: 18px;
-      color: var(--text);
+      color: var(--textColor);
       font-weight: bold;
       display: inline-block;
       vertical-align: middle;
@@ -1229,10 +1229,10 @@
 
     button {
       height: 35px;
-      background-color: var(--purpleColor1);
+      background-color: var(--iconButtonBackground);
       padding: 0;
       border: none;
-      color: var(--text);
+      color: var(--textColor);
       flex-grow: 1;
       border-radius: 3px;
       font-size: 14px;
@@ -1243,7 +1243,7 @@
       }
 
       &:hover {
-        background-color: var(--purpleColor);
+        background-color: var(--iconButtonSelectedBackground);
       }
     }
 
@@ -1252,7 +1252,7 @@
     }
 
     button[disabled] {
-      background: var(--purpleDarkest);
+      background: var(--disabled);
       opacity: 1 !important;
     }
 
@@ -1263,7 +1263,7 @@
     }
 
     .uploadBtn {
-      background: var(--purplePinkGradient);
+      background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
       cursor: pointer;
       font-size: 1rem;
       font-weight: bold;
@@ -1294,7 +1294,7 @@
 
       & > svg {
         opacity: 1;
-        color: var(--purpleColor);
+        color: var(--iconButtonColor);
 
         &:hover {
           opacity: 0.8;
@@ -1304,12 +1304,12 @@
       .legend {
         position: absolute;
         padding: 10px;
-        background: var(--purplePanel);
+        background: var(--popupBackground);
         border-radius: 5px;
         top: 30px;
         right: 5px;
         width: 130px;
-        color: var(--text);
+        color: var(--textColor);
         font-size: 12px;
         display: none;
 
@@ -1318,8 +1318,8 @@
         }
 
         .shiftKey {
-          background: var(--purplePanel);
-          color: var(--text);
+          background: var(--popupBackground);
+          color: var(--textColor);
           padding: 2px 4px;
           border-radius: 4px;
           font-weight: bold;
@@ -1330,10 +1330,10 @@
           font-size: 18px;
           margin-right: 5px;
           width: 40px;
-          color: var(--text);
+          color: var(--iconButtonColor);
 
           path {
-            fill: var(--text);
+            fill: var(--iconButtonColor);
           }
         }
 
@@ -1374,7 +1374,7 @@
     .thumbnailSelectLabel {
       margin: 20px 0 8px;
       font-size: 15px;
-      color: var(--text);
+      color: var(--textColor);
     }
   }
 
@@ -1384,15 +1384,15 @@
     margin: 8px 0;
 
     .avatarNameInput {
-      color: var(--text);
-      border-color: var(--text);
+      color: var(--textColor);
+      border-color: var(--inputOutline);
       background: transparent;
 
       input {
         padding: 5px;
         font-size: 14px;
-        color: var(--text);
-        border-color: var(--text);
+        color: var(--textColor);
+        border-color: var(--inputOutline);
 
         &::selection {
           background-color: transparent;
@@ -1400,7 +1400,7 @@
       }
 
       :global(.MuiFormLabel-root) {
-        color: var(--text);
+        color: var(--textColor);
       }
 
       :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
@@ -1431,7 +1431,7 @@
   @include panel-popup-container-styling;
 
   border-radius: 20px;
-  background-color: var(--purpleLighter);
+  background-color: var(--popupBackground);
   padding: 0;
 
   .controlContainer {
@@ -1520,13 +1520,13 @@
     }
 
     button {
-      color: var(--text);
+      color: var(--textColor);
       display: flex;
       padding: 3px 5px;
       flex-direction: row;
       align-items: center;
       justify-content: center;
-      background-color: var(--purpleColor);
+      background-color: var(--iconButtonBackground);
       border: none;
       border-radius: 3px;
     }
@@ -1569,7 +1569,7 @@
       margin: 0;
       padding: 0;
       min-width: 0;
-      background-color: var(--text);
+      background-color: white;
       cursor: pointer;
 
       &:hover {
@@ -1590,20 +1590,20 @@
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        background-color: var(--purpleColor);
+        background-color: var(--iconButtonBackground);
 
         svg {
-          color: var(--text);
+          color: var(--textColor);
           font-size: 20px;
         }
       }
 
       &.selectedAvatar {
-        border: solid 2px var(--purpleColor0);
+        border: solid 2px var(--iconButtonSelectedBackground);
       }
 
       &.activeAvatar {
-        border: solid 2px var(--purpleColor);
+        border: solid 2px var(--iconButtonSelectedBackground);
       }
     }
   }
@@ -1624,7 +1624,7 @@
 
   .iconBlock {
     position: relative;
-    color: var(--text);
+    color: var(--textColor);
     border: none;
     padding: 0;
     background-color: transparent !important;
@@ -1647,7 +1647,7 @@
     }
 
     &.disabled {
-      color: var(--text2);
+      opacity: 0.8;
       cursor: initial;
 
       &::before {
@@ -1680,7 +1680,7 @@
 
   .iconBlock {
     position: relative;
-    color: var(--text);
+    color: var(--textColor);
     border: none;
     padding: 0;
     top: 18px;
@@ -1703,7 +1703,7 @@
     }
 
     &.disabled {
-      color: var(--text2);
+      opacity: 0.8;
       cursor: initial;
 
       &::before {
@@ -1940,30 +1940,34 @@
 }
 
 .paper {
-  background: var(--purpleLight);
+  background: var(--inputBackground);
   display: flex;
   align-items: center;
 
   & > ul {
     width: 100%;
-    color: var(--text);
+    color: var(--textColor);
   }
 }
 
 .selectPaper {
-  background: #343b41;
-  color: #f1f1f1;
+  background: var(--inputBackground);
+  color: var(--textColor);
+
+  &:global(.Mui-selected) {
+    background: var(--dropdownMenuSelectedBackground);
+  }
 }
 
 .rootBtn {
   font-size: 13px;
   width: auto;
   font-weight: bold;
-  background: var(--purpleColor1);
+  background: var(--buttonFilled);
   padding: 6px 28px;
 
   &:hover {
-    background: var(--purpleColor);
+    opacity: 0.8;
   }
 }
 
@@ -1975,8 +1979,8 @@
 
 .input {
   font-size: 14px;
-  color: var(--text);
-  background-color: var(--purpleLight);
+  color: var(--textColor);
+  background-color: var(--inputBackground);
 }
 
 .tabRoot {
@@ -1985,15 +1989,15 @@
 }
 
 .selected {
-  background: var(--text);
+  background: white;
 }
 
 .color {
-  color: var(--text);
+  color: var(--textColor);
 }
 
 .paper2 {
-  background: var(--purpleLight);
+  background: var(--inputBackground);
   display: flex;
   align-items: center;
   width: 100%;
@@ -2001,14 +2005,14 @@
 }
 
 .selectedTab {
-  color: var(--text) !important;
+  color: var(--textColor) !important;
   font-weight: bold;
   font-size: 17px;
   text-transform: capitalize;
 }
 
 .unselectedTab {
-  color: var(--purpleDarkest) !important;
+  color: var(--buttonFilled) !important;
   font-weight: bold;
   font-size: 17px;
   text-transform: capitalize;
@@ -2029,7 +2033,11 @@
   font-size: 12px;
 
   &:hover {
-    background: var(--purpleColor);
+    background: var(--dropdownMenuHoverBackground);
+  }
+
+  &:global(.Mui-selected) {
+    background: var(--dropdownMenuSelectedBackground);
   }
 }
 
@@ -2044,7 +2052,6 @@
 
   & > div > div {
     padding: 3px;
-    border-radius: 50px;
   }
 
   & > div > label {
@@ -2055,11 +2062,7 @@
   }
 
   & > div > div > svg {
-    color: #5f5ff1;
-  }
-
-  & > div > div > fieldset {
-    border-color: #5f5ff1;
+    color: var(--iconButtonColor);
   }
 }
 
@@ -2071,7 +2074,7 @@
 
 .collapseBtn {
   background-color: transparent !important;
-  color: var(--purpleColor);
+  color: var(--buttonOutlined);
 }
 
 .tableRow {

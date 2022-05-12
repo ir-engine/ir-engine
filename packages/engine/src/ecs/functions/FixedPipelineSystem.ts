@@ -1,5 +1,5 @@
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { accessEngineState } from '../classes/EngineService'
+import { getEngineState } from '../classes/EngineState'
 import { World } from '../classes/World'
 import { SystemUpdateType } from './SystemUpdateType'
 
@@ -33,7 +33,7 @@ export default async function FixedPipelineSystem(world: World, args: { tickRate
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
       world.fixedElapsedTime += world.fixedDelta
       world.fixedTick = Math.floor(world.fixedElapsedTime / world.fixedDelta)
-      accessEngineState().fixedTick.set(world.fixedTick)
+      getEngineState().fixedTick.set(world.fixedTick)
 
       for (const s of world.pipelines[SystemUpdateType.FIXED_EARLY]) s.execute()
       for (const s of world.pipelines[SystemUpdateType.FIXED]) s.execute()

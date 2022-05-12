@@ -8,7 +8,9 @@ import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-u
 
 import authenticate from '../../hooks/authenticate'
 import restrictUserRole from '../../hooks/restrict-user-role'
-import logger from '../../logger'
+import multiLogger from '../../logger'
+
+const logger = multiLogger.child({ component: 'server-core:static-resource' })
 
 export default {
   before: {

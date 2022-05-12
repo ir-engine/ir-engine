@@ -14,12 +14,16 @@
 }
 
 .select {
-  color: #f1f1f1 !important;
+  color: var(--textColor) !important;
 }
 
 .selectPaper {
   background: var(--inputBackground);
-  color: var(--text);
+  color: var(--textColor);
+
+  &:global(.Mui-selected) {
+    background: var(--dropdownMenuSelectedBackground);
+  }
 }
 
 .divider {
@@ -28,34 +32,32 @@
 }
 
 .menuBtn {
-  color: #fff;
+  color: var(--iconButtonColor);
   font-size: 3rem;
-  background: var(--purpleLight);
+  background: var(--iconButtonBackground);
   position: fixed;
 }
 
 .saveBtn {
-  background: var(--purplePinkGradient);
+  color: var(--textColor);
+  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
 }
 
-.settings {
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  background: #43484f;
-  color: #fff;
-  max-width: 310px;
-  position: fixed;
-  padding: 2px 18px;
+.cancelButton {
+  color: var(--textColor);
+}
+
+.filledButton {
+  color: var(--textColor);
 }
 
 .hoverSettings {
   display: flex;
-  z-index: 1;
+  z-index: 3;
   flex-direction: column;
   text-align: center;
-  background: var(--purplePanel);
-  color: var(--text);
+  background: var(--sidebarBackground);
+  color: var(--textColor);
   max-width: 310px;
   position: absolute;
   padding: 2px 18px;
@@ -64,7 +66,7 @@
 }
 
 .settingsHeading {
-  color: var(--text);
+  color: var(--textColor);
   text-align: center;
   margin-bottom: 10px;
   font-weight: 300;
@@ -73,7 +75,7 @@
 }
 
 .hoverSettingsHeading {
-  color: var(--text);
+  color: var(--textColor);
   text-align: center;
   font-weight: 300;
   line-height: 1.7;
@@ -81,7 +83,7 @@
 }
 
 .settingContainer {
-  background: #343b41;
+  background: var(--panelBackground);
   width: 370px;
   height: 150px;
   padding: 60px;
@@ -89,14 +91,14 @@
 
 .contents {
   padding: 10px;
-  background: var(--purplePanel) !important;
+  background: var(--panelBackground) !important;
 }
 
 .input {
   margin-left: 8px;
   flex: 1;
   width: 100%;
-  color: var(--text);
+  color: var(--textColor);
   background: var(--inputBackground);
 }
 
@@ -106,8 +108,8 @@
   margin-top: 10px;
   margin-bottom: 15px;
   background: var(--inputBackground);
-  border: 1px solid #23282c;
-  color: var(--text) !important;
+  border: 1px solid var(--inputOutline);
+  color: var(--textColor) !important;
 }
 
 .createInput {
@@ -118,18 +120,14 @@
   margin-top: 10px;
   margin-bottom: 15px;
   background: var(--inputBackground);
-  border: 1px solid #23282c;
-  color: var(--text) !important;
+  border: 1px solid var(--inputOutline);
+  color: var(--textColor) !important;
 }
 
 .container {
   padding: 3px;
   display: flex;
   flex-direction: column;
-}
-
-.loginBtn {
-  background: #f0fff0;
 }
 
 .nested {
@@ -147,7 +145,7 @@
 .Paper {
   border-radius: 0;
   padding: 0 10px 6px;
-  background: var(--purpleDarkest);
+  background: var(--panelCards);
 }
 
 .Paper2 {
@@ -155,7 +153,7 @@
   padding: 5px 10px;
   border-radius: 0;
   flex-direction: row;
-  background: var(--purpleDarkest);
+  background: var(--panelCards);
 
   & > div {
     margin: 5px;
@@ -167,46 +165,38 @@
 }
 
 .focused {
-  background: var(--purpleColor);
+  background: var(--sidebarSelectedBackground);
 
   &:hover {
-    background-color: var(--purpleColor);
+    background-color: var(--sidebarSelectedBackground);
   }
 }
 
 .autoFocused {
-  background: var(--purpleColor);
+  background: var(--sidebarSelectedBackground);
 
   &:hover {
-    background-color: var(--purpleColor);
+    background-color: var(--sidebarSelectedBackground);
   }
 }
 
 .notFocused {
-  background: var(--purplePanel);
+  background: var(--sidebarBackground);
 
   &:hover {
-    background-color: var(--purpleColor);
+    background-color: var(--sidebarSelectedBackground);
   }
 }
 
 .spanDange {
-  color: #ff8c00 !important;
+  color: var(--orange) !important;
   margin-bottom: 0.8rem;
   position: fixed;
 }
 
-.clearMenuBg {
-  background: #43484f;
-  border: 1px solid #43484f;
-  border-radius: 50%;
-  position: fixed;
-  z-index: 3;
-}
-
 .invisible {
   display: none;
-  color: var(--text);
+  color: var(--textColor);
 
   @media (max-width: 1200px) {
     display: inline-block;
@@ -215,7 +205,7 @@
 }
 
 .visible {
-  color: var(--text);
+  color: var(--textColor);
   display: inline-block;
 
   @media (max-width: 1200px) {

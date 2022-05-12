@@ -51,6 +51,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
 
 export const uploadAvatarStaticResource = async (app: Application, data: AvatarUploadArguments, params?: Params) => {
   const key = `avatars/${data.userId ?? 'public'}/${data.avatarName}`
+  logger.info('uploadAvatarStaticResource', key)
 
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
   // if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')

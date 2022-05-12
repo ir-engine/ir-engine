@@ -5,7 +5,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
+import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { AvatarProps } from '../interfaces/WorldState'
 import { NetworkWorldAction } from './NetworkWorldAction'
 
@@ -40,7 +40,7 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
   world.fixedTick = Math.floor(world.elapsedTime / world.fixedDelta)
   world.fixedElapsedTime = world.fixedTick * world.fixedDelta
 
-  const engineState = accessEngineState()
+  const engineState = getEngineState()
 
   const spawnPose = engineState.isTeleporting.value
     ? {
