@@ -198,7 +198,7 @@ const InviteModal = (props: Props) => {
               [styles.modaContent]: true
             })}
           >
-            <Typography variant="h5" align="center" className="mt-4 mb-4" component="h4" style={{ color: '#fff' }}>
+            <Typography variant="h5" align="center" className="mt-4 mb-4" component="h4">
               {t('admin:components.invite.sendInvite')}
             </Typography>
             <Dropdown
@@ -275,7 +275,6 @@ const InviteModal = (props: Props) => {
               </Grid>
 
               <TextValidator
-                style={{ color: '#fff' }}
                 variant="outlined"
                 margin="normal"
                 fullWidth
@@ -290,7 +289,6 @@ const InviteModal = (props: Props) => {
                 onChange={(e) => setToken(e.target.value)}
               />
               <FormGroup row className={styles.locationModalButtons}>
-                {' '}
                 <Button type="submit" variant="contained" className={styles.submitButton}>
                   {t('admin:components.invite.sendInvitation')}
                 </Button>
@@ -339,7 +337,6 @@ const InviteModal = (props: Props) => {
     //       className={styles.input}
     //       name="passcode"
     //       placeholder="Enter valid Passcode or None"
-    //       style={{ color: '#fff' }}
     //       autoComplete="off"
     //       value={passcode}
     //       onChange={(e) => setPasscode(e.target.value)}
@@ -408,7 +405,6 @@ const InviteModal = (props: Props) => {
     //       className={styles.input}
     //       name="token"
     //       placeholder="Please enter US phone number or E-mail"
-    //       style={{ color: '#fff' }}
     //       autoComplete="off"
     //       value={token}
     //       onChange={(e) => setToken(e.target.value)}

@@ -43,33 +43,15 @@ const GameServer = (props: gameServerProps) => {
               <Grid item xs={12} sm={6}>
                 <label> {t('admin:components.setting.clientHost')}</label>
                 <Paper component="div" className={styles.createInput}>
-                  <InputBase
-                    name="clientHost"
-                    className={styles.input}
-                    disabled
-                    style={{ color: '#fff' }}
-                    value={el?.clientHost || ''}
-                  />
+                  <InputBase name="clientHost" className={styles.input} disabled value={el?.clientHost || ''} />
                 </Paper>
                 <label>{t('admin:components.setting.rtcStartPort')}</label>
                 <Paper component="div" className={styles.createInput}>
-                  <InputBase
-                    name="rtc_start_port"
-                    className={styles.input}
-                    disabled
-                    style={{ color: '#fff' }}
-                    value={el?.rtc_start_port || ''}
-                  />
+                  <InputBase name="rtc_start_port" className={styles.input} disabled value={el?.rtc_start_port || ''} />
                 </Paper>
                 <label>{t('admin:components.setting.rtcEndPort')}</label>
                 <Paper component="div" className={styles.createInput}>
-                  <InputBase
-                    name="rtc_end_port"
-                    className={styles.input}
-                    disabled
-                    style={{ color: '#fff' }}
-                    value={el?.rtc_end_port || ''}
-                  />
+                  <InputBase name="rtc_end_port" className={styles.input} disabled value={el?.rtc_end_port || ''} />
                 </Paper>
                 <label>{t('admin:components.setting.rtcPortBlockSize')}</label>
                 <Paper component="div" className={styles.createInput}>
@@ -77,7 +59,6 @@ const GameServer = (props: gameServerProps) => {
                     name="rtc_port_block_size"
                     className={styles.input}
                     disabled
-                    style={{ color: '#fff' }}
                     value={el?.rtc_port_block_size || ''}
                   />
                 </Paper>
@@ -87,7 +68,6 @@ const GameServer = (props: gameServerProps) => {
                     disabled
                     name="identifierDigits"
                     className={styles.input}
-                    style={{ color: '#fff' }}
                     value={el?.identifierDigits || ''}
                   />
                 </Paper>
@@ -107,53 +87,23 @@ const GameServer = (props: gameServerProps) => {
                 </Paper>
                 <label> {t('admin:components.setting.domain')} </label>
                 <Paper component="div" className={styles.createInput}>
-                  <InputBase
-                    name="domain"
-                    className={styles.input}
-                    disabled
-                    style={{ color: '#fff' }}
-                    value={el?.domain || ''}
-                  />
+                  <InputBase name="domain" className={styles.input} disabled value={el?.domain || ''} />
                 </Paper>
                 <label> {t('admin:components.setting.releaseName')} </label>
                 <Paper component="div" className={styles.createInput}>
-                  <InputBase
-                    name="releaseName"
-                    className={styles.input}
-                    disabled
-                    style={{ color: '#fff' }}
-                    value={el?.releaseName || ''}
-                  />
+                  <InputBase name="releaseName" className={styles.input} disabled value={el?.releaseName || ''} />
                 </Paper>
                 <label> {t('admin:components.setting.port')} </label>
                 <Paper component="div" className={styles.createInput}>
-                  <InputBase
-                    name="port"
-                    className={styles.input}
-                    disabled
-                    style={{ color: '#fff' }}
-                    value={el?.port || ''}
-                  />
+                  <InputBase name="port" className={styles.input} disabled value={el?.port || ''} />
                 </Paper>
                 <label> {t('admin:components.setting.mode')} </label>
                 <Paper component="div" className={styles.createInput}>
-                  <InputBase
-                    name="mode"
-                    className={styles.input}
-                    disabled
-                    style={{ color: '#fff' }}
-                    value={el?.mode || ''}
-                  />
+                  <InputBase name="mode" className={styles.input} disabled value={el?.mode || ''} />
                 </Paper>
                 <label> {t('admin:components.setting.locationName')} </label>
                 <Paper component="div" className={styles.createInput}>
-                  <InputBase
-                    name="locationName"
-                    className={styles.input}
-                    disabled
-                    style={{ color: '#fff' }}
-                    value={el?.locationName || ''}
-                  />
+                  <InputBase name="locationName" className={styles.input} disabled value={el?.locationName || ''} />
                 </Paper>
               </Grid>
             </Grid>

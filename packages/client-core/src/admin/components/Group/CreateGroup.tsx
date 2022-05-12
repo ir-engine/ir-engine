@@ -102,7 +102,6 @@ const CreateGroup = (props: Props) => {
                 className={styles.input}
                 name="name"
                 placeholder={t('admin:components.group.enterGroupName')}
-                style={{ color: '#fff' }}
                 autoComplete="off"
                 value={state.name}
                 onChange={handleChange}
@@ -117,7 +116,6 @@ const CreateGroup = (props: Props) => {
                 className={styles.input}
                 name="description"
                 placeholder={t('admin:components.group.enterGroupDescription')}
-                style={{ color: '#fff' }}
                 autoComplete="off"
                 value={state.description}
                 onChange={handleChange}

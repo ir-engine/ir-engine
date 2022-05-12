@@ -1,7 +1,7 @@
 @import "@xrengine/client-core/src/styles/imports.module.scss";
 
 .primaryForeground {
-  color: var(--iconButtonHoverColor);
+  color: var(--textColor);
 }
 
 .apiRefresh {
@@ -69,12 +69,16 @@
       }
 
       svg {
-        color: var(--textColor);
+        color: var(--iconButtonColor);
+      }
+
+      img {
+        color: var(--iconButtonColor);
       }
 
       &:hover {
         cursor: pointer;
-        background-color: var(--iconButtonSelectedBackground);
+        background-color: var(--iconButtonHoverColor);
       }
 
       &:last-child {
@@ -564,13 +568,13 @@
 
       :global(.MuiSlider-root) {
         &.slider {
-          color: var(--iconButtonHoverColor);
+          color: var(--iconButtonSelectedBackground);
           margin: 0 10px;
         }
 
         :global(.MuiSlider-thumb) {
-          background: var(--iconButtonHoverColor);
-          border: var(--iconButtonHoverColor);
+          background: var(--iconButtonSelectedBackground);
+          border: var(--iconButtonSelectedBackground);
           width: 16px;
           height: 16px;
         }
@@ -817,7 +821,7 @@
         display: block;
         transform: none;
         margin-bottom: 5px;
-        color: #666;
+        color: var(--textColor);
         font-size: 0.8rem;
       }
 
@@ -829,7 +833,7 @@
         }
 
         &:global(.Mui-checked) svg {
-          color: var(--purpleButtonColor);
+          color: var(--iconButtonColor);
         }
 
         &:hover {
@@ -1947,8 +1951,12 @@
 }
 
 .selectPaper {
-  background: #343b41;
-  color: #f1f1f1;
+  background: var(--inputBackground);
+  color: var(--textColor);
+
+  &:global(.Mui-selected) {
+    background: var(--dropdownMenuSelectedBackground);
+  }
 }
 
 .rootBtn {
@@ -2026,6 +2034,10 @@
 
   &:hover {
     background: var(--dropdownMenuHoverBackground);
+  }
+
+  &:global(.Mui-selected) {
+    background: var(--dropdownMenuSelectedBackground);
   }
 }
 

@@ -53,33 +53,15 @@ const Redis = (props: Props) => {
         <br />
         <Paper component="div" className={styles.createInput}>
           <label>{t('admin:components.setting.address')}:</label>
-          <InputBase
-            value={redisSetting?.address || ''}
-            name="address"
-            className={styles.input}
-            disabled
-            style={{ color: '#fff' }}
-          />
+          <InputBase value={redisSetting?.address || ''} name="address" className={styles.input} disabled />
         </Paper>
         <Paper component="div" className={styles.createInput}>
           <label>{t('admin:components.setting.port')}:</label>
-          <InputBase
-            value={redisSetting?.port || ''}
-            name="port"
-            className={styles.input}
-            disabled
-            style={{ color: '#fff' }}
-          />
+          <InputBase value={redisSetting?.port || ''} name="port" className={styles.input} disabled />
         </Paper>
         <Paper component="div" className={styles.createInput}>
           <label>{t('admin:components.setting.password')}:</label>
-          <InputBase
-            value={redisSetting?.password || ''}
-            name="password"
-            className={styles.input}
-            disabled
-            style={{ color: '#fff' }}
-          />
+          <InputBase value={redisSetting?.password || ''} name="password" className={styles.input} disabled />
         </Paper>
       </form>
     </div>

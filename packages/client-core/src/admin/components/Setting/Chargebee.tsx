@@ -31,23 +31,11 @@ const ChargeBee = (props: Props) => {
         </Typography>
         <Paper component="div" className={styles.createInput}>
           <label>{t('admin:components.setting.url')}:</label>
-          <InputBase
-            value={chargebee?.url || ''}
-            name="url"
-            className={styles.input}
-            disabled
-            style={{ color: '#fff' }}
-          />
+          <InputBase value={chargebee?.url || ''} name="url" className={styles.input} disabled />
         </Paper>
         <Paper component="div" className={styles.createInput}>
           <label>{t('admin:components.setting.apiKey')}:</label>
-          <InputBase
-            value={chargebee?.apiKey || ''}
-            name="apiKey"
-            className={styles.input}
-            disabled
-            style={{ color: '#fff' }}
-          />
+          <InputBase value={chargebee?.apiKey || ''} name="apiKey" className={styles.input} disabled />
         </Paper>
       </form>
     </div>

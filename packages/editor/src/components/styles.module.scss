@@ -45,6 +45,12 @@
   }
 }
 
+.checkbox {
+  &:global(.Mui-checked) {
+    color: var(--iconButtonColor);
+  }
+}
+
 .MuiTab-root.Mui-selected {
   color: pink;
 }

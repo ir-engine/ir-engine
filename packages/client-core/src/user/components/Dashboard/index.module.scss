@@ -78,7 +78,7 @@
 
 .menuButton {
   margin-right: 25px;
-  color: white;
+  color: var(--iconButtonColor);
   padding: 16px;
   margin-left: 0;
 }
@@ -130,6 +130,12 @@
   align-items: center;
   justify-content: flex-end;
   padding: 0 8px;
+}
+
+.drawerIconColor {
+  svg {
+    color: var(--iconButtonColor) !important;
+  }
 }
 
 .content {
