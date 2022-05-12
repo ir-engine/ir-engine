@@ -10,6 +10,7 @@ import {
 } from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AvatarInputControllerTypeUpdatePendingComponent } from '../../avatar/components/AvatarControllerTypeUpdatePendingComponent'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
 import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { Engine } from '../../ecs/classes/Engine'
@@ -99,14 +100,19 @@ export const initializeXRInputs = (entity: Entity) => {
 export const initializeHandModel = (entity: Entity, controller: any, handedness: string, isGrip: boolean = false) => {
   const avatarInputState = accessAvatarInputSettingsState()
 
-  console.log('init hands')
-  // avatar control type in xr action and then use here
+  const avatarInputControllerTypeUpdatePendingComponent = getComponent(
+    entity,
+    AvatarInputControllerTypeUpdatePendingComponent
+  )
+  let avatarInputControllerType = avatarInputControllerTypeUpdatePendingComponent
+    ? avatarInputControllerTypeUpdatePendingComponent.newControllerType
+    : avatarInputState.controlType.value
 
   // if is grip and not 'controller' type enabled
-  // if (isGrip && avatarInputState.controlType.value !== AvatarControllerType.OculusQuest) return
+  if (isGrip && avatarInputControllerType !== AvatarControllerType.OculusQuest) return
 
-  // // if is hands and 'none' type enabled (instead we use IK to move hands in avatar model)
-  // if (!isGrip && avatarInputState.controlType.value === AvatarControllerType.None) return
+  // if is hands and 'none' type enabled (instead we use IK to move hands in avatar model)
+  if (!isGrip && avatarInputControllerType === AvatarControllerType.None) return
 
   /**
    * TODO: both model types we have are hands, we also want to have an oculus quest controller model

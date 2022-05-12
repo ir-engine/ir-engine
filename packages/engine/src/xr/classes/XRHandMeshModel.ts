@@ -54,7 +54,6 @@ export class XRHandMeshModel extends Object3D {
     const XRJoints = (this.controller as any).joints
 
     if (!XRJoints) return
-    // debugger
 
     for (let i = 0; i < this.bones.length; i++) {
       const bone = this.bones[i]

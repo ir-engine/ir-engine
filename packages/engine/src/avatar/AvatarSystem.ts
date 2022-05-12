@@ -1,7 +1,7 @@
 import { Group } from 'three'
 import matches from 'ts-matches'
 
-import { addActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
@@ -29,9 +29,10 @@ import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/fu
 import { proxifyXRInputs } from '../xr/functions/WebXRFunctions'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
+import { AvatarInputControllerTypeUpdatePendingComponent } from './components/AvatarControllerTypeUpdatePendingComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
 import { detectUserInCollisions } from './functions/detectUserInCollisions'
-import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
+import { AvatarInputSettingsAction } from './state/AvatarInputSettingsState'
 
 function avatarActionReceptor(action) {
   const world = useWorld()
@@ -75,6 +76,13 @@ function avatarActionReceptor(action) {
           inputData.controllerGripRightParent.add(inputData.controllerGripRight)
 
           addComponent(entity, XRInputSourceComponent, inputData as any)
+
+          dispatchAction(Engine.store, AvatarInputSettingsAction.setControlType(a.avatarInputControllerType as any))
+          // This is required because state is updated in the next frame and some functionality that requires updated controller type might run in the current frame.
+          // This component can be used at such places.
+          addComponent(entity, AvatarInputControllerTypeUpdatePendingComponent, {
+            newControllerType: a.avatarInputControllerType
+          })
         }
       } else if (hasComponent(entity, XRInputSourceComponent)) {
         removeComponent(entity, XRInputSourceComponent)
@@ -154,6 +162,7 @@ export default async function AvatarSystem(world: World) {
       xrInputComponent.container.removeFromParent()
       xrInputComponent.head.removeFromParent()
       removeComponent(entity, CameraIKComponent)
+      removeComponent(entity, AvatarInputControllerTypeUpdatePendingComponent)
     }
 
     for (const entity of xrHandsInputQuery.enter(world)) {
