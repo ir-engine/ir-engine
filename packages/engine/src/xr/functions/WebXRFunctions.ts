@@ -4,6 +4,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
