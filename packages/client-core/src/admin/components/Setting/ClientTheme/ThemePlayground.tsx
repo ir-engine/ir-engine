@@ -261,11 +261,11 @@ const ThemePlayground = () => {
                     <SettingIcon />
                   </IconButton>
                 </div>
-                <label className="textSubheading">Filled Button:</label>
+                <label className="textSubheading">Outlined Button:</label>
                 <Button variant="outlined" className="outlinedButton">
                   Cancel
                 </Button>
-                <label className="textSubheading">Outlined Button:</label>
+                <label className="textSubheading">Filled Button:</label>
                 <Button variant="contained" className="filledButton">
                   Submit
                 </Button>
@@ -301,11 +301,11 @@ const ThemePlayground = () => {
                   MenuProps={{ classes: { paper: 'selectPaper' } }}
                   onChange={(e) => setSelectValue(e.target.value)}
                 >
-                  <MenuItem value="" disabled classes={{ root: 'option' }}>
+                  <MenuItem value="" key={-1} disabled classes={{ root: 'option', selected: 'optionSelected' }}>
                     Select Option
                   </MenuItem>
                   {['Option 1', 'Option 2', 'Option 3', 'Option 4'].map((el, index) => (
-                    <MenuItem value={el} key={index} classes={{ root: 'option' }}>
+                    <MenuItem value={el} key={index} classes={{ root: 'option', selected: 'optionSelected' }}>
                       {el}
                     </MenuItem>
                   ))}
@@ -331,7 +331,7 @@ const ThemePlayground = () => {
               </Button>
               <Dialog
                 open={dialog}
-                className="drawer"
+                className="popupMainBackground"
                 PaperProps={{ className: 'drawerPaper' }}
                 onClose={() => setDialog(false)}
               ></Dialog>

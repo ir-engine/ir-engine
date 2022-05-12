@@ -93,7 +93,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     .map((file, index, arr) => {
       if (arr.length - 1 == index) {
         return (
-          <Typography key={file} style={{ color: '#fff', fontSize: '0.9rem' }}>
+          <Typography key={file} style={{ fontSize: '0.9rem' }}>
             {file}
           </Typography>
         )
@@ -276,7 +276,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     <>
       <div style={headGrid}>
         <ToolButton icon={ArrowBackIcon} onClick={onBackDirectory} id="backDir" />
-        <Breadcrumbs maxItems={3} classes={{ separator: styles.separator }} separator="›" aria-label="breadcrumb">
+        <Breadcrumbs
+          maxItems={3}
+          classes={{ separator: styles.separator, li: styles.breadcrumb }}
+          separator="›"
+          aria-label="breadcrumb"
+        >
           {breadcrumbs}
         </Breadcrumbs>
         <ToolButton icon={AutorenewIcon} onClick={onRefreshDirectory} id="refreshDir" />

@@ -131,6 +131,7 @@ const Users = () => {
                 onChange={(e) => handleSkipGuests(e)}
                 name="stereoscopic"
                 className={styles.checkbox}
+                classes={{ checked: styles.checkedCheckbox }}
                 color="primary"
                 checked={checked}
               />

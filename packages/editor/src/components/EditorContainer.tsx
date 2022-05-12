@@ -92,10 +92,13 @@ export const DockContainer = (styled as any).div`
   .dock-tab:hover div, .dock-tab:hover svg { color: var(--textColor); }
   .dock-tab > div { padding: 2px 12px; }
   .dock-tab-active {
-    color: var(--buttonOutlined);
+    color: var(--textColor);
   }
   .dock-ink-bar {
-    background-color: var(--buttonOutlined);
+    background-color: var(--textColor);
+  }
+  .dock-panel-max-btn:before {
+    border-color: var(--iconButtonColor);
   }
 `
 /**

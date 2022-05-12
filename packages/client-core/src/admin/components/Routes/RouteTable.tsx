@@ -87,6 +87,7 @@ const RouteTable = () => {
           action: (
             <Checkbox
               className={styles.checkboxContainer}
+              classes={{ checked: styles.routeCheckedCheckbox }}
               checked={isRouteActive(el.project.value, route.value)}
               onChange={(ev, checked) => activateCallback(el.project.value, route.value, checked)}
             />
