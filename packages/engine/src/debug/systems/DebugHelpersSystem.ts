@@ -28,6 +28,7 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { ObstaclesComponent } from '../../physics/components/ObstaclesComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { accessEngineRendererState, EngineRendererActionType } from '../../renderer/EngineRendererState'
+import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { DebugArrowComponent } from '../DebugArrowComponent'
@@ -43,6 +44,9 @@ const cubeGeometry = new ConeBufferGeometry(0.05, 0.25, 4)
 cubeGeometry.rotateX(-Math.PI * 0.5)
 
 export default async function DebugHelpersSystem(world: World) {
+  InfiniteGridHelper.instance = new InfiniteGridHelper()
+  Engine.instance.scene.add(InfiniteGridHelper.instance)
+
   let physicsDebugRenderer = DebugRenderer()
 
   const helpersByEntity = {
