@@ -1,0 +1,154 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "ipfs-cluster.statefulsetName" . }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 3
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  serviceName: {{ include "ipfs-cluster.serviceName" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+      annotations:
+        checksum/config-bootstrap: {{ include (print $.Template.BasePath "/configmap-bootstrap.yaml") . | sha256sum }}  
+        checksum/config-env: {{ include (print $.Template.BasePath "/configmap-env.yaml") . | sha256sum }}  
+    spec:
+      initContainers:
+        - name: configure-ipfs
+          image: {{ .Values.ipfsImage.repo }}:{{ .Values.ipfsImage.tag }}
+          command: ["sh", "/custom/configure-ipfs.sh"]
+          volumeMounts:
+            - name: ipfs-storage
+              mountPath: /data/ipfs
+            - name: configure-script
+              mountPath: /custom
+      containers:
+        - name: ipfs
+          image: {{ .Values.ipfsImage.repo }}:{{ .Values.ipfsImage.tag }}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: IPFS_FD_MAX
+              value: "4096"
+          ports:
+            - name: swarm
+              protocol: TCP
+              containerPort: 4001
+            - name: swarm-udp
+              protocol: UDP
+              containerPort: 4002
+            - name: api
+              protocol: TCP
+              containerPort: 5001
+            - name: ws
+              protocol: TCP
+              containerPort: 8081
+            - name: gateway
+              protocol: TCP
+              containerPort: 8080
+          livenessProbe:
+            tcpSocket:
+              port: swarm
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+            periodSeconds: 15
+          volumeMounts:
+            - name: ipfs-storage
+              mountPath: /data/ipfs
+            - name: configure-script
+              mountPath: /custom
+          resources:
+            {}
+        - name: ipfs-cluster
+          image: {{ .Values.ipfsClusterImage.repo }}:{{ .Values.ipfsClusterImage.tag }}
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "/custom/entrypoint.sh"]
+          envFrom:
+            - configMapRef:
+                name: {{ include "ipfs-cluster.configmapEnvName" . }}
+          env:
+            - name: BOOTSTRAP_PEER_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "ipfs-cluster.configmapEnvName" . }}
+                  key: bootstrap-peer-id
+            - name: BOOTSTRAP_PEER_PRIV_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ipfs-cluster.secretName" . }}
+                  key: bootstrap-peer-priv-key
+            - name: CLUSTER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ipfs-cluster.secretName" . }}
+                  key: cluster-secret
+            - name: CLUSTER_MONITOR_PING_INTERVAL
+              value: "3m"
+            - name: CLUSTER_RESTAPI_LIBP2PLISTENMULTIADDRESS
+              value: "/ip4/0.0.0.0/tcp/9096"  
+            - name: CLUSTER_RESTAPI_ID
+              value: {{ .Values.clusterRestApiId }}
+            - name: CLUSTER_RESTAPI_PRIVATEKEY
+              value: {{ .Values.clusterRestApiPrivateKey }}
+            - name: CLUSTER_RESTAPI_BASICAUTHCREDENTIALS
+              value: {{ .Values.clusterRestApiBasicAuth }}
+            - name: CLUSTER_CRDT_TRUSTEDPEERS
+              value: {{ .Values.clusterCRDTtrustedPeers }}        
+            - name: SVC_NAME
+              value: {{ include "ipfs-cluster.serviceName" . }}
+          ports:
+            - name: api-http
+              containerPort: 9094
+              protocol: TCP
+            - name: proxy-http
+              containerPort: 9095
+              protocol: TCP
+            - name: cluster-swarm
+              containerPort: 9096
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: cluster-swarm
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 10
+          volumeMounts:
+            - name: cluster-storage
+              mountPath: /data/ipfs-cluster
+            - name: configure-script
+              mountPath: /custom
+          resources:
+            {}    
+      volumes:
+        - name: configure-script
+          configMap:
+            name: {{ include "ipfs-cluster.configmapBootstrapName" . }}     
+        {{ if ne .Values.persistence.enabled true }}    
+        - name: cluster-storage
+          emptyDir: {}
+        - name: ipfs-storage
+          emptyDir: {}  
+        {{ else }}
+  volumeClaimTemplates:  
+    - metadata:
+        name: cluster-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: {{ .Values.persistence.clusterStorage }}
+    - metadata:
+        name: ipfs-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: {{ .Values.persistence.ipfsStorage }}
+        {{ end }}    
