@@ -3,7 +3,7 @@
 // https://github.com/exokitxr/avatars
 import { Bone, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
-import { traverse } from '../common/functions/traverse'
+import { Object3DUtils } from '../common/functions/Object3DUtils'
 
 export type BoneNames =
   | 'Root'
@@ -143,7 +143,7 @@ const _countCharacters = (name, regex) => {
 }
 const _findHips = (root: Bone) => {
   let hips
-  traverse(root, (bone: Bone) => {
+  Object3DUtils.traverse(root, (bone: Bone) => {
     if (/hip|pelvis/i.test(bone.name)) {
       hips = bone
       return true
@@ -447,7 +447,7 @@ function findHandBones(handBone: Object3D) {
     const re = new RegExp(name, 'i')
     let result = null
 
-    traverse(parent, (bone) => {
+    Object3DUtils.traverse(parent, (bone) => {
       if (re.test(bone.name) && bone.name.includes(index)) {
         result = bone
         return true
@@ -492,17 +492,53 @@ function findHandBones(handBone: Object3D) {
   }
 }
 
+function findSkinnedMeshes(model: Object3D) {
+  let meshes: SkinnedMesh[] = []
+  model.traverse((obj: SkinnedMesh) => {
+    if (obj.isSkinnedMesh) {
+      meshes.push(obj)
+    }
+  })
+
+  return meshes
+}
+
 /**
  * Creates a skeleton form given bone chain
  * @param bone first bone in the chain
  * @returns Skeleton
  */
 export function createSkeletonFromBone(bone: Bone): Skeleton {
-  let bones: Bone[] = []
+  const bones: Bone[] = []
   bone.traverse((b: Bone) => {
     if (b.isBone) bones.push(b)
   })
-  return new Skeleton(bones)
+
+  const meshes = findSkinnedMeshes(Object3DUtils.findRoot(bone)!)
+  const skeleton = new Skeleton(bones)
+
+  // Calculated inverse matrixes by Skeleton class might not work
+  // Copy from the source
+  for (let i = 0; i < bones.length; i++) {
+    const bone = bones[i]
+    let found = false
+
+    for (let j = 0; j < meshes.length; j++) {
+      const mesh = meshes[j]
+      const { bones: meshBones, boneInverses } = mesh.skeleton
+      const k = meshBones.findIndex((b) => b === bone)
+      if (k < 0) continue
+      skeleton.boneInverses[i].copy(boneInverses[k])
+      found = true
+      break
+    }
+
+    if (!found) {
+      console.warn('Could not find the bone inverse', i)
+    }
+  }
+
+  return skeleton
 }
 
 function findRootBone(bone: Bone): Bone {
