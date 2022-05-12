@@ -20,7 +20,9 @@ import { NetworkActionReceptor } from './networking/functions/NetworkActionRecep
 import { WorldState } from './networking/interfaces/WorldState'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
+
 import './threejsPatches'
+
 import { FontManager } from './xrui/classes/FontManager'
 
 /**
