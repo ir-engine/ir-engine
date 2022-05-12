@@ -9,17 +9,24 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  getComponentCountOfType,
+  hasComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems, SystemModuleType } from '../../ecs/functions/SystemFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { EngineRendererAction } from '../../renderer/EngineRendererState'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
+import { PostprocessingComponent } from '../components/PostprocessingComponent'
 import { SCENE_COMPONENT_SCENE_TAG, SceneTagComponent } from '../components/SceneTagComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -186,6 +193,11 @@ export const loadSceneFromJSON = async (
   addComponent(tree.rootNode.entity, Object3DComponent, { value: Engine.instance.scene })
   addComponent(tree.rootNode.entity, SceneTagComponent, {})
   getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
+
+  dispatchAction(
+    Engine.instance.store,
+    EngineRendererAction.setPostProcessing(getComponentCountOfType(PostprocessingComponent) > 0)
+  )
 
   if (!getEngineState().isTeleporting.value) Engine.instance.camera?.layers.enable(ObjectLayers.Scene)
 

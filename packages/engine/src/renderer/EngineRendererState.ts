@@ -1,15 +1,16 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { isIOS } from '@xrengine/common/src/utils/isIOS'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { Engine } from '../ecs/classes/Engine'
 import InfiniteGridHelper from '../scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
+import { updateShadowMapOnSceneLoad } from '../scene/functions/loaders/RenderSettingsFunction'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
 import { RenderSettingKeys } from './EngineRnedererConstants'
 import { changeRenderMode } from './functions/changeRenderMode'
+import { configureEffectComposer } from './functions/configureEffectComposer'
 import { EngineRenderer } from './WebGLRendererSystem'
 
 type EngineRendererStateType = {
@@ -52,14 +53,6 @@ export async function restoreEngineRendererData(): Promise<void> {
       ClientStorage.get(RenderSettingKeys.AUTOMATIC).then((v) => {
         if (typeof v !== 'undefined') s.automatic = v as boolean
         ClientStorage.set(RenderSettingKeys.AUTOMATIC, state.automatic.value)
-      }),
-      ClientStorage.get(RenderSettingKeys.POST_PROCESSING).then((v) => {
-        if (typeof v !== 'undefined') s.usePostProcessing = v as boolean
-        ClientStorage.set(RenderSettingKeys.POST_PROCESSING, state.usePostProcessing.value)
-      }),
-      ClientStorage.get(RenderSettingKeys.USE_SHADOWS).then((v) => {
-        if (typeof v !== 'undefined') s.useShadows = v as boolean
-        ClientStorage.set(RenderSettingKeys.USE_SHADOWS, state.useShadows.value)
       })
     ]
 
@@ -90,6 +83,17 @@ export async function restoreEngineRendererData(): Promise<void> {
           else ClientStorage.set(RenderSettingKeys.GRID_HEIGHT, state.gridHeight.value)
         })
       )
+    } else {
+      promises.push(
+        ClientStorage.get(RenderSettingKeys.POST_PROCESSING).then((v) => {
+          if (typeof v !== 'undefined') s.usePostProcessing = v as boolean
+          ClientStorage.set(RenderSettingKeys.POST_PROCESSING, state.usePostProcessing.value)
+        }),
+        ClientStorage.get(RenderSettingKeys.USE_SHADOWS).then((v) => {
+          if (typeof v !== 'undefined') s.useShadows = v as boolean
+          ClientStorage.set(RenderSettingKeys.USE_SHADOWS, state.useShadows.value)
+        })
+      )
     }
 
     await Promise.all(promises)
@@ -106,15 +110,16 @@ function updateState(): void {
   dispatchAction(Engine.instance.store, EngineRendererAction.setPhysicsDebug(state.physicsDebugEnable.value))
   dispatchAction(Engine.instance.store, EngineRendererAction.setAvatarDebug(state.avatarDebugEnable.value))
 
-  changeRenderMode(state.renderMode.value)
-
-  if (Engine.instance.isEditor && state.nodeHelperVisibility.value)
-    Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
-  else Engine.instance.camera.layers.disable(ObjectLayers.NodeHelper)
-
   if (Engine.instance.isEditor) {
+    changeRenderMode(state.renderMode.value)
+
+    if (state.nodeHelperVisibility.value) Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
+    else Engine.instance.camera.layers.disable(ObjectLayers.NodeHelper)
+
     InfiniteGridHelper.instance.setGridHeight(state.gridHeight.value)
     InfiniteGridHelper.instance.visible = state.gridVisibility.value
+  } else {
+    Engine.instance.camera.layers.disable(ObjectLayers.NodeHelper)
   }
 }
 
@@ -128,13 +133,14 @@ function setQualityLevel(qualityLevel) {
 }
 
 function setUseShadows(useShadows) {
-  if (state.useShadows.value === useShadows) return
-  EngineRenderer.instance.renderer.shadowMap.enabled = useShadows
+  if (!Engine.instance.isEditor) updateShadowMapOnSceneLoad(useShadows)
 }
 
 function setUsePostProcessing(usePostProcessing) {
-  if (state.usePostProcessing.value === usePostProcessing) return
+  if (state.usePostProcessing.value === usePostProcessing || Engine.instance.isEditor) return
   usePostProcessing = EngineRenderer.instance.supportWebGL2 && usePostProcessing
+
+  configureEffectComposer(!usePostProcessing)
 }
 
 export function EngineRendererReceptor(action: EngineRendererActionType) {
@@ -151,13 +157,13 @@ export function EngineRendererReceptor(action: EngineRendererActionType) {
         break
       // case 'WEBGL_RENDERER_PBR': return s.merge({ usePBR: action.usePBR })
       case 'WEBGL_RENDERER_POSTPROCESSING':
-        s.merge({ usePostProcessing: action.usePostProcessing })
         setUsePostProcessing(action.usePostProcessing)
+        s.merge({ usePostProcessing: action.usePostProcessing })
         ClientStorage.set(RenderSettingKeys.POST_PROCESSING, action.usePostProcessing)
         break
       case 'WEBGL_RENDERER_SHADOWS':
-        s.merge({ useShadows: action.useShadows })
         setUseShadows(action.useShadows)
+        s.merge({ useShadows: action.useShadows })
         ClientStorage.set(RenderSettingKeys.USE_SHADOWS, action.useShadows)
         break
       case 'PHYSICS_DEBUG_CHANGED':

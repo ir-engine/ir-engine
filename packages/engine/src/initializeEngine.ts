@@ -6,6 +6,8 @@ import { BotUserAgent } from '@xrengine/common/src/constants/BotUserAgent'
 import { addActionReceptor, dispatchAction, registerState } from '@xrengine/hyperflux'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
+import { getGLTFLoader } from './assets/classes/AssetLoader'
+import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { isClient } from './common/functions/isClient'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
@@ -21,8 +23,6 @@ import { ObjectLayers } from './scene/constants/ObjectLayers'
 
 import './threejsPatches'
 
-import { getGLTFLoader } from './assets/classes/AssetLoader'
-import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { FontManager } from './xrui/classes/FontManager'
 
 /**
