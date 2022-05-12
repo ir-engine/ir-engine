@@ -1,6 +1,6 @@
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { accessEngineState } from '../../ecs/classes/EngineService'
+import { getEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -50,7 +50,7 @@ export default async function OutgoingNetworkSystem(world: World) {
   const serialize = createDataWriter()
 
   return () => {
-    if (!accessEngineState().isEngineInitialized.value) return
+    if (!getEngineState().isEngineInitialized.value) return
 
     serializeAndSend(world, serialize, sendData)
   }

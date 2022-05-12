@@ -5,10 +5,14 @@ import { createHyperStore } from '@xrengine/hyperflux'
 
 import type { InputValue } from '../../input/interfaces/InputValue'
 import type { World } from '../classes/World'
+import type { SystemModuleType } from '../functions/SystemFunctions'
 import type { Entity } from './Entity'
 
 export class Engine {
   static instance: Engine
+
+  /** Systems to inject after core systems */
+  injectedSystems: SystemModuleType<any>[] = []
 
   /** The uuid of the logged-in user */
   userId: UserId

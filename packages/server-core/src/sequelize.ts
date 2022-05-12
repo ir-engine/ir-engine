@@ -4,8 +4,10 @@ import { isDev } from '@xrengine/common/src/utils/isDev'
 import config from '@xrengine/server-core/src/appconfig'
 
 import { Application } from '../declarations'
-import logger from './logger'
+import multiLogger from './logger'
 import { seeder } from './seeder'
+
+const logger = multiLogger.child({ component: 'server-core:sequelize' })
 
 export default (app: Application): void => {
   try {

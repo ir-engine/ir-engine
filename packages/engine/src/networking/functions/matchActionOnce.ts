@@ -3,7 +3,7 @@ import matches, { Validator } from 'ts-matches'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 import { HyperStore } from '@xrengine/hyperflux/functions/StoreFunctions'
 
-import { EngineActionType } from '../../ecs/classes/EngineService'
+import { EngineActionType } from '../../ecs/classes/EngineState'
 
 /**
  *
