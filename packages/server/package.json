@@ -71,7 +71,7 @@
   "devDependencies": {
     "@types/compression": "1.7.2",
     "@types/cors": "2.8.12",
-    "@types/node": "16.11.34",
+    "@types/node": "16.11.35",
     "@types/serve-favicon": "2.5.3",
     "concurrently": "7.1.0",
     "http-server": "14.1.0",
