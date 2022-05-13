@@ -2,7 +2,7 @@ import { HookContext } from '@feathersjs/feathers'
 
 import config from '../appconfig'
 import logger from '../logger'
-import { useStorageProvider } from '../media/storageprovider/storageprovider'
+import { getStorageProvider } from '../media/storageprovider/storageprovider'
 import { Application } from './../../declarations.d'
 
 export default () => {
@@ -15,7 +15,7 @@ export default () => {
         },
         attributes: ['key']
       })
-      const storage = useStorageProvider().getStorage()
+      const storage = getStorageProvider().getStorage()
       // Remove previous thumbnail, no point in keeping it since client sends new thumbnail anyway
       storage.remove(
         {

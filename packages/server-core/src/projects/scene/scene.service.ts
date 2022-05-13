@@ -4,13 +4,11 @@ import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getAllPortals, getCubemapBake, getPortal } from './scene-helper'
 import { getSceneData, Scene } from './scene.class'
 import projectDocs from './scene.docs'
 import hooks from './scene.hooks'
-
-const storageProvider = useStorageProvider()
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
@@ -35,6 +33,7 @@ type GetScenesArgsType = {
 
 export const getScenesForProject = (app: Application) => {
   return async function (args: GetScenesArgsType, params?: Params): Promise<{ data: SceneData[] }> {
+    const storageProvider = getStorageProvider()
     const { projectName, metadataOnly, internal } = args
     try {
       const project = await app.service('project').get(projectName, params)
