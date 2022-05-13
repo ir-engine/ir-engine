@@ -12,7 +12,7 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../logger'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
@@ -37,11 +37,11 @@ const getRemoteURLFromGitData = (project) => {
   return data.remote.origin.url
 }
 
-const storageProvider = useStorageProvider()
 export const getStorageProviderPath = (projectName: string) =>
-  `https://${storageProvider.cacheDomain}/projects/${projectName}/`
+  `https://${getStorageProvider().cacheDomain}/projects/${projectName}/`
 
 export const deleteProjectFilesInStorageProvider = async (projectName: string) => {
+  const storageProvider = getStorageProvider()
   try {
     const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
     if (existingFiles.length) {
@@ -50,7 +50,9 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string) =
         storageProvider.createInvalidation([`projects/${projectName}*`])
       ])
     }
-  } catch (e) {}
+  } catch (e) {
+    logger.info('[ERROR deleteProjectFilesInStorageProvider]:', e)
+  }
 }
 
 /**
@@ -58,6 +60,7 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string) =
  * @param projectName
  */
 export const uploadLocalProjectToProvider = async (projectName, remove = true) => {
+  const storageProvider = getStorageProvider()
   // remove exiting storage provider files
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" started at "${new Date()}".`)
   if (remove) {
@@ -183,7 +186,7 @@ export class Project extends Service {
     const projectName = cleanString(data.name)
     const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
 
-    if (fs.existsSync(projectLocalDirectory))
+    if (await this.Model.count({ where: { name: projectName } }))
       throw new Error(`[Projects]: Project with name ${projectName} already exists`)
 
     if ((!config.db.forceRefresh && projectName === 'default-project') || projectName === 'template-project')
@@ -204,6 +207,8 @@ export class Project extends Service {
     const packageData = Object.assign({}, templateProjectJson) as any
     packageData.name = projectName
     fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
+
+    await uploadLocalProjectToProvider(projectName, false)
 
     return super.create(
       {
@@ -227,7 +232,7 @@ export class Project extends Service {
   async update(data: { url: string }, params?: Params) {
     if (data.url === 'default-project') {
       copyDefaultProject()
-      await uploadLocalProjectToProvider('default-project', true)
+      await uploadLocalProjectToProvider('default-project')
       return
     }
 
@@ -239,9 +244,8 @@ export class Project extends Service {
 
     const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
 
-    // remove existing files in fs
+    // if project exists already, remove it and re-clone it
     if (fs.existsSync(projectLocalDirectory)) {
-      // disable accidental deletion of projects for local development
       if (isDev) throw new Error('Cannot create project - already exists')
       deleteFolderRecursive(projectLocalDirectory)
     }
@@ -282,67 +286,28 @@ export class Project extends Service {
     return returned
   }
 
-  /**
-   * downloads file from storage provider to project
-   *   OR
-   * uploads project to the storage provider
-   * @param projectName The name of the project
-   * @param data The names of the files in the project
-   * @returns
-   */
-  async patch(projectName: string, data: { files: string[] }, params?: Params) {
-    const projectConfig = await getProjectConfig(projectName)
-    if (!projectConfig) return
-
-    // run project uninstall script
-    if (projectConfig.onEvent) {
-      await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onUpdate')
-    }
-
-    if (data?.files?.length) {
-      const promises: Promise<any>[] = []
-      for (const filePath of data.files) {
-        promises.push(
-          new Promise<string>(async (resolve) => {
-            const fileResult = await storageProvider.getObject(filePath)
-            const metadataPath = path.resolve(appRootPath.path, `packages/projects/`, filePath)
-            if (!fs.existsSync(path.dirname(metadataPath)))
-              fs.mkdirSync(path.dirname(metadataPath), { recursive: true })
-            fs.writeFileSync(metadataPath, fileResult.Body)
-            resolve(getCachedAsset(filePath, storageProvider.cacheDomain, params && params.provider == null))
-          })
-        )
-      }
-      return Promise.all(promises)
-    } else {
-      return uploadLocalProjectToProvider(projectName)
-    }
+  async patch() {
+    throw new Error(`No implementation for 'project' PATCH`)
   }
 
   async remove(id: Id, params?: Params) {
-    if (id) {
-      try {
-        const { name } = await super.get(id, params)
+    if (!id) return
+    const { name } = await super.get(id, params)
 
-        const projectConfig = await getProjectConfig(name)
+    const projectConfig = await getProjectConfig(name)
 
-        // run project uninstall script
-        if (projectConfig?.onEvent) {
-          await onProjectEvent(this.app, name, projectConfig.onEvent, 'onUninstall')
-        }
-
-        if (fs.existsSync(path.resolve(projectsRootFolder, name))) {
-          fs.rmSync(path.resolve(projectsRootFolder, name), { recursive: true })
-        }
-
-        logger.info(`[Projects]: removing project id "${id}", name: "${name}".`)
-        await deleteProjectFilesInStorageProvider(name)
-        await super.remove(id, params)
-      } catch (e) {
-        logger.error(e, `[Projects]: failed to remove project "${id}": ${e.message}`)
-        return e
-      }
+    // run project uninstall script
+    if (projectConfig?.onEvent) {
+      await onProjectEvent(this.app, name, projectConfig.onEvent, 'onUninstall')
     }
+
+    if (fs.existsSync(path.resolve(projectsRootFolder, name))) {
+      fs.rmSync(path.resolve(projectsRootFolder, name), { recursive: true })
+    }
+
+    logger.info(`[Projects]: removing project id "${id}", name: "${name}".`)
+    await deleteProjectFilesInStorageProvider(name)
+    return super.remove(id, params)
   }
 
   async get(name: string, params?: Params): Promise<{ data: ProjectInterface }> {

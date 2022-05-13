@@ -95,7 +95,7 @@ const NoNodeSelectedMessage = (styled as any).div`
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white;
+  color: var(--textColor);
 `
 
 /**

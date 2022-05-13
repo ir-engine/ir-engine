@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { MoreVert } from '@mui/icons-material'
@@ -154,7 +154,6 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
                           <InputBase
                             className={styles.input}
                             name="name"
-                            style={{ color: '#fff' }}
                             autoComplete="off"
                             autoFocus
                             value={newName}

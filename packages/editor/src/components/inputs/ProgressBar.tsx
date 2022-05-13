@@ -8,7 +8,7 @@ import styled from 'styled-components'
 const ProgressBarContainer = (styled as any).div`
   height: 20px;
   position: relative;
-  background: var(--panel2);
+  background: var(--inputBackground);
   border-radius: 4px;
 
   & > span {

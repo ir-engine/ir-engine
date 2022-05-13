@@ -5,7 +5,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { AudioComponent } from '../../audio/components/AudioComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
+import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
@@ -52,9 +52,7 @@ export default async function InteractiveSystem() {
 
   return () => {
     for (const entity of interactableQuery.enter()) {
-      // TODO: quick hack while objects to not load immediately #5352
-      if (accessEngineState().sceneLoaded.value) setupInteractable(entity)
-      else matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, () => setupInteractable(entity))
+      setupInteractable(entity)
     }
 
     for (const entity of interactableQuery.exit()) {

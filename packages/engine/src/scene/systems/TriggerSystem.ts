@@ -2,10 +2,10 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineService'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
+import { Object3DComponent } from '../components/Object3DComponent'
 import { PortalComponent } from '../components/PortalComponent'
 import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
@@ -39,7 +39,7 @@ export default async function TriggerSystem(world: World) {
 
       const filtered = sceneEntityCaches.filter((cache: any) => cache.target == triggerComponent.target)
       let targetObj: any
-      console.log(filtered)
+
       if (filtered.length > 0) {
         const filtedData: any = filtered[0]
         targetObj = filtedData.object

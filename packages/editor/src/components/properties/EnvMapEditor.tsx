@@ -1,8 +1,7 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getDirectoryFromUrl } from '@xrengine/common/src/utils/getDirectoryFromUrl'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EnvmapComponent } from '@xrengine/engine/src/scene/components/EnvmapComponent'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
@@ -68,7 +67,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
   const engineState = useEngineState()
 
   const onChangeCubemapURLSource = useCallback((value) => {
-    const directory = getDirectoryFromUrl(value)
+    const directory = value[value.length - 1] === '/' ? value.substring(0, value.length - 1) : value
     if (directory !== envmapComponent.envMapSourceURL) {
       setPropertyOnSelectionEntities({
         component: EnvmapComponent,

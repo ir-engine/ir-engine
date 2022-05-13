@@ -7,7 +7,7 @@ import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { accessEngineState, EngineActions, EngineActionType } from '../../ecs/classes/EngineService'
+import { EngineActions, EngineActionType, getEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
@@ -83,7 +83,7 @@ export default async function XRSystem(world: World) {
   addActionReceptor(Engine.instance.store, (a: EngineActionType) => {
     matches(a)
       .when(EngineActions.xrStart.matches, (action) => {
-        if (accessEngineState().joinedWorld.value && !EngineRenderer.instance.xrSession) startXRSession()
+        if (getEngineState().joinedWorld.value && !EngineRenderer.instance.xrSession) startXRSession()
       })
       .when(EngineActions.xrEnd.matches, (action) => {
         for (const entity of xrControllerQuery()) {

@@ -33,13 +33,25 @@ const InputSelect = ({ formErrors, value, handleInputChange, name, menu }: Props
           className={styles.select}
           MenuProps={{ classes: { paper: styles.selectPaper } }}
         >
-          <MenuItem value="" disabled>
+          <MenuItem
+            value=""
+            disabled
+            classes={{
+              root: styles.menuItem
+            }}
+          >
             <em>
               {t('admin:components.common.select')} {name}
             </em>
           </MenuItem>
           {menu.map((el, index) => (
-            <MenuItem value={el.value} key={index}>
+            <MenuItem
+              value={el.value}
+              key={index}
+              classes={{
+                root: styles.menuItem
+              }}
+            >
               {el.label}
             </MenuItem>
           ))}

@@ -1,18 +1,7 @@
-import {
-  CubeTexture,
-  CubeTextureLoader,
-  Mesh,
-  Object3D,
-  PlaneBufferGeometry,
-  ShaderMaterial,
-  sRGBEncoding,
-  Texture,
-  Vector2
-} from 'three'
+import { Mesh, PlaneBufferGeometry, ShaderMaterial, sRGBEncoding, Vector2 } from 'three'
 
-import { DDSLoader } from '../../assets/loaders/dds/DDSLoader'
 import { Entity } from '../../ecs/classes/Entity'
-import { Object3DWithEntity } from '../components/Object3DComponent'
+import { loadCubeMapTexture, loadDDSTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
 const vertexShader = `
@@ -64,32 +53,6 @@ void main()
     gl_FragColor = texture(cubemap, sampleDir);
 }`
 
-function loadCubeMap(path): Promise<CubeTexture> {
-  const loader = new CubeTextureLoader().setPath(path)
-  const negx = 'negx.jpg'
-  const negy = 'negy.jpg'
-  const negz = 'negz.jpg'
-  const posx = 'posx.jpg'
-  const posy = 'posy.jpg'
-  const posz = 'posz.jpg'
-  return new Promise((resolve, reject) => {
-    loader.load([posx, negx, posy, negy, posz, negz], resolve, null!, (error) => reject(error))
-  })
-}
-
-function loadDDS(path): Promise<Texture> {
-  return new Promise((resolve, reject) => {
-    const loader = new DDSLoader()
-
-    loader.load(
-      path,
-      (data) => resolve(data),
-      null!,
-      (error) => reject(error)
-    )
-  })
-}
-
 export class Interior extends Mesh<PlaneBufferGeometry, ShaderMaterial> {
   _cubePath: string
   _size: Vector2
@@ -124,23 +87,18 @@ export class Interior extends Mesh<PlaneBufferGeometry, ShaderMaterial> {
 
   set cubeMap(path: string) {
     this._cubePath = path
-    let promise
+    const onLoad = (texture) => {
+      texture.encoding = sRGBEncoding
+      this._material.uniforms.cubemap.value = texture
+      removeError(this.entity, 'error')
+    }
+    const onError = (error) => addError(this.entity, 'error', error.message)
 
     if (this._cubePath.endsWith('.dds')) {
-      promise = loadDDS(path)
+      loadDDSTexture(path, onLoad, undefined, onError)
     } else {
-      promise = loadCubeMap(path)
+      loadCubeMapTexture(path, onLoad, undefined, onError)
     }
-
-    promise
-      .then((texture) => {
-        texture.encoding = sRGBEncoding
-        this._material.uniforms.cubemap.value = texture
-        removeError(this.entity, 'error')
-      })
-      .catch((error) => {
-        addError(this.entity, 'error', error.message)
-      })
   }
 
   get tiling(): number {

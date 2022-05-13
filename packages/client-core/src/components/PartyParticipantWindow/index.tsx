@@ -18,7 +18,7 @@ import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWe
 import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 
@@ -354,9 +354,13 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
       else await resumeProducer(mediaTransport, MediaStreams.instance.screenVideoProducer)
       setVideoStreamPaused(videoPaused)
     } else {
-      if (videoStream.paused === false) await pauseConsumer(mediaTransport, videoStream)
-      else await resumeConsumer(mediaTransport, videoStream)
-      setVideoStreamPaused(videoStream.paused)
+      if (videoStream.paused === false) {
+        await pauseConsumer(mediaTransport, videoStream)
+        setVideoStreamPaused(true)
+      } else {
+        await resumeConsumer(mediaTransport, videoStream)
+        setVideoStreamPaused(false)
+      }
     }
   }
 
@@ -374,9 +378,13 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
       else await resumeProducer(mediaTransport, MediaStreams.instance.screenAudioProducer)
       setAudioStreamPaused(audioPaused)
     } else {
-      if (audioStream.paused === false) await pauseConsumer(mediaTransport, audioStream)
-      else await resumeConsumer(mediaTransport, audioStream)
-      setAudioStreamPaused(audioStream.paused)
+      if (audioStream.paused === false) {
+        await pauseConsumer(mediaTransport, audioStream)
+        setAudioStreamPaused(true)
+      } else {
+        await resumeConsumer(mediaTransport, audioStream)
+        setAudioStreamPaused(false)
+      }
     }
   }
 
@@ -494,7 +502,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                 </Tooltip>
               }
             </div>
-            {audioProducerGlobalMute === true && <div className={styles['global-mute']}>Muted by Admin</div>}
+            {audioProducerGlobalMute && <div className={styles['global-mute']}>Muted by Admin</div>}
             {audioStream &&
               !audioProducerPaused &&
               !audioProducerGlobalMute &&

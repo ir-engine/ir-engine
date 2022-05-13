@@ -2,7 +2,7 @@ import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role
 
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { retriggerBuilderService } from './project-helper'
 import { Project } from './project.class'
 import projectDocs from './project.docs'
@@ -45,7 +45,7 @@ export default (app: Application): void => {
   app.use('project-invalidate', {
     patch: async ({ projectName }, params) => {
       if (projectName) {
-        return await useStorageProvider().createInvalidation([`projects/${projectName}*`])
+        return await getStorageProvider().createInvalidation([`projects/${projectName}*`])
       }
     }
   })

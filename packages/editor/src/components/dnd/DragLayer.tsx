@@ -34,7 +34,7 @@ const DragPreviewContainer = (styled as any).div.attrs((props) => ({
 }))`
   background-color: var(--blue);
   opacity: 0.3;
-  color: var(--text);
+  color: var(--textColor);
   padding: 4px;
   border-radius: 4px;
   display: inline-block;

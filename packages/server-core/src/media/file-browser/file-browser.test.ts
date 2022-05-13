@@ -5,6 +5,7 @@ import path from 'path/posix'
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
 import LocalStorage from '../storageprovider/local.storage'
+import { getStorageProvider } from '../storageprovider/storageprovider'
 import { projectsRootFolder } from './file-browser.class'
 
 const TEST_PROJECT = 'test-project'
@@ -18,7 +19,7 @@ describe('file browser service', () => {
     app = createFeathersExpressApp()
     await app.setup()
 
-    STORAGE_ROOT = (app.service('file-browser').store as LocalStorage).PATH_PREFIX
+    STORAGE_ROOT = (getStorageProvider() as LocalStorage).PATH_PREFIX
     STORAGE_PATH = path.join(STORAGE_ROOT, TEST_PROJECT)
 
     if (fs.existsSync(PROJECT_PATH)) fs.rmSync(PROJECT_PATH, { force: true, recursive: true })
@@ -279,10 +280,7 @@ describe('file browser service', () => {
       contentType: 'any'
     })
 
-    assert.equal(
-      result,
-      `https://${(app.service('file-browser').store as LocalStorage).cacheDomain}/${path.join(TEST_PROJECT, fileName)}`
-    )
+    assert.equal(result, `https://${getStorageProvider().cacheDomain}/${path.join(TEST_PROJECT, fileName)}`)
 
     assert(fs.existsSync(filePath))
     assert(fs.existsSync(fileStoragePath))

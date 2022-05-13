@@ -1,7 +1,7 @@
 import { Euler } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineService'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { unloadSystems } from '../../ecs/functions/SystemFunctions'

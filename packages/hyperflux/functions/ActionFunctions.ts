@@ -253,12 +253,12 @@ const dispatchAction = <StoreName extends string, A extends Action<StoreName>>(
   action.$cache = action.$cache ?? false
   action.$uuid = action.$uuid ?? MathUtils.generateUUID()
 
-  if (process.env.APP_ENV === 'development') {
+  if (process.env.APP_ENV === 'development' && !action.$stack) {
     const trace = { stack: '' }
     Error.captureStackTrace?.(trace, dispatchAction) // In firefox captureStackTrace is undefined
     const stack = trace.stack.split('\n')
     stack.shift()
-    action['$stack'] = stack
+    action.$stack = stack
   }
 
   const mode = store.getDispatchMode()

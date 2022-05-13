@@ -18,6 +18,7 @@ import { loadWebappInjection } from '@xrengine/projects/loadWebappInjection'
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
 
 import RouterComp from '../route/public'
+
 import './styles.scss'
 
 declare module '@mui/styles/defaultTheme' {
@@ -38,6 +39,7 @@ const App = (): any => {
   const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
   const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
   const [description, setDescription] = useState(clientSetting?.siteDescription)
+  const [clientThemeSettings, setClientThemeSettings] = useState(clientSetting?.themeSettings)
   const dispatch = useDispatch()
   const [projectComponents, setProjectComponents] = useState<Array<any>>(null!)
   const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
@@ -60,7 +62,26 @@ const App = (): any => {
   useEffect(() => {
     const html = document.querySelector('html')
     if (html) {
-      html.dataset.theme = selfUser?.user_setting?.value?.themeMode || 'dark'
+      const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
+      html.dataset.theme = currentTheme
+
+      if (clientThemeSettings) {
+        if (currentTheme === 'light' && clientThemeSettings?.light) {
+          for (let variable of Object.keys(clientThemeSettings.light)) {
+            ;(document.querySelector(`[data-theme=light]`) as any)?.style.setProperty(
+              '--' + variable,
+              clientThemeSettings.light[variable]
+            )
+          }
+        } else if (currentTheme === 'dark' && clientThemeSettings?.dark) {
+          for (let variable of Object.keys(clientThemeSettings.dark)) {
+            ;(document.querySelector(`[data-theme=dark]`) as any)?.style.setProperty(
+              '--' + variable,
+              clientThemeSettings.dark[variable]
+            )
+          }
+        }
+      }
     }
   }, [selfUser?.user_setting?.value])
 
@@ -89,8 +110,32 @@ const App = (): any => {
       setFavicon16(clientSetting?.favicon16px)
       setFavicon32(clientSetting?.favicon32px)
       setDescription(clientSetting?.siteDescription)
+      setClientThemeSettings(clientSetting?.themeSettings)
     }
+    ClientSettingService.fetchClientSettings()
   }, [clientSettingState?.updateNeeded?.value])
+
+  useEffect(() => {
+    const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
+
+    if (clientThemeSettings) {
+      if (currentTheme === 'light' && clientThemeSettings?.light) {
+        for (let variable of Object.keys(clientThemeSettings.light)) {
+          ;(document.querySelector(`[data-theme=light]`) as any)?.style.setProperty(
+            '--' + variable,
+            clientThemeSettings.light[variable]
+          )
+        }
+      } else if (currentTheme === 'dark' && clientThemeSettings?.dark) {
+        for (let variable of Object.keys(clientThemeSettings.dark)) {
+          ;(document.querySelector(`[data-theme=dark]`) as any)?.style.setProperty(
+            '--' + variable,
+            clientThemeSettings.dark[variable]
+          )
+        }
+      }
+    }
+  }, [clientThemeSettings])
 
   return (
     <>

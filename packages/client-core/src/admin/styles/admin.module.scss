@@ -4,11 +4,11 @@
   height: 50px;
   width: 100%;
   margin: 0;
-  background: var(--purpleLighter);
-  color: var(--text) !important;
+  background: var(--buttonFilled);
+  color: var(--textColor) !important;
 
   &:hover {
-    background: var(--purpleColor);
+    opacity: 0.8;
   }
 
   @media (max-width: 900px) {
@@ -17,23 +17,23 @@
 }
 
 .dateTimePickerDialog {
-  background: var(--purpleLighter);
-  color: var(--text) !important;
+  background: var(--popupBackground);
+  color: var(--textColor) !important;
 
   svg {
-    fill: var(--text) !important;
+    fill: var(--iconButtonColor) !important;
   }
 
   span {
-    color: var(--text) !important;
+    color: var(--textColor) !important;
   }
 
   input {
-    color: var(--text) !important;
+    color: var(--textColor) !important;
   }
 
   fieldset {
-    border-color: var(--text) !important;
+    border-color: var(--inputOutline) !important;
   }
 }
 
@@ -199,25 +199,20 @@
   }
 
   .paper {
-    background: var(--purpleLight);
+    background: var(--inputBackground);
     display: flex;
     align-items: center;
-  }
-
-  .selectPaper {
-    background: #343b41;
-    color: #f1f1f1;
   }
 
   .rootBtn {
     font-size: 13px;
     width: auto;
     font-weight: bold;
-    background: var(--purpleColor1);
+    background: var(--buttonFilled);
     padding: 6px 28px;
 
     &:hover {
-      background: var(--purpleColor);
+      opacity: 0.8;
     }
   }
 
@@ -229,8 +224,8 @@
 
   .input {
     font-size: 14px;
-    color: var(--text);
-    background-color: var(--purpleLight);
+    color: var(--textColor);
+    background-color: var(--inputBackground);
   }
 
   .tabRoot {
@@ -239,15 +234,15 @@
   }
 
   .selected {
-    background: var(--text);
+    background: white;
   }
 
   .color {
-    color: var(--text);
+    color: var(--textColor);
   }
 
   .paper2 {
-    background: var(--purpleLight);
+    background: var(--inputBackground);
     display: flex;
     align-items: center;
     width: 100%;
@@ -255,14 +250,14 @@
   }
 
   .selectedTab {
-    color: var(--text) !important;
+    color: var(--textColor) !important;
     font-weight: bold;
     font-size: 17px;
     text-transform: capitalize;
   }
 
   .unselectedTab {
-    color: var(--purpleDarkest) !important;
+    color: var(--buttonFilled) !important;
     font-weight: bold;
     font-size: 17px;
     text-transform: capitalize;
@@ -277,13 +272,13 @@
     .iconBlock {
       display: inline-block;
       cursor: pointer;
-      color: var(--text);
+      color: var(--textColor);
       background: transparent;
     }
 
     h2 {
       font-size: 18px;
-      color: var(--text);
+      color: var(--textColor);
       font-weight: bold;
       display: inline-block;
       vertical-align: middle;
@@ -298,10 +293,10 @@
 
     button {
       height: 35px;
-      background-color: var(--purpleColor1);
+      background-color: var(--buttonFilled);
       padding: 0;
       border: none;
-      color: var(--text);
+      color: var(--textColor);
       flex-grow: 1;
       border-radius: 3px;
       font-size: 14px;
@@ -312,7 +307,7 @@
       }
 
       &:hover {
-        background-color: var(--purpleColor);
+        opacity: 0.8;
       }
     }
 
@@ -321,7 +316,7 @@
     }
 
     button[disabled] {
-      background: var(--purpleDarkest);
+      background: var(--disabled);
       opacity: 1 !important;
     }
 
@@ -332,7 +327,7 @@
     }
 
     .uploadBtn {
-      background: var(--purplePinkGradient);
+      background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
       cursor: pointer;
       font-size: 1rem;
       font-weight: bold;
@@ -367,7 +362,7 @@
 
       & > svg {
         opacity: 1;
-        color: var(--purpleColor);
+        color: var(--iconButtonColor);
 
         &:hover {
           opacity: 0.8;
@@ -377,12 +372,12 @@
       .legend {
         position: absolute;
         padding: 10px;
-        background: var(--purpleColor1);
+        background: var(--popupBackground);
         border-radius: 5px;
         top: 30px;
         right: 5px;
         width: 130px;
-        color: var(--text);
+        color: var(--textColor);
         font-size: 12px;
         display: none;
 
@@ -391,8 +386,8 @@
         }
 
         .shiftKey {
-          background: var(--purplePanel);
-          color: var(--text);
+          background: var(--popupBackground);
+          color: var(--textColor);
           padding: 2px 4px;
           border-radius: 4px;
           font-weight: bold;
@@ -403,10 +398,10 @@
           font-size: 18px;
           margin-right: 5px;
           width: 40px;
-          color: var(--text);
+          color: var(--iconButtonColor);
 
           path {
-            fill: var(--text);
+            fill: var(--iconButtonColor);
           }
         }
 
@@ -447,7 +442,7 @@
     .thumbnailSelectLabel {
       margin: 20px 0 8px;
       font-size: 15px;
-      color: var(--text);
+      color: var(--textColor);
     }
   }
 
@@ -457,15 +452,15 @@
     margin: 8px 0;
 
     .avatarNameInput {
-      color: var(--text);
-      border-color: var(--text);
+      color: var(--textColor);
+      border-color: var(--inputOutline);
       background: transparent;
 
       input {
         padding: 5px;
         font-size: 14px;
-        color: var(--text);
-        border-color: var(--text);
+        color: var(--textColor);
+        border-color: var(--inputOutline);
 
         &::selection {
           background-color: transparent;
@@ -473,7 +468,7 @@
       }
 
       :global(.MuiFormLabel-root) {
-        color: var(--text);
+        color: var(--textColor);
       }
 
       :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
@@ -504,15 +499,15 @@
   height: 50px;
   width: 100%;
   margin: 0;
-  background: var(--purplePinkGradient);
-  color: var(--text) !important;
+  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+  color: var(--textColor) !important;
 
   &:hover {
     opacity: 0.8;
   }
 
   &:disabled {
-    background: var(--purpleLighter);
+    background: var(--disabled);
   }
 
   @media (max-width: 900px) {
@@ -521,24 +516,25 @@
 }
 
 .submitButton {
-  background: var(--purplePinkGradient);
-  color: var(--text) !important;
+  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+  color: var(--textColor) !important;
 
   &:hover {
     opacity: 0.8;
   }
 
   &:disabled {
-    background: var(--purpleLighter);
+    background: var(--disabled);
   }
 }
 
 .cancelButton {
-  background: var(--purpleLighter);
-  color: var(--text) !important;
+  background: transparent;
+  border-color: var(--buttonOutlined);
+  color: var(--buttonOutlined) !important;
 
   &:hover {
-    background: var(--purpleColor);
+    opacity: 0.8;
   }
 }
 
@@ -546,12 +542,12 @@
   width: 100%;
   color: #fff;
   box-shadow: none;
-  background-color: var(--purpleDarkest);
+  background-color: var(--mainBackground);
 }
 
 .botHeader {
   height: 50px;
-  background: var(--purpleColor4);
+  background: var(--panelCards);
   color: #fff;
   display: flex;
   flex-direction: row;
@@ -586,15 +582,15 @@
 
 .botRootRight {
   width: 100%;
-  color: #fff;
+  color: var(--textColor);
   margin-top: 15px;
-  background: var(--purplePanel);
+  background: var(--panelBackground);
 }
 
 .botRootLeft {
   width: 100%;
-  color: #fff;
-  background: var(--purplePanel);
+  color: var(--textColor);
+  background: var(--panelBackground);
 }
 
 .smFont {
@@ -610,8 +606,8 @@
 .botSaveBtn {
   margin: 5px 25px 5px auto;
   width: 150px;
-  background: var(--purplePinkGradient);
-  color: var(--text) !important;
+  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+  color: var(--textColor) !important;
 
   &:hover {
     opacity: 0.8;
@@ -638,11 +634,11 @@
 
 .secondaryHeading {
   font-size: 1rem;
-  color: #c0c0c0;
+  color: var(--textColor);
 }
 
 .thirdHeading {
-  color: #c0c0c0;
+  color: var(--textColor);
   margin-top: 15px;
 }
 
@@ -653,24 +649,24 @@
 }
 
 .summary {
-  background: var(--purpleColor4);
-  border-bottom: 1px solid var(--purpleDarkest);
-  color: #f1f1f1;
+  background: var(--panelCards);
+  border-bottom: 1px solid var(--mainBackground);
+  color: var(--textColor);
   border-radius: 0;
 
   svg {
-    color: white;
+    color: var(--iconButtonColor);
   }
 }
 
 .botDetails {
-  background: var(--purplePanel);
-  color: #fff;
+  background: var(--panelBackground);
+  color: var(--textColor);
 }
 
 .alterContainer {
   background: var(--inputBackground);
-  border: 1px solid #23282c;
+  border: 1px solid var(--inputOutline);
   border-radius: 5px;
   width: 100%;
   margin-top: 10px;
@@ -689,13 +685,13 @@
   margin-top: 10px;
   margin-bottom: 15px;
   background: var(--inputBackground);
-  color: var(--text) !important;
+  color: var(--textColor) !important;
 }
 
 .input {
   margin-left: 8px;
   flex: 1;
-  color: var(--text);
+  color: var(--textColor);
 }
 
 .redBorder {
@@ -706,22 +702,26 @@
   margin-top: 10px;
   margin-bottom: 15px;
   background: var(--inputBackground);
-  color: var(--text) !important;
+  color: var(--textColor) !important;
 }
 
 .select {
-  color: var(--text) !important;
+  color: var(--textColor) !important;
   height: 2.4rem !important;
 }
 
 .selectPaper {
   background: var(--inputBackground);
-  color: var(--text);
+  color: var(--textColor);
+
+  &:global(.Mui-selected) {
+    background: var(--dropdownMenuSelectedBackground);
+  }
 }
 
 .paperDialog {
-  background: var(--purplePanel) !important;
-  color: var(--text);
+  background: var(--popupBackground) !important;
+  color: var(--textColor);
   width: 100%;
   padding: 40px 10px;
 }
@@ -735,7 +735,7 @@
 }
 
 .spanNone {
-  color: #808080;
+  color: var(--textColor);
 }
 
 .mgBottom {
@@ -743,7 +743,7 @@
 }
 
 .spanWhite {
-  color: var(--text) !important;
+  color: var(--textColor) !important;
 }
 
 .actionStyle {
@@ -755,13 +755,13 @@
 .textLink {
   margin-left: 5px;
   text-decoration: none;
-  color: #f96;
+  color: var(--buttonOutlined);
 }
 
 .paperDrawer {
   width: 40%;
-  background-color: var(--purplePanel);
-  color: var(--text);
+  background-color: var(--drawerBackground);
+  color: var(--textColor);
   overflow: auto;
 
   @media (max-width: 900px) {
@@ -785,7 +785,7 @@
   display: flex;
   flex-direction: column;
   width: 50%;
-  background-color: var(--purplePanel);
+  background-color: var(--popupBackground);
 
   @media (max-width: 768px) {
     width: 90%;
@@ -801,7 +801,7 @@
   }
 
   input {
-    color: var(--text);
+    color: var(--textColor);
     background-color: var(--inputBackground);
   }
 }
@@ -829,8 +829,8 @@
 
 .rootPaper {
   min-height: 15vh;
-  background: var(--purpleLighter);
-  color: var(--text);
+  background: var(--panelCards);
+  color: var(--textColor);
 
   @media (max-width: 900px) {
     height: 10vh;
@@ -864,9 +864,9 @@
 }
 
 .middlePaper {
-  color: var(--text);
+  color: var(--textColor);
   padding: 20px 0 8px 20px;
-  background: var(--purpleDarkest);
+  background: var(--mainBackground);
   height: 10rem;
 }
 
@@ -947,7 +947,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  color: var(--text);
+  color: var(--textColor);
   max-height: calc(100vh - 112px);
 }
 
@@ -956,13 +956,13 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  color: var(--text);
+  color: var(--textColor);
   max-height: calc(100vh - 172px);
 }
 
 .scopeContainer {
   max-height: 200px;
-  width: 460px;
+  width: 100%;
   overflow-y: scroll;
 
   @media (max-width: 1200px) {
@@ -989,27 +989,45 @@
 }
 
 .chip {
-  color: var(--text);
-  background-color: var(--purpleLighter);
+  color: var(--textColor);
+  background-color: var(--panelCards);
 }
 
 .filterButton {
   svg {
-    color: var(--purpleLighter);
+    color: var(--iconButtonColor);
   }
 }
 
 .checkbox {
-  color: var(--text);
+  color: var(--textColor);
+
+  .checkedCheckbox {
+    color: var(--iconButtonColor);
+  }
 }
 
 .menuPaper {
   min-height: 15vh;
-  background: var(--purplePanel);
-  color: var(--text);
+  background: var(--dropdownMenuBackground);
+  color: var(--textColor);
 
   @media (max-width: 900px) {
     height: 10vh;
+  }
+}
+
+.menuItem {
+  &:hover {
+    background: var(--dropdownMenuHoverBackground);
+  }
+
+  &:global(.Mui-selected) {
+    background: var(--dropdownMenuSelectedBackground);
+
+    &:hover {
+      background: var(--dropdownMenuSelectedBackground);
+    }
   }
 }
 
@@ -1027,62 +1045,7 @@
 
 .rootList {
   width: 100%;
-  background-color: var(--purpleLighter);
-}
-
-.thead {
-  .trow {
-    .tcell {
-      color: lighten(white, 0.8);
-      background-color: black;
-
-      .iconsContainer {
-        display: flex;
-
-        h3 {
-          margin-right: 5px;
-        }
-      }
-
-      &.actionCell {
-        display: flex;
-        flex-flow: wrap;
-        flex-direction: row;
-
-        :global(.MuiButtonBase-root) {
-          width: fit-content;
-          margin-right: 5px;
-        }
-      }
-
-      :global(.MuiButtonBase-root) {
-        color: lighten(white, 0.8);
-      }
-    }
-
-    .tcellSelectable {
-      .currentUser {
-        color: lighten(white, 0.8);
-        background-color: var(--facebookBlue);
-        padding-top: 5px;
-        padding-bottom: 5px;
-
-        &:hover {
-          background-color: #145cee;
-          cursor: pointer;
-        }
-      }
-    }
-  }
-
-  .trowHover {
-    cursor: pointer;
-
-    .tcell {
-      color: lighten(white, 0.8);
-      background-color: black;
-    }
-  }
+  background-color: var(--panelCards);
 }
 
 .root {
@@ -1092,15 +1055,15 @@
 .analyticsPaper {
   padding: 16px;
   text-align: center;
-  color: var(--text);
+  color: var(--textColor);
   height: 35rem;
   width: 99.9%;
-  background-color: var(--purplePanel);
+  background-color: var(--panelBackground);
 }
 
 .btn {
-  color: white;
-  border-color: white;
+  color: var(--buttonOutlined);
+  border-color: var(--buttonOutlined);
   font-size: 0.875rem;
 
   @media (max-width: 900px) {
@@ -1109,9 +1072,9 @@
 }
 
 .btnSelected {
-  color: white !important;
-  border-color: white;
-  background-color: var(--purpleColor) !important;
+  color: var(--textColor) !important;
+  border-color: var(--buttonOutlined);
+  background-color: var(--buttonFilled) !important;
 }
 
 .dashboardCardsContainer {
@@ -1140,29 +1103,34 @@
   justify-content: flex-end;
 
   input {
-    color: var(--text);
+    color: var(--textColor);
   }
 
   fieldset {
-    border-color: var(--text);
+    border-color: var(--inputOutline);
   }
 
   fieldset:hover {
-    border-color: rgb(var(--text) 0.8);
+    border-color: rgb(var(--inputOutline) 0.8);
   }
 }
 
 .rootCardNumber {
   min-width: 100%;
-  background-color: var(--purplePanel);
+  background-color: var(--panelBackground);
 }
 
 .label {
-  color: var(--text);
+  color: var(--textColor);
 }
 
 .checkboxContainer {
   padding: 0;
+  color: var(--textColor);
+}
+
+.routeCheckedCheckbox {
+  color: var(--iconButtonColor) !important;
 }
 
 .progress {
@@ -1178,7 +1146,7 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: var(--purpleLighter);
+  background-color: var(--inputBackground);
   top: 0;
 }
 
@@ -1186,9 +1154,9 @@
   margin: 0;
   padding: 0;
   width: 100%;
-  color: var(--text);
+  color: var(--textColor);
 }
 
 .accentText {
-  color: var(--purpleLighter);
+  color: var(--textColor);
 }

@@ -38,7 +38,7 @@
   &.video-paused,
   &.no-video {
     .video-wrapper {
-      background-color: var(--purpleColor0);
+      background-color: var(--popupBackground);
       background-size: contain;
       background-position: center;
       background-repeat: no-repeat;
@@ -87,7 +87,7 @@
 
   .user-controls {
     flex-direction: column;
-    background-color: var(--purpleLighter);
+    background-color: var(--popupBackground);
     border-radius: 8px;
     justify-content: space-evenly;
     transition: all 0.2s ease-out;
@@ -153,13 +153,13 @@
 
       :global(.MuiSlider-root) {
         &.slider {
-          color: var(--purpleButtonColor);
+          color: var(--iconButtonSelectedBackground);
           margin-left: 10px;
         }
 
         :global(.MuiSlider-thumb) {
-          background: var(--purpleButtonColor);
-          border: var(--purpleButtonColor);
+          background: var(--iconButtonSelectedBackground);
+          border: var(--iconButtonSelectedBackground);
           width: 16px;
           height: 16px;
           margin-top: -7px;
@@ -194,16 +194,6 @@
     .audio-slider {
       svg {
         width: 20px;
-      }
-    }
-
-    &:hover,
-    &:focus {
-      .user-controls {
-        padding: 10px 10px 10px 25px;
-        z-index: 10;
-        min-width: 150px;
-        width: auto;
       }
     }
   }

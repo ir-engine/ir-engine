@@ -17,7 +17,7 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
-import { accessEngineState, EngineActions } from '../../../ecs/classes/EngineService'
+import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
@@ -55,13 +55,7 @@ export const deserializeLoopAnimation: ComponentDeserializeFunction = (
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_LOOP_ANIMATION)
 
-  if (accessEngineState().sceneLoaded.value) {
-    updateLoopAnimation(entity)
-  } else {
-    matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, () => {
-      updateLoopAnimation(entity)
-    })
-  }
+  updateLoopAnimation(entity)
 }
 
 let lastModel: Group = null!

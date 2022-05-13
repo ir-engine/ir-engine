@@ -52,7 +52,8 @@ export class LocalStorage implements StorageProviderInterface {
   ): Promise<StorageListObjectInterface> => {
     const filePath = path.join(this.PATH_PREFIX, prefix)
     if (!fs.existsSync(filePath)) return { Contents: [] }
-    const globResult = glob.sync(path.join(filePath, '**/*.*'))
+    // glob all files and directories
+    const globResult = glob.sync(path.join(filePath, '**'))
     return {
       Contents: globResult.map((result) => {
         return { Key: result.replace(path.join(this.PATH_PREFIX), '') }
@@ -124,16 +125,18 @@ export class LocalStorage implements StorageProviderInterface {
               blobs.remove(key, (err) => {
                 if (err) {
                   const filePath = path.join(this.PATH_PREFIX, key)
-                  if (fs.lstatSync(filePath).isDirectory()) {
+                  if (!fs.existsSync(filePath)) {
+                    resolve(true)
+                  } else if (fs.lstatSync(filePath).isDirectory()) {
                     fs.rmSync(filePath, { force: true, recursive: true })
                     resolve(true)
                   } else {
                     resolve(false)
                     logger.error(err)
-                    return
                   }
+                } else {
+                  resolve(true)
                 }
-                resolve(true)
               })
             } else {
               resolve(true)
