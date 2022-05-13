@@ -24,8 +24,6 @@ import {
   SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
   updateAudio
 } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
-import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
@@ -105,13 +103,10 @@ const InstanceChat = (props: Props): any => {
     return () => clearTimeout(delayDebounce)
   }, [composingMessage])
 
-  useEffect(() => {
-    const loadAudio = async () => {
-      AssetLoader.Cache.delete(notificationAlertURL)
-      await AssetLoader.loadAsync(notificationAlertURL)
-    }
+  const fetchAudioAlert = async () => {
     setIsInitRender(true)
-    loadAudio()
+    AssetLoader.Cache.delete(notificationAlertURL)
+    await AssetLoader.loadAsync(notificationAlertURL)
     entity = createEntity(Engine.instance.currentWorld)
     addComponent(entity, AudioComponent, {
       ...SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
@@ -120,6 +115,10 @@ const InstanceChat = (props: Props): any => {
     })
     addComponent(entity, Object3DComponent, { value: new Audio(Engine.instance.audioListener) })
     updateAudio(entity, { volume: rendererState.audio.value / 100, audioSource: notificationAlertURL })
+  }
+
+  useEffect(() => {
+    fetchAudioAlert()
   }, [])
 
   useEffect(() => {

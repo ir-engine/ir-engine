@@ -187,6 +187,7 @@ export const prepareAudioForGLTFExport: ComponentPrepareForGLTFExportFunction = 
 }
 
 export const toggleAudio = (entity: Entity) => {
+  console.log('......................', getComponent(entity, Object3DComponent))
   const audioEl = getComponent(entity, Object3DComponent)?.value.userData.audioEl as Audio
   if (!audioEl) return
 
