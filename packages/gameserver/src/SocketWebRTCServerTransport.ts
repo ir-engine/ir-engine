@@ -8,10 +8,13 @@ import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
+import multiLogger from '@xrengine/server-core/src/logger'
 
 import { setupSubdomain } from './NetworkFunctions'
 import { setupSocketFunctions } from './SocketFunctions'
 import { startWebRTC } from './WebRTCFunctions'
+
+const logger = multiLogger.child({ component: 'gameserver:webrtc:transport' })
 
 export class ServerTransportHandler
   implements NetworkTransportHandler<SocketWebRTCServerTransport, SocketWebRTCServerTransport>
@@ -79,7 +82,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
   public async initialize(): Promise<void> {
     // Set up realtime channel on socket.io
-    this.app.io = this.app.io
     this.app.io.of('/').on('connect', setupSocketFunctions(this))
 
     await setupSubdomain(this)
@@ -104,6 +106,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         else return Promise.resolve()
       })
     )
-    console.log('Server transport initialized')
+    logger.info('Server transport initialized.')
   }
 }
