@@ -1,6 +1,5 @@
 import { useState } from '@speigg/hookstate'
 import React, { useEffect } from 'react'
-import { Audio } from 'three'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
@@ -12,18 +11,19 @@ import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
-import {
-  SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
-  updateAudio
-} from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
+import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
@@ -105,20 +105,34 @@ const InstanceChat = (props: Props): any => {
 
   const fetchAudioAlert = async () => {
     setIsInitRender(true)
+
+    // Load audio asset into cache
     AssetLoader.Cache.delete(notificationAlertURL)
-    await AssetLoader.loadAsync(notificationAlertURL)
-    entity = createEntity(Engine.instance.currentWorld)
-    addComponent(entity, AudioComponent, {
-      ...SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
-      volume: rendererState.audio.value / 100,
-      audioSource: notificationAlertURL
-    })
-    addComponent(entity, Object3DComponent, { value: new Audio(Engine.instance.audioListener) })
-    updateAudio(entity, { volume: rendererState.audio.value / 100, audioSource: notificationAlertURL })
+    const loadPromise = AssetLoader.loadAsync(notificationAlertURL)
+
+    // Create entity tree node from audio prefab and add it into the entity tree
+    const node = createEntityNode(createEntity(Engine.instance.currentWorld))
+    createNewEditorNode(node.entity, ScenePrefabs.audio)
+    addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.rootNode)
+
+    // Update audio component values
+    const audioComponent = getComponent(node.entity, AudioComponent)
+    audioComponent.volume = rendererState.audio.value / 100
+    audioComponent.audioSource = notificationAlertURL
+
+    // await for the asset to be loaded
+    await loadPromise
+
+    // Update the audio object.
+    updateAudio(node.entity, { volume: rendererState.audio.value / 100, audioSource: notificationAlertURL })
   }
 
   useEffect(() => {
-    fetchAudioAlert()
+    // Wait for the scene to be loaded
+    if (getEngineState().sceneLoaded.value) fetchAudioAlert()
+    matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, () => {
+      fetchAudioAlert()
+    })
   }, [])
 
   useEffect(() => {
