@@ -25,6 +25,7 @@ import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioF
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
+import multiLogger from '@xrengine/common/src/logger'
 
 import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
@@ -36,6 +37,8 @@ import TextField from '@mui/material/TextField'
 
 import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
 import defaultStyles from './index.module.scss'
+
+const logger = multiLogger.child({ component: 'client-core:chat' })
 
 interface Props {
   styles?: any
@@ -138,10 +141,10 @@ const InstanceChat = (props: Props): any => {
 
   useEffect(() => {
     if (user?.instanceId?.value && currentInstanceId && user?.instanceId?.value !== currentInstanceId) {
-      console.error(
-        `[ERROR]: somehow user.instanceId and instanceConnectionState.instance.id, are different when they should be the same`
+      logger.warn(
+        { userInstanceId: user?.instanceId?.value, currentInstanceId },
+        'Somehow user.instanceId and instanceConnectionState.instance.id, are different when they should be the same'
       )
-      console.error(user?.instanceId?.value, currentInstanceId)
     }
     if (currentInstanceId && currentInstanceConnection.connected.value && !chatState.instanceChannelFetching.value) {
       ChatService.getInstanceChannel()
