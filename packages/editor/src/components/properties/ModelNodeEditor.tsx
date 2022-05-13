@@ -123,6 +123,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Texture Override" label={t('editor:properties.model.lbl-textureOverride')}>
         <SelectInput
+          key={props.node.entity}
           options={textureOverrideEntities}
           value={modelComponent.textureOverride}
           onChange={updateProperty(ModelComponent, 'textureOverride')}
@@ -149,6 +150,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
 
       <InputGroup name="Loop Animation" label={t('editor:properties.model.lbl-loopAnimation')}>
         <SelectInput
+          key={props.node.entity}
           options={animationOptions}
           value={loopAnimationComponent?.activeClipIndex}
           onChange={updateProperty(LoopAnimationComponent, 'activeClipIndex')}

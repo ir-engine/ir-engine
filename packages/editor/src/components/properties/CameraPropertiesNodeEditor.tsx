@@ -94,6 +94,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Projection Type" label={'Projection Type'}>
         <SelectInput
+          key={props.node.entity}
           placeholder={projectionTypeSelect[0].label}
           value={cameraPropertiesComponent.projectionType}
           onChange={updateProperty(CameraPropertiesComponent, 'projectionType')}
@@ -102,6 +103,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Camera Mode" label={'Camera Mode'}>
         <SelectInput
+          key={props.node.entity}
           placeholder={cameraModeSelect[0].label}
           value={cameraPropertiesComponent.cameraMode}
           onChange={updateProperty(CameraPropertiesComponent, 'cameraMode')}

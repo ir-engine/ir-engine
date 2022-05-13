@@ -131,6 +131,7 @@ export const InteractableGroup: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Interaction Type" label={t('editor:properties.interaction.type')}>
         <SelectInput
+          key={props.node.entity}
           options={InteractableOption}
           value={interactableComponent.interactionType || ''}
           onChange={onChangeInteractionType}
