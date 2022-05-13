@@ -4,13 +4,12 @@ import fs from 'fs'
 import path from 'path'
 
 import logger from '../../logger'
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 
-const storageProvider = useStorageProvider()
-
 export const download = async (projectName) => {
+  const storageProvider = getStorageProvider()
   try {
     logger.info(`[ProjectLoader]: Installing project "${projectName}"...`)
     const files = await getFileKeysRecursive(`projects/${projectName}/`)

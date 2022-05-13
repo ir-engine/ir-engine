@@ -18,6 +18,8 @@ import sequelize from '@xrengine/server-core/src/sequelize'
 import services from '@xrengine/server-core/src/services'
 import authentication from '@xrengine/server-core/src/user/authentication'
 
+import { createDefaultStorageProvider } from './media/storageprovider/storageprovider'
+
 export const configureOpenAPI = () => (app: Application) => {
   app.configure(
     swagger({
@@ -115,6 +117,8 @@ export const serverPipe = pipe(configureOpenAPI(), configureSocketIO(), configur
 ) => Application
 
 export const createFeathersExpressApp = (configurationPipe = serverPipe): Application => {
+  createDefaultStorageProvider()
+
   const app = express(feathers()) as Application
   app.set('nextReadyEmitter', new EventEmitter())
 

@@ -26,17 +26,7 @@ import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComp
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SkyboxComponent, SkyboxComponentType } from '../../components/SkyboxComponent'
 import { SkyTypeEnum } from '../../constants/SkyTypeEnum'
-import {
-  cubeTextureLoader,
-  getPmremGenerator,
-  negx,
-  negy,
-  negz,
-  posx,
-  posy,
-  posz,
-  textureLoader
-} from '../../constants/Util'
+import { getPmremGenerator, loadCubeMapTexture, textureLoader } from '../../constants/Util'
 import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_SKYBOX = 'skybox'
@@ -82,19 +72,15 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
       break
 
     case SkyTypeEnum.cubemap:
-      cubeTextureLoader.setPath(component.cubemapPath).load(
-        [posx, negx, posy, negy, posz, negz],
+      loadCubeMapTexture(
+        component.cubemapPath,
         (texture) => {
           texture.encoding = sRGBEncoding
           Engine.instance.scene.background = texture
           removeError(entity, 'error')
         },
-        (_res) => {
-          /* console.log(_res) */
-        },
-        (error) => {
-          addError(entity, 'error', error.message)
-        }
+        undefined,
+        (error) => addError(entity, 'error', error.message)
       )
       break
 

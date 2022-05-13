@@ -18,7 +18,7 @@ import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
-import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
+import { LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
 import { createGLTFLoader } from '../functions/createGLTFLoader'
@@ -122,7 +122,7 @@ const handleLODs = (asset: Object3D): Object3D => {
     value[0].object.parent?.add(lod)
 
     value.forEach(({ level, object }) => {
-      lod.addLevel(object, AssetLoader.LOD_DISTANCES[level])
+      lod.addLevel(object, Engine.instance.currentWorld.LOD_DISTANCES[level])
     })
   })
 
@@ -291,7 +291,6 @@ const getFromCache = (url: string) => {
 export const AssetLoader = {
   Cache: new Map<string, any>(),
   loaders: new Map<number, any>(),
-  LOD_DISTANCES: DEFAULT_LOD_DISTANCES,
   processModelAsset,
   handleLODs,
   getAbsolutePath,
