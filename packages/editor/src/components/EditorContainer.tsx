@@ -1,5 +1,7 @@
 import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
+
 import 'rc-dock/dist/rc-dock.css'
+
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
@@ -8,7 +10,7 @@ import styled from 'styled-components'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { accessEngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { getEngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { gltfToSceneJson, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 import { useHookEffect } from '@xrengine/hyperflux'
@@ -92,10 +94,13 @@ export const DockContainer = (styled as any).div`
   .dock-tab:hover div, .dock-tab:hover svg { color: var(--textColor); }
   .dock-tab > div { padding: 2px 12px; }
   .dock-tab-active {
-    color: var(--buttonOutlined);
+    color: var(--textColor);
   }
   .dock-ink-bar {
-    background-color: var(--buttonOutlined);
+    background-color: var(--textColor);
+  }
+  .dock-panel-max-btn:before {
+    border-color: var(--iconButtonColor);
   }
 `
 /**
@@ -243,7 +248,7 @@ const EditorContainer = () => {
   }
 
   const onSaveAs = async () => {
-    const sceneLoaded = accessEngineState().sceneLoaded.value
+    const sceneLoaded = getEngineState().sceneLoaded.value
 
     // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
     if (!sceneLoaded) {
@@ -352,7 +357,7 @@ const EditorContainer = () => {
   }
 
   const onSaveScene = async () => {
-    const sceneLoaded = accessEngineState().sceneLoaded.value
+    const sceneLoaded = getEngineState().sceneLoaded.value
 
     // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
     if (!sceneLoaded) {

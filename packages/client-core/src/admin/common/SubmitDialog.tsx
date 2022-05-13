@@ -35,10 +35,10 @@ const FormDialog = () => {
           <TextField autoFocus id="name" label="Username" type="text" fullWidth />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} className={styles.spanNone}>
+          <Button onClick={handleClose} className={styles.cancelButton}>
             {t('admin:components.dialog.login')}
           </Button>
-          <Button onClick={handleClose} className={styles.spanDange}>
+          <Button onClick={handleClose} className={styles.submitButton}>
             {t('admin:components.dialog.submit')}
           </Button>
         </DialogActions>

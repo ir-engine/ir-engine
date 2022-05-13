@@ -57,7 +57,6 @@ export const FileListItem: React.FC<FileListItemProps> = (props) => {
       <InputBase
         className={styles.input}
         name="name"
-        style={{ color: '#fff' }}
         autoComplete="off"
         value={newFileName}
         onChange={(e) => handleChange(e)}

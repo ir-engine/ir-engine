@@ -88,5 +88,5 @@ export const configureEffectComposer = (remove?: boolean): void => {
     EngineRenderer.instance.effectComposer.addPass(new EffectPass(Engine.instance.camera, ...effects, textureEffect))
   }
 
-  changeRenderMode(accessEngineRendererState().renderMode.value)
+  if (Engine.instance.isEditor) changeRenderMode(accessEngineRendererState().renderMode.value)
 }

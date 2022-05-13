@@ -1,5 +1,5 @@
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
-import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 
 import config from '../../appconfig'

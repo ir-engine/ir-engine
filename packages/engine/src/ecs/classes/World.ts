@@ -5,6 +5,7 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { createHyperStore } from '@xrengine/hyperflux'
 
+import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { isClient } from '../../common/functions/isClient'
@@ -46,6 +47,7 @@ export class World {
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
 
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
+    if (this.localClientEntity) addComponent(this.localClientEntity, PersistTagComponent, {}, this)
 
     initializeEntityTree(this)
 
@@ -226,6 +228,8 @@ export class World {
   get receptors() {
     return this.store.receptors
   }
+
+  LOD_DISTANCES = DEFAULT_LOD_DISTANCES
 
   /**
    * Execute systems on this world

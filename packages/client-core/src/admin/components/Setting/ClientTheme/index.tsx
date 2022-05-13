@@ -141,11 +141,16 @@ const ClientTheme = () => {
         handleChangeThemeMode={handleChangeThemeMode}
         handleChangeColor={handleChangeColor}
       />
-      <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
+      <Button sx={{ maxWidth: '100%' }} variant="outlined" className={styles.cancelButton} onClick={handleCancel}>
         {t('admin:components.setting.cancel')}
       </Button>
       &nbsp; &nbsp;
-      <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={resetThemeToDefault}>
+      <Button
+        sx={{ maxWidth: '100%' }}
+        variant="outlined"
+        className={styles.cancelButton}
+        onClick={resetThemeToDefault}
+      >
         {t('admin:components.setting.resetTheme')}
       </Button>
       &nbsp; &nbsp;

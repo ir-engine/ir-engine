@@ -58,6 +58,7 @@ export interface ThemeOptions {
   inputBackground: string
   dropdownMenuBackground: string
   dropdownMenuHoverBackground: string
+  dropdownMenuSelectedBackground: string
   drawerBackground: string
   popupBackground: string
   tableHeaderBackground: string

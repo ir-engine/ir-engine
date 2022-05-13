@@ -89,5 +89,5 @@ Thank you for installing XREngine
 {{- end }}
 
 We would love to hear your feedback:
-- contact us on https://myxr.social 
-- join our Discord on https://myxr.social/
+- contact us on https://xrfoundation.io/
+- join our Discord on https://discord.gg/xrf

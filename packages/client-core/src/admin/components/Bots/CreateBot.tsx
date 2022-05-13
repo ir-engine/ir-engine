@@ -224,7 +224,7 @@ const CreateBot = () => {
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
                 <IconButton onClick={fetchAdminLocations} size="large">
-                  <Autorenew style={{ color: '#fff' }} />
+                  <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
                 </IconButton>
               </div>
             </Grid>
@@ -244,7 +244,7 @@ const CreateBot = () => {
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
                 <IconButton onClick={fetchAdminInstances} size="large">
-                  <Autorenew style={{ color: '#fff' }} />
+                  <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
                 </IconButton>
               </div>
             </Grid>

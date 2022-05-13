@@ -29,7 +29,7 @@ import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
-import { accessEngineState, EngineActions } from '../ecs/classes/EngineService'
+import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { matchActionOnce } from '../networking/functions/matchActionOnce'
@@ -40,7 +40,6 @@ import {
   EngineRendererReceptor,
   restoreEngineRendererData
 } from './EngineRendererState'
-import { configureEffectComposer } from './functions/configureEffectComposer'
 import WebGL from './THREE.WebGL'
 
 export interface EffectComposerWithSchema extends EffectComposer {
@@ -60,7 +59,7 @@ export interface EffectComposerWithSchema extends EffectComposer {
 let lastRenderTime = 0
 
 export class EngineRenderer {
-  static instance
+  static instance: EngineRenderer
 
   /** Is resize needed? */
   needsResize: boolean
@@ -89,9 +88,6 @@ export class EngineRenderer {
   averageTimePeriods = 3 * 60 // 3 seconds @ 60fps
   /** init ExponentialMovingAverage */
   movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
-
-  /** To Disable update for renderer */
-  disableUpdate = false
 
   renderer: WebGLRenderer = null!
   effectComposer: EffectComposerWithSchema = null!
@@ -160,8 +156,6 @@ export class EngineRenderer {
 
     this.renderer.autoClear = true
     this.effectComposer = new EffectComposer(this.renderer) as any
-
-    configureEffectComposer()
   }
 
   /** Called on resize, sets resize flag. */
@@ -179,7 +173,7 @@ export class EngineRenderer {
       this.renderer.render(Engine.instance.scene, Engine.instance.camera)
     } else {
       const state = accessEngineRendererState()
-      const engineState = accessEngineState()
+      const engineState = getEngineState()
       if (state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
       if (this.rendereringEnabled) {
         if (this.needsResize) {
@@ -241,8 +235,6 @@ export class EngineRenderer {
 }
 
 export default async function WebGLRendererSystem(world: World) {
-  EngineRenderer.instance.initialize()
-
   matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, () => {
     restoreEngineRendererData()
   })

@@ -14,7 +14,6 @@ import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/int
 import { resolveUser, resolveWalletUser, User, UserSeed, UserSetting } from '@xrengine/common/src/interfaces/User'
 import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
@@ -208,7 +207,6 @@ export const AuthService = {
           res = await (client as any).reAuthenticate()
         }
         const authUser = resolveAuthUser(res)
-        if (isDev) globalThis.userId = authUser.identityProvider.userId
         dispatch(AuthAction.loginUserSuccess(authUser))
         await AuthService.loadUserData(authUser.identityProvider.userId)
       } else {

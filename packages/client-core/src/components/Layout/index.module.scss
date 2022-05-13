@@ -75,6 +75,18 @@ body {
     }
   }
 
+  @media (min-width: 769px) {
+    &:hover,
+    &:focus {
+      [class*="user-controls"] {
+        padding: 10px 10px 10px 25px;
+        z-index: 10;
+        min-width: 150px;
+        width: auto;
+      }
+    }
+  }
+
   @media (max-width: 450px) {
     padding-left: 0;
     padding-right: 0;

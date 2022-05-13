@@ -60,6 +60,9 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   root.add(scene)
   parent.add(root)
   parent.userData = scene.userData
+
+  // Enable shadow for avatars
+  parent.traverse((obj) => (obj.castShadow = true))
   return SkeletonUtils.clone(parent)
 }
 

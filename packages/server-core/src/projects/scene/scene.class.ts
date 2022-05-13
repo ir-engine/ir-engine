@@ -10,14 +10,14 @@ import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.j
 import { Application } from '../../../declarations'
 import logger from '../../logger'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { cleanString } from '../../util/cleanString'
 import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser'
 
-const storageProvider = useStorageProvider()
 const NEW_SCENE_NAME = 'New-Scene'
 
 export const getSceneData = async (projectName, sceneName, metadataOnly, internal, downloadIfNotPresent = false) => {
+  const storageProvider = getStorageProvider()
   const scenePath = `projects/${projectName}/${sceneName}.scene.json`
   const thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.jpeg`
 
@@ -100,6 +100,8 @@ export class Scene implements ServiceMethods<any> {
     const { projectName } = data
     logger.info('[scene.create]: ' + projectName)
 
+    const storageProvider = getStorageProvider()
+
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
@@ -147,6 +149,8 @@ export class Scene implements ServiceMethods<any> {
 
   async patch(id: NullableId, data: RenameParams, params?: Params): Promise<any> {
     const { newSceneName, oldSceneName, projectName } = data
+
+    const storageProvider = getStorageProvider()
 
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
@@ -198,6 +202,8 @@ export class Scene implements ServiceMethods<any> {
     const { sceneName, sceneData, thumbnailBuffer } = data
     logger.info('[scene.update]: ', projectName, data)
 
+    const storageProvider = getStorageProvider()
+
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
@@ -245,6 +251,8 @@ export class Scene implements ServiceMethods<any> {
 
   // @ts-ignore
   async remove({ projectName, sceneName }, params?: Params): Promise<any> {
+    const storageProvider = getStorageProvider()
+
     const name = cleanString(sceneName)
 
     const project = await this.app.service('project').get(projectName, params)

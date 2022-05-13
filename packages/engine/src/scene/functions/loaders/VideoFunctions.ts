@@ -12,7 +12,7 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
-import { accessEngineState, EngineActions } from '../../../ecs/classes/EngineService'
+import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
@@ -130,7 +130,7 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
           obj3d.userData.videoEl.muted = false
 
           if (obj3d.userData.videoEl.autoplay) {
-            if (accessEngineState().userHasInteracted.value) {
+            if (getEngineState().userHasInteracted.value) {
               obj3d.userData.videoEl.play()
             } else {
               matchActionOnce(Engine.instance.store, EngineActions.setUserHasInteracted.matches, () => {
