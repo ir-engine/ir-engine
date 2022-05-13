@@ -9,7 +9,7 @@ import restrictUserRole from '../../hooks/restrict-user-role'
 import logger from '../../logger'
 import { AvatarUploadArguments } from '../../user/avatar/avatar-helper'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
-import { useStorageProvider } from '../storageprovider/storageprovider'
+import { getStorageProvider } from '../storageprovider/storageprovider'
 import hooks from './upload-asset.hooks'
 
 const multipartMiddleware = multer({ limits: { fieldSize: Infinity } })
@@ -25,7 +25,7 @@ export const addGenericAssetToS3AndStaticResources = async (
   file: Buffer,
   args: AdminAssetUploadArgumentsType
 ) => {
-  const provider = useStorageProvider()
+  const provider = getStorageProvider()
   // make userId optional and safe for feathers create
   const userIdQuery = args.userId ? { userId: args.userId } : {}
   const key = args.key

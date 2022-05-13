@@ -8,7 +8,7 @@ import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType
 import { Application } from '../../../declarations'
 import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
-import { useStorageProvider } from '../storageprovider/storageprovider'
+import { getStorageProvider } from '../storageprovider/storageprovider'
 import { StorageObjectInterface, StorageProviderInterface } from '../storageprovider/storageprovider.interface'
 
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
@@ -43,7 +43,7 @@ export class FileBrowserService implements ServiceMethods<any> {
   }
 
   async setup(_app, _path: string): Promise<void> {
-    this.store = useStorageProvider()
+    this.store = getStorageProvider()
   }
 
   async find(_params?: Params) {}

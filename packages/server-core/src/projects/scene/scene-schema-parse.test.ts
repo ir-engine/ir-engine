@@ -1,7 +1,7 @@
 import assert from 'assert'
 import _ from 'lodash'
 
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import { createDefaultStorageProvider, getStorageProvider } from '../../media/storageprovider/storageprovider'
 import {
   cleanSceneDataCacheURLs,
   corsPath,
@@ -11,8 +11,8 @@ import {
 } from './scene-parser'
 
 describe('Scene Helper Functions', () => {
-  const storageProvider = useStorageProvider()
   describe('should replace cache domain', () => {
+    const storageProvider = createDefaultStorageProvider()
     const mockValue = `abcdef2144536`
     const mockValue2 = `08723ikjbolicujhc0asc`
 
@@ -53,11 +53,13 @@ describe('Scene Helper Functions', () => {
     }
 
     it('should parse saved data', async function () {
+      const storageProvider = getStorageProvider()
       const parsedData = parseSceneDataCacheURLs(_.cloneDeep(savedMockData) as any, storageProvider.cacheDomain)
       assert.deepStrictEqual(parsedMockData, parsedData)
     })
 
     it('should unparse parsed data', async function () {
+      const storageProvider = getStorageProvider()
       const unparsedData = cleanSceneDataCacheURLs(_.cloneDeep(parsedMockData) as any, storageProvider.cacheDomain)
       assert.deepStrictEqual(savedMockData, unparsedData)
     })
