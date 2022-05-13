@@ -2,7 +2,6 @@ import { DirectionalLight, Light, LinearToneMapping, Mesh, PCFSoftShadowMap, Per
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { DEFAULT_LOD_DISTANCES } from '../../../assets/constants/LoaderConstants'
 import { CSM } from '../../../assets/csm/CSM'
 import {
@@ -54,7 +53,7 @@ export const updateRenderSetting: ComponentUpdateFunction = (
   const component = getComponent(entity, RenderSettingComponent)
 
   if (typeof properties.LODs !== 'undefined' && component.LODs)
-    AssetLoader.LOD_DISTANCES = { '0': component.LODs.x, '1': component.LODs.y, '2': component.LODs.z }
+    Engine.instance.currentWorld.LOD_DISTANCES = { '0': component.LODs.x, '1': component.LODs.y, '2': component.LODs.z }
 
   if (typeof properties.overrideRendererSettings !== 'undefined') {
     if (properties.overrideRendererSettings) {
@@ -186,7 +185,7 @@ export const resetEngineRenderer = (resetLODs = false, resetCSM = true) => {
   EngineRenderer.instance.renderer.toneMapping = LinearToneMapping
   EngineRenderer.instance.renderer.toneMappingExposure = 0.8
 
-  if (resetLODs) AssetLoader.LOD_DISTANCES = Object.assign({}, DEFAULT_LOD_DISTANCES)
+  if (resetLODs) Engine.instance.currentWorld.LOD_DISTANCES = Object.assign({}, DEFAULT_LOD_DISTANCES)
 
   if (resetCSM) disposeCSM()
 }
