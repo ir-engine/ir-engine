@@ -1,8 +1,8 @@
 apiVersion: v2
-name: rippled
-description: A Helm chart of rippled server by XRFoundation
+name: ipfs
+description: A Helm chart of IPFS by XRFoundation
 type: application
-appVersion: "1.8.4"
+appVersion: "1.0.1"
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
