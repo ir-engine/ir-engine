@@ -1,5 +1,6 @@
 import { useState } from '@speigg/hookstate'
 import React, { useEffect } from 'react'
+import { Audio } from 'three'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
@@ -17,6 +18,7 @@ import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import {
   SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
@@ -109,17 +111,15 @@ const InstanceChat = (props: Props): any => {
       await AssetLoader.loadAsync(notificationAlertURL)
     }
     setIsInitRender(true)
+    loadAudio()
     entity = createEntity(Engine.instance.currentWorld)
     addComponent(entity, AudioComponent, {
       ...SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
       volume: rendererState.audio.value / 100,
       audioSource: notificationAlertURL
     })
-
-    // TO DO Fix Adding AudioComponent
-    // createNewEditorNode(entity, ScenePrefabs.audio)
-    loadAudio()
-    // updateAudio(entity, { volume: rendererState.audio.value / 100, audioSource: notificationAlertURL })
+    addComponent(entity, Object3DComponent, { value: new Audio(Engine.instance.audioListener) })
+    updateAudio(entity, { volume: rendererState.audio.value / 100, audioSource: notificationAlertURL })
   }, [])
 
   useEffect(() => {
@@ -157,10 +157,10 @@ const InstanceChat = (props: Props): any => {
       chatState.messageCreated.value
     ) {
       setNoUnReadMessage(false)
-      audio.play()
+      // audio.play()
 
-      // TO DO Fix play audio
-      // toggleAudio(entity)
+      //Play audio
+      toggleAudio(entity)
     }
   }, [chatState])
 
