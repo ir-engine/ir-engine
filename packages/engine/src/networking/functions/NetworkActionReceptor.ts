@@ -200,10 +200,6 @@ const setUserTyping = (action) => {
 const createNetworkActionReceptor = (world: World) =>
   addActionReceptor(world.store, function NetworkActionReceptor(action) {
     matches(action)
-      .when(NetworkWorldAction.timeSync.matches, ({ elapsedTime, clockTime }) => {
-        // todo: smooth out time sync over multiple frames
-        world.elapsedTime = elapsedTime + (Date.now() - clockTime) / 1000
-      })
       .when(NetworkWorldAction.createClient.matches, ({ $from, name, index: userIndex }) =>
         addClient(world, $from, name, userIndex)
       )

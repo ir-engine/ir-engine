@@ -242,7 +242,7 @@ export default async function WebGLRendererSystem(world: World) {
   addActionReceptor(Engine.instance.store, EngineRendererReceptor)
 
   return () => {
-    EngineRenderer.instance.execute(world.delta)
+    EngineRenderer.instance.execute(world.deltaSeconds)
   }
 }
 

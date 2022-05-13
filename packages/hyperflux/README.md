@@ -13,8 +13,7 @@ createHyperStore({
     getDispatchTime: () => Engine.instance.elapsedTime
 })
 // Engine timer callback:
-const executeWorlds = (delta, elapsedTime) => {
-  Engine.instance.elapsedTime = elapsedTime
+const executeWorlds = (elapsedTime) => {
   ActionFunctions.applyIncomingActions(Engine.instance.store)
   // ...
 }

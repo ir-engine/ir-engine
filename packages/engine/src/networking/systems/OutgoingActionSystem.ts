@@ -20,12 +20,7 @@ const sendOutgoingActions = (world: World) => {
 }
 
 export default async function OutgoingActionSystem(world: World) {
-  let lastTickSync = 0
   return () => {
-    if (world.isHosting && world.fixedTick - lastTickSync > 60 * 60 * 2) {
-      dispatchAction(world.store, NetworkWorldAction.timeSync({}))
-      lastTickSync = world.fixedTick
-    }
     sendOutgoingActions(world)
   }
 }

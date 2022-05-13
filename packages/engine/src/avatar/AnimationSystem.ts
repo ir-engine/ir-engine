@@ -52,7 +52,7 @@ export default async function AnimationSystem(world: World) {
   await AnimationManager.instance.loadDefaultAnimations()
 
   return () => {
-    const { delta } = world
+    const { deltaSeconds: delta } = world
 
     for (const entity of desiredTransformQuery(world)) {
       const desiredTransform = getComponent(entity, DesiredTransformComponent)

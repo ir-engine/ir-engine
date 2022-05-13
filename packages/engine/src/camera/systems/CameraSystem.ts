@@ -264,7 +264,7 @@ export default async function CameraSystem(world: World) {
   const targetCameraRotationQuery = defineQuery([FollowCameraComponent, TargetCameraRotationComponent])
   let cameraInitialized = Engine.instance.isEditor
   return () => {
-    const { delta } = world
+    const { deltaSeconds: delta } = world
     if (getEngineState().sceneLoaded.value && !cameraInitialized) {
       initializeCameraComponent(world)
       cameraInitialized = true

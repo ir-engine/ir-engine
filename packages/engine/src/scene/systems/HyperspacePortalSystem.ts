@@ -30,7 +30,7 @@ export default async function HyperspacePortalSystem(world: World) {
   light.layers.enable(ObjectLayers.Portal)
 
   return () => {
-    const { delta } = world
+    const { deltaSeconds: delta } = world
 
     const playerObj = getComponent(world.localClientEntity, Object3DComponent)
 

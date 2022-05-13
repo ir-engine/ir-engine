@@ -13,7 +13,7 @@ export default async function FixedPipelineSystem(world: World, args: { tickRate
   const limit = timestep * 2000
   const updatesLimit = args.tickRate
 
-  world.fixedDelta = timestep
+  world.fixedDeltaSeconds = timestep
 
   // If the difference between fixedElapsedTime and elapsedTime becomes too large,
   // we should simply skip ahead.
@@ -24,26 +24,26 @@ export default async function FixedPipelineSystem(world: World, args: { tickRate
     let timeUsed = 0
     let updatesCount = 0
 
-    let accumulator = world.elapsedTime - world.fixedElapsedTime
+    let accumulator = world.elapsedSeconds - world.fixedElapsedSeconds
 
     let accumulatorDepleted = accumulator < timestep
     let timeout = timeUsed > limit
     let updatesLimitReached = updatesCount > updatesLimit
 
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
-      world.fixedElapsedTime += world.fixedDelta
-      world.fixedTick = Math.floor(world.fixedElapsedTime / world.fixedDelta)
+      world.fixedElapsedSeconds += world.fixedDeltaSeconds
+      world.fixedTick = Math.floor(world.fixedElapsedSeconds / world.fixedDeltaSeconds)
       getEngineState().fixedTick.set(world.fixedTick)
 
       for (const s of world.pipelines[SystemUpdateType.FIXED_EARLY]) s.execute()
       for (const s of world.pipelines[SystemUpdateType.FIXED]) s.execute()
       for (const s of world.pipelines[SystemUpdateType.FIXED_LATE]) s.execute()
 
-      accumulator -= world.fixedDelta
+      accumulator -= world.fixedDeltaSeconds
       ++updatesCount
 
       timeUsed = nowMilliseconds() - start
-      accumulatorDepleted = accumulator < world.fixedDelta
+      accumulatorDepleted = accumulator < world.fixedDeltaSeconds
       timeout = timeUsed > limit
       updatesLimitReached = updatesCount >= updatesLimit
     }
@@ -52,8 +52,8 @@ export default async function FixedPipelineSystem(world: World, args: { tickRate
       console.warn(
         'FixedPipelineSystem: update limit reached, skipping world.fixedElapsedTime ahead to catch up with world.elapsedTime'
       )
-      world.fixedElapsedTime = world.elapsedTime
-      world.fixedTick = Math.floor(world.fixedElapsedTime / world.fixedDelta)
+      world.fixedElapsedSeconds = world.elapsedSeconds
+      world.fixedTick = Math.floor(world.fixedElapsedSeconds / world.fixedDeltaSeconds)
     }
   }
 }

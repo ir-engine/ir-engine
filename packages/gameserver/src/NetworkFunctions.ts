@@ -6,6 +6,7 @@ import { User } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import checkPositionIsValid from '@xrengine/engine/src/common/functions/checkPositionIsValid'
+import { performance } from '@xrengine/engine/src/common/functions/performance'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -343,8 +344,8 @@ export const handleJoinWorld = async (
   logger.info('Sending cached actions: %o', cachedActions)
 
   callback({
-    elapsedTime: world.elapsedTime,
-    clockTime: Date.now(),
+    highResTimeOrigin: performance.timeOrigin,
+    worldStartTime: world.startTime,
     client: { name: client.name, index: client.index },
     cachedActions,
     avatarDetail: client.avatarDetail!,
