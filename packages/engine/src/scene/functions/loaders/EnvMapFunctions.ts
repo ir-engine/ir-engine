@@ -29,17 +29,7 @@ import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { EnvmapComponent, EnvmapComponentType } from '../../components/EnvmapComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '../../constants/EnvMapEnum'
-import {
-  cubeTextureLoader,
-  getPmremGenerator,
-  negx,
-  negy,
-  negz,
-  posx,
-  posy,
-  posz,
-  textureLoader
-} from '../../constants/Util'
+import { getPmremGenerator, loadCubeMapTexture, textureLoader } from '../../constants/Util'
 import { SceneOptions } from '../../systems/SceneObjectSystem'
 import { CubemapBakeTypes } from '../../types/CubemapBakeTypes'
 import { addError, removeError } from '../ErrorFunctions'
@@ -109,21 +99,16 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity, properties
       case EnvMapSourceType.Texture:
         switch (component.envMapTextureType) {
           case EnvMapTextureType.Cubemap:
-            cubeTextureLoader.setPath(component.envMapSourceURL).load(
-              [posx, negx, posy, negy, posz, negz],
+            loadCubeMapTexture(
+              component.envMapSourceURL,
               (texture) => {
                 const EnvMap = getPmremGenerator().fromCubemap(texture).texture
                 EnvMap.encoding = sRGBEncoding
                 applyEnvMap(obj3d, EnvMap)
                 removeError(entity, 'envmapError')
-                texture.dispose()
               },
-              (_res) => {
-                /* console.log(_res) */
-              },
-              (_) => {
-                addError(entity, 'envmapError', 'Skybox texture could not be found!')
-              }
+              undefined,
+              (_) => addError(entity, 'envmapError', 'Skybox texture could not be found!')
             )
             break
 
