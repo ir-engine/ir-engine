@@ -6,6 +6,7 @@ import { ChatService, useChatState } from '@xrengine/client-core/src/social/serv
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import multiLogger from '@xrengine/common/src/logger'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
@@ -21,6 +22,8 @@ import Fab from '@mui/material/Fab'
 import TextField from '@mui/material/TextField'
 
 import defaultStyles from './index.module.scss'
+
+const logger = multiLogger.child({ component: 'client-core:chat' })
 
 interface Props {
   styles?: any
@@ -94,10 +97,10 @@ const InstanceChat = (props: Props): any => {
       instanceConnectionState.instance.id?.value &&
       user?.instanceId?.value !== instanceConnectionState.instance.id?.value
     ) {
-      console.warn(
-        '[WARNING]: somehow user.instanceId and instanceConnectionState.instance.id, are different when they should be the same'
+      logger.warn(
+        { userInstanceId: user?.instanceId?.value, connectionInstanceId: instanceConnectionState.instance.id?.value },
+        'Somehow user.instanceId and instanceConnectionState.instance.id, are different when they should be the same'
       )
-      console.log(user?.instanceId?.value, instanceConnectionState.instance.id?.value)
     }
     if (
       instanceConnectionState.instance.id?.value &&

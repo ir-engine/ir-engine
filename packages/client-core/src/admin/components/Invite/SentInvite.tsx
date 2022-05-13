@@ -2,6 +2,8 @@ import { useConfirm } from 'material-ui-confirm'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import multiLogger from '@xrengine/common/src/logger'
+
 import { Delete } from '@mui/icons-material'
 import FirstPageIcon from '@mui/icons-material/FirstPage'
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft'
@@ -23,6 +25,8 @@ import makeStyles from '@mui/styles/makeStyles'
 import { InviteService } from '../../../social/services/InviteService'
 import { useInviteState } from '../../../social/services/InviteService'
 import { INVITE_PAGE_LIMIT } from '../../../social/services/InviteService'
+
+const logger = multiLogger.child({ component: 'client-core:social' })
 
 interface Props {
   sentInvites?: any
@@ -124,7 +128,7 @@ const SentInvite = (props: Props) => {
   const deleteInvite = (invite) => {
     confirm({ description: `This will permanently delete ${invite.token}.` })
       .then(() => InviteService.removeInvite(invite))
-      .catch(() => console.error('error'))
+      .catch((err) => logger.error(err, 'Error deleting invite token.'))
   }
 
   const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {

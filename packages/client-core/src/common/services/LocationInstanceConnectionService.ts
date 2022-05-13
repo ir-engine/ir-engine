@@ -3,6 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
+import logger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -84,7 +85,7 @@ export const useLocationInstanceConnectionState = () => useState(state) as any a
 //Service
 export const LocationInstanceConnectionService = {
   provisionServer: async (locationId?: string, instanceId?: string, sceneId?: string) => {
-    console.log('provisionServer', locationId, instanceId, sceneId)
+    logger.info({ locationId, instanceId, sceneId }, 'provisionServer')
     const dispatch = useDispatch()
     dispatch(LocationInstanceConnectionAction.serverProvisioning())
     const token = accessAuthState().authUser.accessToken.value
@@ -120,7 +121,7 @@ export const LocationInstanceConnectionService = {
     const dispatch = useDispatch()
     dispatch(LocationInstanceConnectionAction.connecting())
     const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
-    console.log('connectToServer', !!transport.socket, transport)
+    logger.info({ socket: !!transport.socket, transport }, 'connectToServer')
     if (transport.socket) {
       await leave(transport, false)
     }
@@ -138,7 +139,7 @@ export const LocationInstanceConnectionService = {
       const user = authState.user.value
       dispatchAction(Engine.instance.store, EngineActions.connect({ id: user.id! }))
     } catch (error) {
-      console.error('Network transport could not initialize, transport is: ', transport)
+      logger.error(error, 'Network transport could not initialize, transport is: ' + transport)
     }
   }
 }
