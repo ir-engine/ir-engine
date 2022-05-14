@@ -3,9 +3,10 @@ import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/
 import { io as ioclient, Socket } from 'socket.io-client'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { RingBuffer } from '@xrengine/engine/src/common/classes/RingBuffer'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Network, TransportType, TransportTypes } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkTransportHandler, TransportType, TransportTypes } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkTransport } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
@@ -27,11 +28,11 @@ const promisedRequest = (socket: Socket) => {
 }
 
 export const createNetworkTransports = () => {
-  Network.instance.transportHandler.transports.set(
+  NetworkTransportHandler.instance.transports.set(
     'world' as UserId,
     new SocketWebRTCClientTransport(TransportTypes.world)
   )
-  Network.instance.transportHandler.transports.set(
+  NetworkTransportHandler.instance.transports.set(
     'media' as UserId,
     new SocketWebRTCClientTransport(TransportTypes.media)
   )
@@ -87,6 +88,14 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   sendTransport: MediaSoupTransport
   socket: Socket = null!
   request: ReturnType<typeof promisedRequest>
+
+  dataProducers = new Map<string, any>()
+  dataConsumers = new Map<string, any>()
+
+  incomingMessageQueueUnreliableIDs: RingBuffer<string> = new RingBuffer<string>(100)
+  incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)
+  mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
+
   dataProducer: DataProducer
   heartbeat: NodeJS.Timer // is there an equivalent browser type for this?
 

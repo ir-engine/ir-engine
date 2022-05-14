@@ -12,7 +12,7 @@ import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { isClient } from '../../common/functions/isClient'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { InputValue } from '../../input/interfaces/InputValue'
-import { Network } from '../../networking/classes/Network'
+import { NetworkTransportHandler } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { WorldState } from '../../networking/interfaces/WorldState'
@@ -57,9 +57,6 @@ export class World {
     this.scene.layers.set(ObjectLayers.Scene)
 
     registerState(this.store, WorldState)
-
-    // @todo support multiple networks per world
-    Network.instance = new Network()
   }
 
   static [CreateWorld] = () => new World()
@@ -282,7 +279,9 @@ export class World {
   execute(frameTime: number) {
     const start = nowMilliseconds()
     const incomingActions = [...this.store.actions.incoming]
-    const incomingBufferLength = Network.instance?.incomingMessageQueueUnreliable.getBufferLength()
+    const incomingBufferLength = NetworkTransportHandler.instance
+      .getTransport('world')
+      ?.incomingMessageQueueUnreliable.getBufferLength()
 
     const worldElapsedSeconds = (frameTime - this.startTime) / 1000
     this.deltaSeconds = Math.max(0, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))

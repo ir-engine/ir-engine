@@ -17,7 +17,7 @@ import {
   initializeRealtimeSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkTransportHandler } from '@xrengine/engine/src/networking/classes/Network'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
@@ -209,7 +209,7 @@ const handleInstance = async (
 const loadEngine = async (app: Application, sceneId: string) => {
   if (app.isChannelInstance) {
     const userId = 'media' as UserId
-    Network.instance.transportHandler.transports.set(userId, app.transport)
+    NetworkTransportHandler.instance.transports.set(userId, app.transport)
     Engine.instance.publicPath = config.client.url
     Engine.instance.userId = userId
     const world = Engine.instance.currentWorld
@@ -227,7 +227,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     dispatchAction(Engine.instance.store, EngineActions.sceneLoaded())
     dispatchAction(Engine.instance.store, EngineActions.joinedWorld())
   } else {
-    Network.instance.transportHandler.transports.set('world' as UserId, app.transport)
+    NetworkTransportHandler.instance.transports.set('world' as UserId, app.transport)
     await loadScene(app, sceneId)
   }
 }

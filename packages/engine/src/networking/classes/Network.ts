@@ -42,9 +42,25 @@ export interface NetworkTransport {
    * Closes all the media soup transports
    */
   close(instance?: boolean, channel?: boolean): void
+
+  /** List of data producer nodes. */
+  dataProducers: Map<string, any>
+
+  /** List of data consumer nodes. */
+  dataConsumers: Map<string, any>
+
+  /** Buffer holding all incoming Messages. */
+  incomingMessageQueueUnreliableIDs: RingBuffer<string>
+
+  /** Buffer holding all incoming Messages. */
+  incomingMessageQueueUnreliable: RingBuffer<any>
+
+  /** Buffer holding Mediasoup operations */
+  mediasoupOperationQueue: RingBuffer<any>
 }
 
 export class NetworkTransportHandler<T extends NetworkTransport> {
+  static instance: NetworkTransportHandler<NetworkTransport> = new NetworkTransportHandler()
   transports = new Map<UserId, T>()
   /**
    * @todo: getTransport(transport: UserId) {
@@ -54,29 +70,4 @@ export class NetworkTransportHandler<T extends NetworkTransport> {
   }
 }
 
-/** Component Class for Network. */
-export class Network {
-  /** Static instance to access everywhere. */
-  static instance: Network
-  /** Object holding transport details over network. */
-  transportHandler: NetworkTransportHandler<NetworkTransport> = new NetworkTransportHandler()
-  /** Transport connection promises */
-  transportsConnectPending = [] as Promise<any>[]
-  /** Network transports. */
-  transports = [] as any[]
-  /** List of data producer nodes. */
-  dataProducers = new Map<string, any>()
-  /** List of data consumer nodes. */
-  dataConsumers = new Map<string, any>()
-
-  /** Buffer holding all incoming Messages. */
-  incomingMessageQueueUnreliableIDs: RingBuffer<string> = new RingBuffer<string>(100)
-
-  /** Buffer holding all incoming Messages. */
-  incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)
-
-  /** Buffer holding Mediasoup operations */
-  mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
-}
-
-globalThis.Network = Network
+globalThis.NetworkTransportHandler = NetworkTransportHandler

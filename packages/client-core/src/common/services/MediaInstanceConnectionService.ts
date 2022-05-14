@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkTransportHandler } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -139,7 +139,7 @@ export const MediaInstanceConnectionService = {
     const currentLocation = locationState.currentLocation.location
     const sceneId = currentLocation?.sceneId?.value
 
-    const transport = Network.instance.transportHandler.getTransport('media') as SocketWebRTCClientTransport
+    const transport = NetworkTransportHandler.instance.getTransport('media') as SocketWebRTCClientTransport
     if (transport.socket) {
       await endVideoChat(transport, { endConsumers: true })
       await leave(transport, false)

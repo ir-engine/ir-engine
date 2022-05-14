@@ -38,29 +38,4 @@ export async function validateNetworkObjects(world: World): Promise<void> {
       console.log('Removed transports for', userId)
     }
   }
-  /*
-  Object.keys(Network.instance.networkObjects).forEach((key: string) => {
-    const networkObject = Network.instance.networkObjects[key]
-    // Validate that the object has an associated user and doesn't belong to a non-existant user
-    if (
-      !hasComponent(networkObject.entity, AvatarComponent) ||
-      (networkObject.uniqueId !== undefined && world.clients.get(networkObject.uniqueId) !== undefined)
-    )
-      return
-
-    console.log('Culling ownerless object: ', key, 'owned by ', networkObject.uniqueId)
-
-    // If it does, tell clients to destroy it
-    dispatchFromServer(NetworkWorldAction.destroyObject(Number(key)))
-
-    // get network object
-    const entity = networkObject.entity
-
-    // Remove the entity and all of it's components
-    removeEntity(entity)
-
-    // Remove network object from list
-    delete Network.instance.networkObjects[key]
-    logger.info(key, ' removed from simulation')
-  })*/
 }
