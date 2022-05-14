@@ -25,7 +25,7 @@ import { addError, removeError } from '../ErrorFunctions'
 
 type VolumetricObject3D = UpdateableObject3D & {
   userData: {
-    player: typeof import('volumetric/player').default.prototype
+    player: typeof import('@xrfoundation/volumetric/player').default.prototype
     isEffect: boolean
     time: number
   }
@@ -35,10 +35,10 @@ type VolumetricObject3D = UpdateableObject3D & {
   callbacks()
 }
 
-let DracosisPlayer = null! as typeof import('volumetric/player').default
+let DracosisPlayer = null! as typeof import('@xrfoundation/volumetric/player').default
 
 if (isClient) {
-  Promise.all([import('volumetric/player')]).then(([module1]) => {
+  Promise.all([import('@xrfoundation/volumetric/player')]).then(([module1]) => {
     DracosisPlayer = module1.default
   })
 }
