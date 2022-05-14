@@ -4,7 +4,7 @@ import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene, 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createHyperStore } from '@xrengine/hyperflux'
+import { createHyperStore, registerState } from '@xrengine/hyperflux'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -15,6 +15,7 @@ import { InputValue } from '../../input/interfaces/InputValue'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkClient } from '../../networking/interfaces/NetworkClient'
+import { WorldState } from '../../networking/interfaces/WorldState'
 import { Physics } from '../../physics/classes/Physics'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -54,6 +55,8 @@ export class World {
 
     initializeEntityTree(this)
     this.scene.layers.set(ObjectLayers.Scene)
+
+    registerState(this.store, WorldState)
 
     // @todo support multiple networks per world
     Network.instance = new Network()

@@ -36,7 +36,6 @@ export const createEngine = () => {
   EngineRenderer.instance = new EngineRenderer()
   if (isClient) EngineRenderer.instance.initialize()
   registerState(Engine.instance.store, EngineState)
-  registerState(Engine.instance.currentWorld.store, WorldState)
   addActionReceptor(Engine.instance.store, EngineEventReceptor)
 }
 
