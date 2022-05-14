@@ -414,8 +414,6 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
   const togglePiP = () => setPiP(!isPiP)
 
-  console.log('-------', isPiP)
-
   const isSelfUser = peerId === 'me_cam' || peerId === 'me_screen'
 
   return (
