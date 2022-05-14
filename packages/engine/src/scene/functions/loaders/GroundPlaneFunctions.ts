@@ -80,10 +80,10 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity, prope
       if (!navigationRaycastTarget) navigationRaycastTarget = new Group()
 
       navigationRaycastTarget.scale.setScalar(getComponent(entity, TransformComponent).scale.x)
-      Engine.instance.scene.add(navigationRaycastTarget)
+      Engine.instance.currentWorld.scene.add(navigationRaycastTarget)
       addComponent(entity, NavMeshComponent, { navTarget: navigationRaycastTarget })
     } else {
-      Engine.instance.scene.remove(navigationRaycastTarget)
+      Engine.instance.currentWorld.scene.remove(navigationRaycastTarget)
       removeComponent(entity, NavMeshComponent)
     }
   }

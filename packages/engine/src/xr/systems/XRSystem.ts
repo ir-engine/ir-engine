@@ -101,10 +101,10 @@ export default async function XRSystem(world: World) {
           const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness]
           source.gamepad?.buttons.forEach((button, index) => {
             // TODO : support button.touched and button.value
-            const prev = Engine.instance.prevInputState.get(mapping.buttons[index])
+            const prev = Engine.instance.currentWorld.prevInputState.get(mapping.buttons[index])
             if (!prev && button.pressed == false) return
             const continued = prev?.value && button.pressed
-            Engine.instance.inputState.set(mapping.buttons[index], {
+            Engine.instance.currentWorld.inputState.set(mapping.buttons[index], {
               type: InputType.BUTTON,
               value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
               lifecycleState: button.pressed
@@ -124,7 +124,7 @@ export default async function XRSystem(world: World) {
           if (Math.abs(inputData[1]) < 0.05) {
             inputData[1] = 0
           }
-          Engine.instance.inputState.set(mapping.axes, {
+          Engine.instance.currentWorld.inputState.set(mapping.axes, {
             type: InputType.TWODIM,
             value: inputData,
             lifecycleState: LifecycleValue.Started
@@ -142,8 +142,8 @@ export default async function XRSystem(world: World) {
     for (const entity of localXRControllerQuery()) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       const head = xrInputSourceComponent.head
-      head.quaternion.copy(Engine.instance.camera.quaternion)
-      head.position.copy(Engine.instance.camera.position)
+      head.quaternion.copy(Engine.instance.currentWorld.camera.quaternion)
+      head.position.copy(Engine.instance.currentWorld.camera.position)
     }
   }
 }

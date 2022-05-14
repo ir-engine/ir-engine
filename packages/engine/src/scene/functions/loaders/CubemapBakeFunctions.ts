@@ -96,7 +96,7 @@ export const serializeCubemapBake: ComponentSerializeFunction = (entity) => {
 }
 
 export const prepareSceneForBake = (world = useWorld()): Scene => {
-  const scene = Engine.instance.scene.clone(false)
+  const scene = Engine.instance.currentWorld.scene.clone(false)
   const parents = {
     [world.entityTree.rootNode.entity]: scene
   } as { [key: Entity]: Object3D }

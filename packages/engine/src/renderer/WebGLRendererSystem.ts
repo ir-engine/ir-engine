@@ -170,7 +170,7 @@ export class EngineRenderer {
   execute(delta: number): void {
     if (this.xrManager.isPresenting) {
       this.csm?.update()
-      this.renderer.render(Engine.instance.scene, Engine.instance.camera)
+      this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
     } else {
       const state = accessEngineRendererState()
       const engineState = getEngineState()
@@ -185,8 +185,8 @@ export class EngineRenderer {
           const width = window.innerWidth
           const height = window.innerHeight
 
-          if ((Engine.instance.camera as PerspectiveCamera).isPerspectiveCamera) {
-            const cam = Engine.instance.camera as PerspectiveCamera
+          if ((Engine.instance.currentWorld.camera as PerspectiveCamera).isPerspectiveCamera) {
+            const cam = Engine.instance.currentWorld.camera as PerspectiveCamera
             cam.aspect = width / height
             cam.updateProjectionMatrix()
           }
@@ -202,7 +202,7 @@ export class EngineRenderer {
           this.effectComposer.render(delta)
         } else {
           this.renderer.autoClear = true
-          this.renderer.render(Engine.instance.scene, Engine.instance.camera)
+          this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
         }
       }
     }

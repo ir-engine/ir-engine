@@ -27,14 +27,14 @@ export const renderAvatarContextMenu = (world: World, userId: UserId, contextMen
   const { avatarHeight } = getComponent(userEntity, AvatarComponent)
 
   contextMenuXRUI.container.scale.setScalar(
-    Math.max(1, Engine.instance.camera.position.distanceTo(userTransform.position) / 3)
+    Math.max(1, Engine.instance.currentWorld.camera.position.distanceTo(userTransform.position) / 3)
   )
   contextMenuXRUI.container.position.copy(userTransform.position)
   contextMenuXRUI.container.position.y += avatarHeight - 0.3
   contextMenuXRUI.container.position.x += 0.1
   contextMenuXRUI.container.position.z +=
-    contextMenuXRUI.container.position.z > Engine.instance.camera.position.z ? -0.4 : 0.4
-  contextMenuXRUI.container.rotation.setFromRotationMatrix(Engine.instance.camera.matrix)
+    contextMenuXRUI.container.position.z > Engine.instance.currentWorld.camera.position.z ? -0.4 : 0.4
+  contextMenuXRUI.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
 }
 
 export default async function AvatarUISystem(world: World) {
@@ -60,11 +60,11 @@ export default async function AvatarUISystem(world: World) {
       const xrui = getComponent(ui.entity, XRUIComponent)
       if (!xrui) continue
       xrui.container.scale.setScalar(
-        Math.max(1, Engine.instance.camera.position.distanceTo(userTransform.position) / 3)
+        Math.max(1, Engine.instance.currentWorld.camera.position.distanceTo(userTransform.position) / 3)
       )
       xrui.container.position.copy(userTransform.position)
       xrui.container.position.y += avatarHeight + 0.3
-      xrui.container.rotation.setFromRotationMatrix(Engine.instance.camera.matrix)
+      xrui.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
     }
 
     for (const userEntity of userQuery.exit()) {
