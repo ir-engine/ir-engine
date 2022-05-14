@@ -284,7 +284,6 @@ export class World {
     const worldElapsedSeconds = (frameTime - this.startTime) / 1000
     this.deltaSeconds = Math.max(0, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
     this.elapsedSeconds = worldElapsedSeconds
-    console.log(worldElapsedSeconds)
 
     for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.execute()
     for (const system of this.pipelines[SystemUpdateType.PRE_RENDER]) system.execute()
