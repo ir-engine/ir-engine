@@ -1,22 +1,27 @@
 import * as bitecs from 'bitecs'
+import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene, XRFrame } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createHyperStore } from '@xrengine/hyperflux'
+import { createHyperStore, registerState } from '@xrengine/hyperflux'
 
+import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { isClient } from '../../common/functions/isClient'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { InputValue } from '../../input/interfaces/InputValue'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkClient } from '../../networking/interfaces/NetworkClient'
+import { WorldState } from '../../networking/interfaces/WorldState'
 import { Physics } from '../../physics/classes/Physics'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import {
   addComponent,
   defineQuery,
@@ -33,7 +38,7 @@ import { Entity } from './Entity'
 import EntityTree from './EntityTree'
 
 const TimerConfig = {
-  MAX_DELTA: 1 / 10
+  MAX_DELTA_SECONDS: 1 / 10
 }
 
 export const CreateWorld = Symbol('CreateWorld')
@@ -49,8 +54,11 @@ export class World {
     if (this.localClientEntity) addComponent(this.localClientEntity, PersistTagComponent, {}, this)
 
     initializeEntityTree(this)
+    this.scene.layers.set(ObjectLayers.Scene)
 
-    // @TODO support multiple networks per world
+    registerState(this.store, WorldState)
+
+    // @todo support multiple networks per world
     Network.instance = new Network()
   }
 
@@ -72,23 +80,32 @@ export class World {
   worldMetadata = {} as { [key: string]: string }
 
   /**
-   * The current delta time in seconds
+   * The time origin for this world, relative to performance.timeOrigin
    */
-  delta = 0
+  startTime = nowMilliseconds()
+
   /**
-   * The current elapsed time in seconds
+   * The seconds since the last world execution
    */
-  elapsedTime = 0
+  deltaSeconds = 0
+
   /**
-   * The current fixed delta in seconds (generally 1/60)
+   * The elapsed seconds since `startTime`
    */
-  fixedDelta = 0
+  elapsedSeconds = 0
+
   /**
-   * The current fixed time in seconds
+   * The seconds since the last fixed pipeline execution, in fixed time steps (generally 1/60)
    */
-  fixedElapsedTime = 0
+  fixedDeltaSeconds = 0
+
   /**
-   * The current fixed tick (fixedElapsedTime / fixedDelta)
+   * The elapsed seconds since `startTime`, in fixed time steps.
+   */
+  fixedElapsedSeconds = 0
+
+  /**
+   * The current fixed tick (fixedElapsedSeconds / fixedDeltaSeconds)
    */
   fixedTick = 0
 
@@ -102,7 +119,34 @@ export class World {
     defaultDispatchDelay: 1
   })
 
+  /**
+   * Reference to the three.js scene object.
+   */
+  scene = new Scene()
+
   physics = new Physics()
+
+  /**
+   * Map of object lists by layer
+   * (automatically updated by the SceneObjectSystem)
+   */
+  objectLayerList = {} as { [layer: number]: Set<Object3D> }
+
+  /**
+   * Reference to the three.js perspective camera object.
+   */
+  camera: PerspectiveCamera | OrthographicCamera = null!
+  activeCameraEntity: Entity = null!
+  activeCameraFollowTarget: Entity | null = null
+
+  /**
+   * Reference to the audioListener.
+   * This is a virtual listner for all positional and non-positional audio.
+   */
+  audioListener: AudioListener = null!
+
+  inputState = new Map<any, InputValue>()
+  prevInputState = new Map<any, InputValue>()
 
   #entityQuery = bitecs.defineQuery([bitecs.Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery(this) as Entity[]
@@ -228,19 +272,21 @@ export class World {
     return this.store.receptors
   }
 
+  LOD_DISTANCES = DEFAULT_LOD_DISTANCES
+
   /**
    * Execute systems on this world
    *
-   * @param delta in seconds
-   * @param elapsedTime in seconds
+   * @param frameTime the current frame time in milliseconds (DOMHighResTimeStamp) relative to performance.timeOrigin
    */
-  execute(delta: number) {
+  execute(frameTime: number) {
     const start = nowMilliseconds()
     const incomingActions = [...this.store.actions.incoming]
     const incomingBufferLength = Network.instance?.incomingMessageQueueUnreliable.getBufferLength()
 
-    this.delta = Math.min(TimerConfig.MAX_DELTA, delta)
-    this.elapsedTime += delta
+    const worldElapsedSeconds = (frameTime - this.startTime) / 1000
+    this.deltaSeconds = Math.max(0, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
+    this.elapsedSeconds = worldElapsedSeconds
 
     for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.execute()
     for (const system of this.pipelines[SystemUpdateType.PRE_RENDER]) system.execute()
@@ -252,7 +298,7 @@ export class World {
     const duration = end - start
     if (duration > 50) {
       console.warn(
-        `Long frame execution detected. Delta: ${delta} \n Duration: ${duration}. \n Incoming Buffer Length: ${incomingBufferLength} \n Incoming actions: `,
+        `Long frame execution detected. Duration: ${duration}. \n Incoming Buffer Length: ${incomingBufferLength} \n Incoming actions: `,
         incomingActions
       )
     }

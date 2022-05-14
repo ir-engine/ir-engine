@@ -69,7 +69,7 @@ export default async function AutopilotSystem(world: World) {
 
   const vec3 = new Vector3()
   function getCameraDirection() {
-    Engine.instance.camera.getWorldDirection(vec3)
+    Engine.instance.currentWorld.camera.getWorldDirection(vec3)
 
     vec3.setY(0).normalize()
     quat.setFromUnitVectors(forward, vec3)
@@ -80,7 +80,7 @@ export default async function AutopilotSystem(world: World) {
     for (const entity of navClickQuery.enter()) {
       const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
       const overrideComponent = getComponent(entity, AutoPilotOverrideComponent)
-      raycaster.setFromCamera(coords, Engine.instance.camera)
+      raycaster.setFromCamera(coords, Engine.instance.currentWorld.camera)
 
       const raycasterResults: Intersection[] = []
       let _entity = -1 as Entity
@@ -179,7 +179,7 @@ export default async function AutopilotSystem(world: World) {
         if (targetFlatDistance < ARRIVED_DISTANCE) {
           if (autopilot.path.finished()) {
             // Path is finished!
-            Engine.instance.inputState.set(GAMEPAD_STICK, {
+            Engine.instance.currentWorld.inputState.set(GAMEPAD_STICK, {
               type: InputType.TWODIM,
               value: [0, 0, 0],
               lifecycleState: LifecycleValue.Changed
@@ -203,10 +203,10 @@ export default async function AutopilotSystem(world: World) {
 
           const stickPosition: NumericalType = [stickValue.z, stickValue.x, targetAngle]
           // If position not set, set it with lifecycle started
-          Engine.instance.inputState.set(GAMEPAD_STICK, {
+          Engine.instance.currentWorld.inputState.set(GAMEPAD_STICK, {
             type: InputType.TWODIM,
             value: stickPosition,
-            lifecycleState: Engine.instance.inputState.has(GAMEPAD_STICK)
+            lifecycleState: Engine.instance.currentWorld.inputState.has(GAMEPAD_STICK)
               ? LifecycleValue.Started
               : LifecycleValue.Changed
           })
@@ -218,7 +218,7 @@ export default async function AutopilotSystem(world: World) {
 
     if (autopilotQuery.exit(world).length) {
       // send one relaxed gamepad state to stop movement
-      Engine.instance.inputState.set(GAMEPAD_STICK, {
+      Engine.instance.currentWorld.inputState.set(GAMEPAD_STICK, {
         type: InputType.TWODIM,
         value: [0, 0],
         lifecycleState: LifecycleValue.Changed

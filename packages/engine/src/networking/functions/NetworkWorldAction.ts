@@ -29,16 +29,6 @@ export class NetworkWorldAction {
     $to: 'others'
   })
 
-  static timeSync = defineAction({
-    store: 'WORLD',
-    type: 'network.TIME_SYNC',
-    elapsedTime: matchesWithDefault(matches.number, () => Engine.instance.currentWorld.elapsedTime),
-    clockTime: matchesWithDefault(matches.number, () => Date.now()),
-    $time: -1,
-    $from: matchesHost,
-    $to: 'others'
-  })
-
   static setXRMode = defineAction({
     store: 'WORLD',
     type: 'network.SET_XR_MODE',

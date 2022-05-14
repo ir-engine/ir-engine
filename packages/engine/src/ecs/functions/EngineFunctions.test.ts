@@ -29,7 +29,8 @@ describe('EngineFunctions', () => {
       const objectEntities = object3dQuery(world)
 
       // add obejcts to scene
-      for (const entity of objectEntities) Engine.instance.scene.add(getComponent(entity, Object3DComponent).value)
+      for (const entity of objectEntities)
+        Engine.instance.currentWorld.scene.add(getComponent(entity, Object3DComponent).value)
 
       assert.equal(objectEntities.length, 5)
 
@@ -61,7 +62,8 @@ describe('EngineFunctions', () => {
       const objectEntities = getEntities(world)
 
       // add obejcts to scene
-      for (const entity of objectEntities) Engine.instance.scene.add(getComponent(entity, Object3DComponent).value)
+      for (const entity of objectEntities)
+        Engine.instance.currentWorld.scene.add(getComponent(entity, Object3DComponent).value)
 
       assert.equal(objectEntities.length, 5)
 

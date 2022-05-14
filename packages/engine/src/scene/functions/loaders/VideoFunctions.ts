@@ -144,7 +144,9 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
           mesh.material.map.image.width = mesh.material.map.image.videoWidth
           if (getComponent(entity, ImageComponent)?.projection === ImageProjection.Flat) resizeImageMesh(mesh)
 
-          const audioSource = Engine.instance.audioListener.context.createMediaElementSource(obj3d.userData.videoEl)
+          const audioSource = Engine.instance.currentWorld.audioListener.context.createMediaElementSource(
+            obj3d.userData.videoEl
+          )
           obj3d.userData.audioEl.setNodeSource(audioSource)
 
           updateAutoStartTimeForMedia(entity)

@@ -15,36 +15,36 @@ import { InputAlias } from '../types/InputAlias'
 
 export const processEngineInputState = () => {
   // for continuous input, figure out if the current data and previous data is the same
-  Engine.instance.inputState.forEach((value: InputValue, key: InputAlias) => {
-    if (Engine.instance.prevInputState.has(key)) {
+  Engine.instance.currentWorld.inputState.forEach((value: InputValue, key: InputAlias) => {
+    if (Engine.instance.currentWorld.prevInputState.has(key)) {
       if (value.type === InputType.BUTTON) {
         if (
           value.lifecycleState === LifecycleValue.Started &&
-          Engine.instance.prevInputState.get(key)?.lifecycleState === LifecycleValue.Started
+          Engine.instance.currentWorld.prevInputState.get(key)?.lifecycleState === LifecycleValue.Started
         ) {
           value.lifecycleState = LifecycleValue.Continued
         }
       } else {
         if (value.lifecycleState !== LifecycleValue.Ended) {
           value.lifecycleState =
-            JSON.stringify(value.value) === JSON.stringify(Engine.instance.prevInputState.get(key)?.value)
+            JSON.stringify(value.value) === JSON.stringify(Engine.instance.currentWorld.prevInputState.get(key)?.value)
               ? LifecycleValue.Unchanged
               : LifecycleValue.Changed
         }
       }
 
       if (
-        Engine.instance.prevInputState.get(key)?.lifecycleState === LifecycleValue.Ended &&
+        Engine.instance.currentWorld.prevInputState.get(key)?.lifecycleState === LifecycleValue.Ended &&
         value.lifecycleState === LifecycleValue.Ended
       ) {
-        Engine.instance.inputState.delete(key)
+        Engine.instance.currentWorld.inputState.delete(key)
       }
     }
   })
 
-  Engine.instance.prevInputState.clear()
-  Engine.instance.inputState.forEach((value: InputValue, key: InputAlias) => {
-    Engine.instance.prevInputState.set(key, value)
+  Engine.instance.currentWorld.prevInputState.clear()
+  Engine.instance.currentWorld.inputState.forEach((value: InputValue, key: InputAlias) => {
+    Engine.instance.currentWorld.prevInputState.set(key, value)
   })
 }
 
@@ -55,7 +55,7 @@ export const processCombinationLifecycle = (
   input: InputAlias[]
 ) => {
   const prev = prevData.get(mapping)
-  const isActive = input.map((c) => Engine.instance.inputState.has(c)).filter((a) => !a).length === 0
+  const isActive = input.map((c) => Engine.instance.currentWorld.inputState.has(c)).filter((a) => !a).length === 0
   const wasActive = prev?.lifecycleState === LifecycleValue.Started || prev?.lifecycleState === LifecycleValue.Continued
 
   if (isActive) {
@@ -105,8 +105,8 @@ export const processInputComponentData = (entity: Entity) => {
     if (typeof input === 'object') {
       processCombinationLifecycle(inputComponent, prevData, mapping, input)
     } else {
-      if (Engine.instance.inputState.has(input))
-        inputComponent.data.set(mapping, JSON.parse(JSON.stringify(Engine.instance.inputState.get(input))))
+      if (Engine.instance.currentWorld.inputState.has(input))
+        inputComponent.data.set(mapping, JSON.parse(JSON.stringify(Engine.instance.currentWorld.inputState.get(input))))
     }
   }
 

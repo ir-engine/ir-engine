@@ -1,0 +1,34 @@
+ipfsImage:
+  repo: ipfs/go-ipfs
+  tag: master-latest
+
+ipfsClusterImage:
+  repo: ipfs/ipfs-cluster
+  tag: latest
+
+# secret guides:
+# https://cluster.ipfs.io/documentation/guides/k8s/
+
+# od  -vN 32 -An -tx1 /dev/urandom | tr -d ' \n'
+clusterSecret: <IPFS_CLUSTER_SECRET>
+
+# go get https://github.com/whyrusleeping/ipfs-key OR https://github.com/libp2p/js-peer-id
+# ipfs-key --type Ed25519 | base64
+bootstrapPeerId: <IPFS_BOOTSTRAP_PEER_ID>
+bootstrapPeerPrivateKey: <IPFS_BOOTSTRAP_PEER_PRIVATE_KEY>
+
+clusterRestApiId: <IPFS_CLUSTER_REST_ID>
+clusterRestApiPrivateKey: <IPFS_CLUSTER_REST_PRIVATE_KEY>
+clusterRestApiBasicAuth: "w3f:password"
+
+clusterCRDTtrustedPeers: "<IPFS_BOOTSTRAP_PEER_ID>,<IPFS_BOOTSTRAP_PEER_ID>"
+
+replicaCount: 1
+
+domain: ipfs.local.io
+httpDomain: ipfs-gateway.local.io
+
+persistence:
+  enabled: false
+  clusterStorage: 5Gi
+  ipfsStorage: 200Gi

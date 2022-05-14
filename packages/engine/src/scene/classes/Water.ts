@@ -1,32 +1,11 @@
-import {
-  Color,
-  CubeTexture,
-  CubeTextureLoader,
-  Mesh,
-  PlaneBufferGeometry,
-  ShaderMaterial,
-  sRGBEncoding,
-  WebGLRenderTarget
-} from 'three'
+import { Color, Mesh, PlaneBufferGeometry, ShaderMaterial, sRGBEncoding, WebGLRenderTarget } from 'three'
 import { Vector3 } from 'three'
 
+import { loadCubeMapTexture } from '../constants/Util'
 import { Updatable } from '../interfaces/Updatable'
 import fragmentShader from './water/shaders/surface/fragment'
 import vertexShader from './water/shaders/surface/vertex'
 import { WaveSimulator } from './water/WaveSimulator'
-
-function loadCubeMap(path): Promise<CubeTexture> {
-  const loader = new CubeTextureLoader().setPath(path)
-  const negx = 'negx.jpg'
-  const negy = 'negy.jpg'
-  const negz = 'negz.jpg'
-  const posx = 'posx.jpg'
-  const posy = 'posy.jpg'
-  const posz = 'posz.jpg'
-  return new Promise((resolve, reject) => {
-    loader.load([posx, negx, posy, negy, posz, negz], resolve, null!, (error) => reject(error))
-  })
-}
 
 export class Water extends Mesh implements Updatable {
   waveSimulator: WaveSimulator
@@ -120,13 +99,15 @@ export class Water extends Mesh implements Updatable {
 
   set skyBox(path: string) {
     this._cubePath = path
-
-    loadCubeMap(path)
-      .then((texture) => {
+    loadCubeMapTexture(
+      path,
+      (texture) => {
         texture.encoding = sRGBEncoding
         this._material.uniforms.skybox.value = texture
-      })
-      .catch(console.error)
+      },
+      undefined,
+      console.error
+    )
   }
 
   set heightMap(value) {

@@ -165,7 +165,7 @@ export const loadSceneFromJSON = async (
   const promises = preCacheAssets(sceneData, onProgress)
 
   // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
-  if (!getEngineState().isTeleporting.value) Engine.instance.camera?.layers.disable(ObjectLayers.Scene)
+  if (!getEngineState().isTeleporting.value) Engine.instance.currentWorld.camera?.layers.disable(ObjectLayers.Scene)
 
   promises.forEach((promise) => promise.then(onComplete))
   await Promise.all(promises)
@@ -190,7 +190,7 @@ export const loadSceneFromJSON = async (
     addEntityNodeInTree(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
   })
 
-  addComponent(tree.rootNode.entity, Object3DComponent, { value: Engine.instance.scene })
+  addComponent(tree.rootNode.entity, Object3DComponent, { value: Engine.instance.currentWorld.scene })
   addComponent(tree.rootNode.entity, SceneTagComponent, {})
   getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
 
@@ -199,7 +199,7 @@ export const loadSceneFromJSON = async (
     EngineRendererAction.setPostProcessing(getComponentCountOfType(PostprocessingComponent) > 0)
   )
 
-  if (!getEngineState().isTeleporting.value) Engine.instance.camera?.layers.enable(ObjectLayers.Scene)
+  if (!getEngineState().isTeleporting.value) Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)
 
   dispatchAction(Engine.instance.store, EngineActions.sceneLoaded()) //.delay(0.1)
 }

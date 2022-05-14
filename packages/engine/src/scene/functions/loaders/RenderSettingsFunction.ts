@@ -2,7 +2,6 @@ import { DirectionalLight, Light, LinearToneMapping, Mesh, PCFSoftShadowMap, Per
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { DEFAULT_LOD_DISTANCES } from '../../../assets/constants/LoaderConstants'
 import { CSM } from '../../../assets/csm/CSM'
 import {
@@ -54,7 +53,7 @@ export const updateRenderSetting: ComponentUpdateFunction = (
   const component = getComponent(entity, RenderSettingComponent)
 
   if (typeof properties.LODs !== 'undefined' && component.LODs)
-    AssetLoader.LOD_DISTANCES = { '0': component.LODs.x, '1': component.LODs.y, '2': component.LODs.z }
+    Engine.instance.currentWorld.LOD_DISTANCES = { '0': component.LODs.x, '1': component.LODs.y, '2': component.LODs.z }
 
   if (typeof properties.overrideRendererSettings !== 'undefined') {
     if (properties.overrideRendererSettings) {
@@ -106,7 +105,7 @@ export const updateShadowMap = (enable: boolean, shadowMapType?: number) => {
     EngineRenderer.instance.renderer.shadowMap.enabled = false
   }
 
-  Engine.instance.scene.traverse((node: Light) => {
+  Engine.instance.currentWorld.scene.traverse((node: Light) => {
     if (node.isLight && node.shadow) {
       node.shadow.map?.dispose()
       node.castShadow = enable
@@ -140,8 +139,8 @@ export const initializeCSM = () => {
     })
 
     EngineRenderer.instance.csm = new CSM({
-      camera: Engine.instance.camera as PerspectiveCamera,
-      parent: Engine.instance.scene,
+      camera: Engine.instance.currentWorld.camera as PerspectiveCamera,
+      parent: Engine.instance.currentWorld.scene,
       lights
     })
 
@@ -149,7 +148,7 @@ export const initializeCSM = () => {
       activeCSMLight.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
     }
 
-    Engine.instance.scene.traverse((obj: Mesh) => {
+    Engine.instance.currentWorld.scene.traverse((obj: Mesh) => {
       if (typeof obj.material !== 'undefined' && obj.receiveShadow) EngineRenderer.instance.csm.setupMaterial(obj)
     })
   }
@@ -186,7 +185,7 @@ export const resetEngineRenderer = (resetLODs = false, resetCSM = true) => {
   EngineRenderer.instance.renderer.toneMapping = LinearToneMapping
   EngineRenderer.instance.renderer.toneMappingExposure = 0.8
 
-  if (resetLODs) AssetLoader.LOD_DISTANCES = Object.assign({}, DEFAULT_LOD_DISTANCES)
+  if (resetLODs) Engine.instance.currentWorld.LOD_DISTANCES = Object.assign({}, DEFAULT_LOD_DISTANCES)
 
   if (resetCSM) disposeCSM()
 }

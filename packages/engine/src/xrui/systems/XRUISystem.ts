@@ -143,7 +143,7 @@ export default async function XRUISystem(world: World) {
     const input = getComponent(world.localClientEntity, InputComponent)
     const screenXY = input?.data?.get(BaseInput.SCREENXY)?.value
     if (screenXY) {
-      screenRaycaster.setFromCamera({ x: screenXY[0], y: screenXY[1] }, Engine.instance.camera)
+      screenRaycaster.setFromCamera({ x: screenXY[0], y: screenXY[1] }, Engine.instance.currentWorld.camera)
     } else {
       screenRaycaster.ray.origin.set(Infinity, Infinity, Infinity)
       screenRaycaster.ray.direction.set(0, -1, 0)
@@ -173,7 +173,7 @@ export default async function XRUISystem(world: World) {
       xrui.container.update()
     }
 
-    // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.instance.camera.projectionMatrix)
+    // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.instance.currentWorld.camera.projectionMatrix)
     // EngineRenderer.instance.renderer.getSize(xrui.layoutSystem.viewResolution)
     // xrui.layoutSystem.update(world.delta, world.elapsedTime)
   }

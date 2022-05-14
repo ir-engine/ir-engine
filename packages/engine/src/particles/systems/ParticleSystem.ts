@@ -6,7 +6,7 @@ export default async function ParticleSystem(world: World) {
   const emitterQuery = defineQuery([ParticleEmitterComponent])
 
   return () => {
-    const { delta } = world
+    const { deltaSeconds: delta } = world
     for (const entity of emitterQuery(world)) {
       const emitter = getComponent(entity, ParticleEmitterComponent)
       emitter.update(delta)

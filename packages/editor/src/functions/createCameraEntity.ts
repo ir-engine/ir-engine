@@ -10,7 +10,7 @@ import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 
 export const createCameraEntity = (): Entity => {
   const entity = createEntity()
-  addComponent(entity, Object3DComponent, { value: Engine.instance.camera })
+  addComponent(entity, Object3DComponent, { value: Engine.instance.currentWorld.camera })
   addComponent(entity, EditorCameraComponent, {
     center: new Vector3(),
     zoomDelta: 0,
