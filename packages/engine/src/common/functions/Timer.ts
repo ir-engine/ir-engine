@@ -4,16 +4,15 @@ import { isClient } from './isClient'
 import { nowMilliseconds } from './nowMilliseconds'
 import { ServerLoop } from './ServerLoop'
 
-type TimerUpdateCallback = (delta: number, elapsedTime: number) => any
+/**
+ * @param elapsedTime The elapsed time in seconds
+ */
+type TimerUpdateCallback = (elapsedTime: number) => any
 
 const TPS_REPORTS_ENABLED = false
 const TPS_REPORT_INTERVAL_MS = 10000
 
 export function Timer(update: TimerUpdateCallback) {
-  let startTime = 0
-  let lastTime = 0
-  let elapsedTime = 0
-  let delta = 0
   let debugTick = 0
 
   const newEngineTicks = {
@@ -46,14 +45,9 @@ export function Timer(update: TimerUpdateCallback) {
 
     Engine.instance.xrFrame = xrFrame
 
-    delta = (time - lastTime) / 1000
-    elapsedTime = (time - startTime) / 1000
-
     tpsSubMeasureStart('update')
-    update(delta, elapsedTime)
+    update(time)
     tpsSubMeasureEnd('update')
-
-    lastTime = time
   }
 
   const tpsMeasureStartData = new Map<string, { time: number; ticks: number }>()
@@ -133,15 +127,11 @@ export function Timer(update: TimerUpdateCallback) {
   }
 
   function start() {
-    startTime = nowMilliseconds()
-    elapsedTime = 0
-    lastTime = startTime
     if (isClient) {
       EngineRenderer.instance.renderer.setAnimationLoop(onFrame)
     } else {
       const _update = () => {
-        const time = nowMilliseconds()
-        onFrame(time, null)
+        onFrame(nowMilliseconds(), null)
       }
       serverLoop = new ServerLoop(_update, 60).start()
     }

@@ -101,11 +101,11 @@ export const initializeNode = () => {
   // node currently does not need to initialize anything
 }
 
-const executeWorlds = (delta, elapsedTime) => {
-  Engine.instance.elapsedTime = elapsedTime
+const executeWorlds = (elapsedTime) => {
+  Engine.instance.frameTime = elapsedTime
   ActionFunctions.applyIncomingActions(Engine.instance.store)
   for (const world of Engine.instance.worlds) {
-    world.execute(delta)
+    world.execute(elapsedTime)
   }
 }
 
