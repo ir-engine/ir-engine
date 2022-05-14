@@ -27,7 +27,8 @@ import {
   readRotation,
   readTransform,
   readVector3,
-  readVector4
+  readVector4,
+  readXRHands
 } from './DataReader'
 import {
   createDataWriter,
@@ -337,13 +338,7 @@ describe('DataReader', () => {
       joints = joints.concat(bone as any)
     })
 
-    // Fill a list of joints with random postion and rotation values
-    let jointPositionsArray = [] as Vector3[]
-    let jointRotationsArray = [] as Quaternion[]
-    for (let index = 0; index < joints.length; index++) {
-      jointPositionsArray[index] = new Vector3().set(Math.random(), Math.random(), Math.random())
-      jointRotationsArray[index] = new Quaternion().set(Math.random(), Math.random(), Math.random(), Math.random())
-    }
+    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
     const hands = [new Group(), new Group()]
     hands[0].userData.handedness = 'left'
@@ -356,15 +351,10 @@ describe('DataReader', () => {
       dummyXRHandMeshModel.handedness = handedness
       hand.userData.mesh = dummyXRHandMeshModel
 
-      let index = 0
-      // proxify and copy randomly generated values
+      // proxify and copy values
       joints.forEach((jointName) => {
-        const jointPos = jointPositionsArray[index]
-        createVector3Proxy(XRHandsInputComponent[handedness][jointName].position, entity).copy(jointPos)
-
-        const jointRot = jointRotationsArray[index]
-        createQuaternionProxy(XRHandsInputComponent[handedness][jointName].quaternion, entity).copy(jointRot)
-        index++
+        createVector3Proxy(XRHandsInputComponent[handedness][jointName].position, entity).set(x, y, z)
+        createQuaternionProxy(XRHandsInputComponent[handedness][jointName].quaternion, entity).set(x, y, z, w)
       })
     })
 
@@ -373,47 +363,40 @@ describe('DataReader', () => {
 
     writeXRHands(view, entity)
 
-    // transform.position.x = 0
-    // transform.position.y = 0
-    // transform.position.z = 0
-    // transform.rotation.x = 0
-    // transform.rotation.y = 0
-    // transform.rotation.z = 0
-    // transform.rotation.w = 0
+    // reset joint pos and rot to zero
+    hands.forEach((hand) => {
+      const handedness = hand.userData.handedness
 
-    // view.cursor = 0
+      joints.forEach((jointName) => {
+        XRHandsInputComponent[handedness][jointName].position.x[entity] = 0
+        XRHandsInputComponent[handedness][jointName].position.y[entity] = 0
+        XRHandsInputComponent[handedness][jointName].position.z[entity] = 0
 
-    // readTransform(view, entity)
+        XRHandsInputComponent[handedness][jointName].quaternion.x[entity] = 0
+        XRHandsInputComponent[handedness][jointName].quaternion.y[entity] = 0
+        XRHandsInputComponent[handedness][jointName].quaternion.z[entity] = 0
+        XRHandsInputComponent[handedness][jointName].quaternion.w[entity] = 0
+      })
+    })
 
-    // strictEqual(TransformComponent.position.x[entity], x)
-    // strictEqual(TransformComponent.position.y[entity], y)
-    // strictEqual(TransformComponent.position.z[entity], z)
-    // strictEqual(TransformComponent.rotation.x[entity], x)
-    // strictEqual(TransformComponent.rotation.y[entity], y)
-    // strictEqual(TransformComponent.rotation.z[entity], z)
-    // strictEqual(TransformComponent.rotation.w[entity], w)
+    view.cursor = 0
 
-    // transform.position.x = 0
-    // transform.rotation.z = 0
+    readXRHands(view, entity)
 
-    // view.cursor = 0
+    hands.forEach((hand) => {
+      const handedness = hand.userData.handedness
 
-    // writeTransform(view, entity)
+      joints.forEach((jointName) => {
+        strictEqual(XRHandsInputComponent[handedness][jointName].position.x[entity], x)
+        strictEqual(XRHandsInputComponent[handedness][jointName].position.y[entity], y)
+        strictEqual(XRHandsInputComponent[handedness][jointName].position.z[entity], z)
 
-    // transform.position.x = x
-    // transform.rotation.z = z
-
-    // view.cursor = 0
-
-    // readTransform(view, entity)
-
-    // strictEqual(TransformComponent.position.x[entity], 0)
-    // strictEqual(TransformComponent.position.y[entity], y)
-    // strictEqual(TransformComponent.position.z[entity], z)
-    // strictEqual(TransformComponent.rotation.x[entity], x)
-    // strictEqual(TransformComponent.rotation.y[entity], y)
-    // strictEqual(TransformComponent.rotation.z[entity], 0)
-    // strictEqual(TransformComponent.rotation.w[entity], w)
+        strictEqual(XRHandsInputComponent[handedness][jointName].quaternion.x[entity], x)
+        strictEqual(XRHandsInputComponent[handedness][jointName].quaternion.y[entity], y)
+        strictEqual(XRHandsInputComponent[handedness][jointName].quaternion.z[entity], z)
+        strictEqual(XRHandsInputComponent[handedness][jointName].quaternion.w[entity], w)
+      })
+    })
   })
 
   it('should readEntity', () => {
