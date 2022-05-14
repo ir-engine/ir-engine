@@ -6,10 +6,8 @@ import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
-import { Theme } from '@mui/material/styles'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
-import makeStyles from '@mui/styles/makeStyles'
 
 import { InviteService, useInviteState } from '../../../social/services/InviteService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -19,7 +17,6 @@ import styles from '../../styles/admin.module.scss'
 import InviteModal from './InviteModal'
 import ReceivedInvite from './ReceivedInvite'
 import SentInvite from './SentInvite'
-import { inviteStyles } from './styles'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -38,7 +35,11 @@ const TabPanel = (props: TabPanelProps) => {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <Box p={3}>{children}</Box>}
+      {value === index && (
+        <Box p={3} className={styles.tabpanelRoot}>
+          {children}
+        </Box>
+      )}
     </div>
   )
 }
@@ -50,7 +51,6 @@ const a11yProps = (index: number) => {
 }
 
 const InvitesConsole = () => {
-  const classes = inviteStyles()
   const [refetch, setRefetch] = React.useState(false)
   const [value, setValue] = React.useState(0)
   const [inviteModalOpen, setInviteModalOpen] = React.useState(false)
@@ -118,31 +118,29 @@ const InvitesConsole = () => {
             <Search text="invite" handleChange={handleSearchChange} />
           </Grid>
           <Grid item xs={3}>
-            <Button variant="contained" className={classes.createBtn} type="submit" onClick={openModalInvite}>
+            <Button variant="contained" className={styles.openModalBtn} type="submit" onClick={openModalInvite}>
               {t('admin:components.invite.sendInvite')}
             </Button>
           </Grid>
         </Grid>
-        <div className={classes.root}>
-          <AppBar position="static" style={{ backgroundColor: '#343b41', color: '#f1f1f1' }}>
+        <div className={styles.rootTableWithSearch}>
+          <AppBar position="static" className={styles.inviteTabAppbar}>
             <Tabs
               value={value}
               onChange={handleChange}
               aria-label="simple tabs example"
-              classes={{ indicator: classes.indicator }}
+              classes={{ root: styles.tabsRoot, indicator: styles.indicator }}
             >
               <Tab label={t('admin:components.invite.receivedInvite')} {...a11yProps(0)} />
               <Tab label={t('admin:components.invite.sendInvite')} {...a11yProps(1)} />
             </Tabs>
           </AppBar>
-          <>
-            <TabPanel value={value} index={0}>
-              <ReceivedInvite invites={[]} />
-            </TabPanel>
-            <TabPanel value={value} index={1}>
-              <SentInvite invites={invites.value} />
-            </TabPanel>
-          </>
+          <TabPanel value={value} index={0}>
+            <ReceivedInvite search={search} invites={[]} />
+          </TabPanel>
+          <TabPanel value={value} index={1}>
+            <SentInvite search={search} invites={invites.value} />
+          </TabPanel>
         </div>
       </ConfirmProvider>
       <InviteModal open={inviteModalOpen} handleClose={closeModalInvite} users={adminUsers.value} />

@@ -1160,3 +1160,24 @@
 .accentText {
   color: var(--textColor);
 }
+
+.indicator {
+  background-color: var(--textColor);
+}
+
+.inviteTabAppbar {
+  background-color: var(--navbarBackground);
+  color: var(--textColor);
+}
+
+.tabsRoot {
+  min-height: 40px;
+
+  :global(.Mui-selected) {
+    color: var(--textColor);
+  }
+}
+
+.tabpanelRoot {
+  background-color: var(--panelCards);
+}

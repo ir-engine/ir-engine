@@ -213,11 +213,11 @@ export const InviteService = {
       AlertService.dispatchAlertError(err)
     }
   },
-  removeInvite: async (invite: Invite) => {
+  removeInvite: async (inviteId: string) => {
     const dispatch = useDispatch()
 
     try {
-      await client.service('invite').remove(invite.id)
+      await client.service('invite').remove(inviteId)
       dispatch(InviteAction.removedSentInvite())
     } catch (err) {
       AlertService.dispatchAlertError(err)
