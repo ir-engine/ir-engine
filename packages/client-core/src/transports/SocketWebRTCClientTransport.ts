@@ -11,8 +11,8 @@ import {
   TransportType,
   TransportTypes
 } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkTransport } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { addActionReceptor, defineAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
