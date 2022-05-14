@@ -92,7 +92,7 @@
     "@rollup/plugin-replace": "4.0.0",
     "@types/node": "16.11.35",
     "@types/react": "17.0.45",
-    "@types/three": "0.139.0",
+    "@types/three": "0.140.0",
     "create-ts-index": "1.14.0",
     "esbuild": "0.14.39",
     "mocha": "9.2.2",
