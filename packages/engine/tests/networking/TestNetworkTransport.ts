@@ -2,7 +2,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { NetworkTransportHandler } from '../../src/networking/classes/Network'
-import { NetworkTransport } from '../../src/networking/interfaces/NetworkTransport'
+import { NetworkTransport } from '../../src/networking/classes/Network'
 
 export class TestNetworkTransport implements NetworkTransport {
   request(message: string, data?: any): Promise<any> {

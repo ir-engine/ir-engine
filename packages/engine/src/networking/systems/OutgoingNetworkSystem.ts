@@ -5,9 +5,9 @@ import { World } from '../../ecs/classes/World'
 import { defineQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network } from '../classes/Network'
+import { NetworkTransport } from '../classes/Network'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { NetworkTransport } from '../interfaces/NetworkTransport'
 import { createDataWriter } from '../serialization/DataWriter'
 
 /***********
