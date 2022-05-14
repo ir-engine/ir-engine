@@ -286,7 +286,10 @@ export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: 
     shapes.push(shape)
   })
 
-  shapeObjs.forEach((mesh) => mesh.removeFromParent())
+  shapeObjs.forEach((mesh) => {
+    mesh.parent?.removeFromParent()
+    mesh.removeFromParent()
+  })
 
   return shapes.filter((val) => {
     return !!val
