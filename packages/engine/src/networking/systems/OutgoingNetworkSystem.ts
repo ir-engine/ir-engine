@@ -1,5 +1,3 @@
-import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery } from '../../ecs/functions/ComponentFunctions'
@@ -44,7 +42,7 @@ const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
 }
 
 export default async function OutgoingNetworkSystem(world: World) {
-  const worldTransport = Network.instance.transportHandler.getWorldTransport()
+  const worldTransport = Network.instance.transportHandler.getTransport('world')
   const sendData = sendDataOnTransport(worldTransport)
 
   const serialize = createDataWriter()

@@ -3,7 +3,6 @@ import { DataProducer, Router, Transport, Worker } from 'mediasoup/node/lib/type
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { NetworkTransportHandler } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkTransport } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
@@ -12,19 +11,6 @@ import { Application } from '@xrengine/server-core/declarations'
 import { setupSubdomain } from './NetworkFunctions'
 import { setupSocketFunctions } from './SocketFunctions'
 import { startWebRTC } from './WebRTCFunctions'
-
-export class ServerTransportHandler
-  implements NetworkTransportHandler<SocketWebRTCServerTransport, SocketWebRTCServerTransport>
-{
-  mediaTransports = new Map<UserId, SocketWebRTCServerTransport>()
-  worldTransports = new Map<UserId, SocketWebRTCServerTransport>()
-  getMediaTransport(transport?: UserId) {
-    return this.mediaTransports.get('media' as UserId)!
-  }
-  getWorldTransport(transport?: UserId) {
-    return this.worldTransports.get('server' as UserId)!
-  }
-}
 
 export class SocketWebRTCServerTransport implements NetworkTransport {
   server: https.Server

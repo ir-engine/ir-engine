@@ -5,14 +5,15 @@ import { LocationInstanceConnectionAction } from '@xrengine/client-core/src/comm
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { getWorldTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { SceneAction, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppAction, GeneralStateList } from '../../common/services/AppService'
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { initClient, loadScene } from './LocationLoadHelper'
 
 export const LoadEngineWithScene = () => {
@@ -75,7 +76,7 @@ export const LoadEngineWithScene = () => {
       LocationService.getLocationByName(world.activePortal.location)
 
       // shut down connection with existing GS
-      leave(getWorldTransport())
+      leave(Network.instance.transportHandler.getTransport('world') as SocketWebRTCClientTransport)
       dispatch(LocationInstanceConnectionAction.disconnect())
 
       teleportToScene()

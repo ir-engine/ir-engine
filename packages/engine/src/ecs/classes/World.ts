@@ -67,7 +67,7 @@ export class World {
   /**
    * The UserId of the host
    */
-  hostId = 'server' as UserId
+  hostId = 'world' as UserId
 
   /**
    * Check if this user is hosting the world.

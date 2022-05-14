@@ -107,7 +107,7 @@ export const NetworkInstanceProvisioning = () => {
     )
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
       Network.instance.transportHandler
-        .getWorldTransport()
+        .getTransport('world')
         .request(MessageTypes.JoinWorld.toString(), transportRequestData)
         .then(receiveJoinWorld)
     }

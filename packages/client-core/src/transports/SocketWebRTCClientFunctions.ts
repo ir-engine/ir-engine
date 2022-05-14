@@ -23,7 +23,7 @@ import { MediaStreamAction, MediaStreamService } from '../media/services/MediaSt
 import { store, useDispatch } from '../store'
 import { accessAuthState } from '../user/services/AuthService'
 import { getSearchParamFromURL } from '../util/getSearchParamFromURL'
-import { getMediaTransport, SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
+import { SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
 
 export const getChannelTypeIdFromTransport = (networkTransport: SocketWebRTCClientTransport) => {
   const channelConnectionState = accessMediaInstanceConnectionState()
@@ -244,7 +244,6 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
     networkTransport.reconnecting = false
     await onConnectToInstance(networkTransport)
     await updateNearbyAvatars()
-    const mediaTransport = getMediaTransport()
     const request = networkTransport.request
     const socket = networkTransport.socket
     if (MediaStreams.instance.videoStream) {
@@ -254,8 +253,8 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
             producerId: MediaStreams.instance?.camVideoProducer.id
           })
         await MediaStreams.instance?.camVideoProducer?.close()
-        await configureMediaTransports(mediaTransport, ['video'])
-        await createCamVideoProducer(mediaTransport)
+        await configureMediaTransports(networkTransport, ['video'])
+        await createCamVideoProducer(networkTransport)
       }
       MediaStreamService.updateCamVideoState()
     }
@@ -266,8 +265,8 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
             producerId: MediaStreams.instance?.camAudioProducer.id
           })
         await MediaStreams.instance?.camAudioProducer?.close()
-        await configureMediaTransports(mediaTransport, ['audio'])
-        await createCamAudioProducer(mediaTransport)
+        await configureMediaTransports(networkTransport, ['audio'])
+        await createCamAudioProducer(networkTransport)
       }
       MediaStreamService.updateCamAudioState()
     }

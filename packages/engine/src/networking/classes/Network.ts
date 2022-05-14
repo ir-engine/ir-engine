@@ -44,11 +44,14 @@ export interface NetworkTransport {
   close(instance?: boolean, channel?: boolean): void
 }
 
-export interface NetworkTransportHandler<W extends NetworkTransport, M extends NetworkTransport> {
-  worldTransports: Map<UserId, W>
-  getWorldTransport(transport?: UserId): W
-  mediaTransports: Map<UserId, M>
-  getMediaTransport(transport?: UserId): M
+export class NetworkTransportHandler<T extends NetworkTransport> {
+  transports = new Map<UserId, T>()
+  /**
+   * @todo: getTransport(transport: UserId) {
+   */
+  getTransport(transport: string) {
+    return this.transports.get(transport as UserId)!
+  }
 }
 
 /** Component Class for Network. */
@@ -56,7 +59,7 @@ export class Network {
   /** Static instance to access everywhere. */
   static instance: Network
   /** Object holding transport details over network. */
-  transportHandler: NetworkTransportHandler<NetworkTransport, NetworkTransport>
+  transportHandler: NetworkTransportHandler<NetworkTransport> = new NetworkTransportHandler()
   /** Transport connection promises */
   transportsConnectPending = [] as Promise<any>[]
   /** Network transports. */

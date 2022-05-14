@@ -302,7 +302,7 @@ export async function createInternalDataConsumer(
       Network.instance.incomingMessageQueueUnreliableIDs.add(userId)
       // forward data to clients in world immediately
       // TODO: need to include the userId (or index), so consumers can validate
-      Network.instance.transportHandler.getWorldTransport().sendData(message)
+      networkTransport.sendData(message)
     })
     return consumer
   } catch (err) {
