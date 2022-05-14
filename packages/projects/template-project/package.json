@@ -9,7 +9,7 @@
   "peerDependencies": {},
   "dependencies": {},
   "devDependencies": {
-    "mocha": "9.2.2",
+    "mocha": "10.0.0",
     "trace-unhandled": "2.0.1"
   },
   "license": "ISC"
