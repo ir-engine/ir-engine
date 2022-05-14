@@ -142,7 +142,7 @@ export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
     navMesh.fromPolygons(polygons)
 
     // const helper = createConvexRegionHelper(navMesh)
-    // Engine.instance.scene.add(helper)
+    // Engine.instance.currentWorld.scene.add(helper)
 
     addComponent(entity, NavMeshComponent, {
       yukaNavMesh: navMesh,

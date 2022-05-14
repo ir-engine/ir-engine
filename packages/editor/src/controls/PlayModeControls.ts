@@ -11,7 +11,7 @@ import { ActionSets, EditorMapping, FlyMapping } from './input-mappings'
 
 export function enterPlayMode(): void {
   executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
-  Engine.instance.camera.layers.set(ObjectLayers.Scene)
+  Engine.instance.currentWorld.camera.layers.set(ObjectLayers.Scene)
 
   EngineRenderer.instance.renderer.domElement.addEventListener('click', onClickCanvas)
   document.addEventListener('pointerlockchange', onPointerLockChange)
@@ -19,7 +19,7 @@ export function enterPlayMode(): void {
 }
 
 export function leavePlayMode(): void {
-  Engine.instance.camera.layers.enableAll()
+  Engine.instance.currentWorld.camera.layers.enableAll()
 
   addInputActionMapping(ActionSets.EDITOR, EditorMapping)
 

@@ -15,7 +15,7 @@ export const setCameraProperties = (entity: Entity, data: CameraPropertiesCompon
 
   console.log(data)
   if (data.projectionType === ProjectionType.Orthographic) {
-    Engine.instance.camera = new OrthographicCamera(
+    Engine.instance.currentWorld.camera = new OrthographicCamera(
       data.fov / -2,
       data.fov / 2,
       data.fov / 2,
@@ -23,12 +23,12 @@ export const setCameraProperties = (entity: Entity, data: CameraPropertiesCompon
       data.cameraNearClip,
       data.cameraFarClip
     )
-  } else if ((Engine.instance.camera as PerspectiveCamera).fov) {
-    ;(Engine.instance.camera as PerspectiveCamera).fov = data.fov ?? 50
+  } else if ((Engine.instance.currentWorld.camera as PerspectiveCamera).fov) {
+    ;(Engine.instance.currentWorld.camera as PerspectiveCamera).fov = data.fov ?? 50
   }
 
-  Engine.instance.camera.near = data.cameraNearClip
-  Engine.instance.camera.far = data.cameraFarClip
+  Engine.instance.currentWorld.camera.near = data.cameraNearClip
+  Engine.instance.currentWorld.camera.far = data.cameraFarClip
   cameraFollow.distance = data.startCameraDistance
   cameraFollow.minDistance = data.minCameraDistance
   cameraFollow.maxDistance = data.maxCameraDistance
@@ -36,7 +36,7 @@ export const setCameraProperties = (entity: Entity, data: CameraPropertiesCompon
   cameraFollow.minPhi = data.minPhi
   cameraFollow.maxPhi = data.maxPhi
   cameraFollow.locked = !data.startInFreeLook
-  Engine.instance.camera.updateProjectionMatrix()
+  Engine.instance.currentWorld.camera.updateProjectionMatrix()
   switchCameraMode(useWorld().localClientEntity, data, true)
 
   cameraFollow.raycastProps = data.raycastProps

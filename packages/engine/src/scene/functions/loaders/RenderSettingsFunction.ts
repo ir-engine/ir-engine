@@ -105,7 +105,7 @@ export const updateShadowMap = (enable: boolean, shadowMapType?: number) => {
     EngineRenderer.instance.renderer.shadowMap.enabled = false
   }
 
-  Engine.instance.scene.traverse((node: Light) => {
+  Engine.instance.currentWorld.scene.traverse((node: Light) => {
     if (node.isLight && node.shadow) {
       node.shadow.map?.dispose()
       node.castShadow = enable
@@ -139,8 +139,8 @@ export const initializeCSM = () => {
     })
 
     EngineRenderer.instance.csm = new CSM({
-      camera: Engine.instance.camera as PerspectiveCamera,
-      parent: Engine.instance.scene,
+      camera: Engine.instance.currentWorld.camera as PerspectiveCamera,
+      parent: Engine.instance.currentWorld.scene,
       lights
     })
 
@@ -148,7 +148,7 @@ export const initializeCSM = () => {
       activeCSMLight.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
     }
 
-    Engine.instance.scene.traverse((obj: Mesh) => {
+    Engine.instance.currentWorld.scene.traverse((obj: Mesh) => {
       if (typeof obj.material !== 'undefined' && obj.receiveShadow) EngineRenderer.instance.csm.setupMaterial(obj)
     })
   }
