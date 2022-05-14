@@ -195,11 +195,11 @@ export class DissolveEffect {
       }
       if (isPhysicMaterial) {
         //@ts-ignore
-        myMaterial.envMap = Engine.instance.scene?.environment
+        myMaterial.envMap = Engine.instance.currentWorld.scene?.environment
         //@ts-ignore
         myMaterial.envMapIntensity = { value: 1 }
         myMaterial.uniforms.envMap = {
-          value: Engine.instance.scene?.environment
+          value: Engine.instance.currentWorld.scene?.environment
         }
         myMaterial.uniforms.envMapIntensity = { value: 1 }
       }

@@ -30,7 +30,7 @@ export const HelperToggleTool = () => {
   }
 
   const toggleNodeHelpers = () => {
-    Engine.instance.camera.layers.toggle(ObjectLayers.NodeHelper)
+    Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.NodeHelper)
     dispatchAction(
       Engine.instance.store,
       EngineRendererAction.changeNodeHelperVisibility(!engineRenderState.nodeHelperVisibility.value)

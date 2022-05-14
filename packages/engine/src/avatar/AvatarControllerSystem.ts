@@ -58,22 +58,22 @@ export default async function AvatarControllerSystem(world: World) {
 
     for (const entity of localXRInputQuery(world)) {
       if (!hasComponent(entity, XRCameraRotateYComponent)) {
-        moveXRAvatar(world, entity, Engine.instance.camera, lastCamPos, displacement)
-        rotateXRAvatar(world, entity, Engine.instance.camera)
+        moveXRAvatar(world, entity, Engine.instance.currentWorld.camera, lastCamPos, displacement)
+        rotateXRAvatar(world, entity, Engine.instance.currentWorld.camera)
       }
     }
 
     for (const entity of cameraRotationQuery.exit(world)) {
-      const camera = Engine.instance.camera
+      const camera = Engine.instance.currentWorld.camera
       lastCamPos.subVectors(camera.position, camera.parent!.position)
-      alignXRCameraPositionWithAvatar(entity, Engine.instance.camera)
+      alignXRCameraPositionWithAvatar(entity, Engine.instance.currentWorld.camera)
       lastCamPos.add(camera.parent!.position)
     }
 
     for (const entity of cameraRotationQuery.enter(world)) {
       const avatarTransform = getComponent(entity, TransformComponent)
       const rotation = getComponent(entity, XRCameraRotateYComponent)
-      const cam = Engine.instance.camera
+      const cam = Engine.instance.currentWorld.camera
       const camParent = cam.parent!
 
       camRotation.setFromAxisAngle(up, rotation.angle)
@@ -85,7 +85,7 @@ export default async function AvatarControllerSystem(world: World) {
     }
 
     for (const entity of controllerQuery(world)) {
-      const displace = moveAvatar(world, entity, Engine.instance.camera)
+      const displace = moveAvatar(world, entity, Engine.instance.currentWorld.camera)
       displacement.set(displace.x, displace.y, displace.z)
 
       const controller = getComponent(entity, AvatarControllerComponent)

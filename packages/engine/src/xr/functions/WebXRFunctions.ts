@@ -213,7 +213,7 @@ export const startWebXR = async (): Promise<void> => {
   const world = Engine.instance.currentWorld
 
   removeComponent(world.localClientEntity, FollowCameraComponent)
-  container.add(Engine.instance.camera)
+  container.add(Engine.instance.currentWorld.camera)
 
   setupXRInputSourceComponent(world.localClientEntity)
 
@@ -236,7 +236,7 @@ export const endXR = (): void => {
   // EngineRenderer.instance.xrSession?.end()
   EngineRenderer.instance.xrSession = null!
   EngineRenderer.instance.xrManager.setSession(null!)
-  Engine.instance.scene.add(Engine.instance.camera)
+  Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
 
   const world = Engine.instance.currentWorld
   addComponent(world.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
@@ -351,14 +351,14 @@ export const getHandTransform = (
 export const getHeadTransform = (entity: Entity): { position: Vector3; rotation: Quaternion; scale: Vector3 } => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
-    Engine.instance.camera.matrix.decompose(vec3, quat, v3)
+    Engine.instance.currentWorld.camera.matrix.decompose(vec3, quat, v3)
     return {
       position: vec3,
       rotation: quat,
       scale: uniformScale
     }
   }
-  const cameraTransform = getComponent(Engine.instance.activeCameraEntity, TransformComponent)
+  const cameraTransform = getComponent(Engine.instance.currentWorld.activeCameraEntity, TransformComponent)
   return {
     position: cameraTransform.position,
     rotation: cameraTransform.rotation,

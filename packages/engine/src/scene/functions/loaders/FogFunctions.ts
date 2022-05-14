@@ -37,26 +37,26 @@ export const updateFog: ComponentUpdateFunction = (entity: Entity, _properties: 
 
   switch (component.type) {
     case FogType.Linear:
-      if (Engine.instance.scene.fog instanceof Fog) {
-        Engine.instance.scene.fog.color = component.color
-        Engine.instance.scene.fog.near = component.near
-        Engine.instance.scene.fog.far = component.far
+      if (Engine.instance.currentWorld.scene.fog instanceof Fog) {
+        Engine.instance.currentWorld.scene.fog.color = component.color
+        Engine.instance.currentWorld.scene.fog.near = component.near
+        Engine.instance.currentWorld.scene.fog.far = component.far
       } else {
-        Engine.instance.scene.fog = new Fog(component.color, component.near, component.far)
+        Engine.instance.currentWorld.scene.fog = new Fog(component.color, component.near, component.far)
       }
       break
 
     case FogType.Exponential:
-      if (Engine.instance.scene.fog instanceof FogExp2) {
-        Engine.instance.scene.fog.color = component.color
-        Engine.instance.scene.fog.density = component.density
+      if (Engine.instance.currentWorld.scene.fog instanceof FogExp2) {
+        Engine.instance.currentWorld.scene.fog.color = component.color
+        Engine.instance.currentWorld.scene.fog.density = component.density
       } else {
-        Engine.instance.scene.fog = new FogExp2(component.color.getHexString(), component.density)
+        Engine.instance.currentWorld.scene.fog = new FogExp2(component.color.getHexString(), component.density)
       }
       break
 
     default:
-      Engine.instance.scene.fog = null
+      Engine.instance.currentWorld.scene.fog = null
       break
   }
 }

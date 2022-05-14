@@ -368,9 +368,9 @@ export const useSimpleMaterial = (obj: Object3DWithEntity & Mesh<any, any>): voi
     })
 
     if (hasEnvMap) {
-      obj.material.envMap = Engine.instance.scene?.environment
+      obj.material.envMap = Engine.instance.currentWorld.scene?.environment
       obj.material.uniforms.envMap = {
-        value: Engine.instance.scene?.environment
+        value: Engine.instance.currentWorld.scene?.environment
       }
       obj.material.uniforms.envMapIntensity = { value: 1 }
       obj.material.uniforms.flipEnvMap = { value: 1 }

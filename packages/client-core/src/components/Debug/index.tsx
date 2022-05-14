@@ -114,7 +114,7 @@ export const Debug = () => {
   }
 
   const toggleNodeHelpers = () => {
-    Engine.instance.camera.layers.toggle(ObjectLayers.NodeHelper)
+    Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.NodeHelper)
     dispatchAction(
       Engine.instance.store,
       EngineRendererAction.changeNodeHelperVisibility(!accessEngineRendererState().nodeHelperVisibility.value)
@@ -122,7 +122,7 @@ export const Debug = () => {
   }
 
   const toggleGridHelper = () => {
-    Engine.instance.camera.layers.toggle(ObjectLayers.Gizmos)
+    Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.Gizmos)
     dispatchAction(
       Engine.instance.store,
       EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value)
