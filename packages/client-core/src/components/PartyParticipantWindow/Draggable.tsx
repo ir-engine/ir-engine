@@ -72,20 +72,16 @@ export const Draggable = (props: PropsType) => {
     }
   }
 
-  const getStyle = () => {
-    if (props.isPiP)
-      return {
+  const styles = props.isPiP
+    ? ({
         touchAction: 'none',
         position: 'fixed',
         left: window.innerWidth - MARGIN - PIP_WIDTH,
         top: 20,
         transition: 'all 0.1s linear',
         zIndex: 1500
-      } as any
-    else {
-      return { position: 'initial' } as any
-    }
-  }
+      } as any)
+    : ({ position: 'initial' } as any)
 
   const handles = props.isPiP
     ? {
@@ -99,7 +95,7 @@ export const Draggable = (props: PropsType) => {
       }
     : []
   return (
-    <div {...handles} style={getStyle()}>
+    <div {...handles} style={styles}>
       {props.children}
     </div>
   )

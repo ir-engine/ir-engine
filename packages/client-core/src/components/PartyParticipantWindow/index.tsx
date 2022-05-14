@@ -3,7 +3,6 @@ import classNames from 'classnames'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useAppState } from '@xrengine/client-core/src/common/services/AppService'
 import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import {
@@ -53,6 +52,7 @@ interface Props {
 }
 
 const PartyParticipantWindow = (props: Props): JSX.Element => {
+  const [isPiP, setPiP] = useState(false)
   const [videoStream, _setVideoStream] = useState<any>(null)
   const [audioStream, _setAudioStream] = useState<any>(null)
   const [videoStreamPaused, setVideoStreamPaused] = useState(false)
@@ -412,9 +412,9 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     setVolume(newValue)
   }
 
-  const [isPiP, setPiP] = useState(false)
-
   const togglePiP = () => setPiP(!isPiP)
+
+  console.log('-------', isPiP)
 
   const isSelfUser = peerId === 'me_cam' || peerId === 'me_screen'
 
@@ -494,13 +494,19 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                   </IconButton>
                 </Tooltip>
               ) : null}
-              {
-                <Tooltip title={t('user:person.openPictureInPicture') as string}>
-                  <IconButton color="secondary" size="small" className={styles['audio-control']} onClick={togglePiP}>
-                    <Launch className={styles.pipBtn} />
-                  </IconButton>
-                </Tooltip>
-              }
+              <Tooltip title={t('user:person.openPictureInPicture') as string}>
+                <IconButton
+                  color="secondary"
+                  size="small"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    togglePiP()
+                  }}
+                >
+                  <Launch className={styles.pipBtn} />
+                </IconButton>
+              </Tooltip>
             </div>
             {audioProducerGlobalMute && <div className={styles['global-mute']}>Muted by Admin</div>}
             {audioStream &&
