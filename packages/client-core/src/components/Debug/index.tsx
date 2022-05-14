@@ -11,7 +11,7 @@ import {
   MappedComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { NetworkTransportHandler } from '@xrengine/engine/src/networking/classes/Network'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import {
   accessEngineRendererState,
   EngineRendererAction,
@@ -40,7 +40,7 @@ export const Debug = () => {
   const showingStateRef = useRef(isShowing)
   const engineRendererState = useEngineRendererState()
   const { t } = useTranslation()
-  const networkTransport = NetworkTransportHandler.instance.getTransport('world')
+  const networkTransport = Network.instance.getTransport('world')
 
   function setupListener() {
     window.addEventListener('keydown', downHandler)

@@ -2,7 +2,7 @@ import { getEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { NetworkTransportHandler } from '../classes/Network'
+import { Network } from '../classes/Network'
 import { NetworkTransport } from '../classes/Network'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
@@ -28,7 +28,7 @@ const serializeAndSend = (world: World, serialize: Function) => {
 
     if (data.byteLength > 0) {
       // side effect - network IO
-      const worldTransport = NetworkTransportHandler.instance.getTransport('world')
+      const worldTransport = Network.instance.getTransport('world')
       worldTransport.sendData(data)
     }
   }

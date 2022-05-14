@@ -1,10 +1,10 @@
 import { clearOutgoingActions } from '@xrengine/hyperflux'
 
 import { World } from '../../ecs/classes/World'
-import { NetworkTransportHandler } from '../classes/Network'
+import { Network } from '../classes/Network'
 
 const sendOutgoingActions = (world: World) => {
-  const transport = NetworkTransportHandler.instance.getTransport('world')
+  const transport = Network.instance.getTransport('world')
   if (!transport) return
 
   try {

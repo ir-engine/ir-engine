@@ -59,8 +59,8 @@ export interface NetworkTransport {
   mediasoupOperationQueue: RingBuffer<any>
 }
 
-export class NetworkTransportHandler<T extends NetworkTransport> {
-  static instance: NetworkTransportHandler<NetworkTransport> = new NetworkTransportHandler()
+export class Network<T extends NetworkTransport> {
+  static instance: Network<NetworkTransport>
   transports = new Map<UserId, T>()
   /**
    * @todo: getTransport(transport: UserId) {
@@ -70,4 +70,4 @@ export class NetworkTransportHandler<T extends NetworkTransport> {
   }
 }
 
-globalThis.NetworkTransportHandler = NetworkTransportHandler
+globalThis.Network = Network

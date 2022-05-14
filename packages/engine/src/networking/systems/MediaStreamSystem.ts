@@ -4,7 +4,7 @@ import { defineAction, dispatchAction } from '@xrengine/hyperflux'
 import { isClient } from '../../common/functions/isClient'
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { NetworkTransportHandler } from '../classes/Network'
+import { Network } from '../classes/Network'
 import { localAudioConstraints, localVideoConstraints } from '../constants/VideoConstants'
 import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
 
@@ -337,7 +337,7 @@ export default async function MediaStreamSystem() {
   let executeInProgress = false
 
   return () => {
-    const networkTransport = NetworkTransportHandler.instance.getTransport('media')
+    const networkTransport = Network.instance.getTransport('media')
     if (networkTransport.mediasoupOperationQueue.getBufferLength() > 0 && !executeInProgress) {
       executeInProgress = true
       const buffer = networkTransport.mediasoupOperationQueue.pop() as any

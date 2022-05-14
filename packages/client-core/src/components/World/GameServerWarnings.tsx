@@ -12,7 +12,7 @@ import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transport
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { NetworkTransportHandler } from '@xrengine/engine/src/networking/classes/Network'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import WEBGL from '@xrengine/engine/src/renderer/THREE.WebGL'
 import { addActionReceptor } from '@xrengine/hyperflux'
@@ -143,7 +143,7 @@ const GameServerWarnings = () => {
 
       case WarningModalTypes.INSTANCE_DISCONNECTED: {
         if (!Engine.instance.userId) return
-        const transport = NetworkTransportHandler.instance.getTransport('world') as SocketWebRTCClientTransport
+        const transport = Network.instance.getTransport('world') as SocketWebRTCClientTransport
         if (transport.left || engineState.isTeleporting.value || transport.reconnecting) return
 
         setModalValues({
@@ -159,7 +159,7 @@ const GameServerWarnings = () => {
 
       case WarningModalTypes.CHANNEL_DISCONNECTED: {
         if (!Engine.instance.userId) return
-        const transport = NetworkTransportHandler.instance.getTransport('media') as SocketWebRTCClientTransport
+        const transport = Network.instance.getTransport('media') as SocketWebRTCClientTransport
         if (transport.left || transport.reconnecting) return
 
         const channels = chatState.channels.channels.value
@@ -178,7 +178,7 @@ const GameServerWarnings = () => {
       }
 
       case WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED: {
-        const transport = NetworkTransportHandler.instance.getTransport('world') as SocketWebRTCClientTransport
+        const transport = Network.instance.getTransport('world') as SocketWebRTCClientTransport
         if (transport.left || engineState.isTeleporting.value) return
 
         setModalValues({

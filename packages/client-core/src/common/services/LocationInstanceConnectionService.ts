@@ -6,7 +6,7 @@ import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/I
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { NetworkTransportHandler } from '@xrengine/engine/src/networking/classes/Network'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
@@ -120,7 +120,7 @@ export const LocationInstanceConnectionService = {
   connectToServer: async () => {
     const dispatch = useDispatch()
     dispatch(LocationInstanceConnectionAction.connecting())
-    const transport = NetworkTransportHandler.instance.getTransport('world' as UserId) as SocketWebRTCClientTransport
+    const transport = Network.instance.getTransport('world' as UserId) as SocketWebRTCClientTransport
     console.log('connectToServer', !!transport.socket, transport)
     if (transport.socket) {
       await leave(transport, false)

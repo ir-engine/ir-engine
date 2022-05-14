@@ -7,7 +7,7 @@ import {
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { NetworkTransportHandler } from '@xrengine/engine/src/networking/classes/Network'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 
 import { CallEnd, VideoCall } from '@mui/icons-material'
@@ -22,7 +22,7 @@ const VideoChat = (props: Props) => {
   const currentLocation = useLocationState().currentLocation.location
   const gsProvision = async () => {
     if (mediaStreamSystem.videoStream == null) {
-      const mediaTransport = NetworkTransportHandler.instance.getTransport('media') as SocketWebRTCClientTransport
+      const mediaTransport = Network.instance.getTransport('media') as SocketWebRTCClientTransport
       await configureMediaTransports(mediaTransport, ['video', 'audio'])
       console.log('Send camera streams called from gsProvision')
     } else {

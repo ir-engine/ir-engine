@@ -12,7 +12,7 @@ import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { isClient } from '../../common/functions/isClient'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { InputValue } from '../../input/interfaces/InputValue'
-import { NetworkTransportHandler } from '../../networking/classes/Network'
+import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { WorldState } from '../../networking/interfaces/WorldState'
@@ -279,7 +279,7 @@ export class World {
   execute(frameTime: number) {
     const start = nowMilliseconds()
     const incomingActions = [...this.store.actions.incoming]
-    const incomingBufferLength = NetworkTransportHandler.instance
+    const incomingBufferLength = Network.instance
       .getTransport('world')
       ?.incomingMessageQueueUnreliable.getBufferLength()
 

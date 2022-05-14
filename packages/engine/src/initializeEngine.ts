@@ -22,6 +22,7 @@ import { ObjectLayers } from './scene/constants/ObjectLayers'
 
 import './threejsPatches'
 
+import { Network } from './networking/classes/Network'
 import { FontManager } from './xrui/classes/FontManager'
 
 /**
@@ -31,6 +32,7 @@ import { FontManager } from './xrui/classes/FontManager'
  */
 export const createEngine = () => {
   Engine.instance = new Engine()
+  Network.instance = new Network()
   Engine.instance.currentWorld = createWorld()
   EngineRenderer.instance = new EngineRenderer()
   if (isClient) EngineRenderer.instance.initialize()
