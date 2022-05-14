@@ -3,6 +3,7 @@ import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene, 
 import type { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { createHyperStore } from '@xrengine/hyperflux'
 
+import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import type { InputValue } from '../../input/interfaces/InputValue'
 import type { World } from '../classes/World'
 import type { SystemModuleType } from '../functions/SystemFunctions'
@@ -20,10 +21,13 @@ export class Engine {
   store = createHyperStore({
     name: 'ENGINE',
     getDispatchId: () => 'engine',
-    getDispatchTime: () => Engine.instance.elapsedTime
+    getDispatchTime: () => Engine.instance.frameTime
   })
 
-  elapsedTime = 0
+  /**
+   * Current frame timestamp, relative to performance.timeOrigin
+   */
+  frameTime = nowMilliseconds()
 
   engineTimer: { start: Function; stop: Function; clear: Function } = null!
 

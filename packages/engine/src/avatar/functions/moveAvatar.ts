@@ -34,7 +34,7 @@ export const avatarCameraOffset = new Vector3(0, 0.14, 0.1)
  */
 export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCamera | OrthographicCamera): any => {
   const {
-    fixedDelta,
+    fixedDeltaSeconds: fixedDelta,
     physics: { timeScale }
   } = world
 
@@ -258,7 +258,7 @@ export const alignXRCameraRotationWithAvatar = (entity: Entity, camera: Perspect
 
 const moveAvatarController = (world: World, entity: Entity, displacement: any) => {
   const {
-    fixedDelta,
+    fixedDeltaSeconds: fixedDelta,
     physics: { timeScale }
   } = world
 

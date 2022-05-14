@@ -34,7 +34,7 @@ import { Entity } from './Entity'
 import EntityTree from './EntityTree'
 
 const TimerConfig = {
-  MAX_DELTA: 1 / 10
+  MAX_DELTA_SECONDS: 1 / 10
 }
 
 export const CreateWorld = Symbol('CreateWorld')
@@ -73,23 +73,32 @@ export class World {
   worldMetadata = {} as { [key: string]: string }
 
   /**
-   * The current delta time in seconds
+   * The time origin for this world, relative to performance.timeOrigin
    */
-  delta = 0
+  startTime = nowMilliseconds()
+
   /**
-   * The current elapsed time in seconds
+   * The seconds since the last world execution
    */
-  elapsedTime = 0
+  deltaSeconds = 0
+
   /**
-   * The current fixed delta in seconds (generally 1/60)
+   * The elapsed seconds since `startTime`
    */
-  fixedDelta = 0
+  elapsedSeconds = 0
+
   /**
-   * The current fixed time in seconds
+   * The seconds since the last fixed pipeline execution, in fixed time steps (generally 1/60)
    */
-  fixedElapsedTime = 0
+  fixedDeltaSeconds = 0
+
   /**
-   * The current fixed tick (fixedElapsedTime / fixedDelta)
+   * The elapsed seconds since `startTime`, in fixed time steps.
+   */
+  fixedElapsedSeconds = 0
+
+  /**
+   * The current fixed tick (fixedElapsedSeconds / fixedDeltaSeconds)
    */
   fixedTick = 0
 
@@ -234,16 +243,17 @@ export class World {
   /**
    * Execute systems on this world
    *
-   * @param delta in seconds
-   * @param elapsedTime in seconds
+   * @param frameTime the current frame time in milliseconds (DOMHighResTimeStamp) relative to performance.timeOrigin
    */
-  execute(delta: number) {
+  execute(frameTime: number) {
     const start = nowMilliseconds()
     const incomingActions = [...this.store.actions.incoming]
     const incomingBufferLength = Network.instance?.incomingMessageQueueUnreliable.getBufferLength()
 
-    this.delta = Math.min(TimerConfig.MAX_DELTA, delta)
-    this.elapsedTime += delta
+    const worldElapsedSeconds = (frameTime - this.startTime) / 1000
+    this.deltaSeconds = Math.max(0, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
+    this.elapsedSeconds = worldElapsedSeconds
+    console.log(worldElapsedSeconds)
 
     for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.execute()
     for (const system of this.pipelines[SystemUpdateType.PRE_RENDER]) system.execute()
@@ -255,7 +265,7 @@ export class World {
     const duration = end - start
     if (duration > 50) {
       console.warn(
-        `Long frame execution detected. Delta: ${delta} \n Duration: ${duration}. \n Incoming Buffer Length: ${incomingBufferLength} \n Incoming actions: `,
+        `Long frame execution detected. Duration: ${duration}. \n Incoming Buffer Length: ${incomingBufferLength} \n Incoming actions: `,
         incomingActions
       )
     }

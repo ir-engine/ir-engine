@@ -141,7 +141,7 @@ export default async function SceneObjectSystem(world: World) {
 
     for (const entity of updatableQuery()) {
       const obj = getComponent(entity, Object3DComponent)?.value as unknown as Updatable
-      obj?.update(world.fixedDelta)
+      obj?.update(world.fixedDeltaSeconds)
     }
 
     for (const _ of simpleMaterialsQuery.enter()) {

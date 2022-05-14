@@ -220,7 +220,7 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
   }
 
   if (nextMode !== currentMode) {
-    transitionStartTime.set(modelEntity, world.elapsedTime)
+    transitionStartTime.set(modelEntity, world.elapsedSeconds)
     xrui.state.mode.set(nextMode)
     if (nextMode === 'interacting') {
       Engine.instance.camera.attach(uiContainer)
@@ -238,7 +238,7 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
   }
 
   const transitionStart = transitionStartTime.get(modelEntity)
-  const transitionElapsed = transitionStart ? world.elapsedTime - transitionStart : 0
+  const transitionElapsed = transitionStart ? world.elapsedSeconds - transitionStart : 0
   const alpha = Math.min(transitionElapsed / TRANSITION_DURATION, 1)
 
   const root = uiContainer.rootLayer
@@ -316,7 +316,7 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     }
 
     const modelTargetPosition = _vect.copy(anchoredPosition)
-    modelTargetPosition.y += MODEL_ELEVATION_ACTIVE + Math.sin(world.elapsedTime) * 0.05
+    modelTargetPosition.y += MODEL_ELEVATION_ACTIVE + Math.sin(world.elapsedSeconds) * 0.05
     modelGroup.position.lerp(modelTargetPosition, alpha)
     modelGroup.quaternion.slerp(anchoredRotation, alpha)
     modelGroup.scale.lerp(MODEL_SCALE_ACTIVE, alpha)
