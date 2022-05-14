@@ -1,6 +1,6 @@
 import assert, { strictEqual } from 'assert'
 import { TypedArray } from 'bitecs'
-import { Vector3 } from 'three'
+import { Group, Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -12,6 +12,8 @@ import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
+import { XRHandBones } from '../../xr/types/XRHandBones'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import {
@@ -35,7 +37,8 @@ import {
   writeRotation,
   writeTransform,
   writeVector3,
-  writeVector4
+  writeVector4,
+  writeXRHands
 } from './DataWriter'
 import { Vector3SoA, Vector4SoA } from './Utils'
 import { createViewCursor, readFloat32, readUint8, readUint32, sliceViewCursor, writeProp } from './ViewCursor'
@@ -323,6 +326,94 @@ describe('DataReader', () => {
     strictEqual(TransformComponent.rotation.y[entity], y)
     strictEqual(TransformComponent.rotation.z[entity], 0)
     strictEqual(TransformComponent.rotation.w[entity], w)
+  })
+
+  it('should readXRHands', () => {
+    const view = createViewCursor()
+    const entity = createEntity()
+
+    let joints = []
+    XRHandBones.forEach((bone) => {
+      joints = joints.concat(bone as any)
+    })
+
+    // Fill a list of joints with random postion and rotation values
+    let jointPositionsArray = [] as Vector3[]
+    let jointRotationsArray = [] as Quaternion[]
+    for (let index = 0; index < joints.length; index++) {
+      jointPositionsArray[index] = new Vector3().set(Math.random(), Math.random(), Math.random())
+      jointRotationsArray[index] = new Quaternion().set(Math.random(), Math.random(), Math.random(), Math.random())
+    }
+
+    const hands = [new Group(), new Group()]
+    hands[0].userData.handedness = 'left'
+    hands[1].userData.handedness = 'right'
+
+    hands.forEach((hand) => {
+      // setup mock hand state
+      const handedness = hand.userData.handedness
+      const dummyXRHandMeshModel = new Group() as any
+      dummyXRHandMeshModel.handedness = handedness
+      hand.userData.mesh = dummyXRHandMeshModel
+
+      let index = 0
+      // proxify and copy randomly generated values
+      joints.forEach((jointName) => {
+        const jointPos = jointPositionsArray[index]
+        createVector3Proxy(XRHandsInputComponent[handedness][jointName].position, entity).copy(jointPos)
+
+        const jointRot = jointRotationsArray[index]
+        createQuaternionProxy(XRHandsInputComponent[handedness][jointName].quaternion, entity).copy(jointRot)
+        index++
+      })
+    })
+
+    // add component
+    const xrHandsInput = addComponent(entity, XRHandsInputComponent, { hands: hands })
+
+    writeXRHands(view, entity)
+
+    // transform.position.x = 0
+    // transform.position.y = 0
+    // transform.position.z = 0
+    // transform.rotation.x = 0
+    // transform.rotation.y = 0
+    // transform.rotation.z = 0
+    // transform.rotation.w = 0
+
+    // view.cursor = 0
+
+    // readTransform(view, entity)
+
+    // strictEqual(TransformComponent.position.x[entity], x)
+    // strictEqual(TransformComponent.position.y[entity], y)
+    // strictEqual(TransformComponent.position.z[entity], z)
+    // strictEqual(TransformComponent.rotation.x[entity], x)
+    // strictEqual(TransformComponent.rotation.y[entity], y)
+    // strictEqual(TransformComponent.rotation.z[entity], z)
+    // strictEqual(TransformComponent.rotation.w[entity], w)
+
+    // transform.position.x = 0
+    // transform.rotation.z = 0
+
+    // view.cursor = 0
+
+    // writeTransform(view, entity)
+
+    // transform.position.x = x
+    // transform.rotation.z = z
+
+    // view.cursor = 0
+
+    // readTransform(view, entity)
+
+    // strictEqual(TransformComponent.position.x[entity], 0)
+    // strictEqual(TransformComponent.position.y[entity], y)
+    // strictEqual(TransformComponent.position.z[entity], z)
+    // strictEqual(TransformComponent.rotation.x[entity], x)
+    // strictEqual(TransformComponent.rotation.y[entity], y)
+    // strictEqual(TransformComponent.rotation.z[entity], 0)
+    // strictEqual(TransformComponent.rotation.w[entity], w)
   })
 
   it('should readEntity', () => {
