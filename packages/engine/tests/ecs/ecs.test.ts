@@ -16,7 +16,7 @@ import { useWorld } from '../../src/ecs/functions/SystemHooks'
 import { SystemUpdateType } from '../../src/ecs/functions/SystemUpdateType'
 import { createEngine } from '../../src/initializeEngine'
 
-const mockDelta = 1 / 60
+const mockDeltaMillis = 1000 / 60
 
 type MockComponentData = {
   mockValue: number
@@ -157,14 +157,14 @@ describe('ECS', () => {
     const mockValue = Math.random()
     addComponent(entity, MockComponent, { mockValue })
     const component = getComponent(entity, MockComponent)
-    world.execute(mockDelta)
+    world.execute(world.startTime + mockDeltaMillis)
     assert.strictEqual(component.mockValue, MockSystemState.get(world)![0])
 
     const entity2 = createEntity()
     const mockValue2 = Math.random()
     addComponent(entity2, MockComponent, { mockValue: mockValue2 })
     const component2 = getComponent(entity2, MockComponent)
-    world.execute(mockDelta)
+    world.execute(world.startTime + mockDeltaMillis * 2)
     assert.strictEqual(component2.mockValue, MockSystemState.get(world)![1])
   })
 
@@ -182,7 +182,7 @@ describe('ECS', () => {
     assert.deepStrictEqual(query.enter(), [])
     assert.deepStrictEqual(query.exit(), [])
 
-    world.execute(mockDelta)
+    world.execute(world.startTime + mockDeltaMillis)
     assert.deepStrictEqual(MockSystemState.get(world)!, [])
   })
 
@@ -195,7 +195,7 @@ describe('ECS', () => {
     addComponent(entity, MockComponent, { mockValue })
 
     removeComponent(entity, MockComponent)
-    world.execute(mockDelta)
+    world.execute(world.startTime + mockDeltaMillis)
     assert.deepStrictEqual(state, [])
 
     const newMockValue = 1 + Math.random()
@@ -206,8 +206,8 @@ describe('ECS', () => {
     console.log(component)
     assert(component)
     assert.strictEqual(component.mockValue, newMockValue)
-    world.execute(mockDelta)
-    world.execute(mockDelta)
+    world.execute(world.startTime + mockDeltaMillis * 2)
+    world.execute(world.startTime + mockDeltaMillis * 3)
     assert.strictEqual(newMockValue, state[0])
   })
 
@@ -222,7 +222,7 @@ describe('ECS', () => {
     removeEntity(entity)
     assert.ok(!getComponent(entity, MockComponent))
     assert.ok(getComponent(entity, MockComponent, true))
-    world.execute(mockDelta)
+    world.execute(world.startTime + mockDeltaMillis)
     assert.deepStrictEqual(MockSystemState.get(world)!, [])
     assert.ok(!world.entityQuery().includes(entity))
   })
@@ -238,7 +238,7 @@ describe('ECS', () => {
     removeEntity(entity)
     removeEntity(entity)
     removeEntity(entity)
-    world.execute(mockDelta)
+    world.execute(world.startTime + mockDeltaMillis)
 
     const entities = world.entityQuery()
     assert.equal(entities.length, lengthBefore - 1)

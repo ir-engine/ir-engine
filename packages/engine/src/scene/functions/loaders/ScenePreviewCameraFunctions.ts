@@ -41,9 +41,9 @@ export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (enti
     setObjectLayers(camera.userData.helper, ObjectLayers.NodeHelper)
 
     addComponent(entity, Object3DComponent, { value: camera })
-  } else if (Engine.instance.activeCameraEntity) {
+  } else if (Engine.instance.currentWorld.activeCameraEntity) {
     const transformComponent = getComponent(entity, TransformComponent)
-    Engine.instance.camera.position.copy(transformComponent.position)
+    Engine.instance.currentWorld.camera.position.copy(transformComponent.position)
   }
 }
 
@@ -54,7 +54,7 @@ export const updateCameraTransform = (entity: Entity) => {
   return new Matrix4()
     .copy(obj3d.parent!.matrixWorld)
     .invert()
-    .multiply(Engine.instance.camera.matrixWorld)
+    .multiply(Engine.instance.currentWorld.camera.matrixWorld)
     .decompose(transformComponent.position, transformComponent.rotation, transformComponent.scale)
 }
 

@@ -107,7 +107,7 @@ describe('moveAvatar function tests', () => {
     const world = Engine.instance.currentWorld
     /* mock */
     world.physics.timeScale = 1
-    world.fixedDelta = 1000 / 60
+    world.fixedDeltaSeconds = 1000 / 60
 
     const entity = createMovingAvatar(world)
 
@@ -133,7 +133,7 @@ describe('moveAvatar function tests', () => {
     const world = Engine.instance.currentWorld
     /* mock */
     world.physics.timeScale = 1
-    world.fixedDelta = 1000 / 120
+    world.fixedDeltaSeconds = 1000 / 120
 
     const entity = createMovingAvatar(world)
 
@@ -159,7 +159,7 @@ describe('moveAvatar function tests', () => {
     const world = Engine.instance.currentWorld
     /* mock */
     world.physics.timeScale = 1 / 2
-    world.fixedDelta = 1000 / 60
+    world.fixedDeltaSeconds = 1000 / 60
 
     const entity = createMovingAvatar(world)
 
@@ -185,7 +185,7 @@ describe('moveAvatar function tests', () => {
     const world = Engine.instance.currentWorld
     /* mock */
     world.physics.timeScale = 1
-    world.fixedDelta = 1000 / 60
+    world.fixedDeltaSeconds = 1000 / 60
 
     const entity = createMovingAvatar(world)
 

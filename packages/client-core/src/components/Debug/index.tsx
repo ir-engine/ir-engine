@@ -40,6 +40,8 @@ export const Debug = () => {
   const showingStateRef = useRef(isShowing)
   const engineRendererState = useEngineRendererState()
   const { t } = useTranslation()
+  const networkTransport = Network.instance.getTransport('world')
+
   function setupListener() {
     window.addEventListener('keydown', downHandler)
   }
@@ -114,7 +116,7 @@ export const Debug = () => {
   }
 
   const toggleNodeHelpers = () => {
-    Engine.instance.camera.layers.toggle(ObjectLayers.NodeHelper)
+    Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.NodeHelper)
     dispatchAction(
       Engine.instance.store,
       EngineRendererAction.changeNodeHelperVisibility(!accessEngineRendererState().nodeHelperVisibility.value)
@@ -122,7 +124,7 @@ export const Debug = () => {
   }
 
   const toggleGridHelper = () => {
-    Engine.instance.camera.layers.toggle(ObjectLayers.Gizmos)
+    Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.Gizmos)
     dispatchAction(
       Engine.instance.store,
       EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value)
@@ -193,7 +195,7 @@ export const Debug = () => {
               </button>
             </div>
             <div className={styles.refreshBlock}>
-              {Network.instance != null && <Tick />}
+              {networkTransport != null && <Tick />}
               <button type="submit" title={t('common:debug.refresh')} onClick={refresh} className={styles.refreshBtn}>
                 <RefreshIcon fontSize="small" />
               </button>
@@ -201,7 +203,7 @@ export const Debug = () => {
           </div>
         </div>
         <StatsPanel show={showingStateRef.current} resetCounter={resetStats} />
-        {Network.instance !== null && (
+        {networkTransport !== null && (
           <>
             <div className={styles.jsonPanel}>
               <h1>{t('common:debug.engineStore')}</h1>
@@ -217,7 +219,7 @@ export const Debug = () => {
             </div>
             <div className={styles.jsonPanel}>
               <h1>{t('common:debug.networkObject')}</h1>
-              <JSONTree data={{ ...Network.instance }} />
+              <JSONTree data={{ ...networkTransport }} />
             </div>
             <div className={styles.jsonPanel}>
               <h1>{t('common:debug.networkClients')}</h1>

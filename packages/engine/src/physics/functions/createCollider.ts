@@ -125,7 +125,7 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
       //   // debugMesh.quaternion.copy(rot)
       //   // debugMesh.scale.copy(scale)
       //   // console.log(debugMesh)
-      //   // Engine.instance.scene.add(debugMesh)
+      //   // Engine.instance.currentWorld.scene.add(debugMesh)
       // }
       // yes, don't break here - use convex for cylinder
       return undefined!
@@ -286,7 +286,10 @@ export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: 
     shapes.push(shape)
   })
 
-  shapeObjs.forEach((mesh) => mesh.removeFromParent())
+  shapeObjs.forEach((mesh) => {
+    mesh.parent?.removeFromParent()
+    mesh.removeFromParent()
+  })
 
   return shapes.filter((val) => {
     return !!val

@@ -40,18 +40,18 @@ describe('FixedPipelineSystem', () => {
     const world = Engine.instance.currentWorld
     const mockState = getState(world.store, MockState)
 
-    assert.equal(world.elapsedTime, 0)
-    assert.equal(world.fixedElapsedTime, 0)
+    assert.equal(world.elapsedSeconds, 0)
+    assert.equal(world.fixedElapsedSeconds, 0)
     assert.equal(world.fixedTick, 0)
     assert.equal(mockState.count.value, 0)
 
     const ticks = 3
-    const delta = ticks / 60
-    world.execute(delta)
-    assert.equal(world.elapsedTime, delta)
-    assert.equal(world.fixedElapsedTime, delta)
+    const deltaSeconds = ticks / 60
+    world.execute(world.startTime + 1000 * deltaSeconds)
+    assert.equal(world.elapsedSeconds, deltaSeconds)
+    assert.equal(world.fixedElapsedSeconds, deltaSeconds)
     assert.equal(world.fixedTick, ticks)
-    assert.equal(world.fixedDelta, 1 / 60)
+    assert.equal(world.fixedDeltaSeconds, 1 / 60)
     assert.equal(mockState.count.value, ticks)
   })
 
@@ -70,15 +70,16 @@ describe('FixedPipelineSystem', () => {
     const world = Engine.instance.currentWorld
     const mockState = getState(world.store, MockState)
 
-    assert.equal(world.elapsedTime, 0)
-    assert.equal(world.fixedElapsedTime, 0)
+    world.startTime = 0
+    assert.equal(world.elapsedSeconds, 0)
+    assert.equal(world.fixedElapsedSeconds, 0)
     assert.equal(world.fixedTick, 0)
     assert.equal(mockState.count.value, 0)
 
-    const delta = 1000
-    world.execute(delta)
-    assert.equal(world.elapsedTime, delta)
-    assert.equal(world.fixedElapsedTime, delta)
+    const deltaSeconds = 1000
+    world.execute(1000 * deltaSeconds)
+    assert.equal(world.elapsedSeconds, deltaSeconds)
+    assert.equal(world.fixedElapsedSeconds, deltaSeconds)
     assert.equal(world.fixedTick, 60000)
     assert((mockState.count.value * 1) / 60 < 5)
   })

@@ -30,7 +30,7 @@ export default async function HyperspacePortalSystem(world: World) {
   light.layers.enable(ObjectLayers.Portal)
 
   return () => {
-    const { delta } = world
+    const { deltaSeconds: delta } = world
 
     const playerObj = getComponent(world.localClientEntity, Object3DComponent)
 
@@ -47,15 +47,15 @@ export default async function HyperspacePortalSystem(world: World) {
 
       hyperspaceEffect.position.copy(playerObj.value.position)
       hyperspaceEffect.quaternion.copy(playerObj.value.quaternion)
-      Engine.instance.camera.zoom = 1.5
+      Engine.instance.currentWorld.camera.zoom = 1.5
 
       // set scene to render just the hyperspace effect and avatar
-      Engine.instance.scene.background = null
-      Engine.instance.camera.layers.enable(ObjectLayers.Portal)
-      Engine.instance.camera.layers.disable(ObjectLayers.Scene)
+      Engine.instance.currentWorld.scene.background = null
+      Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Portal)
+      Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.Scene)
 
-      Engine.instance.scene.add(light)
-      Engine.instance.scene.add(hyperspaceEffect)
+      Engine.instance.currentWorld.scene.add(light)
+      Engine.instance.currentWorld.scene.add(hyperspaceEffect)
 
       // create receptor for joining the world to end the hyperspace effect
       matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, () => {
@@ -73,12 +73,12 @@ export default async function HyperspacePortalSystem(world: World) {
 
       hyperspaceEffect.removeFromParent()
 
-      Engine.instance.camera.layers.enable(ObjectLayers.Scene)
+      Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Scene)
 
       light.removeFromParent()
       light.dispose()
 
-      Engine.instance.camera.layers.disable(ObjectLayers.Portal)
+      Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.Portal)
     }
 
     // run the logic for
@@ -88,9 +88,9 @@ export default async function HyperspacePortalSystem(world: World) {
       hyperspaceEffect.position.copy(playerObj.value.position)
       hyperspaceEffect.quaternion.copy(playerObj.value.quaternion)
 
-      if (Engine.instance.camera.zoom > 0.75) {
-        Engine.instance.camera.zoom -= delta
-        Engine.instance.camera.updateProjectionMatrix()
+      if (Engine.instance.currentWorld.camera.zoom > 0.75) {
+        Engine.instance.currentWorld.camera.zoom -= delta
+        Engine.instance.currentWorld.camera.updateProjectionMatrix()
       }
     }
   }

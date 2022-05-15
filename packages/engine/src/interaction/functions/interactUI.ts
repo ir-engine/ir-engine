@@ -71,7 +71,7 @@ export function createInteractUI(modelEntity: Entity) {
     const centeringGroup = new Group()
     boundingBoxComponent.box.getCenter(centeringGroup.position)
 
-    Engine.instance.scene.add(centeringGroup)
+    Engine.instance.currentWorld.scene.add(centeringGroup)
     centeringGroup.attach(modelObj)
     c.position.copy(centeringGroup.position)
 
@@ -220,12 +220,12 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
   }
 
   if (nextMode !== currentMode) {
-    transitionStartTime.set(modelEntity, world.elapsedTime)
+    transitionStartTime.set(modelEntity, world.elapsedSeconds)
     xrui.state.mode.set(nextMode)
     if (nextMode === 'interacting') {
-      Engine.instance.camera.attach(uiContainer)
+      Engine.instance.currentWorld.camera.attach(uiContainer)
     } else {
-      Engine.instance.scene.attach(uiContainer)
+      Engine.instance.currentWorld.scene.attach(uiContainer)
     }
     modelGroup.traverse((obj) => {
       const mesh = obj as Mesh<BufferGeometry, MeshBasicMaterial>
@@ -238,7 +238,7 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
   }
 
   const transitionStart = transitionStartTime.get(modelEntity)
-  const transitionElapsed = transitionStart ? world.elapsedTime - transitionStart : 0
+  const transitionElapsed = transitionStart ? world.elapsedSeconds - transitionStart : 0
   const alpha = Math.min(transitionElapsed / TRANSITION_DURATION, 1)
 
   const root = uiContainer.rootLayer
@@ -270,13 +270,14 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
   const linkMat = link.contentMesh.material as MeshBasicMaterial
 
   if (nextMode === 'inactive') {
-    const uiContainerScale = Math.max(1, Engine.instance.camera.position.distanceTo(anchoredPosition)) * 0.8
+    const uiContainerScale =
+      Math.max(1, Engine.instance.currentWorld.camera.position.distanceTo(anchoredPosition)) * 0.8
     uiContainer.position.lerp(anchoredPosition, alpha)
-    uiContainer.quaternion.slerp(_quat.setFromRotationMatrix(Engine.instance.camera.matrix), alpha)
+    uiContainer.quaternion.slerp(_quat.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix), alpha)
     uiContainer.scale.lerp(_vect.setScalar(uiContainerScale), alpha)
 
-    if (modelGroup.parent !== Engine.instance.scene) {
-      Engine.instance.scene.attach(modelGroup)
+    if (modelGroup.parent !== Engine.instance.currentWorld.scene) {
+      Engine.instance.currentWorld.scene.attach(modelGroup)
     }
 
     modelGroup.position.lerp(anchoredPosition, alpha)
@@ -306,17 +307,18 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
       mat.opacity = MathUtils.lerp(mat.opacity, 0, alpha)
     }
   } else if (nextMode === 'active') {
-    const uiContainerScale = Math.max(1, Engine.instance.camera.position.distanceTo(anchoredPosition)) * 0.8
+    const uiContainerScale =
+      Math.max(1, Engine.instance.currentWorld.camera.position.distanceTo(anchoredPosition)) * 0.8
     uiContainer.position.lerp(anchoredPosition, alpha)
-    uiContainer.quaternion.slerp(_quat.setFromRotationMatrix(Engine.instance.camera.matrix), alpha)
+    uiContainer.quaternion.slerp(_quat.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix), alpha)
     uiContainer.scale.lerp(_vect.setScalar(uiContainerScale), alpha)
 
-    if (modelGroup.parent !== Engine.instance.scene) {
-      Engine.instance.scene.attach(modelGroup)
+    if (modelGroup.parent !== Engine.instance.currentWorld.scene) {
+      Engine.instance.currentWorld.scene.attach(modelGroup)
     }
 
     const modelTargetPosition = _vect.copy(anchoredPosition)
-    modelTargetPosition.y += MODEL_ELEVATION_ACTIVE + Math.sin(world.elapsedTime) * 0.05
+    modelTargetPosition.y += MODEL_ELEVATION_ACTIVE + Math.sin(world.elapsedSeconds) * 0.05
     modelGroup.position.lerp(modelTargetPosition, alpha)
     modelGroup.quaternion.slerp(anchoredRotation, alpha)
     modelGroup.scale.lerp(MODEL_SCALE_ACTIVE, alpha)
@@ -368,7 +370,7 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     }
 
     modelGroup.position.lerp(_vect.setScalar(0), alpha)
-    modelGroup.quaternion.slerp(_quat.copy(Engine.instance.camera.quaternion).invert(), alpha)
+    modelGroup.quaternion.slerp(_quat.copy(Engine.instance.currentWorld.camera.quaternion).invert(), alpha)
     modelGroup.scale.lerp(_vect.setScalar(modelScale), alpha)
 
     rootMat.opacity = MathUtils.lerp(rootMat.opacity, 1, alpha)

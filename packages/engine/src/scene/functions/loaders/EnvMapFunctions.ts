@@ -65,7 +65,7 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (
 
 export const updateEnvMap: ComponentUpdateFunction = (entity: Entity, properties: EnvmapComponentType) => {
   const component = getComponent(entity, EnvmapComponent)
-  const obj3d = component.forModel ? getComponent(entity, Object3DComponent)?.value : Engine.instance.scene
+  const obj3d = component.forModel ? getComponent(entity, Object3DComponent)?.value : Engine.instance.currentWorld.scene
 
   if (
     typeof properties.type !== 'undefined' ||

@@ -72,12 +72,12 @@ describe('ScenePreviewCameraFunctions', () => {
 
     describe('Editor vs Location', () => {
       it('creates ScenePreviewCamera in Location', () => {
-        Engine.instance.activeCameraEntity = createEntity()
-        Engine.instance.camera = new PerspectiveCamera()
+        Engine.instance.currentWorld.activeCameraEntity = createEntity()
+        Engine.instance.currentWorld.camera = new PerspectiveCamera()
 
         scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
 
-        assert(Engine.instance.camera.position.equals(getComponent(entity, TransformComponent).position))
+        assert(Engine.instance.currentWorld.camera.position.equals(getComponent(entity, TransformComponent).position))
       })
 
       it('creates ScenePreviewCamera in Editor', () => {
@@ -99,11 +99,11 @@ describe('ScenePreviewCameraFunctions', () => {
 
       scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
 
-      Engine.instance.camera = new PerspectiveCamera()
-      Engine.instance.camera.position.set(1, 2, 3)
-      Engine.instance.camera.rotation.set(4, 5, 6)
-      Engine.instance.camera.scale.set(7, 8, 9)
-      Engine.instance.camera.updateMatrixWorld()
+      Engine.instance.currentWorld.camera = new PerspectiveCamera()
+      Engine.instance.currentWorld.camera.position.set(1, 2, 3)
+      Engine.instance.currentWorld.camera.rotation.set(4, 5, 6)
+      Engine.instance.currentWorld.camera.scale.set(7, 8, 9)
+      Engine.instance.currentWorld.camera.updateMatrixWorld()
 
       const parent = new Object3D()
       parent.add(getComponent(entity, Object3DComponent)?.value)

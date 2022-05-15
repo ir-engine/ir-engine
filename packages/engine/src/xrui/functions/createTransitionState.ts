@@ -15,7 +15,7 @@ export const createTransitionState = (transitionPeriodSeconds: number) => {
 
   const update = (world: World, callback: (alpha: number) => void) => {
     if (currentState !== 'NONE') {
-      alpha += world.delta / transitionPeriodSeconds
+      alpha += world.deltaSeconds / transitionPeriodSeconds
       alpha = MathUtils.clamp(alpha, 0, 1)
       callback(currentState === 'IN' ? alpha : 1 - alpha)
       if (alpha >= 1) setState('NONE')

@@ -23,13 +23,15 @@ export const download = async (projectName) => {
 
     await Promise.all(
       files.map(async (filePath) => {
-        logger.info(`[ProjectLoader]: - downloading "${filePath}"`)
-        const fileResult = await storageProvider.getObject(filePath)
+        if (path.parse(filePath).ext.length > 0) {
+          logger.info(`[ProjectLoader]: - downloading "${filePath}"`)
+          const fileResult = await storageProvider.getObject(filePath)
 
-        if (fileResult.Body.length === 0) {
-          logger.info(`[ProjectLoader]: WARNING file "${filePath}" is empty`)
+          if (fileResult.Body.length === 0) {
+            logger.info(`[ProjectLoader]: WARNING file "${filePath}" is empty`)
+          }
+          writeFileSyncRecursive(path.join(appRootPath.path, 'packages/projects', filePath), fileResult.Body)
         }
-        writeFileSyncRecursive(path.join(appRootPath.path, 'packages/projects', filePath), fileResult.Body)
       })
     )
 

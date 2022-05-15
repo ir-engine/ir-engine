@@ -43,7 +43,7 @@ export default async function EntityNodeEventSystem(_: World) {
 
     for (let entity of scenePreviewCameraSelectQuery.enter()) {
       const obj3d = getComponent(entity, Object3DComponent).value
-      Engine.instance.scene.add(obj3d.userData.helper)
+      Engine.instance.currentWorld.scene.add(obj3d.userData.helper)
       obj3d.userData.helper.update()
     }
 
@@ -57,20 +57,20 @@ export default async function EntityNodeEventSystem(_: World) {
       let obj3d = getComponent(entity, Object3DComponent)?.value
 
       if (obj3d) {
-        Engine.instance.scene.remove(obj3d.userData.helper)
+        Engine.instance.currentWorld.scene.remove(obj3d.userData.helper)
       } else {
-        const obj3d = Engine.instance.scene.getObjectByName(SCENE_PREVIEW_CAMERA_HELPER)
-        if (obj3d) Engine.instance.scene.remove(obj3d)
+        const obj3d = Engine.instance.currentWorld.scene.getObjectByName(SCENE_PREVIEW_CAMERA_HELPER)
+        if (obj3d) Engine.instance.currentWorld.scene.remove(obj3d)
       }
     }
 
     /* Remove Events */
     for (const _ of skyboxQuery.exit()) {
-      Engine.instance.scene.background = new Color('black')
+      Engine.instance.currentWorld.scene.background = new Color('black')
     }
 
     for (const _ of fogQuery.exit()) {
-      Engine.instance.scene.fog = null
+      Engine.instance.currentWorld.scene.fog = null
     }
 
     if (Engine.instance.isEditor) {
@@ -84,8 +84,8 @@ export default async function EntityNodeEventSystem(_: World) {
     }
 
     for (const _ of scenePreviewCameraQuery.exit()) {
-      const obj3d = Engine.instance.scene.getObjectByName(SCENE_PREVIEW_CAMERA_HELPER)
-      if (obj3d) Engine.instance.scene.remove(obj3d)
+      const obj3d = Engine.instance.currentWorld.scene.getObjectByName(SCENE_PREVIEW_CAMERA_HELPER)
+      if (obj3d) Engine.instance.currentWorld.scene.remove(obj3d)
     }
 
     for (const entity of videoQuery.exit()) {

@@ -3,6 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -119,7 +120,7 @@ export const LocationInstanceConnectionService = {
   connectToServer: async () => {
     const dispatch = useDispatch()
     dispatch(LocationInstanceConnectionAction.connecting())
-    const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
+    const transport = Network.instance.getTransport('world' as UserId) as SocketWebRTCClientTransport
     console.log('connectToServer', !!transport.socket, transport)
     if (transport.socket) {
       await leave(transport, false)

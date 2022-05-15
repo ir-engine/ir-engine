@@ -136,7 +136,7 @@ export default async function AvatarSystem(world: World) {
 
       xrInputSourceComponent.container.name = 'XR Container'
       xrInputSourceComponent.head.name = 'XR Head'
-      Engine.instance.scene.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
+      Engine.instance.currentWorld.scene.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
 
       // Add head IK Solver
       if (!isEntityLocalClient(entity)) {
