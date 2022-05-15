@@ -18,7 +18,6 @@ import { loadWebappInjection } from '@xrengine/projects/loadWebappInjection'
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
 
 import RouterComp from '../route/public'
-
 import './styles.scss'
 
 declare module '@mui/styles/defaultTheme' {

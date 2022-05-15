@@ -1,6 +1,5 @@
 import { Blob } from 'buffer'
 import fetch, { Headers, Request, Response } from 'node-fetch'
-
 // needed for URL.createObjectURL
 import 'url-polyfill'
 
