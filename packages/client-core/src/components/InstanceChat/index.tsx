@@ -47,9 +47,6 @@ interface Props {
   hideOtherMenus?: any
   setShowTouchPad?: any
 }
-let entity: Entity = null!
-const audio = document.createElement('audio')
-audio.src = notificationAlertURL
 
 const InstanceChat = (props: Props): any => {
   const {
@@ -75,7 +72,7 @@ const InstanceChat = (props: Props): any => {
   const [isInitRender, setIsInitRender] = React.useState<Boolean>()
   const [noUnReadMessage, setNoUnReadMessage] = React.useState<any>()
   const rendererState = useEngineRendererState()
-  audio.volume = rendererState.audio.value / 100
+  const [entity, setEntity] = React.useState<Entity>()
   const usersTyping = useState(
     getState(Engine.instance.currentWorld.store, WorldState).usersTyping[user?.id.value]
   ).value
@@ -105,30 +102,21 @@ const InstanceChat = (props: Props): any => {
 
   const fetchAudioAlert = async () => {
     setIsInitRender(true)
-
-    // Load audio asset into cache
     AssetLoader.Cache.delete(notificationAlertURL)
     const loadPromise = AssetLoader.loadAsync(notificationAlertURL)
-
-    // Create entity tree node from audio prefab and add it into the entity tree
     const node = createEntityNode(createEntity(Engine.instance.currentWorld))
+    setEntity(node.entity)
     createNewEditorNode(node.entity, ScenePrefabs.audio)
     addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.rootNode)
-
-    // Update audio component values
     const audioComponent = getComponent(node.entity, AudioComponent)
     audioComponent.volume = rendererState.audio.value / 100
     audioComponent.audioSource = notificationAlertURL
 
-    // await for the asset to be loaded
     await loadPromise
-
-    // Update the audio object.
     updateAudio(node.entity, { volume: rendererState.audio.value / 100, audioSource: notificationAlertURL })
   }
 
   useEffect(() => {
-    // Wait for the scene to be loaded
     if (getEngineState().sceneLoaded.value) fetchAudioAlert()
     matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, () => {
       fetchAudioAlert()
@@ -170,10 +158,7 @@ const InstanceChat = (props: Props): any => {
       chatState.messageCreated.value
     ) {
       setNoUnReadMessage(false)
-      // audio.play()
-
-      //Play audio
-      toggleAudio(entity)
+      entity && toggleAudio(entity)
     }
   }, [chatState])
 
