@@ -69,6 +69,10 @@ const ReactorReconciler = Reconciler({
 function addStateReactor(store: HyperStore<any>, reactor: () => void) {
   let root = store.reactors.get(reactor)
   if (!root) {
+    /**
+     * @todo @speigg look into this
+     */
+    // @ts-ignore
     root = ReactorReconciler.createContainer(reactor, 0, false, null)
     ReactorReconciler.updateContainer(
       () => {
