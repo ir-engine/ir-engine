@@ -8,6 +8,7 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import { notificationAlertURL } from '@xrengine/common/src/constants/URL'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -19,7 +20,6 @@ import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
@@ -71,7 +71,7 @@ const InstanceChat = (props: Props): any => {
   const instanceConnectionState = useLocationInstanceConnectionState()
   const [isInitRender, setIsInitRender] = React.useState<Boolean>()
   const [noUnReadMessage, setNoUnReadMessage] = React.useState<any>()
-  const rendererState = useEngineRendererState()
+  const audioState = useAudioState()
   const [entity, setEntity] = React.useState<Entity>()
   const usersTyping = useState(
     getState(Engine.instance.currentWorld.store, WorldState).usersTyping[user?.id.value]
@@ -100,6 +100,14 @@ const InstanceChat = (props: Props): any => {
     return () => clearTimeout(delayDebounce)
   }, [composingMessage])
 
+  useEffect(() => {
+    if (entity) {
+      const audioComponent = getComponent(entity, AudioComponent)
+      audioComponent.volume = audioState.audio.value / 100
+      updateAudio(entity, { volume: audioState.audio.value / 100 })
+    }
+  }, [audioState.audio.value])
+
   const fetchAudioAlert = async () => {
     setIsInitRender(true)
     AssetLoader.Cache.delete(notificationAlertURL)
@@ -109,11 +117,11 @@ const InstanceChat = (props: Props): any => {
     createNewEditorNode(node.entity, ScenePrefabs.audio)
     addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.rootNode)
     const audioComponent = getComponent(node.entity, AudioComponent)
-    audioComponent.volume = rendererState.audio.value / 100
+    audioComponent.volume = audioState.audio.value / 100
     audioComponent.audioSource = notificationAlertURL
 
     await loadPromise
-    updateAudio(node.entity, { volume: rendererState.audio.value / 100, audioSource: notificationAlertURL })
+    updateAudio(node.entity, { volume: audioState.audio.value / 100, audioSource: notificationAlertURL })
   }
 
   useEffect(() => {

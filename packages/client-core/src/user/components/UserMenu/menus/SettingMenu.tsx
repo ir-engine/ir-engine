@@ -1,6 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { AvatarSettings, updateMap } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
 import {
   AvatarInputSettingsAction,
@@ -38,6 +39,7 @@ import styles from '../index.module.scss'
 const SettingMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()
+  const audioState = useAudioState()
   const avatarInputState = useAvatarInputSettingsState()
 
   const [controlTypeSelected, setControlType] = useState(avatarInputState.controlType.value)
@@ -92,9 +94,9 @@ const SettingMenu = (): JSX.Element => {
             </span>
             <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-volume')}</span>
             <Slider
-              value={rendererState.audio.value == null ? 100 : rendererState.audio.value}
+              value={audioState.audio.value == null ? 100 : audioState.audio.value}
               onChange={(_, value: number) => {
-                dispatchAction(Engine.instance.store, EngineRendererAction.setAudio(value))
+                dispatchAction(Engine.instance.store, AudioSettingAction.setAudio(value))
                 const mediaElements = document.querySelectorAll<HTMLMediaElement>('video, audio')
                 for (let i = 0; i < mediaElements.length; i++) {
                   mediaElements[i].volume = (value as number) / 100
@@ -111,9 +113,9 @@ const SettingMenu = (): JSX.Element => {
             </span>
             <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-microphone')}</span>
             <Slider
-              value={rendererState.microphone.value == null ? 100 : rendererState.microphone.value}
+              value={audioState.microphone.value == null ? 100 : audioState.microphone.value}
               onChange={(_, value: number) => {
-                dispatchAction(Engine.instance.store, EngineRendererAction.setMicrophone(value))
+                dispatchAction(Engine.instance.store, AudioSettingAction.setMicrophone(value))
               }}
               className={styles.slider}
               max={100}
