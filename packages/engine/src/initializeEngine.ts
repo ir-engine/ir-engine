@@ -1,6 +1,6 @@
 import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
-import { AudioListener, PerspectiveCamera, Scene } from 'three'
+import { AudioListener, PerspectiveCamera } from 'three'
 
 import { BotUserAgent } from '@xrengine/common/src/constants/BotUserAgent'
 import { addActionReceptor, dispatchAction, registerState } from '@xrengine/hyperflux'
@@ -17,12 +17,12 @@ import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { matchActionOnce } from './networking/functions/matchActionOnce'
 import { NetworkActionReceptor } from './networking/functions/NetworkActionReceptor'
-import { WorldState } from './networking/interfaces/WorldState'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 
 import './threejsPatches'
 
+import { Network } from './networking/classes/Network'
 import { FontManager } from './xrui/classes/FontManager'
 
 /**
@@ -32,6 +32,7 @@ import { FontManager } from './xrui/classes/FontManager'
  */
 export const createEngine = () => {
   Engine.instance = new Engine()
+  Network.instance = new Network()
   Engine.instance.currentWorld = createWorld()
   EngineRenderer.instance = new EngineRenderer()
   if (isClient) EngineRenderer.instance.initialize()
