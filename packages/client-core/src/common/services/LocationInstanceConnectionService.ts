@@ -22,7 +22,7 @@ const state = createState({
     id: '',
     ipAddress: '',
     port: ''
-  },
+  } as InstanceServerProvisionResult,
   locationId: '',
   sceneId: '',
   provisioned: false,

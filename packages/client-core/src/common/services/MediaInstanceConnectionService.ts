@@ -19,7 +19,7 @@ const state = createState({
   instance: {
     ipAddress: '',
     port: ''
-  },
+  } as any as InstanceServerProvisionResult,
   locationId: '',
   sceneId: '',
   channelType: null! as ChannelType,
@@ -50,7 +50,7 @@ store.receptors.push((action: MediaLocationInstanceConnectionActionType): any =>
           instance: {
             ipAddress: action.ipAddress,
             port: action.port
-          },
+          } as any as InstanceServerProvisionResult,
           channelType: action.channelType,
           channelId: action.channelId!,
           provisioning: false,
@@ -79,7 +79,7 @@ store.receptors.push((action: MediaLocationInstanceConnectionActionType): any =>
           instance: {
             ipAddress: '',
             port: ''
-          },
+          } as any as InstanceServerProvisionResult,
           locationId: '',
           sceneId: '',
           channelType: null!,
