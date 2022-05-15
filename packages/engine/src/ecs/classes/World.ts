@@ -57,9 +57,6 @@ export class World {
     this.scene.layers.set(ObjectLayers.Scene)
 
     registerState(this.store, WorldState)
-
-    // @todo support multiple networks per world
-    Network.instance = new Network()
   }
 
   static [CreateWorld] = () => new World()
@@ -67,7 +64,7 @@ export class World {
   /**
    * The UserId of the host
    */
-  hostId = 'server' as UserId
+  hostId = 'world' as UserId
 
   /**
    * Check if this user is hosting the world.
@@ -282,7 +279,9 @@ export class World {
   execute(frameTime: number) {
     const start = nowMilliseconds()
     const incomingActions = [...this.store.actions.incoming]
-    const incomingBufferLength = Network.instance?.incomingMessageQueueUnreliable.getBufferLength()
+    const incomingBufferLength = Network.instance
+      .getTransport('world')
+      ?.incomingMessageQueueUnreliable.getBufferLength()
 
     const worldElapsedSeconds = (frameTime - this.startTime) / 1000
     this.deltaSeconds = Math.max(0, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))

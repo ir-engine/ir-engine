@@ -5,7 +5,6 @@ import https from 'https'
 import psList from 'ps-list'
 
 import { pipe } from '@xrengine/common/src/utils/pipe'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 
 import '@xrengine/engine/src/patchEngineNode'
 
@@ -16,13 +15,12 @@ import {
   configureOpenAPI,
   configureRedis,
   configureSocketIO,
-  createFeathersExpressApp,
-  serverPipe
+  createFeathersExpressApp
 } from '@xrengine/server-core/src/createApp'
 import multiLogger from '@xrengine/server-core/src/logger'
 
 import channels from './channels'
-import { ServerTransportHandler, SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 
 const logger = multiLogger.child({ component: 'gameserver' })
 
@@ -37,7 +35,6 @@ process.on('unhandledRejection', (error, promise) => {
 })
 
 const onSocketIO = (app: Application) => {
-  Network.instance.transportHandler = new ServerTransportHandler()
   app.transport = new SocketWebRTCServerTransport(app)
   app.transport.initialize()
 }

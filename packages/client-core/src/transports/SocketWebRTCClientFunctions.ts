@@ -4,7 +4,7 @@ import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Network, TransportTypes } from '@xrengine/engine/src/networking/classes/Network'
+import { TransportTypes } from '@xrengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
@@ -23,7 +23,7 @@ import { MediaStreamAction, MediaStreamService } from '../media/services/MediaSt
 import { store, useDispatch } from '../store'
 import { accessAuthState } from '../user/services/AuthService'
 import { getSearchParamFromURL } from '../util/getSearchParamFromURL'
-import { getMediaTransport, SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
+import { SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
 
 export const getChannelTypeIdFromTransport = (networkTransport: SocketWebRTCClientTransport) => {
   const channelConnectionState = accessMediaInstanceConnectionState()
@@ -121,12 +121,12 @@ export async function onConnectToWorldInstance(networkTransport: SocketWebRTCCli
 
     // Firefox uses blob as by default hence have to convert binary type of data consumer to 'arraybuffer' explicitly.
     dataConsumer.binaryType = 'arraybuffer'
-    Network.instance.dataConsumers.set(options.dataProducerId, dataConsumer)
+    networkTransport.dataConsumers.set(options.dataProducerId, dataConsumer)
 
     dataConsumer.on('message', (message: any) => {
       try {
-        Network.instance.incomingMessageQueueUnreliable.add(message)
-        Network.instance.incomingMessageQueueUnreliableIDs.add(options.dataProducerId)
+        networkTransport.incomingMessageQueueUnreliable.add(message)
+        networkTransport.incomingMessageQueueUnreliableIDs.add(options.dataProducerId)
       } catch (error) {
         console.warn('Error handling data from consumer:')
         console.warn(error)
@@ -134,7 +134,7 @@ export async function onConnectToWorldInstance(networkTransport: SocketWebRTCCli
     }) // Handle message received
     dataConsumer.on('close', () => {
       dataConsumer.close()
-      Network.instance.dataConsumers.delete(options.dataProducerId)
+      networkTransport.dataConsumers.delete(options.dataProducerId)
     })
   }
 
@@ -244,7 +244,6 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
     networkTransport.reconnecting = false
     await onConnectToInstance(networkTransport)
     await updateNearbyAvatars()
-    const mediaTransport = getMediaTransport()
     const request = networkTransport.request
     const socket = networkTransport.socket
     if (MediaStreams.instance.videoStream) {
@@ -254,8 +253,8 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
             producerId: MediaStreams.instance?.camVideoProducer.id
           })
         await MediaStreams.instance?.camVideoProducer?.close()
-        await configureMediaTransports(mediaTransport, ['video'])
-        await createCamVideoProducer(mediaTransport)
+        await configureMediaTransports(networkTransport, ['video'])
+        await createCamVideoProducer(networkTransport)
       }
       MediaStreamService.updateCamVideoState()
     }
@@ -266,8 +265,8 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
             producerId: MediaStreams.instance?.camAudioProducer.id
           })
         await MediaStreams.instance?.camAudioProducer?.close()
-        await configureMediaTransports(mediaTransport, ['audio'])
-        await createCamAudioProducer(mediaTransport)
+        await configureMediaTransports(networkTransport, ['audio'])
+        await createCamAudioProducer(networkTransport)
       }
       MediaStreamService.updateCamAudioState()
     }
@@ -323,7 +322,6 @@ export async function createDataProducer(
   customInitInfo: any = {}
 ): Promise<void> {
   const sendTransport = networkTransport.sendTransport
-  // else if (MediaStreams.instance.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'))
   const dataProducer = await sendTransport.produceData({
     appData: { data: customInitInfo },
     ordered: false,
@@ -790,60 +788,60 @@ export async function unsubscribeFromTrack(transport: SocketWebRTCClientTranspor
 }
 
 export async function pauseConsumer(
-  transport: SocketWebRTCClientTransport,
+  networkTransport: SocketWebRTCClientTransport,
   consumer: { appData: { peerId: any; mediaTag: any }; id: any; pause: () => any }
 ) {
-  await transport.request(MessageTypes.WebRTCPauseConsumer.toString(), {
+  await networkTransport.request(MessageTypes.WebRTCPauseConsumer.toString(), {
     consumerId: consumer.id
   })
   if (consumer && typeof consumer.pause === 'function')
-    Network.instance.mediasoupOperationQueue.add({
+    networkTransport.mediasoupOperationQueue.add({
       object: consumer,
       action: 'pause'
     })
 }
 
 export async function resumeConsumer(
-  transport: SocketWebRTCClientTransport,
+  networkTransport: SocketWebRTCClientTransport,
   consumer: {
     appData: { peerId: any; mediaTag: any }
     id: any
     resume: () => any
   }
 ) {
-  await transport.request(MessageTypes.WebRTCResumeConsumer.toString(), {
+  await networkTransport.request(MessageTypes.WebRTCResumeConsumer.toString(), {
     consumerId: consumer.id
   })
   if (consumer && typeof consumer.resume === 'function')
-    Network.instance.mediasoupOperationQueue.add({
+    networkTransport.mediasoupOperationQueue.add({
       object: consumer,
       action: 'resume'
     })
 }
 
 export async function pauseProducer(
-  transport: SocketWebRTCClientTransport,
+  networkTransport: SocketWebRTCClientTransport,
   producer: { appData: { mediaTag: any }; id: any; pause: () => any }
 ) {
-  await transport.request(MessageTypes.WebRTCPauseProducer.toString(), {
+  await networkTransport.request(MessageTypes.WebRTCPauseProducer.toString(), {
     producerId: producer.id
   })
   if (producer && typeof producer.pause === 'function')
-    Network.instance.mediasoupOperationQueue.add({
+    networkTransport.mediasoupOperationQueue.add({
       object: producer,
       action: 'pause'
     })
 }
 
 export async function resumeProducer(
-  transport: SocketWebRTCClientTransport,
+  networkTransport: SocketWebRTCClientTransport,
   producer: { appData: { mediaTag: any }; id: any; resume: () => any }
 ) {
-  await transport.request(MessageTypes.WebRTCResumeProducer.toString(), {
+  await networkTransport.request(MessageTypes.WebRTCResumeProducer.toString(), {
     producerId: producer.id
   })
   if (producer && typeof producer.resume === 'function')
-    Network.instance.mediasoupOperationQueue.add({
+    networkTransport.mediasoupOperationQueue.add({
       object: producer,
       action: 'resume'
     })

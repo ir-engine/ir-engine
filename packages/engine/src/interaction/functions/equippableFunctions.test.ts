@@ -25,7 +25,7 @@ describe('equippableFunctions', () => {
     assert(!hasComponent(entity2, EquippedComponent))
 
     const networkObject = addComponent(entity2, NetworkObjectComponent, {
-      ownerId: 'server' as UserId,
+      ownerId: 'world' as UserId,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}
@@ -40,7 +40,7 @@ describe('equippableFunctions', () => {
     const entity1: Entity = createEntity()
     const entity2: Entity = createEntity()
     const networkObject = addComponent(entity2, NetworkObjectComponent, {
-      ownerId: 'server' as UserId,
+      ownerId: 'world' as UserId,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}
