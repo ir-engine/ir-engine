@@ -97,7 +97,7 @@
     "@trivago/prettier-plugin-sort-imports": "3.2.0",
     "@types/mocha": "9.1.1",
     "@types/pino": "^7.0.5",
-    "concurrently": "7.1.0",
+    "concurrently": "7.2.0",
     "depcheck": "1.4.3",
     "kill-port": "1.6.1",
     "lint-staged": "12.4.1",
