@@ -113,11 +113,11 @@ const InvitesConsole = () => {
   return (
     <div>
       <ConfirmProvider>
-        <Grid container spacing={3} className={styles.mb10px}>
-          <Grid item xs={9}>
+        <Grid container spacing={1} className={styles.mb10px}>
+          <Grid item xs={12} sm={8}>
             <Search text="invite" handleChange={handleSearchChange} />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={12} sm={4}>
             <Button variant="contained" className={styles.openModalBtn} type="submit" onClick={openModalInvite}>
               {t('admin:components.invite.sendInvite')}
             </Button>

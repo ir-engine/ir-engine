@@ -151,6 +151,7 @@
     "invite": {
       "sendInvite": "Send Invite",
       "receivedInvite": "Received Invite",
+      "selectUsers": "Select Users",
       "fillAllRequiredFields": "Please fill all required fields!",
       "enterValidPasscode": "Enter valid Passcode or None",
       "invalidInviteCode": "Invalid Invite Code",
