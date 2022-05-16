@@ -58,6 +58,7 @@ export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
     <NodeEditor description={t('editor:properties.triggereVolume.description')} {...props}>
       <InputGroup name="Target" label={t('editor:properties.triggereVolume.lbl-target')}>
         <SelectInput
+          key={props.node.entity}
           error={targetNotFound}
           placeholder={
             targetNotFound
@@ -79,6 +80,7 @@ export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
           />
         ) : (
           <SelectInput
+            key={props.node.entity}
             value={triggerVolumeComponent.onEnter}
             onChange={updateProperty(TriggerVolumeComponent, 'onEnter')}
             options={targetOption?.callbacks ? targetOption.callbacks : []}
@@ -96,6 +98,7 @@ export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
           />
         ) : (
           <SelectInput
+            key={props.node.entity}
             value={triggerVolumeComponent.onExit}
             onChange={updateProperty(TriggerVolumeComponent, 'onExit')}
             options={targetOption?.callbacks ? targetOption.callbacks : []}

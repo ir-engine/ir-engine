@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash'
 import { MathUtils } from 'three'
 
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -19,7 +20,6 @@ import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems, SystemModuleType } from '../../ecs/functions/SystemFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 import { EngineRendererAction } from '../../renderer/EngineRendererState'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -34,9 +34,8 @@ import { resetEngineRenderer } from './loaders/RenderSettingsFunction'
 import { ScenePrefabTypes } from './registerPrefabs'
 
 export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes): void => {
-  const world = useWorld()
-
-  const components = world.scenePrefabRegistry.get(prefabType)
+  // Clone the defualt values so that it will not be bound to newly created node
+  const components = cloneDeep(Engine.instance.currentWorld.scenePrefabRegistry.get(prefabType))
   if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
 
   loadSceneEntity(createEntityNode(entity), { name: prefabType, components })
@@ -82,18 +81,14 @@ const iterateReplaceID = (data: any, idMap: Map<string, string>) => {
   return data
 }
 
-export const loadECSData = async (
-  sceneData: SceneJson,
-  assetRoot = undefined,
-  world = useWorld()
-): Promise<EntityTreeNode[]> => {
+export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): Promise<EntityTreeNode[]> => {
   const entityMap = {} as { [key: string]: EntityTreeNode }
   const entities = Object.entries(sceneData.entities).filter(([uuid]) => uuid !== sceneData.root)
   await Promise.all(preCacheAssets(sceneData, () => {}))
   const idMap = new Map<string, string>()
-  const loadedEntities = world.entityTree.uuidNodeMap
+  const loadedEntities = Engine.instance.currentWorld.entityTree.uuidNodeMap
 
-  const root = world.entityTree.rootNode
+  const root = Engine.instance.currentWorld.entityTree.rootNode
   const rootId = sceneData.root
 
   entities.forEach(([_uuid]) => {
@@ -139,12 +134,8 @@ export const loadECSData = async (
  * Loads a scene from scene json
  * @param sceneData
  */
-export const loadSceneFromJSON = async (
-  sceneData: SceneJson,
-  sceneSystems: SystemModuleType<any>[],
-  world = useWorld()
-) => {
-  unloadScene(world)
+export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: SystemModuleType<any>[]) => {
+  unloadScene(Engine.instance.currentWorld)
 
   dispatchAction(Engine.instance.store, EngineActions.sceneLoading())
 
@@ -170,7 +161,7 @@ export const loadSceneFromJSON = async (
   promises.forEach((promise) => promise.then(onComplete))
   await Promise.all(promises)
 
-  initSystems(world, sceneSystems)
+  initSystems(Engine.instance.currentWorld, sceneSystems)
 
   const entityMap = {} as { [key: string]: EntityTreeNode }
 
@@ -182,7 +173,7 @@ export const loadSceneFromJSON = async (
     loadSceneEntity(entityMap[key], sceneData.entities[key])
   })
 
-  const tree = world.entityTree
+  const tree = Engine.instance.currentWorld.entityTree
 
   Object.keys(sceneData.entities).forEach((key) => {
     const sceneEntity = sceneData.entities[key]
@@ -236,7 +227,7 @@ export const loadSceneEntity = (entityNode: EntityTreeNode, sceneEntity: EntityJ
 export const loadComponent = (entity: Entity, component: ComponentJson): void => {
   // remove '-1', '-2' etc suffixes
   const name = component.name.replace(/(-\d+)|(\s)/g, '')
-  const world = useWorld()
+  const world = Engine.instance.currentWorld
 
   const deserializer = world.sceneLoadingRegistry.get(name)?.deserialize
 
