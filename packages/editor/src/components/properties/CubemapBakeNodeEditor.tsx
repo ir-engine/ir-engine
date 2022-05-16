@@ -103,7 +103,12 @@ export const CubemapBakeNodeEditor: EditorComponentType = (props) => {
 
       element.options?.forEach((property, propertyid) => {
         renderProp.push(
-          <CubemapBakeProperties key={id + '' + propertyid} element={property} bakeComponent={bakeComponent} />
+          <CubemapBakeProperties
+            key={id + '' + propertyid}
+            element={property}
+            bakeComponent={bakeComponent}
+            node={props.node}
+          />
         )
       })
 

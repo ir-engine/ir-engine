@@ -95,6 +95,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Envmap Source" label="Envmap Source">
         <SelectInput
+          key={props.node.entity}
           options={EnvMapSourceOptions}
           value={envmapComponent.type}
           onChange={updateProperty(EnvmapComponent, 'type')}
@@ -112,6 +113,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
         <div>
           <InputGroup name="Texture Type" label="Texture Type">
             <SelectInput
+              key={props.node.entity}
               options={EnvMapTextureOptions}
               value={envmapComponent.envMapTextureType}
               onChange={updateProperty(EnvmapComponent, 'envMapTextureType')}

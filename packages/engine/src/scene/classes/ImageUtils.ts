@@ -154,6 +154,8 @@ export const convertCubemapToEquiImageData = async (
   const pixels = new Uint8Array(4 * width * height)
   renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
   const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
+  renderer.setRenderTarget(null) // pass `null` to set canvas as render target
+
   if (returnAsBlob) {
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
