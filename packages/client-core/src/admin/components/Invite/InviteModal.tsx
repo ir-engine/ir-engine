@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
-import { Dropdown } from 'semantic-ui-react'
 
 import { User } from '@xrengine/common/src/interfaces/User'
 
-import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import Grid from '@mui/material/Grid'
 
+import { AlertService } from '../../../common/services/AlertService'
 import { InviteService } from '../../../social/services/InviteService'
 import { InviteTypeService } from '../../../social/services/InviteTypeService'
 import { useInviteTypeState } from '../../../social/services/InviteTypeService'
@@ -15,6 +14,7 @@ import AutoComplete from '../../common/AutoComplete'
 import CreateModal from '../../common/CreateModal'
 import InputSelect from '../../common/InputSelect'
 import InputText from '../../common/InputText'
+import { validateForm } from '../../common/validation/formValidation'
 
 interface Props {
   open: boolean
@@ -35,9 +35,9 @@ const InviteModal = (props: Props) => {
   const { open, handleClose, users } = props
   const router = useHistory()
   const [currency, setCurrency] = useState('friend')
-  const inviteTypeData = useInviteTypeState()
-  const inviteType = inviteTypeData.inviteTypeData.invitesType?.value
-  const [targetUser, setTargetUser] = useState([])
+  const inviteTypeData = useInviteTypeState()?.inviteTypeData?.value
+  const inviteType = inviteTypeData.invitesType
+  const [targetUser, setTargetUser] = useState<any>([])
   const [token, setToken] = useState('')
   const [passcode, setPasscode] = useState('')
   const [providerType, setProviderType] = useState('email')
@@ -45,9 +45,7 @@ const InviteModal = (props: Props) => {
     type: '',
     token: '',
     inviteCode: '',
-    invitee: '',
-    identityProviderType: '',
-    targetObjectId: ''
+    identityProviderType: ''
   })
   const { t } = useTranslation()
 
@@ -70,6 +68,11 @@ const InviteModal = (props: Props) => {
   ]
   const handleTypeChange = (event) => {
     setCurrency(event.target.value)
+    formErrors.type.length > 0 &&
+      setFormErrors({
+        ...formErrors,
+        type: event.target.value.length > 0 ? '' : 'This field is required'
+      })
   }
 
   const refreshData = () => {
@@ -78,55 +81,116 @@ const InviteModal = (props: Props) => {
 
   const handleIndentityProviderTypeChange = (event) => {
     setProviderType(event.target.value)
+    formErrors.identityProviderType.length > 0 &&
+      setFormErrors({
+        ...formErrors,
+        identityProviderType: event.target.value.length > 0 ? '' : 'This field is required'
+      })
   }
 
   const handlePasscodeChange = (event) => {
     setPasscode(event.target.value)
+    formErrors.inviteCode.length > 0 &&
+      setFormErrors({
+        ...formErrors,
+        inviteCode: inviteCodeRegex.test(event.target.value) ? '' : 'Enter valid passcode'
+      })
   }
 
   const handleTokenChange = (event) => {
     setToken(event.target.value)
+    formErrors.token.length > 0 &&
+      setFormErrors({
+        ...formErrors,
+        token:
+          providerType.length > 0
+            ? providerType === 'email'
+              ? emailRegex.test(event.target.value)
+                ? ''
+                : 'Enter valid email'
+              : phoneRegex.test(event.target.value)
+              ? ''
+              : 'Enter valid phone number'
+            : 'Select Provider Type first'
+      })
+  }
+
+  const validateFormErrors = () => {
+    setFormErrors({
+      ...formErrors,
+      type: currency.length > 0 ? '' : 'This field is required',
+      inviteCode: inviteCodeRegex.test(passcode) ? '' : 'Enter valid passcode',
+      identityProviderType: providerType.length > 0 ? '' : 'This field is required',
+      token:
+        providerType.length > 0
+          ? providerType === 'email'
+            ? emailRegex.test(token)
+              ? ''
+              : 'Enter valid email'
+            : phoneRegex.test(token)
+            ? ''
+            : 'Enter valid phone number'
+          : 'Select Provider Type first'
+    })
   }
 
   const createInvite = async () => {
-    const data = {
-      type: currency,
-      token: token, // phone number (10 digital us number) or email
-      inviteCode: passcode || null, // Code should range from 0-9 and a-f as well as A-F match to 8 characters
-      invitee: targetUser[0], // valid user id
-      identityProviderType: providerType, // email or sms
-      targetObjectId: targetUser[0]
-    }
-    if (token && currency && targetUser) {
-      await InviteService.sendInvite(data)
-      refreshData()
-      handleClose()
+    validateFormErrors()
+
+    if (
+      validateForm(
+        { type: currency, token: token, inviteCode: passcode || null, identityProviderType: providerType },
+        formErrors
+      ) &&
+      targetUser?.length > 0
+    ) {
+      for (let tUser of targetUser) {
+        const data = {
+          type: currency,
+          token: token,
+          inviteCode: passcode || null,
+          invitee: tUser.id,
+          identityProviderType: providerType,
+          targetObjectId: tUser.id
+        }
+        console.log('---Data---', data)
+
+        // await InviteService.sendInvite(data)
+      }
+
+      // refreshData()
+      // handleClose()
+    } else {
+      AlertService.alertError('Select atleast one user and fill all fields.')
     }
   }
 
-  if (inviteType != null) {
-    inviteType.forEach((el) => {
+  if (inviteType?.length > 0) {
+    for (let el of inviteType) {
       currencies.push({
         value: el.type,
         label: el.type
       })
-    })
+    }
   }
 
   interface StateOption {
     key: string
+    name: string
     type: string
     value: string
   }
 
   const userOptions: StateOption[] = []
-  users.forEach((el) => {
+
+  for (let el of users) {
     userOptions.push({
       key: el.id ?? '',
+      name: el.name,
       type: el.name,
       value: el.id ?? ''
     })
-  })
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -155,16 +219,6 @@ const InviteModal = (props: Props) => {
             label={t('admin:components.invite.selectUsers')}
             handleChangeScopeType={onSelectValue}
           />
-          {/* <Dropdown
-            placeholder="Users"
-            fluid
-            multiple
-            search
-            selection
-            onChange={onSelectValue}
-            onSearchChange={handleInputChange}
-            options={userOptions}
-          /> */}
         </Grid>
         <Grid item xs={12}>
           <InputText
