@@ -176,7 +176,8 @@
       "lbl-coreOuterGain": "Cone Outer Gain",
       "info-coreOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
       "lbl-volume": "Volume",
-      "lbl-test": "Test",
+      "lbl-play": "Play",
+      "lbl-pause": "Pause",
       "error-url": "Error Loading From URL"
     },
     "boxCollider": {
@@ -482,7 +483,6 @@
       "lbl-islivestream": "Live Stream",
       "lbl-interactable": "Interactable",
       "lbl-id": "Element Id",
-      "lbl-test": "Test",
       "lbl-play": "Play",
       "lbl-pause": "Pause",
       "error-url": "Error Loading From URL"
