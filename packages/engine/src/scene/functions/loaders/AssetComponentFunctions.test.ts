@@ -21,7 +21,9 @@ import {
   removeEntityNodeFromParent
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine, initializeCoreSystems } from '@xrengine/engine/src/initializeEngine'
+
 import '@xrengine/engine/src/patchEngineNode'
+
 import { AssetComponent, AssetLoadedComponent, LoadState } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { gltfToSceneJson, handleScenePaths } from '@xrengine/engine/src/scene/functions/GLTFConversion'

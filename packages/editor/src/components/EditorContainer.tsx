@@ -1,5 +1,7 @@
 import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
+
 import 'rc-dock/dist/rc-dock.css'
+
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'

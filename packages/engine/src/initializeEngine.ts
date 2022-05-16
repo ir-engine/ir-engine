@@ -20,7 +20,9 @@ import { matchActionOnce } from './networking/functions/matchActionOnce'
 import { NetworkActionReceptor } from './networking/functions/NetworkActionReceptor'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
+
 import './threejsPatches'
+
 import { FontManager } from './xrui/classes/FontManager'
 
 /**
