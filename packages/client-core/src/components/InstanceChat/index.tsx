@@ -260,7 +260,7 @@ const InstanceChat = (props: Props): any => {
       width: window.innerWidth
     })
   }
-  sortedMessages && console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', sortedMessages)
+
   const isLeftOrJoinText = (text) => {
     return / left the layer|joined the layer/.test(text)
   }
