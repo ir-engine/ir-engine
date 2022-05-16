@@ -37,28 +37,30 @@ export const NetworkInstanceProvisioning = () => {
   const chatState = useChatState()
   const locationState = useLocationState()
   const instanceConnectionState = useLocationInstanceConnectionState()
+  const currentInstanceId = instanceConnectionState.currentInstanceId.value
+  const currentInstanceConnection = instanceConnectionState.instances[currentInstanceId!]
   const channelConnectionState = useMediaInstanceConnectionState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useEngineState()
   const history = useHistory()
 
   useHookEffect(() => {
-    const instanceIdValue = instanceConnectionState.instance.id.value
-    if (instanceIdValue) {
+    if (currentInstanceId) {
       const url = new URL(window.location.href)
       const searchParams = url.searchParams
       const instanceId = searchParams.get('instanceId')
-      if (instanceId !== instanceIdValue) searchParams.set('instanceId', instanceIdValue)
+      if (instanceId !== currentInstanceId) searchParams.set('instanceId', currentInstanceId)
       history.push(url.pathname + url.search)
     }
-  }, [instanceConnectionState.instance.id])
+  }, [instanceConnectionState.instances.id])
 
   // 2. once we have the location, provision the instance server
   useHookEffect(() => {
     const currentLocation = locationState.currentLocation.location
+    const isProvisioned = currentInstanceId && currentInstanceConnection.provisioned.value
 
     if (currentLocation.id?.value) {
-      if (!isUserBanned && !instanceConnectionState.provisioned.value && !instanceConnectionState.provisioning.value) {
+      if (!isUserBanned && !isProvisioned) {
         const search = window.location.search
         let instanceId
 
@@ -84,27 +86,23 @@ export const NetworkInstanceProvisioning = () => {
   useHookEffect(() => {
     if (
       engineState.isEngineInitialized.value &&
-      !instanceConnectionState.connected.value &&
-      instanceConnectionState.provisioned.value &&
-      !instanceConnectionState.connecting.value
+      currentInstanceId &&
+      !currentInstanceConnection.connected.value &&
+      currentInstanceConnection.provisioned.value &&
+      !currentInstanceConnection.connecting.value
     )
-      LocationInstanceConnectionService.connectToServer()
+      LocationInstanceConnectionService.connectToServer(instanceConnectionState.currentInstanceId.value!)
   }, [
     engineState.isEngineInitialized,
-    instanceConnectionState.connected,
-    instanceConnectionState.connecting,
-    instanceConnectionState.provisioned
+    currentInstanceConnection.connected,
+    currentInstanceConnection.connecting,
+    currentInstanceConnection.provisioned
   ])
 
   useHookEffect(() => {
     const transportRequestData = {
       inviteCode: getSearchParamFromURL('inviteCode')!
     }
-    console.log(
-      'engineState.connectedWorld.value && engineState.sceneLoaded.value',
-      engineState.connectedWorld.value,
-      engineState.sceneLoaded.value
-    )
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
       Network.instance
         .getTransport('world')
@@ -118,7 +116,7 @@ export const NetworkInstanceProvisioning = () => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
       const instanceChannel = Object.values(channels).find(
-        (channel) => channel.instanceId === instanceConnectionState.instance.id.value
+        (channel) => channel.instanceId === instanceConnectionState.currentInstanceId.value
       )
       MediaInstanceConnectionService.provisionServer(instanceChannel?.id, true)
     }

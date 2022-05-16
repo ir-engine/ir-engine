@@ -46,7 +46,7 @@ const MediaIconsBox = (props: Props) => {
 
   const user = useAuthState().user
   const chatState = useChatState()
-  const instanceId = useLocationInstanceConnectionState().instance.id.value
+  const instanceId = useLocationInstanceConnectionState().currentInstanceId.value
   const channelState = chatState.channels
   const channels = channelState.channels.value
   const channelEntries = Object.values(channels).filter((channel) => !!channel) as any

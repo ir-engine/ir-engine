@@ -41,7 +41,7 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
   console.log('onConnectToInstance', networkTransport.type)
 
   if (isWorldConnection) {
-    dispatch(LocationInstanceConnectionAction.instanceServerConnected())
+    dispatch(LocationInstanceConnectionAction.instanceServerConnected(networkTransport.instanceId))
     dispatchAction(Engine.instance.store, SocketWebRTCClientTransport.actions.worldInstanceReconnected())
   } else {
     dispatch(MediaLocationInstanceConnectionAction.serverConnected())
