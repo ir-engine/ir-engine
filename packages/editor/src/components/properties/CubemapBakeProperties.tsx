@@ -3,6 +3,7 @@
  */
 import React from 'react'
 
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   CubemapBakeComponent,
   CubemapBakeComponentType
@@ -20,6 +21,7 @@ import { updateProperty } from './Util'
 type CubemapBakePropertyEditorProps = {
   bakeComponent: CubemapBakeComponentType
   element: any
+  node: EntityTreeNode
 }
 
 const cubemapBakeSelectTypes = [
@@ -81,13 +83,19 @@ export const CubemapBakeProperties = (props: CubemapBakePropertyEditorProps) => 
       break
     case BakePropertyTypes.CubemapBakeType:
       renderVal = (
-        <SelectInput options={cubemapBakeSelectTypes} onChange={changehandler} value={getPropertyValue(propertyName)} />
+        <SelectInput
+          key={props.node.entity}
+          options={cubemapBakeSelectTypes}
+          onChange={changehandler}
+          value={getPropertyValue(propertyName)}
+        />
       )
       break
 
     case BakePropertyTypes.RefreshMode:
       renderVal = (
         <SelectInput
+          key={props.node.entity}
           options={cubemapBakeRefreshSelectTypes}
           onChange={changehandler}
           value={getPropertyValue(propertyName)}
@@ -97,7 +105,12 @@ export const CubemapBakeProperties = (props: CubemapBakePropertyEditorProps) => 
 
     case BakePropertyTypes.Resolution:
       renderVal = (
-        <SelectInput options={bakeResolutionTypes} onChange={changehandler} value={getPropertyValue(propertyName)} />
+        <SelectInput
+          key={props.node.entity}
+          options={bakeResolutionTypes}
+          onChange={changehandler}
+          value={getPropertyValue(propertyName)}
+        />
       )
       break
 
