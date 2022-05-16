@@ -28,10 +28,6 @@ const SentInvite = (props: Props) => {
   const { t } = useTranslation()
   const sentInviteCount = inviteState.sentInvites.total.value
 
-  const rows = invites.map((el, index) =>
-    createData(el.id, el.invitee ? el.invitee.name : '', el.passcode, el.inviteType)
-  )
-
   const deleteInvite = () => {
     InviteService.removeInvite(inviteId)
   }
@@ -74,6 +70,10 @@ const SentInvite = (props: Props) => {
       )
     }
   }
+
+  const rows = invites.map((el, index) =>
+    createData(el.id, el.invitee ? el.invitee.name : '', el.passcode, el.inviteType)
+  )
 
   return (
     <React.Fragment>

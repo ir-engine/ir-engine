@@ -115,7 +115,7 @@ export const InviteService = {
     }
 
     if (data.inviteCode != null) {
-      if (inviteCodeRegex.test(data.inviteCode) !== true) {
+      if (!inviteCodeRegex.test(data.inviteCode)) {
         AlertService.dispatchAlertError(new Error('Invalid Invite Code'))
         return
       } else {

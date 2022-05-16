@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useHistory } from 'react-router-dom'
 
 import { User } from '@xrengine/common/src/interfaces/User'
 
@@ -33,10 +32,9 @@ const phoneRegex = /^[0-9]{10}$/
 
 const InviteModal = (props: Props) => {
   const { open, handleClose, users } = props
-  const router = useHistory()
   const [currency, setCurrency] = useState('friend')
-  const inviteTypeData = useInviteTypeState()?.inviteTypeData?.value
-  const inviteType = inviteTypeData.invitesType
+  const inviteTypeData = useInviteTypeState()
+  const inviteType = inviteTypeData?.invitesType
   const [targetUser, setTargetUser] = useState<any>([])
   const [token, setToken] = useState('')
   const [passcode, setPasscode] = useState('')
@@ -56,7 +54,16 @@ const InviteModal = (props: Props) => {
 
   const currencies: Currency[] = []
 
-  const provide = [
+  if (inviteType?.value?.length > 0) {
+    for (let el of inviteType.value) {
+      currencies.push({
+        value: el.type,
+        label: el.type
+      })
+    }
+  }
+
+  const providers = [
     {
       value: 'email',
       label: 'E-mail'
@@ -66,6 +73,7 @@ const InviteModal = (props: Props) => {
       label: 'SMS'
     }
   ]
+
   const handleTypeChange = (event) => {
     setCurrency(event.target.value)
     formErrors.type.length > 0 &&
@@ -73,10 +81,6 @@ const InviteModal = (props: Props) => {
         ...formErrors,
         type: event.target.value.length > 0 ? '' : 'This field is required'
       })
-  }
-
-  const refreshData = () => {
-    router.go(0)
   }
 
   const handleIndentityProviderTypeChange = (event) => {
@@ -153,24 +157,13 @@ const InviteModal = (props: Props) => {
           identityProviderType: providerType,
           targetObjectId: tUser.id
         }
-        console.log('---Data---', data)
 
-        // await InviteService.sendInvite(data)
+        await InviteService.sendInvite(data)
       }
 
-      // refreshData()
-      // handleClose()
+      handleClose()
     } else {
       AlertService.alertError('Select atleast one user and fill all fields.')
-    }
-  }
-
-  if (inviteType?.length > 0) {
-    for (let el of inviteType) {
-      currencies.push({
-        value: el.type,
-        label: el.type
-      })
     }
   }
 
@@ -245,7 +238,7 @@ const InviteModal = (props: Props) => {
             value={providerType}
             handleInputChange={handleIndentityProviderTypeChange}
             name="Provider Type"
-            menu={provide}
+            menu={providers}
           />
         </Grid>
         <Grid item xs={12}>

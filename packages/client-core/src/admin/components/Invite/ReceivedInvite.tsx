@@ -18,7 +18,6 @@ const ReceivedInvite = (props: Props) => {
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
   const receivedInviteCount = inviteState.receivedInvites.total.value
-  const rows = invites.map((el, index) => createData(el.id, el.user.name, el.passcode, el.inviteType))
 
   const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
@@ -34,6 +33,8 @@ const ReceivedInvite = (props: Props) => {
   const createData = (id: string, name: string, passcode: string, type: string) => {
     return { id, name, passcode, type }
   }
+
+  const rows = invites.map((el, index) => createData(el.id, el.user.name, el.passcode, el.inviteType))
 
   return (
     <TableComponent
