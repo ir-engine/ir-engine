@@ -74,6 +74,20 @@ const InviteModal = (props: Props) => {
     }
   ]
 
+  const resetValues = () => {
+    setCurrency('friend')
+    setTargetUser([])
+    setToken('')
+    setPasscode('')
+    setProviderType('email')
+    setFormErrors({
+      type: '',
+      token: '',
+      inviteCode: '',
+      identityProviderType: ''
+    })
+  }
+
   const handleTypeChange = (event) => {
     setCurrency(event.target.value)
     formErrors.type.length > 0 &&
@@ -162,6 +176,7 @@ const InviteModal = (props: Props) => {
       }
 
       handleClose()
+      resetValues()
     } else {
       AlertService.alertError('Select atleast one user and fill all fields.')
     }

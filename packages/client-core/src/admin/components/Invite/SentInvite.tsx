@@ -30,6 +30,7 @@ const SentInvite = (props: Props) => {
 
   const deleteInvite = () => {
     InviteService.removeInvite(inviteId)
+    handleCloseModal()
   }
 
   const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
