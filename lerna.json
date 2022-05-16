@@ -3,7 +3,7 @@
     "packages/*",
     "packages/projects/projects/*"
   ],
-  "version": "0.5.3",
+  "version": "0.5.4",
   "npmClient": "npm",
   "useWorkspaces": true,
   "hoist": true,
