@@ -282,7 +282,7 @@ export const setCameraRotation: InputBehaviorType = (
   inputKey: InputAlias,
   inputValue: InputValue
 ): void => {
-  const { delta } = useWorld()
+  const { deltaSeconds: delta } = useWorld()
   const followComponent = getComponent(entity, FollowCameraComponent)
 
   switch (inputKey) {

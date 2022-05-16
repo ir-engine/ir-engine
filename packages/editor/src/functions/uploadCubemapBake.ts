@@ -75,7 +75,7 @@ export const uploadBakeToServer = async (entity: Entity) => {
   const position = getScenePositionForBake(world, isSceneEntity ? null : entity)
 
   // inject bpcem logic into material
-  Engine.instance.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
+  Engine.instance.currentWorld.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
     if (!child.material) return
     if (typeof child.material.onBeforeCompile === 'function')
       child.material.userData.previousOnBeforeCompile = child.material.onBeforeCompile
@@ -87,13 +87,13 @@ export const uploadBakeToServer = async (entity: Entity) => {
 
   const cubemapCapturer = new CubemapCapturer(
     EngineRenderer.instance.renderer,
-    Engine.instance.scene,
+    Engine.instance.currentWorld.scene,
     bakeComponent.options.resolution
   )
   const renderTarget = cubemapCapturer.update(position)
 
   // remove injected bpcem logic from material
-  Engine.instance.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
+  Engine.instance.currentWorld.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
     if (!child.material) return
     if (typeof child.material.userData.previousOnBeforeCompile === 'function') {
       child.material.onBeforeCompile = child.material.userData.previousOnBeforeCompile
@@ -101,7 +101,7 @@ export const uploadBakeToServer = async (entity: Entity) => {
     }
   })
 
-  if (isSceneEntity) Engine.instance.scene.environment = renderTarget.texture
+  if (isSceneEntity) Engine.instance.currentWorld.scene.environment = renderTarget.texture
 
   const { blob } = await convertCubemapToEquiImageData(
     EngineRenderer.instance.renderer,

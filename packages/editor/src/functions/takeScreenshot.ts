@@ -44,7 +44,7 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
     deserializeScenePreviewCamera(entity, null!)
 
     scenePreviewCamera = getComponent(entity, Object3DComponent).value as PerspectiveCamera
-    Engine.instance.camera.matrix.decompose(
+    Engine.instance.currentWorld.camera.matrix.decompose(
       scenePreviewCamera.position,
       scenePreviewCamera.quaternion,
       scenePreviewCamera.scale
@@ -63,9 +63,9 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
   if (accessEngineRendererState().usePostProcessing.value) {
     configureEffectComposer(false, scenePreviewCamera)
     EngineRenderer.instance.effectComposer.render()
-    configureEffectComposer(false, Engine.instance.camera)
+    configureEffectComposer(false, Engine.instance.currentWorld.camera)
   } else {
-    EngineRenderer.instance.renderer.render(Engine.instance.scene, scenePreviewCamera)
+    EngineRenderer.instance.renderer.render(Engine.instance.currentWorld.scene, scenePreviewCamera)
   }
   const blob = await getCanvasBlob(getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height))
 

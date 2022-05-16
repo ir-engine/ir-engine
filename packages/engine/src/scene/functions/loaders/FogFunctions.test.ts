@@ -39,9 +39,9 @@ describe('FogFunctions', () => {
     assert.equal(near, 0.1)
     assert.equal(far, 1000)
 
-    assert(Engine.instance.scene.fog instanceof Fog)
+    assert(Engine.instance.currentWorld.scene.fog instanceof Fog)
 
     // TODO: unnecessary once engine global scope is refactored
-    Engine.instance.scene = null!
+    Engine.instance.currentWorld.scene = null!
   })
 })

@@ -100,7 +100,7 @@ describe('NetworkActionReceptors', () => {
 
   describe('spawnObject', () => {
     it('should spawn object owned by host', () => {
-      const hostUserId = 'server' as UserId
+      const hostUserId = 'world' as UserId
       const userId = 'user id' as UserId
 
       Engine.instance.userId = userId
@@ -183,7 +183,7 @@ describe('NetworkActionReceptors', () => {
     })
 
     it('should spawn avatar owned by other', () => {
-      const hostUserId = 'server' as UserId
+      const hostUserId = 'world' as UserId
       const userId = 'user id' as UserId
       const userId2 = 'second user id' as UserId
 
@@ -191,7 +191,7 @@ describe('NetworkActionReceptors', () => {
       const world = Engine.instance.currentWorld
 
       world.hostId = hostUserId
-      NetworkActionReceptor.addClient(world, hostUserId, 'server', 0)
+      NetworkActionReceptor.addClient(world, hostUserId, 'world', 0)
       NetworkActionReceptor.addClient(world, userId, 'user name', 1)
       NetworkActionReceptor.addClient(world, userId2, 'second user name', 2)
 
@@ -266,7 +266,7 @@ describe('NetworkActionReceptors', () => {
 
   describe('transfer ownership of object', () => {
     it('should transfer ownership of object from host to client', () => {
-      const hostUserId = 'server' as UserId
+      const hostUserId = 'world' as UserId
       const userId = 'user id' as UserId
 
       // Run as host
@@ -339,7 +339,7 @@ describe('NetworkActionReceptors', () => {
       NetworkActionReceptor.addClient(world, userId, userName, userIndex)
 
       const hostIndex = 0
-      world.clients.set(world.hostId, { userId: world.hostId, name: 'server', index: hostIndex })
+      world.clients.set(world.hostId, { userId: world.hostId, name: 'world', index: hostIndex })
 
       const objParams = 123
       const objNetId = 3 as NetworkId

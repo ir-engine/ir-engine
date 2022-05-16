@@ -9,7 +9,7 @@ export const updateXRControllerAnimations = (inputSource: XRInputSourceComponent
 
   for (const mixer of mixers) {
     if (!mixer) continue
-    mixer.update(world.delta)
+    mixer.update(world.deltaSeconds)
   }
 }
 

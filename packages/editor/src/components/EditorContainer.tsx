@@ -264,7 +264,7 @@ const EditorContainer = () => {
           setDialogComponent(
             <SaveNewProjectDialog
               thumbnailUrl={URL.createObjectURL(blob!)}
-              initialName={Engine.instance.scene.name}
+              initialName={Engine.instance.currentWorld.scene.name}
               onConfirm={resolve}
               onCancel={resolve}
             />
@@ -344,11 +344,11 @@ const EditorContainer = () => {
   }
 
   const onExportScene = async () => {
-    const projectFile = await sceneToGLTF([Engine.instance.scene as any])
+    const projectFile = await sceneToGLTF([Engine.instance.currentWorld.scene as any])
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')
-    const fileName = Engine.instance.scene.name.toLowerCase().replace(/\s+/g, '-')
+    const fileName = Engine.instance.currentWorld.scene.name.toLowerCase().replace(/\s+/g, '-')
     el.download = fileName + '.xre.gltf'
     el.href = URL.createObjectURL(projectBlob)
     document.body.appendChild(el)

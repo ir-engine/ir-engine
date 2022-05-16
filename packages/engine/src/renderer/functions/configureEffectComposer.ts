@@ -9,11 +9,11 @@ import { accessEngineRendererState } from '../EngineRendererState'
 import { EngineRenderer } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
-export const configureEffectComposer = (remove?: boolean, camera = Engine.instance.camera): void => {
+export const configureEffectComposer = (remove?: boolean, camera = Engine.instance.currentWorld.camera): void => {
   EngineRenderer.instance.effectComposer.removeAllPasses()
 
   // we always want to have at least the render pass enabled
-  const renderPass = new RenderPass(Engine.instance.scene, camera)
+  const renderPass = new RenderPass(Engine.instance.currentWorld.scene, camera)
   EngineRenderer.instance.effectComposer.addPass(renderPass)
 
   if (remove) {
@@ -28,7 +28,7 @@ export const configureEffectComposer = (remove?: boolean, camera = Engine.instan
   const effects: any[] = []
   const effectKeys = EffectMap.keys()
 
-  const normalPass = new NormalPass(Engine.instance.scene, camera, {
+  const normalPass = new NormalPass(Engine.instance.currentWorld.scene, camera, {
     renderTarget: new WebGLRenderTarget(1, 1, {
       minFilter: NearestFilter,
       magFilter: NearestFilter,
@@ -66,7 +66,7 @@ export const configureEffectComposer = (remove?: boolean, camera = Engine.instan
       if (Engine.instance.isEditor) {
         outlineEffect = { ...outlineEffect, hiddenEdgeColor: 0x22090a }
       }
-      const eff = new effectClass(Engine.instance.scene, camera, outlineEffect)
+      const eff = new effectClass(Engine.instance.currentWorld.scene, camera, outlineEffect)
       EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else {

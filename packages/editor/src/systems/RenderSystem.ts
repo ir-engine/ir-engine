@@ -8,8 +8,8 @@ export default async function EditorInfoSystem(world: World) {
     if (SceneState.onUpdateStats) {
       EngineRenderer.instance.renderer.info.reset()
       const renderStat = EngineRenderer.instance.renderer.info.render as any
-      renderStat.fps = 1 / world.delta
-      renderStat.frameTime = world.delta * 1000
+      renderStat.fps = 1 / world.deltaSeconds
+      renderStat.frameTime = world.deltaSeconds * 1000
       SceneState.onUpdateStats(EngineRenderer.instance.renderer.info)
     }
   }

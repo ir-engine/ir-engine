@@ -113,13 +113,13 @@ function updateState(): void {
   if (Engine.instance.isEditor) {
     changeRenderMode(state.renderMode.value)
 
-    if (state.nodeHelperVisibility.value) Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
-    else Engine.instance.camera.layers.disable(ObjectLayers.NodeHelper)
+    if (state.nodeHelperVisibility.value) Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.NodeHelper)
+    else Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.NodeHelper)
 
     InfiniteGridHelper.instance.setGridHeight(state.gridHeight.value)
     InfiniteGridHelper.instance.visible = state.gridVisibility.value
   } else {
-    Engine.instance.camera.layers.disable(ObjectLayers.NodeHelper)
+    Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.NodeHelper)
   }
 }
 

@@ -4,14 +4,15 @@ import { Quaternion, Vector3 } from 'three'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
+import { performance } from '../../common/functions/performance'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { AvatarProps } from '../interfaces/WorldState'
 import { NetworkWorldAction } from './NetworkWorldAction'
 
 export type JoinWorldProps = {
-  elapsedTime: number
-  clockTime: number
+  highResTimeOrigin: number
+  worldStartTime: number
   client: { name: string; index: number }
   cachedActions: Required<Action<any>>[]
   avatarDetail: AvatarProps
@@ -23,11 +24,11 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
     dispatchAction(Engine.instance.store, EngineActions.connectToWorldTimeout({ instance: true }))
     return
   }
-  const { elapsedTime, clockTime, client, cachedActions, avatarDetail, avatarSpawnPose } = props
+  const { highResTimeOrigin, worldStartTime, client, cachedActions, avatarDetail, avatarSpawnPose } = props
   console.log(
     'RECEIVED JOIN WORLD RESPONSE',
-    elapsedTime,
-    clockTime,
+    highResTimeOrigin,
+    worldStartTime,
     client,
     cachedActions,
     avatarDetail,
@@ -36,9 +37,7 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
   dispatchAction(Engine.instance.store, EngineActions.joinedWorld())
   const world = Engine.instance.currentWorld
 
-  world.elapsedTime = elapsedTime + (Date.now() - clockTime) / 1000
-  world.fixedTick = Math.floor(world.elapsedTime / world.fixedDelta)
-  world.fixedElapsedTime = world.fixedTick * world.fixedDelta
+  world.startTime = highResTimeOrigin - performance.timeOrigin + worldStartTime
 
   const engineState = getEngineState()
 
