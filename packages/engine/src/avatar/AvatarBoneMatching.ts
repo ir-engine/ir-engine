@@ -492,7 +492,7 @@ function findHandBones(handBone: Object3D) {
   }
 }
 
-function findSkinnedMeshes(model: Object3D) {
+export function findSkinnedMeshes(model: Object3D) {
   let meshes: SkinnedMesh[] = []
   model.traverse((obj: SkinnedMesh) => {
     if (obj.isSkinnedMesh) {
