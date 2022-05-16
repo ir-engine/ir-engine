@@ -93,29 +93,16 @@ const InstanceChat = (props: Props): any => {
   }, [])
 
   useEffect(() => {
-    if (
-      user?.instanceId?.value &&
-      instanceConnectionState.instances.id?.value &&
-      user?.instanceId?.value !== currentInstanceId
-    ) {
+    if (user?.instanceId?.value && currentInstanceId && user?.instanceId?.value !== currentInstanceId) {
       console.error(
         `[ERROR]: somehow user.instanceId and instanceConnectionState.instance.id, are different when they should be the same`
       )
-      console.error(user?.instanceId?.value, instanceConnectionState.instances.id?.value)
+      console.error(user?.instanceId?.value, currentInstanceId)
     }
-    if (
-      instanceConnectionState.instances.id?.value &&
-      currentInstanceId &&
-      currentInstanceConnection.connected.value &&
-      !chatState.instanceChannelFetching.value
-    ) {
+    if (currentInstanceId && currentInstanceConnection.connected.value && !chatState.instanceChannelFetching.value) {
       ChatService.getInstanceChannel()
     }
-  }, [
-    instanceConnectionState.instances.id?.value,
-    currentInstanceConnection?.connected?.value,
-    chatState.instanceChannelFetching.value
-  ])
+  }, [currentInstanceConnection?.connected?.value, chatState.instanceChannelFetching.value])
 
   React.useEffect(() => {
     if (messageEl) messageEl.scrollTop = messageEl?.scrollHeight

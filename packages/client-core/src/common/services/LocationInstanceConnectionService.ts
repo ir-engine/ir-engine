@@ -39,7 +39,7 @@ store.receptors.push((action: LocationInstanceConnectionActionType): any => {
     switch (action.type) {
       case 'LOCATION_INSTANCE_SERVER_PROVISIONED':
         s.currentInstanceId.set(action.instanceId)
-        return s.instances[action.instanceId].merge({
+        return s.instances[action.instanceId].set({
           ipAddress: action.ipAddress,
           port: action.port,
           locationId: action.locationId!,
@@ -47,7 +47,8 @@ store.receptors.push((action: LocationInstanceConnectionActionType): any => {
           provisioned: true,
           readyToConnect: true,
           updateNeeded: true,
-          connected: false
+          connected: false,
+          connecting: false
         })
       case 'LOCATION_INSTANCE_SERVER_CONNECTING':
         return s.instances[action.instanceId].connecting.set(true)
@@ -60,8 +61,6 @@ store.receptors.push((action: LocationInstanceConnectionActionType): any => {
         })
       case 'LOCATION_INSTANCE_SERVER_DISCONNECT':
         return s.instances[action.instanceId].set(undefined!)
-      case 'LOCATION_INSTANCE_SET_CURRENT_INSTANCE_ID':
-        return s.currentInstanceId.set(action.instanceId)
     }
   }, action.type)
 })
@@ -73,7 +72,7 @@ export const useLocationInstanceConnectionState = () => useState(state) as any a
 //Service
 export const LocationInstanceConnectionService = {
   provisionServer: async (locationId?: string, instanceId?: string, sceneId?: string) => {
-    console.log('provisionServer', locationId, instanceId, sceneId)
+    console.log('Provision World Server', locationId, instanceId, sceneId)
     const dispatch = useDispatch()
     const token = accessAuthState().authUser.accessToken.value
     if (instanceId != null) {
@@ -108,7 +107,7 @@ export const LocationInstanceConnectionService = {
     const dispatch = useDispatch()
     dispatch(LocationInstanceConnectionAction.connecting(instanceId))
     const transport = Network.instance.getTransport('world' as UserId) as SocketWebRTCClientTransport
-    console.log('connectToServer', !!transport.socket, transport)
+    console.log('Connect To World Server', !!transport.socket, transport)
     if (transport.socket) {
       await leave(transport, false)
     }
@@ -168,12 +167,6 @@ export const LocationInstanceConnectionAction = {
   disconnect: (instanceId: string) => {
     return {
       type: 'LOCATION_INSTANCE_SERVER_DISCONNECT' as const,
-      instanceId
-    }
-  },
-  setCurrentInstance: (instanceId: string | null) => {
-    return {
-      type: 'LOCATION_INSTANCE_SET_CURRENT_INSTANCE_ID' as const,
       instanceId
     }
   }

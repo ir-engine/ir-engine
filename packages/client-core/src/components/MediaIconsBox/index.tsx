@@ -53,6 +53,8 @@ const MediaIconsBox = (props: Props) => {
   const instanceChannel = channelEntries.find((entry) => entry.instanceId === instanceId)
   const currentLocation = useLocationState().currentLocation.location
   const channelConnectionState = useMediaInstanceConnectionState()
+  const currentChannelInstanceId = channelConnectionState.currentInstanceId.value
+  const currentChannelInstanceConnection = channelConnectionState.instances[currentChannelInstanceId!].ornull
   const mediastream = useMediaStreamState()
   const videoEnabled = currentLocation?.locationSetting?.value
     ? currentLocation?.locationSetting?.videoEnabled?.value
@@ -150,7 +152,10 @@ const MediaIconsBox = (props: Props) => {
 
   return (
     <section className={`${styles.drawerBox} ${props.animate}`}>
-      {instanceMediaChatEnabled && hasAudioDevice && channelConnectionState.connected.value === true ? (
+      {instanceMediaChatEnabled &&
+      hasAudioDevice &&
+      currentChannelInstanceId &&
+      currentChannelInstanceConnection.connected.value ? (
         <button
           type="button"
           id="UserAudio"
@@ -160,7 +165,10 @@ const MediaIconsBox = (props: Props) => {
           <MicIcon />
         </button>
       ) : null}
-      {videoEnabled && hasVideoDevice && channelConnectionState.connected.value === true ? (
+      {videoEnabled &&
+      hasVideoDevice &&
+      currentChannelInstanceId &&
+      currentChannelInstanceConnection.connected.value ? (
         <>
           <button
             type="button"

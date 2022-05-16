@@ -25,10 +25,6 @@ import { useHookEffect } from '@xrengine/hyperflux'
 import { getSearchParamFromURL } from '../../util/getSearchParamFromURL'
 import GameServerWarnings from './GameServerWarnings'
 
-interface Props {
-  locationName: string
-}
-
 export const NetworkInstanceProvisioning = () => {
   const authState = useAuthState()
   const selfUser = authState.user
@@ -36,28 +32,32 @@ export const NetworkInstanceProvisioning = () => {
   const dispatch = useDispatch()
   const chatState = useChatState()
   const locationState = useLocationState()
-  const instanceConnectionState = useLocationInstanceConnectionState()
-  const currentInstanceId = instanceConnectionState.currentInstanceId.value
-  const currentInstanceConnection = instanceConnectionState.instances[currentInstanceId!]
-  const channelConnectionState = useMediaInstanceConnectionState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useEngineState()
   const history = useHistory()
 
+  const instanceConnectionState = useLocationInstanceConnectionState()
+  const currentLocationInstanceId = instanceConnectionState.currentInstanceId.value
+  const currentLocationInstanceConnection = instanceConnectionState.instances[currentLocationInstanceId!].ornull
+
+  const channelConnectionState = useMediaInstanceConnectionState()
+  const currentChannelInstanceId = channelConnectionState.currentInstanceId.value
+  const currentChannelInstanceConnection = channelConnectionState.instances[currentChannelInstanceId!].ornull
+
   useHookEffect(() => {
-    if (currentInstanceId) {
+    if (currentLocationInstanceId) {
       const url = new URL(window.location.href)
       const searchParams = url.searchParams
       const instanceId = searchParams.get('instanceId')
-      if (instanceId !== currentInstanceId) searchParams.set('instanceId', currentInstanceId)
+      if (instanceId !== currentLocationInstanceId) searchParams.set('instanceId', currentLocationInstanceId)
       history.push(url.pathname + url.search)
     }
-  }, [instanceConnectionState.instances.id])
+  }, [instanceConnectionState.currentInstanceId])
 
   // 2. once we have the location, provision the instance server
   useHookEffect(() => {
     const currentLocation = locationState.currentLocation.location
-    const isProvisioned = currentInstanceId && currentInstanceConnection.provisioned.value
+    const isProvisioned = currentLocationInstanceId && currentLocationInstanceConnection?.provisioned.value
 
     if (currentLocation.id?.value) {
       if (!isUserBanned && !isProvisioned) {
@@ -86,17 +86,17 @@ export const NetworkInstanceProvisioning = () => {
   useHookEffect(() => {
     if (
       engineState.isEngineInitialized.value &&
-      currentInstanceId &&
-      !currentInstanceConnection.connected.value &&
-      currentInstanceConnection.provisioned.value &&
-      !currentInstanceConnection.connecting.value
+      currentLocationInstanceId &&
+      !currentLocationInstanceConnection.connected.value &&
+      currentLocationInstanceConnection.provisioned.value &&
+      !currentLocationInstanceConnection.connecting.value
     )
       LocationInstanceConnectionService.connectToServer(instanceConnectionState.currentInstanceId.value!)
   }, [
     engineState.isEngineInitialized,
-    currentInstanceConnection.connected,
-    currentInstanceConnection.connecting,
-    currentInstanceConnection.provisioned
+    currentLocationInstanceConnection?.connected,
+    currentLocationInstanceConnection?.connecting,
+    currentLocationInstanceConnection?.provisioned
   ])
 
   useHookEffect(() => {
@@ -118,7 +118,7 @@ export const NetworkInstanceProvisioning = () => {
       const instanceChannel = Object.values(channels).find(
         (channel) => channel.instanceId === instanceConnectionState.currentInstanceId.value
       )
-      MediaInstanceConnectionService.provisionServer(instanceChannel?.id, true)
+      MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
     }
   }, [chatState.instanceChannelFetched])
 
@@ -130,20 +130,24 @@ export const NetworkInstanceProvisioning = () => {
   // if a media connection has been provisioned and is ready, connect to it
   useHookEffect(() => {
     if (
-      channelConnectionState.provisioned.value === true &&
-      channelConnectionState.updateNeeded.value === true &&
-      channelConnectionState.connecting.value === false &&
-      channelConnectionState.connected.value === false
+      currentChannelInstanceId &&
+      currentChannelInstanceConnection.provisioned.value === true &&
+      currentChannelInstanceConnection.updateNeeded.value === true &&
+      currentChannelInstanceConnection.connecting.value === false &&
+      currentChannelInstanceConnection.connected.value === false
     ) {
-      MediaInstanceConnectionService.connectToServer(channelConnectionState.channelId.value)
+      MediaInstanceConnectionService.connectToServer(
+        currentChannelInstanceId!,
+        currentChannelInstanceConnection.channelId.value
+      )
       MediaStreamService.updateCamVideoState()
       MediaStreamService.updateCamAudioState()
     }
   }, [
-    channelConnectionState.connected,
-    channelConnectionState.updateNeeded,
-    channelConnectionState.provisioned,
-    channelConnectionState.connecting
+    currentChannelInstanceConnection?.connected,
+    currentChannelInstanceConnection?.updateNeeded,
+    currentChannelInstanceConnection?.provisioned,
+    currentChannelInstanceConnection?.connecting
   ])
 
   return <GameServerWarnings />
