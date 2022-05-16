@@ -3,13 +3,11 @@ import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
-import { TestNetwork } from '../../../tests/networking/TestNetwork'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
-import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
@@ -27,7 +25,6 @@ import { createAvatar } from './createAvatar'
 describe('createAvatar', () => {
   beforeEach(async () => {
     createEngine()
-    Network.instance = new TestNetwork()
     await Engine.instance.currentWorld.physics.createScene({ verbose: true })
   })
 

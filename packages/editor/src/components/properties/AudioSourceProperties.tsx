@@ -36,6 +36,7 @@ export const AudioSourceProperties: EditorComponentType = (props) => {
     <>
       <InputGroup name="Audio Type" label={t('editor:properties.audio.lbl-audioType')}>
         <SelectInput
+          key={props.node.entity}
           options={AudioTypeOptions}
           value={audioComponent.audioType}
           onChange={updateProperty(AudioComponent, 'audioType')}
@@ -52,6 +53,7 @@ export const AudioSourceProperties: EditorComponentType = (props) => {
             info={t('editor:properties.audio.info-distanceModel')}
           >
             <SelectInput
+              key={props.node.entity}
               options={DistanceModelOptions}
               value={audioComponent.distanceModel}
               onChange={updateProperty(AudioComponent, 'distanceModel')}
