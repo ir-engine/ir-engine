@@ -109,7 +109,7 @@ all of these pods should be in the Running state.
 
 
 
-## install Elastic Search and Kibana using Helm
+## Install Elastic Search and Kibana using Helm
 
 To install Elasticsearch, add the elastic repository in Helm: `helm repo add elastic https://helm.elastic.co`
 
@@ -119,7 +119,7 @@ Now, use the curl command to download the values.yaml file containing configurat
 
 Use the helm install command and the values.yaml file to install the Elasticsearch helm chart: 
 
-For Helm Version > 2 `helm install elasticsearch elastic/elasticsearch -f ./values.yaml`
+`helm install elasticsearch elastic/elasticsearch -f ./values.yaml`
 
 The -f option allows specifying the yaml file with the template. If you wish to install Elasticsearch in a specific namespace, add the -n option followed by the name of the namespace: `helm install elasticsearch elastic/elasticsearch -n [namespace] -f ./values.yaml`
 
