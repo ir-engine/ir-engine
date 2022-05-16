@@ -300,7 +300,9 @@ const InstanceChat = (props: Props): any => {
                             <div className={`${styles.selfEnd} ${styles.noMargin}`}>
                               <div className={styles.dFlex}>
                                 <div className={styles.msgWrapper}>
-                                  <h3 className={styles.sender}>{message.sender.name}</h3>
+                                  {index !== 0 && message.senderId !== messages[index - 1].senderId && (
+                                    <h3 className={styles.sender}>{message.sender.name}</h3>
+                                  )}
                                   <div className={`${styles.msgReplyContainer} ${styles.mx2}`}>
                                     <p className={styles.text}>{message.text}</p>
                                   </div>
