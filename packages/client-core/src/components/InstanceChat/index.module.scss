@@ -355,7 +355,7 @@
 }
 
 .mx2 {
-  margin: 7px 10px;
+  margin: 7px 0;
 }
 
 .selfEnd {
@@ -395,6 +395,27 @@
 .animateLeft {
   animation: moveLeft 0.4s ease 0.4s;
   animation-fill-mode: backwards;
+}
+
+.msgWrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.sender {
+  color: #fff;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.avatar {
+  height: 40px;
+  width: 40px;
+
+  & > img {
+    margin-bottom: -25px;
+  }
 }
 
 @keyframes moveLeft {

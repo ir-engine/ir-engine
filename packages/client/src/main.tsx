@@ -1,12 +1,13 @@
 // prettier-ignore
-import React, { Suspense, useEffect } from 'react';
+import './env-config';
+
+import React, { Suspense, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { createNetworkTransports } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { createEngine, initializeBrowser } from '@xrengine/engine/src/initializeEngine'
 
-import './env-config'
 import { initialize } from './util'
 
 /**

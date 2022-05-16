@@ -34,6 +34,7 @@ import CardContent from '@mui/material/CardContent'
 import Fab from '@mui/material/Fab'
 import TextField from '@mui/material/TextField'
 
+import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
 import defaultStyles from './index.module.scss'
 
 interface Props {
@@ -259,7 +260,7 @@ const InstanceChat = (props: Props): any => {
       width: window.innerWidth
     })
   }
-
+  sortedMessages && console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', sortedMessages)
   const isLeftOrJoinText = (text) => {
     return / left the layer|joined the layer/.test(text)
   }
@@ -300,11 +301,16 @@ const InstanceChat = (props: Props): any => {
                               <div className={`${styles.selfEnd} ${styles.noMargin}`}>
                                 <div className={styles.dFlex}>
                                   {index !== 0 && message.senderId !== messages[index - 1].senderId && (
-                                    <Avatar src={message.sender?.avatarUrl} />
+                                    <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
                                   )}
-                                  {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
-                                  <div className={`${styles.msgContainer} ${styles.mx2}`}>
-                                    <p className={styles.text}>{message.text}</p>
+                                  {index === 0 && (
+                                    <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                  )}
+                                  <div className={styles.msgWrapper}>
+                                    <h3 className={styles.sender}>{message.sender.name}</h3>
+                                    <div className={`${styles.msgReplyContainer} ${styles.mx2}`}>
+                                      <p className={styles.text}>{message.text}</p>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -312,13 +318,18 @@ const InstanceChat = (props: Props): any => {
                             {message.senderId === user?.id.value && (
                               <div className={`${styles.selfEnd} ${styles.noMargin}`}>
                                 <div className={styles.dFlex}>
-                                  <div className={`${styles.msgReplyContainer} ${styles.mx2}`}>
-                                    <p className={styles.text}>{message.text}</p>
+                                  <div className={styles.msgWrapper}>
+                                    <h3 className={styles.sender}>{message.sender.name}</h3>
+                                    <div className={`${styles.msgReplyContainer} ${styles.mx2}`}>
+                                      <p className={styles.text}>{message.text}</p>
+                                    </div>
                                   </div>
                                   {index !== 0 && message.senderId !== messages[index - 1].senderId && (
-                                    <Avatar src={message.sender?.avatarUrl} />
+                                    <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
                                   )}
-                                  {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
+                                  {index === 0 && (
+                                    <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                  )}
                                 </div>
                               </div>
                             )}
