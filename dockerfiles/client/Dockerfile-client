@@ -47,7 +47,7 @@ RUN npm run build-client
 
 ENV APP_ENV=production
 
-FROM node:16-buster-slim as runner
+FROM node:18-buster-slim as runner
 WORKDIR /app
 
 COPY --from=builder /app/packages/client ./packages/client

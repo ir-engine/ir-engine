@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1.2
 # not slim because we need github depedencies
-FROM node:16-buster-slim as root-builder
+FROM node:18-buster-slim as root-builder
 
 RUN apt update
 # Create app directory
