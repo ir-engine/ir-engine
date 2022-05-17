@@ -4,6 +4,7 @@ import './env-config';
 import React, { Suspense, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 
+import { FullscreenContainer } from '@xrengine/client-core/src/components/FullscreenContainer'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { createNetworkTransports } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { createEngine, initializeBrowser } from '@xrengine/engine/src/initializeEngine'
@@ -48,8 +49,10 @@ const Main = () => {
 
   return (
     <Suspense fallback={<LoadingCircle />}>
-      <canvas id={engineRendererCanvasId} style={canvasStyle} />
-      <AppPage />
+      <FullscreenContainer>
+        <canvas id={engineRendererCanvasId} style={canvasStyle} />
+        <AppPage />
+      </FullscreenContainer>
     </Suspense>
   )
 }
