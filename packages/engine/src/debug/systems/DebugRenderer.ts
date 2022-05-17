@@ -66,13 +66,13 @@ export const DebugRenderer = () => {
     enabled = _enabled
     if (!_enabled) {
       _meshes.forEach((mesh) => {
-        Engine.instance.scene.remove(mesh)
+        Engine.instance.currentWorld.scene.remove(mesh)
       })
       _raycasts.forEach((mesh) => {
-        Engine.instance.scene.remove(mesh)
+        Engine.instance.currentWorld.scene.remove(mesh)
       })
       _obstacles.forEach((mesh) => {
-        Engine.instance.scene.remove(mesh)
+        Engine.instance.currentWorld.scene.remove(mesh)
       })
       _meshes.clear()
       _raycasts.clear()
@@ -93,7 +93,7 @@ export const DebugRenderer = () => {
       }
       const mesh = new Mesh(geom, _materials[5])
       setObjectLayers(mesh, ObjectLayers.PhysicsHelper)
-      Engine.instance.scene.add(mesh)
+      Engine.instance.currentWorld.scene.add(mesh)
       _obstacles.set(id, mesh)
     }
     const mesh = _obstacles.get(id)
@@ -108,7 +108,7 @@ export const DebugRenderer = () => {
     let needsUpdate = false
     if (body._debugNeedsUpdate) {
       if (mesh) {
-        Engine.instance.scene.remove(mesh)
+        Engine.instance.currentWorld.scene.remove(mesh)
         needsUpdate = true
       }
       body._debugNeedsUpdate = false
@@ -138,7 +138,7 @@ export const DebugRenderer = () => {
       }
       _meshes.set(id, mesh)
       setObjectLayers(mesh, ObjectLayers.PhysicsHelper)
-      Engine.instance.scene.add(mesh)
+      Engine.instance.currentWorld.scene.add(mesh)
     }
   }
 
@@ -147,7 +147,7 @@ export const DebugRenderer = () => {
     let needsUpdate = false
     if (shape._debugNeedsUpdate) {
       if (mesh) {
-        Engine.instance.scene.remove(mesh)
+        Engine.instance.currentWorld.scene.remove(mesh)
         needsUpdate = true
       }
       delete shape._debugNeedsUpdate
@@ -236,7 +236,7 @@ export const DebugRenderer = () => {
 
     if (mesh && mesh.geometry) {
       setObjectLayers(mesh, ObjectLayers.PhysicsHelper)
-      Engine.instance.scene.add(mesh)
+      Engine.instance.currentWorld.scene.add(mesh)
     }
 
     return mesh
@@ -249,10 +249,10 @@ export const DebugRenderer = () => {
       // @ts-ignore
       const xrCameras = EngineRenderer.instance.xrManager?.getCamera() as ArrayCamera
       if (enabled) {
-        Engine.instance.camera.layers.enable(ObjectLayers.PhysicsHelper)
+        Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.PhysicsHelper)
         if (xrCameras) xrCameras.cameras.forEach((camera) => camera.layers.enable(ObjectLayers.PhysicsHelper))
       } else {
-        Engine.instance.camera.layers.disable(ObjectLayers.PhysicsHelper)
+        Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.PhysicsHelper)
         if (xrCameras) xrCameras.cameras.forEach((camera) => camera.layers.disable(ObjectLayers.PhysicsHelper))
       }
     }
@@ -291,13 +291,13 @@ export const DebugRenderer = () => {
     })
     _obstacles.forEach((mesh, id) => {
       if (!world.physics.obstacles.has(id)) {
-        Engine.instance.scene.remove(mesh)
+        Engine.instance.currentWorld.scene.remove(mesh)
         _meshes.delete(id)
       }
     })
     _meshes.forEach((mesh, id) => {
       if (!world.physics.shapes.has(id)) {
-        Engine.instance.scene.remove(mesh)
+        Engine.instance.currentWorld.scene.remove(mesh)
         _meshes.delete(id)
       }
     })

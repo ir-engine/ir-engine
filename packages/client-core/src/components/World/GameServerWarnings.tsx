@@ -117,9 +117,8 @@ const GameServerWarnings = () => {
   }, [engineState.joinedWorld.value, engineRendereState.qualityLevel.value])
 
   const updateWarningModal = (type: WarningModalTypes, message?: any) => {
-    const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
     switch (type) {
-      case WarningModalTypes.INDEXED_DB_NOT_SUPPORTED:
+      case WarningModalTypes.INDEXED_DB_NOT_SUPPORTED: {
         setModalValues({
           open: true,
           title: t('common:gameServer.browserError'),
@@ -127,8 +126,9 @@ const GameServerWarnings = () => {
           noCountdown: true
         })
         break
+      }
 
-      case WarningModalTypes.NO_GAME_SERVER_PROVISIONED:
+      case WarningModalTypes.NO_GAME_SERVER_PROVISIONED: {
         const currentLocation = locationState.currentLocation.location.value
         setModalValues({
           open: true,
@@ -139,9 +139,11 @@ const GameServerWarnings = () => {
           noCountdown: false
         })
         break
+      }
 
-      case WarningModalTypes.INSTANCE_DISCONNECTED:
+      case WarningModalTypes.INSTANCE_DISCONNECTED: {
         if (!Engine.instance.userId) return
+        const transport = Network.instance.getTransport('world') as SocketWebRTCClientTransport
         if (transport.left || engineState.isTeleporting.value || transport.reconnecting) return
 
         setModalValues({
@@ -153,14 +155,16 @@ const GameServerWarnings = () => {
           noCountdown: false
         })
         break
+      }
 
-      case WarningModalTypes.CHANNEL_DISCONNECTED:
+      case WarningModalTypes.CHANNEL_DISCONNECTED: {
         if (!Engine.instance.userId) return
+        const transport = Network.instance.getTransport('media') as SocketWebRTCClientTransport
         if (transport.left || transport.reconnecting) return
 
         const channels = chatState.channels.channels.value
         const instanceChannel = Object.values(channels).find(
-          (channel) => channel.instanceId === instanceConnectionState.instance.id.value
+          (channel) => channel.instanceId === instanceConnectionState.currentInstanceId.value
         )
         setModalValues({
           open: true,
@@ -171,8 +175,10 @@ const GameServerWarnings = () => {
           noCountdown: false
         })
         break
+      }
 
-      case WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED:
+      case WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED: {
+        const transport = Network.instance.getTransport('world') as SocketWebRTCClientTransport
         if (transport.left || engineState.isTeleporting.value) return
 
         setModalValues({
@@ -183,8 +189,9 @@ const GameServerWarnings = () => {
           noCountdown: true
         })
         break
+      }
 
-      case WarningModalTypes.USER_KICKED:
+      case WarningModalTypes.USER_KICKED: {
         setModalValues({
           open: true,
           title: t('common:gameServer.youKickedFromWorld'),
@@ -192,8 +199,9 @@ const GameServerWarnings = () => {
           noCountdown: true
         })
         break
+      }
 
-      case WarningModalTypes.INVALID_LOCATION:
+      case WarningModalTypes.INVALID_LOCATION: {
         setModalValues({
           open: true,
           title: t('common:gameServer.invalidLocation'),
@@ -203,7 +211,9 @@ const GameServerWarnings = () => {
           noCountdown: true
         })
         break
-      case WarningModalTypes.DETECTED_LOW_FRAME:
+      }
+
+      case WarningModalTypes.DETECTED_LOW_FRAME: {
         setModalValues({
           open: true,
           title: t('common:gameServer.low-frame-title'),
@@ -211,6 +221,8 @@ const GameServerWarnings = () => {
           timeout: 10000
         })
         break
+      }
+
       default:
         return
     }

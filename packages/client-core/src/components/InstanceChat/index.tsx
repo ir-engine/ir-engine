@@ -55,6 +55,10 @@ const InstanceChat = (props: Props): any => {
   const [unreadMessages, setUnreadMessages] = React.useState(false)
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
   const instanceConnectionState = useLocationInstanceConnectionState()
+
+  const currentInstanceId = instanceConnectionState.currentInstanceId.value
+  const currentInstanceConnection = instanceConnectionState.instances[currentInstanceId!]
+
   const [isInitRender, setIsInitRender] = React.useState<Boolean>()
   const [noUnReadMessage, setNoUnReadMessage] = React.useState<any>()
   const usersTyping = useState(
@@ -89,28 +93,16 @@ const InstanceChat = (props: Props): any => {
   }, [])
 
   useEffect(() => {
-    if (
-      user?.instanceId?.value &&
-      instanceConnectionState.instance.id?.value &&
-      user?.instanceId?.value !== instanceConnectionState.instance.id?.value
-    ) {
-      console.warn(
-        '[WARNING]: somehow user.instanceId and instanceConnectionState.instance.id, are different when they should be the same'
+    if (user?.instanceId?.value && currentInstanceId && user?.instanceId?.value !== currentInstanceId) {
+      console.error(
+        `[ERROR]: somehow user.instanceId and instanceConnectionState.instance.id, are different when they should be the same`
       )
-      console.log(user?.instanceId?.value, instanceConnectionState.instance.id?.value)
+      console.error(user?.instanceId?.value, currentInstanceId)
     }
-    if (
-      instanceConnectionState.instance.id?.value &&
-      instanceConnectionState.connected.value &&
-      !chatState.instanceChannelFetching.value
-    ) {
+    if (currentInstanceId && currentInstanceConnection.connected.value && !chatState.instanceChannelFetching.value) {
       ChatService.getInstanceChannel()
     }
-  }, [
-    instanceConnectionState.instance.id?.value,
-    instanceConnectionState.connected?.value,
-    chatState.instanceChannelFetching.value
-  ])
+  }, [currentInstanceConnection?.connected?.value, chatState.instanceChannelFetching.value])
 
   React.useEffect(() => {
     if (messageEl) messageEl.scrollTop = messageEl?.scrollHeight

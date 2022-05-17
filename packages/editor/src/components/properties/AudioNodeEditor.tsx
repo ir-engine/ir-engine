@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
@@ -6,6 +6,7 @@ import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioCompo
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
 import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
@@ -29,6 +30,7 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const AudioNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const [_, setState] = useState(0)
   const engineState = useEngineState()
   const entity = props.node.entity
 
@@ -36,11 +38,17 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
   const isVideo = hasComponent(entity, VideoComponent)
   const isVolumetric = hasComponent(entity, VolumetricComponent)
   const hasError = engineState.errorEntities[entity].get() || hasComponent(entity, ErrorComponent)
+  const obj3d = getComponent(entity, Object3DComponent)?.value
 
   const updateSrc = async (src: string) => {
     AssetLoader.Cache.delete(src)
     await AssetLoader.loadAsync(src)
     updateProperty(AudioComponent, 'audioSource')(src)
+  }
+
+  const onToggleAudio = () => {
+    toggleAudio(entity)
+    setState(_ + 1)
   }
 
   return (
@@ -59,8 +67,10 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
       {!isVideo && !isVolumetric && (
         <>
           <MediaSourceProperties node={props.node} multiEdit={props.multiEdit} />
-          <PropertiesPanelButton onClick={() => toggleAudio(entity)}>
-            {t('editor:properties.audio.lbl-test')}
+          <PropertiesPanelButton onClick={onToggleAudio}>
+            {obj3d && obj3d.userData.audioEl?.isPlaying
+              ? t('editor:properties.audio.lbl-pause')
+              : t('editor:properties.audio.lbl-play')}
           </PropertiesPanelButton>
         </>
       )}

@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-core",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -35,8 +35,8 @@
     "@emotion/styled": "11.8.1",
     "@feathersjs/authentication-client": "5.0.0-pre.10",
     "@feathersjs/client": "5.0.0-pre.10",
-    "@feathersjs/socketio-client": "5.0.0-pre.10",
     "@feathersjs/rest-client": "5.0.0-pre.10",
+    "@feathersjs/socketio-client": "5.0.0-pre.10",
     "@google/model-viewer": "1.11.1",
     "@mui/icons-material": "5.6.1",
     "@mui/lab": "^5.0.0-alpha.73",
@@ -46,9 +46,9 @@
     "@speigg/hookstate": "3.0.13-stable-state",
     "@types/react-router-dom": "5.3.3",
     "@types/styled-components": "5.1.24",
-    "@xrengine/common": "^0.5.3",
-    "@xrengine/engine": "^0.5.3",
-    "@xrengine/hyperflux": "^0.5.3",
+    "@xrengine/common": "^0.5.4",
+    "@xrengine/engine": "^0.5.4",
+    "@xrengine/hyperflux": "^0.5.4",
     "apexcharts": "^3.28.3",
     "axios": "0.26.1",
     "classnames": "2.3.1",

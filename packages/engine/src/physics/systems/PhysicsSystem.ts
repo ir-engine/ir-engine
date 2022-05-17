@@ -227,7 +227,7 @@ export default async function PhysicsSystem(world: World) {
 
     // step physics world
     for (let i = 0; i < world.physics.substeps; i++) {
-      world.physics.scene.simulate((world.physics.timeScale * world.fixedDelta) / world.physics.substeps, true)
+      world.physics.scene.simulate((world.physics.timeScale * world.fixedDeltaSeconds) / world.physics.substeps, true)
       world.physics.scene.fetchResults(true)
     }
   }

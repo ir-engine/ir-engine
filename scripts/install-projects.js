@@ -1,4 +1,5 @@
 import { download } from "@xrengine/server-core/src/projects/project/downloadProjects";
+import { createDefaultStorageProvider } from "@xrengine/server-core/src/media/storageprovider/storageprovider";
 import dotenv from 'dotenv';
 import Sequelize from 'sequelize';
 import path from "path";
@@ -22,6 +23,7 @@ db.url = process.env.MYSQL_URL ??
 
 async function installAllProjects() {
   try {
+    createDefaultStorageProvider()
     const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects')
     if (!fs.existsSync(localProjectDirectory)) fs.mkdirSync(localProjectDirectory, { recursive: true })
     logger.info('running installAllProjects')

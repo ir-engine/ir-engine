@@ -1,11 +1,11 @@
 import * as https from 'https'
-import { DataProducer, Router, Transport, Worker } from 'mediasoup/node/lib/types'
+import { DataProducer, Router, Transport, WebRtcTransport, Worker } from 'mediasoup/node/lib/types'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { RingBuffer } from '@xrengine/engine/src/common/classes/RingBuffer'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { NetworkTransportHandler } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkTransport } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
 
@@ -13,29 +13,26 @@ import { setupSubdomain } from './NetworkFunctions'
 import { setupSocketFunctions } from './SocketFunctions'
 import { startWebRTC } from './WebRTCFunctions'
 
-export class ServerTransportHandler
-  implements NetworkTransportHandler<SocketWebRTCServerTransport, SocketWebRTCServerTransport>
-{
-  mediaTransports = new Map<UserId, SocketWebRTCServerTransport>()
-  worldTransports = new Map<UserId, SocketWebRTCServerTransport>()
-  getMediaTransport(transport?: UserId) {
-    return this.mediaTransports.get('media' as UserId)!
-  }
-  getWorldTransport(transport?: UserId) {
-    return this.worldTransports.get('server' as UserId)!
-  }
-}
-
 export class SocketWebRTCServerTransport implements NetworkTransport {
   server: https.Server
   workers: Worker[] = []
   routers: Record<string, Router[]>
   transport: Transport
   app: Application
-  dataProducers: DataProducer[] = []
+
+  dataProducers = new Map<string, any>()
+  dataConsumers = new Map<string, any>()
+
+  incomingMessageQueueUnreliableIDs: RingBuffer<string> = new RingBuffer<string>(100)
+  incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)
+  mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
+
   outgoingDataTransport: Transport
   outgoingDataProducer: DataProducer
   request = () => null!
+
+  mediasoupTransports: WebRtcTransport[] = []
+  transportsConnectPending: Promise<void>[] = []
 
   constructor(app) {
     this.app = app

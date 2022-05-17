@@ -1,13 +1,11 @@
-import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network } from '../classes/Network'
+import { NetworkTransport } from '../classes/Network'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { NetworkTransport } from '../interfaces/NetworkTransport'
 import { createDataWriter } from '../serialization/DataWriter'
 
 /***********
@@ -21,7 +19,7 @@ const authoritativeNetworkTransformsQuery = defineQuery([
   TransformComponent
 ])
 
-const serializeAndSend = (world: World, serialize: Function, sendData: Function) => {
+const serializeAndSend = (world: World, serialize: Function) => {
   const ents = authoritativeNetworkTransformsQuery(world)
   if (ents.length > 0) {
     const data = serialize(world, ents)
@@ -30,12 +28,13 @@ const serializeAndSend = (world: World, serialize: Function, sendData: Function)
 
     if (data.byteLength > 0) {
       // side effect - network IO
-      sendData(data)
+      const worldTransport = Network.instance.getTransport('world')
+      worldTransport.sendData(data)
     }
   }
 }
 
-const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
+const sendDataOnTransport = (transport: NetworkTransport, data) => {
   try {
     transport.sendData(data)
   } catch (e) {
@@ -44,14 +43,11 @@ const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
 }
 
 export default async function OutgoingNetworkSystem(world: World) {
-  const worldTransport = Network.instance.transportHandler.getWorldTransport()
-  const sendData = sendDataOnTransport(worldTransport)
-
   const serialize = createDataWriter()
 
   return () => {
     if (!getEngineState().isEngineInitialized.value) return
 
-    serializeAndSend(world, serialize, sendData)
+    serializeAndSend(world, serialize)
   }
 }

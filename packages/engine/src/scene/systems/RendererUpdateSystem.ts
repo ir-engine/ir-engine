@@ -14,7 +14,7 @@ export default async function RendererUpdateSystem(world: World) {
   return () => {
     for (const entity of renderedQuery()) {
       const obj = getComponent(entity, Object3DComponent)
-      ;(obj.value as unknown as Updatable).update(world.delta)
+      ;(obj.value as unknown as Updatable).update(world.deltaSeconds)
     }
   }
 }

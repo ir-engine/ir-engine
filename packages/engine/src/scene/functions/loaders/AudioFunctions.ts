@@ -36,15 +36,15 @@ import { updateAutoStartTimeForMedia } from './MediaFunctions'
 export const SCENE_COMPONENT_AUDIO = 'audio'
 export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
   audioSource: '',
-  volume: 0.5,
+  volume: 1,
   audioType: AudioType.Positional as AudioTypeType,
   distanceModel: 'linear' as DistanceModelType,
   rolloffFactor: 1,
   refDistance: 20,
   maxDistance: 1000,
-  coneInnerAngle: 120,
-  coneOuterAngle: 180,
-  coneOuterGain: 0
+  coneInnerAngle: 360,
+  coneOuterAngle: 360,
+  coneOuterGain: 1
 }
 
 let audioTexture: Texture = null!
@@ -102,8 +102,8 @@ export const updateAudio: ComponentUpdateFunction = (entity: Entity, properties:
     if (obj3d.userData.audioEl) obj3d.userData.audioEl.removeFromParent()
     obj3d.userData.audioEl =
       component.audioType === AudioType.Stereo
-        ? new Audio(Engine.instance.audioListener)
-        : new PositionalAudio(Engine.instance.audioListener)
+        ? new Audio(Engine.instance.currentWorld.audioListener)
+        : new PositionalAudio(Engine.instance.currentWorld.audioListener)
 
     obj3d.userData.audioEl.matrixAutoUpdate = false
     obj3d.add(obj3d.userData.audioEl)

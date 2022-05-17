@@ -1,18 +1,22 @@
 import React, { useState } from 'react'
 import { useHistory } from 'react-router'
 
-import { LocationInstanceConnectionAction } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+import {
+  LocationInstanceConnectionAction,
+  useLocationInstanceConnectionState
+} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { getWorldTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { SceneAction, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppAction, GeneralStateList } from '../../common/services/AppService'
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { initClient, loadScene } from './LocationLoadHelper'
 
 export const LoadEngineWithScene = () => {
@@ -21,6 +25,7 @@ export const LoadEngineWithScene = () => {
   const engineState = useEngineState()
   const sceneState = useSceneState()
   const [clientReady, setClientReady] = useState(false)
+  const instanceConnectionState = useLocationInstanceConnectionState()
 
   /**
    * initialise the client
@@ -75,8 +80,8 @@ export const LoadEngineWithScene = () => {
       LocationService.getLocationByName(world.activePortal.location)
 
       // shut down connection with existing GS
-      leave(getWorldTransport())
-      dispatch(LocationInstanceConnectionAction.disconnect())
+      leave(Network.instance.getTransport('world') as SocketWebRTCClientTransport)
+      dispatch(LocationInstanceConnectionAction.disconnect(instanceConnectionState.currentInstanceId.value!))
 
       teleportToScene()
     }

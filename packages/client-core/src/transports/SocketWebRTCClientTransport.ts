@@ -3,16 +3,12 @@ import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/
 import { io as ioclient, Socket } from 'socket.io-client'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { RingBuffer } from '@xrengine/engine/src/common/classes/RingBuffer'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import {
-  Network,
-  NetworkTransportHandler,
-  TransportType,
-  TransportTypes
-} from '@xrengine/engine/src/networking/classes/Network'
+import { Network, TransportType, TransportTypes } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkTransport } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { addActionReceptor, defineAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
@@ -31,27 +27,13 @@ const promisedRequest = (socket: Socket) => {
   }
 }
 
-export class ClientTransportHandler
-  implements NetworkTransportHandler<SocketWebRTCClientTransport, SocketWebRTCClientTransport>
-{
-  worldTransports = new Map<UserId, SocketWebRTCClientTransport>()
-  mediaTransports = new Map<UserId, SocketWebRTCClientTransport>()
-  constructor() {
-    this.worldTransports.set('server' as UserId, new SocketWebRTCClientTransport(TransportTypes.world))
-    this.mediaTransports.set('media' as UserId, new SocketWebRTCClientTransport(TransportTypes.media))
-  }
-  getWorldTransport() {
-    return this.worldTransports.get('server' as UserId)!
-  }
-  getMediaTransport() {
-    return this.mediaTransports.get('media' as UserId)!
-  }
+export const createNetworkTransports = () => {
+  Network.instance.transports.set('world' as UserId, new SocketWebRTCClientTransport(TransportTypes.world))
+  Network.instance.transports.set('media' as UserId, new SocketWebRTCClientTransport(TransportTypes.media))
+  addActionReceptor(Engine.instance.store, (action) => {
+    matches(action).when(MediaStreams.actions.triggerUpdateConsumers.matches, MediaStreamService.triggerUpdateConsumers)
+  })
 }
-
-export const getMediaTransport = () =>
-  Network.instance.transportHandler.getMediaTransport() as SocketWebRTCClientTransport
-export const getWorldTransport = () =>
-  Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
   static actions = {
@@ -90,12 +72,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   type: TransportType
   constructor(type: TransportType) {
     this.type = type
-    addActionReceptor(Engine.instance.store, (action) => {
-      matches(action).when(
-        MediaStreams.actions.triggerUpdateConsumers.matches,
-        MediaStreamService.triggerUpdateConsumers
-      )
-    })
   }
 
   mediasoupDevice = new mediasoupClient.Device(Engine.instance.isBot ? { handlerName: 'Chrome74' } : undefined)
@@ -106,8 +82,18 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   sendTransport: MediaSoupTransport
   socket: Socket = null!
   request: ReturnType<typeof promisedRequest>
+
+  dataProducers = new Map<string, any>()
+  dataConsumers = new Map<string, any>()
+
+  incomingMessageQueueUnreliableIDs: RingBuffer<string> = new RingBuffer<string>(100)
+  incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)
+  mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
+
   dataProducer: DataProducer
   heartbeat: NodeJS.Timer // is there an equivalent browser type for this?
+
+  instanceId: string
 
   sendActions(actions: Action<'WORLD'>[]) {
     if (actions.length === 0) return
@@ -136,13 +122,16 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     sceneId: string
     ipAddress: string
     port: string
+    instanceId: string
     locationId?: string
     channelId?: string
   }): Promise<void> {
     this.reconnecting = false
     if (this.socket) return console.error('[SocketWebRTCClientTransport]: already initialized')
     console.log('[SocketWebRTCClientTransport]: Initialising transport with args', args)
-    const { sceneId, ipAddress, port, locationId, channelId } = args
+    const { sceneId, ipAddress, port, instanceId, locationId, channelId } = args
+
+    this.instanceId = instanceId
 
     const authState = accessAuthState()
     const token = authState.authUser.accessToken.value

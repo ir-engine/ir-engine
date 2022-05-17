@@ -6,9 +6,9 @@ import { User } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import checkPositionIsValid from '@xrengine/engine/src/common/functions/checkPositionIsValid'
+import { performance } from '@xrengine/engine/src/common/functions/performance'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { AvatarProps } from '@xrengine/engine/src/networking/interfaces/WorldState'
@@ -343,8 +343,8 @@ export const handleJoinWorld = async (
   logger.info('Sending cached actions: %o', cachedActions)
 
   callback({
-    elapsedTime: world.elapsedTime,
-    clockTime: Date.now(),
+    highResTimeOrigin: performance.timeOrigin,
+    worldStartTime: world.startTime,
     client: { name: client.name, index: client.index },
     cachedActions,
     avatarDetail: client.avatarDetail!,
@@ -398,12 +398,16 @@ export async function handleDisconnect(socket): Promise<any> {
   }
 }
 
-export async function handleLeaveWorld(socket, data, callback): Promise<any> {
+export async function handleLeaveWorld(
+  networkTransport: SocketWebRTCServerTransport,
+  socket,
+  data,
+  callback
+): Promise<any> {
   const world = Engine.instance.currentWorld
   const userId = getUserIdFromSocketId(socket.id)!
-  if (Network.instance.transports)
-    for (const [, transport] of Object.entries(Network.instance.transports))
-      if ((transport as any).appData.peerId === userId) closeTransport(transport)
+  for (const [, transport] of Object.entries(networkTransport.mediasoupTransports))
+    if ((transport as any).appData.peerId === userId) closeTransport(networkTransport, transport)
   if (world.clients.has(userId)) {
     dispatchAction(world.store, NetworkWorldAction.destroyClient({ $from: userId }))
   }

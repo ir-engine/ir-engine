@@ -71,6 +71,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       ></ArrayInputGroup>
       <InputGroup name="Play Mode" label={t('editor:properties.volumetric.playmode')}>
         <SelectInput
+          key={props.node.entity}
           options={PlayModeOptions}
           value={volumetricComponent.playMode}
           onChange={updateProperty(VolumetricComponent, 'playMode')}

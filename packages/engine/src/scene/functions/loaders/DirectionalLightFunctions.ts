@@ -136,9 +136,9 @@ export const updateDirectionalLight: ComponentUpdateFunction = (
   light.userData.cameraHelper.visible = component.showCameraHelper
 
   if (component.showCameraHelper) {
-    Engine.instance.scene.add(light.userData.cameraHelper)
+    Engine.instance.currentWorld.scene.add(light.userData.cameraHelper)
   } else {
-    Engine.instance.scene.remove(light.userData.cameraHelper)
+    Engine.instance.currentWorld.scene.remove(light.userData.cameraHelper)
   }
 
   light.userData.cameraHelper.update()
