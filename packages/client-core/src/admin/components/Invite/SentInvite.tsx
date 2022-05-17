@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { InviteService } from '../../../social/services/InviteService'
@@ -10,13 +10,11 @@ import { inviteColumns } from '../../common/variables/invite'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
-  sentInvites?: any
   search: string
-  invites: any
 }
 
 const SentInvite = (props: Props) => {
-  const { invites } = props
+  const { search } = props
   const [page, setPage] = useState(0)
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [inviteId, setInviteId] = useState('')
@@ -26,6 +24,7 @@ const SentInvite = (props: Props) => {
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
   const { t } = useTranslation()
+  const invites = inviteState.sentInvites.invites
   const sentInviteCount = inviteState.sentInvites.total.value
 
   const deleteInvite = () => {
@@ -35,9 +34,13 @@ const SentInvite = (props: Props) => {
 
   const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    InviteService.retrieveSentInvites(incDec)
+    InviteService.retrieveSentInvites(incDec, search, sortField, fieldOrder)
     setPage(newPage)
   }
+
+  useEffect(() => {
+    InviteService.retrieveSentInvites(undefined, search, sortField, fieldOrder)
+  }, [search, inviteState.receivedUpdateNeeded.value, sortField, fieldOrder])
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10))
@@ -72,9 +75,7 @@ const SentInvite = (props: Props) => {
     }
   }
 
-  const rows = invites.map((el, index) =>
-    createData(el.id, el.invitee ? el.invitee.name : '', el.passcode, el.inviteType)
-  )
+  const rows = invites.value.map((el, index) => createData(el.id, el.invitee.name || '', el.passcode, el.inviteType))
 
   return (
     <React.Fragment>

@@ -41,30 +41,25 @@ const state = createState({
 })
 
 store.receptors.push((action: InviteActionType): any => {
-  let newValues
   state.batch((s) => {
     switch (action.type) {
       case 'INVITE_SENT':
         return s.sentUpdateNeeded.set(true)
       case 'SENT_INVITES_RETRIEVED':
-        newValues = action
         s.sentInvites.merge({
-          invites: newValues.invites,
-          skip: newValues.skip,
-          limit: newValues.limit,
-          total: newValues.total
+          invites: action.invites,
+          skip: action.skip,
+          limit: action.limit,
+          total: action.total
         })
         return s.merge({ sentUpdateNeeded: false, getSentInvitesInProgress: false })
       case 'RECEIVED_INVITES_RETRIEVED':
-        newValues = action
-        const receivedInvites = s.receivedInvites.invites.value
-
-        if (receivedInvites === null || s.receivedUpdateNeeded.value === true) {
-          s.receivedInvites.invites.set(newValues.invites)
-        } else {
-          s.receivedInvites.invites.merge([...s.receivedInvites.invites.value, ...newValues.invites])
-        }
-        s.receivedInvites.merge({ skip: newValues.skip, limit: newValues.limit, total: newValues.total })
+        s.receivedInvites.merge({
+          invites: action.invites,
+          skip: action.skip,
+          limit: action.limit,
+          total: action.total
+        })
         return s.merge({ receivedUpdateNeeded: false, getReceivedInvitesInProgress: false })
       case 'CREATED_RECEIVED_INVITE':
         return s.receivedUpdateNeeded.set(true)
@@ -79,10 +74,9 @@ store.receptors.push((action: InviteActionType): any => {
       case 'DECLINED_INVITE':
         return s.receivedUpdateNeeded.set(true)
       case 'INVITE_TARGET_SET':
-        newValues = action
         return state.merge({
-          targetObjectId: newValues.targetObjectId || '',
-          targetObjectType: newValues.targetObjectType || ''
+          targetObjectId: action.targetObjectId || '',
+          targetObjectType: action.targetObjectType || ''
         })
       case 'FETCHING_SENT_INVITES':
         return s.getSentInvitesInProgress.set(true)
@@ -173,19 +167,37 @@ export const InviteService = {
       AlertService.dispatchAlertError(err)
     }
   },
-  retrieveReceivedInvites: async (incDec?: 'increment' | 'decrement') => {
+  retrieveReceivedInvites: async (
+    incDec?: 'increment' | 'decrement',
+    search?: string,
+    sortField?: string,
+    orderBy = 'asc'
+  ) => {
     const dispatch = useDispatch()
 
     dispatch(InviteAction.fetchingReceivedInvites())
     const inviteState = accessInviteState().value
     const skip = inviteState.receivedInvites.skip
     const limit = inviteState.receivedInvites.limit
+    let sortData = {}
+    if (sortField && sortField.length > 0) {
+      if (sortField === 'type') {
+        sortData['inviteType'] = orderBy === 'desc' ? 0 : 1
+      } else {
+        sortData[sortField] = orderBy === 'desc' ? 0 : 1
+      }
+    }
+
     try {
       const inviteResult = (await client.service('invite').find({
         query: {
+          $sort: {
+            ...sortData
+          },
           type: 'received',
           $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
-          $limit: limit
+          $limit: limit,
+          search: search
         }
       })) as Paginated<Invite>
       dispatch(InviteAction.retrievedReceivedInvites(inviteResult))
@@ -193,19 +205,36 @@ export const InviteService = {
       AlertService.dispatchAlertError(err)
     }
   },
-  retrieveSentInvites: async (incDec?: 'increment' | 'decrement') => {
+  retrieveSentInvites: async (
+    incDec?: 'increment' | 'decrement',
+    search?: string,
+    sortField?: string,
+    orderBy = 'asc'
+  ) => {
     const dispatch = useDispatch()
 
     dispatch(InviteAction.fetchingSentInvites())
     const inviteState = accessInviteState().value
     const skip = inviteState.sentInvites.skip
     const limit = inviteState.sentInvites.limit
+    let sortData = {}
+    if (sortField && sortField.length > 0) {
+      if (sortField === 'type') {
+        sortData['inviteType'] = orderBy === 'desc' ? 0 : 1
+      } else {
+        sortData[sortField] = orderBy === 'desc' ? 0 : 1
+      }
+    }
     try {
       const inviteResult = (await client.service('invite').find({
         query: {
+          $sort: {
+            ...sortData
+          },
           type: 'sent',
           $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
-          $limit: limit
+          $limit: limit,
+          search: search
         }
       })) as Paginated<Invite>
       dispatch(InviteAction.retrievedSentInvites(inviteResult))

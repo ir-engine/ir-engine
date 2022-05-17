@@ -9,6 +9,7 @@ import { AlertService } from '../../../common/services/AlertService'
 import { InviteService } from '../../../social/services/InviteService'
 import { InviteTypeService } from '../../../social/services/InviteTypeService'
 import { useInviteTypeState } from '../../../social/services/InviteTypeService'
+import { useAuthState } from '../../../user/services/AuthService'
 import AutoComplete from '../../common/AutoComplete'
 import CreateModal from '../../common/CreateModal'
 import InputSelect from '../../common/InputSelect'
@@ -31,6 +32,7 @@ const phoneRegex = /^[0-9]{10}$/
  */
 
 const InviteModal = (props: Props) => {
+  const selfUser = useAuthState().user
   const { open, handleClose, users } = props
   const [currency, setCurrency] = useState('friend')
   const inviteTypeData = useInviteTypeState()
@@ -133,7 +135,7 @@ const InviteModal = (props: Props) => {
       })
   }
 
-  const validateFormErrors = () => {
+  const validateFormErrors = async () => {
     setFormErrors({
       ...formErrors,
       type: currency.length > 0 ? '' : 'This field is required',
@@ -150,26 +152,25 @@ const InviteModal = (props: Props) => {
             : 'Enter valid phone number'
           : 'Select Provider Type first'
     })
+
+    return validateForm(
+      { type: currency, token: token, inviteCode: passcode || null, identityProviderType: providerType },
+      formErrors
+    )
   }
 
   const createInvite = async () => {
-    validateFormErrors()
+    const validated = await validateFormErrors()
 
-    if (
-      validateForm(
-        { type: currency, token: token, inviteCode: passcode || null, identityProviderType: providerType },
-        formErrors
-      ) &&
-      targetUser?.length > 0
-    ) {
+    if (validated && targetUser?.length > 0) {
       for (let tUser of targetUser) {
         const data = {
           type: currency,
           token: token,
           inviteCode: passcode || null,
-          invitee: tUser.id,
+          invitee: tUser.key,
           identityProviderType: providerType,
-          targetObjectId: tUser.id
+          targetObjectId: tUser.key
         }
 
         await InviteService.sendInvite(data)
@@ -192,12 +193,13 @@ const InviteModal = (props: Props) => {
   const userOptions: StateOption[] = []
 
   for (let el of users) {
-    userOptions.push({
-      key: el.id ?? '',
-      name: el.name,
-      type: el.name,
-      value: el.id ?? ''
-    })
+    selfUser.id.value !== el.id &&
+      userOptions.push({
+        key: el.id ?? '',
+        name: el.name,
+        type: el.name,
+        value: el.id ?? ''
+      })
   }
 
   useEffect(() => {
@@ -230,7 +232,7 @@ const InviteModal = (props: Props) => {
         </Grid>
         <Grid item xs={12}>
           <InputText
-            name="passcode"
+            name="Invite Code"
             handleInputChange={handlePasscodeChange}
             value={passcode}
             formErrors={formErrors.inviteCode}

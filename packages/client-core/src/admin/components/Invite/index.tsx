@@ -58,7 +58,6 @@ const InvitesConsole = () => {
 
   const inviteState = useInviteState()
 
-  const invites = inviteState.sentInvites.invites
   const adminUserState = useUserState()
   const adminUsers = adminUserState.users
   const user = useAuthState().user
@@ -136,10 +135,10 @@ const InvitesConsole = () => {
             </Tabs>
           </AppBar>
           <TabPanel value={value} index={0}>
-            <ReceivedInvite search={search} invites={[]} />
+            <ReceivedInvite search={search} />
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <SentInvite search={search} invites={invites.value} />
+            <SentInvite search={search} />
           </TabPanel>
         </div>
       </ConfirmProvider>
