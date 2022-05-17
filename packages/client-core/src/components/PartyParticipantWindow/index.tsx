@@ -20,6 +20,7 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES } from '@xrengine/engine/src/scene/functions/loaders/AudioSettingFunctions'
 
 import {
   Launch,
@@ -53,6 +54,7 @@ interface Props {
 }
 
 const PartyParticipantWindow = (props: Props): JSX.Element => {
+  const [isPiP, setPiP] = useState(false)
   const [videoStream, _setVideoStream] = useState<any>(null)
   const [audioStream, _setAudioStream] = useState<any>(null)
   const [videoStreamPaused, setVideoStreamPaused] = useState(false)
@@ -169,8 +171,9 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
   useEffect(() => {
     // TODO: uncomment these two lines to silence main audio in favor of spatial audio
-    // if (selfUser?.user_setting?.spatialAudioEnabled === true && audioRef.current != null) audioRef.current.volume = 0
-    // else audioRef.current!.volume = volume / 100
+    if (SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.usePositionalAudio && audioRef.current != null)
+      audioRef.current.volume = 0
+    else audioRef.current!.volume = volume / 100
     // (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) &&
     // Engine.instance.spatialAudio
   }, [selfUser])
@@ -412,8 +415,6 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     setVolume(newValue)
   }
 
-  const [isPiP, setPiP] = useState(false)
-
   const togglePiP = () => setPiP(!isPiP)
 
   const isSelfUser = peerId === 'me_cam' || peerId === 'me_screen'
@@ -494,13 +495,19 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                   </IconButton>
                 </Tooltip>
               ) : null}
-              {
-                <Tooltip title={t('user:person.openPictureInPicture') as string}>
-                  <IconButton color="secondary" size="small" className={styles['audio-control']} onClick={togglePiP}>
-                    <Launch className={styles.pipBtn} />
-                  </IconButton>
-                </Tooltip>
-              }
+              <Tooltip title={t('user:person.openPictureInPicture') as string}>
+                <IconButton
+                  color="secondary"
+                  size="small"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    togglePiP()
+                  }}
+                >
+                  <Launch className={styles.pipBtn} />
+                </IconButton>
+              </Tooltip>
             </div>
             {audioProducerGlobalMute && <div className={styles['global-mute']}>Muted by Admin</div>}
             {audioStream &&

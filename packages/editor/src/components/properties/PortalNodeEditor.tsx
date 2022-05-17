@@ -90,6 +90,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-portal')}>
         <SelectInput
+          key={props.node.entity}
           options={portals}
           value={portalComponent.linkedPortalId}
           onChange={updateProperty(PortalComponent, 'linkedPortalId')}
@@ -105,6 +106,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       {/* TODO */}
       {/* <InputGroup name="Cubemap Bake" label={t('editor:properties.portal.lbl-cubemapBake')}>
         <SelectInput
+          key={props.node.entity}
           options={Engine.instance.currentWorld.scene.children
             .filter((obj: Object3D) => {
               return (obj as any).nodeName === CubemapBakeportalComponent.nodeName

@@ -3,6 +3,8 @@ import { PerspectiveCamera } from 'three'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { accessEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
@@ -58,7 +60,13 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
   // Rendering the scene to the new canvas with given size
-  EngineRenderer.instance.renderer.render(Engine.instance.currentWorld.scene, scenePreviewCamera)
+  if (accessEngineRendererState().usePostProcessing.value) {
+    configureEffectComposer(false, scenePreviewCamera)
+    EngineRenderer.instance.effectComposer.render()
+    configureEffectComposer(false, Engine.instance.currentWorld.camera)
+  } else {
+    EngineRenderer.instance.renderer.render(Engine.instance.currentWorld.scene, scenePreviewCamera)
+  }
   const blob = await getCanvasBlob(getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height))
 
   // Restoring previous state

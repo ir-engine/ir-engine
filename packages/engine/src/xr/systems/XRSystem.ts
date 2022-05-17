@@ -83,7 +83,7 @@ export default async function XRSystem(world: World) {
   addActionReceptor(Engine.instance.store, (a: EngineActionType) => {
     matches(a)
       .when(EngineActions.xrStart.matches, (action) => {
-        if (getEngineState().joinedWorld.value && !EngineRenderer.instance.xrSession) startXRSession()
+        if (!EngineRenderer.instance.xrSession) startXRSession()
       })
       .when(EngineActions.xrEnd.matches, (action) => {
         for (const entity of xrControllerQuery()) {

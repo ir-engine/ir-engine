@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
 import { toggleVideo } from '@xrengine/engine/src/scene/functions/loaders/VideoFunctions'
 
@@ -26,9 +28,27 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const VideoNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const [_, setState] = useState(0)
   const engineState = useEngineState()
+  const obj3d = getComponent(props.node.entity, Object3DComponent)?.value
+
+  const forceUpdate = () => setState(Math.random())
+
+  useEffect(() => {
+    if (obj3d && obj3d.userData.videoEl) {
+      obj3d.userData.videoEl.addEventListener('playing', forceUpdate)
+      obj3d.userData.videoEl.addEventListener('pause', forceUpdate)
+    }
+    return () => {
+      if (obj3d && obj3d.userData.videoEl) {
+        obj3d.userData.videoEl.removeEventListener('playing', forceUpdate)
+        obj3d.userData.videoEl.removeEventListener('pause', forceUpdate)
+      }
+    }
+  }, [props.node.entity])
 
   const videoComponent = getComponent(props.node.entity, VideoComponent)
+  const mediaComponent = getComponent(props.node.entity, MediaComponent)
   const hasError = engineState.errorEntities[props.node.entity].get() || hasComponent(props.node.entity, ErrorComponent)
 
   return (
@@ -49,7 +69,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <MediaSourceProperties node={props.node} multiEdit={props.multiEdit} />
       <PropertiesPanelButton onClick={() => toggleVideo(props.node.entity)}>
-        {t('editor:properties.video.lbl-test')}
+        {mediaComponent.playing ? t('editor:properties.video.lbl-pause') : t('editor:properties.video.lbl-play')}
       </PropertiesPanelButton>
     </NodeEditor>
   )

@@ -226,6 +226,7 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.BlendFunction:
         renderVal = (
           <SelectInput
+            key={props.node.entity}
             options={BlendFunctionSelect}
             onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
             value={getPropertyValue(propertyPath)}
@@ -246,6 +247,7 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.KernelSize:
         renderVal = (
           <SelectInput
+            key={props.node.entity}
             options={KernelSizeSelect}
             onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
             value={getPropertyValue(propertyPath)}
@@ -256,6 +258,7 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.SMAAPreset:
         renderVal = (
           <SelectInput
+            key={props.node.entity}
             options={SMAAPreset}
             onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
             value={getPropertyValue(propertyPath)}
@@ -266,6 +269,7 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.EdgeDetectionMode:
         renderVal = (
           <SelectInput
+            key={props.node.entity}
             options={EdgeDetectionMode}
             onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
             value={getPropertyValue(propertyPath)}
@@ -276,6 +280,7 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.PredicationMode:
         renderVal = (
           <SelectInput
+            key={props.node.entity}
             options={PredicationMode}
             onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
             value={getPropertyValue(propertyPath)}

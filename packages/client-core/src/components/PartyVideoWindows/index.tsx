@@ -14,10 +14,13 @@ const PartyVideoWindows = (): JSX.Element => {
   const selfUserId = useState(accessAuthState().user.id)
   const userState = useUserState()
   const channelConnectionState = useMediaInstanceConnectionState()
-  const displayedUsers =
-    channelConnectionState.channelType.value === 'channel'
+  const currentChannelInstanceId = channelConnectionState.currentInstanceId.value
+  const currentChannelInstanceConnection = channelConnectionState.instances[currentChannelInstanceId!].ornull
+  const displayedUsers = currentChannelInstanceId
+    ? currentChannelInstanceConnection.channelType.value === 'channel'
       ? userState.channelLayerUsers.value.filter((user) => user.id !== selfUserId.value)
       : userState.layerUsers.value.filter((user) => !!nearbyLayerUsers.value.find((u) => u.id === user.id))
+    : []
 
   return (
     <>
