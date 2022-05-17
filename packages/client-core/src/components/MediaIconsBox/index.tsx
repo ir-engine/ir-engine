@@ -34,7 +34,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
 import FaceIcon from '@mui/icons-material/Face'
 
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import styles from './index.module.scss'
 
 interface Props {
@@ -92,7 +92,7 @@ const MediaIconsBox = (props: Props) => {
     } else {
       const mediaTransport = Engine.instance.currentWorld.networks.get(
         MediaStreams.instance.hostId
-      ) as SocketWebRTCClientTransport
+      ) as SocketWebRTCClientNetwork
       if (await configureMediaTransports(mediaTransport, ['video', 'audio'])) {
         MediaStreams.instance.setFaceTracking(true)
         startFaceTracking()
@@ -105,7 +105,7 @@ const MediaIconsBox = (props: Props) => {
   const checkEndVideoChat = async () => {
     const mediaTransport = Engine.instance.currentWorld.networks.get(
       MediaStreams.instance.hostId
-    ) as SocketWebRTCClientTransport
+    ) as SocketWebRTCClientNetwork
     if (
       (MediaStreams.instance.audioPaused || MediaStreams.instance?.camAudioProducer == null) &&
       (MediaStreams.instance.videoPaused || MediaStreams.instance?.camVideoProducer == null) &&
@@ -121,7 +121,7 @@ const MediaIconsBox = (props: Props) => {
   const handleMicClick = async () => {
     const mediaTransport = Engine.instance.currentWorld.networks.get(
       MediaStreams.instance.hostId
-    ) as SocketWebRTCClientTransport
+    ) as SocketWebRTCClientNetwork
     if (await configureMediaTransports(mediaTransport, ['audio'])) {
       if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(mediaTransport)
       else {
@@ -137,7 +137,7 @@ const MediaIconsBox = (props: Props) => {
   const handleCamClick = async () => {
     const mediaTransport = Engine.instance.currentWorld.networks.get(
       MediaStreams.instance.hostId
-    ) as SocketWebRTCClientTransport
+    ) as SocketWebRTCClientNetwork
     if (await configureMediaTransports(mediaTransport, ['video'])) {
       if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer(mediaTransport)
       else {

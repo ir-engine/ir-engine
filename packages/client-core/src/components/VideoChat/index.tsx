@@ -5,7 +5,7 @@ import {
   configureMediaTransports,
   endVideoChat
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientNetwork'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
@@ -24,7 +24,7 @@ const VideoChat = (props: Props) => {
     if (mediaStreamSystem.videoStream == null) {
       const mediaTransport = Engine.instance.currentWorld.networks.get(
         MediaStreams.instance.hostId
-      ) as SocketWebRTCClientTransport
+      ) as SocketWebRTCClientNetwork
       await configureMediaTransports(mediaTransport, ['video', 'audio'])
       console.log('Send camera streams called from gsProvision')
     } else {

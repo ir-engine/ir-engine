@@ -8,7 +8,7 @@ import {
 import { MediaInstanceConnectionService } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientNetwork'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -147,7 +147,7 @@ const GameServerWarnings = () => {
         if (!Engine.instance.userId) return
         const transport = Engine.instance.currentWorld.networks.get(
           Engine.instance.currentWorld.hostId
-        ) as SocketWebRTCClientTransport
+        ) as SocketWebRTCClientNetwork
         if (transport.left || engineState.isTeleporting.value || transport.reconnecting) return
 
         setModalValues({
@@ -165,7 +165,7 @@ const GameServerWarnings = () => {
         if (!Engine.instance.userId) return
         const transport = Engine.instance.currentWorld.networks.get(
           MediaStreams.instance.hostId
-        ) as SocketWebRTCClientTransport
+        ) as SocketWebRTCClientNetwork
         if (transport.left || transport.reconnecting) return
 
         const channels = chatState.channels.channels.value
@@ -186,7 +186,7 @@ const GameServerWarnings = () => {
       case WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED: {
         const transport = Engine.instance.currentWorld.networks.get(
           Engine.instance.currentWorld.hostId
-        ) as SocketWebRTCClientTransport
+        ) as SocketWebRTCClientNetwork
         if (transport.left || engineState.isTeleporting.value) return
 
         setModalValues({

@@ -11,7 +11,7 @@ import { client } from '../../feathers'
 import { accessLocationState } from '../../social/services/LocationService'
 import { store, useDispatch } from '../../store'
 import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
 import { NetworkConnectionService } from './NetworkConnectionService'
 
@@ -38,10 +38,7 @@ store.receptors.push((action: MediaLocationInstanceConnectionActionType): any =>
     switch (action.type) {
       case 'MEDIA_INSTANCE_SERVER_PROVISIONED':
         MediaStreams.instance.hostId = action.instanceId
-        Engine.instance.currentWorld.networks.set(
-          action.instanceId,
-          new SocketWebRTCClientTransport(NetworkTypes.media)
-        )
+        Engine.instance.currentWorld.networks.set(action.instanceId, new SocketWebRTCClientNetwork(NetworkTypes.media))
         return s.instances[action.instanceId].set({
           ipAddress: action.ipAddress,
           port: action.port,
@@ -113,7 +110,7 @@ export const MediaInstanceConnectionService = {
 
     const transport = Engine.instance.currentWorld.networks.get(
       MediaStreams.instance.hostId
-    ) as SocketWebRTCClientTransport
+    ) as SocketWebRTCClientNetwork
     console.log('Connect To Media Server', !!transport.socket, transport)
     if (transport.socket) {
       await endVideoChat(transport, { endConsumers: true })

@@ -24,9 +24,9 @@ import { MediaStreamAction, MediaStreamService } from '../media/services/MediaSt
 import { store, useDispatch } from '../store'
 import { accessAuthState } from '../user/services/AuthService'
 import { getSearchParamFromURL } from '../util/getSearchParamFromURL'
-import { SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
+import { SocketWebRTCClientNetwork } from './SocketWebRTCClientNetwork'
 
-export const getChannelTypeIdFromTransport = (network: SocketWebRTCClientTransport) => {
+export const getChannelTypeIdFromTransport = (network: SocketWebRTCClientNetwork) => {
   const channelConnectionState = accessMediaInstanceConnectionState()
   const currentChannelInstanceConnection = channelConnectionState.instances[MediaStreams.instance.hostId].ornull
   const isWorldConnection = network.type === NetworkTypes.world
@@ -36,7 +36,7 @@ export const getChannelTypeIdFromTransport = (network: SocketWebRTCClientTranspo
   }
 }
 
-export async function onConnectToInstance(network: SocketWebRTCClientTransport) {
+export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   const dispatch = useDispatch()
 
   const isWorldConnection = network.type === NetworkTypes.world
@@ -106,7 +106,7 @@ export async function onConnectToInstance(network: SocketWebRTCClientTransport) 
   else await onConnectToMediaInstance(network)
 }
 
-export async function onConnectToWorldInstance(network: SocketWebRTCClientTransport) {
+export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwork) {
   function actionDataHandler(message) {
     if (!message) return
     const actions = message as any as Required<Action<any>>[]
@@ -182,7 +182,7 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientTransp
   await createDataProducer(network, 'instance')
 }
 
-export async function onConnectToMediaInstance(network: SocketWebRTCClientTransport) {
+export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwork) {
   async function webRTCPauseConsumerHandler(consumerId) {
     if (MediaStreams.instance) {
       const consumer = MediaStreams.instance.consumers.find((c) => c.id === consumerId)
@@ -222,7 +222,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientTransp
           currentChannelInstanceConnection.channelId.value === channelId)
     ) {
       // that we don't already have consumers for...
-      await subscribeToTrack(network as SocketWebRTCClientTransport, socketId, mediaTag)
+      await subscribeToTrack(network as SocketWebRTCClientNetwork, socketId, mediaTag)
     }
   }
 
@@ -319,7 +319,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientTransp
 }
 
 export async function createDataProducer(
-  network: SocketWebRTCClientTransport,
+  network: SocketWebRTCClientNetwork,
   channelType: ChannelType,
   type = 'raw',
   customInitInfo: any = {}
@@ -344,7 +344,7 @@ export async function createDataProducer(
 // utility function to create a transport and hook up signaling logic
 // appropriate to the transport's direction
 
-export async function createTransport(network: SocketWebRTCClientTransport, direction: string) {
+export async function createTransport(network: SocketWebRTCClientNetwork, direction: string) {
   const request = network.request
   if (request === null) return null!
   const { channelId, channelType } = getChannelTypeIdFromTransport(network)
@@ -482,15 +482,15 @@ export async function createTransport(network: SocketWebRTCClientTransport, dire
   return transport
 }
 
-export async function initReceiveTransport(network: SocketWebRTCClientTransport): Promise<void> {
+export async function initReceiveTransport(network: SocketWebRTCClientNetwork): Promise<void> {
   network.recvTransport = await createTransport(network, 'recv')
 }
 
-export async function initSendTransport(network: SocketWebRTCClientTransport): Promise<void> {
+export async function initSendTransport(network: SocketWebRTCClientNetwork): Promise<void> {
   network.sendTransport = await createTransport(network, 'send')
 }
 
-export async function initRouter(network: SocketWebRTCClientTransport): Promise<void> {
+export async function initRouter(network: SocketWebRTCClientNetwork): Promise<void> {
   const { channelId, channelType } = getChannelTypeIdFromTransport(network)
   await network.request(MessageTypes.InitializeRouter.toString(), {
     channelType,
@@ -499,7 +499,7 @@ export async function initRouter(network: SocketWebRTCClientTransport): Promise<
 }
 
 export async function configureMediaTransports(
-  network: SocketWebRTCClientTransport | null,
+  network: SocketWebRTCClientNetwork | null,
   mediaTypes: string[]
 ): Promise<boolean> {
   if (
@@ -539,7 +539,7 @@ export async function configureMediaTransports(
   return true
 }
 
-export async function createCamVideoProducer(network: SocketWebRTCClientTransport): Promise<void> {
+export async function createCamVideoProducer(network: SocketWebRTCClientNetwork): Promise<void> {
   const channelConnectionState = accessMediaInstanceConnectionState()
   const currentChannelInstanceConnection = channelConnectionState.instances[network.instanceId].ornull
   const channelType = currentChannelInstanceConnection.channelType.value
@@ -587,7 +587,7 @@ export async function createCamVideoProducer(network: SocketWebRTCClientTranspor
   }
 }
 
-export async function createCamAudioProducer(network: SocketWebRTCClientTransport): Promise<void> {
+export async function createCamAudioProducer(network: SocketWebRTCClientNetwork): Promise<void> {
   const channelConnectionState = accessMediaInstanceConnectionState()
   const currentChannelInstanceConnection = channelConnectionState.instances[network.instanceId].ornull
   const channelType = currentChannelInstanceConnection.channelType.value
@@ -651,7 +651,7 @@ export async function createCamAudioProducer(network: SocketWebRTCClientTranspor
 }
 
 export async function endVideoChat(
-  network: SocketWebRTCClientTransport | null,
+  network: SocketWebRTCClientNetwork | null,
   options: { leftParty?: boolean; endConsumers?: boolean }
 ): Promise<boolean> {
   if (network) {
@@ -733,7 +733,7 @@ export function resetProducer(): void {
   }
 }
 
-export async function subscribeToTrack(network: SocketWebRTCClientTransport, peerId: string, mediaTag: string) {
+export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerId: string, mediaTag: string) {
   const socket = network.socket
   if (!socket?.connected) return
   const channelConnectionState = accessMediaInstanceConnectionState()
@@ -781,7 +781,7 @@ export async function subscribeToTrack(network: SocketWebRTCClientTransport, pee
   } else await closeConsumer(network, consumer)
 }
 
-export async function unsubscribeFromTrack(transport: SocketWebRTCClientTransport, peerId: any, mediaTag: any) {
+export async function unsubscribeFromTrack(transport: SocketWebRTCClientNetwork, peerId: any, mediaTag: any) {
   const consumer = MediaStreams.instance?.consumers.find(
     (c) => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag
   )
@@ -789,7 +789,7 @@ export async function unsubscribeFromTrack(transport: SocketWebRTCClientTranspor
 }
 
 export async function pauseConsumer(
-  network: SocketWebRTCClientTransport,
+  network: SocketWebRTCClientNetwork,
   consumer: { appData: { peerId: any; mediaTag: any }; id: any; pause: () => any }
 ) {
   await network.request(MessageTypes.WebRTCPauseConsumer.toString(), {
@@ -803,7 +803,7 @@ export async function pauseConsumer(
 }
 
 export async function resumeConsumer(
-  network: SocketWebRTCClientTransport,
+  network: SocketWebRTCClientNetwork,
   consumer: {
     appData: { peerId: any; mediaTag: any }
     id: any
@@ -821,7 +821,7 @@ export async function resumeConsumer(
 }
 
 export async function pauseProducer(
-  network: SocketWebRTCClientTransport,
+  network: SocketWebRTCClientNetwork,
   producer: { appData: { mediaTag: any }; id: any; pause: () => any }
 ) {
   await network.request(MessageTypes.WebRTCPauseProducer.toString(), {
@@ -835,7 +835,7 @@ export async function pauseProducer(
 }
 
 export async function resumeProducer(
-  network: SocketWebRTCClientTransport,
+  network: SocketWebRTCClientNetwork,
   producer: { appData: { mediaTag: any }; id: any; resume: () => any }
 ) {
   await network.request(MessageTypes.WebRTCResumeProducer.toString(), {
@@ -848,20 +848,20 @@ export async function resumeProducer(
     })
 }
 
-export async function globalMuteProducer(transport: SocketWebRTCClientTransport, producer: { id: any }) {
+export async function globalMuteProducer(transport: SocketWebRTCClientNetwork, producer: { id: any }) {
   await transport.request(MessageTypes.WebRTCPauseProducer.toString(), {
     producerId: producer.id,
     globalMute: true
   })
 }
 
-export async function globalUnmuteProducer(transport: SocketWebRTCClientTransport, producer: { id: any }) {
+export async function globalUnmuteProducer(transport: SocketWebRTCClientNetwork, producer: { id: any }) {
   await transport.request(MessageTypes.WebRTCResumeProducer.toString(), {
     producerId: producer.id
   })
 }
 
-export async function closeConsumer(transport: SocketWebRTCClientTransport, consumer: any) {
+export async function closeConsumer(transport: SocketWebRTCClientNetwork, consumer: any) {
   await consumer?.close()
 
   const ms = MediaStreams.instance
@@ -872,7 +872,7 @@ export async function closeConsumer(transport: SocketWebRTCClientTransport, cons
   })
 }
 
-export async function leave(network: SocketWebRTCClientTransport, kicked?: boolean) {
+export async function leave(network: SocketWebRTCClientNetwork, kicked?: boolean) {
   try {
     network.leaving = true
     const socket = network.socket
@@ -922,7 +922,7 @@ export async function leave(network: SocketWebRTCClientTransport, kicked?: boole
 }
 
 // TODO: currently unused - reimplement
-export const startScreenshare = async (network: SocketWebRTCClientTransport) => {
+export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   console.log('start screen share')
 
   // make sure we've joined the  and that we have a sending transport

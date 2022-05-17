@@ -22,7 +22,7 @@ import { localConfig, sctpParameters } from '@xrengine/server-core/src/config'
 import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
 
 import { getUserIdFromSocketId } from './NetworkFunctions'
-import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
 
 const toArrayBuffer = (buf): any => {
   var ab = new ArrayBuffer(buf.length)
@@ -33,7 +33,7 @@ const toArrayBuffer = (buf): any => {
   return ab
 }
 
-export async function startWebRTC(network: SocketWebRTCServerTransport): Promise<void> {
+export async function startWebRTC(network: SocketWebRTCServerNetwork): Promise<void> {
   console.info('Starting WebRTC Server')
   // Initialize roomstate
   const cores = os.cpus()
@@ -65,7 +65,7 @@ export async function startWebRTC(network: SocketWebRTCServerTransport): Promise
 }
 
 export const sendNewProducer =
-  (network: SocketWebRTCServerTransport, socket: SocketIO.Socket, channelType: string, channelId?: string) =>
+  (network: SocketWebRTCServerNetwork, socket: SocketIO.Socket, channelType: string, channelId?: string) =>
   async (producer: Producer): Promise<void> => {
     const userId = getUserIdFromSocketId(socket.id)!
     const world = Engine.instance.currentWorld
@@ -132,7 +132,7 @@ export const sendCurrentProducers = async (
 }
 
 export const handleConsumeDataEvent =
-  (network: SocketWebRTCServerTransport, socket: SocketIO.Socket) =>
+  (network: SocketWebRTCServerNetwork, socket: SocketIO.Socket) =>
   async (dataProducer: DataProducer): Promise<any> => {
     const userId = getUserIdFromSocketId(socket.id)!
     console.info('Data Consumer being created on server by client: ' + userId)
@@ -179,7 +179,7 @@ export const handleConsumeDataEvent =
     } else socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'transport did not exist' })
   }
 
-export async function closeTransport(network: SocketWebRTCServerTransport, transport: WebRtcTransport): Promise<void> {
+export async function closeTransport(network: SocketWebRTCServerNetwork, transport: WebRtcTransport): Promise<void> {
   console.info('closing transport ' + transport.id, transport.appData)
   // our producer and consumer event handlers will take care of
   // calling closeProducer() and closeConsumer() on all the producers
@@ -239,7 +239,7 @@ export async function closeConsumer(consumer): Promise<void> {
 }
 
 export async function createWebRtcTransport(
-  network: SocketWebRTCServerTransport,
+  network: SocketWebRTCServerNetwork,
   { peerId, direction, sctpCapabilities, channelType, channelId }: WebRtcTransportParams
 ): Promise<WebRtcTransport> {
   const { listenIps, initialAvailableOutgoingBitrate } = localConfig.mediasoup.webRtcTransport
@@ -284,7 +284,7 @@ export async function createWebRtcTransport(
 }
 
 export async function createInternalDataConsumer(
-  network: SocketWebRTCServerTransport,
+  network: SocketWebRTCServerNetwork,
   dataProducer: DataProducer,
   userId: string
 ): Promise<DataConsumer | null> {
@@ -312,7 +312,7 @@ export async function createInternalDataConsumer(
 }
 
 export async function handleWebRtcTransportCreate(
-  network: SocketWebRTCServerTransport,
+  network: SocketWebRTCServerNetwork,
   socket,
   data: WebRtcTransportParams,
   callback
@@ -398,7 +398,7 @@ export async function handleWebRtcTransportCreate(
 }
 
 export async function handleWebRtcProduceData(
-  network: SocketWebRTCServerTransport,
+  network: SocketWebRTCServerNetwork,
   socket,
   data,
   callback
@@ -472,14 +472,14 @@ export async function handleWebRtcProduceData(
   } else return callback({ error: 'invalid transport' })
 }
 
-export async function handleWebRtcTransportClose(network: SocketWebRTCServerTransport, socket, data, callback) {
+export async function handleWebRtcTransportClose(network: SocketWebRTCServerNetwork, socket, data, callback) {
   const { transportId } = data
   const transport = network.mediasoupTransports[transportId]
   if (transport != null) await closeTransport(network, transport).catch((err) => console.error(err))
   callback({ closed: true })
 }
 
-export async function handleWebRtcTransportConnect(network: SocketWebRTCServerTransport, socket, data, callback) {
+export async function handleWebRtcTransportConnect(network: SocketWebRTCServerNetwork, socket, data, callback) {
   const { transportId, dtlsParameters } = data,
     transport = network.mediasoupTransports[transportId]
   if (transport != null) {
@@ -496,14 +496,14 @@ export async function handleWebRtcTransportConnect(network: SocketWebRTCServerTr
   } else callback({ error: 'invalid transport' })
 }
 
-export async function handleWebRtcCloseProducer(network: SocketWebRTCServerTransport, socket, data, callback) {
+export async function handleWebRtcCloseProducer(network: SocketWebRTCServerNetwork, socket, data, callback) {
   const { producerId } = data,
     producer = MediaStreams.instance?.producers.find((p) => p.id === producerId)
   await closeProducerAndAllPipeProducers(producer).catch((err) => console.error(err))
   callback({ closed: true })
 }
 
-export async function handleWebRtcSendTrack(network: SocketWebRTCServerTransport, socket, data, callback) {
+export async function handleWebRtcSendTrack(network: SocketWebRTCServerNetwork, socket, data, callback) {
   const userId = getUserIdFromSocketId(socket.id)
   const { transportId, kind, rtpParameters, paused = false, appData } = data
   const transport = network.mediasoupTransports[transportId]
@@ -568,7 +568,7 @@ export async function handleWebRtcSendTrack(network: SocketWebRTCServerTransport
 }
 
 export async function handleWebRtcReceiveTrack(
-  network: SocketWebRTCServerTransport,
+  network: SocketWebRTCServerNetwork,
   socket,
   data,
   callback
@@ -678,7 +678,7 @@ export async function handleWebRtcReceiveTrack(
 }
 
 export async function handleWebRtcPauseConsumer(
-  network: SocketWebRTCServerTransport,
+  network: SocketWebRTCServerNetwork,
   socket,
   data,
   callback
@@ -695,7 +695,7 @@ export async function handleWebRtcPauseConsumer(
 }
 
 export async function handleWebRtcResumeConsumer(
-  network: SocketWebRTCServerTransport,
+  network: SocketWebRTCServerNetwork,
   socket,
   data,
   callback
@@ -712,7 +712,7 @@ export async function handleWebRtcResumeConsumer(
 }
 
 export async function handleWebRtcCloseConsumer(
-  network: SocketWebRTCServerTransport,
+  network: SocketWebRTCServerNetwork,
   socket,
   data,
   callback
@@ -724,7 +724,7 @@ export async function handleWebRtcCloseConsumer(
 }
 
 export async function handleWebRtcConsumerSetLayers(
-  network: SocketWebRTCServerTransport,
+  network: SocketWebRTCServerNetwork,
   socket,
   data,
   callback
@@ -737,7 +737,7 @@ export async function handleWebRtcConsumerSetLayers(
 }
 
 export async function handleWebRtcResumeProducer(
-  network: SocketWebRTCServerTransport,
+  network: SocketWebRTCServerNetwork,
   socket,
   data,
   callback
@@ -767,7 +767,7 @@ export async function handleWebRtcResumeProducer(
 }
 
 export async function handleWebRtcPauseProducer(
-  network: SocketWebRTCServerTransport,
+  network: SocketWebRTCServerNetwork,
   socket,
   data,
   callback
@@ -801,7 +801,7 @@ export async function handleWebRtcPauseProducer(
 }
 
 export async function handleWebRtcRequestNearbyUsers(
-  network: SocketWebRTCServerTransport,
+  network: SocketWebRTCServerNetwork,
   socket,
   data,
   callback
@@ -819,7 +819,7 @@ export async function handleWebRtcRequestNearbyUsers(
 }
 
 export async function handleWebRtcRequestCurrentProducers(
-  network: SocketWebRTCServerTransport,
+  network: SocketWebRTCServerNetwork,
   socket,
   data,
   callback
@@ -831,7 +831,7 @@ export async function handleWebRtcRequestCurrentProducers(
 }
 
 export async function handleWebRtcInitializeRouter(
-  network: SocketWebRTCServerTransport,
+  network: SocketWebRTCServerNetwork,
   socket,
   data,
   callback

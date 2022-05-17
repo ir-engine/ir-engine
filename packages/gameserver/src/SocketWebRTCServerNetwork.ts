@@ -13,7 +13,7 @@ import { setupSubdomain } from './NetworkFunctions'
 import { setupSocketFunctions } from './SocketFunctions'
 import { startWebRTC } from './WebRTCFunctions'
 
-export class SocketWebRTCServerTransport implements Network {
+export class SocketWebRTCServerNetwork implements Network {
   server: https.Server
   workers: Worker[] = []
   routers: Record<string, Router[]>

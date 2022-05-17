@@ -21,13 +21,13 @@ import { localConfig } from '@xrengine/server-core/src/config'
 import multiLogger from '@xrengine/server-core/src/logger'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
-import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
 import { closeTransport } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'gameserver:network' })
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
-export const setupSubdomain = async (transport: SocketWebRTCServerTransport) => {
+export const setupSubdomain = async (transport: SocketWebRTCServerNetwork) => {
   const app = transport.app
   let stringSubdomainNumber: string
 
@@ -83,7 +83,7 @@ export const setupSubdomain = async (transport: SocketWebRTCServerTransport) => 
 }
 
 export async function getFreeSubdomain(
-  transport: SocketWebRTCServerTransport,
+  transport: SocketWebRTCServerNetwork,
   gsIdentifier: string,
   subdomainNumber: number
 ): Promise<string> {
@@ -139,7 +139,7 @@ export async function getFreeSubdomain(
   }
 }
 
-export async function cleanupOldGameservers(transport: SocketWebRTCServerTransport): Promise<void> {
+export async function cleanupOldGameservers(transport: SocketWebRTCServerNetwork): Promise<void> {
   const instances = await transport.app.service('instance').Model.findAndCountAll({
     offset: 0,
     limit: 1000,
@@ -198,7 +198,7 @@ export function getUserIdFromSocketId(socketId) {
 }
 
 export async function handleConnectToWorld(
-  transport: SocketWebRTCServerTransport,
+  transport: SocketWebRTCServerNetwork,
   socket,
   data,
   callback,
@@ -261,7 +261,7 @@ function disconnectClientIfConnected(socket, userId: UserId) {
 }
 
 export const handleJoinWorld = async (
-  transport: SocketWebRTCServerTransport,
+  transport: SocketWebRTCServerNetwork,
   socket,
   data,
   callback: (args: JoinWorldProps) => void,
@@ -398,7 +398,7 @@ export async function handleDisconnect(socket): Promise<any> {
   }
 }
 
-export async function handleLeaveWorld(network: SocketWebRTCServerTransport, socket, data, callback): Promise<any> {
+export async function handleLeaveWorld(network: SocketWebRTCServerNetwork, socket, data, callback): Promise<any> {
   const world = Engine.instance.currentWorld
   const userId = getUserIdFromSocketId(socket.id)!
   for (const [, transport] of Object.entries(network.mediasoupTransports))

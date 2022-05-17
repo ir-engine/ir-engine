@@ -39,7 +39,7 @@ import IconButton from '@mui/material/IconButton'
 import Slider from '@mui/material/Slider'
 import Tooltip from '@mui/material/Tooltip'
 
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
 
@@ -325,7 +325,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     e.stopPropagation()
     const mediaTransport = Engine.instance.currentWorld.networks.get(
       MediaStreams.instance.hostId
-    ) as SocketWebRTCClientTransport
+    ) as SocketWebRTCClientNetwork
     if (peerId === 'me_cam') {
       const videoPaused = MediaStreams.instance.toggleVideoPaused()
       if (videoPaused) await pauseProducer(mediaTransport, MediaStreams.instance?.camVideoProducer)
@@ -351,7 +351,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     e.stopPropagation()
     const mediaTransport = Engine.instance.currentWorld.networks.get(
       MediaStreams.instance.hostId
-    ) as SocketWebRTCClientTransport
+    ) as SocketWebRTCClientNetwork
     if (peerId === 'me_cam') {
       const audioPaused = MediaStreams.instance.toggleAudioPaused()
       if (audioPaused) await pauseProducer(mediaTransport, MediaStreams.instance?.camAudioProducer)
@@ -377,7 +377,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     e.stopPropagation()
     const mediaTransport = Engine.instance.currentWorld.networks.get(
       MediaStreams.instance.hostId
-    ) as SocketWebRTCClientTransport
+    ) as SocketWebRTCClientNetwork
     if (!audioProducerGlobalMute) {
       await globalMuteProducer(mediaTransport, { id: audioStream.producerId })
       setAudioProducerGlobalMute(true)

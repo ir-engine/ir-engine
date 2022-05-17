@@ -16,7 +16,7 @@ import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportTo
 import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppAction, GeneralStateList } from '../../common/services/AppService'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { initClient, loadScene } from './LocationLoadHelper'
 
 export const LoadEngineWithScene = () => {
@@ -80,7 +80,7 @@ export const LoadEngineWithScene = () => {
       LocationService.getLocationByName(world.activePortal.location)
 
       // shut down connection with existing GS
-      leave(Engine.instance.currentWorld.networks.get(world.hostId) as SocketWebRTCClientTransport)
+      leave(Engine.instance.currentWorld.networks.get(world.hostId) as SocketWebRTCClientNetwork)
       dispatch(LocationInstanceConnectionAction.disconnect(Engine.instance.currentWorld.hostId))
 
       teleportToScene()

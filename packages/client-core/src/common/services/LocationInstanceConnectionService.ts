@@ -13,7 +13,7 @@ import { client } from '../../feathers'
 import { accessLocationState } from '../../social/services/LocationService'
 import { store, useDispatch } from '../../store'
 import { leave } from '../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
 import { NetworkConnectionService } from './NetworkConnectionService'
 
@@ -39,10 +39,7 @@ store.receptors.push((action: LocationInstanceConnectionActionType): any => {
     switch (action.type) {
       case 'LOCATION_INSTANCE_SERVER_PROVISIONED':
         Engine.instance.currentWorld.hostId = action.instanceId as UserId
-        Engine.instance.currentWorld.networks.set(
-          action.instanceId,
-          new SocketWebRTCClientTransport(NetworkTypes.world)
-        )
+        Engine.instance.currentWorld.networks.set(action.instanceId, new SocketWebRTCClientNetwork(NetworkTypes.world))
         return s.instances[action.instanceId].set({
           ipAddress: action.ipAddress,
           port: action.port,
@@ -112,7 +109,7 @@ export const LocationInstanceConnectionService = {
     dispatch(LocationInstanceConnectionAction.connecting(instanceId))
     const transport = Engine.instance.currentWorld.networks.get(
       Engine.instance.currentWorld.hostId
-    ) as SocketWebRTCClientTransport
+    ) as SocketWebRTCClientNetwork
     if (transport?.socket) {
       await leave(transport, false)
     }

@@ -21,7 +21,7 @@ const promisedRequest = (socket: Socket) => {
   }
 }
 
-export class SocketWebRTCClientTransport implements Network {
+export class SocketWebRTCClientNetwork implements Network {
   type: NetworkType
   constructor(type: NetworkType) {
     this.type = type
@@ -60,7 +60,7 @@ export class SocketWebRTCClientTransport implements Network {
   }
 
   close() {
-    console.log('SocketWebRTCClientTransport close')
+    console.log('SocketWebRTCClientNetwork close')
     this.recvTransport.close()
     this.sendTransport.close()
     this.recvTransport = null!
@@ -80,8 +80,8 @@ export class SocketWebRTCClientTransport implements Network {
     channelId?: string
   }): Promise<void> {
     this.reconnecting = false
-    if (this.socket) return console.error('[SocketWebRTCClientTransport]: already initialized')
-    console.log('[SocketWebRTCClientTransport]: Initialising transport with args', args)
+    if (this.socket) return console.error('[SocketWebRTCClientNetwork]: already initialized')
+    console.log('[SocketWebRTCClientNetwork]: Initialising transport with args', args)
     const { sceneId, ipAddress, port, instanceId, locationId, channelId } = args
 
     this.instanceId = instanceId
