@@ -26,6 +26,7 @@ export const loadCubeMapTexture = (
   onProgress?: (event: ProgressEvent<EventTarget>) => void,
   onError?: (event: ErrorEvent) => void
 ): void => {
+  if (path[path.length - 1] === '/') path = path.slice(0, path.length - 1)
   cubeTextureLoader.setPath(path).load(
     [posx, negx, posy, negy, posz, negz],
     (texture) => {
