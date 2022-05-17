@@ -36,15 +36,15 @@ import { updateAutoStartTimeForMedia } from './MediaFunctions'
 export const SCENE_COMPONENT_AUDIO = 'audio'
 export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
   audioSource: '',
-  volume: 0.5,
+  volume: 1,
   audioType: AudioType.Positional as AudioTypeType,
   distanceModel: 'linear' as DistanceModelType,
   rolloffFactor: 1,
   refDistance: 20,
   maxDistance: 1000,
-  coneInnerAngle: 120,
-  coneOuterAngle: 180,
-  coneOuterGain: 0
+  coneInnerAngle: 360,
+  coneOuterAngle: 360,
+  coneOuterGain: 1
 }
 
 let audioTexture: Texture = null!
