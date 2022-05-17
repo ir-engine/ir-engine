@@ -37,9 +37,6 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
   dispatchAction(Engine.instance.store, EngineActions.joinedWorld())
   const world = Engine.instance.currentWorld
 
-  world.startTime = highResTimeOrigin - performance.timeOrigin + worldStartTime
-  console.log(world.startTime)
-
   const engineState = getEngineState()
 
   const spawnPose = engineState.isTeleporting.value
