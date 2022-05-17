@@ -43,7 +43,7 @@ export default (app: Application) => {
   // eslint-disable-next-line no-unused-vars
   ;(invite as any).associate = (models: any): void => {
     ;(invite as any).belongsTo(models.user, { as: 'user' })
-    ;(invite as any).belongsTo(models.user, { as: 'invitee' })
+    ;(invite as any).belongsTo(models.user, { as: 'invitee', required: true })
     ;(invite as any).belongsTo(models.invite_type, { foreignKey: 'inviteType', required: true })
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/

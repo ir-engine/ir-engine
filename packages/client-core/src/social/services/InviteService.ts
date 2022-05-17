@@ -130,8 +130,6 @@ export const InviteService = {
           if (userResult.total === 0) {
             AlertService.dispatchAlertError(new Error('No user has that invite code'))
             return
-          } else {
-            data.invitee = userResult.data[0].id
           }
         } catch (error) {
           AlertService.dispatchAlertError(error)
