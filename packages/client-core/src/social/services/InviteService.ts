@@ -46,21 +46,27 @@ store.receptors.push((action: InviteActionType): any => {
       case 'INVITE_SENT':
         return s.sentUpdateNeeded.set(true)
       case 'SENT_INVITES_RETRIEVED':
-        s.sentInvites.merge({
-          invites: action.invites,
-          skip: action.skip,
-          limit: action.limit,
-          total: action.total
+        return s.merge({
+          sentInvites: {
+            invites: action.invites,
+            skip: action.skip,
+            limit: action.limit,
+            total: action.total
+          },
+          sentUpdateNeeded: false,
+          getSentInvitesInProgress: false
         })
-        return s.merge({ sentUpdateNeeded: false, getSentInvitesInProgress: false })
       case 'RECEIVED_INVITES_RETRIEVED':
-        s.receivedInvites.merge({
-          invites: action.invites,
-          skip: action.skip,
-          limit: action.limit,
-          total: action.total
+        return s.merge({
+          receivedInvites: {
+            invites: action.invites,
+            skip: action.skip,
+            limit: action.limit,
+            total: action.total
+          },
+          receivedUpdateNeeded: false,
+          getReceivedInvitesInProgress: false
         })
-        return s.merge({ receivedUpdateNeeded: false, getReceivedInvitesInProgress: false })
       case 'CREATED_RECEIVED_INVITE':
         return s.receivedUpdateNeeded.set(true)
       case 'CREATED_SENT_INVITE':
@@ -170,7 +176,7 @@ export const InviteService = {
   retrieveReceivedInvites: async (
     incDec?: 'increment' | 'decrement',
     search?: string,
-    sortField?: string,
+    sortField = 'name',
     orderBy = 'asc'
   ) => {
     const dispatch = useDispatch()
@@ -208,7 +214,7 @@ export const InviteService = {
   retrieveSentInvites: async (
     incDec?: 'increment' | 'decrement',
     search?: string,
-    sortField?: string,
+    sortField = 'name',
     orderBy = 'asc'
   ) => {
     const dispatch = useDispatch()

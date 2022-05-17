@@ -39,12 +39,12 @@ export class Invite<T = InviteDataType> extends Service<T> {
     if (params && params.query) {
       const query = params.query
       if (params.query.type === 'received') {
-        const identityProviders = await this.app.service('identity-provider').find({
-          query: {
-            userId: query.userId
-          }
-        })
-        const identityProviderTokens = (identityProviders as any).data.map((provider) => provider.token)
+        // const identityProviders = await this.app.service('identity-provider').find({
+        //   query: {
+        //     userId: query.userId
+        //   }
+        // })
+        // const identityProviderTokens = (identityProviders as any).data.map((provider) => provider.token)
 
         const { $sort, search } = query
 
@@ -73,16 +73,16 @@ export class Invite<T = InviteDataType> extends Service<T> {
         }
 
         const result = await super.find({
-          order: order,
-          where: {
+          $limit: query.$limit || 10,
+          $skip: query.$skip || 0,
+          query: {
             inviteeId: query.userId,
-            token: {
-              $in: identityProviderTokens
-            },
+            // token: {
+            //   $in: identityProviderTokens
+            // },
             ...q
           },
-          $limit: query.$limit || 10,
-          $skip: query.$skip || 0
+          order: order
         })
 
         await Promise.all(
@@ -126,13 +126,13 @@ export class Invite<T = InviteDataType> extends Service<T> {
           }
         }
         const result = await super.find({
-          order: order,
-          where: {
+          $limit: query.$limit || 10,
+          $skip: query.$skip || 0,
+          query: {
             userId: query.userId,
             ...q
           },
-          $limit: query.$limit || 10,
-          $skip: query.$skip || 0
+          order: order
         })
 
         await Promise.all(

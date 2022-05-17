@@ -23,7 +23,7 @@ export interface SendInvite {
   type: string
   token: string
   inviteCode?: string | null
-  invitee?: string | null
+  invitee: string | null
   identityProviderType: string
   targetObjectId: string
 }
