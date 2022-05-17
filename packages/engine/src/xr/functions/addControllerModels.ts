@@ -10,7 +10,6 @@ import {
 } from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AvatarInputControllerTypeUpdatePendingComponent } from '../../avatar/components/AvatarControllerTypeUpdatePendingComponent'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
 import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { Engine } from '../../ecs/classes/Engine'
@@ -101,13 +100,7 @@ export const initializeXRInputs = (entity: Entity) => {
 export const initializeHandModel = (entity: Entity, controller: any, handedness: string, isGrip: boolean = false) => {
   const avatarInputState = accessAvatarInputSettingsState()
 
-  const avatarInputControllerTypeUpdatePendingComponent = getComponent(
-    entity,
-    AvatarInputControllerTypeUpdatePendingComponent
-  )
-  let avatarInputControllerType = avatarInputControllerTypeUpdatePendingComponent
-    ? avatarInputControllerTypeUpdatePendingComponent.newControllerType
-    : avatarInputState.controlType.value
+  let avatarInputControllerType = avatarInputState.controlType.value
 
   // if is grip and not 'controller' type enabled
   if (isGrip && avatarInputControllerType !== AvatarControllerType.OculusQuest) return

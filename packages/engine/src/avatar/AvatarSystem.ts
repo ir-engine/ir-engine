@@ -15,6 +15,7 @@ import {
   removeComponent
 } from '../ecs/functions/ComponentFunctions'
 import { useWorld } from '../ecs/functions/SystemHooks'
+import { AvatarControllerType } from '../input/enums/InputEnums'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
@@ -29,11 +30,10 @@ import { proxifyXRInputs } from '../xr/functions/WebXRFunctions'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { AvatarInputControllerTypeUpdatePendingComponent } from './components/AvatarControllerTypeUpdatePendingComponent'
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
 import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
-import { AvatarInputSettingsAction } from './state/AvatarInputSettingsState'
+import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 function avatarActionReceptor(action) {
   const world = useWorld()
@@ -78,15 +78,10 @@ function avatarActionReceptor(action) {
 
           addComponent(entity, XRInputSourceComponent, inputData as any)
 
-          dispatchAction(
-            Engine.instance.store,
-            AvatarInputSettingsAction.setControlType(a.avatarInputControllerType as any)
-          )
-          // This is required because state is updated in the next frame and some functionality that requires updated controller type might run in the current frame.
-          // This component can be used at such places.
-          addComponent(entity, AvatarInputControllerTypeUpdatePendingComponent, {
-            newControllerType: a.avatarInputControllerType
-          })
+          // This is required because using dispatchAction state will be updated in the next frame
+          // while xr hand initialization requires updated controller type which might run in the current frame.
+          const avatarInputState = accessAvatarInputSettingsState()
+          avatarInputState.merge({ controlType: a.avatarInputControllerType as AvatarControllerType })
         }
       } else if (hasComponent(entity, XRInputSourceComponent)) {
         removeComponent(entity, XRInputSourceComponent)
@@ -202,7 +197,6 @@ export default async function AvatarSystem(world: World) {
       xrInputComponent.container.removeFromParent()
       xrInputComponent.head.removeFromParent()
       removeComponent(entity, AvatarHeadIKComponent)
-      removeComponent(entity, AvatarInputControllerTypeUpdatePendingComponent)
 
       const ik = getComponent(entity, AvatarHandsIKComponent)
       ik.leftHint?.removeFromParent()
