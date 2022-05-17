@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
@@ -14,7 +13,6 @@ import { useAuthState } from '../../../user/services/AuthService'
 import Search from '../../common/Search'
 import { UserService, useUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
-import InviteModal from './InviteModal'
 import ReceivedInvite from './ReceivedInvite'
 import SentInvite from './SentInvite'
 
@@ -53,26 +51,16 @@ const a11yProps = (index: number) => {
 const InvitesConsole = () => {
   const [refetch, setRefetch] = React.useState(false)
   const [value, setValue] = React.useState(0)
-  const [inviteModalOpen, setInviteModalOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
 
   const inviteState = useInviteState()
 
   const adminUserState = useUserState()
-  const adminUsers = adminUserState.users
   const user = useAuthState().user
   const { t } = useTranslation()
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue)
-  }
-
-  const openModalInvite = () => {
-    setInviteModalOpen(true)
-  }
-
-  const closeModalInvite = () => {
-    setInviteModalOpen(false)
   }
 
   const fetchTick = () => {
@@ -113,13 +101,8 @@ const InvitesConsole = () => {
     <div>
       <ConfirmProvider>
         <Grid container spacing={1} className={styles.mb10px}>
-          <Grid item xs={12} sm={8}>
+          <Grid item xs={12}>
             <Search text="invite" handleChange={handleSearchChange} />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Button variant="contained" className={styles.openModalBtn} type="submit" onClick={openModalInvite}>
-              {t('admin:components.invite.sendInvite')}
-            </Button>
           </Grid>
         </Grid>
         <div className={styles.rootTableWithSearch}>
@@ -142,7 +125,6 @@ const InvitesConsole = () => {
           </TabPanel>
         </div>
       </ConfirmProvider>
-      <InviteModal open={inviteModalOpen} handleClose={closeModalInvite} users={adminUsers.value} />
     </div>
   )
 }

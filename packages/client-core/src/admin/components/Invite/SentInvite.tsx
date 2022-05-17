@@ -22,7 +22,7 @@ const SentInvite = (props: Props) => {
   const [rowsPerPage, setRowsPerPage] = useState(INVITE_PAGE_LIMIT)
   const inviteState = useInviteState()
   const [fieldOrder, setFieldOrder] = useState('asc')
-  const [sortField, setSortField] = useState('name')
+  const [sortField, setSortField] = useState('id')
   const { t } = useTranslation()
   const invites = inviteState.sentInvites.invites
   const sentInviteCount = inviteState.sentInvites.total.value
@@ -75,7 +75,7 @@ const SentInvite = (props: Props) => {
     }
   }
 
-  const rows = invites.value.map((el, index) => createData(el.id, el.invitee.name || '', el.passcode, el.inviteType))
+  const rows = invites.value.map((el, index) => createData(el.id, el.invitee?.name || '', el.passcode, el.inviteType))
 
   return (
     <React.Fragment>

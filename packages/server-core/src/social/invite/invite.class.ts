@@ -38,25 +38,16 @@ export class Invite<T = InviteDataType> extends Service<T> {
   async find(params?: Params): Promise<T[] | Paginated<T>> {
     if (params && params.query) {
       const query = params.query
-      if (params.query.type === 'received') {
-        // const identityProviders = await this.app.service('identity-provider').find({
-        //   query: {
-        //     userId: query.userId
-        //   }
-        // })
-        // const identityProviderTokens = (identityProviders as any).data.map((provider) => provider.token)
+      if (query.type === 'received') {
+        const identityProviders = await this.app.service('identity-provider').find({
+          query: {
+            userId: query.userId
+          }
+        })
+        const identityProviderTokens = (identityProviders as any).data.map((provider) => provider.token)
 
         const { $sort, search } = query
 
-        const order: any[] = []
-        if ($sort != null)
-          Object.keys($sort).forEach((name, val) => {
-            if (name === 'name') {
-              order.push([Sequelize.literal('`user.name`'), $sort[name] === 0 ? 'DESC' : 'ASC'])
-            } else {
-              order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
-            }
-          })
         let q = {} as any
 
         if (search) {
@@ -73,16 +64,16 @@ export class Invite<T = InviteDataType> extends Service<T> {
         }
 
         const result = await super.find({
-          $limit: query.$limit || 10,
-          $skip: query.$skip || 0,
           query: {
             inviteeId: query.userId,
-            // token: {
-            //   $in: identityProviderTokens
-            // },
-            ...q
-          },
-          order: order
+            token: {
+              $in: identityProviderTokens
+            },
+            ...q,
+            $sort: $sort,
+            $limit: query.$limit,
+            $skip: query.$skip
+          }
         })
 
         await Promise.all(
@@ -101,16 +92,6 @@ export class Invite<T = InviteDataType> extends Service<T> {
         return result
       } else if (query.type === 'sent') {
         const { $sort, search } = query
-        const order: any[] = []
-
-        if ($sort != null)
-          Object.keys($sort).forEach((name, val) => {
-            if (name === 'name') {
-              order.push([Sequelize.literal('`invitee.name`'), $sort[name] === 0 ? 'DESC' : 'ASC'])
-            } else {
-              order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
-            }
-          })
         let q = {}
 
         if (search) {
@@ -126,13 +107,13 @@ export class Invite<T = InviteDataType> extends Service<T> {
           }
         }
         const result = await super.find({
-          $limit: query.$limit || 10,
-          $skip: query.$skip || 0,
           query: {
             userId: query.userId,
-            ...q
-          },
-          order: order
+            ...q,
+            $sort: $sort,
+            $limit: query.$limit,
+            $skip: query.$skip
+          }
         })
 
         await Promise.all(

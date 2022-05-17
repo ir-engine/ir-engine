@@ -21,7 +21,7 @@ const ReceivedInvite = (props: Props) => {
   const [rowsPerPage, setRowsPerPage] = useState(INVITE_PAGE_LIMIT)
   const inviteState = useInviteState()
   const [fieldOrder, setFieldOrder] = useState('asc')
-  const [sortField, setSortField] = useState('name')
+  const [sortField, setSortField] = useState('id')
   const invites = inviteState.receivedInvites.invites
   const receivedInviteCount = inviteState.receivedInvites.total.value
 
@@ -75,7 +75,7 @@ const ReceivedInvite = (props: Props) => {
     }
   }
 
-  const rows = invites.value.map((el, index) => createData(el.id, el.user.name, el.passcode, el.inviteType))
+  const rows = invites.value.map((el, index) => createData(el.id, el.user?.name || '', el.passcode, el.inviteType))
 
   return (
     <React.Fragment>

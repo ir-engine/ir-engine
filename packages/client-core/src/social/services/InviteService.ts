@@ -17,19 +17,19 @@ const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4
 const inviteCodeRegex = /^[0-9a-fA-F]{8}$/
 
 //State
-export const INVITE_PAGE_LIMIT = 10
+export const INVITE_PAGE_LIMIT = 100
 
 const state = createState({
   receivedInvites: {
     invites: [] as Array<Invite>,
     skip: 0,
-    limit: 5,
+    limit: 100,
     total: 0
   },
   sentInvites: {
     invites: [] as Array<Invite>,
     skip: 0,
-    limit: 5,
+    limit: 100,
     total: 0
   },
   sentUpdateNeeded: true,
@@ -174,7 +174,7 @@ export const InviteService = {
   retrieveReceivedInvites: async (
     incDec?: 'increment' | 'decrement',
     search?: string,
-    sortField = 'name',
+    sortField = 'id',
     orderBy = 'asc'
   ) => {
     const dispatch = useDispatch()
@@ -184,20 +184,21 @@ export const InviteService = {
     const skip = inviteState.receivedInvites.skip
     const limit = inviteState.receivedInvites.limit
     let sortData = {}
-    if (sortField && sortField.length > 0) {
+    if (sortField.length > 0) {
       if (sortField === 'type') {
-        sortData['inviteType'] = orderBy === 'desc' ? 0 : 1
+        sortData['inviteType'] = orderBy === 'desc' ? -1 : 1
+      } else if (sortField === 'name') {
+        // TO DO; need to find the proper syntax if that's possible
+        // sortData[`'user.name'`] = orderBy === 'desc' ? -1 : 1
       } else {
-        sortData[sortField] = orderBy === 'desc' ? 0 : 1
+        sortData[sortField] = orderBy === 'desc' ? -1 : 1
       }
     }
 
     try {
       const inviteResult = (await client.service('invite').find({
         query: {
-          $sort: {
-            ...sortData
-          },
+          $sort: sortData,
           type: 'received',
           $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
           $limit: limit,
@@ -212,7 +213,7 @@ export const InviteService = {
   retrieveSentInvites: async (
     incDec?: 'increment' | 'decrement',
     search?: string,
-    sortField = 'name',
+    sortField = 'id',
     orderBy = 'asc'
   ) => {
     const dispatch = useDispatch()
@@ -222,19 +223,20 @@ export const InviteService = {
     const skip = inviteState.sentInvites.skip
     const limit = inviteState.sentInvites.limit
     let sortData = {}
-    if (sortField && sortField.length > 0) {
+    if (sortField.length > 0) {
       if (sortField === 'type') {
-        sortData['inviteType'] = orderBy === 'desc' ? 0 : 1
+        sortData['inviteType'] = orderBy === 'desc' ? -1 : 1
+      } else if (sortField === 'name') {
+        // TO DO; need to find the proper syntax if that's possible
+        // sortData[`'invitee.name'`] = orderBy === 'desc' ? -1 : 1
       } else {
-        sortData[sortField] = orderBy === 'desc' ? 0 : 1
+        sortData[sortField] = orderBy === 'desc' ? -1 : 1
       }
     }
     try {
       const inviteResult = (await client.service('invite').find({
         query: {
-          $sort: {
-            ...sortData
-          },
+          $sort: sortData,
           type: 'sent',
           $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
           $limit: limit,
