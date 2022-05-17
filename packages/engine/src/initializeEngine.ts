@@ -132,7 +132,7 @@ export const initializeMediaServerSystems = async () => {
 
   NetworkActionReceptor.createNetworkActionReceptor(world)
 
-  Engine.instance.engineTimer = Timer(executeWorlds)
+  Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
   Engine.instance.engineTimer.start()
 
   dispatchAction(Engine.instance.store, EngineActions.initializeEngine({ initialised: true }))
@@ -196,7 +196,7 @@ export const initializeCoreSystems = async () => {
   // load injected systems which may rely on core systems
   await initSystems(world, Engine.instance.injectedSystems)
 
-  Engine.instance.engineTimer = Timer(executeWorlds)
+  Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
   Engine.instance.engineTimer.start()
 
   dispatchAction(Engine.instance.store, EngineActions.initializeEngine({ initialised: true }))

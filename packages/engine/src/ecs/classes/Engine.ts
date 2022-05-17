@@ -9,6 +9,7 @@ import type { SystemModuleType } from '../functions/SystemFunctions'
 
 export class Engine {
   static instance: Engine
+  tickRate = 60
 
   /** Systems to inject after core systems */
   injectedSystems: SystemModuleType<any>[] = []

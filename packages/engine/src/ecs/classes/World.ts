@@ -113,8 +113,8 @@ export class World {
     name: 'WORLD',
     getDispatchMode: () => (this.isHosting ? 'host' : 'peer'),
     getDispatchId: () => Engine.instance.userId,
-    getDispatchTime: () => this.fixedTick,
-    defaultDispatchDelay: 1
+    getDispatchTime: () => Date.now(),
+    defaultDispatchDelay: 1 / Engine.instance.tickRate
   })
 
   /**
