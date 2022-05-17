@@ -218,11 +218,7 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
       const party = await client.service('party').get(params.partyUser.partyId)
       const userId = selfUser.id.value ?? ''
       const dbUser = (await client.service('user').get(userId)) as User
-      if (
-        party.instanceId != null &&
-        party.instanceId !== dbUser.instanceId &&
-        accessLocationInstanceConnectionState().provisioning.value === false
-      ) {
+      if (party.instanceId != null && party.instanceId !== dbUser.instanceId) {
         const updateUser: PartyUser = {
           ...params.partyUser,
           user: dbUser
