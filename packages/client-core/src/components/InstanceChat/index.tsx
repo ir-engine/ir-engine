@@ -221,7 +221,7 @@ const InstanceChat = (props: Props): any => {
   const [isMultiline, setIsMultiline] = React.useState(false)
   const [cursorPosition, setCursorPosition] = React.useState(0)
   const toggleChatWindow = () => {
-    if (!chatWindowOpen) hideOtherMenus()
+    if (!chatWindowOpen && isMobile) hideOtherMenus()
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
     setIsInitRender(false)
@@ -300,15 +300,27 @@ const InstanceChat = (props: Props): any => {
                             <div className={`${styles.selfEnd} ${styles.noMargin}`}>
                               <div className={styles.dFlex}>
                                 <div className={styles.msgWrapper}>
-                                  {index !== 0 && message.senderId !== messages[index - 1].senderId && (
+                                  {isLeftOrJoinText(messages[index - 1].text) ? (
                                     <h3 className={styles.sender}>{message.sender.name}</h3>
+                                  ) : (
+                                    message.senderId !== messages[index - 1].senderId && (
+                                      <h3 className={styles.sender}>{message.sender.name}</h3>
+                                    )
                                   )}
-                                  <div className={`${styles.msgReplyContainer} ${styles.mx2}`}>
+                                  <div
+                                    className={`${
+                                      message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
+                                    } ${styles.msgContainer} ${styles.mx2}`}
+                                  >
                                     <p className={styles.text}>{message.text}</p>
                                   </div>
                                 </div>
-                                {index !== 0 && message.senderId !== messages[index - 1].senderId && (
+                                {index !== 0 && isLeftOrJoinText(messages[index - 1].text) ? (
                                   <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                ) : (
+                                  message.senderId !== messages[index - 1].senderId && (
+                                    <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                  )
                                 )}
                                 {index === 0 && (
                                   <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
