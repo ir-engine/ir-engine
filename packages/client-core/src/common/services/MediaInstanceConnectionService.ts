@@ -13,6 +13,7 @@ import { store, useDispatch } from '../../store'
 import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { accessAuthState } from '../../user/services/AuthService'
+import { NetworkConnectionService } from './NetworkConnectionService'
 
 type InstanceState = {
   ipAddress: string
@@ -99,7 +100,7 @@ export const MediaInstanceConnectionService = {
     } else {
       dispatchAction(
         Engine.instance.store,
-        SocketWebRTCClientTransport.actions.noWorldServersAvailable({ instanceId: channelId! })
+        NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: channelId! })
       )
     }
   },

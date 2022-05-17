@@ -18,6 +18,7 @@ import { useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRend
 import WEBGL from '@xrengine/engine/src/renderer/THREE.WebGL'
 import { addActionReceptor } from '@xrengine/hyperflux'
 
+import { NetworkConnectionService } from '../../common/services/NetworkConnectionService'
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 
 const initialModalValues: WarningRetryModalProps = {
@@ -63,7 +64,7 @@ const GameServerWarnings = () => {
   useEffect(() => {
     addActionReceptor(Engine.instance.store, function GameServerWarningsReceptor(action) {
       matches(action)
-        .when(SocketWebRTCClientTransport.actions.noWorldServersAvailable.matches, ({ instanceId }) => {
+        .when(NetworkConnectionService.actions.noWorldServersAvailable.matches, ({ instanceId }) => {
           setErroredInstanceId(instanceId)
           updateWarningModal(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
           setCurrentError(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
@@ -72,22 +73,22 @@ const GameServerWarnings = () => {
           updateWarningModal(WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED)
           setCurrentError(WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED)
         })
-        .when(SocketWebRTCClientTransport.actions.worldInstanceDisconnected.matches, () => {
+        .when(NetworkConnectionService.actions.worldInstanceDisconnected.matches, () => {
           updateWarningModal(WarningModalTypes.INSTANCE_DISCONNECTED)
           setCurrentError(WarningModalTypes.INSTANCE_DISCONNECTED)
         })
-        .when(SocketWebRTCClientTransport.actions.worldInstanceKicked.matches, ({ message }) => {
+        .when(NetworkConnectionService.actions.worldInstanceKicked.matches, ({ message }) => {
           updateWarningModal(WarningModalTypes.USER_KICKED, message)
           setCurrentError(WarningModalTypes.USER_KICKED)
         })
-        .when(SocketWebRTCClientTransport.actions.mediaInstanceDisconnected.matches, () => {
+        .when(NetworkConnectionService.actions.mediaInstanceDisconnected.matches, () => {
           updateWarningModal(WarningModalTypes.CHANNEL_DISCONNECTED)
           setCurrentError(WarningModalTypes.CHANNEL_DISCONNECTED)
         })
-        .when(SocketWebRTCClientTransport.actions.worldInstanceReconnected.matches, () => {
+        .when(NetworkConnectionService.actions.worldInstanceReconnected.matches, () => {
           reset(WarningModalTypes.INSTANCE_DISCONNECTED)
         })
-        .when(SocketWebRTCClientTransport.actions.mediaInstanceReconnected.matches, () => {
+        .when(NetworkConnectionService.actions.mediaInstanceReconnected.matches, () => {
           reset(WarningModalTypes.CHANNEL_DISCONNECTED)
         })
     })

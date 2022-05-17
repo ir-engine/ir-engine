@@ -19,6 +19,7 @@ import {
   accessMediaInstanceConnectionState,
   MediaLocationInstanceConnectionAction
 } from '../common/services/MediaInstanceConnectionService'
+import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
 import { MediaStreamAction, MediaStreamService } from '../media/services/MediaStreamService'
 import { store, useDispatch } from '../store'
 import { accessAuthState } from '../user/services/AuthService'
@@ -43,10 +44,10 @@ export async function onConnectToInstance(network: SocketWebRTCClientTransport) 
 
   if (isWorldConnection) {
     dispatch(LocationInstanceConnectionAction.instanceServerConnected(network.instanceId))
-    dispatchAction(Engine.instance.store, SocketWebRTCClientTransport.actions.worldInstanceReconnected())
+    dispatchAction(Engine.instance.store, NetworkConnectionService.actions.worldInstanceReconnected())
   } else {
     dispatch(MediaLocationInstanceConnectionAction.serverConnected(network.instanceId))
-    dispatchAction(Engine.instance.store, SocketWebRTCClientTransport.actions.mediaInstanceReconnected())
+    dispatchAction(Engine.instance.store, NetworkConnectionService.actions.mediaInstanceReconnected())
   }
 
   const authState = accessAuthState()
@@ -97,7 +98,7 @@ export async function onConnectToInstance(network: SocketWebRTCClientTransport) 
     // console.log("TODO: SNACKBAR HERE");
     await endVideoChat(network, { endConsumers: true })
     await leave(network, true)
-    dispatchAction(Engine.instance.store, SocketWebRTCClientTransport.actions.worldInstanceKicked({ message }))
+    dispatchAction(Engine.instance.store, NetworkConnectionService.actions.worldInstanceKicked({ message }))
     console.log('Client has been kicked from the world')
   })
 
@@ -139,7 +140,7 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientTransp
   }
 
   async function reconnectHandler() {
-    dispatchAction(Engine.instance.store, SocketWebRTCClientTransport.actions.worldInstanceReconnected())
+    dispatchAction(Engine.instance.store, NetworkConnectionService.actions.worldInstanceReconnected())
     network.reconnecting = false
     await onConnectToInstance(network)
     const transportRequestData = {
@@ -151,7 +152,7 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientTransp
   }
 
   async function disconnectHandler() {
-    dispatchAction(Engine.instance.store, SocketWebRTCClientTransport.actions.worldInstanceDisconnected())
+    dispatchAction(Engine.instance.store, NetworkConnectionService.actions.worldInstanceDisconnected())
     network.reconnecting = true
     network.socket.off(MessageTypes.ActionData.toString(), actionDataHandler)
 
@@ -243,7 +244,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientTransp
   }
 
   async function reconnectHandler() {
-    dispatchAction(Engine.instance.store, SocketWebRTCClientTransport.actions.mediaInstanceReconnected())
+    dispatchAction(Engine.instance.store, NetworkConnectionService.actions.mediaInstanceReconnected())
     network.reconnecting = false
     await onConnectToInstance(network)
     await updateNearbyAvatars()
@@ -296,7 +297,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientTransp
     if (network.sendTransport?.closed !== true) await network.sendTransport.close()
     MediaStreams.instance?.consumers.forEach((consumer) => closeConsumer(network, consumer))
     network.socket.off(MessageTypes.WebRTCCreateProducer.toString(), webRTCCreateProducerHandler)
-    dispatchAction(Engine.instance.store, SocketWebRTCClientTransport.actions.mediaInstanceDisconnected())
+    dispatchAction(Engine.instance.store, NetworkConnectionService.actions.mediaInstanceDisconnected())
     network.reconnecting = true
     network.socket.off(MessageTypes.WebRTCPauseConsumer.toString(), webRTCPauseConsumerHandler)
     network.socket.off(MessageTypes.WebRTCResumeConsumer.toString(), webRTCResumeConsumerHandler)
@@ -440,8 +441,8 @@ export async function createTransport(network: SocketWebRTCClientTransport, dire
       dispatchAction(
         Engine.instance.store,
         network.type === NetworkTypes.world
-          ? SocketWebRTCClientTransport.actions.worldInstanceDisconnected()
-          : SocketWebRTCClientTransport.actions.mediaInstanceDisconnected()
+          ? NetworkConnectionService.actions.worldInstanceDisconnected()
+          : NetworkConnectionService.actions.mediaInstanceDisconnected()
       )
       console.error('Transport', transport, ' transitioned to state', state)
       console.error(
@@ -461,8 +462,8 @@ export async function createTransport(network: SocketWebRTCClientTransport, dire
         dispatchAction(
           Engine.instance.store,
           network.type === NetworkTypes.world
-            ? SocketWebRTCClientTransport.actions.worldInstanceReconnected()
-            : SocketWebRTCClientTransport.actions.mediaInstanceReconnected()
+            ? NetworkConnectionService.actions.worldInstanceReconnected()
+            : NetworkConnectionService.actions.mediaInstanceReconnected()
         )
       }, 5000)
       // await request(MessageTypes.WebRTCTransportClose.toString(), {transportId: transport.id});

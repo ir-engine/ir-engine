@@ -15,6 +15,7 @@ import { store, useDispatch } from '../../store'
 import { leave } from '../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { accessAuthState } from '../../user/services/AuthService'
+import { NetworkConnectionService } from './NetworkConnectionService'
 
 type InstanceState = {
   ipAddress: string
@@ -102,7 +103,7 @@ export const LocationInstanceConnectionService = {
     } else {
       dispatchAction(
         Engine.instance.store,
-        SocketWebRTCClientTransport.actions.noWorldServersAvailable({ instanceId: instanceId! })
+        NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: instanceId! })
       )
     }
   },

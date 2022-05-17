@@ -3,11 +3,9 @@ import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/
 import { io as ioclient, Socket } from 'socket.io-client'
 
 import { RingBuffer } from '@xrengine/engine/src/common/classes/RingBuffer'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network, NetworkType } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { defineAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { accessAuthState } from '../user/services/AuthService'
@@ -24,39 +22,6 @@ const promisedRequest = (socket: Socket) => {
 }
 
 export class SocketWebRTCClientTransport implements Network {
-  static actions = {
-    noWorldServersAvailable: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE' as const,
-      instanceId: matches.string
-    }),
-    noMediaServersAvailable: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE' as const
-    }),
-    worldInstanceKicked: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_INSTANCE_KICKED' as const,
-      message: matches.string
-    }),
-    worldInstanceDisconnected: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_INSTANCE_DISCONNECTED' as const
-    }),
-    worldInstanceReconnected: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_INSTANCE_RECONNECTED' as const
-    }),
-    mediaInstanceDisconnected: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_CHANNEL_DISCONNECTED' as const
-    }),
-    mediaInstanceReconnected: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_CHANNEL_RECONNECTED' as const
-    })
-  }
-
   type: NetworkType
   constructor(type: NetworkType) {
     this.type = type
