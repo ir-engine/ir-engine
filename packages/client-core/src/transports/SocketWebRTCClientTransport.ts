@@ -5,8 +5,7 @@ import { io as ioclient, Socket } from 'socket.io-client'
 import { RingBuffer } from '@xrengine/engine/src/common/classes/RingBuffer'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { TransportType } from '@xrengine/engine/src/networking/classes/Network'
-import { NetworkTransport } from '@xrengine/engine/src/networking/classes/Network'
+import { Network, NetworkType } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { defineAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
@@ -24,7 +23,7 @@ const promisedRequest = (socket: Socket) => {
   }
 }
 
-export class SocketWebRTCClientTransport implements NetworkTransport {
+export class SocketWebRTCClientTransport implements Network {
   static actions = {
     noWorldServersAvailable: defineAction({
       store: 'ENGINE',
@@ -58,8 +57,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     })
   }
 
-  type: TransportType
-  constructor(type: TransportType) {
+  type: NetworkType
+  constructor(type: NetworkType) {
     this.type = type
   }
 

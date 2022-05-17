@@ -6,7 +6,7 @@ import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/I
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Network, TransportTypes } from '@xrengine/engine/src/networking/classes/Network'
+import { Network, NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
@@ -38,7 +38,10 @@ store.receptors.push((action: LocationInstanceConnectionActionType): any => {
     switch (action.type) {
       case 'LOCATION_INSTANCE_SERVER_PROVISIONED':
         Engine.instance.currentWorld.hostId = action.instanceId as UserId
-        Network.instance.transports.set(action.instanceId, new SocketWebRTCClientTransport(TransportTypes.world))
+        Engine.instance.currentWorld.networks.set(
+          action.instanceId,
+          new SocketWebRTCClientTransport(NetworkTypes.world)
+        )
         return s.instances[action.instanceId].set({
           ipAddress: action.ipAddress,
           port: action.port,
@@ -106,7 +109,7 @@ export const LocationInstanceConnectionService = {
   connectToServer: async (instanceId: string) => {
     const dispatch = useDispatch()
     dispatch(LocationInstanceConnectionAction.connecting(instanceId))
-    const transport = Network.instance.transports.get(
+    const transport = Engine.instance.currentWorld.networks.get(
       Engine.instance.currentWorld.hostId
     ) as SocketWebRTCClientTransport
     if (transport?.socket) {

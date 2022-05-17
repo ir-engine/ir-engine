@@ -40,7 +40,7 @@ export const Debug = () => {
   const showingStateRef = useRef(isShowing)
   const engineRendererState = useEngineRendererState()
   const { t } = useTranslation()
-  const networkTransport = Network.instance.transports.get(Engine.instance.currentWorld.hostId)
+  const network = Engine.instance.currentWorld.networks.get(Engine.instance.currentWorld.hostId)
 
   function setupListener() {
     window.addEventListener('keydown', downHandler)
@@ -195,7 +195,7 @@ export const Debug = () => {
               </button>
             </div>
             <div className={styles.refreshBlock}>
-              {networkTransport != null && <Tick />}
+              {network != null && <Tick />}
               <button type="submit" title={t('common:debug.refresh')} onClick={refresh} className={styles.refreshBtn}>
                 <RefreshIcon fontSize="small" />
               </button>
@@ -203,7 +203,7 @@ export const Debug = () => {
           </div>
         </div>
         <StatsPanel show={showingStateRef.current} resetCounter={resetStats} />
-        {networkTransport !== null && (
+        {network !== null && (
           <>
             <div className={styles.jsonPanel}>
               <h1>{t('common:debug.engineStore')}</h1>
@@ -219,7 +219,7 @@ export const Debug = () => {
             </div>
             <div className={styles.jsonPanel}>
               <h1>{t('common:debug.networkObject')}</h1>
-              <JSONTree data={{ ...networkTransport }} />
+              <JSONTree data={{ ...network }} />
             </div>
             <div className={styles.jsonPanel}>
               <h1>{t('common:debug.networkClients')}</h1>

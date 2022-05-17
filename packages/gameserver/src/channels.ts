@@ -208,7 +208,7 @@ const handleInstance = async (
 }
 
 const loadEngine = async (app: Application, sceneId: string) => {
-  Network.instance.transports.set(app.instance.id, app.transport)
+  Engine.instance.currentWorld.networks.set(app.instance.id, app.transport)
   if (app.isChannelInstance) {
     const userId = app.instance.id
     Engine.instance.publicPath = config.client.url

@@ -4,7 +4,7 @@ import { DataProducer, Router, Transport, WebRtcTransport, Worker } from 'medias
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { RingBuffer } from '@xrengine/engine/src/common/classes/RingBuffer'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { NetworkTransport } from '@xrengine/engine/src/networking/classes/Network'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
@@ -13,7 +13,7 @@ import { setupSubdomain } from './NetworkFunctions'
 import { setupSocketFunctions } from './SocketFunctions'
 import { startWebRTC } from './WebRTCFunctions'
 
-export class SocketWebRTCServerTransport implements NetworkTransport {
+export class SocketWebRTCServerTransport implements Network {
   server: https.Server
   workers: Worker[] = []
   routers: Record<string, Router[]>

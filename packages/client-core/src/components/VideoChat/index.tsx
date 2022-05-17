@@ -22,7 +22,7 @@ const VideoChat = (props: Props) => {
   const currentLocation = useLocationState().currentLocation.location
   const gsProvision = async () => {
     if (mediaStreamSystem.videoStream == null) {
-      const mediaTransport = Network.instance.transports.get(
+      const mediaTransport = Engine.instance.currentWorld.networks.get(
         MediaStreams.instance.hostId
       ) as SocketWebRTCClientTransport
       await configureMediaTransports(mediaTransport, ['video', 'audio'])

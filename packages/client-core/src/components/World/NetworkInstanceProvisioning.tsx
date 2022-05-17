@@ -116,8 +116,8 @@ export const NetworkInstanceProvisioning = () => {
       inviteCode: getSearchParamFromURL('inviteCode')!
     }
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
-      Network.instance
-        .getTransport(Engine.instance.currentWorld.hostId)
+      Engine.instance.currentWorld.networks
+        .get(Engine.instance.currentWorld.hostId)!
         .request(MessageTypes.JoinWorld.toString(), transportRequestData)
         .then(receiveJoinWorld)
     }

@@ -398,16 +398,11 @@ export async function handleDisconnect(socket): Promise<any> {
   }
 }
 
-export async function handleLeaveWorld(
-  networkTransport: SocketWebRTCServerTransport,
-  socket,
-  data,
-  callback
-): Promise<any> {
+export async function handleLeaveWorld(network: SocketWebRTCServerTransport, socket, data, callback): Promise<any> {
   const world = Engine.instance.currentWorld
   const userId = getUserIdFromSocketId(socket.id)!
-  for (const [, transport] of Object.entries(networkTransport.mediasoupTransports))
-    if ((transport as any).appData.peerId === userId) closeTransport(networkTransport, transport)
+  for (const [, transport] of Object.entries(network.mediasoupTransports))
+    if ((transport as any).appData.peerId === userId) closeTransport(network, transport)
   if (world.clients.has(userId)) {
     dispatchAction(world.store, NetworkWorldAction.destroyClient({ $from: userId }))
   }

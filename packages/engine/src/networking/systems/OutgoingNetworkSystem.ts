@@ -3,7 +3,7 @@ import { World } from '../../ecs/classes/World'
 import { defineQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network } from '../classes/Network'
-import { NetworkTransport } from '../classes/Network'
+import { Network } from '../classes/Network'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { createDataWriter } from '../serialization/DataWriter'
@@ -28,13 +28,13 @@ const serializeAndSend = (world: World, serialize: Function) => {
 
     if (data.byteLength > 0) {
       // side effect - network IO
-      const worldTransport = Network.instance.transports.get(world.hostId)!
+      const worldTransport = Engine.instance.currentWorld.networks.get(world.hostId)!
       worldTransport.sendData(data)
     }
   }
 }
 
-const sendDataOnTransport = (transport: NetworkTransport, data) => {
+const sendDataOnTransport = (transport: Network, data) => {
   try {
     transport.sendData(data)
   } catch (e) {
@@ -48,6 +48,6 @@ export default async function OutgoingNetworkSystem(world: World) {
   return () => {
     if (!getEngineState().isEngineInitialized.value) return
 
-    if (Network.instance.transports.has(world.hostId)) serializeAndSend(world, serialize)
+    if (Engine.instance.currentWorld.networks.has(world.hostId)) serializeAndSend(world, serialize)
   }
 }

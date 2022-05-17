@@ -90,7 +90,7 @@ const MediaIconsBox = (props: Props) => {
       stopLipsyncTracking()
       MediaStreamService.updateFaceTrackingState()
     } else {
-      const mediaTransport = Network.instance.transports.get(
+      const mediaTransport = Engine.instance.currentWorld.networks.get(
         MediaStreams.instance.hostId
       ) as SocketWebRTCClientTransport
       if (await configureMediaTransports(mediaTransport, ['video', 'audio'])) {
@@ -103,7 +103,9 @@ const MediaIconsBox = (props: Props) => {
   }
 
   const checkEndVideoChat = async () => {
-    const mediaTransport = Network.instance.transports.get(MediaStreams.instance.hostId) as SocketWebRTCClientTransport
+    const mediaTransport = Engine.instance.currentWorld.networks.get(
+      MediaStreams.instance.hostId
+    ) as SocketWebRTCClientTransport
     if (
       (MediaStreams.instance.audioPaused || MediaStreams.instance?.camAudioProducer == null) &&
       (MediaStreams.instance.videoPaused || MediaStreams.instance?.camVideoProducer == null) &&
@@ -117,7 +119,9 @@ const MediaIconsBox = (props: Props) => {
     }
   }
   const handleMicClick = async () => {
-    const mediaTransport = Network.instance.transports.get(MediaStreams.instance.hostId) as SocketWebRTCClientTransport
+    const mediaTransport = Engine.instance.currentWorld.networks.get(
+      MediaStreams.instance.hostId
+    ) as SocketWebRTCClientTransport
     if (await configureMediaTransports(mediaTransport, ['audio'])) {
       if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(mediaTransport)
       else {
@@ -131,7 +135,9 @@ const MediaIconsBox = (props: Props) => {
   }
 
   const handleCamClick = async () => {
-    const mediaTransport = Network.instance.transports.get(MediaStreams.instance.hostId) as SocketWebRTCClientTransport
+    const mediaTransport = Engine.instance.currentWorld.networks.get(
+      MediaStreams.instance.hostId
+    ) as SocketWebRTCClientTransport
     if (await configureMediaTransports(mediaTransport, ['video'])) {
       if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer(mediaTransport)
       else {

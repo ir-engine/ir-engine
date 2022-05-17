@@ -74,6 +74,8 @@ export class World {
     return Engine.instance.userId === this.hostId
   }
 
+  networks = new Map<string, Network>()
+
   sceneMetadata = undefined as string | undefined
   worldMetadata = {} as { [key: string]: string }
 
@@ -280,8 +282,8 @@ export class World {
   execute(frameTime: number) {
     const start = nowMilliseconds()
     const incomingActions = [...this.store.actions.incoming]
-    const incomingBufferLength = Network.instance
-      .getTransport(Engine.instance.currentWorld.hostId)
+    const incomingBufferLength = this.networks
+      .get(Engine.instance.currentWorld.hostId)
       ?.incomingMessageQueueUnreliable.getBufferLength()
 
     const worldElapsedSeconds = (frameTime - this.startTime) / 1000

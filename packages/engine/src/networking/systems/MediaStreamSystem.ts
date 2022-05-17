@@ -335,12 +335,12 @@ export default async function MediaStreamSystem() {
   let executeInProgress = false
 
   return () => {
-    const networkTransport = Network.instance.transports.get(MediaStreams.instance.hostId)
-    if (!networkTransport) return
+    const network = Engine.instance.currentWorld.networks.get(MediaStreams.instance.hostId)
+    if (!network) return
 
-    if (networkTransport?.mediasoupOperationQueue.getBufferLength() > 0 && !executeInProgress) {
+    if (network?.mediasoupOperationQueue.getBufferLength() > 0 && !executeInProgress) {
       executeInProgress = true
-      const buffer = networkTransport.mediasoupOperationQueue.pop() as any
+      const buffer = network.mediasoupOperationQueue.pop() as any
       if (buffer.object && buffer.object.closed !== true && buffer.object._closed !== true) {
         try {
           if (buffer.action === 'resume') buffer.object.resume()
