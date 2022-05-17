@@ -27,8 +27,7 @@ import { SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
 
 export const getChannelTypeIdFromTransport = (networkTransport: SocketWebRTCClientTransport) => {
   const channelConnectionState = accessMediaInstanceConnectionState()
-  const currentChannelInstanceId = channelConnectionState.currentInstanceId.value
-  const currentChannelInstanceConnection = channelConnectionState.instances[currentChannelInstanceId!].ornull
+  const currentChannelInstanceConnection = channelConnectionState.instances[MediaStreams.instance.hostId].ornull
   const isWorldConnection = networkTransport.type === TransportTypes.world
   return {
     channelType: isWorldConnection ? 'instance' : currentChannelInstanceConnection.channelType.value,
@@ -442,7 +441,7 @@ export async function createTransport(networkTransport: SocketWebRTCClientTransp
     if (!networkTransport.leaving && (state === 'closed' || state === 'failed' || state === 'disconnected')) {
       dispatchAction(
         Engine.instance.store,
-        networkTransport.type === 'world'
+        networkTransport.type === TransportTypes.world
           ? SocketWebRTCClientTransport.actions.worldInstanceDisconnected()
           : SocketWebRTCClientTransport.actions.mediaInstanceDisconnected()
       )
@@ -463,7 +462,7 @@ export async function createTransport(networkTransport: SocketWebRTCClientTransp
         console.log('Re-created transport', direction, channelType, channelId)
         dispatchAction(
           Engine.instance.store,
-          networkTransport.type === 'world'
+          networkTransport.type === TransportTypes.world
             ? SocketWebRTCClientTransport.actions.worldInstanceReconnected()
             : SocketWebRTCClientTransport.actions.mediaInstanceReconnected()
         )

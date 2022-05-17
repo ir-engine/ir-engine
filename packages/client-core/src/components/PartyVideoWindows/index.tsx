@@ -6,6 +6,7 @@ import { accessMediaStreamState } from '@xrengine/client-core/src/media/services
 import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { User } from '@xrengine/common/src/interfaces/User'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 
 import PartyParticipantWindow from '../PartyParticipantWindow'
 
@@ -14,9 +15,8 @@ const PartyVideoWindows = (): JSX.Element => {
   const selfUserId = useState(accessAuthState().user.id)
   const userState = useUserState()
   const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceId = channelConnectionState.currentInstanceId.value
-  const currentChannelInstanceConnection = channelConnectionState.instances[currentChannelInstanceId!].ornull
-  const displayedUsers = currentChannelInstanceId
+  const currentChannelInstanceConnection = channelConnectionState.instances[MediaStreams.instance.hostId!].ornull
+  const displayedUsers = MediaStreams.instance.hostId
     ? currentChannelInstanceConnection.channelType.value === 'channel'
       ? userState.channelLayerUsers.value.filter((user) => user.id !== selfUserId.value)
       : userState.layerUsers.value.filter((user) => !!nearbyLayerUsers.value.find((u) => u.id === user.id))

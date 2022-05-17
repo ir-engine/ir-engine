@@ -310,6 +310,8 @@ export class MediaStreams {
     }
     return false
   }
+
+  hostId: string = null!
 }
 
 export const updateNearbyAvatars = () => {
@@ -333,8 +335,10 @@ export default async function MediaStreamSystem() {
   let executeInProgress = false
 
   return () => {
-    const networkTransport = Network.instance.getTransport('media')
-    if (networkTransport.mediasoupOperationQueue.getBufferLength() > 0 && !executeInProgress) {
+    const networkTransport = Network.instance.transports.get(MediaStreams.instance.hostId)
+    if (!networkTransport) return
+
+    if (networkTransport?.mediasoupOperationQueue.getBufferLength() > 0 && !executeInProgress) {
       executeInProgress = true
       const buffer = networkTransport.mediasoupOperationQueue.pop() as any
       if (buffer.object && buffer.object.closed !== true && buffer.object._closed !== true) {

@@ -2,20 +2,17 @@ import * as mediasoupClient from 'mediasoup-client'
 import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
 import { io as ioclient, Socket } from 'socket.io-client'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { RingBuffer } from '@xrengine/engine/src/common/classes/RingBuffer'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Network, TransportType, TransportTypes } from '@xrengine/engine/src/networking/classes/Network'
+import { TransportType } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkTransport } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { addActionReceptor, defineAction } from '@xrengine/hyperflux'
+import { defineAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { accessAuthState } from '../user/services/AuthService'
 import { gameserverHost } from '../util/config'
-import { MediaStreamService } from './../media/services/MediaStreamService'
 import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 
 // import { encode, decode } from 'msgpackr'
@@ -25,14 +22,6 @@ const promisedRequest = (socket: Socket) => {
   return function request(type: any, data = {}): any {
     return new Promise((resolve) => socket.emit(type, data, resolve))
   }
-}
-
-export const createNetworkTransports = () => {
-  Network.instance.transports.set('world' as UserId, new SocketWebRTCClientTransport(TransportTypes.world))
-  Network.instance.transports.set('media' as UserId, new SocketWebRTCClientTransport(TransportTypes.media))
-  addActionReceptor(Engine.instance.store, (action) => {
-    matches(action).when(MediaStreams.actions.triggerUpdateConsumers.matches, MediaStreamService.triggerUpdateConsumers)
-  })
 }
 
 export class SocketWebRTCClientTransport implements NetworkTransport {

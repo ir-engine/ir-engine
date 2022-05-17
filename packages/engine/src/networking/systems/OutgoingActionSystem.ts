@@ -4,7 +4,7 @@ import { World } from '../../ecs/classes/World'
 import { Network } from '../classes/Network'
 
 const sendOutgoingActions = (world: World) => {
-  const transport = Network.instance.getTransport('world')
+  const transport = Network.instance.transports.get(world.hostId)
   if (!transport) return
 
   try {

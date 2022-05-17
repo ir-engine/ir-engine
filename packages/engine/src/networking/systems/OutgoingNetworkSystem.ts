@@ -28,7 +28,7 @@ const serializeAndSend = (world: World, serialize: Function) => {
 
     if (data.byteLength > 0) {
       // side effect - network IO
-      const worldTransport = Network.instance.getTransport('world')
+      const worldTransport = Network.instance.transports.get(world.hostId)!
       worldTransport.sendData(data)
     }
   }
@@ -48,6 +48,6 @@ export default async function OutgoingNetworkSystem(world: World) {
   return () => {
     if (!getEngineState().isEngineInitialized.value) return
 
-    serializeAndSend(world, serialize)
+    if (Network.instance.transports.has(world.hostId)) serializeAndSend(world, serialize)
   }
 }

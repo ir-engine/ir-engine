@@ -40,7 +40,7 @@ export const Debug = () => {
   const showingStateRef = useRef(isShowing)
   const engineRendererState = useEngineRendererState()
   const { t } = useTranslation()
-  const networkTransport = Network.instance.getTransport('world')
+  const networkTransport = Network.instance.transports.get(Engine.instance.currentWorld.hostId)
 
   function setupListener() {
     window.addEventListener('keydown', downHandler)

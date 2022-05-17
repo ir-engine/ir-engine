@@ -22,7 +22,9 @@ const VideoChat = (props: Props) => {
   const currentLocation = useLocationState().currentLocation.location
   const gsProvision = async () => {
     if (mediaStreamSystem.videoStream == null) {
-      const mediaTransport = Network.instance.getTransport('media') as SocketWebRTCClientTransport
+      const mediaTransport = Network.instance.transports.get(
+        MediaStreams.instance.hostId
+      ) as SocketWebRTCClientTransport
       await configureMediaTransports(mediaTransport, ['video', 'audio'])
       console.log('Send camera streams called from gsProvision')
     } else {

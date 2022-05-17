@@ -63,6 +63,7 @@ export class World {
 
   /**
    * The UserId of the host
+   * - will either be a user's UserId, or an instance server's InstanceId
    */
   hostId = 'world' as UserId
 
@@ -279,9 +280,6 @@ export class World {
   execute(frameTime: number) {
     const start = nowMilliseconds()
     const incomingActions = [...this.store.actions.incoming]
-    const incomingBufferLength = Network.instance
-      .getTransport('world')
-      ?.incomingMessageQueueUnreliable.getBufferLength()
 
     const worldElapsedSeconds = (frameTime - this.startTime) / 1000
     this.deltaSeconds = Math.max(0, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
@@ -296,6 +294,9 @@ export class World {
     const end = nowMilliseconds()
     const duration = end - start
     if (duration > 50) {
+      const incomingBufferLength = Network.instance
+        .getTransport(Engine.instance.currentWorld.hostId)
+        ?.incomingMessageQueueUnreliable.getBufferLength()
       console.warn(
         `Long frame execution detected. Duration: ${duration}. \n Incoming Buffer Length: ${incomingBufferLength} \n Incoming actions: `,
         incomingActions

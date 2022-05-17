@@ -369,6 +369,7 @@ const applyIncomingActions = (store: HyperStore<any>) => {
   const now = store.getDispatchTime()
   for (const action of [...incoming]) {
     if (action.$time > now) {
+      console.log('skipping for now', action.$time, now)
       continue
     }
     _updateCachedActions(store, action)

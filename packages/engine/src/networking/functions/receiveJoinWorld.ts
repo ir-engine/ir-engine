@@ -38,6 +38,7 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
   const world = Engine.instance.currentWorld
 
   world.startTime = highResTimeOrigin - performance.timeOrigin + worldStartTime
+  console.log(world.startTime)
 
   const engineState = getEngineState()
 
