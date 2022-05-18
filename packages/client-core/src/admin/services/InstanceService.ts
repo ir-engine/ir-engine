@@ -1,32 +1,41 @@
 import { Paginated } from '@feathersjs/feathers'
-import { createState, useState } from '@speigg/hookstate'
+import { useState } from '@speigg/hookstate'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { addActionReceptor, defineAction, defineState, dispatchAction, getState, registerState } from '@xrengine/hyperflux'
 
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
 
-//State
+export const INSTANCE_PAGE_LIMIT = 100
 
-export const INSTNCE_PAGE_LIMIT = 100
-
-const state = createState({
-  instances: [] as Array<Instance>,
-  skip: 0,
-  limit: INSTNCE_PAGE_LIMIT,
-  total: 0,
-  retrieving: false,
-  fetched: false,
-  updateNeeded: true,
-  lastFetched: Date.now()
+export const AdminInstanceState = defineState({
+  store: 'ENGINE',
+  name: 'AdminInstanceState',
+  initial: () => ({
+    instances: [] as Array<Instance>,
+    skip: 0,
+    limit: INSTANCE_PAGE_LIMIT,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true,
+    lastFetched: Date.now()
+  })
 })
 
-store.receptors.push((action: InstanceActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'INSTANCES_RETRIEVED':
+export const registerAdminInstanceServiceActions = () => {
+
+  registerState(Engine.instance.store, AdminInstanceState)
+
+  // Register receptor
+  addActionReceptor(Engine.instance.store, function AdminInstanceServiceReceptor(action) {
+    getState(Engine.instance.store, AdminInstanceState).batch((s) => {
+      matches(action)
+      .when(AdminInstanceAction.instancesRetrievedAction.matches, (action) => {
         return s.merge({
           instances: action.instanceResult.data,
           skip: action.instanceResult.skip,
@@ -37,20 +46,24 @@ store.receptors.push((action: InstanceActionType): any => {
           updateNeeded: false,
           lastFetched: Date.now()
         })
-      case 'INSTANCE_REMOVED_ROW':
-        s.merge({ updateNeeded: true })
-    }
-  }, action.type)
-})
+      })
+      .when(AdminInstanceAction.instancesRetrievedAction.matches, () => {
+        return s.merge({ updateNeeded: true })
+      })
+    })
+  })
+}
 
-export const accessInstanceState = () => state
+// temporary
+registerAdminInstanceServiceActions()
 
-export const useInstanceState = () => useState(state) as any as typeof state
+export const accessInstanceState = () => getState(Engine.instance.store, AdminInstanceState)
+
+export const useInstanceState = () => useState(accessInstanceState())
 
 //Service
 export const InstanceService = {
   fetchAdminInstances: async (value: string | null = null, skip = 0, sortField = 'createdAt', orderBy = 'asc') => {
-    const dispatch = useDispatch()
     const user = accessAuthState().user
     try {
       if (user.userRole.value === 'admin') {
@@ -63,46 +76,38 @@ export const InstanceService = {
             $sort: {
               ...sortData
             },
-            $skip: skip * INSTNCE_PAGE_LIMIT,
-            $limit: INSTNCE_PAGE_LIMIT,
+            $skip: skip * INSTANCE_PAGE_LIMIT,
+            $limit: INSTANCE_PAGE_LIMIT,
             action: 'admin',
             search: value
           }
         })) as Paginated<Instance>
-        dispatch(InstanceAction.instancesRetrievedAction(instances))
+        dispatchAction(Engine.instance.store, AdminInstanceAction.instancesRetrievedAction({ instanceResult: instances }))
       }
     } catch (err) {
       AlertService.dispatchAlertError(err)
     }
   },
   removeInstance: async (id: string) => {
-    const dispatch = useDispatch()
-
     const result = (await client.service('instance').patch(id, { ended: true })) as Instance
-    dispatch(InstanceAction.instanceRemovedAction(result))
+    dispatchAction(Engine.instance.store, AdminInstanceAction.instanceRemovedAction({ instance: result }))
   }
 }
 
 if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('instance').on('removed', (params) => {
-    store.dispatch(InstanceAction.instanceRemovedAction(params.instance))
+    dispatchAction(Engine.instance.store, AdminInstanceAction.instanceRemovedAction({ instance: params.instance }))
   })
 }
-
-//Action
-export const InstanceAction = {
-  instancesRetrievedAction: (instanceResult: Paginated<Instance>) => {
-    return {
-      type: 'INSTANCES_RETRIEVED' as const,
-      instanceResult: instanceResult
-    }
-  },
-  instanceRemovedAction: (instance: Instance) => {
-    return {
-      type: 'INSTANCE_REMOVED_ROW' as const,
-      instance: instance
-    }
-  }
+export class AdminInstanceAction {
+  static instancesRetrievedAction = defineAction({
+    store: 'ENGINE',
+    type: 'admin.INSTANCES_RETRIEVED',
+    instanceResult: matches.object as Validator<unknown, Paginated<Instance>>
+  })
+  static instanceRemovedAction = defineAction({
+    store: 'ENGINE',
+    type: 'admin.INSTANCE_REMOVED_ROW',
+    instance: matches.object as Validator<unknown, Instance>
+  })
 }
-
-export type InstanceActionType = ReturnType<typeof InstanceAction[keyof typeof InstanceAction]>
