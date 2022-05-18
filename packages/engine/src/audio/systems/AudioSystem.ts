@@ -126,4 +126,3 @@ export default async function AudioSystem(world: World) {
 function addActionReceptor(store: any, AudioSettingReceptor: any) {
   throw new Error('Function not implemented.')
 }
-
