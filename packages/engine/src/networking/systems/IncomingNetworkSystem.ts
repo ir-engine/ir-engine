@@ -1,12 +1,13 @@
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { Network, NetworkTransport } from '../classes/Network'
 import { validateNetworkObjects } from '../functions/validateNetworkObjects'
 import { createDataReader } from '../serialization/DataReader'
 
 export const applyUnreliableQueueFast = (deserialize: Function) => (world: World) => {
-  const { incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } = Network.instance.getTransport('world')
+  if (!Engine.instance.currentWorld.networks.has(world.hostId)) return
+  const { incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } =
+    Engine.instance.currentWorld.networks.get(world.hostId)!
 
   while (incomingMessageQueueUnreliable.getBufferLength() > 0) {
     // we may need producer IDs at some point, likely for p2p netcode, for now just consume it

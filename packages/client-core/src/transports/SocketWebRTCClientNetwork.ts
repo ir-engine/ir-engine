@@ -2,20 +2,14 @@ import * as mediasoupClient from 'mediasoup-client'
 import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
 import { io as ioclient, Socket } from 'socket.io-client'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { RingBuffer } from '@xrengine/engine/src/common/classes/RingBuffer'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Network, TransportType, TransportTypes } from '@xrengine/engine/src/networking/classes/Network'
-import { NetworkTransport } from '@xrengine/engine/src/networking/classes/Network'
+import { Network, NetworkType } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { addActionReceptor, defineAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { accessAuthState } from '../user/services/AuthService'
 import { gameserverHost } from '../util/config'
-import { MediaStreamService } from './../media/services/MediaStreamService'
 import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 
 // import { encode, decode } from 'msgpackr'
@@ -27,50 +21,9 @@ const promisedRequest = (socket: Socket) => {
   }
 }
 
-export const createNetworkTransports = () => {
-  Network.instance.transports.set('world' as UserId, new SocketWebRTCClientTransport(TransportTypes.world))
-  Network.instance.transports.set('media' as UserId, new SocketWebRTCClientTransport(TransportTypes.media))
-  addActionReceptor(Engine.instance.store, (action) => {
-    matches(action).when(MediaStreams.actions.triggerUpdateConsumers.matches, MediaStreamService.triggerUpdateConsumers)
-  })
-}
-
-export class SocketWebRTCClientTransport implements NetworkTransport {
-  static actions = {
-    noWorldServersAvailable: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE' as const,
-      instanceId: matches.string
-    }),
-    noMediaServersAvailable: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE' as const
-    }),
-    worldInstanceKicked: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_INSTANCE_KICKED' as const,
-      message: matches.string
-    }),
-    worldInstanceDisconnected: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_INSTANCE_DISCONNECTED' as const
-    }),
-    worldInstanceReconnected: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_INSTANCE_RECONNECTED' as const
-    }),
-    mediaInstanceDisconnected: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_CHANNEL_DISCONNECTED' as const
-    }),
-    mediaInstanceReconnected: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_CHANNEL_RECONNECTED' as const
-    })
-  }
-
-  type: TransportType
-  constructor(type: TransportType) {
+export class SocketWebRTCClientNetwork implements Network {
+  type: NetworkType
+  constructor(type: NetworkType) {
     this.type = type
   }
 
@@ -107,7 +60,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   close() {
-    console.log('SocketWebRTCClientTransport close')
+    console.log('SocketWebRTCClientNetwork close')
     this.recvTransport.close()
     this.sendTransport.close()
     this.recvTransport = null!
@@ -127,8 +80,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     channelId?: string
   }): Promise<void> {
     this.reconnecting = false
-    if (this.socket) return console.error('[SocketWebRTCClientTransport]: already initialized')
-    console.log('[SocketWebRTCClientTransport]: Initialising transport with args', args)
+    if (this.socket) return console.error('[SocketWebRTCClientNetwork]: already initialized')
+    console.log('[SocketWebRTCClientNetwork]: Initialising transport with args', args)
     const { sceneId, ipAddress, port, instanceId, locationId, channelId } = args
 
     this.instanceId = instanceId

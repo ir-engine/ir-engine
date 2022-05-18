@@ -22,7 +22,6 @@ import { ObjectLayers } from './scene/constants/ObjectLayers'
 
 import './threejsPatches'
 
-import { Network } from './networking/classes/Network'
 import { FontManager } from './xrui/classes/FontManager'
 
 /**
@@ -32,7 +31,6 @@ import { FontManager } from './xrui/classes/FontManager'
  */
 export const createEngine = () => {
   Engine.instance = new Engine()
-  Network.instance = new Network()
   Engine.instance.currentWorld = createWorld()
   EngineRenderer.instance = new EngineRenderer()
   if (isClient) EngineRenderer.instance.initialize()
@@ -132,7 +130,7 @@ export const initializeMediaServerSystems = async () => {
 
   NetworkActionReceptor.createNetworkActionReceptor(world)
 
-  Engine.instance.engineTimer = Timer(executeWorlds)
+  Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
   Engine.instance.engineTimer.start()
 
   dispatchAction(Engine.instance.store, EngineActions.initializeEngine({ initialised: true }))
@@ -196,7 +194,7 @@ export const initializeCoreSystems = async () => {
   // load injected systems which may rely on core systems
   await initSystems(world, Engine.instance.injectedSystems)
 
-  Engine.instance.engineTimer = Timer(executeWorlds)
+  Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
   Engine.instance.engineTimer.start()
 
   dispatchAction(Engine.instance.store, EngineActions.initializeEngine({ initialised: true }))

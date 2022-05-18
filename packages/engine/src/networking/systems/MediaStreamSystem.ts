@@ -1,10 +1,8 @@
-import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { defineAction, dispatchAction } from '@xrengine/hyperflux'
 
 import { isClient } from '../../common/functions/isClient'
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { Network } from '../classes/Network'
 import { localAudioConstraints, localVideoConstraints } from '../constants/VideoConstants'
 import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
 
@@ -310,6 +308,8 @@ export class MediaStreams {
     }
     return false
   }
+
+  hostId: string = null!
 }
 
 export const updateNearbyAvatars = () => {
@@ -333,10 +333,12 @@ export default async function MediaStreamSystem() {
   let executeInProgress = false
 
   return () => {
-    const networkTransport = Network.instance.getTransport('media')
-    if (networkTransport.mediasoupOperationQueue.getBufferLength() > 0 && !executeInProgress) {
+    const network = Engine.instance.currentWorld.networks.get(MediaStreams.instance.hostId)
+    if (!network) return
+
+    if (network?.mediasoupOperationQueue.getBufferLength() > 0 && !executeInProgress) {
       executeInProgress = true
-      const buffer = networkTransport.mediasoupOperationQueue.pop() as any
+      const buffer = network.mediasoupOperationQueue.pop() as any
       if (buffer.object && buffer.object.closed !== true && buffer.object._closed !== true) {
         try {
           if (buffer.action === 'resume') buffer.object.resume()

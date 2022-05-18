@@ -20,7 +20,7 @@ import {
 import multiLogger from '@xrengine/server-core/src/logger'
 
 import channels from './channels'
-import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
 
 const logger = multiLogger.child({ component: 'gameserver' })
 
@@ -35,7 +35,7 @@ process.on('unhandledRejection', (error, promise) => {
 })
 
 const onSocketIO = (app: Application) => {
-  app.transport = new SocketWebRTCServerTransport(app)
+  app.transport = new SocketWebRTCServerNetwork(app)
   app.transport.initialize()
 }
 

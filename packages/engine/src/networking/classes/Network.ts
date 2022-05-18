@@ -1,17 +1,16 @@
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { RingBuffer } from '../../common/classes/RingBuffer'
 
-export const TransportTypes = {
-  world: 'world',
-  media: 'media'
+export const NetworkTypes = {
+  world: 'world' as const,
+  media: 'media' as const
 }
 
-export type TransportType = typeof TransportTypes[keyof typeof TransportTypes]
+export type NetworkType = typeof NetworkTypes[keyof typeof NetworkTypes]
 
 /** Interface for the Transport. */
-export interface NetworkTransport {
+export interface Network {
   /**
    * Initialize the transport.
    * @param address Address of this transport.
@@ -58,16 +57,3 @@ export interface NetworkTransport {
   /** Buffer holding Mediasoup operations */
   mediasoupOperationQueue: RingBuffer<any>
 }
-
-export class Network<T extends NetworkTransport> {
-  static instance: Network<NetworkTransport>
-  transports = new Map<UserId, T>()
-  /**
-   * @todo: getTransport(transport: UserId) {
-   */
-  getTransport(transport: string) {
-    return this.transports.get(transport as UserId)!
-  }
-}
-
-globalThis.Network = Network

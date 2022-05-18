@@ -16,7 +16,7 @@ import {
   handleJoinWorld,
   handleLeaveWorld
 } from './NetworkFunctions'
-import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
 import {
   handleWebRtcCloseConsumer,
   handleWebRtcCloseProducer,
@@ -38,7 +38,7 @@ import {
 
 const logger = multiLogger.child({ component: 'gameserver:socket' })
 
-export const setupSocketFunctions = (transport: SocketWebRTCServerTransport) => async (socket: Socket) => {
+export const setupSocketFunctions = (transport: SocketWebRTCServerNetwork) => async (socket: Socket) => {
   const app = transport.app
 
   if (!getEngineState().joinedWorld.value)

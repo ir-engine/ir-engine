@@ -63,6 +63,7 @@ export class World {
 
   /**
    * The UserId of the host
+   * - will either be a user's UserId, or an instance server's InstanceId
    */
   hostId = 'world' as UserId
 
@@ -72,6 +73,8 @@ export class World {
   get isHosting() {
     return Engine.instance.userId === this.hostId
   }
+
+  networks = new Map<string, Network>()
 
   sceneMetadata = undefined as string | undefined
   worldMetadata = {} as { [key: string]: string }
@@ -112,8 +115,8 @@ export class World {
     name: 'WORLD',
     getDispatchMode: () => (this.isHosting ? 'host' : 'peer'),
     getDispatchId: () => Engine.instance.userId,
-    getDispatchTime: () => this.fixedTick,
-    defaultDispatchDelay: 1
+    getDispatchTime: () => Date.now(),
+    defaultDispatchDelay: 1 / Engine.instance.tickRate
   })
 
   /**
@@ -279,8 +282,8 @@ export class World {
   execute(frameTime: number) {
     const start = nowMilliseconds()
     const incomingActions = [...this.store.actions.incoming]
-    const incomingBufferLength = Network.instance
-      .getTransport('world')
+    const incomingBufferLength = this.networks
+      .get(Engine.instance.currentWorld.hostId)
       ?.incomingMessageQueueUnreliable.getBufferLength()
 
     const worldElapsedSeconds = (frameTime - this.startTime) / 1000

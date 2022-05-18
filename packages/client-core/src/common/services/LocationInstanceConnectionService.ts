@@ -6,15 +6,16 @@ import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/I
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
 import { accessLocationState } from '../../social/services/LocationService'
 import { store, useDispatch } from '../../store'
 import { leave } from '../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
+import { NetworkConnectionService } from './NetworkConnectionService'
 
 type InstanceState = {
   ipAddress: string
@@ -30,15 +31,15 @@ type InstanceState = {
 
 //State
 const state = createState({
-  instances: {} as { [id: string]: InstanceState },
-  currentInstanceId: null as string | null
+  instances: {} as { [id: string]: InstanceState }
 })
 
 store.receptors.push((action: LocationInstanceConnectionActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'LOCATION_INSTANCE_SERVER_PROVISIONED':
-        s.currentInstanceId.set(action.instanceId)
+        Engine.instance.currentWorld.hostId = action.instanceId as UserId
+        Engine.instance.currentWorld.networks.set(action.instanceId, new SocketWebRTCClientNetwork(NetworkTypes.world))
         return s.instances[action.instanceId].set({
           ipAddress: action.ipAddress,
           port: action.port,
@@ -99,18 +100,20 @@ export const LocationInstanceConnectionService = {
     } else {
       dispatchAction(
         Engine.instance.store,
-        SocketWebRTCClientTransport.actions.noWorldServersAvailable({ instanceId: instanceId! })
+        NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: instanceId! })
       )
     }
   },
   connectToServer: async (instanceId: string) => {
     const dispatch = useDispatch()
     dispatch(LocationInstanceConnectionAction.connecting(instanceId))
-    const transport = Network.instance.getTransport('world' as UserId) as SocketWebRTCClientTransport
-    console.log('Connect To World Server', !!transport.socket, transport)
-    if (transport.socket) {
+    const transport = Engine.instance.currentWorld.networks.get(
+      Engine.instance.currentWorld.hostId
+    ) as SocketWebRTCClientNetwork
+    if (transport?.socket) {
       await leave(transport, false)
     }
+    console.log('Connect To World Server', !!transport?.socket, transport)
     const locationState = accessLocationState()
     const currentLocation = locationState.currentLocation.location
     const sceneId = currentLocation?.sceneId?.value
