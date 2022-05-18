@@ -4,6 +4,8 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+import { AudioSettingReceptor, restoreAudioSettings } from '../AudioState'
 import { BackgroundMusic } from '../components/BackgroundMusic'
 import { PlaySoundEffect } from '../components/PlaySoundEffect'
 import { SoundEffect } from '../components/SoundEffect'
@@ -86,6 +88,12 @@ export default async function AudioSystem(world: World) {
     removeComponent(ent, PlaySoundEffect)
   }
 
+  matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, () => {
+    restoreAudioSettings()
+  })
+
+  addActionReceptor(Engine.instance.store, AudioSettingReceptor)
+
   return () => {
     for (const entity of soundEffectQuery.enter(world)) {
       const effect = getComponent(entity, SoundEffect)
@@ -115,3 +123,7 @@ export default async function AudioSystem(world: World) {
     }
   }
 }
+function addActionReceptor(store: any, AudioSettingReceptor: any) {
+  throw new Error('Function not implemented.')
+}
+
