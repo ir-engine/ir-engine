@@ -1,0 +1,105 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+    {
+        "command": "cd packages/engine && npm run test",
+        "name": "npm run test",
+        "request": "launch",
+        "type": "node-terminal",
+        "port": 3000
+    },
+    {
+        "command": "npm run dev",
+        "name": "npm run dev",
+        "request": "launch",
+        "type": "node-terminal",
+        "port": 3000
+    },
+    {
+        "command": "npm run dev-reinit",
+        "name": "npm run dev-reinit",
+        "request": "launch",
+        "type": "node-terminal",
+        "port": 3000
+    },
+    {
+        "command": "npm run check-errors",
+        "name": "npm run check-errors",
+        "request": "launch",
+        "type": "node-terminal",
+        "port": 3000
+    },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug Server",
+            "cwd": "${workspaceFolder}/packages/server",
+            "runtimeArgs": [
+                "run-script",
+                "dev"
+            ],
+            "runtimeExecutable": "npm",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug Gameserver",
+            "cwd": "${workspaceFolder}/packages/gameserver",
+            "runtimeArgs": [
+                "run-script",
+                "dev"
+            ],
+            "runtimeExecutable": "npm",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug Engine Tests",
+            "cwd": "${workspaceFolder}/packages/engine",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "--config",
+                "${workspaceFolder}/packages/engine/.mocharc.js",
+            ],
+            "internalConsoleOptions": "openOnSessionStart",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug Server Core Tests",
+            "cwd": "${workspaceFolder}/packages/server-core",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "--config",
+                "${workspaceFolder}/packages/server-core/.mocharc.js",
+            ],
+            "internalConsoleOptions": "openOnSessionStart",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug e2e Tests",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "--config",
+                "${workspaceFolder}/.mocharc.js",
+            ],
+            "internalConsoleOptions": "openOnSessionStart",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        }
+    ]
+}
