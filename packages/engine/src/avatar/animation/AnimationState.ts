@@ -1,6 +1,6 @@
 import { AnimationAction, LoopOnce, LoopRepeat, Vector2 } from 'three'
 
-import { BlendSpace1D } from './BlendSpace1D'
+import { BlendSpace1D, updateBlendSpace1D } from './BlendSpace1D'
 import { DistanceMatchingAction } from './DistanceMatchingAction'
 import { AvatarStates } from './Util'
 
@@ -122,11 +122,8 @@ export class LocomotionState extends AnimationState {
     this._blendValue.set(velocity.x, velocity.z).divideScalar(frameSpeed)
     this._frameBlendValue.copy(this._blendValue).multiplyScalar(delta)
 
-    this.xAxisBlendSpace.value = -this._blendValue.x
-    const updatedNodesX = this.xAxisBlendSpace.update()
-
-    this.yAxisBlendSpace.value = this._blendValue.y
-    const updatedNodesY = this.yAxisBlendSpace.update()
+    const updatedNodesX = updateBlendSpace1D(this.xAxisBlendSpace, -this._blendValue.x)
+    const updatedNodesY = updateBlendSpace1D(this.yAxisBlendSpace, this._blendValue.y)
 
     this.updateNodes(updatedNodesX, updatedNodesY)
   }
