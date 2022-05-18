@@ -146,7 +146,6 @@ packages/server/upload/
 .DS_Store
 */.DS_Store
 
-certs/
 *.blend1
 *.ts.bak
 
@@ -167,7 +166,6 @@ certs/
 !/packages/ops/rippled/config/validators.template.txt
 
 # Visual Studio Code settings
-.vscode
 project-package-jsons/*
 
 feathers/*
