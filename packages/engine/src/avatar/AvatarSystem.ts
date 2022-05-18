@@ -1,7 +1,7 @@
 import { Group, Object3D, Vector3 } from 'three'
 import matches from 'ts-matches'
 
-import { addActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { isClient } from '../common/functions/isClient'
 import { Object3DUtils } from '../common/functions/Object3DUtils'
@@ -15,6 +15,7 @@ import {
   removeComponent
 } from '../ecs/functions/ComponentFunctions'
 import { useWorld } from '../ecs/functions/SystemHooks'
+import { AvatarControllerType } from '../input/enums/InputEnums'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
@@ -32,6 +33,7 @@ import { AvatarControllerComponent } from './components/AvatarControllerComponen
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
 import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
+import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 function avatarActionReceptor(action) {
   const world = useWorld()
@@ -75,6 +77,11 @@ function avatarActionReceptor(action) {
           inputData.controllerGripRightParent.add(inputData.controllerGripRight)
 
           addComponent(entity, XRInputSourceComponent, inputData as any)
+
+          // This is required because using dispatchAction state will be updated in the next frame
+          // while xr hand initialization requires updated controller type which might run in the current frame.
+          const avatarInputState = accessAvatarInputSettingsState()
+          avatarInputState.merge({ controlType: a.avatarInputControllerType as AvatarControllerType })
         }
       } else if (hasComponent(entity, XRInputSourceComponent)) {
         removeComponent(entity, XRInputSourceComponent)
@@ -95,7 +102,7 @@ function avatarActionReceptor(action) {
       const xrInputSource = getComponent(entity, XRHandsInputComponent)
 
       xrInputSource.hands.forEach((controller: any, i: number) => {
-        initializeHandModel(controller, i === 0 ? 'left' : 'right')
+        initializeHandModel(entity, controller, i === 0 ? 'left' : 'right')
       })
     })
 
