@@ -1,6 +1,6 @@
 import assert, { strictEqual } from 'assert'
 import { TypedArray } from 'bitecs'
-import { Vector3 } from 'three'
+import { Group, Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -12,6 +12,8 @@ import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
+import { XRHandBones } from '../../xr/types/XRHandBones'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import {
@@ -25,7 +27,8 @@ import {
   readRotation,
   readTransform,
   readVector3,
-  readVector4
+  readVector4,
+  readXRHands
 } from './DataReader'
 import {
   createDataWriter,
@@ -35,7 +38,8 @@ import {
   writeRotation,
   writeTransform,
   writeVector3,
-  writeVector4
+  writeVector4,
+  writeXRHands
 } from './DataWriter'
 import { Vector3SoA, Vector4SoA } from './Utils'
 import { createViewCursor, readFloat32, readUint8, readUint32, sliceViewCursor, writeProp } from './ViewCursor'
@@ -323,6 +327,76 @@ describe('DataReader', () => {
     strictEqual(TransformComponent.rotation.y[entity], y)
     strictEqual(TransformComponent.rotation.z[entity], 0)
     strictEqual(TransformComponent.rotation.w[entity], w)
+  })
+
+  it('should readXRHands', () => {
+    const view = createViewCursor()
+    const entity = createEntity()
+
+    let joints = []
+    XRHandBones.forEach((bone) => {
+      joints = joints.concat(bone as any)
+    })
+
+    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
+
+    const hands = [new Group(), new Group()]
+    hands[0].userData.handedness = 'left'
+    hands[1].userData.handedness = 'right'
+
+    hands.forEach((hand) => {
+      // setup mock hand state
+      const handedness = hand.userData.handedness
+      const dummyXRHandMeshModel = new Group() as any
+      dummyXRHandMeshModel.handedness = handedness
+      hand.userData.mesh = dummyXRHandMeshModel
+
+      // proxify and copy values
+      joints.forEach((jointName) => {
+        createVector3Proxy(XRHandsInputComponent[handedness][jointName].position, entity).set(x, y, z)
+        createQuaternionProxy(XRHandsInputComponent[handedness][jointName].quaternion, entity).set(x, y, z, w)
+      })
+    })
+
+    // add component
+    const xrHandsInput = addComponent(entity, XRHandsInputComponent, { hands: hands })
+
+    writeXRHands(view, entity)
+
+    // reset joint pos and rot to zero
+    hands.forEach((hand) => {
+      const handedness = hand.userData.handedness
+
+      joints.forEach((jointName) => {
+        XRHandsInputComponent[handedness][jointName].position.x[entity] = 0
+        XRHandsInputComponent[handedness][jointName].position.y[entity] = 0
+        XRHandsInputComponent[handedness][jointName].position.z[entity] = 0
+
+        XRHandsInputComponent[handedness][jointName].quaternion.x[entity] = 0
+        XRHandsInputComponent[handedness][jointName].quaternion.y[entity] = 0
+        XRHandsInputComponent[handedness][jointName].quaternion.z[entity] = 0
+        XRHandsInputComponent[handedness][jointName].quaternion.w[entity] = 0
+      })
+    })
+
+    view.cursor = 0
+
+    readXRHands(view, entity)
+
+    hands.forEach((hand) => {
+      const handedness = hand.userData.handedness
+
+      joints.forEach((jointName) => {
+        strictEqual(XRHandsInputComponent[handedness][jointName].position.x[entity], x)
+        strictEqual(XRHandsInputComponent[handedness][jointName].position.y[entity], y)
+        strictEqual(XRHandsInputComponent[handedness][jointName].position.z[entity], z)
+
+        strictEqual(XRHandsInputComponent[handedness][jointName].quaternion.x[entity], x)
+        strictEqual(XRHandsInputComponent[handedness][jointName].quaternion.y[entity], y)
+        strictEqual(XRHandsInputComponent[handedness][jointName].quaternion.z[entity], z)
+        strictEqual(XRHandsInputComponent[handedness][jointName].quaternion.w[entity], w)
+      })
+    })
   })
 
   it('should readEntity', () => {
