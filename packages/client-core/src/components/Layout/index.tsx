@@ -218,11 +218,11 @@ const Layout = (props: Props): any => {
               >
                 <Refresh />
               </button>
-              <InstanceChat
+              {/* <InstanceChat
                 animate={styles.animateBottom}
                 hideOtherMenus={hideOtherMenus}
                 setShowTouchPad={setShowTouchPad}
-              />
+              /> */}
             </div>
           </section>
         </ThemeProvider>

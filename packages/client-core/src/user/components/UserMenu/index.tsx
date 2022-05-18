@@ -81,7 +81,7 @@ const UserMenu = (props: Props): any => {
               )
             })}
           </div>
-          {currentActiveMenu && <Panel changeActiveMenu={setCurrentActiveMenu} />}
+          {/* {currentActiveMenu && <Panel changeActiveMenu={setCurrentActiveMenu} />} */}
         </section>
       </ClickAwayListener>
     </>
