@@ -1,5 +1,4 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { DEFAULT_AVATARS } from '@xrengine/common/src/constants/AvatarConstants'
 import { Application } from '../../../declarations'
 import { Sequelize } from 'sequelize'
 import { v1 as uuidv1 } from 'uuid'
@@ -9,6 +8,9 @@ import { AuthenticationService } from '@feathersjs/authentication'
 import config from '../../appconfig'
 import { Params } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
+import blockchainTokenGenerator from '../../util/blockchainTokenGenerator'
+import blockchainUserWalletGenerator from '../../util/blockchainUserWalletGenerator'
+import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 
 interface Data {}
 
@@ -36,8 +38,25 @@ export class IdentityProvider extends Service {
    */
   async create(data: any, params: Params): Promise<any> {
     let { token, type, password } = data
+    let user
 
-    if (params.provider && type !== 'password') type = 'guest' //Non-password create requests must always be for guests
+    if (params.authentication) {
+      const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+        { accessToken: params.authentication.accessToken },
+        {}
+      )
+      if (authResult[config.authentication.entity]?.userId) {
+        user = await this.app.service('user').get(authResult[config.authentication.entity]?.userId)
+      }
+    }
+    if (
+      (!user || user.userRole !== 'admin') &&
+      params.provider &&
+      type !== 'password' &&
+      type !== 'email' &&
+      type !== 'sms'
+    )
+      type = 'guest' //Non-password/magiclink create requests must always be for guests
     let userId = data.userId
     let identityProvider: any
 
@@ -86,6 +105,12 @@ export class IdentityProvider extends Service {
         }
         break
       case 'linkedin':
+        identityProvider = {
+          token: token,
+          type
+        }
+        break
+      case 'discord':
         identityProvider = {
           token: token,
           type
@@ -140,23 +165,46 @@ export class IdentityProvider extends Service {
         userRole: 'admin'
       }
     })
-    const result = await super.create(
-      {
-        ...data,
-        ...identityProvider,
-        user: {
-          id: userId,
-          userRole: type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user',
-          inviteCode: type === 'guest' ? null : code,
-          avatarId: DEFAULT_AVATARS[random(DEFAULT_AVATARS.length - 1)]
-        }
-      },
-      params
-    )
+    const avatars = await this.app.service('avatar').find({ isInternal: true })
+    let result
+    try {
+      result = await super.create(
+        {
+          ...data,
+          ...identityProvider,
+          user: {
+            id: userId,
+            userRole: type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user',
+            inviteCode: type === 'guest' ? null : code,
+            avatarId: avatars[random(avatars.length - 1)].avatarId
+          }
+        },
+        params
+      )
+    } catch (err) {
+      await this.app.service('user').remove(userId)
+      throw err
+    }
+    // DRC
+    try {
+      if (result.user.userRole !== 'guest') {
+        let response: any = await blockchainTokenGenerator()
+        const accessToken = response?.data?.accessToken
+        let walleteResponse = await blockchainUserWalletGenerator(result.user.id, accessToken)
 
-    // await this.app.service('user-settings').create({
-    //   userId: result.userId
-    // });
+        let invenData: any = await this.app.service('inventory-item').find({ query: { isCoin: true } })
+        let invenDataId = invenData.data[0].dataValues.inventoryItemId
+        let resp = await this.app.service('user-inventory').create({
+          userId: result.user.id,
+          inventoryItemId: invenDataId,
+          quantity: 10
+        })
+      }
+    } catch (err) {
+      console.error(err, 'error')
+    }
+    // DRC
+
     if (config.scopes.guest.length) {
       config.scopes.guest.forEach(async (el) => {
         await this.app.service('scope').create({
@@ -184,7 +232,8 @@ export class IdentityProvider extends Service {
   }
 
   async find(params: Params): Promise<Data[] | Paginated<Data>> {
-    if (params.provider) params.query.userId = params['identity-provider'].userId
+    const loggedInUser = extractLoggedInUserFromParams(params)
+    if (params.provider) params.query!.userId = loggedInUser.id
     return super.find(params)
   }
 }

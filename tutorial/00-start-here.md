@@ -1,3 +1,11 @@
+# Why are we building XREngine?
+
+We chose to build a free, open, full-stack MMO engine that anyone could run for any reason - to host events, make games, show art, or just to give a space for your community. There are plenty of platforms you can spend a bit of money on to have a world, but you can't be in complete control of the experience or customise it from the ground up.
+
+When the XREngine stack is deployed, that stack is sovereign, open and cross platform by default. Users can make any kind of game or experience with no limits. And with the tech we're building now, users will be able to seamlessly travel through portals from my worlds to yours, on different servers, and have all their inventory and identity travel with them.
+
+This technology is for everyone, but especially people who want to build or belong to a community.
+
 # Table of Contents
 - [Table of Contents](#table-of-contents)
   - [Installation](#installation)
@@ -15,8 +23,8 @@
 
 ## [Installation](./01-installation.md)
 Getting started with installing the stack and running the engine
-## [Packages Overview](./02-packages.md)
-The packages that form the XREngine stack
+## [Architecture Overview](./02-architecture-overview.md)
+A high level overview of the architecture and the packages that form the XREngine stack
 ## [Projects API](./03-projects-api.md)
 How to use the engine to manage custom code, assets and scenes
 ## [The Editor, Scenes and Locations](./04-editor-scenes-locations.md)

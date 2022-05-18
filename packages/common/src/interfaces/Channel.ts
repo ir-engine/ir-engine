@@ -4,9 +4,11 @@ import { Message } from './Message'
 import { Party } from './Party'
 import { User } from './User'
 
+export type ChannelType = 'channel' | 'user' | 'group' | 'instance' | 'party'
+
 export type Channel = {
   id: string
-  channelType: 'user' | 'group' | 'instance' | 'party'
+  channelType: ChannelType
   messages: Message[]
   userId1: string | null
   userId2: string | null

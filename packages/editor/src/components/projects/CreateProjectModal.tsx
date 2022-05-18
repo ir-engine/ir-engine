@@ -1,13 +1,10 @@
 import classNames from 'classnames'
 import React, { useState } from 'react'
 import styles from '@xrengine/client-core/src/admin/components/Project/Projects.module.scss'
-import Backdrop from '@mui/material/Backdrop'
 import Button from '@mui/material/Button'
 import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
 import Modal from '@mui/material/Modal'
-import TextField from '@mui/material/TextField'
 import CircularProgress from '@mui/material/CircularProgress'
 interface Props {
   open: boolean
@@ -43,6 +40,12 @@ export const CreateProjectModal = (props: Props): any => {
     }
   }
 
+  const handleSubmitOnEnter = (event) => {
+    if (event.key === 'Enter') {
+      onCreateProject()
+    }
+  }
+
   const closeModal = () => {
     setProjectName('')
     handleClose()
@@ -57,10 +60,6 @@ export const CreateProjectModal = (props: Props): any => {
         open={open}
         onClose={closeModal}
         closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500
-        }}
       >
         <Fade in={props.open}>
           <div
@@ -73,11 +72,14 @@ export const CreateProjectModal = (props: Props): any => {
               <div>
                 <FormControl>
                   <div>
-                    <InputLabel id="nameSelect">Name</InputLabel>
-                    <TextField
-                      className={styles['pack-select']}
+                    <input
+                      name="name"
+                      required={true}
                       id="nameSelect"
+                      placeholder="Name*"
                       value={projectName}
+                      onKeyDown={handleSubmitOnEnter}
+                      className={styles['create-project-name']}
                       onChange={(e) => setProjectName(e.target.value)}
                     />
                   </div>

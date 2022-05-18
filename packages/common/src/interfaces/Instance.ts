@@ -1,5 +1,5 @@
 export interface Instance {
-  id: number
+  id: string
   currentUsers: number
   ipAddress: string
   locationId: string
@@ -7,7 +7,7 @@ export interface Instance {
 }
 
 export const InstanceSeed: Instance = {
-  id: 0,
+  id: '',
   ipAddress: '',
   currentUsers: 0,
   locationId: ''

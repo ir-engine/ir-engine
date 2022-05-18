@@ -1,6 +1,5 @@
 export const scopeTypeSeed = {
   path: 'scope-type',
-  randomize: false,
   templates: [
     {
       type: 'routes:read'
@@ -34,6 +33,12 @@ export const scopeTypeSeed = {
     },
     {
       type: 'globalAvatars:write'
+    },
+    {
+      type: 'benchmarking:read'
+    },
+    {
+      type: 'benchmarking:write'
     },
     {
       type: 'groups:read'

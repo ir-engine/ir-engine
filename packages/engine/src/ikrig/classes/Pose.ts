@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Bone, SkinnedMesh } from 'three'
 import { Object3D, Quaternion, Skeleton, Vector3 } from 'three'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
@@ -7,7 +6,7 @@ import { spinBoneForward, alignChain, alignBoneForward, worldToModel } from '../
 import { Entity } from '../../ecs/classes/Entity'
 import { transformAdd } from '../functions/IKSolvers'
 
-export type PoseBoneTransform = {
+export type BoneTransform = {
   position: Vector3
   quaternion: Quaternion
   scale: Vector3
@@ -18,11 +17,11 @@ export type PoseBoneLocalState = {
   parent: Bone | null
   chg_state: number // If Local Has Been Updated
   idx: number // Bone Index in Armature
-  p_idx: number | null // Parent Bone Index in Armature
+  p_idx: number // Parent Bone Index in Armature
   length: number // Length of Bone
   name: string
-  local: PoseBoneTransform // Local Transform, use Bind pose as default
-  world: PoseBoneTransform // Model Space Transform
+  local: BoneTransform // Local Transform, use Bind pose as default
+  world: BoneTransform // Model Space Transform
 }
 
 class Pose {
@@ -40,30 +39,30 @@ class Pose {
   }
   helper: any
 
-  align_leg(b_names: string[]) {
+  alignLeg(b_names: string[]) {
     alignChain(this, DOWN, b_names)
     return this
   }
-  align_arm_left(b_names: string[]) {
+  alignArmLeft(b_names: string[]) {
     alignChain(this, LEFT, b_names)
     return this
   }
-  align_arm_right(b_names: string[]) {
+  alignArmRight(b_names: string[]) {
     alignChain(this, RIGHT, b_names)
     return this
   }
 
-  align_foot(b_name: string) {
+  alignFoot(b_name: string) {
     spinBoneForward(this, b_name)
     alignBoneForward(this, b_name)
     return this
   }
 
-  spin_bone_forward(b_name: string) {
+  spinBoneForward(b_name: string) {
     spinBoneForward(this, b_name)
     return this
   }
-  align_bone_forward(b_name: string) {
+  alignBoneForward(b_name: string) {
     alignBoneForward(this, b_name)
     return this
   }
@@ -76,7 +75,14 @@ class Pose {
   constructor(rootObject: Object3D, clone = false) {
     this.bones = []
     const parent: Object3D = clone ? SkeletonUtils.clone(rootObject) : rootObject
-    this.skeleton = this.get_skeleton(parent) // Recreation of Bone Hierarchy
+    const skeleton = this.getSkeleton(parent) // Recreation of Bone Hierarchy
+
+    if (!skeleton) {
+      console.warn('Could not find skeleton object', this, rootObject, clone)
+      return
+    }
+
+    this.skeleton = skeleton
 
     if (!this.skeleton.bones[0]) {
       debugger
@@ -96,33 +102,43 @@ class Pose {
     }
 
     const rootBone = this.skeleton.bones.find((b) => !(b.parent instanceof Bone))
-    if (rootBone.parent) {
-      rootBone.parent.getWorldPosition(skeletonTransform.position)
-      rootBone.parent.getWorldQuaternion(skeletonTransform.quaternion)
-      rootBone.parent.getWorldScale(skeletonTransform.scale)
+
+    if (!rootBone) {
+      console.warn('Could not find skeleton root bone', skeleton)
+    }
+
+    ;(skeleton as any).rootBone = rootBone
+    rootBone!.updateWorldMatrix(true, true)
+
+    if (rootBone!.parent) {
+      rootBone!.parent.matrixWorld.decompose(
+        skeletonTransform.position,
+        skeletonTransform.quaternion,
+        skeletonTransform.scale
+      )
       skeletonTransform.invQuaternion.copy(skeletonTransform.quaternion).invert()
     }
 
     for (let i = 0; i < this.skeleton.bones.length; i++) {
-      const b = this.skeleton.bones[i]
+      const bone = this.skeleton.bones[i]
       let p_idx, boneParent
-      if (b.parent && b.parent instanceof Bone) {
-        p_idx = this.skeleton.bones.indexOf(b.parent)
-        boneParent = b.parent
+      if (bone.parent && bone.parent instanceof Bone) {
+        p_idx = this.skeleton.bones.indexOf(bone.parent)
+        boneParent = bone.parent
       }
 
       const boneData = {
-        bone: b,
+        bone,
         parent: boneParent,
         chg_state: 0, // If Local Has Been Updated
         idx: i, // Bone Index in Armature
         p_idx: p_idx, // Parent Bone Index in Armature
         length: 0.1, // Length of Bone
-        name: b.name,
+        name: bone.name,
         local: {
-          position: b.position.clone(),
-          quaternion: b.quaternion.clone(),
-          scale: b.scale.clone()
+          position: bone.position.clone(),
+          quaternion: bone.quaternion.clone(),
+          scale: bone.scale.clone()
         }, // Local Transform, use Bind pose as default
         world: {
           position: new Vector3(),
@@ -132,9 +148,7 @@ class Pose {
         } // Model Space Transform
       }
 
-      b.getWorldPosition(boneData.world.position)
-      b.getWorldQuaternion(boneData.world.quaternion)
-      b.getWorldScale(boneData.world.scale)
+      bone.matrixWorld.decompose(boneData.world.position, boneData.world.quaternion, boneData.world.scale)
 
       // convert to model space
       worldToModel(boneData.world.position, boneData.world.quaternion, boneData.world.scale, skeletonTransform)
@@ -142,13 +156,13 @@ class Pose {
       boneData.world.invQuaternion.copy(boneData.world.quaternion).invert()
 
       //b['index'] = i
-      if (b.children.length > 0) {
+      if (bone.children.length > 0) {
         // b.getWorldPosition(bWorldPosition)
         // b.children[0].getWorldPosition(bChildWorldPosition)
         // bWorldPosition.divide(skeletonTransform.scale)
         // bChildWorldPosition.divide(skeletonTransform.scale)
 
-        boneData.length = b.children[0].position.length()
+        boneData.length = bone.children[0].position.length()
       }
 
       this.bones[i] = boneData
@@ -157,8 +171,8 @@ class Pose {
     this.skeleton.update()
   }
 
-  get_skeleton(rootObject: Object3D): Skeleton | null {
-    let skeleton: Skeleton = null
+  getSkeleton(rootObject: Object3D): Skeleton | null {
+    let skeleton: Skeleton | null = null
 
     rootObject.traverse((object) => {
       if (object instanceof SkinnedMesh && object.skeleton != null) {
@@ -187,7 +201,7 @@ class Pose {
     return this
   }
 
-  getBone(name: string): PoseBoneLocalState {
+  getBone(name: string): PoseBoneLocalState | undefined {
     // TODO: replace with Map?
     return this.bones.find((b) => b.name === name)
   }
@@ -304,7 +318,7 @@ class Pose {
     return q
   }
 
-  transformAdd_rev(pt: PoseBoneTransform, ct: PoseBoneTransform) {
+  transformAddRev(pt: BoneTransform, ct: BoneTransform) {
     pt.position.multiply(ct.scale).applyQuaternion(ct.quaternion).add(ct.position)
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // SCALE - parent.scale * child.scale
@@ -314,12 +328,7 @@ class Pose {
     pt.quaternion.premultiply(ct.quaternion) // Must Rotate from Parent->Child, need PMUL
   }
 
-  get_parent_world(
-    b_idx: number,
-    pt: PoseBoneTransform = null,
-    ct: PoseBoneTransform = null,
-    t_offset: PoseBoneTransform = null
-  ) {
+  getParentWorld(b_idx: number, pt: BoneTransform, ct: BoneTransform, t_offset?: BoneTransform) {
     const cbone = this.bones[b_idx]
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -338,15 +347,15 @@ class Pose {
 
       while (b.p_idx != null) {
         b = this.bones[b.p_idx]
-        this.transformAdd_rev(pt, b.local)
+        this.transformAddRev(pt, b.local)
       }
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    this.transformAdd_rev(pt, this.rootOffset) // Add Starting Offset
+    this.transformAddRev(pt, this.rootOffset) // Add Starting Offset
     if (t_offset) {
-      this.transformAdd_rev(pt, t_offset) // Add Additional Starting Offset
+      this.transformAddRev(pt, t_offset) // Add Additional Starting Offset
     }
 
     if (ct) {

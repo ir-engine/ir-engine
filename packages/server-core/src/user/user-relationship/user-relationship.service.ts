@@ -170,6 +170,13 @@ export default (app: Application) => {
       if (channel != null) {
         await app.service('channel').remove(channel.id)
       }
+      if (data?.dataValues != null) {
+        data.dataValues.user = await app.service('user').get(data.userId)
+        data.dataValues.relatedUser = await app.service('user').get(data.relatedUserId)
+      } else {
+        data.user = await app.service('user').get(data.userId)
+        data.relatedUser = await app.service('user').get(data.relatedUserId)
+      }
       const targetIds = [data.userId, data.relatedUserId]
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return await Promise.all(

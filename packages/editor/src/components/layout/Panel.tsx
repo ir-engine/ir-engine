@@ -16,6 +16,7 @@ export const PanelIcon = (styled as any).div`
  */
 export const PanelTitle = (styled as any).div`
  color: #b6b6b6;
+ position: relative
 `
 
 /**

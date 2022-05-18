@@ -11,17 +11,22 @@ import approot from 'app-root-path'
 import fs from 'fs-extra'
 import { v4 as uuid } from 'uuid'
 
-describe('Storage Provider test', () => {
+describe('storageprovider', () => {
   const testFileName = 'TestFile.txt'
   const testFolderName = `TestFolder-${uuid()}`
-  const testFileContent = 'This is the Test File'
+  const testFileContent = 'content'
   const folderKeyTemp = path.join(testFolderName, 'temp')
   const folderKeyTemp2 = path.join(testFolderName, 'temp2')
 
   const storageProviders: StorageProviderInterface[] = []
   storageProviders.push(new LocalStorage())
-  if(process.env.STORAGE_S3_TEST_RESOURCE_BUCKET && process.env.STORAGE_AWS_ACCESS_KEY_ID && process.env.STORAGE_AWS_ACCESS_KEY_SECRET)
+  if (
+    process.env.STORAGE_S3_TEST_RESOURCE_BUCKET &&
+    process.env.STORAGE_AWS_ACCESS_KEY_ID &&
+    process.env.STORAGE_AWS_ACCESS_KEY_SECRET
+  ) {
     storageProviders.push(new S3Provider())
+  }
 
   storageProviders.forEach((provider) => {
     before(async function () {
@@ -70,13 +75,15 @@ describe('Storage Provider test', () => {
       })
       let res
       try {
-        res = await fetch(signedUrl.url + signedUrl.fields.Key,{agent:httpAgent})
+        res = await fetch(signedUrl.url + signedUrl.fields.Key, { agent: httpAgent })
       } catch (err) {
         console.log(err)
       }
       if (!res) console.log('Make sure server is running')
       assert.ok(res?.ok)
     })
+
+    // Unable to perform move/copy and rename test cases because Fleek storage doesn't implemented those methods
 
     it(`should be able to move/copy object in ${provider.constructor.name}`, async function () {
       const fileKeyOriginal = path.join(testFolderName, testFileName)
@@ -99,7 +106,7 @@ describe('Storage Provider test', () => {
       const fileKeyTemp2 = path.join(temp2Folder, testFileName)
       await provider.moveObject(fileKeyTemp2, temp2Folder, false, 'Renamed.txt')
       const res = await provider.listFolderContent(temp2Folder, true)
-      if (res[0].name === 'Renamed' && res.length===1) {
+      if (res[0].name === 'Renamed' && res.length === 1) {
         assert.ok(true)
         return
       }
@@ -125,6 +132,27 @@ describe('Storage Provider test', () => {
       const ret = await provider.getObject(key)
       assert.strictEqual(contentType, ret.ContentType)
       assert.deepStrictEqual(fileData, ret.Body)
+    })
+
+    it(`should put over 1000 objects in ${provider.constructor.name}`, async function () {
+      const promises: any[] = []
+      for (let i = 0; i < 1010; i++) {
+        const fileKey = path.join(testFolderName, `${i}-${testFileName}`)
+        const data = Buffer.from([])
+        promises.push(
+          provider.putObject({
+            Body: data,
+            Key: fileKey,
+            ContentType: getContentType(fileKey)
+          })
+        )
+      }
+      await Promise.all(promises)
+    })
+
+    it(`should list over 1000 objects in ${provider.constructor.name}`, async function () {
+      const res = await provider.listFolderContent(testFolderName, true)
+      assert(res.length > 1000)
     })
 
     after(async function () {

@@ -1,4 +1,4 @@
-import { Vector3, Quaternion } from 'three'
+import { Quaternion, Vector3 } from 'three'
 import { decodeFloat } from './bitConverter'
 
 export function decodeVector3(array): Vector3 {

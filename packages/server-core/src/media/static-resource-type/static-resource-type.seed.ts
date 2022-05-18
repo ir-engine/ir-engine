@@ -1,8 +1,5 @@
-import config from '../../appconfig'
-
 export const staticResourceTypeSeed = {
   path: 'static-resource-type',
-  randomize: false,
   templates: [
     { type: 'image' },
     { type: 'video' }, // parse metadata for video staticResourceType (eg 360-eac)

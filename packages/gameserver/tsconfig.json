@@ -9,9 +9,10 @@
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": false,
+    "noEmit": true,
     "module": "CommonJS",
     "strict": false,
+    "strictNullChecks": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -26,11 +27,8 @@
     "outDir": "./lib"
   },
   "exclude": [
-    "**/node_modules/**",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.test.js",
-    "../../node_modules/k8s/*"
+    "../projects/projects/**",
+    "**/node_modules/**"
   ],
   "include": [
     "./**/*.ts",

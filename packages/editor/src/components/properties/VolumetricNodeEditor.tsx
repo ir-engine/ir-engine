@@ -1,13 +1,38 @@
-// @ts-nocheck
-import { Video } from '@styled-icons/fa-solid/Video'
-import React from 'react'
+import VideocamIcon from '@mui/icons-material/Videocam'
+import React, { useState } from 'react'
 import InputGroup from '../inputs/InputGroup'
+import { Button } from '../inputs/Button'
 import AudioSourceProperties from './AudioSourceProperties'
 import NodeEditor from './NodeEditor'
-import useSetPropertySelected from './useSetPropertySelected'
-import i18n from 'i18next'
 import { useTranslation } from 'react-i18next'
-import FolderInput from '../inputs/FolderInput'
+import SelectInput from '../inputs/SelectInput'
+import ArrayInputGroup from '../inputs/ArrayInputGroup'
+import { ItemTypes } from '../../constants/AssetTypes'
+import { VolumetricFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import { EditorComponentType, updateProperty } from './Util'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
+import { VolumetricPlayMode } from '@xrengine/engine/src/scene/constants/VolumetricPlayMode'
+import { toggleVolumetric } from '@xrengine/engine/src/scene/functions/loaders/VolumetricFunctions'
+
+const PlayModeOptions = [
+  {
+    label: 'Single',
+    value: VolumetricPlayMode.Single
+  },
+  {
+    label: 'Random',
+    value: VolumetricPlayMode.Random
+  },
+  {
+    label: 'Loop',
+    value: VolumetricPlayMode.Loop
+  },
+  {
+    label: 'SingleLoop',
+    value: VolumetricPlayMode.SingleLoop
+  }
+]
 
 /**
  * VolumetricNodeEditor provides the editor view to customize properties.
@@ -16,29 +41,48 @@ import FolderInput from '../inputs/FolderInput'
  * @param       {any} props
  * @constructor
  */
-export function VolumetricNodeEditor(props) {
-  const { node } = props
+export const VolumetricNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const [isPlaying, setPlaying] = useState(false)
 
-  VolumetricNodeEditor.description = t('editor:properties.volumetric.description')
+  const toggle = () => {
+    setPlaying(toggleVolumetric(props.node.entity))
+  }
 
-  //function to handle the change in src property
-  const onChangeSrc = useSetPropertySelected('srcUrl')
+  const volumetricComponent = getComponent(props.node.entity, VolumetricComponent)
 
-  //returning editor view
   return (
-    <NodeEditor description={VolumetricNodeEditor.description} {...props}>
-      <InputGroup name="Volumetric" label={t('editor:properties.volumetric.lbl-volumetric')}>
-        <FolderInput value={node.srcUrl} onChange={onChangeSrc} />
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.volumetric.name')}
+      description={t('editor:properties.volumetric.description')}
+    >
+      <ArrayInputGroup
+        name="UVOL Paths"
+        prefix="uvol"
+        values={volumetricComponent.paths}
+        onChange={updateProperty(VolumetricComponent, 'paths')}
+        label={t('editor:properties.volumetric.uvolPaths')}
+        acceptFileTypes={VolumetricFileTypes}
+        itemType={ItemTypes.Volumetrics}
+      ></ArrayInputGroup>
+      <InputGroup name="Play Mode" label={t('editor:properties.volumetric.playmode')}>
+        <SelectInput
+          options={PlayModeOptions}
+          value={volumetricComponent.playMode}
+          onChange={updateProperty(VolumetricComponent, 'playMode')}
+        />
+        {volumetricComponent.paths && volumetricComponent.paths.length > 0 && volumetricComponent.paths[0] && (
+          <Button style={{ marginLeft: '5px', width: '60px' }} type="submit" onClick={toggle}>
+            {isPlaying ? t('editor:properties.volumetric.pausetitle') : t('editor:properties.volumetric.playtitle')}
+          </Button>
+        )}
       </InputGroup>
-      <AudioSourceProperties {...props} />
     </NodeEditor>
   )
 }
 
 //setting iconComponent with icon name
-VolumetricNodeEditor.iconComponent = Video
+VolumetricNodeEditor.iconComponent = VideocamIcon
 
-//setting description and will appear on editor view
-VolumetricNodeEditor.description = i18n.t('editor:properties.volumetric.description')
 export default VolumetricNodeEditor

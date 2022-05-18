@@ -3,7 +3,7 @@ import { store, useDispatch } from '../../store'
 import { AlertService } from '../../common/services/AlertService'
 import { accessAuthState } from '../../user/services/AuthService'
 
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 
 //State
 export const ROUTE_PAGE_LIMIT = 10000
@@ -46,8 +46,7 @@ export const ActiveRouteService = {
         ActiveRouteService.fetchActiveRoutes()
       }
     } catch (err) {
-      console.error(err)
-      AlertService.dispatchAlertError(err.message)
+      AlertService.dispatchAlertError(err)
     }
   },
   fetchActiveRoutes: async (incDec?: 'increment' | 'decrement') => {
@@ -59,8 +58,7 @@ export const ActiveRouteService = {
         dispatch(ActiveRouteActions.activeRoutesRetrievedAction(routes))
       }
     } catch (err) {
-      console.error(err)
-      AlertService.dispatchAlertError(err.message)
+      AlertService.dispatchAlertError(err)
     }
   }
 }

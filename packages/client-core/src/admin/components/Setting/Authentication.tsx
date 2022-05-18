@@ -1,39 +1,63 @@
-import React, { useEffect } from 'react'
-import { Grid, Paper, Button, Typography } from '@mui/material'
-import InputBase from '@mui/material/InputBase'
-import { useStyles } from './styles'
-import { useAuthState } from '../../../user/services/AuthService'
-import { useAdminAuthSettingState } from '../../services/Setting/AuthSettingService'
-import { AuthSettingService } from '../../services/Setting/AuthSettingService'
-import { useDispatch } from '../../../store'
-import Switch from '@mui/material/Switch'
-import IconButton from '@mui/material/IconButton'
 import { Icon } from '@iconify/react'
+import { Button, Grid, Paper, Typography } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
+import InputBase from '@mui/material/InputBase'
+import Switch from '@mui/material/Switch'
+import React, { useEffect, useState } from 'react'
+import { useAuthState } from '../../../user/services/AuthService'
+import { AuthSettingService, useAdminAuthSettingState } from '../../services/Setting/AuthSettingService'
+import { useStyles } from './styles'
 
 interface Props {}
+
 const initialState = {
   jwt: true,
-  local: true,
-  facebook: true,
-  github: true,
-  google: true,
-  linkedin: true,
-  twitter: true
+  local: false,
+  discord: false,
+  facebook: false,
+  github: false,
+  google: false,
+  linkedin: false,
+  twitter: false,
+  smsMagicLink: false,
+  emailMagicLink: false
 }
+
+const OAUTH_TYPES = {
+  DISCORD: 'discord',
+  FACEBOOK: 'facebook',
+  GITHUB: 'github',
+  GOOGLE: 'google',
+  LINKEDIN: 'linkedin',
+  TWITTER: 'twitter'
+}
+
 const Account = (props: Props) => {
   const classes = useStyles()
   const authSettingState = useAdminAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const id = authSetting?.id
-  const dispatch = useDispatch()
-  const [state, setState] = React.useState(initialState)
-  const [holdAuth, setHoldAuth] = React.useState(initialState)
-  const [showPassword, setShowPassword] = React.useState({
+  const [state, setState] = useState(initialState)
+  const [holdAuth, setHoldAuth] = useState(initialState)
+  const [keySecret, setKeySecret] = useState({
+    discord: authSetting?.oauth.discord,
+    github: authSetting?.oauth.github,
+    google: authSetting?.oauth.google,
+    twitter: authSetting?.oauth.twitter,
+    linkedin: authSetting?.oauth.linkedin,
+    facebook: authSetting?.oauth.facebook
+  })
+  const [showPassword, setShowPassword] = useState({
+    discord: {
+      key: false,
+      secret: false
+    },
     facebook: {
       key: false,
       secret: false
     },
     github: {
+      appid: false,
       key: false,
       secret: false
     },
@@ -68,14 +92,14 @@ const Account = (props: Props) => {
   const user = authState.user
 
   useEffect(() => {
-    if (user?.id?.value != null && authSettingState.updateNeeded.value) {
+    if (user?.id?.value != null && authSettingState?.updateNeeded?.value) {
       AuthSettingService.fetchAuthSetting()
     }
-  }, [authState.user?.id?.value])
+  }, [authState?.user?.id?.value, authSettingState?.updateNeeded?.value])
 
   useEffect(() => {
     if (authSetting) {
-      let temp = { ...state }
+      let temp = { ...initialState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy
@@ -83,21 +107,86 @@ const Account = (props: Props) => {
       })
       setState(temp)
       setHoldAuth(temp)
+
+      let tempKeySecret = JSON.parse(
+        JSON.stringify({
+          discord: authSetting?.oauth.discord,
+          github: authSetting?.oauth.github,
+          google: authSetting?.oauth.google,
+          twitter: authSetting?.oauth.twitter,
+          linkedin: authSetting?.oauth.linkedin,
+          facebook: authSetting?.oauth.facebook
+        })
+      )
+      setKeySecret(tempKeySecret)
     }
   }, [authSettingState?.updateNeeded?.value])
 
   const handleSubmit = () => {
-    const auth = Object.keys(state).map((prop) => ({ [prop]: state[prop] }))
-    AuthSettingService.pathAuthSetting({ authStrategies: JSON.stringify(auth) }, id)
+    const auth = Object.keys(state)
+      .filter((item) => (state[item] ? item : null))
+      .filter(Boolean)
+      .map((prop) => ({ [prop]: state[prop] }))
+
+    const oauth = { ...authSetting.oauth, ...keySecret }
+
+    for (let key of Object.keys(oauth)) {
+      oauth[key] = JSON.stringify(oauth[key])
+    }
+
+    AuthSettingService.patchAuthSetting({ authStrategies: JSON.stringify(auth), oauth: JSON.stringify(oauth) }, id)
   }
+
   const handleCancel = () => {
-    let temp = { ...state }
+    let temp = { ...initialState }
     authSetting?.authStrategies?.forEach((el) => {
       Object.entries(el).forEach(([strategyName, strategy]) => {
         temp[strategyName] = strategy
       })
     })
+
+    let tempKeySecret = JSON.parse(
+      JSON.stringify({
+        discord: authSetting?.oauth.discord,
+        github: authSetting?.oauth.github,
+        google: authSetting?.oauth.google,
+        twitter: authSetting?.oauth.twitter,
+        linkedin: authSetting?.oauth.linkedin,
+        facebook: authSetting?.oauth.facebook
+      })
+    )
+    setKeySecret(tempKeySecret)
     setState(temp)
+  }
+
+  const handleOnChangeAppId = (event, type) => {
+    setKeySecret({
+      ...keySecret,
+      [type]: {
+        ...keySecret[type],
+        appid: event.target.value
+      }
+    })
+  }
+
+  const handleOnChangeKey = (event, type) => {
+    setKeySecret({
+      ...keySecret,
+      [type]: {
+        ...keySecret[type],
+        key: event.target.value
+      }
+    })
+  }
+
+  const handleOnChangeSecret = (event, type) => {
+    setKeySecret({
+      ...keySecret,
+      [type]: {
+        ...keySecret[type],
+        secret: event.target.value
+      }
+    })
   }
 
   const onSwitchHandle = (event) => {
@@ -107,13 +196,11 @@ const Account = (props: Props) => {
   return (
     <div className={`${classes.root} ${classes.container}`}>
       <Typography component="h1" className={classes.settingsHeading}>
-        {' '}
         AUTHENTICATION
       </Typography>
-
       <form autoComplete="off" onSubmit={handleSubmit}>
         <Grid container spacing={3}>
-          <Grid item xs={6} sm={4}>
+          <Grid item xs={12} sm={6} md={4}>
             <label> Service</label>
             <Paper component="div" className={classes.createInput}>
               <InputBase
@@ -147,30 +234,25 @@ const Account = (props: Props) => {
             <Typography component="h1" className={classes.settingsHeading}>
               Authentication Strategies
             </Typography>
-
-            {authSetting?.authStrategies.map((el, i) => {
-              return Object.entries(el).map(([strategyName, strategy]) => (
-                <React.Fragment key={i}>
-                  <Paper component="div" className={classes.createInput} style={{ height: '2.5rem' }}>
-                    <Grid container direction="row" justifyContent="space-between" alignItems="stretch">
-                      <label>{strategyName}</label>
-                      <Switch
-                        // disabled
-                        checked={state[strategyName]}
-                        color="primary"
-                        name={strategyName}
-                        disabled={strategyName === 'jwt' ? true : false}
-                        onChange={onSwitchHandle}
-                        inputProps={{ 'aria-label': 'primary checkbox' }}
-                      />
-                    </Grid>
-                  </Paper>
-                </React.Fragment>
-              ))
-            })}
+            {Object.keys(state).map((strategyName, i) => (
+              <React.Fragment key={i}>
+                <Paper component="div" className={classes.createInput} style={{ height: '2.5rem' }}>
+                  <Grid container direction="row" justifyContent="space-between" alignItems="stretch">
+                    <label>{strategyName}</label>
+                    <Switch
+                      checked={state[strategyName]}
+                      color="primary"
+                      name={strategyName}
+                      disabled={strategyName === 'jwt'}
+                      onChange={onSwitchHandle}
+                      inputProps={{ 'aria-label': 'primary checkbox' }}
+                    />
+                  </Grid>
+                </Paper>
+              </React.Fragment>
+            ))}
           </Grid>
-
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6} md={4}>
             <label>Local</label>
             <Paper component="div" className={classes.createInput}>
               <label>User Name:</label>
@@ -224,16 +306,65 @@ const Account = (props: Props) => {
                 className={classes.input}
               />
             </Paper>
+            {holdAuth?.discord && (
+              <Paper className={classes.Paper} elevation={0}>
+                <label style={{ color: '#fff' }}>Discord</label>
+                <Paper component="div" className={classes.createInput}>
+                  <label>Key:</label>
+                  <InputBase
+                    value={keySecret?.discord?.key || ''}
+                    name="key"
+                    style={{ color: '#fff' }}
+                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.FACEBOOK)}
+                    className={classes.input}
+                    type={showPassword.discord.key ? 'text' : 'password'}
+                  />
+                  <IconButton onClick={() => handleShowPassword('discord-key')} size="large">
+                    <Icon
+                      icon={showPassword.discord.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                      color="orange"
+                    />
+                  </IconButton>
+                </Paper>
+                <Paper component="div" className={classes.createInput}>
+                  <label>Secret:</label>
+                  <InputBase
+                    value={keySecret?.discord?.secret || ''}
+                    name="secret"
+                    style={{ color: '#fff' }}
+                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.FACEBOOK)}
+                    className={classes.input}
+                    type={showPassword.discord.secret ? 'text' : 'password'}
+                  />
+                  <IconButton onClick={() => handleShowPassword('discord-secret')} size="large">
+                    <Icon
+                      icon={showPassword.discord.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                      color="orange"
+                    />
+                  </IconButton>
+                </Paper>
+                <Paper component="div" className={classes.createInput}>
+                  <label>Callback:</label>
+                  <InputBase
+                    value={authSetting?.callback?.discord || ''}
+                    name="callbackGithub"
+                    style={{ color: '#fff' }}
+                    disabled
+                    className={classes.input}
+                  />
+                </Paper>
+              </Paper>
+            )}
             {holdAuth?.facebook && (
               <Paper className={classes.Paper} elevation={0}>
                 <label style={{ color: '#fff' }}>Facebook</label>
                 <Paper component="div" className={classes.createInput}>
                   <label>Key:</label>
                   <InputBase
-                    value={authSetting?.oauth?.facebook?.key || ''}
+                    value={keySecret?.facebook?.key || ''}
                     name="key"
                     style={{ color: '#fff' }}
-                    disabled
+                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.FACEBOOK)}
                     className={classes.input}
                     type={showPassword.facebook.key ? 'text' : 'password'}
                   />
@@ -247,10 +378,10 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Secret:</label>
                   <InputBase
-                    value={authSetting?.oauth?.facebook?.secret || ''}
+                    value={keySecret?.facebook?.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
-                    disabled
+                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.FACEBOOK)}
                     className={classes.input}
                     type={showPassword.facebook.secret ? 'text' : 'password'}
                   />
@@ -277,12 +408,29 @@ const Account = (props: Props) => {
               <Paper className={classes.Paper} style={{ marginTop: '10px' }} elevation={0}>
                 <label style={{ color: '#fff' }}>Github</label>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Key:</label>
+                  <label>App ID:</label>
                   <InputBase
-                    value={authSetting?.oauth?.github?.key || ''}
+                    value={keySecret?.github?.appid || ''}
                     name="key"
                     style={{ color: '#fff' }}
-                    disabled
+                    onChange={(e) => handleOnChangeAppId(e, OAUTH_TYPES.GITHUB)}
+                    className={classes.input}
+                    type={showPassword.github.appid ? 'text' : 'password'}
+                  />
+                  <IconButton onClick={() => handleShowPassword('github-appid')} size="large">
+                    <Icon
+                      icon={showPassword.github.appid ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                      color="orange"
+                    />
+                  </IconButton>
+                </Paper>
+                <Paper component="div" className={classes.createInput}>
+                  <label>Key:</label>
+                  <InputBase
+                    value={keySecret?.github?.key || ''}
+                    name="key"
+                    style={{ color: '#fff' }}
+                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GITHUB)}
                     className={classes.input}
                     type={showPassword.github.key ? 'text' : 'password'}
                   />
@@ -296,10 +444,10 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Secret:</label>
                   <InputBase
-                    value={authSetting?.oauth?.github.secret || ''}
+                    value={keySecret?.github?.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
-                    disabled
+                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GITHUB)}
                     className={classes.input}
                     type={showPassword.github.secret ? 'text' : 'password'}
                   />
@@ -324,7 +472,7 @@ const Account = (props: Props) => {
               </Paper>
             )}
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6} md={4}>
             {holdAuth?.google && (
               <Paper className={classes.Paper} style={{ marginBottom: '10px' }} elevation={0}>
                 <label style={{ color: '#fff' }}>Google</label>
@@ -332,10 +480,10 @@ const Account = (props: Props) => {
                   <label>Key:</label>
                   <InputBase
                     type={showPassword.google.key ? 'text' : 'password'}
-                    value={authSetting?.oauth?.google.key || ''}
+                    value={keySecret?.google?.key || ''}
                     name="key"
                     style={{ color: '#fff' }}
-                    disabled
+                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GOOGLE)}
                     className={classes.input}
                   />
 
@@ -349,10 +497,10 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Secret:</label>
                   <InputBase
-                    value={authSetting?.oauth?.google?.secret || ''}
+                    value={keySecret?.google?.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
-                    disabled
+                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GOOGLE)}
                     className={classes.input}
                     type={showPassword.google.secret ? 'text' : 'password'}
                   />
@@ -376,17 +524,16 @@ const Account = (props: Props) => {
                 </Paper>
               </Paper>
             )}
-
             {holdAuth?.linkedin && (
               <Paper className={classes.Paper} style={{ marginBottom: '10px' }} elevation={0}>
                 <label style={{ color: '#fff' }}>LinkedIn</label>
                 <Paper component="div" className={classes.createInput}>
                   <label>Key:</label>
                   <InputBase
-                    value={authSetting?.oauth?.linkedin?.key || ''}
+                    value={keySecret?.linkedin?.key || ''}
                     name="key"
                     style={{ color: '#fff' }}
-                    disabled
+                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.LINKEDIN)}
                     className={classes.input}
                     type={showPassword.linkedin.key ? 'text' : 'password'}
                   />
@@ -400,10 +547,10 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Secret:</label>
                   <InputBase
-                    value={authSetting?.oauth?.linkedin?.secret || ''}
+                    value={keySecret?.linkedin?.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
-                    disabled
+                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.LINKEDIN)}
                     className={classes.input}
                     type={showPassword.linkedin.secret ? 'text' : 'password'}
                   />
@@ -426,17 +573,16 @@ const Account = (props: Props) => {
                 </Paper>
               </Paper>
             )}
-
             {holdAuth?.twitter && (
               <Paper className={classes.Paper} elevation={0} style={{ marginBottom: '10px' }}>
                 <label style={{ color: '#ffff' }}>Twitter</label>
                 <Paper component="div" className={classes.createInput}>
                   <label>Key:</label>
                   <InputBase
-                    value={authSetting?.oauth?.twitter?.key || ''}
+                    value={keySecret?.twitter?.key || ''}
                     name="key"
                     style={{ color: '#fff' }}
-                    disabled
+                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.TWITTER)}
                     className={classes.input}
                     type={showPassword.twitter.key ? 'text' : 'password'}
                   />
@@ -450,10 +596,10 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Secret:</label>
                   <InputBase
-                    value={authSetting?.oauth?.twitter?.secret || ''}
+                    value={keySecret?.twitter?.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
-                    disabled
+                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.TWITTER)}
                     className={classes.input}
                     type={showPassword.twitter.secret ? 'text' : 'password'}
                   />
@@ -479,11 +625,11 @@ const Account = (props: Props) => {
             )}
           </Grid>
         </Grid>
-        <Button variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
+        <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
           Cancel
         </Button>
         &nbsp; &nbsp;
-        <Button variant="contained" onClick={handleSubmit}>
+        <Button sx={{ maxWidth: '100%' }} variant="contained" onClick={handleSubmit}>
           Save
         </Button>
       </form>

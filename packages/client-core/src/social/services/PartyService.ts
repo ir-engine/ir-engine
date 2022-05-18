@@ -2,17 +2,16 @@
 // import { endVideoChat } from '@xrengine/client-networking/src/transports/SocketWebRTCClientFunctions';
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
-import { Config } from '@xrengine/common/src/config'
 import { AlertService } from '../../common/services/AlertService'
 import { UserAction } from '../../user/services/UserService'
 import { accessAuthState } from '../../user/services/AuthService'
 import { ChatService } from './ChatService'
-import { accessInstanceConnectionState } from '../../common/services/InstanceConnectionService'
+import { accessLocationInstanceConnectionState } from '../../common/services/LocationInstanceConnectionService'
 
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { PartyResult } from '@xrengine/common/src/interfaces/PartyResult'
 import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import _ from 'lodash'
 
 //State
@@ -28,7 +27,6 @@ store.receptors.push((action: PartyActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'LOADED_PARTY':
-        console.log('party loaded', action.party)
         return s.merge({ party: action.party, updateNeeded: false })
       case 'CREATED_PARTY':
         return s.updateNeeded.set(true)
@@ -40,7 +38,6 @@ store.receptors.push((action: PartyActionType): any => {
       case 'CREATED_PARTY_USER':
         newValues = action
         partyUser = newValues.partyUser
-        console.log('created party user', partyUser)
         updateMap = _.cloneDeep(s.party.value)
         if (updateMap != null) {
           updateMapPartyUsers = updateMap.partyUsers
@@ -55,7 +52,7 @@ store.receptors.push((action: PartyActionType): any => {
             : [partyUser]
           updateMap.partyUsers = updateMapPartyUsers
         }
-        return s.party.set(updateMap)
+        return s.merge({ party: updateMap, updateNeeded: true })
 
       case 'PATCHED_PARTY_USER':
         newValues = action
@@ -104,10 +101,10 @@ export const PartyService = {
     {
       try {
         // console.log('CALLING GETPARTY()');
-        const partyResult = await client.service('party').get(null)
+        const partyResult = await client.service('party').get()
         dispatch(PartyAction.loadedParty(partyResult))
       } catch (err) {
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -115,9 +112,7 @@ export const PartyService = {
   getParties: async (): Promise<void> => {
     let socketId: any
     const parties = await client.service('party').find()
-    console.log('PARTIES', parties)
     const userId = accessAuthState().user.id.value
-    console.log('USERID: ', userId)
     if ((client as any).io && socketId === undefined) {
       ;(client as any).io.emit('request-user-id', ({ id }: { id: number }) => {
         console.log('Socket-ID received: ', id)
@@ -161,28 +156,27 @@ export const PartyService = {
       try {
         await client.service('party').create({})
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
   removeParty: async (partyId: string) => {
     const dispatch = useDispatch()
     {
-      console.log('CALLING FEATHERS REMOVE PARTY')
       try {
         const channelResult = await client.service('channel').find({
           query: {
+            channelType: 'party',
             partyId: partyId
           }
         })
         if (channelResult.total > 0) {
           await client.service('channel').remove(channelResult.data[0].id)
         }
-        await client.service('party').remove(partyId)
+        const party = await client.service('party').remove(partyId)
+        dispatch(PartyAction.removedParty(party))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -192,8 +186,7 @@ export const PartyService = {
       try {
         await client.service('party-user').remove(partyUserId)
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -205,14 +198,13 @@ export const PartyService = {
           isOwner: 1
         })
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }
 }
 
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('party-user').on('created', async (params) => {
     const selfUser = accessAuthState().user
     if (accessPartyState().party == null) {
@@ -225,13 +217,13 @@ if (!Config.publicRuntimeConfig.offlineMode) {
       if (
         party.instanceId != null &&
         party.instanceId !== dbUser.instanceId &&
-        accessInstanceConnectionState().instanceProvisioning.value === false
+        accessLocationInstanceConnectionState().provisioning.value === false
       ) {
         const updateUser = dbUser
         updateUser.partyId = party.id
         store.dispatch(PartyAction.patchedPartyUser(updateUser))
         // TODO: Reenable me!
-        // await provisionInstanceServer(instance.locationId, instance.id)(store.dispatch, store.getState);
+        // await provisionServer(instance.locationId, instance.id)(store.dispatch, store.getState);
       }
     }
   })

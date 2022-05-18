@@ -1,6 +1,5 @@
 export const awsSeed = {
   path: 'aws-setting',
-  randomize: false,
   templates: [
     {
       keys: JSON.stringify({

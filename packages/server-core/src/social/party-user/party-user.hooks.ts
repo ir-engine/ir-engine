@@ -1,4 +1,4 @@
-import * as authentication from '@feathersjs/authentication'
+import authenticate from '../../hooks/authenticate'
 import partyPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-permission-authenticate'
 import partyUserPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-user-permission-authenticate'
 import { HookContext } from '@feathersjs/feathers'
@@ -10,11 +10,9 @@ import logger from '../../logger'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
-const { authenticate } = authentication.hooks
-
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate()],
     find: [iff(isProvider('external'), partyUserPermissionAuthenticate() as any)],
     get: [],
     create: [
@@ -22,10 +20,10 @@ export default {
         try {
           const { app, params, data } = context
           const loggedInUser = extractLoggedInUserFromParams(params)
-          const user = await app.service('user').get(loggedInUser.userId)
+          const user = await app.service('user').get(loggedInUser.id)
           const partyUserResult = await app.service('party-user').find({
             query: {
-              userId: loggedInUser.userId
+              userId: loggedInUser.id
             }
           })
 
@@ -36,12 +34,13 @@ export default {
           )
 
           if (data.userId == null) {
-            data.userId = loggedInUser.userId
+            data.userId = loggedInUser.id
           }
           context.params.oldInstanceId = user.instanceId
           return context
         } catch (err) {
           logger.error(err)
+          return null!
         }
       },
       partyPermissionAuthenticate()
@@ -99,17 +98,29 @@ export default {
     patch: [unsetSelfPartyOwner()],
     remove: [
       async (context: HookContext): Promise<HookContext> => {
-        const { app, params } = context
+        const { app, params, result } = context
         if (params.partyUsersRemoved !== true) {
-          const party = await app.service('party').get(params.query.partyId)
+          const party = await app.service('party').get(params.query!.partyId)
           const partyUserCount = await app.service('party-user').find({
             query: {
-              partyId: params.query.partyId,
+              partyId: params.query!.partyId,
               $limit: 0
             }
           })
           if (partyUserCount.total < 1 && party.locationId == null) {
-            await app.service('party').remove(params.query.partyId, params)
+            await app.service('party').remove(params.query!.partyId, params)
+          }
+          if (partyUserCount.total >= 1 && (result.isOwner === true || result.isOwner === 1)) {
+            const partyUserResult = await app.service('party-user').find({
+              query: {
+                partyId: params.query!.partyId
+              }
+            })
+            const partyUsers = partyUserResult.data
+            const newOwner = partyUsers[Math.floor(Math.random() * partyUsers.length)]
+            await app.service('party-user').patch(newOwner.id, {
+              isOwner: true
+            })
           }
         }
         return context

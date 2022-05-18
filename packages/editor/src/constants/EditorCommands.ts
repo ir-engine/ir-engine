@@ -21,12 +21,11 @@ export enum TransformCommands {
   POSITION = 11,
   ROTATION = 12,
   SCALE = 13,
-  ROTATE_ON_AXIS = 14,
-  ROTATE_AROUND = 15
+  ROTATE_AROUND = 14
 }
 
 export enum MiscCommands {
-  LOAD_MATERIAL_SLOT = 17
+  TAG_COMPONENT = 15
 }
 
 export const EditorCommands = {

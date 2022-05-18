@@ -3,12 +3,12 @@
  */
 import { AlertService } from '../../common/services/AlertService'
 import { useDispatch } from '../../store'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { store } from '../../store'
 
 //State
 const state = createState({
-  webxrnative: null
+  webxrnative: false
 })
 
 store.receptors.push((action: WebxrNativeActionType): any => {
@@ -34,8 +34,7 @@ export const WebxrNativeService = {
       try {
         dispatch(WebxrNativeAction.setWebXrNative())
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -46,8 +45,7 @@ export const WebxrNativeService = {
       try {
         dispatch(WebxrNativeAction.tougleWebXrNative())
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

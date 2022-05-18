@@ -4,13 +4,12 @@
     "lib": [
       "esnext",
       "dom",
-      "dom.iterable",
-      "WebWorker"
+      "dom.iterable"
     ],
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": false,
+    "noEmit": true,
     "module": "CommonJS",
     "strict": false,
     "strictNullChecks": true,
@@ -28,8 +27,8 @@
     "outDir": "./lib"
   },
   "exclude": [
-    "**/node_modules/**",
-    "tests old/*"
+    "../projects/projects/**",
+    "**/node_modules/**"
   ],
   "include": [
     "./**/*.ts",

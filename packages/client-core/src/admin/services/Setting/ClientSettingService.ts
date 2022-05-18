@@ -2,8 +2,9 @@ import { client } from '../../../feathers'
 import { AlertService } from '../../../common/services/AlertService'
 import { useDispatch, store } from '../../../store'
 import { ClientSettingResult } from '@xrengine/common/src/interfaces/ClientSettingResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { ClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
+import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
 //State
 const state = createState({
@@ -16,6 +17,8 @@ store.receptors.push((action: ClientSettingActionType): any => {
     switch (action.type) {
       case 'CLIENT_SETTING_DISPLAY':
         return s.merge({ client: action.clientSettingResult.data, updateNeeded: false })
+      case 'CLIENT_SETTING_PATCHED':
+        return s.updateNeeded.set(true)
     }
   }, action.type)
 })
@@ -26,14 +29,27 @@ export const useClientSettingState = () => useState(state) as any as typeof stat
 
 //Service
 export const ClientSettingService = {
-  fetchedClientSettings: async (inDec?: 'increment' | 'decrement') => {
+  fetchClientSettings: async (inDec?: 'increment' | 'decrement') => {
     const dispatch = useDispatch()
     try {
+      await waitForClientAuthenticated()
       const clientSettings = await client.service('client-setting').find()
       dispatch(ClientSettingAction.fetchedClient(clientSettings))
     } catch (error) {
       console.error(error.message)
       AlertService.dispatchAlertError(error.message)
+    }
+  },
+  patchClientSetting: async (data: any, id: string) => {
+    const dispatch = useDispatch()
+    {
+      try {
+        await client.service('client-setting').patch(id, data)
+        dispatch(ClientSettingAction.clientSettingPatched())
+      } catch (err) {
+        console.log(err)
+        AlertService.dispatchAlertError(err.message)
+      }
     }
   }
 }
@@ -44,6 +60,11 @@ export const ClientSettingAction = {
     return {
       type: 'CLIENT_SETTING_DISPLAY' as const,
       clientSettingResult: clientSettingResult
+    }
+  },
+  clientSettingPatched: () => {
+    return {
+      type: 'CLIENT_SETTING_PATCHED' as const
     }
   }
 }

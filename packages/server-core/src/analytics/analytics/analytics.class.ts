@@ -17,11 +17,11 @@ export class Analytics extends Service {
   }
 
   async find(params: Params): Promise<any> {
-    if (params.query.action === 'dailyUsers') {
-      const limit = params.query.$limit || 30
+    if (params.query!.action === 'dailyUsers') {
+      const limit = params.query!.$limit || 30
       const returned = {
         total: limit,
-        data: []
+        data: [] as Array<any>
       }
       const currentDate = new Date()
       for (let i = 0; i < limit; i++) {
@@ -41,11 +41,11 @@ export class Analytics extends Service {
         })
       }
       return returned
-    } else if (params.query.action === 'dailyNewUsers') {
-      const limit = params.query.$limit || 30
+    } else if (params.query!.action === 'dailyNewUsers') {
+      const limit = params.query!.$limit || 30
       const returned = {
         total: limit,
-        data: []
+        data: [] as Array<any>
       }
       const currentDate = new Date()
       for (let i = 0; i < limit; i++) {

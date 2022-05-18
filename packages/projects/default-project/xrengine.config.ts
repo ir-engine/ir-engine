@@ -1,6 +1,7 @@
 import type { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
 
 const config: ProjectConfigInterface = {
+  onEvent: './projectEventHooks.ts',
   thumbnail: '/static/xrengine_thumbnail.jpg',
   routes: {
     '/': {
@@ -11,9 +12,6 @@ const config: ProjectConfigInterface = {
     },
     '/login': {
       component: () => import('@xrengine/client/src/pages/login')
-    },
-    '/harmony': {
-      component: () => import('@xrengine/client/src/pages/harmony/index')
     },
     '/admin': {
       component: () => import('@xrengine/client-core/src/admin/adminRoutes')
@@ -29,6 +27,15 @@ const config: ProjectConfigInterface = {
     },
     '/examples': {
       component: () => import('@xrengine/client/src/pages/examples/index')
+    },
+    '/inventory': {
+      component: () => import('@xrengine/client-core/src/user/components/UserMenu/Inventory/index')
+    },
+    '/trading': {
+      component: () => import('@xrengine/client-core/src/user/components/UserMenu/Trading/index')
+    },
+    '/wallet': {
+      component: () => import('@xrengine/client-core/src/user/components/UserMenu/Wallet/index')
     }
   },
   services: undefined,

@@ -9,7 +9,7 @@ export default (): Hook => {
     await app.service('match-user').create({
       ticketId: result.id,
       gamemode: data.gamemode,
-      userId: loggedInUser.userId
+      userId: loggedInUser.id
     })
 
     return context

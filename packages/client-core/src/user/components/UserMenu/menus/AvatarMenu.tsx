@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
-import { NavigateNext, NavigateBefore, Check, ArrowBack, PersonAdd, Delete, Close } from '@mui/icons-material'
+import { NavigateNext, NavigateBefore, Check, PersonAdd, Delete, Close } from '@mui/icons-material'
 import styles from '../UserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
 import { LazyImage } from '../../../../common/components/LazyImage'
@@ -20,7 +20,7 @@ const AvatarMenu = (props: any): any => {
   const [imgPerPage, setImgPerPage] = useState(getAvatarPerPage())
   const [selectedAvatarId, setSelectedAvatarId] = useState('')
   const [isAvatarLoaded, setAvatarLoaded] = useState(false)
-  const [avatarTobeDeleted, setAvatarTobeDeleted] = useState(null)
+  const [avatarTobeDeleted, setAvatarTobeDeleted] = useState<any>(null!)
   let [menuRadius, setMenuRadius] = useState(window.innerWidth > 360 ? 182 : 150)
 
   let menuPadding = window.innerWidth > 360 ? 15 : 10
@@ -117,7 +117,7 @@ const AvatarMenu = (props: any): any => {
   }
 
   const renderAvatarList = () => {
-    const avatarList = []
+    const avatarList = [] as JSX.Element[]
     const startIndex = page * imgPerPage
     const endIndex = Math.min(startIndex + imgPerPage, props.avatarList.length)
     let angle = 0
@@ -142,9 +142,9 @@ const AvatarMenu = (props: any): any => {
             transform: `translate(${x}px , ${y}px)`
           }}
         >
-          <div type="button" className={styles.iconBlock} onClick={openAvatarSelectMenu}>
+          <button type="button" className={styles.iconBlock} onClick={openAvatarSelectMenu}>
             <PersonAdd />
-          </div>
+          </button>
         </div>
       )
     } else {

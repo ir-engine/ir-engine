@@ -1,4 +1,4 @@
-import { PositionalAudio, Audio as AudioObject } from 'three'
+import { Audio as AudioObject } from 'three'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
@@ -11,12 +11,18 @@ import {
   PositionalAudioSettingsComponent,
   PositionalAudioSettingsComponentType
 } from '../../scene/components/AudioSettingsComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 import { AudioTagComponent } from '../components/AudioTagComponent'
-import { AudioComponent } from '../components/AudioComponent'
-import { System } from '../../ecs/classes/System'
+import { AudioComponent, AudioComponentType } from '../components/AudioComponent'
 import { World } from '../../ecs/classes/World'
+import { EngineActionType } from '../../ecs/classes/EngineService'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import {
+  deserializeAudio,
+  SCENE_COMPONENT_AUDIO,
+  SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
+  updateAudio
+} from '../../scene/functions/loaders/AudioFunctions'
+import { AudioType } from '../constants/AudioConstants'
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== 'undefined' && /chrome/i.test(navigator.userAgent)
 function createSilentAudioEl(streamsLive) {
@@ -30,61 +36,57 @@ function createSilentAudioEl(streamsLive) {
 
 /** System class which provides methods for Positional Audio system. */
 
-export default async function PositionalAudioSystem(world: World): Promise<System> {
-  const positionalAudioQuery = defineQuery([PositionalAudioComponent, TransformComponent])
+export default async function PositionalAudioSystem(world: World) {
   const avatarAudioQuery = defineQuery([AudioTagComponent, AvatarComponent])
   const audioQuery = defineQuery([AudioTagComponent])
   const settingsQuery = defineQuery([PositionalAudioSettingsComponent])
 
   const avatarAudioStream: Map<Entity, any> = new Map()
 
-  Engine.useAudioSystem = true
-  Engine.spatialAudio = true
-
   let audioContextSuspended = true
   let startSuspendedContexts = false
   let suspendPositionalAudio = false
-
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS, () => {
-    startSuspendedContexts = true
-    audioContextSuspended = false
-    console.log('starting suspended audio nodes')
-  })
-
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO, () => {
-    suspendPositionalAudio = true
-  })
-
-  let positionalAudioSettings: ReturnType<typeof PositionalAudioSettingsComponent.get>
-
-  const applyMediaAudioSettings = (positionalAudio, setVolume = true) => {
-    if (positionalAudioSettings.usePositionalAudio == false) {
-      return
+  Engine.currentWorld.receptors.push((action: EngineActionType) => {
+    switch (action.type) {
+      case EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS:
+        startSuspendedContexts = true
+        audioContextSuspended = false
+        console.log('starting suspended audio nodes')
+        break
+      case EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO:
+        suspendPositionalAudio = true
+        break
     }
-    positionalAudio.setDistanceModel(positionalAudioSettings.mediaDistanceModel)
-    positionalAudio.setMaxDistance(positionalAudioSettings.mediaMaxDistance)
-    positionalAudio.setRefDistance(positionalAudioSettings.mediaRefDistance)
-    positionalAudio.setRolloffFactor(positionalAudioSettings.mediaRolloffFactor)
-    if (setVolume) positionalAudio.setVolume(positionalAudioSettings.mediaVolume)
+  })
+
+  let positionalAudioSettings: PositionalAudioSettingsComponentType
+
+  const applyMediaAudioSettings = (props: AudioComponentType, setVolume = true): AudioComponentType => {
+    props.audioType = positionalAudioSettings.usePositionalAudio ? AudioType.Positional : AudioType.Stereo
+    props.distanceModel = positionalAudioSettings.mediaDistanceModel
+    props.maxDistance = positionalAudioSettings.mediaMaxDistance
+    props.refDistance = positionalAudioSettings.mediaRefDistance
+    props.rolloffFactor = positionalAudioSettings.mediaRolloffFactor
+    if (setVolume) props.volume = positionalAudioSettings.mediaVolume
+
+    return props
   }
 
   return () => {
     if (startSuspendedContexts) {
       for (const entity of avatarAudioQuery()) {
-        const audio = positionalAudioSettings?.usePositionalAudio
-          ? getComponent(entity, PositionalAudioComponent)
-          : getComponent(entity, AudioComponent)
-        if (audio?.value?.context?.state === 'suspended') audio.value.context.resume()
+        const audio = getComponent(entity, Object3DComponent).value
+        const audioEl = audio?.userData.audioEl
+        if (audioEl && audioEl.context?.state === 'suspended') audioEl.context.resume()
       }
       startSuspendedContexts = false
     }
 
     if (suspendPositionalAudio) {
       for (const entity of avatarAudioQuery()) {
-        const audio = positionalAudioSettings?.usePositionalAudio
-          ? getComponent(entity, PositionalAudioComponent)
-          : getComponent(entity, AudioComponent)
-        audio.value.context.suspend()
+        const audio = getComponent(entity, Object3DComponent).value
+        const audioEl = audio?.userData.audioEl
+        if (audioEl && audioEl.context) audioEl.context.suspend()
       }
       suspendPositionalAudio = false
     }
@@ -94,15 +96,14 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
     }
 
     for (const entity of audioQuery.exit()) {
-      const positionalAudio =
-        getComponent(entity, PositionalAudioComponent, true) ?? getComponent(entity, AudioComponent, true)
-      if (positionalAudio?.value?.source) positionalAudio.value.disconnect()
+      const obj3d = getComponent(entity, Object3DComponent, true)
+      if (obj3d && obj3d.value.userData.audioEl?.source) obj3d.value.userData.audioEl.disconnect()
     }
 
     for (const entity of avatarAudioQuery.enter()) {
       const entityNetworkObject = getComponent(entity, NetworkObjectComponent)
       if (entityNetworkObject) {
-        const peerId = entityNetworkObject.uniqueId
+        const peerId = entityNetworkObject.ownerId
         const consumer = MediaStreams.instance?.consumers.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
         )
@@ -110,70 +111,48 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
           avatarAudioStream.delete(entity)
         }
       }
-      if (positionalAudioSettings?.usePositionalAudio) {
-        const positionalAudio = addComponent(entity, PositionalAudioComponent, {
-          value: new PositionalAudio(Engine.audioListener)
-        })
-        positionalAudio.value.matrixAutoUpdate = false
-        applyMediaAudioSettings(positionalAudio.value)
-        if (positionalAudio != null) Engine.scene.add(positionalAudio.value)
-      } else {
-        const audio = addComponent(entity, AudioComponent, { value: new AudioObject<GainNode>(Engine.audioListener) })
-        if (audio != null) Engine.scene.add(audio.value)
-        audio.value.matrixAutoUpdate = false
-      }
+
+      const props = applyMediaAudioSettings(SCENE_COMPONENT_AUDIO_DEFAULT_VALUES)
+      addComponent(entity, AudioComponent, props)
+      updateAudio(entity, props)
     }
 
     for (const entity of avatarAudioQuery.exit()) {
       avatarAudioStream.delete(entity)
     }
 
-    for (const entity of positionalAudioQuery()) {
-      const positionalAudio = getComponent(entity, PositionalAudioComponent)
-      const transform = getComponent(entity, TransformComponent)
-
-      positionalAudio.value?.position.copy(transform.position)
-      positionalAudio.value?.rotation.setFromQuaternion(transform.rotation)
-
-      if (!audioContextSuspended) {
-        positionalAudio.value.updateMatrix()
-      }
-    }
-
     for (const entity of avatarAudioQuery()) {
-      if (hasComponent(entity, LocalInputTagComponent)) {
-        continue
-      }
+      if (hasComponent(entity, LocalInputTagComponent)) continue
+
       const entityNetworkObject = getComponent(entity, NetworkObjectComponent)
       let consumer
       if (entityNetworkObject != null) {
-        const peerId = entityNetworkObject.uniqueId
+        const peerId = entityNetworkObject.ownerId
         consumer = MediaStreams.instance?.consumers.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
         )
       }
 
-      if (avatarAudioStream.has(entity) && consumer != null && consumer.id === avatarAudioStream.get(entity).id) {
-        continue
-      }
-
-      if (!consumer) {
-        continue
-      }
+      if (!consumer) continue
+      if (avatarAudioStream.has(entity) && consumer.id === avatarAudioStream.get(entity).id) continue
 
       const consumerLive = consumer.track
       avatarAudioStream.set(entity, consumerLive)
-      const avatarAudio = getComponent(entity, PositionalAudioComponent) ?? getComponent(entity, AudioComponent)
       const streamsLive = new MediaStream([consumerLive.clone()])
 
       if (SHOULD_CREATE_SILENT_AUDIO_ELS) {
         createSilentAudioEl(streamsLive) // TODO: Do the audio els need to get cleaned up?
       }
 
-      const audioStreamSource = avatarAudio.value.context.createMediaStreamSource(streamsLive)
-      if (avatarAudio.value.context.state === 'suspended') avatarAudio.value.context.resume()
+      const avatarAudio = getComponent(entity, Object3DComponent)?.value
 
-      avatarAudio.value.setNodeSource(audioStreamSource as unknown as AudioBufferSourceNode)
+      if (avatarAudio) {
+        const audioEl = avatarAudio.userData.audioEl as AudioObject
+        const audioStreamSource = audioEl.context.createMediaStreamSource(streamsLive)
+        if (audioEl.context.state === 'suspended') audioEl.context.resume()
+
+        audioEl.setNodeSource(audioStreamSource as unknown as AudioBufferSourceNode)
+      }
     }
   }
 }

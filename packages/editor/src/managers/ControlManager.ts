@@ -11,6 +11,7 @@ import { addInputActionMapping } from '../functions/parseInputActionMapping'
 import { CommandManager } from './CommandManager'
 import { SceneManager } from './SceneManager'
 import { setTransformMode } from '../systems/EditorControlSystem'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
 export class ControlManager {
   static instance: ControlManager = new ControlManager()
@@ -20,8 +21,8 @@ export class ControlManager {
   isInPlayMode: boolean
 
   constructor() {
-    this.inputManager = null
-    this.playModeControls = null
+    this.inputManager = null!
+    this.playModeControls = null!
     this.isInPlayMode = false
   }
 
@@ -29,17 +30,18 @@ export class ControlManager {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (editorControlComponent.transformMode === TransformMode.Grab) {
       const checkpoint = editorControlComponent.grabHistoryCheckpoint
-      setTransformMode(editorControlComponent.transformModeOnCancel, null, editorControlComponent)
+      setTransformMode(editorControlComponent.transformModeOnCancel, false, editorControlComponent)
       CommandManager.instance.revert(checkpoint)
     } else if (editorControlComponent.transformMode === TransformMode.Placement) {
-      setTransformMode(editorControlComponent.transformModeOnCancel, null, editorControlComponent)
-      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
+      setTransformMode(editorControlComponent.transformModeOnCancel, false, editorControlComponent)
+      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS, {
+        deselectObject: true
+      })
     }
   }
 
   onSelectionChanged = () => {
-    const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
-    editorControlComponent.selectionChanged = true
+    getComponent(SceneManager.instance.editorEntity, EditorControlComponent).selectionChanged = true
   }
 
   onObjectsChanged = (_objects, property) => {
@@ -70,13 +72,10 @@ export class ControlManager {
   enterPlayMode() {
     this.isInPlayMode = true
     CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
-    Engine.camera.layers.disable(1)
+    Engine.camera.layers.disable(ObjectLayers.Scene)
+    Engine.camera.layers.disable(ObjectLayers.PhysicsHelper)
+    Engine.camera.layers.disable(ObjectLayers.NodeHelper)
     this.playModeControls.enable()
-    Engine.scene.traverse((node: any) => {
-      if (node.isNode) {
-        node.onPlay()
-      }
-    })
     CommandManager.instance.emitEvent(EditorEvents.PLAY_MODE_CHANGED)
   }
 
@@ -87,13 +86,10 @@ export class ControlManager {
    */
   leavePlayMode() {
     this.isInPlayMode = false
-    Engine.camera.layers.enable(1)
+    Engine.camera.layers.enable(ObjectLayers.Scene)
+    Engine.camera.layers.enable(ObjectLayers.PhysicsHelper)
+    Engine.camera.layers.enable(ObjectLayers.NodeHelper)
     this.playModeControls.disable()
-    Engine.scene.traverse((node: any) => {
-      if (node.isNode) {
-        node.onPause()
-      }
-    })
     CommandManager.instance.emitEvent(EditorEvents.PLAY_MODE_CHANGED)
   }
 

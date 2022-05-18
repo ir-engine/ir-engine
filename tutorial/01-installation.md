@@ -6,14 +6,18 @@ Getting up and running requires just a few steps, but this can be tricky, depend
 `git clone https://github.com/XRFoundation/XREngine --depth 1`
 
 ### Ensure you are on Node 16 or above
+
 You **must** have Node 16 or above installed.
 
-NVM can be a useful tool for this https://github.com/nvm-sh/nvm
+A version manager can be helpful for this:
+ - NodeJS only: [NVM](https://github.com/nvm-sh/nvm)
+ - Polyglot: [ASDF](https://github.com/asdf-vm/asdf)
 
 Before running the engine, please check `node --version`
 If you are using a node version below 16, please update or nothing will work. You will know you are having issues if you try to install at root and are getting dependency errors.
 
 ### Docker is your friend
+
 You don't need to use Docker, but it will make your life much easier.
 You can get it [here](https://docs.docker.com/).
 If you don't wish to use Docker, you will need to setup mariadb and redis on your machine. You can find credentials in `xrengine/scripts/docker-compose.yml`
@@ -32,47 +36,31 @@ First, open a wsl prompt. Then type these commands:
 sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install build-essential
-npm install -g node-gyp
-npm config set python /usr/bin/python
-PYTHON=python3 npm install
+npm install
+npm install mediasoup@3 --save
+sudo service docker start
+npm run dev-docker
+npm run dev-reinit
 ```
 
 Please make sure you've followed everything in these instructions:
 https://mediasoup.org/documentation/v3/mediasoup/installation/
 
 ### Installing on Native Windows
-1. Add Env Variable
-```
-PUPPETEER_SKIP_DOWNLOAD='true'
-```
-2. install python 2 and add python installation directory path to 'path' env variable.
+1. install python 3 and add python installation directory path to 'path' env variable.
 
-3. Install node js
+2. Install node js
 
-4. install Visual studio community edition with build tools. follow next steps. If mediasoup will not installed properly then modify Visual studio setup to add c++ and Node.js support.
+3. install Visual studio community edition with build tools. follow next steps. If mediasoup will not installed properly then modify Visual studio setup to add c++ and Node.js support.
 
-5. add environmental variable
-```
-GYP_MSVS_VERSION=<vs-year>
-for example, GYP_MSVS_VERSION=2019
-```
-
-6. add path to MSbuild.exe (which is present into vs installation folder) into 'path' variable
+4. add path to MSbuild.exe (which is present into vs installation folder) into 'path' variable
 for example:``` C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin```
 
-7. remove mediasoup and mediasoup-client from every package.json. This will enable us to add all the dependencies except mediasoup, this way we can save time while dealing with mediasoup.
+5. install all dependences using npm.
 
-8. rename 'postinstall' to 'postinstall-1' so that it will not run after installing dependencies.
+6. If error persists then check for typos in environment variables.
 
-9. install all dependences using npm.
-
-10. add back all removed mediasoup and mediasoup-client dependencies.
-
-11. Rerun npm command to install dependencies to install newly added mediasoup and mediasoup-client dependencies.
-
-12. If error persists then check for typos in environment variables.
-
-13. If you are on Windows, you can use docker-compose to start the scripts/docker-compose.yml file, or install mariadb and copy the login/pass and database name from docker-compose or .env.local -- you will need to create the database with the matching name, but you do not need to populate it
+7. If you are on Windows, you can use docker-compose to start the scripts/docker-compose.yml file, or install mariadb and copy the login/pass and database name from docker-compose or .env.local -- you will need to create the database with the matching name, but you do not need to populate it
 
 ./start-db.sh only needs to be run once. If the docker image has stopped, start it again with:
 
@@ -80,7 +68,7 @@ for example:``` C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MS
     docker container start xrengine_db
 ```
 
-15. Check your WSL Config for any incorrect networking settings. 
+8. Check your WSL Config for any incorrect networking settings. 
 https://docs.microsoft.com/en-us/windows/wsl/wsl-config#network
 
 ### Installing on a Mac 
@@ -89,13 +77,15 @@ https://docs.microsoft.com/en-us/windows/wsl/wsl-config#network
 
 ```
    npm install
+   npm run dev-docker
+   npm run dev-reinit
 ```
 
 Or if you are on a M1 based Mac
 
 (Recommended)
 1) Duplicate the Terminal app, and configure it to run in Rosetta 
-2) Run `npm install` in Rosetta Terminal
+2) Run the above in Rosetta Terminal
 
 (Not recommended) 
 ```
@@ -141,6 +131,8 @@ If you are lucky, this will just work. However, you will may encounter some issu
 ```
 cd path/to/xrengine
 npm install
+npm run dev-docker
+npm run dev-reinit
 npm run dev
 ```
 
@@ -162,6 +154,8 @@ If you want to setup XREngine docker instances, client, server, and/or game-serv
 ```
 cd path/to/xrengine
 npm install
+npm run dev-docker
+npm run dev-reinit
 ```
 
 You should not need to use sudo in any case.
@@ -205,15 +199,19 @@ The default username is 'server', the default password is 'password', the defaul
 ### 4. Start the server in database seed mode
 
    Several tables in the database need to be seeded with default values.
-   Run ```cd packages/server```, then run ```npm run dev-reinit-db```.
+   Run ```npm run dev-reinit``` or if on windows ```npm run dev-reinit-windows```
    After several seconds, there should be no more logging.
    Some of the final lines should read like this:
-   ```Executing (default): SELECT 'id', 'name', 'sceneId', 'locationSettingsId', 'slugifiedName', 'maxUsersPerInstance', 'createdAt', 'updatedAt' FROM 'location' AS 'location' WHERE ('location'.'id' = '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61') AND 'location'.'id' IN ('98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'); Seeded```
+   ```
+   Server Ready
+   Executing (default): SET FOREIGN_KEY_CHECKS = 1
+   Server EXIT
+   ```
    
-    At this point, the database has been seeded. You can shut down the server with CTRL+C.
+   At this point, the database has been seeded.
 
 ### 5. Local file server configuration
-   If the .env.local file y ou have has the line 
+   If the .env.local file you have has the line 
    ```STORAGE_PROVIDER=local```
    then the scene editor will save components, models, scenes, etc. locally 
    (as opposed to storing them on S3). You will need to start a local server
@@ -225,7 +223,7 @@ The default username is 'server', the default password is 'password', the defaul
    You may have to accept the invalid self-signed certificate for it in the browser;
    see 'Allow local file http-server connection with invalid certificate' below.
 
-### 6. Open two/three separate tabs and start the API server, gameserverand client
+### 6. Open two/three separate tabs and start the API server, gameserver and client
    In /packages/server, run ```npm run dev``` which will launch the api server, game server and file server.
    If you are not using gameservers, you can instead run ```npm run dev-api-server``` in the api server.
    In the final tab, go to /packages/client and run ```npm run dev```.
@@ -244,7 +242,7 @@ How to make a user an admin:
 Create a user at `/login`
 
 To locate your User ID:
-In Chrome Dev Tools, write `UserId`. This will display your User ID (As shown in attached screenshot). Copy this user Id as string run it as following command in shell:
+In Chrome Dev Tools console, write `copy(userId)`. This will copy your User ID (As shown in attached screenshot). Paste it in and run the following command in a 'nix shell (e.g. Bash, ZSH):
 
 `npm run make-user-admin -- --id={COPIED_USER_ID}`
 
@@ -253,13 +251,9 @@ Example:
 
 ![image](https://user-images.githubusercontent.com/43248658/142813912-35f450e1-f012-4bdf-adfa-f0fa2816160f.png)
 
-
-Method 1: 
-
-1. Run `npm run make-user-admin -- --id=[USER ID]` 
 2. TODO: Improve with email/phone ID support
 
-Method 2: 
+Alternate Method: 
 1. Look up in User table and change userRole to 'admin' 
 2. Dev DB credentials can be found here: packages/ops/docker-compose-local.yml#L42
 3. Suggested: beekeeperstudio.io

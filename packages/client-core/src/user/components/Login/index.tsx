@@ -1,20 +1,32 @@
-import React, { useState } from 'react'
-import { useDispatch } from '../../../store'
-import CardMedia from '@mui/material/CardMedia'
-import { Google } from '@styled-icons/bootstrap/Google'
-import { Facebook } from '@styled-icons/bootstrap/Facebook'
-import Fab from '@mui/material/Fab'
-import styles from './Login.module.scss'
-import { Config } from '@xrengine/common/src/config'
-import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
+import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined'
+import GoogleIcon from '@mui/icons-material/Google'
+import Button from '@mui/material/Button'
+import CardMedia from '@mui/material/CardMedia'
+import Fab from '@mui/material/Fab'
+import Typography from '@mui/material/Typography'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router-dom'
+import { AuthSettingService, useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import ForgotPassword from '../../../user/components/Auth/ForgotPassword'
 import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp'
 import RegisterApp from '../../../user/components/Auth/RegisterApp'
 import ResetPassword from '../../../user/components/Auth/ResetPassword'
 import { AuthService } from '../../services/AuthService'
-import { useTranslation } from 'react-i18next'
+import styles from './Login.module.scss'
+
+const initialState = {
+  jwt: true,
+  local: false,
+  facebook: false,
+  github: false,
+  google: false,
+  linkedin: false,
+  twitter: false,
+  smsMagicLink: false,
+  emailMagicLink: false
+}
 
 interface Props {
   auth?: any
@@ -26,18 +38,17 @@ interface Props {
 }
 const FlatSignIn = (props: Props) => {
   const [view, setView] = useState('login')
-  const enableUserPassword = Config.publicRuntimeConfig?.auth
-    ? Config.publicRuntimeConfig.auth.enableUserPassword
-    : false
-  const enableGoogleSocial = Config.publicRuntimeConfig?.auth
-    ? Config.publicRuntimeConfig.auth.enableGoogleSocial
-    : false
-  const enableFacebookSocial = Config.publicRuntimeConfig?.auth
-    ? Config.publicRuntimeConfig.auth.enableFacebookSocial
-    : false
-  const { t } = useTranslation()
 
-  const dispatch = useDispatch()
+  const { t } = useTranslation()
+  const location: any = useLocation()
+
+  const authSettingState = useAdminAuthSettingState()
+  const [authSetting] = authSettingState?.authSettings?.value || []
+  const [authState, setAuthState] = useState(initialState)
+
+  const enableUserPassword = authState?.local
+  const enableGoogleSocial = authState?.google
+  const enableFacebookSocial = authState?.facebook
 
   const socials = [enableGoogleSocial, enableFacebookSocial]
 
@@ -45,22 +56,38 @@ const FlatSignIn = (props: Props) => {
 
   const userTabPanel = enableUserPassword && <PasswordLoginApp />
 
+  useEffect(() => {
+    !authSetting && AuthSettingService.fetchAuthSetting()
+  }, [])
+
+  useEffect(() => {
+    if (authSetting) {
+      let temp = { ...initialState }
+      authSetting?.authStrategies?.forEach((el) => {
+        Object.entries(el).forEach(([strategyName, strategy]) => {
+          temp[strategyName] = strategy
+        })
+      })
+      setAuthState(temp)
+    }
+  }, [authSettingState?.updateNeeded?.value])
+
   const handleGoogleLogin = (e: any): void => {
     e.preventDefault()
-    AuthService.loginUserByOAuth('google')
+    AuthService.loginUserByOAuth('google', location)
   }
 
   const handleFacebookLogin = (e: any): void => {
     e.preventDefault()
-    AuthService.loginUserByOAuth('facebook')
+    AuthService.loginUserByOAuth('facebook', location)
   }
 
   const handleResetPassword = (token: string, password: string): any => {
     AuthService.resetPassword(token, password)
   }
 
-  let component = null
-  let footer = null
+  let component = null! as any
+  let footer = null! as any
 
   switch (view) {
     case 'sign-up':
@@ -149,12 +176,12 @@ const FlatSignIn = (props: Props) => {
         <section className={styles.socialIcons}>
           {enableGoogleSocial && (
             <Fab>
-              <Google size="24" onClick={(e) => handleGoogleLogin(e)} />
+              <GoogleIcon onClick={(e) => handleGoogleLogin(e)} />
             </Fab>
           )}
           {enableFacebookSocial && (
             <Fab>
-              <Facebook size="24" onClick={(e) => handleFacebookLogin(e)} />
+              <FacebookOutlinedIcon onClick={(e) => handleFacebookLogin(e)} />
             </Fab>
           )}
         </section>

@@ -33,7 +33,7 @@ export class Group extends Service {
       {
         model: (this.app.service('user') as any).Model,
         where: {
-          id: loggedInUser.userId
+          id: loggedInUser.id
         }
       },
       {
@@ -45,7 +45,7 @@ export class Group extends Service {
       include.push({
         model: (this.app.service('group-user') as any).Model,
         where: {
-          userId: loggedInUser.userId,
+          userId: loggedInUser.id,
           [Op.or]: [
             {
               groupUserRank: 'owner'

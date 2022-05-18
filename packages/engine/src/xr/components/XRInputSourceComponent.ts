@@ -1,5 +1,6 @@
 import { Group } from 'three'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { QuaternionSchema, Vector3Schema } from '../../transform/components/TransformComponent'
 
 export type XRInputSourceComponentType = {
   /**
@@ -30,4 +31,21 @@ export type XRInputSourceComponentType = {
   head: Group
 }
 
-export const XRInputSourceComponent = createMappedComponent<XRInputSourceComponentType>('XRInputSourceComponent')
+const GroupSchema = {
+  position: Vector3Schema,
+  quaternion: QuaternionSchema
+}
+
+const XRInputSourceSchema = {
+  controllerLeft: GroupSchema,
+  controllerRight: GroupSchema,
+  controllerGripLeft: GroupSchema,
+  controllerGripRight: GroupSchema,
+  container: GroupSchema,
+  head: GroupSchema
+}
+
+export const XRInputSourceComponent = createMappedComponent<XRInputSourceComponentType, typeof XRInputSourceSchema>(
+  'XRInputSourceComponent',
+  XRInputSourceSchema
+)

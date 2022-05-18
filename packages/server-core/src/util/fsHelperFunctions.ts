@@ -82,7 +82,7 @@ export function copyFileSync(source, target) {
 }
 
 export function copyFolderRecursiveSync(source, target) {
-  var files = []
+  var files: any[] = []
 
   // Check if folder needs to be created or integrated
   var targetFolder = path.join(target, path.basename(source))

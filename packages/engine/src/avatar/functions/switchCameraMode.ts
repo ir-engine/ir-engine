@@ -4,7 +4,6 @@ import { CameraMode } from '../../camera/types/CameraMode'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { AvatarComponent } from '../components/AvatarComponent'
 
 const setVisible = (entity: Entity, visible: boolean): void => {
   const object3DComponent = getComponent(entity, Object3DComponent)

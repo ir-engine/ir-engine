@@ -158,7 +158,7 @@ export const useUserStyles = makeStyles((theme: Theme) =>
       [theme.breakpoints.down('lg')]: {
         fontSize: '1.6rem'
       },
-      [theme.breakpoints.between(100, undefined)]: {
+      [theme.breakpoints.between(100, 0)]: {
         fontSize: '1.4rem'
       }
     },
@@ -210,7 +210,7 @@ export const useUserStyle = makeStyles((theme: Theme) =>
       [theme.breakpoints.down('lg')]: {
         width: '120px'
       },
-      [theme.breakpoints.between(100, undefined)]: {
+      [theme.breakpoints.between(100, 0)]: {
         width: '80px'
       }
     },

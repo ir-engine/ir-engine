@@ -27,6 +27,7 @@ const db = {
     `mysql://${this.username}:${this.password}@${this.host}:${this.port}/${this.database}`
 };
 
+const onlyDBUpdate = process.argv.includes('--db-only');
 const sequelizeClient = new Sequelize({
     ...db,
     logging: true,
@@ -124,11 +125,13 @@ const saveToDB = async (name, extension, staticResourceType) => {
 };
 
 const processFile = async (fileName, extension, dirPath, staticResourceType) => {
-    const location = dirPath + fileName + extension;
-    console.log('File Location => ', location);
-    const file = fs.readFileSync(location);
-    const result = await uploadFile(AVATAR_FOLDER + '/' + fileName + extension, file);
-    console.log('Uploading status => ', result);
+    if (!onlyDBUpdate) {
+        const location = dirPath + fileName + extension;
+        console.log('File Location => ', location);
+        const file = fs.readFileSync(location);
+        const result = await uploadFile(AVATAR_FOLDER + '/' + fileName + extension, file);
+        console.log('Uploading status => ', result);
+    }
 
     console.log('Saving to DB');
     await saveToDB(fileName, extension, staticResourceType);

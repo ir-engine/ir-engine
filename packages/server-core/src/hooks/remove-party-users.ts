@@ -12,13 +12,13 @@ export default () => {
         $limit: 10000
       }
     })
-    delete params.query.partyId
+    delete params.query!.partyId
     params.partyUsersRemoved = true
     await Promise.all(
       partyUserResult.data.map((partyUser) => {
         const paramsCopy = _.cloneDeep(params)
-        paramsCopy.query.partyId = id
-        paramsCopy.query.userId = partyUser.userId
+        paramsCopy.query!.partyId = id
+        paramsCopy.query!.userId = partyUser.userId
         return app.service('party-user').remove(partyUser.id, paramsCopy)
       })
     )

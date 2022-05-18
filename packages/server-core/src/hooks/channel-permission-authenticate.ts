@@ -8,11 +8,11 @@ export default () => {
     const { params, app } = context
     console.log(params.query)
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const userId = loggedInUser.userId
-    if (!params.query.channelId) {
+    const userId = loggedInUser.id
+    if (!params.query!.channelId) {
       throw new BadRequest('Must provide a channel ID')
     }
-    const channel = await app.service('channel').get(params.query.channelId)
+    const channel = await app.service('channel').get(params.query!.channelId)
     if (channel == null) {
       throw new BadRequest('Invalid channel ID')
     }

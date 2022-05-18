@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import Table from '@mui/material/Table'
@@ -15,8 +15,8 @@ import { useAuthState } from '../../../user/services/AuthService'
 import { ADMIN_PAGE_LIMIT } from '../../services/AdminService'
 import { SceneService } from '../../services/SceneService'
 import styles from './Scenes.module.scss'
-import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import { useSceneState } from '../../services/SceneService'
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -51,10 +51,7 @@ const Scenes = (props: Props) => {
 
   type Order = 'asc' | 'desc'
 
-  function getComparator<Key extends keyof any>(
-    order: Order,
-    orderBy: Key
-  ): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {
+  function getComparator<Key extends keyof any>(order: Order, orderBy: Key) {
     return order === 'desc'
       ? (a, b) => descendingComparator(a, b, orderBy)
       : (a, b) => -descendingComparator(a, b, orderBy)
@@ -117,7 +114,7 @@ const Scenes = (props: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(ADMIN_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
-  const [selectedScenes, setSelectedScenes] = useState([])
+  const [selectedScenes, setSelectedScenes] = useState<any>([])
   const dispatch = useDispatch()
   const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -144,9 +141,10 @@ const Scenes = (props: Props) => {
     setRowsPerPage(parseInt(event.target.value, 10))
     setPage(0)
   }
-
+  const isMounted = useRef(false)
   const fetchTick = () => {
     setTimeout(() => {
+      if (!isMounted.current) return
       setRefetch(true)
       fetchTick()
     }, 5000)
@@ -161,10 +159,12 @@ const Scenes = (props: Props) => {
   }
 
   useEffect(() => {
+    isMounted.current = true
     fetchTick()
   }, [])
 
   useEffect(() => {
+    if (!isMounted.current) return
     if (user?.id.value != null && (adminSceneState.updateNeeded.value === true || refetch === true)) {
       SceneService.fetchAdminScenes()
     }

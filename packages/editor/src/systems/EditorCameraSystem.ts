@@ -1,4 +1,3 @@
-import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -13,7 +12,7 @@ const ORBIT_SPEED = 5
 /**
  * @author Gheric Speiginer <github.com/speigg>
  */
-export default async function GizmoSystem(world: World): Promise<System> {
+export default async function GizmoSystem(world: World) {
   const box = new Box3()
   const delta = new Vector3()
   const normalMatrix = new Matrix3()
@@ -41,19 +40,25 @@ export default async function GizmoSystem(world: World): Promise<System> {
         cameraComponent.zoomDelta = 0
       }
 
-      if (cameraComponent.focusedObjects) {
+      if (cameraComponent.refocus) {
         let distance = 0
         if (cameraComponent.focusedObjects.length === 0) {
           cameraComponent.center.set(0, 0, 0)
           distance = 10
         } else {
           box.makeEmpty()
-          for (const object of cameraComponent.focusedObjects) box.expandByObject(object)
+          for (const object of cameraComponent.focusedObjects) {
+            const obj3d = getComponent(object.entity, Object3DComponent)?.value
+            if (obj3d) box.expandByObject(obj3d)
+          }
 
           if (box.isEmpty()) {
             // Focusing on an Group, AmbientLight, etc
-            cameraComponent.center.setFromMatrixPosition(cameraComponent.focusedObjects[0].matrixWorld)
-            distance = 0.1
+            const obj3d = getComponent(cameraComponent.focusedObjects[0].entity, Object3DComponent)?.value
+            if (obj3d) {
+              cameraComponent.center.setFromMatrixPosition(obj3d.matrixWorld)
+              distance = 0.1
+            }
           } else {
             box.getCenter(cameraComponent.center)
             distance = box.getBoundingSphere(sphere).radius
@@ -66,7 +71,8 @@ export default async function GizmoSystem(world: World): Promise<System> {
           .multiplyScalar(Math.min(distance, MAX_FOCUS_DISTANCE) * 4)
         camera.position.copy(cameraComponent.center).add(delta)
 
-        cameraComponent.focusedObjects = null
+        cameraComponent.focusedObjects = null!
+        cameraComponent.refocus = false
       }
 
       if (cameraComponent.isPanning) {

@@ -60,7 +60,7 @@ async function generateSMS(
   let groupName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
   const appPath = path.dirname(requireMainFilename())
-  const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'account')
+  const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'invite')
   if (inviteType === 'group') {
     const group = await app.service('group').get(targetObjectId)
     groupName = group.name
@@ -90,7 +90,6 @@ export default () => {
       const { app, result, params } = context
 
       let token = ''
-      let identityProvider
       if (result.identityProviderType === 'email' || result.identityProviderType === 'sms') {
         token = result.token
       } else {
@@ -99,8 +98,7 @@ export default () => {
       const inviteType = result.inviteType
       const targetObjectId = result.targetObjectId
 
-      const authProvider = extractLoggedInUserFromParams(params)
-      const authUser = await app.service('user').get(authProvider.userId)
+      const authUser = extractLoggedInUserFromParams(params)
 
       if (result.identityProviderType === 'email') {
         await generateEmail(app, result, token, inviteType, authUser.name, targetObjectId)
@@ -110,7 +108,14 @@ export default () => {
         if (inviteType === 'friend') {
           const existingRelationshipStatus = await app.service('user-relationship').find({
             query: {
-              userRelationshipType: result.inviteType,
+              $or: [
+                {
+                  userRelationshipType: 'friend'
+                },
+                {
+                  userRelationshipType: 'requested'
+                }
+              ],
               userId: result.userId,
               relatedUserId: result.inviteeId
             }
@@ -118,7 +123,7 @@ export default () => {
           if (existingRelationshipStatus.total === 0) {
             await app.service('user-relationship').create(
               {
-                userRelationshipType: result.inviteType,
+                userRelationshipType: 'requested',
                 userId: result.userId,
                 relatedUserId: result.inviteeId
               },
@@ -167,6 +172,7 @@ export default () => {
       return context
     } catch (err) {
       logger.error(err)
+      return null!
     }
   }
 }

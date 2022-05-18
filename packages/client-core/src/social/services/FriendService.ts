@@ -1,13 +1,12 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
-import { Config } from '@xrengine/common/src/config'
 import { UserAction } from '../../user/services/UserService'
 import { accessAuthState } from '../../user/services/AuthService'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserRelationship } from '@xrengine/common/src/interfaces/UserRelationship'
 import { FriendResult } from '@xrengine/common/src/interfaces/FriendResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState, none } from '@speigg/hookstate'
 import _ from 'lodash'
 
 //State
@@ -42,7 +41,7 @@ store.receptors.push((action: FriendActionType): any => {
       case 'CREATED_FRIEND':
         newValues = action
         const createdUserRelationship = newValues.userRelationship
-        s.friends.friends.set([...s.friends.friends.value, createdUserRelationship])
+        return s.friends.friends.set([...s.friends.friends.value, createdUserRelationship])
       case 'PATCHED_FRIEND':
         newValues = action
         const patchedUserRelationship = newValues.userRelationship
@@ -107,7 +106,7 @@ export const FriendService = {
   //   }
   // }
 
-  getFriends: async (search: string, skip?: number, limit?: number) => {
+  getFriends: async (skip: number = 0, limit: number = 10) => {
     const dispatch = useDispatch()
     {
       dispatch(FriendAction.fetchingFriends())
@@ -117,14 +116,12 @@ export const FriendService = {
           query: {
             action: 'friends',
             $limit: limit != null ? limit : friendState.friends.limit.value,
-            $skip: skip != null ? skip : friendState.friends.skip.value,
-            search
+            $skip: skip != null ? skip : friendState.friends.skip.value
           }
         })
         dispatch(FriendAction.loadedFriends(friendResult))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
         dispatch(FriendAction.loadedFriends({ data: [], limit: 0, skip: 0, total: 0 }))
       }
     }
@@ -152,8 +149,7 @@ export const FriendService = {
       try {
         await client.service('user-relationship').remove(relatedUserId)
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -197,7 +193,7 @@ export const FriendService = {
     return FriendService.removeFriend(relatedUserId)
   }
 }
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('user-relationship').on('created', (params) => {
     if (params.userRelationship.userRelationshipType === 'friend') {
       store.dispatch(FriendAction.createdFriend(params.userRelationship))

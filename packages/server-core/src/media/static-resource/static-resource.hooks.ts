@@ -1,12 +1,10 @@
 import { HookContext } from '@feathersjs/feathers'
-import { hooks } from '@feathersjs/authentication'
+import authenticate from '../../hooks/authenticate'
 import dauria from 'dauria'
 import replaceThumbnailLink from '@xrengine/server-core/src/hooks/replace-thumbnail-link'
 import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
-import verifyScope from '@xrengine/server-core/src/hooks/verify-scope'
 import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
-
-const { authenticate } = hooks
+import restrictUserRole from '../../hooks/restrict-user-role'
 
 export default {
   before: {
@@ -14,7 +12,8 @@ export default {
     find: [collectAnalytics()],
     get: [],
     create: [
-      authenticate('jwt'),
+      authenticate(),
+      restrictUserRole('admin'),
       (context: HookContext): HookContext => {
         if (!context.data.uri && context.params.file) {
           const file = context.params.file
@@ -29,9 +28,9 @@ export default {
         return context
       }
     ],
-    update: [authenticate('jwt')],
-    patch: [authenticate('jwt'), replaceThumbnailLink()],
-    remove: [authenticate('jwt'), attachOwnerIdInQuery('userId')]
+    update: [authenticate(), restrictUserRole('admin')],
+    patch: [authenticate(), restrictUserRole('admin'), replaceThumbnailLink()],
+    remove: [authenticate(), restrictUserRole('admin'), attachOwnerIdInQuery('userId')]
   },
 
   after: {

@@ -1,6 +1,4 @@
-import { Quaternion, Vector3 } from 'three'
 import { Engine } from '../ecs/classes/Engine'
-import { System } from '../ecs/classes/System'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -8,10 +6,8 @@ import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { moveAvatar } from './functions/moveAvatar'
 import { World } from '../ecs/classes/World'
-import { respawnAvatar } from './functions/respawnAvatar'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
-import { detectUserInCollisions } from './functions/detectUserInCollisions'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
@@ -20,11 +16,7 @@ export class AvatarSettings {
   jumpHeight = 4
 }
 
-export default async function AvatarControllerSystem(world: World): Promise<System> {
-  const vector3 = new Vector3()
-  const quat = new Quaternion()
-  const quat2 = new Quaternion()
-
+export default async function AvatarControllerSystem(world: World) {
   const controllerQuery = defineQuery([AvatarControllerComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
 
@@ -60,9 +52,6 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
     }
 
     for (const entity of controllerQuery(world)) {
-      // todo: replace this with trigger detection
-      detectUserInCollisions(entity)
-
       moveAvatar(world, entity, Engine.camera)
 
       const controller = getComponent(entity, AvatarControllerComponent)

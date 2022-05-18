@@ -10,6 +10,7 @@ import {
   MeshBasicMaterial,
   Object3D,
   Quaternion,
+  SkeletonHelper,
   Vector3
 } from 'three'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -28,10 +29,11 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugRenderer } from './DebugRenderer'
 import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { isStaticBody } from '../../physics/classes/Physics'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { IKObj } from '../../ikrig/components/IKObj'
+import { EngineActionType } from '../../ecs/classes/EngineService'
 
 type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box' | 'navmesh' | 'navpath'
 
@@ -41,7 +43,7 @@ const quat = new Quaternion()
 const cubeGeometry = new ConeBufferGeometry(0.05, 0.25, 4)
 cubeGeometry.rotateX(-Math.PI * 0.5)
 
-export default async function DebugHelpersSystem(world: World): Promise<System> {
+export default async function DebugHelpersSystem(world: World) {
   const helpersByEntity: Record<ComponentHelpers, Map<Entity, any>> = {
     viewVector: new Map(),
     ikExtents: new Map(),
@@ -57,8 +59,8 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
   let physicsDebugEnabled = false
   let avatarDebugEnabled = false
 
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.AVATAR_DEBUG, ({ enabled }) => {
-    avatarDebugEnabled = enabled
+  const avatarDebugToggle = ({ enabled }) => {
+    avatarDebugEnabled = typeof enabled === 'undefined' ? !avatarDebugEnabled : enabled
     helpersByEntity.viewVector.forEach((obj: Object3D) => {
       obj.visible = enabled
     })
@@ -68,19 +70,31 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
     helpersByEntity.ikExtents.forEach((entry: Object3D[]) => {
       entry.forEach((obj) => (obj.visible = enabled))
     })
-  })
+  }
 
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PHYSICS_DEBUG, ({ enabled }) => {
-    physicsDebugEnabled = enabled
+  const physicsDebugToggle = ({ enabled }) => {
+    physicsDebugEnabled = typeof enabled === 'undefined' ? !physicsDebugEnabled : enabled
     helpersByEntity.helperArrow.forEach((obj: Object3D) => {
       obj.visible = enabled
     })
     helpersByEntity.box.forEach((entry: Object3D[]) => {
       entry.forEach((obj) => (obj.visible = enabled))
     })
-  })
+  }
+  const receptor = (action: EngineActionType) => {
+    switch (action.type) {
+      case EngineEvents.EVENTS.PHYSICS_DEBUG:
+        physicsDebugToggle({ enabled: action.isPhysicsDebug })
+        break
+      case EngineEvents.EVENTS.AVATAR_DEBUG:
+        avatarDebugToggle({ enabled: action.isAvatarDebug })
+        break
+    }
+  }
+  Engine.currentWorld.receptors.push(receptor)
 
   const avatarDebugQuery = defineQuery([AvatarComponent])
+  const ikDebugQuery = defineQuery([IKObj])
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
   const colliderQuery = defineQuery([ColliderComponent])
   const arrowHelperQuery = defineQuery([DebugArrowComponent])
@@ -93,22 +107,19 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
   return () => {
     // ===== AVATAR ===== //
 
+    for (const entity of ikDebugQuery.enter()) {
+      const ikobj = getComponent(entity, IKObj)
+      const helper = new SkeletonHelper(ikobj.ref)
+      ;(ikobj.ref as any).helper = helper
+      ikobj.ref.add(helper)
+      console.log(helper)
+    }
+    for (const entity of ikDebugQuery.exit()) {
+      const ikobj = getComponent(entity, IKObj, true)
+      const helper = (ikobj.ref as any).helper
+      ikobj.ref.remove(helper)
+    }
     for (const entity of avatarDebugQuery.enter()) {
-      const avatar = getComponent(entity, AvatarComponent)
-
-      // view vector
-      const origin = new Vector3(0, 2, 0)
-      const length = 0.5
-      const hex = 0xffff00
-      if (!avatar || !avatar.viewVector) {
-        console.warn('avatar.viewVector is null')
-        continue
-      }
-      // const arrowHelper = new ArrowHelper(avatar.viewVector.clone().normalize(), origin, length, hex)
-      // arrowHelper.visible = avatarDebugEnabled
-      // Engine.scene.add(arrowHelper)
-      // helpersByEntity.viewVector.set(entity, arrowHelper)
-
       // velocity
       const velocityColor = 0x0000ff
       const velocityArrowHelper = new ArrowHelper(new Vector3(), new Vector3(0, 0, 0), 0.5, velocityColor)
@@ -305,7 +316,7 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
       console.log('add navmesh helper!')
       const navMesh = getComponent(entity, NavMeshComponent)?.yukaNavMesh
       const convexHelper = createConvexRegionHelper(navMesh)
-      const graphHelper = createGraphHelper(navMesh.graph, 0.2)
+      const graphHelper = createGraphHelper(navMesh!.graph, 0.2)
       const helper = new Group()
       helper.add(convexHelper)
       helper.add(graphHelper)

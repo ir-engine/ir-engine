@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react'
 import styled from 'styled-components'
-import { CaretRight } from '@styled-icons/fa-solid/CaretRight'
-import { CaretDown } from '@styled-icons/fa-solid/CaretDown'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 
 /**
  * CollapsibleContainer used to provide styles for Collapsible div.
@@ -76,7 +76,7 @@ export function Collapsible({ label, open, children }) {
   return (
     <CollapsibleContainer>
       <CollapsibleLabel onClick={toggleCollapsed}>
-        <CollapseIcon as={collapsed ? CaretRight : CaretDown} size={14} collapsed={collapsed} />
+        <CollapseIcon as={collapsed ? ArrowRightIcon : ArrowDropDownIcon} size={14} collapsed={collapsed} />
         {label}
       </CollapsibleLabel>
       {!collapsed && <CollapsibleContent>{children}</CollapsibleContent>}

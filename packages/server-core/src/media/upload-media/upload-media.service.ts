@@ -1,5 +1,4 @@
 import { Application } from '../../../declarations'
-import { UploadMedia } from './upload-media.class'
 import hooks from './upload-media.hooks'
 import express from 'express'
 import multer from 'multer'
@@ -12,7 +11,7 @@ const multipartMiddleware = multer()
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    media: UploadMedia
+    media: any
   }
 }
 

@@ -1,15 +1,16 @@
 import CustomOAuthStrategy from './custom-oauth'
 import { Params } from '@feathersjs/feathers'
 import config from '../../appconfig'
+import { Application } from '../../../declarations'
 
 export class TwitterStrategy extends CustomOAuthStrategy {
-  // app: any
+  app: Application
   constructor(app) {
     super()
     this.app = app
   }
 
-  async getEntityData(profile: any, entity: any, params?: Params): Promise<any> {
+  async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
     const userId = params?.query ? params.query.userId : undefined
     return {
@@ -20,7 +21,7 @@ export class TwitterStrategy extends CustomOAuthStrategy {
     }
   }
 
-  async updateEntity(entity: any, profile: any, params?: Params): Promise<any> {
+  async updateEntity(entity: any, profile: any, params: Params): Promise<any> {
     const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
       { accessToken: params?.authentication?.accessToken },
       {}
@@ -35,6 +36,15 @@ export class TwitterStrategy extends CustomOAuthStrategy {
     await this.app.service('user').patch(entity.userId, {
       userRole: user?.userRole === 'admin' || adminCount === 0 ? 'admin' : 'user'
     })
+    const apiKey = await this.app.service('user-api-key').find({
+      query: {
+        userId: entity.userId
+      }
+    })
+    if ((apiKey as any).total === 0)
+      await this.app.service('user-api-key').create({
+        userId: entity.userId
+      })
     if (entity.type !== 'guest') {
       await this.app.service('identity-provider').remove(identityProvider.id)
       await this.app.service('user').remove(identityProvider.userId)
@@ -42,7 +52,7 @@ export class TwitterStrategy extends CustomOAuthStrategy {
     return super.updateEntity(entity, profile, params)
   }
 
-  async getRedirect(data: any, params?: Params): Promise<string> {
+  async getRedirect(data: any, params: Params): Promise<string> {
     const redirectHost = config.authentication.callback.twitter
     const type = params?.query?.userId ? 'connection' : 'login'
     if (Object.getPrototypeOf(data) === Error.prototype) {

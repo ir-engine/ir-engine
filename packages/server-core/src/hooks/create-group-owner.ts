@@ -10,7 +10,7 @@ export default () => {
     await context.app.service('group-user').create({
       groupId: result.id,
       groupUserRank: 'owner',
-      userId: loggedInUser.userId
+      userId: loggedInUser.id
     })
     return context
   }

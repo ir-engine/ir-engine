@@ -5,7 +5,6 @@ declare module './PhysX.d.ts' {
         _id: number
         _type?: ColliderTypes
         _bodyType?: BodyType
-        _isTrigger?: boolean
         _staticFriction?: number
         _dynamicFriction?: number
         _restitution?: number

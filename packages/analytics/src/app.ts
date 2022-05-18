@@ -1,28 +1,27 @@
-import compress from 'compression'
-import helmet from 'helmet'
-import cors from 'cors'
+import express, { errorHandler, json, rest, urlencoded } from '@feathersjs/express'
 import { feathers } from '@feathersjs/feathers'
-import express, { json, urlencoded, static as _static, rest, notFound, errorHandler } from '@feathersjs/express'
 import socketio from '@feathersjs/socketio'
-import logger from '@xrengine/server-core/src/logger'
-import authentication from '@xrengine/server-core/src/user/authentication'
-import config from '@xrengine/server-core/src/appconfig'
-import winston from 'winston'
-import feathersLogger from 'feathers-logger'
-import { EventEmitter } from 'events'
-import services from '@xrengine/server-core/src/services'
-import sequelize from '@xrengine/server-core/src/sequelize'
-import collectAnalytics from './collect-analytics'
 import { Application } from '@xrengine/server-core/declarations'
+import config from '@xrengine/server-core/src/appconfig'
+import logger from '@xrengine/server-core/src/logger'
+import sequelize from '@xrengine/server-core/src/sequelize'
+import services from '@xrengine/server-core/src/services'
+import authentication from '@xrengine/server-core/src/user/authentication'
+import compress from 'compression'
+import cors from 'cors'
+import { EventEmitter } from 'events'
+import feathersLogger from 'feathers-logger'
+import helmet from 'helmet'
+import winston from 'winston'
 
-const emitter = new EventEmitter()
+export const createApp = (): Application => {
+  const emitter = new EventEmitter()
 
-// @ts-ignore
-const app = express(feathers()) as Application
+  // @ts-ignore
+  const app = express(feathers()) as Application
 
-app.set('nextReadyEmitter', emitter)
+  app.set('nextReadyEmitter', emitter)
 
-if (config.analytics.enabled) {
   try {
     //Feathers authentication-oauth will use http for its redirect_uri if this is 'dev'.
     //Doesn't appear anything else uses it.
@@ -83,15 +82,15 @@ if (config.analytics.enabled) {
     app.use('/healthcheck', (req, res) => {
       res.sendStatus(200)
     })
-    collectAnalytics()
-    console.log('Analytics server running')
   } catch (err) {
     console.log('Server init failure')
     console.log(err)
   }
-}
 
-app.use(errorHandler({ logger } as any))
+  app.use(errorHandler({ logger } as any))
+
+  return app
+}
 
 process.on('exit', async () => {
   console.log('Server EXIT')
@@ -120,5 +119,3 @@ process.on('unhandledRejection', (reason, p) => {
   console.log(p)
   process.exit()
 })
-
-export default app

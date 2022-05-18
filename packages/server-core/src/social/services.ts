@@ -1,5 +1,4 @@
 import Location from '../social/location/location.service'
-import Notifications from '../socialmedia/notifications/notifications.service'
 import ChannelType from './channel-type/channel-type.service'
 import Channel from './channel/channel.service'
 import GroupUserRank from './group-user-rank/group-user-rank.service'
@@ -29,7 +28,6 @@ export default [
   GroupUser,
   Message,
   MessageStatus,
-  Notifications,
   LocationType,
   LocationSettings,
   LocationBan,

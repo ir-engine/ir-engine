@@ -1,34 +1,28 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
-
-import { AlertService } from '../../common/services/AlertService'
-
-import { Config } from '@xrengine/common/src/config'
-
-import { accessAuthState } from '../../user/services/AuthService'
-import { Message } from '@xrengine/common/src/interfaces/Message'
-import { MessageResult } from '@xrengine/common/src/interfaces/MessageResult'
+import { createState, none, useState } from '@speigg/hookstate'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { ChannelResult } from '@xrengine/common/src/interfaces/ChannelResult'
-import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { isBot } from '@xrengine/engine/src/common/functions/isBot'
-import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
-import {
-  getChatMessageSystem,
-  hasSubscribedToChatSystem,
-  removeMessageSystem
-} from '@xrengine/engine/src/networking/utils/chatSystem'
-
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
-
-import _ from 'lodash'
-import { User } from '@xrengine/common/src/interfaces/User'
 import { Group } from '@xrengine/common/src/interfaces/Group'
-import { Party } from '@xrengine/common/src/interfaces/Party'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { Message } from '@xrengine/common/src/interfaces/Message'
+import { MessageResult } from '@xrengine/common/src/interfaces/MessageResult'
+import { Party } from '@xrengine/common/src/interfaces/Party'
+import { User } from '@xrengine/common/src/interfaces/User'
+import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
+import { isBot } from '@xrengine/engine/src/common/functions/isBot'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
+import { AlertService } from '../../common/services/AlertService'
+import { accessLocationInstanceConnectionState } from '../../common/services/LocationInstanceConnectionService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
+import { accessAuthState } from '../../user/services/AuthService'
+import { getChatMessageSystem, hasSubscribedToChatSystem, removeMessageSystem } from './utils/chatSystem'
+
+interface ChatMessageProps {
+  targetObjectId: string
+  targetObjectType: string
+  text: string
+}
 
 //State
 
@@ -39,10 +33,10 @@ const state = createState({
     limit: 5,
     skip: 0,
     total: 0,
-    updateNeeded: true,
-    fetchingInstanceChannel: false
+    updateNeeded: true
   },
   targetObjectType: '',
+  targetObjectId: '',
   targetObject: {} as User | Group | Party | Instance,
   targetChannelId: '',
   updateMessageScroll: false,
@@ -63,15 +57,16 @@ store.receptors.push((action: ChatActionType) => {
           channels: action.channels
         })
       case 'LOADED_CHANNEL': {
-        const idx =
-          (typeof action.channel.id === 'string' &&
-            s.channels.channels.findIndex((c) => c.id.value === action.channel.id)) ||
-          s.channels.channels.length
+        let findIndex
+        if (typeof action.channel.id === 'string')
+          findIndex = s.channels.channels.findIndex((c) => c.id.value === action.channel.id)
+        let idx = findIndex > -1 ? findIndex : s.channels.channels.length
         s.channels.channels[idx].set(action.channel)
-
         if (action.channelType === 'instance') {
-          // TODO: WHYYY ARE WE DOING ALL THIS??
-          s.channels.fetchingInstanceChannel.set(false)
+          const endedInstanceChannelIndex = s.channels.channels.findIndex(
+            (channel) => channel.channelType.value === 'instance' && channel.id.value !== action.channel.id
+          )
+          if (endedInstanceChannelIndex > -1) s.channels.channels[endedInstanceChannelIndex].set(none)
           s.merge({
             instanceChannelFetched: true,
             instanceChannelFetching: false
@@ -106,7 +101,12 @@ store.receptors.push((action: ChatActionType) => {
               : channelType === 'instance'
               ? channel.instance
               : channel.party
-          s.merge({ targetChannelId: channelId, targetObjectType: channelType, targetObject: targetObject.value })
+          s.merge({
+            targetChannelId: channelId,
+            targetObjectType: channelType,
+            targetObject: targetObject.value,
+            targetObjectId: targetObject.id.value
+          })
         }
         return
       }
@@ -190,6 +190,7 @@ store.receptors.push((action: ChatActionType) => {
         const { targetObjectType, targetObject, targetChannelId } = action
         return s.merge({
           targetObjectType: targetObjectType,
+          targetObjectId: targetObject.id,
           targetObject: targetObject,
           targetChannelId: targetChannelId,
           updateMessageScroll: true,
@@ -201,7 +202,7 @@ store.receptors.push((action: ChatActionType) => {
         return s.merge({ messageScrollInit: value })
 
       case 'FETCHING_INSTANCE_CHANNEL':
-        return s.channels.merge({ fetchingInstanceChannel: true })
+        return s.merge({ instanceChannelFetching: true })
 
       case 'SET_UPDATE_MESSAGE_SCROLL': {
         return s.merge({ updateMessageScroll: action.value })
@@ -220,63 +221,54 @@ globalThis.chatState = state
 export const ChatService = {
   getChannels: async (skip?: number, limit?: number) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await waitForClientAuthenticated()
-        const chatState = accessChatState().value
+    try {
+      const chatState = accessChatState().value
 
-        const channelResult = await client.service('channel').find({
-          query: {
-            $limit: limit != null ? limit : chatState.channels.limit,
-            $skip: skip != null ? skip : chatState.channels.skip
-          }
-        })
-        dispatch(ChatAction.loadedChannels(channelResult))
-      } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
-      }
+      const channelResult = await client.service('channel').find({
+        query: {
+          $limit: limit != null ? limit : chatState.channels.limit,
+          $skip: skip != null ? skip : chatState.channels.skip
+        }
+      })
+      dispatch(ChatAction.loadedChannels(channelResult))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   getInstanceChannel: async () => {
     const dispatch = useDispatch()
-    {
-      try {
-        const channelResult = await client.service('channel').find({
-          query: {
-            channelType: 'instance'
-          }
-        })
-        dispatch(ChatAction.loadedChannel(channelResult.data[0], 'instance'))
-      } catch (err) {
-        AlertService.dispatchAlertError(err.message)
-      }
+    try {
+      const channelResult = await client.service('channel').find({
+        query: {
+          channelType: 'instance',
+          instanceId: accessLocationInstanceConnectionState().instance.id.value
+        }
+      })
+      if (channelResult.total === 0) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
+      dispatch(ChatAction.loadedChannel(channelResult.data[0], 'instance'))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
-  createMessage: async (values: any) => {
-    const dispatch = useDispatch()
-    {
-      try {
-        await waitForClientAuthenticated()
-        const chatState = accessChatState().value
-        const data = {
-          targetObjectId: chatState.targetObject.id || values.targetObjectId || null,
-          targetObjectType: chatState.targetObjectType || values.targetObjectType || null,
-          text: values.text
-        }
-        if (data.targetObjectId === null || data.targetObjectType === null) {
-          console.log('invalid data, something is null: ')
-          console.log(data)
-          return
-        }
-        await client.service('message').create(data)
-      } catch (err) {
-        console.error(err)
-        AlertService.dispatchAlertError(err.message)
+  createMessage: async (values: ChatMessageProps) => {
+    try {
+      const chatState = accessChatState().value
+      const data = {
+        targetObjectId: chatState.targetObjectId || values.targetObjectId || '',
+        targetObjectType: chatState.targetObjectType || values.targetObjectType || 'party',
+        text: values.text
       }
+      if (data.targetObjectId === null || data.targetObjectType === null) {
+        console.log('invalid data, something is null: ')
+        console.log(data)
+        return
+      }
+      await client.service('message').create(data)
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
-  sendChatMessage: (values: any) => {
+  sendChatMessage: (values: ChatMessageProps) => {
     try {
       client.service('message').create({
         targetObjectId: values.targetObjectId,
@@ -289,15 +281,17 @@ export const ChatService = {
   },
   sendMessage: (text: string) => {
     const user = accessAuthState().user.value
-    ChatService.sendChatMessage({
-      targetObjectId: user.instanceId,
-      targetObjectType: 'instance',
-      text: text
-    })
+    if (user.instanceId && text) {
+      ChatService.sendChatMessage({
+        targetObjectId: user.instanceId,
+        targetObjectType: 'instance',
+        text: text
+      })
+    }
   },
   getChannelMessages: async (channelId: string, skip?: number, limit?: number) => {
     const dispatch = useDispatch()
-    {
+    if (channelId && channelId.length > 0) {
       try {
         const chatState = accessChatState().value
         const messageResult = await client.service('message').find({
@@ -312,38 +306,31 @@ export const ChatService = {
         })
         dispatch(ChatAction.loadedMessages(channelId, messageResult))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
   removeMessage: async (messageId: string) => {
-    const dispatch = useDispatch()
-    {
-      try {
-        await client.service('message').remove(messageId)
-      } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
-      }
+    try {
+      await client.service('message').remove(messageId)
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   patchMessage: async (messageId: string, text: string) => {
-    const dispatch = useDispatch()
-    {
-      try {
-        await client.service('message').patch(messageId, {
-          text: text
-        })
-      } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
-      }
+    try {
+      await client.service('message').patch(messageId, {
+        text: text
+      })
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   updateChatTarget: async (targetObjectType: string, targetObject: any) => {
     const dispatch = useDispatch()
-    {
+    if (!targetObject) {
+      dispatch(ChatAction.setChatTarget(targetObjectType, targetObject, ''))
+    } else {
       const targetChannelResult = await client.service('channel').find({
         query: {
           findTargetId: true,
@@ -362,35 +349,31 @@ export const ChatService = {
   },
   clearChatTargetIfCurrent: async (targetObjectType: string, targetObject: any) => {
     const dispatch = useDispatch()
-    {
-      const chatState = accessChatState().value
-      const chatStateTargetObjectType = chatState.targetObjectType
-      const chatStateTargetObjectId = chatState.targetObject.id
-      if (
-        targetObjectType === chatStateTargetObjectType &&
-        (targetObject.id === chatStateTargetObjectId ||
-          targetObject.relatedUserId === chatStateTargetObjectId ||
-          targetObject.userId === chatStateTargetObjectId)
-      ) {
-        dispatch(ChatAction.setChatTarget('', {}, ''))
-      }
+    const chatState = accessChatState().value
+    const chatStateTargetObjectType = chatState.targetObjectType
+    const chatStateTargetObjectId = chatState.targetObjectId
+    if (
+      targetObjectType === chatStateTargetObjectType &&
+      (targetObject.id === chatStateTargetObjectId ||
+        targetObject.relatedUserId === chatStateTargetObjectId ||
+        targetObject.userId === chatStateTargetObjectId)
+    ) {
+      dispatch(ChatAction.setChatTarget('', {}, ''))
     }
   },
   updateMessageScrollInit: async (value: boolean) => {
     const dispatch = useDispatch()
-    {
-      dispatch(ChatAction.setMessageScrollInit(value))
-    }
+    dispatch(ChatAction.setMessageScrollInit(value))
   }
 }
 
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('message').on('created', (params) => {
     const selfUser = accessAuthState().user.value
     const { message } = params
     if (message != undefined && message.text != undefined) {
       if (isPlayerLocal(message.senderId)) {
-        if (handleCommand(message.text, Engine.defaultWorld.localClientEntity, message.senderId)) return
+        if (handleCommand(message.text, Engine.currentWorld.localClientEntity, message.senderId)) return
         else {
           const system = getChatMessageSystem(message.text)
           if (system !== 'none') {

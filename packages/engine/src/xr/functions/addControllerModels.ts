@@ -2,10 +2,6 @@ import {
   AdditiveBlending,
   BoxGeometry,
   BufferAttribute,
-  BufferGeometry,
-  Float32BufferAttribute,
-  Line,
-  LineBasicMaterial,
   Mesh,
   MeshBasicMaterial,
   RingGeometry,
@@ -14,7 +10,6 @@ import {
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
-import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -99,7 +94,7 @@ export const initializeHandModel = (controller: any, handedness: string, isGrip:
   let handMesh = gltf?.scene?.children[0]
 
   if (!handMesh) {
-    if (isClient) console.error(`Could not load ${fileName} mesh`)
+    console.error(`Could not load ${fileName} mesh`)
     return
   }
 
@@ -116,6 +111,18 @@ export const initializeHandModel = (controller: any, handedness: string, isGrip:
   if (gltf?.animations?.length) {
     controller.userData.animations = gltf.animations
   }
+}
+
+export const cleanXRInputs = (entity) => {
+  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+  const controllersGrip = [xrInputSourceComponent.controllerGripLeft, xrInputSourceComponent.controllerGripRight]
+
+  controllersGrip.forEach((controller) => {
+    if (controller.userData.mesh) {
+      controller.remove(controller.userData.mesh)
+      controller.userData.mesh = null
+    }
+  })
 }
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html

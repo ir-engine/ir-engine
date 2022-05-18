@@ -1,8 +1,7 @@
-import { Water } from '@styled-icons/fa-solid/Water'
 import NodeEditor from './NodeEditor'
-import React, { Component } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
+import WaterIcon from '@mui/icons-material/Water'
 
 //declaring properties for WaterNodeEditor
 type WaterNodeEditorProps = {
@@ -18,15 +17,15 @@ type WaterNodeEditorProps = {
 export const WaterNodeEditor = (props: WaterNodeEditorProps) => {
   const { t } = useTranslation()
 
-  const onChangeProperty = (name: string) => {
-    return (value) => {
-      CommandManager.instance.setPropertyOnSelection(name, value)
-    }
-  }
-
-  return <NodeEditor {...props} description={t('editor:properties.water.description')}></NodeEditor>
+  return (
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.water.name')}
+      description={t('editor:properties.water.description')}
+    ></NodeEditor>
+  )
 }
 
-WaterNodeEditor.iconComponent = Water
+WaterNodeEditor.iconComponent = WaterIcon
 
 export default WaterNodeEditor

@@ -6,13 +6,12 @@ import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { AvatarSettings } from '../AvatarControllerSystem'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AnimationRenderer } from './AnimationRenderer'
 import { AnimationState } from './AnimationState'
-import { AnimationType, WeightsParameterType, AvatarStates, MovementType } from './Util'
+import { AnimationType, AvatarStates, MovementType, WeightsParameterType } from './Util'
 
 const vector2 = new Vector2()
 
@@ -167,10 +166,15 @@ export class AnimationGraph {
       vector2.set(movement.velocity.x, movement.velocity.z).multiplyScalar(1 / delta)
       const speedSqr = vector2.lengthSq()
       if (speedSqr > this.EPSILON) {
-        newStateName =
-          speedSqr < AvatarSettings.instance.walkSpeed * AvatarSettings.instance.walkSpeed
-            ? AvatarStates.WALK
-            : AvatarStates.RUN
+        // TODO: The transition between walk and run animations is not smooth
+        // Most probably because they're not in sync with each other and a very short transition time
+
+        // newStateName =
+        //   speedSqr < AvatarSettings.instance.walkSpeed * AvatarSettings.instance.walkSpeed
+        //     ? AvatarStates.WALK
+        //     : AvatarStates.RUN
+
+        newStateName = AvatarStates.RUN
       } else {
         newStateName = AvatarStates.IDLE
       }

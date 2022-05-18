@@ -30,6 +30,10 @@ Expand the name of the chart.
 {{- default .Chart.Name .Values.editor.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "xrengine.testbot.name" -}}
+{{- default .Chart.Name .Values.testbot.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 
 {{/*
 Create a default fully qualified app name.
@@ -93,11 +97,12 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
-{{- define "xrengine.editor.fullname" -}}
-{{- if .Values.editor.fullnameOverride -}}
-{{- .Values.editor.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+
+{{- define "xrengine.testbot.fullname" -}}
+{{- if .Values.testbot.fullnameOverride -}}
+{{- .Values.testbot.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- printf "%s-%s" .Release.Name .Values.editor.name | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Release.Name .Values.testbot.name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 
@@ -226,12 +231,13 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: gameserver
 {{- end -}}
 
+
 {{/*
 Common labels
 */}}
-{{- define "xrengine.editor.labels" -}}
+{{- define "xrengine.testbot.labels" -}}
 helm.sh/chart: {{ include "xrengine.chart" . }}
-{{ include "xrengine.editor.selectorLabels" . }}
+{{ include "xrengine.testbot.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -241,10 +247,10 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "xrengine.editor.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "xrengine.editor.name" . }}
+{{- define "xrengine.testbot.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xrengine.testbot.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/component: editor
+app.kubernetes.io/component: testbot
 {{- end -}}
 
 
@@ -309,11 +315,11 @@ Create the name of the service account to use
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "xrengine.editor.serviceAccountName" -}}
-{{- if .Values.editor.serviceAccount.create -}}
-    {{ default (include "xrengine.editor.fullname" .) .Values.editor.serviceAccount.name }}
+{{- define "xrengine.testbot.serviceAccountName" -}}
+{{- if .Values.testbot.serviceAccount.create -}}
+    {{ default (include "xrengine.testbot.fullname" .) .Values.testbot.serviceAccount.name }}
 {{- else -}}
-    {{ default "default" .Values.editor.serviceAccount.name }}
+    {{ default "default" .Values.testbot.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
 

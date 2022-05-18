@@ -21,15 +21,15 @@ export class UploadMedia implements ServiceMethods<Data> {
   }
 
   async setup() {}
-  async find(params?: Params): Promise<Data[] | Paginated<Data>> {
+  async find(params: Params): Promise<Data[] | Paginated<Data>> {
     return []
   }
 
-  async get(id: Id, params?: Params): Promise<Data> {
+  async get(id: Id, params: Params): Promise<Data> {
     return {}
   }
 
-  async create(data: Data, params?: Params): Promise<Data> {
+  async create(data: Data, params: Params): Promise<Data> {
     if (Array.isArray(data)) {
       return await Promise.all(data.map((current) => this.create(current, params)))
     }
@@ -37,15 +37,15 @@ export class UploadMedia implements ServiceMethods<Data> {
     return data
   }
 
-  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
+  async update(id: NullableId, data: Data, params: Params): Promise<Data> {
     return data
   }
 
-  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
+  async patch(id: NullableId, data: Data, params: Params): Promise<Data> {
     return data
   }
 
-  async remove(id: NullableId, params?: Params): Promise<Data> {
+  async remove(id: NullableId, params: Params): Promise<Data> {
     return { id }
   }
 }

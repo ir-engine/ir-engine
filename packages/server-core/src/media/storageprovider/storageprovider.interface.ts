@@ -8,6 +8,8 @@ export interface StorageObjectInterface {
 
 export interface StorageListObjectInterface {
   Prefix?: string
+  IsTruncated?: boolean
+  NextContinuationToken?: string
   Contents: { Key: string }[]
   CommonPrefixes?: { Prefix: string }[]
 }
@@ -72,9 +74,17 @@ export interface StorageProviderInterface {
   /**
    * Get a list of keys under a path
    * @param prefix
+   * @param results
+   * @param recursive
+   * @param continuationToken
    * @returns {Promise<StorageListObjectInterface>}
    */
-  listObjects(prefix: string, recursive?: boolean): Promise<StorageListObjectInterface>
+  listObjects(
+    prefix: string,
+    results,
+    recursive?: boolean,
+    continuationToken?: string
+  ): Promise<StorageListObjectInterface>
 
   /**
    * Puts an object into the store

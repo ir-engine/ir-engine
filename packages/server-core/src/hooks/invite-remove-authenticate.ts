@@ -9,7 +9,7 @@ export default () => {
     // Getting logged in user and attaching owner of user
     const { id, params, app } = context
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const invite = await app.service('invite').get(id)
+    const invite = await app.service('invite').get(id!)
     if (invite == null) {
       throw new BadRequest('Invalid invite ID')
     }
@@ -25,9 +25,9 @@ export default () => {
       }
     }
     if (
-      invite.userId !== loggedInUser?.userId &&
-      invite.inviteeId !== loggedInUser?.userId &&
-      inviteIdentityProviderUser !== loggedInUser?.userId
+      invite.userId !== loggedInUser?.id &&
+      invite.inviteeId !== loggedInUser?.id &&
+      inviteIdentityProviderUser !== loggedInUser?.id
     ) {
       throw new BadRequest('Not the sender or recipient of this invite')
     }

@@ -1,11 +1,10 @@
 import { Entity } from '../../ecs/classes/Entity'
 import { MathUtils, Quaternion, Vector3, Object3D } from 'three'
-import { addComponent, getComponent, hasComponent, defineQuery } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
-import { RenderedComponent } from '../../scene/components/RenderedComponent'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -17,6 +16,7 @@ import { createInteractiveModalView } from '../ui/InteractiveModalView'
 import Hls from 'hls.js'
 import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { NameComponent } from '../../scene/components/NameComponent'
 
 /**
  * @author Ron Oyama <github.com/rondoor124>
@@ -30,13 +30,14 @@ export const InteractiveUI = new Map<Entity, ReturnType<typeof createInteractive
 export const createInteractUI = (entity: Entity) => {
   console.log('createInteractUI ', entity)
   const interactiveComponent = getComponent(entity, InteractableComponent)
-  if (getInteractUI(entity) || !interactiveComponent || !interactiveComponent.data) return
+  if (getInteractUI(entity) || !interactiveComponent) return
 
   //create interactive view
-  interactiveComponent.data.interactionUserData = {}
-  interactiveComponent.data.interactionUserData.entity = entity
-  const ui = createInteractiveModalView(interactiveComponent.data as any)
+  interactiveComponent.interactionUserData = {}
+  interactiveComponent.interactionUserData.entity = entity
+  const ui = createInteractiveModalView(interactiveComponent)
   InteractiveUI.set(entity, ui)
+  addComponent(ui.entity, NameComponent, { name: 'interact-ui-' + interactiveComponent.interactionName })
 
   //set transform
   const transform = getComponent(entity, TransformComponent)
@@ -47,49 +48,53 @@ export const createInteractUI = (entity: Entity) => {
   })
 
   // callback from modal view state
-  interactiveComponent.data.callback = (data) => {
+  interactiveComponent.callback = (data) => {
+    const entityIndex = data.entityIndex
+    const currentUI = InteractiveUI.get(entityIndex)!
+    const xrComponent = getComponent(currentUI.entity, XRUIComponent)
+    xrComponent.container.refresh()
+    if (!xrComponent) return
     setTimeout(() => {
+      xrComponent.container.refresh()
       const mediaIndex = data.mediaIndex
       const mediaData = data.mediaData
-      const entityIndex = data.entityIndex
-      const currentUI = getInteractUI(entityIndex) as any
-      const xrComponent = getComponent(currentUI.entity, XRUIComponent) as any
-      if (!xrComponent && !xrComponent.layer) return
-      const videoElement = xrComponent.layer.querySelector(`#interactive-ui-video-${entityIndex}`)
-      const modelElement = xrComponent.layer.querySelector(`#interactive-ui-model-${entityIndex}`)
+      const videoLayer = xrComponent.container.rootLayer.querySelector(`#interactive-ui-video-${entityIndex}`)
+      const modelLayer = xrComponent.container.rootLayer.querySelector(`#interactive-ui-model-${entityIndex}`)
+      const videoElement = videoLayer?.element as HTMLMediaElement
       if (mediaData[mediaIndex]) {
         // refresh video element
-        if (videoElement && videoElement.element) {
+        if (videoElement) {
           //TODO: sometimes the video rendering does not work, set resize for refreshing
-          videoElement.element.style.height = 0
+          // videoElement.element.style.height = 0
           if (mediaData[mediaIndex].type == 'video') {
             const path = mediaData[mediaIndex].path
             if (isHLS(path)) {
               const hls = new Hls()
               hls.loadSource(path)
-              hls.attachMedia(videoElement.element)
+              hls.attachMedia(videoElement as HTMLMediaElement)
             } else {
-              videoElement.element.src = path
-              videoElement.element.load()
+              videoElement.src = path
+              videoElement.load()
             }
-            videoElement.element.addEventListener(
+            videoElement.addEventListener(
               'loadeddata',
               function () {
-                videoElement.element.style.height = 'auto'
-                videoElement.element.play()
+                // videoElement.style.height = 'auto'
+                videoElement.play()
+                xrComponent.container.refresh()
               },
               false
             )
           } else {
-            videoElement.element.pause()
+            videoElement.pause()
           }
         }
 
         //refresh model element
-        if (modelElement) {
+        if (modelLayer) {
           if (mediaData[mediaIndex].type == 'model') {
-            for (var i = modelElement.contentMesh.children.length - 1; i >= 0; i--) {
-              modelElement.contentMesh.remove(modelElement.contentMesh.children[i])
+            for (var i = modelLayer.contentMesh.children.length - 1; i >= 0; i--) {
+              modelLayer.contentMesh.remove(modelLayer.contentMesh.children[i])
             }
 
             //load glb file
@@ -107,15 +112,15 @@ export const createInteractUI = (entity: Entity) => {
                 }
               })
 
-              const scale = modelElement.contentMesh.scale
+              const scale = modelLayer.contentMesh.scale
               model.scene.scale.set(1 / scale.x, 1 / scale.y, 1 / scale.x)
 
               object3d.add(model.scene)
-              modelElement.contentMesh.add(object3d)
+              modelLayer.contentMesh.add(object3d)
             })
           } else {
-            for (var i = modelElement.contentMesh.children.length - 1; i >= 0; i--) {
-              modelElement.contentMesh.remove(modelElement.contentMesh.children[i])
+            for (var i = modelLayer.contentMesh.children.length - 1; i >= 0; i--) {
+              modelLayer.contentMesh.remove(modelLayer.contentMesh.children[i])
             }
           }
         }
@@ -126,11 +131,11 @@ export const createInteractUI = (entity: Entity) => {
 
 export const setUserDataInteractUI = (xrEntity: Entity) => {
   const xrComponent = getComponent(xrEntity, XRUIComponent) as any
-  if (!xrComponent && !xrComponent.layer) return
+  if (!xrComponent || !xrComponent.layer) return
   //create text
   const parentEntity = getParentInteractUI(xrEntity)
   const interactiveComponent = getComponent(parentEntity, InteractableComponent)
-  const interactTextEntity = createInteractText(interactiveComponent.data.interactionText)
+  const interactTextEntity = createInteractText(interactiveComponent.interactionText)
   const object3D = getComponent(xrEntity, Object3DComponent)
   if (object3D) {
     object3D.value.userData = {
@@ -168,10 +173,10 @@ export const updateInteractUI = (xrEntity: Entity) => {
 
 //TODO: Show interactive UI
 export const showInteractUI = (entity: Entity) => {
-  const ui = getInteractUI(entity)
+  const ui = InteractiveUI.get(entity)
   if (!ui) return
   const xrComponent = getComponent(ui.entity, XRUIComponent) as any
-  if (!xrComponent && !xrComponent.layer) return
+  if (!xrComponent) return
   const object3D = getComponent(ui.entity, Object3DComponent) as any
   if (!object3D.value || !object3D.value.userData || !object3D.value.userData.interactTextEntity) return
 
@@ -206,7 +211,7 @@ export const hideInteractUI = (entity: Entity) => {
   const ui = getInteractUI(entity)
   if (!ui) return
   const xrComponent = getComponent(ui.entity, XRUIComponent) as any
-  if (!xrComponent && !xrComponent.layer) return
+  if (!xrComponent) return
 
   const object3D = getComponent(ui.entity, Object3DComponent) as any
   if (!object3D.value || !object3D.value.userData || !object3D.value.userData.interactTextEntity) return
@@ -220,9 +225,7 @@ export const hideInteractUI = (entity: Entity) => {
 
 //TODO: Get interactive UI
 export const getInteractUI = (entity: Entity) => {
-  let ui = InteractiveUI.get(entity)
-  if (ui) return ui
-  return false
+  return InteractiveUI.get(entity)
 }
 
 //TODO: Get interactive UI

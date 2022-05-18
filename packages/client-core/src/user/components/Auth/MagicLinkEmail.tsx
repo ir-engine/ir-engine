@@ -3,16 +3,28 @@ import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
-import { useDispatch } from '../../../store'
 import Grid from '@mui/material/Grid'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Checkbox from '@mui/material/Checkbox'
 import { Link } from 'react-router-dom'
-import { Config } from '@xrengine/common/src/config'
 import styles from './Auth.module.scss'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
 import { useTranslation } from 'react-i18next'
+import { AuthSettingService } from '../../../admin/services/Setting/AuthSettingService'
+import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+
+const initialState = {
+  jwt: true,
+  local: false,
+  facebook: false,
+  github: false,
+  google: false,
+  linkedin: false,
+  twitter: false,
+  smsMagicLink: false,
+  emailMagicLink: false
+}
 
 interface Props {
   type?: 'email' | 'sms' | undefined
@@ -27,15 +39,33 @@ const defaultState = {
   descr: ''
 }
 
-const termsOfService = Config.publicRuntimeConfig.staticPages?.termsOfService ?? '/terms-of-service'
+const termsOfService = globalThis.process.env['VITE_TERMS_OF_SERVICE_ADDRESS'] ?? '/terms-of-service'
 
 const MagicLinkEmail = (props: Props): any => {
   const { type, isAddConnection } = props
 
-  const dispatch = useDispatch()
   const auth = useAuthState()
   const [state, setState] = useState(defaultState)
   const { t } = useTranslation()
+  const authSettingState = useAdminAuthSettingState()
+  const [authSetting] = authSettingState?.authSettings?.value || []
+  const [authState, setAuthState] = useState(initialState)
+
+  useEffect(() => {
+    !authSetting && AuthSettingService.fetchAuthSetting()
+  }, [])
+
+  useEffect(() => {
+    if (authSetting) {
+      let temp = { ...initialState }
+      authSetting?.authStrategies?.forEach((el) => {
+        Object.entries(el).forEach(([strategyName, strategy]) => {
+          temp[strategyName] = strategy
+        })
+      })
+      setAuthState(temp)
+    }
+  }, [authSettingState?.updateNeeded?.value])
 
   const handleInput = (e: any): any => {
     setState({ ...state, [e.target.name]: e.target.value })
@@ -48,7 +78,7 @@ const MagicLinkEmail = (props: Props): any => {
   const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!isAddConnection) {
-      AuthService.createMagicLink(state.emailPhone)
+      AuthService.createMagicLink(state.emailPhone, authState)
       setState({ ...state, isSubmitted: true })
       return
     }
@@ -56,9 +86,9 @@ const MagicLinkEmail = (props: Props): any => {
     const user = auth.user
     const userId = user ? user.id.value : ''
     if (type === 'email') {
-      AuthService.addConnectionByEmail(state.emailPhone, userId)
+      AuthService.addConnectionByEmail(state.emailPhone, userId as string)
     } else {
-      AuthService.addConnectionBySms(state.emailPhone, userId)
+      AuthService.addConnectionBySms(state.emailPhone, userId as string)
     }
   }
   let descr = ''
@@ -74,20 +104,16 @@ const MagicLinkEmail = (props: Props): any => {
       descr = t('user:auth.magiklink.descriptionSMS')
       label = t('user:auth.magiklink.lbl-phone')
       return
-    } else if (!Config.publicRuntimeConfig.auth) {
+    } else if (!authSetting) {
       descr = t('user:auth.magiklink.descriptionEmail')
       label = t('user:auth.magiklink.lbl-email')
       return
     }
     // Auth config is using Sms and Email, so handle both
-    if (
-      Config.publicRuntimeConfig.auth.enableSmsMagicLink &&
-      Config.publicRuntimeConfig.auth.enableEmailMagicLink &&
-      !type
-    ) {
+    if (authState?.emailMagicLink && authState?.smsMagicLink && !type) {
       descr = t('user:auth.magiklink.descriptionEmailSMS')
       label = t('user:auth.magiklink.lbl-emailPhone')
-    } else if (Config.publicRuntimeConfig.auth.enableSmsMagicLink) {
+    } else if (authState?.smsMagicLink) {
       descr = t('user:auth.magiklink.descriptionSMSUS')
       label = t('user:auth.magiklink.lbl-phone')
     } else {

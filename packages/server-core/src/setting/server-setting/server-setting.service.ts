@@ -2,6 +2,7 @@ import hooks from './server-setting.hooks'
 import { Application } from '../../../declarations'
 import { ServerSetting } from './server-setting.class'
 import createModel from './server-setting.model'
+import { refreshAppConfig } from '../../updateAppConfig'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
@@ -21,4 +22,9 @@ export default (app: Application): void => {
 
   const service = app.service('server-setting')
   service.hooks(hooks)
+
+  service.on('patched', () => {
+    //TODO: refresh app config after server setting is patched
+    refreshAppConfig()
+  })
 }

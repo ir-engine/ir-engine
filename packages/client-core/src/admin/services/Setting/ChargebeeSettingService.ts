@@ -2,7 +2,7 @@ import { client } from '../../../feathers'
 import { AlertService } from '../../../common/services/AlertService'
 import { useDispatch, store } from '../../../store'
 import { ChargebeeSettingResult } from '@xrengine/common/src/interfaces/ChargebeeSettingResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { ChargebeeSetting } from '@xrengine/common/src/interfaces/ChargebeeSetting'
 
 const state = createState({
@@ -32,7 +32,7 @@ export const ChargebeeSettingService = {
         const chargeBee = await client.service('chargebee-setting').find()
         dispatch(ChargebeeSettingAction.fetchedChargebee(chargeBee))
       } catch (err) {
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

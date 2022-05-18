@@ -3,7 +3,7 @@ import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
 import { InviteTypeResult } from '@xrengine/common/src/interfaces/InviteTypeResult'
 import { InviteType } from '@xrengine/common/src/interfaces/InviteType'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 
 //State
 const state = createState({
@@ -45,8 +45,7 @@ export const InviteTypeService = {
         const inviteTypeResult = await client.service('invite-type').find()
         dispatch(InviteTypeAction.retrievedInvitesTypes(inviteTypeResult))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

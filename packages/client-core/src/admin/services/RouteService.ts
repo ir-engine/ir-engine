@@ -3,7 +3,7 @@ import { store, useDispatch } from '../../store'
 import { AlertService } from '../../common/services/AlertService'
 import { accessAuthState } from '../../user/services/AuthService'
 
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 
 //State
 export const ROUTE_PAGE_LIMIT = 10000
@@ -47,8 +47,7 @@ export const RouteService = {
         dispatch(RouteActions.installedRoutesRetrievedAction(routes))
       }
     } catch (err) {
-      console.error(err)
-      AlertService.dispatchAlertError(err.message)
+      AlertService.dispatchAlertError(err)
     }
   }
 }

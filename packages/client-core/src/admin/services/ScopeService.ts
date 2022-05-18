@@ -1,9 +1,7 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
-import { createState, useState } from '@hookstate/core'
-import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
-import { AdminScopTypeResult } from '@xrengine/common/src/interfaces/AdminScopeTypeResult'
+import { createState, useState } from '@speigg/hookstate'
 import { AdminScopeResult } from '@xrengine/common/src/interfaces/AdminScopeResult'
 import { AdminScope } from '@xrengine/common/src/interfaces/AdminScope'
 
@@ -29,6 +27,7 @@ store.receptors.push((action: ScopeActionType): any => {
         return s.merge({ fetching: true })
       case 'SCOPE_ADMIN_RETRIEVED':
         return s.merge({
+          //@ts-ignore
           scope: action.adminScopeResult.data,
           skip: action.adminScopeResult.skip,
           limit: action.adminScopeResult.limit,
@@ -64,8 +63,7 @@ export const ScopeService = {
         })
         dispatch(ScopeAction.addAdminScope(newItem))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -85,8 +83,7 @@ export const ScopeService = {
         })
         dispatch(ScopeAction.setAdminScope(list))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -99,8 +96,7 @@ export const ScopeService = {
         })
         dispatch(ScopeAction.updateAdminScope(updatedScope))
       } catch (err) {
-        console.error(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -111,8 +107,7 @@ export const ScopeService = {
         await client.service('scope').remove(scopeId)
         dispatch(ScopeAction.removeScopeItem(scopeId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

@@ -10,7 +10,6 @@ import { ConfirmProvider } from 'material-ui-confirm'
 import React, { useEffect } from 'react'
 import { InviteService } from '../../../social/services/InviteService'
 import { useInviteState } from '../../../social/services/InviteService'
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import { UserService } from '../../services/UserService'
 import { useUserState } from '../../services/UserService'
@@ -70,9 +69,8 @@ const InvitesConsole = (props: Props) => {
 
   const invites = inviteState.sentInvites.invites
   const adminUserState = useUserState()
-  const adminUsers = adminUserState.users.users
+  const adminUsers = adminUserState.users
   const user = useAuthState().user
-  const dispatch = useDispatch()
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue)
   }
@@ -95,11 +93,11 @@ const InvitesConsole = (props: Props) => {
   }, [])
 
   useEffect(() => {
-    if (user?.id.value != null && (adminUserState.users.updateNeeded.value === true || refetch === true)) {
+    if (user?.id.value != null && (adminUserState.updateNeeded.value === true || refetch === true)) {
       UserService.fetchUsersAsAdmin()
     }
     setRefetch(false)
-  }, [useAuthState(), adminUserState.users.updateNeeded.value, refetch])
+  }, [useAuthState(), adminUserState.updateNeeded.value, refetch])
 
   useEffect(() => {
     if (inviteState.sentUpdateNeeded.value === true) {
@@ -138,12 +136,14 @@ const InvitesConsole = (props: Props) => {
               <Tab label="Sent Invite" {...a11yProps(1)} />
             </Tabs>
           </AppBar>
-          <TabPanel value={value} index={0}>
-            <ReceivedInvite invites={[]} />
-          </TabPanel>
-          <TabPanel value={value} index={1}>
-            <SentInvite invites={invites.value} />
-          </TabPanel>
+          <>
+            <TabPanel value={value} index={0}>
+              <ReceivedInvite invites={[]} />
+            </TabPanel>
+            <TabPanel value={value} index={1}>
+              <SentInvite invites={invites.value} />
+            </TabPanel>
+          </>
         </div>
       </ConfirmProvider>
       <InviteModel open={inviteModelOpen} handleClose={closeModelInvite} users={adminUsers.value} />

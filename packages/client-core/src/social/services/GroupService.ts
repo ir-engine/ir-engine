@@ -1,15 +1,13 @@
-import { Config } from '@xrengine/common/src/config'
 import { store, useDispatch } from '../../store'
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
 import { UserAction } from '../../user/services/UserService'
 import { accessAuthState } from '../../user/services/AuthService'
 import { ChatService } from './ChatService'
-import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
 import { Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
 import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState, none } from '@speigg/hookstate'
 import _ from 'lodash'
 
 //State
@@ -78,7 +76,8 @@ store.receptors.push((action: GroupActionType): any => {
         updateGroup = newValues.group
 
         groupIndex = s.groups.groups.value.findIndex((groupItem) => {
-          return groupItem != null && groupItem.id === groupUser.groupId
+          // return groupItem != null && groupItem.id === groupUser.groupId
+          return groupItem != null && groupItem.id === updateGroup.id
         })
         if (groupIndex !== -1) {
           return s.groups.groups[groupIndex].set(updateGroup)
@@ -104,7 +103,7 @@ store.receptors.push((action: GroupActionType): any => {
         })
         if (groupIndex !== -1) {
           const group = s.groups.groups[groupIndex]
-          groupUserIndex = group.groupUsers.value.findIndex((groupUserItem) => {
+          groupUserIndex = group.groupUsers.value!.findIndex((groupUserItem) => {
             return groupUserItem != null && groupUserItem.id === groupUser.id
           })
           if (groupUserIndex !== -1) {
@@ -114,6 +113,7 @@ store.receptors.push((action: GroupActionType): any => {
           }
         }
 
+        return s.merge({ updateNeeded: true })
       case 'PATCHED_GROUP_USER':
         newValues = action
         groupUser = newValues.groupUser
@@ -122,7 +122,7 @@ store.receptors.push((action: GroupActionType): any => {
         })
         if (groupIndex !== -1) {
           const group = s.groups.groups[groupIndex]
-          groupUserIndex = group.groupUsers.value.findIndex((groupUserItem) => {
+          groupUserIndex = group.groupUsers.value!.findIndex((groupUserItem) => {
             return groupUserItem != null && groupUserItem.id === groupUser.id
           })
           if (groupUserIndex !== -1) {
@@ -153,7 +153,7 @@ store.receptors.push((action: GroupActionType): any => {
         })
         if (groupIndex !== -1) {
           const group = s.groups.groups[groupIndex]
-          groupUserIndex = group.groupUsers.value.findIndex((groupUserItem) => {
+          groupUserIndex = group.groupUsers.value!.findIndex((groupUserItem) => {
             return groupUserItem != null && groupUserItem.id === groupUser.id
           })
           if (groupUserIndex !== -1) {
@@ -162,8 +162,9 @@ store.receptors.push((action: GroupActionType): any => {
             })
           }
         }
-
-        return self === true ? s.merge({ closeDetails: groupUser.groupId, updateNeeded: true }) : s
+        return self === true
+          ? s.merge({ closeDetails: groupUser.groupId, updateNeeded: true })
+          : s.merge({ updateNeeded: true })
 
       case 'REMOVE_CLOSE_GROUP_DETAIL':
         return s.closeDetails.set('')
@@ -191,8 +192,7 @@ export const GroupService = {
         })
         dispatch(GroupAction.loadedGroups(groupResults))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -200,13 +200,13 @@ export const GroupService = {
     const dispatch = useDispatch()
     {
       try {
-        await client.service('group').create({
+        const result = await client.service('group').create({
           name: values.name,
           description: values.description
         })
+        dispatch(GroupAction.createdGroup(result))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -221,10 +221,11 @@ export const GroupService = {
         ;(patch as any).description = values.description
       }
       try {
-        await client.service('group').patch(values.id, patch)
+        const data = await client.service('group').patch(values.id, patch)
+        // ;(patch as any).id = values.id
+        dispatch(GroupAction.patchedGroup(data))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -234,6 +235,7 @@ export const GroupService = {
       try {
         const channelResult = (await client.service('channel').find({
           query: {
+            channelType: 'group',
             groupId: groupId
           }
         })) as any
@@ -242,8 +244,7 @@ export const GroupService = {
         }
         await client.service('group').remove(groupId)
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -252,9 +253,9 @@ export const GroupService = {
     {
       try {
         await client.service('group-user').remove(groupUserId)
+        dispatch(GroupAction.leftGroup())
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -264,7 +265,6 @@ export const GroupService = {
       dispatch(GroupAction.fetchingInvitableGroups())
       const groupActionState = accessGroupState().value
       try {
-        await waitForClientAuthenticated()
         const groupResults = await client.service('group').find({
           query: {
             invitable: true,
@@ -274,14 +274,13 @@ export const GroupService = {
         })
         dispatch(GroupAction.loadedInvitableGroups(groupResults))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
         dispatch(GroupAction.loadedInvitableGroups({ data: [], limit: 0, skip: 0, total: 0 }))
       }
     }
   }
 }
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('group-user').on('created', (params) => {
     const newGroupUser = params.groupUser
     const selfUser = accessAuthState().user

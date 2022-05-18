@@ -1,6 +1,5 @@
-// @ts-nocheck
 import { Object3D, SkinnedMesh } from 'three'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { Chain } from '../classes/Chain'
 import { IKObj } from '../components/IKObj'
 import { IKRigComponent, IKRigTargetComponent, IKRigComponentType } from '../components/IKRigComponent'
@@ -41,12 +40,22 @@ function _addRig(
   // NOTE: rootObject should contain skinnedMesh and it's bones
   const skinnedMesh = rootObject.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
 
+  // remove change callbacks for perf optimization
+  rootObject.traverse((child) => {
+    child.quaternion._onChange(noop)
+    child.rotation._onChange(noop)
+  })
+
+  if (hasComponent(entity, componentClass)) removeComponent(entity, componentClass)
+  if (hasComponent(entity, IKObj)) removeComponent(entity, IKObj)
   addComponent(entity, IKObj, { ref: skinnedMesh })
   const rig = addComponent(entity, componentClass, {
+    boneStructure: null!,
+    rootParent: rootObject,
     tpose: new Pose(rootObject, true), // If Passing a TPose, it must have its world space computed.
     pose: new Pose(rootObject, false),
-    chains: null, // will be populated later in setup rig
-    points: null // will be populated later in setup rig
+    chains: {}, // will be populated later in setup rig
+    points: {} // will be populated later in setup rig
   })
 
   //
@@ -89,6 +98,8 @@ function _addRig(
 
   return rig
 }
+
+const noop = () => {}
 
 function initMixamoRig(armature, rig) {
   console.error('initMixamoRig NOT IMPLEMENTED')

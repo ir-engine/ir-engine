@@ -4,7 +4,7 @@ import { useAppState } from '../../services/AppService'
 import { useTranslation } from 'react-i18next'
 import styles from './Loader.module.scss'
 import LottieLoader from './LottieLoader'
-import { useEngineState } from '../../../world/services/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 interface Props {
   Loader?: any
@@ -54,11 +54,9 @@ const LoadingScreen = (props: Props) => {
   return (
     <>
       <section className={styles.overlay}>
-        <div className={styles.imageOverlay}></div>
-        {Loader ? <Loader /> : <LottieLoader />}
-        <section className={styles.linearProgressContainer}>
+        {/* <section className={styles.linearProgressContainer}>
           <span className={styles.loadingProgressInfo}>{loadingText}</span>
-        </section>
+        </section> */}
       </section>
     </>
   )

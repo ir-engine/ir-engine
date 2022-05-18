@@ -133,14 +133,22 @@
       "youAreA": "You are a",
       "showUserId": "Show User ID",
       "hideUserId": "Hide User ID",
+      "showApiKey": "Show API key",
+      "hideApiKey": "Hide API key",
       "logout": "Log out",
-      "connectPhone": "Connect your email or phone number",
+      "connectPhone": "Connect your phone number",
+      "connectEmail": "Connect your email",
+      "connectPhoneEmail": "Connect your email or phone number",
       "or": "Or",
       "lbl-wallet": "Login with Wallet",
+      "ph-email": "Email",
+      "ph-phone": "Phone Number",
       "ph-phoneEmail": "Phone Number / Email",
-      "phoneEmailError": "Invalid phone or email address",
+      "phoneEmailError": "Invalid phone # or email address",
+      "phoneError": "Invalid phone #",
+      "emailError": "Invalid email address",
       "loginWithReadyPlayerMe": "Login with Ready Player Me",
-      "connectSocial": "Or connect with social accounts",
+      "connectSocial": "Connect with social accounts",
       "createOne": "If you don't have an account, a new one will be created for you",
       "connections": {
         "title": "Connections",
@@ -195,6 +203,7 @@
       "projects": "Projects",
       "scenes": "Scenes",
       "avatars": "Avatars",
+      "benchmarking": "Benchmarking",
       "bots": "Bots"
     }
   },
@@ -222,6 +231,7 @@
     "content": "Content Packs",
     "scenes": "Scenes",
     "avatars": "Avatars",
+    "benchmarking": "Benchmarking",
     "bots": "Bots",
     "setting": "Settings"
   },
@@ -244,6 +254,13 @@
     "confirmation": "Are you sure?",
     "canNotBeRemoved": "Active Avatar can not be removed",
     "remove": "Remove avatar"
-}
-
+  },
+  "personMenu":{
+    "inviteToParty":"Invite To Party",
+    "addAsFriend":"Add As Friend",
+    "trade":"Trade",
+    "pay":"Pay",
+    "mute":"Mute",
+    "block":"Block"
+  }
 }

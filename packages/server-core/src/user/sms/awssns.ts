@@ -4,7 +4,7 @@ import config from '../../appconfig'
 export async function sendSmsWithAWS(phone: string, text: string): Promise<void> {
   const params = {
     Message: text,
-    PhoneNumber: phone
+    PhoneNumber: `1${phone}`
   }
 
   // Create promise and SNS service object

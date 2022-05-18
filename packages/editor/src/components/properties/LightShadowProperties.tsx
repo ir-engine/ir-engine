@@ -5,6 +5,9 @@ import BooleanInput from '../inputs/BooleanInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { Vector2 } from 'three'
 import { useTranslation } from 'react-i18next'
+import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { updateProperty } from './Util'
 import { CommandManager } from '../../managers/CommandManager'
 
 /**
@@ -15,29 +18,30 @@ import { CommandManager } from '../../managers/CommandManager'
 const ShadowMapResolutionOptions = [
   {
     label: '256px',
-    value: new Vector2(256, 256)
+    value: 256
   },
   {
     label: '512px',
-    value: new Vector2(512, 512)
+    value: 512
   },
   {
     label: '1024px',
-    value: new Vector2(1024, 1024)
+    value: 1024
   },
   {
     label: '2048px',
-    value: new Vector2(2048, 2048)
+    value: 2048
   },
   {
     label: '4096px (not recommended)',
-    value: new Vector2(4096, 4096)
+    value: 4096
   }
 ]
 
 //creating properties for LightShadowProperties component
 type LightShadowPropertiesProps = {
-  node?: any
+  node: EntityTreeNode
+  comp: ComponentConstructor<any, any>
 }
 
 /**
@@ -50,38 +54,25 @@ type LightShadowPropertiesProps = {
 export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   const { t } = useTranslation()
 
-  // function to handle the change in shadowMapResolution propery
-  const onChangeShadowMapResolution = (shadowMapResolution) => {
-    CommandManager.instance.setPropertyOnSelection('shadowMapResolution', shadowMapResolution)
+  const changeShadowMapResolution = (resolution) => {
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      component: props.comp,
+      properties: { shadowMapResolution: new Vector2(resolution, resolution) }
+    })
   }
 
-  // function to handle changes in castShadow propery
-  const onChangeCastShadow = (castShadow) => {
-    CommandManager.instance.setPropertyOnSelection('castShadow', castShadow)
-  }
-
-  // fucntion to handle changes in shadowBias property
-  const onChangeShadowBias = (shadowBias) => {
-    CommandManager.instance.setPropertyOnSelection('shadowBias', shadowBias)
-  }
-
-  // function to handle changes shadowRadius property
-  const onChangeShadowRadius = (shadowRadius) => {
-    CommandManager.instance.setPropertyOnSelection('shadowRadius', shadowRadius)
-  }
-
-  const node = props.node
+  const lightComponent = getComponent(props.node.entity, props.comp)
 
   return (
     <Fragment>
       <InputGroup name="Cast Shadow" label={t('editor:properties.directionalLight.lbl-castShadow')}>
-        <BooleanInput value={node.castShadow} onChange={onChangeCastShadow} />
+        <BooleanInput value={lightComponent.castShadow} onChange={updateProperty(props.comp, 'castShadow')} />
       </InputGroup>
       <InputGroup name="Shadow Map Resolution" label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}>
         <SelectInput
           options={ShadowMapResolutionOptions}
-          value={node.shadowMapResolution}
-          onChange={onChangeShadowMapResolution}
+          value={lightComponent.shadowMapResolution?.x}
+          onChange={changeShadowMapResolution}
         />
       </InputGroup>
       <NumericInputGroup
@@ -91,8 +82,8 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
         smallStep={0.0001}
         largeStep={0.001}
         displayPrecision={0.000001}
-        value={node.shadowBias}
-        onChange={onChangeShadowBias}
+        value={lightComponent.shadowBias}
+        onChange={updateProperty(props.comp, 'shadowBias')}
       />
       <NumericInputGroup
         name="Shadow Radius"
@@ -101,8 +92,8 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
         smallStep={0.1}
         largeStep={1}
         displayPrecision={0.0001}
-        value={node.shadowRadius}
-        onChange={onChangeShadowRadius}
+        value={lightComponent.shadowRadius}
+        onChange={updateProperty(props.comp, 'shadowRadius')}
       />
     </Fragment>
   )

@@ -1,20 +1,12 @@
 import { AlertService } from '../../common/services/AlertService'
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
-import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
-import { LocationResult } from '@xrengine/common/src/interfaces/LocationResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { Location, LocationSeed } from '@xrengine/common/src/interfaces/Location'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 //State
 const state = createState({
-  locations: {
-    locations: [] as Location[],
-    total: 0,
-    limit: 10,
-    skip: 0
-  },
   currentLocation: {
     location: LocationSeed as Location,
     bannedUsers: [] as UserId[],
@@ -29,19 +21,16 @@ const state = createState({
 store.receptors.push((action: LocationActionType): any => {
   state.batch((s) => {
     switch (action.type) {
-      case 'LOCATIONS_RETRIEVED':
-        return s.merge({
-          locations: {
-            locations: action.locations.data,
-            limit: action.locations.limit,
-            skip: action.locations.skip,
-            total: action.locations.total
-          },
-          updateNeeded: false
-        })
       case 'FETCH_CURRENT_LOCATION':
         return s.merge({
-          fetchingCurrentLocation: true
+          fetchingCurrentLocation: true,
+          currentLocation: {
+            location: LocationSeed as Location,
+            bannedUsers: [] as UserId[],
+            selfUserBanned: false
+          },
+          updateNeeded: true,
+          currentLocationUpdateNeeded: true
         })
       case 'LOCATION_RETRIEVED':
         let bannedUsers = [] as UserId[]
@@ -79,7 +68,7 @@ store.receptors.push((action: LocationActionType): any => {
 
       case 'LOCATION_LOCAL_USER_BANNED':
         s.merge({ currentLocationUpdateNeeded: true })
-        s.currentLocation.merge({ selfUserBanned: true })
+        s.currentLocation.merge({ selfUserBanned: action.banned })
         return
     }
   }, action.type)
@@ -91,26 +80,6 @@ export const useLocationState = () => useState(state) as any as typeof state
 
 //Service
 export const LocationService = {
-  getLocations: async (skip?: number, limit?: number) => {
-    const dispatch = useDispatch()
-    {
-      try {
-        const locationState = accessLocationState()
-        await waitForClientAuthenticated()
-        const locationResults = await client.service('location').find({
-          query: {
-            $limit: limit != null ? limit : locationState.locations.limit.value,
-            $skip: skip != null ? skip : locationState.locations.skip.value,
-            joinableLocations: true
-          }
-        })
-        dispatch(LocationAction.socialLocationsRetrieved(locationResults))
-      } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
-      }
-    }
-  },
   getLocation: async (locationId: string) => {
     const dispatch = useDispatch()
     {
@@ -119,8 +88,7 @@ export const LocationService = {
         const location = await client.service('location').get(locationId)
         dispatch(LocationAction.socialLocationRetrieved(location))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -172,8 +140,7 @@ export const LocationService = {
         })
         dispatch(LocationAction.socialLocationBanCreated())
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }
@@ -181,33 +148,9 @@ export const LocationService = {
 
 //Action
 export const LocationAction = {
-  socialLocationsRetrieved: (locations: LocationResult) => {
-    return {
-      type: 'LOCATIONS_RETRIEVED' as const,
-      locations: locations
-    }
-  },
   socialLocationRetrieved: (location: Location) => {
     return {
       type: 'LOCATION_RETRIEVED' as const,
-      location: location
-    }
-  },
-  socialLocationCreated: (location: Location) => {
-    return {
-      type: 'LOCATION_CREATED' as const,
-      location: location
-    }
-  },
-  socialLocationPatched: (location: Location) => {
-    return {
-      type: 'LOCATION_PATCHED' as const,
-      location: location
-    }
-  },
-  socialLocationRemoved: (location: Location) => {
-    return {
-      type: 'LOCATION_REMOVED' as const,
       location: location
     }
   },

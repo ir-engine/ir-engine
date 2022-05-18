@@ -1,7 +1,7 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
 import { AdminScopTypeResult } from '@xrengine/common/src/interfaces/AdminScopeTypeResult'
 
@@ -59,8 +59,7 @@ export const ScopeTypeService = {
         })
         dispatch(ScopeTypeAction.getScopeTypes(result))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

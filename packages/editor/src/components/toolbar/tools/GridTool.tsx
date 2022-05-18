@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Grid } from '@styled-icons/boxicons-regular/Grid'
+import GridOnIcon from '@mui/icons-material/GridOn'
 import * as styles from '../styles.module.scss'
 import { InfoTooltip } from '../../layout/Tooltip'
 import NumericStepperInput from '../../inputs/NumericStepperInput'
@@ -44,7 +44,7 @@ const GridTool = () => {
           onClick={onToggleGridVisible}
           className={styles.toolButton + ' ' + (isGridVisible ? styles.selected : '')}
         >
-          <Grid size={16} />
+          <GridOnIcon fontSize="small" />
         </button>
       </InfoTooltip>
       <NumericStepperInput

@@ -1,11 +1,10 @@
 import axios from 'axios'
-import { Config } from '@xrengine/common/src/config'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
 import { PublicVideo, VideoAction } from '../../media/services/VideoService'
 import { useAuthState } from '../../user/services/AuthService'
 import { useDispatch, store } from '../../store'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import {
   VideoCreationForm,
   VideoUpdateForm,
@@ -39,7 +38,7 @@ export const AdminService = {
     const dispatch = useDispatch()
     const token = useAuthState().authUser.accessToken.value
     try {
-      const res = await axios.post(`${Config.publicRuntimeConfig.apiServer}/video`, data, {
+      const res = await axios.post(`https://${globalThis.process.env['VITE_SERVER_HOST']}/video`, data, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -49,7 +48,7 @@ export const AdminService = {
       AlertService.dispatchAlertSuccess('Video uploaded')
       dispatch(AdminAction.videoCreated(result))
     } catch (err) {
-      AlertService.dispatchAlertError('Video upload error: ' + err.response.data.message)
+      AlertService.dispatchAlertError(new Error('Video upload error: ' + err.response.data.message))
     }
   },
   updateVideo: async (data: VideoUpdateForm) => {

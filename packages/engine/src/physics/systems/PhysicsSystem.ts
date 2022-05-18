@@ -7,37 +7,25 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { Engine } from '../../ecs/classes/Engine'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
-import { RigidBodyTagComponent } from '../components/RigidBodyTagComponent'
 import { isClient } from '../../common/functions/isClient'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
-import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { isDynamicBody, isKinematicBody, isStaticBody } from '../classes/Physics'
 import { teleportRigidbody } from '../functions/teleportRigidbody'
 import { CollisionComponent } from '../components/CollisionComponent'
 import matches from 'ts-matches'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { EngineActionType } from '../../ecs/classes/EngineService'
 
 function physicsActionReceptor(action: unknown) {
   const world = useWorld()
-  matches(action).when(NetworkWorldAction.teleportObject.matchesFromAny, (a) => {
+  matches(action).when(NetworkWorldAction.teleportObject.matches, (a) => {
     const [x, y, z, qX, qY, qZ, qW] = a.pose
-    const entity = world.getNetworkObject(a.networkId)
-
+    const entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
     const colliderComponent = getComponent(entity, ColliderComponent)
     if (colliderComponent) {
       teleportRigidbody(colliderComponent.body, new Vector3(x, y, z), new Quaternion(qX, qY, qZ, qW))
-      return
-    }
-
-    const controllerComponent = getComponent(entity, AvatarControllerComponent)
-    if (controllerComponent) {
-      const avatar = getComponent(entity, AvatarComponent)
-      controllerComponent.controller.setPosition(new Vector3(x, y + avatar.avatarHalfHeight, z))
-      const velocity = getComponent(entity, VelocityComponent)
-      velocity.velocity.setScalar(0)
     }
   })
 }
@@ -46,10 +34,7 @@ function physicsActionReceptor(action: unknown) {
  * @author Josh Field <github.com/HexaField>
  */
 
-export default async function PhysicsSystem(
-  world: World,
-  attributes: { simulationEnabled?: boolean }
-): Promise<System> {
+export default async function PhysicsSystem(world: World) {
   const colliderQuery = defineQuery([ColliderComponent])
   const raycastQuery = defineQuery([RaycastComponent])
   const collisionComponent = defineQuery([CollisionComponent])
@@ -57,13 +42,18 @@ export default async function PhysicsSystem(
 
   let simulationEnabled = true
 
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-    if (typeof ev.physics !== 'undefined') {
-      simulationEnabled = ev.physics
+  Engine.currentWorld.receptors.push((action: EngineActionType) => {
+    switch (action.type) {
+      case EngineEvents.EVENTS.ENABLE_SCENE:
+        if (typeof action.env.physics !== 'undefined') {
+          simulationEnabled = action.env.physics
+        }
+        break
     }
   })
-
   world.receptors.push(physicsActionReceptor)
+
+  await world.physics.createScene()
 
   return () => {
     // for (const entity of spawnRigidbodyQuery.enter()) {
@@ -102,7 +92,7 @@ export default async function PhysicsSystem(
       const transform = getComponent(entity, TransformComponent)
       const network = getComponent(entity, NetworkObjectComponent)
 
-      if ((!isClient && network.userId !== Engine.userId) || hasComponent(entity, AvatarComponent)) continue
+      if ((!isClient && network.ownerId !== Engine.userId) || hasComponent(entity, AvatarComponent)) continue
 
       if (isStaticBody(collider.body)) {
         const body = collider.body as PhysX.PxRigidDynamic

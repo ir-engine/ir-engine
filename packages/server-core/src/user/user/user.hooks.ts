@@ -1,11 +1,30 @@
-import * as authentication from '@feathersjs/authentication'
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
+import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
+import addScopeToUser from '../../hooks/add-scope-to-user'
+import authenticate from '../../hooks/authenticate'
+import restrictUserRole from '../../hooks/restrict-user-role'
+import { iff, isProvider } from 'feathers-hooks-common'
 import logger from '../../logger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import addScopeToUser from '../../hooks/add-scope-to-user'
+import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 
-const { authenticate } = authentication.hooks
+const restrictUserPatch = (context: HookContext) => {
+  if (context.params.isInternal) return context
+
+  // allow admins for all patch actions
+  const loggedInUser = extractLoggedInUserFromParams(context.params)
+  if (loggedInUser.userRole === 'admin') return context
+
+  // only allow a user to patch it's own data
+  if (loggedInUser.id !== context.id) throw new Error('Must be an admin to patch another users data')
+
+  // filter to only allowed
+  const data = {} as any
+  // selective define allowed props as not to accidentally pass an undefined value (which will be interpreted as NULL)
+  if (typeof context.data.avatarId !== 'undefined') data.avatarId = context.data.avatarId
+  context.data = data
+  return context
+}
 
 /**
  * This module used to declare and identify database relation
@@ -14,12 +33,15 @@ const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate()],
     find: [
       addAssociations({
         models: [
           {
             model: 'identity-provider'
+          },
+          {
+            model: 'user-api-key'
           },
           // {
           //   model: 'subscription'
@@ -38,6 +60,14 @@ export default {
           },
           {
             model: 'scope'
+          },
+          {
+            model: 'inventory-item',
+            include: [
+              {
+                model: 'inventory-item-type'
+              }
+            ]
           }
         ]
       })
@@ -48,6 +78,9 @@ export default {
           {
             model: 'identity-provider'
           },
+          {
+            model: 'user-api-key'
+          },
           // {
           //   model: 'subscription'
           // },
@@ -62,18 +95,30 @@ export default {
           },
           {
             model: 'scope'
+          },
+          {
+            model: 'inventory-item',
+            include: [
+              {
+                model: 'inventory-item-type'
+              }
+            ]
           }
         ]
       })
     ],
-    create: [],
-    update: [],
+    create: [iff(isProvider('external'), restrictUserRole('admin') as any)],
+    update: [iff(isProvider('external'), restrictUserRole('admin') as any)],
     patch: [
+      iff(isProvider('external'), restrictUserPatch as any),
       addAssociations({
         models: [
           {
             model: 'identity-provider'
           },
+          {
+            model: 'user-api-key'
+          },
           // {
           //   model: 'subscription'
           // },
@@ -88,17 +133,56 @@ export default {
           },
           {
             model: 'scope'
+          },
+          {
+            model: 'inventory-item',
+            include: [
+              {
+                model: 'inventory-item-type'
+              }
+            ]
           }
         ]
       }),
       addScopeToUser()
     ],
-    remove: []
+    remove: [
+      iff(isProvider('external'), restrictUserRole('admin') as any),
+      async (context: HookContext): Promise<HookContext> => {
+        try {
+          const userId = context.id
+          await context.app.service('user-api-key').remove(null, {
+            query: {
+              userId: userId
+            }
+          })
+          return context
+        } catch (err) {
+          throw new Error(err)
+        }
+      }
+    ]
   },
 
   after: {
     all: [],
     find: [
+      (context: HookContext): HookContext => {
+        try {
+          if (context.result?.data) {
+            for (let x = 0; x < context.result.data.length; x++) {
+              for (let i = 0; i < context.result.data[x].inventory_items?.length; i++) {
+                context.result.data[x].inventory_items[i].metadata = JSON.parse(
+                  context.result.data[x].inventory_items[i].metadata
+                )
+              }
+            }
+          }
+        } catch (err) {
+          console.log('inventory item parsing error on user.FIND', err)
+        }
+        return context
+      }
       // async (context: HookContext): Promise<HookContext> => {
       //   try {
       //     const { app, result } = context
@@ -133,6 +217,18 @@ export default {
       // }
     ],
     get: [
+      (context: HookContext): HookContext => {
+        try {
+          if (context.result) {
+            for (let i = 0; i < context.result.inventory_items?.length; i++) {
+              context.result.inventory_items[i].metadata = JSON.parse(context.result.inventory_items[i].metadata)
+            }
+          }
+        } catch (err) {
+          console.log('inventory item parsing error on user.GET', err)
+        }
+        return context
+      }
       // async (context: HookContext): Promise<HookContext> => {
       //   try {
       //     if (context.result.subscriptions && context.result.subscriptions.length > 0) {
@@ -171,7 +267,7 @@ export default {
             userId: context.result.id
           })
 
-          context.arguments[0]?.scopeTypes?.forEach((el) => {
+          context.arguments[0]?.scopes?.forEach((el) => {
             context.app.service('scope').create({
               type: el.type,
               userId: context.result.id
@@ -181,9 +277,12 @@ export default {
           const app = context.app
           let result = context.result
           if (Array.isArray(result)) result = result[0]
+          if (result?.userRole !== 'guest')
+            await context.app.service('user-api-key').create({
+              userId: context.result.id
+            })
           if (result?.userRole !== 'guest' && result?.inviteCode == null) {
             const code = await getFreeInviteCode(app)
-
             await app.service('user').patch(result.id, {
               inviteCode: code
             })
@@ -193,6 +292,7 @@ export default {
           logger.error('USER AFTER CREATE ERROR')
           logger.error(err)
         }
+        return null!
       }
     ],
     update: [],

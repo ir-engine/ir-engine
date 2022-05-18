@@ -32,6 +32,20 @@ export function isOpenAPIError(response: unknown | OpenAPIErrorResponse): respon
   return error && typeof error.code !== 'undefined' && typeof error.message !== 'undefined'
 }
 
+export function isOpenMatchTicketAssignmentResponse(
+  data: unknown | OpenMatchTicketAssignmentResponse
+): data is OpenMatchTicketAssignmentResponse {
+  const response = data as any
+  return response && typeof response.result !== 'undefined' && isOpenMatchTicketAssignment(response.result.assignment)
+}
+
+export function isOpenMatchTicketAssignment(
+  data: unknown | OpenMatchTicketAssignment
+): data is OpenMatchTicketAssignment {
+  const assignment = data as any
+  return assignment && typeof assignment.connection === 'string'
+}
+
 export interface OpenMatchTicketAssignment {
   connection: string
   extensions?: OpenMatchExtensions

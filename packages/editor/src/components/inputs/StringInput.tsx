@@ -31,7 +31,7 @@ interface StringInputProp {
  * @author Robert Long
  */
 const StringInput = React.forwardRef<{}, StringInputProp>(({ onChange, ...rest }, ref) => (
-  <StyledStringInput onChange={(e) => onChange(e.target.value, e)} {...rest} ref={ref} />
+  <StyledStringInput onChange={(e) => onChange?.(e.target.value, e)} {...rest} ref={ref} />
 ))
 
 StringInput.displayName = 'StringInput'

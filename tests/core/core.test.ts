@@ -33,8 +33,6 @@ describe('My Bot Tests', () => {
 
 })
 
-
-
 describe.skip('Multi-Bot Tests', () => { 
 
   const bots = [] as Array<XREngineBot>
@@ -86,3 +84,4 @@ describe.skip('Multi-Bot Tests', () => {
   //   ).toBeLessThan(sqrt2 * 2) // sqrt2 * 2 is the default size of our spawn area
   // })
 })
+

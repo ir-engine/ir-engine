@@ -2,10 +2,8 @@ import { locationSettingsSeed } from '../location-settings/location-settings.see
 import { Location } from '@xrengine/common/src/interfaces/Location'
 
 export const locationSeed = {
-  randomize: false,
   path: 'location',
   templates: [
-    // @ts-ignore
     {
       id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61',
       name: 'Test',
@@ -25,6 +23,17 @@ export const locationSeed = {
       sceneId: 'default-project/sky-station',
       location_settings: locationSettingsSeed.templates.find(
         (template) => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62'
+      ),
+      isLobby: false
+    } as Location,
+    {
+      id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d63',
+      name: 'Apartment',
+      slugifiedName: 'apartment',
+      maxUsersPerInstance: 30,
+      sceneId: 'default-project/apartment',
+      location_settings: locationSettingsSeed.templates.find(
+        (template) => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d63'
       ),
       isLobby: false
     } as Location,

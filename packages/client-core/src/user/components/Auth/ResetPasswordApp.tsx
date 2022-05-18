@@ -10,7 +10,6 @@ import InputAdornment from '@mui/material/InputAdornment'
 import IconButton from '@mui/material/IconButton'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from '../../../store'
 
 interface Props {
   token: string
@@ -19,7 +18,6 @@ interface Props {
 
 export const ResetPassword = (props: Props): any => {
   const { token, completeAction } = props
-  const dispatch = useDispatch()
   const initialState = { password: '', isSubmitted: false }
   const [state, setState] = useState(initialState)
   const { t } = useTranslation()
@@ -47,12 +45,12 @@ export const ResetPassword = (props: Props): any => {
   }
 
   const password = useRef<HTMLInputElement>()
-  const confirm_password = useRef<HTMLInputElement>()
+  const confirm_password = useRef<HTMLInputElement>(null!)
   function validatePassword() {
-    if (password.current.value != confirm_password.current.value) {
-      confirm_password.current.setCustomValidity(t('user:auth.resetPassword.passwordNotMatch'))
+    if (password?.current?.value != confirm_password?.current.value) {
+      confirm_password?.current.setCustomValidity(t('user:auth.resetPassword.passwordNotMatch'))
     } else {
-      confirm_password.current.setCustomValidity('')
+      confirm_password?.current.setCustomValidity('')
     }
   }
 

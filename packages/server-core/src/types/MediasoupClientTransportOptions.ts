@@ -1,4 +1,4 @@
-import { DtlsParameters, IceCandidate, IceParameters, SctpParameters } from 'mediasoup/lib/types'
+import { DtlsParameters, IceCandidate, IceParameters, SctpParameters } from 'mediasoup/node/lib/types'
 
 export type MediasoupClientTransportOptions = {
   id: string

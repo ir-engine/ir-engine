@@ -1,8 +1,6 @@
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { Vector3, Quaternion, CylinderBufferGeometry, Mesh, Object3D } from 'three'
-import { ConvexGeometry } from '../../assets/threejs-various/ConvexGeometry'
+import { Vector3, Quaternion, Mesh, Object3D } from 'three'
 import { BodyType, ColliderTypes, ObstacleConfig } from '../types/PhysicsTypes'
-import { arrayOfPointsToArrayOfVector3 } from '../../scene/functions/arrayOfPointsToArrayOfVector3'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { Entity } from '../../ecs/classes/Entity'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -13,6 +11,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { getTransform } from './parseModelColliders'
 import { getGeometryType } from '../classes/Physics'
 import { vectorToArray } from './physxHelpers'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -24,10 +23,6 @@ const xVec = new Vector3(1, 0, 0)
 const yVec = new Vector3(0, 1, 0)
 const zVec = new Vector3(0, 0, 1)
 const halfPI = Math.PI / 2
-
-export type BodyOptions = {
-  bodyType?: BodyType
-}
 
 export type ShapeOptions = {
   type: ColliderTypes
@@ -74,7 +69,8 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
   // type is required
   if (!shapeOptions.type) return undefined!
 
-  const scale = mesh.scale ?? new Vector3(1, 1, 1)
+  let scale = mesh.scale ?? new Vector3(1, 1, 1)
+  mesh.getWorldScale(scale)
 
   const world = useWorld()
 
@@ -222,6 +218,17 @@ export const createCollider = (entity: Entity, mesh: Mesh) => {
   addComponent(entity, CollisionComponent, { collisions: [] })
 }
 
+export const createColliderForObject3D = (entity: Entity, data, disableGravity: boolean) => {
+  const object3d = getComponent(entity, Object3DComponent)
+  if (object3d) {
+    const shapes = getAllShapesFromObject3D(entity, object3d.value as any, data)
+    const body = createBody(entity, data, shapes)
+    body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, disableGravity)
+    addComponent(entity, ColliderComponent, { body })
+    addComponent(entity, CollisionComponent, { collisions: [] })
+  }
+}
+
 export const createObstacleFromMesh = (entity: Entity, mesh: Mesh) => {
   const transform = getComponent(entity, TransformComponent)
   const [position, quaternion, scale] = getTransform(
@@ -242,9 +249,9 @@ export const createObstacleFromMesh = (entity: Entity, mesh: Mesh) => {
 }
 
 const EPSILON = 1e-6
-export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: BodyOptions | ShapeOptions) => {
+export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: ShapeOptions) => {
   const shapes: any[] = []
-  shapes.push(createShape(entity, asset as any, data as ShapeOptions))
+  shapes.push(createShape(entity, asset as any, data))
 
   const shapeObjs: any[] = []
   asset.traverse((mesh: Mesh) => {

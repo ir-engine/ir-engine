@@ -1,22 +1,19 @@
-import './hookstate_devtools.es'
+import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import React, { Suspense } from 'react'
 import ReactDOM from 'react-dom'
+import './env-config'
+import './hookstate_devtools.es'
 import { initialize } from './util'
 
 const AppPage = React.lazy(() => import('./pages/_app'))
 
-import('./env-config').then((module) => {
-  const envConfig = module.default
-  // Initialize i18n and client-core
-  envConfig()
-  initialize()
-    // then load the app
-    .then((_) => {
-      ReactDOM.render(
-        <Suspense fallback="Loading...">
-          <AppPage />
-        </Suspense>,
-        document.getElementById('root')
-      )
-    })
-})
+initialize()
+  // then load the app
+  .then((_) => {
+    ReactDOM.render(
+      <Suspense fallback={<LoadingCircle />}>
+        <AppPage />
+      </Suspense>,
+      document.getElementById('root')
+    )
+  })

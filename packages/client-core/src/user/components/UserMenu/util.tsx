@@ -1,6 +1,5 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import type { Network } from '@xrengine/engine/src/networking/classes/Network'
 
 export const Views = {
   Closed: '',
@@ -14,7 +13,10 @@ export const Views = {
   Location: 'Location',
   Emote: 'Emote',
   NewLocation: 'NewLocation',
-  ReadyPlayer: 'ReadyPlayer'
+  ReadyPlayer: 'ReadyPlayer',
+  Inventory: 'Inventory',
+  Wallet: 'Wallet',
+  Trading: 'Trading'
 }
 
 export interface UserMenuProps {
@@ -26,7 +28,7 @@ export interface UserMenuProps {
   showDialog?: Function
   alertSuccess?: Function
   currentScene?: any
-  provisionInstanceServer?: any
+  provisionServer?: any
   uploadAvatarModel?: Function
   fetchAvatarList?: Function
   updateUserSettings?: Function
@@ -44,7 +46,7 @@ export interface SettingMenuProps {
 export const DEFAULT_PROFILE_IMG_PLACEHOLDER = '/placeholders/default-silhouette.svg'
 
 export function getAvatarURLForUser(userId?: UserId) {
-  const world = Engine.defaultWorld
+  const world = Engine.currentWorld
   if (!world || !userId) return DEFAULT_PROFILE_IMG_PLACEHOLDER
   if (!world.clients.has(userId)) return DEFAULT_PROFILE_IMG_PLACEHOLDER
   return world.clients.get(userId)!.avatarDetail?.thumbnailURL || DEFAULT_PROFILE_IMG_PLACEHOLDER

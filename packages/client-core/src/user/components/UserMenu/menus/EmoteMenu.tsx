@@ -4,8 +4,6 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 // @ts-ignore
 import styles from '../UserMenu.module.scss'
 import { NavigateNext, NavigateBefore } from '@mui/icons-material'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/LocalInputTagComponent'
 //import { LocalInputTagComponent } from '../../../../../engine/src/input/components/LocalInputTagComponent'
 import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
 import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'
@@ -120,7 +118,7 @@ const EmoteMenu = (props: any): any => {
   }
 
   const runAnimation = (animationName: string, params: WeightsParameterType) => {
-    const entity = Engine.defaultWorld.entities.find((e) => hasComponent(e, LocalInputTagComponent))
+    const entity = Engine.currentWorld.localClientEntity
 
     AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
 
@@ -129,7 +127,7 @@ const EmoteMenu = (props: any): any => {
   }
 
   const renderEmoteList = () => {
-    const itemList = []
+    const itemList = [] as JSX.Element[]
     const startIndex = page * imgPerPage
     const endIndex = Math.min(startIndex + imgPerPage, items.length)
     let angle = 360 / imgPerPage

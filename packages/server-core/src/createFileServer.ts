@@ -6,7 +6,7 @@ import net from 'net'
 
 const serve = serveStatic('../server/upload/')
 
-let server: https.Server = null
+let server: https.Server = null!
 const options = {
   key: fs.readFileSync('../../certs/key.pem'),
   cert: fs.readFileSync('../../certs/cert.pem')
@@ -16,7 +16,7 @@ const createTestFileServer = (port: number, isServerRunning: boolean) => {
   if (isServerRunning) return
 
   server = https.createServer(options, (req, res) => {
-    serve(req, res, null)
+    serve(req, res, null!)
   })
   server.listen(port)
 }

@@ -1,7 +1,6 @@
 import { Params } from '@feathersjs/feathers'
 import { LocalStrategy } from '@feathersjs/authentication-local'
 import { NotAuthenticated } from '@feathersjs/errors'
-import { Service } from 'feathers-sequelize'
 
 export class MyLocalStrategy extends LocalStrategy {
   async findEntity(username: string, params: Params): Promise<any> {
@@ -10,7 +9,7 @@ export class MyLocalStrategy extends LocalStrategy {
       throw new NotAuthenticated(errorMessage)
     }
 
-    const entityService = this.app?.service(service)
+    const entityService = this.app?.service(service)!
 
     const result = (await entityService.find({
       query: {

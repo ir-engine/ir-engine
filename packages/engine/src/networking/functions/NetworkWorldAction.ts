@@ -5,59 +5,59 @@ import {
   matchesQuaternion,
   matchesUserId,
   matchesVector3,
-  matchesWithInitializer
-} from '../interfaces/Action'
-import { Network } from '../classes/Network'
+  matchesWithDefault
+} from '../../ecs/functions/Action'
 import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
 import { matchesWeightsParameters } from '../../avatar/animations/Util'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 export class NetworkWorldAction {
   static createClient = defineActionCreator({
     type: 'network.CREATE_CLIENT',
-    userId: matchesUserId,
     name: matches.string,
-    avatarDetail: matchesAvatarProps
+    index: matches.number
   })
 
   static destroyClient = defineActionCreator({
-    type: 'network.DESTROY_CLIENT',
-    userId: matchesUserId
+    type: 'network.DESTROY_CLIENT'
   })
 
-  static setXRMode = defineActionCreator(
+  static setXRMode = defineActionCreator({
+    type: 'network.SET_XR_MODE',
+    enabled: matches.boolean
+  })
+
+  static xrHandsConnected = defineActionCreator({
+    type: 'network.XR_HANDS_CONNECTED'
+  })
+
+  static spawnObject = defineActionCreator(
     {
-      type: 'network.SET_XR_MODE',
-      userId: matchesUserId,
-      enabled: matches.boolean
+      type: 'network.SPAWN_OBJECT',
+      prefab: matches.string,
+      networkId: matchesWithDefault(matchesNetworkId, () => useWorld().createNetworkId()),
+      ownerIndex: matches.number,
+      parameters: matches.any.optional()
     },
-    { allowDispatchFromAny: true }
+    (action) => {
+      action.$cache = true
+    }
   )
 
-  static xrHandsConnected = defineActionCreator(
+  static spawnAvatar = defineActionCreator(
     {
-      type: 'network.XR_HANDS_CONNECTED',
-      userId: matchesUserId
+      ...NetworkWorldAction.spawnObject.actionShape,
+      prefab: 'avatar',
+      parameters: matches.shape({
+        position: matchesVector3,
+        rotation: matchesQuaternion
+      })
     },
-    { allowDispatchFromAny: true }
+    (action) => {
+      action.$cache = true
+    }
   )
-
-  static spawnObject = defineActionCreator({
-    type: 'network.SPAWN_OBJECT',
-    userId: matchesUserId,
-    prefab: matches.string,
-    networkId: matchesWithInitializer(matchesNetworkId, () => Network.getNetworkId()),
-    parameters: matches.any.optional()
-  })
-
-  static spawnAvatar = defineActionCreator({
-    ...NetworkWorldAction.spawnObject.actionShape,
-    prefab: 'avatar',
-    parameters: matches.shape({
-      position: matchesVector3,
-      rotation: matchesQuaternion
-    })
-  })
 
   static destroyObject = defineActionCreator({
     type: 'network.DESTROY_OBJECT',
@@ -66,25 +66,36 @@ export class NetworkWorldAction {
 
   static setEquippedObject = defineActionCreator({
     type: 'network.SET_EQUIPPED_OBJECT',
-    networkId: matchesNetworkId,
-    equip: matches.boolean
+    object: matches.shape({
+      ownerId: matchesUserId,
+      networkId: matchesNetworkId
+    }),
+    equip: matches.boolean,
+    attachmentPoint: matches.number
   })
 
-  static avatarAnimation = defineActionCreator(
+  static avatarAnimation = defineActionCreator({
+    type: 'network.AVATAR_ANIMATION',
+    newStateName: matches.string,
+    params: matchesWeightsParameters
+  })
+
+  static avatarDetails = defineActionCreator(
     {
-      type: 'network.AVATAR_ANIMATION',
-      newStateName: matches.string,
-      params: matchesWeightsParameters
+      type: 'network.AVATAR_DETAILS',
+      avatarDetail: matchesAvatarProps
     },
-    { allowDispatchFromAny: true }
+    (action) => {
+      action.$cache = { removePrevious: true }
+    }
   )
 
-  static teleportObject = defineActionCreator(
-    {
-      type: 'network.TELEPORT_OBJECT',
-      networkId: matchesNetworkId,
-      pose: matchPose
-    },
-    { allowDispatchFromAny: true }
-  )
+  static teleportObject = defineActionCreator({
+    type: 'network.TELEPORT_OBJECT',
+    object: matches.shape({
+      ownerId: matchesUserId,
+      networkId: matchesNetworkId
+    }),
+    pose: matchPose
+  })
 }

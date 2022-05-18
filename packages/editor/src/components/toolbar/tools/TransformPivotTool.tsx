@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { Bullseye } from '@styled-icons/fa-solid/Bullseye'
 import { TransformPivot, TransformPivotType } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { CommandManager } from '../../../managers/CommandManager'
 import EditorEvents from '../../../constants/EditorEvents'
@@ -10,6 +9,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { EditorControlComponent } from '../../../classes/EditorControlComponent'
 import { setTransformPivot, toggleTransformPivot } from '../../../systems/EditorControlSystem'
 import { SceneManager } from '../../../managers/SceneManager'
+import AdjustIcon from '@mui/icons-material/Adjust'
 
 /**
  *
@@ -49,7 +49,7 @@ const TransformPivotTool = () => {
     <div className={styles.toolbarInputGroup} id="transform-pivot">
       <InfoTooltip info="[X] Toggle Transform Pivot">
         <button onClick={onToggleTransformPivot} className={styles.toolButton}>
-          <Bullseye size={12} />
+          <AdjustIcon fontSize="small" />
         </button>
       </InfoTooltip>
       <SelectInput

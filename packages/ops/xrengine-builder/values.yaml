@@ -62,3 +62,4 @@ mariadb:
   replication:
     enabled: false
   externalHost: ""  # use to override - must set mariadb.enabled to false
+  externalPort: 3306

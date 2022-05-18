@@ -13,7 +13,7 @@ declare module '../../../declarations' {
   }
 }
 
-function redirect(req, res, next): Promise<any> {
+function redirect(req, res, next): any {
   try {
     if (res.data.error) {
       return res.redirect(`${config.client.url}/?error=${res.data.error as string}`)

@@ -17,7 +17,7 @@ import styles from '../UserMenu.module.scss'
 
 const LocationMenu = ({ changeActiveLocation }) => {
   const [page, setPage] = useState(0)
-  const [locationDetails, setLocationsDetails] = useState(null)
+  const [locationDetails, setLocationsDetails] = useState<any>(null!)
   const ROWS_PER_PAGE = 10
   const { t } = useTranslation()
   const tableHeaders = [
@@ -111,7 +111,7 @@ const LocationMenu = ({ changeActiveLocation }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody className={styles.tablebody}>
-                  {locationDetails.data.map((row, i) => {
+                  {locationDetails.data?.map((row, i) => {
                     return (
                       <TableRow
                         className={styles.tableRow}

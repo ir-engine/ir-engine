@@ -175,7 +175,7 @@ export class OrbitControls extends EventDispatcher {
     this.updateOffset = new Vector3()
     // so camera.up is the orbit axis
     this.updateQuat = new Quaternion().setFromUnitVectors(object.up, new Vector3(0, 1, 0))
-    this.updateQuatInverse = this.updateQuat.clone().inverse()
+    this.updateQuatInverse = this.updateQuat.clone().invert()
     this.updateLastPosition = new Vector3()
     this.updateLastQuaternion = new Quaternion()
 

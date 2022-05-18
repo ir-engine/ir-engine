@@ -62,7 +62,7 @@ export async function sendEmail(app: Application, email: any): Promise<void> {
 export const sendSms = async (app: Application, sms: any): Promise<void> => {
   await app
     .service('sms')
-    .create(sms)
+    .create(sms, null!)
     .then(() => console.log('Sent SMS'))
     .catch((err: any) => console.log('Error sending SMS', err))
 }
@@ -75,5 +75,5 @@ export const sendSms = async (app: Application, sms: any): Promise<void> => {
  * @author Vyacheslav Solovjov
  */
 export const extractLoggedInUserFromParams = (params: Params): any => {
-  return params[config.authentication.entity]
+  return params.user
 }

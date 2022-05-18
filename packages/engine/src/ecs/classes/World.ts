@@ -1,10 +1,15 @@
 import { isClient } from '../../common/functions/isClient'
-import { Action } from '../../networking/interfaces/Action'
-import { addComponent, defineQuery, getComponent, hasComponent, MappedComponent } from '../functions/ComponentFunctions'
+import { Action } from '../functions/Action'
+import {
+  addComponent,
+  defineQuery,
+  EntityRemovedComponent,
+  getComponent,
+  hasComponent
+} from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
-import { SystemFactoryType, SystemModuleType } from '../functions/SystemFunctions'
+import { SystemFactoryType, SystemInstanceType, SystemModuleType } from '../functions/SystemFunctions'
 import { Entity } from './Entity'
-import { System } from './System'
 import { Engine } from './Engine'
 import * as bitecs from 'bitecs'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -16,8 +21,10 @@ import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { WorldStateInterface } from '../../networking/schema/networkSchema'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
-
-type SystemInstanceType = { name: string; type: SystemUpdateType; execute: System }
+import EntityTree from './EntityTree'
+import { PortalComponent } from '../../scene/components/PortalComponent'
+import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 type RemoveIndex<T> = {
   [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
@@ -28,9 +35,16 @@ export class World {
   private constructor() {
     bitecs.createWorld(this)
     Engine.worlds.push(this)
+
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
-    if (!Engine.defaultWorld) Engine.defaultWorld = this
+
+    this.networkIdMap = new Map<NetworkId, Entity>()
+    this.userIdToUserIndex = new Map()
+    this.userIndexToUserId = new Map()
+
+    if (!Engine.currentWorld) Engine.currentWorld = this
+
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
   }
 
@@ -42,14 +56,21 @@ export class World {
   delta = NaN
   elapsedTime = NaN
   fixedDelta = NaN
-  fixedElapsedTime = NaN
-  fixedTick = -1
+  fixedElapsedTime = 0
+  fixedTick = 0
 
   _pipeline = [] as SystemModuleType<any>[]
 
   physics = new Physics()
-  entities = [] as Entity[]
-  portalEntities = [] as Entity[]
+
+  #entityQuery = bitecs.defineQuery([bitecs.Not(EntityRemovedComponent)])
+  entityQuery = () => this.#entityQuery(this) as Entity[]
+
+  #entityRemovedQuery = bitecs.defineQuery([EntityRemovedComponent])
+
+  #portalQuery = bitecs.defineQuery([PortalComponent])
+  portalQuery = () => this.#portalQuery(this) as Entity[]
+
   isInPortal = false
 
   /** Connected clients */
@@ -58,14 +79,20 @@ export class World {
   /** Incoming actions */
   incomingActions = new Set<Required<Action>>()
 
-  /** Delayed actions */
-  delayedActions = new Set<Required<Action>>()
+  /** Cached actions */
+  cachedActions = new Set<Required<Action>>()
 
   /** Outgoing actions */
   outgoingActions = new Set<Action>()
 
-  outgoingNetworkState: WorldStateInterface
-  previousNetworkState: WorldStateInterface
+  /** All actions that have been dispatched */
+  actionHistory = new Set<Action>()
+
+  networkIdMap: Map<NetworkId, Entity>
+  userIndexToUserId: Map<number, UserId>
+  userIdToUserIndex: Map<UserId, number>
+
+  userIndexCount = 0
 
   /**
    * Check if this user is hosting the world.
@@ -80,7 +107,7 @@ export class World {
   hostId = 'server' as HostUserId
 
   /**
-   * The world entity (always exists, and always has eid 0)
+   * The world entity
    */
   worldEntity: Entity
 
@@ -90,21 +117,9 @@ export class World {
   localClientEntity: Entity
 
   /**
-   * Systems that run only once every frame.
-   * Ideal for cosmetic updates (e.g., particles), animation, rendering, etc.
-   */
-  freeSystems = [] as SystemInstanceType[]
-
-  /**
-   * Systems that run once for every fixed time interval (in simulation time).
-   * Ideal for game logic, ai logic, simulation logic, etc.
-   */
-  fixedSystems = [] as SystemInstanceType[]
-
-  /**
    * Custom systems injected into this world
    */
-  injectedSystems = {
+  pipelines = {
     [SystemUpdateType.UPDATE]: [],
     [SystemUpdateType.FIXED_EARLY]: [],
     [SystemUpdateType.FIXED]: [],
@@ -123,22 +138,32 @@ export class World {
    */
   networkObjectQuery = defineQuery([NetworkObjectComponent])
 
+  /** Tree of entity holding parent child relation between entities. */
+  entityTree = new EntityTree()
+
+  /** Registry map of scene loader components  */
+  sceneLoadingRegistry = new Map<string, SceneLoaderType>()
+
+  /** Registry map of prefabs  */
+  scenePrefabRegistry = new Map<string, ComponentJson[]>()
+
   /**
    * Get the network objects owned by a given user
-   * @param userId
+   * @param ownerId
    */
-  getOwnedNetworkObjects(userId: UserId) {
-    return this.networkObjectQuery(this).filter((eid) => getComponent(eid, NetworkObjectComponent).userId === userId)
+  getOwnedNetworkObjects(ownerId: UserId) {
+    return this.networkObjectQuery(this).filter((eid) => getComponent(eid, NetworkObjectComponent).ownerId === ownerId)
   }
 
   /**
-   * Get a network object by NetworkId
+   * Get a network object by owner and NetworkId
    * @returns
    */
-  getNetworkObject(networkId: NetworkId) {
-    return this.networkObjectQuery(this).find(
-      (eid) => getComponent(eid, NetworkObjectComponent).networkId === networkId
-    )!
+  getNetworkObject(ownerId: UserId, networkId: NetworkId) {
+    return this.networkObjectQuery(this).find((eid) => {
+      const networkObject = getComponent(eid, NetworkObjectComponent)
+      return networkObject.networkId === networkId && networkObject.ownerId === ownerId
+    })!
   }
 
   /**
@@ -150,6 +175,14 @@ export class World {
     return this.getOwnedNetworkObjects(userId).find((eid) => {
       return hasComponent(eid, AvatarComponent, this)
     })!
+  }
+
+  /** ID of last network created. */
+  #availableNetworkId = 0 as NetworkId
+
+  /** Get next network id. */
+  createNetworkId(): NetworkId {
+    return ++this.#availableNetworkId as NetworkId
   }
 
   /**
@@ -166,42 +199,10 @@ export class World {
   execute(delta: number, elapsedTime: number) {
     this.delta = delta
     this.elapsedTime = elapsedTime
-    for (const system of this.freeSystems) system.execute()
-  }
-
-  async initSystems() {
-    const loadSystem = async (s: SystemFactoryType<any>) => {
-      const system = await s.systemModule.default(this, s.args)
-      return {
-        name: s.systemModule.default.name,
-        type: s.type,
-        execute: () => {
-          try {
-            system()
-          } catch (e) {
-            console.error(e)
-          }
-        }
-      } as SystemInstanceType
-    }
-    const systemModule = await Promise.all(
-      this._pipeline.map(async (s) => {
-        return {
-          args: s.args,
-          type: s.type,
-          systemModule: await s.systemModulePromise
-        }
-      })
-    )
-    const systems = await Promise.all(systemModule.map(loadSystem))
-    systems.forEach((s) => console.log(`${s.type} ${s.name}`))
-    this.freeSystems = systems.filter((s) => {
-      return !s.type.includes('FIXED')
-    })
-    this.fixedSystems = systems.filter((s) => {
-      return s.type.includes('FIXED')
-    })
-    console.log('[World]: All systems initialized!')
+    for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.execute()
+    for (const system of this.pipelines[SystemUpdateType.PRE_RENDER]) system.execute()
+    for (const system of this.pipelines[SystemUpdateType.POST_RENDER]) system.execute()
+    for (const entity of this.#entityRemovedQuery(this)) bitecs.removeEntity(this, entity)
   }
 }
 

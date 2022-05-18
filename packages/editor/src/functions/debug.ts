@@ -48,8 +48,9 @@ export function serializeProperty(value) {
 }
 export function serializeProperties(properties) {
   const debugProperties = {}
-  for (const propertyName in properties) {
-    if (Object.prototype.hasOwnProperty.call(properties, propertyName)) {
+  const propertyNames = Object.keys(properties)
+  for (const propertyName of propertyNames) {
+    if (typeof properties[propertyName] !== 'undefined') {
       debugProperties[propertyName] = serializeProperty(properties[propertyName])
     }
   }

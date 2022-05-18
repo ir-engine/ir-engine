@@ -1,8 +1,8 @@
 import React from 'react'
 import NumericInput from './NumericInput'
 import styled from 'styled-components'
-import { CaretLeft } from '@styled-icons/boxicons-regular/CaretLeft'
-import { CaretRight } from '@styled-icons/boxicons-regular/CaretRight'
+import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import { InfoTooltip } from '../layout/Tooltip'
 
 /**
@@ -80,13 +80,13 @@ export function NumericStepperInput({
     <StepperInputContainer style={style} className={className}>
       <InfoTooltip info={decrementTooltip} position="bottom">
         <StepperButton left onClick={onDecrement}>
-          <CaretLeft size={16} />
+          <ArrowLeftIcon fontSize="small" />
         </StepperButton>
       </InfoTooltip>
       <NumericInput {...rest} onChange={onChange} value={value} mediumStep={mediumStep} />
       <InfoTooltip info={incrementTooltip} position="bottom">
         <StepperButton right onClick={onIncrement}>
-          <CaretRight size={16} />
+          <ArrowRightIcon fontSize="small" />
         </StepperButton>
       </InfoTooltip>
     </StepperInputContainer>

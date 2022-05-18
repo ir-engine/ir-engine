@@ -2,11 +2,9 @@ import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { Invite } from '@xrengine/common/src/interfaces/Invite'
 import { accessAuthState } from '../../user/services/AuthService'
-import { Config } from '@xrengine/common/src/config'
 import { AlertService } from '../../common/services/AlertService'
-import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
 import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 
 const emailRegex =
   /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
@@ -101,20 +99,20 @@ export const InviteService = {
     {
       if (data.identityProviderType === 'email') {
         if (emailRegex.test(data.token) !== true) {
-          AlertService.dispatchAlertError('Invalid email address')
+          AlertService.dispatchAlertError(new Error('Invalid email address'))
           return
         }
       }
       if (data.identityProviderType === 'sms') {
         if (phoneRegex.test(data.token) !== true) {
-          AlertService.dispatchAlertError('Invalid 10-digit US phone number')
+          AlertService.dispatchAlertError(new Error('Invalid 10-digit US phone number'))
           return
         }
       }
 
       if (data.inviteCode != null) {
         if (inviteCodeRegex.test(data.inviteCode) !== true) {
-          AlertService.dispatchAlertError('Invalid Invite Code')
+          AlertService.dispatchAlertError(new Error('Invalid Invite Code'))
           return
         } else {
           const userResult = await client.service('user').find({
@@ -129,7 +127,7 @@ export const InviteService = {
           }
 
           if (userResult.total === 0) {
-            AlertService.dispatchAlertError('No user has that invite code')
+            AlertService.dispatchAlertError(new Error('No user has that invite code'))
             return
           } else {
             data.invitee = userResult.data[0].id
@@ -139,13 +137,13 @@ export const InviteService = {
 
       if (data.invitee != null) {
         if (userIdRegex.test(data.invitee) !== true) {
-          AlertService.dispatchAlertError('Invalid user ID')
+          AlertService.dispatchAlertError(new Error('Invalid user ID'))
           return
         }
       }
 
       if ((data.token == null || data.token.length === 0) && (data.invitee == null || data.invitee.length === 0)) {
-        AlertService.dispatchAlertError(`Not a valid recipient`)
+        AlertService.dispatchAlertError(new Error(`Not a valid recipient`))
         return
       }
 
@@ -153,13 +151,14 @@ export const InviteService = {
         const params = {
           inviteType: data.type,
           token: data.token,
-          inviteCode: data.inviteCode,
           targetObjectId: data.targetObjectId,
           identityProviderType: data.identityProviderType,
           inviteeId: data.invitee
         }
 
-        const existingInviteResult = await client.service('invite').find(params)
+        const existingInviteResult = await client.service('invite').find({
+          query: params
+        })
 
         let inviteResult
         if (existingInviteResult.total === 0) inviteResult = await client.service('invite').create(params)
@@ -167,8 +166,7 @@ export const InviteService = {
         AlertService.dispatchAlertSuccess('Invite Sent')
         dispatch(InviteAction.sentInvite(inviteResult))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -180,7 +178,6 @@ export const InviteService = {
       const skip = inviteState.receivedInvites.skip
       const limit = inviteState.receivedInvites.limit
       try {
-        await waitForClientAuthenticated()
         const inviteResult = await client.service('invite').find({
           query: {
             type: 'received',
@@ -190,8 +187,7 @@ export const InviteService = {
         })
         dispatch(InviteAction.retrievedReceivedInvites(inviteResult))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -203,7 +199,6 @@ export const InviteService = {
       const skip = inviteState.sentInvites.skip
       const limit = inviteState.sentInvites.limit
       try {
-        await waitForClientAuthenticated()
         const inviteResult = await client.service('invite').find({
           query: {
             type: 'sent',
@@ -213,7 +208,7 @@ export const InviteService = {
         })
         dispatch(InviteAction.retrievedSentInvites(inviteResult))
       } catch (err) {
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -224,8 +219,7 @@ export const InviteService = {
         await client.service('invite').remove(invite.id)
         dispatch(InviteAction.removedSentInvite())
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -240,8 +234,7 @@ export const InviteService = {
         })
         dispatch(InviteAction.acceptedInvite())
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -252,7 +245,7 @@ export const InviteService = {
         await client.service('invite').remove(invite.id)
         dispatch(InviteAction.declinedInvite())
       } catch (err) {
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -264,7 +257,7 @@ export const InviteService = {
   }
 }
 
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('invite').on('created', (params) => {
     const invite = params.invite
     const selfUser = accessAuthState().user
@@ -342,7 +335,7 @@ export const InviteAction = {
       type: 'DECLINED_INVITE' as const
     }
   },
-  setInviteTarget: (targetObjectType: string, targetObjectId: string) => {
+  setInviteTarget: (targetObjectType?: string, targetObjectId?: string) => {
     return {
       type: 'INVITE_TARGET_SET' as const,
       targetObjectId: targetObjectId,

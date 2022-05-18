@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChartArea } from '@styled-icons/fa-solid/ChartArea'
 import { SceneManager } from '../../../managers/SceneManager'
 import { InfoTooltip } from '../../layout/Tooltip'
 import styles from '../styles.module.scss'
+import SsidChartIcon from '@mui/icons-material/SsidChart'
 
 /**
  * Stats used to show stats of  memory and  render.
@@ -18,18 +18,16 @@ const StatsTool = () => {
 
   useEffect(() => {
     SceneManager.instance.onUpdateStats = (info) => {
-      if (info.render.frame % 3 === 0) {
-        setInfo({
-          geometries: info.memory.geometries,
-          textures: info.memory.textures,
-          fps: (info.render as any).fps,
-          frameTime: (info.render as any).frameTime,
-          calls: info.render.calls,
-          triangles: info.render.triangles,
-          points: info.render.points,
-          lines: info.render.lines
-        })
-      }
+      setInfo({
+        geometries: info.memory.geometries,
+        textures: info.memory.textures,
+        fps: (info.render as any).fps,
+        frameTime: (info.render as any).frameTime,
+        calls: info.render.calls,
+        triangles: info.render.triangles,
+        points: info.render.points,
+        lines: info.render.lines
+      })
     }
 
     return () => {
@@ -51,7 +49,7 @@ const StatsTool = () => {
       <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="stats">
         <InfoTooltip info="Toggle Stats">
           <button onClick={toggleStats} className={styles.toolButton + ' ' + (isVisible ? styles.selected : '')}>
-            <ChartArea size={12} />
+            <SsidChartIcon fontSize="small" />
           </button>
         </InfoTooltip>
       </div>

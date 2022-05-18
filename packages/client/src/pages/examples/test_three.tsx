@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react'
-import {
-  Scene,
-  WebGLRenderer,
-  Color,
-  Mesh,
-  BoxBufferGeometry,
-  MeshStandardMaterial,
-  Vector3,
-  PerspectiveCamera,
-  AmbientLight
-} from 'three'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import TrailRenderer from '@xrengine/engine/src/scene/classes/TrailRenderer'
+import React, { useEffect } from 'react'
+import {
+  AmbientLight,
+  BoxBufferGeometry,
+  Color,
+  Mesh,
+  MeshStandardMaterial,
+  PerspectiveCamera,
+  Scene,
+  Vector3,
+  WebGLRenderer
+} from 'three'
 
 const canvasStyle = {
   zIndex: 0,
@@ -55,7 +55,7 @@ const DevPage = () => {
     scene.add(trailTarget)
     scene.add(new AmbientLight(0xaaaaaa))
 
-    const trailHeadGeometry = []
+    const trailHeadGeometry: Vector3[] = []
     trailHeadGeometry.push(new Vector3(-1.0, 0.0, 0.0), new Vector3(0.0, 0.0, 0.0), new Vector3(1.0, 0.0, 0.0))
     const trail = new TrailRenderer(false)
     const trailMaterial = TrailRenderer.createBaseMaterial()

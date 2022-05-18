@@ -44,7 +44,7 @@ export default (app: Application) => {
   service.publish('created', async (data): Promise<any> => {
     data.sender = await app.service('user').get(data.senderId)
     const channel = await app.service('channel').get(data.channelId)
-    let targetIds = []
+    let targetIds: any[] = []
     if (channel.channelType === 'party') {
       const partyUsers = await app.service('party-user').find({
         query: {
@@ -102,7 +102,7 @@ export default (app: Application) => {
   service.publish('removed', async (data): Promise<any> => {
     data.sender = await app.service('user').get(data.senderId)
     const channel = await app.service('channel').get(data.channelId)
-    let targetIds = []
+    let targetIds: any[] = []
     if (channel.channelType === 'party') {
       const partyUsers = await app.service('party-user').find({
         query: {
@@ -160,7 +160,7 @@ export default (app: Application) => {
   service.publish('patched', async (data): Promise<any> => {
     data.sender = await app.service('user').get(data.senderId)
     const channel = await app.service('channel').get(data.channelId)
-    let targetIds = []
+    let targetIds: any[] = []
     if (channel.channelType === 'party') {
       const partyUsers = await app.service('party-user').find({
         query: {

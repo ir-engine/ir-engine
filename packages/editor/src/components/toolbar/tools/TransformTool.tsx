@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { ArrowsAlt } from '@styled-icons/fa-solid/ArrowsAlt'
-import { ArrowsAltV } from '@styled-icons/fa-solid/ArrowsAltV'
-import { SyncAlt } from '@styled-icons/fa-solid/SyncAlt'
+import SyncIcon from '@mui/icons-material/Sync'
+import HeightIcon from '@mui/icons-material/Height'
+import OpenWithIcon from '@mui/icons-material/OpenWith'
 import { TransformMode, TransformModeType } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 import * as styles from '../styles.module.scss'
@@ -36,7 +36,7 @@ const TransformTool = () => {
           className={styles.toolButton + ' ' + (transformMode === TransformMode.Translate ? styles.selected : '')}
           onClick={() => setTransformMode(TransformMode.Translate)}
         >
-          <ArrowsAlt size={12} />
+          <OpenWithIcon fontSize="small" />
         </button>
       </InfoTooltip>
       <InfoTooltip id="rotate-button" info="[R] Rotate" position="bottom">
@@ -44,7 +44,7 @@ const TransformTool = () => {
           className={styles.toolButton + ' ' + (transformMode === TransformMode.Rotate ? styles.selected : '')}
           onClick={() => setTransformMode(TransformMode.Rotate)}
         >
-          <SyncAlt size={12} />
+          <SyncIcon fontSize="small" />
         </button>
       </InfoTooltip>
       <InfoTooltip id="scale-button" info="[Y] Scale" position="bottom">
@@ -52,7 +52,7 @@ const TransformTool = () => {
           className={styles.toolButton + ' ' + (transformMode === TransformMode.Scale ? styles.selected : '')}
           onClick={() => setTransformMode(TransformMode.Scale)}
         >
-          <ArrowsAltV size={12} />
+          <HeightIcon fontSize="small" />
         </button>
       </InfoTooltip>
     </div>

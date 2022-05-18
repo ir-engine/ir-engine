@@ -1,17 +1,15 @@
-import React, { Component } from 'react'
+import React from 'react'
+import LanguageIcon from '@mui/icons-material/Language'
 import NodeEditor from './NodeEditor'
-
-type DefaultNodeEditorProps = {
-  node?: object
-}
+import { EditorComponentType } from './Util'
 
 /**
  * DefaultNodeEditor  used to render view when no element is selected
  *
  * @author Robert Long
  */
-export const DefaultNodeEditor = (props: DefaultNodeEditorProps) => {
+export const DefaultNodeEditor: EditorComponentType = (props) => {
   return <NodeEditor {...props} />
 }
 
-export default DefaultNodeEditor
+DefaultNodeEditor.iconComponent = LanguageIcon

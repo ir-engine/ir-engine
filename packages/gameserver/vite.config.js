@@ -23,7 +23,6 @@ export default defineConfig(() => {
     ...process.env,
     ...env
   };
-  console.log(process.env.VITE_GAMESERVER_PORT)
 
   return {
     plugins: [
@@ -37,7 +36,7 @@ export default defineConfig(() => {
     server: {
       host: true,
       hmr: false,
-      port: process.env.VITE_GAMESERVER_PORT,
+      port: process.env.GAMESERVER_PORT,
       https: {
         key: fs.readFileSync('../../certs/key.pem'),
         cert: fs.readFileSync('../../certs/cert.pem')

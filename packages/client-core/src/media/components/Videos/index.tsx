@@ -1,17 +1,13 @@
 import React, { useEffect } from 'react'
 import styles from './Videos.module.scss'
 import Button from '@mui/material/Button'
-import { useDispatch } from '../../../store'
-import { PublicVideo } from '../../services/VideoActions'
-import { useVideoState } from '../../services/VideoService'
-import { VideoService } from '../../services/VideoService'
+import { PublicVideo, useVideoState, VideoService } from '../../services/VideoService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {}
 
 export const VideoList = (props: Props): any => {
   const { t } = useTranslation()
-  const dispatch = useDispatch()
   const videos = useVideoState()
 
   useEffect(() => {

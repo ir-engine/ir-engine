@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableContainer from '@mui/material/TableContainer'
@@ -16,7 +15,6 @@ import { AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
 import styles from './Avatars.module.scss'
 import { useAvatarState } from '../../services/AvatarService'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
-import { AuthService } from '../../../user/services/AuthService'
 import { AvatarService } from '../../services/AvatarService'
 
 if (!global.setImmediate) {
@@ -52,10 +50,7 @@ const Avatars = (props: Props) => {
 
   type Order = 'asc' | 'desc'
 
-  function getComparator<Key extends keyof any>(
-    order: Order,
-    orderBy: Key
-  ): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {
+  function getComparator<Key extends keyof any>(order: Order, orderBy: Key) {
     return order === 'desc'
       ? (a, b) => descendingComparator(a, b, orderBy)
       : (a, b) => -descendingComparator(a, b, orderBy)
@@ -132,7 +127,7 @@ const Avatars = (props: Props) => {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = adminAvatars.value.map((n) => n.name)
+      const newSelecteds = adminAvatars.value.map((n) => n.name!)
       setSelected(newSelecteds)
       return
     }
@@ -177,10 +172,6 @@ const Avatars = (props: Props) => {
       height: window.innerHeight,
       width: window.innerWidth
     })
-  }
-
-  const uploadAvatarModel = (model: any, thumbnail: any, avatarName?: string, isPublicAvatar?: boolean): any => {
-    AuthService.uploadAvatarModel(model, thumbnail, avatarName, isPublicAvatar)
   }
 
   return (
@@ -257,11 +248,7 @@ const Avatars = (props: Props) => {
           />
         </div>
         {avatarSelectMenuOpen && (
-          <AvatarSelectMenu
-            changeActiveMenu={() => setAvatarSelectMenuOpen(false)}
-            uploadAvatarModel={uploadAvatarModel}
-            isPublicAvatar={true}
-          />
+          <AvatarSelectMenu changeActiveMenu={() => setAvatarSelectMenuOpen(false)} isPublicAvatar={true} />
         )}
       </Paper>
     </div>

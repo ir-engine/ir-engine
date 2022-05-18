@@ -1,9 +1,9 @@
 import app from '../../packages/server/src/app'
 import { v1 } from 'uuid'
 
-describe('CRUD operation on \'Entity\' model', () => {
+describe("CRUD operation on 'Entity' model", () => {
   const model = (app.service('entity') as any).Model
-  const entityId = v1();
+  const entityId = v1()
   it('Create', async () => {
     await model.create({
       name: 'test',
@@ -20,10 +20,7 @@ describe('CRUD operation on \'Entity\' model', () => {
   })
 
   it('Update', async () => {
-    await model.update(
-      { name: 'test1' },
-      { where: { entityId: entityId } }
-    )
+    await model.update({ name: 'test1' }, { where: { entityId: entityId } })
   })
 
   it('Delete', async () => {

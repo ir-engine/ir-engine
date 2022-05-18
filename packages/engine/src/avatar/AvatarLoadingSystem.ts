@@ -1,13 +1,7 @@
-import { Object3D, sRGBEncoding, Box3, Vector3 } from 'three'
+import { Object3D, Box3 } from 'three'
 import { Easing, Tween } from '@tweenjs/tween.js'
 
-import {
-  getComponent,
-  hasComponent,
-  addComponent,
-  removeComponent,
-  defineQuery
-} from '../ecs/functions/ComponentFunctions'
+import { getComponent, addComponent, removeComponent, defineQuery } from '../ecs/functions/ComponentFunctions'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
 
@@ -18,10 +12,8 @@ import { AvatarDissolveComponent } from './components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from './components/AvatarEffectComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { DissolveEffect } from './DissolveEffect'
-import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
-import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
-import { System } from '../ecs/classes/System'
 import { World } from '../ecs/classes/World'
+import { updateNearbyAvatars } from '../networking/systems/MediaStreamSystem'
 
 const lightScale = (y, r) => {
   return Math.min(1, Math.max(1e-3, y / r))
@@ -31,10 +23,10 @@ const lightOpacity = (y, r) => {
   return Math.min(1, Math.max(0, 1 - (y - r) * 0.5))
 }
 
-export default async function AvatarLoadingSystem(world: World): Promise<System> {
+export default async function AvatarLoadingSystem(world: World) {
   // precache dissolve effects
-  await AssetLoader.loadAsync({ url: '/itemLight.png' })
-  await AssetLoader.loadAsync({ url: '/itemPlate.png' })
+  AssetLoader.loadAsync({ url: '/itemLight.png' })
+  AssetLoader.loadAsync({ url: '/itemPlate.png' })
 
   const growQuery = defineQuery([AvatarEffectComponent, Object3DComponent, AvatarPendingComponent])
   const commonQuery = defineQuery([AvatarEffectComponent, Object3DComponent])
@@ -167,6 +159,9 @@ export default async function AvatarLoadingSystem(world: World): Promise<System>
             }
           })
         })
+
+        // TODO refacotr this
+        updateNearbyAvatars()
 
         addComponent(entity, TweenComponent, {
           tween: new Tween<any>(plateComponent)

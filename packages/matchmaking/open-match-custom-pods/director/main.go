@@ -24,11 +24,15 @@ import (
 	"lagunalabs/matchmaking/common"
 	"log"
 	//"math/rand"
+	"net/http"
+    "os"
+    "strconv"
 	"sync"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/heptiolabs/healthcheck"
 	"google.golang.org/grpc"
 	"open-match.dev/open-match/pkg/pb"
 )
@@ -40,12 +44,25 @@ const (
 	// The endpoint for the Open Match Backend service.
 	omBackendEndpoint = "open-match-backend.open-match.svc.cluster.local:50505"
 	// The Host and Port for the Match Function service endpoint.
-	functionHostName       = "xrengine-matchmaking-matchfunction.xrengine-matchmaking"
-	functionPort     int32 = 50502
 )
 
+func runReadiness() {
+    health := healthcheck.NewHandler()
+    health.AddLivenessCheck("goroutine-threshold", healthcheck.GoroutineCountCheck(100))
+    health.AddReadinessCheck("goroutine-threshold", healthcheck.GoroutineCountCheck(100))
+    go http.ListenAndServe("0.0.0.0:8086", health)
+}
+
 func main() {
+	functionHostName := fmt.Sprintf("%s.%s", os.Getenv("RELEASE_FULLNAME"), os.Getenv("NAMESPACE"))
+	intPort, portErr := strconv.Atoi(os.Getenv("MATCHFUNCTION_PORT"))
+	if portErr != nil {
+	    log.Fatalf(portErr.Error())
+	}
+	functionPort := int32(intPort)
 	log.Printf("Use backend host:[%s]", omBackendEndpoint)
+	log.Printf("functionHostName %s", functionHostName)
+	log.Printf("functionPort %s", functionPort)
 
 	var envConfig common.EnvDataSpecification
 	err := envconfig.Process("MATCHMAKING", &envConfig)
@@ -69,6 +86,8 @@ func main() {
 		log.Fatalf("Failed to connect to Open Match Backend, got %s", err.Error())
 	}
 
+	runReadiness()
+
 	defer conn.Close()
 	be := pb.NewBackendServiceClient(conn)
 
@@ -85,7 +104,7 @@ func main() {
 			wg.Add(1)
 			go func(wg *sync.WaitGroup, p *pb.MatchProfile) {
 				defer wg.Done()
-				matches, err := fetch(be, p)
+				matches, err := fetch(be, p, functionHostName, functionPort)
 				if err != nil {
 					log.Printf("Failed to fetch matches for profile %v, got %s", p.GetName(), err.Error())
 					return
@@ -106,7 +125,7 @@ func main() {
 	}
 }
 
-func fetch(be pb.BackendServiceClient, p *pb.MatchProfile) ([]*pb.Match, error) {
+func fetch(be pb.BackendServiceClient, p *pb.MatchProfile, functionHostName string, functionPort int32) ([]*pb.Match, error) {
 	req := &pb.FetchMatchesRequest{
 		Config: &pb.FunctionConfig{
 			Host: functionHostName,

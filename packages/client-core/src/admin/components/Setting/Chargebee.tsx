@@ -20,13 +20,12 @@ const ChargeBee = (props: Props) => {
     if (user?.id?.value != null && chargeBeeSettingState?.updateNeeded?.value) {
       ChargebeeSettingService.fetchChargeBee()
     }
-  }, [authState])
+  }, [authState?.user?.id?.value, chargeBeeSettingState?.updateNeeded?.value])
 
   return (
     <div>
       <form>
         <Typography component="h1" className={classes.settingsHeading}>
-          {' '}
           CHARGEBEE
         </Typography>
         <Paper component="div" className={classes.createInput}>
@@ -42,8 +41,8 @@ const ChargeBee = (props: Props) => {
         <Paper component="div" className={classes.createInput}>
           <label>ApiKey:</label>
           <InputBase
-            value={chargebee?.apikey || ''}
-            name="apikey"
+            value={chargebee?.apiKey || ''}
+            name="apiKey"
             className={classes.input}
             disabled
             style={{ color: '#fff' }}

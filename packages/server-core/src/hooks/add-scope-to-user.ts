@@ -1,8 +1,6 @@
 import { HookContext } from '@feathersjs/feathers'
 import config from '../appconfig'
 import { scopeTypeSeed } from '../scope/scope-type/scope-type.seed'
-import { UnauthorizedException, NotFoundException, UnauthenticatedException } from '../util/exceptions/exception'
-import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
 
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
@@ -30,8 +28,8 @@ export default () => {
         })
       }
 
-      if (context.arguments[1]?.scopeTypes) {
-        context.arguments[1]?.scopeTypes?.forEach(async (el) => {
+      if (context.arguments[1]?.scopes) {
+        context.arguments[1]?.scopes?.forEach(async (el) => {
           await context.app.service('scope').create({
             type: el.type,
             userId: context.arguments[0]
@@ -65,11 +63,11 @@ export default () => {
         })
       }
 
-      if (context.arguments[1].scopeTypes) {
+      if (context.arguments[1].scopes) {
         foundItem.forEach(async (scp) => {
           await context.app.service('scope').remove(scp.dataValues.id)
         })
-        context.arguments[1]?.scopeTypes?.forEach(async (el) => {
+        context.arguments[1]?.scopes?.forEach(async (el) => {
           await context.app.service('scope').create({
             type: el.type,
             userId: context.arguments[0]

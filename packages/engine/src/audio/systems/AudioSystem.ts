@@ -2,11 +2,11 @@ import { SoundEffect } from '../components/SoundEffect'
 import { BackgroundMusic } from '../components/BackgroundMusic'
 import { PlaySoundEffect } from '../components/PlaySoundEffect'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { EngineActions } from '../../ecs/classes/EngineService'
 
-export default async function AudioSystem(world: World): Promise<System> {
+export default async function AudioSystem(world: World) {
   const soundEffectQuery = defineQuery([SoundEffect])
   const musicQuery = defineQuery([BackgroundMusic])
   const playQuery = defineQuery([SoundEffect, PlaySoundEffect])
@@ -37,9 +37,7 @@ export default async function AudioSystem(world: World): Promise<System> {
     if (audioReady) return
     console.log('starting audio')
     audioReady = true
-    EngineEvents.instance.dispatchEvent({
-      type: EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS
-    })
+    dispatchLocal(EngineActions.startSuspendedContexts() as any)
     window.AudioContext = window.AudioContext || (window as any).webkitAudioContext
     if (window.AudioContext) {
       context = new window.AudioContext()
@@ -58,7 +56,7 @@ export default async function AudioSystem(world: World): Promise<System> {
     }
 
     callbacks.forEach((cb) => cb())
-    callbacks = null
+    callbacks = null!
   }
 
   /**

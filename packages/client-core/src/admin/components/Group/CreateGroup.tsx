@@ -31,7 +31,7 @@ const CreateGroup = (props: Props) => {
   const [state, setState] = React.useState({
     name: '',
     description: '',
-    scopeTypes: [],
+    scopeTypes: [] as any[],
     formErrors: {
       name: '',
       description: '',

@@ -8,9 +8,6 @@ export type AvatarComponentType = {
    */
   modelContainer: Group
   isGrounded: boolean
-  avatarId: string
-  thumbnailURL?: string
-  avatarURL?: string
   avatarHeight: number
   avatarHalfHeight: number
 }

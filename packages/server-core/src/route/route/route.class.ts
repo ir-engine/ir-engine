@@ -12,7 +12,7 @@ export class Route extends Service {
   }
 
   // @ts-ignore
-  async find(params?: Params): Promise<any> {
+  async find(params: Params): Promise<any> {
     const routes = await super.find({ paginate: false })
     return { data: routes }
   }

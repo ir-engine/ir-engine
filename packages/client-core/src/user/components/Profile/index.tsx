@@ -1,4 +1,3 @@
-import Backdrop from '@mui/material/Backdrop'
 import Fade from '@mui/material/Fade'
 import Modal from '@mui/material/Modal'
 import Tab from '@mui/material/Tab'
@@ -47,10 +46,6 @@ const ProfileModal = (props: Props): any => {
         open={props.open}
         onClose={props.handleClose}
         closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500
-        }}
       >
         <Fade in={props.open}>
           <div

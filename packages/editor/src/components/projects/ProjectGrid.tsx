@@ -4,8 +4,8 @@ import ProjectGridItem from './ProjectGridItem'
 import { FlexRow } from '../layout/Flex'
 import StringInput from '../inputs/StringInput'
 import { useHistory } from 'react-router-dom'
-import { Plus } from '@styled-icons/fa-solid/Plus'
 import { useTranslation } from 'react-i18next'
+import AddIcon from '@mui/icons-material/Add'
 
 /**
  *
@@ -46,7 +46,7 @@ const ProjectGridItemContainer = (styled as any).div`
 export function NewProjectGridItem({ onClickNew, label }: { onClickNew: any; label: string }) {
   return (
     <ProjectGridItemContainer as="button" onClick={onClickNew}>
-      <Plus />
+      <AddIcon />
       <h3>{label}</h3>
     </ProjectGridItemContainer>
   )
@@ -85,6 +85,7 @@ const StyledProjectGrid = (styled as any).div`
 
 interface ProjectGridProp {
   projects?: any
+  projectName?: any
   onClickExisting?: any
   onClickNew?: any
   newProjectLabel?: any
@@ -105,6 +106,7 @@ interface ProjectGridProp {
  */
 export function ProjectGrid({
   projects,
+  projectName,
   onClickExisting,
   onClickNew,
   newProjectLabel,
@@ -119,6 +121,7 @@ export function ProjectGrid({
           onClickExisting={onClickExisting}
           key={project.project_id || project.id || project.name}
           project={project}
+          projectName={projectName}
           contextMenuId={contextMenuId}
         />
       ))}

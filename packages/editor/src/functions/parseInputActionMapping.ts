@@ -85,7 +85,7 @@ function mergeMappings(mappings: Map<ActionSets, InputActionMapping>): InputActi
     }
     if (computed) {
       for (const obj of computed) {
-        output.computed.push(obj)
+        output.computed!.push(obj)
       }
     }
   }
@@ -102,8 +102,9 @@ const initializeValue = (
 ): void => {
   if (!source) return
 
-  for (const input in source) {
-    if (!Object.prototype.hasOwnProperty.call(source, input)) continue
+  const inputs = Object.keys(source)
+  for (const input of inputs) {
+    if (typeof source[input] === 'undefined') continue
 
     const key = source[input].key
     defualtValues[key] = source[input].defaultValue
@@ -123,8 +124,9 @@ const initializeValue = (
 }
 
 const deleteValues = (state: ActionState, mappingObj: InputMapping): void => {
-  for (const actionName in mappingObj) {
-    if (!Object.prototype.hasOwnProperty.call(mappingObj, actionName)) continue
+  const actionNames = Object.keys(mappingObj)
+  for (const actionName of actionNames) {
+    if (typeof mappingObj[actionName] === 'undefined') continue
 
     delete state[mappingObj[actionName].key]
   }
@@ -137,22 +139,22 @@ export const parseInputActionMapping = (inputMapping: InputActionMapping) => {
 
   const keyboard = inputMapping.keyboard
   if (keyboard) {
-    initializeValue(actionState, keyboard.pressed, defaultValues, resetKeys)
-    initializeValue(actionState, keyboard.keydown, defaultValues, resetKeys)
-    initializeValue(actionState, keyboard.keyup, defaultValues, resetKeys)
-    initializeValue(actionState, keyboard.hotkeys, defaultValues, resetKeys, true)
-    initializeValue(actionState, keyboard.globalHotkeys, defaultValues, resetKeys, true)
+    if (keyboard.pressed) initializeValue(actionState, keyboard.pressed, defaultValues, resetKeys)
+    if (keyboard.keydown) initializeValue(actionState, keyboard.keydown, defaultValues, resetKeys)
+    if (keyboard.keyup) initializeValue(actionState, keyboard.keyup, defaultValues, resetKeys)
+    if (keyboard.hotkeys) initializeValue(actionState, keyboard.hotkeys, defaultValues, resetKeys, true)
+    if (keyboard.globalHotkeys) initializeValue(actionState, keyboard.globalHotkeys, defaultValues, resetKeys, true)
   }
 
   const mouse = inputMapping.mouse
   if (mouse) {
-    initializeValue(actionState, mouse.click, defaultValues, resetKeys)
-    initializeValue(actionState, mouse.dblclick, defaultValues, resetKeys)
-    initializeValue(actionState, mouse.move, defaultValues, resetKeys)
-    initializeValue(actionState, mouse.wheel, defaultValues, resetKeys)
-    initializeValue(actionState, mouse.pressed, defaultValues, resetKeys)
-    initializeValue(actionState, mouse.mousedown, defaultValues, resetKeys)
-    initializeValue(actionState, mouse.mouseup, defaultValues, resetKeys)
+    if (mouse.click) initializeValue(actionState, mouse.click, defaultValues, resetKeys)
+    if (mouse.dblclick) initializeValue(actionState, mouse.dblclick, defaultValues, resetKeys)
+    if (mouse.move) initializeValue(actionState, mouse.move, defaultValues, resetKeys)
+    if (mouse.wheel) initializeValue(actionState, mouse.wheel, defaultValues, resetKeys)
+    if (mouse.pressed) initializeValue(actionState, mouse.pressed, defaultValues, resetKeys)
+    if (mouse.mousedown) initializeValue(actionState, mouse.mousedown, defaultValues, resetKeys)
+    if (mouse.mouseup) initializeValue(actionState, mouse.mouseup, defaultValues, resetKeys)
   }
 
   const computed = inputMapping.computed
@@ -201,16 +203,18 @@ export const removeInputActionMapping = (inputSet: ActionSets): void => {
     if (keyboard.keyup) deleteValues(inputComponent.actionState, keyboard.keyup)
     if (keyboard.keydown) deleteValues(inputComponent.actionState, keyboard.keydown)
     if (keyboard.hotkeys) {
-      for (const binding in keyboard.hotkeys) {
-        if (Object.prototype.hasOwnProperty.call(keyboard.hotkeys, binding)) {
+      const bindings = Object.keys(keyboard.hotkeys)
+      for (const binding of bindings) {
+        if (typeof keyboard.hotkeys[binding] !== 'undefined') {
           Mousetrap.unbind(binding)
         }
       }
       deleteValues(inputComponent.actionState, keyboard.hotkeys)
     }
     if (keyboard.globalHotkeys) {
-      for (const binding in keyboard.globalHotkeys) {
-        if (Object.prototype.hasOwnProperty.call(keyboard.globalHotkeys, binding)) {
+      const bindings = Object.keys(keyboard.globalHotkeys)
+      for (const binding of bindings) {
+        if (typeof keyboard.globalHotkeys[binding] !== 'undefined') {
           Mousetrap.unbindGlobal(binding)
         }
       }

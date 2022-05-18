@@ -25,6 +25,20 @@ import {
 } from 'three'
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
 
+export const ImageProjection = {
+  Flat: 'Flat',
+  Equirectangular360: 'Equirectangular360'
+}
+
+export const ImageAlphaMode = {
+  Opaque: 'Opaque' as const,
+  Blend: 'Blend' as const,
+  Mask: 'Mask' as const
+}
+
+export type ImageAlphaModeType = keyof typeof ImageAlphaMode
+export type ImageProjectionType = keyof typeof ImageProjection
+
 //#region CubemapToEquirectangular Shader
 const vertexShader = `
 	attribute vec3 position;
@@ -81,7 +95,7 @@ export const downloadImage = (imageData: ImageData, imageName = 'Image', width: 
   canvas.height = height
   ctx.putImageData(imageData, 0, 0)
   canvas.toBlob((blob) => {
-    const url = URL.createObjectURL(blob)
+    const url = URL.createObjectURL(blob!)
     const fileName = `${imageName}.png`
     const anchor = document.createElement('a')
     anchor.href = url

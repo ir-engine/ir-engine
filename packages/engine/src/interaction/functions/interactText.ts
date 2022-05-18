@@ -10,7 +10,6 @@ import {
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
@@ -36,7 +35,6 @@ export const createInteractText = (displayText: string | undefined) => {
   const interactTextEntity = createEntity()
   const textGroup = new Group().add(text)
   addComponent(interactTextEntity, Object3DComponent, { value: textGroup })
-  Engine.scene.add(textGroup)
 
   addComponent(interactTextEntity, PersistTagComponent, {})
   const transformComponent = addComponent(interactTextEntity, TransformComponent, {

@@ -1,7 +1,7 @@
 import { client } from '../../../feathers'
 import { AlertService } from '../../../common/services/AlertService'
 import { useDispatch, store } from '../../../store'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { AdminRedisSetting } from '@xrengine/common/src/interfaces/AdminRedisSetting'
 
 //State
@@ -35,7 +35,7 @@ export const AdminRedisSettingService = {
         const redisSetting = await client.service('redis-setting').find()
         dispatch(AdminRedisSettingAction.redisSettingRetrieved(redisSetting))
       } catch (err) {
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

@@ -1,6 +1,6 @@
 ## Summary
 
-A summary of changes being made in this PR
+_A summary of changes being made in this PR_
 
 ## Checklist
 - [ ] Pre-push checks pass `npm run check`
@@ -14,8 +14,17 @@ A summary of changes being made in this PR
 
 ## References
 
-References to pertaining issue(s)
+_References to pertaining issue(s)_
+
+## QA Steps
+
+1. `git checkout pr_branch_name`
+2. `npm install`
+3. `npm run dev-reinit`
+4. `npm run dev`
+
+List any additional steps required to QA the changes of this PR, as well as any supplemental images or videos.
 
 ## Reviewers
 
-@HexaField @speigg @NateTheGreatt
+_Reviewers for this PR_

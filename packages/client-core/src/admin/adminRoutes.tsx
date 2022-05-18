@@ -1,13 +1,12 @@
-import React, { Fragment, Suspense, useEffect } from 'react'
-import { Switch, Redirect } from 'react-router-dom'
-import { useDispatch } from '../store'
-import PrivateRoute from '../Private'
 import CircularProgress from '@mui/material/CircularProgress'
-import { useAuthState } from '../user/services/AuthService'
-import { AuthService } from '../user/services/AuthService'
+import React, { Fragment, Suspense, useEffect } from 'react'
+import { Redirect, Switch } from 'react-router-dom'
+import PrivateRoute from '../Private'
+import { AuthService, useAuthState } from '../user/services/AuthService'
 
 const analytic = React.lazy(() => import('./pages/index'))
 const avatars = React.lazy(() => import('./pages/avatars'))
+const benchmarking = React.lazy(() => import('./pages/benchmarking'))
 const groups = React.lazy(() => import('./pages/groups'))
 const instance = React.lazy(() => import('./pages/instance'))
 const invites = React.lazy(() => import('./pages/invites'))
@@ -27,7 +26,6 @@ interface Props {}
 
 const ProtectedRoutes = (props: Props) => {
   const admin = useAuthState().user
-  const dispatch = useDispatch()
 
   let allowedRoutes = {
     location: false,
@@ -38,7 +36,8 @@ const ProtectedRoutes = (props: Props) => {
     groups: false,
     instance: false,
     invite: false,
-    globalAvatars: false
+    globalAvatars: false,
+    benchmarking: false
   }
   const scopes = admin?.scopes?.value || []
 
@@ -58,51 +57,55 @@ const ProtectedRoutes = (props: Props) => {
   })
 
   if (admin?.id?.value?.length! > 0 && admin?.userRole?.value !== 'admin') {
-    return <Redirect to="/login" />
+    return <Redirect to={{ pathname: '/login', state: { from: '/admin' } }} />
   }
 
   return (
-    <Fragment>
-      <Suspense
-        fallback={
-          <div
-            style={{
-              height: '100vh',
-              width: '100%',
-              textAlign: 'center',
-              paddingTop: 'calc(50vh - 7px)'
-            }}
-          >
-            <CircularProgress />
-          </div>
-        }
-      >
-        <Switch>
-          <PrivateRoute exact path="/admin" component={analytic} />
-          <PrivateRoute exact path="/admin/avatars" component={avatars} />
-          <PrivateRoute exact path="/admin/groups" component={groups} />
-          <PrivateRoute exact path="/admin/instance" component={instance} />
-          <PrivateRoute exact path="/admin/invites" component={invites} />
-          <PrivateRoute exact path="/admin/locations" component={locations} />
-          <PrivateRoute exact path="/admin/routes" component={routes} />
-          {/* <PrivateRoute exact path="/admin/scenes" component={scenes} /> */}
-          <PrivateRoute exact path="/admin/parties" component={party} />
-          <PrivateRoute exact path="/admin/bots" component={botSetting} />
-          {/* <PrivateRoute exact path="/admin/armedia" component={arMedia} /> */}
-          {/* <PrivateRoute exact path="/admin/armedia" component={arMedia} />
-          <PrivateRoute exact path="/admin/feeds" component={feeds} />
-          <PrivateRoute exact path="/admin/creator" component={creator} /> */}
-          <PrivateRoute exact path="/admin/projects" component={projects} />
-          <PrivateRoute exact path="/admin/settings" component={setting} />
-          {/* <PrivateRoute exact path="/admin/settings" component={setting} />
-          <PrivateRoute exact path="/admin/armedia" component={arMedia} />
-          <PrivateRoute exact path="/admin/feeds" component={feeds} />
-          <PrivateRoute exact path="/admin/creator" component={creator} /> */}
-          <PrivateRoute exact path="/admin/settings" component={setting} />
-          <PrivateRoute exact Path="/admin/users" component={users} />
-        </Switch>
-      </Suspense>
-    </Fragment>
+    <div style={{ pointerEvents: 'auto' }}>
+      <Fragment>
+        <Suspense
+          fallback={
+            <div
+              style={{
+                height: '100vh',
+                width: '100%',
+                textAlign: 'center',
+                pointerEvents: 'auto',
+                paddingTop: 'calc(50vh - 7px)'
+              }}
+            >
+              <CircularProgress />
+            </div>
+          }
+        >
+          <Switch>
+            <PrivateRoute exact path="/admin" component={analytic} />
+            <PrivateRoute exact path="/admin/avatars" component={avatars} />
+            <PrivateRoute exact path="/admin/benchmarking" component={benchmarking} />
+            <PrivateRoute exact path="/admin/groups" component={groups} />
+            <PrivateRoute exact path="/admin/instance" component={instance} />
+            <PrivateRoute exact path="/admin/invites" component={invites} />
+            <PrivateRoute exact path="/admin/locations" component={locations} />
+            <PrivateRoute exact path="/admin/routes" component={routes} />
+            {/* <PrivateRoute exact path="/admin/scenes" component={scenes} /> */}
+            <PrivateRoute exact path="/admin/parties" component={party} />
+            <PrivateRoute exact path="/admin/bots" component={botSetting} />
+            {/* <PrivateRoute exact path="/admin/armedia" component={arMedia} /> */}
+            {/* <PrivateRoute exact path="/admin/armedia" component={arMedia} />
+            <PrivateRoute exact path="/admin/feeds" component={feeds} />
+            <PrivateRoute exact path="/admin/creator" component={creator} /> */}
+            <PrivateRoute exact path="/admin/projects" component={projects} />
+            <PrivateRoute exact path="/admin/settings" component={setting} />
+            {/* <PrivateRoute exact path="/admin/settings" component={setting} />
+            <PrivateRoute exact path="/admin/armedia" component={arMedia} />
+            <PrivateRoute exact path="/admin/feeds" component={feeds} />
+            <PrivateRoute exact path="/admin/creator" component={creator} /> */}
+            <PrivateRoute exact path="/admin/settings" component={setting} />
+            <PrivateRoute exact Path="/admin/users" component={users} />
+          </Switch>
+        </Suspense>
+      </Fragment>
+    </div>
   )
 }
 

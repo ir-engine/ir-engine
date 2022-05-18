@@ -37,8 +37,9 @@ export default class InputManager {
     let eventKey = (event.key ?? String.fromCharCode(event.which || parseInt(event.code))).toLowerCase()
     let preventDefault = false
 
-    for (const actionName in inputMapping) {
-      if (!Object.prototype.hasOwnProperty.call(inputMapping, actionName)) continue
+    const actionNames = Object.keys(inputMapping)
+    for (const actionName of actionNames) {
+      if (typeof inputMapping[actionName] === 'undefined') continue
 
       const key = inputMapping[actionName].key
       this.handleActionCallback(inputMapping[actionName], event)
@@ -174,8 +175,9 @@ export default class InputManager {
     const mouseMove = mouseMapping.move
     if (!mouseMove) return
 
-    for (const actionName in mouseMove) {
-      if (!Object.prototype.hasOwnProperty.call(mouseMove, actionName)) continue
+    const actionNames = Object.keys(mouseMove)
+    for (const actionName of actionNames) {
+      if (typeof mouseMove[actionName] === 'undefined') continue
 
       const key = mouseMove[actionName].key
 
@@ -205,9 +207,9 @@ export default class InputManager {
     const mouseWheel = mouseMapping.wheel
     if (!mouseWheel) return false
 
-    for (const actionName in mouseWheel) {
-      if (!Object.prototype.hasOwnProperty.call(mouseWheel, actionName)) continue
-
+    const actionNames = Object.keys(mouseWheel)
+    for (const actionName of actionNames) {
+      if (typeof mouseWheel[actionName] === 'undefined') continue
       const key = mouseWheel[actionName].key
 
       if (actionName === 'deltaX' || actionName === 'deltaY') {
@@ -261,8 +263,9 @@ export default class InputManager {
     this.inputComponent = getComponent(SceneManager.instance.editorEntity, InputComponent)
     const defaultState = this.inputComponent.defaultState
 
-    for (const key in defaultState) {
-      if (Object.prototype.hasOwnProperty.call(defaultState, key)) {
+    const keys = Object.keys(defaultState)
+    for (const key of keys) {
+      if (typeof defaultState[key] !== 'undefined') {
         this.inputComponent.actionState[key] = defaultState[key]
       }
     }

@@ -1,21 +1,25 @@
 import React from 'react'
-import Search from './SearchInstance'
+import Search from '../../common/Search'
+import { useStyles } from '../../styles/ui'
 import InstanceTable from './InstanceTable'
-import { useInstanceStyles } from './styles'
 
 const Instance = () => {
-  const classes = useInstanceStyles()
+  const classes = useStyles()
+  const [search, setSearch] = React.useState('')
+
+  const handleChange = (e: any) => {
+    setSearch(e.target.value)
+  }
 
   return (
-    <div>
-      <div className={classes.marginBottm}>
-        <Search />
+    <React.Fragment>
+      <div className={classes.marginBottom}>
+        <Search text="instance" handleChange={handleChange} />
       </div>
-
-      <div className={classes.rootTable}>
-        <InstanceTable />
+      <div className={classes.rootTableWithSearch}>
+        <InstanceTable search={search} />
       </div>
-    </div>
+    </React.Fragment>
   )
 }
 

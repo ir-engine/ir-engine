@@ -1,7 +1,9 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { VolumetricPlayMode } from '../constants/VolumetricPlayMode'
 
 export type VolumetricVideoComponentType = {
-  player: any
+  paths: string[]
+  playMode: VolumetricPlayMode
 }
 
 export const VolumetricComponent = createMappedComponent<VolumetricVideoComponentType>('VolumetricComponent')

@@ -14,7 +14,7 @@ export class StaticResource extends Service {
     super(options)
   }
 
-  async create(data, params?: Params): Promise<any> {
+  async create(data, params: Params): Promise<any> {
     const oldResource = await this.find({
       query: {
         $select: ['id'],
@@ -31,7 +31,7 @@ export class StaticResource extends Service {
     }
   }
 
-  async find(params?: Params): Promise<any> {
+  async find(params: Params): Promise<any> {
     if (params.query?.getAvatarThumbnails === true) {
       delete params.query.getAvatarThumbnails
       const result = (await super.find(params)) as Paginated<any>

@@ -5,7 +5,7 @@ const boneAWorldPos = new Vector3()
 
 // How to visualize the IK Pose Informaation to get an Idea of what we're looking at.
 export function visualizeHip(rig: IKRigComponentType, ik) {
-  rig.pose.bones[rig.points.hip.index].bone.getWorldPosition(boneAWorldPos)
+  rig.pose!.bones[rig.points!.hip.index].bone.getWorldPosition(boneAWorldPos)
   // Debug.setPoint(boneAWorldPos, COLOR.orange, 6, 6).setLine(
   //   boneAWorldPos,
   //   new Vector3().copy(ik.hip.dir).multiplyScalar(0.2).add(boneAWorldPos),
@@ -43,7 +43,7 @@ export function visualizeSpine(rig: IKRigComponentType, chain, ik_ary) {
   let ik
 
   for (let i = 0; i < 2; i++) {
-    const poseBone = rig.pose.bones[index[i]].bone
+    const poseBone = rig.pose!.bones[index[i]].bone
 
     poseBone.getWorldPosition(ws)
     ik = ik_ary[i]

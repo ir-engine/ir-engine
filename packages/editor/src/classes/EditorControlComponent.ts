@@ -1,3 +1,4 @@
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   SnapModeType,
@@ -28,9 +29,9 @@ export type EditorControlComponentType = {
 
   snapMode: SnapModeType
 
-  transformModeOnCancel?: TransformModeType
+  transformModeOnCancel: TransformModeType
   multiplePlacement?: boolean
-  grabHistoryCheckpoint?: string
+  grabHistoryCheckpoint?: Entity
 }
 
 export const EditorControlComponent = createMappedComponent<EditorControlComponentType>('FlyControlComponent')
