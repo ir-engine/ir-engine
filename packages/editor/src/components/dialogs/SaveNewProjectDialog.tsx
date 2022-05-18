@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from 'react'
-import StringInput from '../inputs/StringInput'
-import FormField from '../inputs/FormField'
-import PreviewDialog from './PreviewDialog'
+import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import FormField from '../inputs/FormField'
+import StringInput from '../inputs/StringInput'
+import PreviewDialog from './PreviewDialog'
 
 /**
  * SaveNewProjectDialog used to show dialog when to save new project.

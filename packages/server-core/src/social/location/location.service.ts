@@ -1,10 +1,10 @@
 import { Application } from '../../../declarations'
 import { Location } from './location.class'
-import createModel from './location.model'
-import hooks from './location.hooks'
 import locationDocs from './location.docs'
+import hooks from './location.hooks'
+import createModel from './location.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     location: Location
   }

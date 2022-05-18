@@ -1,3 +1,5 @@
+import React, { useEffect, useState } from 'react'
+
 import { LocationInstanceConnectionService } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
@@ -5,7 +7,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import React, { useEffect, useState } from 'react'
+
 import { usePartyState } from '../../social/services/PartyService'
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 

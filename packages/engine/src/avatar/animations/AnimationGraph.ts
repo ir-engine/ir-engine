@@ -1,4 +1,5 @@
 import { Vector2 } from 'three'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -6,6 +7,7 @@ import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { AvatarSettings } from '../AvatarControllerSystem'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -169,12 +171,12 @@ export class AnimationGraph {
         // TODO: The transition between walk and run animations is not smooth
         // Most probably because they're not in sync with each other and a very short transition time
 
-        // newStateName =
-        //   speedSqr < AvatarSettings.instance.walkSpeed * AvatarSettings.instance.walkSpeed
-        //     ? AvatarStates.WALK
-        //     : AvatarStates.RUN
+        newStateName =
+          speedSqr < AvatarSettings.instance.walkSpeed * AvatarSettings.instance.walkSpeed + 1
+            ? AvatarStates.WALK
+            : AvatarStates.RUN
 
-        newStateName = AvatarStates.RUN
+        // newStateName = AvatarStates.RUN
       } else {
         newStateName = AvatarStates.IDLE
       }

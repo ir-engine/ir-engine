@@ -1,10 +1,10 @@
 import { Application } from '../../../declarations'
 import { UserSettings } from './user-settings.class'
-import createModel from './user-settings.model'
-import hooks from './user-settings.hooks'
 import userSettingsDocs from './user-settings.docs'
+import hooks from './user-settings.hooks'
+import createModel from './user-settings.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'user-settings': UserSettings
   }

@@ -1,20 +1,7 @@
 import { Downgraded } from '@speigg/hookstate'
-import {
-  Launch,
-  Mic,
-  MicOff,
-  RecordVoiceOver,
-  Videocam,
-  VideocamOff,
-  VoiceOverOff,
-  VolumeDown,
-  VolumeMute,
-  VolumeOff,
-  VolumeUp
-} from '@mui/icons-material'
-import IconButton from '@mui/material/IconButton'
-import Slider from '@mui/material/Slider'
-import Tooltip from '@mui/material/Tooltip'
+import classNames from 'classnames'
+import React, { useEffect, useRef, useState } from 'react'
+
 import { useAppState } from '@xrengine/client-core/src/common/services/AppService'
 import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
@@ -33,8 +20,24 @@ import { useUserState } from '@xrengine/client-core/src/user/services/UserServic
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import classNames from 'classnames'
-import React, { useEffect, useRef, useState } from 'react'
+
+import {
+  Launch,
+  Mic,
+  MicOff,
+  RecordVoiceOver,
+  Videocam,
+  VideocamOff,
+  VoiceOverOff,
+  VolumeDown,
+  VolumeMute,
+  VolumeOff,
+  VolumeUp
+} from '@mui/icons-material'
+import IconButton from '@mui/material/IconButton'
+import Slider from '@mui/material/Slider'
+import Tooltip from '@mui/material/Tooltip'
+
 import Draggable from './Draggable'
 import styles from './PartyParticipantWindow.module.scss'
 
@@ -107,10 +110,10 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   }
 
   const pauseProducerListener = (producerId: string, globalMute: boolean) => {
-    if (producerId === videoStreamRef?.current?.id && globalMute === true) {
+    if (producerId === videoStreamRef?.current?.id && globalMute) {
       setVideoProducerPaused(true)
       setVideoProducerGlobalMute(true)
-    } else if (producerId === audioStreamRef?.current?.id && globalMute === true) {
+    } else if (producerId === audioStreamRef?.current?.id && globalMute) {
       setAudioProducerPaused(true)
       setAudioProducerGlobalMute(true)
     }
@@ -156,17 +159,18 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   }, [consumers.value])
 
   useEffect(() => {
-    if (userHasInteracted.value === true && peerId !== 'me_cam' && peerId !== 'me_screen') {
+    if (userHasInteracted.value && peerId !== 'me_cam' && peerId !== 'me_screen') {
       videoRef.current?.play()
       audioRef.current?.play()
     }
   }, [userHasInteracted.value])
 
   useEffect(() => {
-    if (selfUser?.user_setting?.spatialAudioEnabled === true && audioRef.current != null) audioRef.current.volume = 0
+    // TODO: uncomment these two lines to silence main audio in favor of spatial audio
+    // if (selfUser?.user_setting?.spatialAudioEnabled === true && audioRef.current != null) audioRef.current.volume = 0
+    // else audioRef.current!.volume = volume / 100
     // (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) &&
     // Engine.spatialAudio
-    else audioRef.current!.volume = volume / 100
   }, [selfUser])
 
   useEffect(() => {
@@ -206,14 +210,14 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         audioRef.current.srcObject = new MediaStream([newAudioTrack])
         setAudioProducerPaused(audioStream.paused)
       }
-      // TODO: handle 3d audio switch on/off
-      if (selfUser?.user_setting?.spatialAudioEnabled === true) audioRef.current.volume = 0
+      // TODO: handle 3d spatial audio switch on/off
+      // if (selfUser?.user_setting?.spatialAudioEnabled === true) audioRef.current.volume = 0
+      // {
+      audioRef.current.volume = volume / 100
+      // PositionalAudioSystem.instance?.suspend()
+      // }
       // selfUser?.user_setting?.spatialAudioEnabled === false ||
       // (selfUser?.user_setting?.spatialAudioEnabled === 0 && Engine.spatialAudio)
-      {
-        audioRef.current.volume = volume / 100
-        // PositionalAudioSystem.instance?.suspend()
-      }
       setVolume(volume)
     }
 
@@ -339,12 +343,12 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     const mediaTransport = getMediaTransport()
     if (peerId === 'me_cam') {
       const videoPaused = MediaStreams.instance.toggleVideoPaused()
-      if (videoPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance?.camVideoProducer)
+      if (videoPaused) await pauseProducer(mediaTransport, MediaStreams.instance?.camVideoProducer)
       else await resumeProducer(mediaTransport, MediaStreams.instance?.camVideoProducer)
       MediaStreamService.updateCamVideoState()
     } else if (peerId === 'me_screen') {
       const videoPaused = MediaStreams.instance.toggleScreenShareVideoPaused()
-      if (videoPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance.screenVideoProducer)
+      if (videoPaused) await pauseProducer(mediaTransport, MediaStreams.instance.screenVideoProducer)
       else await resumeProducer(mediaTransport, MediaStreams.instance.screenVideoProducer)
       setVideoStreamPaused(videoPaused)
     } else {
@@ -359,12 +363,12 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     const mediaTransport = getMediaTransport()
     if (peerId === 'me_cam') {
       const audioPaused = MediaStreams.instance.toggleAudioPaused()
-      if (audioPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance?.camAudioProducer)
+      if (audioPaused) await pauseProducer(mediaTransport, MediaStreams.instance?.camAudioProducer)
       else await resumeProducer(mediaTransport, MediaStreams.instance?.camAudioProducer)
       MediaStreamService.updateCamAudioState()
     } else if (peerId === 'me_screen') {
       const audioPaused = MediaStreams.instance.toggleScreenShareAudioPaused()
-      if (audioPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance.screenAudioProducer)
+      if (audioPaused) await pauseProducer(mediaTransport, MediaStreams.instance.screenAudioProducer)
       else await resumeProducer(mediaTransport, MediaStreams.instance.screenAudioProducer)
       setAudioStreamPaused(audioPaused)
     } else {
@@ -377,10 +381,10 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const toggleGlobalMute = async (e) => {
     e.stopPropagation()
     const mediaTransport = getMediaTransport()
-    if (audioProducerGlobalMute === false) {
+    if (!audioProducerGlobalMute) {
       await globalMuteProducer(mediaTransport, { id: audioStream.producerId })
       setAudioProducerGlobalMute(true)
-    } else if (audioProducerGlobalMute === true) {
+    } else if (audioProducerGlobalMute) {
       await globalUnmuteProducer(mediaTransport, { id: audioStream.producerId })
       setAudioProducerGlobalMute(false)
     }
@@ -413,15 +417,12 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
           [styles['party-chat-user']]: true,
           [styles['self-user']]: isSelfUser,
           [styles['no-video']]: videoStream == null,
-          [styles['video-paused']]: videoStream && (videoProducerPaused === true || videoStreamPaused === true),
+          [styles['video-paused']]: videoStream && (videoProducerPaused || videoStreamPaused),
           [styles.pip]: isPiP
         })}
       >
         <div className={styles['video-wrapper']}>
-          {(videoStream == null ||
-            videoStreamPaused == true ||
-            videoProducerPaused == true ||
-            videoProducerGlobalMute == true) && (
+          {(videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute) && (
             <img src={getAvatarURLForUser(isSelfUser ? selfUser?.id : user?.id)} draggable={false} />
           )}
           <video key={peerId + '_cam'} ref={videoRef} draggable={false} />
@@ -431,17 +432,15 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
           <div className={styles['username']}>{peerId === 'me_cam' ? 'You' : user?.name}</div>
           <div className={styles['controls']}>
             <div className={styles['mute-controls']}>
-              {videoStream && videoProducerPaused === false ? (
-                <Tooltip
-                  title={videoProducerPaused === false && videoStreamPaused === false ? 'Pause Video' : 'Resume Video'}
-                >
+              {videoStream && !videoProducerPaused ? (
+                <Tooltip title={!videoProducerPaused && !videoStreamPaused ? 'Pause Video' : 'Resume Video'}>
                   <IconButton color="secondary" size="small" className={styles['video-control']} onClick={toggleVideo}>
                     {videoStreamPaused ? <VideocamOff /> : <Videocam />}
                   </IconButton>
                 </Tooltip>
               ) : null}
               {enableGlobalMute && peerId !== 'me_cam' && peerId !== 'me_screen' && audioStream && (
-                <Tooltip title={audioProducerGlobalMute === false ? 'Mute for everyone' : 'Unmute for everyone'}>
+                <Tooltip title={!audioProducerGlobalMute ? 'Mute for everyone' : 'Unmute for everyone'}>
                   <IconButton
                     color="secondary"
                     size="small"
@@ -452,7 +451,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                   </IconButton>
                 </Tooltip>
               )}
-              {audioStream && audioProducerPaused === false ? (
+              {audioStream && !audioProducerPaused ? (
                 <Tooltip
                   title={
                     isSelfUser && audioStream?.paused === false
@@ -489,8 +488,8 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             </div>
             {audioProducerGlobalMute === true && <div className={styles['global-mute']}>Muted by Admin</div>}
             {audioStream &&
-              audioProducerPaused === false &&
-              audioProducerGlobalMute === false &&
+              !audioProducerPaused &&
+              !audioProducerGlobalMute &&
               selfUser?.user_setting?.spatialAudioEnabled === false && (
                 <div className={styles['audio-slider']}>
                   {volume > 0 && <VolumeDown />}

@@ -1,4 +1,20 @@
+import {
+  Box3,
+  Intersection,
+  Layers,
+  MathUtils,
+  Object3D,
+  Plane,
+  Quaternion,
+  Ray,
+  Raycaster,
+  Vector2,
+  Vector3
+} from 'three'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
@@ -13,33 +29,19 @@ import {
   TransformPivot,
   TransformPivotType
 } from '@xrengine/engine/src/scene/constants/transformConstants'
-import {
-  Vector3,
-  Quaternion,
-  Raycaster,
-  MathUtils,
-  Layers,
-  Object3D,
-  Vector2,
-  Intersection,
-  Box3,
-  Plane,
-  Ray
-} from 'three'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
+
 import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
 import { EditorControlComponent, EditorControlComponentType } from '../classes/EditorControlComponent'
 import { FlyControlComponent, FlyControlComponentType } from '../classes/FlyControlComponent'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { EditorActionSet, FlyActionSet } from '../controls/input-mappings'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import { getInput } from '../functions/parseInputActionMapping'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
-import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 
 const SELECT_SENSITIVITY = 0.001
 
@@ -138,47 +140,48 @@ export default async function EditorControlSystem(_: World) {
       } else {
         const lastSelectedObject = CommandManager.instance.selected[CommandManager.instance.selected.length - 1]
         const lastSelectedObj3d = getComponent(lastSelectedObject.entity, Object3DComponent)?.value
-        if (!lastSelectedObj3d) continue
-        const isChanged =
-          editorControlComponent.selectionChanged ||
-          editorControlComponent.transformModeChanged ||
-          editorControlComponent.transformPropertyChanged
+        if (lastSelectedObj3d) {
+          const isChanged =
+            editorControlComponent.selectionChanged ||
+            editorControlComponent.transformModeChanged ||
+            editorControlComponent.transformPropertyChanged
 
-        if (isChanged || editorControlComponent.transformPivotChanged) {
-          if (editorControlComponent.transformPivot === TransformPivot.Selection) {
-            lastSelectedObj3d.getWorldPosition(gizmoObj.position)
-          } else {
-            box.makeEmpty()
+          if (isChanged || editorControlComponent.transformPivotChanged) {
+            if (editorControlComponent.transformPivot === TransformPivot.Selection) {
+              lastSelectedObj3d.getWorldPosition(gizmoObj.position)
+            } else {
+              box.makeEmpty()
 
-            for (let i = 0; i < selectedTransformRoots.length; i++) {
-              box.expandByObject(getComponent(selectedTransformRoots[i].entity, Object3DComponent).value)
-            }
+              for (let i = 0; i < selectedTransformRoots.length; i++) {
+                box.expandByObject(getComponent(selectedTransformRoots[i].entity, Object3DComponent).value)
+              }
 
-            box.getCenter(gizmoObj.position)
-            if (editorControlComponent.transformPivot === TransformPivot.Bottom) {
-              gizmoObj.position.y = box.min.y
+              box.getCenter(gizmoObj.position)
+              if (editorControlComponent.transformPivot === TransformPivot.Bottom) {
+                gizmoObj.position.y = box.min.y
+              }
             }
           }
-        }
 
-        if (isChanged || editorControlComponent.transformSpaceChanged) {
-          if (editorControlComponent.transformSpace === TransformSpace.LocalSelection) {
-            lastSelectedObj3d.getWorldQuaternion(gizmoObj.quaternion)
-          } else {
-            gizmoObj.rotation.set(0, 0, 0)
+          if (isChanged || editorControlComponent.transformSpaceChanged) {
+            if (editorControlComponent.transformSpace === TransformSpace.LocalSelection) {
+              lastSelectedObj3d.getWorldQuaternion(gizmoObj.quaternion)
+            } else {
+              gizmoObj.rotation.set(0, 0, 0)
+            }
+
+            inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
           }
 
-          inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
-        }
+          if (
+            (editorControlComponent.transformModeChanged || editorControlComponent.transformSpaceChanged) &&
+            editorControlComponent.transformMode === TransformMode.Scale
+          ) {
+            gizmoObj.setLocalScaleHandlesVisible(editorControlComponent.transformSpace !== TransformSpace.World)
+          }
 
-        if (
-          (editorControlComponent.transformModeChanged || editorControlComponent.transformSpaceChanged) &&
-          editorControlComponent.transformMode === TransformMode.Scale
-        ) {
-          gizmoObj.setLocalScaleHandlesVisible(editorControlComponent.transformSpace !== TransformSpace.World)
+          gizmoObj.visible = true
         }
-
-        gizmoObj.visible = true
       }
 
       const cursorPosition = getInput(EditorActionSet.cursorPosition)

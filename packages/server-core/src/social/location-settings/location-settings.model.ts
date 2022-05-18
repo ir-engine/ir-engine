@@ -1,12 +1,15 @@
 // See http://docs.sequelizejs.com/en/latest/docs/models-definition/
 // for more of what you can do here.
-import { Sequelize, DataTypes, Model } from 'sequelize'
-import { Application } from '../../../declarations'
+import { DataTypes, Model, Sequelize } from 'sequelize'
 import { HookReturn } from 'sequelize/types/lib/hooks'
 
-export default function (app: Application): typeof Model {
+import { LocationSettingsInterface } from '@xrengine/common/src/dbmodels/LocationSettings'
+
+import { Application } from '../../../declarations'
+
+export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const LocationSettings = sequelizeClient.define(
+  const LocationSettings = sequelizeClient.define<Model<LocationSettingsInterface>>(
     'location_settings',
     {
       id: {

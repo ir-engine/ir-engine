@@ -1,15 +1,17 @@
 import { Params } from '@feathersjs/feathers'
-import hooks from './route.hooks'
-import { Application } from '../../../declarations'
-import { Route } from './route.class'
-import createModel from './route.model'
-import routeDocs from './route.docs'
 import fs from 'fs'
 import path from 'path'
-import { InstalledRoutesInterface, ActiveRoutesInterface } from '@xrengine/common/src/interfaces/Route'
+
+import { ActiveRoutesInterface, InstalledRoutesInterface } from '@xrengine/common/src/interfaces/Route'
 import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
 
-declare module '../../../declarations' {
+import { Application } from '../../../declarations'
+import { Route } from './route.class'
+import routeDocs from './route.docs'
+import hooks from './route.hooks'
+import createModel from './route.model'
+
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     route: Route
   }

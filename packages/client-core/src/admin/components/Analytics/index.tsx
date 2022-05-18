@@ -1,18 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react'
-import Card from './CardNumber'
-
 import clsx from 'clsx'
+import React, { useEffect, useRef, useState } from 'react'
+
+import Paper from '@mui/material/Paper'
+import { Theme } from '@mui/material/styles'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
-import { Theme } from '@mui/material/styles'
-import makeStyles from '@mui/styles/makeStyles'
 import createStyles from '@mui/styles/createStyles'
-import Paper from '@mui/material/Paper'
-import UserGraph from './UserGraph'
-import ActivityGraph from './ActivityGraph'
+import makeStyles from '@mui/styles/makeStyles'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import { useAnalyticsState } from '../../services/AnalyticsService'
 import { AnalyticsService } from '../../services/AnalyticsService'
+import ActivityGraph from './ActivityGraph'
+import Card from './CardNumber'
+import UserGraph from './UserGraph'
 
 interface Props {
   adminGroupState?: any
@@ -78,14 +79,30 @@ const Analytics = (props: Props) => {
   let isDataAvailable = false
   const analyticsState = useAnalyticsState()
 
-  const activeLocations = analyticsState.activeLocations.value
-  const activeParties = analyticsState.activeParties.value
-  const activeScenes = analyticsState.activeScenes.value
-  const activeInstances = analyticsState.activeInstances.value
-  const instanceUsers = analyticsState.instanceUsers.value
-  const channelUsers = analyticsState.channelUsers.value
-  const dailyUsers = analyticsState.dailyUsers.value
-  const dailyNewUsers = analyticsState.dailyNewUsers.value
+  const activeLocations = analyticsState.activeLocations.value.map((item) => {
+    return [new Date(item.createdAt).getTime(), item.count]
+  })
+  const activeParties = analyticsState.activeParties.value.map((item) => {
+    return [new Date(item.createdAt).getTime(), item.count]
+  })
+  const activeScenes = analyticsState.activeScenes.value.map((item) => {
+    return [new Date(item.createdAt).getTime(), item.count]
+  })
+  const activeInstances = analyticsState.activeInstances.value.map((item) => {
+    return [new Date(item.createdAt).getTime(), item.count]
+  })
+  const instanceUsers = analyticsState.instanceUsers.value.map((item) => {
+    return [new Date(item.createdAt).getTime(), item.count]
+  })
+  const channelUsers = analyticsState.channelUsers.value.map((item) => {
+    return [new Date(item.createdAt).getTime(), item.count]
+  })
+  const dailyUsers = analyticsState.dailyUsers.value.map((item) => {
+    return [new Date(item.createdAt).getTime(), item.count]
+  })
+  const dailyNewUsers = analyticsState.dailyNewUsers.value.map((item) => {
+    return [new Date(item.createdAt).getTime(), item.count]
+  })
 
   const isMounted = useRef(false)
   const fetchTick = () => {

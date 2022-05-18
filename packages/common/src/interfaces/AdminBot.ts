@@ -15,7 +15,7 @@ export interface AdminBot {
 export interface BotCommands {
   id: string
   name: string
-  description: string
+  description?: string
   createdAt: string
   updatedAt: string
   botId: string
@@ -42,4 +42,17 @@ export interface Instance {
   createdAt: string
   updatedAt: string
   locationId?: string
+}
+
+export interface CreateBotAsAdmin {
+  name: string
+  instanceId?: string | null
+  userId?: string
+  command?: Array<{
+    id: string
+    name: string
+    description: string
+  }>
+  description: string
+  locationId: string
 }

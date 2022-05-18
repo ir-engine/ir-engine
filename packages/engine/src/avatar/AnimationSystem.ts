@@ -1,17 +1,18 @@
 import { Vector3 } from 'three'
+import matches from 'ts-matches'
+
+import { Engine } from '../ecs/classes/Engine'
+import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
-import { AnimationComponent } from './components/AnimationComponent'
+import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
+import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
+import { AnimationManager } from './AnimationManager'
+import { AnimationGraph } from './animations/AnimationGraph'
+import { AnimationRenderer } from './animations/AnimationRenderer'
 import { AvatarAnimationGraph } from './animations/AvatarAnimationGraph'
 import { AvatarStates } from './animations/Util'
-import { AnimationRenderer } from './animations/AnimationRenderer'
-import { AnimationManager } from './AnimationManager'
+import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
-import { AnimationGraph } from './animations/AnimationGraph'
-import { World } from '../ecs/classes/World'
-import { Engine } from '../ecs/classes/Engine'
-import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
-import matches from 'ts-matches'
-import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 
 const animationQuery = defineQuery([AnimationComponent])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])

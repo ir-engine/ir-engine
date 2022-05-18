@@ -1,13 +1,15 @@
 import React from 'react'
-import { FrontSide, BackSide, DoubleSide } from 'three'
-import InputGroup from '../inputs/InputGroup'
-import SelectInput from '../inputs/SelectInput'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import { ImageProjection, ImageAlphaMode } from '@xrengine/engine/src/scene/classes/ImageUtils'
-import { EditorComponentType, updateProperty } from './Util'
 import { useTranslation } from 'react-i18next'
+import { BackSide, DoubleSide, FrontSide } from 'three'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ImageAlphaMode, ImageProjection } from '@xrengine/engine/src/scene/classes/ImageUtils'
 import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
+
+import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import SelectInput from '../inputs/SelectInput'
+import { EditorComponentType, updateProperty } from './Util'
 
 const mapValue = (v) => ({ label: v, value: v })
 const imageProjectionOptions = Object.values(ImageProjection).map(mapValue)

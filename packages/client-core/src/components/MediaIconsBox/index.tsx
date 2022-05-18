@@ -1,11 +1,11 @@
-import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
-import FaceIcon from '@mui/icons-material/Face'
+import React, { useEffect, useState } from 'react'
+
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
+import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
   useMediaInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
@@ -30,11 +30,13 @@ import {
 } from '@xrengine/engine/src/input/functions/WebcamInput'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import React, { useEffect, useState } from 'react'
+
+import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
+import FaceIcon from '@mui/icons-material/Face'
+
 import styles from './MediaIconsBox.module.scss'
 
 const MediaIconsBox = (props) => {
-  const [xrSupported, setXRSupported] = useState(false)
   const [hasAudioDevice, setHasAudioDevice] = useState(false)
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
 
@@ -60,7 +62,6 @@ const MediaIconsBox = (props) => {
   const isCamAudioEnabled = mediastream.isCamAudioEnabled
 
   const engineState = useEngineState()
-  let callbackDone = false
 
   useEffect(() => {
     navigator.mediaDevices
@@ -73,13 +74,6 @@ const MediaIconsBox = (props) => {
       })
       .catch((err) => console.log('could not get media devices', err))
   }, [])
-
-  useEffect(() => {
-    if (engineState.joinedWorld.value && !callbackDone) {
-      setXRSupported(Engine.xrSupported)
-      callbackDone = true
-    }
-  }, [engineState.joinedWorld.value])
 
   const handleFaceClick = async () => {
     const partyId =
@@ -143,7 +137,6 @@ const MediaIconsBox = (props) => {
 
   const handleVRClick = () => dispatchLocal(EngineActions.xrStart() as any)
 
-  const xrEnabled = Engine.xrSupported === true
   const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
   const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
 
@@ -181,13 +174,8 @@ const MediaIconsBox = (props) => {
           }
         </>
       ) : null}
-      {xrSupported ? (
-        <button
-          type="button"
-          id="UserXR"
-          className={styles.iconContainer + ' ' + (!xrEnabled ? '' : styles.on)}
-          onClick={handleVRClick}
-        >
+      {engineState.xrSupported.value ? (
+        <button type="button" id="UserXR" className={styles.iconContainer} onClick={handleVRClick}>
           <VrIcon />
         </button>
       ) : null}

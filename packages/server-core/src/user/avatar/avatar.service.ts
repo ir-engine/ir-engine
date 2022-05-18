@@ -2,7 +2,7 @@ import { Application } from '../../../declarations'
 import { Avatar } from './avatar.class'
 import hooks from './avatar.hooks'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   /**
    * Interface for users input
    */

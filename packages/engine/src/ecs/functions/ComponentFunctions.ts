@@ -1,10 +1,96 @@
+import { State, StateMethods } from '@speigg/hookstate'
 import * as bitECS from 'bitecs'
-import { ISchema, ArrayByType, Type } from 'bitecs'
+import { ArrayByType, ISchema, Type } from 'bitecs'
+
 import { Entity } from '../classes/Entity'
 import { useWorld } from './SystemHooks'
 
 export const ComponentMap = new Map<string, ComponentType<any>>()
 globalThis.ComponentMap = ComponentMap
+
+// New Experimental API
+export const defineMappedComponent = (name: string) => {
+  return new MappedComponentSetupAPI(name) // class needed for correct chained typing
+}
+export class MappedComponentSetupAPI<_Schema extends bitECS.ISchema = any, _Type = any> {
+  constructor(public name: string) {}
+  default?: _Type
+  schema?: _Schema
+
+  withSchema<Schema extends bitECS.ISchema = {}>(schema: Schema) {
+    this.schema = schema as any
+    return this as any as MappedComponentSetupAPI<Schema, _Type>
+  }
+
+  withType<T extends any>(defaultState?: T) {
+    this.default = defaultState as any
+    return this as any as MappedComponentSetupAPI<_Schema, T>
+  }
+
+  withReactiveType<T extends any>(defaultState?: T) {
+    this.default = defaultState as any
+    return this as any as MappedComponentSetupAPI<_Schema, State<T>>
+  }
+
+  build() {
+    const component = bitECS.defineComponent(this.schema)
+    const componentMap = new Map<number, _Type & SoAProxy<_Schema>>()
+    // const componentMap = []
+
+    Object.defineProperty(component, '_name', {
+      value: this.name
+    })
+    Object.defineProperty(component, '_schema', {
+      value: this.schema
+    })
+    Object.defineProperty(component, '_default', {
+      value: this.default
+    })
+    Object.defineProperty(component, '_map', {
+      value: componentMap
+    })
+    Object.defineProperty(component, 'get', {
+      value: function (eid: number) {
+        return componentMap.get(eid)
+      }
+    })
+    Object.defineProperty(component, 'set', {
+      value: function (eid: number, value: any) {
+        if (this.schema) {
+          Object.defineProperties(
+            value,
+            Object.keys(this.schema).reduce((a, k) => {
+              a[k] = {
+                get() {
+                  return component[k][eid]
+                },
+                set(val) {
+                  component[k][eid] = val
+                }
+              }
+              return a
+            }, {})
+          )
+        }
+        return componentMap.set(eid, value)
+      }
+    })
+
+    Object.defineProperty(component, 'delete', {
+      value: function (eid: number) {
+        return componentMap.delete(eid)
+      }
+    })
+
+    Object.defineProperty(component, 'isReactive', {
+      value: true,
+      enumerable: true
+    })
+
+    ComponentMap.set(this.name, component)
+    return component as MappedComponent<_Type, _Schema>
+  }
+}
 
 // TODO: benchmark map vs array for componentMap
 export const createMappedComponent = <T, S extends bitECS.ISchema = {}>(name: string, schema?: S) => {
@@ -92,6 +178,7 @@ export type MappedComponent<T, S extends bitECS.ISchema> = SoAComponentType<S> &
   get: (entity: number) => T & SoAProxy<S>
   set: (entity: number, value: T & SoAProxy<S>) => void
   delete: (entity: number) => void
+  isReactive: boolean
   readonly _name: string
 }
 
@@ -104,7 +191,7 @@ export const getComponent = <T, S extends bitECS.ISchema>(
   getRemoved = false,
   world = useWorld()
 ): T & SoAProxy<S> => {
-  if (typeof entity === 'undefined') {
+  if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[getComponent]: entity is undefined')
   }
   if (bitECS.hasComponent(world, component, entity) || getRemoved) return component.get(entity)
@@ -114,10 +201,10 @@ export const getComponent = <T, S extends bitECS.ISchema>(
 export const addComponent = <T, S extends bitECS.ISchema>(
   entity: Entity,
   component: MappedComponent<T, S>,
-  args: T & Partial<SoAProxy<S>>,
+  args: T | Partial<SoAProxy<S>>,
   world = useWorld()
 ) => {
-  if (typeof entity === 'undefined') {
+  if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[addComponent]: entity is undefined')
   }
   if (hasComponent(entity, component)) throw new Error('component already exists' + entity + component._name)
@@ -136,7 +223,7 @@ export const hasComponent = <T, S extends bitECS.ISchema>(
   component: MappedComponent<T, S>,
   world = useWorld()
 ) => {
-  if (typeof entity === 'undefined') {
+  if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[hasComponent]: entity is undefined')
   }
   return bitECS.hasComponent(world, component, entity)
@@ -147,7 +234,7 @@ export const removeComponent = <T, S extends bitECS.ISchema>(
   component: MappedComponent<T, S>,
   world = useWorld()
 ) => {
-  if (typeof entity === 'undefined') {
+  if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[removeComponent]: entity is undefined')
   }
   bitECS.removeComponent(world, component, entity, true) // clear data on-remove

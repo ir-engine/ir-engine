@@ -1,14 +1,16 @@
 import { Vector3 } from 'three'
-import Command, { CommandParams } from './Command'
-import { serializeObject3DArray, serializeObject3D } from '../functions/debug'
-import EditorCommands from '../constants/EditorCommands'
-import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
+import EditorCommands from '../constants/EditorCommands'
+import EditorEvents from '../constants/EditorEvents'
+import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
+import { CommandManager } from '../managers/CommandManager'
+import Command, { CommandParams } from './Command'
 
 export interface ReparentCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */
@@ -44,7 +46,7 @@ export default class ReparentCommand extends Command {
       this.oldParents = []
       this.oldBefores = []
       this.oldSelection = CommandManager.instance.selected.slice(0)
-      this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent).position.clone())
+      this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent)?.position.clone())
 
       for (let i = objects.length - 1; i >= 0; i--) {
         const obj = objects[i]

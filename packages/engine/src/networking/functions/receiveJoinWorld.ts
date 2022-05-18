@@ -1,7 +1,8 @@
 // spawnPose is temporary - just so portals work for now - will be removed in favor of gameserver-gameserver communication
+import { Quaternion, Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { Quaternion, Vector3 } from 'three'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
 import { Action } from '../../ecs/functions/Action'
@@ -19,9 +20,13 @@ export type JoinWorldProps = {
 }
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
+  if (!props) {
+    dispatchLocal(EngineActions.connectToWorldTimeout(true))
+    return
+  }
   const { tick, clients, cachedActions, avatarDetail, avatarSpawnPose } = props
   console.log('RECEIVED JOIN WORLD RESPONSE', tick, clients, cachedActions, avatarDetail, avatarSpawnPose)
-  dispatchLocal(EngineActions.joinedWorld(true) as any)
+  dispatchLocal(EngineActions.joinedWorld())
   const world = useWorld()
   world.fixedTick = tick
 
@@ -29,8 +34,8 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
 
   const spawnPose = engineState.isTeleporting.value
     ? {
-        position: engineState.isTeleporting.value.remoteSpawnPosition,
-        rotation: engineState.isTeleporting.value.remoteSpawnRotation
+        position: world.activePortal.remoteSpawnPosition,
+        rotation: world.activePortal.remoteSpawnRotation
       }
     : avatarSpawnPose
 

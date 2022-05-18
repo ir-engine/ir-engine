@@ -1,11 +1,12 @@
 import { Document, NodeIO, WebIO } from '@gltf-transform/core'
-import { instance } from '@gltf-transform/functions'
 import { DracoMeshCompression, KHRONOS_EXTENSIONS } from '@gltf-transform/extensions'
-import { getLoader } from './LoadGLTF'
+import { instance } from '@gltf-transform/functions'
+
 import { isClient } from '../../common/functions/isClient'
+import { getGLTFLoader } from '../classes/AssetLoader'
 
 export async function instanceGLTF(url) {
-  const dracoLoader = getLoader().dracoLoader!
+  const dracoLoader = getGLTFLoader().dracoLoader!
 
   console.log('instanceGLTF', url)
 

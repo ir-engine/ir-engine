@@ -1,44 +1,51 @@
-import { useHistory, withRouter } from 'react-router-dom'
-import Inventory2Icon from '@mui/icons-material/Inventory2'
-import AccountTreeIcon from '@mui/icons-material/AccountTree'
-import TuneIcon from '@mui/icons-material/Tune'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Dialog from '@mui/material/Dialog'
+import { useHistory, withRouter } from 'react-router-dom'
 import styled from 'styled-components'
+
+import { useHookedEffect } from '@xrengine/client-core/src/hooks/useHookedEffect'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+
+import AccountTreeIcon from '@mui/icons-material/AccountTree'
+import Inventory2Icon from '@mui/icons-material/Inventory2'
+import TuneIcon from '@mui/icons-material/Tune'
+import Dialog from '@mui/material/Dialog'
+
+import EditorEvents from '../constants/EditorEvents'
+import { saveProject } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
+import { uploadBakeToServer } from '../functions/uploadCubemapBake'
+import { cmdOrCtrlString } from '../functions/utils'
+import { CacheManager } from '../managers/CacheManager'
+import { CommandManager } from '../managers/CommandManager'
+import { ProjectManager } from '../managers/ProjectManager'
+import { DefaultExportOptionsType, SceneManager } from '../managers/SceneManager'
+import { EditorAction, useEditorState } from '../services/EditorServices'
 import AssetsPanel from './assets/AssetsPanel'
+import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
+import ScenesPanel from './assets/ScenesPanel'
 import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
 import ExportProjectDialog from './dialogs/ExportProjectDialog'
 import { ProgressDialog } from './dialogs/ProgressDialog'
+import SaveNewProjectDialog from './dialogs/SaveNewProjectDialog'
+import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
+import { DialogContext } from './hooks/useDialog'
 import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
 import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
+import { AppContext } from './Search/context'
+import Search from './Search/Search'
+import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
 import ViewportPanelContainer from './viewport/ViewportPanelContainer'
-import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
-import { cmdOrCtrlString } from '../functions/utils'
-import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
-import { DefaultExportOptionsType, SceneManager } from '../managers/SceneManager'
-import { CacheManager } from '../managers/CacheManager'
-import { ProjectManager } from '../managers/ProjectManager'
-import ScenesPanel from './assets/ScenesPanel'
-import SaveNewProjectDialog from './dialogs/SaveNewProjectDialog'
-import { DialogContext } from './hooks/useDialog'
-import { saveProject } from '../functions/projectFunctions'
-import { EditorAction, useEditorState } from '../services/EditorServices'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import Search from './Search/Search'
-import { AppContext } from './Search/context'
-import * as styles from './styles.module.scss'
-import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import { DndWrapper } from './dnd/DndWrapper'
 
 /**
  *Styled component used as dock container.
@@ -93,41 +100,33 @@ DockContainer.defaultProps = {
   dividerAlpha: 0
 }
 
-type EditorContainerProps = {
-  projectName: string
-  sceneName: string
-}
-
 /**
  * EditorContainer class used for creating container for Editor
  *
  *  @author Robert Long
  */
-const EditorContainer = (props) => {
-  const projectName = useEditorState().projectName.value
-  const sceneName = useEditorState().sceneName.value
+const EditorContainer = () => {
+  const editorState = useEditorState()
+  const projectName = editorState.projectName
+  const sceneName = editorState.sceneName
+  const modified = editorState.sceneModified
+
   const [searchElement, setSearchElement] = React.useState('')
   const [searchHierarchy, setSearchHierarchy] = React.useState('')
 
   const { t } = useTranslation()
   const [editorReady, setEditorReady] = useState(false)
   const [DialogComponent, setDialogComponent] = useState<JSX.Element | null>(null)
-  const [modified, setModified] = useState(false)
-  const [sceneLoaded, setSceneLoaded] = useState(false)
   const [toggleRefetchScenes, setToggleRefetchScenes] = useState(false)
   const dispatch = useDispatch()
   const history = useHistory()
   const dockPanelRef = useRef<DockLayout>(null)
 
-  const importScene = async (projectFile) => {
+  const importScene = async (sceneFile: SceneJson) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
-    dispatch(EditorAction.sceneLoaded(null))
-    setSceneLoaded(false)
     try {
-      await ProjectManager.instance.loadProject(projectFile)
-      setSceneLoaded(true)
-      SceneManager.instance.sceneModified = true
-      updateModifiedState()
+      await ProjectManager.instance.loadProjectScene(sceneFile)
+      dispatch(EditorAction.sceneModified(true))
       setDialogComponent(null)
     } catch (error) {
       console.error(error)
@@ -148,60 +147,27 @@ const EditorContainer = (props) => {
     setSearchElement(searchInput)
   }
 
-  useEffect(() => {
-    const locationSceneName = props?.match?.params?.sceneName
-    const locationProjectName = props?.match?.params?.projectName
-
-    if (projectName !== locationProjectName) {
-      locationProjectName && dispatch(EditorAction.projectLoaded(locationProjectName))
+  useHookedEffect(() => {
+    if (sceneName.value && editorReady) {
+      console.log(`Loading scene ${sceneName.value} via given url`)
+      loadScene(sceneName.value)
     }
+  }, [editorReady, sceneName])
 
-    if (sceneName !== locationSceneName) {
-      locationSceneName && dispatch(EditorAction.sceneLoaded(locationSceneName))
-    }
-
-    if (!projectName && !locationProjectName && !sceneName) {
-      dispatch(EditorAction.projectLoaded(projectName))
-      history.push(`/editor/${projectName}`)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (editorReady && !sceneLoaded && sceneName) {
-      console.log(`Loading scene ${sceneName} via given url`)
-      loadScene(sceneName)
-    }
-  }, [editorReady, sceneLoaded])
-
-  const reRouteToLoadScene = async (newSceneName) => {
-    if (sceneName === newSceneName) return
-
-    await uploadCurrentScene()
-
-    projectName && newSceneName && history.push(`/editor/${projectName}/${newSceneName}`)
+  const reRouteToLoadScene = async (newSceneName: string) => {
+    if (sceneName.value === newSceneName) return
+    if (!projectName.value || !newSceneName) return
+    history.push(`/editor/${projectName.value}/${newSceneName}`)
   }
 
-  const uploadCurrentScene = async () => {
-    if (!Engine.sceneLoaded) return
-
-    ProjectManager.instance.dispose()
-
-    return unloadScene({
-      removePersisted: true,
-      keepSystems: true
-    })
-  }
-
-  const loadScene = async (sceneName) => {
+  const loadScene = async (sceneName: string) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
-    dispatch(EditorAction.sceneLoaded(null))
-    setSceneLoaded(false)
     try {
-      if (!projectName) return
-      const project = await getScene(projectName, sceneName, false)
+      if (!projectName.value) return
+      const project = await getScene(projectName.value, sceneName, false)
 
       if (!project.scene) return
-      await ProjectManager.instance.loadProject(project.scene)
+      await ProjectManager.instance.loadProjectScene(project.scene)
 
       setDialogComponent(null)
     } catch (error) {
@@ -215,22 +181,18 @@ const EditorContainer = (props) => {
         />
       )
     }
-    dispatch(EditorAction.sceneLoaded(sceneName))
-    setSceneLoaded(true)
   }
 
-  const newScene = async () => {
-    if (!projectName) return
+  const onNewScene = async () => {
+    if (!projectName.value) return
 
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
-    dispatch(EditorAction.sceneLoaded(null))
-    setSceneLoaded(false)
 
     try {
-      const newProject = await createNewScene(projectName)
-      if (!newProject) return
+      const sceneData = await createNewScene(projectName.value)
+      if (!sceneData) return
 
-      reRouteToLoadScene(newProject.sceneName)
+      reRouteToLoadScene(sceneData.sceneName)
       setDialogComponent(null)
     } catch (error) {
       console.error(error)
@@ -242,17 +204,6 @@ const EditorContainer = (props) => {
           error={error}
         />
       )
-    }
-  }
-
-  const updateModifiedState = (then?) => {
-    const nextModified = SceneManager.instance.sceneModified
-
-    if (nextModified !== modified) {
-      setModified(nextModified)
-      then && then()
-    } else if (then) {
-      then()
     }
   }
 
@@ -278,13 +229,8 @@ const EditorContainer = (props) => {
     )
   }
 
-  const onProjectLoaded = () => {
-    updateModifiedState()
-  }
-
   const onCloseProject = () => {
     history.push('/editor')
-    dispatch(EditorAction.projectLoaded(null))
   }
 
   const onSaveAs = async () => {
@@ -297,7 +243,7 @@ const EditorContainer = (props) => {
     const abortController = new AbortController()
     try {
       let saveProjectFlag = true
-      if (sceneName || modified) {
+      if (sceneName.value || modified.value) {
         const blob = await SceneManager.instance.takeScreenshot(512, 320)
         const result: { name: string } = (await new Promise((resolve) => {
           setDialogComponent(
@@ -309,16 +255,16 @@ const EditorContainer = (props) => {
             />
           )
         })) as any
-        if (result && projectName) {
-          await saveScene(projectName, result.name, blob, abortController.signal)
-          SceneManager.instance.sceneModified = false
+        if (result && projectName.value) {
+          const cubemapUrl = await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
+          await saveScene(projectName.value, result.name, blob, abortController.signal)
+          dispatch(EditorAction.sceneModified(false))
         } else {
           saveProjectFlag = false
         }
       }
-      if (saveProjectFlag && projectName) {
-        await saveProject(projectName)
-        updateModifiedState()
+      if (saveProjectFlag && projectName.value) {
+        await saveProject(projectName.value)
       }
       setDialogComponent(null)
     } catch (error) {
@@ -438,8 +384,8 @@ const EditorContainer = (props) => {
       return
     }
 
-    if (!sceneName) {
-      if (modified) {
+    if (!sceneName.value) {
+      if (modified.value) {
         onSaveAs()
       }
       return
@@ -464,13 +410,14 @@ const EditorContainer = (props) => {
     const blob = await SceneManager.instance.takeScreenshot(512, 320)
 
     try {
-      if (projectName) {
-        await saveScene(projectName, sceneName, blob, abortController.signal)
-        await saveProject(projectName)
+      if (projectName.value) {
+        const cubemapUrl = await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
+        await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
+        await saveProject(projectName.value)
       }
 
-      SceneManager.instance.sceneModified = false
-      updateModifiedState()
+      dispatch(EditorAction.sceneModified(false))
+
       setDialogComponent(null)
     } catch (error) {
       console.error(error)
@@ -495,9 +442,9 @@ const EditorContainer = (props) => {
         ),
         content: (
           <ScenesPanel
-            newScene={newScene}
+            newScene={onNewScene}
             toggleRefetchScenes={toggleRefetchScenes}
-            projectName={projectName}
+            projectName={projectName.value}
             loadScene={reRouteToLoadScene}
           />
         )
@@ -509,15 +456,14 @@ const EditorContainer = (props) => {
 
     ProjectManager.instance.init().then(() => {
       setEditorReady(true)
-      CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
       CommandManager.instance.addListener(EditorEvents.ERROR.toString(), onEditorError)
     })
   }, [])
 
   useEffect(() => {
     return () => {
+      setEditorReady(false)
       CommandManager.instance.removeListener(EditorEvents.ERROR.toString(), onEditorError)
-      CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
       ProjectManager.instance.dispose()
     }
   }, [])
@@ -525,11 +471,11 @@ const EditorContainer = (props) => {
   const generateToolbarMenu = () => {
     return [
       {
-        name: t('editor:menubar.newProject'),
-        action: newScene
+        name: t('editor:menubar.newScene'),
+        action: onNewScene
       },
       {
-        name: t('editor:menubar.saveProject'),
+        name: t('editor:menubar.saveScene'),
         hotkey: `${cmdOrCtrlString}+s`,
         action: onSaveScene
       },
@@ -542,11 +488,11 @@ const EditorContainer = (props) => {
       //   action: onExportProject
       // },
       {
-        name: t('editor:menubar.importProject'),
+        name: t('editor:menubar.importScene'),
         action: onImportScene
       },
       {
-        name: t('editor:menubar.exportProject'),
+        name: t('editor:menubar.exportScene'),
         action: onExportScene
       },
       {
@@ -579,8 +525,8 @@ const EditorContainer = (props) => {
                   ),
                   content: (
                     <ScenesPanel
-                      newScene={newScene}
-                      projectName={projectName}
+                      newScene={onNewScene}
+                      projectName={projectName.value}
                       toggleRefetchScenes={toggleRefetchScenes}
                       loadScene={reRouteToLoadScene}
                     />
@@ -692,4 +638,4 @@ const EditorContainer = (props) => {
   )
 }
 
-export default withRouter(EditorContainer)
+export default EditorContainer

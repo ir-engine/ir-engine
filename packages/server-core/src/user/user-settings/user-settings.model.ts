@@ -1,4 +1,7 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { UserSettingsInterface } from '@xrengine/common/src/dbmodels/UserSettings'
+
 import { Application } from '../../../declarations'
 
 /**
@@ -9,7 +12,7 @@ import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const UserSettings = sequelizeClient.define(
+  const UserSettings = sequelizeClient.define<Model<UserSettingsInterface>>(
     'user_settings',
     {
       id: {

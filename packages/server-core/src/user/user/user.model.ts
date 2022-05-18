@@ -1,4 +1,7 @@
-import { DataTypes, Sequelize } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { UserInterface } from '@xrengine/common/src/dbmodels/UserInterface'
+
 import { Application } from '../../../declarations'
 
 /**
@@ -6,7 +9,7 @@ import { Application } from '../../../declarations'
  */
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const User = sequelizeClient.define(
+  const User = sequelizeClient.define<Model<UserInterface>>(
     'user',
     {
       id: {
@@ -63,9 +66,6 @@ export default (app: Application) => {
     ;(User as any).hasMany(models.location_ban)
     ;(User as any).hasMany(models.bot, { foreignKey: 'userId' })
     ;(User as any).hasMany(models.scope, { foreignKey: 'userId' })
-    ;(User as any).belongsToMany(models.inventory_item, { through: models.user_inventory, foreignKey: 'userId' })
-    ;(User as any).hasMany(models.user_trade, { foreignKey: 'fromUserId', required: true })
-    ;(User as any).hasMany(models.user_trade, { foreignKey: 'toUserId', required: true })
     ;(User as any).belongsToMany(models.instance, { through: 'instance_authorized_user' })
     ;(User as any).hasOne(models.user_api_key)
   }

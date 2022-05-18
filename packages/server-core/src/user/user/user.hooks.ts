@@ -1,9 +1,11 @@
 import { HookContext } from '@feathersjs/feathers'
+import { iff, isProvider } from 'feathers-hooks-common'
+
 import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
+
 import addScopeToUser from '../../hooks/add-scope-to-user'
 import authenticate from '../../hooks/authenticate'
 import restrictUserRole from '../../hooks/restrict-user-role'
-import { iff, isProvider } from 'feathers-hooks-common'
 import logger from '../../logger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
@@ -22,6 +24,7 @@ const restrictUserPatch = (context: HookContext) => {
   const data = {} as any
   // selective define allowed props as not to accidentally pass an undefined value (which will be interpreted as NULL)
   if (typeof context.data.avatarId !== 'undefined') data.avatarId = context.data.avatarId
+  if (typeof context.data.name !== 'undefined') data.name = context.data.name
   context.data = data
   return context
 }
@@ -60,14 +63,6 @@ export default {
           },
           {
             model: 'scope'
-          },
-          {
-            model: 'inventory-item',
-            include: [
-              {
-                model: 'inventory-item-type'
-              }
-            ]
           }
         ]
       })
@@ -95,14 +90,6 @@ export default {
           },
           {
             model: 'scope'
-          },
-          {
-            model: 'inventory-item',
-            include: [
-              {
-                model: 'inventory-item-type'
-              }
-            ]
           }
         ]
       })
@@ -133,14 +120,6 @@ export default {
           },
           {
             model: 'scope'
-          },
-          {
-            model: 'inventory-item',
-            include: [
-              {
-                model: 'inventory-item-type'
-              }
-            ]
           }
         ]
       }),
@@ -167,22 +146,6 @@ export default {
   after: {
     all: [],
     find: [
-      (context: HookContext): HookContext => {
-        try {
-          if (context.result?.data) {
-            for (let x = 0; x < context.result.data.length; x++) {
-              for (let i = 0; i < context.result.data[x].inventory_items?.length; i++) {
-                context.result.data[x].inventory_items[i].metadata = JSON.parse(
-                  context.result.data[x].inventory_items[i].metadata
-                )
-              }
-            }
-          }
-        } catch (err) {
-          console.log('inventory item parsing error on user.FIND', err)
-        }
-        return context
-      }
       // async (context: HookContext): Promise<HookContext> => {
       //   try {
       //     const { app, result } = context
@@ -217,18 +180,6 @@ export default {
       // }
     ],
     get: [
-      (context: HookContext): HookContext => {
-        try {
-          if (context.result) {
-            for (let i = 0; i < context.result.inventory_items?.length; i++) {
-              context.result.inventory_items[i].metadata = JSON.parse(context.result.inventory_items[i].metadata)
-            }
-          }
-        } catch (err) {
-          console.log('inventory item parsing error on user.GET', err)
-        }
-        return context
-      }
       // async (context: HookContext): Promise<HookContext> => {
       //   try {
       //     if (context.result.subscriptions && context.result.subscriptions.length > 0) {

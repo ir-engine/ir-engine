@@ -1,3 +1,13 @@
+import { Not } from 'bitecs'
+
+import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+
+import { AudioComponent } from '../../audio/components/AudioComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
+import { Entity } from '../../ecs/classes/Entity'
+import { World } from '../../ecs/classes/World'
 import {
   addComponent,
   defineQuery,
@@ -5,56 +15,58 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
+import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { VideoComponent } from '../../scene/components/VideoComponent'
+import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
+import { toggleAudio } from '../../scene/functions/loaders/AudioFunctions'
+import { toggleVideo } from '../../scene/functions/loaders/VideoFunctions'
+import { toggleVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
+import { EquippedComponent } from '../components/EquippedComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
+import { InteractedComponent } from '../components/InteractedComponent'
 import { InteractiveFocusedComponent } from '../components/InteractiveFocusedComponent'
 import { InteractorComponent } from '../components/InteractorComponent'
 import { SubFocusedComponent } from '../components/SubFocusedComponent'
-import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { interactBoxRaycast } from '../functions/interactBoxRaycast'
-import { InteractedComponent } from '../components/InteractedComponent'
 import { createBoxComponent } from '../functions/createBoxComponent'
-import { World } from '../../ecs/classes/World'
-import {
-  createInteractUI,
-  showInteractUI,
-  hideInteractUI,
-  updateInteractUI,
-  setUserDataInteractUI,
-  InteractiveUI
-} from '../functions/interactUI'
-import { EquippedComponent } from '../components/EquippedComponent'
-import { Not } from 'bitecs'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
-import { AudioComponent } from '../../audio/components/AudioComponent'
-import { toggleAudio } from '../../scene/functions/loaders/AudioFunctions'
-import { VideoComponent } from '../../scene/components/VideoComponent'
-import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
-import { toggleVideo } from '../../scene/functions/loaders/VideoFunctions'
-import { toggleVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
+import { interactBoxRaycast } from '../functions/interactBoxRaycast'
+import { createInteractUI, hideInteractUI, showInteractUI, updateInteractUI } from '../functions/interactUI'
+
+export const InteractiveUI = new Map<Entity, ReturnType<typeof createInteractUI>>()
 
 export default async function InteractiveSystem(world: World) {
   const interactorsQuery = defineQuery([InteractorComponent])
   // Included Object3DComponent in query because Object3DComponent might be added with delay for network spawned objects
-  const interactiveQuery = defineQuery([InteractableComponent, Object3DComponent, Not(EquippedComponent)])
+  const interactiveQuery = defineQuery([
+    InteractableComponent,
+    Object3DComponent,
+    Not(EquippedComponent),
+    Not(AvatarComponent)
+  ])
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
   const focusQuery = defineQuery([InteractableComponent, InteractiveFocusedComponent])
   const subfocusQuery = defineQuery([InteractableComponent, SubFocusedComponent])
   const interactedQuery = defineQuery([InteractedComponent])
-  const xrComponentQuery = defineQuery([XRUIComponent, Object3DComponent])
 
   return () => {
     for (const entity of interactiveQuery.enter(world)) {
-      const interactionData = getComponent(entity, InteractableComponent)
-      if (!hasComponent(entity, BoundingBoxComponent)) {
-        createBoxComponent(entity)
+      // TODO: quick hack while objects to not load immediately #5352
+
+      const setupInteractable = () => {
+        const interactable = getComponent(entity, InteractableComponent).value
+        if (!hasComponent(entity, BoundingBoxComponent)) {
+          createBoxComponent(entity)
+        }
+        if (interactable.interactionType === 'ui-modal' && !InteractiveUI.get(entity)) {
+          createInteractUI(entity)
+        }
       }
-      if (interactionData.interactionType !== 'equippable' && !InteractiveUI.get(entity)) {
-        createInteractUI(entity)
-      }
+
+      if (accessEngineState().sceneLoaded.value) setupInteractable()
+      else receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, setupInteractable)
     }
 
     for (const entity of interactiveQuery.exit(world)) {
@@ -63,8 +75,9 @@ export default async function InteractiveSystem(world: World) {
       if (getComponent(entity, EquippedComponent)) {
         removeComponent(entity, BoundingBoxComponent)
       }
-      removeComponent(entity, InteractiveFocusedComponent)
-      removeComponent(entity, SubFocusedComponent)
+
+      hasComponent(entity, InteractableComponent) && removeComponent(entity, InteractiveFocusedComponent)
+      hasComponent(entity, SubFocusedComponent) && removeComponent(entity, SubFocusedComponent)
     }
 
     const interactives = interactiveQuery(world)
@@ -75,7 +88,7 @@ export default async function InteractiveSystem(world: World) {
         const interacts = getComponent(entity, InteractorComponent)
         if (interacts.focusedInteractive) {
           if (!hasComponent(interacts.focusedInteractive, InteractiveFocusedComponent)) {
-            addComponent(interacts.focusedInteractive, InteractiveFocusedComponent, { interacts: entity })
+            addComponent(interacts.focusedInteractive, InteractiveFocusedComponent, {})
           }
         }
 
@@ -111,16 +124,12 @@ export default async function InteractiveSystem(world: World) {
       removeComponent(entity, HighlightComponent)
     }
 
-    for (const entity of xrComponentQuery.enter()) {
-      if (InteractiveUI.has(entity)) setUserDataInteractUI(entity)
-    }
-
-    for (const xrEntity of InteractiveUI.keys()) {
-      updateInteractUI(xrEntity)
+    for (const [entity, ui] of InteractiveUI) {
+      updateInteractUI(entity, ui)
     }
 
     for (const entity of interactedQuery.enter()) {
-      const interactiveComponent = getComponent(entity, InteractableComponent)
+      const interactiveComponent = getComponent(entity, InteractableComponent).value
       if (hasComponent(entity, AudioComponent)) {
         toggleAudio(entity)
       } else if (hasComponent(entity, VideoComponent)) {

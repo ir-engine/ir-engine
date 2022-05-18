@@ -1,23 +1,23 @@
-import { isClient } from '../../common/functions/isClient'
+import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { Engine } from '../../ecs/classes/Engine'
+import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
+import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { NameComponent } from '../components/NameComponent'
-import { EntityNodeComponent } from '../components/EntityNodeComponent'
-import { SceneJson, ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import EntityTree, { EntityTreeNode } from '../../ecs/classes/EntityTree'
-import { updateRenderSetting, resetEngineRenderer } from './loaders/RenderSettingsFunction'
-import { registerDefaultSceneFunctions } from './registerSceneFunctions'
-import { ScenePrefabTypes } from './registerPrefabs'
-import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
-import { SceneTagComponent, SCENE_COMPONENT_SCENE_TAG } from '../components/SceneTagComponent'
-import { reparentObject3D } from './ReparentFunction'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
-import { delay } from '../../common/functions/delay'
+import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { EntityNodeComponent } from '../components/EntityNodeComponent'
+import { NameComponent } from '../components/NameComponent'
+import { Object3DComponent } from '../components/Object3DComponent'
+import { SCENE_COMPONENT_SCENE_TAG, SceneTagComponent } from '../components/SceneTagComponent'
+import { ObjectLayers } from '../constants/ObjectLayers'
+import { resetEngineRenderer, updateRenderSetting } from './loaders/RenderSettingsFunction'
+import { ScenePrefabTypes } from './registerPrefabs'
 
 export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes): void => {
   const world = useWorld()
@@ -33,9 +33,12 @@ export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes
  * @param sceneData
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()) => {
+  Engine.sceneLoaded = false
+
   const entityMap = {} as { [key: string]: EntityTreeNode }
   Engine.sceneLoadPromises = []
-  dispatchLocal(EngineActions.sceneLoading(true) as any)
+
+  dispatchLocal(EngineActions.sceneLoading())
 
   // reset renderer settings for if we are teleporting and the new scene does not have an override
   resetEngineRenderer(true)
@@ -53,18 +56,24 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
     tree.addEntityNode(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
   })
 
+  addComponent(world.entityTree.rootNode.entity, Object3DComponent, { value: Engine.scene })
   addComponent(world.entityTree.rootNode.entity, SceneTagComponent, {})
   if (Engine.isEditor) {
     getComponent(world.entityTree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
   }
 
+  // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
+  if (!accessEngineState().isTeleporting.value) Engine.camera?.layers.disable(ObjectLayers.Scene)
+
   await Promise.all(Engine.sceneLoadPromises)
+
+  if (!accessEngineState().isTeleporting.value) Engine.camera?.layers.enable(ObjectLayers.Scene)
 
   Engine.sceneLoaded = true
 
   // Configure CSM
   updateRenderSetting(world.entityTree.rootNode.entity)
-  dispatchLocal(EngineActions.sceneLoaded(true) as any)
+  dispatchLocal(EngineActions.sceneLoaded()).delay(2)
 }
 
 /**
@@ -77,7 +86,12 @@ export const loadSceneEntity = (entityNode: EntityTreeNode, sceneEntity: EntityJ
   if (Engine.isEditor) addComponent(entityNode.entity, EntityNodeComponent, { components: [] })
 
   sceneEntity.components.forEach((component) => {
-    loadComponent(entityNode.entity, component)
+    try {
+      loadComponent(entityNode.entity, component)
+    } catch (e) {
+      console.error(`Error loading scene entity: `, JSON.stringify(sceneEntity, null, '\t'))
+      console.error(e)
+    }
   })
 
   if (!hasComponent(entityNode.entity, TransformComponent))

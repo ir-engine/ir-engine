@@ -1,18 +1,24 @@
+import assert from 'assert'
+import { Vector3 } from 'three'
+
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
+import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
+import { LifecycleValue } from '../common/enums/LifecycleValue'
+import { NumericalType } from '../common/types/NumericalTypes'
 import { Engine } from '../ecs/classes/Engine'
 import { createWorld } from '../ecs/classes/World'
 import { addComponent, getComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
-import { fixedCameraBehindAvatar, setTargetCameraRotation, setWalking, switchShoulderSide } from './AvatarInputSchema'
 import { InputType } from '../input/enums/InputType'
-import { LifecycleValue } from '../common/enums/LifecycleValue'
-import { NumericalType } from '../common/types/NumericalTypes'
-import assert from 'assert'
-import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
-import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { CollisionGroups } from '../physics/enums/CollisionGroups'
-import { Vector3 } from 'three'
 import { VectorSpringSimulator } from '../physics/classes/springs/VectorSpringSimulator'
+import { CollisionGroups } from '../physics/enums/CollisionGroups'
+import {
+  fixedCameraBehindAvatar,
+  setTargetCameraRotation,
+  switchShoulderSide,
+  toggleRunning
+} from './AvatarInputSchema'
+import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 
 describe('avatarInputSchema', () => {
   let world
@@ -135,7 +141,7 @@ describe('avatarInputSchema', () => {
 
     const firstValue = c.isWalking
 
-    setWalking(
+    toggleRunning(
       entity,
       'Test',
       {

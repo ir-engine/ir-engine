@@ -1,7 +1,9 @@
-import authenticate from '../../hooks/authenticate'
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
-import restrictUserRole from '../../hooks/restrict-user-role'
 import { iff, isProvider } from 'feathers-hooks-common'
+
+import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
+
+import authenticate from '../../hooks/authenticate'
+import restrictUserRole from '../../hooks/restrict-user-role'
 
 export default {
   before: {

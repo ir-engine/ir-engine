@@ -1,33 +1,25 @@
-import {
-  ArrowHelper,
-  Clock,
-  Material,
-  MathUtils,
-  Matrix4,
-  Object3D,
-  Quaternion,
-  Raycaster,
-  SkinnedMesh,
-  Vector3
-} from 'three'
+import { ArrowHelper, Clock, Material, MathUtils, Matrix4, Quaternion, SkinnedMesh, Vector3 } from 'three'
+
+import { BoneNames } from '../../avatar/AvatarBoneMatching'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
+import { smoothDamp } from '../../common/functions/MathLerpFunctions'
+import { createConeOfVectors } from '../../common/functions/vectorHelpers'
 import { Engine } from '../../ecs/classes/Engine'
+import { accessEngineState } from '../../ecs/classes/EngineService'
+import { Entity } from '../../ecs/classes/Entity'
+import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
-import { Entity } from '../../ecs/classes/Entity'
-import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
-import { World } from '../../ecs/classes/World'
-import { lerp, smoothDamp } from '../../common/functions/MathLerpFunctions'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
-import { createConeOfVectors } from '../../common/functions/vectorHelpers'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { BoneNames } from '../../avatar/AvatarBoneMatching'
-import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
 
 const direction = new Vector3()
 const quaternion = new Quaternion()
@@ -73,19 +65,18 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
   return viewVector
 }
 
-export const setAvatarOpacity = (entity: Entity, opacity: number): void => {
+export const updateAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
   const object3DComponent = getComponent(entity, Object3DComponent)
   object3DComponent?.value.traverse((obj) => {
     if (!(obj as SkinnedMesh).isSkinnedMesh) return
     const material = (obj as SkinnedMesh).material as Material
-    if (!material.userData.shader) return
+    if (!material.userData || !material.userData.shader) return
     const shader = material.userData.shader
     shader.uniforms.boneOpacity.value = opacity
   })
 }
 
 export const getAvatarBonePosition = (entity: Entity, name: BoneNames, position: Vector3): void => {
-  const object3DComponent = getComponent(entity, Object3DComponent)
   const ikRigComponent = getComponent(entity, IKRigComponent)
   const el = ikRigComponent.boneStructure[name].matrixWorld.elements
   position.set(el[12], el[13], el[14])
@@ -97,7 +88,7 @@ export const updateAvatarOpacity = (entity: Entity) => {
   const followCamera = getComponent(entity, FollowCameraComponent)
   const distanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
 
-  setAvatarOpacity(entity, distanceRatio)
+  setAvatarHeadOpacity(entity, distanceRatio)
 }
 
 export const updateCameraTargetRotation = (entity: Entity, delta: number) => {
@@ -177,12 +168,6 @@ export const getMaxCamDistance = (entity: Entity, target: Vector3) => {
 export const calculateCameraTarget = (entity: Entity, target: Vector3) => {
   const avatar = getComponent(entity, AvatarComponent)
   const avatarTransform = getComponent(entity, TransformComponent)
-
-  // const followCamera = getComponent(entity, FollowCameraComponent)
-  // const minDistanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
-  // const side = followCamera.shoulderSide ? -1 : 1
-  // const shoulderOffset = lerp(0, 0.2, minDistanceRatio) * side
-  //const heightOffset = lerp(0, 0.25, minDistanceRatio)
 
   target.set(0, avatar.avatarHeight, 0.2)
   target.applyQuaternion(avatarTransform.rotation)
@@ -289,35 +274,39 @@ export default async function CameraSystem(world: World) {
         if (debugRays) {
           const arrow = new ArrowHelper()
           coneDebugHelpers.push(arrow)
-          setObjectLayers(arrow, ObjectLayers.Render, ObjectLayers.Gizmos)
+          setObjectLayers(arrow, ObjectLayers.Gizmos)
           Engine.scene.add(arrow)
         }
       }
     }
 
     for (const entity of followCameraQuery.exit()) {
-      setAvatarOpacity(entity, 1)
+      setAvatarHeadOpacity(entity, 1)
       Engine.activeCameraFollowTarget = null
       camRayCastCache.maxDistance = -1
     }
 
-    for (const entity of followCameraQuery(world)) {
-      updateFollowCamera(entity, delta)
-      updateAvatarOpacity(entity)
-    }
+    if (accessEngineState().sceneLoaded.value) {
+      const [followCameraEntity] = followCameraQuery(world)
+      if (followCameraEntity !== undefined) {
+        updateFollowCamera(followCameraEntity, delta)
+        updateAvatarOpacity(followCameraEntity)
+      }
 
-    for (const entity of targetCameraRotationQuery(world)) {
-      updateCameraTargetRotation(entity, delta)
-    }
+      for (const entity of targetCameraRotationQuery(world)) {
+        updateCameraTargetRotation(entity, delta)
+      }
 
-    if (Engine.xrManager?.isPresenting) {
-      Engine.xrManager.updateCamera(Engine.camera)
-    } else if (Engine.activeCameraEntity !== undefined) {
-      const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
-      Engine.camera.position.copy(transform.position)
-      Engine.camera.quaternion.copy(transform.rotation)
-      Engine.camera.scale.copy(transform.scale)
-      Engine.camera.updateMatrixWorld()
+      if (Engine.xrManager?.isPresenting) {
+        // Current WebXRManager.updateCamera() typedef is incorrect
+        ;(Engine.xrManager as any).updateCamera(Engine.camera)
+      } else if (followCameraEntity !== undefined) {
+        const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
+        Engine.camera.position.copy(transform.position)
+        Engine.camera.quaternion.copy(transform.rotation)
+        Engine.camera.scale.copy(transform.scale)
+        Engine.camera.updateMatrixWorld()
+      }
     }
   }
 }

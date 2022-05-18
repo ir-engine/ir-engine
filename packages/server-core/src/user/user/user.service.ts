@@ -1,13 +1,14 @@
-import { Application } from '../../../declarations'
-import { User } from './user.class'
-import createModel from './user.model'
-import hooks from './user.hooks'
 import _ from 'lodash'
-import logger from '../../logger'
-import userDocs from './user.docs'
-import config from '../../appconfig'
 
-declare module '../../../declarations' {
+import { Application } from '../../../declarations'
+import config from '../../appconfig'
+import logger from '../../logger'
+import { User } from './user.class'
+import userDocs from './user.docs'
+import hooks from './user.hooks'
+import createModel from './user.model'
+
+declare module '@xrengine/common/declarations' {
   /**
    * Interface for users input
    */

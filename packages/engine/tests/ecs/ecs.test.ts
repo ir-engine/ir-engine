@@ -1,6 +1,7 @@
 import assert from 'assert'
-import { Engine } from '../../src/ecs/classes/Engine'
+import * as bitecs from 'bitecs'
 
+import { Engine } from '../../src/ecs/classes/Engine'
 import { createWorld, World } from '../../src/ecs/classes/World'
 import {
   addComponent,
@@ -9,11 +10,10 @@ import {
   getComponent,
   removeComponent
 } from '../../src/ecs/functions/ComponentFunctions'
-import { SystemUpdateType } from '../../src/ecs/functions/SystemUpdateType'
 import { createEntity, removeEntity } from '../../src/ecs/functions/EntityFunctions'
-import { useWorld } from '../../src/ecs/functions/SystemHooks'
-import * as bitecs from 'bitecs'
 import { initSystems } from '../../src/ecs/functions/SystemFunctions'
+import { useWorld } from '../../src/ecs/functions/SystemHooks'
+import { SystemUpdateType } from '../../src/ecs/functions/SystemUpdateType'
 
 const mockDelta = 1 / 60
 let mockElapsedTime = 0

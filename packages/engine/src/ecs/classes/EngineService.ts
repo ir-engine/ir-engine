@@ -1,6 +1,8 @@
 import { createState, useState } from '@speigg/hookstate'
+
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
 import { InteractableComponentType } from '../../interaction/components/InteractableComponent'
-import { PortalComponent, PortalComponentType } from '../../scene/components/PortalComponent'
 import { EngineEvents } from './EngineEvents'
 import { Entity } from './Entity'
 
@@ -13,15 +15,16 @@ const state = createState({
   loadingProgress: 0,
   loadingDetails: 'loading background assests...',
   connectedWorld: false,
-  isTeleporting: null! as ReturnType<typeof PortalComponent.get>,
+  isTeleporting: false,
   isPhysicsDebug: false,
   isAvatarDebug: false,
   leaveWorld: false,
   socketInstance: false,
   connectionTimeoutInstance: false,
-  avatarTappedId: null! as string,
+  avatarTappedId: null! as UserId,
   userHasInteracted: false,
   interactionData: null! as InteractableComponentType,
+  xrSupported: false,
   errorEntities: {} as { [key: Entity]: boolean }
 })
 
@@ -49,24 +52,24 @@ export function EngineEventReceptor(action: EngineActionType) {
         })
       case EngineEvents.EVENTS.INITIALIZED_ENGINE:
         return s.merge({ isEngineInitialized: action.initialised })
+      case EngineEvents.EVENTS.SCENE_UNLOADED:
+        return s.merge({ sceneLoaded: false, sceneLoading: false })
       case EngineEvents.EVENTS.SCENE_LOADING:
-        return s.merge({ sceneLoaded: false, sceneLoading: action.sceneLoading })
+        return s.merge({ sceneLoaded: false, sceneLoading: true })
       case EngineEvents.EVENTS.SCENE_LOADED:
-        return s.merge({ sceneLoaded: action.sceneLoaded, sceneLoading: false })
+        return s.merge({ sceneLoaded: true, sceneLoading: false })
       case EngineEvents.EVENTS.JOINED_WORLD:
-        return s.merge({ joinedWorld: action.joinedWorld })
+        return s.merge({ joinedWorld: true })
+      case EngineEvents.EVENTS.LEAVE_WORLD:
+        return s.merge({ joinedWorld: false })
       case EngineEvents.EVENTS.CONNECT_TO_WORLD:
         return s.merge({ connectedWorld: action.connectedWorld })
       case EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT:
         return s.merge({ connectionTimeoutInstance: action.instance })
       case EngineEvents.EVENTS.OBJECT_ACTIVATION:
         return s.merge({ interactionData: action.interactionData })
-      case EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT:
-        return s.merge({
-          isTeleporting: action.portalComponent
-        })
       case EngineEvents.EVENTS.SET_TELEPORTING:
-        if (action.portalComponent) {
+        if (action.isTeleporting) {
           s.merge({
             connectedWorld: false,
             sceneLoaded: false,
@@ -74,7 +77,7 @@ export function EngineEventReceptor(action: EngineActionType) {
           })
         }
         return s.merge({
-          isTeleporting: action.portalComponent
+          isTeleporting: action.isTeleporting
         })
       case EngineEvents.EVENTS.LOADING_STATE_CHANGED:
         s.loadingProgress.set(action.loadingProgress)
@@ -84,6 +87,9 @@ export function EngineEventReceptor(action: EngineActionType) {
         return s.merge({ userHasInteracted: true })
       case EngineEvents.EVENTS.ENTITY_ERROR_UPDATE:
         s.errorEntities[action.entity].set(!action.isResolved)
+        return
+      case EngineEvents.EVENTS.XR_SUPPORTED:
+        s.xrSupported.set(action.xrSupported)
         return
     }
   }, action.type)
@@ -98,10 +104,10 @@ export const EngineActions = {
       userId
     }
   },
-  setTeleporting: (portalComponent: ReturnType<typeof PortalComponent.get>) => {
+  setTeleporting: (isTeleporting: boolean) => {
     return {
       type: EngineEvents.EVENTS.SET_TELEPORTING,
-      portalComponent
+      isTeleporting
     }
   },
   resetEngine: (instance: boolean) => {
@@ -128,10 +134,9 @@ export const EngineActions = {
       instance
     }
   },
-  joinedWorld: (joinedWorld: boolean) => {
+  joinedWorld: () => {
     return {
-      type: EngineEvents.EVENTS.JOINED_WORLD,
-      joinedWorld
+      type: EngineEvents.EVENTS.JOINED_WORLD
     }
   },
   leaveWorld: () => {
@@ -139,16 +144,19 @@ export const EngineActions = {
       type: EngineEvents.EVENTS.LEAVE_WORLD
     }
   },
-  sceneLoading: (sceneLoading: boolean) => {
+  sceneLoading: () => {
     return {
-      type: EngineEvents.EVENTS.SCENE_LOADING,
-      sceneLoading
+      type: EngineEvents.EVENTS.SCENE_LOADING
     }
   },
-  sceneLoaded: (sceneLoaded: boolean) => {
+  sceneLoaded: () => {
     return {
-      type: EngineEvents.EVENTS.SCENE_LOADED,
-      sceneLoaded
+      type: EngineEvents.EVENTS.SCENE_LOADED
+    }
+  },
+  sceneUnloaded: () => {
+    return {
+      type: EngineEvents.EVENTS.SCENE_UNLOADED
     }
   },
   sceneEntityLoaded: (entitiesLeft: number) => {
@@ -169,12 +177,6 @@ export const EngineActions = {
     return {
       type: EngineEvents.EVENTS.OBJECT_ACTIVATION,
       interactionData
-    }
-  },
-  portalRedirectEvent: (portalComponent: PortalComponentType) => {
-    return {
-      type: EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT,
-      portalComponent
     }
   },
 
@@ -246,6 +248,13 @@ export const EngineActions = {
       entity,
       isResolved
     }
+  },
+  xrSupported: (xrSupported: boolean) => {
+    return {
+      type: EngineEvents.EVENTS.XR_SUPPORTED,
+      xrSupported
+    }
   }
 }
+
 export type EngineActionType = ReturnType<typeof EngineActions[keyof typeof EngineActions]>

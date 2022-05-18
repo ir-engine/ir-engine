@@ -30,12 +30,12 @@
     "envMapError": "Error loading cubemap images {{files}}",
     "lbl-return": "Return",
     "menubar": {
-        "newProject": "New Scene",
-        "saveProject": "Save Scene",
+        "newScene": "New Scene",
+        "saveScene": "Save Scene",
         "saveAs": "Save As",
         "exportGLB": "Export as binary glTF (.glb) ...",
-        "importProject": "Import scene",
-        "exportProject": "Export scene",
+        "importScene": "Import scene",
+        "exportScene": "Export scene",
         "quit": "Quit"
     },
     "errors": {
@@ -449,6 +449,8 @@
             "lbl-interactable": "Interactable",
             "lbl-id": "Element Id",
             "lbl-test": "Test",
+            "lbl-play": "Play",
+            "lbl-pause": "Pause",
             "error-url": "Error Loading From URL"
         },
         "volumetric": {
@@ -474,6 +476,7 @@
         },
         "portal": {
             "lbl-portal": "Linked Portal",
+            "lbl-redirect": "Use Page Redirect",
             "description": "A Portat to teleport players to specified location",
             "lbl-locationName": "Location",
             "lbl-modelUrl": "Model URL",

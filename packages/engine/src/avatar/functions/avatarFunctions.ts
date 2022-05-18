@@ -1,9 +1,12 @@
+import { pipe } from 'bitecs'
 import {
   AdditiveBlending,
+  AnimationClip,
   AnimationMixer,
   Bone,
   DoubleSide,
   Group,
+  Material,
   Mesh,
   MeshBasicMaterial,
   Object3D,
@@ -11,87 +14,167 @@ import {
   RGBAFormat,
   Skeleton,
   SkinnedMesh,
-  sRGBEncoding
+  sRGBEncoding,
+  Vector3
 } from 'three'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { AnimationComponent } from '../components/AnimationComponent'
-import { AvatarComponent } from '../components/AvatarComponent'
-import { SkeletonUtils } from '../SkeletonUtils'
-import { AnimationRenderer } from '../animations/AnimationRenderer'
-import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
-import { Entity } from '../../ecs/classes/Entity'
-import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
-import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
-import { DissolveEffect } from '../DissolveEffect'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { bonesData2 } from '../DefaultSkeletonBones'
-import { addRig, addTargetRig } from '../../ikrig/functions/RigFunctions'
-import { defaultIKPoseComponentValues, IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
-import { ArmatureType } from '../../ikrig/enums/ArmatureType'
-import { useWorld } from '../../ecs/functions/SystemHooks'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { AvatarProps } from '../../networking/interfaces/WorldState'
+import { AssetType } from '../../assets/enum/AssetType'
+import { AnimationManager } from '../../avatar/AnimationManager'
+import { LoopAnimationComponent, LoopAnimationComponentType } from '../../avatar/components/LoopAnimationComponent'
+import { isClient } from '../../common/functions/isClient'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
-import AvatarBoneMatching from '@xrengine/engine/src/avatar/AvatarBoneMatching'
+import { Entity } from '../../ecs/classes/Entity'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { defaultIKPoseComponentValues, IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
 import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
-import { Vector3 } from 'three'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { addRig, addTargetRig } from '../../ikrig/functions/RigFunctions'
+import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { Updatable } from '../../scene/interfaces/Updatable'
+import { AnimationRenderer } from '../animations/AnimationRenderer'
+import AvatarBoneMatching, { BoneStructure } from '../AvatarBoneMatching'
+import { AnimationComponent } from '../components/AnimationComponent'
+import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
+import { AvatarComponent } from '../components/AvatarComponent'
+import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
+import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
+import { bonesData2 } from '../DefaultSkeletonBones'
+import { DissolveEffect } from '../DissolveEffect'
+import { SkeletonUtils } from '../SkeletonUtils'
 
 const vec3 = new Vector3()
 
-export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) => {
-  AssetLoader.load(
-    {
-      url: avatarDetail.avatarURL,
-      castShadow: true,
-      receiveShadow: true
-    },
-    (gltf: any) => {
-      console.log('loadAvatarForEntity', gltf.scene)
-      setupAvatar(entity, SkeletonUtils.clone(gltf.scene), avatarDetail.avatarURL)
-    }
-  )
-}
-
-export const setAvatarLayer = (obj: Object3D) => {
-  setObjectLayers(obj, ObjectLayers.Render, ObjectLayers.Avatar)
-}
-
-const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
-  const world = useWorld()
-
-  if (!entity) return
-
-  const avatar = getComponent(entity, AvatarComponent)
-  const animationComponent = getComponent(entity, AnimationComponent)
-  const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-
-  const retargeted = AvatarBoneMatching(model)
-
-  let hips = model
-  model.traverse((o) => {
-    if (o.name?.toLowerCase().includes('hips')) hips = o
+const loadAvatarModelAsset = async (avatarURL: string) => {
+  const model = await AssetLoader.loadAsync({
+    url: avatarURL,
+    castShadow: true,
+    receiveShadow: true
   })
+  if (!model.scene) return
+  const parent = new Group()
+  const root = new Group()
+  root.add(model.scene)
+  parent.add(root)
+  parent.userData = model.scene.userData
+  return SkeletonUtils.clone(parent)
+}
 
-  const loadedAvatarBoneNames: string[] = []
-  hips.traverse((child) => loadedAvatarBoneNames.push(child.name))
+export const loadAvatarForUser = async (entity: Entity, avatarURL: string) => {
+  const parent = await loadAvatarModelAsset(avatarURL)
+  setupAvatarForUser(entity, parent)
+}
 
-  animationComponent.mixer.stopAllAction()
+export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) => {
+  const parent = await loadAvatarModelAsset(avatarURL)
+  if (!parent) return
+  setupAvatarModel(entity)(parent)
+  animateModel(entity)
+  return parent
+}
+
+export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
+  const avatar = getComponent(entity, AvatarComponent)
   avatar.modelContainer.children.forEach((child) => child.removeFromParent())
 
-  let materialList: Array<MaterialMap> = []
+  setupAvatarModel(entity)(model)
+  setupAvatarHeight(entity, getComponent(entity, IKRigComponent).boneStructure)
 
-  model.traverse((object) => {
+  const avatarMaterials = setupAvatarMaterials(model)
+
+  // Materials only load on the client currently
+  if (isClient) {
+    loadGrowingEffectObject(entity, avatarMaterials)
+  }
+
+  model.children.forEach((child) => avatar.modelContainer.add(child))
+}
+
+export const setupAvatarModel = (entity: Entity) =>
+  pipe(boneMatchAvatarModel(entity), rigAvatarModel(entity), animateAvatarModel(entity))
+
+export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
+  const assetType = model.userData.type
+
+  const boneStructure = AvatarBoneMatching(model)
+  const rootBone = boneStructure.Root
+
+  if (assetType == AssetType.FBX) {
+    rootBone.children[0].scale.setScalar(0.01)
+    const object3DComponent = getComponent(entity, Object3DComponent)
+    object3DComponent.value!.userData.scale = 0.01
+  } else if (assetType == AssetType.VRM) {
+    if (model) {
+      //@ts-ignore
+      const object3DComponent = getComponent(entity, Object3DComponent)
+      if (object3DComponent.value && (model as UpdateableObject3D).update) {
+        //@ts-ignore
+        addComponent(entity, UpdatableComponent, {})
+        ;(object3DComponent.value as unknown as Updatable).update = (delta: number) => {
+          ;(model as UpdateableObject3D).update(delta)
+        }
+      }
+    }
+  }
+
+  return boneStructure
+}
+
+export const rigAvatarModel = (entity: Entity) => (boneStructure: BoneStructure) => {
+  const rootBone = boneStructure.Root
+
+  addTargetRig(entity, rootBone, null, false)
+
+  if (hasComponent(entity, IKPoseComponent)) removeComponent(entity, IKPoseComponent)
+  addComponent(entity, IKPoseComponent, defaultIKPoseComponentValues())
+
+  // animation will be applied to this skeleton instead of avatar
+  const sourceSkeletonRoot: Group = SkeletonUtils.clone(getDefaultSkeleton().parent)
+  rootBone.add(sourceSkeletonRoot)
+  addRig(entity, sourceSkeletonRoot)
+  getComponent(entity, IKRigComponent).boneStructure = boneStructure
+
+  return sourceSkeletonRoot
+}
+
+export const animateAvatarModel = (entity: Entity) => (sourceSkeletonRoot: Group) => {
+  const animationComponent = getComponent(entity, AnimationComponent)
+  const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+  animationComponent.mixer?.stopAllAction()
+
+  animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
+  if (avatarAnimationComponent?.currentState) {
+    AnimationRenderer.mountCurrentState(entity)
+  }
+  // advance animation for a frame to eliminate potential t-pose
+  animationComponent.mixer.update(1 / 60)
+}
+
+export const animateModel = (entity: Entity) => {
+  const component = getComponent(entity, LoopAnimationComponent)
+  const animationComponent = getComponent(entity, AnimationComponent)
+  animationComponent.animations = AnimationManager.instance._animations
+
+  if (component.action) component.action.stop()
+  component.action = animationComponent.mixer
+    .clipAction(AnimationClip.findByName(animationComponent.animations, 'dance1'))
+    .play()
+}
+
+export const setupAvatarMaterials = (root) => {
+  const materialList: Array<MaterialMap> = []
+
+  setObjectLayers(root, ObjectLayers.Avatar)
+  root.traverse((object) => {
     if (object.isBone) object.visible = false
-    setAvatarLayer(object)
-    if (object.material) {
+    if (object.material && object.material.clone) {
       // Transparency fix
       object.material.format = RGBAFormat
       const material = object.material.clone()
-
       addBoneOpacityParamsToMaterial(material, 5) // Head bone
-
       materialList.push({
         id: object.uuid,
         material: material
@@ -100,42 +183,19 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
     }
   })
 
-  model.children.forEach((child) => avatar.modelContainer.add(child))
-  const rootBone = retargeted.Root
-  // TODO: add way to handle armature type
-  const armatureType = avatarURL?.includes('trex') ? ArmatureType.TREX : ArmatureType.MIXAMO
-  addTargetRig(entity, rootBone?.parent!, null, false, armatureType)
-
-  if (hasComponent(entity, IKPoseComponent)) removeComponent(entity, IKPoseComponent)
-  addComponent(entity, IKPoseComponent, defaultIKPoseComponentValues())
-
-  // animation will be applied to this skeleton instead of avatar
-  const sourceSkeletonRoot: Group = SkeletonUtils.clone(getDefaultSkeleton().parent)
-  rootBone?.parent!.add(sourceSkeletonRoot)
-  addRig(entity, sourceSkeletonRoot)
-  getComponent(entity, IKRigComponent).boneStructure = retargeted
-
-  animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
-  const retargetedBones: string[] = []
-
-  sourceSkeletonRoot.traverse((child) => {
-    if (child.name) retargetedBones.push(child.name)
-  })
-
-  if (avatarAnimationComponent.currentState) {
-    AnimationRenderer.mountCurrentState(entity)
-  }
-
-  // advance animation for a frame to eliminate potential t-pose
-  animationComponent.mixer.update(world.delta)
-  retargeted.Neck.updateMatrixWorld(true)
-  const transform = getComponent(entity, TransformComponent)
-  avatar.avatarHeight = retargeted.LeftEye.getWorldPosition(vec3).y - transform.position.y
-
-  loadGrowingEffectObject(entity, materialList)
+  return materialList
 }
 
-const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<MaterialMap>) => {
+export const setupAvatarHeight = (entity: Entity, boneStructure: BoneStructure) => {
+  const eyeTarget = boneStructure.LeftEye ?? boneStructure.Head ?? boneStructure.Neck
+  boneStructure.Neck.updateMatrixWorld(true)
+  boneStructure.Root.updateMatrixWorld(true)
+  const avatar = getComponent(entity, AvatarComponent)
+  avatar.avatarHeight = eyeTarget.getWorldPosition(vec3).y - boneStructure.Root.getWorldPosition(vec3).y
+  avatar.avatarHalfHeight = avatar.avatarHeight / 2
+}
+
+export const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<MaterialMap>) => {
   const textureLight = AssetLoader.getFromCache('/itemLight.png')
   const texturePlate = AssetLoader.getFromCache('/itemPlate.png')
 
@@ -215,7 +275,7 @@ export function getDefaultSkeleton(): SkinnedMesh {
  * @param material
  * @param boneIndex
  */
-const addBoneOpacityParamsToMaterial = (material, boneIndex = -1) => {
+export const addBoneOpacityParamsToMaterial = (material, boneIndex = -1) => {
   material.transparent = true
   material.onBeforeCompile = (shader, renderer) => {
     shader.uniforms.boneIndexToFade = { value: boneIndex }
@@ -262,4 +322,27 @@ const addBoneOpacityParamsToMaterial = (material, boneIndex = -1) => {
 
     material.userData.shader = shader
   }
+}
+
+export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
+  const object3DComponent = getComponent(entity, Object3DComponent)
+  object3DComponent?.value.traverse((obj) => {
+    if (!(obj as SkinnedMesh).isSkinnedMesh) return
+    const material = (obj as SkinnedMesh).material as Material
+    if (!material.userData?.shader) return
+    const shader = material.userData.shader
+    if (shader?.uniforms) {
+      shader.uniforms.boneOpacity.value = opacity
+    }
+  })
+}
+
+export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
+  const rig = getComponent(entity, IKRigComponent)
+  const bone = rig.boneStructure[boneName]
+  if (!bone) return false
+  bone.updateWorldMatrix(true, false)
+  const el = bone.matrixWorld.elements
+  position.set(el[12], el[13], el[14])
+  return true
 }

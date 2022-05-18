@@ -1,5 +1,7 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import assert from 'assert'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { Engine } from '../../../ecs/classes/Engine'
 import { createWorld } from '../../../ecs/classes/World'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
@@ -23,7 +25,7 @@ describe('RenderSettingFunctions', () => {
 
     deserializeRenderSetting(entity, sceneComponent)
 
-    assert.equal(Engine.isCSMEnabled, true)
+    assert.equal(Engine.isCSMEnabled, false)
     // TODO: currently renderer only is created on client
 
     // TODO: unnecessary once engine global scope is refactored

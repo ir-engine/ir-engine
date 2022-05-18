@@ -1,9 +1,9 @@
 // @ts-nocheck
 import { BufferManager } from './buffer'
 import { Schema } from './schema'
-import { uint16, uint8 } from './views'
-import { isObject, isBufferView } from './utils'
-import type { SchemaObject, SchemaDefinition } from './types'
+import type { SchemaDefinition, SchemaObject } from './types'
+import { isBufferView, isObject } from './utils'
+import { uint8, uint16 } from './views'
 
 /**
  * The Model class provides an API for serializing and deserializing ArrayBuffers into objects

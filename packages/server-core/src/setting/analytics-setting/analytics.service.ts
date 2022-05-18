@@ -1,11 +1,11 @@
 import { Application } from '../../../declarations'
-import hooks from './analytics.hooks'
 import { Analytics } from './analytics.class'
+import hooks from './analytics.hooks'
 import createModel from './analytics.model'
 
-declare module '../../../declarations' {
-  interface SerViceTypes {
-    Analytics: Analytics
+declare module '@xrengine/common/declarations' {
+  interface ServiceTypes {
+    'analytics-setting': Analytics
   }
 }
 

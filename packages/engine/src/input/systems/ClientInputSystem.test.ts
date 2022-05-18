@@ -1,11 +1,12 @@
 import { strictEqual } from 'assert'
+
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
 import { createWorld } from '../../ecs/classes/World'
 import { GamepadAxis } from '../enums/InputEnums'
 import { InputType } from '../enums/InputType'
-import ClientInputSystem, { enableInput } from './ClientInputSystem'
+import ClientInputSystem from './ClientInputSystem'
 
 describe('clientInputSystem', () => {
   let world
@@ -20,14 +21,6 @@ describe('clientInputSystem', () => {
     Engine.inputState = new Map()
     clientInputSystem = await ClientInputSystem(world)
   })
-
-  it('check if enable input works', () => {
-    enableInput({ keyboard: true, mouse: true })
-
-    strictEqual(Engine.keyboardInputEnabled, true)
-    strictEqual(Engine.mouseInputEnabled, true)
-  })
-
   it('add new input - Started state', async () => {
     Engine.inputState.set(GAMEPAD_STICK, {
       type: InputType.TWODIM,

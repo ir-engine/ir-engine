@@ -1,8 +1,9 @@
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import Paginated from '../../types/PageObject'
-import { Application } from '../../../declarations'
 import moment from 'moment'
+
+import { Application } from '../../../declarations'
 import logger from '../../logger'
+import Paginated from '../../types/PageObject'
 
 interface Data {}
 
@@ -31,7 +32,7 @@ export class Login implements ServiceMethods<Data> {
    * @returns {@Array} all login details
    * @author Vyacheslav Solovjov
    */
-  async find(params: Params): Promise<Data[] | Paginated<Data>> {
+  async find(params?: Params): Promise<Data[] | Paginated<Data>> {
     return []
   }
 
@@ -43,7 +44,7 @@ export class Login implements ServiceMethods<Data> {
    * @returns {@token}
    * @author Vyacheslav Solovjov
    */
-  async get(id: Id, params: Params): Promise<any> {
+  async get(id: Id, params?: Params): Promise<any> {
     try {
       const result = await (this.app.service('login-token') as any).Model.findOne({
         where: {
@@ -100,7 +101,7 @@ export class Login implements ServiceMethods<Data> {
    * @returns created data
    * @author Vyacheslav Solovjov
    */
-  async create(data: Data, params: Params): Promise<Data> {
+  async create(data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
       return await Promise.all(data.map((current) => this.create(current, params)))
     }
@@ -117,7 +118,7 @@ export class Login implements ServiceMethods<Data> {
    * @returns updated data
    * @author Vyacheslav Solovjov
    */
-  async update(id: NullableId, data: Data, params: Params): Promise<Data> {
+  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
   }
 
@@ -129,7 +130,7 @@ export class Login implements ServiceMethods<Data> {
    * @param params
    * @returns data
    */
-  async patch(id: NullableId, data: Data, params: Params): Promise<Data> {
+  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
   }
 
@@ -141,7 +142,7 @@ export class Login implements ServiceMethods<Data> {
    * @returns id
    */
 
-  async remove(id: NullableId, params: Params): Promise<Data> {
+  async remove(id: NullableId, params?: Params): Promise<Data> {
     return { id }
   }
 }

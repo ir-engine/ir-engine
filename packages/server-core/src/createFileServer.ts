@@ -1,8 +1,9 @@
-import https from 'https'
-import serveStatic from 'serve-static'
-import config from './appconfig'
 import fs from 'fs'
+import https from 'https'
 import net from 'net'
+import serveStatic from 'serve-static'
+
+import config from './appconfig'
 
 const serve = serveStatic('../server/upload/')
 

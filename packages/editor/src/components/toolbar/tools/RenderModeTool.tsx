@@ -1,15 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react'
+
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
-import { CommandManager } from '../../../managers/CommandManager'
+
 import EditorEvents from '../../../constants/EditorEvents'
-import SelectInput from '../../inputs/SelectInput'
-import * as styles from '../styles.module.scss'
 import { RenderModes, RenderModesType } from '../../../constants/RenderModes'
+import { CommandManager } from '../../../managers/CommandManager'
 import { SceneManager } from '../../../managers/SceneManager'
+import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
+import * as styles from '../styles.module.scss'
 
 const RenderModeTool = () => {
-  const [renderMode, setRenderMode] = useState<RenderModesType>(RenderModes.SHADOW)
+  const [renderMode, setRenderMode] = useState<RenderModesType>(SceneManager.instance.renderMode)
 
   const options = [] as { label: string; value: string }[]
 

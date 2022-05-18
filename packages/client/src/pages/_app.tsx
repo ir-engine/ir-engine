@@ -1,4 +1,7 @@
-import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Helmet } from 'react-helmet'
+import { BrowserRouter } from 'react-router-dom'
+
 import {
   ClientSettingService,
   useClientSettingState
@@ -10,9 +13,9 @@ import { theme } from '@xrengine/client-core/src/theme'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
 import { StoredLocalAction } from '@xrengine/client-core/src/util/StoredLocalState'
 import { loadWebappInjection } from '@xrengine/projects/loadWebappInjection'
-import React, { useCallback, useEffect, useState } from 'react'
-import { Helmet } from 'react-helmet'
-import { BrowserRouter } from 'react-router-dom'
+
+import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
+
 import RouterComp from '../route/public'
 import './styles.scss'
 

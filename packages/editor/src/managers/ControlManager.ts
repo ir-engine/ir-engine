@@ -1,6 +1,8 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
+
 import { EditorControlComponent } from '../classes/EditorControlComponent'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
@@ -8,10 +10,9 @@ import { ActionSets, EditorMapping } from '../controls/input-mappings'
 import InputManager from '../controls/InputManager'
 import PlayModeControls from '../controls/PlayModeControls'
 import { addInputActionMapping } from '../functions/parseInputActionMapping'
+import { setTransformMode } from '../systems/EditorControlSystem'
 import { CommandManager } from './CommandManager'
 import { SceneManager } from './SceneManager'
-import { setTransformMode } from '../systems/EditorControlSystem'
-import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
 export class ControlManager {
   static instance: ControlManager = new ControlManager()
@@ -72,9 +73,7 @@ export class ControlManager {
   enterPlayMode() {
     this.isInPlayMode = true
     CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
-    Engine.camera.layers.disable(ObjectLayers.Scene)
-    Engine.camera.layers.disable(ObjectLayers.PhysicsHelper)
-    Engine.camera.layers.disable(ObjectLayers.NodeHelper)
+    Engine.camera.layers.set(ObjectLayers.Scene)
     this.playModeControls.enable()
     CommandManager.instance.emitEvent(EditorEvents.PLAY_MODE_CHANGED)
   }
@@ -86,9 +85,7 @@ export class ControlManager {
    */
   leavePlayMode() {
     this.isInPlayMode = false
-    Engine.camera.layers.enable(ObjectLayers.Scene)
-    Engine.camera.layers.enable(ObjectLayers.PhysicsHelper)
-    Engine.camera.layers.enable(ObjectLayers.NodeHelper)
+    Engine.camera.layers.enableAll()
     this.playModeControls.disable()
     CommandManager.instance.emitEvent(EditorEvents.PLAY_MODE_CHANGED)
   }

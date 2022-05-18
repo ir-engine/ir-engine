@@ -1,6 +1,7 @@
-import Analytics from '../components/Analytics/index'
-import { AuthService } from '../../user/services/AuthService'
 import React, { useEffect } from 'react'
+
+import { AuthService } from '../../user/services/AuthService'
+import Analytics from '../components/Analytics/index'
 
 interface Props {}
 

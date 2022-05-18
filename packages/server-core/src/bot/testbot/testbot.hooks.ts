@@ -1,6 +1,7 @@
+import { iff, isProvider } from 'feathers-hooks-common'
+
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
-import { iff, isProvider } from 'feathers-hooks-common'
 
 export default {
   before: {

@@ -1,10 +1,10 @@
 import { Application } from '../../../declarations'
 import { Party } from './party.class'
-import createModel from './party.model'
-import hooks from './party.hooks'
 import partyDocs from './party.docs'
+import hooks from './party.hooks'
+import createModel from './party.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     party: Party
   }

@@ -1,10 +1,10 @@
 import { Application } from '../../../declarations'
 import { Group } from './group.class'
-import createModel from './group.model'
-import hooks from './group.hooks'
 import groupDocs from './group.docs'
+import hooks from './group.hooks'
+import createModel from './group.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     group: Group
   }
@@ -38,7 +38,7 @@ export default (app: Application) => {
    * @returns created group data
    * @author Vyacheslav Solovjov
    */
-  service.publish('created', async (data): Promise<any> => {
+  service.publish('created', async (data: Group): Promise<any> => {
     const groupUsers = (await app.service('group-user').find({
       query: {
         $limit: 1000,
@@ -59,6 +59,7 @@ export default (app: Application) => {
     //
     //   return await Promise.resolve();
     // }));
+    // @ts-ignore
     data.groupUsers = groupUsers.data
     const targetIds = groupUsers.data.map((groupUser) => {
       return groupUser.userId
@@ -81,7 +82,7 @@ export default (app: Application) => {
    * @author Vyacheslav Solovjov
    */
 
-  service.publish('patched', async (data): Promise<any> => {
+  service.publish('patched', async (data: Group): Promise<any> => {
     const groupUsers = (await app.service('group-user').find({
       query: {
         $limit: 1000,
@@ -102,6 +103,7 @@ export default (app: Application) => {
     //
     //   return await Promise.resolve();
     // }));
+    // @ts-ignore
     data.groupUsers = groupUsers.data
     const targetIds = groupUsers.data.map((groupUser) => {
       return groupUser.userId
@@ -124,7 +126,7 @@ export default (app: Application) => {
    * @author Vyacheslav Solovjov
    */
 
-  service.publish('removed', async (data): Promise<any> => {
+  service.publish('removed', async (data: Group): Promise<any> => {
     const groupUsers = await app.service('group-user').find({
       query: {
         $limit: 1000,
@@ -150,7 +152,7 @@ export default (app: Application) => {
    * @param data which contains userId
    * @returns channel
    */
-  service.publish('refresh', async (data): Promise<any> => {
+  service.publish('refresh', async (data: any): Promise<any> => {
     return app.channel(`userIds/${data.userId}`).send({})
   })
 }

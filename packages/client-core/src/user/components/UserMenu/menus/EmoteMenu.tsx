@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from 'react'
-import Button from '@mui/material/Button'
-import ClickAwayListener from '@mui/material/ClickAwayListener'
-// @ts-ignore
-import styles from '../UserMenu.module.scss'
-import { NavigateNext, NavigateBefore } from '@mui/icons-material'
-//import { LocalInputTagComponent } from '../../../../../engine/src/input/components/LocalInputTagComponent'
-import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
+
 import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'
+//import { LocalInputTagComponent } from '../../../../../engine/src/input/components/LocalInputTagComponent'
+import { AvatarAnimations, AvatarStates, WeightsParameterType } from '@xrengine/engine/src/avatar/animations/Util'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
-const EmoteMenu = (props: any): any => {
+import { NavigateBefore, NavigateNext } from '@mui/icons-material'
+import Button from '@mui/material/Button'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
+
+// @ts-ignore
+import styles from '../UserMenu.module.scss'
+
+type Props = { changeActiveMenu: (menu: any) => {} }
+
+const EmoteMenu = (props: Props): any => {
   const MAX_EMOTE_PER_PAGE = 6
   const MIN_EMOTE_PER_PAGE = 5
 

@@ -1,9 +1,14 @@
+import * as polyfill from 'credential-handler-polyfill'
+import React, { useEffect, useState } from 'react'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router-dom'
+
+import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+
 import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import InventoryIcon from '@mui/icons-material/Inventory'
-import StoreIcon from '@mui/icons-material/Store'
-import StorefrontIcon from '@mui/icons-material/Storefront'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -11,13 +16,7 @@ import Snackbar from '@mui/material/Snackbar'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
-import RefreshIcon from '@mui/icons-material/Refresh'
-import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import * as polyfill from 'credential-handler-polyfill'
-import React, { useEffect, useState } from 'react'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
+
 import { AuthSettingService, useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
 import { DiscordIcon } from '../../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
@@ -31,7 +30,7 @@ import { getAvatarURLForUser, Views } from '../util'
 interface Props {
   changeActiveMenu?: any
   setProfileMenuOpen?: any
-
+  className?: string
   hideLogin?: any
 }
 
@@ -266,7 +265,7 @@ const ProfileMenu = (props: Props): any => {
   const enableConnect = authState?.emailMagicLink || authState?.smsMagicLink
 
   return (
-    <div className={styles.menuPanel}>
+    <div className={styles.menuPanel + (props.className ? ' ' + props.className : '')}>
       <section className={styles.profilePanel}>
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
@@ -371,32 +370,7 @@ const ProfileMenu = (props: Props): any => {
                     }
                   }
                 }}
-              >
-                <Button size="small" onClick={() => changeActiveMenu(Views.Inventory)}>
-                  <InventoryIcon />
-                  <Typography component="div" variant="button">
-                    My Inventory
-                  </Typography>
-                </Button>
-                <Button size="small" onClick={() => changeActiveMenu(Views.Trading)}>
-                  <StoreIcon />
-                  <Typography component="div" variant="button">
-                    My Trading
-                  </Typography>
-                </Button>
-                <Button size="small" onClick={() => changeActiveMenu(Views.Wallet)}>
-                  <AccountBalanceWalletIcon />
-                  <Typography component="div" variant="button">
-                    My Wallet
-                  </Typography>
-                </Button>
-                <Button size="small" onClick={() => goToEthNFT()}>
-                  <StorefrontIcon />
-                  <Typography component="div" variant="button">
-                    Open ETH NFT Marketplace
-                  </Typography>
-                </Button>
-              </Grid>
+              ></Grid>
             )}
             <h4>
               {selfUser.userRole.value !== 'guest' && (
@@ -416,7 +390,7 @@ const ProfileMenu = (props: Props): any => {
         {showUserId && (
           <section className={styles.emailPhoneSection}>
             <Typography variant="h1" className={styles.panelHeader}>
-              User id
+              {t('user:usermenu.profile.userIcon.userId')}
             </Typography>
 
             <form>
@@ -452,7 +426,7 @@ const ProfileMenu = (props: Props): any => {
         {showApiKey && (
           <section className={styles.emailPhoneSection}>
             <Typography variant="h1" className={styles.panelHeader}>
-              API key
+              {t('user:usermenu.profile.apiKey')}
             </Typography>
 
             <form>
@@ -557,7 +531,7 @@ const ProfileMenu = (props: Props): any => {
                     </a>
                   )}
                   {authState?.linkedin && (
-                    <a href="#" id="linkedin2" onClick={handleOAuthServiceClick}>
+                    <a href="#" id="linkedin" onClick={handleOAuthServiceClick}>
                       <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}

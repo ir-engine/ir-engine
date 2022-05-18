@@ -1,13 +1,16 @@
 import React from 'react'
-import CameraAltIcon from '@mui/icons-material/CameraAlt'
+
 import { CameraMode } from '@xrengine/engine/src/camera/types/CameraMode'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { CameraPropertiesComponent } from '@xrengine/engine/src/scene/components/CameraPropertiesComponent'
+
+import CameraAltIcon from '@mui/icons-material/CameraAlt'
+
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import { NumericInputGroup } from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { CameraPropertiesComponent } from '@xrengine/engine/src/scene/components/CameraPropertiesComponent'
 import { EditorComponentType, updateProperty } from './Util'
 
 /** Types copied from Camera Modes of engine. */

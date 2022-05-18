@@ -1,9 +1,12 @@
-import { DataTypes, Sequelize } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { AuthenticationInterface } from '@xrengine/common/src/dbmodels/Authentication'
+
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Authentication = sequelizeClient.define('authentication', {
+  const Authentication = sequelizeClient.define<Model<AuthenticationInterface>>('authentication', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,

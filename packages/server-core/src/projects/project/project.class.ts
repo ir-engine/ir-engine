@@ -1,23 +1,25 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
 import { Id, Params } from '@feathersjs/feathers'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import appRootPath from 'app-root-path'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import fs from 'fs'
 import path from 'path'
+
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-import { getGitData } from '../../util/getGitData'
-import { useGit } from '../../util/gitHelperFunctions'
-import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
-import appRootPath from 'app-root-path'
 import templateProjectJson from '@xrengine/projects/template-project/package.json'
-import { cleanString } from '../../util/cleanString'
-import { getContentType } from '../../util/fileUtils'
-import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+
+import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
-import { getProjectConfig, onProjectEvent } from './project-helper'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { cleanString } from '../../util/cleanString'
+import { getContentType } from '../../util/fileUtils'
+import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
+import { getGitData } from '../../util/getGitData'
+import { useGit } from '../../util/gitHelperFunctions'
 import { getAuthenticatedRepo } from '../githubapp/githubapp-helper'
+import { getProjectConfig, onProjectEvent } from './project-helper'
 
 const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
 
@@ -153,7 +155,7 @@ export class Project extends Service {
     }
   }
 
-  async create(data: { name: string }, params: Params) {
+  async create(data: { name: string }, params?: Params) {
     const projectName = cleanString(data.name)
 
     if (fs.existsSync(path.resolve(projectsRootFolder, projectName)))
@@ -199,7 +201,7 @@ export class Project extends Service {
    * @returns
    */
   // @ts-ignore
-  async update(data: { url: string }, params: Params) {
+  async update(data: { url: string }, params?: Params) {
     if (data.url === 'default-project') {
       copyDefaultProject()
       await uploadLocalProjectToProvider('default-project', true)
@@ -209,8 +211,8 @@ export class Project extends Service {
     const urlParts = data.url.split('/')
     let projectName = urlParts.pop()
     if (!projectName) throw new Error('Git repo must be plain URL')
-    if (projectName.substr(-4) === '.git') projectName = projectName.slice(0, -4)
-    if (projectName.substr(-1) === '/') projectName = projectName.slice(0, -1)
+    if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
+    if (projectName.substring(projectName.length - 1) === '/') projectName = projectName.slice(0, -1)
 
     const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
 
@@ -264,7 +266,7 @@ export class Project extends Service {
    * @param app
    * @returns
    */
-  async patch(projectName: string, data: { files: string[] }, params: Params) {
+  async patch(projectName: string, data: { files: string[] }, params?: Params) {
     const projectConfig = await getProjectConfig(projectName)
     if (!projectConfig) return
 
@@ -293,7 +295,7 @@ export class Project extends Service {
     }
   }
 
-  async remove(id: Id, params: Params) {
+  async remove(id: Id, params?: Params) {
     if (id) {
       try {
         const { name } = await super.get(id, params)
@@ -315,7 +317,7 @@ export class Project extends Service {
     }
   }
 
-  async get(name: string, params: Params): Promise<{ data: ProjectInterface }> {
+  async get(name: string, params?: Params): Promise<{ data: ProjectInterface }> {
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     const project = data.find((e) => e.name === name)
     if (!project) return null!
@@ -325,7 +327,7 @@ export class Project extends Service {
   }
 
   //@ts-ignore
-  async find(params: Params): Promise<{ data: ProjectInterface[] }> {
+  async find(params?: Params): Promise<{ data: ProjectInterface[] }> {
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     return {
       data

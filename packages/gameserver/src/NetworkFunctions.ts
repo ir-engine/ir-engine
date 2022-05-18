@@ -1,25 +1,28 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
-import logger from '@xrengine/server-core/src/logger'
-import config from '@xrengine/server-core/src/appconfig'
-import { closeTransport } from './WebRTCFunctions'
-import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
-import { NetworkWorldAction } from '../../engine/src/networking/functions/NetworkWorldAction'
-import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
-import { localConfig } from '@xrengine/server-core/src/config'
-import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 import AWS from 'aws-sdk'
-import { Action } from '@xrengine/engine/src/ecs/functions/Action'
-import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
+
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import checkValidPositionOnGround from '@xrengine/engine/src/common/functions/checkValidPositionOnGround'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Action } from '@xrengine/engine/src/ecs/functions/Action'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import config from '@xrengine/server-core/src/appconfig'
+import { localConfig } from '@xrengine/server-core/src/config'
+import logger from '@xrengine/server-core/src/logger'
+import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
+
+import { NetworkWorldAction } from '../../engine/src/networking/functions/NetworkWorldAction'
+import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+import { closeTransport } from './WebRTCFunctions'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -196,7 +199,7 @@ export function getUserIdFromSocketId(socketId) {
   return client?.userId
 }
 
-export async function handleConnectToWorld(
+export function handleConnectToWorld(
   transport: SocketWebRTCServerTransport,
   socket,
   data,
@@ -204,17 +207,19 @@ export async function handleConnectToWorld(
   userId: UserId,
   user,
   avatarDetail
-): Promise<any> {
+) {
   console.log('Connect to world from ' + userId)
   // console.log("Avatar detail is", avatarDetail);
-  disconnectClientIfConnected(socket, userId)
+
+  if (disconnectClientIfConnected(socket, userId)) return callback(null! as any)
 
   // Create a new client object
   // and add to the dictionary
-  const world = Engine.currentWorld
+  const world = useWorld()
+  const userIndex = world.userIndexCount++
   world.clients.set(userId, {
     userId: userId,
-    userIndex: world.userIndexCount++,
+    userIndex,
     name: user.dataValues.name,
     avatarDetail,
     socket: socket,
@@ -229,25 +234,31 @@ export async function handleConnectToWorld(
     dataProducers: new Map<string, DataProducer>() // Key => label of data channel
   })
 
+  world.userIdToUserIndex.set(userId, userIndex)
+  world.userIndexToUserId.set(userIndex, userId)
+
   // Return initial world state to client to set things up
   callback({
     routerRtpCapabilities: transport.routers.instance[0].rtpCapabilities
   })
 }
 
-function disconnectClientIfConnected(socket, userId: UserId): void {
+function disconnectClientIfConnected(socket, userId: UserId) {
   // If we are already logged in, kick the other socket
   const world = Engine.currentWorld
   if (world.clients.has(userId) && world.clients.get(userId)!.socketId !== socket.id) {
-    const client = world.clients.get(userId)!
-    console.log('Client already exists, kicking the old client and disconnecting')
-    client.socket?.emit(MessageTypes.Kick.toString(), 'You joined this world on another device')
-    client.socket?.disconnect()
-  }
+    // const client = world.clients.get(userId)!
+    console.log('Client already logged in, disallowing new connection')
 
-  for (const eid of world.getOwnedNetworkObjects(userId)) {
-    const { networkId } = getComponent(eid, NetworkObjectComponent)
-    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ $from: userId, networkId }))
+    // todo: kick old client instead of new one
+    // console.log('Client already exists, kicking the old client and disconnecting')
+    // client.socket?.emit(MessageTypes.Kick.toString(), 'You joined this world on another device')
+    // client.socket?.disconnect()
+    // for (const eid of world.getOwnedNetworkObjects(userId)) {
+    //   const { networkId } = getComponent(eid, NetworkObjectComponent)
+    //   dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ $from: userId, networkId }))
+    // }
+    return true
   }
 }
 
@@ -259,6 +270,8 @@ export const handleJoinWorld = async (
   joinedUserId: UserId,
   user
 ) => {
+  if (disconnectClientIfConnected(socket, joinedUserId)) return callback(null! as any)
+
   let spawnPose = SpawnPoints.instance.getRandomSpawnPoint()
   const inviteCode = data['inviteCode']
 
@@ -300,6 +313,8 @@ export const handleJoinWorld = async (
   const world = Engine.currentWorld
   const client = world.clients.get(joinedUserId)!
 
+  if (!client) return callback(null! as any)
+
   clearCachedActionsForDisconnectedUsers()
   clearCachedActionsForUser(joinedUserId)
 
@@ -311,7 +326,19 @@ export const handleJoinWorld = async (
 
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Action[]
-  for (const action of world.cachedActions) {
+  for (const action of world.cachedActions as Set<ReturnType<typeof NetworkWorldAction.spawnAvatar>>) {
+    // we may have a need to remove the check for the prefab type to enable this to work for networked objects too
+    if (action.type === 'network.SPAWN_OBJECT' && action.prefab === 'avatar') {
+      const ownerId = world.userIndexToUserId.get(action.ownerIndex)
+      if (ownerId) {
+        const entity = world.getNetworkObject(ownerId, action.networkId)
+        if (typeof entity !== 'undefined') {
+          const transform = getComponent(entity, TransformComponent)
+          action.parameters.position = transform.position
+          action.parameters.rotation = transform.rotation
+        }
+      }
+    }
     if (action.$to === 'all' || action.$to === joinedUserId) cachedActions.push(action)
   }
 
@@ -374,25 +401,19 @@ export async function handleDisconnect(socket): Promise<any> {
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
     if (disconnectedClient?.channelRecvTransport) disconnectedClient.channelRecvTransport.close()
     if (disconnectedClient?.channelSendTransport) disconnectedClient.channelSendTransport.close()
-    if (world.clients.has(userId)) world.clients.delete(userId)
   } else {
     console.warn("Socket didn't match for disconnecting client")
   }
 }
 
 export async function handleLeaveWorld(socket, data, callback): Promise<any> {
+  const world = useWorld()
   const userId = getUserIdFromSocketId(socket.id)!
   if (Network.instance.transports)
     for (const [, transport] of Object.entries(Network.instance.transports))
       if ((transport as any).appData.peerId === userId) closeTransport(transport)
-  if (Engine.currentWorld?.clients.has(userId)) {
-    Engine.currentWorld.clients.delete(userId)
-    for (const eid of Engine.currentWorld?.getOwnedNetworkObjects(userId)) {
-      const { networkId } = getComponent(eid, NetworkObjectComponent)
-      dispatchFrom(Engine.currentWorld?.hostId, () => NetworkWorldAction.destroyObject({ $from: userId, networkId }))
-    }
-
-    logger.info('Removing ' + userId + ' from client list')
+  if (world.clients.has(userId)) {
+    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ $from: userId }))
   }
   if (callback !== undefined) callback({})
 }

@@ -1,11 +1,11 @@
 import React from 'react'
-import styled from 'styled-components'
-import ProjectGridItem from './ProjectGridItem'
-import { FlexRow } from '../layout/Flex'
-import StringInput from '../inputs/StringInput'
-import { useHistory } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import styled from 'styled-components'
+
 import AddIcon from '@mui/icons-material/Add'
+
+import StringInput from '../inputs/StringInput'
+import ProjectGridItem from './ProjectGridItem'
 
 /**
  *
@@ -114,7 +114,7 @@ export function ProjectGrid({
   loading
 }: ProjectGridProp) {
   return (
-    <StyledProjectGrid>
+    <StyledProjectGrid style={{ cursor: loading ? 'not-allowed' : 'pointer' }} disable={loading}>
       {onClickNew && !loading && <NewProjectGridItem onClickNew={onClickNew} label={newProjectLabel} />}
       {projects.map((project) => (
         <ProjectGridItem
@@ -157,20 +157,6 @@ export const ProjectGridContent = styled.div`
  *
  * @author Robert Long
  */
-export const ProjectGridHeader = styled.div`
-  display: flex;
-  background-color: ${(props) => props.theme.toolbar2};
-  border-radius: 3px 3px 0px 0px;
-  height: 48px;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 10px;
-`
-
-/**
- *
- * @author Robert Long
- */
 export const Filter = styled.a<{ active?: boolean }>`
   font-size: 1.25em;
   cursor: pointer;
@@ -185,18 +171,6 @@ export const Separator = styled.div`
   height: 48px;
   width: 1px;
   background-color: ${(props) => props.theme.border};
-`
-
-/**
- *
- * @author Robert Long
- */
-export const ProjectGridHeaderRow = styled(FlexRow)`
-  align-items: center;
-
-  & > * {
-    margin: 0 10px;
-  }
 `
 
 /**

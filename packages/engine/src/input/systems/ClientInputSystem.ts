@@ -1,19 +1,14 @@
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
+import { Engine } from '../../ecs/classes/Engine'
+import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../components/InputComponent'
 import { LocalInputTagComponent } from '../components/LocalInputTagComponent'
 import { InputType } from '../enums/InputType'
+import { addClientInputListeners } from '../functions/clientInputListeners'
+import { handleGamepads } from '../functions/GamepadInput'
 import { InputValue } from '../interfaces/InputValue'
 import { InputAlias } from '../types/InputAlias'
-import { Engine } from '../../ecs/classes/Engine'
-import { World } from '../../ecs/classes/World'
-import { handleGamepads } from '../functions/GamepadInput'
-import { addClientInputListeners } from '../functions/clientInputListeners'
-
-export const enableInput = ({ keyboard, mouse }: { keyboard?: boolean; mouse?: boolean }) => {
-  if (typeof keyboard !== 'undefined') Engine.keyboardInputEnabled = keyboard
-  if (typeof mouse !== 'undefined') Engine.mouseInputEnabled = mouse
-}
 
 export default async function ClientInputSystem(world: World) {
   const localClientInputQuery = defineQuery([InputComponent, LocalInputTagComponent])

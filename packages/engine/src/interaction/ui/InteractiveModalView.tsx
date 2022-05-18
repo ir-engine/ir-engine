@@ -1,15 +1,30 @@
+import { createState, State, useState } from '@speigg/hookstate'
 import React from 'react'
-import { createState } from '@speigg/hookstate'
-import { createXRUI } from '../../xrui/functions/createXRUI'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { NavigateNext, NavigateBefore } from '@mui/icons-material'
-import { InteractableComponentType } from '../components/InteractableComponent'
 
-export function createInteractiveModalView(data: InteractableComponentType) {
-  return createXRUI(
-    () => <InteractiveModalView callback={data.callback}></InteractiveModalView>,
-    createInteractiveModalState(data)
+import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+
+import { Entity } from '../../ecs/classes/Entity'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { createXRUI } from '../../xrui/functions/createXRUI'
+import { InteractableComponent, InteractableComponentType } from '../components/InteractableComponent'
+import { InteractiveUI } from '../systems/InteractiveSystem'
+
+export interface InteractiveModalState {
+  mode: 'inactive' | 'active' | 'interacting'
+  entity: Entity
+}
+
+export const createInteractiveModalView = (entity: Entity) => {
+  const ui = createXRUI(
+    InteractiveModalView,
+    createState({
+      mode: 'inactive',
+      entity
+    } as InteractiveModalState)
   )
+  InteractiveUI.set(entity, ui)
+  return ui
 }
 
 const renderMedia = (detailState) => {
@@ -31,7 +46,7 @@ const renderMedia = (detailState) => {
   }
 
   return (
-    <div id="interactable-media" xr-layer="true" xr-pixel-ratio="0.5">
+    <div id="interactive-media" xr-layer="true" xr-pixel-ratio="0.5">
       <img
         xr-layer="true"
         src={imageUrl}
@@ -64,392 +79,152 @@ const renderMedia = (detailState) => {
   )
 }
 
-function createInteractiveModalState(data: InteractableComponentType) {
-  const totalMediaUrls: any[] = []
-  if (data.interactionImages)
-    for (let url of data.interactionImages) {
-      totalMediaUrls.push({
-        type: 'image',
-        path: url
-      })
-    }
-  if (data.interactionVideos)
-    for (let url of data.interactionVideos) {
-      totalMediaUrls.push({
-        type: 'video',
-        path: url
-      })
-    }
-  if (data.interactionModels)
-    for (let url of data.interactionModels) {
-      totalMediaUrls.push({
-        type: 'model',
-        path: url
-      })
-    }
-  let entityIndex = 0
-  if (data.interactionUserData && data.interactionUserData.entity) {
-    entityIndex = data.interactionUserData.entity
-  }
-  return createState({
-    title: data.interactionName,
-    description: data.interactionDescription,
-    images: data.interactionImages,
-    videos: data.interactionVideos,
-    urls: data.interactionUrls,
-    models: data.interactionModels,
-    themeIndex: data.interactionThemeIndex,
-    mediaIndex: data.mediaIndex ? data.mediaIndex : 0,
-    entityIndex,
-    totalMediaUrls
-  })
-}
+export const InteractiveModalView = () => {
+  const modalState = useXRUIState<InteractiveModalState>()
+  const entity = modalState.entity.value
+  const name = getComponent(entity, NameComponent)?.name
+  const interactable = useState(getComponent(entity, InteractableComponent))
+  const url = interactable.interactionUrls?.[0]
+  const title = interactable.interactionText
+  const description = interactable.interactionDescription
 
-type InteractiveDetailState = ReturnType<typeof createInteractiveModalState>
-
-const InteractiveModalView = (props) => {
-  const detailState = useXRUIState() as InteractiveDetailState
-
-  const nextClick = () => {
-    let value = detailState.mediaIndex.value
-    value++
-    if (value > detailState.totalMediaUrls.value.length) value = 0
-    detailState.mediaIndex.set(value)
-    if (props && props.callback) {
-      props.callback({
-        mediaIndex: value,
-        mediaData: detailState.totalMediaUrls.value,
-        entityIndex: detailState.entityIndex.value
-      })
-    }
-  }
-
-  const beforeClick = () => {
-    let value = detailState.mediaIndex.value
-    value--
-    if (value < 0) value = detailState.totalMediaUrls.value.length - 1
-    detailState.mediaIndex.set(value)
-    if (props && props.callback) {
-      props.callback({
-        mediaIndex: value,
-        mediaData: detailState.totalMediaUrls.value,
-        entityIndex: detailState.entityIndex.value
-      })
-    }
-  }
-
-  const linkClick = (urls) => {
-    for (let url of urls) {
-      window.open(url, '_blank')!.focus()
-    }
-  }
-
-  if (detailState.themeIndex.value?.toString() == '1') {
-    return (
-      <div
-        style={{
-          backgroundColor: '#000000dd',
-          color: 'white',
-          fontFamily: "'Roboto', sans-serif",
-          border: '10px solid white',
-          borderRadius: '50px',
-          padding: '20px',
-          margin: '60px',
-          boxShadow: '#fff2 0 0 30px',
-          width: '800px',
-          height: '600px',
-          textAlign: 'center'
-        }}
-        xr-layer="true"
-        xr-pixel-ratio="0.5"
-      >
-        <div
-          style={{
-            padding: '50px 0px',
-            textAlign: 'center'
-          }}
-        >
-          {detailState.title.value}
+  return (
+    <div id={name} className={'interactive-modal ' + modalState.mode.value}>
+      <div className="interactive-details" xr-layer="true" xr-pixel-ratio="0.5">
+        <div className="interactive-title" xr-layer="true" xr-pixel-ratio="0.8">
+          <div>{title.value}</div>
         </div>
-        {renderMedia(detailState)}
 
-        <div
-          style={{
-            padding: '10px',
-            overflow: 'hidden',
-            textAlign: 'left',
-            fontSize: '18px'
-          }}
-          xr-layer="true"
-        >
-          {detailState.description.value}
-          {/* Extend your battlefield prowess with the ROG Strix Scope Deluxe gaming keyboard featuring an ergonomic wrist rest to keep you comfortable through those marathon gaming sessions. From ASUS.Extend your battlefield prowess with the ROG Strix Scope Deluxe gaming keyboard featuring an ergonomic wrist rest to keep you comfortable through those marathon gaming sessions. From ASUS. */}
+        <div className="interactive-e-key" xr-layer="true" xr-pixel-ratio="0.8">
+          <div>Press E to Interact</div>
         </div>
-        {detailState.urls.value && detailState.urls.value.length ? (
-          <button
-            xr-layer="true"
-            xr-pixel-ratio="0.8"
-            style={{
-              fontSize: '90px',
-              backgroundColor: '#000000dd',
-              color: 'white',
-              borderRadius: '10px'
-            }}
-            onClick={() => {
-              linkClick(detailState.urls.value)
-            }}
-          >
-            <a>Open Link</a>
-          </button>
-        ) : (
-          <></>
-        )}
-        <button
-          xr-layer="true"
-          style={{
-            width: '250px',
-            height: '250px',
-            position: 'absolute',
-            top: '1050px',
-            right: '150px'
-          }}
-          onClick={nextClick}
-        >
-          <NavigateNext />
-        </button>
-        <button
-          xr-layer="true"
-          style={{
-            width: '250px',
-            height: '250px',
-            position: 'absolute',
-            top: '1050px',
-            left: '150px'
-          }}
-          onClick={beforeClick}
-        >
-          <style
-            dangerouslySetInnerHTML={{
-              __html: `
-          button:hover {
-            border: 10px solid red;
-          }
-        `
-            }}
-          ></style>
-          <NavigateBefore />
-        </button>
-      </div>
-    )
-  } else if (detailState.themeIndex.value?.toString() == '2') {
-    return (
-      <div
-        style={{
-          fontSize: '120px',
-          backgroundColor: '#000000dd',
-          color: 'white',
-          fontFamily: "'Roboto', sans-serif",
-          border: '10px solid white',
-          borderRadius: '50px',
-          padding: '20px',
-          margin: '60px',
-          boxShadow: '#fff2 0 0 30px',
-          width: '4600px',
-          height: '1600px',
-          textAlign: 'center'
-        }}
-        xr-layer="true"
-        xr-pixel-ratio="0.5"
-      >
-        <div
-          style={{
-            fontSize: '150px',
-            padding: '50px 0px',
-            textAlign: 'center',
-            fontWeight: 'bold'
-          }}
-        >
-          {detailState.title.value}
-        </div>
-        <div
-          style={{
-            display: 'flex'
-          }}
-        >
-          {renderMedia(detailState)}
+
+        <div className="interactive-flex">
           <div
-            style={{
-              padding: '50px',
-              height: '1200px',
-              overflow: 'hidden',
-              textAlign: 'left',
-              fontSize: '90px',
-              width: '2200px',
-              position: 'absolute',
-              right: '50px'
-            }}
+            className="interactive-description"
             xr-layer="true"
-          >
-            {detailState.description.value}
-          </div>
-        </div>
-        {detailState.urls.value && detailState.urls.value.length ? (
-          <button
             xr-pixel-ratio="0.8"
-            xr-layer="true"
-            style={{
-              width: '500px',
-              height: '200px',
-              fontSize: '90px',
-              backgroundColor: '#000000dd',
-              color: 'white',
-              position: 'absolute',
-              bottom: '200px',
-              right: '200px'
-            }}
-            onClick={() => {
-              linkClick(detailState.urls.value)
-            }}
-          >
-            <a>Open Link</a>
-          </button>
-        ) : (
-          <></>
-        )}
-        <button
-          xr-layer="true"
-          xr-pixel-ratio="0.5"
-          style={{
-            width: '250px',
-            height: '250px',
-            position: 'absolute',
-            top: '850px',
-            left: '2050px'
-          }}
-          onClick={nextClick}
-        >
-          <NavigateNext />
-        </button>
-        <button
-          xr-layer="true"
-          xr-pixel-ratio="0.5"
-          style={{
-            width: '250px',
-            height: '250px',
-            position: 'absolute',
-            top: '850px',
-            left: '150px'
-          }}
-          onClick={beforeClick}
-        >
-          <NavigateBefore />
-        </button>
-        <style>{`
-          button:hover {
-            border: 10px solid red;
-          }
-        `}</style>
-      </div>
-    )
-  } else {
-    return (
-      <div
-        style={{
-          backgroundColor: '#000000dd',
-          color: 'white',
-          fontFamily: "'Roboto', sans-serif",
-          border: '10px solid white',
-          borderRadius: '50px',
-          padding: '20px',
-          margin: '60px',
-          boxShadow: '#fff2 0 0 30px',
-          width: '500px',
-          height: '800px'
-        }}
-        xr-layer="true"
-        xr-pixel-ratio="0.5"
-      >
-        <div
-          style={{
-            fontSize: '25px',
-            padding: '20px 0px',
-            textAlign: 'center'
-          }}
-          xr-layer="true"
-        >
-          {detailState.title.value}
-        </div>
-        {renderMedia(detailState)}
+            dangerouslySetInnerHTML={{ __html: description.value || '' }}
+          ></div>
 
-        <div
-          style={{
-            padding: '20px 0',
-            overflow: 'hidden',
-            textAlign: 'left',
-            fontSize: '20px'
-          }}
-          xr-layer="true"
-        >
-          {detailState.description.value}
+          <div className="interactive-model" xr-layer="true"></div>
         </div>
-        {detailState.urls.value && detailState.urls.value.length ? (
-          <button
-            xr-layer="true"
-            xr-pixel-ratio="0.8"
-            style={{
-              fontSize: '25px',
-              backgroundColor: '#000000dd',
-              color: 'white'
-            }}
-            onClick={() => {
-              linkClick(detailState.urls.value)
-            }}
-          >
-            <a>Open Link</a>
-          </button>
-        ) : (
-          <></>
-        )}
+
         <button
+          className="interactive-link"
           xr-layer="true"
-          xr-pixel-ratio="0.5"
-          style={{
-            width: '15%',
-            fontSize: '25px',
-            position: 'absolute',
-            bottom: '0',
-            right: '150px',
-            borderRadius: '20px'
+          xr-pixel-ratio="0.8"
+          onClick={() => {
+            window.open(url.value, '_blank')!.focus()
           }}
-          onClick={nextClick}
         >
-          <NavigateNext />
+          Open Link
         </button>
-        <button
-          xr-layer="true"
-          xr-pixel-ratio="0.5"
-          style={{
-            width: '15%',
-            fontSize: '25px',
-            position: 'absolute',
-            bottom: '0',
-            left: '150px',
-            borderRadius: '20px'
-          }}
-          onClick={beforeClick}
-        >
-          <NavigateBefore />
-        </button>
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `
-          button:hover {
-            background-color: darkgrey;
-          }
-        `
-          }}
-        ></style>
       </div>
-    )
-  }
+
+      <div className="interactive-content"></div>
+
+      {/* {renderMedia(detailState)} */}
+
+      <style>
+        {`
+
+        .interactive-modal {
+          background-color: #000000dd;
+          color: white;
+          font-family: 'Roboto', sans-serif;
+          border: 6px solid white;
+          border-radius: 40px;
+          box-shadow: #fff2 0 0 20px;
+          width: ${162 * 4}px;
+          height: ${100 * 4}px;
+        }
+
+        .interactive-content {
+          display: none;
+        }
+
+        .interating .interactive-content {
+          display: auto;
+        }
+
+        .interactive-flex {
+          display: flex;
+          align-items: flex-start;
+          flex-direction: row;
+          align-items: stretch;
+          height: 260px;
+        }
+
+        .interactive-description {
+          margin: 20px;
+          overflow: hidden;
+          text-align: left;
+          font-size: 10px;
+          height: 500px;
+          flex: 1;
+        }
+
+        .interactive-model {
+          flex: 1;
+        }
+
+        .interactive-title {
+          overflow: hidden; // contain margin */
+          width: 100%;
+          box-sizing: border-box;
+        }
+
+        .interactive-title div {
+          font-size: 15px;
+          padding: 20px;
+          text-align: center;
+          width: 200px;
+          margin: 0 auto;
+        }
+
+        :is(.inactive, .active) .interactive-title div {
+          background-color: #000000dd;
+          color: white;
+          border: 8px solid white;
+          border-radius: 50px;
+          box-shadow: #fff2 0 0 20px;
+          margin: 20px auto;
+        }
+
+        .interactive-e-key {
+          overflow: hidden; // contain margin
+        }
+
+        .interactive-e-key div {
+          fontSize: 15px;
+          border-radius: 40px;
+          padding: 20px;
+          color: white;
+          background-color: #333333dd;
+          text-align: center;
+          margin: 0 auto;
+          font-weight: bolder;
+          width: 160px;
+        }
+        
+        .interacting .interactive-e-key {
+          display: none
+        }
+
+        .interactive-link {
+          display: ${url ? 'auto' : 'none'};
+          fontSize: 25px;
+          backgroundColor: #000000dd;
+          color: white;
+        }
+
+        button:hover {
+          background-color: darkgrey;
+        }
+
+      `}
+      </style>
+    </div>
+  )
 }

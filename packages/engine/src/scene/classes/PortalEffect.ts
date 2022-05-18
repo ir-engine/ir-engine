@@ -70,12 +70,9 @@ export class PortalEffect extends Object3D {
       opacity: 0,
       map: this.texture
     })
-    // @ts-ignore
-    this.tubeMaterial.map.wrapS = MirroredRepeatWrapping
-    // @ts-ignore
-    this.tubeMaterial.map.wrapT = MirroredRepeatWrapping
-    // @ts-ignore
-    this.tubeMaterial.map.repeat.set(1, 10)
+    this.tubeMaterial.map!.wrapS = MirroredRepeatWrapping
+    this.tubeMaterial.map!.wrapT = MirroredRepeatWrapping
+    if (this.tubeMaterial.map!.repeat) this.tubeMaterial.map!.repeat.set(1, 10)
 
     const radialSegments = 24
     const tubularSegments = this.numPoints / 10
@@ -129,8 +126,7 @@ export class PortalEffect extends Object3D {
   }
 
   updateMaterialOffset(delta: number) {
-    // @ts-ignore
-    this.tubeMaterial.map.offset.x += delta
+    this.tubeMaterial.map!.offset.x += delta
   }
 
   update(delta: number) {

@@ -1,12 +1,12 @@
 // Initializes the `gameserver-subdomain-provision` service on path `/gameserver-subdomain-provision`
 import { Application } from '../../../declarations'
 import { GameserverSubdomainProvision } from './gameserver-subdomain-provision.class'
-import createModel from './gameserver-subdomain-provision.model'
-import hooks from './gameserver-subdomain-provision.hooks'
 import gameServerSubdomainProvisionDocs from './gameServer-subdomain-provision.docs'
+import hooks from './gameserver-subdomain-provision.hooks'
+import createModel from './gameserver-subdomain-provision.model'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'gameserver-subdomain-provision': GameserverSubdomainProvision
   }

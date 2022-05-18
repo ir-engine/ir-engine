@@ -1,4 +1,6 @@
 import matches from 'ts-matches'
+
+import { matchesWeightsParameters } from '../../avatar/animations/Util'
 import {
   defineActionCreator,
   matchesNetworkId,
@@ -7,10 +9,9 @@ import {
   matchesVector3,
   matchesWithDefault
 } from '../../ecs/functions/Action'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
-import { matchesWeightsParameters } from '../../avatar/animations/Util'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 
 export class NetworkWorldAction {
   static createClient = defineActionCreator({
@@ -97,5 +98,23 @@ export class NetworkWorldAction {
       networkId: matchesNetworkId
     }),
     pose: matchPose
+  })
+
+  static requestAuthorityOverObject = defineActionCreator({
+    type: 'network.REQUEST_AUTHORITY_OVER_OBJECT',
+    object: matches.shape({
+      ownerId: matchesUserId,
+      networkId: matchesNetworkId
+    }),
+    requester: matchesUserId
+  })
+
+  static transferAuthorityOfObject = defineActionCreator({
+    type: 'network.TRANSFER_AUTHORITY_OF_OBJECT',
+    object: matches.shape({
+      ownerId: matchesUserId,
+      networkId: matchesNetworkId
+    }),
+    newAuthor: matchesUserId
   })
 }

@@ -1,12 +1,15 @@
+import React, { useEffect } from 'react'
+
 import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/services/AppService'
+import {
+  LocationInstanceConnectionAction,
+  LocationInstanceConnectionService,
+  useLocationInstanceConnectionState
+} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
   useMediaInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import {
-  LocationInstanceConnectionService,
-  useLocationInstanceConnectionState
-} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
@@ -19,11 +22,11 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import React, { useEffect } from 'react'
-import { retriveLocationByName } from './LocationLoadHelper'
-import GameServerWarnings from './GameServerWarnings'
+
 import { usePartyState } from '../../social/services/PartyService'
 import { getSearchParamFromURL } from '../../util/getSearchParamFromURL'
+import GameServerWarnings from './GameServerWarnings'
+import { retriveLocationByName } from './LocationLoadHelper'
 
 interface Props {
   locationName: string
@@ -44,13 +47,16 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   // 1. Ensure api server connection in and set up reset listener
   useEffect(() => {
     AuthService.doLoginAuto(true)
+
+    // start listening for users joining or leaving the location
+    AuthService.listenForUserPatch()
   }, [])
 
   useEffect(() => {
     const action = async (ev: any) => {
       if (!ev.instance) return
       await shutdownEngine()
-      LocationInstanceConnectionService.resetServer()
+      dispatch(LocationInstanceConnectionAction.disconnect())
       if (!isUserBanned) {
         retriveLocationByName(authState, props.locationName, history)
       }
@@ -75,7 +81,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
         LocationInstanceConnectionService.provisionServer(
           currentLocation.id.value,
           instanceId || undefined,
-          locationState.currentLocation.location.sceneId.value
+          currentLocation.sceneId.value
         )
       }
     } else {
@@ -116,7 +122,6 @@ export const NetworkInstanceProvisioning = (props: Props) => {
 
   useEffect(() => {
     if (engineState.joinedWorld.value) {
-      if (engineState.isTeleporting.value) dispatchLocal(EngineActions.setTeleporting(null!))
       dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
       dispatch(AppAction.setAppLoaded(true))
     }
@@ -136,7 +141,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   // periodically listening for users spatially near
   useEffect(() => {
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value) UserService.getLayerUsers(true)
-  }, [selfUser, userState.layerUsersUpdateNeeded.value])
+  }, [selfUser?.instanceId.value, userState.layerUsersUpdateNeeded.value])
 
   // if a media connection has been provisioned and is ready, connect to it
   useEffect(() => {

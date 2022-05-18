@@ -1,6 +1,8 @@
 import { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
+
 import { Application } from '../../../declarations'
 import Compiler from './compiler'
+
 const compiler = new Compiler()
 
 const compileTemplate = (template) => {
@@ -27,7 +29,7 @@ const seed = async (app: Application, cfg: ServicesSeedConfig) => {
     throw new Error('You must specify an array of templates for seeded objects.')
   }
 
-  const service = app.service(cfg.path)
+  const service = app.service(cfg.path as any)
   await service.remove(null, null)
 
   const pushPromise = async (template) => {

@@ -7,10 +7,11 @@ import {
   InterleavedBufferAttribute,
   Loader,
   LoadingManager,
+  Material,
   Mesh,
   MeshStandardMaterial,
   Object3D,
-  Material,
+  Scene,
   SkinnedMesh,
   Texture
 } from 'three'
@@ -49,8 +50,8 @@ export class GLTFLoader extends Loader {
 
   setDRACOLoader(dracoLoader: DRACOLoader): GLTFLoader
 
-  register(callback: (parser: GLTFParser) => GLTFLoaderPlugin): GLTFLoader
-  unregister(callback: (parser: GLTFParser) => GLTFLoaderPlugin): GLTFLoader
+  register(callback: (parser: any) => any): GLTFLoader
+  unregister(callback: (parser: any) => any): GLTFLoader
 
   setKTX2Loader(ktx2Loader: KTX2Loader): GLTFLoader
   setMeshoptDecoder(meshoptDecoder: /* MeshoptDecoder */ any): GLTFLoader

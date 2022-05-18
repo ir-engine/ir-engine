@@ -1,10 +1,10 @@
 import { Application } from '../../../declarations'
 import { Message } from './message.class'
-import createModel from './message.model'
-import hooks from './message.hooks'
 import messageDocs from './message.docs'
+import hooks from './message.hooks'
+import createModel from './message.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     message: Message
   }

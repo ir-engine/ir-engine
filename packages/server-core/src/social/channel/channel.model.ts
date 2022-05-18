@@ -1,9 +1,12 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { ChannelInterface } from '@xrengine/common/src/dbmodels/Channel'
+
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const channel = sequelizeClient.define(
+  const channel = sequelizeClient.define<Model<ChannelInterface>>(
     'channel',
     {
       id: {

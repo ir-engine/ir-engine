@@ -1,4 +1,5 @@
 import { HookContext } from '@feathersjs/feathers'
+
 import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
 
 // TODO: Make one hook by combine this with "set-loggedin-user-in-body"
@@ -11,7 +12,6 @@ export default (propertyName: string) => {
       ...context.params.query,
       [propertyName]: loggedInUser?.id || null
     }
-
     return context
   }
 }

@@ -1,4 +1,20 @@
+import * as bitecs from 'bitecs'
+
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
+
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { isClient } from '../../common/functions/isClient'
+import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { Network } from '../../networking/classes/Network'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkClient } from '../../networking/interfaces/NetworkClient'
+import { WorldStateInterface } from '../../networking/schema/networkSchema'
+import { Physics } from '../../physics/classes/Physics'
+import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
+import { PortalComponent } from '../../scene/components/PortalComponent'
 import { Action } from '../functions/Action'
 import {
   addComponent,
@@ -9,22 +25,10 @@ import {
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { SystemFactoryType, SystemInstanceType, SystemModuleType } from '../functions/SystemFunctions'
-import { Entity } from './Entity'
-import { Engine } from './Engine'
-import * as bitecs from 'bitecs'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { Physics } from '../../physics/classes/Physics'
-import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
-import { WorldStateInterface } from '../../networking/schema/networkSchema'
-import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
+import { Engine } from './Engine'
+import { Entity } from './Entity'
 import EntityTree from './EntityTree'
-import { PortalComponent } from '../../scene/components/PortalComponent'
-import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 type RemoveIndex<T> = {
   [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
@@ -38,10 +42,6 @@ export class World {
 
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
-
-    this.networkIdMap = new Map<NetworkId, Entity>()
-    this.userIdToUserIndex = new Map()
-    this.userIndexToUserId = new Map()
 
     if (!Engine.currentWorld) Engine.currentWorld = this
 
@@ -71,7 +71,7 @@ export class World {
   #portalQuery = bitecs.defineQuery([PortalComponent])
   portalQuery = () => this.#portalQuery(this) as Entity[]
 
-  isInPortal = false
+  activePortal = null! as ReturnType<typeof PortalComponent.get>
 
   /** Connected clients */
   clients = new Map() as Map<UserId, NetworkClient>
@@ -88,9 +88,11 @@ export class World {
   /** All actions that have been dispatched */
   actionHistory = new Set<Action>()
 
-  networkIdMap: Map<NetworkId, Entity>
-  userIndexToUserId: Map<number, UserId>
-  userIdToUserIndex: Map<UserId, number>
+  /** Map of numerical user index to user client IDs */
+  userIndexToUserId = new Map<number, UserId>()
+
+  /** Map of user client IDs to numerical user index */
+  userIdToUserIndex = new Map<UserId, number>()
 
   userIndexCount = 0
 
@@ -197,12 +199,27 @@ export class World {
    * @param elapsedTime
    */
   execute(delta: number, elapsedTime: number) {
+    const start = nowMilliseconds()
+    const incomingActions = Array.from(this.incomingActions.values())
+    const incomingBufferLength = Network.instance?.incomingMessageQueueUnreliable.getBufferLength()
+
     this.delta = delta
     this.elapsedTime = elapsedTime
+
     for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.execute()
     for (const system of this.pipelines[SystemUpdateType.PRE_RENDER]) system.execute()
     for (const system of this.pipelines[SystemUpdateType.POST_RENDER]) system.execute()
+
     for (const entity of this.#entityRemovedQuery(this)) bitecs.removeEntity(this, entity)
+
+    const end = nowMilliseconds()
+    const duration = end - start
+    if (duration > 50) {
+      console.warn(
+        `Long frame execution detected. Delta: ${delta} \n Duration: ${duration}. \n Incoming Buffer Length: ${incomingBufferLength} \n Incoming actions: `,
+        incomingActions
+      )
+    }
   }
 }
 

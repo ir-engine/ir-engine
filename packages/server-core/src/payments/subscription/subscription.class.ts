@@ -1,9 +1,14 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
+import { SubscriptionInterface } from '@xrengine/common/src/dbmodels/Subscription'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 
-export class Subscription extends Service {
+export type SubscriptionDataType = SubscriptionInterface & { subscriptionId: string; paymentUrl: string }
+
+export class Subscription<T = SubscriptionDataType> extends Service<T> {
   app: Application
   docs: any
 
@@ -19,8 +24,8 @@ export class Subscription extends Service {
    * @returns {@Object} of created new subscription
    * @author
    */
-  async create(data: any, params: Params): Promise<any> {
-    const userId = (params as any).connection['identity-provider'].userId || params.body.userId
+  async create(data: any, params?: Params): Promise<T> {
+    const userId = (params as any).connection['identity-provider'].userId || params?.body?.userId
     if (userId == null) {
       throw new Error('Invalid user')
     }
@@ -48,21 +53,21 @@ export class Subscription extends Service {
     } else {
       plan = data.plan
     }
-    const saveData = {
+    const saveData: any = {
       userId,
       plan,
       amount: (found as any).data[0].amount ?? 0,
       quantity: 1
     }
-    const saved = await super.create(saveData, params)
+    const saved: any = await super.create(saveData, params)
 
-    const returned = {
-      subscriptionId: saved.id,
+    const returned: any = {
+      subscriptionId: saved.id.toString(),
       paymentUrl: `https://${config.chargebee.url}/hosted_pages/plans/${plan}?subscription[id]=${
         saved.id as string
       }&customer[id]=${userId as string}`
     }
 
-    return returned
+    return returned as T
   }
 }

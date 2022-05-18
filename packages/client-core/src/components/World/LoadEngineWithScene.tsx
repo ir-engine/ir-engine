@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router'
-import { initClient, initEngine, loadLocation } from './LocationLoadHelper'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { SceneService, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
-import { LocationInstanceConnectionService } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+
+import {
+  LocationInstanceConnectionAction,
+  LocationInstanceConnectionService
+} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import {
   LocationAction,
   LocationService,
@@ -13,8 +14,14 @@ import {
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { getWorldTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
-import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+import { SceneAction, SceneService, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
+
+import { initClient, initEngine, loadLocation } from './LocationLoadHelper'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -85,21 +92,20 @@ export const LoadEngineWithScene = (props: Props) => {
    * Once we have the scene data, load the location
    */
   useEffect(() => {
-    if (clientReady && locationState.currentLocation.location.sceneId.value && sceneState.currentScene.name.value) {
-      dispatch(EngineActions.setTeleporting(null!))
+    if (clientReady && locationState.currentLocation.location.sceneId.value && sceneState.currentScene?.name?.value) {
       loadLocation()
     }
   }, [clientReady, locationState.currentLocation?.location?.sceneId?.value, sceneState.currentScene?.name])
 
-  const canTeleport = useRef(true)
   useEffect(() => {
-    if (engineState.isTeleporting.value === null) {
-      canTeleport.current = true
-      return
-    } else {
-      if (!canTeleport.current) return
-      dispatch(LocationAction.fetchingCurrentSocialLocation())
+    if (engineState.joinedWorld.value && engineState.isTeleporting.value) {
+      // if we are coming from another scene, reset our teleporting status
+      dispatchLocal(EngineActions.setTeleporting(false))
+    }
+  }, [engineState.joinedWorld.value])
 
+  useEffect(() => {
+    if (engineState.isTeleporting.value) {
       // TODO: this needs to be implemented on the server too
       // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
       //   teleportPlayer(
@@ -110,17 +116,19 @@ export const LoadEngineWithScene = (props: Props) => {
       //   return
       // }
 
-      // shut down connection with existing GS
       console.log('reseting connection for portal teleport')
+
+      const world = useWorld()
+
+      dispatch(SceneAction.sceneLoaded(null!))
+      history.push('/location/' + world.activePortal.location)
+      LocationService.getLocationByName(world.activePortal.location)
+
+      // shut down connection with existing GS
       leave(getWorldTransport())
-      LocationInstanceConnectionService.resetServer()
-      const portalComponent = engineState.isTeleporting.value
-      teleportToScene(portalComponent, async () => {
-        history.push('/location/' + portalComponent.location)
-        LocationService.getLocationByName(portalComponent.location)
-        //canTeleport.current=true
-      })
-      canTeleport.current = false
+      dispatch(LocationInstanceConnectionAction.disconnect())
+
+      teleportToScene()
     }
   }, [engineState.isTeleporting.value])
 

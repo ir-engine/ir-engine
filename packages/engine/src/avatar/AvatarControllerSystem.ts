@@ -1,13 +1,22 @@
+import { Vector3 } from 'three'
+
 import { Engine } from '../ecs/classes/Engine'
+import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
+import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
+import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { moveAvatar } from './functions/moveAvatar'
-import { World } from '../ecs/classes/World'
-import { ColliderComponent } from '../physics/components/ColliderComponent'
-import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
+import { setAvatarHeadOpacity } from './functions/avatarFunctions'
+import {
+  alignXRCameraPositionWithAvatar,
+  alignXRCameraRotationWithAvatar,
+  moveAvatar,
+  moveXRAvatar,
+  rotateXRAvatar
+} from './functions/moveAvatar'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
@@ -19,6 +28,10 @@ export class AvatarSettings {
 export default async function AvatarControllerSystem(world: World) {
   const controllerQuery = defineQuery([AvatarControllerComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
+
+  const tempVec = new Vector3(),
+    lastCamPos = new Vector3(),
+    displacement = new Vector3()
 
   return () => {
     for (const entity of controllerQuery.exit(world)) {
@@ -34,25 +47,15 @@ export default async function AvatarControllerSystem(world: World) {
       }
     }
 
-    for (const entity of localXRInputQuery.enter(world)) {
-      const avatar = getComponent(entity, AvatarComponent)
-
-      // TODO: Temporarily make rig invisible until rig is fixed
-      if (avatar.modelContainer) {
-        avatar.modelContainer.visible = false
-      }
-    }
-
-    for (const entity of localXRInputQuery.exit(world)) {
-      const avatar = getComponent(entity, AvatarComponent, true)
-      // TODO: Temporarily make rig invisible until rig is fixed
-      if (avatar.modelContainer) {
-        avatar.modelContainer.visible = true
-      }
+    for (const entity of localXRInputQuery(world)) {
+      setAvatarHeadOpacity(entity, 0)
+      moveXRAvatar(world, entity, Engine.camera, lastCamPos, displacement)
+      rotateXRAvatar(world, entity, Engine.camera)
     }
 
     for (const entity of controllerQuery(world)) {
-      moveAvatar(world, entity, Engine.camera)
+      const displace = moveAvatar(world, entity, Engine.camera)
+      displacement.set(displace.x, displace.y, displace.z)
 
       const controller = getComponent(entity, AvatarControllerComponent)
       const collider = getComponent(entity, ColliderComponent)
@@ -77,6 +80,7 @@ export default async function AvatarControllerSystem(world: World) {
         continue
       }
     }
+
     return world
   }
 }

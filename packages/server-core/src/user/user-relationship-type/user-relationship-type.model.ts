@@ -1,9 +1,12 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { UserRelationshipTypeInterface } from '@xrengine/common/src/dbmodels/UserRelationshipType'
+
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const userRelationshipType = sequelizeClient.define(
+  const userRelationshipType = sequelizeClient.define<Model<UserRelationshipTypeInterface>>(
     'user_relationship_type',
     {
       type: {

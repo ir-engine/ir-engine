@@ -1,9 +1,11 @@
-import { client } from '../../../feathers'
-import { AlertService } from '../../../common/services/AlertService'
-import { useDispatch, store } from '../../../store'
-import { AdminAuthSettingResult } from '@xrengine/common/src/interfaces/AdminAuthSettingResult'
 import { createState, useState } from '@speigg/hookstate'
+
 import { AdminAuthSetting } from '@xrengine/common/src/interfaces/AdminAuthSetting'
+import { AdminAuthSettingResult } from '@xrengine/common/src/interfaces/AdminAuthSettingResult'
+
+import { AlertService } from '../../../common/services/AlertService'
+import { client } from '../../../feathers'
+import { store, useDispatch } from '../../../store'
 import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
 //State
@@ -42,25 +44,21 @@ export const useAdminAuthSettingState = () => useState(state) as any as typeof s
 export const AuthSettingService = {
   fetchAuthSetting: async () => {
     const dispatch = useDispatch()
-    {
-      try {
-        await waitForClientAuthenticated()
-        const authSetting = await client.service('authentication-setting').find()
-        dispatch(AuthSettingAction.authSettingRetrieved(authSetting))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+    try {
+      await waitForClientAuthenticated()
+      const authSetting = await client.service('authentication-setting').find()
+      dispatch(AuthSettingAction.authSettingRetrieved(authSetting))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   patchAuthSetting: async (data: any, id: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('authentication-setting').patch(id, data)
-        dispatch(AuthSettingAction.authSettingPatched())
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+    try {
+      await client.service('authentication-setting').patch(id, data)
+      dispatch(AuthSettingAction.authSettingPatched())
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   }
 }

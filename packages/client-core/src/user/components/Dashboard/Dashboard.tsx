@@ -1,14 +1,16 @@
+import clsx from 'clsx'
+import React from 'react'
+
 import { ChevronLeft, ChevronRight, Menu } from '@mui/icons-material'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
 import CssBaseline from '@mui/material/CssBaseline'
 import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
-import clsx from 'clsx'
-import React from 'react'
+
 import { useAuthState } from '../../services/AuthService'
 import DashboardMenuItem from './DashboardMenuItem'
 import { useStylesForDashboard } from './styles'
@@ -33,14 +35,15 @@ const Dashboard = ({ children }: Props) => {
   const admin = authState.user
   const isLoggedIn = authState.isLoggedIn.value
 
-  const handleDrawerOpen = () => {
-    setOpen(true)
+  const handleDrawerOpen = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    if (
+      event.type === 'keydown' &&
+      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
+    ) {
+      return
+    }
+    setOpen(open)
   }
-
-  const handleDrawerClose = () => {
-    setOpen(false)
-  }
-
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -50,7 +53,7 @@ const Dashboard = ({ children }: Props) => {
             color="inherit"
             style={{ color: 'white' }}
             aria-label="open drawer"
-            onClick={handleDrawerOpen}
+            onClick={handleDrawerOpen(true)}
             edge="start"
             className={clsx(classes.menuButton, {
               [classes.hide]: open
@@ -73,7 +76,7 @@ const Dashboard = ({ children }: Props) => {
         </Toolbar>
       </AppBar>
       <Drawer
-        variant="permanent"
+        variant={open ? 'temporary' : 'permanent'}
         className={clsx(classes.drawer, {
           [classes.drawerOpen]: open,
           [classes.drawerClose]: !open
@@ -84,9 +87,11 @@ const Dashboard = ({ children }: Props) => {
             [classes.drawerClose]: !open
           })
         }}
+        open={open}
+        onClose={handleDrawerOpen(false)}
       >
         <div className={classes.toolbar}>
-          <IconButton onClick={handleDrawerClose} style={{ color: '#fff' }} size="large">
+          <IconButton onClick={handleDrawerOpen(false)} style={{ color: '#fff' }} size="large">
             {theme.direction === 'rtl' ? <ChevronRight /> : <ChevronLeft />}
           </IconButton>
         </div>

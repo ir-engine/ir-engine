@@ -1,34 +1,37 @@
-import React from 'react'
-import Container from '@mui/material/Container'
-import DialogTitle from '@mui/material/DialogTitle'
-import Paper from '@mui/material/Paper'
-import InputBase from '@mui/material/InputBase'
-import Button from '@mui/material/Button'
-import DialogActions from '@mui/material/DialogActions'
-import TextField from '@mui/material/TextField'
-import { formValid } from './validation'
+import _ from 'lodash'
+import React, { useEffect, useState } from 'react'
 
-import Autocomplete from '@mui/material/Autocomplete'
+import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
+import DialogActions from '@mui/material/DialogActions'
+import DialogTitle from '@mui/material/DialogTitle'
+import InputBase from '@mui/material/InputBase'
+import Paper from '@mui/material/Paper'
+
 import { useAuthState } from '../../../user/services/AuthService'
+import AutoComplete from '../../common/AutoComplete'
+import { validateForm } from '../../common/validation/formValidation'
 import { GroupService } from '../../services/GroupService'
-import { useGroupStyles, useGroupStyle } from './styles'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import { useStyles } from '../../styles/ui'
 
 interface Props {
   groupAdmin: any
   closeEditModal: any
   closeViewModal?: any
 }
+interface ScopeData {
+  type: string
+}
 
 const EditGroup = (props: Props) => {
-  const classes = useGroupStyles()
-  const classx = useGroupStyle()
+  const classes = useStyles()
   const { groupAdmin, closeEditModal, closeViewModal } = props
   const user = useAuthState().user
   const adminScopeTypeState = useScopeTypeState()
   const adminScopeTypes = adminScopeTypeState.scopeTypes
 
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     name: groupAdmin.name,
     description: groupAdmin.description,
     scopeTypes: groupAdmin.scopes,
@@ -39,7 +42,7 @@ const EditGroup = (props: Props) => {
     }
   })
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (adminScopeTypeState.updateNeeded.value && user.id.value) {
       ScopeTypeService.getScopeTypeService()
     }
@@ -48,15 +51,7 @@ const EditGroup = (props: Props) => {
   const handleChange = (e) => {
     const { name, value } = e.target
     let temp = state.formErrors
-
-    switch (name) {
-      case 'name':
-        temp.name = value.length < 2 ? 'Name is required' : ''
-        break
-      case 'description':
-        temp.description = value.length < 2 ? 'Description is required' : ''
-    }
-
+    temp[name] = value.length < 2 ? `${_.upperFirst(name)} is required` : ''
     setState({ ...state, [name]: value, formErrors: temp })
   }
 
@@ -64,18 +59,12 @@ const EditGroup = (props: Props) => {
     e.preventDefault()
     const { name, description, scopeTypes } = state
     let temp = state.formErrors
+    temp.name = !state.name ? "Name can't be empty" : ''
+    temp.description = !state.description ? "Description can't be empty" : ''
+    temp.scopeTypes = !state.scopeTypes.length ? "Scope can't be empty" : ''
 
-    if (!state.name) {
-      temp.name = "Name can't be empty"
-    }
-    if (!state.description) {
-      temp.description = "Description can't be empty"
-    }
-    if (!state.scopeTypes.length) {
-      temp.scopeTypes = "Scope can't be empty"
-    }
     setState({ ...state, formErrors: temp })
-    if (formValid(state, state.formErrors)) {
+    if (validateForm(state, state.formErrors)) {
       GroupService.patchGroupByAdmin(groupAdmin.id, { name, description, scopeTypes })
       setState({
         ...state,
@@ -87,6 +76,15 @@ const EditGroup = (props: Props) => {
       if (typeof closeViewModal === 'function') closeViewModal()
     }
   }
+  const handleChangeScopeType = (scope) => {
+    setState({ ...state, scopeTypes: scope, formErrors: { ...state.formErrors, scopeTypes: '' } })
+  }
+
+  const scopeData: ScopeData[] = adminScopeTypeState.scopeTypes.value.map((el) => {
+    return {
+      type: el.type
+    }
+  })
 
   return (
     <Container maxWidth="sm" className={classes.marginTp}>
@@ -122,29 +120,12 @@ const EditGroup = (props: Props) => {
           />
         </Paper>
 
-        <label>Grant Scope</label>
-        <Paper
-          component="div"
-          className={state.formErrors.scopeTypes.length > 0 ? classes.redBorder : classes.createInput}
-        >
-          <Autocomplete
-            onChange={(event, value) =>
-              setState({ ...state, scopeTypes: value, formErrors: { ...state.formErrors, scopeTypes: '' } })
-            }
-            multiple
-            className={classes.selector}
-            classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
-            id="tags-standard"
-            value={state.scopeTypes}
-            options={adminScopeTypes.value}
-            disableCloseOnSelect
-            filterOptions={(options) =>
-              options.filter((option) => state.scopeTypes.find((scopeType) => scopeType.type === option.type) == null)
-            }
-            getOptionLabel={(option) => option.type}
-            renderInput={(params) => <TextField {...params} placeholder="Select access" />}
-          />
-        </Paper>
+        <AutoComplete
+          data={scopeData}
+          label="Grant Scope"
+          handleChangeScopeType={handleChangeScopeType}
+          scopes={state.scopeTypes as any}
+        />
 
         <DialogActions className={classes.marginTp}>
           <Button type="submit" className={classes.saveBtn}>

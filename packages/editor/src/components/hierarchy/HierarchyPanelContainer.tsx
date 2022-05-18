@@ -1,27 +1,29 @@
-import React, { useState, useEffect, useCallback, memo, useContext } from 'react'
-import { ContextMenu, MenuItem } from '../layout/ContextMenu'
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
-import { FixedSizeList, areEqual } from 'react-window'
-import AutoSizer from 'react-virtualized-auto-sizer'
-import { addItem } from '../dnd'
-import useUpload from '../assets/useUpload'
-import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { useTranslation } from 'react-i18next'
-import { cmdOrCtrlString } from '../../functions/utils'
-import EditorEvents from '../../constants/EditorEvents'
-import { CommandManager } from '../../managers/CommandManager'
-import EditorCommands from '../../constants/EditorCommands'
-import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Hotkeys from 'react-hot-keys'
+import { useTranslation } from 'react-i18next'
+import AutoSizer from 'react-virtualized-auto-sizer'
+import { areEqual, FixedSizeList } from 'react-window'
+
+import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { getNodeElId, HierarchyTreeNode, HierarchyTreeNodeData, RenameNodeData } from './HierarchyTreeNode'
-import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
+
+import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
+import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
+import EditorCommands from '../../constants/EditorCommands'
+import EditorEvents from '../../constants/EditorEvents'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
+import { cmdOrCtrlString } from '../../functions/utils'
+import { CommandManager } from '../../managers/CommandManager'
+import useUpload from '../assets/useUpload'
+import { addItem } from '../dnd'
+import { ContextMenu, MenuItem } from '../layout/ContextMenu'
 import { AppContext } from '../Search/context'
+import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
+import { getNodeElId, HierarchyTreeNode, HierarchyTreeNodeData, RenameNodeData } from './HierarchyTreeNode'
 import styles from './styles.module.scss'
 
 /**
@@ -77,15 +79,14 @@ export default function HierarchyPanel() {
     })
   }
 
-  const updateNodeHierarchy = useCallback(
-    (world = useWorld()) => {
-      if (!world.entityTree) return
-      setNodes(Array.from(heirarchyTreeWalker(world.entityTree.rootNode, collapsedNodes)))
-    },
-    [collapsedNodes]
-  )
+  const updateNodeHierarchy = useCallback((collapsedNodes: HeirarchyTreeCollapsedNodeType, world = useWorld()) => {
+    if (!world.entityTree) return
+    setNodes(Array.from(heirarchyTreeWalker(world.entityTree.rootNode, collapsedNodes)))
+  }, [])
 
-  useEffect(() => updateNodeHierarchy(collapsedNodes), [collapsedNodes])
+  const updateHierarchy = useCallback(() => updateNodeHierarchy(collapsedNodes), [collapsedNodes])
+
+  useEffect(updateHierarchy, [collapsedNodes])
 
   /* Expand & Collapse Functions */
   const expandNode = useCallback(
@@ -113,14 +114,6 @@ export default function HierarchyPanel() {
     },
     [collapsedNodes]
   )
-
-  const onExpandAllNodes = useCallback(() => setCollapsedNodes({}), [setCollapsedNodes])
-
-  const onCollapseAllNodes = useCallback(() => {
-    const newCollapsedNodes = {}
-    useWorld().entityTree.traverse((child: any) => (newCollapsedNodes[child.id] = true))
-    setCollapsedNodes(newCollapsedNodes)
-  }, [])
   /* Expand & Collapse Functions */
 
   const onObjectChanged = useCallback(
@@ -131,13 +124,13 @@ export default function HierarchyPanel() {
   )
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updateNodeHierarchy)
-    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), updateNodeHierarchy)
+    CommandManager.instance.addListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updateHierarchy)
+    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), updateHierarchy)
     CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectChanged)
 
     return () => {
-      CommandManager.instance.removeListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updateNodeHierarchy)
-      CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), updateNodeHierarchy)
+      CommandManager.instance.removeListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updateHierarchy)
+      CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), updateHierarchy)
       CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectChanged)
     }
   }, [])
@@ -231,11 +224,11 @@ export default function HierarchyPanel() {
 
         case 'Delete':
         case 'Backspace':
-          selectedNode && onDeleteNode(e, selectedNode)
+          if (selectedNode && !renamingNode) onDeleteNode(e, selectedNode)
           break
       }
     },
-    [nodes, expandNode, collapseNode, expandChildren, collapseChildren]
+    [nodes, expandNode, collapseNode, expandChildren, collapseChildren, renamingNode, selectedNode]
   )
 
   const onDeleteNode = useCallback((_, node: HeirarchyTreeNodeType) => {
@@ -380,8 +373,12 @@ export default function HierarchyPanel() {
           </MenuItem>
         </Hotkeys>
         <MenuItem onClick={onDeleteNode}>{t('editor:hierarchy.lbl-delete')}</MenuItem>
-        <MenuItem onClick={onExpandAllNodes}>{t('editor:hierarchy.lbl-expandAll')}</MenuItem>
-        <MenuItem onClick={onCollapseAllNodes}>{t('editor:hierarchy.lbl-collapseAll')}</MenuItem>
+        <MenuItem onClick={(_, node: HeirarchyTreeNodeType) => expandChildren(node)}>
+          {t('editor:hierarchy.lbl-expandAll')}
+        </MenuItem>
+        <MenuItem onClick={(_, node: HeirarchyTreeNodeType) => collapseChildren(node)}>
+          {t('editor:hierarchy.lbl-collapseAll')}
+        </MenuItem>
       </ContextMenu>
     </>
   )

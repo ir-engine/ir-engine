@@ -1,4 +1,5 @@
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+
 import traverseEarlyOut from './traverseEarlyOut'
 
 export function getDetachedObjectsRoots(objects: EntityTreeNode[], target: EntityTreeNode[] = []): EntityTreeNode[] {

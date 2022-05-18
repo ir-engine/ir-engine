@@ -1,3 +1,7 @@
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router-dom'
+
 import ChatBubble from '@mui/icons-material/ChatBubble'
 import FacebookIcon from '@mui/icons-material/Facebook'
 import GitHubIcon from '@mui/icons-material/GitHub'
@@ -6,9 +10,7 @@ import TwitterIcon from '@mui/icons-material/Twitter'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
+
 import { AuthService } from '../../services/AuthService'
 import styles from './Auth.module.scss'
 
@@ -51,7 +53,7 @@ const SocialLogin = (props: Props): any => {
 
   const handleLinkedinLogin = (e: any): void => {
     e.preventDefault()
-    AuthService.loginUserByOAuth('linkedin2', location)
+    AuthService.loginUserByOAuth('linkedin', location)
   }
 
   const handleTwitterLogin = (e: any): void => {
