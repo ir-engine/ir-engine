@@ -279,6 +279,7 @@
       "secure": "Secure",
       "auth": "Auth",
       "from": "From",
+      "to": "To",
       "subject": "Subject",
       "login": "login",
       "friend": "friend",

@@ -1,0 +1,41 @@
+doctype html
+head
+  title Parcel Sandbox
+  meta(charset='UTF-8')
+div(style='margin: 0 10rem;')
+  h2 User Agent:
+  p(style='color: #838d97; font-weight: bold;') #{data.userAgent}
+  h2 Logs
+  div(style='width: 100%;')
+    each log in data.logs
+        div(style='\
+        display: flex;\
+        width: 80%;\
+        margin-bottom: 15px;\
+        ')
+            div(style=`\
+            background: ${log.type == 'log' ? '#89a0af' : log.type == 'error' ? 'red' : '#ffcc00' };\
+            padding: 5px 25px;\
+            border-radius: 5px;\
+            color: #f1f1f1;\
+            width: 50px;\
+            height: 30px;\
+            padding-top: 8px;\
+            font-weight: bold;\
+            font-size: 18px;\
+            margin-right: 15px;\
+            `)
+                span #{log.type}
+            div(style='\
+            border: 1px solid #cbd3e9;\
+            padding: 0px 10px;\
+            width: 80%;\
+            border-radius: 3px;\
+            color: #838d97;\
+            font-weight: bold;\
+            font-size: 15px;\
+            ')
+                p #{JSON.stringify(log.value)}
+  div(style='margin-top: 30px; font-weight: bold;')
+    span Reported By: 
+    p(style='display: inline; color: #838d97;') #{username}

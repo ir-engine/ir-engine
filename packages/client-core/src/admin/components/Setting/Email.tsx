@@ -22,6 +22,7 @@ const Email = (props: emailProps) => {
   const [smtp, setSmtp] = useState(emailSetting?.smtp)
   const [auth, setAuth] = useState(emailSetting?.smtp?.auth)
   const [from, setFrom] = useState(emailSetting?.from)
+  const [to, setTo] = useState(emailSetting?.to)
   const [subject, setSubject] = useState(emailSetting?.subject)
 
   const authState = useAuthState()
@@ -68,6 +69,7 @@ const Email = (props: emailProps) => {
       setAuth(tempAuth)
       setSubject(tempSubject)
       setFrom(emailSetting?.from)
+      setTo(emailSetting?.to)
     }
   }, [emailSettingState?.updateNeeded?.value])
 
@@ -78,6 +80,7 @@ const Email = (props: emailProps) => {
       {
         smtp: JSON.stringify({ ...smtp, auth: JSON.stringify(auth) }),
         from: from,
+        to: to,
         subject: JSON.stringify(subject)
       },
       id
@@ -93,6 +96,7 @@ const Email = (props: emailProps) => {
     setAuth(tempAuth)
     setSubject(tempSubject)
     setFrom(emailSetting?.from)
+    setTo(emailSetting?.to)
   }
 
   return (
@@ -171,6 +175,19 @@ const Email = (props: emailProps) => {
                   className={styles.input}
                   value={from || ''}
                   onChange={(e) => setFrom(e.target.value)}
+                />
+              </Paper>
+            </Paper>
+            <Typography>{t('admin:components.setting.to')}</Typography>
+            <Paper variant="outlined" square className={styles.Paper}>
+              <Paper component="div" className={styles.createInput}>
+                <label> {t('admin:components.setting.to')}:</label>
+                <InputBase
+                  name="to"
+                  className={styles.input}
+                  style={{ color: '#fff' }}
+                  value={to || ''}
+                  onChange={(e) => setTo(e.target.value)}
                 />
               </Paper>
             </Paper>
