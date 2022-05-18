@@ -11,8 +11,8 @@ import {
 } from './scene-parser'
 
 describe('Scene Helper Functions', () => {
-  describe('should replace cache domain', () => {
-    const storageProvider = createDefaultStorageProvider()
+  describe('should replace cache domain', async () => {
+    const storageProvider = await createDefaultStorageProvider()
     const mockValue = `abcdef2144536`
     const mockValue2 = `08723ikjbolicujhc0asc`
 

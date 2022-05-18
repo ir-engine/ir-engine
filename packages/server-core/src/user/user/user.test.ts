@@ -11,7 +11,7 @@ let users: any = []
 describe('user service', () => {
   let app: Application
   before(async () => {
-    app = createFeathersExpressApp()
+    app = await createFeathersExpressApp()
     await app.setup()
   })
 

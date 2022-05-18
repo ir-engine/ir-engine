@@ -18,7 +18,7 @@ process.on('unhandledRejection', (error, promise) => {
 })
 
 export const start = async (): Promise<void> => {
-  const app = createFeathersExpressApp()
+  const app = await createFeathersExpressApp()
 
   app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
   app.configure(channels)

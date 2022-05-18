@@ -16,7 +16,7 @@ import { getAvatarFromStaticResources } from './avatar-helper'
 describe('avatar-helper', () => {
   let app: Application
   before(async () => {
-    app = createFeathersExpressApp()
+    app = await createFeathersExpressApp()
     await app.setup()
 
     // reset default project in case another test has tampered with it

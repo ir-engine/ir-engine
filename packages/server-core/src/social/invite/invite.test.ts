@@ -12,7 +12,7 @@ describe('invite service', () => {
   let app: Application
 
   // before(async () => {
-  //   app = createFeathersExpressApp()
+  //   app = await createFeathersExpressApp()
   //   await app.setup()
   //
   //   await app.service('invite').hooks({

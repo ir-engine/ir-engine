@@ -116,8 +116,8 @@ export const serverPipe = pipe(configureOpenAPI(), configureSocketIO(), configur
   app: Application
 ) => Application
 
-export const createFeathersExpressApp = (configurationPipe = serverPipe): Application => {
-  createDefaultStorageProvider()
+export const createFeathersExpressApp = async (configurationPipe = serverPipe): Promise<Application> => {
+  await createDefaultStorageProvider()
 
   const app = express(feathers()) as Application
   app.set('nextReadyEmitter', new EventEmitter())
