@@ -6,18 +6,18 @@ import { deepEqual } from '@xrengine/engine/src/common/functions/deepEqual'
 
 import { HyperStore } from './StoreFunctions'
 
-export type Action<StoreName extends string> = {
+export type Action<StoreType extends string> = {
   /**
-   * The name of the store on which the action is dispatched
+   * The type of the store on which the action is dispatched
    */
-  store: StoreName
+  store: StoreType
   /**
    * The type of action
    */
   type: string
 } & ActionOptions
 
-export type ActionReceptor<StoreName extends string> = (action: Action<StoreName>) => void
+export type ActionReceptor<StoreType extends string> = (action: Action<StoreType>) => void
 
 export type ActionRecipients = UserId | UserId[] | 'all' | 'others'
 
@@ -169,7 +169,7 @@ export type PartialActionType<Shape extends ActionShape<any>> = Omit<
  * @param actionShape
  * @returns a function that creates an instance of the defined action
  */
-function defineAction<StoreName extends string, Shape extends ActionShape<Action<StoreName>>>(actionShape: Shape) {
+function defineAction<StoreType extends string, Shape extends ActionShape<Action<StoreType>>>(actionShape: Shape) {
   type ResolvedAction = ResolvedActionType<Shape>
   type PartialAction = PartialActionType<Shape>
 
@@ -239,11 +239,11 @@ function defineAction<StoreName extends string, Shape extends ActionShape<Action
  * @param store
  * @param action
  */
-const dispatchAction = <StoreName extends string, A extends Action<StoreName>>(
-  store: HyperStore<StoreName>,
+const dispatchAction = <StoreType extends string, A extends Action<StoreType>>(
+  store: HyperStore<StoreType>,
   action: A
 ) => {
-  if (store.name !== action.store) throw new Error('Store mismatch')
+  if (store.type !== action.store) throw new Error('Store mismatch')
 
   const storeId = store.getDispatchId()
 
@@ -262,8 +262,8 @@ const dispatchAction = <StoreName extends string, A extends Action<StoreName>>(
   }
 
   const mode = store.getDispatchMode()
-  if (mode === 'local' || mode === 'host') store.actions.incoming.push(action as Required<Action<StoreName>>)
-  else store.actions.outgoing.push(action as Required<Action<StoreName>>)
+  if (mode === 'local' || mode === 'host') store.actions.incoming.push(action as Required<Action<StoreType>>)
+  else store.actions.outgoing.push(action as Required<Action<StoreType>>)
 }
 
 /**
@@ -271,11 +271,11 @@ const dispatchAction = <StoreName extends string, A extends Action<StoreName>>(
  * @param store
  * @param receptor
  */
-function addActionReceptor<StoreName extends string>(
-  store: HyperStore<StoreName>,
-  receptor: ActionReceptor<StoreName>
+function addActionReceptor<StoreType extends string>(
+  store: HyperStore<StoreType>,
+  receptor: ActionReceptor<StoreType>
 ) {
-  ;(store.receptors as Array<ActionReceptor<StoreName>>).push(receptor)
+  ;(store.receptors as Array<ActionReceptor<StoreType>>).push(receptor)
 }
 
 /**
@@ -283,12 +283,12 @@ function addActionReceptor<StoreName extends string>(
  * @param store
  * @param receptor
  */
-function removeActionReceptor<StoreName extends string>(
-  store: HyperStore<StoreName>,
-  receptor: ActionReceptor<StoreName>
+function removeActionReceptor<StoreType extends string>(
+  store: HyperStore<StoreType>,
+  receptor: ActionReceptor<StoreType>
 ) {
   const idx = store.receptors.indexOf(receptor)
-  if (idx >= 0) (store.receptors as Array<ActionReceptor<StoreName>>).splice(idx, 1)
+  if (idx >= 0) (store.receptors as Array<ActionReceptor<StoreType>>).splice(idx, 1)
 }
 
 const _updateCachedActions = (store: HyperStore<any>, incomingAction: Required<Action<any>>) => {
@@ -337,7 +337,7 @@ const _applyIncomingAction = (store: HyperStore<any>, action: Required<Action<an
   }
 
   try {
-    console.log(`${store.name} ACTION ${action.type}`, action)
+    console.log(`${store.type} ACTION ${action.type}`, action)
     for (const receptor of [...store.receptors]) receptor(action)
     store.actions.incomingHistory.push(action)
     if (store.getDispatchMode() === 'host') store.actions.outgoing.push(action)

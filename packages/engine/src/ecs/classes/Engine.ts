@@ -18,7 +18,7 @@ export class Engine {
   userId: UserId
 
   store = createHyperStore({
-    name: 'ENGINE',
+    type: 'ENGINE',
     getDispatchId: () => 'engine',
     getDispatchTime: () => Engine.instance.frameTime
   })

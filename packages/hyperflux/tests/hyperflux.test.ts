@@ -105,11 +105,11 @@ describe('Hyperflux Unit Testss', () => {
 
   it('should be able to dispatch an action to a local store', () => {
     const wrongStore = createHyperStore({
-      name: 'WRONG_STORE',
+      type: 'WRONG_STORE',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
-    const store = createHyperStore({ name: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
+    const store = createHyperStore({ type: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     const greet = defineAction({
       store: 'TEST_STORE',
       type: 'TEST_GREETING',
@@ -136,7 +136,7 @@ describe('Hyperflux Unit Testss', () => {
 
   it('should be able to dispatch an action to a peer store', () => {
     const store = createHyperStore({
-      name: 'TEST_STORE',
+      type: 'TEST_STORE',
       getDispatchMode: () => 'peer',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
@@ -168,7 +168,7 @@ describe('Hyperflux Unit Testss', () => {
 
   it('should be able to dispatch an action to a host store', () => {
     const store = createHyperStore({
-      name: 'TEST_STORE',
+      type: 'TEST_STORE',
       getDispatchMode: () => 'host',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
@@ -195,7 +195,7 @@ describe('Hyperflux Unit Testss', () => {
 
   it('should be able to dispatch an action to a peer store', () => {
     const store = createHyperStore({
-      name: 'TEST_STORE',
+      type: 'TEST_STORE',
       getDispatchMode: () => 'peer',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
@@ -215,7 +215,7 @@ describe('Hyperflux Unit Testss', () => {
 
   it('should be able to add and remove action receptors in a store', () => {
     const store = createHyperStore({
-      name: 'TEST_STORE',
+      type: 'TEST_STORE',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
@@ -227,7 +227,7 @@ describe('Hyperflux Unit Testss', () => {
   })
 
   it('should be able to apply incoming actions to receptors in a local store', () => {
-    const store = createHyperStore({ name: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
+    const store = createHyperStore({ type: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     const greet = defineAction({
       store: 'TEST_STORE',
       type: 'TEST_GREETING',
@@ -254,7 +254,7 @@ describe('Hyperflux Unit Testss', () => {
   })
 
   it('should add incoming actions to cache as indicated', () => {
-    const store = createHyperStore({ name: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
+    const store = createHyperStore({ type: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     const greet = defineAction({
       store: 'TEST_STORE',
       type: 'TEST_GREETING',
@@ -317,7 +317,7 @@ describe('Hyperflux Unit Testss', () => {
 
   it('should be able to apply incoming actions to receptors in a peer store', () => {
     const store = createHyperStore({
-      name: 'TEST_STORE',
+      type: 'TEST_STORE',
       getDispatchMode: () => 'peer',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
@@ -345,7 +345,7 @@ describe('Hyperflux Unit Testss', () => {
 
   it('should be able to apply multiple actions at once to a peer store', () => {
     const store = createHyperStore({
-      name: 'TEST_STORE',
+      type: 'TEST_STORE',
       getDispatchMode: () => 'peer',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
@@ -385,7 +385,7 @@ describe('Hyperflux Unit Testss', () => {
 
   it('should be able to apply multiple actions at once to a host store', () => {
     const store = createHyperStore({
-      name: 'TEST_STORE',
+      type: 'TEST_STORE',
       getDispatchMode: () => 'host',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
@@ -452,7 +452,7 @@ describe('Hyperflux Unit Testss', () => {
         lastGreeting: null as string | null
       })
     })
-    const store = createHyperStore({ name: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
+    const store = createHyperStore({ type: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     registerState(store, HospitalityState)
     assert(store.state.hospitality)
   })
@@ -466,7 +466,7 @@ describe('Hyperflux Unit Testss', () => {
         lastGreeting: null as string | null
       })
     })
-    const store = createHyperStore({ name: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
+    const store = createHyperStore({ type: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     registerState(store, HospitalityState)
     assert(store.state.hospitality)
     const hospitality = getState(store, HospitalityState).value
@@ -489,7 +489,7 @@ describe('Hyperflux Unit Testss', () => {
       greeting: matchesWithDefault(matches.string, () => 'hi')
     })
 
-    const store = createHyperStore({ name: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
+    const store = createHyperStore({ type: 'TEST_STORE', getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     registerState(store, HospitalityState)
     assert(store.state.hospitality)
 

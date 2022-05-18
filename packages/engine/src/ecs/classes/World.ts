@@ -62,17 +62,18 @@ export class World {
   static [CreateWorld] = () => new World()
 
   /**
-   * The UserId of the host
-   * - will either be a user's UserId, or an instance server's InstanceId
+   * 
    */
-  hostId = 'world' as UserId
-
-  /**
-   * Check if this user is hosting the world.
-   */
-  get isHosting() {
-    return Engine.instance.userId === this.hostId
+  get worldNetwork() {
+    return this.networks.get(this.worldHostId)!
   }
+
+  get mediaNetwork() {
+    return this.networks.get(this.mediaHostId)!
+  }
+
+  worldHostId = null! as UserId
+  mediaHostId = null! as UserId
 
   networks = new Map<string, Network>()
 
@@ -110,14 +111,6 @@ export class World {
   fixedTick = 0
 
   _pipeline = [] as SystemModuleType<any>[]
-
-  store = createHyperStore({
-    name: 'WORLD',
-    getDispatchMode: () => (this.isHosting ? 'host' : 'peer'),
-    getDispatchId: () => Engine.instance.userId,
-    getDispatchTime: () => Date.now(),
-    defaultDispatchDelay: 1 / Engine.instance.tickRate
-  })
 
   /**
    * Reference to the three.js scene object.

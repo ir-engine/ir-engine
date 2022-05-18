@@ -3,11 +3,11 @@ import { State } from '@speigg/hookstate'
 import { Action, ActionReceptor } from './ActionFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
-export interface HyperStore<StoreName extends string> {
+export interface HyperStore<StoreType extends string> {
   /**
-   * The name of this store, used for logging and type checking.
+   * The type of this store, used for logging and type checking.
    */
-  name: StringLiteral<StoreName>
+  type: StringLiteral<StoreType>
   /**
    *  If the store mode is `local`, actions are dispatched on the incoming queue.
    *  If the store mode is `host`, actions are dispatched on the incoming queue and then forwarded to the outgoing queue.
@@ -29,38 +29,38 @@ export interface HyperStore<StoreName extends string> {
   /**
    * State dictionary
    */
-  state: { [name: string]: State<any> }
+  state: { [type: string]: State<any> }
   actions: {
     /** Cached actions */
-    cached: Array<Required<Action<StoreName>>>
+    cached: Array<Required<Action<StoreType>>>
     /** Incoming actions */
-    incoming: Array<Required<Action<StoreName>>>
+    incoming: Array<Required<Action<StoreType>>>
     /** All incoming actions that have been proccessed */
-    incomingHistory: Array<Required<Action<StoreName>>>
+    incomingHistory: Array<Required<Action<StoreType>>>
     /** All incoming action UUIDs that have been processed */
     incomingHistoryUUIDs: Set<string>
     /** Outgoing actions */
-    outgoing: Array<Required<Action<StoreName>>>
+    outgoing: Array<Required<Action<StoreType>>>
     /** All actions that have been sent */
-    outgoingHistory: Array<Required<Action<StoreName>>>
+    outgoingHistory: Array<Required<Action<StoreType>>>
     /** All incoming action UUIDs that have been processed */
     outgoingHistoryUUIDs: Set<string>
   }
   /** functions that receive actions */
-  receptors: ReadonlyArray<ActionReceptor<StoreName>>
+  receptors: ReadonlyArray<ActionReceptor<StoreType>>
   /** functions that re-run on state changes, compatible w/ React hooks */
   reactors: WeakMap<() => void, any>
 }
 
 function createHyperStore<StoreName extends string>(options: {
-  name: StringLiteral<StoreName>
+  type: StringLiteral<StoreName>
   getDispatchMode?: () => 'local' | 'host' | 'peer'
   getDispatchId: () => string
   getDispatchTime: () => number
   defaultDispatchDelay?: number
 }) {
   return {
-    name: options.name,
+    type: options.type,
     getDispatchMode: options.getDispatchMode ?? (() => 'local'),
     getDispatchId: options.getDispatchId,
     getDispatchTime: options.getDispatchTime,

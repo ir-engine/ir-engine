@@ -1,6 +1,9 @@
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { createHyperStore } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { RingBuffer } from '../../common/classes/RingBuffer'
+import { Engine } from '../../ecs/classes/Engine'
 
 export const NetworkTypes = {
   world: 'world' as const,
@@ -10,7 +13,7 @@ export const NetworkTypes = {
 export type NetworkType = typeof NetworkTypes[keyof typeof NetworkTypes]
 
 /** Interface for the Transport. */
-export interface Network {
+export class Network {
   /**
    * Initialize the transport.
    * @param address Address of this transport.
@@ -18,29 +21,29 @@ export interface Network {
    * @param instance Whether this is a connection to an instance server or not (i.e. channel server)
    * @param opts Options.
    */
-  initialize(any): void | Promise<void>
+  initialize: () => {}
 
   /**
    * Send data over transport.
    * @param data Data to be sent.
    */
-  sendData(data: any): void
+  sendData: (data: any) => {}
 
   /**
    * Send actions through reliable channel
    */
-  sendActions(actions: Action<'WORLD'>[]): void
+  sendActions: (actions: Action<'NETWORK'>[]) => {}
 
   /**
    * Sends a message across the connection and resolves with the reponse
    * @param message
    */
-  request(message: string, data?: any): Promise<any>
+  request: (message: string, data?: any) => {}
 
   /**
    * Closes all the media soup transports
    */
-  close(instance?: boolean, channel?: boolean): void
+  close: (instance?: boolean, channel?: boolean) => {}
 
   /** List of data producer nodes. */
   dataProducers: Map<string, any>
@@ -56,4 +59,27 @@ export interface Network {
 
   /** Buffer holding Mediasoup operations */
   mediasoupOperationQueue: RingBuffer<any>
+
+
+  /**
+   * The UserId of the host
+   * - will either be a user's UserId, or an instance server's InstanceId
+   */
+  hostId = null! as UserId
+
+  /**
+  * Check if this user is hosting the world.
+  */
+  get isHosting() {
+    return Engine.instance.userId === this.hostId
+  }
+
+  store = createHyperStore({
+    type: 'NETWORK',
+    getDispatchMode: () => (this.isHosting ? 'host' : 'peer'),
+    getDispatchId: () => Engine.instance.userId,
+    getDispatchTime: () => Date.now(),
+    defaultDispatchDelay: 1 / Engine.instance.tickRate
+  })
+
 }
