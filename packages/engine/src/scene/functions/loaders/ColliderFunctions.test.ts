@@ -47,7 +47,6 @@ describe('ColliderFunctions', () => {
   })
 
   afterEach(() => {
-    Engine.instance.currentWorld = null!
     delete (globalThis as any).PhysX
   })
 

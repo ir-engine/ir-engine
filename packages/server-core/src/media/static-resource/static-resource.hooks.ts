@@ -1,5 +1,6 @@
 import { HookContext } from '@feathersjs/feathers'
 import dauria from 'dauria'
+import { iff, isProvider } from 'feathers-hooks-common'
 
 import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 import replaceThumbnailLink from '@xrengine/server-core/src/hooks/replace-thumbnail-link'
@@ -7,7 +8,9 @@ import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-u
 
 import authenticate from '../../hooks/authenticate'
 import restrictUserRole from '../../hooks/restrict-user-role'
-import logger from '../../logger'
+import multiLogger from '../../logger'
+
+const logger = multiLogger.child({ component: 'server-core:static-resource' })
 
 export default {
   before: {
@@ -33,7 +36,11 @@ export default {
     ],
     update: [authenticate(), restrictUserRole('admin')],
     patch: [authenticate(), restrictUserRole('admin'), replaceThumbnailLink()],
-    remove: [authenticate(), restrictUserRole('admin'), attachOwnerIdInQuery('userId')]
+    remove: [
+      authenticate(),
+      iff(isProvider('external'), restrictUserRole('admin') as any),
+      attachOwnerIdInQuery('userId')
+    ]
   },
 
   after: {

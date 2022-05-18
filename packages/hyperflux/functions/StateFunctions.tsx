@@ -22,7 +22,11 @@ function registerState<StoreName extends string, S>(
 ) {
   if (StateDefinition.name in store.state)
     throw new Error(`State ${StateDefinition.name} has already been registered in Store`)
-  store.state[StateDefinition.name] = createState(StateDefinition.initial)
+  const initial =
+    typeof StateDefinition.initial === 'function'
+      ? (StateDefinition.initial as Function)()
+      : JSON.parse(JSON.stringify(StateDefinition.initial))
+  store.state[StateDefinition.name] = createState(initial)
 }
 
 function getState<StoreName extends string, S>(
@@ -65,6 +69,10 @@ const ReactorReconciler = Reconciler({
 function addStateReactor(store: HyperStore<any>, reactor: () => void) {
   let root = store.reactors.get(reactor)
   if (!root) {
+    /**
+     * @todo @speigg look into this
+     */
+    // @ts-ignore
     root = ReactorReconciler.createContainer(reactor, 0, false, null)
     ReactorReconciler.updateContainer(
       () => {

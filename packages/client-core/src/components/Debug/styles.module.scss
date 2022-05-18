@@ -1,0 +1,125 @@
+.debugContainer {
+  position: fixed;
+  overflow-y: auto;
+  top: 0;
+  z-index: 100000;
+  height: 95vh;
+  padding: 7px;
+  background: #00000082;
+  width: calc(100vw - 50px);
+  max-width: 450px;
+
+  & > * + * {
+    margin-top: 10px;
+  }
+}
+
+.debugOptionContainer {
+  display: flex;
+  flex-flow: column;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: left;
+  background: var(--panelBackground);
+  padding: 10px;
+  border-radius: 5px;
+
+  .optionBlock {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+}
+
+.flagContainer {
+  display: flex;
+  flex-wrap: wrap;
+  overflow: hidden;
+  gap: 5px;
+
+  .flagBtn {
+    background: var(--buttonFilled);
+    color: var(--text);
+    border: none;
+    flex-shrink: 0;
+    height: 30px;
+    border-radius: 3px;
+
+    &:hover,
+    &:focus-visible {
+      opacity: 0.8;
+      color: var(--text);
+    }
+
+    &.active {
+      background: var(--blue);
+    }
+  }
+}
+
+.statsContainer {
+  display: flex;
+  gap: 5px;
+  flex-direction: column;
+  padding: 10px;
+  background: var(--panelBackground);
+  border-radius: 5px;
+
+  .statsBlock {
+    display: flex;
+    gap: 5px;
+
+    div {
+      position: initial !important;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+  }
+}
+
+.refreshBlock {
+  display: flex;
+  justify-content: end;
+  gap: 10px;
+
+  .refreshBtn {
+    background: var(--buttonFilled);
+    color: var(--text);
+    border: none;
+    border-radius: 4px;
+    flex-shrink: 0;
+    height: 30px;
+    width: 30px;
+    padding: 0;
+
+    &:hover,
+    &:focus-visible {
+      opacity: 0.8;
+      color: var(--text);
+    }
+  }
+}
+
+.tickBlock {
+  color: var(--text3);
+  line-height: 30px;
+  border-radius: 4px;
+  opacity: 0.7;
+
+  span {
+    color: var(--text);
+    margin-left: 5px;
+  }
+}
+
+.jsonPanel {
+  background-color: var(--panelBackground);
+  border-radius: 5px;
+  padding: 10px;
+
+  ul {
+    background: transparent !important;
+    margin-left: 0 !important;
+  }
+}

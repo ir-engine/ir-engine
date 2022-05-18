@@ -1,7 +1,7 @@
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineService'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { BackgroundMusic } from '../components/BackgroundMusic'
@@ -37,7 +37,7 @@ export default async function AudioSystem(world: World) {
     window.removeEventListener('pointerdown', startAudio, true)
     console.log('starting audio')
     audioReady = true
-    Engine.instance.audioListener.context.resume()
+    Engine.instance.currentWorld.audioListener.context.resume()
     dispatchAction(Engine.instance.store, EngineActions.startSuspendedContexts())
 
     callbacks.forEach((cb) => cb())

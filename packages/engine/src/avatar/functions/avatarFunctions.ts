@@ -34,9 +34,11 @@ import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { Updatable } from '../../scene/interfaces/Updatable'
+import { AnimationState } from '../animation/AnimationState'
 import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
+import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import avatarBoneMatching, { createSkeletonFromBone } from '../AvatarBoneMatching'
+import avatarBoneMatching, { BoneStructure, createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -59,6 +61,9 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   root.add(scene)
   parent.add(root)
   parent.userData = scene.userData
+
+  // Enable shadow for avatars
+  parent.traverse((obj) => (obj.castShadow = true))
   return SkeletonUtils.clone(parent)
 }
 
@@ -122,8 +127,17 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
 export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   const sourceSkeleton = AnimationManager.instance._defaultSkinnedMesh.skeleton
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  const rootBone = avatarAnimationComponent.rig.Root || avatarAnimationComponent.rig.Hips
+  const { rig } = avatarAnimationComponent
+  const rootBone = rig.Root || rig.Hips
   rootBone.updateWorldMatrix(false, true)
+
+  // Try converting to T pose
+  if (!isSkeletonInTPose(rig)) {
+    makeTPose(rig)
+    const meshes = findSkinnedMeshes(model)
+    meshes.forEach(applySkeletonPose)
+  }
+
   const targetSkeleton = createSkeletonFromBone(rootBone)
 
   retargetSkeleton(targetSkeleton, sourceSkeleton)
@@ -153,7 +167,7 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
       entity,
       animationComponent.mixer,
       velocityComponent.linear,
-      controllerComponent
+      controllerComponent ?? {}
     )
 
   // advance animation for a frame to eliminate potential t-pose

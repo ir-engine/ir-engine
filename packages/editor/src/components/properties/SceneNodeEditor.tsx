@@ -98,7 +98,7 @@ const ToneMappingOptions = [
 const ShadowTypeOptions = [
   {
     label: 'No Shadow Map',
-    value: undefined
+    value: -1
   },
   {
     label: 'Basic Shadow Map',
@@ -156,6 +156,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
       <EnvMapEditor node={props.node} />
       <InputGroup name="Fog Type" label={t('editor:properties.scene.lbl-fogType')}>
         <SelectInput
+          key={props.node.entity}
           options={FogTypeOptions}
           value={fogComponent.type}
           onChange={updateProperty(FogComponent, 'type')}
@@ -216,6 +217,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             info={t('editor:properties.scene.info-avatarDistanceModel')}
           >
             <SelectInput
+              key={props.node.entity}
               options={DistanceModelOptions}
               value={audioComponent.avatarDistanceModel}
               onChange={updateProperty(PositionalAudioSettingsComponent, 'avatarDistanceModel')}
@@ -287,6 +289,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             info={t('editor:properties.scene.info-mediaDistanceModel')}
           >
             <SelectInput
+              key={props.node.entity}
               options={DistanceModelOptions}
               value={audioComponent.mediaDistanceModel}
               onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaDistanceModel')}
@@ -432,6 +435,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             info={t('editor:properties.scene.info-toneMapping')}
           >
             <SelectInput
+              key={props.node.entity}
               options={ToneMappingOptions}
               value={renderSettingComponent.toneMapping}
               onChange={updateProperty(RenderSettingComponent, 'toneMapping')}
@@ -451,13 +455,14 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             />
           </InputGroup>
           <InputGroup
-            name="Tone Mapping Exposure"
+            name="Shadow Map Type"
             label={t('editor:properties.scene.lbl-shadowMapType')}
             info={t('editor:properties.scene.info-shadowMapType')}
           >
             <SelectInput
+              key={props.node.entity}
               options={ShadowTypeOptions}
-              value={renderSettingComponent.shadowMapType}
+              value={renderSettingComponent.shadowMapType ?? -1}
               onChange={updateProperty(RenderSettingComponent, 'shadowMapType')}
             />
           </InputGroup>

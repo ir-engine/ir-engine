@@ -14,6 +14,7 @@ import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
+import styles from '../styles.module.scss'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
 
@@ -225,6 +226,7 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.BlendFunction:
         renderVal = (
           <SelectInput
+            key={props.node.entity}
             options={BlendFunctionSelect}
             onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
             value={getPropertyValue(propertyPath)}
@@ -245,6 +247,7 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.KernelSize:
         renderVal = (
           <SelectInput
+            key={props.node.entity}
             options={KernelSizeSelect}
             onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
             value={getPropertyValue(propertyPath)}
@@ -255,6 +258,7 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.SMAAPreset:
         renderVal = (
           <SelectInput
+            key={props.node.entity}
             options={SMAAPreset}
             onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
             value={getPropertyValue(propertyPath)}
@@ -265,6 +269,7 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.EdgeDetectionMode:
         renderVal = (
           <SelectInput
+            key={props.node.entity}
             options={EdgeDetectionMode}
             onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
             value={getPropertyValue(propertyPath)}
@@ -275,6 +280,7 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.PredicationMode:
         renderVal = (
           <SelectInput
+            key={props.node.entity}
             options={PredicationMode}
             onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
             value={getPropertyValue(propertyPath)}
@@ -311,10 +317,11 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       return (
         <div key={effect}>
           <Checkbox
+            classes={{ checked: styles.checkbox }}
             onChange={(e) => onChangeCheckBox(e, effect)}
             checked={postprocessingComponent.options[effect]?.isActive}
           />
-          <span style={{ color: '#9FA4B5' }}>{effect}</span>
+          <span style={{ color: 'var(--textColor)' }}>{effect}</span>
           {postprocessingComponent.options[effect]?.isActive && <div>{renderEffectsTypes(effect)}</div>}
         </div>
       )

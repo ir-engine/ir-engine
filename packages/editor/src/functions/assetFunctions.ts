@@ -1,9 +1,21 @@
+import { Object3D } from 'three'
+
 import { client } from '@xrengine/client-core/src/feathers'
 import { uploadToFeathersService } from '@xrengine/client-core/src/util/upload'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
-import { Object3DComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import {
+  Object3DComponent,
+  Object3DComponentType,
+  Object3DWithEntity
+} from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 
 import { accessEditorState } from '../services/EditorServices'
@@ -15,17 +27,31 @@ export const exportAsset = async (node: EntityTreeNode) => {
   if (!(node.children && node.children.length > 0)) {
     console.warn('Exporting empty asset')
   }
-
-  const obj3ds = node.children!.map((root) => getComponent(root, Object3DComponent).value!)
+  let dudObjs = new Array<[Entity, Object3DComponentType]>()
+  const obj3ds = node.children
+    ? node.children!.map((root) => {
+        if (!hasComponent(root, Object3DComponent)) {
+          const dudObj3d = new Object3D() as Object3DWithEntity
+          dudObj3d.entity = root
+          dudObjs.push([root, addComponent(root, Object3DComponent, { value: dudObj3d })])
+        }
+        return getComponent(root, Object3DComponent).value!
+      })
+    : []
 
   const exportable = sceneToGLTF(obj3ds as Object3DWithEntity[])
   const uploadable = new File([JSON.stringify(exportable)], `${assetName}.xre.gltf`)
+  for (const [entity, dud] of dudObjs) {
+    dud.value.removeFromParent()
+    removeComponent(entity, Object3DComponent)
+  }
+  dudObjs = []
   return await uploadProjectFile(projectName, [uploadable], true)
 }
 
 async function fileBrowserUpload(
   file: Blob,
-  params: { path: string; contentType: string },
+  params: { fileName: string; path: string; contentType: string },
   onProgress: (progress: number) => any
 ): Promise<{ url: string }> {
   const response = await uploadToFeathersService('file-browser/upload', file as any, params, onProgress)
@@ -41,8 +67,8 @@ export const uploadProjectFile = async (
   const promises: Promise<{ url: string }>[] = []
 
   for (const file of files) {
-    const filePath = `projects/${projectName}${isAsset ? '/assets' : ''}/${file.name}`
-    promises.push(fileBrowserUpload(file, { path: filePath, contentType: '' }, onProgress))
+    const path = `projects/${projectName}${isAsset ? '/assets' : ''}`
+    promises.push(fileBrowserUpload(file, { fileName: file.name, path, contentType: '' }, onProgress))
   }
 
   return await Promise.all(promises)
@@ -76,8 +102,8 @@ const processEntry = async (item, projectName: string, directory: string, promis
 
   if (item.isFile) {
     const file = await getFile(item)
-    const filePath = `projects/${projectName}/assets${directory}/${file.name}`
-    promises.push(fileBrowserUpload(file, { path: filePath, contentType: '' }, onProgress))
+    const path = `projects/${projectName}/assets${directory}`
+    promises.push(fileBrowserUpload(file, { fileName: file.name, path, contentType: '' }, onProgress))
   }
 }
 
@@ -107,7 +133,7 @@ export const getEntries = async (directoryReader: FileSystemDirectoryReader): Pr
 export const extractZip = async (path: string): Promise<any> => {
   try {
     const parms = { path: path }
-    //await client.service('asset-library').create(parms)
+    await client.service('asset-library').create(parms)
   } catch (err) {
     throw err
   }

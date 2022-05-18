@@ -60,7 +60,6 @@
     "format-staged": "lint-staged",
     "init-db-production": "cross-env APP_ENV=production FORCE_DB_REFRESH=true EXIT_ON_DB_INIT=true ts-node --transpile-only packages/server/src/index.ts",
     "install-projects": "ts-node scripts/install-projects.js",
-    "install-test-e2e": "npm i puppeteer@^13.0.0 sequelize@6.12.3",
     "lint": "prettier --check \"packages/**/*.{ts,tsx}\"",
     "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true concurrently -n agones,server,gameserver,mediaserver,client,files npm:dev-agones-silent \"cd packages/server && npm run start\" \"cd packages/gameserver && npm run start\" \"cd packages/gameserver && npm run start-channel\" \"cd packages/client && npm run local\" \"cd packages/server && npm run serve-local-files\"",
     "make-user-admin": "ts-node scripts/make-user-admin.js",
@@ -72,7 +71,7 @@
     "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
     "start": "npm run dev",
     "test": "cross-env TEST=true lerna run test",
-    "test-e2e": "mocha --config .mocharc.js",
+    "test-e2e": "lerna run test-e2e",
     "test:projects": "cross-env TEST=true lerna run test:projects",
     "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
     "update-name-gh-package": "lerna run update-name-gh-package",
@@ -95,14 +94,12 @@
     ]
   },
   "devDependencies": {
-    "@trivago/prettier-plugin-sort-imports": "3.2.0",
+    "@ianvs/prettier-plugin-sort-imports": "3.3.1",
     "@types/mocha": "9.1.0",
     "@types/pino": "^7.0.5",
-    "cli": "1.0.1",
     "concurrently": "7.1.0",
     "depcheck": "1.4.3",
     "kill-port": "1.6.1",
-    "lerna": "4.0.0",
     "lint-staged": "12.3.7",
     "mocha": "9.2.2",
     "no-master-commits": "1.1.1",
@@ -110,20 +107,25 @@
     "prettier": "2.6.0",
     "react-dnd": "16.0.0",
     "react-router-dom": "5.3.0",
-    "rimraf": "^3.0.2",
     "stylelint": "^14.6.1",
     "stylelint-config-standard-scss": "^3.0.0",
     "stylelint-scss": "^4.2.0",
     "supertest": "6.2.2",
     "trace-unhandled": "2.0.1",
-    "ts-node": "10.7.0",
-    "ts-node-dev": "1.1.8",
-    "typescript": "4.6.2"
+    "ts-node-dev": "1.1.8"
   },
   "dependencies": {
+    "@feathersjs/commons": "5.0.0-pre.10",
+    "@feathersjs/errors": "5.0.0-pre.10",
+    "@feathersjs/feathers": "5.0.0-pre.10",
+    "cli": "1.0.1",
     "dotenv": "14.3.2",
+    "lerna": "4.0.0",
     "pino": "^7.10.0",
     "pino-pretty": "^7.6.1",
-    "react-json-view": "^1.21.3"
+    "react-json-view": "^1.21.3",
+    "rimraf": "^3.0.2",
+    "ts-node": "10.7.0",
+    "typescript": "4.6.2"
   }
 }

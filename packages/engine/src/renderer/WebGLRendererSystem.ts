@@ -29,7 +29,7 @@ import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
-import { accessEngineState, EngineActions } from '../ecs/classes/EngineService'
+import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { matchActionOnce } from '../networking/functions/matchActionOnce'
@@ -40,7 +40,6 @@ import {
   EngineRendererReceptor,
   restoreEngineRendererData
 } from './EngineRendererState'
-import { configureEffectComposer } from './functions/configureEffectComposer'
 import WebGL from './THREE.WebGL'
 
 export interface EffectComposerWithSchema extends EffectComposer {
@@ -60,7 +59,7 @@ export interface EffectComposerWithSchema extends EffectComposer {
 let lastRenderTime = 0
 
 export class EngineRenderer {
-  static instance
+  static instance: EngineRenderer
 
   /** Is resize needed? */
   needsResize: boolean
@@ -89,9 +88,6 @@ export class EngineRenderer {
   averageTimePeriods = 3 * 60 // 3 seconds @ 60fps
   /** init ExponentialMovingAverage */
   movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
-
-  /** To Disable update for renderer */
-  disableUpdate = false
 
   renderer: WebGLRenderer = null!
   effectComposer: EffectComposerWithSchema = null!
@@ -160,8 +156,6 @@ export class EngineRenderer {
 
     this.renderer.autoClear = true
     this.effectComposer = new EffectComposer(this.renderer) as any
-
-    configureEffectComposer()
   }
 
   /** Called on resize, sets resize flag. */
@@ -176,10 +170,10 @@ export class EngineRenderer {
   execute(delta: number): void {
     if (this.xrManager.isPresenting) {
       this.csm?.update()
-      this.renderer.render(Engine.instance.scene, Engine.instance.camera)
+      this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
     } else {
       const state = accessEngineRendererState()
-      const engineState = accessEngineState()
+      const engineState = getEngineState()
       if (state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
       if (this.rendereringEnabled) {
         if (this.needsResize) {
@@ -191,8 +185,8 @@ export class EngineRenderer {
           const width = window.innerWidth
           const height = window.innerHeight
 
-          if ((Engine.instance.camera as PerspectiveCamera).isPerspectiveCamera) {
-            const cam = Engine.instance.camera as PerspectiveCamera
+          if ((Engine.instance.currentWorld.camera as PerspectiveCamera).isPerspectiveCamera) {
+            const cam = Engine.instance.currentWorld.camera as PerspectiveCamera
             cam.aspect = width / height
             cam.updateProjectionMatrix()
           }
@@ -208,7 +202,7 @@ export class EngineRenderer {
           this.effectComposer.render(delta)
         } else {
           this.renderer.autoClear = true
-          this.renderer.render(Engine.instance.scene, Engine.instance.camera)
+          this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
         }
       }
     }
@@ -238,18 +232,9 @@ export class EngineRenderer {
       dispatchAction(Engine.instance.store, EngineRendererAction.setQualityLevel(qualityLevel))
     }
   }
-
-  doAutomaticRenderQuality() {
-    const state = accessEngineRendererState()
-    dispatchAction(Engine.instance.store, EngineRendererAction.setShadows(state.qualityLevel.value > 1))
-    dispatchAction(Engine.instance.store, EngineRendererAction.setQualityLevel(state.qualityLevel.value))
-    dispatchAction(Engine.instance.store, EngineRendererAction.setPostProcessing(state.qualityLevel.value > 2))
-  }
 }
 
 export default async function WebGLRendererSystem(world: World) {
-  EngineRenderer.instance.initialize()
-
   matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, () => {
     restoreEngineRendererData()
   })
@@ -257,7 +242,7 @@ export default async function WebGLRendererSystem(world: World) {
   addActionReceptor(Engine.instance.store, EngineRendererReceptor)
 
   return () => {
-    EngineRenderer.instance.execute(world.delta)
+    EngineRenderer.instance.execute(world.deltaSeconds)
   }
 }
 

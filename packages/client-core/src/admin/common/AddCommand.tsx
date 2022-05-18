@@ -35,7 +35,6 @@ const AddCommand = ({ command, handleChangeCommand, addCommandData, commandData,
             <InputBase
               className={styles.input}
               placeholder={t('admin:components.bot:enterCommand')}
-              style={{ color: '#fff' }}
               value={command.name}
               name="name"
               onChange={handleChangeCommand}
@@ -48,7 +47,6 @@ const AddCommand = ({ command, handleChangeCommand, addCommandData, commandData,
             <InputBase
               className={styles.input}
               placeholder={t('admin:components.bot.enterDescription')}
-              style={{ color: '#fff' }}
               value={command.description}
               name="description"
               onChange={handleChangeCommand}
@@ -75,7 +73,7 @@ const AddCommand = ({ command, handleChangeCommand, addCommandData, commandData,
                       el.id && removeCommand(el.id)
                     }}
                   >
-                    <DeleteIcon style={{ color: '#fff' }} />
+                    <DeleteIcon style={{ color: 'var(--iconButtonColor)' }} />
                   </IconButton>
                 </ListItemSecondaryAction>
               </ListItem>

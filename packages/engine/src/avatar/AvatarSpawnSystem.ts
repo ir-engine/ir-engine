@@ -73,8 +73,14 @@ export default async function AvatarSpawnSystem(world: World) {
         if (spawnAction.$from === Engine.instance.userId) {
           addComponent(entity, LocalInputTagComponent, {})
           addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
-          addComponent(entity, PersistTagComponent, {})
         }
+        /*
+        dispatchAction(
+          Engine.store,
+          EngineActions.setupAnimation({
+            entity: entity
+          })
+        )*/
       }
     })
   }

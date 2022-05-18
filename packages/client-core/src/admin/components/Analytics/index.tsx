@@ -14,7 +14,9 @@ import { AnalyticsService } from '../../services/AnalyticsService'
 import styles from '../../styles/admin.module.scss'
 import ActivityGraph from './ActivityGraph'
 import Card from './CardNumber'
+
 import './index.scss'
+
 import UserGraph from './UserGraph'
 
 interface Props {}
@@ -200,6 +202,7 @@ const Analytics = (props: Props) => {
             </ToggleButton>
           </ToggleButtonGroup>
           <div className={styles.datePickerContainer}>
+            {/* @ts-ignore */}
             <LocalizationProvider dateAdapter={DateAdapter}>
               <MobileDateTimePicker
                 value={startDate}

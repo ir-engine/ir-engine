@@ -5,7 +5,7 @@ import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterfa
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -29,19 +29,6 @@ export const getProjects = async (): Promise<ProjectInterface[]> => {
     const { data } = await client.service('project').find()
     return data
   } catch (error) {
-    throw new Error(error)
-  }
-}
-
-/**
- * Saves a project
- * @param projectName
- */
-export const saveProject = async (projectName: string) => {
-  try {
-    await client.service('project').patch(projectName, null!)
-  } catch (error) {
-    console.log('Error saving project', projectName)
     throw new Error(error)
   }
 }

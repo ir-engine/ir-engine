@@ -6,7 +6,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  color: var(--text2);
+  color: var(--textColor);
 }
 
 .nodeContent {
@@ -21,32 +21,31 @@
   outline: none;
   overflow: hidden;
   background: transparent;
-  color: var(--text2);
+  color: var(--textColor);
 
   &:hover,
   &:focus {
-    background-color: var(--dock);
-    color: var(--text);
+    background-color: var(--dropdownMenuHoverBackground);
+    color: var(--textColor);
   }
 
   &.rootNode {
-    border-bottom: rgba($color: var(--panel2), $alpha: 80%);
-    background: var(--dock);
+    background: var(--dropdownMenuSelectedBackground);
   }
 
   &.selected {
-    background: var(--selected);
-    color: var(--text);
+    background: var(--dropdownMenuSelectedBackground);
+    color: var(--textColor);
 
     &:hover,
     &:focus {
-      background-color: var(--selected);
+      background-color: var(--dropdownMenuSelectedBackground);
     }
   }
 
   &:active,
   &.active {
-    background: var(--selected);
+    background: var(--dropdownMenuSelectedBackground);
   }
 }
 
@@ -65,7 +64,7 @@
       top: -3px;
       width: 100%;
       background-color: var(--inputBackground);
-      color: var(--text);
+      color: var(--textColor);
       border: var(--borderStyleLight);
       padding: 2px 4px;
       outline: none;
@@ -86,7 +85,7 @@
 
       &.dropTarget {
         background-color: rgb(255 255 255 / 30%);
-        color: var(--text);
+        color: var(--textColor);
       }
     }
   }
@@ -104,11 +103,11 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: var(--text2);
+  color: var(--textColor);
 
   &:hover {
-    color: var(--text);
-    background-color: var(--hover2);
+    opacity: 0.8;
+    color: var(--textColor);
     border-radius: 3px;
   }
 }

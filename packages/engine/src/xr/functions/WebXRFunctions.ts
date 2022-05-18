@@ -3,17 +3,13 @@ import { Group, Object3D, Quaternion, Vector3 } from 'three'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
-import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { AvatarControllerType } from '../../input/enums/InputEnums'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -217,7 +213,7 @@ export const startWebXR = async (): Promise<void> => {
   const world = Engine.instance.currentWorld
 
   removeComponent(world.localClientEntity, FollowCameraComponent)
-  container.add(Engine.instance.camera)
+  container.add(Engine.instance.currentWorld.camera)
 
   setupXRInputSourceComponent(world.localClientEntity)
 
@@ -240,7 +236,7 @@ export const endXR = (): void => {
   // EngineRenderer.instance.xrSession?.end()
   EngineRenderer.instance.xrSession = null!
   EngineRenderer.instance.xrManager.setSession(null!)
-  Engine.instance.scene.add(Engine.instance.camera)
+  Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
 
   const world = Engine.instance.currentWorld
   addComponent(world.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
@@ -273,8 +269,6 @@ const quat = new Quaternion()
  */
 
 export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.NONE): Vector3 => {
-  const avatar = getComponent(entity, AvatarComponent)
-  const transform = getComponent(entity, TransformComponent)
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
     const rigHand: Object3D =
@@ -300,7 +294,6 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
  */
 
 export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.NONE): Quaternion => {
-  const avatar = getComponent(entity, AvatarComponent)
   const transform = getComponent(entity, TransformComponent)
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
@@ -358,14 +351,14 @@ export const getHandTransform = (
 export const getHeadTransform = (entity: Entity): { position: Vector3; rotation: Quaternion; scale: Vector3 } => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
-    Engine.instance.camera.matrix.decompose(vec3, quat, v3)
+    Engine.instance.currentWorld.camera.matrix.decompose(vec3, quat, v3)
     return {
       position: vec3,
       rotation: quat,
       scale: uniformScale
     }
   }
-  const cameraTransform = getComponent(Engine.instance.activeCameraEntity, TransformComponent)
+  const cameraTransform = getComponent(Engine.instance.currentWorld.activeCameraEntity, TransformComponent)
   return {
     position: cameraTransform.position,
     rotation: cameraTransform.rotation,

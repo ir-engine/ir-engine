@@ -55,6 +55,7 @@ import { AvatarSettings } from './AvatarControllerSystem'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarSwerveComponent } from './components/AvatarSwerveComponent'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
+import { XRCameraRotateYComponent } from './components/XRCameraRotateYComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
 import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
@@ -281,7 +282,7 @@ export const setCameraRotation: InputBehaviorType = (
   inputKey: InputAlias,
   inputValue: InputValue
 ): void => {
-  const { delta } = useWorld()
+  const { deltaSeconds: delta } = useWorld()
   const followComponent = getComponent(entity, FollowCameraComponent)
 
   switch (inputKey) {
@@ -454,9 +455,11 @@ const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
         values[0] * avatarInputState.rotationSmoothSpeed.value * (avatarInputState.rotationInvertAxes.value ? -1 : 1)
       break
   }
-  const transform = getComponent(entity, TransformComponent)
-  quat.setFromAxisAngle(upVec, newAngleDiff * deg2rad)
-  transform.rotation.multiply(quat)
+
+  if (Math.abs(newAngleDiff) > 0.001) {
+    if (!hasComponent(entity, XRCameraRotateYComponent))
+      addComponent(entity, XRCameraRotateYComponent, { angle: newAngleDiff * deg2rad })
+  }
 }
 
 const axisLookSensitivity = 320

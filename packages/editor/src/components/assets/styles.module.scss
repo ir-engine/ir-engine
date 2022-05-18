@@ -16,11 +16,11 @@
   flex-direction: row;
   align-items: center;
   padding-left: 5px;
-  color: white;
+  color: var(--textColor);
   cursor: pointer;
 
   &:hover {
-    background: var(--hover);
+    background: var(--dropdownMenuHoverBackground);
   }
 
   .fileNameContainer {
@@ -29,19 +29,19 @@
 }
 
 .paperDialog {
-  background: rgb(58 65 73) !important;
-  color: #f1f1f1;
+  background: var(--popupBackground) !important;
+  color: var(--textColor);
   width: 100%;
   padding: 40px 10px;
 }
 
 .primaryText {
-  color: #f1f1f1;
+  color: var(--textColor);
   font-size: 1.3rem;
 }
 
 .secondaryText {
-  color: #b3b3b3;
+  color: var(--textColor);
 }
 
 .inputContainer {
@@ -51,12 +51,12 @@
   margin-left: 5px;
   background: #343b41;
   border: 1px solid #23282c;
-  color: #f1f1f1 !important;
+  color: var(--textColor) !important;
 }
 
 .input {
   flex: 1;
-  color: #f1f1f1;
+  color: var(--textColor);
 }
 
 .contentContainer {
@@ -77,7 +77,8 @@
     width: 100px;
     font-size: 14px;
     flex-shrink: 0;
-    background-color: var(--purpleColor);
+    color: var(--textColor);
+    background-color: var(--buttonFilled);
   }
 }
 
@@ -117,7 +118,7 @@
 
       .inputContainer {
         background: var(--inputBackground);
-        color: var(--text);
+        color: var(--textColor);
 
         .input {
           font-size: 12px;
@@ -127,15 +128,15 @@
     }
 
     button {
-      color: var(--text);
+      color: var(--textColor);
     }
 
     &:hover,
     &:focus-visible {
-      outline: solid 2px var(--purpleLight);
+      outline: solid 2px var(--panelCardHoverOutline);
 
       .detailBlock {
-        color: var(--text);
+        color: var(--textColor);
       }
     }
   }
@@ -143,14 +144,18 @@
 
 .sceneContextMenu {
   background: var(--inputBackground);
-  color: var(--text);
+  color: var(--textColor);
 
   .menuItem {
     font-size: 14px;
 
     &:hover,
     &:focus-visible {
-      background: var(--purpleColor);
+      background: var(--dropdownMenuHoverBackground);
+    }
+
+    &:global(.Mui-selected) {
+      background: var(--dropdownMenuSelectedBackground);
     }
   }
 }
@@ -169,5 +174,9 @@
 }
 
 .separator {
-  color: #5d646c;
+  color: var(--textColor);
+}
+
+.breadcrumb {
+  color: var(--textColor);
 }

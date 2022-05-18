@@ -26,10 +26,10 @@ describe('Equippables Integration Tests', () => {
     createEngine()
     const world = Engine.instance.currentWorld
 
-    const hostUserId = 'server' as UserId
+    const hostUserId = 'world' as UserId
     world.hostId = hostUserId
     const hostIndex = 0
-    world.clients.set(hostUserId, { userId: hostUserId, name: 'server', index: hostIndex })
+    world.clients.set(hostUserId, { userId: hostUserId, name: 'world', index: hostIndex })
 
     await Engine.instance.currentWorld.physics.createScene({ verbose: true })
 

@@ -1,16 +1,23 @@
+import { t } from 'i18next'
 import React from 'react'
 
 import { CameraMode } from '@xrengine/engine/src/camera/types/CameraMode'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { CameraPropertiesComponent } from '@xrengine/engine/src/scene/components/CameraPropertiesComponent'
+import {
+  CameraPropertiesComponent,
+  CameraPropertiesComponentType,
+  RaycastPropsType
+} from '@xrengine/engine/src/scene/components/CameraPropertiesComponent'
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
 import BooleanInput from '../inputs/BooleanInput'
-import InputGroup from '../inputs/InputGroup'
+import { InputGroup } from '../inputs/InputGroup'
 import { NumericInputGroup } from '../inputs/NumericInputGroup'
+import NumericStepperInput from '../inputs/NumericStepperInput'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
+import PropertyGroup from './PropertyGroup'
 import { EditorComponentType, updateProperty } from './Util'
 
 /** Types copied from Camera Modes of engine. */
@@ -61,6 +68,22 @@ const projectionTypeSelect = [
 export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
   const cameraPropertiesComponent = getComponent(props.node.entity, CameraPropertiesComponent)
 
+  function updateRaycastProps(propName: keyof RaycastPropsType) {
+    return (value) => {
+      const rProps = Object.entries(cameraPropertiesComponent.raycastProps)
+        .map(([k, v]) => {
+          const result: Object = {}
+          if (k !== propName) result[k] = v
+          else result[k] = value
+          return result
+        })
+        .reduce((a, b) => {
+          return { ...a, ...b }
+        }) as RaycastPropsType
+      updateProperty(CameraPropertiesComponent, 'raycastProps')(rProps)
+    }
+  }
+
   return (
     <NodeEditor {...props} description={'Properties that will affect the player camera'}>
       <InputGroup name="Start In Free Look" label={'Start In Free Look'}>
@@ -71,6 +94,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Projection Type" label={'Projection Type'}>
         <SelectInput
+          key={props.node.entity}
           placeholder={projectionTypeSelect[0].label}
           value={cameraPropertiesComponent.projectionType}
           onChange={updateProperty(CameraPropertiesComponent, 'projectionType')}
@@ -79,6 +103,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Camera Mode" label={'Camera Mode'}>
         <SelectInput
+          key={props.node.entity}
           placeholder={cameraModeSelect[0].label}
           value={cameraPropertiesComponent.cameraMode}
           onChange={updateProperty(CameraPropertiesComponent, 'cameraMode')}
@@ -191,6 +216,35 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
         default={5}
         value={cameraPropertiesComponent.startPhi}
       />
+      <PropertyGroup name={t('editor:properties.camera.lbl-camera-raycast')}>
+        <InputGroup name="Raycasting" label={t('editor:properties.camera.lbl-camera-raycast-toggle')}>
+          <BooleanInput
+            value={cameraPropertiesComponent.raycastProps.enabled}
+            onChange={updateRaycastProps('enabled')}
+          />
+        </InputGroup>
+        <InputGroup name="Ray Count" label={t('editor:properties.camera.lbl-camera-raycast-count')}>
+          <NumericStepperInput
+            mediumStep={1}
+            value={cameraPropertiesComponent.raycastProps.rayCount}
+            onChange={updateRaycastProps('rayCount')}
+          />
+        </InputGroup>
+        <InputGroup name="Ray Length" label={t('editor:properties.camera.lbl-camera-raycast-length')}>
+          <NumericStepperInput
+            mediumStep={0.1}
+            value={cameraPropertiesComponent.raycastProps.rayLength}
+            onChange={updateRaycastProps('rayLength')}
+          />
+        </InputGroup>
+        <InputGroup name="Ray Frequency" label={t('editor:properties.camera.lbl-camera-raycast-frequency')}>
+          <NumericStepperInput
+            mediumStep={0.01}
+            value={cameraPropertiesComponent.raycastProps.rayFrequency}
+            onChange={updateRaycastProps('rayFrequency')}
+          />
+        </InputGroup>
+      </PropertyGroup>
     </NodeEditor>
   )
 }

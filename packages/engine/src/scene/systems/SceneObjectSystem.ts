@@ -58,7 +58,7 @@ const processObject3d = (entity: Entity) => {
     }
 
     if (Engine.instance.simpleMaterials || Engine.instance.isHMD) {
-      useSimpleMaterial(obj)
+      useSimpleMaterial(obj as any)
     } else {
       useStandardMaterial(obj)
     }
@@ -99,13 +99,13 @@ export default async function SceneObjectSystem(world: World) {
         if (node.parentEntity) reparentObject3D(node, node.parentEntity, undefined, world.entityTree)
       } else {
         let found = false
-        Engine.instance.scene.traverse((obj) => {
+        Engine.instance.currentWorld.scene.traverse((obj) => {
           if (obj === obj3d) {
             found = true
           }
         })
 
-        if (!found) Engine.instance.scene.add(obj3d)
+        if (!found) Engine.instance.currentWorld.scene.add(obj3d)
       }
 
       processObject3d(entity)
@@ -130,6 +130,7 @@ export default async function SceneObjectSystem(world: World) {
     }
 
     for (const entity of visibleQuery.enter()) {
+      if (!hasComponent(entity, Object3DComponent)) return
       getComponent(entity, Object3DComponent).value.visible = true
     }
 
@@ -140,19 +141,19 @@ export default async function SceneObjectSystem(world: World) {
 
     for (const entity of updatableQuery()) {
       const obj = getComponent(entity, Object3DComponent)?.value as unknown as Updatable
-      obj?.update(world.fixedDelta)
+      obj?.update(world.fixedDeltaSeconds)
     }
 
     for (const _ of simpleMaterialsQuery.enter()) {
       Engine.instance.simpleMaterials = true
-      Engine.instance.scene.traverse((obj) => {
-        useSimpleMaterial(obj as Mesh)
+      Engine.instance.currentWorld.scene.traverse((obj) => {
+        useSimpleMaterial(obj as any)
       })
     }
 
     for (const _ of simpleMaterialsQuery.exit()) {
       Engine.instance.simpleMaterials = false
-      Engine.instance.scene.traverse((obj) => {
+      Engine.instance.currentWorld.scene.traverse((obj) => {
         useStandardMaterial(obj as Mesh<any, Material>)
       })
     }

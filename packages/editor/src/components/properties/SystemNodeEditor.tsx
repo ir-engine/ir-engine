@@ -93,6 +93,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="systemUpdateType" label={t('editor:properties.systemnode.lbl-systemUpdateType')}>
         <SelectInput
+          key={props.node.entity}
           options={systemUpdateTypes}
           onChange={updateProperty(SystemComponent, 'systemUpdateType')}
           value={systemComponent.systemUpdateType}

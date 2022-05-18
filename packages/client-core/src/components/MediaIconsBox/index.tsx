@@ -18,22 +18,23 @@ import {
   pauseProducer,
   resumeProducer
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
   startFaceTracking,
   startLipsyncTracking,
   stopFaceTracking,
   stopLipsyncTracking
 } from '@xrengine/engine/src/input/functions/WebcamInput'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
 import FaceIcon from '@mui/icons-material/Face'
 
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import styles from './index.module.scss'
 
 interface Props {
@@ -89,7 +90,7 @@ const MediaIconsBox = (props: Props) => {
       stopLipsyncTracking()
       MediaStreamService.updateFaceTrackingState()
     } else {
-      const mediaTransport = getMediaTransport()
+      const mediaTransport = Network.instance.getTransport('media') as SocketWebRTCClientTransport
       if (await configureMediaTransports(mediaTransport, ['video', 'audio'])) {
         MediaStreams.instance.setFaceTracking(true)
         startFaceTracking()
@@ -100,7 +101,7 @@ const MediaIconsBox = (props: Props) => {
   }
 
   const checkEndVideoChat = async () => {
-    const mediaTransport = getMediaTransport()
+    const mediaTransport = Network.instance.getTransport('media') as SocketWebRTCClientTransport
     if (
       (MediaStreams.instance.audioPaused || MediaStreams.instance?.camAudioProducer == null) &&
       (MediaStreams.instance.videoPaused || MediaStreams.instance?.camVideoProducer == null) &&
@@ -114,7 +115,7 @@ const MediaIconsBox = (props: Props) => {
     }
   }
   const handleMicClick = async () => {
-    const mediaTransport = getMediaTransport()
+    const mediaTransport = Network.instance.getTransport('media') as SocketWebRTCClientTransport
     if (await configureMediaTransports(mediaTransport, ['audio'])) {
       if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(mediaTransport)
       else {
@@ -128,7 +129,7 @@ const MediaIconsBox = (props: Props) => {
   }
 
   const handleCamClick = async () => {
-    const mediaTransport = getMediaTransport()
+    const mediaTransport = Network.instance.getTransport('media') as SocketWebRTCClientTransport
     if (await configureMediaTransports(mediaTransport, ['video'])) {
       if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer(mediaTransport)
       else {

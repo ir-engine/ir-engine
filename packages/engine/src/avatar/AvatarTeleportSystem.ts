@@ -117,12 +117,12 @@ export default async function AvatarTeleportSystem(world: World) {
   return () => {
     for (const entity of avatarSwerveQuery.enter(world)) {
       const avatarSewerveComponent = getComponent(entity, AvatarSwerveComponent)
-      const cameraParentRotation = Engine.instance.camera.parent?.rotation
+      const cameraParentRotation = Engine.instance.currentWorld.camera.parent?.rotation
       if (cameraParentRotation) {
         let rad = swerveByDegrees * Deg2Rad()
         tempSwerveVec.copy(avatarSewerveComponent.axis).multiplyScalar(rad)
 
-        const quat = new Quaternion().copy(Engine.instance.camera.parent!.quaternion)
+        const quat = new Quaternion().copy(Engine.instance.currentWorld.camera.parent!.quaternion)
         rotate(quat, tempSwerveVec.x, tempSwerveVec.y, tempSwerveVec.z)
         cameraParentRotation.setFromQuaternion(quat)
       }

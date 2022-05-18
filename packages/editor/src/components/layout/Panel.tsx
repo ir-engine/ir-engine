@@ -6,7 +6,7 @@ import styled from 'styled-components'
  *  @author Robert Long
  */
 export const PanelIcon = (styled as any).div`
-  color: var(--text2);
+  color: var(--textColor);
   margin-right: 6px;
   width: 18px;
 `
@@ -16,7 +16,7 @@ export const PanelIcon = (styled as any).div`
  *  @author Robert Long
  */
 export const PanelTitle = (styled as any).div`
-  color: var(--text2);
+  color: var(--textColor);
   position: relative;
 `
 
@@ -52,7 +52,7 @@ export const PanelContainer = (styled as any).div`
   flex: 1;
   flex-direction: column;
   border-radius: 4px;
-  background-color: var(--dock);
+  background-color: var(--dockBackground);
   overflow: hidden;
   user-select: none;
 `

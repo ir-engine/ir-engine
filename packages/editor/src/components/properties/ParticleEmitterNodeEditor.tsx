@@ -2,7 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import * as EasingFunctions from '@xrengine/engine/src/common/functions/EasingFunctions'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ParticleEmitterComponent } from '@xrengine/engine/src/particles/components/ParticleEmitter'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
@@ -95,6 +95,7 @@ export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
 
       <InputGroup name="Size Curve" label={t('editor:properties.partileEmitter.lbl-sizeCurve')}>
         <SelectInput
+          key={props.node.entity}
           options={CurveOptions}
           value={particleComponent.sizeCurve}
           onChange={updateProperty(ParticleEmitterComponent, 'sizeCurve')}
@@ -140,6 +141,7 @@ export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
 
       <InputGroup name="Color Curve" label={t('editor:properties.partileEmitter.lbl-colorCurve')}>
         <SelectInput
+          key={props.node.entity}
           options={CurveOptions}
           value={particleComponent.colorCurve}
           onChange={updateProperty(ParticleEmitterComponent, 'colorCurve')}
@@ -199,6 +201,7 @@ export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
 
       <InputGroup name="Velocity Curve" label={t('editor:properties.partileEmitter.lbl-velocityCurve')}>
         <SelectInput
+          key={props.node.entity}
           options={CurveOptions}
           value={particleComponent.velocityCurve}
           onChange={updateProperty(ParticleEmitterComponent, 'velocityCurve')}

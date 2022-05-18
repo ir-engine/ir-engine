@@ -34,7 +34,7 @@ export const avatarCameraOffset = new Vector3(0, 0.14, 0.1)
  */
 export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCamera | OrthographicCamera): any => {
   const {
-    fixedDelta,
+    fixedDeltaSeconds: fixedDelta,
     physics: { timeScale }
   } = world
 
@@ -250,7 +250,7 @@ export const alignXRCameraPositionWithAvatar = (entity: Entity, camera: Perspect
 export const alignXRCameraRotationWithAvatar = (entity: Entity, camera: PerspectiveCamera | OrthographicCamera) => {
   const avatarTransform = getComponent(entity, TransformComponent)
   const camParentRot = camera.parent!.quaternion
-  tempVec1.set(0, 0, 1).applyQuaternion(Engine.instance.camera.quaternion).setY(0).normalize()
+  tempVec1.set(0, 0, 1).applyQuaternion(Engine.instance.currentWorld.camera.quaternion).setY(0).normalize()
   quat.setFromUnitVectors(tempVec2.set(0, 0, 1), tempVec1).invert()
   tempVec1.set(0, 0, -1).applyQuaternion(avatarTransform.rotation).setY(0).normalize()
   camParentRot.setFromUnitVectors(tempVec2.set(0, 0, 1), tempVec1).multiply(quat)
@@ -258,7 +258,7 @@ export const alignXRCameraRotationWithAvatar = (entity: Entity, camera: Perspect
 
 const moveAvatarController = (world: World, entity: Entity, displacement: any) => {
   const {
-    fixedDelta,
+    fixedDeltaSeconds: fixedDelta,
     physics: { timeScale }
   } = world
 
@@ -301,15 +301,15 @@ export const moveXRAvatar = (
   getAvatarCameraPosition(entity, avatarCameraOffset, avatarPosition)
 
   if (avatarPosition.subVectors(avatarPosition, cameraPosition).lengthSq() > 0.1 || avatarVelocity.lengthSq() > 0) {
-    lastCameraPos.subVectors(Engine.instance.camera.position, Engine.instance.camera.parent!.position)
+    lastCameraPos.subVectors(camera.position, camera.parent!.position)
 
     if (!hasComponent(entity, XRCameraUpdatePendingTagComponent)) {
-      alignXRCameraPositionWithAvatar(entity, Engine.instance.camera)
+      alignXRCameraPositionWithAvatar(entity, camera)
       addComponent(entity, XRCameraUpdatePendingTagComponent, {})
     }
 
     // Calculate new camera world position
-    lastCameraPos.add(Engine.instance.camera.parent!.position)
+    lastCameraPos.add(camera.parent!.position)
     return
   }
 

@@ -30,7 +30,7 @@ export default async function AvatarLoadingSystem(world: World) {
   const dissolveQuery = defineQuery([AvatarComponent, Object3DComponent, AvatarDissolveComponent])
 
   return () => {
-    const { delta } = world
+    const { deltaSeconds: delta } = world
 
     for (const entity of growQuery.enter(world)) {
       const object = getComponent(entity, Object3DComponent).value

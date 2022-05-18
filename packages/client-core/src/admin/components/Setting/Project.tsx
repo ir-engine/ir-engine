@@ -129,13 +129,7 @@ const Project = (props: Props) => {
                     <Grid item xs={6}>
                       <label>Key Name</label>
                       <Paper component="div" className={styles.createInput}>
-                        <InputBase
-                          name="key"
-                          disabled
-                          className={styles.input}
-                          value={setting.key}
-                          style={{ color: '#fff' }}
-                        />
+                        <InputBase name="key" disabled className={styles.input} value={setting.key} />
                       </Paper>
                     </Grid>
                     <Grid item xs={6}>
@@ -145,7 +139,6 @@ const Project = (props: Props) => {
                           name="value"
                           className={styles.input}
                           value={setting.value}
-                          style={{ color: '#fff' }}
                           onChange={(e) => handleValueChange(index, e)}
                         />
                       </Paper>
@@ -161,7 +154,7 @@ const Project = (props: Props) => {
           </Grid>
           {settings?.length > 0 && (
             <Grid item container xs={12}>
-              <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
+              <Button sx={{ maxWidth: '100%' }} variant="outlined" onClick={handleCancel}>
                 {t('admin:components.setting.cancel')}
               </Button>
               &nbsp; &nbsp;

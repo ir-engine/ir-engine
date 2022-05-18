@@ -75,6 +75,18 @@ body {
     }
   }
 
+  @media (min-width: 769px) {
+    &:hover,
+    &:focus {
+      [class*="user-controls"] {
+        padding: 10px 10px 10px 25px;
+        z-index: 10;
+        min-width: 150px;
+        width: auto;
+      }
+    }
+  }
+
   @media (max-width: 450px) {
     padding-left: 0;
     padding-right: 0;
@@ -183,7 +195,7 @@ body {
   width: 40px;
   height: 40px;
   cursor: pointer;
-  z-index: 20;
+  z-index: 6;
   border: none;
   padding: 0;
   border-radius: 50%;
@@ -213,7 +225,7 @@ body {
   width: 50px;
   height: 50px;
   cursor: pointer;
-  z-index: 20;
+  z-index: 6;
   border: none;
   padding: 0;
   border-radius: 50%;
@@ -270,16 +282,12 @@ body {
 
 .animateTop {
   animation: moveInTop 0.3s ease 0.3s;
-  -webkit-animation: moveintop 0.3s ease 0.3s;
   animation-fill-mode: backwards;
-  -webkit-animation-fill-mode: backwards;
 }
 
 .animateBottom {
   animation: moveInBottom 0.3s ease 0.3s;
-  -webkit-animation: moveinbottom 0.3s ease 0.3s;
   animation-fill-mode: backwards;
-  -webkit-animation-fill-mode: backwards;
 }
 
 @keyframes moveInBottom {

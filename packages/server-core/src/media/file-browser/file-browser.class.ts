@@ -5,10 +5,11 @@ import path from 'path/posix'
 
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 
+import { Application } from '../../../declarations'
 import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
-import { useStorageProvider } from '../storageprovider/storageprovider'
-import { StorageProviderInterface } from '../storageprovider/storageprovider.interface'
+import { getStorageProvider } from '../storageprovider/storageprovider'
+import { StorageObjectInterface, StorageProviderInterface } from '../storageprovider/storageprovider.interface'
 
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
 
@@ -21,6 +22,8 @@ type UpdateParamsType = {
 }
 
 interface PatchParams {
+  path: string
+  fileName: string
   body: Buffer
   contentType: string
 }
@@ -32,12 +35,13 @@ interface PatchParams {
  */
 
 export class FileBrowserService implements ServiceMethods<any> {
-  store: StorageProviderInterface
+  app: Application
 
-  async setup(_app, _path: string): Promise<void> {
-    this.store = useStorageProvider()
+  constructor(app: Application) {
+    this.app = app
   }
 
+  async setup(app: Application, path: string) {}
   async find(_params?: Params) {}
 
   /**
@@ -47,8 +51,9 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @returns
    */
   async get(directory: string, _params?: Params): Promise<FileContentType[]> {
+    const storageProvider = getStorageProvider()
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
-    const result = await this.store.listFolderContent(directory)
+    const result = await storageProvider.listFolderContent(directory)
     return result
   }
 
@@ -59,14 +64,17 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @returns
    */
   async create(directory) {
+    const storageProvider = getStorageProvider()
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
-    const result = await this.store.putObject({
-      Key: directory + '/',
-      Body: Buffer.alloc(0),
-      ContentType: 'application/x-empty'
+
+    const parentPath = path.dirname(directory)
+    const key = await getIncrementalName(path.basename(directory), parentPath, storageProvider, true)
+
+    const result = await storageProvider.putObject({ Key: path.join(parentPath, key) } as StorageObjectInterface, {
+      isDirectory: true
     })
 
-    fs.mkdirSync(path.join(projectsRootFolder, directory))
+    fs.mkdirSync(path.join(projectsRootFolder, parentPath, key))
 
     return result
   }
@@ -79,17 +87,16 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @returns
    */
   async update(_id: NullableId, data: UpdateParamsType, _params?: Params) {
-    const result = await this.store.moveObject(
-      path.join(data.oldPath, data.oldName),
-      data.newPath,
-      data.isCopy,
-      data.newName
-    )
+    const storageProvider = getStorageProvider()
+    const _oldPath = data.oldPath[0] === '/' ? data.oldPath.substring(1) : data.oldPath
+    const _newPath = data.newPath[0] === '/' ? data.newPath.substring(1) : data.newPath
 
-    const newParentPath = path.join(projectsRootFolder, data.newPath)
-    const fileName = getIncrementalName(data.newName, newParentPath)
-    const oldNamePath = path.join(projectsRootFolder, data.oldPath, data.oldName)
-    const newNamePath = path.join(newParentPath, fileName)
+    const isDirectory = await storageProvider.isDirectory(data.oldName, _oldPath)
+    const fileName = await getIncrementalName(data.newName, _newPath, storageProvider, isDirectory)
+    const result = await storageProvider.moveObject(data.oldName, fileName, _oldPath, _newPath, data.isCopy)
+
+    const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
+    const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
 
     if (data.isCopy) {
       copyRecursiveSync(oldNamePath, newNamePath)
@@ -106,16 +113,24 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param data
    * @param params
    */
-  async patch(key: string, data: PatchParams, params?: Params) {
-    await this.store.putObject({
-      Key: key,
-      Body: data.body,
-      ContentType: data.contentType
-    })
+  async patch(_id: NullableId, data: PatchParams, params?: Params) {
+    const storageProvider = getStorageProvider()
+    const key = path.join(data.path[0] === '/' ? data.path.substring(1) : data.path, data.fileName)
+
+    await storageProvider.putObject(
+      {
+        Key: key,
+        Body: data.body,
+        ContentType: data.contentType
+      },
+      {
+        isDirectory: false
+      }
+    )
 
     fs.writeFileSync(path.join(projectsRootFolder, key), data.body)
 
-    return getCachedAsset(key, this.store.cacheDomain, params && params.provider == null)
+    return getCachedAsset(key, storageProvider.cacheDomain, params && params.provider == null)
   }
 
   /**
@@ -125,8 +140,9 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @returns
    */
   async remove(key: string, _params?: Params) {
-    const dirs = await this.store.listObjects(key + '/', [], true, null!)
-    const result = await this.store.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
+    const storageProvider = getStorageProvider()
+    const dirs = await storageProvider.listObjects(key, true)
+    const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
 
     const filePath = path.join(projectsRootFolder, key)
     if (fs.lstatSync(filePath).isDirectory()) {
@@ -134,6 +150,14 @@ export class FileBrowserService implements ServiceMethods<any> {
     } else {
       fs.unlinkSync(filePath)
     }
+
+    const staticResource = await this.app.service('static-resource').find({
+      where: {
+        key: key,
+        $limit: 1
+      }
+    })
+    staticResource?.data?.length > 0 && (await this.app.service('static-resource').remove(staticResource?.data[0]?.id))
 
     return result
   }

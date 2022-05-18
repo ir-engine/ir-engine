@@ -28,7 +28,7 @@ export const InputGroupContainer = (styled as any).div`
   `}
 
   .tooltip {
-    color: var(--text2);
+    color: var(--textColor);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -52,7 +52,7 @@ export const InputGroupContent = (styled as any).div`
   & > label {
     display: block;
     width: 25%;
-    color: var(--text2);
+    color: var(--textColor);
     padding-bottom: 2px;
     padding-top: 4px;
   }
@@ -70,7 +70,7 @@ export const InputGroupVerticalContainer = (styled as any).div`
   & > label {
     display: block;
     width: 25%;
-    color: var(--text2);
+    color: var(--textColor);
     padding-bottom: 2px;
     padding-top: 4px;
   }
@@ -93,7 +93,7 @@ export const InputGroupInfoIcon = (styled as any)(HelpOutlineIcon)`
   width: 18px;
   display: flex;
   margin-left: 5px;
-  color: var(--purpleColor);
+  color: var(--iconButtonColor);
   cursor: pointer;
   align-self: center;
 `

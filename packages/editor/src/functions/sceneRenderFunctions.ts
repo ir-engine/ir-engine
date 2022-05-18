@@ -11,7 +11,6 @@ import {
   EngineRendererAction,
   restoreEngineRendererData
 } from '@xrengine/engine/src/renderer/EngineRendererState'
-import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
@@ -54,33 +53,32 @@ export const SceneState: SceneStateType = {
 }
 
 export async function initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
-  EngineRenderer.instance.disableUpdate = true
   SceneState.isInitialized = false
 
-  if (!Engine.instance.scene) Engine.instance.scene = new Scene()
+  if (!Engine.instance.currentWorld.scene) Engine.instance.currentWorld.scene = new Scene()
 
   // getting scene data
-  await loadSceneFromJSON(projectFile)
+  await loadSceneFromJSON(projectFile, [])
 
-  Engine.instance.camera.position.set(0, 5, 10)
-  Engine.instance.camera.lookAt(new Vector3())
-  Engine.instance.camera.layers.enable(ObjectLayers.Scene)
-  Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
-  Engine.instance.camera.layers.enable(ObjectLayers.Gizmos)
+  Engine.instance.currentWorld.camera.position.set(0, 5, 10)
+  Engine.instance.currentWorld.camera.lookAt(new Vector3())
+  Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Scene)
+  Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.NodeHelper)
+  Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Gizmos)
 
   SceneState.transformGizmo = new TransformGizmo()
 
   SceneState.gizmoEntity = createGizmoEntity(SceneState.transformGizmo)
-  Engine.instance.activeCameraEntity = createCameraEntity()
+  Engine.instance.currentWorld.activeCameraEntity = createCameraEntity()
   SceneState.editorEntity = createEditorEntity()
 
-  Engine.instance.scene.add(Engine.instance.camera)
-  Engine.instance.scene.add(SceneState.transformGizmo)
+  Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
+  Engine.instance.currentWorld.scene.add(SceneState.transformGizmo)
 
   // Require when changing scene
-  if (!Engine.instance.scene.children.includes(InfiniteGridHelper.instance)) {
+  if (!Engine.instance.currentWorld.scene.children.includes(InfiniteGridHelper.instance)) {
     InfiniteGridHelper.instance = new InfiniteGridHelper()
-    Engine.instance.scene.add(InfiniteGridHelper.instance)
+    Engine.instance.currentWorld.scene.add(InfiniteGridHelper.instance)
   }
 
   SceneState.isInitialized = true
@@ -100,10 +98,7 @@ export async function initializeRenderer(): Promise<void> {
 
     addInputActionMapping(ActionSets.EDITOR, EditorMapping)
 
-    configureEffectComposer()
-
     store.dispatch(EditorAction.rendererInitialized(true))
-    EngineRenderer.instance.disableUpdate = false
 
     accessEngineRendererState().automatic.set(false)
     await restoreEditorHelperData()
@@ -168,11 +163,11 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
 
   executeCommand(EditorCommands.REPLACE_SELECTION, [])
 
-  if ((Engine.instance.scene as any).entity == undefined) {
-    ;(Engine.instance.scene as any).entity = useWorld().entityTree.rootNode.entity
+  if ((Engine.instance.currentWorld.scene as any).entity == undefined) {
+    ;(Engine.instance.currentWorld.scene as any).entity = useWorld().entityTree.rootNode.entity
   }
 
-  const clonedScene = serializeForGLTFExport(Engine.instance.scene)
+  const clonedScene = serializeForGLTFExport(Engine.instance.currentWorld.scene)
 
   if (shouldCombineMeshes) await MeshCombinationGroup.combineMeshes(clonedScene)
   if (shouldRemoveUnusedObjects) removeUnusedObjects(clonedScene)
@@ -223,13 +218,14 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
 export function disposeScene() {
   EngineRenderer.instance.activeCSMLightEntity = null
   EngineRenderer.instance.directionalLightEntities = []
-  if (Engine.instance.activeCameraEntity) removeEntity(Engine.instance.activeCameraEntity, true)
+  if (Engine.instance.currentWorld.activeCameraEntity)
+    removeEntity(Engine.instance.currentWorld.activeCameraEntity, true)
   if (SceneState.gizmoEntity) removeEntity(SceneState.gizmoEntity, true)
   if (SceneState.editorEntity) removeEntity(SceneState.editorEntity, true)
 
-  if (Engine.instance.scene) {
+  if (Engine.instance.currentWorld.scene) {
     // Empty existing scene
-    Engine.instance.scene.traverse((child: any) => {
+    Engine.instance.currentWorld.scene.traverse((child: any) => {
       if (child.geometry) child.geometry.dispose()
 
       if (child.material) {
@@ -251,7 +247,7 @@ export function disposeScene() {
     emptyEntityTree(eTree)
     eTree.entityNodeMap.clear()
     eTree.uuidNodeMap.clear()
-    Engine.instance.scene.clear()
+    Engine.instance.currentWorld.scene.clear()
   }
 
   SceneState.isInitialized = false

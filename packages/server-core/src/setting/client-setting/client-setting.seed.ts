@@ -25,7 +25,7 @@ export const clientSeed = {
         { icon: 'static/discord.svg', link: 'https://discord.gg/xrf' },
         { icon: 'static/github.svg', link: 'https://github.com/XRFoundation' }
       ]),
-      themeSettings: defaultThemeSettings
+      themeSettings: JSON.stringify(defaultThemeSettings)
     }
   ]
 }
