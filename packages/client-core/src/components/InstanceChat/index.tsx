@@ -5,11 +5,25 @@ import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/co
 import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { notificationAlertURL } from '@xrengine/common/src/constants/URL'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { useAudioState } from '@xrengine/engine/src/audio/AudioState'
+import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
+import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
@@ -20,6 +34,7 @@ import CardContent from '@mui/material/CardContent'
 import Fab from '@mui/material/Fab'
 import TextField from '@mui/material/TextField'
 
+import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
 import defaultStyles from './index.module.scss'
 
 interface Props {
@@ -61,6 +76,8 @@ const InstanceChat = (props: Props): any => {
 
   const [isInitRender, setIsInitRender] = React.useState<Boolean>()
   const [noUnReadMessage, setNoUnReadMessage] = React.useState<any>()
+  const audioState = useAudioState()
+  const [entity, setEntity] = React.useState<Entity>()
   const usersTyping = useState(
     getState(Engine.instance.currentWorld.store, WorldState).usersTyping[user?.id.value]
   ).value
@@ -89,7 +106,34 @@ const InstanceChat = (props: Props): any => {
   }, [composingMessage])
 
   useEffect(() => {
+    if (entity) {
+      const audioComponent = getComponent(entity, AudioComponent)
+      audioComponent.volume = audioState.audio.value / 100
+      updateAudio(entity, { volume: audioState.audio.value / 100 })
+    }
+  }, [audioState.audio.value])
+
+  const fetchAudioAlert = async () => {
     setIsInitRender(true)
+    AssetLoader.Cache.delete(notificationAlertURL)
+    const loadPromise = AssetLoader.loadAsync(notificationAlertURL)
+    const node = createEntityNode(createEntity(Engine.instance.currentWorld))
+    setEntity(node.entity)
+    createNewEditorNode(node.entity, ScenePrefabs.audio)
+    addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.rootNode)
+    const audioComponent = getComponent(node.entity, AudioComponent)
+    audioComponent.volume = audioState.audio.value / 100
+    audioComponent.audioSource = notificationAlertURL
+
+    await loadPromise
+    updateAudio(node.entity, { volume: audioState.audio.value / 100, audioSource: notificationAlertURL })
+  }
+
+  useEffect(() => {
+    if (getEngineState().sceneLoaded.value) fetchAudioAlert()
+    matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, () => {
+      fetchAudioAlert()
+    })
   }, [])
 
   useEffect(() => {
@@ -109,8 +153,13 @@ const InstanceChat = (props: Props): any => {
   }, [chatState])
 
   React.useEffect(() => {
-    if (sortedMessages && sortedMessages[sortedMessages.length - 1]?.senderId !== user?.id.value) {
+    if (
+      sortedMessages &&
+      sortedMessages[sortedMessages.length - 1]?.senderId !== user?.id.value &&
+      chatState.messageCreated.value
+    ) {
       setNoUnReadMessage(false)
+      entity && toggleAudio(entity)
     }
   }, [chatState])
 
@@ -237,35 +286,39 @@ const InstanceChat = (props: Props): any => {
                       }
                     }
                     return (
-                      <>
+                      <React.Fragment key={message.id}>
                         {!isLeftOrJoinText(message.text) ? (
                           <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
-                            {message.senderId !== user?.id.value && (
-                              <div className={`${styles.selfEnd} ${styles.noMargin}`}>
-                                <div className={styles.dFlex}>
-                                  {index !== 0 && message.senderId !== messages[index - 1].senderId && (
-                                    <Avatar src={message.sender?.avatarUrl} />
+                            <div className={`${styles.selfEnd} ${styles.noMargin}`}>
+                              <div className={styles.dFlex}>
+                                <div className={styles.msgWrapper}>
+                                  {isLeftOrJoinText(messages[index - 1].text) ? (
+                                    <h3 className={styles.sender}>{message.sender.name}</h3>
+                                  ) : (
+                                    message.senderId !== messages[index - 1].senderId && (
+                                      <h3 className={styles.sender}>{message.sender.name}</h3>
+                                    )
                                   )}
-                                  {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
-                                  <div className={`${styles.msgContainer} ${styles.mx2}`}>
+                                  <div
+                                    className={`${
+                                      message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
+                                    } ${styles.msgContainer} ${styles.mx2}`}
+                                  >
                                     <p className={styles.text}>{message.text}</p>
                                   </div>
                                 </div>
+                                {index !== 0 && isLeftOrJoinText(messages[index - 1].text) ? (
+                                  <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                ) : (
+                                  message.senderId !== messages[index - 1].senderId && (
+                                    <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                  )
+                                )}
+                                {index === 0 && (
+                                  <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                )}
                               </div>
-                            )}
-                            {message.senderId === user?.id.value && (
-                              <div className={`${styles.selfEnd} ${styles.noMargin}`}>
-                                <div className={styles.dFlex}>
-                                  <div className={`${styles.msgReplyContainer} ${styles.mx2}`}>
-                                    <p className={styles.text}>{message.text}</p>
-                                  </div>
-                                  {index !== 0 && message.senderId !== messages[index - 1].senderId && (
-                                    <Avatar src={message.sender?.avatarUrl} />
-                                  )}
-                                  {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
-                                </div>
-                              </div>
-                            )}
+                            </div>
                           </div>
                         ) : (
                           <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
@@ -276,7 +329,7 @@ const InstanceChat = (props: Props): any => {
                             </div>
                           </div>
                         )}
-                      </>
+                      </React.Fragment>
                     )
                   })}
               </CardContent>

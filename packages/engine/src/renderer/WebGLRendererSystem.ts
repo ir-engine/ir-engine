@@ -26,6 +26,7 @@ import { isDev } from '@xrengine/common/src/utils/isDev'
 import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { CSM } from '../assets/csm/CSM'
+import { AudioSettingReceptor, restoreAudioSettings } from '../audio/AudioState'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
@@ -236,9 +237,11 @@ export class EngineRenderer {
 
 export default async function WebGLRendererSystem(world: World) {
   matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, () => {
+    restoreAudioSettings()
     restoreEngineRendererData()
   })
 
+  addActionReceptor(Engine.instance.store, AudioSettingReceptor)
   addActionReceptor(Engine.instance.store, EngineRendererReceptor)
 
   return () => {
