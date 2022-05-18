@@ -119,7 +119,7 @@ export class Scene implements ServiceMethods<any> {
       counter++
     }
 
-    for(const ext of sceneAssetFiles) {
+    for (const ext of sceneAssetFiles) {
       await storageProvider.moveObject(
         `default${ext}`,
         `${newSceneName}${ext}`,
@@ -131,7 +131,7 @@ export class Scene implements ServiceMethods<any> {
 
     if (isDev) {
       const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects/' + projectName) + '/'
-      for(const ext of sceneAssetFiles) {
+      for (const ext of sceneAssetFiles) {
         fs.copyFileSync(
           path.resolve(appRootPath.path, `packages/projects/default-project/default${ext}`),
           path.resolve(projectPathLocal + newSceneName + ext)
@@ -152,7 +152,7 @@ export class Scene implements ServiceMethods<any> {
 
     const projectPath = `projects/${projectName}/`
 
-    for(const ext of sceneAssetFiles) {
+    for (const ext of sceneAssetFiles) {
       const oldSceneJsonName = `${oldSceneName}${ext}`
       const newSceneJsonName = `${newSceneName}${ext}`
 
@@ -161,7 +161,7 @@ export class Scene implements ServiceMethods<any> {
     }
 
     if (isDev) {
-      for(const ext of sceneAssetFiles) {
+      for (const ext of sceneAssetFiles) {
         const oldSceneJsonPath = path.resolve(
           appRootPath.path,
           `packages/projects/projects/${projectName}/${oldSceneName}${ext}`
@@ -238,7 +238,7 @@ export class Scene implements ServiceMethods<any> {
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
-    for(const ext of sceneAssetFiles) {
+    for (const ext of sceneAssetFiles) {
       const assetFilePath = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/${name}${ext}`)
       if (fs.existsSync(assetFilePath)) {
         fs.rmSync(path.resolve(assetFilePath))
