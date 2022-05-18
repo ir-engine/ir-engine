@@ -1,0 +1,5 @@
+Thank you for installing XREngine-Builder
+
+This service will now pull in all Projects specified in the connected database, rebuild the monorepo,
+upload that to the specified Docker container storage (EKS, Docker Hub, etc.), then deploy that container
+to this cluster.

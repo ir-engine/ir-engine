@@ -1,0 +1,11 @@
+doctype html
+body(style='margin: 0;')
+  header
+    img(src=logo, style='display: block; margin: 0.5em; max-width: 6em;')
+    hr(style=' display: block; height: 1px; border: 0; border-top: 1px solid #e6e6e6; padding: 0; ')
+  div(style='margin-right: auto; margin-left: auto; color: #2c3e50;')
+    div(style='display: block; margin: 30% 0;')
+      h3(style=' font-family: Roboto, Arial; text-align: center; color: #3f3d56; ')  Log in to #{title}
+      p(style=' font-family: Roboto, Arial; color: #848484; text-align: center; margin: 1.2em 2em; ')  You've been invited to join a subscription by #{username}. If you do not have an account already, one will be created when you follow the link.
+      a(href=hashLink)
+        button(type='submit', style=' font-family: Roboto, Arial; display: block; margin: 0 auto; background: #0ed400; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16); border-radius: 4px; border: 1px solid #0ecc00; width: 9em; height: 3em; color: #fff; cursor: pointer; ')  Log in

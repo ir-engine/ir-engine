@@ -1,0 +1,31 @@
+name: update-deps-branch
+on:
+  push:
+    branches:
+      [dev]
+jobs:
+  secrets-gate:
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.check-secrets.outputs.ok }}
+    steps:
+      - name: check for secrets needed to run workflows
+        id: check-secrets
+        run: |
+          if [ ${{ secrets.UPDATE_DEPS_BRANCH_ENABLED }} == 'true' ]; then
+            echo "::set-output name=ok::enabled"
+          fi
+  update-deps-branch:
+    needs:
+      - secrets-gate
+    if: ${{ needs.secrets-gate.outputs.ok == 'enabled' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Merge dev into deps branch
+        uses: devmasx/merge-branch@master
+        with:
+          type: now
+          from_branch: dev
+          target_branch: deps
+          github_token: ${{ github.token }}

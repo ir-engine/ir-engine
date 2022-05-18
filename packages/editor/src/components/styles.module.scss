@@ -1,0 +1,86 @@
+.editorContainer {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  pointer-events: none;
+  background: var(--background2);
+}
+
+.workspaceContainer {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  margin: 0;
+}
+
+.errorContainer {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  color: var(--red);
+
+  svg {
+    margin-bottom: 20px;
+  }
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  min-height: 300px;
+
+  svg {
+    margin-bottom: 20px;
+  }
+}
+
+.checkbox {
+  &:global(.Mui-checked) {
+    color: var(--iconButtonColor);
+  }
+}
+
+.MuiTab-root.Mui-selected {
+  color: pink;
+}
+
+.dialogRoot {
+  .dialogPaper {
+    margin-bottom: 10vh;
+    background: transparent;
+  }
+}
+
+.bgImageBlock {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+
+  img {
+    opacity: 0.8;
+    filter: unquote($string: "invert()");
+    margin-top: -50px;
+  }
+
+  h2 {
+    width: 100%;
+    font-size: 20px;
+    text-align: center;
+    color: var(--textColor);
+    margin-top: 30px;
+  }
+}

@@ -1,0 +1,182 @@
+.assetsPanel {
+  height: 100%;
+}
+
+.panelContainer {
+  height: 100%;
+  position: relative;
+  flex: 1;
+  background-color: transparent;
+  overflow-y: auto;
+}
+
+.fileListItemContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 5px;
+  color: var(--textColor);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--dropdownMenuHoverBackground);
+  }
+
+  .fileNameContainer {
+    margin-right: 3px;
+  }
+}
+
+.paperDialog {
+  background: var(--popupBackground) !important;
+  color: var(--textColor);
+  width: 100%;
+  padding: 40px 10px;
+}
+
+.primaryText {
+  color: var(--textColor);
+  font-size: 1.3rem;
+}
+
+.secondaryText {
+  color: var(--textColor);
+}
+
+.inputContainer {
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+  background: #343b41;
+  border: 1px solid #23282c;
+  color: var(--textColor) !important;
+}
+
+.input {
+  flex: 1;
+  color: var(--textColor);
+}
+
+.contentContainer {
+  display: flex;
+  flex: 1;
+  overflow: auto;
+}
+
+.btnContainer {
+  display: flex;
+  width: 100%;
+  justify-content: end;
+  padding: 10px 10px 0;
+
+  .newBtn {
+    margin: 0;
+    height: 35px;
+    width: 100px;
+    font-size: 14px;
+    flex-shrink: 0;
+    color: var(--textColor);
+    background-color: var(--buttonFilled);
+  }
+}
+
+.sceneGridContainer {
+  display: grid;
+  grid-gap: 10px;
+  width: 100%;
+  margin-bottom: auto;
+  padding: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
+
+  .sceneContainer {
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--inputBackground);
+    min-height: 125px;
+    cursor: pointer;
+
+    .thumbnailContainer {
+      height: calc(100% - 40px);
+      width: 100%;
+    }
+
+    .detailBlock {
+      padding-left: 10px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 40px;
+
+      span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .inputContainer {
+        background: var(--inputBackground);
+        color: var(--textColor);
+
+        .input {
+          font-size: 12px;
+          padding: 0 5px;
+        }
+      }
+    }
+
+    button {
+      color: var(--textColor);
+    }
+
+    &:hover,
+    &:focus-visible {
+      outline: solid 2px var(--panelCardHoverOutline);
+
+      .detailBlock {
+        color: var(--textColor);
+      }
+    }
+  }
+}
+
+.sceneContextMenu {
+  background: var(--inputBackground);
+  color: var(--textColor);
+
+  .menuItem {
+    font-size: 14px;
+
+    &:hover,
+    &:focus-visible {
+      background: var(--dropdownMenuHoverBackground);
+    }
+
+    &:global(.Mui-selected) {
+      background: var(--dropdownMenuSelectedBackground);
+    }
+  }
+}
+
+.container {
+  height: 100%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error {
+  color: #c53a7d;
+  font-weight: bold;
+}
+
+.separator {
+  color: var(--textColor);
+}
+
+.breadcrumb {
+  color: var(--textColor);
+}

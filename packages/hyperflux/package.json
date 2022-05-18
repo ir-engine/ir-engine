@@ -1,0 +1,23 @@
+{
+  "name": "@xrengine/hyperflux",
+  "version": "0.5.5",
+  "main": "index.ts",
+  "description": "State Management for XREngine",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/XRFoundation/XREngine.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/XRFoundation/XREngine/issues"
+  },
+  "dependencies": {
+    "@speigg/hookstate": "3.0.13-stable-state",
+    "react-reconciler": "^0.27.0"
+  },
+  "scripts": {
+    "test": "mocha --config .mocharc.js",
+    "update-name-gh-package": "node scripts/update-name-gh-package.js"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "XRE_fog glTF extension",
+  "$id": "XRE_fog.schema.json",
+  "type": "object",
+  "description": "serialization extension for XREngine fog components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "type": {
+      "type": "string",
+      "anyOf": [{ "const": "disabled" }, { "const": "linear" }, { "const": "exponential" }],
+      "default": "linear"
+    },
+    "color": {
+      "$ref": "color.schema.json",
+      "default": "#FFFFFF"
+    },
+    "density": {
+      "type": "number",
+      "minimum": 0.0,
+      "default": 0.000025
+    },
+    "near": {
+      "type": "number",
+      "minimum": 0.0,
+      "default": 1.0
+    },
+    "far": {
+      "type": "number",
+      "minimum": 0.0,
+      "default": 1000.0
+    }
+  },
+  "extensions": {},
+  "extras": {}
+}

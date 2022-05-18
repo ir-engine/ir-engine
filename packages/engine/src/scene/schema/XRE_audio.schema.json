@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_audio.schema.json",
+  "title": "XRE_audio glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine audio components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "audioSource": {
+      "type": "string",
+      "default": ""
+    },
+    "volume": {
+      "type": "number",
+      "minimum": 0.0,
+      "default": 0.5
+    },
+    "audioType": {
+      "anyOf": [
+        {
+          "const": 0,
+          "description": "STEREO",
+          "type": "integer"
+        },
+        {
+          "const": 1,
+          "description": "POSITIONAL",
+          "type": "integer"
+        }
+      ],
+      "default": 1
+    },
+    "distanceModel": {
+      "allOf": [{ "$ref": "distanceModel.schema.json" }],
+      "default": "linear"
+    },
+    "rolloffFactor": {
+      "type": "number",
+      "default": 1.0
+    },
+    "refDistance": {
+      "type": "number",
+      "default": 20.0
+    },
+    "maxDistance": {
+      "type": "number",
+      "default": 1000.0
+    },
+    "coneInnerAngle": {
+      "type": "number",
+      "default": 120.0
+    },
+    "coneOuterAngle": {
+      "type": "number",
+      "default": 180.0
+    },
+    "coneOuterGain": {
+      "type": "number",
+      "default": 0.0
+    }
+  },
+  "extensions": {},
+  "extras": {}
+}

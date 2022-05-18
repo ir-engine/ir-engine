@@ -1,0 +1,29 @@
+.tableContainer {
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 0;
+}
+
+.tableCellHeader {
+  background: var(--tableHeaderBackground) !important;
+  color: var(--textColor) !important;
+  border-bottom: 2px solid var(--mainBackground) !important;
+}
+
+.tableCellBody {
+  border-bottom: 1px solid var(--mainBackground) !important;
+  color: var(--textColor) !important;
+  background: var(--tableCellBackground) !important;
+}
+
+.tableFooter {
+  background: var(--tableFooterBackground) !important;
+  color: var(--textColor) !important;
+  overflow: unset;
+}
+
+.spanWhite {
+  color: var(--textColor) !important;
+}

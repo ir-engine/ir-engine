@@ -1,0 +1,97 @@
+import { createState, useState } from '@speigg/hookstate'
+
+import { NearbyUser } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+
+import { store } from '../../store'
+
+//State
+const state = createState({
+  isCamVideoEnabled: false,
+  isCamAudioEnabled: false,
+  isFaceTrackingEnabled: false,
+  enableBydefault: true,
+  nearbyLayerUsers: [] as NearbyUser[],
+  consumers: []
+})
+
+store.receptors.push((action: MediaStreamActionType): any => {
+  state.batch((s) => {
+    switch (action.type) {
+      case 'CAM_VIDEO_CHANGED':
+        return s.isCamVideoEnabled.set(action.isEnable)
+      case 'CAM_AUDIO_CHANGED':
+        return s.isCamAudioEnabled.set(action.isEnable)
+      case 'FACE_TRACKING_CHANGED':
+        return s.isFaceTrackingEnabled.set(action.isEnable)
+      case 'MEDIA_ENABLE_BY_DEFAULT':
+        return s.enableBydefault.set(action.isEnable)
+      case 'CONSUMERS_CHANGED':
+        return s.consumers.set(action.consumers)
+      case 'NEARBY_LAYER_USERS_CHANGED':
+        return s.nearbyLayerUsers.set(action.users)
+    }
+  }, action.type)
+})
+
+export const accessMediaStreamState = () => state
+export const useMediaStreamState = () => useState(state)
+
+let updateConsumerTimeout
+
+//Service
+export const MediaStreamService = {
+  updateCamVideoState: () => {
+    const ms = MediaStreams.instance
+    store.dispatch(MediaStreamAction.setCamVideoState(ms != null && ms.camVideoProducer != null && !ms.videoPaused))
+  },
+  triggerUpdateConsumers: () => {
+    if (!updateConsumerTimeout) {
+      updateConsumerTimeout = setTimeout(() => {
+        const ms = MediaStreams.instance
+        store.dispatch(MediaStreamAction.setConsumers(ms != null ? ms.consumers : []))
+        updateConsumerTimeout = null
+      }, 1000)
+    }
+  },
+  triggerUpdateNearbyLayerUsers: () => {
+    const ms = MediaStreams.instance
+    store.dispatch(MediaStreamAction.setNearbyLayerUsers(ms != null ? ms.nearbyLayerUsers : []))
+  },
+  updateCamAudioState: () => {
+    const ms = MediaStreams.instance
+    store.dispatch(MediaStreamAction.setCamAudioState(ms != null && ms.camAudioProducer != null && !ms.audioPaused))
+  },
+  updateFaceTrackingState: () => {
+    const ms = MediaStreams.instance
+    store.dispatch(MediaStreamAction.setFaceTrackingState(ms != null && ms.faceTracking))
+  },
+  updateEnableMediaByDefault: () => {
+    store.dispatch(MediaStreamAction.setMediaEnabledByDefault(false))
+  }
+}
+
+//Action
+export type BooleanAction = { [key: string]: boolean }
+export const MediaStreamAction = {
+  setCamVideoState: (isEnable: boolean) => {
+    return { type: 'CAM_VIDEO_CHANGED' as const, isEnable: isEnable }
+  },
+  setCamAudioState: (isEnable: boolean) => {
+    return { type: 'CAM_AUDIO_CHANGED' as const, isEnable }
+  },
+  setFaceTrackingState: (isEnable: boolean) => {
+    return { type: 'FACE_TRACKING_CHANGED' as const, isEnable }
+  },
+  setMediaEnabledByDefault: (isEnable: boolean) => {
+    return { type: 'MEDIA_ENABLE_BY_DEFAULT' as const, isEnable }
+  },
+  setConsumers: (consumers: any[]): any => {
+    return { type: 'CONSUMERS_CHANGED' as const, consumers }
+  },
+  setNearbyLayerUsers: (users: NearbyUser[]): any => {
+    return { type: 'NEARBY_LAYER_USERS_CHANGED' as const, users }
+  }
+}
+
+export type MediaStreamActionType = ReturnType<typeof MediaStreamAction[keyof typeof MediaStreamAction]>

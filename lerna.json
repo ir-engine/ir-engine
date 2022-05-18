@@ -1,0 +1,13 @@
+{
+  "packages": [
+    "packages/*",
+    "packages/projects/projects/*"
+  ],
+  "version": "0.5.5",
+  "npmClient": "npm",
+  "useWorkspaces": true,
+  "hoist": true,
+  "nohoist": [
+    "@docusaurus/*"
+  ]
+}

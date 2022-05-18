@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_ocean.schema.json",
+  "title": "XRE_ocean glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine ocean components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "normalMap": { "$ref": "url.schema.json" },
+    "distortionMap": { "$ref": "url.schema.json" },
+    "envMap": { "$ref": "url.schema.json" },
+    "color": { "$ref": "color.schema.json" },
+    "opacityRange": { "$ref": "vec2.schema.json" },
+    "opacityFadeDistance": { "type": "number" },
+    "shallowToDeepDistance": { "type": "number" },
+    "shallowWaterColor": { "$ref": "color.schema.json" },
+    "waveScale": { "$ref": "vec2.schema.json" },
+    "waveSpeed": { "$ref": "vec2.schema.json" },
+    "waveTiling": { "type": "number" },
+    "waveDistortionTiling": { "type": "number" },
+    "shininess": { "type": "number" },
+    "reflectivity": { "type": "number" },
+    "bigWaveHeight": { "type": "number" },
+    "bigWaveTiling": { "$ref": "vec2.schema.json" },
+    "bigWaveSpeed": { "$ref": "vec2.schema.json" },
+    "foamSpeed": { "$ref": "vec2.schema.json" },
+    "foamTiling": { "type": "number" },
+    "foamColor": { "$ref": "color.schema.json" }
+  },
+  "extensions": {},
+  "extras": {}
+}

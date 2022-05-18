@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "colliderType.schema.json",
+  "title": "colliderType",
+  "type": "string",
+  "description": "collider type enum descriptor",
+  "anyOf": [
+    {
+      "const": "box",
+      "type": "string"
+    },
+    {
+      "const": "ground",
+      "type": "string"
+    },
+    {
+      "const": "sphere",
+      "type": "string"
+    },
+    {
+      "const": "capsule",
+      "type": "string"
+    },
+    {
+      "const": "cylinder",
+      "type": "string"
+    },
+    {
+      "const": "convex",
+      "type": "string"
+    },
+    {
+      "const": "trimesh",
+      "type": "string"
+    }
+  ]
+}

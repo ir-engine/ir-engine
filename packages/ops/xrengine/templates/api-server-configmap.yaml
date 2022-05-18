@@ -1,0 +1,21 @@
+{{- if (.Values.api).enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "xrengine.api.fullname" . }}
+  labels:
+    {{- include "xrengine.api.labels" . | nindent 4 }}
+data:
+{{- if .Values.api.extraEnv }}
+{{ toYaml .Values.api.extraEnv | indent 2 }}
+{{- end }}
+{{- if .Values.gameserver.extraEnv }}
+{{ toYaml .Values.gameserver.extraEnv | indent 2 }}
+{{- end }}
+{{- if .Values.client.extraEnv }}
+{{ toYaml .Values.client.extraEnv | indent 2 }}
+{{- end }}
+{{- if .Values.api.config }}
+  NODE_CONFIG: '{{ mustToJson .Values.api.config }}'
+{{- end }}
+{{- end -}}

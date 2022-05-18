@@ -1,0 +1,4 @@
+**/node_modules/**
+/packages/server/upload/**
+/packages/projects/projects/**
+**/*.d.ts

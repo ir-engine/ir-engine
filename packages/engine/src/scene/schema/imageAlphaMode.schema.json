@@ -1,0 +1,7 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "imageAlphaMode.schema.json",
+  "title": "imageAlphaMode",
+  "type": "string",
+  "anyOf": [{ "const": "Opaque" }, { "const": "Blend" }, { "const": "Mask" }]
+}

@@ -1,0 +1,131 @@
+{
+  "name": "xrengine",
+  "description": "Game Engine, Server & Devops powering The XREngine. Please support XRFoundation https://opencollective.com/xrfoundation",
+  "version": "0.0.0",
+  "homepage": "xrengine.io",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "packages/projects/projects/*"
+  ],
+  "keywords": [
+    "three",
+    "three.js",
+    "ecs",
+    "webgl",
+    "mmo",
+    "game engine",
+    "webrtc",
+    "productivity",
+    "xr",
+    "vr"
+  ],
+  "author": {
+    "name": "XR Engine - XR Foundation",
+    "email": "info@xrengine.io"
+  },
+  "entrypoint": {},
+  "contributors": [],
+  "bugs": {},
+  "directories": {
+    "lib": "packages/server-core/src/user",
+    "config": "config/"
+  },
+  "engines": {
+    "node": ">= 16.3.0"
+  },
+  "npmClient": "npm",
+  "scripts": {
+    "build-publish": "lerna run build-publish --parallel",
+    "build-client": "cd packages/client && npm run build",
+    "check": "npm run lint && npm run check-errors && npm run test && npm run build-client",
+    "check-db-exists": "cross-env ts-node --transpile-only scripts/check-db-exists.ts",
+    "check-db-exists-only": "cross-env ts-node --transpile-only scripts/check-db-exists-only.ts",
+    "check-errors": "lerna run check-errors --parallel",
+    "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
+    "cleanup-tests": "node tests/cleanup-tests.js",
+    "depcheck": "lerna exec --no-bail --stream -- depcheck",
+    "dev": "npm run dev-docker && concurrently -n agones,server,client npm:dev-agones-silent npm:dev-server npm:dev-client",
+    "dev-agones": "cd scripts && ./start-agones.sh",
+    "dev-agones-silent": "npm run dev-agones &> /dev/null",
+    "dev-client": "cd packages/client && npm run dev",
+    "dev-docker": "cd scripts && docker-compose up -d",
+    "dev-nginx": "",
+    "dev-reinit": "cd packages/server && npm run dev-reinit-db",
+    "dev-server": "cd packages/server && npm run dev",
+    "dev-windows": "npm run dev-docker && concurrently -n agones,server,client npm:dev-agones-silent npm:dev-server npm:dev-client",
+    "diff": "lerna diff",
+    "format": "prettier --write \"packages/**/*.{ts,tsx}\"",
+    "format-scss": "stylelint \"packages/**/*.scss\" --fix",
+    "format-staged": "lint-staged",
+    "init-db-production": "cross-env APP_ENV=production FORCE_DB_REFRESH=true EXIT_ON_DB_INIT=true ts-node --transpile-only packages/server/src/index.ts",
+    "install-projects": "ts-node scripts/install-projects.js",
+    "lint": "prettier --check \"packages/**/*.{ts,tsx}\"",
+    "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true concurrently -n agones,server,gameserver,mediaserver,client,files npm:dev-agones-silent \"cd packages/server && npm run start\" \"cd packages/gameserver && npm run start\" \"cd packages/gameserver && npm run start-channel\" \"cd packages/client && npm run local\" \"cd packages/server && npm run serve-local-files\"",
+    "make-user-admin": "ts-node scripts/make-user-admin.js",
+    "precommit": "no-master-commits -b master",
+    "prepare-database": "cross-env APP_ENV=production PREPARE_DATABASE=true EXIT_ON_DB_INIT=true ts-node --transpile-only packages/server/src/index.ts",
+    "pretest": "cross-env TEST=true npm run dev-reinit",
+    "publish": "lerna publish from-package --yes",
+    "publish-no-verify": "lerna publish from-package --yes --no-verify-access --ignore-scripts",
+    "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
+    "start": "npm run dev",
+    "test": "cross-env TEST=true lerna run test",
+    "test-e2e": "lerna run test-e2e",
+    "test:projects": "cross-env TEST=true lerna run test:projects",
+    "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
+    "update-name-gh-package": "lerna run update-name-gh-package",
+    "validate": "npm run lint && lerna run validate",
+    "version-increment": "lerna version --conventional-commits --yes",
+    "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version"
+  },
+  "types": "lib/",
+  "pre-commit": [
+    "format-staged"
+  ],
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.scss": [
+      "stylelint --fix",
+      "git add"
+    ]
+  },
+  "devDependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "3.3.1",
+    "@types/mocha": "9.1.0",
+    "@types/pino": "^7.0.5",
+    "concurrently": "7.1.0",
+    "depcheck": "1.4.3",
+    "kill-port": "1.6.1",
+    "lint-staged": "12.3.7",
+    "mocha": "9.2.2",
+    "no-master-commits": "1.1.1",
+    "pre-commit": "1.2.2",
+    "prettier": "2.6.0",
+    "react-dnd": "16.0.0",
+    "react-router-dom": "5.3.0",
+    "stylelint": "^14.6.1",
+    "stylelint-config-standard-scss": "^3.0.0",
+    "stylelint-scss": "^4.2.0",
+    "supertest": "6.2.2",
+    "trace-unhandled": "2.0.1",
+    "ts-node-dev": "1.1.8"
+  },
+  "dependencies": {
+    "@feathersjs/commons": "5.0.0-pre.10",
+    "@feathersjs/errors": "5.0.0-pre.10",
+    "@feathersjs/feathers": "5.0.0-pre.10",
+    "cli": "1.0.1",
+    "dotenv": "14.3.2",
+    "lerna": "4.0.0",
+    "pino": "^7.10.0",
+    "pino-pretty": "^7.6.1",
+    "react-json-view": "^1.21.3",
+    "rimraf": "^3.0.2",
+    "ts-node": "10.7.0",
+    "typescript": "4.6.2"
+  }
+}

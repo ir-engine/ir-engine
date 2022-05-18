@@ -1,0 +1,16 @@
+doctype html
+body(style='margin: 0;')
+  div(style='margin: 0 auto; width:75%;background: #fff;')
+    div(style='margin-top:40px;height: auto;background: #383650;box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;padding: 4rem; border-radius: 10px;')
+      .hd(style='padding-bottom:30px')
+        img(src=logo, style='display: block; margin: 0 auto; max-width: 6em;')
+      .main
+        div(style='background: #5045AB;padding: 3rem 4rem 1.5rem 4rem;')
+          h1(style='font-family: Roboto, Arial; color: #fff;font-size: 1.8rem;') You've Got The Magic Link!
+        div(style='background: #fff;padding: 2rem;')
+          h2(style='font-family: Roboto, Arial;color: #918EAD;') Hi 👋!
+          p(style='font-family: Roboto, Arial;color: #8f9299;font-weight: bold;') You asked us to send you a magic link for quickly signing into your account.
+          a(href=hashLink, style='font-family: Roboto, Arial;width: 96%;display: inline-block;background: #5045AB;text-align: center;padding: 0.6rem;border-radius: 5px;text-decoration: none;color: #fff;font-weight: bold;font-size: 1.2rem;font-family: Roboto, Arial;')  Sign In to #{title} Now! 
+          div
+            p(style='color: #8f9299;font-weight: bold;font-family: Roboto, Arial;') Or copy and paste this link into your browser:
+            a(style='word-wrap: break-word;', href=hashLink) #{hashLink}

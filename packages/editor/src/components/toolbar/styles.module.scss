@@ -1,0 +1,171 @@
+.toolbarContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 50px;
+  width: 100%;
+  position: fixed;
+  z-index: 1000;
+  user-select: none;
+  background: var(--dockBackground);
+  padding: 0 5px;
+}
+
+.statsContainer {
+  position: absolute;
+  top: 70px;
+  z-index: 1000;
+  left: 20px;
+  color: var(--white);
+  padding: 8px;
+  background-color: var(--popupBackground);
+  opacity: 0.88;
+  backdrop-filter: blur(1px);
+  border-radius: 4px;
+  width: 150px;
+
+  h3 {
+    font-size: 14px;
+  }
+
+  & > ul {
+    margin: 8px 4px;
+
+    & > li {
+      font: 12px;
+      color: var(--textColor);
+
+      & + li {
+        margin-top: 5px;
+      }
+
+      ul {
+        margin-left: 5px;
+        color: var(--white);
+      }
+    }
+  }
+}
+
+.toolbarNumericStepperInput {
+  width: 120px;
+
+  input {
+    border-width: 0;
+    border-radius: 4px;
+    background: var(--inputBackground);
+
+    & + * {
+      background: transparent;
+    }
+  }
+
+  button {
+    border: none;
+    border-radius: 4px;
+    margin: 0 4px;
+
+    &:hover {
+      background: var(--iconButtonHoverColor);
+    }
+  }
+}
+
+.toolbarInputGroup {
+  display: flex;
+  margin: 0 4px;
+  align-items: center;
+  border: none;
+  border-radius: 4px;
+  background: var(--inputBackground);
+  column-gap: 4px;
+  padding: 4px;
+
+  .toolButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    border: none;
+    color: var(--iconButtonColor);
+    cursor: pointer;
+    position: relative;
+    background-color: var(--toolbar);
+    border-radius: 4px;
+
+    &:hover {
+      background-color: var(--iconButtonHoverColor);
+    }
+
+    &.selected {
+      background-color: var(--iconButtonSelectedBackground);
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+
+  .toolIcon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    border: none;
+    color: var(--textColor);
+    position: relative;
+    background-color: var(--toolbar);
+    border-radius: 4px;
+  }
+
+  .selectInput {
+    width: 100px;
+    z-index: 1500000;
+
+    div[class$="-control"] {
+      background: var(--inputBackground);
+      height: 25px;
+      border-radius: 4px;
+      border-width: 0;
+      cursor: pointer;
+      outline: none;
+      box-shadow: none;
+    }
+
+    div[class$="-menu"] {
+      background: var(--dropdownMenuBackground);
+      border: none;
+      overflow: hidden;
+      margin-top: 10px;
+
+      div[class$="-option"] {
+        background: transparent;
+
+        &:hover {
+          background: var(--blue);
+        }
+      }
+    }
+  }
+}
+
+.playButtonContainer {
+  padding: 0;
+
+  .toolButton {
+    width: 31px;
+    height: 31px;
+
+    &:hover {
+      background-color: var(--iconButtonHoverColor);
+    }
+
+    .selected {
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+}

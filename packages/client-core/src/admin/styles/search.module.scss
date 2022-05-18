@@ -1,0 +1,18 @@
+.searchRoot {
+  padding: 2px 20px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: var(--inputBackground);
+}
+
+.input {
+  margin-left: 8px;
+  flex: 1;
+  color: var(--textColor);
+}
+
+.iconButton {
+  padding: 10px;
+  color: var(--textColor);
+}

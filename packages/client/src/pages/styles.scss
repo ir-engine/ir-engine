@@ -1,0 +1,483 @@
+@import "@xrengine/client-core/src/styles/imports.module.scss";
+
+:root {
+  --lato: "Lato", sans-serif;
+  --zilla: "Zilla Slab", sans-serif;
+  --red: #f44336;
+  --pink: #e91e63;
+  --purple: #9c27b0;
+  --deepPurple: #673ab7;
+  --indigo: #3f51b5;
+  --blue: #006eff;
+  --lightBlue: #03a9f4;
+  --cyan: #00bcd4;
+  --teal: #009688;
+  --green: #4caf50;
+  --lightGreen: #8bc34a;
+  --lime: #cddc39;
+  --yellow: #ffeb3b;
+  --amber: #ffc107;
+  --orange: #ff9800;
+  --deepOrange: #ff5722;
+  --brown: #795548;
+  --blueHover: #4d93f1;
+  --bluePressed: #0554bc;
+  --disabled: #222;
+  --disabledText: grey;
+  --deemphasized: grey;
+  --toolbar: rgb(0 0 0 / 0%);
+  --toolbar2: rgb(0 0 0 / 0%);
+  --header: #1b1b1b;
+  --white: #fff;
+  --purpleButtonColor: #5f5ff1;
+  --facebookBlue: #4267b2;
+  --lightRed: #ef5350;
+  --mediumBlue: #3838b2;
+  --shadow15: 0 4px 4px rgb(0 0 0 / 15%);
+  --shadow30: 0 4px 4px rgb(0 0 0 / 30%);
+  --borderStyle: 1px solid #5d646c;
+  --borderStyleLight: 1px solid #b9b9b9;
+  --background: rgb(0 0 0 / 0%);
+  --border: #5d646c;
+  --background2: #15171b;
+}
+
+:root[data-theme="light"] {
+  --textColor: #585858;
+  --navbarBackground: #e7e7e7;
+  --sidebarBackground: #e1e1e1;
+  --sidebarSelectedBackground: #acacac;
+  --mainBackground: #fff;
+  --panelBackground: #c0c0c0;
+  --panelCards: #dadae2;
+  --panelCardHoverOutline: #555;
+  --panelCardIcon: #4d4d4d;
+  --textHeading: #696969;
+  --textSubheading: #797979;
+  --textDescription: #898989;
+  --iconButtonColor: #585858;
+  --iconButtonHoverColor: #c9c9c9;
+  --iconButtonBackground: #e1e1e1;
+  --iconButtonSelectedBackground: #a3a3a3;
+  --buttonOutlined: #969696;
+  --buttonFilled: #969696;
+  --buttonGradientStart: #d1d1d1;
+  --buttonGradientEnd: #969696;
+  --buttonTextColor: #585858;
+  --scrollbarThumbXAxisStart: #d1d1d1;
+  --scrollbarThumbXAxisEnd: #969696;
+  --scrollbarThumbYAxisStart: #d1d1d1;
+  --scrollbarThumbYAxisEnd: #969696;
+  --scrollbarCorner: rgb(255 255 255 / 0%);
+  --inputOutline: #b4b4b4;
+  --inputBackground: #d4d4d4;
+  --dropdownMenuBackground: #c0c0c0;
+  --dropdownMenuHoverBackground: #b8b8b8;
+  --dropdownMenuSelectedBackground: #acacac;
+  --drawerBackground: #c6c6c6;
+  --popupBackground: #c6c6c6;
+  --tableHeaderBackground: #c0c0c0;
+  --tableCellBackground: #e1e1e1;
+  --tableFooterBackground: #c0c0c0;
+  --themeSwitchTrack: #aab4be;
+  --themeSwitchThumb: #e5d200;
+  --dockBackground: #bdbdbda6;
+}
+
+:root[data-theme="dark"] {
+  --textColor: #fff;
+  --navbarBackground: rgb(31 27 72 / 85%);
+  --sidebarBackground: rgb(31 27 72 / 100%);
+  --sidebarSelectedBackground: #5f5ff1;
+  --mainBackground: #02022d;
+  --panelBackground: #1f1b48;
+  --panelCards: #3c3c6f;
+  --panelCardHoverOutline: #9898ff;
+  --panelCardIcon: #1f1b48;
+  --textHeading: #fff;
+  --textSubheading: #fff;
+  --textDescription: #fff;
+  --iconButtonColor: #fff;
+  --iconButtonHoverColor: #7171f0;
+  --iconButtonBackground: #9898ff;
+  --iconButtonSelectedBackground: #4d4df2;
+  --buttonOutlined: #3c3c6f;
+  --buttonFilled: #3c3c6f;
+  --buttonGradientStart: #5236ff;
+  --buttonGradientEnd: #c20560;
+  --buttonTextColor: #fff;
+  --scrollbarThumbXAxisStart: #5236ff;
+  --scrollbarThumbXAxisEnd: #c20560;
+  --scrollbarThumbYAxisStart: #5236ff;
+  --scrollbarThumbYAxisEnd: #c20560;
+  --scrollbarCorner: rgb(255 255 255 / 0%);
+  --inputOutline: #fff;
+  --inputBackground: #3c3c6f;
+  --dropdownMenuBackground: #1f1b48;
+  --dropdownMenuHoverBackground: #2a2567;
+  --drawerBackground: #1f1b48;
+  --popupBackground: #1f1b48;
+  --tableHeaderBackground: #1f1b48;
+  --tableCellBackground: #3c3c6f;
+  --tableFooterBackground: #1f1b48;
+  --themeSwitchTrack: #8796a5;
+  --themeSwitchThumb: #02022d;
+  --dockBackground: rgb(31 27 72 / 85%);
+}
+
+::-webkit-scrollbar {
+  width: auto;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 1px grey;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--scrollbarThumbYAxisStart), var(--scrollbarThumbYAxisEnd));
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+  background: linear-gradient(90deg, var(--scrollbarThumbXAxisStart), var(--scrollbarThumbXAxisEnd));
+}
+
+::-webkit-scrollbar-corner {
+  background-color: var(--scrollbarCorner);
+}
+
+@mixin flex-collapse {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex-grow: 1;
+}
+
+.MuiDrawer-paperAnchorRight,
+.MuiDrawer-paperAnchorLeft {
+  width: 30%;
+
+  @media (orientation: portrait) {
+    width: 70% !important;
+  }
+
+  @media (max-width: 768px) {
+    width: 90% !important;
+  }
+
+  .MuiAccordion-root {
+    min-height: 50px;
+    overflow-y: auto;
+
+    &.Mui-expanded {
+      @include flex-collapse;
+
+      .MuiCollapse-container.MuiCollapse-entered {
+        @include flex-collapse;
+
+        .MuiCollapse-wrapper {
+          @include flex-collapse;
+
+          .MuiCollapse-wrapperInner {
+            @include flex-collapse;
+
+            & > div {
+              @include flex-collapse;
+
+              & > .MuiAccordionDetails-root {
+                @include flex-collapse;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .MuiTab-root {
+    @media (min-width: 600px) {
+      min-width: initial;
+    }
+  }
+
+  .MuiAccordionSummary-content {
+    & > svg {
+      margin-right: 5px;
+    }
+  }
+}
+
+[class*="Bottom_list-container"] {
+  .MuiDrawer-paperAnchorBottom {
+    opacity: 0.85;
+    height: 60% !important;
+    max-width: 1000px;
+
+    @media (max-width: 768px) {
+      max-width: 100%;
+      height: 80% !important;
+    }
+
+    .MuiFormControl-marginNormal {
+      margin-top: 8px;
+      margin-right: 5px;
+    }
+  }
+}
+
+.MuiTabs-root {
+  min-height: 75px;
+}
+
+.banned {
+  width: 100%;
+  height: 100%;
+  font-size: 30px;
+  background-color: #00ceff;
+  color: black;
+  text-align: center;
+}
+
+body {
+  overflow: auto;
+  color: var(--textColor);
+  overscroll-behavior-y: contain;
+}
+
+.menuDrawerOpened {
+  [class*="InstanceChat_instance-chat-container"] {
+    right: 25vw;
+    left: auto;
+    transition: right 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+
+    @media (orientation: portrait) {
+      height: 0;
+    }
+
+    // @media (max-width: 768px){
+    //   right: 50%;
+    // }
+    @media (max-width: 1280px) {
+      right: 33%;
+    }
+
+    @media (max-width: 1024px) {
+      right: 40%;
+    }
+
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+
+  [class*="InstanceChat_iconCallChat"] {
+    right: 25vw;
+
+    @media (max-width: 1280px) {
+      right: 33%;
+    }
+
+    @media (max-width: 1024px) {
+      right: 40%;
+    }
+
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+
+  [class*="MediaIconsBox_drawerBoxContainer"] {
+    @media (orientation: portrait) {
+      visibility: hidden;
+    }
+
+    @media (max-width: 768px) {
+      left: 5px;
+      right: auto;
+    }
+  }
+}
+
+.lander {
+  min-height: 100vh;
+  background-image: linear-gradient(150deg, #00022e, #dbdbdb 100%);
+  background-image: linear-gradient(150deg, #00022e, #ff007d4a);
+  position: relative;
+  overflow: hidden;
+
+  * {
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 400;
+    z-index: 1;
+  }
+
+  .main-background {
+    position: absolute;
+    bottom: 0;
+    z-index: 0;
+
+    img {
+      display: block;
+    }
+
+    @media (max-width: 550px) {
+      .img-container {
+        position: absolute;
+        width: 700px;
+        bottom: 0;
+        left: -100px;
+      }
+    }
+
+    @media (min-width: 769px) {
+      bottom: -75px;
+    }
+
+    @media (min-width: 950px) {
+      bottom: -175px;
+    }
+
+    @media (min-width: 1250px) {
+      top: 130px;
+      bottom: 0;
+      width: 100%;
+
+      .img-container,
+      img {
+        width: 100%;
+      }
+    }
+  }
+
+  .logo-bottom {
+    text-align: right;
+    margin-top: 15px;
+    font-size: 14px;
+
+    span {
+      margin-right: 5px;
+    }
+
+    .gray-txt {
+      color: grey;
+    }
+
+    .gradiant-txt {
+      @include purple-pink-linear-gradient;
+
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .white-txt {
+      color: white;
+      margin-right: 0;
+    }
+  }
+
+  .link-container {
+    position: absolute;
+    right: 30px;
+    top: 35px;
+
+    .link-block {
+      display: flex;
+
+      .icon {
+        width: 30px;
+      }
+
+      .icon + .icon {
+        margin-left: 20px;
+      }
+
+      .icon:hover,
+      .icon:focus {
+        opacity: 0.8;
+      }
+    }
+
+    .logo-bottom {
+      display: none;
+    }
+
+    @media (max-width: 550px) {
+      width: 100%;
+      display: flex;
+      position: relative;
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      right: 0;
+      top: 0;
+      padding: 20px;
+      background: #000c;
+
+      .logo-bottom {
+        display: block;
+      }
+    }
+  }
+
+  .navbar {
+    padding: 30px 30px 15px;
+    background: #0002;
+
+    .logo-section {
+      display: inline-block;
+
+      .lander-logo {
+        width: auto;
+        height: 50px;
+        max-width: 250px;
+      }
+    }
+
+    @media (max-width: 550px) {
+      text-align: center;
+    }
+  }
+
+  .main-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    max-width: 1024px;
+    margin: auto;
+
+    .desc {
+      font-size: 30px;
+      margin: 10px 10px 60px;
+      color: white;
+      max-width: 400px;
+
+      @media (max-width: 550px) {
+        font-size: 20px;
+        text-align: center;
+        margin: 10px 0 60px;
+      }
+    }
+
+    @media (min-width: 850px) {
+      flex-direction: row;
+      align-items: flex-start;
+
+      .desc {
+        width: 400px;
+        flex-shrink: 0;
+        margin-top: 100px;
+      }
+    }
+  }
+}
+
+[class*="MuiModal-root"] {
+  pointer-events: auto;
+}
+
+vite-error-overlay {
+  pointer-events: auto;
+}

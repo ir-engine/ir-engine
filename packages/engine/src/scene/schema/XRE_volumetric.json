@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_volumetric.schema.json",
+  "title": "XRE_volumetric glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine volumetric components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {},
+  "extensions": {},
+  "extras": {}
+}

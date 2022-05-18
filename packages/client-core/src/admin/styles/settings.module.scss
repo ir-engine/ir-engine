@@ -1,0 +1,235 @@
+.root {
+  flex-grow: 1;
+}
+
+.rootId {
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  width: 400;
+}
+
+.iconButton {
+  padding: 10;
+}
+
+.select {
+  color: var(--textColor) !important;
+}
+
+.selectPaper {
+  background: var(--inputBackground);
+  color: var(--textColor);
+
+  &:global(.Mui-selected) {
+    background: var(--dropdownMenuSelectedBackground);
+  }
+}
+
+.divider {
+  height: 28px;
+  margin: 4px;
+}
+
+.menuBtn {
+  color: var(--iconButtonColor);
+  font-size: 3rem;
+  background: var(--iconButtonBackground);
+  position: fixed;
+}
+
+.saveBtn {
+  color: var(--textColor);
+  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+}
+
+.cancelButton {
+  color: var(--textColor);
+}
+
+.filledButton {
+  color: var(--textColor);
+}
+
+.hoverSettings {
+  display: flex;
+  z-index: 3;
+  flex-direction: column;
+  text-align: center;
+  background: var(--sidebarBackground);
+  color: var(--textColor);
+  max-width: 310px;
+  position: absolute;
+  padding: 2px 18px;
+  left: 0;
+  top: 0;
+}
+
+.settingsHeading {
+  color: var(--textColor);
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: 300;
+  line-height: 1.7;
+  font-size: 20px;
+}
+
+.hoverSettingsHeading {
+  color: var(--textColor);
+  text-align: center;
+  font-weight: 300;
+  line-height: 1.7;
+  font-size: 20px;
+}
+
+.settingContainer {
+  background: var(--panelBackground);
+  width: 370px;
+  height: 150px;
+  padding: 60px;
+}
+
+.contents {
+  padding: 10px;
+  background: var(--panelBackground) !important;
+}
+
+.input {
+  margin-left: 8px;
+  flex: 1;
+  width: 100%;
+  color: var(--textColor);
+  background: var(--inputBackground);
+}
+
+.selectInput {
+  width: 100%;
+  padding: 2px 4px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  background: var(--inputBackground);
+  border: 1px solid var(--inputOutline);
+  color: var(--textColor) !important;
+}
+
+.createInput {
+  width: 100%;
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  background: var(--inputBackground);
+  border: 1px solid var(--inputOutline);
+  color: var(--textColor) !important;
+}
+
+.container {
+  padding: 3px;
+  display: flex;
+  flex-direction: column;
+}
+
+.nested {
+  padding-left: 32px;
+}
+
+.clientSettingsContainer {
+  padding: 50px;
+
+  @media (max-width: 1200px) {
+    padding: 5px;
+  }
+}
+
+.Paper {
+  border-radius: 0;
+  padding: 0 10px 6px;
+  background: var(--panelCards);
+}
+
+.Paper2 {
+  display: flex;
+  padding: 5px 10px;
+  border-radius: 0;
+  flex-direction: row;
+  background: var(--panelCards);
+
+  & > div {
+    margin: 5px;
+  }
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+  }
+}
+
+.focused {
+  background: var(--sidebarSelectedBackground);
+
+  &:hover {
+    background-color: var(--sidebarSelectedBackground);
+  }
+}
+
+.autoFocused {
+  background: var(--sidebarSelectedBackground);
+
+  &:hover {
+    background-color: var(--sidebarSelectedBackground);
+  }
+}
+
+.notFocused {
+  background: var(--sidebarBackground);
+
+  &:hover {
+    background-color: var(--sidebarSelectedBackground);
+  }
+}
+
+.spanDange {
+  color: var(--orange) !important;
+  margin-bottom: 0.8rem;
+  position: fixed;
+}
+
+.invisible {
+  display: none;
+  color: var(--textColor);
+
+  @media (max-width: 1200px) {
+    display: inline-block;
+    margin-bottom: 3rem;
+  }
+}
+
+.visible {
+  color: var(--textColor);
+  display: inline-block;
+
+  @media (max-width: 1200px) {
+    display: none;
+  }
+}
+
+.colorGridContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  label:nth-child(1) {
+    margin-right: 20px;
+  }
+
+  label:nth-child(3) {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}
+
+.colorGridDivider {
+  width: 100%;
+  border-color: rgb(255 255 255 / 80%);
+  margin: 10px 0;
+}

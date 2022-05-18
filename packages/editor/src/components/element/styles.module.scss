@@ -1,0 +1,49 @@
+.elementListContainer {
+  width: 105px;
+  height: calc(100vh - 90px);
+  display: flex;
+  flex-flow: row wrap;
+  gap: 5px;
+  position: fixed;
+  top: 55px;
+  right: 5px;
+  z-index: 10;
+  align-content: start;
+  overflow-y: auto;
+  pointer-events: auto;
+  background: var(--dockBackground);
+  padding: 5px;
+  border-radius: 5px;
+
+  & > div {
+    width: 45px;
+    height: 45px;
+  }
+
+  .element {
+    width: 45px;
+    height: 45px;
+    padding: 5px;
+    color: var(--textColor);
+    border-radius: 4px;
+
+    svg {
+      width: 25px;
+      height: auto;
+    }
+
+    &:hover,
+    &:focus-visible {
+      color: var(--textColor);
+      background: var(--dropdownMenuHoverBackground);
+    }
+  }
+}
+
+.elementDropZone {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+}
