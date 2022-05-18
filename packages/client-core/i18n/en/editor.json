@@ -152,7 +152,7 @@
       "description": "Dynamically loads audio.",
       "lbl-audiourl": "Audio Url",
       "lbl-controls": "controls",
-      "info-controls": "Toggle the visibility of the media controls in Hubs.",
+      "info-controls": "Toggle the visibility of the media controls.",
       "lbl-autoplay": "Auto Play",
       "info-autoplay": "If true, the media will play when first entering the scene.",
       "lbl-synchronize": "Synchronize",
@@ -280,7 +280,7 @@
       "lbl-alphaCutoff": "Alpha Cutoff",
       "lbl-projection": "Projection",
       "lbl-side": "Side",
-      "info-controls": "Toggle the visibility of the media controls in Hubs.",
+      "info-controls": "Toggle the visibility of the media controls.",
       "info-transparency": "How to apply transparency:",
       "info-opaque": "'opaque' = no transparency",
       "info-blend": "'blend' = use the images alpha channel",
@@ -429,7 +429,7 @@
     },
     "sceneCamera": {
       "name": "Scene Preview Camera",
-      "description": "The camera used to generate the thumbnail for your scene and the starting position for the preview camera in Hubs.",
+      "description": "The camera used to generate the thumbnail for your scene and the starting position for the preview camera.",
       "lbl-setFromViewPort": "Set From Viewport"
     },
     "skybox": {
