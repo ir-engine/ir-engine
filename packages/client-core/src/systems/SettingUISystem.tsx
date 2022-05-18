@@ -22,13 +22,15 @@ export default async function SettingUISystem(world: World) {
 
   return () => {
     const settingXRUI = getComponent(ui.entity, XRUIComponent)
+    if (!settingXRUI) return
+
     settingXRUI.container.scale.setScalar(0.5)
-    settingXRUI.container.position.copy(Engine.instance.camera.position)
+    settingXRUI.container.position.copy(Engine.instance.currentWorld.camera.position)
     //settingXRUI.container.position.y += Engine.scene.position.y
     //settingXRUI.container.position.x += Engine.scene.position.x
     settingXRUI.container.position.z +=
-      settingXRUI.container.position.z > Engine.instance.camera.position.z ? -0.4 : 0.4
+      settingXRUI.container.position.z > Engine.instance.currentWorld.camera.position.z ? -0.4 : 0.4
 
-    settingXRUI.container.rotation.setFromRotationMatrix(Engine.instance.camera.matrix)
+    settingXRUI.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
   }
 }
