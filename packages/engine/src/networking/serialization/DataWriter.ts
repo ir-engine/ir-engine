@@ -1,7 +1,9 @@
 import { Group } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { approxeq } from '@xrengine/common/src/utils/mathUtils.ts'
 
+import { FLOAT_PRECISION_MULT } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -12,7 +14,7 @@ import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { XRHandBones } from '../../xr/types/XRHandBones'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { flatten, Vector3SoA, Vector4SoA } from './Utils'
+import { flatten, getVector4IndexBasedComponentValue, Vector3SoA, Vector4SoA } from './Utils'
 import {
   createViewCursor,
   rewindViewCursor,
@@ -23,6 +25,8 @@ import {
   spaceUint64,
   ViewCursor,
   writePropIfChanged,
+  writeUint8,
+  writeUint16,
   writeUint32
 } from './ViewCursor'
 
@@ -81,10 +85,107 @@ export const writeVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Ent
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
+// Writes a compressed Quaternion value to the network stream. This function uses the "smallest three"
+// method, which is well summarized here: http://gafferongames.com/networked-physics/snapshot-compression/
+// Started with this code as baseline: https://gist.github.com/StagPoint/bb7edf61c2e97ce54e3e4561627f6582
+export const writeComporessedRotation = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity) => {
+  const rewind = rewindViewCursor(v)
+  const writeChangeMask = spaceUint8(v)
+  const rewindUptoChageMask = rewindViewCursor(v)
+  let changeMask = 0
+  let b = 0
+
+  // INSTEAD CALL writeVector4 here? how to handle rewind than.
+  // Write to store
+  changeMask |= writePropIfChanged(v, vector4.x, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector4.y, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector4.z, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector4.w, entity) ? 1 << b++ : b++ && 0
+
+  // Write to ViewCursor
+  if (changeMask > 0) {
+    rewindUptoChageMask()
+    let maxIndex = 0
+    let maxValue = Number.MIN_VALUE
+    let sign = 1
+
+    // Determine the index of the largest (absolute value) element in the Quaternion.
+    // We will transmit only the three smallest elements, and reconstruct the largest
+    // element during decoding.
+    for (let i = 0; i < 4; i++) {
+      let element = getVector4IndexBasedComponentValue(vector4, entity, i) as number
+      let abs = Math.abs(element)
+      if (abs > maxValue) {
+        // We don't need to explicitly transmit the sign bit of the omitted element because you
+        // can make the omitted element always positive by negating the entire quaternion if
+        // the omitted element is negative (in quaternion space (x,y,z,w) and (-x,-y,-z,-w)
+        // represent the same rotation.), but we need to keep track of the sign for use below.
+        sign = element < 0 ? -1 : 1
+
+        // Keep track of the index of the largest element
+        maxIndex = i
+        maxValue = abs
+      }
+    }
+
+    // If the maximum value is approximately 1f (such as Quaternion.identity [0,0,0,1]), then we can
+    // reduce storage even further due to the fact that all other fields must be 0f by definition, so
+    // we only need to send the index of the largest field.
+    console.log(maxValue)
+    if (approxeq(maxValue, 1)) {
+      // Again, don't need to transmit the sign since in quaternion space (x,y,z,w) and (-x,-y,-z,-w)
+      // represent the same rotation. We only need to send the index of the single element whose value
+      // is 1f in order to recreate an equivalent rotation on the receiver.
+      // writer.Write( maxIndex + 4 );
+      writeUint8(v, maxIndex + 4)
+      console.log('wrote 1 bytes')
+    } else {
+      let a = 0
+      let b = 0
+      let c = 0
+
+      // We multiply the value of each element by QUAT_PRECISION_MULT before converting to 16-bit integer
+      // in order to maintain precision. This is necessary since by definition each of the three smallest
+      // elements are less than 1.0, and the conversion to 16-bit integer would otherwise truncate everything
+      // to the right of the decimal place. This allows us to keep five decimal places.
+
+      if (maxIndex == 0) {
+        a = vector4.y[entity] * sign * FLOAT_PRECISION_MULT
+        b = vector4.z[entity] * sign * FLOAT_PRECISION_MULT
+        c = vector4.w[entity] * sign * FLOAT_PRECISION_MULT
+      } else if (maxIndex == 1) {
+        a = vector4.x[entity] * sign * FLOAT_PRECISION_MULT
+        b = vector4.z[entity] * sign * FLOAT_PRECISION_MULT
+        c = vector4.w[entity] * sign * FLOAT_PRECISION_MULT
+      } else if (maxIndex == 2) {
+        a = vector4.x[entity] * sign * FLOAT_PRECISION_MULT
+        b = vector4.y[entity] * sign * FLOAT_PRECISION_MULT
+        c = vector4.w[entity] * sign * FLOAT_PRECISION_MULT
+      } else {
+        a = vector4.x[entity] * sign * FLOAT_PRECISION_MULT
+        b = vector4.y[entity] * sign * FLOAT_PRECISION_MULT
+        c = vector4.z[entity] * sign * FLOAT_PRECISION_MULT
+      }
+
+      writeUint8(v, maxIndex)
+      // writer.Write( maxIndex );
+      writeUint16(v, a)
+      writeUint16(v, b)
+      writeUint16(v, c)
+      console.log('wrote 7 bytes')
+      // writer.Write( a );
+      // writer.Write( b );
+      // writer.Write( c );
+    }
+  }
+
+  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
+}
+
 export const writePosition = writeVector3(TransformComponent.position)
 export const writeLinearVelocity = writeVector3(VelocityComponent.linear)
 export const writeAngularVelocity = writeVector3(VelocityComponent.angular)
-export const writeRotation = writeVector4(TransformComponent.rotation)
+export const writeRotation = writeComporessedRotation(TransformComponent.rotation) //writeVector4(TransformComponent.rotation)
 
 export const writeTransform = (v: ViewCursor, entity: Entity) => {
   if (!hasComponent(entity, TransformComponent)) return

@@ -77,3 +77,7 @@ export const isZero = (v: Vector3): boolean => {
 export const normalizeRange = (val, rangeMin, rangeMax) => {
   return (val - rangeMin) / (rangeMax - rangeMin)
 }
+
+export const approxeq = (v1, v2, epsilon = 0.001) => {
+  return Math.abs(v1 - v2) < epsilon
+}

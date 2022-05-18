@@ -1,3 +1,5 @@
+import { Entity } from '../../ecs/classes/Entity'
+
 export type Vector3SoA = {
   x: Float32Array
   y: Float32Array
@@ -49,3 +51,20 @@ export const flatten = memoize((component: any) =>
     })
     .flat()
 )
+
+export const getVector4IndexBasedComponentValue = (vector4: Vector4SoA, entity: Entity, index: number) => {
+  switch (index) {
+    case 0:
+      return vector4.x[entity]
+    case 1:
+      return vector4.y[entity]
+    case 2:
+      return vector4.z[entity]
+    case 3:
+      return vector4.w[entity]
+
+    default:
+      console.error('Vector4SOA tried to read with out of bounds index')
+      break
+  }
+}

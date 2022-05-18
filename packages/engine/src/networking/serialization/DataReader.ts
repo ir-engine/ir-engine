@@ -3,6 +3,7 @@ import { TypedArray } from 'bitecs'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
+import { FLOAT_PRECISION_MULT } from '../../common/constants/MathConstants'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -78,10 +79,83 @@ export const readVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Enti
   if (checkBitflag(changeMask, 1 << b++)) readComponentProp(v, vector4.w, entity)
 }
 
+// Reads a compressed rotation value from the network stream. This value must have been previously written
+// with WriteCompressedRotation() in order to be properly decompressed.
+export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity | undefined) => {
+  const changeMask = readUint8(v)
+  console.log(changeMask)
+  if (changeMask <= 0) return
+
+  // Read the index of the omitted field from the stream.
+  let maxIndex = readUint8(v)
+  console.log('read 1 byte')
+
+  // Values between 4 and 7 indicate that only the index of the single field whose value is 1f was
+  // sent, and (maxIndex - 4) is the correct index for that field.
+  if (maxIndex >= 4 && maxIndex <= 7) {
+    let x = maxIndex == 4 ? 1 : 0
+    let y = maxIndex == 5 ? 1 : 0
+    let z = maxIndex == 6 ? 1 : 0
+    let w = maxIndex == 7 ? 1 : 0
+
+    if (entity !== undefined) {
+      vector4.x[entity] = x
+      vector4.y[entity] = y
+      vector4.z[entity] = z
+      vector4.w[entity] = w
+    } else {
+      // readComponentProp(v, vector4.x, entity)
+      // readComponentProp(v, vector4.y, entity)
+      // readComponentProp(v, vector4.z, entity)
+      // readComponentProp(v, vector4.w, entity)
+    }
+
+    return
+  }
+
+  // Read the other three fields and derive the value of the omitted field
+  let a = readUint16(v) / FLOAT_PRECISION_MULT
+  let b = readUint16(v) / FLOAT_PRECISION_MULT
+  let c = readUint16(v) / FLOAT_PRECISION_MULT
+  let d = Math.sqrt(1 - (a * a + b * b + c * c))
+
+  console.log('read 6 bytes')
+
+  let x, y, z, w
+  if (maxIndex == 0) {
+    x = d
+    y = a
+    z = b
+    w = c
+  } else if (maxIndex == 1) {
+    x = a
+    y = d
+    z = b
+    w = c
+  } else if (maxIndex == 2) {
+    x = a
+    y = b
+    z = d
+    w = c
+  }
+
+  if (entity !== undefined) {
+    vector4.x[entity] = x
+    vector4.y[entity] = y
+    vector4.z[entity] = z
+    vector4.w[entity] = w
+  } else {
+    // readComponentProp(v, vector4.x, entity)
+    // readComponentProp(v, vector4.y, entity)
+    // readComponentProp(v, vector4.z, entity)
+    // readComponentProp(v, vector4.w, entity)
+  }
+}
+
 export const readPosition = readVector3(TransformComponent.position)
 export const readLinearVelocity = readVector3(VelocityComponent.linear)
 export const readAngularVelocity = readVector3(VelocityComponent.angular)
-export const readRotation = readVector4(TransformComponent.rotation)
+export const readRotation = readCompressedRotation(TransformComponent.rotation) //readVector4(TransformComponent.rotation)
 
 export const readTransform = (v: ViewCursor, entity: Entity | undefined) => {
   const changeMask = readUint8(v)
