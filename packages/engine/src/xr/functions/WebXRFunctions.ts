@@ -4,6 +4,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
@@ -194,7 +195,7 @@ export const bindXRHandEvents = () => {
         })
       }
 
-      initializeHandModel(controller, xrInputSource.handedness)
+      initializeHandModel(world.localClientEntity, controller, xrInputSource.handedness)
 
       if (!eventSent) {
         dispatchAction(world.store, NetworkWorldAction.xrHandsConnected({}))
@@ -221,7 +222,11 @@ export const startWebXR = async (): Promise<void> => {
   assignControllerAndGrip(EngineRenderer.instance.xrManager, controllerLeft, controllerGripLeft, 0)
   assignControllerAndGrip(EngineRenderer.instance.xrManager, controllerRight, controllerGripRight, 1)
 
-  dispatchAction(world.store, NetworkWorldAction.setXRMode({ enabled: true }))
+  const avatarInputState = accessAvatarInputSettingsState()
+  dispatchAction(
+    world.store,
+    NetworkWorldAction.setXRMode({ enabled: true, avatarInputControllerType: avatarInputState.controlType.value })
+  )
 
   bindXRControllers()
   bindXRHandEvents()
@@ -243,7 +248,7 @@ export const endXR = (): void => {
   removeComponent(world.localClientEntity, XRInputSourceComponent)
   removeComponent(world.localClientEntity, XRHandsInputComponent)
 
-  dispatchAction(world.store, NetworkWorldAction.setXRMode({ enabled: false }))
+  dispatchAction(world.store, NetworkWorldAction.setXRMode({ enabled: false, avatarInputControllerType: '' }))
 }
 
 /**

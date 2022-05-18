@@ -92,19 +92,21 @@ export const initializeXRInputs = (entity: Entity) => {
     controller.userData.initialized = true
 
     const handedness = controller === xrInputSourceComponent.controllerGripLeft ? 'left' : 'right'
-    initializeHandModel(controller, handedness, true)
+    initializeHandModel(entity, controller, handedness, true)
     initializeXRControllerAnimations(controller)
   })
 }
 
-export const initializeHandModel = (controller: any, handedness: string, isGrip: boolean = false) => {
+export const initializeHandModel = (entity: Entity, controller: any, handedness: string, isGrip: boolean = false) => {
   const avatarInputState = accessAvatarInputSettingsState()
 
+  let avatarInputControllerType = avatarInputState.controlType.value
+
   // if is grip and not 'controller' type enabled
-  if (isGrip && avatarInputState.controlType.value !== AvatarControllerType.OculusQuest) return
+  if (isGrip && avatarInputControllerType !== AvatarControllerType.OculusQuest) return
 
   // if is hands and 'none' type enabled (instead we use IK to move hands in avatar model)
-  if (!isGrip && avatarInputState.controlType.value === AvatarControllerType.None) return
+  if (!isGrip && avatarInputControllerType === AvatarControllerType.None) return
 
   /**
    * TODO: both model types we have are hands, we also want to have an oculus quest controller model
@@ -126,7 +128,7 @@ export const initializeHandModel = (controller: any, handedness: string, isGrip:
     controller.remove(controller.userData.mesh)
   }
 
-  controller.userData.mesh = isGrip ? handMesh : new XRHandMeshModel(controller, handMesh, handedness)
+  controller.userData.mesh = isGrip ? handMesh : new XRHandMeshModel(entity, controller, handMesh, handedness)
   controller.add(controller.userData.mesh)
   controller.userData.handedness = handedness
 

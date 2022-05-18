@@ -33,6 +33,7 @@ export class NetworkWorldAction {
     store: 'WORLD',
     type: 'network.SET_XR_MODE',
     enabled: matches.boolean,
+    avatarInputControllerType: matches.string,
     $cache: { removePrevious: true }
   })
 
