@@ -57,6 +57,10 @@
   --toolbar2: rgb(0 0 0 / 0%);
   --header: #1b1b1b;
   --white: #fff;
+  --purpleButtonColor: #5f5ff1;
+  --facebookBlue: #4267b2;
+  --lightRed: #ef5350;
+  --mediumBlue: #3838b2;
   --shadow15: 0 4px 4px rgb(0 0 0 / 15%);
   --shadow30: 0 4px 4px rgb(0 0 0 / 30%);
   --borderStyle: 1px solid #5d646c;
@@ -122,6 +126,10 @@
   --toolbar2: rgb(0 0 0 / 0%);
   --header: #1b1b1b;
   --white: #fff;
+  --purpleButtonColor: #5f5ff1;
+  --facebookBlue: #4267b2;
+  --lightRed: #ef5350;
+  --mediumBlue: #3838b2;
   --shadow15: 0 4px 4px rgb(0 0 0 / 15%);
   --shadow30: 0 4px 4px rgb(0 0 0 / 30%);
   --borderStyle: 1px solid #5d646c;
@@ -140,6 +148,14 @@
 
 ::-webkit-scrollbar-thumb {
   background: var(--purplePinkGradientTB);
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+  background: var(--purplePinkGradient);
+}
+
+::-webkit-scrollbar-corner {
+  background-color: transparent;
 }
 
 @mixin flex-collapse {
@@ -236,6 +252,7 @@
 
 body {
   overflow: auto;
+  color: var(--text);
   overscroll-behavior-y: contain;
 }
 
@@ -494,5 +511,9 @@ body {
 }
 
 [class*="MuiModal-root"] {
+  pointer-events: auto;
+}
+
+vite-error-overlay {
   pointer-events: auto;
 }

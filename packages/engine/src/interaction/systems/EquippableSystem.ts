@@ -1,5 +1,7 @@
 import matches from 'ts-matches'
 
+import { addActionReceptor } from '@xrengine/hyperflux'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import {
@@ -25,7 +27,7 @@ function equippableActionReceptor(action) {
   const world = useWorld()
 
   matches(action).when(NetworkWorldAction.setEquippedObject.matches, (a) => {
-    if (a.$from === Engine.userId) return
+    if (a.$from === Engine.instance.userId) return
     const equipper = world.getUserAvatarEntity(a.$from)
     const equipped = world.getNetworkObject(a.object.ownerId, a.object.networkId)
     const attachmentPoint = a.attachmentPoint
@@ -78,7 +80,7 @@ export function equippableQueryExit(entity) {
  * @author Hamza Mushtaq <github.com/hamzzam>
  */
 export default async function EquippableSystem(world: World) {
-  world.receptors.push(equippableActionReceptor)
+  addActionReceptor(world.store, equippableActionReceptor)
 
   const equippableQuery = defineQuery([EquipperComponent])
 

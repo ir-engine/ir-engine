@@ -11,10 +11,6 @@ import styles from '../../styles/admin.module.scss'
 import ProjectTable from './ProjectTable'
 import UploadProjectModal from './UploadProjectModal'
 
-if (!global.setImmediate) {
-  global.setImmediate = setTimeout as any
-}
-
 const Projects = () => {
   const authState = useAuthState()
   const user = authState.user
@@ -37,7 +33,7 @@ const Projects = () => {
 
   return (
     <div>
-      <Grid container spacing={3} className={styles.mb10px}>
+      <Grid container spacing={1} className={styles.mb10px}>
         <Grid item xs={6}>
           <Button
             className={styles.openModalBtn}

@@ -1,20 +1,13 @@
 import i18n from 'i18next'
 
-import { client } from '../feathers'
 import { accessAuthState } from '../user/services/AuthService'
+import { serverHost } from './config'
 import { RethrownError } from './errors'
-
-const serverURL =
-  process.env.APP_ENV === 'development'
-    ? `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}:${
-        (globalThis as any).process.env['VITE_SERVER_PORT']
-      }`
-    : `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}`
 
 /**
  * upload used to upload image as blob data.
  *
- * @param  {any}  blob
+ * @param  {any}  blobs
  * @param  {any}  onUploadProgress
  * @param  {any}  signal
  * @param  {any}  projectId
@@ -22,131 +15,57 @@ const serverURL =
  * @return {Promise}
  */
 
-export const upload = (
-  blob: Blob,
-  onUploadProgress?: (progress: number) => any,
-  signal?,
-  params: any = {}
+export const uploadToFeathersService = (
+  service = 'upload-asset',
+  files: Blob | Array<Blob>,
+  params: any = {},
+  onUploadProgress?: (progress: number) => any
 ): Promise<any> => {
   const token = accessAuthState().authUser.accessToken.value
-  return new Promise((resolve, reject) => {
+
+  return new Promise<void>((resolve, reject) => {
     const request = new XMLHttpRequest()
-    const onAbort = () => {
-      request.abort()
-      const error = new Error(i18n.t('editor:errors.uploadAborted'))
-      error.name = 'AbortError'
-      error['aborted'] = true
-      reject(error)
-    }
-
-    if (signal) {
-      signal.addEventListener('abort', onAbort)
-    }
-    console.log('Posting to: ', `${serverURL}/media`)
-
-    request.open('post', `${serverURL}/media`, true)
+    request.timeout = 10 * 60 * 1000 // 10 minutes - need to support big files on slow connections
 
     request.upload.addEventListener('progress', (e) => {
-      if (onUploadProgress) {
-        onUploadProgress(e.loaded / e.total)
-      }
+      if (onUploadProgress) onUploadProgress(e.loaded / e.total)
     })
 
-    request.addEventListener('error', (error) => {
-      if (signal) {
-        signal.removeEventListener('abort', onAbort)
-      }
+    request.upload.addEventListener('error', (error) => {
       reject(new RethrownError(i18n.t('editor:errors.uploadFailed'), error))
     })
 
-    request.addEventListener('load', () => {
-      if (signal) {
-        signal.removeEventListener('abort', onAbort)
-      }
+    // request.upload.addEventListener('load', console.log)
+    // request.upload.addEventListener('loadend', console.log)
 
-      if (request.status < 300) {
-        const response = JSON.parse(request.responseText)
-        resolve(response)
-      } else {
-        reject(new Error(i18n.t('editor:errors.uploadFailed', { reason: request.statusText })))
+    request.addEventListener('readystatechange', (e) => {
+      if (request.readyState === XMLHttpRequest.DONE) {
+        const status = request.status
+
+        if (status === 0 || (status >= 200 && status < 400)) {
+          resolve(JSON.parse(request.responseText))
+        } else {
+          console.error('Oh no! There has been an error with the request!', request, e)
+          reject()
+        }
       }
     })
 
     const formData = new FormData()
     Object.entries(params).forEach(([key, val]: any) => {
-      formData.set(key, val)
+      formData.set(key, typeof val === 'object' ? JSON.stringify(val) : val)
     })
 
-    formData.set('media', blob)
-    request.setRequestHeader('Authorization', `Bearer ${token}`)
-
-    request.send(formData)
-  })
-}
-
-export const uploadStaticResource = (
-  files: Blob[],
-  onUploadProgress?: (progress: number) => any,
-  signal?,
-  params: any = {}
-): Promise<any> => {
-  const token = accessAuthState().authUser.accessToken.value
-
-  return new Promise((resolve, reject) => {
-    const request = new XMLHttpRequest()
-    const onAbort = () => {
-      request.abort()
-      const error = new Error(i18n.t('editor:errors.uploadAborted'))
-      error.name = 'AbortError'
-      error['aborted'] = true
-      reject(error)
+    if (Array.isArray(files)) {
+      files.forEach((file) => {
+        formData.append('media[]', file)
+      })
+    } else {
+      formData.set('media', files)
     }
 
-    if (signal) {
-      signal.addEventListener('abort', onAbort)
-    }
-    console.log('Posting to: ', `${serverURL}/upload-asset`)
-
-    request.open('post', `${serverURL}/upload-asset`, true)
-
-    request.upload.addEventListener('progress', (e) => {
-      if (onUploadProgress) {
-        onUploadProgress(e.loaded / e.total)
-      }
-    })
-
-    request.addEventListener('error', (error) => {
-      if (signal) {
-        signal.removeEventListener('abort', onAbort)
-      }
-      reject(new RethrownError(i18n.t('editor:errors.uploadFailed'), error))
-    })
-
-    request.addEventListener('load', () => {
-      if (signal) {
-        signal.removeEventListener('abort', onAbort)
-      }
-
-      if (request.status < 300) {
-        const response = JSON.parse(request.responseText)
-        resolve(response)
-      } else {
-        reject(new Error(i18n.t('editor:errors.uploadFailed', { reason: request.statusText })))
-      }
-    })
-
-    const formData = new FormData()
-    Object.entries(params).forEach(([key, val]: any) => {
-      formData.set(key, typeof val === 'string' ? val : JSON.stringify(val))
-    })
-
-    files.forEach((file) => {
-      formData.append('media', file)
-    })
-
+    request.open('post', `${serverHost}/${service}`, true)
     request.setRequestHeader('Authorization', `Bearer ${token}`)
-    request.timeout = 120000 // 2 minute timeout
-
     request.send(formData)
   })
 }

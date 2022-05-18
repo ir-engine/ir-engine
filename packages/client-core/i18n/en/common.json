@@ -33,7 +33,11 @@
     "refresh": "Refresh",
     "physicsDebug": "Physics Debug",
     "avatarDebug": "Avatar Debug",
+    "nodeHelperDebug": "Node Helper Debug",
+    "gridDebug": "Grid Debug",
     "tick": "Tick",
+    "worldStore": "World Store",
+    "engineStore": "Engine Store",
     "namedEntities": "Named Entities",
     "networkObject": "Network Object",
     "networkClients": "Network Clients"
@@ -50,6 +54,7 @@
     "resumeRecording": "Resume recording",
     "stopRecording": "Stop recording"
   },
+  "typing": "Typing...",
   "gameServer": {
     "browserError": "Browser Error",
     "browserErrorMessage": "Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode.",
@@ -64,7 +69,9 @@
     "invalidLocation": "Invalid location",
     "cantFindLocation": "We can't find the location",
     "misspelledOrNotExist": "It may be misspelled, or it may not exist.",
-    "loading": "loading"
+    "loading": "loading",
+    "low-frame-error": "Detected a poor perfomance consider enabling Use Hardware acceleration in your browser and relauch your browser",
+    "low-frame-title": "Enable hardware acceleration for better experience!"
   },
   "error": {
     "loading-error": "Failed to load user data",

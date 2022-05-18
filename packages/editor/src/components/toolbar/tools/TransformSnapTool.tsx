@@ -1,13 +1,13 @@
 import React from 'react'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
+import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 import AttractionsIcon from '@mui/icons-material/Attractions'
 
-import { SceneState } from '../../../functions/sceneRenderFunctions'
 import { toggleSnapMode } from '../../../functions/transformFunctions'
-import { ModeAction, useModeState } from '../../../services/ModeServices'
+import { EditorHelperAction, useEditorHelperState } from '../../../services/EditorHelperState'
 import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -41,29 +41,29 @@ const rotationSnapOptions = [
 ]
 
 const TransformSnapTool = () => {
-  const modeState = useModeState()
+  const editorHelperState = useEditorHelperState()
   const dispatch = useDispatch()
 
   const onChangeTranslationSnap = (snapValue: number) => {
-    SceneState.grid.setSize(snapValue)
-    dispatch(ModeAction.changeTranslationSnap(snapValue))
+    InfiniteGridHelper.instance.setSize(snapValue)
+    dispatch(EditorHelperAction.changeTranslationSnap(snapValue))
 
-    if (modeState.snapMode.value !== SnapMode.Grid) {
-      dispatch(ModeAction.changedSnapMode(SnapMode.Grid))
+    if (editorHelperState.snapMode.value !== SnapMode.Grid) {
+      dispatch(EditorHelperAction.changedSnapMode(SnapMode.Grid))
     }
   }
 
   const onChangeRotationSnap = (snapValue: number) => {
-    dispatch(ModeAction.changeRotationSnap(snapValue))
-    if (modeState.snapMode.value !== SnapMode.Grid) {
-      dispatch(ModeAction.changedSnapMode(SnapMode.Grid))
+    dispatch(EditorHelperAction.changeRotationSnap(snapValue))
+    if (editorHelperState.snapMode.value !== SnapMode.Grid) {
+      dispatch(EditorHelperAction.changedSnapMode(SnapMode.Grid))
     }
   }
 
   // const onChangeScaleSnap = (snapValue: number) => {
-  //   dispatch(ModeAction.changeScaleSnap(snapValue))
-  //   if (modeState.snapMode.value !== SnapMode.Grid) {
-  //     dispatch(ModeAction.changedSnapMode(SnapMode.Grid))
+  //   dispatch(EditorHelperAction.changeScaleSnap(snapValue))
+  //   if (editorHelperState.snapMode.value !== SnapMode.Grid) {
+  //     dispatch(EditorHelperAction.changedSnapMode(SnapMode.Grid))
   //   }
   // }
 
@@ -72,24 +72,28 @@ const TransformSnapTool = () => {
       <InfoTooltip title="[C] Toggle Snap Mode">
         <button
           onClick={toggleSnapMode}
-          className={styles.toolButton + ' ' + (modeState.snapMode.value === SnapMode.Grid ? styles.selected : '')}
+          className={
+            styles.toolButton + ' ' + (editorHelperState.snapMode.value === SnapMode.Grid ? styles.selected : '')
+          }
         >
           <AttractionsIcon fontSize="small" />
         </button>
       </InfoTooltip>
       <SelectInput
+        key={editorHelperState.translationSnap.value}
         className={styles.selectInput}
         onChange={onChangeTranslationSnap}
         options={translationSnapOptions}
-        value={modeState.translationSnap.value}
+        value={editorHelperState.translationSnap.value}
         creatable={false}
         isSearchable={false}
       />
       <SelectInput
+        key={editorHelperState.rotationSnap.value}
         className={styles.selectInput}
         onChange={onChangeRotationSnap}
         options={rotationSnapOptions}
-        value={modeState.rotationSnap.value}
+        value={editorHelperState.rotationSnap.value}
         creatable={false}
         isSearchable={false}
       />

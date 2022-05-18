@@ -123,11 +123,19 @@
       "lbl-volume": "Volume",
       "lbl-microphone": "Microphone",
       "graphics": "Graphics",
+      "controls": "Controls",
+      "lbl-control-type": "Controller Type",
+      "lbl-control-scheme": "Control Scheme",
       "lbl-resolution": "Resolution",
       "lbl-shadow": "Shadows",
       "lbl-pp": "Post Processing",
       "lbl-pbr": "Full PBR",
-      "lbl-automatic": "Automatic"
+      "lbl-automatic": "Automatic",
+      "xrusersetting": "XR User Settings",
+      "rotation": "Rotation",
+      "rotation-smooth-speed": "Rotation Smooth Speed",
+      "rotation-angle": "Rotation Angle",
+      "moving": "Moving"
     },
     "profile": {
       "lbl-profile": "Profile",

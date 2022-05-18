@@ -1,9 +1,10 @@
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
 import { PortalComponent } from '../components/PortalComponent'
 import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
@@ -24,11 +25,11 @@ export default async function TriggerSystem(world: World) {
       if (getComponent(triggerEntity, PortalComponent)) {
         const portalComponent = getComponent(triggerEntity, PortalComponent)
         if (isClient && portalComponent.redirect) {
-          window.location.href = Engine.publicPath + '/location/' + portalComponent.location
+          window.location.href = Engine.instance.publicPath + '/location/' + portalComponent.location
           continue
         }
         world.activePortal = portalComponent
-        dispatchLocal(EngineActions.setTeleporting(true))
+        dispatchAction(Engine.instance.store, EngineActions.setTeleporting({ isTeleporting: true }))
         continue
       }
 

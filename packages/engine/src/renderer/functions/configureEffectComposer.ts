@@ -1,25 +1,20 @@
-import {
-  BlendFunction,
-  DepthDownsamplingPass,
-  EffectComposer,
-  EffectPass,
-  NormalPass,
-  RenderPass,
-  TextureEffect
-} from 'postprocessing'
+import { BlendFunction, DepthDownsamplingPass, EffectPass, NormalPass, RenderPass, TextureEffect } from 'postprocessing'
 import { NearestFilter, RGBAFormat, WebGLRenderTarget } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { getAllComponentsOfType } from '../../ecs/functions/ComponentFunctions'
 import { PostprocessingComponent } from '../../scene/components/PostprocessingComponent'
 import { EffectMap, Effects, OutlineEffectProps } from '../../scene/constants/PostProcessing'
+import { accessEngineRendererState } from '../EngineRendererState'
+import { EngineRenderer } from '../WebGLRendererSystem'
+import { changeRenderMode } from './changeRenderMode'
 
 export const configureEffectComposer = (remove?: boolean): void => {
-  Engine.effectComposer.removeAllPasses()
+  EngineRenderer.instance.effectComposer.removeAllPasses()
 
   // we always want to have at least the render pass enabled
-  const renderPass = new RenderPass(Engine.scene, Engine.camera)
-  Engine.effectComposer.addPass(renderPass)
+  const renderPass = new RenderPass(Engine.instance.scene, Engine.instance.camera)
+  EngineRenderer.instance.effectComposer.addPass(renderPass)
 
   if (remove) {
     return
@@ -33,7 +28,7 @@ export const configureEffectComposer = (remove?: boolean): void => {
   const effects: any[] = []
   const effectKeys = EffectMap.keys()
 
-  const normalPass = new NormalPass(Engine.scene, Engine.camera, {
+  const normalPass = new NormalPass(Engine.instance.scene, Engine.instance.camera, {
     renderTarget: new WebGLRenderTarget(1, 1, {
       minFilter: NearestFilter,
       magFilter: NearestFilter,
@@ -56,28 +51,28 @@ export const configureEffectComposer = (remove?: boolean): void => {
     if (!effectClass) return
 
     if (key === Effects.SSAOEffect) {
-      const eff = new effectClass(Engine.camera, normalPass.texture, {
+      const eff = new effectClass(Engine.instance.camera, normalPass.texture, {
         ...effect,
         normalDepthBuffer: depthDownsamplingPass.texture
       })
-      Engine.effectComposer[key] = eff
+      EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else if (key === Effects.DepthOfFieldEffect) {
-      const eff = new effectClass(Engine.camera, effect)
-      Engine.effectComposer[key] = eff
+      const eff = new effectClass(Engine.instance.camera, effect)
+      EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else if (key === Effects.OutlineEffect) {
       let outlineEffect = effect as OutlineEffectProps
-      if (Engine.isEditor) {
+      if (Engine.instance.isEditor) {
         outlineEffect = { ...outlineEffect, hiddenEdgeColor: 0x22090a }
       }
-      const eff = new effectClass(Engine.scene, Engine.camera, outlineEffect)
-      Engine.effectComposer[key] = eff
+      const eff = new effectClass(Engine.instance.scene, Engine.instance.camera, outlineEffect)
+      EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else {
       if (effectClass) {
         const eff = new effectClass(effect)
-        Engine.effectComposer[key] = eff
+        EngineRenderer.instance.effectComposer[key] = eff
         effects.push(eff)
       }
     }
@@ -89,7 +84,9 @@ export const configureEffectComposer = (remove?: boolean): void => {
       texture: depthDownsamplingPass.texture
     })
 
-    Engine.effectComposer.addPass(depthDownsamplingPass)
-    Engine.effectComposer.addPass(new EffectPass(Engine.camera, ...effects, textureEffect))
+    EngineRenderer.instance.effectComposer.addPass(depthDownsamplingPass)
+    EngineRenderer.instance.effectComposer.addPass(new EffectPass(Engine.instance.camera, ...effects, textureEffect))
   }
+
+  changeRenderMode(accessEngineRendererState().renderMode.value)
 }

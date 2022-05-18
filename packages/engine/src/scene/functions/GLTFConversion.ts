@@ -1,4 +1,4 @@
-import { Color, Object3D, Scene } from 'three'
+import { Color, MathUtils, Object3D, Scene } from 'three'
 
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -10,18 +10,22 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { getAllComponents, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
+import { AssetComponentType } from '../components/AssetComponent'
 import { EntityNodeComponent, EntityNodeComponentType } from '../components/EntityNodeComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DWithEntity } from '../components/Object3DComponent'
 
 export const nodeToEntityJson = (node: any): EntityJson => {
-  const parentId = node.extras.parent ? { parent: node.extras.parent } : {}
+  const parentId = node.extras?.parent ? { parent: node.extras.parent } : {}
+  const uuid = node.extras?.uuid ? node.extras.uuid : MathUtils.generateUUID()
   return {
     name: node.name,
-    components: Object.entries(node.extensions).map(([k, v]) => {
-      return { name: k, props: v }
-    }),
-    uuid: node.extras.uuid,
+    components: node.extensions
+      ? Object.entries(node.extensions).map(([k, v]) => {
+          return { name: k, props: v }
+        })
+      : [],
+    uuid: uuid,
     ...parentId
   }
 }
@@ -29,7 +33,7 @@ export const nodeToEntityJson = (node: any): EntityJson => {
 export const gltfToSceneJson = (gltf: any): SceneJson => {
   handleScenePaths(gltf, 'decode')
   const rootGL = gltf.scenes[gltf.scene]
-  const rootUuid = rootGL.extras.uuid
+  const rootUuid = MathUtils.generateUUID()
   const result: SceneJson = {
     entities: {},
     root: rootUuid,
@@ -55,18 +59,6 @@ export const gltfToSceneJson = (gltf: any): SceneJson => {
   return result
 }
 
-export const sceneFromGLTF = async (_url: string) => {
-  const loader = getGLTFLoader()
-  const url = AssetLoader.getAbsolutePath(_url)
-  try {
-    const gltf = await loader.loadAsync(url)
-
-    return gltfToSceneJson(gltf)
-  } catch (error) {
-    throw new RethrownError('error loading scene glTF: ', error)
-  }
-}
-
 const recursiveGetEntities = (root) => {
   const result = new Map()
   const frontier = [root]
@@ -89,72 +81,23 @@ export interface GLTFExtension {
   writeNode?(node, nodeDef)
 }
 
-export class XRE_GLTF implements GLTFExtension {
-  dudNodes: Map<Entity, Object3DWithEntity>
-  setParentOps: Array<{ parent: Entity; child: Entity }>
-  knownEntities: Map<Entity, Object3DWithEntity>
-  beforeParse(input) {
-    this.dudNodes = new Map()
-    this.setParentOps = new Array()
-    this.knownEntities = new Map()
-    const knownEntities = recursiveGetEntities(input)
-    const world = useWorld()
-    const eTree = world.entityTree
-    const idNodeMap = eTree.uuidNodeMap
-
-    for (const eNode of idNodeMap.values()) {
-      if (!knownEntities.has(eNode.entity)) {
-        const dud = new Object3D() as Object3DWithEntity
-        dud.entity = eNode.entity
-        eNode.children?.forEach((child) => {
-          this.setParentOps.push({ parent: eNode.entity, child: child })
-        })
-        if (eNode.parentEntity !== undefined) {
-          this.setParentOps.push({ parent: eNode.parentEntity, child: eNode.entity })
-        }
-        prepareObjectForGLTFExport(dud, world)
-        this.knownEntities.set(dud.entity, dud)
-        this.dudNodes.set(dud.entity, dud)
-      }
-    }
-    this.setParentOps.forEach((op) => {
-      const child = this.knownEntities.get(op.child)
-      const parent = this.knownEntities.get(op.parent)
-      if (parent && child) parent.add(child)
-    })
-  }
-
-  afterParse(scene) {
-    this.setParentOps.forEach((op) => {
-      const child = this.knownEntities.get(op.child)
-      child?.removeFromParent()
-    })
-    for (const dudNode of this.dudNodes.values()) {
-      scene.remove(dudNode)
-    }
-    this.setParentOps = []
-    this.dudNodes.clear()
-    this.knownEntities.clear()
-  }
-}
-
-const serializeECS = (root: Scene, world: World = useWorld()) => {
+const serializeECS = (roots: Object3DWithEntity[], asset?: AssetComponentType, world: World = useWorld()) => {
   const eTree = world.entityTree
   const nodeMap = eTree.entityNodeMap
-  let sceneEntity
+  let rootEntities = new Array()
   const idxTable = new Map<Entity, number>()
   const extensionSet = new Set<string>()
   const frontier: Object3DWithEntity[] = []
   const haveChildren = new Array()
   const result = {
     asset: { version: '2.0', generator: 'XREngine glTF Scene Conversion' },
-    scenes: new Array(),
+    scenes: [{ nodes: new Array() }],
     scene: 0,
     nodes: new Array(),
     extensionsUsed: new Array<string>()
   }
 
-  frontier.push(root as Object3D as Object3DWithEntity)
+  frontier.push(...roots)
   do {
     const srcObj = frontier.pop()
     if (srcObj?.userData.gltfExtensions) {
@@ -168,22 +111,16 @@ const serializeECS = (root: Scene, world: World = useWorld()) => {
       }
       delete srcObj.userData.gltfExtensions
       const children = nodeMap.get(srcObj.entity)?.children
-      const isScene = srcObj instanceof Scene
+
       if (children) {
         haveChildren.push(nodeMap.get(srcObj.entity))
-        if (isScene) {
-          nodeBase['nodes'] = children
-        } else {
-          nodeBase['children'] = children
-        }
+        nodeBase['children'] = children
       }
-      if (isScene) {
-        sceneEntity = srcObj.entity
-        result.scenes.push(nodeBase)
-      } else {
-        idxTable.set(srcObj.entity, result.nodes.length)
-        result.nodes.push(nodeBase)
+      if (roots.includes(srcObj)) {
+        result.scenes[0].nodes.push(result.nodes.length)
       }
+      idxTable.set(srcObj.entity, result.nodes.length)
+      result.nodes.push(nodeBase)
     }
     if (srcObj?.children) {
       frontier.push(...(srcObj.children as Object3DWithEntity[]))
@@ -191,19 +128,21 @@ const serializeECS = (root: Scene, world: World = useWorld()) => {
   } while (frontier.length > 0)
   result.extensionsUsed = [...extensionSet.values()]
   for (const parent of haveChildren) {
-    if (parent.entity === sceneEntity) result.scenes[0].nodes = parent.children.map((entity) => idxTable.get(entity))
-    else parent.children = parent.children.map((entity) => idxTable.get(entity))
+    parent.children = parent.children.map((entity) => idxTable.get(entity))
   }
   return result
 }
 
-export const sceneToGLTF = async (root: Scene) => {
-  root.traverse((node: Object3DWithEntity) => {
-    if (node.entity) {
-      prepareObjectForGLTFExport(node)
-    }
-  })
-  const gltf = serializeECS(root)
+export const sceneToGLTF = (roots: Object3DWithEntity[]) => {
+  roots.forEach((root) =>
+    root.traverse((node: Object3DWithEntity) => {
+      if (node.entity) {
+        prepareObjectForGLTFExport(node)
+      }
+    })
+  )
+
+  const gltf = serializeECS(roots)
   handleScenePaths(gltf, 'encode')
   return gltf
 }
@@ -214,13 +153,11 @@ export const sceneToGLTF = async (root: Scene) => {
  * @param mode 'encode' or 'decode'
  */
 const handleScenePaths = (gltf: any, mode: 'encode' | 'decode') => {
-  const hostPath = Engine.publicPath.replace(/:\d{4}$/, '')
+  const hostPath = Engine.instance.publicPath.replace(/:\d{4}$/, '')
   const cacheRe = new RegExp(`${hostPath}:\\d{4}\/projects`)
   const symbolRe = /__\$project\$__/
   const pathSymbol = '__$project$__'
-  const frontier: any[] = []
-  gltf.scenes.forEach((scene) => frontier.push(scene))
-  gltf.nodes.forEach((node) => frontier.push(node))
+  const frontier = [...gltf.scenes, ...gltf.nodes]
   while (frontier.length > 0) {
     const elt = frontier.pop()
     for (const [k, v] of Object.entries(elt)) {
@@ -251,7 +188,6 @@ const addComponentDataToGLTFExtension = (obj3d: Object3D, data: ComponentJson) =
   for (const key in data.props) {
     const value = data.props[key]
     if (value instanceof Color) {
-      //componentProps[key] = `Color { r: ${value.r}, g: ${value.g}, b: ${value.b}, hex: #${value.getHexString()}}`
       componentProps[key] = `#${value.getHexString()}`
     } else {
       componentProps[key] = value

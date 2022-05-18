@@ -5,6 +5,7 @@ import {
   SCENE_COMPONENT_AMBIENT_LIGHT,
   SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES
 } from './loaders/AmbientLightFunctions'
+import { SCENE_COMPONENT_ASSET, SCENE_COMPONENT_ASSET_DEFAULT_VALUES } from './loaders/AssetComponentFunctions'
 import { SCENE_COMPONENT_AUDIO, SCENE_COMPONENT_AUDIO_DEFAULT_VALUES } from './loaders/AudioFunctions'
 import {
   SCENE_COMPONENT_BOX_COLLIDER,
@@ -24,6 +25,7 @@ import {
   SCENE_COMPONENT_DIRECTIONAL_LIGHT,
   SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES
 } from './loaders/DirectionalLightFunctions'
+import { SCENE_COMPONENT_ENVMAP, SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES } from './loaders/EnvMapFunctions'
 import {
   SCENE_COMPONENT_GROUND_PLANE,
   SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES
@@ -35,7 +37,6 @@ import {
 } from './loaders/HemisphereLightFunctions'
 import { SCENE_COMPONENT_IMAGE, SCENE_COMPONENT_IMAGE_DEFAULT_VALUES } from './loaders/ImageFunctions'
 import { SCENE_COMPONENT_INTERIOR, SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES } from './loaders/InteriorFunctions'
-import { SCENE_COMPONENT_LINK, SCENE_COMPONENT_LINK_DEFAULT_VALUES } from './loaders/LinkFunctions'
 import {
   SCENE_COMPONENT_LOOP_ANIMATION,
   SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
@@ -96,6 +97,7 @@ export const ScenePrefabs = {
   skybox: 'Skybox' as const,
   spawnPoint: 'Spawn Point' as const,
   group: 'Group' as const,
+  asset: 'Asset' as const,
   image: 'Image' as const,
   audio: 'Audio' as const,
   video: 'Video' as const,
@@ -119,7 +121,8 @@ export const defaultSpatialComponents: ComponentJson[] = [
 
 export const registerPrefabs = (world: World) => {
   world.scenePrefabRegistry.set(ScenePrefabs.directionalLight, [
-    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_DIRECTIONAL_LIGHT, props: SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES }
   ])
 
@@ -151,6 +154,12 @@ export const registerPrefabs = (world: World) => {
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_GROUP, props: SCENE_COMPONENT_GROUP_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.asset, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_ASSET, props: SCENE_COMPONENT_ASSET_DEFAULT_VALUES }
   ])
 
   world.scenePrefabRegistry.set(ScenePrefabs.groundPlane, [
@@ -186,12 +195,8 @@ export const registerPrefabs = (world: World) => {
   world.scenePrefabRegistry.set(ScenePrefabs.model, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_MODEL, props: SCENE_COMPONENT_MODEL_DEFAULT_VALUE },
+    { name: SCENE_COMPONENT_ENVMAP, props: SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_LOOP_ANIMATION, props: SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE }
-  ])
-
-  world.scenePrefabRegistry.set(ScenePrefabs.link, [
-    ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_LINK, props: SCENE_COMPONENT_LINK_DEFAULT_VALUES }
   ])
 
   world.scenePrefabRegistry.set(ScenePrefabs.particleEmitter, [

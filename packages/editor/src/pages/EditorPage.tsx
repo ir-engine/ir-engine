@@ -8,12 +8,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import {
-  createEngine,
-  initializeBrowser,
-  initializeCoreSystems,
-  initializeSceneSystems
-} from '@xrengine/engine/src/initializeEngine'
+import { initializeCoreSystems, initializeSceneSystems } from '@xrengine/engine/src/initializeEngine'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
 import EditorContainer from '../components/EditorContainer'
@@ -101,10 +96,7 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
   useEffect(() => {
     if (clientInitialized || projectState.projects.value.length <= 0) return
     setClientInitialized(true)
-    Engine.userId = 'editor' as UserId
-    Engine.isEditor = true
-    createEngine()
-    initializeBrowser()
+    Engine.instance.isEditor = true
     initializeCoreSystems(systems).then(async () => {
       await initializeSceneSystems()
       const projects = projectState.projects.value.map((project) => project.name)

@@ -81,7 +81,8 @@
                 "y": 1,
                 "z": 1
               }
-            }
+            },
+            "forModel": false
           }
         }
       ],
@@ -490,6 +491,39 @@
           "props": {
             "activeClipIndex": -1,
             "hasAvatarAnimations": false
+          }
+        },
+        {
+          "name": "envmap",
+          "props": {
+            "type": 3,
+            "envMapTextureType": 0,
+            "envMapSourceColor": 1193046,
+            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapIntensity": 1,
+            "envMapCubemapBake": {
+              "bakeType": 1,
+              "resolution": 1024,
+              "refreshMode": 0,
+              "envMapOrigin": "",
+              "boxProjection": true,
+              "bakePosition": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakePositionOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakeScale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            },
+            "forModel": true
           }
         }
       ],
@@ -1245,133 +1279,6 @@
       "parent": "11569F89-CFE6-4C3C-877D-E92B38B85066",
       "index": 0,
       "name": "Cloud"
-    },
-    "4007270C-DCB5-4FD8-8CB3-8EADEA24B2C2": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 0,
-              "y": 1,
-              "z": 0
-            },
-            "rotation": {
-              "x": -1.5707963267948972,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "shadow",
-          "props": {
-            "cast": true,
-            "receive": true
-          }
-        },
-        {
-          "name": "ocean",
-          "props": {
-            "normalMap": "__$project$__/default-project/assets/ocean/water_normal.tga",
-            "distortionMap": "__$project$__/default-project/assets/ocean/water_distortion.tga",
-            "envMap": "__$project$__/default-project/assets/galaxyTexture.jpg",
-            "color": 2651869,
-            "opacityRange": {
-              "x": 0.6,
-              "y": 0.9
-            },
-            "opacityFadeDistance": 0.12,
-            "shallowToDeepDistance": 0.1,
-            "shallowWaterColor": 3195869,
-            "waveScale": {
-              "x": 0.25,
-              "y": 0.25
-            },
-            "waveSpeed": {
-              "x": 0.08,
-              "y": 0
-            },
-            "waveTiling": 12,
-            "waveDistortionTiling": 7,
-            "waveDistortionSpeed": {
-              "x": 0.08,
-              "y": 0.08
-            },
-            "shininess": 40,
-            "reflectivity": 0.25,
-            "bigWaveHeight": 0.7,
-            "bigWaveTiling": {
-              "x": 1.5,
-              "y": 1.5
-            },
-            "bigWaveSpeed": {
-              "x": 0.02,
-              "y": 0
-            },
-            "foamSpeed": {
-              "x": 0.05,
-              "y": 0
-            },
-            "foamTiling": 2,
-            "foamColor": 16777215
-          }
-        }
-      ],
-      "parent": "11569F89-CFE6-4C3C-877D-E92B38B85066",
-      "index": 1,
-      "name": "Ocean"
-    },
-    "39406207-67C3-4D6F-BAE8-CA4E61D3B88F": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 15,
-              "y": 1,
-              "z": 0
-            },
-            "rotation": {
-              "x": -1.5707963267948972,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 5,
-              "y": 5,
-              "z": 5
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "shadow",
-          "props": {
-            "cast": true,
-            "receive": true
-          }
-        },
-        {
-          "name": "water",
-          "props": {}
-        }
-      ],
-      "parent": "11569F89-CFE6-4C3C-877D-E92B38B85066",
-      "index": 2,
-      "name": "Water"
     },
     "BBF0DDF7-875E-487B-9795-1D29177AAEFA": {
       "components": [

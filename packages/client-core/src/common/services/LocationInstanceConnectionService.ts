@@ -3,14 +3,12 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
-import { MediaStreamService } from '../../media/services/MediaStreamService'
 import { accessLocationState } from '../../social/services/LocationService'
 import { store, useDispatch } from '../../store'
 import { leave } from '../../transports/SocketWebRTCClientFunctions'
@@ -112,10 +110,10 @@ export const LocationInstanceConnectionService = {
     if (provisionResult.ipAddress && provisionResult.port) {
       dispatch(LocationInstanceConnectionAction.serverProvisioned(provisionResult, locationId!, sceneId!))
     } else {
-      EngineEvents.instance.dispatchEvent({
-        type: SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE,
-        instanceId
-      })
+      dispatchAction(
+        Engine.instance.store,
+        SocketWebRTCClientTransport.actions.noWorldServersAvailable({ instanceId: instanceId! })
+      )
     }
   },
   connectToServer: async () => {
@@ -138,12 +136,7 @@ export const LocationInstanceConnectionService = {
 
       const authState = accessAuthState()
       const user = authState.user.value
-      dispatchLocal(EngineActions.connect(user.id) as any)
-
-      EngineEvents.instance.addEventListener(
-        MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
-        MediaStreamService.triggerUpdateConsumers
-      )
+      dispatchAction(Engine.instance.store, EngineActions.connect({ id: user.id! }))
     } catch (error) {
       console.error('Network transport could not initialize, transport is: ', transport)
     }

@@ -6,10 +6,10 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { WaterComponent } from '../../components/WaterComponent'
@@ -18,7 +18,6 @@ import { SCENE_COMPONENT_WATER } from './WaterFunctions'
 class FakeWater extends Object3D {}
 
 describe('WaterFunctions', () => {
-  let world: World
   let entity: Entity
   let waterFunctions = proxyquire('./WaterFunctions', {
     '../../../common/functions/isClient': { isClient: true },
@@ -26,8 +25,7 @@ describe('WaterFunctions', () => {
   })
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 
@@ -62,32 +60,16 @@ describe('WaterFunctions', () => {
 
       const obj3d = getComponent(entity, Object3DComponent)?.value
       assert(obj3d && obj3d instanceof FakeWater, 'Water is not created')
+      assert(obj3d.userData.disableOutline, 'Water outline is not disabled')
     })
 
-    describe('Editor vs Location', () => {
-      it('creates Water in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        waterFunctions.deserializeWater(entity, sceneComponent)
+      waterFunctions.deserializeWater(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_WATER))
-      })
-
-      it('creates Water in Editor', () => {
-        Engine.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        waterFunctions.deserializeWater(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_WATER))
-
-        const obj3d = getComponent(entity, Object3DComponent)?.value
-        assert(obj3d && obj3d.userData.disableOutline, 'Water outline is not disabled')
-        Engine.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_WATER))
     })
   })
 

@@ -4,7 +4,6 @@ import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
@@ -23,6 +22,7 @@ import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../animation/AnimationState'
 import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
+import { BoneStructure } from '../AvatarBoneMatching'
 import { AvatarInputSchema } from '../AvatarInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
@@ -36,9 +36,9 @@ const capsuleHeight = defaultAvatarHeight - avatarRadius * 2
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
 export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
-  const world = useWorld()
+  const world = Engine.instance.currentWorld
   const userId = spawnAction.$from
-  const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)
+  const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
 
   const position = createVector3Proxy(TransformComponent.position, entity)
   const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
@@ -94,7 +94,9 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
     animationGraph: new AvatarAnimationGraph(),
     currentState: new AnimationState(),
     prevState: new AnimationState(),
-    prevVelocity: new Vector3()
+    prevVelocity: new Vector3(),
+    rig: {} as BoneStructure,
+    rootYRatio: 1
   })
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
@@ -118,7 +120,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   addComponent(entity, CollisionComponent, { collisions: [] })
 
   // If local player's avatar
-  if (userId === Engine.userId) {
+  if (userId === Engine.instance.userId) {
     addComponent(entity, SpawnPoseComponent, {
       position: new Vector3().copy(spawnAction.parameters.position),
       rotation: new Quaternion().copy(spawnAction.parameters.rotation)
@@ -164,7 +166,7 @@ export const createAvatarController = (entity: Entity) => {
       data: new Map()
     })
   }
-  const world = useWorld()
+  const world = Engine.instance.currentWorld
   const controller = world.physics.createController({
     isCapsule: true,
     material: world.physics.createMaterial(),
@@ -210,6 +212,7 @@ export const createAvatarController = (entity: Entity) => {
       movementEnabled: true,
       isJumping: false,
       isWalking: false,
+      isInAir: false,
       localMovementDirection: new Vector3(),
       velocitySimulator,
       currentSpeed: 0,

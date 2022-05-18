@@ -10,7 +10,9 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
+import { VisibleComponent } from '../../../scene/components/VisibleComponent'
 import EditorDirectionalLightHelper from '../../classes/EditorDirectionalLightHelper'
 import { DirectionalLightComponent, DirectionalLightComponentType } from '../../components/DirectionalLightComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -24,10 +26,11 @@ export const SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES = {
   intensity: 1,
   castShadow: true,
   shadowMapResolution: [256, 256],
-  shadowBias: 0.5,
+  shadowBias: 0,
   shadowRadius: 1,
   cameraFar: 100,
-  showCameraHelper: false
+  showCameraHelper: false,
+  useInCSM: false
 }
 
 export const deserializeDirectionalLight: ComponentDeserializeFunction = (
@@ -42,27 +45,25 @@ export const deserializeDirectionalLight: ComponentDeserializeFunction = (
   light.target.name = 'light-target'
   light.add(light.target)
 
-  if (Engine.isEditor) {
-    const helper = new EditorDirectionalLightHelper()
-    helper.visible = true
-    light.add(helper)
-    light.userData.helper = helper
+  const helper = new EditorDirectionalLightHelper()
+  helper.visible = true
+  helper.userData.isHelper = true
+  light.add(helper)
+  light.userData.helper = helper
 
-    const cameraHelper = new CameraHelper(light.shadow.camera)
-    cameraHelper.visible = false
-    light.userData.cameraHelper = cameraHelper
-    setObjectLayers(cameraHelper, ObjectLayers.NodeHelper)
-  }
+  const cameraHelper = new CameraHelper(light.shadow.camera)
+  cameraHelper.visible = false
+  light.userData.cameraHelper = cameraHelper
+  cameraHelper.userData.isHelper = true
 
-  if (Engine.isCSMEnabled) {
-    Engine.directionalLights.push(light)
-  } else {
-    addComponent(entity, Object3DComponent, { value: light })
-  }
+  setObjectLayers(helper, ObjectLayers.NodeHelper)
+  setObjectLayers(cameraHelper, ObjectLayers.NodeHelper)
 
+  EngineRenderer.instance.directionalLightEntities.push(entity)
+  addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, DirectionalLightComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_DIRECTIONAL_LIGHT)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_DIRECTIONAL_LIGHT)
 
   updateDirectionalLight(entity, props)
 }
@@ -79,7 +80,8 @@ export const updateDirectionalLight: ComponentUpdateFunction = (
   if (typeof properties.cameraFar !== 'undefined') light.shadow.camera.far = component.cameraFar
   if (typeof properties.shadowBias !== 'undefined') light.shadow.bias = component.shadowBias
   if (typeof properties.shadowRadius !== 'undefined') light.shadow.radius = component.shadowRadius
-  if (typeof properties.castShadow !== 'undefined') light.castShadow = component.castShadow
+  if (typeof properties.castShadow !== 'undefined')
+    light.castShadow = !EngineRenderer.instance.isCSMEnabled && component.castShadow
 
   if (typeof properties.shadowMapResolution !== 'undefined') {
     light.shadow.mapSize.copy(component.shadowMapResolution)
@@ -90,18 +92,56 @@ export const updateDirectionalLight: ComponentUpdateFunction = (
     light.shadow.needsUpdate = true
   }
 
-  if (Engine.isEditor) {
-    light.userData.helper.update()
-    light.userData.cameraHelper.visible = component.showCameraHelper
+  if (typeof properties.useInCSM !== 'undefined') {
+    if (component.useInCSM) {
+      if (EngineRenderer.instance.activeCSMLightEntity) {
+        if (EngineRenderer.instance.activeCSMLightEntity === entity) return
 
-    if (component.showCameraHelper) {
-      Engine.scene.add(light.userData.cameraHelper)
+        const activeCSMLight = getComponent(EngineRenderer.instance.activeCSMLightEntity, Object3DComponent)
+          ?.value as DirectionalLight
+        const activeCSMLightComponent = getComponent(
+          EngineRenderer.instance.activeCSMLightEntity,
+          DirectionalLightComponent
+        )
+
+        activeCSMLight.castShadow = !EngineRenderer.instance.isCSMEnabled && activeCSMLightComponent.castShadow
+        activeCSMLightComponent.useInCSM = false
+
+        if (!hasComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent)) {
+          addComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent, {})
+        }
+      }
+
+      if (EngineRenderer.instance.csm) {
+        EngineRenderer.instance.csm.changeLights(light)
+        light.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
+      }
+
+      EngineRenderer.instance.activeCSMLightEntity = entity
+
+      if (hasComponent(entity, VisibleComponent)) removeComponent(entity, VisibleComponent)
     } else {
-      Engine.scene.remove(light.userData.cameraHelper)
-    }
+      light.castShadow = !EngineRenderer.instance.isCSMEnabled && component.castShadow
+      component.useInCSM = false
 
-    light.userData.cameraHelper.update()
+      if (EngineRenderer.instance.activeCSMLightEntity === entity) EngineRenderer.instance.activeCSMLightEntity = null
+
+      if (!hasComponent(entity, VisibleComponent)) {
+        addComponent(entity, VisibleComponent, {})
+      }
+    }
   }
+
+  light.userData.helper.update()
+  light.userData.cameraHelper.visible = component.showCameraHelper
+
+  if (component.showCameraHelper) {
+    Engine.instance.scene.add(light.userData.cameraHelper)
+  } else {
+    Engine.instance.scene.remove(light.userData.cameraHelper)
+  }
+
+  light.userData.cameraHelper.update()
 }
 
 export const serializeDirectionalLight: ComponentSerializeFunction = (entity) => {
@@ -118,7 +158,8 @@ export const serializeDirectionalLight: ComponentSerializeFunction = (entity) =>
       shadowBias: component.shadowBias,
       shadowRadius: component.shadowRadius,
       cameraFar: component.cameraFar,
-      showCameraHelper: component.showCameraHelper
+      showCameraHelper: component.showCameraHelper,
+      useInCSM: component.useInCSM
     }
   }
 }
@@ -146,6 +187,7 @@ const parseDirectionalLightProperties = (props): DirectionalLightComponentType =
       props.shadowMapResolution ?? SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES.shadowMapResolution
     ),
     cameraFar: props.cameraFar ?? SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES.cameraFar,
-    showCameraHelper: props.showCameraHelper ?? SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES.showCameraHelper
+    showCameraHelper: props.showCameraHelper ?? SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES.showCameraHelper,
+    useInCSM: props.useInCSM ?? SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES.useInCSM
   } as DirectionalLightComponentType
 }

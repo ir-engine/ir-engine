@@ -27,13 +27,13 @@
     "outDir": "./lib"
   },
   "exclude": [
-    "../projects/projects/**",
+    "../**",
     "**/node_modules/**"
   ],
   "include": [
-    "../server-core/src/",
-    "./**/*.ts",
-    "./**/*.tsx",
+    "./*.ts",
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
     "../../PhysX.d.ts",
     "../../PhysXDebug.d.ts"
   ]

@@ -1,9 +1,11 @@
 import { Audio as AudioObject } from 'three'
 
+import { addActionReceptor } from '@xrengine/hyperflux'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { EngineActionType } from '../../ecs/classes/EngineService'
+import { EngineActions, EngineActionType } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -39,26 +41,38 @@ function createSilentAudioEl(streamsLive) {
 
 export default async function PositionalAudioSystem(world: World) {
   const avatarAudioQuery = defineQuery([AudioTagComponent, AvatarComponent])
-  const audioQuery = defineQuery([AudioTagComponent])
+  const audioTagQuery = defineQuery([AudioTagComponent])
+  const audioQuery = defineQuery([AudioComponent])
   const settingsQuery = defineQuery([PositionalAudioSettingsComponent])
 
   const avatarAudioStream: Map<Entity, any> = new Map()
 
-  let audioContextSuspended = true
-  let startSuspendedContexts = false
-  let suspendPositionalAudio = false
-  Engine.currentWorld.receptors.push((action: EngineActionType) => {
-    switch (action.type) {
-      case EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS:
-        startSuspendedContexts = true
-        audioContextSuspended = false
+  function audioReceptors(action: EngineActionType) {
+    matches(action)
+      .when(EngineActions.startSuspendedContexts.matches, () => {
         console.log('starting suspended audio nodes')
-        break
-      case EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO:
-        suspendPositionalAudio = true
-        break
-    }
-  })
+        for (const entity of avatarAudioQuery()) {
+          const audio = getComponent(entity, Object3DComponent).value
+          const audioEl = audio?.userData.audioEl
+          if (audioEl && audioEl.context?.state === 'suspended') audioEl.context.resume()
+        }
+        if (!Engine.instance.isEditor) {
+          for (const entity of audioQuery()) {
+            const audio = getComponent(entity, Object3DComponent).value
+            const audioEl = audio?.userData.audioEl
+            if (audioEl && audioEl.autoplay) audioEl.play()
+          }
+        }
+      })
+      .when(EngineActions.suspendPositionalAudio.matches, () => {
+        for (const entity of avatarAudioQuery()) {
+          const audio = getComponent(entity, Object3DComponent).value
+          const audioEl = audio?.userData.audioEl
+          if (audioEl && audioEl.context) audioEl.context.suspend()
+        }
+      })
+  }
+  addActionReceptor(Engine.instance.store, audioReceptors)
 
   let positionalAudioSettings: PositionalAudioSettingsComponentType
 
@@ -74,29 +88,11 @@ export default async function PositionalAudioSystem(world: World) {
   }
 
   return () => {
-    if (startSuspendedContexts) {
-      for (const entity of avatarAudioQuery()) {
-        const audio = getComponent(entity, Object3DComponent).value
-        const audioEl = audio?.userData.audioEl
-        if (audioEl && audioEl.context?.state === 'suspended') audioEl.context.resume()
-      }
-      startSuspendedContexts = false
-    }
-
-    if (suspendPositionalAudio) {
-      for (const entity of avatarAudioQuery()) {
-        const audio = getComponent(entity, Object3DComponent).value
-        const audioEl = audio?.userData.audioEl
-        if (audioEl && audioEl.context) audioEl.context.suspend()
-      }
-      suspendPositionalAudio = false
-    }
-
     for (const entity of settingsQuery.enter()) {
       positionalAudioSettings = getComponent(entity, PositionalAudioSettingsComponent)
     }
 
-    for (const entity of audioQuery.exit()) {
+    for (const entity of audioTagQuery.exit()) {
       const obj3d = getComponent(entity, Object3DComponent, true)
       if (obj3d && obj3d.value.userData.audioEl?.source) obj3d.value.userData.audioEl.disconnect()
     }

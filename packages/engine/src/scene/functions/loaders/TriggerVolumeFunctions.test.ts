@@ -1,16 +1,16 @@
 import assert from 'assert'
 import proxyquire from 'proxyquire'
-import { Mesh, MeshBasicMaterial, Object3D } from 'three'
+import { Mesh, MeshBasicMaterial } from 'three'
 import { Quaternion, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../../initializeEngine'
 import { ColliderComponent } from '../../../physics/components/ColliderComponent'
 import { TransformComponent, TransformComponentType } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -18,18 +18,14 @@ import { Object3DComponent } from '../../components/Object3DComponent'
 import { TriggerVolumeComponent } from '../../components/TriggerVolumeComponent'
 import { SCENE_COMPONENT_TRIGGER_VOLUME } from './TriggerVolumeFunctions'
 
-class FakeTriggerVolume extends Object3D {}
-
 describe('TriggerVolumeFunctions', () => {
-  let world: World
   let entity: Entity
   let triggervolumeFunctions = proxyquire('./TriggerVolumeFunctions', {
     '../../../physics/functions/createCollider': { createCollider: () => {} }
   })
 
   beforeEach(() => {
-    world = createWorld()
-    Engine.currentWorld = world
+    createEngine()
     entity = createEntity()
   })
 
@@ -50,33 +46,19 @@ describe('TriggerVolumeFunctions', () => {
 
       const triggervolumeComponent = getComponent(entity, TriggerVolumeComponent)
       assert.deepEqual(triggervolumeComponent, { ...sceneComponentData, active: true })
+
+      const obj3d = getComponent(entity, Object3DComponent)?.value as Mesh<any, MeshBasicMaterial>
+      assert(obj3d && obj3d.material.visible === false, 'TriggerVolume outline is not disabled')
+      assert(obj3d && obj3d.userData.isHelper, 'TriggerVolume outline is not disabled')
     })
 
-    describe('Editor vs Location', () => {
-      it('creates TriggerVolume in Location', () => {
-        addComponent(entity, EntityNodeComponent, { components: [] })
+    it('will include this component into EntityNodeComponent', () => {
+      addComponent(entity, EntityNodeComponent, { components: [] })
 
-        triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
+      triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
 
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_TRIGGER_VOLUME))
-        assert(!getComponent(entity, Object3DComponent))
-      })
-
-      it('creates TriggerVolume in Editor', () => {
-        Engine.isEditor = true
-
-        addComponent(entity, EntityNodeComponent, { components: [] })
-
-        triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
-
-        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_TRIGGER_VOLUME))
-
-        const obj3d = getComponent(entity, Object3DComponent)?.value as Mesh<any, MeshBasicMaterial>
-        assert(obj3d && obj3d.material.visible === false, 'TriggerVolume outline is not disabled')
-        Engine.isEditor = false
-      })
+      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_TRIGGER_VOLUME))
     })
   })
 
@@ -97,23 +79,17 @@ describe('TriggerVolumeFunctions', () => {
 
       addComponent(entity, TransformComponent, transform1)
       addComponent(entity, ColliderComponent, {
+        // @ts-ignore
         body: {
           getGlobalPose: () => transform2,
-          setGlobalPose: (t: TransformComponentType) => (transform2 = t),
+          setGlobalPose: (t) => (transform2 = t),
           _debugNeedsUpdate: false
         }
       })
     })
 
-    it('should not update anything', () => {
-      triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
-      triggervolumeFunctions.updateTriggerVolume(entity)
-
-      assert.deepEqual(getComponent(entity, ColliderComponent).body.getGlobalPose(), transform2)
-    })
-
     it('should not update collider body', () => {
-      Engine.isEditor = true
+      Engine.instance.isEditor = true
       triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
       triggervolumeFunctions.updateTriggerVolume(entity)
 
@@ -123,7 +99,6 @@ describe('TriggerVolumeFunctions', () => {
         rotation: transform1.rotation
       })
       assert(collider.body._debugNeedsUpdate)
-      Engine.isEditor = false
     })
   })
 

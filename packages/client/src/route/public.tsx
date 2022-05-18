@@ -3,6 +3,10 @@ import { Route, Switch } from 'react-router-dom'
 
 import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
+import { ClientTransportHandler } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
+import { createEngine, initializeBrowser } from '@xrengine/engine/src/initializeEngine'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
@@ -12,6 +16,7 @@ if (typeof globalThis.process === 'undefined') {
 
 const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
 const $auth = React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
+const $offline = React.lazy(() => import('@xrengine/client/src/pages/offline/offline'))
 const $503 = React.lazy(() => import('../pages/503'))
 const $404 = React.lazy(() => import('../pages/404'))
 
@@ -19,6 +24,10 @@ function RouterComp(props) {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
 
   useEffect(() => {
+    AuthService.doLoginAuto()
+    createEngine()
+    Network.instance.transportHandler = new ClientTransportHandler()
+    initializeBrowser()
     getCustomRoutes().then((routes) => {
       setCustomRoutes(routes)
     })
@@ -36,6 +45,7 @@ function RouterComp(props) {
             {customRoutes.map((route, i) => (
               <Route key={`custom-route-${i}`} path={route.route} component={route.component} {...route.props} />
             ))}
+            <Route key={'offline'} path={'/offline'} component={$offline} />
             {/* default to allowing admin access regardless */}
             <Route key={'default-admin'} path={'/admin'} component={$admin} />
             <Route key={'default-auth'} path={'/auth'} component={$auth} />

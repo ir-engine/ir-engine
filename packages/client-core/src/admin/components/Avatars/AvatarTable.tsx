@@ -3,19 +3,18 @@ import { useTranslation } from 'react-i18next'
 
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 
+import Drawer from '@mui/material/Drawer'
+
+import { useDispatch } from '../../../store'
+import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { avatarColumns, AvatarData } from '../../common/variables/avatar'
-import { AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
+import { AVATAR_PAGE_LIMIT, AvatarAction } from '../../services/AvatarService'
 import { useAvatarState } from '../../services/AvatarService'
 import { AvatarService } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
-import ViewAvatar from './ViewAvatar'
-
-if (!global.setImmediate) {
-  global.setImmediate = setTimeout as any
-}
 
 interface Props {
   // locationState?: any
@@ -30,6 +29,7 @@ const AvatarTable = (props: Props) => {
   const adminAvatars = adminAvatarState.avatars
   const adminAvatarCount = adminAvatarState.total
   const { t } = useTranslation()
+  const dispatch = useDispatch()
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
@@ -39,7 +39,7 @@ const AvatarTable = (props: Props) => {
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
   const [viewModal, setViewModal] = useState(false)
-  const [avatarAdmin, setAvatarAdmin] = useState<AvatarInterface | null>(null)
+  const [avatarData, setViewAvatarData] = useState<AvatarInterface | null>(null)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     AvatarService.fetchAdminAvatars(newPage, search, sortField, fieldOrder)
@@ -82,7 +82,7 @@ const AvatarTable = (props: Props) => {
             href="#h"
             className={styles.actionStyle}
             onClick={() => {
-              setAvatarAdmin(el)
+              setViewAvatarData(el)
               setViewModal(true)
             }}
           >
@@ -113,8 +113,8 @@ const AvatarTable = (props: Props) => {
     setPopConfirmOpen(false)
   }
 
-  const closeViewModal = (open: boolean) => {
-    setViewModal(open)
+  const closeViewModal = () => {
+    setViewModal(false)
   }
 
   return (
@@ -132,10 +132,6 @@ const AvatarTable = (props: Props) => {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      {/* {avatarSelectMenuOpen && (
-          <AvatarSelectMenu changeActiveMenu={() => setAvatarSelectMenuOpen(false)} isPublicAvatar={true} />
-        )} */}
-
       <ConfirmModal
         popConfirmOpen={popConfirmOpen}
         handleCloseModal={handleCloseModal}
@@ -143,8 +139,15 @@ const AvatarTable = (props: Props) => {
         name={avatarName}
         label={'avatar'}
       />
-      {avatarAdmin && viewModal && (
-        <ViewAvatar openView={viewModal} avatarData={avatarAdmin} closeViewModal={closeViewModal} />
+      {avatarData && viewModal && (
+        <Drawer anchor="right" open={viewModal} onClose={closeViewModal} classes={{ paper: styles.paperDrawer }}>
+          <AvatarSelectMenu
+            adminStyles={styles}
+            onAvatarUpload={() => dispatch(AvatarAction.avatarUpdated())}
+            changeActiveMenu={closeViewModal}
+            avatarData={avatarData}
+          />
+        </Drawer>
       )}
     </React.Fragment>
   )

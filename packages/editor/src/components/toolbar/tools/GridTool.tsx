@@ -1,25 +1,26 @@
 import React, { useEffect, useState } from 'react'
 
+import { useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
+
 import GridOnIcon from '@mui/icons-material/GridOn'
 
-import { SceneState } from '../../../functions/sceneRenderFunctions'
-import { useGridToolState } from '../../../services/GridToolServices'
 import NumericStepperInput from '../../inputs/NumericStepperInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const GridTool = () => {
-  const gridToolState = useGridToolState().value
-  const [isGridVisible, setGridVisible] = useState(gridToolState.visibility)
-  const [gridHeight, setGridHeight] = useState(gridToolState.gridHeight)
+  const engineRendererState = useEngineRendererState().value
+  const [isGridVisible, setGridVisible] = useState(engineRendererState.gridVisibility)
+  const [gridHeight, setGridHeight] = useState(engineRendererState.gridHeight)
 
   useEffect(() => {
-    updateGridHeight(gridToolState.gridHeight)
-  }, [gridToolState.gridHeight])
+    updateGridHeight(engineRendererState.gridHeight)
+  }, [engineRendererState.gridHeight])
 
   useEffect(() => {
-    updateGridVisibility(gridToolState.visibility)
-  }, [gridToolState.visibility])
+    updateGridVisibility(engineRendererState.gridVisibility)
+  }, [engineRendererState.gridVisibility])
 
   const updateGridVisibility = (val) => {
     setGridVisible(val)
@@ -30,11 +31,11 @@ const GridTool = () => {
   }
 
   const onToggleGridVisible = () => {
-    SceneState.grid.toggleGridVisible()
+    InfiniteGridHelper.instance.toggleGridVisible()
   }
 
   const onChangeGridHeight = (value) => {
-    SceneState.grid.setGridHeight(value)
+    InfiniteGridHelper.instance.setGridHeight(value)
   }
 
   return (

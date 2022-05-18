@@ -30,6 +30,7 @@ import InputGroup from '../inputs/InputGroup'
 import InteractableGroup from '../inputs/InteractableGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
+import EnvMapEditor from './EnvMapEditor'
 import NodeEditor from './NodeEditor'
 import ShadowProperties from './ShadowProperties'
 import { EditorComponentType, updateProperty } from './Util'
@@ -116,13 +117,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     <NodeEditor description={t('editor:properties.model.description')} {...props}>
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
         <ModelInput value={modelComponent.src} onChange={updateSrc} />
-        {hasError && errorComponent.srcError && (
-          <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
-        )}
-      </InputGroup>
-      <InputGroup name="Environment Map" label={t('editor:properties.model.lbl-envmapUrl')}>
-        <ModelInput value={modelComponent.envMapOverride} onChange={updateProperty(ModelComponent, 'envMapOverride')} />
-        {hasError && errorComponent.envMapError && (
+        {hasError && errorComponent?.srcError && (
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
       </InputGroup>
@@ -172,6 +167,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         <BooleanInput value={isInteractable} onChange={onChangeInteractable} />
       </InputGroup>
       {isInteractable && <InteractableGroup node={props.node}></InteractableGroup>}
+      <EnvMapEditor node={props.node} />
       <ShadowProperties node={props.node} />
     </NodeEditor>
   )

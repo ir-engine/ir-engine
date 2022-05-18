@@ -9,9 +9,8 @@ import { v1 } from 'uuid'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { AvatarInterface, AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { resolveUser, resolveWalletUser, User, UserSeed, UserSetting } from '@xrengine/common/src/interfaces/User'
 import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
@@ -19,8 +18,8 @@ import { isDev } from '@xrengine/common/src/utils/isDev'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
@@ -28,7 +27,9 @@ import { accessLocationState } from '../../social/services/LocationService'
 import { accessPartyState } from '../../social/services/PartyService'
 import { store, useDispatch } from '../../store'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { serverHost } from '../../util/config'
 import { accessStoredLocalState, StoredLocalAction, StoredLocalActionType } from '../../util/StoredLocalState'
+import { uploadToFeathersService } from '../../util/upload'
 import { userPatched } from '../functions/userPatched'
 
 type AuthStrategies = {
@@ -159,7 +160,7 @@ accessAuthState().attach(() => ({
 
 //Service
 export const AuthService = {
-  doLoginAuto: async (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
+  doLoginAuto: async (forceClientAuthReset?: boolean) => {
     const dispatch = useDispatch()
     try {
       console.log(accessStoredLocalState().attach(Downgraded))
@@ -167,12 +168,8 @@ export const AuthService = {
       let accessToken =
         forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
 
-      if (allowGuest !== true && accessToken == null) {
-        return
-      }
-
       if (forceClientAuthReset === true) await (client as any).authentication.reset()
-      if (allowGuest === true && (accessToken == null || accessToken.length === 0)) {
+      if (accessToken == null || accessToken.length === 0) {
         const newProvider = await client.service('identity-provider').create({
           type: 'guest',
           token: v1()
@@ -331,26 +328,17 @@ export const AuthService = {
   },
   loginUserByOAuth: async (service: string, location: any) => {
     const dispatch = useDispatch()
-    const serverHost =
-      process.env.APP_ENV === 'development'
-        ? `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}:${
-            (globalThis as any).process.env['VITE_SERVER_PORT']
-          }`
-        : `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}`
-    {
-      dispatch(AuthAction.actionProcessing(true))
-      const token = accessAuthState().authUser.accessToken.value
-      const path = location?.state?.from || location.pathname
-      const queryString = querystring.parse(window.location.search.slice(1))
-      const redirectObject = {
-        path: path
-      } as any
-      if (queryString.instanceId && queryString.instanceId.length > 0)
-        redirectObject.instanceId = queryString.instanceId
-      window.location.href = `${serverHost}/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(
-        redirectObject
-      )}`
-    }
+    dispatch(AuthAction.actionProcessing(true))
+    const token = accessAuthState().authUser.accessToken.value
+    const path = location?.state?.from || location.pathname
+    const queryString = querystring.parse(window.location.search.slice(1))
+    const redirectObject = {
+      path: path
+    } as any
+    if (queryString.instanceId && queryString.instanceId.length > 0) redirectObject.instanceId = queryString.instanceId
+    window.location.href = `${serverHost}/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(
+      redirectObject
+    )}`
   },
   loginUserByJwt: async (accessToken: string, redirectSuccess: string, redirectError: string) => {
     const dispatch = useDispatch()
@@ -396,7 +384,7 @@ export const AuthService = {
       .catch(() => dispatch(AuthAction.didLogout()))
       .finally(() => {
         dispatch(AuthAction.actionProcessing(false))
-        AuthService.doLoginAuto(true, true)
+        AuthService.doLoginAuto(true)
       })
   },
   registerUserByEmail: (form: EmailRegistrationForm) => {
@@ -687,39 +675,18 @@ export const AuthService = {
     dispatch(AuthAction.avatarUpdated(result))
   },
   uploadAvatarModel: async (avatar: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) => {
-    const uploadArguments: AssetUploadType = {
+    await uploadToFeathersService('upload-asset', [avatar, thumbnail], {
       type: 'user-avatar-upload',
-      files: [avatar, thumbnail],
       args: {
         avatarName,
         isPublicAvatar: !!isPublicAvatar
       }
-    }
-    const response = await client.service('upload-asset').create(uploadArguments)
-    if (response && !isPublicAvatar) {
-      const dispatch = useDispatch()
-      dispatch(AuthAction.userAvatarIdUpdated(response))
+    })
+    const avatarDetail = (await client.service('avatar').get(avatarName)) as AvatarProps
+    if (!isPublicAvatar) {
       const selfUser = accessAuthState().user
-      const userId = selfUser.id.value ?? null
-      client
-        .service('user')
-        .patch(userId, { avatarId: avatarName })
-        .then((_) => {
-          AlertService.dispatchAlertSuccess(i18n.t('user:avatar.upload-success-msg'))
-          dispatchFrom(Engine.userId, () =>
-            NetworkWorldAction.avatarDetails({
-              avatarDetail: response
-            })
-          ).cache({ removePrevious: true })
-          const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
-          transport?.sendNetworkStatUpdateMessage({
-            type: MessageTypes.AvatarUpdated,
-            userId: selfUser.id.value,
-            avatarId: avatarName,
-            avatarURL: response.avatarURL,
-            thumbnailURL: response.thumbnailURL
-          })
-        })
+      const userId = selfUser.id.value!
+      AuthService.updateUserAvatarId(userId, avatarName, avatarDetail.avatarURL, avatarDetail.thumbnailURL!)
     }
   },
   removeAvatar: async (keys: string) => {
@@ -765,6 +732,7 @@ export const AuthService = {
       })
   },
   updateUserAvatarId: async (userId: string, avatarId: string, avatarURL: string, thumbnailURL: string) => {
+    const world = Engine.instance.currentWorld
     const dispatch = useDispatch()
 
     client
@@ -774,15 +742,16 @@ export const AuthService = {
       })
       .then((res: any) => {
         // dispatchAlertSuccess(dispatch, 'User Avatar updated');
-        dispatch(AuthAction.userAvatarIdUpdated(res))
-        dispatchFrom(Engine.userId, () =>
+        dispatch(AuthAction.userAvatarIdUpdated(res.avatarId))
+        dispatchAction(
+          world.store,
           NetworkWorldAction.avatarDetails({
             avatarDetail: {
               avatarURL,
               thumbnailURL
             }
           })
-        ).cache({ removePrevious: true })
+        )
         const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
         transport?.sendNetworkStatUpdateMessage({
           type: MessageTypes.AvatarUpdated,
@@ -983,8 +952,7 @@ export const AuthAction = {
       name
     }
   },
-  userAvatarIdUpdated: (result: User) => {
-    const avatarId = result.avatarId
+  userAvatarIdUpdated: (avatarId: string) => {
     return {
       type: 'USERAVATARID_UPDATED' as const,
       avatarId

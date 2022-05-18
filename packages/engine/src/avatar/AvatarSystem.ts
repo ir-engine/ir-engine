@@ -1,6 +1,8 @@
 import { Group } from 'three'
 import matches from 'ts-matches'
 
+import { addActionReceptor } from '@xrengine/hyperflux'
+
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
@@ -12,7 +14,6 @@ import {
   removeComponent
 } from '../ecs/functions/ComponentFunctions'
 import { useWorld } from '../ecs/functions/SystemHooks'
-import { CameraIKComponent } from '../ikrig/components/CameraIKComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
@@ -28,6 +29,7 @@ import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
 import { detectUserInCollisions } from './functions/detectUserInCollisions'
+import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 function avatarActionReceptor(action) {
   const world = useWorld()
@@ -78,7 +80,7 @@ function avatarActionReceptor(action) {
     })
 
     .when(NetworkWorldAction.xrHandsConnected.matches, (a) => {
-      if (a.$from === Engine.userId) return
+      if (a.$from === Engine.instance.userId) return
       const entity = world.getUserAvatarEntity(a.$from)
       if (!entity) return
 
@@ -97,7 +99,7 @@ function avatarActionReceptor(action) {
 
     .when(NetworkWorldAction.teleportObject.matches, (a) => {
       const [x, y, z, qX, qY, qZ, qW] = a.pose
-      const entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
+      const entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)!
       const controllerComponent = getComponent(entity, AvatarControllerComponent)
       if (controllerComponent) {
         const velocity = getComponent(entity, VelocityComponent)
@@ -110,7 +112,7 @@ function avatarActionReceptor(action) {
 }
 
 export default async function AvatarSystem(world: World) {
-  world.receptors.push(avatarActionReceptor)
+  addActionReceptor(world.store, avatarActionReceptor)
 
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent])
@@ -130,16 +132,13 @@ export default async function AvatarSystem(world: World) {
         xrInputSourceComponent.controllerGripRightParent
       )
 
-      Engine.scene.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
+      xrInputSourceComponent.container.name = 'XR Container'
+      xrInputSourceComponent.head.name = 'XR Head'
+      Engine.instance.scene.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
 
       // Add head IK Solver
       if (!isEntityLocalClient(entity)) {
         proxifyXRInputs(entity, xrInputSourceComponent)
-        addComponent(entity, CameraIKComponent, {
-          boneIndex: 5, // Head bone
-          camera: xrInputSourceComponent.head,
-          rotationClamp: 0.785398
-        })
       }
     }
 
@@ -147,7 +146,6 @@ export default async function AvatarSystem(world: World) {
       const xrInputComponent = getComponent(entity, XRInputSourceComponent, true)
       xrInputComponent.container.removeFromParent()
       xrInputComponent.head.removeFromParent()
-      removeComponent(entity, CameraIKComponent)
     }
 
     for (const entity of xrHandsInputQuery.enter(world)) {
@@ -178,12 +176,12 @@ export default async function AvatarSystem(world: World) {
 
     for (const entity of xrLGripQuery.exit()) {
       const inputComponent = getComponent(entity, XRInputSourceComponent, true)
-      playTriggerReleaseAnimation(inputComponent.controllerGripLeft)
+      if (inputComponent) playTriggerReleaseAnimation(inputComponent.controllerGripLeft)
     }
 
     for (const entity of xrRGripQuery.exit()) {
       const inputComponent = getComponent(entity, XRInputSourceComponent, true)
-      playTriggerReleaseAnimation(inputComponent.controllerGripRight)
+      if (inputComponent) playTriggerReleaseAnimation(inputComponent.controllerGripRight)
     }
   }
 }

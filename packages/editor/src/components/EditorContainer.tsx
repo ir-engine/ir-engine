@@ -1,33 +1,27 @@
 import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
-import { getGLTFLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { GLTFExporter } from '@xrengine/engine/src/assets/exporters/gltf/GLTFExporter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { accessEngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { gltfToSceneJson, sceneFromGLTF, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
-import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
+import { gltfToSceneJson, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
+import { useHookEffect } from '@xrengine/hyperflux'
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import TuneIcon from '@mui/icons-material/Tune'
 import Dialog from '@mui/material/Dialog'
 
+import { extractZip, uploadProjectFile } from '../functions/assetFunctions'
 import { disposeProject, loadProjectScene, runPreprojectLoadTasks, saveProject } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
-import {
-  DefaultExportOptions,
-  DefaultExportOptionsType, //exportScene,
-  initializeRenderer
-} from '../functions/sceneRenderFunctions'
+import { initializeRenderer } from '../functions/sceneRenderFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadBakeToServer } from '../functions/uploadCubemapBake'
 import { cmdOrCtrlString } from '../functions/utils'
@@ -39,7 +33,6 @@ import ScenesPanel from './assets/ScenesPanel'
 import { ControlText } from './controlText/ControlText'
 import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
-import ExportProjectDialog from './dialogs/ExportProjectDialog'
 import { ProgressDialog } from './dialogs/ProgressDialog'
 import SaveNewProjectDialog from './dialogs/SaveNewProjectDialog'
 import { DndWrapper } from './dnd/DndWrapper'
@@ -163,7 +156,7 @@ const EditorContainer = () => {
     setSearchElement(searchInput)
   }
 
-  useHookedEffect(() => {
+  useHookEffect(() => {
     if (sceneName.value && editorReady) {
       console.log(`Loading scene ${sceneName.value} via given url`)
       loadScene(sceneName.value)
@@ -250,8 +243,10 @@ const EditorContainer = () => {
   }
 
   const onSaveAs = async () => {
+    const sceneLoaded = accessEngineState().sceneLoaded.value
+
     // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-    if (!Engine.sceneLoaded) {
+    if (!sceneLoaded) {
       setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
       return
     }
@@ -265,14 +260,14 @@ const EditorContainer = () => {
           setDialogComponent(
             <SaveNewProjectDialog
               thumbnailUrl={URL.createObjectURL(blob!)}
-              initialName={Engine.scene.name}
+              initialName={Engine.instance.scene.name}
               onConfirm={resolve}
               onCancel={resolve}
             />
           )
         })) as any
         if (result && projectName.value) {
-          const cubemapUrl = await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
+          await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
           await saveScene(projectName.value, result.name, blob, abortController.signal)
           dispatch(EditorAction.sceneModified(false))
         } else {
@@ -291,63 +286,31 @@ const EditorContainer = () => {
     }
     setToggleRefetchScenes(!toggleRefetchScenes)
   }
-  /*
-  const onExportProject = async () => {
-    if (!sceneName) return
-    const options = await new Promise<DefaultExportOptionsType>((resolve) => {
-      setDialogComponent(
-        <ExportProjectDialog
-          defaultOptions={Object.assign({}, DefaultExportOptions)}
-          onConfirm={resolve}
-          onCancel={resolve}
-        />
-      )
-    })
 
-    if (!options) {
-      setDialogComponent(null)
-      return
-    }
+  const onImportAsset = async () => {
+    const el = document.createElement('input')
+    el.type = 'file'
+    el.multiple = true
+    el.accept = '.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip'
+    el.style.display = 'none'
+    el.onchange = async () => {
+      const pName = projectName.value
+      if (el.files && el.files.length > 0 && pName) {
+        const fList = el.files
+        const files = [...Array(el.files.length).keys()].map((i) => fList[i])
+        const nuUrl = (await uploadProjectFile(pName, files, true)).map((url) => url.url)
 
-    const abortController = new AbortController()
-
-    setDialogComponent(
-      <ProgressDialog
-        title={t('editor:exporting')}
-        message={t('editor:exportingMsg')}
-        cancelable={true}
-        onCancel={() => abortController.abort()}
-      />
-    )
-
-    try {
-      const { glbBlob } = await exportScene(options)
-
-      setDialogComponent(null)
-
-      const el = document.createElement('a')
-      el.download = Engine.scene.name + '.gltf'
-      el.href = URL.createObjectURL(glbBlob)
-      document.body.appendChild(el)
-      el.click()
-      document.body.removeChild(el)
-    } catch (error) {
-      if (error['aborted']) {
-        setDialogComponent(null)
-        return
+        //process zipped files
+        const zipFiles = nuUrl.filter((url) => /\.zip$/.test(url))
+        const extractPromises = [...zipFiles.map((zipped) => extractZip(zipped))]
+        Promise.all(extractPromises).then(() => {
+          console.log('extraction complete')
+        })
       }
-
-      console.error(error)
-
-      setDialogComponent(
-        <ErrorDialog
-          title={t('editor:exportingError')}
-          message={error.message || t('editor:exportingErrorMsg')}
-          error={error}
-        />
-      )
     }
-  }*/
+    el.click()
+    el.remove()
+  }
 
   const onImportScene = async () => {
     const confirm = await new Promise((resolve) => {
@@ -371,12 +334,6 @@ const EditorContainer = () => {
       if (el.files && el.files.length > 0) {
         const fileReader: any = new FileReader()
         fileReader.onload = () => {
-          /*const loader = getGLTFLoader()
-          
-          loader.parse(fileReader.result, '', (gltf) => {
-            const json = gltfToSceneJson(gltf)
-            importScene(json)
-          })*/
           const json = JSON.parse(fileReader.result)
           importScene(gltfToSceneJson(json))
         }
@@ -384,18 +341,16 @@ const EditorContainer = () => {
       }
     }
     el.click()
+    el.remove()
   }
 
   const onExportScene = async () => {
-    /*
-    const projectFile = serializeWorld()*/
-    const projectFile = await sceneToGLTF(Engine.scene as any)
-
+    const projectFile = await sceneToGLTF([Engine.instance.scene as any])
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')
-    const fileName = Engine.scene.name.toLowerCase().replace(/\s+/g, '-')
-    el.download = fileName + '.gltf'
+    const fileName = Engine.instance.scene.name.toLowerCase().replace(/\s+/g, '-')
+    el.download = fileName + '.xre.gltf'
     el.href = URL.createObjectURL(projectBlob)
     document.body.appendChild(el)
     el.click()
@@ -403,8 +358,10 @@ const EditorContainer = () => {
   }
 
   const onSaveScene = async () => {
+    const sceneLoaded = accessEngineState().sceneLoaded.value
+
     // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-    if (!Engine.sceneLoaded) {
+    if (!sceneLoaded) {
       setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
       return
     }
@@ -436,7 +393,7 @@ const EditorContainer = () => {
 
     try {
       if (projectName.value) {
-        const cubemapUrl = await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
+        await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
         await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
         await saveProject(projectName.value)
       }
@@ -471,15 +428,16 @@ const EditorContainer = () => {
   }, [toggleRefetchScenes])
 
   useEffect(() => {
-    if (sceneLoaded.value && dockPanelRef.current) {
-      dockPanelRef.current.updateTab('viewPanel', {
-        id: 'viewPanel',
-        title: 'Viewport',
-        content: <div />
-      })
+    if (!dockPanelRef.current) return
 
-      dockPanelRef.current.updateTab('filesPanel', dockPanelRef.current.find('filesPanel') as TabData, true)
-    }
+    dockPanelRef.current.updateTab('viewPanel', {
+      id: 'viewPanel',
+      title: 'Viewport',
+      content: viewPortPanelContent(!sceneLoaded.value)
+    })
+
+    const activePanel = sceneLoaded.value ? 'filesPanel' : 'scenePanel'
+    dockPanelRef.current.updateTab(activePanel, dockPanelRef.current.find(activePanel) as TabData, true)
   }, [sceneLoaded])
 
   useEffect(() => {
@@ -488,7 +446,7 @@ const EditorContainer = () => {
     })
   }, [])
 
-  useHookedEffect(() => {
+  useHookEffect(() => {
     if (editorError) {
       onEditorError(editorError.value)
     }
@@ -522,10 +480,10 @@ const EditorContainer = () => {
         name: t('editor:menubar.saveAs'),
         action: onSaveAs
       },
-      // {
-      //   name: t('editor:menubar.exportGLB'), // TODO: Disabled temporarily till workers are working
-      //   action: onExportProject
-      // },
+      {
+        name: t('editor:menubar.importAsset'),
+        action: onImportAsset
+      },
       {
         name: t('editor:menubar.importScene'),
         action: onImportScene
@@ -540,6 +498,17 @@ const EditorContainer = () => {
       }
     ]
   }
+
+  const viewPortPanelContent = useCallback((shouldDisplay) => {
+    return shouldDisplay ? (
+      <div className={styles.bgImageBlock}>
+        <img src="/static/xrengine.png" />
+        <h2>{t('editor:selectSceneMsg')}</h2>
+      </div>
+    ) : (
+      <div />
+    )
+  }, [])
 
   const toolbarMenu = generateToolbarMenu()
   if (!editorReady) return <></>
@@ -594,12 +563,7 @@ const EditorContainer = () => {
                 {
                   id: 'viewPanel',
                   title: 'Viewport',
-                  content: (
-                    <div className={styles.bgImageBlock}>
-                      <img src="/static/xrengine.png" />
-                      <h2>{t('editor:selectSceneMsg')}</h2>
-                    </div>
-                  )
+                  content: viewPortPanelContent(true)
                 }
               ],
               size: 1

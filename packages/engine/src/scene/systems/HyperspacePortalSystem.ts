@@ -6,12 +6,12 @@ import { createAvatarController } from '../../avatar/functions/createAvatar'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { CameraMode } from '../../camera/types/CameraMode'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { EngineActions } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
-import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
+import { matchActionOnce, receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { PortalEffect } from '../classes/PortalEffect'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -47,21 +47,22 @@ export default async function HyperspacePortalSystem(world: World) {
 
       hyperspaceEffect.position.copy(playerObj.value.position)
       hyperspaceEffect.quaternion.copy(playerObj.value.quaternion)
-      Engine.camera.zoom = 1.5
+      Engine.instance.camera.zoom = 1.5
 
       // set scene to render just the hyperspace effect and avatar
-      Engine.scene.background = null
-      Engine.camera.layers.enable(ObjectLayers.Portal)
-      Engine.camera.layers.disable(ObjectLayers.Scene)
+      Engine.instance.scene.background = null
+      Engine.instance.camera.layers.enable(ObjectLayers.Portal)
+      Engine.instance.camera.layers.disable(ObjectLayers.Scene)
 
-      Engine.scene.add(light)
-      Engine.scene.add(hyperspaceEffect)
+      Engine.instance.scene.add(light)
+      Engine.instance.scene.add(hyperspaceEffect)
 
       // create receptor for joining the world to end the hyperspace effect
-      receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => {
+      matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, () => {
         hyperspaceEffect.fadeOut(delta).then(() => {
           removeComponent(world.worldEntity, HyperspaceTagComponent)
         })
+        return true
       })
     }
 
@@ -72,12 +73,12 @@ export default async function HyperspacePortalSystem(world: World) {
 
       hyperspaceEffect.removeFromParent()
 
-      Engine.camera.layers.enable(ObjectLayers.Scene)
+      Engine.instance.camera.layers.enable(ObjectLayers.Scene)
 
       light.removeFromParent()
       light.dispose()
 
-      Engine.camera.layers.disable(ObjectLayers.Portal)
+      Engine.instance.camera.layers.disable(ObjectLayers.Portal)
     }
 
     // run the logic for
@@ -87,9 +88,9 @@ export default async function HyperspacePortalSystem(world: World) {
       hyperspaceEffect.position.copy(playerObj.value.position)
       hyperspaceEffect.quaternion.copy(playerObj.value.quaternion)
 
-      if (Engine.camera.zoom > 0.75) {
-        Engine.camera.zoom -= delta
-        Engine.camera.updateProjectionMatrix()
+      if (Engine.instance.camera.zoom > 0.75) {
+        Engine.instance.camera.zoom -= delta
+        Engine.instance.camera.updateProjectionMatrix()
       }
     }
   }

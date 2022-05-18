@@ -2,6 +2,7 @@ import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 import _ from 'lodash'
 
+import logger from '../logger'
 import { UserDataType } from '../user/user/user.class'
 
 // This will attach the owner ID in the contact while creating/updating list item
@@ -74,7 +75,7 @@ export default () => {
 
       return context
     } catch (err) {
-      console.log('party-permission-authenticate error', err)
+      logger.error('party-permission-authenticate error:', err)
       return null!
     }
   }

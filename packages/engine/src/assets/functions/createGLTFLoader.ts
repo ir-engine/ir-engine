@@ -1,7 +1,7 @@
 import { VRMLoaderPlugin } from '@pixiv/three-vrm'
 
 import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GLTFHubsComponentsExtension } from '../classes/GLTFHubsComponentsExtension'
 import { GLTFHubsLightMapExtension } from '../classes/GLTFHubsLightMapExtension'
 import { GLTFInstancingExtension } from '../classes/GLTFInstancingExtension'
@@ -15,7 +15,7 @@ import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 export const initializeKTX2Loader = (loader: GLTFLoader) => {
   const ktxLoader: any = new KTX2Loader()
   ktxLoader.setTranscoderPath(`/loader_decoders/basis/`)
-  ktxLoader.detectSupport(Engine.renderer)
+  ktxLoader.detectSupport(EngineRenderer.instance.renderer)
   loader.setKTX2Loader(ktxLoader)
 }
 

@@ -1,5 +1,7 @@
 /** List of Asset Types. */
 export enum AssetType {
+  XRE = 'xre.gltf',
+  glB = 'glb',
   glTF = 'gltf',
   FBX = 'fbx',
   OBJ = 'obj',
@@ -20,3 +22,27 @@ export enum AssetType {
   XLS = 'xls',
   Script = 'script'
 }
+
+export const precacheSupport = Object.freeze({
+  [AssetType.XRE]: false,
+  [AssetType.glB]: true,
+  [AssetType.glTF]: true,
+  [AssetType.FBX]: true,
+  [AssetType.OBJ]: true,
+  [AssetType.VRM]: true,
+  [AssetType.PNG]: true,
+  [AssetType.JPEG]: true,
+  [AssetType.TGA]: true,
+  [AssetType.MP4]: false,
+  [AssetType.TS]: true,
+  [AssetType.MKV]: false,
+  [AssetType.MP3]: false,
+  [AssetType.OGG]: false,
+  [AssetType.M4A]: false,
+  [AssetType.AAC]: false,
+  [AssetType.CSV]: true,
+  [AssetType.PlainText]: true,
+  [AssetType.DOC]: true,
+  [AssetType.XLS]: true,
+  [AssetType.Script]: true
+})

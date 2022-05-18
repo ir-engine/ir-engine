@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import PermIdentityIcon from '@mui/icons-material/PermIdentity'
 import CardMedia from '@mui/material/CardMedia'
 
-import styles from './LazyImage.module.scss'
+import styles from './index.module.scss'
 
 const placeHolder =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII='

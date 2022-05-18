@@ -1,20 +1,19 @@
 import { AnimationMixer, BufferGeometry, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 import { NavMesh, Polygon } from 'yuka'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { parseGeometry } from '../../common/functions/parseGeometry'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { accessEngineState } from '../../ecs/classes/EngineService'
+import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentMap, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
-import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
+import { matchActionOnce, receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
 import { TransformChildComponent } from '../../transform/components/TransformChildComponent'
@@ -55,7 +54,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${key}'`)
     } else {
-      addComponent(entity, component, value, Engine.currentWorld)
+      addComponent(entity, component, value, Engine.instance.currentWorld)
     }
   }
 
@@ -110,7 +109,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     addComponent(e, Object3DComponent, { value: mesh })
 
     // to ensure colliders and other entities from gltf metadata move with models in the editor, we need to add a child transform component
-    if (Engine.isEditor)
+    if (Engine.instance.isEditor)
       addComponent(e, TransformChildComponent, {
         parent: entity,
         offsetPosition: localPosition,
@@ -143,7 +142,7 @@ export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
     navMesh.fromPolygons(polygons)
 
     // const helper = createConvexRegionHelper(navMesh)
-    // Engine.scene.add(helper)
+    // Engine.instance.scene.add(helper)
 
     addComponent(entity, NavMeshComponent, {
       yukaNavMesh: navMesh,
@@ -153,7 +152,7 @@ export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
   }
 }
 
-export const overrideTexture = (entity: Entity, object3d?: Object3D, world = useWorld()): void => {
+export const overrideTexture = (entity: Entity, object3d?: Object3D, world = Engine.instance.currentWorld): void => {
   const state = accessEngineState()
 
   if (state.sceneLoaded.value) {
@@ -175,7 +174,7 @@ export const overrideTexture = (entity: Entity, object3d?: Object3D, world = use
 
     return
   } else {
-    receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, () => {
+    matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, () => {
       overrideTexture(entity, object3d, world)
     })
   }
@@ -203,7 +202,7 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
     })
   }
 
-  const world = useWorld()
+  const world = Engine.instance.currentWorld
 
   if (props.textureOverride) {
     // TODO: we should push this to ECS, something like a SceneObjectLoadComponent,
@@ -212,21 +211,21 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
     overrideTexture(entity, obj3d, world)
   }
 
-  if (props.isDynamicObject) {
+  if (world.isHosting && props.isDynamicObject) {
     const node = world.entityTree.entityNodeMap.get(entity)
     if (node) {
-      dispatchFrom(world.hostId, () =>
+      dispatchAction(
+        world.store,
         NetworkWorldAction.spawnObject({
           prefab: '',
-          parameters: { sceneEntityId: node.uuid },
-          ownerIndex: world.clients.get(world.hostId)!.userIndex
+          parameters: { sceneEntityId: node.uuid }
         })
-      ).cache()
+      )
     }
   }
 
   // ignore disabling matrix auto update in the editor as we need to be able move things around with the transform tools
-  if (!Engine.isEditor && props.matrixAutoUpdate === false) {
+  if (!Engine.instance.isEditor && props.matrixAutoUpdate === false) {
     const transform = getComponent(entity, TransformComponent)
     obj3d.position.copy(transform.position)
     obj3d.quaternion.copy(transform.rotation)

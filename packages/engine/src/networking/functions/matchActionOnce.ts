@@ -1,7 +1,9 @@
 import matches, { Validator } from 'ts-matches'
 
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
+import { HyperStore } from '@xrengine/hyperflux/functions/StoreFunctions'
+
 import { EngineActionType } from '../../ecs/classes/EngineService'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 
 /**
  *
@@ -9,28 +11,29 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
  * @param callback the logic to run - returning truthy will cause the receptor to be removed
  */
 
-export const matchActionOnce = <A, B>(match: Validator<A, B>, callback: (match: B) => boolean) => {
-  const world = useWorld()
+export const matchActionOnce = <A, B>(
+  store: HyperStore<any>,
+  match: Validator<A, B>,
+  callback: (match: B) => boolean | void
+) => {
   function receptor(action) {
     matches(action).when(match, cb)
   }
   function cb(ac) {
-    if (callback(ac)) {
-      const idx = world.receptors.indexOf(receptor)
-      world.receptors.splice(idx, 1)
+    const response = callback(ac)
+    if (typeof response === 'undefined' || response === true) {
+      removeActionReceptor(store, receptor)
     }
   }
-  world.receptors.push(receptor)
+  addActionReceptor(store, receptor)
 }
 
-export const receiveActionOnce = (action: string, callback: (a: EngineActionType) => any) => {
-  const world = useWorld()
+export const receiveActionOnce = (store: HyperStore<any>, action: string, callback: (a: EngineActionType) => any) => {
   function receiveActionOnceReceptor(a: EngineActionType) {
     if (a.type === action) {
-      const receptorIndex = world.receptors.indexOf(receiveActionOnceReceptor)
-      world.receptors.splice(receptorIndex, 1)
+      removeActionReceptor(store, receiveActionOnceReceptor)
       callback(a)
     }
   }
-  world.receptors.push(receiveActionOnceReceptor)
+  addActionReceptor(store, receiveActionOnceReceptor)
 }

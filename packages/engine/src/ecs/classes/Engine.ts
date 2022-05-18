@@ -1,108 +1,75 @@
-/**
- * This file constains declaration of Engine Class.
- *
- * @author Fernando Serrano, Robert Long
- * @packageDocumentation
- */
-import {
-  DirectionalLight,
-  Object3D,
-  OrthographicCamera,
-  PerspectiveCamera,
-  Scene,
-  WebGLRenderer,
-  WebXRManager,
-  XRFrame,
-  XRSession
-} from 'three'
+import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene, XRFrame } from 'three'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import type { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { createHyperStore } from '@xrengine/hyperflux'
 
-import { CSM } from '../../assets/csm/CSM'
-import { isBot } from '../../common/functions/isBot'
-import { InputValue } from '../../input/interfaces/InputValue'
-import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
-import { World } from '../classes/World'
-import { accessEngineState } from './EngineService'
-import { Entity } from './Entity'
+import type { InputValue } from '../../input/interfaces/InputValue'
+import type { World } from '../classes/World'
+import type { Entity } from './Entity'
 
-/**
- * This is the base class which holds all the data related to the scene, camera,system etc.
- * Data is holded statically hence will be available everywhere.
- *
- * @author Josh, Vyacheslav, Gheric and the XREngine Team
- */
 export class Engine {
+  static instance: Engine
+
   /** The uuid of the logged-in user */
-  public static userId: UserId
+  userId: UserId
 
-  public static engineTimer: { start: Function; stop: Function; clear: Function } = null!
+  store = createHyperStore({
+    name: 'ENGINE',
+    getDispatchId: () => 'engine',
+    getDispatchTime: () => Engine.instance.elapsedTime
+  })
 
-  public static isBot = 'window' in globalThis ? isBot(window) : false
+  elapsedTime = 0
 
-  public static isHMD = false
+  engineTimer: { start: Function; stop: Function; clear: Function } = null!
+
+  isBot = false
+
+  isHMD = false
 
   /**
    * The current world
    */
-  public static currentWorld: World = null!
+  currentWorld: World = null!
 
   /**
    * All worlds that are currently instantiated
    */
-  public static worlds: World[] = []
+  worlds: World[] = []
 
-  /**
-   * Reference to the three.js renderer object.
-   */
-  static renderer: WebGLRenderer = null!
-  static effectComposer: EffectComposerWithSchema = null!
-  static xrManager: WebXRManager = null!
-  static xrSession: XRSession = null!
-  static csm: CSM = null!
-  static isCSMEnabled = false
-  static directionalLights: DirectionalLight[] = []
   /**
    * Reference to the three.js scene object.
    */
-  static scene: Scene = null!
-  static get sceneLoaded() {
-    return accessEngineState().sceneLoaded.value
-  }
-  static sceneLoadPromises: Promise<void>[] = []
+  scene: Scene = null!
 
   /**
    * Map of object lists by layer
    * (automatically updated by the SceneObjectSystem)
    */
-  static objectLayerList = {} as { [layer: number]: Set<Object3D> }
+  objectLayerList = {} as { [layer: number]: Set<Object3D> }
 
   /**
    * Reference to the three.js perspective camera object.
    */
-  static camera: PerspectiveCamera | OrthographicCamera = null!
-  static activeCameraEntity: Entity
-  static activeCameraFollowTarget: Entity | null
+  camera: PerspectiveCamera | OrthographicCamera = null!
+  activeCameraEntity: Entity = null!
+  activeCameraFollowTarget: Entity | null = null
 
   /**
    * Reference to the audioListener.
    * This is a virtual listner for all positional and non-positional audio.
    */
-  static audioListener: any = null
+  audioListener: AudioListener = null!
 
-  static inputState = new Map<any, InputValue>()
-  static prevInputState = new Map<any, InputValue>()
+  inputState = new Map<any, InputValue>()
+  prevInputState = new Map<any, InputValue>()
 
-  static isInitialized = false
-  static isReady = false
+  publicPath: string = null!
 
-  static hasJoinedWorld = false
+  simpleMaterials = false
+  xrFrame: XRFrame
 
-  static publicPath: string
-
-  static workers = [] as any[]
-  static simpleMaterials = false
-  static xrFrame: XRFrame
-
-  static isEditor = false
+  isEditor = false
 }
+
+globalThis.Engine = Engine

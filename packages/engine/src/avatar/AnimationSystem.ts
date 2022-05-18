@@ -1,9 +1,10 @@
-import { Euler } from 'three'
+import { Bone, Euler } from 'three'
 import matches from 'ts-matches'
+
+import { addActionReceptor } from '@xrengine/hyperflux'
 
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
-import { IKRigComponent } from '../ikrig/components/IKRigComponent'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
@@ -22,11 +23,9 @@ euler2YXZ.order = 'YXZ'
 const desiredTransformQuery = defineQuery([DesiredTransformComponent])
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent])
-const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, IKRigComponent])
+const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
 
 export default async function AnimationSystem(world: World) {
-  world.receptors.push(animationActionReceptor)
-
   function animationActionReceptor(action) {
     matches(action).when(NetworkWorldAction.avatarAnimation.matches, ({ $from }) => {
       const avatarEntity = world.getUserAvatarEntity($from)
@@ -41,8 +40,9 @@ export default async function AnimationSystem(world: World) {
       avatarAnimationComponent.animationGraph.changeState(action.newStateName)
     })
   }
+  addActionReceptor(world.store, animationActionReceptor)
 
-  await AnimationManager.instance.getDefaultAnimations()
+  await AnimationManager.instance.loadDefaultAnimations()
 
   return () => {
     const { delta } = world
@@ -89,10 +89,29 @@ export default async function AnimationSystem(world: World) {
       const deltaTime = delta * animationComponent.animationSpeed
       avatarAnimationComponent.animationGraph.update(deltaTime)
 
+      const rootBone = animationComponent.mixer.getRoot() as Bone
+      const rig = avatarAnimationComponent.rig
+
+      rootBone.traverse((bone: Bone) => {
+        if (!bone.isBone) return
+
+        const targetBone = rig[bone.name]
+        if (!targetBone) {
+          return
+        }
+
+        targetBone.quaternion.copy(bone.quaternion)
+
+        // Only copy the root position
+        if (targetBone === rig.Hips) {
+          targetBone.position.copy(bone.position)
+          targetBone.position.y *= avatarAnimationComponent.rootYRatio
+        }
+      })
+
       // TODO: Find a more elegant way to handle root motion
-      const bones = getComponent(entity, IKRigComponent).boneStructure
       const rootPos = AnimationManager.instance._defaultRootBone.position
-      bones.Hips.position.setX(rootPos.x).setZ(rootPos.z)
+      if (avatarAnimationComponent.rig.Hips) avatarAnimationComponent.rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
     }
   }
 }

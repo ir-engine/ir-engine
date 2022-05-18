@@ -81,7 +81,8 @@
                 "y": 1,
                 "z": 1
               }
-            }
+            },
+            "forModel": false
           }
         }
       ],
@@ -443,7 +444,8 @@
             "shadowBias": 0,
             "shadowRadius": 1,
             "cameraFar": 100,
-            "showCameraHelper": false
+            "showCameraHelper": false,
+            "useInCSM": true
           }
         }
       ],
@@ -496,8 +498,39 @@
         },
         {
           "name": "interactable",
+          "props": {}
+        },
+        {
+          "name": "envmap",
           "props": {
-            "interactable": false
+            "type": 3,
+            "envMapTextureType": 0,
+            "envMapSourceColor": 1193046,
+            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapIntensity": 1,
+            "envMapCubemapBake": {
+              "bakeType": 1,
+              "resolution": 1024,
+              "refreshMode": 0,
+              "envMapOrigin": "",
+              "boxProjection": true,
+              "bakePosition": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakePositionOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakeScale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            },
+            "forModel": true
           }
         }
       ],
@@ -966,6 +999,39 @@
           "props": {
             "activeClipIndex": -1,
             "hasAvatarAnimations": false
+          }
+        },
+        {
+          "name": "envmap",
+          "props": {
+            "type": 3,
+            "envMapTextureType": 0,
+            "envMapSourceColor": 1193046,
+            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapIntensity": 1,
+            "envMapCubemapBake": {
+              "bakeType": 1,
+              "resolution": 1024,
+              "refreshMode": 0,
+              "envMapOrigin": "",
+              "boxProjection": true,
+              "bakePosition": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakePositionOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakeScale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            },
+            "forModel": true
           }
         }
       ],

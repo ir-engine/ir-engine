@@ -1,4 +1,4 @@
-import { LinearToneMapping, Mesh, PCFSoftShadowMap, PerspectiveCamera, Vector3 } from 'three'
+import { DirectionalLight, LinearToneMapping, Mesh, PCFSoftShadowMap, PerspectiveCamera, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -12,11 +12,14 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineEvents } from '../../../ecs/classes/EngineEvents'
-import { accessEngineState } from '../../../ecs/classes/EngineService'
+import { accessEngineState, EngineActions } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
+import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
+import { DirectionalLightComponent } from '../../../scene/components/DirectionalLightComponent'
+import { Object3DComponent } from '../../../scene/components/Object3DComponent'
+import { VisibleComponent } from '../../../scene/components/VisibleComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { RenderSettingComponent, RenderSettingComponentType } from '../../components/RenderSettingComponent'
 
@@ -37,75 +40,130 @@ export const deserializeRenderSetting: ComponentDeserializeFunction = (
   const props = parseRenderSettingsProperties(json.props)
   addComponent(entity, RenderSettingComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_RENDERER_SETTINGS)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_RENDERER_SETTINGS)
 
-  updateRenderSetting(entity)
+  updateRenderSetting(entity, props)
 }
 
-export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => {
+export const updateRenderSetting: ComponentUpdateFunction = (
+  entity: Entity,
+  properties: RenderSettingComponentType
+) => {
   if (!isClient) return
+
+  if (
+    typeof properties.LODs === 'undefined' &&
+    typeof properties.overrideRendererSettings === 'undefined' &&
+    typeof properties.csm === 'undefined' &&
+    typeof properties.toneMapping === 'undefined' &&
+    typeof properties.toneMappingExposure === 'undefined' &&
+    typeof properties.shadowMapType === 'undefined'
+  ) {
+    return
+  }
+
   const component = getComponent(entity, RenderSettingComponent)
 
   resetEngineRenderer()
 
-  if (component.LODs)
+  if (typeof properties.LODs !== 'undefined' && component.LODs)
     AssetLoader.LOD_DISTANCES = { '0': component.LODs.x, '1': component.LODs.y, '2': component.LODs.z }
 
-  if (typeof component.overrideRendererSettings === 'undefined' || !component.overrideRendererSettings) {
-    Engine.isCSMEnabled = true
+  if (typeof properties.overrideRendererSettings === 'undefined' || !component.overrideRendererSettings) {
+    EngineRenderer.instance.isCSMEnabled = true
     if (accessEngineState().sceneLoaded.value) initializeCSM()
-    else receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, initializeCSM)
+    else matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, initializeCSM)
     return
   }
 
-  Engine.isCSMEnabled = component.csm
-  Engine.renderer.toneMapping = component.toneMapping
-  Engine.renderer.toneMappingExposure = component.toneMappingExposure
+  if (typeof properties.csm !== 'undefined') EngineRenderer.instance.isCSMEnabled = component.csm
+  if (typeof properties.toneMapping !== 'undefined')
+    EngineRenderer.instance.renderer.toneMapping = component.toneMapping
+  if (typeof properties.toneMappingExposure !== 'undefined')
+    EngineRenderer.instance.renderer.toneMappingExposure = component.toneMappingExposure
 
-  if (component.shadowMapType) {
-    Engine.renderer.shadowMap.enabled = true
-    Engine.renderer.shadowMap.needsUpdate = true
-    Engine.renderer.shadowMap.type = component.shadowMapType
-  } else {
-    Engine.renderer.shadowMap.enabled = false
+  if (typeof properties.shadowMapType !== 'undefined') {
+    if (component.shadowMapType) {
+      EngineRenderer.instance.renderer.shadowMap.enabled = true
+      EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
+      EngineRenderer.instance.renderer.shadowMap.type = component.shadowMapType
+    } else {
+      EngineRenderer.instance.renderer.shadowMap.enabled = false
+    }
   }
 
-  if (component.csm && Engine.renderer.shadowMap.enabled) {
-    if (accessEngineState().sceneLoaded.value) initializeCSM()
-    else receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, initializeCSM)
+  if (EngineRenderer.instance.renderer.shadowMap.enabled) {
+    if (component.csm) {
+      if (accessEngineState().sceneLoaded.value) initializeCSM()
+      else matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, initializeCSM)
+    } else {
+      disposeCSM()
+    }
   }
 }
 
 export const initializeCSM = () => {
-  if (!Engine.isHMD)
-    Engine.csm = new CSM({
-      camera: Engine.camera as PerspectiveCamera,
-      parent: Engine.scene,
-      lights: Engine.directionalLights
+  if (!Engine.instance.isHMD) {
+    let lights
+    let activeCSMLight
+    if (EngineRenderer.instance.activeCSMLightEntity) {
+      activeCSMLight = getComponent(EngineRenderer.instance.activeCSMLightEntity, Object3DComponent)
+        ?.value as DirectionalLight
+      lights = [activeCSMLight]
+
+      if (hasComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent))
+        removeComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent)
+    }
+
+    EngineRenderer.instance.directionalLightEntities.forEach((entity) => {
+      const light = getComponent(entity, Object3DComponent)?.value
+      if (light) light.castShadow = false
     })
 
-  Engine.scene.traverse((obj: Mesh) => {
-    if (typeof obj.material !== 'undefined' && obj.receiveShadow) Engine.csm.setupMaterial(obj)
-  })
+    EngineRenderer.instance.csm = new CSM({
+      camera: Engine.instance.camera as PerspectiveCamera,
+      parent: Engine.instance.scene,
+      lights
+    })
+
+    if (activeCSMLight) {
+      activeCSMLight.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
+    }
+
+    Engine.instance.scene.traverse((obj: Mesh) => {
+      if (typeof obj.material !== 'undefined' && obj.receiveShadow) EngineRenderer.instance.csm.setupMaterial(obj)
+    })
+  }
 }
 
 export const disposeCSM = () => {
-  if (!Engine.csm) return
+  if (!EngineRenderer.instance.csm) return
 
-  Engine.csm.remove()
-  Engine.csm.dispose()
-  Engine.csm = undefined!
+  EngineRenderer.instance.csm.remove()
+  EngineRenderer.instance.csm.dispose()
+  EngineRenderer.instance.csm = undefined!
+
+  if (EngineRenderer.instance.activeCSMLightEntity) {
+    if (!hasComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent)) {
+      addComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent, {})
+    }
+  }
+
+  EngineRenderer.instance.directionalLightEntities.forEach((entity) => {
+    const light = getComponent(entity, Object3DComponent)?.value
+    if (light) light.castShadow = getComponent(entity, DirectionalLightComponent).castShadow
+  })
 }
 
 export const resetEngineRenderer = (resetLODs = false) => {
   if (!isClient) return
 
-  Engine.renderer.shadowMap.enabled = true
-  Engine.renderer.shadowMap.type = PCFSoftShadowMap
-  Engine.renderer.shadowMap.needsUpdate = true
+  EngineRenderer.instance.renderer.shadowMap.enabled = true
+  EngineRenderer.instance.renderer.shadowMap.type = PCFSoftShadowMap
+  EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
 
-  Engine.renderer.toneMapping = LinearToneMapping
-  Engine.renderer.toneMappingExposure = 0.8
+  EngineRenderer.instance.renderer.toneMapping = LinearToneMapping
+  EngineRenderer.instance.renderer.toneMappingExposure = 0.8
 
   if (resetLODs) AssetLoader.LOD_DISTANCES = Object.assign({}, DEFAULT_LOD_DISTANCES)
 

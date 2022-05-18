@@ -5,6 +5,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Seat as SeatInterface } from '@xrengine/common/src/interfaces/Seat'
 
 import { Application } from '../../../declarations'
+import logger from '../../logger'
 
 export type SeatDataType = SeatInterface
 
@@ -123,7 +124,7 @@ export class Seat<T = SeatDataType> extends Service<T> {
     const subscriptionId = data.subscriptionId as string
     const subscription = await this.app.service('subscription').get(subscriptionId)
     if (subscription == null) {
-      console.log(
+      logger.info(
         'Attempt to patch subscription ' + subscriptionId + ' failed because that is not a valid subscription'
       )
       throw new NotFound()
@@ -134,7 +135,7 @@ export class Seat<T = SeatDataType> extends Service<T> {
       }
     })
     if ((seatResult as any).total === 0) {
-      console.log(
+      logger.info(
         'Attempt to patch user ' +
           id +
           ' into subscription ' +
@@ -145,7 +146,7 @@ export class Seat<T = SeatDataType> extends Service<T> {
     }
 
     if ((seatResult as any).total > 1) {
-      console.log('User has too many seats somehow')
+      logger.info('User has too many seats somehow')
       throw new BadRequest('User has too many seats')
     }
 

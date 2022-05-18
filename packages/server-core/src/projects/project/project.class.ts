@@ -10,6 +10,7 @@ import templateProjectJson from '@xrengine/projects/template-project/package.jso
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import logger from '../../logger'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
@@ -58,7 +59,7 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string) =
  */
 export const uploadLocalProjectToProvider = async (projectName, remove = true) => {
   // remove exiting storage provider files
-  console.log('uploadLocalProjectToProvider for project', projectName, 'started at ', new Date())
+  logger.info(`uploadLocalProjectToProvider for project "${projectName}" started at "${new Date()}".`)
   if (remove) {
     await deleteProjectFilesInStorageProvider(projectName)
   }
@@ -80,13 +81,13 @@ export const uploadLocalProjectToProvider = async (projectName, remove = true) =
             })
             resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`, storageProvider.cacheDomain, true))
           } catch (e) {
-            console.log(e)
+            logger.error(e)
             resolve(null)
           }
         })
       })
   )
-  console.log('uploadLocalProjectToProvider for project', projectName, 'ended at', new Date())
+  logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   return results.filter((success) => !!success) as string[]
 }
 
@@ -97,10 +98,27 @@ export class Project extends Service {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
+
+    this.app.isSetup.then(() => this._callOnLoad())
+  }
+
+  async _callOnLoad() {
+    const projects = (
+      (await super.find({
+        query: { $select: ['name'] }
+      })) as any
+    ).data as Array<{ name }>
+    await Promise.all(
+      projects.map(async ({ name }) => {
+        if (!fs.existsSync(path.join(projectsRootFolder, name))) return
+        const config = await getProjectConfig(name)
+        if (config?.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onLoad')
+      })
+    )
   }
 
   async _seedProject(projectName: string): Promise<any> {
-    console.warn('[Projects]: Found new locally installed project', projectName)
+    logger.warn('[Projects]: Found new locally installed project: ' + projectName)
     const projectConfig = (await getProjectConfig(projectName)) ?? {}
     await super.create({
       thumbnail: projectConfig.thumbnail,
@@ -139,7 +157,7 @@ export class Project extends Service {
         try {
           promises.push(this._seedProject(projectName))
         } catch (e) {
-          console.log(e)
+          logger.error(e)
         }
       }
 
@@ -147,11 +165,12 @@ export class Project extends Service {
     }
 
     await Promise.all(promises)
+    await this._callOnLoad()
 
     for (const { name, id } of data) {
       if (!locallyInstalledProjects.includes(name)) {
         await deleteProjectFilesInStorageProvider(name)
-        console.warn(`[Projects]: Project ${name} not found, assuming removed`)
+        logger.warn(`[Projects]: Project ${name} not found, assuming removed`)
         await super.remove(id)
       }
     }
@@ -159,17 +178,16 @@ export class Project extends Service {
 
   async create(data: { name: string }, params?: Params) {
     const projectName = cleanString(data.name)
+    const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
 
-    if (fs.existsSync(path.resolve(projectsRootFolder, projectName)))
+    if (fs.existsSync(projectLocalDirectory))
       throw new Error(`[Projects]: Project with name ${projectName} already exists`)
 
     if ((!config.db.forceRefresh && projectName === 'default-project') || projectName === 'template-project')
       throw new Error(`[Projects]: Project name ${projectName} not allowed`)
 
-    const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
-
     copyFolderRecursiveSync(templateFolderDirectory, projectsRootFolder)
-    fs.renameSync(path.resolve(projectsRootFolder, 'template-project'), path.resolve(projectsRootFolder, projectName))
+    fs.renameSync(path.resolve(projectsRootFolder, 'template-project'), projectLocalDirectory)
 
     fs.mkdirSync(path.resolve(projectLocalDirectory, '.git'), { recursive: true })
 
@@ -177,7 +195,7 @@ export class Project extends Service {
     try {
       await git.init(true)
     } catch (e) {
-      console.warn(e)
+      logger.warn(e)
     }
 
     const packageData = Object.assign({}, templateProjectJson) as any
@@ -314,11 +332,11 @@ export class Project extends Service {
           fs.rmSync(path.resolve(projectsRootFolder, name), { recursive: true })
         }
 
-        console.log('[Projects]: removing project', id, name)
+        logger.info(`[Projects]: removing project id "${id}", name: "${name}".`)
         await deleteProjectFilesInStorageProvider(name)
         await super.remove(id, params)
       } catch (e) {
-        console.log(`[Projects]: failed to remove project ${id}`, e)
+        logger.error(e, `[Projects]: failed to remove project "${id}": ${e.message}`)
         return e
       }
     }

@@ -3,9 +3,11 @@ import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
   ComponentConstructor,
+  getComponent,
   hasComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 
 import { serializeObject3DArray, serializeProperties } from '../functions/debug'
 import { EditorAction } from '../services/EditorServices'
@@ -21,6 +23,7 @@ export enum TagComponentOperation {
 export type TagComponentOperationType = {
   component: ComponentConstructor<any, any>
   type: TagComponentOperation
+  sceneComponentName: string
 }
 
 export interface TagComponentCommandParams extends CommandParams {
@@ -40,11 +43,13 @@ export default class TagComponentCommand extends Command {
       this.oldOperations = []
 
       for (let i = 0; i < this.affectedObjects.length; i++) {
-        const component = (this.operations[i] ?? this.operations[0]).component
+        const op = this.operations[i] ?? this.operations[0]
+        const component = op.component
         const componentExists = hasComponent(this.affectedObjects[i].entity, component)
         this.oldOperations.push({
           component,
-          type: componentExists ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
+          type: componentExists ? TagComponentOperation.ADD : TagComponentOperation.REMOVE,
+          sceneComponentName: op.sceneComponentName
         })
       }
     }
@@ -83,21 +88,34 @@ export default class TagComponentCommand extends Command {
 
       switch (operation.type) {
         case TagComponentOperation.ADD:
-          if (!isCompExists) addComponent(object.entity, operation.component, {})
+          if (!isCompExists) this.addTagComponent(object, operation)
           break
 
         case TagComponentOperation.REMOVE:
-          if (isCompExists) removeComponent(object.entity, operation.component)
+          if (isCompExists) this.removeTagComponent(object, operation)
           break
 
         default:
-          if (isCompExists) removeComponent(object.entity, operation.component)
-          else addComponent(object.entity, operation.component, {})
+          if (isCompExists) this.removeTagComponent(object, operation)
+          else this.addTagComponent(object, operation)
           break
       }
     }
 
     store.dispatch(EditorAction.sceneModified(true))
     store.dispatch(SelectionAction.changedObject(objects, undefined))
+  }
+
+  addTagComponent(object: EntityTreeNode, operation: TagComponentOperationType) {
+    addComponent(object.entity, operation.component, {})
+    getComponent(object.entity, EntityNodeComponent)?.components.push(operation.sceneComponentName)
+  }
+
+  removeTagComponent(object: EntityTreeNode, operation: TagComponentOperationType) {
+    removeComponent(object.entity, operation.component)
+    const comps = getComponent(object.entity, EntityNodeComponent)?.components
+    const index = comps.indexOf(operation.sceneComponentName)
+
+    if (index !== -1) comps.splice(index, 1)
   }
 }

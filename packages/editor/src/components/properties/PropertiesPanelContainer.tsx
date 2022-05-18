@@ -8,6 +8,9 @@ import { PersistTagComponent } from '@xrengine/engine/src/scene/components/Persi
 import { PreventBakeTagComponent } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
+import { SCENE_COMPONENT_PERSIST } from '@xrengine/engine/src/scene/functions/loaders/PersistFunctions'
+import { SCENE_COMPONENT_PREVENT_BAKE } from '@xrengine/engine/src/scene/functions/loaders/PreventBakeFunctions'
+import { SCENE_COMPONENT_VISIBLE } from '@xrengine/engine/src/scene/functions/loaders/VisibleFunctions'
 import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
@@ -113,6 +116,7 @@ export const PropertiesPanelContainer = () => {
     executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
       operation: {
         component: VisibleComponent,
+        sceneComponentName: SCENE_COMPONENT_VISIBLE,
         type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
       }
     })
@@ -122,6 +126,7 @@ export const PropertiesPanelContainer = () => {
     executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
       operation: {
         component: PreventBakeTagComponent,
+        sceneComponentName: SCENE_COMPONENT_PREVENT_BAKE,
         type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
       }
     })
@@ -131,6 +136,7 @@ export const PropertiesPanelContainer = () => {
     executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
       operation: {
         component: PersistTagComponent,
+        sceneComponentName: SCENE_COMPONENT_PERSIST,
         type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
       }
     })

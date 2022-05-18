@@ -6,7 +6,6 @@
       "dom",
       "dom.iterable"
     ],
-    "baseUrl": ".",
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,

@@ -2,33 +2,20 @@ import { Sequelize } from 'sequelize'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import config from '@xrengine/server-core/src/appconfig'
-import seeder from '@xrengine/server-core/src/util/seeder'
 
 import { Application } from '../declarations'
-import { copyDefaultProject, uploadLocalProjectToProvider } from './projects/project/project.class'
-import seederConfig from './seeder-config'
-
-const settingsServiceNames = [
-  'analytics-setting',
-  'authentication-setting',
-  'aws-setting',
-  'chargebee-setting',
-  'client-setting',
-  'email-setting',
-  'game-server-setting',
-  'redis-setting',
-  'server-setting'
-]
+import logger from './logger'
+import { seeder } from './seeder'
 
 export default (app: Application): void => {
   try {
     const { forceRefresh } = config.db
 
-    console.log('Starting app')
+    logger.info('Starting app.')
 
     const sequelize = new Sequelize({
       ...(config.db as any),
-      logging: forceRefresh ? console.log : false,
+      logging: forceRefresh ? logger.info.bind(logger) : false,
       define: {
         freezeTableName: true
       }
@@ -74,7 +61,7 @@ export default (app: Application): void => {
                 try {
                   if (!value.references) await sequelize.getQueryInterface().changeColumn(model, value.fieldName, value)
                 } catch (err) {
-                  console.error(err)
+                  logger.error(err)
                 }
               }
             }
@@ -84,58 +71,22 @@ export default (app: Application): void => {
         try {
           // connect to sequelize
           const sync = await sequelize.sync()
-
-          if (forceRefresh || prepareDb)
-            for (let config of seederConfig) {
-              if (config.path) {
-                const templates = config.templates
-                const service = app.service(config.path as any)
-                if (templates)
-                  for (let template of templates) {
-                    let isSeeded
-                    if (settingsServiceNames.indexOf(config.path) > -1) {
-                      const result = await service.find()
-                      isSeeded = result.total > 0
-                    } else {
-                      const searchTemplate = {}
-
-                      const sequelizeModel = service.Model
-                      const uniqueField = Object.values(sequelizeModel.rawAttributes).find(
-                        (value: any) => value.unique
-                      ) as any
-                      if (uniqueField) searchTemplate[uniqueField.fieldName] = template[uniqueField.fieldName]
-                      else
-                        for (let key of Object.keys(template))
-                          if (typeof template[key] !== 'object') searchTemplate[key] = template[key]
-                      const result = await service.find({
-                        query: searchTemplate
-                      })
-                      isSeeded = result.total > 0
-                    }
-                    if (!isSeeded) await service.create(template)
-                  }
-              }
-            }
-          // configure seeder and seed
           try {
-            if (forceRefresh) {
-              copyDefaultProject()
-              await app.service('project')._seedProject('default-project')
-              await uploadLocalProjectToProvider('default-project')
-            }
+            // configure seeder and seed
+            await seeder(app, forceRefresh, prepareDb)
           } catch (err) {
-            console.log('Feathers seeding error')
-            console.log(err)
+            logger.error('Feathers seeding error')
+            logger.error(err)
             promiseReject()
             throw err
           }
 
           app.set('sequelizeSync', sync)
           await sequelize.query('SET FOREIGN_KEY_CHECKS = 1')
-          console.log('Server Ready')
+          logger.info('Server Ready')
         } catch (err) {
-          console.log('Sequelize sync error')
-          console.log(err)
+          logger.error('Sequelize sync error')
+          logger.error(err)
           promiseReject()
           throw err
         }
@@ -143,8 +94,8 @@ export default (app: Application): void => {
         promiseResolve()
         if ((prepareDb || forceRefresh) && (isDev || process.env.EXIT_ON_DB_INIT === 'true')) process.exit(0)
       } catch (err) {
-        console.log('Sequelize setup error')
-        console.log(err)
+        logger.error('Sequelize setup error')
+        logger.error(err)
         promiseReject()
         throw err
       }
@@ -152,7 +103,7 @@ export default (app: Application): void => {
       return oldSetup.apply(this, args)
     }
   } catch (err) {
-    console.log('Error in app/sequelize.ts')
-    console.log(err)
+    logger.error('Error in app/sequelize.ts')
+    logger.error(err)
   }
 }

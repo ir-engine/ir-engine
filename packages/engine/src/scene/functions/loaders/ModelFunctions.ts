@@ -7,7 +7,6 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -20,7 +19,6 @@ import { overrideTexture, parseGLTFModel } from '../loadGLTFModel'
 export const SCENE_COMPONENT_MODEL = 'gltf-model'
 export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
   src: '',
-  envMapOverride: undefined,
   textureOverride: '',
   matrixAutoUpdate: true,
   isUsingGPUInstancing: false,
@@ -34,7 +32,7 @@ export const deserializeModel: ComponentDeserializeFunction = (
   const props = parseModelProperties(component.props)
   addComponent(entity, ModelComponent, props)
 
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
   updateModel(entity, props)
 }
 
@@ -53,15 +51,6 @@ export const updateModel: ComponentUpdateFunction = (entity: Entity, properties:
     }
   }
 
-  if (properties.envMapOverride) {
-    try {
-      // ToDo: Add right method to load envMap
-      removeError(entity, 'envMapError')
-    } catch (err) {
-      addError(entity, 'envMapError', err.message)
-    }
-  }
-
   if (typeof properties.textureOverride !== 'undefined') {
     overrideTexture(entity)
   }
@@ -74,7 +63,6 @@ export const serializeModel: ComponentSerializeFunction = (entity) => {
     name: SCENE_COMPONENT_MODEL,
     props: {
       src: component.src,
-      envMapOverride: component.envMapOverride !== '' ? component.envMapOverride : undefined,
       textureOverride: component.textureOverride,
       matrixAutoUpdate: component.matrixAutoUpdate,
       isUsingGPUInstancing: component.isUsingGPUInstancing,
@@ -86,7 +74,6 @@ export const serializeModel: ComponentSerializeFunction = (entity) => {
 const parseModelProperties = (props): ModelComponentType => {
   return {
     src: props.src ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.src,
-    envMapOverride: props.envMapOverride ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.envMapOverride,
     textureOverride: props.textureOverride ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.textureOverride,
     matrixAutoUpdate: props.matrixAutoUpdate ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.matrixAutoUpdate,
     isUsingGPUInstancing: props.isUsingGPUInstancing ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isUsingGPUInstancing,

@@ -24,7 +24,7 @@ export class FontManager {
       if (this._defaultFont) {
         resolve(this._defaultFont)
       }
-      this._loader.load(Engine.publicPath + '/fonts/IBMPlexSans-Regular.json', (font) => {
+      this._loader.load(Engine.instance.publicPath + '/fonts/IBMPlexSans-Regular.json', (font) => {
         this._defaultFont = font
         resolve(this._defaultFont)
       })

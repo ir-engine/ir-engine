@@ -48,7 +48,8 @@
 
     .profileMenuBlock {
       position: absolute;
-      right: 0;
+      right: 25px;
+      top: 0;
 
       .profileMenuContainer {
         z-index: 100;
@@ -104,6 +105,11 @@
         font-size: 24px;
       }
 
+      .buttonContainer {
+        display: flex;
+        gap: 10px;
+      }
+
       .btn {
         margin: 0;
         height: 40px;
@@ -145,13 +151,16 @@
           margin: 20px 0 0;
         }
 
-        .btn {
+        .buttonContainer {
           position: absolute;
           top: -2px;
           right: 0;
-          height: 35px;
-          width: 75px;
-          font-size: 14px;
+
+          .btn {
+            height: 35px;
+            width: 75px;
+            font-size: 14px;
+          }
         }
       }
     }

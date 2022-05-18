@@ -1,16 +1,18 @@
 import { isEmpty } from 'lodash'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { ErrorComponent } from '../components/ErrorComponent'
 
 export const addError = (entity: Entity, key: string, error: any) => {
   console.error('[addError]:', entity, key, error)
   const errorComponent = getComponent(entity, ErrorComponent) ?? addComponent(entity, ErrorComponent, {})
   errorComponent[key] = error
-  dispatchLocal(EngineActions.updateEntityError(entity))
+  dispatchAction(Engine.instance.store, EngineActions.updateEntityError({ entity }))
 }
 
 export const removeError = (entity: Entity, key: string) => {
@@ -21,8 +23,8 @@ export const removeError = (entity: Entity, key: string) => {
 
   if (isEmpty(errorComponent)) {
     removeComponent(entity, ErrorComponent)
-    dispatchLocal(EngineActions.updateEntityError(entity, true))
+    dispatchAction(Engine.instance.store, EngineActions.updateEntityError({ entity, isResolved: true }))
   } else {
-    dispatchLocal(EngineActions.updateEntityError(entity))
+    dispatchAction(Engine.instance.store, EngineActions.updateEntityError({ entity }))
   }
 }

@@ -16,7 +16,7 @@ import { useAuthState } from '../../services/AuthService'
 import MagicLinkEmail from '../Auth/MagicLinkEmail'
 import PasswordLogin from '../Auth/PasswordLogin'
 import { ConnectionTexts } from './ConnectionTexts'
-import styles from './ProfileConnections.module.scss'
+import styles from './index.module.scss'
 
 interface Props {
   auth?: any

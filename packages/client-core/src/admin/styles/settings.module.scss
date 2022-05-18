@@ -59,6 +59,8 @@
   max-width: 310px;
   position: absolute;
   padding: 2px 18px;
+  left: 0;
+  top: 0;
 }
 
 .settingsHeading {
@@ -94,7 +96,7 @@
   margin-left: 8px;
   flex: 1;
   width: 100%;
-  color: #f1f1f1;
+  color: var(--text);
   background: var(--inputBackground);
 }
 
@@ -105,7 +107,7 @@
   margin-bottom: 15px;
   background: var(--inputBackground);
   border: 1px solid #23282c;
-  color: #f1f1f1 !important;
+  color: var(--text) !important;
 }
 
 .createInput {
@@ -117,7 +119,7 @@
   margin-bottom: 15px;
   background: var(--inputBackground);
   border: 1px solid #23282c;
-  color: #f1f1f1 !important;
+  color: var(--text) !important;
 }
 
 .container {
@@ -143,6 +145,7 @@
 }
 
 .Paper {
+  border-radius: 0;
   padding: 0 10px 6px;
   background: var(--purpleDarkest);
 }
@@ -150,6 +153,7 @@
 .Paper2 {
   display: flex;
   padding: 5px 10px;
+  border-radius: 0;
   flex-direction: row;
   background: var(--purpleDarkest);
 
@@ -202,6 +206,7 @@
 
 .invisible {
   display: none;
+  color: var(--text);
 
   @media (max-width: 1200px) {
     display: inline-block;
@@ -210,9 +215,31 @@
 }
 
 .visible {
+  color: var(--text);
   display: inline-block;
 
   @media (max-width: 1200px) {
     display: none;
   }
+}
+
+.colorGridContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  label:nth-child(1) {
+    margin-right: 20px;
+  }
+
+  label:nth-child(3) {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}
+
+.colorGridDivider {
+  width: 100%;
+  border-color: rgb(255 255 255 / 80%);
+  margin: 10px 0;
 }

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { Trans, useTranslation } from 'react-i18next'
 import { Redirect } from 'react-router-dom'
@@ -8,18 +8,14 @@ import {
   useClientSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 
 const ROOT_REDIRECT: any = globalThis.process.env['VITE_ROOT_REDIRECT']
 
 export const HomePage = (): any => {
   const { t } = useTranslation()
   const clientSettingState = useClientSettingState()
+  const [isHardwareAccelerationEnabled, setIsHardwareAccelerationEnabled] = useState(true)
   const [clientSetting] = clientSettingState?.client?.value || []
-
-  useEffect(() => {
-    AuthService.doLoginAuto(true)
-  }, [])
 
   useEffect(() => {
     !clientSetting && ClientSettingService.fetchClientSettings()

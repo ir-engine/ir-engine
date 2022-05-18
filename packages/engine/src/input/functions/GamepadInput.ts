@@ -64,7 +64,7 @@ export const handleGamepads = () => {
 export const handleGamepadButton = (gamepad: Gamepad, index: number) => {
   if (gamepad.buttons[index].touched === (lastButtonInput[index] === BinaryValue.ON)) return
   // Set input data
-  Engine.inputState.set(gamepadMapping[gamepad.mapping || 'standard'][index], {
+  Engine.instance.inputState.set(gamepadMapping[gamepad.mapping || 'standard'][index], {
     type: InputType.BUTTON,
     value: [gamepad.buttons[index].touched ? BinaryValue.ON : BinaryValue.OFF],
     lifecycleState: gamepad.buttons[index].touched ? LifecycleValue.Started : LifecycleValue.Ended
@@ -94,7 +94,7 @@ export const handleGamepadAxis = (gamepad: Gamepad, inputIndex: number, mappedIn
 
   // Axis has changed, so get mutable reference to Input and set data
   if (x !== lastAxisInput[xIndex] || y !== lastAxisInput[yIndex]) {
-    Engine.inputState.set(mappedInputValue, {
+    Engine.instance.inputState.set(mappedInputValue, {
       type: InputType.TWODIM,
       value: [x, y],
       lifecycleState: LifecycleValue.Changed
@@ -102,7 +102,7 @@ export const handleGamepadAxis = (gamepad: Gamepad, inputIndex: number, mappedIn
   }
 
   if (x === 0 && lastAxisInput[xIndex] !== 0 && y === 0 && lastAxisInput[yIndex] !== 0) {
-    Engine.inputState.set(mappedInputValue, {
+    Engine.instance.inputState.set(mappedInputValue, {
       type: InputType.TWODIM,
       value: [0, 0],
       lifecycleState: LifecycleValue.Ended
@@ -150,7 +150,7 @@ export const handleGamepadDisconnected = (event: any): void => {
 
   for (let index = 0; index < lastButtonInput.length; index++) {
     if (lastButtonInput[index] === BinaryValue.ON) {
-      Engine.inputState.set(gamepadMapping[event.gamepad.mapping || 'standard'][index], {
+      Engine.instance.inputState.set(gamepadMapping[event.gamepad.mapping || 'standard'][index], {
         type: InputType.BUTTON,
         value: [BinaryValue.OFF],
         lifecycleState: LifecycleValue.Changed

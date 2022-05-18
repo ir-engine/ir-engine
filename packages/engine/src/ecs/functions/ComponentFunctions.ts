@@ -1,10 +1,13 @@
-import { State, StateMethods } from '@speigg/hookstate'
+import { State } from '@speigg/hookstate'
 import * as bitECS from 'bitecs'
 import { ArrayByType, ISchema, Type } from 'bitecs'
 
+import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
-import { useWorld } from './SystemHooks'
 
+/**
+ * @todo move this to engine scope
+ */
 export const ComponentMap = new Map<string, ComponentType<any>>()
 globalThis.ComponentMap = ComponentMap
 
@@ -214,7 +217,7 @@ export const getComponent = <T, S extends bitECS.ISchema>(
   entity: Entity,
   component: MappedComponent<T, S>,
   getRemoved = false,
-  world = useWorld()
+  world = Engine.instance.currentWorld
 ): T & SoAProxy<S> => {
   if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[getComponent]: entity is undefined')
@@ -227,13 +230,13 @@ export const getComponent = <T, S extends bitECS.ISchema>(
 export const addComponent = <T, S extends bitECS.ISchema>(
   entity: Entity,
   component: MappedComponent<T, S>,
-  args: T | SoAProxy<S>,
-  world = useWorld()
+  args: T,
+  world = Engine.instance.currentWorld
 ) => {
   if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[addComponent]: entity is undefined')
   }
-  if (hasComponent(entity, component)) throw new Error('component already exists' + entity + component._name)
+  if (hasComponent(entity, component, world)) throw new Error('component already exists' + entity + component._name)
   bitECS.addComponent(world, component, entity, false) // don't clear data on-add
   if ((component as any)._schema) {
     for (const [key] of Object.entries((component as any)._schema as any)) {
@@ -247,7 +250,7 @@ export const addComponent = <T, S extends bitECS.ISchema>(
 export const hasComponent = <T, S extends bitECS.ISchema>(
   entity: Entity,
   component: MappedComponent<T, S>,
-  world = useWorld()
+  world = Engine.instance.currentWorld
 ) => {
   if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[hasComponent]: entity is undefined')
@@ -258,22 +261,25 @@ export const hasComponent = <T, S extends bitECS.ISchema>(
 export const removeComponent = <T, S extends bitECS.ISchema>(
   entity: Entity,
   component: MappedComponent<T, S>,
-  world = useWorld()
+  world = Engine.instance.currentWorld
 ) => {
   if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[removeComponent]: entity is undefined')
   }
-  ;(component as any)._setPrevious(entity, getComponent(entity, component))
+  ;(component as any)._setPrevious(entity, getComponent(entity, component, false, world))
   bitECS.removeComponent(world, component, entity, true) // clear data on-remove
 }
 
-export const getAllComponents = (entity: Entity, world = useWorld()): ComponentConstructor<any, any>[] => {
+export const getAllComponents = (
+  entity: Entity,
+  world = Engine.instance.currentWorld
+): ComponentConstructor<any, any>[] => {
   return bitECS.getEntityComponents(world, entity) as ComponentConstructor<any, any>[]
 }
 
 export const getComponentCountOfType = <T, S extends bitECS.ISchema>(
   component: MappedComponent<T, S>,
-  world = useWorld()
+  world = Engine.instance.currentWorld
 ): number => {
   const query = defineQuery([component])
   return query(world).length
@@ -281,7 +287,7 @@ export const getComponentCountOfType = <T, S extends bitECS.ISchema>(
 
 export const getAllComponentsOfType = <T, S extends bitECS.ISchema>(
   component: MappedComponent<T, S>,
-  world = useWorld()
+  world = Engine.instance.currentWorld
 ): T[] => {
   const query = defineQuery([component])
   const entities = query(world)
@@ -290,7 +296,7 @@ export const getAllComponentsOfType = <T, S extends bitECS.ISchema>(
   })
 }
 
-export const removeAllComponents = (entity: Entity, world = useWorld()) => {
+export const removeAllComponents = (entity: Entity, world = Engine.instance.currentWorld) => {
   try {
     for (const component of bitECS.getEntityComponents(world, entity)) {
       removeComponent(entity, component as MappedComponent<any, any>, world)
@@ -304,9 +310,9 @@ export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier
   const query = bitECS.defineQuery([...components, bitECS.Not(EntityRemovedComponent)]) as bitECS.Query
   const enterQuery = bitECS.enterQuery(query)
   const exitQuery = bitECS.exitQuery(query)
-  const wrappedQuery = (world = useWorld()) => query(world) as Entity[]
-  wrappedQuery.enter = (world = useWorld()) => enterQuery(world) as Entity[]
-  wrappedQuery.exit = (world = useWorld()) => exitQuery(world) as Entity[]
+  const wrappedQuery = (world = Engine.instance.currentWorld) => query(world) as Entity[]
+  wrappedQuery.enter = (world = Engine.instance.currentWorld) => enterQuery(world) as Entity[]
+  wrappedQuery.exit = (world = Engine.instance.currentWorld) => exitQuery(world) as Entity[]
   return wrappedQuery
 }
 
