@@ -1,4 +1,4 @@
-import { dispatchAction } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -122,7 +122,4 @@ export default async function AudioSystem(world: World) {
       whenReady(() => playSoundEffect(entity))
     }
   }
-}
-function addActionReceptor(store: any, AudioSettingReceptor: any) {
-  throw new Error('Function not implemented.')
 }
