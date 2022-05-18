@@ -40,10 +40,10 @@ export const initClient = async () => {
   const projects = accessProjectState().projects.value.map((project) => project.name)
   const world = Engine.instance.currentWorld
 
-  await initializeCoreSystems(),
-    await initializeRealtimeSystems(),
-    await initializeSceneSystems(),
-    await loadEngineInjection(world, projects)
+  await initializeCoreSystems()
+  await initializeRealtimeSystems()
+  await initializeSceneSystems()
+  await loadEngineInjection(world, projects)
 
   // add extraneous receptors
   addActionReceptor(world.store, (action) => {
