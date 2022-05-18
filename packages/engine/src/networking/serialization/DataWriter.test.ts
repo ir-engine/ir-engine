@@ -1,5 +1,5 @@
 import { strictEqual } from 'assert'
-import { Quaternion, Vector3 } from 'three'
+import { Group, Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -11,6 +11,8 @@ import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
+import { XRHandBones } from '../../xr/types/XRHandBones'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import {
   createDataWriter,
@@ -20,9 +22,10 @@ import {
   writePosition,
   writeRotation,
   writeTransform,
-  writeVector3
+  writeVector3,
+  writeXRHands
 } from './DataWriter'
-import { createViewCursor, readFloat32, readUint8, readUint32, sliceViewCursor } from './ViewCursor'
+import { createViewCursor, readFloat32, readUint8, readUint16, readUint32, sliceViewCursor } from './ViewCursor'
 
 describe('DataWriter', () => {
   before(() => {
@@ -179,6 +182,92 @@ describe('DataWriter', () => {
     strictEqual(readFloat32(readView), y)
     strictEqual(readFloat32(readView), z)
     strictEqual(readFloat32(readView), w)
+  })
+
+  it('should writeXRHands', () => {
+    const writeView = createViewCursor()
+    const entity = createEntity()
+
+    let joints = []
+    XRHandBones.forEach((bone) => {
+      joints = joints.concat(bone as any)
+    })
+
+    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
+
+    const hands = [new Group(), new Group()]
+    hands[0].userData.handedness = 'left'
+    hands[1].userData.handedness = 'right'
+
+    hands.forEach((hand) => {
+      // setup mock hand state
+      const handedness = hand.userData.handedness
+      const dummyXRHandMeshModel = new Group() as any
+      dummyXRHandMeshModel.handedness = handedness
+      hand.userData.mesh = dummyXRHandMeshModel
+
+      // proxify and copy values
+      joints.forEach((jointName) => {
+        createVector3Proxy(XRHandsInputComponent[handedness][jointName].position, entity).set(x, y, z)
+        createQuaternionProxy(XRHandsInputComponent[handedness][jointName].quaternion, entity).set(x, y, z, w)
+      })
+    })
+
+    // add component
+    const xrHandsInput = addComponent(entity, XRHandsInputComponent, { hands: hands })
+
+    writeXRHands(writeView, entity)
+
+    const readView = createViewCursor(writeView.buffer)
+
+    // ChangeMask details
+    // For each entity
+    // 1 - changeMask (uint16) for writeXRHands
+    // For each hand
+    // 1 - changeMask (uint16) for each hand
+    // 1 - changeMask (uint8) for each hand handedness
+    // 6 - changeMask (uint16) for each hand bone
+    // 2 - changeMask (uint8) for pos and rot of each joint
+    const numOfHands = hands.length
+    const numOfJoints = joints.length
+    strictEqual(
+      writeView.cursor,
+      1 * Uint16Array.BYTES_PER_ELEMENT +
+        (1 * Uint16Array.BYTES_PER_ELEMENT +
+          1 * Uint8Array.BYTES_PER_ELEMENT +
+          6 * Uint16Array.BYTES_PER_ELEMENT +
+          (2 * Uint8Array.BYTES_PER_ELEMENT + 7 * Float32Array.BYTES_PER_ELEMENT) * numOfJoints) *
+          numOfHands
+    )
+
+    strictEqual(readUint16(readView), 0b11)
+
+    hands.forEach((hand) => {
+      const handedness = hand.userData.handedness
+      const handednessBitValue = handedness === 'left' ? 0 : 1
+
+      readUint16(readView)
+      // strictEqual(readUint16(readView), 0b111111)
+      strictEqual(readUint8(readView), handednessBitValue)
+
+      XRHandBones.forEach((bone) => {
+        readUint16(readView)
+        // strictEqual(readUint16(readView), 0b11)
+
+        bone.forEach((joint) => {
+          strictEqual(readUint8(readView), 0b111)
+          strictEqual(readFloat32(readView), x)
+          strictEqual(readFloat32(readView), y)
+          strictEqual(readFloat32(readView), z)
+
+          strictEqual(readUint8(readView), 0b1111)
+          strictEqual(readFloat32(readView), x)
+          strictEqual(readFloat32(readView), y)
+          strictEqual(readFloat32(readView), z)
+          strictEqual(readFloat32(readView), w)
+        })
+      })
+    })
   })
 
   it('should writeEntity with only TransformComponent', () => {
