@@ -1,4 +1,7 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { Group } from '@xrengine/common/src/interfaces/Group'
 
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
@@ -14,81 +17,81 @@ import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 import EditGroup from './EditGroup'
 
 interface Props {
-  groupAdmin: any
-  closeViewModal: any
+  groupAdmin: Group
+  closeViewModal: (open: boolean) => void
   openView: boolean
 }
 
 const ViewGroup = (props: Props) => {
-  const classes = useStyles()
   const { openView, groupAdmin, closeViewModal } = props
   const [editMode, setEditMode] = useState(false)
+  const { t } = useTranslation()
 
   return (
     <Drawer
       anchor="right"
       open={openView}
       onClose={() => closeViewModal(false)}
-      classes={{ paper: classes.paperDrawer }}
+      classes={{ paper: styles.paperDrawer }}
     >
       {editMode ? (
         <EditGroup groupAdmin={groupAdmin} closeEditModal={setEditMode} closeViewModal={closeViewModal} />
       ) : (
         <React.Fragment>
-          <Paper elevation={3} className={classes.rootPaper}>
+          <Paper elevation={3} className={styles.rootPaper}>
             <Container maxWidth="sm">
-              <div className={classes.locationTitle}>
-                <Typography variant="h4" component="span" className={classes.typo}>
+              <div className={styles.locationTitle}>
+                <Typography variant="h4" component="span" className={styles.typo}>
                   {groupAdmin.name}
                 </Typography>
               </div>
             </Container>
           </Paper>
-          <Container maxWidth="lg" className={classes.marginTop}>
-            <Typography variant="h4" component="h4" className={classes.mb20px}>
-              Group Information
+          <Container maxWidth="lg" className={styles.mt30px}>
+            <Typography variant="h4" component="h4" className={styles.mb20px}>
+              {t('admin:components.group.groupInformation')}
             </Typography>
             <Container>
               <Grid container spacing={3}>
                 <Grid item xs={6}>
-                  <Typography variant="h5" component="h5" className={classes.mb10}>
-                    Name:
+                  <Typography variant="h5" component="h5" className={styles.mb10}>
+                    {t('admin:components.group.name')}:
                   </Typography>
-                  <Typography variant="h5" component="h5" className={classes.mb10}>
-                    Description:
+                  <Typography variant="h5" component="h5" className={styles.mb10}>
+                    {t('admin:components.group.description')}:
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="h6" component="h6" className={classes.mb10}>
-                    {groupAdmin?.name || <span className={classes.spanNone}>None</span>}
+                  <Typography variant="h6" component="h6" className={styles.mb10}>
+                    {groupAdmin?.name || <span className={styles.spanNone}>None</span>}
                   </Typography>
-                  <Typography variant="h6" component="h6" className={classes.mb10}>
-                    {groupAdmin?.description || <span className={classes.spanNone}>None</span>}
+                  <Typography variant="h6" component="h6" className={styles.mb10}>
+                    {groupAdmin?.description || <span className={styles.spanNone}>None</span>}
                   </Typography>
                 </Grid>
               </Grid>
             </Container>
-            <div className={classes.scopeFlex}>
+            <div className={styles.scopeFlex}>
               <div>
-                <Typography variant="h4" component="h4" className={classes.mb20px}>
-                  Group scopes
+                <Typography variant="h4" component="h4" className={styles.mb20px}>
+                  {t('admin:components.group.groupScopes')}
                 </Typography>
                 <Container style={{ overflowY: 'auto' }}>
-                  {groupAdmin.scopes?.map((el, index) => {
+                  {groupAdmin?.scopes?.map((el, index) => {
                     const [label, type] = el.type.split(':')
                     return (
                       <Grid container spacing={3} key={el.id}>
                         <Grid item xs={8}>
-                          <Typography variant="h6" component="h6" className={classes.mb10}>
+                          <Typography variant="h6" component="h6" className={styles.mb10}>
                             {label}:
                           </Typography>
                         </Grid>
                         <Grid item xs={4}>
-                          <Chip label={type} />
+                          <Chip label={type} className={styles.chip} />
                         </Grid>
                       </Grid>
                     )
@@ -96,11 +99,11 @@ const ViewGroup = (props: Props) => {
                 </Container>
               </div>
               <div>
-                <Typography variant="h4" component="h4" className={classes.mb20px}>
-                  Users Information
+                <Typography variant="h4" component="h4" className={styles.mb20px}>
+                  {t('admin:components.group.usersInformation')}
                 </Typography>
-                <List className={classes.rootList} style={{ overflowY: 'auto' }}>
-                  {groupAdmin.groupUsers.map((obj) => (
+                <List className={styles.rootList} style={{ overflowY: 'auto' }}>
+                  {groupAdmin?.groupUsers?.map((obj) => (
                     <ListItem key={obj.id}>
                       <ListItemAvatar>
                         <Avatar style={{ textTransform: 'uppercase' }}>{obj.user.name.slice(0, 1)}</Avatar>
@@ -116,20 +119,20 @@ const ViewGroup = (props: Props) => {
               </div>
             </div>
           </Container>
-          <DialogActions className={classes.mb10}>
-            <div className={classes.marginTop}>
+          <DialogActions className={styles.mb10}>
+            <DialogActions className={styles.mt30px}>
               <Button
-                className={classes.saveBtn}
+                className={styles.submitButton}
                 onClick={() => {
                   setEditMode(true)
                 }}
               >
-                EDIT
+                {t('admin:components.group.edit')}
               </Button>
-              <Button onClick={() => closeViewModal()} className={classes.saveBtn}>
-                CANCEL
+              <Button onClick={() => closeViewModal(false)} className={styles.cancelButton}>
+                {t('admin:components.group.cancel')}
               </Button>
-            </div>
+            </DialogActions>
           </DialogActions>
         </React.Fragment>
       )}

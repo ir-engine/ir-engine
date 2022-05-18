@@ -1,15 +1,16 @@
 import { Matrix4, Vector3 } from 'three'
 
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
-import EditorEvents from '../constants/EditorEvents'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
+import { EditorAction } from '../services/EditorServices'
+import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams, IDENTITY_MAT_4 } from './Command'
 
 export interface ScaleCommandParams extends CommandParams {
@@ -76,7 +77,8 @@ export default class ScaleCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects, 'scale')
+      store.dispatch(EditorAction.sceneModified(true))
+      store.dispatch(SelectionAction.changedObject(this.affectedObjects, 'scale'))
     }
   }
 
@@ -102,9 +104,11 @@ export default class ScaleCommand extends Command {
     let spaceMatrix = IDENTITY_MAT_4
 
     if (space === TransformSpace.LocalSelection) {
-      if (CommandManager.instance.selected.length > 0) {
-        const lastSelectedObject = CommandManager.instance.selected[CommandManager.instance.selected.length - 1]
-        const lastSelectedObj3d = getComponent(lastSelectedObject.entity, Object3DComponent).value
+      const selectedEntities = accessSelectionState().selectedEntities.value
+
+      if (selectedEntities.length > 0) {
+        const lastSelectedEntity = selectedEntities[selectedEntities.length - 1]
+        const lastSelectedObj3d = getComponent(lastSelectedEntity, Object3DComponent).value
         lastSelectedObj3d.updateMatrixWorld()
         spaceMatrix = lastSelectedObj3d.parent!.matrixWorld
       }

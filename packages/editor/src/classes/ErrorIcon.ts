@@ -1,7 +1,7 @@
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneBufferGeometry, Texture } from 'three'
-import { NearestFilter, RGBAFormat } from 'three'
+import { NearestFilter } from 'three'
 
-import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 
 let errorTexturePromise = null! as Promise<Texture | null>
 let errorTexture = null as Texture | null
@@ -11,9 +11,8 @@ export default class ErrorIcon extends Mesh {
     if (errorTexturePromise) {
       return errorTexturePromise
     }
-    errorTexturePromise = loadTexture('/static/editor/media-error.png').then((texture) => {
+    errorTexturePromise = AssetLoader.loadAsync('/static/editor/media-error.png').then((texture) => {
       if (!texture) return null
-      texture.format = RGBAFormat
       texture.magFilter = NearestFilter
       return texture
     })
@@ -29,6 +28,7 @@ export default class ErrorIcon extends Mesh {
     material.map = errorTexture
     material.side = DoubleSide
     material.transparent = true
+    material.needsUpdate = true
     super(geometry, material)
     this.name = 'ErrorIcon'
     this.type = 'ErrorIcon'

@@ -212,7 +212,7 @@
                 "edgeStrength": 1,
                 "pulseSpeed": 0,
                 "visibleEdgeColor": 16777215,
-                "hiddenEdgeColor": 2230538,
+                "hiddenEdgeColor": 16777215,
                 "resolutionScale": 0.5,
                 "width": -1,
                 "height": -1,
@@ -1137,75 +1137,6 @@
       "parent": "4CFED0FA-42E3-4085-9879-476B405C4184",
       "index": 3,
       "name": "Video"
-    },
-    "CD153833-9EF8-426F-8633-7D541B33AF14": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 10,
-              "y": 2.5,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "shadow",
-          "props": {
-            "cast": true,
-            "receive": true
-          }
-        },
-        {
-          "name": "media",
-          "props": {
-            "controls": false,
-            "autoplay": false,
-            "autoStartTime": 0,
-            "loop": false
-          }
-        },
-        {
-          "name": "audio",
-          "props": {
-            "audioSource": "",
-            "volume": 0.5,
-            "audioType": "Positional",
-            "distanceModel": "linear",
-            "rolloffFactor": 1,
-            "refDistance": 20,
-            "maxDistance": 1000,
-            "coneInnerAngle": 120,
-            "coneOuterAngle": 180,
-            "coneOuterGain": 0
-          }
-        },
-        {
-          "name": "volumetric",
-          "props": {
-            "paths": ["__$project$__/default-project/assets/volumetric/liamlow.drcs"],
-            "playMode": 1
-          }
-        }
-      ],
-      "parent": "4CFED0FA-42E3-4085-9879-476B405C4184",
-      "index": 4,
-      "name": "Volumetric"
     },
     "11569F89-CFE6-4C3C-877D-E92B38B85066": {
       "components": [

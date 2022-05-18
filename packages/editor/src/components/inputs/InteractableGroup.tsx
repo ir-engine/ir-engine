@@ -6,8 +6,8 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 
+import { setPropertyOnSelectionEntities } from '../../classes/History'
 import { ItemTypes } from '../../constants/AssetTypes'
-import { CommandManager } from '../../managers/CommandManager'
 import { EditorComponentType, updateProperty } from '../properties/Util'
 import ArrayInputGroup from './ArrayInputGroup'
 import InputGroup from './InputGroup'
@@ -41,13 +41,13 @@ export const InteractableGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const onChangeInteractionType = (interactionType) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
+    setPropertyOnSelectionEntities({
       component: InteractableComponent,
       properties: { interactionType }
     })
 
     if (interactionType === 'equippable') {
-      CommandManager.instance.setPropertyOnSelectionEntities({
+      setPropertyOnSelectionEntities({
         component: ModelComponent,
         properties: { isDynamicObject: true }
       })
@@ -59,7 +59,7 @@ export const InteractableGroup: EditorComponentType = (props) => {
   //   const sanitizedHTML = dompurify.sanitize(payloadHtmlContent)
   //   if (sanitizedHTML !== payloadHtmlContent)
   //     console.warn("Code has been sanitized, don't try anything sneaky please...")
-  //   CommandManager.instance.setPropertyOnSelectionEntities({
+  //   setPropertyOnSelectionEntities({
   //     component: InteractableComponent,
   //     properties: { payloadHtmlContent: sanitizedHTML }
   //   })
@@ -132,7 +132,7 @@ export const InteractableGroup: EditorComponentType = (props) => {
       <InputGroup name="Interaction Type" label={t('editor:properties.interaction.type')}>
         <SelectInput
           options={InteractableOption}
-          value={interactableComponent.interactionType}
+          value={interactableComponent.interactionType || ''}
           onChange={onChangeInteractionType}
         />
       </InputGroup>

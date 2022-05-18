@@ -1,15 +1,24 @@
 import { Vector3 } from 'three'
 
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  getEntityNodeArrayFromEntities,
+  reparentEntityNode
+} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
+import { executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
+import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
+import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
+import { EditorAction } from '../services/EditorServices'
+import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
 export interface ReparentCommandParams extends CommandParams {
@@ -45,15 +54,24 @@ export default class ReparentCommand extends Command {
     if (this.keepHistory) {
       this.oldParents = []
       this.oldBefores = []
-      this.oldSelection = CommandManager.instance.selected.slice(0)
-      this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent)?.position.clone())
+      this.oldPositions = []
+      this.oldSelection = accessSelectionState().selectedEntities.value.slice(0)
+
+      const tree = useWorld().entityTree
 
       for (let i = objects.length - 1; i >= 0; i--) {
         const obj = objects[i]
-        if (obj.parentNode) {
-          this.oldParents.push(obj.parentNode)
-          this.oldBefores.push(obj.parentNode.children![obj.parentNode.children!.indexOf(obj) + 1])
+
+        if (obj.parentEntity) {
+          const parent = tree.entityNodeMap.get(obj.parentEntity)
+          if (!parent) throw new Error('Parent is not defined')
+          this.oldParents.push(parent)
+
+          const before = tree.entityNodeMap.get(parent.children![parent.children!.indexOf(obj.entity) + 1])
+          this.oldBefores.push(before!)
         }
+
+        this.oldPositions.push(getComponent(obj.entity, TransformComponent)?.position.clone())
       }
     }
   }
@@ -64,7 +82,7 @@ export default class ReparentCommand extends Command {
     this.reparent(this.affectedObjects, this.parents, this.befores)
 
     if (this.positions) {
-      CommandManager.instance.executeCommand(EditorCommands.POSITION, this.affectedObjects, {
+      executeCommand(EditorCommands.POSITION, this.affectedObjects, {
         positions: this.positions,
         space: TransformSpace.Local
       })
@@ -81,18 +99,15 @@ export default class ReparentCommand extends Command {
     this.isSelected = true
 
     if (this.positions) {
-      CommandManager.instance.executeCommand(EditorCommands.POSITION, this.affectedObjects, {
+      executeCommand(EditorCommands.POSITION, this.affectedObjects, {
         positions: this.oldPositions,
         space: TransformSpace.Local,
         shouldEmitEvent: false
       })
     }
 
-    CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection, {
-      shouldGizmoUpdate: false
-    })
+    executeCommand(EditorCommands.REPLACE_SELECTION, getEntityNodeArrayFromEntities(this.oldSelection))
 
-    CommandManager.instance.updateTransformRoots()
     this.emitAfterExecuteEvent()
   }
 
@@ -103,17 +118,20 @@ export default class ReparentCommand extends Command {
   }
 
   emitBeforeExecuteEvent() {
-    if (this.shouldEmitEvent && this.isSelected)
-      CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
+    if (this.shouldEmitEvent && this.isSelected) {
+      cancelGrabOrPlacement()
+      store.dispatch(SelectionAction.changedBeforeSelection())
+    }
   }
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
       if (this.isSelected) {
-        CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+        updateOutlinePassSelection()
       }
 
-      CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
+      store.dispatch(EditorAction.sceneModified(true))
+      store.dispatch(SelectionAction.changedSceneGraph())
     }
   }
 
@@ -124,19 +142,16 @@ export default class ReparentCommand extends Command {
 
       const object = objects[i]
       const before = befores ? befores[i] ?? befores[0] : undefined
-      const index = before ? parent.children?.indexOf(before) : undefined
+      const index = before && parent.children ? parent.children.indexOf(before.entity) : undefined
 
-      object.reparent(parent, index)
+      reparentEntityNode(object, parent, index)
       reparentObject3D(object, parent, before)
     }
 
     if (this.isSelected) {
-      CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, objects, {
-        shouldEmitEvent: false,
-        shouldGizmoUpdate: false
+      executeCommand(EditorCommands.REPLACE_SELECTION, objects, {
+        shouldEmitEvent: false
       })
     }
-
-    CommandManager.instance.updateTransformRoots()
   }
 }

@@ -1,6 +1,7 @@
 // Initializes the `invite` service on path `/invite`
 import { Application } from '../../../declarations'
 import logger from '../../logger'
+import { InviteDataType } from './invite.class'
 import { Invite } from './invite.class'
 import inviteDocs from './invite.docs'
 import hooks from './invite.hooks'
@@ -44,7 +45,7 @@ export default (app: Application) => {
    * @returns created invite data
    * @author Vyacheslav Solovjov
    */
-  service.publish('created', async (data): Promise<any> => {
+  service.publish('created', async (data: InviteDataType): Promise<any> => {
     try {
       const targetIds = [data.userId]
       if (data.inviteeId) {
@@ -82,7 +83,7 @@ export default (app: Application) => {
    * @author Vyacheslav Solovjov
    */
 
-  service.publish('removed', async (data): Promise<any> => {
+  service.publish('removed', async (data: InviteDataType): Promise<any> => {
     try {
       const targetIds = [data.userId]
       if (data.inviteeId) {

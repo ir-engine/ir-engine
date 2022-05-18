@@ -1,5 +1,6 @@
 import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import _ from 'lodash'
 import { Op } from 'sequelize'
 
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
@@ -40,11 +41,22 @@ export class StaticResource<T = AvatarDataType> extends Service<T> {
   async find(params?: Params): Promise<any> {
     if (params?.query?.getAvatarThumbnails === true) {
       delete params.query.getAvatarThumbnails
-      const search = params.query.search
+      const search = params?.query?.search ?? ''
+
+      const sort = params?.query?.$sort
+      const order: any[] = []
+      if (sort != null) {
+        Object.keys(sort).forEach((name, val) => {
+          order.push([name, sort[name] === 0 ? 'DESC' : 'ASC'])
+        })
+      }
+      const limit = params.query.$limit ?? 10
+      const skip = params.query.$skip ?? 0
       const result = await super.Model.findAndCountAll({
-        limit: params.query.$limit,
-        skip: params.query.$skip,
+        limit: limit,
+        offset: skip,
         select: params.query.$select,
+        order: order,
         where: {
           name: {
             [Op.like]: `%${search}%`
@@ -65,8 +77,14 @@ export class StaticResource<T = AvatarDataType> extends Service<T> {
       }
       return {
         data: result.rows,
-        total: result.total
+        total: result.count,
+        skip: skip,
+        limit: limit
       }
     } else return super.find(params)
+  }
+
+  async remove(id: string): Promise<T> {
+    return (await super.remove(id)) as T
   }
 }

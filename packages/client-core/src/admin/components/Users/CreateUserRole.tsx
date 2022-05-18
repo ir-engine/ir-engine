@@ -1,18 +1,18 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import DialogContent from '@mui/material/DialogContent'
 
-import CreateModel from '../../common/CreateModel'
+import CreateModal from '../../common/CreateModal'
 import InputText from '../../common/InputText'
 
 interface Props {
   open: boolean
-  handleClose: any
+  handleClose: () => void
 }
 
 const createUser = (props: Props) => {
   const { open, handleClose } = props
-  const [role, setRole] = React.useState('')
+  const [role, setRole] = useState('')
   const createUserRole = async () => {
     setRole('')
   }
@@ -22,11 +22,11 @@ const createUser = (props: Props) => {
   }
 
   return (
-    <CreateModel open={open} handleClose={handleClose} text="user role" action="Create" submit={createUserRole}>
+    <CreateModal open={open} handleClose={handleClose} text="user role" action="Create" submit={createUserRole}>
       <DialogContent>
-        <InputText value={role} formErrors={[]} handleInputChange={handleChange} name="role" />
+        <InputText value={role} formErrors={''} handleInputChange={handleChange} name="role" />
       </DialogContent>
-    </CreateModel>
+    </CreateModal>
   )
 }
 

@@ -377,8 +377,8 @@ declare namespace PhysX {
     setMass(value: number): void
     getMass(): number
     setCMassLocalPose(value: PxTransformLike): void
-    clearForce(): void
-    clearTorque(): void
+    clearForce(PxForceMode): void
+    clearTorque(PxForceMode): void
     addForce(force: PxVec3): void
     addForceAtPos(force: PxVec3, pos: PxVec3): void
     addForceAtLocalPos(force: PxVec3, pos: PxVec3): void

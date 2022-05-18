@@ -1,7 +1,7 @@
 import { createState, none, useState } from '@speigg/hookstate'
 import _ from 'lodash'
 
-import { Group } from '@xrengine/common/src/interfaces/Group'
+import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
 import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
 
@@ -182,103 +182,97 @@ export const useGroupState = () => useState(state) as any as typeof state
 export const GroupService = {
   getGroups: async (skip?: number, limit?: number) => {
     const dispatch = useDispatch()
-    {
-      dispatch(GroupAction.fetchingGroups())
-      const groupActionState = accessGroupState().value
-      try {
-        const groupResults = await client.service('group').find({
-          query: {
-            $limit: limit != null ? limit : groupActionState.groups.limit,
-            $skip: skip != null ? skip : groupActionState.groups.skip
-          }
-        })
-        dispatch(GroupAction.loadedGroups(groupResults))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    dispatch(GroupAction.fetchingGroups())
+    const groupActionState = accessGroupState().value
+    try {
+      const groupResults = await client.service('group').find({
+        query: {
+          $limit: limit != null ? limit : groupActionState.groups.limit,
+          $skip: skip != null ? skip : groupActionState.groups.skip
+        }
+      })
+      dispatch(GroupAction.loadedGroups(groupResults))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
-  createGroup: async (values: any) => {
+  createGroup: async (values: CreateGroup) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const result = await client.service('group').create({
-          name: values.name,
-          description: values.description
-        })
-        dispatch(GroupAction.createdGroup(result))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      const result = (await client.service('group').create({
+        name: values.name,
+        description: values.description
+      })) as Group
+      dispatch(GroupAction.createdGroup(result))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
-  patchGroup: async (values: any) => {
+  patchGroup: async (values: Group) => {
     const dispatch = useDispatch()
-    {
-      const patch = {}
-      if (values.name != null) {
-        ;(patch as any).name = values.name
-      }
-      if (values.description != null) {
-        ;(patch as any).description = values.description
-      }
-      try {
-        const data = await client.service('group').patch(values.id, patch)
-        // ;(patch as any).id = values.id
-        dispatch(GroupAction.patchedGroup(data))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    const patch = {}
+    if (values.name != null) {
+      ;(patch as any).name = values.name
+    }
+    if (values.description != null) {
+      ;(patch as any).description = values.description
+    }
+    try {
+      const data = (await client.service('group').patch(values.id ?? '', patch)) as Group
+      // ;(patch as any).id = values.id
+      dispatch(GroupAction.patchedGroup(data))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   removeGroup: async (groupId: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const channelResult = (await client.service('channel').find({
-          query: {
-            channelType: 'group',
-            groupId: groupId
-          }
-        })) as any
-        if (channelResult.total > 0) {
-          await client.service('channel').remove(channelResult.data[0].id)
+
+    try {
+      const channelResult = (await client.service('channel').find({
+        query: {
+          channelType: 'group',
+          groupId: groupId
         }
-        await client.service('group').remove(groupId)
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
+      })) as any
+      if (channelResult.total > 0) {
+        await client.service('channel').remove(channelResult.data[0].id)
       }
+      await client.service('group').remove(groupId)
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   removeGroupUser: async (groupUserId: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('group-user').remove(groupUserId)
-        dispatch(GroupAction.leftGroup())
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      await client.service('group-user').remove(groupUserId)
+      dispatch(GroupAction.leftGroup())
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   getInvitableGroups: async (skip?: number, limit?: number) => {
     const dispatch = useDispatch()
-    {
-      dispatch(GroupAction.fetchingInvitableGroups())
-      const groupActionState = accessGroupState().value
-      try {
-        const groupResults = await client.service('group').find({
-          query: {
-            invitable: true,
-            $limit: limit != null ? limit : groupActionState.groups.limit,
-            $skip: skip != null ? skip : groupActionState.groups.skip
-          }
-        })
-        dispatch(GroupAction.loadedInvitableGroups(groupResults))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-        dispatch(GroupAction.loadedInvitableGroups({ data: [], limit: 0, skip: 0, total: 0 }))
-      }
+
+    dispatch(GroupAction.fetchingInvitableGroups())
+    const groupActionState = accessGroupState().value
+    try {
+      const groupResults = await client.service('group').find({
+        query: {
+          invitable: true,
+          $limit: limit != null ? limit : groupActionState.groups.limit,
+          $skip: skip != null ? skip : groupActionState.groups.skip
+        }
+      })
+      dispatch(GroupAction.loadedInvitableGroups(groupResults))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
+      dispatch(GroupAction.loadedInvitableGroups({ data: [], limit: 0, skip: 0, total: 0 }))
     }
   }
 }

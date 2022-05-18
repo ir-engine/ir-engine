@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AnimationClip } from 'three'
+import { AnimationClip, Object3D } from 'three'
 
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { getComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
@@ -47,13 +49,20 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
 
   const modelComponent = getComponent(entity, ModelComponent)
   const animationComponent = getComponent(entity, AnimationComponent)
-  const obj3d = getComponent(entity, Object3DComponent).value
+  const obj3d = getComponent(entity, Object3DComponent)?.value ?? new Object3D() // quick hack to not crash
   const hasError = engineState.errorEntities[entity].get()
   const errorComponent = getComponent(entity, ErrorComponent)
 
   useEffect(() => {
     setInteractable(hasComponent(entity, InteractableComponent))
   }, [])
+
+  const updateSrc = async (src: string) => {
+    // if(src !== modelComponent.src)
+    AssetLoader.Cache.delete(src)
+    await AssetLoader.loadAsync(src)
+    updateProperty(ModelComponent, 'src')(src)
+  }
 
   const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
   const onPlayAnimation = () => {
@@ -88,7 +97,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   }
 
   const textureOverrideEntities = [] as { label: string; value: string }[]
-  useWorld().entityTree.traverse((node) => {
+  traverseEntityNode(useWorld().entityTree.rootNode, (node) => {
     if (node.entity === entity) return
 
     textureOverrideEntities.push({
@@ -106,7 +115,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor description={t('editor:properties.model.description')} {...props}>
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
-        <ModelInput value={modelComponent.src} onChange={updateProperty(ModelComponent, 'src')} />
+        <ModelInput value={modelComponent.src} onChange={updateSrc} />
         {hasError && errorComponent.srcError && (
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}

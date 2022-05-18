@@ -1,3 +1,5 @@
+import '@feathersjs/transport-commons'
+
 import { Application } from '../../../declarations'
 import logger from '../../logger'
 import { PartyUser } from './party-user.class'
@@ -188,7 +190,7 @@ export default (app: Application): void => {
       })
       targetIds.push(data.userId)
       await app.service('user').patch(data.userId, {
-        partyId: null
+        partyId: null!
       })
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return Promise.all(

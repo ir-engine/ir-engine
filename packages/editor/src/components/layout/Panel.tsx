@@ -6,8 +6,9 @@ import styled from 'styled-components'
  *  @author Robert Long
  */
 export const PanelIcon = (styled as any).div`
- color: #b6b6b6;
- margin-right: 8px;
+  color: var(--text2);
+  margin-right: 6px;
+  width: 18px;
 `
 
 /**
@@ -15,8 +16,8 @@ export const PanelIcon = (styled as any).div`
  *  @author Robert Long
  */
 export const PanelTitle = (styled as any).div`
- color: #b6b6b6;
- position: relative
+  color: var(--text2);
+  position: relative;
 `
 
 /**
@@ -51,7 +52,7 @@ export const PanelContainer = (styled as any).div`
   flex: 1;
   flex-direction: column;
   border-radius: 4px;
-  background-color: ${(props) => props.theme.panel};
+  background-color: var(--dock);
   overflow: hidden;
   user-select: none;
 `

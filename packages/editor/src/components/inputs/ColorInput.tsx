@@ -30,6 +30,7 @@ const StyledColorInput = (styled as any)(Input)`
   display: flex;
   flex: 1;
   align-items: center;
+  &:focus-visible { outline: none; }
 `
 
 /**
@@ -63,7 +64,7 @@ const ColorText = (styled as any).div`
  * @type {styled component}
  */
 const ColorInputPopover = (styled as any).div`
-  box-shadow: ${(props) => props.theme.shadow30};
+  box-shadow: var(--shadow30);
   margin-bottom: 3px;
 `
 
@@ -111,7 +112,7 @@ export function ColorInput({ value, onChange, disabled, isValueAsInteger = false
   //creating view for ColorInput
   return (
     <ColorInputContainer>
-      <StyledColorInput as="div" disabled={disabled} onClick={handlePopoverOpen}>
+      <StyledColorInput as="button" disabled={disabled} onClick={handlePopoverOpen}>
         <ColorPreview style={{ background: hexColor }} />
         <ColorText>{hexColor.toUpperCase()}</ColorText>
       </StyledColorInput>

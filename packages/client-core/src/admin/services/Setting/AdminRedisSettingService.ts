@@ -1,9 +1,9 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { AdminRedisSetting } from '@xrengine/common/src/interfaces/AdminRedisSetting'
-//Action
-import { AdminRedisSettingResult } from '@xrengine/common/src/interfaces/AdminRedisSettingResult'
 
+//Action
 import { AlertService } from '../../../common/services/AlertService'
 import { client } from '../../../feathers'
 import { store, useDispatch } from '../../../store'
@@ -21,7 +21,7 @@ store.receptors.push((action: AdminRedisSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_REDIS_SETTING_FETCHED':
-        return s.merge({ redisSettings: action.adminRedisSettingResult.data, updateNeeded: false })
+        return s.merge({ redisSettings: action.adminRedisSetting.data, updateNeeded: false })
     }
   }, action.type)
 })
@@ -34,22 +34,20 @@ export const useAdminRedisSettingState = () => useState(state) as any as typeof 
 export const AdminRedisSettingService = {
   fetchRedisSetting: async () => {
     const dispatch = useDispatch()
-    {
-      try {
-        const redisSetting = await client.service('redis-setting').find()
-        dispatch(AdminRedisSettingAction.redisSettingRetrieved(redisSetting))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+    try {
+      const redisSetting = (await client.service('redis-setting').find()) as Paginated<AdminRedisSetting>
+      dispatch(AdminRedisSettingAction.redisSettingRetrieved(redisSetting))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   }
 }
 
 export const AdminRedisSettingAction = {
-  redisSettingRetrieved: (adminRedisSettingResult: AdminRedisSettingResult) => {
+  redisSettingRetrieved: (adminRedisSetting: Paginated<AdminRedisSetting>) => {
     return {
       type: 'ADMIN_REDIS_SETTING_FETCHED' as const,
-      adminRedisSettingResult: adminRedisSettingResult
+      adminRedisSetting: adminRedisSetting
     }
   }
 }

@@ -8,7 +8,7 @@ const StyledPropertyGroup = (styled as any).div`
   flex-shrink: 0;
   width: 100%;
   padding: 12px 0;
-  border-bottom: 1px solid ${(props) => props.theme.border};
+  border-bottom: 1px solid var(--border);
 `
 
 // PropertyGroupHeader used to provide styles for property group header
@@ -17,7 +17,7 @@ const PropertyGroupHeader = (styled as any).div`
   flex-direction: row;
   align-items: left;
   font-weight: bold;
-  color: ${(props) => props.theme.text2};
+  color: var(--text2);
   padding: 0 8px 8px;
   :last-child {
     margin-left: auto;
@@ -26,8 +26,7 @@ const PropertyGroupHeader = (styled as any).div`
 
 // PropertyGroupDescription used to show the property group description
 const PropertyGroupDescription = (styled as any).div`
-  background-color: ${(props) => props.theme.panel};
-  color: ${(props) => props.theme.text2};
+  color: var(--text2);
   white-space: pre-wrap;
   padding: 0 8px 8px;
 `

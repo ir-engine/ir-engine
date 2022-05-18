@@ -1,16 +1,13 @@
-@use "../theme.scss" as theme;
-
-
 .toolbarContainer {
   display: flex;
   flex-direction: row;
   align-items: center;
   height: 50px;
-  width:100%;
+  width: 100%;
   position: fixed;
-  z-index:1000;
+  z-index: 1000;
   user-select: none;
-  background: theme.$panel2;
+  background: var(--dock);
   padding: 0 5px;
 }
 
@@ -19,9 +16,9 @@
   top: 70px;
   z-index: 1000;
   left: 20px;
-  color: theme.$white;
+  color: var(--white);
   padding: 8px;
-  background-color: theme.$panel2Opaque;
+  background-color: var(--panel2Opaque);
   border-radius: 4px;
   width: 150px;
 
@@ -29,18 +26,20 @@
     font-size: 14px;
   }
 
-  &>ul {
+  & > ul {
     margin: 8px 4px;
 
-    &>li {
+    & > li {
       font: 12px;
-      color: theme.$text3;
+      color: var(--text3);
 
-      &+li { margin-top: 5px; }
+      & + li {
+        margin-top: 5px;
+      }
 
       ul {
         margin-left: 5px;
-        color: theme.$white;
+        color: var(--white);
       }
     }
   }
@@ -52,9 +51,11 @@
   input {
     border-width: 0;
     border-radius: 4px;
-    background: theme.$panel2;
+    background: var(--inputBackground);
 
-    &+* { background: transparent; }
+    & + * {
+      background: transparent;
+    }
   }
 
   button {
@@ -63,11 +64,10 @@
     margin: 0 4px;
 
     &:hover {
-      background: theme.$panel2;
+      background: var(--purpleColor1);
     }
   }
 }
-
 
 .toolbarInputGroup {
   display: flex;
@@ -75,7 +75,7 @@
   align-items: center;
   border: none;
   border-radius: 4px;
-  background: theme.$panel;
+  background: var(--purpleLight);
   column-gap: 4px;
   padding: 4px;
 
@@ -86,21 +86,21 @@
     width: 25px;
     height: 25px;
     border: none;
-    color: theme.$white;
+    color: var(--white);
     cursor: pointer;
     position: relative;
-    background-color: theme.$toolbar;
+    background-color: var(--toolbar);
     border-radius: 4px;
 
     &:hover {
-      background-color: theme.$panel2;
+      background-color: var(--purpleColor1);
     }
 
     &.selected {
-      background-color: theme.$blue;
+      background-color: var(--purpleColor2);
 
       &:hover {
-        background-color: theme.$blueHover;
+        opacity: 0.8;
       }
     }
   }
@@ -112,9 +112,9 @@
     width: 25px;
     height: 25px;
     border: none;
-    color: theme.$white;
+    color: var(--white);
     position: relative;
-    background-color: theme.$toolbar;
+    background-color: var(--toolbar);
     border-radius: 4px;
   }
 
@@ -123,7 +123,7 @@
     z-index: 1500000;
 
     div[class$="-control"] {
-      background: theme.$panel2;
+      background: var(--panel2);
       height: 25px;
       border-radius: 4px;
       border-width: 0;
@@ -133,15 +133,16 @@
     }
 
     div[class$="-menu"] {
-      background: theme.$panel;
+      background: var(--panel);
       border: none;
       overflow: hidden;
       margin-top: 10px;
 
       div[class$="-option"] {
         background: transparent;
+
         &:hover {
-          background: theme.$blue;
+          background: var(--blue);
         }
       }
     }
@@ -150,12 +151,19 @@
 
 .playButtonContainer {
   padding: 0;
+
   .toolButton {
     width: 31px;
     height: 31px;
 
     &:hover {
-      background: theme.$blueHover;
+      background-color: var(--purpleColor1);
+    }
+
+    .selected {
+      &:hover {
+        opacity: 0.8;
+      }
     }
   }
 }

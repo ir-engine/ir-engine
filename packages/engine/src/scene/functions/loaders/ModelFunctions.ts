@@ -1,7 +1,7 @@
-import { Mesh, Object3D } from 'three'
-
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { GLTF } from '../../../assets/loaders/gltf/GLTFLoader'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -9,13 +9,13 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import cloneObject3D from '../cloneObject3D'
 import { addError, removeError } from '../ErrorFunctions'
-import { loadGLTFModel, overrideTexture } from '../loadGLTFModel'
-import { registerSceneLoadPromise } from '../SceneLoading'
+import { overrideTexture, parseGLTFModel } from '../loadGLTFModel'
 
 export const SCENE_COMPONENT_MODEL = 'gltf-model'
 export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
@@ -32,28 +32,24 @@ export const deserializeModel: ComponentDeserializeFunction = (
   component: ComponentJson<ModelComponentType>
 ) => {
   const props = parseModelProperties(component.props)
-  addComponent(entity, Object3DComponent, { value: new Object3D() }) // Temperarily hold a value
   addComponent(entity, ModelComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
-
-  registerSceneLoadPromise(updateModel(entity, props) as any as Promise<void>)
+  updateModel(entity, props)
 }
 
-export const updateModel: ComponentUpdateFunction = async (
-  entity: Entity,
-  properties: ModelComponentType
-): Promise<void> => {
+export const updateModel: ComponentUpdateFunction = (entity: Entity, properties: ModelComponentType) => {
   const component = getComponent(entity, ModelComponent)
-  const obj3d = getComponent(entity, Object3DComponent).value as Mesh
-
   if (properties.src) {
     try {
-      await loadGLTFModel(entity)
+      hasComponent(entity, Object3DComponent) && removeComponent(entity, Object3DComponent)
+      const gltf = AssetLoader.getFromCache(properties.src) as GLTF
+      const scene = cloneObject3D(gltf.scene)
+      addComponent(entity, Object3DComponent, { value: scene })
+      parseGLTFModel(entity, component, scene)
       removeError(entity, 'srcError')
     } catch (err) {
       addError(entity, 'srcError', err.message)
-      Promise.resolve(err)
     }
   }
 
@@ -63,12 +59,11 @@ export const updateModel: ComponentUpdateFunction = async (
       removeError(entity, 'envMapError')
     } catch (err) {
       addError(entity, 'envMapError', err.message)
-      Promise.resolve(err)
     }
   }
 
-  if (component.parsed && typeof properties.textureOverride !== 'undefined') {
-    overrideTexture(entity, obj3d)
+  if (typeof properties.textureOverride !== 'undefined') {
+    overrideTexture(entity)
   }
 }
 

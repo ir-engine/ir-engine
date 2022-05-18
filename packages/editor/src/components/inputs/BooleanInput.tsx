@@ -17,8 +17,8 @@ const StyledBooleanInput = (styled as any).input`
   display: none;
 
   :disabled ~ label {
-    background-color: ${(props) => props.theme.disabled};
-    color: ${(props) => props.theme.disabledText};
+    background-color: var(--disabled);
+    color: var(--disabledText);
   }
 `
 
@@ -47,7 +47,7 @@ const BooleanInputLabel = (styled as any)(Input).attrs(() => ({ as: 'label' }))`
 const BooleanCheck = (styled as any)(CheckIcon)`
   width: 100%;
   height: auto;
-  color: ${(props) => props.theme.blue};
+  color: var(--purpleColor);
 `
 
 interface BooleanInputProp {
@@ -69,13 +69,20 @@ export const BooleanInput = (props: BooleanInputProp) => {
 
   // function handling changes in BooleanInput
   const onChange = (e) => {
+    if (e.key) {
+      if (e.key === 'Enter' || e.key === ' ') props?.onChange(!props.value)
+      return
+    }
+
     props?.onChange(e.target.checked)
   }
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <StyledBooleanInput id={checkboxId} type="checkbox" checked={props.value} onChange={onChange} />
-      <BooleanInputLabel htmlFor={checkboxId}>{props.value && <BooleanCheck size={12} />}</BooleanInputLabel>
+      <BooleanInputLabel htmlFor={checkboxId} tabIndex={0} onKeyPress={onChange}>
+        {props.value && <BooleanCheck size={12} />}
+      </BooleanInputLabel>
     </div>
   )
 }

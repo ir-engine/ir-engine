@@ -1,5 +1,6 @@
 import { ConfirmProvider } from 'material-ui-confirm'
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
@@ -14,15 +15,16 @@ import { InviteService, useInviteState } from '../../../social/services/InviteSe
 import { useAuthState } from '../../../user/services/AuthService'
 import Search from '../../common/Search'
 import { UserService, useUserState } from '../../services/UserService'
-import InviteModel from './InviteModel'
+import styles from '../../styles/admin.module.scss'
+import InviteModal from './InviteModal'
 import ReceivedInvite from './ReceivedInvite'
 import SentInvite from './SentInvite'
 import { inviteStyles } from './styles'
 
 interface TabPanelProps {
   children?: React.ReactNode
-  index: any
-  value: any
+  index: number
+  value: number
 }
 
 const TabPanel = (props: TabPanelProps) => {
@@ -40,28 +42,18 @@ const TabPanel = (props: TabPanelProps) => {
     </div>
   )
 }
-const a11yProps = (index: any) => {
+const a11yProps = (index: number) => {
   return {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`
   }
 }
 
-const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    flexGrow: 1,
-    backgroundColor: '#43484F !important'
-  },
-  marginBottom: {
-    marginBottom: '10px'
-  }
-}))
-
 const InvitesConsole = () => {
   const classes = inviteStyles()
   const [refetch, setRefetch] = React.useState(false)
   const [value, setValue] = React.useState(0)
-  const [inviteModelOpen, setInviteModelOpen] = React.useState(false)
+  const [inviteModalOpen, setInviteModalOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
 
   const inviteState = useInviteState()
@@ -70,17 +62,18 @@ const InvitesConsole = () => {
   const adminUserState = useUserState()
   const adminUsers = adminUserState.users
   const user = useAuthState().user
+  const { t } = useTranslation()
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue)
   }
 
-  const openModelInvite = () => {
-    setInviteModelOpen(true)
+  const openModalInvite = () => {
+    setInviteModalOpen(true)
   }
 
-  const closeModelInvite = () => {
-    setInviteModelOpen(false)
+  const closeModalInvite = () => {
+    setInviteModalOpen(false)
   }
 
   const fetchTick = () => {
@@ -95,7 +88,7 @@ const InvitesConsole = () => {
   }, [])
 
   useEffect(() => {
-    if (user?.id.value != null && (adminUserState.updateNeeded.value === true || refetch === true)) {
+    if (user?.id.value != null && (adminUserState.updateNeeded.value === true || refetch)) {
       UserService.fetchUsersAsAdmin()
     }
     setRefetch(false)
@@ -120,13 +113,13 @@ const InvitesConsole = () => {
   return (
     <div>
       <ConfirmProvider>
-        <Grid container spacing={3} className={classes.marginBottom}>
+        <Grid container spacing={3} className={styles.mb10px}>
           <Grid item xs={9}>
             <Search text="invite" handleChange={handleSearchChange} />
           </Grid>
           <Grid item xs={3}>
-            <Button variant="contained" className={classes.createBtn} type="submit" onClick={openModelInvite}>
-              Send Invite
+            <Button variant="contained" className={classes.createBtn} type="submit" onClick={openModalInvite}>
+              {t('admin:components.invite.sendInvite')}
             </Button>
           </Grid>
         </Grid>
@@ -138,8 +131,8 @@ const InvitesConsole = () => {
               aria-label="simple tabs example"
               classes={{ indicator: classes.indicator }}
             >
-              <Tab label="Received Invite" {...a11yProps(0)} />
-              <Tab label="Sent Invite" {...a11yProps(1)} />
+              <Tab label={t('admin:components.invite.receivedInvite')} {...a11yProps(0)} />
+              <Tab label={t('admin:components.invite.sendInvite')} {...a11yProps(1)} />
             </Tabs>
           </AppBar>
           <>
@@ -152,7 +145,7 @@ const InvitesConsole = () => {
           </>
         </div>
       </ConfirmProvider>
-      <InviteModel open={inviteModelOpen} handleClose={closeModelInvite} users={adminUsers.value} />
+      <InviteModal open={inviteModalOpen} handleClose={closeModalInvite} users={adminUsers.value} />
     </div>
   )
 }

@@ -6,18 +6,22 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
-import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
+import { executeCommandWithHistory } from '../../classes/History'
+import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
+import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
-import { CommandManager } from '../../managers/CommandManager'
-import { addItem } from '../dnd'
+import { useSelectionState } from '../../services/SelectionServices'
+import { addPrefabElement } from '../element/ElementList'
 import { ContextMenuTrigger } from '../layout/ContextMenu'
 import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
 import NodeIssuesIcon from './NodeIssuesIcon'
@@ -61,6 +65,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const node = props.data.nodes[props.index]
   const data = props.data
   const engineState = useEngineState()
+  const selectionState = useSelectionState()
 
   const nameComponent = getComponent(node.entityNode.entity, NameComponent)
   const errorComponent = getComponent(node.entityNode.entity, ErrorComponent)
@@ -98,22 +103,48 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const [_dragProps, drag, preview] = useDrag({
     type: ItemTypes.Node,
     item() {
-      const multiple = CommandManager.instance.selected.length > 1
+      const selectedEntities = selectionState.selectedEntities.value
+      const multiple = selectedEntities.length > 1
+      const tree = useWorld().entityTree
+
       return {
         type: ItemTypes.Node,
         multiple,
-        value: multiple ? CommandManager.instance.selected : CommandManager.instance.selected[0]
+        value: multiple ? getEntityNodeArrayFromEntities(selectedEntities) : tree.entityNodeMap.get(selectedEntities[0])
       }
     },
     canDrag() {
-      return !CommandManager.instance.selected.some((selectedObj) => !selectedObj.parentNode)
+      const tree = useWorld().entityTree
+      return !selectionState.selectedEntities.value.some((entity) => !tree.entityNodeMap.get(entity)?.parentEntity)
     },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging()
     })
   })
 
-  const dropItem = (parent: EntityTreeNode, before?: EntityTreeNode) => {
+  const dropItem = (node: HeirarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
+    const tree = useWorld().entityTree
+
+    let parentNode: EntityTreeNode | undefined = undefined
+    let beforeNode: EntityTreeNode | undefined = undefined
+
+    if (place === 'Before') {
+      parentNode = node.entityNode.parentEntity ? tree.entityNodeMap.get(node.entityNode.parentEntity) : undefined
+      beforeNode = node.entityNode
+    } else if (place === 'After') {
+      parentNode = node.entityNode.parentEntity ? tree.entityNodeMap.get(node.entityNode.parentEntity) : undefined
+      if (!node.lastChild && parentNode && parentNode.children) {
+        beforeNode = tree.entityNodeMap.get(parentNode.children[node.childIndex + 1])
+      }
+    } else {
+      parentNode = node.entityNode
+    }
+
+    if (!parentNode)
+      return () => {
+        console.warn('parent is not defined')
+      }
+
     return (item: any, monitor): void => {
       if (item.files) {
         const dndItem: any = monitor.getItem()
@@ -123,18 +154,26 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         data.onUpload(entries).then((assets) => {
           if (!assets) return
           for (const asset of assets) {
-            CommandManager.instance.addMedia({ url: asset.url }, parent, before)
+            addMediaNode(asset.url, parentNode, beforeNode)
           }
         })
 
         return
       }
 
-      if (addItem(item, parent, before)) return
+      if (item.url) {
+        addMediaNode(item.url, parentNode, beforeNode)
+        return
+      }
 
-      CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
-        parents: parent,
-        befores: before
+      if (item.type === ItemTypes.Prefab) {
+        addPrefabElement(item, parentNode, beforeNode)
+        return
+      }
+
+      executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
+        parents: parentNode,
+        befores: beforeNode
       })
     }
   }
@@ -142,13 +181,11 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const canDropItem = (entityNode: EntityTreeNode, dropOn?: boolean) => {
     return (item, monitor): boolean => {
       //check if monitor is over or object is not parent element
-      if (!monitor.isOver() || (!dropOn && !entityNode.parentNode)) return false
-
-      if (isAsset(item)) return true
+      if (!monitor.isOver() || (!dropOn && !entityNode.parentEntity)) return false
 
       if (item.type === ItemTypes.Node) {
         return (
-          (dropOn || entityNode.parentNode) &&
+          (dropOn || !!entityNode.parentEntity) &&
           !(item.multiple
             ? item.value.some((otherObject) => isAncestor(otherObject, entityNode))
             : isAncestor(item.value, entityNode))
@@ -160,8 +197,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   }
 
   const [{ canDropBefore, isOverBefore }, beforeDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
-    drop: dropItem(node.entityNode.parentNode, node.entityNode),
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
+    drop: dropItem(node, 'Before'),
     canDrop: canDropItem(node.entityNode),
     collect: (monitor) => ({
       canDropBefore: monitor.canDrop(),
@@ -170,13 +207,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   })
 
   const [{ canDropAfter, isOverAfter }, afterDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
-    drop: dropItem(
-      node.entityNode.parentNode,
-      !node.lastChild && node.entityNode.parentNode.children
-        ? node.entityNode.parentNode.children[node.childIndex + 1]
-        : undefined
-    ),
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
+    drop: dropItem(node, 'After'),
     canDrop: canDropItem(node.entityNode),
     collect: (monitor) => ({
       canDropAfter: monitor.canDrop(),
@@ -185,8 +217,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   })
 
   const [{ canDropOn, isOverOn }, onDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
-    drop: dropItem(node.entityNode),
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
+    drop: dropItem(node, 'On'),
     canDrop: canDropItem(node.entityNode, true),
     collect: (monitor) => ({
       canDropOn: monitor.canDrop(),

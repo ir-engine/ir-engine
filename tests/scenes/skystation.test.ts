@@ -1,7 +1,8 @@
+import assert from 'assert'
 import { Vector3 } from 'three'
+
 import { XREngineBot } from '@xrengine/bot/src/bot'
 import { BotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
-import assert from 'assert'
 
 const domain = process.env.APP_HOST
 const locationName = 'sky-station'
@@ -11,7 +12,7 @@ describe('Sky Station Bot Tests', () => {
 
   before(async () => {
     await bot.launchBrowser()
-    await bot.enterEditor(`https://${domain}/editor/default-project/${locationName}`, `https://${domain}/login`)
+    await bot.enterEditor(`https://${domain}/editor/default-project/${locationName}`, `https://${domain}/`)
     await bot.awaitHookPromise(BotHooks.SceneLoaded)
     await bot.runHook(BotHooks.InitializeBot)
     await bot.delay(1000)
@@ -22,10 +23,10 @@ describe('Sky Station Bot Tests', () => {
     await bot.quit()
   })
 
-  it('Can load sky station scene in editor', async () =>{
+  it('Can load sky station scene in editor', async () => {
     await bot.delay(1000)
     const metadata = await bot.runHook(BotHooks.GetSceneMetadata)
-    assert.notEqual(metadata, "")
+    assert.notEqual(metadata, '')
   })
 })
 

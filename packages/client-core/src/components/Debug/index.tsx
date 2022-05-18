@@ -1,5 +1,6 @@
 import { getEntityComponents } from 'bitecs'
 import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import JSONTree from 'react-json-tree'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -13,18 +14,9 @@ export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
   const showingStateRef = useRef(isShowing)
   const engineState = useEngineState()
-
+  const { t } = useTranslation()
   function setupListener() {
     window.addEventListener('keydown', downHandler)
-    console.log('setup keypress')
-    window.addEventListener('keypress', (ev) => {
-      if (ev.key === 'p') {
-        if (document.activeElement?.querySelector('canvas')) {
-          togglePhysicsDebug()
-          toggleAvatarDebug()
-        }
-      }
-    })
   }
 
   // If pressed key is our target key then set to true
@@ -66,14 +58,17 @@ export const Debug = () => {
               return [
                 key + '(' + eid + ')',
                 Object.fromEntries(
-                  getEntityComponents(Engine.currentWorld, eid).reduce((components, C: MappedComponent<any, any>) => {
-                    if (C !== NameComponent) {
-                      engineState.fixedTick.value
-                      const component = C.isReactive ? getComponent(eid, C).value : getComponent(eid, C)
-                      components.push([C._name, { ...component }])
-                    }
-                    return components
-                  }, [] as [string, any][])
+                  getEntityComponents(Engine.currentWorld, eid).reduce(
+                    (components: any, C: MappedComponent<any, any>) => {
+                      if (C !== NameComponent) {
+                        engineState.fixedTick.value
+                        const component = C.isReactive ? getComponent(eid, C).value : getComponent(eid, C)
+                        components.push([C._name, { ...component }])
+                      }
+                      return components
+                    },
+                    [] as [string, any][]
+                  )
                 )
               ]
             } catch (e) {
@@ -100,27 +95,29 @@ export const Debug = () => {
         }}
       >
         <button type="submit" value="Refresh" onClick={refresh}>
-          Refresh
+          {t('common:debug.refresh')}
         </button>
         <button type="button" value="Physics Debug" onClick={togglePhysicsDebug}>
-          Physics Debug
+          {t('common:debug.physicsDebug')}
         </button>
         <button type="button" value="Avatar Debug" onClick={toggleAvatarDebug}>
-          Avatar Debug
+          {t('common:debug.avatarDebug')}
         </button>
         {Network.instance !== null && (
           <div>
-            <div>Tick: {engineState.fixedTick.value}</div>
             <div>
-              <h1>Named Entities</h1>
+              {t('common:debug.tick')}: {engineState.fixedTick.value}
+            </div>
+            <div>
+              <h1>{t('common:debug.namedEntities')}</h1>
               <JSONTree data={renderNamedEntities()} />
             </div>
             <div>
-              <h1>Network Object</h1>
+              <h1>{t('common:debug.networkObject')}</h1>
               <JSONTree data={{ ...Network.instance }} />
             </div>
             <div>
-              <h1>Network Clients</h1>
+              <h1>{t('common:debug.networkClients')}</h1>
               <JSONTree data={Object.fromEntries(Engine.currentWorld.clients.entries())} />
             </div>
           </div>

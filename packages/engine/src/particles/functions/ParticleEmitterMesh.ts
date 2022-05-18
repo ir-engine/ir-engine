@@ -17,7 +17,6 @@ import {
   Vector3
 } from 'three'
 
-import loadTexture from '../../assets/functions/loadTexture'
 import * as EasingFunctions from '../../common/functions/EasingFunctions'
 import { clamp, lerp } from '../../common/functions/MathLerpFunctions'
 import { DEG2RAD, fragmentShader, vertexShader } from './particleHelpers'
@@ -65,11 +64,6 @@ export class ParticleEmitterMesh extends Mesh {
 
   constructor(args: any, texture: Texture) {
     super()
-    // TODO: refactor this to use registerSceneLoadPromise
-    this.createParticles(args, texture)
-  }
-
-  createParticles(args, texture: Texture) {
     const planeGeometry = new PlaneBufferGeometry(1, 1, 1, 1)
     const geometry = new InstancedBufferGeometry()
     geometry.index = planeGeometry.index

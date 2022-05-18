@@ -8,19 +8,11 @@ import {
   NormalPass,
   OutlineEffect,
   RenderPass,
+  SMAAEffect,
   SSAOEffect,
   ToneMappingEffect
 } from 'postprocessing'
-import {
-  PerspectiveCamera,
-  sRGBEncoding,
-  WebGL1Renderer,
-  WebGLRenderer,
-  WebGLRendererParameters,
-  WebGLRenderTarget
-} from 'three'
-
-import { isIOS } from '@xrengine/common/src/utils/isIOS'
+import { PerspectiveCamera, sRGBEncoding, WebGL1Renderer, WebGLRenderer, WebGLRendererParameters } from 'three'
 
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
@@ -31,7 +23,6 @@ import { accessEngineState, EngineActions, EngineActionType } from '../ecs/class
 import { World } from '../ecs/classes/World'
 import { dispatchLocal } from '../networking/functions/dispatchFrom'
 import { receiveActionOnce } from '../networking/functions/matchActionOnce'
-import { FXAAEffect } from './effects/FXAAEffect'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { accessEngineRendererState, EngineRendererAction, EngineRendererReceptor } from './EngineRendererState'
 import { databasePrefix, RENDERER_SETTINGS } from './EngineRnedererConstants'
@@ -39,31 +30,9 @@ import { configureEffectComposer } from './functions/configureEffectComposer'
 import WebGL from './THREE.WebGL'
 
 export interface EffectComposerWithSchema extends EffectComposer {
-  // TODO: 'postprocessing' needs typing, we could create a '@types/postprocessing' package?
-  renderer: WebGLRenderer
-  inputBuffer: WebGLRenderTarget
-  outputBuffer: WebGLRenderTarget
-  copyPass: any
-  depthTexture: any
-  passes: any[]
-  autoRenderToScreen: boolean
-  multisampling: number
-  getRenderer()
-  replaceRenderer(renderer, updateDOM)
-  createDepthTexture()
-  deleteDepthTexture()
-  createBuffer(depthBuffer, stencilBuffer, type, multisampling)
-  addPass(renderPass: any)
-  removePass()
-  removeAllPasses()
-  render(delta: number)
-  setSize(width: number, height: number, arg2: boolean)
-  reset()
-  dispose()
-
-  // this is what this is for, i just added the EffectComposer typings above
   OutlineEffect: OutlineEffect
-  FXAAEffect: FXAAEffect
+  // FXAAEffect: FXAAEffect
+  SMAAEffect: SMAAEffect
   SSAOEffect: SSAOEffect
   DepthOfFieldEffect: DepthOfFieldEffect
   BloomEffect: BloomEffect
@@ -135,10 +104,12 @@ export class EngineRenderer {
     this.renderContext = context!
     const options: WebGLRendererParameters = {
       precision: 'highp',
-      powerPreference: isIOS() ? 'default' : 'high-performance',
+      powerPreference: 'high-performance',
+      stencil: false,
+      antialias: false,
+      depth: false,
       canvas,
       context,
-      antialias: !Engine.isHMD,
       preserveDrawingBuffer: !Engine.isHMD
     }
 
@@ -166,7 +137,7 @@ export class EngineRenderer {
     this.onResize()
 
     Engine.renderer.autoClear = true
-    Engine.effectComposer = new EffectComposer(Engine.renderer)
+    Engine.effectComposer = new EffectComposer(Engine.renderer) as any
 
     configureEffectComposer()
 

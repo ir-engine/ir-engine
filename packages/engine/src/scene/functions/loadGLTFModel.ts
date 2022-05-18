@@ -1,15 +1,15 @@
 import { AnimationMixer, BufferGeometry, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 import { NavMesh, Polygon } from 'yuka'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { parseGeometry } from '../../common/functions/parseGeometry'
+import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { accessEngineState } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, ComponentMap, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentMap, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
@@ -17,11 +17,11 @@ import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
+import { TransformChildComponent } from '../../transform/components/TransformChildComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ModelComponent, ModelComponentType } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { loadComponent } from '../functions/SceneLoading'
 import { VIDEO_MESH_NAME } from './loaders/VideoFunctions'
@@ -55,7 +55,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${key}'`)
     } else {
-      addComponent(entity, component, value)
+      addComponent(entity, component, value, Engine.currentWorld)
     }
   }
 
@@ -78,16 +78,11 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   })
 
   if (meshesToProcess.length === 0) {
-    createObjectEntityFromGLTF(entity, obj3d)
+    obj3d.traverse((obj) => createObjectEntityFromGLTF(entity, obj))
     return
   }
 
   for (const mesh of meshesToProcess) {
-    if (mesh === obj3d) {
-      createObjectEntityFromGLTF(entity, obj3d)
-      continue
-    }
-
     const e = createEntity()
     addComponent(e, NameComponent, {
       name: mesh.userData['xrengine.entity'] ?? mesh.userData['realitypack.entity'] ?? mesh.uuid
@@ -97,16 +92,30 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData['realitypack.entity']
     delete mesh.userData.name
 
+    const localPosition = new Vector3().copy(mesh.position)
+    const localRotation = new Quaternion().copy(mesh.quaternion)
+
     // apply root mesh's world transform to this mesh locally
     applyTransformToMeshWorld(entity, mesh)
-    addComponent(e, TransformComponent, {
-      position: mesh.getWorldPosition(new Vector3()),
-      rotation: mesh.getWorldQuaternion(new Quaternion()),
-      scale: mesh.getWorldScale(new Vector3())
-    })
+
+    const position = createVector3Proxy(TransformComponent.position, e)
+    const rotation = createQuaternionProxy(TransformComponent.rotation, e)
+    const scale = createVector3Proxy(TransformComponent.scale, e)
+    const transform = addComponent(e, TransformComponent, { position, rotation, scale })
+    mesh.getWorldPosition(transform.position)
+    mesh.getWorldQuaternion(transform.rotation)
+    mesh.getWorldScale(transform.scale)
 
     mesh.removeFromParent()
     addComponent(e, Object3DComponent, { value: mesh })
+
+    // to ensure colliders and other entities from gltf metadata move with models in the editor, we need to add a child transform component
+    if (Engine.isEditor)
+      addComponent(e, TransformChildComponent, {
+        parent: entity,
+        offsetPosition: localPosition,
+        offsetQuaternion: localRotation
+      })
 
     createObjectEntityFromGLTF(e, mesh)
   }
@@ -149,7 +158,7 @@ export const overrideTexture = (entity: Entity, object3d?: Object3D, world = use
 
   if (state.sceneLoaded.value) {
     const modelComponent = getComponent(entity, ModelComponent)
-    const node = world.entityTree.findNodeFromUUID(modelComponent.textureOverride)
+    const node = world.entityTree.uuidNodeMap.get(modelComponent.textureOverride)
 
     if (node) {
       const obj3d = object3d ?? getComponent(entity, Object3DComponent).value
@@ -173,6 +182,9 @@ export const overrideTexture = (entity: Entity, object3d?: Object3D, world = use
 }
 
 export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d: Object3D) => {
+  // always parse components first
+  parseObjectComponentsFromGLTF(entity, obj3d)
+
   setObjectLayers(obj3d, ObjectLayers.Scene)
 
   // DIRTY HACK TO LOAD NAVMESH
@@ -183,6 +195,7 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
   if (obj3d.animations?.length) {
     // We only have to update the mixer time for this animations on each frame
+    if (getComponent(entity, AnimationComponent)) removeComponent(entity, AnimationComponent)
     addComponent(entity, AnimationComponent, {
       mixer: new AnimationMixer(obj3d),
       animationSpeed: 1,
@@ -200,7 +213,7 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
   }
 
   if (props.isDynamicObject) {
-    const node = world.entityTree.findNodeFromEid(entity)
+    const node = world.entityTree.entityNodeMap.get(entity)
     if (node) {
       dispatchFrom(world.hostId, () =>
         NetworkWorldAction.spawnObject({
@@ -210,44 +223,20 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
         })
       ).cache()
     }
-  } else {
-    if (props.matrixAutoUpdate === false) {
-      obj3d.traverse((child) => {
-        child.updateMatrixWorld(true)
-        child.matrixAutoUpdate = false
-      })
-    }
   }
 
-  parseObjectComponentsFromGLTF(entity, obj3d)
+  // ignore disabling matrix auto update in the editor as we need to be able move things around with the transform tools
+  if (!Engine.isEditor && props.matrixAutoUpdate === false) {
+    const transform = getComponent(entity, TransformComponent)
+    obj3d.position.copy(transform.position)
+    obj3d.quaternion.copy(transform.rotation)
+    obj3d.scale.copy(transform.scale)
+    obj3d.updateMatrixWorld(true)
+    obj3d.traverse((child) => {
+      child.matrixAutoUpdate = false
+    })
+  }
 
   const modelComponent = getComponent(entity, ModelComponent)
   if (modelComponent) modelComponent.parsed = true
-}
-
-export const loadGLTFModel = (entity: Entity): Promise<GLTF | undefined> => {
-  const modelComponent = getComponent(entity, ModelComponent)
-
-  return new Promise<GLTF | undefined>((resolve, reject) => {
-    AssetLoader.load(
-      { url: modelComponent.src, instanced: modelComponent.isUsingGPUInstancing },
-      (res: GLTF) => {
-        if (res.scene instanceof Object3D) {
-          const modelComponentAsync = getComponent(entity, ModelComponent)
-          if (modelComponentAsync && modelComponentAsync.src === modelComponent.src) {
-            // TODO: refactor this
-            addComponent(entity, ReplaceObject3DComponent, { replacement: res })
-            res.scene.animations = res.animations
-          }
-          resolve(res)
-        } else {
-          reject({ message: 'Not a valid object' })
-        }
-      },
-      null!,
-      (err) => {
-        reject(err)
-      }
-    )
-  })
 }

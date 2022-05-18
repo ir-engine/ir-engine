@@ -6,14 +6,15 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import {
   createEngine,
   initializeBrowser,
   initializeCoreSystems,
-  initializeProjectSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
+import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
 import EditorContainer from '../components/EditorContainer'
 import { EditorAction, useEditorState } from '../services/EditorServices'
@@ -46,7 +47,7 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
 
   const systems = [
     {
-      systemModulePromise: import('../managers/SceneManager'),
+      systemModulePromise: import('../systems/RenderSystem'),
       type: SystemUpdateType.POST_RENDER,
       args: { enabled: true }
     },
@@ -90,10 +91,12 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
   }, [authUser.accessToken, user.id, isAuthenticated])
 
   useEffect(() => {
-    const { projectName, sceneName } = props.match.params
-    dispatch(EditorAction.projectChanged(projectName ?? null))
-    dispatch(EditorAction.sceneChanged(sceneName ?? null))
-  }, [props.match.params.projectName, props.match.params.sceneName])
+    if (engineReady) {
+      const { projectName, sceneName } = props.match.params
+      dispatch(EditorAction.projectChanged(projectName ?? null))
+      dispatch(EditorAction.sceneChanged(sceneName ?? null))
+    }
+  }, [engineReady, props.match.params.projectName, props.match.params.sceneName])
 
   useEffect(() => {
     if (clientInitialized || projectState.projects.value.length <= 0) return
@@ -105,7 +108,8 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
     initializeCoreSystems(systems).then(async () => {
       await initializeSceneSystems()
       const projects = projectState.projects.value.map((project) => project.name)
-      await initializeProjectSystems(projects)
+      const world = useWorld()
+      await loadEngineInjection(world, projects)
       setEngineReady(true)
     })
   }, [projectState.projects.value])

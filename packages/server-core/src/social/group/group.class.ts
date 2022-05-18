@@ -5,7 +5,7 @@ import { Op } from 'sequelize'
 import { Group as GroupInterface } from '@xrengine/common/src/interfaces/Group'
 
 import { Application } from '../../../declarations'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { UserDataType } from '../../user/user/user.class'
 
 export type GroupDataType = GroupInterface
 /**
@@ -30,10 +30,20 @@ export class Group<T = GroupDataType> extends Service<T> {
    */
 
   async find(params?: Params): Promise<Paginated<T>> {
-    const loggedInUser = extractLoggedInUserFromParams(params)
+    const loggedInUser = params!.user as UserDataType
     const skip = params?.query?.$skip ? params.query.$skip : 0
     const limit = params?.query?.$limit ? params.query.$limit : 10
     const search = params?.query?.search
+    const sort = params?.query?.$sort
+    const order: any[] = []
+    if (sort != null) {
+      Object.keys(sort).forEach((name, val) => {
+        order.push([name, sort[name] === 0 ? 'DESC' : 'ASC'])
+      })
+    } else {
+      order.push(['name', 'ASC'])
+    }
+
     const include: any = [
       {
         model: (this.app.service('user') as any).Model,
@@ -66,12 +76,14 @@ export class Group<T = GroupDataType> extends Service<T> {
     if (search) {
       q = { name: { [Op.like]: `%${search}%` } }
     }
+
     const groupResult = await (this.app.service('group') as any).Model.findAndCountAll({
       offset: skip,
       limit: limit,
-      order: [['name', 'ASC']],
+      order: order,
       include: include,
-      where: q
+      where: q,
+      distinct: true
     })
 
     await Promise.all(

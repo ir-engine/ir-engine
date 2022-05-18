@@ -12,8 +12,9 @@ import {
 //@ts-ignore
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 
-import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
-
+// import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
+import { getGLTFLoader } from './assets/classes/AssetLoader'
+import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
 import { AudioListener } from './audio/StereoAudioListener'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
@@ -66,7 +67,6 @@ export const initializeBrowser = () => {
   Engine.camera.layers.enable(ObjectLayers.Scene)
   Engine.camera.layers.enable(ObjectLayers.Avatar)
   Engine.camera.layers.enable(ObjectLayers.UI)
-  Engine.camera.add(Engine.audioListener)
   Engine.camera.add(Engine.audioListener)
 
   const browser = detect()
@@ -152,10 +152,6 @@ export const initializeMediaServerSystems = async () => {
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./ecs/functions/ActionCleanupSystem')
-    },
-    {
-      type: SystemUpdateType.PRE_RENDER,
-      systemModulePromise: import('./networking/systems/MediaStreamSystem')
     }
   )
 
@@ -295,8 +291,16 @@ export const initializeSceneSystems = async () => {
         systemModulePromise: import('./ikrig/systems/SkeletonRigSystem')
       },
       {
+        type: SystemUpdateType.UPDATE,
+        systemModulePromise: import('./camera/systems/CameraSystem')
+      },
+      {
         type: SystemUpdateType.FIXED,
         systemModulePromise: import('./bot/systems/BotHookSystem')
+      },
+      {
+        type: SystemUpdateType.FIXED,
+        systemModulePromise: import('./avatar/AvatarTeleportSystem')
       },
       {
         type: SystemUpdateType.FIXED,
@@ -309,10 +313,6 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./interaction/systems/MediaControlSystem')
-      },
-      {
-        type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./camera/systems/CameraSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,
@@ -353,11 +353,20 @@ export const initializeSceneSystems = async () => {
     )
   }
 
+  if (isClient) initializeKTX2Loader(getGLTFLoader())
+
   await initSystems(world, systemsToLoad)
 }
 
-export const initializeRealtimeSystems = async (pose = true) => {
+export const initializeRealtimeSystems = async (media = true, pose = true) => {
   const systemsToLoad: SystemModuleType<any>[] = []
+
+  if (media) {
+    systemsToLoad.push({
+      type: SystemUpdateType.PRE_RENDER,
+      systemModulePromise: import('./networking/systems/MediaStreamSystem')
+    })
+  }
 
   if (pose) {
     systemsToLoad.push(
@@ -376,11 +385,11 @@ export const initializeRealtimeSystems = async (pose = true) => {
   await initSystems(world, systemsToLoad)
 }
 
-export const initializeProjectSystems = async (projects: string[] = [], systems: SystemModuleType<any>[] = []) => {
-  const world = useWorld()
-  await initSystems(world, systems)
-  await loadEngineInjection(world, projects)
-}
+// export const initializeProjectSystems = async (projects: string[] = [], systems: SystemModuleType<any>[] = []) => {
+//   const world = useWorld()
+//   await initSystems(world, systems)
+//   await loadEngineInjection(world, projects)
+// }
 
 export const shutdownEngine = async () => {
   removeClientInputListeners()

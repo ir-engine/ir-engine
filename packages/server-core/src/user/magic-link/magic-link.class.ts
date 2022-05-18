@@ -110,7 +110,7 @@ export class Magiclink implements ServiceMethods<Data> {
     let subscription
     let username
     if (subscriptionId != null) {
-      subscription = await this.app.service('subscription').find({
+      subscription = await this.app.service('subscription' as any).find({
         id: subscriptionId
       })
 

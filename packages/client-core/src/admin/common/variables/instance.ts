@@ -1,5 +1,5 @@
 export interface InstanceColumn {
-  id: 'id' | 'ipAddress' | 'currentUsers' | 'locationId' | 'channelId' | 'action'
+  id: 'id' | 'ipAddress' | 'currentUsers' | 'locationId' | 'channelId' | 'podName' | 'action'
   label: string
   minWidth?: number
   align?: 'right'
@@ -22,6 +22,12 @@ export const instanceColumns: InstanceColumn[] = [
     align: 'right'
   },
   {
+    id: 'podName',
+    label: 'Pod Name',
+    minWidth: 200,
+    align: 'right'
+  },
+  {
     id: 'action',
     label: 'Action',
     minWidth: 65,
@@ -33,7 +39,8 @@ export interface InstanceData {
   id: string
   ipAddress: string
   currentUsers: Number
-  locationId: any
+  locationId: string
   channelId: string
+  podName: string
   action: any
 }

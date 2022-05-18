@@ -1,3 +1,4 @@
+import { AdminScopeType } from './AdminScopeType'
 import { IdentityProvider } from './IdentityProvider'
 import { LocationAdmin } from './LocationAdmin'
 import { LocationBan } from './LocationBan'
@@ -9,8 +10,10 @@ import { RelationshipType } from './UserRelationship'
 export interface UserSetting {
   id: string
   spatialAudioEnabled: boolean
-  volume: number
+  volume?: number
+  audio: number
   microphone: number
+  themeMode: string
 }
 
 export interface UserScope {
@@ -51,6 +54,13 @@ export const UserSeed: User = {
   },
   identityProviders: [],
   locationAdmins: []
+}
+
+export interface CreateEditUser {
+  name: string
+  avatarId: string
+  userRole: string
+  scopes: AdminScopeType[]
 }
 
 export function resolveUser(user: any): User {

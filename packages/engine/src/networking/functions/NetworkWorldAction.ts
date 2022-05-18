@@ -1,6 +1,6 @@
 import matches from 'ts-matches'
 
-import { matchesWeightsParameters } from '../../avatar/animations/Util'
+import { matchesWeightsParameters } from '../../avatar/animation/Util'
 import {
   defineActionCreator,
   matchesNetworkId,
@@ -40,6 +40,16 @@ export class NetworkWorldAction {
       networkId: matchesWithDefault(matchesNetworkId, () => useWorld().createNetworkId()),
       ownerIndex: matches.number,
       parameters: matches.any.optional()
+    },
+    (action) => {
+      action.$cache = true
+    }
+  )
+
+  static spawnDebugPhysicsObject = defineActionCreator(
+    {
+      type: 'network.SPAWN_DEBUG_PHYSICS_OBJECT',
+      config: matches.any.optional()
     },
     (action) => {
       action.$cache = true

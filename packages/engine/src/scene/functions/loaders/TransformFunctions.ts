@@ -46,13 +46,13 @@ export const serializeTransform: ComponentSerializeFunction = (entity) => {
     name: SCENE_COMPONENT_TRANSFORM,
     props: {
       position: component.position,
-      rotation: euler.setFromQuaternion(component.rotation).toVector3(),
+      rotation: new Vector3().setFromEuler(euler.setFromQuaternion(component.rotation)),
       scale: component.scale
     }
   }
 }
 
-const parseTransformProperties = (props: any): TransformComponentType => {
+export const parseTransformProperties = (props: any): TransformComponentType => {
   const result = {} as TransformComponentType
 
   let tempV3 = props.position ?? SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.position

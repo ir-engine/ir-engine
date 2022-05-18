@@ -1,10 +1,15 @@
 import React, { useImperativeHandle, useState } from 'react'
 import styled from 'styled-components'
 
+import { onWindowResize } from '@xrengine/client-core/src/user/components/UserMenu/menus/helperFunctions'
+
 import { AudioPreviewPanel } from './AssetPreviewPanels/AudioPreviewPanel'
 import { ImagePreviewPanel } from './AssetPreviewPanels/ImagePreviewPanel'
+import { JsonPreviewPanel } from './AssetPreviewPanels/JsonPreviewPanel'
+import { camera, renderer, scene } from './AssetPreviewPanels/ModelPreviewPanel'
 import { ModelPreviewPanel } from './AssetPreviewPanels/ModelPreviewPanel'
 import { PreviewUnavailable } from './AssetPreviewPanels/PreviewUnavailable'
+import { TxtPreviewPanel } from './AssetPreviewPanels/TxtPreviewPanel'
 import { VedioPreviewPanel } from './AssetPreviewPanels/VedioPreviewPanel'
 
 /**
@@ -16,6 +21,7 @@ const AssetHeading = styled.div`
   text-align: center;
   font-size: 150%;
   padding-bottom: 20px;
+  color: #f1f1f1;
 `
 
 export type AssetSelectionChangePropsType = {
@@ -38,7 +44,7 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
   })
 
   const onLayoutChanged = () => {
-    console.log('Layout is Changed:')
+    if (renderer) onWindowResize({ camera, renderer, scene })
   }
 
   const onSelectionChanged = (props: AssetSelectionChangePropsType) => {
@@ -63,6 +69,7 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
       case 'image/jpeg':
       case 'png':
       case 'jpeg':
+      case 'jpg':
         const imagePreviewPanel = {
           PreviewSource: ImagePreviewPanel,
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
@@ -87,6 +94,21 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
         }
         usePreviewPanel(audioPreviewPanel)
         break
+      case 'md':
+      case 'ts':
+        const txtPreviewPanel = {
+          PreviewSource: TxtPreviewPanel,
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+        }
+        usePreviewPanel(txtPreviewPanel)
+        break
+      case 'json':
+        const jsonPreviewPanel = {
+          PreviewSource: JsonPreviewPanel,
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+        }
+        usePreviewPanel(jsonPreviewPanel)
+        break
 
       default:
         const unavailable = {
@@ -100,7 +122,6 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
 
   return (
     <>
-      {console.log('Rendering Assets Preview Panel')}
       <div>
         <AssetHeading>{previewPanel.resourceProps.name}</AssetHeading>
       </div>

@@ -1,0 +1,218 @@
+.root {
+  flex-grow: 1;
+}
+
+.rootId {
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  width: 400;
+}
+
+.iconButton {
+  padding: 10;
+}
+
+.select {
+  color: #f1f1f1 !important;
+}
+
+.selectPaper {
+  background: var(--inputBackground);
+  color: var(--text);
+}
+
+.divider {
+  height: 28px;
+  margin: 4px;
+}
+
+.menuBtn {
+  color: #fff;
+  font-size: 3rem;
+  background: var(--purpleLight);
+  position: fixed;
+}
+
+.saveBtn {
+  background: var(--purplePinkGradient);
+}
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  background: #43484f;
+  color: #fff;
+  max-width: 310px;
+  position: fixed;
+  padding: 2px 18px;
+}
+
+.hoverSettings {
+  display: flex;
+  z-index: 1;
+  flex-direction: column;
+  text-align: center;
+  background: var(--purplePanel);
+  color: var(--text);
+  max-width: 310px;
+  position: absolute;
+  padding: 2px 18px;
+}
+
+.settingsHeading {
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: 300;
+  line-height: 1.7;
+  font-size: 20px;
+}
+
+.hoverSettingsHeading {
+  color: var(--text);
+  text-align: center;
+  font-weight: 300;
+  line-height: 1.7;
+  font-size: 20px;
+}
+
+.settingContainer {
+  background: #343b41;
+  width: 370px;
+  height: 150px;
+  padding: 60px;
+}
+
+.contents {
+  padding: 10px;
+  background: var(--purplePanel) !important;
+}
+
+.input {
+  margin-left: 8px;
+  flex: 1;
+  width: 100%;
+  color: #f1f1f1;
+  background: var(--inputBackground);
+}
+
+.selectInput {
+  width: 100%;
+  padding: 2px 4px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  background: var(--inputBackground);
+  border: 1px solid #23282c;
+  color: #f1f1f1 !important;
+}
+
+.createInput {
+  width: 100%;
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  background: var(--inputBackground);
+  border: 1px solid #23282c;
+  color: #f1f1f1 !important;
+}
+
+.container {
+  padding: 3px;
+  display: flex;
+  flex-direction: column;
+}
+
+.loginBtn {
+  background: #f0fff0;
+}
+
+.nested {
+  padding-left: 32px;
+}
+
+.clientSettingsContainer {
+  padding: 50px;
+
+  @media (max-width: 1200px) {
+    padding: 5px;
+  }
+}
+
+.Paper {
+  padding: 0 10px 6px;
+  background: var(--purpleDarkest);
+}
+
+.Paper2 {
+  display: flex;
+  padding: 5px 10px;
+  flex-direction: row;
+  background: var(--purpleDarkest);
+
+  & > div {
+    margin: 5px;
+  }
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+  }
+}
+
+.focused {
+  background: var(--purpleColor);
+
+  &:hover {
+    background-color: var(--purpleColor);
+  }
+}
+
+.autoFocused {
+  background: var(--purpleColor);
+
+  &:hover {
+    background-color: var(--purpleColor);
+  }
+}
+
+.notFocused {
+  background: var(--purplePanel);
+
+  &:hover {
+    background-color: var(--purpleColor);
+  }
+}
+
+.spanDange {
+  color: #ff8c00 !important;
+  margin-bottom: 0.8rem;
+  position: fixed;
+}
+
+.clearMenuBg {
+  background: #43484f;
+  border: 1px solid #43484f;
+  border-radius: 50%;
+  position: fixed;
+  z-index: 3;
+}
+
+.invisible {
+  display: none;
+
+  @media (max-width: 1200px) {
+    display: inline-block;
+    margin-bottom: 3rem;
+  }
+}
+
+.visible {
+  display: inline-block;
+
+  @media (max-width: 1200px) {
+    display: none;
+  }
+}

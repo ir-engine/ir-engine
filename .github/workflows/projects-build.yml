@@ -1,0 +1,56 @@
+name: projects-build
+on:
+  push:
+    branches:
+      [qat]
+jobs:
+  secrets-gate:
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.check-secrets.outputs.ok }}
+    steps:
+      - name: check for secrets needed to run workflows
+        id: check-secrets
+        run: |
+          if [ ${{ secrets.PROJECTS_BUILD_ENABLED }} == 'true' ]; then
+            echo "::set-output name=ok::enabled"
+          fi
+  compile-codebase:
+    needs:
+      - secrets-gate
+    if: ${{ needs.secrets-gate.outputs.ok == 'enabled' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout XREngine
+        uses: actions/checkout@v3
+      - name: Checkout XREngine-Project-eCommerce Project
+        uses: actions/checkout@v3
+        with:
+          repository: XRFoundation/XREngine-Project-eCommerce
+          path: './packages/projects/projects/XREngine-Project-eCommerce'
+      - name: Checkout XREngine-Project-Demo Project
+        uses: actions/checkout@v3
+        with:
+          repository: XRFoundation/XREngine-Project-Demo
+          path: './packages/projects/projects/XREngine-Project-Demo'
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - name: restore lerna
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+            package-lock.json
+          key: ${{ runner.os }}-branch-build-${{ hashFiles('**/package.json') }}
+      - run: cp .env.local.default .env.local
+      - run: npm install --production=false --loglevel notice --legacy-peer-deps
+      - run: npm run lint
+      - run: npm run check-errors
+      - run: npm run dev-docker
+      - run: npm run dev-reinit
+      - run: npm run test:projects
+      - run: npm run build-client
+      

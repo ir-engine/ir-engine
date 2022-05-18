@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Group } from '@xrengine/common/src/interfaces/Group'
 
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmModel from '../../common/ConfirmModel'
+import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { columns, Data } from '../../common/variables/group'
 import { GROUP_PAGE_LIMIT, GroupService, useGroupState } from '../../services/GroupService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 import ViewGroup from './ViewGroup'
 
 interface Props {
@@ -17,25 +17,32 @@ interface Props {
 
 const GroupTable = (props: Props) => {
   const { search } = props
-  const dispatch = useDispatch()
-  const classes = useStyles()
   const user = useAuthState().user
-  const [viewModel, setViewModel] = useState(false)
+  const [viewModal, setViewModal] = useState(false)
   const [singleGroup, setSingleGroup] = useState<Group>(null!)
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(GROUP_PAGE_LIMIT)
   const [groupId, setGroupId] = useState('')
   const [groupName, setGroupName] = useState('')
+  const [orderBy, setOrderBy] = useState('asc')
+  const [sortField, setSortField] = useState('name')
   const [showWarning, setShowWarning] = useState(false)
   const adminGroupState = useGroupState()
   const adminGroups = adminGroupState.group
   const adminGroupCount = adminGroupState.total.value
+  const { t } = useTranslation()
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    const incDec = page < newPage ? 'increment' : 'decrement'
-    GroupService.getGroupService(incDec, null, newPage)
+    // const incDec = page < newPage ? 'increment' : 'decrement'
+    GroupService.getGroupService(search, newPage, sortField, orderBy)
     setPage(newPage)
   }
+
+  useEffect(() => {
+    if (adminGroupState.fetched.value) {
+      GroupService.getGroupService(search, page, sortField, orderBy)
+    }
+  }, [orderBy])
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
@@ -46,7 +53,7 @@ const GroupTable = (props: Props) => {
     const group = adminGroups.value.find((group) => group.id === id)
     if (group !== null) {
       setSingleGroup(group!)
-      setViewModel(true)
+      setViewModal(true)
     }
   }
 
@@ -64,15 +71,16 @@ const GroupTable = (props: Props) => {
     GroupService.deleteGroupByAdmin(groupId)
   }
 
-  const closeViewModel = (open) => {
-    setViewModel(open)
+  const closeViewModal = (open) => {
+    setViewModal(open)
   }
 
   useEffect(() => {
-    if (adminGroupState.updateNeeded.value && user.id.value) {
-      GroupService.getGroupService('increment', null)
-    }
-    GroupService.getGroupService('increment', search)
+    //if (adminGroupState.updateNeeded.value && user.id.value) {
+    //  GroupService.getGroupService(null)
+    // } else {
+    GroupService.getGroupService(search, 0, sortField, orderBy)
+    // }
   }, [adminGroupState.updateNeeded.value, user, search])
 
   const createData = (id: any, name: any, description: string): Data => {
@@ -82,18 +90,18 @@ const GroupTable = (props: Props) => {
       description,
       action: (
         <>
-          <a href="#h" className={classes.actionStyle} onClick={() => handleViewGroup(id)}>
-            <span className={classes.spanWhite}>View</span>
+          <a href="#h" className={styles.actionStyle} onClick={() => handleViewGroup(id)}>
+            <span className={styles.spanWhite}>{t('admin:components.group.view')}</span>
           </a>
           <a
             href="#h"
-            className={classes.actionStyle}
+            className={styles.actionStyle}
             onClick={() => {
               handleShowWarning(id)
               setGroupName(name)
             }}
           >
-            <span className={classes.spanDange}>Delete</span>
+            <span className={styles.spanDange}>{t('admin:components.group.delete')}</span>
           </a>
         </>
       )
@@ -107,6 +115,10 @@ const GroupTable = (props: Props) => {
   return (
     <React.Fragment>
       <TableComponent
+        allowSort={false}
+        fieldOrder={orderBy}
+        setSortField={setSortField}
+        setFieldOrder={setOrderBy}
         rows={rows}
         column={columns}
         page={page}
@@ -115,15 +127,15 @@ const GroupTable = (props: Props) => {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <ConfirmModel
+      <ConfirmModal
         popConfirmOpen={showWarning}
-        handleCloseModel={handleCloseWarning}
+        handleCloseModal={handleCloseWarning}
         submit={deleteGroupHandler}
         name={groupName}
         label={'group'}
       />
-      {singleGroup && viewModel && (
-        <ViewGroup groupAdmin={singleGroup} openView={viewModel} closeViewModal={closeViewModel} />
+      {singleGroup && viewModal && (
+        <ViewGroup groupAdmin={singleGroup} openView={viewModal} closeViewModal={closeViewModal} />
       )}
     </React.Fragment>
   )

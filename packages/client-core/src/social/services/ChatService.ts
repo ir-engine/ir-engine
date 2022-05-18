@@ -1,11 +1,10 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, none, useState } from '@speigg/hookstate'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
-import { ChannelResult } from '@xrengine/common/src/interfaces/ChannelResult'
 import { Group } from '@xrengine/common/src/interfaces/Group'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { Message } from '@xrengine/common/src/interfaces/Message'
-import { MessageResult } from '@xrengine/common/src/interfaces/MessageResult'
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
@@ -225,12 +224,12 @@ export const ChatService = {
     try {
       const chatState = accessChatState().value
 
-      const channelResult = await client.service('channel').find({
+      const channelResult = (await client.service('channel').find({
         query: {
           $limit: limit != null ? limit : chatState.channels.limit,
           $skip: skip != null ? skip : chatState.channels.skip
         }
-      })
+      })) as Paginated<Channel>
       dispatch(ChatAction.loadedChannels(channelResult))
     } catch (err) {
       AlertService.dispatchAlertError(err)
@@ -239,12 +238,12 @@ export const ChatService = {
   getInstanceChannel: async () => {
     const dispatch = useDispatch()
     try {
-      const channelResult = await client.service('channel').find({
+      const channelResult = (await client.service('channel').find({
         query: {
           channelType: 'instance',
           instanceId: accessLocationInstanceConnectionState().instance.id.value
         }
-      })
+      })) as Paginated<Channel>
       if (channelResult.total === 0) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
       dispatch(ChatAction.loadedChannel(channelResult.data[0], 'instance'))
     } catch (err) {
@@ -295,7 +294,7 @@ export const ChatService = {
     if (channelId && channelId.length > 0) {
       try {
         const chatState = accessChatState().value
-        const messageResult = await client.service('message').find({
+        const messageResult = (await client.service('message').find({
           query: {
             channelId: channelId,
             $sort: {
@@ -304,7 +303,7 @@ export const ChatService = {
             $limit: limit != null ? limit : chatState.channels.channels[channelId].limit,
             $skip: skip != null ? skip : chatState.channels.channels[channelId].skip
           }
-        })
+        })) as Paginated<Message>
         dispatch(ChatAction.loadedMessages(channelId, messageResult))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -332,13 +331,13 @@ export const ChatService = {
     if (!targetObject) {
       dispatch(ChatAction.setChatTarget(targetObjectType, targetObject, ''))
     } else {
-      const targetChannelResult = await client.service('channel').find({
+      const targetChannelResult = (await client.service('channel').find({
         query: {
           findTargetId: true,
           targetObjectType: targetObjectType,
           targetObjectId: targetObject.id
         }
-      })
+      })) as Paginated<Channel>
       dispatch(
         ChatAction.setChatTarget(
           targetObjectType,
@@ -426,7 +425,7 @@ export const ChatAction = {
       channelType: channelFetchedType
     }
   },
-  loadedChannels: (channelResult: ChannelResult) => {
+  loadedChannels: (channelResult: Paginated<Channel>) => {
     return {
       type: 'LOADED_CHANNELS' as const,
       channels: channelResult.data,
@@ -454,7 +453,7 @@ export const ChatAction = {
       message: message
     }
   },
-  loadedMessages: (channelId: string, messageResult: MessageResult) => {
+  loadedMessages: (channelId: string, messageResult: Paginated<Message>) => {
     return {
       type: 'LOADED_MESSAGES' as const,
       messages: messageResult.data,

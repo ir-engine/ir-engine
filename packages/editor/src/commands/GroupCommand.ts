@@ -1,11 +1,20 @@
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import {
+  createEntityNode,
+  getEntityNodeArrayFromEntities
+} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
+import { executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
+import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
+import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
+import { EditorAction } from '../services/EditorServices'
+import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
 export interface GroupCommandParams extends CommandParams {
@@ -36,15 +45,20 @@ export default class GroupCommand extends Command {
     if (this.keepHistory) {
       this.oldParents = []
       this.oldBefores = []
-      this.oldSelection = CommandManager.instance.selected.slice(0)
+      this.oldSelection = accessSelectionState().selectedEntities.value.slice(0)
+
+      const tree = useWorld().entityTree
 
       for (let i = this.affectedObjects.length - 1; i >= 0; i--) {
         const object = this.affectedObjects[i]
 
-        if (object.parentNode) {
-          this.oldParents.push(object.parentNode)
-          this.oldBefores.push(object.parentNode.children![object.parentNode.children!.indexOf(object) + 1])
-        }
+        if (!object.parentEntity) throw new Error('Parent is not defined')
+        const parent = tree.entityNodeMap.get(object.parentEntity)
+        if (!parent) throw new Error('Parent is not defined')
+        this.oldParents.push(parent)
+
+        const before = tree.entityNodeMap.get(parent.children![parent.children!.indexOf(object.entity) + 1])
+        this.oldBefores.push(before!)
       }
     }
   }
@@ -52,8 +66,8 @@ export default class GroupCommand extends Command {
   execute() {
     this.emitBeforeExecuteEvent()
 
-    this.groupNode = new EntityTreeNode(createEntity())
-    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.groupNode, {
+    this.groupNode = createEntityNode(createEntity())
+    executeCommand(EditorCommands.ADD_OBJECTS, this.groupNode, {
       parents: this.groupParents,
       befores: this.groupBefores,
       shouldEmitEvent: false,
@@ -61,40 +75,35 @@ export default class GroupCommand extends Command {
       prefabTypes: ScenePrefabs.group
     })
 
-    CommandManager.instance.executeCommand(EditorCommands.REPARENT, this.affectedObjects, {
+    executeCommand(EditorCommands.REPARENT, this.affectedObjects, {
       parents: this.groupNode,
       shouldEmitEvent: false,
       isObjectSelected: false
     })
 
     if (this.isSelected) {
-      CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.groupNode, {
-        shouldEmitEvent: false,
-        shouldGizmoUpdate: false
+      executeCommand(EditorCommands.REPLACE_SELECTION, this.groupNode, {
+        shouldEmitEvent: false
       })
     }
-
-    CommandManager.instance.updateTransformRoots()
 
     this.emitAfterExecuteEvent()
   }
 
   undo() {
-    CommandManager.instance.executeCommand(EditorCommands.REPARENT, this.affectedObjects, {
+    executeCommand(EditorCommands.REPARENT, this.affectedObjects, {
       parents: this.oldParents,
       befores: this.oldBefores,
       shouldEmitEvent: false,
       isObjectSelected: false
     })
-    CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.groupNode, {
+    executeCommand(EditorCommands.REMOVE_OBJECTS, this.groupNode, {
       deselectObject: false,
       shouldEmitEvent: false,
       skipSerialization: true
     })
-    CommandManager.instance.updateTransformRoots()
-    CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection, {
-      shouldGizmoUpdate: false
-    })
+
+    executeCommand(EditorCommands.REPLACE_SELECTION, getEntityNodeArrayFromEntities(this.oldSelection))
     this.emitAfterExecuteEvent()
   }
 
@@ -105,17 +114,20 @@ export default class GroupCommand extends Command {
   }
 
   emitBeforeExecuteEvent() {
-    if (this.shouldEmitEvent && this.isSelected)
-      CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
+    if (this.shouldEmitEvent && this.isSelected) {
+      cancelGrabOrPlacement()
+      store.dispatch(SelectionAction.changedBeforeSelection())
+    }
   }
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
       if (this.isSelected) {
-        CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+        updateOutlinePassSelection()
       }
 
-      CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
+      store.dispatch(EditorAction.sceneModified(true))
+      store.dispatch(SelectionAction.changedSceneGraph())
     }
   }
 }

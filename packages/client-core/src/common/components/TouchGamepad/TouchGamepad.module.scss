@@ -1,4 +1,4 @@
-$mobileControllButtonsSize:3em;
+$MobileControllButtonsSize: 3em;
 
 .stickLeft {
   position: fixed;
@@ -9,6 +9,10 @@ $mobileControllButtonsSize:3em;
   div {
     margin: auto;
   }
+
+  @media (max-width: 478px) {
+    left: 25px;
+  }
 }
 
 .controlButtonContainer {
@@ -16,19 +20,19 @@ $mobileControllButtonsSize:3em;
   border-radius: 50%;
   right: 75px;
   bottom: 100px;
-  line-height: ($mobileControllButtonsSize+1em);
+  line-height: ($MobileControllButtonsSize + 1em);
 
   .controllButton {
     position: absolute;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.4);
+    background: rgb(255 255 255 / 40%);
     opacity: 0.75;
     bottom: 20px;
     font-size: 20px;
-    height: $mobileControllButtonsSize;
-    width: $mobileControllButtonsSize;
+    height: $MobileControllButtonsSize;
+    width: $MobileControllButtonsSize;
     text-align: center;
-    border: 1px solid #ffffff;
+    border: 1px solid #fff;
 
     >svg {
       height: 2em;
@@ -36,8 +40,8 @@ $mobileControllButtonsSize:3em;
 
     &.availableButton {
       opacity: 1;
-      border: 1px solid #ffff00;
-      box-shadow: 0 0 10px rgba(255, 255, 0, 1);
+      border: 1px solid #ff0;
+      box-shadow: 0 0 10px rgb(255 255 0 / 100%);
     }
 
     &.notAvailableButton {

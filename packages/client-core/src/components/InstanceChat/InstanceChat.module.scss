@@ -1,4 +1,4 @@
-.iconCallChat{
+.iconCallChat {
   display: flex;
   position: fixed;
   right: 0;
@@ -15,10 +15,12 @@
   &:hover {
     cursor: pointer;
   }
-  svg{
+
+  svg {
     color: black;
-    margin: 0 2.5px 0 2.5px ;
+    margin: 0 2.5px;
   }
+
   button {
     width: 48px;
     height: 48px;
@@ -35,11 +37,12 @@
       height: 40px;
     }
   }
-  .chatBadge{
+
+  .chatBadge {
     border-radius: 50%;
   }
-
 }
+
 .instance-chat-container {
   position: absolute;
   bottom: 0;
@@ -52,10 +55,9 @@
   margin: 5px 15px 20px 10px;
   transition: all 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
   border-radius: 5px;
-  background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
-  // overflow: hidden;
+  background-color: var(--purpleLighter);
 
-  &.messageContainerClosed{
+  &.messageContainerClosed {
     width: 0;
     overflow: hidden;
   }
@@ -73,8 +75,7 @@
   .chat-box {
     display: flex;
     flex-grow: 1;
-    align-items: stretch;
-    padding: 0px;
+    padding: 0;
     align-items: flex-end;
 
     input {
@@ -82,30 +83,34 @@
     }
 
     .chat-box:last-child {
-      padding-bottom: 0px;
+      padding-bottom: 0;
     }
 
-    .iconContainer{
+    .iconContainer {
       display: flex;
       height: inherit;
       align-items: center;
-      padding: 0px 10px;
+      padding: 0 10px;
+
       &:hover {
         cursor: pointer;
       }
-      svg{
+
+      svg {
         margin: 10px 0;
       }
     }
-    .messageFieldContainer{
-      margin:0px;
+
+    .messageFieldContainer {
+      margin: 0;
       padding: 0 55px 0 20px;
 
       label {
         padding-left: 20px;
       }
-      .PrivateNotchedOutline-root-1{
-        border: 0px;
+
+      .PrivateNotchedOutline-root-1 {
+        border: 0;
       }
 
       :global(.MuiInputLabel-formControl) {
@@ -119,27 +124,27 @@
       }
 
       :global(.MuiFormLabel-root.Mui-focused):not(.MuiFormLabel-filled),
-      :global(.MuiFormLabel-root.MuiFormLabel-filled):not(.Mui-focused){
+      :global(.MuiFormLabel-root.MuiFormLabel-filled):not(.Mui-focused) {
         display: none;
       }
 
-      :global(.MuiInput-underline:before),
-      :global(.MuiInput-underline:after){
-        border-bottom: none
+      :global(.MuiInput-underline::before),
+      :global(.MuiInput-underline::after) {
+        border-bottom: none;
       }
-
     }
 
-    
-    :global(.MuiButton-root).iconContainerSend{
+    :global(.MuiButton-root).iconContainerSend {
       display: flex;
       height: 37px;
       align-items: center;
+
       // padding: 5px 10px;
       width: 37px;
       margin: 5px;
-      min-width: 0px;
+      min-width: 0;
       border-radius: 50px;
+
       &:hover {
         cursor: pointer;
       }
@@ -167,22 +172,25 @@
   ul {
     min-height: 0;
   }
+
   .message {
     color: white;
 
-    .userName{
-    color: white;
-    font-weight: bold;
+    .userName {
+      color: white;
+      font-weight: bold;
     }
+
     &.self {
       & > div {
         width: 100%;
         display: flex;
       }
     }
+
     &.other {
-      &:after {
-        content: '';
+      &::after {
+        content: "";
         width: 40%;
         display: block;
       }
@@ -195,16 +203,18 @@
   }
 }
 
-:global(.MuiPaper-root).message-wrapper{
-    display: flex;
-    flex-direction: column;
-    //height: 30vh;   
-    background-color: transparent;
-    //margin-left: -55px;
-    @media (max-width: 768px) {
-      margin-left: 0;
-    }
-    
+:global(.MuiPaper-root).message-wrapper {
+  display: flex;
+  flex-direction: column;
+
+  // height: 30vh;
+  background-color: transparent;
+
+  // margin-left: -55px;
+  @media (max-width: 768px) {
+    margin-left: 0;
+  }
+
   .message-container {
     display: flex;
     flex-direction: column;
@@ -216,26 +226,28 @@
       font-size: 2em;
       margin: auto;
     }
-    .message-sender-avatar{
-      margin: 0 10px 0 10px;
+
+    .message-sender-avatar {
+      margin: 0 10px;
       min-width: auto;
     }
-    .message-left{
+
+    .message-left {
       justify-content: flex-start;
       text-align: start;
     }
 
-    .message-left-text{
-      border-radius: 10px 10px 10px 0px;
+    .message-left-text {
+      border-radius: 10px 10px 10px 0;
     }
 
-    .message-right{
+    .message-right {
       justify-content: flex-end;
       text-align: end;
     }
 
-    .message-right-text{
-      border-radius: 10px 10px 0px 10px;
+    .message-right-text {
+      border-radius: 10px 10px 0;
     }
   }
 }

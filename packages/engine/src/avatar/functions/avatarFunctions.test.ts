@@ -2,7 +2,6 @@ import assert from 'assert'
 import { AnimationClip, Group, Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import AvatarBoneMatching from '@xrengine/engine/src/avatar/AvatarBoneMatching'
 
 import { loadGLTFAssetNode } from '../../../tests/util/loadGLTFAssetNode'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -15,23 +14,19 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
 import { IKRigComponent, IKRigTargetComponent } from '../../ikrig/components/IKRigComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
-import { AnimationState } from '../animations/AnimationState'
-import { AvatarAnimationGraph } from '../animations/AvatarAnimationGraph'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { AnimationState } from '../animation/AnimationState'
+import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
+import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
-import {
-  animateAvatarModel,
-  boneMatchAvatarModel,
-  loadAvatarForUser,
-  rigAvatarModel,
-  setupAvatarModel
-} from './avatarFunctions'
+import { animateAvatarModel, boneMatchAvatarModel, loadAvatarForUser, rigAvatarModel } from './avatarFunctions'
 import { createAvatar } from './createAvatar'
 
 const githubPath = 'https://raw.githubusercontent.com/XRFoundation/test-assets/main/avatars/'
+const animGLB = '/packages/client/public/default_assets/Animations.glb'
 const assetPaths = ['reallusion/Allison.glb', 'mixamo/vanguard.fbx', 'mixamo/vanguard.glb', 'vrm/test2.vrm']
 
 before(async () => {
@@ -39,10 +34,12 @@ before(async () => {
 })
 
 describe('avatarFunctions Integration', async () => {
-  beforeEach(async () => {
+  before(async () => {
     const world = createWorld()
     Engine.currentWorld = world
     await Engine.currentWorld.physics.createScene({ verbose: true })
+    const animationGLTF = await loadGLTFAssetNode(animGLB)
+    AnimationManager.instance.getAnimations(animationGLTF)
   })
 
   describe('loadAvatarForEntity', () => {
@@ -61,7 +58,7 @@ describe('avatarFunctions Integration', async () => {
           const networkObject = addComponent(entity, NetworkObjectComponent, {
             // remote owner
             ownerId: Engine.userId,
-            ownerIndex: 0,
+            lastTick: 0,
             networkId: i as NetworkId,
             prefab: '',
             parameters: {}
@@ -169,11 +166,14 @@ describe('avatarFunctions Unit', async () => {
     it('should assign passed group as new animation mixer root', () => {
       const entity = createEntity()
 
-      addComponent(entity, AnimationComponent, {
+      const animationComponentData = {
         mixer: null!,
         animations: [] as AnimationClip[],
         animationSpeed: 1
-      })
+      }
+
+      addComponent(entity, AnimationComponent, animationComponentData)
+      addComponent(entity, VelocityComponent, { linear: new Vector3(), angular: new Vector3() })
 
       addComponent(entity, AvatarAnimationComponent, {
         animationGraph: new AvatarAnimationGraph(),

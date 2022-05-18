@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 
@@ -6,7 +6,6 @@ import { ProjectService } from '@xrengine/client-core/src/common/services/Projec
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 
 import {
   ArrowRightRounded,
@@ -36,7 +35,6 @@ import { EditorAction } from '../../services/EditorServices'
 import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
-import { ErrorMessage } from './ProjectGrid'
 import styles from './styles.module.scss'
 
 function sortAlphabetical(a, b) {
@@ -129,7 +127,7 @@ const ProjectsPage = () => {
   const [communityProjects, setCommunityProjects] = useState<ProjectInterface[]>([])
   const [activeProject, setActiveProject] = useState<ProjectInterface | null>(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<Error | null>(null)
   const [query, setQuery] = useState('')
   const [filterAnchorEl, setFilterAnchorEl] = useState<any>(null)
   const [projectAnchorEl, setProjectAnchorEl] = useState<any>(null)
@@ -138,7 +136,6 @@ const ProjectsPage = () => {
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [updatingProject, setUpdatingProject] = useState(false)
 
-  const unmounted = useRef(false)
   const authState = useAuthState()
   const authUser = authState.authUser
   const user = authState.user
@@ -151,12 +148,8 @@ const ProjectsPage = () => {
     setLoading(true)
     try {
       const data = await getProjects()
-      if (unmounted.current) return
-
       setInstalledProjects(data.sort(sortAlphabetical) ?? [])
     } catch (error) {
-      if (unmounted.current) return
-
       console.error(error)
       setError(error)
     }
@@ -169,12 +162,9 @@ const ProjectsPage = () => {
       const data = await (query
         ? OfficialProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
         : OfficialProjectData)
-      if (unmounted.current) return
 
       setOfficialProjects(data.sort(sortAlphabetical) ?? [])
     } catch (error) {
-      if (unmounted.current) return
-
       console.error(error)
       setError(error)
     }
@@ -187,12 +177,9 @@ const ProjectsPage = () => {
       const data = await (query
         ? CommunityProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
         : CommunityProjectData)
-      if (unmounted.current) return
 
       setCommunityProjects(data.sort(sortAlphabetical) ?? [])
     } catch (error) {
-      if (unmounted.current) return
-
       console.error(error)
       setError(error)
     }
@@ -206,10 +193,6 @@ const ProjectsPage = () => {
     fetchInstalledProjects()
     fetchOfficialProjects()
     fetchCommunityProjects()
-
-    return () => {
-      unmounted.current = true
-    }
   }, [authUser.accessToken])
 
   // TODO: Implement tutorial
@@ -220,6 +203,7 @@ const ProjectsPage = () => {
   const onClickExisting = (event, project) => {
     event.preventDefault()
     if (!isInstalled(project)) return
+
     dispatch(EditorAction.sceneChanged(null))
     dispatch(EditorAction.projectChanged(project.name))
     history.push(`/editor/${project.name}`)
@@ -317,8 +301,8 @@ const ProjectsPage = () => {
                 areInstalledProjects && onClickExisting(e, project)
               }}
             >
-              <div className={styles.thumbnailContainer} style={{ backgroundImage: `url(${project.thumbnail})` }}></div>
-              <div className={styles.headerConatiner}>
+              <div className={styles.thumbnailContainer} style={{ backgroundImage: `url(${project.thumbnail})` }} />
+              <div className={styles.headerContainer}>
                 <h3 className={styles.header}>{project.name.replaceAll('-', ' ')}</h3>
                 {project.name !== 'default-project' && (
                   <IconButton disableRipple onClick={(e: any) => openProjectContextMenu(e, project)}>
@@ -398,7 +382,7 @@ const ProjectsPage = () => {
             </Button>
           </div>
           <div className={styles.projectGrid}>
-            {error && <ErrorMessage>{(error as any).message}</ErrorMessage>}
+            {error && <div className={styles.errorMsg}>{error.message}</div>}
             {(!query || filter.installed) && (
               <ProjectExpansionList
                 id={t(`editor.projects.installed`)}
@@ -457,6 +441,7 @@ const ProjectsPage = () => {
       <CreateProjectDialog createProject={onCreateProject} open={isCreateDialogOpen} handleClose={closeCreateDialog} />
       <DeleteDialog
         open={isDeleteDialogOpen}
+        isProjectMenu
         onCancel={closeDeleteConfirm}
         onClose={closeDeleteConfirm}
         onConfirm={deleteProject}

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button, Grid, Paper, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { AwsSettingService, useAdminAwsSettingState } from '../../services/Setting/AwsSettingService'
-import { useStyles } from './styles'
+import styles from '../../styles/settings.module.scss'
 
 interface Props {}
 
@@ -18,12 +19,12 @@ const SMS_PROPERTIES = {
 }
 
 const Aws = (props: Props) => {
-  const classes = useStyles()
   const awsSettingState = useAdminAwsSettingState()
   const [awsSetting] = awsSettingState?.awsSettings?.value
   const id = awsSetting?.id
   const authState = useAuthState()
   const user = authState.user
+  const { t } = useTranslation()
 
   const [sms, setSms] = useState(awsSetting?.sms)
 
@@ -60,31 +61,31 @@ const Aws = (props: Props) => {
 
   return (
     <div>
-      <Typography component="h1" className={classes.settingsHeading}>
-        AWS
+      <Typography component="h1" className={styles.settingsHeading}>
+        {t('admin:components.setting.aws')}
       </Typography>
       <form>
-        <div className={classes.root}>
+        <div className={styles.root}>
           <Grid container spacing={3}>
             <Grid item xs={12}>
-              <Paper className={classes.Paper} elevation={0}>
-                <label style={{ color: '#fff' }}>Keys</label>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Access Key ID:</label>
+              <Paper className={styles.Paper} elevation={0}>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.keys')}</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.accessKeyId')}:</label>
                   <InputBase
                     name="accessKeyId"
                     value={awsSetting?.keys?.accessKeyId || ''}
-                    className={classes.input}
+                    className={styles.input}
                     disabled
                     style={{ color: '#fff' }}
                   />
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Secret Access Key:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.secretAccessKey')}:</label>
                   <InputBase
                     name="secretAccessKey"
                     value={awsSetting?.keys?.secretAccessKey || ''}
-                    className={classes.input}
+                    className={styles.input}
                     disabled
                     style={{ color: '#fff' }}
                   />
@@ -92,37 +93,37 @@ const Aws = (props: Props) => {
               </Paper>
             </Grid>
             <Grid item xs={12}>
-              <Paper className={classes.Paper} elevation={0}>
-                <label style={{ color: '#fff' }}>Route53</label>
-                <Paper component="div" className={classes.createInput}>
-                  <label> Hosted Zone ID:</label>
+              <Paper className={styles.Paper} elevation={0}>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.route53')}</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label> {t('admin:components.setting.hostedZoneId')}:</label>
                   <InputBase
                     name="hostedZoneId"
                     value={awsSetting?.route53?.hostedZoneId || ''}
-                    className={classes.input}
+                    className={styles.input}
                     disabled
                     style={{ color: '#fff' }}
                   />
                 </Paper>
 
-                <Paper className={classes.Paper} elevation={0}>
-                  <label style={{ color: '#fff' }}>KEYS</label>
-                  <Paper component="div" className={classes.createInput}>
-                    <label>Access Key ID:</label>
+                <Paper className={styles.Paper} elevation={0}>
+                  <label style={{ color: '#fff' }}>{t('admin:components.setting.keys')}</label>
+                  <Paper component="div" className={styles.createInput}>
+                    <label>{t('admin:components.setting.accessKeyId')}:</label>
                     <InputBase
                       name="accessKeyId"
                       value={awsSetting?.route53?.keys?.accessKeyId || ''}
-                      className={classes.input}
+                      className={styles.input}
                       disabled
                       style={{ color: '#fff' }}
                     />
                   </Paper>
-                  <Paper component="div" className={classes.createInput}>
-                    <label>Secret Access Key:</label>
+                  <Paper component="div" className={styles.createInput}>
+                    <label>{t('admin:components.setting.secretAccessKey')}:</label>
                     <InputBase
                       name="secretAccessKey"
                       value={awsSetting?.route53?.keys?.secretAccessKey || ''}
-                      className={classes.input}
+                      className={styles.input}
                       disabled
                       style={{ color: '#fff' }}
                     />
@@ -131,54 +132,54 @@ const Aws = (props: Props) => {
               </Paper>
             </Grid>
             <Grid item xs={12}>
-              <Paper className={classes.Paper} elevation={0}>
-                <label style={{ color: '#fff' }}>S3</label>
-                <Paper component="div" className={classes.createInput}>
-                  <label>BaseUrl:</label>
+              <Paper className={styles.Paper} elevation={0}>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.s3')}</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.baseUrl')}:</label>
                   <InputBase
                     disabled
                     name="baseUrl"
                     value={awsSetting?.s3?.baseUrl || ''}
-                    className={classes.input}
+                    className={styles.input}
                     style={{ color: '#fff' }}
                   />
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Static Resource Bucket:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.staticResourceBucket')}:</label>
                   <InputBase
                     name="staticResourceBucket"
                     value={awsSetting?.s3?.staticResourceBucket || ''}
-                    className={classes.input}
+                    className={styles.input}
                     disabled
                     style={{ color: '#fff' }}
                   />
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label>Region:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.region')}:</label>
                   <InputBase
                     name="region"
                     value={awsSetting?.s3?.region || ''}
-                    className={classes.input}
+                    className={styles.input}
                     disabled
                     style={{ color: '#fff' }}
                   />
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label>AvatarDir:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.avatarDir')}:</label>
                   <InputBase
                     name="avatarDir"
                     value={awsSetting?.s3?.avatarDir || ''}
-                    className={classes.input}
+                    className={styles.input}
                     disabled
                     style={{ color: '#fff' }}
                   />
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label>S3DevMode:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label>{t('admin:components.setting.s3DevMode')}:</label>
                   <InputBase
                     name="s3DevMode"
                     value={awsSetting?.s3?.s3DevMode || ''}
-                    className={classes.input}
+                    className={styles.input}
                     disabled
                     style={{ color: '#fff' }}
                   />
@@ -186,24 +187,24 @@ const Aws = (props: Props) => {
               </Paper>
             </Grid>
             <Grid item xs={12}>
-              <Paper className={classes.Paper} elevation={0}>
-                <label style={{ color: '#fff' }}>Cloud Front</label>
-                <Paper component="div" className={classes.createInput}>
-                  <label> Domain:</label>
+              <Paper className={styles.Paper} elevation={0}>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.cloudFront')}</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label> {t('admin:components.setting.domain')}:</label>
                   <InputBase
                     name="domain"
                     value={awsSetting?.cloudfront?.domain || ''}
-                    className={classes.input}
+                    className={styles.input}
                     disabled
                     style={{ color: '#fff' }}
                   />
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label> Distribution ID:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label> {t('admin:components.setting.distributionId')}:</label>
                   <InputBase
                     name="distributionId"
                     value={awsSetting?.cloudfront?.distributionId || ''}
-                    className={classes.input}
+                    className={styles.input}
                     disabled
                     style={{ color: '#fff' }}
                   />
@@ -211,54 +212,54 @@ const Aws = (props: Props) => {
               </Paper>
             </Grid>
             <Grid item xs={12}>
-              <Paper className={classes.Paper} elevation={0}>
-                <label style={{ color: '#fff' }}>SMS</label>
-                <Paper component="div" className={classes.createInput}>
-                  <label> Access Key ID:</label>
+              <Paper className={styles.Paper} elevation={0}>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.sms')}</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label> {t('admin:components.setting.accessKeyId')}:</label>
                   <InputBase
                     value={sms?.accessKeyId || ''}
                     name="accessKeyId"
-                    className={classes.input}
+                    className={styles.input}
                     style={{ color: '#fff' }}
                     onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.ACCESS_KEY_ID)}
                   />
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label> Application ID :</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label> {t('admin:components.setting.applicationId')} :</label>
                   <InputBase
                     name="applicationId"
                     value={sms?.applicationId || ''}
-                    className={classes.input}
+                    className={styles.input}
                     style={{ color: '#fff' }}
                     onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.APPLICATION_ID)}
                   />
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label> Region:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label> {t('admin:components.setting.region')}:</label>
                   <InputBase
                     name="region"
                     value={sms?.region || ''}
-                    className={classes.input}
+                    className={styles.input}
                     style={{ color: '#fff' }}
                     onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.REGION)}
                   />
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label> Sender ID:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label> {t('admin:components.setting.senderId')}:</label>
                   <InputBase
                     name="senderId"
                     value={sms?.senderId || ''}
-                    className={classes.input}
+                    className={styles.input}
                     style={{ color: '#fff' }}
                     onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.SENDER_ID)}
                   />
                 </Paper>
-                <Paper component="div" className={classes.createInput}>
-                  <label> Secret Access Key:</label>
+                <Paper component="div" className={styles.createInput}>
+                  <label> {t('admin:components.setting.secretAccessKey')}:</label>
                   <InputBase
                     name="secretAccessKey"
                     value={sms?.secretAccessKey || ''}
-                    className={classes.input}
+                    className={styles.input}
                     style={{ color: '#fff' }}
                     onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.SECRET_ACCESS_KEY)}
                   />
@@ -268,11 +269,17 @@ const Aws = (props: Props) => {
           </Grid>
         </div>
         <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
-          Cancel
+          {t('admin:components.setting.cancel')}
         </Button>
         &nbsp;&nbsp;
-        <Button sx={{ maxWidth: '100%' }} variant="contained" type="submit" onClick={handleSubmit}>
-          Save
+        <Button
+          sx={{ maxWidth: '100%' }}
+          variant="contained"
+          className={styles.saveBtn}
+          type="submit"
+          onClick={handleSubmit}
+        >
+          {t('admin:components.setting.save')}
         </Button>
       </form>
     </div>

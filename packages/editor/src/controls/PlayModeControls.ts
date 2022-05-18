@@ -1,68 +1,59 @@
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { store, useDispatch } from '@xrengine/client-core/src/store'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
-import { EditorControlComponent } from '../classes/EditorControlComponent'
-import { FlyControlComponent } from '../classes/FlyControlComponent'
+import { executeCommandWithHistory } from '../classes/History'
+import EditorCommands from '../constants/EditorCommands'
 import { addInputActionMapping, removeInputActionMapping } from '../functions/parseInputActionMapping'
-import { SceneManager } from '../managers/SceneManager'
+import { ModeAction } from '../services/ModeServices'
 import { ActionSets, EditorMapping, FlyMapping } from './input-mappings'
-import InputManager from './InputManager'
 
-export default class PlayModeControls {
-  inputManager: InputManager
-  enabled: boolean
+export function enterPlayMode(): void {
+  executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
+  Engine.camera.layers.set(ObjectLayers.Scene)
 
-  constructor(inputManager) {
-    this.inputManager = inputManager
-    this.enabled = false
-  }
+  Engine.renderer.domElement.addEventListener('click', onClickCanvas)
+  document.addEventListener('pointerlockchange', onPointerLockChange)
+  store.dispatch(ModeAction.changedPlayMode(true))
+}
 
-  enable() {
-    this.enabled = true
-    this.inputManager.canvas.addEventListener('click', this.onClickCanvas)
-    document.addEventListener('pointerlockchange', this.onPointerLockChange)
-  }
+export function leavePlayMode(): void {
+  Engine.camera.layers.enableAll()
 
-  disable() {
-    this.enabled = false
+  addInputActionMapping(ActionSets.EDITOR, EditorMapping)
 
-    const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
-    editorControlComponent.enable = true
+  const dispatch = useDispatch()
+  dispatch(ModeAction.changedFlyMode(false))
+  removeInputActionMapping(ActionSets.FLY)
+
+  Engine.renderer.domElement.removeEventListener('click', onClickCanvas)
+  document.removeEventListener('pointerlockchange', onPointerLockChange)
+  document.exitPointerLock()
+
+  store.dispatch(ModeAction.changedPlayMode(false))
+}
+
+function onClickCanvas(): void {
+  Engine.renderer.domElement.requestPointerLock()
+}
+
+function onPointerLockChange(): void {
+  const dispatch = useDispatch()
+
+  if (document.pointerLockElement === Engine.renderer.domElement) {
+    dispatch(ModeAction.changedFlyMode(true))
+    addInputActionMapping(ActionSets.FLY, FlyMapping)
+
+    removeInputActionMapping(ActionSets.EDITOR)
+  } else {
     addInputActionMapping(ActionSets.EDITOR, EditorMapping)
 
-    const flyControlComponent = getComponent(SceneManager.instance.editorEntity, FlyControlComponent)
-    flyControlComponent.enable = false
+    dispatch(ModeAction.changedFlyMode(false))
     removeInputActionMapping(ActionSets.FLY)
-
-    this.inputManager.canvas.removeEventListener('click', this.onClickCanvas)
-    document.removeEventListener('pointerlockchange', this.onPointerLockChange)
-    document.exitPointerLock()
   }
+}
 
-  onClickCanvas = () => {
-    this.inputManager.canvas.requestPointerLock()
-  }
-
-  onPointerLockChange = () => {
-    const flyControlComponent = getComponent(SceneManager.instance.editorEntity, FlyControlComponent)
-    const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
-
-    if (document.pointerLockElement === this.inputManager.canvas) {
-      flyControlComponent.enable = true
-      addInputActionMapping(ActionSets.FLY, FlyMapping)
-
-      editorControlComponent.enable = false
-      removeInputActionMapping(ActionSets.EDITOR)
-    } else {
-      editorControlComponent.enable = true
-      addInputActionMapping(ActionSets.EDITOR, EditorMapping)
-
-      flyControlComponent.enable = false
-      removeInputActionMapping(ActionSets.FLY)
-    }
-  }
-
-  dispose() {
-    this.inputManager.canvas.removeEventListener('click', this.onClickCanvas)
-    document.removeEventListener('pointerlockchange', this.onPointerLockChange)
-  }
+export function disposePlayModeControls(): void {
+  Engine.renderer.domElement.removeEventListener('click', onClickCanvas)
+  document.removeEventListener('pointerlockchange', onPointerLockChange)
 }

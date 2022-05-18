@@ -13,7 +13,7 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -21,8 +21,8 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AnimationState } from '../animations/AnimationState'
-import { AvatarAnimationGraph } from '../animations/AvatarAnimationGraph'
+import { AnimationState } from '../animation/AnimationState'
+import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { AvatarInputSchema } from '../AvatarInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
@@ -53,10 +53,12 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   spawnAction.parameters.position = position
   spawnAction.parameters.rotation = rotation
 
-  const velocity = createVector3Proxy(VelocityComponent.velocity, entity)
+  const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity)
+  const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity)
 
   addComponent(entity, VelocityComponent, {
-    velocity
+    linear: linearVelocity,
+    angular: angularVelocity
   })
 
   // The visuals group is centered for easy actor tilting
@@ -99,7 +101,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   setObjectLayers(tiltContainer, ObjectLayers.Avatar)
 
   const filterData = new PhysX.PxQueryFilterData()
-  filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger, 0)
+  filterData.setWords(AvatarCollisionMask, 0)
   const flags = PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
   filterData.setFlags(flags)
 
@@ -209,7 +211,9 @@ export const createAvatarController = (entity: Entity) => {
       isJumping: false,
       isWalking: false,
       localMovementDirection: new Vector3(),
-      velocitySimulator
+      velocitySimulator,
+      currentSpeed: 0,
+      speedVelocity: { value: 0 }
     })
   }
 }

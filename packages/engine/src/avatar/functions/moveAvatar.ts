@@ -1,11 +1,15 @@
-import { Euler, Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector, Vector3 } from 'three'
+import { Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
+import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
+import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { AvatarSettings } from '../AvatarControllerSystem'
@@ -56,14 +60,15 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
 
   // newVelocity = velocity sim position * moveSpeed
   const moveSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
-  newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(moveSpeed)
+  controller.currentSpeed = smoothDamp(controller.currentSpeed, moveSpeed, controller.speedVelocity, 0.1, timeStep)
+  newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(controller.currentSpeed)
 
   // avatar velocity = newVelocity (horizontal plane)
-  velocity.velocity.setX(newVelocity.x)
-  velocity.velocity.setZ(newVelocity.z)
+  velocity.linear.setX(newVelocity.x)
+  velocity.linear.setZ(newVelocity.z)
 
   // apply gravity to avatar velocity
-  velocity.velocity.y -= 0.15 * timeStep
+  velocity.linear.y -= 0.15 * timeStep
 
   // threejs camera is weird, when in VR we must use the head diretion
   if (hasComponent(entity, XRInputSourceComponent))
@@ -83,7 +88,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
 
   if (onGround) {
     // if we are falling
-    if (velocity.velocity.y < 0) {
+    if (velocity.linear.y < 0) {
       // look for something to fall onto
       const raycast = getComponent(entity, RaycastComponent)
       const closestHit = raycast.hits[0]
@@ -99,7 +104,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
         quat.setFromUnitVectors(upVector, tempVec1)
         mat4.makeRotationFromQuaternion(quat)
         onGroundVelocity.applyMatrix4(mat4)
-        velocity.velocity.y = onGroundVelocity.y
+        velocity.linear.y = onGroundVelocity.y
       }
     }
 
@@ -107,12 +112,12 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
       // if controller jump input pressed
       controller.localMovementDirection.y > 0 &&
       // and we are on the ground
-      velocity.velocity.y <= onGroundVelocity.y &&
+      velocity.linear.y <= onGroundVelocity.y &&
       // and we are not already jumping
       !controller.isJumping
     ) {
       // jump
-      velocity.velocity.y = (AvatarSettings.instance.jumpHeight * 1) / 60
+      velocity.linear.y = (AvatarSettings.instance.jumpHeight * 1) / 60
       controller.isJumping = true
     } else if (controller.isJumping) {
       // reset isJumping the following frame
@@ -132,24 +137,24 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   }
 
   // clamp velocities [-1 .. 1]
-  if (Math.abs(velocity.velocity.x) > 1) velocity.velocity.x /= Math.abs(velocity.velocity.x)
-  if (Math.abs(velocity.velocity.y) > 1) velocity.velocity.y /= Math.abs(velocity.velocity.y)
-  if (Math.abs(velocity.velocity.z) > 1) velocity.velocity.z /= Math.abs(velocity.velocity.z)
+  if (Math.abs(velocity.linear.x) > 1) velocity.linear.x /= Math.abs(velocity.linear.x)
+  if (Math.abs(velocity.linear.y) > 1) velocity.linear.y /= Math.abs(velocity.linear.y)
+  if (Math.abs(velocity.linear.z) > 1) velocity.linear.z /= Math.abs(velocity.linear.z)
   if (Math.abs(newVelocity.x) > 1) newVelocity.x /= Math.abs(newVelocity.x)
   if (Math.abs(newVelocity.y) > 1) newVelocity.y /= Math.abs(newVelocity.y)
   if (Math.abs(newVelocity.z) > 1) newVelocity.z /= Math.abs(newVelocity.z)
 
   // min velocity of 0.001
-  if (Math.abs(velocity.velocity.x) < 0.001) velocity.velocity.x = 0
-  if (Math.abs(velocity.velocity.y) < 0.001) velocity.velocity.y = 0
-  if (Math.abs(velocity.velocity.z) < 0.001) velocity.velocity.z = 0
+  if (Math.abs(velocity.linear.x) < 0.001) velocity.linear.x = 0
+  if (Math.abs(velocity.linear.y) < 0.001) velocity.linear.y = 0
+  if (Math.abs(velocity.linear.z) < 0.001) velocity.linear.z = 0
   if (Math.abs(newVelocity.x) < 0.001) newVelocity.x = 0
   if (Math.abs(newVelocity.y) < 0.001) newVelocity.y = 0
   if (Math.abs(newVelocity.z) < 0.001) newVelocity.z = 0
 
   const displacement = {
     x: newVelocity.x,
-    y: velocity.velocity.y,
+    y: velocity.linear.y,
     z: newVelocity.z
   }
 
@@ -198,8 +203,8 @@ export const rotateXRAvatar = (world: World, entity: Entity, camera: Perspective
   }
 
   const velocity = getComponent(entity, VelocityComponent)
-  velocity.velocity.setX(displacement.x)
-  velocity.velocity.setZ(displacement.z)
+  velocity.linear.setX(displacement.x)
+  velocity.linear.setZ(displacement.z)
 
   // Rotate around camera
   moveAvatarController(world, entity, displacement)
@@ -312,8 +317,29 @@ export const moveXRAvatar = (
   }
 
   const velocity = getComponent(entity, VelocityComponent)
-  velocity.velocity.setX(displacement.x)
-  velocity.velocity.setZ(displacement.z)
+  velocity.linear.setX(displacement.x)
+  velocity.linear.setZ(displacement.z)
 
   moveAvatarController(world, entity, displacement)
+}
+
+/**
+ * Teleports the avatar to new position
+ * @param entity
+ * @param newPosition
+ */
+export const teleportAvatar = (entity: Entity, newPosition: Vector3): void => {
+  if (!hasComponent(entity, AvatarComponent)) {
+    console.warn('Teleport avatar called on non-avatar entity')
+    return
+  }
+
+  if (checkPositionIsValid(newPosition, false)) {
+    const avatar = getComponent(entity, AvatarComponent)
+    const controllerComponent = getComponent(entity, AvatarControllerComponent)
+    newPosition.y = newPosition.y + avatar.avatarHalfHeight
+    controllerComponent.controller.setPosition(newPosition)
+  } else {
+    console.log('invalid position', newPosition)
+  }
 }

@@ -11,12 +11,12 @@ import { useAuthState } from '../../services/AuthService'
 import styles from './Profile.module.scss'
 
 interface Props {
-  avatarUrl: string
-  auth: any
+  avatarUrl?: string
+  //auth: any
 }
 
-const UserProfile = (props: Props): any => {
-  const { auth } = props
+const UserProfile = (props: Props): JSX.Element => {
+  //const { auth } = props
   const user = useAuthState().user
   const { t } = useTranslation()
   const [file, setFile] = useState({})
@@ -104,7 +104,7 @@ const UserProfile = (props: Props): any => {
           name="file"
           placeholder={t('user:profile.userIcon.ph-uploadImg')}
           type="file"
-          className={styles['signup__fileField']}
+          className={styles.signupFileField}
           onChange={handleChange}
         />
 

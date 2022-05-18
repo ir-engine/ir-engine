@@ -4,13 +4,13 @@
  */
 import { Matrix4 } from 'three'
 
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
 export const IDENTITY_MAT_4 = new Matrix4().identity()
 
 export interface CommandParams {
   shouldEmitEvent?: boolean
-  shouldGizmoUpdate?: boolean
   isObjectSelected?: boolean
   keepHistory?: boolean
 }
@@ -28,14 +28,11 @@ export default class Command {
   /** Whether the event should be emited of not */
   shouldEmitEvent: boolean
 
-  /** Whether the transform root should be emited of not */
-  shouldGizmoUpdate: boolean
-
   /** Whether the object is selected or not */
   isSelected?: boolean
 
   /** Old selected objects prior to this command execution */
-  oldSelection: EntityTreeNode[]
+  oldSelection: Entity[]
 
   /** Whether this command should keep old data of the objects. Which will be used in unod operations */
   keepHistory?: boolean
@@ -43,7 +40,6 @@ export default class Command {
   constructor(objects: EntityTreeNode[], params: CommandParams = {}) {
     this.affectedObjects = objects.slice(0)
     this.shouldEmitEvent = params.shouldEmitEvent ?? true
-    this.shouldGizmoUpdate = params.shouldGizmoUpdate ?? true
     this.isSelected = params.isObjectSelected ?? true
     this.keepHistory = params.keepHistory
   }

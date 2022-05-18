@@ -27,7 +27,7 @@ export const SCENE_COMPONENT_LINK_DEFAULT_VALUES = {
 
 if (isClient) {
   // todo: make this not top level
-  AssetLoader.load({ url: '/static/editor/link-icon.png' })
+  AssetLoader.load('/static/editor/link-icon.png')
 }
 
 export const deserializeLink: ComponentDeserializeFunction = (
@@ -44,6 +44,7 @@ export const deserializeLink: ComponentDeserializeFunction = (
     material.map = AssetLoader.getFromCache('/static/editor/link-icon.png')
     material.side = DoubleSide
     material.transparent = true
+    material.needsUpdate = true
     const helper = new Mesh(geometry, material)
     setObjectLayers(helper, ObjectLayers.NodeHelper)
     obj3d.add(helper)

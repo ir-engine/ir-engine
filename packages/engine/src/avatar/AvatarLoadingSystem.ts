@@ -23,8 +23,7 @@ const lightOpacity = (y, r) => {
 
 export default async function AvatarLoadingSystem(world: World) {
   // precache dissolve effects
-  AssetLoader.loadAsync({ url: '/itemLight.png' })
-  AssetLoader.loadAsync({ url: '/itemPlate.png' })
+  await Promise.all([AssetLoader.loadAsync('/itemLight.png'), AssetLoader.loadAsync('/itemPlate.png')])
 
   const growQuery = defineQuery([AvatarEffectComponent, Object3DComponent, AvatarPendingComponent])
   const commonQuery = defineQuery([AvatarEffectComponent, Object3DComponent])

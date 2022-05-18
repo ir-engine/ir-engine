@@ -1,7 +1,5 @@
-$c-white: #fff;
-$c-black: #000;
-$ani-dur: 3s;
-$size: 50px;
+$AniDur: 3s;
+$Size: 50px;
 
 @mixin fill {
   position: absolute;
@@ -12,25 +10,26 @@ $size: 50px;
 }
 
 .wrapper {
-  width:100%;
-  height:100%;
+  width: 100%;
+  height: 100%;
   position: fixed;
-  z-index:10000;
+  z-index: 10000;
 }
 
 .cube {
   position: absolute;
-  z-index:10000;
-
+  z-index: 10000;
   width: 1em;
   height: 1em;
-  background: rgb(253, 201, 255);
-  animation: move $ani-dur ease-in-out infinite;
+  background: rgb(253 201 255);
+  animation: move $AniDur ease-in-out infinite;
   transform-style: preserve-3d;
   box-shadow: 5em 5em .3em .1em #00000027;
+
   &::before,
   &::after {
-    content: '';
+    content: "";
+
     @include fill;
   }
 
@@ -45,36 +44,60 @@ $size: 50px;
     transform-origin: 0% 100%;
     transform: rotateX(90deg);
   }
-  
+
   @for $i from 1 through 4 {
     &:nth-of-type(#{$i}) {
-      animation-delay: $ani-dur * (($i * .25) - 4);
+      animation-delay: $AniDur * (($i * .25) - 4);
     }
   }
-  
+
   @keyframes move {
     0%,
     87.5%,
-    100%  { transform: translate(1em, 0em); }
-    12.5% { transform: translate(2em, 0em); }
-    25%   { transform: translate(2em, 1em); }
-    37.5%, 
-    50%   { transform: translate(1em, 1em); }
-    62.5% { transform: translate(0em, 1em); }
-    75%   { transform: translate(0em, 0em); }
+    100% {
+      transform: translate(1em, 0);
+    }
+
+    12.5% {
+      transform: translate(2em, 0);
+    }
+
+    25% {
+      transform: translate(2em, 1em);
+    }
+
+    37.5%,
+    50% {
+      transform: translate(1em, 1em);
+    }
+
+    62.5% {
+      transform: translate(0, 1em);
+    }
+
+    75% {
+      transform: translate(0, 0);
+    }
   }
 }
 
 .box {
   @include fill;
+
   width: 3em;
   height: 2em;
   margin: 30vmin auto;
-  font-size: $size;
+  font-size: $Size;
   transform-style: preserve-3d;
   transform: rotateX(60deg) rotateZ(45deg);
-  &:hover * { animation-play-state: paused; }
-  &:active * { animation-play-state: running; }
+
+  &:hover * {
+    animation-play-state: paused;
+  }
+
+  &:active * {
+    animation-play-state: running;
+  }
 }
 
 /// reset
@@ -83,4 +106,3 @@ $size: 50px;
 .box::after {
   box-sizing: border-box;
 }
-

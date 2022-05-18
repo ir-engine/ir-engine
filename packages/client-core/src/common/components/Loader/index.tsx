@@ -9,11 +9,11 @@ import styles from './Loader.module.scss'
 import LottieLoader from './LottieLoader'
 
 interface Props {
-  Loader?: any
+  //Loader?: any
 }
 
 const LoadingScreen = (props: Props) => {
-  const { Loader } = props
+  //const { Loader } = props
   const onBoardingStep = useAppState().onBoardingStep
   const [showProgressBar, setShowProgressBar] = useState(true)
   const [loadingText, setLoadingText] = useState('')

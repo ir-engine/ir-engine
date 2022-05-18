@@ -1,12 +1,13 @@
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
@@ -16,7 +17,7 @@ import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { SCENE_COMPONENT_SCENE_TAG, SceneTagComponent } from '../components/SceneTagComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { resetEngineRenderer, updateRenderSetting } from './loaders/RenderSettingsFunction'
+import { resetEngineRenderer } from './loaders/RenderSettingsFunction'
 import { ScenePrefabTypes } from './registerPrefabs'
 
 export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes): void => {
@@ -25,7 +26,26 @@ export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes
   const components = world.scenePrefabRegistry.get(prefabType)
   if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
 
-  loadSceneEntity(new EntityTreeNode(entity), { name: prefabType, components })
+  loadSceneEntity(createEntityNode(entity), { name: prefabType, components })
+}
+
+export const preCacheAssets = (sceneData: SceneJson, onProgress) => {
+  const promises: any[] = []
+  for (const [key, val] of Object.entries(sceneData)) {
+    if (val && typeof val === 'object') {
+      promises.push(...preCacheAssets(val, onProgress))
+    } else if (typeof val === 'string') {
+      if (AssetLoader.isSupported(val)) {
+        try {
+          const promise = AssetLoader.loadAsync(val, onProgress)
+          promises.push(promise)
+        } catch (e) {
+          console.log(e)
+        }
+      }
+    }
+  }
+  return promises
 }
 
 /**
@@ -33,18 +53,35 @@ export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes
  * @param sceneData
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()) => {
-  Engine.sceneLoaded = false
+  dispatchLocal(EngineActions.sceneLoading())
+
+  let promisesCompleted = 0
+  const onProgress = () => {
+    // TODO: get more granular progress data based on percentage of each asset
+    // we probably need to query for metadata to get the size of each request if we can
+  }
+  const onComplete = () => {
+    promisesCompleted++
+    dispatchLocal(
+      EngineActions.sceneLoadingProgress(
+        promisesCompleted > promises.length ? 100 : Math.round((100 * promisesCompleted) / promises.length)
+      )
+    )
+  }
+  const promises = preCacheAssets(sceneData, onProgress)
+
+  Engine.sceneLoadPromises = promises
+  promises.forEach((promise) => promise.then(onComplete))
+  await Promise.all(promises)
 
   const entityMap = {} as { [key: string]: EntityTreeNode }
   Engine.sceneLoadPromises = []
-
-  dispatchLocal(EngineActions.sceneLoading())
 
   // reset renderer settings for if we are teleporting and the new scene does not have an override
   resetEngineRenderer(true)
 
   Object.keys(sceneData.entities).forEach((key) => {
-    entityMap[key] = new EntityTreeNode(createEntity(), key)
+    entityMap[key] = createEntityNode(createEntity(), key)
     loadSceneEntity(entityMap[key], sceneData.entities[key])
   })
 
@@ -53,13 +90,13 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   Object.keys(sceneData.entities).forEach((key) => {
     const sceneEntity = sceneData.entities[key]
     const node = entityMap[key]
-    tree.addEntityNode(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
+    addEntityNodeInTree(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
   })
 
-  addComponent(world.entityTree.rootNode.entity, Object3DComponent, { value: Engine.scene })
-  addComponent(world.entityTree.rootNode.entity, SceneTagComponent, {})
+  addComponent(tree.rootNode.entity, Object3DComponent, { value: Engine.scene })
+  addComponent(tree.rootNode.entity, SceneTagComponent, {})
   if (Engine.isEditor) {
-    getComponent(world.entityTree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
+    getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
   }
 
   // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
@@ -69,10 +106,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
 
   if (!accessEngineState().isTeleporting.value) Engine.camera?.layers.enable(ObjectLayers.Scene)
 
-  Engine.sceneLoaded = true
-
-  // Configure CSM
-  updateRenderSetting(world.entityTree.rootNode.entity)
   dispatchLocal(EngineActions.sceneLoaded()).delay(2)
 }
 
@@ -110,12 +143,4 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
   if (deserializer) {
     deserializer(entity, component)
   }
-}
-
-export const registerSceneLoadPromise = (promise: Promise<any>) => {
-  Engine.sceneLoadPromises.push(promise)
-  promise.then(() => {
-    Engine.sceneLoadPromises.splice(Engine.sceneLoadPromises.indexOf(promise), 1)
-    dispatchLocal(EngineActions.sceneEntityLoaded(Engine.sceneLoadPromises.length) as any)
-  })
 }

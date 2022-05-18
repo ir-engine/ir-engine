@@ -2,46 +2,44 @@ import React, { useEffect, useState } from 'react'
 
 import GridOnIcon from '@mui/icons-material/GridOn'
 
-import EditorEvents from '../../../constants/EditorEvents'
-import { CommandManager } from '../../../managers/CommandManager'
-import { SceneManager } from '../../../managers/SceneManager'
+import { SceneState } from '../../../functions/sceneRenderFunctions'
+import { useGridToolState } from '../../../services/GridToolServices'
 import NumericStepperInput from '../../inputs/NumericStepperInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const GridTool = () => {
-  const [isGridVisible, setGridVisible] = useState(true)
-  const [gridHeight, setGridHeight] = useState(0)
+  const gridToolState = useGridToolState().value
+  const [isGridVisible, setGridVisible] = useState(gridToolState.visibility)
+  const [gridHeight, setGridHeight] = useState(gridToolState.gridHeight)
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.GRID_HEIGHT_CHANGED.toString(), updateGridHeight)
-    CommandManager.instance.addListener(EditorEvents.GRID_VISIBILITY_CHANGED.toString(), updateGridVisibility)
+    updateGridHeight(gridToolState.gridHeight)
+  }, [gridToolState.gridHeight])
 
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.GRID_HEIGHT_CHANGED.toString(), updateGridHeight)
-      CommandManager.instance.removeListener(EditorEvents.GRID_VISIBILITY_CHANGED.toString(), updateGridVisibility)
-    }
-  }, [])
+  useEffect(() => {
+    updateGridVisibility(gridToolState.visibility)
+  }, [gridToolState.visibility])
 
-  const updateGridVisibility = () => {
-    setGridVisible(SceneManager.instance.grid.visible)
+  const updateGridVisibility = (val) => {
+    setGridVisible(val)
   }
 
-  const updateGridHeight = () => {
-    setGridHeight(SceneManager.instance.grid.position.y)
+  const updateGridHeight = (val) => {
+    setGridHeight(val)
   }
 
   const onToggleGridVisible = () => {
-    SceneManager.instance.grid.toggleGridVisible()
+    SceneState.grid.toggleGridVisible()
   }
 
   const onChangeGridHeight = (value) => {
-    SceneManager.instance.grid.setGridHeight(value)
+    SceneState.grid.setGridHeight(value)
   }
 
   return (
     <div id="transform-grid" className={styles.toolbarInputGroup}>
-      <InfoTooltip info="Toggle Grid Visibility">
+      <InfoTooltip title="Toggle Grid Visibility">
         <button
           onClick={onToggleGridVisible}
           className={styles.toolButton + ' ' + (isGridVisible ? styles.selected : '')}

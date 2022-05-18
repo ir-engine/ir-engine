@@ -2,6 +2,7 @@ import React from 'react'
 import { useDrop } from 'react-dnd'
 
 import { ItemTypes } from '../../constants/AssetTypes'
+import { AddCorsProxyButton } from '../AddCorsProxyButton'
 import useUpload from '../assets/useUpload'
 import { ControlledStringInput } from './StringInput'
 
@@ -31,7 +32,7 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
           url += item.id
         }
 
-        onChange(url, item.initialProps || {})
+        onChange(url, item)
       } else {
         // https://github.com/react-dnd/react-dnd/issues/1345#issuecomment-538728576
         const dndItem: any = monitor.getItem()
@@ -40,7 +41,7 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
         onUpload(entries).then((assets) => {
           if (assets) {
             for (let index = 0; index < assets.length; index++) {
-              onChange(assets[index].url, {})
+              onChange(assets[index].url, item)
             }
           }
         })
@@ -53,13 +54,16 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
   })
 
   return (
-    <ControlledStringInput
-      ref={dropRef}
-      onChange={(value, e) => onChange(value, {}, e)}
-      error={isOver && !canDrop}
-      canDrop={isOver && canDrop}
-      {...rest}
-    />
+    <>
+      <ControlledStringInput
+        ref={dropRef}
+        onChange={(value, e) => onChange(value, {}, e)}
+        error={isOver && !canDrop}
+        canDrop={isOver && canDrop}
+        {...rest}
+      />
+      <AddCorsProxyButton value={rest.value} onAddCorsProxy={onChange} />
+    </>
   )
 }
 

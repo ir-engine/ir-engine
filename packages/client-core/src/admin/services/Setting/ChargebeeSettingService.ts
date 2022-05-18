@@ -1,7 +1,7 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { ChargebeeSetting } from '@xrengine/common/src/interfaces/ChargebeeSetting'
-import { ChargebeeSettingResult } from '@xrengine/common/src/interfaces/ChargebeeSettingResult'
 
 import { AlertService } from '../../../common/services/AlertService'
 import { client } from '../../../feathers'
@@ -16,7 +16,7 @@ store.receptors.push((action: ChargebeeSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'CHARGEBEE_SETTING_DISPLAY':
-        return s.merge({ chargebee: action.chargebeeSettingResult.data, updateNeeded: false })
+        return s.merge({ chargebee: action.chargebeeSetting.data, updateNeeded: false })
     }
   }, action.type)
 })
@@ -29,23 +29,22 @@ export const useChargebeeSettingState = () => useState(state) as any as typeof s
 export const ChargebeeSettingService = {
   fetchChargeBee: async () => {
     const dispatch = useDispatch()
-    {
-      try {
-        const chargeBee = await client.service('chargebee-setting').find()
-        dispatch(ChargebeeSettingAction.fetchedChargebee(chargeBee))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      const chargeBee = (await client.service('chargebee-setting').find()) as Paginated<ChargebeeSetting>
+      dispatch(ChargebeeSettingAction.fetchedChargebee(chargeBee))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   }
 }
 
 //Action
 export const ChargebeeSettingAction = {
-  fetchedChargebee: (chargebeeSettingResult: ChargebeeSettingResult) => {
+  fetchedChargebee: (chargebeeSetting: Paginated<ChargebeeSetting>) => {
     return {
       type: 'CHARGEBEE_SETTING_DISPLAY' as const,
-      chargebeeSettingResult: chargebeeSettingResult
+      chargebeeSetting: chargebeeSetting
     }
   }
 }

@@ -7,8 +7,8 @@ import Container from '@mui/material/Container'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
 
-const TwitterCallbackComponent = (props): any => {
-  const { loginUserByJwt, refreshConnections } = props
+const TwitterCallbackComponent = (props): JSX.Element => {
+  //const { loginUserByJwt, refreshConnections } = props
   const { t } = useTranslation()
   const initialState = { error: '', token: '' }
   const [state, setState] = useState(initialState)

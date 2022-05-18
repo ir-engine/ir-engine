@@ -1,3 +1,4 @@
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   ComponentConstructor,
@@ -7,10 +8,10 @@ import {
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 
-import EditorEvents from '../constants/EditorEvents'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeProperties } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
+import { EditorAction } from '../services/EditorServices'
+import { SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
 type PropertyType = {
@@ -124,8 +125,10 @@ export default class ModifyPropertyCommand<C extends ComponentConstructor<any, a
     }
 
     for (const propertyName of propertyNames) {
-      CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects, propertyName)
+      store.dispatch(SelectionAction.changedObject(this.affectedObjects, propertyName))
     }
+
+    store.dispatch(EditorAction.sceneModified(true))
   }
 
   getNestedObject(object: any, propertyName: string): { result: any; finalProp: string } {

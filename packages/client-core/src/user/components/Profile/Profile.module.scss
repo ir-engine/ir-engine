@@ -6,10 +6,10 @@
 }
 
 .paper {
-  @include paper-modal();
+  @include paper-modal;
 }
 
-.signup__fileField {
+.signupFileField {
   display: none;
 }
 
@@ -18,11 +18,12 @@
     margin: 5%;
   }
 }
-.uploadform{
-    margin-top: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+
+.uploadform {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   @media (max-width: 768px) {
     display: flex;
@@ -31,26 +32,27 @@
 }
 
 .max-size-200 {
-    max-height: 200px;
-    max-width: 200px;
+  max-height: 200px;
+  max-width: 200px;
 }
 
 .hover-icon {
-    cursor: pointer;
-    &:hover {
-        background-color: gray;
-    }
+  cursor: pointer;
+
+  &:hover {
+    background-color: gray;
+  }
 }
 
 .username {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .user-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .modal {
@@ -60,27 +62,28 @@
 }
 
 .flex-center {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 .flex-column {
-    flex-direction: column;
+  flex-direction: column;
 }
 
 .user-id {
-    text-align: center;
+  text-align: center;
 }
 
-/**/
-.settingRow{
+.settingRow {
   display: flex;
   flex-direction: column;
-  .settingLabel{
+
+  .settingLabel {
     font-weight: normal;
   }
-  .settingValue{
-    .controlsSvg span{
+
+  .settingValue {
+    .controlsSvg span {
       background-color: transparent;
     }
   }

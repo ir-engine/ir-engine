@@ -1,18 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React from 'react'
 
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
 
-import EditorEvents from '../../../constants/EditorEvents'
-import { RenderModes, RenderModesType } from '../../../constants/RenderModes'
-import { CommandManager } from '../../../managers/CommandManager'
-import { SceneManager } from '../../../managers/SceneManager'
+import { RenderModes } from '../../../constants/RenderModes'
+import { changeRenderMode } from '../../../functions/changeRenderMode'
+import { useModeState } from '../../../services/ModeServices'
 import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const RenderModeTool = () => {
-  const [renderMode, setRenderMode] = useState<RenderModesType>(SceneManager.instance.renderMode)
-
+  const modeState = useModeState()
   const options = [] as { label: string; value: string }[]
 
   for (let key of Object.keys(RenderModes)) {
@@ -22,29 +20,18 @@ const RenderModeTool = () => {
     })
   }
 
-  useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.RENDER_MODE_CHANGED.toString(), changeRenderMode)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.RENDER_MODE_CHANGED.toString(), changeRenderMode)
-    }
-  }, [])
-
-  const onChangeRenderMode = useCallback((mode) => SceneManager.instance.changeRenderMode(mode), [])
-  const changeRenderMode = useCallback(() => setRenderMode(SceneManager.instance.renderMode), [])
-
   return (
     <div className={styles.toolbarInputGroup} id="transform-pivot">
-      <InfoTooltip info="Render Mode">
+      <InfoTooltip title="Render Mode">
         <div className={styles.toolIcon}>
           <WbSunnyOutlinedIcon fontSize="small" />
         </div>
       </InfoTooltip>
       <SelectInput
         className={styles.selectInput}
-        onChange={onChangeRenderMode}
+        onChange={changeRenderMode}
         options={options}
-        value={renderMode}
+        value={modeState.renderMode.value}
         creatable={false}
         isSearchable={false}
       />

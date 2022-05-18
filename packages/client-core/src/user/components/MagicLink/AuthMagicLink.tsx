@@ -12,24 +12,24 @@ import ResetPassword from '../Auth/ResetPassword'
 import { VerifyEmail } from '../Auth/VerifyEmail'
 
 interface Props {
-  auth: any
+  //auth: any
   type: string
   token: string
 }
 
-const AuthMagicLink = (props: Props): any => {
-  const { auth, token, type } = props
+const AuthMagicLink = (props: Props): JSX.Element => {
+  const { token, type } = props
   const { t } = useTranslation()
-
+  const user = useAuthState().user
   useEffect(() => {
     if (type === 'login') {
-      AuthService.loginUserByJwt(token, '/', '/')
+      AuthService.loginUserMagicLink(token, '/', '/')
     } else if (type === 'connection') {
-      const user = useAuthState().user
-      if (user !== null) {
-        AuthService.refreshConnections(user.id.value!)
-      }
-      window.location.href = '/profile-connections'
+      AuthService.loginUserMagicLink(token, '/', '/')
+      // if (user !== null) {
+      //   AuthService.refreshConnections(user.id.value!)
+      // }
+      // window.location.href = '/profile-connections'
     }
   }, [])
 
@@ -44,12 +44,12 @@ const AuthMagicLink = (props: Props): any => {
   )
 }
 
-const AuthMagicLinkWrapper = (props: any): any => {
+const AuthMagicLinkWrapper = (props: any): JSX.Element => {
   const search = new URLSearchParams(useLocation().search)
   const token = search.get('token') as string
   const type = search.get('type') as string
 
-  const handleResetPassword = (token: string, password: string): any => {
+  const handleResetPassword = (token: string, password: string): void => {
     AuthService.resetPassword(token, password)
   }
 
