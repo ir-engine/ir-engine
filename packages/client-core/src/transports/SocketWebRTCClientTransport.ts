@@ -93,8 +93,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   dataProducer: DataProducer
   heartbeat: NodeJS.Timer // is there an equivalent browser type for this?
 
-  instanceId: string
-
   sendActions(actions: Action<'WORLD'>[]) {
     if (actions.length === 0) return
     this.socket?.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
@@ -122,16 +120,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     sceneId: string
     ipAddress: string
     port: string
-    instanceId: string
     locationId?: string
     channelId?: string
   }): Promise<void> {
     this.reconnecting = false
     if (this.socket) return console.error('[SocketWebRTCClientTransport]: already initialized')
     console.log('[SocketWebRTCClientTransport]: Initialising transport with args', args)
-    const { sceneId, ipAddress, port, instanceId, locationId, channelId } = args
-
-    this.instanceId = instanceId
+    const { sceneId, ipAddress, port, locationId, channelId } = args
 
     const authState = accessAuthState()
     const token = authState.authUser.accessToken.value

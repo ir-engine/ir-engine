@@ -25,6 +25,10 @@ import { useHookEffect } from '@xrengine/hyperflux'
 import { getSearchParamFromURL } from '../../util/getSearchParamFromURL'
 import GameServerWarnings from './GameServerWarnings'
 
+interface Props {
+  locationName: string
+}
+
 export const NetworkInstanceProvisioning = () => {
   const authState = useAuthState()
   const selfUser = authState.user
@@ -32,35 +36,29 @@ export const NetworkInstanceProvisioning = () => {
   const dispatch = useDispatch()
   const chatState = useChatState()
   const locationState = useLocationState()
+  const instanceConnectionState = useLocationInstanceConnectionState()
+  const channelConnectionState = useMediaInstanceConnectionState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useEngineState()
   const history = useHistory()
 
-  const instanceConnectionState = useLocationInstanceConnectionState()
-  const currentLocationInstanceId = instanceConnectionState.currentInstanceId.value
-  const currentLocationInstanceConnection = instanceConnectionState.instances[currentLocationInstanceId!].ornull
-
-  const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceId = channelConnectionState.currentInstanceId.value
-  const currentChannelInstanceConnection = channelConnectionState.instances[currentChannelInstanceId!].ornull
-
   useHookEffect(() => {
-    if (currentLocationInstanceId) {
+    const instanceIdValue = instanceConnectionState.instance.id.value
+    if (instanceIdValue) {
       const url = new URL(window.location.href)
       const searchParams = url.searchParams
       const instanceId = searchParams.get('instanceId')
-      if (instanceId !== currentLocationInstanceId) searchParams.set('instanceId', currentLocationInstanceId)
+      if (instanceId !== instanceIdValue) searchParams.set('instanceId', instanceIdValue)
       history.push(url.pathname + url.search)
     }
-  }, [instanceConnectionState.currentInstanceId])
+  }, [instanceConnectionState.instance.id])
 
   // 2. once we have the location, provision the instance server
   useHookEffect(() => {
     const currentLocation = locationState.currentLocation.location
-    const isProvisioned = currentLocationInstanceId && currentLocationInstanceConnection?.provisioned.value
 
     if (currentLocation.id?.value) {
-      if (!isUserBanned && !isProvisioned) {
+      if (!isUserBanned && !instanceConnectionState.provisioned.value && !instanceConnectionState.provisioning.value) {
         const search = window.location.search
         let instanceId
 
@@ -86,23 +84,27 @@ export const NetworkInstanceProvisioning = () => {
   useHookEffect(() => {
     if (
       engineState.isEngineInitialized.value &&
-      currentLocationInstanceId &&
-      !currentLocationInstanceConnection.connected.value &&
-      currentLocationInstanceConnection.provisioned.value &&
-      !currentLocationInstanceConnection.connecting.value
+      !instanceConnectionState.connected.value &&
+      instanceConnectionState.provisioned.value &&
+      !instanceConnectionState.connecting.value
     )
-      LocationInstanceConnectionService.connectToServer(instanceConnectionState.currentInstanceId.value!)
+      LocationInstanceConnectionService.connectToServer()
   }, [
     engineState.isEngineInitialized,
-    currentLocationInstanceConnection?.connected,
-    currentLocationInstanceConnection?.connecting,
-    currentLocationInstanceConnection?.provisioned
+    instanceConnectionState.connected,
+    instanceConnectionState.connecting,
+    instanceConnectionState.provisioned
   ])
 
   useHookEffect(() => {
     const transportRequestData = {
       inviteCode: getSearchParamFromURL('inviteCode')!
     }
+    console.log(
+      'engineState.connectedWorld.value && engineState.sceneLoaded.value',
+      engineState.connectedWorld.value,
+      engineState.sceneLoaded.value
+    )
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
       Network.instance
         .getTransport('world')
@@ -116,9 +118,9 @@ export const NetworkInstanceProvisioning = () => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
       const instanceChannel = Object.values(channels).find(
-        (channel) => channel.instanceId === instanceConnectionState.currentInstanceId.value
+        (channel) => channel.instanceId === instanceConnectionState.instance.id.value
       )
-      MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
+      MediaInstanceConnectionService.provisionServer(instanceChannel?.id, true)
     }
   }, [chatState.instanceChannelFetched])
 
@@ -130,24 +132,20 @@ export const NetworkInstanceProvisioning = () => {
   // if a media connection has been provisioned and is ready, connect to it
   useHookEffect(() => {
     if (
-      currentChannelInstanceId &&
-      currentChannelInstanceConnection.provisioned.value === true &&
-      currentChannelInstanceConnection.updateNeeded.value === true &&
-      currentChannelInstanceConnection.connecting.value === false &&
-      currentChannelInstanceConnection.connected.value === false
+      channelConnectionState.provisioned.value === true &&
+      channelConnectionState.updateNeeded.value === true &&
+      channelConnectionState.connecting.value === false &&
+      channelConnectionState.connected.value === false
     ) {
-      MediaInstanceConnectionService.connectToServer(
-        currentChannelInstanceId!,
-        currentChannelInstanceConnection.channelId.value
-      )
+      MediaInstanceConnectionService.connectToServer(channelConnectionState.channelId.value)
       MediaStreamService.updateCamVideoState()
       MediaStreamService.updateCamAudioState()
     }
   }, [
-    currentChannelInstanceConnection?.connected,
-    currentChannelInstanceConnection?.updateNeeded,
-    currentChannelInstanceConnection?.provisioned,
-    currentChannelInstanceConnection?.connecting
+    channelConnectionState.connected,
+    channelConnectionState.updateNeeded,
+    channelConnectionState.provisioned,
+    channelConnectionState.connecting
   ])
 
   return <GameServerWarnings />

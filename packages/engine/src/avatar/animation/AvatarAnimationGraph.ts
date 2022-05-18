@@ -16,7 +16,7 @@ import {
   CompositeTransitionRule,
   VectorLengthTransitionRule
 } from './AnimationStateTransitionsRule'
-import { BlendSpace1D } from './BlendSpace1D'
+import { addBlendSpace1DNode } from './BlendSpace1D'
 import { DistanceMatchingAction } from './DistanceMatchingAction'
 import { AvatarAnimations, AvatarStates } from './Util'
 
@@ -64,25 +64,55 @@ export class AvatarAnimationGraph extends AnimationGraph {
 
     locomotionState.sideMovementActions.push(walkLeftAction, runLeftAction, walkRightAction, runRightAction)
 
-    const verticalBlendSpace = new BlendSpace1D()
+    const verticalBlendSpace = {
+      minValue: -AvatarSettings.instance.runSpeed,
+      maxValue: AvatarSettings.instance.runSpeed,
+      nodes: []
+    }
+
     locomotionState.yAxisBlendSpace = verticalBlendSpace
     verticalBlendSpace.minValue = -AvatarSettings.instance.runSpeed
     verticalBlendSpace.maxValue = AvatarSettings.instance.runSpeed
-    verticalBlendSpace.addNode(locomotionState.idleAction, 0)
-    verticalBlendSpace.addNode(walkForwardAction.action, AvatarSettings.instance.walkSpeed, walkForwardAction)
-    verticalBlendSpace.addNode(runForwardAction.action, AvatarSettings.instance.runSpeed, runForwardAction)
+
+    addBlendSpace1DNode(verticalBlendSpace, locomotionState.idleAction, 0)
+    addBlendSpace1DNode(
+      verticalBlendSpace,
+      walkForwardAction.action,
+      AvatarSettings.instance.walkSpeed,
+      walkForwardAction
+    )
+    addBlendSpace1DNode(verticalBlendSpace, runForwardAction.action, AvatarSettings.instance.runSpeed, runForwardAction)
     // TODO: Set the actual root animation speeds for backward movements
-    verticalBlendSpace.addNode(walkBackwardAction.action, -AvatarSettings.instance.walkSpeed, walkBackwardAction)
-    verticalBlendSpace.addNode(runBackwardAction.action, -AvatarSettings.instance.runSpeed, runBackwardAction)
-    const horizontalBlendSpace = new BlendSpace1D()
+    addBlendSpace1DNode(
+      verticalBlendSpace,
+      walkBackwardAction.action,
+      -AvatarSettings.instance.walkSpeed,
+      walkBackwardAction
+    )
+    addBlendSpace1DNode(
+      verticalBlendSpace,
+      runBackwardAction.action,
+      -AvatarSettings.instance.runSpeed,
+      runBackwardAction
+    )
+
+    const horizontalBlendSpace = {
+      minValue: -AvatarSettings.instance.runSpeed,
+      maxValue: AvatarSettings.instance.runSpeed,
+      nodes: []
+    }
+
     locomotionState.xAxisBlendSpace = horizontalBlendSpace
-    horizontalBlendSpace.minValue = -AvatarSettings.instance.runSpeed
-    horizontalBlendSpace.maxValue = AvatarSettings.instance.runSpeed
-    horizontalBlendSpace.addNode(locomotionState.idleAction, 0)
-    horizontalBlendSpace.addNode(runLeftAction.action, -AvatarSettings.instance.runSpeed, runLeftAction)
-    horizontalBlendSpace.addNode(walkLeftAction.action, -AvatarSettings.instance.walkSpeed, walkLeftAction)
-    horizontalBlendSpace.addNode(walkRightAction.action, AvatarSettings.instance.walkSpeed, walkRightAction)
-    horizontalBlendSpace.addNode(runRightAction.action, AvatarSettings.instance.runSpeed, runRightAction)
+    addBlendSpace1DNode(horizontalBlendSpace, locomotionState.idleAction, 0)
+    addBlendSpace1DNode(horizontalBlendSpace, runLeftAction.action, -AvatarSettings.instance.runSpeed, runLeftAction)
+    addBlendSpace1DNode(horizontalBlendSpace, walkLeftAction.action, -AvatarSettings.instance.walkSpeed, walkLeftAction)
+    addBlendSpace1DNode(
+      horizontalBlendSpace,
+      walkRightAction.action,
+      AvatarSettings.instance.walkSpeed,
+      walkRightAction
+    )
+    addBlendSpace1DNode(horizontalBlendSpace, runRightAction.action, AvatarSettings.instance.runSpeed, runRightAction)
 
     // Jump
 

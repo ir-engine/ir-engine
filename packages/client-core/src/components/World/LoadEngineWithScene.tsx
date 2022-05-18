@@ -1,10 +1,7 @@
 import React, { useState } from 'react'
 import { useHistory } from 'react-router'
 
-import {
-  LocationInstanceConnectionAction,
-  useLocationInstanceConnectionState
-} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { LocationInstanceConnectionAction } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
@@ -25,7 +22,6 @@ export const LoadEngineWithScene = () => {
   const engineState = useEngineState()
   const sceneState = useSceneState()
   const [clientReady, setClientReady] = useState(false)
-  const instanceConnectionState = useLocationInstanceConnectionState()
 
   /**
    * initialise the client
@@ -81,7 +77,7 @@ export const LoadEngineWithScene = () => {
 
       // shut down connection with existing GS
       leave(Network.instance.getTransport('world') as SocketWebRTCClientTransport)
-      dispatch(LocationInstanceConnectionAction.disconnect(instanceConnectionState.currentInstanceId.value!))
+      dispatch(LocationInstanceConnectionAction.disconnect())
 
       teleportToScene()
     }

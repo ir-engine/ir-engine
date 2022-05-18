@@ -241,7 +241,7 @@ export const ChatService = {
       const channelResult = (await client.service('channel').find({
         query: {
           channelType: 'instance',
-          instanceId: accessLocationInstanceConnectionState().currentInstanceId.value
+          instanceId: accessLocationInstanceConnectionState().instance.id.value
         }
       })) as Paginated<Channel>
       if (channelResult.total === 0) return setTimeout(() => ChatService.getInstanceChannel(), 2000)

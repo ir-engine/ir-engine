@@ -46,15 +46,13 @@ const MediaIconsBox = (props: Props) => {
 
   const user = useAuthState().user
   const chatState = useChatState()
-  const instanceId = useLocationInstanceConnectionState().currentInstanceId.value
+  const instanceId = useLocationInstanceConnectionState().instance.id.value
   const channelState = chatState.channels
   const channels = channelState.channels.value
   const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
   const instanceChannel = channelEntries.find((entry) => entry.instanceId === instanceId)
   const currentLocation = useLocationState().currentLocation.location
   const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceId = channelConnectionState.currentInstanceId.value
-  const currentChannelInstanceConnection = channelConnectionState.instances[currentChannelInstanceId!].ornull
   const mediastream = useMediaStreamState()
   const videoEnabled = currentLocation?.locationSetting?.value
     ? currentLocation?.locationSetting?.videoEnabled?.value
@@ -152,10 +150,7 @@ const MediaIconsBox = (props: Props) => {
 
   return (
     <section className={`${styles.drawerBox} ${props.animate}`}>
-      {instanceMediaChatEnabled &&
-      hasAudioDevice &&
-      currentChannelInstanceId &&
-      currentChannelInstanceConnection.connected.value ? (
+      {instanceMediaChatEnabled && hasAudioDevice && channelConnectionState.connected.value === true ? (
         <button
           type="button"
           id="UserAudio"
@@ -165,10 +160,7 @@ const MediaIconsBox = (props: Props) => {
           <MicIcon />
         </button>
       ) : null}
-      {videoEnabled &&
-      hasVideoDevice &&
-      currentChannelInstanceId &&
-      currentChannelInstanceConnection.connected.value ? (
+      {videoEnabled && hasVideoDevice && channelConnectionState.connected.value === true ? (
         <>
           <button
             type="button"

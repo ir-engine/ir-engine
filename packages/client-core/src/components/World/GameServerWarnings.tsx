@@ -164,7 +164,7 @@ const GameServerWarnings = () => {
 
         const channels = chatState.channels.channels.value
         const instanceChannel = Object.values(channels).find(
-          (channel) => channel.instanceId === instanceConnectionState.currentInstanceId.value
+          (channel) => channel.instanceId === instanceConnectionState.instance.id.value
         )
         setModalValues({
           open: true,
