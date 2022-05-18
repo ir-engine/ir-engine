@@ -1,0 +1,9 @@
+const path = require('path');
+
+module.exports = {
+  'config': path.resolve('server/migrations/config.ts'),
+  'migrations-source-path': path.resolve('server/migrations'),
+  'seeders-path': path.resolve('server/migrations/seeders'),
+  'models-path': path.resolve('server/models'),
+  'migrations-compiled-path': path.resolve('lib/migrations')
+};

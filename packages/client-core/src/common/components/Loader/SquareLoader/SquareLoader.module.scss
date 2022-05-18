@@ -1,0 +1,86 @@
+$c-white: #fff;
+$c-black: #000;
+$ani-dur: 3s;
+$size: 50px;
+
+@mixin fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.wrapper {
+  width:100%;
+  height:100%;
+  position: fixed;
+  z-index:10000;
+}
+
+.cube {
+  position: absolute;
+  z-index:10000;
+
+  width: 1em;
+  height: 1em;
+  background: rgb(253, 201, 255);
+  animation: move $ani-dur ease-in-out infinite;
+  transform-style: preserve-3d;
+  box-shadow: 5em 5em .3em .1em #00000027;
+  &::before,
+  &::after {
+    content: '';
+    @include fill;
+  }
+
+  &::before {
+    background-color: #b48cf3;
+    transform-origin: 100% 100%;
+    transform: rotateY(-90deg);
+  }
+
+  &::after {
+    background-color: #7040af;
+    transform-origin: 0% 100%;
+    transform: rotateX(90deg);
+  }
+  
+  @for $i from 1 through 4 {
+    &:nth-of-type(#{$i}) {
+      animation-delay: $ani-dur * (($i * .25) - 4);
+    }
+  }
+  
+  @keyframes move {
+    0%,
+    87.5%,
+    100%  { transform: translate(1em, 0em); }
+    12.5% { transform: translate(2em, 0em); }
+    25%   { transform: translate(2em, 1em); }
+    37.5%, 
+    50%   { transform: translate(1em, 1em); }
+    62.5% { transform: translate(0em, 1em); }
+    75%   { transform: translate(0em, 0em); }
+  }
+}
+
+.box {
+  @include fill;
+  width: 3em;
+  height: 2em;
+  margin: 30vmin auto;
+  font-size: $size;
+  transform-style: preserve-3d;
+  transform: rotateX(60deg) rotateZ(45deg);
+  &:hover * { animation-play-state: paused; }
+  &:active * { animation-play-state: running; }
+}
+
+/// reset
+.box,
+.box::before,
+.box::after {
+  box-sizing: border-box;
+}
+

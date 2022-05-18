@@ -1,0 +1,59 @@
+@import "@xrengine/client-core/src/styles/imports.module.scss";
+
+.paper {
+  @include paper-modal();
+}
+
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 15000 !important;
+
+  .close {
+    left: 95%;
+    &:hover {
+      color: red;
+    }
+  }
+
+  .modal-content {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    color: black;
+
+    @media (max-width: 768px) {
+      width: 90%;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .title {
+        font-size: 2em;
+      }
+
+      .closeButton {
+        background-color: lightgrey;
+        &:hover {
+          background-color: lighten(lightgrey, 5%);
+          cursor: pointer;
+          color: red;
+        }
+      }
+    }
+
+    .modal-body {
+      font-size: 1.5em;
+      text-align: center;
+
+      .footer {
+        margin-top: 20px;
+        font-size: 0.5em;
+      }
+    }
+  }
+}

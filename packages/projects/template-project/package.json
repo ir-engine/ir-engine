@@ -1,0 +1,12 @@
+{
+  "name": "new-project",
+  "version": "0.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "test": "mocha --config .mocharc.js"
+  },
+  "dependencies": {},
+  "peerDependencies": {},
+  "license": "ISC"
+}

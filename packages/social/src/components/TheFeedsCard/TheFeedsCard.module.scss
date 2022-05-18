@@ -1,0 +1,64 @@
+.tipItem{
+    width: 100%;
+    padding: 5px 0 20px 0;
+    position: relative;
+
+    .previewImage{
+        height: 210pt;
+        object-fit: cover;
+        background-color: #DDDDDD;
+        padding: 0px;
+
+    }
+    .eyeLine{
+        width: 100%;
+        text-align: right;
+        box-sizing: border-box;
+        padding: 0 15px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        color: #FFF;
+        transform: translate(0px, -25px);
+        svg{
+            margin: 0 0 0 5px;
+        }
+    }
+    .cardContent{
+        padding: 0px 16pt;
+        :global(.MuiCardHeader-root){
+            padding: 0;
+        }
+    }
+    .iconsContainer{
+        text-align: right;
+        display: flex;
+        justify-content: space-between;
+    }
+    .titleContainer{
+        font-weight: bold;
+        font-size: 21pt;
+    }
+    .flamesCount{
+        font-weight: bold;
+        margin: 0 5px 0 0;
+    }
+    .cartText{
+        font-size: 17pt;
+    }
+    @media screen and (max-width: 499px){
+        .previewImage{
+            height: 167pt;
+        }
+        .titleContainer{
+            font-size: 16pt;
+        }
+        .cartText{
+            font-size: 14pt;
+        }
+        .cardContent{
+            padding: 0px 13pt;
+        }
+    }
+}

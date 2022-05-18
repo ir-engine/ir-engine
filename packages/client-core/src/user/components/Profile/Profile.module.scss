@@ -1,0 +1,87 @@
+@import "../../../styles/imports.module.scss";
+
+.root {
+  display: flex;
+  flex-direction: column;
+}
+
+.paper {
+  @include paper-modal();
+}
+
+.signup__fileField {
+  display: none;
+}
+
+.profile {
+  @media (max-width: 768px) {
+    margin: 5%;
+  }
+}
+.uploadform{
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.max-size-200 {
+    max-height: 200px;
+    max-width: 200px;
+}
+
+.hover-icon {
+    cursor: pointer;
+    &:hover {
+        background-color: gray;
+    }
+}
+
+.username {
+    display: flex;
+    align-items: center;
+}
+
+.user-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.user-id {
+    text-align: center;
+}
+
+/**/
+.settingRow{
+  display: flex;
+  flex-direction: column;
+  .settingLabel{
+    font-weight: normal;
+  }
+  .settingValue{
+    .controlsSvg span{
+      background-color: transparent;
+    }
+  }
+}

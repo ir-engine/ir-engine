@@ -1,0 +1,15 @@
+{{- if .Values.frontend.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "xrengine.frontend.fullname" . }}
+  labels:
+    {{- include "xrengine.frontend.labels" . | nindent 4 }}
+data:
+{{- if .Values.frontend.extraEnv }}
+{{ toYaml .Values.frontend.extraEnv | indent 2 }}
+{{- end }}
+{{- if .Values.frontend.config }}
+  NODE_CONFIG: '{{ mustToJson .Values.frontend.config }}'
+{{- end }}
+{{- end -}}

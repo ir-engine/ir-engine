@@ -1,0 +1,93 @@
+@use "../theme.scss" as theme;
+
+.autoComplete {
+    color: theme.$white;
+    background: theme.$inputBackground;
+    border-radius: 4px;
+    font-size: 11px;
+    height: 20px;
+
+    .inputfieldContainer {
+        padding: 0;
+        background: theme.$inputBackground;
+        border-radius: 4px;
+        border: theme.$borderStyle;
+    }
+
+    .inputWrapper {
+        padding: 0px 43px 0px 5px !important;
+
+        .inputfield {
+            color: theme.$white;
+            font-size: 12px;
+            padding: 0;
+
+            &+fieldset { border: none !important; }
+        }
+    }
+
+    .adornmentContainer {
+        right: 3 !important;
+        top: 0 !important;
+
+        .adornment {
+            padding: 0;
+            width: 20px;
+            height: 20px;
+        }
+
+        svg {
+            color: theme.$white !important;
+            width: 80%;
+        }
+    }
+
+}
+
+.popper {
+    margin-top: 10px !important;
+
+    .paper {
+        background: theme.$dropdown;
+        font-size: 12px;
+
+        .option {
+            padding: 5px 10px;
+            color: theme.$white;
+
+            &:global(.Mui-focused) { background: theme.$hover; }
+        }
+    }
+}
+
+.select {
+    background: theme.$inputBackground;
+    border-radius: 4px;
+    border-width: 0;
+    cursor: pointer;
+    padding: 2px 7px;
+    font-size: 11px;
+    color: theme.$white;
+}
+
+.icon {
+    color: theme.$white;
+    font-size: 15px;
+}
+
+.paper {
+    margin-top: 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    background: theme.$inputBackground;
+    padding: 0;
+    color: theme.$white;
+    max-height: 120px;
+    overflow: auto;
+}
+
+.menuItem {
+    padding: 5px;
+    font-size: 12px;
+    &:hover { background: theme.$hover; }
+}

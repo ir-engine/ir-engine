@@ -1,0 +1,18 @@
+director:
+  image:
+    repository: xrengine-matchmaking-director
+    pullPolicy: IfNotPresent
+
+matchfunction:
+  labels:
+    app: xrengine-matchmaking
+    component: matchfunction
+  selectorLabels:
+    app: xrengine-matchmaking
+    component: matchfunction
+  image:
+    repository: xrengine-matchmaking-matchfunction
+    pullPolicy: IfNotPresent
+
+release:
+  name: local

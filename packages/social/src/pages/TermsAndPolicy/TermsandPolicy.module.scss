@@ -1,0 +1,27 @@
+body {
+    overflow: auto!important;
+}
+
+.myContainer{
+    width: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: auto;
+    padding: 2% 5%;
+    z-index: 1;
+}
+
+.backButton,
+.saveButton{
+    width: fit-content;
+    margin: 0 7pt;
+    font-size: 19pt;
+    text-transform: capitalize;
+    font-weight: 400;
+}
+.backButton{
+    font-weight: 300;
+}

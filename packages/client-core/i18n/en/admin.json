@@ -1,0 +1,46 @@
+{
+    "components": {
+        "locationModel": {
+            "lbl-name": "Name",
+            "lbl-maxuser": "Max Users",
+            "lbl-scene": "Scene",
+            "lbl-type": "Type",
+            "lbl-ve": "Video Enabled",
+            "lbl-gme": "Global Media Enabled",
+            "lbl-lobby": "Make Lobby",
+            "lbl-featured": "Featured",
+            "lbl-update": "Update",
+            "lbl-create": "Create",
+            "lbl-cancel": "Cancel",
+            "lbl-delete": "Delete",
+            "tooltipCanNotBeDeleted": "Lobby can't be deleted",
+            "lbl-ae": "Audio Enabled",
+            "lbl-se": "Screen Sharing Enabled",
+            "lbl-fe": "Face Streaming Enabled"
+        },
+        "index": {
+            "col-id": "ID",
+            "col-name": "Name",
+            "col-scene": "Scene",
+            "col-maxuser": "Max Users",
+            "col-type": "Type",
+            "col-tags": "Tags",
+            "col-mc": "Enable public media chat",
+            "col-ve": "Video Enabled",
+            "col-instanceId": "Instance ID",
+            "col-userRole": "User Role",
+            "col-partyId": "Party ID",
+            "col-ip": "IP address",
+            "col-gameserverID": "Gameserver ID",
+            "col-publicAddress": "Public address",
+            "col-currentUsers": "Current # of Users",
+            "col-locationId": "Location ID",
+            "lbl-newLocation": "Create New Location",
+            "lbl-locations": "Locations",
+            "lbl-users": "Users",
+            "lbl-instances": "Instances",
+            "lobby": "Lobby",
+            "featured": "Featured"
+        }
+    }
+}

@@ -1,0 +1,15 @@
+{{- if .Values.editor.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "xrengine.editor.fullname" . }}
+  labels:
+    {{- include "xrengine.editor.labels" . | nindent 4 }}
+data:
+{{- if .Values.editor.extraEnv }}
+{{ toYaml .Values.editor.extraEnv | indent 2 }}
+{{- end }}
+{{- if .Values.editor.config }}
+  NODE_CONFIG: '{{ mustToJson .Values.editor.config }}'
+{{- end }}
+{{- end }}

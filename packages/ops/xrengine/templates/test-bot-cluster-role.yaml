@@ -1,0 +1,41 @@
+{{- if .Values.testbot.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "xrengine.testbot.fullname" . }}
+  labels:
+    {{- include "xrengine.testbot.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - endpoints
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "apps"
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "agones.dev"
+    resources:
+      - fleets
+      - fleet
+      - fleets.agones.dev
+      - gameservers
+      - gameserver
+      - gameservers.agones.dev
+      - gameserversets
+    verbs:
+      - get
+      - list
+      - watch
+{{- end }}

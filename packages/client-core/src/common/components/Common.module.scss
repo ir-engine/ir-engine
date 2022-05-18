@@ -1,0 +1,101 @@
+.BoxContainer {
+    padding: 0px;
+}
+
+.alertContainer {
+    position: relative;
+    z-index: 1000;
+    background-color: transparent;
+    float:right;
+    width: auto;
+    height: auto;
+    display: block;	
+    width: 300px;
+}
+
+.alertBoxContainersuccess{
+    background-color:green !important;
+    position: relative;
+    color:black;
+    border: 0 !important;
+    height: 66px;
+    margin: 5px !important;
+	padding-right:20px !important;
+}
+
+.alertBoxContainerprogress{
+    background-color:yellow !important;
+    position: relative;
+    color:black;
+    border: 0 !important;
+    height: 66px;
+	margin: 5px !important;
+}
+
+.alertBoxContainererror{
+    background-color:red !important;
+    position: relative;
+    color:black;
+    border: 0 !important;
+    height: 66px;
+    margin: 5px !important;
+}
+
+.divalertContainer{
+    position: absolute;
+    border: 0 !important;
+    padding: 0 !important;
+    height: 66px;
+    left: 65px;
+    top: 0px;	
+    height: 66px;
+    width: 215px;
+    padding: 5px;
+    padding-top: 10px !important;
+    padding-left: 10px !important;
+    background-color:white !important;
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+
+.svgiconsuccess{
+    position:absolute;
+    float:left;
+    background-color:green !important;
+    width: 50px;
+    height: 50px;
+    left: 8px;
+    top: 8px;
+}
+
+.svgiconerror{
+    position:absolute;
+    background-color:red !important;
+    width: 50px;
+    height: 50px;
+    left: 8px;
+    top: 8px;
+}
+
+.svgiconprogress{
+    position:absolute;
+    background-color:yellow !important;
+    width: 50px;
+    height: 50px;
+    left: 8px;
+    top: 8px;
+}
+
+.alerttitle{
+	font-size:14px;
+	font-weight: bold;
+    color: black;
+}
+
+.MuiIconButton-sizeSmall{
+	padding : 1px !important;
+}
+
+:global(.MuiIconButton-sizeSmall){
+	background-color: blue !important
+}

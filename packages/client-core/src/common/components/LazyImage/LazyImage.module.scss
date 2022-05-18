@@ -1,0 +1,24 @@
+:global(.MuiSvgIcon-root).lazyImage {
+    width: 100%;
+    height: auto;
+}
+.lazyImage{
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    height: auto;    
+
+    // Add a smooth animation on loading
+    @keyframes loaded {
+        0% {
+        opacity: 0.1;
+        }
+        100% {
+        opacity: 1;
+        }
+    }
+
+    &.loaded{
+        animation: loaded 300ms ease-in-out;
+    }   
+}

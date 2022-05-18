@@ -1,0 +1,15 @@
+{{- if .Values.analytics.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "xrengine.analytics.fullname" . }}
+  labels:
+    {{- include "xrengine.analytics.labels" . | nindent 4 }}
+data:
+{{- if .Values.analytics.extraEnv }}
+{{ toYaml .Values.analytics.extraEnv | indent 2 }}
+{{- end }}
+{{- if .Values.analytics.config }}
+  NODE_CONFIG: '{{ mustToJson .Values.analytics.config }}'
+{{- end }}
+{{- end -}}

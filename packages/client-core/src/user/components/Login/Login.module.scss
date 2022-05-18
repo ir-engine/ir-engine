@@ -1,0 +1,65 @@
+.loginPage{
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+
+    button.backButton{
+        min-width: 0;
+        width: auto;
+        position: fixed;
+        left: 5%;
+        transform: translate(-5%);
+    }
+
+    main{
+        flex: none;
+    }
+    .logo{
+        height: 59px;
+        width: 165px;
+        margin: 0 auto;
+    }
+    .placeholder{
+        flex-grow: 1;
+    }
+    h3{
+        margin-right: 20px;
+    }
+    .content{
+        padding: 0px 20px;
+    }
+    .hr{
+        background: linear-gradient(180deg, 
+            rgba(0,0,0,0) calc(50% - 1px), 
+            rgba(192,192,192,1) calc(50%), 
+            rgba(0,0,0,0) calc(50% + 1px)
+        );
+        text-align: center;
+        margin: 20px 0;
+        span{
+            background: #fff; 
+            padding:10px 30px; 
+        }
+    }
+
+    .socialIcons{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+
+        button{
+            margin: 0 10px;
+        }
+    }
+    .footer{
+        background-color: #F9F9F9;
+        padding: 10px 20px 30px;
+        text-align: center;
+        color: #BFBFC1;
+        span{
+            color: #007AFF;
+        }
+    }
+}

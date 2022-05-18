@@ -1,0 +1,201 @@
+{
+    "addComment": "Add Comment...",
+    "share": "Share",
+    "suggestions": "Suggestions For You",
+    "seeAll": "See All",
+    "likes": "Likes",
+    "viewComments": "View all {{count}} comments",
+    "more": "more",
+    "username": "username",
+    "fullName": "Name Surname",
+    "reportInApporpriate": "Report Inappropriate",
+    "unfollow": "Unfollow",
+    "goToPost": "Go to Post",
+    "shareModal": "Share",
+    "copyLink": "Copy Link",
+    "embed": "Embed",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "profilePic": "{{user}}'s profile pic",
+    "ara": "Ara",
+    "follow": "Follow",
+    "flames": "Flames",
+    "continue": "Continue",
+    "arMedia": {
+        "back": "Back",
+        "clip": "Clip",
+        "backgrounds": "Backgrounds",
+        "start": "Start"
+    },
+    "arMediaform": {
+        "title": "Title",
+        "type": "Type",
+        "clip": "Clip",
+        "background": "Background",
+        "scene": "Scene",
+        "save": "Save",
+        "manifest-file": "Manifest .manifest file",
+        "audio-file": "Mp4 file",
+        "dracosis-file": "Dracosis .uvol file",
+        "preview-file": "Preview image file"
+    },
+    "creator": {
+        "myVideos": "My Videos",
+        "savedVideos": "Saved Videos",
+        "back": "Back",
+        "blocked-list": "Blocked List",
+        "block-user": "Block User",
+        "dialog-content": "You will not see the user's profile and content"
+    },
+    "creatorForm": {
+        "back": "Back",
+        "edit": "Edit Profile",
+        "save": "Save",
+        "changeAvatar": "Change avatar image",
+        "ph-selectPreview": "Select preview",
+        "ph-name": "Your name",
+        "ph-username": "Your Username",
+        "ph-email": "Your Email",
+        "ph-tags": "Tags",
+        "ph-link": "Link",
+        "ph-aboutYou": "More about you",
+        "ph-twitter": "twitter",
+        "ph-instagram": "instagram",
+        "ph-tiktok": "tiktok",
+        "sign-out": "Sign-Out"
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "dashboard": "Dashboard",
+        "users": "Users",
+        "feeds": "Feeds",
+        "arMedia": "Video Media",
+        "editor": "Editor",
+        "creator": "Creator"
+    },
+    "featured": {
+        "empty-list": "No feeds for now ..."
+    },
+    "feed": {
+        "back": "Back",
+        "related": "Related feeds",
+        "is-repoted-message": "Feed is reported!"
+    },
+    "feedForm": {
+        "back": "Back",
+        "thanks": "Thanks for sharing and improving our community",
+        "share": "Share something with the community",
+        "upload": "Upload Video",
+        "ph-selectVideo": "Select Video",
+        "preview": "Preview image",
+        "ph-selectPreview": "Select preview",
+        "createFeed": "In order to create a feed you must have a video and a preview image!!!",
+        "ph-videoName": "The name of your video",
+        "ph-type": "Type what you want to share with the community ... ",
+        "lbl-share": "Share",
+        "save": "Save and go Next"
+    },
+    "feedMenu": {
+        "featured": "Featured",
+        "creators": "Creators",
+        "feed": "The Feed"
+    },
+    "header": {
+        "lbl-volumetric": "Volumetric"
+    },
+    "login": {
+        "account": "Have an account?",
+        "login": "Login",
+        "resetPassword": "Reset Password Fake button (here would be a link from email)",
+        "notHavingAccount": "Don't have an account?",
+        "signUp": "Sign Up",
+        "forgotPassword": "Forgot password?",
+        "back": "Back",
+        "or": "OR"
+    },
+    "comment": {
+        "add": "Add your comment..."
+    },
+    "notification": {
+        "feedFire": " fired your feed",
+        "feedBookmarked": " bookmarked your feed",
+        "comment": " commented your feed:",
+        "commentFire": " fired your comment to feed",
+        "follow": " started following you",
+        "unfollow": " stopped following you",
+        "followed": " followed you",
+        "activity": "Activity"
+    },
+    "onBoarding": {
+        "welcome": "Welcome!",
+        "description": "Biggest collection of 370+ layouts for iOS prototyping.",
+        "next": "Next",
+        "discover": "Discover articles,",
+        "news": "news & posts",
+        "lines": "It is those feelings that drive our love of astronomy and our desire.",
+        "getStarted": "Get Started",
+        "meetUp": "Meet up with",
+        "friends": "friends.",
+        "meet": "Meet up with friends"
+    },
+    "shareForm": {
+        "arcMedia": "Share",
+        "videoCreated": "I Created This Video",
+        "shareWithBuddies": "Share with buddies",
+        "shareVideo": "Share Video",
+        "save": "Save To Camera Roll",
+        "cancel": "Cancel",
+        "close": "Close",
+        "addFeed": "Add Feed"
+    },
+    "simpleModal": {
+        "emptyList": "Empty list",
+        "followers": " following",
+        "following": " followers",
+        "flames": " flames"
+    },
+    "splash": {
+        "screen": "Splash Screen",
+        "logo": "Logo"
+    },
+    "story": {
+        "profilePic": "{{user}}'s profile pic"
+    },
+    "view": {
+        "cancel": "Cancel",
+        "choice": "You have two different recording modes to choose from",
+        "verticalMode": "Vertical mode has a 30 sec record time",
+        "horizontalMode": "Horizontal mode has an unlimited record time",
+        "start": "Start",
+        "not-show": "Do not show it again",
+        "welcome": "Welcome to ARC!  Make personal videos with one of our holograms and post it to your social media channels!",
+        "step": "STEP {{step}}",
+        "text-step-1": "Choose a hologram from the library.",
+        "text-step-2": "This is Augmented Reality, so scan the space with your camera from side to side  for 3-5 seconds where you want the hologram performance to be.",
+        "text-step-3-part-1": "Tap screen once on location where you want the hologram anchored.",
+        "text-step-3-part-2": "TIP!  Tap once elsewhere to move the hologram to another position.",
+        "text-step-3-part-3": "TIP!  You can resize the hologram by pinching or expanding the screen with your thumb and index finger.",
+        "text-step-4-part-1": "Double tap red record button to START your video recording.",
+        "text-step-4-part-2": "Double tap red record button to STOP."
+    },
+    "video": {
+        "back": "Back"
+    },
+    "terms": {
+        "confirmTerms": "I agree to Terms of Service",
+        "confirmPolicy": "I agree to Privacy Policy"
+    },
+    "registration": {
+        "ph-phoneEmail": "Use phone / email",
+        "facebook": "Continue with Facebook",
+        "google": "Continue with Google",
+        "linkedin": "Continue with Linkedin",
+        "twitter": "Continue with Twitter",
+        "gitHub": "Continue with GitHub",
+        "connect": "Connect your email or phone number",
+        "logIn": "Log in",
+        "LogInTo": "Log in to",
+        "continueAsGuest": "Continue as guest"
+    }
+}
