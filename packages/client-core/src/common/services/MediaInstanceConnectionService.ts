@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -11,8 +11,9 @@ import { client } from '../../feathers'
 import { accessLocationState } from '../../social/services/LocationService'
 import { store, useDispatch } from '../../store'
 import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
+import { NetworkConnectionService } from './NetworkConnectionService'
 
 type InstanceState = {
   ipAddress: string
@@ -29,15 +30,15 @@ type InstanceState = {
 
 //State
 const state = createState({
-  instances: {} as { [id: string]: InstanceState },
-  currentInstanceId: null as string | null
+  instances: {} as { [id: string]: InstanceState }
 })
 
 store.receptors.push((action: MediaLocationInstanceConnectionActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'MEDIA_INSTANCE_SERVER_PROVISIONED':
-        s.currentInstanceId.set(action.instanceId)
+        MediaStreams.instance.hostId = action.instanceId
+        Engine.instance.currentWorld.networks.set(action.instanceId, new SocketWebRTCClientNetwork(NetworkTypes.media))
         return s.instances[action.instanceId].set({
           ipAddress: action.ipAddress,
           port: action.port,
@@ -96,7 +97,7 @@ export const MediaInstanceConnectionService = {
     } else {
       dispatchAction(
         Engine.instance.store,
-        SocketWebRTCClientTransport.actions.noWorldServersAvailable({ instanceId: channelId! })
+        NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: channelId! })
       )
     }
   },
@@ -107,7 +108,9 @@ export const MediaInstanceConnectionService = {
     const user = authState.user.value
     const { ipAddress, port } = accessMediaInstanceConnectionState().instances.value[instanceId]
 
-    const transport = Network.instance.getTransport('media') as SocketWebRTCClientTransport
+    const transport = Engine.instance.currentWorld.networks.get(
+      MediaStreams.instance.hostId
+    ) as SocketWebRTCClientNetwork
     console.log('Connect To Media Server', !!transport.socket, transport)
     if (transport.socket) {
       await endVideoChat(transport, { endConsumers: true })

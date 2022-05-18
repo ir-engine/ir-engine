@@ -82,10 +82,11 @@ const loadScene = async (app: Application, scene: string) => {
     const projects = (await projectsPromise).data.map((project) => project.name)
     await loadEngineInjection(world, projects)
 
-    const userId = 'world' as UserId
+    const userId = app.instance.id
     Engine.instance.userId = userId
+    world.hostId = userId
     const hostIndex = world.userIndexCount++
-    world.clients.set(userId, { userId, name: 'world', index: hostIndex, lastSeenTs: Date.now() })
+    world.clients.set(userId, { userId, name: 'server-' + userId, index: hostIndex, lastSeenTs: Date.now() })
     world.userIdToUserIndex.set(userId, hostIndex)
     world.userIndexToUserId.set(hostIndex, userId)
   }
@@ -207,9 +208,9 @@ const handleInstance = async (
 }
 
 const loadEngine = async (app: Application, sceneId: string) => {
+  Engine.instance.currentWorld.networks.set(app.instance.id, app.transport)
   if (app.isChannelInstance) {
-    const userId = 'media' as UserId
-    Network.instance.transports.set(userId, app.transport)
+    const userId = app.instance.id
     Engine.instance.publicPath = config.client.url
     Engine.instance.userId = userId
     const world = Engine.instance.currentWorld
@@ -227,7 +228,6 @@ const loadEngine = async (app: Application, sceneId: string) => {
     dispatchAction(Engine.instance.store, EngineActions.sceneLoaded())
     dispatchAction(Engine.instance.store, EngineActions.joinedWorld())
   } else {
-    Network.instance.transports.set('world' as UserId, app.transport)
     await loadScene(app, sceneId)
   }
 }

@@ -27,7 +27,7 @@ createHyperStore({
     networked: true,
     getDispatchId: () => Engine.instance.userId,
     getDispatchTime: () => this.fixedTick, // world.fixedTick
-    defaultDispatchDelay: 1
+    defaultDispatchDelay: 1 / Engine.instance.tickRate
 })
 // IncomingActionSystem
 import { applyIncomingActions } from '@xrengine/hyperflux'

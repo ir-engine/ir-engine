@@ -10,6 +10,7 @@ import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
@@ -54,10 +55,9 @@ const InstanceChat = (props: Props): any => {
   const [composingMessage, setComposingMessage] = React.useState('')
   const [unreadMessages, setUnreadMessages] = React.useState(false)
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
-  const instanceConnectionState = useLocationInstanceConnectionState()
+  const locationInstanceConnectionState = useLocationInstanceConnectionState()
 
-  const currentInstanceId = instanceConnectionState.currentInstanceId.value
-  const currentInstanceConnection = instanceConnectionState.instances[currentInstanceId!]
+  const currentInstanceConnection = locationInstanceConnectionState.instances[Engine.instance.currentWorld.hostId]
 
   const [isInitRender, setIsInitRender] = React.useState<Boolean>()
   const [noUnReadMessage, setNoUnReadMessage] = React.useState<any>()
@@ -93,13 +93,21 @@ const InstanceChat = (props: Props): any => {
   }, [])
 
   useEffect(() => {
-    if (user?.instanceId?.value && currentInstanceId && user?.instanceId?.value !== currentInstanceId) {
+    if (
+      user?.instanceId?.value &&
+      MediaStreams.instance.hostId &&
+      user?.instanceId?.value !== MediaStreams.instance.hostId
+    ) {
       console.error(
         `[ERROR]: somehow user.instanceId and instanceConnectionState.instance.id, are different when they should be the same`
       )
-      console.error(user?.instanceId?.value, currentInstanceId)
+      console.error(user?.instanceId?.value, MediaStreams.instance.hostId)
     }
-    if (currentInstanceId && currentInstanceConnection.connected.value && !chatState.instanceChannelFetching.value) {
+    if (
+      MediaStreams.instance.hostId &&
+      currentInstanceConnection.connected.value &&
+      !chatState.instanceChannelFetching.value
+    ) {
       ChatService.getInstanceChannel()
     }
   }, [currentInstanceConnection?.connected?.value, chatState.instanceChannelFetching.value])
