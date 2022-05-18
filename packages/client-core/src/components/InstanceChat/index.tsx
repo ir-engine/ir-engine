@@ -253,7 +253,7 @@ const InstanceChat = (props: Props): any => {
     })
   }
 
-  const isLeftOrJoinText = (text) => {
+  const isLeftOrJoinText = (text: string) => {
     return / left the layer|joined the layer/.test(text)
   }
 
@@ -277,7 +277,6 @@ const InstanceChat = (props: Props): any => {
                     if (isCommand(message.text)) return undefined
                     const system = getChatMessageSystem(message.text)
                     let chatMessage = message.text
-
                     if (system !== 'none') {
                       if (system === 'jl_system') {
                         chatMessage = removeMessageSystem(message.text)
