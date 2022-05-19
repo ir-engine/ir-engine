@@ -4,7 +4,8 @@ export enum BotHooks {
   GetPlayerPosition = 'BotHooks_GetPlayerPosition',
   GetSceneMetadata = 'BotHooks_GetSceneMetadata',
   RotatePlayer = 'BotHooks_RotatePlayer',
-  GetClients = 'BotHooks_GetClients'
+  GetClients = 'BotHooks_GetClients',
+  UnLoadScene = 'XRBotHooks_UnLoadScene'
 }
 
 export enum XRBotHooks {
@@ -18,5 +19,6 @@ export enum XRBotHooks {
   MoveControllerStick = 'XRBotHooks_MoveControllerStick',
   GetXRInputPosition = 'XRBotHooks_GetXRInputPosition',
   SetXRInputPosition = 'XRBotHooks_SetXRInputPosition',
-  TweenXRInputSource = 'XRBotHooks_TweenXRInputSource'
+  TweenXRInputSource = 'XRBotHooks_TweenXRInputSource',
+  UnLoadScene = 'XRBotHooks_UnLoadScene'
 }

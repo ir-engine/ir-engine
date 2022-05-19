@@ -3,6 +3,7 @@ import { MathUtils, Quaternion, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BotHooks, XRBotHooks } from '../enums/BotHooks'
@@ -37,7 +38,8 @@ export const BotHookFunctions = {
   [XRBotHooks.MoveControllerStick]: moveControllerStick,
   [XRBotHooks.GetXRInputPosition]: getXRInputPosition,
   [XRBotHooks.SetXRInputPosition]: setXRInputPosition,
-  [XRBotHooks.TweenXRInputSource]: tweenXRInputSource
+  [XRBotHooks.TweenXRInputSource]: tweenXRInputSource,
+  [XRBotHooks.UnLoadScene]: sceneUnLoaded
 }
 
 // === ENGINE === //
@@ -48,6 +50,10 @@ export function locationLoaded() {
 
 export function sceneLoaded() {
   return getEngineState().sceneLoaded.value
+}
+
+export async function sceneUnLoaded() {
+  await unloadScene(Engine.instance.currentWorld)
 }
 
 export function getPlayerPosition() {
