@@ -9,26 +9,22 @@ import { store, useDispatch } from '../../store'
 
 //State
 const state = createState({
-  inviteTypeData: {
-    invitesType: [] as Array<InviteType>,
-    skip: 0,
-    limit: 5,
-    total: 0
-  }
+  invitesType: [] as Array<InviteType>,
+  skip: 0,
+  limit: 5,
+  total: 0
 })
 
 store.receptors.push((action: InviteTypeActionType): any => {
-  let newValues
   state.batch((s) => {
     switch (action.type) {
       case 'LOAD_INVITE_TYPE':
-        newValues = action
-        if (newValues.invitesType != null) {
-          s.inviteTypeData.invitesType.merge([newValues.invitesType])
-        }
-        s.inviteTypeData.skip.set(newValues.skip)
-        s.inviteTypeData.limit.set(newValues.limit)
-        return s.inviteTypeData.total.set(newValues.total)
+        return s.merge({
+          invitesType: action.invitesType,
+          skip: action.skip,
+          limit: action.limit,
+          total: action.total
+        })
     }
   }, action.type)
 })

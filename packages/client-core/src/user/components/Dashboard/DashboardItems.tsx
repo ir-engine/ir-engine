@@ -52,7 +52,7 @@ export const SidebarItems = (allowedRoutes) => [
     path: '/admin/users',
     icon: <SupervisorAccount style={{ color: 'white' }} />
   },
-  allowedRoutes.invites && {
+  allowedRoutes.invite && {
     name: 'user:dashboard.invites',
     path: '/admin/invites',
     icon: <PersonAdd style={{ color: 'white' }} />
