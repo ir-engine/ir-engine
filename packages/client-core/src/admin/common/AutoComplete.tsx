@@ -3,7 +3,6 @@ import * as React from 'react'
 import { AutocompleteGetTagProps, useAutocomplete } from '@mui/base/AutocompleteUnstyled'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
-import { styled } from '@mui/material/styles'
 
 import styles from '../styles/autocomplete.module.scss'
 
