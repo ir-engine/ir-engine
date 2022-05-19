@@ -129,7 +129,7 @@
         "domain": {
             "type": "string"
         },
-        "gameserver": {
+        "instanceserver": {
             "type": "object",
             "properties": {
                 "affinity": {
