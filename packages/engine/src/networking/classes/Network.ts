@@ -67,7 +67,7 @@ export class Network {
    * The UserId of the host
    * - will either be a user's UserId, or an instance server's InstanceId
    */
-  hostId = null! as string
+  hostId = null! as UserId
 
   /**
    * Check if this user is hosting the world.

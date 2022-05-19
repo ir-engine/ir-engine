@@ -83,7 +83,7 @@ describe('NetworkActionReceptors', () => {
 
       // process remove actions and execute entity removal
       world.worldNetwork.store.defaultDispatchDelay = 0
-      NetworkActionReceptor.createNetworkActionReceptor(world)
+      NetworkActionReceptor.createNetworkActionReceptor(world, world.worldNetwork.store)
       NetworkActionReceptor.removeClient(world, userId, true)
 
       ActionFunctions.clearOutgoingActions(world.worldNetwork.store)
@@ -314,7 +314,7 @@ describe('NetworkActionReceptors', () => {
         })
       )
 
-      NetworkActionReceptor.createNetworkActionReceptor(world)
+      NetworkActionReceptor.createNetworkActionReceptor(world, world.worldNetwork.store)
 
       ActionFunctions.clearOutgoingActions(world.worldNetwork.store)
       ActionFunctions.applyIncomingActions(world.worldNetwork.store)
@@ -381,7 +381,7 @@ describe('NetworkActionReceptors', () => {
         })
       )
 
-      NetworkActionReceptor.createNetworkActionReceptor(world)
+      NetworkActionReceptor.createNetworkActionReceptor(world, world.worldNetwork.store)
 
       ActionFunctions.clearOutgoingActions(world.worldNetwork.store)
       ActionFunctions.applyIncomingActions(world.worldNetwork.store)
