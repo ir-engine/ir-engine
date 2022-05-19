@@ -1,5 +1,6 @@
 import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import Sequelize, { Op } from 'sequelize'
 
 import { Invite as InviteType } from '@xrengine/common/src/interfaces/Invite'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -37,25 +38,41 @@ export class Invite<T = InviteDataType> extends Service<T> {
   async find(params?: Params): Promise<T[] | Paginated<T>> {
     if (params && params.query) {
       const query = params.query
-      if (params.query.type === 'received') {
+      if (query.type === 'received') {
         const identityProviders = await this.app.service('identity-provider').find({
           query: {
             userId: query.userId
           }
         })
         const identityProviderTokens = (identityProviders as any).data.map((provider) => provider.token)
+
+        const { $sort, search } = query
+
+        let q = {} as any
+
+        if (search) {
+          q = {
+            [Op.or]: [
+              Sequelize.where(Sequelize.fn('lower', Sequelize.col('inviteType')), {
+                [Op.like]: '%' + search.toLowerCase() + '%'
+              }),
+              Sequelize.where(Sequelize.fn('lower', Sequelize.col('passcode')), {
+                [Op.like]: '%' + search.toLowerCase() + '%'
+              })
+            ]
+          }
+        }
+
         const result = await super.find({
           query: {
-            $or: [
-              { inviteeId: query.userId },
-              {
-                token: {
-                  $in: identityProviderTokens
-                }
-              }
-            ],
-            $limit: query.$limit || 10,
-            $skip: query.$skip || 0
+            inviteeId: query.userId,
+            token: {
+              $in: identityProviderTokens
+            },
+            ...q,
+            $sort: $sort,
+            $limit: query.$limit,
+            $skip: query.$skip
           }
         })
 
@@ -74,11 +91,28 @@ export class Invite<T = InviteDataType> extends Service<T> {
 
         return result
       } else if (query.type === 'sent') {
+        const { $sort, search } = query
+        let q = {}
+
+        if (search) {
+          q = {
+            [Op.or]: [
+              Sequelize.where(Sequelize.fn('lower', Sequelize.col('inviteType')), {
+                [Op.like]: '%' + search.toLowerCase() + '%'
+              }),
+              Sequelize.where(Sequelize.fn('lower', Sequelize.col('passcode')), {
+                [Op.like]: '%' + search.toLowerCase() + '%'
+              })
+            ]
+          }
+        }
         const result = await super.find({
           query: {
             userId: query.userId,
-            $limit: query.$limit || 10,
-            $skip: query.$skip || 0
+            ...q,
+            $sort: $sort,
+            $limit: query.$limit,
+            $skip: query.$skip
           }
         })
 

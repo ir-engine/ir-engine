@@ -647,6 +647,7 @@ export const AuthService = {
   updateUserSettings: async (id: any, data: any) => {
     const dispatch = useDispatch()
     const res = (await client.service('user-settings').patch(id, data)) as UserSetting
+    console.log('/////////////////////////////////////////', res)
     dispatch(AuthAction.updatedUserSettingsAction(res))
   },
   uploadAvatar: async (data: any) => {

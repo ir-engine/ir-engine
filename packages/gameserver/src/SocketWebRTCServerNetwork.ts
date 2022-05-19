@@ -8,9 +8,12 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
+import multiLogger from '@xrengine/server-core/src/logger'
 
 import { setupSubdomain } from './NetworkFunctions'
 import { startWebRTC } from './WebRTCFunctions'
+
+const logger = multiLogger.child({ component: 'gameserver:webrtc:network' })
 
 export class SocketWebRTCServerNetwork extends Network {
   server: https.Server
@@ -96,6 +99,6 @@ export class SocketWebRTCServerNetwork extends Network {
         else return Promise.resolve()
       })
     )
-    console.log('Server transport initialized')
+    logger.info('Server transport initialized.')
   }
 }
