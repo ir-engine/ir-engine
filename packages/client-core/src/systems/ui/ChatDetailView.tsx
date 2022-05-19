@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react'
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
@@ -158,24 +157,25 @@ const ChatDetailView = () => {
   useEffect(() => {
     if (
       user?.instanceId?.value &&
-      instanceConnectionState.instance.id?.value &&
-      user?.instanceId?.value !== instanceConnectionState.instance.id?.value
+      instanceConnectionState.currentInstanceId?.value &&
+      user?.instanceId?.value !== instanceConnectionState.currentInstanceId?.value
     ) {
       console.warn(
-        '[WARNING]: somehow user.instanceId and instanceConnectionState.instance.id, are different when they should be the same'
+        '[WARNING]: somehow user.instanceId and instanceConnectionState.currentInstanceId, are different when they should be the same'
       )
-      console.log(user?.instanceId?.value, instanceConnectionState.instance.id?.value)
+      console.log(user?.instanceId?.value, instanceConnectionState.currentInstanceId?.value)
     }
     if (
-      instanceConnectionState.instance.id?.value &&
-      instanceConnectionState.connected.value &&
+      instanceConnectionState.currentInstanceId?.value &&
+      instanceConnectionState.instances[instanceConnectionState.currentInstanceId.value].connected.value &&
       !chatState.instanceChannelFetching.value
     ) {
       ChatService.getInstanceChannel()
     }
   }, [
-    instanceConnectionState.instance.id?.value,
-    instanceConnectionState.connected?.value,
+    instanceConnectionState.currentInstanceId?.value,
+    instanceConnectionState?.currentInstanceId?.value &&
+      instanceConnectionState?.instances[instanceConnectionState?.currentInstanceId?.value]?.connected.value,
     chatState.instanceChannelFetching.value
   ])
 
