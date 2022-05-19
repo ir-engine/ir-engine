@@ -215,6 +215,20 @@ export const EngineRendererAction = {
       qualityLevel
     }
   },
+  setAudio: (audio: number) => {
+    return {
+      store: 'ENGINE' as const,
+      type: 'AUDIO_VOLUME' as const,
+      audio
+    }
+  },
+  setMicrophone: (microphone: number) => {
+    return {
+      store: 'ENGINE' as const,
+      type: 'MICROPHONE_VOLUME' as const,
+      microphone
+    }
+  },
   setAutomatic: (automatic: boolean) => {
     return {
       store: 'ENGINE' as const,
