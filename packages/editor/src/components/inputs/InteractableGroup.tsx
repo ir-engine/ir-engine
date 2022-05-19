@@ -43,13 +43,13 @@ export const InteractableGroup: EditorComponentType = (props) => {
   const onChangeInteractionType = (interactionType) => {
     setPropertyOnSelectionEntities({
       component: InteractableComponent,
-      properties: { interactionType }
+      properties: [{ interactionType }]
     })
 
     if (interactionType === 'equippable') {
       setPropertyOnSelectionEntities({
         component: ModelComponent,
-        properties: { isDynamicObject: true }
+        properties: [{ isDynamicObject: true }]
       })
     }
   }
@@ -61,7 +61,7 @@ export const InteractableGroup: EditorComponentType = (props) => {
   //     console.warn("Code has been sanitized, don't try anything sneaky please...")
   //   setPropertyOnSelectionEntities({
   //     component: InteractableComponent,
-  //     properties: { payloadHtmlContent: sanitizedHTML }
+  //     properties: [{ payloadHtmlContent: sanitizedHTML }]
   //   })
   // }
 
