@@ -79,8 +79,8 @@ export const LoadEngineWithScene = () => {
       LocationService.getLocationByName(world.activePortal.location)
 
       // shut down connection with existing GS
-      leave(Engine.instance.currentWorld.networks.get(world.hostId) as SocketWebRTCClientNetwork)
-      dispatch(LocationInstanceConnectionAction.disconnect(Engine.instance.currentWorld.hostId))
+      leave(Engine.instance.currentWorld.networks.get(world.worldNetwork.hostId) as SocketWebRTCClientNetwork)
+      dispatch(LocationInstanceConnectionAction.disconnect(Engine.instance.currentWorld.worldNetwork?.hostId))
 
       teleportToScene()
     }

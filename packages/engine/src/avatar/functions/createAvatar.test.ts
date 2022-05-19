@@ -34,7 +34,7 @@ describe('createAvatar', () => {
 
   it('check the create avatar function', () => {
     const world = Engine.instance.currentWorld
-    Engine.instance.userId = world.hostId
+    Engine.instance.userId = world.worldNetwork.hostId
 
     // mock entity to apply incoming unreliable updates to
     const entity = createEntity()

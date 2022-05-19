@@ -19,7 +19,6 @@ import { UserService, useUserState } from '@xrengine/client-core/src/user/servic
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
@@ -39,9 +38,9 @@ export const NetworkInstanceProvisioning = () => {
   const engineState = useEngineState()
   const history = useHistory()
 
+  const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
   const instanceConnectionState = useLocationInstanceConnectionState()
-  const currentLocationInstanceConnection =
-    instanceConnectionState.instances[Engine.instance.currentWorld.hostId!].ornull
+  const currentLocationInstanceConnection = instanceConnectionState.instances[worldNetworkHostId!].ornull
 
   const channelConnectionState = useMediaInstanceConnectionState()
   const currentChannelInstanceConnection = channelConnectionState.instances[MediaStreams.instance.hostId!].ornull
@@ -56,12 +55,11 @@ export const NetworkInstanceProvisioning = () => {
   }, [])
 
   useHookEffect(() => {
-    if (Engine.instance.currentWorld.hostId) {
+    if (worldNetworkHostId) {
       const url = new URL(window.location.href)
       const searchParams = url.searchParams
       const instanceId = searchParams.get('instanceId')
-      if (instanceId !== Engine.instance.currentWorld.hostId)
-        searchParams.set('instanceId', Engine.instance.currentWorld.hostId)
+      if (instanceId !== worldNetworkHostId) searchParams.set('instanceId', worldNetworkHostId)
       history.push(url.pathname + url.search)
     }
   }, [currentLocationInstanceConnection])
@@ -69,7 +67,7 @@ export const NetworkInstanceProvisioning = () => {
   // 2. once we have the location, provision the instance server
   useHookEffect(() => {
     const currentLocation = locationState.currentLocation.location
-    const isProvisioned = Engine.instance.currentWorld.hostId && currentLocationInstanceConnection?.provisioned.value
+    const isProvisioned = worldNetworkHostId && currentLocationInstanceConnection?.provisioned.value
 
     if (currentLocation.id?.value) {
       if (!isUserBanned && !isProvisioned) {
@@ -98,12 +96,12 @@ export const NetworkInstanceProvisioning = () => {
   useHookEffect(() => {
     if (
       engineState.isEngineInitialized.value &&
-      currentLocationInstanceConnection.value &&
+      currentLocationInstanceConnection?.value &&
       !currentLocationInstanceConnection.connected.value &&
       currentLocationInstanceConnection.provisioned.value &&
       !currentLocationInstanceConnection.connecting.value
     )
-      LocationInstanceConnectionService.connectToServer(Engine.instance.currentWorld.hostId)
+      LocationInstanceConnectionService.connectToServer(worldNetworkHostId)
   }, [
     engineState.isEngineInitialized,
     currentLocationInstanceConnection?.connected,
@@ -116,8 +114,7 @@ export const NetworkInstanceProvisioning = () => {
       inviteCode: getSearchParamFromURL('inviteCode')!
     }
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
-      Engine.instance.currentWorld.networks
-        .get(Engine.instance.currentWorld.hostId)!
+      Engine.instance.currentWorld.worldNetwork
         .request(MessageTypes.JoinWorld.toString(), transportRequestData)
         .then(receiveJoinWorld)
     }
@@ -127,9 +124,7 @@ export const NetworkInstanceProvisioning = () => {
   useHookEffect(() => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
-      const instanceChannel = Object.values(channels).find(
-        (channel) => channel.instanceId === Engine.instance.currentWorld.hostId
-      )
+      const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === worldNetworkHostId)
       MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
     }
   }, [chatState.instanceChannelFetched])

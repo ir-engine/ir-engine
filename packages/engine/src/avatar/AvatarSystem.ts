@@ -6,6 +6,7 @@ import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 import { isClient } from '../common/functions/isClient'
 import { Object3DUtils } from '../common/functions/Object3DUtils'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineActions } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
 import {
   addComponent,
@@ -121,7 +122,11 @@ function avatarActionReceptor(action) {
 }
 
 export default async function AvatarSystem(world: World) {
-  addActionReceptor(world.store, avatarActionReceptor)
+  addActionReceptor(Engine.instance.store, function (a) {
+    matches(a).when(EngineActions.networkConnected.matches, (action) => {
+      addActionReceptor(world.networks.get(action.id)!.store, avatarActionReceptor)
+    })
+  })
 
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent, AvatarAnimationComponent])

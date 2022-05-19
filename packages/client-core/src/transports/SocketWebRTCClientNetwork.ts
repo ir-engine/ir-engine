@@ -21,9 +21,10 @@ const promisedRequest = (socket: Socket) => {
   }
 }
 
-export class SocketWebRTCClientNetwork implements Network {
+export class SocketWebRTCClientNetwork extends Network {
   type: NetworkType
-  constructor(type: NetworkType) {
+  constructor(hostId: string, type: NetworkType) {
+    super(hostId)
     this.type = type
   }
 
@@ -48,7 +49,7 @@ export class SocketWebRTCClientNetwork implements Network {
 
   instanceId: string
 
-  sendActions(actions: Action<'WORLD'>[]) {
+  sendActions(actions: Action<'NETWORK'>[]) {
     if (actions.length === 0) return
     this.socket?.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
   }

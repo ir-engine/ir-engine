@@ -39,7 +39,10 @@ store.receptors.push((action: LocationInstanceConnectionActionType): any => {
     switch (action.type) {
       case 'LOCATION_INSTANCE_SERVER_PROVISIONED':
         Engine.instance.currentWorld.worldHostId = action.instanceId as UserId
-        Engine.instance.currentWorld.networks.set(action.instanceId, new SocketWebRTCClientNetwork(NetworkTypes.world))
+        Engine.instance.currentWorld.networks.set(
+          action.instanceId,
+          new SocketWebRTCClientNetwork(action.instanceId, NetworkTypes.world)
+        )
         return s.instances[action.instanceId].set({
           ipAddress: action.ipAddress,
           port: action.port,
@@ -108,7 +111,7 @@ export const LocationInstanceConnectionService = {
     const dispatch = useDispatch()
     dispatch(LocationInstanceConnectionAction.connecting(instanceId))
     const transport = Engine.instance.currentWorld.networks.get(
-      Engine.instance.currentWorld.hostId
+      Engine.instance.currentWorld.worldNetwork?.hostId
     ) as SocketWebRTCClientNetwork
     if (transport?.socket) {
       await leave(transport, false)

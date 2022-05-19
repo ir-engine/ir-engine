@@ -27,7 +27,7 @@ describe('Equippables Integration Tests', () => {
     const world = Engine.instance.currentWorld
 
     const hostUserId = 'world' as UserId
-    world.hostId = hostUserId
+    world.worldNetwork.hostId = hostUserId
     const hostIndex = 0
     world.clients.set(hostUserId, { userId: hostUserId, name: 'world', index: hostIndex })
 
@@ -69,7 +69,7 @@ describe('Equippables Integration Tests', () => {
     // network mock stuff
     // initially the object is owned by server
     const networkObject = addComponent(equippableEntity, NetworkObjectComponent, {
-      ownerId: world.hostId,
+      ownerId: world.worldNetwork.hostId,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}
@@ -88,8 +88,8 @@ describe('Equippables Integration Tests', () => {
     // world.receptors.push(
     //     (a) => matches(a).when(NetworkWorldAction.setEquippedObject.matches, setEquippedObjectReceptor)
     // )
-    ActionFunctions.clearOutgoingActions(world.store)
-    ActionFunctions.applyIncomingActions(world.store)
+    ActionFunctions.clearOutgoingActions(world.worldNetwork.store)
+    ActionFunctions.applyIncomingActions(world.worldNetwork.store)
 
     equippableQueryEnter(equipperEntity)
 
@@ -105,8 +105,8 @@ describe('Equippables Integration Tests', () => {
     // unequip stuff
     unequipEntity(equipperEntity)
 
-    ActionFunctions.clearOutgoingActions(world.store)
-    ActionFunctions.applyIncomingActions(world.store)
+    ActionFunctions.clearOutgoingActions(world.worldNetwork.store)
+    ActionFunctions.applyIncomingActions(world.worldNetwork.store)
 
     equippableQueryExit(equipperEntity)
 

@@ -27,22 +27,22 @@ describe('IncomingActionSystem Unit Tests', async () => {
         $to: '0' as ActionRecipients
       })
 
-      world.store.actions.incoming.push(action)
+      world.worldNetwork.store.actions.incoming.push(action)
 
       const recepted: typeof action[] = []
-      ActionFunctions.addActionReceptor(world.store, (a) =>
+      ActionFunctions.addActionReceptor(world.worldNetwork.store, (a) =>
         matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
       )
 
       /* run */
-      ActionFunctions.applyIncomingActions(world.store)
+      ActionFunctions.applyIncomingActions(world.worldNetwork.store)
 
       /* assert */
       strictEqual(recepted.length, 0)
 
       // fixed tick update
       world.fixedTick = 2
-      ActionFunctions.applyIncomingActions(world.store)
+      ActionFunctions.applyIncomingActions(world.worldNetwork.store)
 
       /* assert */
       strictEqual(recepted.length, 1)
@@ -62,15 +62,15 @@ describe('IncomingActionSystem Unit Tests', async () => {
         $to: '0' as ActionRecipients
       })
 
-      world.store.actions.incoming.push(action)
+      world.worldNetwork.store.actions.incoming.push(action)
 
       const recepted: typeof action[] = []
-      ActionFunctions.addActionReceptor(world.store, (a) =>
+      ActionFunctions.addActionReceptor(world.worldNetwork.store, (a) =>
         matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
       )
 
       /* run */
-      ActionFunctions.applyIncomingActions(world.store)
+      ActionFunctions.applyIncomingActions(world.worldNetwork.store)
 
       /* assert */
       strictEqual(recepted.length, 1)
@@ -93,19 +93,19 @@ describe('IncomingActionSystem Unit Tests', async () => {
         $cache: true
       })
 
-      world.store.actions.incoming.push(action)
+      world.worldNetwork.store.actions.incoming.push(action)
 
       const recepted: typeof action[] = []
-      ActionFunctions.addActionReceptor(world.store, (a) =>
+      ActionFunctions.addActionReceptor(world.worldNetwork.store, (a) =>
         matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
       )
 
       /* run */
-      ActionFunctions.applyIncomingActions(world.store)
+      ActionFunctions.applyIncomingActions(world.worldNetwork.store)
 
       /* assert */
       strictEqual(recepted.length, 1)
-      assert(world.store.actions.cached.indexOf(action) !== -1)
+      assert(world.worldNetwork.store.actions.cached.indexOf(action) !== -1)
     })
   })
 })

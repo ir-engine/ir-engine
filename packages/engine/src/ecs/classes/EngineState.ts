@@ -26,7 +26,8 @@ export const EngineState = defineState({
     userHasInteracted: false,
     interactionData: null! as InteractableComponentType,
     xrSupported: false,
-    errorEntities: {} as { [key: Entity]: boolean }
+    errorEntities: {} as { [key: Entity]: boolean },
+    usersTyping: {} as { [key: string]: true }
   }
 })
 
@@ -217,8 +218,14 @@ export const EngineActions = {
 
   setupAnimation: defineAction({
     store: 'ENGINE',
-    type: 'network.SETUP_ANIMATION' as const,
+    type: 'CORE_SETUP_ANIMATION' as const,
     entity: matches.number
+  }),
+
+  networkConnected: defineAction({
+    store: 'ENGINE',
+    type: 'CORE_NETWORK_CONNECTED' as const,
+    id: matches.string
   })
 }
 

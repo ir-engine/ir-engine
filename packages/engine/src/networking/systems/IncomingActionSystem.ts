@@ -4,6 +4,6 @@ import { World } from '../../ecs/classes/World'
 
 export default async function IncomingActionSystem(world: World) {
   return () => {
-    applyIncomingActions(world.store)
+    world.worldNetwork && applyIncomingActions(world.worldNetwork.store)
   }
 }

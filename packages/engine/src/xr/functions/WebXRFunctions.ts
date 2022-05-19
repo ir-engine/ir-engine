@@ -198,7 +198,7 @@ export const bindXRHandEvents = () => {
       initializeHandModel(world.localClientEntity, controller, xrInputSource.handedness)
 
       if (!eventSent) {
-        dispatchAction(world.store, NetworkWorldAction.xrHandsConnected({}))
+        dispatchAction(world.worldNetwork.store, NetworkWorldAction.xrHandsConnected({}))
         eventSent = true
       }
     })
@@ -224,7 +224,7 @@ export const startWebXR = async (): Promise<void> => {
 
   const avatarInputState = accessAvatarInputSettingsState()
   dispatchAction(
-    world.store,
+    world.worldNetwork.store,
     NetworkWorldAction.setXRMode({ enabled: true, avatarInputControllerType: avatarInputState.controlType.value })
   )
 
@@ -248,7 +248,10 @@ export const endXR = (): void => {
   removeComponent(world.localClientEntity, XRInputSourceComponent)
   removeComponent(world.localClientEntity, XRHandsInputComponent)
 
-  dispatchAction(world.store, NetworkWorldAction.setXRMode({ enabled: false, avatarInputControllerType: '' }))
+  dispatchAction(
+    world.worldNetwork.store,
+    NetworkWorldAction.setXRMode({ enabled: false, avatarInputControllerType: '' })
+  )
 }
 
 /**

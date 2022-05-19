@@ -6,6 +6,7 @@ import { addActionReceptor } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
@@ -206,7 +207,12 @@ const processCollisions = (world: World) => {
 const simulationPipeline = pipe(processRaycasts, processNetworkBodies, processBodies, processCollisions)
 
 export default async function PhysicsSystem(world: World) {
-  addActionReceptor(world.store, physicsActionReceptor)
+  addActionReceptor(Engine.instance.store, function (a) {
+    matches(a).when(EngineActions.networkConnected.matches, (action) => {
+      addActionReceptor(world.networks.get(action.id)!.store, physicsActionReceptor)
+    })
+  })
+
   await world.physics.createScene()
 
   return () => {

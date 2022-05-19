@@ -738,7 +738,7 @@ export const AuthService = {
         // dispatchAlertSuccess(dispatch, 'User Avatar updated');
         dispatch(AuthAction.userAvatarIdUpdated(res.avatarId))
         dispatchAction(
-          world.store,
+          world.worldNetwork.store,
           NetworkWorldAction.avatarDetails({
             avatarDetail: {
               avatarURL,

@@ -11,7 +11,6 @@ import {
   MappedComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import {
   accessEngineRendererState,
   EngineRendererAction,
@@ -40,7 +39,7 @@ export const Debug = () => {
   const showingStateRef = useRef(isShowing)
   const engineRendererState = useEngineRendererState()
   const { t } = useTranslation()
-  const network = Engine.instance.currentWorld.networks.get(Engine.instance.currentWorld.hostId)
+  const network = Engine.instance.currentWorld.networks.get(Engine.instance.currentWorld.worldNetwork?.hostId)
 
   function setupListener() {
     window.addEventListener('keydown', downHandler)
@@ -211,7 +210,7 @@ export const Debug = () => {
             </div>
             <div className={styles.jsonPanel}>
               <h1>{t('common:debug.worldStore')}</h1>
-              <JSONTree data={Engine.instance.currentWorld.store} />
+              <JSONTree data={Engine.instance.currentWorld.worldNetwork.store} />
             </div>
             <div className={styles.jsonPanel}>
               <h1>{t('common:debug.namedEntities')}</h1>

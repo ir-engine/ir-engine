@@ -8,6 +8,7 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
@@ -57,13 +58,12 @@ const InstanceChat = (props: Props): any => {
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
   const locationInstanceConnectionState = useLocationInstanceConnectionState()
 
-  const currentInstanceConnection = locationInstanceConnectionState.instances[Engine.instance.currentWorld.hostId]
+  const currentInstanceConnection =
+    locationInstanceConnectionState.instances[Engine.instance.currentWorld.worldNetwork?.hostId]
 
   const [isInitRender, setIsInitRender] = React.useState<Boolean>()
   const [noUnReadMessage, setNoUnReadMessage] = React.useState<any>()
-  const usersTyping = useState(
-    getState(Engine.instance.currentWorld.store, WorldState).usersTyping[user?.id.value]
-  ).value
+  const usersTyping = useEngineState().usersTyping[user?.id.value].value
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
@@ -78,7 +78,7 @@ const InstanceChat = (props: Props): any => {
     if (!composingMessage || !usersTyping) return
     const delayDebounce = setTimeout(() => {
       dispatchAction(
-        Engine.instance.currentWorld.store,
+        Engine.instance.currentWorld.worldNetwork.store,
         NetworkWorldAction.setUserTyping({
           typing: false
         })
@@ -127,7 +127,7 @@ const InstanceChat = (props: Props): any => {
     if (message.length > composingMessage.length) {
       if (!usersTyping) {
         dispatchAction(
-          Engine.instance.currentWorld.store,
+          Engine.instance.currentWorld.worldNetwork.store,
           NetworkWorldAction.setUserTyping({
             typing: true
           })
@@ -137,7 +137,7 @@ const InstanceChat = (props: Props): any => {
     if (message.length == 0 || message.length < composingMessage.length) {
       if (usersTyping) {
         dispatchAction(
-          Engine.instance.currentWorld.store,
+          Engine.instance.currentWorld.worldNetwork.store,
           NetworkWorldAction.setUserTyping({
             typing: false
           })
@@ -152,7 +152,7 @@ const InstanceChat = (props: Props): any => {
     if (composingMessage?.length && user.instanceId.value) {
       if (usersTyping) {
         dispatchAction(
-          Engine.instance.currentWorld.store,
+          Engine.instance.currentWorld.worldNetwork.store,
           NetworkWorldAction.setUserTyping({
             typing: false
           })

@@ -211,11 +211,11 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
     overrideTexture(entity, obj3d, world)
   }
 
-  if (world.isHosting && props.isDynamicObject) {
+  if (world.worldNetwork.isHosting && props.isDynamicObject) {
     const node = world.entityTree.entityNodeMap.get(entity)
     if (node) {
       dispatchAction(
-        world.store,
+        world.worldNetwork.store,
         NetworkWorldAction.spawnObject({
           prefab: '',
           parameters: { sceneEntityId: node.uuid }

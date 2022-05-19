@@ -47,7 +47,9 @@ const MediaIconsBox = (props: Props) => {
   const channelState = chatState.channels
   const channels = channelState.channels.value
   const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
-  const instanceChannel = channelEntries.find((entry) => entry.instanceId === Engine.instance.currentWorld.hostId)
+  const instanceChannel = channelEntries.find(
+    (entry) => entry.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
+  )
   const currentLocation = useLocationState().currentLocation.location
   const channelConnectionState = useMediaInstanceConnectionState()
   const currentChannelInstanceConnection = channelConnectionState.instances[MediaStreams.instance.hostId!].ornull

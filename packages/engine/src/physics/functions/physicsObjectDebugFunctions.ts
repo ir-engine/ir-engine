@@ -167,14 +167,14 @@ export const generatePhysicsObject = (
   const body = collider.body as PhysX.PxRigidDynamic
   teleportRigidbody(body, transform.position, transform.rotation)
 
-  if (isNetworkObject && world.isHosting) {
+  if (isNetworkObject && world.worldNetwork.isHosting) {
     body.addTorque(defaultTorqueForce)
     console.info('spawning at:', transform.position.x, transform.position.y, transform.position.z)
 
     const node = world.entityTree.entityNodeMap.get(entity)
     if (node) {
       dispatchAction(
-        world.store,
+        world.worldNetwork.store,
         NetworkWorldAction.spawnObject({
           prefab: '',
           parameters: { sceneEntityId: node.uuid, position: transform.position }

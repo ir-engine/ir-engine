@@ -1,9 +1,12 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createHyperStore } from '@xrengine/hyperflux'
+import { createHyperStore, dispatchAction, registerState } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineState'
+import { NetworkActionReceptor } from '../functions/NetworkActionReceptor'
+import { WorldState } from '../interfaces/WorldState'
 
 export const NetworkTypes = {
   world: 'world' as const,
@@ -21,29 +24,29 @@ export class Network {
    * @param instance Whether this is a connection to an instance server or not (i.e. channel server)
    * @param opts Options.
    */
-  initialize: () => {}
+  initialize(args: any) {}
 
   /**
    * Send data over transport.
    * @param data Data to be sent.
    */
-  sendData: (data: any) => {}
+  sendData(data: any) {}
 
   /**
    * Send actions through reliable channel
    */
-  sendActions: (actions: Action<'NETWORK'>[]) => {}
+  sendActions(actions: Action<'NETWORK'>[]) {}
 
   /**
    * Sends a message across the connection and resolves with the reponse
    * @param message
    */
-  request: (message: string, data?: any) => {}
+  async request(message: string, data?: any): Promise<any> {}
 
   /**
    * Closes all the media soup transports
    */
-  close: (instance?: boolean, channel?: boolean) => {}
+  close(instance?: boolean, channel?: boolean) {}
 
   /** List of data producer nodes. */
   dataProducers: Map<string, any>
@@ -60,16 +63,15 @@ export class Network {
   /** Buffer holding Mediasoup operations */
   mediasoupOperationQueue: RingBuffer<any>
 
-
   /**
    * The UserId of the host
    * - will either be a user's UserId, or an instance server's InstanceId
    */
-  hostId = null! as UserId
+  hostId = null! as string
 
   /**
-  * Check if this user is hosting the world.
-  */
+   * Check if this user is hosting the world.
+   */
   get isHosting() {
     return Engine.instance.userId === this.hostId
   }
@@ -82,4 +84,10 @@ export class Network {
     defaultDispatchDelay: 1 / Engine.instance.tickRate
   })
 
+  constructor(hostId) {
+    this.hostId = hostId
+    registerState(this.store, WorldState)
+    NetworkActionReceptor.createNetworkActionReceptor(Engine.instance.currentWorld, this.store)
+    dispatchAction(Engine.instance.store, EngineActions.networkConnected({ id: hostId }))
+  }
 }

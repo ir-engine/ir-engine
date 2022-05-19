@@ -128,8 +128,6 @@ export const initializeMediaServerSystems = async () => {
 
   await initSystems(world, coreSystems)
 
-  NetworkActionReceptor.createNetworkActionReceptor(world)
-
   Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
   Engine.instance.engineTimer.start()
 
@@ -206,7 +204,6 @@ export const initializeCoreSystems = async () => {
 
 export const initializeSceneSystems = async () => {
   const world = Engine.instance.currentWorld
-  NetworkActionReceptor.createNetworkActionReceptor(world)
 
   const systemsToLoad: SystemModuleType<any>[] = []
 

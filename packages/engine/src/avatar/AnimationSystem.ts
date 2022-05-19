@@ -3,6 +3,8 @@ import matches from 'ts-matches'
 
 import { addActionReceptor } from '@xrengine/hyperflux'
 
+import { Engine } from '../ecs/classes/Engine'
+import { EngineActions } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
@@ -47,7 +49,12 @@ export default async function AnimationSystem(world: World) {
       avatarAnimationComponent.animationGraph.changeState(action.newStateName)
     })
   }
-  addActionReceptor(world.store, animationActionReceptor)
+
+  addActionReceptor(Engine.instance.store, function (a) {
+    matches(a).when(EngineActions.networkConnected.matches, (action) => {
+      addActionReceptor(world.networks.get(action.id)!.store, animationActionReceptor)
+    })
+  })
 
   await AnimationManager.instance.loadDefaultAnimations()
 

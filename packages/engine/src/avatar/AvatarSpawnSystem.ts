@@ -7,6 +7,7 @@ import { AudioTagComponent } from '../audio/components/AudioTagComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineActions } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
@@ -84,7 +85,11 @@ export default async function AvatarSpawnSystem(world: World) {
       }
     })
   }
-  addActionReceptor(world.store, avatarSpawnReceptor)
+  addActionReceptor(Engine.instance.store, function (a) {
+    matches(a).when(EngineActions.networkConnected.matches, (action) => {
+      addActionReceptor(world.networks.get(action.id)!.store, avatarSpawnReceptor)
+    })
+  })
 
   const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
   return () => {

@@ -55,14 +55,12 @@ export class World {
 
     initializeEntityTree(this)
     this.scene.layers.set(ObjectLayers.Scene)
-
-    registerState(this.store, WorldState)
   }
 
   static [CreateWorld] = () => new World()
 
   /**
-   * 
+   *
    */
   get worldNetwork() {
     return this.networks.get(this.worldHostId)!
@@ -258,13 +256,6 @@ export class World {
     return ++this.#availableNetworkId as NetworkId
   }
 
-  /**
-   * @deprecated Use store.receptors
-   */
-  get receptors() {
-    return this.store.receptors
-  }
-
   LOD_DISTANCES = DEFAULT_LOD_DISTANCES
 
   /**
@@ -273,11 +264,11 @@ export class World {
    * @param frameTime the current frame time in milliseconds (DOMHighResTimeStamp) relative to performance.timeOrigin
    */
   execute(frameTime: number) {
-    const start = nowMilliseconds()
-    const incomingActions = [...this.store.actions.incoming]
-    const incomingBufferLength = this.networks
-      .get(Engine.instance.currentWorld.hostId)
-      ?.incomingMessageQueueUnreliable.getBufferLength()
+    // const start = nowMilliseconds()
+    // const incomingActions = [...this.worldNetwork.store.actions.incoming]
+    // const incomingBufferLength = this.networks
+    //   .get(Engine.instance.currentWorld.worldNetwork?.hostId)
+    //   ?.incomingMessageQueueUnreliable.getBufferLength()
 
     const worldElapsedSeconds = (frameTime - this.startTime) / 1000
     this.deltaSeconds = Math.max(0, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
@@ -289,14 +280,14 @@ export class World {
 
     for (const entity of this.#entityRemovedQuery(this)) bitecs.removeEntity(this, entity)
 
-    const end = nowMilliseconds()
-    const duration = end - start
-    if (duration > 50) {
-      console.warn(
-        `Long frame execution detected. Duration: ${duration}. \n Incoming Buffer Length: ${incomingBufferLength} \n Incoming actions: `,
-        incomingActions
-      )
-    }
+    // const end = nowMilliseconds()
+    // const duration = end - start
+    // if (duration > 50) {
+    //   console.warn(
+    //     `Long frame execution detected. Duration: ${duration}. \n Incoming Buffer Length: ${incomingBufferLength} \n Incoming actions: `,
+    //     incomingActions
+    //   )
+    // }
   }
 }
 

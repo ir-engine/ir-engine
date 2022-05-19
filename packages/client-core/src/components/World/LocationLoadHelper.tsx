@@ -9,6 +9,7 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
 import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import {
   initializeCoreSystems,
@@ -40,22 +41,26 @@ export const initClient = async () => {
   const projects = accessProjectState().projects.value.map((project) => project.name)
   const world = Engine.instance.currentWorld
 
-  await initializeCoreSystems(),
-    await initializeRealtimeSystems(),
-    await initializeSceneSystems(),
-    await loadEngineInjection(world, projects)
+  await initializeCoreSystems()
+  await initializeRealtimeSystems()
+  await initializeSceneSystems()
+  await loadEngineInjection(world, projects)
 
-  // add extraneous receptors
-  addActionReceptor(world.store, (action) => {
-    matches(action)
-      .when(NetworkWorldAction.createClient.matches, () => {
-        updateNearbyAvatars()
-        MediaStreamService.triggerUpdateNearbyLayerUsers()
+  addActionReceptor(Engine.instance.store, function (a) {
+    matches(a).when(EngineActions.networkConnected.matches, (action) => {
+      // add extraneous receptors
+      addActionReceptor(world.networks.get(action.id)!.store, (action) => {
+        matches(action)
+          .when(NetworkWorldAction.createClient.matches, () => {
+            updateNearbyAvatars()
+            MediaStreamService.triggerUpdateNearbyLayerUsers()
+          })
+          .when(NetworkWorldAction.destroyClient.matches, () => {
+            updateNearbyAvatars()
+            MediaStreamService.triggerUpdateNearbyLayerUsers()
+          })
       })
-      .when(NetworkWorldAction.destroyClient.matches, () => {
-        updateNearbyAvatars()
-        MediaStreamService.triggerUpdateNearbyLayerUsers()
-      })
+    })
   })
 }
 

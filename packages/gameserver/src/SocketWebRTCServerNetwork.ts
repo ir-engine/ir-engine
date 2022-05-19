@@ -13,7 +13,7 @@ import { setupSubdomain } from './NetworkFunctions'
 import { setupSocketFunctions } from './SocketFunctions'
 import { startWebRTC } from './WebRTCFunctions'
 
-export class SocketWebRTCServerNetwork implements Network {
+export class SocketWebRTCServerNetwork extends Network {
   server: https.Server
   workers: Worker[] = []
   routers: Record<string, Router[]>
@@ -34,11 +34,12 @@ export class SocketWebRTCServerNetwork implements Network {
   mediasoupTransports: WebRtcTransport[] = []
   transportsConnectPending: Promise<void>[] = []
 
-  constructor(app) {
+  constructor(hostId: string, app: Application) {
+    super(hostId)
     this.app = app
   }
 
-  public sendActions = (actions: Array<Required<Action<'WORLD'>>>): any => {
+  public sendActions = (actions: Array<Required<Action<'NETWORK'>>>): any => {
     if (actions.length === 0 || this.app.io == null) return
     const world = Engine.instance.currentWorld
     const clients = world.clients
@@ -48,9 +49,9 @@ export class SocketWebRTCServerNetwork implements Network {
     for (const [socketID, socket] of this.app.io.of('/').sockets) {
       const arr: Action<any>[] = []
       for (const action of [...actions]) {
-        if (world.store.actions.outgoingHistoryUUIDs.has(action.$uuid)) {
-          const idx = world.store.actions.outgoing.indexOf(action)
-          world.store.actions.outgoing.splice(idx, 1)
+        if (this.store.actions.outgoingHistoryUUIDs.has(action.$uuid)) {
+          const idx = this.store.actions.outgoing.indexOf(action)
+          this.store.actions.outgoing.splice(idx, 1)
         }
         if (!action.$to) continue
         const toUserId = userIdMap[socketID]
@@ -75,12 +76,7 @@ export class SocketWebRTCServerNetwork implements Network {
   }
 
   public async initialize(): Promise<void> {
-    // Set up realtime channel on socket.io
-    this.app.io = this.app.io
-    this.app.io.of('/').on('connect', setupSocketFunctions(this))
-
     await setupSubdomain(this)
-
     await startWebRTC(this)
 
     this.outgoingDataTransport = await this.routers.instance[0].createDirectTransport()

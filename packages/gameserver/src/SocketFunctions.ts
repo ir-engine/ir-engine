@@ -38,12 +38,7 @@ import {
 
 const logger = multiLogger.child({ component: 'gameserver:socket' })
 
-export const setupSocketFunctions = (transport: SocketWebRTCServerNetwork) => async (socket: Socket) => {
-  const app = transport.app
-
-  if (!getEngineState().joinedWorld.value)
-    await new Promise((resolve) => matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, resolve))
-
+export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket: Socket) => {
   logger.info('Initialized new socket connection with id %s', socket.id)
 
   /**
@@ -61,14 +56,14 @@ export const setupSocketFunctions = (transport: SocketWebRTCServerNetwork) => as
       return
     }
 
-    const authResult = await app.service('authentication').strategies.jwt.authenticate!(
+    const authResult = await network.app.service('authentication').strategies.jwt.authenticate!(
       { accessToken: accessToken },
       {}
     )
     const userId = authResult['identity-provider'].userId as UserId
 
     // Check database to verify that user ID is valid
-    const user = await app.service('user').Model.findOne({
+    const user = await network.app.service('user').Model.findOne({
       attributes: ['id', 'name', 'instanceId', 'avatarId'],
       where: { id: userId }
     })
@@ -86,85 +81,83 @@ export const setupSocketFunctions = (transport: SocketWebRTCServerNetwork) => as
     callback({ success: true })
 
     socket.on(MessageTypes.ConnectToWorld.toString(), async (data, callback) => {
-      handleConnectToWorld(transport, socket, data, callback, userId, user)
+      handleConnectToWorld(network, socket, data, callback, userId, user)
     })
 
     socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) =>
-      handleJoinWorld(transport, socket, data, callback, userId, user)
+      handleJoinWorld(network, socket, data, callback, userId, user)
     )
 
-    socket.on(MessageTypes.ActionData.toString(), (data) => handleIncomingActions(socket, data))
+    socket.on(MessageTypes.ActionData.toString(), (data) => handleIncomingActions(network, socket, data))
 
     socket.on(MessageTypes.Heartbeat.toString(), () => handleHeartbeat(socket))
 
-    socket.on('disconnect', () => handleDisconnect(socket))
+    socket.on('disconnect', () => handleDisconnect(network, socket))
 
-    socket.on(MessageTypes.LeaveWorld.toString(), (data, callback) =>
-      handleLeaveWorld(transport, socket, data, callback)
-    )
+    socket.on(MessageTypes.LeaveWorld.toString(), (data, callback) => handleLeaveWorld(network, socket, data, callback))
 
     socket.on(MessageTypes.WebRTCTransportCreate.toString(), async (data: WebRtcTransportParams, callback) =>
-      handleWebRtcTransportCreate(transport, socket, data, callback)
+      handleWebRtcTransportCreate(network, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCProduceData.toString(), async (data, callback) =>
-      handleWebRtcProduceData(transport, socket, data, callback)
+      handleWebRtcProduceData(network, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCTransportConnect.toString(), async (data, callback) =>
-      handleWebRtcTransportConnect(transport, socket, data, callback)
+      handleWebRtcTransportConnect(network, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCTransportClose.toString(), async (data, callback) =>
-      handleWebRtcTransportClose(transport, socket, data, callback)
+      handleWebRtcTransportClose(network, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCCloseProducer.toString(), async (data, callback) =>
-      handleWebRtcCloseProducer(transport, socket, data, callback)
+      handleWebRtcCloseProducer(network, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCSendTrack.toString(), async (data, callback) =>
-      handleWebRtcSendTrack(transport, socket, data, callback)
+      handleWebRtcSendTrack(network, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCReceiveTrack.toString(), async (data, callback) =>
-      handleWebRtcReceiveTrack(transport, socket, data, callback)
+      handleWebRtcReceiveTrack(network, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCPauseConsumer.toString(), async (data, callback) =>
-      handleWebRtcPauseConsumer(transport, socket, data, callback)
+      handleWebRtcPauseConsumer(network, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCResumeConsumer.toString(), async (data, callback) =>
-      handleWebRtcResumeConsumer(transport, socket, data, callback)
+      handleWebRtcResumeConsumer(network, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (data, callback) =>
-      handleWebRtcCloseConsumer(transport, socket, data, callback)
+      handleWebRtcCloseConsumer(network, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCConsumerSetLayers.toString(), async (data, callback) =>
-      handleWebRtcConsumerSetLayers(transport, socket, data, callback)
+      handleWebRtcConsumerSetLayers(network, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCResumeProducer.toString(), async (data, callback) =>
-      handleWebRtcResumeProducer(transport, socket, data, callback)
+      handleWebRtcResumeProducer(network, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCPauseProducer.toString(), async (data, callback) =>
-      handleWebRtcPauseProducer(transport, socket, data, callback)
+      handleWebRtcPauseProducer(network, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCRequestNearbyUsers.toString(), async (data, callback) =>
-      handleWebRtcRequestNearbyUsers(transport, socket, data, callback)
+      handleWebRtcRequestNearbyUsers(network, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async (data, callback) =>
-      handleWebRtcRequestCurrentProducers(transport, socket, data, callback)
+      handleWebRtcRequestCurrentProducers(network, socket, data, callback)
     )
 
     socket.on(MessageTypes.InitializeRouter.toString(), async (data, callback) =>
-      handleWebRtcInitializeRouter(transport, socket, data, callback)
+      handleWebRtcInitializeRouter(network, socket, data, callback)
     )
   })
 }

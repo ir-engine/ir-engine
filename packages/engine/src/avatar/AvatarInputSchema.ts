@@ -515,7 +515,7 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
   if (inputValue.lifecycleState !== LifecycleValue.Ended) return
   if (inputKey === PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE) {
     dispatchAction(
-      Engine.instance.currentWorld.store,
+      Engine.instance.currentWorld.worldNetwork.store,
       NetworkWorldAction.spawnDebugPhysicsObject({
         config: boxDynamicConfig // Any custom config can be provided here
       })

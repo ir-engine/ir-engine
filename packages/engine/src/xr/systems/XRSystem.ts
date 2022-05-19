@@ -64,7 +64,7 @@ export default async function XRSystem(world: World) {
     AssetLoader.loadAsync('/default_assets/controllers/hands/right_controller.glb')
   ])
 
-  addActionReceptor(world.store, (action) => {
+  function xrNetworkReceptor(action) {
     switch (action.type) {
       case NetworkWorldAction.setXRMode.type:
         // Current WebXRManager.getCamera() typedef is incorrect
@@ -78,6 +78,12 @@ export default async function XRSystem(world: World) {
           camera.layers.enable(ObjectLayers.UI)
         })
     }
+  }
+
+  addActionReceptor(Engine.instance.store, function (a) {
+    matches(a).when(EngineActions.networkConnected.matches, (action) => {
+      addActionReceptor(world.networks.get(action.id)!.store, xrNetworkReceptor)
+    })
   })
 
   addActionReceptor(Engine.instance.store, (a: EngineActionType) => {

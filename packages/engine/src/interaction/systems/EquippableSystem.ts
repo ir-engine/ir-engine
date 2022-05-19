@@ -3,6 +3,7 @@ import matches from 'ts-matches'
 import { addActionReceptor } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import {
   addComponent,
@@ -80,7 +81,11 @@ export function equippableQueryExit(entity) {
  * @author Hamza Mushtaq <github.com/hamzzam>
  */
 export default async function EquippableSystem(world: World) {
-  addActionReceptor(world.store, equippableActionReceptor)
+  addActionReceptor(Engine.instance.store, function (a) {
+    matches(a).when(EngineActions.networkConnected.matches, (action) => {
+      addActionReceptor(world.networks.get(action.id)!.store, equippableActionReceptor)
+    })
+  })
 
   const equippableQuery = defineQuery([EquipperComponent])
 

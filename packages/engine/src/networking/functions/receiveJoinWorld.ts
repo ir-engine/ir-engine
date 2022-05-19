@@ -47,9 +47,9 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
     : avatarSpawnPose
 
   for (const action of cachedActions)
-    Engine.instance.currentWorld.store.actions.incoming.push({ ...action, $fromCache: true })
+    Engine.instance.currentWorld.worldNetwork.store.actions.incoming.push({ ...action, $fromCache: true })
 
-  dispatchAction(world.store, NetworkWorldAction.createClient(client))
-  dispatchAction(world.store, NetworkWorldAction.spawnAvatar({ parameters: spawnPose }))
-  dispatchAction(world.store, NetworkWorldAction.avatarDetails({ avatarDetail }))
+  dispatchAction(world.worldNetwork.store, NetworkWorldAction.createClient(client))
+  dispatchAction(world.worldNetwork.store, NetworkWorldAction.spawnAvatar({ parameters: spawnPose }))
+  dispatchAction(world.worldNetwork.store, NetworkWorldAction.avatarDetails({ avatarDetail }))
 }

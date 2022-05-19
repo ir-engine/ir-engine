@@ -55,13 +55,17 @@ export const deserializeCameraProperties: ComponentDeserializeFunction = (
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CAMERA_PROPERTIES)
 
   if (isClient) {
-    matchActionOnce(Engine.instance.currentWorld.store, NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
-      if (spawnAction.$from === Engine.instance.userId) {
-        setCameraProperties(useWorld().localClientEntity, json.props)
-        return true
+    matchActionOnce(
+      Engine.instance.currentWorld.worldNetwork.store,
+      NetworkWorldAction.spawnAvatar.matches,
+      (spawnAction) => {
+        if (spawnAction.$from === Engine.instance.userId) {
+          setCameraProperties(useWorld().localClientEntity, json.props)
+          return true
+        }
+        return false
       }
-      return false
-    })
+    )
   }
 }
 

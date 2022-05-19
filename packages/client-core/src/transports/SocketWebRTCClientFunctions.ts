@@ -112,7 +112,7 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
     const actions = message as any as Required<Action<any>>[]
     // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
     for (const a of actions) {
-      Engine.instance.currentWorld!.store.actions.incoming.push(a)
+      network.store.actions.incoming.push(a)
     }
   }
 

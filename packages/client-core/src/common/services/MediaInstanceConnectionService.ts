@@ -38,7 +38,10 @@ store.receptors.push((action: MediaLocationInstanceConnectionActionType): any =>
     switch (action.type) {
       case 'MEDIA_INSTANCE_SERVER_PROVISIONED':
         MediaStreams.instance.hostId = action.instanceId
-        Engine.instance.currentWorld.networks.set(action.instanceId, new SocketWebRTCClientNetwork(NetworkTypes.media))
+        Engine.instance.currentWorld.networks.set(
+          action.instanceId,
+          new SocketWebRTCClientNetwork(action.instanceId, NetworkTypes.media)
+        )
         return s.instances[action.instanceId].set({
           ipAddress: action.ipAddress,
           port: action.port,

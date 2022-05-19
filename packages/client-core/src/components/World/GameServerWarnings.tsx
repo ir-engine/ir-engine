@@ -145,7 +145,7 @@ const GameServerWarnings = () => {
       case WarningModalTypes.INSTANCE_DISCONNECTED: {
         if (!Engine.instance.userId) return
         const transport = Engine.instance.currentWorld.networks.get(
-          Engine.instance.currentWorld.hostId
+          Engine.instance.currentWorld.worldNetwork?.hostId
         ) as SocketWebRTCClientNetwork
         if (transport.left || engineState.isTeleporting.value || transport.reconnecting) return
 
@@ -184,7 +184,7 @@ const GameServerWarnings = () => {
 
       case WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED: {
         const transport = Engine.instance.currentWorld.networks.get(
-          Engine.instance.currentWorld.hostId
+          Engine.instance.currentWorld.worldNetwork?.hostId
         ) as SocketWebRTCClientNetwork
         if (transport.left || engineState.isTeleporting.value) return
 

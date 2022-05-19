@@ -2,9 +2,10 @@ import { none } from '@speigg/hookstate'
 import matches from 'ts-matches'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, getState, HyperStore } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
+import { useEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
@@ -52,7 +53,9 @@ const removeClient = (world: World, userId: UserId, allowRemoveSelf = false) => 
   world.userIdToUserIndex.delete(userId)
   world.userIndexToUserId.delete(userIndex)
   world.clients.delete(userId)
-  world.store.actions.cached = world.store.actions.cached.filter((action) => action.$from !== userId)
+  world.worldNetwork.store.actions.cached = world.worldNetwork.store.actions.cached.filter(
+    (action) => action.$from !== userId
+  )
 }
 
 const spawnObject = (world: World, action: ReturnType<typeof NetworkWorldAction.spawnObject>) => {
@@ -122,7 +125,7 @@ const requestAuthorityOverObject = (
   action: ReturnType<typeof NetworkWorldAction.requestAuthorityOverObject>
 ) => {
   // Authority request can only be processed by host
-  if (Engine.instance.currentWorld.isHosting === false) return
+  if (Engine.instance.currentWorld.worldNetwork.isHosting === false) return
 
   const ownerId = action.object.ownerId
   const entity = world.getNetworkObject(ownerId, action.object.networkId)
@@ -133,7 +136,7 @@ const requestAuthorityOverObject = (
 
   // If any custom logic is required in future around which client can request authority over which objects, that can be handled here.
   dispatchAction(
-    world.store,
+    world.worldNetwork.store,
     NetworkWorldAction.transferAuthorityOfObject({
       object: action.object,
       newAuthor: action.requester
@@ -146,7 +149,7 @@ const transferAuthorityOfObject = (
   action: ReturnType<typeof NetworkWorldAction.transferAuthorityOfObject>
 ) => {
   // Transfer authority action can only be originated from host
-  if (action.$from !== Engine.instance.currentWorld.hostId) return
+  if (action.$from !== Engine.instance.currentWorld.worldNetwork.hostId) return
 
   const ownerId = action.object.ownerId
   const entity = world.getNetworkObject(ownerId, action.object.networkId)
@@ -166,11 +169,11 @@ const transferAuthorityOfObject = (
 }
 
 const setEquippedObject = (world: World, action: ReturnType<typeof NetworkWorldAction.setEquippedObject>) => {
-  if (Engine.instance.currentWorld.isHosting === false) return
+  if (Engine.instance.currentWorld.worldNetwork.isHosting === false) return
 
   if (action.equip) {
     dispatchAction(
-      Engine.instance.currentWorld.store,
+      Engine.instance.currentWorld.worldNetwork.store,
       NetworkWorldAction.requestAuthorityOverObject({
         object: action.object,
         requester: action.$from
@@ -178,10 +181,10 @@ const setEquippedObject = (world: World, action: ReturnType<typeof NetworkWorldA
     )
   } else {
     dispatchAction(
-      Engine.instance.currentWorld.store,
+      Engine.instance.currentWorld.worldNetwork.store,
       NetworkWorldAction.requestAuthorityOverObject({
         object: action.object,
-        requester: Engine.instance.currentWorld.hostId
+        requester: Engine.instance.currentWorld.worldNetwork.hostId
       })
     )
   }
@@ -189,7 +192,7 @@ const setEquippedObject = (world: World, action: ReturnType<typeof NetworkWorldA
 
 const setUserTyping = (action) => {
   matches(action).when(NetworkWorldAction.setUserTyping.matches, ({ $from, typing }) => {
-    getState(Engine.instance.currentWorld.store, WorldState).usersTyping[$from].set(typing ? true : none)
+    useEngineState().usersTyping[$from].set(typing ? true : none)
   })
 }
 
@@ -197,8 +200,8 @@ const setUserTyping = (action) => {
  * @author Gheric Speiginer <github.com/speigg>
  * @author Josh Field <github.com/HexaField>
  */
-const createNetworkActionReceptor = (world: World) =>
-  addActionReceptor(world.store, function NetworkActionReceptor(action) {
+const createNetworkActionReceptor = (world: World, store: HyperStore<'NETWORK'>) =>
+  addActionReceptor(store, function NetworkActionReceptor(action) {
     matches(action)
       .when(NetworkWorldAction.createClient.matches, ({ $from, name, index: userIndex }) =>
         addClient(world, $from, name, userIndex)

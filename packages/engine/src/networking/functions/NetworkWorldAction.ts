@@ -16,7 +16,7 @@ import { matchesAvatarProps } from '../interfaces/WorldState'
 
 export class NetworkWorldAction {
   static createClient = defineAction({
-    store: 'WORLD',
+    store: 'NETWORK',
     type: 'network.CREATE_CLIENT',
     name: matches.string,
     index: matches.number,
@@ -24,13 +24,13 @@ export class NetworkWorldAction {
   })
 
   static destroyClient = defineAction({
-    store: 'WORLD',
+    store: 'NETWORK',
     type: 'network.DESTROY_CLIENT',
     $to: 'others'
   })
 
   static setXRMode = defineAction({
-    store: 'WORLD',
+    store: 'NETWORK',
     type: 'network.SET_XR_MODE',
     enabled: matches.boolean,
     avatarInputControllerType: matches.string,
@@ -38,13 +38,13 @@ export class NetworkWorldAction {
   })
 
   static xrHandsConnected = defineAction({
-    store: 'WORLD',
+    store: 'NETWORK',
     type: 'network.XR_HANDS_CONNECTED',
     $cache: true
   })
 
   static spawnObject = defineAction({
-    store: 'WORLD',
+    store: 'NETWORK',
     type: 'network.SPAWN_OBJECT',
     prefab: matches.string,
     networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.currentWorld.createNetworkId()),
@@ -53,7 +53,7 @@ export class NetworkWorldAction {
   })
 
   static spawnDebugPhysicsObject = defineAction({
-    store: 'WORLD',
+    store: 'NETWORK',
     type: 'network.SPAWN_DEBUG_PHYSICS_OBJECT',
     config: matches.any.optional()
   })
@@ -69,13 +69,13 @@ export class NetworkWorldAction {
   })
 
   static destroyObject = defineAction({
-    store: 'WORLD',
+    store: 'NETWORK',
     type: 'network.DESTROY_OBJECT',
     networkId: matchesNetworkId
   })
 
   static setEquippedObject = defineAction({
-    store: 'WORLD',
+    store: 'NETWORK',
     type: 'network.SET_EQUIPPED_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,
@@ -87,7 +87,7 @@ export class NetworkWorldAction {
   })
 
   static avatarAnimation = defineAction({
-    store: 'WORLD',
+    store: 'NETWORK',
     type: 'network.AVATAR_ANIMATION',
     newStateName: matches.string,
     params: matchesWeightsParameters,
@@ -97,7 +97,7 @@ export class NetworkWorldAction {
   })
 
   static avatarDetails = defineAction({
-    store: 'WORLD',
+    store: 'NETWORK',
     type: 'network.AVATAR_DETAILS',
     avatarDetail: matchesAvatarProps,
     $cache: {
@@ -106,7 +106,7 @@ export class NetworkWorldAction {
   })
 
   static teleportObject = defineAction({
-    store: 'WORLD',
+    store: 'NETWORK',
     type: 'network.TELEPORT_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,
@@ -116,27 +116,27 @@ export class NetworkWorldAction {
   })
 
   static requestAuthorityOverObject = defineAction({
-    store: 'WORLD',
+    store: 'NETWORK',
     type: 'network.REQUEST_AUTHORITY_OVER_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,
       networkId: matchesNetworkId
     }),
-    requester: matchesUserId
+    requester: matches.string
   })
 
   static transferAuthorityOfObject = defineAction({
-    store: 'WORLD',
+    store: 'NETWORK',
     type: 'network.TRANSFER_AUTHORITY_OF_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,
       networkId: matchesNetworkId
     }),
-    newAuthor: matchesUserId
+    newAuthor: matches.string
   })
 
   static setUserTyping = defineAction({
-    store: 'WORLD',
+    store: 'NETWORK',
     type: 'network.USER_IS_TYPING',
     typing: matches.boolean
   })

@@ -29,6 +29,8 @@ import config from '@xrengine/server-core/src/appconfig'
 import multiLogger from '@xrengine/server-core/src/logger'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
+import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
+
 const logger = multiLogger.child({ component: 'gameserver:channels' })
 
 interface SocketIOConnectionType {
@@ -62,51 +64,8 @@ type InstanceMetadata = {
   ipAddress: string
 }
 
-const loadScene = async (app: Application, scene: string) => {
-  const [projectName, sceneName] = scene.split('/')
-  // const sceneRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
-
-  const isInitialized = getEngineState().isEngineInitialized.value
-
-  const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
-
-  if (!isInitialized) {
-    const projectsPromise = app.service('project').find(null!)
-
-    await initializeCoreSystems()
-    await initializeRealtimeSystems(false, true)
-    await initializeSceneSystems()
-
-    Engine.instance.publicPath = config.client.url
-    const world = Engine.instance.currentWorld
-    const projects = (await projectsPromise).data.map((project) => project.name)
-    await loadEngineInjection(world, projects)
-
-    const userId = app.instance.id
-    Engine.instance.userId = userId
-    world.hostId = userId
-    const hostIndex = world.userIndexCount++
-    world.clients.set(userId, { userId, name: 'server-' + userId, index: hostIndex, lastSeenTs: Date.now() })
-    world.userIdToUserIndex.set(userId, hostIndex)
-    world.userIndexToUserId.set(hostIndex, userId)
-  }
-
-  const sceneData = (await sceneResultPromise).data.scene as any // SceneData
-  const sceneSystems = getSystemsFromSceneData(projectName, sceneData, false)
-  await loadSceneFromJSON(sceneData, sceneSystems)
-
-  logger.info('Scene loaded!')
-  dispatchAction(Engine.instance.store, EngineActions.joinedWorld())
-
-  // const portals = getAllComponentsOfType(PortalComponent)
-  // await Promise.all(
-  //   portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
-  //     return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
-  //       if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
-  //     })
-  //   })
-  // )
-}
+// const loadScene = async (app: Application, scene: string) => {
+// }
 
 const createNewInstance = async (app: Application, newInstance: InstanceMetadata) => {
   const { locationId, channelId } = newInstance
@@ -208,28 +167,61 @@ const handleInstance = async (
 }
 
 const loadEngine = async (app: Application, sceneId: string) => {
+  const instanceId = app.instance.id
+  Engine.instance.publicPath = config.client.url
+  Engine.instance.userId = instanceId
+  const world = Engine.instance.currentWorld
+
+  app.transport = new SocketWebRTCServerNetwork(app.instance.id, app)
+  app.transport.initialize()
   Engine.instance.currentWorld.networks.set(app.instance.id, app.transport)
+
+  const hostIndex = world.userIndexCount++
+  world.clients.set(instanceId, {
+    userId: instanceId,
+    name: 'server-' + instanceId,
+    index: hostIndex,
+    lastSeenTs: Date.now()
+  })
+  world.userIdToUserIndex.set(instanceId, hostIndex)
+  world.userIndexToUserId.set(hostIndex, instanceId)
+
   if (app.isChannelInstance) {
-    const userId = app.instance.id
-    Engine.instance.publicPath = config.client.url
-    Engine.instance.userId = userId
-    const world = Engine.instance.currentWorld
-    world.hostId = userId
     await initializeMediaServerSystems()
     await initializeRealtimeSystems(true, false)
     const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
     await loadEngineInjection(world, projects)
-
-    const hostIndex = world.userIndexCount++
-    world.clients.set(userId, { userId, name: userId, index: hostIndex, lastSeenTs: Date.now() })
-    world.userIdToUserIndex.set(userId, hostIndex)
-    world.userIndexToUserId.set(hostIndex, userId)
-
     dispatchAction(Engine.instance.store, EngineActions.sceneLoaded())
-    dispatchAction(Engine.instance.store, EngineActions.joinedWorld())
   } else {
-    await loadScene(app, sceneId)
+    const [projectName, sceneName] = sceneId.split('/')
+
+    const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
+    const projectsPromise = app.service('project').find(null!)
+
+    await initializeCoreSystems()
+    await initializeRealtimeSystems(false, true)
+    await initializeSceneSystems()
+
+    const world = Engine.instance.currentWorld
+    const projects = (await projectsPromise).data.map((project) => project.name)
+    await loadEngineInjection(world, projects)
+
+    const sceneData = (await sceneResultPromise).data.scene as any // SceneData
+    const sceneSystems = getSystemsFromSceneData(projectName, sceneData, false)
+    await loadSceneFromJSON(sceneData, sceneSystems)
+
+    logger.info('Scene loaded!')
+
+    // const portals = getAllComponentsOfType(PortalComponent)
+    // await Promise.all(
+    //   portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
+    //     return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
+    //       if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
+    //     })
+    //   })
+    // )
   }
+  dispatchAction(Engine.instance.store, EngineActions.joinedWorld())
 }
 
 const authorizeUserToJoinServer = async (app: Application, instance, userId: UserId) => {
@@ -383,6 +375,7 @@ const loadGameserver = async (
 
   if (isReady || isNeedingNewServer) {
     await handleInstance(app, status, locationId, channelId, userId)
+    console.log('instance handled')
     if (!engineStarted && sceneId != null) {
       engineStarted = true
       await loadEngine(app, sceneId)
