@@ -4,6 +4,10 @@ import { World } from '../../ecs/classes/World'
 
 export default async function IncomingActionSystem(world: World) {
   return () => {
-    applyIncomingActionsOnExternalReceptors(world.worldNetwork.store)
+    world.networks.forEach((network) => {
+      world._store.actions.incoming.push(...network.store.actions.incoming)
+      network.store.actions.incoming = []
+    })
+    applyIncomingActionsOnExternalReceptors(world._store)
   }
 }

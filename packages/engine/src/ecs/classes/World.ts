@@ -63,15 +63,9 @@ export class World {
 
   _store = createHyperStore({
     type: 'NETWORK',
-    getDispatchMode: () => {
-      throw new Error('world store in receptor mode only')
-    },
-    getDispatchId: () => {
-      throw new Error('world store in receptor mode only')
-    },
-    getDispatchTime: () => {
-      throw new Error('world store in receptor mode only')
-    },
+    getDispatchMode: () => (this.worldNetwork.isHosting ? 'host' : 'peer'),
+    getDispatchId: () => Engine.instance.userId,
+    getDispatchTime: () => Date.now(),
     defaultDispatchDelay: 1 / Engine.instance.tickRate
   })
 
