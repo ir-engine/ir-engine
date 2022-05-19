@@ -1,10 +1,11 @@
 import * as bitecs from 'bitecs'
 import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene, XRFrame } from 'three'
+import matches from 'ts-matches'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createHyperStore, registerState } from '@xrengine/hyperflux'
+import { addActionReceptor, createHyperStore } from '@xrengine/hyperflux'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -34,6 +35,7 @@ import { initializeEntityTree } from '../functions/EntityTreeFunctions'
 import { SystemInstanceType, SystemModuleType } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
+import { EngineActions } from './EngineState'
 import { Entity } from './Entity'
 import EntityTree from './EntityTree'
 
@@ -58,6 +60,35 @@ export class World {
   }
 
   static [CreateWorld] = () => new World()
+
+  _store = createHyperStore({
+    type: 'NETWORK',
+    getDispatchMode: () => {
+      throw new Error('world store in receptor mode only')
+    },
+    getDispatchId: () => {
+      throw new Error('world store in receptor mode only')
+    },
+    getDispatchTime: () => {
+      throw new Error('world store in receptor mode only')
+    },
+    defaultDispatchDelay: 1 / Engine.instance.tickRate
+  })
+
+  registerNetworkReceptor = (receptor) => {
+    addActionReceptor(this._store, receptor)
+    // TODO:
+    // addActionReceptor(Engine.instance.store, (a) => {
+    //   matches(a).when(EngineActions.networkConnected.matches, (action) => {
+    //     console.log('adding receptor to network', receptor, action.id)
+    //     addActionReceptor(this.networks.get(action.id)!.store, receptor)
+    //   })
+    // })
+    // this.networks.forEach((network) => {
+    //   console.log('adding receptor to network', receptor, network.hostId)
+    //   addActionReceptor(network.store, receptor)
+    // })
+  }
 
   /**
    *

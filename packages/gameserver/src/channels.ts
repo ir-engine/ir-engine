@@ -172,9 +172,10 @@ const loadEngine = async (app: Application, sceneId: string) => {
   Engine.instance.userId = instanceId
   const world = Engine.instance.currentWorld
 
-  app.transport = new SocketWebRTCServerNetwork(app.instance.id, app)
-  app.transport.initialize()
-  Engine.instance.currentWorld.networks.set(app.instance.id, app.transport)
+  app.transport = new SocketWebRTCServerNetwork(instanceId, app)
+  await app.transport.initialize()
+
+  world.networks.set(instanceId, app.transport)
 
   const hostIndex = world.userIndexCount++
   world.clients.set(instanceId, {
@@ -193,6 +194,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await loadEngineInjection(world, projects)
     dispatchAction(Engine.instance.store, EngineActions.sceneLoaded())
   } else {
+    world.worldHostId = instanceId as UserId
+
     const [projectName, sceneName] = sceneId.split('/')
 
     const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
@@ -202,7 +205,6 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await initializeRealtimeSystems(false, true)
     await initializeSceneSystems()
 
-    const world = Engine.instance.currentWorld
     const projects = (await projectsPromise).data.map((project) => project.name)
     await loadEngineInjection(world, projects)
 

@@ -50,11 +50,7 @@ export default async function AnimationSystem(world: World) {
     })
   }
 
-  addActionReceptor(Engine.instance.store, function (a) {
-    matches(a).when(EngineActions.networkConnected.matches, (action) => {
-      addActionReceptor(world.networks.get(action.id)!.store, animationActionReceptor)
-    })
-  })
+  world.registerNetworkReceptor(animationActionReceptor)
 
   await AnimationManager.instance.loadDefaultAnimations()
 

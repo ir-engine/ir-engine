@@ -10,7 +10,6 @@ import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
 
 import { setupSubdomain } from './NetworkFunctions'
-import { setupSocketFunctions } from './SocketFunctions'
 import { startWebRTC } from './WebRTCFunctions'
 
 export class SocketWebRTCServerNetwork extends Network {
@@ -40,7 +39,7 @@ export class SocketWebRTCServerNetwork extends Network {
   }
 
   public sendActions = (actions: Array<Required<Action<'NETWORK'>>>): any => {
-    if (actions.length === 0 || this.app.io == null) return
+    if (actions.length === 0) return
     const world = Engine.instance.currentWorld
     const clients = world.clients
     const userIdMap = {} as { [socketId: string]: UserId }

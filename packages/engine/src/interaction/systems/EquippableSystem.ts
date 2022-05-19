@@ -81,11 +81,7 @@ export function equippableQueryExit(entity) {
  * @author Hamza Mushtaq <github.com/hamzzam>
  */
 export default async function EquippableSystem(world: World) {
-  addActionReceptor(Engine.instance.store, function (a) {
-    matches(a).when(EngineActions.networkConnected.matches, (action) => {
-      addActionReceptor(world.networks.get(action.id)!.store, equippableActionReceptor)
-    })
-  })
+  world.registerNetworkReceptor(equippableActionReceptor)
 
   const equippableQuery = defineQuery([EquipperComponent])
 

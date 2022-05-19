@@ -12,8 +12,6 @@ const sendOutgoingActions = (world: World) => {
   }
 
   clearOutgoingActions(world.worldNetwork.store)
-
-  return world
 }
 
 export default async function OutgoingActionSystem(world: World) {

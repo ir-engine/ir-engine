@@ -122,11 +122,7 @@ function avatarActionReceptor(action) {
 }
 
 export default async function AvatarSystem(world: World) {
-  addActionReceptor(Engine.instance.store, function (a) {
-    matches(a).when(EngineActions.networkConnected.matches, (action) => {
-      addActionReceptor(world.networks.get(action.id)!.store, avatarActionReceptor)
-    })
-  })
+  world.registerNetworkReceptor(avatarActionReceptor)
 
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent, AvatarAnimationComponent])

@@ -46,21 +46,16 @@ export const initClient = async () => {
   await initializeSceneSystems()
   await loadEngineInjection(world, projects)
 
-  addActionReceptor(Engine.instance.store, function (a) {
-    matches(a).when(EngineActions.networkConnected.matches, (action) => {
-      // add extraneous receptors
-      addActionReceptor(world.networks.get(action.id)!.store, (action) => {
-        matches(action)
-          .when(NetworkWorldAction.createClient.matches, () => {
-            updateNearbyAvatars()
-            MediaStreamService.triggerUpdateNearbyLayerUsers()
-          })
-          .when(NetworkWorldAction.destroyClient.matches, () => {
-            updateNearbyAvatars()
-            MediaStreamService.triggerUpdateNearbyLayerUsers()
-          })
+  world.registerNetworkReceptor((action) => {
+    matches(action)
+      .when(NetworkWorldAction.createClient.matches, () => {
+        updateNearbyAvatars()
+        MediaStreamService.triggerUpdateNearbyLayerUsers()
       })
-    })
+      .when(NetworkWorldAction.destroyClient.matches, () => {
+        updateNearbyAvatars()
+        MediaStreamService.triggerUpdateNearbyLayerUsers()
+      })
   })
 }
 

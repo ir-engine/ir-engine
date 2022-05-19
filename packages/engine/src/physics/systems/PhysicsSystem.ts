@@ -207,11 +207,7 @@ const processCollisions = (world: World) => {
 const simulationPipeline = pipe(processRaycasts, processNetworkBodies, processBodies, processCollisions)
 
 export default async function PhysicsSystem(world: World) {
-  addActionReceptor(Engine.instance.store, function (a) {
-    matches(a).when(EngineActions.networkConnected.matches, (action) => {
-      addActionReceptor(world.networks.get(action.id)!.store, physicsActionReceptor)
-    })
-  })
+  world.registerNetworkReceptor(physicsActionReceptor)
 
   await world.physics.createScene()
 

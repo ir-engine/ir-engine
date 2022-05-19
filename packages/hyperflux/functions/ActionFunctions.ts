@@ -328,7 +328,7 @@ const _updateCachedActions = (store: HyperStore<any>, incomingAction: Required<A
   }
 }
 
-const _applyIncomingAction = (store: HyperStore<any>, action: Required<Action<any>>) => {
+const _applyIncomingAction = (store: HyperStore<any>, action: Required<Action<any>>, receptors?) => {
   // ensure actions are idempotent
   if (store.actions.incomingHistoryUUIDs.has(action.$uuid)) {
     const idx = store.actions.incoming.indexOf(action)
@@ -338,7 +338,7 @@ const _applyIncomingAction = (store: HyperStore<any>, action: Required<Action<an
 
   try {
     console.log(`${store.type} ACTION ${action.type}`, action)
-    for (const receptor of [...store.receptors]) receptor(action)
+    for (const receptor of [...(receptors ?? store.receptors)]) receptor(action)
     store.actions.incomingHistory.push(action)
     if (store.getDispatchMode() === 'host') store.actions.outgoing.push(action)
   } catch (e) {
@@ -384,6 +384,28 @@ const applyIncomingActions = (store: HyperStore<any>) => {
   }
 }
 
+// TEMPORARY
+const applyIncomingActionsOnExternalReceptors = (store: HyperStore<any>, receptors = []) => {
+  const states = Object.values(store.state)
+  const { incoming } = store.actions
+  const now = store.getDispatchTime()
+  for (const action of [...incoming]) {
+    if (action.$time > now) {
+      continue
+    }
+    _updateCachedActions(store, action)
+    const batchStateUpdatesAndApplyAction = states.reduce<() => void>(
+      (prev, state) => {
+        return () => {
+          state.batch(() => prev(), action.$uuid + '')
+        }
+      },
+      () => _applyIncomingAction(store, action, receptors)
+    )
+    batchStateUpdatesAndApplyAction()
+  }
+}
+
 /**
  * Clear the outgoing action queue
  * @param store
@@ -401,6 +423,7 @@ export default {
   defineAction,
   dispatchAction,
   addActionReceptor,
+  applyIncomingActionsOnExternalReceptors, // TEMPORARY
   removeActionReceptor,
   applyIncomingActions,
   clearOutgoingActions

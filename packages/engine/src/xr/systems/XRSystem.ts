@@ -80,11 +80,7 @@ export default async function XRSystem(world: World) {
     }
   }
 
-  addActionReceptor(Engine.instance.store, function (a) {
-    matches(a).when(EngineActions.networkConnected.matches, (action) => {
-      addActionReceptor(world.networks.get(action.id)!.store, xrNetworkReceptor)
-    })
-  })
+  world.registerNetworkReceptor(xrNetworkReceptor)
 
   addActionReceptor(Engine.instance.store, (a: EngineActionType) => {
     matches(a)
