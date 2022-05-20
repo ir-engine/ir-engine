@@ -19,7 +19,7 @@ import { AppAction, GeneralStateList } from '../../common/services/AppService'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { initClient, loadScene } from './LocationLoadHelper'
 
-export const LoadEngineWithScene = () => {
+export const LoadEngineWithScene = ({ headless } = { headless: false }) => {
   const history = useHistory()
   const dispatch = useDispatch()
   const engineState = useEngineState()
@@ -31,7 +31,7 @@ export const LoadEngineWithScene = () => {
    * initialise the client
    */
   useHookEffect(() => {
-    initClient().then(() => {
+    initClient({ headless }).then(() => {
       setClientReady(true)
     })
   }, [])

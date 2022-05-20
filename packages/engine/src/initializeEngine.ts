@@ -138,7 +138,7 @@ export const initializeMediaServerSystems = async () => {
   dispatchAction(Engine.instance.store, EngineActions.initializeEngine({ initialised: true }))
 }
 
-export const initializeCoreSystems = async () => {
+export const initializeCoreSystems = async (headless = false) => {
   const systemsToLoad: SystemModuleType<any>[] = []
   systemsToLoad.push(
     {
@@ -169,7 +169,7 @@ export const initializeCoreSystems = async () => {
     }
   )
 
-  if (isClient) {
+  if (isClient && !headless) {
     systemsToLoad.push(
       {
         type: SystemUpdateType.POST_RENDER,
@@ -206,7 +206,7 @@ export const initializeCoreSystems = async () => {
  * everything needed for rendering 3d scenes
  */
 
-export const initializeSceneSystems = async () => {
+export const initializeSceneSystems = async (headless = false) => {
   const world = Engine.instance.currentWorld
   NetworkActionReceptor.createNetworkActionReceptor(world)
 
@@ -266,10 +266,6 @@ export const initializeSceneSystems = async () => {
       },
       {
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./interaction/systems/MediaControlSystem')
-      },
-      {
-        type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./audio/systems/AudioSystem')
       },
       {
@@ -305,6 +301,12 @@ export const initializeSceneSystems = async () => {
         type: SystemUpdateType.PRE_RENDER
       }
     )
+    if (!headless) {
+      systemsToLoad.push({
+        type: SystemUpdateType.PRE_RENDER,
+        systemModulePromise: import('./interaction/systems/MediaControlSystem')
+      })
+    }
 
     // todo: figure out the race condition that is stopping us from moving this to SceneObjectSystem
     initializeKTX2Loader(getGLTFLoader())

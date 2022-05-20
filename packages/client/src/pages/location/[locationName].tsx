@@ -25,6 +25,7 @@ const LocationPage = () => {
   const engineState = useEngineState()
   const locationState = useLocationState()
   const offline = new URLSearchParams(search).get('offline') === 'true'
+  const headless = new URLSearchParams(search).get('headless') === 'true'
 
   const params = match.params as any
   const locationName = params.locationName ?? `${params.projectName}/${params.sceneName}`
@@ -32,7 +33,10 @@ const LocationPage = () => {
   useEffect(() => {
     dispatch(LocationAction.setLocationName(locationName))
     AuthService.listenForUserPatch()
-    Engine.instance.injectedSystems.push(...DefaultLocationSystems)
+    if (!headless) {
+      // currently: XRUILoadingSystem, AvatarUISystem
+      Engine.instance.injectedSystems.push(...DefaultLocationSystems)
+    }
   }, [])
 
   /**
@@ -48,7 +52,7 @@ const LocationPage = () => {
   return (
     <Layout useLoadingScreenOpacity pageTitle={t('location.locationName.pageTitle')}>
       {engineState.isEngineInitialized.value ? <></> : <LoadingCircle />}
-      <LoadEngineWithScene />
+      <LoadEngineWithScene headless={headless} />
       {offline ? <OfflineLocation /> : <NetworkInstanceProvisioning />}
       <LoadLocationScene />
     </Layout>

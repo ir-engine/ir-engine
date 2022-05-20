@@ -36,13 +36,13 @@ export const retrieveLocationByName = (locationName: string) => {
   }
 }
 
-export const initClient = async () => {
+export const initClient = async ({ headless } = { headless: false }) => {
   const projects = accessProjectState().projects.value.map((project) => project.name)
   const world = Engine.instance.currentWorld
 
-  await initializeCoreSystems()
+  await initializeCoreSystems(headless)
   await initializeRealtimeSystems()
-  await initializeSceneSystems()
+  await initializeSceneSystems(headless)
   await loadEngineInjection(world, projects)
 
   // add extraneous receptors
