@@ -18,6 +18,7 @@ import { NetworkObjectDirtyTag } from '../components/NetworkObjectDirtyTag'
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
 import {
   createViewCursor,
+  readInt16,
   readProp,
   readUint8,
   readUint16,
@@ -83,20 +84,18 @@ export const readVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Enti
 // with WriteCompressedRotation() in order to be properly decompressed.
 export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity | undefined) => {
   const changeMask = readUint8(v)
-  console.log(changeMask)
   if (changeMask <= 0) return
 
   // Read the index of the omitted field from the stream.
   let maxIndex = readUint8(v)
-  console.log('read 1 byte')
 
   // Values between 4 and 7 indicate that only the index of the single field whose value is 1f was
   // sent, and (maxIndex - 4) is the correct index for that field.
   if (maxIndex >= 4 && maxIndex <= 7) {
-    let x = maxIndex == 4 ? 1 : 0
-    let y = maxIndex == 5 ? 1 : 0
-    let z = maxIndex == 6 ? 1 : 0
-    let w = maxIndex == 7 ? 1 : 0
+    let x = maxIndex === 4 ? 1 : 0
+    let y = maxIndex === 5 ? 1 : 0
+    let z = maxIndex === 6 ? 1 : 0
+    let w = maxIndex === 7 ? 1 : 0
 
     if (entity !== undefined) {
       vector4.x[entity] = x
@@ -114,29 +113,32 @@ export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, e
   }
 
   // Read the other three fields and derive the value of the omitted field
-  let a = readUint16(v) / FLOAT_PRECISION_MULT
-  let b = readUint16(v) / FLOAT_PRECISION_MULT
-  let c = readUint16(v) / FLOAT_PRECISION_MULT
+  let a = readInt16(v) / FLOAT_PRECISION_MULT
+  let b = readInt16(v) / FLOAT_PRECISION_MULT
+  let c = readInt16(v) / FLOAT_PRECISION_MULT
   let d = Math.sqrt(1 - (a * a + b * b + c * c))
 
-  console.log('read 6 bytes')
-
   let x, y, z, w
-  if (maxIndex == 0) {
+  if (maxIndex === 0) {
     x = d
     y = a
     z = b
     w = c
-  } else if (maxIndex == 1) {
+  } else if (maxIndex === 1) {
     x = a
     y = d
     z = b
     w = c
-  } else if (maxIndex == 2) {
+  } else if (maxIndex === 2) {
     x = a
     y = b
     z = d
     w = c
+  } else {
+    x = a
+    y = b
+    z = c
+    w = d
   }
 
   if (entity !== undefined) {

@@ -24,6 +24,7 @@ import {
   spaceUint32,
   spaceUint64,
   ViewCursor,
+  writeInt16,
   writePropIfChanged,
   writeUint8,
   writeUint16,
@@ -95,7 +96,7 @@ export const writeComporessedRotation = (vector4: Vector4SoA) => (v: ViewCursor,
   let changeMask = 0
   let b = 0
 
-  // INSTEAD CALL writeVector4 here? how to handle rewind than.
+  // Todo: writeVector4 here? how to handle rewind than.
   // Write to store
   changeMask |= writePropIfChanged(v, vector4.x, entity) ? 1 << b++ : b++ && 0
   changeMask |= writePropIfChanged(v, vector4.y, entity) ? 1 << b++ : b++ && 0
@@ -131,14 +132,11 @@ export const writeComporessedRotation = (vector4: Vector4SoA) => (v: ViewCursor,
     // If the maximum value is approximately 1f (such as Quaternion.identity [0,0,0,1]), then we can
     // reduce storage even further due to the fact that all other fields must be 0f by definition, so
     // we only need to send the index of the largest field.
-    console.log(maxValue)
     if (approxeq(maxValue, 1)) {
       // Again, don't need to transmit the sign since in quaternion space (x,y,z,w) and (-x,-y,-z,-w)
       // represent the same rotation. We only need to send the index of the single element whose value
-      // is 1f in order to recreate an equivalent rotation on the receiver.
-      // writer.Write( maxIndex + 4 );
+      // is 1 in order to recreate an equivalent rotation on the receiver.
       writeUint8(v, maxIndex + 4)
-      console.log('wrote 1 bytes')
     } else {
       let a = 0
       let b = 0
@@ -149,15 +147,15 @@ export const writeComporessedRotation = (vector4: Vector4SoA) => (v: ViewCursor,
       // elements are less than 1.0, and the conversion to 16-bit integer would otherwise truncate everything
       // to the right of the decimal place. This allows us to keep five decimal places.
 
-      if (maxIndex == 0) {
+      if (maxIndex === 0) {
         a = vector4.y[entity] * sign * FLOAT_PRECISION_MULT
         b = vector4.z[entity] * sign * FLOAT_PRECISION_MULT
         c = vector4.w[entity] * sign * FLOAT_PRECISION_MULT
-      } else if (maxIndex == 1) {
+      } else if (maxIndex === 1) {
         a = vector4.x[entity] * sign * FLOAT_PRECISION_MULT
         b = vector4.z[entity] * sign * FLOAT_PRECISION_MULT
         c = vector4.w[entity] * sign * FLOAT_PRECISION_MULT
-      } else if (maxIndex == 2) {
+      } else if (maxIndex === 2) {
         a = vector4.x[entity] * sign * FLOAT_PRECISION_MULT
         b = vector4.y[entity] * sign * FLOAT_PRECISION_MULT
         c = vector4.w[entity] * sign * FLOAT_PRECISION_MULT
@@ -168,14 +166,9 @@ export const writeComporessedRotation = (vector4: Vector4SoA) => (v: ViewCursor,
       }
 
       writeUint8(v, maxIndex)
-      // writer.Write( maxIndex );
-      writeUint16(v, a)
-      writeUint16(v, b)
-      writeUint16(v, c)
-      console.log('wrote 7 bytes')
-      // writer.Write( a );
-      // writer.Write( b );
-      // writer.Write( c );
+      writeInt16(v, a)
+      writeInt16(v, b)
+      writeInt16(v, c)
     }
   }
 
