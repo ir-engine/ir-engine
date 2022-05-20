@@ -4,7 +4,6 @@ import { Quaternion, Vector3 } from 'three'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
-import { performance } from '../../common/functions/performance'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { AvatarProps } from '../interfaces/WorldState'
@@ -14,14 +13,14 @@ export type JoinWorldProps = {
   highResTimeOrigin: number
   worldStartTime: number
   client: { name: string; index: number }
-  cachedActions: Required<Action<any>>[]
+  cachedActions: Required<Action>[]
   avatarDetail: AvatarProps
   avatarSpawnPose: { position: Vector3; rotation: Quaternion }
 }
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
   if (!props) {
-    dispatchAction(Engine.instance.store, EngineActions.connectToWorldTimeout({ instance: true }))
+    dispatchAction(EngineActions.connectToWorldTimeout({ instance: true }))
     return
   }
   const { highResTimeOrigin, worldStartTime, client, cachedActions, avatarDetail, avatarSpawnPose } = props
@@ -34,7 +33,7 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
     avatarDetail,
     avatarSpawnPose
   )
-  dispatchAction(Engine.instance.store, EngineActions.joinedWorld())
+  dispatchAction(EngineActions.joinedWorld())
   const world = Engine.instance.currentWorld
 
   const engineState = getEngineState()
@@ -46,10 +45,9 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
       }
     : avatarSpawnPose
 
-  for (const action of cachedActions)
-    Engine.instance.currentWorld.worldNetwork.store.actions.incoming.push({ ...action, $fromCache: true })
+  for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
-  dispatchAction(world.worldNetwork.store, NetworkWorldAction.createClient(client))
-  dispatchAction(world.worldNetwork.store, NetworkWorldAction.spawnAvatar({ parameters: spawnPose }))
-  dispatchAction(world.worldNetwork.store, NetworkWorldAction.avatarDetails({ avatarDetail }))
+  dispatchAction(NetworkWorldAction.createClient(client), [world.worldNetwork.hostId])
+  dispatchAction(NetworkWorldAction.spawnAvatar({ parameters: spawnPose }), [world.worldNetwork.hostId])
+  dispatchAction(NetworkWorldAction.avatarDetails({ avatarDetail }), [world.worldNetwork.hostId])
 }

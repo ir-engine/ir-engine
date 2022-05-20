@@ -151,7 +151,7 @@ const MediaIconsBox = (props: Props) => {
     }
   }
 
-  const handleVRClick = () => dispatchAction(Engine.instance.store, EngineActions.xrStart())
+  const handleVRClick = () => dispatchAction(EngineActions.xrStart())
 
   const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
   const MicIcon = isCamAudioEnabled.value ? Mic : MicOff

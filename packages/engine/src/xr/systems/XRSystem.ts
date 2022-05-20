@@ -30,10 +30,10 @@ const startXRSession = async () => {
     EngineRenderer.instance.xrSession = session
     EngineRenderer.instance.xrManager.setSession(session)
     EngineRenderer.instance.xrManager.setFoveation(1)
-    dispatchAction(Engine.instance.store, EngineActions.xrSession())
+    dispatchAction(EngineActions.xrSession())
 
     EngineRenderer.instance.xrManager.addEventListener('sessionend', async () => {
-      dispatchAction(Engine.instance.store, EngineActions.xrEnd())
+      dispatchAction(EngineActions.xrEnd())
     })
 
     startWebXR()
@@ -52,7 +52,7 @@ export default async function XRSystem(world: World) {
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
 
   ;(navigator as any).xr?.isSessionSupported('immersive-vr').then((supported) => {
-    dispatchAction(Engine.instance.store, EngineActions.xrSupported({ xrSupported: supported }))
+    dispatchAction(EngineActions.xrSupported({ xrSupported: supported }))
   })
 
   // TEMPORARY - precache controller model
@@ -80,9 +80,9 @@ export default async function XRSystem(world: World) {
     }
   }
 
-  world.registerNetworkReceptor(xrNetworkReceptor)
+  addActionReceptor(xrNetworkReceptor)
 
-  addActionReceptor(Engine.instance.store, (a: EngineActionType) => {
+  addActionReceptor((a: EngineActionType) => {
     matches(a)
       .when(EngineActions.xrStart.matches, (action) => {
         if (!EngineRenderer.instance.xrSession) startXRSession()

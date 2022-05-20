@@ -35,7 +35,7 @@ export default async function AvatarControllerSystem(world: World) {
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
   const cameraRotationQuery = defineQuery([XRCameraRotateYComponent])
 
-  addActionReceptor(Engine.instance.store, AvatarInputSettingsReceptor)
+  addActionReceptor(AvatarInputSettingsReceptor)
 
   const lastCamPos = new Vector3(),
     displacement = new Vector3(),

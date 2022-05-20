@@ -46,7 +46,7 @@ process.on('unhandledRejection', (error, promise) => {
  */
 const onSocket = async (app: Application, socket: Socket) => {
   if (!getEngineState().joinedWorld.value) {
-    await new Promise((resolve) => matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, resolve))
+    await new Promise((resolve) => matchActionOnce(EngineActions.joinedWorld.matches, resolve))
   }
   setupSocketFunctions(app.transport, socket)
 }

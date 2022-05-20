@@ -49,7 +49,7 @@ export const LoadEngineWithScene = () => {
     if (engineState.joinedWorld.value) {
       if (engineState.isTeleporting.value) {
         // if we are coming from another scene, reset our teleporting status
-        dispatchAction(Engine.instance.store, EngineActions.setTeleporting({ isTeleporting: false }))
+        dispatchAction(EngineActions.setTeleporting({ isTeleporting: false }))
       } else {
         dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
         dispatch(AppAction.setAppLoaded(true))

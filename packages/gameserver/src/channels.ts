@@ -192,7 +192,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await initializeRealtimeSystems(true, false)
     const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
     await loadEngineInjection(world, projects)
-    dispatchAction(Engine.instance.store, EngineActions.sceneLoaded())
+    dispatchAction(EngineActions.sceneLoaded())
   } else {
     world.worldHostId = instanceId as UserId
 
@@ -223,7 +223,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     //   })
     // )
   }
-  dispatchAction(Engine.instance.store, EngineActions.joinedWorld())
+  dispatchAction(EngineActions.joinedWorld())
 }
 
 const authorizeUserToJoinServer = async (app: Application, instance, userId: UserId) => {

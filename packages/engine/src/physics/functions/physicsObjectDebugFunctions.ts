@@ -174,11 +174,11 @@ export const generatePhysicsObject = (
     const node = world.entityTree.entityNodeMap.get(entity)
     if (node) {
       dispatchAction(
-        world.worldNetwork.store,
         NetworkWorldAction.spawnObject({
           prefab: '',
           parameters: { sceneEntityId: node.uuid, position: transform.position }
-        })
+        }),
+        [Engine.instance.currentWorld.worldNetwork.hostId]
       )
     }
   }

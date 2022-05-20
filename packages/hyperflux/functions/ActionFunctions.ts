@@ -4,20 +4,16 @@ import { matches, Validator } from 'ts-matches'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { deepEqual } from '@xrengine/engine/src/common/functions/deepEqual'
 
-import { HyperStore } from './StoreFunctions'
+import { HyperFlux } from './StoreFunctions'
 
-export type Action<StoreType extends string> = {
-  /**
-   * The type of the store on which the action is dispatched
-   */
-  store: StoreType
+export type Action = {
   /**
    * The type of action
    */
   type: string
 } & ActionOptions
 
-export type ActionReceptor<StoreType extends string> = (action: Action<StoreType>) => void
+export type ActionReceptor = (action: Action) => void
 
 export type ActionRecipients = UserId | UserId[] | 'all' | 'others'
 
@@ -79,7 +75,7 @@ export type ActionOptions = {
   $ERROR?: { message: string; stack: string[] }
 }
 
-type ActionShape<ActionType extends Action<any>> = {
+type ActionShape<ActionType extends Action> = {
   [key in keyof ActionType]: key extends ActionType
     ? ActionType[key]
     : ActionType[key] extends Validator<unknown, unknown>
@@ -169,7 +165,7 @@ export type PartialActionType<Shape extends ActionShape<any>> = Omit<
  * @param actionShape
  * @returns a function that creates an instance of the defined action
  */
-function defineAction<StoreType extends string, Shape extends ActionShape<Action<StoreType>>>(actionShape: Shape) {
+function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
   type ResolvedAction = ResolvedActionType<Shape>
   type PartialAction = PartialActionType<Shape>
 
@@ -239,12 +235,11 @@ function defineAction<StoreType extends string, Shape extends ActionShape<Action
  * @param store
  * @param action
  */
-const dispatchAction = <StoreType extends string, A extends Action<StoreType>>(
-  store: HyperStore<StoreType>,
-  action: A
+const dispatchAction = <A extends Action>(
+  action: A,
+  topics: string[] = [HyperFlux.store.defaultTopic],
+  store = HyperFlux.store
 ) => {
-  if (store.type !== action.store) throw new Error('Store mismatch')
-
   const storeId = store.getDispatchId()
 
   action.$from = action.$from ?? (storeId as UserId)
@@ -261,9 +256,27 @@ const dispatchAction = <StoreType extends string, A extends Action<StoreType>>(
     action.$stack = stack
   }
 
-  const mode = store.getDispatchMode()
-  if (mode === 'local' || mode === 'host') store.actions.incoming.push(action as Required<Action<StoreType>>)
-  else store.actions.outgoing.push(action as Required<Action<StoreType>>)
+  for (const topic of topics) {
+    const mode = store.getDispatchMode(topic)
+    console.log('\n\n', action.type, mode, '\n\n')
+    if (mode === 'local' || mode === 'host') store.actions.incoming.push(action as Required<Action>)
+    else store.actions.outgoing[topic].queue.push(action as Required<Action>)
+  }
+}
+
+function addTopic(topic: string, store = HyperFlux.store) {
+  if (!store.actions.outgoing[topic])
+    store.actions.outgoing[topic] = {
+      queue: [],
+      history: [],
+      historyUUIDs: new Set()
+    }
+  if (!store.actions.cached[topic]) store.actions.cached[topic] = []
+}
+
+function removeTopic(topic: string, store = HyperFlux.store) {
+  delete store.actions.outgoing[topic]
+  delete store.actions.cached[topic]
 }
 
 /**
@@ -271,11 +284,8 @@ const dispatchAction = <StoreType extends string, A extends Action<StoreType>>(
  * @param store
  * @param receptor
  */
-function addActionReceptor<StoreType extends string>(
-  store: HyperStore<StoreType>,
-  receptor: ActionReceptor<StoreType>
-) {
-  ;(store.receptors as Array<ActionReceptor<StoreType>>).push(receptor)
+function addActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
+  ;(store.receptors as Array<ActionReceptor>).push(receptor)
 }
 
 /**
@@ -283,17 +293,15 @@ function addActionReceptor<StoreType extends string>(
  * @param store
  * @param receptor
  */
-function removeActionReceptor<StoreType extends string>(
-  store: HyperStore<StoreType>,
-  receptor: ActionReceptor<StoreType>
-) {
+function removeActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
   const idx = store.receptors.indexOf(receptor)
-  if (idx >= 0) (store.receptors as Array<ActionReceptor<StoreType>>).splice(idx, 1)
+  if (idx >= 0) (store.receptors as Array<ActionReceptor>).splice(idx, 1)
 }
 
-const _updateCachedActions = (store: HyperStore<any>, incomingAction: Required<Action<any>>) => {
+const _updateCachedActions = (incomingAction: Required<Action>, topic: string, store = HyperFlux.store) => {
   if (incomingAction.$cache) {
-    const cachedActions = store.actions.cached
+    if (!store.actions.cached[topic]) store.actions.cached[topic] = []
+    const cachedActions = store.actions.cached[topic]
     // see if we must remove any previous actions
     if (typeof incomingAction.$cache === 'boolean') {
       if (incomingAction.$cache) cachedActions.push(incomingAction)
@@ -328,11 +336,7 @@ const _updateCachedActions = (store: HyperStore<any>, incomingAction: Required<A
   }
 }
 
-const _applyIncomingAction = (
-  store: HyperStore<any>,
-  action: Required<Action<any>>,
-  receptors: ReadonlyArray<ActionReceptor<any>>
-) => {
+const _applyIncomingAction = (action: Required<Action>, topic: string, store = HyperFlux.store) => {
   // ensure actions are idempotent
   if (store.actions.incomingHistoryUUIDs.has(action.$uuid)) {
     const idx = store.actions.incoming.indexOf(action)
@@ -341,10 +345,12 @@ const _applyIncomingAction = (
   }
 
   try {
-    console.log(`${store.type} ACTION ${action.type}`, action)
-    for (const receptor of [...receptors]) receptor(action)
+    console.log(`[Action]: ${action.type}`, action)
+    for (const receptor of [...store.receptors]) receptor(action)
     store.actions.incomingHistory.push(action)
-    if (store.getDispatchMode() === 'host') store.actions.outgoing.push(action)
+    if (store.getDispatchMode(topic) === 'host') {
+      store.actions.outgoing[topic].queue.push(action)
+    }
   } catch (e) {
     const message = (e as Error).message
     const stack = (e as Error).stack!.split('\n')
@@ -367,7 +373,7 @@ const _applyIncomingAction = (
  *
  * @param store
  */
-const applyIncomingActions = (store: HyperStore<any>, receptors: ReadonlyArray<ActionReceptor<any>> = []) => {
+const applyIncomingActions = (topic: string, store = HyperFlux.store) => {
   const states = Object.values(store.state)
   const { incoming } = store.actions
   const now = store.getDispatchTime()
@@ -375,14 +381,14 @@ const applyIncomingActions = (store: HyperStore<any>, receptors: ReadonlyArray<A
     if (action.$time > now) {
       continue
     }
-    _updateCachedActions(store, action)
+    _updateCachedActions(action, topic, store)
     const batchStateUpdatesAndApplyAction = states.reduce<() => void>(
       (prev, state) => {
         return () => {
           state.batch(() => prev(), action.$uuid + '')
         }
       },
-      () => _applyIncomingAction(store, action, [...store.receptors, ...receptors])
+      () => _applyIncomingAction(action, topic, store)
     )
     batchStateUpdatesAndApplyAction()
   }
@@ -392,19 +398,23 @@ const applyIncomingActions = (store: HyperStore<any>, receptors: ReadonlyArray<A
  * Clear the outgoing action queue
  * @param store
  */
-const clearOutgoingActions = (store: HyperStore<any>) => {
-  const { outgoing, outgoingHistory, outgoingHistoryUUIDs } = store.actions
-  for (const action of outgoing) {
-    outgoingHistory.push(action)
-    outgoingHistoryUUIDs.add(action.$uuid)
+const clearOutgoingActions = (store = HyperFlux.store) => {
+  for (const [topic, outgoing] of Object.entries(store.actions.outgoing)) {
+    const { queue, history, historyUUIDs } = outgoing
+    for (const action of queue) {
+      history.push(action)
+      historyUUIDs.add(action.$uuid)
+    }
+    queue.length = 0
   }
-  outgoing.length = 0
 }
 
 export default {
   defineAction,
   dispatchAction,
   addActionReceptor,
+  addTopic,
+  removeTopic,
   removeActionReceptor,
   applyIncomingActions,
   clearOutgoingActions

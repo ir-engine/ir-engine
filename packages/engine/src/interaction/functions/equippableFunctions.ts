@@ -41,7 +41,6 @@ const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
   const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
 
   dispatchAction(
-    world.worldNetwork.store,
     NetworkWorldAction.setEquippedObject({
       object: {
         ownerId: networkComponet.ownerId,
@@ -49,7 +48,8 @@ const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
       },
       attachmentPoint: attachmentPoint,
       equip: equip
-    })
+    }),
+    [Engine.instance.currentWorld.worldNetwork.hostId]
   )
 }
 

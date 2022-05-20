@@ -226,10 +226,9 @@ export class AvatarAnimationGraph extends AnimationGraph {
     super.changeState(newStateName)
     if (isEntityLocalClient(this.entity)) {
       const params = {}
-      dispatchAction(
-        Engine.instance.currentWorld.worldNetwork.store,
-        NetworkWorldAction.avatarAnimation({ newStateName, params })
-      )
+      dispatchAction(NetworkWorldAction.avatarAnimation({ newStateName, params }), [
+        Engine.instance.currentWorld.worldNetwork.hostId
+      ])
     }
   }
 }

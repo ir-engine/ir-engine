@@ -1,17 +1,17 @@
 import { clearOutgoingActions } from '@xrengine/hyperflux'
 
+import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 
 const sendOutgoingActions = (world: World) => {
-  if (!world.worldNetwork) return
-
-  try {
-    world.worldNetwork.sendActions(world.worldNetwork.store.actions.outgoing)
-  } catch (e) {
-    console.error(e)
+  for (const [instanceId, network] of world.networks) {
+    try {
+      world.worldNetwork.sendActions(Engine.instance.store.actions.outgoing[network.hostId].queue)
+    } catch (e) {
+      console.error(e)
+    }
   }
-
-  clearOutgoingActions(world.worldNetwork.store)
+  clearOutgoingActions(Engine.instance.store)
 }
 
 export default async function OutgoingActionSystem(world: World) {

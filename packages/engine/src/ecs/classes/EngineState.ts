@@ -3,7 +3,6 @@ import { defineAction, defineState, getState, useState } from '@xrengine/hyperfl
 
 import { matches, matchesUserId, Validator } from '../../common/functions/MatchesUtils'
 import { InteractableComponentType } from '../../interaction/components/InteractableComponent'
-import { Engine } from './Engine'
 import { Entity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
@@ -83,7 +82,7 @@ export function EngineEventReceptor(a: EngineActionType) {
     .when(EngineActions.xrSupported.matches, (action) => s.xrSupported.set(action.xrSupported))
 }
 
-export const getEngineState = () => getState(Engine.instance.store, EngineState)
+export const getEngineState = () => getState(EngineState)
 
 export const useEngineState = () => useState(getEngineState())
 
@@ -220,12 +219,6 @@ export const EngineActions = {
     store: 'ENGINE',
     type: 'CORE_SETUP_ANIMATION' as const,
     entity: matches.number
-  }),
-
-  networkConnected: defineAction({
-    store: 'ENGINE',
-    type: 'CORE_NETWORK_CONNECTED' as const,
-    id: matches.string
   })
 }
 

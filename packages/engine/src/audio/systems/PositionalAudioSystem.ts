@@ -72,7 +72,7 @@ export default async function PositionalAudioSystem(world: World) {
         }
       })
   }
-  addActionReceptor(Engine.instance.store, audioReceptors)
+  addActionReceptor(audioReceptors)
 
   let positionalAudioSettings: PositionalAudioSettingsComponentType
 

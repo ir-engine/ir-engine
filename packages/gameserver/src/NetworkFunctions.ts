@@ -326,8 +326,10 @@ export const handleJoinWorld = async (
   // }
 
   // send all cached and outgoing actions to joining user
-  const cachedActions = [] as Required<Action<any>>[]
-  for (const action of network.store.actions.cached as Array<ReturnType<typeof NetworkWorldAction.spawnAvatar>>) {
+  const cachedActions = [] as Required<Action>[]
+  for (const action of Engine.instance.store.actions.cached[network.hostId] as Array<
+    ReturnType<typeof NetworkWorldAction.spawnAvatar>
+  >) {
     // we may have a need to remove the check for the prefab type to enable this to work for networked objects too
     if (action.type === 'network.SPAWN_OBJECT' && action.prefab === 'avatar') {
       const ownerId = action.$from
@@ -362,11 +364,11 @@ export function handleIncomingActions(network: SocketWebRTCServerNetwork, socket
   const userIdMap = {} as { [socketId: string]: UserId }
   for (const [id, client] of world.clients) userIdMap[client.socketId!] = id
 
-  const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action<any>>[]
+  const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
   for (const a of actions) {
     a['$fromSocketId'] = socket.id
     a.$from = userIdMap[socket.id]
-    dispatchAction(network.store, a)
+    dispatchAction(a, [network.hostId])
   }
   // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
 }
@@ -390,7 +392,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, socke
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
-    dispatchAction(network.store, NetworkWorldAction.destroyClient({ $from: userId }))
+    dispatchAction(NetworkWorldAction.destroyClient({ $from: userId }), [network.hostId])
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
@@ -412,13 +414,13 @@ export async function handleLeaveWorld(
   for (const [, transport] of Object.entries(network.mediasoupTransports))
     if ((transport as any).appData.peerId === userId) closeTransport(network, transport)
   if (world.clients.has(userId)) {
-    dispatchAction(network.store, NetworkWorldAction.destroyClient({ $from: userId }))
+    dispatchAction(NetworkWorldAction.destroyClient({ $from: userId }))
   }
   if (callback !== undefined) callback({})
 }
 
 export function clearCachedActionsForDisconnectedUsers(network: SocketWebRTCServerNetwork) {
-  const cached = network.store.actions.cached
+  const cached = Engine.instance.store.actions.cached[network.hostId]
   for (const action of [...cached]) {
     if (!Engine.instance.currentWorld.clients.has(action.$from)) {
       const idx = cached.indexOf(action)
@@ -428,7 +430,7 @@ export function clearCachedActionsForDisconnectedUsers(network: SocketWebRTCServ
 }
 
 export function clearCachedActionsForUser(network: SocketWebRTCServerNetwork, user: UserId) {
-  const cached = network.store.actions.cached
+  const cached = Engine.instance.store.actions.cached[network.hostId]
   for (const action of [...cached]) {
     if (action.$from === user) {
       const idx = cached.indexOf(action)

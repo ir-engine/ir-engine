@@ -34,8 +34,8 @@ export const createEngine = () => {
   Engine.instance.currentWorld = createWorld()
   EngineRenderer.instance = new EngineRenderer()
   if (isClient) EngineRenderer.instance.initialize()
-  registerState(Engine.instance.store, EngineState)
-  addActionReceptor(Engine.instance.store, EngineEventReceptor)
+  registerState(EngineState)
+  addActionReceptor(EngineEventReceptor)
 }
 
 /**
@@ -74,14 +74,14 @@ export const initializeBrowser = () => {
   // maybe needs to be awaited?
   FontManager.instance.getDefaultFont()
 
-  matchActionOnce(Engine.instance.store, EngineActions.connect.matches, (action: any) => {
+  matchActionOnce(EngineActions.connect.matches, (action: any) => {
     Engine.instance.userId = action.id
   })
 }
 
 const setupInitialClickListener = () => {
   const initialClickListener = () => {
-    dispatchAction(Engine.instance.store, EngineActions.setUserHasInteracted())
+    dispatchAction(EngineActions.setUserHasInteracted())
     window.removeEventListener('click', initialClickListener)
     window.removeEventListener('touchend', initialClickListener)
   }
@@ -100,7 +100,7 @@ export const initializeNode = () => {
 
 const executeWorlds = (elapsedTime) => {
   Engine.instance.frameTime = elapsedTime
-  ActionFunctions.applyIncomingActions(Engine.instance.store)
+  ActionFunctions.applyIncomingActions('default')
   for (const world of Engine.instance.worlds) {
     world.execute(elapsedTime)
   }
@@ -128,10 +128,12 @@ export const initializeMediaServerSystems = async () => {
 
   await initSystems(world, coreSystems)
 
+  NetworkActionReceptor.createNetworkActionReceptor(Engine.instance.currentWorld)
+
   Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
   Engine.instance.engineTimer.start()
 
-  dispatchAction(Engine.instance.store, EngineActions.initializeEngine({ initialised: true }))
+  dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }
 
 export const initializeCoreSystems = async () => {
@@ -195,7 +197,7 @@ export const initializeCoreSystems = async () => {
   Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
   Engine.instance.engineTimer.start()
 
-  dispatchAction(Engine.instance.store, EngineActions.initializeEngine({ initialised: true }))
+  dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }
 
 /**
@@ -204,6 +206,7 @@ export const initializeCoreSystems = async () => {
 
 export const initializeSceneSystems = async () => {
   const world = Engine.instance.currentWorld
+  NetworkActionReceptor.createNetworkActionReceptor(Engine.instance.currentWorld)
 
   const systemsToLoad: SystemModuleType<any>[] = []
 

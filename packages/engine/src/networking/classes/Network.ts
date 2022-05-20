@@ -1,12 +1,9 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createHyperStore, dispatchAction, registerState } from '@xrengine/hyperflux'
+import { addTopic } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
-import { NetworkActionReceptor } from '../functions/NetworkActionReceptor'
-import { WorldState } from '../interfaces/WorldState'
 
 export const NetworkTypes = {
   world: 'world' as const,
@@ -35,7 +32,7 @@ export class Network {
   /**
    * Send actions through reliable channel
    */
-  sendActions(actions: Action<'NETWORK'>[]) {}
+  sendActions(actions: Action[]) {}
 
   /**
    * Sends a message across the connection and resolves with the reponse
@@ -76,18 +73,8 @@ export class Network {
     return Engine.instance.userId === this.hostId
   }
 
-  store = createHyperStore({
-    type: 'NETWORK',
-    getDispatchMode: () => (this.isHosting ? 'host' : 'peer'),
-    getDispatchId: () => Engine.instance.userId,
-    getDispatchTime: () => Date.now(),
-    defaultDispatchDelay: 1 / Engine.instance.tickRate
-  })
-
   constructor(hostId) {
     this.hostId = hostId
-    registerState(this.store, WorldState)
-    NetworkActionReceptor.createNetworkActionReceptor(Engine.instance.currentWorld, this.store)
-    dispatchAction(Engine.instance.store, EngineActions.networkConnected({ id: hostId }))
+    addTopic(hostId)
   }
 }

@@ -41,19 +41,20 @@ export class SocketWebRTCServerNetwork extends Network {
     this.app = app
   }
 
-  public sendActions = (actions: Array<Required<Action<'NETWORK'>>>): any => {
-    if (actions.length === 0) return
+  public sendActions = (actions: Array<Required<Action>>): any => {
+    if (!actions.length) return
     const world = Engine.instance.currentWorld
     const clients = world.clients
     const userIdMap = {} as { [socketId: string]: UserId }
     for (const [id, client] of clients) userIdMap[client.socketId!] = id
+    const outgoing = Engine.instance.store.actions.outgoing
 
     for (const [socketID, socket] of this.app.io.of('/').sockets) {
-      const arr: Action<any>[] = []
+      const arr: Action[] = []
       for (const action of [...actions]) {
-        if (this.store.actions.outgoingHistoryUUIDs.has(action.$uuid)) {
-          const idx = this.store.actions.outgoing.indexOf(action)
-          this.store.actions.outgoing.splice(idx, 1)
+        if (outgoing.historyUUIDs[this.hostId].has(action.$uuid)) {
+          const idx = outgoing.queue[this.hostId].indexOf(action)
+          outgoing.queue[this.hostId].splice(idx, 1)
         }
         if (!action.$to) continue
         const toUserId = userIdMap[socketID]

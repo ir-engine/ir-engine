@@ -46,7 +46,7 @@ export const initClient = async () => {
   await initializeSceneSystems()
   await loadEngineInjection(world, projects)
 
-  world.registerNetworkReceptor((action) => {
+  addActionReceptor((action) => {
     matches(action)
       .when(NetworkWorldAction.createClient.matches, () => {
         updateNearbyAvatars()

@@ -129,7 +129,7 @@ export const LocationInstanceConnectionService = {
 
       const authState = accessAuthState()
       const user = authState.user.value
-      dispatchAction(Engine.instance.store, EngineActions.connect({ id: user.id! }))
+      dispatchAction(EngineActions.connect({ id: user.id! }))
     } catch (error) {
       console.error('Network transport could not initialize, transport is: ', transport)
     }

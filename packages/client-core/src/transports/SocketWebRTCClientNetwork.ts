@@ -49,8 +49,8 @@ export class SocketWebRTCClientNetwork extends Network {
 
   instanceId: string
 
-  sendActions(actions: Action<'NETWORK'>[]) {
-    if (actions.length === 0) return
+  sendActions(actions: Action[]) {
+    if (!actions.length) return
     this.socket?.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
   }
 

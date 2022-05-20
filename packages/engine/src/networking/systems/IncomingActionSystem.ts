@@ -4,8 +4,8 @@ import { World } from '../../ecs/classes/World'
 
 export default async function IncomingActionSystem(world: World) {
   return () => {
-    world.networks.forEach((network) => {
-      applyIncomingActions(network.store, world._store.receptors)
-    })
+    for (const [instanceId] of world.networks) {
+      applyIncomingActions(instanceId)
+    }
   }
 }

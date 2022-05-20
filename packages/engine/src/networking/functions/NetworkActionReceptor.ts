@@ -53,9 +53,11 @@ const removeClient = (world: World, userId: UserId, allowRemoveSelf = false) => 
   world.userIdToUserIndex.delete(userId)
   world.userIndexToUserId.delete(userIndex)
   world.clients.delete(userId)
-  world.worldNetwork.store.actions.cached = world.worldNetwork.store.actions.cached.filter(
-    (action) => action.$from !== userId
-  )
+  for (const topic of Object.keys(Engine.instance.store.actions.cached)) {
+    Engine.instance.store.actions.cached[topic] = Engine.instance.store.actions.cached[topic].filter(
+      (action) => action.$from !== userId
+    )
+  }
 }
 
 const spawnObject = (world: World, action: ReturnType<typeof NetworkWorldAction.spawnObject>) => {
@@ -136,11 +138,11 @@ const requestAuthorityOverObject = (
 
   // If any custom logic is required in future around which client can request authority over which objects, that can be handled here.
   dispatchAction(
-    world.worldNetwork.store,
     NetworkWorldAction.transferAuthorityOfObject({
       object: action.object,
       newAuthor: action.requester
-    })
+    }),
+    [Engine.instance.currentWorld.worldNetwork.hostId]
   )
 }
 
@@ -173,19 +175,19 @@ const setEquippedObject = (world: World, action: ReturnType<typeof NetworkWorldA
 
   if (action.equip) {
     dispatchAction(
-      Engine.instance.currentWorld.worldNetwork.store,
       NetworkWorldAction.requestAuthorityOverObject({
         object: action.object,
         requester: action.$from
-      })
+      }),
+      [Engine.instance.currentWorld.worldNetwork.hostId]
     )
   } else {
     dispatchAction(
-      Engine.instance.currentWorld.worldNetwork.store,
       NetworkWorldAction.requestAuthorityOverObject({
         object: action.object,
         requester: Engine.instance.currentWorld.worldNetwork.hostId
-      })
+      }),
+      [Engine.instance.currentWorld.worldNetwork.hostId]
     )
   }
 }
@@ -200,8 +202,8 @@ const setUserTyping = (action) => {
  * @author Gheric Speiginer <github.com/speigg>
  * @author Josh Field <github.com/HexaField>
  */
-const createNetworkActionReceptor = (world: World, store: HyperStore<'NETWORK'>) =>
-  addActionReceptor(store, function NetworkActionReceptor(action) {
+const createNetworkActionReceptor = (world: World) =>
+  addActionReceptor(function NetworkActionReceptor(action) {
     matches(action)
       .when(NetworkWorldAction.createClient.matches, ({ $from, name, index: userIndex }) =>
         addClient(world, $from, name, userIndex)

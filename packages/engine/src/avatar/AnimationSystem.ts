@@ -50,7 +50,7 @@ export default async function AnimationSystem(world: World) {
     })
   }
 
-  world.registerNetworkReceptor(animationActionReceptor)
+  addActionReceptor(animationActionReceptor)
 
   await AnimationManager.instance.loadDefaultAnimations()
 

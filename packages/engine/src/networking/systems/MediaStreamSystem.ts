@@ -317,10 +317,10 @@ export const updateNearbyAvatars = () => {
   if (!MediaStreams.instance.nearbyLayerUsers.length) return
   const nearbyUserIds = MediaStreams.instance.nearbyLayerUsers.map((user) => user.id)
 
-  dispatchAction(Engine.instance.store, MediaStreams.actions.updateNearbyLayerUsers())
+  dispatchAction(MediaStreams.actions.updateNearbyLayerUsers())
   MediaStreams.instance.consumers.forEach((consumer) => {
     if (!nearbyUserIds.includes(consumer._appData.peerId)) {
-      dispatchAction(Engine.instance.store, MediaStreams.actions.closeConsumer({ consumer }))
+      dispatchAction(MediaStreams.actions.closeConsumer({ consumer }))
     }
   })
 }

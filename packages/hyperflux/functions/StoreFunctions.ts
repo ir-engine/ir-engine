@@ -3,17 +3,17 @@ import { State } from '@speigg/hookstate'
 import { Action, ActionReceptor } from './ActionFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
-export interface HyperStore<StoreType extends string> {
+export interface HyperStore {
   /**
-   * The type of this store, used for logging and type checking.
+   * The topic to dispatch to when none are supplied
    */
-  type: StringLiteral<StoreType>
+  defaultTopic: string
   /**
    *  If the store mode is `local`, actions are dispatched on the incoming queue.
    *  If the store mode is `host`, actions are dispatched on the incoming queue and then forwarded to the outgoing queue.
    *  If the store mode is `peer`, actions are dispatched on the outgoing queue.
    */
-  getDispatchMode: () => 'local' | 'host' | 'peer'
+  getDispatchMode: (topic: string) => 'local' | 'host' | 'peer'
   /**
    * A function which returns the dispatch id assigned to actions
    * */
@@ -32,58 +32,67 @@ export interface HyperStore<StoreType extends string> {
   state: { [type: string]: State<any> }
   actions: {
     /** Cached actions */
-    cached: Array<Required<Action<StoreType>>>
+    cached: Record<string, Array<Required<Action>>>
     /** Incoming actions */
-    incoming: Array<Required<Action<StoreType>>>
+    incoming: Array<Required<Action>>
     /** All incoming actions that have been proccessed */
-    incomingHistory: Array<Required<Action<StoreType>>>
+    incomingHistory: Array<Required<Action>>
     /** All incoming action UUIDs that have been processed */
     incomingHistoryUUIDs: Set<string>
     /** Outgoing actions */
-    outgoing: Array<Required<Action<StoreType>>>
-    /** All actions that have been sent */
-    outgoingHistory: Array<Required<Action<StoreType>>>
-    /** All incoming action UUIDs that have been processed */
-    outgoingHistoryUUIDs: Set<string>
+    outgoing: Record<
+      string,
+      {
+        /** All actions that are waiting to be sent */
+        queue: Array<Required<Action>>
+        /** All actions that have been sent */
+        history: Array<Required<Action>>
+        /** All incoming action UUIDs that have been processed */
+        historyUUIDs: Set<string>
+      }
+    >
   }
   /** functions that receive actions */
-  receptors: ReadonlyArray<ActionReceptor<StoreType>>
+  receptors: ReadonlyArray<ActionReceptor>
   /** functions that re-run on state changes, compatible w/ React hooks */
   reactors: WeakMap<() => void, any>
 }
 
+export class HyperFlux {
+  static store: HyperStore
+}
+
 function createHyperStore<StoreName extends string>(options: {
-  type: StringLiteral<StoreName>
-  getDispatchMode?: () => 'local' | 'host' | 'peer'
+  getDispatchMode?: (topic: string) => 'local' | 'host' | 'peer'
   getDispatchId: () => string
   getDispatchTime: () => number
   defaultDispatchDelay?: number
 }) {
-  return {
-    type: options.type,
+  const store = {
+    defaultTopic: 'default',
     getDispatchMode: options.getDispatchMode ?? (() => 'local'),
     getDispatchId: options.getDispatchId,
     getDispatchTime: options.getDispatchTime,
     defaultDispatchDelay: options.defaultDispatchDelay ?? 0,
     state: {},
     actions: {
-      cached: [],
+      cached: {},
       incoming: [],
       incomingHistory: [],
       incomingHistoryUUIDs: new Set(),
-      outgoing: [],
-      outgoingHistory: [],
-      outgoingHistoryUUIDs: new Set()
+      outgoing: {}
     },
     receptors: [],
     reactors: new WeakMap()
-  } as HyperStore<StoreName>
+  } as HyperStore
+  HyperFlux.store = store
+  return store
 }
 
 // function destroyStore(store = getStore()) {
-//     for (const reactor of [...store.reactors]) {
-//         StateFunctions.removeStateReactor(reactor)
-//     }
+//   for (const reactor of [...store.reactors]) {
+//     StateFunctions.removeStateReactor(reactor)
+//   }
 // }
 
 export default {

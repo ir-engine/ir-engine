@@ -46,7 +46,7 @@ export const NetworkInstanceProvisioning = () => {
   const currentChannelInstanceConnection = channelConnectionState.instances[MediaStreams.instance.hostId!].ornull
 
   useEffect(() => {
-    addActionReceptor(Engine.instance.store, (action) => {
+    addActionReceptor((action) => {
       matches(action).when(
         MediaStreams.actions.triggerUpdateConsumers.matches,
         MediaStreamService.triggerUpdateConsumers

@@ -33,7 +33,7 @@ createHyperStore({
 import { applyIncomingActions } from '@xrengine/hyperflux'
 export default async function IncomingActionSystem(world) {
   return () => {
-    applyIncomingActions(world.worldNetwork.store)
+    applyIncomingActions(world.store)
   }
 }
 
@@ -44,12 +44,12 @@ The CLIENT store is _non-networked_, and runs on a setInterval.
 In any case, the appropriate store must be provided when dispatching an action:
 
 ```ts
-dispatchAction(world.worldNetwork.store, NetworkWorldAction.spawnAvatar({ parameters }))
+dispatchAction(world.store, NetworkWorldAction.spawnAvatar({ parameters }))
   ```
 
 Likewise when adding or removing receptors:
 ```ts
-addActionReceptor(world.worldNetwork.store, (a) =>
+addActionReceptor((a) =>
     matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
 )
 ```
@@ -61,13 +61,13 @@ const PeerState = defineState('peers', () => {
     return [] // initial state
 })
 
-registerState(world.worldNetwork.store, PeerState)
+registerState(world.store, PeerState)
 
 // get immutable state
-const peerState = getState(world.worldNetwork.store, PeerState)
+const peerState = getState(world.store, PeerState)
 
 // or, get mutable state (if and only if in a receptor function)
-const mutablePeerState = getMutableState(world.worldNetwork.store, PeerState)
+const mutablePeerState = getMutableState(world.store, PeerState)
 ```
 
 All incoming, outoing, and historical actions accessible on the `store.actions` object. 

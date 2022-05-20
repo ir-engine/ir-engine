@@ -71,17 +71,11 @@ export const Debug = () => {
   }
 
   const togglePhysicsDebug = () => {
-    dispatchAction(
-      Engine.instance.store,
-      EngineRendererAction.setPhysicsDebug(!engineRendererState.physicsDebugEnable.value)
-    )
+    dispatchAction(EngineRendererAction.setPhysicsDebug(!engineRendererState.physicsDebugEnable.value))
   }
 
   const toggleAvatarDebug = () => {
-    dispatchAction(
-      Engine.instance.store,
-      EngineRendererAction.setAvatarDebug(!engineRendererState.avatarDebugEnable.value)
-    )
+    dispatchAction(EngineRendererAction.setAvatarDebug(!engineRendererState.avatarDebugEnable.value))
   }
 
   const renderNamedEntities = () => {
@@ -117,27 +111,20 @@ export const Debug = () => {
   const toggleNodeHelpers = () => {
     Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.NodeHelper)
     dispatchAction(
-      Engine.instance.store,
       EngineRendererAction.changeNodeHelperVisibility(!accessEngineRendererState().nodeHelperVisibility.value)
     )
   }
 
   const toggleGridHelper = () => {
     Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.Gizmos)
-    dispatchAction(
-      Engine.instance.store,
-      EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value)
-    )
+    dispatchAction(EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value))
   }
 
   const simpleMaterials = () => {
     if (hasComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent))
       removeComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent)
     else addComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent, {})
-    dispatchAction(
-      Engine.instance.store,
-      EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value)
-    )
+    dispatchAction(EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value))
   }
 
   if (isShowing)
@@ -207,10 +194,6 @@ export const Debug = () => {
             <div className={styles.jsonPanel}>
               <h1>{t('common:debug.engineStore')}</h1>
               <JSONTree data={Engine.instance.store} />
-            </div>
-            <div className={styles.jsonPanel}>
-              <h1>{t('common:debug.worldStore')}</h1>
-              <JSONTree data={Engine.instance.currentWorld.worldNetwork.store} />
             </div>
             <div className={styles.jsonPanel}>
               <h1>{t('common:debug.namedEntities')}</h1>

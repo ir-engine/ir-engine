@@ -11,7 +11,9 @@ export async function validateNetworkObjects(world: World): Promise<void> {
     if (Date.now() - client.lastSeenTs > 30000) {
       console.log('Removing client ', userId, ' due to inactivity')
 
-      dispatchAction(world.worldNetwork.store, NetworkWorldAction.destroyClient({ $from: userId }))
+      dispatchAction(NetworkWorldAction.destroyClient({ $from: userId }), [
+        Engine.instance.currentWorld.worldNetwork.hostId
+      ])
 
       console.log('Disconnected Client:', client.userId)
       if (client?.instanceRecvTransport) {

@@ -61,7 +61,7 @@ const GameServerWarnings = () => {
   }
 
   useEffect(() => {
-    addActionReceptor(Engine.instance.store, function GameServerWarningsReceptor(action) {
+    addActionReceptor(function GameServerWarningsReceptor(action) {
       matches(action)
         .when(NetworkConnectionService.actions.noWorldServersAvailable.matches, ({ instanceId }) => {
           setErroredInstanceId(instanceId)

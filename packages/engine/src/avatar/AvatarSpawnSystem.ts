@@ -57,7 +57,6 @@ export class SpawnPoints {
 export default async function AvatarSpawnSystem(world: World) {
   function avatarSpawnReceptor(action) {
     matches(action).when(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
-      console.log('AvatarSpawnSystem', spawnAction)
       if (isClient) {
         /**
          * When changing location via a portal, the local client entity will be
@@ -87,7 +86,7 @@ export default async function AvatarSpawnSystem(world: World) {
     })
   }
 
-  world.registerNetworkReceptor(avatarSpawnReceptor)
+  addActionReceptor(avatarSpawnReceptor)
 
   const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
   return () => {

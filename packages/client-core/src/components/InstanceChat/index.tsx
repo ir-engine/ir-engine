@@ -94,10 +94,10 @@ const InstanceChat = (props: Props): any => {
     if (!composingMessage || !usersTyping) return
     const delayDebounce = setTimeout(() => {
       dispatchAction(
-        Engine.instance.currentWorld.worldNetwork.store,
         NetworkWorldAction.setUserTyping({
           typing: false
-        })
+        }),
+        [Engine.instance.currentWorld.worldNetwork.hostId]
       )
     }, 3000)
 
@@ -130,7 +130,7 @@ const InstanceChat = (props: Props): any => {
 
   useEffect(() => {
     if (getEngineState().sceneLoaded.value) fetchAudioAlert()
-    matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, () => {
+    matchActionOnce(EngineActions.sceneLoaded.matches, () => {
       fetchAudioAlert()
     })
   }, [])
@@ -175,20 +175,20 @@ const InstanceChat = (props: Props): any => {
     if (message.length > composingMessage.length) {
       if (!usersTyping) {
         dispatchAction(
-          Engine.instance.currentWorld.worldNetwork.store,
           NetworkWorldAction.setUserTyping({
             typing: true
-          })
+          }),
+          [Engine.instance.currentWorld.worldNetwork.hostId]
         )
       }
     }
     if (message.length == 0 || message.length < composingMessage.length) {
       if (usersTyping) {
         dispatchAction(
-          Engine.instance.currentWorld.worldNetwork.store,
           NetworkWorldAction.setUserTyping({
             typing: false
-          })
+          }),
+          [Engine.instance.currentWorld.worldNetwork.hostId]
         )
       }
     }
@@ -200,10 +200,10 @@ const InstanceChat = (props: Props): any => {
     if (composingMessage?.length && user.instanceId.value) {
       if (usersTyping) {
         dispatchAction(
-          Engine.instance.currentWorld.worldNetwork.store,
           NetworkWorldAction.setUserTyping({
             typing: false
-          })
+          }),
+          [Engine.instance.currentWorld.worldNetwork.hostId]
         )
       }
 

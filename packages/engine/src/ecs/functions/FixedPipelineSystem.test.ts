@@ -16,9 +16,9 @@ const MockState = defineState({
 const MockSystemModulePromise = async () => {
   return {
     default: async (world: World) => {
-      registerState(world.worldNetwork.store, MockState)
+      registerState(world.store, MockState)
       return () => {
-        getState(world.worldNetwork.store, MockState).count.set((c) => c + 1)
+        getState(world.store, MockState).count.set((c) => c + 1)
       }
     }
   }
@@ -38,7 +38,7 @@ describe('FixedPipelineSystem', () => {
     await initializeCoreSystems()
 
     const world = Engine.instance.currentWorld
-    const mockState = getState(world.worldNetwork.store, MockState)
+    const mockState = getState(world.store, MockState)
 
     assert.equal(world.elapsedSeconds, 0)
     assert.equal(world.fixedElapsedSeconds, 0)
@@ -68,7 +68,7 @@ describe('FixedPipelineSystem', () => {
     await initializeCoreSystems()
 
     const world = Engine.instance.currentWorld
-    const mockState = getState(world.worldNetwork.store, MockState)
+    const mockState = getState(world.store, MockState)
 
     world.startTime = 0
     assert.equal(world.elapsedSeconds, 0)

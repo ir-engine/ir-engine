@@ -71,6 +71,8 @@ describe('NetworkActionReceptors', () => {
       const userIndex = 1
       NetworkActionReceptor.addClient(world, userId, userName, userIndex)
 
+      const topic = 'network'
+
       const networkId = 2 as NetworkId
 
       const entity = createEntity()
@@ -82,12 +84,12 @@ describe('NetworkActionReceptors', () => {
       })
 
       // process remove actions and execute entity removal
-      world.worldNetwork.store.defaultDispatchDelay = 0
-      NetworkActionReceptor.createNetworkActionReceptor(world, world.worldNetwork.store)
+      Engine.instance.store.defaultDispatchDelay = 0
+      NetworkActionReceptor.createNetworkActionReceptor(world)
       NetworkActionReceptor.removeClient(world, userId, true)
 
-      ActionFunctions.clearOutgoingActions(world.worldNetwork.store)
-      ActionFunctions.applyIncomingActions(world.worldNetwork.store)
+      ActionFunctions.clearOutgoingActions()
+      ActionFunctions.applyIncomingActions(topic)
       world.execute(0)
 
       assert(!world.clients.get(userId))
@@ -274,7 +276,7 @@ describe('NetworkActionReceptors', () => {
       const world = Engine.instance.currentWorld
 
       world.worldNetwork.hostId = hostUserId
-      world.worldNetwork.store.defaultDispatchDelay = 0
+      Engine.instance.store.defaultDispatchDelay = 0
 
       NetworkActionReceptor.addClient(world, hostUserId, 'host', 0)
       NetworkActionReceptor.addClient(world, userId, 'user name', 1)
@@ -314,10 +316,10 @@ describe('NetworkActionReceptors', () => {
         })
       )
 
-      NetworkActionReceptor.createNetworkActionReceptor(world, world.worldNetwork.store)
+      NetworkActionReceptor.createNetworkActionReceptor(world)
 
-      ActionFunctions.clearOutgoingActions(world.worldNetwork.store)
-      ActionFunctions.applyIncomingActions(world.worldNetwork.store)
+      ActionFunctions.clearOutgoingActions(world.store)
+      ActionFunctions.applyIncomingActions(topic)
       world.execute(0)
 
       assert.equal(networkObjectEntities.length, 1)
@@ -381,10 +383,10 @@ describe('NetworkActionReceptors', () => {
         })
       )
 
-      NetworkActionReceptor.createNetworkActionReceptor(world, world.worldNetwork.store)
+      NetworkActionReceptor.createNetworkActionReceptor(world, world.store)
 
-      ActionFunctions.clearOutgoingActions(world.worldNetwork.store)
-      ActionFunctions.applyIncomingActions(world.worldNetwork.store)
+      ActionFunctions.clearOutgoingActions(world.store)
+      ActionFunctions.applyIncomingActions(world.store)
       world.execute(0)
 
       assert.equal(networkObjectEntities.length, 1)
