@@ -63,6 +63,7 @@ export const getGitHubAppRepos = async () => {
 
 export const getAuthenticatedRepo = async (repositoryPath) => {
   try {
+    if (!/.git$/.test(repositoryPath)) repositoryPath = repositoryPath + '.git'
     const repos = await getGitHubAppRepos()
     const filtered = repos.filter((repo) => repo.repositoryPath == repositoryPath)
     if (filtered && filtered[0]) {
