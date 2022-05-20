@@ -15,10 +15,12 @@ export function getSingleAnimationStateActions(state: SingleAnimationState): Ani
 
 export function enterSingleAnimationState(state: SingleAnimationState, prevState: AnimationState) {
   fadeOutAnimationStateActions(prevState)
+  const { action } = state
+  action.reset()
   if (state.loop) {
-    state.action.reset().setLoop(LoopRepeat, Infinity).fadeIn(0.1).play()
+    action.setLoop(LoopRepeat, Infinity).fadeIn(0.1).play()
   } else {
-    state.action.reset().setLoop(LoopOnce, 1).fadeIn(0.1).play()
-    state.action.clampWhenFinished = state.clamp
+    action.setLoop(LoopOnce, 1).fadeIn(0.1).play()
+    action.clampWhenFinished = state.clamp
   }
 }
