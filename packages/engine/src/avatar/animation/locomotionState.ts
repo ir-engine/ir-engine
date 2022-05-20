@@ -85,7 +85,7 @@ export function updateLocomotionState(state: LocomotionState, delta: number) {
   updateNodes(state, updatedNodesX, updatedNodesY)
 }
 
-export function enterLocomotionState(state: LocomotionState, prevState: LocomotionState) {
+export function enterLocomotionState(state: LocomotionState, prevState?: LocomotionState) {
   fadeOutAnimationStateActions(prevState)
   getLocomotionStateActions(state).forEach((x) => {
     x.reset().play().fadeIn(0.1)
