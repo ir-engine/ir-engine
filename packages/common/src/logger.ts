@@ -1,13 +1,14 @@
+const baseComponent = 'client-core'
 /**
  * A logger class (similar to the one provided by Pino.js) to replace
  * console.log() usage on the client side.
  */
-class ClientLogger {
-  component: string
-
-  constructor(componentName: string = 'client-core') {
-    this.component = componentName
-  }
+const multiLogger = {
+  debug: window.console.debug.bind(window.console, `[${baseComponent}]`),
+  info: window.console.log.bind(window.console, `[${baseComponent}]`),
+  warn: window.console.warn.bind(window.console, `[${baseComponent}]`),
+  error: window.console.error.bind(window.console, `[${baseComponent}]`),
+  fatal: window.console.error.bind(window.console, `[${baseComponent}]`),
 
   /**
    * Usage:
@@ -21,42 +22,15 @@ class ClientLogger {
    *
    * @param childConfig
    */
-  child(childConfig: any) {
-    return new ClientLogger(childConfig.component)
-  }
-
-  info(objectOrMessage: any, message?: string) {
-    if (typeof objectOrMessage === 'string') {
-      console.log(`[${this.component}] ${objectOrMessage}`)
-    } else {
-      console.log(`[${this.component}] ${message}`, objectOrMessage)
-    }
-  }
-
-  warn(objectOrMessage: any, message?: string) {
-    if (typeof objectOrMessage === 'string') {
-      console.log(`[${this.component}] WARNING: ${objectOrMessage}`)
-    } else {
-      console.log(`[${this.component}] WARNING: ${message}`, objectOrMessage)
-    }
-  }
-
-  error(objectOrMessage: any, message?: string) {
-    if (typeof objectOrMessage === 'string') {
-      console.error(`[${this.component}] ERROR: ${objectOrMessage}`)
-    } else {
-      console.error(`[${this.component}] ERROR: ${message}`, objectOrMessage)
-    }
-  }
-
-  fatal(objectOrMessage: any, message?: string) {
-    if (typeof objectOrMessage === 'string') {
-      console.error(`[${this.component}] FATAL: ${objectOrMessage}`)
-    } else {
-      console.error(`[${this.component}] FATAL: ${message}`, objectOrMessage)
+  child: (opts: any) => {
+    return {
+      debug: window.console.debug.bind(window.console, `[${opts.component}]`),
+      info: window.console.log.bind(window.console, `[${opts.component}]`),
+      warn: window.console.warn.bind(window.console, `[${opts.component}]`),
+      error: window.console.error.bind(window.console, `[${opts.component}]`),
+      fatal: window.console.error.bind(window.console, `[${opts.component}]`)
     }
   }
 }
 
-const multiLogger = new ClientLogger()
 export default multiLogger
