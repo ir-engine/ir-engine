@@ -1,32 +1,32 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "ipfs-cluster.statefulsetName" . }}
+  name: {{ include "ipfs.fullname" . }}
   labels:
-    app: {{ .Release.Name }}
+    {{- include "ipfs.labels" . | nindent 4 }}
 spec:
+  serviceName: {{ include "ipfs.fullname" . }}
+  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  revisionHistoryLimit: 3
-  updateStrategy:
-    type: RollingUpdate
+  {{- end }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
-  serviceName: {{ include "ipfs-cluster.serviceName" . }}
+      {{- include "ipfs.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      labels:
-        app: {{ .Release.Name }}
+      {{- with .Values.podAnnotations }}
       annotations:
-        checksum/config-bootstrap: {{ include (print $.Template.BasePath "/configmap-bootstrap.yaml") . | sha256sum }}  
-        checksum/config-env: {{ include (print $.Template.BasePath "/configmap-env.yaml") . | sha256sum }}  
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "ipfs.selectorLabels" . | nindent 8 }}
     spec:
       initContainers:
         - name: configure-ipfs
           image: {{ .Values.ipfsImage.repo }}:{{ .Values.ipfsImage.tag }}
           command: ["sh", "/custom/configure-ipfs.sh"]
           volumeMounts:
-            - name: ipfs-storage
+            - name: {{ include "ipfs.storageIpfsName" . }}
               mountPath: /data/ipfs
             - name: configure-script
               mountPath: /custom
@@ -50,7 +50,7 @@ spec:
             - name: ws
               protocol: TCP
               containerPort: 8081
-            - name: gateway
+            - name: http
               protocol: TCP
               containerPort: 8080
           livenessProbe:
@@ -60,7 +60,7 @@ spec:
             timeoutSeconds: 5
             periodSeconds: 15
           volumeMounts:
-            - name: ipfs-storage
+            - name: {{ include "ipfs.storageIpfsName" . }}
               mountPath: /data/ipfs
             - name: configure-script
               mountPath: /custom
@@ -72,37 +72,27 @@ spec:
           command: ["sh", "/custom/entrypoint.sh"]
           envFrom:
             - configMapRef:
-                name: {{ include "ipfs-cluster.configmapEnvName" . }}
+                name: {{ include "ipfs.configmapEnvName" . }}
           env:
             - name: BOOTSTRAP_PEER_ID
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "ipfs-cluster.configmapEnvName" . }}
+                  name: {{ include "ipfs.configmapEnvName" . }}
                   key: bootstrap-peer-id
             - name: BOOTSTRAP_PEER_PRIV_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "ipfs-cluster.secretName" . }}
+                  name: {{ include "ipfs.fullname" . }}
                   key: bootstrap-peer-priv-key
             - name: CLUSTER_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "ipfs-cluster.secretName" . }}
+                  name: {{ include "ipfs.fullname" . }}
                   key: cluster-secret
             - name: CLUSTER_MONITOR_PING_INTERVAL
               value: "3m"
-            - name: CLUSTER_RESTAPI_LIBP2PLISTENMULTIADDRESS
-              value: "/ip4/0.0.0.0/tcp/9096"  
-            - name: CLUSTER_RESTAPI_ID
-              value: {{ .Values.clusterRestApiId }}
-            - name: CLUSTER_RESTAPI_PRIVATEKEY
-              value: {{ .Values.clusterRestApiPrivateKey }}
-            - name: CLUSTER_RESTAPI_BASICAUTHCREDENTIALS
-              value: {{ .Values.clusterRestApiBasicAuth }}
-            - name: CLUSTER_CRDT_TRUSTEDPEERS
-              value: {{ .Values.clusterCRDTtrustedPeers }}        
             - name: SVC_NAME
-              value: {{ include "ipfs-cluster.serviceName" . }}
+              value: {{ include "ipfs.fullname" . }}
           ports:
             - name: api-http
               containerPort: 9094
@@ -120,35 +110,31 @@ spec:
             timeoutSeconds: 5
             periodSeconds: 10
           volumeMounts:
-            - name: cluster-storage
+            - name: {{ include "ipfs.storageClusterName" . }}
               mountPath: /data/ipfs-cluster
             - name: configure-script
               mountPath: /custom
           resources:
-            {}    
+            {}
       volumes:
-        - name: configure-script
-          configMap:
-            name: {{ include "ipfs-cluster.configmapBootstrapName" . }}     
-        {{ if ne .Values.persistence.enabled true }}    
-        - name: cluster-storage
-          emptyDir: {}
-        - name: ipfs-storage
-          emptyDir: {}  
-        {{ else }}
-  volumeClaimTemplates:  
+      - name: configure-script
+        configMap:
+          name: {{ include "ipfs.configmapBootstrapName" . }}
+
+  volumeClaimTemplates:
     - metadata:
-        name: cluster-storage
+        name: {{ include "ipfs.storageClusterName" . }}
       spec:
+        storageClassName: standard
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
-            storage: {{ .Values.persistence.clusterStorage }}
+            storage: 1Gi
     - metadata:
-        name: ipfs-storage
+        name: {{ include "ipfs.storageIpfsName" . }}
       spec:
+        storageClassName: standard
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
-            storage: {{ .Values.persistence.ipfsStorage }}
-        {{ end }}    
+            storage: 5Gi
