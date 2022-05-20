@@ -28,14 +28,14 @@ import InstanceChat from '../InstanceChat'
 import Me from '../Me'
 import MediaIconsBox from '../MediaIconsBox'
 import PartyVideoWindows from '../PartyVideoWindows'
-import styles from './index.module.scss'
 import { useFullscreen } from '../useFullscreen'
+import styles from './index.module.scss'
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme { }
+  interface DefaultTheme extends Theme {}
 }
 
 interface Props {
@@ -146,8 +146,9 @@ const Layout = (props: Props): any => {
             <div style={{ opacity: layoutOpacity }}>
               <button
                 type="button"
-                className={`${showMediaIcons ? styles.btn : styles.smBtn} ${showMediaIcons ? styles.rotate : styles.rotateBack
-                  } ${styles.showIconMedia} `}
+                className={`${showMediaIcons ? styles.btn : styles.smBtn} ${
+                  showMediaIcons ? styles.rotate : styles.rotateBack
+                } ${styles.showIconMedia} `}
                 onClick={handleShowMediaIcons}
               >
                 <MediaIconHider />
@@ -166,8 +167,9 @@ const Layout = (props: Props): any => {
               </header>
               <button
                 type="button"
-                className={`${showBottomIcons ? styles.btn : styles.smBtn} ${showBottomIcons ? styles.rotate : styles.rotateBack
-                  } ${styles.showIcon} `}
+                className={`${showBottomIcons ? styles.btn : styles.smBtn} ${
+                  showBottomIcons ? styles.rotate : styles.rotateBack
+                } ${styles.showIcon} `}
                 onClick={handleShowBottomIcons}
               >
                 <BottomIconHider />
@@ -186,8 +188,9 @@ const Layout = (props: Props): any => {
                   {props.hideFullscreen ? null : fullScreenActive ? (
                     <button
                       type="button"
-                      className={`${styles.btn} ${styles.fullScreen} ${showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
-                        } `}
+                      className={`${styles.btn} ${styles.fullScreen} ${
+                        showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
+                      } `}
                       onClick={() => setFullScreenActive(false)}
                     >
                       <FullscreenExit />
@@ -195,8 +198,9 @@ const Layout = (props: Props): any => {
                   ) : (
                     <button
                       type="button"
-                      className={`${styles.btn} ${styles.fullScreen} ${showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
-                        } `}
+                      className={`${styles.btn} ${styles.fullScreen} ${
+                        showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
+                      } `}
                       onClick={() => setFullScreenActive(true)}
                     >
                       <ZoomOutMap />
@@ -206,8 +210,9 @@ const Layout = (props: Props): any => {
               )}
               <button
                 type="button"
-                className={`${styles.btn} ${styles.respawn} ${showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
-                  } ${!iOS() ? '' : styles.refreshBtn}`}
+                className={`${styles.btn} ${styles.respawn} ${
+                  showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
+                } ${!iOS() ? '' : styles.refreshBtn}`}
                 id="respawn"
                 onClick={respawnCallback}
               >
