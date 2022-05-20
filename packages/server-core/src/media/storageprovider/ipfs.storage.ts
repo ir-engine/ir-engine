@@ -61,8 +61,8 @@ export class IPFSStorage implements StorageProviderInterface {
   getSignedUrl(key: string, _expiresAfter: number, _conditions: any): any {
     return {
       fields: { Key: key },
-      url: `https://${this.cacheDomain}`,
-      local: true,
+      url: `https://ipfs.io/ipfs/${key}`,
+      local: false,
       cacheDomain: this.cacheDomain
     }
   }
@@ -94,20 +94,77 @@ export class IPFSStorage implements StorageProviderInterface {
       Contents: results
     }
   }
-  putObject(object: StorageObjectInterface, params?: PutObjectParams): Promise<any> {
-    throw new Error('Method not implemented.')
+  async putObject(object: StorageObjectInterface, params: PutObjectParams): Promise<boolean> {
+    const filePath = object.Key!
+
+    if (params.isDirectory) {
+      if (!this.doesExist('', filePath)) {
+        await this._client.files.mkdir(filePath, { parents: true })
+        return true
+      }
+      return false
+    }
+
+    await this._client.files.write(filePath, object.Body, { parents: true, create: true })
+
+    return true
   }
-  deleteResources(keys: string[]): Promise<any> {
-    throw new Error('Method not implemented.')
+  async deleteResources(keys: string[]): Promise<any> {
+    const status: boolean[] = []
+
+    for (const key of keys) {
+      try {
+        const exists = await this.doesExist('', key)
+        if (exists) {
+          await this._client.files.rm(key, { recursive: true })
+          status.push(true)
+        } else {
+          status.push(true)
+        }
+      } catch {
+        status.push(false)
+      }
+    }
+
+    return status
   }
-  createInvalidation(invalidationItems: string[]): Promise<any> {
-    throw new Error('Method not implemented.')
+  createInvalidation = async (): Promise<any> => Promise.resolve()
+  async listFolderContent(folderName: string, recursive?: boolean): Promise<FileContentType[]> {
+    const results: FileContentType[] = []
+
+    if (recursive) {
+      await this._parseMFSDirectoryAsType(folderName, results)
+    } else {
+      for await (const file of this._client.files.ls(folderName)) {
+        const res: FileContentType = {
+          key: file.cid.toString(),
+          name: file.name,
+          type: file.type,
+          url: this.getSignedUrl(file.cid.toString(), 3600, null).url,
+          size: this._formatBytes(file.size)
+        }
+
+        results.push(res)
+      }
+    }
+
+    return results
   }
-  listFolderContent(folderName: string, recursive?: boolean): Promise<FileContentType[]> {
-    throw new Error('Method not implemented.')
-  }
-  moveObject(oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean): Promise<any> {
-    throw new Error('Method not implemented.')
+  async moveObject(oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean): Promise<any> {
+    const oldFilePath = path.join(oldPath, oldName)
+    const newFilePath = path.join(newPath, newName)
+
+    try {
+      if (isCopy) {
+        await this._client.files.cp(oldFilePath, newFilePath, { parents: true })
+      } else {
+        await this._client.files.mv(oldFilePath, newFilePath, { parents: true })
+      }
+    } catch (err) {
+      return false
+    }
+
+    return true
   }
 
   async initialize(podName: string): Promise<void> {
@@ -175,6 +232,36 @@ export class IPFSStorage implements StorageProviderInterface {
         await this._parseMFSDirectory(fullPath, results)
       }
     }
+  }
+
+  async _parseMFSDirectoryAsType(currentPath: string, results: FileContentType[]) {
+    for await (const file of this._client.files.ls(currentPath)) {
+      const res: FileContentType = {
+        key: file.cid.toString(),
+        name: path.join(currentPath, file.name),
+        type: file.type,
+        url: file.cid.toString(),
+        size: this._formatBytes(file.size)
+      }
+      results.push(res)
+
+      const fullPath = path.join(currentPath, file.name)
+      if (file.type === 'directory') {
+        await this._parseMFSDirectoryAsType(fullPath, results)
+      }
+    }
+  }
+
+  _formatBytes = (bytes, decimals = 2) => {
+    if (bytes === 0) return '0 Bytes'
+
+    const k = 1024
+    const dm = decimals < 0 ? 0 : decimals
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
   }
 }
 
