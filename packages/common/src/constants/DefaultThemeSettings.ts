@@ -73,7 +73,7 @@ const defaultThemeSettings = {
     dropdownMenuHoverBackground: '#2A2567',
     dropdownMenuSelectedBackground: '#5f5ff1',
     drawerBackground: '#1f1b48',
-    popupBackground: '#3c3c6f',
+    popupBackground: '#2C2C5F',
     tableHeaderBackground: '#1f1b48',
     tableCellBackground: '#3c3c6f',
     tableFooterBackground: '#1f1b48',
