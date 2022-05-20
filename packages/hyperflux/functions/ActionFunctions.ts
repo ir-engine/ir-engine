@@ -328,7 +328,11 @@ const _updateCachedActions = (store: HyperStore<any>, incomingAction: Required<A
   }
 }
 
-const _applyIncomingAction = (store: HyperStore<any>, action: Required<Action<any>>, receptors?) => {
+const _applyIncomingAction = (
+  store: HyperStore<any>,
+  action: Required<Action<any>>,
+  receptors: ReadonlyArray<ActionReceptor<any>>
+) => {
   // ensure actions are idempotent
   if (store.actions.incomingHistoryUUIDs.has(action.$uuid)) {
     const idx = store.actions.incoming.indexOf(action)
@@ -338,7 +342,7 @@ const _applyIncomingAction = (store: HyperStore<any>, action: Required<Action<an
 
   try {
     console.log(`${store.type} ACTION ${action.type}`, action)
-    for (const receptor of [...(receptors ?? store.receptors)]) receptor(action)
+    for (const receptor of [...receptors]) receptor(action)
     store.actions.incomingHistory.push(action)
     if (store.getDispatchMode() === 'host') store.actions.outgoing.push(action)
   } catch (e) {
@@ -363,7 +367,7 @@ const _applyIncomingAction = (store: HyperStore<any>, action: Required<Action<an
  *
  * @param store
  */
-const applyIncomingActions = (store: HyperStore<any>) => {
+const applyIncomingActions = (store: HyperStore<any>, receptors: ReadonlyArray<ActionReceptor<any>> = []) => {
   const states = Object.values(store.state)
   const { incoming } = store.actions
   const now = store.getDispatchTime()
@@ -378,29 +382,7 @@ const applyIncomingActions = (store: HyperStore<any>) => {
           state.batch(() => prev(), action.$uuid + '')
         }
       },
-      () => _applyIncomingAction(store, action)
-    )
-    batchStateUpdatesAndApplyAction()
-  }
-}
-
-// TEMPORARY
-const applyIncomingActionsOnExternalReceptors = (store: HyperStore<any>, receptors = []) => {
-  const states = Object.values(store.state)
-  const { incoming } = store.actions
-  const now = store.getDispatchTime()
-  for (const action of [...incoming]) {
-    if (action.$time > now) {
-      continue
-    }
-    _updateCachedActions(store, action)
-    const batchStateUpdatesAndApplyAction = states.reduce<() => void>(
-      (prev, state) => {
-        return () => {
-          state.batch(() => prev(), action.$uuid + '')
-        }
-      },
-      () => _applyIncomingAction(store, action, receptors)
+      () => _applyIncomingAction(store, action, [...store.receptors, ...receptors])
     )
     batchStateUpdatesAndApplyAction()
   }
@@ -423,7 +405,6 @@ export default {
   defineAction,
   dispatchAction,
   addActionReceptor,
-  applyIncomingActionsOnExternalReceptors, // TEMPORARY
   removeActionReceptor,
   applyIncomingActions,
   clearOutgoingActions

@@ -1,13 +1,11 @@
-import { applyIncomingActionsOnExternalReceptors } from '@xrengine/hyperflux'
+import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import { World } from '../../ecs/classes/World'
 
 export default async function IncomingActionSystem(world: World) {
   return () => {
     world.networks.forEach((network) => {
-      world._store.actions.incoming.push(...network.store.actions.incoming)
-      network.store.actions.incoming = []
+      applyIncomingActions(network.store, world._store.receptors)
     })
-    applyIncomingActionsOnExternalReceptors(world._store)
   }
 }

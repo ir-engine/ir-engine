@@ -19,10 +19,6 @@ export const createHyperStore = dynamicFunctionReference(StoreFunctions, 'create
 export const defineAction = dynamicFunctionReference(ActionFunctions, 'defineAction')
 export const dispatchAction = dynamicFunctionReference(ActionFunctions, 'dispatchAction')
 export const addActionReceptor = dynamicFunctionReference(ActionFunctions, 'addActionReceptor')
-export const applyIncomingActionsOnExternalReceptors = dynamicFunctionReference(
-  ActionFunctions,
-  'applyIncomingActionsOnExternalReceptors'
-)
 export const removeActionReceptor = dynamicFunctionReference(ActionFunctions, 'removeActionReceptor')
 export const applyIncomingActions = dynamicFunctionReference(ActionFunctions, 'applyIncomingActions')
 export const clearOutgoingActions = dynamicFunctionReference(ActionFunctions, 'clearOutgoingActions')
