@@ -9,10 +9,6 @@ import {
 } from 'three'
 
 import { matches, matchesVector3 } from '../../common/functions/MatchesUtils'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
-import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 
 /** State of the avatar animation */
 
@@ -232,12 +228,5 @@ export const processRootAnimation = (clip: AnimationClip, rootBone: Bone | undef
   return {
     velocity: velocity,
     distanceTrack: distTrack
-  }
-}
-
-export const changeAvatarAnimationState = (entity: Entity, newStateName: string) => {
-  if (isEntityLocalClient(entity)) {
-    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-    avatarAnimationComponent.animationGraph.changeState(newStateName)
   }
 }
