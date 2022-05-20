@@ -26,7 +26,7 @@ export function updateAnimationGraph(graph: AnimationGraph, delta: number) {
 
 export function changeState(graph: AnimationGraph, name: string): void {
   const newState = graph.states[name]
-  if ((graph.currentState && graph.currentState.type === name) || !newState) return
+  if ((graph.currentState && graph.currentState.name === name) || !newState) return
   const prevState = graph.currentState
   graph.currentState = newState
   enterAnimationState(graph.currentState, prevState)
