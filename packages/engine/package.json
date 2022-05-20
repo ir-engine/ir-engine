@@ -32,7 +32,7 @@
   },
   "version": "0.5.5",
   "dependencies": {
-    "@etherealjs/web-layer": "^3.2.2",
+    "@etherealjs/web-layer": "^3.5.3",
     "@gltf-transform/core": "2.1.4",
     "@gltf-transform/extensions": "2.1.4",
     "@gltf-transform/functions": "2.1.4",
