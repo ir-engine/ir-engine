@@ -1,18 +1,17 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "ipfs-cluster.configmapBootstrapName" . }}
+  name: {{ include "ipfs.configmapBootstrapName" . }}
+  labels:
+    {{- include "ipfs.labels" . | nindent 4 }}
 data:
   entrypoint.sh: |
     #!/bin/sh
-    #set -e
-    set -x
     user=ipfs
 
     # This is a custom entrypoint for k8s designed to connect to the bootstrap
     # node running in the cluster. It has been set up using a configmap to
     # allow changes on the fly.
-
 
     if [ ! -f /data/ipfs-cluster/service.json ]; then
       ipfs-cluster-service init
@@ -66,6 +65,6 @@ data:
     ipfs config Addresses.Gateway /ip4/0.0.0.0/tcp/8080
     ipfs config --json Swarm.ConnMgr.HighWater 2000
     ipfs config --json Datastore.BloomFilterSize 1048576
-    ipfs config Datastore.StorageMax 100GB
+    ipfs config Datastore.StorageMax 1GB
     ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '["*"]'
     ipfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '["PUT", "POST"]'
