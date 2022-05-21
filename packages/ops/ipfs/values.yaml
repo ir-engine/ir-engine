@@ -1,3 +1,9 @@
+# Default values for ipfs.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
 ipfsImage:
   repo: ipfs/go-ipfs
   tag: master-latest
@@ -6,29 +12,68 @@ ipfsClusterImage:
   repo: ipfs/ipfs-cluster
   tag: latest
 
-# secret guides:
-# https://cluster.ipfs.io/documentation/guides/k8s/
-
 # od  -vN 32 -An -tx1 /dev/urandom | tr -d ' \n'
 clusterSecret: <IPFS_CLUSTER_SECRET>
 
 # go get https://github.com/whyrusleeping/ipfs-key OR https://github.com/libp2p/js-peer-id
 # ipfs-key --type Ed25519 | base64
+# echo "<INSERT_PRIV_KEY_VALUE_HERE>" | base64 -w 0 -
 bootstrapPeerId: <IPFS_BOOTSTRAP_PEER_ID>
 bootstrapPeerPrivateKey: <IPFS_BOOTSTRAP_PEER_PRIVATE_KEY>
 
-clusterRestApiId: <IPFS_CLUSTER_REST_ID>
-clusterRestApiPrivateKey: <IPFS_CLUSTER_REST_PRIVATE_KEY>
-clusterRestApiBasicAuth: "w3f:password"
+nameOverride: ""
+fullnameOverride: ""
 
-clusterCRDTtrustedPeers: "<IPFS_BOOTSTRAP_PEER_ID>,<IPFS_BOOTSTRAP_PEER_ID>"
+podAnnotations: {}
 
-replicaCount: 1
+podSecurityContext: {}
+  # fsGroup: 2000
 
-domain: ipfs.local.io
-httpDomain: ipfs-gateway.local.io
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
 
-persistence:
+ingress:
   enabled: false
-  clusterStorage: 5Gi
-  ipfsStorage: 200Gi
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: ipfs.theoverlay.io
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
