@@ -128,6 +128,10 @@ export class FileBrowserService implements ServiceMethods<any> {
       }
     )
 
+    const pathName = path.join(projectsRootFolder, key)
+    const parentDir = path.dirname(pathName)
+
+    if (!fs.existsSync(parentDir)) fs.mkdirSync(parentDir, { recursive: true })
     fs.writeFileSync(path.join(projectsRootFolder, key), data.body)
 
     return getCachedAsset(key, storageProvider.cacheDomain, params && params.provider == null)
