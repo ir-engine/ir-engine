@@ -409,10 +409,27 @@ const clearOutgoingActions = (store = HyperFlux.store) => {
   }
 }
 
+/**
+ * @todo we can retain addActionReceptor functionality by creating a query and have a single time at which these queries can be run, calling back the receptor
+ *
+ */
+
+const defineActionQuery = (shape) => {
+  return (store = HyperFlux.store) => {
+    const queue = [] as Action[]
+    for (const action of store.actions.incoming)
+      matches(action).when(shape, () => {
+        queue.push(action)
+      })
+    return queue
+  }
+}
+
 export default {
   defineAction,
   dispatchAction,
   addActionReceptor,
+  defineActionQuery,
   addTopic,
   removeTopic,
   removeActionReceptor,
