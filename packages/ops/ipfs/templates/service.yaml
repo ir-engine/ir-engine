@@ -1,62 +1,32 @@
-# Exposed
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "ipfs-cluster.serviceName" . }}
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: {{ .Values.domain }}
+  name: {{ include "ipfs.fullname" . }}
   labels:
-    node: {{ .Release.Name }}
+    {{- include "ipfs.labels" . | nindent 4 }}
 spec:
   type: LoadBalancer
   ports:
-  - name: swarm
-    targetPort: swarm
-    port: 4001
-  - name: swarm-udp
-    targetPort: swarm-udp
-    port: 4002 
-  - name: cluster-swarm
-    targetPort: cluster-swarm
-    port: 9096 #public with secret protection
+    - name: swarm
+      targetPort: swarm
+      port: 4001
+    - name: swarm-udp
+      targetPort: swarm-udp
+      port: 4002
+    - name: ws
+      targetPort: ws
+      port: 8081
+    - name: http
+      targetPort: http
+      port: 8080
+    - name: api-http
+      targetPort: api-http
+      port: 9094
+    - name: proxy-http
+      targetPort: proxy-http
+      port: 9095
+    - name: cluster-swarm
+      targetPort: cluster-swarm
+      port: 9096
   selector:
-    app: {{ .Release.Name }}
----
-# Exposed behind Proxy
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "ipfs-cluster.serviceNameHttp" . }}
-  labels:
-    node: {{ .Release.Name }}
-spec:
-  ports:
-  - name: gateway
-    targetPort: gateway
-    port: 8080  
-  selector:
-    app: {{ .Release.Name }} 
----
-# Not Exposed
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "ipfs-cluster.serviceNameLocal" . }}
-  labels:
-    node: {{ .Release.Name }}
-spec:
-  ports:
-  - name: api
-    targetPort: api
-    port: 5001 
-  - name: proxy-http
-    targetPort: proxy-http
-    port: 9095 
-  - name: ws
-    targetPort: ws
-    port: 8081 
-  - name: api-http
-    targetPort: api-http
-    port: 9094    
-  selector:
-    app: {{ .Release.Name }}      
+    {{- include "ipfs.selectorLabels" . | nindent 4 }}
