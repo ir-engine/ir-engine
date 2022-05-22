@@ -110,8 +110,8 @@ export default async function PositionalAudioSystem(world: World) {
       }
 
       const props = applyMediaAudioSettings(SCENE_COMPONENT_AUDIO_DEFAULT_VALUES)
-      addComponent(entity, AudioComponent, props)
-      updateAudio(entity, props)
+      // addComponent(entity, AudioComponent, props)
+      // updateAudio(entity, props)
     }
 
     for (const entity of avatarAudioQuery.exit()) {
