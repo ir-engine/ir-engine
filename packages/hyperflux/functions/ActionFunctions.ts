@@ -336,6 +336,16 @@ const _updateCachedActions = (incomingAction: Required<Action>, topic: string, s
   }
 }
 
+const applyIncomingActionsToAllQueues = (action: Action, store = HyperFlux.store) => {
+  for (const [shape, queues] of store.actions.queues) {
+    matches(action).when(shape, () => {
+      for (const queue of queues) {
+        queue.push(action)
+      }
+    })
+  }
+}
+
 const _applyIncomingAction = (action: Required<Action>, topic: string, store = HyperFlux.store) => {
   // ensure actions are idempotent
   if (store.actions.incomingHistoryUUIDs.has(action.$uuid)) {
@@ -343,6 +353,8 @@ const _applyIncomingAction = (action: Required<Action>, topic: string, store = H
     store.actions.incoming.splice(idx, 1)
     return
   }
+
+  applyIncomingActionsToAllQueues(action, store)
 
   try {
     console.log(`[Action]: ${action.type}`, action)
@@ -409,19 +421,14 @@ const clearOutgoingActions = (store = HyperFlux.store) => {
   }
 }
 
-/**
- * @todo we can retain addActionReceptor functionality by creating a query and have a single time at which these queries can be run, calling back the receptor
- *
- */
-
-const defineActionQuery = (shape) => {
-  return (store = HyperFlux.store) => {
-    const queue = [] as Action[]
-    for (const action of store.actions.incoming)
-      matches(action).when(shape, () => {
-        queue.push(action)
-      })
-    return queue
+const createActionQueue = (shape: Validator<any, any>, store = HyperFlux.store) => {
+  if (!store.actions.queues.get(shape)) store.actions.queues.set(shape, [])
+  const queue = [] as any[]
+  store.actions.queues.get(shape)!.push(queue)
+  return () => {
+    const result = [...queue]
+    queue.length = 0
+    return result
   }
 }
 
@@ -429,7 +436,7 @@ export default {
   defineAction,
   dispatchAction,
   addActionReceptor,
-  defineActionQuery,
+  createActionQueue,
   addTopic,
   removeTopic,
   removeActionReceptor,

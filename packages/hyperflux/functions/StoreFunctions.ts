@@ -1,4 +1,5 @@
 import { State } from '@speigg/hookstate'
+import { Validator } from 'ts-matches'
 
 import { Action, ActionReceptor } from './ActionFunctions'
 
@@ -31,6 +32,8 @@ export interface HyperStore {
    */
   state: { [type: string]: State<any> }
   actions: {
+    /** */
+    queues: Map<Validator<any, any>, Array<Array<Action>>>
     /** Cached actions */
     cached: Record<string, Array<Required<Action>>>
     /** Incoming actions */
@@ -76,6 +79,7 @@ function createHyperStore<StoreName extends string>(options: {
     defaultDispatchDelay: options.defaultDispatchDelay ?? 0,
     state: {},
     actions: {
+      queues: new Map(),
       cached: {},
       incoming: [],
       incomingHistory: [],
