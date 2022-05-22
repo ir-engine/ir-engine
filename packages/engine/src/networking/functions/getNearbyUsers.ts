@@ -8,7 +8,7 @@ export type NearbyUser = { id: UserId; distance: number }
 
 const compareDistance = (a: NearbyUser, b: NearbyUser) => a.distance - b.distance
 
-export function getNearbyUsers(userId: UserId, maxMediaUsers = 8): Array<NearbyUser> {
+export function getNearbyUsers(userId: UserId): Array<NearbyUser> {
   const userAvatar = Engine.instance.currentWorld.getUserAvatarEntity(userId)
   const otherUsers = [] as UserId[]
   for (const [otherUserId] of Engine.instance.currentWorld.clients) {
@@ -31,7 +31,7 @@ export function getNearbyUsers(userId: UserId, maxMediaUsers = 8): Array<NearbyU
           }
         }
       }
-      return userDistances.sort(compareDistance).slice(0, maxMediaUsers)
+      return userDistances.sort(compareDistance)
     } else return []
   } else return []
 }
