@@ -1,13 +1,13 @@
 import { ArrayCamera } from 'three'
 
-import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+import { addActionReceptor, createActionQueue, dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineActionType, getEngineState } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineActionType } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
@@ -42,6 +42,19 @@ const startXRSession = async () => {
   }
 }
 
+export function setXRModeReceptor(action: typeof NetworkWorldAction.setXRMode.matches._TYPE) {
+  // Current WebXRManager.getCamera() typedef is incorrect
+  // @ts-ignore
+  const cameras = EngineRenderer.instance.xrManager.getCamera() as ArrayCamera
+  cameras.layers.enableAll()
+  cameras.cameras.forEach((camera) => {
+    camera.layers.disableAll()
+    camera.layers.enable(ObjectLayers.Scene)
+    camera.layers.enable(ObjectLayers.Avatar)
+    camera.layers.enable(ObjectLayers.UI)
+  })
+}
+
 /**
  * System for XR session and input handling
  * @author Josh Field <github.com/hexafield>
@@ -64,24 +77,6 @@ export default async function XRSystem(world: World) {
     AssetLoader.loadAsync('/default_assets/controllers/hands/right_controller.glb')
   ])
 
-  function xrNetworkReceptor(action) {
-    switch (action.type) {
-      case NetworkWorldAction.setXRMode.type:
-        // Current WebXRManager.getCamera() typedef is incorrect
-        // @ts-ignore
-        const cameras = EngineRenderer.instance.xrManager.getCamera() as ArrayCamera
-        cameras.layers.enableAll()
-        cameras.cameras.forEach((camera) => {
-          camera.layers.disableAll()
-          camera.layers.enable(ObjectLayers.Scene)
-          camera.layers.enable(ObjectLayers.Avatar)
-          camera.layers.enable(ObjectLayers.UI)
-        })
-    }
-  }
-
-  addActionReceptor(xrNetworkReceptor)
-
   addActionReceptor((a: EngineActionType) => {
     matches(a)
       .when(EngineActions.xrStart.matches, (action) => {
@@ -95,7 +90,11 @@ export default async function XRSystem(world: World) {
       })
   })
 
+  const setXRModeQueue = createActionQueue(NetworkWorldAction.setXRMode.matches)
+
   return () => {
+    for (const action of setXRModeQueue()) setXRModeReceptor(action)
+
     if (EngineRenderer.instance.xrManager?.isPresenting) {
       const session = Engine.instance.xrFrame.session
       for (const source of session.inputSources) {

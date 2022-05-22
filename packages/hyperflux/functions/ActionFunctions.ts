@@ -54,6 +54,8 @@ export type ActionOptions = {
    */
   $time?: number | undefined
 
+  $topic?: string[]
+
   /**
    * Specifies how this action should be cached for newly joining clients.
    */
@@ -247,6 +249,7 @@ const dispatchAction = <A extends Action>(
   action.$time = action.$time ?? store.getDispatchTime() + store.defaultDispatchDelay
   action.$cache = action.$cache ?? false
   action.$uuid = action.$uuid ?? MathUtils.generateUUID()
+  action.$topic = topics
 
   if (process.env.APP_ENV === 'development' && !action.$stack) {
     const trace = { stack: '' }
@@ -298,40 +301,42 @@ function removeActionReceptor(receptor: ActionReceptor, store = HyperFlux.store)
   if (idx >= 0) (store.receptors as Array<ActionReceptor>).splice(idx, 1)
 }
 
-const _updateCachedActions = (incomingAction: Required<Action>, topic: string, store = HyperFlux.store) => {
+const _updateCachedActions = (incomingAction: Required<Action>, store = HyperFlux.store) => {
   if (incomingAction.$cache) {
-    if (!store.actions.cached[topic]) store.actions.cached[topic] = []
-    const cachedActions = store.actions.cached[topic]
-    // see if we must remove any previous actions
-    if (typeof incomingAction.$cache === 'boolean') {
-      if (incomingAction.$cache) cachedActions.push(incomingAction)
-    } else {
-      const remove = incomingAction.$cache.removePrevious
+    for (const topic of incomingAction.$topic) {
+      if (!store.actions.cached[topic]) store.actions.cached[topic] = []
+      const cachedActions = store.actions.cached[topic]
+      // see if we must remove any previous actions
+      if (typeof incomingAction.$cache === 'boolean') {
+        if (incomingAction.$cache) cachedActions.push(incomingAction)
+      } else {
+        const remove = incomingAction.$cache.removePrevious
 
-      if (remove) {
-        for (const a of [...cachedActions]) {
-          if (a.$from === incomingAction.$from && a.type === incomingAction.type) {
-            if (remove === true) {
-              const idx = cachedActions.indexOf(a)
-              cachedActions.splice(idx, 1)
-            } else {
-              let matches = true
-              for (const key of remove) {
-                if (!deepEqual(a[key], incomingAction[key])) {
-                  matches = false
-                  break
-                }
-              }
-              if (matches) {
+        if (remove) {
+          for (const a of [...cachedActions]) {
+            if (a.$from === incomingAction.$from && a.type === incomingAction.type) {
+              if (remove === true) {
                 const idx = cachedActions.indexOf(a)
                 cachedActions.splice(idx, 1)
+              } else {
+                let matches = true
+                for (const key of remove) {
+                  if (!deepEqual(a[key], incomingAction[key])) {
+                    matches = false
+                    break
+                  }
+                }
+                if (matches) {
+                  const idx = cachedActions.indexOf(a)
+                  cachedActions.splice(idx, 1)
+                }
               }
             }
           }
         }
-      }
 
-      if (!incomingAction.$cache.disable) cachedActions.push(incomingAction)
+        if (!incomingAction.$cache.disable) cachedActions.push(incomingAction)
+      }
     }
   }
 }
@@ -346,7 +351,7 @@ const applyIncomingActionsToAllQueues = (action: Action, store = HyperFlux.store
   }
 }
 
-const _applyIncomingAction = (action: Required<Action>, topic: string, store = HyperFlux.store) => {
+const _applyIncomingAction = (action: Required<Action>, store = HyperFlux.store) => {
   // ensure actions are idempotent
   if (store.actions.incomingHistoryUUIDs.has(action.$uuid)) {
     const idx = store.actions.incoming.indexOf(action)
@@ -354,14 +359,18 @@ const _applyIncomingAction = (action: Required<Action>, topic: string, store = H
     return
   }
 
+  _updateCachedActions(action, store)
+
   applyIncomingActionsToAllQueues(action, store)
 
   try {
     console.log(`[Action]: ${action.type}`, action)
     for (const receptor of [...store.receptors]) receptor(action)
     store.actions.incomingHistory.push(action)
-    if (store.getDispatchMode(topic) === 'host') {
-      store.actions.outgoing[topic].queue.push(action)
+    for (const topic of action.$topic) {
+      if (store.getDispatchMode(topic) === 'host') {
+        store.actions.outgoing[topic].queue.push(action)
+      }
     }
   } catch (e) {
     const message = (e as Error).message
@@ -385,24 +394,14 @@ const _applyIncomingAction = (action: Required<Action>, topic: string, store = H
  *
  * @param store
  */
-const applyIncomingActions = (topic: string, store = HyperFlux.store) => {
-  const states = Object.values(store.state)
+const applyIncomingActions = (store = HyperFlux.store) => {
   const { incoming } = store.actions
   const now = store.getDispatchTime()
   for (const action of [...incoming]) {
     if (action.$time > now) {
       continue
     }
-    _updateCachedActions(action, topic, store)
-    const batchStateUpdatesAndApplyAction = states.reduce<() => void>(
-      (prev, state) => {
-        return () => {
-          state.batch(() => prev(), action.$uuid + '')
-        }
-      },
-      () => _applyIncomingAction(action, topic, store)
-    )
-    batchStateUpdatesAndApplyAction()
+    _applyIncomingAction(action, store)
   }
 }
 

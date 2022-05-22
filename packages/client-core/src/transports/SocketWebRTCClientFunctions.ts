@@ -28,7 +28,8 @@ import { SocketWebRTCClientNetwork } from './SocketWebRTCClientNetwork'
 
 export const getChannelTypeIdFromTransport = (network: SocketWebRTCClientNetwork) => {
   const channelConnectionState = accessMediaInstanceConnectionState()
-  const currentChannelInstanceConnection = channelConnectionState.instances[MediaStreams.instance.hostId].ornull
+  const currentChannelInstanceConnection =
+    channelConnectionState.instances[Engine.instance.currentWorld.mediaHostId].ornull
   const isWorldConnection = network.type === NetworkTypes.world
   return {
     channelType: isWorldConnection ? 'instance' : currentChannelInstanceConnection.channelType.value,
@@ -112,6 +113,7 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
     const actions = message as any as Required<Action>[]
     // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
     for (const a of actions) {
+      a.$topic = [network.hostId]
       Engine.instance.store.actions.incoming.push(a)
     }
   }

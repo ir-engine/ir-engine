@@ -100,7 +100,7 @@ export const initializeNode = () => {
 
 const executeWorlds = (elapsedTime) => {
   Engine.instance.frameTime = elapsedTime
-  ActionFunctions.applyIncomingActions('default')
+  ActionFunctions.applyIncomingActions()
   for (const world of Engine.instance.worlds) {
     world.execute(elapsedTime)
   }
@@ -127,8 +127,6 @@ export const initializeMediaServerSystems = async () => {
   const world = Engine.instance.currentWorld
 
   await initSystems(world, coreSystems)
-
-  NetworkActionReceptor.createNetworkActionReceptor(Engine.instance.currentWorld)
 
   Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
   Engine.instance.engineTimer.start()
@@ -206,7 +204,6 @@ export const initializeCoreSystems = async () => {
 
 export const initializeSceneSystems = async () => {
   const world = Engine.instance.currentWorld
-  NetworkActionReceptor.createNetworkActionReceptor(Engine.instance.currentWorld)
 
   const systemsToLoad: SystemModuleType<any>[] = []
 

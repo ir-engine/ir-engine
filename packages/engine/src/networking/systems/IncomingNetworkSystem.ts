@@ -1,5 +1,6 @@
 import { getEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
+import { NetworkActionReceptor } from '../functions/NetworkActionReceptor'
 import { validateNetworkObjects } from '../functions/validateNetworkObjects'
 import { createDataReader } from '../serialization/DataReader'
 
@@ -25,8 +26,11 @@ export default async function IncomingNetworkSystem(world: World) {
 
   const engineState = getEngineState()
 
+  const networkQueues = NetworkActionReceptor.createNetworkActionReceptor(world)
+
   return () => {
     if (!engineState.isEngineInitialized.value) return
+    networkQueues()
     applyIncomingNetworkState(world)
     if (world.worldNetwork?.isHosting && world.fixedTick % VALIDATE_NETWORK_INTERVAL === 0)
       validateNetworkObjects(world)

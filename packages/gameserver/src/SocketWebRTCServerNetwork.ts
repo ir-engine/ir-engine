@@ -51,10 +51,12 @@ export class SocketWebRTCServerNetwork extends Network {
 
     for (const [socketID, socket] of this.app.io.of('/').sockets) {
       const arr: Action[] = []
-      for (const action of [...actions]) {
-        if (outgoing.historyUUIDs[this.hostId].has(action.$uuid)) {
-          const idx = outgoing.queue[this.hostId].indexOf(action)
-          outgoing.queue[this.hostId].splice(idx, 1)
+      for (const a of [...actions]) {
+        const action = { ...a }
+        action.$topic = undefined!
+        if (outgoing[this.hostId].historyUUIDs.has(action.$uuid)) {
+          const idx = outgoing[this.hostId].queue.indexOf(action)
+          outgoing[this.hostId].queue.splice(idx, 1)
         }
         if (!action.$to) continue
         const toUserId = userIdMap[socketID]
