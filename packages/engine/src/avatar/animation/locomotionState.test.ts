@@ -1,8 +1,14 @@
 import assert from 'assert'
 import proxyquire from 'proxyquire'
 import sinon from 'sinon'
+import { Vector2, Vector3 } from 'three'
 
-import { enterLocomotionState, getLocomotionStateActions } from './locomotionState'
+import {
+  enterLocomotionState,
+  getLocomotionStateActions,
+  LocomotionState,
+  updateLocomotionStateBlendValues
+} from './locomotionState'
 
 describe('getLocomotionStateActions', () => {
   it('Will return array of multiple actions', () => {
@@ -57,6 +63,21 @@ describe('enterLocomotionState', () => {
   })
 })
 
-describe('updateLocomotionState', () => {
-  it('Will fade-in all actions', () => {})
+describe('updateLocomotionStateBlendValues', () => {
+  it('Will test blend values', () => {
+    const velocity = new Vector3(1, 1, 1)
+
+    const state = {
+      movementParams: { velocity },
+      blendValue: new Vector2(),
+      frameBlendValue: new Vector2()
+    }
+
+    updateLocomotionStateBlendValues(state as any, 2)
+
+    assert(Math.abs(60 - state.blendValue.x) < 0.001)
+    assert(Math.abs(60 - state.blendValue.y) < 0.001)
+    assert(Math.abs(120 - state.frameBlendValue.x) < 0.001)
+    assert(Math.abs(120 - state.frameBlendValue.y) < 0.001)
+  })
 })

@@ -73,11 +73,14 @@ function updateNodes(state: LocomotionState, xNodes: any[], yNodes: any[]): void
   }
 }
 
-export function updateLocomotionState(state: LocomotionState, delta: number) {
+export function updateLocomotionStateBlendValues(state: LocomotionState, delta: number) {
   const velocity = state.movementParams.velocity
-
   state.blendValue.set(velocity.x, velocity.z).divideScalar(frameSpeed)
   state.frameBlendValue.copy(state.blendValue).multiplyScalar(delta)
+}
+
+export function updateLocomotionState(state: LocomotionState, delta: number) {
+  updateLocomotionStateBlendValues(state, delta)
 
   const updatedNodesX = updateBlendSpace1D(state.xAxisBlendSpace, -state.blendValue.x)
   const updatedNodesY = updateBlendSpace1D(state.yAxisBlendSpace, state.blendValue.y)
