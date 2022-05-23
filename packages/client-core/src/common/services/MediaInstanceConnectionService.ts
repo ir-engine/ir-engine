@@ -38,7 +38,7 @@ store.receptors.push((action: MediaLocationInstanceConnectionActionType): any =>
   state.batch((s) => {
     switch (action.type) {
       case 'MEDIA_INSTANCE_SERVER_PROVISIONED':
-        Engine.instance.currentWorld.mediaHostId = action.instanceId as UserId
+        Engine.instance.currentWorld._mediaHostId = action.instanceId as UserId
         Engine.instance.currentWorld.networks.set(
           action.instanceId,
           new SocketWebRTCClientNetwork(action.instanceId, NetworkTypes.media)

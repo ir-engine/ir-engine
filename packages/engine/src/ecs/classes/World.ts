@@ -63,15 +63,15 @@ export class World {
    *
    */
   get worldNetwork() {
-    return this.networks.get(this.worldHostId)!
+    return this.networks.get(this._worldHostId)!
   }
 
   get mediaNetwork() {
-    return this.networks.get(this.mediaHostId)!
+    return this.networks.get(this._mediaHostId)!
   }
 
-  worldHostId = null! as UserId
-  mediaHostId = null! as UserId
+  _worldHostId = null! as UserId
+  _mediaHostId = null! as UserId
 
   networks = new Map<string, Network>()
 
