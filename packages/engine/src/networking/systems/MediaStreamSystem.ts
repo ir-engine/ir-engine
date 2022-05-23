@@ -312,6 +312,8 @@ export class MediaStreams {
   hostId: string = null!
 }
 
+globalThis.MediaStreams = MediaStreams
+
 export const updateNearbyAvatars = () => {
   MediaStreams.instance.nearbyLayerUsers = getNearbyUsers(Engine.instance.userId)
   if (!MediaStreams.instance.nearbyLayerUsers.length) return

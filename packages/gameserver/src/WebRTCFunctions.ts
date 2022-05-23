@@ -436,7 +436,7 @@ export async function handleWebRtcProduceData(
   const { transportId, sctpStreamParameters, label, protocol, appData } = data
   logger.info(`Data channel label: "${label}", userId "${userId}".`)
   logger.info('Data producer params: %o', data)
-  const transport: any = network.mediasoupTransports[transportId]
+  const transport = network.mediasoupTransports[transportId]
   const options: DataProducerOptions = {
     label,
     protocol,
@@ -453,12 +453,12 @@ export async function handleWebRtcProduceData(
         world.clients.get(userId)!.dataProducers!.set(label, dataProducer)
 
         const currentRouter = network.routers.instance.find(
-          (router) => router.id === (transport as any).internal.routerId
+          (router) => router.id === (transport as any)?.internal.routerId
         )!
 
         await Promise.all(
           network.routers.instance.map(async (router) => {
-            if (router.id !== (transport as any).internal.routerId) {
+            if (router.id !== (transport as any)?.internal.routerId) {
               return currentRouter.pipeToRouter({
                 dataProducerId: dataProducer.id,
                 router: router
@@ -554,19 +554,24 @@ export async function handleWebRtcSendTrack(network: SocketWebRTCServerNetwork, 
   }
 
   try {
+    const newProducerAppData = { ...appData, peerId: userId, transportId }
+    const existingProducer = await MediaStreams.instance?.producers.find(
+      (producer) => producer.appData === newProducerAppData
+    )
+    if (existingProducer) await closeProducer(existingProducer)
     const producer = await transport.produce({
       kind,
       rtpParameters,
       paused,
-      appData: { ...appData, peerId: userId, transportId }
+      appData: newProducerAppData
     })
 
     const routers = network.routers[`${appData.channelType}:${appData.channelId}`]
-    const currentRouter = routers.find((router) => router.id === (transport as any).internal.routerId)!
+    const currentRouter = routers.find((router) => router.id === (transport as any)?.internal.routerId)!
 
     await Promise.all(
       routers.map(async (router: Router) => {
-        if ((router as any).id !== (transport as any).internal.routerId) {
+        if ((router as any).id !== (transport as any)?.internal.routerId) {
           return currentRouter.pipeToRouter({
             producerId: producer.id,
             router: router
@@ -642,7 +647,7 @@ export async function handleWebRtcReceiveTrack(
   )!
   // @todo: the 'any' cast here is because WebRtcTransport.internal is protected - we should see if this is the proper accessor
   const router = network.routers[`${channelType}:${channelId}`].find(
-    (router) => router.id === (transport as any).internal.routerId
+    (router) => router.id === (transport as any)?.internal.routerId
   )
   if (!producer || !router || !router.canConsume({ producerId: producer.id, rtpCapabilities })) {
     const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer}`
