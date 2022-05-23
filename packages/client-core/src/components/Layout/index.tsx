@@ -7,6 +7,10 @@ import {
   ClientSettingService,
   useClientSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
+import {
+  CoilSettingService,
+  useCoilSettingState
+} from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
 import UserToast from '@xrengine/client-core/src/common/components/Toast/UserToast'
@@ -53,11 +57,14 @@ const Layout = (props: Props): any => {
   const { pageTitle, children } = props
   const authUser = useAuthState().authUser
   const clientSettingState = useClientSettingState()
+  const coilSettingState = useCoilSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
+  const [coilSetting] = coilSettingState?.coil?.value || []
   const [fullScreenActive, setFullScreenActive] = useFullscreen()
   const [ctitle, setTitle] = useState<string>(clientSetting?.title || '')
   const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
   const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
+  const [paymentPointer, setPaymentPointer] = useState(coilSetting?.paymentPointer)
   const [description, setDescription] = useState(clientSetting?.siteDescription)
   const [showMediaIcons, setShowMediaIcons] = useState(true)
   const [showBottomIcons, setShowBottomIcons] = useState(true)
@@ -68,6 +75,7 @@ const Layout = (props: Props): any => {
 
   useEffect(() => {
     !clientSetting && ClientSettingService.fetchClientSettings()
+    !coilSetting && CoilSettingService.fetchCoil()
     const topButtonsState = localStorage.getItem('isTopButtonsShown')
     const bottomButtonsState = localStorage.getItem('isBottomButtonsShown')
     if (!topButtonsState) {
@@ -89,7 +97,10 @@ const Layout = (props: Props): any => {
       setFavicon32(clientSetting?.favicon32px)
       setDescription(clientSetting?.siteDescription)
     }
-  }, [clientSettingState?.updateNeeded?.value])
+    if (coilSetting) {
+      setPaymentPointer(coilSetting?.paymentPointer)
+    }
+  }, [clientSettingState?.updateNeeded?.value, coilSettingState?.updateNeeded?.value])
 
   const iOS = (): boolean => {
     return (
@@ -125,7 +136,7 @@ const Layout = (props: Props): any => {
   const layoutOpacity = useOpacity ? 1 - loadingSystemState.opacity.value : 1
   const MediaIconHider = showMediaIcons ? KeyboardDoubleArrowUpIcon : KeyboardDoubleArrowDownIcon
   const BottomIconHider = showBottomIcons ? KeyboardDoubleArrowDownIcon : KeyboardDoubleArrowUpIcon
-  //info about current mode to conditional render menus
+  // info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
   return (
     <div style={{ pointerEvents: 'auto' }}>
@@ -137,6 +148,7 @@ const Layout = (props: Props): any => {
                 {ctitle} | {pageTitle}
               </title>
               {description && <meta name="description" content={description}></meta>}
+              {paymentPointer && <meta name="monetization" content={paymentPointer} />}
               {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
               {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
             </Helmet>
