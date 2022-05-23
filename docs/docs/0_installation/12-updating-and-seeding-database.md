@@ -97,7 +97,7 @@ If the column does exist, then the current model for that column is applied to t
 
 Seeding happens if either `FORCE_DB_REFRESH=true` or `PREPARE_DATABASE=true`. Each seed template
 is iterated over, and the database is checked to see if that template value exists. Seed templates
-with IDs are checked via a singular .get(<id>), seed templates without an ID are checked via a
-.find({ query: <template> }) (settings tables just check if there is a row present, and assumes
+with IDs are checked via a singular `.get(<id>)`, seed templates without an ID are checked via a
+`.find({ query: <template> })` (settings tables just check if there is a row present, and assumes
 that its presence is indicative of being seeded already). If a seed template is not found, 
 then it is inserted into the database.

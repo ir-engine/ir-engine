@@ -32,20 +32,18 @@ const CreateModal = (props: Props) => {
         fullWidth={true}
         maxWidth="sm"
       >
-        <div style={{ padding: '20px' }}>
-          <Typography variant="h5" gutterBottom={true} className={styles.mt30px}>
-            {action} {t('admin:components.common.new')} {text}
-          </Typography>
-          {children}
-          <DialogActions>
-            <Button onClick={handleClose} className={styles.cancelButton}>
-              {t('admin:components.common.cancel')}
-            </Button>
-            <Button className={styles.submitButton} autoFocus onClick={submit}>
-              {action}
-            </Button>
-          </DialogActions>
-        </div>
+        <Typography variant="h5" gutterBottom={true} className={styles.mt30px}>
+          {action} {t('admin:components.common.new')} {text}
+        </Typography>
+        {children}
+        <DialogActions>
+          <Button onClick={handleClose} className={styles.cancelButton}>
+            {t('admin:components.common.cancel')}
+          </Button>
+          <Button className={styles.submitButton} autoFocus onClick={submit}>
+            {action}
+          </Button>
+        </DialogActions>
       </Dialog>
     </React.Fragment>
   )
