@@ -162,14 +162,12 @@ const GameServerWarnings = () => {
 
       case WarningModalTypes.CHANNEL_DISCONNECTED: {
         if (!Engine.instance.userId) return
-        const transport = Engine.instance.currentWorld.networks.get(
-          MediaStreams.instance.hostId
-        ) as SocketWebRTCClientNetwork
+        const transport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
         if (transport.left || transport.reconnecting) return
 
         const channels = chatState.channels.channels.value
         const instanceChannel = Object.values(channels).find(
-          (channel) => channel.instanceId === MediaStreams.instance.hostId
+          (channel) => channel.instanceId === Engine.instance.currentWorld.mediaNetwork?.hostId
         )
         setModalValues({
           open: true,

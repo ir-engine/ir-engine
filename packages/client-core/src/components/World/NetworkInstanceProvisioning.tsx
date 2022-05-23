@@ -43,7 +43,8 @@ export const NetworkInstanceProvisioning = () => {
   const currentLocationInstanceConnection = instanceConnectionState.instances[worldNetworkHostId!].ornull
 
   const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceConnection = channelConnectionState.instances[MediaStreams.instance.hostId!].ornull
+  const currentChannelInstanceConnection =
+    channelConnectionState.instances[Engine.instance.currentWorld.mediaNetwork?.hostId].ornull
 
   useEffect(() => {
     addActionReceptor((action) => {
@@ -120,7 +121,7 @@ export const NetworkInstanceProvisioning = () => {
     }
   }, [engineState.connectedWorld, engineState.sceneLoaded])
 
-  // channel server provisioning (if needed)
+  // media server provisioning
   useHookEffect(() => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
@@ -137,14 +138,14 @@ export const NetworkInstanceProvisioning = () => {
   // if a media connection has been provisioned and is ready, connect to it
   useHookEffect(() => {
     if (
-      MediaStreams.instance.hostId &&
+      Engine.instance.currentWorld.mediaNetwork?.hostId &&
       currentChannelInstanceConnection.provisioned.value === true &&
       currentChannelInstanceConnection.updateNeeded.value === true &&
       currentChannelInstanceConnection.connecting.value === false &&
       currentChannelInstanceConnection.connected.value === false
     ) {
       MediaInstanceConnectionService.connectToServer(
-        MediaStreams.instance.hostId!,
+        Engine.instance.currentWorld.mediaNetwork.hostId,
         currentChannelInstanceConnection.channelId.value
       )
       MediaStreamService.updateCamVideoState()

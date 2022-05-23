@@ -308,8 +308,6 @@ export class MediaStreams {
     }
     return false
   }
-
-  hostId: string = null!
 }
 
 globalThis.MediaStreams = MediaStreams
@@ -335,7 +333,7 @@ export default async function MediaStreamSystem() {
   let executeInProgress = false
 
   return () => {
-    const network = Engine.instance.currentWorld.networks.get(MediaStreams.instance.hostId)
+    const network = Engine.instance.currentWorld.mediaNetwork
     if (!network) return
 
     if (network?.mediasoupOperationQueue.getBufferLength() > 0 && !executeInProgress) {

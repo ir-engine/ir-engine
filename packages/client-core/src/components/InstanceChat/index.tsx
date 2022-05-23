@@ -20,7 +20,6 @@ import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
@@ -138,16 +137,16 @@ const InstanceChat = (props: Props): any => {
   useEffect(() => {
     if (
       user?.instanceId?.value &&
-      MediaStreams.instance.hostId &&
-      user?.instanceId?.value !== MediaStreams.instance.hostId
+      Engine.instance.currentWorld.worldNetwork?.hostId &&
+      user?.instanceId?.value !== Engine.instance.currentWorld.worldNetwork.hostId
     ) {
       console.error(
         `[ERROR]: somehow user.instanceId and instanceConnectionState.instance.id, are different when they should be the same`
       )
-      console.error(user?.instanceId?.value, MediaStreams.instance.hostId)
+      console.error(user?.instanceId?.value, Engine.instance.currentWorld.worldNetwork.hostId)
     }
     if (
-      MediaStreams.instance.hostId &&
+      Engine.instance.currentWorld.worldNetwork?.hostId &&
       currentInstanceConnection.connected.value &&
       !chatState.instanceChannelFetching.value
     ) {

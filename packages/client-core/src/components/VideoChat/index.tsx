@@ -18,9 +18,7 @@ const VideoChat = (props: Props) => {
 
   const gsProvision = async () => {
     if (mediaStreamSystem.videoStream == null) {
-      const mediaTransport = Engine.instance.currentWorld.networks.get(
-        MediaStreams.instance.hostId
-      ) as SocketWebRTCClientNetwork
+      const mediaTransport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
       await configureMediaTransports(mediaTransport, ['video', 'audio'])
       console.log('Send camera streams called from gsProvision')
     } else {

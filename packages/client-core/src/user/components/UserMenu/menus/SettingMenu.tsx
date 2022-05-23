@@ -57,10 +57,7 @@ const SettingMenu = (): JSX.Element => {
   const [open, setOpen] = useState(false)
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInvertRotationAndMoveSticksState((prev) => !prev)
-    dispatchAction(
-      Engine.instance.store,
-      AvatarInputSettingsAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks)
-    )
+    dispatchAction(AvatarInputSettingsAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks))
   }
 
   useLayoutEffect(() => {

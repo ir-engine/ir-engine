@@ -2,6 +2,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
@@ -37,7 +38,7 @@ store.receptors.push((action: MediaLocationInstanceConnectionActionType): any =>
   state.batch((s) => {
     switch (action.type) {
       case 'MEDIA_INSTANCE_SERVER_PROVISIONED':
-        MediaStreams.instance.hostId = action.instanceId
+        Engine.instance.currentWorld.mediaHostId = action.instanceId as UserId
         Engine.instance.currentWorld.networks.set(
           action.instanceId,
           new SocketWebRTCClientNetwork(action.instanceId, NetworkTypes.media)
@@ -98,10 +99,7 @@ export const MediaInstanceConnectionService = {
         )
       )
     } else {
-      dispatchAction(
-        Engine.instance.store,
-        NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: channelId! })
-      )
+      dispatchAction(NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: channelId! }))
     }
   },
   connectToServer: async (instanceId: string, channelId: string) => {
@@ -111,9 +109,7 @@ export const MediaInstanceConnectionService = {
     const user = authState.user.value
     const { ipAddress, port } = accessMediaInstanceConnectionState().instances.value[instanceId]
 
-    const transport = Engine.instance.currentWorld.networks.get(
-      MediaStreams.instance.hostId
-    ) as SocketWebRTCClientNetwork
+    const transport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     console.log('Connect To Media Server', !!transport.socket, transport)
     if (transport.socket) {
       await endVideoChat(transport, { endConsumers: true })

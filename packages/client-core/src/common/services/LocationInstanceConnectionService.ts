@@ -101,10 +101,7 @@ export const LocationInstanceConnectionService = {
     if (provisionResult.ipAddress && provisionResult.port) {
       dispatch(LocationInstanceConnectionAction.serverProvisioned(provisionResult, locationId!, sceneId!))
     } else {
-      dispatchAction(
-        Engine.instance.store,
-        NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: instanceId! })
-      )
+      dispatchAction(NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: instanceId! }))
     }
   },
   connectToServer: async (instanceId: string) => {
