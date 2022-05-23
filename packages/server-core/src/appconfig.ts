@@ -296,6 +296,12 @@ const chargebee = {
   apiKey: process.env.CHARGEBEE_API_KEY!
 }
 
+const coil = {
+  paymentPointer: process.env.COIL_PAYMENT_POINTER,
+  clientId: process.env.COIL_API_CLIENT_ID,
+  clientSecret: process.env.COIL_API_CLIENT_SECRET
+}
+
 const redis = {
   enabled: process.env.REDIS_ENABLED === 'true',
   address: process.env.REDIS_ADDRESS!,
@@ -325,6 +331,7 @@ const config = {
   aws,
   chargebee,
   client,
+  coil,
   db,
   email,
   gameserver,
