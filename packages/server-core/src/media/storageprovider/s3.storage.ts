@@ -283,6 +283,7 @@ export class S3Provider implements StorageProviderInterface {
       ...listResponse.Contents.map(async (file) =>
         this.provider
           .copyObject({
+            ACL: 'public-read',
             Bucket: this.bucket,
             CopySource: `/${this.bucket}/${file.Key}`,
             Key: path.join(newFilePath, file.Key.replace(oldFilePath, ''))
