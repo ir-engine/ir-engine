@@ -21,23 +21,27 @@ export class IPFSStorage implements StorageProviderInterface {
 
   _client: IPFSHTTPClient
   _blobStore: IPFSBlobStore
+  _pathPrefix: string = '/'
 
   doesExist(fileName: string, directoryPath: string): Promise<boolean> {
+    const filePath = path.join(this._pathPrefix, directoryPath, fileName)
     return this._client.files
-      .stat(path.join(directoryPath, fileName))
+      .stat(filePath)
       .then(() => true)
       .catch(() => false)
   }
   isDirectory(fileName: string, directoryPath: string): Promise<boolean> {
+    const filePath = path.join(this._pathPrefix, directoryPath, fileName)
     return this._client.files
-      .stat(path.join(directoryPath, fileName))
+      .stat(filePath)
       .then((res) => res.type === 'directory')
       .catch(() => false)
   }
   async getObject(key: string): Promise<StorageObjectInterface> {
+    const filePath = path.join(this._pathPrefix, key)
     const chunks: Uint8Array[] = []
 
-    for await (const chunk of this._client.files.read(key)) {
+    for await (const chunk of this._client.files.read(filePath)) {
       chunks.push(chunk)
     }
 
@@ -74,7 +78,9 @@ export class IPFSStorage implements StorageProviderInterface {
     recursive?: boolean,
     continuationToken?: string
   ): Promise<StorageListObjectInterface> {
-    const exists = await this.doesExist(prefix, '')
+    const filePath = path.join(this._pathPrefix, prefix)
+
+    const exists = await this.doesExist(filePath, '')
     if (!exists) return { Contents: [] }
 
     const results: {
@@ -82,10 +88,10 @@ export class IPFSStorage implements StorageProviderInterface {
     }[] = []
 
     if (recursive) {
-      await this._parseMFSDirectory(prefix, results)
+      await this._parseMFSDirectory(filePath, results)
     } else {
-      for await (const file of this._client.files.ls(prefix)) {
-        const fullPath = path.join(prefix, file.name)
+      for await (const file of this._client.files.ls(filePath)) {
+        const fullPath = path.join(filePath, file.name)
         results.push({ Key: fullPath })
       }
     }
@@ -95,7 +101,7 @@ export class IPFSStorage implements StorageProviderInterface {
     }
   }
   async putObject(object: StorageObjectInterface, params: PutObjectParams): Promise<boolean> {
-    const filePath = object.Key!
+    const filePath = path.join(this._pathPrefix, object.Key!)
 
     if (params.isDirectory) {
       if (!this.doesExist('', filePath)) {
@@ -116,7 +122,8 @@ export class IPFSStorage implements StorageProviderInterface {
       try {
         const exists = await this.doesExist('', key)
         if (exists) {
-          await this._client.files.rm(key, { recursive: true })
+          const filePath = path.join(this._pathPrefix, key)
+          await this._client.files.rm(filePath, { recursive: true })
           status.push(true)
         } else {
           status.push(true)
@@ -130,12 +137,14 @@ export class IPFSStorage implements StorageProviderInterface {
   }
   createInvalidation = async (): Promise<any> => Promise.resolve()
   async listFolderContent(folderName: string, recursive?: boolean): Promise<FileContentType[]> {
+    const filePath = path.join(this._pathPrefix, folderName)
+
     const results: FileContentType[] = []
 
     if (recursive) {
-      await this._parseMFSDirectoryAsType(folderName, results)
+      await this._parseMFSDirectoryAsType(filePath, results)
     } else {
-      for await (const file of this._client.files.ls(folderName)) {
+      for await (const file of this._client.files.ls(filePath)) {
         const res: FileContentType = {
           key: file.cid.toString(),
           name: file.name,
@@ -151,8 +160,8 @@ export class IPFSStorage implements StorageProviderInterface {
     return results
   }
   async moveObject(oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean): Promise<any> {
-    const oldFilePath = path.join(oldPath, oldName)
-    const newFilePath = path.join(newPath, newName)
+    const oldFilePath = path.join(this._pathPrefix, oldPath, oldName)
+    const newFilePath = path.join(this._pathPrefix, newPath, newName)
 
     try {
       if (isCopy) {
@@ -175,7 +184,7 @@ export class IPFSStorage implements StorageProviderInterface {
       const forward = new k8s.PortForward(kc)
 
       this.cacheDomain = await this._forwardIPFS(podName, forward)
-      this._client = create({ url: this.cacheDomain })
+      this._client = create({ url: `http://${this.cacheDomain}` })
       this._blobStore = new IPFSBlobStore(this._client)
     }
   }
@@ -212,7 +221,7 @@ export class IPFSStorage implements StorageProviderInterface {
       })
       server.listen(0, '127.0.0.1', () => {
         const { port } = server.address() as net.AddressInfo
-        const address = `http://127.0.0.1:${port}`
+        const address = `127.0.0.1:${port}`
         console.log('Listening IPFS on: ', address)
         resolve(address)
       })
