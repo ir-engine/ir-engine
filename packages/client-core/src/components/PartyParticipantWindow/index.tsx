@@ -171,9 +171,9 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
   useEffect(() => {
     // TODO: uncomment these two lines to silence main audio in favor of spatial audio
-    if (SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.usePositionalAudio && audioRef.current != null)
-      audioRef.current.volume = 0
-    else audioRef.current!.volume = volume / 100
+    // if (SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.usePositionalAudio && audioRef.current != null)
+    //   audioRef.current.volume = 0
+    // else audioRef.current!.volume = volume / 100
     // (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) &&
     // Engine.instance.spatialAudio
   }, [selfUser])
