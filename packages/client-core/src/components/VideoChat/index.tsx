@@ -7,9 +7,9 @@ import {
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import multiLogger from '@xrengine/common/src/logger'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import multiLogger from '@xrengine/common/src/logger'
 
 import { CallEnd, VideoCall } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'

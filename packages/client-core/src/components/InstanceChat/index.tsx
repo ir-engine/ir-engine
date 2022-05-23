@@ -7,6 +7,7 @@ import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { notificationAlertURL } from '@xrengine/common/src/constants/URL'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
@@ -25,7 +26,6 @@ import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioF
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
-import multiLogger from '@xrengine/common/src/logger'
 
 import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
