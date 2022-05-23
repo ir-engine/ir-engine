@@ -2,7 +2,7 @@ import * as k8s from '@kubernetes/client-node'
 import { create, IPFSHTTPClient } from 'ipfs-http-client'
 import * as net from 'net'
 import path from 'path'
-import stream, { Readable } from 'stream'
+import * as stream from 'stream'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
@@ -325,7 +325,7 @@ class IPFSBlobStore implements BlobStore {
     const chunksArray = uint8ArrayConcat(chunks)
 
     return {
-      Body: Readable.from(chunksArray),
+      Body: stream.Readable.from(chunksArray),
       ContentType: 'application/octet-stream'
     }
   }
