@@ -174,22 +174,28 @@ export const readVelocity = (v: ViewCursor, entity: Entity | undefined) => {
 }
 
 export const readXRContainerPosition = readVector3(XRInputSourceComponent.container.position)
-export const readXRContainerRotation = readVector4(XRInputSourceComponent.container.quaternion)
+export const readXRContainerRotation = readCompressedRotation(XRInputSourceComponent.container.quaternion)
 
 export const readXRHeadPosition = readVector3(XRInputSourceComponent.head.position)
-export const readXRHeadRotation = readVector4(XRInputSourceComponent.head.quaternion)
+export const readXRHeadRotation = readCompressedRotation(XRInputSourceComponent.head.quaternion)
 
 export const readXRControllerLeftPosition = readVector3(XRInputSourceComponent.controllerLeftParent.position)
-export const readXRControllerLeftRotation = readVector4(XRInputSourceComponent.controllerLeftParent.quaternion)
+export const readXRControllerLeftRotation = readCompressedRotation(
+  XRInputSourceComponent.controllerLeftParent.quaternion
+)
 
 export const readXRControllerGripLeftPosition = readVector3(XRInputSourceComponent.controllerGripLeftParent.position)
-export const readXRControllerGripLeftRotation = readVector4(XRInputSourceComponent.controllerGripLeftParent.quaternion)
+export const readXRControllerGripLeftRotation = readCompressedRotation(
+  XRInputSourceComponent.controllerGripLeftParent.quaternion
+)
 
 export const readXRControllerRightPosition = readVector3(XRInputSourceComponent.controllerRightParent.position)
-export const readXRControllerRightRotation = readVector4(XRInputSourceComponent.controllerRightParent.quaternion)
+export const readXRControllerRightRotation = readCompressedRotation(
+  XRInputSourceComponent.controllerRightParent.quaternion
+)
 
 export const readXRControllerGripRightPosition = readVector3(XRInputSourceComponent.controllerGripRightParent.position)
-export const readXRControllerGripRightRotation = readVector4(
+export const readXRControllerGripRightRotation = readCompressedRotation(
   XRInputSourceComponent.controllerGripRightParent.quaternion
 )
 
@@ -225,7 +231,7 @@ export const readXRHandBoneJoints = (v: ViewCursor, entity: Entity | undefined, 
       readVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity)
     }
     if (checkBitflag(changeMask, 1 << b++)) {
-      readVector4(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity)
+      readCompressedRotation(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity)
     }
   })
 }

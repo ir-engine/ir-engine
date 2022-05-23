@@ -178,7 +178,7 @@ export const writeComporessedRotation = (vector4: Vector4SoA) => (v: ViewCursor,
 export const writePosition = writeVector3(TransformComponent.position)
 export const writeLinearVelocity = writeVector3(VelocityComponent.linear)
 export const writeAngularVelocity = writeVector3(VelocityComponent.angular)
-export const writeRotation = writeComporessedRotation(TransformComponent.rotation) //writeVector4(TransformComponent.rotation)
+export const writeRotation = writeComporessedRotation(TransformComponent.rotation)
 
 export const writeTransform = (v: ViewCursor, entity: Entity) => {
   if (!hasComponent(entity, TransformComponent)) return
@@ -189,7 +189,6 @@ export const writeTransform = (v: ViewCursor, entity: Entity) => {
   let b = 0
 
   changeMask |= writePosition(v, entity) ? 1 << b++ : b++ && 0
-  // todo: compress quaternion with custom writeQuaternion function
   changeMask |= writeRotation(v, entity) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
@@ -210,26 +209,30 @@ export const writeVelocity = (v: ViewCursor, entity: Entity) => {
 }
 
 export const writeXRContainerPosition = writeVector3(XRInputSourceComponent.container.position)
-export const writeXRContainerRotation = writeVector4(XRInputSourceComponent.container.quaternion)
+export const writeXRContainerRotation = writeComporessedRotation(XRInputSourceComponent.container.quaternion)
 
 export const writeXRHeadPosition = writeVector3(XRInputSourceComponent.head.position)
-export const writeXRHeadRotation = writeVector4(XRInputSourceComponent.head.quaternion)
+export const writeXRHeadRotation = writeComporessedRotation(XRInputSourceComponent.head.quaternion)
 
 export const writeXRControllerLeftPosition = writeVector3(XRInputSourceComponent.controllerLeftParent.position)
-export const writeXRControllerLeftRotation = writeVector4(XRInputSourceComponent.controllerLeftParent.quaternion)
+export const writeXRControllerLeftRotation = writeComporessedRotation(
+  XRInputSourceComponent.controllerLeftParent.quaternion
+)
 
 export const writeXRControllerGripLeftPosition = writeVector3(XRInputSourceComponent.controllerGripLeftParent.position)
-export const writeXRControllerGripLeftRotation = writeVector4(
+export const writeXRControllerGripLeftRotation = writeComporessedRotation(
   XRInputSourceComponent.controllerGripLeftParent.quaternion
 )
 
 export const writeXRControllerRightPosition = writeVector3(XRInputSourceComponent.controllerRightParent.position)
-export const writeXRControllerRightRotation = writeVector4(XRInputSourceComponent.controllerRightParent.quaternion)
+export const writeXRControllerRightRotation = writeComporessedRotation(
+  XRInputSourceComponent.controllerRightParent.quaternion
+)
 
 export const writeXRControllerGripRightPosition = writeVector3(
   XRInputSourceComponent.controllerGripRightParent.position
 )
-export const writeXRControllerGripRightRotation = writeVector4(
+export const writeXRControllerGripRightRotation = writeComporessedRotation(
   XRInputSourceComponent.controllerGripRightParent.quaternion
 )
 
@@ -270,7 +273,9 @@ export const writeXRHandBoneJoints = (v: ViewCursor, entity: Entity, handedness,
 
   bone.forEach((jointName) => {
     changeMask |= writeVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity) ? 1 << b++ : b++ && 0
-    changeMask |= writeVector4(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity) ? 1 << b++ : b++ && 0
+    changeMask |= writeComporessedRotation(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity)
+      ? 1 << b++
+      : b++ && 0
   })
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
