@@ -261,7 +261,6 @@ const dispatchAction = <A extends Action>(
 
   for (const topic of topics) {
     const mode = store.getDispatchMode(topic)
-    console.log('\n\n', action.type, mode, '\n\n')
     if (mode === 'local' || mode === 'host') store.actions.incoming.push(action as Required<Action>)
     else store.actions.outgoing[topic].queue.push(action as Required<Action>)
   }
