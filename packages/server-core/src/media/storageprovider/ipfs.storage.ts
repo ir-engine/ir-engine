@@ -194,7 +194,7 @@ export class IPFSStorage implements StorageProviderInterface {
         undefined,
         undefined,
         undefined,
-        `app=${appName}`
+        `app.kubernetes.io/instance==${appName}`
       )
 
       if (podsResult.body.items.length > 0) {
