@@ -190,11 +190,11 @@ const MediaIconsBox = (props: Props) => {
           }
         </>
       ) : null}
-      {engineState.xrSupported.value ? (
+      {engineState.xrSupported.value && (
         <button type="button" id="UserXR" className={styles.iconContainer} onClick={handleVRClick}>
           <VrIcon />
         </button>
-      ) : null}
+      )}
     </section>
   )
 }

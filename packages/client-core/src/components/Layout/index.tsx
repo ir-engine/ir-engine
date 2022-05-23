@@ -15,6 +15,7 @@ import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 import { FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
@@ -49,8 +50,7 @@ interface Props {
 }
 
 const Layout = (props: Props): any => {
-  const path = useLocation().pathname
-  const { pageTitle, children, login } = props
+  const { pageTitle, children } = props
   const authUser = useAuthState().authUser
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
@@ -63,6 +63,9 @@ const Layout = (props: Props): any => {
   const [showBottomIcons, setShowBottomIcons] = useState(true)
   const loadingSystemState = useLoadingSystemState()
   const [showTouchPad, setShowTouchPad] = useState(true)
+
+  const engineState = useEngineState()
+
   useEffect(() => {
     !clientSetting && ClientSettingService.fetchClientSettings()
     const topButtonsState = localStorage.getItem('isTopButtonsShown')
@@ -218,11 +221,13 @@ const Layout = (props: Props): any => {
               >
                 <Refresh />
               </button>
-              <InstanceChat
-                animate={styles.animateBottom}
-                hideOtherMenus={hideOtherMenus}
-                setShowTouchPad={setShowTouchPad}
-              />
+              {!engineState.xrSessionStarted.value && (
+                <InstanceChat
+                  animate={styles.animateBottom}
+                  hideOtherMenus={hideOtherMenus}
+                  setShowTouchPad={setShowTouchPad}
+                />
+              )}
             </div>
           </section>
         </ThemeProvider>
