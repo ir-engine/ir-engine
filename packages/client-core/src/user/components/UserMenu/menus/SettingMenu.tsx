@@ -1,15 +1,14 @@
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { UserSetting } from '@xrengine/common/src/interfaces/User'
+import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { AvatarSettings, updateMap } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
 import {
   AvatarInputSettingsAction,
   useAvatarInputSettingsState
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -35,17 +34,14 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 
-import { AuthService, useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 
 const SettingMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()
+  const audioState = useAudioState()
   const avatarInputState = useAvatarInputSettingsState()
-  const authState = useAuthState()
-  const selfUser = authState.user
-  const dispatch = useDispatch()
-  const [userSettings, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
+
   const [controlTypeSelected, setControlType] = useState(avatarInputState.controlType.value)
   const [controlSchemeSelected, setControlScheme] = useState(
     AvatarMovementScheme[AvatarSettings.instance.movementScheme]
@@ -57,11 +53,7 @@ const SettingMenu = (): JSX.Element => {
   const engineState = useEngineState()
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
   const controlSchemes = Object.values(AvatarMovementScheme).filter((value) => typeof value === 'string')
-  const setUserSettings = (newSetting: any): void => {
-    const setting = { ...userSettings, ...newSetting }
-    setUserSetting(setting)
-    AuthService.updateUserSettings(selfUser.user_setting.value?.id, setting)
-  }
+
   const [open, setOpen] = useState(false)
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInvertRotationAndMoveSticksState((prev) => !prev)
@@ -102,9 +94,9 @@ const SettingMenu = (): JSX.Element => {
             </span>
             <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-volume')}</span>
             <Slider
-              value={userSettings?.volume == null ? 100 : userSettings?.volume}
+              value={audioState.audio.value == null ? 100 : audioState.audio.value}
               onChange={(_, value: number) => {
-                setUserSettings({ volume: value })
+                dispatchAction(Engine.instance.store, AudioSettingAction.setAudio(value))
                 const mediaElements = document.querySelectorAll<HTMLMediaElement>('video, audio')
                 for (let i = 0; i < mediaElements.length; i++) {
                   mediaElements[i].volume = (value as number) / 100
@@ -121,9 +113,9 @@ const SettingMenu = (): JSX.Element => {
             </span>
             <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-microphone')}</span>
             <Slider
-              value={userSettings?.microphone == null ? 100 : userSettings?.microphone}
+              value={audioState.microphone.value == null ? 100 : audioState.microphone.value}
               onChange={(_, value: number) => {
-                setUserSettings({ microphone: value })
+                dispatchAction(Engine.instance.store, AudioSettingAction.setMicrophone(value))
               }}
               className={styles.slider}
               max={100}

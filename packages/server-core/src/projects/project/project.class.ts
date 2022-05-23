@@ -311,6 +311,9 @@ export class Project extends Service {
   }
 
   async get(name: string, params?: Params): Promise<{ data: ProjectInterface }> {
+    if (!params) params = {}
+    if (!params.query) params.query = {}
+    if (!params.query.$limit) params.query.$limit = 1000
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     const project = data.find((e) => e.name === name)
     if (!project) return null!
@@ -329,6 +332,7 @@ export class Project extends Service {
       ...params,
       query: {
         ...params?.query,
+        $limit: params?.query?.$limit || 1000,
         $select: params?.query?.$select || ['id', 'name', 'thumbnail', 'repositoryPath', 'storageProviderPath']
       }
     }
