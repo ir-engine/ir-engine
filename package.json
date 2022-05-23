@@ -97,7 +97,7 @@
     "@ianvs/prettier-plugin-sort-imports": "3.4.2",
     "@types/mocha": "9.1.0",
     "@types/pino": "^7.0.5",
-    "concurrently": "7.1.0",
+    "concurrently": "7.2.1",
     "depcheck": "1.4.3",
     "kill-port": "1.6.1",
     "lint-staged": "12.3.7",

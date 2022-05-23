@@ -73,7 +73,7 @@
     "@types/cors": "2.8.12",
     "@types/node": "16.11.36",
     "@types/serve-favicon": "2.5.3",
-    "concurrently": "7.1.0",
+    "concurrently": "7.2.1",
     "http-server": "14.1.0",
     "nodemon": "2.0.15",
     "supertest": "6.2.2",
