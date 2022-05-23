@@ -1,4 +1,4 @@
-import { Mesh, MeshBasicMaterial, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, sRGBEncoding, Texture, Vector3, WebGLRenderer } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -105,7 +105,7 @@ export const uploadBakeToServer = async (entity: Entity) => {
 
   const { blob } = await convertCubemapToEquiImageData(
     EngineRenderer.instance.renderer,
-    renderTarget,
+    renderTarget.texture,
     bakeComponent.options.resolution,
     bakeComponent.options.resolution,
     true

@@ -114,7 +114,7 @@ export const downloadImage = (imageData: ImageData, imageName = 'Image', width: 
 //convert Cubemap To Equirectangular map
 export const convertCubemapToEquiImageData = async (
   renderer: WebGLRenderer,
-  source: WebGLCubeRenderTarget,
+  source: CubeTexture,
   width: number,
   height: number,
   returnAsBlob = false
