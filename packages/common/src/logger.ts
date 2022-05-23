@@ -4,11 +4,11 @@ const baseComponent = 'client-core'
  * console.log() usage on the client side.
  */
 const multiLogger = {
-  debug: window.console.debug.bind(window.console, `[${baseComponent}]`),
-  info: window.console.log.bind(window.console, `[${baseComponent}]`),
-  warn: window.console.warn.bind(window.console, `[${baseComponent}]`),
-  error: window.console.error.bind(window.console, `[${baseComponent}]`),
-  fatal: window.console.error.bind(window.console, `[${baseComponent}]`),
+  debug: console.debug.bind(console, `[${baseComponent}]`),
+  info: console.log.bind(console, `[${baseComponent}]`),
+  warn: console.warn.bind(console, `[${baseComponent}]`),
+  error: console.error.bind(console, `[${baseComponent}]`),
+  fatal: console.error.bind(console, `[${baseComponent}]`),
 
   /**
    * Usage:
@@ -24,11 +24,11 @@ const multiLogger = {
    */
   child: (opts: any) => {
     return {
-      debug: window.console.debug.bind(window.console, `[${opts.component}]`),
-      info: window.console.log.bind(window.console, `[${opts.component}]`),
-      warn: window.console.warn.bind(window.console, `[${opts.component}]`),
-      error: window.console.error.bind(window.console, `[${opts.component}]`),
-      fatal: window.console.error.bind(window.console, `[${opts.component}]`)
+      debug: console.debug.bind(console, `[${opts.component}]`),
+      info: console.log.bind(console, `[${opts.component}]`),
+      warn: console.warn.bind(console, `[${opts.component}]`),
+      error: console.error.bind(console, `[${opts.component}]`),
+      fatal: console.error.bind(console, `[${opts.component}]`)
     }
   }
 }
