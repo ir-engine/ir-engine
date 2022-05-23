@@ -30,10 +30,11 @@ const getAnimationAction = (name: string, mixer: AnimationMixer) => {
 }
 
 const getDistanceAction = (animationName: string, mixer: AnimationMixer): DistanceMatchingAction => {
-  return new DistanceMatchingAction(
-    getAnimationAction(animationName, mixer),
-    AnimationManager.instance._rootAnimationData[animationName].distanceTrack
-  )
+  return {
+    action: getAnimationAction(animationName, mixer),
+    distanceTrack: AnimationManager.instance._rootAnimationData[animationName].distanceTrack,
+    distanceTraveled: 0
+  } as DistanceMatchingAction
 }
 
 export function createAvatarAnimationGraph(

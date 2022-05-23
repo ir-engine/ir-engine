@@ -3,12 +3,7 @@ import proxyquire from 'proxyquire'
 import sinon from 'sinon'
 import { Vector2, Vector3 } from 'three'
 
-import {
-  enterLocomotionState,
-  getLocomotionStateActions,
-  LocomotionState,
-  updateLocomotionStateBlendValues
-} from './locomotionState'
+import { enterLocomotionState, getLocomotionStateActions, updateLocomotionStateBlendValues } from './locomotionState'
 
 describe('getLocomotionStateActions', () => {
   it('Will return array of multiple actions', () => {

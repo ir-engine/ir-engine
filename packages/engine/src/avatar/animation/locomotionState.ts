@@ -2,7 +2,7 @@ import { AnimationAction, Vector2 } from 'three'
 
 import { AnimationState, fadeOutAnimationStateActions } from './AnimationState'
 import { BlendSpace1D, updateBlendSpace1D } from './BlendSpace1D'
-import { DistanceMatchingAction } from './DistanceMatchingAction'
+import { DistanceMatchingAction, updateDistanceMatchingAction, updateFollowerAction } from './DistanceMatchingAction'
 
 const frameSpeed = 1 / 60
 
@@ -68,8 +68,8 @@ function updateNodes(state: LocomotionState, xNodes: any[], yNodes: any[]): void
   const leaderAction = distanceActions.shift()
   if (leaderAction) {
     const updateValue = state.frameBlendValue.length()
-    leaderAction.update(updateValue)
-    distanceActions.forEach((action) => leaderAction.updateFollowerAction(action))
+    updateDistanceMatchingAction(leaderAction, updateValue)
+    distanceActions.forEach((action) => updateFollowerAction(leaderAction, action))
   }
 }
 
