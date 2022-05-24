@@ -8,6 +8,7 @@ import { LocationService } from '@xrengine/client-core/src/social/services/Locat
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
 import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import {
@@ -23,6 +24,8 @@ import { addActionReceptor } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
+const logger = multiLogger.child({ component: 'client-core:world' })
+
 export const retrieveLocationByName = (locationName: string) => {
   if (locationName === globalThis.process.env['VITE_LOBBY_LOCATION_NAME']) {
     const history = useHistory()
@@ -30,7 +33,7 @@ export const retrieveLocationByName = (locationName: string) => {
       .then((lobby) => {
         history.replace('/location/' + lobby?.slugifiedName)
       })
-      .catch((err) => console.log('getLobby error', err))
+      .catch((err) => logger.error(err, 'getLobby'))
   } else {
     LocationService.getLocationByName(locationName)
   }
