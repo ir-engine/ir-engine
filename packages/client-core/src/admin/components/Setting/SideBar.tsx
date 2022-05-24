@@ -19,6 +19,7 @@ const settings = ({
   handleAuth,
   handleAws,
   handleChargebee,
+  handleCoil,
   handleRedis,
   handleEmail,
   handleClient,
@@ -31,6 +32,7 @@ const settings = ({
   emailFocused,
   gameFocused,
   clientFocused,
+  coilFocused,
   authFocused,
   chargebeeFocused,
   redisFocused,
@@ -168,6 +170,14 @@ const settings = ({
             </Avatar>
           </ListItemAvatar>
           <ListItemText primary="Redis" />
+        </ListItem>
+        <ListItem button onClick={handleCoil} className={coilFocused ? `${styles.focused}` : `${styles.notFocused}`}>
+          <ListItemAvatar>
+            <Avatar style={{ background: '#5e5a4d' }}>
+              <Icon icon="simple-icons:coil" />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText primary="Coil" />
         </ListItem>
         <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
       </List>

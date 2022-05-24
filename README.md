@@ -15,6 +15,8 @@
 - [Contributing](#contributing)
   - [Let's build it together](#lets-build-it-together)
 - [License](#license)
+- [Releases](https://github.com/XRFoundation/XREngine/releases)
+- [Roadmap](/ROADMAP.md)
 
 ## Background
 
@@ -111,3 +113,6 @@ you find who you need to talk to.
 
 ## License
 [MIT](LICENSE) - Copyright (c) 2021-2022 XRFoundation
+
+
+[Archive](/HISTORY.md)

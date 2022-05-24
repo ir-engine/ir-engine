@@ -1,12 +1,16 @@
+import { Group } from 'three'
+
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
+import { XRHandBones } from '../../xr/types/XRHandBones'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
 import {
@@ -164,6 +168,59 @@ export const writeXRInputs = (v: ViewCursor, entity: Entity) => {
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
+export const writeXRHandBoneJoints = (v: ViewCursor, entity: Entity, handedness, bone: string[]) => {
+  const rewind = rewindViewCursor(v)
+  const writeChangeMask = spaceUint16(v)
+  let changeMask = 0
+  let b = 0
+
+  bone.forEach((jointName) => {
+    changeMask |= writeVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity) ? 1 << b++ : b++ && 0
+    changeMask |= writeVector4(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity) ? 1 << b++ : b++ && 0
+  })
+
+  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
+}
+
+export const writeXRHandBones = (v: ViewCursor, entity: Entity, hand: Group) => {
+  const rewind = rewindViewCursor(v)
+  const writeChangeMask = spaceUint16(v)
+  const writeHandedness = spaceUint8(v)
+  let changeMask = 0
+  let b = 0
+
+  let handednessBitValue = 0
+
+  // Only write if hand is connected.
+  if (hand.userData.mesh) {
+    const handMesh = hand.userData.mesh
+    const handedness = handMesh.handedness
+    handednessBitValue = handedness === 'left' ? 0 : 1
+
+    XRHandBones.forEach((bone) => {
+      changeMask |= writeXRHandBoneJoints(v, entity, handedness, bone) ? 1 << b++ : b++ && 0
+    })
+  }
+
+  return (changeMask > 0 && writeChangeMask(changeMask) && writeHandedness(handednessBitValue)) || rewind()
+}
+
+export const writeXRHands = (v: ViewCursor, entity: Entity) => {
+  if (!hasComponent(entity, XRHandsInputComponent)) return
+
+  const rewind = rewindViewCursor(v)
+  const writeChangeMask = spaceUint16(v)
+  let changeMask = 0
+  let b = 0
+
+  const xrHandsComponent = getComponent(entity as Entity, XRHandsInputComponent)
+  xrHandsComponent.hands.forEach((hand) => {
+    changeMask |= writeXRHandBones(v, entity, hand) ? 1 << b++ : b++ && 0
+  })
+
+  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
+}
+
 export const writeEntity = (v: ViewCursor, networkId: NetworkId, entity: Entity) => {
   const rewind = rewindViewCursor(v)
 
@@ -176,6 +233,7 @@ export const writeEntity = (v: ViewCursor, networkId: NetworkId, entity: Entity)
   changeMask |= writeTransform(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeVelocity(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeXRInputs(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeXRHands(v, entity) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeNetworkId(networkId) && writeChangeMask(changeMask)) || rewind()
 }

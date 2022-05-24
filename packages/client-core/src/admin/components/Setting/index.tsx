@@ -13,6 +13,7 @@ import Aws from './Aws'
 import ChargeBee from './Chargebee'
 import Client from './Client'
 import ClientTheme from './ClientTheme'
+import Coil from './Coil'
 import Email from './Email'
 import GameServer from './GameServer'
 import Project from './Project'
@@ -31,6 +32,7 @@ const Setting = () => {
   const [isClient, setIsClient] = useState(false)
   const [isAuth, setIsAuth] = useState(false)
   const [isChargebee, setIsChargebee] = useState(false)
+  const [isCoil, setIsCoil] = useState(false)
   const [isRedis, setIsRedis] = useState(false)
   const [isAnalytics, setIsAnalytics] = useState(true)
   const [Contents, setContents] = useState(<Analytics />)
@@ -43,6 +45,7 @@ const Setting = () => {
   const [clientFocused, setClientFocused] = useState(false)
   const [authFocused, setAuthFocused] = useState(false)
   const [chargebeeFocused, setChargebeeFocused] = useState(false)
+  const [coilFocused, setCoilFocused] = useState(false)
   const [redisFocused, setRedisFocused] = useState(false)
   const [menuVisible, setMenuVisible] = useState(false)
   const [analyticsFocused, setAnalyticsFocused] = useState(true)
@@ -56,6 +59,7 @@ const Setting = () => {
     setIsAws(false)
     setIsRedis(false)
     setIsChargebee(false)
+    setIsCoil(false)
     setIsSever(false)
     setIsEmail(false)
     setIsGame(false)
@@ -68,6 +72,8 @@ const Setting = () => {
     setGameFocused(false)
     setClientFocused(false)
     setChargebeeFocused(false)
+    setCoilFocused(false)
+    setCoilFocused(false)
     setRedisFocused(false)
     setClientThemeFocused(false)
     !isAuth && setMenuVisible(false)
@@ -81,6 +87,7 @@ const Setting = () => {
     setProjectFocused(false)
     setIsRedis(false)
     setIsChargebee(false)
+    setIsCoil(false)
     setIsAuth(false)
     setIsSever(false)
     setIsEmail(false)
@@ -93,6 +100,7 @@ const Setting = () => {
     setGameFocused(false)
     setClientFocused(false)
     setChargebeeFocused(false)
+    setCoilFocused(false)
     setRedisFocused(false)
     setAuthFocused(false)
     setClientThemeFocused(false)
@@ -111,6 +119,7 @@ const Setting = () => {
     setIsEmail(false)
     setIsGame(false)
     setIsClient(false)
+    setIsCoil(false)
     setIsAnalytics(false)
     setIsClientTheme(false)
     setServerFocused(false)
@@ -121,7 +130,35 @@ const Setting = () => {
     setRedisFocused(false)
     setAuthFocused(false)
     setClientThemeFocused(false)
+    setCoilFocused(false)
     !isChargebee && setMenuVisible(false)
+    setAnalyticsFocused(false)
+  }
+  const handleCoil = () => {
+    setIsCoil(!isCoil)
+    setCoilFocused(!coilFocused)
+    setIsProject(false)
+    setProjectFocused(false)
+    setIsAws(false)
+    setIsRedis(false)
+    setIsAuth(false)
+    setIsSever(false)
+    setIsEmail(false)
+    setIsGame(false)
+    setIsChargebee(false)
+    setIsClient(false)
+    setIsAnalytics(false)
+    setIsClientTheme(false)
+    setServerFocused(false)
+    setEmailFocused(false)
+    setGameFocused(false)
+    setClientFocused(false)
+    setAwsFocused(false)
+    setRedisFocused(false)
+    setAuthFocused(false)
+    setClientThemeFocused(false)
+    setChargebeeFocused(false)
+    !isCoil && setMenuVisible(false)
     setAnalyticsFocused(false)
   }
   const handleRedis = () => {
@@ -130,6 +167,7 @@ const Setting = () => {
     setIsProject(false)
     setProjectFocused(false)
     setIsChargebee(false)
+    setIsCoil(false)
     setIsAws(false)
     setIsAuth(false)
     setIsSever(false)
@@ -145,6 +183,7 @@ const Setting = () => {
     setAwsFocused(false)
     setAuthFocused(false)
     setChargebeeFocused(false)
+    setCoilFocused(false)
     setClientThemeFocused(false)
     !isRedis && setMenuVisible(false)
     setAnalyticsFocused(false)
@@ -157,6 +196,7 @@ const Setting = () => {
     setProjectFocused(false)
     setIsRedis(false)
     setIsChargebee(false)
+    setIsCoil(false)
     setIsAws(false)
     setIsAuth(false)
     setIsSever(false)
@@ -171,6 +211,7 @@ const Setting = () => {
     setRedisFocused(false)
     setAuthFocused(false)
     setChargebeeFocused(false)
+    setCoilFocused(false)
     setClientThemeFocused(false)
     !isEmail && setMenuVisible(false)
     setAnalyticsFocused(false)
@@ -182,6 +223,7 @@ const Setting = () => {
     setProjectFocused(false)
     setIsRedis(false)
     setIsChargebee(false)
+    setIsCoil(false)
     setIsAws(false)
     setIsAuth(false)
     setIsSever(false)
@@ -195,6 +237,7 @@ const Setting = () => {
     setRedisFocused(false)
     setAuthFocused(false)
     setChargebeeFocused(false)
+    setCoilFocused(false)
     setEmailFocused(false)
     setClientThemeFocused(false)
     !isClient && setMenuVisible(false)
@@ -211,6 +254,7 @@ const Setting = () => {
     setIsAuth(false)
     setIsClient(false)
     setIsChargebee(false)
+    setIsCoil(false)
     setIsEmail(false)
     setIsAnalytics(false)
     setIsClientTheme(false)
@@ -220,6 +264,7 @@ const Setting = () => {
     setRedisFocused(false)
     setAuthFocused(false)
     setChargebeeFocused(false)
+    setCoilFocused(false)
     setEmailFocused(false)
     setClientThemeFocused(false)
     !isGame && setMenuVisible(false)
@@ -232,6 +277,7 @@ const Setting = () => {
     setIsProject(false)
     setProjectFocused(false)
     setIsChargebee(false)
+    setIsCoil(false)
     setIsAws(false)
     setIsAuth(false)
     setIsClient(false)
@@ -245,6 +291,7 @@ const Setting = () => {
     setRedisFocused(false)
     setAuthFocused(false)
     setChargebeeFocused(false)
+    setCoilFocused(false)
     setEmailFocused(false)
     setGameFocused(false)
     setClientThemeFocused(false)
@@ -259,6 +306,7 @@ const Setting = () => {
     setProjectFocused(false)
     setIsSever(false)
     setIsChargebee(false)
+    setIsCoil(false)
     setIsAws(false)
     setIsAuth(false)
     setIsClient(false)
@@ -271,6 +319,7 @@ const Setting = () => {
     setRedisFocused(false)
     setAuthFocused(false)
     setChargebeeFocused(false)
+    setCoilFocused(false)
     setEmailFocused(false)
     setGameFocused(false)
     setClientThemeFocused(false)
@@ -287,6 +336,7 @@ const Setting = () => {
     setProjectFocused(false)
     setIsSever(false)
     setIsChargebee(false)
+    setIsCoil(false)
     setIsAws(false)
     setIsAuth(false)
     setIsClient(false)
@@ -298,6 +348,7 @@ const Setting = () => {
     setRedisFocused(false)
     setAuthFocused(false)
     setChargebeeFocused(false)
+    setCoilFocused(false)
     setEmailFocused(false)
     setGameFocused(false)
     !isClientTheme && setMenuVisible(false)
@@ -311,6 +362,7 @@ const Setting = () => {
     setAnalyticsFocused(false)
     setIsSever(false)
     setIsChargebee(false)
+    setIsCoil(false)
     setIsAws(false)
     setIsAuth(false)
     setIsClient(false)
@@ -323,6 +375,7 @@ const Setting = () => {
     setRedisFocused(false)
     setAuthFocused(false)
     setChargebeeFocused(false)
+    setCoilFocused(false)
     setEmailFocused(false)
     setGameFocused(false)
     setClientThemeFocused(false)
@@ -338,6 +391,7 @@ const Setting = () => {
     if (isAuth) setContents(<Authentication />)
     if (isAws) setContents(<Aws />)
     if (isChargebee) setContents(<ChargeBee />)
+    if (isCoil) setContents(<Coil />)
     if (isRedis) setContents(<Redis />)
     if (isServer) setContents(<Server />)
     if (isEmail) setContents(<Email />)
@@ -346,7 +400,7 @@ const Setting = () => {
     if (isAnalytics) setContents(<Analytics />)
     if (isProject) setContents(<Project />)
     if (isClientTheme) setContents(<ClientTheme />)
-  }, [isAws, isChargebee, isRedis, isServer, isEmail, isGame, isClient, isAnalytics, isProject, isClientTheme])
+  }, [isAws, isChargebee, isCoil, isRedis, isServer, isEmail, isGame, isClient, isAnalytics, isProject, isClientTheme])
 
   return (
     <div ref={rootRef}>
@@ -379,6 +433,7 @@ const Setting = () => {
               handleAuth={handleAuth}
               handleAws={handleAws}
               handleChargebee={handleChargebee}
+              handleCoil={handleCoil}
               handleRedis={handleRedis}
               handleEmail={handleEmail}
               handleClient={handleClient}
@@ -394,6 +449,7 @@ const Setting = () => {
               clientFocused={clientFocused}
               authFocused={authFocused}
               chargebeeFocused={chargebeeFocused}
+              coilFocused={coilFocused}
               redisFocused={redisFocused}
               analyticsFocused={analyticsFocused}
               projectFocused={projectFocused}
@@ -411,6 +467,7 @@ const Setting = () => {
             handleAuth={handleAuth}
             handleAws={handleAws}
             handleChargebee={handleChargebee}
+            handleCoil={handleCoil}
             handleRedis={handleRedis}
             handleEmail={handleEmail}
             handleClient={handleClient}
@@ -426,6 +483,7 @@ const Setting = () => {
             clientFocused={clientFocused}
             authFocused={authFocused}
             chargebeeFocused={chargebeeFocused}
+            coilFocused={coilFocused}
             redisFocused={redisFocused}
             analyticsFocused={analyticsFocused}
             projectFocused={projectFocused}
