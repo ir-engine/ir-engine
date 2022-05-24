@@ -285,6 +285,39 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(chargebeeSettingPromise)
 
+  const coilSetting = sequelizeClient.define('coilSetting', {
+    paymentPointer: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    clientId: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    clientSecret: {
+      type: DataTypes.STRING,
+      allowNull: true
+    }
+  })
+  const coilSettingPromise = coilSetting
+    .findAll()
+    .then(([dbCoil]) => {
+      const dbCoilConfig = dbCoil && {
+        url: dbCoil.url,
+        apiKey: dbCoil.apiKey
+      }
+      if (dbCoilConfig) {
+        appConfig.coil = {
+          ...appConfig.coil,
+          ...dbCoilConfig
+        }
+      }
+    })
+    .catch((e) => {
+      logger.error(e, `[updateAppConfig]: Failed to read coilSetting: ${e.message}`)
+    })
+  promises.push(coilSettingPromise)
+
   const clientSetting = sequelizeClient.define('clientSetting', {
     logo: {
       type: DataTypes.STRING,
