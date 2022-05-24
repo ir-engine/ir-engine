@@ -60,6 +60,26 @@ export class BooleanTransitionRule extends AnimationStateTransitionRule {
   }
 }
 
+// Allows state transition based on an object's numerical property
+export class ThresholdTransitionRule extends AnimationStateTransitionRule {
+  object: any
+  property: string
+  threshold: number
+  largerThan: boolean
+
+  constructor(nextState: string, object: any, property: string, threshold: number = 0, largerThan: boolean = false) {
+    super(nextState)
+    this.object = object
+    this.property = property
+    this.threshold = threshold
+    this.largerThan = largerThan
+  }
+  canEnterTransition(): boolean {
+    const value = this.object[this.property]
+    return this.largerThan ? value > this.threshold : value < this.threshold
+  }
+}
+
 // Allows state transition if animation time is past certain percentage
 export class AnimationTimeTransitionRule extends AnimationStateTransitionRule {
   action: AnimationAction
