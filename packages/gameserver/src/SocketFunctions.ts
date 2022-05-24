@@ -46,10 +46,14 @@ export const setupSocketFunctions = (transport: SocketWebRTCServerTransport) => 
 
   logger.info('Initialized new socket connection with id %s', socket.id)
 
+  let hasListeners = false
   /**
    * Authorize user and make sure everything is valid before allowing them to join the world
    **/
   socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
+    if (hasListeners) return
+    hasListeners = true
+
     logger.info('[MessageTypes.Authorization]: got auth request for %s', data.userId)
     const accessToken = data.accessToken
 
