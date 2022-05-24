@@ -2,7 +2,7 @@ import assert from 'assert'
 import proxyquire from 'proxyquire'
 
 import { AnimationGraph } from './AnimationGraph'
-import { BooleanTransitionRule } from './AnimationStateTransitionsRule'
+import { booleanTransitionRule } from './AnimationStateTransitionsRule'
 import { SingleAnimationState } from './singleAnimationState'
 
 describe('AnimationGraph changeState', () => {
@@ -140,12 +140,7 @@ describe('AnimationGraph updateAnimationGraph', () => {
 
     graph.transitionRules[state1.name] = [
       {
-        rule: {
-          type: 'BooleanTransitionRule',
-          object: { val: true },
-          property: 'val',
-          negate: false
-        } as BooleanTransitionRule,
+        rule: booleanTransitionRule({ val: true }, 'val'),
         nextState: state2.name
       }
     ]

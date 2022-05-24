@@ -1,69 +1,60 @@
 import { AnimationAction, Vector3 } from 'three'
 
-export type AnimationStateTransitionRule = {
-  type: string
+export type AnimationStateTransitionRule = () => boolean
+
+export function booleanTransitionRule(
+  object: any,
+  property: string,
+  negate: boolean = false
+): AnimationStateTransitionRule {
+  if (negate) return () => !object[property]
+  return () => object[property]
 }
 
-export type BooleanTransitionRule = AnimationStateTransitionRule & {
-  object: object
-  property: string
-  negate: boolean
+export function animationTimeTransitionRule(
+  action: AnimationAction,
+  threshold: number,
+  lowerThan: boolean = false
+): AnimationStateTransitionRule {
+  if (lowerThan) return () => action.time / action.getClip().duration <= threshold
+  return () => action.time / action.getClip().duration >= threshold
 }
 
-export type AnimationTimeTransitionRule = AnimationStateTransitionRule & {
-  action: AnimationAction
-  threshold: number
-}
-
-export type VectorLengthTransitionRule = AnimationStateTransitionRule & {
-  value: Vector3
-  threshold: number
-}
-
-export type CompositeTransitionRule = AnimationStateTransitionRule & {
-  rules: AnimationStateTransitionRule[]
-  operator: 'and' | 'or'
-}
-
-const ruleHandlers = {
-  BooleanTransitionRule: booleanTransitionRule,
-  AnimationTimeTransitionRule: animationTimeTransitionRule,
-  VectorLengthTransitionRule: vectorLengthTransitionRule,
-  CompositeTransitionRule: compositeTransitionRule
-}
-
-export function canEnterTransition(rule: AnimationStateTransitionRule): boolean {
-  const handler = ruleHandlers[rule.type]
-  if (typeof handler === 'function') return handler(rule)
-  return false
-}
-
-export function booleanTransitionRule(rule: BooleanTransitionRule): boolean {
-  const value = rule.object[rule.property]
-  return rule.negate ? !value : value
-}
-
-export function animationTimeTransitionRule(rule: AnimationTimeTransitionRule): boolean {
-  const ratio = rule.action.time / rule.action.getClip().duration
-  return ratio > rule.threshold
-}
-
-export function vectorLengthTransitionRule(rule: VectorLengthTransitionRule): boolean {
-  return rule.value.lengthSq() >= rule.threshold
-}
-
-export function compositeTransitionRule(rule: CompositeTransitionRule): boolean {
-  let result = false
-
-  for (const rle of rule.rules) {
-    result = canEnterTransition(rle)
-
-    if (rule.operator === 'and') {
-      if (!result) break
-    } else if (result) {
-      break
-    }
+export function vectorLengthTransitionRule(
+  value: Vector3,
+  threshold: number,
+  lowerThan: boolean = false,
+  exact: boolean = false
+): AnimationStateTransitionRule {
+  if (exact) {
+    if (lowerThan) return () => value.length() <= threshold
+    return () => value.length() >= threshold
   }
 
-  return result
+  if (lowerThan) return () => value.lengthSq() <= threshold
+  return () => value.lengthSq() >= threshold
+}
+
+export function compositeTransitionRule(
+  rules: AnimationStateTransitionRule[],
+  operator: 'and' | 'or'
+): AnimationStateTransitionRule {
+  if (operator === 'and')
+    return () => {
+      let result = false
+      for (const rle of rules) {
+        result = rle()
+        if (!result) break
+      }
+      return result
+    }
+
+  return () => {
+    let result = false
+    for (const rle of rules) {
+      result = rle()
+      if (result) break
+    }
+    return result
+  }
 }

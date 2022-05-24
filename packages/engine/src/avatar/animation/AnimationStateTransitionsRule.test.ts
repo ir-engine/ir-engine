@@ -10,105 +10,60 @@ import {
 
 describe('booleanTransitionRule', () => {
   it('Tests booleanTransitionRule', () => {
-    const rule = {
-      object: { test: true },
-      property: 'test',
-      negate: false
-    }
-
-    assert(booleanTransitionRule(rule as any))
-    rule.negate = true
-    assert(booleanTransitionRule(rule as any) === false)
+    assert(booleanTransitionRule({ test: true }, 'test')())
+    assert(booleanTransitionRule({ test: true }, 'test', true)() === false)
   })
 })
 
 describe('animationTimeTransitionRule', () => {
   it('Tests animationTimeTransitionRule', () => {
-    const rule = {
-      action: {
-        time: 2.9,
-        getClip() {
-          return { duration: 3 }
-        }
-      },
-      threshold: 0.95
+    const action = {
+      time: 2.9,
+      getClip() {
+        return { duration: 3 }
+      }
     }
 
-    assert(animationTimeTransitionRule(rule as any))
-    rule.action.time = 0
-    assert(animationTimeTransitionRule(rule as any) === false)
+    let rule = animationTimeTransitionRule(action as any, 0.95)
+    assert(rule())
+    action.time = 0
+    assert(rule() === false)
+
+    rule = animationTimeTransitionRule(action as any, 0.5, true)
+    assert(rule())
+    action.time = 3
+    assert(rule() === false)
   })
 })
 
 describe('vectorLengthTransitionRule', () => {
   it('Tests vectorLengthTransitionRule', () => {
-    const rule = {
-      value: new Vector3(1, 1, 1),
-      threshold: 3
-    }
-    assert(vectorLengthTransitionRule(rule as any))
+    assert(vectorLengthTransitionRule(new Vector3(1, 1, 1), 3)())
+    assert(vectorLengthTransitionRule(new Vector3(1, 1, 1), 2, true)() === false)
   })
 })
 
 describe('compositeTransitionRule', () => {
   it('Will pass', () => {
-    const boolRule = {
-      type: 'BooleanTransitionRule',
-      object: { test: true },
-      property: 'test',
-      negate: false
+    const action = {
+      time: 2.9,
+      getClip() {
+        return { duration: 3 }
+      }
     }
-    const vecRule = {
-      type: 'VectorLengthTransitionRule',
-      value: new Vector3(1, 1, 1),
-      threshold: 3
-    }
-    const timeRule = {
-      type: 'AnimationTimeTransitionRule',
-      action: {
-        time: 2.9,
-        getClip() {
-          return { duration: 3 }
-        }
-      },
-      threshold: 0.95
-    }
+    const boolRule = booleanTransitionRule({ test: true }, 'test')
+    const vecRule = vectorLengthTransitionRule(new Vector3(1, 1, 1), 3)
+    const timeRule = animationTimeTransitionRule(action as any, 0.95)
 
-    const compositeRule = {
-      rules: [boolRule, vecRule, timeRule],
-      operator: 'and'
-    }
-
-    assert(compositeTransitionRule(compositeRule as any))
-    compositeRule.operator = 'or'
-    boolRule.object.test = false
-    vecRule.threshold = 5
-    assert(compositeTransitionRule(compositeRule as any))
+    assert(compositeTransitionRule([boolRule, vecRule, timeRule], 'and')())
+    assert(compositeTransitionRule([boolRule, vecRule, timeRule], 'or')())
   })
 
   it('Will fail', () => {
-    const boolRule = {
-      type: 'BooleanTransitionRule',
-      object: { test: true },
-      property: 'test',
-      negate: false
-    }
-    const vecRule = {
-      type: 'VectorLengthTransitionRule',
-      value: new Vector3(1, 1, 1),
-      threshold: 4
-    }
+    const boolRule = booleanTransitionRule({ test: true }, 'test')
+    const vecRule = vectorLengthTransitionRule(new Vector3(1, 1, 1), 4)
 
-    const compositeRule = {
-      rules: [boolRule, vecRule],
-      operator: 'and'
-    }
-
-    assert(compositeTransitionRule(compositeRule as any) === false)
-
-    compositeRule.operator = 'or'
-    boolRule.object.test = false
-
-    assert(compositeTransitionRule(compositeRule as any) === false)
+    assert(compositeTransitionRule([boolRule, vecRule], 'and')() === false)
+    assert(compositeTransitionRule([booleanTransitionRule({ test: false }, 'test'), vecRule], 'or')() === false)
   })
 })

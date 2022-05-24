@@ -1,6 +1,6 @@
 /** Animation graph for entity. */
 import { AnimationState, enterAnimationState, updateAnimationState } from './AnimationState'
-import { AnimationStateTransitionRule, canEnterTransition } from './AnimationStateTransitionsRule'
+import { AnimationStateTransitionRule } from './AnimationStateTransitionsRule'
 
 export type AnimationGraph = {
   states: { [key: string]: AnimationState }
@@ -14,7 +14,7 @@ export function updateAnimationGraph(graph: AnimationGraph, delta: number) {
 
     if (transitions) {
       for (const { rule, nextState } of transitions) {
-        if (canEnterTransition(rule) && nextState) {
+        if (rule()) {
           changeState(graph, nextState)
         }
       }

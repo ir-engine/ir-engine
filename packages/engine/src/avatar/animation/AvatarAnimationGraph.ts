@@ -13,10 +13,10 @@ import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent
 import { AnimationGraph, changeState } from './AnimationGraph'
 import { enterAnimationState } from './AnimationState'
 import {
-  AnimationTimeTransitionRule,
-  BooleanTransitionRule,
-  CompositeTransitionRule,
-  VectorLengthTransitionRule
+  animationTimeTransitionRule,
+  booleanTransitionRule,
+  compositeTransitionRule,
+  vectorLengthTransitionRule
 } from './AnimationStateTransitionsRule'
 import { addBlendSpace1DNode, BlendSpace1D } from './BlendSpace1D'
 import { DistanceMatchingAction } from './DistanceMatchingAction'
@@ -241,173 +241,86 @@ export function createAvatarAnimationGraph(
 
   // Transition rules
 
-  const movementTransitionRule: VectorLengthTransitionRule = {
-    type: 'VectorLengthTransitionRule',
-    value: velocity,
-    threshold: 0.001
-  }
+  const movementTransitionRule = vectorLengthTransitionRule(velocity, 0.001)
 
   graph.transitionRules[AvatarStates.LOCOMOTION] = [
     // Jump
     {
-      rule: {
-        type: 'BooleanTransitionRule',
-        object: jumpValue,
-        property: 'isJumping',
-        negate: false
-      } as BooleanTransitionRule,
+      rule: booleanTransitionRule(jumpValue, 'isJumping'),
       nextState: AvatarStates.JUMP_UP
     },
     // Fall
     {
-      rule: {
-        type: 'BooleanTransitionRule',
-        object: jumpValue,
-        property: 'isInAir',
-        negate: false
-      } as BooleanTransitionRule,
+      rule: booleanTransitionRule(jumpValue, 'isInAir'),
       nextState: AvatarStates.FALL_IDLE
     }
   ]
 
   graph.transitionRules[AvatarStates.JUMP_UP] = [
     {
-      rule: {
-        type: 'AnimationTimeTransitionRule',
-        action: jumpUpState.action,
-        threshold: 0.9
-      } as AnimationTimeTransitionRule,
+      rule: animationTimeTransitionRule(jumpUpState.action, 0.9),
       nextState: AvatarStates.FALL_IDLE
     }
   ]
 
   graph.transitionRules[AvatarStates.FALL_IDLE] = [
     {
-      rule: {
-        type: 'BooleanTransitionRule',
-        object: jumpValue,
-        property: 'isInAir',
-        negate: true
-      } as BooleanTransitionRule,
+      rule: booleanTransitionRule(jumpValue, 'isInAir', true),
       nextState: AvatarStates.JUMP_DOWN
     }
   ]
 
   graph.transitionRules[AvatarStates.JUMP_DOWN] = [
     {
-      rule: {
-        type: 'AnimationTimeTransitionRule',
-        action: jumpDownState.action,
-        threshold: 0.65
-      } as AnimationTimeTransitionRule,
+      rule: animationTimeTransitionRule(jumpDownState.action, 0.65),
       nextState: AvatarStates.LOCOMOTION
     }
   ]
 
   graph.transitionRules[AvatarStates.CLAP] = [
     {
-      rule: {
-        type: 'CompositeTransitionRule',
-        rules: [
-          movementTransitionRule,
-          {
-            type: 'AnimationTimeTransitionRule',
-            action: clapState.action,
-            threshold: 0.9
-          } as AnimationTimeTransitionRule
-        ],
-        operator: 'or'
-      } as CompositeTransitionRule,
+      rule: compositeTransitionRule([movementTransitionRule, animationTimeTransitionRule(clapState.action, 0.9)], 'or'),
       nextState: AvatarStates.LOCOMOTION
     }
   ]
 
   graph.transitionRules[AvatarStates.CRY] = [
     {
-      rule: {
-        type: 'CompositeTransitionRule',
-        rules: [
-          movementTransitionRule,
-          {
-            type: 'AnimationTimeTransitionRule',
-            action: cryState.action,
-            threshold: 0.9
-          } as AnimationTimeTransitionRule
-        ],
-        operator: 'or'
-      } as CompositeTransitionRule,
+      rule: compositeTransitionRule([movementTransitionRule, animationTimeTransitionRule(cryState.action, 0.9)], 'or'),
       nextState: AvatarStates.LOCOMOTION
     }
   ]
 
   graph.transitionRules[AvatarStates.KISS] = [
     {
-      rule: {
-        type: 'CompositeTransitionRule',
-        rules: [
-          movementTransitionRule,
-          {
-            type: 'AnimationTimeTransitionRule',
-            action: kissState.action,
-            threshold: 0.9
-          } as AnimationTimeTransitionRule
-        ],
-        operator: 'or'
-      } as CompositeTransitionRule,
+      rule: compositeTransitionRule([movementTransitionRule, animationTimeTransitionRule(kissState.action, 0.9)], 'or'),
       nextState: AvatarStates.LOCOMOTION
     }
   ]
 
   graph.transitionRules[AvatarStates.WAVE] = [
     {
-      rule: {
-        type: 'CompositeTransitionRule',
-        rules: [
-          movementTransitionRule,
-          {
-            type: 'AnimationTimeTransitionRule',
-            action: waveState.action,
-            threshold: 0.9
-          } as AnimationTimeTransitionRule
-        ],
-        operator: 'or'
-      } as CompositeTransitionRule,
+      rule: compositeTransitionRule([movementTransitionRule, animationTimeTransitionRule(waveState.action, 0.9)], 'or'),
       nextState: AvatarStates.LOCOMOTION
     }
   ]
 
   graph.transitionRules[AvatarStates.LAUGH] = [
     {
-      rule: {
-        type: 'CompositeTransitionRule',
-        rules: [
-          movementTransitionRule,
-          {
-            type: 'AnimationTimeTransitionRule',
-            action: laughState.action,
-            threshold: 0.9
-          } as AnimationTimeTransitionRule
-        ],
-        operator: 'or'
-      } as CompositeTransitionRule,
+      rule: compositeTransitionRule(
+        [movementTransitionRule, animationTimeTransitionRule(laughState.action, 0.9)],
+        'or'
+      ),
       nextState: AvatarStates.LOCOMOTION
     }
   ]
 
   graph.transitionRules[AvatarStates.DEFEAT] = [
     {
-      rule: {
-        type: 'CompositeTransitionRule',
-        rules: [
-          movementTransitionRule,
-          {
-            type: 'AnimationTimeTransitionRule',
-            action: defeatState.action,
-            threshold: 0.9
-          } as AnimationTimeTransitionRule
-        ],
-        operator: 'or'
-      } as CompositeTransitionRule,
+      rule: compositeTransitionRule(
+        [movementTransitionRule, animationTimeTransitionRule(defeatState.action, 0.9)],
+        'or'
+      ),
       nextState: AvatarStates.LOCOMOTION
     }
   ]
