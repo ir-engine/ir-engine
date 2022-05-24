@@ -84,6 +84,33 @@
             },
             "forModel": false
           }
+        },
+        {
+          "name": "cubemapbake",
+          "props": {
+            "options": {
+              "bakeType": 1,
+              "resolution": 2048,
+              "refreshMode": 0,
+              "envMapOrigin": "__$project$__/default-project/sky-station.cubemap.png",
+              "boxProjection": true,
+              "bakePosition": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakePositionOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakeScale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            }
+          }
         }
       ],
       "name": "sky-station"
