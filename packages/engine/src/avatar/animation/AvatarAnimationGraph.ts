@@ -8,12 +8,15 @@ import { isEntityLocalClient } from '../../networking/functions/isEntityLocalCli
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { AnimationManager } from '../AnimationManager'
 import { AvatarSettings } from '../AvatarControllerSystem'
+import { AvatarAnimationComponentType } from '../components/AvatarAnimationComponent'
+import { AvatarControllerComponentType } from '../components/AvatarControllerComponent'
 import { AnimationGraph } from './AnimationGraph'
 import { LocomotionState, SingleAnimationState } from './AnimationState'
 import {
   AnimationTimeTransitionRule,
   BooleanTransitionRule,
   CompositeTransitionRule,
+  ThresholdTransitionRule,
   VectorLengthTransitionRule
 } from './AnimationStateTransitionsRule'
 import { BlendSpace1D } from './BlendSpace1D'
@@ -36,7 +39,7 @@ const getDistanceAction = (animationName: string, mixer: AnimationMixer): Distan
 export class AvatarAnimationGraph extends AnimationGraph {
   entity: Entity
 
-  initialize(entity: Entity, mixer: AnimationMixer, velocity: Vector3, jumpValue: {} | null) {
+  initialize(entity: Entity, mixer: AnimationMixer, velocity: Vector3, jumpValue: AvatarControllerComponentType) {
     if (!mixer) return
 
     this.entity = entity
@@ -148,8 +151,13 @@ export class AvatarAnimationGraph extends AnimationGraph {
     this.transitionRules[AvatarStates.LOCOMOTION] = [
       // Jump
       new BooleanTransitionRule(AvatarStates.JUMP_UP, jumpValue, 'isJumping'),
-      // Fall
-      new BooleanTransitionRule(AvatarStates.FALL_IDLE, jumpValue, 'isInAir')
+      // Fall - threshold rule is to prevent fall_idle when going down ramps or over gaps
+      new CompositeTransitionRule(
+        AvatarStates.FALL_IDLE,
+        'and',
+        new BooleanTransitionRule('', jumpValue, 'isInAir'),
+        new ThresholdTransitionRule('', velocity, 'y', -0.05, false)
+      )
     ]
 
     this.transitionRules[AvatarStates.JUMP_UP] = [
