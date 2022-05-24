@@ -40,7 +40,7 @@
     "@google/model-viewer": "1.11.1",
     "@mui/icons-material": "5.8.0",
     "@mui/lab": "^5.0.0-alpha.73",
-    "@mui/material": "5.8.0",
+    "@mui/material": "5.8.1",
     "@mui/styled-engine-sc": "5.8.0",
     "@mui/styles": "5.8.0",
     "@speigg/hookstate": "3.0.13-stable-state",
