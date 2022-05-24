@@ -43,12 +43,15 @@ export class CompositeTransitionRule extends AnimationStateTransitionRule {
 }
 
 // Allows state transition based on an object's property
-export class BooleanTransitionRule extends AnimationStateTransitionRule {
-  object: any
-  property: string
+export class BooleanTransitionRule<
+  K extends string,
+  O extends { [k in K]: boolean }
+> extends AnimationStateTransitionRule {
+  object: O
+  property: K
   negate: boolean
 
-  constructor(nextState: string, object: any, property: string, negate: boolean = false) {
+  constructor(nextState: string, object: O, property: K, negate: boolean = false) {
     super(nextState)
     this.object = object
     this.property = property
@@ -61,13 +64,16 @@ export class BooleanTransitionRule extends AnimationStateTransitionRule {
 }
 
 // Allows state transition based on an object's numerical property
-export class ThresholdTransitionRule extends AnimationStateTransitionRule {
-  object: any
-  property: string
+export class ThresholdTransitionRule<
+  K extends string,
+  O extends { [k in K]: number }
+> extends AnimationStateTransitionRule {
+  object: O
+  property: K
   threshold: number
   largerThan: boolean
 
-  constructor(nextState: string, object: any, property: string, threshold: number = 0, largerThan: boolean = false) {
+  constructor(nextState: string, object: O, property: K, threshold: number = 0, largerThan: boolean = false) {
     super(nextState)
     this.object = object
     this.property = property

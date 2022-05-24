@@ -9,6 +9,7 @@ import { NetworkWorldAction } from '../../networking/functions/NetworkWorldActio
 import { AnimationManager } from '../AnimationManager'
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { AvatarAnimationComponentType } from '../components/AvatarAnimationComponent'
+import { AvatarControllerComponentType } from '../components/AvatarControllerComponent'
 import { AnimationGraph } from './AnimationGraph'
 import { LocomotionState, SingleAnimationState } from './AnimationState'
 import {
@@ -38,7 +39,7 @@ const getDistanceAction = (animationName: string, mixer: AnimationMixer): Distan
 export class AvatarAnimationGraph extends AnimationGraph {
   entity: Entity
 
-  initialize(entity: Entity, mixer: AnimationMixer, velocity: Vector3, jumpValue: AvatarAnimationComponentType) {
+  initialize(entity: Entity, mixer: AnimationMixer, velocity: Vector3, jumpValue: AvatarControllerComponentType) {
     if (!mixer) return
 
     this.entity = entity
