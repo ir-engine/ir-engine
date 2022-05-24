@@ -84,7 +84,8 @@ export default defineConfig(async (command) => {
             favicon16px: clientSetting.favicon16px || '/favicon-16x16.png',
             icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
             icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
-            webmanifestLink: clientSetting.webmanifestLink || '/site.webmanifest'
+            webmanifestLink: clientSetting.webmanifestLink || '/site.webmanifest',
+            paymentPointer: clientSetting.paymentPointer || ''
           }
         })
     ],
