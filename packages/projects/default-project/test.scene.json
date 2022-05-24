@@ -62,7 +62,7 @@
             "envMapIntensity": 1,
             "envMapCubemapBake": {
               "bakeType": 1,
-              "resolution": 1024,
+              "resolution": 2048,
               "refreshMode": 0,
               "envMapOrigin": "",
               "boxProjection": true,
@@ -503,7 +503,7 @@
             "envMapIntensity": 1,
             "envMapCubemapBake": {
               "bakeType": 1,
-              "resolution": 1024,
+              "resolution": 2048,
               "refreshMode": 0,
               "envMapOrigin": "",
               "boxProjection": true,
