@@ -6,6 +6,7 @@ import { decode } from 'jsonwebtoken'
 
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
+import { ChannelInterface } from '@xrengine/common/src/dbmodels/Channel'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -120,6 +121,11 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
 
   logger.info('Creating new instance: %o', newInstance)
   const instanceResult = (await app.service('instance').create(newInstance)) as InstanceInterface
+  if (!channelId)
+    await app.service('channel').create({
+      channelType: 'instance',
+      instanceId: instanceResult.id
+    })
   await app.agonesSDK.allocate()
   app.instance = instanceResult
 
@@ -201,6 +207,21 @@ const handleInstance = async (
     await createNewInstance(app, newInstance)
   } else {
     const instance = existingInstanceResult.data[0]
+    if (locationId) {
+      const user = await app.service('user').get(userId)
+      const existingChannel = (await app.service('channel').find({
+        query: {
+          channelType: 'instance',
+          instanceId: instance.id
+        },
+        'identity-provider': user['identity_providers'][0]
+      })) as Paginated<ChannelInterface>
+      if (existingChannel.total === 0)
+        await app.service('channel').create({
+          channelType: 'instance',
+          instanceId: instance.id
+        })
+    }
     if (!authorizeUserToJoinServer(app, instance, userId)) return
     await assignExistingInstance(app, existingInstanceResult.data[0], channelId, locationId)
   }
