@@ -4,7 +4,7 @@ import '@feathersjs/transport-commons'
 
 import { decode } from 'jsonwebtoken'
 
-import { ChannelInterface } from '@xrengine/common/src/dbmodels/Channel'
+import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -31,6 +31,7 @@ import multiLogger from '@xrengine/server-core/src/logger'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
+import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 
 const logger = multiLogger.child({ component: 'gameserver:channels' })
 
@@ -72,14 +73,12 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
   const { locationId, channelId } = newInstance
 
   if (channelId) {
-    logger.info('channelId: ' + channelId)
     newInstance.channelId = channelId
   } else {
-    logger.info('locationId: ' + locationId)
     newInstance.locationId = locationId
   }
 
-  logger.info('Creating new instance: %o', newInstance)
+  logger.info('Creating new instance: %o', newInstance, locationId, channelId)
   const instanceResult = (await app.service('instance').create(newInstance)) as InstanceInterface
   if (!channelId)
     await app.service('channel').create({
@@ -108,7 +107,6 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
 const assignExistingInstance = async (app: Application, existingInstance, channelId: string, locationId: string) => {
   await app.agonesSDK.allocate()
   app.instance = existingInstance
-  console.log('assignExistingInstance', existingInstance, channelId, locationId)
 
   await app.service('instance').patch(existingInstance.id, {
     currentUsers: existingInstance.currentUsers + 1,
@@ -176,8 +174,9 @@ const handleInstance = async (
           instanceId: instance.id
         },
         'identity-provider': user['identity_providers'][0]
-      })) as Paginated<ChannelInterface>
-      if (existingChannel.total === 0)
+      })) as Channel[]
+      console.log('existingChannel', existingChannel)
+      if (existingChannel.length === 0)
         await app.service('channel').create({
           channelType: 'instance',
           instanceId: instance.id
@@ -396,13 +395,13 @@ const loadGameserver = async (
     !app.instance
 
   if (app.instance) {
-    if (app.instance.locationId !== locationId)
+    if (locationId && app.instance.locationId !== locationId)
       return console.warn(
         '[loadGameserver]: got a connection to the wrong location id',
         app.instance.locationId,
         locationId
       )
-    if (app.instance.channelId !== channelId)
+    if (channelId && app.instance.channelId !== channelId)
       return console.warn(
         '[loadGameserver]: got a connection to the wrong channel id',
         app.instance.channelId,
@@ -410,15 +409,16 @@ const loadGameserver = async (
       )
   }
 
-  if (isReady || isNeedingNewServer) {
-    console.log('instance handled', app.instance?.id)
-    if (!engineStarted && sceneId != null) {
-      engineStarted = true
-      await handleInstance(app, status, locationId, channelId, userId)
-      await loadEngine(app, sceneId)
-    }
+  if (isReady || isNeedingNewServer || !engineStarted) {
+    console.log('instance handled', app.instance?.id, engineStarted)
+    engineStarted = true
+    await handleInstance(app, status, locationId, channelId, userId)
+    await loadEngine(app, sceneId)
   } else {
     try {
+      if (!getEngineState().joinedWorld.value) {
+        await new Promise((resolve) => matchActionOnce(EngineActions.joinedWorld.matches, resolve))
+      }
       const instance = await app.service('instance').get(app.instance.id)
       if (!(await authorizeUserToJoinServer(app, instance, userId))) return
       await app.agonesSDK.allocate()

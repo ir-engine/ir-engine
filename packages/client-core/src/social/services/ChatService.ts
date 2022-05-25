@@ -248,9 +248,10 @@ export const ChatService = {
           channelType: 'instance',
           instanceId: Engine.instance.currentWorld.worldNetwork.hostId
         }
-      })) as Paginated<Channel>
-      if (channelResult.total === 0) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
-      dispatch(ChatAction.loadedChannel(channelResult.data[0], 'instance'))
+      })) as any as Channel
+      console.log('channelResult', channelResult)
+      if (!channelResult) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
+      dispatch(ChatAction.loadedChannel(channelResult, 'instance'))
     } catch (err) {
       AlertService.dispatchAlertError(err)
     }
