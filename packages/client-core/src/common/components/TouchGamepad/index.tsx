@@ -19,7 +19,7 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
     document.dispatchEvent(event)
   }
 
-  const entity = Engine.instance.currentWorld.scene.id as Entity
+  const entity = Engine.instance.currentWorld.entityTree.rootNode.entity
   const interactableComponent = entity && getComponent(entity, InteractableComponent)
 
   const buttonsConfig: Array<{ button: GamepadButtons; label: string }> = [
