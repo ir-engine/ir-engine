@@ -62,9 +62,37 @@
             "envMapIntensity": 1,
             "envMapCubemapBake": {
               "bakeType": 1,
-              "resolution": 1024,
+              "resolution": 2048,
               "refreshMode": 0,
               "envMapOrigin": "",
+              "boxProjection": true,
+              "bakePosition": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakePositionOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakeScale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            },
+            "forModel": false
+          }
+        },
+        {
+          "name": "cubemapbake",
+          "props": {
+            "options": {
+              "bakeType": 1,
+              "resolution": 2048,
+              "refreshMode": 0,
+              "envMapOrigin": "__$project$__/default-project/default.cubemap.png",
               "boxProjection": true,
               "bakePosition": {
                 "x": 0,
@@ -98,7 +126,7 @@
               "z": 10
             },
             "rotation": {
-              "x": -0.4636,
+              "x": -0.4636000018424061,
               "y": 0,
               "z": 0
             },
@@ -228,7 +256,7 @@
             },
             "rotation": {
               "x": -3.141592653589793,
-              "y": 1.2246467991473532e-16,
+              "y": 1.2246468525851686e-16,
               "z": -3.1415926535897922
             },
             "scale": {
@@ -281,9 +309,12 @@
           "name": "postprocessing",
           "props": {
             "options": {
-              "FXAAEffect": {
+              "SMAAEffect": {
                 "isActive": true,
-                "blendFunction": 13
+                "blendFunction": 13,
+                "preset": 1,
+                "edgeDetectionMode": 2,
+                "predicationMode": 0
               },
               "OutlineEffect": {
                 "isActive": true,
@@ -417,7 +448,7 @@
             "rotation": {
               "x": 0.5235987826331087,
               "y": 0.609119929255003,
-              "z": 0
+              "z": 2.604002372320199e-9
             },
             "scale": {
               "x": 1,
@@ -425,10 +456,6 @@
               "z": 1
             }
           }
-        },
-        {
-          "name": "visible",
-          "props": {}
         },
         {
           "name": "directional-light",

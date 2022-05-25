@@ -62,7 +62,7 @@
             "envMapIntensity": 3.5,
             "envMapCubemapBake": {
               "bakeType": 1,
-              "resolution": 1024,
+              "resolution": 2048,
               "refreshMode": 0,
               "envMapOrigin": "",
               "boxProjection": true,
@@ -83,6 +83,33 @@
               }
             },
             "forModel": false
+          }
+        },
+        {
+          "name": "cubemapbake",
+          "props": {
+            "options": {
+              "bakeType": 1,
+              "resolution": 2048,
+              "refreshMode": 0,
+              "envMapOrigin": "__$project$__/default-project/sky-station.cubemap.png",
+              "boxProjection": true,
+              "bakePosition": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakePositionOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakeScale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            }
           }
         }
       ],
@@ -377,7 +404,7 @@
             "envMapIntensity": 1,
             "envMapCubemapBake": {
               "bakeType": 1,
-              "resolution": 1024,
+              "resolution": 2048,
               "refreshMode": 0,
               "envMapOrigin": "",
               "boxProjection": true,
@@ -714,7 +741,7 @@
             "envMapIntensity": 1,
             "envMapCubemapBake": {
               "bakeType": 1,
-              "resolution": 1024,
+              "resolution": 2048,
               "refreshMode": 0,
               "envMapOrigin": "",
               "boxProjection": true,
@@ -861,7 +888,7 @@
             "envMapIntensity": 1,
             "envMapCubemapBake": {
               "bakeType": 1,
-              "resolution": 1024,
+              "resolution": 2048,
               "refreshMode": 0,
               "envMapOrigin": "",
               "boxProjection": true,

@@ -43,6 +43,10 @@ export class GLTFHubsLightMapExtension {
       }
       material.lightMap = lightMap
       material.lightMapIntensity = extensionDef.intensity ?? 1.0
+      //fix for change to MeshBasicMaterial shading WRT lightmaps
+      if (material.isMeshBasicMaterial) {
+        material.lightMapIntensity *= Math.PI
+      }
       return material
     })
   }

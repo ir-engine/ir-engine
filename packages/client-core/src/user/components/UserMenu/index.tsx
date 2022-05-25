@@ -56,6 +56,7 @@ HotbarMenu.set(Views.Emote, 'EmoteIcon')
 
 interface Props {
   animate?: any
+  fadeOutBottom?: any
 }
 
 const UserMenu = (props: Props): any => {
@@ -67,9 +68,11 @@ const UserMenu = (props: Props): any => {
   return (
     <>
       <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
-        <section className={`${styles.settingContainer} ${props.animate}`}>
-          {!engineState.xrSessionStarted.value && (
-            <>
+        <div>
+          <section
+            className={`${styles.settingContainer} ${props.animate} ${currentActiveMenu ? props.fadeOutBottom : ''}`}
+          >
+            {!engineState.xrSessionStarted.value && (
               <div className={styles.iconContainer}>
                 {Array.from(HotbarMenu.keys()).map((id, index) => {
                   const IconNode = HotbarMenu.get(id)
@@ -87,10 +90,10 @@ const UserMenu = (props: Props): any => {
                   )
                 })}
               </div>
-              {currentActiveMenu && <Panel changeActiveMenu={setCurrentActiveMenu} />}
-            </>
-          )}
-        </section>
+            )}
+          </section>
+          {currentActiveMenu && <Panel changeActiveMenu={setCurrentActiveMenu} />}
+        </div>
       </ClickAwayListener>
     </>
   )

@@ -154,7 +154,12 @@ const Layout = (props: Props): any => {
             </Helmet>
 
             {children}
-            {<UserMenu animate={showBottomIcons ? styles.animateBottom : styles.fadeOutBottom} />}
+            {
+              <UserMenu
+                animate={showBottomIcons ? styles.animateBottom : styles.fadeOutBottom}
+                fadeOutBottom={styles.fadeOutBottom}
+              />
+            }
             <Debug />
 
             {/** Container for fading most stuff in and out depending on if the location is loaded or not  */}
