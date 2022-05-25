@@ -8,16 +8,18 @@ export type AnimationState = {
   name: string
 }
 
-const stateHandlers = {
-  LocomotionState: {
-    enter: enterLocomotionState,
-    update: updateLocomotionState,
-    getActions: getLocomotionStateActions
-  },
-  SingleAnimationState: {
-    enter: enterSingleAnimationState,
-    update: () => {},
-    getActions: getSingleAnimationStateActions
+const getStateHandlers = () => {
+  return {
+    LocomotionState: {
+      enter: enterLocomotionState,
+      update: updateLocomotionState,
+      getActions: getLocomotionStateActions
+    },
+    SingleAnimationState: {
+      enter: enterSingleAnimationState,
+      update: () => {},
+      getActions: getSingleAnimationStateActions
+    }
   }
 }
 
@@ -29,18 +31,19 @@ export function fadeOutAnimationStateActions(state?: AnimationState, duration: n
 
 export function enterAnimationState(state: AnimationState, prevState?: AnimationState) {
   if (!state) return
-  const handler = stateHandlers[state.type]
+  console.log(getStateHandlers())
+  const handler = getStateHandlers()[state.type]
   handler?.enter(state, prevState)
 }
 
 export function getAnimationStateActions(state: AnimationState): AnimationAction[] {
   if (!state) return []
-  const handler = stateHandlers[state.type]
+  const handler = getStateHandlers()[state.type]
   return handler?.getActions(state)
 }
 
 export function updateAnimationState(state: AnimationState, delta: number) {
   if (!state) return
-  const handler = stateHandlers[state.type]
+  const handler = getStateHandlers()[state.type]
   handler?.update(state, delta)
 }
