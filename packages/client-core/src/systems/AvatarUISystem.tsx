@@ -1,4 +1,5 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import multiLogger from '@xrengine/common/src/logger'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -11,6 +12,8 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { createAvatarContextMenuView } from './ui/UserMenuView'
+
+const logger = multiLogger.child({ component: 'client-core:systems' })
 
 export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView>>()
 
@@ -42,7 +45,7 @@ export default async function AvatarUISystem(world: World) {
     for (const userEntity of userQuery.enter()) {
       if (userEntity === world.localClientEntity) continue
       if (AvatarUI.has(userEntity)) {
-        console.log('entity already exists: ' + userEntity)
+        logger.info({ userEntity }, 'Entity already exists.')
         continue
       }
       const userId = getComponent(userEntity, NetworkObjectComponent).ownerId

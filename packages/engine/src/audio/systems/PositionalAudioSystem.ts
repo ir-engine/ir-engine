@@ -110,8 +110,8 @@ export default async function PositionalAudioSystem(world: World) {
       }
 
       const props = applyMediaAudioSettings(SCENE_COMPONENT_AUDIO_DEFAULT_VALUES)
-      addComponent(entity, AudioComponent, props)
-      updateAudio(entity, props)
+      // addComponent(entity, AudioComponent, props)
+      // updateAudio(entity, props)
     }
 
     for (const entity of avatarAudioQuery.exit()) {
@@ -145,10 +145,12 @@ export default async function PositionalAudioSystem(world: World) {
 
       if (avatarAudio) {
         const audioEl = avatarAudio.userData.audioEl as AudioObject
-        const audioStreamSource = audioEl.context.createMediaStreamSource(streamsLive)
-        if (audioEl.context.state === 'suspended') audioEl.context.resume()
+        if (audioEl) {
+          const audioStreamSource = audioEl.context.createMediaStreamSource(streamsLive)
+          if (audioEl.context.state === 'suspended') audioEl.context.resume()
 
-        audioEl.setNodeSource(audioStreamSource as unknown as AudioBufferSourceNode)
+          audioEl.setNodeSource(audioStreamSource as unknown as AudioBufferSourceNode)
+        }
       }
     }
   }

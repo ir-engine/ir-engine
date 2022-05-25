@@ -5,11 +5,14 @@ import {
   endVideoChat
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientNetwork'
+import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 
 import { CallEnd, VideoCall } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
+
+const logger = multiLogger.child({ component: 'client-core:videochat' })
 
 interface Props {}
 
@@ -20,7 +23,7 @@ const VideoChat = (props: Props) => {
     if (mediaStreamSystem.videoStream == null) {
       const mediaTransport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
       await configureMediaTransports(mediaTransport, ['video', 'audio'])
-      console.log('Send camera streams called from gsProvision')
+      logger.info('Send camera streams called from gsProvision.')
     } else {
       await endVideoChat(null, {})
     }

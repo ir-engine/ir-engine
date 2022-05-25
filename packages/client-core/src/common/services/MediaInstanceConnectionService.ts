@@ -3,9 +3,9 @@ import { createState, useState } from '@speigg/hookstate'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
@@ -15,6 +15,8 @@ import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunction
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
 import { NetworkConnectionService } from './NetworkConnectionService'
+
+const logger = multiLogger.child({ component: 'client-core:service:media-instance' })
 
 type InstanceState = {
   ipAddress: string
@@ -81,7 +83,7 @@ export const useMediaInstanceConnectionState = () => useState(state) as any as t
 //Service
 export const MediaInstanceConnectionService = {
   provisionServer: async (channelId?: string, isWorldConnection = false) => {
-    console.log('Provision Media Server', channelId)
+    logger.info(`Provision Media Server, channelId: "${channelId}".`)
     const dispatch = useDispatch()
     const token = accessAuthState().authUser.accessToken.value
     const provisionResult = await client.service('instance-provision').find({
@@ -110,7 +112,7 @@ export const MediaInstanceConnectionService = {
     const { ipAddress, port } = accessMediaInstanceConnectionState().instances.value[instanceId]
 
     const transport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    console.log('Connect To Media Server', !!transport.socket, transport)
+    logger.info({ socket: !!transport.socket, transport }, 'Connect To Media Server.')
     if (transport.socket) {
       await endVideoChat(transport, { endConsumers: true })
       await leave(transport, false)

@@ -7,6 +7,7 @@ import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { Message } from '@xrengine/common/src/interfaces/Message'
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { User } from '@xrengine/common/src/interfaces/User'
+import multiLogger from '@xrengine/common/src/logger'
 import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
@@ -17,6 +18,8 @@ import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
 import { getChatMessageSystem, hasSubscribedToChatSystem, removeMessageSystem } from './utils/chatSystem'
+
+const logger = multiLogger.child({ component: 'client-core:social' })
 
 interface ChatMessageProps {
   targetObjectId: string
@@ -260,9 +263,8 @@ export const ChatService = {
         targetObjectType: chatState.targetObjectType || values.targetObjectType || 'party',
         text: values.text
       }
-      if (data.targetObjectId === null || data.targetObjectType === null) {
-        console.log('invalid data, something is null: ')
-        console.log(data)
+      if (!data.targetObjectId || !data.targetObjectType) {
+        logger.warn({ data }, 'Invalid data, something is null.')
         return
       }
       await client.service('message').create(data)
@@ -278,7 +280,7 @@ export const ChatService = {
         text: values.text
       })
     } catch (err) {
-      console.log(err)
+      logger.error(err, 'Error in sendChatMessage.')
     }
   },
   sendMessage: (text: string) => {

@@ -1,12 +1,16 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import multiLogger from '@xrengine/common/src/logger'
+
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
 import { TestBotService, useTestBotState } from '../../services/TestBotService'
 import styles from '../../styles/admin.module.scss'
+
+const logger = multiLogger.child({ component: 'client-core:bot:benchmarking' })
 
 const Benchmarking = () => {
   const testbotState = useTestBotState()
@@ -17,7 +21,7 @@ const Benchmarking = () => {
   useEffect(() => {
     TestBotService.fetchTestBot()
     const interval = setInterval(() => {
-      console.log('Refreshing bot status')
+      logger.info('Refreshing bot status.')
       TestBotService.fetchTestBot()
     }, REFRESH_MS)
 

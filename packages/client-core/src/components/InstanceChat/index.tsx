@@ -7,6 +7,7 @@ import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { notificationAlertURL } from '@xrengine/common/src/constants/URL'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
@@ -36,6 +37,8 @@ import TextField from '@mui/material/TextField'
 
 import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
 import defaultStyles from './index.module.scss'
+
+const logger = multiLogger.child({ component: 'client-core:chat' })
 
 interface Props {
   styles?: any
@@ -141,9 +144,10 @@ const InstanceChat = (props: Props): any => {
       user?.instanceId?.value !== Engine.instance.currentWorld.worldNetwork.hostId
     ) {
       console.error(
-        `[ERROR]: somehow user.instanceId and instanceConnectionState.instance.id, are different when they should be the same`
+        'Somehow user.instanceId and instanceConnectionState.instance.id, are different when they should be the same',
+        user.instanceId.value,
+        Engine.instance.currentWorld.worldNetwork.hostId
       )
-      console.error(user?.instanceId?.value, Engine.instance.currentWorld.worldNetwork.hostId)
     }
     if (
       Engine.instance.currentWorld.worldNetwork?.hostId &&

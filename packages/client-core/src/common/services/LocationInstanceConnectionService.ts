@@ -4,6 +4,7 @@ import { createState, useState } from '@speigg/hookstate'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import logger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
@@ -76,7 +77,7 @@ export const useLocationInstanceConnectionState = () => useState(state) as any a
 //Service
 export const LocationInstanceConnectionService = {
   provisionServer: async (locationId?: string, instanceId?: string, sceneId?: string) => {
-    console.log('Provision World Server', locationId, instanceId, sceneId)
+    logger.info({ locationId, instanceId, sceneId }, 'Provision World Server')
     const dispatch = useDispatch()
     const token = accessAuthState().authUser.accessToken.value
     if (instanceId != null) {
@@ -107,10 +108,9 @@ export const LocationInstanceConnectionService = {
   connectToServer: async (instanceId: string) => {
     const dispatch = useDispatch()
     dispatch(LocationInstanceConnectionAction.connecting(instanceId))
-    const transport = Engine.instance.currentWorld.networks.get(
-      Engine.instance.currentWorld.worldNetwork?.hostId
-    ) as SocketWebRTCClientNetwork
-    if (transport?.socket) {
+    const transport = Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork
+    logger.info({ socket: !!transport.socket, transport }, 'Connect To World Server')
+    if (transport.socket) {
       await leave(transport, false)
     }
     console.log('Connect To World Server', !!transport?.socket, transport)
@@ -128,7 +128,7 @@ export const LocationInstanceConnectionService = {
       const user = authState.user.value
       dispatchAction(EngineActions.connect({ id: user.id! }))
     } catch (error) {
-      console.error('Network transport could not initialize, transport is: ', transport)
+      logger.error(error, 'Network transport could not initialize, transport is: ' + transport)
     }
   }
 }

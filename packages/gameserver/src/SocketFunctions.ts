@@ -38,10 +38,16 @@ const logger = multiLogger.child({ component: 'gameserver:socket' })
 export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket: Socket) => {
   logger.info('Initialized new socket connection with id %s', socket.id)
 
+  let hasListeners = false
   /**
    * Authorize user and make sure everything is valid before allowing them to join the world
    **/
   socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
+    if (hasListeners) {
+      callback({ success: true })
+      return
+    }
+
     logger.info('[MessageTypes.Authorization]: got auth request for %s', data.userId)
     const accessToken = data.accessToken
 
@@ -76,6 +82,8 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
      */
 
     callback({ success: true })
+
+    hasListeners = true
 
     socket.on(MessageTypes.ConnectToWorld.toString(), async (data, callback) => {
       handleConnectToWorld(network, socket, data, callback, userId, user)
