@@ -15,7 +15,6 @@ import SocketIO from 'socket.io'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { getNearbyUsers } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import config from '@xrengine/server-core/src/appconfig'
 import { localConfig, sctpParameters } from '@xrengine/server-core/src/config'
@@ -851,24 +850,6 @@ export async function handleWebRtcPauseProducer(
   callback({ paused: true })
 }
 
-export async function handleWebRtcRequestNearbyUsers(
-  network: SocketWebRTCServerNetwork,
-  socket,
-  data,
-  callback
-): Promise<any> {
-  const userId = getUserIdFromSocketId(socket.id)!
-  const world = Engine.instance.currentWorld
-  const selfClient = world.clients.get(userId)!
-  if (selfClient?.socketId) {
-    const nearbyUsers = getNearbyUsers(userId)
-    const nearbyUserIds = !nearbyUsers ? [] : nearbyUsers.map((user) => user.id)
-    callback({ userIds: nearbyUserIds })
-  } else {
-    callback({ userIds: [] })
-  }
-}
-
 export async function handleWebRtcRequestCurrentProducers(
   network: SocketWebRTCServerNetwork,
   socket,
@@ -876,7 +857,7 @@ export async function handleWebRtcRequestCurrentProducers(
   callback
 ): Promise<any> {
   const { userIds, channelType, channelId } = data
-
+  // console.log('\n\n\n\nhandleWebRtcRequestCurrentProducers', userIds)
   await sendCurrentProducers(socket, userIds || [], channelType, channelId)
   callback({ requested: true })
 }

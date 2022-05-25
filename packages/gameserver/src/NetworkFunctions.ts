@@ -270,7 +270,6 @@ export const handleJoinWorld = async (
   user
 ) => {
   logger.info('Join World Request Received: %o', { joinedUserId, data, user })
-  console.log('\n\nJoin World Request Received', joinedUserId, data, user)
   if (disconnectClientIfConnected(network, socket, joinedUserId)) return callback(null! as any)
 
   let spawnPose = SpawnPoints.instance.getRandomSpawnPoint()

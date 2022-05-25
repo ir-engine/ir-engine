@@ -24,7 +24,6 @@ import {
   handleWebRtcProduceData,
   handleWebRtcReceiveTrack,
   handleWebRtcRequestCurrentProducers,
-  handleWebRtcRequestNearbyUsers,
   handleWebRtcResumeConsumer,
   handleWebRtcResumeProducer,
   handleWebRtcSendTrack,
@@ -151,10 +150,6 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
 
     socket.on(MessageTypes.WebRTCPauseProducer.toString(), async (data, callback) =>
       handleWebRtcPauseProducer(network, socket, data, callback)
-    )
-
-    socket.on(MessageTypes.WebRTCRequestNearbyUsers.toString(), async (data, callback) =>
-      handleWebRtcRequestNearbyUsers(network, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async (data, callback) =>
