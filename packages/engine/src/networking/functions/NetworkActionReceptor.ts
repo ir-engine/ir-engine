@@ -63,7 +63,7 @@ const destroyClientReceptor = (
   world.clients.delete(action.$from)
   for (const topic of Object.keys(Engine.instance.store.actions.cached)) {
     Engine.instance.store.actions.cached[topic] = Engine.instance.store.actions.cached[topic].filter(
-      (action) => action.$from !== action.$from
+      (a) => a.$from !== action.$from
     )
   }
 }

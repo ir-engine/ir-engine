@@ -267,6 +267,7 @@ const dispatchAction = <A extends Action>(
 }
 
 function addTopic(topic: string, store = HyperFlux.store) {
+  console.log(`[HyperFlux]: Added topic ${topic}`)
   if (!store.actions.outgoing[topic])
     store.actions.outgoing[topic] = {
       queue: [],
@@ -277,6 +278,7 @@ function addTopic(topic: string, store = HyperFlux.store) {
 }
 
 function removeTopic(topic: string, store = HyperFlux.store) {
+  console.log(`[HyperFlux]: Removed topic ${topic}`)
   delete store.actions.outgoing[topic]
   delete store.actions.cached[topic]
 }
