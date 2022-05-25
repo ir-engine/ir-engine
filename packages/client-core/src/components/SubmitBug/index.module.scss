@@ -1,0 +1,42 @@
+.container {
+  position: fixed;
+  top: 20px;
+  left: 100px;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.helpBtn {
+  border: 2px solid #5f5ff1 !important;
+  color: #5f5ff1;
+  margin-right: 10px;
+
+  & > svg {
+    color: currentcolor !important;
+  }
+
+  @media (max-width: 695px) {
+    height: auto;
+  }
+}
+
+.reportBtn {
+  border: 2px solid #861828 !important;
+  color: #861828;
+
+  & > svg {
+    color: currentcolor !important;
+  }
+
+  @media (max-width: 695px) {
+    height: auto;
+  }
+}
+
+.action {
+  & > button {
+    background-color: transparent !important;
+  }
+}

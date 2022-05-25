@@ -29,6 +29,7 @@ import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles
 import { useLoadingSystemState } from '../../systems/state/LoadingState'
 import Debug from '../Debug'
 import InstanceChat from '../InstanceChat'
+import SubmitBugButton from '../SubmitBug'
 import Me from '../Me'
 import MediaIconsBox from '../MediaIconsBox'
 import PartyVideoWindows from '../PartyVideoWindows'
@@ -170,6 +171,7 @@ const Layout = (props: Props): any => {
               >
                 <MediaIconHider />
               </button>
+              <SubmitBugButton animate={showMediaIcons ? styles.animateTop : styles.fadeOutTop} />
               <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOutTop} />
               <header className={showMediaIcons ? styles.animateTop : styles.fadeOutTop}>
                 {!props.hideVideo && (
