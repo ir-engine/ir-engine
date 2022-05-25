@@ -54,7 +54,7 @@
     "@xrengine/engine": "^0.5.5",
     "@xrengine/matchmaking": "^0.5.5",
     "app-root-path": "3.0.0",
-    "aws-sdk": "2.1142.0",
+    "aws-sdk": "2.1143.0",
     "bent": "^7.3.0",
     "chargebee": "^2.5.7",
     "cors-anywhere": "^0.4.4",
