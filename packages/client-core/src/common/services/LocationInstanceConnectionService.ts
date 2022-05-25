@@ -99,6 +99,7 @@ export const LocationInstanceConnectionService = {
         token: token
       }
     })
+    console.log('provisionResult', provisionResult)
     if (provisionResult.ipAddress && provisionResult.port) {
       dispatch(LocationInstanceConnectionAction.serverProvisioned(provisionResult, locationId!, sceneId!))
     } else {

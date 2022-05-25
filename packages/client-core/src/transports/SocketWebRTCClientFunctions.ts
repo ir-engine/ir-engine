@@ -41,7 +41,7 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   const dispatch = useDispatch()
 
   const isWorldConnection = network.type === NetworkTypes.world
-  console.log('onConnectToInstance', network.type)
+  console.log('[WebRTC]: connectting to instance type:', network.type, network.hostId)
 
   if (isWorldConnection) {
     dispatch(LocationInstanceConnectionAction.instanceServerConnected(network.instanceId))
@@ -105,6 +105,8 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 
   if (isWorldConnection) await onConnectToWorldInstance(network)
   else await onConnectToMediaInstance(network)
+
+  console.log('[WebRTC]: successfully connected to instance type:', network.type, network.hostId)
 }
 
 export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwork) {
@@ -342,9 +344,9 @@ export async function createDataProducer(
 // appropriate to the transport's direction
 
 export async function createTransport(network: SocketWebRTCClientNetwork, direction: string) {
-  const request = network.request
-  if (request === null) return null!
   const { channelId, channelType } = getChannelTypeIdFromTransport(network)
+
+  console.log('[WebRTC]: creating transport:', network.type, network.hostId, channelId, channelType)
 
   // ask the server to create a server-side transport object and send
   // us back the info we need to create a client-side transport
@@ -539,7 +541,7 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
   const currentChannelInstanceConnection = channelConnectionState.instances[network.instanceId].ornull
   const channelType = currentChannelInstanceConnection.channelType.value
   const channelId = currentChannelInstanceConnection.channelId.value
-  if (MediaStreams.instance.videoStream !== null && currentChannelInstanceConnection.videoEnabled.value === true) {
+  if (MediaStreams.instance.videoStream !== null && currentChannelInstanceConnection.videoEnabled.value) {
     if (network.sendTransport == null) {
       await new Promise((resolve) => {
         const waitForTransportReadyInterval = setInterval(() => {
@@ -550,7 +552,6 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
         }, 100)
       })
     }
-
     const transport = network.sendTransport
     try {
       let produceInProgress = false

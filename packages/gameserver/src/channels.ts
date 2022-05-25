@@ -4,9 +4,9 @@ import '@feathersjs/transport-commons'
 
 import { decode } from 'jsonwebtoken'
 
+import { ChannelInterface } from '@xrengine/common/src/dbmodels/Channel'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
-import { ChannelInterface } from '@xrengine/common/src/dbmodels/Channel'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -108,6 +108,7 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
 const assignExistingInstance = async (app: Application, existingInstance, channelId: string, locationId: string) => {
   await app.agonesSDK.allocate()
   app.instance = existingInstance
+  console.log('assignExistingInstance', existingInstance, channelId, locationId)
 
   await app.service('instance').patch(existingInstance.id, {
     currentUsers: existingInstance.currentUsers + 1,
@@ -391,16 +392,29 @@ const loadGameserver = async (
   const isReady = status.state === 'Ready'
   const isNeedingNewServer =
     !config.kubernetes.enabled &&
-    (status.state === 'Shutdown' ||
-      app.instance == null ||
-      app.instance.locationId !== locationId ||
-      app.instance.channelId !== channelId)
+    // (status.state === 'Shutdown' ||
+    !app.instance
+
+  if (app.instance) {
+    if (app.instance.locationId !== locationId)
+      return console.warn(
+        '[loadGameserver]: got a connection to the wrong location id',
+        app.instance.locationId,
+        locationId
+      )
+    if (app.instance.channelId !== channelId)
+      return console.warn(
+        '[loadGameserver]: got a connection to the wrong channel id',
+        app.instance.channelId,
+        channelId
+      )
+  }
 
   if (isReady || isNeedingNewServer) {
-    await handleInstance(app, status, locationId, channelId, userId)
-    console.log('instance handled')
+    console.log('instance handled', app.instance?.id)
     if (!engineStarted && sceneId != null) {
       engineStarted = true
+      await handleInstance(app, status, locationId, channelId, userId)
       await loadEngine(app, sceneId)
     }
   } else {
@@ -547,7 +561,8 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
   const gsResult = await app.agonesSDK.getGameServer()
   const status = gsResult.status as GameserverStatus
 
-  await loadGameserver(app, status, locationId, channelId, sceneId, userId)
+  const successfulLoad = await loadGameserver(app, status, locationId, channelId, sceneId, userId)
+  if (!successfulLoad) return
 
   connection.instanceId = app.instance.id
   app.channel(`instanceIds/${app.instance.id as string}`).join(connection)
