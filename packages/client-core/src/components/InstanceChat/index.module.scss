@@ -385,12 +385,12 @@
 }
 
 .animateTop {
-  animation: moveBottom 0.4s ease 0.4s;
+  animation: moveBottom 4s ease 4s;
   animation-fill-mode: backwards;
 }
 
 .animateLeft {
-  animation: moveLeft 0.4s ease 0.4s;
+  animation: moveLeft 4s ease 4s;
   animation-fill-mode: backwards;
 }
 
@@ -414,20 +414,32 @@
 
 @keyframes moveLeft {
   0% {
-    transform: translateX(-20rem);
+    flex-direction: row;
   }
 
   100% {
-    transform: translate(0);
+    flex-direction: row;
   }
 }
 
 @keyframes moveBottom {
   0% {
-    transform: translateY(-81vh);
+    top: -40px;
+  }
+
+  25% {
+    top: -30px;
+  }
+
+  50% {
+    top: -20px;
+  }
+
+  75% {
+    top: -10px;
   }
 
   100% {
-    transform: translate(0);
+    top: 0;
   }
 }
