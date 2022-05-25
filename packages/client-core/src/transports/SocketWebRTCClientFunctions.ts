@@ -200,8 +200,8 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     const channelConnectionState = accessMediaInstanceConnectionState()
     const currentChannelInstanceConnection = channelConnectionState.instances[network.instanceId].ornull
 
-    // console.log('webRTCCreateProducerHandler', socketId, mediaTag, producerId, channelType, channelId)
-    // console.log(selfProducerIds.indexOf(producerId) < 0, currentChannelInstanceConnection.channelType.value)
+    console.log('webRTCCreateProducerHandler', socketId, mediaTag, producerId, channelType, channelId)
+    console.log(selfProducerIds.indexOf(producerId) < 0, currentChannelInstanceConnection.channelType.value)
 
     const consumerMatch = MediaStreams.instance?.consumers?.find(
       (c) => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag && c?.producerId === producerId
@@ -218,6 +218,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     ) {
       // that we don't already have consumers for...
       await subscribeToTrack(network as SocketWebRTCClientNetwork, socketId, mediaTag)
+      MediaStreamService.triggerUpdateNearbyLayerUsers()
     }
   }
 
@@ -227,6 +228,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
         closeConsumer(network, consumer)
       })
       .when(MediaStreams.actions.triggerRequestCurrentProducers.matches, async () => {
+        MediaStreamService.triggerUpdateNearbyLayerUsers()
         const channelConnectionState = accessMediaInstanceConnectionState()
         const currentChannelInstanceConnection = channelConnectionState.instances[network.instanceId]
         // console.log('triggerRequestCurrentProducers', MediaStreams.instance.nearbyLayerUsers, currentChannelInstanceConnection.channelType.value, currentChannelInstanceConnection.channelId.value)

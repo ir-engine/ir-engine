@@ -143,11 +143,6 @@ const InstanceChat = (props: Props): any => {
     }
   }, [currentInstanceConnection?.connected?.value])
 
-  console.log(
-    Engine.instance.currentWorld.worldNetwork?.hostId,
-    currentInstanceConnection?.connected?.value,
-    chatState.instanceChannelFetching.value
-  )
   React.useEffect(() => {
     if (messageEl) messageEl.scrollTop = messageEl?.scrollHeight
   }, [chatState])

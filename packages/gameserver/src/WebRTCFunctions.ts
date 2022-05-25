@@ -857,7 +857,6 @@ export async function handleWebRtcRequestCurrentProducers(
   callback
 ): Promise<any> {
   const { userIds, channelType, channelId } = data
-  // console.log('\n\n\n\nhandleWebRtcRequestCurrentProducers', userIds)
   await sendCurrentProducers(socket, userIds || [], channelType, channelId)
   callback({ requested: true })
 }

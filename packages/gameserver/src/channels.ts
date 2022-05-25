@@ -194,7 +194,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await loadEngineInjection(world, projects)
     dispatchAction(EngineActions.sceneLoaded())
   } else {
-    world.worldHostId = instanceId as UserId
+    world._worldHostId = instanceId as UserId
 
     const [projectName, sceneName] = sceneId.split('/')
 
