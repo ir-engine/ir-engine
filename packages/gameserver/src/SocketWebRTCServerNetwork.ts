@@ -89,7 +89,7 @@ export class SocketWebRTCServerNetwork extends Network {
       ordered: false,
       label: 'outgoingProducer',
       protocol: 'raw',
-      appData: { peerID: 'outgoingProducer' }
+      appData: { peerId: 'outgoingProducer' }
     }
     this.outgoingDataProducer = await this.outgoingDataTransport.produceData(options)
 
