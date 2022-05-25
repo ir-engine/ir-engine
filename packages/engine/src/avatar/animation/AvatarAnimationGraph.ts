@@ -16,6 +16,7 @@ import {
   animationTimeTransitionRule,
   booleanTransitionRule,
   compositeTransitionRule,
+  thresholdTransitionRule,
   vectorLengthTransitionRule
 } from './AnimationStateTransitionsRule'
 import { addBlendSpace1DNode, BlendSpace1D } from './BlendSpace1D'
@@ -249,9 +250,12 @@ export function createAvatarAnimationGraph(
       rule: booleanTransitionRule(jumpValue, 'isJumping'),
       nextState: AvatarStates.JUMP_UP
     },
-    // Fall
+    // Fall - threshold rule is to prevent fall_idle when going down ramps or over gaps
     {
-      rule: booleanTransitionRule(jumpValue, 'isInAir'),
+      rule: compositeTransitionRule(
+        [booleanTransitionRule(jumpValue, 'isInAir'), thresholdTransitionRule(velocity, 'y', -0.05, false)],
+        'and'
+      ),
       nextState: AvatarStates.FALL_IDLE
     }
   ]

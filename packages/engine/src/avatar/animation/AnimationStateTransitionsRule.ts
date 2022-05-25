@@ -58,3 +58,14 @@ export function compositeTransitionRule(
     return result
   }
 }
+
+// Allows state transition based on an object's numerical property
+export function thresholdTransitionRule(
+  object: object,
+  property: string,
+  threshold: number = 0,
+  largerThan: boolean = false
+): AnimationStateTransitionRule {
+  if (largerThan) return () => object[property] > threshold
+  return () => object[property] < threshold
+}

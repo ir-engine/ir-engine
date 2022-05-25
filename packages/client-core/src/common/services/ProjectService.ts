@@ -1,9 +1,12 @@
 import { createState, useState } from '@speigg/hookstate'
 
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import multiLogger from '@xrengine/common/src/logger'
 
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
+
+const logger = multiLogger.child({ component: 'client-core:projects' })
 
 //State
 export const PROJECT_PAGE_LIMIT = 100
@@ -40,7 +43,7 @@ export const ProjectService = {
   createProject: async (name: string) => {
     const dispatch = useDispatch()
     const result = await client.service('project').create({ name })
-    console.log('Upload project result', result)
+    logger.info({ result }, 'Create project result')
     dispatch(ProjectAction.createdProject())
     ProjectService.fetchProjects()
   },
@@ -49,7 +52,7 @@ export const ProjectService = {
   uploadProject: async (url: string) => {
     const dispatch = useDispatch()
     const result = await client.service('project').update({ url })
-    console.log('Upload project result', result)
+    logger.info({ result }, 'Upload project result')
     dispatch(ProjectAction.postProject())
     ProjectService.fetchProjects()
   },
@@ -57,14 +60,14 @@ export const ProjectService = {
   // restricted to admin scope
   removeProject: async (id: string) => {
     const result = await client.service('project').remove(id)
-    console.log('Remove project result', result)
+    logger.info({ result }, 'Remove project result')
     ProjectService.fetchProjects()
   },
 
   // restricted to admin scope
   triggerReload: async () => {
     const result = await client.service('project-build').patch({ rebuild: true })
-    console.log('Remove project result', result)
+    logger.info({ result }, 'Reload project result')
   },
 
   // restricted to admin scope
@@ -73,7 +76,7 @@ export const ProjectService = {
       await client.service('project-invalidate').patch({ projectName })
       ProjectService.fetchProjects()
     } catch (err) {
-      console.log(err)
+      logger.error(err, 'Error invalidating project cache.')
     }
   }
 }

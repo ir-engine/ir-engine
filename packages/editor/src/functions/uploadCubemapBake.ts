@@ -15,10 +15,12 @@ import { beforeMaterialCompile } from '@xrengine/engine/src/scene/classes/BPCEMS
 import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
 import { convertCubemapToEquiImageData } from '@xrengine/engine/src/scene/classes/ImageUtils'
 import { CubemapBakeComponent } from '@xrengine/engine/src/scene/components/CubemapBakeComponent'
+import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import {
   parseCubemapBakeProperties,
+  SCENE_COMPONENT_CUBEMAP_BAKE,
   SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES,
   updateCubemapBake
 } from '@xrengine/engine/src/scene/functions/loaders/CubemapBakeFunctions'
@@ -67,6 +69,7 @@ export const uploadBakeToServer = async (entity: Entity) => {
         CubemapBakeComponent,
         parseCubemapBakeProperties(SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES)
       )
+      getComponent(entity, EntityNodeComponent).components.push(SCENE_COMPONENT_CUBEMAP_BAKE)
       updateCubemapBake(entity)
     }
   }
