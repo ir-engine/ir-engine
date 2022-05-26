@@ -134,14 +134,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
           limit: limit
         }
       } else {
-        query.id = {
-          $in: results.rows.map((channel) => channel.id)
-        }
-        delete query.skip
-        delete query.limit
-        params.paginate = false
-        return this.app.service('channel').Model.findOne(params)
-
+        return this.app.service('channel').Model.findAll({ where: { channelType: query.channelType, instanceId: query.instanceId } })
       }
     } catch (err) {
       logger.error(err, `Channel find failed: ${err.message}`)

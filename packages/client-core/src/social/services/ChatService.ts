@@ -248,10 +248,10 @@ export const ChatService = {
           channelType: 'instance',
           instanceId: Engine.instance.currentWorld.worldNetwork.hostId
         }
-      })) as any as Channel
+      })) as Channel[]
       console.log('channelResult', channelResult)
-      if (!channelResult) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
-      dispatch(ChatAction.loadedChannel(channelResult, 'instance'))
+      if (!channelResult.length) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
+      dispatch(ChatAction.loadedChannel(channelResult[0], 'instance'))
     } catch (err) {
       AlertService.dispatchAlertError(err)
     }

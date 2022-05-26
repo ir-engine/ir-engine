@@ -80,11 +80,13 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
 
   logger.info('Creating new instance: %o', newInstance, locationId, channelId)
   const instanceResult = (await app.service('instance').create(newInstance)) as InstanceInterface
-  if (!channelId)
+  if (!channelId) {
+    console.log('[createNewInstance]: creating new channel', instanceResult.id)
     await app.service('channel').create({
       channelType: 'instance',
       instanceId: instanceResult.id
     })
+  }
   await app.agonesSDK.allocate()
   app.instance = instanceResult
 
@@ -154,7 +156,7 @@ const handleInstance = async (
   const existingInstanceResult = (await app.service('instance').find({
     query: existingInstanceQuery
   })) as Paginated<InstanceInterface>
-  // logger.info('existingInstanceResult: %o', existingInstanceResult.data)
+  logger.info('existingInstanceResult: %o', existingInstanceResult.data)
   if (existingInstanceResult.total === 0) {
     const newInstance = {
       currentUsers: 1,
@@ -175,12 +177,13 @@ const handleInstance = async (
         },
         'identity-provider': user['identity_providers'][0]
       })) as Channel[]
-      console.log('existingChannel', existingChannel)
-      if (existingChannel.length === 0)
+      if (existingChannel.length === 0) {  
+        console.log('[handleInstance]: creating new channel', instance.id)
         await app.service('channel').create({
           channelType: 'instance',
           instanceId: instance.id
         })
+      }
     }
     if (!authorizeUserToJoinServer(app, instance, userId)) return
     await assignExistingInstance(app, existingInstanceResult.data[0], channelId, locationId)
