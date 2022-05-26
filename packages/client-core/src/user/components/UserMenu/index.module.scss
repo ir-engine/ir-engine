@@ -203,13 +203,14 @@
 
 .menuPanel {
   position: absolute;
-  bottom: 75px;
   padding: 0 30px;
+  z-index: 6;
   border-radius: 20px;
   background-color: var(--popupBackground);
-  width: calc(100% - 50px);
+  width: calc(100% - 20px);
   left: 50%;
-  transform: translateX(-50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
   box-shadow: 16px 16px 32px 0 #11111159;
   color: black;
   max-height: calc(100vh - 100px);
@@ -548,12 +549,6 @@
 
         svg {
           color: var(--buttonOutlined);
-        }
-      }
-
-      .settingHeader {
-        @media (max-width: 560px) {
-          font-size: 1.125rem;
         }
       }
 
@@ -999,12 +994,16 @@
     }
   }
 
-  @media (max-width: 560px) {
-    left: 100%;
-    width: auto;
-    bottom: 125px;
-    transform: none;
-  }
+  // @media (max-width: 560px) {
+  //   left: 100%;
+  //   width: auto;
+  //   bottom: 125px;
+  //   transform: none;
+  //   // position: absolute;
+  //   // left: 50%;
+  //   // top: 50%;
+  //   // transform: translate(-50%, -50%);
+  // }
 
   @media screen and (max-width: 500px) {
     .profileBlock {
@@ -1020,6 +1019,18 @@
   @media screen and (min-width: 768px) {
     width: 600px;
     min-height: 208px;
+  }
+}
+
+.settingHeader {
+  @media (max-width: 560px) {
+    font-size: 16px;
+  }
+}
+
+:global(.MuiFormControlLabel-label) {
+  @media (max-width: 560px) {
+    font-size: 12px;
   }
 }
 
@@ -1789,15 +1800,15 @@
 
 .avatarSelectContainer {
   position: absolute;
-  bottom: 110px;
-  padding: 15px 20px 20px 17px;
+  padding: 15px;
   border-radius: 5px;
   left: 50%;
-  transform: translateX(-50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
   color: black;
-  height: 550px;
+  height: 500px;
   overflow: hidden;
-  width: 400px;
+  max-width: 550px;
   z-index: 1400;
   background: rgb(255 255 255 / 50%);
   box-shadow: 0 4px 30px rgb(0 0 0 / 10%);
@@ -1806,8 +1817,8 @@
 }
 
 .paperAvatar {
-  height: 140px;
-  width: 170px;
+  height: 130px;
+  width: 160px;
   border: none;
   position: relative;
   cursor: pointer;
@@ -1816,11 +1827,17 @@
   &:hover {
     background: rgb(81 81 255 / 45%);
   }
+
+  @media (max-width: 400px) {
+    margin-right: 5px;
+  }
 }
 
 .avatarContainer {
-  height: 80%;
-  margin-bottom: 70px;
+  height: 90%;
+  margin-bottom: 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .menuContainer {
@@ -1906,7 +1923,7 @@
   width: 80%;
   position: absolute;
   left: 50%;
-  top: 28px;
+  top: 26px;
   transform: translateX(-50%);
   cursor: pointer;
 }

@@ -170,17 +170,13 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
 
   Object.keys(sceneData.entities).forEach((key) => {
     entityMap[key] = createEntityNode(createEntity(), key)
+    const sceneEntity = sceneData.entities[key]
+    const node = entityMap[key]
+    addEntityNodeInTree(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
     loadSceneEntity(entityMap[key], sceneData.entities[key])
   })
 
   const tree = Engine.instance.currentWorld.entityTree
-
-  Object.keys(sceneData.entities).forEach((key) => {
-    const sceneEntity = sceneData.entities[key]
-    const node = entityMap[key]
-    addEntityNodeInTree(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
-  })
-
   addComponent(tree.rootNode.entity, Object3DComponent, { value: Engine.instance.currentWorld.scene })
   addComponent(tree.rootNode.entity, SceneTagComponent, {})
   getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
