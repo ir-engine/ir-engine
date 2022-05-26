@@ -23,9 +23,9 @@ import { NetworkConnectionService } from '../common/services/NetworkConnectionSe
 import { MediaStreamAction, MediaStreamService } from '../media/services/MediaStreamService'
 import { store, useDispatch } from '../store'
 import { accessAuthState } from '../user/services/AuthService'
+import { UserService } from '../user/services/UserService'
 import { getSearchParamFromURL } from '../util/getSearchParamFromURL'
 import { SocketWebRTCClientNetwork } from './SocketWebRTCClientNetwork'
-import { UserService } from '../user/services/UserService'
 
 export const getChannelTypeIdFromTransport = (network: SocketWebRTCClientNetwork) => {
   const channelConnectionState = accessMediaInstanceConnectionState()
@@ -76,33 +76,17 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
     ])
   } catch (err) {
     console.log(err)
-    dispatchAction(EngineActions.connectToWorldTimeout({ instance: true }))
+    dispatchAction(EngineActions.connectToWorldTimeout({ instance: isWorldConnection }))
     return
   }
 
   if (!ConnectToWorldResponse) {
-    dispatchAction(EngineActions.connectToWorldTimeout({ instance: true }))
+    dispatchAction(EngineActions.connectToWorldTimeout({ instance: isWorldConnection }))
     return
   }
   const { routerRtpCapabilities } = ConnectToWorldResponse as any
-  dispatchAction(EngineActions.connectToWorld({ connectedWorld: true }))
 
   if (network.mediasoupDevice.loaded !== true) await network.mediasoupDevice.load({ routerRtpCapabilities })
-
-  // use sendBeacon to tell the server we're disconnecting when
-  // the page unloads
-  window.addEventListener('unload', async () => {
-    // TODO: Handle this as a full disconnect
-    network.socket.emit(MessageTypes.LeaveWorld.toString())
-  })
-
-  network.socket.on(MessageTypes.Kick.toString(), async (message) => {
-    // console.log("TODO: SNACKBAR HERE");
-    await endVideoChat(network, { endConsumers: true })
-    await leave(network, true)
-    dispatchAction(NetworkConnectionService.actions.worldInstanceKicked({ message }))
-    console.log('Client has been kicked from the world')
-  })
 
   if (isWorldConnection) await onConnectToWorldInstance(network)
   else await onConnectToMediaInstance(network)
@@ -175,6 +159,23 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
 
   await Promise.all([initSendTransport(network), initReceiveTransport(network)])
   await createDataProducer(network, 'instance')
+
+  dispatchAction(EngineActions.connectToWorld({ connectedWorld: true }))
+
+  // use sendBeacon to tell the server we're disconnecting when
+  // the page unloads
+  window.addEventListener('unload', async () => {
+    // TODO: Handle this as a full disconnect
+    network.socket.emit(MessageTypes.LeaveWorld.toString())
+  })
+
+  network.socket.on(MessageTypes.Kick.toString(), async (message) => {
+    // console.log("TODO: SNACKBAR HERE");
+    await endVideoChat(network, { endConsumers: true })
+    await leave(network, true)
+    dispatchAction(NetworkConnectionService.actions.worldInstanceKicked({ message }))
+    console.log('Client has been kicked from the world')
+  })
 }
 
 export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwork) {
@@ -738,11 +739,6 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
   const currentChannelInstanceConnection = channelConnectionState.instances[network.instanceId].ornull
   const channelType = currentChannelInstanceConnection.channelType.value
   const channelId = currentChannelInstanceConnection.channelId.value
-  // if we do already have a consumer, we shouldn't have called this method
-
-  const existingConsumer = MediaStreams.instance?.consumers?.find(
-    (c) => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag
-  )
 
   // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
   const consumerParameters = await network.request(MessageTypes.WebRTCReceiveTrack.toString(), {
@@ -761,22 +757,24 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
     appData: { peerId, mediaTag, channelType },
     paused: true
   })
+
+  // if we do already have a consumer, we shouldn't have called this method
+  const existingConsumer = MediaStreams.instance?.consumers?.find(
+    (c) => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag
+  )
   if (existingConsumer == null) {
     MediaStreams.instance?.consumers.push(consumer)
-    dispatchAction(MediaStreams.actions.triggerUpdateConsumers())
-    MediaStreamService.triggerUpdateNearbyLayerUsers()
-
     // okay, we're ready. let's ask the peer to send us media
     await resumeConsumer(network, consumer)
   } else if (existingConsumer?._track?.muted) {
     await closeConsumer(network, existingConsumer)
     MediaStreams.instance.consumers.push(consumer)
-    dispatchAction(MediaStreams.actions.triggerUpdateConsumers())
-    MediaStreamService.triggerUpdateNearbyLayerUsers()
-
     // okay, we're ready. let's ask the peer to send us media
     await resumeConsumer(network, consumer)
   } else await closeConsumer(network, consumer)
+
+  dispatchAction(MediaStreams.actions.triggerUpdateConsumers())
+  MediaStreamService.triggerUpdateNearbyLayerUsers()
 }
 
 export async function unsubscribeFromTrack(transport: SocketWebRTCClientNetwork, peerId: any, mediaTag: any) {

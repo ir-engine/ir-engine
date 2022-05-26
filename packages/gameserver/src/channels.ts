@@ -4,9 +4,9 @@ import '@feathersjs/transport-commons'
 
 import { decode } from 'jsonwebtoken'
 
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
+import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -19,6 +19,7 @@ import {
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
@@ -31,7 +32,6 @@ import multiLogger from '@xrengine/server-core/src/logger'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
-import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 
 const logger = multiLogger.child({ component: 'gameserver:channels' })
 
@@ -109,7 +109,6 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
 const assignExistingInstance = async (app: Application, existingInstance, channelId: string, locationId: string) => {
   await app.agonesSDK.allocate()
   app.instance = existingInstance
-
   await app.service('instance').patch(existingInstance.id, {
     currentUsers: existingInstance.currentUsers + 1,
     channelId: channelId,
@@ -177,7 +176,7 @@ const handleInstance = async (
         },
         'identity-provider': user['identity_providers'][0]
       })) as Channel[]
-      if (existingChannel.length === 0) {  
+      if (existingChannel.length === 0) {
         console.log('[handleInstance]: creating new channel', instance.id)
         await app.service('channel').create({
           channelType: 'instance',
@@ -392,10 +391,7 @@ const loadGameserver = async (
   }
 
   const isReady = status.state === 'Ready'
-  const isNeedingNewServer =
-    !config.kubernetes.enabled &&
-    // (status.state === 'Shutdown' ||
-    !app.instance
+  const isNeedingNewServer = !config.kubernetes.enabled && (status.state === 'Shutdown' || !app.instance)
 
   if (app.instance) {
     if (locationId && app.instance.locationId !== locationId)

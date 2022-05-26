@@ -365,7 +365,7 @@ const _applyIncomingAction = (action: Required<Action>, store = HyperFlux.store)
   applyIncomingActionsToAllQueues(action, store)
 
   try {
-    console.log(`[Action]: ${action.type}`, action)
+    // console.log(`[Action]: ${action.type}`, action)
     for (const receptor of [...store.receptors]) receptor(action)
     store.actions.incomingHistory.push(action)
     for (const topic of action.$topic) {

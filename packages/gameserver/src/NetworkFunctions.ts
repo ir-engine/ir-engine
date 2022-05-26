@@ -62,13 +62,6 @@ export const setupSubdomain = async (network: SocketWebRTCServerNetwork) => {
     //   HostedZoneId: config.aws.route53.hostedZoneId
     // }
     // if (config.gameserver.local !== true) await Route53.changeResourceRecordSets(params as any).promise()
-  } else {
-    try {
-      // is this needed?
-      await app.service('instance').Model.update({ ended: true, assigned: false, assignedAt: null }, { where: {} })
-    } catch (error) {
-      logger.warn(error)
-    }
   }
 
   // Set up our gameserver according to our current environment
