@@ -34,8 +34,7 @@ import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { Updatable } from '../../scene/interfaces/Updatable'
-import { AnimationState } from '../animation/AnimationState'
-import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
+import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import avatarBoneMatching, { BoneStructure, createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
@@ -163,8 +162,7 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
   animationComponent.mixer = new AnimationMixer(sourceSkeleton.bones[0])
 
   if (avatarAnimationComponent)
-    (avatarAnimationComponent.animationGraph as AvatarAnimationGraph).initialize(
-      entity,
+    avatarAnimationComponent.animationGraph = createAvatarAnimationGraph(
       animationComponent.mixer,
       velocityComponent.linear,
       controllerComponent ?? {}
