@@ -79,7 +79,7 @@
     "@types/node": "16.11.36",
     "@types/react": "17.0.44",
     "@types/react-dom": "18.0.5",
-    "@types/three": "0.139.0",
+    "@types/three": "0.140.0",
     "create-ts-index": "1.14.0",
     "esbuild": "0.14.36",
     "mocha": "9.2.2",
