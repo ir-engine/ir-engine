@@ -1,3 +1,7 @@
+import multiLogger from '@xrengine/common/src/logger'
+
+const logger = multiLogger.child({ component: 'client-core:store' })
+
 declare global {
   interface ImportMeta {
     globEager: (glob: string) => { [module: string]: any }
@@ -22,8 +26,10 @@ export const store = {
   // },
 
   dispatch(action: { type: string; [key: string]: any }) {
-    console.log('[Client Action]: ' + action.type, action)
-    for (const r of store.receptors) r(action)
+    logger.info({ action }, `Action: ${action.type}`)
+    for (const r of store.receptors) {
+      r(action)
+    }
   }
 }
 

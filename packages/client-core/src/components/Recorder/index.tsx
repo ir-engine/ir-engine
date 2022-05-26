@@ -1,10 +1,14 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import multiLogger from '@xrengine/common/src/logger'
+
 import styles from './index.module.scss'
 
 declare var MediaRecorder: any
 declare const window: any
+
+const logger = multiLogger.child({ component: 'client-core:recorder' })
 
 /**
  * Checks whether the argument is an object
@@ -39,7 +43,7 @@ function validateMediaTrackConstraints(mediaType) {
 
   if (unSupportedMediaConstraints.length !== 0) {
     let toText = unSupportedMediaConstraints.join(',')
-    console.error(`The following constraints ${toText} are not supported on this browser.`)
+    logger.error(`The following constraints ${toText} are not supported on this browser.`)
   }
 }
 
@@ -251,7 +255,9 @@ function useMediaRecorder({
 
     if (mediaRecorderOptions && mediaRecorderOptions.mimeType) {
       if (!MediaRecorder.isTypeSupported(mediaRecorderOptions.mimeType)) {
-        console.error(`The specified MIME type supplied to MediaRecorder is not supported by this browser.`)
+        logger.error(
+          `The MIME type "${mediaRecorderOptions.mimeType}" supplied to MediaRecorder is not supported by this browser.`
+        )
       }
     }
   }, [mediaStreamConstraints, mediaRecorderOptions, recordScreen])

@@ -9,6 +9,7 @@ import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
 import { User } from '@xrengine/common/src/interfaces/User'
+import multiLogger from '@xrengine/common/src/logger'
 
 import { AlertService } from '../../common/services/AlertService'
 import { accessLocationInstanceConnectionState } from '../../common/services/LocationInstanceConnectionService'
@@ -18,8 +19,9 @@ import { accessAuthState } from '../../user/services/AuthService'
 import { UserAction } from '../../user/services/UserService'
 import { ChatService } from './ChatService'
 
-//State
+const logger = multiLogger.child({ component: 'client-core:social' })
 
+// State
 const state = createState({
   party: {} as Party,
   updateNeeded: true
@@ -61,7 +63,7 @@ store.receptors.push((action: PartyActionType): any => {
       case 'PATCHED_PARTY_USER':
         newValues = action
         partyUser = newValues.partyUser
-        console.log('patched partyUser', partyUser)
+        logger.info({ partyUser }, 'Patched partyUser.')
         updateMap = _.cloneDeep(s.party.value)
         if (updateMap != null) {
           updateMapPartyUsers = updateMap.partyUsers
@@ -117,11 +119,11 @@ export const PartyService = {
     const userId = accessAuthState().user.id.value
     if (client.io && socketId === undefined) {
       client.io.emit('request-user-id', ({ id }: { id: number }) => {
-        console.log('Socket-ID received: ', id)
+        logger.info('Socket-ID received: ' + id)
         socketId = id
       })
       client.io.on('message-party', (data: any) => {
-        console.warn('Message received, data: ', data)
+        logger.info({ data }, 'Message received.')
       })
       ;(window as any).joinParty = (userId: number, partyId: number) => {
         client.io.emit(
@@ -131,7 +133,7 @@ export const PartyService = {
             partyId
           },
           (res) => {
-            console.log('Join response: ', res)
+            logger.info({ res }, 'Join response.')
           }
         )
       }
@@ -144,15 +146,15 @@ export const PartyService = {
       }
       ;(window as any).partyInit = (userId: number) => {
         client.io.emit('party-init', { userId }, (response: any) => {
-          response ? console.log('Init success', response) : console.log('Init failed')
+          response ? logger.info({ response }, 'Init success.') : logger.info('Init failed.')
         })
       }
     } else {
-      console.log('Your socket id is: ', socketId)
+      logger.info('Your socket id is: ' + socketId)
     }
   },
   createParty: async () => {
-    console.log('CREATING PARTY')
+    logger.info('CREATING PARTY')
     try {
       await client.service('party').create({})
     } catch (err) {
