@@ -68,6 +68,7 @@ api:
     APP_HOST: local.theoverlay.io
     APP_URL: https://local.theoverlay.io
     AUTH_SECRET: <AUTH_SECRET_UUID_OR_SIMILAR>
+    ELASTIC_HOST: "http://host.minikube.internal:9200"
     AWS_SMS_ACCESS_KEY_ID: <SNS_USER_ACCESS_KEY>
     AWS_SMS_REGION: <SNS_REGION>
     AWS_SMS_SECRET_ACCESS_KEY: <SNS_USER_SECRET_KEY>
