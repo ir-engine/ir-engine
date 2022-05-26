@@ -25,6 +25,7 @@ import { store, useDispatch } from '../store'
 import { accessAuthState } from '../user/services/AuthService'
 import { getSearchParamFromURL } from '../util/getSearchParamFromURL'
 import { SocketWebRTCClientNetwork } from './SocketWebRTCClientNetwork'
+import { UserService } from '../user/services/UserService'
 
 export const getChannelTypeIdFromTransport = (network: SocketWebRTCClientNetwork) => {
   const channelConnectionState = accessMediaInstanceConnectionState()
@@ -231,9 +232,9 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
       })
       .when(MediaStreams.actions.triggerRequestCurrentProducers.matches, async () => {
         MediaStreamService.triggerUpdateNearbyLayerUsers()
+        UserService.getLayerUsers(true)
         const channelConnectionState = accessMediaInstanceConnectionState()
         const currentChannelInstanceConnection = channelConnectionState.instances[network.instanceId]
-        // console.log('triggerRequestCurrentProducers', MediaStreams.instance.nearbyLayerUsers, currentChannelInstanceConnection.channelType.value, currentChannelInstanceConnection.channelId.value)
         await network.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
           userIds: MediaStreams.instance.nearbyLayerUsers || [],
           channelType: currentChannelInstanceConnection.channelType.value,

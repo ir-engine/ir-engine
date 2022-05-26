@@ -126,7 +126,6 @@ export const NetworkInstanceProvisioning = () => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
       const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === worldNetworkHostId)
-      console.log('instanceChannel', instanceChannel)
       MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
     }
   }, [chatState.instanceChannelFetched])
