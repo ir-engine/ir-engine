@@ -18,6 +18,7 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES } from '@xrengine/engine/src/scene/functions/loaders/AudioSettingFunctions'
 
@@ -38,6 +39,7 @@ import IconButton from '@mui/material/IconButton'
 import Slider from '@mui/material/Slider'
 import Tooltip from '@mui/material/Tooltip'
 
+import { useMediaInstanceConnectionState } from '../../common/services/MediaInstanceConnectionService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
@@ -85,6 +87,10 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const isCamVideoEnabled = mediastream.isCamVideoEnabled
   const isCamAudioEnabled = mediastream.isCamAudioEnabled
   const consumers = mediastream.consumers
+
+  const channelConnectionState = useMediaInstanceConnectionState()
+  const currentChannelInstanceConnection =
+    channelConnectionState.instances[Engine.instance.currentWorld.mediaNetwork?.hostId].ornull
 
   const setVideoStream = (value) => {
     videoStreamRef.current = value
@@ -176,6 +182,29 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     // (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) &&
     // Engine.instance.spatialAudio
   }, [selfUser])
+
+  useEffect(() => {
+    if (!currentChannelInstanceConnection) return
+    const mediaTransport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    const socket = mediaTransport.socket
+    if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener)
+    if (typeof socket?.on === 'function')
+      socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener)
+    if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener)
+    if (typeof socket?.on === 'function')
+      socket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener)
+
+    return () => {
+      if (typeof socket?.on === 'function')
+        socket?.off(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener)
+      if (typeof socket?.on === 'function')
+        socket?.off(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener)
+      if (typeof socket?.on === 'function')
+        socket?.off(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener)
+      if (typeof socket?.on === 'function')
+        socket?.off(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener)
+    }
+  }, [currentChannelInstanceConnection])
 
   useEffect(() => {
     if (audioRef.current != null) {

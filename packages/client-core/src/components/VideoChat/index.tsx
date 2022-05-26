@@ -17,10 +17,8 @@ const logger = multiLogger.child({ component: 'client-core:videochat' })
 interface Props {}
 
 const VideoChat = (props: Props) => {
-  const mediaStreamSystem = new MediaStreams()
-
   const gsProvision = async () => {
-    if (mediaStreamSystem.videoStream == null) {
+    if (MediaStreams.instance.videoStream == null) {
       const mediaTransport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
       await configureMediaTransports(mediaTransport, ['video', 'audio'])
       logger.info('Send camera streams called from gsProvision.')
@@ -30,8 +28,8 @@ const VideoChat = (props: Props) => {
   }
   return (
     <Fab color="primary" aria-label="VideoChat" onClick={gsProvision}>
-      {mediaStreamSystem.videoStream == null && <VideoCall />}
-      {mediaStreamSystem.videoStream != null && <CallEnd />}
+      {MediaStreams.instance.videoStream == null && <VideoCall />}
+      {MediaStreams.instance.videoStream != null && <CallEnd />}
     </Fab>
   )
 }

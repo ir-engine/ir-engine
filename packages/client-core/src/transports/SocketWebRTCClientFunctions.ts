@@ -204,9 +204,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     const channelConnectionState = accessMediaInstanceConnectionState()
     const currentChannelInstanceConnection = channelConnectionState.instances[network.instanceId].ornull
 
-    console.log('webRTCCreateProducerHandler', socketId, mediaTag, producerId, channelType, channelId)
-    console.log(selfProducerIds.indexOf(producerId) < 0, currentChannelInstanceConnection.channelType.value)
-
     const consumerMatch = MediaStreams.instance?.consumers?.find(
       (c) => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag && c?.producerId === producerId
     )
@@ -734,7 +731,6 @@ export function resetProducer(): void {
 export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerId: string, mediaTag: string) {
   const socket = network.socket
   if (!socket?.connected) return
-  console.log('\n\n\nsubscribeToTrack', peerId, mediaTag)
   const channelConnectionState = accessMediaInstanceConnectionState()
   const currentChannelInstanceConnection = channelConnectionState.instances[network.instanceId].ornull
   const channelType = currentChannelInstanceConnection.channelType.value
