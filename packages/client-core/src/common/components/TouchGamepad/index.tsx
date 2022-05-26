@@ -2,7 +2,6 @@ import React, { FunctionComponent } from 'react'
 import { Joystick } from 'react-joystick-component'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
@@ -19,7 +18,7 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
     document.dispatchEvent(event)
   }
 
-  const entity = Engine.instance.currentWorld.entityTree.rootNode.entity
+  const entity = Engine.instance.currentWorld.localClientEntity
   const interactableComponent = entity && getComponent(entity, InteractableComponent)
 
   const buttonsConfig: Array<{ button: GamepadButtons; label: string }> = [
