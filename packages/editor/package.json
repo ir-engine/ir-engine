@@ -18,7 +18,7 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 APP_ENV=production vite build --config vite.build.js",
-    "test": "exit 0",
+    "test": "mocha --config .mocharc.js",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {

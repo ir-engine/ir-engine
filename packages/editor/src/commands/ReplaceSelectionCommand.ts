@@ -52,14 +52,15 @@ function emitEventAfter(command: ReplaceSelectionCommandParams) {
 function replaceSelection(command: ReplaceSelectionCommandParams, isUndo: boolean): void {
   // Check whether selection is changed or not
   const nodes = isUndo && command.undo ? getEntityNodeArrayFromEntities(command.undo.selection) : command.affectedNodes
+  const selectedEntities = accessSelectionState().selectedEntities.value
 
-  const selectedEntities = accessSelectionState().selectedEntities.value.slice(0)
-
-  if (nodes.length === selectedEntities.length) {
-    for (let i = 0; i < nodes.length; i++) {
-      if (!selectedEntities.includes(nodes[i].entity)) return
-    }
-  }
+  if (
+    !isSelectionChanged(
+      selectedEntities,
+      nodes.map((n) => n.entity)
+    )
+  )
+    return
 
   // Fire deselect event for old objects
   for (let i = 0; i < selectedEntities.length; i++) {
@@ -96,6 +97,16 @@ function replaceSelection(command: ReplaceSelectionCommandParams, isUndo: boolea
 
 function toString(command: ReplaceSelectionCommandParams) {
   return `SelectMultipleCommand id: ${command.id} objects: ${serializeObject3DArray(command.affectedNodes)}`
+}
+
+function isSelectionChanged(oldSelection: Entity[], newSelection: Entity[]) {
+  if (newSelection.length !== oldSelection.length) return true
+
+  for (let i = 0; i < newSelection.length; i++) {
+    if (!oldSelection.includes(newSelection[i])) return true
+  }
+
+  return false
 }
 
 export const ReplaceSelectionCommand: CommandFuncType = {

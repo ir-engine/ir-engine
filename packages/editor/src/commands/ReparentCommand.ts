@@ -117,7 +117,7 @@ function emitEventBefore(command: ReparentCommandParams) {
 function emitEventAfter(command: ReparentCommandParams) {
   if (command.preventEvents) return
 
-  if (!command.isDeselected) updateOutlinePassSelection()
+  if (command.updateSelection) updateOutlinePassSelection()
 
   store.dispatch(EditorAction.sceneModified(true))
   store.dispatch(SelectionAction.changedSceneGraph())
@@ -126,17 +126,22 @@ function emitEventAfter(command: ReparentCommandParams) {
 function reparent(command: ReparentCommandParams, isUndo: boolean) {
   let parents = command.parents
   let befores = command.befores
+  let nodes = command.affectedNodes
 
   if (isUndo && command.undo) {
     parents = command.undo.parents
     befores = command.undo.befores
+    nodes = []
+    for (let i = command.affectedNodes.length - 1; i >= 0; i--) {
+      nodes.push(command.affectedNodes[i])
+    }
   }
 
-  for (let i = 0; i < command.affectedNodes.length; i++) {
+  for (let i = 0; i < nodes.length; i++) {
     const parent = parents[i] ?? parents[0]
     if (!parent) continue
 
-    const node = command.affectedNodes[i]
+    const node = nodes[i]
     const before = befores ? befores[i] ?? befores[0] : undefined
     const index = before && parent.children ? parent.children.indexOf(before.entity) : undefined
 
@@ -144,7 +149,7 @@ function reparent(command: ReparentCommandParams, isUndo: boolean) {
     reparentObject3D(node, parent, before)
   }
 
-  if (!command.isDeselected) {
+  if (command.updateSelection) {
     executeCommand({
       type: EditorCommands.REPLACE_SELECTION,
       affectedNodes: command.affectedNodes,

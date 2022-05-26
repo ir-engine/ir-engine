@@ -51,11 +51,21 @@ function shouldUpdate<C extends ComponentConstructor<any, any>>(
   currentCommnad: ModifyPropertyCommandParams<C>,
   newCommand: ModifyPropertyCommandParams<C>
 ): boolean {
-  return (
-    currentCommnad.component === newCommand.component &&
-    arrayShallowEqual(Object.keys(currentCommnad.properties), Object.keys(newCommand.properties)) &&
-    arrayShallowEqual(currentCommnad.affectedNodes, newCommand.affectedNodes)
+  if (
+    currentCommnad.component !== newCommand.component ||
+    currentCommnad.properties.length !== newCommand.properties.length ||
+    !arrayShallowEqual(currentCommnad.affectedNodes, newCommand.affectedNodes)
   )
+    return false
+
+  for (let i = 0; i < currentCommnad.properties.length; i++) {
+    arrayShallowEqual(Object.keys(currentCommnad.properties[i]), Object.keys(newCommand.properties[i]))
+    if (!arrayShallowEqual(Object.keys(currentCommnad.properties[i]), Object.keys(newCommand.properties[i]))) {
+      return false
+    }
+  }
+
+  return true
 }
 
 function update<C extends ComponentConstructor<any, any>>(
@@ -132,7 +142,7 @@ export const ModifyPropertyCommand: CommandFuncType = {
   toString
 }
 
-function getNestedObject(object: any, propertyName: string): { result: any; finalProp: string } {
+export function getNestedObject(object: any, propertyName: string): { result: any; finalProp: string } {
   const props = propertyName.split('.')
   let result = object
 

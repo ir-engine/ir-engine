@@ -65,14 +65,19 @@ function execute(command: RemoveObjectCommandParams) {
 function undo(command: RemoveObjectCommandParams) {
   if (!command.undo) return
 
+  const nodes = [] as EntityTreeNode[]
+  for (let i = command.affectedNodes.length - 1; i >= 0; i--) {
+    nodes.push(command.affectedNodes[i])
+  }
+
   executeCommand({
     type: EditorCommands.ADD_OBJECTS,
-    affectedNodes: command.affectedNodes,
+    affectedNodes: nodes,
     parents: command.undo.parents,
     befores: command.undo.befores,
     useUniqueName: false,
     sceneData: command.undo.components,
-    isDeselected: command.isDeselected
+    updateSelection: false
   })
 
   executeCommand({
@@ -106,7 +111,7 @@ function removeObject(command: RemoveObjectCommandParams) {
     removeEntityNodeFromParent(node)
   }
 
-  if (command.isDeselected) {
+  if (command.updateSelection) {
     executeCommand({
       type: EditorCommands.REMOVE_FROM_SELECTION,
       affectedNodes: command.affectedNodes,

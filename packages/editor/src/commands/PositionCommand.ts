@@ -97,14 +97,14 @@ function updatePosition(command: PositionCommandParams, isUndo?: boolean) {
     transformComponent = getComponent(node.entity, TransformComponent)
 
     if (space === TransformSpace.Local) {
-      if (command.addToPosition) transformComponent.position.add(pos)
+      if (addToPosition) transformComponent.position.add(pos)
       else transformComponent.position.copy(pos)
     } else {
       obj3d = getComponent(node.entity, Object3DComponent)?.value
       if (!obj3d) continue
       obj3d.updateMatrixWorld() // Update parent world matrices
 
-      if (command.addToPosition) {
+      if (addToPosition) {
         tempVector.setFromMatrixPosition(obj3d.matrixWorld)
         tempVector.add(pos)
       }

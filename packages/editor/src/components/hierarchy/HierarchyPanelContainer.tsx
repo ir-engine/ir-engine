@@ -243,7 +243,7 @@ export default function HierarchyPanel() {
 
   const onDeleteNode = useCallback((_, node: HeirarchyTreeNodeType) => {
     let objs = node.selected ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value) : [node.entityNode]
-    executeCommandWithHistory({ type: EditorCommands.REMOVE_OBJECTS, affectedNodes: objs, isDeselected: true })
+    executeCommandWithHistory({ type: EditorCommands.REMOVE_OBJECTS, affectedNodes: objs })
   }, [])
 
   const onDuplicateNode = useCallback((_, node: HeirarchyTreeNodeType) => {

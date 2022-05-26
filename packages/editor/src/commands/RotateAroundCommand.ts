@@ -50,8 +50,11 @@ function shouldUpdate(currentCommnad: RotateAroundCommandParams, newCommand: Rot
 }
 
 function update(currentCommnad: RotateAroundCommandParams, newCommand: RotateAroundCommandParams) {
-  currentCommnad.angle += newCommand.angle
+  const oldAngle = currentCommnad.angle
+  currentCommnad.angle = newCommand.angle
   execute(currentCommnad)
+  currentCommnad.angle += oldAngle
+  emitEventAfter(currentCommnad)
 }
 
 function execute(command: RotateAroundCommandParams) {

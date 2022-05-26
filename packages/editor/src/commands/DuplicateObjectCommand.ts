@@ -66,11 +66,11 @@ function execute(command: DuplicateObjectCommandParams) {
     parents: command.parents,
     befores: command.befores,
     preventEvents: true,
-    isDeselected: true,
+    updateSelection: false,
     sceneData
   })
 
-  if (!command.isDeselected) {
+  if (command.updateSelection) {
     executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: command.duplicatedObjects })
   }
 
@@ -84,15 +84,13 @@ function undo(command: DuplicateObjectCommandParams) {
     type: EditorCommands.REMOVE_OBJECTS,
     affectedNodes: command.duplicatedObjects,
     skipSerialization: true,
-    isDeselected: false
+    updateSelection: false
   })
 
-  if (command.undo) {
-    executeCommand({
-      type: EditorCommands.REPLACE_SELECTION,
-      affectedNodes: getEntityNodeArrayFromEntities(command.undo.selection)
-    })
-  }
+  executeCommand({
+    type: EditorCommands.REPLACE_SELECTION,
+    affectedNodes: getEntityNodeArrayFromEntities(command.undo.selection)
+  })
 }
 
 function emitEventAfter(command: DuplicateObjectCommandParams) {

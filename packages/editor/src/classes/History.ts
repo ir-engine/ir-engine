@@ -41,6 +41,7 @@ export const EditorHistory: EditorHistoryType = {
  * @param command Command to be executed
  */
 export function executeCommand(command: CommandParamsType): void {
+  if (typeof command.updateSelection === 'undefined') command.updateSelection = true
   const commandFunctions = CommandFuncs[command.type]
   commandFunctions.prepare(command)
   commandFunctions.execute(command)
@@ -52,6 +53,7 @@ export function executeCommand(command: CommandParamsType): void {
  */
 export function executeCommandWithHistory(command: CommandParamsType): void {
   command.keepHistory = true
+  if (typeof command.updateSelection === 'undefined') command.updateSelection = true
   const commandFunctions = CommandFuncs[command.type]
   commandFunctions.prepare(command)
 

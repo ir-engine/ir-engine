@@ -37,7 +37,7 @@ function prepare(command: ScaleCommandParams) {
   if (command.keepHistory) {
     command.undo = {
       scales: command.affectedNodes.map((o) => {
-        return getComponent(o.entity, Object3DComponent).value.scale.clone() ?? new Vector3()
+        return getComponent(o.entity, Object3DComponent).value.scale.clone() ?? new Vector3(1, 1, 1)
       }),
       space: TransformSpace.Local,
       overrideScale: true
@@ -84,6 +84,12 @@ function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
   let space = command.space
   let overrideScale = command.overrideScale
 
+  if (isUndo && command.undo) {
+    scales = command.undo.scales
+    space = command.undo.space
+    overrideScale = command.undo.overrideScale
+  }
+
   if (!overrideScale) {
     for (let i = 0; i < command.affectedNodes.length; i++) {
       const node = command.affectedNodes[i]
@@ -111,8 +117,8 @@ function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
 
     if (space === TransformSpace.Local) {
       transformComponent.scale.x = scale.x === 0 ? Number.EPSILON : scale.x
-      transformComponent.scale.x = scale.y === 0 ? Number.EPSILON : scale.y
-      transformComponent.scale.x = scale.z === 0 ? Number.EPSILON : scale.z
+      transformComponent.scale.y = scale.y === 0 ? Number.EPSILON : scale.y
+      transformComponent.scale.z = scale.z === 0 ? Number.EPSILON : scale.z
     } else {
       obj3d.updateMatrixWorld() // Update parent world matrices
 

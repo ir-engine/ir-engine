@@ -71,8 +71,8 @@ export type CommandParams = {
   /** Whether the event should be emited of not */
   preventEvents?: boolean
 
-  /** Whether the object is selected or not */
-  isDeselected?: boolean
+  /** Whether the selection should be updated or not */
+  updateSelection?: boolean
 
   /** Whether this command should keep old data of the objects. Which will be used in unod operations */
   keepHistory?: boolean

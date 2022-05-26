@@ -428,10 +428,7 @@ export default async function EditorControlSystem(_: World) {
           setTransformMode(shift || boost ? TransformMode.Placement : editorHelperState.transformModeOnCancel.value)
         } else if (transformMode === TransformMode.Placement) {
           if (shift || boost) {
-            executeCommandWithHistoryOnSelection({
-              type: EditorCommands.DUPLICATE_OBJECTS,
-              isDeselected: true
-            })
+            executeCommandWithHistoryOnSelection({ type: EditorCommands.DUPLICATE_OBJECTS })
           } else {
             setTransformMode(editorHelperState.transformModeOnCancel.value)
           }
@@ -503,7 +500,7 @@ export default async function EditorControlSystem(_: World) {
       } else if (getInput(EditorActionSet.redo)) {
         redoCommand()
       } else if (getInput(EditorActionSet.deleteSelected)) {
-        executeCommandWithHistoryOnSelection({ type: EditorCommands.REMOVE_OBJECTS, isDeselected: true })
+        executeCommandWithHistoryOnSelection({ type: EditorCommands.REMOVE_OBJECTS })
       }
 
       if (editorHelperState.isFlyModeEnabled.value) continue

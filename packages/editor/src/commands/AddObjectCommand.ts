@@ -55,24 +55,25 @@ function prepare(command: AddObjectCommandParams) {
 }
 
 function execute(command: AddObjectCommandParams) {
+  emitEventBefore(command)
   addObject(command)
   emitEventAfter(command)
 }
 
 function undo(command: AddObjectCommandParams) {
+  if (!command.undo) return
+
   executeCommand({
     type: EditorCommands.REMOVE_OBJECTS,
     affectedNodes: command.affectedNodes,
     skipSerialization: true,
-    isDeselected: false
+    updateSelection: false
   })
 
-  if (command.undo) {
-    executeCommand({
-      type: EditorCommands.REPLACE_SELECTION,
-      affectedNodes: getEntityNodeArrayFromEntities(command.undo.selection)
-    })
-  }
+  executeCommand({
+    type: EditorCommands.REPLACE_SELECTION,
+    affectedNodes: getEntityNodeArrayFromEntities(command.undo.selection)
+  })
 }
 
 function emitEventBefore(command: AddObjectCommandParams) {
@@ -85,7 +86,7 @@ function emitEventBefore(command: AddObjectCommandParams) {
 function emitEventAfter(command: AddObjectCommandParams) {
   if (command.preventEvents) return
 
-  if (!command.isDeselected) updateOutlinePassSelection()
+  if (command.updateSelection) updateOutlinePassSelection()
 
   store.dispatch(EditorAction.sceneModified(true))
   store.dispatch(SelectionAction.changedSceneGraph())
@@ -120,7 +121,15 @@ function addObject(command: AddObjectCommandParams) {
 
     reparentObject3D(object, parent, before, world.entityTree)
 
-    if (command.useUniqueName) traverseEntityNode(object, (node) => makeUniqueName(node, world))
+    if (command.useUniqueName) traverseEntityNode(object, (node) => makeUniqueName(node))
+  }
+
+  if (command.updateSelection) {
+    executeCommand({
+      type: EditorCommands.REPLACE_SELECTION,
+      affectedNodes: command.affectedNodes,
+      preventEvents: true
+    })
   }
 }
 

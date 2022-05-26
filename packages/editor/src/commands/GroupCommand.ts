@@ -69,7 +69,7 @@ function execute(command: GroupCommandParams) {
     parents: command.parents,
     befores: command.befores,
     preventEvents: true,
-    isDeselected: true,
+    updateSelection: false,
     prefabTypes: [ScenePrefabs.group]
   })
 
@@ -78,10 +78,10 @@ function execute(command: GroupCommandParams) {
     affectedNodes: command.affectedNodes,
     parents: [command.groupNode],
     preventEvents: true,
-    isDeselected: true
+    updateSelection: false
   })
 
-  if (!command.isDeselected) {
+  if (command.updateSelection) {
     executeCommand({
       type: EditorCommands.REPLACE_SELECTION,
       affectedNodes: [command.groupNode],
@@ -97,20 +97,26 @@ function undo(command: GroupCommandParams) {
 
   emitEventBefore(command)
 
+  const nodes = [] as EntityTreeNode[]
+  for (let i = command.affectedNodes.length - 1; i >= 0; i--) {
+    nodes.push(command.affectedNodes[i])
+  }
+
   executeCommand({
     type: EditorCommands.REPARENT,
-    affectedNodes: command.affectedNodes,
+    affectedNodes: nodes,
     parents: command.undo.parents,
     befores: command.undo.befores,
     preventEvents: true,
-    isDeselected: true
+    updateSelection: false
   })
 
   executeCommand({
     type: EditorCommands.REMOVE_OBJECTS,
     affectedNodes: [command.groupNode],
     preventEvents: true,
-    skipSerialization: true
+    skipSerialization: true,
+    updateSelection: false
   })
 
   executeCommand({
@@ -131,7 +137,7 @@ function emitEventBefore(command: GroupCommandParams) {
 function emitEventAfter(command: GroupCommandParams) {
   if (command.preventEvents) return
 
-  if (!command.isDeselected) updateOutlinePassSelection()
+  if (command.updateSelection) updateOutlinePassSelection()
 
   store.dispatch(EditorAction.sceneModified(true))
   store.dispatch(SelectionAction.changedSceneGraph())
