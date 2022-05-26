@@ -60,7 +60,9 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   const root = new Group()
   root.add(scene)
   parent.add(root)
-  parent.userData = scene.userData(parent as any).traverse((obj) => {
+  parent.userData = scene.userData
+
+  scene.traverse((obj) => {
     //TODO: To avoid the changes of the source material
     if (obj.material && obj.material.clone) {
       obj.material = obj.material.clone()
