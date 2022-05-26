@@ -13,9 +13,9 @@ import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStrea
 import { addActionReceptor, defineAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
+import { MediaStreamService } from '../media/services/MediaStreamService'
 import { accessAuthState } from '../user/services/AuthService'
 import { gameserverHost } from '../util/config'
-import { MediaStreamService } from './../media/services/MediaStreamService'
 import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 
 // import { encode, decode } from 'msgpackr'
