@@ -19,6 +19,7 @@ import {
   resumeProducer
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import logger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
@@ -78,7 +79,7 @@ const MediaIconsBox = (props: Props) => {
           if (device.kind === 'videoinput') setHasVideoDevice(true)
         })
       })
-      .catch((err) => console.log('could not get media devices', err))
+      .catch((err) => logger.error(err, 'Could not get media devices.'))
   }, [])
 
   const handleFaceClick = async () => {

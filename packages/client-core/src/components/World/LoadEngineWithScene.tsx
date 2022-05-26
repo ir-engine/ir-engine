@@ -9,6 +9,7 @@ import { LocationService } from '@xrengine/client-core/src/social/services/Locat
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { SceneAction, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
+import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -18,6 +19,8 @@ import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
 import { AppAction, GeneralStateList } from '../../common/services/AppService'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { initClient, loadScene } from './LocationLoadHelper'
+
+const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const LoadEngineWithScene = () => {
   const history = useHistory()
@@ -71,7 +74,7 @@ export const LoadEngineWithScene = () => {
       //   return
       // }
 
-      console.log('reseting connection for portal teleport')
+      logger.info('Resetting connection for portal teleport.')
 
       const world = Engine.instance.currentWorld
 
