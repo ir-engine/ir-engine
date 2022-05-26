@@ -19,6 +19,8 @@ import {
   Vector3
 } from 'three'
 
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { AnimationManager } from '../../avatar/AnimationManager'
@@ -29,6 +31,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
+import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -93,7 +96,7 @@ export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
   setupAvatarModel(entity)(model)
   setupAvatarHeight(entity, model)
 
-  const avatarMaterials = setupAvatarMaterials(model)
+  const avatarMaterials = setupAvatarMaterials(entity, model)
 
   // Materials only load on the client currently
   if (isClient) {
@@ -191,7 +194,7 @@ export const animateModel = (entity: Entity) => {
     .play()
 }
 
-export const setupAvatarMaterials = (root) => {
+export const setupAvatarMaterials = (entity, root) => {
   const materialList: Array<MaterialMap> = []
 
   setObjectLayers(root, ObjectLayers.Avatar)
@@ -199,7 +202,14 @@ export const setupAvatarMaterials = (root) => {
     if (object.isBone) object.visible = false
     if (object.material && object.material.clone) {
       const material = object.material.clone()
-      setupHeadDecap(root, material)
+
+      if (hasComponent(entity, NameComponent)) {
+        const userId = getComponent(entity, NameComponent).name
+        // If local player's avatar
+        if (userId === Engine.instance.userId) {
+          setupHeadDecap(root, material)
+        }
+      }
       materialList.push({
         id: object.uuid,
         material: material
