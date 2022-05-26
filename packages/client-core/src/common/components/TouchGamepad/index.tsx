@@ -5,6 +5,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
+import { InteractorComponent } from '@xrengine/engine/src/interaction/components/InteractorComponent'
 
 import TouchAppIcon from '@mui/icons-material/TouchApp'
 
@@ -19,7 +20,8 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
   }
 
   const entity = Engine.instance.currentWorld.localClientEntity
-  const interactableComponent = entity && getComponent(entity, InteractableComponent)
+  const focusedEntity = getComponent(entity, InteractorComponent)?.focusedInteractive
+  const interactableComponent = focusedEntity && getComponent(focusedEntity, InteractableComponent)
 
   const buttonsConfig: Array<{ button: GamepadButtons; label: string }> = [
     {
