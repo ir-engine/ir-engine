@@ -10,15 +10,14 @@ Updated to Q1 2022
 | Liam Broza | <liam@xrfoundation.io>  | [@mrhegemon](https://github.com/mrhegemon) |
 | Dmitri Zagidulin | <dmitri@xrfoundation.io>  | [@dmitrizagidulin](https://github.com/dmitrizagidulin) |
 | David Gordon | <david@xrfoundation.io>  | [@dinomut1](https://github.com/dinomut1) |
-
+| Hanzla Mateen |  | [@hanzlamateen](https://github.com/hanzlamateen) |
 
 
 
 | Contributor | Contact | GitHub ID |
 | ----------- | ------- | --------- |
-| Abhina Vshah | <abhinavkumar@outlook.com> | |
 | Abhinav Avkumar | <abhinavkumar@outlook.com> | |
-| Abhishek Pathak | <abhi.pathak@gmail.com> | |
+| Abhishek Pathak | <abhi.pathak@gmail.com> | [@abhishek-pathak-here](https://github.com/abhishek-pathak-here) |
 | Adrew Blashchuk | <ablashch@gmail.com> | |
 | Aleks Mazur | <aleksmazur@gmail.com> | [@aleksmaz](https://github.com/aleksmaz) |
 | Alexander Shvets | <alexander.shvets.ua@gmail.com> | |
@@ -28,23 +27,24 @@ Updated to Q1 2022
 | Bohdan | <bomtvv@gmail.com>  | |
 | Fabrice Irankunda | <irankundafabrice8@gmail.com>  | [@FabriceIRANKUNDA](https://github.com/FabriceIRANKUNDA)  |
 | Fouad Mohammad Hassan | <mfouad@gmail.com>  | |
-| Gleb Ordinsky | <glebordinskijj@gmail.com>  | [@hamzzam](https://github.com/hamzzam) |
-| Hamza Mushtaq | <hamzamushtaq@hotmail.com>  | |
+| Gleb Ordinsky | <glebordinskijj@gmail.com>  | [@glebordinski](https://github.com/glebordinski) |
+| Hamza Mushtaq | <hamzamushtaq@hotmail.com>  | [@hamzamm](https://github.com/hamzamm)  |
 | Hanzla Mateen | <hanzlamateen@live.com>  | [@hanzlamateen](https://github.com/hanzlamateen) |
-| HydraFire | <yarikvfx@gmail.com>  | |
-| Kevin Kimenyi | <kimenyikevin@gmail.com>  | |
+| Kevin Kimenyi | <kimenyikevin@gmail.com>  | [@kimenyikevin](https://github.com/kimenyikevin) |
 | Kinjal Raval | <kinjalraval@gmail.com>  | [@kinjalravel](https://github.com/kinjalravel) |
-| Mohsen Heydari | <mohsenheydari@live.com>  | |
-| Mustafa Saber | <mostafa.saber@gmail.com>  | |
-| Nayan Patel | <nayanpatel.np@yahoo.com>  | |
-| Patrick Canfield | <pscale@gmail.com>  | [@lalalune](https://github.com/lalalune) |
+| Mohsen Heydari | <mohsenheydari@live.com>  | [@mohsenheydari](https://github.com/mohsenheydari)  |
+| Mustafa Saber | <mostafa.saber@gmail.com>  | [@Mustafa1845](https://github.com/Mustafa1845) |
+| Nayankumar Patel | <nayanpatel.np@yahoo.com>  | [@NPatel10](https://github.com/NPatel10) |
+| Patrick Canfield | <pscale@gmail.com>  | [@pscale](https://github.com/pscale) |
+| Ron Oyama | | [@rondoor124](https://github.com/rondoor124) |
 | Saad Ahmed Siddiqui | <saad_siddiqui@msn.com>  | |
 | Sergiy Vovk | <sergiyvovk@gmail.com>  | |
 | Shaw Walters | <shawmakesmagic@gmail.com>  | [@lalalune](https://github.com/lalalune) |
 | Slava Solovjov | <xianionline@gmail.com>  | |
-| Tanya Vykliuk | <tanya.vykliuk@gmail.com>  | |
-| Thomas Mohr | <mohrtw@gmail.com>  | |
+| Tanya Vykliuk | <tanya.vykliuk@gmail.com>  | [@tanyavykliuk](https://github.com/tanyavykliuk) |
+| Thomas Mohr | <mohrtw@gmail.com>  | [@mohrtw](https://github.com/mohrtw) |
 | Vyacheslav Solovjov | <xianionline@gmail.com>  | [@XiaNi](https://github.com/XiaNi) |
+| Yaroslav Koval | <yarikvfx@gmail.com>  | [@HydraFire](https://github.com/HydraFire) |
 | Zulqarnain Hanif  |  | [@zulqarnainhanif](https://github.com/zulqarnainhanif) |
 
 
