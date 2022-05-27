@@ -328,7 +328,7 @@ describe('CloudFunctions', () => {
   describe('serializeCloud()', () => {
     it('should properly serialize cloud', () => {
       cloudFunctions.deserializeCloud(entity, sceneComponent)
-      assert.deepEqual(cloudFunctions.serializeCloud(entity), sceneComponent)
+      assert.deepEqual(JSON.parse(JSON.stringify(cloudFunctions.serializeCloud(entity))), sceneComponent)
     })
 
     it('should return undefine if there is no cloud component', () => {
