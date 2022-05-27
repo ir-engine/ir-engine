@@ -15,14 +15,11 @@ import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/E
 import { createWorld } from './ecs/classes/World'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
+import { Network } from './networking/classes/Network'
 import { matchActionOnce } from './networking/functions/matchActionOnce'
 import { NetworkActionReceptor } from './networking/functions/NetworkActionReceptor'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
-
-import './threejsPatches'
-
-import { Network } from './networking/classes/Network'
 import { FontManager } from './xrui/classes/FontManager'
 
 /**
