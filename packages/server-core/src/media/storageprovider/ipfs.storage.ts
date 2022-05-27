@@ -147,11 +147,13 @@ export class IPFSStorage implements StorageProviderInterface {
       await this._parseMFSDirectoryAsType(filePath, results)
     } else {
       for await (const file of this._client.files.ls(filePath)) {
+        const signedUrl = await this.getSignedUrl(file.cid.toString(), 3600, null)
+
         const res: FileContentType = {
           key: file.cid.toString(),
           name: file.name,
           type: file.type,
-          url: this.getSignedUrl(file.cid.toString(), 3600, null).url,
+          url: signedUrl.url,
           size: this._formatBytes(file.size)
         }
 
