@@ -1,11 +1,15 @@
-import React, { FunctionComponent } from 'react'
+import { useState } from '@speigg/hookstate'
+import React, { FunctionComponent, useEffect } from 'react'
 import { Joystick } from 'react-joystick-component'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
 import { InteractorComponent } from '@xrengine/engine/src/interaction/components/InteractorComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import TouchAppIcon from '@mui/icons-material/TouchApp'
 
@@ -19,9 +23,22 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
     document.dispatchEvent(event)
   }
 
-  const entity = Engine.instance.currentWorld.localClientEntity
-  const focusedEntity = getComponent(entity, InteractorComponent)?.focusedInteractive
-  const interactableComponent = focusedEntity && getComponent(focusedEntity, InteractableComponent)
+  const availableInteractable = useEngineState().availableInteractable.value
+  const interactableComponent =
+    availableInteractable && useState(getComponent(availableInteractable, InteractableComponent))
+
+  useEffect(() => {
+    const focusedEntity = getComponent(
+      Engine.instance.currentWorld.localClientEntity,
+      InteractorComponent
+    )?.focusedInteractive
+
+    focusedEntity &&
+      dispatchAction(
+        Engine.instance.store,
+        EngineActions.availableInteractable({ availableInteractable: focusedEntity })
+      )
+  }, [getComponent(Engine.instance.currentWorld.localClientEntity, InteractorComponent)?.focusedInteractive])
 
   const buttonsConfig: Array<{ button: GamepadButtons; label: string }> = [
     {
