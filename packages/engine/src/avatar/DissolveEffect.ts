@@ -183,6 +183,7 @@ export class DissolveEffect {
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
         lights: true,
+        // @ts-ignore
         fog: false
       })
 

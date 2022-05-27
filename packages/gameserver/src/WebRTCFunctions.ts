@@ -164,30 +164,17 @@ export const handleConsumeDataEvent =
 
         world.clients.get(userId)!.dataConsumers!.set(dataProducer.id, dataConsumer)
 
-        let dataProducerOut
+        const dataProducerOut = world.clients.get(userId)!.dataProducers!.get('instance')
 
-        await new Promise((resolve) => {
-          const dataProducerExistsInterval = setInterval(() => {
-            if (world.clients.get(userId)) {
-              dataProducerOut = world.clients.get(userId)!.dataProducers!.get('instance')
-              if (dataProducerOut) {
-                clearInterval(dataProducerExistsInterval)
-                resolve(null)
-              }
-            }
-          }, 10)
-        })
-        if (dataProducerOut.id === dataProducer.id) {
-          // Data consumers are all consuming the single producer that outputs from the server's message queue
-          socket.emit(MessageTypes.WebRTCConsumeData.toString(), {
-            dataProducerId: dataProducerOut.id,
-            sctpStreamParameters: dataConsumer.sctpStreamParameters,
-            label: dataConsumer.label,
-            id: dataConsumer.id,
-            appData: dataConsumer.appData,
-            protocol: 'raw'
-          } as DataConsumerOptions)
-        }
+        // Data consumers are all consuming the single producer that outputs from the server's message queue
+        socket.emit(MessageTypes.WebRTCConsumeData.toString(), {
+          dataProducerId: dataProducerOut.id,
+          sctpStreamParameters: dataConsumer.sctpStreamParameters,
+          label: dataConsumer.label,
+          id: dataConsumer.id,
+          appData: dataConsumer.appData,
+          protocol: 'raw'
+        } as DataConsumerOptions)
       } catch (err) {
         logger.error(err, `Consume data error: ${err.message}.`)
         logger.info('Transport that could not be consumed: %o', newTransport)
@@ -449,30 +436,20 @@ export async function handleWebRtcProduceData(
   logger.info(`Data channel label: "${label}", userId "${userId}".`)
   logger.info('Data producer params: %o', data)
   const transport = network.mediasoupTransports[transportId]
-  logger.info('Data producer param data: %o', data)
   const options: DataProducerOptions = {
     label,
     protocol,
     sctpStreamParameters,
-    appData: { ...(appData || {}), peerId: userId, transportId }
+    appData: { ...(appData || {}), peerID: userId, transportId }
   }
-  logger.info('Data producer options: %o', options)
+  logger.info('Data producer params: %o', options)
   if (transport) {
     try {
+      const dataProducer = await transport.produceData(options)
+      network.dataProducers.set(label, dataProducer)
+      logger.info(`User ${userId} producing data.`)
       if (world.clients.has(userId)) {
-        const newProducerAppData = { ...appData, peerId: userId, transportId }
-
-        let existingProducer = [...world.clients.get(userId)!.dataProducers!.values()].find(
-          (producer) =>
-            producer.appData.peerId === newProducerAppData.peerId &&
-            producer.appData.transportId === newProducerAppData.transportId
-        )
-        if (existingProducer) return callback({ id: existingProducer.id })
-
-        const dataProducer = await transport.produceData(options)
-        network.dataProducers.set(label, dataProducer)
         world.clients.get(userId)!.dataProducers!.set(label, dataProducer)
-        logger.info(`User ${userId} producing data.`)
 
         const currentRouter = network.routers.instance.find(
           (router) => router.id === (transport as any)?.internal.routerId
@@ -577,7 +554,7 @@ export async function handleWebRtcSendTrack(network: SocketWebRTCServerNetwork, 
 
   try {
     const newProducerAppData = { ...appData, peerId: userId, transportId }
-    const existingProducer = MediaStreams.instance?.producers.find(
+    const existingProducer = await MediaStreams.instance?.producers.find(
       (producer) => producer.appData === newProducerAppData
     )
     if (existingProducer) await closeProducer(existingProducer)

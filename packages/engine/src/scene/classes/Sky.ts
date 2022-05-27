@@ -201,6 +201,7 @@ export class Sky {
         vertexShader: Sky.vertexShader,
         uniforms: UniformsUtils.clone(Sky.uniforms),
         side: BackSide,
+        // @ts-ignore
         fog: true,
         depthWrite: false
       })

@@ -8,9 +8,9 @@ import { Network, NetworkType } from '@xrengine/engine/src/networking/classes/Ne
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
-import { MediaStreamService } from '../media/services/MediaStreamService'
 import { accessAuthState } from '../user/services/AuthService'
 import { gameserverHost } from '../util/config'
+import { MediaStreamService } from './../media/services/MediaStreamService'
 import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 
 // import { encode, decode } from 'msgpackr'
