@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AnimationClip, Object3D } from 'three'
+import { Object3D } from 'three'
 
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
@@ -21,6 +21,7 @@ import {
   SCENE_COMPONENT_INTERACTABLE,
   SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES
 } from '@xrengine/engine/src/scene/functions/loaders/InteractableFunctions'
+import { playAnimationClip } from '@xrengine/engine/src/scene/functions/loaders/LoopAnimationFunctions'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
@@ -67,22 +68,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
 
   const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
   const onPlayAnimation = () => {
-    if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
-    if (!animationPlaying) {
-      if (
-        loopAnimationComponent.activeClipIndex >= 0 &&
-        animationComponent.animations[loopAnimationComponent.activeClipIndex]
-      ) {
-        loopAnimationComponent.action = animationComponent.mixer
-          .clipAction(
-            AnimationClip.findByName(
-              animationComponent.animations,
-              animationComponent.animations[loopAnimationComponent.activeClipIndex].name
-            )
-          )
-          .play()
-      }
-    }
+    if (!animationPlaying) playAnimationClip(animationComponent, loopAnimationComponent)
     setAnimationPlaying(!animationPlaying)
   }
 
