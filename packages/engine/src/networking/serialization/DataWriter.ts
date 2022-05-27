@@ -89,8 +89,7 @@ export const writeVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Ent
 
 // Writes a compressed Quaternion value to the network stream. This function uses the "smallest three"
 // method, which is well summarized here: http://gafferongames.com/networked-physics/snapshot-compression/
-// Started with this code as baseline: https://gist.github.com/StagPoint/bb7edf61c2e97ce54e3e4561627f6582
-export const writeComporessedRotation = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity) => {
+export const writeCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity) => {
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint8(v)
   const rewindUptoChageMask = rewindViewCursor(v)
@@ -130,23 +129,9 @@ export const writeComporessedRotation = (vector4: Vector4SoA) => (v: ViewCursor,
       }
     }
 
-    // If the maximum value is approximately 1f (such as Quaternion.identity [0,0,0,1]), then we can
-    // reduce storage even further due to the fact that all other fields must be 0f by definition, so
-    // we only need to send the index of the largest field.
-    // if (approxeq(maxValue, 1)) {
-    //   // Again, don't need to transmit the sign since in quaternion space (x,y,z,w) and (-x,-y,-z,-w)
-    //   // represent the same rotation. We only need to send the index of the single element whose value
-    //   // is 1 in order to recreate an equivalent rotation on the receiver.
-    //   writeUint8(v, maxIndex + 4)
-    // } else {
     let a = 0
     let b = 0
     let c = 0
-
-    // We multiply the value of each element by QUAT_PRECISION_MULT before converting to 16-bit integer
-    // in order to maintain precision. This is necessary since by definition each of the three smallest
-    // elements are less than 1.0, and the conversion to 16-bit integer would otherwise truncate everything
-    // to the right of the decimal place. This allows us to keep five decimal places.
 
     if (maxIndex === 0) {
       a = vector4.y[entity]
@@ -166,21 +151,32 @@ export const writeComporessedRotation = (vector4: Vector4SoA) => (v: ViewCursor,
       c = vector4.z[entity]
     }
 
+    // Multiply with QUAT_MAX_RANGE & FLOAT_PRECISION_MULT before compression so that values are
+    // capped to required range([-0.707107,+0.707107]) and precision(three decimal places)
     a *= sign * QUAT_MAX_RANGE * FLOAT_PRECISION_MULT
     b *= sign * QUAT_MAX_RANGE * FLOAT_PRECISION_MULT
     c *= sign * QUAT_MAX_RANGE * FLOAT_PRECISION_MULT
 
-    console.log('writing', maxIndex, a, b, c)
     maxIndex = maxIndex | 0
-    // a = a | 0
-    console.log('write binary', maxIndex, a, b, c)
 
-    const bitWriteMask = 0b00000000000000000000001111111111
-    a = a & bitWriteMask
-    b = b & bitWriteMask
-    c = c & bitWriteMask
+    const compress = (value: number) => {
+      const valueWriteMask = 0b00000000000000000000000111111111
+      const signBitWriteMask = 0b00000000000000000000001000000000
 
-    console.log('write binary', maxIndex, a, b, c)
+      let signBit = 0
+      if (value < 0) {
+        signBit = 1
+        value = Math.abs(value)
+      }
+      value &= valueWriteMask
+      signBit ? (value |= signBitWriteMask) : 0
+
+      return value
+    }
+
+    a = compress(a)
+    b = compress(b)
+    c = compress(c)
 
     let uint32 = maxIndex
     uint32 = uint32 << 10
@@ -190,21 +186,7 @@ export const writeComporessedRotation = (vector4: Vector4SoA) => (v: ViewCursor,
     uint32 = uint32 << 10
     uint32 = uint32 | c
 
-    // c = c << 20
-    // uint32 = fullAdder(uint32, c)
-    // console.log(uint32, c)
-
-    // maxIndex = maxIndex << 30
-    // uint32 = fullAdder(uint32, maxIndex)
-    // console.log(uint32, maxIndex)
-
-    console.log(uint32)
     writeUint32(v, uint32)
-    // writeUint8(v, maxIndex)
-    // writeInt16(v, a)
-    // writeInt16(v, b)
-    // writeInt16(v, c)
-    // }
   }
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
@@ -213,7 +195,7 @@ export const writeComporessedRotation = (vector4: Vector4SoA) => (v: ViewCursor,
 export const writePosition = writeVector3(TransformComponent.position)
 export const writeLinearVelocity = writeVector3(VelocityComponent.linear)
 export const writeAngularVelocity = writeVector3(VelocityComponent.angular)
-export const writeRotation = writeComporessedRotation(TransformComponent.rotation)
+export const writeRotation = writeCompressedRotation(TransformComponent.rotation)
 
 export const writeTransform = (v: ViewCursor, entity: Entity) => {
   if (!hasComponent(entity, TransformComponent)) return
@@ -244,30 +226,30 @@ export const writeVelocity = (v: ViewCursor, entity: Entity) => {
 }
 
 export const writeXRContainerPosition = writeVector3(XRInputSourceComponent.container.position)
-export const writeXRContainerRotation = writeComporessedRotation(XRInputSourceComponent.container.quaternion)
+export const writeXRContainerRotation = writeCompressedRotation(XRInputSourceComponent.container.quaternion)
 
 export const writeXRHeadPosition = writeVector3(XRInputSourceComponent.head.position)
-export const writeXRHeadRotation = writeComporessedRotation(XRInputSourceComponent.head.quaternion)
+export const writeXRHeadRotation = writeCompressedRotation(XRInputSourceComponent.head.quaternion)
 
 export const writeXRControllerLeftPosition = writeVector3(XRInputSourceComponent.controllerLeftParent.position)
-export const writeXRControllerLeftRotation = writeComporessedRotation(
+export const writeXRControllerLeftRotation = writeCompressedRotation(
   XRInputSourceComponent.controllerLeftParent.quaternion
 )
 
 export const writeXRControllerGripLeftPosition = writeVector3(XRInputSourceComponent.controllerGripLeftParent.position)
-export const writeXRControllerGripLeftRotation = writeComporessedRotation(
+export const writeXRControllerGripLeftRotation = writeCompressedRotation(
   XRInputSourceComponent.controllerGripLeftParent.quaternion
 )
 
 export const writeXRControllerRightPosition = writeVector3(XRInputSourceComponent.controllerRightParent.position)
-export const writeXRControllerRightRotation = writeComporessedRotation(
+export const writeXRControllerRightRotation = writeCompressedRotation(
   XRInputSourceComponent.controllerRightParent.quaternion
 )
 
 export const writeXRControllerGripRightPosition = writeVector3(
   XRInputSourceComponent.controllerGripRightParent.position
 )
-export const writeXRControllerGripRightRotation = writeComporessedRotation(
+export const writeXRControllerGripRightRotation = writeCompressedRotation(
   XRInputSourceComponent.controllerGripRightParent.quaternion
 )
 
@@ -308,7 +290,7 @@ export const writeXRHandBoneJoints = (v: ViewCursor, entity: Entity, handedness,
 
   bone.forEach((jointName) => {
     changeMask |= writeVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity) ? 1 << b++ : b++ && 0
-    changeMask |= writeComporessedRotation(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity)
+    changeMask |= writeCompressedRotation(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity)
       ? 1 << b++
       : b++ && 0
   })

@@ -88,44 +88,32 @@ export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, e
   if (changeMask <= 0) return
 
   // Read the index of the omitted field from the stream.
-  // let maxIndex = readUint8(v)
   let compressedBinaryData = readUint32(v)
 
-  // Values between 4 and 7 indicate that only the index of the single field whose value is 1f was
-  // sent, and (maxIndex - 4) is the correct index for that field.
-  // if (maxIndex >= 4 && maxIndex <= 7) {
-  //   let x = maxIndex === 4 ? 1 : 0
-  //   let y = maxIndex === 5 ? 1 : 0
-  //   let z = maxIndex === 6 ? 1 : 0
-  //   let w = maxIndex === 7 ? 1 : 0
+  const expand = (compressedBinaryData: number) => {
+    const valueReadMask = 0b00000000000000000000000111111111
+    const signBitReadMask = 0b00000000000000000000001000000000
 
-  //   if (entity !== undefined) {
-  //     vector4.x[entity] = x
-  //     vector4.y[entity] = y
-  //     vector4.z[entity] = z
-  //     vector4.w[entity] = w
-  //   } else {
-  //     // readComponentProp(v, vector4.x, entity)
-  //     // readComponentProp(v, vector4.y, entity)
-  //     // readComponentProp(v, vector4.z, entity)
-  //     // readComponentProp(v, vector4.w, entity)
-  //   }
+    let value = compressedBinaryData & valueReadMask
+    let signBit = compressedBinaryData & signBitReadMask
+    if (signBit) {
+      value *= -1
+    }
 
-  //   return
-  // }
+    return value
+  }
 
-  console.log(compressedBinaryData)
   // Read the other three fields and derive the value of the omitted field
-  const readBitMask = 0b00000000000000000000001111111111
-  let c = compressedBinaryData & readBitMask
+  let c = expand(compressedBinaryData)
   compressedBinaryData = compressedBinaryData >>> 10
-  let b = compressedBinaryData & readBitMask
+  let b = expand(compressedBinaryData)
   compressedBinaryData = compressedBinaryData >>> 10
-  let a = compressedBinaryData & readBitMask
+  let a = expand(compressedBinaryData)
   compressedBinaryData = compressedBinaryData >>> 10
+
   const bitMaskForMaxIndex = 0b00000000000000000000000000000011
   let maxIndex = compressedBinaryData & bitMaskForMaxIndex
-  console.log('read max index', maxIndex, a, b, c)
+
   a /= QUAT_MAX_RANGE * FLOAT_PRECISION_MULT
   b /= QUAT_MAX_RANGE * FLOAT_PRECISION_MULT
   c /= QUAT_MAX_RANGE * FLOAT_PRECISION_MULT
@@ -154,7 +142,6 @@ export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, e
     w = d
   }
 
-  console.log('read', x, y, z, w)
   if (entity !== undefined) {
     vector4.x[entity] = x
     vector4.y[entity] = y
