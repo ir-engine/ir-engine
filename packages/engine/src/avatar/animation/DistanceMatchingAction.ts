@@ -2,38 +2,33 @@ import { AnimationAction } from 'three'
 
 import { lerp } from '../../common/functions/MathLerpFunctions'
 
-// Updates animation action time
-// based on distance traveled by avatar
-export class DistanceMatchingAction {
+/**
+ * Updates animation action time
+ * based on distance traveled by avatar
+ */
+export type DistanceMatchingAction = {
   action: AnimationAction
   distanceTrack: any
   distanceTraveled: number
+}
 
-  constructor(action, distanceTrack) {
-    this.action = action
-    this.distanceTrack = distanceTrack
-    this.distanceTraveled = 0
-    action.timeScale = 0
-  }
+const _wrapNumber = (value: number, max: number) => value % max
 
-  _wrapNumber = (value: number, max: number) => value % max
+export function updateDistanceMatchingAction(dma: DistanceMatchingAction, speed: number) {
+  if (speed === 0) return
+  const maxDist = getMaxDistanceFromDistanceTrack(dma.distanceTrack)
+  dma.distanceTraveled = _wrapNumber(dma.distanceTraveled + speed, maxDist)
+  dma.action.time = findTimeFromDistanceTrack(dma.distanceTrack, dma.distanceTraveled)
+}
 
-  update(speed: number) {
-    if (speed === 0) return
-    const maxDist = getMaxDistanceFromDistanceTrack(this.distanceTrack)
-    this.distanceTraveled = this._wrapNumber(this.distanceTraveled + speed, maxDist)
-    this.action.time = findTimeFromDistanceTrack(this.distanceTrack, this.distanceTraveled)
-  }
+export function updateFollowerAction(dma: DistanceMatchingAction, otherAction: DistanceMatchingAction) {
+  const timeRatio = otherAction.action.getClip().duration / dma.action.getClip().duration
+  setTime(otherAction, dma.action.time * timeRatio)
+}
 
-  updateFollowerAction(otherAction: DistanceMatchingAction) {
-    const timeRatio = otherAction.action.getClip().duration / this.action.getClip().duration
-    otherAction.setTime(this.action.time * timeRatio)
-  }
-
-  setTime(time: number) {
-    this.action.time = time
-    this.distanceTraveled = findDistanceFromDistanceTrack(this.distanceTrack, time)
-  }
+function setTime(dma: DistanceMatchingAction, time: number) {
+  dma.action.time = time
+  dma.distanceTraveled = findDistanceFromDistanceTrack(dma.distanceTrack, time)
 }
 
 export const getMaxDistanceFromDistanceTrack = (track): number => track.values[track.values.length - 1]

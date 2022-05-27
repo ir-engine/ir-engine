@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
+import { changeAvatarAnimationState } from '@xrengine/engine/src/avatar/animation/AvatarAnimationGraph'
 import { AvatarStates } from '@xrengine/engine/src/avatar/animation/Util'
-import { changeAvatarAnimationState } from '@xrengine/engine/src/avatar/animation/Util'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 import { NavigateBefore, NavigateNext } from '@mui/icons-material'
