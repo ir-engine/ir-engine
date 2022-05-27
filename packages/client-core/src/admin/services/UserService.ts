@@ -141,7 +141,7 @@ export const UserService = {
     try {
       const result = (await client.service('user').patch(id, user)) as User
       dispatch(UserAction.userPatched(result))
-    } catch (error) {
+    } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
