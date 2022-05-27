@@ -1,3 +1,49 @@
+# Authors Archive Q1 2022
+
+| Core Contributor | Contact | GitHub ID |
+| --- | ----------- | ----- |
+| Josh Field | <josh@xrfoundation.io>  | |
+| Kyle Baran | <kyle@xrfoundation.io>  | |
+| Dmitri Zagidulin | <dzagidulin@gmail.com>  | |
+| Gheric Speiginer | <gheric.speiginer@gmail.com>  | |
+| Liam Broza | <liam@xrfoundation.io>  | [@mrhegemon](https://github.com/mrhegemon) |
+
+
+
+| Contributor | Contact | GitHub ID |
+| --- | ----------- | ----- |
+| Abhina Vshah | <abhinavkumar@outlook.com> | |
+| Abhinav Avkumar | <abhinavkumar@outlook.com> | |
+| Abhishek Pathak | <abhi.pathak@gmail.com> | |
+| Adrew Blashchuk | <ablashch@gmail.com> | |
+| Aleks Mazur | <aleksmazur@gmail.com> | |
+| Alexander Shvets | <alexander.shvets.ua@gmail.com> | |
+| Andrey Pashentsev | <avp@gmail.com> | |
+| Andrii Blashchuk | <ablashch@gmail.com>  | |
+| Ayushi | <ayushi@gmail.com>  | |
+| Bohdan | <bomtvv@gmail.com>  | |
+| Fouad Mohammad Hassan | <mfouad@gmail.com>  | |
+| Gleb Ordinsky | <glebordinskijj@gmail.com>  | |
+| Hamza Mushtaq | <hamzamushtaq@hotmail.com>  | |
+| Hanzla Mateen | <hanzlamateen@live.com>  | |
+| HydraFire | <yarikvfx@gmail.com>  | |
+| Irankunda Fabrice | <irankundafabrice8@gmail.com>  | |
+| Kevin Kimenyi | <kimenyikevin@gmail.com>  | |
+| Kinjal Raval | <kinjalraval@gmail.com>  | |
+| Mohsen Heydari | <mohsenheydari@live.com>  | |
+| Mustafa Saber | <mostafa.saber@gmail.com>  | |
+| Nayan Patel | <nayanpatel.np@yahoo.com>  | |
+| Patrick Canfield | <pscale@gmail.com>  | |
+| Saad Ahmed Siddiqui | <saad_siddiqui@msn.com>  | |
+| Sergiy Vovk | <sergiyvovk@gmail.com>  | |
+| Shaw Walters | <shawmakesmagic@gmail.com>  | |
+| Slava Solovjov | <xianionline@gmail.com>  | |
+| Tanya Vykliuk | <tanya.vykliuk@gmail.com>  | |
+| Thomas Mohr | <mohrtw@gmail.com>  | |
+| Vyacheslav Solovjov | <xianionline@gmail.com>  | |
+| Zulqarnain Hanif  | <zulqarnainhanif@users.noreply.github.com>  | |
+
+
 
 
 # Release History
