@@ -157,7 +157,6 @@ const handleInstance = async (
   logger.info('existingInstanceResult: %o', existingInstanceResult.data)
 
   if (existingInstanceResult.total === 0) {
-
     const newInstance = {
       currentUsers: 1,
       locationId: locationId,
@@ -166,9 +165,7 @@ const handleInstance = async (
       podName: config.kubernetes.enabled ? app.gameServer?.objectMeta?.name : 'local'
     } as InstanceMetadata
     await createNewInstance(app, newInstance)
-
   } else {
-
     const instance = existingInstanceResult.data[0]
     if (locationId) {
       const user = await app.service('user').get(userId)
@@ -189,7 +186,6 @@ const handleInstance = async (
     }
     if (!authorizeUserToJoinServer(app, instance, userId)) return
     await assignExistingInstance(app, existingInstanceResult.data[0], channelId, locationId)
-
   }
 }
 
@@ -317,9 +313,9 @@ const notifyWorldAndPartiesUserHasJoined = async (
       const emittedIp = !config.kubernetes.enabled
         ? await getLocalServerIp(app.isChannelInstance)
         : {
-          ipAddress: status.address,
-          port: status.portsList[0].port
-        }
+            ipAddress: status.address,
+            port: status.portsList[0].port
+          }
       await Promise.all(
         nonOwners.map(async (partyUser) => {
           await app.service('instance-provision').emit('created', {
@@ -363,7 +359,7 @@ const handleUserAttendance = async (app: Application, userId: UserId) => {
   }
   if (!app.isChannelInstance) {
     const location = await app.service('location').get(app.instance.locationId)
-      ; (newInstanceAttendance as any).sceneId = location.sceneId
+    ;(newInstanceAttendance as any).sceneId = location.sceneId
   }
   await app.service('instance-attendance').create(newInstanceAttendance)
 }
@@ -437,7 +433,7 @@ const shutdownServer = async (app: Application, instanceId: string) => {
   }
   await app.agonesSDK.shutdown()
 
-  if(!config.kubernetes.enabled) app.restart()
+  if (!config.kubernetes.enabled) app.restart()
 }
 
 // todo: this could be more elegant
@@ -530,9 +526,7 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
     channelId = undefined!
   }
 
-  logger.info(
-    `user ${userId} joining ${locationId ?? channelId} with sceneId ${connection.socketQuery.sceneId}`
-  )
+  logger.info(`user ${userId} joining ${locationId ?? channelId} with sceneId ${connection.socketQuery.sceneId}`)
 
   const gsResult = await app.agonesSDK.getGameServer()
   const status = gsResult.status as GameserverStatus
@@ -542,7 +536,9 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
    * we need to shut down the current one if the user tries to load a new location
    */
   const isLocalServerNeedingNewLocation =
-    !config.kubernetes.enabled && app.instance && (app.instance.locationId != locationId || app.instance.channelId != channelId)
+    !config.kubernetes.enabled &&
+    app.instance &&
+    (app.instance.locationId != locationId || app.instance.channelId != channelId)
 
   if (isLocalServerNeedingNewLocation) {
     app.restart()
