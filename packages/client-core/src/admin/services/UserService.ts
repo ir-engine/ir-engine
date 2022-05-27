@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { CreateEditUser, User } from '@xrengine/common/src/interfaces/User'
 
-import { AlertService } from '../../common/services/AlertService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
@@ -121,7 +121,7 @@ export const UserService = {
         dispatch(UserAction.loadedUsers(users))
       }
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   createUser: async (user: CreateEditUser) => {
@@ -130,9 +130,9 @@ export const UserService = {
     try {
       const result = (await client.service('user').create(user)) as User
       dispatch(UserAction.userCreated(result))
-    } catch (error) {
-      console.error(error)
-      AlertService.dispatchAlertError(error.message)
+    } catch (err) {
+      console.log(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   patchUser: async (id: string, user: CreateEditUser) => {
@@ -141,8 +141,8 @@ export const UserService = {
     try {
       const result = (await client.service('user').patch(id, user)) as User
       dispatch(UserAction.userPatched(result))
-    } catch (error) {
-      AlertService.dispatchAlertError(error.message)
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeUserAdmin: async (id: string) => {
@@ -171,7 +171,7 @@ export const UserService = {
       })) as Paginated<User>
       dispatch(UserAction.searchedUser(result))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   refetchSingleUserAdmin: async () => {},

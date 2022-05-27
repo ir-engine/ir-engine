@@ -8,8 +8,8 @@ import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
-import { AlertAction } from '../../../common/services/AlertService'
 import { DialogAction } from '../../../common/services/DialogService'
+import { NotificationService } from '../../../common/services/NotificationService'
 import { useDispatch } from '../../../store'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
@@ -52,7 +52,7 @@ const SingleConnection = (props: Props): JSX.Element => {
     const identityProvider = state.identityProvider
     const authIdentityProvider = authState.identityProvider.value
     if (authIdentityProvider.id === identityProvider.id) {
-      dispatch(AlertAction.showAlert('error', t('user:profile.connections.ipError')))
+      NotificationService.dispatchNotify(t('user:profile.connections.ipError'), { variant: 'error' })
       return
     }
 

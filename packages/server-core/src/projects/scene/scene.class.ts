@@ -119,15 +119,20 @@ export class Scene implements ServiceMethods<any> {
       counter++
     }
 
-    for (const ext of sceneAssetFiles) {
-      await storageProvider.moveObject(
-        `default${ext}`,
-        `${newSceneName}${ext}`,
-        `projects/default-project`,
-        projectPath,
-        true
+    await Promise.all(
+      sceneAssetFiles.map((ext) =>
+        storageProvider.moveObject(
+          `default${ext}`,
+          `${newSceneName}${ext}`,
+          `projects/default-project`,
+          projectPath,
+          true
+        )
       )
-    }
+    )
+    await storageProvider.createInvalidation(
+      sceneAssetFiles.map((asset) => `projects/${projectName}/${newSceneName}${asset}`)
+    )
 
     if (isDev) {
       const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects/' + projectName) + '/'
@@ -156,8 +161,10 @@ export class Scene implements ServiceMethods<any> {
       const oldSceneJsonName = `${oldSceneName}${ext}`
       const newSceneJsonName = `${newSceneName}${ext}`
 
-      if (await storageProvider.doesExist(oldSceneJsonName, projectPath))
+      if (await storageProvider.doesExist(oldSceneJsonName, projectPath)) {
         await storageProvider.moveObject(oldSceneJsonName, newSceneJsonName, projectPath, projectPath)
+        await storageProvider.createInvalidation([projectPath + oldSceneJsonName, projectPath + newSceneJsonName])
+      }
     }
 
     if (isDev) {
@@ -206,6 +213,10 @@ export class Scene implements ServiceMethods<any> {
       })
     }
 
+    await storageProvider.createInvalidation(
+      sceneAssetFiles.map((asset) => `projects/${projectName}/${sceneName}${asset}`)
+    )
+
     if (isDev) {
       const newSceneJsonPathLocal = path.resolve(
         appRootPath.path,
@@ -246,5 +257,8 @@ export class Scene implements ServiceMethods<any> {
     }
 
     await storageProvider.deleteResources(sceneAssetFiles.map((ext) => `projects/${projectName}/${name}${ext}`))
+    await storageProvider.createInvalidation(
+      sceneAssetFiles.map((asset) => `projects/${projectName}/${sceneName}${asset}`)
+    )
   }
 }

@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
@@ -12,7 +12,6 @@ import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
 
-import { useAlertState } from '../../../common/services/AlertService'
 import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
 import AutoComplete from '../../common/AutoComplete'
@@ -64,9 +63,6 @@ const CreateUser = (props: Props) => {
   const staticResourceData = staticResource.staticResource
 
   const adminScopeTypeState = useScopeTypeState()
-  const alertState = useAlertState()
-  const errorType = alertState.type
-  const errorMessage = alertState.message
 
   //Call custom hooks
   useFetchUserRole(UserRoleService, userRole, user)
@@ -83,16 +79,6 @@ const CreateUser = (props: Props) => {
       formErrors: { name: '', avatar: '', userRole: '', scopes: '' }
     })
   }
-
-  useEffect(() => {
-    if (errorType.value === 'error') {
-      setError(errorMessage.value)
-      setOpenWarning(true)
-      setTimeout(() => {
-        setOpenWarning(false)
-      }, 5000)
-    }
-  }, [errorType.value, errorMessage.value])
 
   const createUserRole = () => {
     setOpenCreateUserRole(true)

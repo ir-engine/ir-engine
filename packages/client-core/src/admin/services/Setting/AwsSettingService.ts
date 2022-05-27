@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { AdminAwsSetting, PatchAwsSetting } from '@xrengine/common/src/interfaces/AdminAwsSetting'
 
-import { AlertService } from '../../../common/services/AlertService'
+import { NotificationService } from '../../../common/services/NotificationService'
 import { client } from '../../../feathers'
 import { store, useDispatch } from '../../../store'
 
@@ -40,7 +40,7 @@ export const AwsSettingService = {
       const awsSetting = (await client.service('aws-setting').find()) as Paginated<AdminAwsSetting>
       dispatch(AwsSettingAction.awsSettingRetrieved(awsSetting))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   patchAwsSetting: async (data: PatchAwsSetting, id: string) => {
@@ -51,7 +51,7 @@ export const AwsSettingService = {
       dispatch(AwsSettingAction.awsSettingPatched())
     } catch (err) {
       console.log(err)
-      AlertService.dispatchAlertError(err.message)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }
