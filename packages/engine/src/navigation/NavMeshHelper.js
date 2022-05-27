@@ -2,14 +2,14 @@
  * @author Mugen87 / https://github.com/Mugen87
  */
 
-import { VertexColors, Float32BufferAttribute, Color, BufferGeometry, MeshBasicMaterial, Mesh } from 'three';
+import { Float32BufferAttribute, Color, BufferGeometry, MeshBasicMaterial, Mesh } from 'three';
 
 function createConvexRegionHelper( navMesh ) {
 
 	const regions = navMesh.regions;
 
 	const geometry = new BufferGeometry();
-	const material = new MeshBasicMaterial( { vertexColors: VertexColors } );
+	const material = new MeshBasicMaterial( { vertexColors: true } );
 
 	const mesh = new Mesh( geometry, material );
 
