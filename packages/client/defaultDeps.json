@@ -196,6 +196,7 @@
     "postprocessing",
     "prop-types",
     "querystring",
+    "notistack",
     "rc-dock",
     "rc-slider/es/Slider",
     "react",

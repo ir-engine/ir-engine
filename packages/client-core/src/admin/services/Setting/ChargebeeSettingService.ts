@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { ChargebeeSetting } from '@xrengine/common/src/interfaces/ChargebeeSetting'
 
-import { AlertService } from '../../../common/services/AlertService'
+import { NotificationService } from '../../../common/services/NotificationService'
 import { client } from '../../../feathers'
 import { store, useDispatch } from '../../../store'
 
@@ -34,7 +34,7 @@ export const ChargebeeSettingService = {
       const chargeBee = (await client.service('chargebee-setting').find()) as Paginated<ChargebeeSetting>
       dispatch(ChargebeeSettingAction.fetchedChargebee(chargeBee))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }

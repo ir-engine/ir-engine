@@ -1,8 +1,11 @@
+import { t } from 'i18next'
+
 import { resolveUser } from '@xrengine/common/src/interfaces/User'
 import { addComponent, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
 import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
 
+import { NotificationService } from '../../common/services/NotificationService'
 import { _updateUsername } from '../../social/services/utils/chatSystem'
 import { useDispatch } from '../../store'
 import { accessAuthState, AuthAction } from '../services/AuthService'
@@ -53,11 +56,11 @@ export const userPatched = (params) => {
       dispatch(UserAction.addedChannelLayerUser(user))
     if (user.instanceId != null && user.instanceId === selfUser.instanceId.value) {
       dispatch(UserAction.addedLayerUser(user))
-      dispatch(UserAction.displayUserToast(user, { userAdded: true }))
+      NotificationService.dispatchNotify(`${user.name} ${t('common:toast.joined')}`, { variant: 'default' })
     }
     if (user.instanceId !== selfUser.instanceId.value) {
       dispatch(UserAction.removedLayerUser(user))
-      dispatch(UserAction.displayUserToast(user, { userRemoved: true }))
+      NotificationService.dispatchNotify(`${user.name} ${t('common:toast.left')}`, { variant: 'default' })
     }
     if (user.channelInstanceId !== selfUser.channelInstanceId.value) dispatch(UserAction.removedChannelLayerUser(user))
   }
