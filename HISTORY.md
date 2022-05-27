@@ -45,7 +45,7 @@ Updated to Q1 2022
 | Tanya Vykliuk | <tanya.vykliuk@gmail.com>  | |
 | Thomas Mohr | <mohrtw@gmail.com>  | |
 | Vyacheslav Solovjov | <xianionline@gmail.com>  | [@XiaNi](https://github.com/XiaNi) |
-| Zulqarnain Hanif  | <zulqarnainhanif@users.noreply.github.com>  | [@zulqarnainhanif](https://github.com/zulqarnainhanif) |
+| Zulqarnain Hanif  |  | [@zulqarnainhanif](https://github.com/zulqarnainhanif) |
 
 
 
