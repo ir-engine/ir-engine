@@ -69,6 +69,8 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
     //TODO: To avoid the changes of the source material
     if (obj.material && obj.material.clone) {
       obj.material = obj.material.clone()
+      obj.material.depthWrite = true
+      obj.material.depthTest = true
     }
     // Enable shadow for avatars
     obj.castShadow = true
@@ -202,13 +204,9 @@ export const setupAvatarMaterials = (entity, root) => {
     if (object.isBone) object.visible = false
     if (object.material && object.material.clone) {
       const material = object.material.clone()
-
-      if (hasComponent(entity, NameComponent)) {
-        const userId = getComponent(entity, NameComponent).name
-        // If local player's avatar
-        if (userId === Engine.instance.userId) {
-          setupHeadDecap(root, material)
-        }
+      // If local player's avatar
+      if (entity === Engine.instance.currentWorld.localClientEntity) {
+        setupHeadDecap(root, material)
       }
       materialList.push({
         id: object.uuid,
