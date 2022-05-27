@@ -69,6 +69,7 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
     //TODO: To avoid the changes of the source material
     if (obj.material && obj.material.clone) {
       obj.material = obj.material.clone()
+      //TODO: to fix alphablend issue of some models (mostly fbx converted models)
       obj.material.depthWrite = true
       obj.material.depthTest = true
     }
