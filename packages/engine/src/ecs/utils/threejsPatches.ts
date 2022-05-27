@@ -1,5 +1,24 @@
-import { AudioListener, BufferGeometry, Euler, Mesh, Object3D, PositionalAudio, Quaternion, Vector3 } from 'three'
+import {
+  AudioListener,
+  BufferGeometry,
+  Euler,
+  Mesh,
+  Object3D,
+  PositionalAudio,
+  Quaternion,
+  Vector2,
+  Vector3
+} from 'three'
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
+
+//@ts-ignore
+Vector3.prototype.toJSON = function () {
+  return { x: this.x, y: this.y, z: this.z }
+}
+//@ts-ignore
+Vector2.prototype.toJSON = function () {
+  return { x: this.x, y: this.y }
+}
 
 //@ts-ignore
 Quaternion.prototype.toJSON = function () {
