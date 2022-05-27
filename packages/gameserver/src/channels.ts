@@ -66,17 +66,8 @@ type InstanceMetadata = {
   ipAddress: string
 }
 
-// const loadScene = async (app: Application, scene: string) => {
-// }
-
 const createNewInstance = async (app: Application, newInstance: InstanceMetadata) => {
   const { locationId, channelId } = newInstance
-
-  if (channelId) {
-    newInstance.channelId = channelId
-  } else {
-    newInstance.locationId = locationId
-  }
 
   logger.info('Creating new instance: %o', newInstance, locationId, channelId)
   const instanceResult = (await app.service('instance').create(newInstance)) as InstanceInterface
@@ -143,6 +134,8 @@ const handleInstance = async (
 ) => {
   logger.info('Initialized new gameserver instance.')
 
+  app.isChannelInstance = !!channelId
+
   const localIp = await getLocalServerIp(app.isChannelInstance)
   const selfIpAddress = `${status.address}:${status.portsList[0].port}`
   const ipAddress = config.kubernetes.enabled ? selfIpAddress : `${localIp.ipAddress}:${localIp.port}`
@@ -152,11 +145,19 @@ const handleInstance = async (
   } as any
   if (locationId) existingInstanceQuery.locationId = locationId
   else if (channelId) existingInstanceQuery.channelId = channelId
+
+  /**
+   * The instance record should be created when the instance is provisioned by the API server,
+   * here we check that this is the case, as it may be altered, for example by another service or an admin
+   */
+
   const existingInstanceResult = (await app.service('instance').find({
     query: existingInstanceQuery
   })) as Paginated<InstanceInterface>
   logger.info('existingInstanceResult: %o', existingInstanceResult.data)
+
   if (existingInstanceResult.total === 0) {
+
     const newInstance = {
       currentUsers: 1,
       locationId: locationId,
@@ -165,7 +166,9 @@ const handleInstance = async (
       podName: config.kubernetes.enabled ? app.gameServer?.objectMeta?.name : 'local'
     } as InstanceMetadata
     await createNewInstance(app, newInstance)
+
   } else {
+
     const instance = existingInstanceResult.data[0]
     if (locationId) {
       const user = await app.service('user').get(userId)
@@ -186,6 +189,7 @@ const handleInstance = async (
     }
     if (!authorizeUserToJoinServer(app, instance, userId)) return
     await assignExistingInstance(app, existingInstanceResult.data[0], channelId, locationId)
+
   }
 }
 
@@ -196,7 +200,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
   const world = Engine.instance.currentWorld
 
   app.transport = new SocketWebRTCServerNetwork(instanceId, app)
-  await app.transport.initialize()
+  const initPromise = app.transport.initialize()
 
   world.networks.set(instanceId, app.transport)
 
@@ -211,6 +215,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
   world.userIndexToUserId.set(hostIndex, instanceId)
 
   if (app.isChannelInstance) {
+    world._mediaHostId = instanceId as UserId
     await initializeMediaServerSystems()
     await initializeRealtimeSystems(true, false)
     const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
@@ -246,6 +251,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     //   })
     // )
   }
+  await initPromise
   dispatchAction(EngineActions.joinedWorld())
 }
 
@@ -311,9 +317,9 @@ const notifyWorldAndPartiesUserHasJoined = async (
       const emittedIp = !config.kubernetes.enabled
         ? await getLocalServerIp(app.isChannelInstance)
         : {
-            ipAddress: status.address,
-            port: status.portsList[0].port
-          }
+          ipAddress: status.address,
+          port: status.portsList[0].port
+        }
       await Promise.all(
         nonOwners.map(async (partyUser) => {
           await app.service('instance-provision').emit('created', {
@@ -357,13 +363,13 @@ const handleUserAttendance = async (app: Application, userId: UserId) => {
   }
   if (!app.isChannelInstance) {
     const location = await app.service('location').get(app.instance.locationId)
-    ;(newInstanceAttendance as any).sceneId = location.sceneId
+      ; (newInstanceAttendance as any).sceneId = location.sceneId
   }
   await app.service('instance-attendance').create(newInstanceAttendance)
 }
 
 let engineStarted = false
-const loadGameserver = async (
+const loadServer = async (
   app: Application,
   status: GameserverStatus,
   locationId: string,
@@ -371,24 +377,10 @@ const loadGameserver = async (
   sceneId: string,
   userId: UserId
 ) => {
-  app.isChannelInstance = channelId != null
-
-  logger.info('Creating new gameserver or updating current one.')
+  logger.info('Creating new instance server or updating current one.')
   logger.info('agones state is %o', status.state)
   logger.info('app instance is %o', app.instance)
   logger.info({ instanceLocationId: app.instance?.locationId, locationId })
-
-  /**
-   * Since local environments do not have the ability to run multiple gameservers,
-   * we need to shut down the current one if the user tries to load a new location
-   */
-  const isLocalServerNeedingNewLocation =
-    !config.kubernetes.enabled && app.instance && (app.instance.locationId != locationId || app.instance.channelId != channelId)
-
-  if (isLocalServerNeedingNewLocation) {
-    app.restart()
-    return
-  }
 
   if (status.state === 'Ready' || !engineStarted) {
     console.log('instance handled', app.instance?.id, engineStarted)
@@ -415,7 +407,7 @@ const loadGameserver = async (
   }
 }
 
-const shutdownGameserver = async (app: Application, instanceId: string) => {
+const shutdownServer = async (app: Application, instanceId: string) => {
   logger.info('Deleting instance ' + instanceId)
   try {
     await app.service('instance').patch(instanceId, {
@@ -444,6 +436,8 @@ const shutdownGameserver = async (app: Application, instanceId: string) => {
     }
   }
   await app.agonesSDK.shutdown()
+
+  if(!config.kubernetes.enabled) app.restart()
 }
 
 // todo: this could be more elegant
@@ -505,7 +499,7 @@ const handleUserDisconnect = async (app: Application, connection, user, instance
 
   // count again here, as it may have changed
   const activeUsersCount = getActiveUsersCount(user)
-  if (activeUsersCount < 1) await shutdownGameserver(app, instanceId)
+  if (activeUsersCount < 1) await shutdownServer(app, instanceId)
 }
 
 const onConnection = (app: Application) => async (connection: SocketIOConnectionType) => {
@@ -521,9 +515,6 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
   if (!identityProvider?.id) return
 
   const userId = identityProvider.userId
-  logger.info(
-    `user ${userId} joining ${connection.socketQuery.locationId} with sceneId ${connection.socketQuery.sceneId}`
-  )
   let locationId = connection.socketQuery.locationId!
   let channelId = connection.socketQuery.channelId!
   const sceneId: string = connection.socketQuery.sceneId
@@ -538,10 +529,48 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
   if (channelId === '') {
     channelId = undefined!
   }
+
+  logger.info(
+    `user ${userId} joining ${locationId ?? channelId} with sceneId ${connection.socketQuery.sceneId}`
+  )
+
   const gsResult = await app.agonesSDK.getGameServer()
   const status = gsResult.status as GameserverStatus
 
-  await loadGameserver(app, status, locationId, channelId, sceneId, userId)
+  /**
+   * Since local environments do not have the ability to run multiple gameservers,
+   * we need to shut down the current one if the user tries to load a new location
+   */
+  const isLocalServerNeedingNewLocation =
+    !config.kubernetes.enabled && app.instance && (app.instance.locationId != locationId || app.instance.channelId != channelId)
+
+  if (isLocalServerNeedingNewLocation) {
+    app.restart()
+    return
+  }
+
+  /**
+   * If an instance has already been initialized, we want to disallow all connections trying to connect to the wrong location or channel
+   */
+  if (app.instance) {
+    if (locationId && app.instance.locationId !== locationId)
+      return console.warn(
+        '[loadGameserver]: got a connection to the wrong location id',
+        app.instance.locationId,
+        locationId
+      )
+    if (channelId && app.instance.channelId !== channelId)
+      return console.warn(
+        '[loadGameserver]: got a connection to the wrong channel id',
+        app.instance.channelId,
+        channelId
+      )
+  }
+
+  /**
+   * Now that we have verified the connecting user and that they are connecting to the correct instance, load the instance
+   */
+  await loadServer(app, status, locationId, channelId, sceneId, userId)
 
   connection.instanceId = app.instance.id
   app.channel(`instanceIds/${app.instance.id as string}`).join(connection)
@@ -627,7 +656,7 @@ export default (app: Application): void => {
       return
     }
 
-    loadGameserver(app, status, locationId, null!, sceneId, null!)
+    loadServer(app, status, locationId, null!, sceneId, null!)
   })
 
   app.on('connection', onConnection(app))
