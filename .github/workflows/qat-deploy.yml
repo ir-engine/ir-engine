@@ -2,7 +2,7 @@ name: qat-deploy
 on:
   push:
     branches:
-      [qat]
+      [instance-server-host-id-2]
 jobs:
   secrets-gate-run:
     runs-on: ubuntu-latest
