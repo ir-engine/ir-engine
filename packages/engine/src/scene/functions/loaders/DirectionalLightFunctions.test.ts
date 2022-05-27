@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { Color, DirectionalLight, Scene } from 'three'
+import { Color, DirectionalLight, Scene, Vector2 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -45,7 +45,7 @@ describe('DirectionalLightFunctions', () => {
       assert(light.color instanceof Color)
       assert.deepEqual(light.color.toArray(), color.toArray())
       assert.deepEqual(light.intensity, 5)
-      assert.deepEqual(light.shadow.mapSize, { x: 32, y: 32 })
+      assert.deepEqual(light.shadow.mapSize, new Vector2(32, 32))
       assert.deepEqual(light.shadow.bias, 0.1)
       assert.deepEqual(light.shadow.radius, 10)
       assert.deepEqual(light.shadow.camera.far, 123)
@@ -84,10 +84,10 @@ describe('DirectionalLightFunctions', () => {
         color.toArray()
       )
       assert.deepEqual((getComponent(entity, Object3DComponent).value as DirectionalLight).intensity, 6)
-      assert.deepEqual((getComponent(entity, Object3DComponent).value as DirectionalLight).shadow.mapSize, {
-        x: 64,
-        y: 64
-      })
+      assert.deepEqual(
+        (getComponent(entity, Object3DComponent).value as DirectionalLight).shadow.mapSize,
+        new Vector2(64, 64)
+      )
       assert.deepEqual((getComponent(entity, Object3DComponent).value as DirectionalLight).shadow.bias, 0.01)
       assert.deepEqual((getComponent(entity, Object3DComponent).value as DirectionalLight).shadow.radius, 20)
       assert.deepEqual((getComponent(entity, Object3DComponent).value as DirectionalLight).shadow.camera.far, 256)

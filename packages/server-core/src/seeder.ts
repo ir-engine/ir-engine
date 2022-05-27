@@ -12,6 +12,7 @@ const settingsServiceNames = [
   'authentication-setting',
   'aws-setting',
   'chargebee-setting',
+  'coil-setting',
   'client-setting',
   'email-setting',
   'game-server-setting',

@@ -11,6 +11,8 @@ import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
+import { updateAnimationGraph } from './animation/AnimationGraph'
+import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
 import { getForwardVector, solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
 import { AnimationManager } from './AnimationManager'
@@ -43,8 +45,7 @@ export default async function AnimationSystem(world: World) {
         return console.warn(`Avatar Entity for user id ${$from} does not exist! You should probably reconnect...`)
       }
 
-      const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)
-      avatarAnimationComponent.animationGraph.changeState(action.newStateName)
+      changeAvatarAnimationState(avatarEntity, action.newStateName)
     })
   }
   addActionReceptor(world.store, animationActionReceptor)
@@ -94,7 +95,7 @@ export default async function AnimationSystem(world: World) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       const deltaTime = delta * animationComponent.animationSpeed
-      avatarAnimationComponent.animationGraph.update(deltaTime)
+      updateAnimationGraph(avatarAnimationComponent.animationGraph, deltaTime)
 
       const rootBone = animationComponent.mixer.getRoot() as Bone
       const rig = avatarAnimationComponent.rig

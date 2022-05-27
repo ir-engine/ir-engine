@@ -1,43 +1,33 @@
-import { AnimationState } from './AnimationState'
+/** Animation graph for entity. */
+import { AnimationState, enterAnimationState, updateAnimationState } from './AnimationState'
 import { AnimationStateTransitionRule } from './AnimationStateTransitionsRule'
 
-/** Base Class which hold the animation graph for entity. Animation graph will resides in Animation Component. */
-export class AnimationGraph {
-  /** All the possible states of this graph */
-  states: { [key: string]: AnimationState } = {}
-
-  transitionRules: { [key: string]: AnimationStateTransitionRule[] }
-
-  /** Current state */
+export type AnimationGraph = {
+  states: { [key: string]: AnimationState }
+  transitionRules: { [key: string]: { rule: AnimationStateTransitionRule; nextState: string }[] }
   currentState: AnimationState
+}
 
-  constructor() {
-    this.transitionRules = {}
-    this.states = {}
-  }
+export function updateAnimationGraph(graph: AnimationGraph, delta: number) {
+  if (graph.currentState) {
+    const transitions = graph.transitionRules[graph.currentState.name]
 
-  update(delta: number): void {
-    if (this.currentState) {
-      const transitions = this.transitionRules[this.currentState.name]
-
-      if (transitions) {
-        for (const rule of transitions) {
-          if (rule.canEnterTransition() && rule.nextState) {
-            this.changeState(rule.nextState)
-          }
+    if (transitions) {
+      for (const { rule, nextState } of transitions) {
+        if (rule()) {
+          changeState(graph, nextState)
         }
       }
     }
-
-    this.currentState?.update(delta)
   }
 
-  changeState(name: string): void {
-    const newState = this.states[name]
-    if ((this.currentState && this.currentState.name === name) || !newState) return
-    const prevState = this.currentState
-    this.currentState?.exit()
-    this.currentState = newState
-    this.currentState.enter(prevState)
-  }
+  updateAnimationState(graph.currentState, delta)
+}
+
+export function changeState(graph: AnimationGraph, name: string): void {
+  const newState = graph.states[name]
+  if ((graph.currentState && graph.currentState.name === name) || !newState) return
+  const prevState = graph.currentState
+  graph.currentState = newState
+  enterAnimationState(graph.currentState, prevState)
 }

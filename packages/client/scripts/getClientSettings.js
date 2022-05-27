@@ -64,6 +64,7 @@ export const getClientSetting = async () => {
     .findAll()
     .then(([dbClient]) => {
       const dbClientConfig = dbClient && {
+        paymentPointer: process.env.COIL_PAYMENT_POINTER || '',
         logo: dbClient.logo,
         title: dbClient.title,
         url: dbClient.url,

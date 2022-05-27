@@ -1,5 +1,7 @@
 import { createState, useState } from '@speigg/hookstate'
 
+import logger from '@xrengine/common/src/logger'
+
 import { AlertColor } from '@mui/material/Alert'
 
 import { store, useDispatch } from '../../store'
@@ -75,7 +77,7 @@ export const AlertService = {
   dispatchAlertError: (err: Error) => {
     const dispatch = useDispatch()
     AlertService.restartTimer()
-    console.error(err)
+    logger.error(err, 'Dispatching error alert.')
     return dispatch(AlertAction.showAlert('error', err.message))
   },
   dispatchAlertCancel: () => {
