@@ -3,7 +3,6 @@ import { TypedArray } from 'bitecs'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-import { uint32 } from '../../assets/superbuffer'
 import { FLOAT_PRECISION_MULT, QUAT_MAX_RANGE } from '../../common/constants/MathConstants'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -87,7 +86,6 @@ export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, e
   const changeMask = readUint8(v)
   if (changeMask <= 0) return
 
-  // Read the index of the omitted field from the stream.
   let compressedBinaryData = readUint32(v)
 
   const expand = (compressedBinaryData: number) => {

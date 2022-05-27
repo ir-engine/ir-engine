@@ -1,8 +1,6 @@
 import { Group } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { fullAdder } from '@xrengine/common/src/utils/bitOperations'
-import { approxeq } from '@xrengine/common/src/utils/mathUtils'
 
 import { FLOAT_PRECISION_MULT, QUAT_MAX_RANGE } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -178,15 +176,15 @@ export const writeCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, 
     b = compress(b)
     c = compress(c)
 
-    let uint32 = maxIndex
-    uint32 = uint32 << 10
-    uint32 = uint32 | a
-    uint32 = uint32 << 10
-    uint32 = uint32 | b
-    uint32 = uint32 << 10
-    uint32 = uint32 | c
+    let binaryData = maxIndex
+    binaryData = binaryData << 10
+    binaryData = binaryData | a
+    binaryData = binaryData << 10
+    binaryData = binaryData | b
+    binaryData = binaryData << 10
+    binaryData = binaryData | c
 
-    writeUint32(v, uint32)
+    writeUint32(v, binaryData)
   }
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
