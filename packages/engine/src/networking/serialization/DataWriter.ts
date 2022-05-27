@@ -1,9 +1,10 @@
 import { Group } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { approxeq } from '@xrengine/common/src/utils/mathUtils.ts'
+import { fullAdder } from '@xrengine/common/src/utils/bitOperations'
+import { approxeq } from '@xrengine/common/src/utils/mathUtils'
 
-import { FLOAT_PRECISION_MULT } from '../../common/constants/MathConstants'
+import { FLOAT_PRECISION_MULT, QUAT_MAX_RANGE } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -132,44 +133,78 @@ export const writeComporessedRotation = (vector4: Vector4SoA) => (v: ViewCursor,
     // If the maximum value is approximately 1f (such as Quaternion.identity [0,0,0,1]), then we can
     // reduce storage even further due to the fact that all other fields must be 0f by definition, so
     // we only need to send the index of the largest field.
-    if (approxeq(maxValue, 1)) {
-      // Again, don't need to transmit the sign since in quaternion space (x,y,z,w) and (-x,-y,-z,-w)
-      // represent the same rotation. We only need to send the index of the single element whose value
-      // is 1 in order to recreate an equivalent rotation on the receiver.
-      writeUint8(v, maxIndex + 4)
+    // if (approxeq(maxValue, 1)) {
+    //   // Again, don't need to transmit the sign since in quaternion space (x,y,z,w) and (-x,-y,-z,-w)
+    //   // represent the same rotation. We only need to send the index of the single element whose value
+    //   // is 1 in order to recreate an equivalent rotation on the receiver.
+    //   writeUint8(v, maxIndex + 4)
+    // } else {
+    let a = 0
+    let b = 0
+    let c = 0
+
+    // We multiply the value of each element by QUAT_PRECISION_MULT before converting to 16-bit integer
+    // in order to maintain precision. This is necessary since by definition each of the three smallest
+    // elements are less than 1.0, and the conversion to 16-bit integer would otherwise truncate everything
+    // to the right of the decimal place. This allows us to keep five decimal places.
+
+    if (maxIndex === 0) {
+      a = vector4.y[entity]
+      b = vector4.z[entity]
+      c = vector4.w[entity]
+    } else if (maxIndex === 1) {
+      a = vector4.x[entity]
+      b = vector4.z[entity]
+      c = vector4.w[entity]
+    } else if (maxIndex === 2) {
+      a = vector4.x[entity]
+      b = vector4.y[entity]
+      c = vector4.w[entity]
     } else {
-      let a = 0
-      let b = 0
-      let c = 0
-
-      // We multiply the value of each element by QUAT_PRECISION_MULT before converting to 16-bit integer
-      // in order to maintain precision. This is necessary since by definition each of the three smallest
-      // elements are less than 1.0, and the conversion to 16-bit integer would otherwise truncate everything
-      // to the right of the decimal place. This allows us to keep five decimal places.
-
-      if (maxIndex === 0) {
-        a = vector4.y[entity] * sign * FLOAT_PRECISION_MULT
-        b = vector4.z[entity] * sign * FLOAT_PRECISION_MULT
-        c = vector4.w[entity] * sign * FLOAT_PRECISION_MULT
-      } else if (maxIndex === 1) {
-        a = vector4.x[entity] * sign * FLOAT_PRECISION_MULT
-        b = vector4.z[entity] * sign * FLOAT_PRECISION_MULT
-        c = vector4.w[entity] * sign * FLOAT_PRECISION_MULT
-      } else if (maxIndex === 2) {
-        a = vector4.x[entity] * sign * FLOAT_PRECISION_MULT
-        b = vector4.y[entity] * sign * FLOAT_PRECISION_MULT
-        c = vector4.w[entity] * sign * FLOAT_PRECISION_MULT
-      } else {
-        a = vector4.x[entity] * sign * FLOAT_PRECISION_MULT
-        b = vector4.y[entity] * sign * FLOAT_PRECISION_MULT
-        c = vector4.z[entity] * sign * FLOAT_PRECISION_MULT
-      }
-
-      writeUint8(v, maxIndex)
-      writeInt16(v, a)
-      writeInt16(v, b)
-      writeInt16(v, c)
+      a = vector4.x[entity]
+      b = vector4.y[entity]
+      c = vector4.z[entity]
     }
+
+    a *= sign * QUAT_MAX_RANGE * FLOAT_PRECISION_MULT
+    b *= sign * QUAT_MAX_RANGE * FLOAT_PRECISION_MULT
+    c *= sign * QUAT_MAX_RANGE * FLOAT_PRECISION_MULT
+
+    console.log('writing', maxIndex, a, b, c)
+    maxIndex = maxIndex | 0
+    // a = a | 0
+    console.log('write binary', maxIndex, a, b, c)
+
+    const bitWriteMask = 0b00000000000000000000001111111111
+    a = a & bitWriteMask
+    b = b & bitWriteMask
+    c = c & bitWriteMask
+
+    console.log('write binary', maxIndex, a, b, c)
+
+    let uint32 = maxIndex
+    uint32 = uint32 << 10
+    uint32 = uint32 | a
+    uint32 = uint32 << 10
+    uint32 = uint32 | b
+    uint32 = uint32 << 10
+    uint32 = uint32 | c
+
+    // c = c << 20
+    // uint32 = fullAdder(uint32, c)
+    // console.log(uint32, c)
+
+    // maxIndex = maxIndex << 30
+    // uint32 = fullAdder(uint32, maxIndex)
+    // console.log(uint32, maxIndex)
+
+    console.log(uint32)
+    writeUint32(v, uint32)
+    // writeUint8(v, maxIndex)
+    // writeInt16(v, a)
+    // writeInt16(v, b)
+    // writeInt16(v, c)
+    // }
   }
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
