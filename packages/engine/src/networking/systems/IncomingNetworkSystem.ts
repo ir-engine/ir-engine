@@ -26,11 +26,8 @@ export default async function IncomingNetworkSystem(world: World) {
 
   const engineState = getEngineState()
 
-  const networkQueues = NetworkActionReceptor.createNetworkActionReceptor(world)
-
   return () => {
     if (!engineState.isEngineInitialized.value) return
-    networkQueues()
     applyIncomingNetworkState(world)
     if (world.worldNetwork?.isHosting && world.fixedTick % VALIDATE_NETWORK_INTERVAL === 0)
       validateNetworkObjects(world)

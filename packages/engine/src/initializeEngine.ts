@@ -307,9 +307,14 @@ export const initializeSceneSystems = async () => {
 export const initializeRealtimeSystems = async (media = true, pose = true) => {
   const systemsToLoad: SystemModuleType<any>[] = []
 
+  systemsToLoad.push({
+    type: SystemUpdateType.FIXED_EARLY,
+    systemModulePromise: import('./networking/systems/NetworkActionSystem')
+  })
+
   if (media) {
     systemsToLoad.push({
-      type: SystemUpdateType.PRE_RENDER,
+      type: SystemUpdateType.UPDATE,
       systemModulePromise: import('./networking/systems/MediaStreamSystem')
     })
   }

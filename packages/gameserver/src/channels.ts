@@ -383,32 +383,14 @@ const loadGameserver = async (
    * we need to shut down the current one if the user tries to load a new location
    */
   const isLocalServerNeedingNewLocation =
-    !config.kubernetes.enabled && app.instance && app.instance.locationId != locationId
+    !config.kubernetes.enabled && app.instance && (app.instance.locationId != locationId || app.instance.channelId != channelId)
 
   if (isLocalServerNeedingNewLocation) {
     app.restart()
     return
   }
 
-  const isReady = status.state === 'Ready'
-  const isNeedingNewServer = !config.kubernetes.enabled && (status.state === 'Shutdown' || !app.instance)
-
-  if (app.instance) {
-    if (locationId && app.instance.locationId !== locationId)
-      return console.warn(
-        '[loadGameserver]: got a connection to the wrong location id',
-        app.instance.locationId,
-        locationId
-      )
-    if (channelId && app.instance.channelId !== channelId)
-      return console.warn(
-        '[loadGameserver]: got a connection to the wrong channel id',
-        app.instance.channelId,
-        channelId
-      )
-  }
-
-  if (isReady || isNeedingNewServer || !engineStarted) {
+  if (status.state === 'Ready' || !engineStarted) {
     console.log('instance handled', app.instance?.id, engineStarted)
     engineStarted = true
     await handleInstance(app, status, locationId, channelId, userId)
@@ -427,7 +409,6 @@ const loadGameserver = async (
         podName: config.kubernetes.enabled ? app.gameServer?.objectMeta?.name : 'local',
         assignedAt: null!
       })
-      return true
     } catch (err) {
       logger.info('Could not update instance, likely because it is a local one that does not exist.')
     }
@@ -560,8 +541,7 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
   const gsResult = await app.agonesSDK.getGameServer()
   const status = gsResult.status as GameserverStatus
 
-  const successfulLoad = await loadGameserver(app, status, locationId, channelId, sceneId, userId)
-  if (!successfulLoad) return
+  await loadGameserver(app, status, locationId, channelId, sceneId, userId)
 
   connection.instanceId = app.instance.id
   app.channel(`instanceIds/${app.instance.id as string}`).join(connection)
