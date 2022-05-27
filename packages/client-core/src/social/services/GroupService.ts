@@ -5,7 +5,7 @@ import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
 import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
 
-import { AlertService } from '../../common/services/AlertService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
@@ -194,7 +194,7 @@ export const GroupService = {
       })
       dispatch(GroupAction.loadedGroups(groupResults))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   createGroup: async (values: CreateGroup) => {
@@ -207,7 +207,7 @@ export const GroupService = {
       })) as Group
       dispatch(GroupAction.createdGroup(result))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   patchGroup: async (values: Group) => {
@@ -225,7 +225,7 @@ export const GroupService = {
       // ;(patch as any).id = values.id
       dispatch(GroupAction.patchedGroup(data))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeGroup: async (groupId: string) => {
@@ -243,7 +243,7 @@ export const GroupService = {
       }
       await client.service('group').remove(groupId)
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeGroupUser: async (groupUserId: string) => {
@@ -253,7 +253,7 @@ export const GroupService = {
       await client.service('group-user').remove(groupUserId)
       dispatch(GroupAction.leftGroup())
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   getInvitableGroups: async (skip?: number, limit?: number) => {
@@ -271,7 +271,7 @@ export const GroupService = {
       })
       dispatch(GroupAction.loadedInvitableGroups(groupResults))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
       dispatch(GroupAction.loadedInvitableGroups({ data: [], limit: 0, skip: 0, total: 0 }))
     }
   }

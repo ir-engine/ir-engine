@@ -2,7 +2,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { ActiveRoutesInterface } from '@xrengine/common/src/interfaces/Route'
 
-import { AlertService } from '../../common/services/AlertService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
@@ -44,7 +44,7 @@ export const ActiveRouteService = {
         ActiveRouteService.fetchActiveRoutes()
       }
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   fetchActiveRoutes: async (incDec?: 'increment' | 'decrement') => {
@@ -56,7 +56,7 @@ export const ActiveRouteService = {
         dispatch(ActiveRouteActions.activeRoutesRetrievedAction(routes.data as Array<ActiveRoutesInterface>))
       }
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }

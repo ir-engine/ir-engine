@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { EmailSetting, PatchEmailSetting } from '@xrengine/common/src/interfaces/EmailSetting'
 
-import { AlertService } from '../../../common/services/AlertService'
+import { NotificationService } from '../../../common/services/NotificationService'
 import { client } from '../../../feathers'
 import { store, useDispatch } from '../../../store'
 
@@ -35,9 +35,9 @@ export const EmailSettingService = {
     try {
       const emailSettings = (await client.service('email-setting').find()) as Paginated<EmailSetting>
       dispatch(EmailSettingAction.fetchedEmail(emailSettings))
-    } catch (error) {
-      console.log(error.message)
-      AlertService.dispatchAlertError(error.message)
+    } catch (err) {
+      console.log(err.message)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   patchEmailSetting: async (data: PatchEmailSetting, id: string) => {
@@ -47,7 +47,7 @@ export const EmailSettingService = {
       await client.service('email-setting').patch(id, data)
       dispatch(EmailSettingAction.emailSettingPatched())
     } catch (err) {
-      AlertService.dispatchAlertError(err.message)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }

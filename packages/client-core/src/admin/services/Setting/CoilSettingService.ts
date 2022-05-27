@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { CoilSetting } from '@xrengine/common/src/interfaces/CoilSetting'
 
-import { AlertService } from '../../../common/services/AlertService'
+import { NotificationService } from '../../../common/services/NotificationService'
 import { client } from '../../../feathers'
 import { store, useDispatch } from '../../../store'
 
@@ -34,7 +34,7 @@ export const CoilSettingService = {
       const coil = (await client.service('coil-setting').find()) as Paginated<CoilSetting>
       dispatch(CoilSettingAction.fetchedCoil(coil))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }
