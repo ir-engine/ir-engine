@@ -28,18 +28,19 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   //function to handle the position properties
   const onChangePosition = (value) => {
-    executeCommandWithHistoryOnSelection(EditorCommands.POSITION, { positions: value })
+    executeCommandWithHistoryOnSelection({ type: EditorCommands.POSITION, positions: [value] })
   }
 
   //function to handle changes rotation properties
   const onChangeRotation = (value) => {
-    executeCommandWithHistoryOnSelection(EditorCommands.ROTATION, { rotations: value })
+    executeCommandWithHistoryOnSelection({ type: EditorCommands.ROTATION, rotations: [value] })
   }
 
   //function to handle changes in scale properties
   const onChangeScale = (value) => {
-    executeCommandWithHistoryOnSelection(EditorCommands.SCALE, {
-      scales: value,
+    executeCommandWithHistoryOnSelection({
+      type: EditorCommands.SCALE,
+      scales: [value],
       overrideScale: true
     })
   }

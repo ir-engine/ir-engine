@@ -4,8 +4,8 @@ import { createState, useState } from '@speigg/hookstate'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
 
-import { AlertService } from '../../common/services/AlertService'
 import { ErrorAction } from '../../common/services/ErrorService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 
@@ -71,7 +71,7 @@ export const LocationService = {
       const result = await client.service('location').patch(id, location)
       dispatch(LocationAction.locationPatched(result))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeLocation: async (id: string) => {
@@ -87,7 +87,7 @@ export const LocationService = {
       const result = await client.service('location').create(location)
       dispatch(LocationAction.locationCreated(result))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   fetchAdminLocations: async (

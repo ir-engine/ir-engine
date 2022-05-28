@@ -70,7 +70,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
     if (equirectangularPath !== skyComponent.equirectangularPath) {
       setPropertyOnSelectionEntities({
         component: SkyboxComponent,
-        properties: { equirectangularPath }
+        properties: [{ equirectangularPath }]
       })
     }
   }
@@ -80,7 +80,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
     if (directory !== skyComponent.cubemapPath) {
       setPropertyOnSelectionEntities({
         component: SkyboxComponent,
-        properties: { cubemapPath: directory }
+        properties: [{ cubemapPath: directory }]
       })
     }
   }

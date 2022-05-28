@@ -171,10 +171,14 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         return
       }
 
-      executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
-        parents: parentNode,
-        befores: beforeNode
-      })
+      if (parentNode) {
+        executeCommandWithHistory({
+          type: EditorCommands.REPARENT,
+          affectedNodes: [item.value],
+          parents: [parentNode],
+          befores: beforeNode ? [beforeNode] : undefined
+        })
+      }
     }
   }
 
