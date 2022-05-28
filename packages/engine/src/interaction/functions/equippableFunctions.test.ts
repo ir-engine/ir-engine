@@ -11,10 +11,12 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { equipEntity, unequipEntity } from './equippableFunctions'
+import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 
 describe('equippableFunctions', () => {
   beforeEach(() => {
     createEngine()
+    createMockNetwork()
   })
 
   it('equipEntity', () => {

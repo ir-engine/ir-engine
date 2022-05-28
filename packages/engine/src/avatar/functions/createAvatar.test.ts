@@ -21,6 +21,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { createAvatar } from './createAvatar'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 describe('createAvatar', () => {
   beforeEach(async () => {
@@ -34,7 +35,7 @@ describe('createAvatar', () => {
 
   it('check the create avatar function', () => {
     const world = Engine.instance.currentWorld
-    Engine.instance.userId = world.worldNetwork.hostId
+    Engine.instance.userId = 'user' as UserId
 
     // mock entity to apply incoming unreliable updates to
     const entity = createEntity()

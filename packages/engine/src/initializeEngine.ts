@@ -96,7 +96,6 @@ export const initializeNode = () => {
 
 const executeWorlds = (elapsedTime) => {
   Engine.instance.frameTime = elapsedTime
-  ActionFunctions.applyIncomingActions()
   for (const world of Engine.instance.worlds) {
     world.execute(elapsedTime)
   }

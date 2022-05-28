@@ -266,7 +266,6 @@ export class World {
   execute(frameTime: number) {
     const start = nowMilliseconds()
     const incomingActions = [...Engine.instance.store.actions.incoming]
-    const incomingBufferLength = this.worldNetwork?.incomingMessageQueueUnreliable.getBufferLength()
 
     const worldElapsedSeconds = (frameTime - this.startTime) / 1000
     this.deltaSeconds = Math.max(0, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
@@ -282,7 +281,7 @@ export class World {
     const duration = end - start
     if (duration > 50) {
       console.warn(
-        `Long frame execution detected. Duration: ${duration}. \n Incoming Buffer Length: ${incomingBufferLength} \n Incoming actions: `,
+        `Long frame execution detected. Duration: ${duration}. \n Incoming actions: `,
         incomingActions
       )
     }

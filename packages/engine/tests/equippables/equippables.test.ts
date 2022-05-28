@@ -20,10 +20,16 @@ import { createBody, getAllShapesFromObject3D, ShapeOptions } from '../../src/ph
 import { BodyType, ColliderTypes } from '../../src/physics/types/PhysicsTypes'
 import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
 import { TransformComponent } from '../../src/transform/components/TransformComponent'
+import { createMockNetwork } from '../util/createMockNetwork'
 
 describe('Equippables Integration Tests', () => {
-  it('Can equip and unequip', async () => {
+
+  beforeEach(() => {
     createEngine()
+    createMockNetwork()
+  })
+
+  it('Can equip and unequip', async () => {
     const world = Engine.instance.currentWorld
 
     const hostUserId = 'world' as UserId
@@ -88,8 +94,8 @@ describe('Equippables Integration Tests', () => {
     // world.receptors.push(
     //     (a) => matches(a).when(NetworkWorldAction.setEquippedObject.matches, setEquippedObjectReceptor)
     // )
-    ActionFunctions.clearOutgoingActions(world.store)
-    ActionFunctions.applyIncomingActions(world.store)
+    ActionFunctions.clearOutgoingActions()
+    ActionFunctions.applyIncomingActions()
 
     equippableQueryEnter(equipperEntity)
 
@@ -105,8 +111,8 @@ describe('Equippables Integration Tests', () => {
     // unequip stuff
     unequipEntity(equipperEntity)
 
-    ActionFunctions.clearOutgoingActions(world.store)
-    ActionFunctions.applyIncomingActions(world.store)
+    ActionFunctions.clearOutgoingActions()
+    ActionFunctions.applyIncomingActions()
 
     equippableQueryExit(equipperEntity)
 
@@ -116,5 +122,7 @@ describe('Equippables Integration Tests', () => {
     assert(!hasComponent(equippableEntity, EquippedComponent))
     collider = getComponent(equippableEntity, ColliderComponent).body
     assert.deepEqual(collider._type, BodyType.DYNAMIC)
+
   })
+
 })

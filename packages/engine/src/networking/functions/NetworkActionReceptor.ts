@@ -140,6 +140,7 @@ const requestAuthorityOverObjectReceptor = (
   action: typeof NetworkWorldAction.requestAuthorityOverObject.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
+  console.log('requestAuthorityOverObjectReceptor', action)
   // Authority request can only be processed by host
   if (Engine.instance.currentWorld.worldNetwork.isHosting === false) return
 
@@ -164,6 +165,7 @@ const transferAuthorityOfObjectReceptor = (
   action: typeof NetworkWorldAction.transferAuthorityOfObject.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
+  console.log('transferAuthorityOfObjectReceptor', action)
   // Transfer authority action can only be originated from host
   if (action.$from !== Engine.instance.currentWorld.worldNetwork.hostId) return
 

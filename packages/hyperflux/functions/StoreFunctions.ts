@@ -65,7 +65,7 @@ export class HyperFlux {
   static store: HyperStore
 }
 
-function createHyperStore<StoreName extends string>(options: {
+function createHyperStore(options: {
   getDispatchMode?: (topic: string) => 'local' | 'host' | 'peer'
   getDispatchId: () => string
   getDispatchTime: () => number
