@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { SettingAnalytics } from '@xrengine/common/src/interfaces/SettingAnalytics'
 
-import { AlertService } from '../../../common/services/AlertService'
+import { NotificationService } from '../../../common/services/NotificationService'
 import { client } from '../../../feathers'
 import { store, useDispatch } from '../../../store'
 
@@ -33,9 +33,9 @@ export const SettingAnalyticsService = {
     try {
       const analytics = (await client.service('analytics-setting').find()) as Paginated<SettingAnalytics>
       dispatch(SettingAnalyticsAction.fetchedAnalytics(analytics))
-    } catch (error) {
-      console.error(error.message)
-      AlertService.dispatchAlertError(error.message)
+    } catch (err) {
+      console.log(err.message)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }
