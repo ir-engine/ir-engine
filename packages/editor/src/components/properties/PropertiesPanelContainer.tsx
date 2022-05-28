@@ -113,32 +113,41 @@ export const PropertiesPanelContainer = () => {
   selectionState.objectChangeCounter.value
 
   const onChangeVisible = (value) => {
-    executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
-      operation: {
-        component: VisibleComponent,
-        sceneComponentName: SCENE_COMPONENT_VISIBLE,
-        type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
-      }
+    executeCommandWithHistoryOnSelection({
+      type: EditorCommands.TAG_COMPONENT,
+      operations: [
+        {
+          component: VisibleComponent,
+          sceneComponentName: SCENE_COMPONENT_VISIBLE,
+          type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
+        }
+      ]
     })
   }
 
   const onChangeBakeStatic = (value) => {
-    executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
-      operation: {
-        component: PreventBakeTagComponent,
-        sceneComponentName: SCENE_COMPONENT_PREVENT_BAKE,
-        type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
-      }
+    executeCommandWithHistoryOnSelection({
+      type: EditorCommands.TAG_COMPONENT,
+      operations: [
+        {
+          component: PreventBakeTagComponent,
+          sceneComponentName: SCENE_COMPONENT_PREVENT_BAKE,
+          type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
+        }
+      ]
     })
   }
 
   const onChangePersist = (value) => {
-    executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
-      operation: {
-        component: PersistTagComponent,
-        sceneComponentName: SCENE_COMPONENT_PERSIST,
-        type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
-      }
+    executeCommandWithHistoryOnSelection({
+      type: EditorCommands.TAG_COMPONENT,
+      operations: [
+        {
+          component: PersistTagComponent,
+          sceneComponentName: SCENE_COMPONENT_PERSIST,
+          type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
+        }
+      ]
     })
   }
 

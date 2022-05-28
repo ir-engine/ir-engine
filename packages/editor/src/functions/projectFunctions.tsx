@@ -54,7 +54,7 @@ export async function runPreprojectLoadTasks(): Promise<void> {
 export async function loadProjectScene(projectFile: SceneJson) {
   dispatchAction(Engine.instance.store, EngineActions.sceneUnloaded())
 
-  executeCommand(EditorCommands.REPLACE_SELECTION, [])
+  executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
   clearHistory()
 
   disposeProject()

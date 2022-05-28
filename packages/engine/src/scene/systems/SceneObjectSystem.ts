@@ -7,6 +7,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -47,6 +48,7 @@ const processObject3d = (entity: Entity) => {
 
   const object3DComponent = getComponent(entity, Object3DComponent)
   const shadowComponent = getComponent(entity, ShadowComponent)
+  object3DComponent.value.name = getComponent(entity, NameComponent)?.name ?? ''
 
   object3DComponent.value.traverse((obj: Mesh<any, Material>) => {
     const material = obj.material

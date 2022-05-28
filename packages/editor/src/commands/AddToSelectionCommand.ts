@@ -1,61 +1,80 @@
 import { store } from '@xrengine/client-core/src/store'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
 
 import { executeCommand } from '../classes/History'
-import EditorCommands from '../constants/EditorCommands'
+import EditorCommands, { CommandFuncType, CommandParams, SelectionCommands } from '../constants/EditorCommands'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { serializeObject3DArray } from '../functions/debug'
 import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
-import Command, { CommandParams } from './Command'
 
-export default class AddToSelectionCommand extends Command {
-  constructor(objects: EntityTreeNode[], params: CommandParams) {
-    super(objects, params)
+export type AddToSelectionCommandUndoParams = {
+  selection: Entity[]
+}
 
-    if (this.keepHistory) this.oldSelection = accessSelectionState().selectedEntities.value.slice(0)
+export type AddToSelectionCommandParams = CommandParams & {
+  type: SelectionCommands.ADD_TO_SELECTION
+
+  undo?: AddToSelectionCommandUndoParams
+}
+
+function prepare(command: AddToSelectionCommandParams) {
+  if (command.keepHistory) {
+    command.undo = { selection: accessSelectionState().selectedEntities.value.slice(0) }
+  }
+}
+
+function execute(command: AddToSelectionCommandParams) {
+  emitEventBefore(command)
+
+  const selectedEntities = accessSelectionState().selectedEntities.value.slice(0)
+
+  for (let i = 0; i < command.affectedNodes.length; i++) {
+    const object = command.affectedNodes[i]
+    if (selectedEntities.includes(object.entity)) continue
+
+    addComponent(object.entity, SelectTagComponent, {})
+    selectedEntities.push(object.entity)
   }
 
-  execute() {
-    this.emitBeforeExecuteEvent()
+  store.dispatch(SelectionAction.updateSelection(selectedEntities))
 
-    const selectedEntities = accessSelectionState().selectedEntities.value.slice(0)
+  emitEventAfter(command)
+}
 
-    for (let i = 0; i < this.affectedObjects.length; i++) {
-      const object = this.affectedObjects[i]
-      if (selectedEntities.includes(object.entity)) continue
-
-      addComponent(object.entity, SelectTagComponent, {})
-      selectedEntities.push(object.entity)
-    }
-
-    store.dispatch(SelectionAction.updateSelection(selectedEntities))
-
-    this.emitAfterExecuteEvent()
+function undo(command: AddToSelectionCommandParams) {
+  if (command.undo) {
+    executeCommand({
+      type: EditorCommands.REPLACE_SELECTION,
+      affectedNodes: getEntityNodeArrayFromEntities(command.undo.selection)
+    })
   }
+}
 
-  undo() {
-    if (!this.oldSelection) return
-    executeCommand(EditorCommands.REPLACE_SELECTION, getEntityNodeArrayFromEntities(this.oldSelection))
-  }
+function emitEventBefore(command: AddToSelectionCommandParams) {
+  if (command.preventEvents) return
 
-  toString() {
-    return `SelectMultipleCommand id: ${this.id} objects: ${serializeObject3DArray(this.affectedObjects)}`
-  }
+  cancelGrabOrPlacement()
+  store.dispatch(SelectionAction.changedBeforeSelection())
+}
 
-  emitAfterExecuteEvent() {
-    if (this.shouldEmitEvent) {
-      updateOutlinePassSelection()
-    }
-  }
+function emitEventAfter(command: AddToSelectionCommandParams) {
+  if (command.preventEvents) return
+  updateOutlinePassSelection()
+}
 
-  emitBeforeExecuteEvent() {
-    if (this.shouldEmitEvent) {
-      cancelGrabOrPlacement()
-      store.dispatch(SelectionAction.changedBeforeSelection())
-    }
-  }
+function toString(command: AddToSelectionCommandParams) {
+  return `AddToSelection Command id: ${command.id} objects: ${serializeObject3DArray(command.affectedNodes)}`
+}
+
+export const AddToSelectionCommand: CommandFuncType = {
+  prepare,
+  execute,
+  undo,
+  emitEventAfter,
+  emitEventBefore,
+  toString
 }

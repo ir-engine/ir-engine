@@ -173,14 +173,14 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
   const onChangeCheckBox = (e: ChangeEvent<HTMLInputElement>, effect: Effects) => {
     setPropertyOnSelectionEntities({
       component: PostprocessingComponent,
-      properties: { ['options.' + effect + '.isActive']: e.target.checked }
+      properties: [{ ['options.' + effect + '.isActive']: e.target.checked }]
     })
   }
 
   const onChangeNodeSetting = (propertyPath: string, value: any) => {
     setPropertyOnSelectionEntities({
       component: PostprocessingComponent,
-      properties: { ['options.' + propertyPath]: value }
+      properties: [{ ['options.' + propertyPath]: value }]
     })
   }
 
