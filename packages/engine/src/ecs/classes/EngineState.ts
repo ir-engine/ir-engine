@@ -7,7 +7,6 @@ import { Entity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
 export const EngineState = defineState({
-  store: 'ENGINE',
   name: 'engine',
   initial: {
     fixedTick: 0,

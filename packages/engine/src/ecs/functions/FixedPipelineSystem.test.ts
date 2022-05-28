@@ -8,7 +8,6 @@ import { World } from '../classes/World'
 import { SystemUpdateType } from './SystemUpdateType'
 
 const MockState = defineState({
-  store: 'NETWORK',
   name: 'MockState',
   initial: { count: 0 }
 })

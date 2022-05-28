@@ -9,7 +9,6 @@ export const matchesAvatarProps = matches.shape({
 export type AvatarProps = typeof matchesAvatarProps._TYPE
 
 export const WorldState = defineState({
-  store: 'NETWORK',
   name: 'WorldState',
   initial: () => ({})
 })

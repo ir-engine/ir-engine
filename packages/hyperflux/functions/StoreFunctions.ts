@@ -1,5 +1,6 @@
 import { State } from '@speigg/hookstate'
 import { Validator } from 'ts-matches'
+import { addTopic } from '..'
 
 import { Action, ActionReceptor } from './ActionFunctions'
 
@@ -89,6 +90,7 @@ function createHyperStore(options: {
     receptors: [],
     reactors: new WeakMap()
   } as HyperStore
+  addTopic(store.defaultTopic, store)
   HyperFlux.store = store
   return store
 }

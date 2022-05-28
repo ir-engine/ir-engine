@@ -7,7 +7,6 @@ import { HyperFlux, HyperStore, StringLiteral } from './StoreFunctions'
 export * from '@speigg/hookstate'
 
 type StateDefinition<StoreName extends string, S> = {
-  store: StringLiteral<StoreName>
   name: string
   initial: SetInitialStateAction<S>
 }
