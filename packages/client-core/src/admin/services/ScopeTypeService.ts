@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
 
-import { AlertService } from '../../common/services/AlertService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 
@@ -61,7 +61,7 @@ export const ScopeTypeService = {
       })) as Paginated<AdminScopeType>
       dispatch(ScopeTypeAction.getScopeTypes(result))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }

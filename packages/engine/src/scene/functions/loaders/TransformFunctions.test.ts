@@ -99,7 +99,10 @@ describe('TransformFunctions', () => {
   describe('parseTransformProperties()', () => {
     it('should use default component values', () => {
       const componentData = parseTransformProperties({})
-      assert.deepEqual(componentData.position, SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.position)
+      assert.deepEqual(
+        JSON.parse(JSON.stringify(componentData.position)),
+        SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.position
+      )
       assert.deepEqual(
         componentData.rotation,
         new Quaternion().setFromEuler(
@@ -110,7 +113,7 @@ describe('TransformFunctions', () => {
           )
         )
       )
-      assert.deepEqual(componentData.scale, SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.scale)
+      assert.deepEqual(JSON.parse(JSON.stringify(componentData.scale)), SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.scale)
     })
 
     it('should use passed values', () => {
