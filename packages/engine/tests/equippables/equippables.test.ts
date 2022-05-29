@@ -23,7 +23,6 @@ import { TransformComponent } from '../../src/transform/components/TransformComp
 import { createMockNetwork } from '../util/createMockNetwork'
 
 describe('Equippables Integration Tests', () => {
-
   beforeEach(() => {
     createEngine()
     createMockNetwork()
@@ -122,7 +121,5 @@ describe('Equippables Integration Tests', () => {
     assert(!hasComponent(equippableEntity, EquippedComponent))
     collider = getComponent(equippableEntity, ColliderComponent).body
     assert.deepEqual(collider._type, BodyType.DYNAMIC)
-
   })
-
 })

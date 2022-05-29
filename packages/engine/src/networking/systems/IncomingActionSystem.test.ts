@@ -4,13 +4,12 @@ import matches from 'ts-matches'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import ActionFunctions, { ActionRecipients } from '@xrengine/hyperflux/functions/ActionFunctions'
 
+import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'
 import { createEngine } from '../../initializeEngine'
 import { NetworkWorldAction } from '../functions/NetworkWorldAction'
-import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 
 describe('IncomingActionSystem Unit Tests', async () => {
-
   beforeEach(() => {
     createEngine()
     // this is hacky but works and preserves the logic
@@ -22,7 +21,6 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
   describe('applyIncomingActions', () => {
     it('should delay incoming action from the future', () => {
-      
       const world = Engine.instance.currentWorld
 
       // fixed tick in past
@@ -62,7 +60,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
     it('should immediately apply incoming action from the past or present', () => {
       const world = Engine.instance.currentWorld
-      
+
       /* mock */
       const action = NetworkWorldAction.spawnObject({
         $from: '0' as UserId,
@@ -93,7 +91,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
     it('should cache actions where $cache = true', () => {
       const world = Engine.instance.currentWorld
       world.fixedTick = 1
-      
+
       /* mock */
       const action = NetworkWorldAction.spawnObject({
         $from: '0' as UserId,

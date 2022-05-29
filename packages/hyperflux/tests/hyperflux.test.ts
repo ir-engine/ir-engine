@@ -18,7 +18,6 @@ import {
 } from '..'
 
 describe('Hyperflux Unit Tests', () => {
-
   it('should be able to define and create an action', () => {
     const testMissingStore = defineAction({
       type: 'TEST_ACTION'
@@ -272,13 +271,21 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(store.actions.cached[store.defaultTopic].length, 5)
     assert.equal(store.actions.incomingHistory.at(-1)!['greeting'], 'welcome')
 
-    dispatchAction(greet({ greeting: 'welcome', $cache: { removePrevious: ['greeting'], disable: true } }), [store.defaultTopic], store)
+    dispatchAction(
+      greet({ greeting: 'welcome', $cache: { removePrevious: ['greeting'], disable: true } }),
+      [store.defaultTopic],
+      store
+    )
     applyIncomingActions(store)
     assert.equal(receivedCount, 11)
     assert.equal(store.actions.cached[store.defaultTopic].length, 4)
     assert.equal(store.actions.incomingHistory.at(-1)!['greeting'], 'welcome')
 
-    dispatchAction(greet({ $from: 'differentUser' as UserId, $cache: { removePrevious: true } }), [store.defaultTopic], store)
+    dispatchAction(
+      greet({ $from: 'differentUser' as UserId, $cache: { removePrevious: true } }),
+      [store.defaultTopic],
+      store
+    )
     applyIncomingActions(store)
     assert.equal(receivedCount, 12)
     assert.equal(store.actions.cached[store.defaultTopic].length, 5)
@@ -288,7 +295,11 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(receivedCount, 13)
     assert.equal(store.actions.cached[store.defaultTopic].length, 1)
 
-    dispatchAction(greet({ $from: 'differentUser' as UserId, $cache: { removePrevious: true, disable: true } }), [store.defaultTopic], store)
+    dispatchAction(
+      greet({ $from: 'differentUser' as UserId, $cache: { removePrevious: true, disable: true } }),
+      [store.defaultTopic],
+      store
+    )
     applyIncomingActions(store)
     assert.equal(receivedCount, 14)
     assert.equal(store.actions.cached[store.defaultTopic].length, 0)

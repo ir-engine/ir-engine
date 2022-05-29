@@ -5,6 +5,7 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
+import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -13,7 +14,6 @@ import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityT
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkActionReceptor } from './NetworkActionReceptor'
 import { NetworkWorldAction } from './NetworkWorldAction'
-import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 
 describe('NetworkActionReceptors', () => {
   beforeEach(() => {
@@ -27,7 +27,10 @@ describe('NetworkActionReceptors', () => {
       const userId = 'user id' as UserId
       const userName = 'user name'
       const userIndex = 1
-      NetworkActionReceptor.createClientReceptor(NetworkWorldAction.createClient({ $from: userId, name: userName, index: userIndex }), world)
+      NetworkActionReceptor.createClientReceptor(
+        NetworkWorldAction.createClient({ $from: userId, name: userName, index: userIndex }),
+        world
+      )
 
       assert(world.clients.get(userId))
       assert.equal(world.clients.get(userId)?.userId, userId)
@@ -44,8 +47,14 @@ describe('NetworkActionReceptors', () => {
       const userName2 = 'user name 2'
       const userIndex = 1
 
-      NetworkActionReceptor.createClientReceptor(NetworkWorldAction.createClient({ $from: userId, name: userName, index: userIndex }), world)
-      NetworkActionReceptor.createClientReceptor(NetworkWorldAction.createClient({ $from: userId, name: userName2, index: userIndex }), world)
+      NetworkActionReceptor.createClientReceptor(
+        NetworkWorldAction.createClient({ $from: userId, name: userName, index: userIndex }),
+        world
+      )
+      NetworkActionReceptor.createClientReceptor(
+        NetworkWorldAction.createClient({ $from: userId, name: userName2, index: userIndex }),
+        world
+      )
 
       assert(world.clients.get(userId)?.name, userName)
     })
@@ -57,8 +66,11 @@ describe('NetworkActionReceptors', () => {
       const userId = 'user id' as UserId
       const userName = 'user name'
       const userIndex = 1
-      NetworkActionReceptor.createClientReceptor(NetworkWorldAction.createClient({ $from: userId, name: userName, index: userIndex }), world)
-      
+      NetworkActionReceptor.createClientReceptor(
+        NetworkWorldAction.createClient({ $from: userId, name: userName, index: userIndex }),
+        world
+      )
+
       NetworkActionReceptor.destroyClientReceptor(NetworkWorldAction.destroyClient({ $from: userId }), false, world)
 
       assert(!world.clients.get(userId))
@@ -71,7 +83,10 @@ describe('NetworkActionReceptors', () => {
       const userId = 'user id' as UserId
       const userName = 'user name'
       const userIndex = 1
-      NetworkActionReceptor.createClientReceptor(NetworkWorldAction.createClient({ $from: userId, name: userName, index: userIndex }), world)
+      NetworkActionReceptor.createClientReceptor(
+        NetworkWorldAction.createClient({ $from: userId, name: userName, index: userIndex }),
+        world
+      )
 
       const topic = 'network'
 
@@ -110,8 +125,14 @@ describe('NetworkActionReceptors', () => {
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
 
-      NetworkActionReceptor.createClientReceptor(NetworkWorldAction.createClient({ $from: hostUserId, name: 'host', index: 0 }), world)
-      NetworkActionReceptor.createClientReceptor(NetworkWorldAction.createClient({ $from: userId, name: 'user name', index: 1 }), world)
+      NetworkActionReceptor.createClientReceptor(
+        NetworkWorldAction.createClient({ $from: hostUserId, name: 'host', index: 0 }),
+        world
+      )
+      NetworkActionReceptor.createClientReceptor(
+        NetworkWorldAction.createClient({ $from: userId, name: 'user name', index: 1 }),
+        world
+      )
 
       const objParams = 123
       const objNetId = 3 as NetworkId
@@ -151,8 +172,14 @@ describe('NetworkActionReceptors', () => {
 
       const world = Engine.instance.currentWorld
 
-      NetworkActionReceptor.createClientReceptor(NetworkWorldAction.createClient({ $from: hostId, name: 'world', index: 0 }), world)
-      NetworkActionReceptor.createClientReceptor(NetworkWorldAction.createClient({ $from: userId, name: 'user name', index: 1 }), world)
+      NetworkActionReceptor.createClientReceptor(
+        NetworkWorldAction.createClient({ $from: hostId, name: 'world', index: 0 }),
+        world
+      )
+      NetworkActionReceptor.createClientReceptor(
+        NetworkWorldAction.createClient({ $from: userId, name: 'user name', index: 1 }),
+        world
+      )
 
       const objParams = 123
       const objNetId = 3 as NetworkId
@@ -192,9 +219,18 @@ describe('NetworkActionReceptors', () => {
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
 
-      NetworkActionReceptor.createClientReceptor(NetworkWorldAction.createClient({ $from: hostUserId, name: 'world', index: 0 }), world)
-      NetworkActionReceptor.createClientReceptor(NetworkWorldAction.createClient({ $from: userId, name: 'user name', index: 1 }), world)
-      NetworkActionReceptor.createClientReceptor(NetworkWorldAction.createClient({ $from: userId2, name: 'second user name', index: 2 }), world)
+      NetworkActionReceptor.createClientReceptor(
+        NetworkWorldAction.createClient({ $from: hostUserId, name: 'world', index: 0 }),
+        world
+      )
+      NetworkActionReceptor.createClientReceptor(
+        NetworkWorldAction.createClient({ $from: userId, name: 'user name', index: 1 }),
+        world
+      )
+      NetworkActionReceptor.createClientReceptor(
+        NetworkWorldAction.createClient({ $from: userId2, name: 'second user name', index: 2 }),
+        world
+      )
 
       const objParams = {
         position: new Vector3(),
@@ -236,7 +272,10 @@ describe('NetworkActionReceptors', () => {
       const world = Engine.instance.currentWorld
       world.localClientEntity = createEntity(world)
 
-      NetworkActionReceptor.createClientReceptor(NetworkWorldAction.createClient({ $from: userId, name: 'user name', index: 1 }), world)
+      NetworkActionReceptor.createClientReceptor(
+        NetworkWorldAction.createClient({ $from: userId, name: 'user name', index: 1 }),
+        world
+      )
 
       const objParams = {
         position: new Vector3(),
@@ -276,8 +315,14 @@ describe('NetworkActionReceptors', () => {
 
       Engine.instance.store.defaultDispatchDelay = 0
 
-      NetworkActionReceptor.createClientReceptor(NetworkWorldAction.createClient({ $from: hostUserId, name: 'world', index: 0 }), world)
-      NetworkActionReceptor.createClientReceptor(NetworkWorldAction.createClient({ $from: userId, name: 'user name', index: 1 }), world)
+      NetworkActionReceptor.createClientReceptor(
+        NetworkWorldAction.createClient({ $from: hostUserId, name: 'world', index: 0 }),
+        world
+      )
+      NetworkActionReceptor.createClientReceptor(
+        NetworkWorldAction.createClient({ $from: userId, name: 'user name', index: 1 }),
+        world
+      )
 
       const objParams = 123
       const objNetId = 3 as NetworkId
@@ -339,7 +384,10 @@ describe('NetworkActionReceptors', () => {
       Engine.instance.userId = userId
 
       const world = Engine.instance.currentWorld
-      NetworkActionReceptor.createClientReceptor(NetworkWorldAction.createClient({ $from: userId, name: userName, index: userIndex }), world)
+      NetworkActionReceptor.createClientReceptor(
+        NetworkWorldAction.createClient({ $from: userId, name: userName, index: userIndex }),
+        world
+      )
 
       const hostIndex = 0
       world.clients.set(world.worldNetwork.hostId, {

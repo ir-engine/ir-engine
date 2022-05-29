@@ -1,7 +1,7 @@
 import { State } from '@speigg/hookstate'
 import { Validator } from 'ts-matches'
-import { addTopic } from '..'
 
+import { addTopic } from '..'
 import { Action, ActionReceptor } from './ActionFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never

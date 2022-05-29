@@ -1,7 +1,7 @@
 import assert from 'assert'
 import { Group, Layers, Mesh, Quaternion, Scene, Vector3 } from 'three'
-import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 
+import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, createMappedComponent, defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'

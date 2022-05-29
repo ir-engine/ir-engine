@@ -3,6 +3,7 @@ import assert from 'assert'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
+import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -11,7 +12,6 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { equipEntity, unequipEntity } from './equippableFunctions'
-import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 
 describe('equippableFunctions', () => {
   beforeEach(() => {
