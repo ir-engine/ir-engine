@@ -101,7 +101,7 @@ export const MediaInstanceConnectionService = {
         )
       )
     } else {
-      dispatchAction(NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: channelId! }))
+      dispatchAction(NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: channelId! ?? '' }))
     }
   },
   connectToServer: async (instanceId: string, channelId: string) => {
