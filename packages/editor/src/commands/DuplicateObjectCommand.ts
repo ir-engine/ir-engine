@@ -1,107 +1,115 @@
 import { store } from '@xrengine/client-core/src/store'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { cloneEntityNode, getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 
 import { executeCommand } from '../classes/History'
-import EditorCommands from '../constants/EditorCommands'
+import EditorCommands, { CommandFuncType, CommandParams, ObjectCommands } from '../constants/EditorCommands'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
 import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
 import { shouldNodeDeserialize } from '../functions/shouldDeserialize'
 import { EditorAction } from '../services/EditorServices'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
-import Command, { CommandParams } from './Command'
 
-export interface DuplicateObjectCommandParams extends CommandParams {
-  /** Parent object which will hold objects being added by this command */
-  parents?: EntityTreeNode | EntityTreeNode[]
-
-  /** Child object before which all objects will be added */
-  befores?: EntityTreeNode | EntityTreeNode[]
+export type DuplicateObjectCommandUndoParams = {
+  selection: Entity[]
 }
 
-export default class DuplicateObjectCommand extends Command {
+export type DuplicateObjectCommandParams = CommandParams & {
+  type: ObjectCommands.DUPLICATE_OBJECTS
+
+  /** Parent object which will hold objects being duplicateed by this command */
   parents?: EntityTreeNode[]
 
+  /** Child object before which all objects will be duplicateed */
   befores?: EntityTreeNode[]
 
-  duplicatedObjects: EntityTreeNode[]
+  duplicatedObjects?: EntityTreeNode[]
 
-  constructor(objects: EntityTreeNode[], params: DuplicateObjectCommandParams) {
-    super(objects, params)
+  undo?: DuplicateObjectCommandUndoParams
+}
 
-    this.affectedObjects = objects.filter((o) => shouldNodeDeserialize(o))
-    this.parents = params.parents ? (Array.isArray(params.parents) ? params.parents : [params.parents]) : undefined
-    this.befores = params.befores ? (Array.isArray(params.befores) ? params.befores : [params.befores]) : undefined
-    this.duplicatedObjects = []
+function prepare(command: DuplicateObjectCommandParams) {
+  command.affectedNodes = command.affectedNodes.filter((o) => shouldNodeDeserialize(o))
 
-    if (this.keepHistory) {
-      this.oldSelection = accessSelectionState().selectedEntities.value.slice(0)
+  if (command.keepHistory) {
+    command.undo = { selection: accessSelectionState().selectedEntities.value.slice(0) }
+  }
+}
+
+function execute(command: DuplicateObjectCommandParams) {
+  if (!command.duplicatedObjects) {
+    const roots = getDetachedObjectsRoots(command.affectedNodes)
+    command.duplicatedObjects = roots.map((object) => cloneEntityNode(object))
+  }
+
+  if (!command.parents) {
+    command.parents = []
+    const tree = Engine.instance.currentWorld.entityTree
+
+    for (let o of command.duplicatedObjects) {
+      if (!o.parentEntity) throw new Error('Parent is not defined')
+      const parent = tree.entityNodeMap.get(o.parentEntity)
+
+      if (!parent) throw new Error('Parent is not defined')
+      command.parents.push(parent)
     }
   }
 
-  execute(isRedoCommand?: boolean) {
-    if (isRedoCommand) {
-      executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, {
-        parents: this.parents,
-        befores: this.befores,
-        shouldEmitEvent: false,
-        isObjectSelected: false
-      })
-    } else {
-      const roots = getDetachedObjectsRoots(this.affectedObjects)
-      this.duplicatedObjects = roots.map((object) => cloneEntityNode(object))
-      const sceneData = this.duplicatedObjects.map((obj) => serializeWorld(obj, true))
-      const tree = useWorld().entityTree
+  const sceneData = command.duplicatedObjects.map((obj) => serializeWorld(obj, true))
 
-      if (!this.parents) {
-        this.parents = []
+  executeCommand({
+    type: EditorCommands.ADD_OBJECTS,
+    affectedNodes: command.duplicatedObjects,
+    parents: command.parents,
+    befores: command.befores,
+    preventEvents: true,
+    updateSelection: false,
+    sceneData
+  })
 
-        for (let o of this.duplicatedObjects) {
-          if (!o.parentEntity) throw new Error('Parent is not defined')
-          const parent = tree.entityNodeMap.get(o.parentEntity)
-
-          if (!parent) throw new Error('Parent is not defined')
-          this.parents.push(parent)
-        }
-      }
-
-      executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, {
-        parents: this.parents,
-        befores: this.befores,
-        shouldEmitEvent: false,
-        isObjectSelected: false,
-        sceneData
-      })
-
-      if (this.isSelected) {
-        executeCommand(EditorCommands.REPLACE_SELECTION, this.duplicatedObjects)
-      }
-    }
-
-    this.emitAfterExecuteEvent()
+  if (command.updateSelection) {
+    executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: command.duplicatedObjects })
   }
 
-  undo() {
-    executeCommand(EditorCommands.REMOVE_OBJECTS, this.duplicatedObjects, {
-      deselectObject: false,
-      skipSerialization: true
-    })
+  emitEventAfter(command)
+}
 
-    executeCommand(EditorCommands.REPLACE_SELECTION, getEntityNodeArrayFromEntities(this.oldSelection))
-  }
+function undo(command: DuplicateObjectCommandParams) {
+  if (!command.undo || !command.duplicatedObjects) return
 
-  toString() {
-    return `DuplicateMultipleCommand id: ${this.id} objects: ${serializeObject3DArray(
-      this.affectedObjects
-    )} parent: ${serializeObject3D(this.parents)} before: ${serializeObject3D(this.befores)}`
-  }
+  executeCommand({
+    type: EditorCommands.REMOVE_OBJECTS,
+    affectedNodes: command.duplicatedObjects,
+    skipSerialization: true,
+    updateSelection: false
+  })
 
-  emitAfterExecuteEvent() {
-    if (this.shouldEmitEvent) {
-      store.dispatch(EditorAction.sceneModified(true))
-      store.dispatch(SelectionAction.changedSceneGraph())
-    }
-  }
+  executeCommand({
+    type: EditorCommands.REPLACE_SELECTION,
+    affectedNodes: getEntityNodeArrayFromEntities(command.undo.selection)
+  })
+}
+
+function emitEventAfter(command: DuplicateObjectCommandParams) {
+  if (command.preventEvents) return
+
+  store.dispatch(EditorAction.sceneModified(true))
+  store.dispatch(SelectionAction.changedSceneGraph())
+}
+
+function toString(command: DuplicateObjectCommandParams) {
+  return `Duplicate object command id: ${command.id} objects: ${serializeObject3DArray(
+    command.affectedNodes
+  )} parent: ${serializeObject3D(command.parents)} before: ${serializeObject3D(command.befores)}`
+}
+
+export const DuplicateObjectCommand: CommandFuncType = {
+  prepare,
+  execute,
+  undo,
+  emitEventAfter,
+  toString
 }
