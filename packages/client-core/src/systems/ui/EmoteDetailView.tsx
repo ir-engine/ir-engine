@@ -1,8 +1,8 @@
 import { createState } from '@speigg/hookstate'
 import React, { useEffect, useState } from 'react'
 
+import { changeAvatarAnimationState } from '@xrengine/engine/src/avatar/animation/AvatarAnimationGraph'
 import { AvatarStates } from '@xrengine/engine/src/avatar/animation/Util'
-import { changeAvatarAnimationState } from '@xrengine/engine/src/avatar/animation/Util'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createXRUI, XRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
