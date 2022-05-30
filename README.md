@@ -115,4 +115,4 @@ you find who you need to talk to.
 [MIT](LICENSE) - Copyright (c) 2020-2022 XRFoundation
 
 
-[Archive](/HISTORY.md)
+[Release History and Author Archive](/HISTORY.md)
