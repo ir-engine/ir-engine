@@ -2,11 +2,11 @@ import { createState } from '@speigg/hookstate'
 import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AlertService } from '@xrengine/client-core/src/common/services/AlertService'
+import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
 import { InviteService, useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import { createXRUI, XRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
 const styles = {
@@ -248,7 +248,7 @@ const ShareLocationDetailView = () => {
   const inviteState = useInviteState()
   const copyLinkToClipboard = () => {
     navigator.clipboard.writeText(refLink.current.value)
-    AlertService.alertSuccess(t('user:usermenu.share.linkCopied'))
+    NotificationService.dispatchNotify(t('user:usermenu.share.linkCopied'), { variant: 'success' })
   }
   const selfUser = useAuthState().user
 
