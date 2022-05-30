@@ -116,7 +116,7 @@ export const serverPipe = pipe(configureOpenAPI(), configureSocketIO(), configur
   app: Application
 ) => Application
 
-export const createFeathersExpressApp = async (configurationPipe = serverPipe): Promise<Application> => {
+export const createFeathersExpressApp = (configurationPipe = serverPipe): Application => {
   createDefaultStorageProvider()
 
   if (config.ipfs.enabled) {
