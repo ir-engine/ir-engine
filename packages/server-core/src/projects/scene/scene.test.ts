@@ -24,7 +24,7 @@ describe('scene.test', () => {
   let app: Application
   let parsedData
 
-  before(async () => {
+  before(() => {
     const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName}/`)
     deleteFolderRecursive(projectDir)
     app = createFeathersExpressApp()

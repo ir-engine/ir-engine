@@ -23,7 +23,7 @@ db.url = process.env.MYSQL_URL ??
 
 async function installAllProjects() {
   try {
-    await createDefaultStorageProvider()
+    createDefaultStorageProvider()
     const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects')
     if (!fs.existsSync(localProjectDirectory)) fs.mkdirSync(localProjectDirectory, { recursive: true })
     logger.info('running installAllProjects')
