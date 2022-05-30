@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { PatchServerSetting, ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
 
-import { AlertService } from '../../../common/services/AlertService'
+import { NotificationService } from '../../../common/services/NotificationService'
 import { client } from '../../../feathers'
 import { store, useDispatch } from '../../../store'
 
@@ -35,9 +35,9 @@ export const ServerSettingService = {
     try {
       const server = (await client.service('server-setting').find()) as Paginated<ServerSetting>
       dispatch(ServerSettingAction.fetchedSeverInfo(server))
-    } catch (error) {
-      console.error(error)
-      AlertService.dispatchAlertError(error.message)
+    } catch (err) {
+      console.log(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   patchServerSetting: async (data: PatchServerSetting, id: string) => {
@@ -48,7 +48,7 @@ export const ServerSettingService = {
       dispatch(ServerSettingAction.serverSettingPatched())
     } catch (err) {
       console.log(err)
-      AlertService.dispatchAlertError(err.message)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }

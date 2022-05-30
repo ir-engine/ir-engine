@@ -1,6 +1,6 @@
 import { store } from '@xrengine/client-core/src/store'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 import { executeCommandWithHistory } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
@@ -33,11 +33,11 @@ export function paste(event) {
 
     if (!Array.isArray(entities)) return
     const nodes = entities
-      .map((entity) => useWorld().entityTree.entityNodeMap.get(entity))
+      .map((entity) => Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity))
       .filter((entity) => entity) as EntityTreeNode[]
 
     if (nodes) {
-      executeCommandWithHistory(EditorCommands.DUPLICATE_OBJECTS, nodes)
+      executeCommandWithHistory({ type: EditorCommands.DUPLICATE_OBJECTS, affectedNodes: nodes })
     }
   } else if ((data = event.clipboardData.getData('text')) !== '') {
     try {

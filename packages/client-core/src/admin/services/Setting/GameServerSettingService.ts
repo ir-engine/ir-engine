@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { GameServerSetting } from '@xrengine/common/src/interfaces/GameServerSetting'
 
-import { AlertService } from '../../../common/services/AlertService'
+import { NotificationService } from '../../../common/services/NotificationService'
 import { client } from '../../../feathers'
 import { store, useDispatch } from '../../../store'
 
@@ -33,9 +33,9 @@ export const GameServerSettingService = {
     try {
       const gameServer = (await client.service('game-server-setting').find()) as Paginated<GameServerSetting>
       dispatch(GameServerSettingAction.fetchedGameServer(gameServer))
-    } catch (error) {
-      console.error(error.message)
-      AlertService.dispatchAlertError(error.message)
+    } catch (err) {
+      console.log(err.message)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }

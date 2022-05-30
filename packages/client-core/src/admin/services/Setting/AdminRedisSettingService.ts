@@ -4,7 +4,7 @@ import { createState, useState } from '@speigg/hookstate'
 import { AdminRedisSetting } from '@xrengine/common/src/interfaces/AdminRedisSetting'
 
 //Action
-import { AlertService } from '../../../common/services/AlertService'
+import { NotificationService } from '../../../common/services/NotificationService'
 import { client } from '../../../feathers'
 import { store, useDispatch } from '../../../store'
 
@@ -38,7 +38,7 @@ export const AdminRedisSettingService = {
       const redisSetting = (await client.service('redis-setting').find()) as Paginated<AdminRedisSetting>
       dispatch(AdminRedisSettingAction.redisSettingRetrieved(redisSetting))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }

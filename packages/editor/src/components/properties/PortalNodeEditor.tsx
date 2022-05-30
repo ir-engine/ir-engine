@@ -77,7 +77,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
 
     setPropertyOnSelectionEntities({
       component: PortalComponent,
-      properties: { spawnRotation: rotation }
+      properties: [{ spawnRotation: rotation }]
     })
   }
 

@@ -71,7 +71,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
     if (directory !== envmapComponent.envMapSourceURL) {
       setPropertyOnSelectionEntities({
         component: EnvmapComponent,
-        properties: { envMapSourceURL: directory }
+        properties: [{ envMapSourceURL: directory }]
       })
     }
   }, [])
