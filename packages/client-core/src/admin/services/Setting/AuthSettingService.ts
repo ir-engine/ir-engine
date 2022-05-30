@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { AdminAuthSetting, PatchAuthSetting } from '@xrengine/common/src/interfaces/AdminAuthSetting'
 
-import { AlertService } from '../../../common/services/AlertService'
+import { NotificationService } from '../../../common/services/NotificationService'
 import { client } from '../../../feathers'
 import { store, useDispatch } from '../../../store'
 import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
@@ -49,7 +49,7 @@ export const AuthSettingService = {
       const authSetting = (await client.service('authentication-setting').find()) as Paginated<AdminAuthSetting>
       dispatch(AuthSettingAction.authSettingRetrieved(authSetting))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   patchAuthSetting: async (data: PatchAuthSetting, id: string) => {
@@ -58,7 +58,7 @@ export const AuthSettingService = {
       await client.service('authentication-setting').patch(id, data)
       dispatch(AuthSettingAction.authSettingPatched())
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }

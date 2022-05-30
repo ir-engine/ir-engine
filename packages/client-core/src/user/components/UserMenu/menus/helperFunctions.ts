@@ -13,8 +13,6 @@ import {
 } from 'three'
 
 import { MAX_ALLOWED_TRIANGLES } from '@xrengine/common/src/constants/AvatarConstants'
-import { AnimationState } from '@xrengine/engine/src/avatar/animation/AnimationState'
-import { AvatarAnimationGraph } from '@xrengine/engine/src/avatar/animation/AvatarAnimationGraph'
 import { BoneStructure } from '@xrengine/engine/src/avatar/AvatarBoneMatching'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { AvatarAnimationComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
@@ -78,10 +76,11 @@ export const addAnimationLogic = (
     action: null!
   })
   addComponent(entity, AvatarAnimationComponent, {
-    animationGraph: new AvatarAnimationGraph(),
-    currentState: new AnimationState(),
-    prevState: new AnimationState(),
-    prevVelocity: new Vector3(),
+    animationGraph: {
+      states: {},
+      transitionRules: {},
+      currentState: null!
+    },
     rig: {} as BoneStructure,
     rootYRatio: 1
   })

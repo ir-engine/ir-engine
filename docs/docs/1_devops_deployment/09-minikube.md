@@ -107,6 +107,33 @@ and `helm install local-redis redis/redis` to install redis.
 You can run `kubectl get pods -A` to list all of the pods running in minikube. After a minute or so,
 all of these pods should be in the Running state.
 
+
+
+## Install Elastic Search and Kibana using Helm for Server Logs
+
+To install Elasticsearch, add the elastic repository in Helm: `helm repo add elastic https://helm.elastic.co`
+
+Now, use the curl command to download the values.yaml file containing configuration information:
+
+`curl -O https://raw.githubusercontent.com/elastic/helm-charts/master/elasticsearch/examples/minikube/values.yaml`
+
+Use the helm install command and the values.yaml file to install the Elasticsearch helm chart: 
+
+`helm install elasticsearch elastic/elasticsearch -f ./values.yaml`
+
+The -f option allows specifying the yaml file with the template. If you wish to install Elasticsearch in a specific namespace, add the -n option followed by the name of the namespace: `helm install elasticsearch elastic/elasticsearch -n [namespace] -f ./values.yaml`
+
+now check if the cluster members are up: `kubectl get pods --namespace=default -l app=elasticsearch-master -w`
+
+The other option is to use the helm test command to examine the cluster’s health: `helm test elasticsearch`
+
+To install Kibana on top of Elasticsearch : `helm install kibana elastic/kibana`
+Check if all the pods are ready: `kubectl get pods`
+
+After you set up port-forwarding, access Elasticsearch, and the Kibana GUI by typing `http://localhost:5601 `in your browser
+
+In order to connect logger with elasticsearch, update `packages/ops/configs/local.template.values.yaml` env `api.extraEnv.ELASTIC_HOST` for e.g. `http://<username>:<password>@<host>:<port>`
+
 ## Run build_minikube.sh
 When minikube is running, run the following command from the root of the XREngine repo:
 `./scripts/build_minikube.sh`

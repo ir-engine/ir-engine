@@ -1,133 +1,159 @@
 import { store } from '@xrengine/client-core/src/store'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import {
   createEntityNode,
   getEntityNodeArrayFromEntities
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
 import { executeCommand } from '../classes/History'
-import EditorCommands from '../constants/EditorCommands'
+import EditorCommands, { CommandFuncType, CommandParams, ParentCommands } from '../constants/EditorCommands'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
 import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
 import { EditorAction } from '../services/EditorServices'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
-import Command, { CommandParams } from './Command'
 
-export interface GroupCommandParams extends CommandParams {
-  /** Parent object which will hold objects being added by this command */
-  parents?: EntityTreeNode | EntityTreeNode[]
-
-  /** Child object before which all objects will be added */
-  befores?: EntityTreeNode | EntityTreeNode[]
+export type GroupCommandUndoParams = {
+  parents: EntityTreeNode[]
+  befores: EntityTreeNode[]
+  selection: Entity[]
 }
 
-export default class GroupCommand extends Command {
-  groupParents?: EntityTreeNode[]
+export type GroupCommandParams = CommandParams & {
+  type: ParentCommands.GROUP
 
-  groupBefores?: EntityTreeNode[]
+  parents?: EntityTreeNode[]
 
-  oldParents: EntityTreeNode[]
+  befores?: EntityTreeNode[]
 
-  oldBefores: EntityTreeNode[]
+  groupNode?: EntityTreeNode
 
-  groupNode: EntityTreeNode
+  undo?: GroupCommandUndoParams
+}
 
-  constructor(objects: EntityTreeNode[], params: GroupCommandParams) {
-    super(objects, params)
-
-    this.groupParents = params.parents ? (Array.isArray(params.parents) ? params.parents : [params.parents]) : undefined
-    this.groupBefores = params.befores ? (Array.isArray(params.befores) ? params.befores : [params.befores]) : undefined
-
-    if (this.keepHistory) {
-      this.oldParents = []
-      this.oldBefores = []
-      this.oldSelection = accessSelectionState().selectedEntities.value.slice(0)
-
-      const tree = useWorld().entityTree
-
-      for (let i = this.affectedObjects.length - 1; i >= 0; i--) {
-        const object = this.affectedObjects[i]
-
-        if (!object.parentEntity) throw new Error('Parent is not defined')
-        const parent = tree.entityNodeMap.get(object.parentEntity)
-        if (!parent) throw new Error('Parent is not defined')
-        this.oldParents.push(parent)
-
-        const before = tree.entityNodeMap.get(parent.children![parent.children!.indexOf(object.entity) + 1])
-        this.oldBefores.push(before!)
-      }
-    }
-  }
-
-  execute() {
-    this.emitBeforeExecuteEvent()
-
-    this.groupNode = createEntityNode(createEntity())
-    executeCommand(EditorCommands.ADD_OBJECTS, this.groupNode, {
-      parents: this.groupParents,
-      befores: this.groupBefores,
-      shouldEmitEvent: false,
-      isObjectSelected: false,
-      prefabTypes: ScenePrefabs.group
-    })
-
-    executeCommand(EditorCommands.REPARENT, this.affectedObjects, {
-      parents: this.groupNode,
-      shouldEmitEvent: false,
-      isObjectSelected: false
-    })
-
-    if (this.isSelected) {
-      executeCommand(EditorCommands.REPLACE_SELECTION, this.groupNode, {
-        shouldEmitEvent: false
-      })
+function prepare(command: GroupCommandParams) {
+  if (command.keepHistory) {
+    command.undo = {
+      parents: [],
+      befores: [],
+      selection: accessSelectionState().selectedEntities.value.slice(0)
     }
 
-    this.emitAfterExecuteEvent()
-  }
+    const tree = Engine.instance.currentWorld.entityTree
 
-  undo() {
-    executeCommand(EditorCommands.REPARENT, this.affectedObjects, {
-      parents: this.oldParents,
-      befores: this.oldBefores,
-      shouldEmitEvent: false,
-      isObjectSelected: false
-    })
-    executeCommand(EditorCommands.REMOVE_OBJECTS, this.groupNode, {
-      deselectObject: false,
-      shouldEmitEvent: false,
-      skipSerialization: true
-    })
+    for (let i = command.affectedNodes.length - 1; i >= 0; i--) {
+      const node = command.affectedNodes[i]
 
-    executeCommand(EditorCommands.REPLACE_SELECTION, getEntityNodeArrayFromEntities(this.oldSelection))
-    this.emitAfterExecuteEvent()
-  }
+      if (!node.parentEntity) throw new Error('Parent is not defined')
+      const parent = tree.entityNodeMap.get(node.parentEntity)
+      if (!parent) throw new Error('Parent is not defined')
+      command.undo.parents.push(parent)
 
-  toString() {
-    return `GroupMultipleObjectsCommand id: ${this.id} objects: ${serializeObject3DArray(
-      this.affectedObjects
-    )} groupParent: ${serializeObject3D(this.groupParents)} groupBefore: ${serializeObject3D(this.groupBefores)}`
-  }
-
-  emitBeforeExecuteEvent() {
-    if (this.shouldEmitEvent && this.isSelected) {
-      cancelGrabOrPlacement()
-      store.dispatch(SelectionAction.changedBeforeSelection())
+      const before = tree.entityNodeMap.get(parent.children![parent.children!.indexOf(node.entity) + 1])
+      command.undo.befores.push(before!)
     }
   }
+}
 
-  emitAfterExecuteEvent() {
-    if (this.shouldEmitEvent) {
-      if (this.isSelected) {
-        updateOutlinePassSelection()
-      }
+function execute(command: GroupCommandParams) {
+  emitEventBefore(command)
 
-      store.dispatch(EditorAction.sceneModified(true))
-      store.dispatch(SelectionAction.changedSceneGraph())
-    }
+  command.groupNode = createEntityNode(createEntity())
+  executeCommand({
+    type: EditorCommands.ADD_OBJECTS,
+    affectedNodes: [command.groupNode],
+    parents: command.parents,
+    befores: command.befores,
+    preventEvents: true,
+    updateSelection: false,
+    prefabTypes: [ScenePrefabs.group]
+  })
+
+  executeCommand({
+    type: EditorCommands.REPARENT,
+    affectedNodes: command.affectedNodes,
+    parents: [command.groupNode],
+    preventEvents: true,
+    updateSelection: false
+  })
+
+  if (command.updateSelection) {
+    executeCommand({
+      type: EditorCommands.REPLACE_SELECTION,
+      affectedNodes: [command.groupNode],
+      preventEvents: true
+    })
   }
+
+  emitEventAfter(command)
+}
+
+function undo(command: GroupCommandParams) {
+  if (!command.undo || !command.groupNode) return
+
+  emitEventBefore(command)
+
+  const nodes = [] as EntityTreeNode[]
+  for (let i = command.affectedNodes.length - 1; i >= 0; i--) {
+    nodes.push(command.affectedNodes[i])
+  }
+
+  executeCommand({
+    type: EditorCommands.REPARENT,
+    affectedNodes: nodes,
+    parents: command.undo.parents,
+    befores: command.undo.befores,
+    preventEvents: true,
+    updateSelection: false
+  })
+
+  executeCommand({
+    type: EditorCommands.REMOVE_OBJECTS,
+    affectedNodes: [command.groupNode],
+    preventEvents: true,
+    skipSerialization: true,
+    updateSelection: false
+  })
+
+  executeCommand({
+    type: EditorCommands.REPLACE_SELECTION,
+    affectedNodes: getEntityNodeArrayFromEntities(command.undo.selection)
+  })
+
+  emitEventAfter(command)
+}
+
+function emitEventBefore(command: GroupCommandParams) {
+  if (command.preventEvents) return
+
+  cancelGrabOrPlacement()
+  store.dispatch(SelectionAction.changedBeforeSelection())
+}
+
+function emitEventAfter(command: GroupCommandParams) {
+  if (command.preventEvents) return
+
+  if (command.updateSelection) updateOutlinePassSelection()
+
+  store.dispatch(EditorAction.sceneModified(true))
+  store.dispatch(SelectionAction.changedSceneGraph())
+}
+
+function toString(command: GroupCommandParams) {
+  return `GroupMultipleObjectsCommand id: ${command.id} objects: ${serializeObject3DArray(
+    command.affectedNodes
+  )} groupParent: ${serializeObject3D(command.parents)} groupBefore: ${serializeObject3D(command.befores)}`
+}
+
+export const GroupCommand: CommandFuncType = {
+  prepare,
+  execute,
+  undo,
+  emitEventAfter,
+  emitEventBefore,
+  toString
 }

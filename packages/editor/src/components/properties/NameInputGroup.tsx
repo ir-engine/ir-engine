@@ -51,7 +51,7 @@ export const NameInputGroup: EditorComponentType = (props) => {
   const updateName = () => {
     setPropertyOnSelectionEntities({
       component: NameComponent,
-      properties: { name }
+      properties: [{ name }]
     })
 
     const obj3d = getComponent(props.node.entity, Object3DComponent)?.value

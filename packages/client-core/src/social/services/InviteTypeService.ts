@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { InviteType } from '@xrengine/common/src/interfaces/InviteType'
 
-import { AlertService } from '../../common/services/AlertService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 
@@ -43,7 +43,7 @@ export const InviteTypeService = {
       const inviteTypeResult = (await client.service('invite-type').find()) as Paginated<InviteType>
       dispatch(InviteTypeAction.retrievedInvitesTypes(inviteTypeResult))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }

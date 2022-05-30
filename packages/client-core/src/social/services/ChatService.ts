@@ -7,16 +7,19 @@ import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { Message } from '@xrengine/common/src/interfaces/Message'
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { User } from '@xrengine/common/src/interfaces/User'
+import multiLogger from '@xrengine/common/src/logger'
 import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
 
-import { AlertService } from '../../common/services/AlertService'
 import { accessLocationInstanceConnectionState } from '../../common/services/LocationInstanceConnectionService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
 import { getChatMessageSystem, hasSubscribedToChatSystem, removeMessageSystem } from './utils/chatSystem'
+
+const logger = multiLogger.child({ component: 'client-core:social' })
 
 interface ChatMessageProps {
   targetObjectId: string
@@ -234,7 +237,7 @@ export const ChatService = {
       })) as Paginated<Channel>
       dispatch(ChatAction.loadedChannels(channelResult))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   getInstanceChannel: async () => {
@@ -249,7 +252,7 @@ export const ChatService = {
       if (channelResult.total === 0) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
       dispatch(ChatAction.loadedChannel(channelResult.data[0], 'instance'))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   createMessage: async (values: ChatMessageProps) => {
@@ -260,14 +263,13 @@ export const ChatService = {
         targetObjectType: chatState.targetObjectType || values.targetObjectType || 'party',
         text: values.text
       }
-      if (data.targetObjectId === null || data.targetObjectType === null) {
-        console.log('invalid data, something is null: ')
-        console.log(data)
+      if (!data.targetObjectId || !data.targetObjectType) {
+        logger.warn({ data }, 'Invalid data, something is null.')
         return
       }
       await client.service('message').create(data)
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   sendChatMessage: (values: ChatMessageProps) => {
@@ -278,7 +280,7 @@ export const ChatService = {
         text: values.text
       })
     } catch (err) {
-      console.log(err)
+      logger.error(err, 'Error in sendChatMessage.')
     }
   },
   sendMessage: (text: string) => {
@@ -308,7 +310,7 @@ export const ChatService = {
         })) as Paginated<Message>
         dispatch(ChatAction.loadedMessages(channelId, messageResult))
       } catch (err) {
-        AlertService.dispatchAlertError(err)
+        NotificationService.dispatchNotify(err.message, { variant: 'error' })
       }
     }
   },
@@ -316,7 +318,7 @@ export const ChatService = {
     try {
       await client.service('message').remove(messageId)
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   patchMessage: async (messageId: string, text: string) => {
@@ -325,7 +327,7 @@ export const ChatService = {
         text: text
       })
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   updateChatTarget: async (targetObjectType: string, targetObject: any) => {
