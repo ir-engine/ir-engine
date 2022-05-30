@@ -7,7 +7,7 @@
 ## Table of Contents
 
 - [Background](#background)
-  - [Demo](#demo)
+  - [Demos](#demo)
 - [Install](#install)
   - [Pre-Requisites](#pre-requisites)
   - [Getting Started](#getting-started)
@@ -42,11 +42,19 @@ technology and shared simulations should be as easy and natural as making a webs
 - WebGL client deployable to iOS, Android and desktop
 - Free, open source, MIT and Apache 2.0-licensed
 
-### Demo
+### Demos
 
-We have better demos coming, but for now you can jump around this CC0 apartment 
-we got from Sketchfab:
-https://app.theoverlay.io/location/apartment
+Guest Demos
+
+- ***[Apartment - CCO from Sketchfab](https://app.theoverlay.io/location/apartment)***
+- ***[Star Station - our dev coommunity hangout](https://app.theoverlay.io/location/sky-station)***
+- ***[Globe Concert Hall - collab with WildCapture.io](https://app.theoverlay.io/location/globe-theater)***
+
+
+Host Demos 
+
+- [XRE Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/admin)
+- [XRE Project Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/edior)
 
 ## Install
 
@@ -115,4 +123,4 @@ you find who you need to talk to.
 [MIT](LICENSE) - Copyright (c) 2020-2022 XRFoundation
 
 
-[Archive](/HISTORY.md)
+[Release History and Author Archive](/HISTORY.md)

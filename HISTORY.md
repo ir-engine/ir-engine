@@ -1,3 +1,53 @@
+# Author Archive 
+
+Updated to Q1 2022
+
+| Core Contributor | Contact | GitHub ID |
+| --- | ----------- | ----- |
+| Josh Field | <josh@xrfoundation.io>  | [@HexaField](https://github.com/HexaField) |
+| Kyle Baran | <kyle@xrfoundation.io>  | [@barankyle](https://github.com/barankyle) |
+| Gheric Speiginer | <gheric@xrfoundation.io>  | [@speigg](https://github.com/speigg) |
+| Liam Broza | <liam@xrfoundation.io>  | [@mrhegemon](https://github.com/mrhegemon) |
+| Dmitri Zagidulin | <dmitri@xrfoundation.io>  | [@dmitrizagidulin](https://github.com/dmitrizagidulin) |
+| David Gordon | <david@xrfoundation.io>  | [@dinomut1](https://github.com/dinomut1) |
+| Hanzla Mateen |  | [@hanzlamateen](https://github.com/hanzlamateen) |
+
+
+
+| Contributor | Contact | GitHub ID |
+| ----------- | ------- | --------- |
+| Abhinav Avkumar | <abhinavkumar@outlook.com> | |
+| Abhishek Pathak | <abhi.pathak@gmail.com> | [@abhishek-pathak-here](https://github.com/abhishek-pathak-here) |
+| Adrew Blashchuk | <ablashch@gmail.com> | |
+| Aleks Mazur | <aleksmazur@gmail.com> | [@aleksmaz](https://github.com/aleksmaz) |
+| Alexander Shvets | <alexander.shvets.ua@gmail.com> | |
+| Andrey Pashentsev | <avp@gmail.com> | |
+| Andrii Blashchuk | <ablashch@gmail.com>  | |
+| Ayushi | <ayushi@gmail.com>  | |
+| Bohdan | <bomtvv@gmail.com>  | |
+| Fabrice Irankunda | <irankundafabrice8@gmail.com>  | [@FabriceIRANKUNDA](https://github.com/FabriceIRANKUNDA)  |
+| Fouad Mohammad Hassan | <mfouad@gmail.com>  | |
+| Gleb Ordinsky | <glebordinskijj@gmail.com>  | [@glebordinski](https://github.com/glebordinski) |
+| Hamza Mushtaq | <hamzamushtaq@hotmail.com>  | [@hamzamm](https://github.com/hamzamm)  |
+| Hanzla Mateen | <hanzlamateen@live.com>  | [@hanzlamateen](https://github.com/hanzlamateen) |
+| Kevin Kimenyi | <kimenyikevin@gmail.com>  | [@kimenyikevin](https://github.com/kimenyikevin) |
+| Kinjal Raval | <kinjalraval@gmail.com>  | [@kinjalravel](https://github.com/kinjalravel) |
+| Mohsen Heydari | <mohsenheydari@live.com>  | [@mohsenheydari](https://github.com/mohsenheydari)  |
+| Mustafa Saber | <mostafa.saber@gmail.com>  | [@Mustafa1845](https://github.com/Mustafa1845) |
+| Nayankumar Patel | <nayanpatel.np@yahoo.com>  | [@NPatel10](https://github.com/NPatel10) |
+| Patrick Canfield | <pscale@gmail.com>  | [@pscale](https://github.com/pscale) |
+| Ron Oyama | | [@rondoor124](https://github.com/rondoor124) |
+| Saad Ahmed Siddiqui | <saad_siddiqui@msn.com>  | |
+| Sergiy Vovk | <sergiyvovk@gmail.com>  | |
+| Shaw Walters | <shawmakesmagic@gmail.com>  | [@lalalune](https://github.com/lalalune) |
+| Slava Solovjov | <xianionline@gmail.com>  | |
+| Tanya Vykliuk | <tanya.vykliuk@gmail.com>  | [@tanyavykliuk](https://github.com/tanyavykliuk) |
+| Thomas Mohr | <mohrtw@gmail.com>  | [@mohrtw](https://github.com/mohrtw) |
+| Vyacheslav Solovjov | <xianionline@gmail.com>  | [@XiaNi](https://github.com/XiaNi) |
+| Yaroslav Koval | <yarikvfx@gmail.com>  | [@HydraFire](https://github.com/HydraFire) |
+| Zulqarnain Hanif  |  | [@zulqarnainhanif](https://github.com/zulqarnainhanif) |
+
+
 
 
 # Release History
@@ -15,6 +65,7 @@
 # Archived Release History
 
 For various reasons we have decided to archive and reset XREngine Git History.
+- Considerations as we combine Git histories from smaller packages as XREngine has moved to a larger and larger monorepo of many packages.
 - Intellectual property issues from old Assets and Code from previous contributions needed to be removed.
 - Massive file size of git history (5.6+ GB) made 'deep clone' impossible and was generally bogging down development.
 - Massive history duplications and rootless forks needed to be cleaned up that were making it impossible to trace code authorship. 
