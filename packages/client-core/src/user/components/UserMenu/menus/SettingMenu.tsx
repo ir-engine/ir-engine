@@ -46,21 +46,21 @@ const SettingMenu = (): JSX.Element => {
   const [controlSchemeSelected, setControlScheme] = useState(
     AvatarMovementScheme[AvatarSettings.instance.movementScheme]
   )
-  const [invertRotationAndMoveSticks, setInvertRotationAndMoveSticksState] = useState(
-    avatarInputState.invertRotationAndMoveSticks.value
-  )
+
+  const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
+  const showAvatar = avatarInputState.invertRotationAndMoveSticks.value
   const firstRender = useRef(true)
   const engineState = useEngineState()
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
   const controlSchemes = Object.values(AvatarMovementScheme).filter((value) => typeof value === 'string')
-
   const [open, setOpen] = useState(false)
+
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInvertRotationAndMoveSticksState((prev) => !prev)
-    dispatchAction(
-      Engine.instance.store,
-      AvatarInputSettingsAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks)
-    )
+    dispatchAction(Engine.instance.store, AvatarInputSettingsAction.setInvertRotationAndMoveSticks(!showAvatar))
+  }
+
+  const handleChangeShowAvatar = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // To Do Dispatch action
   }
 
   useLayoutEffect(() => {
@@ -186,6 +186,16 @@ const SettingMenu = (): JSX.Element => {
             />
           </div>
         </section>
+        <section className={styles.settingSection}>
+          <Typography variant="h6" className={styles.settingHeader}>
+            {t('user:usermenu.setting.user-avatar')}
+          </Typography>
+          <FormControlLabel
+            label={t('user:usermenu.setting.show-avatar')}
+            labelPlacement="start"
+            control={<Switch checked={showAvatar} onChange={handleChangeShowAvatar} color="primary" />}
+          />
+        </section>
         {engineState.xrSupported.value && (
           <>
             <section className={styles.settingSection}>
@@ -209,7 +219,7 @@ const SettingMenu = (): JSX.Element => {
                       color="primary"
                     />
                   }
-                  label="Invert Rotation And Move Sticks"
+                  label={t('user:usermenu.setting.invert-rotation')}
                 />
               </div>
               <Collapse in={open} timeout="auto" unmountOnExit>
