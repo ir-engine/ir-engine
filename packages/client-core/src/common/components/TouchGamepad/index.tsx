@@ -24,8 +24,7 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
   }
 
   const availableInteractable = useEngineState().availableInteractable.value
-  const interactableComponent =
-    availableInteractable && useState(getComponent(availableInteractable, InteractableComponent))
+  const interactableComponent = availableInteractable && getComponent(availableInteractable, InteractableComponent)
 
   useEffect(() => {
     const focusedEntity = getComponent(
@@ -33,11 +32,12 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
       InteractorComponent
     )?.focusedInteractive
 
-    focusedEntity &&
+    if (focusedEntity) {
       dispatchAction(
         Engine.instance.store,
         EngineActions.availableInteractable({ availableInteractable: focusedEntity })
       )
+    }
   }, [getComponent(Engine.instance.currentWorld.localClientEntity, InteractorComponent)?.focusedInteractive])
 
   const buttonsConfig: Array<{ button: GamepadButtons; label: string }> = [
