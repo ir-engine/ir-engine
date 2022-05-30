@@ -19,7 +19,7 @@ const mockUserHookContext = (user: UserDataType, app: Application) => {
 describe('verify-scope', () => {
   let app: Application
   before(async () => {
-    app = await createFeathersExpressApp()
+    app = createFeathersExpressApp()
     await app.setup()
   })
 

@@ -27,7 +27,7 @@ describe('scene.test', () => {
   before(async () => {
     const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName}/`)
     deleteFolderRecursive(projectDir)
-    app = await createFeathersExpressApp()
+    app = createFeathersExpressApp()
     const storageProvider = getStorageProvider()
     parsedData = parseSceneDataCacheURLs(_.cloneDeep(defaultSceneSeed) as any, storageProvider.cacheDomain)
   })

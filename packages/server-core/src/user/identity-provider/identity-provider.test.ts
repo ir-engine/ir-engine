@@ -9,7 +9,7 @@ let providers: any = []
 describe('identity-provider service', () => {
   let app: Application
   before(async () => {
-    app = await createFeathersExpressApp()
+    app = createFeathersExpressApp()
     await app.setup()
   })
 

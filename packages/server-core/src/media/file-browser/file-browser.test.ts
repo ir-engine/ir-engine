@@ -16,7 +16,7 @@ let STORAGE_ROOT = ''
 describe('file browser service', () => {
   let app: Application
   before(async () => {
-    app = await createFeathersExpressApp()
+    app = createFeathersExpressApp()
     await app.setup()
 
     STORAGE_ROOT = (getStorageProvider() as LocalStorage).PATH_PREFIX

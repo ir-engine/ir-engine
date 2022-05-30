@@ -30,7 +30,7 @@ const cleanup = async (app: Application) => {
 describe('project.test', () => {
   let app: Application
   before(async () => {
-    app = await createFeathersExpressApp()
+    app = createFeathersExpressApp()
     await cleanup(app)
   })
 

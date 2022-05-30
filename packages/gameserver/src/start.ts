@@ -47,7 +47,7 @@ export const instanceServerPipe = pipe(
 ) as (app: Application) => Application
 
 export const start = async (): Promise<Application> => {
-  const app = await createFeathersExpressApp(instanceServerPipe)
+  const app = createFeathersExpressApp(instanceServerPipe)
 
   const agonesSDK = new AgonesSDK()
 

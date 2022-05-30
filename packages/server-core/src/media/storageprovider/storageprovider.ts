@@ -18,22 +18,24 @@ export const createStorageProvider = (constructor: StorageProviderConstructor) =
   return storageProvider
 }
 
-export const createDefaultStorageProvider = async () => {
+export const createIPFSStorageProvider = async () => {
   const IPFSProvider = new IPFSStorage()
   const podName = await IPFSProvider.getIPFSPod()
 
-  let StorageProvider: StorageProviderConstructor = IPFSStorage
   if (!podName) {
-    StorageProvider =
-      config.server.storageProvider !== 'aws' && config.server.storageProvider !== 'ipfs' ? LocalStorage : S3Storage
+    return console.log('Tried to initialize IPFS storage provider but could not communicate with the pod.')
   }
 
+  await IPFSProvider.initialize(podName)
+
+  providers['ipfs'] = IPFSProvider
+  return IPFSProvider
+}
+
+export const createDefaultStorageProvider = () => {
+  const StorageProvider =
+    config.server.storageProvider !== 'aws' && config.server.storageProvider !== 'ipfs' ? LocalStorage : S3Storage
   const provider = createStorageProvider(StorageProvider)
-
-  if (podName) {
-    await (provider as IPFSStorage).initialize(podName)
-  }
-
   providers['default'] = provider
   return provider
 }
