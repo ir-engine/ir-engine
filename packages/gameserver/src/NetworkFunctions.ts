@@ -334,7 +334,7 @@ export const handleJoinWorld = async (
         }
       }
     }
-    if (action.$to === 'all' || action.$to === joinedUserId) cachedActions.push(action)
+    if (action.$to === 'all' || action.$to === joinedUserId) cachedActions.push({ ...action, $stack: undefined! })
   }
 
   logger.info('Sending cached actions: %o', cachedActions)

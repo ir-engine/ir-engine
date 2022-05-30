@@ -45,10 +45,10 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   console.log('[WebRTC]: connectting to instance type:', network.type, network.hostId)
 
   if (isWorldConnection) {
-    dispatch(LocationInstanceConnectionAction.instanceServerConnected(network.instanceId))
+    dispatch(LocationInstanceConnectionAction.instanceServerConnected(network.hostId))
     dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected())
   } else {
-    dispatch(MediaLocationInstanceConnectionAction.serverConnected(network.instanceId))
+    dispatch(MediaLocationInstanceConnectionAction.serverConnected(network.hostId))
     dispatchAction(NetworkConnectionService.actions.mediaInstanceReconnected())
   }
 
@@ -202,7 +202,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   async function webRTCCreateProducerHandler(socketId, mediaTag, producerId, channelType: ChannelType, channelId) {
     const selfProducerIds = [MediaStreams.instance?.camVideoProducer?.id, MediaStreams.instance?.camAudioProducer?.id]
     const channelConnectionState = accessMediaInstanceConnectionState()
-    const currentChannelInstanceConnection = channelConnectionState.instances[network.instanceId].ornull
+    const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId].ornull
 
     const consumerMatch = MediaStreams.instance?.consumers?.find(
       (c) => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag && c?.producerId === producerId
@@ -232,7 +232,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
         MediaStreamService.triggerUpdateNearbyLayerUsers()
         UserService.getLayerUsers(true)
         const channelConnectionState = accessMediaInstanceConnectionState()
-        const currentChannelInstanceConnection = channelConnectionState.instances[network.instanceId]
+        const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]
         await network.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
           userIds: MediaStreams.instance.nearbyLayerUsers || [],
           channelType: currentChannelInstanceConnection.channelType.value,
@@ -345,7 +345,7 @@ export async function createDataProducer(
 export async function createTransport(network: SocketWebRTCClientNetwork, direction: string) {
   const { channelId, channelType } = getChannelTypeIdFromTransport(network)
 
-  console.log('[WebRTC]: creating transport:', network.type, network.hostId, channelId, channelType)
+  console.log('[WebRTC]: creating transport:', network.type, direction, network.hostId, channelId, channelType)
 
   // ask the server to create a server-side transport object and send
   // us back the info we need to create a client-side transport
@@ -537,7 +537,7 @@ export async function configureMediaTransports(
 
 export async function createCamVideoProducer(network: SocketWebRTCClientNetwork): Promise<void> {
   const channelConnectionState = accessMediaInstanceConnectionState()
-  const currentChannelInstanceConnection = channelConnectionState.instances[network.instanceId].ornull
+  const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId].ornull
   const channelType = currentChannelInstanceConnection.channelType.value
   const channelId = currentChannelInstanceConnection.channelId.value
   if (MediaStreams.instance.videoStream !== null && currentChannelInstanceConnection.videoEnabled.value) {
@@ -584,7 +584,7 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
 
 export async function createCamAudioProducer(network: SocketWebRTCClientNetwork): Promise<void> {
   const channelConnectionState = accessMediaInstanceConnectionState()
-  const currentChannelInstanceConnection = channelConnectionState.instances[network.instanceId].ornull
+  const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId].ornull
   const channelType = currentChannelInstanceConnection.channelType.value
   const channelId = currentChannelInstanceConnection.channelId.value
   if (MediaStreams.instance.audioStream !== null) {
@@ -732,7 +732,7 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
   const socket = network.socket
   if (!socket?.connected) return
   const channelConnectionState = accessMediaInstanceConnectionState()
-  const currentChannelInstanceConnection = channelConnectionState.instances[network.instanceId].ornull
+  const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId].ornull
   const channelType = currentChannelInstanceConnection.channelType.value
   const channelId = currentChannelInstanceConnection.channelId.value
 

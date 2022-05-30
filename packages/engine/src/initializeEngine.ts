@@ -29,7 +29,6 @@ export const createEngine = () => {
   Engine.instance = new Engine()
   Engine.instance.currentWorld = createWorld()
   EngineRenderer.instance = new EngineRenderer()
-  if (isClient) EngineRenderer.instance.initialize()
   registerState(EngineState)
   addActionReceptor(EngineEventReceptor)
 }
@@ -40,6 +39,7 @@ export const createEngine = () => {
  * initializes everything for the browser context
  */
 export const initializeBrowser = () => {
+  EngineRenderer.instance.initialize()
   Engine.instance.publicPath = location.origin
   const world = Engine.instance.currentWorld
   world.audioListener = new AudioListener()

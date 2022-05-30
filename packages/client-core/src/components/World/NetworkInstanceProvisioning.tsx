@@ -42,9 +42,9 @@ export const NetworkInstanceProvisioning = () => {
   const instanceConnectionState = useLocationInstanceConnectionState()
   const currentLocationInstanceConnection = instanceConnectionState.instances[worldNetworkHostId!].ornull
 
+  const mediaNetworkHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
   const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceConnection =
-    channelConnectionState.instances[Engine.instance.currentWorld.mediaNetwork?.hostId].ornull
+  const currentChannelInstanceConnection = channelConnectionState.instances[mediaNetworkHostId].ornull
 
   useEffect(() => {
     addActionReceptor((action) => {
@@ -55,6 +55,7 @@ export const NetworkInstanceProvisioning = () => {
     })
   }, [])
 
+  /** if the instance that got provisioned is not the one that was entered into the URL, update the URL */
   useHookEffect(() => {
     if (worldNetworkHostId) {
       const url = new URL(window.location.href)
@@ -138,14 +139,14 @@ export const NetworkInstanceProvisioning = () => {
   // if a media connection has been provisioned and is ready, connect to it
   useHookEffect(() => {
     if (
-      Engine.instance.currentWorld.mediaNetwork?.hostId &&
+      mediaNetworkHostId &&
       currentChannelInstanceConnection.provisioned.value === true &&
-      currentChannelInstanceConnection.updateNeeded.value === true &&
+      currentChannelInstanceConnection.readyToConnect.value === true &&
       currentChannelInstanceConnection.connecting.value === false &&
       currentChannelInstanceConnection.connected.value === false
     ) {
       MediaInstanceConnectionService.connectToServer(
-        Engine.instance.currentWorld.mediaNetwork.hostId,
+        mediaNetworkHostId,
         currentChannelInstanceConnection.channelId.value
       )
       MediaStreamService.updateCamVideoState()
@@ -153,7 +154,7 @@ export const NetworkInstanceProvisioning = () => {
     }
   }, [
     currentChannelInstanceConnection?.connected,
-    currentChannelInstanceConnection?.updateNeeded,
+    currentChannelInstanceConnection?.readyToConnect,
     currentChannelInstanceConnection?.provisioned,
     currentChannelInstanceConnection?.connecting
   ])

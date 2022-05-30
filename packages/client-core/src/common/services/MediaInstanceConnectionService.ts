@@ -27,7 +27,6 @@ type InstanceState = {
   provisioned: boolean
   connected: boolean
   readyToConnect: boolean
-  updateNeeded: boolean
   connecting: boolean
 }
 
@@ -53,7 +52,6 @@ store.receptors.push((action: MediaLocationInstanceConnectionActionType): any =>
           videoEnabled: false,
           provisioned: true,
           readyToConnect: true,
-          updateNeeded: true,
           connected: false,
           connecting: false
         })
@@ -63,7 +61,6 @@ store.receptors.push((action: MediaLocationInstanceConnectionActionType): any =>
         return s.instances[action.instanceId].merge({
           connected: true,
           connecting: false,
-          updateNeeded: false,
           readyToConnect: false
         })
       case 'MEDIA_INSTANCE_SERVER_VIDEO_ENABLED':
@@ -134,7 +131,7 @@ export const MediaInstanceConnectionService = {
       )
     )
 
-    await transport.initialize({ sceneId, port, ipAddress, instanceId, channelId })
+    await transport.initialize({ sceneId, port, ipAddress, channelId })
     transport.left = false
   },
   resetServer: (instanceId: string) => {

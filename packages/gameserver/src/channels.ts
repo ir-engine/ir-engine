@@ -433,7 +433,12 @@ const shutdownServer = async (app: Application, instanceId: string) => {
   }
   await app.agonesSDK.shutdown()
 
-  if (!config.kubernetes.enabled) app.restart()
+  if (!config.kubernetes.enabled) {
+    // wait a few seconds to ensure user isn't just reconnecting
+    setTimeout(() => {
+      if (Engine.instance.currentWorld.clients.size > 1) app.restart()
+    }, 3000)
+  }
 }
 
 // todo: this could be more elegant

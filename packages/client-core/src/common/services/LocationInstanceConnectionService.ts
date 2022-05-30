@@ -26,7 +26,6 @@ type InstanceState = {
   provisioned: boolean
   connected: boolean
   readyToConnect: boolean
-  updateNeeded: boolean
   connecting: boolean
 }
 
@@ -51,7 +50,6 @@ store.receptors.push((action: LocationInstanceConnectionActionType): any => {
           sceneId: action.sceneId!,
           provisioned: true,
           readyToConnect: true,
-          updateNeeded: true,
           connected: false,
           connecting: false
         })
@@ -61,7 +59,6 @@ store.receptors.push((action: LocationInstanceConnectionActionType): any => {
         return s.instances[action.instanceId].merge({
           connected: true,
           connecting: false,
-          updateNeeded: false,
           readyToConnect: false
         })
       case 'LOCATION_INSTANCE_SERVER_DISCONNECT':
@@ -121,16 +118,8 @@ export const LocationInstanceConnectionService = {
 
     const { ipAddress, port } = accessLocationInstanceConnectionState().instances.value[instanceId]
 
-    try {
-      await transport.initialize({ sceneId, port, ipAddress, instanceId, locationId: currentLocation.id.value })
-      transport.left = false
-
-      const authState = accessAuthState()
-      const user = authState.user.value
-      dispatchAction(EngineActions.connect({ id: user.id! }))
-    } catch (error) {
-      logger.error(error, 'Network transport could not initialize, transport is: ' + transport)
-    }
+    await transport.initialize({ sceneId, port, ipAddress, locationId: currentLocation.id.value })
+    transport.left = false
   }
 }
 
