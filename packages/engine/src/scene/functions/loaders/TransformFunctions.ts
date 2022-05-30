@@ -44,9 +44,9 @@ export const serializeTransform: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_TRANSFORM,
     props: {
-      position: component.position,
+      position: new Vector3().copy(component.position),
       rotation: new Vector3().setFromEuler(euler.setFromQuaternion(component.rotation)),
-      scale: component.scale
+      scale: new Vector3().copy(component.scale)
     }
   }
 }

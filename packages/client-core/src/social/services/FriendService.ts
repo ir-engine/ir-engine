@@ -5,7 +5,7 @@ import _ from 'lodash'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserRelationship } from '@xrengine/common/src/interfaces/UserRelationship'
 
-import { AlertService } from '../../common/services/AlertService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
@@ -123,7 +123,7 @@ export const FriendService = {
       })) as Paginated<User>
       dispatch(FriendAction.loadedFriends(friendResult))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
       dispatch(FriendAction.loadedFriends({ data: [], limit: 0, skip: 0, total: 0 }))
     }
   },
@@ -150,7 +150,7 @@ export const FriendService = {
     try {
       await client.service('user-relationship').remove(relatedUserId)
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   //

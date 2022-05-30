@@ -2,8 +2,6 @@ import { AnimationClip, AnimationMixer, Group, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { AnimationState } from '../../../avatar/animation/AnimationState'
-import { AvatarAnimationGraph } from '../../../avatar/animation/AvatarAnimationGraph'
 import { AnimationManager } from '../../../avatar/AnimationManager'
 import { BoneStructure } from '../../../avatar/AvatarBoneMatching'
 import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
@@ -17,10 +15,8 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { VelocityComponent } from '../../../physics/components/VelocityComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -75,10 +71,11 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
       lastModel = object3d as Group
       if (!hasComponent(entity, AvatarAnimationComponent)) {
         addComponent(entity, AvatarAnimationComponent, {
-          animationGraph: new AvatarAnimationGraph(),
-          currentState: new AnimationState(),
-          prevState: new AnimationState(),
-          prevVelocity: new Vector3(),
+          animationGraph: {
+            states: {},
+            transitionRules: {},
+            currentState: null!
+          },
           rig: {} as BoneStructure,
           rootYRatio: 1
         })

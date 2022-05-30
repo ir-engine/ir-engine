@@ -13,8 +13,6 @@ export const cancelGrabOrPlacement = () => {
     if (EditorHistory.grabCheckPoint) revertHistory(EditorHistory.grabCheckPoint)
   } else if (editorHelperState.transformMode.value === TransformMode.Placement) {
     setTransformMode(editorHelperState.transformModeOnCancel.value)
-    executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS, {
-      deselectObject: true
-    })
+    executeCommandWithHistoryOnSelection({ type: EditorCommands.REMOVE_OBJECTS })
   }
 }

@@ -7,6 +7,8 @@ import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import type { World } from '../classes/World'
 import type { SystemModuleType } from '../functions/SystemFunctions'
 
+import '../utils/threejsPatches'
+
 export class Engine {
   static instance: Engine
 
