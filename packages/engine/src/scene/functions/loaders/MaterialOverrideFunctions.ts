@@ -14,9 +14,11 @@ export function initializeOverride(target: Entity, override: MaterialOverrideCom
 export async function refreshMaterials(target: Entity) {
   const model = getComponent(target, ModelComponent)
   await Promise.all(
-    model.materialOverrides.map((override) => {
-      removeComponent(override.entity, MaterialOverrideComponent)
-    })
+    model.materialOverrides
+      .filter((override) => override.entity != -1)
+      .map((override) => {
+        removeComponent(override.entity, MaterialOverrideComponent)
+      })
   )
   await new Promise((resolve) => {
     setTimeout(resolve, 15)
