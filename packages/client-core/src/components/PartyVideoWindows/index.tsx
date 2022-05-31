@@ -22,9 +22,6 @@ const PartyVideoWindows = (): JSX.Element => {
       : userState.layerUsers.value.filter((user) => !!nearbyLayerUsers.value.find((u) => u.id === user.id))
     : []
 
-  console.log('userState.layerUsers.value', userState.layerUsers.value)
-  console.log('nearbyLayerUsers', nearbyLayerUsers)
-
   return (
     <>
       {displayedUsers.map((user) => (

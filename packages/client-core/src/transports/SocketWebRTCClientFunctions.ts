@@ -106,7 +106,6 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   }
 
   async function consumeDataHandler(options) {
-    console.log('WebRTCConsumeData', options)
     const dataConsumer = await network.recvTransport.consumeData(options)
 
     // Firefox uses blob as by default hence have to convert binary type of data consumer to 'arraybuffer' explicitly.

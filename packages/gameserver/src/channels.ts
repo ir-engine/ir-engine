@@ -78,7 +78,6 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
   logger.info('Creating new instance: %o', newInstance, locationId, channelId)
   const instanceResult = (await app.service('instance').create(newInstance)) as Instance
   if (!channelId) {
-    console.log('[createNewInstance]: creating new channel', instanceResult.id)
     await app.service('channel').create({
       channelType: 'instance',
       instanceId: instanceResult.id
@@ -202,7 +201,6 @@ const initializeInstance = async (
         'identity-provider': user['identity_providers'][0]
       })) as Channel[]
       if (existingChannel.length === 0) {
-        console.log('[handleInstance]: creating new channel', instance.id)
         await app.service('channel').create({
           channelType: 'instance',
           instanceId: instance.id
@@ -618,13 +616,13 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
    */
   if (app.instance) {
     if (locationId && app.instance.locationId !== locationId)
-      return console.warn(
+      return logger.warn(
         '[loadGameserver]: got a connection to the wrong location id',
         app.instance.locationId,
         locationId
       )
     if (channelId && app.instance.channelId !== channelId)
-      return console.warn(
+      return logger.warn(
         '[loadGameserver]: got a connection to the wrong channel id',
         app.instance.channelId,
         channelId

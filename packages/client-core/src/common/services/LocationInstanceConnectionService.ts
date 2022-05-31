@@ -96,7 +96,6 @@ export const LocationInstanceConnectionService = {
         token: token
       }
     })
-    console.log('provisionResult', provisionResult)
     if (provisionResult.ipAddress && provisionResult.port) {
       dispatch(LocationInstanceConnectionAction.serverProvisioned(provisionResult, locationId!, sceneId!))
     } else {
@@ -111,7 +110,6 @@ export const LocationInstanceConnectionService = {
     if (transport.socket) {
       await leave(transport, false)
     }
-    console.log('Connect To World Server', !!transport?.socket, transport)
     const locationState = accessLocationState()
     const currentLocation = locationState.currentLocation.location
     const sceneId = currentLocation?.sceneId?.value

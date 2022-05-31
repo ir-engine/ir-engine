@@ -249,7 +249,6 @@ export const ChatService = {
           instanceId: Engine.instance.currentWorld.worldNetwork.hostId
         }
       })) as Channel[]
-      console.log('channelResult', channelResult)
       if (!channelResult.length) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
       dispatch(ChatAction.loadedChannel(channelResult[0], 'instance'))
     } catch (err) {
