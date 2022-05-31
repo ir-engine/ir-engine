@@ -19,7 +19,7 @@ import sequelize from '@xrengine/server-core/src/sequelize'
 import services from '@xrengine/server-core/src/services'
 import authentication from '@xrengine/server-core/src/user/authentication'
 
-import { createDefaultStorageProvider } from './media/storageprovider/storageprovider'
+import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 
 export const configureOpenAPI = () => (app: Application) => {
   app.configure(
@@ -119,6 +119,10 @@ export const serverPipe = pipe(configureOpenAPI(), configureSocketIO(), configur
 
 export const createFeathersExpressApp = (configurationPipe = serverPipe): Application => {
   createDefaultStorageProvider()
+
+  if (config.ipfs.enabled) {
+    createIPFSStorageProvider()
+  }
 
   const app = express(feathers()) as Application
   app.set('nextReadyEmitter', new EventEmitter())
