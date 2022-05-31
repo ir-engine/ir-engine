@@ -74,7 +74,7 @@ In a production environment, the builder process will install all projects accor
 
 ### [Use Metaverse Control Plane Managment GUI](https://github.com/XRFoundation/XREngine-Control-Center)
 
-Best for simple self hosting, advanced editor content creation, and XRE Project Pack development.
+Best for simple self hosting, advanced editor content creation, and XRE Pack Project development.
 
 ## Advanced Development Install
 
