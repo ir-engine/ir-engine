@@ -7,7 +7,7 @@
 ## Table of Contents
 
 - [Background](#background)
-  - [Demos](#demo)
+  - [Demos](#demos)
 - [Install](#install)
   - [Pre-Requisites](#pre-requisites)
   - [Getting Started](#getting-started)
@@ -42,7 +42,7 @@ technology and shared simulations should be as easy and natural as making a webs
 - WebGL client deployable to iOS, Android and desktop
 - Free, open source, MIT and Apache 2.0-licensed
 
-### Demos
+## Demos
 
 Guest Demos
 
@@ -55,6 +55,18 @@ Host Demos
 
 - [XRE Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/admin)
 - [XRE Project Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/edior)
+
+## XRE Pack Projects
+
+Create composable plug-ins for XREngine scenes with Pack Projects
+
+### [Learn to Create XRE Pack Projects Here](https://github.com/XRFoundation/XREngine/blob/dev/docs/docs/2_projects_editor_scenes/01_projects-api.md)
+
+Projects are folders that contain all your custom code, assets and scenes. They are version controlled using git & github, and can be installed to any deployment with a single click. (more on that in the next chapter)
+
+Pictured below is an example of 4 projects installed. By default, only the default-project is installed, which in a production environment is read only. You can find the default project under /packages/projects/default-project/
+
+In a production environment, the builder process will install all projects according to the project database table and will download files from the storage provider. In a local development environment, the local file system is always the source of truth. Any project folders added or removed from the file system will be automatically added or removed from the database. This is to ensure there is no accidental loss of data, as these project folders are all git repositories.
 
 ## Install
 
