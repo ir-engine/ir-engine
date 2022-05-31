@@ -8,9 +8,10 @@
 
 - [Background](#background)
   - [Demos](#demos)
-- [Install](#install)
+- [Install](#advanced-development-install)
   - [Pre-Requisites](#pre-requisites)
   - [Getting Started](#getting-started)
+- [XRE XRModule](#xre-xrmodule)
 - [Usage](#usage)
 - [Contributing](#contributing)
   - [Let's build it together](#lets-build-it-together)
@@ -56,9 +57,9 @@ Host Demos
 - [XRE Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/admin)
 - [XRE XRModule Asset Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/edior)
 
-## XRE Pack Projects
+## XRE XRModule
 
-### [Library of XRModule Projects](https://github.com/XRFoundation?q=xre-project)
+### [Library of XRModules](https://github.com/XRFoundation?q=xre-project)
 
 Create composable plug-ins for XREngine scenes with XRModule Projects
 
