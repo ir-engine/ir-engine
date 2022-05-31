@@ -58,9 +58,11 @@ Host Demos
 
 ## XRE Pack Projects
 
+### [Library of XRE Pack Projects](https://github.com/XRFoundation?q=xre-project)
+
 Create composable plug-ins for XREngine scenes with Pack Projects
 
-### [Learn to Create XRE Pack Projects Here](https://github.com/XRFoundation/XREngine/blob/dev/docs/docs/2_projects_editor_scenes/01_projects-api.md)
+### [Create XRE Pack Projects](https://github.com/XRFoundation/XREngine/blob/dev/docs/docs/2_projects_editor_scenes/01_projects-api.md)
 
 Projects are folders that contain all your custom code, assets and scenes. They are version controlled using git & github, and can be installed to any deployment with a single click. (more on that in the next chapter)
 
