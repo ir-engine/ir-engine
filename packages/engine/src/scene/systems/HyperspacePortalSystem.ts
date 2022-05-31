@@ -1,6 +1,11 @@
 import { AmbientLight } from 'three'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { changeAvatarAnimationState } from '../../avatar/animation/AvatarAnimationGraph'
+import { AvatarStates } from '../../avatar/animation/Util'
+import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { createAvatarController } from '../../avatar/functions/createAvatar'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
@@ -12,6 +17,7 @@ import { addComponent, defineQuery, getComponent, removeComponent } from '../../
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { PortalEffect } from '../classes/PortalEffect'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -41,6 +47,8 @@ export default async function HyperspacePortalSystem(world: World) {
       removeComponent(world.localClientEntity, AvatarControllerComponent)
       removeComponent(world.localClientEntity, InteractorComponent)
       removeComponent(world.localClientEntity, LocalInputTagComponent)
+
+      dispatchAction(NetworkWorldAction.avatarAnimation({ newStateName: AvatarStates.FALL_IDLE, params: {} }))
 
       // TODO: add BPCEM of old and new scenes and fade them in and out too
       hyperspaceEffect.fadeIn(delta)

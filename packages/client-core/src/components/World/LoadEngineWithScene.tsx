@@ -7,15 +7,20 @@ import {
 } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { SceneAction, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { NetworkActionReceptor } from '@xrengine/engine/src/networking/functions/NetworkActionReceptor'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppAction, GeneralStateList } from '../../common/services/AppService'
+import {
+  accessMediaInstanceConnectionState,
+  MediaInstanceConnectionAction
+} from '../../common/services/MediaInstanceConnectionService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { initClient, loadScene } from './LocationLoadHelper'
 
@@ -60,7 +65,7 @@ export const LoadEngineWithScene = () => {
     }
   }, [engineState.joinedWorld])
 
-  useHookEffect(() => {
+  useHookEffect(async () => {
     if (engineState.isTeleporting.value) {
       // TODO: this needs to be implemented on the server too
       // Use teleportAvatar function from moveAvatar.ts when required
@@ -82,8 +87,18 @@ export const LoadEngineWithScene = () => {
       LocationService.getLocationByName(world.activePortal.location)
 
       // shut down connection with existing GS
-      leave(Engine.instance.currentWorld.networks.get(world.worldNetwork.hostId) as SocketWebRTCClientNetwork)
-      dispatch(LocationInstanceConnectionAction.disconnect(Engine.instance.currentWorld.worldNetwork?.hostId))
+      await leaveNetwork(world.worldNetwork as SocketWebRTCClientNetwork)
+
+      if (world.mediaNetwork) {
+        const isInstanceMediaConnection =
+          accessMediaInstanceConnectionState().instances[world.mediaNetwork.hostId].channelType.value === 'instance'
+        if (isInstanceMediaConnection) {
+          await leaveNetwork(world.mediaNetwork as SocketWebRTCClientNetwork)
+        }
+      }
+
+      // remove all network clients but own (will be updated when new connection is established)
+      NetworkActionReceptor.removeAllNetworkClients(false, world)
 
       teleportToScene()
     }
