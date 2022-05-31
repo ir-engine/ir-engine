@@ -76,6 +76,24 @@ export const InputGroupVerticalContainer = (styled as any).div`
   }
 `
 
+export const InputGroupVerticalContainerWide = (styled as any).div`
+
+  ${(props) =>
+    props.disabled &&
+    `
+    pointer-events: none;
+    opacity: 0.3;
+  `}
+
+  & > label {
+    display: block;
+    width: 100%;
+    color: var(--textColor);
+    padding-bottom: 2px;
+    padding-top: 4px;
+  }
+`
+
 export const InputGroupVerticalContent = (styled as any).div`
   display: flex;
   flex-direction: column;
