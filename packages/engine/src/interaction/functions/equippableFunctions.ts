@@ -5,7 +5,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { EquippableAttachmentPoint } from '../enums/EquippedEnums'
@@ -41,7 +41,7 @@ const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
   const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
 
   dispatchAction(
-    NetworkWorldAction.setEquippedObject({
+    WorldNetworkAction.setEquippedObject({
       object: {
         ownerId: networkComponet.ownerId,
         networkId: networkComponet.networkId

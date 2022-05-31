@@ -7,7 +7,7 @@ import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
-import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
@@ -35,7 +35,7 @@ const forward = new Vector3()
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
 
 export function animationActionReceptor(
-  action: ReturnType<typeof NetworkWorldAction.avatarAnimation>,
+  action: ReturnType<typeof WorldNetworkAction.avatarAnimation>,
   world = Engine.instance.currentWorld
 ) {
   const avatarEntity = world.getUserAvatarEntity(action.$from)
@@ -50,7 +50,7 @@ export function animationActionReceptor(
 }
 
 export default async function AnimationSystem(world: World) {
-  const avatarAnimationQueue = createActionQueue(NetworkWorldAction.avatarAnimation.matches)
+  const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
 
   await AnimationManager.instance.loadDefaultAnimations()
 

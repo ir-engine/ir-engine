@@ -11,7 +11,7 @@ import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
-import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { ShadowComponent } from '../scene/components/ShadowComponent'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -53,7 +53,7 @@ export class SpawnPoints {
 }
 
 export function avatarSpawnReceptor(
-  spawnAction: ReturnType<typeof NetworkWorldAction.spawnAvatar>,
+  spawnAction: ReturnType<typeof WorldNetworkAction.spawnAvatar>,
   world = Engine.instance.currentWorld
 ) {
   if (isClient) {
@@ -85,7 +85,7 @@ export function avatarSpawnReceptor(
 }
 
 export default async function AvatarSpawnSystem(world: World) {
-  const avatarSpawnQueue = createActionQueue(NetworkWorldAction.spawnAvatar.matches)
+  const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
 
   const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
   return () => {
