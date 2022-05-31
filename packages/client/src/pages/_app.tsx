@@ -85,7 +85,7 @@ const App = (): any => {
     return () => {
       const index = store.receptors.indexOf(receptor)
       if (index >= 0) {
-        store.receptors.splice(index)
+        store.receptors.splice(index, 1)
       }
     }
   }, [notistackRef])
