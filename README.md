@@ -54,17 +54,17 @@ Guest Demos
 Host Demos 
 
 - [XRE Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/admin)
-- [XRE Project Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/edior)
+- [XRE XRModule Asset Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/edior)
 
 ## XRE Pack Projects
 
-### [Library of XRE Pack Projects](https://github.com/XRFoundation?q=xre-project)
+### [Library of XRModule Projects](https://github.com/XRFoundation?q=xre-project)
 
-Create composable plug-ins for XREngine scenes with Pack Projects
+Create composable plug-ins for XREngine scenes with XRModule Projects
 
-### [Create XRE Pack Projects](https://github.com/XRFoundation/XREngine/blob/dev/docs/docs/2_projects_editor_scenes/01_projects-api.md)
+### [Create XRModule Projects](https://github.com/XRFoundation/XREngine/blob/dev/docs/docs/2_projects_editor_scenes/01_projects-api.md)
 
-Projects are folders that contain all your custom code, assets and scenes. They are version controlled using git & github, and can be installed to any deployment with a single click. (more on that in the next chapter)
+XRModules are folders that contain all your custom code, assets and scenes. They are version controlled using git & github, and can be installed to any deployment with a single click. (more on that in the next chapter)
 
 Pictured below is an example of 4 projects installed. By default, only the default-project is installed, which in a production environment is read only. You can find the default project under /packages/projects/default-project/
 
