@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Loading page..."
+  },
+  "tooltip": {
+    "pressKey": "Press {{tip}} to {{message}}"
+  },
+  "toast": {
+    "joined": "joined",
+    "left": "left"
+  },
+  "navUserWidget": {
+    "login": "Log In"
+  },
+  "loader": {
+    "connecting": "Connecting to world...",
+    "entering": "Entering world...",
+    "loading": "Loading...",
+    "objectRemaining": "{{count}} object remaining",
+    "objectRemainingPlural": "{{count}} objects remaining",
+    "loadingObjects": "Loading Objects",
+    "loadingComplete": "Loading Complete",
+    "joiningWorld": "Joining World"
+  },
+  "alert": {
+    "eventWasSuccess": "Event was successful",
+    "errorWasEncountered": "An error was encountered",
+    "eventInProgress": "Event in progress",
+    "seconds": "seconds",
+    "cancelCountdown": "Closing this modal will cancel the countdown"
+  },
+  "debug": {
+    "refresh": "Refresh",
+    "stats": "Stats",
+    "debugOptions": "Debug Options",
+    "physicsDebug": "Physics",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Node Helper",
+    "gridDebug": "Grid",
+    "simpleMaterials": "Simple Materials",
+    "tick": "Tick",
+    "worldStore": "World Store",
+    "engineStore": "Engine Store",
+    "namedEntities": "Named Entities",
+    "networkObject": "Network Object",
+    "networkClients": "Network Clients"
+  },
+  "recording": {
+    "videoRecorder": "Video recorder",
+    "waitingForPermissions": "Waiting for permissions",
+    "selectVideoSource": "Select video source",
+    "screen": "Screen",
+    "camera": "Camera",
+    "microphone": "Microphone",
+    "startRecording": "Start recording",
+    "pauseRecording": "Pause recording",
+    "resumeRecording": "Resume recording",
+    "stopRecording": "Stop recording"
+  },
+  "typing": "Typing...",
+  "gameServer": {
+    "browserError": "Browser Error",
+    "browserErrorMessage": "Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode.",
+    "noAvailableServers": "No Available Servers",
+    "noAvailableServersMessage": "There aren't any servers available for you to connect to. Attempting to re-connect in",
+    "worldDisconnected": "World disconnected",
+    "worldDisconnectedMessage": "You've lost your connection with the world. We'll try to reconnect before the following time runs out, otherwise you'll be forwarded to a different instance.",
+    "webGLNotEnabled": "WebGL not enabled",
+    "webGLNotEnabledMessage": "Your browser does not support WebGL, or it is disabled. Please enable WebGL or consider upgrading to the latest version of your browser.",
+    "youKickedFromWorld": "You've been kicked from the world",
+    "youKickedFromWorldMessage": "You were kicked from this world for the following reason",
+    "invalidLocation": "Invalid location",
+    "cantFindLocation": "We can't find the location",
+    "misspelledOrNotExist": "It may be misspelled, or it may not exist.",
+    "loading": "loading",
+    "low-frame-error": "Detected a poor perfomance consider enabling Use Hardware acceleration in your browser and relauch your browser",
+    "low-frame-title": "Enable hardware acceleration for better experience!"
+  },
+  "error": {
+    "loading-error": "Failed to load user data",
+    "validation-error": "Please input valid {{type}}",
+    "login-error": "Failed to login"
+  }
+}
