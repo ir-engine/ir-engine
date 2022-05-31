@@ -1,5 +1,5 @@
 import { createState } from '@speigg/hookstate'
-import { OptionsObject, SnackbarMessage, SnackbarProvider, VariantType } from 'notistack'
+import { SnackbarProvider, VariantType } from 'notistack'
 import { useState } from 'react'
 
 import { store, useDispatch } from '../../store'
@@ -36,9 +36,9 @@ store.receptors.push((action: NotificationActionType): void => {
   }, action.type)
 })
 
-export const accessSettingsState = () => state
+export const getNotificationState = () => state
 
-export const useSettingsState = () => useState(state) as any as typeof state
+export const useNotificationState = () => useState(state) as any as typeof state
 
 export const NotificationService = {
   setNotiStack: async (callback: SnackbarProvider) => {
