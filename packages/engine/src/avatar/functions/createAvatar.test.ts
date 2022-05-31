@@ -2,6 +2,7 @@ import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -34,7 +35,7 @@ describe('createAvatar', () => {
 
   it('check the create avatar function', () => {
     const world = Engine.instance.currentWorld
-    Engine.instance.userId = world.hostId
+    Engine.instance.userId = 'user' as UserId
 
     // mock entity to apply incoming unreliable updates to
     const entity = createEntity()

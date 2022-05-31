@@ -98,7 +98,7 @@ export async function restoreEngineRendererData(): Promise<void> {
 
     await Promise.all(promises)
 
-    dispatchAction(Engine.instance.store, EngineRendererAction.restoreStorageData(s))
+    dispatchAction(EngineRendererAction.restoreStorageData(s))
   }
 }
 
@@ -107,8 +107,8 @@ function updateState(): void {
   setUsePostProcessing(state.usePostProcessing.value)
   setUseShadows(state.useShadows.value)
 
-  dispatchAction(Engine.instance.store, EngineRendererAction.setPhysicsDebug(state.physicsDebugEnable.value))
-  dispatchAction(Engine.instance.store, EngineRendererAction.setAvatarDebug(state.avatarDebugEnable.value))
+  dispatchAction(EngineRendererAction.setPhysicsDebug(state.physicsDebugEnable.value))
+  dispatchAction(EngineRendererAction.setAvatarDebug(state.avatarDebugEnable.value))
 
   if (Engine.instance.isEditor) {
     changeRenderMode(state.renderMode.value)

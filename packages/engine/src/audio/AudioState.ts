@@ -30,7 +30,7 @@ export async function restoreAudioSettings(): Promise<void> {
       })
     ]
     await Promise.all(promises)
-    dispatchAction(Engine.instance.store, AudioSettingAction.restoreStorageData(s))
+    dispatchAction(AudioSettingAction.restoreStorageData(s))
   }
 }
 

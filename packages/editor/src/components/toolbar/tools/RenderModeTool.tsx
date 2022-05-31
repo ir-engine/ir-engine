@@ -24,7 +24,7 @@ const RenderModeTool = () => {
   }
 
   const onChangeRenderMode = useCallback((mode: RenderModesType) => {
-    dispatchAction(Engine.instance.store, EngineRendererAction.changedRenderMode(mode))
+    dispatchAction(EngineRendererAction.changedRenderMode(mode))
   }, [])
 
   return (

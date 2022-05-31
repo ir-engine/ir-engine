@@ -13,6 +13,7 @@ import { useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -20,7 +21,6 @@ import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
-import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
@@ -72,18 +72,16 @@ const InstanceChat = (props: Props): any => {
   const [composingMessage, setComposingMessage] = React.useState('')
   const [unreadMessages, setUnreadMessages] = React.useState(false)
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
-  const instanceConnectionState = useLocationInstanceConnectionState()
+  const locationInstanceConnectionState = useLocationInstanceConnectionState()
 
-  const currentInstanceId = instanceConnectionState.currentInstanceId.value
-  const currentInstanceConnection = instanceConnectionState.instances[currentInstanceId!]
+  const currentInstanceConnection =
+    locationInstanceConnectionState.instances[Engine.instance.currentWorld.worldNetwork?.hostId]
 
   const [isInitRender, setIsInitRender] = React.useState<Boolean>()
   const [noUnReadMessage, setNoUnReadMessage] = React.useState<any>()
   const audioState = useAudioState()
   const [entity, setEntity] = React.useState<Entity>()
-  const usersTyping = useState(
-    getState(Engine.instance.currentWorld.store, WorldState).usersTyping[user?.id.value]
-  ).value
+  const usersTyping = useEngineState().usersTyping[user?.id.value].value
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
@@ -98,10 +96,10 @@ const InstanceChat = (props: Props): any => {
     if (!composingMessage || !usersTyping) return
     const delayDebounce = setTimeout(() => {
       dispatchAction(
-        Engine.instance.currentWorld.store,
         NetworkWorldAction.setUserTyping({
           typing: false
-        })
+        }),
+        [Engine.instance.currentWorld.worldNetwork.hostId]
       )
     }, 3000)
 
@@ -134,22 +132,16 @@ const InstanceChat = (props: Props): any => {
 
   useEffect(() => {
     if (getEngineState().sceneLoaded.value) fetchAudioAlert()
-    matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, () => {
+    matchActionOnce(EngineActions.sceneLoaded.matches, () => {
       fetchAudioAlert()
     })
   }, [])
 
   useEffect(() => {
-    if (user?.instanceId?.value && currentInstanceId && user?.instanceId?.value !== currentInstanceId) {
-      logger.warn(
-        { userInstanceId: user?.instanceId?.value, currentInstanceId },
-        'Somehow user.instanceId and instanceConnectionState.instance.id, are different when they should be the same'
-      )
-    }
-    if (currentInstanceId && currentInstanceConnection.connected.value && !chatState.instanceChannelFetching.value) {
+    if (Engine.instance.currentWorld.worldNetwork?.hostId && currentInstanceConnection.connected.value) {
       ChatService.getInstanceChannel()
     }
-  }, [currentInstanceConnection?.connected?.value, chatState.instanceChannelFetching.value])
+  }, [currentInstanceConnection?.connected?.value])
 
   React.useEffect(() => {
     if (messageEl) messageEl.scrollTop = messageEl?.scrollHeight
@@ -171,20 +163,20 @@ const InstanceChat = (props: Props): any => {
     if (message.length > composingMessage.length) {
       if (!usersTyping) {
         dispatchAction(
-          Engine.instance.currentWorld.store,
           NetworkWorldAction.setUserTyping({
             typing: true
-          })
+          }),
+          [Engine.instance.currentWorld.worldNetwork.hostId]
         )
       }
     }
     if (message.length == 0 || message.length < composingMessage.length) {
       if (usersTyping) {
         dispatchAction(
-          Engine.instance.currentWorld.store,
           NetworkWorldAction.setUserTyping({
             typing: false
-          })
+          }),
+          [Engine.instance.currentWorld.worldNetwork.hostId]
         )
       }
     }
@@ -196,10 +188,10 @@ const InstanceChat = (props: Props): any => {
     if (composingMessage?.length && user.instanceId.value) {
       if (usersTyping) {
         dispatchAction(
-          Engine.instance.currentWorld.store,
           NetworkWorldAction.setUserTyping({
             typing: false
-          })
+          }),
+          [Engine.instance.currentWorld.worldNetwork.hostId]
         )
       }
 

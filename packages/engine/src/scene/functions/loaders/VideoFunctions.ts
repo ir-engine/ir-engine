@@ -133,7 +133,7 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
             if (getEngineState().userHasInteracted.value) {
               obj3d.userData.videoEl.play()
             } else {
-              matchActionOnce(Engine.instance.store, EngineActions.setUserHasInteracted.matches, () => {
+              matchActionOnce(EngineActions.setUserHasInteracted.matches, () => {
                 obj3d.userData.videoEl.play()
                 return true
               })
