@@ -186,6 +186,10 @@ export const initializeCoreSystems = async () => {
       {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./xrui/systems/XRUISystem')
+      },
+      {
+        type: SystemUpdateType.FIXED_LATE,
+        systemModulePromise: import('./scene/systems/MaterialOverrideSystem')
       }
     )
   }

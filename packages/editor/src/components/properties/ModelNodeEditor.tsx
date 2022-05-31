@@ -28,6 +28,7 @@ import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import InteractableGroup from '../inputs/InteractableGroup'
+import MaterialAssignment from '../inputs/MaterialAssignment'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import EnvMapEditor from './EnvMapEditor'
@@ -127,6 +128,14 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           options={textureOverrideEntities}
           value={modelComponent.textureOverride}
           onChange={updateProperty(ModelComponent, 'textureOverride')}
+        />
+      </InputGroup>
+      <InputGroup name="Material Override" label={t('editor:properties.model.lbl-materialOverride')}>
+        <MaterialAssignment
+          entity={entity}
+          modelComponent={modelComponent}
+          values={modelComponent.materialOverrides}
+          onChange={updateProperty(ModelComponent, 'materialOverrides')}
         />
       </InputGroup>
       <InputGroup name="MatrixAutoUpdate" label={t('editor:properties.model.lbl-matrixAutoUpdate')}>
