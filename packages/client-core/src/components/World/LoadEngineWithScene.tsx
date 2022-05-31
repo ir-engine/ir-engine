@@ -12,7 +12,7 @@ import { SceneAction, useSceneState } from '@xrengine/client-core/src/world/serv
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { NetworkActionReceptor } from '@xrengine/engine/src/networking/functions/NetworkActionReceptor'
+import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
 
@@ -98,7 +98,7 @@ export const LoadEngineWithScene = () => {
       }
 
       // remove all network clients but own (will be updated when new connection is established)
-      NetworkActionReceptor.removeAllNetworkClients(false, world)
+      WorldNetworkActionReceptor.removeAllNetworkClients(false, world)
 
       teleportToScene()
     }

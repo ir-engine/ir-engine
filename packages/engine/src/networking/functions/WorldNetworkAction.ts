@@ -14,7 +14,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
 
-export class NetworkWorldAction {
+export class WorldNetworkAction {
   static createClient = defineAction({
     type: 'network.CREATE_CLIENT',
     name: matches.string,
@@ -53,7 +53,7 @@ export class NetworkWorldAction {
   })
 
   static spawnAvatar = defineAction({
-    ...NetworkWorldAction.spawnObject.actionShape,
+    ...WorldNetworkAction.spawnObject.actionShape,
     prefab: 'avatar',
     parameters: matches.shape({
       position: matchesVector3,

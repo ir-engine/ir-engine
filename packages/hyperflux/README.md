@@ -29,13 +29,13 @@ export default async function IncomingActionSystem(world) {
 In any case, the appropriate store must be provided when dispatching an action:
 
 ```ts
-dispatchAction( NetworkWorldAction.spawnAvatar({ parameters }))
+dispatchAction( WorldNetworkAction.spawnAvatar({ parameters }))
   ```
 
 Likewise when adding or removing receptors:
 ```ts
 addActionReceptor((a) =>
-  matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
+  matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a))
 )
 ```
 
