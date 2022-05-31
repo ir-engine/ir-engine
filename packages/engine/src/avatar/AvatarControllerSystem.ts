@@ -16,6 +16,7 @@ import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { XRCameraRotateYComponent } from './components/XRCameraRotateYComponent'
+import { setAvatarHeadOpacity } from './functions/avatarFunctions'
 import { detectUserInCollisions } from './functions/detectUserInCollisions'
 import { alignXRCameraPositionWithAvatar, moveAvatar, moveXRAvatar, rotateXRAvatar } from './functions/moveAvatar'
 import { respawnAvatar } from './functions/respawnAvatar'
@@ -57,6 +58,7 @@ export default async function AvatarControllerSystem(world: World) {
     }
 
     for (const entity of localXRInputQuery(world)) {
+      setAvatarHeadOpacity(entity, 0)
       if (!hasComponent(entity, XRCameraRotateYComponent)) {
         moveXRAvatar(world, entity, Engine.instance.currentWorld.camera, lastCamPos, displacement)
         rotateXRAvatar(world, entity, Engine.instance.currentWorld.camera)

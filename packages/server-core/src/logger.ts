@@ -1,9 +1,8 @@
 import pino from 'pino'
 import pinoElastic from 'pino-elasticsearch'
-import pinoMs from 'pino-multi-stream'
 import pretty from 'pino-pretty'
 
-let node = process.env.ELASTIC_HOST || 'http://localhost:9200'
+const node = process.env.ELASTIC_HOST || 'http://localhost:9200'
 
 const streamToPretty = pretty({
   colorize: true
@@ -17,10 +16,13 @@ const streamToElastic = pinoElastic({
   'flush-bytes': 1000
 })
 
-const pinoOptions = {}
+const streams = [streamToPretty, streamToElastic]
 
-const logger = pino(pinoOptions, pinoMs.multistream([{ stream: streamToPretty }, { stream: streamToElastic }])).child({
-  component: 'server-core'
-})
+const logger = pino(
+  {
+    level: 'debug'
+  },
+  pino.multistream(streams)
+)
 
 export default logger
