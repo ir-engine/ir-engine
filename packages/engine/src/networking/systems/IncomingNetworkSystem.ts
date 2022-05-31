@@ -1,7 +1,7 @@
 import { getEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { NetworkActionReceptor } from '../functions/NetworkActionReceptor'
 import { validateNetworkObjects } from '../functions/validateNetworkObjects'
+import { WorldNetworkActionReceptor } from '../functions/WorldNetworkActionReceptor'
 import { createDataReader } from '../serialization/DataReader'
 
 export const applyUnreliableQueueFast = (deserialize: Function) => (world: World) => {

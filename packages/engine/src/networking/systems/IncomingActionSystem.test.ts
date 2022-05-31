@@ -7,7 +7,7 @@ import ActionFunctions, { ActionRecipients } from '@xrengine/hyperflux/functions
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'
 import { createEngine } from '../../initializeEngine'
-import { NetworkWorldAction } from '../functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 
 describe('IncomingActionSystem Unit Tests', async () => {
   beforeEach(() => {
@@ -27,7 +27,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
       world.fixedTick = 0
 
       /* mock */
-      const action = NetworkWorldAction.spawnObject({
+      const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserId,
         prefab: '',
         parameters: {},
@@ -41,7 +41,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
       const recepted: typeof action[] = []
       ActionFunctions.addActionReceptor((a) =>
-        matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
+        matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a))
       )
 
       /* run */
@@ -62,7 +62,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
       const world = Engine.instance.currentWorld
 
       /* mock */
-      const action = NetworkWorldAction.spawnObject({
+      const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserId,
         prefab: '',
         parameters: {},
@@ -76,7 +76,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
       const recepted: typeof action[] = []
       ActionFunctions.addActionReceptor((a) =>
-        matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
+        matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a))
       )
 
       /* run */
@@ -93,7 +93,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
       world.fixedTick = 1
 
       /* mock */
-      const action = NetworkWorldAction.spawnObject({
+      const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserId,
         prefab: '',
         parameters: {},
@@ -108,7 +108,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
       const recepted: typeof action[] = []
       ActionFunctions.addActionReceptor((a) =>
-        matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
+        matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a))
       )
 
       /* run */

@@ -7,7 +7,7 @@ import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { unloadSystems } from '../../ecs/functions/SystemFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
-import { NetworkActionReceptor } from '../../networking/functions/NetworkActionReceptor'
+import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetworkActionReceptor'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
 
@@ -19,7 +19,7 @@ export const teleportToScene = async () => {
   addComponent(world.worldEntity, HyperspaceTagComponent, {})
 
   // remove all network clients but own (will be updated when new connection is established)
-  NetworkActionReceptor.removeAllNetworkClients(false, world)
+  WorldNetworkActionReceptor.removeAllNetworkClients(false, world)
 
   // remove this scene's injected systems
   unloadSystems(world, true)
