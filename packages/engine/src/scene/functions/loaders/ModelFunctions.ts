@@ -10,16 +10,19 @@ import {
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import cloneObject3D from '../cloneObject3D'
 import { addError, removeError } from '../ErrorFunctions'
 import { overrideTexture, parseGLTFModel } from '../loadGLTFModel'
+import { initializeOverride } from './MaterialOverrideFunctions'
 
 export const SCENE_COMPONENT_MODEL = 'gltf-model'
 export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
   src: '',
   textureOverride: '',
+  materialOverrides: [] as MaterialOverrideComponentType[],
   matrixAutoUpdate: true,
   isUsingGPUInstancing: false,
   isDynamicObject: false
@@ -30,9 +33,14 @@ export const deserializeModel: ComponentDeserializeFunction = (
   component: ComponentJson<ModelComponentType>
 ) => {
   const props = parseModelProperties(component.props)
-  addComponent(entity, ModelComponent, props)
+  const model = addComponent(entity, ModelComponent, props)
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
+  //add material override components
+  if (model.materialOverrides.length > 0) {
+    model.materialOverrides = model.materialOverrides.map((override, i) => initializeOverride(entity, override))
+  }
+
   updateModel(entity, props)
 }
 
@@ -64,6 +72,7 @@ export const serializeModel: ComponentSerializeFunction = (entity) => {
     props: {
       src: component.src,
       textureOverride: component.textureOverride,
+      materialOverrides: component.materialOverrides,
       matrixAutoUpdate: component.matrixAutoUpdate,
       isUsingGPUInstancing: component.isUsingGPUInstancing,
       isDynamicObject: component.isDynamicObject
@@ -75,6 +84,7 @@ const parseModelProperties = (props): ModelComponentType => {
   return {
     src: props.src ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.src,
     textureOverride: props.textureOverride ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.textureOverride,
+    materialOverrides: props.materialOverrides ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.materialOverrides,
     matrixAutoUpdate: props.matrixAutoUpdate ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.matrixAutoUpdate,
     isUsingGPUInstancing: props.isUsingGPUInstancing ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isUsingGPUInstancing,
     isDynamicObject: props.isDynamicObject ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isDynamicObject

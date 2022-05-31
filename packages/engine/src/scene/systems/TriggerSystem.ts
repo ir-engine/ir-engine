@@ -29,7 +29,7 @@ export default async function TriggerSystem(world: World) {
           continue
         }
         world.activePortal = portalComponent
-        dispatchAction(Engine.instance.store, EngineActions.setTeleporting({ isTeleporting: true }))
+        dispatchAction(EngineActions.setTeleporting({ isTeleporting: true }))
         continue
       }
 

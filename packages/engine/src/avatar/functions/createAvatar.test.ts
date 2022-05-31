@@ -2,6 +2,7 @@ import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -9,7 +10,7 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
@@ -34,7 +35,7 @@ describe('createAvatar', () => {
 
   it('check the create avatar function', () => {
     const world = Engine.instance.currentWorld
-    Engine.instance.userId = world.hostId
+    Engine.instance.userId = 'user' as UserId
 
     // mock entity to apply incoming unreliable updates to
     const entity = createEntity()
@@ -51,7 +52,7 @@ describe('createAvatar', () => {
     const prevPhysicsColliders = Engine.instance.currentWorld.physics.controllers.size
 
     createAvatar(
-      NetworkWorldAction.spawnAvatar({
+      WorldNetworkAction.spawnAvatar({
         $from: Engine.instance.userId,
         networkId: networkObject.networkId,
         parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() }

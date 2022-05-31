@@ -15,7 +15,7 @@ import { resolveUser, resolveWalletUser, User, UserSeed, UserSetting } from '@xr
 import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
@@ -745,13 +745,13 @@ export const AuthService = {
         // dispatchAlertSuccess(dispatch, 'User Avatar updated');
         dispatch(AuthAction.userAvatarIdUpdated(res.avatarId))
         dispatchAction(
-          world.store,
-          NetworkWorldAction.avatarDetails({
+          WorldNetworkAction.avatarDetails({
             avatarDetail: {
               avatarURL,
               thumbnailURL
             }
-          })
+          }),
+          [Engine.instance.currentWorld.worldNetwork.hostId]
         )
       })
   },

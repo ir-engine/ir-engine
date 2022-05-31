@@ -5,18 +5,21 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
+import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { NetworkActionReceptor } from './NetworkActionReceptor'
-import { NetworkWorldAction } from './NetworkWorldAction'
+import WorldNetworkActionSystem from '../systems/WorldNetworkActionSystem'
+import { WorldNetworkAction } from './WorldNetworkAction'
+import { WorldNetworkActionReceptor } from './WorldNetworkActionReceptor'
 
-describe('NetworkActionReceptors', () => {
+describe('WorldNetworkActionReceptors', () => {
   beforeEach(() => {
     createEngine()
+    createMockNetwork()
   })
 
   describe('addClient', () => {
@@ -25,7 +28,10 @@ describe('NetworkActionReceptors', () => {
       const userId = 'user id' as UserId
       const userName = 'user name'
       const userIndex = 1
-      NetworkActionReceptor.addClient(world, userId, userName, userIndex)
+      WorldNetworkActionReceptor.receiveCreateClient(
+        WorldNetworkAction.createClient({ $from: userId, name: userName, index: userIndex }),
+        world
+      )
 
       assert(world.clients.get(userId))
       assert.equal(world.clients.get(userId)?.userId, userId)
@@ -42,8 +48,14 @@ describe('NetworkActionReceptors', () => {
       const userName2 = 'user name 2'
       const userIndex = 1
 
-      NetworkActionReceptor.addClient(world, userId, userName, userIndex)
-      NetworkActionReceptor.addClient(world, userId, userName2, userIndex)
+      WorldNetworkActionReceptor.receiveCreateClient(
+        WorldNetworkAction.createClient({ $from: userId, name: userName, index: userIndex }),
+        world
+      )
+      WorldNetworkActionReceptor.receiveCreateClient(
+        WorldNetworkAction.createClient({ $from: userId, name: userName2, index: userIndex }),
+        world
+      )
 
       assert(world.clients.get(userId)?.name, userName)
     })
@@ -55,9 +67,12 @@ describe('NetworkActionReceptors', () => {
       const userId = 'user id' as UserId
       const userName = 'user name'
       const userIndex = 1
-      NetworkActionReceptor.addClient(world, userId, userName, userIndex)
+      WorldNetworkActionReceptor.receiveCreateClient(
+        WorldNetworkAction.createClient({ $from: userId, name: userName, index: userIndex }),
+        world
+      )
 
-      NetworkActionReceptor.removeClient(world, userId)
+      WorldNetworkActionReceptor.receiveDestroyClient(WorldNetworkAction.destroyClient({ $from: userId }), false, world)
 
       assert(!world.clients.get(userId))
       assert(!world.userIndexToUserId.get(userIndex))
@@ -69,7 +84,12 @@ describe('NetworkActionReceptors', () => {
       const userId = 'user id' as UserId
       const userName = 'user name'
       const userIndex = 1
-      NetworkActionReceptor.addClient(world, userId, userName, userIndex)
+      WorldNetworkActionReceptor.receiveCreateClient(
+        WorldNetworkAction.createClient({ $from: userId, name: userName, index: userIndex }),
+        world
+      )
+
+      const topic = 'network'
 
       const networkId = 2 as NetworkId
 
@@ -82,12 +102,11 @@ describe('NetworkActionReceptors', () => {
       })
 
       // process remove actions and execute entity removal
-      world.store.defaultDispatchDelay = 0
-      NetworkActionReceptor.createNetworkActionReceptor(world)
-      NetworkActionReceptor.removeClient(world, userId, true)
+      Engine.instance.store.defaultDispatchDelay = 0
+      WorldNetworkActionReceptor.receiveDestroyClient(WorldNetworkAction.destroyClient({ $from: userId }), true, world)
 
-      ActionFunctions.clearOutgoingActions(world.store)
-      ActionFunctions.applyIncomingActions(world.store)
+      ActionFunctions.clearOutgoingActions()
+      ActionFunctions.applyIncomingActions()
       world.execute(0)
 
       assert(!world.clients.get(userId))
@@ -106,22 +125,27 @@ describe('NetworkActionReceptors', () => {
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
 
-      world.hostId = hostUserId
-      NetworkActionReceptor.addClient(world, hostUserId, 'host', 0)
-      NetworkActionReceptor.addClient(world, userId, 'user name', 1)
+      WorldNetworkActionReceptor.receiveCreateClient(
+        WorldNetworkAction.createClient({ $from: hostUserId, name: 'host', index: 0 }),
+        world
+      )
+      WorldNetworkActionReceptor.receiveCreateClient(
+        WorldNetworkAction.createClient({ $from: userId, name: 'user name', index: 1 }),
+        world
+      )
 
       const objParams = 123
       const objNetId = 3 as NetworkId
       const objPrefab = 'generic prefab'
 
-      NetworkActionReceptor.spawnObject(
-        world,
-        NetworkWorldAction.spawnObject({
-          $from: world.hostId, // from  host
+      WorldNetworkActionReceptor.receiveSpawnObject(
+        WorldNetworkAction.spawnObject({
+          $from: world.worldNetwork.hostId, // from  host
           prefab: objPrefab, // generic prefab
           parameters: objParams, // arbitrary
           networkId: objNetId
-        })
+        }),
+        world
       )
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
@@ -148,22 +172,27 @@ describe('NetworkActionReceptors', () => {
 
       const world = Engine.instance.currentWorld
 
-      world.hostId = hostId
-      NetworkActionReceptor.addClient(world, hostId, 'host', 0)
-      NetworkActionReceptor.addClient(world, userId, 'user name', 1)
+      WorldNetworkActionReceptor.receiveCreateClient(
+        WorldNetworkAction.createClient({ $from: hostId, name: 'world', index: 0 }),
+        world
+      )
+      WorldNetworkActionReceptor.receiveCreateClient(
+        WorldNetworkAction.createClient({ $from: userId, name: 'user name', index: 1 }),
+        world
+      )
 
       const objParams = 123
       const objNetId = 3 as NetworkId
       const objPrefab = 'generic prefab'
 
-      NetworkActionReceptor.spawnObject(
-        world,
-        NetworkWorldAction.spawnObject({
+      WorldNetworkActionReceptor.receiveSpawnObject(
+        WorldNetworkAction.spawnObject({
           $from: userId, // from  user
           prefab: objPrefab, // generic prefab
           parameters: objParams, // arbitrary
           networkId: objNetId
-        })
+        }),
+        world
       )
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
@@ -190,10 +219,18 @@ describe('NetworkActionReceptors', () => {
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
 
-      world.hostId = hostUserId
-      NetworkActionReceptor.addClient(world, hostUserId, 'world', 0)
-      NetworkActionReceptor.addClient(world, userId, 'user name', 1)
-      NetworkActionReceptor.addClient(world, userId2, 'second user name', 2)
+      WorldNetworkActionReceptor.receiveCreateClient(
+        WorldNetworkAction.createClient({ $from: hostUserId, name: 'world', index: 0 }),
+        world
+      )
+      WorldNetworkActionReceptor.receiveCreateClient(
+        WorldNetworkAction.createClient({ $from: userId, name: 'user name', index: 1 }),
+        world
+      )
+      WorldNetworkActionReceptor.receiveCreateClient(
+        WorldNetworkAction.createClient({ $from: userId2, name: 'second user name', index: 2 }),
+        world
+      )
 
       const objParams = {
         position: new Vector3(),
@@ -202,14 +239,14 @@ describe('NetworkActionReceptors', () => {
       const objNetId = 3 as NetworkId
       const objPrefab = 'avatar'
 
-      NetworkActionReceptor.spawnObject(
-        world,
-        NetworkWorldAction.spawnObject({
+      WorldNetworkActionReceptor.receiveSpawnObject(
+        WorldNetworkAction.spawnObject({
           $from: userId2, // from other user
           prefab: objPrefab, // generic prefab
           parameters: objParams, // arbitrary
           networkId: objNetId
-        })
+        }),
+        world
       )
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
@@ -235,7 +272,10 @@ describe('NetworkActionReceptors', () => {
       const world = Engine.instance.currentWorld
       world.localClientEntity = createEntity(world)
 
-      NetworkActionReceptor.addClient(world, userId, 'user name', 1)
+      WorldNetworkActionReceptor.receiveCreateClient(
+        WorldNetworkAction.createClient({ $from: userId, name: 'user name', index: 1 }),
+        world
+      )
 
       const objParams = {
         position: new Vector3(),
@@ -244,14 +284,14 @@ describe('NetworkActionReceptors', () => {
       const objNetId = 3 as NetworkId
       const objPrefab = 'avatar'
 
-      NetworkActionReceptor.spawnObject(
-        world,
-        NetworkWorldAction.spawnObject({
+      WorldNetworkActionReceptor.receiveSpawnObject(
+        WorldNetworkAction.spawnObject({
           $from: userId, // from user
           prefab: objPrefab, // generic prefab
           parameters: objParams, // arbitrary
           networkId: objNetId
-        })
+        }),
+        world
       )
 
       assert.equal(getComponent(world.localClientEntity, NetworkObjectComponent).networkId, objNetId)
@@ -265,7 +305,7 @@ describe('NetworkActionReceptors', () => {
   describe('destroyObject', () => {})
 
   describe('transfer ownership of object', () => {
-    it('should transfer ownership of object from host to client', () => {
+    it('should transfer ownership of object from host to client', async () => {
       const hostUserId = 'world' as UserId
       const userId = 'user id' as UserId
 
@@ -273,62 +313,70 @@ describe('NetworkActionReceptors', () => {
       Engine.instance.userId = hostUserId
       const world = Engine.instance.currentWorld
 
-      world.hostId = hostUserId
-      world.store.defaultDispatchDelay = 0
+      Engine.instance.store.defaultDispatchDelay = 0
 
-      NetworkActionReceptor.addClient(world, hostUserId, 'host', 0)
-      NetworkActionReceptor.addClient(world, userId, 'user name', 1)
+      WorldNetworkActionReceptor.receiveCreateClient(
+        WorldNetworkAction.createClient({ $from: hostUserId, name: 'world', index: 0 }),
+        world
+      )
+      WorldNetworkActionReceptor.receiveCreateClient(
+        WorldNetworkAction.createClient({ $from: userId, name: 'user name', index: 1 }),
+        world
+      )
 
       const objParams = 123
       const objNetId = 3 as NetworkId
       const objPrefab = 'generic prefab'
 
-      NetworkActionReceptor.spawnObject(
-        world,
-        NetworkWorldAction.spawnObject({
+      WorldNetworkActionReceptor.receiveSpawnObject(
+        WorldNetworkAction.spawnObject({
           $from: hostUserId, // from host
           prefab: objPrefab, // generic prefab
           parameters: objParams, // arbitrary
           networkId: objNetId
-        })
+        }),
+        world
       )
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectAuthorityTag])
 
-      const networkObjectEntities = networkObjectQuery(world)
-      const networkObjectOwnedEntities = networkObjectOwnedQuery(world)
+      const networkObjectEntitiesBefore = networkObjectQuery(world)
+      const networkObjectOwnedEntitiesBefore = networkObjectOwnedQuery(world)
 
-      assert.equal(networkObjectEntities.length, 1)
-      assert.equal(networkObjectOwnedEntities.length, 1)
+      assert.equal(networkObjectEntitiesBefore.length, 1)
+      assert.equal(networkObjectOwnedEntitiesBefore.length, 1)
 
-      NetworkActionReceptor.requestAuthorityOverObject(
-        world,
-        NetworkWorldAction.requestAuthorityOverObject({
+      WorldNetworkActionReceptor.receiveRequestAuthorityOverObject(
+        WorldNetworkAction.requestAuthorityOverObject({
           $from: userId, // from user
           object: {
             ownerId: hostUserId,
             networkId: objNetId
           },
           requester: userId
-        })
+        }),
+        world
       )
 
-      NetworkActionReceptor.createNetworkActionReceptor(world)
+      const system = await WorldNetworkActionSystem()
 
-      ActionFunctions.clearOutgoingActions(world.store)
-      ActionFunctions.applyIncomingActions(world.store)
-      world.execute(0)
+      ActionFunctions.clearOutgoingActions()
+      ActionFunctions.applyIncomingActions()
+      system()
 
-      assert.equal(networkObjectEntities.length, 1)
-      assert.equal(networkObjectOwnedEntities.length, 0)
+      const networkObjectEntitiesAfter = networkObjectQuery(world)
+      const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery(world)
 
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, hostUserId)
-      assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectAuthorityTag), false)
+      assert.equal(networkObjectEntitiesAfter.length, 1)
+      assert.equal(networkObjectOwnedEntitiesAfter.length, 0)
+
+      assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).networkId, objNetId)
+      assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).ownerId, hostUserId)
+      assert.equal(hasComponent(networkObjectEntitiesAfter[0], NetworkObjectAuthorityTag), false)
     })
 
-    it('should not transfer authority of object (only host can process authority transfer)', () => {
+    it('should not transfer authority of object (only host can process authority transfer)', async () => {
       // Run as client
       const userId = 'user id' as UserId
       const userName = 'user name'
@@ -336,23 +384,30 @@ describe('NetworkActionReceptors', () => {
       Engine.instance.userId = userId
 
       const world = Engine.instance.currentWorld
-      NetworkActionReceptor.addClient(world, userId, userName, userIndex)
+      WorldNetworkActionReceptor.receiveCreateClient(
+        WorldNetworkAction.createClient({ $from: userId, name: userName, index: userIndex }),
+        world
+      )
 
       const hostIndex = 0
-      world.clients.set(world.hostId, { userId: world.hostId, name: 'world', index: hostIndex })
+      world.clients.set(world.worldNetwork.hostId, {
+        userId: world.worldNetwork.hostId,
+        name: 'world',
+        index: hostIndex
+      })
 
       const objParams = 123
       const objNetId = 3 as NetworkId
       const objPrefab = 'generic prefab'
 
-      NetworkActionReceptor.spawnObject(
-        world,
-        NetworkWorldAction.spawnObject({
-          $from: world.hostId, // from host
+      WorldNetworkActionReceptor.receiveSpawnObject(
+        WorldNetworkAction.spawnObject({
+          $from: world.worldNetwork.hostId, // from host
           prefab: objPrefab, // generic prefab
           parameters: objParams, // arbitrary
           networkId: objNetId
-        })
+        }),
+        world
       )
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
@@ -363,31 +418,29 @@ describe('NetworkActionReceptors', () => {
 
       assert.equal(networkObjectEntities.length, 1)
       assert.equal(networkObjectOwnedEntities.length, 0)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, world.hostId)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, world.worldNetwork.hostId)
 
-      NetworkActionReceptor.requestAuthorityOverObject(
-        world,
-        NetworkWorldAction.requestAuthorityOverObject({
+      WorldNetworkActionReceptor.receiveRequestAuthorityOverObject(
+        WorldNetworkAction.requestAuthorityOverObject({
           $from: userId, // from user
           object: {
-            ownerId: world.hostId,
+            ownerId: world.worldNetwork.hostId,
             networkId: objNetId
           },
           requester: userId
-        })
+        }),
+        world
       )
 
-      NetworkActionReceptor.createNetworkActionReceptor(world)
-
-      ActionFunctions.clearOutgoingActions(world.store)
-      ActionFunctions.applyIncomingActions(world.store)
+      ActionFunctions.clearOutgoingActions()
+      ActionFunctions.applyIncomingActions()
       world.execute(0)
 
       assert.equal(networkObjectEntities.length, 1)
       assert.equal(networkObjectOwnedEntities.length, 0)
 
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, world.hostId)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, world.worldNetwork.hostId)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectAuthorityTag), false)
     })
   })

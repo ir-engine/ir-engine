@@ -1,14 +1,12 @@
 import * as React from 'react'
 
-import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import {
   configureMediaTransports,
   endVideoChat
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { SocketWebRTCClientNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientNetwork'
 import multiLogger from '@xrengine/common/src/logger'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 
 import { CallEnd, VideoCall } from '@mui/icons-material'
@@ -19,13 +17,9 @@ const logger = multiLogger.child({ component: 'client-core:videochat' })
 interface Props {}
 
 const VideoChat = (props: Props) => {
-  const mediaStreamSystem = new MediaStreams()
-
-  const user = useAuthState().user
-  const currentLocation = useLocationState().currentLocation.location
   const gsProvision = async () => {
-    if (mediaStreamSystem.videoStream == null) {
-      const mediaTransport = Network.instance.getTransport('media') as SocketWebRTCClientTransport
+    if (MediaStreams.instance.videoStream == null) {
+      const mediaTransport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
       await configureMediaTransports(mediaTransport, ['video', 'audio'])
       logger.info('Send camera streams called from gsProvision.')
     } else {
@@ -34,8 +28,8 @@ const VideoChat = (props: Props) => {
   }
   return (
     <Fab color="primary" aria-label="VideoChat" onClick={gsProvision}>
-      {mediaStreamSystem.videoStream == null && <VideoCall />}
-      {mediaStreamSystem.videoStream != null && <CallEnd />}
+      {MediaStreams.instance.videoStream == null && <VideoCall />}
+      {MediaStreams.instance.videoStream != null && <CallEnd />}
     </Fab>
   )
 }
