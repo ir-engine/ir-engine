@@ -10,7 +10,7 @@ import {
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
 import { defaultAction } from '@xrengine/client-core/src/common/components/NotificationActions'
 import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
-import { store, useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { theme } from '@xrengine/client-core/src/theme'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
@@ -23,10 +23,7 @@ import RouterComp from '../route/public'
 
 import './styles.scss'
 
-import {
-  NotificationActions,
-  NotificationActionType
-} from '@xrengine/client-core/src/common/services/NotificationService'
+import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -68,25 +65,8 @@ const App = (): any => {
   }, [])
 
   useEffect(() => {
-    const receptor = (action: NotificationActionType): any => {
-      switch (action.type) {
-        case 'ENQUEUE_NOTIFICATION': {
-          notistackRef.current?.enqueueSnackbar(action.message, {
-            variant: action.options.variant,
-            action: NotificationActions[action.options.actionType ?? 'default']
-          })
-        }
-        default:
-          break
-      }
-    }
-    store.receptors.push(receptor)
-
-    return () => {
-      const index = store.receptors.indexOf(receptor)
-      if (index >= 0) {
-        store.receptors.splice(index)
-      }
+    if (notistackRef.current) {
+      NotificationService.setNotiStack(notistackRef.current)
     }
   }, [notistackRef])
 
