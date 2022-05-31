@@ -10,6 +10,7 @@ import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getP
 import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import {
   initializeCoreSystems,
@@ -48,8 +49,7 @@ export const initClient = async () => {
   await initializeSceneSystems()
   await loadEngineInjection(world, projects)
 
-  // add extraneous receptors
-  addActionReceptor(world.store, (action) => {
+  addActionReceptor((action) => {
     matches(action)
       .when(NetworkWorldAction.createClient.matches, () => {
         updateNearbyAvatars()

@@ -3,12 +3,10 @@ import { defineAction, defineState, getState, useState } from '@xrengine/hyperfl
 
 import { matches, matchesUserId, Validator } from '../../common/functions/MatchesUtils'
 import { InteractableComponentType } from '../../interaction/components/InteractableComponent'
-import { Engine } from './Engine'
 import { Entity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
 export const EngineState = defineState({
-  store: 'ENGINE',
   name: 'engine',
   initial: {
     fixedTick: 0,
@@ -27,7 +25,8 @@ export const EngineState = defineState({
     interactionData: null! as InteractableComponentType,
     xrSupported: false,
     errorEntities: {} as { [key: Entity]: boolean },
-    availableInteractable: null! as Entity
+    availableInteractable: null! as Entity,
+    usersTyping: {} as { [key: string]: true }
   }
 })
 
@@ -86,7 +85,7 @@ export function EngineEventReceptor(a: EngineActionType) {
     )
 }
 
-export const getEngineState = () => getState(Engine.instance.store, EngineState)
+export const getEngineState = () => getState(EngineState)
 
 export const useEngineState = () => useState(getEngineState())
 
@@ -227,7 +226,7 @@ export const EngineActions = {
 
   setupAnimation: defineAction({
     store: 'ENGINE',
-    type: 'network.SETUP_ANIMATION' as const,
+    type: 'CORE_SETUP_ANIMATION' as const,
     entity: matches.number
   })
 }

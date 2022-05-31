@@ -6,7 +6,7 @@ import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const channel = sequelizeClient.define<Model<ChannelInterface>>(
+  const channel = sequelizeClient.define<Model<Partial<ChannelInterface>>>(
     'channel',
     {
       id: {

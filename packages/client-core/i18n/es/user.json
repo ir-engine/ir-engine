@@ -1,0 +1,309 @@
+{
+  "auth" : {
+    "confirmEmail" : {
+      "header" : "E-mail de confirmación ",
+      "resendEmail" : "Por favor, compruebe su correo electrónico para verificar su cuenta.  Si no ha recibido un correo electrónico, pulse {{aquí}} para reenviar el correo electrónico de verificación. ",
+      "haveAnAccount" : "¿Tiene una cuenta? "
+    },
+    "forgotPassword" : {
+      "header" : "Contraseña olvidada ",
+      "enterEmail" : "Por favor, introduzca su dirección de correo electrónico registrada y le enviaremos un enlace de restablecimiento de contraseña. ",
+      "lbl-email" : "Dirección electrónica ",
+      "lbl-submit" : "Enviar enlace ",
+      "emailSent" : "Se ha enviado el correo electrónico de restablecimiento.  Por favor, compruebe su correo electrónico. "
+    },
+    "login" : {
+      "email" : "Correo electrónico | SMS ",
+      "username" : "Nombre de usuario + Contraseña ",
+      "social" : "Social "
+    },
+    "magiklink" : {
+      "header" : "Enlace de conexión ",
+      "descriptionEmail" : "Por favor, introduzca su dirección de correo electrónico y le enviaremos un enlace de inicio de sesión por correo electrónico. ",
+      "descriptionSMS" : "Por favor, introduzca su número de teléfono y le enviaremos un enlace de inicio de sesión a través de SMS. ",
+      "descriptionEmailSMS" : "Por favor, introduzca su dirección de correo electrónico o número de teléfono (sólo 10 dígitos, EE.UU.) y le enviaremos un enlace de inicio de sesión a través de correo electrónico o SMS. ",
+      "descriptionSMSUS" : "Por favor, introduzca su número de teléfono (sólo 10 dígitos, EE.UU.) y le enviaremos un enlace de inicio de sesión a través de SMS. ",
+      "lbl-email" : "Dirección electrónica ",
+      "lbl-emailPhone" : "Correo electrónico o número de teléfono ",
+      "lbl-phone" : "Número de teléfono ",
+      "agree" : "Estoy de acuerdo con   ",
+      "terms" : "Términos y condiciones ",
+      "lbl-submit" : "Enlace Enviar inicio de sesión ",
+      "email-sent-msg" : "Se ha enviado el enlace Magic Link.  Por favor, compruebe su correo electrónico. ",
+      "success-msg" : "Se ha enviado el enlace Magic Link.  Por favor, compruebe su correo electrónico o SMS. ",
+      "sms-sent-msg" : "Se ha enviado el enlace Magic Link.  Por favor, compruebe su SMS. "
+    },
+    "passwordLogin" : {
+      "header" : "Iniciar sesión ",
+      "lbl-email" : "Dirección electrónica ",
+      "lbl-password" : "Contraseña ",
+      "lbl-rememberMe" : "Recuerdame ",
+      "lbl-signin" : "Iniciar sesión ",
+      "forgotPassword" : "¿Olvidó contraseña? ",
+      "signup" : "¿No tiene una cuenta?  Regístrate ",
+      "lbl-login" : "Iniciar sesión ",
+      "ph-password" : "Contraseña ",
+      "ph-email" : "Correo electrónico "
+    },
+    "social" : {
+      "gitHub" : "Iniciar sesión con GitHub ",
+      "google" : "Iniciar sesión con Google ",
+      "facebook" : "Iniciar sesión con Facebook ",
+      "linkedin" : "Inicie sesión con Linkedin ",
+      "twitter" : "Iniciar sesión con Twitter "
+    },
+    "register" : {
+      "header" : "Regístrate ",
+      "login" : "Iniciar sesión ",
+      "lbl-signup" : "Regístrate ",
+      "lbl-password" : "Contraseña ",
+      "lbl-email" : "Dirección electrónica ",
+      "passwordNotMatch" : "Las contraseñas no coinciden ",
+      "ph-password" : "Contraseña ",
+      "ph-confirmPassword" : "Contraseña Confirmar ",
+      "ph-email" : "Correo electrónico "
+    },
+    "resetPassword" : {
+      "header" : "Restablecer contraseña ",
+      "description" : "Especifique su contraseña para su dirección de correo electrónico ",
+      "lbl-submit" : "Restablecer contraseña ",
+      "lbl-password" : "Contraseña ",
+      "lbl-confirmPassword" : "Contraseña Confirmar ",
+      "passwordNotMatch" : "Las contraseñas no coinciden ",
+      "nowLoginYourAccount" : "Ahora puede iniciar sesión en la cuenta ",
+      "yourPasswordResetSuccess" : "¡Su contraseña se ha restablecido correctamente! "
+    },
+    "verifyEmail" : {
+      "header" : "Verificar correo electrónico ",
+      "processing" : "Espere un momento mientras se procesa ... "
+    }
+  },
+  "usermenu" : {
+    "locationTable" : {
+      "title" : "Ubicaciones ",
+      "loading" : "Carga ",
+      "col-name" : "Nombre ",
+      "col-scene" : "Escena ",
+      "col-maxuser" : "Máximo de usuarios ",
+      "lbl-search" : "Buscar ubicaciones ",
+      "lbl-new" : "Nuevo "
+    },
+    "newLocation" : {
+      "title" : "Ubicación ",
+      "success" : "Guardado Correctamente. ",
+      "failure" : "Algo salió mal. ",
+      "removeSuccess" : "Ubicación eliminada satisfactoriamente. ",
+      "nameInUse" : "El nombre está en uso. ",
+      "nameRequire" : "El nombre es necesario. ",
+      "validNumber" : "Sólo se permiten números (0-9). ",
+      "lbl-name" : "Nombre ",
+      "lbl-maxuser" : "Máximo de usuarios ",
+      "lbl-scene" : "Escena ",
+      "lbl-type" : "Tipo ",
+      "lbl-ve" : "Vídeo habilitado ",
+      "lbl-gme" : "Medios globales habilitados ",
+      "lbl-update" : "Actualización ",
+      "lbl-create" : "Crear ",
+      "tooltipCanNotBeDeleted" : "El lobby no se puede borrar ",
+      "confirmation" : "¿Está seguro? ",
+      "lbl-yes" : "Sí ",
+      "lbl-no" : "No "
+    },
+    "share" : {
+      "lbl-share" : "Cuota ",
+      "ph-phoneEmail" : "Invitación por correo electrónico o número de teléfono ",
+      "lbl-phoneEmail" : "Enviar al correo electrónico o al número de teléfono ",
+      "lbl-copy" : "Copia ",
+      "lbl-send-invite" : "Enviar invitación ",
+      "title" : "Compartir su URL de ubicación con el equipo ",
+      "linkCopied" : "Enlace copiado en el portapapeles. "
+    },
+    "setting" : {
+      "audio" : "Audio ",
+      "lbl-volume" : "Volumen ",
+      "lbl-microphone" : "Micrófono ",
+      "graphics" : "Gráficos ",
+      "controls" : "Controles ",
+      "lbl-control-type" : "Tipo de controlador ",
+      "lbl-control-scheme" : "Régimen de control ",
+      "lbl-resolution" : "Resolución ",
+      "lbl-shadow" : "Sombras ",
+      "lbl-pp" : "Procesamiento posterior ",
+      "lbl-pbr" : "PBR completo ",
+      "lbl-automatic" : "Automático ",
+      "xrusersetting" : "Valores de usuario XR ",
+      "rotation" : "Rotación ",
+      "rotation-smooth-speed" : "Velocidad de rotación suave ",
+      "rotation-angle" : "Ángulo de rotación ",
+      "moving" : "Mudanzas "
+    },
+    "profile" : {
+      "lbl-profile" : "Perfil ",
+      "lbl-settings" : "Configuración ",
+      "lbl-username" : "Nombre ",
+      "update-msg" : "Nombre de usuario ",
+      "inviteCode" : "Código de invitación ",
+      "youAreAn" : "Usted es un ",
+      "youAreA" : "Usted es un ",
+      "showUserId" : "Mostrar ID de usuario ",
+      "hideUserId" : "Ocultar ID de usuario ",
+      "showApiKey" : "Mostrar clave de API ",
+      "hideApiKey" : "Ocultar clave de API ",
+      "apiKey" : "Clave de API ",
+      "logout" : "Cerrar sesión ",
+      "connectPhone" : "Conecte su número de teléfono ",
+      "connectEmail" : "Conecte su correo electrónico ",
+      "connectPhoneEmail" : "Conecte su correo electrónico o número de teléfono ",
+      "or" : "O ",
+      "lbl-wallet" : "Iniciar sesión con Wallet ",
+      "ph-email" : "Correo electrónico ",
+      "ph-phone" : "Número de teléfono ",
+      "ph-phoneEmail" : "Número de teléfono/correo electrónico ",
+      "phoneEmailError" : "# dirección de correo electrónico o número de teléfono ",
+      "phoneError" : "Número de teléfono no válido ",
+      "emailError" : "Dirección de correo no válida ",
+      "loginWithReadyPlayerMe" : "Iniciar sesión con Ready Player Me ",
+      "connectSocial" : "Conectar con cuentas sociales ",
+      "createOne" : "Si no tiene una cuenta, se creará una nueva para usted ",
+      "connections" : {
+        "title" : "Conexiones ",
+        "ipError" : "No se puede eliminar el proveedor de identidades activo ",
+        "disconnect" : "desconexión ",
+        "connect" : "Conectar "
+      },
+      "profileDropdown" : {
+        "avatar" : "Icono Avatar de usuario ",
+        "profile" : "Perfil ",
+        "adminConsole" : "Consola de administración ",
+        "logout" : "Cierre "
+      },
+      "userIcon" : {
+        "lbl-name" : "Su nombre ",
+        "lbl-update" : "Actualización ",
+        "userId" : "ID de usuario ",
+        "ph-uploadImg" : "Cargar imagen del producto ",
+        "lbl-selectAcvatar" : "Seleccione Avatar ",
+        "lbl-submit" : "Presentar "
+      },
+      "userSettings" : {
+        "volume" : "Volumen ",
+        "microphone" : "Micrófono ",
+        "resolution" : "Resolución ",
+        "high" : "Alta ",
+        "low" : "Baja ",
+        "spatialAudio" : "Utilizar audio espacial ",
+        "enterMuted" : "Entrar en la sala apagada "
+      }
+    },
+    "oauth" : {
+      "authenticating" : "Autenticando ... ",
+      "authFailed" : "La autenticación {{service}} ha fallado. "
+    },
+    "magikLink" : {
+      "wait" : "Espere un momento mientras se procesa ... "
+    },
+    "dashboard" : {
+      "header" : "Dashboard ",
+      "dashboard" : "Dashboard ",
+      "users" : "Usuarios ",
+      "feeds" : "Alimentación ",
+      "instance" : "Ejemplo ",
+      "locations" : "Ubicaciones ",
+      "invites" : "Invitación ",
+      "sessions" : "Sesiones ",
+      "groups" : "Grupos ",
+      "parties" : "Partes ",
+      "chats" : "Chats ",
+      "content" : "Paquetes de contenido ",
+      "projects" : "Proyectos ",
+      "scenes" : "Escenas ",
+      "avatars" : "Avatares ",
+      "benchmarking" : "Evaluación comparativa ",
+      "bots" : "Bots "
+    }
+  },
+  "oauth" : {
+    "authenticating" : "Autenticando ... ",
+    "authFailed" : "La autenticación {{service}} ha fallado. "
+  },
+  "magikLink" : {
+    "wait" : "Espere un momento mientras se procesa ... "
+  },
+  "dashboard" : {
+    "header" : "Dashboard ",
+    "dashboard" : "Dashboard ",
+    "users" : "Usuarios ",
+    "feeds" : "Alimentación ",
+    "instance" : "Ejemplo ",
+    "locations" : "Ubicaciones ",
+    "routes" : "Rutas ",
+    "projects" : "Proyectos ",
+    "invites" : "Invitación ",
+    "sessions" : "Sesiones ",
+    "groups" : "Grupos ",
+    "parties" : "Partes ",
+    "chats" : "Chats ",
+    "content" : "Paquetes de contenido ",
+    "scenes" : "Escenas ",
+    "avatars" : "Avatares ",
+    "benchmarking" : "Evaluación comparativa ",
+    "bots" : "Bots ",
+    "setting" : "Configuración "
+  },
+  "avatar" : {
+    "title" : "Subir Avatar ",
+    "lbl-browse" : "Examinar ",
+    "lbl-thumbnail" : "Miniatura ",
+    "lbl-upload" : "Carga ",
+    "selectAvatar" : "Seleccione Avatar ... ",
+    "selectThumbnail" : "Seleccionar miniatura ... ",
+    "rotate" : "Girar ",
+    "pan" : "Pane ",
+    "noBone" : "Obejct no contiene huesos ni piel. ",
+    "outOfBound" : "El objeto está fuera de destino. ",
+    "emptyObj" : "El objeto está vacío. ",
+    "maxTriangleError" : "El objeto contiene más de {{allowedTriangles}} caras. ",
+    "selectValidFile" : "Seleccione un archivo avatar 3d válido. ",
+    "selectValidThumbnail" : "Se ha seleccionado un archivo de miniatura válido. ",
+    "fileOversized" : "El tamaño del archivo Avatar debe estar entre {{minSize}} MB y {{maxSize}} MB ",
+    "confirmation" : "¿Está seguro? ",
+    "canNotBeRemoved" : "No se puede eliminar el Avatar activo ",
+    "remove" : "Eliminar avatar ",
+    "uploadFiles" : "Cargar archivos ",
+    "useUrlInstead" : "Utilizar url en su lugar ",
+    "avatar" : "Avatar ",
+    "cancel" : "Cancelar ",
+    "createAvatar" : "Crear Avatar ",
+    "delete" : "Suprimir ",
+    "view" : "Vista ",
+    "uploadAvatarInfo" : "Actualizar información de avatar ",
+    "name" : "Nombre ",
+    "enterName" : "Especifique el nombre ",
+    "avatarInformation" : "Información Avatar ",
+    "description" : "Descripción ",
+    "key" : "Clave ",
+    "none" : "Ninguno ",
+    "submit" : "Presentar ",
+    "edit" : "Editar ",
+    "avatarUrl" : "Url de Avatar ",
+    "upload-success-msg" : "Avatar Subió Con Éxito. ",
+    "remove-success-msg" : "Avatar Subió Con Éxito. ",
+    "warning-msg" : "El recurso Avatar está vacío, ¿ha sincronizado avatars a su almacenamiento de archivos estático? "
+  },
+  "personMenu" : {
+    "inviteToParty" : "Invitar a la Parte ",
+    "addAsFriend" : "Añadir como amigo ",
+    "mute" : "Mute ",
+    "block" : "Bloqueo "
+  },
+  "person" : {
+    "you" : "Usted ",
+    "muteForEveryone" : "Mute para todos ",
+    "unmuteForEveryone" : "Unmute para todos ",
+    "muteMe" : "Mudo me ",
+    "unmuteMe" : "Unmute me ",
+    "muteThisPerson" : "Silenciar a esta persona ",
+    "unmuteThisPerson" : "Desmute esta persona ",
+    "openPictureInPicture" : "Imagen abierta en la imagen"
+  }
+}

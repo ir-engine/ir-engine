@@ -345,6 +345,8 @@ export function changeAvatarAnimationState(entity: Entity, newStateName: string)
   changeState(avatarAnimationComponent.animationGraph, newStateName)
   if (isEntityLocalClient(entity)) {
     const params = {}
-    dispatchAction(Engine.instance.currentWorld.store, NetworkWorldAction.avatarAnimation({ newStateName, params }))
+    dispatchAction(NetworkWorldAction.avatarAnimation({ newStateName, params }), [
+      Engine.instance.currentWorld.worldNetwork.hostId
+    ])
   }
 }
