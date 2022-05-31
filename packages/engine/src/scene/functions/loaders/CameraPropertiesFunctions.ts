@@ -9,7 +9,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
-import { NetworkWorldAction } from '../../../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../../../networking/functions/WorldNetworkAction'
 import { CameraPropertiesComponent, CameraPropertiesComponentType } from '../../components/CameraPropertiesComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { setCameraProperties } from '../setCameraProperties'
@@ -26,7 +26,7 @@ export const RAYCAST_PROPERTIES_DEFAULT_VALUES = {
 export const SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES = {
   fov: 50,
   cameraNearClip: 0.01,
-  cameraFarClip: 100,
+  cameraFarClip: 10000,
   projectionType: ProjectionType.Perspective,
   minCameraDistance: 1,
   maxCameraDistance: 50,
@@ -55,7 +55,7 @@ export const deserializeCameraProperties: ComponentDeserializeFunction = (
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CAMERA_PROPERTIES)
 
   if (isClient) {
-    matchActionOnce(Engine.instance.currentWorld.store, NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
+    matchActionOnce(WorldNetworkAction.spawnAvatar.matches, (spawnAction) => {
       if (spawnAction.$from === Engine.instance.userId) {
         setCameraProperties(useWorld().localClientEntity, json.props)
         return true

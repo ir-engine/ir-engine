@@ -1,17 +1,19 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { addTopic } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { RingBuffer } from '../../common/classes/RingBuffer'
+import { Engine } from '../../ecs/classes/Engine'
 
-export const TransportTypes = {
-  world: 'world',
-  media: 'media'
+export const NetworkTypes = {
+  world: 'world' as const,
+  media: 'media' as const
 }
 
-export type TransportType = typeof TransportTypes[keyof typeof TransportTypes]
+export type NetworkType = typeof NetworkTypes[keyof typeof NetworkTypes]
 
 /** Interface for the Transport. */
-export interface NetworkTransport {
+export class Network {
   /**
    * Initialize the transport.
    * @param address Address of this transport.
@@ -19,55 +21,60 @@ export interface NetworkTransport {
    * @param instance Whether this is a connection to an instance server or not (i.e. channel server)
    * @param opts Options.
    */
-  initialize(any): void | Promise<void>
+  initialize(args: any) {}
 
   /**
    * Send data over transport.
    * @param data Data to be sent.
    */
-  sendData(data: any): void
+  sendData(data: any) {}
 
   /**
    * Send actions through reliable channel
    */
-  sendActions(actions: Action<'WORLD'>[]): void
+  sendActions(actions: Action[]) {}
 
   /**
    * Sends a message across the connection and resolves with the reponse
    * @param message
    */
-  request(message: string, data?: any): Promise<any>
+  async request(message: string, data?: any): Promise<any> {}
 
   /**
    * Closes all the media soup transports
    */
-  close(instance?: boolean, channel?: boolean): void
+  close(instance?: boolean, channel?: boolean) {}
 
   /** List of data producer nodes. */
-  dataProducers: Map<string, any>
+  dataProducers = new Map<string, any>()
 
   /** List of data consumer nodes. */
-  dataConsumers: Map<string, any>
+  dataConsumers = new Map<string, any>()
 
   /** Buffer holding all incoming Messages. */
-  incomingMessageQueueUnreliableIDs: RingBuffer<string>
+  incomingMessageQueueUnreliableIDs: RingBuffer<string> = new RingBuffer<string>(100)
 
   /** Buffer holding all incoming Messages. */
-  incomingMessageQueueUnreliable: RingBuffer<any>
+  incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)
 
   /** Buffer holding Mediasoup operations */
-  mediasoupOperationQueue: RingBuffer<any>
-}
+  mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 
-export class Network<T extends NetworkTransport> {
-  static instance: Network<NetworkTransport>
-  transports = new Map<UserId, T>()
   /**
-   * @todo: getTransport(transport: UserId) {
+   * The UserId of the host
+   * - will either be a user's UserId, or an instance server's InstanceId
    */
-  getTransport(transport: string) {
-    return this.transports.get(transport as UserId)!
+  hostId = null! as UserId
+
+  /**
+   * Check if this user is hosting the world.
+   */
+  get isHosting() {
+    return Engine.instance.userId === this.hostId
+  }
+
+  constructor(hostId) {
+    this.hostId = hostId
+    addTopic(hostId)
   }
 }
-
-globalThis.Network = Network

@@ -89,6 +89,11 @@ export default async function SceneObjectSystem(world: World) {
 
       if (!obj3d.parent) console.warn('[Object3DComponent]: Scene object has been removed manually.')
       else obj3d.removeFromParent()
+
+      const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
+      for (const layer of layers) {
+        if (layer.has(obj3d)) layer.delete(obj3d)
+      }
     }
 
     for (const entity of sceneObjectQuery.enter()) {

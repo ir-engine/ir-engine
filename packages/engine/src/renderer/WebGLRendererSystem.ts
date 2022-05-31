@@ -112,7 +112,6 @@ export class EngineRenderer {
 
     if (!context) {
       dispatchAction(
-        Engine.instance.store,
         EngineActions.browserNotSupported({
           msg: 'Your browser does not have WebGL enabled. Please enable WebGL, or try another browser.'
         }) as any
@@ -156,6 +155,11 @@ export class EngineRenderer {
 
     this.renderer.autoClear = true
     this.effectComposer = new EffectComposer(this.renderer) as any
+  }
+
+  resetScene() {
+    this.directionalLightEntities = []
+    this.activeCSMLightEntity = null!
   }
 
   /** Called on resize, sets resize flag. */
@@ -229,17 +233,17 @@ export class EngineRenderer {
     }
 
     if (qualityLevel !== state.qualityLevel.value) {
-      dispatchAction(Engine.instance.store, EngineRendererAction.setQualityLevel(qualityLevel))
+      dispatchAction(EngineRendererAction.setQualityLevel(qualityLevel))
     }
   }
 }
 
 export default async function WebGLRendererSystem(world: World) {
-  matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, () => {
+  matchActionOnce(EngineActions.joinedWorld.matches, () => {
     restoreEngineRendererData()
   })
 
-  addActionReceptor(Engine.instance.store, EngineRendererReceptor)
+  addActionReceptor(EngineRendererReceptor)
 
   return () => {
     EngineRenderer.instance.execute(world.deltaSeconds)

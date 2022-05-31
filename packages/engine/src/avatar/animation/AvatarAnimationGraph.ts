@@ -6,7 +6,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { AnimationManager } from '../AnimationManager'
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
@@ -345,6 +345,8 @@ export function changeAvatarAnimationState(entity: Entity, newStateName: string)
   changeState(avatarAnimationComponent.animationGraph, newStateName)
   if (isEntityLocalClient(entity)) {
     const params = {}
-    dispatchAction(Engine.instance.currentWorld.store, NetworkWorldAction.avatarAnimation({ newStateName, params }))
+    dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName, params }), [
+      Engine.instance.currentWorld.worldNetwork.hostId
+    ])
   }
 }

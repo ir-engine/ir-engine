@@ -34,7 +34,6 @@ export class Channel<T = ChannelDataType> extends Service<T> {
     const limit = query?.limit || 10
     const loggedInUser = params!.user as UserDataType
     const userId = loggedInUser.id
-    const Model = this.app.service('channel').Model
     try {
       const subParams = {
         subQuery: false,
@@ -116,7 +115,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
       }
       if (query.targetObjectType) (subParams.where as any).channelType = query.targetObjectType
       if (query.channelType) (subParams.where as any).channelType = query.channelType
-      const results = await Model.findAndCountAll(subParams)
+      const results = await this.app.service('channel').Model.findAndCountAll(subParams)
 
       if (query.findTargetId === true) {
         const match = _.find(results.rows, (result: any) =>
@@ -135,10 +134,9 @@ export class Channel<T = ChannelDataType> extends Service<T> {
           limit: limit
         }
       } else {
-        query.id = {
-          $in: results.rows.map((channel) => channel.id)
-        }
-        return super.find(params)
+        return this.app
+          .service('channel')
+          .Model.findAll({ where: { channelType: query.channelType, instanceId: query.instanceId } })
       }
     } catch (err) {
       logger.error(err, `Channel find failed: ${err.message}`)
