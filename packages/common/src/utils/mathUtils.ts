@@ -78,6 +78,6 @@ export const normalizeRange = (val, rangeMin, rangeMax) => {
   return (val - rangeMin) / (rangeMax - rangeMin)
 }
 
-export const approxeq = (v1, v2, epsilon = 0.001) => {
+export const equalsEpsillon = (v1: number, v2: number, epsilon = 0.001) => {
   return Math.abs(v1 - v2) < epsilon
 }

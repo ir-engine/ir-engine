@@ -3,7 +3,6 @@ import { TypedArray } from 'bitecs'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-import { FLOAT_PRECISION_MULT, QUAT_MAX_RANGE } from '../../common/constants/MathConstants'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -15,6 +14,7 @@ import { XRInputSourceComponent } from '../../xr/components/XRInputSourceCompone
 import { XRHandBones } from '../../xr/types/XRHandBones'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectDirtyTag } from '../components/NetworkObjectDirtyTag'
+import { expand, FLOAT_PRECISION_MULT, QUAT_MAX_RANGE } from './Utils'
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
 import {
   createViewCursor,
@@ -87,19 +87,6 @@ export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, e
   if (changeMask <= 0) return
 
   let compressedBinaryData = readUint32(v)
-
-  const expand = (compressedBinaryData: number) => {
-    const valueReadMask = 0b00000000000000000000000111111111
-    const signBitReadMask = 0b00000000000000000000001000000000
-
-    let value = compressedBinaryData & valueReadMask
-    let signBit = compressedBinaryData & signBitReadMask
-    if (signBit) {
-      value *= -1
-    }
-
-    return value
-  }
 
   // Read the other three fields and derive the value of the omitted field
   let c = expand(compressedBinaryData)

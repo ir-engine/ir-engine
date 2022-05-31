@@ -2,7 +2,6 @@ import { Group } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
-import { FLOAT_PRECISION_MULT, QUAT_MAX_RANGE } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -13,6 +12,7 @@ import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { XRHandBones } from '../../xr/types/XRHandBones'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { compress, FLOAT_PRECISION_MULT, QUAT_MAX_RANGE } from './Utils'
 import { flatten, getVector4IndexBasedComponentValue, Vector3SoA, Vector4SoA } from './Utils'
 import {
   createViewCursor,
@@ -156,21 +156,6 @@ export const writeCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, 
     c *= sign * QUAT_MAX_RANGE * FLOAT_PRECISION_MULT
 
     maxIndex = maxIndex | 0
-
-    const compress = (value: number) => {
-      const valueWriteMask = 0b00000000000000000000000111111111
-      const signBitWriteMask = 0b00000000000000000000001000000000
-
-      let signBit = 0
-      if (value < 0) {
-        signBit = 1
-        value = Math.abs(value)
-      }
-      value &= valueWriteMask
-      signBit ? (value |= signBitWriteMask) : 0
-
-      return value
-    }
 
     a = compress(a)
     b = compress(b)
