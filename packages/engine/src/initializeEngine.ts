@@ -177,6 +177,10 @@ export const initializeCoreSystems = async () => {
       {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./xrui/systems/XRUISystem')
+      },
+      {
+        type: SystemUpdateType.FIXED_LATE,
+        systemModulePromise: import('./scene/systems/MaterialOverrideSystem')
       }
     )
   }
@@ -308,7 +312,7 @@ export const initializeRealtimeSystems = async (media = true, pose = true) => {
 
   systemsToLoad.push({
     type: SystemUpdateType.FIXED_EARLY,
-    systemModulePromise: import('./networking/systems/NetworkActionSystem')
+    systemModulePromise: import('./networking/systems/WorldNetworkActionSystem')
   })
 
   if (media) {

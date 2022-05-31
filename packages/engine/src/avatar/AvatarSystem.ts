@@ -15,7 +15,7 @@ import {
 } from '../ecs/functions/ComponentFunctions'
 import { AvatarControllerType } from '../input/enums/InputEnums'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
-import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -34,7 +34,7 @@ import { loadAvatarForUser } from './functions/avatarFunctions'
 import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 export function avatarDetailsReceptor(
-  action: ReturnType<typeof NetworkWorldAction.avatarDetails>,
+  action: ReturnType<typeof WorldNetworkAction.avatarDetails>,
   world = Engine.instance.currentWorld
 ) {
   const client = world.clients.get(action.$from)
@@ -49,7 +49,7 @@ export function avatarDetailsReceptor(
 }
 
 export function setXRModeReceptor(
-  action: ReturnType<typeof NetworkWorldAction.setXRMode>,
+  action: ReturnType<typeof WorldNetworkAction.setXRMode>,
   world = Engine.instance.currentWorld
 ) {
   const entity = world.getUserAvatarEntity(action.$from)
@@ -89,7 +89,7 @@ export function setXRModeReceptor(
 }
 
 export function xrHandsConnectedReceptor(
-  action: ReturnType<typeof NetworkWorldAction.xrHandsConnected>,
+  action: ReturnType<typeof WorldNetworkAction.xrHandsConnected>,
   world = Engine.instance.currentWorld
 ) {
   if (action.$from === Engine.instance.userId) return
@@ -110,7 +110,7 @@ export function xrHandsConnectedReceptor(
 }
 
 export function teleportObjectReceptor(
-  action: ReturnType<typeof NetworkWorldAction.teleportObject>,
+  action: ReturnType<typeof WorldNetworkAction.teleportObject>,
   world = Engine.instance.currentWorld
 ) {
   const [x, y, z, qX, qY, qZ, qW] = action.pose
@@ -126,10 +126,10 @@ export function teleportObjectReceptor(
 }
 
 export default async function AvatarSystem(world: World) {
-  const avatarDetailsQueue = createActionQueue(NetworkWorldAction.avatarDetails.matches)
-  const setXRModeQueue = createActionQueue(NetworkWorldAction.setXRMode.matches)
-  const xrHandsConnectedQueue = createActionQueue(NetworkWorldAction.xrHandsConnected.matches)
-  const teleportObjectQueue = createActionQueue(NetworkWorldAction.teleportObject.matches)
+  const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
+  const setXRModeQueue = createActionQueue(WorldNetworkAction.setXRMode.matches)
+  const xrHandsConnectedQueue = createActionQueue(WorldNetworkAction.xrHandsConnected.matches)
+  const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
 
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent, AvatarAnimationComponent])

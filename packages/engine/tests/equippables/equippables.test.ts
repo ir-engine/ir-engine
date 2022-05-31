@@ -91,7 +91,7 @@ describe('Equippables Integration Tests', () => {
     equipEntity(equipperEntity, equippableEntity, undefined)
 
     // world.receptors.push(
-    //     (a) => matches(a).when(NetworkWorldAction.setEquippedObject.matches, setEquippedObjectReceptor)
+    //     (a) => matches(a).when(WorldNetworkAction.setEquippedObject.matches, setEquippedObjectReceptor)
     // )
     ActionFunctions.clearOutgoingActions()
     ActionFunctions.applyIncomingActions()

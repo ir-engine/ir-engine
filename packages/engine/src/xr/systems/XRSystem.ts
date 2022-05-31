@@ -14,7 +14,7 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
@@ -42,7 +42,7 @@ const startXRSession = async () => {
   }
 }
 
-export function setXRModeReceptor(action: typeof NetworkWorldAction.setXRMode.matches._TYPE) {
+export function setXRModeReceptor(action: typeof WorldNetworkAction.setXRMode.matches._TYPE) {
   // Current WebXRManager.getCamera() typedef is incorrect
   // @ts-ignore
   const cameras = EngineRenderer.instance.xrManager.getCamera() as ArrayCamera
@@ -90,7 +90,7 @@ export default async function XRSystem(world: World) {
       })
   })
 
-  const setXRModeQueue = createActionQueue(NetworkWorldAction.setXRMode.matches)
+  const setXRModeQueue = createActionQueue(WorldNetworkAction.setXRMode.matches)
 
   return () => {
     for (const action of setXRModeQueue()) setXRModeReceptor(action)

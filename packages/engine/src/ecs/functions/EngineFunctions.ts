@@ -96,6 +96,8 @@ export const unloadScene = (world: World, removePersisted = false) => {
   Engine.instance.currentWorld.scene.background = new Color('black')
   Engine.instance.currentWorld.scene.environment = null
 
+  EngineRenderer.instance.resetScene()
+
   isClient && configureEffectComposer()
 
   for (const world of Engine.instance.worlds) {

@@ -11,7 +11,7 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectAuthorityTag'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
 import { BodyType } from '../../physics/types/PhysicsTypes'
@@ -22,7 +22,7 @@ import { EquipperComponent } from '../components/EquipperComponent'
 import { getParity } from '../functions/equippableFunctions'
 
 export function setEquippedObjectReceptor(
-  action: ReturnType<typeof NetworkWorldAction.setEquippedObject>,
+  action: ReturnType<typeof WorldNetworkAction.setEquippedObject>,
   world = Engine.instance.currentWorld
 ) {
   if (action.$from === Engine.instance.userId) return
@@ -102,7 +102,7 @@ export function equippableQueryExit(entity: Entity, world = Engine.instance.curr
  * @author Hamza Mushtaq <github.com/hamzzam>
  */
 export default async function EquippableSystem(world: World) {
-  const setEquippedObjectQueue = createActionQueue(NetworkWorldAction.setEquippedObject.matches)
+  const setEquippedObjectQueue = createActionQueue(WorldNetworkAction.setEquippedObject.matches)
 
   const equippableQuery = defineQuery([EquipperComponent])
 

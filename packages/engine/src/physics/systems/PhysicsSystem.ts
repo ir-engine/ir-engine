@@ -12,7 +12,7 @@ import { defineQuery, getComponent, hasComponent, removeComponent } from '../../
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObjectDirtyTag'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isDynamicBody, isStaticBody } from '../classes/Physics'
@@ -24,7 +24,7 @@ import { teleportRigidbody } from '../functions/teleportRigidbody'
 
 // Receptor
 export function physicsActionReceptor(
-  action: typeof NetworkWorldAction.teleportObject.matches._TYPE,
+  action: typeof WorldNetworkAction.teleportObject.matches._TYPE,
   world = Engine.instance.currentWorld
 ) {
   const [x, y, z, qX, qY, qZ, qW] = action.pose
@@ -205,7 +205,7 @@ const processCollisions = (world: World) => {
 const simulationPipeline = pipe(processRaycasts, processNetworkBodies, processBodies, processCollisions)
 
 export default async function PhysicsSystem(world: World) {
-  const teleportObjectQueue = createActionQueue(NetworkWorldAction.teleportObject.matches)
+  const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
 
   await world.physics.createScene()
 

@@ -17,7 +17,7 @@ import {
   initializeRealtimeSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
@@ -51,11 +51,11 @@ export const initClient = async () => {
 
   addActionReceptor((action) => {
     matches(action)
-      .when(NetworkWorldAction.createClient.matches, () => {
+      .when(WorldNetworkAction.createClient.matches, () => {
         updateNearbyAvatars()
         MediaStreamService.triggerUpdateNearbyLayerUsers()
       })
-      .when(NetworkWorldAction.destroyClient.matches, () => {
+      .when(WorldNetworkAction.destroyClient.matches, () => {
         updateNearbyAvatars()
         MediaStreamService.triggerUpdateNearbyLayerUsers()
       })

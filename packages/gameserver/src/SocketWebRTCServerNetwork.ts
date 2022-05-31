@@ -2,7 +2,6 @@ import * as https from 'https'
 import { DataProducer, Router, Transport, WebRtcTransport, Worker } from 'mediasoup/node/lib/types'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { RingBuffer } from '@xrengine/engine/src/common/classes/RingBuffer'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
@@ -16,18 +15,10 @@ import { startWebRTC } from './WebRTCFunctions'
 const logger = multiLogger.child({ component: 'gameserver:webrtc:network' })
 
 export class SocketWebRTCServerNetwork extends Network {
-  server: https.Server
   workers: Worker[] = []
   routers: Record<string, Router[]>
   transport: Transport
   app: Application
-
-  dataProducers = new Map<string, any>()
-  dataConsumers = new Map<string, any>()
-
-  incomingMessageQueueUnreliableIDs: RingBuffer<string> = new RingBuffer<string>(100)
-  incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)
-  mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 
   outgoingDataTransport: Transport
   outgoingDataProducer: DataProducer
