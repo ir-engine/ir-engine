@@ -65,7 +65,7 @@ export default async function MaterialOverrideSystem(world: World) {
         const override = getComponent(entity, MaterialOverrideComponent)
         const entityEntry = overrideTable.get(override.targetEntity)!
         for (const overrideEntry of entityEntry.values()) {
-          overrideEntry.matParm.update(world.fixedDeltaSeconds)
+          overrideEntry.matParm.update(world.fixedDeltaSeconds / 4)
         }
       })
     )
