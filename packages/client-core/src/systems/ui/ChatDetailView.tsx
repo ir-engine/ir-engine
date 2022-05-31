@@ -157,25 +157,25 @@ const ChatDetailView = () => {
   useEffect(() => {
     if (
       user?.instanceId?.value &&
-      instanceConnectionState.currentInstanceId?.value &&
-      user?.instanceId?.value !== instanceConnectionState.currentInstanceId?.value
+      Engine.instance.currentWorld.worldNetwork?.hostId &&
+      user?.instanceId?.value !== Engine.instance.currentWorld.worldNetwork?.hostId
     ) {
       console.warn(
         '[WARNING]: somehow user.instanceId and instanceConnectionState.currentInstanceId, are different when they should be the same'
       )
-      console.log(user?.instanceId?.value, instanceConnectionState.currentInstanceId?.value)
+      console.log(user?.instanceId?.value, Engine.instance.currentWorld.worldNetwork?.hostId)
     }
     if (
-      instanceConnectionState.currentInstanceId?.value &&
-      instanceConnectionState.instances[instanceConnectionState.currentInstanceId.value].connected.value &&
+      Engine.instance.currentWorld.worldNetwork?.hostId &&
+      instanceConnectionState.instances[Engine.instance.currentWorld.worldNetwork?.hostId].connected.value &&
       !chatState.instanceChannelFetching.value
     ) {
       ChatService.getInstanceChannel()
     }
   }, [
-    instanceConnectionState.currentInstanceId?.value,
-    instanceConnectionState?.currentInstanceId?.value &&
-      instanceConnectionState?.instances[instanceConnectionState?.currentInstanceId?.value]?.connected.value,
+    Engine.instance.currentWorld.worldNetwork?.hostId,
+    Engine.instance.currentWorld.worldNetwork?.hostId &&
+      instanceConnectionState?.instances[Engine.instance.currentWorld.worldNetwork?.hostId]?.connected.value,
     chatState.instanceChannelFetching.value
   ])
 

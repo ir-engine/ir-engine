@@ -143,11 +143,11 @@ const InstanceChat = (props: Props): any => {
     }
   }, [currentInstanceConnection?.connected?.value])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (messageEl) messageEl.scrollTop = messageEl?.scrollHeight
   }, [chatState])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       sortedMessages &&
       sortedMessages[sortedMessages.length - 1]?.senderId !== user?.id.value &&

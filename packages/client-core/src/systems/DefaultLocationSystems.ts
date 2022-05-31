@@ -11,6 +11,10 @@ export const DefaultLocationSystems: SystemModuleType<any>[] = [
   },
   {
     type: 'PRE_RENDER',
+    systemModulePromise: import('./MainMenuButtonsSystem')
+  },
+  {
+    type: 'PRE_RENDER',
     systemModulePromise: import('./ChatUISystem')
   },
   {
