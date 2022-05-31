@@ -70,7 +70,13 @@ Pictured below is an example of 4 projects installed. By default, only the defau
 
 In a production environment, the builder process will install all projects according to the project database table and will download files from the storage provider. In a local development environment, the local file system is always the source of truth. Any project folders added or removed from the file system will be automatically added or removed from the database. This is to ensure there is no accidental loss of data, as these project folders are all git repositories.
 
-## Install
+## Launch XREngine with Control Center Install - ***RECOMMENDED***
+
+### [Use Metaverse Control Plane Managment GUI](https://github.com/XRFoundation/XREngine-Control-Center)
+
+Best for simple self hosting, advanced editor content creation, and XRE Project Pack development.
+
+## Advanced Development Install
 
 ### Pre-Requisites
 
