@@ -13,7 +13,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { client } from '../../feathers'
 import { accessLocationState } from '../../social/services/LocationService'
 import { store, useDispatch } from '../../store'
-import { leave } from '../../transports/SocketWebRTCClientFunctions'
+import { leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
 import { NetworkConnectionService } from './NetworkConnectionService'
@@ -108,7 +108,7 @@ export const LocationInstanceConnectionService = {
     const transport = Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork
     logger.info({ socket: !!transport.socket, transport }, 'Connect To World Server')
     if (transport.socket) {
-      await leave(transport, false)
+      await leaveNetwork(transport, false)
     }
     const locationState = accessLocationState()
     const currentLocation = locationState.currentLocation.location

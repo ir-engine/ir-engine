@@ -11,7 +11,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { client } from '../../feathers'
 import { accessLocationState } from '../../social/services/LocationService'
 import { store, useDispatch } from '../../store'
-import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
+import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
 import { NetworkConnectionService } from './NetworkConnectionService'
@@ -91,7 +91,7 @@ export const MediaInstanceConnectionService = {
     })
     if (provisionResult.ipAddress && provisionResult.port) {
       dispatch(
-        MediaLocationInstanceConnectionAction.serverProvisioned(
+        MediaInstanceConnectionAction.serverProvisioned(
           provisionResult,
           channelId,
           isWorldConnection ? 'instance' : 'channel'
@@ -103,7 +103,7 @@ export const MediaInstanceConnectionService = {
   },
   connectToServer: async (instanceId: string, channelId: string) => {
     const dispatch = useDispatch()
-    dispatch(MediaLocationInstanceConnectionAction.serverConnecting(instanceId))
+    dispatch(MediaInstanceConnectionAction.serverConnecting(instanceId))
     const authState = accessAuthState()
     const user = authState.user.value
     const { ipAddress, port } = accessMediaInstanceConnectionState().instances.value[instanceId]
@@ -112,7 +112,7 @@ export const MediaInstanceConnectionService = {
     logger.info({ socket: !!transport.socket, transport }, 'Connect To Media Server.')
     if (transport.socket) {
       await endVideoChat(transport, { endConsumers: true })
-      await leave(transport, false)
+      await leaveNetwork(transport, false)
     }
 
     const locationState = accessLocationState()
@@ -120,7 +120,7 @@ export const MediaInstanceConnectionService = {
     const sceneId = currentLocation?.sceneId?.value
 
     dispatch(
-      MediaLocationInstanceConnectionAction.enableVideo(
+      MediaInstanceConnectionAction.enableVideo(
         instanceId,
         currentLocation?.locationSetting?.videoEnabled?.value === true ||
           !(
@@ -136,7 +136,7 @@ export const MediaInstanceConnectionService = {
   },
   resetServer: (instanceId: string) => {
     const dispatch = useDispatch()
-    dispatch(MediaLocationInstanceConnectionAction.disconnect(instanceId))
+    dispatch(MediaInstanceConnectionAction.disconnect(instanceId))
   }
 }
 
@@ -144,13 +144,13 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('instance-provision').on('created', (params) => {
     if (params.channelId != null) {
       const dispatch = useDispatch()
-      dispatch(MediaLocationInstanceConnectionAction.serverProvisioned(params, params.channelId))
+      dispatch(MediaInstanceConnectionAction.serverProvisioned(params, params.channelId))
     }
   })
 }
 
 //Action
-export const MediaLocationInstanceConnectionAction = {
+export const MediaInstanceConnectionAction = {
   serverProvisioned: (
     provisionResult: InstanceServerProvisionResult,
     channelId?: string,
@@ -193,5 +193,5 @@ export const MediaLocationInstanceConnectionAction = {
 }
 
 export type MediaLocationInstanceConnectionActionType = ReturnType<
-  typeof MediaLocationInstanceConnectionAction[keyof typeof MediaLocationInstanceConnectionAction]
+  typeof MediaInstanceConnectionAction[keyof typeof MediaInstanceConnectionAction]
 >

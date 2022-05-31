@@ -10,7 +10,7 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
@@ -52,7 +52,7 @@ describe('createAvatar', () => {
     const prevPhysicsColliders = Engine.instance.currentWorld.physics.controllers.size
 
     createAvatar(
-      NetworkWorldAction.spawnAvatar({
+      WorldNetworkAction.spawnAvatar({
         $from: Engine.instance.userId,
         networkId: networkObject.networkId,
         parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() }
