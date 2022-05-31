@@ -308,7 +308,7 @@ export const initializeRealtimeSystems = async (media = true, pose = true) => {
 
   systemsToLoad.push({
     type: SystemUpdateType.FIXED_EARLY,
-    systemModulePromise: import('./networking/systems/NetworkActionSystem')
+    systemModulePromise: import('./networking/systems/WorldNetworkActionSystem')
   })
 
   if (media) {

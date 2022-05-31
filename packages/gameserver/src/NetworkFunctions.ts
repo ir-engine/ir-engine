@@ -10,8 +10,8 @@ import checkPositionIsValid from '@xrengine/engine/src/common/functions/checkPos
 import { performance } from '@xrengine/engine/src/common/functions/performance'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { AvatarProps } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -248,7 +248,7 @@ function disconnectClientIfConnected(network: SocketWebRTCServerNetwork, socket:
     // client.socket?.disconnect()
     // for (const eid of world.getOwnedNetworkObjects(userId)) {
     //   const { networkId } = getComponent(eid, NetworkObjectComponent)
-    //   dispatchFrom(network.hostId, () => NetworkWorldAction.destroyObject({ $from: userId, networkId }))
+    //   dispatchFrom(network.hostId, () => WorldNetworkAction.destroyObject({ $from: userId, networkId }))
     // }
     return true
   }
@@ -320,7 +320,7 @@ export const handleJoinWorld = async (
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Required<Action>[]
   for (const action of Engine.instance.store.actions.cached[network.hostId] as Array<
-    ReturnType<typeof NetworkWorldAction.spawnAvatar>
+    ReturnType<typeof WorldNetworkAction.spawnAvatar>
   >) {
     // we may have a need to remove the check for the prefab type to enable this to work for networked objects too
     if (action.type === 'network.SPAWN_OBJECT' && action.prefab === 'avatar') {
@@ -384,7 +384,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, socke
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
-    dispatchAction(NetworkWorldAction.destroyClient({ $from: userId }), [network.hostId])
+    dispatchAction(WorldNetworkAction.destroyClient({ $from: userId }), [network.hostId])
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
@@ -406,7 +406,7 @@ export async function handleLeaveWorld(
   for (const [, transport] of Object.entries(network.mediasoupTransports))
     if ((transport as any).appData.peerId === userId) closeTransport(network, transport)
   if (world.clients.has(userId)) {
-    dispatchAction(NetworkWorldAction.destroyClient({ $from: userId }))
+    dispatchAction(WorldNetworkAction.destroyClient({ $from: userId }))
   }
   if (callback !== undefined) callback({})
 }
