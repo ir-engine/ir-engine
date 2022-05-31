@@ -21,7 +21,7 @@ export const OfflineLocation = () => {
       const world = Engine.instance.currentWorld
       const userId = authState.authUser.identityProvider.userId.value
       Engine.instance.userId = userId
-      world.hostId = Engine.instance.userId as UserId
+      world.worldNetwork.hostId = Engine.instance.userId as UserId
 
       const index = 1
       world.userIdToUserIndex.set(userId, index)

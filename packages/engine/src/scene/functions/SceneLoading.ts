@@ -137,7 +137,7 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): 
 export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: SystemModuleType<any>[]) => {
   unloadScene(Engine.instance.currentWorld)
 
-  dispatchAction(Engine.instance.store, EngineActions.sceneLoading())
+  dispatchAction(EngineActions.sceneLoading())
 
   let promisesCompleted = 0
   const onProgress = () => {
@@ -147,7 +147,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   const onComplete = () => {
     promisesCompleted++
     dispatchAction(
-      Engine.instance.store,
       EngineActions.sceneLoadingProgress({
         progress: promisesCompleted > promises.length ? 100 : Math.round((100 * promisesCompleted) / promises.length)
       })
@@ -181,14 +180,11 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   addComponent(tree.rootNode.entity, SceneTagComponent, {})
   getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
 
-  dispatchAction(
-    Engine.instance.store,
-    EngineRendererAction.setPostProcessing(getComponentCountOfType(PostprocessingComponent) > 0)
-  )
+  dispatchAction(EngineRendererAction.setPostProcessing(getComponentCountOfType(PostprocessingComponent) > 0))
 
   if (!getEngineState().isTeleporting.value) Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)
 
-  dispatchAction(Engine.instance.store, EngineActions.sceneLoaded()) //.delay(0.1)
+  dispatchAction(EngineActions.sceneLoaded()) //.delay(0.1)
 }
 
 /**

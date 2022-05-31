@@ -70,7 +70,7 @@ export function xrInitialized() {
 }
 
 export function startXR() {
-  dispatchAction(Engine.instance.store, EngineActions.xrStart() as any)
+  dispatchAction(EngineActions.xrStart() as any)
   WebXREventDispatcher.instance.dispatchEvent({
     type: 'webxr-pose',
     detail: {

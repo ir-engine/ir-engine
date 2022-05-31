@@ -7,10 +7,11 @@
 ## Table of Contents
 
 - [Background](#background)
-  - [Demos](#demo)
-- [Install](#install)
+  - [Demos](#demos)
+- [Install](#advanced-development-install)
   - [Pre-Requisites](#pre-requisites)
   - [Getting Started](#getting-started)
+- [XRE XRModule](#xre-xrmodule)
 - [Usage](#usage)
 - [Contributing](#contributing)
   - [Let's build it together](#lets-build-it-together)
@@ -42,7 +43,7 @@ technology and shared simulations should be as easy and natural as making a webs
 - WebGL client deployable to iOS, Android and desktop
 - Free, open source, MIT and Apache 2.0-licensed
 
-### Demos
+## Demos
 
 Guest Demos
 
@@ -54,9 +55,29 @@ Guest Demos
 Host Demos 
 
 - [XRE Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/admin)
-- [XRE Project Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/edior)
+- [XRE XRModule Asset Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/edior)
 
-## Install
+## XRE XRModule
+
+### [Library of XRModules](https://github.com/XRFoundation?q=xre-project)
+
+Create composable plug-ins for XREngine scenes with XRModule Projects
+
+### [Create XRModule Projects](https://github.com/XRFoundation/XREngine/blob/dev/docs/docs/2_projects_editor_scenes/01_projects-api.md)
+
+XRModules are folders that contain all your custom code, assets and scenes. They are version controlled using git & github, and can be installed to any deployment with a single click. (more on that in the next chapter)
+
+Pictured below is an example of 4 projects installed. By default, only the default-project is installed, which in a production environment is read only. You can find the default project under /packages/projects/default-project/
+
+In a production environment, the builder process will install all projects according to the project database table and will download files from the storage provider. In a local development environment, the local file system is always the source of truth. Any project folders added or removed from the file system will be automatically added or removed from the database. This is to ensure there is no accidental loss of data, as these project folders are all git repositories.
+
+## Launch XREngine with Control Center Install - ***RECOMMENDED***
+
+### [Use Metaverse Control Plane Managment GUI](https://github.com/XRFoundation/XREngine-Control-Center)
+
+Best for simple self hosting, advanced editor content creation, and XRE Pack Project development.
+
+## Advanced Development Install
 
 ### Pre-Requisites
 
