@@ -91,7 +91,7 @@ export const updateRenderSetting: ComponentUpdateFunction = (
 export const updateShadowMapOnSceneLoad = (enable: boolean, shadowMapType?: number) => {
   if (getEngineState().sceneLoaded.value) updateShadowMap(enable, shadowMapType)
   else
-    matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, () => {
+    matchActionOnce(EngineActions.sceneLoaded.matches, () => {
       updateShadowMap(enable, shadowMapType)
     })
 }
@@ -116,7 +116,7 @@ export const updateShadowMap = (enable: boolean, shadowMapType?: number) => {
 const enableCSM = () => {
   if (!EngineRenderer.instance.csm && EngineRenderer.instance.renderer.shadowMap.enabled) {
     if (getEngineState().sceneLoaded.value) initializeCSM()
-    else matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, initializeCSM)
+    else matchActionOnce(EngineActions.sceneLoaded.matches, initializeCSM)
   }
 }
 

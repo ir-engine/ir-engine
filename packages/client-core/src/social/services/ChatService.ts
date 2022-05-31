@@ -246,11 +246,11 @@ export const ChatService = {
       const channelResult = (await client.service('channel').find({
         query: {
           channelType: 'instance',
-          instanceId: accessLocationInstanceConnectionState().currentInstanceId.value
+          instanceId: Engine.instance.currentWorld.worldNetwork.hostId
         }
-      })) as Paginated<Channel>
-      if (channelResult.total === 0) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
-      dispatch(ChatAction.loadedChannel(channelResult.data[0], 'instance'))
+      })) as Channel[]
+      if (!channelResult.length) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
+      dispatch(ChatAction.loadedChannel(channelResult[0], 'instance'))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }

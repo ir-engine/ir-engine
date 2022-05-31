@@ -4,8 +4,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AudioComponent } from '../../audio/components/AudioComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
@@ -14,7 +13,6 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { matchActionOnce, receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { VideoComponent } from '../../scene/components/VideoComponent'
@@ -86,7 +84,7 @@ export default async function InteractiveSystem() {
       } else if (hasComponent(entity, VolumetricComponent)) {
         toggleVolumetric(entity)
       } else {
-        dispatchAction(Engine.instance.store, EngineActions.objectActivation({ interactionData: interactiveComponent }))
+        dispatchAction(EngineActions.objectActivation({ interactionData: interactiveComponent }))
       }
       removeComponent(entity, InteractedComponent)
     }
