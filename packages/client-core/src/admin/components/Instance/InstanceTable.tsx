@@ -8,7 +8,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { instanceColumns, InstanceData } from '../../common/variables/instance'
-import { InstanceService, INSTANCE_PAGE_LIMIT, useInstanceState } from '../../services/InstanceService'
+import { INSTANCE_PAGE_LIMIT, InstanceService, useInstanceState } from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
