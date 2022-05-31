@@ -102,7 +102,7 @@ export default async function DebugHelpersSystem(world: World) {
         break
     }
   }
-  addActionReceptor(Engine.instance.store, receptor)
+  addActionReceptor(receptor)
 
   return () => {
     // ===== AVATAR ===== //

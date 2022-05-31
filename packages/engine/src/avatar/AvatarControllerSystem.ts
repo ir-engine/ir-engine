@@ -25,7 +25,7 @@ export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
   // Speeds are same as animation's root motion
   walkSpeed = 1.6762927669761485
-  runSpeed = 3.769894125544925
+  runSpeed = 3.769894125544925 * 1.5
   jumpHeight = 4
   movementScheme = AvatarMovementScheme.Linear
 }
@@ -35,7 +35,7 @@ export default async function AvatarControllerSystem(world: World) {
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
   const cameraRotationQuery = defineQuery([XRCameraRotateYComponent])
 
-  addActionReceptor(Engine.instance.store, AvatarInputSettingsReceptor)
+  addActionReceptor(AvatarInputSettingsReceptor)
 
   const lastCamPos = new Vector3(),
     displacement = new Vector3(),

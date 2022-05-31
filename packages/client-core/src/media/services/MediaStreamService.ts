@@ -42,29 +42,32 @@ let updateConsumerTimeout
 //Service
 export const MediaStreamService = {
   updateCamVideoState: () => {
-    const ms = MediaStreams.instance
-    store.dispatch(MediaStreamAction.setCamVideoState(ms != null && ms.camVideoProducer != null && !ms.videoPaused))
+    store.dispatch(
+      MediaStreamAction.setCamVideoState(
+        MediaStreams.instance.camVideoProducer != null && !MediaStreams.instance.videoPaused
+      )
+    )
   },
   triggerUpdateConsumers: () => {
     if (!updateConsumerTimeout) {
       updateConsumerTimeout = setTimeout(() => {
-        const ms = MediaStreams.instance
-        store.dispatch(MediaStreamAction.setConsumers(ms != null ? ms.consumers : []))
+        store.dispatch(MediaStreamAction.setConsumers(MediaStreams.instance.consumers))
         updateConsumerTimeout = null
       }, 1000)
     }
   },
   triggerUpdateNearbyLayerUsers: () => {
-    const ms = MediaStreams.instance
-    store.dispatch(MediaStreamAction.setNearbyLayerUsers(ms != null ? ms.nearbyLayerUsers : []))
+    store.dispatch(MediaStreamAction.setNearbyLayerUsers(MediaStreams.instance.nearbyLayerUsers))
   },
   updateCamAudioState: () => {
-    const ms = MediaStreams.instance
-    store.dispatch(MediaStreamAction.setCamAudioState(ms != null && ms.camAudioProducer != null && !ms.audioPaused))
+    store.dispatch(
+      MediaStreamAction.setCamAudioState(
+        MediaStreams.instance.camAudioProducer != null && !MediaStreams.instance.audioPaused
+      )
+    )
   },
   updateFaceTrackingState: () => {
-    const ms = MediaStreams.instance
-    store.dispatch(MediaStreamAction.setFaceTrackingState(ms != null && ms.faceTracking))
+    store.dispatch(MediaStreamAction.setFaceTrackingState(MediaStreams.instance.faceTracking))
   },
   updateEnableMediaByDefault: () => {
     store.dispatch(MediaStreamAction.setMediaEnabledByDefault(false))

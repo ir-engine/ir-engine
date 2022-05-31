@@ -1,101 +1,119 @@
 import { store } from '@xrengine/client-core/src/store'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
 
+import { CommandFuncType, CommandParams, SelectionCommands } from '../constants/EditorCommands'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { serializeObject3DArray } from '../functions/debug'
 import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
-import Command, { CommandParams } from './Command'
 
-export default class ReplaceSelectionCommand extends Command {
-  constructor(objects: EntityTreeNode[], params: CommandParams) {
-    super(objects, params)
+export type ReplaceSelectionCommandUndoParams = {
+  selection: Entity[]
+}
 
-    if (this.keepHistory) this.oldSelection = accessSelectionState().selectedEntities.value.slice(0)
+export type ReplaceSelectionCommandParams = CommandParams & {
+  type: SelectionCommands.REPLACE_SELECTION
+  undo?: ReplaceSelectionCommandUndoParams
+}
+
+function prepare(command: ReplaceSelectionCommandParams) {
+  if (command.keepHistory) {
+    command.undo = { selection: accessSelectionState().selectedEntities.value.slice(0) }
   }
+}
 
-  execute() {
-    this.emitBeforeExecuteEvent()
-    this.replaceSelection(this.affectedObjects)
-    this.emitAfterExecuteEvent()
-  }
+function execute(command: ReplaceSelectionCommandParams) {
+  emitEventBefore(command)
+  replaceSelection(command, false)
+  emitEventAfter(command)
+}
 
-  undo() {
-    if (!this.oldSelection) return
+function undo(command: ReplaceSelectionCommandParams) {
+  emitEventBefore(command)
+  replaceSelection(command, true)
+  emitEventAfter(command)
+}
 
-    this.emitBeforeExecuteEvent()
-    this.replaceSelection(getEntityNodeArrayFromEntities(this.oldSelection))
-    this.emitAfterExecuteEvent()
-  }
+function emitEventBefore(command: ReplaceSelectionCommandParams) {
+  if (command.preventEvents) return
 
-  toString() {
-    return `SelectMultipleCommand id: ${this.id} objects: ${serializeObject3DArray(this.affectedObjects)}`
-  }
+  cancelGrabOrPlacement()
+  store.dispatch(SelectionAction.changedBeforeSelection())
+}
 
-  emitAfterExecuteEvent() {
-    if (this.shouldEmitEvent) {
-      updateOutlinePassSelection()
-    }
-  }
+function emitEventAfter(command: ReplaceSelectionCommandParams) {
+  if (command.preventEvents) return
+  updateOutlinePassSelection()
+}
 
-  emitBeforeExecuteEvent() {
-    if (this.shouldEmitEvent) {
-      cancelGrabOrPlacement()
-      store.dispatch(SelectionAction.changedBeforeSelection())
-    }
-  }
+function replaceSelection(command: ReplaceSelectionCommandParams, isUndo: boolean): void {
+  // Check whether selection is changed or not
+  const nodes = isUndo && command.undo ? getEntityNodeArrayFromEntities(command.undo.selection) : command.affectedNodes
+  const selectedEntities = accessSelectionState().selectedEntities.value
 
-  replaceSelection(objects: EntityTreeNode[]): void {
-    // Check whether selection is changed or not
-    const selectedEntities = accessSelectionState().selectedEntities.value.slice(0)
+  if (
+    !isSelectionChanged(
+      selectedEntities,
+      nodes.map((n) => n.entity)
+    )
+  )
+    return
 
-    if (objects.length === selectedEntities.length) {
-      let isSame = true
+  // Fire deselect event for old objects
+  for (let i = 0; i < selectedEntities.length; i++) {
+    const entity = selectedEntities[i]
+    let includes = false
 
-      for (let i = 0; i < objects.length; i++) {
-        if (!selectedEntities.includes(objects[i].entity)) {
-          isSame = false
-          break
-        }
-      }
-
-      if (isSame) return
-    }
-
-    // Fire deselect event for old objects
-    for (let i = 0; i < selectedEntities.length; i++) {
-      const entity = selectedEntities[i]
-      let includes = false
-
-      for (const object of objects) {
-        if (object.entity === entity) {
-          includes = true
-          break
-        }
-      }
-
-      if (!includes) {
-        removeComponent(entity, SelectTagComponent)
+    for (const node of nodes) {
+      if (node.entity === entity) {
+        includes = true
+        break
       }
     }
 
-    const newlySelectedEntities = [] as Entity[]
-
-    // Replace selection with new objects and fire select event
-    for (let i = 0; i < objects.length; i++) {
-      const object = objects[i]
-
-      newlySelectedEntities.push(object.entity)
-
-      if (!hasComponent(object.entity, SelectTagComponent)) {
-        addComponent(object.entity, SelectTagComponent, {})
-      }
+    if (!includes) {
+      removeComponent(entity, SelectTagComponent)
     }
-
-    store.dispatch(SelectionAction.updateSelection(newlySelectedEntities))
   }
+
+  const newlySelectedEntities = [] as Entity[]
+
+  // Replace selection with new objects and fire select event
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i]
+
+    newlySelectedEntities.push(node.entity)
+
+    if (!hasComponent(node.entity, SelectTagComponent)) {
+      addComponent(node.entity, SelectTagComponent, {})
+    }
+  }
+
+  store.dispatch(SelectionAction.updateSelection(newlySelectedEntities))
+}
+
+function toString(command: ReplaceSelectionCommandParams) {
+  return `SelectMultipleCommand id: ${command.id} objects: ${serializeObject3DArray(command.affectedNodes)}`
+}
+
+function isSelectionChanged(oldSelection: Entity[], newSelection: Entity[]) {
+  if (newSelection.length !== oldSelection.length) return true
+
+  for (let i = 0; i < newSelection.length; i++) {
+    if (!oldSelection.includes(newSelection[i])) return true
+  }
+
+  return false
+}
+
+export const ReplaceSelectionCommand: CommandFuncType = {
+  prepare,
+  execute,
+  undo,
+  emitEventAfter,
+  emitEventBefore,
+  toString
 }

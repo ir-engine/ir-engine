@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { User } from '@xrengine/common/src/interfaces/User'
 
-import { AlertService } from '../../common/services/AlertService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 
@@ -44,9 +44,9 @@ export const SingleUserService = {
     try {
       const result = await client.service('user').get(id)
       dispatch(SingleUserAction.fetchedSingleUser(result))
-    } catch (error) {
-      console.error(error)
-      AlertService.dispatchAlertError(error.message)
+    } catch (err) {
+      console.log(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   refetchSingleUserAdmin: async () => {}

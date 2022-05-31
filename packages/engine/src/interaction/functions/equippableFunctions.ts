@@ -34,14 +34,13 @@ export const unequipEntity = (equipperEntity: Entity): void => {
 
 const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
   const world = Engine.instance.currentWorld
-  if (Engine.instance.userId === world.hostId) return
+  if (Engine.instance.userId === world.worldNetwork.hostId) return
 
   const equippedComponent = getComponent(equippedEntity, EquippedComponent)
   const attachmentPoint = equippedComponent.attachmentPoint
   const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
 
   dispatchAction(
-    world.store,
     NetworkWorldAction.setEquippedObject({
       object: {
         ownerId: networkComponet.ownerId,
@@ -49,7 +48,8 @@ const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
       },
       attachmentPoint: attachmentPoint,
       equip: equip
-    })
+    }),
+    [Engine.instance.currentWorld.worldNetwork.hostId]
   )
 }
 

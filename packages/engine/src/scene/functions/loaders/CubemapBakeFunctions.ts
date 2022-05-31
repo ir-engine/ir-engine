@@ -40,7 +40,7 @@ export const SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES = {
     bakePositionOffset: { x: 0, y: 0, z: 0 },
     bakeScale: { x: 1, y: 1, z: 1 },
     bakeType: CubemapBakeTypes.Baked,
-    resolution: 1024,
+    resolution: 2048,
     refreshMode: CubemapBakeRefreshTypes.OnAwake,
     envMapOrigin: '',
     boxProjection: true
@@ -51,14 +51,14 @@ export const deserializeCubemapBake: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<CubemapBakeComponentType>
 ) => {
-  const obj3d = new Object3D()
-  addComponent(entity, Object3DComponent, { value: obj3d })
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CUBEMAP_BAKE)
-
-  if (!Engine.instance.isEditor) return
-
   const props = parseCubemapBakeProperties(json.props)
   addComponent(entity, CubemapBakeComponent, props)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CUBEMAP_BAKE)
+
+  if (!Engine.instance.isEditor || entity === Engine.instance.currentWorld.entityTree.rootNode.entity) return
+
+  const obj3d = new Object3D()
+  addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, PreventBakeTagComponent, {})
 
   obj3d.userData.centerBall = new Mesh(

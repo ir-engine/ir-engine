@@ -39,7 +39,7 @@ export const serializeWorld = (entityTreeNode?: EntityTreeNode, generateNewUUID 
       if (entityNode?.components) {
         entityNode.components.forEach((comp) => {
           let data = world.sceneLoadingRegistry.get(comp)?.serialize(node.entity)
-          if (data) entityJson.components.push(data)
+          if (data) entityJson.components.push(JSON.parse(JSON.stringify(data)))
         })
       }
 

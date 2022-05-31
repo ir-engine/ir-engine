@@ -1,93 +1,71 @@
 import { AnimationAction, Vector3 } from 'three'
 
-export class AnimationStateTransitionRule {
-  // TODO: Should move the next state value somewhere else
-  // Probably to animation graph
-  nextState: string
+export type AnimationStateTransitionRule = () => boolean
 
-  constructor(nextState: string) {
-    this.nextState = nextState
-  }
-
-  canEnterTransition(): boolean {
-    return false
-  }
+export function booleanTransitionRule(
+  object: any,
+  property: string,
+  negate: boolean = false
+): AnimationStateTransitionRule {
+  if (negate) return () => !object[property]
+  return () => object[property]
 }
 
-// Combines multiple transition rules into one
-export class CompositeTransitionRule extends AnimationStateTransitionRule {
-  rules: AnimationStateTransitionRule[]
-  operator: boolean // True === and
+export function animationTimeTransitionRule(
+  action: AnimationAction,
+  threshold: number,
+  lowerThan: boolean = false
+): AnimationStateTransitionRule {
+  if (lowerThan) return () => action.time / action.getClip().duration <= threshold
+  return () => action.time / action.getClip().duration >= threshold
+}
 
-  constructor(nextState: string, operator: 'and' | 'or', ...rules: AnimationStateTransitionRule[]) {
-    super(nextState)
-    this.rules = rules
-    this.operator = operator === 'and'
+export function vectorLengthTransitionRule(
+  value: Vector3,
+  threshold: number,
+  lowerThan: boolean = false,
+  exact: boolean = false
+): AnimationStateTransitionRule {
+  if (exact) {
+    if (lowerThan) return () => value.length() <= threshold
+    return () => value.length() >= threshold
   }
 
-  canEnterTransition(): boolean {
-    let result = false
+  if (lowerThan) return () => value.lengthSq() <= threshold
+  return () => value.lengthSq() >= threshold
+}
 
-    for (const rule of this.rules) {
-      result = rule.canEnterTransition()
-
-      if (this.operator) {
+export function compositeTransitionRule(
+  rules: AnimationStateTransitionRule[],
+  operator: 'and' | 'or'
+): AnimationStateTransitionRule {
+  if (operator === 'and')
+    return () => {
+      let result = false
+      for (const rle of rules) {
+        result = rle()
         if (!result) break
-      } else if (result) {
-        break
       }
+      return result
     }
 
+  return () => {
+    let result = false
+    for (const rle of rules) {
+      result = rle()
+      if (result) break
+    }
     return result
   }
 }
 
-// Allows state transition based on an object's property
-export class BooleanTransitionRule extends AnimationStateTransitionRule {
-  object: any
-  property: string
-  negate: boolean
-
-  constructor(nextState: string, object: any, property: string, negate: boolean = false) {
-    super(nextState)
-    this.object = object
-    this.property = property
-    this.negate = negate
-  }
-  canEnterTransition(): boolean {
-    const value = this.object[this.property]
-    return this.negate ? !value : value
-  }
-}
-
-// Allows state transition if animation time is past certain percentage
-export class AnimationTimeTransitionRule extends AnimationStateTransitionRule {
-  action: AnimationAction
-  threshold: number
-
-  constructor(nextState: string, action: AnimationAction, threshold: number = 0.9) {
-    super(nextState)
-    this.action = action
-    this.threshold = threshold
-  }
-
-  canEnterTransition(): boolean {
-    const ratio = this.action.time / this.action.getClip().duration
-    return ratio > this.threshold
-  }
-}
-
-export class VectorLengthTransitionRule extends AnimationStateTransitionRule {
-  velocity: Vector3
-  threshold: number
-
-  constructor(nextState: string, velocity: Vector3, threshold: number = 0.001) {
-    super(nextState)
-    this.velocity = velocity
-    this.threshold = threshold
-  }
-
-  canEnterTransition(): boolean {
-    return this.velocity.lengthSq() >= this.threshold
-  }
+// Allows state transition based on an object's numerical property
+export function thresholdTransitionRule(
+  object: object,
+  property: string,
+  threshold: number = 0,
+  largerThan: boolean = false
+): AnimationStateTransitionRule {
+  if (largerThan) return () => object[property] > threshold
+  return () => object[property] < threshold
 }

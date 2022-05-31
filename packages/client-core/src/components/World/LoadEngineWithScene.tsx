@@ -9,15 +9,17 @@ import { LocationService } from '@xrengine/client-core/src/social/services/Locat
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { SceneAction, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
+import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppAction, GeneralStateList } from '../../common/services/AppService'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { initClient, loadScene } from './LocationLoadHelper'
+
+const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const LoadEngineWithScene = () => {
   const history = useHistory()
@@ -50,7 +52,7 @@ export const LoadEngineWithScene = () => {
     if (engineState.joinedWorld.value) {
       if (engineState.isTeleporting.value) {
         // if we are coming from another scene, reset our teleporting status
-        dispatchAction(Engine.instance.store, EngineActions.setTeleporting({ isTeleporting: false }))
+        dispatchAction(EngineActions.setTeleporting({ isTeleporting: false }))
       } else {
         dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
         dispatch(AppAction.setAppLoaded(true))
@@ -71,7 +73,7 @@ export const LoadEngineWithScene = () => {
       //   return
       // }
 
-      console.log('reseting connection for portal teleport')
+      logger.info('Resetting connection for portal teleport.')
 
       const world = Engine.instance.currentWorld
 
@@ -80,8 +82,8 @@ export const LoadEngineWithScene = () => {
       LocationService.getLocationByName(world.activePortal.location)
 
       // shut down connection with existing GS
-      leave(Network.instance.getTransport('world') as SocketWebRTCClientTransport)
-      dispatch(LocationInstanceConnectionAction.disconnect(instanceConnectionState.currentInstanceId.value!))
+      leave(Engine.instance.currentWorld.networks.get(world.worldNetwork.hostId) as SocketWebRTCClientNetwork)
+      dispatch(LocationInstanceConnectionAction.disconnect(Engine.instance.currentWorld.worldNetwork?.hostId))
 
       teleportToScene()
     }

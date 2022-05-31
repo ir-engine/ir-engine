@@ -4,7 +4,7 @@ import { createState, useState } from '@speigg/hookstate'
 import { Location, LocationSeed } from '@xrengine/common/src/interfaces/Location'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-import { AlertService } from '../../common/services/AlertService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 
@@ -95,7 +95,7 @@ export const LocationService = {
       const location = await client.service('location').get(locationId)
       dispatch(LocationAction.socialLocationRetrieved(location))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   getLocationByName: async (locationName: string) => {
@@ -137,7 +137,7 @@ export const LocationService = {
       })
       dispatch(LocationAction.socialLocationBanCreated())
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }

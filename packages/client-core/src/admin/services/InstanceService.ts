@@ -6,7 +6,7 @@ import { matches, Validator } from '@xrengine/engine/src/common/functions/Matche
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { addActionReceptor, defineAction, defineState, dispatchAction, getState, registerState } from '@xrengine/hyperflux'
 
-import { AlertService } from '../../common/services/AlertService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { accessAuthState } from '../../user/services/AuthService'
 
@@ -85,7 +85,7 @@ export const InstanceService = {
         dispatchAction(Engine.instance.store, AdminInstanceAction.instancesRetrievedAction({ instanceResult: instances }))
       }
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeInstance: async (id: string) => {

@@ -9,6 +9,7 @@ import swagger from 'feathers-swagger'
 import sync from 'feathers-sync'
 import helmet from 'helmet'
 import path from 'path'
+import { Socket } from 'socket.io'
 
 import { pipe } from '@xrengine/common/src/utils/pipe'
 import { Application } from '@xrengine/server-core/declarations'
@@ -18,7 +19,7 @@ import sequelize from '@xrengine/server-core/src/sequelize'
 import services from '@xrengine/server-core/src/services'
 import authentication from '@xrengine/server-core/src/user/authentication'
 
-import { createDefaultStorageProvider } from './media/storageprovider/storageprovider'
+import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 
 export const configureOpenAPI = () => (app: Application) => {
   app.configure(
@@ -49,7 +50,7 @@ export const configureOpenAPI = () => (app: Application) => {
 }
 
 export const configureSocketIO =
-  (gameserver = false, onSocketIO = (app: Application) => {}) =>
+  (gameserver = false, onSocket = (app: Application, socket: Socket) => {}) =>
   (app: Application) => {
     const origin = [
       'https://' + config.server.clientHost,
@@ -70,10 +71,10 @@ export const configureSocketIO =
           }
         },
         (io) => {
-          onSocketIO(app)
           io.use((socket, next) => {
             ;(socket as any).feathers.socketQuery = socket.handshake.query
             ;(socket as any).socketQuery = socket.handshake.query
+            onSocket(app, socket)
             next()
           })
         }
@@ -118,6 +119,10 @@ export const serverPipe = pipe(configureOpenAPI(), configureSocketIO(), configur
 
 export const createFeathersExpressApp = (configurationPipe = serverPipe): Application => {
   createDefaultStorageProvider()
+
+  if (config.ipfs.enabled) {
+    createIPFSStorageProvider()
+  }
 
   const app = express(feathers()) as Application
   app.set('nextReadyEmitter', new EventEmitter())
