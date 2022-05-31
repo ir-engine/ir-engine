@@ -1,14 +1,17 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { AvatarSettings, updateMap } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
+import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import {
   AvatarInputSettingsAction,
   useAvatarInputSettingsState
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -41,14 +44,14 @@ const SettingMenu = (): JSX.Element => {
   const rendererState = useEngineRendererState()
   const audioState = useAudioState()
   const avatarInputState = useAvatarInputSettingsState()
-
+  const user = useAuthState().user
   const [controlTypeSelected, setControlType] = useState(avatarInputState.controlType.value)
   const [controlSchemeSelected, setControlScheme] = useState(
     AvatarMovementScheme[AvatarSettings.instance.movementScheme]
   )
 
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
-  const showAvatar = avatarInputState.invertRotationAndMoveSticks.value
+  const showAvatar = avatarInputState.showAvatar.value
   const firstRender = useRef(true)
   const engineState = useEngineState()
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
@@ -56,12 +59,25 @@ const SettingMenu = (): JSX.Element => {
   const [open, setOpen] = useState(false)
 
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatchAction(Engine.instance.store, AvatarInputSettingsAction.setInvertRotationAndMoveSticks(!showAvatar))
+    dispatchAction(AvatarInputSettingsAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks))
   }
 
   const handleChangeShowAvatar = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // To Do Dispatch action
+    dispatchAction(AvatarInputSettingsAction.setShowAvatar(!showAvatar))
   }
+
+  useEffect(() => {
+    const world = Engine.instance.currentWorld
+    const entity = world.getUserAvatarEntity(user.id.value)
+    const avatar = getComponent(entity, AvatarComponent)
+    if (showAvatar) {
+      if (avatar.modelContainer.visible) return
+      avatar.modelContainer.visible = showAvatar
+    } else {
+      if (!avatar.modelContainer.visible) return
+      avatar.modelContainer.visible = showAvatar
+    }
+  }, [showAvatar])
 
   useLayoutEffect(() => {
     if (firstRender.current) {
