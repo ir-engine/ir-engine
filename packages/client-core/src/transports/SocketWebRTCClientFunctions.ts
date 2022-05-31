@@ -17,7 +17,7 @@ import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { LocationInstanceConnectionAction } from '../common/services/LocationInstanceConnectionService'
 import {
   accessMediaInstanceConnectionState,
-  MediaLocationInstanceConnectionAction
+  MediaInstanceConnectionAction
 } from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
 import { MediaStreamAction, MediaStreamService } from '../media/services/MediaStreamService'
@@ -48,7 +48,7 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
     dispatch(LocationInstanceConnectionAction.instanceServerConnected(network.hostId))
     dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected())
   } else {
-    dispatch(MediaLocationInstanceConnectionAction.serverConnected(network.hostId))
+    dispatch(MediaInstanceConnectionAction.serverConnected(network.hostId))
     dispatchAction(NetworkConnectionService.actions.mediaInstanceReconnected())
   }
 
@@ -171,7 +171,7 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   network.socket.on(MessageTypes.Kick.toString(), async (message) => {
     // console.log("TODO: SNACKBAR HERE");
     await endVideoChat(network, { endConsumers: true })
-    await leave(network, true)
+    await leaveNetwork(network, true)
     dispatchAction(NetworkConnectionService.actions.worldInstanceKicked({ message }))
     console.log('Client has been kicked from the world')
   })
@@ -863,7 +863,7 @@ export async function closeConsumer(transport: SocketWebRTCClientNetwork, consum
   })
 }
 
-export async function leave(network: SocketWebRTCClientNetwork, kicked?: boolean) {
+export async function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolean) {
   try {
     network.leaving = true
     const socket = network.socket
@@ -904,6 +904,13 @@ export async function leave(network: SocketWebRTCClientNetwork, kicked?: boolean
       MediaStreams.instance.audioStream = null!
       MediaStreams.instance.localScreen = null
       MediaStreams.instance.consumers = []
+      Engine.instance.currentWorld.networks.delete(Engine.instance.currentWorld.mediaNetwork.hostId)
+      Engine.instance.currentWorld._mediaHostId = null!
+      store.dispatch(LocationInstanceConnectionAction.disconnect(Engine.instance.currentWorld.worldNetwork.hostId))
+    } else {
+      Engine.instance.currentWorld.networks.delete(Engine.instance.currentWorld.worldNetwork.hostId)
+      Engine.instance.currentWorld._worldHostId = null!
+      store.dispatch(MediaInstanceConnectionAction.disconnect(Engine.instance.currentWorld.worldNetwork.hostId))
     }
   } catch (err) {
     console.log('Error with leave()')

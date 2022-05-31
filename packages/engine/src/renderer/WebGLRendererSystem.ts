@@ -157,6 +157,11 @@ export class EngineRenderer {
     this.effectComposer = new EffectComposer(this.renderer) as any
   }
 
+  resetScene() {
+    this.directionalLightEntities = []
+    this.activeCSMLightEntity = null!
+  }
+
   /** Called on resize, sets resize flag. */
   onResize(): void {
     this.needsResize = true
