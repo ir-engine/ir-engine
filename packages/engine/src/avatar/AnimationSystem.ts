@@ -1,8 +1,8 @@
 import { Bone, Euler, Vector3 } from 'three'
-import matches from 'ts-matches'
 
-import { addActionReceptor } from '@xrengine/hyperflux'
+import { createActionQueue } from '@xrengine/hyperflux'
 
+import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
@@ -34,26 +34,30 @@ const animationQuery = defineQuery([AnimationComponent])
 const forward = new Vector3()
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
 
-export default async function AnimationSystem(world: World) {
-  function animationActionReceptor(action) {
-    matches(action).when(NetworkWorldAction.avatarAnimation.matches, ({ $from }) => {
-      const avatarEntity = world.getUserAvatarEntity($from)
-      if (isEntityLocalClient(avatarEntity)) return // Only run on other clients
+export function animationActionReceptor(
+  action: ReturnType<typeof NetworkWorldAction.avatarAnimation>,
+  world = Engine.instance.currentWorld
+) {
+  const avatarEntity = world.getUserAvatarEntity(action.$from)
+  if (isEntityLocalClient(avatarEntity)) return // Only run on other clients
 
-      const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
-      if (!networkObject) {
-        return console.warn(`Avatar Entity for user id ${$from} does not exist! You should probably reconnect...`)
-      }
-
-      changeAvatarAnimationState(avatarEntity, action.newStateName)
-    })
+  const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
+  if (!networkObject) {
+    return console.warn(`Avatar Entity for user id ${action.$from} does not exist! You should probably reconnect...`)
   }
-  addActionReceptor(world.store, animationActionReceptor)
+
+  changeAvatarAnimationState(avatarEntity, action.newStateName)
+}
+
+export default async function AnimationSystem(world: World) {
+  const avatarAnimationQueue = createActionQueue(NetworkWorldAction.avatarAnimation.matches)
 
   await AnimationManager.instance.loadDefaultAnimations()
 
   return () => {
     const { deltaSeconds: delta } = world
+
+    for (const action of avatarAnimationQueue()) animationActionReceptor(action, world)
 
     for (const entity of desiredTransformQuery(world)) {
       const desiredTransform = getComponent(entity, DesiredTransformComponent)

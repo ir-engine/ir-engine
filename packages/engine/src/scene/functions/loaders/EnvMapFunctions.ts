@@ -142,7 +142,7 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity, properties
           SceneOptions.instance.bpcemOptions.bakePositionOffset = options.bakePositionOffset!
         }
 
-        matchActionOnce(Engine.instance.store, EngineActions.sceneLoaded.matches, () => {
+        matchActionOnce(EngineActions.sceneLoaded.matches, () => {
           switch (options.bakeType) {
             case CubemapBakeTypes.Baked:
               const texture = AssetLoader.Cache.get(options.envMapOrigin)

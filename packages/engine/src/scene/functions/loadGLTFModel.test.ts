@@ -1,6 +1,7 @@
 import assert from 'assert'
 import { Group, Layers, Mesh, Quaternion, Scene, Vector3 } from 'three'
 
+import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, createMappedComponent, defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -14,6 +15,7 @@ import { parseGLTFModel } from './loadGLTFModel'
 describe('loadGLTFModel', () => {
   beforeEach(() => {
     createEngine()
+    createMockNetwork()
   })
 
   // TODO: - this needs to be broken down and more comprehensive

@@ -515,16 +515,13 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
   if (inputValue.lifecycleState !== LifecycleValue.Ended) return
   if (inputKey === PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE) {
     dispatchAction(
-      Engine.instance.currentWorld.store,
       NetworkWorldAction.spawnDebugPhysicsObject({
         config: boxDynamicConfig // Any custom config can be provided here
-      })
+      }),
+      [Engine.instance.currentWorld.worldNetwork.hostId]
     )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
-    dispatchAction(
-      Engine.instance.store,
-      EngineRendererAction.setPhysicsDebug(!accessEngineRendererState().physicsDebugEnable.value)
-    )
+    dispatchAction(EngineRendererAction.setPhysicsDebug(!accessEngineRendererState().physicsDebugEnable.value))
   }
 }
 

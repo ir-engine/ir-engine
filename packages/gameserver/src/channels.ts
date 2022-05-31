@@ -5,7 +5,8 @@ import '@feathersjs/transport-commons'
 import { decode } from 'jsonwebtoken'
 
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
-import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
+import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -18,6 +19,7 @@ import {
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
@@ -28,6 +30,8 @@ import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
 import multiLogger from '@xrengine/server-core/src/logger'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
+
+import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
 
 const logger = multiLogger.child({ component: 'gameserver:channels' })
 
@@ -62,64 +66,23 @@ type InstanceMetadata = {
   ipAddress: string
 }
 
-const loadScene = async (app: Application, scene: string) => {
-  const [projectName, sceneName] = scene.split('/')
-  // const sceneRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
-
-  const isInitialized = getEngineState().isEngineInitialized.value
-
-  const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
-
-  if (!isInitialized) {
-    const projectsPromise = app.service('project').find(null!)
-
-    await initializeCoreSystems()
-    await initializeRealtimeSystems(false, true)
-    await initializeSceneSystems()
-
-    Engine.instance.publicPath = config.client.url
-    const world = Engine.instance.currentWorld
-    const projects = (await projectsPromise).data.map((project) => project.name)
-    await loadEngineInjection(world, projects)
-
-    const userId = 'world' as UserId
-    Engine.instance.userId = userId
-    const hostIndex = world.userIndexCount++
-    world.clients.set(userId, { userId, name: 'world', index: hostIndex, lastSeenTs: Date.now() })
-    world.userIdToUserIndex.set(userId, hostIndex)
-    world.userIndexToUserId.set(hostIndex, userId)
-  }
-
-  const sceneData = (await sceneResultPromise).data.scene as any // SceneData
-  const sceneSystems = getSystemsFromSceneData(projectName, sceneData, false)
-  await loadSceneFromJSON(sceneData, sceneSystems)
-
-  logger.info('Scene loaded!')
-  dispatchAction(Engine.instance.store, EngineActions.joinedWorld())
-
-  // const portals = getAllComponentsOfType(PortalComponent)
-  // await Promise.all(
-  //   portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
-  //     return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
-  //       if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
-  //     })
-  //   })
-  // )
-}
-
+/**
+ * Creates a new 'instance' entry based on a locationId or channelId
+ * If it is a location instance, creates a 'channel' entry
+ * @param app
+ * @param newInstance
+ */
 const createNewInstance = async (app: Application, newInstance: InstanceMetadata) => {
   const { locationId, channelId } = newInstance
 
-  if (channelId) {
-    logger.info('channelId: ' + channelId)
-    newInstance.channelId = channelId
-  } else {
-    logger.info('locationId: ' + locationId)
-    newInstance.locationId = locationId
+  logger.info('Creating new instance: %o', newInstance, locationId, channelId)
+  const instanceResult = (await app.service('instance').create(newInstance)) as Instance
+  if (!channelId) {
+    await app.service('channel').create({
+      channelType: 'instance',
+      instanceId: instanceResult.id
+    })
   }
-
-  logger.info('Creating new instance: %o', newInstance)
-  const instanceResult = (await app.service('instance').create(newInstance)) as InstanceInterface
   await app.agonesSDK.allocate()
   app.instance = instanceResult
 
@@ -139,10 +102,17 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
   }
 }
 
+/**
+ * Updates the existing 'instance' table entry
+ * @param app
+ * @param existingInstance
+ * @param channelId
+ * @param locationId
+ */
+
 const assignExistingInstance = async (app: Application, existingInstance, channelId: string, locationId: string) => {
   await app.agonesSDK.allocate()
   app.instance = existingInstance
-
   await app.service('instance').patch(existingInstance.id, {
     currentUsers: existingInstance.currentUsers + 1,
     channelId: channelId,
@@ -168,14 +138,27 @@ const assignExistingInstance = async (app: Application, existingInstance, channe
   }
 }
 
-const handleInstance = async (
+/**
+ * Creates a new instance by either creating a new entry in the 'instance' table or updating an existing one
+ * - Should only initialize an instance once per the lifecycle of an instance server
+ * @param app
+ * @param status
+ * @param locationId
+ * @param channelId
+ * @param userId
+ * @returns
+ */
+
+const initializeInstance = async (
   app: Application,
   status: GameserverStatus,
   locationId: string,
   channelId: string,
   userId: UserId
 ) => {
-  logger.info('Initialized new gameserver instance.')
+  logger.info('Initialized new instance')
+
+  app.isChannelInstance = !!channelId
 
   const localIp = await getLocalServerIp(app.isChannelInstance)
   const selfIpAddress = `${status.address}:${status.portsList[0].port}`
@@ -186,10 +169,17 @@ const handleInstance = async (
   } as any
   if (locationId) existingInstanceQuery.locationId = locationId
   else if (channelId) existingInstanceQuery.channelId = channelId
+
+  /**
+   * The instance record should be created when the instance is provisioned by the API server,
+   * here we check that this is the case, as it may be altered, for example by another service or an admin
+   */
+
   const existingInstanceResult = (await app.service('instance').find({
     query: existingInstanceQuery
-  })) as Paginated<InstanceInterface>
-  // logger.info('existingInstanceResult: %o', existingInstanceResult.data)
+  })) as Paginated<Instance>
+  logger.info('existingInstanceResult: %o', existingInstanceResult.data)
+
   if (existingInstanceResult.total === 0) {
     const newInstance = {
       currentUsers: 1,
@@ -201,38 +191,103 @@ const handleInstance = async (
     await createNewInstance(app, newInstance)
   } else {
     const instance = existingInstanceResult.data[0]
+    if (locationId) {
+      const user = await app.service('user').get(userId)
+      const existingChannel = (await app.service('channel').find({
+        query: {
+          channelType: 'instance',
+          instanceId: instance.id
+        },
+        'identity-provider': user['identity_providers'][0]
+      })) as Channel[]
+      if (existingChannel.length === 0) {
+        await app.service('channel').create({
+          channelType: 'instance',
+          instanceId: instance.id
+        })
+      }
+    }
     if (!authorizeUserToJoinServer(app, instance, userId)) return
     await assignExistingInstance(app, existingInstanceResult.data[0], channelId, locationId)
   }
 }
 
+/**
+ * Creates and initializes the server network and transport, then loads all systems for the engine
+ * @param app
+ * @param sceneId
+ */
+
 const loadEngine = async (app: Application, sceneId: string) => {
+  const instanceId = app.instance.id
+  Engine.instance.publicPath = config.client.url
+  Engine.instance.userId = instanceId
+  const world = Engine.instance.currentWorld
+
+  app.transport = new SocketWebRTCServerNetwork(instanceId, app)
+  const initPromise = app.transport.initialize()
+
+  world.networks.set(instanceId, app.transport)
+
+  const hostIndex = world.userIndexCount++
+  world.clients.set(instanceId, {
+    userId: instanceId,
+    name: 'server-' + instanceId,
+    index: hostIndex,
+    lastSeenTs: Date.now()
+  })
+  world.userIdToUserIndex.set(instanceId, hostIndex)
+  world.userIndexToUserId.set(hostIndex, instanceId)
+
   if (app.isChannelInstance) {
-    const userId = 'media' as UserId
-    Network.instance.transports.set(userId, app.transport)
-    Engine.instance.publicPath = config.client.url
-    Engine.instance.userId = userId
-    const world = Engine.instance.currentWorld
-    world.hostId = userId
+    world._mediaHostId = instanceId as UserId
     await initializeMediaServerSystems()
     await initializeRealtimeSystems(true, false)
     const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
     await loadEngineInjection(world, projects)
-
-    const hostIndex = world.userIndexCount++
-    world.clients.set(userId, { userId, name: userId, index: hostIndex, lastSeenTs: Date.now() })
-    world.userIdToUserIndex.set(userId, hostIndex)
-    world.userIndexToUserId.set(hostIndex, userId)
-
-    dispatchAction(Engine.instance.store, EngineActions.sceneLoaded())
-    dispatchAction(Engine.instance.store, EngineActions.joinedWorld())
+    dispatchAction(EngineActions.sceneLoaded())
   } else {
-    Network.instance.transports.set('world' as UserId, app.transport)
-    await loadScene(app, sceneId)
+    world._worldHostId = instanceId as UserId
+
+    const [projectName, sceneName] = sceneId.split('/')
+
+    const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
+    const projectsPromise = app.service('project').find(null!)
+
+    await initializeCoreSystems()
+    await initializeRealtimeSystems(false, true)
+    await initializeSceneSystems()
+
+    const projects = (await projectsPromise).data.map((project) => project.name)
+    await loadEngineInjection(world, projects)
+
+    const sceneData = (await sceneResultPromise).data.scene as any // SceneData
+    const sceneSystems = getSystemsFromSceneData(projectName, sceneData, false)
+    await loadSceneFromJSON(sceneData, sceneSystems)
+
+    logger.info('Scene loaded!')
+
+    // const portals = getAllComponentsOfType(PortalComponent)
+    // await Promise.all(
+    //   portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
+    //     return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
+    //       if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
+    //     })
+    //   })
+    // )
   }
+  await initPromise
+  dispatchAction(EngineActions.joinedWorld())
 }
 
-const authorizeUserToJoinServer = async (app: Application, instance, userId: UserId) => {
+/**
+ * Returns true if a user has permission to access a specific instance
+ * @param app
+ * @param instance
+ * @param userId
+ * @returns
+ */
+const authorizeUserToJoinServer = async (app: Application, instance: Instance, userId: UserId) => {
   const authorizedUsers = (await app.service('instance-authorized-user').find({
     query: {
       instanceId: instance.id,
@@ -254,6 +309,17 @@ const authorizeUserToJoinServer = async (app: Application, instance, userId: Use
   }
   return true
 }
+
+/**
+ * Puts a message into the message channel that the connecting user has joined the layer.
+ * If the user is in a party and the party instance id has changed, notify the other users
+ * @param app
+ * @param userId
+ * @param status
+ * @param locationId
+ * @param channelId
+ * @param sceneId
+ */
 
 const notifyWorldAndPartiesUserHasJoined = async (
   app: Application,
@@ -313,6 +379,12 @@ const notifyWorldAndPartiesUserHasJoined = async (
   }
 }
 
+/**
+ * Update instance attendance with the new user for analytics purposes
+ * @param app
+ * @param userId
+ */
+
 const handleUserAttendance = async (app: Application, userId: UserId) => {
   const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
   logger.info(`Patching user ${userId} ${instanceIdKey} to ${app.instance.id}`)
@@ -345,8 +417,19 @@ const handleUserAttendance = async (app: Application, userId: UserId) => {
   await app.service('instance-attendance').create(newInstanceAttendance)
 }
 
-let engineStarted = false
-const loadGameserver = async (
+let instanceStarted = false
+
+/**
+ * Creates a new 'instance' entry or updates the current one with a connecting user, and handles initializing the instance server
+ * @param app
+ * @param status
+ * @param locationId
+ * @param channelId
+ * @param sceneId
+ * @param userId
+ * @returns
+ */
+const createOrUpdateInstance = async (
   app: Application,
   status: GameserverStatus,
   locationId: string,
@@ -354,41 +437,23 @@ const loadGameserver = async (
   sceneId: string,
   userId: UserId
 ) => {
-  app.isChannelInstance = channelId != null
-
-  logger.info('Creating new gameserver or updating current one.')
+  logger.info('Creating new instance server or updating current one.')
   logger.info('agones state is %o', status.state)
   logger.info('app instance is %o', app.instance)
   logger.info({ instanceLocationId: app.instance?.locationId, locationId })
 
-  /**
-   * Since local environments do not have the ability to run multiple gameservers,
-   * we need to shut down the current one if the user tries to load a new location
-   */
-  const isLocalServerNeedingNewLocation =
-    !config.kubernetes.enabled && app.instance && app.instance.locationId != locationId
-
-  if (isLocalServerNeedingNewLocation) {
-    app.restart()
-    return
-  }
-
   const isReady = status.state === 'Ready'
-  const isNeedingNewServer =
-    !config.kubernetes.enabled &&
-    (status.state === 'Shutdown' ||
-      app.instance == null ||
-      app.instance.locationId !== locationId ||
-      app.instance.channelId !== channelId)
+  const isNeedingNewServer = !config.kubernetes.enabled && !instanceStarted
 
   if (isReady || isNeedingNewServer) {
-    await handleInstance(app, status, locationId, channelId, userId)
-    if (!engineStarted && sceneId != null) {
-      engineStarted = true
-      await loadEngine(app, sceneId)
-    }
+    instanceStarted = true
+    await initializeInstance(app, status, locationId, channelId, userId)
+    await loadEngine(app, sceneId)
   } else {
     try {
+      if (!getEngineState().joinedWorld.value) {
+        await new Promise((resolve) => matchActionOnce(EngineActions.joinedWorld.matches, resolve))
+      }
       const instance = await app.service('instance').get(app.instance.id)
       if (!(await authorizeUserToJoinServer(app, instance, userId))) return
       await app.agonesSDK.allocate()
@@ -398,14 +463,13 @@ const loadGameserver = async (
         podName: config.kubernetes.enabled ? app.gameServer?.objectMeta?.name : 'local',
         assignedAt: null!
       })
-      return true
     } catch (err) {
       logger.info('Could not update instance, likely because it is a local one that does not exist.')
     }
   }
 }
 
-const shutdownGameserver = async (app: Application, instanceId: string) => {
+const shutdownServer = async (app: Application, instanceId: string) => {
   logger.info('Deleting instance ' + instanceId)
   try {
     await app.service('instance').patch(instanceId, {
@@ -432,8 +496,10 @@ const shutdownGameserver = async (app: Application, instanceId: string) => {
       logger.info("App's gameserver name:")
       logger.info(gsName)
     }
+    await app.agonesSDK.shutdown()
+  } else {
+    app.restart()
   }
-  await app.agonesSDK.shutdown()
 }
 
 // todo: this could be more elegant
@@ -495,7 +561,7 @@ const handleUserDisconnect = async (app: Application, connection, user, instance
 
   // count again here, as it may have changed
   const activeUsersCount = getActiveUsersCount(user)
-  if (activeUsersCount < 1) await shutdownGameserver(app, instanceId)
+  if (activeUsersCount < 1) await shutdownServer(app, instanceId)
 }
 
 const onConnection = (app: Application) => async (connection: SocketIOConnectionType) => {
@@ -511,9 +577,6 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
   if (!identityProvider?.id) return
 
   const userId = identityProvider.userId
-  logger.info(
-    `user ${userId} joining ${connection.socketQuery.locationId} with sceneId ${connection.socketQuery.sceneId}`
-  )
   let locationId = connection.socketQuery.locationId!
   let channelId = connection.socketQuery.channelId!
   const sceneId: string = connection.socketQuery.sceneId
@@ -528,10 +591,48 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
   if (channelId === '') {
     channelId = undefined!
   }
+
+  logger.info(`user ${userId} joining ${locationId ?? channelId} with sceneId ${connection.socketQuery.sceneId}`)
+
   const gsResult = await app.agonesSDK.getGameServer()
   const status = gsResult.status as GameserverStatus
 
-  await loadGameserver(app, status, locationId, channelId, sceneId, userId)
+  /**
+   * Since local environments do not have the ability to run multiple gameservers,
+   * we need to shut down the current one if the user tries to load a new location
+   */
+  const isLocalServerNeedingNewLocation =
+    !config.kubernetes.enabled &&
+    app.instance &&
+    (app.instance.locationId != locationId || app.instance.channelId != channelId)
+
+  if (isLocalServerNeedingNewLocation) {
+    app.restart()
+    return
+  }
+
+  /**
+   * If an instance has already been initialized, we want to disallow all connections trying to connect to the wrong location or channel
+   */
+  if (app.instance) {
+    if (locationId && app.instance.locationId !== locationId)
+      return logger.warn(
+        '[loadGameserver]: got a connection to the wrong location id',
+        app.instance.locationId,
+        locationId
+      )
+    if (channelId && app.instance.channelId !== channelId)
+      return logger.warn(
+        '[loadGameserver]: got a connection to the wrong channel id',
+        app.instance.channelId,
+        channelId
+      )
+  }
+
+  /**
+   * Now that we have verified the connecting user and that they are connecting to the correct instance, load the instance
+   */
+  await createOrUpdateInstance(app, status, locationId, channelId, sceneId, userId)
 
   connection.instanceId = app.instance.id
   app.channel(`instanceIds/${app.instance.id as string}`).join(connection)
@@ -617,7 +718,7 @@ export default (app: Application): void => {
       return
     }
 
-    loadGameserver(app, status, locationId, null!, sceneId, null!)
+    createOrUpdateInstance(app, status, locationId, null!, sceneId, null!)
   })
 
   app.on('connection', onConnection(app))

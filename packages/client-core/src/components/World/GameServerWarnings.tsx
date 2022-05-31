@@ -8,15 +8,16 @@ import {
 import { MediaInstanceConnectionService } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientNetwork'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import WEBGL from '@xrengine/engine/src/renderer/THREE.WebGL'
 import { addActionReceptor } from '@xrengine/hyperflux'
 
+import { NetworkConnectionService } from '../../common/services/NetworkConnectionService'
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 
 const initialModalValues: WarningRetryModalProps = {
@@ -60,9 +61,9 @@ const GameServerWarnings = () => {
   }
 
   useEffect(() => {
-    addActionReceptor(Engine.instance.store, function GameServerWarningsReceptor(action) {
+    addActionReceptor(function GameServerWarningsReceptor(action) {
       matches(action)
-        .when(SocketWebRTCClientTransport.actions.noWorldServersAvailable.matches, ({ instanceId }) => {
+        .when(NetworkConnectionService.actions.noWorldServersAvailable.matches, ({ instanceId }) => {
           setErroredInstanceId(instanceId)
           updateWarningModal(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
           setCurrentError(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
@@ -71,22 +72,22 @@ const GameServerWarnings = () => {
           updateWarningModal(WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED)
           setCurrentError(WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED)
         })
-        .when(SocketWebRTCClientTransport.actions.worldInstanceDisconnected.matches, () => {
+        .when(NetworkConnectionService.actions.worldInstanceDisconnected.matches, () => {
           updateWarningModal(WarningModalTypes.INSTANCE_DISCONNECTED)
           setCurrentError(WarningModalTypes.INSTANCE_DISCONNECTED)
         })
-        .when(SocketWebRTCClientTransport.actions.worldInstanceKicked.matches, ({ message }) => {
+        .when(NetworkConnectionService.actions.worldInstanceKicked.matches, ({ message }) => {
           updateWarningModal(WarningModalTypes.USER_KICKED, message)
           setCurrentError(WarningModalTypes.USER_KICKED)
         })
-        .when(SocketWebRTCClientTransport.actions.mediaInstanceDisconnected.matches, () => {
+        .when(NetworkConnectionService.actions.mediaInstanceDisconnected.matches, () => {
           updateWarningModal(WarningModalTypes.CHANNEL_DISCONNECTED)
           setCurrentError(WarningModalTypes.CHANNEL_DISCONNECTED)
         })
-        .when(SocketWebRTCClientTransport.actions.worldInstanceReconnected.matches, () => {
+        .when(NetworkConnectionService.actions.worldInstanceReconnected.matches, () => {
           reset(WarningModalTypes.INSTANCE_DISCONNECTED)
         })
-        .when(SocketWebRTCClientTransport.actions.mediaInstanceReconnected.matches, () => {
+        .when(NetworkConnectionService.actions.mediaInstanceReconnected.matches, () => {
           reset(WarningModalTypes.CHANNEL_DISCONNECTED)
         })
     })
@@ -143,7 +144,9 @@ const GameServerWarnings = () => {
 
       case WarningModalTypes.INSTANCE_DISCONNECTED: {
         if (!Engine.instance.userId) return
-        const transport = Network.instance.getTransport('world') as SocketWebRTCClientTransport
+        const transport = Engine.instance.currentWorld.networks.get(
+          Engine.instance.currentWorld.worldNetwork?.hostId
+        ) as SocketWebRTCClientNetwork
         if (transport.left || engineState.isTeleporting.value || transport.reconnecting) return
 
         setModalValues({
@@ -159,12 +162,12 @@ const GameServerWarnings = () => {
 
       case WarningModalTypes.CHANNEL_DISCONNECTED: {
         if (!Engine.instance.userId) return
-        const transport = Network.instance.getTransport('media') as SocketWebRTCClientTransport
+        const transport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
         if (transport.left || transport.reconnecting) return
 
         const channels = chatState.channels.channels.value
         const instanceChannel = Object.values(channels).find(
-          (channel) => channel.instanceId === instanceConnectionState.currentInstanceId.value
+          (channel) => channel.instanceId === Engine.instance.currentWorld.mediaNetwork?.hostId
         )
         setModalValues({
           open: true,
@@ -178,7 +181,9 @@ const GameServerWarnings = () => {
       }
 
       case WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED: {
-        const transport = Network.instance.getTransport('world') as SocketWebRTCClientTransport
+        const transport = Engine.instance.currentWorld.networks.get(
+          Engine.instance.currentWorld.worldNetwork?.hostId
+        ) as SocketWebRTCClientNetwork
         if (transport.left || engineState.isTeleporting.value) return
 
         setModalValues({
