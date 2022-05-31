@@ -1,10 +1,9 @@
 import { none } from '@speigg/hookstate'
 
-import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { useEngineState } from '../../ecs/classes/EngineState'
-import { World } from '../../ecs/classes/World'
+import { getEngineState } from '../../ecs/classes/EngineState'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
@@ -14,11 +13,15 @@ import { WorldNetworkAction } from './WorldNetworkAction'
 
 const removeAllNetworkClients = (removeSelf = false, world = Engine.instance.currentWorld) => {
   for (const [userId] of world.clients) {
-    destroyClientReceptor(WorldNetworkAction.destroyClient({ $from: userId }), removeSelf, world)
+    WorldNetworkActionReceptor.receiveDestroyClient(
+      WorldNetworkAction.destroyClient({ $from: userId }),
+      removeSelf,
+      world
+    )
   }
 }
 
-const createClientReceptor = (
+const receiveCreateClient = (
   action: typeof WorldNetworkAction.createClient.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
@@ -28,7 +31,7 @@ const createClientReceptor = (
 
   if (world.clients.has(action.$from))
     return console.log(
-      `[NetworkActionReceptors]: client with id ${action.$from} and name ${action.name} already exists. ignoring.`
+      `[WorldNetworkActionReceptors]: client with id ${action.$from} and name ${action.name} already exists. ignoring.`
     )
 
   world.clients.set(action.$from, {
@@ -39,22 +42,22 @@ const createClientReceptor = (
   })
 }
 
-const destroyClientReceptor = (
+const receiveDestroyClient = (
   action: typeof WorldNetworkAction.destroyClient.matches._TYPE,
   allowRemoveSelf = false,
   world = Engine.instance.currentWorld
 ) => {
   if (!world.clients.has(action.$from))
     return console.warn(
-      `[NetworkActionReceptors]: tried to remove client with userId ${action.$from} that doesn't exit`
+      `[WorldNetworkActionReceptors]: tried to remove client with userId ${action.$from} that doesn't exit`
     )
   if (!allowRemoveSelf && action.$from === Engine.instance.userId)
-    return console.warn(`[NetworkActionReceptors]: tried to remove local client`)
+    return console.warn(`[WorldNetworkActionReceptors]: tried to remove local client`)
 
   for (const eid of world.getOwnedNetworkObjects(action.$from)) {
     const { networkId } = getComponent(eid, NetworkObjectComponent)
     const destroyObjectAction = WorldNetworkAction.destroyObject({ $from: action.$from, networkId })
-    destroyObjectReceptor(destroyObjectAction, world)
+    receiveDestroyObject(destroyObjectAction, world)
   }
 
   const { index: userIndex } = world.clients.get(action.$from)!
@@ -68,7 +71,7 @@ const destroyClientReceptor = (
   }
 }
 
-const spawnObjectReceptor = (
+const receiveSpawnObject = (
   action: typeof WorldNetworkAction.spawnObject.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
@@ -84,7 +87,7 @@ const spawnObjectReceptor = (
   ) {
     const networkComponent = getComponent(world.localClientEntity, NetworkObjectComponent)
     console.log(
-      `[NetworkActionReceptors]: Successfully updated local client entity's networkId from ${networkComponent.networkId} to ${action.networkId}`
+      `[WorldNetworkActionReceptors]: Successfully updated local client entity's networkId from ${networkComponent.networkId} to ${action.networkId}`
     )
     networkComponent.networkId = action.networkId
     return
@@ -116,14 +119,14 @@ const spawnObjectReceptor = (
   })
 }
 
-const spawnDebugPhysicsObjectReceptor = (
+const receiveSpawnDebugPhysicsObject = (
   action: typeof WorldNetworkAction.spawnDebugPhysicsObject.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
   generatePhysicsObject(action.config, action.config.spawnPosition, true, action.config.spawnScale)
 }
 
-const destroyObjectReceptor = (
+const receiveDestroyObject = (
   action: ReturnType<typeof WorldNetworkAction.destroyObject>,
   world = Engine.instance.currentWorld
 ) => {
@@ -132,11 +135,12 @@ const destroyObjectReceptor = (
     return console.log(
       `Warning - tried to destroy entity belonging to ${action.$from} with ID ${action.networkId}, but it doesn't exist`
     )
-  if (entity === world.localClientEntity) return console.warn(`[NetworkActionReceptors]: tried to destroy local client`)
+  if (entity === world.localClientEntity)
+    return console.warn(`[WorldNetworkActionReceptors]: tried to destroy local client`)
   removeEntity(entity)
 }
 
-const requestAuthorityOverObjectReceptor = (
+const receiveRequestAuthorityOverObject = (
   action: typeof WorldNetworkAction.requestAuthorityOverObject.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
@@ -161,7 +165,7 @@ const requestAuthorityOverObjectReceptor = (
   )
 }
 
-const transferAuthorityOfObjectReceptor = (
+const receiveTransferAuthorityOfObject = (
   action: typeof WorldNetworkAction.transferAuthorityOfObject.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
@@ -186,7 +190,7 @@ const transferAuthorityOfObjectReceptor = (
   }
 }
 
-const setEquippedObjectReceptor = (
+const receiveSetEquippedObject = (
   action: typeof WorldNetworkAction.setEquippedObject.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
@@ -211,51 +215,22 @@ const setEquippedObjectReceptor = (
   }
 }
 
-const setUserTypingReceptor = (
+const receiveSetUserTyping = (
   action: typeof WorldNetworkAction.setUserTyping.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
-  useEngineState().usersTyping[action.$from].set(action.typing ? true : none)
-}
-
-/**
- * @author Gheric Speiginer <github.com/speigg>
- * @author Josh Field <github.com/HexaField>
- */
-const createWorldNetworkActionReceptor = (world: World) => {
-  const createClientQueue = createActionQueue(WorldNetworkAction.createClient.matches)
-  const destroyClientQueue = createActionQueue(WorldNetworkAction.destroyClient.matches)
-  const spawnObjectQueue = createActionQueue(WorldNetworkAction.spawnObject.matches)
-  const spawnDebugPhysicsObjectQueue = createActionQueue(WorldNetworkAction.spawnDebugPhysicsObject.matches)
-  const destroyObjectQueue = createActionQueue(WorldNetworkAction.destroyObject.matches)
-  const requestAuthorityOverObjectQueue = createActionQueue(WorldNetworkAction.requestAuthorityOverObject.matches)
-  const transferAuthorityOfObjectQueue = createActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
-  const setEquippedObjectQueue = createActionQueue(WorldNetworkAction.setEquippedObject.matches)
-  const setUserTypingQueue = createActionQueue(WorldNetworkAction.setUserTyping.matches)
-
-  return () => {
-    for (const action of createClientQueue()) createClientReceptor(action)
-    for (const action of destroyClientQueue()) destroyClientReceptor(action)
-    for (const action of spawnObjectQueue()) spawnObjectReceptor(action)
-    for (const action of spawnDebugPhysicsObjectQueue()) spawnDebugPhysicsObjectReceptor(action)
-    for (const action of destroyObjectQueue()) destroyObjectReceptor(action)
-    for (const action of requestAuthorityOverObjectQueue()) requestAuthorityOverObjectReceptor(action)
-    for (const action of transferAuthorityOfObjectQueue()) transferAuthorityOfObjectReceptor(action)
-    for (const action of setEquippedObjectQueue()) setEquippedObjectReceptor(action)
-    for (const action of setUserTypingQueue()) setUserTypingReceptor(action)
-  }
+  getEngineState().usersTyping[action.$from].set(action.typing ? true : none)
 }
 
 export const WorldNetworkActionReceptor = {
   removeAllNetworkClients,
-  createClientReceptor,
-  destroyClientReceptor,
-  spawnObjectReceptor,
-  spawnDebugPhysicsObjectReceptor,
-  destroyObjectReceptor,
-  requestAuthorityOverObjectReceptor,
-  transferAuthorityOfObjectReceptor,
-  setEquippedObjectReceptor,
-  setUserTypingReceptor,
-  createNetworkActionReceptor: createWorldNetworkActionReceptor
+  receiveCreateClient,
+  receiveDestroyClient,
+  receiveSpawnObject,
+  receiveSpawnDebugPhysicsObject,
+  receiveDestroyObject,
+  receiveRequestAuthorityOverObject,
+  receiveTransferAuthorityOfObject,
+  receiveSetEquippedObject,
+  receiveSetUserTyping
 }
