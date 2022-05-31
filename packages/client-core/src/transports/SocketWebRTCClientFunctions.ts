@@ -218,7 +218,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     ) {
       // that we don't already have consumers for...
       await subscribeToTrack(network as SocketWebRTCClientNetwork, socketId, mediaTag)
-      MediaStreamService.triggerUpdateNearbyLayerUsers()
+      dispatchAction(MediaStreams.actions.triggerRequestCurrentProducers())
     }
   }
 
@@ -769,7 +769,7 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
   } else await closeConsumer(network, consumer)
 
   dispatchAction(MediaStreams.actions.triggerUpdateConsumers())
-  MediaStreamService.triggerUpdateNearbyLayerUsers()
+  dispatchAction(MediaStreams.actions.triggerRequestCurrentProducers())
 }
 
 export async function unsubscribeFromTrack(transport: SocketWebRTCClientNetwork, peerId: any, mediaTag: any) {
