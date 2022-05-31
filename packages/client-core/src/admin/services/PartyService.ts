@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { Party, PatchParty } from '@xrengine/common/src/interfaces/Party'
 
-import { AlertService } from '../../common/services/AlertService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
@@ -58,7 +58,7 @@ export const PartyService = {
       const result = (await client.service('party').create(data)) as Party
       dispatch(PartyAction.partyAdminCreated(result))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   fetchAdminParty: async (value: string | null = null, skip = 0, sortField = 'location', orderBy = 'asc') => {
@@ -87,7 +87,7 @@ export const PartyService = {
         dispatch(PartyAction.partyRetrievedAction(parties))
       }
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeParty: async (id: string) => {
@@ -102,8 +102,8 @@ export const PartyService = {
     try {
       const result = (await client.service('party').patch(id, party)) as Party
       dispatch(PartyAction.partyPatched(result))
-    } catch (error) {
-      AlertService.dispatchAlertError(error)
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }

@@ -19,7 +19,7 @@ export const teleportToScene = async () => {
   addComponent(world.worldEntity, HyperspaceTagComponent, {})
 
   // remove all network clients but own (will be updated when new connection is established)
-  NetworkActionReceptor.removeAllNetworkClients(world, false)
+  NetworkActionReceptor.removeAllNetworkClients(false, world)
 
   // remove this scene's injected systems
   unloadSystems(world, true)
@@ -29,7 +29,7 @@ export const teleportToScene = async () => {
 
   // wait until the world has been joined
   await new Promise((resolve) => {
-    matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, resolve)
+    matchActionOnce(EngineActions.joinedWorld.matches, resolve)
   })
 
   // teleport player to where the portal is

@@ -9,10 +9,10 @@ import {
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 
+import { CommandFuncType, CommandParams, MiscCommands } from '../constants/EditorCommands'
 import { serializeObject3DArray, serializeProperties } from '../functions/debug'
 import { EditorAction } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
-import Command, { CommandParams } from './Command'
 
 export enum TagComponentOperation {
   TOGGLE,
@@ -26,96 +26,99 @@ export type TagComponentOperationType = {
   sceneComponentName: string
 }
 
-export interface TagComponentCommandParams extends CommandParams {
-  operation: TagComponentOperationType | TagComponentOperationType[]
+export type TagComponentCommandUndoParams = {
+  operations: TagComponentOperationType[]
 }
 
-export default class TagComponentCommand extends Command {
+export type TagComponentCommandParams = CommandParams & {
+  type: MiscCommands.TAG_COMPONENT
+
   operations: TagComponentOperationType[]
-  oldOperations: TagComponentOperationType[]
 
-  constructor(objects: EntityTreeNode[], params: TagComponentCommandParams) {
-    super(objects, params)
+  undo?: TagComponentCommandUndoParams
+}
 
-    this.operations = Array.isArray(params.operation) ? params.operation : [params.operation]
+function prepare(command: TagComponentCommandParams) {
+  if (command.keepHistory) {
+    command.undo = {
+      operations: command.affectedNodes.map((o, i) => {
+        const op = command.operations[i] ?? command.operations[0]
 
-    if (this.keepHistory) {
-      this.oldOperations = []
-
-      for (let i = 0; i < this.affectedObjects.length; i++) {
-        const op = this.operations[i] ?? this.operations[0]
-        const component = op.component
-        const componentExists = hasComponent(this.affectedObjects[i].entity, component)
-        this.oldOperations.push({
-          component,
-          type: componentExists ? TagComponentOperation.ADD : TagComponentOperation.REMOVE,
+        return {
+          component: op.component,
+          type: hasComponent(o.entity, op.component) ? TagComponentOperation.ADD : TagComponentOperation.REMOVE,
           sceneComponentName: op.sceneComponentName
-        })
-      }
+        }
+      })
     }
   }
+}
 
-  execute() {
-    this.updateComponents(this.affectedObjects, this.operations)
-    this.emitAfterExecuteEvent()
-  }
+function execute(command: TagComponentCommandParams) {
+  update(command, false)
+  emitEventAfter(command)
+}
 
-  undo() {
-    if (!this.oldOperations) return
+function undo(command: TagComponentCommandParams) {
+  update(command, true)
+  emitEventAfter(command)
+}
 
-    this.updateComponents(this.affectedObjects, this.oldOperations)
-    this.emitAfterExecuteEvent()
-  }
+function emitEventAfter(command: TagComponentCommandParams) {
+  if (command.preventEvents) return
 
-  toString() {
-    return `SetPropertiesMultipleCommand id: ${this.id} objects: ${serializeObject3DArray(
-      this.affectedObjects
-    )} properties: ${serializeProperties(this.operations)}`
-  }
+  store.dispatch(EditorAction.sceneModified(true))
+  store.dispatch(SelectionAction.changedObject(command.affectedNodes, undefined))
+}
 
-  emitAfterExecuteEvent() {
-    if (this.shouldEmitEvent) {
-      store.dispatch(EditorAction.sceneModified(true))
-      store.dispatch(SelectionAction.changedObject(this.affectedObjects, undefined))
+function update(command: TagComponentCommandParams, isUndo?: boolean) {
+  const operations = isUndo && command.undo ? command.undo.operations : command.operations
+
+  for (let i = 0; i < command.affectedNodes.length; i++) {
+    const object = command.affectedNodes[i]
+    const operation = operations[i] ?? operations[0]
+    const isCompExists = hasComponent(object.entity, operation.component)
+
+    switch (operation.type) {
+      case TagComponentOperation.ADD:
+        if (!isCompExists) addTagComponent(object, operation)
+        break
+
+      case TagComponentOperation.REMOVE:
+        if (isCompExists) removeTagComponent(object, operation)
+        break
+
+      default:
+        if (isCompExists) removeTagComponent(object, operation)
+        else addTagComponent(object, operation)
+        break
     }
   }
+}
 
-  updateComponents(objects: EntityTreeNode[], operations: TagComponentOperationType[]): void {
-    for (let i = 0; i < objects.length; i++) {
-      const object = objects[i]
-      const operation = operations[i] ?? operations[0]
-      const isCompExists = hasComponent(object.entity, operation.component)
+function addTagComponent(object: EntityTreeNode, operation: TagComponentOperationType) {
+  addComponent(object.entity, operation.component, {})
+  getComponent(object.entity, EntityNodeComponent)?.components.push(operation.sceneComponentName)
+}
 
-      switch (operation.type) {
-        case TagComponentOperation.ADD:
-          if (!isCompExists) this.addTagComponent(object, operation)
-          break
+function removeTagComponent(object: EntityTreeNode, operation: TagComponentOperationType) {
+  removeComponent(object.entity, operation.component)
+  const comps = getComponent(object.entity, EntityNodeComponent)?.components
+  const index = comps.indexOf(operation.sceneComponentName)
 
-        case TagComponentOperation.REMOVE:
-          if (isCompExists) this.removeTagComponent(object, operation)
-          break
+  if (index !== -1) comps.splice(index, 1)
+}
 
-        default:
-          if (isCompExists) this.removeTagComponent(object, operation)
-          else this.addTagComponent(object, operation)
-          break
-      }
-    }
+function toString(command: TagComponentCommandParams) {
+  return `SetPropertiesMultipleCommand id: ${command.id} objects: ${serializeObject3DArray(
+    command.affectedNodes
+  )} properties: ${serializeProperties(command.operations)}`
+}
 
-    store.dispatch(EditorAction.sceneModified(true))
-    store.dispatch(SelectionAction.changedObject(objects, undefined))
-  }
-
-  addTagComponent(object: EntityTreeNode, operation: TagComponentOperationType) {
-    addComponent(object.entity, operation.component, {})
-    getComponent(object.entity, EntityNodeComponent)?.components.push(operation.sceneComponentName)
-  }
-
-  removeTagComponent(object: EntityTreeNode, operation: TagComponentOperationType) {
-    removeComponent(object.entity, operation.component)
-    const comps = getComponent(object.entity, EntityNodeComponent)?.components
-    const index = comps.indexOf(operation.sceneComponentName)
-
-    if (index !== -1) comps.splice(index, 1)
-  }
+export const TagComponentCommand: CommandFuncType = {
+  prepare,
+  execute,
+  undo,
+  emitEventAfter,
+  toString
 }

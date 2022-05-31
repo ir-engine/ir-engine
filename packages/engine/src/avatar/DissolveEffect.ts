@@ -183,7 +183,9 @@ export class DissolveEffect {
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
         lights: true,
-        fog: false
+        // @ts-ignore
+        fog: false,
+        transparent: material.transparent
       })
 
       if (myMaterial.uniforms.map) {

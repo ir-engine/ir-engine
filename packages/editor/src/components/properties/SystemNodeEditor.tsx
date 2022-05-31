@@ -70,7 +70,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
     if (validatePath(path)) {
       setPropertyOnSelectionEntities({
         component: SystemComponent,
-        properties: { filePath: path }
+        properties: [{ filePath: path }]
       })
 
       setPathValid(true)

@@ -7,7 +7,7 @@ import type SocketIO from 'socket.io'
 
 import { ServiceTypes } from '@xrengine/common/declarations'
 
-import { SocketWebRTCServerTransport } from '../gameserver/src/SocketWebRTCServerTransport'
+import { SocketWebRTCServerNetwork } from '../gameserver/src/SocketWebRTCServerNetwork'
 
 export type Application = ExpressFeathers<ServiceTypes> & {
   // Common
@@ -18,7 +18,7 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   agonesSDK: any
   sync: any
   io: SocketIO.Server
-  transport: SocketWebRTCServerTransport
+  transport: SocketWebRTCServerNetwork
   seed: () => Application // function
 
   // Gameserver

@@ -62,7 +62,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   const changeShadowMapResolution = (resolution) => {
     setPropertyOnSelectionEntities({
       component: props.comp,
-      properties: { shadowMapResolution: new Vector2(resolution, resolution) }
+      properties: [{ shadowMapResolution: new Vector2(resolution, resolution) }]
     })
   }
 

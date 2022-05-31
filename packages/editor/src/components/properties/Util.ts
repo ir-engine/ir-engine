@@ -20,7 +20,7 @@ export const updateProperty = <C extends ComponentConstructor<any, any>, K exten
   return (value: ComponentType<C>[K]) => {
     setPropertyOnSelectionEntities({
       component,
-      properties: { [propName]: value, ...args } as ComponentType<C>
+      properties: [{ [propName]: value, ...args }]
     })
   }
 }

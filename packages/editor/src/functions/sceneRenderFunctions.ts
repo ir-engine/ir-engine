@@ -103,7 +103,7 @@ export async function initializeRenderer(): Promise<void> {
     accessEngineRendererState().automatic.set(false)
     await restoreEditorHelperData()
     await restoreEngineRendererData()
-    dispatchAction(Engine.instance.store, EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
+    dispatchAction(EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
   } catch (error) {
     console.error(error)
   }
@@ -161,7 +161,7 @@ function removeUnusedObjects(object3d: Object3D) {
 export async function exportScene(options = {} as DefaultExportOptionsType) {
   const { shouldCombineMeshes, shouldRemoveUnusedObjects } = Object.assign({}, DefaultExportOptions, options)
 
-  executeCommand(EditorCommands.REPLACE_SELECTION, [])
+  executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
 
   if ((Engine.instance.currentWorld.scene as any).entity == undefined) {
     ;(Engine.instance.currentWorld.scene as any).entity = useWorld().entityTree.rootNode.entity

@@ -2,20 +2,15 @@ import * as mediasoupClient from 'mediasoup-client'
 import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
 import { io as ioclient, Socket } from 'socket.io-client'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { RingBuffer } from '@xrengine/engine/src/common/classes/RingBuffer'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Network, TransportType, TransportTypes } from '@xrengine/engine/src/networking/classes/Network'
-import { NetworkTransport } from '@xrengine/engine/src/networking/classes/Network'
+import { Network, NetworkType } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { addActionReceptor, defineAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
-import { MediaStreamService } from '../media/services/MediaStreamService'
 import { accessAuthState } from '../user/services/AuthService'
 import { gameserverHost } from '../util/config'
+import { MediaStreamService } from './../media/services/MediaStreamService'
 import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 
 // import { encode, decode } from 'msgpackr'
@@ -27,50 +22,10 @@ const promisedRequest = (socket: Socket) => {
   }
 }
 
-export const createNetworkTransports = () => {
-  Network.instance.transports.set('world' as UserId, new SocketWebRTCClientTransport(TransportTypes.world))
-  Network.instance.transports.set('media' as UserId, new SocketWebRTCClientTransport(TransportTypes.media))
-  addActionReceptor(Engine.instance.store, (action) => {
-    matches(action).when(MediaStreams.actions.triggerUpdateConsumers.matches, MediaStreamService.triggerUpdateConsumers)
-  })
-}
-
-export class SocketWebRTCClientTransport implements NetworkTransport {
-  static actions = {
-    noWorldServersAvailable: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE' as const,
-      instanceId: matches.string
-    }),
-    noMediaServersAvailable: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE' as const
-    }),
-    worldInstanceKicked: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_INSTANCE_KICKED' as const,
-      message: matches.string
-    }),
-    worldInstanceDisconnected: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_INSTANCE_DISCONNECTED' as const
-    }),
-    worldInstanceReconnected: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_INSTANCE_RECONNECTED' as const
-    }),
-    mediaInstanceDisconnected: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_CHANNEL_DISCONNECTED' as const
-    }),
-    mediaInstanceReconnected: defineAction({
-      store: 'ENGINE',
-      type: 'WEBRTC_CHANNEL_RECONNECTED' as const
-    })
-  }
-
-  type: TransportType
-  constructor(type: TransportType) {
+export class SocketWebRTCClientNetwork extends Network {
+  type: NetworkType
+  constructor(hostId: string, type: NetworkType) {
+    super(hostId)
     this.type = type
   }
 
@@ -93,10 +48,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   dataProducer: DataProducer
   heartbeat: NodeJS.Timer // is there an equivalent browser type for this?
 
-  instanceId: string
-
-  sendActions(actions: Action<'WORLD'>[]) {
-    if (actions.length === 0) return
+  sendActions(actions: Action[]) {
+    if (!actions.length) return
+    for (const action of actions) action.$topic = undefined!
     this.socket?.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
   }
 
@@ -107,7 +61,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   close() {
-    console.log('SocketWebRTCClientTransport close')
+    console.log('SocketWebRTCClientNetwork close')
     this.recvTransport.close()
     this.sendTransport.close()
     this.recvTransport = null!
@@ -122,16 +76,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     sceneId: string
     ipAddress: string
     port: string
-    instanceId: string
     locationId?: string
     channelId?: string
   }): Promise<void> {
     this.reconnecting = false
-    if (this.socket) return console.error('[SocketWebRTCClientTransport]: already initialized')
-    console.log('[SocketWebRTCClientTransport]: Initialising transport with args', args)
-    const { sceneId, ipAddress, port, instanceId, locationId, channelId } = args
-
-    this.instanceId = instanceId
+    if (this.socket) return console.error('[SocketWebRTCClientNetwork]: already initialized')
+    console.log('[SocketWebRTCClientNetwork]: Initialising transport with args', args)
+    const { sceneId, ipAddress, port, locationId, channelId } = args
 
     const authState = accessAuthState()
     const token = authState.authUser.accessToken.value

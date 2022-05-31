@@ -7,8 +7,6 @@ import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctio
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { AnimationState } from '../animation/AnimationState'
-import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { AnimationManager } from '../AnimationManager'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -79,10 +77,11 @@ describe('avatarFunctions Unit', async () => {
       addComponent(entity, VelocityComponent, { linear: new Vector3(), angular: new Vector3() })
 
       addComponent(entity, AvatarAnimationComponent, {
-        animationGraph: new AvatarAnimationGraph(),
-        currentState: new AnimationState(),
-        prevState: new AnimationState(),
-        prevVelocity: new Vector3(),
+        animationGraph: {
+          states: {},
+          transitionRules: {},
+          currentState: null!
+        },
         rig: {} as BoneStructure,
         rootYRatio: 1
       })
