@@ -55,7 +55,7 @@ export default async function MaterialOverrideSystem(world: World) {
 
     await Promise.all(
       overrideQuery.exit().map(async (entity) => {
-        const override = getComponent(entity, MaterialOverrideComponent)
+        const override = getComponent(entity, MaterialOverrideComponent, true)
         return remove(override)
       })
     )
@@ -65,7 +65,7 @@ export default async function MaterialOverrideSystem(world: World) {
         const override = getComponent(entity, MaterialOverrideComponent)
         const entityEntry = overrideTable.get(override.targetEntity)!
         for (const overrideEntry of entityEntry.values()) {
-          overrideEntry.matParm.update(world.deltaSeconds)
+          overrideEntry.matParm.update(world.fixedDeltaSeconds)
         }
       })
     )

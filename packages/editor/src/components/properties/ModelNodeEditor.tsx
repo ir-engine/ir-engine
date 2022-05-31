@@ -133,6 +133,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Material Override" label={t('editor:properties.model.lbl-materialOverride')}>
         <MaterialAssignment
           entity={entity}
+          node={props.node}
           modelComponent={modelComponent}
           values={modelComponent.materialOverrides}
           onChange={updateProperty(ModelComponent, 'materialOverrides')}
