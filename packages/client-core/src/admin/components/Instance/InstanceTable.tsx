@@ -8,7 +8,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { instanceColumns, InstanceData } from '../../common/variables/instance'
-import { InstanceService, INSTNCE_PAGE_LIMIT, useInstanceState } from '../../services/InstanceService'
+import { INSTANCE_PAGE_LIMIT, InstanceService, useInstanceState } from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -26,7 +26,7 @@ interface Props {
 const InstanceTable = (props: Props) => {
   const { search } = props
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(INSTNCE_PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = useState(INSTANCE_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [instanceId, setInstanceId] = useState('')
