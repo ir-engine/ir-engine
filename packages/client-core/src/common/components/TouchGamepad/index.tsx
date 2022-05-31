@@ -33,10 +33,7 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
     )?.focusedInteractive
 
     if (focusedEntity) {
-      dispatchAction(
-        Engine.instance.store,
-        EngineActions.availableInteractable({ availableInteractable: focusedEntity })
-      )
+      dispatchAction(EngineActions.availableInteractable({ availableInteractable: focusedEntity }))
     }
   }, [getComponent(Engine.instance.currentWorld.localClientEntity, InteractorComponent)?.focusedInteractive])
 
