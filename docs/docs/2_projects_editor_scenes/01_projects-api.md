@@ -159,3 +159,7 @@ return type `ServicesSeedConfig` from `../packages/common/src/interfaces/Service
 which is run when the database seeder is run. This can be useful for setting 
 custom locations, which can be seen in the 
 [xrengine demo project](https://github.com/XRFoundation/demo-xrengine-project).
+
+### i18n
+
+Internationalization can be added using the pattern `./i18n/<language>/<namespace>.json`. An example of the format can be found in [the base i18n files](../../../packages/client-core/i18n/).
