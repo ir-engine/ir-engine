@@ -8,6 +8,7 @@ import { NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { NetworkActionReceptor } from '@xrengine/engine/src/networking/functions/NetworkActionReceptor'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
@@ -906,11 +907,12 @@ export async function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: 
       MediaStreams.instance.consumers = []
       Engine.instance.currentWorld.networks.delete(Engine.instance.currentWorld.mediaNetwork.hostId)
       Engine.instance.currentWorld._mediaHostId = null!
-      store.dispatch(LocationInstanceConnectionAction.disconnect(Engine.instance.currentWorld.worldNetwork.hostId))
+      store.dispatch(MediaInstanceConnectionAction.disconnect(Engine.instance.currentWorld.worldNetwork.hostId))
     } else {
       Engine.instance.currentWorld.networks.delete(Engine.instance.currentWorld.worldNetwork.hostId)
       Engine.instance.currentWorld._worldHostId = null!
-      store.dispatch(MediaInstanceConnectionAction.disconnect(Engine.instance.currentWorld.worldNetwork.hostId))
+      store.dispatch(LocationInstanceConnectionAction.disconnect(Engine.instance.currentWorld.worldNetwork.hostId))
+      NetworkActionReceptor.removeAllNetworkClients(false, Engine.instance.currentWorld)
     }
   } catch (err) {
     console.log('Error with leave()')
