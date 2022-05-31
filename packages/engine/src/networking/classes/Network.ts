@@ -46,19 +46,19 @@ export class Network {
   close(instance?: boolean, channel?: boolean) {}
 
   /** List of data producer nodes. */
-  dataProducers: Map<string, any>
+  dataProducers = new Map<string, any>()
 
   /** List of data consumer nodes. */
-  dataConsumers: Map<string, any>
+  dataConsumers = new Map<string, any>()
 
   /** Buffer holding all incoming Messages. */
-  incomingMessageQueueUnreliableIDs: RingBuffer<string>
+  incomingMessageQueueUnreliableIDs: RingBuffer<string> = new RingBuffer<string>(100)
 
   /** Buffer holding all incoming Messages. */
-  incomingMessageQueueUnreliable: RingBuffer<any>
+  incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)
 
   /** Buffer holding Mediasoup operations */
-  mediasoupOperationQueue: RingBuffer<any>
+  mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 
   /**
    * The UserId of the host
