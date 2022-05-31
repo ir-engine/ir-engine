@@ -9,7 +9,6 @@ import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 export const respawnAvatar = (entity: Entity) => {
   const { position, rotation } = getComponent(entity, SpawnPoseComponent)
-  console.log('\n\n\n\n\n\n\n\n\n\n\nRESPAWN AVATAR\n\n\n\n\n\n', position)
   const networkObject = getComponent(entity, NetworkObjectComponent)
   dispatchAction(
     NetworkWorldAction.teleportObject({

@@ -13,7 +13,7 @@ import {
   createCamAudioProducer,
   createCamVideoProducer,
   endVideoChat,
-  leave,
+  leaveNetwork,
   pauseProducer,
   resumeProducer
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
@@ -111,7 +111,7 @@ const MediaIconsBox = (props: Props) => {
     ) {
       await endVideoChat(mediaTransport, {})
       if (mediaTransport.socket?.connected === true) {
-        await leave(mediaTransport, false)
+        await leaveNetwork(mediaTransport, false)
         await MediaInstanceConnectionService.provisionServer(instanceChannel.id)
       }
     }
