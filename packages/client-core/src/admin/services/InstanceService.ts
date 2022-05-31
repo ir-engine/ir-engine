@@ -3,8 +3,14 @@ import { useState } from '@speigg/hookstate'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { addActionReceptor, defineAction, defineState, dispatchAction, getState, registerState } from '@xrengine/hyperflux'
+import {
+  addActionReceptor,
+  defineAction,
+  defineState,
+  dispatchAction,
+  getState,
+  registerState
+} from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
@@ -13,7 +19,6 @@ import { accessAuthState } from '../../user/services/AuthService'
 export const INSTANCE_PAGE_LIMIT = 100
 
 export const AdminInstanceState = defineState({
-  store: 'ENGINE',
   name: 'AdminInstanceState',
   initial: () => ({
     instances: [] as Array<Instance>,
@@ -28,28 +33,27 @@ export const AdminInstanceState = defineState({
 })
 
 export const registerAdminInstanceServiceActions = () => {
-
-  registerState(Engine.instance.store, AdminInstanceState)
+  registerState(AdminInstanceState)
 
   // Register receptor
-  addActionReceptor(Engine.instance.store, function AdminInstanceServiceReceptor(action) {
-    getState(Engine.instance.store, AdminInstanceState).batch((s) => {
+  addActionReceptor(function AdminInstanceServiceReceptor(action) {
+    getState(AdminInstanceState).batch((s) => {
       matches(action)
-      .when(AdminInstanceAction.instancesRetrievedAction.matches, (action) => {
-        return s.merge({
-          instances: action.instanceResult.data,
-          skip: action.instanceResult.skip,
-          limit: action.instanceResult.limit,
-          total: action.instanceResult.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
+        .when(AdminInstanceAction.instancesRetrievedAction.matches, (action) => {
+          return s.merge({
+            instances: action.instanceResult.data,
+            skip: action.instanceResult.skip,
+            limit: action.instanceResult.limit,
+            total: action.instanceResult.total,
+            retrieving: false,
+            fetched: true,
+            updateNeeded: false,
+            lastFetched: Date.now()
+          })
         })
-      })
-      .when(AdminInstanceAction.instancesRetrievedAction.matches, () => {
-        return s.merge({ updateNeeded: true })
-      })
+        .when(AdminInstanceAction.instancesRetrievedAction.matches, () => {
+          return s.merge({ updateNeeded: true })
+        })
     })
   })
 }
@@ -57,7 +61,7 @@ export const registerAdminInstanceServiceActions = () => {
 // temporary
 registerAdminInstanceServiceActions()
 
-export const accessInstanceState = () => getState(Engine.instance.store, AdminInstanceState)
+export const accessInstanceState = () => getState(AdminInstanceState)
 
 export const useInstanceState = () => useState(accessInstanceState())
 
@@ -82,7 +86,7 @@ export const InstanceService = {
             search: value
           }
         })) as Paginated<Instance>
-        dispatchAction(Engine.instance.store, AdminInstanceAction.instancesRetrievedAction({ instanceResult: instances }))
+        dispatchAction(AdminInstanceAction.instancesRetrievedAction({ instanceResult: instances }))
       }
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -90,13 +94,13 @@ export const InstanceService = {
   },
   removeInstance: async (id: string) => {
     const result = (await client.service('instance').patch(id, { ended: true })) as Instance
-    dispatchAction(Engine.instance.store, AdminInstanceAction.instanceRemovedAction({ instance: result }))
+    dispatchAction(AdminInstanceAction.instanceRemovedAction({ instance: result }))
   }
 }
 
 if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('instance').on('removed', (params) => {
-    dispatchAction(Engine.instance.store, AdminInstanceAction.instanceRemovedAction({ instance: params.instance }))
+    dispatchAction(AdminInstanceAction.instanceRemovedAction({ instance: params.instance }))
   })
 }
 export class AdminInstanceAction {
