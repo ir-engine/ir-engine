@@ -1,0 +1,81 @@
+{
+  "location" : {
+    "youHaveBeenBannedMsg" : "Usted ha sido prohibido de esta ubicación ",
+    "locationName" : {
+      "pageTitle" : "Casa "
+    }
+  },
+  "editor" : {
+    "projects" : {
+      "title" : "Proyectos ",
+      "header" : "Inicie sesión ",
+      "welcomeMsg" : "Bienvenido ",
+      "locationHeader" : "Ubicaciones ",
+      "projectHeader" : "Proyectos ",
+      "sceneHeader" : "Escenas ",
+      "description" : "Si eres nuevo aquí te recomendamos pasar por el tutorial.  De lo contrario, salta a la derecha y crea un proyecto desde cero o desde una de nuestras plantillas. ",
+      "lbl-startTutorial" : "Guía de aprendizaje ",
+      "lbl-newProject" : "Nuevo proyecto ",
+      "lbl-createProject" : "Crear ",
+      "lbl-newScene" : "Nueva escena ",
+      "lbl-searchProject" : "Buscar proyectos existentes ... ",
+      "back" : "Volver ",
+      "contextMenu" : "Suprimir proyecto ",
+      "installed" : "Proyectos instalados ",
+      "official" : "Proyectos Oficiales ",
+      "community" : "Proyectos comunitarios ",
+      "install" : "Instalación ",
+      "uninstall" : "Desinstalar ",
+      "rename" : "Rename ",
+      "createProject" : "Crear proyecto ",
+      "installProject" : "Proyecto de instalación ",
+      "processing" : "Transformación ",
+      "projectName" : "Nombre del proyecto ",
+      "projectURL" : "URL del proyecto "
+    }
+  },
+  "error" : {
+    "goHomeLink" : "Ir a casa ",
+    "withStatusCode" : "Se ha producido un error {{code}} en el servidor ",
+    "withoutStatusCode" : "Se ha producido un error en el servidor "
+  },
+  "404" : {
+    "msg" : "404-Página no encontrada "
+  },
+  "503" : {
+    "msg" : "503-Servicio no disponible "
+  },
+  "no-projects" : {
+    "msg" : "Error: No hay proyectos instalados-póngase en contacto con un administrador del sitio "
+  },
+  "dev" : {
+    "pageTitle" : "Casa "
+  },
+  "login" : {
+    "pageTitle" : "Iniciar sesión "
+  },
+  "workerTest" : {
+    "pageTitle" : "Prueba de trabajador "
+  },
+  "index" : {
+    "by" : "POR ",
+    "xr" : "XR ",
+    "foundation" : "Fundación ",
+    "description" : "Aplicaciones sociales 3D en tiempo real para que todos puedan disfrutar. "
+  },
+  "xrengineContact" : {
+    "header" : "¡get In Touch! ",
+    "description" : "Nos encantaría ayudarte con tus eventos virtuales, retail digital, entretenimiento y otras necesidades. ",
+    "lbl-name" : "Nombre ",
+    "lbl-email" : "Correo electrónico ",
+    "lbl-company" : "Empresa ",
+    "lbl-project" : "Describa su proyecto ",
+    "lbl-send" : "Enviar ",
+    "lbl-ok" : "Ok ",
+    "lbl-success" : "Mensaje enviado, Te volveremos a ti en breve. ",
+    "lbl-failure" : "Se ha producido un error, Plese vuelve a intentarlo ",
+    "err-username" : "Por favor, introduzca su nombre. ",
+    "err-email" : "El correo electrónico es necesario. ",
+    "err-msg" : "Proporcione una breve descripción de su proyecto."
+  }
+}
