@@ -26,7 +26,7 @@ export const RAYCAST_PROPERTIES_DEFAULT_VALUES = {
 export const SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES = {
   fov: 50,
   cameraNearClip: 0.01,
-  cameraFarClip: 100,
+  cameraFarClip: 10000,
   projectionType: ProjectionType.Perspective,
   minCameraDistance: 1,
   maxCameraDistance: 50,
