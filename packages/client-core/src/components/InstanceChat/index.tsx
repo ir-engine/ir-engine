@@ -20,7 +20,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
@@ -96,7 +96,7 @@ const InstanceChat = (props: Props): any => {
     if (!composingMessage || !usersTyping) return
     const delayDebounce = setTimeout(() => {
       dispatchAction(
-        NetworkWorldAction.setUserTyping({
+        WorldNetworkAction.setUserTyping({
           typing: false
         }),
         [Engine.instance.currentWorld.worldNetwork.hostId]
@@ -163,7 +163,7 @@ const InstanceChat = (props: Props): any => {
     if (message.length > composingMessage.length) {
       if (!usersTyping) {
         dispatchAction(
-          NetworkWorldAction.setUserTyping({
+          WorldNetworkAction.setUserTyping({
             typing: true
           }),
           [Engine.instance.currentWorld.worldNetwork.hostId]
@@ -173,7 +173,7 @@ const InstanceChat = (props: Props): any => {
     if (message.length == 0 || message.length < composingMessage.length) {
       if (usersTyping) {
         dispatchAction(
-          NetworkWorldAction.setUserTyping({
+          WorldNetworkAction.setUserTyping({
             typing: false
           }),
           [Engine.instance.currentWorld.worldNetwork.hostId]
@@ -188,7 +188,7 @@ const InstanceChat = (props: Props): any => {
     if (composingMessage?.length && user.instanceId.value) {
       if (usersTyping) {
         dispatchAction(
-          NetworkWorldAction.setUserTyping({
+          WorldNetworkAction.setUserTyping({
             typing: false
           }),
           [Engine.instance.currentWorld.worldNetwork.hostId]
