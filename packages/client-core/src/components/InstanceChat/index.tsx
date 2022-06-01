@@ -28,6 +28,7 @@ import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneL
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
+import { IconButton, InputAdornment } from '@mui/material'
 import Avatar from '@mui/material/Avatar'
 import Badge from '@mui/material/Badge'
 import Card from '@mui/material/Card'
@@ -184,7 +185,9 @@ const InstanceChat = (props: Props): any => {
     setComposingMessage(message)
   }
 
-  const packageMessage = (): void => {
+  const packageMessage = (e): void => {
+    e.preventDefault()
+
     if (composingMessage?.length && user.instanceId.value) {
       if (usersTyping) {
         dispatchAction(
@@ -202,6 +205,8 @@ const InstanceChat = (props: Props): any => {
       })
       setComposingMessage('')
     }
+
+    setCursorPosition(0)
   }
 
   const [chatWindowOpen, setChatWindowOpen] = React.useState(false)
@@ -359,11 +364,23 @@ const InstanceChat = (props: Props): any => {
                   inputRef={messageRefInput}
                   onClick={() => (messageRefInput as any)?.current?.focus()}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.ctrlKey) {
-                      e.preventDefault()
-                      packageMessage()
-                      setCursorPosition(0)
+                    if (e.key === 'Enter' && e.ctrlKey) {
+                      packageMessage(e)
                     }
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="send message"
+                          onClick={packageMessage}
+                          className={styles.sendButton}
+                          focusRipple={false}
+                        >
+                          <Send fontSize="small" />
+                        </IconButton>
+                      </InputAdornment>
+                    )
                   }}
                 />
               </CardContent>
