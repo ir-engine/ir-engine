@@ -15,7 +15,9 @@ import {
   endVideoChat,
   leaveNetwork,
   pauseProducer,
-  resumeProducer
+  resumeProducer,
+  startScreenshare,
+  stopScreenshare
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import logger from '@xrengine/common/src/logger'
@@ -32,6 +34,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
 import FaceIcon from '@mui/icons-material/Face'
+import ScreenShareIcon from '@mui/icons-material/ScreenShare'
 
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import styles from './index.module.scss'
@@ -66,6 +69,7 @@ const MediaIconsBox = (props: Props) => {
   const isFaceTrackingEnabled = mediastream.isFaceTrackingEnabled
   const isCamVideoEnabled = mediastream.isCamVideoEnabled
   const isCamAudioEnabled = mediastream.isCamAudioEnabled
+  const isScreenVideoEnabled = mediastream.isScreenVideoEnabled
 
   const engineState = useEngineState()
 
@@ -92,8 +96,8 @@ const MediaIconsBox = (props: Props) => {
       stopLipsyncTracking()
       MediaStreamService.updateFaceTrackingState()
     } else {
-      const mediaTransport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-      if (await configureMediaTransports(mediaTransport, ['video', 'audio'])) {
+      const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+      if (await configureMediaTransports(mediaNetwork, ['video', 'audio'])) {
         MediaStreams.instance.setFaceTracking(true)
         startFaceTracking()
         startLipsyncTracking()
@@ -103,27 +107,27 @@ const MediaIconsBox = (props: Props) => {
   }
 
   const checkEndVideoChat = async () => {
-    const mediaTransport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (
-      (MediaStreams.instance.audioPaused || MediaStreams.instance?.camAudioProducer == null) &&
-      (MediaStreams.instance.videoPaused || MediaStreams.instance?.camVideoProducer == null) &&
+      (MediaStreams.instance.audioPaused || MediaStreams.instance.camAudioProducer == null) &&
+      (MediaStreams.instance.videoPaused || MediaStreams.instance.camVideoProducer == null) &&
       instanceChannel.channelType !== 'instance'
     ) {
-      await endVideoChat(mediaTransport, {})
-      if (mediaTransport.socket?.connected === true) {
-        await leaveNetwork(mediaTransport, false)
+      await endVideoChat(mediaNetwork, {})
+      if (mediaNetwork.socket?.connected === true) {
+        await leaveNetwork(mediaNetwork, false)
         await MediaInstanceConnectionService.provisionServer(instanceChannel.id)
       }
     }
   }
   const handleMicClick = async () => {
-    const mediaTransport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (await configureMediaTransports(mediaTransport, ['audio'])) {
-      if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(mediaTransport)
+    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    if (await configureMediaTransports(mediaNetwork, ['audio'])) {
+      if (MediaStreams.instance.camAudioProducer == null) await createCamAudioProducer(mediaNetwork)
       else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
-        if (audioPaused) await pauseProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
-        else await resumeProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
+        if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
+        else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
         checkEndVideoChat()
       }
       MediaStreamService.updateCamAudioState()
@@ -131,18 +135,24 @@ const MediaIconsBox = (props: Props) => {
   }
 
   const handleCamClick = async () => {
-    const mediaTransport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (await configureMediaTransports(mediaTransport, ['video'])) {
-      if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer(mediaTransport)
+    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    if (await configureMediaTransports(mediaNetwork, ['video'])) {
+      if (MediaStreams.instance.camVideoProducer == null) await createCamVideoProducer(mediaNetwork)
       else {
         const videoPaused = MediaStreams.instance.toggleVideoPaused()
-        if (videoPaused) await pauseProducer(mediaTransport, MediaStreams.instance.camVideoProducer)
-        else await resumeProducer(mediaTransport, MediaStreams.instance.camVideoProducer)
+        if (videoPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
+        else await resumeProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
         checkEndVideoChat()
       }
 
       MediaStreamService.updateCamVideoState()
     }
+  }
+
+  const handleScreenShare = async () => {
+    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    if (!MediaStreams.instance.screenVideoProducer) await startScreenshare(mediaNetwork)
+    else await stopScreenshare(mediaNetwork)
   }
 
   const handleVRClick = () => dispatchAction(EngineActions.xrStart())
@@ -178,16 +188,22 @@ const MediaIconsBox = (props: Props) => {
           >
             <VideocamIcon />
           </button>
-          {
-            <button
-              type="button"
-              id="UserFaceTracking"
-              className={styles.iconContainer + ' ' + (isFaceTrackingEnabled.value ? styles.on : '')}
-              onClick={handleFaceClick}
-            >
-              <FaceIcon />
-            </button>
-          }
+          <button
+            type="button"
+            id="UserFaceTracking"
+            className={styles.iconContainer + ' ' + (isFaceTrackingEnabled.value ? styles.on : '')}
+            onClick={handleFaceClick}
+          >
+            <FaceIcon />
+          </button>
+          <button
+            type="button"
+            id="UserScreenSharing"
+            className={styles.iconContainer + ' ' + (isScreenVideoEnabled.value ? styles.on : '')}
+            onClick={handleScreenShare}
+          >
+            <ScreenShareIcon />
+          </button>
         </>
       ) : null}
       {engineState.xrSupported.value ? (

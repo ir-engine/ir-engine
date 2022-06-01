@@ -23,7 +23,6 @@ import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp
 import { useLoadingSystemState } from '../../systems/state/LoadingState'
 import Debug from '../Debug'
 import InstanceChat from '../InstanceChat'
-import Me from '../Me'
 import MediaIconsBox from '../MediaIconsBox'
 import PartyVideoWindows from '../PartyVideoWindows'
 import { useFullscreen } from '../useFullscreen'
@@ -160,7 +159,6 @@ const Layout = (props: Props): any => {
             {!props.hideVideo && (
               <>
                 <section className={styles.locationUserMenu}>
-                  {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && <Me />}
                   <PartyVideoWindows />
                 </section>
               </>
