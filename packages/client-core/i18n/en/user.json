@@ -301,6 +301,7 @@
   },
   "person": {
     "you": "You",
+    "yourScreen": "Your Screen",
     "muteForEveryone": "Mute for everyone",
     "unmuteForEveryone": "Unmute for everyone",
     "muteMe": "Mute me",
