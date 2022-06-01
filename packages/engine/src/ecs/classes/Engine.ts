@@ -1,8 +1,8 @@
 import { XRFrame } from 'three'
 
 import type { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { addTopic, createHyperStore } from '@xrengine/hyperflux'
-import { HyperFlux, HyperStore } from '@xrengine/hyperflux/functions/StoreFunctions'
+import { createHyperStore } from '@xrengine/hyperflux'
+import { HyperStore } from '@xrengine/hyperflux/functions/StoreFunctions'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import type { World } from '../classes/World'
@@ -27,10 +27,6 @@ export class Engine {
     getDispatchTime: () => Date.now(),
     defaultDispatchDelay: 1 / this.tickRate
   }) as HyperStore
-
-  constructor() {
-    addTopic(HyperFlux.store.defaultTopic)
-  }
 
   /**
    * Current frame timestamp, relative to performance.timeOrigin

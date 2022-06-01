@@ -18,6 +18,7 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PortalEffect } from '../classes/PortalEffect'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -42,7 +43,8 @@ export default async function HyperspacePortalSystem(world: World) {
 
     // to trigger the hyperspace effect, add the hyperspace tag to the world entity
     for (const entity of hyperspaceTagComponent.enter()) {
-      switchCameraMode(world.localClientEntity, { cameraMode: CameraMode.ShoulderCam }, true)
+      if (!EngineRenderer.instance.xrSession)
+        switchCameraMode(world.localClientEntity, { cameraMode: CameraMode.ShoulderCam }, true)
 
       removeComponent(world.localClientEntity, AvatarControllerComponent)
       removeComponent(world.localClientEntity, InteractorComponent)
