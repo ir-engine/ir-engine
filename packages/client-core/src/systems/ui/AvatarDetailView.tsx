@@ -3,12 +3,9 @@ import { useState } from '@speigg/hookstate'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { getState } from '@xrengine/hyperflux'
 
 import { useUserState } from '../../user/services/UserService'
 
@@ -29,20 +26,21 @@ const styles = {
 }
 
 export function createAvatarDetailView(id: string) {
-  return createXRUI(AvatarDetailView, createAvatarDetailState(id))
+  return createXRUI(
+    AvatarDetailView,
+    createState({
+      id
+    })
+  )
 }
 
-function createAvatarDetailState(id: string) {
-  return createState({
-    id
-  })
+interface AvatarDetailState {
+  id: string
 }
-
-type AvatarDetailState = ReturnType<typeof createAvatarDetailState>
 
 const AvatarDetailView = () => {
   const { t } = useTranslation()
-  const detailState = useXRUIState() as AvatarDetailState
+  const detailState = useXRUIState<AvatarDetailState>()
   const userState = useUserState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
   const worldState = useEngineState()

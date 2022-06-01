@@ -1,8 +1,10 @@
+import { AvatarInputSchema } from '@xrengine/engine/src/avatar/AvatarInputSchema'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
@@ -34,14 +36,11 @@ export default async function MainMenuButtonsSystem(world: World) {
       if ((spawnAction as any).$from === Engine.instance.userId) {
         for (const userEntity of userQuery()) {
           const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
-          const controller = getComponent(userEntity, XRInputSourceComponent).controllerLeft
 
           if (userId === Engine.instance.userId) {
-            if (controller) {
-              renderMainMenuButtons(world, true, MainMenuButtonsUI.entity)
-            } else {
-              renderMainMenuButtons(world, false, MainMenuButtonsUI.entity)
-            }
+            AvatarInputSchema.behaviorMap.set(BaseInput.TOGGLE_MENU_BUTTONS, () => {
+              renderMainMenuButtons(world, MainMenuButtonsUI.state.id.value !== '', MainMenuButtonsUI.entity)
+            })
           }
         }
       }

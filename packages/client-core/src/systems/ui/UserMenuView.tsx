@@ -86,15 +86,20 @@ const styles = {
 }
 
 export function createAvatarContextMenuView() {
-  return createXRUI(AvatarContextMenu, UserMenuState)
+  return createXRUI(
+    AvatarContextMenu,
+    createState({
+      id: '' as UserId
+    })
+  )
 }
 
-export const UserMenuState = createState({
-  id: '' as UserId
-})
+interface UserMenuState {
+  id: UserId
+}
 
 const AvatarContextMenu = () => {
-  const detailState = useXRUIState() as typeof UserMenuState
+  const detailState = useXRUIState<UserMenuState>()
 
   const engineState = useEngineState()
   const userState = useUserState()
