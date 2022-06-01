@@ -1,4 +1,5 @@
 import { createState, useState } from '@speigg/hookstate'
+import mediasoup from 'mediasoup-client'
 
 import { NearbyUser } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
@@ -9,10 +10,12 @@ import { store } from '../../store'
 const state = createState({
   isCamVideoEnabled: false,
   isCamAudioEnabled: false,
+  isScreenVideoEnabled: false,
+  isScreenAudioEnabled: false,
   isFaceTrackingEnabled: false,
   enableBydefault: true,
   nearbyLayerUsers: [] as NearbyUser[],
-  consumers: []
+  consumers: [] as mediasoup.types.Consumer[]
 })
 
 store.receptors.push((action: MediaStreamActionType): any => {
@@ -22,6 +25,10 @@ store.receptors.push((action: MediaStreamActionType): any => {
         return s.isCamVideoEnabled.set(action.isEnable)
       case 'CAM_AUDIO_CHANGED':
         return s.isCamAudioEnabled.set(action.isEnable)
+      case 'SCREEN_VIDEO_CHANGED':
+        return s.isScreenVideoEnabled.set(action.isEnable)
+      case 'SCREEN_AUDIO_CHANGED':
+        return s.isScreenAudioEnabled.set(action.isEnable)
       case 'FACE_TRACKING_CHANGED':
         return s.isFaceTrackingEnabled.set(action.isEnable)
       case 'MEDIA_ENABLE_BY_DEFAULT':
@@ -35,36 +42,53 @@ store.receptors.push((action: MediaStreamActionType): any => {
 })
 
 export const accessMediaStreamState = () => state
-export const useMediaStreamState = () => useState(state)
+export const useMediaStreamState = () => useState(state) as any as typeof state
 
 let updateConsumerTimeout
 
 //Service
 export const MediaStreamService = {
   updateCamVideoState: () => {
-    const ms = MediaStreams.instance
-    store.dispatch(MediaStreamAction.setCamVideoState(ms != null && ms.camVideoProducer != null && !ms.videoPaused))
+    store.dispatch(
+      MediaStreamAction.setCamVideoState(
+        MediaStreams.instance.camVideoProducer != null && !MediaStreams.instance.videoPaused
+      )
+    )
+  },
+  updateCamAudioState: () => {
+    store.dispatch(
+      MediaStreamAction.setCamAudioState(
+        MediaStreams.instance.camAudioProducer != null && !MediaStreams.instance.audioPaused
+      )
+    )
+  },
+  updateScreenVideoState: () => {
+    store.dispatch(
+      MediaStreamAction.setScreenVideoState(
+        MediaStreams.instance.screenVideoProducer != null && !MediaStreams.instance.screenShareVideoPaused
+      )
+    )
+  },
+  updateScreenAudioState: () => {
+    store.dispatch(
+      MediaStreamAction.setScreenAudioState(
+        MediaStreams.instance.screenAudioProducer != null && !MediaStreams.instance.screenShareAudioPaused
+      )
+    )
   },
   triggerUpdateConsumers: () => {
     if (!updateConsumerTimeout) {
       updateConsumerTimeout = setTimeout(() => {
-        const ms = MediaStreams.instance
-        store.dispatch(MediaStreamAction.setConsumers(ms != null ? ms.consumers : []))
+        store.dispatch(MediaStreamAction.setConsumers(MediaStreams.instance.consumers))
         updateConsumerTimeout = null
       }, 1000)
     }
   },
   triggerUpdateNearbyLayerUsers: () => {
-    const ms = MediaStreams.instance
-    store.dispatch(MediaStreamAction.setNearbyLayerUsers(ms != null ? ms.nearbyLayerUsers : []))
-  },
-  updateCamAudioState: () => {
-    const ms = MediaStreams.instance
-    store.dispatch(MediaStreamAction.setCamAudioState(ms != null && ms.camAudioProducer != null && !ms.audioPaused))
+    store.dispatch(MediaStreamAction.setNearbyLayerUsers(MediaStreams.instance.nearbyLayerUsers))
   },
   updateFaceTrackingState: () => {
-    const ms = MediaStreams.instance
-    store.dispatch(MediaStreamAction.setFaceTrackingState(ms != null && ms.faceTracking))
+    store.dispatch(MediaStreamAction.setFaceTrackingState(MediaStreams.instance.faceTracking))
   },
   updateEnableMediaByDefault: () => {
     store.dispatch(MediaStreamAction.setMediaEnabledByDefault(false))
@@ -79,6 +103,12 @@ export const MediaStreamAction = {
   },
   setCamAudioState: (isEnable: boolean) => {
     return { type: 'CAM_AUDIO_CHANGED' as const, isEnable }
+  },
+  setScreenVideoState: (isEnable: boolean) => {
+    return { type: 'SCREEN_VIDEO_CHANGED' as const, isEnable: isEnable }
+  },
+  setScreenAudioState: (isEnable: boolean) => {
+    return { type: 'SCREEN_AUDIO_CHANGED' as const, isEnable }
   },
   setFaceTrackingState: (isEnable: boolean) => {
     return { type: 'FACE_TRACKING_CHANGED' as const, isEnable }

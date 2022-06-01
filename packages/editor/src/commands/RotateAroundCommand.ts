@@ -1,18 +1,17 @@
 import { Matrix4, Vector3 } from 'three'
 
 import { store } from '@xrengine/client-core/src/store'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
+import { CommandFuncType, CommandParams, TransformCommands } from '../constants/EditorCommands'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
 import { EditorAction } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
-import Command, { CommandParams } from './Command'
 
-export interface RotateAroundCommandParams extends CommandParams {
+export type RotateAroundCommandUndoParams = {
   axis: Vector3
 
   angle: number
@@ -20,73 +19,101 @@ export interface RotateAroundCommandParams extends CommandParams {
   pivot: Vector3
 }
 
-export default class RotateAroundCommand extends Command {
-  pivot: Vector3
+export type RotateAroundCommandParams = CommandParams & {
+  type: TransformCommands.ROTATE_AROUND
 
   axis: Vector3
 
   angle: number
 
-  constructor(objects: EntityTreeNode[], params: RotateAroundCommandParams) {
-    super(objects, params)
+  pivot: Vector3
 
-    this.pivot = params.pivot.clone()
-    this.axis = params.axis.clone()
-    this.angle = params.angle
-  }
+  undo?: RotateAroundCommandUndoParams
+}
 
-  execute() {
-    this.rotateAround(this.affectedObjects, this.pivot, this.axis, this.angle)
-    this.emitAfterExecuteEvent()
-  }
-
-  shouldUpdate(newCommand: RotateAroundCommand) {
-    return (
-      this.pivot.equals(newCommand.pivot) &&
-      this.axis.equals(newCommand.axis) &&
-      arrayShallowEqual(this.affectedObjects, newCommand.affectedObjects)
-    )
-  }
-
-  update(command) {
-    this.angle += command.angle
-    this.rotateAround(this.affectedObjects, this.pivot, this.axis, command.angle)
-    this.emitAfterExecuteEvent()
-  }
-
-  undo() {
-    this.rotateAround(this.affectedObjects, this.pivot, this.axis, this.angle * -1)
-    this.emitAfterExecuteEvent()
-  }
-
-  toString() {
-    return `RotateAroundMultipleCommand id: ${this.id} objects: ${serializeObject3DArray(this.affectedObjects)}
-    pivot: ${serializeVector3(this.pivot)} axis: { ${serializeVector3(this.axis)} angle: ${this.angle} }`
-  }
-
-  emitAfterExecuteEvent() {
-    if (this.shouldEmitEvent) {
-      store.dispatch(EditorAction.sceneModified(true))
-      store.dispatch(SelectionAction.changedObject(this.affectedObjects, 'matrix'))
+function prepare(command: RotateAroundCommandParams) {
+  if (command.keepHistory) {
+    command.undo = {
+      pivot: command.pivot,
+      axis: command.axis,
+      angle: command.angle * -1
     }
   }
+}
 
-  rotateAround(objects: EntityTreeNode[], pivot: Vector3, axis: Vector3, angle: number): void {
-    const pivotToOriginMatrix = new Matrix4().makeTranslation(-pivot.x, -pivot.y, -pivot.z)
-    const originToPivotMatrix = new Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z)
-    const rotationMatrix = new Matrix4().makeRotationAxis(axis, angle)
+function shouldUpdate(currentCommnad: RotateAroundCommandParams, newCommand: RotateAroundCommandParams): boolean {
+  return (
+    currentCommnad.pivot.equals(newCommand.pivot) &&
+    currentCommnad.axis.equals(newCommand.axis) &&
+    arrayShallowEqual(currentCommnad.affectedNodes, newCommand.affectedNodes)
+  )
+}
 
-    for (let i = 0; i < objects.length; i++) {
-      const obj3d = getComponent(objects[i].entity, Object3DComponent).value
-      const transform = getComponent(objects[i].entity, TransformComponent)
+function update(currentCommnad: RotateAroundCommandParams, newCommand: RotateAroundCommandParams) {
+  const oldAngle = currentCommnad.angle
+  currentCommnad.angle = newCommand.angle
+  execute(currentCommnad)
+  currentCommnad.angle += oldAngle
+  emitEventAfter(currentCommnad)
+}
 
-      new Matrix4()
-        .copy(obj3d.matrixWorld)
-        .premultiply(pivotToOriginMatrix)
-        .premultiply(rotationMatrix)
-        .premultiply(originToPivotMatrix)
-        .premultiply(obj3d.parent!.matrixWorld.clone().invert())
-        .decompose(transform.position, transform.rotation, transform.scale)
-    }
+function execute(command: RotateAroundCommandParams) {
+  rotateAround(command, false)
+  emitEventAfter(command)
+}
+
+function undo(command: RotateAroundCommandParams) {
+  rotateAround(command, true)
+  emitEventAfter(command)
+}
+
+function emitEventAfter(command: RotateAroundCommandParams) {
+  if (command.preventEvents) return
+
+  store.dispatch(EditorAction.sceneModified(true))
+  store.dispatch(SelectionAction.changedObject(command.affectedNodes, 'matrix'))
+}
+
+function rotateAround(command: RotateAroundCommandParams, isUndo?: boolean) {
+  let pivot = command.pivot
+  let axis = command.axis
+  let angle = command.angle
+
+  if (isUndo && command.undo) {
+    pivot = command.undo.pivot
+    axis = command.undo.axis
+    angle = command.undo.angle
   }
+
+  const pivotToOriginMatrix = new Matrix4().makeTranslation(-pivot.x, -pivot.y, -pivot.z)
+  const originToPivotMatrix = new Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z)
+  const rotationMatrix = new Matrix4().makeRotationAxis(axis, angle)
+
+  for (let i = 0; i < command.affectedNodes.length; i++) {
+    const obj3d = getComponent(command.affectedNodes[i].entity, Object3DComponent).value
+    const transform = getComponent(command.affectedNodes[i].entity, TransformComponent)
+
+    new Matrix4()
+      .copy(obj3d.matrixWorld)
+      .premultiply(pivotToOriginMatrix)
+      .premultiply(rotationMatrix)
+      .premultiply(originToPivotMatrix)
+      .premultiply(obj3d.parent!.matrixWorld.clone().invert())
+      .decompose(transform.position, transform.rotation, transform.scale)
+  }
+}
+
+function toString(command: RotateAroundCommandParams) {
+  return `RotateAroundMultipleCommand id: ${command.id} objects: ${serializeObject3DArray(command.affectedNodes)}
+  pivot: ${serializeVector3(command.pivot)} axis: { ${serializeVector3(command.axis)} angle: ${command.angle} }`
+}
+
+export const RotateAroundCommand: CommandFuncType = {
+  prepare,
+  execute,
+  undo,
+  shouldUpdate,
+  update,
+  emitEventAfter,
+  toString
 }

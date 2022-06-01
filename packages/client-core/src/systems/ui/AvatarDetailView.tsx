@@ -4,6 +4,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
@@ -44,7 +45,7 @@ const AvatarDetailView = () => {
   const detailState = useXRUIState() as AvatarDetailState
   const userState = useUserState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
-  const worldState = getState(Engine.instance.currentWorld.store, WorldState)
+  const worldState = useEngineState()
   const usersTyping = useState(worldState.usersTyping[detailState.id.value]).value
 
   return user ? (

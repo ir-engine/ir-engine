@@ -1,7 +1,6 @@
 import { Group, Object3D, Vector3 } from 'three'
-import matches from 'ts-matches'
 
-import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+import { createActionQueue } from '@xrengine/hyperflux'
 
 import { isClient } from '../common/functions/isClient'
 import { Object3DUtils } from '../common/functions/Object3DUtils'
@@ -14,10 +13,9 @@ import {
   hasComponent,
   removeComponent
 } from '../ecs/functions/ComponentFunctions'
-import { useWorld } from '../ecs/functions/SystemHooks'
 import { AvatarControllerType } from '../input/enums/InputEnums'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
-import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -35,93 +33,103 @@ import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
 import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
-function avatarActionReceptor(action) {
-  const world = useWorld()
+export function avatarDetailsReceptor(
+  action: ReturnType<typeof WorldNetworkAction.avatarDetails>,
+  world = Engine.instance.currentWorld
+) {
+  const client = world.clients.get(action.$from)
+  if (!client) throw Error(`Avatar details action received for a client that does not exist: ${action.$from}`)
+  if (client.avatarDetail?.avatarURL === action.avatarDetail.avatarURL)
+    return console.log('[AvatarSystem]: ignoring same avatar url')
+  client.avatarDetail = action.avatarDetail
+  if (isClient) {
+    const entity = world.getUserAvatarEntity(action.$from)
+    loadAvatarForUser(entity, action.avatarDetail.avatarURL)
+  }
+}
 
-  matches(action)
-    .when(NetworkWorldAction.avatarDetails.matches, ({ $from, avatarDetail }) => {
-      const client = world.clients.get($from)
-      if (!client) throw Error(`Avatar details action received for a client that does not exist: ${$from}`)
-      if (client.avatarDetail?.avatarURL === avatarDetail.avatarURL)
-        return console.log('[AvatarSystem]: ignoring same avatar url')
-      client.avatarDetail = avatarDetail
-      if (isClient) {
-        const entity = world.getUserAvatarEntity($from)
-        loadAvatarForUser(entity, avatarDetail.avatarURL)
-      }
-    })
+export function setXRModeReceptor(
+  action: ReturnType<typeof WorldNetworkAction.setXRMode>,
+  world = Engine.instance.currentWorld
+) {
+  const entity = world.getUserAvatarEntity(action.$from)
+  if (!entity) return
 
-    .when(NetworkWorldAction.setXRMode.matches, (a) => {
-      const entity = world.getUserAvatarEntity(a.$from)
-      if (!entity) return
+  if (action.enabled) {
+    if (!hasComponent(entity, XRInputSourceComponent)) {
+      const inputData = {
+        controllerLeftParent: new Group(),
+        controllerRightParent: new Group(),
+        controllerGripLeftParent: new Group(),
+        controllerGripRightParent: new Group(),
 
-      if (a.enabled) {
-        if (!hasComponent(entity, XRInputSourceComponent)) {
-          const inputData = {
-            controllerLeftParent: new Group(),
-            controllerRightParent: new Group(),
-            controllerGripLeftParent: new Group(),
-            controllerGripRightParent: new Group(),
-
-            controllerLeft: new Group(),
-            controllerRight: new Group(),
-            controllerGripLeft: new Group(),
-            controllerGripRight: new Group(),
-            container: new Group(),
-            head: new Group()
-          }
-
-          inputData.controllerLeftParent.add(inputData.controllerLeft)
-          inputData.controllerRightParent.add(inputData.controllerRight)
-          inputData.controllerGripLeftParent.add(inputData.controllerGripLeft)
-          inputData.controllerGripRightParent.add(inputData.controllerGripRight)
-
-          addComponent(entity, XRInputSourceComponent, inputData as any)
-
-          // This is required because using dispatchAction state will be updated in the next frame
-          // while xr hand initialization requires updated controller type which might run in the current frame.
-          const avatarInputState = accessAvatarInputSettingsState()
-          avatarInputState.merge({ controlType: a.avatarInputControllerType as AvatarControllerType })
-        }
-      } else if (hasComponent(entity, XRInputSourceComponent)) {
-        removeComponent(entity, XRInputSourceComponent)
-      }
-    })
-
-    .when(NetworkWorldAction.xrHandsConnected.matches, (a) => {
-      if (a.$from === Engine.instance.userId) return
-      const entity = world.getUserAvatarEntity(a.$from)
-      if (!entity) return
-
-      if (!hasComponent(entity, XRHandsInputComponent)) {
-        addComponent(entity, XRHandsInputComponent, {
-          hands: [new Group(), new Group()]
-        })
+        controllerLeft: new Group(),
+        controllerRight: new Group(),
+        controllerGripLeft: new Group(),
+        controllerGripRight: new Group(),
+        container: new Group(),
+        head: new Group()
       }
 
-      const xrInputSource = getComponent(entity, XRHandsInputComponent)
+      inputData.controllerLeftParent.add(inputData.controllerLeft)
+      inputData.controllerRightParent.add(inputData.controllerRight)
+      inputData.controllerGripLeftParent.add(inputData.controllerGripLeft)
+      inputData.controllerGripRightParent.add(inputData.controllerGripRight)
 
-      xrInputSource.hands.forEach((controller: any, i: number) => {
-        initializeHandModel(entity, controller, i === 0 ? 'left' : 'right')
-      })
-    })
+      addComponent(entity, XRInputSourceComponent, inputData as any)
 
-    .when(NetworkWorldAction.teleportObject.matches, (a) => {
-      const [x, y, z, qX, qY, qZ, qW] = a.pose
-      const entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)!
-      const controllerComponent = getComponent(entity, AvatarControllerComponent)
-      if (controllerComponent) {
-        const velocity = getComponent(entity, VelocityComponent)
-        const avatar = getComponent(entity, AvatarComponent)
-        controllerComponent.controller.setPosition({ x, y: y + avatar.avatarHalfHeight, z })
-        velocity.linear.setScalar(0)
-        velocity.angular.setScalar(0)
-      }
+      // This is required because using dispatchAction state will be updated in the next frame
+      // while xr hand initialization requires updated controller type which might run in the current frame.
+      const avatarInputState = accessAvatarInputSettingsState()
+      avatarInputState.merge({ controlType: action.avatarInputControllerType as AvatarControllerType })
+    }
+  } else if (hasComponent(entity, XRInputSourceComponent)) {
+    removeComponent(entity, XRInputSourceComponent)
+  }
+}
+
+export function xrHandsConnectedReceptor(
+  action: ReturnType<typeof WorldNetworkAction.xrHandsConnected>,
+  world = Engine.instance.currentWorld
+) {
+  if (action.$from === Engine.instance.userId) return
+  const entity = world.getUserAvatarEntity(action.$from)
+  if (!entity) return
+
+  if (!hasComponent(entity, XRHandsInputComponent)) {
+    addComponent(entity, XRHandsInputComponent, {
+      hands: [new Group(), new Group()]
     })
+  }
+
+  const xrInputSource = getComponent(entity, XRHandsInputComponent)
+
+  xrInputSource.hands.forEach((controller: any, i: number) => {
+    initializeHandModel(entity, controller, i === 0 ? 'left' : 'right')
+  })
+}
+
+export function teleportObjectReceptor(
+  action: ReturnType<typeof WorldNetworkAction.teleportObject>,
+  world = Engine.instance.currentWorld
+) {
+  const [x, y, z, qX, qY, qZ, qW] = action.pose
+  const entity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
+  const controllerComponent = getComponent(entity, AvatarControllerComponent)
+  if (controllerComponent) {
+    const velocity = getComponent(entity, VelocityComponent)
+    const avatar = getComponent(entity, AvatarComponent)
+    controllerComponent.controller.setPosition({ x, y: y + avatar.avatarHalfHeight, z })
+    velocity.linear.setScalar(0)
+    velocity.angular.setScalar(0)
+  }
 }
 
 export default async function AvatarSystem(world: World) {
-  addActionReceptor(world.store, avatarActionReceptor)
+  const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
+  const setXRModeQueue = createActionQueue(WorldNetworkAction.setXRMode.matches)
+  const xrHandsConnectedQueue = createActionQueue(WorldNetworkAction.xrHandsConnected.matches)
+  const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
 
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent, AvatarAnimationComponent])
@@ -130,6 +138,11 @@ export default async function AvatarSystem(world: World) {
   const xrRGripQuery = defineQuery([AvatarComponent, XRRGripButtonComponent, XRInputSourceComponent])
 
   return () => {
+    for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
+    for (const action of setXRModeQueue()) setXRModeReceptor(action)
+    for (const action of xrHandsConnectedQueue()) xrHandsConnectedReceptor(action)
+    for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
+
     for (const entity of xrInputQuery.enter(world)) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       if (isClient) initializeXRInputs(entity)

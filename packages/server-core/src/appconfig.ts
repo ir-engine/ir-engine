@@ -296,6 +296,12 @@ const chargebee = {
   apiKey: process.env.CHARGEBEE_API_KEY!
 }
 
+const coil = {
+  paymentPointer: process.env.COIL_PAYMENT_POINTER,
+  clientId: process.env.COIL_API_CLIENT_ID,
+  clientSecret: process.env.COIL_API_CLIENT_SECRET
+}
+
 const redis = {
   enabled: process.env.REDIS_ENABLED === 'true',
   address: process.env.REDIS_ADDRESS!,
@@ -315,6 +321,11 @@ const blockchain = {
   blockchainUrl: process.env.BLOCKCHAIN_URL,
   blockchainUrlSecret: process.env.BLOCKCHAIN_URL_SECRET
 }
+
+const ipfs = {
+  enabled: process.env.USE_IPFS
+}
+
 /**
  * Full config
  */
@@ -325,9 +336,11 @@ const config = {
   aws,
   chargebee,
   client,
+  coil,
   db,
   email,
   gameserver,
+  ipfs,
   server,
   redis,
   scopes,

@@ -16,6 +16,8 @@ import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser
 
 const NEW_SCENE_NAME = 'New-Scene'
 
+const sceneAssetFiles = ['.scene.json', '.thumbnail.jpeg', '.cubemap.png']
+
 export const getSceneData = async (projectName, sceneName, metadataOnly, internal, downloadIfNotPresent = false) => {
   const storageProvider = getStorageProvider()
   const scenePath = `projects/${projectName}/${sceneName}.scene.json`
@@ -117,31 +119,29 @@ export class Scene implements ServiceMethods<any> {
       counter++
     }
 
-    await storageProvider.moveObject(
-      `default.thumbnail.jpeg`,
-      `${newSceneName}.thumbnail.jpeg`,
-      `projects/default-project`,
-      projectPath,
-      true
+    await Promise.all(
+      sceneAssetFiles.map((ext) =>
+        storageProvider.moveObject(
+          `default${ext}`,
+          `${newSceneName}${ext}`,
+          `projects/default-project`,
+          projectPath,
+          true
+        )
+      )
     )
-    await storageProvider.moveObject(
-      `default.scene.json`,
-      `${newSceneName}.scene.json`,
-      `projects/default-project`,
-      projectPath,
-      true
+    await storageProvider.createInvalidation(
+      sceneAssetFiles.map((asset) => `projects/${projectName}/${newSceneName}${asset}`)
     )
 
     if (isDev) {
       const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects/' + projectName) + '/'
-      fs.copyFileSync(
-        path.resolve(appRootPath.path, `packages/projects/default-project/default.thumbnail.jpeg`),
-        path.resolve(projectPathLocal + newSceneName + '.thumbnail.jpeg')
-      )
-      fs.copyFileSync(
-        path.resolve(appRootPath.path, `packages/projects/default-project/default.scene.json`),
-        path.resolve(projectPathLocal + newSceneName + '.scene.json')
-      )
+      for (const ext of sceneAssetFiles) {
+        fs.copyFileSync(
+          path.resolve(appRootPath.path, `packages/projects/default-project/default${ext}`),
+          path.resolve(projectPathLocal + newSceneName + ext)
+        )
+      }
     }
 
     return { projectName, sceneName: newSceneName }
@@ -156,42 +156,30 @@ export class Scene implements ServiceMethods<any> {
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
     const projectPath = `projects/${projectName}/`
-    const oldSceneJsonName = `${oldSceneName}.scene.json`
-    const newSceneJsonName = `${newSceneName}.scene.json`
-    const oldSceneThumbnailName = `${oldSceneName}.thumbnail.jpeg`
-    const newSceneThumbnailName = `${newSceneName}.thumbnail.jpeg`
 
-    if (await storageProvider.doesExist(oldSceneJsonName, projectPath))
-      await storageProvider.moveObject(oldSceneJsonName, newSceneJsonName, projectPath, projectPath)
+    for (const ext of sceneAssetFiles) {
+      const oldSceneJsonName = `${oldSceneName}${ext}`
+      const newSceneJsonName = `${newSceneName}${ext}`
 
-    if (await storageProvider.doesExist(oldSceneThumbnailName, projectPath))
-      await storageProvider.moveObject(oldSceneThumbnailName, newSceneThumbnailName, projectPath, projectPath)
-    logger.info('isDev', isDev)
-    if (isDev) {
-      const oldSceneJsonPath = path.resolve(
-        appRootPath.path,
-        `packages/projects/projects/${projectName}/${oldSceneName}.scene.json`
-      )
-
-      const oldSceneThumbNailPath = path.resolve(
-        appRootPath.path,
-        `packages/projects/projects/${projectName}/${oldSceneName}.thumbnail.jpeg`
-      )
-
-      if (fs.existsSync(oldSceneJsonPath)) {
-        const newSceneJsonPath = path.resolve(
-          appRootPath.path,
-          `packages/projects/projects/${projectName}/${newSceneName}.scene.json`
-        )
-        fs.renameSync(oldSceneJsonPath, newSceneJsonPath)
+      if (await storageProvider.doesExist(oldSceneJsonName, projectPath)) {
+        await storageProvider.moveObject(oldSceneJsonName, newSceneJsonName, projectPath, projectPath)
+        await storageProvider.createInvalidation([projectPath + oldSceneJsonName, projectPath + newSceneJsonName])
       }
+    }
 
-      if (fs.existsSync(oldSceneThumbNailPath)) {
-        const newSceneThumbNailPath = path.resolve(
+    if (isDev) {
+      for (const ext of sceneAssetFiles) {
+        const oldSceneJsonPath = path.resolve(
           appRootPath.path,
-          `packages/projects/projects/${projectName}/${newSceneName}.thumbnail.jpeg`
+          `packages/projects/projects/${projectName}/${oldSceneName}${ext}`
         )
-        fs.renameSync(oldSceneThumbNailPath, newSceneThumbNailPath)
+        if (fs.existsSync(oldSceneJsonPath)) {
+          const newSceneJsonPath = path.resolve(
+            appRootPath.path,
+            `packages/projects/projects/${projectName}/${newSceneName}${ext}`
+          )
+          fs.renameSync(oldSceneJsonPath, newSceneJsonPath)
+        }
       }
     }
 
@@ -208,6 +196,13 @@ export class Scene implements ServiceMethods<any> {
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
     const newSceneJsonPath = `projects/${projectName}/${sceneName}.scene.json`
+    await storageProvider.putObject({
+      Key: newSceneJsonPath,
+      Body: Buffer.from(
+        JSON.stringify(cleanSceneDataCacheURLs(sceneData ?? defaultSceneSeed, storageProvider.cacheDomain))
+      ),
+      ContentType: 'application/json'
+    })
 
     if (thumbnailBuffer) {
       const sceneThumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.jpeg`
@@ -218,18 +213,19 @@ export class Scene implements ServiceMethods<any> {
       })
     }
 
-    await storageProvider.putObject({
-      Key: newSceneJsonPath,
-      Body: Buffer.from(
-        JSON.stringify(cleanSceneDataCacheURLs(sceneData ?? defaultSceneSeed, storageProvider.cacheDomain))
-      ),
-      ContentType: 'application/json'
-    })
+    await storageProvider.createInvalidation(
+      sceneAssetFiles.map((asset) => `projects/${projectName}/${sceneName}${asset}`)
+    )
 
     if (isDev) {
       const newSceneJsonPathLocal = path.resolve(
         appRootPath.path,
         `packages/projects/projects/${projectName}/${sceneName}.scene.json`
+      )
+
+      fs.writeFileSync(
+        path.resolve(newSceneJsonPathLocal),
+        JSON.stringify(cleanSceneDataCacheURLs(sceneData ?? defaultSceneSeed, storageProvider.cacheDomain), null, 2)
       )
 
       if (thumbnailBuffer) {
@@ -239,11 +235,6 @@ export class Scene implements ServiceMethods<any> {
         )
         fs.writeFileSync(path.resolve(sceneThumbnailPath), thumbnailBuffer as Buffer)
       }
-
-      fs.writeFileSync(
-        path.resolve(newSceneJsonPathLocal),
-        JSON.stringify(cleanSceneDataCacheURLs(sceneData ?? defaultSceneSeed, storageProvider.cacheDomain), null, 2)
-      )
     }
   }
 
@@ -258,22 +249,16 @@ export class Scene implements ServiceMethods<any> {
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
-    const sceneJsonPath = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/${name}.scene.json`)
-    const thumbnailPath = path.resolve(
-      appRootPath.path,
-      `packages/projects/projects/${projectName}/${name}.thumbnail.jpeg`
+    for (const ext of sceneAssetFiles) {
+      const assetFilePath = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/${name}${ext}`)
+      if (fs.existsSync(assetFilePath)) {
+        fs.rmSync(path.resolve(assetFilePath))
+      }
+    }
+
+    await storageProvider.deleteResources(sceneAssetFiles.map((ext) => `projects/${projectName}/${name}${ext}`))
+    await storageProvider.createInvalidation(
+      sceneAssetFiles.map((asset) => `projects/${projectName}/${sceneName}${asset}`)
     )
-    if (fs.existsSync(sceneJsonPath)) {
-      fs.rmSync(path.resolve(sceneJsonPath))
-    }
-
-    if (fs.existsSync(thumbnailPath)) {
-      fs.rmSync(path.resolve(thumbnailPath))
-    }
-
-    await storageProvider.deleteResources([
-      `projects/${projectName}/${name}.scene.json`,
-      `projects${projectName}/${name}.thumbnail.jpeg`
-    ])
   }
 }

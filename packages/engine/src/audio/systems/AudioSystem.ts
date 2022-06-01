@@ -1,9 +1,11 @@
-import { dispatchAction } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+import { AudioSettingReceptor, restoreAudioSettings } from '../AudioState'
 import { BackgroundMusic } from '../components/BackgroundMusic'
 import { PlaySoundEffect } from '../components/PlaySoundEffect'
 import { SoundEffect } from '../components/SoundEffect'
@@ -38,7 +40,7 @@ export default async function AudioSystem(world: World) {
     console.log('starting audio')
     audioReady = true
     Engine.instance.currentWorld.audioListener.context.resume()
-    dispatchAction(Engine.instance.store, EngineActions.startSuspendedContexts())
+    dispatchAction(EngineActions.startSuspendedContexts())
 
     callbacks.forEach((cb) => cb())
     callbacks = null!
@@ -85,6 +87,12 @@ export default async function AudioSystem(world: World) {
     audio.play()
     removeComponent(ent, PlaySoundEffect)
   }
+
+  matchActionOnce(EngineActions.joinedWorld.matches, () => {
+    restoreAudioSettings()
+  })
+
+  addActionReceptor(AudioSettingReceptor)
 
   return () => {
     for (const entity of soundEffectQuery.enter(world)) {

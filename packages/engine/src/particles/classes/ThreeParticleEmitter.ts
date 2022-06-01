@@ -127,6 +127,7 @@ export class ThreeParticleEmitter extends Mesh {
       fragmentShader,
       transparent: true,
       depthWrite: false,
+      // @ts-ignore
       fog: true,
       blendEquation: AddEquation
     })

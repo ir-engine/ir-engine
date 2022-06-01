@@ -37,9 +37,6 @@ const getRemoteURLFromGitData = (project) => {
   return data.remote.origin.url
 }
 
-export const getStorageProviderPath = (projectName: string) =>
-  `https://${getStorageProvider().cacheDomain}/projects/${projectName}/`
-
 export const deleteProjectFilesInStorageProvider = async (projectName: string) => {
   const storageProvider = getStorageProvider()
   try {
@@ -129,7 +126,6 @@ export class Project extends Service {
     await super.create({
       thumbnail: projectConfig.thumbnail,
       name: projectName,
-      storageProviderPath: getStorageProviderPath(projectName),
       repositoryPath: getRemoteURLFromGitData(projectName)
     })
     // run project install script
@@ -214,7 +210,6 @@ export class Project extends Service {
       {
         thumbnail: packageData.thumbnail,
         name: projectName,
-        storageProviderPath: getStorageProviderPath(projectName),
         repositoryPath: null
       },
       params
@@ -272,7 +267,6 @@ export class Project extends Service {
       {
         thumbnail: projectConfig.thumbnail,
         name: projectName,
-        storageProviderPath: getStorageProviderPath(projectName),
         repositoryPath: data.url
       },
       params || {}
@@ -311,6 +305,9 @@ export class Project extends Service {
   }
 
   async get(name: string, params?: Params): Promise<{ data: ProjectInterface }> {
+    if (!params) params = {}
+    if (!params.query) params.query = {}
+    if (!params.query.$limit) params.query.$limit = 1000
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     const project = data.find((e) => e.name === name)
     if (!project) return null!
@@ -329,7 +326,8 @@ export class Project extends Service {
       ...params,
       query: {
         ...params?.query,
-        $select: params?.query?.$select || ['id', 'name', 'thumbnail', 'repositoryPath', 'storageProviderPath']
+        $limit: params?.query?.$limit || 1000,
+        $select: params?.query?.$select || ['id', 'name', 'thumbnail', 'repositoryPath']
       }
     }
 

@@ -98,7 +98,7 @@ export async function restoreEngineRendererData(): Promise<void> {
 
     await Promise.all(promises)
 
-    dispatchAction(Engine.instance.store, EngineRendererAction.restoreStorageData(s))
+    dispatchAction(EngineRendererAction.restoreStorageData(s))
   }
 }
 
@@ -107,8 +107,8 @@ function updateState(): void {
   setUsePostProcessing(state.usePostProcessing.value)
   setUseShadows(state.useShadows.value)
 
-  dispatchAction(Engine.instance.store, EngineRendererAction.setPhysicsDebug(state.physicsDebugEnable.value))
-  dispatchAction(Engine.instance.store, EngineRendererAction.setAvatarDebug(state.avatarDebugEnable.value))
+  dispatchAction(EngineRendererAction.setPhysicsDebug(state.physicsDebugEnable.value))
+  dispatchAction(EngineRendererAction.setAvatarDebug(state.avatarDebugEnable.value))
 
   if (Engine.instance.isEditor) {
     changeRenderMode(state.renderMode.value)
@@ -213,6 +213,20 @@ export const EngineRendererAction = {
       store: 'ENGINE' as const,
       type: 'WEBGL_RENDERER_QUALITY_LEVEL' as const,
       qualityLevel
+    }
+  },
+  setAudio: (audio: number) => {
+    return {
+      store: 'ENGINE' as const,
+      type: 'AUDIO_VOLUME' as const,
+      audio
+    }
+  },
+  setMicrophone: (microphone: number) => {
+    return {
+      store: 'ENGINE' as const,
+      type: 'MICROPHONE_VOLUME' as const,
+      microphone
     }
   },
   setAutomatic: (automatic: boolean) => {

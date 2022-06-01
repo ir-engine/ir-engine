@@ -12,7 +12,7 @@ type TimerUpdateCallback = (elapsedTime: number) => any
 const TPS_REPORTS_ENABLED = false
 const TPS_REPORT_INTERVAL_MS = 10000
 
-export function Timer(update: TimerUpdateCallback) {
+export function Timer(update: TimerUpdateCallback, tickRate: number) {
   let debugTick = 0
 
   const newEngineTicks = {
@@ -133,7 +133,7 @@ export function Timer(update: TimerUpdateCallback) {
       const _update = () => {
         onFrame(nowMilliseconds(), null)
       }
-      serverLoop = new ServerLoop(_update, 60).start()
+      serverLoop = new ServerLoop(_update, tickRate).start()
     }
     tpsReset()
   }

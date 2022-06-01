@@ -5,7 +5,7 @@ import { Invite, SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
 import { User } from '@xrengine/common/src/interfaces/User'
 
-import { AlertService } from '../../common/services/AlertService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
@@ -17,19 +17,19 @@ const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4
 const inviteCodeRegex = /^[0-9a-fA-F]{8}$/
 
 //State
-export const INVITE_PAGE_LIMIT = 10
+export const INVITE_PAGE_LIMIT = 100
 
 const state = createState({
   receivedInvites: {
     invites: [] as Array<Invite>,
     skip: 0,
-    limit: 5,
+    limit: 100,
     total: 0
   },
   sentInvites: {
     invites: [] as Array<Invite>,
     skip: 0,
-    limit: 5,
+    limit: 100,
     total: 0
   },
   sentUpdateNeeded: true,
@@ -41,31 +41,32 @@ const state = createState({
 })
 
 store.receptors.push((action: InviteActionType): any => {
-  let newValues
   state.batch((s) => {
     switch (action.type) {
       case 'INVITE_SENT':
         return s.sentUpdateNeeded.set(true)
       case 'SENT_INVITES_RETRIEVED':
-        newValues = action
-        s.sentInvites.merge({
-          invites: newValues.invites,
-          skip: newValues.skip,
-          limit: newValues.limit,
-          total: newValues.total
+        return s.merge({
+          sentInvites: {
+            invites: action.invites,
+            skip: action.skip,
+            limit: action.limit,
+            total: action.total
+          },
+          sentUpdateNeeded: false,
+          getSentInvitesInProgress: false
         })
-        return s.merge({ sentUpdateNeeded: false, getSentInvitesInProgress: false })
       case 'RECEIVED_INVITES_RETRIEVED':
-        newValues = action
-        const receivedInvites = s.receivedInvites.invites.value
-
-        if (receivedInvites === null || s.receivedUpdateNeeded.value === true) {
-          s.receivedInvites.invites.set(newValues.invites)
-        } else {
-          s.receivedInvites.invites.merge([...s.receivedInvites.invites.value, ...newValues.invites])
-        }
-        s.receivedInvites.merge({ skip: newValues.skip, limit: newValues.limit, total: newValues.total })
-        return s.merge({ receivedUpdateNeeded: false, getReceivedInvitesInProgress: false })
+        return s.merge({
+          receivedInvites: {
+            invites: action.invites,
+            skip: action.skip,
+            limit: action.limit,
+            total: action.total
+          },
+          receivedUpdateNeeded: false,
+          getReceivedInvitesInProgress: false
+        })
       case 'CREATED_RECEIVED_INVITE':
         return s.receivedUpdateNeeded.set(true)
       case 'CREATED_SENT_INVITE':
@@ -79,10 +80,9 @@ store.receptors.push((action: InviteActionType): any => {
       case 'DECLINED_INVITE':
         return s.receivedUpdateNeeded.set(true)
       case 'INVITE_TARGET_SET':
-        newValues = action
         return state.merge({
-          targetObjectId: newValues.targetObjectId || '',
-          targetObjectType: newValues.targetObjectType || ''
+          targetObjectId: action.targetObjectId || '',
+          targetObjectType: action.targetObjectType || ''
         })
       case 'FETCHING_SENT_INVITES':
         return s.getSentInvitesInProgress.set(true)
@@ -103,20 +103,20 @@ export const InviteService = {
 
     if (data.identityProviderType === 'email') {
       if (emailRegex.test(data.token) !== true) {
-        AlertService.dispatchAlertError(new Error('Invalid email address'))
+        NotificationService.dispatchNotify('Invalid email address', { variant: 'error' })
         return
       }
     }
     if (data.identityProviderType === 'sms') {
       if (phoneRegex.test(data.token) !== true) {
-        AlertService.dispatchAlertError(new Error('Invalid 10-digit US phone number'))
+        NotificationService.dispatchNotify('Invalid 10-digit US phone number', { variant: 'error' })
         return
       }
     }
 
     if (data.inviteCode != null) {
-      if (inviteCodeRegex.test(data.inviteCode) !== true) {
-        AlertService.dispatchAlertError(new Error('Invalid Invite Code'))
+      if (!inviteCodeRegex.test(data.inviteCode)) {
+        NotificationService.dispatchNotify('Invalid Invite Code', { variant: 'error' })
         return
       } else {
         try {
@@ -128,26 +128,24 @@ export const InviteService = {
           })) as Paginated<User>
 
           if (userResult.total === 0) {
-            AlertService.dispatchAlertError(new Error('No user has that invite code'))
+            NotificationService.dispatchNotify('No user has that invite code', { variant: 'error' })
             return
-          } else {
-            data.invitee = userResult.data[0].id
           }
-        } catch (error) {
-          AlertService.dispatchAlertError(error)
+        } catch (err) {
+          NotificationService.dispatchNotify(err.message, { variant: 'error' })
         }
       }
     }
 
     if (data.invitee != null) {
       if (userIdRegex.test(data.invitee) !== true) {
-        AlertService.dispatchAlertError(new Error('Invalid user ID'))
+        NotificationService.dispatchNotify('Invalid user ID', { variant: 'error' })
         return
       }
     }
 
     if ((data.token == null || data.token.length === 0) && (data.invitee == null || data.invitee.length === 0)) {
-      AlertService.dispatchAlertError(new Error(`Not a valid recipient`))
+      NotificationService.dispatchNotify('Not a valid recipient', { variant: 'error' })
       return
     }
 
@@ -167,60 +165,97 @@ export const InviteService = {
       let inviteResult
       if (existingInviteResult.total === 0) inviteResult = await client.service('invite').create(params)
 
-      AlertService.dispatchAlertSuccess('Invite Sent')
+      NotificationService.dispatchNotify('Invite Sent', { variant: 'success' })
       dispatch(InviteAction.sentInvite(inviteResult))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  retrieveReceivedInvites: async (incDec?: 'increment' | 'decrement') => {
+  retrieveReceivedInvites: async (
+    incDec?: 'increment' | 'decrement',
+    search?: string,
+    sortField = 'id',
+    orderBy = 'asc'
+  ) => {
     const dispatch = useDispatch()
 
     dispatch(InviteAction.fetchingReceivedInvites())
     const inviteState = accessInviteState().value
     const skip = inviteState.receivedInvites.skip
     const limit = inviteState.receivedInvites.limit
+    let sortData = {}
+    if (sortField.length > 0) {
+      if (sortField === 'type') {
+        sortData['inviteType'] = orderBy === 'desc' ? -1 : 1
+      } else if (sortField === 'name') {
+        // TO DO; need to find the proper syntax if that's possible
+        // sortData[`'user.name'`] = orderBy === 'desc' ? -1 : 1
+      } else {
+        sortData[sortField] = orderBy === 'desc' ? -1 : 1
+      }
+    }
+
     try {
       const inviteResult = (await client.service('invite').find({
         query: {
+          $sort: sortData,
           type: 'received',
           $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
-          $limit: limit
+          $limit: limit,
+          search: search
         }
       })) as Paginated<Invite>
       dispatch(InviteAction.retrievedReceivedInvites(inviteResult))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  retrieveSentInvites: async (incDec?: 'increment' | 'decrement') => {
+  retrieveSentInvites: async (
+    incDec?: 'increment' | 'decrement',
+    search?: string,
+    sortField = 'id',
+    orderBy = 'asc'
+  ) => {
     const dispatch = useDispatch()
 
     dispatch(InviteAction.fetchingSentInvites())
     const inviteState = accessInviteState().value
     const skip = inviteState.sentInvites.skip
     const limit = inviteState.sentInvites.limit
+    let sortData = {}
+    if (sortField.length > 0) {
+      if (sortField === 'type') {
+        sortData['inviteType'] = orderBy === 'desc' ? -1 : 1
+      } else if (sortField === 'name') {
+        // TO DO; need to find the proper syntax if that's possible
+        // sortData[`'invitee.name'`] = orderBy === 'desc' ? -1 : 1
+      } else {
+        sortData[sortField] = orderBy === 'desc' ? -1 : 1
+      }
+    }
     try {
       const inviteResult = (await client.service('invite').find({
         query: {
+          $sort: sortData,
           type: 'sent',
           $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
-          $limit: limit
+          $limit: limit,
+          search: search
         }
       })) as Paginated<Invite>
       dispatch(InviteAction.retrievedSentInvites(inviteResult))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  removeInvite: async (invite: Invite) => {
+  removeInvite: async (inviteId: string) => {
     const dispatch = useDispatch()
 
     try {
-      await client.service('invite').remove(invite.id)
+      await client.service('invite').remove(inviteId)
       dispatch(InviteAction.removedSentInvite())
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   acceptInvite: async (inviteId: string, passcode: string) => {
@@ -234,7 +269,7 @@ export const InviteService = {
       })
       dispatch(InviteAction.acceptedInvite())
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   declineInvite: async (invite: Invite) => {
@@ -244,7 +279,7 @@ export const InviteService = {
       await client.service('invite').remove(invite.id)
       dispatch(InviteAction.declinedInvite())
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   updateInviteTarget: async (targetObjectType?: string, targetObjectId?: string) => {

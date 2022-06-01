@@ -18,8 +18,8 @@ interface Props {
 }
 
 const selectAvatarMenu = (props: Props) => {
-  const MAX_AVATARS_PER_PAGE = 6
-  const MIN_AVATARS_PER_PAGE = 5
+  const MAX_AVATARS_PER_PAGE = window.innerWidth >= 1024 ? 9 : 12
+  const MIN_AVATARS_PER_PAGE = 6
   const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
   const authState = useAuthState()
   const avatarId = authState.user?.avatarId?.value

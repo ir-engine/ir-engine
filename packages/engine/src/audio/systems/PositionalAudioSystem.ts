@@ -72,7 +72,7 @@ export default async function PositionalAudioSystem(world: World) {
         }
       })
   }
-  addActionReceptor(Engine.instance.store, audioReceptors)
+  addActionReceptor(audioReceptors)
 
   let positionalAudioSettings: PositionalAudioSettingsComponentType
 
@@ -101,7 +101,7 @@ export default async function PositionalAudioSystem(world: World) {
       const entityNetworkObject = getComponent(entity, NetworkObjectComponent)
       if (entityNetworkObject) {
         const peerId = entityNetworkObject.ownerId
-        const consumer = MediaStreams.instance?.consumers.find(
+        const consumer = MediaStreams.instance.consumers.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
         )
         if (consumer == null && avatarAudioStream.get(entity) != null) {
@@ -110,8 +110,8 @@ export default async function PositionalAudioSystem(world: World) {
       }
 
       const props = applyMediaAudioSettings(SCENE_COMPONENT_AUDIO_DEFAULT_VALUES)
-      addComponent(entity, AudioComponent, props)
-      updateAudio(entity, props)
+      // addComponent(entity, AudioComponent, props)
+      // updateAudio(entity, props)
     }
 
     for (const entity of avatarAudioQuery.exit()) {
@@ -125,7 +125,7 @@ export default async function PositionalAudioSystem(world: World) {
       let consumer
       if (entityNetworkObject != null) {
         const peerId = entityNetworkObject.ownerId
-        consumer = MediaStreams.instance?.consumers.find(
+        consumer = MediaStreams.instance.consumers.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
         )
       }
@@ -145,10 +145,12 @@ export default async function PositionalAudioSystem(world: World) {
 
       if (avatarAudio) {
         const audioEl = avatarAudio.userData.audioEl as AudioObject
-        const audioStreamSource = audioEl.context.createMediaStreamSource(streamsLive)
-        if (audioEl.context.state === 'suspended') audioEl.context.resume()
+        if (audioEl) {
+          const audioStreamSource = audioEl.context.createMediaStreamSource(streamsLive)
+          if (audioEl.context.state === 'suspended') audioEl.context.resume()
 
-        audioEl.setNodeSource(audioStreamSource as unknown as AudioBufferSourceNode)
+          audioEl.setNodeSource(audioStreamSource as unknown as AudioBufferSourceNode)
+        }
       }
     }
   }

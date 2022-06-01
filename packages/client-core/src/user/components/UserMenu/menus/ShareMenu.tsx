@@ -3,13 +3,13 @@ import { useTranslation } from 'react-i18next'
 
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 
-import { FileCopy, Send } from '@mui/icons-material'
+import { FileCopy } from '@mui/icons-material'
 import Button from '@mui/material/Button'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
-import { AlertService } from '../../../../common/services/AlertService'
+import { NotificationService } from '../../../../common/services/NotificationService'
 import { InviteService } from '../../../../social/services/InviteService'
 import { useInviteState } from '../../../../social/services/InviteService'
 import { useAuthState } from '../../../services/AuthService'
@@ -24,7 +24,7 @@ const ShareMenu = (): JSX.Element => {
   const inviteState = useInviteState()
   const copyLinkToClipboard = () => {
     navigator.clipboard.writeText(refLink.current.value)
-    AlertService.alertSuccess(t('user:usermenu.share.linkCopied'))
+    NotificationService.dispatchNotify(t('user:usermenu.share.linkCopied'), { variant: 'success' })
   }
   const selfUser = useAuthState().user
 

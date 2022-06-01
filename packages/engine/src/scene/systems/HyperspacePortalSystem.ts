@@ -1,6 +1,11 @@
 import { AmbientLight } from 'three'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { changeAvatarAnimationState } from '../../avatar/animation/AvatarAnimationGraph'
+import { AvatarStates } from '../../avatar/animation/Util'
+import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { createAvatarController } from '../../avatar/functions/createAvatar'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
@@ -11,7 +16,9 @@ import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
-import { matchActionOnce, receiveActionOnce } from '../../networking/functions/matchActionOnce'
+import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PortalEffect } from '../classes/PortalEffect'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -36,11 +43,14 @@ export default async function HyperspacePortalSystem(world: World) {
 
     // to trigger the hyperspace effect, add the hyperspace tag to the world entity
     for (const entity of hyperspaceTagComponent.enter()) {
-      switchCameraMode(world.localClientEntity, { cameraMode: CameraMode.ShoulderCam }, true)
+      if (!EngineRenderer.instance.xrSession)
+        switchCameraMode(world.localClientEntity, { cameraMode: CameraMode.ShoulderCam }, true)
 
       removeComponent(world.localClientEntity, AvatarControllerComponent)
       removeComponent(world.localClientEntity, InteractorComponent)
       removeComponent(world.localClientEntity, LocalInputTagComponent)
+
+      dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: AvatarStates.FALL_IDLE, params: {} }))
 
       // TODO: add BPCEM of old and new scenes and fade them in and out too
       hyperspaceEffect.fadeIn(delta)
@@ -58,7 +68,7 @@ export default async function HyperspacePortalSystem(world: World) {
       Engine.instance.currentWorld.scene.add(hyperspaceEffect)
 
       // create receptor for joining the world to end the hyperspace effect
-      matchActionOnce(Engine.instance.store, EngineActions.joinedWorld.matches, () => {
+      matchActionOnce(EngineActions.joinedWorld.matches, () => {
         hyperspaceEffect.fadeOut(delta).then(() => {
           removeComponent(world.worldEntity, HyperspaceTagComponent)
         })

@@ -530,7 +530,7 @@
 
 .cancelButton {
   background: transparent;
-  border-color: var(--buttonOutlined);
+  border: solid 1px var(--buttonOutlined);
   color: var(--buttonOutlined) !important;
 
   &:hover {
@@ -708,11 +708,19 @@
 .select {
   color: var(--textColor) !important;
   height: 2.4rem !important;
+
+  svg {
+    color: var(--textColor) !important;
+  }
 }
 
 .selectPaper {
   background: var(--inputBackground);
   color: var(--textColor);
+
+  svg {
+    color: var(--textColor) !important;
+  }
 
   &:global(.Mui-selected) {
     background: var(--dropdownMenuSelectedBackground);
@@ -723,7 +731,7 @@
   background: var(--popupBackground) !important;
   color: var(--textColor);
   width: 100%;
-  padding: 40px 10px;
+  padding: 20px;
 }
 
 .container {
@@ -1159,4 +1167,25 @@
 
 .accentText {
   color: var(--textColor);
+}
+
+.indicator {
+  background-color: var(--textColor);
+}
+
+.inviteTabAppbar {
+  background-color: var(--navbarBackground);
+  color: var(--textColor);
+}
+
+.tabsRoot {
+  min-height: 40px;
+
+  :global(.Mui-selected) {
+    color: var(--textColor);
+  }
+}
+
+.tabpanelRoot {
+  background-color: var(--panelCards);
 }

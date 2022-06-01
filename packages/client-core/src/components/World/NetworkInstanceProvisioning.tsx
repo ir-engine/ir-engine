@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useHistory } from 'react-router'
 
 import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/services/AppService'
@@ -16,11 +16,13 @@ import { useLocationState } from '@xrengine/client-core/src/social/services/Loca
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { UserService, useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { useHookEffect } from '@xrengine/hyperflux'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { addActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 import { getSearchParamFromURL } from '../../util/getSearchParamFromURL'
 import GameServerWarnings from './GameServerWarnings'
@@ -36,28 +38,38 @@ export const NetworkInstanceProvisioning = () => {
   const engineState = useEngineState()
   const history = useHistory()
 
+  const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
   const instanceConnectionState = useLocationInstanceConnectionState()
-  const currentLocationInstanceId = instanceConnectionState.currentInstanceId.value
-  const currentLocationInstanceConnection = instanceConnectionState.instances[currentLocationInstanceId!].ornull
+  const currentLocationInstanceConnection = instanceConnectionState.instances[worldNetworkHostId!].ornull
 
+  const mediaNetworkHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
   const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceId = channelConnectionState.currentInstanceId.value
-  const currentChannelInstanceConnection = channelConnectionState.instances[currentChannelInstanceId!].ornull
+  const currentChannelInstanceConnection = channelConnectionState.instances[mediaNetworkHostId].ornull
 
+  useEffect(() => {
+    addActionReceptor((action) => {
+      matches(action).when(
+        MediaStreams.actions.triggerUpdateConsumers.matches,
+        MediaStreamService.triggerUpdateConsumers
+      )
+    })
+  }, [])
+
+  /** if the instance that got provisioned is not the one that was entered into the URL, update the URL */
   useHookEffect(() => {
-    if (currentLocationInstanceId) {
+    if (worldNetworkHostId) {
       const url = new URL(window.location.href)
       const searchParams = url.searchParams
       const instanceId = searchParams.get('instanceId')
-      if (instanceId !== currentLocationInstanceId) searchParams.set('instanceId', currentLocationInstanceId)
+      if (instanceId !== worldNetworkHostId) searchParams.set('instanceId', worldNetworkHostId)
       history.push(url.pathname + url.search)
     }
-  }, [instanceConnectionState.currentInstanceId])
+  }, [currentLocationInstanceConnection])
 
   // 2. once we have the location, provision the instance server
   useHookEffect(() => {
     const currentLocation = locationState.currentLocation.location
-    const isProvisioned = currentLocationInstanceId && currentLocationInstanceConnection?.provisioned.value
+    const isProvisioned = worldNetworkHostId && currentLocationInstanceConnection?.provisioned.value
 
     if (currentLocation.id?.value) {
       if (!isUserBanned && !isProvisioned) {
@@ -86,12 +98,12 @@ export const NetworkInstanceProvisioning = () => {
   useHookEffect(() => {
     if (
       engineState.isEngineInitialized.value &&
-      currentLocationInstanceId &&
+      currentLocationInstanceConnection?.value &&
       !currentLocationInstanceConnection.connected.value &&
       currentLocationInstanceConnection.provisioned.value &&
       !currentLocationInstanceConnection.connecting.value
     )
-      LocationInstanceConnectionService.connectToServer(instanceConnectionState.currentInstanceId.value!)
+      LocationInstanceConnectionService.connectToServer(worldNetworkHostId)
   }, [
     engineState.isEngineInitialized,
     currentLocationInstanceConnection?.connected,
@@ -104,20 +116,17 @@ export const NetworkInstanceProvisioning = () => {
       inviteCode: getSearchParamFromURL('inviteCode')!
     }
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
-      Network.instance
-        .getTransport('world')
+      Engine.instance.currentWorld.worldNetwork
         .request(MessageTypes.JoinWorld.toString(), transportRequestData)
         .then(receiveJoinWorld)
     }
   }, [engineState.connectedWorld, engineState.sceneLoaded])
 
-  // channel server provisioning (if needed)
+  // media server provisioning
   useHookEffect(() => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
-      const instanceChannel = Object.values(channels).find(
-        (channel) => channel.instanceId === instanceConnectionState.currentInstanceId.value
-      )
+      const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === worldNetworkHostId)
       MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
     }
   }, [chatState.instanceChannelFetched])
@@ -130,22 +139,24 @@ export const NetworkInstanceProvisioning = () => {
   // if a media connection has been provisioned and is ready, connect to it
   useHookEffect(() => {
     if (
-      currentChannelInstanceId &&
+      mediaNetworkHostId &&
       currentChannelInstanceConnection.provisioned.value === true &&
-      currentChannelInstanceConnection.updateNeeded.value === true &&
+      currentChannelInstanceConnection.readyToConnect.value === true &&
       currentChannelInstanceConnection.connecting.value === false &&
       currentChannelInstanceConnection.connected.value === false
     ) {
       MediaInstanceConnectionService.connectToServer(
-        currentChannelInstanceId!,
+        mediaNetworkHostId,
         currentChannelInstanceConnection.channelId.value
       )
       MediaStreamService.updateCamVideoState()
       MediaStreamService.updateCamAudioState()
+      MediaStreamService.updateScreenAudioState()
+      MediaStreamService.updateScreenVideoState()
     }
   }, [
     currentChannelInstanceConnection?.connected,
-    currentChannelInstanceConnection?.updateNeeded,
+    currentChannelInstanceConnection?.readyToConnect,
     currentChannelInstanceConnection?.provisioned,
     currentChannelInstanceConnection?.connecting
   ])

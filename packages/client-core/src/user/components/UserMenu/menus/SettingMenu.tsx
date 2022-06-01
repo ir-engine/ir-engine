@@ -1,15 +1,17 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { UserSetting } from '@xrengine/common/src/interfaces/User'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { AvatarSettings, updateMap } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
+import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import {
   AvatarInputSettingsAction,
   useAvatarInputSettingsState
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -35,41 +37,47 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 
-import { AuthService, useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 
 const SettingMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()
+  const audioState = useAudioState()
   const avatarInputState = useAvatarInputSettingsState()
-  const authState = useAuthState()
-  const selfUser = authState.user
-  const dispatch = useDispatch()
-  const [userSettings, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
+  const user = useAuthState().user
   const [controlTypeSelected, setControlType] = useState(avatarInputState.controlType.value)
   const [controlSchemeSelected, setControlScheme] = useState(
     AvatarMovementScheme[AvatarSettings.instance.movementScheme]
   )
-  const [invertRotationAndMoveSticks, setInvertRotationAndMoveSticksState] = useState(
-    avatarInputState.invertRotationAndMoveSticks.value
-  )
+
+  const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
+  const showAvatar = avatarInputState.showAvatar.value
   const firstRender = useRef(true)
   const engineState = useEngineState()
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
   const controlSchemes = Object.values(AvatarMovementScheme).filter((value) => typeof value === 'string')
-  const setUserSettings = (newSetting: any): void => {
-    const setting = { ...userSettings, ...newSetting }
-    setUserSetting(setting)
-    AuthService.updateUserSettings(selfUser.user_setting.value?.id, setting)
-  }
   const [open, setOpen] = useState(false)
+
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInvertRotationAndMoveSticksState((prev) => !prev)
-    dispatchAction(
-      Engine.instance.store,
-      AvatarInputSettingsAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks)
-    )
+    dispatchAction(AvatarInputSettingsAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks))
   }
+
+  const handleChangeShowAvatar = (event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatchAction(AvatarInputSettingsAction.setShowAvatar(!showAvatar))
+  }
+
+  useEffect(() => {
+    const world = Engine.instance.currentWorld
+    const entity = world.getUserAvatarEntity(user.id.value)
+    const avatar = getComponent(entity, AvatarComponent)
+    if (showAvatar) {
+      if (avatar.modelContainer.visible) return
+      avatar.modelContainer.visible = showAvatar
+    } else {
+      if (!avatar.modelContainer.visible) return
+      avatar.modelContainer.visible = showAvatar
+    }
+  }, [showAvatar])
 
   useLayoutEffect(() => {
     if (firstRender.current) {
@@ -81,7 +89,7 @@ const SettingMenu = (): JSX.Element => {
 
   const handleChangeControlType = (event: SelectChangeEvent) => {
     setControlType(event.target.value as any)
-    dispatchAction(Engine.instance.store, AvatarInputSettingsAction.setControlType(event.target.value as any))
+    dispatchAction(AvatarInputSettingsAction.setControlType(event.target.value as any))
   }
 
   const handleChangeControlScheme = (event: SelectChangeEvent) => {
@@ -102,9 +110,9 @@ const SettingMenu = (): JSX.Element => {
             </span>
             <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-volume')}</span>
             <Slider
-              value={userSettings?.volume == null ? 100 : userSettings?.volume}
+              value={audioState.audio.value == null ? 100 : audioState.audio.value}
               onChange={(_, value: number) => {
-                setUserSettings({ volume: value })
+                dispatchAction(AudioSettingAction.setAudio(value))
                 const mediaElements = document.querySelectorAll<HTMLMediaElement>('video, audio')
                 for (let i = 0; i < mediaElements.length; i++) {
                   mediaElements[i].volume = (value as number) / 100
@@ -121,9 +129,9 @@ const SettingMenu = (): JSX.Element => {
             </span>
             <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-microphone')}</span>
             <Slider
-              value={userSettings?.microphone == null ? 100 : userSettings?.microphone}
+              value={audioState.microphone.value == null ? 100 : audioState.microphone.value}
               onChange={(_, value: number) => {
-                setUserSettings({ microphone: value })
+                dispatchAction(AudioSettingAction.setMicrophone(value))
               }}
               className={styles.slider}
               max={100}
@@ -143,8 +151,8 @@ const SettingMenu = (): JSX.Element => {
             <Slider
               value={rendererState.qualityLevel.value}
               onChange={(_, value: number) => {
-                dispatchAction(Engine.instance.store, EngineRendererAction.setQualityLevel(value))
-                dispatchAction(Engine.instance.store, EngineRendererAction.setAutomatic(false))
+                dispatchAction(EngineRendererAction.setQualityLevel(value))
+                dispatchAction(EngineRendererAction.setAutomatic(false))
               }}
               className={styles.slider}
               min={1}
@@ -158,8 +166,8 @@ const SettingMenu = (): JSX.Element => {
               control={<Checkbox checked={rendererState.usePostProcessing.value} size="small" />}
               label={t('user:usermenu.setting.lbl-pp') as string}
               onChange={(_, value) => {
-                dispatchAction(Engine.instance.store, EngineRendererAction.setPostProcessing(value))
-                dispatchAction(Engine.instance.store, EngineRendererAction.setAutomatic(false))
+                dispatchAction(EngineRendererAction.setPostProcessing(value))
+                dispatchAction(EngineRendererAction.setAutomatic(false))
               }}
             />
             {/* <FormControlLabel
@@ -177,8 +185,8 @@ const SettingMenu = (): JSX.Element => {
               control={<Checkbox checked={rendererState.useShadows.value} size="small" />}
               label={t('user:usermenu.setting.lbl-shadow') as string}
               onChange={(_, value) => {
-                dispatchAction(Engine.instance.store, EngineRendererAction.setShadows(value))
-                dispatchAction(Engine.instance.store, EngineRendererAction.setAutomatic(false))
+                dispatchAction(EngineRendererAction.setShadows(value))
+                dispatchAction(EngineRendererAction.setAutomatic(false))
               }}
             />
           </div>
@@ -189,10 +197,20 @@ const SettingMenu = (): JSX.Element => {
               label={t('user:usermenu.setting.lbl-automatic') as string}
               labelPlacement="start"
               onChange={(_, value) => {
-                dispatchAction(Engine.instance.store, EngineRendererAction.setAutomatic(value))
+                dispatchAction(EngineRendererAction.setAutomatic(value))
               }}
             />
           </div>
+        </section>
+        <section className={styles.settingSection}>
+          <Typography variant="h6" className={styles.settingHeader}>
+            {t('user:usermenu.setting.user-avatar')}
+          </Typography>
+          <FormControlLabel
+            label={t('user:usermenu.setting.show-avatar')}
+            labelPlacement="start"
+            control={<Switch checked={showAvatar} onChange={handleChangeShowAvatar} color="primary" />}
+          />
         </section>
         {engineState.xrSupported.value && (
           <>
@@ -217,7 +235,7 @@ const SettingMenu = (): JSX.Element => {
                       color="primary"
                     />
                   }
-                  label="Invert Rotation And Move Sticks"
+                  label={t('user:usermenu.setting.invert-rotation')}
                 />
               </div>
               <Collapse in={open} timeout="auto" unmountOnExit>
