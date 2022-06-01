@@ -1,44 +1,25 @@
 import i18n from 'i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
+import { merge } from 'lodash'
 import { initReactI18next } from 'react-i18next'
 
-import { getI18nConfigs as getClientCoreI18nConfigs } from '@xrengine/client-core/src/i18n'
+import getClientCoreI18nConfigs from '@xrengine/client-core/src/i18n'
+import { getI18nConfigs } from '@xrengine/client-core/src/i18nImporter'
 
-import translation from '../i18n/en/translation.json'
+const projects = import.meta.globEager('../../projects/projects/**/i18n/**/*.json')
+const clientI18nConfigs = import.meta.globEager('../i18n/**/*.json')
 
-export const initialize = (): Promise<void> => {
-  return new Promise((resolve) => {
-    // Setup I18N
-    const resources = {
-      en: {
-        translation
-      }
-    }
+export const initializei18n = () => {
+  const modules = merge(clientI18nConfigs, getClientCoreI18nConfigs(), projects)
 
-    const namespace = ['translation']
+  const { namespace, resources } = getI18nConfigs(modules)
 
-    const subPackageTranslations = [getClientCoreI18nConfigs()]
-
-    for (let t of subPackageTranslations) {
-      for (let key of Object.keys(t.resources)) {
-        if (!resources[key]) resources[key] = t.resources[key]
-        else resources[key] = { ...resources[key], ...t.resources[key] }
-      }
-
-      for (let ns of t.namespace) {
-        if (!namespace.includes(ns)) namespace.push(ns)
-      }
-    }
-
-    i18n.use(LanguageDetector).use(initReactI18next).init({
-      fallbackLng: 'en',
-      ns: namespace,
-      defaultNS: 'translation',
-      lng: 'en',
-      resources
-    })
-
-    resolve()
+  i18n.use(LanguageDetector).use(initReactI18next).init({
+    fallbackLng: 'en',
+    ns: namespace,
+    defaultNS: 'translation',
+    lng: 'en',
+    resources
   })
 }
 
@@ -49,6 +30,6 @@ export const initialize = (): Promise<void> => {
 //     // custom namespace type if you changed it
 //     defaultNS: 'en';
 //     // custom resources type
-//     resources: ReturnType<typeof getClientCoreI18nConfigs>['resources'];
+//     resources: ReturnType<typeof getI18nConfigs>['resources'];
 //   }
 // }
