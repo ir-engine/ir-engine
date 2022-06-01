@@ -8,12 +8,10 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { createXRUI, XRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
-import { Close as CloseIcon, Message as MessageIcon, Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
-import Badge from '@mui/material/Badge'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 
 const styles = {
@@ -336,16 +334,6 @@ const ChatDetailView = () => {
             />
           </div>
         </div>
-      </div>
-      <div xr-layer="" style={styles.chatButton} onClick={() => toggleChatWindow()}>
-        <Badge
-          color="primary"
-          variant="dot"
-          invisible={!unreadMessages}
-          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        >
-          {!detailState.chatWindowOpen.value ? <MessageIcon /> : <CloseIcon />}
-        </Badge>
       </div>
     </>
   )

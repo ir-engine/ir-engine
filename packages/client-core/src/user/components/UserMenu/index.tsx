@@ -26,7 +26,7 @@ type UserMenuPanelType = (...props: any & { setActiveMenu: (menu: string) => {} 
 // panels that can be open
 export const UserMenuPanels = new Map<string, UserMenuPanelType>()
 
-const EmoteIcon = () => (
+export const EmoteIcon = () => (
   <svg width="35px" height="35px" viewBox="0 0 184 184" version="1.1">
     <path
       fill="var(--iconButtonColor)"

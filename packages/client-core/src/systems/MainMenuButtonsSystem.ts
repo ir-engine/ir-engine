@@ -14,12 +14,17 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 
 import { createMainMenuButtonsView } from './ui/MainMenuButtons'
 
-export const renderMainMenuButtons = (world: World, show: Boolean, contextMenuEntity: Entity) => {
+export const renderMainMenuButtons = (world: World, show: Boolean, mainMenuEntity: Entity) => {
   const userEntity = world.getUserAvatarEntity(Engine.instance.userId)
   if (!userEntity) return
 
-  const contextMenuXRUI = getComponent(contextMenuEntity, XRUIComponent)
-  if (!contextMenuXRUI) return
+  const mainMenuButtonsXRUI = getComponent(mainMenuEntity, XRUIComponent)
+  if (!mainMenuButtonsXRUI) return
+
+  mainMenuButtonsXRUI.container.scale.setScalar(0.1)
+  mainMenuButtonsXRUI.container.position.copy(Engine.instance.currentWorld.camera.position)
+  mainMenuButtonsXRUI.container.position.y = 0.3
+  mainMenuButtonsXRUI.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
 }
 
 export default async function MainMenuButtonsSystem(world: World) {
