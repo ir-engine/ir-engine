@@ -4,11 +4,18 @@ import fs from 'fs'
 import path from 'path'
 
 import logger from '../../logger'
+import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 
-export const download = async (projectName) => {
+/**
+ * Downloads a specific project to the local file system from the storage provider cache
+ * Then runs `npm install --legacy-peer-deps` inside the project to install it's dependencies
+ * @param projectName
+ * @returns {Promise<boolean>}
+ */
+export const download = async (projectName: string) => {
   const storageProvider = getStorageProvider()
   try {
     logger.info(`[ProjectLoader]: Installing project "${projectName}"...`)
@@ -25,12 +32,11 @@ export const download = async (projectName) => {
       files.map(async (filePath) => {
         if (path.parse(filePath).ext.length > 0) {
           logger.info(`[ProjectLoader]: - downloading "${filePath}"`)
-          const fileResult = await storageProvider.getObject(filePath)
-
-          if (fileResult.Body.length === 0) {
-            logger.info(`[ProjectLoader]: WARNING file "${filePath}" is empty`)
-          }
-          writeFileSyncRecursive(path.join(appRootPath.path, 'packages/projects', filePath), fileResult.Body)
+          const fileResult = await await (
+            await fetch(getCachedAsset(filePath, storageProvider.cacheDomain, true))
+          ).arrayBuffer()
+          if (fileResult.byteLength === 0) logger.info(`[ProjectLoader]: WARNING file "${filePath}" is empty`)
+          writeFileSyncRecursive(path.join(appRootPath.path, 'packages/projects', filePath), fileResult)
         }
       })
     )

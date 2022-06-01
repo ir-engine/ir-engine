@@ -1,6 +1,7 @@
 import { NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
+import fetch from 'node-fetch'
 import path from 'path'
 
 import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -27,14 +28,12 @@ export const getSceneData = async (projectName, sceneName, metadataOnly, interna
 
   const sceneExists = await storageProvider.doesExist(`${sceneName}.scene.json`, `projects/${projectName}/`)
   if (sceneExists) {
-    const sceneResult = await storageProvider.getObject(scenePath)
+    const sceneResult = await (await fetch(getCachedAsset(scenePath, storageProvider.cacheDomain, internal))).json() // fetch from cloudfront
     const sceneData: SceneData = {
       name: sceneName,
       project: projectName,
       thumbnailUrl: thumbnailUrl + `?${Date.now()}`,
-      scene: metadataOnly
-        ? undefined!
-        : parseSceneDataCacheURLs(JSON.parse(sceneResult.Body.toString()), storageProvider.cacheDomain, internal)
+      scene: metadataOnly ? undefined! : parseSceneDataCacheURLs(sceneResult, storageProvider.cacheDomain, internal)
     }
     return sceneData
   }
