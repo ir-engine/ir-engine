@@ -957,6 +957,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
     encodings: [], // TODO: Add me
     appData: { mediaTag: 'screen-video', channelType: channelType, channelId: channelId }
   })
+  MediaStreams.instance.setScreenShareVideoPaused(false)
 
   // create a producer for audio, if we have it
   if (MediaStreams.instance.localScreen.getAudioTracks().length) {
@@ -964,6 +965,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
       track: MediaStreams.instance.localScreen.getAudioTracks()[0],
       appData: { mediaTag: 'screen-audio', channelType: channelType, channelId: channelId }
     })
+    MediaStreams.instance.setScreenShareAudioPaused(false)
   }
 
   // handler for screen share stopped event (triggered by the
@@ -971,9 +973,6 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   MediaStreams.instance.screenVideoProducer.track.onended = async () => {
     return stopScreenshare(network)
   }
-
-  MediaStreams.instance.setScreenShareAudioPaused(false)
-  MediaStreams.instance.setScreenShareVideoPaused(false)
 
   MediaStreamService.updateScreenAudioState()
   MediaStreamService.updateScreenVideoState()
@@ -991,6 +990,8 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
 
   await MediaStreams.instance.screenVideoProducer.close()
   MediaStreams.instance.screenVideoProducer = null
+  MediaStreams.instance.setScreenShareVideoPaused(true)
+
   if (MediaStreams.instance.screenAudioProducer) {
     const { error: screenAudioProducerError } = await network.request(MessageTypes.WebRTCCloseProducer.toString(), {
       producerId: MediaStreams.instance.screenAudioProducer.id
@@ -999,10 +1000,8 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
 
     await MediaStreams.instance.screenAudioProducer.close()
     MediaStreams.instance.screenAudioProducer = null
+    MediaStreams.instance.setScreenShareAudioPaused(true)
   }
-
-  MediaStreams.instance.setScreenShareAudioPaused(true)
-  MediaStreams.instance.setScreenShareVideoPaused(true)
 
   MediaStreamService.updateScreenAudioState()
   MediaStreamService.updateScreenVideoState()
