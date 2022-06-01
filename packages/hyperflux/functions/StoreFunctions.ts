@@ -1,4 +1,4 @@
-import { State } from '@speigg/hookstate'
+import { State } from '@hookstate/core'
 import { Validator } from 'ts-matches'
 
 import { addTopic } from '..'

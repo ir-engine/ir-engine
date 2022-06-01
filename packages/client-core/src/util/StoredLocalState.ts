@@ -1,4 +1,4 @@
-import { createState, Downgraded, useState } from '@speigg/hookstate'
+import { createState, Downgraded, useState } from '@hookstate/core'
 
 import { store } from '../store'
 

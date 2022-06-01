@@ -27,6 +27,9 @@ import {
   NotificationActions,
   NotificationActionType
 } from '@xrengine/client-core/src/common/services/NotificationService'
+import { interceptUseEffect } from '@xrengine/hyperflux/utils/useHookEffect'
+
+interceptUseEffect() // TODO: remove on next hookstate release
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface

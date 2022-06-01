@@ -1,4 +1,4 @@
-import { State } from '@speigg/hookstate'
+import { State } from '@hookstate/core'
 import * as bitECS from 'bitecs'
 import { ArrayByType, ISchema, Type } from 'bitecs'
 

@@ -1,4 +1,4 @@
-import { useState } from '@speigg/hookstate'
+import { useState } from '@hookstate/core'
 import { useContext } from 'react'
 
 import { XRUIStateContext } from '../XRUIStateContext'

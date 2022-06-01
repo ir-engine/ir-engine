@@ -1,4 +1,4 @@
-import { createState, useState } from '@speigg/hookstate'
+import { createState, useState } from '@hookstate/core'
 
 import { store } from '@xrengine/client-core/src/store'
 import { ClientStorage } from '@xrengine/engine/src/common/classes/ClientStorage'

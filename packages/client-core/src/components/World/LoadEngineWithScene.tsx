@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router'
 
 import {
@@ -14,7 +14,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
-import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AppAction, GeneralStateList } from '../../common/services/AppService'
 import {
@@ -37,7 +37,7 @@ export const LoadEngineWithScene = () => {
   /**
    * initialise the client
    */
-  useHookEffect(() => {
+  useEffect(() => {
     initClient().then(() => {
       setClientReady(true)
     })
@@ -46,14 +46,14 @@ export const LoadEngineWithScene = () => {
   /**
    * load the scene whenever it changes
    */
-  useHookEffect(() => {
+  useEffect(() => {
     const sceneData = sceneState.currentScene.value
     if (clientReady && sceneData) {
       loadScene(sceneData)
     }
   }, [clientReady, sceneState.currentScene])
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (engineState.joinedWorld.value) {
       if (engineState.isTeleporting.value) {
         // if we are coming from another scene, reset our teleporting status
@@ -65,7 +65,7 @@ export const LoadEngineWithScene = () => {
     }
   }, [engineState.joinedWorld])
 
-  useHookEffect(async () => {
+  useEffect(() => {
     if (engineState.isTeleporting.value) {
       // TODO: this needs to be implemented on the server too
       // Use teleportAvatar function from moveAvatar.ts when required
@@ -87,20 +87,20 @@ export const LoadEngineWithScene = () => {
       LocationService.getLocationByName(world.activePortal.location)
 
       // shut down connection with existing GS
-      await leaveNetwork(world.worldNetwork as SocketWebRTCClientNetwork)
-
-      if (world.mediaNetwork) {
-        const isInstanceMediaConnection =
-          accessMediaInstanceConnectionState().instances[world.mediaNetwork.hostId].channelType.value === 'instance'
-        if (isInstanceMediaConnection) {
-          await leaveNetwork(world.mediaNetwork as SocketWebRTCClientNetwork)
+      leaveNetwork(world.worldNetwork as SocketWebRTCClientNetwork).then(async () => {
+        if (world.mediaNetwork) {
+          const isInstanceMediaConnection =
+            accessMediaInstanceConnectionState().instances[world.mediaNetwork.hostId].channelType.value === 'instance'
+          if (isInstanceMediaConnection) {
+            await leaveNetwork(world.mediaNetwork as SocketWebRTCClientNetwork)
+          }
         }
-      }
 
-      // remove all network clients but own (will be updated when new connection is established)
-      WorldNetworkActionReceptor.removeAllNetworkClients(false, world)
+        // remove all network clients but own (will be updated when new connection is established)
+        WorldNetworkActionReceptor.removeAllNetworkClients(false, world)
 
-      teleportToScene()
+        teleportToScene()
+      })
     }
   }, [engineState.isTeleporting])
 

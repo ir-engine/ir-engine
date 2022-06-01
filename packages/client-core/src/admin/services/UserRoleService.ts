@@ -1,5 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
-import { createState, useState } from '@speigg/hookstate'
+import { createState, useState } from '@hookstate/core'
 
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserRole } from '@xrengine/common/src/interfaces/UserRole'

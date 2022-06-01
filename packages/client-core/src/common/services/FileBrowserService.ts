@@ -1,4 +1,4 @@
-import { createState, useState } from '@speigg/hookstate'
+import { createState, useState } from '@hookstate/core'
 
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 

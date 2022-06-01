@@ -13,7 +13,6 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { gltfToSceneJson, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
-import { useHookEffect } from '@xrengine/hyperflux'
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
@@ -161,7 +160,7 @@ const EditorContainer = () => {
     setSearchElement(searchInput)
   }
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (sceneName.value && editorReady) {
       console.log(`Loading scene ${sceneName.value} via given url`)
       loadScene(sceneName.value)
@@ -444,7 +443,7 @@ const EditorContainer = () => {
     })
   }, [])
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (editorError) {
       onEditorError(editorError.value)
     }

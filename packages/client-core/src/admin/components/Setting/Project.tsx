@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useHookEffect } from '@xrengine/hyperflux'
 import { loadConfigForProject } from '@xrengine/projects/loadConfigForProject'
 
 import { Button, Grid, InputBase, MenuItem, Paper, TextField, Typography } from '@mui/material'
@@ -41,7 +40,7 @@ const Project = (props: Props) => {
     }
   }, [selectedProject])
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (projectSetting.value && projectSetting.value?.length > 0) {
       let tempSettings = JSON.parse(JSON.stringify(settings))
 

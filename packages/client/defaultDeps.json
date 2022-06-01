@@ -1,7 +1,7 @@
 {
   "dependencies": [
     "@feathersjs/client",
-    "@speigg/hookstate",
+    "@hookstate/core",
     "@iconify/react",
     "@mui/icons-material",
     "@mui/icons-material/AccountCircle",

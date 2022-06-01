@@ -1,4 +1,4 @@
-import { createState, useState } from '@speigg/hookstate'
+import { createState, useState } from '@hookstate/core'
 
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 

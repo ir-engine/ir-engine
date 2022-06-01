@@ -1,7 +1,7 @@
 import { Paginated } from '@feathersjs/feathers'
 // TODO: Reenable me! But decoupled so we don't need to import this lib
 // import { endVideoChat } from '@xrengine/client-networking/src/transports/SocketWebRTCClientFunctions';
-import { createState, useState } from '@speigg/hookstate'
+import { createState, useState } from '@hookstate/core'
 import i18n from 'i18next'
 import _ from 'lodash'
 

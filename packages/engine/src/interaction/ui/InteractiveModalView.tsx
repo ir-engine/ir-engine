@@ -1,4 +1,4 @@
-import { createState, State, useState } from '@speigg/hookstate'
+import { createState, State, useState } from '@hookstate/core'
 import React from 'react'
 
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'

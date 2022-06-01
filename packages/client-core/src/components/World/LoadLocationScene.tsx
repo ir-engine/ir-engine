@@ -5,7 +5,7 @@ import { LocationAction, useLocationState } from '@xrengine/client-core/src/soci
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { retrieveLocationByName } from './LocationLoadHelper'
 
@@ -19,7 +19,7 @@ export const LoadLocationScene = () => {
   /**
    * Once we have logged in, retrieve the location data
    */
-  useHookEffect(() => {
+  useEffect(() => {
     const selfUser = authState.user
     const currentLocation = locationState.currentLocation.location
 
@@ -37,7 +37,7 @@ export const LoadLocationScene = () => {
     }
   }, [authState.isLoggedIn, locationState.locationName])
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (authState.user.id.value) dispatchAction(EngineActions.connect({ id: authState.user.id.value }))
   }, [authState.user])
 

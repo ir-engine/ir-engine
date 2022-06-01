@@ -1,4 +1,4 @@
-import { createState, State, useHookstate } from '@speigg/hookstate'
+import { createState, State, useHookstate } from '@hookstate/core'
 import getImagePalette from 'image-palette-core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'

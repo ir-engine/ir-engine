@@ -1,5 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
-import { useState } from '@speigg/hookstate'
+import { useState } from '@hookstate/core'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'

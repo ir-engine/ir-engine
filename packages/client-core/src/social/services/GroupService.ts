@@ -1,4 +1,4 @@
-import { createState, none, useState } from '@speigg/hookstate'
+import { createState, none, useState } from '@hookstate/core'
 import _ from 'lodash'
 
 import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'

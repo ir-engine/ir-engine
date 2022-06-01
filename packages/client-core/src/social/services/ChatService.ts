@@ -1,5 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
-import { createState, none, useState } from '@speigg/hookstate'
+import { createState, none, useState } from '@hookstate/core'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { Group } from '@xrengine/common/src/interfaces/Group'

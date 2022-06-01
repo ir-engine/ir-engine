@@ -1,4 +1,4 @@
-import { createState, useState } from '@speigg/hookstate'
+import { createState, useState } from '@hookstate/core'
 
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { User } from '@xrengine/common/src/interfaces/User'
