@@ -1,10 +1,9 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: '[Bug]: '
-labels: '[bug]'
+name: Installation Tech Support
+about: I'm having difficulty installing XREngine
+title: '[Ticket]: '
+labels: '[ticket]'
 assignees: ''
-
 
 body:
   - type: markdown
@@ -15,29 +14,25 @@ body:
     id: os
     attributes:
       label: Operating System
-      description: What operating system is XREngine running on?
+      description: What operating system are you trying to install on?
+      placeholder: 
     validations:
       required: true
   - type: input
-    id: browser
+    id: nodev
     attributes:
-      label: Browser (if applicable)
-      description: What browser did this occur on? (including version number)
+      label: Node Version
+      description: What nodejs version are you using? (run `node -v` if you are unsure)
+      placeholder: 
     validations:
-      required: false
+      required: true
   - type: textarea
     id: what-happened
     attributes:
       label: What happened?
-      description: Please clearly describe the issue you are facing, including any screenshots that may be helpful.
-    validations:
-      required: true
-  - type: textarea
-    id: reproduce
-    attributes:
-      label: Steps to reproduce
-      description: 
-      render: shell
+      description: Please describe the issue you are facing.
+      placeholder: 
+      value: ""
     validations:
       required: true
   - type: textarea
@@ -46,7 +41,5 @@ body:
       label: Relevant log output
       description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
       render: shell
-    validations:
-      required: false
 
 ---
