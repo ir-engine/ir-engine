@@ -108,11 +108,11 @@ export const MediaInstanceConnectionService = {
     const user = authState.user.value
     const { ipAddress, port } = accessMediaInstanceConnectionState().instances.value[instanceId]
 
-    const transport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    logger.info({ socket: !!transport.socket, transport }, 'Connect To Media Server.')
-    if (transport.socket) {
-      await endVideoChat(transport, { endConsumers: true })
-      await leaveNetwork(transport, false)
+    const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    logger.info({ socket: !!network.socket, network }, 'Connect To Media Server.')
+    if (network.socket) {
+      await endVideoChat(network, { endConsumers: true })
+      await leaveNetwork(network, false)
     }
 
     const locationState = accessLocationState()
@@ -131,8 +131,8 @@ export const MediaInstanceConnectionService = {
       )
     )
 
-    await transport.initialize({ sceneId, port, ipAddress, channelId })
-    transport.left = false
+    await network.initialize({ sceneId, port, ipAddress, channelId })
+    network.left = false
   },
   resetServer: (instanceId: string) => {
     const dispatch = useDispatch()

@@ -151,6 +151,8 @@ export const NetworkInstanceProvisioning = () => {
       )
       MediaStreamService.updateCamVideoState()
       MediaStreamService.updateCamAudioState()
+      MediaStreamService.updateScreenAudioState()
+      MediaStreamService.updateScreenVideoState()
     }
   }, [
     currentChannelInstanceConnection?.connected,
