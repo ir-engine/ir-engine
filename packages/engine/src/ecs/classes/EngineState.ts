@@ -166,7 +166,7 @@ export const EngineActions = {
   availableInteractable: defineAction({
     store: 'ENGINE',
     type: 'CORE_AVAILABLE_INTERACTABLE' as const,
-    availableInteractable: matches.number as Validator<unknown, Entity>
+    availableInteractable: matches.any
   }),
 
   xrStart: defineAction({

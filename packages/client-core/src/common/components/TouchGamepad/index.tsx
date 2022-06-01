@@ -2,14 +2,10 @@ import { useState } from '@speigg/hookstate'
 import React, { FunctionComponent, useEffect } from 'react'
 import { Joystick } from 'react-joystick-component'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
-import { InteractorComponent } from '@xrengine/engine/src/interaction/components/InteractorComponent'
-import { dispatchAction } from '@xrengine/hyperflux'
 
 import TouchAppIcon from '@mui/icons-material/TouchApp'
 
@@ -25,16 +21,6 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
 
   const availableInteractable = useEngineState().availableInteractable.value
   const interactableComponent = availableInteractable && getComponent(availableInteractable, InteractableComponent)
-  const focusedEntity = getComponent(
-    Engine.instance.currentWorld.localClientEntity,
-    InteractorComponent
-  )?.focusedInteractive
-
-  useEffect(() => {
-    if (focusedEntity) {
-      dispatchAction(EngineActions.availableInteractable({ availableInteractable: focusedEntity }))
-    }
-  }, [focusedEntity])
 
   const buttonsConfig: Array<{ button: GamepadButtons; label: string }> = [
     {
