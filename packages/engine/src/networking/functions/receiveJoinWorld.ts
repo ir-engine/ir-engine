@@ -7,7 +7,7 @@ import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { AvatarProps } from '../interfaces/WorldState'
-import { NetworkWorldAction } from './NetworkWorldAction'
+import { WorldNetworkAction } from './WorldNetworkAction'
 
 export type JoinWorldProps = {
   highResTimeOrigin: number
@@ -47,7 +47,7 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
 
   for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
-  dispatchAction(NetworkWorldAction.createClient(client), [world.worldNetwork.hostId])
-  dispatchAction(NetworkWorldAction.spawnAvatar({ parameters: spawnPose }), [world.worldNetwork.hostId])
-  dispatchAction(NetworkWorldAction.avatarDetails({ avatarDetail }), [world.worldNetwork.hostId])
+  dispatchAction(WorldNetworkAction.createClient(client), [world.worldNetwork.hostId])
+  dispatchAction(WorldNetworkAction.spawnAvatar({ parameters: spawnPose }), [world.worldNetwork.hostId])
+  dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }), [world.worldNetwork.hostId])
 }
