@@ -50,7 +50,6 @@ interface ContainerProportions {
 }
 
 interface Props {
-  containerProportions?: ContainerProportions
   peerId?: string | 'me_cam' | 'me_screen'
 }
 
@@ -88,8 +87,8 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     ? userState.layerUsers.find((user) => user.id.value === peerId!.replace('screen_', ''))?.attach(Downgraded).value
     : userState.layerUsers.find((user) => user.id.value === peerId)?.attach(Downgraded).value
 
-  const isCamVideoEnabled = mediastream.isCamVideoEnabled
-  const isCamAudioEnabled = mediastream.isCamAudioEnabled
+  const isCamVideoEnabled = isScreen ? mediastream.isScreenVideoEnabled : mediastream.isCamVideoEnabled
+  const isCamAudioEnabled = isScreen ? mediastream.isScreenAudioEnabled : mediastream.isCamAudioEnabled
   const consumers = mediastream.consumers
 
   const channelConnectionState = useMediaInstanceConnectionState()
