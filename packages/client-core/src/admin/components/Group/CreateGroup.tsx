@@ -9,11 +9,10 @@ import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
-import InputBase from '@mui/material/InputBase'
-import Paper from '@mui/material/Paper'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import AutoComplete from '../../common/AutoComplete'
+import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { GroupService } from '../../services/GroupService'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
@@ -96,36 +95,31 @@ const CreateGroup = (props: Props) => {
             <DialogTitle id="form-dialog-title" className={styles.textAlign}>
               {t('admin:components.group.createNewGroup')}
             </DialogTitle>
-            <label>{t('admin:components.group.name')}</label>
-            <Paper component="div" className={state.formErrors.name.length > 0 ? styles.redBorder : styles.createInput}>
-              <InputBase
-                className={styles.input}
-                name="name"
-                placeholder={t('admin:components.group.enterGroupName')}
-                autoComplete="off"
-                value={state.name}
-                onChange={handleChange}
-              />
-            </Paper>
-            <label>{t('admin:components.group.description')}</label>
-            <Paper
-              component="div"
-              className={state.formErrors.description.length > 0 ? styles.redBorder : styles.createInput}
-            >
-              <InputBase
-                className={styles.input}
-                name="description"
-                placeholder={t('admin:components.group.enterGroupDescription')}
-                autoComplete="off"
-                value={state.description}
-                onChange={handleChange}
-              />
-            </Paper>
+
+            <InputText
+              name="name"
+              label={t('admin:components.group.name')}
+              placeholder={t('admin:components.group.enterGroupName')}
+              value={state.name}
+              error={state.formErrors.name}
+              handleInputChange={handleChange}
+            />
+
+            <InputText
+              name="description"
+              label={t('admin:components.group.description')}
+              placeholder={t('admin:components.group.enterGroupDescription')}
+              value={state.description}
+              error={state.formErrors.description}
+              handleInputChange={handleChange}
+            />
+
             <AutoComplete
               data={scopeData}
               label={t('admin:components.group.grantScope')}
               handleChangeScopeType={handleChangeScopeType}
             />
+
             <DialogActions className={styles.mt20}>
               <Button type="submit" className={styles.submitButton}>
                 {t('admin:components.group.submit')}
