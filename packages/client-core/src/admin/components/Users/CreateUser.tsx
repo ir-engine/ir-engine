@@ -188,7 +188,11 @@ const CreateUser = (props: Props) => {
               {t('admin:components.user.createOne')}
             </a>
           </DialogContentText>
-          <AutoComplete data={scopeData} label="Grant Scope" handleChangeScopeType={handleChangeScopeType} />
+          <AutoComplete
+            data={scopeData}
+            label={t('admin:components.user.grantScope')}
+            handleChangeScopeType={handleChangeScopeType}
+          />
           <DialogActions>
             <Button className={styles.submitButton} onClick={handleSubmit}>
               {t('admin:components.user.submit')}
