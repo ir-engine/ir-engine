@@ -10,7 +10,6 @@ import { Autorenew, Face, Save } from '@mui/icons-material'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
@@ -20,18 +19,13 @@ import AddCommand from '../../common/AddCommand'
 import AlertMessage from '../../common/AlertMessage'
 import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
-import InputSelect from '../../common/InputSelect'
+import InputSelect, { InputSelectProps } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { BotService } from '../../services/BotsService'
 import { InstanceService, useInstanceState } from '../../services/InstanceService'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
-
-interface Menu {
-  value: string
-  label: string
-}
 
 const CreateBot = () => {
   const [command, setCommand] = useState<BotCommands>({
@@ -165,14 +159,14 @@ const CreateBot = () => {
     setState({ ...state, [names]: value })
   }
 
-  const locationMenu: Menu[] = locationData.value.map((el) => {
+  const locationMenu: InputSelectProps[] = locationData.value.map((el) => {
     return {
       value: el.id,
       label: el.name
     }
   })
 
-  const instanceMenu: Menu[] = currentInstance.map((el) => {
+  const instanceMenu: InputSelectProps[] = currentInstance.map((el) => {
     return {
       value: el.id,
       label: el.ipAddress
@@ -198,57 +192,47 @@ const CreateBot = () => {
         <form style={{ marginTop: '40px' }}>
           <InputText
             name="name"
+            label={t('admin:components.bot.name')}
             handleInputChange={handleInputChange}
             value={state.name}
-            formErrors={formErrors.name}
+            error={formErrors.name}
           />
 
           <InputText
             name="description"
-            handleInputChange={handleInputChange}
+            label={t('admin:components.bot.description')}
             value={state.description}
-            formErrors={formErrors.description}
+            error={formErrors.description}
+            handleInputChange={handleInputChange}
           />
 
-          <label> {t('admin:components.bot.location')}</label>
-          <Grid container spacing={1}>
-            <Grid item xs={10}>
-              <InputSelect
-                formErrors={formErrors.location}
-                value={state.location}
-                handleInputChange={handleInputChange}
-                name="location"
-                menu={locationMenu}
-              />
-            </Grid>
-            <Grid item xs={2} style={{ display: 'flex' }}>
-              <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={fetchAdminLocations} size="large">
-                  <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
-                </IconButton>
-              </div>
-            </Grid>
-          </Grid>
+          <InputSelect
+            name="location"
+            label={t('admin:components.bot.location')}
+            value={state.location}
+            error={formErrors.location}
+            menu={locationMenu}
+            handleInputChange={handleInputChange}
+            endControl={
+              <IconButton onClick={fetchAdminLocations} size="large">
+                <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
+              </IconButton>
+            }
+          />
 
-          <label> {t('admin:components.bot.instance')}</label>
-          <Grid container spacing={1}>
-            <Grid item xs={10}>
-              <InputSelect
-                formErrors={formErrors.location}
-                value={state.instance}
-                handleInputChange={handleInputChange}
-                name="instance"
-                menu={instanceMenu}
-              />
-            </Grid>
-            <Grid item xs={2} style={{ display: 'flex' }}>
-              <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={fetchAdminInstances} size="large">
-                  <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
-                </IconButton>
-              </div>
-            </Grid>
-          </Grid>
+          <InputSelect
+            name="instance"
+            label={t('admin:components.bot.instance')}
+            value={state.instance}
+            error={formErrors.location}
+            menu={instanceMenu}
+            handleInputChange={handleInputChange}
+            endControl={
+              <IconButton onClick={fetchAdminInstances} size="large">
+                <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
+              </IconButton>
+            }
+          />
 
           <AddCommand
             command={command}
