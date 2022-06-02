@@ -3,6 +3,7 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 
+import { MainMenuButtonState } from './state/MainMenuButtonState'
 import { createSettingDetailView } from './ui/SettingDetailView'
 
 export default async function SettingUISystem(world: World) {
@@ -15,7 +16,7 @@ export default async function SettingUISystem(world: World) {
     // actually display the real DOM elmeent since we are rendering it in 3D,
     // so we simply move it out the way
     el.style.visibility = 'visible'
-    el.style.top = '-100000px'
+    el.style.top = MainMenuButtonState.emoteMenuOpen.value ? '0px' : '-100000px'
   })
 
   return () => {
