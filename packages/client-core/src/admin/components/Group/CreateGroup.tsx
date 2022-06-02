@@ -121,7 +121,11 @@ const CreateGroup = (props: Props) => {
                 onChange={handleChange}
               />
             </Paper>
-            <AutoComplete data={scopeData} label="Grant Scope" handleChangeScopeType={handleChangeScopeType} />
+            <AutoComplete
+              data={scopeData}
+              label={t('admin:components.group.grantScope')}
+              handleChangeScopeType={handleChangeScopeType}
+            />
             <DialogActions className={styles.mt20}>
               <Button type="submit" className={styles.submitButton}>
                 {t('admin:components.group.submit')}
