@@ -1,13 +1,8 @@
 .root {
   color: var(--textColor);
   font-size: 14px;
-}
-
-.label {
-  padding: 0 0 10px;
-  line-height: 1.5;
-  display: block;
-  color: var(--textColor);
+  margin-top: 10px;
+  margin-bottom: 15px;
 }
 
 .inputWrapper {
