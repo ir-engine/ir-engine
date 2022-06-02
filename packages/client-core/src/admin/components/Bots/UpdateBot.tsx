@@ -11,16 +11,12 @@ import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import FormControl from '@mui/material/FormControl'
-import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
-import InputBase from '@mui/material/InputBase'
-import MenuItem from '@mui/material/MenuItem'
-import Paper from '@mui/material/Paper'
-import Select from '@mui/material/Select'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
+import InputSelect, { InputSelectProps } from '../../common/InputSelect'
+import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { BotService } from '../../services/BotsService'
 import { InstanceService, useInstanceState } from '../../services/InstanceService'
@@ -67,6 +63,20 @@ const UpdateBot = (props: Props) => {
       })
     }
   }, [bot])
+
+  const locationsMenu: InputSelectProps[] = locationData.value.map((el) => {
+    return {
+      label: el.name,
+      value: el.id
+    }
+  })
+
+  const instancesMenu: InputSelectProps[] = currentInstance.map((el) => {
+    return {
+      label: el.ipAddress,
+      value: el.id
+    }
+  })
 
   const handleInputChange = (e) => {
     const names = e.target.name
@@ -159,128 +169,48 @@ const UpdateBot = (props: Props) => {
       >
         <DialogTitle id="form-dialog-title">{t('admin:components.bot.updateBot')}</DialogTitle>
         <DialogContent>
-          <label>{t('admin:components.bot.name')}</label>
-          <Paper component="div" className={formErrors.name.length > 0 ? styles.redBorder : styles.createInput}>
-            <InputBase
-              name="name"
-              className={styles.input}
-              placeholder="Enter name"
-              value={state.name}
-              onChange={handleInputChange}
-            />
-          </Paper>
-          <label>{t('admin:components.bot.description')}</label>
-          <Paper component="div" className={formErrors.description.length > 0 ? styles.redBorder : styles.createInput}>
-            <InputBase
-              className={styles.input}
-              name="description"
-              placeholder={t('admin:components.bot.enterDescription')}
-              value={state.description}
-              onChange={handleInputChange}
-            />
-          </Paper>
+          <InputText
+            name="name"
+            label={t('admin:components.bot.name')}
+            value={state.name}
+            error={formErrors.name}
+            handleInputChange={handleInputChange}
+          />
 
-          <label>{t('admin:components.bot.location')}</label>
-          <Grid container spacing={1}>
-            <Grid item xs={10}>
-              <Paper component="div" className={formErrors.location.length > 0 ? styles.redBorder : styles.createInput}>
-                <FormControl className={styles.createInput} fullWidth>
-                  <Select
-                    labelId="demo-controlled-open-select-label"
-                    id="demo-controlled-open-select"
-                    value={state.location}
-                    fullWidth
-                    onChange={handleInputChange}
-                    name="location"
-                    displayEmpty
-                    className={styles.select}
-                    MenuProps={{ classes: { paper: styles.selectPaper } }}
-                  >
-                    <MenuItem
-                      value=""
-                      disabled
-                      classes={{
-                        root: styles.menuItem
-                      }}
-                    >
-                      <em>{t('admin:components.bot.selectLocation')}</em>
-                    </MenuItem>
-                    {locationData.value.map((el) => (
-                      <MenuItem
-                        value={el.id}
-                        key={el.id}
-                        classes={{
-                          root: styles.menuItem
-                        }}
-                      >
-                        {el.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Paper>
-            </Grid>
-            <Grid item xs={2} style={{ display: 'flex' }}>
-              <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={fetchAdminLocations} size="large">
-                  <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
-                </IconButton>
-              </div>
-            </Grid>
-          </Grid>
+          <InputText
+            name="description"
+            label={t('admin:components.bot.description')}
+            value={state.description}
+            error={formErrors.description}
+            handleInputChange={handleInputChange}
+          />
 
-          <label>{t('admin:components.bot.instance')}</label>
-          <Grid container spacing={1}>
-            <Grid item xs={10}>
-              <Paper component="div" className={styles.createInput}>
-                <FormControl
-                  className={styles.createInput}
-                  fullWidth
-                  disabled={currentInstance.length > 0 ? false : true}
-                >
-                  <Select
-                    labelId="demo-controlled-open-select-label"
-                    id="demo-controlled-open-select"
-                    value={state.instance}
-                    fullWidth
-                    displayEmpty
-                    onChange={handleInputChange}
-                    className={styles.select}
-                    name="instance"
-                    MenuProps={{ classes: { paper: styles.selectPaper } }}
-                  >
-                    <MenuItem
-                      value=""
-                      disabled
-                      classes={{
-                        root: styles.menuItem
-                      }}
-                    >
-                      <em>{t('admin:components.bot.selectInstance')}</em>
-                    </MenuItem>
-                    {currentInstance.map((el) => (
-                      <MenuItem
-                        value={el.id}
-                        key={el.id}
-                        classes={{
-                          root: styles.menuItem
-                        }}
-                      >
-                        {el.ipAddress}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Paper>
-            </Grid>
-            <Grid item xs={2} style={{ display: 'flex' }}>
-              <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={fetchAdminInstances} size="large">
-                  <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
-                </IconButton>
-              </div>
-            </Grid>
-          </Grid>
+          <InputSelect
+            name="location"
+            label={t('admin:components.bot.location')}
+            value={state.location}
+            error={formErrors.location}
+            menu={locationsMenu}
+            handleInputChange={handleInputChange}
+            endControl={
+              <IconButton onClick={fetchAdminLocations} size="large">
+                <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
+              </IconButton>
+            }
+          />
+
+          <InputSelect
+            name="instance"
+            label={t('admin:components.bot.instance')}
+            value={state.instance}
+            menu={instancesMenu}
+            handleInputChange={handleInputChange}
+            endControl={
+              <IconButton onClick={fetchAdminInstances} size="large">
+                <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
+              </IconButton>
+            }
+          />
         </DialogContent>
         <DialogActions style={{ marginRight: '15px' }}>
           <Button

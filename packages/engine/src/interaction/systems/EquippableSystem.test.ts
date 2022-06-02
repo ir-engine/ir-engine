@@ -9,7 +9,7 @@ import { addComponent, hasComponent, removeComponent } from '../../ecs/functions
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
 import { EquippedComponent } from '../components/EquippedComponent'
@@ -47,7 +47,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     })
 
     createAvatar(
-      NetworkWorldAction.spawnAvatar({
+      WorldNetworkAction.spawnAvatar({
         $from: Engine.instance.userId,
         networkId: networkObject.networkId,
         parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() }

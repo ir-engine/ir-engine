@@ -13,18 +13,13 @@ import MenuItem from '@mui/material/MenuItem'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { useFetchUserRole } from '../../common/hooks/User.hooks'
-import InputSelect from '../../common/InputSelect'
+import InputSelect, { InputSelectProps } from '../../common/InputSelect'
 import Search from '../../common/Search'
 import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 import UserModal from './CreateUser'
 import UserTable from './UserTable'
-
-interface InputSelectProps {
-  value: string
-  label: string
-}
 
 const Users = () => {
   const [search, setSearch] = useState('')
@@ -145,11 +140,11 @@ const Users = () => {
         </label>
         <MenuItem>
           <InputSelect
-            handleInputChange={handleChangeRole}
-            value={role}
             name="userRole"
+            label={t('admin:components.user.userRole')}
+            value={role}
             menu={userRoleData}
-            formErrors={''}
+            handleInputChange={handleChangeRole}
           />
         </MenuItem>
         <MenuItem>

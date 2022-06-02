@@ -14,7 +14,7 @@ import { addComponent, ComponentMap, getComponent, removeComponent } from '../..
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
 import { TransformChildComponent } from '../../transform/components/TransformChildComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -215,7 +215,7 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
     const node = world.entityTree.entityNodeMap.get(entity)
     if (node) {
       dispatchAction(
-        NetworkWorldAction.spawnObject({
+        WorldNetworkAction.spawnObject({
           prefab: '',
           parameters: { sceneEntityId: node.uuid }
         }),
