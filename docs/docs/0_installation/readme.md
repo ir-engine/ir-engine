@@ -51,6 +51,7 @@ issues. Make sure you are running Node 16, and check your dependencies.
 
 ```
 cd path/to/xrengine
+cp .env.local.default .env.local
 npm install
 npm run dev-docker
 npm run dev-reinit
