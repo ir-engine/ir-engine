@@ -44,7 +44,7 @@ const TimerConfig = {
 export const CreateWorld = Symbol('CreateWorld')
 export class World {
   private constructor() {
-    bitecs.createWorld(this)
+    bitecs.createWorld(this, 1000)
     Engine.instance.worlds.push(this)
 
     this.worldEntity = createEntity(this)
