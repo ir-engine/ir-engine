@@ -5,7 +5,7 @@ import { ArrayByType, ISchema, Type } from 'bitecs'
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 
-const INITIAL_COMPONENt_SIZE = 1000 // TODO set to 0 after next bitECS update
+const INITIAL_COMPONENT_SIZE = 1000 // TODO set to 0 after next bitECS update
 bitECS.setDefaultSize(1000)
 
 /**
@@ -39,7 +39,7 @@ export class MappedComponentSetupAPI<_Schema extends bitECS.ISchema = any, _Type
   }
 
   build() {
-    const component = bitECS.defineComponent(this.schema, INITIAL_COMPONENt_SIZE)
+    const component = bitECS.defineComponent(this.schema, INITIAL_COMPONENT_SIZE)
     const componentMap = new Map<number, _Type & SoAProxy<_Schema>>()
     const componentMapOldValues = new Map<number, _Type & SoAProxy<_Schema>>()
     // const componentMap = []
@@ -112,7 +112,7 @@ export class MappedComponentSetupAPI<_Schema extends bitECS.ISchema = any, _Type
 
 // TODO: benchmark map vs array for componentMap
 export const createMappedComponent = <T, S extends bitECS.ISchema = {}>(name: string, schema?: S) => {
-  const component = bitECS.defineComponent(schema, INITIAL_COMPONENt_SIZE)
+  const component = bitECS.defineComponent(schema, INITIAL_COMPONENT_SIZE)
   const componentMap = new Map<number, T & SoAProxy<S>>()
   const componentMapOldValues = new Map<number, T & SoAProxy<S>>()
   // const componentMap = []
