@@ -194,8 +194,8 @@ const ChatDetailView = () => {
   }
 
   const toggleChatWindow = () => {
-    detailState.chatWindowOpen.set(!detailState.chatWindowOpen.value)
-    detailState.chatWindowOpen.value && setUnreadMessages(false)
+    detailState.chatMenuOpen.set(!detailState.chatMenuOpen.value)
+    detailState.chatMenuOpen.value && setUnreadMessages(false)
   }
   const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
@@ -217,7 +217,7 @@ const ChatDetailView = () => {
     activeChannel &&
       activeChannel.messages &&
       activeChannel.messages.length > 0 &&
-      !detailState.chatWindowOpen.value &&
+      !detailState.chatMenuOpen.value &&
       setUnreadMessages(true)
   }, [activeChannel?.messages])
 
@@ -251,7 +251,7 @@ const ChatDetailView = () => {
       <div
         style={{
           ...(styles.chatContainer as {}),
-          ...((detailState.chatWindowOpen.value ? {} : styles.hide) as {})
+          ...((detailState.chatMenuOpen.value ? {} : styles.hide) as {})
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', width: '500px' }}>
@@ -314,7 +314,7 @@ const ChatDetailView = () => {
               onChange={(evt) => handleComposingMessageChange(evt)}
               style={{
                 ...(styles.messageInputBox as {}),
-                ...((detailState.chatWindowOpen.value ? {} : styles.hide) as {})
+                ...((detailState.chatMenuOpen.value ? {} : styles.hide) as {})
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && e.ctrlKey) {

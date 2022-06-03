@@ -40,7 +40,7 @@ export function createMainMenuButtonsView() {
 function createMainMenuButtonsState() {
   return createState({
     id: '' as UserId,
-    chatWindowOpen: false,
+    chatMenuOpen: false,
     emoteMenuOpen: false,
     settingMenuOpen: false,
     shareMenuOpen: false
@@ -49,7 +49,7 @@ function createMainMenuButtonsState() {
 
 interface MainMenuButtonsState {
   id: UserId
-  chatWindowOpen: boolean
+  chatMenuOpen: boolean
   emoteMenuOpen: boolean
   settingMenuOpen: boolean
   shareMenuOpen: boolean
@@ -74,23 +74,23 @@ const MainMenuButtons = () => {
     activeChannel &&
       activeChannel.messages &&
       activeChannel.messages.length > 0 &&
-      !detailState.chatWindowOpen.value &&
+      !detailState.chatMenuOpen.value &&
       setUnreadMessages(true)
   }, [activeChannel?.messages])
 
   const toggleChatWindow = () => {
-    if (!detailState.chatWindowOpen.value) {
+    if (!detailState.chatMenuOpen.value) {
       detailState.emoteMenuOpen.set(false)
       detailState.shareMenuOpen.set(false)
       detailState.settingMenuOpen.set(false)
     }
-    detailState.chatWindowOpen.set(!detailState.chatWindowOpen.value)
-    detailState.chatWindowOpen.value && setUnreadMessages(false)
+    detailState.chatMenuOpen.set(!detailState.chatMenuOpen.value)
+    detailState.chatMenuOpen.value && setUnreadMessages(false)
   }
 
   const toggleEmoteMenu = () => {
     if (!detailState.emoteMenuOpen.value) {
-      detailState.chatWindowOpen.set(false)
+      detailState.chatMenuOpen.set(false)
       detailState.shareMenuOpen.set(false)
       detailState.settingMenuOpen.set(false)
     }
@@ -100,7 +100,7 @@ const MainMenuButtons = () => {
   const toggleShareMenu = () => {
     if (!detailState.shareMenuOpen.value) {
       detailState.emoteMenuOpen.set(false)
-      detailState.chatWindowOpen.set(false)
+      detailState.chatMenuOpen.set(false)
       detailState.settingMenuOpen.set(false)
     }
     detailState.shareMenuOpen.set(!detailState.shareMenuOpen.value)
@@ -110,7 +110,7 @@ const MainMenuButtons = () => {
     if (!detailState.settingMenuOpen.value) {
       detailState.emoteMenuOpen.set(false)
       detailState.shareMenuOpen.set(false)
-      detailState.chatWindowOpen.set(false)
+      detailState.chatMenuOpen.set(false)
     }
     detailState.settingMenuOpen.set(!detailState.settingMenuOpen.value)
   }
@@ -133,7 +133,7 @@ const MainMenuButtons = () => {
           invisible={!unreadMessages}
           anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         >
-          {!detailState.chatWindowOpen.value ? <MessageIcon /> : <CloseIcon />}
+          {!detailState.chatMenuOpen.value ? <MessageIcon /> : <CloseIcon />}
         </Badge>
       </div>
     </div>
