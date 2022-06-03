@@ -288,3 +288,8 @@ export class World {
 export function createWorld() {
   return World[CreateWorld]()
 }
+
+export function destroyWorld(world: World) {
+  bitecs.resetWorld(world)
+  bitecs.deleteWorld(world)
+}
