@@ -17,19 +17,21 @@ export default async function ChatUISystem(world: World) {
     // so we simply move it out the way
     el.style.visibility = 'visible'
     el.style.top = MainMenuButtonState.chatMenuOpen.value ? '0px' : '-100000px'
+    ui.state.chatMenuOpen.set(MainMenuButtonState.chatMenuOpen.value)
   })
 
   return () => {
     const chatXRUI = getComponent(ui.entity, XRUIComponent)
-    if (!chatXRUI) return
 
-    chatXRUI.container.scale.setScalar(0.5)
-    chatXRUI.container.position.copy(Engine.instance.currentWorld.camera.position)
-    chatXRUI.container.position.y += Engine.instance.currentWorld.scene.position.y
-    chatXRUI.container.position.x += Engine.instance.currentWorld.scene.position.x
-    chatXRUI.container.position.z +=
-      chatXRUI.container.position.z > Engine.instance.currentWorld.camera.position.z ? -0.4 : 0.4
-
-    chatXRUI.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
+    if (chatXRUI) {
+      const container = chatXRUI.container
+      container.position.set(0, 0, -0.5)
+      container.quaternion.set(0, 0, 0, 1)
+      container.scale.setScalar(0.6)
+      container.matrix
+        .compose(container.position, container.quaternion, container.scale)
+        .premultiply(Engine.instance.currentWorld.camera.matrixWorld)
+      container.matrix.decompose(container.position, container.quaternion, container.scale)
+    }
   }
 }

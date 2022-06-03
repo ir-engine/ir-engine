@@ -17,19 +17,21 @@ export default async function SettingUISystem(world: World) {
     // so we simply move it out the way
     el.style.visibility = 'visible'
     el.style.top = MainMenuButtonState.settingMenuOpen.value ? '0px' : '-100000px'
+    ui.state.settingMenuOpen.set(MainMenuButtonState.settingMenuOpen.value)
   })
 
   return () => {
     const settingXRUI = getComponent(ui.entity, XRUIComponent)
-    if (!settingXRUI) return
 
-    settingXRUI.container.scale.setScalar(0.5)
-    settingXRUI.container.position.copy(Engine.instance.currentWorld.camera.position)
-    //settingXRUI.container.position.y += Engine.scene.position.y
-    //settingXRUI.container.position.x += Engine.scene.position.x
-    settingXRUI.container.position.z +=
-      settingXRUI.container.position.z > Engine.instance.currentWorld.camera.position.z ? -0.4 : 0.4
-
-    settingXRUI.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
+    if (settingXRUI) {
+      const container = settingXRUI.container
+      container.position.set(0, 0, -0.5)
+      container.quaternion.set(0, 0, 0, 1)
+      container.scale.setScalar(0.6)
+      container.matrix
+        .compose(container.position, container.quaternion, container.scale)
+        .premultiply(Engine.instance.currentWorld.camera.matrixWorld)
+      container.matrix.decompose(container.position, container.quaternion, container.scale)
+    }
   }
 }

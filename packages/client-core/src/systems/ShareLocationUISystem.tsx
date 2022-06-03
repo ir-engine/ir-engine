@@ -17,6 +17,7 @@ export default async function ShareLocationUISystem(world: World) {
     // so we simply move it out the way
     el.style.visibility = 'visible'
     el.style.top = MainMenuButtonState.shareMenuOpen.value ? '0px' : '-100000px'
+    ui.state.shareMenuOpen.set(MainMenuButtonState.shareMenuOpen.value)
   })
 
   return () => {
