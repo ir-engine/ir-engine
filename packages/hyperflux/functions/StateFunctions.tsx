@@ -74,6 +74,7 @@ function addStateReactor(reactor: () => void, store = HyperFlux.store) {
     // @ts-ignore
     root = ReactorReconciler.createContainer(reactor, 0, false, null)
     ReactorReconciler.updateContainer(
+      // @ts-ignore
       () => {
         reactor()
         return <></>
