@@ -8,20 +8,21 @@ import styles from '../styles/admin.module.scss'
 
 interface Props {
   value: string
-  formErrors: string
   handleInputChange: (e: any) => void
   name: string
+  label?: string
+  error?: string
 }
 
-const InputText = ({ value, handleInputChange, formErrors, name }: Props) => {
+const InputText = ({ value, handleInputChange, name, label, error }: Props) => {
   return (
     <React.Fragment>
-      <label>{_.upperFirst(name)}</label>
-      <Paper component="div" className={formErrors.length > 0 ? styles.redBorder : styles.createInput}>
+      {label && <label>{_.upperFirst(label)}</label>}
+      <Paper component="div" className={error ? styles.redBorder : styles.createInput}>
         <InputBase
           name={name}
           className={styles.input}
-          placeholder={`Enter ${name}`}
+          placeholder={`Enter ${label}`}
           value={value}
           onChange={handleInputChange}
         />

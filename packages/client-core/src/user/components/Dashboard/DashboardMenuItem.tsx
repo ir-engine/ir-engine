@@ -56,7 +56,7 @@ const DashboardMenuItem = (props: Props) => {
           .filter(Boolean)
           .map((sidebarItem, index) => {
             return (
-              <Link key={index} to={sidebarItem.path} className={styles.textLink}>
+              <Link key={index} to={sidebarItem.path} className={styles.textLink} title={t(sidebarItem.name)}>
                 <ListItem
                   classes={{ selected: styles.selected }}
                   style={{ color: 'var(--iconButtonColor)' }}
