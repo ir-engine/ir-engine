@@ -1,51 +1,39 @@
-import React from 'react';
-import clsx from 'clsx';
-import Layout from '@theme/Layout';
-import Link from '@docusaurus/Link';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import useBaseUrl from '@docusaurus/useBaseUrl';
-import styles from './styles.module.css';
+import Link from '@docusaurus/Link'
+import useBaseUrl from '@docusaurus/useBaseUrl'
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
+import Layout from '@theme/Layout'
+import clsx from 'clsx'
+import React from 'react'
+
+import styles from './index.module.css'
 
 const features = [
   {
     title: 'Build Web-First',
     imageUrl: 'img/undraw_docusaurus_mountain.svg',
-    description: (
-      <>
-        Engage your audience right from your website.
-      </>
-    ),
+    description: <>Engage your audience right from your website.</>
   },
   {
     title: 'Focus on What Matters',
     imageUrl: 'img/undraw_docusaurus_tree.svg',
-    description: (
-      <>
-        Something will go here when we've thought of it.
-      </>
-    ),
+    description: <>Something will go here when we've thought of it.</>
   },
   {
     title: 'Powered by Javascript',
     imageUrl: 'img/undraw_docusaurus_react.svg',
-    description: (
-      <>
-        Something will go here when we've thought of it.
-      </>
-    ),
-  },
-];
+    description: <>Something will go here when we've thought of it.</>
+  }
+]
 
 /**
- * 
- * @author Abhinav Shah
+ *
  * @param {any} imageUrl
  * @param {any} title
- * @param {any} description 
- * @returns 
+ * @param {any} description
+ * @returns
  */
-function Feature({imageUrl, title, description}) {
-  const imgUrl = useBaseUrl(imageUrl);
+function Feature({ imageUrl, title, description }) {
+  const imgUrl = useBaseUrl(imageUrl)
   return (
     <div className={clsx('col col--4', styles.feature)}>
       {imgUrl && (
@@ -56,33 +44,26 @@ function Feature({imageUrl, title, description}) {
       <h3>{title}</h3>
       <p>{description}</p>
     </div>
-  );
+  )
 }
-      
+
 /**
- * 
- * 
- * @author Abhinav Shah
- * @returns 
+ *
+ * @returns
  */
 export default function Home() {
-  const context = useDocusaurusContext();
-  const {siteConfig = {}} = context;
+  const { siteConfig } = useDocusaurusContext()
   return (
-    <Layout
-      title={`${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+    <Layout title={`${siteConfig.title}`} description="Description will go into a meta tag in <head />">
       <header className={clsx('hero hero--primary', styles.heroBanner)}>
         <div className="container">
           <h1 className="hero__title">{siteConfig.title}</h1>
           <p className="hero__subtitle">{siteConfig.tagline}</p>
           <div className={styles.buttons}>
             <Link
-              className={clsx(
-                'button button--outline button--secondary button--lg',
-                styles.getStarted,
-              )}
-              to={useBaseUrl('docs/')}>
+              className={clsx('button button--outline button--secondary button--lg', styles.getStarted)}
+              to={useBaseUrl('docs/')}
+            >
               Get Started
             </Link>
           </div>
@@ -102,5 +83,5 @@ export default function Home() {
         )}
       </main>
     </Layout>
-  );
+  )
 }

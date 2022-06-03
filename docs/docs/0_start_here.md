@@ -1,3 +1,11 @@
+---
+id: overview
+title: Overview
+sidebar_label: Overview
+slug: /
+sidebar_position: 0
+---
+
 # Why are we building XREngine?
 
 We chose to build a free, open, full-stack MMO engine that anyone could run for 
