@@ -42,8 +42,6 @@ export default async function AvatarUISystem(world: World) {
   const userQuery = defineQuery([AvatarComponent, TransformComponent, NetworkObjectComponent])
   const AvatarContextMenuUI = createAvatarContextMenuView()
   return () => {
-    console.log('here here here')
-
     for (const userEntity of userQuery.enter()) {
       if (userEntity === world.localClientEntity) continue
       if (AvatarUI.has(userEntity)) {

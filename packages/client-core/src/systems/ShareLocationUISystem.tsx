@@ -22,13 +22,15 @@ export default async function ShareLocationUISystem(world: World) {
   return () => {
     const shareLocationXRUI = getComponent(ui.entity, XRUIComponent)
 
-    if (!shareLocationXRUI) return
-
-    shareLocationXRUI.container.scale.setScalar(0.5)
-    shareLocationXRUI.container.position.copy(Engine.instance.currentWorld.camera.position)
-    shareLocationXRUI.container.position.z +=
-      shareLocationXRUI.container.position.z > Engine.instance.currentWorld.camera.position.z ? -0.4 : 0.4
-
-    shareLocationXRUI.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
+    if (shareLocationXRUI) {
+      const container = shareLocationXRUI.container
+      container.position.set(0, 0, -0.5)
+      container.quaternion.set(0, 0, 0, 1)
+      container.scale.setScalar(0.6)
+      container.matrix
+        .compose(container.position, container.quaternion, container.scale)
+        .premultiply(Engine.instance.currentWorld.camera.matrixWorld)
+      container.matrix.decompose(container.position, container.quaternion, container.scale)
+    }
   }
 }
