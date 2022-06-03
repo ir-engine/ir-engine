@@ -55,33 +55,39 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
     if (typeof mesh.userData['type'] === 'string') meshObjs.push(mesh)
   })
 
-  obj3d.userData.updateTransform = function () {
-    removeComponent(entity, ColliderComponent)
-    const transform = getComponent(entity, TransformComponent)
-    const shape = world.physics.createShape(
-      new PhysX.PxBoxGeometry(Math.abs(transform.scale.x), Math.abs(transform.scale.y), Math.abs(transform.scale.z)),
-      undefined,
-      boxColliderProps as any
-    )
-    const body = createBody(entity, { bodyType: 0 }, [shape])
-    addComponent(entity, ColliderComponent, { body })
-  }
-
   meshObjs.forEach((mesh) => mesh.removeFromParent())
+
+  obj3d.userData.updateTransform = function () {
+    const boxColliderProps = parseBoxColliderProperties(json.props)
+    updateBoxCollider(entity, boxColliderProps)
+  }
 }
 
 export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity, props: BoxColliderProps) => {
-  const component = getComponent(entity, ColliderComponent)
+  //Todo: remove old body
+  if (hasComponent(entity, ColliderComponent)) {
+    removeComponent(entity, ColliderComponent)
+  }
+
   const transform = getComponent(entity, TransformComponent)
 
-  const pose = component.body.getGlobalPose()
+  //Todo: create new body
+  const world = useWorld()
+  const shape = world.physics.createShape(
+    new PhysX.PxBoxGeometry(Math.abs(transform.scale.x), Math.abs(transform.scale.y), Math.abs(transform.scale.z)),
+    undefined,
+    props as any
+  )
+  const body = createBody(entity, { bodyType: 0 }, [shape])
+  addComponent(entity, ColliderComponent, { body })
+
+  const pose = body.getGlobalPose()
   pose.translation = transform.position
   pose.rotation = transform.rotation
-  component.body.setGlobalPose(pose, false)
-  component.body._debugNeedsUpdate = true
+  body.setGlobalPose(pose, false)
+  body._debugNeedsUpdate = true
 
-  const world = useWorld()
-  const boxShape = world.physics.getRigidbodyShapes(component.body)[0]
+  const boxShape = world.physics.getRigidbodyShapes(body)[0]
   setTriggerShape(boxShape, props.isTrigger)
   boxShape._debugNeedsUpdate = true
 }
