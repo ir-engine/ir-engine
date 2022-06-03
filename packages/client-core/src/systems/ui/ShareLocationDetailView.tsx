@@ -232,7 +232,7 @@ export function createShareLocationDetailView() {
 
 function createShareLocationDetailState() {
   return createState({
-    shareLocationWindowOpen: false
+    shareMenuOpen: true
   })
 }
 

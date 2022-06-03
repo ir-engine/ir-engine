@@ -101,7 +101,7 @@ export function createEmoteDetailView() {
 
 function createEmoteDetailState() {
   return createState({
-    emoteWindowOpen: false
+    emoteMenuOpen: false
   })
 }
 

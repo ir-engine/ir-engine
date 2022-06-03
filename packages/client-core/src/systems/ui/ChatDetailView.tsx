@@ -130,7 +130,7 @@ export function createChatDetailView() {
 
 function createChatDetailState() {
   return createState({
-    chatWindowOpen: false
+    chatMenuOpen: false
   })
 }
 

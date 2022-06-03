@@ -16,7 +16,7 @@ export default async function SettingUISystem(world: World) {
     // actually display the real DOM elmeent since we are rendering it in 3D,
     // so we simply move it out the way
     el.style.visibility = 'visible'
-    el.style.top = MainMenuButtonState.emoteMenuOpen.value ? '0px' : '-100000px'
+    el.style.top = MainMenuButtonState.settingMenuOpen.value ? '0px' : '-100000px'
   })
 
   return () => {

@@ -16,11 +16,12 @@ export default async function ShareLocationUISystem(world: World) {
     // actually display the real DOM elmeent since we are rendering it in 3D,
     // so we simply move it out the way
     el.style.visibility = 'visible'
-    el.style.top = MainMenuButtonState.emoteMenuOpen.value ? '0px' : '-100000px'
+    el.style.top = MainMenuButtonState.shareMenuOpen.value ? '0px' : '-100000px'
   })
 
   return () => {
     const shareLocationXRUI = getComponent(ui.entity, XRUIComponent)
+
     if (!shareLocationXRUI) return
 
     shareLocationXRUI.container.scale.setScalar(0.5)

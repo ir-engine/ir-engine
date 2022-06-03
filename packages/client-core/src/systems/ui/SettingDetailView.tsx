@@ -162,7 +162,9 @@ export function createSettingDetailView() {
 }
 
 function createSettingDetailState() {
-  return createState({})
+  return createState({
+    settingMenuOpen: false
+  })
 }
 
 type SettingDetailState = ReturnType<typeof createSettingDetailState>
