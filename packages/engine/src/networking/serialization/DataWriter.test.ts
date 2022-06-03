@@ -34,7 +34,7 @@ describe('DataWriter', () => {
 
   it('should writeComponent', () => {
     const writeView = createViewCursor()
-    const entity = 1234 as Entity
+    const entity = 42 as Entity
     Engine.instance.currentWorld.fixedTick = 1
 
     const [x, y, z] = [1.5, 2.5, 3.5]
@@ -73,7 +73,7 @@ describe('DataWriter', () => {
 
   it('should writeVector3', () => {
     const writeView = createViewCursor()
-    const entity = 1234 as Entity
+    const entity = 42 as Entity
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -109,7 +109,7 @@ describe('DataWriter', () => {
 
   it('should writePosition', () => {
     const writeView = createViewCursor()
-    const entity = 1234 as Entity
+    const entity = 42 as Entity
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -130,7 +130,7 @@ describe('DataWriter', () => {
 
   it('should writeRotation', () => {
     const writeView = createViewCursor()
-    const entity = 1234 as Entity
+    const entity = 42 as Entity
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
     TransformComponent.rotation.x[entity] = x
