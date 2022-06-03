@@ -297,11 +297,16 @@ export const vertexShader = `
     }
 `
 
+export const DefaultArgs = {
+  iTime: 0.0,
+  iResolution: [window.innerWidth * 2, window.innerHeight * 2, 1]
+}
+
 export default async function Generators(args?: { iTime?: number; iResolution?: number[] }): Promise<MaterialParms> {
   const mat = new ShaderMaterial({
     uniforms: {
-      iTime: { value: args?.iTime ?? 0.0 },
-      iResolution: { value: args?.iResolution ?? [window.innerWidth * 2, window.innerHeight * 2, 1] }
+      iTime: { value: args?.iTime ?? DefaultArgs.iTime },
+      iResolution: { value: args?.iResolution ?? DefaultArgs.iResolution }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

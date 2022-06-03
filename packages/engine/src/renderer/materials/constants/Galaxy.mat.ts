@@ -55,12 +55,17 @@ void main()
 	gl_FragColor=vec4(min(pow(abs(col), vec3(1.2)), 1.0), 1.0);
 }`
 
+export const DefaultArgs = {
+  iTime: 0.0,
+  iResolution: [window.innerWidth * 2, window.innerHeight * 2, 1]
+}
+
 export default async function Galaxy(args?: { iTime?: number; iResolution?: number[] }): Promise<MaterialParms> {
   const img = new Texture()
   const mat = new ShaderMaterial({
     uniforms: {
-      iTime: { value: args?.iTime ?? 0.0 },
-      iResolution: { value: args?.iResolution ?? [window.innerWidth * 2, window.innerHeight * 2, 1] }
+      iTime: { value: args?.iTime ?? DefaultArgs.iTime },
+      iResolution: { value: args?.iResolution ?? DefaultArgs.iResolution }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

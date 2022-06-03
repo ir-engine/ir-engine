@@ -36,7 +36,7 @@ function checkMatch(toCheck: string, assignment: MaterialOverrideComponentType):
 export async function assignMaterial(override: MaterialOverrideComponentType): Promise<[MatRend[], MaterialParms]> {
   const result: MatRend[] = []
   //first retrieve material to build assignment
-  const matParm: MaterialParms = await MaterialLibrary[override.materialID]()
+  const matParm: MaterialParms = await MaterialLibrary[override.materialID](override.args)
   const target = getComponent(override.targetEntity, Object3DComponent)?.value
   if (!target) {
     console.error('Failed material override for override', override, ': target Object3D does not exist')

@@ -13,7 +13,7 @@ void main() {
 `
 export const fragmentShader = `
 #define TAU 6.28318530718
-#define MAX_ITER 5
+#define MAX_ITER 3
 uniform float iTime;
 uniform vec3 iResolution;
 varying vec2 vUv;
@@ -47,11 +47,16 @@ colour = clamp(colour + vec3(0.0, 0.35, 0.5), 0.0, 1.0);
 gl_FragColor = vec4(colour, 1.0);
 }`
 
+export const DefaultArgs = {
+  iTime: 0.0,
+  iResolution: [window.innerWidth * 2, window.innerHeight * 2, 1]
+}
+
 export default async function Caustics(args?: { iTime?: number; iResolution?: number[] }): Promise<MaterialParms> {
   const mat = new ShaderMaterial({
     uniforms: {
-      iTime: { value: args?.iTime ?? 0.0 },
-      iResolution: { value: args?.iResolution ?? [window.innerWidth * 2, window.innerHeight * 2, 1] }
+      iTime: { value: args?.iTime ?? DefaultArgs.iTime },
+      iResolution: { value: args?.iResolution ?? DefaultArgs.iResolution }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

@@ -9,6 +9,7 @@ export type MaterialOverrideComponentType = {
   materialID: string
   patternTarget: PatternTarget
   pattern: string | RegExp
+  args?: any
 }
 
 export const MaterialOverrideComponent = createMappedComponent<MaterialOverrideComponentType>('material-override')

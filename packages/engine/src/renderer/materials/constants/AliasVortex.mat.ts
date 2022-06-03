@@ -424,17 +424,22 @@ void main()
 }
 `
 
+export const DefaultArgs = {
+  iTime: 0.0,
+  iResolution: [window.innerWidth, window.innerHeight, 1],
+  iChannel0: new Texture()
+}
+
 export default async function AliasVortex(args?: {
   iTime?: number
   iResolution?: number[]
   iChannel0?: Texture
 }): Promise<MaterialParms> {
-  const img = new Texture()
   const mat = new ShaderMaterial({
     uniforms: {
-      iChannel0: { value: args?.iChannel0 ?? img },
-      iTime: { value: args?.iTime ?? 0.0 },
-      iResolution: { value: args?.iResolution ?? [window.innerWidth * 2, window.innerHeight * 2, 1] }
+      iChannel0: { value: args?.iChannel0 ?? DefaultArgs.iChannel0 },
+      iTime: { value: args?.iTime ?? DefaultArgs.iTime },
+      iResolution: { value: args?.iResolution ?? DefaultArgs.iResolution }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

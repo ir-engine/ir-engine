@@ -76,6 +76,14 @@ export const vertexShader = `
     }
 `
 
+export const DefaultArgs = {
+  tiling: new Vector2(1, 1),
+  iResolution: [window.innerWidth, window.innerHeight, 1],
+  iChannel0: new Texture(),
+  iChannel1: new Texture(),
+  iTime: 0.0
+}
+
 export default async function Circuits(args?: {
   tiling?: Vector2
   iResolution?: number[]
@@ -85,11 +93,11 @@ export default async function Circuits(args?: {
 }): Promise<MaterialParms> {
   const mat = new ShaderMaterial({
     uniforms: {
-      tiling: { value: args?.tiling ?? new Vector2(1, 1) },
-      iResolution: { value: args?.iResolution ?? [window.innerWidth, window.innerHeight, 1] },
-      iChannel0: { value: args?.iChannel0 ?? new Texture() },
-      iChannel1: { value: args?.iChannel1 ?? new Texture() },
-      iTime: { value: args?.iTime ?? 0.0 }
+      tiling: { value: args?.tiling ?? DefaultArgs.tiling },
+      iResolution: { value: args?.iResolution ?? DefaultArgs.iResolution },
+      iChannel0: { value: args?.iChannel0 ?? DefaultArgs.iChannel0 },
+      iChannel1: { value: args?.iChannel1 ?? DefaultArgs.iChannel1 },
+      iTime: { value: args?.iTime ?? DefaultArgs.iTime }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

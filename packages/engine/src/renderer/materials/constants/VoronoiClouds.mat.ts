@@ -1,6 +1,7 @@
 import { ShaderMaterial } from 'three'
 
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { defineAction } from '@xrengine/hyperflux'
 
 import { MaterialParms } from '../MaterialParms'
 
@@ -168,11 +169,16 @@ void main()
 	gl_FragColor = vec4(sqrt(clamp(col, 0., 1.)), 1);
 }`
 
+export const DefaultArgs = {
+  iTime: 0.0,
+  iResolution: [window.innerWidth / 4, window.innerHeight / 4, 1]
+}
+
 export default async function VoronoiClouds(args?: { iTime?: number; iResolution?: number[] }): Promise<MaterialParms> {
   const mat = new ShaderMaterial({
     uniforms: {
-      iTime: { value: args?.iTime ?? 0.0 },
-      iResolution: { value: args?.iResolution ?? [window.innerWidth / 4, window.innerHeight / 4, 1] }
+      iTime: { value: args?.iTime ?? DefaultArgs.iTime },
+      iResolution: { value: args?.iResolution ?? DefaultArgs.iResolution }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

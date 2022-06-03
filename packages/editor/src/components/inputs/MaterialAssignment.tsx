@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
+import { Texture } from 'three'
 
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
+import { DefaultArguments, MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { PatternTarget } from '@xrengine/engine/src/renderer/materials/MaterialParms'
 import {
   MaterialOverrideComponent,
@@ -13,6 +15,7 @@ import { refreshMaterials } from '@xrengine/engine/src/scene/functions/loaders/M
 
 import { Button } from './Button'
 import InputGroup, { InputGroupContent, InputGroupVerticalContainerWide, InputGroupVerticalContent } from './InputGroup'
+import NumericInput from './NumericInput'
 import SelectInput from './SelectInput'
 import StringInput, { ControlledStringInput } from './StringInput'
 
@@ -71,6 +74,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
           entity: -1,
           targetEntity: node.entity,
           materialID: '',
+          args: {},
           patternTarget: PatternTarget.OBJ3D,
           pattern: ''
         })
@@ -116,6 +120,62 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
       }
     }
 
+    function clearArguments() {
+      document
+        .getElementsByName(`Material Arguments ${index}`)
+        .forEach((argElt) => argElt.childNodes.forEach((child) => argElt.removeChild(child)))
+    }
+
+    function getArguments(materialID) {
+      const argStructure = DefaultArguments[materialID]
+      function traverseArgs(args) {
+        return (
+          <div>
+            {Object.entries(argStructure).map(([k, v]) => {
+              //number
+              if (typeof v === 'number') {
+                return (
+                  <InputGroup name={k} label={k}>
+                    <NumericInput value={v} onChange={onChange} />
+                  </InputGroup>
+                )
+              }
+              if (typeof v === 'object') {
+                if (v?.hasOwnProperty('length') && v.hasOwnProperty('map'))
+                  return (
+                    <InputGroup name={k} label={k}>
+                      {(v as any[]).map((vChild) => traverseArgs(vChild))}
+                    </InputGroup>
+                  )
+                if (typeof v === 'string' || (v as Texture).isTexture) {
+                  return (
+                    <InputGroup name={k} label={k}>
+                      <StringInput value={v} onChange={onChange} />
+                    </InputGroup>
+                  )
+                }
+              }
+
+              //array
+              //texture
+            })}
+          </div>
+        )
+      }
+      return traverseArgs(argStructure)
+    }
+
+    function onChangeMaterialID() {
+      const callback = setAssignmentProperty('materialID')
+      return (value) => {
+        clearArguments()
+        document
+          .getElementsByName(`Material Arguments ${index}`)[0]
+          .appendChild(ReactDOM.render(getArguments(value), Engine.instance))
+        callback(value)
+      }
+    }
+
     return (
       <div>
         <span>
@@ -129,7 +189,11 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
               options={materialIDs}
             />
           </InputGroup>
-          <InputGroup name="Pattern Target" label={t('editor:properties.materialAssignment.lbl-patternTarget')}>
+          <InputGroup
+            name={`Material Arguments ${index}`}
+            label={t('editor:properties.materialAssignment.lbl-materialArguments')}
+          ></InputGroup>
+          <InputGroup name={`Pattern Target`} label={t('editor:properties.materialAssignment.lbl-patternTarget')}>
             <SelectInput
               key={`${entity}-${index}-patternTarget`}
               value={assignment.patternTarget}

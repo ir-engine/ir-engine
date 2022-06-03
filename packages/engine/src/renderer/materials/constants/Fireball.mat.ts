@@ -1,13 +1,20 @@
 import { ShaderMaterial, Texture } from 'three'
 
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+
 import { MaterialParms } from '../MaterialParms'
 
 export const vertexShader = `
 varying vec2 vUv;
+varying vec3 vN;
+varying vec3 vPos;
+
 varying float startDist;
 
 void main() {
     vUv = uv;
+    vN = normal;
+    vPos = position;
     startDist = length((modelMatrix * vec4(position, 1)).xyz - cameraPosition);
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1);
 }
@@ -17,15 +24,19 @@ export const fragmentShader = `
 uniform vec3 iResolution;
 uniform float iTime;
 uniform sampler2D iChannel0;
+uniform sampler2D iChannel1;
 
 varying vec2 vUv;
+varying vec3 vN;
+varying vec3 vPos;
+
 varying float startDist;
 
 const int _VolumeSteps = 128;
 const float _StepSize = 0.02; 
 const float _Density = 0.2;
 
-const float _SphereRadius = 1.0;
+const float _SphereRadius = 0.5;
 const float _NoiseFreq = 2.0;
 const float _NoiseAmp = 1.0;
 const vec3 _NoiseAnim = vec3(0, -1, 0);
@@ -74,13 +85,11 @@ float distanceFunc(vec3 p)
 
 // shade a point based on distance
 vec4 shade(float d)
-{	
-    if (d >= 0.0 && d < 0.2) return (mix(vec4(3, 3, 3, 1), vec4(1, 1, 0, 1), d / 0.2));
-	if (d >= 0.2 && d < 0.4) return (mix(vec4(1, 1, 0, 1), vec4(1, 0, 0, 1), (d - 0.2) / 0.2));
-	if (d >= 0.4 && d < 0.6) return (mix(vec4(1, 0, 0, 1), vec4(0, 0, 0, 0), (d - 0.4) / 0.2));    
-    if (d >= 0.6 && d < 0.8) return (mix(vec4(0, 0, 0, 0), vec4(0, .5, 1, 0.2), (d - 0.6) / 0.2));
-    if (d >= 0.8 && d < 1.0) return (mix(vec4(0, .5, 1, .2), vec4(0, 0, 0, 0), (d - 0.8) / 0.2));            
-    return vec4(0.0, 0.0, 0.0, 0.0);
+{	if(d > 3. && d <= 24.)
+        return mix(texture(iChannel1, vUv), vec4(1., 1., 0.7, 1.), smoothstep(24.,3., d));      
+    if(d <= 3.) 
+        return mix(vec4(1., 1., 0.7, 1.), vec4(1., 1., 1., 1.), smoothstep(3., 0., d));
+    return texture(iChannel1, vUv);
 }
 
 // procedural volume
@@ -88,7 +97,7 @@ vec4 shade(float d)
 vec4 volumeFunc(vec3 p)
 {
     //p.xz = rotate(p.xz, p.y*2.0 + iTime);	// firestorm
-	float d = startDist / 100.0 + distanceFunc(p) / 10.0;
+	float d = startDist + distanceFunc(p) / 5.0;
 	return shade(d);
 }
 
@@ -131,8 +140,9 @@ void main()
     // volume render
     vec3 hitPos;
     vec4 col = rayMarch(ro, rd*_StepSize, hitPos);
-
-    gl_FragColor = col;
+    vec3 camdir = normalize(vPos - cameraPosition);
+    vec3 norm = normalize(vN);
+    gl_FragColor = col * (0.5 + 0.5 * (1.0 - dot(norm, camdir)));
 }
 `
 
@@ -140,12 +150,17 @@ export default async function Fireball(args?: {
   iTime?: number
   iResolution?: number[]
   iChannel0?: Texture
+  iChannel1?: Texture
 }): Promise<MaterialParms> {
+  const defaultImg = await AssetLoader.loadAsync(
+    'https://theoverlay-dev-static-resources.s3.amazonaws.com/projects/cave/assets/youngboy.jpg'
+  )
   const mat = new ShaderMaterial({
     uniforms: {
       iTime: { value: args?.iTime ?? 0.0 },
       iResolution: { value: args?.iResolution ?? [window.innerWidth * 2, window.innerHeight * 2, 1] },
-      iChannel0: { value: args?.iChannel0 ?? new Texture() }
+      iChannel0: { value: args?.iChannel0 ?? defaultImg },
+      iChannel1: { value: args?.iChannel1 ?? defaultImg }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader
