@@ -135,7 +135,7 @@ describe('ViewCursor read/write', () => {
 
     it('should writeEntityId', () => {
       const view = createViewCursor()
-      const entity = 1234 as Entity
+      const entity = 42 as Entity
       writeEntityId(view, entity)
       strictEqual(view.cursor, Uint32Array.BYTES_PER_ELEMENT)
       strictEqual(view.getUint32(0), entity)
@@ -143,7 +143,7 @@ describe('ViewCursor read/write', () => {
 
     it('should writeNetworkId', () => {
       const view = createViewCursor()
-      const entity = 1234 as Entity
+      const entity = 42 as Entity
       const netId = 5678 as NetworkId
       NetworkObjectComponent.networkId[entity] = netId
       writeNetworkId(view, entity)

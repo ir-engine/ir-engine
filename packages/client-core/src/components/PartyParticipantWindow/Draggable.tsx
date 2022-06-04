@@ -75,7 +75,6 @@ export const Draggable = (props: PropsType) => {
   const styles = props.isPiP
     ? ({
         touchAction: 'none',
-        position: 'fixed',
         left: window.innerWidth - MARGIN - PIP_WIDTH,
         top: 20,
         transition: 'all 0.1s linear',

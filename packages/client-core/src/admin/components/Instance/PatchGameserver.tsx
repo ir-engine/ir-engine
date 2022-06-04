@@ -6,13 +6,10 @@ import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
-import FormControl from '@mui/material/FormControl'
-import MenuItem from '@mui/material/MenuItem'
-import Paper from '@mui/material/Paper'
-import Select from '@mui/material/Select'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
+import InputSelect, { InputSelectProps } from '../../common/InputSelect'
 import { GameserverService } from '../../services/GameserverService'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
@@ -38,6 +35,13 @@ const PatchGameserver = (props: Props) => {
   const adminLocations = adminLocationState.locations
 
   useFetchAdminLocations(user, adminLocationState, LocationService)
+
+  const locationsMenu: InputSelectProps[] = adminLocations.value.map((el) => {
+    return {
+      label: el.name,
+      value: el.id
+    }
+  })
 
   React.useEffect(() => {
     if (location.created.value) {
@@ -72,31 +76,16 @@ const PatchGameserver = (props: Props) => {
           <DialogTitle id="form-dialog-title" className={styles.textAlign}>
             {t('admin:components.setting.patchGameserver')}
           </DialogTitle>
-          <label>{t('admin:components.bot.location')}</label>
-          <Paper component="div" className={state.locationError.length > 0 ? styles.redBorder : styles.createInput}>
-            <FormControl fullWidth>
-              <Select
-                labelId="demo-controlled-open-select-label"
-                id="demo-controlled-open-select"
-                value={state.location}
-                fullWidth
-                displayEmpty
-                onChange={handleChange}
-                className={styles.select}
-                name="location"
-                MenuProps={{ classes: { paper: styles.selectPaper } }}
-              >
-                <MenuItem value="" disabled>
-                  <em>{t('admin:components.bot.selectLocation')}</em>
-                </MenuItem>
-                {adminLocations.value.map((el, i) => (
-                  <MenuItem value={el.id} key={i}>
-                    {el.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Paper>
+
+          <InputSelect
+            name="location"
+            label={t('admin:components.bot.location')}
+            value={state.location}
+            error={state.locationError}
+            menu={locationsMenu}
+            handleInputChange={handleChange}
+          />
+
           <DialogActions>
             <Button className={styles.submitButton} onClick={handleSubmit}>
               {t('admin:components.setting.save')}

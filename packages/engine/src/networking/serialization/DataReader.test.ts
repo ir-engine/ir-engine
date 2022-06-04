@@ -61,7 +61,7 @@ describe('DataReader', () => {
 
   it('should readComponent', () => {
     const view = createViewCursor()
-    const entity = 1234 as Entity
+    const entity = 42 as Entity
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -105,7 +105,7 @@ describe('DataReader', () => {
 
   it('should readComponentProp', () => {
     const view = createViewCursor()
-    const entity = 1234 as Entity
+    const entity = 42 as Entity
 
     const prop = TransformComponent.position.x as unknown as TypedArray
 
@@ -124,7 +124,7 @@ describe('DataReader', () => {
 
   it('should readVector3', () => {
     const view = createViewCursor()
-    const entity = 1234 as Entity
+    const entity = 42 as Entity
     const position = TransformComponent.position as unknown as Vector3SoA
     const [x, y, z] = [1.5, 2.5, 3.5]
     position.x[entity] = x
@@ -160,7 +160,7 @@ describe('DataReader', () => {
 
   it('should readVector4', () => {
     const view = createViewCursor()
-    const entity = 1234 as Entity
+    const entity = 42 as Entity
     const rotation = TransformComponent.rotation
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
     rotation.x[entity] = x
@@ -201,7 +201,7 @@ describe('DataReader', () => {
 
   it('should readPosition', () => {
     const view = createViewCursor()
-    const entity = 1234 as Entity
+    const entity = 42 as Entity
     const position = TransformComponent.position
     const [x, y, z] = [1.5, 2.5, 3.5]
     position.x[entity] = x
@@ -235,7 +235,7 @@ describe('DataReader', () => {
 
   it('should readRotation', () => {
     const view = createViewCursor()
-    const entity = 1234 as Entity
+    const entity = 42 as Entity
     const rotation = TransformComponent.rotation
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
     rotation.x[entity] = x

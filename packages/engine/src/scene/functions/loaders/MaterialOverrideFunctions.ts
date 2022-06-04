@@ -5,10 +5,11 @@ import { MaterialOverrideComponent, MaterialOverrideComponentType } from '../../
 import { ModelComponent } from '../../components/ModelComponent'
 
 export function initializeOverride(target: Entity, override: MaterialOverrideComponentType) {
+  const nuOR: MaterialOverrideComponentType = { ...override }
   const entity = createEntity()
-  override.entity = entity
-  override.targetEntity = target
-  return addComponent(entity, MaterialOverrideComponent, override)
+  nuOR.entity = entity
+  nuOR.targetEntity = target
+  return addComponent(entity, MaterialOverrideComponent, nuOR)
 }
 
 export async function refreshMaterials(target: Entity) {
@@ -23,7 +24,5 @@ export async function refreshMaterials(target: Entity) {
   await new Promise((resolve) => {
     setTimeout(resolve, 15)
   })
-  await Promise.all(
-    (model.materialOverrides = model.materialOverrides.map((override) => initializeOverride(target, override)))
-  )
+  model.materialOverrides = model.materialOverrides.map((override) => initializeOverride(target, override))
 }
