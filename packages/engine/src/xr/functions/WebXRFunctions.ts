@@ -34,31 +34,10 @@ const assignControllerAndGrip = (xrManager, controller, grip, i): void => {
 
 export const mapXRControllers = (xrInput: XRInputSourceComponentType): void => {
   const xrm = EngineRenderer.instance.xrManager
-  const session = xrm.getSession()
 
-  for (let i = 0; i < 2; i++) {
-    const j = 1 - i
-    const inputSource = session?.inputSources[i]
-    if (!inputSource) {
-      console.log('No xr input source available for index', i)
-      continue
-    }
-
-    if (inputSource.hand) {
-      console.log('XR hand input source should not be mapped to controller')
-      continue
-    }
-
-    if (inputSource.handedness === 'left') {
-      assignControllerAndGrip(xrm, xrInput.controllerLeft, xrInput.controllerGripLeft, i)
-      assignControllerAndGrip(xrm, xrInput.controllerRight, xrInput.controllerGripRight, j)
-    } else if (inputSource.handedness === 'right') {
-      assignControllerAndGrip(xrm, xrInput.controllerLeft, xrInput.controllerGripLeft, j)
-      assignControllerAndGrip(xrm, xrInput.controllerRight, xrInput.controllerGripRight, i)
-    } else {
-      console.warn('Could not determine xr input source handedness', i)
-    }
-  }
+  // https://github.com/mrdoob/three.js/blob/0c26bb4bb8220126447c8373154ac045588441de/src/renderers/webxr/WebXRManager.js#L355
+  assignControllerAndGrip(xrm, xrInput.controllerLeft, xrInput.controllerGripLeft, 0)
+  assignControllerAndGrip(xrm, xrInput.controllerRight, xrInput.controllerGripRight, 1)
 
   if (xrInput.controllerGripLeft.parent) {
     xrInput.controllerGripLeftParent = xrInput.controllerGripLeft.parent as Group
@@ -217,10 +196,6 @@ export const startWebXR = async (): Promise<void> => {
   container.add(Engine.instance.currentWorld.camera)
 
   setupXRInputSourceComponent(world.localClientEntity)
-
-  // Default mapping
-  assignControllerAndGrip(EngineRenderer.instance.xrManager, controllerLeft, controllerGripLeft, 0)
-  assignControllerAndGrip(EngineRenderer.instance.xrManager, controllerRight, controllerGripRight, 1)
 
   const avatarInputState = accessAvatarInputSettingsState()
   dispatchAction(
