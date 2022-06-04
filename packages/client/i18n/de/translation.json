@@ -1,0 +1,81 @@
+{
+  "location" : {
+    "youHaveBeenBannedMsg" : "Sie wurden von dieser Position ausgeschlossen. ",
+    "locationName" : {
+      "pageTitle" : "Startseite "
+    }
+  },
+  "editor" : {
+    "projects" : {
+      "title" : "Projekte ",
+      "header" : "Bitte anmelden ",
+      "welcomeMsg" : "Begrüßung ",
+      "locationHeader" : "Positionen ",
+      "projectHeader" : "Projekte ",
+      "sceneHeader" : "Szenen ",
+      "description" : "Wenn Sie hier neu sind, empfehlen wir Ihnen, das Tutorial zu durchlaufen.  Wechseln Sie andernfalls direkt in und erstellen Sie ein Projekt von Grund auf neu oder von einer unserer Vorlagen. ",
+      "lbl-startTutorial" : "Lernprogramm starten ",
+      "lbl-newProject" : "Neues Projekt ",
+      "lbl-createProject" : "Erstellen ",
+      "lbl-newScene" : "Neue Szene ",
+      "lbl-searchProject" : "Vorhandene Projekte durchsuchen ... ",
+      "back" : "Zurück ",
+      "contextMenu" : "Projekt löschen ",
+      "installed" : "Installierte Projekte ",
+      "official" : "Offizielle Projekte ",
+      "community" : "Community-Projekte ",
+      "install" : "Installieren ",
+      "uninstall" : "Deinstallieren ",
+      "rename" : "Umbenennen ",
+      "createProject" : "Projekt erstellen ",
+      "installProject" : "Projekt installieren ",
+      "processing" : "Verarbeitung ",
+      "projectName" : "Projektname ",
+      "projectURL" : "Projekt-URL "
+    }
+  },
+  "error" : {
+    "goHomeLink" : "Nach Hause ",
+    "withStatusCode" : "Auf dem Server ist ein Fehler {{code}} aufgetreten. ",
+    "withoutStatusCode" : "Auf dem Server ist ein Fehler aufgetreten. "
+  },
+  "404" : {
+    "msg" : "404-Seite nicht gefunden "
+  },
+  "503" : {
+    "msg" : "503-Service nicht verfügbar "
+  },
+  "no-projects" : {
+    "msg" : "Fehler: Es wurden keine Projekte installiert. Bitte wenden Sie sich an einen Siteadministrator. "
+  },
+  "dev" : {
+    "pageTitle" : "Startseite "
+  },
+  "login" : {
+    "pageTitle" : "Anmeldung "
+  },
+  "workerTest" : {
+    "pageTitle" : "Arbeitstest "
+  },
+  "index" : {
+    "by" : "BY ",
+    "xr" : "XR ",
+    "foundation" : "Stiftung ",
+    "description" : "Echtzeit 3D Social-Anwendungen für alle zu genießen. "
+  },
+  "xrengineContact" : {
+    "header" : "Holen Sie Sich In Kontakt! ",
+    "description" : "Wir helfen Ihnen gerne mit Ihren virtuellen Veranstaltungen, dem digitalen Einzelhandel, der Unterhaltung und anderen Bedürfnissen. ",
+    "lbl-name" : "Name ",
+    "lbl-email" : "E-Mail ",
+    "lbl-company" : "Unternehmen ",
+    "lbl-project" : "Beschreiben Sie Ihr Projekt ",
+    "lbl-send" : "Senden ",
+    "lbl-ok" : "OK ",
+    "lbl-success" : "Nachricht Gesendet, Wir werden Ihnen in Kürze zurück. ",
+    "lbl-failure" : "Es ist ein Fehler aufgetreten, Plese erneut. ",
+    "err-username" : "Geben Sie einen Namen ein. ",
+    "err-email" : "E-Mail ist erforderlich. ",
+    "err-msg" : "Geben Sie eine kurze Beschreibung Ihres Projekts an."
+  }
+}
