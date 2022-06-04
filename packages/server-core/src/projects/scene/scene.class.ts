@@ -1,7 +1,6 @@
 import { NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
-import fetch from 'node-fetch'
 import path from 'path'
 
 import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -10,7 +9,8 @@ import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.j
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
-import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
+import { getInternalCacheDomain } from '../../media/storageprovider/getCacheDomain'
+import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { cleanString } from '../../util/cleanString'
 import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser'
@@ -19,21 +19,22 @@ const NEW_SCENE_NAME = 'New-Scene'
 
 const sceneAssetFiles = ['.scene.json', '.thumbnail.jpeg', '.cubemap.png']
 
-export const getSceneData = async (projectName, sceneName, metadataOnly, internal, downloadIfNotPresent = false) => {
+export const getSceneData = async (projectName, sceneName, metadataOnly, internal = false) => {
   const storageProvider = getStorageProvider()
   const scenePath = `projects/${projectName}/${sceneName}.scene.json`
   const thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.jpeg`
 
-  const thumbnailUrl = getCachedAsset(thumbnailPath, storageProvider.cacheDomain, internal)
+  const cacheDomain = getInternalCacheDomain(storageProvider, internal)
+  const thumbnailUrl = getCachedURL(thumbnailPath, cacheDomain)
 
   const sceneExists = await storageProvider.doesExist(`${sceneName}.scene.json`, `projects/${projectName}/`)
   if (sceneExists) {
-    const sceneResult = await (await fetch(getCachedAsset(scenePath, storageProvider.cacheDomain, internal))).json() // fetch from cloudfront
+    const sceneResult = await storageProvider.getCachedObject(scenePath)
     const sceneData: SceneData = {
       name: sceneName,
       project: projectName,
       thumbnailUrl: thumbnailUrl + `?${Date.now()}`,
-      scene: metadataOnly ? undefined! : parseSceneDataCacheURLs(sceneResult, storageProvider.cacheDomain, internal)
+      scene: metadataOnly ? undefined! : parseSceneDataCacheURLs(JSON.parse(sceneResult.Body.toString()), cacheDomain)
     }
     return sceneData
   }
