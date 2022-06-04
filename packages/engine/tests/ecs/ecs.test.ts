@@ -91,8 +91,8 @@ describe('ECS', () => {
     const world = useWorld()
     const entities = world.entityQuery()
     assert.strictEqual(entities.length, 2)
-    assert.strictEqual(entities[0], world.worldEntity)
-    assert.strictEqual(entities[1], entity)
+    assert(entities.includes(world.worldEntity))
+    assert(entities.includes(entity))
   })
 
   it('should support enter and exit queries', () => {
