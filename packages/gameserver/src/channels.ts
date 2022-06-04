@@ -20,6 +20,7 @@ import {
 } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
+import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
@@ -219,35 +220,33 @@ const initializeInstance = async (
  */
 
 const loadEngine = async (app: Application, sceneId: string) => {
-  const instanceId = app.instance.id
+  const hostId = app.instance.id
   Engine.instance.publicPath = config.client.url
-  Engine.instance.userId = instanceId
+  Engine.instance.userId = hostId
   const world = Engine.instance.currentWorld
 
-  app.transport = new SocketWebRTCServerNetwork(instanceId, app)
+  app.transport = new SocketWebRTCServerNetwork(hostId, app)
   const initPromise = app.transport.initialize()
 
-  world.networks.set(instanceId, app.transport)
+  world.networks.set(hostId, app.transport)
 
-  const hostIndex = world.userIndexCount++
-  world.clients.set(instanceId, {
-    userId: instanceId,
-    name: 'server-' + instanceId,
-    index: hostIndex,
-    lastSeenTs: Date.now()
-  })
-  world.userIdToUserIndex.set(instanceId, hostIndex)
-  world.userIndexToUserId.set(hostIndex, instanceId)
+  dispatchAction(
+    WorldNetworkAction.createClient({
+      name: 'server-' + hostId,
+      index: world.userIndexCount++
+    }),
+    [hostId]
+  )
 
   if (app.isChannelInstance) {
-    world._mediaHostId = instanceId as UserId
+    world._mediaHostId = hostId as UserId
     await initializeMediaServerSystems()
     await initializeRealtimeSystems(true, false)
     const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
     await loadEngineInjection(world, projects)
     dispatchAction(EngineActions.sceneLoaded())
   } else {
-    world._worldHostId = instanceId as UserId
+    world._worldHostId = hostId as UserId
 
     const [projectName, sceneName] = sceneId.split('/')
 
