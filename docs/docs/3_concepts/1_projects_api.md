@@ -2,7 +2,7 @@
 
 Projects are folders that contain all your custom code, assets and scenes. They
 are version controlled using git & github, and can be installed to any deployment
-with a single click. (more on that in the [next chapter](./02-editor-scenes-locations.md))
+with a single click. (more on that in the [next chapter](./2_editor_scenes_locations.md))
 
 Pictured below is an example of 4 projects installed. By default, only the 
 `default-project` is installed, which in a production environment is read only.

@@ -118,7 +118,7 @@ If you run into any trouble with the Quick Start instructions:
 * Please make sure you've followed the 
   [Mediasoup installation instructions](https://mediasoup.org/documentation/v3/mediasoup/installation/)
 * Check your OS-specific instructions:
-  - [Installing on Windows (10+)](windows.md)
-  - [Installing on Mac OS X](mac_os_x.md)
-* [Installation Troubleshooting](install-troubleshooting.md)
-* [Advanced Setup](advanced_setup.md)
+  - [Installing on Windows (10+)](3_windows.md)
+  - [Installing on Mac OS X](2_mac_os_x.md)
+* [Installation Troubleshooting](6_install_troubleshooting.md)
+* [Advanced Setup](4_advanced_setup.md)
