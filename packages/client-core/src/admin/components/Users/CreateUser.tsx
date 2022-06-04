@@ -16,7 +16,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
 import AutoComplete from '../../common/AutoComplete'
 import { useFetchScopeType, useFetchStaticResource, useFetchUserRole } from '../../common/hooks/User.hooks'
-import InputSelect from '../../common/InputSelect'
+import InputSelect, { InputSelectProps } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
@@ -30,11 +30,6 @@ interface Props {
   open: boolean
   handleClose: (open: boolean) => void
   closeViewModal: (open: boolean) => void
-}
-
-interface InputSelectProps {
-  value: string
-  label: string
 }
 
 const CreateUser = (props: Props) => {
@@ -165,24 +160,27 @@ const CreateUser = (props: Props) => {
             {t('admin:components.user.createNewUser')}
           </DialogTitle>
           <InputText
-            value={state.name}
-            formErrors={state.formErrors.name}
-            handleInputChange={handleChange}
             name="name"
+            label={t('admin:components.user.name')}
+            value={state.name}
+            error={state.formErrors.name}
+            handleInputChange={handleChange}
           />
           <InputSelect
-            formErrors={state.formErrors.avatar}
-            value={state.avatar}
-            handleInputChange={handleChange}
             name="avatar"
+            label={t('admin:components.user.avatar')}
+            value={state.avatar}
+            error={state.formErrors.avatar}
             menu={staticResourceMenu}
+            handleInputChange={handleChange}
           />
           <InputSelect
-            handleInputChange={handleChange}
-            value={state.userRole}
             name="userRole"
+            label={t('admin:components.user.userRole')}
+            value={state.userRole}
+            error={state.formErrors.userRole}
             menu={userRoleData}
-            formErrors={state.formErrors.userRole}
+            handleInputChange={handleChange}
           />
           <DialogContentText className={styles.mb15}>
             <span className={styles.select}>{t('admin:components.user.dontSeeUserRole')}</span>{' '}
@@ -190,7 +188,11 @@ const CreateUser = (props: Props) => {
               {t('admin:components.user.createOne')}
             </a>
           </DialogContentText>
-          <AutoComplete data={scopeData} label="Grant Scope" handleChangeScopeType={handleChangeScopeType} />
+          <AutoComplete
+            data={scopeData}
+            label={t('admin:components.user.grantScope')}
+            handleChangeScopeType={handleChangeScopeType}
+          />
           <DialogActions>
             <Button className={styles.submitButton} onClick={handleSubmit}>
               {t('admin:components.user.submit')}

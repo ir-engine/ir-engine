@@ -347,6 +347,7 @@
       "updatePersonalInfo" : "Actualizar la información personal ",
       "name" : "Nombre ",
       "avatar" : "Avatar ",
+      "role": "Rol ",
       "selectAvatar" : "Seleccionar avatar ",
       "userRole" : "Rol de usuario ",
       "grantScope" : "Ámbito de concesión ",
