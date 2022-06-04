@@ -56,38 +56,37 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
   })
 
   meshObjs.forEach((mesh) => mesh.removeFromParent())
-
-  obj3d.userData.updateTransform = function () {
-    const boxColliderProps = parseBoxColliderProperties(json.props)
-    updateBoxCollider(entity, boxColliderProps)
-  }
 }
 
-export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity, props: BoxColliderProps) => {
-  //Todo: remove old body
-  if (hasComponent(entity, ColliderComponent)) {
-    removeComponent(entity, ColliderComponent)
-  }
+export const updateScaleTransform = function (entity: Entity) {
+  //Todo: getting box collider props
+  const data = serializeBoxCollider(entity) as any
+  const boxColliderProps = parseBoxColliderProperties(data.props)
 
+  removeComponent(entity, ColliderComponent)
   const transform = getComponent(entity, TransformComponent)
-
-  //Todo: create new body
   const world = useWorld()
   const shape = world.physics.createShape(
     new PhysX.PxBoxGeometry(Math.abs(transform.scale.x), Math.abs(transform.scale.y), Math.abs(transform.scale.z)),
     undefined,
-    props as any
+    boxColliderProps as any
   )
   const body = createBody(entity, { bodyType: 0 }, [shape])
   addComponent(entity, ColliderComponent, { body })
+}
 
-  const pose = body.getGlobalPose()
+export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity, props: BoxColliderProps) => {
+  const component = getComponent(entity, ColliderComponent)
+  const transform = getComponent(entity, TransformComponent)
+
+  const pose = component.body.getGlobalPose()
   pose.translation = transform.position
   pose.rotation = transform.rotation
-  body.setGlobalPose(pose, false)
-  body._debugNeedsUpdate = true
+  component.body.setGlobalPose(pose, false)
+  component.body._debugNeedsUpdate = true
 
-  const boxShape = world.physics.getRigidbodyShapes(body)[0]
+  const world = useWorld()
+  const boxShape = world.physics.getRigidbodyShapes(component.body)[0]
   setTriggerShape(boxShape, props.isTrigger)
   boxShape._debugNeedsUpdate = true
 }

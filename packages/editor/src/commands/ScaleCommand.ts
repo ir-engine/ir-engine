@@ -137,7 +137,6 @@ function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
 
       transformComponent.scale.copy(tempVector)
     }
-    if (obj3d.userData.updateTransform) obj3d.userData.updateTransform()
   }
 }
 
