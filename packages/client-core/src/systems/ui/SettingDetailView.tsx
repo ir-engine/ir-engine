@@ -17,15 +17,15 @@ const styles = {
     bottom: '75px',
     padding: '0 30px',
     borderRadius: '20px',
-    backgroundColor: '#3c3c6f',
+    backgroundColor: 'var(--popupBackground)',
     boxShadow: '16px 16px 32px #11111159',
-    color: '#000',
+    color: 'var(--textColor)',
     maxHeight: 'calc(100vh - 100px)',
     overflow: 'auto',
     touchAction: 'auto'
   },
   settingView: { margin: '30px 0' },
-  audioSection: { color: '#ffffff', position: 'relative' },
+  audioSection: { color: 'var(--textColor)', position: 'relative' },
   title: {
     margin: '0px',
     fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
@@ -44,9 +44,8 @@ const styles = {
     alignItems: 'center',
     outline: 'none!important'
   },
-
   iconSvg: {
-    color: '#5f5ff1',
+    color: 'var(--buttonOutlined)',
     width: '100%',
     height: '100%',
     userSelect: 'none',
@@ -63,8 +62,14 @@ const styles = {
     flexShrink: '0',
     fontFamily: 'Roboto'
   },
-  slider: { width: '100%', accentColor: '#5f5ff1' },
-  graphicsSection: { marginTop: '25px', color: '#ffffff', position: 'relative' },
+  slider: {
+    width: '100%',
+    accentColor: 'var(--iconButtonSelectedBackground)',
+    'input[range]::webkit-slider-track': {
+      backgroundColor: 'var(--iconButtonSelectedBackground)'
+    }
+  },
+  graphicsSection: { marginTop: '25px', color: 'var(--textColor)', position: 'relative' },
   graphicsCheckBoxRow: { margin: '5px 20px 0 0', display: 'flex', alignItems: 'center' },
   checkBoxRow: {
     display: 'inline-flex',
@@ -82,7 +87,7 @@ const styles = {
   },
   checkBoxSpan: {
     padding: '0',
-    color: '#5f5ff1',
+    color: 'var(--iconButtonSelectedBackground)',
     marginRight: '10px',
     borderRadius: '50%',
     display: 'inline-flex',
@@ -139,7 +144,7 @@ const styles = {
     marginLeft: '10px',
     marginRight: '0',
     padding: '0',
-    color: '#5f5ff1',
+    color: 'var(--iconButtonSelectedBackground)',
     borderRadius: '50%',
     display: 'inline-flex',
     alignItems: 'center',
@@ -167,10 +172,7 @@ function createSettingDetailState() {
   })
 }
 
-type SettingDetailState = ReturnType<typeof createSettingDetailState>
-
 const SettingDetailView = () => {
-  const detailState = useXRUIState() as SettingDetailState
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()
 

@@ -23,6 +23,8 @@ export default async function ShareLocationUISystem(world: World) {
   return () => {
     const shareLocationXRUI = getComponent(ui.entity, XRUIComponent)
 
+    ui.state.shareMenuOpen.set(MainMenuButtonState.shareMenuOpen.value)
+
     if (shareLocationXRUI) {
       const container = shareLocationXRUI.container
       container.position.set(0, 0, -0.5)

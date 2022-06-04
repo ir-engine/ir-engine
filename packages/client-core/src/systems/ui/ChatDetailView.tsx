@@ -29,7 +29,7 @@ const styles = {
     borderRadius: '50%',
     overflow: 'hidden',
     userSelect: 'none',
-    color: 'rgb(255, 255, 255)',
+    color: 'var(--textColor)',
     backgroundColor: 'rgb(189, 189, 189)',
     margin: '0 10px'
   },

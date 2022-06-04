@@ -26,10 +26,11 @@ const styles = {
     alignItems: 'center',
     zIndex: '20',
     borderRadius: '50%',
-    color: 'black',
     width: '50px',
     height: '50px',
-    fontSize: '20px'
+    fontSize: '20px',
+    backgroundColor: 'var(--iconButtonBackground)',
+    color: 'var(--iconButtonColor)'
   }
 }
 

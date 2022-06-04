@@ -16,8 +16,8 @@ const styles = {
     bottom: '75px',
     padding: '0 30px',
     borderRadius: '20px',
-    backgroundColor: '#3c3c6f',
-    color: '#000',
+    backgroundColor: 'var(--popupBackground)',
+    color: 'var(--textColor)',
     maxHeight: 'calc(100vh - 100px)',
     overflow: 'auto',
     touchAction: 'auto'
@@ -25,7 +25,7 @@ const styles = {
   header: { margin: '30px 0' },
   headerTitle: {
     fontSize: '18px',
-    color: '#ffffff',
+    color: 'var(--textColor)',
     fontWeight: '700',
     fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
     lineHeight: '1.167',
@@ -34,7 +34,7 @@ const styles = {
   inviteBox: {
     marginTop: '10px',
     width: '100%',
-    color: '#ffffff',
+    color: 'var(--textColor)',
     display: 'inline-flex',
     flexDirection: 'column',
     position: 'relative',
@@ -51,7 +51,7 @@ const styles = {
     fontSize: '1rem',
     lineHeight: '1.4375em',
     letterSpacing: '0.00938em',
-    color: '#ffffff',
+    color: 'var(--textColor)',
     boxSizing: 'border-box',
     position: 'relative',
     cursor: 'text',
@@ -59,8 +59,8 @@ const styles = {
     alignItems: 'center'
   },
   inviteLinkInput: {
-    color: '#ffffff',
-    borderColor: '#ffffff',
+    color: 'var(--textColor)',
+    borderColor: 'var(--inputOutline)',
     padding: '5px 0px 10px 14px',
     font: 'inherit',
     letterSpacing: 'inherit',
@@ -74,7 +74,7 @@ const styles = {
     width: '100%'
   },
   copyInviteContainer: {
-    color: '#ffffff',
+    color: 'var(--textColor)',
     cursor: 'pointer',
     display: 'flex',
     height: '0.01em',
@@ -94,14 +94,14 @@ const styles = {
     color: '#ffffff'
   },
   linkFieldset: {
-    borderColor: '#ffffff',
+    borderColor: 'var(--inputOutline)',
     textAlign: 'left',
     position: 'absolute',
     inset: '-5px 0px 0px',
     margin: '0px',
     padding: '0px 8px',
     pointerEvents: 'none',
-    borderRadius: 'inherit',
+    borderRadius: '4px',
     borderStyle: 'solid',
     borderWidth: '1px',
     overflow: 'hidden',
@@ -125,15 +125,14 @@ const styles = {
     alignItems: 'center'
   },
   phoneEmailFieldset: {
-    borderColor: '#ffffff',
-    touchAction: 'auto',
+    borderColor: 'var(--inputOutline)',
     textAlign: 'left',
     position: 'absolute',
     inset: '-5px 0px 0px',
     margin: '0px',
     padding: '0px 8px',
     pointerEvents: 'none',
-    borderRadius: 'inherit',
+    borderRadius: '4px',
     borderStyle: 'solid',
     borderWidth: '1px',
     overflow: 'hidden',
@@ -143,12 +142,13 @@ const styles = {
     touchAction: 'auto',
     float: 'unset',
     overflow: 'hidden',
+    margin: '0px',
     padding: '0px',
     lineHeight: '11px'
   },
   phoneEmailInput: {
-    color: '#ffffff',
-    borderColor: '#ffffff',
+    color: 'var(--textColor)',
+    borderColor: 'var(--inputOutline)',
     padding: '8.5px 14px',
     font: 'inherit',
     letterSpacing: 'inherit',
@@ -162,7 +162,8 @@ const styles = {
     width: '100%',
     outline: '0px',
     borderStyle: 'solid',
-    borderWidth: '1px'
+    borderWidth: '1px',
+    borderRadius: '4px'
   },
   sendInvitationContainer: {
     textAlign: 'center',
@@ -171,7 +172,7 @@ const styles = {
   sendInvitationButton: {
     width: '125px',
     height: '35px',
-    background: 'linear-gradient(92.22deg, #5236ff, #c20560)',
+    background: 'linear-gradient(92.22deg, var(--buttonGradientStart), var(--buttonGradientEnd))',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -186,7 +187,7 @@ const styles = {
     verticalAlign: 'middle',
     appearance: 'none',
     textDecoration: 'none',
-    color: '#ffffff',
+    color: 'var(--textColor)',
     fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
     lineHeight: '1.75',
     letterSpacing: '0.02857em',
@@ -201,7 +202,7 @@ const styles = {
   shareAppButton: {
     width: '125px',
     height: '35px',
-    background: '#5f5ff1',
+    background: 'buttonFilled',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -216,7 +217,7 @@ const styles = {
     verticalAlign: 'middle',
     appearance: 'none',
     textDecoration: 'none',
-    color: '#ffffff',
+    color: 'var(--textColor)',
     fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
     lineHeight: '1.75',
     letterSpacing: '0.02857em',
@@ -236,10 +237,7 @@ function createShareLocationDetailState() {
   })
 }
 
-type ShareLocationDetailState = ReturnType<typeof createShareLocationDetailState>
-
 const ShareLocationDetailView = () => {
-  const detailState = useXRUIState() as ShareLocationDetailState
   const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
