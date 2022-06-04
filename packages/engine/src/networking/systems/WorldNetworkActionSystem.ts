@@ -21,9 +21,9 @@ export default async function WorldNetworkActionSystem() {
   return () => {
     for (const action of createClientQueue()) WorldNetworkActionReceptor.receiveCreateClient(action)
     for (const action of destroyClientQueue()) WorldNetworkActionReceptor.receiveDestroyClient(action)
-    for (const action of spawnObjectQueue()) WorldNetworkActionReceptor.receiveSpawnObject(action)
     for (const action of spawnDebugPhysicsObjectQueue())
       WorldNetworkActionReceptor.receiveSpawnDebugPhysicsObject(action)
+    for (const action of spawnObjectQueue()) WorldNetworkActionReceptor.receiveSpawnObject(action)
     for (const action of destroyObjectQueue()) WorldNetworkActionReceptor.receiveDestroyObject(action)
     for (const action of requestAuthorityOverObjectQueue())
       WorldNetworkActionReceptor.receiveRequestAuthorityOverObject(action)

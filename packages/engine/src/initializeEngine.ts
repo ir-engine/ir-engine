@@ -12,7 +12,7 @@ import { isClient } from './common/functions/isClient'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
-import { createWorld } from './ecs/classes/World'
+import { createWorld, destroyWorld } from './ecs/classes/World'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { matchActionOnce } from './networking/functions/matchActionOnce'
@@ -26,6 +26,9 @@ import { FontManager } from './xrui/classes/FontManager'
  * @returns {Engine}
  */
 export const createEngine = () => {
+  if (Engine.instance?.currentWorld) {
+    destroyWorld(Engine.instance.currentWorld)
+  }
   Engine.instance = new Engine()
   Engine.instance.currentWorld = createWorld()
   EngineRenderer.instance = new EngineRenderer()

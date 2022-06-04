@@ -528,16 +528,15 @@ export const handleKey = (event: KeyboardEvent): any => {
 }
 
 export const handleWindowFocus = (event: FocusEvent) => {
-  if (event.type === 'focus')
-    Engine.instance.currentWorld.inputState.forEach((value, key) => {
-      if (value.type === InputType.BUTTON && value.value[0] === BinaryValue.ON) {
-        Engine.instance.currentWorld.inputState.set(key, {
-          type: InputType.BUTTON,
-          value: [BinaryValue.OFF],
-          lifecycleState: LifecycleValue.Ended
-        })
-      }
-    })
+  Engine.instance.currentWorld.inputState.forEach((value, key) => {
+    if (value.type === InputType.BUTTON && value.value[0] === BinaryValue.ON) {
+      Engine.instance.currentWorld.inputState.set(key, {
+        type: InputType.BUTTON,
+        value: [BinaryValue.OFF],
+        lifecycleState: LifecycleValue.Ended
+      })
+    }
+  })
 }
 
 export const handleVisibilityChange = (event: Event) => {
