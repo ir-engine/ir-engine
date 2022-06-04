@@ -2,7 +2,7 @@ import { Bone, Euler, Vector3 } from 'three'
 
 import { createActionQueue } from '@xrengine/hyperflux'
 
-import { X } from '../common/constants/Axis3D'
+import { Axis } from '../common/constants/Axis3D'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
@@ -135,8 +135,8 @@ export default async function AnimationSystem(world: World) {
 
       // Arms should not be straight for the solver to work properly
       // TODO: Make this configurable
-      rig.LeftForeArm.quaternion.setFromAxisAngle(X, Math.PI * -0.25)
-      rig.RightForeArm.quaternion.setFromAxisAngle(X, Math.PI * 0.25)
+      rig.LeftForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
+      rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
       rig.LeftForeArm.updateWorldMatrix(false, true)
       rig.RightForeArm.updateWorldMatrix(false, true)
 
