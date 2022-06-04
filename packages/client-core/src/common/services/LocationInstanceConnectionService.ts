@@ -39,11 +39,6 @@ store.receptors.push((action: LocationInstanceConnectionActionType): any => {
     switch (action.type) {
       case 'LOCATION_INSTANCE_SERVER_PROVISIONED':
         Engine.instance.currentWorld._worldHostId = action.instanceId as UserId
-
-        const userIndex = Engine.instance.currentWorld.userIndexCount++
-        Engine.instance.currentWorld.userIdToUserIndex.set(action.instanceId as UserId, userIndex)
-        Engine.instance.currentWorld.userIndexToUserId.set(userIndex, action.instanceId as UserId)
-
         Engine.instance.currentWorld.networks.set(
           action.instanceId,
           new SocketWebRTCClientNetwork(action.instanceId, NetworkTypes.world)
