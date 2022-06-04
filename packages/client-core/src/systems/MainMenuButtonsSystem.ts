@@ -12,19 +12,39 @@ import { XRHandsInputComponent } from '@xrengine/engine/src/xr/components/XRHand
 import { XRInputSourceComponent } from '@xrengine/engine/src/xr/components/XRInputSourceComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 
+import { MainMenuButtonState } from './state/MainMenuButtonState'
 import { createMainMenuButtonsView } from './ui/MainMenuButtons'
 
 export const renderMainMenuButtons = (world: World, show: Boolean, mainMenuEntity: Entity) => {
   const userEntity = world.getUserAvatarEntity(Engine.instance.userId)
   if (!userEntity) return
 
+  const userComponent = getComponent(userEntity, XRHandsInputComponent)
   const mainMenuButtonsXRUI = getComponent(mainMenuEntity, XRUIComponent)
-  if (!mainMenuButtonsXRUI) return
 
-  mainMenuButtonsXRUI.container.scale.setScalar(0.1)
-  mainMenuButtonsXRUI.container.position.copy(Engine.instance.currentWorld.camera.position)
-  mainMenuButtonsXRUI.container.position.y = 0.3
-  mainMenuButtonsXRUI.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
+  if (mainMenuButtonsXRUI && userComponent) {
+    const container = mainMenuButtonsXRUI.container
+
+    const el = container.containerElement as HTMLElement
+    el.style.visibility = show ? 'visible' : 'hidden'
+
+    container.position.set(
+      userComponent.left.wrist.position.x,
+      userComponent.left.wrist.position.y,
+      userComponent.left.wrist.position.z
+    )
+    container.quaternion.set(
+      userComponent.left.wrist.quaternion.x,
+      userComponent.left.wrist.quaternion.y,
+      userComponent.left.wrist.quaternion.z,
+      userComponent.left.wrist.quaternion.w
+    )
+    container.scale.setScalar(0.5)
+    container.matrix
+      .compose(container.position, container.quaternion, container.scale)
+      .premultiply(Engine.instance.currentWorld.camera.matrixWorld)
+    container.matrix.decompose(container.position, container.quaternion, container.scale)
+  }
 }
 
 export default async function MainMenuButtonsSystem(world: World) {
@@ -36,6 +56,8 @@ export default async function MainMenuButtonsSystem(world: World) {
     XRHandsInputComponent
   ])
 
+  MainMenuButtonsUI.state.showButtons.set(MainMenuButtonState.showButtons.value)
+
   return () => {
     matchActionOnce(WorldNetworkAction.spawnAvatar.matches, (spawnAction) => {
       if ((spawnAction as any).$from === Engine.instance.userId) {
@@ -44,7 +66,8 @@ export default async function MainMenuButtonsSystem(world: World) {
 
           if (userId === Engine.instance.userId) {
             AvatarInputSchema.behaviorMap.set(BaseInput.TOGGLE_MENU_BUTTONS, () => {
-              renderMainMenuButtons(world, MainMenuButtonsUI.state.id.value !== '', MainMenuButtonsUI.entity)
+              MainMenuButtonState.showButtons.set(!MainMenuButtonState.showButtons)
+              renderMainMenuButtons(world, MainMenuButtonsUI.state.showButtons.value, MainMenuButtonsUI.entity)
             })
           }
         }

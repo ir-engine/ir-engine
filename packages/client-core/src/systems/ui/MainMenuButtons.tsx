@@ -2,7 +2,6 @@ import { createState } from '@speigg/hookstate'
 import React, { useEffect, useState } from 'react'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
@@ -13,7 +12,6 @@ import { Badge } from '@mui/material'
 
 import { useChatState } from '../../social/services/ChatService'
 import { EmoteIcon } from '../../user/components/UserMenu'
-import { useUserState } from '../../user/services/UserService'
 
 const styles = {
   container: {
@@ -40,7 +38,7 @@ export function createMainMenuButtonsView() {
 
 function createMainMenuButtonsState() {
   return createState({
-    id: '' as UserId,
+    showButtons: false,
     chatMenuOpen: false,
     emoteMenuOpen: false,
     settingMenuOpen: false,
@@ -49,7 +47,7 @@ function createMainMenuButtonsState() {
 }
 
 interface MainMenuButtonsState {
-  id: UserId
+  showButtons: boolean
   chatMenuOpen: boolean
   emoteMenuOpen: boolean
   settingMenuOpen: boolean
@@ -58,8 +56,6 @@ interface MainMenuButtonsState {
 
 const MainMenuButtons = () => {
   const detailState = useXRUIState<MainMenuButtonsState>()
-  const userState = useUserState()
-  const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
 
   let activeChannel: Channel | null = null
   const chatState = useChatState()
@@ -116,7 +112,7 @@ const MainMenuButtons = () => {
     detailState.settingMenuOpen.set(!detailState.settingMenuOpen.value)
   }
 
-  return user?.id.value ? (
+  return (
     <div style={styles.container as {}}>
       <div xr-layer="" style={styles.button} onClick={() => toggleEmoteMenu()}>
         <EmoteIcon />
@@ -138,7 +134,5 @@ const MainMenuButtons = () => {
         </Badge>
       </div>
     </div>
-  ) : (
-    <div></div>
   )
 }
