@@ -17,10 +17,10 @@ const config = {
   tagline:
     'An end-to-end solution for hosting humans and AI in a virtual space, built on top of react, three.js and express/feathers.',
   url: 'https://xrfoundation.github.io',
-  baseUrl: '/',
+  baseUrl: '/xrengine-docs/',
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
-  favicon: 'https://github.com/xrfoundation/xrengine/raw/dev/xrengine%20black.png',
+  favicon: 'img/favicon.ico',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -189,9 +189,10 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       navbar: {
+        title: 'XREngine',
         logo: {
           alt: 'XREngine Logo',
-          src: 'https://github.com/XRFoundation/XREngine/raw/dev/xrengine%20black.png'
+          src: 'img/logo.svg',
         },
         items: [
           {
