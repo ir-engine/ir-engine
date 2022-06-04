@@ -26,6 +26,7 @@ export const EngineState = defineState({
     xrSupported: false,
     xrSessionStarted: false,
     errorEntities: {} as { [key: Entity]: boolean },
+    availableInteractable: null! as Entity,
     usersTyping: {} as { [key: string]: true }
   }
 })
@@ -83,6 +84,9 @@ export function EngineEventReceptor(a: EngineActionType) {
     .when(EngineActions.xrStart.matches, (action) => s.xrSessionStarted.set(true))
     .when(EngineActions.xrSession.matches, (action) => s.xrSessionStarted.set(true))
     .when(EngineActions.xrEnd.matches, (action) => s.xrSessionStarted.set(false))
+    .when(EngineActions.availableInteractable.matches, (action) =>
+      s.availableInteractable.set(action.availableInteractable)
+    )
 }
 
 export const getEngineState = () => getState(EngineState)
@@ -161,6 +165,12 @@ export const EngineActions = {
     store: 'ENGINE',
     type: 'CORE_OBJECT_ACTIVATION' as const,
     interactionData: matches.any as Validator<unknown, InteractableComponentType>
+  }),
+
+  availableInteractable: defineAction({
+    store: 'ENGINE',
+    type: 'CORE_AVAILABLE_INTERACTABLE' as const,
+    availableInteractable: matches.any
   }),
 
   xrStart: defineAction({
