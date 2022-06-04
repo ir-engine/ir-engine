@@ -11,7 +11,7 @@ import templateProjectJson from '@xrengine/projects/template-project/package.jso
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../logger'
-import { getInternalCacheDomain } from '../../media/storageprovider/getCacheDomain'
+import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
@@ -59,7 +59,7 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string) =
  */
 export const uploadLocalProjectToProvider = async (projectName, remove = true) => {
   const storageProvider = getStorageProvider()
-  const cacheDomain = getInternalCacheDomain(storageProvider, true)
+  const cacheDomain = getCacheDomain(storageProvider, true)
 
   // remove exiting storage provider files
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" started at "${new Date()}".`)

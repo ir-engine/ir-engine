@@ -9,7 +9,7 @@ import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.j
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
-import { getInternalCacheDomain } from '../../media/storageprovider/getCacheDomain'
+import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { cleanString } from '../../util/cleanString'
@@ -24,7 +24,7 @@ export const getSceneData = async (projectName, sceneName, metadataOnly, interna
   const scenePath = `projects/${projectName}/${sceneName}.scene.json`
   const thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.jpeg`
 
-  const cacheDomain = getInternalCacheDomain(storageProvider, internal)
+  const cacheDomain = getCacheDomain(storageProvider, internal)
   const thumbnailUrl = getCachedURL(thumbnailPath, cacheDomain)
 
   const sceneExists = await storageProvider.doesExist(`${sceneName}.scene.json`, `projects/${projectName}/`)

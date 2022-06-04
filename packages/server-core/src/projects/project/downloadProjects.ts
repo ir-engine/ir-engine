@@ -4,7 +4,6 @@ import fs from 'fs'
 import path from 'path'
 
 import logger from '../../logger'
-import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
@@ -32,11 +31,9 @@ export const download = async (projectName: string) => {
       files.map(async (filePath) => {
         if (path.parse(filePath).ext.length > 0) {
           logger.info(`[ProjectLoader]: - downloading "${filePath}"`)
-          const fileResult = await await (
-            await fetch(getCachedAsset(filePath, storageProvider.cacheDomain, true))
-          ).arrayBuffer()
-          if (fileResult.byteLength === 0) logger.info(`[ProjectLoader]: WARNING file "${filePath}" is empty`)
-          writeFileSyncRecursive(path.join(appRootPath.path, 'packages/projects', filePath), fileResult)
+          const fileResult = await storageProvider.getCachedObject(filePath)
+          if (fileResult.Body.length === 0) logger.info(`[ProjectLoader]: WARNING file "${filePath}" is empty`)
+          writeFileSyncRecursive(path.join(appRootPath.path, 'packages/projects', filePath), fileResult.Body)
         }
       })
     )
