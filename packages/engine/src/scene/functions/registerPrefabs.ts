@@ -26,6 +26,7 @@ import {
   SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES
 } from './loaders/DirectionalLightFunctions'
 import { SCENE_COMPONENT_ENVMAP, SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES } from './loaders/EnvMapFunctions'
+import { SCENE_COMPONENT_FOG, SCENE_COMPONENT_FOG_DEFAULT_VALUES } from './loaders/FogFunctions'
 import {
   SCENE_COMPONENT_GROUND_PLANE,
   SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES
@@ -108,7 +109,8 @@ export const ScenePrefabs = {
   interior: 'Interior' as const,
   system: 'System' as const,
   spline: 'Spline' as const,
-  cubemapbake: 'CubemapBake' as const
+  cubemapbake: 'CubemapBake' as const,
+  fog: 'Fog' as const
 }
 
 export type ScenePrefabTypes = typeof ScenePrefabs[keyof typeof ScenePrefabs]
@@ -286,5 +288,11 @@ export const registerPrefabs = (world: World) => {
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_CUBEMAP_BAKE, props: SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.fog, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_FOG, props: SCENE_COMPONENT_FOG_DEFAULT_VALUES }
   ])
 }

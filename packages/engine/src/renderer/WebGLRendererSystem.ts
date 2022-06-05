@@ -27,6 +27,7 @@ import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
+import { MaterialCallback } from '../common/functions/MaterialPlugin'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
@@ -99,6 +100,7 @@ export class EngineRenderer {
   activeCSMLightEntity: Entity | null = null
 
   initialize() {
+    MaterialCallback.use()
     this.onResize = this.onResize.bind(this)
 
     this.supportWebGL2 = WebGL.isWebGL2Available()
@@ -202,6 +204,7 @@ export class EngineRenderer {
         }
 
         state.qualityLevel.value > 0 && this.csm?.update()
+        MaterialCallback.frame()
         if (state.usePostProcessing.value) {
           this.effectComposer.render(delta)
         } else {

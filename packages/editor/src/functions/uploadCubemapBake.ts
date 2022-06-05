@@ -80,12 +80,11 @@ export const uploadBakeToServer = async (entity: Entity) => {
   // inject bpcem logic into material
   Engine.instance.currentWorld.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
     if (!child.material) return
-    if (typeof child.material.onBeforeCompile === 'function')
-      child.material.userData.previousOnBeforeCompile = child.material.onBeforeCompile
     child.material.onBeforeCompile = beforeMaterialCompile(
       bakeComponent.options.bakeScale,
       bakeComponent.options.bakePositionOffset
     )
+    child.material.userData.BPCEMPlugin = child.material.onBeforeCompile
   })
 
   const cubemapCapturer = new CubemapCapturer(
@@ -99,8 +98,8 @@ export const uploadBakeToServer = async (entity: Entity) => {
   Engine.instance.currentWorld.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
     if (!child.material) return
     if (typeof child.material.userData.previousOnBeforeCompile === 'function') {
-      child.material.onBeforeCompile = child.material.userData.previousOnBeforeCompile
-      delete child.material.userData.previousOnBeforeCompile
+      child.material.removePlugin(child.material.userData.BPCEMPlugin)
+      delete child.material.userData.BPCEMPlugin
     }
   })
 

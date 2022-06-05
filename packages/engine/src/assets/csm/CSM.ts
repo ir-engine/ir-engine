@@ -13,6 +13,7 @@ import {
   Vector3
 } from 'three'
 
+import { BeforeCompilePluginType } from '../../common/functions/MaterialPlugin'
 import Frustum from './Frustum'
 import Shader from './Shader'
 
@@ -326,21 +327,28 @@ export class CSM {
     const shaders = this.shaders
 
     const originalOnBeforeCompile = material.onBeforeCompile
-    const CSMonBeforeCompile = (shader: ShaderType, renderer) => {
-      if (!this.camera) {
-        if (originalOnBeforeCompile) originalOnBeforeCompile(shader, renderer)
-        return
+    const self = this
+
+    const CSMPlugin: BeforeCompilePluginType = {
+      frame: function () {},
+      render: function () {},
+      compile: function (shader: ShaderType, renderer) {
+        if (!self.camera) {
+          if (originalOnBeforeCompile) originalOnBeforeCompile(shader, renderer)
+          return
+        }
+        const far = Math.min(self.camera.far, self.maxFar)
+        self.getExtendedBreaks(breaksVec2)
+
+        shader.uniforms.CSM_cascades = { value: breaksVec2 }
+        shader.uniforms.cameraNear = { value: self.camera.near }
+        shader.uniforms.shadowFar = { value: far }
+
+        shaders.set(material, shader)
       }
-      const far = Math.min(this.camera.far, this.maxFar)
-      this.getExtendedBreaks(breaksVec2)
-
-      shader.uniforms.CSM_cascades = { value: breaksVec2 }
-      shader.uniforms.cameraNear = { value: this.camera.near }
-      shader.uniforms.shadowFar = { value: far }
-
-      shaders.set(material, shader)
     }
-    material.onBeforeCompile = CSMonBeforeCompile
+
+    material.onBeforeCompile = CSMPlugin
 
     shaders.set(material, null!)
     this.materials.set(mesh, material)

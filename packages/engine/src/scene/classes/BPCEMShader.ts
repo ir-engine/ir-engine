@@ -1,3 +1,5 @@
+import { BeforeCompilePluginType } from '../../common/functions/MaterialPlugin'
+
 // shader injection for box projected cube environment mapping
 export const worldposReplace = /* glsl */ `
 #define BOX_PROJECTED_ENV_MAP
@@ -109,15 +111,19 @@ ${cubemapInsertion}
 #endif
 `
 
-export const beforeMaterialCompile = (bakeScale, bakePositionOffset) => {
-  return function BPCEMonBeforeCompile(shader) {
-    shader.uniforms.cubeMapSize = { value: bakeScale }
-    shader.uniforms.cubeMapPos = { value: bakePositionOffset }
-    shader.vertexShader = 'varying vec3 vBPCEMWorldPosition;\n' + shader.vertexShader
-    shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
-    shader.fragmentShader = shader.fragmentShader.replace(
-      '#include <envmap_physical_pars_fragment>',
-      envmapPhysicalParsReplace
-    )
+export const beforeMaterialCompile = (bakeScale, bakePositionOffset): BeforeCompilePluginType => {
+  return {
+    frame: function () {},
+    render: function () {},
+    compile: function BPCEMonBeforeCompile(shader) {
+      shader.uniforms.cubeMapSize = { value: bakeScale }
+      shader.uniforms.cubeMapPos = { value: bakePositionOffset }
+      shader.vertexShader = 'varying vec3 vBPCEMWorldPosition;\n' + shader.vertexShader
+      shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <envmap_physical_pars_fragment>',
+        envmapPhysicalParsReplace
+      )
+    }
   }
 }
