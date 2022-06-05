@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "पृष्ठ लोड गर्दैछ..."
+  },
+  "tooltip": {
+    "pressKey": "{{message}} {{tip}} थिच्नुहोस्"
+  },
+  "toast": {
+    "joined": "जडान गरियो",
+    "left": "बायाँ"
+  },
+  "navUserWidget": {
+    "login": "लग इन"
+  },
+  "loader": {
+    "connecting": "विश्वमा जडान गर्दैछ...",
+    "entering": "संसारमा प्रवेश गर्दैछ...",
+    "loading": "लोड गरिँदैछ...",
+    "objectRemaining": "{{count}} वस्तु बाँकी छ",
+    "objectRemainingPlural": "{{count}} वस्तुहरू बाँकी छन्",
+    "loadingObjects": "वस्तुहरू लोड गर्दै",
+    "loadingComplete": "लोडिङ समाप्त",
+    "joiningWorld": "विश्वसँग जोडिदाँ"
+  },
+  "alert": {
+    "eventWasSuccess": "घटना सफल भयो",
+    "errorWasEncountered": "एउटा त्रुटि सामना भयो",
+    "eventInProgress": "घटना प्रगतिमा",
+    "seconds": "सेकेण्ड",
+    "cancelCountdown": "यो मोडाल बन्द गर्नाले काउन्टडाउन रद्द हुनेछ ।"
+  },
+  "debug": {
+    "refresh": "ताजा पार्नुहोस्",
+    "stats": "तथ्याङ्क",
+    "debugOptions": "त्रुटि सच्याउने विकल्पहरू",
+    "physicsDebug": "भौतिकशास्त्रAdvanced URLs: description or category",
+    "avatarDebug": "अवतारcity name (\"a translation)",
+    "nodeHelperDebug": "नोड मद्दतकर्ता",
+    "gridDebug": "ग्रिड",
+    "simpleMaterials": "सामान्य सामाग्री",
+    "tick": "टिक गर्नुहोस्",
+    "worldStore": "विश्व भण्डार",
+    "engineStore": "इन्जिन भण्डार",
+    "namedEntities": "नामकरण गरिएका अस्तित्वहरू",
+    "networkObject": "सञ्जाल वस्तु",
+    "networkClients": "सञ्जाल क्लाइन्ट"
+  },
+  "recording": {
+    "videoRecorder": "भिडियो रेकर्डर",
+    "waitingForPermissions": "अनुमतिका लागि प्रतिक्षा गर्दै",
+    "selectVideoSource": "भिडियो स्रोत चयन गर्नुहोस्",
+    "screen": "पर्दा",
+    "camera": "क्यामेरा सिर्जना गर्नुहोस्",
+    "microphone": "माइक्रोफोन",
+    "startRecording": "सङ्ग्रह सुरु गर्नुहोस्",
+    "pauseRecording": "सङ्ग्रह पज गर्नुहोस्",
+    "resumeRecording": "सङ्ग्रह पुन: निरन्तरता दिनुहोस्",
+    "stopRecording": "रेकर्डिङ रोक्नुहोस्"
+  },
+  "typing": "टाइप गर्दैछ...",
+  "gameServer": {
+    "browserError": "ब्राउजर त्रुटि",
+    "browserErrorMessage": "तपाईँको ब्राउजरले व्यक्तिगत ब्राउजिङ मोडमा भण्डारणलाई समर्थन गर्दैन । या त अर्को ब्राउजर प्रयास गर्नुहोस्, वा व्यक्तिगत ब्राउजिङ मोडबाट निस्कनुहोस् ।",
+    "noAvailableServers": "उपलब्ध सर्भर छैन",
+    "noAvailableServersMessage": "तपाईँलाई जडान गर्न त्यहाँ कुनै सर्भरहरू उपलब्ध छैन । पुन: जडान गर्न प्रयास गर्दै",
+    "worldDisconnected": "जडान विच्छेद गरियो",
+    "worldDisconnectedMessage": "तपाईँले संसारसँगको आफ्नो सम्बन्ध गुमाउनु भएको छ । निम्न समय समाप्त हुनु अगाडि हामी पुन: जडान गर्ने प्रयास गर्नेछौं, अन्यथा तपाईँलाई फरक दृष्टान्तमा पठाउन सकिन्छ ।",
+    "webGLNotEnabled": "वेबजीएल सक्षम पारिएको छैन",
+    "webGLNotEnabledMessage": "तपाईँको ब्राउजरले वेबजीएल समर्थन गर्दैन, वा यो अक्षम पारिएको छ । कृपया वेबजीएल सक्षम पार्नुहोस् वा तपाईँको ब्राउजरको नवीनतम संस्करणमा स्तरवृद्धि गर्ने विचार गर्नुहोस् ।",
+    "youKickedFromWorld": "संसारबाट तिमीलाई लात हानेको छ",
+    "youKickedFromWorldMessage": "तपाईँलाई निम्न कारणले यस संसारबाट निकालिएको थियो",
+    "invalidLocation": "अवैध स्थान",
+    "cantFindLocation": "हामी स्थान फेला पार्न सक्दैनौं",
+    "misspelledOrNotExist": "यो गलत हिज्जे गरिएको हुन सक्छ, वा यो अवस्थित नहुन सक्छ ।",
+    "loading": "लोड िङ गर्दै",
+    "low-frame-error": "खराब perfomance पत्ता लगाउनुहोस् तपाईँको ब्राउजरमा हार्डवेयर गतिवर्धन प्रयोग सक्षम पार्ने विचार गर्नुहोस् र ब्राउजर लाई रिल्याच गर्नुहोस्",
+    "low-frame-title": "राम्रो अनुभवका लागि हार्डवेयर गतिवर्धन सक्षम पार्नुहोस्!"
+  },
+  "error": {
+    "loading-error": "प्रयोगकर्ता डेटा लोड गर्न असफल भयो ।",
+    "validation-error": "कृपया वैध {{type}}",
+    "login-error": "लगइन गर्न असफल"
+  }
+}

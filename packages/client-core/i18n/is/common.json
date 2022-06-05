@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Hleð inn síðu..."
+  },
+  "tooltip": {
+    "pressKey": "Ýttu á {{tip}} til að {{message}}"
+  },
+  "toast": {
+    "joined": "Gekk",
+    "left": "Vinstri"
+  },
+  "navUserWidget": {
+    "login": "Skrá inn"
+  },
+  "loader": {
+    "connecting": "Tenging við heiminn...",
+    "entering": "Inn í heiminn...",
+    "loading": "Hleðsla...",
+    "objectRemaining": "{{count}} hluturinn eftir",
+    "objectRemainingPlural": "{{count}} hlutir sem eftir eru",
+    "loadingObjects": "Hleð inn hlutum",
+    "loadingComplete": "Hleðsla lokið",
+    "joiningWorld": "Að ganga í heiminn"
+  },
+  "alert": {
+    "eventWasSuccess": "Atburður heppnaðist",
+    "errorWasEncountered": "Villa kom upp",
+    "eventInProgress": "Atburður í gangi",
+    "seconds": "Sekúndur",
+    "cancelCountdown": "Lokun þessa móts mun hætta við niðurtalninguna"
+  },
+  "debug": {
+    "refresh": "Hressa",
+    "stats": "Ástand",
+    "debugOptions": "Valkostir kembiforrita",
+    "physicsDebug": "Eðlisfræði",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Hjálparhnútur",
+    "gridDebug": "Rist",
+    "simpleMaterials": "Einföld efni",
+    "tick": "Merkið",
+    "worldStore": "Alþjóðaverslunin",
+    "engineStore": "Vélaverslun",
+    "namedEntities": "Nafngreindar einingar",
+    "networkObject": "Nethlutur",
+    "networkClients": "Netbiðlarar"
+  },
+  "recording": {
+    "videoRecorder": "Myndbandsupptökutæki",
+    "waitingForPermissions": "Beðið eftir heimildum",
+    "selectVideoSource": "Velja mynduppsprettu",
+    "screen": "Skjár",
+    "camera": "Myndavél",
+    "microphone": "Hljóðnemi",
+    "startRecording": "Hefja skráningu",
+    "pauseRecording": "Gera hlé á upptöku",
+    "resumeRecording": "Halda áfram með skráningu",
+    "stopRecording": "Stöðva skráningu"
+  },
+  "typing": "Vélritun...",
+  "gameServer": {
+    "browserError": "Villa í vafra",
+    "browserErrorMessage": "Vafrinn þinn styður ekki geymslu í einkavafurham. Prófaðu annað hvort annan vafra eða hættu í einkavafurham.",
+    "noAvailableServers": "Engir tiltækir netþjónar",
+    "noAvailableServersMessage": "Það eru engir netþjónar tiltækir fyrir þig til að tengjast. Reynt að tengjast aftur í",
+    "worldDisconnected": "Heimurinn aftengdur",
+    "worldDisconnectedMessage": "Þú hefur misst samband þitt við heiminn. Við munum reyna að tengjast aftur áður en næsti tími rennur út, annars verður þú sendur í annað tilvik.",
+    "webGLNotEnabled": "WebGL ekki virkt",
+    "webGLNotEnabledMessage": "Vafrinn þinn styður ekki WebGL eða hann er óvirkur. Vinsamlegast virkjaðu WebGL eða íhugaðu að uppfæra í nýjustu útgáfuna af vafranum þínum.",
+    "youKickedFromWorld": "Þér hefur verið sparkað úr heiminum",
+    "youKickedFromWorldMessage": "Þér var sparkað úr þessum heimi af eftirfarandi ástæðum",
+    "invalidLocation": "Ógild staðsetning",
+    "cantFindLocation": "Við finnum ekki staðinn",
+    "misspelledOrNotExist": "Það kann að vera rangt stafsett, eða það er kannski ekki til.",
+    "loading": "hleðsla",
+    "low-frame-error": "Uppgötvaði lélega perfomance íhuga að virkja Nota vélbúnaðarhröðun í vafranum þínum og miðla vafranum þínum",
+    "low-frame-title": "Virkja vélbúnaðarhröðun til að fá betri upplifun!"
+  },
+  "error": {
+    "loading-error": "Ekki tókst að hlaða inn notendagögnum",
+    "validation-error": "Vinsamlegast sláðu inn gilda {{type}}",
+    "login-error": "Ekki tókst að skrá sig inn"
+  }
+}

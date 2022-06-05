@@ -1,0 +1,202 @@
+{
+  "addComment": "Şərh Əlavə Et...",
+  "share": "Paylaş",
+  "suggestions": "Sizin üçün təkliflər",
+  "seeAll": "Hamısına Bax",
+  "likes": "Bəyən",
+  "viewComments": "Şərhlərin hamısını {{count}}",
+  "more": "daha çox",
+  "username": "istifadəçi adı",
+  "fullName": "Soyadı Soyadı",
+  "reportInApporpriate": "Yersiz hesabat",
+  "unfollow": "Heç bir zaman",
+  "goToPost": "Poçta get",
+  "shareModal": "Paylaş",
+  "copyLink": "Körpünü Köçür",
+  "embed": "Embed",
+  "cancel": "Ləğv etmək",
+  "confirm": "Təsdiqlə",
+  "save": "Qeyd Et",
+  "profilePic": "{{user}}'nin profil piketi",
+  "ara": "Ara",
+  "follow": "İzlə",
+  "flames": "Alovlar",
+  "continue": "Davam Et",
+  "partyInvitationSent": "Partiyaya dəvət göndərildi",
+  "arMedia": {
+    "back": "Geri",
+    "clip": "Klip",
+    "backgrounds": "Arxa Plan",
+    "start": "Başla"
+  },
+  "arMediaform": {
+    "title": "Başlıq",
+    "type": "Növ",
+    "clip": "Klip",
+    "background": "Arxa Plan",
+    "scene": "Səhnə",
+    "save": "Qeyd Et",
+    "manifest-file": ".manifest faylını aç",
+    "audio-file": "Mp4 faylı",
+    "dracosis-file": "Dracosis .uvol faylı",
+    "preview-file": "Önbaxış şəkil faylı"
+  },
+  "creator": {
+    "myVideos": "Mənim Videolar",
+    "savedVideos": "Qeyd Edilmiş Videolar",
+    "back": "Geri",
+    "blocked-list": "Bloklanmış Siyahı",
+    "block-user": "İstifadəçini Blokla",
+    "dialog-content": "İstifadəçinin profilini və məzmununu görməyəcəksiniz"
+  },
+  "creatorForm": {
+    "back": "Geri",
+    "edit": "Profili düzəlt",
+    "save": "Qeyd Et",
+    "changeAvatar": "Avatar rəsmini dəyişdir",
+    "ph-selectPreview": "Önbaxış seç",
+    "ph-name": "Sənin adın",
+    "ph-username": "İstifadəçi Adınız",
+    "ph-email": "Sizin E-Poçt",
+    "ph-tags": "Taqlar",
+    "ph-link": "Bağla",
+    "ph-aboutYou": "Sizin haqqınızda daha ətraflı",
+    "ph-twitter": "twitter",
+    "ph-instagram": "instaqram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "İşlək"
+  },
+  "dashboard": {
+    "title": "Daş lövhəsi",
+    "dashboard": "Daş lövhəsi",
+    "users": "İstifadəçilər",
+    "feeds": "Qidalananlar",
+    "arMedia": "Video Media",
+    "editor": "Editor",
+    "creator": "Yaradan"
+  },
+  "featured": {
+    "empty-list": "İndi üçün heç bir feeds ..."
+  },
+  "feed": {
+    "back": "Geri",
+    "related": "Əlaqəli qidalar",
+    "is-repoted-message": "Beslənmə xəbər verilir!"
+  },
+  "feedForm": {
+    "back": "Geri",
+    "thanks": "Cəmiyyətimizin paylaşılması və təkmilləşdirilməsi üçün təşəkkür edirəm",
+    "share": "Cəmiyyətlə bir şey paylaşın",
+    "upload": "Video Yukle",
+    "ph-selectVideo": "Video Seç",
+    "preview": "Önbaxış şəkil",
+    "ph-selectPreview": "Önbaxış seç",
+    "createFeed": "Bir feed yaratmaq üçün video və preview image olmalıdır!!!",
+    "ph-videoName": "Videonuzun adı",
+    "ph-type": "Cəmiyyətlə bölüşmək istədiyinizi yazın ... ",
+    "lbl-share": "Paylaş",
+    "save": "Növbəti Qeyd Et və Get"
+  },
+  "feedMenu": {
+    "featured": "Xüsusi",
+    "creators": "Yaradanlar",
+    "feed": "Qida"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetrik"
+  },
+  "login": {
+    "account": "Hesab edin?",
+    "login": "Giriş",
+    "resetPassword": "Sıfırla Şifrə saxta düyməsi (burada e-poçtdan link olardı)",
+    "notHavingAccount": "Hesabın yoxdur?",
+    "signUp": "Qeydiyyatdan keçmək",
+    "forgotPassword": "Şifrə unuduldu?",
+    "back": "Geri",
+    "or": "YA DA"
+  },
+  "comment": {
+    "add": "Şərhinizi əlavə edin..."
+  },
+  "notification": {
+    "feedFire": " qidanızı atəşə tutdunuz",
+    "feedBookmarked": " qidanızı nişanladınız",
+    "comment": " şərh etdi sizin feed:",
+    "commentFire": " feed etmək üçün şərhinizi atəşə tutdu",
+    "follow": " sizi izləməyə başladı",
+    "unfollow": " səni izləməni dayandırdı",
+    "followed": " ardıyca sənin ardınca",
+    "activity": "Fəaliyyət"
+  },
+  "onBoarding": {
+    "welcome": "Xoş gəlmisiniz!",
+    "description": "iOS prototyping üçün 370+ düzülüşündən ibarət ən böyük kolleksiya.",
+    "next": "Sonrakı",
+    "discover": "Məqalələri kəşf et,",
+    "news": "xəbərlər &postlar",
+    "lines": "Məhz bu hisslər bizim astronomiyaya olan məhəbbətimizi və arzularımızı hərəkətə gətirən hisslərdir.",
+    "getStarted": "Başla",
+    "meetUp": "Tanışla",
+    "friends": "dostlar.",
+    "meet": "Dostlarla görüş"
+  },
+  "shareForm": {
+    "arcMedia": "Paylaş",
+    "videoCreated": "Bu Videonu Mən Yaratdım",
+    "shareWithBuddies": "Buddlarla paylaş",
+    "shareVideo": "Paylaş Video",
+    "save": "Kamera Rulonlarına Qeyd Et",
+    "cancel": "Ləğv etmək",
+    "close": "Bağla",
+    "addFeed": "Feed Əlavə Et"
+  },
+  "simpleModal": {
+    "emptyList": "Boş siyahı",
+    "followers": " növbəti",
+    "following": " izləyicilər",
+    "flames": " alovlar"
+  },
+  "splash": {
+    "screen": "Ekran",
+    "logo": "Loqo"
+  },
+  "story": {
+    "profilePic": "{{user}}'nin profil piketi"
+  },
+  "view": {
+    "cancel": "Ləğv etmək",
+    "choice": "Seçim etmək üçün iki fərqli yazı rejiminiz var",
+    "verticalMode": "Şaquli rejim 30 saniyəlik rekord vaxtına malikdir",
+    "horizontalMode": "Üfüqi modda limitsiz rekord vaxt var",
+    "start": "Başla",
+    "not-show": "Bir daha göstərmə",
+    "welcome": "ARC-yə xoş gəlmisiniz!  Hologramlarımızdan biri ilə şəxsi videolar düzəldin və sosial media kanallarınıza yerləşdirin!",
+    "step": "STEP {{step}}",
+    "text-step-1": "Kitabxanadan holoqram seçin.",
+    "text-step-2": "Bu Augmented Reality, buna görə də hologram performansının olmasını istədiyiniz yerdən 3-5 saniyə ərzində kameranızla yeri yan-yana skan edin.",
+    "text-step-3-part-1": "Hologram lövbərləməsini istədiyiniz yerdə bir dəfə ekrana dokunun.",
+    "text-step-3-part-2": "MƏSLƏHƏT!  Holoqramı başqa vəzifəyə köçürmək üçün bir dəfə başqa yerə toxunun.",
+    "text-step-3-part-3": "MƏSLƏHƏT!  Baş barmağınız və indeks barmağınızla ekranı sındıraraq və ya genişləndirərək holoqramı yenidən boyutlana bilərsiniz.",
+    "text-step-4-part-1": "Video yazınızı BAŞLAMAQ üçün qırmızı qeyd düyməsini iki dəfə basın.",
+    "text-step-4-part-2": "STOP üçün qırmızı qeyd düyməsini iki dəfə basın."
+  },
+  "video": {
+    "back": "Geri"
+  },
+  "terms": {
+    "confirmTerms": "Xidmət Şərtlərinə razıyam",
+    "confirmPolicy": "Gizlilik Siyasətinə razıyam"
+  },
+  "registration": {
+    "ph-phoneEmail": "Telefon / e-poçtdan istifadə edin",
+    "facebook": "Facebook-la davam et",
+    "google": "Google ilə davam et",
+    "linkedin": "Linkedin ilə davam et",
+    "twitter": "Twitter ilə davam et",
+    "gitHub": "GitHub ilə davam et",
+    "connect": "E-poçt və ya telefon nömrənizi bağlayın",
+    "logIn": "Daxil ol",
+    "LogInTo": "Giriş",
+    "continueAsGuest": "Qonaq kimi davam edin"
+  }
+}

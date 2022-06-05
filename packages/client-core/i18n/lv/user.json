@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Apstiprinājuma e-pasts",
+      "resendEmail": "Lūdzu, pārbaudiet savu e-pastu, lai verificētu savu kontu. Ja nesaņēmāt e-pasta ziņojumu, lūdzu, noklikšķiniet uz {{here}} , lai atkārtoti nosūtītu verifikācijas e-pasta ziņojumu.",
+      "haveAnAccount": "Vai jums ir konts?"
+    },
+    "forgotPassword": {
+      "header": "Aizmirsu paroli",
+      "enterEmail": "Lūdzu, ievadiet savu reģistrēto e-pasta adresi, un mēs jums nosūtīsim paroles atiestatīšanas saiti.",
+      "lbl-email": "E-pasta adrese",
+      "lbl-submit": "Sūtīt saiti",
+      "emailSent": "Atiestatīt paroles e-pastu tika nosūtīts. Lūdzu, pārbaudiet savu e-pastu."
+    },
+    "login": {
+      "email": "E-pasta | SMS",
+      "username": "Lietotājvārds + parole",
+      "social": "Sociāls"
+    },
+    "magiklink": {
+      "header": "Pieteikšanās saite",
+      "descriptionEmail": "Lūdzu, ievadiet savu e-pasta adresi, un mēs jums nosūtīsim pieteikšanās saiti pa e-pastu.",
+      "descriptionSMS": "Lūdzu, ievadiet savu tālruņa numuru, un mēs nosūtīsim jums pieteikšanās saiti, izmantojot SMS.",
+      "descriptionEmailSMS": "Lūdzu, ievadiet savu e-pasta adresi vai tālruņa numuru (tikai 10 cipari, tikai ASV), un mēs jums nosūtīsim pieteikšanās saiti pa e-pastu vai īsziņu.",
+      "descriptionSMSUS": "Lūdzu, ievadiet savu tālruņa numuru (10 cipari, tikai ASV), un mēs jums nosūtīsim pieteikšanās saiti, izmantojot SMS.",
+      "lbl-email": "E-pasta adrese",
+      "lbl-emailPhone": "E-pasts vai tālruņa numurs",
+      "lbl-phone": "Tālruņa numurs",
+      "agree": "Es piekrītu ",
+      "terms": "Noteikumi un nosacījumi",
+      "lbl-submit": "Sūtīt pieteikšanās saiti",
+      "email-sent-msg": "Pieteikšanās Magic Link tika nosūtīta. Lūdzu, pārbaudiet savu e-pastu.",
+      "success-msg": "Pieteikšanās Magic Link tika nosūtīta. Lūdzu, pārbaudiet savu e-pastu vai īsziņu.",
+      "sms-sent-msg": "Pieteikšanās Magic Link tika nosūtīta. Lūdzu, pārbaudiet savu sms."
+    },
+    "passwordLogin": {
+      "header": "Pieteikties",
+      "lbl-email": "E-pasta adrese",
+      "lbl-password": "Parole",
+      "lbl-rememberMe": "Atceries mani",
+      "lbl-signin": "Pieteikties",
+      "forgotPassword": "Aizmirsāt paroli?",
+      "signup": "Vai jums nav konta? Piedalīties",
+      "lbl-login": "Pieteikties",
+      "ph-password": "Parole",
+      "ph-email": "E-pasts"
+    },
+    "social": {
+      "gitHub": "Pieteikšanās ar GitHub",
+      "google": "Pieteikšanās ar Google",
+      "facebook": "Pieteikšanās ar Facebook",
+      "linkedin": "Pieteikšanās ar Linkedin",
+      "twitter": "Pieteikšanās ar Twitter"
+    },
+    "register": {
+      "header": "Piedalīties",
+      "login": "Pieteikties",
+      "lbl-signup": "Piedalīties",
+      "lbl-password": "Parole",
+      "lbl-email": "E-pasta adrese",
+      "passwordNotMatch": "Paroles nesakrīt",
+      "ph-password": "Parole",
+      "ph-confirmPassword": "Paroles apstiprināšana",
+      "ph-email": "E-pasts"
+    },
+    "resetPassword": {
+      "header": "Atiestatīt paroli",
+      "description": "Lūdzu, ievadiet savu e-pasta adreses paroli",
+      "lbl-submit": "Atiestatīt paroli",
+      "lbl-password": "Parole",
+      "lbl-confirmPassword": "Paroles apstiprināšana",
+      "passwordNotMatch": "Paroles nesakrīt",
+      "nowLoginYourAccount": "Tagad varat pieteikties savā kontā",
+      "yourPasswordResetSuccess": "Jūsu parole tika veiksmīgi atiestatīta!"
+    },
+    "verifyEmail": {
+      "header": "Pārbaudīt e-pastu",
+      "processing": "Lūdzu, uzgaidiet brīdi apstrādes laikā ..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Atrašanās vietas",
+      "loading": "Iekraušanas",
+      "col-name": "Vārds",
+      "col-scene": "Ainas",
+      "col-maxuser": "Maksimālais lietotāju skaits",
+      "lbl-search": "Meklēt atrašanās vietas",
+      "lbl-new": "Jauns"
+    },
+    "newLocation": {
+      "title": "Vieta",
+      "success": "Veiksmīgi saglabāts.",
+      "failure": "Kaut kas nogāja greizi.",
+      "removeSuccess": "Atrašanās vieta ir veiksmīgi noņemta.",
+      "nameInUse": "Vārds tiek lietots.",
+      "nameRequire": "Nepieciešams nosaukums.",
+      "validNumber": "Ir atļauti tikai skaitļi(0-9).",
+      "lbl-name": "Vārds",
+      "lbl-maxuser": "Maksimālais lietotāju skaits",
+      "lbl-scene": "Ainas",
+      "lbl-type": "Tips",
+      "lbl-ve": "Video iespējots",
+      "lbl-gme": "Globālā multivide iespējota",
+      "lbl-update": "Aktualizēt",
+      "lbl-create": "Radīt",
+      "tooltipCanNotBeDeleted": "Vestibilu nevar izdzēst",
+      "confirmation": "Vai esi pārliecināts?",
+      "lbl-yes": "Jā",
+      "lbl-no": "Nē"
+    },
+    "share": {
+      "lbl-share": "Koplietot",
+      "ph-phoneEmail": "Uzaicināt pa e-pastu vai tālruņa numuru",
+      "lbl-phoneEmail": "Nosūtīt uz e-pastu vai tālruņa numuru",
+      "lbl-copy": "Kopija",
+      "lbl-send-invite": "Nosūtīt uzaicinājumu",
+      "title": "Atrašanās vietas URL kopīgošana ar darba grupu",
+      "linkCopied": "Saite, kas kopēta starpliktuvē."
+    },
+    "setting": {
+      "audio": "Audio",
+      "lbl-volume": "Skaļums",
+      "lbl-microphone": "Mikrofons",
+      "graphics": "Grafikas",
+      "controls": "Vadīklas",
+      "lbl-control-type": "Kontroliera tips",
+      "lbl-control-scheme": "Kontroles shēma",
+      "lbl-resolution": "Izšķirtspēju",
+      "lbl-shadow": "Ēnas",
+      "lbl-pp": "Pēcapstrāde",
+      "lbl-pbr": "Pilns PBR",
+      "lbl-automatic": "Automātisks",
+      "xrusersetting": "XR lietotāja iestatījumi",
+      "rotation": "Rotācijas",
+      "rotation-smooth-speed": "Vienmērīgs rotācijas ātrums",
+      "rotation-angle": "Rotācijas leņķis",
+      "moving": "Kustīgi",
+      "user-avatar": "Iemiesojuma iestatījums",
+      "invert-rotation": "Apgriezt rotācijas un pārvietošanas nūjas",
+      "show-avatar": "Rādīt avatāru"
+    },
+    "profile": {
+      "lbl-profile": "Profilu",
+      "lbl-settings": "Iestatījumus",
+      "lbl-username": "Lietotājvārds",
+      "update-msg": "Lietotājvārds atjaunināts",
+      "inviteCode": "Uzaicinājuma kods",
+      "youAreAn": "Jūs esat",
+      "youAreA": "Jūs esat",
+      "showUserId": "Rādīt lietotāja ID",
+      "hideUserId": "Paslēpt lietotāja ID",
+      "showApiKey": "Rādīt API atslēgu",
+      "hideApiKey": "Paslēpt API atslēgu",
+      "apiKey": "API atslēga",
+      "logout": "Atteikties",
+      "connectPhone": "Tālruņa numura savienošana",
+      "connectEmail": "E-pasta ziņojuma savienošana",
+      "connectPhoneEmail": "E-pasta vai tālruņa numura savienošana",
+      "or": "Vai",
+      "lbl-wallet": "Pieteikšanās ar maku",
+      "ph-email": "E-pasts",
+      "ph-phone": "Tālruņa numurs",
+      "ph-phoneEmail": "Tālruņa numurs / E-pasts",
+      "phoneEmailError": "Nederīgs tālrunis # vai e-pasta adrese",
+      "phoneError": "Nederīgs tālrunis #",
+      "emailError": "Nederīga e-pasta adrese",
+      "loginWithReadyPlayerMe": "Piesakieties ar ready player me",
+      "connectSocial": "Saziņa ar sociālajiem kontiem",
+      "createOne": "Ja jums nav konta, jums tiks izveidots jauns konts",
+      "connections": {
+        "title": "Savienojumus",
+        "ipError": "Nevar noņemt aktīvo identitātes nodrošinātāju",
+        "disconnect": "Atvienojiet",
+        "connect": "Savienot"
+      },
+      "profileDropdown": {
+        "avatar": "Lietotāja iemiesojuma ikona",
+        "profile": "Profilu",
+        "adminConsole": "Administrēšanas konsole",
+        "logout": "Atteikties"
+      },
+      "userIcon": {
+        "lbl-name": "Tavs vārds",
+        "lbl-update": "Aktualizēt",
+        "userId": "Lietotāja ID",
+        "ph-uploadImg": "Augšupielādēt produkta attēlu",
+        "lbl-selectAcvatar": "Atlasīt iemiesojumu",
+        "lbl-submit": "Iesniegt"
+      },
+      "userSettings": {
+        "volume": "Skaļums",
+        "microphone": "Mikrofons",
+        "resolution": "Izšķirtspēju",
+        "high": "Augsts",
+        "low": "Zems",
+        "spatialAudio": "Telpiskā audio izmantošana",
+        "enterMuted": "Ievadīt izslēgtu telpu"
+      }
+    },
+    "oauth": {
+      "authenticating": "Autentificētu...",
+      "authFailed": "{{service}} autentifikācija neizdevās."
+    },
+    "magikLink": {
+      "wait": "Lūdzu, uzgaidiet brīdi apstrādes laikā ..."
+    },
+    "dashboard": {
+      "header": "Paneļa",
+      "dashboard": "Paneļa",
+      "users": "Lietotājiem",
+      "feeds": "Plūsmas",
+      "instance": "Gadījumu",
+      "locations": "Atrašanās vietas",
+      "invites": "Aicina",
+      "sessions": "Sesijas",
+      "groups": "Grupas",
+      "parties": "Puses",
+      "chats": "Tērzēšanu",
+      "content": "Satura pakotnes",
+      "projects": "Projektiem",
+      "scenes": "Ainas",
+      "avatars": "Avatars",
+      "benchmarking": "Benchmarking",
+      "bots": "Robotprogrammatūras"
+    }
+  },
+  "oauth": {
+    "authenticating": "Autentificētu...",
+    "authFailed": "{{service}} autentifikācija neizdevās."
+  },
+  "magikLink": {
+    "wait": "Lūdzu, uzgaidiet brīdi apstrādes laikā ..."
+  },
+  "dashboard": {
+    "header": "Paneļa",
+    "dashboard": "Paneļa",
+    "users": "Lietotājiem",
+    "feeds": "Plūsmas",
+    "instance": "Gadījumu",
+    "locations": "Atrašanās vietas",
+    "routes": "Maršrutiem",
+    "projects": "Projektiem",
+    "invites": "Aicina",
+    "sessions": "Sesijas",
+    "groups": "Grupas",
+    "parties": "Puses",
+    "chats": "Tērzēšanu",
+    "content": "Satura pakotnes",
+    "scenes": "Ainas",
+    "avatars": "Avatars",
+    "benchmarking": "Benchmarking",
+    "bots": "Robotprogrammatūras",
+    "setting": "Iestatījumus"
+  },
+  "avatar": {
+    "title": "Augšupielādēt Avatar",
+    "lbl-browse": "Pārlūkot",
+    "lbl-thumbnail": "Sīktēls",
+    "lbl-upload": "Augšupielādēt",
+    "selectAvatar": "Atlasīt iemiesojumu...",
+    "selectThumbnail": "Atlasīt sīktēlu...",
+    "rotate": "Pagriezt",
+    "pan": "Panna",
+    "noBone": "Obejct nesatur kaulus vai ādu",
+    "outOfBound": "Objekts nav saistīts.",
+    "emptyObj": "Objekts ir tukšs.",
+    "maxTriangleError": "Objektā ir vairāk nekā {{allowedTriangles}} seju.",
+    "selectValidFile": "Atlasiet derīgu 3d iemiesojuma failu.",
+    "selectValidThumbnail": "Atlasīts derīgs sīktēlu fails.",
+    "fileOversized": "Avatar faila lielumam jābūt no {{minSize}} MB līdz {{maxSize}} MB",
+    "confirmation": "Vai esi pārliecināts?",
+    "canNotBeRemoved": "Aktīvo iemiesojumu nevar noņemt",
+    "remove": "Noņemt iemiesojumu",
+    "uploadFiles": "Augšupielādēt failus",
+    "useUrlInstead": "Tā vietā izmantojiet URL",
+    "avatar": "Avatar",
+    "cancel": "Atcelt",
+    "createAvatar": "Izveidot iemiesojumu",
+    "delete": "Dzēst",
+    "view": "Skats",
+    "uploadAvatarInfo": "Atjaunināt iemiesojuma informāciju",
+    "name": "Vārds",
+    "enterName": "Ievadiet nosaukumu",
+    "avatarInformation": "Avatar informācija",
+    "description": "Apraksts",
+    "key": "Atslēga",
+    "none": "Neviens",
+    "submit": "Iesniegt",
+    "edit": "Rediģēt",
+    "avatarUrl": "Avatar URL",
+    "upload-success-msg": "Avatars ir veiksmīgi augšupielādēts.",
+    "remove-success-msg": "Avatars ir veiksmīgi augšupielādēts.",
+    "warning-msg": "Iemiesojuma resurss ir tukšs, vai esat sinhronizējis iemiesojumus statiskajā failu krātuvē?"
+  },
+  "personMenu": {
+    "inviteToParty": "Uzaicināt uz ballīti",
+    "addAsFriend": "Pievienot kā draugu",
+    "mute": "Izslēgtu",
+    "block": "Bloķēt"
+  },
+  "person": {
+    "you": "Tu",
+    "yourScreen": "Jūsu ekrāns",
+    "muteForEveryone": "Izslēgt skaņu ikvienam",
+    "unmuteForEveryone": "Ieslēgts visiem",
+    "muteMe": "Izslēgt skaņu",
+    "unmuteMe": "Ieslēgt mani",
+    "muteThisPerson": "Izslēgt skaņu šai personai",
+    "unmuteThisPerson": "Ieslēgt skaņu šai personai",
+    "openPictureInPicture": "Atvērt attēlu attēlā"
+  }
+}

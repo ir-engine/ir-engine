@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Загрузка страницы..."
+  },
+  "tooltip": {
+    "pressKey": "Нажмите {{tip}} , чтобы {{message}}"
+  },
+  "toast": {
+    "joined": "Присоединился к",
+    "left": "Налево"
+  },
+  "navUserWidget": {
+    "login": "Войти"
+  },
+  "loader": {
+    "connecting": "Подключение к миру...",
+    "entering": "Вход в мир...",
+    "loading": "Погрузка...",
+    "objectRemaining": "{{count}} объект остался",
+    "objectRemainingPlural": "{{count}} объекты остались",
+    "loadingObjects": "Загрузка объектов",
+    "loadingComplete": "Загрузка завершена",
+    "joiningWorld": "Присоединяйтесь к миру"
+  },
+  "alert": {
+    "eventWasSuccess": "Мероприятие прошло успешно",
+    "errorWasEncountered": "Произошла ошибка",
+    "eventInProgress": "Незавершенное мероприятие",
+    "seconds": "товары второго сорта",
+    "cancelCountdown": "Закрытие этого модала отменит обратный отсчет"
+  },
+  "debug": {
+    "refresh": "Освежать",
+    "stats": "Статистика",
+    "debugOptions": "Параметры отладки",
+    "physicsDebug": "Физика",
+    "avatarDebug": "Аватар",
+    "nodeHelperDebug": "Помощник узла",
+    "gridDebug": "Сетка",
+    "simpleMaterials": "Простые материалы",
+    "tick": "Тикать",
+    "worldStore": "Всемирный магазин",
+    "engineStore": "Магазин двигателей",
+    "namedEntities": "Именованные сущности",
+    "networkObject": "Сетевой объект",
+    "networkClients": "Сетевые клиенты"
+  },
+  "recording": {
+    "videoRecorder": "Видеомагнитофон",
+    "waitingForPermissions": "Ожидание разрешений",
+    "selectVideoSource": "Выберите источник видео",
+    "screen": "Экран",
+    "camera": "Фотоаппарат",
+    "microphone": "Микрофон",
+    "startRecording": "Начать запись",
+    "pauseRecording": "Приостановка записи",
+    "resumeRecording": "Запись резюме",
+    "stopRecording": "Остановить запись"
+  },
+  "typing": "Печатание...",
+  "gameServer": {
+    "browserError": "Ошибка браузера",
+    "browserErrorMessage": "Ваш браузер не поддерживает хранение в режиме частного просмотра. Попробуйте другой браузер или выйдите из режима приватного просмотра.",
+    "noAvailableServers": "Нет доступных серверов",
+    "noAvailableServersMessage": "Нет серверов, к которым вы можете подключиться. Попытка повторного подключения в",
+    "worldDisconnected": "Мир отключен",
+    "worldDisconnectedMessage": "Вы потеряли связь с миром. Мы попытаемся повторно подключиться до истечения следующего времени, иначе вы будете перенаправлены в другой экземпляр.",
+    "webGLNotEnabled": "WebGL не включен",
+    "webGLNotEnabledMessage": "Ваш браузер не поддерживает WebGL или отключен. Пожалуйста, включите WebGL или рассмотрите возможность обновления до последней версии вашего браузера.",
+    "youKickedFromWorld": "Вас выгнали из мира",
+    "youKickedFromWorldMessage": "Вас выгнали из этого мира по следующей причине",
+    "invalidLocation": "Недопустимое местоположение",
+    "cantFindLocation": "Мы не можем найти местоположение",
+    "misspelledOrNotExist": "Он может быть написан с ошибкой или не существовать.",
+    "loading": "погрузка",
+    "low-frame-error": "Обнаруженная плохая производительность рассмотрите возможность включения аппаратного ускорения использования в вашем браузере и переназначения вашего браузера",
+    "low-frame-title": "Включите аппаратное ускорение для лучшего опыта!"
+  },
+  "error": {
+    "loading-error": "Не удалось загрузить пользовательские данные",
+    "validation-error": "Пожалуйста, введите действительный {{type}}",
+    "login-error": "Не удалось войти в систему"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Тейәү бите..."
+  },
+  "tooltip": {
+    "pressKey": "матбуғат {{tip}} {{message}}"
+  },
+  "toast": {
+    "joined": "ҡушылғандар",
+    "left": "һулдар"
+  },
+  "navUserWidget": {
+    "login": "Инергә"
+  },
+  "loader": {
+    "connecting": "Донъяға тоташыу...",
+    "entering": "Донъяға инеү...",
+    "loading": "Йөкләү...",
+    "objectRemaining": "{{count}} объекты ҡалған",
+    "objectRemainingPlural": "{{count}} объекттар ҡалған",
+    "loadingObjects": "Тейәү объекттары",
+    "loadingComplete": "Йөк тейәү Тулы",
+    "joiningWorld": "Донъяға ҡушылыу"
+  },
+  "alert": {
+    "eventWasSuccess": "Сара уңышлы үтә",
+    "errorWasEncountered": "Хата осраған",
+    "eventInProgress": "Барған ваҡиға",
+    "seconds": "секундтар",
+    "cancelCountdown": "Был модалды ябыу иҫәпте юҡҡа сығарасаҡ"
+  },
+  "debug": {
+    "refresh": "Яңырыу",
+    "stats": "Статистика",
+    "debugOptions": "Дебуг варианттары",
+    "physicsDebug": "Физика",
+    "avatarDebug": "Аватар",
+    "nodeHelperDebug": "Node Helper",
+    "gridDebug": "Селтәр",
+    "simpleMaterials": "Ябай материалдар",
+    "tick": "Талпан",
+    "worldStore": "Бөтә донъя магазины",
+    "engineStore": "Двигателдәр магазины",
+    "namedEntities": "Аталған субъекттар",
+    "networkObject": "Селтәр объекты",
+    "networkClients": "Селтәр Клиенттары"
+  },
+  "recording": {
+    "videoRecorder": "Видеоматериафон",
+    "waitingForPermissions": "Рөхсәт көтөү",
+    "selectVideoSource": "Видеояҙманы һайлағыҙ",
+    "screen": "Экран",
+    "camera": "Фотоаппарат",
+    "microphone": "Микрофон",
+    "startRecording": "Яҙманы башлау",
+    "pauseRecording": "Пауза яҙмаһы",
+    "resumeRecording": "Резюме яҙмаһы",
+    "stopRecording": "Яҙманы туҡтатыу"
+  },
+  "typing": "Типинг...",
+  "gameServer": {
+    "browserError": "Браузер хатаһы",
+    "browserErrorMessage": "Браузерығыҙ шәхси күҙәтеү режимында һаҡлауҙы хупламай. Йә икенсе браузерҙы һынап ҡарағыҙ, йә шәхси браузер режимынан сығығыҙ.",
+    "noAvailableServers": "Серверҙар юҡ",
+    "noAvailableServersMessage": "Һеҙгә тоташырға мөмкин булған серверҙар юҡ. Яңынан тоташырға тырышыу",
+    "worldDisconnected": "Донъя өҙөлгән",
+    "worldDisconnectedMessage": "Донъя менән бәйләнешеңде юғалттығыҙ. Киләһе ваҡыт бөтмәҫ борон яңынан тоташырға тырышырбыҙ, юғиһә һеҙҙе икенсе инстанцияға ебәрәсәктәр.",
+    "webGLNotEnabled": "WebGL эшләмәй",
+    "webGLNotEnabledMessage": "Браузерығыҙ WebGL-ҙы хупламай, йә инвалид. Зинһар, WebGL-ға инергә йәки браузерығыҙҙың һуңғы версияһына күтәрелеү тураһында уйлағыҙ.",
+    "youKickedFromWorld": "Һине донъянан ҡыуып ебәрҙеләр",
+    "youKickedFromWorldMessage": "Һеҙҙе был донъянан түбәндәге сәбәп менән ҡыуып ебәрҙеләр",
+    "invalidLocation": "Яраҡһыҙ урынлашыуы",
+    "cantFindLocation": "Урынын таба алмайбыҙ",
+    "misspelledOrNotExist": "Хаталаныуы ла, булмауы ла ихтимал.",
+    "loading": "тейәү",
+    "low-frame-error": "Насар перфомацияны асыҡлау браузерығыҙҙа аппаратты тиҙләтеү мөмкинлеген биреү тураһында уйлағыҙ һәм браузерығыҙҙы яңынан эшләтеп ҡуйығыҙ",
+    "low-frame-title": "Яҡшыраҡ тәжрибә алыу өсөн аппаратты тиҙләтеү мөмкинлеген бирегеҙ!"
+  },
+  "error": {
+    "loading-error": "Ҡулланыусылар мәғлүмәттәрен тейәп өлгөрмәгән",
+    "validation-error": "Ғәмәлдәге {{type}} индереүегеҙҙе һорайбыҙ",
+    "login-error": "Логинға инеп өлгөрмәгән"
+  }
+}

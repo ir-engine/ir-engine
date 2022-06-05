@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "۴۰۴ - پاڼه نه ده موندل شوې"
+  },
+  "503": {
+    "msg": "503 - خدمات غیر موجود"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "تاسو له دې ځای څخه منع شوی یاست",
+    "locationName": {
+      "pageTitle": "کور"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "پروژې",
+      "header": "مهربانی وکړئ لاګاین",
+      "welcomeMsg": "ښه راغلاست",
+      "locationHeader": "ځایونه",
+      "projectHeader": "پروژې",
+      "sceneHeader": "صحنې",
+      "description": "که تاسو دلته نوی یاست موږ سپارښتنه کوو چې د زده کړې څخه تیر شو. که نه نو، سم په کښې ټوپ ووهئ او یوه پروژه جوړه کړئ د سر څخه یا زمونږ د کینډۍ څخه.",
+      "lbl-startTutorial": "پیل زده کړه",
+      "lbl-newProject": "نوې پروژه",
+      "lbl-createProject": "ایجاد",
+      "lbl-newScene": "نوې صحنه",
+      "lbl-searchProject": "د موجوده پروژو پلټنه...",
+      "back": "شا",
+      "contextMenu": "پروژه حذف کړئ",
+      "installed": "نصب شوی پروژی",
+      "official": "رسمی پروژې",
+      "community": "د ټولنې پروژې",
+      "install": "نصب کول",
+      "uninstall": "نصب کول",
+      "rename": "بیا نوم",
+      "createProject": "پروژه جوړه کړی",
+      "installProject": "پروژه نصب کړی",
+      "processing": "پروسس",
+      "projectName": "د پروژې نوم",
+      "projectURL": "د پروژې URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "کور ته لاړ شه",
+    "withStatusCode": "په سرور {{code}} یوه غلطی رامنځته شوه",
+    "withoutStatusCode": "په سرور کې یوه غلطی رامنځته شوه"
+  },
+  "no-projects": {
+    "msg": "غلطی : هیڅ پروژه نه نصب کیږی - مهربانی وکړئ د سایټ د ادمن سره اړیکه ونیسئ"
+  },
+  "dev": {
+    "pageTitle": "کور"
+  },
+  "login": {
+    "pageTitle": "لاګاین"
+  },
+  "workerTest": {
+    "pageTitle": "د کارګر ازموینه"
+  },
+  "index": {
+    "by": "له خوا",
+    "xr": "ایکس آر",
+    "foundation": "بنسټ",
+    "description": "د هر چا لپاره چې خوند واخلی د وخت 3 D ټولنیز غوښتنلیکونه."
+  },
+  "xrengineContact": {
+    "header": "په تماس کې شئ !",
+    "description": "مونږ به ستاسو د مجازی پیښو ، ډیجیټل پرچون ، تفریح او نورو اړتیاوو په اړه ستاسو سره مرسته وکړو.",
+    "lbl-name": "نوم",
+    "lbl-email": "بریښنالیک",
+    "lbl-company": "شرکت",
+    "lbl-project": "خپله پروژه واضح ه کړئ",
+    "lbl-send": "واستوی",
+    "lbl-ok": "سمه ده",
+    "lbl-success": "پیغام لیږل شوی، مونږ به تاسو ته په لنډ وخت کې بیرته راشو.",
+    "lbl-failure": "یوه غلطی رامنځته شوه، پلیس بیا هڅه وکړه",
+    "err-username": "مهربانی وکړئ نوم درته داخل کړئ.",
+    "err-email": "بریښنالیک اړتیا لری.",
+    "err-msg": "د خپل پروژې په اړه یو څه لنډه تشریح وړاندې کړئ."
+  }
+}

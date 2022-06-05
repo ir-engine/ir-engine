@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Síðan fannst ekki"
+  },
+  "503": {
+    "msg": "503 - Þjónusta ekki í boði"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Þér hefur verið bannað frá þessum stað",
+    "locationName": {
+      "pageTitle": "Heimili"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Verk",
+      "header": "Vinsamlegast skráðu þig inn",
+      "welcomeMsg": "Velkominn",
+      "locationHeader": "Staðsetningar",
+      "projectHeader": "Verk",
+      "sceneHeader": "Vettvangur",
+      "description": "Ef þú ert nýr hér mælum við með að fara í gegnum námskeiðið. Annars skaltu hoppa beint inn og búa til verkefni frá grunni eða úr einu af sniðmátunum okkar.",
+      "lbl-startTutorial": "Hefja kennslu",
+      "lbl-newProject": "Nýtt verk",
+      "lbl-createProject": "Skapa",
+      "lbl-newScene": "Ný sena",
+      "lbl-searchProject": "Leita í verkum sem fyrir eru...",
+      "back": "Bak",
+      "contextMenu": "Eyða verki",
+      "installed": "Uppsett verk",
+      "official": "Opinber verkefni",
+      "community": "Samfélagsverkefni",
+      "install": "Embætti",
+      "uninstall": "Fjarlægja",
+      "rename": "Endurnefna",
+      "createProject": "Stofna verk",
+      "installProject": "Setja upp verk",
+      "processing": "Úrvinnsla",
+      "projectName": "Heiti verks",
+      "projectURL": "Vefslóð verks"
+    }
+  },
+  "error": {
+    "goHomeLink": "Farðu heim",
+    "withStatusCode": "Villa {{code}} kom upp á þjóni",
+    "withoutStatusCode": "Villa kom upp á þjóni"
+  },
+  "no-projects": {
+    "msg": "Villa: Engin verkefni uppsett - vinsamlegast hafðu samband við stjórnanda vefsvæðis"
+  },
+  "dev": {
+    "pageTitle": "Heimili"
+  },
+  "login": {
+    "pageTitle": "Innskráning"
+  },
+  "workerTest": {
+    "pageTitle": "Prófun starfsmanns"
+  },
+  "index": {
+    "by": "HJÁ",
+    "xr": "RETARD",
+    "foundation": "Undirstaða",
+    "description": "Realtime 3D félagsleg forrit fyrir alla til að njóta."
+  },
+  "xrengineContact": {
+    "header": "Hafðu samband!",
+    "description": "Við viljum gjarnan hjálpa þér með sýndarviðburði þína, stafræna smásölu, skemmtun og aðrar þarfir.",
+    "lbl-name": "Nafn",
+    "lbl-email": "Tölvupóstur",
+    "lbl-company": "Fyrirtæki",
+    "lbl-project": "Lýstu verkefninu þínu",
+    "lbl-send": "Senda",
+    "lbl-ok": "Ókei",
+    "lbl-success": "Skilaboð send, við munum hafa samband við þig fljótlega.",
+    "lbl-failure": "Villa kom upp, Plese reyna aftur",
+    "err-username": "Vinsamlegast sláðu inn nafn þitt.",
+    "err-email": "Það er þörf á tölvupósti.",
+    "err-msg": "Gefðu stutta lýsingu á verkefninu þínu."
+  }
+}

@@ -1,0 +1,202 @@
+{
+  "addComment": "ຕື່ມຄໍາເຫັນ...",
+  "share": "ແບ່ງປັນ",
+  "suggestions": "ຄໍາແນະນໍາສໍາລັບທ່ານ",
+  "seeAll": "ເບິ່ງທັງຫມົດ",
+  "likes": "ມັກ",
+  "viewComments": "ເບິ່ງຄໍາຄິດເຫັນທັງຫມົດ {{count}}",
+  "more": "more",
+  "username": "username",
+  "fullName": "ຊື່ສຸວັນນະວົງ",
+  "reportInApporpriate": "ລາຍງານບໍ່ເຫມາະສົມ",
+  "unfollow": "Unfollow",
+  "goToPost": "ໄປPost",
+  "shareModal": "ແບ່ງປັນ",
+  "copyLink": "Copy Link",
+  "embed": "ຝັງ",
+  "cancel": "ຍົກເລີກ",
+  "confirm": "ຢືນຢັນ",
+  "save": "ຊ່ວຍປະຢັດ",
+  "profilePic": "ຮູບprofile ຂອງ {{user}}",
+  "ara": "ອາຣາ",
+  "follow": "ຕິດຕາມ",
+  "flames": "ແປວໄຟ",
+  "continue": "ສືບຕໍ່",
+  "partyInvitationSent": "ການເຊື້ອເຊີນຂອງພັກໄດ້ສົ່ງ",
+  "arMedia": {
+    "back": "ຫຼັງ",
+    "clip": "ຄລິບ",
+    "backgrounds": "Backgrounds",
+    "start": "ເລີ່ມຕົ້ນ"
+  },
+  "arMediaform": {
+    "title": "ຫົວຂໍ້",
+    "type": "ພິມ",
+    "clip": "ຄລິບ",
+    "background": "Background",
+    "scene": "ພາບ",
+    "save": "ຊ່ວຍປະຢັດ",
+    "manifest-file": "Manifest .manifest file",
+    "audio-file": "ໂປຣໄຟລ໌ Mp4",
+    "dracosis-file": "Dracosis .uvol ໄຟລ໌",
+    "preview-file": "ໂປຣໄຟລ໌ຮູບພາບPreview"
+  },
+  "creator": {
+    "myVideos": "ວິດີໂອຂອງຂ້ອຍ",
+    "savedVideos": "ວິດີໂອທີ່ເກັບໄວ້",
+    "back": "ຫຼັງ",
+    "blocked-list": "ລາຍການທີ່ຖືກບລັອກ",
+    "block-user": "ບລັອກຜູ້ໃຊ້",
+    "dialog-content": "ທ່ານຈະບໍ່ເຫັນໂປຣໄຟລ໌ແລະເນື້ອຫາຂອງຜູ້ໃຊ້"
+  },
+  "creatorForm": {
+    "back": "ຫຼັງ",
+    "edit": "ແກ້ໄຂ Profile",
+    "save": "ຊ່ວຍປະຢັດ",
+    "changeAvatar": "ປ່ຽນຮູບ avatar",
+    "ph-selectPreview": "ເລືອກເບິ່ງລ່ວງຫນ້າ",
+    "ph-name": "ຊື່ຂອງເຈົ້າ",
+    "ph-username": "Username ຂອງທ່ານ",
+    "ph-email": "ອີເມວຂອງທ່ານ",
+    "ph-tags": "Tags",
+    "ph-link": "ລິ້ງ",
+    "ph-aboutYou": "ເພີ່ມເຕີມກ່ຽວກັບທ່ານ",
+    "ph-twitter": "twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Sign-Out"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "ຜູ້ໃຊ້",
+    "feeds": "ອາຫານ",
+    "arMedia": "ວີດີໂອ ມີເດຍ",
+    "editor": "ບັນນາທິການ",
+    "creator": "ຜູ້ສ້າງ"
+  },
+  "featured": {
+    "empty-list": "ບໍ່ມີອາຫານສໍາລັບຕອນນີ້ ..."
+  },
+  "feed": {
+    "back": "ຫຼັງ",
+    "related": "ອາຫານທີ່ກ່ຽວຂ້ອງ",
+    "is-repoted-message": "ມີລາຍງານອາຫານ!"
+  },
+  "feedForm": {
+    "back": "ຫຼັງ",
+    "thanks": "ຂອບໃຈສໍາລັບການແບ່ງປັນແລະປັບປຸງຊຸມຊົນຂອງພວກເຮົາ",
+    "share": "ແບ່ງປັນບາງສິ່ງບາງຢ່າງກັບຊຸມຊົນ",
+    "upload": "ອັບໂຫຼດວິດີໂອ",
+    "ph-selectVideo": "ເລືອກວີດີໂອ",
+    "preview": "ຮູບພາບແບບຈໍາລອງ",
+    "ph-selectPreview": "ເລືອກເບິ່ງລ່ວງຫນ້າ",
+    "createFeed": "ໃນການສ້າງfeed ທ່ານຕ້ອງມີວິດີໂອແລະຮູບພາບລ່ວງຫນ້າ!!!",
+    "ph-videoName": "ຊື່ຂອງວີດີໂອຂອງທ່ານ",
+    "ph-type": "ພິມສິ່ງທີ່ທ່ານຕ້ອງການແບ່ງປັນກັບຊຸມຊົນ ... ",
+    "lbl-share": "ແບ່ງປັນ",
+    "save": "ຊ່ວຍປະຢັດແລະໄປNext"
+  },
+  "feedMenu": {
+    "featured": "ຈຸດເດັ່ນ",
+    "creators": "ຜູ້ສ້າງ",
+    "feed": "ອາຫານ"
+  },
+  "header": {
+    "lbl-volumetric": "ບໍລິຄໍາໄຊ"
+  },
+  "login": {
+    "account": "ມີບັນຊີ?",
+    "login": "Login",
+    "resetPassword": "Reset Password ປຸ່ມປອມ (ຕໍ່ໄປນີ້ຈະເປັນລິ້ງຈາກອີເມວ)",
+    "notHavingAccount": "ບໍ່ມີບັນຊີ?",
+    "signUp": "ລົງທະບຽນ",
+    "forgotPassword": "ລືມລະຫັດຜ່ານ?",
+    "back": "ຫຼັງ",
+    "or": "ຫຼື"
+  },
+  "comment": {
+    "add": "ຕື່ມຄໍາເຫັນຂອງທ່ານ..."
+  },
+  "notification": {
+    "feedFire": " fired ອາຫານຂອງທ່ານ",
+    "feedBookmarked": " bookmarked ອາຫານຂອງທ່ານ",
+    "comment": " ໄດ້ໃຫ້ຄວາມເຫັນກ່ຽວກັບອາຫານຂອງທ່ານ:",
+    "commentFire": " ໄດ້ອອກຄໍາເຫັນຂອງທ່ານເພື່ອໃຫ້ອາຫານ",
+    "follow": " ໄດ້ເລີ່ມຕິດຕາມທ່ານ",
+    "unfollow": " ຢຸດຕິດຕາມທ່ານ",
+    "followed": " ຕິດຕາມທ່ານ",
+    "activity": "ກິດຈະກໍາ"
+  },
+  "onBoarding": {
+    "welcome": "ຍິນດີຕ້ອນຮັບ!",
+    "description": "ການ ເກັບ ກໍາ ທີ່ ໃຫຍ່ ທີ່ ສຸດ ຂອງ 370 + layouts ສໍາ ລັບ ການ prototyping iOS .",
+    "next": "ຕໍ່ໄປ",
+    "discover": "ຄົ້ນຄ້ວາບົດຄວາມ,",
+    "news": "ຂ່າວ &posts",
+    "lines": "ມັນ ເປັນ ຄວາມ ຮູ້ ສຶກ ເຫລົ່າ ນັ້ນ ທີ່ ຂັບ ໄລ່ ຄວາມ ຮັກ ຂອງ ເຮົາ ຕໍ່ ດາ ລາ ສາດ ແລະ ຄວາມ ປາດ ຖະ ຫນາ ຂອງ ເຮົາ.",
+    "getStarted": "ເລີ່ມຕົ້ນ",
+    "meetUp": "ພົບກັບ",
+    "friends": "ຫມູ່.",
+    "meet": "ພົບກັບຫມູ່"
+  },
+  "shareForm": {
+    "arcMedia": "ແບ່ງປັນ",
+    "videoCreated": "ຂ້າພະເຈົ້າໄດ້ສ້າງວີດີໂອນີ້",
+    "shareWithBuddies": "ແບ່ງປັນກັບbuddies",
+    "shareVideo": "ແບ່ງປັນວີດີໂອ",
+    "save": "Save To Camera Roll",
+    "cancel": "ຍົກເລີກ",
+    "close": "ປິດ",
+    "addFeed": "ເພີ່ມອາຫານ"
+  },
+  "simpleModal": {
+    "emptyList": "ລາຍການເປົ່າ",
+    "followers": " ຕິດຕາມ",
+    "following": " ຜູ້ຕິດຕາມ",
+    "flames": " ແປວໄຟ"
+  },
+  "splash": {
+    "screen": "Splash ຫນ້າຈໍ",
+    "logo": "ໂລໂກ້"
+  },
+  "story": {
+    "profilePic": "ຮູບprofile ຂອງ {{user}}"
+  },
+  "view": {
+    "cancel": "ຍົກເລີກ",
+    "choice": "ທ່ານມີສອງຮູບແບບການບັນທຶກທີ່ແຕກຕ່າງກັນເພື່ອເລືອກຈາກ",
+    "verticalMode": "ຮູບແບບVertical ມີເວລາບັນທຶກ 30 sec",
+    "horizontalMode": "ວິ ທີ ການ Horizontal ມີ ເວ ລາ ບັນ ທຶກ ບໍ່ ຈໍາ ກັດ",
+    "start": "ເລີ່ມຕົ້ນ",
+    "not-show": "ຢ່າສະແດງມັນອີກ",
+    "welcome": "ຍິນດີຕ້ອນຮັບສູ່ ARC!  ເຮັດ ວິດີໂອ ສ່ວນ ຕົວ ກັບ ຫນຶ່ງ ໃນ holograms ຂອງ ພວກ ເຮົາ ແລະ post ມັນ ໃສ່ ຊ່ອງ ທາງ ສື່ ມວນ ຊົນ ຂອງ ທ່ານ !",
+    "step": "ຂັ້ນຕອນ {{step}}",
+    "text-step-1": "ເລືອກhologramຈາກຫ້ອງສະຫມຸດ.",
+    "text-step-2": "ນີ້ແມ່ນ Augmented Reality, ດັ່ງນັ້ນscan ຊ່ອງຫວ່າງກັບກ້ອງຂອງທ່ານຈາກຂ້າງຫາຂ້າງ3-5 ວິນາທີບ່ອນທີ່ທ່ານຕ້ອງການການສະແດງ hologram ເປັນ.",
+    "text-step-3-part-1": "Tap ຫນ້າຈໍຄັ້ງຫນຶ່ງໃນສະຖານທີ່ທີ່ທ່ານຕ້ອງການ hologram anchored.",
+    "text-step-3-part-2": "TIP!  Tap ເທື່ອຫນຶ່ງເພື່ອຍ້າຍ hologram ໄປຢູ່ບ່ອນອື່ນ.",
+    "text-step-3-part-3": "TIP!  ທ່ານ ສາ ມາດ ຂະ ຫຍາຍ hologram ໄດ້ ໂດຍ ການ pinching ຫຼື ການ ຂະ ຫຍາຍ ຫນ້າ ຈໍ ດ້ວຍ ນິ້ວ ມື ນິ້ວ ມື ແລະ ນິ້ວ ດັດ ສະ ນີ ຂອງ ທ່ານ .",
+    "text-step-4-part-1": "ປຸ່ມບັນທຶກສີແດງdouble tap ເພື່ອ START ການບັນທຶກວິດີໂອຂອງທ່ານ.",
+    "text-step-4-part-2": "ປຸ່ມບັນທຶກສີແດງdouble tap ກັບ STOP."
+  },
+  "video": {
+    "back": "ຫຼັງ"
+  },
+  "terms": {
+    "confirmTerms": "ຂ້າພະເຈົ້າເຫັນດີກັບເງື່ອນໄຂການບໍລິການ",
+    "confirmPolicy": "ຂ້າພະເຈົ້າເຫັນດີຕໍ່ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ"
+  },
+  "registration": {
+    "ph-phoneEmail": "ໃຊ້ໂທລະສັບ / ອີເມວ",
+    "facebook": "Continue with Facebook",
+    "google": "ສືບຕໍ່ກັບ ກູໂກ",
+    "linkedin": "Continue with Linkedin",
+    "twitter": "ສືບຕໍ່ກັບ Twitter",
+    "gitHub": "ສືບຕໍ່ກັບ GitHub",
+    "connect": "ເຊື່ອມຕໍ່ອີເມວຫຼືເບີໂທລະສັບຂອງທ່ານ",
+    "logIn": "ເຂົ້າສູ່ລະບົບ",
+    "LogInTo": "ເຂົ້າສູ່ລະບົບ",
+    "continueAsGuest": "ສືບຕໍ່ເປັນແຂກ"
+  }
+}

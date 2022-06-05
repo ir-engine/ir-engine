@@ -1,0 +1,202 @@
+{
+  "addComment": "Megjegyzés hozzáadása...",
+  "share": "Részvény",
+  "suggestions": "Javaslatok az Ön számára",
+  "seeAll": "Az összes megtekintése",
+  "likes": "Szereti",
+  "viewComments": "Az összes {{count}} megjegyzés megtekintése",
+  "more": "több",
+  "username": "felhasználónév",
+  "fullName": "Név vezetékneve",
+  "reportInApporpriate": "Nem megfelelő jelentés",
+  "unfollow": "Követés megszüntetése",
+  "goToPost": "Ugrás a postára",
+  "shareModal": "Részvény",
+  "copyLink": "Hivatkozás másolása",
+  "embed": "Beágyaz",
+  "cancel": "Érvénytelenít",
+  "confirm": "Megerősít",
+  "save": "Megment",
+  "profilePic": "{{user}}profilképe",
+  "ara": "Oltár",
+  "follow": "Követ",
+  "flames": "Lángok",
+  "continue": "Folytatódik",
+  "partyInvitationSent": "Parti meghívó elküldve",
+  "arMedia": {
+    "back": "Hát",
+    "clip": "Kapocs",
+    "backgrounds": "Hátterek",
+    "start": "Elkezd"
+  },
+  "arMediaform": {
+    "title": "Cím",
+    "type": "Típus",
+    "clip": "Kapocs",
+    "background": "Háttér",
+    "scene": "Jelenet",
+    "save": "Megment",
+    "manifest-file": "Jegyzékfájl .manifest fájl",
+    "audio-file": "Mp4 fájl",
+    "dracosis-file": "Dracosis .uvol fájl",
+    "preview-file": "Képfájl előnézete"
+  },
+  "creator": {
+    "myVideos": "Saját videók",
+    "savedVideos": "Mentett videók",
+    "back": "Hát",
+    "blocked-list": "Letiltott lista",
+    "block-user": "Felhasználó blokkolása",
+    "dialog-content": "Nem fogja látni a felhasználó profilját és tartalmát"
+  },
+  "creatorForm": {
+    "back": "Hát",
+    "edit": "Profil szerkesztése",
+    "save": "Megment",
+    "changeAvatar": "Avatar kép módosítása",
+    "ph-selectPreview": "Előnézet kiválasztása",
+    "ph-name": "A neved",
+    "ph-username": "Az Ön felhasználóneve",
+    "ph-email": "Az Ön e-mail címe",
+    "ph-tags": "Címkék",
+    "ph-link": "Láncszem",
+    "ph-aboutYou": "Bővebben rólad",
+    "ph-twitter": "csicsergés",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Kijelentkezés"
+  },
+  "dashboard": {
+    "title": "Műszerfal",
+    "dashboard": "Műszerfal",
+    "users": "Felhasználók",
+    "feeds": "Eszik",
+    "arMedia": "Videomédia",
+    "editor": "Szerkesztő",
+    "creator": "Alkotó"
+  },
+  "featured": {
+    "empty-list": "Nincs takarmányok most ..."
+  },
+  "feed": {
+    "back": "Hát",
+    "related": "Kapcsolódó hírcsatornák",
+    "is-repoted-message": "A hírcsatorna jelentésre kerül!"
+  },
+  "feedForm": {
+    "back": "Hát",
+    "thanks": "Köszönjük, hogy megosztotta és javította közösségünket",
+    "share": "Oszd meg valamit a közösséggel",
+    "upload": "Videó feltöltése",
+    "ph-selectVideo": "Videó kiválasztása",
+    "preview": "Kép előnézete",
+    "ph-selectPreview": "Előnézet kiválasztása",
+    "createFeed": "A hírcsatorna létrehozásához videóval és előnézeti képpel kell rendelkeznie!!!",
+    "ph-videoName": "A videó neve",
+    "ph-type": "Írja be, mit szeretne megosztani a közösséggel ... ",
+    "lbl-share": "Részvény",
+    "save": "Mentés és ugrás a következő"
+  },
+  "feedMenu": {
+    "featured": "Kiemelt",
+    "creators": "Alkotók",
+    "feed": "A hírcsatorna"
+  },
+  "header": {
+    "lbl-volumetric": "Térfogat"
+  },
+  "login": {
+    "account": "Van számlája?",
+    "login": "Bejelentkezés",
+    "resetPassword": "Jelszó hamis visszaállítása gomb (itt lenne egy link e-mailből)",
+    "notHavingAccount": "Nincs számlája?",
+    "signUp": "Feliratkozni",
+    "forgotPassword": "Elfelejtette a jelszavát?",
+    "back": "Hát",
+    "or": "VAGY"
+  },
+  "comment": {
+    "add": "Adja hozzá a megjegyzését..."
+  },
+  "notification": {
+    "feedFire": " tüzelt a takarmány",
+    "feedBookmarked": " könyvjelzővel ellátva a hírcsatornát",
+    "comment": " kommentálta a hírcsatornát:",
+    "commentFire": " kirúgta a megjegyzést a feed",
+    "follow": " elkezdett követni",
+    "unfollow": " leállt a követés",
+    "followed": " követett téged",
+    "activity": "Tevékenység"
+  },
+  "onBoarding": {
+    "welcome": "Isten hozott!",
+    "description": "A legnagyobb, több mint 370 elrendezésű gyűjtemény az iOS prototípuskészítéshez.",
+    "next": "Következő",
+    "discover": "Fedezzen fel cikkeket,",
+    "news": "hírek > hozzászólások",
+    "lines": "Ezek az érzések mozgatják a csillagászat iránti szeretetünket és vágyainkat.",
+    "getStarted": "Induláshoz",
+    "meetUp": "Találkozzon a",
+    "friends": "barátok.",
+    "meet": "Találkozzon barátaival"
+  },
+  "shareForm": {
+    "arcMedia": "Részvény",
+    "videoCreated": "Én hoztam létre ezt a videót",
+    "shareWithBuddies": "Megosztás a haverokkal",
+    "shareVideo": "Videó megosztása",
+    "save": "Mentés kameratekercsbe",
+    "cancel": "Érvénytelenít",
+    "close": "Bezár",
+    "addFeed": "Hírcsatorna hozzáadása"
+  },
+  "simpleModal": {
+    "emptyList": "Üres lista",
+    "followers": " alábbi",
+    "following": " Követői",
+    "flames": " Lángok"
+  },
+  "splash": {
+    "screen": "Kezdőkép",
+    "logo": "Embléma"
+  },
+  "story": {
+    "profilePic": "{{user}}profilképe"
+  },
+  "view": {
+    "cancel": "Érvénytelenít",
+    "choice": "Két különböző felvételi mód közül választhat",
+    "verticalMode": "A függőleges mód 30 mp-es rekordidővel rendelkezik",
+    "horizontalMode": "A vízszintes mód korlátlan rekordidővel rendelkezik",
+    "start": "Elkezd",
+    "not-show": "Ne jelenjen meg újra!",
+    "welcome": "Üdvözöljük az ARC-ban!  Készítsen személyes videókat az egyik hologramunkkal, és tegye közzé a közösségi média csatornáin!",
+    "step": "{{step}}. LÉPÉS",
+    "text-step-1": "Válasszon hologramot a könyvtárból.",
+    "text-step-2": "Ez a kiterjesztett valóság, ezért 3-5 másodpercig szkennelje a helyet a kamerájával egyik oldalról a másikra, ahol a hologram teljesítményét szeretné.",
+    "text-step-3-part-1": "Koppintson egyszer a képernyőre azon a helyen, ahol a hologramot rögzíteni szeretné.",
+    "text-step-3-part-2": "BORRAVALÓ!  Koppintson egyszer máshol, hogy áthelyezze a hologramot egy másik pozícióba.",
+    "text-step-3-part-3": "BORRAVALÓ!  A hologramot úgy méretezheti át, hogy hüvelykujjával és mutatóujjával becsípi vagy kibontja a képernyőt.",
+    "text-step-4-part-1": "Koppintson duplán a piros felvétel gombra a videofelvétel elindításához.",
+    "text-step-4-part-2": "Koppintson duplán a piros rekord gombra a STOP billentyűhöz."
+  },
+  "video": {
+    "back": "Hát"
+  },
+  "terms": {
+    "confirmTerms": "Elfogadom az Általános Szerződési Feltételeket",
+    "confirmPolicy": "Elfogadom az adatvédelmi szabályzatot"
+  },
+  "registration": {
+    "ph-phoneEmail": "Telefon / e-mail használata",
+    "facebook": "Folytatás a Facebookkal",
+    "google": "Folytatás a Google-lal",
+    "linkedin": "Folytatás a LinkedIn-nel",
+    "twitter": "Folytatás a Twitterrel",
+    "gitHub": "Folytatás a GitHub használatával",
+    "connect": "E-mail vagy telefonszám csatlakoztatása",
+    "logIn": "Bejelentkezés",
+    "LogInTo": "Bejelentkezés a következőbe:",
+    "continueAsGuest": "Folytatás vendégként"
+  }
+}

@@ -1,0 +1,718 @@
+{
+  "loading": "პროექტის ჩატვირთვა",
+  "loadingMsg": "პროექტის ჩატვირთვა...",
+  "loadingError": "შეცდომის დატვირთვის პროექტი",
+  "loadingErrorMsg": "პროექტის დატვირთვისას შეცდომა იყო.",
+  "selectSceneMsg": "აირჩიეთ სცენა ძრავასთან თამაშის დასაწყებად",
+  "error": "შეცდომა",
+  "errorMsg": "უცნობი შეცდომა იყო.",
+  "generateScreenshot": "პროექტის ეკრანის ანაბეჭდის გენერირება",
+  "generateScreenshotMsg": "პროექტის ეკრანის ანაბეჭდის გენერირება...",
+  "newScene": "სცენის შექმნა",
+  "saving": "პროექტის შენახვა",
+  "savingMsg": "პროექტის დაზოგვა...",
+  "savingError": "შეცდომის დაზოგვის პროექტი",
+  "savingErrorMsg": "პროექტის დაზოგვისას შეცდომა იყო.",
+  "savingSceneErrorMsg": "სცენა არ არის დატვირთული სწორად. შეეცადეთ გადატვირთოთ სცენა.",
+  "duplicating": "პროექტის დუბლირება",
+  "duplicatingMsg": "პროექტის დუბლირება...",
+  "exporting": "ექსპორტის პროექტი",
+  "exportingMsg": "პროექტის ექსპორტი...",
+  "exportingError": "შეცდომის ექსპორტის პროექტი",
+  "exportingErrorMsg": "პროექტის ექსპორტის დროს შეცდომა იყო.",
+  "importLegacy": "იმპორტის მემკვიდრეობის სამყარო",
+  "importLegacyMsg": "გაფრთხილება! ეს გადაწერს თქვენს არსებულ სცენას! ჟთდსპვნ ლთ ჟთ, ფვ თჟკაქ ეა ოპჲეყლზთქ?",
+  "publishingError": "შეცდომის გამომცემლობის პროექტი",
+  "publishingErrorMsg": "უცნობი შეცდომა იყო.",
+  "publishingScene": "საგამომცემლო სცენა",
+  "publishingSceneMsg": "საგამომცემლო სცენა...",
+  "uploadingThumbnailMsg": "მინიატურა...",
+  "uploadingSceneMsg": "სცენის ატვირთვა: {{percentage}}%",
+  "envMapError": "კუბის სურათების ჩატვირთვა {{files}}",
+  "lbl-return": "დაბრუნება",
+  "menubar": {
+    "newScene": "ახალი სცენა",
+    "saveScene": "სცენის შენახვა",
+    "saveAs": "შენახვა როგორც",
+    "importAsset": "იმპორტი აქტივი",
+    "exportGLB": "ექსპორტი როგორც ორობითი glTF (.glb) ...",
+    "importScene": "იმპორტის სცენა",
+    "exportScene": "ექსპორტის სცენა",
+    "quit": "დატოვება"
+  },
+  "errors": {
+    "fileTypeNotSupported": "ფაილის დაუსაბუთებელი ტიპი: \"{{name}}\". ფაილი უნდა იყოს სურათი, ვიდეო ან გლბის მოდელი.",
+    "addObject": "AddObject: ობიექტამდე ვერ მოიძებნა",
+    "removeObject": "ამოღებაObject: კვანძი ვერ მოიძებნა. ეს გამოწვეულია კვანძის ამოღებით, რომელიც აღარ არის სცენაზე.",
+    "noParent": "{{node}} \"{{name}}\", არ ჰყავს მშობელი. Reparent მუშაობს მხოლოდ იმ ობიექტებზე, რომლებიც ამჟამად ადგილზეა.",
+    "undefinedParent": "რედაქტორი.reparent: newParent არის განუსაზღვრელი",
+    "notAuthenticated": "არ არის ავთენტიფიკაცია",
+    "fetchingProjectError": "შეცდომების მოპოვება პროექტები: {{error}}",
+    "fetchingRouteError": "შეცდომების მოპოვება მარშრუტები: {{error}}",
+    "unknownError": "უცნობი შეცდომა",
+    "resolveURL": "შეცდომა, რომელიც ატრიალებს url - ს \"{{url}}\":",
+    "mediaSearchAborted": "მედიის ძებნა შეწყდა",
+    "methodNotImplemented": "მეთოდი არ განხორციელებულა.",
+    "saveProjectAborted": "შეინახეთ სცენა შეწყვეტილი",
+    "unsavedChanges": "დაუსაბუთებელი ცვლილებები",
+    "unsavedChangesMsg": "სცენა შეცვლილია. გთხოვთ, შეინახოთ თქვენი ცვლილებები.",
+    "projectCreationFail": "პროექტის შექმნა ვერ შედგა. {{reason}}",
+    "projectDeletionFail": "პროექტის წაშლა ვერ შედგა. {{reason}}",
+    "savingProjectFail": "პროექტის დაზოგვა ვერ შედგა. {{reason}}",
+    "sceneTooLarge": "სცენა ძალიან დიდია ({{size}} MB) გამოსაქვეყნებლად. მაქსიმალური ზომა {{maxSize}} MB.",
+    "sceneCreationFail": "სცენის შექმნა ვერ შედგა. {{reason}}",
+    "uploadAborted": "ატვირთეთ შეწყვეტილი",
+    "uploadFailed": "ატვირთვა ვერ მოხერხდა {{reason}}",
+    "assetDeletionFail": "აქტივების წაშლა ვერ შედგა. {{reason}}",
+    "projectAssetDeletionFail": "პროექტის აქტივების წაშლა ვერ შედგა. {{reason}}",
+    "networkError": "ქსელის შეცდომა: {{status}}. {{text}}",
+    "unknownStatus": "უცნობი სტატუსი",
+    "CORS": "შესაძლოა CORS შეცდომა",
+    "urlFetchError": "\"{{url}}\""
+  },
+  "viewport": {
+    "title": "იხილეთპორტი",
+    "command": {
+      "movecamera": "კამერის გადატანა",
+      "flyFast": "ფრენა უფრო სწრაფად",
+      "orbit": "ორბიტა / აირჩიეთ",
+      "pan": "პან",
+      "fly": "ფრენა",
+      "focus": "ფოკუსირება",
+      "rotateLeft": "როტაცია მარცხნივ",
+      "rotateRight": "როტაცია უფლება",
+      "cancelPlacement": "განთავსების გაუქმება",
+      "placeDuplicate": "მოათავსეთ დუბლიკატი",
+      "cancelGrab": "გაუქმება Grab",
+      "grab": "Grab",
+      "deselectAll": "ყველა"
+    },
+    "state": {
+      "header": "სტატისტიკა",
+      "memory": "მეხსიერება",
+      "geometries": "გეომეტრია",
+      "textures": "ტექსტურები",
+      "render": "რენდერი",
+      "FPS": "FPS",
+      "frameTime": "ჩარჩო დრო",
+      "calls": "ზარები",
+      "triangles": "სამკუთხედები",
+      "points": "ქულები",
+      "lines": "ხაზები"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "გამოქვეყნება",
+    "lbl-published": "გამოქვეყნებულია",
+    "command": {
+      "translate": "თარგმნა",
+      "rotate": "როტაცია",
+      "scale": "მასშტაბი",
+      "toggleSpace": "Toggle Transform Space",
+      "togglePivot": "Toggle Transform Pivot",
+      "toggleSnapMode": "გადართეთ ვადამდელი რეჟიმი",
+      "toggleGrid": "Toggle Grid ხილვადობა",
+      "increaseGridSize": "ქსელის ზომის გაზრდა",
+      "descreaseGridSize": "ქსელის ზომის შემცირება",
+      "stopPreview": "შეწყვიტეთ გადახედვის სცენა",
+      "playPreview": "გადახედვის სცენა"
+    }
+  },
+  "properties": {
+    "title": "თვისებები",
+    "lbl-visible": "ხილული",
+    "lbl-preventBake": "გამოცხობის პრევენცია",
+    "lbl-persist": "შენარჩუნებული",
+    "multipleNodeSelected": "შერჩეული სხვადასხვა ტიპის მრავალი კვანძი",
+    "noNodeSelected": "კვანძი არ არის შერჩეული",
+    "ambientLight": {
+      "name": "ატმოსფერული შუქი",
+      "description": "შუქი, რომელიც ანათებს თქვენს სცენაში ყველა ობიექტს.",
+      "lbl-intensity": "ინტენსივობა",
+      "lbl-color": "ფერი"
+    },
+    "envmap": {
+      "name": "გარემოს რუკა",
+      "description": "გარემოს რუკის თვისებები"
+    },
+    "asset": {
+      "name": "აქტივი",
+      "description": "სცენის კომპონენტების დაჯგუფება, რომელთა დინამიურად დატვირთული და გადმოტვირთვა შესაძლებელია",
+      "lbl-options": "პარამეტრები",
+      "lbl-assetPath": "აქტივების გზა",
+      "lbl-assetName": "ექსპორტის სახელი",
+      "lbl-exportOptions": "ექსპორტის პარამეტრები",
+      "lbl-export": "ექსპორტის აქტივი",
+      "lbl-load": "ჩატვირთეთ სცენაზე",
+      "lbl-unload": "გადმოტვირთვა",
+      "lbl-reload": "გადატვირთვა"
+    },
+    "audio": {
+      "name": "აუდიო",
+      "description": "დინამიურად იტვირთება აუდიო.",
+      "lbl-audiourl": "აუდიო Url",
+      "lbl-controls": "კონტროლი",
+      "info-controls": "მედიის კონტროლის ხილვადობა.",
+      "lbl-autoplay": "ავტო თამაში",
+      "info-autoplay": "თუ სიმართლეა, მედია ითამაშებს სცენაზე შესვლისას.",
+      "lbl-synchronize": "სინქრონიზაცია",
+      "info-synchronize": "თუ სიმართლეა, მედია სინქრონიზებული იქნება ყველა დაკავშირებულ კლიენტზე.",
+      "lbl-loop": "მარყუჟი",
+      "info-loop": "თუ სიმართლეა, მედია განუსაზღვრელი ვადით დაიწვება.",
+      "lbl-audioType": "აუდიო ტიპი",
+      "lbl-distanceModel": "მანძილის მოდელი",
+      "info-distanceModel": "ალგორიტიმი გამოიყენება აუდიო რულეტის გამოსათვლელად.",
+      "lbl-rolloffFactor": "Rolloff ფაქტორი",
+      "info-rolloffFactor": "ორმაგი მნიშვნელობა, რომელიც აღწერს, თუ რამდენად სწრაფად მცირდება მოცულობა, რადგან წყარო მსმენელისგან შორდება. 0-დან 1-მდე",
+      "info-rfInfinity": "ორმაგი მნიშვნელობა, რომელიც აღწერს, თუ რამდენად სწრაფად მცირდება მოცულობა, რადგან წყარო მსმენელისგან შორდება. 0 უსასრულობა",
+      "lbl-refDistance": "Ref მანძილი",
+      "info-refDistance": "ორმაგი მნიშვნელობა, რომელიც წარმოადგენს საცნობარო მანძილს მოცულობის შემცირებისთვის, რადგან აუდიო წყარო მსმენელისგან უფრო შორს მოძრაობს.",
+      "lbl-maxDistance": "მაქსიმალური მანძილი",
+      "info-maxDistance": "ორმაგი მნიშვნელობა, რომელიც წარმოადგენს მაქსიმალურ მანძილს აუდიო წყაროსა და მსმენელს შორის, რის შემდეგაც მოცულობა აღარ მცირდება.",
+      "lbl-coneInnerAngle": "Cone შიდა კუთხე",
+      "info-coneInnerAngle": "ორმაგი მნიშვნელობა, რომელიც აღწერს კუთხეს, ხარისხებში, კონუსის შიგნით, რომლის შიგნით არ იქნება მოცულობის შემცირება.",
+      "lbl-coneOuterAngle": "კონუსის გარე კუთხე",
+      "info-coneOuterAngle": "ორმაგი მნიშვნელობა, რომელიც აღწერს კუთხეს, გრადუსით, კონუსის გარეთ, რომლის მოცულობა შემცირდება მუდმივი ღირებულებით, რომელიც განისაზღვრება კონუსუტერგენაინის ატრიბუტით.",
+      "lbl-coreOuterGain": "Cone გარე მოგება",
+      "info-coreOuterGain": "ორმაგი მნიშვნელობა, რომელიც აღწერს მოცულობის შემცირების რაოდენობას კონუსის გარეთ, რომელიც განსაზღვრულია coneOuterAngle ატრიბუტით. მისი ნაგულისხმევი ღირებულებაა 0, რაც იმას ნიშნავს, რომ ხმის მოსმენა არ შეიძლება.",
+      "lbl-volume": "მოცულობა",
+      "lbl-play": "თამაში",
+      "lbl-pause": "პაუზა",
+      "error-url": "შეცდომის ჩატვირთვა URL– დან"
+    },
+    "boxCollider": {
+      "description": "უხილავი ყუთი, რომელიც ობიექტებს ააფეთქებს ან დაისვენებს თავზე.\nკოლაიდერების გარეშე, ობიექტები იატაკებს გაივლიან და კედლებს გაივლიან.",
+      "lbl-isTrigger": "ტრიგერი"
+    },
+    "camera": {
+      "name": "კამერა",
+      "description": "კამერის პარამეტრები.",
+      "lbl-camera-raycast": "კამერა Raycasting",
+      "lbl-camera-raycast-toggle": "ჩართულია",
+      "lbl-camera-raycast-frequency": "სიხშირე",
+      "lbl-camera-raycast-count": "რეის რაოდენობა",
+      "lbl-camera-raycast-length": "რეი სიგრძე"
+    },
+    "directionalLight": {
+      "name": "მიმართულების შუქი",
+      "description": "სინათლე, რომელიც ანათებს მთელ სცენას, მაგრამ ასხივებს ერთი მიმართულებით.",
+      "lbl-color": "ფერი",
+      "lbl-intensity": "ინტენსივობა",
+      "lbl-cameraFar": "კამერა შორს",
+      "lbl-cameraNear": "კამერა ახლოს",
+      "lbl-cameraTop": "კამერის ზედა",
+      "lbl-cameraBottom": "კამერის ქვედა",
+      "lbl-cameraLeft": "კამერა მარცხენა",
+      "lbl-cameraRight": "კამერა მარჯვნივ",
+      "lbl-useInCSM": "გამოიყენეთ CSM",
+      "lbl-castShadow": "როლური ჩრდილი",
+      "lbl-disableForCSM": "გამორთულია, რადგან კასკადის ჩრდილის რუკა ჩართულია.",
+      "lbl-shadowmapResolution": "Shadow Map რეზოლუცია",
+      "lbl-shadowBias": "ჩრდილის მიკერძოება",
+      "lbl-shadowRadius": "ჩრდილის რადიუსი",
+      "lbl-showCameraHelper": "კამერის დამხმარეს ჩვენება"
+    },
+    "groundPlane": {
+      "name": "სახმელეთო თვითმფრინავი",
+      "description": "ბრტყელი სახმელეთო თვითმფრინავი, რომელიც ვრცელდება მანძილზე.",
+      "lbl-color": "ფერი",
+      "lbl-receiveShadow": "მიიღეთ ჩრდილი",
+      "lbl-generateNavmesh": "შექმენით Navmesh"
+    },
+    "link": {
+      "description": "ბმული ოთახში ან ვებსაიტზე.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "3D გეოსპაციური რუკა, მაგ. ქალაქი."
+    },
+    "model": {
+      "description": "თქვენს სცენაზე 3D მოდელი, დატვირთული GLTF URL ან ფაილიდან.",
+      "lbl-usingGPUInstancingFlag": "გამოიყენეთ GPU ინსტანცირება",
+      "lbl-modelurl": "მოდელი Url",
+      "lbl-envmapUrl": "გარემოს რუკის Url",
+      "lbl-textureOverride": "Override ტექსტურა",
+      "lbl-materialOverride": "მატერიალური Overrides",
+      "error-url": "შეცდომის ჩატვირთვა URL– დან",
+      "lbl-loopAnimation": "მარყუჟის ანიმაცია",
+      "lbl-isAvatar": "არის ავატარი",
+      "lbl-isGPUInstancing": "იყენებს GPU ინსტანციებს",
+      "lbl-isDynamic": "დინამიკურია",
+      "lbl-castShadow": "როლური ჩრდილი",
+      "lbl-receiveShadow": "მიიღეთ ჩრდილი",
+      "lbl-interactable": "ინტერაქტიული",
+      "lbl-matrixAutoUpdate": "მატრიქსაუტოუპდატი",
+      "lbl-name": "სახელი",
+      "lbl-url": "მოდელი Url",
+      "lbl-buy": "შეიძინეთ Url",
+      "lbl-learnMore": "შეიტყვეთ მეტი Url",
+      "lbl-htmlContent": "Html შინაარსი",
+      "lbl-interactionText": "ურთიერთქმედების ტექსტი",
+      "lbl-interactionType": "ურთიერთქმედების ტიპი"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "მასალა",
+      "error-materialID": "შეცდომა მასალის პოვნა",
+      "placeholder-materialID": "აირჩიეთ მასალა",
+      "lbl-patternTarget": "ნიმუშის მატჩი",
+      "lbl-pattern": "ნიმუში",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "ურთიერთქმედების ტიპი",
+      "text": "ურთიერთქმედების ტექსტი",
+      "distance": "ურთიერთქმედების მანძილი",
+      "theme": "ურთიერთქმედების თემა",
+      "name": "ურთიერთქმედების სახელი",
+      "description": "ურთიერთქმედების აღწერა",
+      "images": "ურთიერთქმედების სურათები",
+      "videos": "ურთიერთქმედების ვიდეოები",
+      "urls": "ურთიერთქმედების Urls",
+      "models": "ურთიერთქმედების მოდელები"
+    },
+    "group": {
+      "name": "ჯგუფი",
+      "description": "მრავალი ობიექტის ჯგუფი, რომელიც შეიძლება გადაადგილდეს ან დუბლირებული იყოს ერთად.\nგადაიტანეთ და ჩამოაგდეთ ობიექტები ჯგუფში იერარქიაში."
+    },
+    "hemisphere": {
+      "name": "ნახევარსფეროს შუქი",
+      "description": "სინათლე, რომელიც ანათებს სცენას პირდაპირ ოვერჰედიდან.",
+      "lbl-skyColor": "Sky ფერი",
+      "lbl-groundColor": "სახმელეთო ფერი",
+      "lbl-intensity": "ინტენსივობა"
+    },
+    "image": {
+      "name": "სურათი",
+      "description": "დინამიურად იტვირთება სურათი.",
+      "lbl-imgURL": "სურათის Url",
+      "lbl-transparency": "გამჭვირვალობის რეჟიმი",
+      "lbl-alphaCutoff": "ალფა კატოფი",
+      "lbl-projection": "პროექცია",
+      "lbl-side": "მხარე",
+      "info-controls": "მედიის კონტროლის ხილვადობა.",
+      "info-transparency": "როგორ გამოვიყენოთ გამჭვირვალობა:",
+      "info-opaque": "\"გაუმჭვირვალე\" = გამჭვირვალობის გარეშე",
+      "info-blend": "'blend' = გამოიყენეთ სურათები alpha არხი",
+      "info-mask": "\"ნიღაბი\" = გამოიყენეთ განსაზღვრული შემცირების ღირებულება გამჭვირვალობისთვის (მეტი შემსრულებელი)",
+      "info-alphaCutoff": "პიქსელები ალფა ღირებულებებით დაბალია, ვიდრე ეს გამჭვირვალე იქნება",
+      "error-url": "არასწორი URL"
+    },
+    "name": {
+      "lbl-name": "სახელი"
+    },
+    "partileEmitter": {
+      "description": "ნაწილაკების ემიტერი ნაწილაკების შესაქმნელად.",
+      "lbl-particleCount": "ნაწილაკების რაოდენობა",
+      "lbl-image": "სურათი",
+      "lbl-ageRandomness": "ასაკის შემთხვევითობა",
+      "lbl-lifetime": "სიცოცხლის ხანგრძლივობა",
+      "lbl-lifetimeRandomness": "სიცოცხლის შემთხვევითი",
+      "lbl-sizeCurve": "ზომა მრუდი",
+      "lbl-startPSize": "დაიწყეთ ნაწილაკების ზომა",
+      "lbl-endPSize": "საბოლოო ნაწილაკების ზომა",
+      "lbl-sizeRandomness": "ზომა შემთხვევითი",
+      "lbl-colorCurve": "ფერი მრუდი",
+      "lbl-startColor": "დაიწყეთ ფერი",
+      "lbl-startOpacity": "დაიწყეთ Opacity",
+      "lbl-middleColor": "შუა ფერი",
+      "lbl-middleOpacity": "შუა დამამძიმე",
+      "lbl-endColor": "დასასრული ფერი",
+      "lbl-endOpacity": "საბოლოო Opacity",
+      "lbl-velocityCurve": "სიჩქარის მრუდი",
+      "lbl-startVelocity": "დაიწყეთ სიჩქარე",
+      "lbl-endVelocity": "დაასრულეთ სიჩქარე",
+      "lbl-angularVelocity": "კუთხოვანი სიჩქარე",
+      "info-ageRandomness": "ვარიაციის რაოდენობა, როდესაც ნაწილაკები ყალიბდება.",
+      "info-lifetime": "ნაწილაკების მაქსიმალური ასაკი, სანამ ის ხელახლა დაიფარება.",
+      "info-lifetimeRandomness": "ნაწილაკების სიცოცხლის ვარიაციის რაოდენობა.",
+      "info-sizeRandomness": "ნაწილაკების საწყისი ზომის ვარიაციის რაოდენობა.",
+      "error-url": "შეცდომის ჩატვირთვა URL– დან"
+    },
+    "clouds": {
+      "name": "ღრუბლები",
+      "description": "სპრიტზე დაფუძნებული ღრუბლის მოცულობა.",
+      "lbl-image": "Sprite სურათი",
+      "lbl-wroldScale": "მსოფლიო მასშტაბი",
+      "lbl-dimensions": "ზომები",
+      "lbl-noiseZoom": "ხმაურის მასშტაბირება",
+      "lbl-noiseOffset": "ხმაურის კომპენსაცია",
+      "lbl-spriteScale": "სპრიტის მასშტაბი",
+      "lbl-fogColor": "ნისლის ფერი",
+      "lbl-fogRange": "ნისლის დიაპაზონი",
+      "error-url": "შეცდომის ჩატვირთვა URL– დან"
+    },
+    "ocean": {
+      "name": "ოკეანე",
+      "description": "ოკეანის ზედაპირი ტალღებით და ქაფით",
+      "lbl-normalMap": "ნორმალური რუკა",
+      "lbl-distortionMap": "დამახინჯების რუკა",
+      "lbl-envMap": "გარემოს რუკა",
+      "lbl-color": "ფერი",
+      "lbl-shallowWaterColor": "არაღრმა წყლის ფერი",
+      "lbl-shallowToDeepDistance": "ღრმა მანძილის არაღრმა",
+      "lbl-opacityFadeDistance": "Opacity Fade მანძილი",
+      "lbl-opacityRange": "გაუმჭავობის დიაპაზონი",
+      "lbl-shininess": "სიწმინდე",
+      "lbl-reflectivity": "ამრეკლავი",
+      "lbl-foamColor": "ქაფის ფერი",
+      "lbl-foamSpeed": "ქაფის სიჩქარე",
+      "lbl-foamTiling": "ქაფის ტილინგი",
+      "lbl-bigWaveTiling": "დიდი ტალღის ტილინგი",
+      "lbl-bigWaveSpeed": "დიდი ტალღის სიჩქარე",
+      "lbl-bigWaveHeight": "დიდი ტალღის სიმაღლე",
+      "lbl-waveSpeed": "ტალღის სიჩქარე",
+      "lbl-waveScale": "ტალღის მასშტაბი",
+      "lbl-waveTiling": "ტალღის ტილინგი",
+      "lbl-waveDistortionSpeed": "ტალღის დამახინჯების სიჩქარე",
+      "lbl-waveDistortionTiling": "ტალღის დამახინჯების ტილინგი",
+      "error-url": "შეცდომის ჩატვირთვა URL– დან"
+    },
+    "water": {
+      "name": "წყალი",
+      "description": "მცირე წყლის ზედაპირი"
+    },
+    "interior": {
+      "name": "ინტერიერი",
+      "description": "ზედაპირი, რომელსაც აქვს კუბის ტექსტურა შიდა გარემოს ემულირება",
+      "lbl-cubeMap": "კუბის რუკის ტექსტურა",
+      "lbl-tiling": "დახრილობა",
+      "lbl-size": "ზედაპირის ზომა",
+      "error-url": "შეცდომის ჩატვირთვა URL– დან"
+    },
+    "pointLight": {
+      "description": "სინათლე, რომელიც ყველა მიმართულებით ასხივებს ერთი წერტილიდან.",
+      "lbl-color": "ფერი",
+      "lbl-intensity": "ინტენსივობა",
+      "lbl-range": "დიაპაზონი",
+      "lbl-decay": "დაშლა"
+    },
+    "scene": {
+      "name": "სცენა",
+      "description": "სცენის ძირეული ობიექტი.",
+      "lbl-bgcolor": "ფონის ფერი",
+      "lbl-fogType": "ნისლის ტიპი",
+      "lbl-fogColor": "ნისლის ფერი",
+      "lbl-forNearDistance": "ნისლი ახლო მანძილი",
+      "lbl-fogFarDistance": "ნისლი შორეული მანძილი",
+      "lbl-fogDensity": "ნისლის სიმკვრივე",
+      "lbl-audioSettings": "გამოიყენეთ პოზიციური აუდიო",
+      "lbl-avatarDistanceModel": "ავატარის დისტანციური მოდელი",
+      "lbl-avatarRolloffFactor": "ავატარის როლოფი ფაქტორი",
+      "lbl-avatarRefDistance": "ავატარის რეფის მანძილი",
+      "lbl-avatarMaxDistance": "ავატარის მაქსიმალური მანძილი",
+      "lbl-mediaVolume": "მედიის მოცულობა",
+      "lbl-mediaDistanceModel": "მედია მანძილის მოდელი",
+      "lbl-mediaRolloffFactor": "მედია Rolloff ფაქტორი",
+      "lbl-mediaRefDistance": "მედია Ref მანძილი",
+      "lbl-mediaMaxDistance": "მედია მაქს მანძილი",
+      "lbl-mediaConeInnerAngle": "მედია Cone შიდა კუთხე",
+      "lbl-mediaConeOuterAngle": "მედია კონუსის გარე კუთხე",
+      "lbl-mediaConeOuterGain": "მედია Cone გარე მოგება",
+      "info-avatarDistanceModel": "ალგორიტიმი გამოიყენება აუდიო რულეტის გამოსათვლელად.",
+      "info-avatarRolloffFactor": "ორმაგი მნიშვნელობა, რომელიც აღწერს, თუ რამდენად სწრაფად მცირდება მოცულობა, რადგან წყარო მსმენელისგან შორდება. 0-დან 1-მდე",
+      "info-avatarRolloffFactorInifinity": "ორმაგი მნიშვნელობა, რომელიც აღწერს, თუ რამდენად სწრაფად მცირდება მოცულობა, რადგან წყარო მსმენელისგან შორდება. 0 უსასრულობა",
+      "info-avatarRefDistance": "ორმაგი მნიშვნელობა, რომელიც წარმოადგენს საცნობარო მანძილს მოცულობის შემცირებისთვის, რადგან აუდიო წყარო მსმენელისგან უფრო შორს მოძრაობს.",
+      "info-avatarMaxDistance": "ორმაგი მნიშვნელობა, რომელიც წარმოადგენს მაქსიმალურ მანძილს აუდიო წყაროსა და მსმენელს შორის, რის შემდეგაც მოცულობა აღარ მცირდება.",
+      "info-mediaDistanceModel": "ალგორიტიმი გამოიყენება აუდიო რულეტის გამოსათვლელად.",
+      "info-mediaRolloffFactor": "ორმაგი მნიშვნელობა, რომელიც აღწერს, თუ რამდენად სწრაფად მცირდება მოცულობა, რადგან წყარო მსმენელისგან შორდება. 0-დან 1-მდე",
+      "info-mediaRolloffFactorInfinity": "ორმაგი მნიშვნელობა, რომელიც აღწერს, თუ რამდენად სწრაფად მცირდება მოცულობა, რადგან წყარო მსმენელისგან შორდება. 0 უსასრულობა",
+      "info-mediaRefDistance": "ორმაგი მნიშვნელობა, რომელიც წარმოადგენს საცნობარო მანძილს მოცულობის შემცირებისთვის, რადგან აუდიო წყარო მსმენელისგან უფრო შორს მოძრაობს.",
+      "info-mediaMaxDistance": "ორმაგი მნიშვნელობა, რომელიც წარმოადგენს მაქსიმალურ მანძილს აუდიო წყაროსა და მსმენელს შორის, რის შემდეგაც მოცულობა აღარ მცირდება.",
+      "info-mediaConeInnerAngle": "ორმაგი მნიშვნელობა, რომელიც აღწერს კუთხეს, ხარისხებში, კონუსის შიგნით, რომლის შიგნით არ იქნება მოცულობის შემცირება.",
+      "info-mediaConeOuterAngle": "ორმაგი მნიშვნელობა, რომელიც აღწერს კუთხეს, გრადუსით, კონუსის გარეთ, რომლის მოცულობა შემცირდება მუდმივი ღირებულებით, რომელიც განისაზღვრება კონუსუტერგენაინის ატრიბუტით.",
+      "info-mediaConeOuterGain": "ორმაგი მნიშვნელობა, რომელიც აღწერს მოცულობის შემცირების რაოდენობას კონუსის გარეთ, რომელიც განსაზღვრულია coneOuterAngle ატრიბუტით. მისი ნაგულისხმევი ღირებულებაა 0, რაც იმას ნიშნავს, რომ ხმის მოსმენა არ შეიძლება.",
+      "lbl-simpleMaterials": "გამოიყენეთ მარტივი მასალები",
+      "lbl-lods": "LODs",
+      "info-lods": "ადგენს მანძილებს, თუ რა დონეზე იცვლება დეტალები.",
+      "info-simpleMaterials": "ყველა ძვირადღირებულ მასალას უფრო მარტივად გადააქვთ, რომ დატვირთვა აიღოს სცენის გაწევისთვის.",
+      "lbl-rendererSettings": "Override Renderer პარამეტრები",
+      "lbl-csm": "კასკადური ჩრდილის რუკები",
+      "info-csm": "საშუალებას იძლევა კასკადური ჩრდილის რუქები.",
+      "lbl-toneMapping": "ტონი რუკები",
+      "info-toneMapping": "საშუალებას აძლევს ტონის რუქას სცენის რენდერი. არ აქვს ეფექტი, როდესაც პოსტის დამუშავება ჩართულია.",
+      "lbl-toneMappingExposure": "ტონის რუკების ექსპოზიცია",
+      "info-toneMappingExposure": "განსაზღვრავს ტონის რუკების ექსპოზიციას სცენის რენდერი. არ აქვს ეფექტი, როდესაც პოსტის დამუშავება ჩართულია.",
+      "lbl-shadowMapType": "ჩრდილის რუკის ტიპი",
+      "info-shadowMapType": "ჩრდილის რუკის ტიპი",
+      "error-url": "შეცდომის ჩატვირთვა URL– დან"
+    },
+    "sceneCamera": {
+      "name": "სცენის გადახედვის კამერა",
+      "description": "კამერა იყენებდა მინიატურას თქვენი სცენისთვის და გადახედვის კამერის საწყისი პოზიციისთვის.",
+      "lbl-setFromViewPort": "მითითებული Viewport- დან"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "დღის დრო",
+      "lbl-color": "ფერი",
+      "lbl-latitude": "განედი",
+      "lbl-luminance": "Luminance",
+      "lbl-scattering": "გაფანტვის თანხა",
+      "lbl-scatteringDistance": "გაფანტული მანძილი",
+      "lbl-horizonStart": "ჰორიზონტის დაწყება",
+      "lbl-horizonEnd": "ჰორიზონტის დასასრული",
+      "lbl-texture": "ტექსტურა",
+      "lbl-skyType": "Sky ტიპი",
+      "error-url": "შეცდომის ჩატვირთვა URL– დან"
+    },
+    "spawnPoint": {
+      "name": "Spawn Point",
+      "description": "წერტილი, სადაც ხალხი გამოჩნდება თქვენს სცენაზე შესვლისას.\nViewport- ის ხატი წარმოადგენს ავატარის რეალურ ზომას."
+    },
+    "spotLight": {
+      "description": "შუქი, რომელიც ასხივებს მიმართულებით, ანათებს ობიექტებს კონუსში.",
+      "lbl-color": "ფერი",
+      "lbl-intensity": "ინტენსივობა",
+      "lbl-penumbra": "პენუმბრა",
+      "lbl-angle": "კუთხე",
+      "lbl-range": "დიაპაზონი",
+      "lbl-decay": "დაშლა"
+    },
+    "transform": {
+      "title": "ტრანსფორმაციის",
+      "lbl-postition": "პოზიცია",
+      "lbl-rotation": "როტაცია",
+      "lbl-scale": "მასშტაბი"
+    },
+    "triggereVolume": {
+      "description": "აყენებს ქონებას სამიზნე ობიექტზე შესვლისა და დატოვების შესახებ.",
+      "lbl-target": "ობიექტი",
+      "lbl-onenter": "შესვლისას",
+      "lbl-onexit": "გასასვლელზე",
+      "lbl-showHelper": "დამხმარე Mesh- ის ჩვენება",
+      "ph-errorNode": "შეცდომა აკლია კვანძს.",
+      "ph-selectNode": "აირჩიეთ კვანძი..."
+    },
+    "video": {
+      "name": "ვიდეო",
+      "description": "დინამიურად იტვირთება ვიდეო.",
+      "lbl-video": "ვიდეო",
+      "lbl-projection": "პროექცია",
+      "lbl-islivestream": "პირდაპირი სტრიმინგი",
+      "lbl-interactable": "ინტერაქტიული",
+      "lbl-id": "ელემენტი Id",
+      "lbl-play": "თამაში",
+      "lbl-pause": "პაუზა",
+      "error-url": "შეცდომის ჩატვირთვა URL– დან"
+    },
+    "volumetric": {
+      "name": "მოცულობითი",
+      "description": "დინამიურად იტვირთება მოცულობითი ვიდეო.",
+      "uvolPaths": "UVOL ბილიკები",
+      "playmode": "თამაშის რეჟიმი",
+      "playtitle": "თამაში",
+      "pausetitle": "პაუზა"
+    },
+    "spline": {
+      "description": "დინამიურად შექმენით და მორგება მოსახვევებში.",
+      "lbl-addNode": "დაამატეთ კვანძი მრუდში."
+    },
+    "systemnode": {
+      "description": "მიამაგრეთ სკრიპტი.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "ინექციური წერტილი",
+      "lbl-enableClient": "კლიენტი",
+      "lbl-enableServer": "სერვერი",
+      "lbl-args": "არგსი",
+      "error-url": "შეცდომა დატვირთვის სკრიპტი URL– დან"
+    },
+    "portal": {
+      "lbl-portal": "დაკავშირებული პორტალი",
+      "lbl-redirect": "გვერდის გადამისამართების გამოყენება",
+      "description": "პორტატი ტელეპორტის მოთამაშეებისთვის მითითებული ადგილმდებარეობისთვის",
+      "lbl-locationName": "მდებარეობა",
+      "lbl-modelUrl": "მოდელი URL",
+      "lbl-displayText": "ტექსტის ჩვენება",
+      "lbl-cubemapBake": "კუბემაპის გამოცხობა",
+      "lbl-spawnPosition": "Spawn პოზიცია",
+      "lbl-spawnRotation": "Spawn როტაცია",
+      "lbl-triggerPosition": "ტრიგერის პოზიცია",
+      "lbl-triggerRotation": "გამოიწვიოს როტაცია",
+      "lbl-triggerScale": "ტრიგერის მასშტაბი"
+    },
+    "postprocessing": {
+      "name": "საფოსტო დამუშავება",
+      "description": "თქვენ სცენაზე პოსტის დამუშავების ეფექტების გამოყენების მიზნით."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "ახალი პროექტი",
+      "backLink": "პროექტებში დაბრუნება",
+      "featured": "გამორჩეული",
+      "all": "ყველა",
+      "newProject": "ახალი ცარიელი პროექტი",
+      "ph-search": "საძიებო სცენები..."
+    },
+    "grid": {
+      "loading": "დატვირთვა..."
+    },
+    "page": {
+      "header": "კეთილი იყოს თქვენი მობრძანებ",
+      "headerMsg": "თუ აქ ახალი ხართ, გირჩევთ გაიაროთ გაკვეთილი. წინააღმდეგ შემთხვევაში, გადახტომა მარჯვნივ და შექმენით პროექტი ნულიდან ან ჩვენი ერთ-ერთი შაბლონიდან.",
+      "lbl-startTutorial": "დაიწყეთ გაკვეთილები",
+      "projects": "პროექტები",
+      "lbl-newProject": "ახალი პროექტი"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "დატვირთვა...",
+      "placeObject": "ობიექტის განთავსება",
+      "placeObjectAtOrigin": "მოათავსეთ ობიექტი წარმოშობის დროს",
+      "copyURL": "დააკოპირეთ URL",
+      "openInNewTab": "გახსენით URL ახალ ჩანართში",
+      "deleteAsset": "აქტივების წაშლა"
+    },
+    "filebrowser": {
+      "addNewFolder": "ახალი საქაღალდის დამატება",
+      "cutAsset": "დაჭრილი",
+      "copyAsset": "კოპირება",
+      "pasteAsset": "პასტა",
+      "renameAsset": "გადარქმევა",
+      "viewAssetProperties": "თვისებების ნახვა"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "გადარქმევა",
+    "lbl-duplicate": "დუბლიკატი",
+    "lbl-group": "ჯგუფი",
+    "lbl-delete": "წაშლა",
+    "lbl-expandAll": "გააფართოვეთ ყველა",
+    "lbl-collapseAll": "ჩამოიშლება ყველა",
+    "isseus": "საკითხები:"
+  },
+  "dnd": {
+    "nodes": "{{count}} კვანძები შერჩეული",
+    "models": "შერჩეული {{count}} მოდელები",
+    "images": "შერჩეული {{count}} სურათები",
+    "videos": "შერჩეული {{count}} ვიდეოები",
+    "audio": "{{count}} აუდიო წყაროები შეირჩა"
+  },
+  "dialog": {
+    "title": "რედაქტორი",
+    "lbl-confirm": "კარგი",
+    "lbl-cancel": "გაუქმება",
+    "exportProject": {
+      "title": "ექსპორტის პროექტი",
+      "lbl-confirm": "ექსპორტის პროექტი",
+      "lbl-combineMesh": "შეუთავსეთ Meshes",
+      "lbl-removeUnused": "ამოიღეთ გამოუყენებელი ობიექტები"
+    },
+    "performance": {
+      "title": "შესრულების შემოწმება",
+      "lbl-confirm": "გამოქვეყნების სცენა",
+      "learnMore": "გაიგე მეტი",
+      "lbl-polycount": "პოლიგონის რაოდენობა",
+      "lbl-material": "მასალები",
+      "lbl-texture": "ტექსტურები",
+      "lbl-lights": "განათება",
+      "lbl-fileSize": "ფაილის ზომა",
+      "info-polycount": "ჩვენ გირჩევთ თქვენს სცენას გამოიყენოთ არაუმეტეს 50,000 სამკუთხედი მობილური მოწყობილობებისთვის.",
+      "info-material": "ჩვენ გირჩევთ გამოიყენოთ არაუმეტეს 25 უნიკალური მასალა თქვენს სცენაზე, რათა შეამციროთ ზარები მობილურ მოწყობილობებზე.",
+      "info-texture": "ჩვენ გირჩევთ თქვენს ტექსტურებს გამოიყენოთ არაუმეტეს 256 მბ ვიდეო RAM მობილური მოწყობილობებისთვის. ჩვენ ასევე გირჩევთ, რომ არ გამოიყენოთ ტექსტურები 2048 x 2048-ზე მეტი.",
+      "info-lights": "მიუხედავად იმისა, რომ დინამიური განათება არ არის ჩართული მობილურ მოწყობილობებზე, ჩვენ გირჩევთ გამოიყენოთ არაუმეტეს 3 განათება თქვენს სცენაზე (ატმოსფერული და ნახევარსფეროს შუქების გამოკლებით) თქვენი სცენისთვის, რომ იმოძრაოთ დაბალი დონის კომპიუტერებზე.",
+      "info-fileSize": "ჩვენ გირჩევთ ფაილის საბოლოო ზომას არაუმეტეს 16 მბ დაბალი გამტარუნარიანობის კავშირებისთვის. ფაილის ზომის შემცირება შეამცირებს დროს, რაც საჭიროა თქვენი სცენის ჩამოსატვირთად.",
+      "txt-polycount": "{{count}} სამკუთხედები",
+      "txt-material": "{{count}} მასალები",
+      "txt-ram": "~{{count}} ვიდეო RAM",
+      "txt-texture": "{{count}} დიდი ტექსტურები",
+      "txt-lights": "{{count}} განათება"
+    },
+    "progress": {
+      "title": "დატვირთვა...",
+      "msg": "დატვირთვა...",
+      "lbl-cancel": "გაუქმება"
+    },
+    "publish": {
+      "title": "გამოქვეყნების სცენა",
+      "lbl-confirm": "შენახვა და გამოქვეყნება",
+      "lbl-name": "სცენის სახელი",
+      "info-name": "სახელი უნდა იყოს 4-დან 64 სიმბოლომდე და არ შეიძლება შეიცავდეს ხაზგასმას"
+    },
+    "published": {
+      "title": "სცენა გამოქვეყნდა",
+      "header": "თქვენი სცენა გამოქვეყნდა.",
+      "lbl-view": "თქვენი სცენის ნახვა"
+    },
+    "saveNewProject": {
+      "title": "მხარდაჭერა",
+      "lbl-name": "პროექტის სახელი",
+      "info-name": "სახელი უნდა იყოს 4-დან 64 სიმბოლომდე და არ შეიძლება შეიცავდეს ხაზგასმას",
+      "lbl-confirm": "პროექტის შენახვა"
+    },
+    "support": {
+      "title": "მხარდაჭერა",
+      "header": "გჭირდებათ პრობლემის შესახებ მოხსენება?",
+      "msg": "თქვენ შეგიძლიათ შეიტანოთ <1>GitHub გამოცემა</1> ან ელექტრონული ფოსტით{{mail}}<3> </3>",
+      "discord": "თქვენ ასევე შეგიძლიათ იპოვოთ <1>Discord-</1> ზე"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing სურათები",
+      "search": "ძებნა Bing"
+    },
+    "bingVideo": {
+      "name": "Bing ვიდეოები",
+      "search": "ძებნა Bing"
+    },
+    "element": {
+      "name": "ელემენტები"
+    },
+    "myAssets": {
+      "name": "ჩემი აქტივები"
+    },
+    "googlePoly": {
+      "name": "Google პოლი",
+      "search": "Google-ის ძებნა"
+    },
+    "tenor": {
+      "name": "Tenor GIFs",
+      "search": "ძიება ტენორის მიერ",
+      "ph-search": "მოძებნეთ GIF- ები..."
+    },
+    "sketchfab": {
+      "name": "ესკიზი",
+      "search": "ძიება Sketchfab- ის მიერ"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "ატვირთეთ აქტივი"
+    },
+    "imageSourcePanel": {
+      "ph-search": "სურათების ძებნა..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "ვიდეოების ძებნა..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "საძიებო აქტივები..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "ძიების მოდელები..."
+    },
+    "useUpload": {
+      "multipleFileError": "შეყვანა არ იღებს მრავალ ფაილს.",
+      "mineTypeError": "\"{{name}}\"არ შეესაბამება შემდეგ მიმის ტიპებს ან გაფართოებებს: {{types}}",
+      "progressTitle": "ფაილების ატვირთვა",
+      "progressMsg": "ფაილების ატვირთვა {{total}}{{uploaded}} : {{percentage}}%",
+      "uploadError": "ატვირთვის შეცდომა",
+      "uploadErrorMsg": "ფაილის ატვირთვის შეცდომა: {{message}}",
+      "uploadErrorDefaultMsg": "უცნობი შეცდომა იყო"
+    }
+  },
+  "openLink": {
+    "description": "გთხოვთ, დააჭირეთ ღილაკს ღია, რომ ნავიგაცია ბმულზე.",
+    "lbl-open": "გახსნა"
+  },
+  "interactableModel": {
+    "lbl-buy": "ყიდვა",
+    "lbl-learnMore": "გაიგე მეტი"
+  },
+  "corsProxyButton": {
+    "tooltip": "გამოიყენეთ Cors Proxy სერვერი"
+  }
+}

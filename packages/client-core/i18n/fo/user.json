@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Confirmation Email",
+      "resendEmail": "Kanst/kunnu tú/tit kanna tín teldupost til at boða tína/tykkara kontu. Um tú ikki fekst ein teldupost, mást tú tøppa {{here}} til at resenda teldupostin.",
+      "haveAnAccount": "Hevur/Hava tú/tit eina kontu?"
+    },
+    "forgotPassword": {
+      "header": "Forgot Password",
+      "enterEmail": "Kom/komið inn í tín/tykkara kassa, og vit fara at senda tær/tykkum eitt loyniorð.",
+      "lbl-email": "Email Address",
+      "lbl-submit": "Send Link",
+      "emailSent": "Reset Password Email varð sent. Kanst tú kanna tín teldupost."
+    },
+    "login": {
+      "email": "Email | SMS",
+      "username": "UserName + Password",
+      "social": "Sosyal"
+    },
+    "magiklink": {
+      "header": "Login Link",
+      "descriptionEmail": "Kom vinarliga inn í tín teldupost, og vit fara at senda tær ein login link ígjøgnum Email.",
+      "descriptionSMS": "Kom vinarliga inn í títt telefonnummar, og vit senda tær eitt login link via SMS.",
+      "descriptionEmailSMS": "Kanst/kunnu tú/tit koma inn í tín/tykkara teldupost ella telefonnummar (10 digit, US bara) og vit fara at senda tær/tykkum ein login link via Email ella SMS.",
+      "descriptionSMSUS": "Kom/komið inn í títt/tykkara telefonnummar (10 digit, US bara) og vit fara at senda tær/tykkum ein login link via SMS.",
+      "lbl-email": "Email address",
+      "lbl-emailPhone": "Email ella Phone nummar",
+      "lbl-phone": "Phone number",
+      "agree": "Eg eri samdur/samd við tí ",
+      "terms": "Terms &Conditions",
+      "lbl-submit": "Send Login Link",
+      "email-sent-msg": "Login Magic Link varð sendur. Kanst tú kanna tín teldupost.",
+      "success-msg": "Login Magic Link varð sendur. Kanst/kunnu tú/tit kanna teldupostin ella SMS.",
+      "sms-sent-msg": "Login Magic Link varð sendur. Kanst/kunnu tú/tit kanna tínar/tykkara sms."
+    },
+    "passwordLogin": {
+      "header": "Rita inn",
+      "lbl-email": "Email Address",
+      "lbl-password": "Password",
+      "lbl-rememberMe": "Minst/minnist til mín",
+      "lbl-signin": "Rita inn",
+      "forgotPassword": "Gloymt loyniorð?",
+      "signup": "Hevur/Hava tú/tit onga kontu? Melda til",
+      "lbl-login": "Rita inn",
+      "ph-password": "Password",
+      "ph-email": "Email"
+    },
+    "social": {
+      "gitHub": "Login við GitHub",
+      "google": "Login við Google",
+      "facebook": "Login við Facebook",
+      "linkedin": "Login við Linkedin",
+      "twitter": "Login við Twitter"
+    },
+    "register": {
+      "header": "Melda til",
+      "login": "Rita inn",
+      "lbl-signup": "Melda til",
+      "lbl-password": "Password",
+      "lbl-email": "Email Address",
+      "passwordNotMatch": "Passwords Don't Match",
+      "ph-password": "Password",
+      "ph-confirmPassword": "Password Confirm",
+      "ph-email": "Email"
+    },
+    "resetPassword": {
+      "header": "Reset Password",
+      "description": "Kanst tú koma inn í títt loyniorð til tín teldupostadressu",
+      "lbl-submit": "Reset Password",
+      "lbl-password": "Password",
+      "lbl-confirmPassword": "Password Confirm",
+      "passwordNotMatch": "Passwords Don't Match",
+      "nowLoginYourAccount": "Tú kanst rita inn í tína kontu",
+      "yourPasswordResetSuccess": "Loyniorðið hjá tær/tykkum var væl við!"
+    },
+    "verifyEmail": {
+      "header": "Verify Email",
+      "processing": "Kanst/kunnu tú/tit bíða eina løtu, meðan tú/tit fer/fara til gongu."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Locations",
+      "loading": "Loading",
+      "col-name": "Non",
+      "col-scene": "Sèn",
+      "col-maxuser": "Max Users",
+      "lbl-search": "Search for locations",
+      "lbl-new": "Nýggjur"
+    },
+    "newLocation": {
+      "title": "Kote",
+      "success": "Spið væl.",
+      "failure": "Okkurt gekk galið.",
+      "removeSuccess": "Location fór úr successfully.",
+      "nameInUse": "Name er í nýtslu.",
+      "nameRequire": "Name er kravt.",
+      "validNumber": "Bert tøl(0-9) eru loyvd.",
+      "lbl-name": "Non",
+      "lbl-maxuser": "Max Users",
+      "lbl-scene": "Sèn",
+      "lbl-type": "Tip",
+      "lbl-ve": "Video Enabled",
+      "lbl-gme": "Global Media Enabled",
+      "lbl-update": "Update",
+      "lbl-create": "Kreye",
+      "tooltipCanNotBeDeleted": "Lobby kann ikki verða strikaður.",
+      "confirmation": "Ert tú vísur í tí?",
+      "lbl-yes": "Wi",
+      "lbl-no": "Nei"
+    },
+    "share": {
+      "lbl-share": "Pataje",
+      "ph-phoneEmail": "Bjóða við telduposti ella telefonnummar.",
+      "lbl-phoneEmail": "Send/sendið teldupost til teldupost ella telefonnummar",
+      "lbl-copy": "Kopi",
+      "lbl-send-invite": "Send/sendið boð",
+      "title": "Gev/Gevið tínum/tykkara team URL við tínum/tykkara liði.",
+      "linkCopied": "Link copieði fyri at høggaboard."
+    },
+    "setting": {
+      "audio": "Audio",
+      "lbl-volume": "Volim",
+      "lbl-microphone": "Microphone",
+      "graphics": "Graphics",
+      "controls": "Controls",
+      "lbl-control-type": "Controller Type",
+      "lbl-control-scheme": "Control Scheme",
+      "lbl-resolution": "Resolution",
+      "lbl-shadow": "Shadows",
+      "lbl-pp": "Post Processing",
+      "lbl-pbr": "Full PBR",
+      "lbl-automatic": "Otomatik",
+      "xrusersetting": "XR User Settings",
+      "rotation": "Rotation",
+      "rotation-smooth-speed": "Rotation Smooth Speed",
+      "rotation-angle": "Rotation Angle",
+      "moving": "Moving",
+      "user-avatar": "Avatar Setting",
+      "invert-rotation": "Invert Rotation And Move Sticks",
+      "show-avatar": "Vís Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Profile",
+      "lbl-settings": "Settings",
+      "lbl-username": "Username",
+      "update-msg": "Username updated",
+      "inviteCode": "Invite Code",
+      "youAreAn": "Tú ert ein",
+      "youAreA": "Tú ert ein",
+      "showUserId": "Vís user ID",
+      "hideUserId": "Goym/Goymið id",
+      "showApiKey": "Vís API lykil",
+      "hideApiKey": "Hide API key",
+      "apiKey": "API lykil",
+      "logout": "Log out",
+      "connectPhone": "Connect títt/tykkara telefonnummar.",
+      "connectEmail": "Connect tín teldupost",
+      "connectPhoneEmail": "Connect títt teldupost ella telefonnummar.",
+      "or": "Oubyen",
+      "lbl-wallet": "Login við Wallet",
+      "ph-email": "Email",
+      "ph-phone": "Phone Number",
+      "ph-phoneEmail": "Phone Number / Email",
+      "phoneEmailError": "Invalid telefon # ella email address",
+      "phoneError": "Invalid telefon #",
+      "emailError": "Invalid email address",
+      "loginWithReadyPlayerMe": "Login við Ready Player Me",
+      "connectSocial": "Connect við sosialar accounts",
+      "createOne": "Hevur tú onga kontu, verður ein nýggjur/nýggj, verður ein nýggjur/nýggj til tín",
+      "connections": {
+        "title": "Connections",
+        "ipError": "Kann ikki taka active Identity Provider",
+        "disconnect": "disconnect",
+        "connect": "Connect"
+      },
+      "profileDropdown": {
+        "avatar": "User Avatar Icon",
+        "profile": "Profile",
+        "adminConsole": "Admin Console",
+        "logout": "Logout"
+      },
+      "userIcon": {
+        "lbl-name": "Títt navn",
+        "lbl-update": "Update",
+        "userId": "User id",
+        "ph-uploadImg": "Upload Product Image",
+        "lbl-selectAcvatar": "Select Avatar",
+        "lbl-submit": "Lata inn"
+      },
+      "userSettings": {
+        "volume": "Volim",
+        "microphone": "Microphone",
+        "resolution": "Resolution",
+        "high": "Gwo",
+        "low": "Low",
+        "spatialAudio": "Use Spatial Audio",
+        "enterMuted": "Enter Room Muted"
+      }
+    },
+    "oauth": {
+      "authenticating": "Einuthenticating.",
+      "authFailed": "{{service}} einuthentication miseydnaðist."
+    },
+    "magikLink": {
+      "wait": "Kanst/kunnu tú/tit bíða eina løtu, meðan tú/tit fer/fara til gongu."
+    },
+    "dashboard": {
+      "header": "Dashboard",
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "feeds": "Feeds",
+      "instance": "Instance",
+      "locations": "Locations",
+      "invites": "Bjóða/Bjóðið",
+      "sessions": "Sessions",
+      "groups": "Gwoup",
+      "parties": "Pati",
+      "chats": "Chats",
+      "content": "Content Packs",
+      "projects": "Pwojè",
+      "scenes": "Scenes",
+      "avatars": "Avatars",
+      "benchmarking": "Benchmarking",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Einuthenticating.",
+    "authFailed": "{{service}} einuthentication miseydnaðist."
+  },
+  "magikLink": {
+    "wait": "Kanst/kunnu tú/tit bíða eina løtu, meðan tú/tit fer/fara til gongu."
+  },
+  "dashboard": {
+    "header": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "feeds": "Feeds",
+    "instance": "Instance",
+    "locations": "Locations",
+    "routes": "Routes",
+    "projects": "Pwojè",
+    "invites": "Bjóða/Bjóðið",
+    "sessions": "Sessions",
+    "groups": "Gwoup",
+    "parties": "Pati",
+    "chats": "Chats",
+    "content": "Content Packs",
+    "scenes": "Scenes",
+    "avatars": "Avatars",
+    "benchmarking": "Benchmarking",
+    "bots": "Bots",
+    "setting": "Settings"
+  },
+  "avatar": {
+    "title": "Upload Avatar",
+    "lbl-browse": "Browse",
+    "lbl-thumbnail": "Thumbnail",
+    "lbl-upload": "Upload",
+    "selectAvatar": "Select Avatar...",
+    "selectThumbnail": "Select Thumbnail.",
+    "rotate": "Rotate",
+    "pan": "Pan",
+    "noBone": "Obejct inniheldur ikki nøkur bein ella húð.",
+    "outOfBound": "Object er ó boundin.",
+    "emptyObj": "Object er tómt.",
+    "maxTriangleError": "Object inniheldur størri enn {{allowedTriangles}} andlit.",
+    "selectValidFile": "Select valid 3d avatar file.",
+    "selectValidThumbnail": "Selected valid Thumbnail file.",
+    "fileOversized": "Avatar file stødd má vera millum {{minSize}} MB og {{maxSize}} MB",
+    "confirmation": "Ert tú vísur í tí?",
+    "canNotBeRemoved": "Active Avatar kunnu ikki verða tikin burtur.",
+    "remove": "Remove avatar",
+    "uploadFiles": "Upload files",
+    "useUrlInstead": "Use url ístaðin",
+    "avatar": "Avatar",
+    "cancel": "Avlýsa",
+    "createAvatar": "Create Avatar",
+    "delete": "Delete",
+    "view": "View",
+    "uploadAvatarInfo": "Update avatar Information",
+    "name": "Non",
+    "enterName": "Enter navn",
+    "avatarInformation": "Avatar Information",
+    "description": "Description",
+    "key": "Kle",
+    "none": "Eingin",
+    "submit": "Lata inn",
+    "edit": "Edit",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "Avatar Uploaded Successfully.",
+    "remove-success-msg": "Avatar Uploaded Successfully.",
+    "warning-msg": "Avatar resource er tómt, hevur tú synced avatars til tín static file storage?"
+  },
+  "personMenu": {
+    "inviteToParty": "Bjóða/Bjóðið í veitslu.",
+    "addAsFriend": "Lat/Latið sum Friend",
+    "mute": "Mute",
+    "block": "Blòk"
+  },
+  "person": {
+    "you": "Ou",
+    "yourScreen": "Tín/tykkara skíggja",
+    "muteForEveryone": "Mute for øll",
+    "unmuteForEveryone": "Óttast fyri øll",
+    "muteMe": "Mute me",
+    "unmuteMe": "Unmute me",
+    "muteThisPerson": "Mute henda persónin",
+    "unmuteThisPerson": "Óttast hendan persónin",
+    "openPictureInPicture": "Open Picture in Picture"
+  }
+}

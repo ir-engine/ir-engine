@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Cargando página..."
+  },
+  "tooltip": {
+    "pressKey": "Presione {{tip}} pa {{message}}"
+  },
+  "toast": {
+    "joined": "unido",
+    "left": "Izquierda"
+  },
+  "navUserWidget": {
+    "login": "Gi du̲i sesión"
+  },
+  "loader": {
+    "connecting": "Conectando ko ar ximha̲i...",
+    "entering": "Entrando jar ar ximha̲i...",
+    "loading": "Carga...",
+    "objectRemaining": "{{count}} nt'ot'e restante",
+    "objectRemainingPlural": "{{count}} objetos restantes",
+    "loadingObjects": "Carga objetos",
+    "loadingComplete": "Carga nxo̲ge",
+    "joiningWorld": "Unir bí ma jar ximha̲i"
+  },
+  "alert": {
+    "eventWasSuccess": "Ar evento bí 'nar éxito",
+    "errorWasEncountered": "Ar xi encontrado 'nar error",
+    "eventInProgress": "Evento jar nsa̲di",
+    "seconds": "sobras",
+    "cancelCountdown": "Ar njot'i nuna ar modal cancelará ar nu atrás"
+  },
+  "debug": {
+    "refresh": "Actualizar",
+    "stats": "Estadísticas",
+    "debugOptions": "Opciones depuración",
+    "physicsDebug": "Física",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Ayudante nodo",
+    "gridDebug": "Rejilla",
+    "simpleMaterials": "Materiales simples",
+    "tick": "Garrapata",
+    "worldStore": "De̲nda jar nxoge ximhai",
+    "engineStore": "Almacén motores",
+    "namedEntities": "Entidades ko ar thuhuu",
+    "networkObject": "Nt'ot'e Network",
+    "networkClients": "Clientes red"
+  },
+  "recording": {
+    "videoRecorder": "Grabadora vídeo",
+    "waitingForPermissions": "Ma espera permisos",
+    "selectVideoSource": "Seleccionar fuente vídeo",
+    "screen": "Pantalla",
+    "camera": "Cámara",
+    "microphone": "Micrófono",
+    "startRecording": "Da du'mi ya grabación",
+    "pauseRecording": "Pausar ar grabación",
+    "resumeRecording": "Reanudar ar grabación",
+    "stopRecording": "Detener grabación"
+  },
+  "typing": "Mecanografía...",
+  "gameServer": {
+    "browserError": "Error ar navegador",
+    "browserErrorMessage": "Ár navegador hingi admite ar almacenamiento modo navegación kadu̲ 'nar jä'i. Pruebe ko ma'na navegador wa xkar po̲ni modo navegación kadu̲ 'nar jä'i.",
+    "noAvailableServers": "Otho ar servidores da 'mui",
+    "noAvailableServersMessage": "Otho ar ningún servidor disponible pa ndi tsa conectar ar. Gi volver ar conectar jar",
+    "worldDisconnected": "Ximha̲i desconectado",
+    "worldDisconnectedMessage": "Xka 'be̲di ir conexión ko ar ximha̲i. Intentaremos volver conectar ga Ante nda agote ar pa da ku̲hu̲, ar nä'ä contrario ar bí reenviará ja 'nar hnini diferente.",
+    "webGLNotEnabled": "WebGL hindi habilitado",
+    "webGLNotEnabledMessage": "Ár navegador Hingar compatible ko ar WebGL, wa xi deshabilitado. Habilite WebGL wa mäs actualizar ar ngäts'i versión ár navegador.",
+    "youKickedFromWorld": "Gi xi echado jar ximha̲i",
+    "youKickedFromWorldMessage": "Fuiste t'eni nuna ar ximha̲i Nu'bu̲ Xtí mä",
+    "invalidLocation": "Ja yá 'mui hingi válida",
+    "cantFindLocation": "Hingi podemos tingigi mbo jar ja yá 'mui",
+    "misspelledOrNotExist": "Pe 'bu̲i mal escrito, wa pe hingi existir.",
+    "loading": "carga",
+    "low-frame-error": "Detectado 'nar rendimiento deficiente, mäs habilitar aceleración ga hardware jar ár navegador ne vuelva encasillar ár navegador",
+    "low-frame-title": "Habilite ar aceleración hardware pa mäs xi hño 'nar mfeni!"
+  },
+  "error": {
+    "loading-error": "Error 'na jar cargar ya datos usuario",
+    "validation-error": "Introduzca {{type}} válidos",
+    "login-error": "Error 'na ar da du'mi ya sesión"
+  }
+}

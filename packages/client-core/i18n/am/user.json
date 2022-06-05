@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "ማረጋገጫ ኢሜይል",
+      "resendEmail": "የእርስዎን አካውንት ለማረጋገጥ እባክዎ ኢሜይልዎን ይመልከቱ. ኢሜል ካላገኛችሁ፣ የማረጋገጫውን ኢሜይል መልሶ ለመላክ እባክዎ {{here}} ይጫኑ።",
+      "haveAnAccount": "ዘገባ አለህ?"
+    },
+    "forgotPassword": {
+      "header": "የተረሳ የይለፍ ቃል",
+      "enterEmail": "እባክዎ የተመዘገቡ የኢሜይል አድራሻዎን ያስገቡ እና የይለፍ ቃል መልሶ ማገናኛ ሊንክ እንልክልዎታለን።",
+      "lbl-email": "ኢሜይል አድራሻ",
+      "lbl-submit": "አገናኝ ላክ",
+      "emailSent": "የይለፍ ቃል Email (Reset Password Email) ተላከ። እባክዎ ኢሜይልዎን ይመልከቱ።"
+    },
+    "login": {
+      "email": "የኢሜይል | ኤስ ኤም ኤስ",
+      "username": "የተጠቃሚ ስም + የይለፍ ቃል",
+      "social": "ማኅበራዊ ኑሮ"
+    },
+    "magiklink": {
+      "header": "የመግቢያ አገናኝ",
+      "descriptionEmail": "እባክዎ የኢሜይል አድራሻዎን ያስገቡ እና በኢሜል አማካኝነት የመግቢያ አገናኝ እንልካለን።",
+      "descriptionSMS": "እባክዎ ስልክ ቁጥርዎን ያስገቡ እና በ ኤስኤምኤስ በኩል የመግቢያ አገናኝ እንልካለን።",
+      "descriptionEmailSMS": "እባክዎን የኢሜይል አድራሻዎን ወይም ስልክ ቁጥርዎን ያስገቡ (10 ዲጂት, US only) እና በኢሜል ወይም በ ኤስ ኤም ኤስ አማካኝነት የመግቢያ አገናኝ እንልካለን።",
+      "descriptionSMSUS": "እባክዎ ስልክ ቁጥርዎን ያስገቡ (10 ዲጂት, US ብቻ) እና በ ኤስ ኤም ኤስ በኩል የመግቢያ አገናኝ እንልካለን.",
+      "lbl-email": "ኢሜይል አድራሻ",
+      "lbl-emailPhone": "ኢሜይል ወይም ስልክ ቁጥር",
+      "lbl-phone": "ስልክ ቁጥር",
+      "agree": "እኔም በዚህ እስማማለሁ ",
+      "terms": "ሁኔታዎች _ ሁኔታዎች",
+      "lbl-submit": "Login Link መላክ",
+      "email-sent-msg": "Login አስማታዊ ግንኙነት ተልኳል. እባክዎ ኢሜይልዎን ይመልከቱ።",
+      "success-msg": "Login አስማታዊ ግንኙነት ተልኳል. የእርስዎ ኢሜይል ወይም ኤስ ኤም ኤስ እባክዎን ይመልከቱ.",
+      "sms-sent-msg": "Login አስማታዊ ግንኙነት ተልኳል. የእርስዎን ኤስኤምኤስ እባክዎን ይመልከቱ."
+    },
+    "passwordLogin": {
+      "header": "በመለያ ግባ",
+      "lbl-email": "ኢሜይል አድራሻ",
+      "lbl-password": "የይለፍ ቃል",
+      "lbl-rememberMe": "አስታውሰኝ",
+      "lbl-signin": "በመለያ ግባ",
+      "forgotPassword": "የተረሳ የይለፍ ቃል?",
+      "signup": "አካውንት የለህም እንዴ? ተመዝገብ",
+      "lbl-login": "በመለያ ግባ",
+      "ph-password": "የይለፍ ቃል",
+      "ph-email": "ኢሜይል"
+    },
+    "social": {
+      "gitHub": "ከ GitHub ጋር መግቢያ",
+      "google": "ከ Google ጋር መግቢያ",
+      "facebook": "ከFacebook ጋር መግቢያ",
+      "linkedin": "ከ Linkedin ጋር መግቢያ",
+      "twitter": "ከ Twitter ጋር መግቢያ"
+    },
+    "register": {
+      "header": "ተመዝገብ",
+      "login": "በመለያ ግባ",
+      "lbl-signup": "ተመዝገብ",
+      "lbl-password": "የይለፍ ቃል",
+      "lbl-email": "ኢሜይል አድራሻ",
+      "passwordNotMatch": "የይለፍ ቃል አይጣጣምም",
+      "ph-password": "የይለፍ ቃል",
+      "ph-confirmPassword": "የይለፍ ቃል ማረጋገጫ",
+      "ph-email": "ኢሜይል"
+    },
+    "resetPassword": {
+      "header": "የይለፍ ቃል",
+      "description": "እባክዎ ለኢሜይል አድራሻዎ የይለፍ ቃልዎን ያስገቡ",
+      "lbl-submit": "የይለፍ ቃል",
+      "lbl-password": "የይለፍ ቃል",
+      "lbl-confirmPassword": "የይለፍ ቃል ማረጋገጫ",
+      "passwordNotMatch": "የይለፍ ቃል አይጣጣምም",
+      "nowLoginYourAccount": "አሁን ወደ አካውንትህ መግባት ትችላለህ",
+      "yourPasswordResetSuccess": "የእርስዎ የይለፍ ቃል በተሳካ ሁኔታ እንደገና ተለዋወጠ!"
+    },
+    "verifyEmail": {
+      "header": "የኢሜይል ማረጋገጫ",
+      "processing": "እባክዎ ንቅ ቅቅቅ ..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "ቦታዎች",
+      "loading": "መጫን",
+      "col-name": "ስም",
+      "col-scene": "ትዕይንት",
+      "col-maxuser": "የማክስ ተጠቃሚዎች",
+      "lbl-search": "ቦታዎችን ፈልግ",
+      "lbl-new": "አዲስ"
+    },
+    "newLocation": {
+      "title": "ቦታ",
+      "success": "በተሳካ ሁኔታ አዳነ ።",
+      "failure": "አንድ ችግር ተከሰተ ።",
+      "removeSuccess": "ቦታ በተሳካ ሁኔታ ተወግዷል.",
+      "nameInUse": "ስም ጥቅም ላይ እየዋለ ነው።",
+      "nameRequire": "ስም ያስፈልጋል።",
+      "validNumber": "የሚፈቀድላቸው ቁጥሮች (0-9) ብቻ ናቸው።",
+      "lbl-name": "ስም",
+      "lbl-maxuser": "የማክስ ተጠቃሚዎች",
+      "lbl-scene": "ትዕይንት",
+      "lbl-type": "አይነት",
+      "lbl-ve": "ቪድዮ አስቻለው",
+      "lbl-gme": "ዓለም አቀፍ መገናኛ ዘዴዎች",
+      "lbl-update": "አሻሽል",
+      "lbl-create": "ፍጠር",
+      "tooltipCanNotBeDeleted": "ሎቢ ሊጠፋ አይችልም",
+      "confirmation": "እርግጠኛ ነህ?",
+      "lbl-yes": "አዎ",
+      "lbl-no": "አይ"
+    },
+    "share": {
+      "lbl-share": "አካፍሉ",
+      "ph-phoneEmail": "በኢሜይል ወይም በስልክ ቁጥር ይጋብዝ",
+      "lbl-phoneEmail": "ወደ ኢሜይል ወይም ስልክ ቁጥር ይላኩ",
+      "lbl-copy": "ግልባጭ",
+      "lbl-send-invite": "ጋበዝ",
+      "title": "የእርስዎን ቦታ ዩአርኤል ከእርስዎ ቡድን ጋር ያጋሩ",
+      "linkCopied": "ወደ ክሊፕቦር የተገለበጠ ሊንክ።"
+    },
+    "setting": {
+      "audio": "ኦዲዮ",
+      "lbl-volume": "ጥራዝ",
+      "lbl-microphone": "ማይክሮፎን",
+      "graphics": "ግራፊክስ",
+      "controls": "መቆጣጠሪያዎች",
+      "lbl-control-type": "የመቆጣጠሪያ አይነት",
+      "lbl-control-scheme": "የመቆጣጠሪያ ዘዴ",
+      "lbl-resolution": "የአቋም መግለጫ",
+      "lbl-shadow": "ጥላ",
+      "lbl-pp": "የድህረ ገጽ አሰራር",
+      "lbl-pbr": "ሙሉ PBR",
+      "lbl-automatic": "አውቶማቲክ",
+      "xrusersetting": "XR የተጠቃሚ ምርጫዎች",
+      "rotation": "የሚሽከረከርበት መንገድ",
+      "rotation-smooth-speed": "ዙር ለስላሳ ፍጥነት",
+      "rotation-angle": "ዙር ማዕዘን",
+      "moving": "መንቀሳቀስ",
+      "user-avatar": "አቫታር ስቲንግ (Avatar Setting)",
+      "invert-rotation": "Invert መሽከርከር እና እንጨቶች መንቀሳቀስ",
+      "show-avatar": "አቫታር አሳይ"
+    },
+    "profile": {
+      "lbl-profile": "ፕሮፋይል",
+      "lbl-settings": "ምርጫዎች",
+      "lbl-username": "የተጠቃሚ ስም",
+      "update-msg": "የተጠቃሚ ስም የተሻሻለ",
+      "inviteCode": "ኮድ ይጋብዝ",
+      "youAreAn": "አንተ ነህ",
+      "youAreA": "አንተ ነህ",
+      "showUserId": "የተጠቃሚ መታወቂያ አሳይ",
+      "hideUserId": "የተጠቃሚ መታወቂያ ደብቀህ",
+      "showApiKey": "የ ኤፒ አይ ቁልፍ አሳይ",
+      "hideApiKey": "የ ኤፒ አይ ቁልፍ ይደብቁ",
+      "apiKey": "የ ኤፒ አይ ቁልፍ",
+      "logout": "ወደ ውጭ አስቀምጥ",
+      "connectPhone": "የስልክ ቁጥርዎን ያገናኙ",
+      "connectEmail": "የእርስዎ ኢሜይል ያገናኙ",
+      "connectPhoneEmail": "የእርስዎ ኢሜይል ወይም ስልክ ቁጥር ያገናኙ",
+      "or": "ወይም",
+      "lbl-wallet": "Wallet ጋር መግቢያ",
+      "ph-email": "ኢሜይል",
+      "ph-phone": "ስልክ ቁጥር",
+      "ph-phoneEmail": "ስልክ ቁጥር / ኢሜይል",
+      "phoneEmailError": "የማይረባ ስልክ # ወይም የኢሜይል አድራሻ",
+      "phoneError": "የማይረባ ስልክ #",
+      "emailError": "የኢሜይል አድራሻ",
+      "loginWithReadyPlayerMe": "ከ Ready Player Me ጋር መግቢያ",
+      "connectSocial": "በማህበራዊ ሂሳብ አገናኝ",
+      "createOne": "አካውንት ከሌለህ አዲስ ይፈጠርልሃል",
+      "connections": {
+        "title": "አገናኞች",
+        "ipError": "ተንቀሳቃሽ መለያ ሰጪን ማስወገድ አይቻልም",
+        "disconnect": "አገናኝ",
+        "connect": "አገናኝ"
+      },
+      "profileDropdown": {
+        "avatar": "የተጠቃሚ አቫታር ምስል",
+        "profile": "ፕሮፋይል",
+        "adminConsole": "አድሚን ኮንሶል",
+        "logout": "Logout"
+      },
+      "userIcon": {
+        "lbl-name": "የአንተ ስም",
+        "lbl-update": "አሻሽል",
+        "userId": "የተጠቃሚ ውሂብ",
+        "ph-uploadImg": "የምርት ምስልን አውርድ",
+        "lbl-selectAcvatar": "አቫታር ይምረጡ",
+        "lbl-submit": "አስረክብ"
+      },
+      "userSettings": {
+        "volume": "ጥራዝ",
+        "microphone": "ማይክሮፎን",
+        "resolution": "የአቋም መግለጫ",
+        "high": "ከፍተኛ",
+        "low": "ዝቅተኛ",
+        "spatialAudio": "የ Spatial ኦዲዮ ይጠቀሙ",
+        "enterMuted": "ክፍል ውስጥ ተቆራረጠ"
+      }
+    },
+    "oauth": {
+      "authenticating": "እውነተኝነት ...",
+      "authFailed": "{{service}} እውነተኝነት አልተሳካም።"
+    },
+    "magikLink": {
+      "wait": "እባክዎ ንቅ ቅቅቅ ..."
+    },
+    "dashboard": {
+      "header": "ዳሽቦርድ",
+      "dashboard": "ዳሽቦርድ",
+      "users": "ተጠቃሚዎች",
+      "feeds": "መግብያዎች",
+      "instance": "የጊዜ ሁኔታ",
+      "locations": "ቦታዎች",
+      "invites": "መጋበዣ",
+      "sessions": "ክፍለ ጊዜ",
+      "groups": "ቡድኖች",
+      "parties": "ፓርቲዎች",
+      "chats": "ቻት",
+      "content": "ይዘት ፓኬቶች",
+      "projects": "ፕሮጀክቶች",
+      "scenes": "ትዕይንቶች",
+      "avatars": "አቫታር",
+      "benchmarking": "የመለኪያ መለኪያ",
+      "bots": "ቦቶች"
+    }
+  },
+  "oauth": {
+    "authenticating": "እውነተኝነት ...",
+    "authFailed": "{{service}} እውነተኝነት አልተሳካም።"
+  },
+  "magikLink": {
+    "wait": "እባክዎ ንቅ ቅቅቅ ..."
+  },
+  "dashboard": {
+    "header": "ዳሽቦርድ",
+    "dashboard": "ዳሽቦርድ",
+    "users": "ተጠቃሚዎች",
+    "feeds": "መግብያዎች",
+    "instance": "የጊዜ ሁኔታ",
+    "locations": "ቦታዎች",
+    "routes": "መንገዶች",
+    "projects": "ፕሮጀክቶች",
+    "invites": "መጋበዣ",
+    "sessions": "ክፍለ ጊዜ",
+    "groups": "ቡድኖች",
+    "parties": "ፓርቲዎች",
+    "chats": "ቻት",
+    "content": "ይዘት ፓኬቶች",
+    "scenes": "ትዕይንቶች",
+    "avatars": "አቫታር",
+    "benchmarking": "የመለኪያ መለኪያ",
+    "bots": "ቦቶች",
+    "setting": "ምርጫዎች"
+  },
+  "avatar": {
+    "title": "አቫታርን አውርድ",
+    "lbl-browse": "Browse",
+    "lbl-thumbnail": "Thumbnail",
+    "lbl-upload": "አውርድ",
+    "selectAvatar": "አቫታር ይምረጡ ...",
+    "selectThumbnail": "Thumbnail ይምረጡ ...",
+    "rotate": "ይሽከረከራል",
+    "pan": "ፓን",
+    "noBone": "Obejct ምንም አጥንት ወይም ቆዳ የለውም",
+    "outOfBound": "ግዑዝ ግዑዝ እዩ።",
+    "emptyObj": "ዕቃ ባዶ ነው።",
+    "maxTriangleError": "{{allowedTriangles}} ፊት የሚበልጥ ዕቃ ይዟል።",
+    "selectValidFile": "ተቀባይነት ያለው የ 3d አቫታር ፋይል ይምረጡ.",
+    "selectValidThumbnail": "የተመረጡ ትክክለኛ የThumbnail ፋይል.",
+    "fileOversized": "የአቫታር ፋይል መጠን {{minSize}} MB እና {{maxSize}} MB መካከል መሆን አለበት",
+    "confirmation": "እርግጠኛ ነህ?",
+    "canNotBeRemoved": "ንቁ የሆነ አቫታር ማስወገድ አይቻልም",
+    "remove": "አቫታርን አስወግድ",
+    "uploadFiles": "ፋይሎችን አውርድ",
+    "useUrlInstead": "በምትኩ urlን ይጠቀሙ",
+    "avatar": "አቫታር",
+    "cancel": "ተወው",
+    "createAvatar": "አቫታር ፍጠር",
+    "delete": "አጥፉ",
+    "view": "ይመልከቱ",
+    "uploadAvatarInfo": "አቫታር መረጃን ማሻሻል",
+    "name": "ስም",
+    "enterName": "ስም ያስገቡ",
+    "avatarInformation": "አቫታር መረጃ",
+    "description": "መግለጫ",
+    "key": "ቁልፍ",
+    "none": "ምንም የለም",
+    "submit": "አስረክብ",
+    "edit": "አስረጅ",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "አቫታር በተሳካ ሁኔታ አውርደዋል።",
+    "remove-success-msg": "አቫታር በተሳካ ሁኔታ አውርደዋል።",
+    "warning-msg": "አቫታር የተፈጥሮ ሀብት ባዶ ነው, እርስዎ አቫታርወደ የእርስዎን የፋይል ማከማቻ ጋር አዋህደዋል?"
+  },
+  "personMenu": {
+    "inviteToParty": "ግብዣ ወደ ፓርቲ ይጋብዛል",
+    "addAsFriend": "እንደ ጓደኛ ጨምር",
+    "mute": "ዲዳ",
+    "block": "ዝግ"
+  },
+  "person": {
+    "you": "አንተ",
+    "yourScreen": "የእርስዎ ስክሪን",
+    "muteForEveryone": "ዲዳ ለሁሉም ሰው",
+    "unmuteForEveryone": "ለሁሉም ሰው የማይረባ",
+    "muteMe": "ዲዳ አደበኝ",
+    "unmuteMe": "ፍቱልኝ",
+    "muteThisPerson": "ዲዳ ይህን ሰው",
+    "unmuteThisPerson": "ይህን ሰው ፈታው",
+    "openPictureInPicture": "ስዕል ክፈት"
+  }
+}

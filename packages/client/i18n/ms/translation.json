@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Halaman Tidak Dijumpai"
+  },
+  "503": {
+    "msg": "503 - Perkhidmatan Tidak Tersedia"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Anda telah dilarang dari lokasi ini",
+    "locationName": {
+      "pageTitle": "Rumah"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projek",
+      "header": "Sila Log Masuk",
+      "welcomeMsg": "Selamat datang",
+      "locationHeader": "Lokasi",
+      "projectHeader": "Projek",
+      "sceneHeader": "Adegan",
+      "description": "Sekiranya anda baru di sini, kami mengesyorkan melalui tutorial. Jika tidak, masuk dan buat projek dari awal atau dari salah satu templat kami.",
+      "lbl-startTutorial": "Mulakan Tutorial",
+      "lbl-newProject": "Projek Baru",
+      "lbl-createProject": "Mencipta",
+      "lbl-newScene": "Adegan Baru",
+      "lbl-searchProject": "Gelintar Projek Sedia Ada...",
+      "back": "Kembali",
+      "contextMenu": "Hapuskan Projek",
+      "installed": "Projek Dipasang",
+      "official": "Projek Rasmi",
+      "community": "Projek Komuniti",
+      "install": "Memasang",
+      "uninstall": "Membuang",
+      "rename": "Menamakan semula",
+      "createProject": "Buat Projek",
+      "installProject": "Pasang Projek",
+      "processing": "Pemprosesan",
+      "projectName": "Nama Projek",
+      "projectURL": "URL Projek"
+    }
+  },
+  "error": {
+    "goHomeLink": "Balik rumah",
+    "withStatusCode": "Ralat {{code}} berlaku pada pelayan",
+    "withoutStatusCode": "Ralat berlaku pada pelayan"
+  },
+  "no-projects": {
+    "msg": "Ralat: Tiada Projek Dipasang - sila hubungi pentadbir tapak"
+  },
+  "dev": {
+    "pageTitle": "Rumah"
+  },
+  "login": {
+    "pageTitle": "Log masuk"
+  },
+  "workerTest": {
+    "pageTitle": "Ujian Pekerja"
+  },
+  "index": {
+    "by": "OLEH",
+    "xr": "XR",
+    "foundation": "Yayasan",
+    "description": "Aplikasi sosial 3D masa nyata untuk dinikmati oleh semua orang."
+  },
+  "xrengineContact": {
+    "header": "Berhubung dengan!",
+    "description": "Kami ingin membantu anda dengan acara maya anda, runcit digital, hiburan dan keperluan lain.",
+    "lbl-name": "Nama",
+    "lbl-email": "E-mel",
+    "lbl-company": "Syarikat",
+    "lbl-project": "Terangkan Projek anda",
+    "lbl-send": "Menghantar",
+    "lbl-ok": "Ok",
+    "lbl-success": "Mesej Dihantar, Kami akan kembali kepada anda tidak lama lagi.",
+    "lbl-failure": "Ralat berlaku, Plese cuba lagi",
+    "err-username": "Sila masukkan nama anda.",
+    "err-email": "E-mel diperlukan.",
+    "err-msg": "Berikan beberapa penerangan ringkas mengenai projek anda."
+  }
+}

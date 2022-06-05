@@ -1,0 +1,718 @@
+{
+  "loading": "プロジェクトの読み込み",
+  "loadingMsg": "プロジェクトを読み込んでいます...",
+  "loadingError": "プロジェクトの読み込み中にエラーが発生しました",
+  "loadingErrorMsg": "プロジェクトの読み込み中にエラーが発生しました。",
+  "selectSceneMsg": "シーンを選択してエンジンの再生を開始します",
+  "error": "エラー",
+  "errorMsg": "不明なエラーが発生しました。",
+  "generateScreenshot": "プロジェクトスクリーンショットの生成",
+  "generateScreenshotMsg": "プロジェクトのスクリーンショットを生成しています...",
+  "newScene": "シーンの作成",
+  "saving": "プロジェクトの保存",
+  "savingMsg": "プロジェクトを保存しています...",
+  "savingError": "プロジェクトの保存中にエラーが発生しました",
+  "savingErrorMsg": "プロジェクトの保存中にエラーが発生しました。",
+  "savingSceneErrorMsg": "シーンが正しく読み込まれていません。シーンをリロードしてみてください。",
+  "duplicating": "プロジェクトの複製",
+  "duplicatingMsg": "プロジェクトを複製しています...",
+  "exporting": "プロジェクトのエクスポート",
+  "exportingMsg": "プロジェクトをエクスポートしています...",
+  "exportingError": "プロジェクトのエクスポート中にエラーが発生しました",
+  "exportingErrorMsg": "プロジェクトのエクスポート中にエラーが発生しました。",
+  "importLegacy": "レガシーワールドのインポート",
+  "importLegacyMsg": "警告！これにより、既存のシーンが上書きされます!続行してもよろしいですか?",
+  "publishingError": "プロジェクトの発行エラー",
+  "publishingErrorMsg": "不明なエラーが発生しました。",
+  "publishingScene": "出版シーン",
+  "publishingSceneMsg": "公開シーン...",
+  "uploadingThumbnailMsg": "サムネイルをアップロードしています...",
+  "uploadingSceneMsg": "アップロード中のシーン: {{percentage}}%",
+  "envMapError": "キューブマップイメージの読み込み中に {{files}}",
+  "lbl-return": "帰る",
+  "menubar": {
+    "newScene": "新しいシーン",
+    "saveScene": "シーンの保存",
+    "saveAs": "名前を付けて保存",
+    "importAsset": "アセットのインポート",
+    "exportGLB": "バイナリglTF(.glb)としてエクスポート...",
+    "importScene": "シーンのインポート",
+    "exportScene": "シーンのエクスポート",
+    "quit": "辞める"
+  },
+  "errors": {
+    "fileTypeNotSupported": "ファイルでサポートされていないファイルの種類: \"{{name}}\"。ファイルは、イメージ、ビデオ、または glb モデルである必要があります。",
+    "addObject": "addObject: オブジェクトが見つからない前",
+    "removeObject": "removeObject: ノードが見つかりません。これは、シーン内になくなったノードを削除したためです。",
+    "noParent": "{{node}} \"{{name}}には親がありません。親の再親は、現在シーン内にあるオブジェクトに対してのみ機能します。",
+    "undefinedParent": "editor.reparent: newParent は未定義です",
+    "notAuthenticated": "認証されていません",
+    "fetchingProjectError": "プロジェクトの取得中にエラーが発生しました: {{error}}",
+    "fetchingRouteError": "ルートの取得中にエラーが発生しました: {{error}}",
+    "unknownError": "不明なエラー",
+    "resolveURL": "URL \"{{url}}\" の解決中にエラーが発生しました:",
+    "mediaSearchAborted": "メディア検索が中止されました",
+    "methodNotImplemented": "メソッドは実装されていません。",
+    "saveProjectAborted": "保存シーンが中止されました",
+    "unsavedChanges": "未保存の変更",
+    "unsavedChangesMsg": "シーンが変更されました。変更を保存してください。",
+    "projectCreationFail": "プロジェクトの作成に失敗しました。 {{reason}}",
+    "projectDeletionFail": "プロジェクトの削除に失敗しました。 {{reason}}",
+    "savingProjectFail": "プロジェクトの保存に失敗しました。 {{reason}}",
+    "sceneTooLarge": "シーンが大きすぎます ({{size}} MB) で公開できません。最大サイズは {{maxSize}} MB です。",
+    "sceneCreationFail": "シーンの作成に失敗しました。 {{reason}}",
+    "uploadAborted": "アップロードが中止されました",
+    "uploadFailed": "アップロードに失敗した {{reason}}",
+    "assetDeletionFail": "資産の削除に失敗しました。 {{reason}}",
+    "projectAssetDeletionFail": "プロジェクトアセットの削除に失敗しました。 {{reason}}",
+    "networkError": "ネットワーク エラー: {{status}}. {{text}}",
+    "unknownStatus": "不明なステータス",
+    "CORS": "おそらくCORSエラー",
+    "urlFetchError": "\"{{url}}\" の取得に失敗しました"
+  },
+  "viewport": {
+    "title": "ビューポート",
+    "command": {
+      "movecamera": "カメラの移動",
+      "flyFast": "より速く飛ぶ",
+      "orbit": "軌道/選択",
+      "pan": "パン",
+      "fly": "飛ぶ",
+      "focus": "焦点",
+      "rotateLeft": "左に回転",
+      "rotateRight": "右に回転",
+      "cancelPlacement": "配置のキャンセル",
+      "placeDuplicate": "複製を配置",
+      "cancelGrab": "グラブをキャンセル",
+      "grab": "グラブ",
+      "deselectAll": "すべて選択解除"
+    },
+    "state": {
+      "header": "統計",
+      "memory": "記憶",
+      "geometries": "ジオメトリ",
+      "textures": "テクスチャ",
+      "render": "レンダ",
+      "FPS": "ティッカー",
+      "frameTime": "フレーム時間",
+      "calls": "呼び出し",
+      "triangles": "三角 形",
+      "points": "ポイント",
+      "lines": "台詞"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "著す",
+    "lbl-published": "公開",
+    "command": {
+      "translate": "翻訳",
+      "rotate": "回転",
+      "scale": "規模",
+      "toggleSpace": "変換空間の切り替え",
+      "togglePivot": "変換ピボットの切り替え",
+      "toggleSnapMode": "スナップモードの切り替え",
+      "toggleGrid": "グリッドの表示の切り替え",
+      "increaseGridSize": "グリッドサイズの増加",
+      "descreaseGridSize": "グリッドサイズを小さくする",
+      "stopPreview": "シーンのプレビューを停止",
+      "playPreview": "プレビューシーン"
+    }
+  },
+  "properties": {
+    "title": "プロパティ",
+    "lbl-visible": "目に見える",
+    "lbl-preventBake": "ベイクの防止",
+    "lbl-persist": "粘る",
+    "multipleNodeSelected": "異なるタイプの複数のノードが選択されています",
+    "noNodeSelected": "ノードが選択されていません",
+    "ambientLight": {
+      "name": "アンビエントライト",
+      "description": "シーン内のすべてのオブジェクトを照らすライト。",
+      "lbl-intensity": "強度",
+      "lbl-color": "色"
+    },
+    "envmap": {
+      "name": "環境マップ",
+      "description": "環境マップのプロパティ"
+    },
+    "asset": {
+      "name": "資産",
+      "description": "動的にロードおよびアンロードできるシーンコンポーネントのグループ",
+      "lbl-options": "オプション",
+      "lbl-assetPath": "資産パス",
+      "lbl-assetName": "エクスポート名",
+      "lbl-exportOptions": "エクスポートオプション",
+      "lbl-export": "資産のエクスポート",
+      "lbl-load": "シーンへの読み込み",
+      "lbl-unload": "降ろす",
+      "lbl-reload": "積み直す"
+    },
+    "audio": {
+      "name": "オーディオ",
+      "description": "オーディオを動的に読み込みます。",
+      "lbl-audiourl": "オーディオ URL",
+      "lbl-controls": "コントロール",
+      "info-controls": "メディア コントロールの表示を切り替えます。",
+      "lbl-autoplay": "自動再生",
+      "info-autoplay": "true の場合、メディアは最初にシーンに入ったときに再生されます。",
+      "lbl-synchronize": "同期",
+      "info-synchronize": "true の場合、メディアは接続されているすべてのクライアントで同期されます。",
+      "lbl-loop": "ループ",
+      "info-loop": "true の場合、メディアは無期限にループします。",
+      "lbl-audioType": "オーディオタイプ",
+      "lbl-distanceModel": "距離モデル",
+      "info-distanceModel": "オーディオロールオフの計算に使用されたアルゴリズム。",
+      "lbl-rolloffFactor": "ロールオフ係数",
+      "info-rolloffFactor": "ソースがリスナーから離れるにつれて音量が減少する速度を表す double 値。0 から 1",
+      "info-rfInfinity": "ソースがリスナーから離れるにつれて音量が減少する速度を表す double 値。0 から無限大",
+      "lbl-refDistance": "参照距離",
+      "info-refDistance": "オーディオ ソースがリスナーから遠ざかるにつれて音量を下げるための基準距離を表す double 値。",
+      "lbl-maxDistance": "最大距離",
+      "info-maxDistance": "オーディオ ソースとリスナー間の最大距離を表す double 値。この後、音量はそれ以上低下しません。",
+      "lbl-coneInnerAngle": "コーンインナーアングル",
+      "info-coneInnerAngle": "体積の減少がない円錐の角度を度数で表す二重の値。",
+      "lbl-coneOuterAngle": "コーンアウターアングル",
+      "info-coneOuterAngle": "円錐の外側の円錐の角度を度数で表す double 値で、その外側のボリュームは coneOuterGain 属性で定義される定数値で減少します。",
+      "lbl-coreOuterGain": "コーンアウターゲイン",
+      "info-coreOuterGain": "coneOuterAngle 属性で定義された円錐の外側の体積減少量を表す double 値。デフォルト値は 0 で、音が聞こえないことを意味します。",
+      "lbl-volume": "容積",
+      "lbl-play": "遊ぶ",
+      "lbl-pause": "休止",
+      "error-url": "URL からの読み込み中にエラーが発生しました"
+    },
+    "boxCollider": {
+      "description": "オブジェクトが跳ね返ったり、その上に置かれたりする目に見えないボックス。\nコライダーがなければ、物体は床を突き破り、壁を通り抜けます。",
+      "lbl-isTrigger": "トリガー"
+    },
+    "camera": {
+      "name": "カメラ",
+      "description": "カメラ設定。",
+      "lbl-camera-raycast": "カメラレイキャスティング",
+      "lbl-camera-raycast-toggle": "有効",
+      "lbl-camera-raycast-frequency": "周波数",
+      "lbl-camera-raycast-count": "レイカウント",
+      "lbl-camera-raycast-length": "レイの長さ"
+    },
+    "directionalLight": {
+      "name": "指向性ライト",
+      "description": "シーン全体を照らすが、単一の方向に沿って放射するライト。",
+      "lbl-color": "色",
+      "lbl-intensity": "強度",
+      "lbl-cameraFar": "カメラファー",
+      "lbl-cameraNear": "カメラの近く",
+      "lbl-cameraTop": "カメラトップ",
+      "lbl-cameraBottom": "カメラ下部",
+      "lbl-cameraLeft": "カメラ左",
+      "lbl-cameraRight": "カメラ右",
+      "lbl-useInCSM": "CSM での使用",
+      "lbl-castShadow": "影を落とす",
+      "lbl-disableForCSM": "カスケードシャドウマップが有効になっているため無効です。",
+      "lbl-shadowmapResolution": "シャドウマップ解像度",
+      "lbl-shadowBias": "シャドウバイアス",
+      "lbl-shadowRadius": "シャドウ半径",
+      "lbl-showCameraHelper": "カメラヘルパーを表示"
+    },
+    "groundPlane": {
+      "name": "グランドプレーン",
+      "description": "遠くまで伸びる平坦な地面。",
+      "lbl-color": "色",
+      "lbl-receiveShadow": "シャドウの受信",
+      "lbl-generateNavmesh": "ナビメッシュの生成"
+    },
+    "link": {
+      "description": "ルームまたは Web サイトへのリンク。",
+      "lbl-url": "ティッカー"
+    },
+    "map": {
+      "description": "例えば、都市の3D地理空間マップ。"
+    },
+    "model": {
+      "description": "GLTF URL またはファイルから読み込まれたシーン内の 3D モデル。",
+      "lbl-usingGPUInstancingFlag": "GPU インスタンス化の使用",
+      "lbl-modelurl": "モデル URL",
+      "lbl-envmapUrl": "環境マップ URL",
+      "lbl-textureOverride": "テクスチャの上書き",
+      "lbl-materialOverride": "マテリアルのオーバーライド",
+      "error-url": "URL からの読み込み中にエラーが発生しました",
+      "lbl-loopAnimation": "ループアニメーション",
+      "lbl-isAvatar": "アバターです",
+      "lbl-isGPUInstancing": "GPUインスタンス化を使用している",
+      "lbl-isDynamic": "ダイナミック",
+      "lbl-castShadow": "影を落とす",
+      "lbl-receiveShadow": "シャドウの受信",
+      "lbl-interactable": "対話型",
+      "lbl-matrixAutoUpdate": "マトリックス自動更新",
+      "lbl-name": "名前",
+      "lbl-url": "モデル URL",
+      "lbl-buy": "URLを購入する",
+      "lbl-learnMore": "URL の詳細",
+      "lbl-htmlContent": "HTML コンテンツ",
+      "lbl-interactionText": "インタラクションテキスト",
+      "lbl-interactionType": "相互作用タイプ"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "材料",
+      "error-materialID": "マテリアルの検索エラー",
+      "placeholder-materialID": "材料の選択",
+      "lbl-patternTarget": "パターンマッチ",
+      "lbl-pattern": "パターン",
+      "lbl-isRegex": "正規表現"
+    },
+    "interaction": {
+      "type": "相互作用タイプ",
+      "text": "インタラクションテキスト",
+      "distance": "インタラクション距離",
+      "theme": "インタラクションテーマ",
+      "name": "インタラクション名",
+      "description": "インタラクションの説明",
+      "images": "インタラクション画像",
+      "videos": "インタラクション動画",
+      "urls": "インタラクションURL",
+      "models": "対話モデル"
+    },
+    "group": {
+      "name": "群",
+      "description": "一緒に移動または複製できる複数のオブジェクトのグループ。\nオブジェクトを階層内のグループにドラッグアンドドロップします。"
+    },
+    "hemisphere": {
+      "name": "半球ライト",
+      "description": "真上からシーンを照らすライト。",
+      "lbl-skyColor": "スカイカラー",
+      "lbl-groundColor": "グラウンドカラー",
+      "lbl-intensity": "強度"
+    },
+    "image": {
+      "name": "画像",
+      "description": "イメージを動的に読み込みます。",
+      "lbl-imgURL": "画像のURL",
+      "lbl-transparency": "透明度モード",
+      "lbl-alphaCutoff": "アルファカットオフ",
+      "lbl-projection": "投射",
+      "lbl-side": "横",
+      "info-controls": "メディア コントロールの表示を切り替えます。",
+      "info-transparency": "透明度を適用する方法:",
+      "info-opaque": "'不透明' = 透明度なし",
+      "info-blend": "'ブレンド' = 画像アルファチャンネルを使用する",
+      "info-mask": "'mask' = オン/オフ透明度に指定されたカットオフ値を使用する (パフォーマンスが高い)",
+      "info-alphaCutoff": "アルファ値がこれより小さいピクセルは透明になります",
+      "error-url": "無効な URL"
+    },
+    "name": {
+      "lbl-name": "名前"
+    },
+    "partileEmitter": {
+      "description": "パーティクルを作成するためのパーティクルエミッタ。",
+      "lbl-particleCount": "パーティクル数",
+      "lbl-image": "画像",
+      "lbl-ageRandomness": "年齢のランダム性",
+      "lbl-lifetime": "一生",
+      "lbl-lifetimeRandomness": "生涯ランダム性",
+      "lbl-sizeCurve": "サイズカーブ",
+      "lbl-startPSize": "開始パーティクルサイズ",
+      "lbl-endPSize": "終了粒子サイズ",
+      "lbl-sizeRandomness": "サイズのランダム性",
+      "lbl-colorCurve": "カラーカーブ",
+      "lbl-startColor": "開始色",
+      "lbl-startOpacity": "開始不透明度",
+      "lbl-middleColor": "中間色",
+      "lbl-middleOpacity": "中間の不透明度",
+      "lbl-endColor": "終了色",
+      "lbl-endOpacity": "終了不透明度",
+      "lbl-velocityCurve": "速度曲線",
+      "lbl-startVelocity": "開始速度",
+      "lbl-endVelocity": "終了速度",
+      "lbl-angularVelocity": "角速度",
+      "info-ageRandomness": "パーティクルがスポーンされるときの変動量。",
+      "info-lifetime": "パーティクルがリスポーンされるまでの最大経過時間。",
+      "info-lifetimeRandomness": "パーティクルの有効期間間の変動量。",
+      "info-sizeRandomness": "粒子開始サイズ間の変動量。",
+      "error-url": "URL からの読み込み中にエラーが発生しました"
+    },
+    "clouds": {
+      "name": "雲",
+      "description": "スプライトベースのクラウドボリューム。",
+      "lbl-image": "スプライト画像",
+      "lbl-wroldScale": "世界規模",
+      "lbl-dimensions": "寸法",
+      "lbl-noiseZoom": "ノイズズーム",
+      "lbl-noiseOffset": "ノイズオフセット",
+      "lbl-spriteScale": "スプライトスケール",
+      "lbl-fogColor": "フォグカラー",
+      "lbl-fogRange": "フォグレンジ",
+      "error-url": "URL からの読み込み中にエラーが発生しました"
+    },
+    "ocean": {
+      "name": "大洋",
+      "description": "波と泡のある海面",
+      "lbl-normalMap": "法線マップ",
+      "lbl-distortionMap": "ディストーションマップ",
+      "lbl-envMap": "環境マップ",
+      "lbl-color": "色",
+      "lbl-shallowWaterColor": "浅い水彩",
+      "lbl-shallowToDeepDistance": "浅い距離から深い距離まで",
+      "lbl-opacityFadeDistance": "不透明度フェード距離",
+      "lbl-opacityRange": "不透明度の範囲",
+      "lbl-shininess": "輝度",
+      "lbl-reflectivity": "反射 率",
+      "lbl-foamColor": "フォームカラー",
+      "lbl-foamSpeed": "フォーム速度",
+      "lbl-foamTiling": "フォームタイリング",
+      "lbl-bigWaveTiling": "ビッグウェーブタイリング",
+      "lbl-bigWaveSpeed": "ビッグウェーブスピード",
+      "lbl-bigWaveHeight": "ビッグウェーブハイト",
+      "lbl-waveSpeed": "波速",
+      "lbl-waveScale": "波のスケール",
+      "lbl-waveTiling": "ウェーブタイリング",
+      "lbl-waveDistortionSpeed": "波の歪み速度",
+      "lbl-waveDistortionTiling": "波の歪みタイリング",
+      "error-url": "URL からの読み込み中にエラーが発生しました"
+    },
+    "water": {
+      "name": "水",
+      "description": "小さな水面"
+    },
+    "interior": {
+      "name": "インテリア",
+      "description": "内部環境をエミュレートするためにマップされた立方体テクスチャを持つサーフェス",
+      "lbl-cubeMap": "キューブマップテクスチャ",
+      "lbl-tiling": "タイリング量",
+      "lbl-size": "サーフェスサイズ",
+      "error-url": "URL からの読み込み中にエラーが発生しました"
+    },
+    "pointLight": {
+      "description": "1 つの点からすべての方向に放射するライト。",
+      "lbl-color": "色",
+      "lbl-intensity": "強度",
+      "lbl-range": "範囲",
+      "lbl-decay": "ディケイ"
+    },
+    "scene": {
+      "name": "シーン",
+      "description": "シーンのルート オブジェクト。",
+      "lbl-bgcolor": "背景色",
+      "lbl-fogType": "フォグタイプ",
+      "lbl-fogColor": "フォグカラー",
+      "lbl-forNearDistance": "近距離の霧",
+      "lbl-fogFarDistance": "霧の遠距離",
+      "lbl-fogDensity": "フォグ密度",
+      "lbl-audioSettings": "ポジショナルオーディオの使用",
+      "lbl-avatarDistanceModel": "アバター距離モデル",
+      "lbl-avatarRolloffFactor": "アバターロールオフ係数",
+      "lbl-avatarRefDistance": "アバター参照距離",
+      "lbl-avatarMaxDistance": "アバター最大距離",
+      "lbl-mediaVolume": "メディアボリューム",
+      "lbl-mediaDistanceModel": "メディア距離モデル",
+      "lbl-mediaRolloffFactor": "メディア ロールオフ係数",
+      "lbl-mediaRefDistance": "メディア参照距離",
+      "lbl-mediaMaxDistance": "メディア最大距離",
+      "lbl-mediaConeInnerAngle": "メディアコーンインナーアングル",
+      "lbl-mediaConeOuterAngle": "メディアコーンの外側角度",
+      "lbl-mediaConeOuterGain": "メディアコーンアウターゲイン",
+      "info-avatarDistanceModel": "オーディオロールオフの計算に使用されたアルゴリズム。",
+      "info-avatarRolloffFactor": "ソースがリスナーから離れるにつれて音量が減少する速度を表す double 値。0 から 1",
+      "info-avatarRolloffFactorInifinity": "ソースがリスナーから離れるにつれて音量が減少する速度を表す double 値。0 から無限大",
+      "info-avatarRefDistance": "オーディオ ソースがリスナーから遠ざかるにつれて音量を下げるための基準距離を表す double 値。",
+      "info-avatarMaxDistance": "オーディオ ソースとリスナー間の最大距離を表す double 値。この後、音量はそれ以上低下しません。",
+      "info-mediaDistanceModel": "オーディオロールオフの計算に使用されたアルゴリズム。",
+      "info-mediaRolloffFactor": "ソースがリスナーから離れるにつれて音量が減少する速度を表す double 値。0 から 1",
+      "info-mediaRolloffFactorInfinity": "ソースがリスナーから離れるにつれて音量が減少する速度を表す double 値。0 から無限大",
+      "info-mediaRefDistance": "オーディオ ソースがリスナーから遠ざかるにつれて音量を下げるための基準距離を表す double 値。",
+      "info-mediaMaxDistance": "オーディオ ソースとリスナー間の最大距離を表す double 値。この後、音量はそれ以上低下しません。",
+      "info-mediaConeInnerAngle": "体積の減少がない円錐の角度を度数で表す二重の値。",
+      "info-mediaConeOuterAngle": "円錐の外側の円錐の角度を度数で表す double 値で、その外側のボリュームは coneOuterGain 属性で定義される定数値で減少します。",
+      "info-mediaConeOuterGain": "coneOuterAngle 属性で定義された円錐の外側の体積減少量を表す double 値。デフォルト値は 0 で、音が聞こえないことを意味します。",
+      "lbl-simpleMaterials": "シンプルな素材を使用する",
+      "lbl-lods": "ロッド",
+      "info-lods": "詳細レベルが変更される距離を設定します。",
+      "info-simpleMaterials": "高価なマテリアルをすべて単純なマテリアルに変換して、シーン レンダリングの負荷を軽減します。",
+      "lbl-rendererSettings": "レンダラー設定の上書き",
+      "lbl-csm": "カスケードシャドウマップ",
+      "info-csm": "カスケードシャドウマップを有効にします。",
+      "lbl-toneMapping": "トーンマッピング",
+      "info-toneMapping": "シーン レンダラーでトーン マッピングを有効にします。後処理が有効になっている場合は効果がありません。",
+      "lbl-toneMappingExposure": "トーンマッピング露出",
+      "info-toneMappingExposure": "シーン レンダラーでのトーン マッピングの露出を指定します。後処理が有効になっている場合は効果がありません。",
+      "lbl-shadowMapType": "シャドウマップタイプ",
+      "info-shadowMapType": "シャドウマップのタイプ",
+      "error-url": "URL からの読み込み中にエラーが発生しました"
+    },
+    "sceneCamera": {
+      "name": "シーンプレビューカメラ",
+      "description": "シーンのサムネイルの生成に使用したカメラと、プレビュー カメラの開始位置。",
+      "lbl-setFromViewPort": "ビューポートから設定"
+    },
+    "skybox": {
+      "name": "スカイボックス",
+      "description": "",
+      "lbl-timeOfDay": "時刻",
+      "lbl-color": "色",
+      "lbl-latitude": "緯度",
+      "lbl-luminance": "輝度",
+      "lbl-scattering": "散乱量",
+      "lbl-scatteringDistance": "散乱距離",
+      "lbl-horizonStart": "ホライズン開始",
+      "lbl-horizonEnd": "ホライズンエンド",
+      "lbl-texture": "テクスチャー",
+      "lbl-skyType": "スカイタイプ",
+      "error-url": "URL からの読み込み中にエラーが発生しました"
+    },
+    "spawnPoint": {
+      "name": "スポーンポイント",
+      "description": "シーンに入ったときに人物が表示されるポイント。\nビューポートのアイコンは、アバターの実際のサイズを表します。"
+    },
+    "spotLight": {
+      "description": "円錐内のオブジェクトを照らす方向に沿って放射するライト。",
+      "lbl-color": "色",
+      "lbl-intensity": "強度",
+      "lbl-penumbra": "半影",
+      "lbl-angle": "角",
+      "lbl-range": "範囲",
+      "lbl-decay": "ディケイ"
+    },
+    "transform": {
+      "title": "変形する",
+      "lbl-postition": "立場",
+      "lbl-rotation": "自転",
+      "lbl-scale": "規模"
+    },
+    "triggereVolume": {
+      "description": "入力時と退席時にターゲットオブジェクトにプロパティを設定します。",
+      "lbl-target": "オブジェクト",
+      "lbl-onenter": "入力時",
+      "lbl-onexit": "終了時",
+      "lbl-showHelper": "ヘルパーメッシュを表示",
+      "ph-errorNode": "ノードが見つからないというエラー。",
+      "ph-selectNode": "ノードを選択..."
+    },
+    "video": {
+      "name": "ビデオ",
+      "description": "ビデオを動的に読み込みます。",
+      "lbl-video": "ビデオ",
+      "lbl-projection": "投射",
+      "lbl-islivestream": "ライブストリーム",
+      "lbl-interactable": "対話型",
+      "lbl-id": "要素 ID",
+      "lbl-play": "遊ぶ",
+      "lbl-pause": "休止",
+      "error-url": "URL からの読み込み中にエラーが発生しました"
+    },
+    "volumetric": {
+      "name": "体積",
+      "description": "ボリューム ビデオを動的に読み込みます。",
+      "uvolPaths": "UVOL パス",
+      "playmode": "プレイモード",
+      "playtitle": "遊ぶ",
+      "pausetitle": "休止"
+    },
+    "spline": {
+      "description": "カーブを動的に作成およびカスタマイズします。",
+      "lbl-addNode": "カーブにノードを追加します。"
+    },
+    "systemnode": {
+      "description": "スクリプトを添付します。",
+      "lbl-filePath": "ティッカー",
+      "lbl-systemUpdateType": "インジェクションポイント",
+      "lbl-enableClient": "クライアント",
+      "lbl-enableServer": "サーバー",
+      "lbl-args": "引数",
+      "error-url": "URL からのスクリプトの読み込み中にエラーが発生しました"
+    },
+    "portal": {
+      "lbl-portal": "リンクされたポータル",
+      "lbl-redirect": "ページリダイレクトを使用",
+      "description": "プレイヤーを指定された場所にテレポートするためのポート",
+      "lbl-locationName": "場所",
+      "lbl-modelUrl": "モデル URL",
+      "lbl-displayText": "テキストの表示",
+      "lbl-cubemapBake": "キューブマップのベイク",
+      "lbl-spawnPosition": "スポーン位置",
+      "lbl-spawnRotation": "回転のスポーン",
+      "lbl-triggerPosition": "トリガー位置",
+      "lbl-triggerRotation": "回転のトリガー",
+      "lbl-triggerScale": "トリガースケール"
+    },
+    "postprocessing": {
+      "name": "後処理",
+      "description": "シーンにポストプロセッシング効果を適用する場合。"
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "新規プロジェクト",
+      "backLink": "プロジェクトに戻る",
+      "featured": "注目",
+      "all": "すべての",
+      "newProject": "新しい空のプロジェクト",
+      "ph-search": "シーンを検索..."
+    },
+    "grid": {
+      "loading": "積載。。。"
+    },
+    "page": {
+      "header": "ようこそ",
+      "headerMsg": "ここで初めての方は、チュートリアルを読むことをお勧めします。それ以外の場合は、すぐにジャンプして、ゼロから、またはテンプレートの1つからプロジェクトを作成します。",
+      "lbl-startTutorial": "チュートリアルの開始",
+      "projects": "プロジェクト",
+      "lbl-newProject": "新規プロジェクト"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "積載。。。",
+      "placeObject": "オブジェクトの配置",
+      "placeObjectAtOrigin": "オブジェクトを原点に配置",
+      "copyURL": "URL のコピー",
+      "openInNewTab": "新しいタブでURLを開く",
+      "deleteAsset": "アセットの削除"
+    },
+    "filebrowser": {
+      "addNewFolder": "新しいフォルダの追加",
+      "cutAsset": "切る",
+      "copyAsset": "写し",
+      "pasteAsset": "糊",
+      "renameAsset": "改名する",
+      "viewAssetProperties": "プロパティの表示"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "改名する",
+    "lbl-duplicate": "デュプリケート",
+    "lbl-group": "群",
+    "lbl-delete": "削除",
+    "lbl-expandAll": "すべて展開",
+    "lbl-collapseAll": "すべて折りたたむ",
+    "isseus": "問題："
+  },
+  "dnd": {
+    "nodes": "選択されたノードの{{count}}",
+    "models": "選択された{{count}}モデル",
+    "images": "選択した画像{{count}}",
+    "videos": "選択した動画の{{count}}",
+    "audio": "選択したオーディオソースの{{count}}"
+  },
+  "dialog": {
+    "title": "編集者",
+    "lbl-confirm": "わかりました",
+    "lbl-cancel": "キャンセル",
+    "exportProject": {
+      "title": "プロジェクトのエクスポート",
+      "lbl-confirm": "プロジェクトのエクスポート",
+      "lbl-combineMesh": "メッシュの結合",
+      "lbl-removeUnused": "未使用オブジェクトの削除"
+    },
+    "performance": {
+      "title": "パフォーマンスチェック",
+      "lbl-confirm": "シーンの公開",
+      "learnMore": "詳細情報",
+      "lbl-polycount": "ポリゴン数",
+      "lbl-material": "料",
+      "lbl-texture": "テクスチャ",
+      "lbl-lights": "ライト",
+      "lbl-fileSize": "ファイルサイズ",
+      "info-polycount": "シーンで使用する三角形は、モバイル デバイスで 50,000 個以下にすることをお勧めします。",
+      "info-material": "シーン内では、モバイル デバイスでのドロー コールを減らすために、25 個以下の一意のマテリアルを使用することをお勧めします。",
+      "info-texture": "テクスチャでは、モバイル デバイス用に 256 MB 以下のビデオ RAM を使用することをお勧めします。また、2048 x 2048 より大きいテクスチャを使用しないことをお勧めします。",
+      "info-lights": "モバイル デバイスではダイナミック ライトは有効になりませんが、シーンでローエンドの PC で実行するには、シーン内で 3 つ以下のライト(アンビエント ライトと半球ライトを除く)を使用することをお勧めします。",
+      "info-fileSize": "低帯域幅の接続では、最終的なファイル サイズを 16 MB 以下にすることをお勧めします。ファイルサイズを小さくすると、シーンのダウンロードにかかる時間が短縮されます。",
+      "txt-polycount": "{{count}} 三角形",
+      "txt-material": "{{count}} 材料",
+      "txt-ram": "〜{{count}} ビデオRAM",
+      "txt-texture": "{{count}} 大きなテクスチャ",
+      "txt-lights": "{{count}} ライト"
+    },
+    "progress": {
+      "title": "積載。。。",
+      "msg": "積載。。。",
+      "lbl-cancel": "キャンセル"
+    },
+    "publish": {
+      "title": "シーンの公開",
+      "lbl-confirm": "保存と公開",
+      "lbl-name": "シーン名",
+      "info-name": "名前は 4 ~ 64 文字でなければならず、アンダースコアを含めることはできません。"
+    },
+    "published": {
+      "title": "公開されたシーン",
+      "header": "シーンが公開されました。",
+      "lbl-view": "シーンを表示する"
+    },
+    "saveNewProject": {
+      "title": "支える",
+      "lbl-name": "プロジェクト名",
+      "info-name": "名前は 4 ~ 64 文字でなければならず、アンダースコアを含めることはできません。",
+      "lbl-confirm": "プロジェクトの保存"
+    },
+    "support": {
+      "title": "支える",
+      "header": "問題を報告する必要がありますか?",
+      "msg": "<1>GitHub の問題</1>を提出するか、電子メールでサポートを受けることができ<3>{{mail}}</3>",
+      "discord": "また、<1>Discord</1>で私たちを見つけることができます"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing画像",
+      "search": "Bingから探す"
+    },
+    "bingVideo": {
+      "name": "Bing動画",
+      "search": "Bingから探す"
+    },
+    "element": {
+      "name": "元素"
+    },
+    "myAssets": {
+      "name": "マイアセット"
+    },
+    "googlePoly": {
+      "name": "グーグルポリ",
+      "search": "グーグルで検索"
+    },
+    "tenor": {
+      "name": "テナー GIF",
+      "search": "テナーから探す",
+      "ph-search": "検索 GIF ファイル..."
+    },
+    "sketchfab": {
+      "name": "スケッチファブ",
+      "search": "スケッチファブから探す"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "アセットのアップロード"
+    },
+    "imageSourcePanel": {
+      "ph-search": "画像を検索..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "動画を検索..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "アセットを検索..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "モデルを検索..."
+    },
+    "useUpload": {
+      "multipleFileError": "入力は複数のファイルを受け入れません。",
+      "mineTypeError": "\"{{name}}\" は、次の MIME タイプまたは拡張子と一致しません: {{types}}",
+      "progressTitle": "ファイルのアップロード",
+      "progressMsg": "{{uploaded}}の{{total}}のファイルのアップロード : {{percentage}}%",
+      "uploadError": "アップロードエラー",
+      "uploadErrorMsg": "ファイルのアップロード中にエラーが発生しました: {{message}}",
+      "uploadErrorDefaultMsg": "不明なエラーが発生しました"
+    }
+  },
+  "openLink": {
+    "description": "[開く] をクリックしてリンクに移動してください。",
+    "lbl-open": "開ける"
+  },
+  "interactableModel": {
+    "lbl-buy": "買う",
+    "lbl-learnMore": "詳細情報"
+  },
+  "corsProxyButton": {
+    "tooltip": "Cors プロキシ サーバーを使用する"
+  }
+}

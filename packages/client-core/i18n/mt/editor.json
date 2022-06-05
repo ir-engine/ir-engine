@@ -1,0 +1,718 @@
+{
+  "loading": "Proġett tagħbija",
+  "loadingMsg": "Proġett ta' tagħbija...",
+  "loadingError": "Proġett ta 'tagħbija ta' żball",
+  "loadingErrorMsg": "Kien hemm żball meta tgħabbi l-proġett.",
+  "selectSceneMsg": "Agħżel Xena biex tibda tilgħab bil-magna",
+  "error": "Żball",
+  "errorMsg": "Kien hemm żball mhux magħruf.",
+  "generateScreenshot": "Ġenerazzjoni ta 'Screenshot tal-Proġett",
+  "generateScreenshotMsg": "Qed jiġġenera screenshot tal-proġett...",
+  "newScene": "Oħloq Xena",
+  "saving": "Proġett ta 'Tfaddil",
+  "savingMsg": "Qed jissejvja l-proġett...",
+  "savingError": "Proġett tal-Iffrankar tal-Iżbalji",
+  "savingErrorMsg": "Kien hemm żball meta l-proġett ġie salvat.",
+  "savingSceneErrorMsg": "Ix-xena mhix mgħobbija sew. Ipprova erġa 'tgħabbi x-xena.",
+  "duplicating": "Proġett ta 'Duplikazzjoni",
+  "duplicatingMsg": "Proġett ta 'duplikazzjoni...",
+  "exporting": "Proġett ta 'Esportazzjoni",
+  "exportingMsg": "Proġett ta 'Esportazzjoni...",
+  "exportingError": "Proġett ta 'Esportazzjoni ta' Żball",
+  "exportingErrorMsg": "Kien hemm żball meta l-proġett ġie esportat.",
+  "importLegacy": "Importa d-Dinja tal-Legat",
+  "importLegacyMsg": "Twissija! Dan se jissottoskrivi x-xena eżistenti tiegħek! Żgur tixtieq tkompli?",
+  "publishingError": "Proġett tal-Pubblikazzjoni tal-Iżbalji",
+  "publishingErrorMsg": "Kien hemm żball mhux magħruf.",
+  "publishingScene": "Xena tal-Pubblikazzjoni",
+  "publishingSceneMsg": "Xena tal-pubblikazzjoni...",
+  "uploadingThumbnailMsg": "Qed jtella ' minjatura ...",
+  "uploadingSceneMsg": "Xena tat-tlugħ: {{percentage}}%",
+  "envMapError": "Żball fit-tagħbija ta 'immaġini tal-cubemap {{files}}",
+  "lbl-return": "Ritorn",
+  "menubar": {
+    "newScene": "Xena Ġdida",
+    "saveScene": "Issejvja x-Xena",
+    "saveAs": "Issejvja Bħala",
+    "importAsset": "Importa l-Assi",
+    "exportGLB": "Esportazzjoni bħala glTF binarju (.glb)...",
+    "importScene": "Xena tal-importazzjoni",
+    "exportScene": "Xena tal-esportazzjoni",
+    "quit": "Abbanduna"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Tip ta 'fajl mhux appoġġjat għall-fajl: \"{{name}}\". Il-fajl għandu jkun mudell ta' immaġni, vidjo jew glb.",
+    "addObject": "addObject: qabel ma ma jinstab l-oġġett",
+    "removeObject": "removeObject: nodu li ma nstabx. Dan huwa dovut għat-tneħħija ta 'nodu li m'għadux fix-xena.",
+    "noParent": "{{node}} \"{{name}}\" m'għandha l-ebda ġenitur. Reparent jaħdem biss fuq oġġetti li bħalissa jinsabu fix-xena.",
+    "undefinedParent": "editor.reparent: NewParent mhux definit",
+    "notAuthenticated": "Mhux awtentikat",
+    "fetchingProjectError": "Proġetti ta 'jġib ta' żball: {{error}}",
+    "fetchingRouteError": "Rotot ta 'fetching ta' żbalji: {{error}}",
+    "unknownError": "Żball mhux magħruf",
+    "resolveURL": "Żball biex issolvi l-url \"{{url}}\":",
+    "mediaSearchAborted": "It-tfittxija għall-midja abortita",
+    "methodNotImplemented": "Metodu mhux implimentat.",
+    "saveProjectAborted": "Issejvja x-xena abortita",
+    "unsavedChanges": "Bidliet Mhux Issejvjati",
+    "unsavedChangesMsg": "Ix-xena ġiet immodifikata. Issejvja l-bidliet tiegħek.",
+    "projectCreationFail": "Il-ħolqien tal-proġett ma rnexxiex. {{reason}}",
+    "projectDeletionFail": "It-tħassir tal-proġett ma rnexxiex. {{reason}}",
+    "savingProjectFail": "L-Issejvjar tal-Proġett falla. {{reason}}",
+    "sceneTooLarge": "Ix-xena hija kbira wisq ({{size}} MB) biex tippubblika. Id-daqs massimu huwa {{maxSize}} MB.",
+    "sceneCreationFail": "Il-ħolqien tax-xena falla. {{reason}}",
+    "uploadAborted": "Tella' l-abort",
+    "uploadFailed": "It-tlugħ falla {{reason}}",
+    "assetDeletionFail": "It-tħassir tal-assi ma rnexxiex. {{reason}}",
+    "projectAssetDeletionFail": "It-tħassir tal-Assi tal-Proġett ma rnexxiex. {{reason}}",
+    "networkError": "Żball fin-Netwerk: {{status}}. {{text}}",
+    "unknownStatus": "Status Mhux Magħruf",
+    "CORS": "Possibilment żball CORS",
+    "urlFetchError": "Naqas milli jġib \"{{url}}\""
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Mexxi l-Kamera",
+      "flyFast": "Itir aktar malajr",
+      "orbit": "Orbita / Agħżel",
+      "pan": "Reċipjent",
+      "fly": "Jtajru",
+      "focus": "Jiffoka",
+      "rotateLeft": "Dawwar ix-Xellug",
+      "rotateRight": "Dawwar lemin",
+      "cancelPlacement": "Ikkanċella t-Tqegħid",
+      "placeDuplicate": "Poġġi Duplikat",
+      "cancelGrab": "Ikkanċella Grab",
+      "grab": "Aqbad",
+      "deselectAll": "Deselect Kollha"
+    },
+    "state": {
+      "header": "Stats",
+      "memory": "Memorja",
+      "geometries": "Ġeometriji",
+      "textures": "Nisġa",
+      "render": "Tirrendi",
+      "FPS": "FPS",
+      "frameTime": "Ħin tal-Frame",
+      "calls": "Sejħiet",
+      "triangles": "Trijangoli",
+      "points": "Punti",
+      "lines": "Linji"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Tippubblika",
+    "lbl-published": "Ppubblikati",
+    "command": {
+      "translate": "Ittraduċi",
+      "rotate": "Dawwar",
+      "scale": "Skala",
+      "toggleSpace": "Ittħabb l-Ispazju tat-Trasformazzjoni",
+      "togglePivot": "It-Toggle Transform Pivot",
+      "toggleSnapMode": "Itaffi l-Modalità Snap",
+      "toggleGrid": "Ittħabb il-Viżibilità tal-Grilja",
+      "increaseGridSize": "Żid id-Daqs tal-Grilja",
+      "descreaseGridSize": "Naqqas id-Daqs tal-Grilja",
+      "stopPreview": "Waqqaf ix-Xena tal-Previżjoni",
+      "playPreview": "Previżjoni tax-Xena"
+    }
+  },
+  "properties": {
+    "title": "Proprjetajiet",
+    "lbl-visible": "Viżibbli",
+    "lbl-preventBake": "Prevenzjoni ta 'Bake",
+    "lbl-persist": "Ippersisti",
+    "multipleNodeSelected": "Nodi multipli ta' tipi differenti magħżula",
+    "noNodeSelected": "Ma jintgħażel l-ebda nodu",
+    "ambientLight": {
+      "name": "Dawl Ambjentali",
+      "description": "Dawl li jdawwal l-oġġetti kollha fix-xena tiegħek.",
+      "lbl-intensity": "Intensità",
+      "lbl-color": "Kulur"
+    },
+    "envmap": {
+      "name": "Mappa tal-Ambjent",
+      "description": "il-proprjetajiet tal-mappa tal-ambjent"
+    },
+    "asset": {
+      "name": "Assi",
+      "description": "Grupp ta' komponenti tax-xena li jistgħu jitgħabbew u jinħattu b'mod dinamiku",
+      "lbl-options": "Għażliet",
+      "lbl-assetPath": "Mogħdija tal-Assi",
+      "lbl-assetName": "Isem l-Esportazzjoni",
+      "lbl-exportOptions": "Għażliet ta 'Esportazzjoni",
+      "lbl-export": "Assi għall-Esportazzjoni",
+      "lbl-load": "Tagħbija Fix-Xena",
+      "lbl-unload": "Ħatt",
+      "lbl-reload": "Tagħbija mill-ġdid"
+    },
+    "audio": {
+      "name": "Awdjo",
+      "description": "Jgħabbi l-awdjo b'mod dinamiku.",
+      "lbl-audiourl": "Url tal-Awdjo",
+      "lbl-controls": "Kontrolli",
+      "info-controls": "Ittħabeġ il-viżibilità tal-kontrolli tal-midja.",
+      "lbl-autoplay": "Ilgħab Awtomatiku",
+      "info-autoplay": "Jekk veru, il-midja tilgħab meta tidħol għall-ewwel darba fix-xena.",
+      "lbl-synchronize": "Tissinkronizza",
+      "info-synchronize": "Jekk veru, il-midja tkun Sinkronizzata fuq il-klijenti konnessi kollha.",
+      "lbl-loop": "Linja",
+      "info-loop": "Jekk veru l-midja se tgħaqqad b'mod indefinit.",
+      "lbl-audioType": "Tip ta' Awdjo",
+      "lbl-distanceModel": "Mudell tad-Distanza",
+      "info-distanceModel": "L-algorithim kien jikkalkula l-rolloff tal-awdjo.",
+      "lbl-rolloffFactor": "Fattur tat-Rolloff",
+      "info-rolloffFactor": "Valur doppju li jiddeskrivi kemm il-volum jitnaqqas malajr hekk kif is-sors jitbiegħed mis-semmiegħ. 0 sa 1",
+      "info-rfInfinity": "Valur doppju li jiddeskrivi kemm il-volum jitnaqqas malajr hekk kif is-sors jitbiegħed mis-semmiegħ. 0 sa Infinity",
+      "lbl-refDistance": "Ref Distanza",
+      "info-refDistance": "Valur doppju li jirrappreżenta d-distanza ta' referenza għat-tnaqqis tal-volum hekk kif is-sors tal-awdjo jimxi aktar 'il quddiem mis-semmiegħ.",
+      "lbl-maxDistance": "Distanza Massima",
+      "info-maxDistance": "Valur doppju li jirrappreżenta d-distanza massima bejn is-sors tal-awdjo u s-semmiegħ, u wara dan il-volum ma jitnaqqasx aktar.",
+      "lbl-coneInnerAngle": "Angolu ta 'ġewwa tal-Kon",
+      "info-coneInnerAngle": "Valur doppju li jiddeskrivi l-angolu, fi gradi, ta 'kon li fih ma jkun hemm l-ebda tnaqqis fil-volum.",
+      "lbl-coneOuterAngle": "Angolu ta 'barra tal-Kon",
+      "info-coneOuterAngle": "Valur doppju li jiddeskrivi l-angolu, fi gradi, ta' kon li barra minnu l-volum jitnaqqas b'valur kostanti, definit mill-attribut coneOuterGain.",
+      "lbl-coreOuterGain": "Kon Qligħ ta 'barra",
+      "info-coreOuterGain": "Valur doppju li jiddeskrivi l-ammont ta' tnaqqis fil-volum barra l-kon definit mill-attribut coneOuterAngle. Il-valur awtomatiku tiegħu huwa 0, li jfisser li l-ebda ħoss ma jista 'jinstema'.",
+      "lbl-volume": "Volum",
+      "lbl-play": "Ilgħab",
+      "lbl-pause": "Issospendi",
+      "error-url": "Żball fit-Tagħbija Mill-URL"
+    },
+    "boxCollider": {
+      "description": "Kaxxa inviżibbli li l-oġġetti se jirbħu minn jew jistrieħu fuq.\nMingħajr colliders, l-oġġetti jaqgħu mill-art u jgħaddu mill-ħitan.",
+      "lbl-isTrigger": "Grillu"
+    },
+    "camera": {
+      "name": "Kamera",
+      "description": "Issettjar tal-kamera.",
+      "lbl-camera-raycast": "Camera Raycasting",
+      "lbl-camera-raycast-toggle": "Attivat",
+      "lbl-camera-raycast-frequency": "Frekwenza",
+      "lbl-camera-raycast-count": "Għadd tar-Raġġi",
+      "lbl-camera-raycast-length": "Tul tar-Raġġi"
+    },
+    "directionalLight": {
+      "name": "Dawl Direzzjonali",
+      "description": "Dawl li jdawwal ix-xena kollha, iżda jarmi tul direzzjoni waħda.",
+      "lbl-color": "Kulur",
+      "lbl-intensity": "Intensità",
+      "lbl-cameraFar": "Kamera 'l Bogħod",
+      "lbl-cameraNear": "Kamera Ħdejn",
+      "lbl-cameraTop": "Fuq tal-Kamera",
+      "lbl-cameraBottom": "Qiegħ tal-Kamera",
+      "lbl-cameraLeft": "Ix-Xellug tal-Kamera",
+      "lbl-cameraRight": "Lemin tal-Kamera",
+      "lbl-useInCSM": "Użu fis-CSM",
+      "lbl-castShadow": "Dell Mitfugħ",
+      "lbl-disableForCSM": "Diżattivat għax il-mappa tad-dell Cascade hija attivata.",
+      "lbl-shadowmapResolution": "Riżoluzzjoni tal-Mappa tad-Dell",
+      "lbl-shadowBias": "Preġudizzju tad-Dell",
+      "lbl-shadowRadius": "Raġġ tad-Dell",
+      "lbl-showCameraHelper": "Uri l-Helper tal-Kamera"
+    },
+    "groundPlane": {
+      "name": "Pjan terren",
+      "description": "Pjan ċatt tal-art li jestendi fid-distanza.",
+      "lbl-color": "Kulur",
+      "lbl-receiveShadow": "Irċievi Dell",
+      "lbl-generateNavmesh": "Iġġenera Navmesh"
+    },
+    "link": {
+      "description": "Link għal kamra jew websajt.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "Mappa ġeospazjali 3D ta' pereżempju belt."
+    },
+    "model": {
+      "description": "Mudell 3D fix-xena tiegħek, mgħobbi minn URL jew fajl GLTF.",
+      "lbl-usingGPUInstancingFlag": "Uża L-Instancing tal-GPU",
+      "lbl-modelurl": "Url tal-Mudell",
+      "lbl-envmapUrl": "Url tal-Mappa tal-Ambjent",
+      "lbl-textureOverride": "Override Nisġa",
+      "lbl-materialOverride": "Overridei tal-Materjal",
+      "error-url": "Żball fit-Tagħbija Mill-URL",
+      "lbl-loopAnimation": "Animazzjoni loop",
+      "lbl-isAvatar": "Huwa Avatar",
+      "lbl-isGPUInstancing": "Qed Juża GPU Instancing",
+      "lbl-isDynamic": "Dinamiċi",
+      "lbl-castShadow": "Dell Mitfugħ",
+      "lbl-receiveShadow": "Irċievi Dell",
+      "lbl-interactable": "Interazzjoni",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Isem",
+      "lbl-url": "Url tal-Mudell",
+      "lbl-buy": "Ixtri Url",
+      "lbl-learnMore": "Tgħallem Aktar Url",
+      "lbl-htmlContent": "Kontenut Html",
+      "lbl-interactionText": "Test ta 'Interazzjoni",
+      "lbl-interactionType": "Tip ta' Interazzjoni"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Materjal",
+      "error-materialID": "Materjal għat-sejba tal-iżbalji",
+      "placeholder-materialID": "Agħżel Materjal",
+      "lbl-patternTarget": "Tqabbil tal-Mudell",
+      "lbl-pattern": "Mudell",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Tip ta' Interazzjoni",
+      "text": "Test ta 'Interazzjoni",
+      "distance": "Distanza tal-Interazzjoni",
+      "theme": "Tema ta' Interazzjoni",
+      "name": "Isem l-Interazzjoni",
+      "description": "Deskrizzjoni tal-Interazzjoni",
+      "images": "Stampi ta 'Interazzjoni",
+      "videos": "Vidjows ta 'Interazzjoni",
+      "urls": "Urls tal-Interazzjoni",
+      "models": "Mudelli ta' Interazzjoni"
+    },
+    "group": {
+      "name": "Grupp",
+      "description": "Grupp ta 'oġġetti multipli li jistgħu jiġu mċaqalqa jew duplikati flimkien.\nIddreggja u twaqqa 'oġġetti fil-Grupp fil-Ġerarkija."
+    },
+    "hemisphere": {
+      "name": "Dawl Emisferixi",
+      "description": "Dawl li jdawwal ix-xena minn overhead direttament.",
+      "lbl-skyColor": "Kulur tas-Sema",
+      "lbl-groundColor": "Kulur l-Art",
+      "lbl-intensity": "Intensità"
+    },
+    "image": {
+      "name": "Immaġni",
+      "description": "Jgħabbi dinamika immaġni.",
+      "lbl-imgURL": "Url tal-Immaġni",
+      "lbl-transparency": "Mod ta 'Trasparenza",
+      "lbl-alphaCutoff": "Alpha Cutoff",
+      "lbl-projection": "Projezzjoni",
+      "lbl-side": "Naħa",
+      "info-controls": "Ittħabeġ il-viżibilità tal-kontrolli tal-midja.",
+      "info-transparency": "Kif tapplika t-trasparenza:",
+      "info-opaque": "\"opak\" = l-ebda trasparenza",
+      "info-blend": "\"taħlita\" = uża l-kanal alfa tal-immaġini",
+      "info-mask": "\"maskra\" = Uża valur ta' limitu speċifikat għat-trasparenza mixgħul/mitfi (aktar performant)",
+      "info-alphaCutoff": "Pixels b'valuri alfa inqas minn dan se jkunu trasparenti",
+      "error-url": "URL invalidu"
+    },
+    "name": {
+      "lbl-name": "Isem"
+    },
+    "partileEmitter": {
+      "description": "Emittent tal-partiċelli biex joħloq partiċelli.",
+      "lbl-particleCount": "Għadd ta' Partiċelli",
+      "lbl-image": "Immaġni",
+      "lbl-ageRandomness": "Età Każwali",
+      "lbl-lifetime": "It-tul tal-",
+      "lbl-lifetimeRandomness": "Każwalità tul il-ħajja",
+      "lbl-sizeCurve": "Kurva tad-Daqs",
+      "lbl-startPSize": "Ibda d-Daqs tal-Partiċelli",
+      "lbl-endPSize": "Daqs tal-Partiċelli tat-Tarf",
+      "lbl-sizeRandomness": "Każwalità tad-Daqs",
+      "lbl-colorCurve": "Kurva tal-Kulur",
+      "lbl-startColor": "Ibda l-Kulur",
+      "lbl-startOpacity": "Opaċità tal-Bidu",
+      "lbl-middleColor": "Kulur Medju",
+      "lbl-middleOpacity": "Opaċità tan-Nofs",
+      "lbl-endColor": "Kulur Aħħari",
+      "lbl-endOpacity": "Opaċità tat-Tmiem",
+      "lbl-velocityCurve": "Kurva tal-Veloċità",
+      "lbl-startVelocity": "Veloċità tal-Istartjar",
+      "lbl-endVelocity": "Veloċità tat-Tmiem",
+      "lbl-angularVelocity": "Veloċità Angolari",
+      "info-ageRandomness": "L-ammont ta' varjazzjoni bejn meta l-partiċelli jitbidu.",
+      "info-lifetime": "L-età massima ta 'partiċella qabel ma tkun respawned.",
+      "info-lifetimeRandomness": "L-ammont ta' varjazzjoni bejn il-ħajja tal-partiċelli.",
+      "info-sizeRandomness": "L-ammont ta' varjazzjoni bejn id-daqsijiet tal-istartjar tal-partiċelli.",
+      "error-url": "Żball fit-Tagħbija Mill-URL"
+    },
+    "clouds": {
+      "name": "Sħaba",
+      "description": "Volum ta 'sħab ibbażat fuq sprite.",
+      "lbl-image": "Immaġni sprite",
+      "lbl-wroldScale": "Skala Dinjija",
+      "lbl-dimensions": "Dimensjonijiet",
+      "lbl-noiseZoom": "Żum tal-Istorbju",
+      "lbl-noiseOffset": "Kumpens għall-Istorbju",
+      "lbl-spriteScale": "Skala ta 'Sprite",
+      "lbl-fogColor": "Kulur taċ-Ċpar",
+      "lbl-fogRange": "Firxa taċ-Ċpar",
+      "error-url": "Żball fit-Tagħbija Mill-URL"
+    },
+    "ocean": {
+      "name": "Oċean",
+      "description": "Wiċċ tal-oċean bil-mewġ u r-ragħwa",
+      "lbl-normalMap": "Mappa Normali",
+      "lbl-distortionMap": "Mappa tad-Distorsjoni",
+      "lbl-envMap": "Mappa tal-Ambjent",
+      "lbl-color": "Kulur",
+      "lbl-shallowWaterColor": "Kulur baxx tal-Ilma",
+      "lbl-shallowToDeepDistance": "Baxx għal Distanza Fonda",
+      "lbl-opacityFadeDistance": "Distanza tal-Fade tal-Opaċità",
+      "lbl-opacityRange": "Firxa ta ' opaċità",
+      "lbl-shininess": "Il-Ħinija",
+      "lbl-reflectivity": "Riflettività",
+      "lbl-foamColor": "Kulur tal-Fowm",
+      "lbl-foamSpeed": "Veloċità tal-Fowm",
+      "lbl-foamTiling": "Madum tal-Fowm",
+      "lbl-bigWaveTiling": "Tiling tal-Mewġ Kbir",
+      "lbl-bigWaveSpeed": "Veloċità tal-Mewġ Kbir",
+      "lbl-bigWaveHeight": "Għoli tal-Mewġ Kbir",
+      "lbl-waveSpeed": "Veloċità tal-Mewġ",
+      "lbl-waveScale": "Skala tal-Mewġ",
+      "lbl-waveTiling": "Madum tal-Mewġ",
+      "lbl-waveDistortionSpeed": "Veloċità tad-Distorsjoni tal-Mewġ",
+      "lbl-waveDistortionTiling": "Tlaħliħ tad-Distorsjoni tal-Mewġ",
+      "error-url": "Żball fit-Tagħbija Mill-URL"
+    },
+    "water": {
+      "name": "Ilma",
+      "description": "Wiċċ żgħir ta 'l-ilma"
+    },
+    "interior": {
+      "name": "Interni",
+      "description": "Wiċċ b'tessut tal-kubu mmappjat biex jimita ambjenti interni",
+      "lbl-cubeMap": "Tessut tal-Mappa tal-Kubu",
+      "lbl-tiling": "Ammont ta' tiling",
+      "lbl-size": "Daqs tal-wiċċ",
+      "error-url": "Żball fit-Tagħbija Mill-URL"
+    },
+    "pointLight": {
+      "description": "Dawl li jarmi fid-direzzjonijiet kollha minn punt wieħed.",
+      "lbl-color": "Kulur",
+      "lbl-intensity": "Intensità",
+      "lbl-range": "Firxa",
+      "lbl-decay": "Tħassir"
+    },
+    "scene": {
+      "name": "Xena",
+      "description": "L-oġġett ewlieni tax-xena.",
+      "lbl-bgcolor": "Kulur fl-Isfond",
+      "lbl-fogType": "Tip taċ-Ċpar",
+      "lbl-fogColor": "Kulur taċ-Ċpar",
+      "lbl-forNearDistance": "Ċpar Ħdejn distanza",
+      "lbl-fogFarDistance": "Distanza 'l Bogħod miċ-Ċpar",
+      "lbl-fogDensity": "Densità taċ-Ċpar",
+      "lbl-audioSettings": "Uża Awdjo Pożizzjonali",
+      "lbl-avatarDistanceModel": "Mudell tad-Distanza tal-Avatar",
+      "lbl-avatarRolloffFactor": "Fattur ta 'Rolloff ta' Avatar",
+      "lbl-avatarRefDistance": "Distanza tal-Avatar Ref",
+      "lbl-avatarMaxDistance": "Distanza Avatar Max",
+      "lbl-mediaVolume": "Volum tal-Midja",
+      "lbl-mediaDistanceModel": "Mudell tad-Distanza tal-Midja",
+      "lbl-mediaRolloffFactor": "Fattur ta 'Rolloff tal-Midja",
+      "lbl-mediaRefDistance": "Distanza tar-Ref tal-Midja",
+      "lbl-mediaMaxDistance": "Distanza Max tal-Midja",
+      "lbl-mediaConeInnerAngle": "Angolu ta 'ġewwa tal-Kon tal-Midja",
+      "lbl-mediaConeOuterAngle": "Angolu ta 'barra tal-Kon tal-Midja",
+      "lbl-mediaConeOuterGain": "Qligħ ta 'barra tal-Kon tal-Midja",
+      "info-avatarDistanceModel": "L-algorithim kien jikkalkula l-rolloff tal-awdjo.",
+      "info-avatarRolloffFactor": "Valur doppju li jiddeskrivi kemm il-volum jitnaqqas malajr hekk kif is-sors jitbiegħed mis-semmiegħ. 0 sa 1",
+      "info-avatarRolloffFactorInifinity": "Valur doppju li jiddeskrivi kemm il-volum jitnaqqas malajr hekk kif is-sors jitbiegħed mis-semmiegħ. 0 sa Infinity",
+      "info-avatarRefDistance": "Valur doppju li jirrappreżenta d-distanza ta' referenza għat-tnaqqis tal-volum hekk kif is-sors tal-awdjo jimxi aktar 'il quddiem mis-semmiegħ.",
+      "info-avatarMaxDistance": "Valur doppju li jirrappreżenta d-distanza massima bejn is-sors tal-awdjo u s-semmiegħ, u wara dan il-volum ma jitnaqqasx aktar.",
+      "info-mediaDistanceModel": "L-algorithim kien jikkalkula l-rolloff tal-awdjo.",
+      "info-mediaRolloffFactor": "Valur doppju li jiddeskrivi kemm il-volum jitnaqqas malajr hekk kif is-sors jitbiegħed mis-semmiegħ. 0 sa 1",
+      "info-mediaRolloffFactorInfinity": "Valur doppju li jiddeskrivi kemm il-volum jitnaqqas malajr hekk kif is-sors jitbiegħed mis-semmiegħ. 0 sa Infinity",
+      "info-mediaRefDistance": "Valur doppju li jirrappreżenta d-distanza ta' referenza għat-tnaqqis tal-volum hekk kif is-sors tal-awdjo jimxi aktar 'il quddiem mis-semmiegħ.",
+      "info-mediaMaxDistance": "Valur doppju li jirrappreżenta d-distanza massima bejn is-sors tal-awdjo u s-semmiegħ, u wara dan il-volum ma jitnaqqasx aktar.",
+      "info-mediaConeInnerAngle": "Valur doppju li jiddeskrivi l-angolu, fi gradi, ta 'kon li fih ma jkun hemm l-ebda tnaqqis fil-volum.",
+      "info-mediaConeOuterAngle": "Valur doppju li jiddeskrivi l-angolu, fi gradi, ta' kon li barra minnu l-volum jitnaqqas b'valur kostanti, definit mill-attribut coneOuterGain.",
+      "info-mediaConeOuterGain": "Valur doppju li jiddeskrivi l-ammont ta' tnaqqis fil-volum barra l-kon definit mill-attribut coneOuterAngle. Il-valur awtomatiku tiegħu huwa 0, li jfisser li l-ebda ħoss ma jista 'jinstema'.",
+      "lbl-simpleMaterials": "Uża Materjali Sempliċi",
+      "lbl-lods": "LODs",
+      "info-lods": "Issettja d-distanzi li fihom jinbidlu l-livelli tal-bidla fid-dettall.",
+      "info-simpleMaterials": "Tikkonverti l-materjali għaljin kollha għal dawk aktar sempliċi biex tieħu l-għoti tat-tagħbija mix-xena.",
+      "lbl-rendererSettings": "Override Renderer Settings",
+      "lbl-csm": "Mapep tad-Dell Kaskata",
+      "info-csm": "Jippermetti mapep tad-dell kaskata.",
+      "lbl-toneMapping": "Immappjar tat-Ton",
+      "info-toneMapping": "Jippermetti l-immappjar tat-ton fuq ix-renderer tax-xena. M'għandu l-ebda effett meta l-ipproċessar ta' wara jkun attivat.",
+      "lbl-toneMappingExposure": "Espożizzjoni għall-Immappjar tat-Ton",
+      "info-toneMappingExposure": "Jispeċifika l-espożizzjoni tal-immappjar tat-ton fuq ir-renderer tax-xena. M'għandu l-ebda effett meta l-ipproċessar ta' wara jkun attivat.",
+      "lbl-shadowMapType": "Tip ta' Mappa tad-Dell",
+      "info-shadowMapType": "Tip ta' mappa tad-dell",
+      "error-url": "Żball fit-Tagħbija Mill-URL"
+    },
+    "sceneCamera": {
+      "name": "Kamera tal-Previżjoni tax-Xena",
+      "description": "Il-kamera kienet tiġġenera l-minjatura għax-xena tiegħek u l-pożizzjoni tal-bidu għall-kamera tal-previżjoni.",
+      "lbl-setFromViewPort": "Issettja Minn Viewport"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Il-ħinijiet tal-Ġurnata",
+      "lbl-color": "Kulur",
+      "lbl-latitude": "Latitudni",
+      "lbl-luminance": "Illuminanza",
+      "lbl-scattering": "Ammont ta 'tixrid",
+      "lbl-scatteringDistance": "Distanza tat-Tixrid",
+      "lbl-horizonStart": "Bidu ta' Orizzont",
+      "lbl-horizonEnd": "Tmiem l-Orizzont",
+      "lbl-texture": "Nisġa",
+      "lbl-skyType": "Tip ta 'Sema",
+      "error-url": "Żball fit-Tagħbija Mill-URL"
+    },
+    "spawnPoint": {
+      "name": "Punt ta 'Spawn",
+      "description": "Punt fejn in-nies jidhru meta jidħlu fix-xena tiegħek.\nL-ikona fil-Viewport tirrappreżenta d-daqs attwali ta 'avatar."
+    },
+    "spotLight": {
+      "description": "Dawl li jarmi tul direzzjoni, li jdawwal oġġetti f'kon.",
+      "lbl-color": "Kulur",
+      "lbl-intensity": "Intensità",
+      "lbl-penumbra": "Il-Penumbra",
+      "lbl-angle": "Angolu",
+      "lbl-range": "Firxa",
+      "lbl-decay": "Tħassir"
+    },
+    "transform": {
+      "title": "Ittrasforma",
+      "lbl-postition": "Pożizzjoni",
+      "lbl-rotation": "Rotazzjoni",
+      "lbl-scale": "Skala"
+    },
+    "triggereVolume": {
+      "description": "Jissettja proprjetà fuq l-oġġett fil-mira fuq id-dħul u l-leave.",
+      "lbl-target": "Oġġett",
+      "lbl-onenter": "Fuq Daħħal",
+      "lbl-onexit": "Mal-Ħruġ",
+      "lbl-showHelper": "Par ta ' l-: Twaħħil ta 'Għajnuna",
+      "ph-errorNode": "Żball fin-nodu nieqes.",
+      "ph-selectNode": "Agħżel nodu..."
+    },
+    "video": {
+      "name": "Vidjo",
+      "description": "Jgħabbi b'mod dinamiku vidjo.",
+      "lbl-video": "Vidjo",
+      "lbl-projection": "Projezzjoni",
+      "lbl-islivestream": "Live Stream",
+      "lbl-interactable": "Interazzjoni",
+      "lbl-id": "Element Id",
+      "lbl-play": "Ilgħab",
+      "lbl-pause": "Issospendi",
+      "error-url": "Żball fit-Tagħbija Mill-URL"
+    },
+    "volumetric": {
+      "name": "Volumetrika",
+      "description": "Jgħabbi b'mod dinamiku vidjo volumetriku.",
+      "uvolPaths": "Mogħdijiet UVOL",
+      "playmode": "Mod ta 'Qari",
+      "playtitle": "Ilgħab",
+      "pausetitle": "Issospendi"
+    },
+    "spline": {
+      "description": "Oħloq u tippersonalizza b'mod dinamiku kurvi.",
+      "lbl-addNode": "Żid nodu mal-kurva."
+    },
+    "systemnode": {
+      "description": "Waħħal l-iskript.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "Punt ta 'Injezzjoni",
+      "lbl-enableClient": "Klijent",
+      "lbl-enableServer": "Server",
+      "lbl-args": "Args",
+      "error-url": "Żball fit-Tagħbija tal-Iskript mill-URL"
+    },
+    "portal": {
+      "lbl-portal": "Portal Illinkjat",
+      "lbl-redirect": "Uża d-Direzzjoni mill-Ġdid tal-Paġna",
+      "description": "Portat biex teleport players għall-post speċifikat",
+      "lbl-locationName": "Post",
+      "lbl-modelUrl": "URL tal-mudell",
+      "lbl-displayText": "Uri t-Test",
+      "lbl-cubemapBake": "Cubemap bake",
+      "lbl-spawnPosition": "Pożizzjoni tal-Irkejjen",
+      "lbl-spawnRotation": "Rotazzjoni tal-Spawn",
+      "lbl-triggerPosition": "Pożizzjoni tal-Attivazzjoni",
+      "lbl-triggerRotation": "Rotazzjoni tal-Grillu",
+      "lbl-triggerScale": "Skala tal-Grillu"
+    },
+    "postprocessing": {
+      "name": "Ipproċessar tal-Posta",
+      "description": "Għall-applikazzjoni tal-effetti ta 'Wara l-Ipproċessar fuq ix-xena tiegħek."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Proġett Ġdid",
+      "backLink": "Lura għall-proġetti",
+      "featured": "Tidher",
+      "all": "Kollha",
+      "newProject": "Proġett Ġdid Vojt",
+      "ph-search": "Fittex xeni..."
+    },
+    "grid": {
+      "loading": "Tagħbija..."
+    },
+    "page": {
+      "header": "Merħba",
+      "headerMsg": "Jekk int ġdid hawn nirrakkomandaw li tgħaddi mit-tutorja. Inkella, aqbeż dritt u oħloq proġett mill-bidu jew minn wieħed mill-mudelli tagħna.",
+      "lbl-startTutorial": "Ibda t-Tutorja",
+      "projects": "Proġetti",
+      "lbl-newProject": "Proġett Ġdid"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Tagħbija...",
+      "placeObject": "Post Oġġett",
+      "placeObjectAtOrigin": "Poġġi Oġġett fl-Oriġini",
+      "copyURL": "Ikkopja l-URL",
+      "openInNewTab": "Iftaħ il-URL fit-Tab Il-Ġdid",
+      "deleteAsset": "Ħassar l-Assi"
+    },
+    "filebrowser": {
+      "addNewFolder": "Żid Fowlder Ġdid",
+      "cutAsset": "Maqtugħa",
+      "copyAsset": "Kopja",
+      "pasteAsset": "Ippejstja",
+      "renameAsset": "Ibdel l-isem",
+      "viewAssetProperties": "Ara l-Propjetajiet"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Ibdel l-isem",
+    "lbl-duplicate": "Duplikat",
+    "lbl-group": "Grupp",
+    "lbl-delete": "Tħassar",
+    "lbl-expandAll": "Espandi Kollox",
+    "lbl-collapseAll": "Ċekken Kollox",
+    "isseus": "Kwistjonijiet:"
+  },
+  "dnd": {
+    "nodes": "{{count}} Diedi Magħżula",
+    "models": "Mudelli {{count}} Magħżula",
+    "images": "{{count}} Images Magħżula",
+    "videos": "{{count}} Tal-Vidjos Magħżula",
+    "audio": "Sorsi {{count}} tal-Awdjo Magħżula"
+  },
+  "dialog": {
+    "title": "Editur",
+    "lbl-confirm": "Kollox sew",
+    "lbl-cancel": "Ikkanċella",
+    "exportProject": {
+      "title": "Proġett ta 'Esportazzjoni",
+      "lbl-confirm": "Proġett ta 'Esportazzjoni",
+      "lbl-combineMesh": "Għaqqad il-Malji",
+      "lbl-removeUnused": "Neħħi Oġġetti Mhux Użati"
+    },
+    "performance": {
+      "title": "Kontroll tal-Prestazzjoni",
+      "lbl-confirm": "Ippubblika x-Xena",
+      "learnMore": "Tgħallem aktar",
+      "lbl-polycount": "Għadd tal-poligonu",
+      "lbl-material": "Materjali",
+      "lbl-texture": "Nisġa",
+      "lbl-lights": "Dwal",
+      "lbl-fileSize": "Daqs tal-Fajl",
+      "info-polycount": "Nirrakkomandaw li x-xena tiegħek tuża mhux aktar minn 50,000 trijanglu għal apparat mobbli.",
+      "info-material": "Nirrakkomandaw li tuża mhux aktar minn 25 materjal uniku fix-xena tiegħek biex tnaqqas it-tlugħ ta 'sejħiet fuq apparat mobbli.",
+      "info-texture": "Nirrakkomandaw li n-nisġa tiegħek tuża mhux aktar minn 256MB ta 'RAM tal-vidjow għal apparat mobbli. Nirrakkomandaw ukoll kontra l-użu ta 'nisġa akbar minn 2048 x 2048.",
+      "info-lights": "Filwaqt li d-dwal dinamiċi mhumiex attivati fuq apparat mobbli, nirrakkomandaw li tuża mhux aktar minn 3 dwal fix-xena tiegħek (esklużi dwal ambjentali u emisferiċi) biex ix-xena tiegħek taħdem fuq kompjuters low-end.",
+      "info-fileSize": "Nirrakkomandaw daqs tal-fajl finali ta 'mhux aktar minn 16MB għal konnessjonijiet ta' bandwidth baxxa. It-tnaqqis tad-daqs tal-fajl inaqqas il-ħin li tieħu biex tniżżel ix-xena tiegħek.",
+      "txt-polycount": "Trijangoli {{count}}",
+      "txt-material": "materjali {{count}}",
+      "txt-ram": "~{{count}} Video RAM",
+      "txt-texture": "{{count}} Nisġa Kbira",
+      "txt-lights": "Dwal {{count}}"
+    },
+    "progress": {
+      "title": "Tagħbija...",
+      "msg": "Tagħbija...",
+      "lbl-cancel": "Ikkanċella"
+    },
+    "publish": {
+      "title": "Ippubblika x-Xena",
+      "lbl-confirm": "Issejvja u Ippubblika",
+      "lbl-name": "Isem ix-Xena",
+      "info-name": "L-isem għandu jkun bejn 4 u 64 karattru u ma jistax ikun fih punti ta' informazzjoni"
+    },
+    "published": {
+      "title": "Xena Ppubblikata",
+      "header": "Ix-xena tiegħek ġiet ippubblikata.",
+      "lbl-view": "Ara x-Xena Tiegħek"
+    },
+    "saveNewProject": {
+      "title": "Appoġġ",
+      "lbl-name": "Isem il-Proġett",
+      "info-name": "L-isem għandu jkun bejn 4 u 64 karattru u ma jistax ikun fih punti ta' informazzjoni",
+      "lbl-confirm": "Issejvja l-Proġett"
+    },
+    "support": {
+      "title": "Appoġġ",
+      "header": "Għandek bżonn tirrapporta problema?",
+      "msg": "Tista 'tippreżenta <1>Ħarġa GitHub</1> jew ibgħatilna email għall-appoġġ fuq <3>{{mail}}</3>",
+      "discord": "Tista ' wkoll issibna fuq <1>Discord</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Stampi Bing",
+      "search": "Fittex minn Bing"
+    },
+    "bingVideo": {
+      "name": "Vidjows ta 'Bing",
+      "search": "Fittex minn Bing"
+    },
+    "element": {
+      "name": "Elementi"
+    },
+    "myAssets": {
+      "name": "Assi Tiegħi"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Fittex minn Google"
+    },
+    "tenor": {
+      "name": "Tenor GIFs",
+      "search": "Fittex minn Tenor",
+      "ph-search": "Fittex GIFs..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Fittex minn Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Tella 'l-Assi"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Fittex l-immaġni..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Fittex filmati..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Fittex l-assi..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Mudelli ta' tiftix..."
+    },
+    "useUpload": {
+      "multipleFileError": "L-input ma jaċċettax fajls multipli.",
+      "mineTypeError": "\"{{name}}\" ma jaqbilx mat-tipi jew estensjonijiet tal-mime li ġejjin: {{types}}",
+      "progressTitle": "It-tlugħ tal-Fajls",
+      "progressMsg": "It-tlugħ ta' fajls {{uploaded}} ta' {{total}}: {{percentage}}%",
+      "uploadError": "Tella 'Żball",
+      "uploadErrorMsg": "Fajl tat-tlugħ tal-iżbalji: {{message}}",
+      "uploadErrorDefaultMsg": "Kien hemm żball mhux magħruf"
+    }
+  },
+  "openLink": {
+    "description": "Jekk jogħġbok ikklikkja l-Iftaħ biex tinnaviga fil-link.",
+    "lbl-open": "Miftuħa"
+  },
+  "interactableModel": {
+    "lbl-buy": "Jixtru",
+    "lbl-learnMore": "Tgħallem aktar"
+  },
+  "corsProxyButton": {
+    "tooltip": "Uża s-Server tal-Proxy cors"
+  }
+}

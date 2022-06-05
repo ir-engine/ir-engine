@@ -1,0 +1,718 @@
+{
+  "loading": "Projekt so proše",
+  "loadingMsg": "Projekt so proše...",
+  "loadingError": "Zmylk při wobchodźe projekta",
+  "loadingErrorMsg": "Při wobchodźe projekta je so zmylk jewił.",
+  "selectSceneMsg": "Wolće scenu, zo byšće z zasopodaćom z wuskosću započinali.",
+  "error": "Zmylk",
+  "errorMsg": "Je so njeznaty zmylk jewił.",
+  "generateScreenshot": "Generěrowanje projektoweho screenshota",
+  "generateScreenshotMsg": "Projekt-screenshot so generěruje...",
+  "newScene": "Scenu zestajeć",
+  "saving": "Projekt składować",
+  "savingMsg": "Projekt składować...",
+  "savingError": "Zmylk při składowanju projekta",
+  "savingErrorMsg": "Při składowanju projekta je so zmylk jewił.",
+  "savingSceneErrorMsg": "Scena so prawje njenakładuje. Spytajće, scenu znowa přeprosyć.",
+  "duplicating": "Duplikowacy projekt",
+  "duplicatingMsg": "Projekt duplikować...",
+  "exporting": "Projekt eksportować",
+  "exportingMsg": "Projekt so eksportuje...",
+  "exportingError": "Zmylk při eksportowanju projekta",
+  "exportingErrorMsg": "Při eksportowanju projekta je so zmylk jewił.",
+  "importLegacy": "Importować wot Legacy World",
+  "importLegacyMsg": "Warnowanje! Tole budźe Wašu wobstejace scenu přepisać! Sće wěsty, zo chceće preč jěć?",
+  "publishingError": "Zmylk při wozjewjenju projekta",
+  "publishingErrorMsg": "Je so njeznaty zmylk jewił.",
+  "publishingScene": "Wozjewjenska scena",
+  "publishingSceneMsg": "Verlagsszene...",
+  "uploadingThumbnailMsg": "Thumbnail so nakładuje...",
+  "uploadingSceneMsg": "Wysokopladen sceny: {{percentage}}%",
+  "envMapError": "Zmylki pola wobchoda Cubemap-kubłarjow {{files}}",
+  "lbl-return": "Wróćenje",
+  "menubar": {
+    "newScene": "Nowa scena",
+    "saveScene": "Scenu składować",
+    "saveAs": "Składowanje pod",
+    "importAsset": "Asset importować",
+    "exportGLB": "Eksport als binäres glTF (.glb) ...",
+    "importScene": "Scenu importować",
+    "exportScene": "Scenu eksportować",
+    "quit": "Wopušćene"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Nic podpěrany dateityp za dataju: \"{{name}}\". Dataja dyrbi wobrazowy, widejowy abo GLB-model być.",
+    "addObject": "addObject: Před objektom njenamakany",
+    "removeObject": "removeObject: Knoten nicht gefunden. To ma so na to wróćo wjesć, zo bu suk wotstronjeny, kiž njeje hižo w scenje.",
+    "noParent": "{{node}} \"{{name}}\" nima žadyn staršiski dźěl. Reparentnje funguje jenož pola objektow, kotrež su runje w scenje.",
+    "undefinedParent": "editor.reparent: newParent njeje definowany",
+    "notAuthenticated": "Nicht awtentifiziert",
+    "fetchingProjectError": "Zmylk při wotwołanju projektow: {{error}}",
+    "fetchingRouteError": "Zmylk při wotwołanju čarow: {{error}}",
+    "unknownError": "Njeznaty zmylk",
+    "resolveURL": "Zmylk při zběhnjenju URL \"{{url}}\":",
+    "mediaSearchAborted": "Medijowe pytanje wotłamane",
+    "methodNotImplemented": "Metoda njedeklinowana.",
+    "saveProjectAborted": "Składowa scena wotłamana",
+    "unsavedChanges": "Njeskładowane změny",
+    "unsavedChangesMsg": "Scena bu změnjena. Prošu składujće Waše změny.",
+    "projectCreationFail": "Nastajenje projekta je so nimo kuliło. {{reason}}",
+    "projectDeletionFail": "Hašenje projekta je so nimo kulało. {{reason}}",
+    "savingProjectFail": "Składowanje projekta je so nimo kuliło. {{reason}}",
+    "sceneTooLarge": "Scena je přewulka ({{size}} MB), zo by ju wozjewiła. Maksimalna wulkosć wučinja {{maxSize}} MB.",
+    "sceneCreationFail": "Nastajenje scenow je so nimo kuliło. {{reason}}",
+    "uploadAborted": "Upload wotłamany",
+    "uploadFailed": "Upload faluje {{reason}}",
+    "assetDeletionFail": "Hašenje Assetsa je so nimo kuliło. {{reason}}",
+    "projectAssetDeletionFail": "Hašenje projektowych objektow je so nimo kuliło. {{reason}}",
+    "networkError": "Syćowe zmylki: {{status}}. {{text}}",
+    "unknownStatus": "Njeznaty status",
+    "CORS": "Snano CORS-wolej",
+    "urlFetchError": "\"Přez{{url}}mjasne \"znamjo \""
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Kameru pohibować",
+      "flyFast": "Spěšnišo lětać",
+      "orbit": "Umlaufbahn / Auswahl",
+      "pan": "Pónoj",
+      "fly": "Muchi",
+      "focus": "Palnišćo",
+      "rotateLeft": "Dolěwa wjerćeć",
+      "rotateRight": "Doprawa wjerćeć",
+      "cancelPlacement": "Platzierung stornieren",
+      "placeDuplicate": "Duplikować pukać",
+      "cancelGrab": "Row wotłamać",
+      "grab": "Packen",
+      "deselectAll": "Wuběr wšitkich zběhnyć"
+    },
+    "state": {
+      "header": "Statistiki",
+      "memory": "Pomjatk",
+      "geometries": "Geometrien",
+      "textures": "Gewebe",
+      "render": "Přinjesć",
+      "FPS": "EGO-SHOOTER",
+      "frameTime": "Frame-Zeit",
+      "calls": "Namołwje",
+      "triangles": "Třiróžki",
+      "points": "Dypki",
+      "lines": "Linije"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Wozjewja",
+    "lbl-published": "Wozjewjene",
+    "command": {
+      "translate": "Přełožić",
+      "rotate": "Wjerćeć",
+      "scale": "Měritko",
+      "toggleSpace": "Přešaltowanje transformaciskeho ruma",
+      "togglePivot": "Přešaltowanje transformaciskeho piwota",
+      "toggleSnapMode": "Einrastmodus umsšalt",
+      "toggleGrid": "Rastersichtbarkeit ein-/aussšalt",
+      "increaseGridSize": "Zwyšenje rasteroweje wulkosće",
+      "descreaseGridSize": "Zniženje rasteroweje wulkosće",
+      "stopPreview": "Dokónča pokazki sceny",
+      "playPreview": "Vorschau der Scene"
+    }
+  },
+  "properties": {
+    "title": "Kajkosće",
+    "lbl-visible": "Widźomnje",
+    "lbl-preventBake": "Bake zadźěwaja",
+    "lbl-persist": "Wobstać",
+    "multipleNodeSelected": "Wjacore suki rozdźělnych typow wuzwolene",
+    "noNodeSelected": "Žane suki wuzwolene",
+    "ambientLight": {
+      "name": "Wokolne wokno",
+      "description": "Swětło, kiž wšitke objekty we Wašej scenje wobswětla.",
+      "lbl-intensity": "intensita",
+      "lbl-color": "Barba"
+    },
+    "envmap": {
+      "name": "Wokolna karta",
+      "description": "Kajkosće wokoliny"
+    },
+    "asset": {
+      "name": "Zamóženkowědomosć",
+      "description": "Zeskupjenje scenowych komponentow, kotrež móža so dynamisce nabić a wotkładować",
+      "lbl-options": "Opcije",
+      "lbl-assetPath": "Asset-Pfad",
+      "lbl-assetName": "Mjeno eksportować",
+      "lbl-exportOptions": "Eksportne opcije",
+      "lbl-export": "Eksportowanje zamóženskich hódnotow",
+      "lbl-load": "W scenje přeprošować",
+      "lbl-unload": "Wotkładować",
+      "lbl-reload": "Dobiwanje"
+    },
+    "audio": {
+      "name": "Audio",
+      "description": "Dynamiski wobchod wot awdija.",
+      "lbl-audiourl": "Audio-URL",
+      "lbl-controls": "Wodźenje",
+      "info-controls": "Přešaltujće widźomnosć medijowych dawkowych elementow.",
+      "lbl-autoplay": "Awtomatiske zasopodaće",
+      "info-autoplay": "Hdyž je to tón pad, so medije při prěnim zastupje do sceny wothrawaja.",
+      "lbl-synchronize": "Synchronizować",
+      "info-synchronize": "Hdyž so true, so medije na wšěch zwjazanych klientach synchronizuja.",
+      "lbl-loop": "Slepo",
+      "info-loop": "Hdyž je to wěrno, budu so medije na njewěsty čas wospjetować.",
+      "lbl-audioType": "Audio-Typ",
+      "lbl-distanceModel": "Zdaleny model",
+      "info-distanceModel": "Algorithim bu wužiwany, zo by so awdijo-rolloff wobličił.",
+      "lbl-rolloffFactor": "Rolloff-Faktor",
+      "info-rolloffFactor": "Dwójna hódnota, kotraž wopisuje, kak spěšnje so sylnosć zwuka redukuje, hdyž so žórło wot připosłucharja zdaluje. 0 do 1",
+      "info-rfInfinity": "Dwójna hódnota, kotraž wopisuje, kak spěšnje so sylnosć zwuka redukuje, hdyž so žórło wot připosłucharja zdaluje. 0 bis njeskónčnje",
+      "lbl-refDistance": "Referenca",
+      "info-refDistance": "Dwójna hódnota, kotraž předstaja referencny wotstawk k zniženju sylnosće zwuka, hdyž so awdijowe žórło dale wot připosłucharja zdaluje.",
+      "lbl-maxDistance": "Maks. zdalenosć",
+      "info-maxDistance": "Dwójna hódnota, kotraž woznamjenja maksimalny wotstawk mjez awdijowym žórłom a připosłucharjom, po kotrejž so sylnosć zwuka dale njeredukuje.",
+      "lbl-coneInnerAngle": "Kegel-Innenwinkel",
+      "info-coneInnerAngle": "Dwójna hódnota, kotraž wopisuje kut kehela w stopnjach, w kotrejž njeje žanoho wolumenoweho redukowanja.",
+      "lbl-coneOuterAngle": "Kegel-Außenwinkel",
+      "info-coneOuterAngle": "Dwójna hódnota, kotraž wopisuje kut kehela w stopnjach, zwonka njeho wolumen wo konstantnu hódnotu redukuje, kotraž so přez coneOuterGain-Attribut definuje.",
+      "lbl-coreOuterGain": "Kegel-außenverstärkung",
+      "info-coreOuterGain": "Dwójna hódnota, kotraž wopisu wolumenoweho redukowanja zwonka přez coneOuterAngle-attribut definowaneho kehela. Standardna hódnota je 0, štož woznamjenja, zo žadyn zwuk słyšeć njeje.",
+      "lbl-volume": "Wolumen",
+      "lbl-play": "Hrać",
+      "lbl-pause": "Přestawka",
+      "error-url": "Zmylk při wobchodźe URL"
+    },
+    "boxCollider": {
+      "description": "Njewidźomna boksa, wot kotrejež objekty wotpraskaja abo na kotrejž wotpočuja.\nBjez pospěšenja padaja objekty přez pódy a du přez sćěny.",
+      "lbl-isTrigger": "Wuwabić"
+    },
+    "camera": {
+      "name": "Kamera",
+      "description": "Nastajenje kamery.",
+      "lbl-camera-raycast": "Kamera Raycasting",
+      "lbl-camera-raycast-toggle": "Zmóžnjene",
+      "lbl-camera-raycast-frequency": "Frekwenca",
+      "lbl-camera-raycast-count": "Ray Count",
+      "lbl-camera-raycast-length": "Ray-dołhosć"
+    },
+    "directionalLight": {
+      "name": "Sudźene swětło",
+      "description": "Swětło, kotrež cyłu scenu wobswětluje, ale podłu jeničkeho směra wuprudźa.",
+      "lbl-color": "Barba",
+      "lbl-intensity": "intensita",
+      "lbl-cameraFar": "Kamera daloko",
+      "lbl-cameraNear": "Kamera w bliskosći",
+      "lbl-cameraTop": "Kamera Top",
+      "lbl-cameraBottom": "Kamera deleka",
+      "lbl-cameraLeft": "Kamera nalěwo",
+      "lbl-cameraRight": "Kamera naprawo",
+      "lbl-useInCSM": "Wužiwanje w CSM",
+      "lbl-castShadow": "Sćiny mjetać",
+      "lbl-disableForCSM": "Deaktiwěrujće, dokelž je Cascade shadow map aktiwěrowany.",
+      "lbl-shadowmapResolution": "Rozpušćenje sćinoweje karty",
+      "lbl-shadowBias": "Sćinowa předzajatosć",
+      "lbl-shadowRadius": "Sćinowy radius",
+      "lbl-showCameraHelper": "Kamera-pomocnik přizjewić"
+    },
+    "groundPlane": {
+      "name": "Zakładna runina",
+      "description": "Płona zakładna plata, kotraž so do daliny wupřestrěwa.",
+      "lbl-color": "Barba",
+      "lbl-receiveShadow": "Sćiny přijimować",
+      "lbl-generateNavmesh": "Navmesh generěrować"
+    },
+    "link": {
+      "description": "Link k rumnosći abo webstronje.",
+      "lbl-url": "URL (URL)"
+    },
+    "map": {
+      "description": "3D-Geodatenkarte von z.B. einer Stadt."
+    },
+    "model": {
+      "description": "3D-model we Wašej scenje, kotryž so wot GLTF-URL abo -dataje nabije.",
+      "lbl-usingGPUInstancingFlag": "Wužiwanje GPU-instanciěrowanja",
+      "lbl-modelurl": "Model-URL",
+      "lbl-envmapUrl": "URL wokoliny",
+      "lbl-textureOverride": "Teksturu přepisać",
+      "lbl-materialOverride": "Přepisowanja materiala",
+      "error-url": "Zmylk při wobchodźe URL",
+      "lbl-loopAnimation": "Loop-Animation",
+      "lbl-isAvatar": "Je Avatar",
+      "lbl-isGPUInstancing": "Wužiwany GPU-Instancing",
+      "lbl-isDynamic": "Je dynamisce",
+      "lbl-castShadow": "Sćiny mjetać",
+      "lbl-receiveShadow": "Sćiny přijimować",
+      "lbl-interactable": "Interakěrujomne",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Mjeno",
+      "lbl-url": "Model-URL",
+      "lbl-buy": "URL kupić",
+      "lbl-learnMore": "Dalše informacije URL",
+      "lbl-htmlContent": "HTML-Inhalt",
+      "lbl-interactionText": "Interakciski tekst",
+      "lbl-interactionType": "Wašnje interakcije"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Material",
+      "error-materialID": "Zmylk při namakanju materiala",
+      "placeholder-materialID": "Material wuzwolić",
+      "lbl-patternTarget": "Musterübereinstimmung",
+      "lbl-pattern": "Muster",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Wašnje interakcije",
+      "text": "Interakciski tekst",
+      "distance": "Interakciska distanca",
+      "theme": "Interakciska tema",
+      "name": "Mjeno interakcije",
+      "description": "Wopisanje interakcije",
+      "images": "Interakciske wobrazy",
+      "videos": "Interakciske wideja",
+      "urls": "Interakciski-URLs",
+      "models": "Interakciske modele"
+    },
+    "group": {
+      "name": "Skupina",
+      "description": "Skupina wjacorych objektow, kotrež hodźa so hromadźe přestorčić abo duplikować.\nĆehnjejće objekty přez drag & drop do skupiny w hierarchiji."
+    },
+    "hemisphere": {
+      "name": "Swětło hemisfery",
+      "description": "Swětło, kotrež scenu direktnje wothorjeka wobswětla.",
+      "lbl-skyColor": "Njebjeska barba",
+      "lbl-groundColor": "Zakładna barba",
+      "lbl-intensity": "intensita"
+    },
+    "image": {
+      "name": "Wobraz",
+      "description": "Přeprošujće dynamisce wobraz.",
+      "lbl-imgURL": "Bild-URL",
+      "lbl-transparency": "Transparenca-modus",
+      "lbl-alphaCutoff": "Alpha-Cutoff",
+      "lbl-projection": "Projektion",
+      "lbl-side": "strona",
+      "info-controls": "Přešaltujće widźomnosć medijowych dawkowych elementow.",
+      "info-transparency": "Kak so transparenca nałožuje:",
+      "info-opaque": "'njepřewidne' = žanu transparentnu",
+      "info-blend": "'blend' = Wužiwajće alphaski kanal wobrazow",
+      "info-mask": "'mask' = Wužiwajće podatu hraničnu hódnotu za jedno-/wu-transparencu (performanter)",
+      "info-alphaCutoff": "Pikel z nišimi alfabetami su transparentne",
+      "error-url": "Njepłaćiwe URL"
+    },
+    "name": {
+      "lbl-name": "Mjeno"
+    },
+    "partileEmitter": {
+      "description": "Partiklowe maćerje k produkowanju partiklow.",
+      "lbl-particleCount": "Partikelanowa ličba",
+      "lbl-image": "Wobraz",
+      "lbl-ageRandomness": "Staroda připadnosć",
+      "lbl-lifetime": "Žiwjenski čas",
+      "lbl-lifetimeRandomness": "Žiwjenske dołhe připadnosće",
+      "lbl-sizeCurve": "Größenkurve",
+      "lbl-startPSize": "Partiklowu wulkosć startować",
+      "lbl-endPSize": "Kónčna wulkosć artiklow",
+      "lbl-sizeRandomness": "Wjetša napadnosć",
+      "lbl-colorCurve": "Barbna křiwka",
+      "lbl-startColor": "Startowa barba",
+      "lbl-startOpacity": "Přikrywnu móc startować",
+      "lbl-middleColor": "Srjedźna barba",
+      "lbl-middleOpacity": "Srjedźna přikrywna móc",
+      "lbl-endColor": "Kónčna barba",
+      "lbl-endOpacity": "Přikrywnu móc zakónčić",
+      "lbl-velocityCurve": "Spěšnosć kurwa",
+      "lbl-startVelocity": "Startujće Velocity",
+      "lbl-endVelocity": "Kónčna spěšnosć",
+      "lbl-angularVelocity": "Kutowa spěšnosć",
+      "info-ageRandomness": "Stopjeń wariacije mjez terminom, ke kotremuž so partikle produkuja.",
+      "info-lifetime": "Maksimalna staroba dźělčka, prjedy hač so respawowa.",
+      "info-lifetimeRandomness": "Rozměr wariacije mjez partiklowymi žiwjenjom.",
+      "info-sizeRandomness": "Stopjeń wariacije mjez wulkosćemi partiklow.",
+      "error-url": "Zmylk při wobchodźe URL"
+    },
+    "clouds": {
+      "name": "Mróčel",
+      "description": "Sprite-basiertes Cloud-Volumen.",
+      "lbl-image": "Sprite-Bild",
+      "lbl-wroldScale": "Swětowa měra",
+      "lbl-dimensions": "Dimensije",
+      "lbl-noiseZoom": "Rausch-Zoom",
+      "lbl-noiseOffset": "Rauschausgleich",
+      "lbl-spriteScale": "Sprite-Skala",
+      "lbl-fogColor": "Barba kurjawy",
+      "lbl-fogRange": "Młowowy wobłuk",
+      "error-url": "Zmylk při wobchodźe URL"
+    },
+    "ocean": {
+      "name": "Ocean",
+      "description": "Mórski powjerch ze žołmami a ješćom",
+      "lbl-normalMap": "Normalna karta",
+      "lbl-distortionMap": "Skrjedźena karta",
+      "lbl-envMap": "Wokolna karta",
+      "lbl-color": "Barba",
+      "lbl-shallowWaterColor": "Płona barba wody",
+      "lbl-shallowToDeepDistance": "Płony hač do hłubokeje zdalenosće",
+      "lbl-opacityFadeDistance": "Dźědowy staw",
+      "lbl-opacityRange": "Dźědowy wobłuk",
+      "lbl-shininess": "Błyšć",
+      "lbl-reflectivity": "Refleksiske zamóženje",
+      "lbl-foamColor": "Schaumowa barba",
+      "lbl-foamSpeed": "Schaumgeschwindigkeit",
+      "lbl-foamTiling": "Schaumfliesen",
+      "lbl-bigWaveTiling": "Wulke žołmowe kachlicy",
+      "lbl-bigWaveSpeed": "Wulka žołmowa spěšnosć",
+      "lbl-bigWaveHeight": "Wulka wysokosć žołmow",
+      "lbl-waveSpeed": "Žołmowa spěšnosć",
+      "lbl-waveScale": "Žołmowa skala",
+      "lbl-waveTiling": "Žołmowe kapały",
+      "lbl-waveDistortionSpeed": "Žołmywjaca spěšnosć",
+      "lbl-waveDistortionTiling": "Kachlicy za skiły žołmow",
+      "error-url": "Zmylk při wobchodźe URL"
+    },
+    "water": {
+      "name": "Woda",
+      "description": "Mały powjerch wody"
+    },
+    "interior": {
+      "name": "Nutřkowne",
+      "description": "Powjerch z přirjadowanej kóstkowej eksturu k napodobnjenju nutřkownych wokolinow",
+      "lbl-cubeMap": "Cube Map-Textur",
+      "lbl-tiling": "Kachelbetrag",
+      "lbl-size": "Wulkosć płoninow",
+      "error-url": "Zmylk při wobchodźe URL"
+    },
+    "pointLight": {
+      "description": "Swětło, kiž so z jeničkeho dypka do wšěch směrow emituje.",
+      "lbl-color": "Barba",
+      "lbl-intensity": "intensita",
+      "lbl-range": "Wobłuk",
+      "lbl-decay": "Spadnjeny"
+    },
+    "scene": {
+      "name": "Scena",
+      "description": "Rodojek sceny.",
+      "lbl-bgcolor": "Pozadkowa barba",
+      "lbl-fogType": "Kurjawowy typ",
+      "lbl-fogColor": "Barba kurjawy",
+      "lbl-forNearDistance": "Kurjawa w bliskosći",
+      "lbl-fogFarDistance": "Kurjawa we wulkej zdalenosći",
+      "lbl-fogDensity": "Kurjawowa hońtwa",
+      "lbl-audioSettings": "Wužiwanje poziciskeho awdija",
+      "lbl-avatarDistanceModel": "Avatar-Entfernungsmodell",
+      "lbl-avatarRolloffFactor": "Avatar-Rolloff-Faktor",
+      "lbl-avatarRefDistance": "Avatar Ref zdalenosć",
+      "lbl-avatarMaxDistance": "Awatar Maks zdalenosć",
+      "lbl-mediaVolume": "Medijowy wolumen",
+      "lbl-mediaDistanceModel": "Medijowy wotstawkowy model",
+      "lbl-mediaRolloffFactor": "Medien-Rolloff-Faktor",
+      "lbl-mediaRefDistance": "Media Ref zdalenosć",
+      "lbl-mediaMaxDistance": "Maksimalne medijowe wotstronjenje",
+      "lbl-mediaConeInnerAngle": "Nutřkowny kut medijoweho kehela",
+      "lbl-mediaConeOuterAngle": "Wonkowny kut medijoweho kehela",
+      "lbl-mediaConeOuterGain": "Wonkowne zesylnjenje medijoweho kehela",
+      "info-avatarDistanceModel": "Algorithim bu wužiwany, zo by so awdijo-rolloff wobličił.",
+      "info-avatarRolloffFactor": "Dwójna hódnota, kotraž wopisuje, kak spěšnje so sylnosć zwuka redukuje, hdyž so žórło wot připosłucharja zdaluje. 0 do 1",
+      "info-avatarRolloffFactorInifinity": "Dwójna hódnota, kotraž wopisuje, kak spěšnje so sylnosć zwuka redukuje, hdyž so žórło wot připosłucharja zdaluje. 0 bis njeskónčnje",
+      "info-avatarRefDistance": "Dwójna hódnota, kotraž předstaja referencny wotstawk k zniženju sylnosće zwuka, hdyž so awdijowe žórło dale wot připosłucharja zdaluje.",
+      "info-avatarMaxDistance": "Dwójna hódnota, kotraž woznamjenja maksimalny wotstawk mjez awdijowym žórłom a připosłucharjom, po kotrejž so sylnosć zwuka dale njeredukuje.",
+      "info-mediaDistanceModel": "Algorithim bu wužiwany, zo by so awdijo-rolloff wobličił.",
+      "info-mediaRolloffFactor": "Dwójna hódnota, kotraž wopisuje, kak spěšnje so sylnosć zwuka redukuje, hdyž so žórło wot připosłucharja zdaluje. 0 do 1",
+      "info-mediaRolloffFactorInfinity": "Dwójna hódnota, kotraž wopisuje, kak spěšnje so sylnosć zwuka redukuje, hdyž so žórło wot připosłucharja zdaluje. 0 bis njeskónčnje",
+      "info-mediaRefDistance": "Dwójna hódnota, kotraž předstaja referencny wotstawk k zniženju sylnosće zwuka, hdyž so awdijowe žórło dale wot připosłucharja zdaluje.",
+      "info-mediaMaxDistance": "Dwójna hódnota, kotraž woznamjenja maksimalny wotstawk mjez awdijowym žórłom a připosłucharjom, po kotrejž so sylnosć zwuka dale njeredukuje.",
+      "info-mediaConeInnerAngle": "Dwójna hódnota, kotraž wopisuje kut kehela w stopnjach, w kotrejž njeje žanoho wolumenoweho redukowanja.",
+      "info-mediaConeOuterAngle": "Dwójna hódnota, kotraž wopisuje kut kehela w stopnjach, zwonka njeho wolumen wo konstantnu hódnotu redukuje, kotraž so přez coneOuterGain-Attribut definuje.",
+      "info-mediaConeOuterGain": "Dwójna hódnota, kotraž wopisu wolumenoweho redukowanja zwonka přez coneOuterAngle-attribut definowaneho kehela. Standardna hódnota je 0, štož woznamjenja, zo žadyn zwuk słyšeć njeje.",
+      "lbl-simpleMaterials": "Wužiwajće jednore materialije",
+      "lbl-lods": "LODs",
+      "info-lods": "Zwěsćće wotstawki, w kotrychž so detailowe runiny měnjeja.",
+      "info-simpleMaterials": "Konwertěrujće wšitke drohe materialije do jednorišich, zo by so renderowanje scenow wolóžiło.",
+      "lbl-rendererSettings": "Rendererowe nastajenja přepisać",
+      "lbl-csm": "Kaskaděrowace sćinowe karty",
+      "info-csm": "Aktiwnje kaskaděrowace sćinowe karty.",
+      "lbl-toneMapping": "Tone-Mapping",
+      "info-toneMapping": "Aktiwěrujće zwukowy mapping w scenowym ndrju. Nima žanoho wuskutka, hdyž je dodatne wobdźěłanje aktiwěrowane.",
+      "lbl-toneMappingExposure": "Tone Mapping-Belichtung",
+      "info-toneMappingExposure": "Poda zwukowe mapping-wobswětlenje w scenowym ndrju. Nima žanoho wuskutka, hdyž je dodatne wobdźěłanje aktiwěrowane.",
+      "lbl-shadowMapType": "Sćinowy typ",
+      "info-shadowMapType": "Družina sćinoweje karty",
+      "error-url": "Zmylk při wobchodźe URL"
+    },
+    "sceneCamera": {
+      "name": "Scenowa přehladka-Kamera",
+      "description": "Kamera je miniaturny napohlad za Wašu scenu a startowu poziciju za předwidźiwosć generěrowała.",
+      "lbl-setFromViewPort": "Wot nahladoweho wokna postajić"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Dnjowy čas",
+      "lbl-color": "Barba",
+      "lbl-latitude": "Šěrokosć",
+      "lbl-luminance": "Swětłowa architekta",
+      "lbl-scattering": "Sypowa suma",
+      "lbl-scatteringDistance": "Streudistanz",
+      "lbl-horizonStart": "Horizon Start",
+      "lbl-horizonEnd": "Horizon kónc",
+      "lbl-texture": "tekstura",
+      "lbl-skyType": "Himmelstyp",
+      "error-url": "Zmylk při wobchodźe URL"
+    },
+    "spawnPoint": {
+      "name": "Spawn-dypk",
+      "description": "Dypk, na kotrymž so wosoby jewja, hdyž do swojeje sceny zastupja.\nSymbol we Viewportu předstaja woprawdźitu wulkosć awatara."
+    },
+    "spotLight": {
+      "description": "Swětło, kiž do jednoho směra emituje a objekty znutřka kehela wobswětla.",
+      "lbl-color": "Barba",
+      "lbl-intensity": "intensita",
+      "lbl-penumbra": "Połsćiny",
+      "lbl-angle": "Kućik",
+      "lbl-range": "Wobłuk",
+      "lbl-decay": "Spadnjeny"
+    },
+    "transform": {
+      "title": "Přetworić",
+      "lbl-postition": "Pozicija",
+      "lbl-rotation": "Wjerćenje",
+      "lbl-scale": "Měritko"
+    },
+    "triggereVolume": {
+      "description": "Postajeće při zastupje a wopušćenju kajkosć za objekt cila.",
+      "lbl-target": "Objekt",
+      "lbl-onenter": "Při zapodawadłwej tasty",
+      "lbl-onexit": "Při dokónčce",
+      "lbl-showHelper": "Pomocnu syć pokazać",
+      "ph-errorNode": "Zmylk pobrachowacych sukow.",
+      "ph-selectNode": "Suki wuzwolić..."
+    },
+    "video": {
+      "name": "Widejo",
+      "description": "Přeprošuje dynamisce widejo.",
+      "lbl-video": "Widejo",
+      "lbl-projection": "Projektion",
+      "lbl-islivestream": "Live-Stream",
+      "lbl-interactable": "Interakěrujomne",
+      "lbl-id": "Element-ID",
+      "lbl-play": "Hrać",
+      "lbl-pause": "Přestawka",
+      "error-url": "Zmylk při wobchodźe URL"
+    },
+    "volumetric": {
+      "name": "Volumetrisch",
+      "description": "Přeprošujće dynamisce volumetriske widejo.",
+      "uvolPaths": "UVOL-Pfade",
+      "playmode": "Zasopodaće modus",
+      "playtitle": "Hrać",
+      "pausetitle": "Přestawka"
+    },
+    "spline": {
+      "description": "Dynamiske zestajenje a přiměrjenje křiwicow.",
+      "lbl-addNode": "Přidajće křiwicy suk."
+    },
+    "systemnode": {
+      "description": "Skript přiwisować.",
+      "lbl-filePath": "URL (URL)",
+      "lbl-systemUpdateType": "Injekciski dypk",
+      "lbl-enableClient": "Kupc",
+      "lbl-enableServer": "Server",
+      "lbl-args": "Args",
+      "error-url": "Zmylki při wobchodźe skripta wot URL"
+    },
+    "portal": {
+      "lbl-portal": "Zalinkny portal",
+      "lbl-redirect": "Pobóčne wobswěće wužiwać",
+      "description": "Portat k teleportowanju playerow na wěste městno",
+      "lbl-locationName": "Městnosć",
+      "lbl-modelUrl": "Model-URL",
+      "lbl-displayText": "Tekst přizjewić",
+      "lbl-cubemapBake": "Cubemap Backen",
+      "lbl-spawnPosition": "Spawn-Position",
+      "lbl-spawnRotation": "Spawn-Rotation",
+      "lbl-triggerPosition": "Trigger-Position",
+      "lbl-triggerRotation": "Trigger-Drehung",
+      "lbl-triggerScale": "Trigger-skalacija"
+    },
+    "postprocessing": {
+      "name": "Dodatne wobdźěłanje",
+      "description": "K nałožowanju post-processing-efektow na Wašu scenu."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Nowy projekt",
+      "backLink": "Wróćo k projektam",
+      "featured": "Wukmanjeny",
+      "all": "Wšitcy",
+      "newProject": "Nowy prózdny projekt",
+      "ph-search": "Sceny pytać..."
+    },
+    "grid": {
+      "loading": "Wobchod..."
+    },
+    "page": {
+      "header": "Witajće",
+      "headerMsg": "Hdyž sće nowy tu, doporučamy Wam, Tutorial přeńć. Hewak skočiće direktnje nutř a zestajejće projekt wot přičiny na abo z jedneje z našich předłohow.",
+      "lbl-startTutorial": "Wuknjenski program startować",
+      "projects": "Projekty",
+      "lbl-newProject": "Nowy projekt"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Wobchod...",
+      "placeObject": "Objekt pukać",
+      "placeObjectAtOrigin": "Objekt při pochadje pukać",
+      "copyURL": "URL kopěrować",
+      "openInNewTab": "URL na nowej registrowanej karće wotewrěć",
+      "deleteAsset": "Asset hašeć"
+    },
+    "filebrowser": {
+      "addNewFolder": "Nowy rjadowak přidać",
+      "cutAsset": "Třihanje",
+      "copyAsset": "Kopěrowanje",
+      "pasteAsset": "Kleister",
+      "renameAsset": "přemjenować",
+      "viewAssetProperties": "Kajkosće pokazać"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "přemjenować",
+    "lbl-duplicate": "Duplikat",
+    "lbl-group": "Skupina",
+    "lbl-delete": "Hašeć",
+    "lbl-expandAll": "Wšitke zaslepja",
+    "lbl-collapseAll": "Wšitcy wublendować",
+    "isseus": "Problemy:"
+  },
+  "dnd": {
+    "nodes": "{{count}} wubrane suki",
+    "models": "{{count}} wubrane modele",
+    "images": "{{count}} wobrazy wuzwolili",
+    "videos": "{{count}} wideja wuzwolenych",
+    "audio": "{{count}} wubrane žórła awdija"
+  },
+  "dialog": {
+    "title": "Redaktor",
+    "lbl-confirm": "Okay",
+    "lbl-cancel": "Přetorhnyć",
+    "exportProject": {
+      "title": "Projekt eksportować",
+      "lbl-confirm": "Projekt eksportować",
+      "lbl-combineMesh": "Kombinować syće",
+      "lbl-removeUnused": "Nje wužiwane objekty wotstronić"
+    },
+    "performance": {
+      "title": "Wukonowe pruwowanje",
+      "lbl-confirm": "Scenu wozjewić",
+      "learnMore": "Dalše informacije",
+      "lbl-polycount": "Ličba polygonow",
+      "lbl-material": "Materialije",
+      "lbl-texture": "Gewebe",
+      "lbl-lights": "Swěcy",
+      "lbl-fileSize": "Dataigröße",
+      "info-polycount": "Poručamy Wašej scenje, nic wjace hač 50.000 třiróžkow za mobilne nastroje wužiwać.",
+      "info-material": "Doporučamy, nic wjace hač 25 jónkrótnych materialijow we Wašej scenje wužiwać, zo bychmy cofnjenje na mobilnych nastrojach redukowali.",
+      "info-texture": "Poručimy, zo Waše tekstury wjace hač 256 MB widejo-RAM za mobilne nastroje njewužiwaja. Wotradźujemy tež wot toho, tekstury wužiwać, kotrež su wjetše hač 2048 x 2048.",
+      "info-lights": "Byrnjež dynamiske swěcy na mobilnych nastrojach aktiwěrowane njebyli, doporučamy, nic wjace hač 3 swětłowe žórła we Wašej scenje wužiwać (wuwzate wokolne a hemisferowe swěcy), zo by so Waša scena na Low-End-PCs wuwjesć móhła.",
+      "info-fileSize": "Doporučamy doskónčnu datajowu wulkosć wot nic wjace hač 16 MB za zwiski ze snadnej šěrokosću. Hdyž wulkosć dataje redukujeće, redukuje so čas, kiž je za pušćenje Wašeje sceny trěbny.",
+      "txt-polycount": "{{count}} třiróžku",
+      "txt-material": "{{count}} dźěłane maćizny",
+      "txt-ram": "~{{count}} widejo-RAM",
+      "txt-texture": "{{count}} wulke tekstury",
+      "txt-lights": "{{count}} swěcy"
+    },
+    "progress": {
+      "title": "Wobchod...",
+      "msg": "Wobchod...",
+      "lbl-cancel": "Přetorhnyć"
+    },
+    "publish": {
+      "title": "Scenu wozjewić",
+      "lbl-confirm": "Składowanje a wozjewjenja",
+      "lbl-name": "Mjeno sceny",
+      "info-name": "Mjeno dyrbi mjez 4 a 64 znamjenjemi dołhe być a njesmě žane poddanki měć."
+    },
+    "published": {
+      "title": "Scena wozjewjena",
+      "header": "Jeje scena bu wozjewjena.",
+      "lbl-view": "Wobhladajće sej swoju scenu na"
+    },
+    "saveNewProject": {
+      "title": "Podpěrać",
+      "lbl-name": "Projektne mjeno",
+      "info-name": "Mjeno dyrbi mjez 4 a 64 znamjenjemi dołhe być a njesmě žane poddanki měć.",
+      "lbl-confirm": "Projekt składować"
+    },
+    "support": {
+      "title": "Podpěrać",
+      "header": "Dyrbiće problem přizjewić?",
+      "msg": "Móžeće <1>gitHub-problem</1> zapodać abo nam e-mail pósłać, zo byšće podpěru pola <3>{{mail}}</3> dóstali",
+      "discord": "Namakaće nas tež na <1>discord</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing-Bilder",
+      "search": "Pytaj za Bing"
+    },
+    "bingVideo": {
+      "name": "Bing-Videos",
+      "search": "Pytaj za Bing"
+    },
+    "element": {
+      "name": "Elementy"
+    },
+    "myAssets": {
+      "name": "Moje zamóženje"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Pytaj za Google"
+    },
+    "tenor": {
+      "name": "Tenor-GIFs",
+      "search": "Pytaj za tenorom",
+      "ph-search": "GIFs suchen..."
+    },
+    "sketchfab": {
+      "name": "Skizzen-Fab",
+      "search": "Pytaj za skečnymi fab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Asset nakładować"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Wobrazy pytać..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Wideja pytać..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Assets pytać..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Modele pytać..."
+    },
+    "useUpload": {
+      "multipleFileError": "Input nje akceptuje wjacore dataje.",
+      "mineTypeError": "\"{{name}}\"njetrjechi ze slědowacymi MIME-typami abo rozšěrjenjemi: {{types}}",
+      "progressTitle": "Wysokozslědźenje datajow",
+      "progressMsg": "Wysoko wobchod wot datajow {{uploaded}} wot {{total}}: {{percentage}}%",
+      "uploadError": "Upload-Fehler",
+      "uploadErrorMsg": "Zmylk při nakładowanju dataje: {{message}}",
+      "uploadErrorDefaultMsg": "Je so njeznaty zmylk jewił"
+    }
+  },
+  "openLink": {
+    "description": "Klikńće na wočinjenje, zo byšće k linkej nawigěrowali.",
+    "lbl-open": "Wotewrjenje"
+  },
+  "interactableModel": {
+    "lbl-buy": "Kupić",
+    "lbl-learnMore": "Dalše informacije"
+  },
+  "corsProxyButton": {
+    "tooltip": "Wužiwanje Corsa Proxy Server"
+  }
+}

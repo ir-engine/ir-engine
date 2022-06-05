@@ -1,0 +1,202 @@
+{
+  "addComment": "Magdagdag ng komento...",
+  "share": "Ibahagi",
+  "suggestions": "Mga Mungkahi para sa Iyo",
+  "seeAll": "Tingnan Lahat",
+  "likes": "Tulad ng",
+  "viewComments": "Tingnan ang lahat {{count}} komento",
+  "more": "higit pa",
+  "username": "username",
+  "fullName": "Pangalan ng Apelyido",
+  "reportInApporpriate": "Ireport nang hindi angkop",
+  "unfollow": "I-unfollow",
+  "goToPost": "Pumunta sa Post",
+  "shareModal": "Ibahagi",
+  "copyLink": "Kumopya ng Link",
+  "embed": "Nakabaon",
+  "cancel": "Kanselahin ang",
+  "confirm": "Kumpirmahin",
+  "save": "I-save",
+  "profilePic": "{{user}}'profile pic",
+  "ara": "Ara",
+  "follow": "Sundan",
+  "flames": "apoy",
+  "continue": "Magpatuloy",
+  "partyInvitationSent": "Imbitasyon ng Partido na ipinadala",
+  "arMedia": {
+    "back": "Bumalik",
+    "clip": "Clip",
+    "backgrounds": "Mga Background",
+    "start": "Magsimula"
+  },
+  "arMediaform": {
+    "title": "Pamagat",
+    "type": "Tipo",
+    "clip": "Clip",
+    "background": "Background",
+    "scene": "Tagpo",
+    "save": "I-save",
+    "manifest-file": "Ipakita ang .manifest file",
+    "audio-file": "Mp4 file",
+    "dracosis-file": "Dracosis .uvol file",
+    "preview-file": "I-preview ang imahen file"
+  },
+  "creator": {
+    "myVideos": "Ang Aking mga Video",
+    "savedVideos": "Nai-save na mga Video",
+    "back": "Bumalik",
+    "blocked-list": "Hinarangang Listahan",
+    "block-user": "Humarang sa Gumagamit",
+    "dialog-content": "Hindi mo makikita ang profile at nilalaman ng gumagamit"
+  },
+  "creatorForm": {
+    "back": "Bumalik",
+    "edit": "I-edit ang Profile",
+    "save": "I-save",
+    "changeAvatar": "Magpalit ng imaheng avatar",
+    "ph-selectPreview": "Pumili ng preview",
+    "ph-name": "Ang iyong pangalan",
+    "ph-username": "Ang Iyong Username",
+    "ph-email": "Ang Iyong Email",
+    "ph-tags": "Mga Tag",
+    "ph-link": "Link",
+    "ph-aboutYou": "Higit pa tungkol sa iyo",
+    "ph-twitter": "twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Lumabas sa Sign-Out"
+  },
+  "dashboard": {
+    "title": "dashboard",
+    "dashboard": "dashboard",
+    "users": "Mga Gumagamit",
+    "feeds": "Mga Feed",
+    "arMedia": "Video Media",
+    "editor": "Patnugot",
+    "creator": "Lumikha"
+  },
+  "featured": {
+    "empty-list": "Walang feed para sa ngayon ..."
+  },
+  "feed": {
+    "back": "Bumalik",
+    "related": "Kaugnay na mga feed",
+    "is-repoted-message": "Feed ay iniulat!"
+  },
+  "feedForm": {
+    "back": "Bumalik",
+    "thanks": "Salamat sa pagbabahagi at pagpapabuti ng ating komunidad",
+    "share": "Magbahagi ng isang bagay sa komunidad",
+    "upload": "Mag-upload ng Video",
+    "ph-selectVideo": "Pumili ng Video",
+    "preview": "I-preview ang imahe",
+    "ph-selectPreview": "Pumili ng preview",
+    "createFeed": "Para makalikha ng feed na kailangan mong magkaroon ng video at preview image!!!",
+    "ph-videoName": "Ang pangalan ng iyong video",
+    "ph-type": "I-type kung ano ang gusto mong ibahagi sa komunidad ... ",
+    "lbl-share": "Ibahagi",
+    "save": "I-save at pumunta Susunod"
+  },
+  "feedMenu": {
+    "featured": "Itinatampok",
+    "creators": "Mga Lumilikha",
+    "feed": "Ang Feed"
+  },
+  "header": {
+    "lbl-volumetric": "Volyumetric"
+  },
+  "login": {
+    "account": "Mayroon bang account?",
+    "login": "Mag-login",
+    "resetPassword": "I-reset ang button na Password Fake (narito ang isang link mula sa email)",
+    "notHavingAccount": "Wala ka bang account?",
+    "signUp": "Mag-sign Up",
+    "forgotPassword": "Nakalimutan ang password?",
+    "back": "Bumalik",
+    "or": "O"
+  },
+  "comment": {
+    "add": "Idagdag ang iyong komento..."
+  },
+  "notification": {
+    "feedFire": " fired ang iyong feed",
+    "feedBookmarked": " bookmark ang iyong feed",
+    "comment": " sinabi ang iyong feed:",
+    "commentFire": " fired ang iyong komento sa feed",
+    "follow": " nagsimulang sumunod sa iyo",
+    "unfollow": " Tumigil sa pagsunod sa iyo",
+    "followed": " sinundan ka",
+    "activity": "Aktibidad"
+  },
+  "onBoarding": {
+    "welcome": "Maligayang pagdating!",
+    "description": "Pinakamalaking koleksyon ng 370 + layout para sa iOS prototyping.",
+    "next": "Susunod",
+    "discover": "Tuklasin ang mga artikulo,",
+    "news": "balita at mga post",
+    "lines": "Iyon ang damdaming iyon na nagtutulak sa ating pagmamahal sa astronomya at hangarin.",
+    "getStarted": "Magsimula",
+    "meetUp": "Makipagkita sa",
+    "friends": "mga kaibigan.",
+    "meet": "Makipagkita sa mga kaibigan"
+  },
+  "shareForm": {
+    "arcMedia": "Ibahagi",
+    "videoCreated": "Nilikha Ko ang Video na Ito",
+    "shareWithBuddies": "Ibahagi sa mga buddies",
+    "shareVideo": "Ibahagi ang Video",
+    "save": "I-save sa Camera Roll",
+    "cancel": "Kanselahin ang",
+    "close": "Isara",
+    "addFeed": "Magdagdag ng Feed"
+  },
+  "simpleModal": {
+    "emptyList": "Listahan ng bakante",
+    "followers": " sumusunod",
+    "following": " mga tagasunod",
+    "flames": " apoy"
+  },
+  "splash": {
+    "screen": "Splash Screen",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "{{user}}'profile pic"
+  },
+  "view": {
+    "cancel": "Kanselahin ang",
+    "choice": "Mayroon kang dalawang magkaibang mode ng recording para pumili mula sa",
+    "verticalMode": "Vertical mode ay may isang 30 sec record time",
+    "horizontalMode": "Pahalang na mode ay may walang limitasyong oras ng talaan",
+    "start": "Magsimula",
+    "not-show": "Huwag na itong ipakita muli",
+    "welcome": "Maligayang pagdating sa ARC!  Gumawa ng mga personal na video na may isa sa aming mga holograms at i-post ito sa iyong social media channel!",
+    "step": "HAKBANG {{step}}",
+    "text-step-1": "Pumili ng hologram mula sa aklatan.",
+    "text-step-2": "Ito ay Augmented Reality, kaya i-scan ang space sa iyong camera mula sa gilid para sa 3-5 segundo kung saan mo nais na ang hologram pagganap.",
+    "text-step-3-part-1": "I-tap ang screen minsan sa lokasyon kung saan mo gustong ang hologram na nakaangkla.",
+    "text-step-3-part-2": "TIP!  I-tap nang isang beses sa ibang lugar para ilipat ang hologram sa ibang posisyon.",
+    "text-step-3-part-3": "TIP!  Maaari mong i-reize ang hologram sa pamamagitan ng pag-pinch o pagpapalawak ng screen gamit ang iyong hinlalaki at index daliri.",
+    "text-step-4-part-1": "I-tap nang dalawang red record button para SIMULAN ang iyong video recording.",
+    "text-step-4-part-2": "I-tap nang dalawang pulang rekord ang pulang rekord para IHINTO."
+  },
+  "video": {
+    "back": "Bumalik"
+  },
+  "terms": {
+    "confirmTerms": "Sang-ayon ako sa mga Tuntunin ng Paglilingkod",
+    "confirmPolicy": "Sang-ayon ako sa Patakaran sa Privacy"
+  },
+  "registration": {
+    "ph-phoneEmail": "Gumamit ng telepono / email",
+    "facebook": "Magpatuloy sa Facebook",
+    "google": "Magpatuloy sa Google",
+    "linkedin": "Magpatuloy sa Linkedin",
+    "twitter": "Magpatuloy sa Twitter",
+    "gitHub": "Magpatuloy sa GitHub",
+    "connect": "Ikonekta ang iyong email o numero ng telepono",
+    "logIn": "Mag-log in",
+    "LogInTo": "Mag-log in sa",
+    "continueAsGuest": "Magpatuloy bilang panauhin"
+  }
+}

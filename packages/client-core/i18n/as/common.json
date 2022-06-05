@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "পৃষ্ঠা লোড কৰা হৈছে..."
+  },
+  "tooltip": {
+    "pressKey": "{{message}} কৰিবলৈ {{tip}} টিপক"
+  },
+  "toast": {
+    "joined": "যোগ দান কৰা হৈছে",
+    "left": "বাওঁফালে"
+  },
+  "navUserWidget": {
+    "login": "লগ ইন"
+  },
+  "loader": {
+    "connecting": "পৃথিৱীৰ সৈতে সংযোগ কৰা হৈছে...",
+    "entering": "পৃথিৱীত প্ৰৱেশ কৰা হৈছে...",
+    "loading": "লোড কৰা হৈছে...",
+    "objectRemaining": "{{count}} অবজেক্ট বাকী আছে",
+    "objectRemainingPlural": "{{count}} বস্তু বাকী আছে",
+    "loadingObjects": "অবজেক্ট সমূহ লোড কৰা হৈছে",
+    "loadingComplete": "লোড কৰা সম্পূৰ্ণ",
+    "joiningWorld": "বিশ্বত যোগদান কৰা"
+  },
+  "alert": {
+    "eventWasSuccess": "ঘটনা সফল হৈছিল",
+    "errorWasEncountered": "এটা ত্ৰুটিৰ সন্মুখীন হৈছিল",
+    "eventInProgress": "ঘটনা চলি আছে",
+    "seconds": "ছেকেণ্ড",
+    "cancelCountdown": "এই মডেল বন্ধ কৰিলে কাউন্টডাউন বাতিল কৰা হ'ব"
+  },
+  "debug": {
+    "refresh": "সতেজ কৰক",
+    "stats": "পৰিসংখ্যা",
+    "debugOptions": "ডিবাগ বিকল্পসমূহ",
+    "physicsDebug": "পদাৰ্থ বিজ্ঞান",
+    "avatarDebug": "অৱতাৰ",
+    "nodeHelperDebug": "নোড হেল্পাৰ",
+    "gridDebug": "গ্ৰিড",
+    "simpleMaterials": "সৰল সামগ্ৰী",
+    "tick": "টিক কৰক",
+    "worldStore": "ৱৰ্ল্ড ষ্টোৰ",
+    "engineStore": "ইঞ্জিন ষ্টোৰ",
+    "namedEntities": "নামদিয়া সত্তাসমূহ",
+    "networkObject": "নেটৱাৰ্ক অবজেক্ট",
+    "networkClients": "নেটৱাৰ্ক ক্লায়েন্ট"
+  },
+  "recording": {
+    "videoRecorder": "ভিডিঅ' ৰেকৰ্ডাৰ",
+    "waitingForPermissions": "অনুমতিৰ বাবে অপেক্ষা কৰি আছে",
+    "selectVideoSource": "ভিডিঅ' উৎস নিৰ্বাচন কৰক",
+    "screen": "পর্দা",
+    "camera": "কেমেৰা",
+    "microphone": "মাইক্ৰ'ফোন",
+    "startRecording": "ৰেকৰ্ডিং আৰম্ভ কৰক",
+    "pauseRecording": "ৰেকৰ্ডিং বিৰাম কৰক",
+    "resumeRecording": "ৰেকৰ্ডিং পুনৰ আৰম্ভ কৰক",
+    "stopRecording": "ৰেকৰ্ডিং বন্ধ কৰক"
+  },
+  "typing": "টাইপ কৰা হৈছে...",
+  "gameServer": {
+    "browserError": "ব্ৰাউজাৰৰ ত্ৰুটি",
+    "browserErrorMessage": "আপোনাৰ ব্ৰাউজাৰে ব্যক্তিগত ব্ৰাউজিং মোডত ষ্টোৰেজ সমৰ্থন নকৰে। হয় আন এটা ব্ৰাউজাৰ চেষ্টা কৰক, বা ব্যক্তিগত ব্ৰাউজিং মোডৰ পৰা প্ৰস্থান কৰক।",
+    "noAvailableServers": "কোনো উপলব্ধ চাৰ্ভাৰ নাই",
+    "noAvailableServersMessage": "আপোনাৰ সংযোগ কৰিবলৈ কোনো চাৰ্ভাৰ উপলব্ধ নাই। পুনৰ সংযোগ কৰাৰ চেষ্টা কৰা হৈছে",
+    "worldDisconnected": "পৃথিৱী সংযোগ বিচ্ছিন্ন",
+    "worldDisconnectedMessage": "আপুনি পৃথিৱীৰ সৈতে আপোনাৰ সম্পৰ্ক হেৰুৱাইছে। নিম্নলিখিত সময় শেষ হোৱাৰ আগতে আমি পুনৰ সংযোগ কৰিবলৈ চেষ্টা কৰিম, অন্যথা আপোনাক এটা বেলেগ উদাহৰণলৈ ফৰৱাৰ্ড কৰা হ'ব।",
+    "webGLNotEnabled": "ৱেবজিএল সক্ষম নহয়",
+    "webGLNotEnabledMessage": "আপোনাৰ ব্ৰাউজাৰে ৱেবজিএল সমৰ্থন নকৰে, বা ই অক্ষম হয়। অনুগ্ৰহ কৰি ৱেবজিএল সক্ষম কৰক বা আপোনাৰ ব্ৰাউজাৰৰ শেহতীয়া সংস্কৰণলৈ আপগ্ৰেড কৰাৰ কথা বিবেচনা কৰক।",
+    "youKickedFromWorld": "আপোনাক পৃথিৱীৰ পৰা লাথি মাৰিছে",
+    "youKickedFromWorldMessage": "নিম্নলিখিত কাৰণত আপোনাক এই পৃথিৱীৰ পৰা লাথি মাৰিছিল",
+    "invalidLocation": "অবৈধ অৱস্থান",
+    "cantFindLocation": "আমি অৱস্থান বিচাৰি পোৱা নাই",
+    "misspelledOrNotExist": "ইয়াক ভুল বানান কৰা হ'ব পাৰে, বা ইয়াৰ অস্তিত্ব নাথাকিবও পাৰে।",
+    "loading": "লোড কৰা হৈছে",
+    "low-frame-error": "আপোনাৰ ব্ৰাউজাৰত হাৰ্ডৱেৰ ত্বৰণ ব্যৱহাৰ কৰিবলৈ আৰু আপোনাৰ ব্ৰাউজাৰ পুনৰ ুৱাবলৈ সক্ষম কৰাৰ বিষয়ে বিবেচনা কৰি এটা দুৰ্বল পাৰ্ফোমেঞ্চ চিনাক্ত কৰা হৈছে",
+    "low-frame-title": "উন্নত অভিজ্ঞতাৰ বাবে হাৰ্ডৱেৰ ত্বৰণ সক্ষম কৰক!"
+  },
+  "error": {
+    "loading-error": "ব্যৱহাৰকাৰীৰ তথ্য লোড কৰিবলৈ ব্যৰ্থ",
+    "validation-error": "অনুগ্ৰহ কৰি বৈধ {{type}} ইনপুট কৰক",
+    "login-error": "লগ ইন কৰিবলৈ ব্যৰ্থ"
+  }
+}

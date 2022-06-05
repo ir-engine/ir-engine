@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Email ta' Konferma",
+      "resendEmail": "Jekk jogħġbok iċċekkja l-email tiegħek biex tivverifika l-kont tiegħek. Jekk ma ksibtx email, jekk jogħġbok ikklikkja {{here}} biex tibgħat mill-ġdid l-email ta 'verifika.",
+      "haveAnAccount": "Għandek kont?"
+    },
+    "forgotPassword": {
+      "header": "Insejt il-Password",
+      "enterEmail": "Daħħal l-indirizz tal-email irreġistrat tiegħek u aħna nibgħatulek link għall-irrisettjar tal-password.",
+      "lbl-email": "Indirizz elettroniku",
+      "lbl-submit": "Ibgħat Link",
+      "emailSent": "Irrisettja l-Email tal-Password intbagħtet. Jekk jogħġbok iċċekkja l-email tiegħek."
+    },
+    "login": {
+      "email": "| bl-email SMS",
+      "username": "UserName + Password",
+      "social": "Soċjali"
+    },
+    "magiklink": {
+      "header": "Link għall-Login",
+      "descriptionEmail": "Daħħal l-indirizz tal-email tiegħek u aħna nibgħatulek link tal-login permezz tal-Email.",
+      "descriptionSMS": "Jekk jogħġbok daħħal in-numru tat-telefon tiegħek u aħna nibgħatulek link tal-login permezz ta 'SMS.",
+      "descriptionEmailSMS": "Jekk jogħġbok daħħal l-indirizz tal-email jew in-numru tat-telefon tiegħek (10 ċifri, l-Istati Uniti biss) u aħna nibgħatulek link tal-login permezz tal-Email jew l-SMS.",
+      "descriptionSMSUS": "Jekk jogħġbok daħħal in-numru tat-telefon tiegħek (10 ċifri, l-Istati Uniti biss) u aħna nibgħatulek link tal-login permezz tal-SMS.",
+      "lbl-email": "Indirizz elettroniku",
+      "lbl-emailPhone": "Numru tal-Email jew tat-Telefown",
+      "lbl-phone": "Numru tat-telefown",
+      "agree": "Naqbel mal- ",
+      "terms": "Termini & Kundizzjonijiet",
+      "lbl-submit": "Ibgħat Link tal-Login",
+      "email-sent-msg": "Intbagħt Login Magic Link. Jekk jogħġbok iċċekkja l-Email tiegħek.",
+      "success-msg": "Intbagħt Login Magic Link. Jekk jogħġbok iċċekkja l-Email jew l-SMS tiegħek.",
+      "sms-sent-msg": "Intbagħt Login Magic Link. Jekk jogħġbok iċċekkja l-SMS tiegħek."
+    },
+    "passwordLogin": {
+      "header": "Iffirma",
+      "lbl-email": "Indirizz elettroniku",
+      "lbl-password": "Password",
+      "lbl-rememberMe": "Ftakarni",
+      "lbl-signin": "Iffirma",
+      "forgotPassword": "Insejt il-password?",
+      "signup": "M'għandekx kont? Iffirma",
+      "lbl-login": "Illogja",
+      "ph-password": "Password",
+      "ph-email": "Email"
+    },
+    "social": {
+      "gitHub": "Idħol ma 'GitHub",
+      "google": "Idħol ma 'Google",
+      "facebook": "Idħol ma 'Facebook",
+      "linkedin": "Idħol ma 'Linkedin",
+      "twitter": "Idħol ma 'Twitter"
+    },
+    "register": {
+      "header": "Iffirma",
+      "login": "Illogja",
+      "lbl-signup": "Iffirma",
+      "lbl-password": "Password",
+      "lbl-email": "Indirizz elettroniku",
+      "passwordNotMatch": "Passwords Qabbelx",
+      "ph-password": "Password",
+      "ph-confirmPassword": "Ikkonferma l-Password",
+      "ph-email": "Email"
+    },
+    "resetPassword": {
+      "header": "Irrisettja l-Password",
+      "description": "Daħħal il-password tiegħek għall-indirizz tal-email tiegħek",
+      "lbl-submit": "Irrisettja l-Password",
+      "lbl-password": "Password",
+      "lbl-confirmPassword": "Ikkonferma l-Password",
+      "passwordNotMatch": "Passwords Qabbelx",
+      "nowLoginYourAccount": "Issa tista' tilloggja fil-kont tiegħek",
+      "yourPasswordResetSuccess": "Il-password tiegħek ġiet irrisettjata b'suċċess!"
+    },
+    "verifyEmail": {
+      "header": "Ivverifika l-Email",
+      "processing": "Stenna ftit mument waqt l-ipproċessar..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Postijiet",
+      "loading": "Tagħbija",
+      "col-name": "Isem",
+      "col-scene": "Xena",
+      "col-maxuser": "Utenti Max",
+      "lbl-search": "Fittex postijiet",
+      "lbl-new": "Ġdid"
+    },
+    "newLocation": {
+      "title": "Post",
+      "success": "Issejvjat b'suċċess.",
+      "failure": "Xi ħaġa marret ħażin.",
+      "removeSuccess": "Il-post tneħħa b'suċċess.",
+      "nameInUse": "L-isem qed jintuża.",
+      "nameRequire": "L-isem huwa meħtieġ.",
+      "validNumber": "Numri biss (0-9) huma permessi.",
+      "lbl-name": "Isem",
+      "lbl-maxuser": "Utenti Max",
+      "lbl-scene": "Xena",
+      "lbl-type": "Tip",
+      "lbl-ve": "Vidjo Attivat",
+      "lbl-gme": "Il-Midja Globali Attivata",
+      "lbl-update": "Aġġornament",
+      "lbl-create": "Toħloq",
+      "tooltipCanNotBeDeleted": "Lobby ma jistax jitħassar",
+      "confirmation": "Żgur?",
+      "lbl-yes": "Iva",
+      "lbl-no": "Le"
+    },
+    "share": {
+      "lbl-share": "Sehem",
+      "ph-phoneEmail": "Stedina bl-email jew bin-numru tat-telefon",
+      "lbl-phoneEmail": "Ibgħat lill-email jew lin-numru tat-telefon",
+      "lbl-copy": "Kopja",
+      "lbl-send-invite": "Ibgħat Stedina",
+      "title": "Aqsam il-URL tal-Lokalità tiegħek mat-tim tiegħek",
+      "linkCopied": "Link ikkupjat mal-klibbord."
+    },
+    "setting": {
+      "audio": "Awdjo",
+      "lbl-volume": "Volum",
+      "lbl-microphone": "Mikrofonu",
+      "graphics": "Grafika",
+      "controls": "Kontrolli",
+      "lbl-control-type": "Tip ta' Kontrollur",
+      "lbl-control-scheme": "Skema ta' Kontroll",
+      "lbl-resolution": "Riżoluzzjoni",
+      "lbl-shadow": "Dellijiet",
+      "lbl-pp": "Ipproċessar tal-Posta",
+      "lbl-pbr": "PBR sħiħ",
+      "lbl-automatic": "Awtomatiku",
+      "xrusersetting": "Issettjar tal-Utent XR",
+      "rotation": "Rotazzjoni",
+      "rotation-smooth-speed": "Rotazzjoni Veloċità Lixxa",
+      "rotation-angle": "Angolu ta' rotazzjoni",
+      "moving": "Nimxu",
+      "user-avatar": "Issettjar tal-Avatar",
+      "invert-rotation": "Aqleb ir-Rotazzjoni U Mexxi l-bsaten",
+      "show-avatar": "Uri l-Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Profil",
+      "lbl-settings": "Issettjar",
+      "lbl-username": "Username",
+      "update-msg": "Isem tal-utent aġġornat",
+      "inviteCode": "Kodiċi ta' stedina",
+      "youAreAn": "Int",
+      "youAreA": "Int",
+      "showUserId": "Uri l-ID tal-Utent",
+      "hideUserId": "Aħbi l-ID tal-Utent",
+      "showApiKey": "Uri t-tast tal-API",
+      "hideApiKey": "Aħbi ċ-ċavetta API",
+      "apiKey": "Ċavetta api",
+      "logout": "Illoggja 'l barra",
+      "connectPhone": "Qabbad in-numru tat-telefon tiegħek",
+      "connectEmail": "Qabbad l-email tiegħek",
+      "connectPhoneEmail": "Qabbad l-email jew in-numru tat-telefon tiegħek",
+      "or": "Jew",
+      "lbl-wallet": "Idħol mal-Kartiera",
+      "ph-email": "Email",
+      "ph-phone": "Numru tat-Telefown",
+      "ph-phoneEmail": "Numru tat-Telefon / Email",
+      "phoneEmailError": "Telefon invalidu # jew indirizz elettroniku",
+      "phoneError": "Telefon invalidu #",
+      "emailError": "Indirizz elettroniku invalidu",
+      "loginWithReadyPlayerMe": "Idħol bil-Plejer Lest Me",
+      "connectSocial": "Qabbad mal-kontijiet soċjali",
+      "createOne": "Jekk m'għandekx kont, se jinħoloq għalik wieħed ġdid",
+      "connections": {
+        "title": "Konnessjonijiet",
+        "ipError": "Ma jistax ineħħi l-Fornitur attiv tal-Identità",
+        "disconnect": "Tiskonnettja",
+        "connect": "Ikkonnettja"
+      },
+      "profileDropdown": {
+        "avatar": "Ikona tal-Avatar tal-Utent",
+        "profile": "Profil",
+        "adminConsole": "Console tal-Amministratur",
+        "logout": "Logout"
+      },
+      "userIcon": {
+        "lbl-name": "Ismek",
+        "lbl-update": "Aġġornament",
+        "userId": "Id tal-utent",
+        "ph-uploadImg": "Tella 'l-Immaġni tal-Prodott",
+        "lbl-selectAcvatar": "Agħżel Avatar",
+        "lbl-submit": "Jissottomettu"
+      },
+      "userSettings": {
+        "volume": "Volum",
+        "microphone": "Mikrofonu",
+        "resolution": "Riżoluzzjoni",
+        "high": "Għoli",
+        "low": "Baxxa",
+        "spatialAudio": "Uża Awdjo Spazjali",
+        "enterMuted": "Daħħal il-Kamra Siekta"
+      }
+    },
+    "oauth": {
+      "authenticating": "Qed jawtentika...",
+      "authFailed": "{{service}} l-awtentikazzjoni falliet."
+    },
+    "magikLink": {
+      "wait": "Stenna ftit mument waqt l-ipproċessar..."
+    },
+    "dashboard": {
+      "header": "Dashboard",
+      "dashboard": "Dashboard",
+      "users": "Utenti",
+      "feeds": "Feeds",
+      "instance": "Per eżempju",
+      "locations": "Postijiet",
+      "invites": "Tilqa",
+      "sessions": "Sessjonijiet",
+      "groups": "Gruppi",
+      "parties": "Partijiet",
+      "chats": "Chats",
+      "content": "Pakketti tal-Kontenut",
+      "projects": "Proġetti",
+      "scenes": "Xeni",
+      "avatars": "Avatars",
+      "benchmarking": "Valutazzjoni komparattiva",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Qed jawtentika...",
+    "authFailed": "{{service}} l-awtentikazzjoni falliet."
+  },
+  "magikLink": {
+    "wait": "Stenna ftit mument waqt l-ipproċessar..."
+  },
+  "dashboard": {
+    "header": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Utenti",
+    "feeds": "Feeds",
+    "instance": "Per eżempju",
+    "locations": "Postijiet",
+    "routes": "Rotot",
+    "projects": "Proġetti",
+    "invites": "Tilqa",
+    "sessions": "Sessjonijiet",
+    "groups": "Gruppi",
+    "parties": "Partijiet",
+    "chats": "Chats",
+    "content": "Pakketti tal-Kontenut",
+    "scenes": "Xeni",
+    "avatars": "Avatars",
+    "benchmarking": "Valutazzjoni komparattiva",
+    "bots": "Bots",
+    "setting": "Issettjar"
+  },
+  "avatar": {
+    "title": "Tella 'l-Avatar",
+    "lbl-browse": "Ibbrawżja",
+    "lbl-thumbnail": "Minjatura",
+    "lbl-upload": "Tella '",
+    "selectAvatar": "Agħżel Avatar...",
+    "selectThumbnail": "Agħżel Minjatura...",
+    "rotate": "Dawwar",
+    "pan": "Reċipjent",
+    "noBone": "Obejct ma fih l-ebda għadam jew ġilda",
+    "outOfBound": "L-oġġett huwa barra mill-marbut.",
+    "emptyObj": "L-oġġett huwa vojt.",
+    "maxTriangleError": "L-oġġett fih aktar minn uċuħ {{allowedTriangles}} .",
+    "selectValidFile": "Agħżel fajl validu tal-avatar 3d.",
+    "selectValidThumbnail": "Fajl tal-Minjatura validu magħżul.",
+    "fileOversized": "Id-daqs tal-fajl Avatar għandu jkun bejn {{minSize}} MB u {{maxSize}} MB",
+    "confirmation": "Żgur?",
+    "canNotBeRemoved": "Avatar attiv ma jistax jitneħħa",
+    "remove": "Neħħi l-avatar",
+    "uploadFiles": "Tella ' fajls",
+    "useUrlInstead": "Uża l-url minflok",
+    "avatar": "Avatar",
+    "cancel": "Ikkanċella",
+    "createAvatar": "Oħloq Avatar",
+    "delete": "Tħassar",
+    "view": "Tara",
+    "uploadAvatarInfo": "Aġġorna l-Informazzjoni dwar l-avatar",
+    "name": "Isem",
+    "enterName": "Daħħal isem",
+    "avatarInformation": "Informazzjoni dwar l-Avatar",
+    "description": "Deskrizzjoni",
+    "key": "Ċavetta",
+    "none": "Xejn",
+    "submit": "Jissottomettu",
+    "edit": "Teditja",
+    "avatarUrl": "Url tal-avatar",
+    "upload-success-msg": "Avatar Tella 'b'suċċess.",
+    "remove-success-msg": "Avatar Tella 'b'suċċess.",
+    "warning-msg": "Ir-riżorsa tal-Avatar hija vojta, issinkronizzajt l-avatars mal-ħażna tal-fajl statiku tiegħek?"
+  },
+  "personMenu": {
+    "inviteToParty": "Stieden għall Festa",
+    "addAsFriend": "Żid Bħala Ħabib",
+    "mute": "Mute",
+    "block": "Blokk"
+  },
+  "person": {
+    "you": "Int",
+    "yourScreen": "L-Iskrin Tiegħek",
+    "muteForEveryone": "Aw sla għal kulħadd",
+    "unmuteForEveryone": "Unmute għal kulħadd",
+    "muteMe": "Isteqli",
+    "unmuteMe": "Unmute me",
+    "muteThisPerson": "Siekta din il-persuna",
+    "unmuteThisPerson": "Unmute din il-persuna",
+    "openPictureInPicture": "Iftaħ l-Istampa fl-Istampa"
+  }
+}

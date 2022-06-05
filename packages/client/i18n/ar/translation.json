@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - لم يتم العثور على الصفحة"
+  },
+  "503": {
+    "msg": "503 - الخدمة غير متوفرة"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "تم حظرك من هذا الموقع",
+    "locationName": {
+      "pageTitle": "وطن"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "المشاريع",
+      "header": "يرجى تسجيل الدخول",
+      "welcomeMsg": "أهلًا وسهلًا",
+      "locationHeader": "مواقع",
+      "projectHeader": "المشاريع",
+      "sceneHeader": "مشاهد",
+      "description": "إذا كنت جديدا هنا ، فإننا نوصي بالاطلاع على البرنامج التعليمي. خلاف ذلك ، انتقل مباشرة وقم بإنشاء مشروع من الصفر أو من أحد قوالبنا.",
+      "lbl-startTutorial": "بدء البرنامج التعليمي",
+      "lbl-newProject": "مشروع جديد",
+      "lbl-createProject": "خلق",
+      "lbl-newScene": "مشهد جديد",
+      "lbl-searchProject": "ابحث في المشاريع القائمة...",
+      "back": "ظهر",
+      "contextMenu": "حذف المشروع",
+      "installed": "المشاريع المثبتة",
+      "official": "المشاريع الرسمية",
+      "community": "مشاريع مجتمعية",
+      "install": "أقام",
+      "uninstall": "إلغاء التثبيت",
+      "rename": "اعاده تسميه",
+      "createProject": "إنشاء مشروع",
+      "installProject": "تثبيت المشروع",
+      "processing": "تجهيز",
+      "projectName": "اسم المشروع",
+      "projectURL": "عنوان URL للمشروع"
+    }
+  },
+  "error": {
+    "goHomeLink": "عد للمنزل",
+    "withStatusCode": "حدث خطأ {{code}} على الخادم",
+    "withoutStatusCode": "حدث خطأ على الخادم"
+  },
+  "no-projects": {
+    "msg": "خطأ: لا توجد مشاريع مثبتة - يرجى الاتصال بمسؤول الموقع"
+  },
+  "dev": {
+    "pageTitle": "وطن"
+  },
+  "login": {
+    "pageTitle": "تسجيل الدخول"
+  },
+  "workerTest": {
+    "pageTitle": "اختبار العامل"
+  },
+  "index": {
+    "by": "ب",
+    "xr": "إكس آر",
+    "foundation": "أساس",
+    "description": "في الوقت الحقيقي 3D التطبيقات الاجتماعية للجميع للاستمتاع."
+  },
+  "xrengineContact": {
+    "header": "تواصل معنا!",
+    "description": "نود مساعدتك في الأحداث الافتراضية والبيع بالتجزئة الرقمي والترفيه والاحتياجات الأخرى.",
+    "lbl-name": "اسم",
+    "lbl-email": "البريد الإلكتروني",
+    "lbl-company": "شركة",
+    "lbl-project": "وصف مشروعك",
+    "lbl-send": "ارسل",
+    "lbl-ok": "موافق",
+    "lbl-success": "تم إرسال الرسالة، وسنرد عليك قريبا.",
+    "lbl-failure": "حدث خطأ، حاول Plese مرة أخرى",
+    "err-username": "يرجى إدخال اسمك.",
+    "err-email": "البريد الإلكتروني مطلوب.",
+    "err-msg": "قدم بعض الوصف الموجز لمشروعك."
+  }
+}

@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "確認メール",
+      "resendEmail": "アカウントを確認するには、メールを確認してください。メールが届かない場合は、[ {{here}} ]をクリックして確認メールを再送信してください。",
+      "haveAnAccount": "アカウントをお持ちですか?"
+    },
+    "forgotPassword": {
+      "header": "パスワードを忘れた場合",
+      "enterEmail": "ご登録のメールアドレスを入力すると、パスワードリセットリンクが送信されます。",
+      "lbl-email": "アドレス",
+      "lbl-submit": "リンクを送信",
+      "emailSent": "パスワードのリセットメールが送信されました。メールをご確認ください。"
+    },
+    "login": {
+      "email": "電子メールの|ティッカー",
+      "username": "ユーザー名 + パスワード",
+      "social": "社会的"
+    },
+    "magiklink": {
+      "header": "ログインリンク",
+      "descriptionEmail": "メールアドレスを入力すると、ログインリンクがメールで送信されます。",
+      "descriptionSMS": "電話番号を入力すると、SMS経由でログインリンクが送信されます。",
+      "descriptionEmailSMS": "メールアドレスまたは電話番号(10桁、米国のみ)を入力すると、メールまたはSMSでログインリンクが送信されます。",
+      "descriptionSMSUS": "電話番号(10桁、米国のみ)を入力すると、SMS経由でログインリンクが送信されます。",
+      "lbl-email": "アドレス",
+      "lbl-emailPhone": "メールアドレスまたは電話番号",
+      "lbl-phone": "電話番号",
+      "agree": "私は同意する ",
+      "terms": "利用条件",
+      "lbl-submit": "ログインリンクの送信",
+      "email-sent-msg": "ログインマジックリンクが送信されました。あなたのEメールを確認してください。",
+      "success-msg": "ログインマジックリンクが送信されました。あなたのEメールまたはSMSをご確認ください。",
+      "sms-sent-msg": "ログインマジックリンクが送信されました。SMSをご確認ください。"
+    },
+    "passwordLogin": {
+      "header": "サインイン",
+      "lbl-email": "アドレス",
+      "lbl-password": "パスワード",
+      "lbl-rememberMe": "私を覚えている",
+      "lbl-signin": "サインイン",
+      "forgotPassword": "パスワードをお忘れですか?",
+      "signup": "アカウントをお持ちではありませんか?サインアップ",
+      "lbl-login": "ログイン",
+      "ph-password": "パスワード",
+      "ph-email": "電子メール"
+    },
+    "social": {
+      "gitHub": "GitHub でログインする",
+      "google": "グーグルでログイン",
+      "facebook": "フェイスブックでログイン",
+      "linkedin": "Linkedinでログイン",
+      "twitter": "ツイッターでログイン"
+    },
+    "register": {
+      "header": "サインアップ",
+      "login": "ログイン",
+      "lbl-signup": "サインアップ",
+      "lbl-password": "パスワード",
+      "lbl-email": "アドレス",
+      "passwordNotMatch": "パスワードが一致しない",
+      "ph-password": "パスワード",
+      "ph-confirmPassword": "パスワードの確認",
+      "ph-email": "電子メール"
+    },
+    "resetPassword": {
+      "header": "パスワードのリセット",
+      "description": "メールアドレスのパスワードを入力してください",
+      "lbl-submit": "パスワードのリセット",
+      "lbl-password": "パスワード",
+      "lbl-confirmPassword": "パスワードの確認",
+      "passwordNotMatch": "パスワードが一致しない",
+      "nowLoginYourAccount": "これで、アカウントにログインできます",
+      "yourPasswordResetSuccess": "パスワードが正常にリセットされました!"
+    },
+    "verifyEmail": {
+      "header": "メールの確認",
+      "processing": "処理中はしばらくお待ちください..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "場所",
+      "loading": "積載",
+      "col-name": "名前",
+      "col-scene": "シーン",
+      "col-maxuser": "最大ユーザー数",
+      "lbl-search": "場所を検索する",
+      "lbl-new": "新機能"
+    },
+    "newLocation": {
+      "title": "場所",
+      "success": "正常に保存されました。",
+      "failure": "何かがおかしくなった。",
+      "removeSuccess": "場所が正常に削除されました。",
+      "nameInUse": "名前は使用中です。",
+      "nameRequire": "名前は必須です。",
+      "validNumber": "数字 (0 から 9) のみが許可されます。",
+      "lbl-name": "名前",
+      "lbl-maxuser": "最大ユーザー数",
+      "lbl-scene": "シーン",
+      "lbl-type": "種類",
+      "lbl-ve": "ビデオ有効",
+      "lbl-gme": "グローバルメディア有効",
+      "lbl-update": "更新",
+      "lbl-create": "創造する",
+      "tooltipCanNotBeDeleted": "ロビーを削除できません",
+      "confirmation": "確かですか。",
+      "lbl-yes": "はい",
+      "lbl-no": "いいえ"
+    },
+    "share": {
+      "lbl-share": "共有",
+      "ph-phoneEmail": "メールアドレスまたは電話番号で招待する",
+      "lbl-phoneEmail": "メールまたは電話番号に送信",
+      "lbl-copy": "写し",
+      "lbl-send-invite": "招待を送信",
+      "title": "位置情報の URL をチームと共有する",
+      "linkCopied": "リンクがクリップボードにコピーされました。"
+    },
+    "setting": {
+      "audio": "オーディオ",
+      "lbl-volume": "容積",
+      "lbl-microphone": "マイク",
+      "graphics": "グラフィックス",
+      "controls": "コントロール",
+      "lbl-control-type": "コントローラの種類",
+      "lbl-control-scheme": "制御方式",
+      "lbl-resolution": "解決",
+      "lbl-shadow": "影",
+      "lbl-pp": "後処理",
+      "lbl-pbr": "フル PBR",
+      "lbl-automatic": "自動",
+      "xrusersetting": "XR ユーザー設定",
+      "rotation": "自転",
+      "rotation-smooth-speed": "回転スムーズスピード",
+      "rotation-angle": "回転角度",
+      "moving": "涙ぐましい",
+      "user-avatar": "アバター設定",
+      "invert-rotation": "回転を反転してスティックを移動する",
+      "show-avatar": "アバターを表示"
+    },
+    "profile": {
+      "lbl-profile": "プロフィール",
+      "lbl-settings": "設定",
+      "lbl-username": "ユーザー名",
+      "update-msg": "ユーザー名が更新されました",
+      "inviteCode": "招待コード",
+      "youAreAn": "あなたは",
+      "youAreA": "あなたは",
+      "showUserId": "ユーザー ID の表示",
+      "hideUserId": "ユーザー ID を隠す",
+      "showApiKey": "API キーの表示",
+      "hideApiKey": "API キーを隠す",
+      "apiKey": "API キー",
+      "logout": "ログアウトする",
+      "connectPhone": "電話番号を接続する",
+      "connectEmail": "メールを接続する",
+      "connectPhoneEmail": "メールアドレスまたは電話番号を接続する",
+      "or": "又は",
+      "lbl-wallet": "ウォレットでログイン",
+      "ph-email": "電子メール",
+      "ph-phone": "電話番号",
+      "ph-phoneEmail": "電話番号/メールアドレス",
+      "phoneEmailError": "無効な電話番号またはメールアドレス",
+      "phoneError": "無効な電話#",
+      "emailError": "無効なメールアドレス",
+      "loginWithReadyPlayerMe": "レディプレイヤーミーでログイン",
+      "connectSocial": "ソーシャルアカウントでつながる",
+      "createOne": "アカウントをお持ちでない場合は、新しいアカウントが作成されます。",
+      "connections": {
+        "title": "コネ",
+        "ipError": "アクティブな ID プロバイダーを削除できません",
+        "disconnect": "切る",
+        "connect": "繋ぐ"
+      },
+      "profileDropdown": {
+        "avatar": "ユーザーアバターアイコン",
+        "profile": "プロフィール",
+        "adminConsole": "管理コンソール",
+        "logout": "ログアウト"
+      },
+      "userIcon": {
+        "lbl-name": "お名前 *",
+        "lbl-update": "更新",
+        "userId": "ユーザー ID",
+        "ph-uploadImg": "商品画像のアップロード",
+        "lbl-selectAcvatar": "アバターを選択",
+        "lbl-submit": "送信"
+      },
+      "userSettings": {
+        "volume": "容積",
+        "microphone": "マイク",
+        "resolution": "解決",
+        "high": "高い",
+        "low": "低い",
+        "spatialAudio": "空間オーディオの使用",
+        "enterMuted": "ミュートされた部屋に入る"
+      }
+    },
+    "oauth": {
+      "authenticating": "認証。。。",
+      "authFailed": "{{service}} 認証に失敗しました。"
+    },
+    "magikLink": {
+      "wait": "処理中はしばらくお待ちください..."
+    },
+    "dashboard": {
+      "header": "ダッシュボード",
+      "dashboard": "ダッシュボード",
+      "users": "ユーザー",
+      "feeds": "フィード",
+      "instance": "例",
+      "locations": "場所",
+      "invites": "招待",
+      "sessions": "セッション",
+      "groups": "グループ",
+      "parties": "当事者",
+      "chats": "チャット",
+      "content": "コンテンツ パック",
+      "projects": "プロジェクト",
+      "scenes": "シーン",
+      "avatars": "アバター",
+      "benchmarking": "ベンチマーク",
+      "bots": "ボット"
+    }
+  },
+  "oauth": {
+    "authenticating": "認証。。。",
+    "authFailed": "{{service}} 認証に失敗しました。"
+  },
+  "magikLink": {
+    "wait": "処理中はしばらくお待ちください..."
+  },
+  "dashboard": {
+    "header": "ダッシュボード",
+    "dashboard": "ダッシュボード",
+    "users": "ユーザー",
+    "feeds": "フィード",
+    "instance": "例",
+    "locations": "場所",
+    "routes": "ルート",
+    "projects": "プロジェクト",
+    "invites": "招待",
+    "sessions": "セッション",
+    "groups": "グループ",
+    "parties": "当事者",
+    "chats": "チャット",
+    "content": "コンテンツ パック",
+    "scenes": "シーン",
+    "avatars": "アバター",
+    "benchmarking": "ベンチマーク",
+    "bots": "ボット",
+    "setting": "設定"
+  },
+  "avatar": {
+    "title": "アバターのアップロード",
+    "lbl-browse": "ブラウズ",
+    "lbl-thumbnail": "サムネイル",
+    "lbl-upload": "アップロード",
+    "selectAvatar": "アバターを選択...",
+    "selectThumbnail": "サムネイルを選択...",
+    "rotate": "回転",
+    "pan": "パン",
+    "noBone": "Obejctには骨や皮膚は含まれていません",
+    "outOfBound": "オブジェクトが範囲外です。",
+    "emptyObj": "オブジェクトが空です。",
+    "maxTriangleError": "オブジェクトに {{allowedTriangles}} より大きい面が含まれています。",
+    "selectValidFile": "有効な3Dアバターファイルを選択します。",
+    "selectValidThumbnail": "有効なサムネイル ファイルを選択しました。",
+    "fileOversized": "アバター ファイルのサイズは {{minSize}} MB ~ {{maxSize}} MB である必要があります。",
+    "confirmation": "確かですか。",
+    "canNotBeRemoved": "アクティブアバターは削除できません",
+    "remove": "アバターを削除する",
+    "uploadFiles": "ファイルのアップロード",
+    "useUrlInstead": "代わりにURLを使用してください",
+    "avatar": "アバター",
+    "cancel": "キャンセル",
+    "createAvatar": "アバターの作成",
+    "delete": "削除",
+    "view": "眺める",
+    "uploadAvatarInfo": "アバター情報の更新",
+    "name": "名前",
+    "enterName": "名前を入力",
+    "avatarInformation": "アバター情報",
+    "description": "形容",
+    "key": "鍵",
+    "none": "何一つ",
+    "submit": "送信",
+    "edit": "編集",
+    "avatarUrl": "アバターのURL",
+    "upload-success-msg": "アバターが正常にアップロードされました。",
+    "remove-success-msg": "アバターが正常にアップロードされました。",
+    "warning-msg": "アバターリソースが空ですが、アバターを静的ファイルストレージに同期しましたか?"
+  },
+  "personMenu": {
+    "inviteToParty": "パーティーに招待",
+    "addAsFriend": "友達として追加",
+    "mute": "唖",
+    "block": "ブロック"
+  },
+  "person": {
+    "you": "あなたが",
+    "yourScreen": "あなたのスクリーン",
+    "muteForEveryone": "全員にミュート",
+    "unmuteForEveryone": "全員のミュートを解除する",
+    "muteMe": "ミュートする",
+    "unmuteMe": "ミュートを解除する",
+    "muteThisPerson": "この人をミュートする",
+    "unmuteThisPerson": "このユーザーのミュートを解除する",
+    "openPictureInPicture": "ピクチャインピクチャを開く"
+  }
+}

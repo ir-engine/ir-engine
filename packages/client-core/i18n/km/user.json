@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "អ៊ីម៉ែលបញ្ជាក់",
+      "resendEmail": "សូមពិនិត្យមើលអ៊ីម៉ែលរបស់អ្នកដើម្បីផ្ទៀងផ្ទាត់គណនីរបស់អ្នក។ បើ អ្នក មិន ទទួល បាន អ៊ីមែល សូម ចុច {{here}} ដើម្បី ធ្វើ ឲ្យ អ៊ីមែល ផ្ទៀង ផ្ទាត់ ឡើង វិញ ។",
+      "haveAnAccount": "មានគណនី?"
+    },
+    "forgotPassword": {
+      "header": "Forgot Password",
+      "enterEmail": "សូម បញ្ចូល អាសយដ្ឋាន អ៊ីមែល ដែល បាន ចុះ ឈ្មោះ របស់ អ្នក ហើយ យើង នឹង ផ្ញើ តំណ ការ កំណត់ ពាក្យ សម្ងាត់ ។ល។",
+      "lbl-email": "អាសយដ្ឋានអ៊ីម៉ែល",
+      "lbl-submit": "ផ្ញើ Link",
+      "emailSent": "Reset Password Email ត្រូវបានផ្ញើ។ សូម ពិនិត្យ មើល អ៊ីមែល របស់ អ្នក ។"
+    },
+    "login": {
+      "email": "អ៊ីម៉ែល | SMS",
+      "username": "UserName + Password",
+      "social": "សង្គម"
+    },
+    "magiklink": {
+      "header": "ចូល Link",
+      "descriptionEmail": "សូម បញ្ចូល អាសយដ្ឋាន អ៊ីមែល របស់ អ្នក ហើយ យើង នឹង ផ្ញើ តំណ ចូល តាម រយៈ Email ។",
+      "descriptionSMS": "សូម បញ្ចូល លេខ ទូរស័ព្ទ របស់ អ្នក ហើយ យើង នឹង ផ្ញើ តំណ ចូល តាម រយៈ SMS ។",
+      "descriptionEmailSMS": "សូម បញ្ចូល អាសយដ្ឋាន អ៊ីមែល ឬ លេខ ទូរស័ព្ទ របស់ អ្នក (១០ លេខ, អាមេរិក តែ ប៉ុណ្ណោះ) ហើយ យើង នឹង ផ្ញើ តំណ ចូល តាម រយៈ Email ឬ SMS។",
+      "descriptionSMSUS": "សូម បញ្ចូល លេខ ទូរស័ព្ទ របស់ អ្នក (១០ ខ្ទង់, អាមេរិក តែ ប៉ុណ្ណោះ) ហើយ យើង នឹង ផ្ញើ តំណ ចូល តាម រយៈ SMS។",
+      "lbl-email": "អាសយដ្ឋានអ៊ីម៉ែល",
+      "lbl-emailPhone": "អ៊ីម៉ែល ឬលេខទូរស័ព្ទ",
+      "lbl-phone": "លេខ ទូរស័ព្ទ",
+      "agree": "ខ្ញុំយល់ព្រមនឹង ",
+      "terms": "លក្ខខណ្ឌ & លក្ខខណ្ឌ",
+      "lbl-submit": "ផ្ញើ តំណភ្ជាប់ចូល",
+      "email-sent-msg": "ចូលវេទមន្តត្រូវបានផ្ញើ។ សូមពិនិត្យមើល Email របស់អ្នក។",
+      "success-msg": "ចូលវេទមន្តត្រូវបានផ្ញើ។ សូមពិនិត្យមើល Email ឬ SMS របស់អ្នក។",
+      "sms-sent-msg": "ចូលវេទមន្តត្រូវបានផ្ញើ។ សូមពិនិត្យមើល SMS របស់អ្នក។"
+    },
+    "passwordLogin": {
+      "header": "ចូល",
+      "lbl-email": "អាសយដ្ឋានអ៊ីម៉ែល",
+      "lbl-password": "ពាក្យសម្ងាត់",
+      "lbl-rememberMe": "នឹកអូន",
+      "lbl-signin": "ចូល",
+      "forgotPassword": "Forgot password?",
+      "signup": "អត់មានគណនីទេ? ចុះ​ឈ្មោះ",
+      "lbl-login": "ចូល",
+      "ph-password": "ពាក្យសម្ងាត់",
+      "ph-email": "អ៊ីម៉ែល"
+    },
+    "social": {
+      "gitHub": "ចូល ជាមួយ GitHub",
+      "google": "ចូល ជាមួយ Google",
+      "facebook": "ចូល ជាមួយ Facebook",
+      "linkedin": "ចូល ជាមួយ Linkedin",
+      "twitter": "ចូល ជាមួយ Twitter"
+    },
+    "register": {
+      "header": "ចុះ​ឈ្មោះ",
+      "login": "ចូល",
+      "lbl-signup": "ចុះ​ឈ្មោះ",
+      "lbl-password": "ពាក្យសម្ងាត់",
+      "lbl-email": "អាសយដ្ឋានអ៊ីម៉ែល",
+      "passwordNotMatch": "ពាក្យ សម្ងាត់ មិន ផ្គូផ្គង",
+      "ph-password": "ពាក្យសម្ងាត់",
+      "ph-confirmPassword": "ការ បញ្ជាក់ ពាក្យ សម្ងាត់",
+      "ph-email": "អ៊ីម៉ែល"
+    },
+    "resetPassword": {
+      "header": "លេខកូដសម្ងាត់ Reset",
+      "description": "សូម បញ្ចូល ពាក្យ សម្ងាត់ របស់ អ្នក សម្រាប់ អាសយដ្ឋាន អ៊ីមែល របស់ អ្នក",
+      "lbl-submit": "លេខកូដសម្ងាត់ Reset",
+      "lbl-password": "ពាក្យសម្ងាត់",
+      "lbl-confirmPassword": "ការ បញ្ជាក់ ពាក្យ សម្ងាត់",
+      "passwordNotMatch": "ពាក្យ សម្ងាត់ មិន ផ្គូផ្គង",
+      "nowLoginYourAccount": "ឥឡូវនេះអ្នកអាចចូលគណនីរបស់អ្នកបាន",
+      "yourPasswordResetSuccess": "ពាក្យ សម្ងាត់ របស់ អ្នក ត្រូវ បាន កំណត់ ឡើង វិញ ដោយ ជោគជ័យ !"
+    },
+    "verifyEmail": {
+      "header": "ផ្ទៀងផ្ទាត់អ៊ីម៉ែល",
+      "processing": "សូមរង់ចាំមួយភ្លែតពេលដំណើរការ..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "ទីតាំង",
+      "loading": "ផ្ទុក",
+      "col-name": "ឈ្មោះ",
+      "col-scene": "ទិដ្ឋភាព",
+      "col-maxuser": "អ្នកប្រើប្រាស់ Max",
+      "lbl-search": "ស្វែងរកទីតាំង",
+      "lbl-new": "ថ្មី"
+    },
+    "newLocation": {
+      "title": "ទីតាំង",
+      "success": "បានសង្រ្គោះដោយជោគជ័យ។",
+      "failure": "មានអីខុស។",
+      "removeSuccess": "ទីតាំង ត្រូវ បាន យក ចេញ ដោយ ជោគជ័យ ។",
+      "nameInUse": "Name is in use.",
+      "nameRequire": "ត្រូវការឈ្មោះ។",
+      "validNumber": "មាន តែ លេខ(០-៩) ប៉ុណ្ណោះ ដែល ត្រូវ បាន អនុញ្ញាត ។",
+      "lbl-name": "ឈ្មោះ",
+      "lbl-maxuser": "អ្នកប្រើប្រាស់ Max",
+      "lbl-scene": "ទិដ្ឋភាព",
+      "lbl-type": "ប្រភេទ",
+      "lbl-ve": "វីដេអូបានបើក",
+      "lbl-gme": "ប្រព័ន្ធ ផ្សព្វផ្សាយ សកល បាន បើក",
+      "lbl-update": "Update",
+      "lbl-create": "បង្កើត",
+      "tooltipCanNotBeDeleted": "ឡូប៊ី មិន អាច លុប បាន ទេ",
+      "confirmation": "តើ​អ្នក​ប្រាកដ​ឬ​អត់?",
+      "lbl-yes": "បាទ/ចាស",
+      "lbl-no": "ទេ"
+    },
+    "share": {
+      "lbl-share": "ចែករំលែក",
+      "ph-phoneEmail": "សូមអញ្ជើញតាមអ៊ីមែល ឬលេខទូរស័ព្ទ",
+      "lbl-phoneEmail": "ផ្ញើ ទៅ អ៊ីមែល ឬ លេខ ទូរស័ព្ទ",
+      "lbl-copy": "ចម្លងទុក",
+      "lbl-send-invite": "ផ្ញើរជូនការអញ្ជើញ",
+      "title": "ចែករំលែក Location URL របស់អ្នកជាមួយក្រុមការងាររបស់អ្នក",
+      "linkCopied": "តំណ ដែល បាន ចម្លង ទៅ ក្តារ បន្ទះ ក្លឹប ។"
+    },
+    "setting": {
+      "audio": "អូឌីយ៉ូ",
+      "lbl-volume": "វ៉ុល",
+      "lbl-microphone": "មីក្រូហ្វូន",
+      "graphics": "ក្រាហ្វិក",
+      "controls": "ការត្រួតពិនិត្យ",
+      "lbl-control-type": "ប្រភេទ Controller",
+      "lbl-control-scheme": "គំរោងត្រួតពិនិត្យ",
+      "lbl-resolution": "សេចក្តីសម្រេច",
+      "lbl-shadow": "ស្រមោល",
+      "lbl-pp": "ដំនើរការ Post",
+      "lbl-pbr": "PBR ពេញ",
+      "lbl-automatic": "ស្វ័យប្រវត្តិ",
+      "xrusersetting": "ការកំណត់អ្នកប្រើ XR",
+      "rotation": "បង្វិល",
+      "rotation-smooth-speed": "បង្វិលល្បឿន រលោង",
+      "rotation-angle": "មុំបង្វិល",
+      "moving": "ការផ្លាស់ទី",
+      "user-avatar": "ការកំណត់ Avatar",
+      "invert-rotation": "បង្វិល និង ផ្លាស់ទី ដំបង",
+      "show-avatar": "បង្ហាញ Avatar"
+    },
+    "profile": {
+      "lbl-profile": "ទម្រង់",
+      "lbl-settings": "ការកំណត់",
+      "lbl-username": "ឈ្មោះអ្នកប្រើ",
+      "update-msg": "Username updated",
+      "inviteCode": "សូមអញ្ជើញចូលកូដ",
+      "youAreAn": "អ្នក ជា មនុស្ស ម្នាក់",
+      "youAreA": "អ្នក ជា មនុស្ស ម្នាក់",
+      "showUserId": "បង្ហាញ លេខ សម្គាល់ អ្នក ប្រើ",
+      "hideUserId": "លាក់ USER ID",
+      "showApiKey": "បង្ហាញ គន្លឹះ API",
+      "hideApiKey": "លាក់សោ API",
+      "apiKey": "គន្លឹះ API",
+      "logout": "កំណត់ហេតុចេញ",
+      "connectPhone": "តភ្ជាប់លេខទូរស័ព្ទរបស់អ្នក",
+      "connectEmail": "ភ្ជាប់អ៊ីមែលរបស់អ្នក",
+      "connectPhoneEmail": "តភ្ជាប់អ៊ីមែលឬលេខទូរស័ព្ទរបស់អ្នក",
+      "or": "ឬ",
+      "lbl-wallet": "ចូល ជាមួយ កាបូប",
+      "ph-email": "អ៊ីម៉ែល",
+      "ph-phone": "លេខទូរសព្ទ",
+      "ph-phoneEmail": "លេខទូរសព្ទ / អ៊ីម៉ែល",
+      "phoneEmailError": "អ៊ីនដាលីត ទូរស័ព្ទ # ឬ អាសយដ្ឋាន អ៊ីមែល",
+      "phoneError": "ទូរស័ព្ទ មិន ត្រឹមត្រូវ #",
+      "emailError": "អាសយដ្ឋាន អ៊ីមែល មិន ត្រឹមត្រូវ",
+      "loginWithReadyPlayerMe": "ចូល ជាមួយ កម្មវិធី លេង Ready Me",
+      "connectSocial": "ភ្ជាប់ ជាមួយ គណនី សង្គម",
+      "createOne": "បើ អ្នក មិន មាន គណនី ទេ នោះ គណនី ថ្មី មួយ នឹង ត្រូវ បាន បង្កើត ឡើង សម្រាប់ អ្នក",
+      "connections": {
+        "title": "ការតភ្ជាប់",
+        "ipError": "មិន អាច ដក អ្នក ផ្ដល់ អត្តសញ្ញាណ សកម្ម ចេញ បាន ទេ",
+        "disconnect": "ផ្តាច់",
+        "connect": "ភ្ជាប់"
+      },
+      "profileDropdown": {
+        "avatar": "រូបតំណាង Avatar របស់ User",
+        "profile": "ទម្រង់",
+        "adminConsole": "Admin កុងសូល",
+        "logout": "Logout"
+      },
+      "userIcon": {
+        "lbl-name": "ឈ្មោះ​របស់​អ្នក",
+        "lbl-update": "Update",
+        "userId": "អ្នកប្រើ id",
+        "ph-uploadImg": "រូបភាពផលិតផលបង្ហោះ",
+        "lbl-selectAcvatar": "ជ្រើស Avatar",
+        "lbl-submit": "ដាក់ស្នើ"
+      },
+      "userSettings": {
+        "volume": "វ៉ុល",
+        "microphone": "មីក្រូហ្វូន",
+        "resolution": "សេចក្តីសម្រេច",
+        "high": "ខ្ពស់",
+        "low": "ទាប",
+        "spatialAudio": "ប្រើ អូឌីយ៉ូ Spatial",
+        "enterMuted": "បញ្ចូល បន្ទប់ Muted"
+      }
+    },
+    "oauth": {
+      "authenticating": "ផ្ទៀងផ្ទាត់...",
+      "authFailed": "{{service}} ផ្ទៀងផ្ទាត់ បាន បរាជ័យ ។"
+    },
+    "magikLink": {
+      "wait": "សូមរង់ចាំមួយភ្លែតពេលដំណើរការ..."
+    },
+    "dashboard": {
+      "header": "Dashboard",
+      "dashboard": "Dashboard",
+      "users": "អ្នកប្រើប្រាស់",
+      "feeds": "មតិ",
+      "instance": "ឧទាហរណ៍",
+      "locations": "ទីតាំង",
+      "invites": "អញ្ជើញចូលរួម",
+      "sessions": "សម័យ",
+      "groups": "ក្រុម",
+      "parties": "ភាគី",
+      "chats": "ជជែកគ្នា",
+      "content": "កញ្ចប់មាតិកា",
+      "projects": "គម្រោង",
+      "scenes": "ឆាក",
+      "avatars": "Avatars",
+      "benchmarking": "ការ កំណត់ ស្តង់ដារ",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "ផ្ទៀងផ្ទាត់...",
+    "authFailed": "{{service}} ផ្ទៀងផ្ទាត់ បាន បរាជ័យ ។"
+  },
+  "magikLink": {
+    "wait": "សូមរង់ចាំមួយភ្លែតពេលដំណើរការ..."
+  },
+  "dashboard": {
+    "header": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "អ្នកប្រើប្រាស់",
+    "feeds": "មតិ",
+    "instance": "ឧទាហរណ៍",
+    "locations": "ទីតាំង",
+    "routes": "ផ្លូវ",
+    "projects": "គម្រោង",
+    "invites": "អញ្ជើញចូលរួម",
+    "sessions": "សម័យ",
+    "groups": "ក្រុម",
+    "parties": "ភាគី",
+    "chats": "ជជែកគ្នា",
+    "content": "កញ្ចប់មាតិកា",
+    "scenes": "ឆាក",
+    "avatars": "Avatars",
+    "benchmarking": "ការ កំណត់ ស្តង់ដារ",
+    "bots": "Bots",
+    "setting": "ការកំណត់"
+  },
+  "avatar": {
+    "title": "Upload Avatar",
+    "lbl-browse": "រកមើល",
+    "lbl-thumbnail": "Thumbnail",
+    "lbl-upload": "ការ Upload",
+    "selectAvatar": "ជ្រើសរើស Avatar...",
+    "selectThumbnail": "ជ្រើសរើស Thumbnail...",
+    "rotate": "បង្វិល",
+    "pan": "Pan",
+    "noBone": "Obejct មិន មាន ឆ្អឹង ឬ ស្បែក ណា មួយ ឡើយ",
+    "outOfBound": "វត្ថុ គឺ ហួស ពី ព្រំ ដែន ។",
+    "emptyObj": "វត្ថុ គឺ ទទេ ។",
+    "maxTriangleError": "វត្ថុ មាន ច្រើន ជាង មុខ {{allowedTriangles}} ។",
+    "selectValidFile": "ជ្រើស ឯកសារ ដែល មាន សុពលភាព 3d avatar ។",
+    "selectValidThumbnail": "ឯកសារ Thumbnail ត្រឹមត្រូវ។",
+    "fileOversized": "ទំហំឯកសារ Avatar ត្រូវមានចន្លោះ {{minSize}} MB និង {{maxSize}} MB",
+    "confirmation": "តើ​អ្នក​ប្រាកដ​ឬ​អត់?",
+    "canNotBeRemoved": "សកម្ម Avatar មិន អាច យក ចេញ បាន ទេ",
+    "remove": "យក avatar ចេញ",
+    "uploadFiles": "ឯកសារ ផ្ទុក ឡើង",
+    "useUrlInstead": "ប្រើ url ជំនួស វិញ",
+    "avatar": "អាវ៉ាតា",
+    "cancel": "លប់ចោល",
+    "createAvatar": "បង្កើត Avatar",
+    "delete": "លុប",
+    "view": "ទិដ្ឋភាព",
+    "uploadAvatarInfo": "ព័ត៌មាន Update avatar",
+    "name": "ឈ្មោះ",
+    "enterName": "បញ្ចូល ឈ្មោះ",
+    "avatarInformation": "ព័ត៌មានអាវ៉ាតា",
+    "description": "ពិពណ៌នា",
+    "key": "គន្លឹះ",
+    "none": "គ្មាន",
+    "submit": "ដាក់ស្នើ",
+    "edit": "កែសម្រួល",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "Avatar Uploaded ដោយជោគជ័យ.",
+    "remove-success-msg": "Avatar Uploaded ដោយជោគជ័យ.",
+    "warning-msg": "ធនធាន Avatar ទទេ តើ អ្នក បាន ធ្វើ សមកាលកម្ម avatars ទៅ កាន់ ឃ្លាំង ឯកសារ ឋិតិវន្ត របស់ អ្នក ឬ ទេ?"
+  },
+  "personMenu": {
+    "inviteToParty": "អញ្ជើញ ទៅ ចូលរួម ពិធី ជប់លៀង",
+    "addAsFriend": "បន្ថែមជាមិត្ត",
+    "mute": "មុត",
+    "block": "ប្លុក"
+  },
+  "person": {
+    "you": "អ្នក",
+    "yourScreen": "អេក្រង់របស់អ្នក",
+    "muteForEveryone": "មុត សម្រាប់ មនុស្ស គ្រប់ គ្នា",
+    "unmuteForEveryone": "៤. មិន មុត សម្រាប់ មនុស្ស គ្រប់ គ្នា",
+    "muteMe": "មុត ខ្ញុំ",
+    "unmuteMe": "៤. មិន មុត ១០",
+    "muteThisPerson": "៣. មុត មនុស្ស នេះ",
+    "unmuteThisPerson": "មិន មុត វៃ មនុស្ស នេះ",
+    "openPictureInPicture": "បើក រូបភាព ក្នុង រូបភាព"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "გვერდის ჩატვირთვა..."
+  },
+  "tooltip": {
+    "pressKey": "დააჭირეთ {{tip}} {{message}}"
+  },
+  "toast": {
+    "joined": "შეუერთდა",
+    "left": "მარცხნივ"
+  },
+  "navUserWidget": {
+    "login": "შესვლა"
+  },
+  "loader": {
+    "connecting": "დაკავშირება მსოფლიოში...",
+    "entering": "გთზეაქ ჟგვრა...",
+    "loading": "დატვირთვა...",
+    "objectRemaining": "{{count}} დარჩენილი ობიექტი",
+    "objectRemainingPlural": "დარჩენილი {{count}} ობიექტები",
+    "loadingObjects": "ობიექტების ჩატვირთვა",
+    "loadingComplete": "სრული ჩატვირთვა",
+    "joiningWorld": "გაწევრიანება მსოფლიოში"
+  },
+  "alert": {
+    "eventWasSuccess": "ღონისძიება წარმატებული იყო",
+    "errorWasEncountered": "შეცდომა შეექმნა",
+    "eventInProgress": "ღონისძიება მიმდინარეობს",
+    "seconds": "წამები",
+    "cancelCountdown": "ამ მოდალის დახურვა გააუქმებს ათვლას"
+  },
+  "debug": {
+    "refresh": "განახლება",
+    "stats": "სტატისტიკა",
+    "debugOptions": "განბზიკვის პარამეტრები",
+    "physicsDebug": "ფიზიკა",
+    "avatarDebug": "ავატარი",
+    "nodeHelperDebug": "კვანძის დამხმარე",
+    "gridDebug": "ბადე",
+    "simpleMaterials": "მარტივი მასალები",
+    "tick": "Tick",
+    "worldStore": "მსოფლიო მაღაზია",
+    "engineStore": "ძრავის მაღაზია",
+    "namedEntities": "დასახელებული პირები",
+    "networkObject": "ქსელის ობიექტი",
+    "networkClients": "ქსელის კლიენტები"
+  },
+  "recording": {
+    "videoRecorder": "ვიდეო ჩამწერი",
+    "waitingForPermissions": "ნებართვების მოლოდინში",
+    "selectVideoSource": "აირჩიეთ ვიდეო წყარო",
+    "screen": "ეკრანი",
+    "camera": "კამერა",
+    "microphone": "მიკროფონი",
+    "startRecording": "ჩაწერის დაწყება",
+    "pauseRecording": "პაუზის ჩაწერა",
+    "resumeRecording": "რეზიუმე ჩაწერა",
+    "stopRecording": "ჩაწერის შეწყვეტა"
+  },
+  "typing": "აკრეფა...",
+  "gameServer": {
+    "browserError": "ბრაუზერის შეცდომა",
+    "browserErrorMessage": "თქვენი ბრაუზერი არ უჭერს მხარს შენახვას პირადი დათვალიერების რეჟიმში. ან სცადეთ სხვა ბრაუზერი, ან გამოხვიდეთ პირადი დათვალიერების რეჟიმიდან.",
+    "noAvailableServers": "ხელმისაწვდომი სერვერები არ არის",
+    "noAvailableServersMessage": "თქვენთვის არ არის ხელმისაწვდომი სერვერები. ხელახლა დაკავშირების მცდელობა",
+    "worldDisconnected": "მსოფლიო გათიშულია",
+    "worldDisconnectedMessage": "თქვენ დაკარგეთ კავშირი მსოფლიოსთან. ჩვენ შევეცდებით ხელახლა დავუკავშირდეთ, სანამ მომდევნო დრო ამოიწურება, წინააღმდეგ შემთხვევაში თქვენ გადაგზავნით სხვა ინსტანციას.",
+    "webGLNotEnabled": "WebGL არ არის ჩართული",
+    "webGLNotEnabledMessage": "თქვენი ბრაუზერი არ უჭერს მხარს WebGL- ს, ან გამორთულია. გთხოვთ, ჩართოთ WebGL ან გაითვალისწინოთ განახლება თქვენი ბრაუზერის უახლეს ვერსიაზე.",
+    "youKickedFromWorld": "თქვენ დაარტყა სამყაროდან",
+    "youKickedFromWorldMessage": "თქვენ ამ სამყაროდან დაარტყით შემდეგი მიზეზის გამო",
+    "invalidLocation": "არასწორი ადგილმდებარეობა",
+    "cantFindLocation": "ჩვენ ვერ ვპოულობთ ადგილმდებარეობას",
+    "misspelledOrNotExist": "ეს შეიძლება გამოტოვოთ, ან შეიძლება არ არსებობდეს.",
+    "loading": "დატვირთვა",
+    "low-frame-error": "გამოვლინდა ცუდი perfomance განიხილავს საშუალებას გამოიყენოთ აპარატურის აჩქარება თქვენს ბრაუზერში და გადააბრუნოთ თქვენი ბრაუზერი",
+    "low-frame-title": "ჩართეთ აპარატურის აჩქარება უკეთესი გამოცდილებისთვის!"
+  },
+  "error": {
+    "loading-error": "მომხმარებლის მონაცემების ჩატვირთვა ვერ მოხერხდა",
+    "validation-error": "გთხოვთ, შეიყვანოთ {{type}}",
+    "login-error": "ვერ მოხერხდა შესვლა"
+  }
+}

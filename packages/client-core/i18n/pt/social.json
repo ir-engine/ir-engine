@@ -1,202 +1,202 @@
 {
-  "addComment" : "Adicionar Comentário ... ",
-  "share" : "Compartilhar ",
-  "suggestions" : "Sugestões Para Você ",
-  "seeAll" : "Ver Todos ",
-  "likes" : "Likes ",
-  "viewComments" : "Visualizar todos os comentários {{count}} ",
-  "more" : "mais ",
-  "username" : "nome de usuário ",
-  "fullName" : "Nome do Surnome ",
-  "reportInApporpriate" : "Relatório Inapropriado ",
-  "unfollow" : "Unfollow ",
-  "goToPost" : "Ir para Post ",
-  "shareModal" : "Compartilhar ",
-  "copyLink" : "Link da Cop ",
-  "embed" : "Embed ",
-  "cancel" : "Cancelar ",
-  "confirm" : "Confirmar ",
-  "save" : "Salvar ",
-  "profilePic" : "{{user}} perfil pic ",
-  "ara" : "Ara ",
-  "follow" : "Seguir ",
-  "flames" : "Chamas ",
-  "continue" : "Continuar ",
-  "partyInvitationSent" : "Convite de partido enviado ",
-  "arMedia" : {
-    "back" : "Voltar ",
-    "clip" : "Clip ",
-    "backgrounds" : "Backgrounds ",
-    "start" : "Início "
+  "addComment": "Adicione comentário...",
+  "share": "Compartilhar",
+  "suggestions": "Sugestões para você",
+  "seeAll": "Ver Tudo",
+  "likes": "Gosta",
+  "viewComments": "Veja todos os comentários {{count}}",
+  "more": "mais",
+  "username": "nome de usuário",
+  "fullName": "Sobrenome",
+  "reportInApporpriate": "Relatório Inadequado",
+  "unfollow": "Unfollow",
+  "goToPost": "Vá para Post",
+  "shareModal": "Compartilhar",
+  "copyLink": "Copiar link",
+  "embed": "Incorporar",
+  "cancel": "Cancelar",
+  "confirm": "Confirmar",
+  "save": "Salvar",
+  "profilePic": "foto do perfil de {{user}}",
+  "ara": "Ara",
+  "follow": "Seguir",
+  "flames": "Chamas",
+  "continue": "Continuar",
+  "partyInvitationSent": "Convite da festa enviado",
+  "arMedia": {
+    "back": "Voltar",
+    "clip": "Grampo",
+    "backgrounds": "Fundos",
+    "start": "Começar"
   },
-  "arMediaform" : {
-    "title" : "Título ",
-    "type" : "Tipo ",
-    "clip" : "Clip ",
-    "background" : "Background ",
-    "scene" : "Cena ",
-    "save" : "Salvar ",
-    "manifest-file" : "Manifesto arquivo .manifesto ",
-    "audio-file" : "Arquivo Mp4 ",
-    "dracosis-file" : "Arquivo de dracosis .uvol ",
-    "preview-file" : "Preview arquivo de imagem "
+  "arMediaform": {
+    "title": "Título",
+    "type": "Tipo",
+    "clip": "Grampo",
+    "background": "Fundo",
+    "scene": "Cena",
+    "save": "Salvar",
+    "manifest-file": "Manifesto .arquivo manifesto",
+    "audio-file": "Arquivo MP4",
+    "dracosis-file": "Dracosis .uvol arquivo",
+    "preview-file": "Verivistar arquivo de imagem"
   },
-  "creator" : {
-    "myVideos" : "Meus Vídeos ",
-    "savedVideos" : "Vídeos Salvos ",
-    "back" : "Voltar ",
-    "blocked-list" : "Lista bloqueada ",
-    "block-user" : "Bloquear Usuário ",
-    "dialog-content" : "Você não verá o perfil e o conteúdo do usuário "
+  "creator": {
+    "myVideos": "Meus vídeos",
+    "savedVideos": "Vídeos salvos",
+    "back": "Voltar",
+    "blocked-list": "Lista bloqueada",
+    "block-user": "Usuário de bloco",
+    "dialog-content": "Você não verá o perfil e o conteúdo do usuário"
   },
-  "creatorForm" : {
-    "back" : "Voltar ",
-    "edit" : "Editar Perfil ",
-    "save" : "Salvar ",
-    "changeAvatar" : "Alterar imagem avatar ",
-    "ph-selectPreview" : "Selecionar preview ",
-    "ph-name" : "Seu nome ",
-    "ph-username" : "Seu Username ",
-    "ph-email" : "Seu Email ",
-    "ph-tags" : "Tags ",
-    "ph-link" : "Link ",
-    "ph-aboutYou" : "Mais sobre você ",
-    "ph-twitter" : "twitter ",
-    "ph-instagram" : "instagram ",
-    "ph-tiktok" : "tiktok ",
-    "sign-out" : "Assinatura-Out "
+  "creatorForm": {
+    "back": "Voltar",
+    "edit": "Editar perfil",
+    "save": "Salvar",
+    "changeAvatar": "Alterar imagem de avatar",
+    "ph-selectPreview": "Selecione a visualização",
+    "ph-name": "Seu nome",
+    "ph-username": "Seu nome de usuário",
+    "ph-email": "Seu e-mail",
+    "ph-tags": "Tags",
+    "ph-link": "Link",
+    "ph-aboutYou": "Mais sobre você",
+    "ph-twitter": "gorjeio",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Saída"
   },
-  "dashboard" : {
-    "title" : "Painel ",
-    "dashboard" : "Painel ",
-    "users" : "Usuários ",
-    "feeds" : "Feeds ",
-    "arMedia" : "Mídia de vídeo ",
-    "editor" : "Editor ",
-    "creator" : "Criador "
+  "dashboard": {
+    "title": "Painel",
+    "dashboard": "Painel",
+    "users": "Usuários",
+    "feeds": "Feeds",
+    "arMedia": "Mídia de vídeo",
+    "editor": "Editor",
+    "creator": "Criador"
   },
-  "featured" : {
-    "empty-list" : "Sem feeds por enquanto ... "
+  "featured": {
+    "empty-list": "Sem alimentação por enquanto..."
   },
-  "feed" : {
-    "back" : "Voltar ",
-    "related" : "Feeds relacionados ",
-    "is-repoted-message" : "A alimentação é relatada! "
+  "feed": {
+    "back": "Voltar",
+    "related": "Feeds relacionados",
+    "is-repoted-message": "A alimentação é relatada!"
   },
-  "feedForm" : {
-    "back" : "Voltar ",
-    "thanks" : "Obrigado por compartilhar e melhorar nossa comunidade ",
-    "share" : "Compartilhe algo com a comunidade ",
-    "upload" : "Vídeo de upload ",
-    "ph-selectVideo" : "Selecione Video ",
-    "preview" : "Imagem de visualização ",
-    "ph-selectPreview" : "Selecionar preview ",
-    "createFeed" : "Para criar um feed você deve ter um vídeo e uma imagem de pré-visualização !!! ",
-    "ph-videoName" : "O nome do seu vídeo ",
-    "ph-type" : "Digite o que você quer compartilhar com a comunidade ...   ",
-    "lbl-share" : "Compartilhar ",
-    "save" : "Salvar e ir Próximo "
+  "feedForm": {
+    "back": "Voltar",
+    "thanks": "Obrigado por compartilhar e melhorar nossa comunidade",
+    "share": "Compartilhe algo com a comunidade",
+    "upload": "Enviar vídeo",
+    "ph-selectVideo": "Selecione vídeo",
+    "preview": "Imagem de visualização",
+    "ph-selectPreview": "Selecione a visualização",
+    "createFeed": "Para criar um feed, você deve ter um vídeo e uma imagem de visualização!!!",
+    "ph-videoName": "O nome do seu vídeo",
+    "ph-type": "Digite o que você quer compartilhar com a comunidade ... ",
+    "lbl-share": "Compartilhar",
+    "save": "Salve e vá Em seguida"
   },
-  "feedMenu" : {
-    "featured" : "Destaque ",
-    "creators" : "Criadores ",
-    "feed" : "O Feed "
+  "feedMenu": {
+    "featured": "Destaque",
+    "creators": "Criadores",
+    "feed": "O Feed"
   },
-  "header" : {
-    "lbl-volumetric" : "Volumetria "
+  "header": {
+    "lbl-volumetric": "Volumétrico"
   },
-  "login" : {
-    "account" : "Ter uma conta? ",
-    "login" : "Login ",
-    "resetPassword" : "Botão Reset Senha Fake (aqui seria um link do e-mail) ",
-    "notHavingAccount" : "Não tem uma conta? ",
-    "signUp" : "Cadine Up ",
-    "forgotPassword" : "Esqueceu a senha? ",
-    "back" : "Voltar ",
-    "or" : "OU "
+  "login": {
+    "account": "Tem uma conta?",
+    "login": "Login",
+    "resetPassword": "Redefinir senha Botão falso (aqui seria um link de e-mail)",
+    "notHavingAccount": "Não tem uma conta?",
+    "signUp": "Inscrição",
+    "forgotPassword": "Esqueceu a senha?",
+    "back": "Voltar",
+    "or": "OU"
   },
-  "comment" : {
-    "add" : "Inclua seu comentário ... "
+  "comment": {
+    "add": "Adicione seu comentário..."
   },
-  "notification" : {
-    "feedFire" : " disparou sua alimentação ",
-    "feedBookmarked" : " bookmarcou sua alimentação ",
-    "comment" : " comentou sua alimentação: ",
-    "commentFire" : " disparou seu comentário para alimentar ",
-    "follow" : " começou a seguir você ",
-    "unfollow" : " parou de seguir você ",
-    "followed" : " seguiu você ",
-    "activity" : "Atividade "
+  "notification": {
+    "feedFire": " disparou sua alimentação",
+    "feedBookmarked": " marcador seu feed",
+    "comment": " comentou seu feed:",
+    "commentFire": " disparou seu comentário para alimentar",
+    "follow": " começou a segui-lo",
+    "unfollow": " parou de segui-lo",
+    "followed": " seguiu você",
+    "activity": "Atividade"
   },
-  "onBoarding" : {
-    "welcome" : "Bem-vindo! ",
-    "description" : "Maior coleção de 370 + layouts para prototipagem iOS. ",
-    "next" : "Próximo ",
-    "discover" : "Descobrir artigos, ",
-    "news" : "notícias & posts ",
-    "lines" : "São esses sentimentos que impulsionam nosso amor pela astronomia e pelo nosso desejo. ",
-    "getStarted" : "Introdução ",
-    "meetUp" : "Conheça a respeito ",
-    "friends" : "amigos. ",
-    "meet" : "Encontre-se com amigos "
+  "onBoarding": {
+    "welcome": "Bem-vindo!",
+    "description": "Maior coleção de mais de 370 layouts para prototipagem do iOS.",
+    "next": "Próximo",
+    "discover": "Descubra artigos,",
+    "news": "notícias e posts",
+    "lines": "São esses sentimentos que impulsionam nosso amor pela astronomia e nosso desejo.",
+    "getStarted": "Começar",
+    "meetUp": "Encontre-se com",
+    "friends": "amigos.",
+    "meet": "Encontre-se com amigos"
   },
-  "shareForm" : {
-    "arcMedia" : "Compartilhar ",
-    "videoCreated" : "Eu Criei Este Vídeo ",
-    "shareWithBuddies" : "Compartilhar com os amigos ",
-    "shareVideo" : "Vídeo de compartilhamento ",
-    "save" : "Salvar Para Rolo De Câmera ",
-    "cancel" : "Cancelar ",
-    "close" : "Fechar ",
-    "addFeed" : "Adicionar Alimentação "
+  "shareForm": {
+    "arcMedia": "Compartilhar",
+    "videoCreated": "Eu criei este vídeo",
+    "shareWithBuddies": "Compartilhe com amigos",
+    "shareVideo": "Compartilhar vídeo",
+    "save": "Salvar para rolo de câmera",
+    "cancel": "Cancelar",
+    "close": "Fechar",
+    "addFeed": "Adicionar alimentação"
   },
-  "simpleModal" : {
-    "emptyList" : "Lista vazia ",
-    "followers" : " seguindo ",
-    "following" : " seguidores ",
-    "flames" : " chamas "
+  "simpleModal": {
+    "emptyList": "Lista vazia",
+    "followers": " seguinte",
+    "following": " Seguidores",
+    "flames": " Chamas"
   },
-  "splash" : {
-    "screen" : "Tela Inicial ",
-    "logo" : "Logotipo "
+  "splash": {
+    "screen": "Tela inicial",
+    "logo": "Logotipo"
   },
-  "story" : {
-    "profilePic" : "{{user}} perfil pic "
+  "story": {
+    "profilePic": "foto do perfil de {{user}}"
   },
-  "view" : {
-    "cancel" : "Cancelar ",
-    "choice" : "Você tem dois modos de gravação diferentes para escolher ",
-    "verticalMode" : "O modo vertical tem um tempo recorde de 30 sec minutos ",
-    "horizontalMode" : "O modo horizontal tem um tempo de registro ilimitado ",
-    "start" : "Início ",
-    "not-show" : "Não mostrar de novo ",
-    "welcome" : "Bem-vindo à ARC!   Faça vídeos pessoais com um dos nossos hologramas e poste-o em seus canais de mídia social! ",
-    "step" : "STEP {{step}} ",
-    "text-step-1" : "Escolha um holograma da biblioteca. ",
-    "text-step-2" : "Isso é Realidade Aumentada, então escanear o espaço com a sua câmera de lado a lado por 3-5 segundos onde você quer que o desempenho do holograma esteja. ",
-    "text-step-3-part-1" : "Toque de tela uma vez no local onde deseja o holograma ancorado. ",
-    "text-step-3-part-2" : "TIP!   Bata uma vez em outro lugar para mover o holograma para outra posição. ",
-    "text-step-3-part-3" : "TIP!   Você pode redimensionar o holograma pintando ou expandindo a tela com o dedo polegar e indicador. ",
-    "text-step-4-part-1" : "Aperte o botão de registro vermelho da torneira para START sua gravação de vídeo. ",
-    "text-step-4-part-2" : "Aperte o botão de registro vermelho da torneira para STOP. "
+  "view": {
+    "cancel": "Cancelar",
+    "choice": "Você tem dois modos de gravação diferentes para escolher",
+    "verticalMode": "O modo vertical tem um tempo de registro de 30 segundos",
+    "horizontalMode": "O modo horizontal tem um tempo de registro ilimitado",
+    "start": "Começar",
+    "not-show": "Não mostre de novo.",
+    "welcome": "Bem-vindo ao ARC!  Faça vídeos pessoais com um de nossos hologramas e poste-o em seus canais de mídia social!",
+    "step": "PASSO {{step}}",
+    "text-step-1": "Escolha um holograma na biblioteca.",
+    "text-step-2": "Esta é realidade aumentada, então escaneie o espaço com sua câmera de um lado para o outro por 3-5 segundos onde você deseja que o desempenho do holograma esteja.",
+    "text-step-3-part-1": "Toque na tela uma vez no local onde você deseja que o holograma ancorado.",
+    "text-step-3-part-2": "PONTA!  Toque uma vez em outro lugar para mover o holograma para outra posição.",
+    "text-step-3-part-3": "PONTA!  Você pode redimensionar o holograma beliscando ou expandindo a tela com o polegar e o dedo indicador.",
+    "text-step-4-part-1": "Toque duas vezes no botão de gravação vermelha para iniciar sua gravação de vídeo.",
+    "text-step-4-part-2": "Toque duas vezes no botão de gravação vermelha para STOP."
   },
-  "video" : {
-    "back" : "Voltar "
+  "video": {
+    "back": "Voltar"
   },
-  "terms" : {
-    "confirmTerms" : "Concordo com Termos de Serviço ",
-    "confirmPolicy" : "Concordo com a Política de Privataria "
+  "terms": {
+    "confirmTerms": "Concordo com os Termos de Serviço",
+    "confirmPolicy": "Concordo com a Política de Privacidade"
   },
-  "registration" : {
-    "ph-phoneEmail" : "Usar telefone / e-mail ",
-    "facebook" : "Continuar com o Facebook ",
-    "google" : "Continuar com o Google ",
-    "linkedin" : "Continuar com Linkedin ",
-    "twitter" : "Continuar com o Twitter ",
-    "gitHub" : "Continuar com GitHub ",
-    "connect" : "Conecte seu e-mail ou número de telefone ",
-    "logIn" : "Log em ",
-    "LogInTo" : "Log em para ",
-    "continueAsGuest" : "Continuar como convidado"
+  "registration": {
+    "ph-phoneEmail": "Use telefone / e-mail",
+    "facebook": "Continue com o Facebook",
+    "google": "Continue com o Google",
+    "linkedin": "Continue com o Linkedin",
+    "twitter": "Continue com o Twitter",
+    "gitHub": "Continue com o GitHub",
+    "connect": "Conecte seu e-mail ou número de telefone",
+    "logIn": "Iniciar sessão",
+    "LogInTo": "Faça login para",
+    "continueAsGuest": "Continue como convidado"
   }
 }

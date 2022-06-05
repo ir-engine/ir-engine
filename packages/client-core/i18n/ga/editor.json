@@ -1,0 +1,718 @@
+{
+  "loading": "Tionscadal á Luchtú",
+  "loadingMsg": "Tionscadal á luchtú...",
+  "loadingError": "Earráid agus an tionscadal á luchtú",
+  "loadingErrorMsg": "Tharla earráid agus an tionscadal á luchtú.",
+  "selectSceneMsg": "Roghnaigh Radharc le tosú ag imirt leis an inneall",
+  "error": "Earráid",
+  "errorMsg": "Tharla earráid anaithnid.",
+  "generateScreenshot": "Gabháil Scáileáin tionscadail a ghiniúint",
+  "generateScreenshotMsg": "Ag giniúint gabháil scáileáin tionscadail...",
+  "newScene": "Cruthaigh Radharc",
+  "saving": "Tionscadal Coigilte",
+  "savingMsg": "Tionscadal á shábháil...",
+  "savingError": "Tionscadal Coigilte Earráide",
+  "savingErrorMsg": "Tharla earráid agus an tionscadal á shábháil.",
+  "savingSceneErrorMsg": "Níl an radharc luchtaithe i gceart. Bain triail as an radharc a athluchtú.",
+  "duplicating": "Tionscadal Dúblála",
+  "duplicatingMsg": "Tionscadal dúblála...",
+  "exporting": "Tionscadal Easpórtála",
+  "exportingMsg": "Tionscadal á easpórtáil...",
+  "exportingError": "Tionscadal Easpórtála Earráide",
+  "exportingErrorMsg": "Tharla earráid agus an tionscadal á easpórtáil.",
+  "importLegacy": "Iompórtáil Domhan Oidhreachta",
+  "importLegacyMsg": "Rabhadh! Déanfaidh sé seo an radharc atá agat cheana a fhorscríobh! An bhfuil tú cinnte gur mian leat leanúint ar aghaidh?",
+  "publishingError": "Tionscadal Foilsitheoireachta Earráide",
+  "publishingErrorMsg": "Tharla earráid anaithnid.",
+  "publishingScene": "Radharc Foilsitheoireachta",
+  "publishingSceneMsg": "Radharc foilsitheoireachta...",
+  "uploadingThumbnailMsg": "Mionsamhail á huasluchtú...",
+  "uploadingSceneMsg": "Radharc á uaslódáil: {{percentage}}%",
+  "envMapError": "Earráid agus íomhánna ciúbmap á luchtú {{files}}",
+  "lbl-return": "Fill ar ais",
+  "menubar": {
+    "newScene": "Radharc Nua",
+    "saveScene": "Sábháil radharc",
+    "saveAs": "Sábháil Mar",
+    "importAsset": "Sócmhainn Iompórtála",
+    "exportGLB": "Easpórtáil mar glTF dénártha (.glb)...",
+    "importScene": "Radharc iompórtála",
+    "exportScene": "Radharc easpórtála",
+    "quit": "Scoir"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Cineál comhaid gan tacaíocht don chomhad: \"{{name}}\". Caithfidh an comhad a bheith ina mhúnla íomhá, físe nó glb.",
+    "addObject": "addObject: before object not found",
+    "removeObject": "bainCusp: nód gan aimsiú. Tá sé seo mar gheall ar nód a bhaint nach bhfuil sa radharc a thuilleadh.",
+    "noParent": "níl aon tuismitheoir ag {{node}} \"{{name}}\". Ní oibríonn an reparent ach ar rudaí atá ar an láthair faoi láthair.",
+    "undefinedParent": "editor.reparent: newParent is undefined",
+    "notAuthenticated": "Gan a bheith fíordheimhnithe",
+    "fetchingProjectError": "Earráid agus tionscadail á bhfeileadh: {{error}}",
+    "fetchingRouteError": "Earráid agus bealaí á bhfeileadh: {{error}}",
+    "unknownError": "Earráid neamhaithnid",
+    "resolveURL": "Earráid agus urla á réiteach \"{{url}}\":",
+    "mediaSearchAborted": "Cuardach meán tobscortha",
+    "methodNotImplemented": "Modh nach gcuirtear i bhfeidhm.",
+    "saveProjectAborted": "Sábháil an radharc tobscortha",
+    "unsavedChanges": "Athruithe Neamhshábháilte",
+    "unsavedChangesMsg": "Athraíodh an radharc. Sábháil do chuid athruithe le do thoil.",
+    "projectCreationFail": "Theip ar chruthú tionscadail. {{reason}}",
+    "projectDeletionFail": "Theip ar scriosadh an tionscadail. {{reason}}",
+    "savingProjectFail": "Theip ar an Tionscadal Coigilte. {{reason}}",
+    "sceneTooLarge": "Tá radharc ró-mhór ({{size}} MB) le foilsiú. Is é an t-uasmhéid {{maxSize}} MB.",
+    "sceneCreationFail": "Theip ar chruthú radhairc. {{reason}}",
+    "uploadAborted": "Uaslódáil tobscortha",
+    "uploadFailed": "Theip ar uaslódáil {{reason}}",
+    "assetDeletionFail": "Theip ar scriosadh sócmhainní. {{reason}}",
+    "projectAssetDeletionFail": "Theip ar scriosadh Sócmhainní Tionscadail. {{reason}}",
+    "networkError": "Earráid Líonra: {{status}}. {{text}}",
+    "unknownStatus": "Stádas neamhaithnid",
+    "CORS": "Earráid CORS b'fhéidir",
+    "urlFetchError": "Theip ar \"{{url}}\" a fháil"
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Bog Ceamara",
+      "flyFast": "Cuil níos tapúla",
+      "orbit": "Fithis / Roghnaigh",
+      "pan": "Pan",
+      "fly": "Cuil",
+      "focus": "Fócas",
+      "rotateLeft": "Rothlaigh ar Chlé",
+      "rotateRight": "Rothlaigh ar dheis",
+      "cancelPlacement": "Cealaigh Socrúchán",
+      "placeDuplicate": "Cuir Dúblach",
+      "cancelGrab": "Cealaigh Grab",
+      "grab": "Grab",
+      "deselectAll": "Díroghnaigh Gach Rud"
+    },
+    "state": {
+      "header": "Stats",
+      "memory": "Cuimhne",
+      "geometries": "Céimseata",
+      "textures": "Uigeachtaí",
+      "render": "Rindreáil",
+      "FPS": "CCT",
+      "frameTime": "Am Fráma",
+      "calls": "Glaonna",
+      "triangles": "Triantáin",
+      "points": "Pointí",
+      "lines": "Línte"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Foilsigh",
+    "lbl-published": "Foilsithe",
+    "command": {
+      "translate": "Aistrigh",
+      "rotate": "Rothlaigh",
+      "scale": "Scála",
+      "toggleSpace": "Scoránaigh an Spás Trasfhoirmigh",
+      "togglePivot": "Scoránaigh Pivot Trasfhoirmigh",
+      "toggleSnapMode": "Scoránaigh mód snap",
+      "toggleGrid": "Scoránaigh Infheictheacht greille",
+      "increaseGridSize": "Méadaigh Méid na Greille",
+      "descreaseGridSize": "Laghdaigh Méid na Greille",
+      "stopPreview": "Stop radharc réamhamhairc",
+      "playPreview": "Radharc Réamhamhairc"
+    }
+  },
+  "properties": {
+    "title": "Airíonna",
+    "lbl-visible": "Infheicthe",
+    "lbl-preventBake": "Cosc a chur ar Bhácáil",
+    "lbl-persist": "Lean ar aghaidh",
+    "multipleNodeSelected": "Nóid Iolracha de chineálacha éagsúla roghnaithe",
+    "noNodeSelected": "Nód roghnaithe",
+    "ambientLight": {
+      "name": "Solas Comhthimpeallach",
+      "description": "Solas a shoilsíonn gach rud i do radharc.",
+      "lbl-intensity": "Déine",
+      "lbl-color": "Dath"
+    },
+    "envmap": {
+      "name": "Léarscáil Chomhshaoil",
+      "description": "airíonna léarscáile comhshaoil"
+    },
+    "asset": {
+      "name": "Sócmhainn",
+      "description": "Grúpáil comhpháirteanna radhairc ar féidir iad a luchtú agus a dhíluchtú go dinimiciúil",
+      "lbl-options": "Roghanna",
+      "lbl-assetPath": "Cosán Sócmhainní",
+      "lbl-assetName": "Easpórtáil Ainm",
+      "lbl-exportOptions": "Roghanna Easpórtála",
+      "lbl-export": "Sócmhainn Easpórtála",
+      "lbl-load": "Luchtaigh isteach sa Radharc",
+      "lbl-unload": "Díluchtaigh",
+      "lbl-reload": "Athluchtaigh"
+    },
+    "audio": {
+      "name": "Fuaim",
+      "description": "Luchtaíonn sé fuaim go dinimiciúil.",
+      "lbl-audiourl": "Url Fuaime",
+      "lbl-controls": "rialuithe a dhéanamh",
+      "info-controls": "Scoránaigh infheictheacht rialuithe na meán.",
+      "lbl-autoplay": "Uathsheinn",
+      "info-autoplay": "Más fíor, imreoidh na meáin agus iad ag dul isteach sa radharc den chéad uair.",
+      "lbl-synchronize": "Sioncrónaigh",
+      "info-synchronize": "Más fíor, déanfar na meáin a Shioncronú ar na cliaint nasctha go léir.",
+      "lbl-loop": "Lúb",
+      "info-loop": "Más fíor beidh na meáin lúb ar feadh tréimhse éiginnte.",
+      "lbl-audioType": "Cineál Fuaime",
+      "lbl-distanceModel": "Samhail Achair",
+      "info-distanceModel": "An algorithim a úsáidtear chun rolloff fuaime a ríomh.",
+      "lbl-rolloffFactor": "Fachtóir Rolloff",
+      "info-rolloffFactor": "Luach dúbailte ag cur síos ar cé chomh tapa agus a laghdaítear an toirt de réir mar a ghluaiseann an fhoinse ar shiúl ón éisteoir. 0 go 1",
+      "info-rfInfinity": "Luach dúbailte ag cur síos ar cé chomh tapa agus a laghdaítear an toirt de réir mar a ghluaiseann an fhoinse ar shiúl ón éisteoir. 0 go hÉigríoch",
+      "lbl-refDistance": "Achar Ref",
+      "info-refDistance": "Luach dúbailte a léiríonn an fad tagartha chun toirt a laghdú de réir mar a ghluaiseann an fhoinse fuaime níos faide ón éisteoir.",
+      "lbl-maxDistance": "Uasfhad",
+      "info-maxDistance": "Luach dúbailte a léiríonn an t-achar uasta idir an fhoinse fuaime agus an t-éisteoir, agus ina dhiaidh sin ní laghdaítear an toirt a thuilleadh.",
+      "lbl-coneInnerAngle": "Uillinn Istigh Cón",
+      "info-coneInnerAngle": "Luach dúbailte a chuireann síos ar uillinn cón, i gcéimeanna, nach mbeidh aon laghdú toirte ann.",
+      "lbl-coneOuterAngle": "Uillinn Sheachtrach Cóin",
+      "info-coneOuterAngle": "Luach dúbailte ag cur síos ar an uillinn, i gcéimeanna, cón lasmuigh a mbeidh an toirt a laghdú ag luach leanúnach, arna shainiú ag an tréith coneOuterGain.",
+      "lbl-coreOuterGain": "Gnóthachan Seachtrach Cón",
+      "info-coreOuterGain": "Luach dúbailte a chuireann síos ar an méid laghdaithe toirte lasmuigh den chón a shainíonn an tréith cónOuterAngle. Is é 0 a luach réamhshocraithe, rud a chiallaíonn nach féidir aon fhuaim a chloisteáil.",
+      "lbl-volume": "Imleabhar",
+      "lbl-play": "Seinn",
+      "lbl-pause": "Cuir ar sos",
+      "error-url": "Earráid agus luchtú ón URL"
+    },
+    "boxCollider": {
+      "description": "Bosca dofheicthe a phreabfaidh rudaí as nó scíth ar a bharr.\nGan colliders, beidh rudaí titim trí urláir agus dul trí bhallaí.",
+      "lbl-isTrigger": "Truicear"
+    },
+    "camera": {
+      "name": "Ceamara",
+      "description": "Socruithe ceamara.",
+      "lbl-camera-raycast": "Raycasting Ceamara",
+      "lbl-camera-raycast-toggle": "Cumasaithe",
+      "lbl-camera-raycast-frequency": "Minicíocht",
+      "lbl-camera-raycast-count": "Líon na nDamh",
+      "lbl-camera-raycast-length": "Fad ray"
+    },
+    "directionalLight": {
+      "name": "Solas Treo",
+      "description": "Solas a shoilsíonn an radharc iomlán, ach a astaíonn ar feadh treo amháin.",
+      "lbl-color": "Dath",
+      "lbl-intensity": "Déine",
+      "lbl-cameraFar": "Ceamara i bhfad",
+      "lbl-cameraNear": "Ceamara In aice le",
+      "lbl-cameraTop": "Barr ceamara",
+      "lbl-cameraBottom": "Bun an Cheamara",
+      "lbl-cameraLeft": "Ceamara ar chlé",
+      "lbl-cameraRight": "Ceamara ar dheis",
+      "lbl-useInCSM": "Úsáid in CSM",
+      "lbl-castShadow": "Scáth Teilgthe",
+      "lbl-disableForCSM": "Díchumasaithe toisc go bhfuil scáthléarscáil chascáide cumasaithe.",
+      "lbl-shadowmapResolution": "Taifeach Scáthmhapa",
+      "lbl-shadowBias": "Scáthchlaonadh",
+      "lbl-shadowRadius": "Ga Scátha",
+      "lbl-showCameraHelper": "Taispeáin Cúntóir Ceamara"
+    },
+    "groundPlane": {
+      "name": "Eitleán Talún",
+      "description": "Eitleán talún cothrom a shíneann isteach san achar.",
+      "lbl-color": "Dath",
+      "lbl-receiveShadow": "Faigh Scáth",
+      "lbl-generateNavmesh": "Gin Navmesh"
+    },
+    "link": {
+      "description": "Nasc chuig seomra nó le suíomh gréasáin.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "Léarscáil gheospásúil 3T de e.g. cathair."
+    },
+    "model": {
+      "description": "Samhail 3D i do radharc, luchtaithe ó URL nó comhad GLTF.",
+      "lbl-usingGPUInstancingFlag": "Úsáid Instancing GPU",
+      "lbl-modelurl": "Url na Samhla",
+      "lbl-envmapUrl": "Url léarscáile comhshaoil",
+      "lbl-textureOverride": "Sáraigh Uigeacht",
+      "lbl-materialOverride": "Sáraíonn Ábhar",
+      "error-url": "Earráid agus luchtú ón URL",
+      "lbl-loopAnimation": "Beochan Lúb",
+      "lbl-isAvatar": "An bhfuil Avatar",
+      "lbl-isGPUInstancing": "Ag baint úsáide as Instancing GPU",
+      "lbl-isDynamic": "An bhfuil Dinimiciúil",
+      "lbl-castShadow": "Scáth Teilgthe",
+      "lbl-receiveShadow": "Faigh Scáth",
+      "lbl-interactable": "Idir-inoibritheach",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Ainm",
+      "lbl-url": "Url na Samhla",
+      "lbl-buy": "Ceannaigh Url",
+      "lbl-learnMore": "Tuilleadh Eolais Url",
+      "lbl-htmlContent": "Inneachar Html",
+      "lbl-interactionText": "Téacs Idirghníomhaíochta",
+      "lbl-interactionType": "Cineál Idirghníomhaíochta"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Ábhar",
+      "error-materialID": "Earráid agus Ábhar á aimsiú",
+      "placeholder-materialID": "Roghnaigh Ábhar",
+      "lbl-patternTarget": "Meaitseáil Patrún",
+      "lbl-pattern": "Patrún",
+      "lbl-isRegex": "RegexName"
+    },
+    "interaction": {
+      "type": "Cineál Idirghníomhaíochta",
+      "text": "Téacs Idirghníomhaíochta",
+      "distance": "Fad Idirghníomhaíochta",
+      "theme": "Téama Idirghníomhaíochta",
+      "name": "Ainm Idirghníomhaíochta",
+      "description": "Cur síos ar Idirghníomhaíocht",
+      "images": "Íomhánna Idirghníomhaíochta",
+      "videos": "Físeáin Idirghníomhaíochta",
+      "urls": "Urlanna Idirghníomhaíochta",
+      "models": "Múnlaí Idirghníomhaíochta"
+    },
+    "group": {
+      "name": "Grúpa",
+      "description": "Grúpa rudaí iolracha is féidir a bhogadh nó a dhúbailt le chéile.\nTarraing agus scaoil rudaí isteach sa Ghrúpa san Ordlathas."
+    },
+    "hemisphere": {
+      "name": "Solas leathsféar",
+      "description": "Solas a shoilsíonn an radharc ó lastuas díreach.",
+      "lbl-skyColor": "Dath spéire",
+      "lbl-groundColor": "Dath na Talún",
+      "lbl-intensity": "Déine"
+    },
+    "image": {
+      "name": "Íomhá",
+      "description": "Luchtaíonn sé íomhá go dinimiciúil.",
+      "lbl-imgURL": "Url íomhá",
+      "lbl-transparency": "Mód Trédhearcachta",
+      "lbl-alphaCutoff": "Gearradh Alfa",
+      "lbl-projection": "Teilgean",
+      "lbl-side": "Taobh",
+      "info-controls": "Scoránaigh infheictheacht rialuithe na meán.",
+      "info-transparency": "Conas trédhearcacht a chur i bhfeidhm:",
+      "info-opaque": "'teimhneach' = gan trédhearcacht",
+      "info-blend": "'cumasc' = bain úsáid as cainéal alfa na n-íomhánna",
+      "info-mask": "'masc' = Úsáid luach scoite sonraithe le haghaidh trédhearcachta ar/as (níos feidhmiúla)",
+      "info-alphaCutoff": "Beidh picteilíní le luachanna alfa níos ísle ná seo trédhearcach",
+      "error-url": "URL neamhbhailí"
+    },
+    "name": {
+      "lbl-name": "Ainm"
+    },
+    "partileEmitter": {
+      "description": "Astaírí cáithníní chun cáithníní a chruthú.",
+      "lbl-particleCount": "Líon na gCáithníní",
+      "lbl-image": "Íomhá",
+      "lbl-ageRandomness": "Randamacht Aoise",
+      "lbl-lifetime": "Ar feadh an tsaoil",
+      "lbl-lifetimeRandomness": "Randamacht Saoil",
+      "lbl-sizeCurve": "Cuar Méide",
+      "lbl-startPSize": "Tosaigh Méid na gCáithníní",
+      "lbl-endPSize": "Méid na gCáithníní Deiridh",
+      "lbl-sizeRandomness": "Randamacht Méid",
+      "lbl-colorCurve": "Cuar Datha",
+      "lbl-startColor": "Dath Tosaigh",
+      "lbl-startOpacity": "Tosaigh Teimhneacht",
+      "lbl-middleColor": "Dath Meánach",
+      "lbl-middleOpacity": "Teimhneacht Láir",
+      "lbl-endColor": "Dath Deiridh",
+      "lbl-endOpacity": "Deireadh Teimhneacht",
+      "lbl-velocityCurve": "Cuar Treoluais",
+      "lbl-startVelocity": "Tosaigh Treoluas",
+      "lbl-endVelocity": "Treoluas Deiridh",
+      "lbl-angularVelocity": "Treoluas Uilleach",
+      "info-ageRandomness": "An méid éagsúlachta idir nuair a sceitheann cáithníní.",
+      "info-lifetime": "Aois uasta cáithnín sula ndéantar é a athdhírigh.",
+      "info-lifetimeRandomness": "An méid éagsúlachta idir saolréanna na gcáithníní.",
+      "info-sizeRandomness": "An méid éagsúlachta idir méideanna tosaigh na gcáithníní.",
+      "error-url": "Earráid agus luchtú ón URL"
+    },
+    "clouds": {
+      "name": "Scamall",
+      "description": "Sprite bunaithe ar mhéid scamall.",
+      "lbl-image": "Íomhá Sprid",
+      "lbl-wroldScale": "Scála Domhanda",
+      "lbl-dimensions": "Toisí",
+      "lbl-noiseZoom": "Súmáil Torainn",
+      "lbl-noiseOffset": "Fritháireamh Torainn",
+      "lbl-spriteScale": "Scála Sprid",
+      "lbl-fogColor": "Dath ceo",
+      "lbl-fogRange": "Raon ceo",
+      "error-url": "Earráid agus luchtú ón URL"
+    },
+    "ocean": {
+      "name": "An tAigéan",
+      "description": "Dromchla aigéin le tonnta agus cúr",
+      "lbl-normalMap": "Gnáthléarscáil",
+      "lbl-distortionMap": "Léarscáil an tSaofa",
+      "lbl-envMap": "Léarscáil Chomhshaoil",
+      "lbl-color": "Dath",
+      "lbl-shallowWaterColor": "Dath Uisce Éadomhain",
+      "lbl-shallowToDeepDistance": "Éadomhain go Fad Domhain",
+      "lbl-opacityFadeDistance": "Fad Fad Teimhneacht",
+      "lbl-opacityRange": "Raon Teimhneachta",
+      "lbl-shininess": "Lonracht",
+      "lbl-reflectivity": "Machnamh",
+      "lbl-foamColor": "Dath an Chúr",
+      "lbl-foamSpeed": "Luas Cúr",
+      "lbl-foamTiling": "Tíliú Cúr",
+      "lbl-bigWaveTiling": "Tíliú Tonn Mór",
+      "lbl-bigWaveSpeed": "Luas Tonn Mór",
+      "lbl-bigWaveHeight": "Airde tonnta Mór",
+      "lbl-waveSpeed": "Luas Tonnta",
+      "lbl-waveScale": "Scála Tonnta",
+      "lbl-waveTiling": "Tiling Tonnta",
+      "lbl-waveDistortionSpeed": "Luas Saobhadh Tonnta",
+      "lbl-waveDistortionTiling": "Tiling Saobhadh Tonnta",
+      "error-url": "Earráid agus luchtú ón URL"
+    },
+    "water": {
+      "name": "Uisce",
+      "description": "Dromchla beag uisce"
+    },
+    "interior": {
+      "name": "Taobh istigh",
+      "description": "Dromchla le huigeacht ciúb mapáilte chun aithris a dhéanamh ar thimpeallachtaí istigh",
+      "lbl-cubeMap": "Uigeacht Léarscáil ciúb",
+      "lbl-tiling": "Méid tílithe",
+      "lbl-size": "Méid an dromchla",
+      "error-url": "Earráid agus luchtú ón URL"
+    },
+    "pointLight": {
+      "description": "Solas a astaíonn i ngach treo ó phointe amháin.",
+      "lbl-color": "Dath",
+      "lbl-intensity": "Déine",
+      "lbl-range": "Raon",
+      "lbl-decay": "Lobhadh"
+    },
+    "scene": {
+      "name": "Radharc",
+      "description": "Bun-chuspóir an radhairc.",
+      "lbl-bgcolor": "Dath an Chúlra",
+      "lbl-fogType": "Cineál Ceo",
+      "lbl-fogColor": "Dath ceo",
+      "lbl-forNearDistance": "Ceo In aice le Fad",
+      "lbl-fogFarDistance": "Fad An Ceo",
+      "lbl-fogDensity": "Dlús Ceo",
+      "lbl-audioSettings": "Úsáid Fuaim Suímh",
+      "lbl-avatarDistanceModel": "Samhail Achair Avatar",
+      "lbl-avatarRolloffFactor": "Fachtóir Rolloff Avatar",
+      "lbl-avatarRefDistance": "Achar Tag Avatar",
+      "lbl-avatarMaxDistance": "Avatar Max Fad",
+      "lbl-mediaVolume": "Imleabhar na Meán",
+      "lbl-mediaDistanceModel": "Samhail Achair na Meán",
+      "lbl-mediaRolloffFactor": "Fachtóir Rolloff na Meán",
+      "lbl-mediaRefDistance": "Fad Hagartha meán",
+      "lbl-mediaMaxDistance": "Meán Uasfhad",
+      "lbl-mediaConeInnerAngle": "Uillinn Inmheánach Cón na Meán",
+      "lbl-mediaConeOuterAngle": "Uillinn Sheachtrach Cón na Meán",
+      "lbl-mediaConeOuterGain": "Gnóthachan Seachtrach Cón na Meán",
+      "info-avatarDistanceModel": "An algorithim a úsáidtear chun rolloff fuaime a ríomh.",
+      "info-avatarRolloffFactor": "Luach dúbailte ag cur síos ar cé chomh tapa agus a laghdaítear an toirt de réir mar a ghluaiseann an fhoinse ar shiúl ón éisteoir. 0 go 1",
+      "info-avatarRolloffFactorInifinity": "Luach dúbailte ag cur síos ar cé chomh tapa agus a laghdaítear an toirt de réir mar a ghluaiseann an fhoinse ar shiúl ón éisteoir. 0 go hÉigríoch",
+      "info-avatarRefDistance": "Luach dúbailte a léiríonn an fad tagartha chun toirt a laghdú de réir mar a ghluaiseann an fhoinse fuaime níos faide ón éisteoir.",
+      "info-avatarMaxDistance": "Luach dúbailte a léiríonn an t-achar uasta idir an fhoinse fuaime agus an t-éisteoir, agus ina dhiaidh sin ní laghdaítear an toirt a thuilleadh.",
+      "info-mediaDistanceModel": "An algorithim a úsáidtear chun rolloff fuaime a ríomh.",
+      "info-mediaRolloffFactor": "Luach dúbailte ag cur síos ar cé chomh tapa agus a laghdaítear an toirt de réir mar a ghluaiseann an fhoinse ar shiúl ón éisteoir. 0 go 1",
+      "info-mediaRolloffFactorInfinity": "Luach dúbailte ag cur síos ar cé chomh tapa agus a laghdaítear an toirt de réir mar a ghluaiseann an fhoinse ar shiúl ón éisteoir. 0 go hÉigríoch",
+      "info-mediaRefDistance": "Luach dúbailte a léiríonn an fad tagartha chun toirt a laghdú de réir mar a ghluaiseann an fhoinse fuaime níos faide ón éisteoir.",
+      "info-mediaMaxDistance": "Luach dúbailte a léiríonn an t-achar uasta idir an fhoinse fuaime agus an t-éisteoir, agus ina dhiaidh sin ní laghdaítear an toirt a thuilleadh.",
+      "info-mediaConeInnerAngle": "Luach dúbailte a chuireann síos ar uillinn cón, i gcéimeanna, nach mbeidh aon laghdú toirte ann.",
+      "info-mediaConeOuterAngle": "Luach dúbailte ag cur síos ar an uillinn, i gcéimeanna, cón lasmuigh a mbeidh an toirt a laghdú ag luach leanúnach, arna shainiú ag an tréith coneOuterGain.",
+      "info-mediaConeOuterGain": "Luach dúbailte a chuireann síos ar an méid laghdaithe toirte lasmuigh den chón a shainíonn an tréith cónOuterAngle. Is é 0 a luach réamhshocraithe, rud a chiallaíonn nach féidir aon fhuaim a chloisteáil.",
+      "lbl-simpleMaterials": "Úsáid Ábhair Shimplí",
+      "lbl-lods": "LODanna",
+      "info-lods": "Socraigh na faid ag a n-athraíonn leibhéil mhionsonraithe.",
+      "info-simpleMaterials": "Athraíonn sé gach ábhar daor go cinn níos simplí chun an rindreáil radhairc ualaigh a bhaint.",
+      "lbl-rendererSettings": "Sáraigh Socruithe an Rindreálaí",
+      "lbl-csm": "Scáthléarscáileanna Cascáideacha",
+      "info-csm": "Cumasaigh scáthléarscáileanna cascáideacha.",
+      "lbl-toneMapping": "Mapáil Ton",
+      "info-toneMapping": "Cumasaigh mapáil ton ar an rindreálaí radhairc. Níl aon éifeacht aige nuair a chumasaítear postphróiseáil.",
+      "lbl-toneMappingExposure": "Nochtadh Mapála Ton",
+      "info-toneMappingExposure": "Sonraíonn an nochtadh mapála ton ar an rindreálaí radhairc. Níl aon éifeacht aige nuair a chumasaítear postphróiseáil.",
+      "lbl-shadowMapType": "Cineál Scáthmhaoin",
+      "info-shadowMapType": "Cineál scáthléarscáile",
+      "error-url": "Earráid agus luchtú ón URL"
+    },
+    "sceneCamera": {
+      "name": "Ceamara Réamhamharc Radhairc",
+      "description": "Ba ghnách leis an gceamara an mionsamhail a ghiniúint do do radharc agus an suíomh tosaigh don cheamara réamhamhairc.",
+      "lbl-setFromViewPort": "Socraigh Ó Viewport"
+    },
+    "skybox": {
+      "name": "SkyboxName",
+      "description": "",
+      "lbl-timeOfDay": "Am den Lá",
+      "lbl-color": "Dath",
+      "lbl-latitude": "Domhanleithead",
+      "lbl-luminance": "Lonra",
+      "lbl-scattering": "Méid Scaipthe",
+      "lbl-scatteringDistance": "Fad scaipthe",
+      "lbl-horizonStart": "Tús Na Spéire",
+      "lbl-horizonEnd": "Deireadh na gFíse",
+      "lbl-texture": "Uigeacht",
+      "lbl-skyType": "Cineál Spéire",
+      "error-url": "Earráid agus luchtú ón URL"
+    },
+    "spawnPoint": {
+      "name": "Pointe an Sceith",
+      "description": "Pointe ina mbeidh daoine le feiceáil nuair a rachaidh siad isteach i do radharc.\nLéiríonn an deilbhín sa Viewport méid iarbhír avatar."
+    },
+    "spotLight": {
+      "description": "Solas a astaíonn feadh treo, rudaí a shoilsiú laistigh de chón.",
+      "lbl-color": "Dath",
+      "lbl-intensity": "Déine",
+      "lbl-penumbra": "PenumbraName",
+      "lbl-angle": "Uillinn",
+      "lbl-range": "Raon",
+      "lbl-decay": "Lobhadh"
+    },
+    "transform": {
+      "title": "Trasfhoirmigh",
+      "lbl-postition": "Seasamh",
+      "lbl-rotation": "Rothlú",
+      "lbl-scale": "Scála"
+    },
+    "triggereVolume": {
+      "description": "Socraigh maoin ar an sprioc-oibiacht ar iontráil agus fág.",
+      "lbl-target": "Oibiacht",
+      "lbl-onenter": "Ar Iontráil",
+      "lbl-onexit": "Ar Scor",
+      "lbl-showHelper": "Taispeáin Mogalra an Chúntaora",
+      "ph-errorNode": "Earráid agus nód ar iarraidh.",
+      "ph-selectNode": "Roghnaigh nód..."
+    },
+    "video": {
+      "name": "Físeán",
+      "description": "Luchtaíonn sé físeán go dinimiciúil.",
+      "lbl-video": "Físeán",
+      "lbl-projection": "Teilgean",
+      "lbl-islivestream": "Sruth Beo",
+      "lbl-interactable": "Idir-inoibritheach",
+      "lbl-id": "Aitheantas Eiliminte",
+      "lbl-play": "Seinn",
+      "lbl-pause": "Cuir ar sos",
+      "error-url": "Earráid agus luchtú ón URL"
+    },
+    "volumetric": {
+      "name": "Toirtmhéadrach",
+      "description": "Luchtaíonn sé físeán toirtmhéadrach go dinimiciúil.",
+      "uvolPaths": "Cosáin UVOL",
+      "playmode": "Mód Seinnte",
+      "playtitle": "Seinn",
+      "pausetitle": "Cuir ar sos"
+    },
+    "spline": {
+      "description": "Cuair a chruthú agus a shaincheapadh go dinimiciúil.",
+      "lbl-addNode": "Cuir nód leis an gcuar."
+    },
+    "systemnode": {
+      "description": "Ceangail script.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "Pointe Insteallta",
+      "lbl-enableClient": "Cliant",
+      "lbl-enableServer": "Freastalaí",
+      "lbl-args": "Na hAirgse",
+      "error-url": "Earráid agus script á luchtú ón URL"
+    },
+    "portal": {
+      "lbl-portal": "Tairseach Nasctha",
+      "lbl-redirect": "Úsáid Atreorú leathanach",
+      "description": "Portat chun imreoirí a teleportáil go suíomh sonraithe",
+      "lbl-locationName": "Suíomh",
+      "lbl-modelUrl": "URL na samhla",
+      "lbl-displayText": "Taispeáin Téacs",
+      "lbl-cubemapBake": "Bácáil Ciúb mhapa",
+      "lbl-spawnPosition": "Suíomh sceite",
+      "lbl-spawnRotation": "Rothlú Sceith",
+      "lbl-triggerPosition": "Truicear Seasamh",
+      "lbl-triggerRotation": "Rothlú Truicir",
+      "lbl-triggerScale": "Scála Truicir"
+    },
+    "postprocessing": {
+      "name": "Post Próiseála",
+      "description": "Chun éifeachtaí Post Processing a chur i bhfeidhm ar do radharc."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Tionscadal Nua",
+      "backLink": "Ar ais chuig tionscadail",
+      "featured": "Réadmhaoin",
+      "all": "Tá gach",
+      "newProject": "Tionscadal Nua Folamh",
+      "ph-search": "Radhairc chuardaigh..."
+    },
+    "grid": {
+      "loading": "Á luchtú..."
+    },
+    "page": {
+      "header": "Fáilte",
+      "headerMsg": "Má tá tú nua anseo molaimid dul tríd an rang teagaisc. Seachas sin, léim ceart isteach agus tionscadal a chruthú ón tús nó ó cheann dár dteimpléid.",
+      "lbl-startTutorial": "Tosaigh Rang Teagaisc",
+      "projects": "Tionscadail",
+      "lbl-newProject": "Tionscadal Nua"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Á luchtú...",
+      "placeObject": "Cuir Object",
+      "placeObjectAtOrigin": "Cuir Object ag Origin",
+      "copyURL": "Cóipeáil URL",
+      "openInNewTab": "Oscail URL i gTáb Nua",
+      "deleteAsset": "Scrios Sócmhainn"
+    },
+    "filebrowser": {
+      "addNewFolder": "Cuir Fillteán Nua Leis",
+      "cutAsset": "Gearr",
+      "copyAsset": "Cóipeáil",
+      "pasteAsset": "Greamaigh",
+      "renameAsset": "Athainmnigh",
+      "viewAssetProperties": "Amharc ar airíonna"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Athainmnigh",
+    "lbl-duplicate": "Dúblach",
+    "lbl-group": "Grúpa",
+    "lbl-delete": "Scrios",
+    "lbl-expandAll": "Leathnaigh Gach Rud",
+    "lbl-collapseAll": "Collapse All",
+    "isseus": "Saincheisteanna:"
+  },
+  "dnd": {
+    "nodes": "Nóid {{count}} Roghnaithe",
+    "models": "Múnlaí {{count}} Roghnaithe",
+    "images": "Íomhánna {{count}} Roghnaithe",
+    "videos": "{{count}} Físeáin Roghnaithe",
+    "audio": "Foinsí Fuaime {{count}} Roghnaithe"
+  },
+  "dialog": {
+    "title": "Eagarthóir",
+    "lbl-confirm": "Ceart go leor",
+    "lbl-cancel": "Cuir ar ceal",
+    "exportProject": {
+      "title": "Easpórtáil Tionscadal",
+      "lbl-confirm": "Easpórtáil Tionscadal",
+      "lbl-combineMesh": "Comhcheangail Mogaill",
+      "lbl-removeUnused": "Bain Réada Neamhúsáidte"
+    },
+    "performance": {
+      "title": "Seiceáil Feidhmíochta",
+      "lbl-confirm": "Radharc a fhoilsiú",
+      "learnMore": "Faigh tuilleadh eolais",
+      "lbl-polycount": "Líon na bPolagán",
+      "lbl-material": "Ábhair",
+      "lbl-texture": "Uigeachtaí",
+      "lbl-lights": "Soilse",
+      "lbl-fileSize": "Méid an Chomhaid",
+      "info-polycount": "Molaimid do radharc gan níos mó ná 50,000 triantán a úsáid le haghaidh gléasanna soghluaiste.",
+      "info-material": "Molaimid gan níos mó ná 25 ábhar uathúil a úsáid i do radharc chun glaonna tarraingthe ar ghléasanna soghluaiste a laghdú.",
+      "info-texture": "Molaimid do chuid uigeachtaí gan níos mó ná 256MB de RAM físe a úsáid le haghaidh gléasanna soghluaiste. Molaimid freisin gan uigeachtaí níos mó ná 2048 x 2048 a úsáid.",
+      "info-lights": "Cé nach bhfuil soilse dinimiciúla cumasaithe ar ghléasanna soghluaiste, molaimid gan níos mó ná soilse 3 a úsáid i do radharc (gan soilse comhthimpeallacha agus leathsféar a áireamh) chun go rithfidh do radharc ar ríomhairí pearsanta ísealchríche.",
+      "info-fileSize": "Molaimid méid comhaid deiridh nach mó ná 16MB le haghaidh naisc bandaleithid íseal. Laghdóidh laghdú ar mhéid an chomhaid an t-am a thógann sé do radharc a íoslódáil.",
+      "txt-polycount": "Triantáin {{count}}",
+      "txt-material": "Ábhair {{count}}",
+      "txt-ram": "~{{count}} Video RAM",
+      "txt-texture": "uigeachtaí móra {{count}}",
+      "txt-lights": "Soilse {{count}}"
+    },
+    "progress": {
+      "title": "Á luchtú...",
+      "msg": "Á luchtú...",
+      "lbl-cancel": "Cuir ar ceal"
+    },
+    "publish": {
+      "title": "Radharc a fhoilsiú",
+      "lbl-confirm": "Sábháil agus Foilsigh",
+      "lbl-name": "Ainm an Radhairc",
+      "info-name": "Caithfidh an t-ainm a bheith idir 4 agus 64 carachtar agus ní féidir béim a bheith ann"
+    },
+    "published": {
+      "title": "Radharc Foilsithe",
+      "header": "Tá do radharc foilsithe.",
+      "lbl-view": "Féach ar do Radharc"
+    },
+    "saveNewProject": {
+      "title": "Tacaíocht",
+      "lbl-name": "Ainm an Tionscadail",
+      "info-name": "Caithfidh an t-ainm a bheith idir 4 agus 64 carachtar agus ní féidir béim a bheith ann",
+      "lbl-confirm": "Sábháil tionscadal"
+    },
+    "support": {
+      "title": "Tacaíocht",
+      "header": "An gá fadhb a thuairisciú?",
+      "msg": "Is féidir leat <1>Eisiúint GitHub</1> a chomhdú nó ríomhphost a sheoladh chugainn le haghaidh tacaíochta ag <3>{{mail}}</3>",
+      "discord": "Is féidir leat teacht orainn freisin ar <1>Discord</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Íomhánna Bing",
+      "search": "Cuardaigh le Bing"
+    },
+    "bingVideo": {
+      "name": "Físeáin Bing",
+      "search": "Cuardaigh le Bing"
+    },
+    "element": {
+      "name": "Eilimintí"
+    },
+    "myAssets": {
+      "name": "Mo Shócmhainní"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Cuardaigh le Google"
+    },
+    "tenor": {
+      "name": "GIFanna Tenor",
+      "search": "Cuardaigh de réir Tenor",
+      "ph-search": "Cuardaigh GIFanna..."
+    },
+    "sketchfab": {
+      "name": "Sceitsefab",
+      "search": "Cuardaigh le Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Uaslódáil Sócmhainn"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Cuardaigh íomhánna..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Cuardaigh físeáin..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Sócmhainní cuardaigh..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Cuardaigh samhlacha..."
+    },
+    "useUpload": {
+      "multipleFileError": "Ní ghlacann an t-ionchur le comhaid iolracha.",
+      "mineTypeError": "Ní mheaitseálann \"{{name}}\" na cineálacha nó na síntí míme seo a leanas: {{types}}",
+      "progressTitle": "Comhaid á nUasluchtú",
+      "progressMsg": "Comhaid á n-uaslódáil {{uploaded}} de {{total}}: {{percentage}}%",
+      "uploadError": "Earráid Uasluchtaithe",
+      "uploadErrorMsg": "Earráid agus comhad á uaslódáil: {{message}}",
+      "uploadErrorDefaultMsg": "Tharla earráid anaithnid"
+    }
+  },
+  "openLink": {
+    "description": "Cliceáil ar an Oscail chun nascleanúint a dhéanamh chuig an nasc.",
+    "lbl-open": "Oscail"
+  },
+  "interactableModel": {
+    "lbl-buy": "Ceannaigh",
+    "lbl-learnMore": "Faigh tuilleadh eolais"
+  },
+  "corsProxyButton": {
+    "tooltip": "Úsáid Seachfhreastalaí Cors"
+  }
+}

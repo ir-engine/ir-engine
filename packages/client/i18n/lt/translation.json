@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Puslapis nerastas"
+  },
+  "503": {
+    "msg": "503 - Paslauga nepasiekiama"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Jums buvo uždrausta atvykti į šią vietą.",
+    "locationName": {
+      "pageTitle": "Namon"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projektus",
+      "header": "Prašome prisijungti",
+      "welcomeMsg": "Sveikas atvykęs",
+      "locationHeader": "Vietos",
+      "projectHeader": "Projektus",
+      "sceneHeader": "Scenos",
+      "description": "Jei esate naujas čia, rekomenduojame pereiti per pamoką. Priešingu atveju peršokite tiesiai ir sukurkite projektą nuo nulio arba iš vieno iš mūsų šablonų.",
+      "lbl-startTutorial": "Paleisti mokymo programą",
+      "lbl-newProject": "Naujas projektas",
+      "lbl-createProject": "Kurti",
+      "lbl-newScene": "Nauja scena",
+      "lbl-searchProject": "Ieškoti esamų projektų...",
+      "back": "Nugara",
+      "contextMenu": "Naikinti projektą",
+      "installed": "Įdiegti projektai",
+      "official": "Oficialūs projektai",
+      "community": "Bendruomenės projektai",
+      "install": "Diegti",
+      "uninstall": "Pašalinti",
+      "rename": "Pervardyti",
+      "createProject": "Kurti projektą",
+      "installProject": "Diegti projektą",
+      "processing": "Perdirbimo",
+      "projectName": "Projekto pavadinimas",
+      "projectURL": "Projekto URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Eik namo",
+    "withStatusCode": "Serveryje įvyko {{code}} klaida",
+    "withoutStatusCode": "Serveryje įvyko klaida"
+  },
+  "no-projects": {
+    "msg": "Klaida: neįdiegta jokių projektų – kreipkitės į svetainės administratorių"
+  },
+  "dev": {
+    "pageTitle": "Namon"
+  },
+  "login": {
+    "pageTitle": "Prisijungti"
+  },
+  "workerTest": {
+    "pageTitle": "Darbuotojo testas"
+  },
+  "index": {
+    "by": "PAGAL",
+    "xr": "XR",
+    "foundation": "Fondas",
+    "description": "Realaus laiko 3D socialinės programos, kad visi galėtų mėgautis."
+  },
+  "xrengineContact": {
+    "header": "Susisiekite!",
+    "description": "Mes norėtume padėti jums su jūsų virtualiais renginiais, skaitmenine mažmenine prekyba, pramogomis ir kitais poreikiais.",
+    "lbl-name": "Vardas, pavadinimas",
+    "lbl-email": "El paštas",
+    "lbl-company": "Įmonė",
+    "lbl-project": "Apibūdinkite savo projektą",
+    "lbl-send": "Siųsti",
+    "lbl-ok": "Gerai",
+    "lbl-success": "Išsiųstas pranešimas, mes netrukus su jumis susisieksime.",
+    "lbl-failure": "Įvyko klaida, Plese bandykite dar kartą",
+    "err-username": "Įveskite savo vardą.",
+    "err-email": "Elektroninis paštas yra būtinas.",
+    "err-msg": "Pateikite trumpą savo projekto aprašymą."
+  }
+}

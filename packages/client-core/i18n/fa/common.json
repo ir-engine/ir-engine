@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "صفحه بارگذاری..."
+  },
+  "tooltip": {
+    "pressKey": "مطبوعات {{tip}} به {{message}}"
+  },
+  "toast": {
+    "joined": "پیوست",
+    "left": "چپ"
+  },
+  "navUserWidget": {
+    "login": "ورود به سیستم"
+  },
+  "loader": {
+    "connecting": "اتصال به جهان...",
+    "entering": "ورود به جهان...",
+    "loading": "بارگذاری...",
+    "objectRemaining": "{{count}} باقی مانده",
+    "objectRemainingPlural": "{{count}} باقی مانده",
+    "loadingObjects": "اجسام بارگیری",
+    "loadingComplete": "بارگیری کامل",
+    "joiningWorld": "پیوستن به جهان"
+  },
+  "alert": {
+    "eventWasSuccess": "رویداد موفق بود",
+    "errorWasEncountered": "با خطایی مواجه شد",
+    "eventInProgress": "رویداد در حال انجام",
+    "seconds": "ثانیه",
+    "cancelCountdown": "بستن این مودال شمارش معکوس را لغو خواهد کرد"
+  },
+  "debug": {
+    "refresh": "نوسازی",
+    "stats": "آمار",
+    "debugOptions": "گزینه های اشکال زدایی",
+    "physicsDebug": "فیزیک",
+    "avatarDebug": "آواتار",
+    "nodeHelperDebug": "کمک کننده گره",
+    "gridDebug": "شبکه",
+    "simpleMaterials": "مواد ساده",
+    "tick": "تیک",
+    "worldStore": "فروشگاه جهانی",
+    "engineStore": "فروشگاه موتور",
+    "namedEntities": "نهادها نام گذاری شده",
+    "networkObject": "شیء شبکه",
+    "networkClients": "مشتریان شبکه"
+  },
+  "recording": {
+    "videoRecorder": "ضبط ویدئو",
+    "waitingForPermissions": "در انتظار مجوزها",
+    "selectVideoSource": "انتخاب منبع ویدیو",
+    "screen": "صفحه نمایش",
+    "camera": "دوربین",
+    "microphone": "میکروفون",
+    "startRecording": "شروع ضبط",
+    "pauseRecording": "ضبط مکث",
+    "resumeRecording": "ضبط رزومه",
+    "stopRecording": "توقف ضبط"
+  },
+  "typing": "تایپ...",
+  "gameServer": {
+    "browserError": "خطای مرورگر",
+    "browserErrorMessage": "مرورگر شما ذخیره سازی در حالت مرور خصوصی را پشتیبانی نمی کند. یا مرورگر دیگری را امتحان کنید، یا از حالت مرور خصوصی خارج شوید.",
+    "noAvailableServers": "بدون سرورهای موجود",
+    "noAvailableServersMessage": "هیچ سروری برای اتصال به شما در دسترس نیست. تلاش برای اتصال مجدد در",
+    "worldDisconnected": "جهان قطع شد",
+    "worldDisconnectedMessage": "تو ارتباطت با دنيا رو از دست دادي ما سعی خواهیم کرد برای اتصال مجدد قبل از زمان بعد اجرا می شود، در غیر این صورت شما را به یک نمونه متفاوت ارائه شده است.",
+    "webGLNotEnabled": "WebGL فعال نیست",
+    "webGLNotEnabledMessage": "مرورگر شما WebGL را پشتیبانی نمی کند، یا غیر فعال است. لطفا WebGL را فعال کنید و یا ارتقاء به آخرین نسخه مرورگر خود را در نظر بگیرید.",
+    "youKickedFromWorld": "تو از دنيا لگد زدي",
+    "youKickedFromWorldMessage": "تو از این دنیا به دلیل زیر لگد زدی",
+    "invalidLocation": "مکان نامعتبر",
+    "cantFindLocation": "ما نميتونيم مکان رو پيدا کنيم",
+    "misspelledOrNotExist": "ممکن است به طور غیرمسلسلی باشد، یا ممکن است وجود نداشته باشد.",
+    "loading": "بارگذاری",
+    "low-frame-error": "تشخیص perfomance ضعیف در نظر فعال کردن استفاده از شتاب سخت افزار در مرورگر شما و relauch مرورگر خود را",
+    "low-frame-title": "شتاب سخت افزاری را برای تجربه بهتر فعال کنید!"
+  },
+  "error": {
+    "loading-error": "نتوانست داده های کاربر را بارگذاری کند",
+    "validation-error": "لطفا ورودی معتبر {{type}}",
+    "login-error": "موفق به ورود نشد"
+  }
+}

@@ -1,0 +1,718 @@
+{
+  "loading": "የመጫን ፕሮጀክት",
+  "loadingMsg": "የመጫን ፕሮጀክት ...",
+  "loadingError": "ስህተት መጫን ፕሮጀክት",
+  "loadingErrorMsg": "ፕሮጀክቱን ሲጭን ስህተት ነበር።",
+  "selectSceneMsg": "ሞተር ጋር መጫወት ለመጀመር Scene ይምረጡ",
+  "error": "ስህተት",
+  "errorMsg": "አንድ ያልታወቀ ስህተት ነበር።",
+  "generateScreenshot": "Generating Project Screenshot",
+  "generateScreenshotMsg": "Generating Project screenshot ...",
+  "newScene": "ትዕይንት ይፍጠሩ",
+  "saving": "የማጠራቀም ፕሮጀክት",
+  "savingMsg": "የማጠራቀም ፕሮጀክት ...",
+  "savingError": "ስህተት የማጠራቀም ፕሮጀክት",
+  "savingErrorMsg": "ፕሮጀክቱን ስታድን ስህተት ነበር።",
+  "savingSceneErrorMsg": "ትዕይንቱ በትክክል አይጫንም። ሁኔታውን እንደገና ለመሸከም ሞክር።",
+  "duplicating": "የማባዛት ፕሮጀክት",
+  "duplicatingMsg": "የማባዛት ፕሮጀክት ...",
+  "exporting": "ኤክስፖርት ፕሮጀክት",
+  "exportingMsg": "የኤክስፖርት ፕሮጀክት ...",
+  "exportingError": "ስህተት ኤክስፖርት ፕሮጀክት",
+  "exportingErrorMsg": "ፕሮጀክቱን ወደ ውጭ በመላክ ረገድ ስህተት ነበር ።",
+  "importLegacy": "Import Legacy World",
+  "importLegacyMsg": "ማስጠንቀቂያ! ይህ ሁኔታ ህይወታችሁን ይጻፋል! ለመቀጠል እንደምትመኝ እርግጠኛ ነህ?",
+  "publishingError": "ስህተት ህትመት ፕሮጀክት",
+  "publishingErrorMsg": "አንድ ያልታወቀ ስህተት ነበር።",
+  "publishingScene": "የህትመት ትዕይንት",
+  "publishingSceneMsg": "የህትመት ትዕይንት ...",
+  "uploadingThumbnailMsg": "አውራ ጣትን ማራገፍ ...",
+  "uploadingSceneMsg": "የመጫን ትዕይንት {{percentage}}%",
+  "envMapError": "ስህተት የክወና ካርታ ምስሎች {{files}}",
+  "lbl-return": "ተመለስ",
+  "menubar": {
+    "newScene": "አዲስ ትዕይንት",
+    "saveScene": "ትዕይንቱን አስቀምጥ",
+    "saveAs": "አስቀምጥ",
+    "importAsset": "አስገባ",
+    "exportGLB": "ኤክስፖርት እንደ ሁነኛ glTF (.glb) ...",
+    "importScene": "አስገባ",
+    "exportScene": "የኤክስፖርት ትዕይንት",
+    "quit": "ማቆም"
+  },
+  "errors": {
+    "fileTypeNotSupported": "ለፋይል የማይደገፉ የፋይል አይነት \"{{name}}\" ፋይል ምስል፣ ቪዲዮ ወይም glb ሞዴል መሆን አለበት።",
+    "addObject": "addObject ነገር ሳይገኝ በፊት",
+    "removeObject": "removeObject node አልተገኘም. ይህ የሚሆነው በቦታው ያልታየውን ኖድ በማስወገድ ነው ።",
+    "noParent": "{{node}} \"{{name}}\" ወላጅ የለውም ። ወላጆች የሚሠሩት በአሁኑ ጊዜ ባሉ ነገሮች ላይ ብቻ ነው ።",
+    "undefinedParent": "editor.reparent newParent ununed",
+    "notAuthenticated": "እውነተኛ ያልሆነ",
+    "fetchingProjectError": "ስህተት የማስመጣት ፕሮጀክቶች {{error}}",
+    "fetchingRouteError": "ስህተት የማስመጣት መንገዶች {{error}}",
+    "unknownError": "ያልታወቀ ስህተት",
+    "resolveURL": "ስሕተት url \"{{url}}\"",
+    "mediaSearchAborted": "የመገናኛ ብዙሃን ፍለጋ አስወርዶ",
+    "methodNotImplemented": "ዘዴ አልተተገበረም.",
+    "saveProjectAborted": "አስቀምጥ ትዕይንት አስቀምጥ",
+    "unsavedChanges": "ያልተዳኑ ለውጦች",
+    "unsavedChangesMsg": "ትዕይንቱ ተሻሽሏል። እባክዎን የእርስዎን ለውጦች አስቀምጥ.",
+    "projectCreationFail": "የፕሮጀክቱ አፈጣጠር ሳይሳካ ቀረ። {{reason}}",
+    "projectDeletionFail": "የፕሮጀክቱ መጥፋት ሳይሳካ ቀረ። {{reason}}",
+    "savingProjectFail": "የማዳን ፕሮጀክት ሳይሳካ ቀረ። {{reason}}",
+    "sceneTooLarge": "ትዕይንቱ በጣም ትልቅ ነው ({{size}} MB) ከፍተኛ መጠን {{maxSize}} MB.",
+    "sceneCreationFail": "የትዕይንት ፍጥረት ሳይሳካለት ቀርቷል ። {{reason}}",
+    "uploadAborted": "አስረጅ",
+    "uploadFailed": "uploaded ውድቅ {{reason}}",
+    "assetDeletionFail": "ንብረት ማጥፋት አልተሳካም። {{reason}}",
+    "projectAssetDeletionFail": "የፕሮጀክቱ ንብረት መጥፋት ሳይሳካ ቀረ። {{reason}}",
+    "networkError": "የበይነመረብ ስህተት {{status}}. {{text}}",
+    "unknownStatus": "የማይታወቅ ሁኔታ",
+    "CORS": "ምናልባት የኮርስ ስህተት ሊሆን ይችላል",
+    "urlFetchError": "\"{{url}}\" ማግኘት አልተቻለም"
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "አንቀሳቅስ ካሜራ",
+      "flyFast": "በፍጥነት ይበርሩ",
+      "orbit": "Orbit / ይምረጡ",
+      "pan": "ፓን",
+      "fly": "ዝንብ",
+      "focus": "ትኩረት",
+      "rotateLeft": "በግራ በኩል ይሽከረከራል",
+      "rotateRight": "በቀኝ በኩል ይሽከረከራል",
+      "cancelPlacement": "የውህድ ማቀነባበሪያ ሰረዝ",
+      "placeDuplicate": "ማባዛት",
+      "cancelGrab": "ይሰረዝ",
+      "grab": "ይያዙ",
+      "deselectAll": "ሁሉንም ይምረጡ"
+    },
+    "state": {
+      "header": "ስታት",
+      "memory": "ትውስታ",
+      "geometries": "ጂኦሜትሪዎች",
+      "textures": "የቅብጠት",
+      "render": "አተረጓጎም",
+      "FPS": "FPS",
+      "frameTime": "የፍሬም ሰዓት",
+      "calls": "ጥሪዎች",
+      "triangles": "ሦስት ማዕዘን",
+      "points": "ነጥቦች",
+      "lines": "መስመሮች"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "ህትመት",
+    "lbl-published": "የታተመ",
+    "command": {
+      "translate": "ተርጉም",
+      "rotate": "ይሽከረከራል",
+      "scale": "መለኪያ",
+      "toggleSpace": "ተቀይሩ ቦታ",
+      "togglePivot": "ቀይር ቀይር Pivot",
+      "toggleSnapMode": "ቅንጥብ ዘዴ",
+      "toggleGrid": "የመስመር ላይ እይታ",
+      "increaseGridSize": "የGrid መጠን ጨምር",
+      "descreaseGridSize": "የግሪድ መጠን መቀነስ",
+      "stopPreview": "የቅድመ ዕይታ አቁሙ",
+      "playPreview": "የቅድመ ዕይታ ትዕይንት"
+    }
+  },
+  "properties": {
+    "title": "ባህሪያት",
+    "lbl-visible": "ይታያል",
+    "lbl-preventBake": "መጋገሪያ እንዳይበከል መከላከል",
+    "lbl-persist": "ጽናት",
+    "multipleNodeSelected": "የተመረጡ የተለያዩ አይነት ብዙ ኖዶች",
+    "noNodeSelected": "ኖድ አልተመረጠም",
+    "ambientLight": {
+      "name": "አማርኛ ብርሃኑ",
+      "description": "በቦታህ ያሉ ነገሮችን በሙሉ የሚያበራ ብርሃን።",
+      "lbl-intensity": "የውሃ መጠን",
+      "lbl-color": "ቀለም"
+    },
+    "envmap": {
+      "name": "የአካባቢ ካርታ",
+      "description": "የአካባቢ ካርታ ባህሪያት"
+    },
+    "asset": {
+      "name": "ሀብት",
+      "description": "በቀጣይነት ሊጫኑ እና ሊጭኑ የሚችሉ የትዕይንት ክፍሎች ቡድን",
+      "lbl-options": "አማራጮች",
+      "lbl-assetPath": "አቃቢ መንገድ",
+      "lbl-assetName": "የኤክስፖርት ስም",
+      "lbl-exportOptions": "የኤክስፖርት አማራጮች",
+      "lbl-export": "የኤክስፖርት አሴት",
+      "lbl-load": "ወደ ትዕይንቱ ይጫኑ",
+      "lbl-unload": "ማራገፍ",
+      "lbl-reload": "እንደገና ይጫኑ"
+    },
+    "audio": {
+      "name": "ኦዲዮ",
+      "description": "በዳይናሚክ ድምጽ ይጭናሉ።",
+      "lbl-audiourl": "የድምጽ Url",
+      "lbl-controls": "መቆጣጠሪያዎች",
+      "info-controls": "የመገናኛ ብዙሃን ቁጥጥር የሚታይበትን ሁኔታ አስቀምጥ።",
+      "lbl-autoplay": "አውቶማቲክ አጫውት",
+      "info-autoplay": "እውነት ከሆነ መገናኛ ብዙኃን ለመጀመሪያ ጊዜ ወደ ትዕይንቱ ሲገቡ ይጫወታሉ።",
+      "lbl-synchronize": "አንድ ላይ ማቀናጀት",
+      "info-synchronize": "እውነት ከሆነ, መገናኛ ብዙኃን በሁሉም የተገናኙ ደንበኞች ላይ Synchronized ይደረጋል.",
+      "lbl-loop": "ሉፕ",
+      "info-loop": "እውነት ከሆነ መገናኛ ብዙኃን ለዘላለም ይሽከረከራል።",
+      "lbl-audioType": "የድምጽ አይነት",
+      "lbl-distanceModel": "የርቀት ሞዴል",
+      "info-distanceModel": "አልጎሪተም የድምፅ ማጉያን ለማስላት ያገለግል ነበር።",
+      "lbl-rolloffFactor": "ሮሎፍ ፋክት",
+      "info-rolloffFactor": "ምንጩ ከአድማጩ እየራቀ ሲሄድ የድምፁ መጠን ምን ያህል በፍጥነት እንደሚቀንስ የሚገልጽ ሁለት ዓይነት ዋጋ። ከ 0 እስከ 1",
+      "info-rfInfinity": "ምንጩ ከአድማጩ እየራቀ ሲሄድ የድምፁ መጠን ምን ያህል በፍጥነት እንደሚቀንስ የሚገልጽ ሁለት ዓይነት ዋጋ። 0 ወደ Infinity",
+      "lbl-refDistance": "Ref ርቀት",
+      "info-refDistance": "የድምፅ ምንጭ ከአድማጩ ይበልጥ እየተንቀሳቀሰ ሲሄድ የድምፅ መጠን መቀነስ የሚያስገኘውን የማመሳከሪያ ርቀት የሚያመለክት ሁለት ዓይነት ዋጋ።",
+      "lbl-maxDistance": "ማክስ ርቀት",
+      "info-maxDistance": "በድምፅ ምንጭና በአድማጭ መካከል ያለውን ከፍተኛ ርቀት የሚያመለክት ሁለት ዋጋ ያለው ሲሆን ከዚያ በኋላ የድምጽ መጠን አይቀንስም።",
+      "lbl-coneInnerAngle": "Cone ውስጣዊ አንግል",
+      "info-coneInnerAngle": "በውስጡ ያለውን የድምጽ መጠን መቀነስ የማይኖርበትን ማዕዘን በዲግሪ የሚገልጽ ሁለት ዓይነት ዋጋ አለው።",
+      "lbl-coneOuterAngle": "Cone ኦተር አንግል",
+      "info-coneOuterAngle": "በኮኔውተርጋይን ባህሪ የተገለፀው የድምጽ መጠን በማያቋርጥ ዋጋ የሚቀነስበትን ማዕዘን በዲግሪ፣ በዲግሪ መግለፅ።",
+      "lbl-coreOuterGain": "ኮኔ ኦተር ጋይን",
+      "info-coreOuterGain": "coneOuterአንግል ባህሪ ከተገለፀው ኮኔ ውጪ ያለውን የመጠን መቀነስ መጠን የሚገልጽ ሁለት እሴት. ዋጋው 0 ነው ማለት ምንም ዓይነት ድምፅ መስማት አይቻልም ማለት ነው።",
+      "lbl-volume": "ጥራዝ",
+      "lbl-play": "አጫውት",
+      "lbl-pause": "ቆም",
+      "error-url": "ስህተት መጫን ከ ዩአርኤል"
+    },
+    "boxCollider": {
+      "description": "በዓይን የማይታይ ሣጥን ከላይ ይወጣል ወይም ያርፋል።\nእነዚህ ነገሮች ከተጋጩ ወለል ላይ ወድቀው በግድግዳዎች ውስጥ ያልፋሉ።",
+      "lbl-isTrigger": "ትግራይ"
+    },
+    "camera": {
+      "name": "ካሜራ",
+      "description": "የካሜራ ማቀነባበሪያዎች.",
+      "lbl-camera-raycast": "ካሜራ Raycasting",
+      "lbl-camera-raycast-toggle": "አስቻለው",
+      "lbl-camera-raycast-frequency": "ድግግሞሽ",
+      "lbl-camera-raycast-count": "ሬይ ካውንት",
+      "lbl-camera-raycast-length": "ሬይ ርዝመት"
+    },
+    "directionalLight": {
+      "name": "አቅጣጫ ብርሃን",
+      "description": "ትዕይንቱን በሙሉ የሚያበራ ብርሃን፣ ነገር ግን በአንድ አቅጣጫ የሚፈነጥቅ ብርሃን ነው።",
+      "lbl-color": "ቀለም",
+      "lbl-intensity": "የውሃ መጠን",
+      "lbl-cameraFar": "ካሜራ ሩቅ",
+      "lbl-cameraNear": "አቅራቢያ ካሜራ",
+      "lbl-cameraTop": "የካሜራ ከላይ",
+      "lbl-cameraBottom": "ካሜራ ታች",
+      "lbl-cameraLeft": "በስተግራ ካሜራ",
+      "lbl-cameraRight": "የካሜራ ቀኝ",
+      "lbl-useInCSM": "CSM ውስጥ መጠቀም",
+      "lbl-castShadow": "ጥላሁን ገሠሠ",
+      "lbl-disableForCSM": "የካስካድ ጥላ ካርታ ስለሚቻል የአካል ጉዳተኞች ናቸው።",
+      "lbl-shadowmapResolution": "የጥላ ካርታ የአቋም መግለጫ",
+      "lbl-shadowBias": "ጥላሁን ባያ",
+      "lbl-shadowRadius": "ጥላ ራዲየስ",
+      "lbl-showCameraHelper": "የካሜራ ረዳት አሳይ"
+    },
+    "groundPlane": {
+      "name": "ግራውንድ አውሮፕላን",
+      "description": "ወደ ርቀቱ የሚዘረጋ ጠፍጣፋ የመሬት አውሮፕላን።",
+      "lbl-color": "ቀለም",
+      "lbl-receiveShadow": "ጥላሁን ተቀበል",
+      "lbl-generateNavmesh": "Generate Navmesh"
+    },
+    "link": {
+      "description": "ወደ አንድ ክፍል ወይም ድረ ገጽ ያገናኙ።",
+      "lbl-url": "ዩአርኤል"
+    },
+    "map": {
+      "description": "3D geospatial ካርታ e.g. ከተማ."
+    },
+    "model": {
+      "description": "በእርስዎ ትዕይንት ውስጥ 3D ሞዴል, ከ GLTF URL ወይም ፋይል የተጫነ.",
+      "lbl-usingGPUInstancingFlag": "GPU Instancing ይጠቀሙ",
+      "lbl-modelurl": "ሞዴል ዩርል",
+      "lbl-envmapUrl": "የአካባቢ ካርታ ዩአርኤል",
+      "lbl-textureOverride": "የተንቆጠቆጠ ጨርቅ",
+      "lbl-materialOverride": "ቁሳዊ ነገሮች ከመጠን በላይ ይበዙታል",
+      "error-url": "ስህተት መጫን ከ ዩአርኤል",
+      "lbl-loopAnimation": "ሉፕ አኒሜሽን",
+      "lbl-isAvatar": "አቫታር ነው",
+      "lbl-isGPUInstancing": "GPU Instancing በመጠቀም ላይ ነው",
+      "lbl-isDynamic": "ዳይናሚክ ነው",
+      "lbl-castShadow": "ጥላሁን ገሠሠ",
+      "lbl-receiveShadow": "ጥላሁን ተቀበል",
+      "lbl-interactable": "እርስ በርስ መገናኘት ይቻላል",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "ስም",
+      "lbl-url": "ሞዴል ዩርል",
+      "lbl-buy": "Url ን ይግዙ",
+      "lbl-learnMore": "ተጨማሪ Url ይማሩ",
+      "lbl-htmlContent": "የHtml ይዘት",
+      "lbl-interactionText": "የግንኙነት ጽሑፍ",
+      "lbl-interactionType": "የግንኙነት አይነት"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "ቁሳዊ",
+      "error-materialID": "ስህተት ቁሳዊ ማግኘት",
+      "placeholder-materialID": "ቁሳዊ ይምረጡ",
+      "lbl-patternTarget": "Pattern Match",
+      "lbl-pattern": "ምሳሌ",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "የግንኙነት አይነት",
+      "text": "የግንኙነት ጽሑፍ",
+      "distance": "የግንኙነት ርቀት",
+      "theme": "የግንኙነት ጭብጥ",
+      "name": "የግንኙነት ስም",
+      "description": "የግንኙነት መግለጫ",
+      "images": "የግንኙነት ምስሎች",
+      "videos": "የግንኙነት ቪዲዮዎች",
+      "urls": "አገናኝ Urls",
+      "models": "የግንኙነት ሞዴሎች"
+    },
+    "group": {
+      "name": "ቡድን",
+      "description": "አንድ ላይ ሊንቀሳቀሱ ወይም ሊባዛየሚችል የሚችል ብዙ ነገሮች አሉ።\nበሃይራርክ ውስጥ ዕቃዎችን ወደ ቡድኑ ይጎትቱ እና ጣሉት።"
+    },
+    "hemisphere": {
+      "name": "የከምባታ ብርሃን",
+      "description": "ትዕይንቱን በቀጥታ ከላይ የሚያበራ ብርሃን።",
+      "lbl-skyColor": "የሰማይ ቀለም",
+      "lbl-groundColor": "የመሬት ቀለም",
+      "lbl-intensity": "የውሃ መጠን"
+    },
+    "image": {
+      "name": "ምስል",
+      "description": "ምስሉን በቀጣይነት ይጭናል።",
+      "lbl-imgURL": "የምስል ዩርል",
+      "lbl-transparency": "የትራንስፓረንሲ ዘዴ",
+      "lbl-alphaCutoff": "አልፋ ኩቶፍ",
+      "lbl-projection": "ፕሮዤ",
+      "lbl-side": "የጎንዮሽ",
+      "info-controls": "የመገናኛ ብዙሃን ቁጥጥር የሚታይበትን ሁኔታ አስቀምጥ።",
+      "info-transparency": "ግልፅነትን እንዴት ተግባራዊ ማድረግ እንደሚቻል",
+      "info-opaque": "'opaque' = ምንም ግልፅነት የለም",
+      "info-blend": "'ውህደት' = ምስሎችን አልፋ ጣቢያ ይጠቀሙ",
+      "info-mask": "'mask' = ለኦን/ኦፍ ግልፅነት የተወሰነ የመቁረጥ ዋጋ ይጠቀሙ (የበለጠ አሰራር)",
+      "info-alphaCutoff": "ከዚህ ያነሰ የአልፋ እሴት ያላቸው ፒክሰሎች ግልፅ ይሆናሉ",
+      "error-url": "ዋጋ የሌለው ዩ አር ኤል"
+    },
+    "name": {
+      "lbl-name": "ስም"
+    },
+    "partileEmitter": {
+      "description": "ቅንጣቶችን ለመፍጠር የParticlemitter.",
+      "lbl-particleCount": "የንጥረ ነገር ብዛት",
+      "lbl-image": "ምስል",
+      "lbl-ageRandomness": "እድሜ በድንገተኛነት",
+      "lbl-lifetime": "ዕድሜ ልክ",
+      "lbl-lifetimeRandomness": "የዕድሜ ልክ ድንገተኛነት",
+      "lbl-sizeCurve": "መጠናቸው ንጣፍ",
+      "lbl-startPSize": "ጀምር የParticleparticle መጠን",
+      "lbl-endPSize": "መጨረሻ የParticleparticle መጠን",
+      "lbl-sizeRandomness": "መጠን Randomness",
+      "lbl-colorCurve": "የቀለም መሽከርከሪያ",
+      "lbl-startColor": "ቀለም ጀምር",
+      "lbl-startOpacity": "Opacity ጀምር",
+      "lbl-middleColor": "መካከለኛ ቀለም",
+      "lbl-middleOpacity": "መካከለኛው የድፍድፍ ድፍድፍ",
+      "lbl-endColor": "መጨረሻ ቀለም",
+      "lbl-endOpacity": "ኦፐረሲቲ (Opacity)",
+      "lbl-velocityCurve": "የፍጥጫ መሽከርከሪያ",
+      "lbl-startVelocity": "ቬሎሲቲ ይጀምሩ",
+      "lbl-endVelocity": "የመጨረሻ ፍጥጫ",
+      "lbl-angularVelocity": "አንግሉላር ቬሎሲቲ",
+      "info-ageRandomness": "ቅንጣቶች በሚፈለፈሉበት ጊዜ መካከል ያለው ልዩነት።",
+      "info-lifetime": "አንድ ቅንጣት እንደገና ከመመለከቱ በፊት ያለው ከፍተኛ ዕድሜ።",
+      "info-lifetimeRandomness": "በቅንጣት ዕድሜ መካከል ያለው ልዩነት መጠን።",
+      "info-sizeRandomness": "የቅንጣት መነሻ መጠኖች መካከል ያለው ልዩነት መጠን.",
+      "error-url": "ስህተት መጫን ከ ዩአርኤል"
+    },
+    "clouds": {
+      "name": "ደመና",
+      "description": "ስፕሪት ላይ የተመሠረተ የደመና መጠን.",
+      "lbl-image": "ስፕሪት ምስል",
+      "lbl-wroldScale": "የዓለም መለኪያ",
+      "lbl-dimensions": "አቀማመሻዎች",
+      "lbl-noiseZoom": "የድምጽ ዝማኔ",
+      "lbl-noiseOffset": "የድምጽ ኦፍሴት",
+      "lbl-spriteScale": "ስፕሪት ስኬል",
+      "lbl-fogColor": "የጭጋግ ቀለም",
+      "lbl-fogRange": "የጭጋግ ክልል",
+      "error-url": "ስህተት መጫን ከ ዩአርኤል"
+    },
+    "ocean": {
+      "name": "ውቅያኖስ",
+      "description": "የውቅያኖስ ገጽ ሞገዶችና አረፋዎች",
+      "lbl-normalMap": "የተለመደ ካርታ",
+      "lbl-distortionMap": "የተጣመመ ካርታ",
+      "lbl-envMap": "የአካባቢ ካርታ",
+      "lbl-color": "ቀለም",
+      "lbl-shallowWaterColor": "ጥልቀት የሌለው የውሃ ቀለም",
+      "lbl-shallowToDeepDistance": "ጥልቀት የሌለው ርቀት",
+      "lbl-opacityFadeDistance": "Opacity የርቀት ርቀት ጠፋ",
+      "lbl-opacityRange": "ኦፓሲቲ ክልል",
+      "lbl-shininess": "አንጸባራቂነት",
+      "lbl-reflectivity": "አንጸባራቅ",
+      "lbl-foamColor": "የፎም ቀለም",
+      "lbl-foamSpeed": "የፎም ፍጥነት",
+      "lbl-foamTiling": "አረፋ Tiling",
+      "lbl-bigWaveTiling": "ትልቅ ማዕበል Tiling",
+      "lbl-bigWaveSpeed": "ትልቅ ማዕበል ፍጥነት",
+      "lbl-bigWaveHeight": "ትልቅ ማዕበል ቁመት",
+      "lbl-waveSpeed": "የሞገድ ፍጥነት",
+      "lbl-waveScale": "የሞገድ መለኪያ",
+      "lbl-waveTiling": "ሞገድ Tiling",
+      "lbl-waveDistortionSpeed": "የሞገድ ማጣመም ፍጥነት",
+      "lbl-waveDistortionTiling": "ሞገድ Distortion tiling",
+      "error-url": "ስህተት መጫን ከ ዩአርኤል"
+    },
+    "water": {
+      "name": "ውሃ",
+      "description": "አነስተኛ የውሃ ገጽ"
+    },
+    "interior": {
+      "name": "የውስጥ ውስጥ",
+      "description": "የውስጥ አከባቢዎችን ለመምሰል በካርታ የተቆራረጠ ክዩብ ያለው ገጽ",
+      "lbl-cubeMap": "የኩብ ካርታ ቅይጥ",
+      "lbl-tiling": "የጠለፋ መጠን",
+      "lbl-size": "የገጽ መጠን",
+      "error-url": "ስህተት መጫን ከ ዩአርኤል"
+    },
+    "pointLight": {
+      "description": "ከአንድ ነጥብ በሁሉም አቅጣጫ የሚያመጭ ብርሃን።",
+      "lbl-color": "ቀለም",
+      "lbl-intensity": "የውሃ መጠን",
+      "lbl-range": "ክልል",
+      "lbl-decay": "መበስበስ"
+    },
+    "scene": {
+      "name": "ትዕይንት",
+      "description": "የቦታው መነሻ።",
+      "lbl-bgcolor": "የድህረ ገጽ ቀለም",
+      "lbl-fogType": "የጭጋግ ዓይነት",
+      "lbl-fogColor": "የጭጋግ ቀለም",
+      "lbl-forNearDistance": "ጭጋግ ቅርብ ርቀት",
+      "lbl-fogFarDistance": "ጭጋግ ሩቅ ርቀት",
+      "lbl-fogDensity": "የጭጋግ ጥልቀት",
+      "lbl-audioSettings": "ይጠቀሙ Positional ኦዲዮ",
+      "lbl-avatarDistanceModel": "አቫታር ርቀት ሞዴል",
+      "lbl-avatarRolloffFactor": "አቫታር ሮሎፍ ፋክተር",
+      "lbl-avatarRefDistance": "አቫታር ራፍ ርቀት",
+      "lbl-avatarMaxDistance": "አቫታር ማክስ ርቀት",
+      "lbl-mediaVolume": "የመገናኛ ብዙሃን ድምጽ",
+      "lbl-mediaDistanceModel": "የሚዲያ ርቀት ሞዴል",
+      "lbl-mediaRolloffFactor": "የመገናኛ ብዙኃን ሮሎፍ ፋክት",
+      "lbl-mediaRefDistance": "የሚዲያ ራፍ ርቀት",
+      "lbl-mediaMaxDistance": "ሚዲያ ማክስ ርቀት",
+      "lbl-mediaConeInnerAngle": "የሚዲያ ኮኔ ውስጣዊ አንግል",
+      "lbl-mediaConeOuterAngle": "ሚዲያ ኮኔ ውጨኛ አንግል",
+      "lbl-mediaConeOuterGain": "የመገናኛ ብዙኃን ኮኔ አውተር አተረፈ",
+      "info-avatarDistanceModel": "አልጎሪተም የድምፅ ማጉያን ለማስላት ያገለግል ነበር።",
+      "info-avatarRolloffFactor": "ምንጩ ከአድማጩ እየራቀ ሲሄድ የድምፁ መጠን ምን ያህል በፍጥነት እንደሚቀንስ የሚገልጽ ሁለት ዓይነት ዋጋ። ከ 0 እስከ 1",
+      "info-avatarRolloffFactorInifinity": "ምንጩ ከአድማጩ እየራቀ ሲሄድ የድምፁ መጠን ምን ያህል በፍጥነት እንደሚቀንስ የሚገልጽ ሁለት ዓይነት ዋጋ። 0 ወደ Infinity",
+      "info-avatarRefDistance": "የድምፅ ምንጭ ከአድማጩ ይበልጥ እየተንቀሳቀሰ ሲሄድ የድምፅ መጠን መቀነስ የሚያስገኘውን የማመሳከሪያ ርቀት የሚያመለክት ሁለት ዓይነት ዋጋ።",
+      "info-avatarMaxDistance": "በድምፅ ምንጭና በአድማጭ መካከል ያለውን ከፍተኛ ርቀት የሚያመለክት ሁለት ዋጋ ያለው ሲሆን ከዚያ በኋላ የድምጽ መጠን አይቀንስም።",
+      "info-mediaDistanceModel": "አልጎሪተም የድምፅ ማጉያን ለማስላት ያገለግል ነበር።",
+      "info-mediaRolloffFactor": "ምንጩ ከአድማጩ እየራቀ ሲሄድ የድምፁ መጠን ምን ያህል በፍጥነት እንደሚቀንስ የሚገልጽ ሁለት ዓይነት ዋጋ። ከ 0 እስከ 1",
+      "info-mediaRolloffFactorInfinity": "ምንጩ ከአድማጩ እየራቀ ሲሄድ የድምፁ መጠን ምን ያህል በፍጥነት እንደሚቀንስ የሚገልጽ ሁለት ዓይነት ዋጋ። 0 ወደ Infinity",
+      "info-mediaRefDistance": "የድምፅ ምንጭ ከአድማጩ ይበልጥ እየተንቀሳቀሰ ሲሄድ የድምፅ መጠን መቀነስ የሚያስገኘውን የማመሳከሪያ ርቀት የሚያመለክት ሁለት ዓይነት ዋጋ።",
+      "info-mediaMaxDistance": "በድምፅ ምንጭና በአድማጭ መካከል ያለውን ከፍተኛ ርቀት የሚያመለክት ሁለት ዋጋ ያለው ሲሆን ከዚያ በኋላ የድምጽ መጠን አይቀንስም።",
+      "info-mediaConeInnerAngle": "በውስጡ ያለውን የድምጽ መጠን መቀነስ የማይኖርበትን ማዕዘን በዲግሪ የሚገልጽ ሁለት ዓይነት ዋጋ አለው።",
+      "info-mediaConeOuterAngle": "በኮኔውተርጋይን ባህሪ የተገለፀው የድምጽ መጠን በማያቋርጥ ዋጋ የሚቀነስበትን ማዕዘን በዲግሪ፣ በዲግሪ መግለፅ።",
+      "info-mediaConeOuterGain": "coneOuterአንግል ባህሪ ከተገለፀው ኮኔ ውጪ ያለውን የመጠን መቀነስ መጠን የሚገልጽ ሁለት እሴት. ዋጋው 0 ነው ማለት ምንም ዓይነት ድምፅ መስማት አይቻልም ማለት ነው።",
+      "lbl-simpleMaterials": "ቀላል ማቴሪያሎችን ይጠቀሙ",
+      "lbl-lods": "ሎድ",
+      "info-lods": "የዝርዝር መጠን የሚለወጥበትን ርቀት ይለዋወጣል።",
+      "info-simpleMaterials": "ውድ የሆኑ ቁሳቁሶችን በሙሉ ወደ ቀላል ነገሮች በመለወጥ ሸክሙን ወደ ትዕይንቱ አተረጓጎም ይለውጣሉ።",
+      "lbl-rendererSettings": "Override Renderer Settings",
+      "lbl-csm": "Cascading ጥላ ካርታዎች",
+      "info-csm": "cascading ጥላ ካርታዎችን ያስችለዋል.",
+      "lbl-toneMapping": "ቃና ካርታ",
+      "info-toneMapping": "የድምጽ ቃናው በምሳሌው ላይ እንዲሰለጥን ይረዳል። የፖስታ ሂደት ሲቻል ምንም ውጤት የለውም።",
+      "lbl-toneMappingExposure": "ቃና የካርታ አጋለጥ",
+      "info-toneMappingExposure": "የድምጽ ቃናው በካርታው ላይ ያለውን ተጋላጭነት ይጠቅሳል። የፖስታ ሂደት ሲቻል ምንም ውጤት የለውም።",
+      "lbl-shadowMapType": "ጥላ ካርታ አይነት",
+      "info-shadowMapType": "የጥላ ካርታ አይነት",
+      "error-url": "ስህተት መጫን ከ ዩአርኤል"
+    },
+    "sceneCamera": {
+      "name": "የትዕይንት ቅድመ-እይታ ካሜራ",
+      "description": "ካሜራው ትዕይንቱንና የቅድመ ዕይታ ካሜራውን ለመጀመር የሚያገለግለውን የእጅ ጣት ለመሥራት ያገለግላል።",
+      "lbl-setFromViewPort": "ከ Viewport ይቁም"
+    },
+    "skybox": {
+      "name": "የስካይቦክስ",
+      "description": "",
+      "lbl-timeOfDay": "የቀን ጊዜ",
+      "lbl-color": "ቀለም",
+      "lbl-latitude": "የኬንትሮስ",
+      "lbl-luminance": "ብርሃን",
+      "lbl-scattering": "መጠን መበተን",
+      "lbl-scatteringDistance": "ርቀት መበተን",
+      "lbl-horizonStart": "አድማስ ጀምር",
+      "lbl-horizonEnd": "አድማስ መጨረሻ",
+      "lbl-texture": "የቀለም ቀለም",
+      "lbl-skyType": "የሰማይ አይነት",
+      "error-url": "ስህተት መጫን ከ ዩአርኤል"
+    },
+    "spawnPoint": {
+      "name": "የጠለፋ ነጥብ",
+      "description": "ሰዎች ወደ ትዕይንታችሁ ሲገቡ የሚታዩበት ነጥብ።\nበViewport ውስጥ ያለው ምስል የአንድን አቫታር ትክክለኛ መጠን ያመለክታል።"
+    },
+    "spotLight": {
+      "description": "ወደ አንድ አቅጣጫ የሚያመቻች ብርሃን፣ በኮን ውስጥ ያሉ ነገሮችን ያበራል።",
+      "lbl-color": "ቀለም",
+      "lbl-intensity": "የውሃ መጠን",
+      "lbl-penumbra": "ፐነምብራ",
+      "lbl-angle": "አንግል",
+      "lbl-range": "ክልል",
+      "lbl-decay": "መበስበስ"
+    },
+    "transform": {
+      "title": "ለውጥ",
+      "lbl-postition": "ቦታ",
+      "lbl-rotation": "የሚሽከረከርበት መንገድ",
+      "lbl-scale": "መለኪያ"
+    },
+    "triggereVolume": {
+      "description": "ወደ ዒላማው ዕቃ መግባትና መውጣት ላይ ንብረት አስቀምጥ።",
+      "lbl-target": "ዕቃ",
+      "lbl-onenter": "ወደ ውስጥ መግባት",
+      "lbl-onexit": "መውጫ ላይ",
+      "lbl-showHelper": "አሳይ ረዳ ሜሽ",
+      "ph-errorNode": "ስህተት የጎደለው node.",
+      "ph-selectNode": "ኖድ ይምረጡ ..."
+    },
+    "video": {
+      "name": "ቪዲዮ",
+      "description": "ቪድዮ ይጭናል።",
+      "lbl-video": "ቪዲዮ",
+      "lbl-projection": "ፕሮዤ",
+      "lbl-islivestream": "ሕያው ጅረት",
+      "lbl-interactable": "እርስ በርስ መገናኘት ይቻላል",
+      "lbl-id": "ኤለመንት መታወቂያ",
+      "lbl-play": "አጫውት",
+      "lbl-pause": "ቆም",
+      "error-url": "ስህተት መጫን ከ ዩአርኤል"
+    },
+    "volumetric": {
+      "name": "Volumetric",
+      "description": "የድምጽ መጠን ያለው ቪዲዮ ይጭናል።",
+      "uvolPaths": "የዩቮል መንገዶች",
+      "playmode": "አጫውት Mode",
+      "playtitle": "አጫውት",
+      "pausetitle": "ቆም"
+    },
+    "spline": {
+      "description": "በዳይናሚክ መንገድ መሽከርከሪያዎችን መፍጠር ና ማስተካከል።",
+      "lbl-addNode": "መሽከርከሪያ ላይ ኖድ ጨምር።"
+    },
+    "systemnode": {
+      "description": "ጽሁፍን ያያይዙ።",
+      "lbl-filePath": "ዩአርኤል",
+      "lbl-systemUpdateType": "የመርፌ ነጥብ",
+      "lbl-enableClient": "ደንበኛ",
+      "lbl-enableServer": "ሰርቨር",
+      "lbl-args": "አርግስ",
+      "error-url": "ስህተት መጫን ስክሪፕት ከ ዩአርኤል"
+    },
+    "portal": {
+      "lbl-portal": "አገናኝ ፖርታል",
+      "lbl-redirect": "ይጠቀሙ ገጽ Redirect",
+      "description": "ለተቀመጠለት ቦታ ተጫራቾችን ወደ ቴሌፖርት ለማድረግ የሚያስችል Portat",
+      "lbl-locationName": "ቦታ",
+      "lbl-modelUrl": "ሞዴል ዩአርኤል",
+      "lbl-displayText": "ጽሁፍ አሳይ",
+      "lbl-cubemapBake": "የኩብማፕ ዳቦ",
+      "lbl-spawnPosition": "የተፈለፈሉ ቦታዎች",
+      "lbl-spawnRotation": "ዝውውሩ",
+      "lbl-triggerPosition": "የትግራይ አቀማመጥ",
+      "lbl-triggerRotation": "የትግራይ ዙር",
+      "lbl-triggerScale": "የትግራይ መለኪያ"
+    },
+    "postprocessing": {
+      "name": "የድህረ ገጽ አሰራር",
+      "description": "Post Processing effects በእርስዎ ትዕይንት ላይ ተግባራዊ ለማድረግ."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "አዲስ ፕሮጀክት",
+      "backLink": "ወደ ፕሮጀክቶች መመለስ",
+      "featured": "Featured",
+      "all": "ሁሉም",
+      "newProject": "አዲስ ባዶ ፕሮጀክት",
+      "ph-search": "የፍለጋ ትዕይንቶች ..."
+    },
+    "grid": {
+      "loading": "መጫን ..."
+    },
+    "page": {
+      "header": "እንኳን ደህና መጡ",
+      "headerMsg": "እዚህ አዲስ ከሆንክ ማስተማሪያውን ማለፍ እንመክራለን። አለበለዚያ ወደ ውስጥ ዘልለህ በመግባት ከጭራሽ ወይም ከአንዱ ቴምፕሌስ ፕሮጀክት ይፍጠሩ።",
+      "lbl-startTutorial": "ትምህርተ-ትምህርት ጀምር",
+      "projects": "ፕሮጀክቶች",
+      "lbl-newProject": "አዲስ ፕሮጀክት"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "መጫን ...",
+      "placeObject": "አስቀምጥ",
+      "placeObjectAtOrigin": "የአንድን ነገር አመጣጥ አስቀምጥ",
+      "copyURL": "ዩአርኤልን ይገልብጡ",
+      "openInNewTab": "ዩአርኤልን በአዲስ ታብ መክፈት",
+      "deleteAsset": "አመልካች"
+    },
+    "filebrowser": {
+      "addNewFolder": "አዲስ ፎልደር ጨምር",
+      "cutAsset": "ይቁረጡ",
+      "copyAsset": "ግልባጭ",
+      "pasteAsset": "ፓስተር",
+      "renameAsset": "የስም ስም",
+      "viewAssetProperties": "ባህሪያት ይመልከቱ"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "የስም ስም",
+    "lbl-duplicate": "ማባዛት",
+    "lbl-group": "ቡድን",
+    "lbl-delete": "አጥፉ",
+    "lbl-expandAll": "ሁሉንም አሰፋ",
+    "lbl-collapseAll": "ሁሉም ይደመስሳል",
+    "isseus": "ጉዳያት ፦"
+  },
+  "dnd": {
+    "nodes": "{{count}} ኖዶች ተመረጡ",
+    "models": "{{count}} ሞዴሎች ተመረጡ",
+    "images": "{{count}} ምስሎች ተመረጡ",
+    "videos": "{{count}} ቪዲዮዎች ተመረጡ",
+    "audio": "{{count}} የድምፅ ምንጮች ተመረጡ"
+  },
+  "dialog": {
+    "title": "አዘጋጅ",
+    "lbl-confirm": "እሺ",
+    "lbl-cancel": "ተወው",
+    "exportProject": {
+      "title": "ኤክስፖርት ፕሮጀክት",
+      "lbl-confirm": "ኤክስፖርት ፕሮጀክት",
+      "lbl-combineMesh": "ሜዝ (Mess)",
+      "lbl-removeUnused": "ያልተጠቀሙባቸውን ነገሮች አስወግዱ"
+    },
+    "performance": {
+      "title": "የአፈጻጸም ምርመራ",
+      "lbl-confirm": "የህትመት ትዕይንት",
+      "learnMore": "ተጨማሪ እወቅ",
+      "lbl-polycount": "ብዙ ቁጥር",
+      "lbl-material": "ቁሳቁሶች",
+      "lbl-texture": "የቅብጠት",
+      "lbl-lights": "መብራት",
+      "lbl-fileSize": "የፋይል መጠን",
+      "info-polycount": "ለተንቀሳቃሽ መሳሪያዎች ከ 50,000 የማይበልጡ ባለ ሶስት ማዕዘን መጠቀም የእርስዎን ትዕይንት እንመክራለን.",
+      "info-material": "በተንቀሳቃሽ የኤሌክትሮኒክ መሣሪያዎች ላይ የሚደርሰውን የስልክ ጥሪ ለመቀነስ በእርስዎ ትዕይንት ውስጥ ከ 25 የማይበልጡ ልዩ ቁሳቁሶች መጠቀም እንመክራለን.",
+      "info-texture": "የእርስዎ ንጥሎች ለተንቀሳቃሽ መሳሪያዎች ከ 256MB የቪዲዮ RAM አይበልጥም እንዲጠቀሙ እናበረታታለን. በተጨማሪም ከ2048 x 2048 የሚበልጡ ቅርሶችን መጠቀም የለብንም ብለን እናበረታታለን።",
+      "info-lights": "በተንቀሳቃሽ የኤሌክትሮኒክ መሣሪያዎች ላይ ከፍተኛ መጠን ያላቸው መብራቶች ባይቻሉም ትዕይንታችሁ ዝቅተኛ በሆነ ጫፍ ላይ በሚገኙ ፒሲዎች ላይ እንዲሠራ ለማድረግ በቦታችሁ ውስጥ ከ3 የማይበልጡ መብራቶችን (አካባቢና ንፍቀ ክበብ መብራቶችን ሳይጨምር) መጠቀም ጥሩ እንዳልሆነ እናሳስባለን።",
+      "info-fileSize": "ዝቅተኛ ባንድ ዊድ አገናኞችን ለማግኘት ከ 16MB የማይበልጥ የመጨረሻ የፋይል መጠን እንመክራለን. የፋይሉን መጠን መቀነስ ትዕይንትዎን ለማውረድ የሚወስድበትን ጊዜ ይቀንሳል.",
+      "txt-polycount": "{{count}} ሦስት ማዕዘን",
+      "txt-material": "{{count}} ማቴሪያሎች",
+      "txt-ram": "~{{count}} video RAM",
+      "txt-texture": "{{count}} ትላልቅ ጨረታዎች",
+      "txt-lights": "{{count}} መብራት"
+    },
+    "progress": {
+      "title": "መጫን ...",
+      "msg": "መጫን ...",
+      "lbl-cancel": "ተወው"
+    },
+    "publish": {
+      "title": "የህትመት ትዕይንት",
+      "lbl-confirm": "አስቀምጥ እና ህትመት",
+      "lbl-name": "የሥዕል ስም",
+      "info-name": "ስም ከ 4 እስከ 64 ፊደሎች መካከል መሆን አለበት እና አጽንተው መያዝ አይችሉም"
+    },
+    "published": {
+      "title": "ትዕይንተ ህትመት",
+      "header": "ትዕይንታችሁ ታትሟል።",
+      "lbl-view": "ሁኔታህን ተመልከት"
+    },
+    "saveNewProject": {
+      "title": "ድጋፍ",
+      "lbl-name": "የፕሮጀክት ስም",
+      "info-name": "ስም ከ 4 እስከ 64 ፊደሎች መካከል መሆን አለበት እና አጽንተው መያዝ አይችሉም",
+      "lbl-confirm": "ፕሮጄክትን አስቀምጥ"
+    },
+    "support": {
+      "title": "ድጋፍ",
+      "header": "አንድን ችግር ሪፖርት ማድረግ ያስፈልጋል?",
+      "msg": "<3>{{mail}}</3> ላይ ድጋፍ ለማግኘት <1>የ GitHub ጉዳይ</1> ፋይል ወይም ኢ-ሜይል መላክ ይችላሉ",
+      "discord": "<1>በዲኮርድ</1> ላይም ልታገኙን ትችላላችሁ"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing Images",
+      "search": "በ Bing ፍለጋ"
+    },
+    "bingVideo": {
+      "name": "Bing ቪዲዮዎች",
+      "search": "በ Bing ፍለጋ"
+    },
+    "element": {
+      "name": "ንጥረ ነገሮች"
+    },
+    "myAssets": {
+      "name": "የእኔ ሀብት"
+    },
+    "googlePoly": {
+      "name": "Google ፖሊ",
+      "search": "በ Google ፍለጋ"
+    },
+    "tenor": {
+      "name": "ቴኖር ጂአይፍስ",
+      "search": "ቴኖር ፍለጋ",
+      "ph-search": "የ ፍለጋ GIFs ..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Search by Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "አስረጅ (Upload Asset)"
+    },
+    "imageSourcePanel": {
+      "ph-search": "ምስሎችን ፈልግ ..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "የፍለጋ ቪዲዮዎች ..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "የፍለጋ ንብረቶች ..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "የፍለጋ ሞዴሎች ..."
+    },
+    "useUpload": {
+      "multipleFileError": "ኢንፑት ብዙ ፋይሎችን አይቀበልም።",
+      "mineTypeError": "\"{{name}}\" ከሚከተሉት የሜም ዓይነቶች ወይም የማስፋፊያ ዓይነቶች ጋር አይጣጣምም {{types}}",
+      "progressTitle": "ፋይሎችን ማውረድ",
+      "progressMsg": "{{total}}{{uploaded}} ፋይሎችን ማውረድ {{percentage}}%",
+      "uploadError": "ስህተትን አውርድ",
+      "uploadErrorMsg": "ስህተት ማውረድ ፋይል {{message}}",
+      "uploadErrorDefaultMsg": "ያልታወቀ ስህተት ነበር"
+    }
+  },
+  "openLink": {
+    "description": "እባክዎን ወደ ሊንኩ ለመጓዝ ክፈት የሚለውን ይጫኑ።",
+    "lbl-open": "ክፈት"
+  },
+  "interactableModel": {
+    "lbl-buy": "ግዙ",
+    "lbl-learnMore": "ተጨማሪ እወቅ"
+  },
+  "corsProxyButton": {
+    "tooltip": "ኮርስ Proxy Server ይጠቀሙ"
+  }
+}

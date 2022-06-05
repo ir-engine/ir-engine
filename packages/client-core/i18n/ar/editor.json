@@ -1,0 +1,718 @@
+{
+  "loading": "تحميل المشروع",
+  "loadingMsg": "تحميل المشروع...",
+  "loadingError": "خطأ في تحميل المشروع",
+  "loadingErrorMsg": "حدث خطأ عند تحميل المشروع.",
+  "selectSceneMsg": "حدد المشهد لبدء اللعب بالمحرك",
+  "error": "خطأ",
+  "errorMsg": "كان هناك خطأ غير معروف.",
+  "generateScreenshot": "إنشاء لقطة شاشة للمشروع",
+  "generateScreenshotMsg": "إنشاء لقطة شاشة للمشروع...",
+  "newScene": "إنشاء مشهد",
+  "saving": "مشروع الادخار",
+  "savingMsg": "مشروع الادخار...",
+  "savingError": "مشروع حفظ الأخطاء",
+  "savingErrorMsg": "حدث خطأ عند حفظ المشروع.",
+  "savingSceneErrorMsg": "لم يتم تحميل المشهد بشكل صحيح. حاول إعادة تحميل المشهد.",
+  "duplicating": "مشروع التكرار",
+  "duplicatingMsg": "تكرار المشروع...",
+  "exporting": "مشروع التصدير",
+  "exportingMsg": "مشروع التصدير...",
+  "exportingError": "خطأ في تصدير المشروع",
+  "exportingErrorMsg": "حدث خطأ عند تصدير المشروع.",
+  "importLegacy": "استيراد عالم الإرث",
+  "importLegacyMsg": "تحذير! سيؤدي ذلك إلى الكتابة فوق المشهد الحالي الخاص بك! هل أنت متأكد من رغبتك في الاستمرار؟",
+  "publishingError": "مشروع نشر الأخطاء",
+  "publishingErrorMsg": "كان هناك خطأ غير معروف.",
+  "publishingScene": "مشهد النشر",
+  "publishingSceneMsg": "مشهد النشر...",
+  "uploadingThumbnailMsg": "تحميل الصورة المصغرة...",
+  "uploadingSceneMsg": "تحميل المشهد: {{percentage}}٪",
+  "envMapError": "حدث خطأ في تحميل صور خريطة مكعبة {{files}}",
+  "lbl-return": "أعاد",
+  "menubar": {
+    "newScene": "مشهد جديد",
+    "saveScene": "حفظ المشهد",
+    "saveAs": "حفظ باسم",
+    "importAsset": "استيراد الأصول",
+    "exportGLB": "تصدير كما glTF الثنائية (.glb) ...",
+    "importScene": "استيراد المشهد",
+    "exportScene": "مشهد التصدير",
+    "quit": "انهاء"
+  },
+  "errors": {
+    "fileTypeNotSupported": "نوع الملف غير المدعوم للملف: \"{{name}}\". يجب أن يكون الملف صورة أو فيديو أو نموذج glb.",
+    "addObject": "addObject: قبل عدم العثور على الكائن",
+    "removeObject": "removeObject: لم يتم العثور على العقدة. ويرجع ذلك إلى إزالة عقدة لم تعد موجودة في المشهد.",
+    "noParent": "{{node}} \"{{name}}\" ليس له والدين. يعمل Reparent فقط على الكائنات الموجودة حاليا في المشهد.",
+    "undefinedParent": "editor.reparent: newParent غير محدد",
+    "notAuthenticated": "غير مصادق عليها",
+    "fetchingProjectError": "أخطاء جلب المشاريع: {{error}}",
+    "fetchingRouteError": "طرق جلب الأخطاء: {{error}}",
+    "unknownError": "خطأ غير معروف",
+    "resolveURL": "عنوان URL لحل الأخطاء \"{{url}}\":",
+    "mediaSearchAborted": "تم إحباط البحث عن الوسائط",
+    "methodNotImplemented": "الطريقة التي لم تنفذ.",
+    "saveProjectAborted": "تم إحباط حفظ المشهد",
+    "unsavedChanges": "التغييرات غير المحفوظة",
+    "unsavedChangesMsg": "تم تعديل المشهد. يرجى حفظ التغييرات.",
+    "projectCreationFail": "فشل إنشاء المشروع. {{reason}}",
+    "projectDeletionFail": "فشل حذف المشروع. {{reason}}",
+    "savingProjectFail": "فشل حفظ المشروع. {{reason}}",
+    "sceneTooLarge": "المشهد كبير جدا ({{size}} ميغابايت) للنشر. الحد الأقصى للحجم هو {{maxSize}} ميغابايت.",
+    "sceneCreationFail": "فشل إنشاء المشهد. {{reason}}",
+    "uploadAborted": "تحميل تم إجهاضه",
+    "uploadFailed": "فشل تحميل {{reason}}",
+    "assetDeletionFail": "فشل حذف مواد العرض. {{reason}}",
+    "projectAssetDeletionFail": "فشل حذف أصول المشروع. {{reason}}",
+    "networkError": "خطأ في الشبكة: {{status}}. {{text}}",
+    "unknownStatus": "حالة غير معروفة",
+    "CORS": "ربما خطأ CORS",
+    "urlFetchError": "فشل في جلب \"{{url}}\""
+  },
+  "viewport": {
+    "title": "المعاينه",
+    "command": {
+      "movecamera": "تحريك الكاميرا",
+      "flyFast": "الطيران بشكل أسرع",
+      "orbit": "المدار / اختر",
+      "pan": "عموم",
+      "fly": "طار",
+      "focus": "ركز",
+      "rotateLeft": "تدوير لليسار",
+      "rotateRight": "تدوير لليمين",
+      "cancelPlacement": "إلغاء التنسيب",
+      "placeDuplicate": "مكان مكرر",
+      "cancelGrab": "إلغاء الاستيلاء",
+      "grab": "خطف",
+      "deselectAll": "إلغاء تحديد الكل"
+    },
+    "state": {
+      "header": "احصائيات",
+      "memory": "ذاكرة",
+      "geometries": "هندستها",
+      "textures": "القوام",
+      "render": "تقديم",
+      "FPS": "FPS",
+      "frameTime": "الإطار الزمني",
+      "calls": "المكالمات",
+      "triangles": "المثلثات",
+      "points": "النقاط",
+      "lines": "اسطر"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "نشر",
+    "lbl-published": "نشر",
+    "command": {
+      "translate": "ترجمة",
+      "rotate": "دور",
+      "scale": "مِيزَان",
+      "toggleSpace": "تبديل مساحة التحويل",
+      "togglePivot": "تبديل محور التحويل",
+      "toggleSnapMode": "تبديل وضع الانجذاب",
+      "toggleGrid": "تبديل رؤية الشبكة",
+      "increaseGridSize": "زيادة حجم الشبكة",
+      "descreaseGridSize": "تقليل حجم الشبكة",
+      "stopPreview": "إيقاف معاينة المشهد",
+      "playPreview": "معاينة المشهد"
+    }
+  },
+  "properties": {
+    "title": "خصائص",
+    "lbl-visible": "ظاهر",
+    "lbl-preventBake": "منع الخبز",
+    "lbl-persist": "استمر",
+    "multipleNodeSelected": "تحديد عقد متعددة من أنواع مختلفة",
+    "noNodeSelected": "لم يتم تحديد عقدة",
+    "ambientLight": {
+      "name": "الإضاءة المحيطة",
+      "description": "ضوء يضيء جميع الأشياء في مشهدك.",
+      "lbl-intensity": "قوة",
+      "lbl-color": "لون"
+    },
+    "envmap": {
+      "name": "خريطة البيئة",
+      "description": "خصائص خريطة البيئة"
+    },
+    "asset": {
+      "name": "ذخر",
+      "description": "مجموعة من مكونات المشهد التي يمكن تحميلها وتفريغها ديناميكيا",
+      "lbl-options": "خيارات",
+      "lbl-assetPath": "مسار الأصول",
+      "lbl-assetName": "اسم التصدير",
+      "lbl-exportOptions": "خيارات التصدير",
+      "lbl-export": "أصول التصدير",
+      "lbl-load": "التحميل في المشهد",
+      "lbl-unload": "الغاء تحميل",
+      "lbl-reload": "تحديث"
+    },
+    "audio": {
+      "name": "صوتي",
+      "description": "يقوم بتحميل الصوت ديناميكيا.",
+      "lbl-audiourl": "عنوان URL للصوت",
+      "lbl-controls": "عناصر التحكم",
+      "info-controls": "قم بتبديل رؤية عناصر التحكم في الوسائط.",
+      "lbl-autoplay": "التشغيل التلقائي",
+      "info-autoplay": "إذا كان ذلك صحيحا ، تشغيل الوسائط عند دخول المشهد لأول مرة.",
+      "lbl-synchronize": "مزامنه",
+      "info-synchronize": "إذا كان ذلك صحيحا ، مزامنة الوسائط على جميع العملاء المتصلين.",
+      "lbl-loop": "حلقه",
+      "info-loop": "إذا كان ذلك صحيحا ، فإن وسائل الإعلام ستدور إلى أجل غير مسمى.",
+      "lbl-audioType": "نوع الصوت",
+      "lbl-distanceModel": "نموذج المسافة",
+      "info-distanceModel": "يستخدم algorithim لحساب التدحرج الصوتي.",
+      "lbl-rolloffFactor": "عامل التدحرج",
+      "info-rolloffFactor": "قيمة مزدوجة تصف مدى سرعة تقليل مستوى الصوت مع ابتعاد المصدر عن المستمع. 0 إلى 1",
+      "info-rfInfinity": "قيمة مزدوجة تصف مدى سرعة تقليل مستوى الصوت مع ابتعاد المصدر عن المستمع. 0 إلى ما لا نهاية",
+      "lbl-refDistance": "مسافة المرجع",
+      "info-refDistance": "قيمة مزدوجة تمثل المسافة المرجعية لتقليل مستوى الصوت مع تحرك مصدر الصوت بعيدا عن المستمع.",
+      "lbl-maxDistance": "أقصى مسافة",
+      "info-maxDistance": "قيمة مزدوجة تمثل المسافة القصوى بين مصدر الصوت والمستمع ، وبعد ذلك لا يتم تقليل مستوى الصوت أكثر من ذلك.",
+      "lbl-coneInnerAngle": "زاوية داخلية مخروطية",
+      "info-coneInnerAngle": "قيمة مزدوجة تصف زاوية، بالدرجات، للمخروط الذي لن يكون هناك انخفاض في الحجم داخله.",
+      "lbl-coneOuterAngle": "الزاوية الخارجية المخروطية",
+      "info-coneOuterAngle": "قيمة مزدوجة تصف زاوية، بالدرجات، للمخروط الذي سيتم تخفيض الحجم خارجه بقيمة ثابتة، تحددها السمة coneOuterGain.",
+      "lbl-coreOuterGain": "مخروط الكسب الخارجي",
+      "info-coreOuterGain": "قيمة مزدوجة تصف مقدار تقليل الحجم خارج المخروط المحدد بواسطة السمة coneOuterAngle. قيمته الافتراضية هي 0 ، مما يعني أنه لا يمكن سماع أي صوت.",
+      "lbl-volume": "حجم",
+      "lbl-play": "لعب",
+      "lbl-pause": "تورع",
+      "error-url": "تحميل خطأ من عنوان URL"
+    },
+    "boxCollider": {
+      "description": "مربع غير مرئي ترتد الكائنات منه أو تستقر فوقه.\nبدون مصادمات ، سوف تسقط الأشياء من خلال الأرضيات وتمر عبر الجدران.",
+      "lbl-isTrigger": "الزناد"
+    },
+    "camera": {
+      "name": "كاميرا",
+      "description": "إعدادات الكاميرا.",
+      "lbl-camera-raycast": "كاميرا البث الشعاعي",
+      "lbl-camera-raycast-toggle": "تمكين",
+      "lbl-camera-raycast-frequency": "تردد",
+      "lbl-camera-raycast-count": "عدد الأشعة",
+      "lbl-camera-raycast-length": "طول الشعاع"
+    },
+    "directionalLight": {
+      "name": "ضوء اتجاهي",
+      "description": "ضوء يضيء المشهد بأكمله ، ولكنه ينبعث في اتجاه واحد.",
+      "lbl-color": "لون",
+      "lbl-intensity": "قوة",
+      "lbl-cameraFar": "كاميرا بعيدة",
+      "lbl-cameraNear": "الكاميرا القريبة",
+      "lbl-cameraTop": "أعلى الكاميرا",
+      "lbl-cameraBottom": "الجزء السفلي من الكاميرا",
+      "lbl-cameraLeft": "الكاميرا اليسرى",
+      "lbl-cameraRight": "يمين الكاميرا",
+      "lbl-useInCSM": "الاستخدام في CSM",
+      "lbl-castShadow": "يلقي الظل",
+      "lbl-disableForCSM": "معطل لأنه تم تمكين خريطة الظل المتتالية.",
+      "lbl-shadowmapResolution": "دقة خريطة الظل",
+      "lbl-shadowBias": "تحيز الظل",
+      "lbl-shadowRadius": "نصف قطر الظل",
+      "lbl-showCameraHelper": "إظهار مساعد الكاميرا"
+    },
+    "groundPlane": {
+      "name": "الطائرة الأرضية",
+      "description": "طائرة أرضية مسطحة تمتد إلى المسافة.",
+      "lbl-color": "لون",
+      "lbl-receiveShadow": "تلقي الظل",
+      "lbl-generateNavmesh": "إنشاء Navmesh"
+    },
+    "link": {
+      "description": "رابط إلى غرفة أو موقع ويب.",
+      "lbl-url": "عنوان URL"
+    },
+    "map": {
+      "description": "3D خريطة جغرافية مكانية على سبيل المثال مدينة."
+    },
+    "model": {
+      "description": "نموذج 3D في المشهد الخاص بك ، تم تحميله من عنوان URL أو ملف GLTF.",
+      "lbl-usingGPUInstancingFlag": "استخدام وحدة معالجة الرسومات Instancing",
+      "lbl-modelurl": "عنوان URL للنموذج",
+      "lbl-envmapUrl": "عنوان URL لخريطة البيئة",
+      "lbl-textureOverride": "تجاوز الملمس",
+      "lbl-materialOverride": "تجاوز المواد",
+      "error-url": "تحميل خطأ من عنوان URL",
+      "lbl-loopAnimation": "حلقة الرسوم المتحركة",
+      "lbl-isAvatar": "هو الصورة الرمزية",
+      "lbl-isGPUInstancing": "يستخدم GPU Instancing",
+      "lbl-isDynamic": "ديناميكي",
+      "lbl-castShadow": "يلقي الظل",
+      "lbl-receiveShadow": "تلقي الظل",
+      "lbl-interactable": "قابل للتفاعل",
+      "lbl-matrixAutoUpdate": "ماتريكس التحديث التلقائي",
+      "lbl-name": "اسم",
+      "lbl-url": "عنوان URL للنموذج",
+      "lbl-buy": "شراء عنوان URL",
+      "lbl-learnMore": "مزيد من المعلومات حول عنوان URL",
+      "lbl-htmlContent": "محتوى HTML",
+      "lbl-interactionText": "نص التفاعل",
+      "lbl-interactionType": "نوع التفاعل"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "مادي",
+      "error-materialID": "العثور على خطأ المواد",
+      "placeholder-materialID": "اختر المواد",
+      "lbl-patternTarget": "تطابق النمط",
+      "lbl-pattern": "رسم",
+      "lbl-isRegex": "ريجيكس"
+    },
+    "interaction": {
+      "type": "نوع التفاعل",
+      "text": "نص التفاعل",
+      "distance": "مسافة التفاعل",
+      "theme": "موضوع التفاعل",
+      "name": "اسم التفاعل",
+      "description": "وصف التفاعل",
+      "images": "صور التفاعل",
+      "videos": "فيديوهات التفاعل",
+      "urls": "عناوين URL للتفاعل",
+      "models": "نماذج التفاعل"
+    },
+    "group": {
+      "name": "مجموعة",
+      "description": "مجموعة من الكائنات المتعددة التي يمكن نقلها أو تكرارها معا.\nاسحب الكائنات وأفلتها في المجموعة في التدرج الهرمي."
+    },
+    "hemisphere": {
+      "name": "ضوء نصف الكرة الأرضية",
+      "description": "ضوء يضيء المشهد من الأعلى مباشرة.",
+      "lbl-skyColor": "لون السماء",
+      "lbl-groundColor": "لون الأرض",
+      "lbl-intensity": "قوة"
+    },
+    "image": {
+      "name": "صورة",
+      "description": "يقوم بتحميل صورة ديناميكيا.",
+      "lbl-imgURL": "عنوان URL للصورة",
+      "lbl-transparency": "وضع الشفافية",
+      "lbl-alphaCutoff": "ألفا قطع",
+      "lbl-projection": "إسقاط",
+      "lbl-side": "جنب",
+      "info-controls": "قم بتبديل رؤية عناصر التحكم في الوسائط.",
+      "info-transparency": "كيفية تطبيق الشفافية:",
+      "info-opaque": "\"غير شفاف\" = بدون شفافية",
+      "info-blend": "\"مزج\" = استخدام قناة ألفا للصور",
+      "info-mask": "\"قناع\" = استخدام قيمة قطع محددة لشفافية التشغيل/الإيقاف (أكثر أداء)",
+      "info-alphaCutoff": "ستكون وحدات البكسل ذات قيم ألفا الأقل من ذلك شفافة",
+      "error-url": "عنوان URL غير صالح"
+    },
+    "name": {
+      "lbl-name": "اسم"
+    },
+    "partileEmitter": {
+      "description": "باعث الجسيمات لإنشاء الجسيمات.",
+      "lbl-particleCount": "عدد الجسيمات",
+      "lbl-image": "صورة",
+      "lbl-ageRandomness": "العشوائية العمرية",
+      "lbl-lifetime": "العمر",
+      "lbl-lifetimeRandomness": "العشوائية مدى الحياة",
+      "lbl-sizeCurve": "منحنى الحجم",
+      "lbl-startPSize": "بدء حجم الجسيمات",
+      "lbl-endPSize": "نهاية حجم الجسيمات",
+      "lbl-sizeRandomness": "عشوائية الحجم",
+      "lbl-colorCurve": "منحنى اللون",
+      "lbl-startColor": "بدء اللون",
+      "lbl-startOpacity": "بدء العتامة",
+      "lbl-middleColor": "اللون الأوسط",
+      "lbl-middleOpacity": "التعتيم الأوسط",
+      "lbl-endColor": "لون النهاية",
+      "lbl-endOpacity": "نهاية التعتيم",
+      "lbl-velocityCurve": "منحنى السرعة",
+      "lbl-startVelocity": "سرعة البدء",
+      "lbl-endVelocity": "سرعة النهاية",
+      "lbl-angularVelocity": "السرعة الزاوية",
+      "info-ageRandomness": "مقدار الاختلاف بين وقت تفريخ الجسيمات.",
+      "info-lifetime": "الحد الأقصى لعمر الجسيم قبل إعادة إنتاجه.",
+      "info-lifetimeRandomness": "مقدار التباين بين عمر الجسيمات.",
+      "info-sizeRandomness": "مقدار التباين بين أحجام بدء الجسيمات.",
+      "error-url": "تحميل خطأ من عنوان URL"
+    },
+    "clouds": {
+      "name": "سحابة",
+      "description": "حجم السحابة القائم على العفريت.",
+      "lbl-image": "صورة العفريت",
+      "lbl-wroldScale": "على نطاق عالمي",
+      "lbl-dimensions": "ابعاد",
+      "lbl-noiseZoom": "تكبير الضوضاء",
+      "lbl-noiseOffset": "تعويض الضوضاء",
+      "lbl-spriteScale": "مقياس سبرايت",
+      "lbl-fogColor": "لون الضباب",
+      "lbl-fogRange": "نطاق الضباب",
+      "error-url": "تحميل خطأ من عنوان URL"
+    },
+    "ocean": {
+      "name": "محيط",
+      "description": "سطح المحيط مع الأمواج والرغوة",
+      "lbl-normalMap": "خريطة عادية",
+      "lbl-distortionMap": "خريطة التشويه",
+      "lbl-envMap": "خريطة البيئة",
+      "lbl-color": "لون",
+      "lbl-shallowWaterColor": "لون المياه الضحلة",
+      "lbl-shallowToDeepDistance": "المسافة الضحلة إلى العميقة",
+      "lbl-opacityFadeDistance": "عتامة تتلاشى المسافة",
+      "lbl-opacityRange": "نطاق التعتيم",
+      "lbl-shininess": "اللمعان",
+      "lbl-reflectivity": "انعكاسيه",
+      "lbl-foamColor": "لون الرغوة",
+      "lbl-foamSpeed": "سرعة الرغوة",
+      "lbl-foamTiling": "التبليط الرغوي",
+      "lbl-bigWaveTiling": "تبليط الموجة الكبيرة",
+      "lbl-bigWaveSpeed": "سرعة الموجة الكبيرة",
+      "lbl-bigWaveHeight": "ارتفاع الموجة الكبيرة",
+      "lbl-waveSpeed": "سرعة الموجة",
+      "lbl-waveScale": "مقياس الموجة",
+      "lbl-waveTiling": "تبليط الأمواج",
+      "lbl-waveDistortionSpeed": "سرعة تشوه الموجة",
+      "lbl-waveDistortionTiling": "تبليط تشوه الأمواج",
+      "error-url": "تحميل خطأ من عنوان URL"
+    },
+    "water": {
+      "name": "الماء",
+      "description": "سطح مائي صغير"
+    },
+    "interior": {
+      "name": "داخل",
+      "description": "سطح ذو نسيج مكعب معين لمحاكاة البيئات الداخلية",
+      "lbl-cubeMap": "نسيج خريطة المكعب",
+      "lbl-tiling": "كمية التبليط",
+      "lbl-size": "حجم السطح",
+      "error-url": "تحميل خطأ من عنوان URL"
+    },
+    "pointLight": {
+      "description": "ضوء ينبعث في جميع الاتجاهات من نقطة واحدة.",
+      "lbl-color": "لون",
+      "lbl-intensity": "قوة",
+      "lbl-range": "نطاق",
+      "lbl-decay": "اضمحلال"
+    },
+    "scene": {
+      "name": "مشهد",
+      "description": "الكائن الجذري للمشهد.",
+      "lbl-bgcolor": "لون الخلفية",
+      "lbl-fogType": "نوع الضباب",
+      "lbl-fogColor": "لون الضباب",
+      "lbl-forNearDistance": "الضباب المسافة القريبة",
+      "lbl-fogFarDistance": "الضباب المسافة البعيدة",
+      "lbl-fogDensity": "كثافة الضباب",
+      "lbl-audioSettings": "استخدام الصوت الموضعي",
+      "lbl-avatarDistanceModel": "نموذج المسافة الرمزية",
+      "lbl-avatarRolloffFactor": "الصورة الرمزية عامل التدحرج",
+      "lbl-avatarRefDistance": "الصورة الرمزية المرجع المسافة",
+      "lbl-avatarMaxDistance": "الصورة الرمزية المسافة القصوى",
+      "lbl-mediaVolume": "حجم الوسائط",
+      "lbl-mediaDistanceModel": "نموذج مسافة الوسائط",
+      "lbl-mediaRolloffFactor": "عامل تدحرج الوسائط",
+      "lbl-mediaRefDistance": "وسائل الإعلام المرجع المسافة",
+      "lbl-mediaMaxDistance": "المسافة القصوى للوسائط",
+      "lbl-mediaConeInnerAngle": "الزاوية الداخلية لمخروط الوسائط",
+      "lbl-mediaConeOuterAngle": "الزاوية الخارجية لمخروط الوسائط",
+      "lbl-mediaConeOuterGain": "مخروط الوسائط الخارجي",
+      "info-avatarDistanceModel": "يستخدم algorithim لحساب التدحرج الصوتي.",
+      "info-avatarRolloffFactor": "قيمة مزدوجة تصف مدى سرعة تقليل مستوى الصوت مع ابتعاد المصدر عن المستمع. 0 إلى 1",
+      "info-avatarRolloffFactorInifinity": "قيمة مزدوجة تصف مدى سرعة تقليل مستوى الصوت مع ابتعاد المصدر عن المستمع. 0 إلى ما لا نهاية",
+      "info-avatarRefDistance": "قيمة مزدوجة تمثل المسافة المرجعية لتقليل مستوى الصوت مع تحرك مصدر الصوت بعيدا عن المستمع.",
+      "info-avatarMaxDistance": "قيمة مزدوجة تمثل المسافة القصوى بين مصدر الصوت والمستمع ، وبعد ذلك لا يتم تقليل مستوى الصوت أكثر من ذلك.",
+      "info-mediaDistanceModel": "يستخدم algorithim لحساب التدحرج الصوتي.",
+      "info-mediaRolloffFactor": "قيمة مزدوجة تصف مدى سرعة تقليل مستوى الصوت مع ابتعاد المصدر عن المستمع. 0 إلى 1",
+      "info-mediaRolloffFactorInfinity": "قيمة مزدوجة تصف مدى سرعة تقليل مستوى الصوت مع ابتعاد المصدر عن المستمع. 0 إلى ما لا نهاية",
+      "info-mediaRefDistance": "قيمة مزدوجة تمثل المسافة المرجعية لتقليل مستوى الصوت مع تحرك مصدر الصوت بعيدا عن المستمع.",
+      "info-mediaMaxDistance": "قيمة مزدوجة تمثل المسافة القصوى بين مصدر الصوت والمستمع ، وبعد ذلك لا يتم تقليل مستوى الصوت أكثر من ذلك.",
+      "info-mediaConeInnerAngle": "قيمة مزدوجة تصف زاوية، بالدرجات، للمخروط الذي لن يكون هناك انخفاض في الحجم داخله.",
+      "info-mediaConeOuterAngle": "قيمة مزدوجة تصف زاوية، بالدرجات، للمخروط الذي سيتم تخفيض الحجم خارجه بقيمة ثابتة، تحددها السمة coneOuterGain.",
+      "info-mediaConeOuterGain": "قيمة مزدوجة تصف مقدار تقليل الحجم خارج المخروط المحدد بواسطة السمة coneOuterAngle. قيمته الافتراضية هي 0 ، مما يعني أنه لا يمكن سماع أي صوت.",
+      "lbl-simpleMaterials": "استخدام مواد بسيطة",
+      "lbl-lods": "LODs",
+      "info-lods": "يضبط المسافات التي تتغير عندها مستويات التفاصيل.",
+      "info-simpleMaterials": "يحول جميع المواد باهظة الثمن إلى مواد أبسط لإزالة الحمل من عرض المشهد.",
+      "lbl-rendererSettings": "تجاوز إعدادات جهاز العرض",
+      "lbl-csm": "خرائط الظل المتتالية",
+      "info-csm": "تمكين خرائط الظل المتتالية.",
+      "lbl-toneMapping": "تعيين النغمة",
+      "info-toneMapping": "تمكين تعيين النغمة على عارض المشهد. لا يكون له أي تأثير عند تمكين معالجة لاحقة.",
+      "lbl-toneMappingExposure": "التعرض لتعيين النغمة",
+      "info-toneMappingExposure": "يحدد التعرض لتعيين النغمة على عارض المشهد. لا يكون له أي تأثير عند تمكين معالجة لاحقة.",
+      "lbl-shadowMapType": "نوع خريطة الظل",
+      "info-shadowMapType": "نوع خريطة الظل",
+      "error-url": "تحميل خطأ من عنوان URL"
+    },
+    "sceneCamera": {
+      "name": "كاميرا معاينة المشهد",
+      "description": "تستخدم الكاميرا لإنشاء الصورة المصغرة للمشهد الخاص بك وموضع البداية لكاميرا المعاينة.",
+      "lbl-setFromViewPort": "تعيين من إطار العرض"
+    },
+    "skybox": {
+      "name": "سكاي بوكس",
+      "description": "",
+      "lbl-timeOfDay": "الوقت من اليوم",
+      "lbl-color": "لون",
+      "lbl-latitude": "العرض",
+      "lbl-luminance": "الاناره",
+      "lbl-scattering": "كمية التشتت",
+      "lbl-scatteringDistance": "مسافة التشتت",
+      "lbl-horizonStart": "هورايزون ستارت",
+      "lbl-horizonEnd": "نهاية الأفق",
+      "lbl-texture": "الملمس",
+      "lbl-skyType": "نوع السماء",
+      "error-url": "تحميل خطأ من عنوان URL"
+    },
+    "spawnPoint": {
+      "name": "نقطة التفريخ",
+      "description": "نقطة سيظهر فيها الأشخاص عند دخولهم إلى مشهدك.\nتمثل الأيقونة الموجودة في Viewport الحجم الفعلي للصورة الرمزية."
+    },
+    "spotLight": {
+      "description": "ضوء ينبعث على طول اتجاه ، ويضيء الأجسام داخل مخروط.",
+      "lbl-color": "لون",
+      "lbl-intensity": "قوة",
+      "lbl-penumbra": "غبش",
+      "lbl-angle": "زاوية",
+      "lbl-range": "نطاق",
+      "lbl-decay": "اضمحلال"
+    },
+    "transform": {
+      "title": "تحول",
+      "lbl-postition": "موضع",
+      "lbl-rotation": "دوران",
+      "lbl-scale": "مِيزَان"
+    },
+    "triggereVolume": {
+      "description": "تعيين خاصية على الكائن المستهدف عند الدخول والمغادرة.",
+      "lbl-target": "كائن",
+      "lbl-onenter": "عند الدخول",
+      "lbl-onexit": "عند الخروج",
+      "lbl-showHelper": "إظهار شبكة المساعد",
+      "ph-errorNode": "خطأ في العقدة المفقودة.",
+      "ph-selectNode": "حدد العقدة..."
+    },
+    "video": {
+      "name": "فيديو",
+      "description": "يقوم بتحميل فيديو ديناميكيا.",
+      "lbl-video": "فيديو",
+      "lbl-projection": "إسقاط",
+      "lbl-islivestream": "بث مباشر",
+      "lbl-interactable": "قابل للتفاعل",
+      "lbl-id": "معرف العنصر",
+      "lbl-play": "لعب",
+      "lbl-pause": "تورع",
+      "error-url": "تحميل خطأ من عنوان URL"
+    },
+    "volumetric": {
+      "name": "الحجمي",
+      "description": "يقوم بتحميل فيديو حجمي ديناميكيا.",
+      "uvolPaths": "مسارات UVOL",
+      "playmode": "وضع اللعب",
+      "playtitle": "لعب",
+      "pausetitle": "تورع"
+    },
+    "spline": {
+      "description": "إنشاء المنحنيات وتخصيصها ديناميكيا.",
+      "lbl-addNode": "أضف عقدة إلى المنحنى."
+    },
+    "systemnode": {
+      "description": "إرفاق البرنامج النصي.",
+      "lbl-filePath": "عنوان URL",
+      "lbl-systemUpdateType": "نقطة الحقن",
+      "lbl-enableClient": "عميل",
+      "lbl-enableServer": "ملقم",
+      "lbl-args": "أرجس",
+      "error-url": "خطأ في تحميل البرنامج النصي من عنوان URL"
+    },
+    "portal": {
+      "lbl-portal": "البوابة الإلكترونية المرتبطة",
+      "lbl-redirect": "استخدام إعادة توجيه الصفحة",
+      "description": "منفذ لنقل اللاعبين إلى موقع محدد",
+      "lbl-locationName": "مكان",
+      "lbl-modelUrl": "عنوان URL للنموذج",
+      "lbl-displayText": "عرض النص",
+      "lbl-cubemapBake": "خبز كيوبيماب",
+      "lbl-spawnPosition": "موقف تفرخ",
+      "lbl-spawnRotation": "دوران البيض",
+      "lbl-triggerPosition": "موقف الزناد",
+      "lbl-triggerRotation": "دوران الزناد",
+      "lbl-triggerScale": "مقياس الزناد"
+    },
+    "postprocessing": {
+      "name": "المعالجة اللاحقة",
+      "description": "لتطبيق تأثيرات ما بعد المعالجة على المشهد الخاص بك."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "مشروع جديد",
+      "backLink": "العودة إلى المشاريع",
+      "featured": "متميز",
+      "all": "كل",
+      "newProject": "مشروع فارغ جديد",
+      "ph-search": "مشاهد البحث..."
+    },
+    "grid": {
+      "loading": "تحميل..."
+    },
+    "page": {
+      "header": "أهلًا وسهلًا",
+      "headerMsg": "إذا كنت جديدا هنا ، فإننا نوصي بالاطلاع على البرنامج التعليمي. خلاف ذلك ، انتقل مباشرة وقم بإنشاء مشروع من الصفر أو من أحد قوالبنا.",
+      "lbl-startTutorial": "بدء البرنامج التعليمي",
+      "projects": "المشاريع",
+      "lbl-newProject": "مشروع جديد"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "تحميل...",
+      "placeObject": "وضع الكائن",
+      "placeObjectAtOrigin": "وضع الكائن في الأصل",
+      "copyURL": "نسخ عنوان URL",
+      "openInNewTab": "فتح عنوان URL في علامة تبويب جديدة",
+      "deleteAsset": "حذف مادة العرض"
+    },
+    "filebrowser": {
+      "addNewFolder": "إضافة مجلد جديد",
+      "cutAsset": "قص",
+      "copyAsset": "نسخ",
+      "pasteAsset": "معجون",
+      "renameAsset": "اعاده تسميه",
+      "viewAssetProperties": "عرض العقارات"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "اعاده تسميه",
+    "lbl-duplicate": "مكرره",
+    "lbl-group": "مجموعة",
+    "lbl-delete": "حذف",
+    "lbl-expandAll": "توسيع الكل",
+    "lbl-collapseAll": "طي الكل",
+    "isseus": "القضايا:"
+  },
+  "dnd": {
+    "nodes": "{{count}} العقد المحددة",
+    "models": "{{count}} الموديلات المختارة",
+    "images": "{{count}} الصور المحددة",
+    "videos": "{{count}} مقاطع الفيديو المحددة",
+    "audio": "{{count}} مصادر الصوت المحددة"
+  },
+  "dialog": {
+    "title": "محرر",
+    "lbl-confirm": "موافق",
+    "lbl-cancel": "إلغاء الأمر",
+    "exportProject": {
+      "title": "مشروع التصدير",
+      "lbl-confirm": "مشروع التصدير",
+      "lbl-combineMesh": "الجمع بين الشبكات",
+      "lbl-removeUnused": "إزالة الكائنات غير المستخدمة"
+    },
+    "performance": {
+      "title": "التحقق من الأداء",
+      "lbl-confirm": "نشر المشهد",
+      "learnMore": "التعرف على المزيد",
+      "lbl-polycount": "عدد المضلعات",
+      "lbl-material": "المواد",
+      "lbl-texture": "القوام",
+      "lbl-lights": "اضواء",
+      "lbl-fileSize": "حجم الملف",
+      "info-polycount": "نوصي باستخدام مشهدك بما لا يزيد عن 50000 مثلث للأجهزة المحمولة.",
+      "info-material": "نوصي باستخدام ما لا يزيد عن 25 مادة فريدة في مشهدك لتقليل مكالمات السحب على الأجهزة المحمولة.",
+      "info-texture": "نوصي باستخدام القوام الخاص بك لا يزيد عن 256MB من ذاكرة الوصول العشوائي الفيديو للأجهزة المحمولة. نوصي أيضا بعدم استخدام مواد أكبر من 2048 × 2048.",
+      "info-lights": "على الرغم من عدم تمكين المصابيح الديناميكية على الأجهزة المحمولة، نوصي باستخدام ما لا يزيد عن 3 مصابيح في المشهد (باستثناء الأضواء المحيطة ونصف الكرة الأرضية) لتشغيل المشهد الخاص بك على أجهزة الكمبيوتر المنخفضة.",
+      "info-fileSize": "نوصي بحجم ملف نهائي لا يزيد عن 16 ميغابايت للاتصالات ذات النطاق الترددي المنخفض. سيؤدي تقليل حجم الملف إلى تقليل الوقت المستغرق لتنزيل المشهد.",
+      "txt-polycount": "{{count}} المثلثات",
+      "txt-material": "المواد {{count}}",
+      "txt-ram": "~{{count}} ذاكرة الوصول العشوائي للفيديو",
+      "txt-texture": "{{count}} القوام الكبير",
+      "txt-lights": "أضواء {{count}}"
+    },
+    "progress": {
+      "title": "تحميل...",
+      "msg": "تحميل...",
+      "lbl-cancel": "إلغاء الأمر"
+    },
+    "publish": {
+      "title": "نشر المشهد",
+      "lbl-confirm": "حفظ ونشر",
+      "lbl-name": "اسم المشهد",
+      "info-name": "يجب أن يتراوح الاسم بين 4 و 64 حرفا ولا يمكن أن يحتوي على تسطير سفلي"
+    },
+    "published": {
+      "title": "المشهد المنشور",
+      "header": "تم نشر مشهدك.",
+      "lbl-view": "عرض المشهد الخاص بك"
+    },
+    "saveNewProject": {
+      "title": "دعم",
+      "lbl-name": "اسم المشروع",
+      "info-name": "يجب أن يتراوح الاسم بين 4 و 64 حرفا ولا يمكن أن يحتوي على تسطير سفلي",
+      "lbl-confirm": "حفظ المشروع"
+    },
+    "support": {
+      "title": "دعم",
+      "header": "هل تحتاج إلى الإبلاغ عن مشكلة؟",
+      "msg": "يمكنك تقديم ملف <1>GitHub أو</1> مراسلتنا عبر البريد الإلكتروني للحصول على الدعم في <3>{{mail}}</3>",
+      "discord": "يمكنك أيضا العثور علينا على <1>Discord</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "صور Bing",
+      "search": "البحث عن طريق Bing"
+    },
+    "bingVideo": {
+      "name": "فيديوهات Bing",
+      "search": "البحث عن طريق Bing"
+    },
+    "element": {
+      "name": "عناصر"
+    },
+    "myAssets": {
+      "name": "أصولي"
+    },
+    "googlePoly": {
+      "name": "جوجل بولي",
+      "search": "البحث عن طريق جوجل"
+    },
+    "tenor": {
+      "name": "صور GIF لمدة",
+      "search": "البحث عن طريق التينور",
+      "ph-search": "البحث في صور GIF..."
+    },
+    "sketchfab": {
+      "name": "سكتش فاب",
+      "search": "البحث عن طريق سكتش فاب"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "تحميل مادة العرض"
+    },
+    "imageSourcePanel": {
+      "ph-search": "البحث عن الصور..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "البحث في مقاطع الفيديو..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "البحث في الأصول..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "نماذج البحث..."
+    },
+    "useUpload": {
+      "multipleFileError": "لا يقبل الإدخال ملفات متعددة.",
+      "mineTypeError": "لا تتطابق \"{{name}}\" مع أنواع أو ملحقات mime التالية: {{types}}",
+      "progressTitle": "تحميل الملفات",
+      "progressMsg": "تحميل الملفات {{uploaded}} {{total}}: {{percentage}}٪",
+      "uploadError": "خطأ في التحميل",
+      "uploadErrorMsg": "خطأ في تحميل الملف: {{message}}",
+      "uploadErrorDefaultMsg": "حدث خطأ غير معروف"
+    }
+  },
+  "openLink": {
+    "description": "يرجى النقر فوق فتح للانتقال إلى الرابط.",
+    "lbl-open": "مفتوح"
+  },
+  "interactableModel": {
+    "lbl-buy": "ابتاع",
+    "lbl-learnMore": "التعرف على المزيد"
+  },
+  "corsProxyButton": {
+    "tooltip": "استخدام خادم وكيل Cors"
+  }
+}

@@ -1,0 +1,202 @@
+{
+  "addComment": "Lat/Latið viðmerking.",
+  "share": "Pataje",
+  "suggestions": "Suggestions For tú/tit ert/eru.",
+  "seeAll": "Hygg/Hyggið øll.",
+  "likes": "Mær dámar væl",
+  "viewComments": "View all {{count}} viðmerkingar",
+  "more": "Plis",
+  "username": "username",
+  "fullName": "Name Surname",
+  "reportInApporpriate": "Report Inappropriate",
+  "unfollow": "Unfollow",
+  "goToPost": "Far/Farið til Post.",
+  "shareModal": "Pataje",
+  "copyLink": "Copy Link",
+  "embed": "Embed",
+  "cancel": "Avlýsa",
+  "confirm": "Konfime",
+  "save": "Sove",
+  "profilePic": "{{user}}'s profile pic",
+  "ara": "Ara",
+  "follow": "Swiv",
+  "flames": "Flames",
+  "continue": "Kontinye",
+  "partyInvitationSent": "Party invitation sendi",
+  "arMedia": {
+    "back": "Do",
+    "clip": "Clip",
+    "backgrounds": "Backgrounds",
+    "start": "Kòmanse"
+  },
+  "arMediaform": {
+    "title": "",
+    "type": "Tip",
+    "clip": "Clip",
+    "background": "Background",
+    "scene": "Sèn",
+    "save": "Sove",
+    "manifest-file": "Manifest .manifest file",
+    "audio-file": "Mp4 file",
+    "dracosis-file": "Dracosis .uvol file",
+    "preview-file": "Preview image file"
+  },
+  "creator": {
+    "myVideos": "Mín videos",
+    "savedVideos": "Saved Videos",
+    "back": "Do",
+    "blocked-list": "Blocked List",
+    "block-user": "Block User",
+    "dialog-content": "Tú/tit fert/fara ikki at síggja profilin hjá brúkaranum og nøgdum"
+  },
+  "creatorForm": {
+    "back": "Do",
+    "edit": "Edit Profile",
+    "save": "Sove",
+    "changeAvatar": "Change avatar image",
+    "ph-selectPreview": "Select preview",
+    "ph-name": "Títt navn",
+    "ph-username": "Tín/tykkara brúkaranme",
+    "ph-email": "Tín/tykkara teldupostur.",
+    "ph-tags": "Tags",
+    "ph-link": "Lyen",
+    "ph-aboutYou": "Alt við tær/tykkum.",
+    "ph-twitter": "twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Sign-Out"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "feeds": "Feeds",
+    "arMedia": "Video Media",
+    "editor": "Editor",
+    "creator": "Creator"
+  },
+  "featured": {
+    "empty-list": "Eingin fóðrar fyri nú."
+  },
+  "feed": {
+    "back": "Do",
+    "related": "Related feeds",
+    "is-repoted-message": "Ótti er fráboðaður!"
+  },
+  "feedForm": {
+    "back": "Do",
+    "thanks": "Takk fyri at luta og betra okkara samfelag",
+    "share": "Gev/Gevið okkurt við samfelagnum",
+    "upload": "Upload Video",
+    "ph-selectVideo": "Select Video",
+    "preview": "Preview image",
+    "ph-selectPreview": "Select preview",
+    "createFeed": "Fyri at skapa eina sjón, mást tú hava ein video og eina preview mynd!!!",
+    "ph-videoName": "Navnið á tínum videoi.",
+    "ph-type": "Type tað, sum tú vilt deila við community. ",
+    "lbl-share": "Pataje",
+    "save": "Goym og far Next"
+  },
+  "feedMenu": {
+    "featured": "Featured",
+    "creators": "Creators",
+    "feed": "Óttin gevur."
+  },
+  "header": {
+    "lbl-volumetric": "Volumetric"
+  },
+  "login": {
+    "account": "Hevur/Hava tú/tit eina kontu?",
+    "login": "Login",
+    "resetPassword": "Reset Password Fake button (here hevði verið ein link frá email)",
+    "notHavingAccount": "Hevur/Hava tú/tit onga kontu?",
+    "signUp": "Melda til",
+    "forgotPassword": "Gloymt loyniorð?",
+    "back": "Do",
+    "or": "OUBYEN"
+  },
+  "comment": {
+    "add": "Lat tína viðmerking."
+  },
+  "notification": {
+    "feedFire": " Sagdur úr starvi.",
+    "feedBookmarked": " Bókmarkaði tína fóðra",
+    "comment": " viðmerkingin hjá tær/tykkum:",
+    "commentFire": " Sag tína viðmerking at geva",
+    "follow": " Byrjaði at fylgja tær",
+    "unfollow": " steðga við at elta teg",
+    "followed": " Elt/eltið tær/tykkum",
+    "activity": "Aktivite"
+  },
+  "onBoarding": {
+    "welcome": "Vælkomin!",
+    "description": "Biggest collection of 370+ layouts for iOS prototyping.",
+    "next": "Pwochen",
+    "discover": "Discover articles,",
+    "news": "tíðindi &postar",
+    "lines": "Tað er hasar kenslurnar, sum koyra okkara kærleika av stjørnufrøði og okkara ynski.",
+    "getStarted": "Far/Farið í gongd",
+    "meetUp": "Møt/Møtið upp við.",
+    "friends": "Zanmi.",
+    "meet": "Møt/Møtið saman við vinum."
+  },
+  "shareForm": {
+    "arcMedia": "Pataje",
+    "videoCreated": "Eg skapti hetta sjónbandið",
+    "shareWithBuddies": "Share við buddies",
+    "shareVideo": "Share Video",
+    "save": "Save To Camera Roll",
+    "cancel": "Avlýsa",
+    "close": "Fèmen",
+    "addFeed": "Add Feed"
+  },
+  "simpleModal": {
+    "emptyList": "Empty list",
+    "followers": " Swiv",
+    "following": " fylgers",
+    "flames": " flames"
+  },
+  "splash": {
+    "screen": "Splash Screen",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "{{user}}'s profile pic"
+  },
+  "view": {
+    "cancel": "Avlýsa",
+    "choice": "Tú/tit hevur/hava tveir ymiskar upptøkur til at velja frá",
+    "verticalMode": "Vertical mode hevur 30 sec record tíð",
+    "horizontalMode": "Horizontal mode has an unlimited record time",
+    "start": "Kòmanse",
+    "not-show": "Vís/vísið tað ikki aftur",
+    "welcome": "Vælkomin til ARC!  Ger/Gerið persónliga filmar við einum av okkara hologram og posti tað til tínar/tykkara sosialu rás.",
+    "step": "STEP {{step}}",
+    "text-step-1": "Vel eitt hologram frá bókasavninum.",
+    "text-step-2": "Hetta er Augmented Reality, so at kanna rúmdina við tínum myndatóli frá síðu til 3-5 sekund, har tú vilt hava hologram performance til at vera.",
+    "text-step-3-part-1": "Tap screen eina ferð á stað, har tú vilt hava hologram akker.",
+    "text-step-3-part-2": "PWENT!  Tap eina ferð aðrastaðni at flyta hologram til eitt annað starv.",
+    "text-step-3-part-3": "PWENT!  Tú/tit kanst/kunnu seta hola við at klípta ella økja um skíggjan við tínum/tykkara tummi.",
+    "text-step-4-part-1": "Tví tap reytt metið til START títt video upp.",
+    "text-step-4-part-2": "Tví tapet upp á reytt metið fyri STOP."
+  },
+  "video": {
+    "back": "Do"
+  },
+  "terms": {
+    "confirmTerms": "Eg eri samdur/samd við at fáa fatur á Service",
+    "confirmPolicy": "Eg eri samdur/samd við privacy Policy"
+  },
+  "registration": {
+    "ph-phoneEmail": "Use telefon / email",
+    "facebook": "Halt/haldið áfram við Facebook",
+    "google": "Halt/haldið áfram við Google",
+    "linkedin": "Halt/haldið áfram við Linkedin",
+    "twitter": "Halt/haldið áfram við Twitter.",
+    "gitHub": "Halt/haldið áfram við GitHub",
+    "connect": "Connect títt teldupost ella telefonnummar.",
+    "logIn": "Rita inn",
+    "LogInTo": "Log inn til",
+    "continueAsGuest": "Halt/haldið áfram sum gest"
+  }
+}

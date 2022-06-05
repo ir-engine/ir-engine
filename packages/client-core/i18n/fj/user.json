@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Imeli ni Veivakadeitaki",
+      "resendEmail": "Yalovinaka dikeva nomu imeli mo vakadeitaka na nomu akaude. Kevaka o sega ni taura e dua na imeli, yalovinaka kiliki {{here}} mo vakauta tale na imeli veivakadeitaki.",
+      "haveAnAccount": "Dua beka na nomu akaude?"
+    },
+    "forgotPassword": {
+      "header": "Guilecava na Vosanicuru",
+      "enterEmail": "Yalovinaka vakacuruma na nomu itikotiko ni imeli rejisita ka keitou na vakauta yani vei iko e dua na isema ni vakadaberi tale ni vosanicuru.",
+      "lbl-email": "iTikotiko ni Imeli",
+      "lbl-submit": "Vakauta na iSema",
+      "emailSent": "Vakau na Vakadaberi Tale ni Imeli ni Vosanicuru. Yalovinaka raica nomu imeli."
+    },
+    "login": {
+      "email": "I-meli | SMS",
+      "username": "Yaca Vakayagataki + Vosanicuru",
+      "social": "Bula Veimaliwai"
+    },
+    "magiklink": {
+      "header": "iSema ni Curu",
+      "descriptionEmail": "Yalovinaka vakacuruma na nomu itikotiko ni imeli ka keitou na vakauta yani vei iko e dua na isema ni curu ena Email.",
+      "descriptionSMS": "Yalovinaka vakacuruma na nomu naba ni talevoni ka keitou na vakauta yani vei iko e dua na isema ni curu ena SMS.",
+      "descriptionEmailSMS": "Yalovinaka vakacuruma na nomu itikotiko ni imeli se naba ni talevoni (10 na matanivola, Amerika walega) ka keitou na vakauta yani vei iko e dua na isema ni curu ena Email se SMS.",
+      "descriptionSMSUS": "Yalovinaka vakacuruma na nomu naba ni talevoni (10 na matanivola, Amerika walega) ka keitou na vakauta yani vei iko e dua na isema ni curu ena SMS.",
+      "lbl-email": "iTikotiko ni imeli",
+      "lbl-emailPhone": "Imeli se Naba ni Talevoni",
+      "lbl-phone": "Naba ni talevoni",
+      "agree": "Au vakadonuya na ",
+      "terms": "iVakarau kei na Kena iVakarau",
+      "lbl-submit": "Vakauta na iSema ni Curu",
+      "email-sent-msg": "Vakau na iSema ni Cakamana ni Curu Yalovinaka raica nomu Imeli.",
+      "success-msg": "Vakau na iSema ni Cakamana ni Curu Yalovinaka dikeva nomu Imeli se SMS.",
+      "sms-sent-msg": "Vakau na iSema ni Cakamana ni Curu Yalovinaka dikeva na nomu SMS."
+    },
+    "passwordLogin": {
+      "header": "Curuiloma",
+      "lbl-email": "iTikotiko ni Imeli",
+      "lbl-password": "Vosanicuru",
+      "lbl-rememberMe": "Nanumi au",
+      "lbl-signin": "Curuiloma",
+      "forgotPassword": "Guilecava na vosanicuru?",
+      "signup": "Sega ni dua na nomu akaude? Curuiloma",
+      "lbl-login": "Curu ki Loma",
+      "ph-password": "Vosanicuru",
+      "ph-email": "Imeli"
+    },
+    "social": {
+      "gitHub": "Curuiloma kei na GitGit.S.",
+      "google": "Curu vata kei na Google",
+      "facebook": "Curu ena Facebook",
+      "linkedin": "Curuiloma vata kei Linkedin",
+      "twitter": "Curu ena Twitter"
+    },
+    "register": {
+      "header": "Curuiloma",
+      "login": "Curu ki Loma",
+      "lbl-signup": "Curuiloma",
+      "lbl-password": "Vosanicuru",
+      "lbl-email": "iTikotiko ni Imeli",
+      "passwordNotMatch": "Sega ni Veisotari na Vosanicuru",
+      "ph-password": "Vosanicuru",
+      "ph-confirmPassword": "Vakadeitaki ni Vosanicuru",
+      "ph-email": "Imeli"
+    },
+    "resetPassword": {
+      "header": "Vakadabera Tale na Vosanicuru",
+      "description": "Yalovinaka vakacuruma nomu vosanicuru me baleta na nomu itikotiko ni imeli",
+      "lbl-submit": "Vakadabera Tale na Vosanicuru",
+      "lbl-password": "Vosanicuru",
+      "lbl-confirmPassword": "Vakadeitaki ni Vosanicuru",
+      "passwordNotMatch": "Sega ni Veisotari na Vosanicuru",
+      "nowLoginYourAccount": "Sa rawa mo curu yani ki na nomu akaude ena gauna oqo",
+      "yourPasswordResetSuccess": "Sa vakadaberi rawa nomu vosanicuru!"
+    },
+    "verifyEmail": {
+      "header": "Vakadeitaka na Imeli",
+      "processing": "Yalovinaka wawa mada vakalailai ni cakacaka voli..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Vanua",
+      "loading": "Vakavodoki",
+      "col-name": "Yaca",
+      "col-scene": "iVakatakata",
+      "col-maxuser": "Vakayagataka na i Max",
+      "lbl-search": "Vakasaqara na veivanua eso",
+      "lbl-new": "Ka Vou"
+    },
+    "newLocation": {
+      "title": "Vanua e Tiko kina",
+      "success": "Maroroi Vakavinaka.",
+      "failure": "Dua na ka e leqa.",
+      "removeSuccess": "Sa Vagalalataki Rawa na iTikotiko.",
+      "nameInUse": "Sa vakayagataki tiko na yaca.",
+      "nameRequire": "E gadrevi na yaca.",
+      "validNumber": "E vakadonui na naba walega (0-9).",
+      "lbl-name": "Yaca",
+      "lbl-maxuser": "Vakayagataka na i Max",
+      "lbl-scene": "iVakatakata",
+      "lbl-type": "Mataqali",
+      "lbl-ve": "Rawa ni Vakayagataki na Vidio",
+      "lbl-gme": "Rawa ni Vakayagataki na iTukutuku Raraba",
+      "lbl-update": "Vakavoui",
+      "lbl-create": "Cakava",
+      "tooltipCanNotBeDeleted": "E sega ni rawa ni bokoci na iMoqi",
+      "confirmation": "O dina?",
+      "lbl-yes": "Io",
+      "lbl-no": "Sega"
+    },
+    "share": {
+      "lbl-share": "Wasea",
+      "ph-phoneEmail": "Veisureti ena imeli se naba ni talevoni",
+      "lbl-phoneEmail": "Vakauta ki na imeli se naba ni talevoni",
+      "lbl-copy": "Lavetaki",
+      "lbl-send-invite": "Vakauta na Veisureti",
+      "title": "Wasea nomu URL ni iTikotiko kei na nomu timi",
+      "linkCopied": "Sa lavetaki na isema ki na papa lailai."
+    },
+    "setting": {
+      "audio": "Vakarorogo",
+      "lbl-volume": "iVola",
+      "lbl-microphone": "Maikorofoni",
+      "graphics": "iTuvatuva",
+      "controls": "Qarauni",
+      "lbl-control-type": "Mataqali iLiuliu",
+      "lbl-control-scheme": "iTuvatuva ni Lewa",
+      "lbl-resolution": "iTuvatuva ni Cakacaka",
+      "lbl-shadow": "Kena iyaloyalo",
+      "lbl-pp": "Cakacakataki ni Posi",
+      "lbl-pbr": "VMT Taucoko",
+      "lbl-automatic": "Vakasausa",
+      "xrusersetting": "iTuvatuva ni Vakayagataki ni XR",
+      "rotation": "Veimuataki",
+      "rotation-smooth-speed": "Totolo ni Vakatotolo ni Veisovi",
+      "rotation-angle": "iTuvatuva ni iTuvatuva",
+      "moving": "Toso Ki Liu",
+      "user-avatar": "iTuvatuva ni iTamatana",
+      "invert-rotation": "Vukica na Veitosoyaki Ka Yavalata na Kau",
+      "show-avatar": "Vakaraitaka na iVakaraitaki"
+    },
+    "profile": {
+      "lbl-profile": "iTukutuku Digitaki",
+      "lbl-settings": "iTuvatuva",
+      "lbl-username": "Yaca Vakayagataki",
+      "update-msg": "Vakadodonutaki na yaca vakayagataki",
+      "inviteCode": "iVakatakilakila ni Veisureti",
+      "youAreAn": "O iko e dua na",
+      "youAreA": "O iko e dua",
+      "showUserId": "Vakaraitaka na iVakatakilakila nei Koya e Vakayagataka",
+      "hideUserId": "Vunia na Id ni Dauvakayagataki",
+      "showApiKey": "Vakaraitaka na itabatgi ni API",
+      "hideApiKey": "Vunia na ki ni API",
+      "apiKey": "itabati ni API",
+      "logout": "Curu e tuba",
+      "connectPhone": "Semata na nomu naba ni talevoni",
+      "connectEmail": "Semata nomu imeli",
+      "connectPhoneEmail": "Semata nomu imeli se naba ni talevoni",
+      "or": "Se",
+      "lbl-wallet": "Curu ena Wallet",
+      "ph-email": "Imeli",
+      "ph-phone": "Naba ni Talevoni",
+      "ph-phoneEmail": "Naba ni Talevoni / Imeli",
+      "phoneEmailError": "# ni talevoni sega ni vakabau se itikotiko ni imeli",
+      "phoneError": "Talevoni sega ni vakabau #",
+      "emailError": "iTikotiko ni imeli sega ni vakabau",
+      "loginWithReadyPlayerMe": "Curuiloma kei na Ready Player Me",
+      "connectSocial": "Semati ki na akaude ni veimaliwai",
+      "createOne": "Kevaka e sega na nomu akaude, ena tauyavutaki e dua na ka vou me baleti iko",
+      "connections": {
+        "title": "iSema",
+        "ipError": "Sega ni rawa ni vagalalataka na iVakatakilakila bulabula",
+        "disconnect": "tagutuvi ni",
+        "connect": "Sema"
+      },
+      "profileDropdown": {
+        "avatar": "iVakatakilakila nei Koya e Vakayagataka na iVakatakilakila Nei Koya e Vakayagatak",
+        "profile": "iTukutuku Digitaki",
+        "adminConsole": "Veivinavinaka ni Veiliutaki",
+        "logout": "Tawake"
+      },
+      "userIcon": {
+        "lbl-name": "Na yacamu",
+        "lbl-update": "Vakavoui",
+        "userId": "Id nei koya e vakayagataka",
+        "ph-uploadImg": "Vakavodoka na iYaloyalo ni iYaya",
+        "lbl-selectAcvatar": "Digitaka na Taleitaki",
+        "lbl-submit": "Vakauta"
+      },
+      "userSettings": {
+        "volume": "iVola",
+        "microphone": "Maikorofoni",
+        "resolution": "iTuvatuva ni Cakacaka",
+        "high": "E cake",
+        "low": "E ra",
+        "spatialAudio": "Vakayagataka na Vakarorogo ni Sarasara",
+        "enterMuted": "Vakacuruma na Rumu me Vakatabui"
+      }
+    },
+    "oauth": {
+      "authenticating": "Veidinadina Matata...",
+      "authFailed": "{{service}} cala na veivakadeitaki."
+    },
+    "magikLink": {
+      "wait": "Yalovinaka wawa mada vakalailai ni cakacaka voli..."
+    },
+    "dashboard": {
+      "header": "IVakasoqani",
+      "dashboard": "IVakasoqani",
+      "users": "O Ira era Vakayagataka",
+      "feeds": "Vakani",
+      "instance": "iVakaraitaki",
+      "locations": "Vanua",
+      "invites": "Veisureti",
+      "sessions": "Soqoni",
+      "groups": "iLawalawa",
+      "parties": "Soqo ni Marau",
+      "chats": "Veivosaki",
+      "content": "Kato ni Lewena",
+      "projects": "Cakacaka",
+      "scenes": "iYaloyalo",
+      "avatars": "Veika Taleitaki",
+      "benchmarking": "Vakatotogitaki ni iVakatakata",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Veidinadina Matata...",
+    "authFailed": "{{service}} cala na veivakadeitaki."
+  },
+  "magikLink": {
+    "wait": "Yalovinaka wawa mada vakalailai ni cakacaka voli..."
+  },
+  "dashboard": {
+    "header": "IVakasoqani",
+    "dashboard": "IVakasoqani",
+    "users": "O Ira era Vakayagataka",
+    "feeds": "Vakani",
+    "instance": "iVakaraitaki",
+    "locations": "Vanua",
+    "routes": "Sala",
+    "projects": "Cakacaka",
+    "invites": "Veisureti",
+    "sessions": "Soqoni",
+    "groups": "iLawalawa",
+    "parties": "Soqo ni Marau",
+    "chats": "Veivosaki",
+    "content": "Kato ni Lewena",
+    "scenes": "iYaloyalo",
+    "avatars": "Veika Taleitaki",
+    "benchmarking": "Vakatotogitaki ni iVakatakata",
+    "bots": "Bots",
+    "setting": "iTuvatuva"
+  },
+  "avatar": {
+    "title": "Vakavodoka na iTuvatuva",
+    "lbl-browse": "Barausi",
+    "lbl-thumbnail": "iVakalailai ni kakana",
+    "lbl-upload": "Vakavodoka",
+    "selectAvatar": "Digitaka na iTuvatuva...",
+    "selectThumbnail": "Digitaka na iVakalailai...",
+    "rotate": "Veisobulataka",
+    "pan": "Vakasaqa",
+    "noBone": "Obejct e sega ni tiko kina e dua na sui se kuli ni manumanu",
+    "outOfBound": "Sa sega ni vauci rawa na ka.",
+    "emptyObj": "E lala tu na iyaya.",
+    "maxTriangleError": "Na iyaya e tiko kina e levu cake mai na mata {{allowedTriangles}} .",
+    "selectValidFile": "Digitaka na faile donu ni isoqosoqo 3.",
+    "selectValidThumbnail": "Faile digitaki ni Thumbnail.",
+    "fileOversized": "Na levu ni faile nei itavuvuni e dodonu me tiko ena maliwa ni {{minSize}} MB kei na {{maxSize}} MB",
+    "confirmation": "O dina?",
+    "canNotBeRemoved": "E sega ni rawa ni vagalalataki na Vakaitavi Vakaitavi",
+    "remove": "Vagalalataka na veika tale eso",
+    "uploadFiles": "Vakavodoka na faile",
+    "useUrlInstead": "Vakayagataka ga na url",
+    "avatar": "iTavuna",
+    "cancel": "Bokoca",
+    "createAvatar": "Tauyavu na iTuvatuva",
+    "delete": "Bokoca",
+    "view": "Raica na",
+    "uploadAvatarInfo": "Vakavouia na iVakamacala ni ivakamacala ni isoqosoqo",
+    "name": "Yaca",
+    "enterName": "Vakacuruma na yaca",
+    "avatarInformation": "iTukutuku ni Soqosoqo nei Koya",
+    "description": "iVakamacala",
+    "key": "iDola",
+    "none": "Sega ni dua",
+    "submit": "Vakauta",
+    "edit": "Vakataucokotaka",
+    "avatarUrl": "URL ni iTavuna",
+    "upload-success-msg": "Sa Vakavodoki Rawa na iTuvatuva.",
+    "remove-success-msg": "Sa Vakavodoki Rawa na iTuvatuva.",
+    "warning-msg": "E lala na ivurevure nei Koya me vukei, o sa tuvanaka li na ivakaraitaki ki na nomu mamaroroi faile sosa?"
+  },
+  "personMenu": {
+    "inviteToParty": "Veisureti ki na Soqo ni Marau",
+    "addAsFriend": "Vakuria Me iTokani",
+    "mute": "Vakatabutotaka",
+    "block": "Buloko"
+  },
+  "person": {
+    "you": "O iko",
+    "yourScreen": "Nomu Sikirini",
+    "muteForEveryone": "Vakatatabutaka kivei keda kece",
+    "unmuteForEveryone": "Tawasavasava me baleti keda kece",
+    "muteMe": "Vakatatabutaki au",
+    "unmuteMe": "Kakua ni Vakarukuitataki au",
+    "muteThisPerson": "Vakatatabutaka na tamata oqo",
+    "unmuteThisPerson": "Vakatudonutaka na tamata oqo",
+    "openPictureInPicture": "Dolava na iYaloyalo ena iYaloyalo"
+  }
+}

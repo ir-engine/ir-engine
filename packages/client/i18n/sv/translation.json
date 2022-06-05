@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Sidan hittades inte"
+  },
+  "503": {
+    "msg": "503 - Tjänsten är inte tillgänglig"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Du har blivit avstängd från den här platsen",
+    "locationName": {
+      "pageTitle": "Hem"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projekt",
+      "header": "Vänligen logga in",
+      "welcomeMsg": "Välkommen",
+      "locationHeader": "Platser",
+      "projectHeader": "Projekt",
+      "sceneHeader": "Scener",
+      "description": "Om du är ny här rekommenderar vi att du går igenom handledningen. Annars kan du hoppa direkt in och skapa ett projekt från grunden eller från en av våra mallar.",
+      "lbl-startTutorial": "Starta handledning",
+      "lbl-newProject": "Nytt projekt",
+      "lbl-createProject": "Skapa",
+      "lbl-newScene": "Ny scen",
+      "lbl-searchProject": "Sök befintliga projekt...",
+      "back": "Tillbaka",
+      "contextMenu": "Ta bort projekt",
+      "installed": "Installerade projekt",
+      "official": "Officiella projekt",
+      "community": "Samhällsprojekt",
+      "install": "Installera",
+      "uninstall": "Avinstallera",
+      "rename": "Byt namn",
+      "createProject": "Skapa projekt",
+      "installProject": "Installera Project",
+      "processing": "Bearbetning",
+      "projectName": "Projektets namn",
+      "projectURL": "Projektets URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Gå hem",
+    "withStatusCode": "Ett fel {{code}} inträffade på servern",
+    "withoutStatusCode": "Ett fel inträffade på servern"
+  },
+  "no-projects": {
+    "msg": "Fel: Inga installerade projekt - kontakta en webbplatsadministratör"
+  },
+  "dev": {
+    "pageTitle": "Hem"
+  },
+  "login": {
+    "pageTitle": "Logga in"
+  },
+  "workerTest": {
+    "pageTitle": "Arbetstagartest"
+  },
+  "index": {
+    "by": "VID",
+    "xr": "XR",
+    "foundation": "Stiftelse",
+    "description": "Realtid 3D sociala applikationer för alla att njuta av."
+  },
+  "xrengineContact": {
+    "header": "Kontakta oss!",
+    "description": "Vi hjälper dig gärna med dina virtuella evenemang, digital detaljhandel, underhållning och andra behov.",
+    "lbl-name": "Namn",
+    "lbl-email": "E-post",
+    "lbl-company": "Företag",
+    "lbl-project": "Beskriv ditt projekt",
+    "lbl-send": "Sända",
+    "lbl-ok": "Okej",
+    "lbl-success": "Meddelande skickat, Vi återkommer till dig inom kort.",
+    "lbl-failure": "Ett fel inträffade, Plese försöker igen",
+    "err-username": "Ange ditt namn.",
+    "err-email": "E-post krävs.",
+    "err-msg": "Ge en kort beskrivning av ditt projekt."
+  }
+}

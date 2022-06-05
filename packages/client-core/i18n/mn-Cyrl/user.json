@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Баталгаат имэйл",
+      "resendEmail": "Имэйлээ шалгаж дансаа шалгана уу. Хэрэв та имэйл аваагүй бол {{here}} дарж баталгаажуулах имэйлийг дахин оруулна уу.",
+      "haveAnAccount": "Данстай юу?"
+    },
+    "forgotPassword": {
+      "header": "Нууц үгээ мартсан",
+      "enterEmail": "Бүртгүүлсэн имэйл хаягаа оруулна уу. Бид танд нууц үг reset холбоосыг илгээнэ.",
+      "lbl-email": "Имэйл хаяг",
+      "lbl-submit": "Линк илгээх",
+      "emailSent": "Reset Password Имэйл илгээгдсэн. Имэйлээ шалгана уу."
+    },
+    "login": {
+      "email": "Имэйл | SMS",
+      "username": "Хэрэглэгчийн нэр + Нууц үг",
+      "social": "Нийгэм"
+    },
+    "magiklink": {
+      "header": "Логин холбоос",
+      "descriptionEmail": "Имэйл хаягаа оруулна уу. Бид танд Email-ээр нэвтрэх линкийг илгээнэ.",
+      "descriptionSMS": "Утасны дугаараа оруулна уу. Бид танд SMS-ээр нэвтрэх линкийг илгээнэ.",
+      "descriptionEmailSMS": "Та мэйл хаяг эсвэл утасны дугаараа (10 цифрээр, зөвхөн АНУ-д) оруулна уу. Бид танд Email эсвэл SMS-ээр нэвтрэх холбоосыг илгээх болно.",
+      "descriptionSMSUS": "Та утасны дугаараа (10 тоот, зөвхөн АНУ-д) оруулна уу. Бид танд SMS-ээр нэвтрэх линкийг илгээх болно.",
+      "lbl-email": "Имэйл хаяг",
+      "lbl-emailPhone": "Имэйл буюу утасны дугаар",
+      "lbl-phone": "Утасны дугаар",
+      "agree": "Би зөвшөөрч байна ",
+      "terms": "Нэр томьёо & Нөхцөл",
+      "lbl-submit": "Логин линк илгээх",
+      "email-sent-msg": "Login Magic Линк явуулсан байна. Имэйлээ шалгана уу.",
+      "success-msg": "Login Magic Линк явуулсан байна. Имэйлээ эсвэл SMS-ээ шалгана уу.",
+      "sms-sent-msg": "Login Magic Линк явуулсан байна. SMS-ээ шалгана уу."
+    },
+    "passwordLogin": {
+      "header": "Нэвтэр",
+      "lbl-email": "Имэйл хаяг",
+      "lbl-password": "Нууц үг",
+      "lbl-rememberMe": "Намайг сана",
+      "lbl-signin": "Нэвтэр",
+      "forgotPassword": "Нууц үгээ мартсан уу?",
+      "signup": "Данс байхгүй юу? Бүртгүүл",
+      "lbl-login": "Нэвтрэх",
+      "ph-password": "Нууц үг",
+      "ph-email": "И-мэйл"
+    },
+    "social": {
+      "gitHub": "GitHub-тай логин",
+      "google": "Гүүгл-тэй логин",
+      "facebook": "Фэйсбүүктэй логин",
+      "linkedin": "Linkedin-тэй логин",
+      "twitter": "Твиттертэй логин"
+    },
+    "register": {
+      "header": "Бүртгүүл",
+      "login": "Нэвтрэх",
+      "lbl-signup": "Бүртгүүл",
+      "lbl-password": "Нууц үг",
+      "lbl-email": "Имэйл хаяг",
+      "passwordNotMatch": "Нууц үг тохирохгүй",
+      "ph-password": "Нууц үг",
+      "ph-confirmPassword": "Нууц үг баталгаажуулах",
+      "ph-email": "И-мэйл"
+    },
+    "resetPassword": {
+      "header": "Нэвтрэх нууц үгээ дахин тохируулах",
+      "description": "Имэйл хаягаа нууц үгээ оруулна уу",
+      "lbl-submit": "Нэвтрэх нууц үгээ дахин тохируулах",
+      "lbl-password": "Нууц үг",
+      "lbl-confirmPassword": "Нууц үг баталгаажуулах",
+      "passwordNotMatch": "Нууц үг тохирохгүй",
+      "nowLoginYourAccount": "Одоо та өөрийн дансанд орж болно",
+      "yourPasswordResetSuccess": "Таны нууц үгийг амжилттай дахин тохируулах!"
+    },
+    "verifyEmail": {
+      "header": "Имэйлийг шалгах",
+      "processing": "Та боловсруулах зуураа түр хүлээнэ үү..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Хаяг байршил",
+      "loading": "Ачаа ачих",
+      "col-name": "Нэр",
+      "col-scene": "Дүр зураг",
+      "col-maxuser": "Макс хэрэглэгчид",
+      "lbl-search": "Хаяг байршил хайх",
+      "lbl-new": "Шинэ"
+    },
+    "newLocation": {
+      "title": "Хаяг байршил",
+      "success": "Амжилттай хадгалагдсан.",
+      "failure": "Ямар нэг юм болохгүй болов.",
+      "removeSuccess": "Байрлалыг амжилттай хаслаа.",
+      "nameInUse": "Нэр нь ашиглагдаж байна.",
+      "nameRequire": "Нэр заавал байх шаардлагатай.",
+      "validNumber": "Зөвхөн тоо(0-9)-ийг зөвшөөрнө.",
+      "lbl-name": "Нэр",
+      "lbl-maxuser": "Макс хэрэглэгчид",
+      "lbl-scene": "Дүр зураг",
+      "lbl-type": "Төрөл",
+      "lbl-ve": "Видео Бичлэг",
+      "lbl-gme": "Дэлхий дахины мэдээллийн хэрэгсэл боломжтой болсон",
+      "lbl-update": "Шинэчлэх",
+      "lbl-create": "Үүсгэх",
+      "tooltipCanNotBeDeleted": "Лоббиг арилгаж болохгүй",
+      "confirmation": "Итгэлтэй байна уу?",
+      "lbl-yes": "Тийм ээ",
+      "lbl-no": "Үгүй"
+    },
+    "share": {
+      "lbl-share": "Хуваалц",
+      "ph-phoneEmail": "Имэйлээр эсвэл утасны дугаараар урилаа",
+      "lbl-phoneEmail": "Имэйл эсвэл утасны дугаар руу илгээх",
+      "lbl-copy": "Хуулбарлах",
+      "lbl-send-invite": "Урилга илгээх",
+      "title": "Өөрийн байршлын URL-г багтайгаа хуваалцах",
+      "linkCopied": "Хавчуургыг хуулах холбоос."
+    },
+    "setting": {
+      "audio": "Аудио",
+      "lbl-volume": "Хэмжээ",
+      "lbl-microphone": "Микрофон",
+      "graphics": "График",
+      "controls": "Хяналт",
+      "lbl-control-type": "Харилцагчийн төрөл",
+      "lbl-control-scheme": "Хяналтын схем",
+      "lbl-resolution": "Шийдэл",
+      "lbl-shadow": "Сүүдрэвч",
+      "lbl-pp": "Post Боловсруулах",
+      "lbl-pbr": "Бүрэн PBR",
+      "lbl-automatic": "Автомат",
+      "xrusersetting": "XR Хэрэглэгчийн тохиргоо",
+      "rotation": "Ээлжлэх",
+      "rotation-smooth-speed": "Эргэлтийн гөлгөр хурд",
+      "rotation-angle": "Эргэх өнцөг",
+      "moving": "Үл хөдлөх",
+      "user-avatar": "Аватар тохируулга",
+      "invert-rotation": "Инверт эргүүл, хөдлөх саваа",
+      "show-avatar": "Аватар үзүүлэх"
+    },
+    "profile": {
+      "lbl-profile": "Профайл",
+      "lbl-settings": "Тохиргоо",
+      "lbl-username": "Хэрэглэгчийн нэр",
+      "update-msg": "Хэрэглэгчийн нэр шинэчлэгдлээ",
+      "inviteCode": "Кодыг урилаа",
+      "youAreAn": "Чи бол ан",
+      "youAreA": "Чи бол а",
+      "showUserId": "Хэрэглэгчийн ID үзүүлэх",
+      "hideUserId": "Нуух Хэрэглэгчийн ID",
+      "showApiKey": "API түлхүүр үзүүлэх",
+      "hideApiKey": "API түлхүүр нуух",
+      "apiKey": "API түлхүүр",
+      "logout": "Нэвтрэх",
+      "connectPhone": "Утасны дугаараа холбох",
+      "connectEmail": "Имэйлээ холбох",
+      "connectPhoneEmail": "Имэйл эсвэл утасны дугаараа холбох",
+      "or": "Эсвэл",
+      "lbl-wallet": "Түрийвчтэй логин",
+      "ph-email": "И-мэйл",
+      "ph-phone": "Утасны дугаар",
+      "ph-phoneEmail": "Утасны дугаар / Имэйл",
+      "phoneEmailError": "Хүчингүй утас # эсвэл имэйл хаяг",
+      "phoneError": "Хүчингүй утас #",
+      "emailError": "Хүчингүй имэйл хаяг",
+      "loginWithReadyPlayerMe": "Бэлэн тоглогч надтай хамт Логин",
+      "connectSocial": "Нийгмийн данстай холбогдох",
+      "createOne": "Хэрэв танд данс байхгүй бол танд шинээр бий болно",
+      "connections": {
+        "title": "Холбоо барих",
+        "ipError": "Идэвхтэй Identity Provider-ийг зайлуулж чадахгүй",
+        "disconnect": "холбоогоо таслах",
+        "connect": "Холбоо барих"
+      },
+      "profileDropdown": {
+        "avatar": "Хэрэглэгчийн Аватар Icon",
+        "profile": "Профайл",
+        "adminConsole": "Админ Консол",
+        "logout": "Логоут"
+      },
+      "userIcon": {
+        "lbl-name": "Чиний нэр",
+        "lbl-update": "Шинэчлэх",
+        "userId": "Хэрэглэгчийн id",
+        "ph-uploadImg": "Бараа бүтээгдэхүүний зураг татаж авах",
+        "lbl-selectAcvatar": "Аватарыг сонгох",
+        "lbl-submit": "Өгөх"
+      },
+      "userSettings": {
+        "volume": "Хэмжээ",
+        "microphone": "Микрофон",
+        "resolution": "Шийдэл",
+        "high": "Өндөр",
+        "low": "Доод",
+        "spatialAudio": "Аудио бичлэгийг ашиглах нь",
+        "enterMuted": "Өрөөний мутацтай орох"
+      }
+    },
+    "oauth": {
+      "authenticating": "Баталгаа гаргах...",
+      "authFailed": "{{service}} баталгаажуулалт бүтэлгүйтсэн."
+    },
+    "magikLink": {
+      "wait": "Та боловсруулах зуураа түр хүлээнэ үү..."
+    },
+    "dashboard": {
+      "header": "Дашбоард",
+      "dashboard": "Дашбоард",
+      "users": "Хэрэглэгчид",
+      "feeds": "Хоол тэжээл",
+      "instance": "Адгийн хэрэг",
+      "locations": "Хаяг байршил",
+      "invites": "Урилга",
+      "sessions": "Хуралдаанууд",
+      "groups": "Бүлгүүд",
+      "parties": "Талууд",
+      "chats": "Чат",
+      "content": "Агуулгын багцууд",
+      "projects": "Төслүүд",
+      "scenes": "Үйл явдал",
+      "avatars": "Аватарууд",
+      "benchmarking": "Шалгуур үзүүлэлт",
+      "bots": "Бот"
+    }
+  },
+  "oauth": {
+    "authenticating": "Баталгаа гаргах...",
+    "authFailed": "{{service}} баталгаажуулалт бүтэлгүйтсэн."
+  },
+  "magikLink": {
+    "wait": "Та боловсруулах зуураа түр хүлээнэ үү..."
+  },
+  "dashboard": {
+    "header": "Дашбоард",
+    "dashboard": "Дашбоард",
+    "users": "Хэрэглэгчид",
+    "feeds": "Хоол тэжээл",
+    "instance": "Адгийн хэрэг",
+    "locations": "Хаяг байршил",
+    "routes": "Зам",
+    "projects": "Төслүүд",
+    "invites": "Урилга",
+    "sessions": "Хуралдаанууд",
+    "groups": "Бүлгүүд",
+    "parties": "Талууд",
+    "chats": "Чат",
+    "content": "Агуулгын багцууд",
+    "scenes": "Үйл явдал",
+    "avatars": "Аватарууд",
+    "benchmarking": "Шалгуур үзүүлэлт",
+    "bots": "Бот",
+    "setting": "Тохиргоо"
+  },
+  "avatar": {
+    "title": "Аватарыг татаж авах",
+    "lbl-browse": "Брауэ",
+    "lbl-thumbnail": "Эрхий хуруу",
+    "lbl-upload": "Татаж авах",
+    "selectAvatar": "Аватар сонгох...",
+    "selectThumbnail": "Эрхий хурууны хумсаа сонго...",
+    "rotate": "Ээлжлэх",
+    "pan": "Пан",
+    "noBone": "Обежкт ямар ч яс, арьс агуулаагүй",
+    "outOfBound": "Объект нь үүрэггүй болсон.",
+    "emptyObj": "Объект хоосон байна.",
+    "maxTriangleError": "Объект нь {{allowedTriangles}} нүүрнээс их агуулна.",
+    "selectValidFile": "Хүчинтэй 3d аватар файлыг сонгоно уу.",
+    "selectValidThumbnail": "Сонгосон хүчинтэй Thumbnail файл.",
+    "fileOversized": "Аватар файлын хэмжээ {{minSize}} MB болон {{maxSize}} MB-ийн хооронд байх ёстой",
+    "confirmation": "Итгэлтэй байна уу?",
+    "canNotBeRemoved": "Идэвхтэй Аватарыг арилгаж болохгүй",
+    "remove": "Аватарыг зайлуулах",
+    "uploadFiles": "Файлуудыг татаж авах",
+    "useUrlInstead": "Оронд нь url ашиглах",
+    "avatar": "Аватар",
+    "cancel": "Цуцлах",
+    "createAvatar": "Аватар бүтээх",
+    "delete": "Устгах",
+    "view": "Үзэх",
+    "uploadAvatarInfo": "Аватар мэдээлэл шинэчлэх",
+    "name": "Нэр",
+    "enterName": "Нэр оруулах",
+    "avatarInformation": "Аватар мэдээлэл",
+    "description": "Тодорхойлолт",
+    "key": "Түлхүүр",
+    "none": "Хэн ч биш",
+    "submit": "Өгөх",
+    "edit": "Редакц",
+    "avatarUrl": "Аватар url",
+    "upload-success-msg": "Аватар амжилттай орууллаа.",
+    "remove-success-msg": "Аватар амжилттай орууллаа.",
+    "warning-msg": "Аватар эх үүсвэр хоосон байна. Та статик файлын нөөцтэйгээ аватаруудыг уялдуулсан уу?"
+  },
+  "personMenu": {
+    "inviteToParty": "Үдэшлэгт урих нь",
+    "addAsFriend": "Найз шиг нь нэм",
+    "mute": "Муут",
+    "block": "Блок"
+  },
+  "person": {
+    "you": "Чи",
+    "yourScreen": "Таны дэлгэц",
+    "muteForEveryone": "Хүн бүрт зориулсан дуу",
+    "unmuteForEveryone": "Хүн бүрт зориулагдаагүй",
+    "muteMe": "Намайг дууд",
+    "unmuteMe": "Намайг unmute",
+    "muteThisPerson": "Энэ хүнийг муулах",
+    "unmuteThisPerson": "Энэ хүнийг unmute",
+    "openPictureInPicture": "Зураг дээр нээлттэй зураг"
+  }
+}

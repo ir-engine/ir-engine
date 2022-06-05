@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "အတည်ပြု အီးမေးလ်",
+      "resendEmail": "အကောင့်ကို စစ်ဆေးဖို့ သင့်အီးမေးလ်ကို စစ်ဆေးပါ။ အီးမေးလ်မရဘူးဆိုရင် စစ်ဆေးရေး အီးမေးလ်ကို ပြန်ပေးဖို့ {{here}} ကလစ်နှိပ်ပါ။",
+      "haveAnAccount": "အကောင့် ရှိပါသလား"
+    },
+    "forgotPassword": {
+      "header": "မေ့လျော့သွားသော စကားဝှက်",
+      "enterEmail": "ကျေးဇူးပြု၍ မှတ်ပုံတင်ထားတဲ့ အီးမေးလ် လိပ်စာကို ဝင်ကြည့်ပြီး စကားဝှက် ပြန်လည်ချိတ်ဆက်ထားတဲ့ လင့်ခ် ပို့ပေးမယ်။",
+      "lbl-email": "အီးမေးလ် လိပ်စာ",
+      "lbl-submit": "လင့်ခ် ပို့ပေးပါ",
+      "emailSent": "Reset စကားဝှက် အီးမေးလ်ကို ပို့လိုက်တယ်။ ကျေးဇူးပြု၍ သင့်အီးမေးလ်ကို စစ်ဆေးပါ။"
+    },
+    "login": {
+      "email": "အီးမေးလ် | SMS",
+      "username": "အသုံးပြုသူ နာမ် + စကားဝှက်",
+      "social": "လူမှုရေး"
+    },
+    "magiklink": {
+      "header": "Login Lik",
+      "descriptionEmail": "ကျေးဇူးပြု၍ သင်၏ အီးမေးလ် လိပ်စာကို ဝင်ကြည့်ပြီး အီးမေးလ်မှတစ်ဆင့် လင့်ခ်တစ်ခု ပေးပို့ပါမည်။",
+      "descriptionSMS": "ကျေးဇူးပြု၍ ဖုန်းနံပါတ်ကို ဝင်ကြည့်ပြီး SMS မှတစ်ဆင့် လင့်ခ်တစ်ခု ပေးပို့ပါမယ်။",
+      "descriptionEmailSMS": "ကျေးဇူးပြု၍ သင်၏ အီးမေးလ် လိပ်စာ သို့မဟုတ် ဖုန်းနံပါတ် (၁၀ ဒစ်ဂျစ်တယ် ၊ ယူအက်စ် သာ) ဝင်ရောက်ပြီး အီးမေးလ် သို့မဟုတ် အက်စ်အမ်အက်စ် မှတစ်ဆင့် လော့ဂင် လင့်ခ်တစ်ခု ပေးပို့ပါမည်။",
+      "descriptionSMSUS": "ကျေးဇူးပြု၍ သင့်ဖုန်းနံပါတ် (10 ဒစ်ဂျစ်တယ် ယူအက်စ်သာ) ဝင်ကြည့်ပြီး SMS မှတစ်ဆင့် Login လင့်ခ်တစ်ခု ပေးပို့ပါမယ်။",
+      "lbl-email": "အီးမေးလ် လိပ်စာ",
+      "lbl-emailPhone": "အီးမေးလ် (သို့) ဖုန်းနံပါတ်",
+      "lbl-phone": "ဖုန်းနံပါတ်",
+      "agree": "ကျွန်တော် သဘောတူလိုက်တာက ",
+      "terms": "အသုံးအနှုန်းများနှင့် အခြေအနေများ",
+      "lbl-submit": "Login Link ပို့",
+      "email-sent-msg": "Login Magic Link ကို ပို့လိုက်ပါတယ်။ ကျေးဇူးပြု၍ သင့်အီးမေးလ်ကို စစ်ဆေးပါ။",
+      "success-msg": "Login Magic Link ကို ပို့လိုက်ပါတယ်။ ကျေးဇူးပြု၍ သင့်အီးမေးလ် သို့မဟုတ် SMS ကို စစ်ဆေးပါ။",
+      "sms-sent-msg": "Login Magic Link ကို ပို့လိုက်ပါတယ်။ ကျေးဇူးပြု၍ SMS ကို စစ်ဆေးပါ။"
+    },
+    "passwordLogin": {
+      "header": "အထဲ၀င်ခြင်း",
+      "lbl-email": "အီးမေးလ် လိပ်စာ",
+      "lbl-password": "စကားဝှက်",
+      "lbl-rememberMe": "ကျွန်မကို အမှတ်ရနေတာ သတိ",
+      "lbl-signin": "အထဲ၀င်ခြင်း",
+      "forgotPassword": "မေ့သွားတဲ့ စကားဝှက်လား။",
+      "signup": "အကောင့်မရှိဘူးလား။ အသုံးပြုသူအသစ်အဖြစ် စာရင်းသွင်းခြင်း",
+      "lbl-login": "၀င်ရောက်သည်",
+      "ph-password": "စကားဝှက်",
+      "ph-email": "အီးမေးလ်"
+    },
+    "social": {
+      "gitHub": "GitHub နဲ့ Logh",
+      "google": "Google နဲ့ Login နဲ့ Google နဲ့ Login",
+      "facebook": "ဖေ့(စ်)ဘွတ်(ခ်)နဲ့ Login",
+      "linkedin": "Linkedin နဲ့ Login",
+      "twitter": "Twitter နဲ့ Loggy"
+    },
+    "register": {
+      "header": "အသုံးပြုသူအသစ်အဖြစ် စာရင်းသွင်းခြင်း",
+      "login": "၀င်ရောက်သည်",
+      "lbl-signup": "အသုံးပြုသူအသစ်အဖြစ် စာရင်းသွင်းခြင်း",
+      "lbl-password": "စကားဝှက်",
+      "lbl-email": "အီးမေးလ် လိပ်စာ",
+      "passwordNotMatch": "စကားဝှက်များ မကိုက်ညီပါ",
+      "ph-password": "စကားဝှက်",
+      "ph-confirmPassword": "စကားဝှက် အတည်ပြုချက်",
+      "ph-email": "အီးမေးလ်"
+    },
+    "resetPassword": {
+      "header": "စကားဝှက်ကို ပြန်လည်သိမ်းဆည်းပါ",
+      "description": "ကျေးဇူးပြု၍ သင့်အီးမေးလ် လိပ်စာအတွက် စကားဝှက်ထဲထည့်ပါ",
+      "lbl-submit": "စကားဝှက်ကို ပြန်လည်သိမ်းဆည်းပါ",
+      "lbl-password": "စကားဝှက်",
+      "lbl-confirmPassword": "စကားဝှက် အတည်ပြုချက်",
+      "passwordNotMatch": "စကားဝှက်များ မကိုက်ညီပါ",
+      "nowLoginYourAccount": "အခုတော့ ခင်ဗျားရဲ့ အကောင့်ထဲကို ဝင်နိုင်ပြီ",
+      "yourPasswordResetSuccess": "ခင်ဗျားရဲ့ စကားဝှက်က အောင်မြင်စွာ ပြန်ချိန်ညှိထားတယ်!"
+    },
+    "verifyEmail": {
+      "header": "အီးမေးလ်ကို အတည်ပြုပါ",
+      "processing": "စီမံခန့်ခွဲနေစဉ် ခေတ္တစောင့်ပါ..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "နေရာများ",
+      "loading": "ဝန်တင်ခြင်း",
+      "col-name": "အမည်",
+      "col-scene": "ဇာတ်ကွက်",
+      "col-maxuser": "Max အသုံးပြုသူ",
+      "lbl-search": "နေရာများကို ရှာဖွေပါ",
+      "lbl-new": "အသစ်"
+    },
+    "newLocation": {
+      "title": "တည်နေရာ",
+      "success": "အောင်မြင်စွာကယ်တင်နိုင်ခဲ့လေသည်။",
+      "failure": "တစ်ခုခု မှားသွားတယ်။",
+      "removeSuccess": "နေရာကို အောင်မြင်စွာ ဖယ်ရှားလိုက်သည်။",
+      "nameInUse": "အမည်ကို အသုံးပြုကြသည်။",
+      "nameRequire": "အမည်လိုအပ်သည်။",
+      "validNumber": "ကိန်းဂဏန်း (၀-၉) သာလျှင် ခွင့်ပြုထားသည်။",
+      "lbl-name": "အမည်",
+      "lbl-maxuser": "Max အသုံးပြုသူ",
+      "lbl-scene": "ဇာတ်ကွက်",
+      "lbl-type": "အမျိုးအစား",
+      "lbl-ve": "ဗီဒီယို ထုတ်လုပ်နိုင်",
+      "lbl-gme": "ကမ္ဘာလုံးဆိုင်ရာ မီဒီယာများ ထုတ်လုပ်နိုင်စွမ်း",
+      "lbl-update": "အသစ်ပြင်ဆင်မှု",
+      "lbl-create": "ဖန်တီးခြင်း",
+      "tooltipCanNotBeDeleted": "လော့ဘီကို မဖျက်နိုင်ဘူး",
+      "confirmation": "သေချာလား?",
+      "lbl-yes": "၁၉ ။",
+      "lbl-no": "မဟုတ်ဘူး"
+    },
+    "share": {
+      "lbl-share": "ဝေမျှပါ",
+      "ph-phoneEmail": "အီးမေးလ် သို့မဟုတ် ဖုန်းနံပါတ်ဖြင့် ဖိတ်ခေါ်ပါ",
+      "lbl-phoneEmail": "အီးမေးလ် ဒါမှမဟုတ် ဖုန်းနံပါတ်ကို ပေးပို့ပါ",
+      "lbl-copy": "မိတ္တူကူးယူပါ",
+      "lbl-send-invite": "ဖိတ်ခေါ်ချက်ပေးပို့ပါ",
+      "title": "သင့်ရဲ့ တည်နေရာ URL ကို သင့်အသင်းနဲ့ ဝေမျှပါ",
+      "linkCopied": "လင့်ခ်က ကလစ်ဘုတ်ကို ကူးယူထားပါတယ်။"
+    },
+    "setting": {
+      "audio": "Audiie",
+      "lbl-volume": "အသံပမာဏ",
+      "lbl-microphone": "မိုက်ခရိုဖုန်း",
+      "graphics": "ဂရပ်ဖစ်",
+      "controls": "ထိန်းချုပ်မှု",
+      "lbl-control-type": "ထိန်းချုပ်သူအမျိုးအစား",
+      "lbl-control-scheme": "ထိန်းချုပ်ရေး အစီအစဉ်",
+      "lbl-resolution": "ဖြေရှင်းချက်",
+      "lbl-shadow": "အရိပ်",
+      "lbl-pp": "ပို့စ် လုပ်ငန်းစဉ်",
+      "lbl-pbr": "ပီဘီအာ အပြည့်အစုံ",
+      "lbl-automatic": "အလိုအလျောက်",
+      "xrusersetting": "XR အသုံးပြုသူ သတ်မှတ်ချက်များ",
+      "rotation": "အလှည့်ကျ",
+      "rotation-smooth-speed": "ချောမွေ့တဲ့ အမြန်နှုန်း",
+      "rotation-angle": "လှည့်ကွင်းထောင့်",
+      "moving": "ရွေ့လျားခြင်း",
+      "user-avatar": "Avatar သတ်မှတ်ခြင်း",
+      "invert-rotation": "အပြန်အလှန်လည်ပြီး ရွေ့လျားနေသော တုတ်ချောင်းများ",
+      "show-avatar": "Avatar ပြပါ"
+    },
+    "profile": {
+      "lbl-profile": "ကိုယ်ရေးရာဇဝင်",
+      "lbl-settings": "သတ်မှတ်ချက်များ",
+      "lbl-username": "အသုံးပြုသူအမည်",
+      "update-msg": "အသုံးပြုသူအမည်ကို အသစ်ပြင်ဆင်ထား",
+      "inviteCode": "ကုဒ်ကို ဖိတ်ခေါ်ပါ",
+      "youAreAn": "ခင်ဗျားဟာ",
+      "youAreA": "ခင်ဗျားဟာ",
+      "showUserId": "အသုံးပြုသူ ID ကို ပြပါ",
+      "hideUserId": "အသုံးပြုသူ ID ကို ဝှက်ထားပါ",
+      "showApiKey": "API သော့ပြပါ",
+      "hideApiKey": "API သော့ကို ဝှက်ထားပါ",
+      "apiKey": "API သော့",
+      "logout": "မှတ်ပုံတင်ပါ",
+      "connectPhone": "ဖုန်းနံပါတ်ကို ချိတ်ဆက်ပါ",
+      "connectEmail": "သင့်အီးမေးလ်ကို ဆက်သွယ်ပါ",
+      "connectPhoneEmail": "သင့်အီးမေးလ် ဒါမှမဟုတ် ဖုန်းနံပါတ်ကို ချိတ်ဆက်ပါ",
+      "or": "ဒါမှမဟုတ် ဒါမှ",
+      "lbl-wallet": "ဝေါလက်နဲ့ လော့ဂျင်း",
+      "ph-email": "အီးမေးလ်",
+      "ph-phone": "ဖုန်းနံပါတ်",
+      "ph-phoneEmail": "ဖုန်း နံပါတ် / Emay",
+      "phoneEmailError": "မသဲမကွဲ ဖုန်း # သို့မဟုတ် အီးမေးလ် လိပ်စာ",
+      "phoneError": "မသဲမကွဲ ဖုန်း #",
+      "emailError": "မသဲမကွဲ အီးမေးလ် လိပ်စာ",
+      "loginWithReadyPlayerMe": "အသင့်ရှိတဲ့ ကစားသမားမနဲ့ လော့ဂျင်",
+      "connectSocial": "လူမှုရေး အကောင့်များနှင့် ဆက်သွယ်ပါ",
+      "createOne": "အကောင့်မရှိဘူးဆိုရင် အသစ်တစ်ခုကို ဖန်တီးပါလိမ့်မယ်",
+      "connections": {
+        "title": "ဆက်သွယ်မှုများ",
+        "ipError": "တက်ကြွတဲ့ identထောက်ပံ့ပေးသူကို မဖယ်ရှားနိုင်ဘူး",
+        "disconnect": "အဆက်အသွယ်ပြတ်သွားခြင်း",
+        "connect": "ဆက်သွယ်မှု"
+      },
+      "profileDropdown": {
+        "avatar": "အသုံးပြုသူ Avatar icon",
+        "profile": "ကိုယ်ရေးရာဇဝင်",
+        "adminConsole": "Admin Consol",
+        "logout": "လော့ဂတ်"
+      },
+      "userIcon": {
+        "lbl-name": "မင်းနာမည်",
+        "lbl-update": "အသစ်ပြင်ဆင်မှု",
+        "userId": "အသုံးပြုသူ id id",
+        "ph-uploadImg": "ထုတ်ကုန်ပုံကို တင်ပါ",
+        "lbl-selectAcvatar": "Avatar ကိုရွေးချယ်ပါ",
+        "lbl-submit": "တင်သွင်းပါ"
+      },
+      "userSettings": {
+        "volume": "အသံပမာဏ",
+        "microphone": "မိုက်ခရိုဖုန်း",
+        "resolution": "ဖြေရှင်းချက်",
+        "high": "အမြင့်ဆုံး",
+        "low": "နိမ့်ကျ",
+        "spatialAudio": "Spatial Audio",
+        "enterMuted": "အခန်းထဲ ဝင်ပါ"
+      }
+    },
+    "oauth": {
+      "authenticating": "စစ်ဆေးခြင်း......",
+      "authFailed": "{{service}} စစ်ဆေးမှု မအောင်မြင်ခဲ့ဘူး။"
+    },
+    "magikLink": {
+      "wait": "စီမံခန့်ခွဲနေစဉ် ခေတ္တစောင့်ပါ..."
+    },
+    "dashboard": {
+      "header": "ဒက်ရှ်ဘုတ်",
+      "dashboard": "ဒက်ရှ်ဘုတ်",
+      "users": "အသုံးပြုသူများ",
+      "feeds": "ကျွေးမွေးမှုများ",
+      "instance": "ဥပမာအနေနှင့်",
+      "locations": "နေရာများ",
+      "invites": "ဖိတ်ခေါ်ချက်များ",
+      "sessions": "အစည်းအရုံးများ",
+      "groups": "အုပ်စု",
+      "parties": "ပါတီ",
+      "chats": "နှုတ်ခမ်းများ",
+      "content": "ပါဝင်သော ပက်ကပ်များ",
+      "projects": "စီမံကိန်းများ",
+      "scenes": "ဇာတ်ကွက်များ",
+      "avatars": "Avatars",
+      "benchmarking": "စံသတ်မှတ်ချက်",
+      "bots": "ဘော့စ်"
+    }
+  },
+  "oauth": {
+    "authenticating": "စစ်ဆေးခြင်း......",
+    "authFailed": "{{service}} စစ်ဆေးမှု မအောင်မြင်ခဲ့ဘူး။"
+  },
+  "magikLink": {
+    "wait": "စီမံခန့်ခွဲနေစဉ် ခေတ္တစောင့်ပါ..."
+  },
+  "dashboard": {
+    "header": "ဒက်ရှ်ဘုတ်",
+    "dashboard": "ဒက်ရှ်ဘုတ်",
+    "users": "အသုံးပြုသူများ",
+    "feeds": "ကျွေးမွေးမှုများ",
+    "instance": "ဥပမာအနေနှင့်",
+    "locations": "နေရာများ",
+    "routes": "လမ်းကြောင်း",
+    "projects": "စီမံကိန်းများ",
+    "invites": "ဖိတ်ခေါ်ချက်များ",
+    "sessions": "အစည်းအရုံးများ",
+    "groups": "အုပ်စု",
+    "parties": "ပါတီ",
+    "chats": "နှုတ်ခမ်းများ",
+    "content": "ပါဝင်သော ပက်ကပ်များ",
+    "scenes": "ဇာတ်ကွက်များ",
+    "avatars": "Avatars",
+    "benchmarking": "စံသတ်မှတ်ချက်",
+    "bots": "ဘော့စ်",
+    "setting": "သတ်မှတ်ချက်များ"
+  },
+  "avatar": {
+    "title": "အဗာတားကို တင်ပါ",
+    "lbl-browse": "Browse",
+    "lbl-thumbnail": "တံပိုးကွင်း",
+    "lbl-upload": "တင်ပါ",
+    "selectAvatar": "Avatar ကို ရွေးချယ်ပါ...",
+    "selectThumbnail": "Thumbnail ကို ရွေးချယ်ပါ......",
+    "rotate": "ရွေ့လျားမှု",
+    "pan": "ပန်",
+    "noBone": "Obejct မှာ အရိုးတွေ ဒါမှမဟုတ် အရေပြားတွေ မရှိဘူး",
+    "outOfBound": "အရာဝတ္ထုက အချုပ်မရှိတော့ဘူး။",
+    "emptyObj": "အရာဝတ္ထုသည် အလွတ်ဖြစ်သည်။",
+    "maxTriangleError": "အရာဝတ္ထုတွေမှာ {{allowedTriangles}} မျက်နှာတွေထက် ပိုကြီးတယ်။",
+    "selectValidFile": "တရားဝင် 3d avatar ဖိုင်ကို ရွေးပါ။",
+    "selectValidThumbnail": "တရားဝင်ရွေးချယ်ထားသော Thumbnail ဖိုင်။",
+    "fileOversized": "{{minSize}} အမ်ဘီ နှင့် {{maxSize}} အမ်ဘီ ကြား တွင် အဗတာ ဖိုင် အရွယ်အစား ရှိ ရ မည်",
+    "confirmation": "သေချာလား?",
+    "canNotBeRemoved": "တက်ကြွသော Avatar ကို မဖယ်ရှားနိုင်ပါ",
+    "remove": "avatar ကို ဖယ်ရှားပါ",
+    "uploadFiles": "တင်ထားတဲ့ ဖိုင်တွေ",
+    "useUrlInstead": "ယင်းအစား url အစားအသုံးပြုပါ",
+    "avatar": "Avatar",
+    "cancel": "ပယ်ဖျက်ပါ",
+    "createAvatar": "avatar ကိုဖန်တီးပါ",
+    "delete": "ပယ်ဖျက်ပါ",
+    "view": "မြင်ကွင်း",
+    "uploadAvatarInfo": "အသစ်ပြင်ဆင်ထားတဲ့ avatar သတင်းအချက်အလက်",
+    "name": "အမည်",
+    "enterName": "အမည်ထဲထည့်ပါ",
+    "avatarInformation": "Avatar သတင်းအချက်အလက်",
+    "description": "ဖော်ပြချက်",
+    "key": "သော့ချက်",
+    "none": "ဘယ်သူမှ မရှိဘူး",
+    "submit": "တင်သွင်းပါ",
+    "edit": "ထုတ်ဝေခြင်း",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "အဗာတာ အောင်မြင်စွာ တင်သွင်းခဲ့သည်။",
+    "remove-success-msg": "အဗာတာ အောင်မြင်စွာ တင်သွင်းခဲ့သည်။",
+    "warning-msg": "Avatar အရင်းအမြစ်ဟာ အလွတ်ပါ၊ မျက်နှာဖိုင် သိုလှောင်မှုမှာ avatar တွေ ကို ပေါင်းစပ်ထားသလား။"
+  },
+  "personMenu": {
+    "inviteToParty": "ပါတီသို့ ဖိတ်ခေါ်ပါ",
+    "addAsFriend": "မိတ်ဆွေအဖြစ် ပေါင်းထည့်ပါ",
+    "mute": "Mute",
+    "block": "ဘလော့"
+  },
+  "person": {
+    "you": "ခင်ဗျား",
+    "yourScreen": "ခင်ဗျားရဲ့ ဇာတ်ညွှန်း",
+    "muteForEveryone": "လူတိုင်းအတွက် Mute",
+    "unmuteForEveryone": "လူတိုင်းအတွက် စကားမပြောဘဲ",
+    "muteMe": "Mute Mute",
+    "unmuteMe": "ကျွန်တော့်ကို အနှောှက်မပေးပါနဲ့",
+    "muteThisPerson": "ဒီပုဂ္ဂိုလ်",
+    "unmuteThisPerson": "ဒီပုဂ္ဂိုလ်ကို စကားမပြောပါနဲ့",
+    "openPictureInPicture": "ရုပ်ပုံတွင် ဖွင့်ထားသော ရုပ်ပုံ"
+  }
+}

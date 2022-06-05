@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Ukurasa Haukupatikana"
+  },
+  "503": {
+    "msg": "503 - Huduma Haipatikani"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Umepigwa marufuku kutoka mahali hapa",
+    "locationName": {
+      "pageTitle": "Nyumbani"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Miradi",
+      "header": "Tafadhali Ingia",
+      "welcomeMsg": "Karibu",
+      "locationHeader": "Mahali",
+      "projectHeader": "Miradi",
+      "sceneHeader": "Scenes",
+      "description": "Ikiwa wewe ni mpya hapa tunapendekeza kupitia mafunzo. Vinginevyo, ruka ndani na uunda mradi kutoka mwanzo au kutoka kwa moja ya templeti zetu.",
+      "lbl-startTutorial": "Anza Mafunzo",
+      "lbl-newProject": "Mradi Mpya",
+      "lbl-createProject": "Unda",
+      "lbl-newScene": "Scene Mpya",
+      "lbl-searchProject": "Tafutiza Miradi Iliyopo...",
+      "back": "Nyuma",
+      "contextMenu": "Futa Mradi",
+      "installed": "Miradi Iliyosakinishwa",
+      "official": "Miradi Rasmi",
+      "community": "Miradi ya Jamii",
+      "install": "Kusakinisha",
+      "uninstall": "Sakinusha",
+      "rename": "Ita jina jipya",
+      "createProject": "Unda Mradi",
+      "installProject": "Sakinisha Mradi",
+      "processing": "Usindikaji",
+      "projectName": "Jina la Mradi",
+      "projectURL": "URL ya Mradi"
+    }
+  },
+  "error": {
+    "goHomeLink": "Nenda nyumbani",
+    "withStatusCode": "Kosa {{code}} limetokea kwenye seva",
+    "withoutStatusCode": "Kosa limetokea kwenye seva"
+  },
+  "no-projects": {
+    "msg": "Kosa: Hakuna Miradi Iliyosakinishwa - tafadhali wasiliana na msimamizi wa tovuti"
+  },
+  "dev": {
+    "pageTitle": "Nyumbani"
+  },
+  "login": {
+    "pageTitle": "Kuingia"
+  },
+  "workerTest": {
+    "pageTitle": "Mtihani wa Mfanyakazi"
+  },
+  "index": {
+    "by": "KWA",
+    "xr": "XR",
+    "foundation": "Msingi",
+    "description": "Maombi ya kijamii ya 3D ya Realtime kwa kila mtu kufurahiya."
+  },
+  "xrengineContact": {
+    "header": "Kupata katika touch!",
+    "description": "Tungependa kukusaidia na hafla zako za kawaida, rejareja ya dijiti, burudani na mahitaji mengine.",
+    "lbl-name": "Jina",
+    "lbl-email": "Barua pepe",
+    "lbl-company": "Kampuni",
+    "lbl-project": "Eleza Mradi wako",
+    "lbl-send": "Tuma",
+    "lbl-ok": "Sawa kabisa",
+    "lbl-success": "Ujumbe uliotumwa, tutarudi kwako hivi karibuni.",
+    "lbl-failure": "Kosa limetokea, Plese jaribu tena",
+    "err-username": "Tafadhali ingiza jina lako.",
+    "err-email": "Barua pepe inahitajika.",
+    "err-msg": "Toa maelezo mafupi ya mradi wako."
+  }
+}

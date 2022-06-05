@@ -1,0 +1,718 @@
+{
+  "loading": "Memuatkan Projek",
+  "loadingMsg": "Memuatkan projek...",
+  "loadingError": "Ralat memuatkan projek",
+  "loadingErrorMsg": "Terdapat ralat semasa memuatkan projek.",
+  "selectSceneMsg": "Pilih Adegan untuk mula bermain dengan enjin",
+  "error": "Ralat",
+  "errorMsg": "Terdapat ralat yang tidak diketahui.",
+  "generateScreenshot": "Menjana Tangkapan Skrin Projek",
+  "generateScreenshotMsg": "Menjana tangkapan skrin projek...",
+  "newScene": "Buat Adegan",
+  "saving": "Projek Penjimatan",
+  "savingMsg": "Menjimatkan projek...",
+  "savingError": "Projek Penjimatan Ralat",
+  "savingErrorMsg": "Terdapat ralat semasa menyimpan projek.",
+  "savingSceneErrorMsg": "Adegan tidak dimuatkan dengan betul. Cuba muat semula tempat kejadian.",
+  "duplicating": "Projek Pendua",
+  "duplicatingMsg": "Projek pendua...",
+  "exporting": "Mengeksport Projek",
+  "exportingMsg": "Mengeksport projek...",
+  "exportingError": "Ralat Mengeksport Projek",
+  "exportingErrorMsg": "Terdapat ralat semasa mengeksport projek.",
+  "importLegacy": "Import Legacy World",
+  "importLegacyMsg": "Amaran! Ini akan menulis ganti adegan sedia ada anda! Adakah awda pasti hendak meneruskan?",
+  "publishingError": "Projek Penerbitan Ralat",
+  "publishingErrorMsg": "Terdapat ralat yang tidak diketahui.",
+  "publishingScene": "Adegan Penerbitan",
+  "publishingSceneMsg": "Adegan penerbitan...",
+  "uploadingThumbnailMsg": "Memuat naik lakaran kecil...",
+  "uploadingSceneMsg": "Memuat naik adegan: {{percentage}}%",
+  "envMapError": "Ralat memuatkan imej peta kiub {{files}}",
+  "lbl-return": "Kembali",
+  "menubar": {
+    "newScene": "Adegan Baru",
+    "saveScene": "Simpan Adegan",
+    "saveAs": "Simpan Sebagai",
+    "importAsset": "Import Aset",
+    "exportGLB": "Eksport sebagai glTF binari (.glb) ...",
+    "importScene": "Import adegan",
+    "exportScene": "Adegan eksport",
+    "quit": "Keluar"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Jenis fail yang tidak disokong untuk fail: \"{{name}}\". Fail mestilah model imej, video atau glb.",
+    "addObject": "addObject: sebelum objek tidak ditemui",
+    "removeObject": "removeObject: nod tidak ditemui. Ini disebabkan oleh mengeluarkan nod yang tidak lagi berada di tempat kejadian.",
+    "noParent": "{{node}} \"{{name}}\" tidak memiliki orang tua. Reparent hanya berfungsi pada objek yang sedang berada di tempat kejadian.",
+    "undefinedParent": "editor.reparent: newParent tidak ditakrif",
+    "notAuthenticated": "Tidak disahkan",
+    "fetchingProjectError": "Ralat mengambil projek: {{error}}",
+    "fetchingRouteError": "Ralat mengambil laluan: {{error}}",
+    "unknownError": "Ralat tidak diketahui",
+    "resolveURL": "Ralat menyelesaikan url \"{{url}}\":",
+    "mediaSearchAborted": "Carian media dihenti paksa",
+    "methodNotImplemented": "Kaedah tidak dilaksanakan.",
+    "saveProjectAborted": "Simpan adegan dihenti paksa",
+    "unsavedChanges": "Perubahan Tidak Disimpan",
+    "unsavedChangesMsg": "Tempat kejadian telah diubahsuai. Sila simpan perubahan anda.",
+    "projectCreationFail": "Penciptaan projek gagal. {{reason}}",
+    "projectDeletionFail": "Penghapusan projek gagal. {{reason}}",
+    "savingProjectFail": "Projek Simpanan gagal. {{reason}}",
+    "sceneTooLarge": "Adegan terlalu besar ({{size}} MB) untuk diterbitkan. Saiz maksimum ialah {{maxSize}} MB.",
+    "sceneCreationFail": "Penciptaan adegan gagal. {{reason}}",
+    "uploadAborted": "Muat naik dihenti paksa",
+    "uploadFailed": "Muat naik {{reason}} gagal",
+    "assetDeletionFail": "Penghapusan aset gagal. {{reason}}",
+    "projectAssetDeletionFail": "Penghapusan Aset Projek gagal. {{reason}}",
+    "networkError": "Ralat Rangkaian: {{status}}. {{text}}",
+    "unknownStatus": "Status Tidak Diketahui",
+    "CORS": "Mungkin ralat CORS",
+    "urlFetchError": "Gagal mengambil \"{{url}}\""
+  },
+  "viewport": {
+    "title": "Port Pandangan",
+    "command": {
+      "movecamera": "Alih Kamera",
+      "flyFast": "Terbang lebih cepat",
+      "orbit": "Orbit / Pilih",
+      "pan": "Pan",
+      "fly": "Terbang",
+      "focus": "Fokus",
+      "rotateLeft": "Putar ke Kiri",
+      "rotateRight": "Putar Ke Kanan",
+      "cancelPlacement": "Batalkan Penempatan",
+      "placeDuplicate": "Letakkan Pendua",
+      "cancelGrab": "Batalkan Grab",
+      "grab": "Merebut",
+      "deselectAll": "Nyahpilih Semua"
+    },
+    "state": {
+      "header": "Statistik",
+      "memory": "Memori",
+      "geometries": "Geometri",
+      "textures": "Tekstur",
+      "render": "Menyebabkan",
+      "FPS": "FPS",
+      "frameTime": "Masa Bingkai",
+      "calls": "Panggilan",
+      "triangles": "Segitiga",
+      "points": "Mata",
+      "lines": "Garisan"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Menerbitkan",
+    "lbl-published": "Diterbitkan",
+    "command": {
+      "translate": "Menterjemah",
+      "rotate": "Putar",
+      "scale": "Skala",
+      "toggleSpace": "Togol Ruang Transform",
+      "togglePivot": "Togol Transform Pivot",
+      "toggleSnapMode": "Togol Mod Snap",
+      "toggleGrid": "Togol Keterlihatan Grid",
+      "increaseGridSize": "Meningkatkan Saiz Grid",
+      "descreaseGridSize": "Kurangkan Saiz Grid",
+      "stopPreview": "Berhenti Pratonton Adegan",
+      "playPreview": "Adegan Pratonton"
+    }
+  },
+  "properties": {
+    "title": "Hartanah",
+    "lbl-visible": "Kelihatan",
+    "lbl-preventBake": "Mencegah Bakar",
+    "lbl-persist": "Berterusan",
+    "multipleNodeSelected": "Berbilang Nod pelbagai jenis dipilih",
+    "noNodeSelected": "Tiada nod dipilih",
+    "ambientLight": {
+      "name": "Cahaya Ambien",
+      "description": "Sebuah cahaya yang menerangi semua objek di tempat kejadian Anda.",
+      "lbl-intensity": "Keamatan",
+      "lbl-color": "Warna"
+    },
+    "envmap": {
+      "name": "Peta Persekitaran",
+      "description": "sifat peta persekitaran"
+    },
+    "asset": {
+      "name": "Aset",
+      "description": "Kumpulan komponen tempat kejadian yang boleh dimuatkan dan dipunggah secara dinamik",
+      "lbl-options": "Pilihan",
+      "lbl-assetPath": "Laluan Aset",
+      "lbl-assetName": "Nama Eksport",
+      "lbl-exportOptions": "Opsyen Eksport",
+      "lbl-export": "Aset Eksport",
+      "lbl-load": "Muatkan ke tempat kejadian",
+      "lbl-unload": "Memunggah",
+      "lbl-reload": "Muat semula"
+    },
+    "audio": {
+      "name": "Audio",
+      "description": "Memuatkan audio secara dinamik.",
+      "lbl-audiourl": "Audio Url",
+      "lbl-controls": "Kawalan",
+      "info-controls": "Togol keterlihatan kawalan media.",
+      "lbl-autoplay": "Main Auto",
+      "info-autoplay": "Jika benar, media akan dimainkan bila mula-mula memasuki tempat kejadian.",
+      "lbl-synchronize": "Menyegerakkan",
+      "info-synchronize": "Jika benar, media akan Disegerakkan pada semua klien yang tersambung.",
+      "lbl-loop": "Gelung",
+      "info-loop": "Jika benar media akan loop selama-lamanya.",
+      "lbl-audioType": "Jenis Audio",
+      "lbl-distanceModel": "Model Jarak",
+      "info-distanceModel": "Algorithim digunakan untuk menghitung rolloff audio.",
+      "lbl-rolloffFactor": "Faktor Rolloff",
+      "info-rolloffFactor": "Nilai berganda yang menerangkan seberapa cepat kelantangan dikurangkan apabila sumber bergerak jauh dari pendengar. 0 hingga 1",
+      "info-rfInfinity": "Nilai berganda yang menerangkan seberapa cepat kelantangan dikurangkan apabila sumber bergerak jauh dari pendengar. 0 ke Infiniti",
+      "lbl-refDistance": "Jarak Ref",
+      "info-refDistance": "Nilai berganda yang mewakili jarak rujukan untuk mengurangkan kelantangan apabila sumber audio bergerak lebih jauh daripada pendengar.",
+      "lbl-maxDistance": "Jarak Maksimum",
+      "info-maxDistance": "Nilai berganda yang mewakili jarak maksimum antara sumber audio dan pendengar, selepas itu kelantangan tidak dikurangkan lagi.",
+      "lbl-coneInnerAngle": "Sudut Dalaman Cone",
+      "info-coneInnerAngle": "Nilai berganda yang menggambarkan sudut, dalam darjah, kon di dalamnya tidak akan ada pengurangan kelantangan.",
+      "lbl-coneOuterAngle": "Sudut Luar Cone",
+      "info-coneOuterAngle": "Nilai berganda yang menerangkan sudut, dalam darjah, kon di luar mana jumlah akan dikurangkan dengan nilai malar, yang ditakrifkan oleh atribut coneOuterGain.",
+      "lbl-coreOuterGain": "Keuntungan Luar Cone",
+      "info-coreOuterGain": "Nilai berganda yang menerangkan jumlah pengurangan kelantangan di luar kon yang ditakrifkan oleh atribut coneOuterAngle. Nilai lalainya ialah 0, bermakna tiada bunyi boleh didengar.",
+      "lbl-volume": "Kelantangan",
+      "lbl-play": "Bermain",
+      "lbl-pause": "Jeda",
+      "error-url": "Ralat Memuatkan Daripada URL"
+    },
+    "boxCollider": {
+      "description": "Kotak yang tidak kelihatan bahawa objek akan melantun atau berehat di atas.\nTanpa colliders, objek akan jatuh melalui lantai dan melalui dinding.",
+      "lbl-isTrigger": "Mencetuskan"
+    },
+    "camera": {
+      "name": "Kamera",
+      "description": "Seting kamera.",
+      "lbl-camera-raycast": "Raycasting Kamera",
+      "lbl-camera-raycast-toggle": "Didayakan",
+      "lbl-camera-raycast-frequency": "Kekerapan",
+      "lbl-camera-raycast-count": "Kiraan Ray",
+      "lbl-camera-raycast-length": "Panjang Ray"
+    },
+    "directionalLight": {
+      "name": "Cahaya Arah",
+      "description": "Sebuah cahaya yang menerangi seluruh adegan, tapi memancarkan sepanjang satu arah.",
+      "lbl-color": "Warna",
+      "lbl-intensity": "Keamatan",
+      "lbl-cameraFar": "Kamera Jauh",
+      "lbl-cameraNear": "Kamera Berhampiran",
+      "lbl-cameraTop": "Bahagian Atas Kamera",
+      "lbl-cameraBottom": "Bahagian Bawah Kamera",
+      "lbl-cameraLeft": "Kamera Kiri",
+      "lbl-cameraRight": "Kamera Kanan",
+      "lbl-useInCSM": "Gunakan dalam CSM",
+      "lbl-castShadow": "Bayang-bayang Pelakon",
+      "lbl-disableForCSM": "Dinyahdayakan kerana peta bayang Lata didayakan.",
+      "lbl-shadowmapResolution": "Resolusi Peta Bayang",
+      "lbl-shadowBias": "Bias Bayang-bayang",
+      "lbl-shadowRadius": "Jejari Bayang",
+      "lbl-showCameraHelper": "Tunjukkan Pembantu Kamera"
+    },
+    "groundPlane": {
+      "name": "Pesawat Tanah",
+      "description": "Sebuah pesawat tanah datar yang meluas ke ke kejauhan.",
+      "lbl-color": "Warna",
+      "lbl-receiveShadow": "Terima Bayang",
+      "lbl-generateNavmesh": "Jana Navmesh"
+    },
+    "link": {
+      "description": "Pautan ke bilik atau laman web.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "Peta geospatial 3D contohnya sebuah bandar."
+    },
+    "model": {
+      "description": "Model 3D dalam adegan anda, dimuatkan dari URL atau fail GLTF.",
+      "lbl-usingGPUInstancingFlag": "Guna Pengindanan GPU",
+      "lbl-modelurl": "Model Url",
+      "lbl-envmapUrl": "Url Peta Persekitaran",
+      "lbl-textureOverride": "Mengatasi Tekstur",
+      "lbl-materialOverride": "Penggantian Bahan",
+      "error-url": "Ralat Memuatkan Daripada URL",
+      "lbl-loopAnimation": "Animasi Gelung",
+      "lbl-isAvatar": "Adakah Avatar",
+      "lbl-isGPUInstancing": "Adakah Menggunakan GpU Instancing",
+      "lbl-isDynamic": "Adakah Dinamik",
+      "lbl-castShadow": "Bayang-bayang Pelakon",
+      "lbl-receiveShadow": "Terima Bayang",
+      "lbl-interactable": "Boleh berinteraksi",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Nama",
+      "lbl-url": "Model Url",
+      "lbl-buy": "Beli Url",
+      "lbl-learnMore": "Ketahui Lebih Lanjut Url",
+      "lbl-htmlContent": "Kandungan Html",
+      "lbl-interactionText": "Teks Interaksi",
+      "lbl-interactionType": "Jenis Interaksi"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Bahan",
+      "error-materialID": "Ralat mencari Bahan",
+      "placeholder-materialID": "Pilih Bahan",
+      "lbl-patternTarget": "Padanan Corak",
+      "lbl-pattern": "Corak",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Jenis Interaksi",
+      "text": "Teks Interaksi",
+      "distance": "Jarak Interaksi",
+      "theme": "Tema Interaksi",
+      "name": "Nama Interaksi",
+      "description": "Penerangan Interaksi",
+      "images": "Imej Interaksi",
+      "videos": "Video Interaksi",
+      "urls": "Urls Interaksi",
+      "models": "Model Interaksi"
+    },
+    "group": {
+      "name": "Kumpulan",
+      "description": "Sekumpulan berbilang objek yang boleh dialihkan atau diduplikasi bersama.\nSeret dan lepaskan objek ke dalam Kumpulan dalam Hierarki."
+    },
+    "hemisphere": {
+      "name": "Cahaya Hemisfera",
+      "description": "Sebuah cahaya yang menerangi adegan dari langsung overhed.",
+      "lbl-skyColor": "Warna Langit",
+      "lbl-groundColor": "Warna Tanah",
+      "lbl-intensity": "Keamatan"
+    },
+    "image": {
+      "name": "Imej",
+      "description": "Secara dinamik memuatkan imej.",
+      "lbl-imgURL": "Url Imej",
+      "lbl-transparency": "Mod Ketelusan",
+      "lbl-alphaCutoff": "Alpha Cutoff",
+      "lbl-projection": "Unjuran",
+      "lbl-side": "Sampingan",
+      "info-controls": "Togol keterlihatan kawalan media.",
+      "info-transparency": "Cara menggunakan ketelusan:",
+      "info-opaque": "'opaque' = tiada ketelusan",
+      "info-blend": "'blend' = gunakan saluran alfa imej",
+      "info-mask": "'mask' = Gunakan nilai cutoff yang ditentukan untuk kelutsinaran hidup/mati (lebih banyak performan)",
+      "info-alphaCutoff": "Piksel dengan nilai alfa yang lebih rendah daripada ini akan telus",
+      "error-url": "URL tidak sah"
+    },
+    "name": {
+      "lbl-name": "Nama"
+    },
+    "partileEmitter": {
+      "description": "Pemancar zarah untuk membuat zarah.",
+      "lbl-particleCount": "Kiraan Zarah",
+      "lbl-image": "Imej",
+      "lbl-ageRandomness": "Rawak Umur",
+      "lbl-lifetime": "Seumur hidup",
+      "lbl-lifetimeRandomness": "Rawak Sepanjang Hayat",
+      "lbl-sizeCurve": "Lengkung Saiz",
+      "lbl-startPSize": "Mulakan Saiz Zarah",
+      "lbl-endPSize": "Saiz Zarah Akhir",
+      "lbl-sizeRandomness": "Rawak Saiz",
+      "lbl-colorCurve": "Lengkung Warna",
+      "lbl-startColor": "Mula Warna",
+      "lbl-startOpacity": "Mulakan Kelegapan",
+      "lbl-middleColor": "Warna Tengah",
+      "lbl-middleOpacity": "Kelegapan Tengah",
+      "lbl-endColor": "Warna Akhir",
+      "lbl-endOpacity": "Tamatkan Kelegapan",
+      "lbl-velocityCurve": "Lengkung Halaju",
+      "lbl-startVelocity": "Mulakan Halaju",
+      "lbl-endVelocity": "Halaju Akhir",
+      "lbl-angularVelocity": "Halaju Sudut",
+      "info-ageRandomness": "Jumlah variasi antara apabila zarah dibiak.",
+      "info-lifetime": "Umur maksimum zarah sebelum ia diresawned.",
+      "info-lifetimeRandomness": "Jumlah variasi antara hayat zarah.",
+      "info-sizeRandomness": "Jumlah variasi antara saiz permulaan zarah.",
+      "error-url": "Ralat Memuatkan Daripada URL"
+    },
+    "clouds": {
+      "name": "Awan",
+      "description": "Isipadu awan berasaskan Sprite.",
+      "lbl-image": "Imej Sprite",
+      "lbl-wroldScale": "Skala Dunia",
+      "lbl-dimensions": "Dimensi",
+      "lbl-noiseZoom": "Zum Bunyi",
+      "lbl-noiseOffset": "Ofset Bunyi",
+      "lbl-spriteScale": "Skala Sprite",
+      "lbl-fogColor": "Warna Kabus",
+      "lbl-fogRange": "Julat Kabus",
+      "error-url": "Ralat Memuatkan Daripada URL"
+    },
+    "ocean": {
+      "name": "Ocean",
+      "description": "Permukaan laut dengan gelombang dan buih",
+      "lbl-normalMap": "Peta Normal",
+      "lbl-distortionMap": "Peta Herotan",
+      "lbl-envMap": "Peta Persekitaran",
+      "lbl-color": "Warna",
+      "lbl-shallowWaterColor": "Warna Air cetek",
+      "lbl-shallowToDeepDistance": "Cetek ke Jarak Dalam",
+      "lbl-opacityFadeDistance": "Jarak Pudar Kelegapan",
+      "lbl-opacityRange": "Julat Kelegapan",
+      "lbl-shininess": "Shininess",
+      "lbl-reflectivity": "Reflektiviti",
+      "lbl-foamColor": "Warna Buih",
+      "lbl-foamSpeed": "Kelajuan Buih",
+      "lbl-foamTiling": "Jubin Buih",
+      "lbl-bigWaveTiling": "Jubin Gelombang Besar",
+      "lbl-bigWaveSpeed": "Kelajuan Gelombang Besar",
+      "lbl-bigWaveHeight": "Ketinggian Gelombang Besar",
+      "lbl-waveSpeed": "Kelajuan Gelombang",
+      "lbl-waveScale": "Skala Gelombang",
+      "lbl-waveTiling": "Jubin Gelombang",
+      "lbl-waveDistortionSpeed": "Kelajuan Herotan Gelombang",
+      "lbl-waveDistortionTiling": "Jubin Penyimpangan Gelombang",
+      "error-url": "Ralat Memuatkan Daripada URL"
+    },
+    "water": {
+      "name": "Air",
+      "description": "Permukaan air kecil"
+    },
+    "interior": {
+      "name": "Dalaman",
+      "description": "Permukaan dengan tekstur kiub yang dipetakan untuk mencontohi persekitaran dalaman",
+      "lbl-cubeMap": "Tekstur Peta Kiub",
+      "lbl-tiling": "Jumlah jubin",
+      "lbl-size": "Saiz permukaan",
+      "error-url": "Ralat Memuatkan Daripada URL"
+    },
+    "pointLight": {
+      "description": "Sebuah cahaya yang memancarkan di semua arah dari satu titik.",
+      "lbl-color": "Warna",
+      "lbl-intensity": "Keamatan",
+      "lbl-range": "Pelbagai",
+      "lbl-decay": "Reput"
+    },
+    "scene": {
+      "name": "Adegan",
+      "description": "Objek akar tempat kejadian.",
+      "lbl-bgcolor": "Warna Latar Belakang",
+      "lbl-fogType": "Jenis Kabus",
+      "lbl-fogColor": "Warna Kabus",
+      "lbl-forNearDistance": "Kabus berhampiran jarak",
+      "lbl-fogFarDistance": "Kabus Jarak Jauh",
+      "lbl-fogDensity": "Ketumpatan Kabus",
+      "lbl-audioSettings": "Gunakan Audio Kedudukan",
+      "lbl-avatarDistanceModel": "Model Jarak Avatar",
+      "lbl-avatarRolloffFactor": "Faktor Rolloff Avatar",
+      "lbl-avatarRefDistance": "Jarak Avatar Ref",
+      "lbl-avatarMaxDistance": "Jarak Avatar Max",
+      "lbl-mediaVolume": "Isipadu Media",
+      "lbl-mediaDistanceModel": "Model Jarak Media",
+      "lbl-mediaRolloffFactor": "Faktor Rolloff Media",
+      "lbl-mediaRefDistance": "Media Ref Jarak",
+      "lbl-mediaMaxDistance": "Jarak Media Max",
+      "lbl-mediaConeInnerAngle": "Sudut Dalam Kon Media",
+      "lbl-mediaConeOuterAngle": "Sudut Luar Kon Media",
+      "lbl-mediaConeOuterGain": "Media Cone Outer Gain",
+      "info-avatarDistanceModel": "Algorithim digunakan untuk menghitung rolloff audio.",
+      "info-avatarRolloffFactor": "Nilai berganda yang menerangkan seberapa cepat kelantangan dikurangkan apabila sumber bergerak jauh dari pendengar. 0 hingga 1",
+      "info-avatarRolloffFactorInifinity": "Nilai berganda yang menerangkan seberapa cepat kelantangan dikurangkan apabila sumber bergerak jauh dari pendengar. 0 ke Infiniti",
+      "info-avatarRefDistance": "Nilai berganda yang mewakili jarak rujukan untuk mengurangkan kelantangan apabila sumber audio bergerak lebih jauh daripada pendengar.",
+      "info-avatarMaxDistance": "Nilai berganda yang mewakili jarak maksimum antara sumber audio dan pendengar, selepas itu kelantangan tidak dikurangkan lagi.",
+      "info-mediaDistanceModel": "Algorithim digunakan untuk menghitung rolloff audio.",
+      "info-mediaRolloffFactor": "Nilai berganda yang menerangkan seberapa cepat kelantangan dikurangkan apabila sumber bergerak jauh dari pendengar. 0 hingga 1",
+      "info-mediaRolloffFactorInfinity": "Nilai berganda yang menerangkan seberapa cepat kelantangan dikurangkan apabila sumber bergerak jauh dari pendengar. 0 ke Infiniti",
+      "info-mediaRefDistance": "Nilai berganda yang mewakili jarak rujukan untuk mengurangkan kelantangan apabila sumber audio bergerak lebih jauh daripada pendengar.",
+      "info-mediaMaxDistance": "Nilai berganda yang mewakili jarak maksimum antara sumber audio dan pendengar, selepas itu kelantangan tidak dikurangkan lagi.",
+      "info-mediaConeInnerAngle": "Nilai berganda yang menggambarkan sudut, dalam darjah, kon di dalamnya tidak akan ada pengurangan kelantangan.",
+      "info-mediaConeOuterAngle": "Nilai berganda yang menerangkan sudut, dalam darjah, kon di luar mana jumlah akan dikurangkan dengan nilai malar, yang ditakrifkan oleh atribut coneOuterGain.",
+      "info-mediaConeOuterGain": "Nilai berganda yang menerangkan jumlah pengurangan kelantangan di luar kon yang ditakrifkan oleh atribut coneOuterAngle. Nilai lalainya ialah 0, bermakna tiada bunyi boleh didengar.",
+      "lbl-simpleMaterials": "Gunakan Bahan Mudah",
+      "lbl-lods": "LOD",
+      "info-lods": "Tetapkan jarak di mana tahap perubahan terperinci.",
+      "info-simpleMaterials": "Menukar semua bahan mahal kepada yang lebih mudah untuk mengambil beban dari persembahan adegan.",
+      "lbl-rendererSettings": "Batalkan Seting Pemberi Renderer",
+      "lbl-csm": "Peta Bayang Lata",
+      "info-csm": "Mendayakan peta bayang melata.",
+      "lbl-toneMapping": "Pemetaan Nada",
+      "info-toneMapping": "Membolehkan pemetaan nada pada penerap tempat kejadian. Tidak mempunyai kesan apabila pemprosesan pos didayakan.",
+      "lbl-toneMappingExposure": "Pendedahan Pemetaan Nada",
+      "info-toneMappingExposure": "Nyatakan pendedahan pemetaan nada pada penerap tempat kejadian. Tidak mempunyai kesan apabila pemprosesan pos didayakan.",
+      "lbl-shadowMapType": "Jenis Peta Bayang",
+      "info-shadowMapType": "Jenis peta bayang",
+      "error-url": "Ralat Memuatkan Daripada URL"
+    },
+    "sceneCamera": {
+      "name": "Kamera Pratonton Adegan",
+      "description": "Kamera yang digunakan untuk menjana lakaran kecil untuk adegan anda dan kedudukan permulaan untuk kamera pratonton.",
+      "lbl-setFromViewPort": "Set Dari Port Pandangan"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Masa Hari",
+      "lbl-color": "Warna",
+      "lbl-latitude": "Latitud",
+      "lbl-luminance": "Luminance",
+      "lbl-scattering": "Amaun Berselerak",
+      "lbl-scatteringDistance": "Jarak Berselerak",
+      "lbl-horizonStart": "Horizon Mula",
+      "lbl-horizonEnd": "Tamat Horizon",
+      "lbl-texture": "Tekstur",
+      "lbl-skyType": "Jenis Langit",
+      "error-url": "Ralat Memuatkan Daripada URL"
+    },
+    "spawnPoint": {
+      "name": "Titik bertelur",
+      "description": "Titik di mana orang akan muncul apabila mereka memasuki tempat kejadian anda.\nIkon dalam Viewport mewakili saiz sebenar avatar."
+    },
+    "spotLight": {
+      "description": "Sebuah cahaya yang memancarkan sepanjang arah, menerangi objek dalam kerucut.",
+      "lbl-color": "Warna",
+      "lbl-intensity": "Keamatan",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "Sudut",
+      "lbl-range": "Pelbagai",
+      "lbl-decay": "Reput"
+    },
+    "transform": {
+      "title": "Mengubah",
+      "lbl-postition": "Kedudukan",
+      "lbl-rotation": "Putaran",
+      "lbl-scale": "Skala"
+    },
+    "triggereVolume": {
+      "description": "Tetapkan sifat pada objek sasaran semasa masuk dan keluar.",
+      "lbl-target": "Objek",
+      "lbl-onenter": "Semasa Masuk",
+      "lbl-onexit": "Semasa Keluar",
+      "lbl-showHelper": "Tunjukkan Mesh Pembantu",
+      "ph-errorNode": "Ralat nod hilang.",
+      "ph-selectNode": "Pilih nod..."
+    },
+    "video": {
+      "name": "Video",
+      "description": "Memuatkan video secara dinamik.",
+      "lbl-video": "Video",
+      "lbl-projection": "Unjuran",
+      "lbl-islivestream": "Strim Langsung",
+      "lbl-interactable": "Boleh berinteraksi",
+      "lbl-id": "Element Id",
+      "lbl-play": "Bermain",
+      "lbl-pause": "Jeda",
+      "error-url": "Ralat Memuatkan Daripada URL"
+    },
+    "volumetric": {
+      "name": "Volumetrik",
+      "description": "Secara dinamik memuatkan video volumetrik.",
+      "uvolPaths": "Laluan UVOL",
+      "playmode": "Mod Main",
+      "playtitle": "Bermain",
+      "pausetitle": "Jeda"
+    },
+    "spline": {
+      "description": "Buat dan sesuaikan lengkung secara dinamik.",
+      "lbl-addNode": "Tambah nod ke lengkung."
+    },
+    "systemnode": {
+      "description": "Lampirkan skrip.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "Titik Suntikan",
+      "lbl-enableClient": "Pelanggan",
+      "lbl-enableServer": "Pelayan",
+      "lbl-args": "Args",
+      "error-url": "Ralat Memuatkan Skrip Dari URL"
+    },
+    "portal": {
+      "lbl-portal": "Portal Terpaut",
+      "lbl-redirect": "Gunakan Ubah Hala Halaman",
+      "description": "Portat ke pemain teleport ke lokasi yang ditentukan",
+      "lbl-locationName": "Lokasi",
+      "lbl-modelUrl": "Model URL",
+      "lbl-displayText": "Paparkan Teks",
+      "lbl-cubemapBake": "Bakar Cubemap",
+      "lbl-spawnPosition": "Kedudukan Spawn",
+      "lbl-spawnRotation": "Putaran Spawn",
+      "lbl-triggerPosition": "Kedudukan Pencetus",
+      "lbl-triggerRotation": "Putaran Pencetus",
+      "lbl-triggerScale": "Skala Pencetus"
+    },
+    "postprocessing": {
+      "name": "Pemprosesan Pasca",
+      "description": "Untuk menggunakan kesan Pemprosesan Pasca pada tempat kejadian anda."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Projek Baru",
+      "backLink": "Kembali ke projek",
+      "featured": "Diketengahkan",
+      "all": "Semua",
+      "newProject": "Projek Kosong Baru",
+      "ph-search": "Cari adegan..."
+    },
+    "grid": {
+      "loading": "Memuatkan..."
+    },
+    "page": {
+      "header": "Selamat datang",
+      "headerMsg": "Sekiranya anda baru di sini, kami mengesyorkan melalui tutorial. Jika tidak, masuk dan buat projek dari awal atau dari salah satu templat kami.",
+      "lbl-startTutorial": "Mulakan Tutorial",
+      "projects": "Projek",
+      "lbl-newProject": "Projek Baru"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Memuatkan...",
+      "placeObject": "Letakkan Objek",
+      "placeObjectAtOrigin": "Letakkan Objek di Asal",
+      "copyURL": "Salin URL",
+      "openInNewTab": "Buka URL dalam Tab Baru",
+      "deleteAsset": "Hapuskan Aset"
+    },
+    "filebrowser": {
+      "addNewFolder": "Tambah Folder Baru",
+      "cutAsset": "Memotong",
+      "copyAsset": "Menyalin",
+      "pasteAsset": "Tampal",
+      "renameAsset": "Menamakan semula",
+      "viewAssetProperties": "Lihat Hartanah"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Menamakan semula",
+    "lbl-duplicate": "Pendua",
+    "lbl-group": "Kumpulan",
+    "lbl-delete": "Menghapuskan",
+    "lbl-expandAll": "Kembangkan Semua",
+    "lbl-collapseAll": "Runtuhkan Semua",
+    "isseus": "Isu:"
+  },
+  "dnd": {
+    "nodes": "nod {{count}} dipilih",
+    "models": "Model {{count}} Dipilih",
+    "images": "Imej {{count}} Dipilih",
+    "videos": "Video {{count}} Dipilih",
+    "audio": "{{count}} Sumber Audio Dipilih"
+  },
+  "dialog": {
+    "title": "Editor",
+    "lbl-confirm": "Ok",
+    "lbl-cancel": "Membatalkan",
+    "exportProject": {
+      "title": "Projek Eksport",
+      "lbl-confirm": "Projek Eksport",
+      "lbl-combineMesh": "Gabungkan Meshes",
+      "lbl-removeUnused": "Alih Keluar Objek Yang Tidak Digunakan"
+    },
+    "performance": {
+      "title": "Semakan Prestasi",
+      "lbl-confirm": "Terbitkan Adegan",
+      "learnMore": "Belajar lagi",
+      "lbl-polycount": "Kiraan Poligon",
+      "lbl-material": "Bahan",
+      "lbl-texture": "Tekstur",
+      "lbl-lights": "Lampu",
+      "lbl-fileSize": "Saiz Fail",
+      "info-polycount": "Kami mengesyorkan adegan anda menggunakan tidak lebih daripada 50,000 segi tiga untuk peranti mudah alih.",
+      "info-material": "Kami mengesyorkan menggunakan tidak lebih daripada 25 bahan unik dalam adegan anda untuk mengurangkan panggilan menarik pada peranti mudah alih.",
+      "info-texture": "Kami mengesyorkan tekstur anda menggunakan tidak lebih daripada 256MB RAM video untuk peranti mudah alih. Kami juga mengesyorkan agar tidak menggunakan tekstur yang lebih besar daripada 2048 x 2048.",
+      "info-lights": "Walaupun lampu dinamik tidak didayakan pada peranti mudah alih, kami mengesyorkan menggunakan tidak lebih daripada 3 lampu di tempat kejadian anda (tidak termasuk lampu ambien dan hemisfera) untuk adegan anda berjalan pada PC hujung rendah.",
+      "info-fileSize": "Kami mengesyorkan saiz fail akhir tidak lebih daripada 16MB untuk sambungan lebar jalur yang rendah. Mengurangkan saiz fail akan mengurangkan masa yang diperlukan untuk memuat turun adegan anda.",
+      "txt-polycount": "Segitiga {{count}}",
+      "txt-material": "Bahan {{count}}",
+      "txt-ram": "~ RAM Video{{count}}",
+      "txt-texture": "{{count}} Tekstur Besar",
+      "txt-lights": "Lampu {{count}}"
+    },
+    "progress": {
+      "title": "Memuatkan...",
+      "msg": "Memuatkan...",
+      "lbl-cancel": "Membatalkan"
+    },
+    "publish": {
+      "title": "Terbitkan Adegan",
+      "lbl-confirm": "Simpan dan Terbitkan",
+      "lbl-name": "Nama Adegan",
+      "info-name": "Nama mestilah antara 4 dan 64 aksara dan tidak boleh mengandungi garis bawah"
+    },
+    "published": {
+      "title": "Adegan Diterbitkan",
+      "header": "Adegan anda telah diterbitkan.",
+      "lbl-view": "Lihat Adegan Anda"
+    },
+    "saveNewProject": {
+      "title": "Sokongan",
+      "lbl-name": "Nama Projek",
+      "info-name": "Nama mestilah antara 4 dan 64 aksara dan tidak boleh mengandungi garis bawah",
+      "lbl-confirm": "Simpan Projek"
+    },
+    "support": {
+      "title": "Sokongan",
+      "header": "Perlu melaporkan masalah?",
+      "msg": "Anda boleh memfailkan <1>Isu GitHub</1> atau e-mel kami untuk sokongan di <3>{{mail}}</3>",
+      "discord": "Anda juga boleh mencari kami di <1>UCLA</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Imej Bing",
+      "search": "Cari mengikut Bing"
+    },
+    "bingVideo": {
+      "name": "Video Bing",
+      "search": "Cari mengikut Bing"
+    },
+    "element": {
+      "name": "Unsur"
+    },
+    "myAssets": {
+      "name": "Aset Saya"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Carian oleh Google"
+    },
+    "tenor": {
+      "name": "Gif Tenor",
+      "search": "Gelintar mengikut Tenor",
+      "ph-search": "Gelintar GIF..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Cari mengikut Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Muat Naik Aset"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Cari imej..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Gelintar video..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Gelintar aset..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Model carian..."
+    },
+    "useUpload": {
+      "multipleFileError": "Input tidak menerima berbilang fail.",
+      "mineTypeError": "\"{{name}}\" tidak cocok dengan jenis atau ekstensi mime berikut: {{types}}",
+      "progressTitle": "Memuat Naik Fail",
+      "progressMsg": "Memuat naik fail {{uploaded}} {{total}}: {{percentage}}%",
+      "uploadError": "Ralat Muat Naik",
+      "uploadErrorMsg": "Ralat memuat naik fail: {{message}}",
+      "uploadErrorDefaultMsg": "Terdapat ralat yang tidak diketahui"
+    }
+  },
+  "openLink": {
+    "description": "Sila klik Buka untuk menavigasi ke pautan.",
+    "lbl-open": "Terbuka"
+  },
+  "interactableModel": {
+    "lbl-buy": "Membeli",
+    "lbl-learnMore": "Belajar lagi"
+  },
+  "corsProxyButton": {
+    "tooltip": "Gunakan Pelayan Proksi Cors"
+  }
+}

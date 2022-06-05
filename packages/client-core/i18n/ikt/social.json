@@ -1,0 +1,202 @@
+{
+  "addComment": "Ilalugu Uqaqtatit...",
+  "share": "Atuqatigilugu",
+  "suggestions": "Ihumagiyarnik Ilingnun",
+  "seeAll": "Takulugit tamaita",
+  "likes": "Nakuugiqpiaqtait",
+  "viewComments": "Takulugit tamaita {{count}} uqautait",
+  "more": "taitai",
+  "username": "atuqtup atia",
+  "fullName": "Atia Surname",
+  "reportInApporpriate": "Uniudjutit Ihuangitut",
+  "unfollow": "Unfollow",
+  "goToPost": "Titiqqilutin",
+  "shareModal": "Atuqatigilugu",
+  "copyLink": "Aadjiliuqhimayuq Qaritaujaliqidjutikhaq",
+  "embed": "Embed",
+  "cancel": "Taimaaqtauyuq",
+  "confirm": "Tutqigharilugu",
+  "save": "Tammaqtailiniq",
+  "profilePic": "{{user}}'naunaitkutait pic",
+  "ara": "Ara",
+  "follow": "Malikhautilugit",
+  "flames": "Flames",
+  "continue": "Aullahimmaarlutik",
+  "partyInvitationSent": "Ilauyut qaitquyauyut tuyuqtauyut",
+  "arMedia": {
+    "back": "Kingumun",
+    "clip": "Clip",
+    "backgrounds": "Kangiqhidjutit",
+    "start": "Aulaqtirvia"
+  },
+  "arMediaform": {
+    "title": "Atia",
+    "type": "Qanurittuq",
+    "clip": "Clip",
+    "background": "Kangiqhidjutit",
+    "scene": "Scene",
+    "save": "Tammaqtailiniq",
+    "manifest-file": "Manifest .manifest file",
+    "audio-file": "Mp4 tutquqhimayut",
+    "dracosis-file": "Dracosis .uvol file",
+    "preview-file": "Preview image file"
+  },
+  "creator": {
+    "myVideos": "Qun'ngiararhatka",
+    "savedVideos": "Ilipqamayauyut Qun'ngiararhat",
+    "back": "Kingumun",
+    "blocked-list": "Angiyumik Titiraqhimayut",
+    "block-user": "Atauttirlugu Atuqti",
+    "dialog-content": "Takulimaitat atuqtup naunaitkutait iluaniitullu"
+  },
+  "creatorForm": {
+    "back": "Kingumun",
+    "edit": "Ihuaqhaqhimayuq Naunaitkutaa",
+    "save": "Tammaqtailiniq",
+    "changeAvatar": "Change avatar image",
+    "ph-selectPreview": "Pilugu ihivriuqlugu",
+    "ph-name": "Atiit",
+    "ph-username": "Atuqtup atia",
+    "ph-email": "Qaritaujakkut titirarvit",
+    "ph-tags": "Tags",
+    "ph-link": "Qaritaujaliqiviit",
+    "ph-aboutYou": "Amihunik ilingnut",
+    "ph-twitter": "twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Atiliurniq"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Atuqtut",
+    "feeds": "Nigidjutit",
+    "arMedia": "Qun'ngiakhaq Tuhaqtipkainikkut",
+    "editor": "Ihuaqhaqhimayuq",
+    "creator": "Creator"
+  },
+  "featured": {
+    "empty-list": "Nirilimaittut tadja ..."
+  },
+  "feed": {
+    "back": "Kingumun",
+    "related": "Ilauyut nigidjutit",
+    "is-repoted-message": "Feed-guyuq uqautauyuq!"
+  },
+  "feedForm": {
+    "back": "Kingumun",
+    "thanks": "Quana uqautigigaffi uvalu ihuaqhiyuumiqlugu nunallaavut",
+    "share": "Uqautigilugit hunat nunallaamun",
+    "upload": "Iliuraqlugu Piksasiuq",
+    "ph-selectVideo": "Pilugu Piksasiuq",
+    "preview": "Preview image",
+    "ph-selectPreview": "Pilugu ihivriuqlugu",
+    "createFeed": "Aulatitiyaangat niridjutikharnik piqaqtukhat piksasuuliuqhimayumik ihivriudjutikharnik piksamik!!!",
+    "ph-videoName": "Atinga piksasiuq",
+    "ph-type": "Naqitaqlugit hunat uqautigiyumayatit nunallaanun... ",
+    "lbl-share": "Atuqatigilugu",
+    "save": "Tammaqtaililugu Aippaalu"
+  },
+  "feedMenu": {
+    "featured": "Naunaiqhimayuq",
+    "creators": "Creators",
+    "feed": "Niridjutait"
+  },
+  "header": {
+    "lbl-volumetric": "Aktilanga"
+  },
+  "login": {
+    "account": "Maniqarviqaqqa?",
+    "login": "Akmaijaut",
+    "resetPassword": "Reset Password Fake button (qaritauyaliqiniaqtuq qaritauyakkut titiqqilvianin)",
+    "notHavingAccount": "Atiqarviqangitpa?",
+    "signUp": "Sainiruk",
+    "forgotPassword": "Kaitkaqtauyukhanut?",
+    "back": "Kingumun",
+    "or": "IMAALUUNIIT"
+  },
+  "comment": {
+    "add": "Ilalugu uqaqtatit..."
+  },
+  "notification": {
+    "feedFire": " ikualaaqtuqaqqat nirittiaqlugu",
+    "feedBookmarked": " makpiraaq naunaiqtaa niridjutitit",
+    "comment": " uqaqtait nigidjutait:",
+    "commentFire": " ikualaaqtuq uqaqtatit nigiyaangani",
+    "follow": " aullaqtiliqtatit",
+    "unfollow": " nutqaqtitlutit",
+    "followed": " malikhautikharnik ilingnun",
+    "activity": "Huliniq"
+  },
+  "onBoarding": {
+    "welcome": "Tunngahugit!",
+    "description": "Anginiqhaq katitiqhimayut imaa 370+ havaguiqtut haffumunga iOS naunaitkutait.",
+    "next": "Tuklia",
+    "discover": "Discover articles,",
+    "news": "tuhaqtakhat",
+    "lines": "Tahapkuat mihiknarninngit pipkaidjutiyaa piqpagiyaptiknik aangajaaqtumik piumaniqmiklu.",
+    "getStarted": "Aullaqtirlutit",
+    "meetUp": "Katimaqatigilugit",
+    "friends": "ilanat.",
+    "meet": "Katimaqatigilugit ilanatit"
+  },
+  "shareForm": {
+    "arcMedia": "Atuqatigilugu",
+    "videoCreated": "Piliuqtara Una Piksasiuq",
+    "shareWithBuddies": "Uqarlugit buddies-nik",
+    "shareVideo": "Uqarlugu Piksasuuliuqhimayuq",
+    "save": "Tammaqtaililugu Piksaliut Roll",
+    "cancel": "Taimaaqtauyuq",
+    "close": "Umiktirutaa",
+    "addFeed": "Ilaliutilugit Niginiq"
+  },
+  "simpleModal": {
+    "emptyList": "Imaiyaqlugit titiraqhimayut",
+    "followers": " malikhautikharnik",
+    "following": " maliktait",
+    "flames": " mamaqhautit"
+  },
+  "splash": {
+    "screen": "Splash Piksasuuliuqhimayuq",
+    "logo": "Piksanga"
+  },
+  "story": {
+    "profilePic": "{{user}}'naunaitkutait pic"
+  },
+  "view": {
+    "cancel": "Taimaaqtauyuq",
+    "choice": "Piqaruvit malruuknik aadlatqiinik nipiliurhimayunik ilihaidjutinik tikuariami",
+    "verticalMode": "Ihuangnikkut aktilaanga piqaqtuq 30nik titiraqtaunikkut ikaangninik",
+    "horizontalMode": "Horizontal-guyuq atuqtuq piqagituq naunaipkutimik",
+    "start": "Aulaqtirvia",
+    "not-show": "Takupkarlugu",
+    "welcome": "Tunngahugitti ARC-mut!  Pilugit piksasiut attauhiqmik piksasiunik uvalu iliugaqlugu inungnun tuhaqtitiyunun!",
+    "step": "Maliktakhaq {{step}}",
+    "text-step-1": "Pilutit hologram-mik taiguarvingmit.",
+    "text-step-2": "Una Niqiliqivikmi Piqpiaq, taimaatun aadjiliuqlugu inikhaq piksaliurutimik haniraanin 3-5 seconds-mun talvani pijumajatin hologram-mik havagutimik.",
+    "text-step-3-part-1": "Nipitiqlugit takunaqhilutit humi piyumayat kihaqvikhamik.",
+    "text-step-3-part-2": "TIP!  Nipitiqlugit humi nuutiriangani hologram aalamun havaamun.",
+    "text-step-3-part-3": "TIP!  Ilitturittaaqtutin hologram-mik kakiutakkut angiklihaqluguluunniit kublutin kilgaviitlu.",
+    "text-step-4-part-1": "Double aupajaaqtumik titirarmik tuutaut aullaqtiriami piksasuuliuqhimajuq.",
+    "text-step-4-part-2": "Double aupajaaqtumik naunaitkutimik tuutaut STOP-mun."
+  },
+  "video": {
+    "back": "Kingumun"
+  },
+  "terms": {
+    "confirmTerms": "Angiqtunga Qanuriliurutikhat",
+    "confirmPolicy": "Angiqtunga Hiamitailinikkut Maliguagahanun"
+  },
+  "registration": {
+    "ph-phoneEmail": "Aturlugu hivayautaa / qaritaujakkut titirarvia",
+    "facebook": "Aulahimaaqlugu Facebookkut",
+    "google": "Aulahimaaqlutik Googlemi",
+    "linkedin": "Aulahimmaaqlugu Atadjutaa",
+    "twitter": "Aulahimaaqlutik Twittermi",
+    "gitHub": "Aulahimaaqlugu GitHub",
+    "connect": "Ilaliutilugu qaritaujakkut titirarvit hivajautikkulluunniit nampaa",
+    "logIn": "Angmaruk",
+    "LogInTo": "Titiraqlugit talvunga",
+    "continueAsGuest": "Ilauhimmaarlutik"
+  }
+}

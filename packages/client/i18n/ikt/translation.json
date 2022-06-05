@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Makpirnia Nalvaaqtaungituq"
+  },
+  "503": {
+    "msg": "503 - Atuqtakhanik Pilimaitpat"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Nutqaqtitaujutit taffumanga najugaanit",
+    "locationName": {
+      "pageTitle": "Aimavik"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Havaakhat",
+      "header": "Akmaijarlugu",
+      "welcomeMsg": "Tun'ngahuktitauyut",
+      "locationHeader": "Nayugait",
+      "projectHeader": "Havaakhat",
+      "sceneHeader": "Scenes",
+      "description": "Nutaanguguvin hamani pitquiyugut haffumuuna tutquumanikkut. Ahianut, qilgiqtut taliqpik uvalu havaklugit havaaghat qittuktaunikkut uvaluuniin attauhiqmin uuktuutiptingnun.",
+      "lbl-startTutorial": "Aulaqtirvia Tutorial",
+      "lbl-newProject": "Nutaaq Havaakhaq",
+      "lbl-createProject": "Hanalutik",
+      "lbl-newScene": "Nutaaq Scene",
+      "lbl-searchProject": "Qinirhiayut Atuqtut Havaakhat...",
+      "back": "Kingumun",
+      "contextMenu": "Piijaqtirlugu Havaakhaq",
+      "installed": "Iliuraqtauhimayut Havaakhat",
+      "official": "Ilitariyauhimayut Havaakhat",
+      "community": "Nunallaani Havaakhat",
+      "install": "Iliurailuni",
+      "uninstall": "Uninstall",
+      "rename": "Rename",
+      "createProject": "Aulatitilutik Havaaqhaq",
+      "installProject": "Iliurailuni Havaakhaq",
+      "processing": "Hanaqidjutikhangit",
+      "projectName": "Havaakhap Atia",
+      "projectURL": "Havaakhaq URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Aigguit",
+    "withStatusCode": "Ihuinaarutiqangituq {{code}} atuqtauyuq kivgaqtuqnikkut",
+    "withoutStatusCode": "Ihuittumik piyuq tuniyauyukhamik"
+  },
+  "no-projects": {
+    "msg": "Ihuittumik: Havaakhat Iliuraqtaujut - hivajadjavatit najugaani titiqiqidjutikkut"
+  },
+  "dev": {
+    "pageTitle": "Aimavik"
+  },
+  "login": {
+    "pageTitle": "Akmaijaut"
+  },
+  "workerTest": {
+    "pageTitle": "Havaktip Uuktuutaa"
+  },
+  "index": {
+    "by": "UUMANNGA",
+    "xr": "XR",
+    "foundation": "Tunngavinga",
+    "description": "Ilaani 3D inungnun uuktuutit tamainun quviagiyaangini."
+  },
+  "xrengineContact": {
+    "header": "Kahaktailutin!",
+    "description": "Quviagiyaqqut ikayuqluhi qaritauyakkut hulidjutinun, qaritauyakkut niuvaanirmun, hulilukaaqlutik aalallu ihariagiyatit.",
+    "lbl-name": "Atia",
+    "lbl-email": "Qaritaujakkut titiqq",
+    "lbl-company": "Havagvik",
+    "lbl-project": "Naunaiyailugu Havaaqhat",
+    "lbl-send": "Tuyuutigilugu",
+    "lbl-ok": "Naammaktuq",
+    "lbl-success": "Tuhaqtakhaq Tuyuqtauyukhaq, utiffaarniaqtugut.",
+    "lbl-failure": "Ihuinaagut atuqtauyuq, Plese uuktuffaaqtuq",
+    "err-username": "Titiradjavat atqit.",
+    "err-email": "Qaritauyakkut titiraqvikkut piyariaqaqtut.",
+    "err-msg": "Tunihilutit naittumik naunaiyautinik havaangnun."
+  }
+}

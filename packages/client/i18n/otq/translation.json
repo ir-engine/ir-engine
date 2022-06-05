@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 página hindi encontrada"
+  },
+  "503": {
+    "msg": "503 hontho hindi disponible"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Ar bí xi prohibido nuna ja yá 'mui",
+    "locationName": {
+      "pageTitle": "Hogar"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "'Yot'e",
+      "header": "Jaki ar mäte, inicie sesión",
+      "welcomeMsg": "Hogu̲ntso̲ho",
+      "locationHeader": "Ubicaciones",
+      "projectHeader": "'Yot'e",
+      "sceneHeader": "Escenas",
+      "description": "Nu'bu̲ Gar 'ra'yo nuwa di recomendamos thoka ja ar tutorial. Nä'ä contrario, salta Hmunts'i ne crea 'nar 'be̲fi ndezu̲ xí mpa wa ndezu̲ 'na nuestras plantillas.",
+      "lbl-startTutorial": "Da du'mi ya tutorial",
+      "lbl-newProject": "'Ra'yo 'be̲fi",
+      "lbl-createProject": "Da t'ot'",
+      "lbl-newScene": "'Ra'yo escena",
+      "lbl-searchProject": "Honi 'yot'e 'bui...",
+      "back": "Atrás",
+      "contextMenu": "Da hñäki ya 'be̲fi",
+      "installed": "'Yot'e instalados",
+      "official": "'Yot'e Oficiales",
+      "community": "'Yot'e Comunitarios",
+      "install": "Instalar",
+      "uninstall": "Desinstalar",
+      "rename": "Rebautizar",
+      "createProject": "Da t'ot'e 'be",
+      "installProject": "Instalar ar 'be̲fi",
+      "processing": "Ár nt'ot'",
+      "projectName": "Thuhuu ar 'be̲fi",
+      "projectURL": "URL ar 'be̲fi"
+    }
+  },
+  "error": {
+    "goHomeLink": "Ma ja rá nguu",
+    "withStatusCode": "Ar {{code}} producido 'nar error ja ar servidor",
+    "withoutStatusCode": "Ar xi producido 'nar error ja ar servidor"
+  },
+  "no-projects": {
+    "msg": "Error: Otho 'yot'e instalados: ga japi ar jar contacto ko 'nar administrador ar sitio"
+  },
+  "dev": {
+    "pageTitle": "Hogar"
+  },
+  "login": {
+    "pageTitle": "Da du'mi ya sesión"
+  },
+  "workerTest": {
+    "pageTitle": "Ntsa̲ pe̲fi"
+  },
+  "index": {
+    "by": "'BU̲",
+    "xr": "XR",
+    "foundation": "Fundación",
+    "description": "Aplicaciones ja ya 'mui 3D jar pa real pa ndi nga̲tho disfruten."
+  },
+  "xrengineContact": {
+    "header": "Gi nkät'i jar contacto!",
+    "description": "Ga encantaría gi fa̲xki nä'ä ko yá eventos virtuales, 'ba̲ minorista 'bede, entretenimiento ne ma'ra ndu.",
+    "lbl-name": "Thuhuu",
+    "lbl-email": "Correo electrónico",
+    "lbl-company": "Compañía",
+    "lbl-project": "Gi pede ir 'be̲fi",
+    "lbl-send": "Pe̲hni",
+    "lbl-ok": "Ar nkohi",
+    "lbl-success": "'Me̲hni pa enviado, ga pondremos jar contacto ko nu'i jar breve.",
+    "lbl-failure": "Ar xi producido 'nar error, Plese yokwi ma'nagi",
+    "err-username": "Jaki ar mäte, introduzca ár thuhuu.",
+    "err-email": "Ar requiere correo electrónico.",
+    "err-msg": "Proporcione breve pede jár 'be̲fi."
+  }
+}

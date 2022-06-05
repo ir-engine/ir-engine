@@ -1,0 +1,718 @@
+{
+  "loading": "គម្រោងផ្ទុក",
+  "loadingMsg": "គម្រោង Loading...",
+  "loadingError": "គម្រោងផ្ទុកកំហុស",
+  "loadingErrorMsg": "មាន កំហុស មួយ នៅ ពេល ផ្ទុក គម្រោង & # 160; ។",
+  "selectSceneMsg": "ជ្រើស Scene ដើម្បី ចាប់ផ្ដើម លេង ជាមួយ ម៉ាស៊ីន",
+  "error": "កំហុស",
+  "errorMsg": "មាន កំហុស ដែល មិន ស្គាល់ ។",
+  "generateScreenshot": "ការ បង្កើត អេក្រង់ គម្រោង",
+  "generateScreenshotMsg": "ការបង្កើតអេក្រង់គម្រោង...",
+  "newScene": "បង្កើត Scene",
+  "saving": "គម្រោងសន្សំប្រាក់",
+  "savingMsg": "គម្រោងសន្សំ...",
+  "savingError": "គម្រោងសន្សំកំហុស",
+  "savingErrorMsg": "មាន កំហុស មួយ នៅ ពេល សន្សំ សំចៃ គម្រោង ។",
+  "savingSceneErrorMsg": "ទិដ្ឋភាព មិន ត្រូវ បាន ផ្ទុក ឲ្យ បាន ត្រឹមត្រូវ ទេ & # 160; ។ សាកល្បងផ្ទុកទិដ្ឋភាពឡើងវិញ។",
+  "duplicating": "គម្រោង Duplicating",
+  "duplicatingMsg": "គម្រោង Duplicating...",
+  "exporting": "គម្រោងនាំចេញ",
+  "exportingMsg": "គម្រោងនាំចេញ...",
+  "exportingError": "គម្រោងនាំចេញកំហុស",
+  "exportingErrorMsg": "មាន កំហុស មួយ នៅ ពេល នាំ ចេញ គម្រោង នេះ ។",
+  "importLegacy": "ពិភពកេរដំណែលនាំចូល",
+  "importLegacyMsg": "ព្រមាន! នេះ នឹង សរសេរ ទិដ្ឋភាព ដែល មាន ស្រាប់ របស់ អ្នក លើសលប់ ! តើ អ្នក ប្រាកដ ថា អ្នក ចង់ បន្ត ឬ ទេ ?",
+  "publishingError": "គម្រោងបោះពុម្ភកំហុស",
+  "publishingErrorMsg": "មាន កំហុស ដែល មិន ស្គាល់ ។",
+  "publishingScene": "ទិដ្ឋភាពបោះពុម្ពផ្សាយ",
+  "publishingSceneMsg": "ផ្សាយផ្ទាល់ទិដ្ឋភាព...",
+  "uploadingThumbnailMsg": "ការបង្ហោះ thumbnail...",
+  "uploadingSceneMsg": "ទិដ្ឋភាពបង្ហោះ: {{percentage}}%",
+  "envMapError": "កំហុស ផ្ទុក រូបភាព cubemap {{files}}",
+  "lbl-return": "ត្រឡប់ មក វិញ",
+  "menubar": {
+    "newScene": "ទេសភាពថ្មី",
+    "saveScene": "រក្សា ទុក ទិដ្ឋភាព",
+    "saveAs": "រក្សាទុកជា",
+    "importAsset": "នាំចូល ទ្រព្យសកម្ម",
+    "exportGLB": "នាំចេញជា binary glTF (.glb) ...",
+    "importScene": "ទិដ្ឋភាពនាំចូល",
+    "exportScene": "ទិដ្ឋភាពនាំចេញ",
+    "quit": "ឈប់"
+  },
+  "errors": {
+    "fileTypeNotSupported": "{{name}}ឯកសារ ត្រូវ តែ ជា រូបភាព វីដេអូ ឬ គំរូ glb ។",
+    "addObject": "addObject: មុន វត្ថុ មិន បាន រក ឃើញ",
+    "removeObject": "removeObject: node not found. នេះ គឺ ដោយសារ តែ ការ ដក ចេញ នូវ ការ ងក់ ត្នោត ដែល លែង ស្ថិត នៅ ក្នុង កន្លែង កើត ហេតុ ទៀត ហើយ ។",
+    "noParent": "{{node}} \"{{name}}\" គ្មាន អាណាព្យាបាល ទេ ។ ការ សង ទាស់ តែ ធ្វើ ការ លើ វត្ថុ ដែល បច្ចុប្បន្ន ស្ថិត នៅ ក្នុង កន្លែង កើត ហេតុ ប៉ុណ្ណោះ ។",
+    "undefinedParent": "editor.reparent: NewParent មិន ទាន់ បាន កំណត់",
+    "notAuthenticated": "មិន ត្រូវ បាន ផ្ទៀង ផ្ទាត់",
+    "fetchingProjectError": "គម្រោង fetching កំហុស: {{error}}",
+    "fetchingRouteError": "ផ្លូវ បង្វិល កំហុស ៖ {{error}}",
+    "unknownError": "មិន ស្គាល់ កំហុស",
+    "resolveURL": "{{url}} \" :",
+    "mediaSearchAborted": "ការ ស្វែងរក ប្រព័ន្ធ ផ្សព្វផ្សាយ បាន ពន្លូត កូន",
+    "methodNotImplemented": "វិធីសាស្រ្តមិនអនុវត្ត។",
+    "saveProjectAborted": "Save scene ពន្លូត",
+    "unsavedChanges": "ការ ផ្លាស់ប្ដូរ ដែល មិន បាន រស ជាតិ",
+    "unsavedChangesMsg": "ទិដ្ឋភាព ត្រូវ បាន កែប្រែ & # 160; ។ សូមរក្សាទុកការផ្លាស់ប្តូររបស់អ្នក។",
+    "projectCreationFail": "ការ បង្កើត គម្រោង បាន បរាជ័យ ។ {{reason}}",
+    "projectDeletionFail": "ការ លុប គម្រោង បាន បរាជ័យ ។ {{reason}}",
+    "savingProjectFail": "គម្រោងសន្សំបានបរាជ័យ។ {{reason}}",
+    "sceneTooLarge": "ទេសភាពមានទំហំធំពេក ({{size}} MB) ដើម្បីបោះពុម្ពផ្សាយ។ ទំហំអតិបរមាគឺ {{maxSize}} MB។",
+    "sceneCreationFail": "ការ បង្កើត ទិដ្ឋភាព បាន បរាជ័យ ។ {{reason}}",
+    "uploadAborted": "ផ្ទុក ឡើង វិញ",
+    "uploadFailed": "ការ Upload បាន បរាជ័យ {{reason}}",
+    "assetDeletionFail": "ការ លុប ទ្រព្យ សកម្ម បាន បរាជ័យ & # 160; ។ {{reason}}",
+    "projectAssetDeletionFail": "ការ លុប ទ្រព្យ សកម្ម គម្រោង បាន បរាជ័យ ។ {{reason}}",
+    "networkError": "កំហុសបណ្តាញ: {{status}}. {{text}}",
+    "unknownStatus": "ស្ថានភាព ដែល មិន ស្គាល់",
+    "CORS": "ប្រហែល ជា កំហុស CORS",
+    "urlFetchError": "{{url}}»"
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "ផ្លាស់ទី ម៉ាស៊ីន ថត",
+      "flyFast": "ហោះហើរលឿនជាងមុន",
+      "orbit": "គន្លង / ជ្រើស",
+      "pan": "Pan",
+      "fly": "ហោះហើរ",
+      "focus": "ផ្ដោតអារម្មណ៍",
+      "rotateLeft": "បង្វិល ឆ្វេង",
+      "rotateRight": "បង្វិលស្តាំ",
+      "cancelPlacement": "លុបចោលការដាក់",
+      "placeDuplicate": "ដាក់ Duplicate",
+      "cancelGrab": "លុបចោល Grab",
+      "grab": "Grab",
+      "deselectAll": "Deselect All"
+    },
+    "state": {
+      "header": "ស្ថិតិ",
+      "memory": "អនុស្សាវរីយ៍",
+      "geometries": "ធរណីមាត្រ",
+      "textures": "វាយនភណ្ឌ",
+      "render": "ការបង្ហាញ",
+      "FPS": "FPS",
+      "frameTime": "ពេលវេលាស៊ុម",
+      "calls": "ការ ហៅ",
+      "triangles": "ត្រីកោណមាត្រ",
+      "points": "ចំណុច",
+      "lines": "បន្ទាត់"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "បោះពុម្ពផ្សាយ",
+    "lbl-published": "បានចុះផ្សាយ",
+    "command": {
+      "translate": "បកប្រែ",
+      "rotate": "បង្វិល",
+      "scale": "មាត្រដ្ឋាន",
+      "toggleSpace": "Toggle Transform Space",
+      "togglePivot": "Toggle Transform Pivot",
+      "toggleSnapMode": "របៀប ញាក់ ស្នៀត",
+      "toggleGrid": "Toggle Grid Visibility",
+      "increaseGridSize": "បង្កើន ទំហំ ក្រឡាចត្រង្គ",
+      "descreaseGridSize": "ទំហំក្រឡាចត្រង្គថយចុះ",
+      "stopPreview": "បញ្ឈប់ ទិដ្ឋភាព មើល ជា មុន",
+      "playPreview": "ទិដ្ឋភាព មើល មុន"
+    }
+  },
+  "properties": {
+    "title": "លក្ខណៈ សម្បត្តិ",
+    "lbl-visible": "មើល ឃើញ",
+    "lbl-preventBake": "ទប់ស្កាត់ការ Bake",
+    "lbl-persist": "នៅ តែ បន្ត",
+    "multipleNodeSelected": "នូដេស ច្រើន ប្រភេទ ផ្សេង គ្នា ដែល បាន ជ្រើស",
+    "noNodeSelected": "១០. ការជ្រើសរើស node",
+    "ambientLight": {
+      "name": "ពន្លឺ Ambient",
+      "description": "ពន្លឺ ដែល បំភ្លឺ វត្ថុ ទាំងអស់ នៅ ក្នុង ទិដ្ឋភាព របស់ អ្នក ។",
+      "lbl-intensity": "អាំងតង់ស៊ីតេ",
+      "lbl-color": "ពណ៌"
+    },
+    "envmap": {
+      "name": "ផែនទីបរិស្ថាន",
+      "description": "លក្ខណៈ សម្បត្តិ ផែនទី បរិស្ថាន"
+    },
+    "asset": {
+      "name": "ទ្រព្យសកម្ម",
+      "description": "ការ ដាក់ ក្រុម សមាសភាគ ឆាក ដែល អាច ផ្ទុក និង ផ្ទុក ដោយ ថាមពល",
+      "lbl-options": "ជម្រើស",
+      "lbl-assetPath": "ផ្លូវ ទ្រព្យសកម្ម",
+      "lbl-assetName": "ឈ្មោះនាំចេញ",
+      "lbl-exportOptions": "ជម្រើសនាំចេញ",
+      "lbl-export": "ទ្រព្យសកម្មនាំចេញ",
+      "lbl-load": "ផ្ទុក ទៅ ក្នុង ទិដ្ឋភាព",
+      "lbl-unload": "Unload",
+      "lbl-reload": "ផ្ទុក ឡើង វិញ"
+    },
+    "audio": {
+      "name": "អូឌីយ៉ូ",
+      "description": "Dynamically loads audio.",
+      "lbl-audiourl": "អូឌីយ៉ូ url",
+      "lbl-controls": "ការត្រួតពិនិត្យ",
+      "info-controls": "ដើម្បី ដោះ ស្រាយ ភាព មើល ឃើញ នៃ ការ គ្រប់ គ្រង ប្រព័ន្ធ ផ្សព្វ ផ្សាយ ។",
+      "lbl-autoplay": "សំលេង Auto",
+      "info-autoplay": "ប្រសិន បើ ពិត ប្រព័ន្ធ ផ្សព្វ ផ្សាយ នឹង លេង នៅ ពេល ចូល ទៅ ក្នុង កន្លែង កើត ហេតុ ជា លើក ដំបូង ។",
+      "lbl-synchronize": "២. យោគ",
+      "info-synchronize": "ប្រសិន បើ ពិត ប្រព័ន្ធ ផ្សព្វ ផ្សាយ នឹង ត្រូវ បាន ធ្វើ សមកាលកម្ម នៅ លើ អតិថិ ជន ដែល ត ភ្ជាប់ ទាំង អស់ ។",
+      "lbl-loop": "រង្វិលជុំ",
+      "info-loop": "ប្រសិន បើ ពិត ប្រព័ន្ធ ផ្សព្វ ផ្សាយ នឹង រង្វិល ជុំ ជា និរន្តរ៍ ។",
+      "lbl-audioType": "ប្រភេទអូឌីយ៉ូ",
+      "lbl-distanceModel": "ម៉ូដែលចម្ងាយ",
+      "info-distanceModel": "ក្បួន ដោះស្រាយ ដែល ប្រើ ដើម្បី គណនា rolloff អូឌីយ៉ូ ។",
+      "lbl-rolloffFactor": "កត្តា Rolloff",
+      "info-rolloffFactor": "តម្លៃ ទ្វេ ដង ដែល ពិពណ៌នា ពី កម្រិត សំឡេង ត្រូវ បាន កាត់ បន្ថយ យ៉ាង លឿន នៅ ពេល ប្រភព ផ្លាស់ ទី ចេញ ពី អ្នក ស្តាប់ ។ 0 ដល់ 1",
+      "info-rfInfinity": "តម្លៃ ទ្វេ ដង ដែល ពិពណ៌នា ពី កម្រិត សំឡេង ត្រូវ បាន កាត់ បន្ថយ យ៉ាង លឿន នៅ ពេល ប្រភព ផ្លាស់ ទី ចេញ ពី អ្នក ស្តាប់ ។ 0 ទៅ Infinity",
+      "lbl-refDistance": "ចំងាយ Ref",
+      "info-refDistance": "តម្លៃ ទ្វេ ដែល តំណាង ឲ្យ ចម្ងាយ យោង សម្រាប់ ការ កាត់ បន្ថយ កម្រិត សំឡេង នៅ ពេល ប្រភព អូឌីយ៉ូ ផ្លាស់ ប្តូរ បន្ថែម ទៀត ពី អ្នក ស្តាប់ ។",
+      "lbl-maxDistance": "ចម្ងាយអតិបរមា",
+      "info-maxDistance": "តម្លៃ ទ្វេ ដែល តំណាង ឲ្យ ចម្ងាយ អតិបរមា រវាង ប្រភព អូឌីយ៉ូ និង អ្នក ស្តាប់ បន្ទាប់ ពី នោះ កម្រិត សំឡេង មិន ត្រូវ បាន កាត់ បន្ថយ បន្ថែម ទៀត ទេ ។",
+      "lbl-coneInnerAngle": "Cone Inner មុំ",
+      "info-coneInnerAngle": "តម្លៃ ទ្វេ ដង ដែល ពិពណ៌នា ពី មុំ ក្នុង ដឺក្រេ នៃ កុង ដែល នៅ ខាង ក្នុង នោះ នឹង មិន មាន ការ កាត់ បន្ថយ កម្រិត សំឡេង ឡើយ ។",
+      "lbl-coneOuterAngle": "Cone Outer មុំ",
+      "info-coneOuterAngle": "តម្លៃ ទ្វេ ដង ដែល ពិពណ៌នា ពី មុំ ក្នុង ដឺក្រេ នៃ កុង នៅ ខាង ក្រៅ ដែល កម្រិត សំឡេង នឹង ត្រូវ បាន កាត់ បន្ថយ ដោយ តម្លៃ ថេរ ដែល កំណត់ ដោយ លក្ខណៈ coneOuterGain ។",
+      "lbl-coreOuterGain": "Cone Outer Gain",
+      "info-coreOuterGain": "តម្លៃ ទ្វេ ដង ដែល រៀបរាប់ ពី ចំនួន នៃ ការ កាត់ បន្ថយ កម្រិត សំឡេង នៅ ខាង ក្រៅ កុង ដែល បាន កំណត់ ដោយ លក្ខណៈ coneOuterAngle ។ តម្លៃ លំនាំ ដើម របស់ វា គឺ 0 ដែល មាន ន័យ ថា គ្មាន សំឡេង អាច ស្តាប់ បាន ឡើយ ។",
+      "lbl-volume": "វ៉ុល",
+      "lbl-play": "លេង",
+      "lbl-pause": "ផ្អាក",
+      "error-url": "ការ ផ្ទុក កំហុស ពី URL"
+    },
+    "boxCollider": {
+      "description": "ប្រអប់ ដែល មើល មិន ឃើញ ដែល វត្ថុ នឹង លោត ចេញ ពី ឬ សម្រាក នៅ លើ កំពូល ។\nដោយ គ្មាន ការ ប៉ះ ទង្គិច វត្ថុ នឹង ធ្លាក់ ចូល ទៅ ក្នុង កម្រាល ឥដ្ឋ ហើយ ឆ្លង កាត់ ជញ្ជាំង ។",
+      "lbl-isTrigger": "កេះ"
+    },
+    "camera": {
+      "name": "កាមេរ៉ា",
+      "description": "ការកំណត់កាមេរ៉ា។",
+      "lbl-camera-raycast": "កាមេរ៉ា Raycasting",
+      "lbl-camera-raycast-toggle": "បើក",
+      "lbl-camera-raycast-frequency": "ប្រេកង់",
+      "lbl-camera-raycast-count": "រ៉េយ រាប់",
+      "lbl-camera-raycast-length": "ប្រវែង Ray"
+    },
+    "directionalLight": {
+      "name": "ពន្លឺ ទិស",
+      "description": "ពន្លឺ មួយ ដែល បំភ្លឺ ទិដ្ឋភាព ទាំង មូល ប៉ុន្តែ បញ្ចេញ តាម ទិស ដៅ តែ មួយ ។",
+      "lbl-color": "ពណ៌",
+      "lbl-intensity": "អាំងតង់ស៊ីតេ",
+      "lbl-cameraFar": "កាមេរ៉ា Far",
+      "lbl-cameraNear": "កាមេរ៉ា ជិត",
+      "lbl-cameraTop": "កំពូលកាមេរ៉ា",
+      "lbl-cameraBottom": "បាតកាមេរ៉ា",
+      "lbl-cameraLeft": "ខាងឆ្វេងកាមេរ៉ា",
+      "lbl-cameraRight": "ស្តាំកាមេរ៉ា",
+      "lbl-useInCSM": "ប្រើក្នុង CSM",
+      "lbl-castShadow": "ស្រមោល Cast",
+      "lbl-disableForCSM": "ជនពិការ ដោយសារ ផែនទី ស្រមោល Cascade ត្រូវ បាន បើក ។",
+      "lbl-shadowmapResolution": "ដំណោះស្រាយផែនទីស្រមោល",
+      "lbl-shadowBias": "លំអៀងស្រមោល",
+      "lbl-shadowRadius": "កាំស្រមោល",
+      "lbl-showCameraHelper": "បង្ហាញ អ្នក ជួយ ម៉ាស៊ីន ថត"
+    },
+    "groundPlane": {
+      "name": "យន្តហោះក្រោមដី",
+      "description": "យន្តហោះចុះចតរាបស្មើដែលលាតសន្ធឹងទៅចម្ងាយ។",
+      "lbl-color": "ពណ៌",
+      "lbl-receiveShadow": "ទទួលបានស្រមោល",
+      "lbl-generateNavmesh": "បង្កើត Navmesh"
+    },
+    "link": {
+      "description": "តំណ ទៅ បន្ទប់ ឬ គេហទំព័រ ។",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "3D ផែនទីធរណីមាត្រនៃ ឧ. ទីក្រុង។"
+    },
+    "model": {
+      "description": "ម៉ូដែល 3D នៅ ក្នុង ទិដ្ឋភាព របស់ អ្នក ផ្ទុក ពី GLTF URL ឬ ឯកសារ ។",
+      "lbl-usingGPUInstancingFlag": "ប្រើ GPU Instancing",
+      "lbl-modelurl": "Url ម៉ូដែល",
+      "lbl-envmapUrl": "បរិស្ថានផែនទី Url",
+      "lbl-textureOverride": "វាយនភាព Override",
+      "lbl-materialOverride": "ការ រំខាន ផ្នែក សម្ភារៈ",
+      "error-url": "ការ ផ្ទុក កំហុស ពី URL",
+      "lbl-loopAnimation": "គំនូរជីវចល Loop",
+      "lbl-isAvatar": "គឺ អាវ៉ាតា",
+      "lbl-isGPUInstancing": "កំពុងប្រើ GPU instancing",
+      "lbl-isDynamic": "ជា Dynamic",
+      "lbl-castShadow": "ស្រមោល Cast",
+      "lbl-receiveShadow": "ទទួលបានស្រមោល",
+      "lbl-interactable": "ប្រាស្រ័យទាក់ទងគ្នា",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "ឈ្មោះ",
+      "lbl-url": "Url ម៉ូដែល",
+      "lbl-buy": "ទិញ Url",
+      "lbl-learnMore": "រៀនបន្ថែម Url",
+      "lbl-htmlContent": "មាតិកា Html",
+      "lbl-interactionText": "អត្ថបទអន្តរកម្ម",
+      "lbl-interactionType": "ប្រភេទអន្តរកម្ម"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "សម្ភារៈ",
+      "error-materialID": "ការ រក ឃើញ កំហុស សម្ភារៈ",
+      "placeholder-materialID": "ជ្រើស សម្ភារៈ",
+      "lbl-patternTarget": "ផ្គូផ្គងលំនាំ",
+      "lbl-pattern": "លំនាំ",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "ប្រភេទអន្តរកម្ម",
+      "text": "អត្ថបទអន្តរកម្ម",
+      "distance": "ចំងាយអន្តរកម្ម",
+      "theme": "ស្បែក អន្តរកម្ម",
+      "name": "ឈ្មោះ អន្តរកម្ម",
+      "description": "ការពិពណ៌នាអន្តរកម្ម",
+      "images": "រូបភាពអន្តរកម្ម",
+      "videos": "វីដេអូអន្តរកម្ម",
+      "urls": "្របស ើង្របស ុះ",
+      "models": "ម៉ូដអន្តរកម្ម"
+    },
+    "group": {
+      "name": "ក្រុម",
+      "description": "មួយ ក្រុម នៃ វត្ថុ ជា ច្រើន ដែល អាច ត្រូវ បាន រំកិល ឬ ចម្លង ជាមួយ គ្នា ។\nអូស និង ទម្លាក់ វត្ថុ ចូល ទៅ ក្នុង ក្រុម ក្នុង ឋានានុក្រម ។"
+    },
+    "hemisphere": {
+      "name": "ពន្លឺ អឌ្ឍគោល",
+      "description": "ពន្លឺ មួយ ដែល បំភ្លឺ កន្លែង កើត ហេតុ ពី លើ ក្បាល ដោយ ផ្ទាល់ ។",
+      "lbl-skyColor": "ពណ៌ ផ្ទៃមេឃ",
+      "lbl-groundColor": "ពណ៌ដី",
+      "lbl-intensity": "អាំងតង់ស៊ីតេ"
+    },
+    "image": {
+      "name": "រូបភាព",
+      "description": "Dynamically ផ្ទុករូបភាព។",
+      "lbl-imgURL": "Url រូបភាព",
+      "lbl-transparency": "របៀប តម្លា ភាព",
+      "lbl-alphaCutoff": "Alpha Cutoff",
+      "lbl-projection": "ការ ប៉ាន់ ស្មាន",
+      "lbl-side": "ចំហៀង",
+      "info-controls": "ដើម្បី ដោះ ស្រាយ ភាព មើល ឃើញ នៃ ការ គ្រប់ គ្រង ប្រព័ន្ធ ផ្សព្វ ផ្សាយ ។",
+      "info-transparency": "របៀបអនុវត្តតម្លាភាព៖",
+      "info-opaque": "'opaque' = គ្មានតម្លាភាព",
+      "info-blend": "'blend' = ប្រើរូប alpha channel",
+      "info-mask": "'mask' = ប្រើតំលៃ cutoff ដែលបានបញ្ជាក់សម្រាប់នៅលើ/off transparency (more performant)",
+      "info-alphaCutoff": "ភីកសែល ដែល មាន តម្លៃ អាល់ហ្វា ទាប ជាង នេះ នឹង មាន តម្លា ភាព",
+      "error-url": "URL ដែល មិន ត្រឹមត្រូវ"
+    },
+    "name": {
+      "lbl-name": "ឈ្មោះ"
+    },
+    "partileEmitter": {
+      "description": "ធាតុ បញ្ចេញ ភាគ ល្អិត ដើម្បី បង្កើត ភាគ ល្អិត & # 160; ។",
+      "lbl-particleCount": "ចំនួនភាគល្អិត",
+      "lbl-image": "រូបភាព",
+      "lbl-ageRandomness": "អាយុចៃដន្យ",
+      "lbl-lifetime": "ជីវិត",
+      "lbl-lifetimeRandomness": "ចៃដន្យពេញមួយជីវិត",
+      "lbl-sizeCurve": "ខ្សែកោងទំហំ",
+      "lbl-startPSize": "ចាប់ផ្ដើម ទំហំ ភាគល្អិត",
+      "lbl-endPSize": "ទំហំ ភាគល្អិត ចុង ក្រោយ",
+      "lbl-sizeRandomness": "ចៃដន្យទំហំ",
+      "lbl-colorCurve": "ខ្សែកោងពណ៌",
+      "lbl-startColor": "ចាប់ផ្ដើម ពណ៌",
+      "lbl-startOpacity": "ចាប់ផ្ដើម Opacity",
+      "lbl-middleColor": "ពណ៌ កណ្ដាល",
+      "lbl-middleOpacity": "ភាព អាប់អៅ កណ្តាល",
+      "lbl-endColor": "ពណ៌ ចុង ក្រោយ",
+      "lbl-endOpacity": "បញ្ចប់ ភាព ចម្លែក",
+      "lbl-velocityCurve": "ខ្សែកោង Velocity",
+      "lbl-startVelocity": "ចាប់ផ្តើម Velocity",
+      "lbl-endVelocity": "បញ្ចប់ Velocity",
+      "lbl-angularVelocity": "Angular Velocity",
+      "info-ageRandomness": "ចំនួន នៃ ការ ប្រែប្រួល រវាង ពេល ភាគ ល្អិត ត្រូវ បាន បង្កើត ឡើង ។",
+      "info-lifetime": "អាយុ អតិបរមា នៃ ភាគ ល្អិត មុន ពេល វា ត្រូវ បាន សម្រាក ។",
+      "info-lifetimeRandomness": "ចំនួន នៃ ការ ប្រែប្រួល រវាង ជីវិត ភាគ ល្អិត ។",
+      "info-sizeRandomness": "ចំនួន នៃ ការ ប្រែប្រួល រវាង ទំហំ ចាប់ផ្ដើម ភាគ ល្អិត & # 160; ។",
+      "error-url": "ការ ផ្ទុក កំហុស ពី URL"
+    },
+    "clouds": {
+      "name": "ពពក",
+      "description": "Sprite based ពពក volume.",
+      "lbl-image": "រូបភាព Sprite",
+      "lbl-wroldScale": "មាត្រដ្ឋានពិភពលោក",
+      "lbl-dimensions": "វិមាត្រ",
+      "lbl-noiseZoom": "ការ ពង្រីក សំឡេង",
+      "lbl-noiseOffset": "សំលេងរោទិ៍ Offset",
+      "lbl-spriteScale": "មាត្រដ្ឋាន Sprite",
+      "lbl-fogColor": "ពណ៌ Fog",
+      "lbl-fogRange": "ជួរ Fog",
+      "error-url": "ការ ផ្ទុក កំហុស ពី URL"
+    },
+    "ocean": {
+      "name": "មហាសមុទ្រ",
+      "description": "ផ្ទៃមហាសមុទ្រដែលមានរលកនិងហ្វូម",
+      "lbl-normalMap": "ផែនទីធម្មតា",
+      "lbl-distortionMap": "ផែនទី បង្ខូច",
+      "lbl-envMap": "ផែនទីបរិស្ថាន",
+      "lbl-color": "ពណ៌",
+      "lbl-shallowWaterColor": "ពណ៌ ទឹក រាក់",
+      "lbl-shallowToDeepDistance": "រាក់ទៅចម្ងាយជ្រៅ",
+      "lbl-opacityFadeDistance": "Opacity Fade ចម្ងាយ",
+      "lbl-opacityRange": "ជួរ Opacity",
+      "lbl-shininess": "ស៊ីនឿន",
+      "lbl-reflectivity": "ឆ្លុះ បញ្ចាំង",
+      "lbl-foamColor": "ពណ៌ហ្វូម",
+      "lbl-foamSpeed": "ល្បឿន Foam",
+      "lbl-foamTiling": "ហ្វូម ធីលីង (Foam Tiling)",
+      "lbl-bigWaveTiling": "រលក ធំ Tiling",
+      "lbl-bigWaveSpeed": "ល្បឿនរលកធំ",
+      "lbl-bigWaveHeight": "កំពស់រលកធំ",
+      "lbl-waveSpeed": "ល្បឿនរលក",
+      "lbl-waveScale": "មាត្រដ្ឋានរលក",
+      "lbl-waveTiling": "រលក Tiling",
+      "lbl-waveDistortionSpeed": "ល្បឿន បំបាត់ រលក",
+      "lbl-waveDistortionTiling": "រលក បង្ខូច Tiling",
+      "error-url": "ការ ផ្ទុក កំហុស ពី URL"
+    },
+    "water": {
+      "name": "ទឹក",
+      "description": "ផ្ទៃ ទឹក តូច"
+    },
+    "interior": {
+      "name": "ផ្ទៃក្នុង",
+      "description": "ផ្ទៃ ដែល មាន វាយនភាព គូប ផ្គូផ្គង ដើម្បី ធ្វើ ត្រាប់ តាម បរិស្ថាន ខាង ក្នុង",
+      "lbl-cubeMap": "Cube Map texture",
+      "lbl-tiling": "ចំនួន tiling",
+      "lbl-size": "ទំហំ ផ្ទៃ",
+      "error-url": "ការ ផ្ទុក កំហុស ពី URL"
+    },
+    "pointLight": {
+      "description": "ពន្លឺ ដែល បញ្ចេញ នៅ គ្រប់ ទិស ដៅ ពី ចំណុច តែ មួយ ។",
+      "lbl-color": "ពណ៌",
+      "lbl-intensity": "អាំងតង់ស៊ីតេ",
+      "lbl-range": "ជួរ",
+      "lbl-decay": "Decay"
+    },
+    "scene": {
+      "name": "ទិដ្ឋភាព",
+      "description": "វត្ថុ ឫស នៃ ទិដ្ឋភាព & # 160; ។",
+      "lbl-bgcolor": "ពណ៌ ផ្ទៃខាងក្រោយ",
+      "lbl-fogType": "ប្រភេទ Fog",
+      "lbl-fogColor": "ពណ៌ Fog",
+      "lbl-forNearDistance": "Fog ជិតឆ្ងាយ",
+      "lbl-fogFarDistance": "ចំងាយឆ្ងាយ Fog",
+      "lbl-fogDensity": "ដង់ស៊ីតេ អ័ព្ទ",
+      "lbl-audioSettings": "ប្រើ Positional Audio",
+      "lbl-avatarDistanceModel": "ម៉ូដែល ចម្ងាយ Avatar",
+      "lbl-avatarRolloffFactor": "កត្តា Avatar Rolloff",
+      "lbl-avatarRefDistance": "ចម្ងាយ Avatar Ref",
+      "lbl-avatarMaxDistance": "ចម្ងាយ Avatar Max",
+      "lbl-mediaVolume": "កម្រិត ប្រព័ន្ធ ផ្សព្វផ្សាយ",
+      "lbl-mediaDistanceModel": "ម៉ូដែលចម្ងាយប្រព័ន្ធផ្សព្វផ្សាយ",
+      "lbl-mediaRolloffFactor": "កត្តា រ៉ូឡូហ្វ ប្រព័ន្ធ ផ្សព្វ ផ្សាយ",
+      "lbl-mediaRefDistance": "ចំងាយ Media Ref",
+      "lbl-mediaMaxDistance": "ចំងាយ Media Max",
+      "lbl-mediaConeInnerAngle": "Media Cone Inner មុំ",
+      "lbl-mediaConeOuterAngle": "Media Cone Outer មុំ",
+      "lbl-mediaConeOuterGain": "Media Cone Outer Gain",
+      "info-avatarDistanceModel": "ក្បួន ដោះស្រាយ ដែល ប្រើ ដើម្បី គណនា rolloff អូឌីយ៉ូ ។",
+      "info-avatarRolloffFactor": "តម្លៃ ទ្វេ ដង ដែល ពិពណ៌នា ពី កម្រិត សំឡេង ត្រូវ បាន កាត់ បន្ថយ យ៉ាង លឿន នៅ ពេល ប្រភព ផ្លាស់ ទី ចេញ ពី អ្នក ស្តាប់ ។ 0 ដល់ 1",
+      "info-avatarRolloffFactorInifinity": "តម្លៃ ទ្វេ ដង ដែល ពិពណ៌នា ពី កម្រិត សំឡេង ត្រូវ បាន កាត់ បន្ថយ យ៉ាង លឿន នៅ ពេល ប្រភព ផ្លាស់ ទី ចេញ ពី អ្នក ស្តាប់ ។ 0 ទៅ Infinity",
+      "info-avatarRefDistance": "តម្លៃ ទ្វេ ដែល តំណាង ឲ្យ ចម្ងាយ យោង សម្រាប់ ការ កាត់ បន្ថយ កម្រិត សំឡេង នៅ ពេល ប្រភព អូឌីយ៉ូ ផ្លាស់ ប្តូរ បន្ថែម ទៀត ពី អ្នក ស្តាប់ ។",
+      "info-avatarMaxDistance": "តម្លៃ ទ្វេ ដែល តំណាង ឲ្យ ចម្ងាយ អតិបរមា រវាង ប្រភព អូឌីយ៉ូ និង អ្នក ស្តាប់ បន្ទាប់ ពី នោះ កម្រិត សំឡេង មិន ត្រូវ បាន កាត់ បន្ថយ បន្ថែម ទៀត ទេ ។",
+      "info-mediaDistanceModel": "ក្បួន ដោះស្រាយ ដែល ប្រើ ដើម្បី គណនា rolloff អូឌីយ៉ូ ។",
+      "info-mediaRolloffFactor": "តម្លៃ ទ្វេ ដង ដែល ពិពណ៌នា ពី កម្រិត សំឡេង ត្រូវ បាន កាត់ បន្ថយ យ៉ាង លឿន នៅ ពេល ប្រភព ផ្លាស់ ទី ចេញ ពី អ្នក ស្តាប់ ។ 0 ដល់ 1",
+      "info-mediaRolloffFactorInfinity": "តម្លៃ ទ្វេ ដង ដែល ពិពណ៌នា ពី កម្រិត សំឡេង ត្រូវ បាន កាត់ បន្ថយ យ៉ាង លឿន នៅ ពេល ប្រភព ផ្លាស់ ទី ចេញ ពី អ្នក ស្តាប់ ។ 0 ទៅ Infinity",
+      "info-mediaRefDistance": "តម្លៃ ទ្វេ ដែល តំណាង ឲ្យ ចម្ងាយ យោង សម្រាប់ ការ កាត់ បន្ថយ កម្រិត សំឡេង នៅ ពេល ប្រភព អូឌីយ៉ូ ផ្លាស់ ប្តូរ បន្ថែម ទៀត ពី អ្នក ស្តាប់ ។",
+      "info-mediaMaxDistance": "តម្លៃ ទ្វេ ដែល តំណាង ឲ្យ ចម្ងាយ អតិបរមា រវាង ប្រភព អូឌីយ៉ូ និង អ្នក ស្តាប់ បន្ទាប់ ពី នោះ កម្រិត សំឡេង មិន ត្រូវ បាន កាត់ បន្ថយ បន្ថែម ទៀត ទេ ។",
+      "info-mediaConeInnerAngle": "តម្លៃ ទ្វេ ដង ដែល ពិពណ៌នា ពី មុំ ក្នុង ដឺក្រេ នៃ កុង ដែល នៅ ខាង ក្នុង នោះ នឹង មិន មាន ការ កាត់ បន្ថយ កម្រិត សំឡេង ឡើយ ។",
+      "info-mediaConeOuterAngle": "តម្លៃ ទ្វេ ដង ដែល ពិពណ៌នា ពី មុំ ក្នុង ដឺក្រេ នៃ កុង នៅ ខាង ក្រៅ ដែល កម្រិត សំឡេង នឹង ត្រូវ បាន កាត់ បន្ថយ ដោយ តម្លៃ ថេរ ដែល កំណត់ ដោយ លក្ខណៈ coneOuterGain ។",
+      "info-mediaConeOuterGain": "តម្លៃ ទ្វេ ដង ដែល រៀបរាប់ ពី ចំនួន នៃ ការ កាត់ បន្ថយ កម្រិត សំឡេង នៅ ខាង ក្រៅ កុង ដែល បាន កំណត់ ដោយ លក្ខណៈ coneOuterAngle ។ តម្លៃ លំនាំ ដើម របស់ វា គឺ 0 ដែល មាន ន័យ ថា គ្មាន សំឡេង អាច ស្តាប់ បាន ឡើយ ។",
+      "lbl-simpleMaterials": "ប្រើសម្ភារៈសាមញ្ញៗ",
+      "lbl-lods": "LODs",
+      "info-lods": "កំណត់ ចម្ងាយ ដែល កម្រិត នៃ ការ ផ្លាស់ប្ដូរ លម្អិត & # 160; ។",
+      "info-simpleMaterials": "បម្លែង សម្ភារ ថ្លៃ ទាំងអស់ ទៅ ជា សម្ភារ សាមញ្ញ ជាង មុន ដើម្បី យក បន្ទុក ចេញ ពី ការ បង្ហាញ ទិដ្ឋភាព & # 160; ។",
+      "lbl-rendererSettings": "ការកំណត់ Renderer លើសលប់",
+      "lbl-csm": "ផែនទីស្រមោល Cascading",
+      "info-csm": "បើក ផែនទី ស្រមោល ។",
+      "lbl-toneMapping": "Tone Mapping",
+      "info-toneMapping": "បើក ផ្គូផ្គង សម្លេង នៅ លើ កម្មវិធី បង្ហាញ ទិដ្ឋភាព & # 160; ។ មិន មាន ផល ប៉ះ ពាល់ នៅ ពេល ដែល ការ ដំណើរ ការ ប្រៃសណីយ៍ ត្រូវ បាន អនុញ្ញាត ឡើយ ។",
+      "lbl-toneMappingExposure": "ការ បង្ហាញ ផែនទី សម្លេង",
+      "info-toneMappingExposure": "បញ្ជាក់ ពី ការ បង្ហាញ ផែនទី សម្លេង នៅ លើ កម្មវិធី បង្ហាញ ទិដ្ឋភាព & # 160; ។ មិន មាន ផល ប៉ះ ពាល់ នៅ ពេល ដែល ការ ដំណើរ ការ ប្រៃសណីយ៍ ត្រូវ បាន អនុញ្ញាត ឡើយ ។",
+      "lbl-shadowMapType": "ប្រភេទផែនទីស្រមោល",
+      "info-shadowMapType": "ប្រភេទផែនទីស្រមោល",
+      "error-url": "ការ ផ្ទុក កំហុស ពី URL"
+    },
+    "sceneCamera": {
+      "name": "ថតរូបទិដ្ឋភាព Preview",
+      "description": "ម៉ាស៊ីន ថត ដែល ប្រើ ដើម្បី បង្កើត ម្រាម ដៃ សម្រាប់ ទិដ្ឋភាព របស់ អ្នក និង ទីតាំង ចាប់ផ្ដើម សម្រាប់ ម៉ាស៊ីន ថត មើល ជា មុន & # 160; ។",
+      "lbl-setFromViewPort": "កំណត់ពី Viewport"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "ពេលវេលានៃថ្ងៃ",
+      "lbl-color": "ពណ៌",
+      "lbl-latitude": "Latitude",
+      "lbl-luminance": "៥. តណ្ហា",
+      "lbl-scattering": "ចំនួនទឹកប្រាក់ខ្ចាត់ខ្ចាយ",
+      "lbl-scatteringDistance": "ចំងាយបែកខ្ចាយ",
+      "lbl-horizonStart": "ការចាប់ផ្តើម Horizon",
+      "lbl-horizonEnd": "ចុងបញ្ចប់ Horizon",
+      "lbl-texture": "វាយនភាព",
+      "lbl-skyType": "ប្រភេទមេឃ",
+      "error-url": "ការ ផ្ទុក កំហុស ពី URL"
+    },
+    "spawnPoint": {
+      "name": "ចំណុច ស្លាប",
+      "description": "ចំណុច មួយ ដែល មនុស្ស នឹង លេច ឡើង នៅ ពេល ពួក គេ ចូល ទៅ ក្នុង ទិដ្ឋភាព របស់ អ្នក ។\nរូប តំណាង នៅ ក្នុង Viewport តំណាង ឲ្យ ទំហំ ពិត ប្រាកដ នៃ អាវ៉ាតា ។"
+    },
+    "spotLight": {
+      "description": "ពន្លឺ ដែល បញ្ចេញ តាម ទិស ដៅ បំភ្លឺ វត្ថុ នៅ ក្នុង កុង ។",
+      "lbl-color": "ពណ៌",
+      "lbl-intensity": "អាំងតង់ស៊ីតេ",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "មុំ",
+      "lbl-range": "ជួរ",
+      "lbl-decay": "Decay"
+    },
+    "transform": {
+      "title": "ការផ្លាស់ប្តូរ",
+      "lbl-postition": "ទីតាំង",
+      "lbl-rotation": "បង្វិល",
+      "lbl-scale": "មាត្រដ្ឋាន"
+    },
+    "triggereVolume": {
+      "description": "កំណត់ អចលនទ្រព្យ លើ វត្ថុ គោលដៅ នៅ ពេល បញ្ចូល និង ចាកចេញ ។",
+      "lbl-target": "វត្ថុ",
+      "lbl-onenter": "នៅលើ Enter",
+      "lbl-onexit": "នៅ ពេល ចេញ",
+      "lbl-showHelper": "បង្ហាញជំនួយ Mesh",
+      "ph-errorNode": "កំហុស បាត់ node។",
+      "ph-selectNode": "ជ្រើសរើស node..."
+    },
+    "video": {
+      "name": "វីដេអូ",
+      "description": "Dynamically ផ្ទុកវីដេអូ។",
+      "lbl-video": "វីដេអូ",
+      "lbl-projection": "ការ ប៉ាន់ ស្មាន",
+      "lbl-islivestream": "ស្ទឹងមានជ័យ Live",
+      "lbl-interactable": "ប្រាស្រ័យទាក់ទងគ្នា",
+      "lbl-id": "អត្តសញ្ញាណប័ណ្ណធាតុ",
+      "lbl-play": "លេង",
+      "lbl-pause": "ផ្អាក",
+      "error-url": "ការ ផ្ទុក កំហុស ពី URL"
+    },
+    "volumetric": {
+      "name": "កម្រិត សំឡេង",
+      "description": "Dynamically ផ្ទុកវីដេអូ volumetric។",
+      "uvolPaths": "ផ្លូវ UVOL",
+      "playmode": "របៀប លេង",
+      "playtitle": "លេង",
+      "pausetitle": "ផ្អាក"
+    },
+    "spline": {
+      "description": "បង្កើត និង ប្ដូរ តាម បំណង កោង ។",
+      "lbl-addNode": "បន្ថែម node ទៅ ខ្សែកោង។"
+    },
+    "systemnode": {
+      "description": "ភ្ជាប់ ស្គ្រីប ។",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "ចំណុចចាក់ថ្នាំ",
+      "lbl-enableClient": "ម៉ាស៊ីនត្រជាក់",
+      "lbl-enableServer": "ម៉ាស៊ីន បម្រើ",
+      "lbl-args": "អាក",
+      "error-url": "កំហុស ផ្ទុក Script ពី URL"
+    },
+    "portal": {
+      "lbl-portal": "ផតូល ភ្ជាប់",
+      "lbl-redirect": "ប្រើ ប្រាស់ Page Redirect",
+      "description": "Portat ទៅ កាន់ អ្នក លេង teleport ដើម្បី បញ្ជាក់ ទីតាំង",
+      "lbl-locationName": "ទីតាំង",
+      "lbl-modelUrl": "URL គំរូ",
+      "lbl-displayText": "អត្ថបទបង្ហាញ",
+      "lbl-cubemapBake": "Cubemap bake",
+      "lbl-spawnPosition": "ទីតាំង Spawn",
+      "lbl-spawnRotation": "បង្វិល បង្វិល រលក",
+      "lbl-triggerPosition": "ទីតាំង Trigger",
+      "lbl-triggerRotation": "បង្វិល កេះ",
+      "lbl-triggerScale": "មាត្រដ្ឋាន Trigger"
+    },
+    "postprocessing": {
+      "name": "ដំនើរការ Post",
+      "description": "សម្រាប់អនុវត្តនូវផលប៉ះពាល់ Post Processing ដល់អ្នកនៅកន្លែងកើតហេតុ។"
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "គម្រោងថ្មី",
+      "backLink": "ត្រឡប់ ទៅ គម្រោង វិញ",
+      "featured": "Featured",
+      "all": "ទាំងអស់ គ្នា",
+      "newProject": "គម្រោង ទំនេរ ថ្មី",
+      "ph-search": "ស្វែងរកទិដ្ឋភាព..."
+    },
+    "grid": {
+      "loading": "Loading..."
+    },
+    "page": {
+      "header": "សូមស្វាគមន៍",
+      "headerMsg": "ប្រសិន បើ អ្នក ថ្មី នៅ ទីនេះ យើង សូម ផ្តល់ អនុសាសន៍ ឲ្យ ឆ្លង កាត់ ការ បង្រៀន ។ បើ មិន ដូច្នោះ ទេ លោត ចូល ហើយ បង្កើត គម្រោង ពី ស្នាម របួស ឬ ពី ពុម្ព មួយ របស់ យើង ។",
+      "lbl-startTutorial": "ចាប់ផ្ដើម Tutorial",
+      "projects": "គម្រោង",
+      "lbl-newProject": "គម្រោងថ្មី"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Loading...",
+      "placeObject": "ដាក់ វត្ថុ",
+      "placeObjectAtOrigin": "ដាក់ វត្ថុ នៅ ដើម កំណើត",
+      "copyURL": "ចម្លង URL",
+      "openInNewTab": "បើក URL ក្នុង ផ្ទាំង ថ្មី",
+      "deleteAsset": "លុប Asset"
+    },
+    "filebrowser": {
+      "addNewFolder": "បន្ថែម Folder ថ្មី",
+      "cutAsset": "កាត់",
+      "copyAsset": "ចម្លងទុក",
+      "pasteAsset": "អតីតកាល",
+      "renameAsset": "ឈ្មោះ Rename",
+      "viewAssetProperties": "មើលលក្ខណៈសម្បត្តិ"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "ឈ្មោះ Rename",
+    "lbl-duplicate": "២. គុជ",
+    "lbl-group": "ក្រុម",
+    "lbl-delete": "លុប",
+    "lbl-expandAll": "ពង្រីកទាំងអស់គ្នា",
+    "lbl-collapseAll": "ដួលសន្លប់ទាំងអស់គ្នា",
+    "isseus": "បញ្ហា៖"
+  },
+  "dnd": {
+    "nodes": "{{count}} Nodes Selected",
+    "models": "{{count}} ម៉ូដែល Selected",
+    "images": "{{count}} រូបភាពដែលបានជ្រើសរើស",
+    "videos": "{{count}} វីដេអូ Selected",
+    "audio": "{{count}} Audio Sources Selected"
+  },
+  "dialog": {
+    "title": "អ្នក និពន្ធ",
+    "lbl-confirm": "យល់ព្រម",
+    "lbl-cancel": "លប់ចោល",
+    "exportProject": {
+      "title": "គម្រោងនាំចេញ",
+      "lbl-confirm": "គម្រោងនាំចេញ",
+      "lbl-combineMesh": "២. ផ្សំ មេ សែ ម",
+      "lbl-removeUnused": "យក វត្ថុ ដែល មិន បាន ប្រើ ចេញ"
+    },
+    "performance": {
+      "title": "ការពិនិត្យសមត្ថភាព",
+      "lbl-confirm": "ចាក់ផ្សាយទិដ្ឋភាព",
+      "learnMore": "ស្វែង​យល់​បន្ថែម",
+      "lbl-polycount": "ចំនួន Polygon",
+      "lbl-material": "សម្ភារៈ",
+      "lbl-texture": "វាយនភណ្ឌ",
+      "lbl-lights": "ពន្លឺភ្លើង",
+      "lbl-fileSize": "ទំហំឯកសារ",
+      "info-polycount": "យើង សូម ផ្តល់ អនុសាសន៍ ឲ្យ ទិដ្ឋភាព របស់ អ្នក ប្រើ ត្រីកោណ មិន ច្រើន ជាង 50,000 សម្រាប់ ឧបករណ៍ ចល័ត ។",
+      "info-material": "យើង សូម ផ្តល់ អនុសាសន៍ ឲ្យ ប្រើប្រាស់ សម្ភារៈ ពិសេស ជាង 25 នៅ ក្នុង ទិដ្ឋភាព របស់ អ្នក ដើម្បី កាត់ បន្ថយ ការ ទាញ ទូរស័ព្ទ ទៅ លើ ឧបករណ៍ ចល័ត ។",
+      "info-texture": "យើង សូម ផ្តល់ អនុសាសន៍ ឲ្យ វាយនភាព របស់ អ្នក ប្រើ មិន លើស ពី 256MB នៃ វីដេអូ RAM សម្រាប់ ឧបករណ៍ ចល័ត ទេ ។ យើង ក៏ សូម ណែនាំ ប្រឆាំង នឹង ការ ប្រើ វាយនភណ្ឌ ដែល មាន ទំហំ ធំ ជាង ឆ្នាំ ២០៤៨ x ២០៤៨។",
+      "info-lights": "ខណៈ ដែល ភ្លើង ថាមវន្ត មិន ត្រូវ បាន បើក នៅ លើ ឧបករណ៍ ចល័ត ក៏ ដោយ យើង សូម ផ្តល់ អនុសាសន៍ ឲ្យ ប្រើ ភ្លើង មិន ច្រើន ជាង 3 នៅ ក្នុង ទិដ្ឋភាព របស់ អ្នក ( ដោយ មិន រាប់ បញ្ចូល ពន្លឺ អវកាស និង អឌ្ឍគោល ) សម្រាប់ ទិដ្ឋភាព របស់ អ្នក ដើម្បី រត់ នៅ ចុង បញ្ចប់ ទាប ។",
+      "info-fileSize": "យើង សូម ផ្តល់ អនុសាសន៍ ឲ្យ មាន ទំហំ ឯកសារ ចុង ក្រោយ ដែល មិន ច្រើន ជាង 16MB សម្រាប់ ការ ត ភ្ជាប់ កម្រិត បញ្ជូន ទាប ។ ការ កាត់ បន្ថយ ទំហំ ឯកសារ នឹង កាត់ បន្ថយ ពេល វេលា ដែល ត្រូវការ ដើម្បី ទាញ យក ទិដ្ឋភាព របស់ អ្នក ។",
+      "txt-polycount": "{{count}} ត្រីកោណមាត្រ",
+      "txt-material": "{{count}} សម្ភារៈ",
+      "txt-ram": "~{{count}} Video RAM",
+      "txt-texture": "{{count}} វាយនភណ្ឌធំៗ",
+      "txt-lights": "{{count}} ពន្លឺ"
+    },
+    "progress": {
+      "title": "Loading...",
+      "msg": "Loading...",
+      "lbl-cancel": "លប់ចោល"
+    },
+    "publish": {
+      "title": "ចាក់ផ្សាយទិដ្ឋភាព",
+      "lbl-confirm": "រក្សាទុក និង បោះពុម្ព",
+      "lbl-name": "ឈ្មោះទិដ្ឋភាព",
+      "info-name": "ឈ្មោះ ត្រូវ តែ មាន ចន្លោះ ពី ៤ ទៅ ៦៤ តួ ហើយ មិន អាច មាន ការ គូស បញ្ជាក់ បាន ឡើយ"
+    },
+    "published": {
+      "title": "ទិដ្ឋភាព ដែល បាន បោះពុម្ព ផ្សាយ",
+      "header": "ទិដ្ឋភាព របស់ អ្នក ត្រូវ បាន បោះពុម្ព ផ្សាយ & # 160; ។",
+      "lbl-view": "មើលទិដ្ឋភាពរបស់អ្នក"
+    },
+    "saveNewProject": {
+      "title": "គាំទ្រ",
+      "lbl-name": "ឈ្មោះគម្រោង",
+      "info-name": "ឈ្មោះ ត្រូវ តែ មាន ចន្លោះ ពី ៤ ទៅ ៦៤ តួ ហើយ មិន អាច មាន ការ គូស បញ្ជាក់ បាន ឡើយ",
+      "lbl-confirm": "គម្រោងសន្សំសំចៃ"
+    },
+    "support": {
+      "title": "គាំទ្រ",
+      "header": "ត្រូវការរាយការណ៍ពីបញ្ហា?",
+      "msg": "អ្នក អាច ដាក់ ឯកសារ <1>ទស្សនាវដ្ដី GitHub ឬ</1> e-mail យើង សម្រាប់ ការ គាំទ្រ នៅ <3>{{mail}}</3>",
+      "discord": "អ្នក ក៏ អាច រក ឃើញ យើង នៅ លើ <1>Discord ផង ដែរ</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "រូបភាព Bing",
+      "search": "ស្វែងរកដោយ Bing"
+    },
+    "bingVideo": {
+      "name": "វីដេអូ ប៊ីង",
+      "search": "ស្វែងរកដោយ Bing"
+    },
+    "element": {
+      "name": "ធាតុ"
+    },
+    "myAssets": {
+      "name": "ទ្រព្យសកម្មរបស់ខ្ញុំ"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "ស្វែងរកដោយ Google"
+    },
+    "tenor": {
+      "name": "Tenor GIFs",
+      "search": "ស្វែងរកដោយ Tenor",
+      "ph-search": "ស្វែងរក GIFs..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "ស្វែងរកដោយ Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "ផ្ទុក Asset"
+    },
+    "imageSourcePanel": {
+      "ph-search": "ស្វែងរករូបភាព..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "ស្វែងរកវីដេអូ..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "ស្វែងរកទ្រព្យសកម្ម..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "ស្វែងរកម៉ូដែល..."
+    },
+    "useUpload": {
+      "multipleFileError": "បញ្ចូល មិន ទទួល យក ឯកសារ ច្រើន ទេ & # 160; ។",
+      "mineTypeError": "«{{name}}» មិន ផ្គូផ្គង នឹង ប្រភេទ mime ឬ ការ ពង្រីក ដូច ខាង ក្រោម៖ {{types}}",
+      "progressTitle": "ឯកសារបង្ហោះ",
+      "progressMsg": "ការ ផ្ទុក ឯកសារ {{uploaded}} {{total}}: {{percentage}}%",
+      "uploadError": "ផ្ទុក កំហុស",
+      "uploadErrorMsg": "ឯកសារបង្ហោះកំហុស: {{message}}",
+      "uploadErrorDefaultMsg": "មាន កំហុស ដែល មិន ស្គាល់"
+    }
+  },
+  "openLink": {
+    "description": "សូម ចុច Open ដើម្បី រុករក តំណ & # 160; ។",
+    "lbl-open": "បើក"
+  },
+  "interactableModel": {
+    "lbl-buy": "ទិញ",
+    "lbl-learnMore": "ស្វែង​យល់​បន្ថែម"
+  },
+  "corsProxyButton": {
+    "tooltip": "ប្រើ Cors Proxy Server"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Жүктеу беті..."
+  },
+  "tooltip": {
+    "pressKey": "{{message}} үшін {{tip}} басу"
+  },
+  "toast": {
+    "joined": "қосылды",
+    "left": "сол жақта"
+  },
+  "navUserWidget": {
+    "login": "Жүйеге кіру"
+  },
+  "loader": {
+    "connecting": "Әлемге қосылу...",
+    "entering": "Әлемге кіру...",
+    "loading": "Жүктеу...",
+    "objectRemaining": "{{count}} нысан қалды",
+    "objectRemainingPlural": "{{count}} объектiлерiнiң қалғаны",
+    "loadingObjects": "Нысандарды жүктеу",
+    "loadingComplete": "Жүктеу аяқталды",
+    "joiningWorld": "Әлемге қосылу"
+  },
+  "alert": {
+    "eventWasSuccess": "Іс-шара сәтті өтті",
+    "errorWasEncountered": "Қате пайда болды",
+    "eventInProgress": "Іске асырылып жатқан оқиға",
+    "seconds": "секунд",
+    "cancelCountdown": "Бұл модальды жабу санақтан бас тартады"
+  },
+  "debug": {
+    "refresh": "Жаңарту",
+    "stats": "Статс",
+    "debugOptions": "Ð ÐμÑ ÐμÑ Ð",
+    "physicsDebug": "Физика",
+    "avatarDebug": "Аватар",
+    "nodeHelperDebug": "Түймешік анықтамасы",
+    "gridDebug": "Тор",
+    "simpleMaterials": "Қарапайым материалдар",
+    "tick": "Кене",
+    "worldStore": "World Store",
+    "engineStore": "Қозғалтқыштар дүкені",
+    "namedEntities": "Аталған субъектілер",
+    "networkObject": "Желі нысаны",
+    "networkClients": "Желі клиенттері"
+  },
+  "recording": {
+    "videoRecorder": "Бейнежазба",
+    "waitingForPermissions": "Рұқсаттарды күту",
+    "selectVideoSource": "Бейне көзін таңдау",
+    "screen": "Экран",
+    "camera": "Камера",
+    "microphone": "Микрофон",
+    "startRecording": "Жазуды бастау",
+    "pauseRecording": "Жазуды кідірту",
+    "resumeRecording": "Жазуды жалғастыру",
+    "stopRecording": "Жазуды тоқтату"
+  },
+  "typing": "Теру...",
+  "gameServer": {
+    "browserError": "Браузер қатесі",
+    "browserErrorMessage": "Браузеріңіз жеке шолу режимінде сақтауды қолдамайды. Басқа браузерді қолданып көріңіз немесе жеке шолу режимінен шығыңыз.",
+    "noAvailableServers": "Қол жетімді серверлер жоқ",
+    "noAvailableServersMessage": "Қосылу үшін қол жетімді серверлер жоқ. Қайта қосылу әрекеті",
+    "worldDisconnected": "Әлем ажыратылған",
+    "worldDisconnectedMessage": "Әлеммен байланысыңызды жоғалттыңыз. Келесі уақыт біткенше қайта қосылуға тырысамыз, әйтпесе басқа нұсқаға қайта жібересіз.",
+    "webGLNotEnabled": "WebGL қосылмаған",
+    "webGLNotEnabledMessage": "Браузеріңіз WebGL-ді қолдамайды немесе ол ажыратылады. WebGL қосуыңызды немесе браузеріңіздің соңғы нұсқасына жаңартуды қарастырыңыз.",
+    "youKickedFromWorld": "Сізді дүниеден қуып кеттіңіз",
+    "youKickedFromWorldMessage": "Сізді мына себеппен осы дүниеден қуып шықтыңыз",
+    "invalidLocation": "Дұрыс емес орын",
+    "cantFindLocation": "Орнын таба алмай отырмыз",
+    "misspelledOrNotExist": "Ол қате жазылуы мүмкін, не жоқ болуы мүмкін.",
+    "loading": "жүктеу",
+    "low-frame-error": "Браузеріңізде аппараттық жылдамдатуды пайдалану және браузерді қайта іске қосу мүмкіндігін қарастырудың нашарлығы анықталды",
+    "low-frame-title": "Жақсы тәжірибе алу үшін аппараттық үдеуді қосу!"
+  },
+  "error": {
+    "loading-error": "Пайдаланушы деректері жүктелмеді",
+    "validation-error": "Жарамды {{type}} енгізуіңізді сұраймын",
+    "login-error": "Кіру жаңылысы"
+  }
+}

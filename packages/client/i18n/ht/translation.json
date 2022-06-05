@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Paj jwenn"
+  },
+  "503": {
+    "msg": "503 - Sèvis ki pa kalifye"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Yo entèdi ou nan kote sa a",
+    "locationName": {
+      "pageTitle": "Lakay"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Pwojè",
+      "header": "Tanpri Konekte",
+      "welcomeMsg": "Byenvini",
+      "locationHeader": "Kote",
+      "projectHeader": "Pwojè",
+      "sceneHeader": "sèn",
+      "description": "Si ou se nouvo isit la nou rekòmande pou ale nan leson patikilye a. Sinon, sote dwa nan ak kreye yon pwojè nan grate oswa nan youn nan modèl nou yo.",
+      "lbl-startTutorial": "Kòmanse leson patikilye",
+      "lbl-newProject": "Nouvo Pwojè",
+      "lbl-createProject": "Kreye",
+      "lbl-newScene": "Nouvo sèn",
+      "lbl-searchProject": "Rechèch Pwojè ki deja egziste ...",
+      "back": "Do",
+      "contextMenu": "Efase pwojè",
+      "installed": "Pwojè enstale",
+      "official": "Pwojè ofisyèl yo",
+      "community": "Pwojè Kominote yo",
+      "install": "Enstale",
+      "uninstall": "Désinstaller",
+      "rename": "Chanje savan",
+      "createProject": "Kreye Pwojè",
+      "installProject": "Enstale Pwojè",
+      "processing": "Tretman",
+      "projectName": "Non pwojè",
+      "projectURL": "URL pwojè"
+    }
+  },
+  "error": {
+    "goHomeLink": "Ale lakay ou",
+    "withStatusCode": "Yon erè {{code}} te fèt sou sèvè",
+    "withoutStatusCode": "Yon erè ki te fèt sou sèvè"
+  },
+  "no-projects": {
+    "msg": "Erè: Pa gen pwojè Enstale - tanpri kontakte yon admin sit"
+  },
+  "dev": {
+    "pageTitle": "Lakay"
+  },
+  "login": {
+    "pageTitle": "Konekte"
+  },
+  "workerTest": {
+    "pageTitle": "Tès travayè"
+  },
+  "index": {
+    "by": "PA",
+    "xr": "xr",
+    "foundation": "Fondasyon",
+    "description": "Imobilye aplikasyon pou sosyal 3D pou tout moun jwi."
+  },
+  "xrengineContact": {
+    "header": "Jwenn an kontak!",
+    "description": "Nou ta renmen ede ou ak evènman vityèl ou, Yo Vann an Detay dijital, amizman ak lòt bezwen.",
+    "lbl-name": "Fe-apel",
+    "lbl-email": "Imel",
+    "lbl-company": "Konpayi",
+    "lbl-project": "Dekri Pwojè ou",
+    "lbl-send": "Voye",
+    "lbl-ok": "Oke",
+    "lbl-success": "Mesaj voye, Nou pral tounen ba ou yon ti tan.",
+    "lbl-failure": "Yon erè ki te fèt, Plese eseye ankò",
+    "err-username": "Tanpri antre nan ou non.",
+    "err-email": "Imèl se mande pou.",
+    "err-msg": "Bay kèk deskripsyon tou kout sou pwojè ou a."
+  }
+}

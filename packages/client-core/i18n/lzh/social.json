@@ -1,0 +1,202 @@
+{
+  "addComment": "添评论...",
+  "share": "共享",
+  "suggestions": "为君言之",
+  "seeAll": "阅视无余",
+  "likes": "喜",
+  "viewComments": "阅诸 {{count}} 论",
+  "more": "愈多",
+  "username": "用户名",
+  "fullName": "姓姓",
+  "reportInApporpriate": "举不当",
+  "unfollow": "罢关注",
+  "goToPost": "转到发布",
+  "shareModal": "共享",
+  "copyLink": "复制链接",
+  "embed": "嵌入",
+  "cancel": "罢之",
+  "confirm": "确认",
+  "save": "救之",
+  "profilePic": "{{user}}个人资料图片",
+  "ara": "阿拉",
+  "follow": "从之",
+  "flames": "火",
+  "continue": "续",
+  "partyInvitationSent": "已发派对邀",
+  "arMedia": {
+    "back": "返回",
+    "clip": "夹",
+    "backgrounds": "背景",
+    "start": "始也"
+  },
+  "arMediaform": {
+    "title": "标题",
+    "type": "类也",
+    "clip": "夹",
+    "background": "背景",
+    "scene": "现在",
+    "save": "救之",
+    "manifest-file": "清单 .manifest 文",
+    "audio-file": "MP4 文",
+    "dracosis-file": "Dracosis .uvol file",
+    "preview-file": "预览图像"
+  },
+  "creator": {
+    "myVideos": "余之视频",
+    "savedVideos": "存者视频",
+    "back": "返回",
+    "blocked-list": "止列表",
+    "block-user": "止用户",
+    "dialog-content": "子不见用户之个人资料也"
+  },
+  "creatorForm": {
+    "back": "返回",
+    "edit": "编辑个人资料",
+    "save": "救之",
+    "changeAvatar": "更头像",
+    "ph-selectPreview": "择预览焉",
+    "ph-name": "君姓名",
+    "ph-username": "子之用户名",
+    "ph-email": "子之电子邮箱",
+    "ph-tags": "标签",
+    "ph-link": "链接",
+    "ph-aboutYou": "更多君者",
+    "ph-twitter": "唽",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "蒂克托克",
+    "sign-out": "注销"
+  },
+  "dashboard": {
+    "title": "当泥板",
+    "dashboard": "当泥板",
+    "users": "用户",
+    "feeds": "食",
+    "arMedia": "视频媒体",
+    "editor": "编辑器",
+    "creator": "造物者"
+  },
+  "featured": {
+    "empty-list": "今无提要..."
+  },
+  "feed": {
+    "back": "返回",
+    "related": "相关源",
+    "is-repoted-message": "刍豆以闻!"
+  },
+  "feedForm": {
+    "back": "返回",
+    "thanks": "感君分享改吾社区",
+    "share": "与社区分享",
+    "upload": "上传视频",
+    "ph-selectVideo": "择视频",
+    "preview": "预览图像",
+    "ph-selectPreview": "择预览焉",
+    "createFeed": "创源者,必有视频预览图像!!!",
+    "ph-videoName": "视频之名",
+    "ph-type": "键入与社区共之... ",
+    "lbl-share": "共享",
+    "save": "存而续一页"
+  },
+  "feedMenu": {
+    "featured": "特色",
+    "creators": "创造者",
+    "feed": "食"
+  },
+  "header": {
+    "lbl-volumetric": "体积"
+  },
+  "login": {
+    "account": "已有帐户?",
+    "login": "登录",
+    "resetPassword": "重置密码假按钮(此电子邮件中也链接)",
+    "notHavingAccount": "无帐户?",
+    "signUp": "登记",
+    "forgotPassword": "忘密码?",
+    "back": "返回",
+    "or": "或"
+  },
+  "comment": {
+    "add": "添君论..."
+  },
+  "notification": {
+    "feedFire": " 发汝刍",
+    "feedBookmarked": " 已添君源为书签",
+    "comment": " 论君提要。",
+    "commentFire": " 触发论提要",
+    "follow": " 始相关",
+    "unfollow": " 止其踵汝",
+    "followed": " 关你",
+    "activity": "动也"
+  },
+  "onBoarding": {
+    "welcome": "欢迎!",
+    "description": "大 370 多 iOS 原型布局。",
+    "next": "次者",
+    "discover": "得文章,",
+    "news": "新闻和帖子",
+    "lines": "正是:天文学爱欲。",
+    "getStarted": "即为其始",
+    "meetUp": "识",
+    "friends": "朋友。",
+    "meet": "与友人相见"
+  },
+  "shareForm": {
+    "arcMedia": "共享",
+    "videoCreated": "余创此视频",
+    "shareWithBuddies": "与友分享",
+    "shareVideo": "分享视频",
+    "save": "存相机胶卷",
+    "cancel": "罢之",
+    "close": "闭之",
+    "addFeed": "添源"
+  },
+  "simpleModal": {
+    "emptyList": "空列表",
+    "followers": " 其后",
+    "following": " 追随者",
+    "flames": " 火"
+  },
+  "splash": {
+    "screen": "初始屏幕",
+    "logo": "商标"
+  },
+  "story": {
+    "profilePic": "{{user}}个人资料图片"
+  },
+  "view": {
+    "cancel": "罢之",
+    "choice": "子有二异录制式可供选择",
+    "verticalMode": "垂式有 30 秒之纪",
+    "horizontalMode": "水平模式有无限的记录",
+    "start": "始也",
+    "not-show": "不复示也",
+    "welcome": "欢迎至ARC!  以吾全息图为人视频,发于社交媒体渠!",
+    "step": "步 {{step}}",
+    "text-step-1": "于库中择全息影像。",
+    "text-step-2": "此增强现实,故请用相机从一侧扫描至别侧空间3-5秒,以致所欲之全息图。",
+    "text-step-3-part-1": "定位全息影点击屏。",
+    "text-step-3-part-2": "提示!  他处点击一次,将全息影像移到另一位。",
+    "text-step-3-part-3": "提示!  你可以拇指和食指捏合或扩展屏幕来调整全息影像的大小。",
+    "text-step-4-part-1": "双击赤录制按钮以始视频录制。",
+    "text-step-4-part-2": "双击红色录制按钮以止。"
+  },
+  "video": {
+    "back": "返回"
+  },
+  "terms": {
+    "confirmTerms": "余从之",
+    "confirmPolicy": "臣许以私政"
+  },
+  "registration": {
+    "ph-phoneEmail": "用电话/电子邮件",
+    "facebook": "仍用脸书",
+    "google": "仍用谷歌",
+    "linkedin": "仍LinkedIn",
+    "twitter": "续用推特",
+    "gitHub": "续用 GitHub",
+    "connect": "连电子邮件或电话号码",
+    "logIn": "登录",
+    "LogInTo": "录而得之",
+    "continueAsGuest": "以访客继之"
+  }
+}

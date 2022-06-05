@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Rûpel bar dike..."
+  },
+  "tooltip": {
+    "pressKey": "{{message}} {{tip}} bide"
+  },
+  "toast": {
+    "joined": "tevlî bû",
+    "left": "çep"
+  },
+  "navUserWidget": {
+    "login": "Têkeve"
+  },
+  "loader": {
+    "connecting": "Bi cîhanê ve tê girêdan...",
+    "entering": "Têketina cîhanê...",
+    "loading": "Bar dike...",
+    "objectRemaining": "{{count}} tiştê mayî",
+    "objectRemainingPlural": "{{count}} tiştên mayî",
+    "loadingObjects": "Barkirina Objeyan",
+    "loadingComplete": "Bar kirin Temam",
+    "joiningWorld": "Temaya Tevlêbûna Cîhanê"
+  },
+  "alert": {
+    "eventWasSuccess": "bûyer serkeftî bû",
+    "errorWasEncountered": "Çewtiyek rû da",
+    "eventInProgress": "bûyer berdewame",
+    "seconds": "çirke",
+    "cancelCountdown": "Girtina vê modêlê wê jimartina jimartinê betal bike"
+  },
+  "debug": {
+    "refresh": "Nû Bike",
+    "stats": "Stats",
+    "debugOptions": "Vebijêrkên vebijarkên vebijarkan",
+    "physicsDebug": "Fizîk",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Alîkara Girêkê",
+    "gridDebug": "Grîd",
+    "simpleMaterials": "Materyalên Hêsan",
+    "tick": "Tîk",
+    "worldStore": "Dikana Cîhanê",
+    "engineStore": "Depoya Motoran",
+    "namedEntities": "Sazûmanên Binavkirî",
+    "networkObject": "Biresera Torê",
+    "networkClients": "Mişteriyên Torê"
+  },
+  "recording": {
+    "videoRecorder": "Tomarkerê vîdeoyê",
+    "waitingForPermissions": "Li benda destûran e",
+    "selectVideoSource": "Çavkaniya vîdyoyê hilbijêre",
+    "screen": "Dîmender",
+    "camera": "Kamera",
+    "microphone": "Mîkrofon",
+    "startRecording": "Dest bi tomarkirinê bike",
+    "pauseRecording": "Tomarkirinê bisekinîne",
+    "resumeRecording": "Tomarkirinê ji nû ve dest pê bike",
+    "stopRecording": "Tomarkirinê bisekinîne"
+  },
+  "typing": "Tê tîpkirin...",
+  "gameServer": {
+    "browserError": "Çewtiya Gerokê",
+    "browserErrorMessage": "Geroka we destekê nade depokirina di moda lêgerînê ya taybet da. Yan gerokeke din biceribînin an jî moda lêgerînê ya taybet biceribînin.",
+    "noAvailableServers": "Pêşkêşkerê Heyî Tune",
+    "noAvailableServersMessage": "Ji bo ku hûn pêwendîyê deynin tu rajekar tune ye. Hewl dide ku ji nû ve têkeve hundir",
+    "worldDisconnected": "Girêdana cîhanê qut bû",
+    "worldDisconnectedMessage": "Te girêdana xwe ya bi dinyayê ra winda kir. Berî ku dema din biqede, em ê hewl bidin ku ji nû ve têkilîyê deynin, naxwe hûn dê ji bo nimûneyeka cuda bihên şandin.",
+    "webGLNotEnabled": "WebGL ne çalak e",
+    "webGLNotEnabledMessage": "Geroka we webGL yê destek nake an jî neçalak e. Ji kerema xwe WebGL çalak bikin an jî li versîyona herî dawî ya geroka xwe binêrin.",
+    "youKickedFromWorld": "Tu ji dinyayê hatî avêtin",
+    "youKickedFromWorldMessage": "Hûn ji ber sedema jêrîn ji vê dinyayê hatin avêtin",
+    "invalidLocation": "Cihê nederbasdar",
+    "cantFindLocation": "Em nikarin cih bibînin",
+    "misspelledOrNotExist": "Dibe ku şaş were nivîsandin, an jî dibe ku nebe.",
+    "loading": "barkirin",
+    "low-frame-error": "Perfomancek belengaz dît ku bikarînana lezkirina Hardware di geroka we de bikar bîne û gerokê xwe paşve bixe",
+    "low-frame-title": "Ji bo azmûneka baştir lezkirina hişkalavê çalak bike!"
+  },
+  "error": {
+    "loading-error": "Barkirina daneyên bikarhêner bi ser neket",
+    "validation-error": "Ji kerema xwe {{type}} derbasdar têketin",
+    "login-error": "Têketin bi ser neket"
+  }
+}

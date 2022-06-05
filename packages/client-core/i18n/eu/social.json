@@ -1,0 +1,202 @@
+{
+  "addComment": "Gaineratu iruzkina...",
+  "share": "Partekatu",
+  "suggestions": "Iradokizunak zuretzat",
+  "seeAll": "Dena ikusi",
+  "likes": "Gustatzen zaio",
+  "viewComments": "Ikusi iruzkin guztiak {{count}}",
+  "more": "gehiago",
+  "username": "erabiltzaile-izena",
+  "fullName": "Abizen izena",
+  "reportInApporpriate": "Desegokia erreportatzea",
+  "unfollow": "Jarraitzeari utzi",
+  "goToPost": "Argitalpenera joan",
+  "shareModal": "Partekatu",
+  "copyLink": "Lotura kopiatu",
+  "embed": "Txertatu",
+  "cancel": "Ezeztatu",
+  "confirm": "Baieztatu",
+  "save": "Salbatu",
+  "profilePic": "{{user}}profileko argazkia",
+  "ara": "Ara",
+  "follow": "Jarraitu",
+  "flames": "Llamas",
+  "continue": "Jarraitu",
+  "partyInvitationSent": "Bidalitako festarako gonbidapena",
+  "arMedia": {
+    "back": "Atzera",
+    "clip": "Pintza",
+    "backgrounds": "Fondoak",
+    "start": "Hasi"
+  },
+  "arMediaform": {
+    "title": "Titulua",
+    "type": "Mota",
+    "clip": "Pintza",
+    "background": "Funtsa",
+    "scene": "Eszena",
+    "save": "Salbatu",
+    "manifest-file": "Artxiboa .manifest",
+    "audio-file": "Archivo Mp4",
+    "dracosis-file": "Archivo Dracosis .uvol",
+    "preview-file": "Irudi artxiboaren aurretiko bista"
+  },
+  "creator": {
+    "myVideos": "Nire Bideoak",
+    "savedVideos": "Gordetako bideoak",
+    "back": "Atzera",
+    "blocked-list": "Blokeatuen zerrenda",
+    "block-user": "Erabiltzailea blokeatu",
+    "dialog-content": "Ez dituzu erabiltzailearen profila eta edukia ikusiko"
+  },
+  "creatorForm": {
+    "back": "Atzera",
+    "edit": "Profila editatu",
+    "save": "Salbatu",
+    "changeAvatar": "Alda ezazu aldatzeko irudia",
+    "ph-selectPreview": "Aldez aurreko ikustaldia aukeratu",
+    "ph-name": "Deitzen zara",
+    "ph-username": "Erabiltzaile-izena",
+    "ph-email": "Zure posta elektronikoa",
+    "ph-tags": "Etiketak",
+    "ph-link": "Lotura",
+    "ph-aboutYou": "Zutaz gehiago",
+    "ph-twitter": "Twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Saioa itxi"
+  },
+  "dashboard": {
+    "title": "Zipriztindegia",
+    "dashboard": "Zipriztindegia",
+    "users": "Erabiltzaileak",
+    "feeds": "Elikatzea",
+    "arMedia": "Bideo-baliabideak",
+    "editor": "Editor",
+    "creator": "Sortzailea"
+  },
+  "featured": {
+    "empty-list": "Oraingoz ez feedsik..."
+  },
+  "feed": {
+    "back": "Atzera",
+    "related": "Erlazionatutako feed-ak",
+    "is-repoted-message": "Elikaduraren berri ematen da!"
+  },
+  "feedForm": {
+    "back": "Atzera",
+    "thanks": "Eskerrik asko gure komunitatea partekatzeagatik eta hobetzeagatik",
+    "share": "Komunitatearekin zerbait partekatzen du",
+    "upload": "Bideoa igo",
+    "ph-selectVideo": "Bideoa aukeratu",
+    "preview": "Irudiaren aurreko bista",
+    "ph-selectPreview": "Aldez aurreko ikustaldia aukeratu",
+    "createFeed": "Feed bat sortzeko, bideo bat eta aldez aurreko bistako irudi bat izan behar dituzu!!!",
+    "ph-videoName": "Zure bideoaren izena",
+    "ph-type": "Idatzi komunitatearekin partekatu nahi duzuna... ",
+    "lbl-share": "Partekatu",
+    "save": "Gorde eta listo listo"
+  },
+  "feedMenu": {
+    "featured": "Gomendatuak",
+    "creators": "Sortzaileak",
+    "feed": "El Feed"
+  },
+  "header": {
+    "lbl-volumetric": "Bolumetrikoa"
+  },
+  "login": {
+    "account": "Ba al duzu konturik?",
+    "login": "Saioa hasi",
+    "resetPassword": "Pasahitz faltsua berrezartzeko botoia (hemen posta elektronikoko esteka bat egongo litzateke)",
+    "notHavingAccount": "Ez al duzu konturik?",
+    "signUp": "Egin bat",
+    "forgotPassword": "Ahaztu al zuen pasahitza?",
+    "back": "Atzera",
+    "or": "O"
+  },
+  "comment": {
+    "add": "Gehitu zure iruzkina..."
+  },
+  "notification": {
+    "feedFire": " zure feed-a tirokatu zuen",
+    "feedBookmarked": " zure feed-a gogokoen",
+    "comment": " bere feed-a esan zuen:",
+    "commentFire": " bere iruzkina jaurti zuen elikatzeko",
+    "follow": " zu atzetik hasi zen",
+    "unfollow": " utzi egin zion atzetik",
+    "followed": " atzetik segika",
+    "activity": "Jarduera"
+  },
+  "onBoarding": {
+    "welcome": "Ongi etorri!",
+    "description": "IOSen prototipoak sortzeko 370 diseinu baino gehiagoren bildumarik handiena.",
+    "next": "Hurrengo",
+    "discover": "Aurkitu artikuluak,",
+    "news": "berriak eta postak",
+    "lines": "Sentimendu horiek bultzatzen dute astronomia eta gure nahia.",
+    "getStarted": "Hasi",
+    "meetUp": "Bildu",
+    "friends": "lagunak.",
+    "meet": "Lagunekin bildu"
+  },
+  "shareForm": {
+    "arcMedia": "Partekatu",
+    "videoCreated": "Bideo hau sortu dut",
+    "shareWithBuddies": "Lagunekin konpartitu",
+    "shareVideo": "Bideoa partekatu",
+    "save": "Gorde kameraren karretean",
+    "cancel": "Ezeztatu",
+    "close": "Itxi",
+    "addFeed": "Gaineratu feed"
+  },
+  "simpleModal": {
+    "emptyList": "Zerrenda hutsa",
+    "followers": " hurrengoa",
+    "following": " Jarraitzaileak",
+    "flames": " Llamas"
+  },
+  "splash": {
+    "screen": "Aurkezpen-pantaila",
+    "logo": "Logotipoa"
+  },
+  "story": {
+    "profilePic": "{{user}}profileko argazkia"
+  },
+  "view": {
+    "cancel": "Ezeztatu",
+    "choice": "Bi grabazio modu ezberdin ditu aukeratzeko",
+    "verticalMode": "Modu bertikalak 30 segundoko grabazio-denbora du",
+    "horizontalMode": "Modu horizontalak grabazio-denbora mugagabea du",
+    "start": "Hasi",
+    "not-show": "Ez erakutsi berriro",
+    "welcome": "Ongi etorri KAEra!  Egin bideo pertsonalak gure hologrametako batekin eta publika ezazu zure sare sozialetan!",
+    "step": "{{step}} PASABIDEA",
+    "text-step-1": "Aukeratu liburutegiko holograma bat.",
+    "text-step-2": "Hori errealitate areagotua da, beraz, eskaneatu espazioa alde batetik bestera, 3-5 segundoz, hologramaren errendimendua egotea nahi duzun tokian.",
+    "text-step-3-part-1": "Pantaila ukitu, holograma amiltzea nahi duen lekuan behin.",
+    "text-step-3-part-2": "ESKUPEKO!  Ukitu behin beste leku batean, holograma beste leku batera mugitzeko.",
+    "text-step-3-part-3": "ESKUPEKO!  Hologramaren tamaina alda dezakezu, hatz lodiarekin eta hatz erakuslearekin pantaila atximurkatuz edo zabalduz.",
+    "text-step-4-part-1": "Bi aldiz jo grabatzeko botoi gorria, bideo grabazioa hasteko.",
+    "text-step-4-part-2": "Bi aldiz jo grabatzeko botoi gorria GELDIARAZTEKO."
+  },
+  "video": {
+    "back": "Atzera"
+  },
+  "terms": {
+    "confirmTerms": "Zerbitzu-baldintzak onartzen ditut",
+    "confirmPolicy": "Pribatutasun Politika onartzen dut"
+  },
+  "registration": {
+    "ph-phoneEmail": "Telefonoa / posta elektronikoa erabili",
+    "facebook": "Facebookekin jarraitu",
+    "google": "Googlerekin jarraitu",
+    "linkedin": "Linkedinekin jarraitu",
+    "twitter": "Twitterrekin jarraitu",
+    "gitHub": "GitHubekin jarraitu",
+    "connect": "Konektatu zure posta elektronikoa edo telefono zenbakia",
+    "logIn": "Saioa hasi",
+    "LogInTo": "Saioa hasi",
+    "continueAsGuest": "Gonbidatu gisa jarraitu"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "ページを読み込んでいます..."
+  },
+  "tooltip": {
+    "pressKey": "{{tip}}を押して{{message}}"
+  },
+  "toast": {
+    "joined": "しんにゅう",
+    "left": "左"
+  },
+  "navUserWidget": {
+    "login": "ログイン"
+  },
+  "loader": {
+    "connecting": "世界とつながる...",
+    "entering": "世界に入る...",
+    "loading": "積載。。。",
+    "objectRemaining": "{{count}} オブジェクトの残り",
+    "objectRemainingPlural": "残り{{count}}オブジェクト",
+    "loadingObjects": "オブジェクトの読み込み",
+    "loadingComplete": "読み込み完了",
+    "joiningWorld": "世界に加わる"
+  },
+  "alert": {
+    "eventWasSuccess": "イベントは成功しました",
+    "errorWasEncountered": "エラーが発生しました",
+    "eventInProgress": "進行中のイベント",
+    "seconds": "お代わり",
+    "cancelCountdown": "このモーダルを閉じると、カウントダウンがキャンセルされます"
+  },
+  "debug": {
+    "refresh": "リフレッシュ",
+    "stats": "統計",
+    "debugOptions": "デバッグオプション",
+    "physicsDebug": "物理学",
+    "avatarDebug": "アバター",
+    "nodeHelperDebug": "ノードヘルパー",
+    "gridDebug": "グリッド",
+    "simpleMaterials": "シンプルな素材",
+    "tick": "ダニ",
+    "worldStore": "ワールドストア",
+    "engineStore": "エンジンストア",
+    "namedEntities": "名前付きエンティティ",
+    "networkObject": "ネットワークオブジェクト",
+    "networkClients": "ネットワーククライアント"
+  },
+  "recording": {
+    "videoRecorder": "ビデオレコーダー",
+    "waitingForPermissions": "アクセス許可の待機中",
+    "selectVideoSource": "ビデオソースの選択",
+    "screen": "スクリーン",
+    "camera": "カメラ",
+    "microphone": "マイク",
+    "startRecording": "録音を開始する",
+    "pauseRecording": "録音の一時停止",
+    "resumeRecording": "録音の再開",
+    "stopRecording": "録音を停止する"
+  },
+  "typing": "タイピング。。。",
+  "gameServer": {
+    "browserError": "ブラウザエラー",
+    "browserErrorMessage": "お使いのブラウザは、プライベートブラウジングモードでのストレージをサポートしていません。別のブラウザを試すか、プライベートブラウジングモードを終了します。",
+    "noAvailableServers": "使用可能なサーバーがありません",
+    "noAvailableServersMessage": "接続できるサーバーがありません。で再接続を試行しています",
+    "worldDisconnected": "切断された世界",
+    "worldDisconnectedMessage": "あなたは世界とのつながりを失ってしまった。次の時間がなくなる前に再接続を試み、そうしないと別のインスタンスに転送されます。",
+    "webGLNotEnabled": "ウェブGL が有効になっていません",
+    "webGLNotEnabledMessage": "お使いのブラウザがWebGLをサポートしていないか、無効になっています。WebGLを有効にするか、ブラウザの最新バージョンへのアップグレードを検討してください。",
+    "youKickedFromWorld": "あなたは世界から追い出された",
+    "youKickedFromWorldMessage": "あなたは以下の理由でこの世から追い出されました",
+    "invalidLocation": "無効な場所",
+    "cantFindLocation": "場所が見つからない",
+    "misspelledOrNotExist": "スペルが間違っているか、存在しない可能性があります。",
+    "loading": "積載",
+    "low-frame-error": "パフォーマンスの低下を検出した場合、ブラウザでハードウェアアクセラレーションの使用を有効にしてブラウザを再構築することを検討してください",
+    "low-frame-title": "より良い経験のためにハードウェアアクセラレーションを有効にしてください!"
+  },
+  "error": {
+    "loading-error": "ユーザー データの読み込みに失敗しました",
+    "validation-error": "有効な{{type}}を入力してください",
+    "login-error": "ログインに失敗しました"
+  }
+}

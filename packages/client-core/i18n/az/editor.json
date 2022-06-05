@@ -1,0 +1,718 @@
+{
+  "loading": "Layihə Yüklənir",
+  "loadingMsg": "Layihə yüklənir...",
+  "loadingError": "Layihə yüklənərkən xəta oldu",
+  "loadingErrorMsg": "Layihəni yükləyərkən xəta oldu.",
+  "selectSceneMsg": "Mühərrik ilə oynamağa başlamaq üçün Səhnə seçin",
+  "error": "Xəta",
+  "errorMsg": "Məlum səhv var idi.",
+  "generateScreenshot": "Layihə Skrinşotları Yaradılır",
+  "generateScreenshotMsg": "Layihə ekran görüntüsü yaradılır...",
+  "newScene": "Səhnə yarat",
+  "saving": "Layihə Qeyd Edilir",
+  "savingMsg": "Layihə qeyd edilir...",
+  "savingError": "Layihə Qeyd Edilir",
+  "savingErrorMsg": "Layihəni qeyd edərkən xəta oldu.",
+  "savingSceneErrorMsg": "Səhnə düzgün yüklənməz. Səhnəni yenidən yükləməyə çalış.",
+  "duplicating": "Layihəni _Sil",
+  "duplicatingMsg": "Layihəni _Sil",
+  "exporting": "Layihəni sistemə idxal etmək",
+  "exportingMsg": "Layihə ixrac edilir...",
+  "exportingError": "Layihə İdxalı Xətası",
+  "exportingErrorMsg": "Layihəni ixrac edərkən xəta oldu.",
+  "importLegacy": "İdxal Legacy World",
+  "importLegacyMsg": "(Bu Qur ' anın müşriklərə) öyüd- Bu sizin mövcud səhnənizin üstünə yazacaq! Əminsinizmi ki, bundan sonra da davam etmək istəyirsiniz?",
+  "publishingError": "Layihəni Sistemə Qur",
+  "publishingErrorMsg": "Məlum səhv var idi.",
+  "publishingScene": "Nəşriyyat səhnəsi",
+  "publishingSceneMsg": "Nəşriyyat səhnəsi...",
+  "uploadingThumbnailMsg": "Thumbnail yüklənir...",
+  "uploadingSceneMsg": "Yükləmə səhnəsi: {{percentage}}%",
+  "envMapError": "{{files}} küp xəritəsi rəsmləri yüklənərkən xəta oldu",
+  "lbl-return": "Qayıt",
+  "menubar": {
+    "newScene": "Yeni Səhnə",
+    "saveScene": "Səhnəni Qeyd Et",
+    "saveAs": "Qeyd Et",
+    "importAsset": "Var-dövlət idxal et",
+    "exportGLB": "İkili glTF (.glb) olaraq ixrac et ...",
+    "importScene": "Idxal et",
+    "exportScene": "İxracat səhnəsi",
+    "quit": "Burax"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Fayl üçün dəstəklənməyən fayl növü: \"{{name}}\". Fayl şəkil, video və ya glb modeli olmalıdır.",
+    "addObject": "addObject: cism tapılmamışdan əvvəl",
+    "removeObject": "removeObject: node tapılmadı. Buna səbəb artıq hadisə yerində olmayan düyünün götürülməsidir.",
+    "noParent": "{{node}} '{{name}}'nin valideynləri yoxdur. Reparent yalnız hal-hazırda səhnədə olan obyektlər üzərində işləyir.",
+    "undefinedParent": "editor.reparent: newParent qeyri-müəyyəndir",
+    "notAuthenticated": "Təsdiq edilməyib",
+    "fetchingProjectError": "Layihə xətası: {{error}}",
+    "fetchingRouteError": "Yol xətası: {{error}}",
+    "unknownError": "Namə'lum xəta",
+    "resolveURL": "Url \"{{url}}\" həlli xətası: %s",
+    "mediaSearchAborted": "Media axtarışı ləğv edildi",
+    "methodNotImplemented": "Metod tətbiq edilmir.",
+    "saveProjectAborted": "Save səhnəsi ləğv edildi",
+    "unsavedChanges": "Qeyd olunmamış dəyişikliklər",
+    "unsavedChangesMsg": "Hadisə yerində dəyişiklik edilib. Xahiş edirik, dəyişikliklərinizi qeyd edin.",
+    "projectCreationFail": "Layihə yaradıla bilmədi. {{reason}}",
+    "projectDeletionFail": "Layihə silinə bilmədi. {{reason}}",
+    "savingProjectFail": "Layihə Qeyd ed bilmədi. {{reason}}",
+    "sceneTooLarge": "Səhnə çox böyükdür ({{size}} MB ) nəşr etmək üçün. Maksimal ölçü {{maxSize}} MB-dir.",
+    "sceneCreationFail": "Səhnə yaradılışı baş tutmadı. {{reason}}",
+    "uploadAborted": "Ləğv edildi",
+    "uploadFailed": "{{reason}} yüklə",
+    "assetDeletionFail": "Var-dövlət silindi. {{reason}}",
+    "projectAssetDeletionFail": "Layihə Var-dövlət silindi. {{reason}}",
+    "networkError": "Şəbəkə xətası: {{status}}. {{text}}",
+    "unknownStatus": "Namə'lum vəziyyət",
+    "CORS": "Ehtimal ki, KORS xətası",
+    "urlFetchError": "{{url}}"
+  },
+  "viewport": {
+    "title": "İşport",
+    "command": {
+      "movecamera": "Kameranı Köçür",
+      "flyFast": "Daha sürətli uçun",
+      "orbit": "Orbit / Seç",
+      "pan": "Pan",
+      "fly": "Uç",
+      "focus": "Fokusla",
+      "rotateLeft": "Sola Döndər",
+      "rotateRight": "Sağa Döndər",
+      "cancelPlacement": "Yerləşdirməni ləğv et",
+      "placeDuplicate": "Cütləşdirmək",
+      "cancelGrab": "Grab-i ləğv et",
+      "grab": "Qrab",
+      "deselectAll": "Hamısını Des selib"
+    },
+    "state": {
+      "header": "Statistika",
+      "memory": "Yaddaş",
+      "geometries": "Geometriyalar",
+      "textures": "Teksürlər",
+      "render": "İşlə",
+      "FPS": "FPS",
+      "frameTime": "Çərçivə vaxtı",
+      "calls": "Zənglər",
+      "triangles": "Üçbucaqlar",
+      "points": "Nöqtələr",
+      "lines": "Sətirlər"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Nəşr et",
+    "lbl-published": "Nəşrlər",
+    "command": {
+      "translate": "Tərcümə etmək",
+      "rotate": "Döndər",
+      "scale": "Böyüt",
+      "toggleSpace": "Transa döndər",
+      "togglePivot": "Dönüş Mə'y",
+      "toggleSnapMode": "_Yenilə",
+      "toggleGrid": "Şəbəkə görünüşünü yenilə",
+      "increaseGridSize": "Şəbəkə böyüklüyü artır",
+      "descreaseGridSize": "Şəbəkə ölçülərini azalt",
+      "stopPreview": "Önbaxış səhnəni dayandır",
+      "playPreview": "Önbaxış səhnə"
+    }
+  },
+  "properties": {
+    "title": "Xassələr",
+    "lbl-visible": "Görünən",
+    "lbl-preventBake": "Bakenin qarşısını alın",
+    "lbl-persist": "Davam",
+    "multipleNodeSelected": "Müxtəlif növlü çoxlu düyünlər seçildi",
+    "noNodeSelected": "Seçili düyün yoxdur",
+    "ambientLight": {
+      "name": "İşıqlı İşıq",
+      "description": "Sizin səhnənizdəki bütün əşyaları işıqlandıran işıq.",
+      "lbl-intensity": "İntensivlik",
+      "lbl-color": "Rəng"
+    },
+    "envmap": {
+      "name": "Ətraf mühit xəritəsi",
+      "description": "ətraf mühitin xəritə xüsusiyyətləri"
+    },
+    "asset": {
+      "name": "Var-dövlət",
+      "description": "Dinamik yüklənib boşaldıla bilən səhnə komponentlərinin qruplaşdırılması",
+      "lbl-options": "Seçimlər",
+      "lbl-assetPath": "Var-dövlət yolu",
+      "lbl-assetName": "İxrac Adı",
+      "lbl-exportOptions": "İxrac Qurğuları",
+      "lbl-export": "İxrac aktivi",
+      "lbl-load": "Səhnəyə Yüklə",
+      "lbl-unload": "Boşalt",
+      "lbl-reload": "Yenidən Yüklə"
+    },
+    "audio": {
+      "name": "Səs",
+      "description": "Dinamik olaraq audio yükləyir.",
+      "lbl-audiourl": "Səs Ünvanı",
+      "lbl-controls": "nəzarət",
+      "info-controls": "Kütləvi informasiya vasitələrinin idarə edilməsi görünüşünü artırın.",
+      "lbl-autoplay": "Avtomatik Oyna",
+      "info-autoplay": "Əgər doğrudursa, media ilk dəfə hadisə yerinə daxil olarkən oynayacaq.",
+      "lbl-synchronize": "Sinxronlaşdır",
+      "info-synchronize": "Əgər doğrudursa, bağlı bütün müştərilər üzərində media Sinxronizasiya olunacaq.",
+      "lbl-loop": "Cilalama",
+      "info-loop": "Əgər doğru çıxsa, kütləvi informasiya vasitələri əbədiyyən döngəyə çıxacaq.",
+      "lbl-audioType": "Səs Növü",
+      "lbl-distanceModel": "Uzaqlıq Modeli",
+      "info-distanceModel": "Audio rolloffu hesablamaq üçün istifadə olunan algorithim.",
+      "lbl-rolloffFactor": "Rolloff Faktoru",
+      "info-rolloffFactor": "Mənbə dinləyicidən uzaqlaşdıqca səsin nə qədər tez azaldığını təsvir edən ikiqat dəyər. 0-a 1",
+      "info-rfInfinity": "Mənbə dinləyicidən uzaqlaşdıqca səsin nə qədər tez azaldığını təsvir edən ikiqat dəyər. 0 Sonsuzluq",
+      "lbl-refDistance": "Ref Məsafəsi",
+      "info-refDistance": "Audio mənbə dinləyicidən daha da irəlilədikcə səsin həcminin azaldılması üçün istinad məsafəsini təmsil edən ikiqat dəyər.",
+      "lbl-maxDistance": "Maks Məsafəsi",
+      "info-maxDistance": "Səs mənbəyi ilə dinləyici arasında maksimal məsafəni təmsil edən ikiqat dəyər. Bundan sonra səs daha da azaldılmır.",
+      "lbl-coneInnerAngle": "Kone Daxili Bucaq",
+      "info-coneInnerAngle": "İçində həcmi azalmayacaq konusun bucaq, dərəcə ilə təsvir olunan ikiqat dəyəri.",
+      "lbl-coneOuterAngle": "Konus Xarici Bucaq",
+      "info-coneOuterAngle": "Kənardakı konenin bucağını təsvir edən ikiqat dəyər, dərəcə, onun xaricində olan konenin sabit dəyəri ilə azaldılacaq, konusOuterGain atributu ilə müəyyən edilir.",
+      "lbl-coreOuterGain": "Konus Xarici Qazanc",
+      "info-coreOuterGain": "ConeOuterAngle atributu ilə müəyyən edilən kone xaricində həcmin azalmasının miqdarını təsvir edən ikiqat dəyər. Onun default dəyəri 0-dır, yəni heç bir səs eşidilmir.",
+      "lbl-volume": "Cild",
+      "lbl-play": "Çal",
+      "lbl-pause": "Fasilə",
+      "error-url": "URL-dən yükləmə xətası"
+    },
+    "boxCollider": {
+      "description": "Cisimlərin üstünə sıçrayacaq və ya istirahət edəcək gözəgörünməz qutu.\nToqquşma olmasa, əşyalar döşəmələrdən tökülüb, divarlardan keçəcək.",
+      "lbl-isTrigger": "Tetiklemek"
+    },
+    "camera": {
+      "name": "Kamera",
+      "description": "Kamera qurğuları.",
+      "lbl-camera-raycast": "Kameralı Raycasting",
+      "lbl-camera-raycast-toggle": "Fəal",
+      "lbl-camera-raycast-frequency": "Tezlik",
+      "lbl-camera-raycast-count": "Şüa Sayğacı",
+      "lbl-camera-raycast-length": "Şüa Uzunluğu"
+    },
+    "directionalLight": {
+      "name": "Yön işığı",
+      "description": "Bütün səhnəni işıqlandıran, lakin bir istiqamət üzrə işıq saçan işıq.",
+      "lbl-color": "Rəng",
+      "lbl-intensity": "İntensivlik",
+      "lbl-cameraFar": "Kamera Uzaq",
+      "lbl-cameraNear": "Kamera Yaxın",
+      "lbl-cameraTop": "Kamera Üst",
+      "lbl-cameraBottom": "Kamera Alt",
+      "lbl-cameraLeft": "Kamera",
+      "lbl-cameraRight": "Kamera Sağ",
+      "lbl-useInCSM": "CSM-də istifadə",
+      "lbl-castShadow": "Kölgə",
+      "lbl-disableForCSM": "Cascade kölgəsi xəritəsi fəal olduğu üçün qeyri-fəaldır.",
+      "lbl-shadowmapResolution": "Kölgə xəritəsi qətnaməsi",
+      "lbl-shadowBias": "Kölgə Qərəzi",
+      "lbl-shadowRadius": "Kölgə Radiusu",
+      "lbl-showCameraHelper": "Kamera Yardımçısı Göstər"
+    },
+    "groundPlane": {
+      "name": "Yerüstü təyyarə",
+      "description": "Uzaqlığa qədər uzanan yastı yerüstü təyyarə.",
+      "lbl-color": "Rəng",
+      "lbl-receiveShadow": "Kölgə al",
+      "lbl-generateNavmesh": "Navmeş hasil et"
+    },
+    "link": {
+      "description": "Bir otaq və ya veb sayt ilə əlaqə.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "3D geospatial xəritə e.g. bir şəhər."
+    },
+    "model": {
+      "description": "Sizin səhnənizdəki 3D model, GLTF URL-dən və ya fayldan yüklənir.",
+      "lbl-usingGPUInstancingFlag": "GPU instancing istifadə et",
+      "lbl-modelurl": "Model Url",
+      "lbl-envmapUrl": "Ətraf Mühitin Xəritə Url-ləri",
+      "lbl-textureOverride": "Mətnin üstünə et",
+      "lbl-materialOverride": "Material Overrides",
+      "error-url": "URL-dən yükləmə xətası",
+      "lbl-loopAnimation": "Loop Animation",
+      "lbl-isAvatar": "Avatardır",
+      "lbl-isGPUInstancing": "GPU instancing istifadə edilir",
+      "lbl-isDynamic": "Dinamikdir",
+      "lbl-castShadow": "Kölgə",
+      "lbl-receiveShadow": "Kölgə al",
+      "lbl-interactable": "Ünsiyyət qura bilənlər",
+      "lbl-matrixAutoUpdate": "MatrisAutoUpdate",
+      "lbl-name": "Ad",
+      "lbl-url": "Model Url",
+      "lbl-buy": "Url Al",
+      "lbl-learnMore": "Daha çox Url öyrən",
+      "lbl-htmlContent": "Html Məzmunu",
+      "lbl-interactionText": "Qarşılıq Mətni",
+      "lbl-interactionType": "Qarşılıqlı təsir növü"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Material",
+      "error-materialID": "Material tapılarkən xəta oldu",
+      "placeholder-materialID": "Material Seç",
+      "lbl-patternTarget": "Şablon uyğunlaşma",
+      "lbl-pattern": "Şəkil",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Qarşılıqlı təsir növü",
+      "text": "Qarşılıq Mətni",
+      "distance": "Qarşılıq Məsafəsi",
+      "theme": "Qarşılıqlı əlaqə mövzusu",
+      "name": "Əlaqə Adı",
+      "description": "İzah",
+      "images": "Qarşılıqlı Təsir Rəsmləri",
+      "videos": "Qarşılıq Videolar",
+      "urls": "Qarşılıq Url-ləri",
+      "models": "Qarşılıqlı təsir modelləri"
+    },
+    "group": {
+      "name": "Qrupla",
+      "description": "Bir yerə daşına bilən və ya təkrarlana bilən çoxlu sayda cisimlər qrupu.\nIerarxiyadakı Qrupuna obyektləri sürükleyin və atın."
+    },
+    "hemisphere": {
+      "name": "Yarımsfer İşıqlı",
+      "description": "Səhnəni birbaşa üstdən işıqlandıran işıq.",
+      "lbl-skyColor": "Göy rəng",
+      "lbl-groundColor": "Yer Rəngi",
+      "lbl-intensity": "İntensivlik"
+    },
+    "image": {
+      "name": "Rəsm",
+      "description": "Dinamik olaraq şəkil yükləyir.",
+      "lbl-imgURL": "Rəsmin Ünvanı",
+      "lbl-transparency": "Şəffaflıq Modu",
+      "lbl-alphaCutoff": "Alfa Cutoff",
+      "lbl-projection": "Proyeksiya",
+      "lbl-side": "Tərəf",
+      "info-controls": "Kütləvi informasiya vasitələrinin idarə edilməsi görünüşünü artırın.",
+      "info-transparency": "Şəffaflığı necə tətbiq etmək lazımdır:",
+      "info-opaque": "'opaque' = şəffaflıq yoxdur",
+      "info-blend": "'blend' = şəkillər alfa kanalı istifadə edin",
+      "info-mask": "'mask' = on/off şəffaflıq (daha performant) üçün müəyyən cutoff dəyəri istifadə edin",
+      "info-alphaCutoff": "Bundan aşağı alfa dəyərləri olan piksellər şəffaf olacaq",
+      "error-url": "Səhv ÜNVAN"
+    },
+    "name": {
+      "lbl-name": "Ad"
+    },
+    "partileEmitter": {
+      "description": "Hissəciklər yaratmaq üçün parçacıqlar emissiya edir.",
+      "lbl-particleCount": "Zərrəcik sayım",
+      "lbl-image": "Rəsm",
+      "lbl-ageRandomness": "Yaş Təsadüfiliyi",
+      "lbl-lifetime": "Ömür boyu",
+      "lbl-lifetimeRandomness": "Ömür boyu təsadüf",
+      "lbl-sizeCurve": "Böyüklük",
+      "lbl-startPSize": "Zərrəcik böyüklüyünə başla",
+      "lbl-endPSize": "Bitiş Hissəcik Ölçüsü",
+      "lbl-sizeRandomness": "Böyüklük Randomness",
+      "lbl-colorCurve": "Rəng Kürəcik",
+      "lbl-startColor": "Rəng:",
+      "lbl-startOpacity": "Boşluq başla",
+      "lbl-middleColor": "Orta Rəng",
+      "lbl-middleOpacity": "Orta Opacity",
+      "lbl-endColor": "Bitiş Rəngi",
+      "lbl-endOpacity": "Boşluqları Sona",
+      "lbl-velocityCurve": "Velodit döngəsi",
+      "lbl-startVelocity": "Başlanğıc velodisite",
+      "lbl-endVelocity": "Bitiş velosibəti",
+      "lbl-angularVelocity": "Angular Velocity",
+      "info-ageRandomness": "Zərrəciklərin əmələ gəldiyi zaman aralarındakı variasiyanın miqdarı.",
+      "info-lifetime": "Bir hissəciyin tənəffüsdən əvvəlki maksimum yaşı.",
+      "info-lifetimeRandomness": "Zərrəcik ömrü arasındakı variasiyanın miqdarı.",
+      "info-sizeRandomness": "Hissəcik başlanğıc ölçüləri arasındakı variasiyanın miqdarı.",
+      "error-url": "URL-dən yükləmə xətası"
+    },
+    "clouds": {
+      "name": "Bulud",
+      "description": "Sprite əsaslı bulud həcmi.",
+      "lbl-image": "Rəsmi qeyd etmək",
+      "lbl-wroldScale": "Dünya miqyası",
+      "lbl-dimensions": "Ölçülər",
+      "lbl-noiseZoom": "Səs-küy Yaxınlaşdırma",
+      "lbl-noiseOffset": "Səs-küyə görə ofset",
+      "lbl-spriteScale": "Sprit Şkalası",
+      "lbl-fogColor": "Duman rəngi",
+      "lbl-fogRange": "Duman Aralığı",
+      "error-url": "URL-dən yükləmə xətası"
+    },
+    "ocean": {
+      "name": "Okean",
+      "description": "Dalğa və köpüklə okean səthi",
+      "lbl-normalMap": "Normal Xəritə",
+      "lbl-distortionMap": "Təhrif Xəritəsi",
+      "lbl-envMap": "Ətraf mühit xəritəsi",
+      "lbl-color": "Rəng",
+      "lbl-shallowWaterColor": "Dərin Su Rəngi",
+      "lbl-shallowToDeepDistance": "Dərinliyə qədər dərin",
+      "lbl-opacityFadeDistance": "Boşluq uzaqlığı solur",
+      "lbl-opacityRange": "Boşluq aralığı",
+      "lbl-shininess": "Parlaqlıq",
+      "lbl-reflectivity": "Reflvizivlik",
+      "lbl-foamColor": "Köpük rəngi",
+      "lbl-foamSpeed": "Köpük sürəti",
+      "lbl-foamTiling": "Köpük Tiling",
+      "lbl-bigWaveTiling": "Böyük Dalğa Tiling",
+      "lbl-bigWaveSpeed": "Böyük dalğa sürəti",
+      "lbl-bigWaveHeight": "Böyük Dalğa Yüksəkliyi",
+      "lbl-waveSpeed": "Dalğa Sürəti",
+      "lbl-waveScale": "Dalğa Şkalası",
+      "lbl-waveTiling": "Dalğa Tiling",
+      "lbl-waveDistortionSpeed": "Dalğa təhrif sürəti",
+      "lbl-waveDistortionTiling": "Dalğa təhrifi Tiling",
+      "error-url": "URL-dən yükləmə xətası"
+    },
+    "water": {
+      "name": "Su",
+      "description": "Kiçik su səthi"
+    },
+    "interior": {
+      "name": "İnteryer",
+      "description": "Daxili mühitləri təqlid etmək üçün xəritəli kub tekstrofa malik səth",
+      "lbl-cubeMap": "Küp xəritəsi teksürü",
+      "lbl-tiling": "Tiling miqdarı",
+      "lbl-size": "Səthin ölçüsü",
+      "error-url": "URL-dən yükləmə xətası"
+    },
+    "pointLight": {
+      "description": "Bir nöqtədən bütün istiqamətlərdə yalınan işıq.",
+      "lbl-color": "Rəng",
+      "lbl-intensity": "İntensivlik",
+      "lbl-range": "Ara",
+      "lbl-decay": "Çürüklər"
+    },
+    "scene": {
+      "name": "Səhnə",
+      "description": "Səhnənin kök obyekti.",
+      "lbl-bgcolor": "Arxa Rəng",
+      "lbl-fogType": "Duman növü",
+      "lbl-fogColor": "Duman rəngi",
+      "lbl-forNearDistance": "Duman yaxın məsafədə",
+      "lbl-fogFarDistance": "Duman Uzaq Məsafə",
+      "lbl-fogDensity": "Duman qatılığı",
+      "lbl-audioSettings": "Mövqeli Audio'lardan istifadə edin",
+      "lbl-avatarDistanceModel": "Avatar Məsafə Modeli",
+      "lbl-avatarRolloffFactor": "Avatar Rolloff Faktoru",
+      "lbl-avatarRefDistance": "Avatar Ref Məsafəsi",
+      "lbl-avatarMaxDistance": "Avatar Max Məsafəsi",
+      "lbl-mediaVolume": "Kütləvi informasiya vasitələrinin həcmi",
+      "lbl-mediaDistanceModel": "Media Məsafəsi Modeli",
+      "lbl-mediaRolloffFactor": "Media Rolloff Faktoru",
+      "lbl-mediaRefDistance": "Media Ref Məsafəsi",
+      "lbl-mediaMaxDistance": "Media Max Məsafə",
+      "lbl-mediaConeInnerAngle": "Media Konus Daxili Bucaq",
+      "lbl-mediaConeOuterAngle": "Media Konus Xarici Bucaq",
+      "lbl-mediaConeOuterGain": "Media Cone Outer Gain",
+      "info-avatarDistanceModel": "Audio rolloffu hesablamaq üçün istifadə olunan algorithim.",
+      "info-avatarRolloffFactor": "Mənbə dinləyicidən uzaqlaşdıqca səsin nə qədər tez azaldığını təsvir edən ikiqat dəyər. 0-a 1",
+      "info-avatarRolloffFactorInifinity": "Mənbə dinləyicidən uzaqlaşdıqca səsin nə qədər tez azaldığını təsvir edən ikiqat dəyər. 0 Sonsuzluq",
+      "info-avatarRefDistance": "Audio mənbə dinləyicidən daha da irəlilədikcə səsin həcminin azaldılması üçün istinad məsafəsini təmsil edən ikiqat dəyər.",
+      "info-avatarMaxDistance": "Səs mənbəyi ilə dinləyici arasında maksimal məsafəni təmsil edən ikiqat dəyər. Bundan sonra səs daha da azaldılmır.",
+      "info-mediaDistanceModel": "Audio rolloffu hesablamaq üçün istifadə olunan algorithim.",
+      "info-mediaRolloffFactor": "Mənbə dinləyicidən uzaqlaşdıqca səsin nə qədər tez azaldığını təsvir edən ikiqat dəyər. 0-a 1",
+      "info-mediaRolloffFactorInfinity": "Mənbə dinləyicidən uzaqlaşdıqca səsin nə qədər tez azaldığını təsvir edən ikiqat dəyər. 0 Sonsuzluq",
+      "info-mediaRefDistance": "Audio mənbə dinləyicidən daha da irəlilədikcə səsin həcminin azaldılması üçün istinad məsafəsini təmsil edən ikiqat dəyər.",
+      "info-mediaMaxDistance": "Səs mənbəyi ilə dinləyici arasında maksimal məsafəni təmsil edən ikiqat dəyər. Bundan sonra səs daha da azaldılmır.",
+      "info-mediaConeInnerAngle": "İçində həcmi azalmayacaq konusun bucaq, dərəcə ilə təsvir olunan ikiqat dəyəri.",
+      "info-mediaConeOuterAngle": "Kənardakı konenin bucağını təsvir edən ikiqat dəyər, dərəcə, onun xaricində olan konenin sabit dəyəri ilə azaldılacaq, konusOuterGain atributu ilə müəyyən edilir.",
+      "info-mediaConeOuterGain": "ConeOuterAngle atributu ilə müəyyən edilən kone xaricində həcmin azalmasının miqdarını təsvir edən ikiqat dəyər. Onun default dəyəri 0-dır, yəni heç bir səs eşidilmir.",
+      "lbl-simpleMaterials": "Sadə materiallardan istifadə",
+      "lbl-lods": "LOD-lar",
+      "info-lods": "Detalların hansı səviyyədə dəyişdiyi məsafələri təyin edir.",
+      "info-simpleMaterials": "Bütün bahalı materialları daha sadə materiallara çevirir ki, yükü səhnə renderinqdən çıxarsın.",
+      "lbl-rendererSettings": "İşləkçi Qurğularını Üstələ",
+      "lbl-csm": "Kasading kölgə xəritələri",
+      "info-csm": "Cascading shadow maps-ləri fəallaşdır.",
+      "lbl-toneMapping": "Ton Mapping",
+      "info-toneMapping": "Səhnə rendererdə ton xəritəsinə imkan yaradır. Post işlənməsinin fəal olduğu zaman heç bir təsiri yoxdur.",
+      "lbl-toneMappingExposure": "Ton Xəritəçəkmə Ekspozisiyası",
+      "info-toneMappingExposure": "1999-ci ildə azərbaycan dövlət tonunun 100-ə qədəri ekrana buraxılır. Post işlənməsinin fəal olduğu zaman heç bir təsiri yoxdur.",
+      "lbl-shadowMapType": "Kölgə xəritəsi növü",
+      "info-shadowMapType": "Kölgə xəritəsinin növü",
+      "error-url": "URL-dən yükləmə xətası"
+    },
+    "sceneCamera": {
+      "name": "Səhnə Önbaxış kamera",
+      "description": "Səhnəniz üçün thumbnail və preview kamera üçün başlanğıc mövqeyini yaratmaq üçün istifadə olunan kamera.",
+      "lbl-setFromViewPort": "Viewportdan təyin"
+    },
+    "skybox": {
+      "name": "Göy qutusu",
+      "description": "",
+      "lbl-timeOfDay": "Günün vaxtı",
+      "lbl-color": "Rəng",
+      "lbl-latitude": "Enlik",
+      "lbl-luminance": "Lümnians",
+      "lbl-scattering": "Səpki miqdarı",
+      "lbl-scatteringDistance": "Səpələmə Məsafəsi",
+      "lbl-horizonStart": "Üfüqi Başlanğıc",
+      "lbl-horizonEnd": "Üfüq Sonu",
+      "lbl-texture": "Teksür",
+      "lbl-skyType": "Göy növü",
+      "error-url": "URL-dən yükləmə xətası"
+    },
+    "spawnPoint": {
+      "name": "Spawn Nöqtəsi",
+      "description": "İnsanlar sizin səhnənizə girəndə peyda olacaq nöqtə.\nViewportdakı ikona avatarın faktiki ölçüsünü təmsil edir."
+    },
+    "spotLight": {
+      "description": "Bir istiqamətdə işıq saçan, konus içərisindəki cisimləri işıqlandıran işıq.",
+      "lbl-color": "Rəng",
+      "lbl-intensity": "İntensivlik",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "Bucaq",
+      "lbl-range": "Ara",
+      "lbl-decay": "Çürüklər"
+    },
+    "transform": {
+      "title": "Çevir",
+      "lbl-postition": "Mövqe",
+      "lbl-rotation": "Dönmə",
+      "lbl-scale": "Böyüt"
+    },
+    "triggereVolume": {
+      "description": "Giriş və icazədə hədəf obyekt üzərində bir malı təyin edir.",
+      "lbl-target": "Cism",
+      "lbl-onenter": "Daxil Ol",
+      "lbl-onexit": "Çıxışda",
+      "lbl-showHelper": "Köməkçi Mesh göstər",
+      "ph-errorNode": "Düyünün xətası: %s",
+      "ph-selectNode": "Düyünü seç..."
+    },
+    "video": {
+      "name": "Video",
+      "description": "Dinamik olaraq video yükləyir.",
+      "lbl-video": "Video",
+      "lbl-projection": "Proyeksiya",
+      "lbl-islivestream": "Canlı axın",
+      "lbl-interactable": "Ünsiyyət qura bilənlər",
+      "lbl-id": "Elementin Id-i",
+      "lbl-play": "Çal",
+      "lbl-pause": "Fasilə",
+      "error-url": "URL-dən yükləmə xətası"
+    },
+    "volumetric": {
+      "name": "Volumetrik",
+      "description": "Dinamik olaraq volumetrik video yükləyir.",
+      "uvolPaths": "UVOL Cığırları",
+      "playmode": "Oynat",
+      "playtitle": "Çal",
+      "pausetitle": "Fasilə"
+    },
+    "spline": {
+      "description": "Dinamik olaraq döngələri yaratmaq və özəlləşdirmək.",
+      "lbl-addNode": "Düyünü döngəyə əlavə et"
+    },
+    "systemnode": {
+      "description": "Yazı yapışdır.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "İnyeksiya Nöqtəsi",
+      "lbl-enableClient": "Müştəri",
+      "lbl-enableServer": "Verici",
+      "lbl-args": "Args",
+      "error-url": "URL-dən Skript Yüklənərkən xəta oldu"
+    },
+    "portal": {
+      "lbl-portal": "Bağlı Portal",
+      "lbl-redirect": "Səhifə redirect'ini işlət",
+      "description": "Müəyyən edilmiş yerə teleport etmək üçün Portat",
+      "lbl-locationName": "Yer",
+      "lbl-modelUrl": "Model URL",
+      "lbl-displayText": "Mətni Göstər",
+      "lbl-cubemapBake": "Küpəmə bişir",
+      "lbl-spawnPosition": "Sıçrat",
+      "lbl-spawnRotation": "Dönmə",
+      "lbl-triggerPosition": "Tetik mövqeyi",
+      "lbl-triggerRotation": "Dönmə",
+      "lbl-triggerScale": "Tetik Şkalası"
+    },
+    "postprocessing": {
+      "name": "Post İşləmə",
+      "description": "Post Processing effektlərini sizə tətbiq etmək üçün səhnə."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Layihə",
+      "backLink": "Layihələrə qayıt",
+      "featured": "Xüsusi",
+      "all": "Hamısı",
+      "newProject": "Layihəni Boş (bomb)",
+      "ph-search": "Axtarış səhnələri..."
+    },
+    "grid": {
+      "loading": "Yüklənir..."
+    },
+    "page": {
+      "header": "Xoş gəlmisiniz",
+      "headerMsg": "Əgər burada yenisinizsə, biz təlimatdan keçməyi məsləhət görürük. Əks halda, sağa tullanıb sıfırdan və ya şablonlarımızdan birindən layihə yaradın.",
+      "lbl-startTutorial": "Öyrədicini başlat",
+      "projects": "Layihələr",
+      "lbl-newProject": "Layihə"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Yüklənir...",
+      "placeObject": "Cism",
+      "placeObjectAtOrigin": "Cismin mənşəyi",
+      "copyURL": "Url-ləri köçür",
+      "openInNewTab": "Yeni Səkmədə URL aç",
+      "deleteAsset": "Faylı sil"
+    },
+    "filebrowser": {
+      "addNewFolder": "Yeni Qovluq Əlavə Et",
+      "cutAsset": "Kəs",
+      "copyAsset": "Köçür",
+      "pasteAsset": "Yapışdır",
+      "renameAsset": "Yenidən adlandır",
+      "viewAssetProperties": "Görünüş Xüsusiyyətləri"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Yenidən adlandır",
+    "lbl-duplicate": "Cütlə",
+    "lbl-group": "Qrupla",
+    "lbl-delete": "Sil",
+    "lbl-expandAll": "Hamısını genişləndir",
+    "lbl-collapseAll": "Hamısını Dağıt",
+    "isseus": "Məsələlər:"
+  },
+  "dnd": {
+    "nodes": "{{count}} Düyünləri",
+    "models": "{{count}} Modelləri Seçildi",
+    "images": "{{count}} Seçilmiş Rəsmlər",
+    "videos": "{{count}} Videolar Seçildi",
+    "audio": "{{count}} Audio Mənbələri"
+  },
+  "dialog": {
+    "title": "Editor",
+    "lbl-confirm": "Yaxşı",
+    "lbl-cancel": "Ləğv etmək",
+    "exportProject": {
+      "title": "Layihəni SisteməSat",
+      "lbl-confirm": "Layihəni SisteməSat",
+      "lbl-combineMesh": "Messləri BirLəşdir",
+      "lbl-removeUnused": "Istifadə ediləsi obyektləri sil"
+    },
+    "performance": {
+      "title": "Performans Yoxlaması",
+      "lbl-confirm": "Səhnəni yayımla",
+      "learnMore": "Daha çox öyrənin",
+      "lbl-polycount": "Çoxbucaqlı Kont",
+      "lbl-material": "Materiallar",
+      "lbl-texture": "Teksürlər",
+      "lbl-lights": "İşıqlar",
+      "lbl-fileSize": "Fayl böyüklüyü",
+      "info-polycount": "Mobil cihazlar üçün səhnənizin 50 000-dən artıq üçbucaqdan istifadə etmənizi tövsiyə edirik.",
+      "info-material": "Mobil cihazlarda çəkiliş zənglərini azaltmaq üçün səhnənizdə 25-dən artıq unikal materialdan istifadə etməyi tövsiyə edirik.",
+      "info-texture": "Biz sizin textures mobil cihazlar üçün 256MB-dən artıq video RAM istifadə etmənizi tövsiyə edirik. Həmçinin 2048 x 2048-dən böyük tekskurslardan istifadənin əleyhinə də məsləhət görürük.",
+      "info-lights": "Mobil cihazlarda dinamik işıqforlar imkanlı olmasa da, səhnənizin aşağı uc kompüterlərdə işə salınması üçün səhnənizdə (ambient və yarımkürə işıqları xaric) 3 işıqdan artıq istifadə etməməyi tövsiyə edirik.",
+      "info-fileSize": "Aşağı bant genişliyi bağlantıları üçün 16MB-dan çox olmayan son fayl ölçüsünü məsləhət görürük. Fayl ölçüsünün azaldılması səhnənizi yükləmək üçün lazım olan vaxtı azaldacaq.",
+      "txt-polycount": "{{count}} üçbucaqlar",
+      "txt-material": "{{count}} Materialları",
+      "txt-ram": "~{{count}} Video RAM",
+      "txt-texture": "{{count}} Böyük tekstratlar",
+      "txt-lights": "{{count}} işıqları"
+    },
+    "progress": {
+      "title": "Yüklənir...",
+      "msg": "Yüklənir...",
+      "lbl-cancel": "Ləğv etmək"
+    },
+    "publish": {
+      "title": "Səhnəni yayımla",
+      "lbl-confirm": "Qeyd Et və Yayımla",
+      "lbl-name": "Səhnə adı",
+      "info-name": "Ad 4-64 hərf arasında olmalı və üzərində vurğular ola bilməz"
+    },
+    "published": {
+      "title": "Səhnə Nəşr olundu",
+      "header": "Səhnəniz yayımlanıb.",
+      "lbl-view": "Səhnənizə baxın"
+    },
+    "saveNewProject": {
+      "title": "Dəstəklə",
+      "lbl-name": "Lahiyə Adı",
+      "info-name": "Ad 4-64 hərf arasında olmalı və üzərində vurğular ola bilməz",
+      "lbl-confirm": "Layihəni Qeyd Et"
+    },
+    "support": {
+      "title": "Dəstəklə",
+      "header": "Problem haqqında məlumat vermək lazımdır?",
+      "msg": "<1>Siz Bir GitHub Issue</1> yaza və ya bizə e-poçt vasitəsilə dəstək üçün <3>{{mail}}</3>",
+      "discord": "<1>Diskordda</1> da bizi tapa bilərsiniz"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing Rəsmlər",
+      "search": "Bing tərəfindən axtar"
+    },
+    "bingVideo": {
+      "name": "Bing Videolar",
+      "search": "Bing tərəfindən axtar"
+    },
+    "element": {
+      "name": "Elementləri"
+    },
+    "myAssets": {
+      "name": "Mənim əmlakım"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Google tərəfindən axtar"
+    },
+    "tenor": {
+      "name": "Tenor GIF-lər",
+      "search": "Tenor tərəfindən axtar",
+      "ph-search": "GIF-ləri Axtar..."
+    },
+    "sketchfab": {
+      "name": "Eskizfab",
+      "search": "Sketchfab tərəfindən axtar"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Var-dövlət Yüklə"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Axtarış images..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Videoları axtar..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Axtarış aktivləri..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Axtarış modelləri..."
+    },
+    "useUpload": {
+      "multipleFileError": "Giriş çoxlu faylı qəbul etmir.",
+      "mineTypeError": "\"{{name}}\" aşağıdakı mime növlərinə və uzantılarına uyğun deyil: {{types}}",
+      "progressTitle": "Fayllar Yüklənir",
+      "progressMsg": "{{total}}{{uploaded}} faylların yüklənməsi : {{percentage}}%",
+      "uploadError": "Səhv Yüklə",
+      "uploadErrorMsg": "Fayl yüklənərkən xəta oldu: {{message}}",
+      "uploadErrorDefaultMsg": "Naməlum xəta oldu"
+    }
+  },
+  "openLink": {
+    "description": "Zəhmət olmasa linkə daxil olmaq üçün \"Aç\" düyməsini basın.",
+    "lbl-open": "Aç"
+  },
+  "interactableModel": {
+    "lbl-buy": "Al",
+    "lbl-learnMore": "Daha çox öyrənin"
+  },
+  "corsProxyButton": {
+    "tooltip": "Kors Proxy Server'ini işlət"
+  }
+}

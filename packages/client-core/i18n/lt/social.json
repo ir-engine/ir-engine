@@ -1,0 +1,202 @@
+{
+  "addComment": "Įtraukti komentarą...",
+  "share": "Akcija",
+  "suggestions": "Pasiūlymai Jums",
+  "seeAll": "Žiūrėti viską",
+  "likes": "Mėgsta",
+  "viewComments": "Peržiūrėti visus {{count}} komentarus",
+  "more": "Daugiau",
+  "username": "vartotojo vardas",
+  "fullName": "Vardo pavardė",
+  "reportInApporpriate": "Pranešimas netinkamas",
+  "unfollow": "Unfollow",
+  "goToPost": "Eiti į Skelbimą",
+  "shareModal": "Akcija",
+  "copyLink": "Kopijuoti saitą",
+  "embed": "Įdėti",
+  "cancel": "Atšaukti",
+  "confirm": "Patvirtinti",
+  "save": "Taupyti",
+  "profilePic": "{{user}}profilio nuotrauka",
+  "ara": "Ara",
+  "follow": "Sekti",
+  "flames": "Liepsnos",
+  "continue": "Tęsti",
+  "partyInvitationSent": "Išsiųstas kvietimas į vakarėlį",
+  "arMedia": {
+    "back": "Nugara",
+    "clip": "Klipas",
+    "backgrounds": "Fonai",
+    "start": "Imti"
+  },
+  "arMediaform": {
+    "title": "Titulinis",
+    "type": "Rūšis",
+    "clip": "Klipas",
+    "background": "Fonas",
+    "scene": "Scena",
+    "save": "Taupyti",
+    "manifest-file": "Deklaracijos .manifesto failas",
+    "audio-file": "Mp4 failas",
+    "dracosis-file": "Dracosis .uvol failas",
+    "preview-file": "Peržiūrėti vaizdo failą"
+  },
+  "creator": {
+    "myVideos": "Mano vaizdo įrašai",
+    "savedVideos": "Įrašyti vaizdo įrašai",
+    "back": "Nugara",
+    "blocked-list": "Užblokuotas sąrašas",
+    "block-user": "Blokuoti vartotoją",
+    "dialog-content": "Nematysite vartotojo profilio ir turinio"
+  },
+  "creatorForm": {
+    "back": "Nugara",
+    "edit": "Redaguoti profilį",
+    "save": "Taupyti",
+    "changeAvatar": "Keisti avataro vaizdą",
+    "ph-selectPreview": "Pasirinkti peržiūrą",
+    "ph-name": "Tavo vardas",
+    "ph-username": "Jūsų vartotojo vardas",
+    "ph-email": "Jūsų el. paštas",
+    "ph-tags": "Tags",
+    "ph-link": "Saitas",
+    "ph-aboutYou": "Daugiau apie jus",
+    "ph-twitter": "Twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Atsijungti"
+  },
+  "dashboard": {
+    "title": "Prietaisų skydelis",
+    "dashboard": "Prietaisų skydelis",
+    "users": "Vartotojai",
+    "feeds": "Kanalai",
+    "arMedia": "Vaizdo medija",
+    "editor": "Redaktorius",
+    "creator": "Kūrėjas"
+  },
+  "featured": {
+    "empty-list": "Kol kas jokių pašarų ..."
+  },
+  "feed": {
+    "back": "Nugara",
+    "related": "Susiję informacijos santraukos",
+    "is-repoted-message": "Pašaras yra praneštas!"
+  },
+  "feedForm": {
+    "back": "Nugara",
+    "thanks": "Dėkojame, kad dalinatės ir tobulinate mūsų bendruomenę",
+    "share": "Pasidalinkite kuo nors su bendruomene",
+    "upload": "Nusiųsti vaizdo įrašą",
+    "ph-selectVideo": "Pasirinkti vaizdo įrašą",
+    "preview": "Peržiūrėti vaizdą",
+    "ph-selectPreview": "Pasirinkti peržiūrą",
+    "createFeed": "Norėdami sukurti informacijos santrauką, turite turėti vaizdo įrašą ir peržiūros vaizdą!!!",
+    "ph-videoName": "Jūsų vaizdo įrašo pavadinimas",
+    "ph-type": "Įveskite tai, ką norite bendrinti su bendruomene ... ",
+    "lbl-share": "Akcija",
+    "save": "Įrašyti ir eiti toliau"
+  },
+  "feedMenu": {
+    "featured": "Rekomenduojami",
+    "creators": "Kūrėjai",
+    "feed": "Pašaras"
+  },
+  "header": {
+    "lbl-volumetric": "Matavimo"
+  },
+  "login": {
+    "account": "Turite sąskaitą?",
+    "login": "Prisijungti",
+    "resetPassword": "Mygtukas Iš naujo nustatyti slaptažodį Netikras (čia būtų nuoroda iš el. Pašto)",
+    "notHavingAccount": "Neturite paskyros?",
+    "signUp": "Užsiregistruoti, užsiregistruok",
+    "forgotPassword": "Pamiršote slaptažodį?",
+    "back": "Nugara",
+    "or": "ARBA"
+  },
+  "comment": {
+    "add": "Pridėkite komentarą..."
+  },
+  "notification": {
+    "feedFire": " išleiskite savo pašarą",
+    "feedBookmarked": " žymėjo informacijos santrauką",
+    "comment": " pakomentavo jūsų informacijos santrauką:",
+    "commentFire": " atleido jūsų komentarą, kad maitintų",
+    "follow": " pradėjo jus sekti",
+    "unfollow": " Nustojo jus sekti",
+    "followed": " Sek paskui tave",
+    "activity": "Veikla"
+  },
+  "onBoarding": {
+    "welcome": "Sveikas atvykęs!",
+    "description": "Didžiausia daugiau nei 370 maketų kolekcija, skirta \"iOS\" prototipų kūrimui.",
+    "next": "Kitą",
+    "discover": "Atraskite straipsnius,",
+    "news": "naujienos ir pranešimai",
+    "lines": "Būtent tie jausmai skatina mūsų meilę astronomijai ir norą.",
+    "getStarted": "Pradėti",
+    "meetUp": "Susipažinkite su",
+    "friends": "Friends.",
+    "meet": "Susipažink su draugais"
+  },
+  "shareForm": {
+    "arcMedia": "Akcija",
+    "videoCreated": "Aš sukūriau šį vaizdo įrašą",
+    "shareWithBuddies": "Bendrinkite su bičiuliais",
+    "shareVideo": "Bendrinti vaizdo įrašą",
+    "save": "Įrašyti į fotoaparato ritinį",
+    "cancel": "Atšaukti",
+    "close": "Uždaryti",
+    "addFeed": "Įtraukti informacijos santrauką"
+  },
+  "simpleModal": {
+    "emptyList": "Tuščias sąrašas",
+    "followers": " po",
+    "following": " Pasekėjų",
+    "flames": " Liepsnos"
+  },
+  "splash": {
+    "screen": "Purslų ekranas",
+    "logo": "Logotipas"
+  },
+  "story": {
+    "profilePic": "{{user}}profilio nuotrauka"
+  },
+  "view": {
+    "cancel": "Atšaukti",
+    "choice": "Galite rinktis iš dviejų skirtingų įrašymo režimų",
+    "verticalMode": "Vertikalusis režimas turi 30 sekundžių rekordinį laiką",
+    "horizontalMode": "Horizontalusis režimas turi neribotą įrašymo laiką",
+    "start": "Imti",
+    "not-show": "Daugiau jo nerodyti",
+    "welcome": "Sveiki atvykę į ARC!  Sukurkite asmeninius vaizdo įrašus naudodami vieną iš mūsų hologramų ir paskelbkite juos savo socialinės žiniasklaidos kanaluose!",
+    "step": "ŽINGSNIS {{step}}",
+    "text-step-1": "Pasirinkite hologramą iš bibliotekos.",
+    "text-step-2": "Tai papildyta realybė, todėl nuskaitykite erdvę fotoaparatu iš vienos pusės į kitą 3-5 sekundes, kur norite, kad hologramos našumas būtų.",
+    "text-step-3-part-1": "Vieną kartą palieskite ekraną toje vietoje, kur norite pritvirtinti hologramą.",
+    "text-step-3-part-2": "ARBAT PINIGUS!  Palieskite vieną kartą kitur, kad perkeltumėte hologramą į kitą padėtį.",
+    "text-step-3-part-3": "ARBAT PINIGUS!  Hologramos dydį galite keisti nykščiu ir rodomuoju pirštu suspaudę arba išplėsdami ekraną.",
+    "text-step-4-part-1": "Dukart bakstelėkite raudoną įrašymo mygtuką, kad PRADĖTUMĖTE vaizdo įrašymą.",
+    "text-step-4-part-2": "Dukart bakstelėkite raudoną įrašo mygtuką, kad sustabdytumėte."
+  },
+  "video": {
+    "back": "Nugara"
+  },
+  "terms": {
+    "confirmTerms": "Sutinku su paslaugų teikimo sąlygomis",
+    "confirmPolicy": "Sutinku su Privatumo politika"
+  },
+  "registration": {
+    "ph-phoneEmail": "Naudokite telefoną / el. paštą",
+    "facebook": "Tęskite \"Facebook\"",
+    "google": "Tęskite su \"Google\"",
+    "linkedin": "Toliau naudokite \"LinkedIn\"",
+    "twitter": "Tęskite \"Twitter\"",
+    "gitHub": "Tęskite \"GitHub\"",
+    "connect": "Prijunkite savo el. pašto adresą arba telefono numerį",
+    "logIn": "Prisijungti, prisijunk",
+    "LogInTo": "Prisijungti prie",
+    "continueAsGuest": "Tęsti kaip svečias"
+  }
+}

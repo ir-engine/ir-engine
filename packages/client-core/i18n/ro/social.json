@@ -1,0 +1,202 @@
+{
+  "addComment": "Adauga comentariu ...",
+  "share": "Acțiune",
+  "suggestions": "Sugestii pentru tine",
+  "seeAll": "Vezi toate",
+  "likes": "Îi place",
+  "viewComments": "Vezi toate comentariile {{count}}",
+  "more": "mai mult",
+  "username": "nume de utilizator",
+  "fullName": "Nume Prenume",
+  "reportInApporpriate": "Raport inadecvat",
+  "unfollow": "Anularea urmăririi",
+  "goToPost": "Du-te la Post",
+  "shareModal": "Acțiune",
+  "copyLink": "Copiere link-ul",
+  "embed": "Încorpora",
+  "cancel": "Anula",
+  "confirm": "Confirma",
+  "save": "Salva",
+  "profilePic": "{{user}}'s poza de profil",
+  "ara": "Ara",
+  "follow": "Urma",
+  "flames": "Flăcări",
+  "continue": "Continua",
+  "partyInvitationSent": "Invitație la petrecere trimisă",
+  "arMedia": {
+    "back": "Spate",
+    "clip": "Agrafă",
+    "backgrounds": "Fundaluri",
+    "start": "Porni"
+  },
+  "arMediaform": {
+    "title": "Titlu",
+    "type": "Tip",
+    "clip": "Agrafă",
+    "background": "Fond",
+    "scene": "Scenă",
+    "save": "Salva",
+    "manifest-file": "Fișier manifest .manifest",
+    "audio-file": "Fișier MP4",
+    "dracosis-file": "Fișier Dracosis .uvol",
+    "preview-file": "Previzualizarea fișierului imagine"
+  },
+  "creator": {
+    "myVideos": "Videoclipurile mele",
+    "savedVideos": "Videoclipuri salvate",
+    "back": "Spate",
+    "blocked-list": "Listă blocată",
+    "block-user": "Blocați utilizatorul",
+    "dialog-content": "Nu veți vedea profilul și conținutul utilizatorului"
+  },
+  "creatorForm": {
+    "back": "Spate",
+    "edit": "Editare profil",
+    "save": "Salva",
+    "changeAvatar": "Schimbarea imaginii avatarului",
+    "ph-selectPreview": "Selectarea previzualizării",
+    "ph-name": "Numele tău",
+    "ph-username": "Numele tău de utilizator",
+    "ph-email": "Adresa ta de e-mail",
+    "ph-tags": "Tags",
+    "ph-link": "Legătură",
+    "ph-aboutYou": "Mai multe despre tine",
+    "ph-twitter": "Twitter",
+    "ph-instagram": "Instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Deconectare"
+  },
+  "dashboard": {
+    "title": "Tablou",
+    "dashboard": "Tablou",
+    "users": "Utilizatorii",
+    "feeds": "Fluxuri",
+    "arMedia": "Video Media",
+    "editor": "Editor",
+    "creator": "Creatorul"
+  },
+  "featured": {
+    "empty-list": "Nu feed-uri pentru acum ..."
+  },
+  "feed": {
+    "back": "Spate",
+    "related": "Feed-uri conexe",
+    "is-repoted-message": "Feed-ul este raportat!"
+  },
+  "feedForm": {
+    "back": "Spate",
+    "thanks": "Multumesc pentru partajarea și îmbunătățirea comunității noastre",
+    "share": "Partajați ceva cu comunitatea",
+    "upload": "Încărcați video",
+    "ph-selectVideo": "Selectează Video",
+    "preview": "Previzualizarea imaginii",
+    "ph-selectPreview": "Selectarea previzualizării",
+    "createFeed": "Pentru a crea un flux, trebuie să aveți un videoclip și o imagine de previzualizare!!!",
+    "ph-videoName": "Numele videoclipului",
+    "ph-type": "Tastați ceea ce doriți să partajați cu comunitatea ... ",
+    "lbl-share": "Acțiune",
+    "save": "Salvați și mergeți în continuare"
+  },
+  "feedMenu": {
+    "featured": "Hoteluri recomandate",
+    "creators": "Creatorii",
+    "feed": "Feed-ul"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetrice"
+  },
+  "login": {
+    "account": "Aveți un cont?",
+    "login": "Login",
+    "resetPassword": "Resetați parola fake buton (aici ar fi un link de la e-mail)",
+    "notHavingAccount": "Nu aveți un cont?",
+    "signUp": "Înscrie-te",
+    "forgotPassword": "Ai uitat parola?",
+    "back": "Spate",
+    "or": "SAU"
+  },
+  "comment": {
+    "add": "Adauga comentariul tau ..."
+  },
+  "notification": {
+    "feedFire": " a tras feed-ul dvs.",
+    "feedBookmarked": " marcat în flux",
+    "comment": " a comentat feed-ul:",
+    "commentFire": " concediat comentariul tau pentru a alimenta",
+    "follow": " a început să vă urmărească",
+    "unfollow": " nu te mai urmărește",
+    "followed": " te-a urmat",
+    "activity": "Activitate"
+  },
+  "onBoarding": {
+    "welcome": "Bun venit!",
+    "description": "Cea mai mare colecție de peste 370 de machete pentru prototiparea iOS.",
+    "next": "Următor",
+    "discover": "Descoperă articole,",
+    "news": "stiri si posturi",
+    "lines": "Acele sentimente sunt cele care ne conduc dragostea pentru astronomie și dorința noastră.",
+    "getStarted": "Începe",
+    "meetUp": "Întâlniți-vă cu",
+    "friends": "Prietenii.",
+    "meet": "Intalneste-te cu prietenii"
+  },
+  "shareForm": {
+    "arcMedia": "Acțiune",
+    "videoCreated": "Am creat acest video",
+    "shareWithBuddies": "Partajați cu prietenii",
+    "shareVideo": "Partajați video",
+    "save": "Salvare în rola camerei",
+    "cancel": "Anula",
+    "close": "Închide",
+    "addFeed": "Adaugă flux"
+  },
+  "simpleModal": {
+    "emptyList": "Listă goală",
+    "followers": " următor",
+    "following": " Adepţi",
+    "flames": " Flăcări"
+  },
+  "splash": {
+    "screen": "Splash Screen",
+    "logo": "Siglă"
+  },
+  "story": {
+    "profilePic": "{{user}}'s poza de profil"
+  },
+  "view": {
+    "cancel": "Anula",
+    "choice": "Aveți două moduri de înregistrare diferite din care să alegeți",
+    "verticalMode": "Modul vertical are un timp record de 30 sec",
+    "horizontalMode": "Modul orizontal are un timp record nelimitat",
+    "start": "Porni",
+    "not-show": "Nu-l arăta din nou",
+    "welcome": "Bine ati venit la ARC!  Realizați videoclipuri personale cu una dintre hologramele noastre și postați-le pe canalele de social media!",
+    "step": "pas {{step}}",
+    "text-step-1": "Alegeți o hologramă din bibliotecă.",
+    "text-step-2": "Aceasta este Realitatea Augmentată, așa că scanați spațiul cu camera dintr-o parte în alta timp de 3-5 secunde în care doriți să fie performanța hologramei.",
+    "text-step-3-part-1": "Atingeți ecranul o dată în locația în care doriți să fie ancorată holograma.",
+    "text-step-3-part-2": "SFAT!  Atingeți o dată în altă parte pentru a muta holograma în altă poziție.",
+    "text-step-3-part-3": "SFAT!  Puteți redimensiona holograma prin ciupirea sau extinderea ecranului cu degetul mare și degetul arătător.",
+    "text-step-4-part-1": "Atingeți de două ori butonul roșu de înregistrare pentru a începe înregistrarea video.",
+    "text-step-4-part-2": "Atingeți de două ori butonul roșu de înregistrare pentru a OPRI."
+  },
+  "video": {
+    "back": "Spate"
+  },
+  "terms": {
+    "confirmTerms": "Sunt de acord cu Termenii și condițiile",
+    "confirmPolicy": "Sunt de acord cu Politica de confidențialitate"
+  },
+  "registration": {
+    "ph-phoneEmail": "Utilizați telefonul / e-mailul",
+    "facebook": "Continuați cu Facebook",
+    "google": "Continuați cu Google",
+    "linkedin": "Continuați cu Linkedin",
+    "twitter": "Continuați cu Twitter",
+    "gitHub": "Continuați cu GitHub",
+    "connect": "Conectarea e-mailului sau a numărului de telefon",
+    "logIn": "Conectează-te",
+    "LogInTo": "Conectați-vă la",
+    "continueAsGuest": "Continuați ca oaspete"
+  }
+}

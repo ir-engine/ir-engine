@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Oldal betöltése..."
+  },
+  "tooltip": {
+    "pressKey": "Nyomja meg a {{tip}} gombot a {{message}}"
+  },
+  "toast": {
+    "joined": "Csatlakozott",
+    "left": "Balra"
+  },
+  "navUserWidget": {
+    "login": "Bejelentkezés"
+  },
+  "loader": {
+    "connecting": "Kapcsolódás a világhoz...",
+    "entering": "Belépni a világba...",
+    "loading": "Berakás...",
+    "objectRemaining": "{{count}} objektum maradt",
+    "objectRemainingPlural": "{{count}} fennmaradó objektumok",
+    "loadingObjects": "Objektumok betöltése",
+    "loadingComplete": "Betöltés kész",
+    "joiningWorld": "Csatlakozás a világhoz"
+  },
+  "alert": {
+    "eventWasSuccess": "Az esemény sikeres volt",
+    "errorWasEncountered": "Hiba történt",
+    "eventInProgress": "Folyamatban lévő esemény",
+    "seconds": "repeta",
+    "cancelCountdown": "Ennek a módnak a lezárása megszakítja a visszaszámlálást"
+  },
+  "debug": {
+    "refresh": "Felfrissít",
+    "stats": "Statisztika",
+    "debugOptions": "Hibakeresési beállítások",
+    "physicsDebug": "Fizika",
+    "avatarDebug": "Megtestesülés",
+    "nodeHelperDebug": "Csomópontsegítő",
+    "gridDebug": "Rács",
+    "simpleMaterials": "Egyszerű anyagok",
+    "tick": "Kullancs",
+    "worldStore": "Világbolt",
+    "engineStore": "Motorbolt",
+    "namedEntities": "Elnevezett entitások",
+    "networkObject": "Hálózati objektum",
+    "networkClients": "Hálózati ügyfelek"
+  },
+  "recording": {
+    "videoRecorder": "Videofelvevő",
+    "waitingForPermissions": "Engedélyekre várva",
+    "selectVideoSource": "Videóforrás kiválasztása",
+    "screen": "Képernyő",
+    "camera": "Fényképezőgép",
+    "microphone": "Mikrofon",
+    "startRecording": "Felvétel indítása",
+    "pauseRecording": "Felvétel szüneteltetése",
+    "resumeRecording": "Felvétel folytatása",
+    "stopRecording": "Felvétel leállítása"
+  },
+  "typing": "Gépelés...",
+  "gameServer": {
+    "browserError": "Böngészőhiba",
+    "browserErrorMessage": "A böngésző nem támogatja a privát böngészési módban való tárolást. Próbáljon ki egy másik böngészőt, vagy lépjen ki a privát böngészési módból.",
+    "noAvailableServers": "Nincsenek elérhető kiszolgálók",
+    "noAvailableServersMessage": "Nincs olyan kiszolgáló, amelyhez csatlakozhatna. Kísérlet az újracsatlakozásra",
+    "worldDisconnected": "A világ megszakadt",
+    "worldDisconnectedMessage": "Elvesztetted a kapcsolatot a világgal. Megpróbálunk újra csatlakozni, mielőtt a következő idő lejár, különben egy másik példányba továbbítjuk.",
+    "webGLNotEnabled": "A WebGL nincs engedélyezve",
+    "webGLNotEnabledMessage": "A böngésző nem támogatja a WebGL-t, vagy le van tiltva. Engedélyezze a WebGL-t, vagy fontolja meg a böngésző legújabb verziójára való frissítést.",
+    "youKickedFromWorld": "Kirúgtak a világból.",
+    "youKickedFromWorldMessage": "A következő okból rúgtak ki ebből a világból.",
+    "invalidLocation": "Érvénytelen hely",
+    "cantFindLocation": "Nem találjuk a helyet.",
+    "misspelledOrNotExist": "Lehet, hogy el van írva, vagy nem létezik.",
+    "loading": "berakás",
+    "low-frame-error": "Észlelt gyenge perfomance fontolja meg, hogy engedélyezze a Hardveres gyorsítást a böngészőben, és relauch a böngésző",
+    "low-frame-title": "Engedélyezze a hardveres gyorsítást a jobb élmény érdekében!"
+  },
+  "error": {
+    "loading-error": "Nem sikerült betölteni a felhasználói adatokat",
+    "validation-error": "Adjon meg érvényes {{type}}",
+    "login-error": "Nem sikerült bejelentkezni"
+  }
+}

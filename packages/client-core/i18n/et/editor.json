@@ -1,0 +1,718 @@
+{
+  "loading": "Projekti laadimine",
+  "loadingMsg": "Projekti laadimine...",
+  "loadingError": "Tõrge projekti laadimisel",
+  "loadingErrorMsg": "Projekti laadimisel ilmnes tõrge.",
+  "selectSceneMsg": "Mootoriga mängimise alustamiseks valige Stseen.",
+  "error": "Viga",
+  "errorMsg": "Seal oli tundmatu viga.",
+  "generateScreenshot": "Projekti kuvatõmmise loomine",
+  "generateScreenshotMsg": "Projekti kuvatõmmise loomine...",
+  "newScene": "Stseeni loomine",
+  "saving": "Projekti salvestamine",
+  "savingMsg": "Projekti salvestamine...",
+  "savingError": "Tõrke salvestamise projekt",
+  "savingErrorMsg": "Projekti salvestamisel ilmnes tõrge.",
+  "savingSceneErrorMsg": "Stseen ei ole korralikult laetud. Proovige stseeni uuesti laadida.",
+  "duplicating": "Dubleeriv projekt",
+  "duplicatingMsg": "Projekti dubleerimine...",
+  "exporting": "Projekti eksportimine",
+  "exportingMsg": "Projekti eksportimine...",
+  "exportingError": "Tõrge Projekti eksportimisel",
+  "exportingErrorMsg": "Projekti eksportimisel ilmnes tõrge.",
+  "importLegacy": "Impordi pärandmaailm",
+  "importLegacyMsg": "Hoiatus! See kirjutab teie olemasoleva stseeni üle! Oled sa kindel, et soovid jätkata?",
+  "publishingError": "Tõrge Avaldamisprojektis",
+  "publishingErrorMsg": "Seal oli tundmatu viga.",
+  "publishingScene": "Avaldamisstseen",
+  "publishingSceneMsg": "Avaldamisstseen...",
+  "uploadingThumbnailMsg": "Pisipildi üleslaadimine...",
+  "uploadingSceneMsg": "Üleslaadimisstseen: {{percentage}}%",
+  "envMapError": "Kuubikukaardi piltide {{files}} laadimise tõrge",
+  "lbl-return": "Tagasi",
+  "menubar": {
+    "newScene": "Uus stseen",
+    "saveScene": "Salvesta stseen",
+    "saveAs": "Salvesta nimega",
+    "importAsset": "Vara importimine",
+    "exportGLB": "Ekspordi binaarse glTF-ina (.glb) ...",
+    "importScene": "Impordistseen",
+    "exportScene": "Ekspordi stseen",
+    "quit": "Sulgege"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Faili toetamata failitüüp: \"{{name}}\". Fail peab olema pilt, video või glb mudel.",
+    "addObject": "addObject: enne objekti leidmata jätmist",
+    "removeObject": "removeObject: sõlme ei leitud. See on tingitud sõlme eemaldamisest, mida enam stseenis ei ole.",
+    "noParent": "{{node}} \"{{name}}\" ei ole vanemat. Reparent töötab ainult objektidel, mis on praegu stseenis.",
+    "undefinedParent": "editor.reparent: newParent on määratlemata",
+    "notAuthenticated": "Pole autenditud",
+    "fetchingProjectError": "Tõrge projektide toomisel: {{error}}",
+    "fetchingRouteError": "Tõrge marsruutide toomisel: {{error}}",
+    "unknownError": "Tundmatu tõrge",
+    "resolveURL": "Tõrge URL-i lahendamisel \"{{url}}\":",
+    "mediaSearchAborted": "Meediumiotsing katkestati",
+    "methodNotImplemented": "Meetodit ei rakendata.",
+    "saveProjectAborted": "Stseeni salvestamine katkestatud",
+    "unsavedChanges": "Salvestamata muudatused",
+    "unsavedChangesMsg": "Stseeni on muudetud. Palun salvestage oma muudatused.",
+    "projectCreationFail": "Projekti loomine nurjus. {{reason}}",
+    "projectDeletionFail": "Projekti kustutamine nurjus. {{reason}}",
+    "savingProjectFail": "Projekti salvestamine nurjus. {{reason}}",
+    "sceneTooLarge": "Stseen on avaldamiseks liiga suur ({{size}} MB). Maksimaalne suurus on {{maxSize}} MB.",
+    "sceneCreationFail": "Stseeni loomine nurjus. {{reason}}",
+    "uploadAborted": "Üleslaadimine katkestatud",
+    "uploadFailed": "Üleslaadimine nurjus {{reason}}",
+    "assetDeletionFail": "Vara kustutamine nurjus. {{reason}}",
+    "projectAssetDeletionFail": "Projekti vara kustutamine nurjus. {{reason}}",
+    "networkError": "Võrgutõrge: {{status}}. {{text}}",
+    "unknownStatus": "Tundmatu olek",
+    "CORS": "Võimalik, et CORS-i tõrge",
+    "urlFetchError": "Ei õnnestunud \"{{url}}\" tuua"
+  },
+  "viewport": {
+    "title": "Vaataporti",
+    "command": {
+      "movecamera": "Kaamera teisaldamine",
+      "flyFast": "Lenda kiiremini",
+      "orbit": "Orbiit / Vali",
+      "pan": "Pan",
+      "fly": "Lendama",
+      "focus": "Fookus",
+      "rotateLeft": "Pööra vasakule",
+      "rotateRight": "Pööra paremale",
+      "cancelPlacement": "Paigutuse tühistamine",
+      "placeDuplicate": "Koha duplikaat",
+      "cancelGrab": "Tühista haaramine",
+      "grab": "Haara",
+      "deselectAll": "Tühistage kõik valiku tühistamine"
+    },
+    "state": {
+      "header": "Stats",
+      "memory": "Mälu",
+      "geometries": "Geomeetria",
+      "textures": "Tekstuurid",
+      "render": "Render",
+      "FPS": "FPS",
+      "frameTime": "Kaadri aeg",
+      "calls": "Kõned",
+      "triangles": "Kolmnurgad",
+      "points": "Punktid",
+      "lines": "Read"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Avaldada",
+    "lbl-published": "Avaldatud",
+    "command": {
+      "translate": "Tõlkima",
+      "rotate": "Pöörlema",
+      "scale": "Kaal",
+      "toggleSpace": "Teisendusruumi sisselülitamine",
+      "togglePivot": "Teisenduse pivoti pööramine",
+      "toggleSnapMode": "Tõmberežiimi sisselülitamine",
+      "toggleGrid": "Tumblerruudustiku nähtavus",
+      "increaseGridSize": "Võrgu suuruse suurendamine",
+      "descreaseGridSize": "Võrgu suuruse vähendamine",
+      "stopPreview": "Stseeni eelvaatamise peatamine",
+      "playPreview": "Stseeni eelvaade"
+    }
+  },
+  "properties": {
+    "title": "Atribuudid",
+    "lbl-visible": "Nähtav",
+    "lbl-preventBake": "Vältige küpsetamist",
+    "lbl-persist": "Püsida",
+    "multipleNodeSelected": "Valitud on mitu erinevat tüüpi sõlme",
+    "noNodeSelected": "Sõlme pole valitud",
+    "ambientLight": {
+      "name": "Ümbritsev valgus",
+      "description": "Valgus, mis valgustab kõiki teie stseeni objekte.",
+      "lbl-intensity": "Osatähtsus",
+      "lbl-color": "Värv"
+    },
+    "envmap": {
+      "name": "Keskkonnakaart",
+      "description": "keskkonnakaardi atribuudid"
+    },
+    "asset": {
+      "name": "Vara",
+      "description": "Stseenikomponentide rühm, mida saab dünaamiliselt laadida ja maha laadida",
+      "lbl-options": "Valikud",
+      "lbl-assetPath": "Vara tee",
+      "lbl-assetName": "Ekspordi nimi",
+      "lbl-exportOptions": "Ekspordi suvandid",
+      "lbl-export": "Vara eksportimine",
+      "lbl-load": "Laadi stseenile",
+      "lbl-unload": "Unload",
+      "lbl-reload": "Reload"
+    },
+    "audio": {
+      "name": "Audio",
+      "description": "Laadib dünaamiliselt heli.",
+      "lbl-audiourl": "Heli URL",
+      "lbl-controls": "Kontrolli",
+      "info-controls": "Lülitage meedia juhtelementide nähtavust.",
+      "lbl-autoplay": "Automaatne esitamine",
+      "info-autoplay": "Kui see on tõsi, mängib meedia esmakordsel stseeni sisenemisel.",
+      "lbl-synchronize": "Sünkroonida",
+      "info-synchronize": "Kui see on tõene, sünkroonitakse meedia kõigil ühendatud klientidel.",
+      "lbl-loop": "Silmus",
+      "info-loop": "Kui see on tõsi, siis meedia silmus lõputult.",
+      "lbl-audioType": "Heli tüüp",
+      "lbl-distanceModel": "Kauguse mudel",
+      "info-distanceModel": "Algorithim, mida kasutati heli ümberlaadimise arvutamiseks.",
+      "lbl-rolloffFactor": "Rolloff Factor",
+      "info-rolloffFactor": "Kahekordne väärtus, mis kirjeldab, kui kiiresti helitugevust vähendatakse, kui allikas kuulajast eemaldub. 0 kuni 1",
+      "info-rfInfinity": "Kahekordne väärtus, mis kirjeldab, kui kiiresti helitugevust vähendatakse, kui allikas kuulajast eemaldub. 0 kuni Lõpmatus",
+      "lbl-refDistance": "Ref Distance",
+      "info-refDistance": "Kahekordne väärtus, mis tähistab helitugevuse vähendamise võrdluskaugust, kui heliallikas liigub kuulajast kaugemale.",
+      "lbl-maxDistance": "Maksimaalne vahemaa",
+      "info-maxDistance": "Kahekordne väärtus, mis tähistab maksimaalset vahemaad heliallika ja kuulaja vahel, mille järel helitugevust enam ei vähendata.",
+      "lbl-coneInnerAngle": "Koonuse sisenurk",
+      "info-coneInnerAngle": "Kahekordne väärtus, mis kirjeldab koonuse nurka kraadides, mille sees ei ole mahu vähenemist.",
+      "lbl-coneOuterAngle": "Koonuse välisnurk",
+      "info-coneOuterAngle": "Kahekordne väärtus, mis kirjeldab koonuse nurka kraadides, millest väljaspool vähendatakse mahtu konstantse väärtusega, mis on määratletud koonuseOuterGaini atribuudiga.",
+      "lbl-coreOuterGain": "Koonuse välimine võimendus",
+      "info-coreOuterGain": "Kahekordne väärtus, mis kirjeldab mahu vähendamise summat väljaspool koonuse atribuudi coneOuterAngle määratletud koonust. Selle vaikeväärtus on 0, mis tähendab, et heli ei saa kuulda.",
+      "lbl-volume": "Ruumala",
+      "lbl-play": "Mängima",
+      "lbl-pause": "Paus",
+      "error-url": "Tõrge URL-ist laadimisel"
+    },
+    "boxCollider": {
+      "description": "Nähtamatu kast, millest objektid põrkuvad või puhkavad peal.\nIlma põrgatajateta langevad objektid läbi põrandate ja läbivad seinu.",
+      "lbl-isTrigger": "Vallandada"
+    },
+    "camera": {
+      "name": "Kaamera",
+      "description": "Kaamera seaded.",
+      "lbl-camera-raycast": "Kaamera Raycasting",
+      "lbl-camera-raycast-toggle": "Lubatud",
+      "lbl-camera-raycast-frequency": "Sagedus",
+      "lbl-camera-raycast-count": "Ray Count",
+      "lbl-camera-raycast-length": "Ray Pikkus"
+    },
+    "directionalLight": {
+      "name": "Suunav valgus",
+      "description": "Valgus, mis valgustab kogu stseeni, kuid kiirgab ühes suunas.",
+      "lbl-color": "Värv",
+      "lbl-intensity": "Osatähtsus",
+      "lbl-cameraFar": "Kaamera kaugele",
+      "lbl-cameraNear": "Kaamera lähedal",
+      "lbl-cameraTop": "Kaamera ülemine osa",
+      "lbl-cameraBottom": "Kaamera põhi",
+      "lbl-cameraLeft": "Kaamera vasakule",
+      "lbl-cameraRight": "Kaamera paremal",
+      "lbl-useInCSM": "Csm-is kasutamine",
+      "lbl-castShadow": "Valatud vari",
+      "lbl-disableForCSM": "Keelatud, kuna kaskaadi varjukaart on lubatud.",
+      "lbl-shadowmapResolution": "Varjukaardi eraldusvõime",
+      "lbl-shadowBias": "Varju kallutatus",
+      "lbl-shadowRadius": "Varju raadius",
+      "lbl-showCameraHelper": "Näita kaamera abistajat"
+    },
+    "groundPlane": {
+      "name": "Maapealne lennuk",
+      "description": "Tasane maa-ala, mis ulatub kauguseni.",
+      "lbl-color": "Värv",
+      "lbl-receiveShadow": "Varju vastuvõtmine",
+      "lbl-generateNavmesh": "Navmeshi loomine"
+    },
+    "link": {
+      "description": "Link ruumile või veebisaidile.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "Näiteks linna 3D georuumiline kaart."
+    },
+    "model": {
+      "description": "Stseenis olev 3D-mudel, mis on laaditud GLTF-i URL-ist või failist.",
+      "lbl-usingGPUInstancingFlag": "Kasutage GPU Instancingut",
+      "lbl-modelurl": "Mudeli URL",
+      "lbl-envmapUrl": "Keskkonnakaardi URL",
+      "lbl-textureOverride": "Tekstuuri alistamine",
+      "lbl-materialOverride": "Materjal alistab",
+      "error-url": "Tõrge URL-ist laadimisel",
+      "lbl-loopAnimation": "Loop Animation",
+      "lbl-isAvatar": "Kas Avatar on",
+      "lbl-isGPUInstancing": "Kasutab GPU Instancingut",
+      "lbl-isDynamic": "Kas dünaamiline",
+      "lbl-castShadow": "Valatud vari",
+      "lbl-receiveShadow": "Varju vastuvõtmine",
+      "lbl-interactable": "Ühendatav",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Nimi",
+      "lbl-url": "Mudeli URL",
+      "lbl-buy": "Url-i ostmine",
+      "lbl-learnMore": "Lisateave URL-i kohta",
+      "lbl-htmlContent": "HTML-i sisu",
+      "lbl-interactionText": "Suhtlustekst",
+      "lbl-interactionType": "Interaktsiooni tüüp"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Materjal",
+      "error-materialID": "Materjali leidmise tõrge",
+      "placeholder-materialID": "Materjali valimine",
+      "lbl-patternTarget": "Mustri vaste",
+      "lbl-pattern": "Muster",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Interaktsiooni tüüp",
+      "text": "Suhtlustekst",
+      "distance": "Interaktsiooni kaugus",
+      "theme": "Suhtlus kujundus",
+      "name": "Suhtlusnimi",
+      "description": "Koostoime kirjeldus",
+      "images": "Interaktsioonipildid",
+      "videos": "Suhtlusvideod",
+      "urls": "Interaktsiooni URL-id",
+      "models": "Interaktsioonimudelid"
+    },
+    "group": {
+      "name": "Rühm",
+      "description": "Mitmest objektist koosnev rühm, mida saab koos teisaldada või dubleerida.\nLohistage objektid hierarhia rühma."
+    },
+    "hemisphere": {
+      "name": "Poolkera valgus",
+      "description": "Valgus, mis valgustab stseeni otse pea kohalt.",
+      "lbl-skyColor": "Sky Color",
+      "lbl-groundColor": "Ground Color",
+      "lbl-intensity": "Osatähtsus"
+    },
+    "image": {
+      "name": "Piltide",
+      "description": "Laadib dünaamiliselt pildi.",
+      "lbl-imgURL": "Pildi URL",
+      "lbl-transparency": "Läbipaistvuse režiim",
+      "lbl-alphaCutoff": "Alpha Cutoff",
+      "lbl-projection": "Projektsioon",
+      "lbl-side": "Pool",
+      "info-controls": "Lülitage meedia juhtelementide nähtavust.",
+      "info-transparency": "Kuidas läbipaistvust rakendada:",
+      "info-opaque": "\"läbipaistmatu\" = puudub läbipaistvus",
+      "info-blend": "'segu' = kasuta pilte alfa kanalil",
+      "info-mask": "\"mask\" = Kasutage läbipaistvuse tagamiseks määratud piirväärtust (esinejam)",
+      "info-alphaCutoff": "Sellest madalama alfaväärtusega pikslid on läbipaistvad",
+      "error-url": "Kehtetu URL"
+    },
+    "name": {
+      "lbl-name": "Nimi"
+    },
+    "partileEmitter": {
+      "description": "Osakeste emitter osakeste tekitamiseks.",
+      "lbl-particleCount": "Osakeste arv",
+      "lbl-image": "Piltide",
+      "lbl-ageRandomness": "Vanuse juhuslikkus",
+      "lbl-lifetime": "Eluaegset",
+      "lbl-lifetimeRandomness": "Eluaegne juhuslikkus",
+      "lbl-sizeCurve": "Suuruse kõver",
+      "lbl-startPSize": "Alusta osakeste suurust",
+      "lbl-endPSize": "Lõpposakeste suurus",
+      "lbl-sizeRandomness": "Suurus Juhuslikkus",
+      "lbl-colorCurve": "Värvikõver",
+      "lbl-startColor": "Käivitusvärv",
+      "lbl-startOpacity": "Alusta läbipaistmatust",
+      "lbl-middleColor": "Keskmine värv",
+      "lbl-middleOpacity": "Keskmine läbipaistmatus",
+      "lbl-endColor": "Lõppvärv",
+      "lbl-endOpacity": "Lõpeta läbipaistmatus",
+      "lbl-velocityCurve": "Kiiruse kõver",
+      "lbl-startVelocity": "Käivituskiirus",
+      "lbl-endVelocity": "Lõppkiirus",
+      "lbl-angularVelocity": "Nurgeline kiirus",
+      "info-ageRandomness": "Osakeste kudemise varieeruvuse hulk.",
+      "info-lifetime": "Osakese maksimaalne vanus enne selle uuesti saatmist.",
+      "info-lifetimeRandomness": "Osakeste eluea varieerumise hulk.",
+      "info-sizeRandomness": "Osakeste lähtesuuruste varieerumise hulk.",
+      "error-url": "Tõrge URL-ist laadimisel"
+    },
+    "clouds": {
+      "name": "Pilv",
+      "description": "Sprite'il põhinev pilvemaht.",
+      "lbl-image": "Sprite'i pilt",
+      "lbl-wroldScale": "Maailma mastaabis",
+      "lbl-dimensions": "Mõõtmed",
+      "lbl-noiseZoom": "Mürasuum",
+      "lbl-noiseOffset": "Müra nihe",
+      "lbl-spriteScale": "Sprite'i skaala",
+      "lbl-fogColor": "Udu värv",
+      "lbl-fogRange": "Udu vahemik",
+      "error-url": "Tõrge URL-ist laadimisel"
+    },
+    "ocean": {
+      "name": "Ookean",
+      "description": "Ookeani pind lainete ja vahuga",
+      "lbl-normalMap": "Tavaline kaart",
+      "lbl-distortionMap": "Moonutuste kaart",
+      "lbl-envMap": "Keskkonnakaart",
+      "lbl-color": "Värv",
+      "lbl-shallowWaterColor": "Madal veevärv",
+      "lbl-shallowToDeepDistance": "Madal kuni sügav kaugus",
+      "lbl-opacityFadeDistance": "Läbipaistmatus Hajumise kaugus",
+      "lbl-opacityRange": "Läbipaistmatuse vahemik",
+      "lbl-shininess": "Shininess",
+      "lbl-reflectivity": "Peegelduvus",
+      "lbl-foamColor": "Vahtvärv",
+      "lbl-foamSpeed": "Vahu kiirus",
+      "lbl-foamTiling": "Vaht plaatimine",
+      "lbl-bigWaveTiling": "Suure laine plaatimine",
+      "lbl-bigWaveSpeed": "Suure laine kiirus",
+      "lbl-bigWaveHeight": "Suure laine kõrgus",
+      "lbl-waveSpeed": "Laine kiirus",
+      "lbl-waveScale": "Lainete skaala",
+      "lbl-waveTiling": "Laine plaatimine",
+      "lbl-waveDistortionSpeed": "Laine moonutamise kiirus",
+      "lbl-waveDistortionTiling": "Laine moonutamise plaatimine",
+      "error-url": "Tõrge URL-ist laadimisel"
+    },
+    "water": {
+      "name": "Vesi",
+      "description": "Väike veepind"
+    },
+    "interior": {
+      "name": "Interjöör",
+      "description": "Vastendatud kuubiku tekstuuriga pind sisekeskkondade jäljendamiseks",
+      "lbl-cubeMap": "Kuubikaardi tekstuur",
+      "lbl-tiling": "Plaatimise summa",
+      "lbl-size": "Pinna suurus",
+      "error-url": "Tõrge URL-ist laadimisel"
+    },
+    "pointLight": {
+      "description": "Valgus, mis kiirgab igas suunas ühest punktist.",
+      "lbl-color": "Värv",
+      "lbl-intensity": "Osatähtsus",
+      "lbl-range": "Vahemik",
+      "lbl-decay": "Lagunemine"
+    },
+    "scene": {
+      "name": "Stseen",
+      "description": "Stseeni juurobjekt.",
+      "lbl-bgcolor": "Taustavärvi",
+      "lbl-fogType": "Udu tüüp",
+      "lbl-fogColor": "Udu värv",
+      "lbl-forNearDistance": "Udu kauguse lähedal",
+      "lbl-fogFarDistance": "Udu kaugel",
+      "lbl-fogDensity": "Udu tihedus",
+      "lbl-audioSettings": "Positsioonilise heli kasutamine",
+      "lbl-avatarDistanceModel": "Avatari kauguse mudel",
+      "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
+      "lbl-avatarRefDistance": "Avatar Ref Distance",
+      "lbl-avatarMaxDistance": "Avatar Max Distance",
+      "lbl-mediaVolume": "Meediumi maht",
+      "lbl-mediaDistanceModel": "Meediumi kauguse mudel",
+      "lbl-mediaRolloffFactor": "Meedia ümbermineku tegur",
+      "lbl-mediaRefDistance": "Meedia ref kaugus",
+      "lbl-mediaMaxDistance": "Media Max Kaugus",
+      "lbl-mediaConeInnerAngle": "Meediumikoonus sisenurk",
+      "lbl-mediaConeOuterAngle": "Meediumikoonuse välisnurk",
+      "lbl-mediaConeOuterGain": "Meediakoonus väline kasum",
+      "info-avatarDistanceModel": "Algorithim, mida kasutati heli ümberlaadimise arvutamiseks.",
+      "info-avatarRolloffFactor": "Kahekordne väärtus, mis kirjeldab, kui kiiresti helitugevust vähendatakse, kui allikas kuulajast eemaldub. 0 kuni 1",
+      "info-avatarRolloffFactorInifinity": "Kahekordne väärtus, mis kirjeldab, kui kiiresti helitugevust vähendatakse, kui allikas kuulajast eemaldub. 0 kuni Lõpmatus",
+      "info-avatarRefDistance": "Kahekordne väärtus, mis tähistab helitugevuse vähendamise võrdluskaugust, kui heliallikas liigub kuulajast kaugemale.",
+      "info-avatarMaxDistance": "Kahekordne väärtus, mis tähistab maksimaalset vahemaad heliallika ja kuulaja vahel, mille järel helitugevust enam ei vähendata.",
+      "info-mediaDistanceModel": "Algorithim, mida kasutati heli ümberlaadimise arvutamiseks.",
+      "info-mediaRolloffFactor": "Kahekordne väärtus, mis kirjeldab, kui kiiresti helitugevust vähendatakse, kui allikas kuulajast eemaldub. 0 kuni 1",
+      "info-mediaRolloffFactorInfinity": "Kahekordne väärtus, mis kirjeldab, kui kiiresti helitugevust vähendatakse, kui allikas kuulajast eemaldub. 0 kuni Lõpmatus",
+      "info-mediaRefDistance": "Kahekordne väärtus, mis tähistab helitugevuse vähendamise võrdluskaugust, kui heliallikas liigub kuulajast kaugemale.",
+      "info-mediaMaxDistance": "Kahekordne väärtus, mis tähistab maksimaalset vahemaad heliallika ja kuulaja vahel, mille järel helitugevust enam ei vähendata.",
+      "info-mediaConeInnerAngle": "Kahekordne väärtus, mis kirjeldab koonuse nurka kraadides, mille sees ei ole mahu vähenemist.",
+      "info-mediaConeOuterAngle": "Kahekordne väärtus, mis kirjeldab koonuse nurka kraadides, millest väljaspool vähendatakse mahtu konstantse väärtusega, mis on määratletud koonuseOuterGaini atribuudiga.",
+      "info-mediaConeOuterGain": "Kahekordne väärtus, mis kirjeldab mahu vähendamise summat väljaspool koonuse atribuudi coneOuterAngle määratletud koonust. Selle vaikeväärtus on 0, mis tähendab, et heli ei saa kuulda.",
+      "lbl-simpleMaterials": "Kasutage lihtsaid materjale",
+      "lbl-lods": "LODid",
+      "info-lods": "Määrab vahemaad, kus detailitasemed muutuvad.",
+      "info-simpleMaterials": "Teisendab kõik kallid materjalid lihtsamateks, et koormus stseeni renderdamisest eemaldada.",
+      "lbl-rendererSettings": "Renderdaja sätete alistamine",
+      "lbl-csm": "Varjukaartide kaskaaddiagrammid",
+      "info-csm": "Lubab kaskaadsed varjukaardid.",
+      "lbl-toneMapping": "Tooni vastendamine",
+      "info-toneMapping": "Lubab toonivastenduse stseeni renderdajal. Ei mõjuta, kui järeltöötlus on lubatud.",
+      "lbl-toneMappingExposure": "Tooni vastendamise ekspositsioon",
+      "info-toneMappingExposure": "Määrab toonivastenduse ekspositsiooni stseeni renderdajal. Ei mõjuta, kui järeltöötlus on lubatud.",
+      "lbl-shadowMapType": "Varjukaardi tüüp",
+      "info-shadowMapType": "Varjukaardi tüüp",
+      "error-url": "Tõrge URL-ist laadimisel"
+    },
+    "sceneCamera": {
+      "name": "Stseeni eelvaate kaamera",
+      "description": "Kaamera, mida kasutatakse stseeni pisipildi ja eelvaatekaamera algusasendi loomiseks.",
+      "lbl-setFromViewPort": "Määra vaateportist"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Kellaaeg",
+      "lbl-color": "Värv",
+      "lbl-latitude": "Laiuskraad",
+      "lbl-luminance": "Heledus",
+      "lbl-scattering": "Hajuv summa",
+      "lbl-scatteringDistance": "Hajumise kaugus",
+      "lbl-horizonStart": "Horizon Start",
+      "lbl-horizonEnd": "Horisondi lõpp",
+      "lbl-texture": "Tekstuur",
+      "lbl-skyType": "Taeva tüüp",
+      "error-url": "Tõrge URL-ist laadimisel"
+    },
+    "spawnPoint": {
+      "name": "Kudemispunkt",
+      "description": "Punkt, kus inimesed ilmuvad, kui nad sisenevad teie stseeni.\nViewporti ikoon tähistab avatari tegelikku suurust."
+    },
+    "spotLight": {
+      "description": "Valgus, mis kiirgab mööda suunda, valgustades objekte koonuse sees.",
+      "lbl-color": "Värv",
+      "lbl-intensity": "Osatähtsus",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "Nurk",
+      "lbl-range": "Vahemik",
+      "lbl-decay": "Lagunemine"
+    },
+    "transform": {
+      "title": "Muuta",
+      "lbl-postition": "Asend",
+      "lbl-rotation": "Rotatsiooni",
+      "lbl-scale": "Kaal"
+    },
+    "triggereVolume": {
+      "description": "Määrab atribuudi sihtobjektile sisestamisel ja lahkumisel.",
+      "lbl-target": "Ese",
+      "lbl-onenter": "Sisestusklahvis Sisesta",
+      "lbl-onexit": "Väljumisel",
+      "lbl-showHelper": "Helperi võrgusilma kuvamine",
+      "ph-errorNode": "Tõrge puudub sõlm.",
+      "ph-selectNode": "Vali sõlm..."
+    },
+    "video": {
+      "name": "Video",
+      "description": "Laadib dünaamiliselt video.",
+      "lbl-video": "Video",
+      "lbl-projection": "Projektsioon",
+      "lbl-islivestream": "Otseülekanne",
+      "lbl-interactable": "Ühendatav",
+      "lbl-id": "Elemendi ID",
+      "lbl-play": "Mängima",
+      "lbl-pause": "Paus",
+      "error-url": "Tõrge URL-ist laadimisel"
+    },
+    "volumetric": {
+      "name": "Volumetric",
+      "description": "Laadib dünaamiliselt helitugevuse video.",
+      "uvolPaths": "UVOL-rajad",
+      "playmode": "Esitusrežiim",
+      "playtitle": "Mängima",
+      "pausetitle": "Paus"
+    },
+    "spline": {
+      "description": "Dünaamiliselt looge ja kohandage kõveraid.",
+      "lbl-addNode": "Lisage sõlm kõverale."
+    },
+    "systemnode": {
+      "description": "Lisage skript.",
+      "lbl-filePath": "URL",
+      "lbl-systemUpdateType": "Süstepunkt",
+      "lbl-enableClient": "Klient",
+      "lbl-enableServer": "Server",
+      "lbl-args": "Args",
+      "error-url": "Tõrge skripti laadimisel URL-ist"
+    },
+    "portal": {
+      "lbl-portal": "Lingitud portaal",
+      "lbl-redirect": "Lehe ümbersuunamise kasutamine",
+      "description": "Portat teleportijatele määratud asukohta",
+      "lbl-locationName": "Asukoht",
+      "lbl-modelUrl": "Mudeli URL",
+      "lbl-displayText": "Teksti kuvamine",
+      "lbl-cubemapBake": "Cubemap küpsetama",
+      "lbl-spawnPosition": "Kudemisasend",
+      "lbl-spawnRotation": "Kudemis pöörlemine",
+      "lbl-triggerPosition": "Käivitusasend",
+      "lbl-triggerRotation": "Päästiku pöörlemine",
+      "lbl-triggerScale": "Päästiku skaala"
+    },
+    "postprocessing": {
+      "name": "Järeltöötlus",
+      "description": "Järeltöötluse efektide rakendamiseks stseenile."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Uus projekt",
+      "backLink": "Tagasi projektide juurde",
+      "featured": "Objekte",
+      "all": "Kõik",
+      "newProject": "Uus tühi projekt",
+      "ph-search": "Otsi stseene..."
+    },
+    "grid": {
+      "loading": "Laadimise..."
+    },
+    "page": {
+      "header": "Tere tulemast",
+      "headerMsg": "Kui olete siin uus, soovitame õpetuse läbi vaadata. Vastasel juhul hüpake otse sisse ja looge projekt nullist või mõnest meie mallist.",
+      "lbl-startTutorial": "Algusõpetus",
+      "projects": "Projektide",
+      "lbl-newProject": "Uus projekt"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Laadimise...",
+      "placeObject": "Koha objekt",
+      "placeObjectAtOrigin": "Objekti paigutamine päritolukohas",
+      "copyURL": "KOPEERI URL",
+      "openInNewTab": "URL-i avamine uuel vahekaardil",
+      "deleteAsset": "Vara kustutamine"
+    },
+    "filebrowser": {
+      "addNewFolder": "Uue kausta lisamine",
+      "cutAsset": "Lõigata",
+      "copyAsset": "Koopia",
+      "pasteAsset": "Kleebi",
+      "renameAsset": "Ümber nimetada",
+      "viewAssetProperties": "Atribuutide kuvamine"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Ümber nimetada",
+    "lbl-duplicate": "Dubleerida",
+    "lbl-group": "Rühm",
+    "lbl-delete": "Kustutama",
+    "lbl-expandAll": "Laienda kõiki",
+    "lbl-collapseAll": "Kõigi ahendamine",
+    "isseus": "Küsimusi:"
+  },
+  "dnd": {
+    "nodes": "{{count}} sõlmed valitud",
+    "models": "valitud {{count}} mudelid",
+    "images": "Valitud piltide {{count}}",
+    "videos": "Valitud videote {{count}}",
+    "audio": "Valitud {{count}} heliallikad"
+  },
+  "dialog": {
+    "title": "Toimetaja",
+    "lbl-confirm": "Ok",
+    "lbl-cancel": "Tühistama",
+    "exportProject": {
+      "title": "Ekspordi projekt",
+      "lbl-confirm": "Ekspordi projekt",
+      "lbl-combineMesh": "Võrgusilmade kombineerimine",
+      "lbl-removeUnused": "Kasutamata objektide eemaldamine"
+    },
+    "performance": {
+      "title": "Jõudluse kontroll",
+      "lbl-confirm": "Stseeni avaldamine",
+      "learnMore": "Lisateave",
+      "lbl-polycount": "Polygon Count",
+      "lbl-material": "Materjalid",
+      "lbl-texture": "Tekstuurid",
+      "lbl-lights": "Tuled",
+      "lbl-fileSize": "Faili suurus",
+      "info-polycount": "Soovitame teie stseenil kasutada mobiilseadmete jaoks mitte rohkem kui 50 000 kolmnurka.",
+      "info-material": "Soovitame kasutada oma stseenis kuni 25 unikaalset materjali, et vähendada mobiilseadmetes tehtud joonistuskõnesid.",
+      "info-texture": "Soovitame teie tekstuuridel kasutada mobiilseadmete jaoks mitte rohkem kui 256 MB videomälu. Samuti soovitame mitte kasutada tekstuure, mis on suuremad kui 2048 x 2048.",
+      "info-lights": "Kuigi dünaamilised tuled ei ole mobiilseadmetes lubatud, soovitame kasutada teie stseenis mitte rohkem kui 3 tuled (v.a ambient- ja poolkeravalgustid), et teie stseen saaks töötada madala hinnaga arvutites.",
+      "info-fileSize": "Madala ribalaiusega ühenduste jaoks soovitame lõplikku failimahtu kuni 16 MB. Failimahu vähendamine vähendab stseeni allalaadimiseks kuluvat aega.",
+      "txt-polycount": "{{count}} kolmnurgad",
+      "txt-material": "{{count}} materjalid",
+      "txt-ram": "~{{count}} Video RAM",
+      "txt-texture": "{{count}} suured tekstuurid",
+      "txt-lights": "{{count}} tuled"
+    },
+    "progress": {
+      "title": "Laadimise...",
+      "msg": "Laadimise...",
+      "lbl-cancel": "Tühistama"
+    },
+    "publish": {
+      "title": "Stseeni avaldamine",
+      "lbl-confirm": "Salvestamine ja avaldamine",
+      "lbl-name": "Stseeni nimi",
+      "info-name": "Nimi peab olema vahemikus 4 kuni 64 märki ja see ei tohi sisaldada allakriipsutusi"
+    },
+    "published": {
+      "title": "Stseen avaldatud",
+      "header": "Teie stseen on avaldatud.",
+      "lbl-view": "Vaata oma stseeni"
+    },
+    "saveNewProject": {
+      "title": "Tugi",
+      "lbl-name": "Projekti nimi",
+      "info-name": "Nimi peab olema vahemikus 4 kuni 64 märki ja see ei tohi sisaldada allakriipsutusi",
+      "lbl-confirm": "Projekti salvestamine"
+    },
+    "support": {
+      "title": "Tugi",
+      "header": "Kas peate probleemist teatama?",
+      "msg": "Võite esitada <1>GitHubi probleemi</1> või saata meile e-kirja toe saamiseks aadressil <3>{{mail}}</3>",
+      "discord": "Meid leiate ka <1>ebakõladest.</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bingi pildid",
+      "search": "Bingi otsing"
+    },
+    "bingVideo": {
+      "name": "Bingi videod",
+      "search": "Bingi otsing"
+    },
+    "element": {
+      "name": "Elemente"
+    },
+    "myAssets": {
+      "name": "Minu varad"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Google'i otsing"
+    },
+    "tenor": {
+      "name": "Tenori GIF-id",
+      "search": "Otsing Tenori järgi",
+      "ph-search": "Otsi GIF-id läbi..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Otsing: Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Vara üleslaadimine"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Otsi pilte..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Otsi videoid..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Varade läbiotsimine..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Otsi mudeleid..."
+    },
+    "useUpload": {
+      "multipleFileError": "Sisend ei aktsepteeri mitut faili.",
+      "mineTypeError": "\"{{name}}\" ei vasta järgmistele miimitüüpidele või laiendustele: {{types}}",
+      "progressTitle": "Failide üleslaadimine",
+      "progressMsg": "{{total}}failide {{uploaded}} üleslaadimine: {{percentage}}%",
+      "uploadError": "Üleslaadimise tõrge",
+      "uploadErrorMsg": "Tõrge faili üleslaadimisel: {{message}}",
+      "uploadErrorDefaultMsg": "Ilmnes tundmatu tõrge."
+    }
+  },
+  "openLink": {
+    "description": "Lingile liikumiseks klõpsake nuppu Ava.",
+    "lbl-open": "Avama"
+  },
+  "interactableModel": {
+    "lbl-buy": "Ostma",
+    "lbl-learnMore": "Lisateave"
+  },
+  "corsProxyButton": {
+    "tooltip": "Corsi puhverserveri kasutamine"
+  }
+}

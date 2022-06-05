@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Stránka nebyla nalezena"
+  },
+  "503": {
+    "msg": "503 - Služba není k dispozici"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Z tohoto místa vám byl zakázán vstup",
+    "locationName": {
+      "pageTitle": "Domov"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projekty",
+      "header": "Prosím přihlašte se",
+      "welcomeMsg": "Vítejte",
+      "locationHeader": "Místa",
+      "projectHeader": "Projekty",
+      "sceneHeader": "Scény",
+      "description": "Pokud jste zde noví, doporučujeme projít tutoriálem. V opačném případě skočte přímo a vytvořte projekt od nuly nebo z jedné z našich šablon.",
+      "lbl-startTutorial": "Spustit výukový program",
+      "lbl-newProject": "Nový projekt",
+      "lbl-createProject": "Vytvářet",
+      "lbl-newScene": "Nová scéna",
+      "lbl-searchProject": "Prohledat existující projekty...",
+      "back": "Hřbet",
+      "contextMenu": "Odstranit projekt",
+      "installed": "Nainstalované projekty",
+      "official": "Oficiální projekty",
+      "community": "Komunitní projekty",
+      "install": "Nainstalovat",
+      "uninstall": "Odinstalovat",
+      "rename": "Přejmenovat",
+      "createProject": "Vytvořit projekt",
+      "installProject": "Instalace Projectu",
+      "processing": "Zpracování",
+      "projectName": "Název projektu",
+      "projectURL": "Adresa URL projektu"
+    }
+  },
+  "error": {
+    "goHomeLink": "Jdi domů",
+    "withStatusCode": "Na serveru došlo k chybě {{code}}",
+    "withoutStatusCode": "Na serveru došlo k chybě"
+  },
+  "no-projects": {
+    "msg": "Chyba: Nejsou nainstalovány žádné projekty - obraťte se na správce webu"
+  },
+  "dev": {
+    "pageTitle": "Domov"
+  },
+  "login": {
+    "pageTitle": "Přihlášení do systému"
+  },
+  "workerTest": {
+    "pageTitle": "Test pracovníka"
+  },
+  "index": {
+    "by": "VEDLE",
+    "xr": "XR",
+    "foundation": "Nadace",
+    "description": "3D sociální aplikace v reálném čase, které si může užít každý."
+  },
+  "xrengineContact": {
+    "header": "Spojte se s námi!",
+    "description": "Rádi vám pomůžeme s vašimi virtuálními událostmi, digitálním maloobchodem, zábavou a dalšími potřebami.",
+    "lbl-name": "Jméno",
+    "lbl-email": "E-mail",
+    "lbl-company": "Společnost",
+    "lbl-project": "Popište svůj projekt",
+    "lbl-send": "Poslat",
+    "lbl-ok": "Ok",
+    "lbl-success": "Zpráva odeslána, brzy se vám ozveme.",
+    "lbl-failure": "Došlo k chybě, Plese zkuste to znovu",
+    "err-username": "Zadejte prosím své jméno.",
+    "err-email": "E-mail je vyžadován.",
+    "err-msg": "Uveďte stručný popis projektu."
+  }
+}

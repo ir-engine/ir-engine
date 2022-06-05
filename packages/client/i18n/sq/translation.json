@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Faqja nuk gjendet"
+  },
+  "503": {
+    "msg": "503 - Shërbim i paarritshëm"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Të kanë ndaluar nga ky vend.",
+    "locationName": {
+      "pageTitle": "Shtëpi"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projekte",
+      "header": "Të lutem login",
+      "welcomeMsg": "Mirë se erdhe",
+      "locationHeader": "Lokacione",
+      "projectHeader": "Projekte",
+      "sceneHeader": "Skena",
+      "description": "Nëse jeni të ri këtu ju rekomandojmë të kaloni nëpër tutorial. Përndryshe, hidhuni djathtas dhe krijoni një projekt nga zeroja ose nga një nga modelet tona.",
+      "lbl-startTutorial": "Fillo tutorialin",
+      "lbl-newProject": "Projekt i ri",
+      "lbl-createProject": "Krijo",
+      "lbl-newScene": "Skenë e re",
+      "lbl-searchProject": "Kërko projektet ekzistuese...",
+      "back": "Mbrapa.",
+      "contextMenu": "Elemino projektin",
+      "installed": "Projekte të instaluara",
+      "official": "Projekte zyrtare",
+      "community": "Projekte komunitare",
+      "install": "Instalo",
+      "uninstall": "Çinstalo",
+      "rename": "Riemërto",
+      "createProject": "Krijo Projekti",
+      "installProject": "Instalo projektin",
+      "processing": "Përpunim",
+      "projectName": "Emri i projektit",
+      "projectURL": "URL e projektit"
+    }
+  },
+  "error": {
+    "goHomeLink": "Shko në shtëpi",
+    "withStatusCode": "Një gabim {{code}} ndodhi në server",
+    "withoutStatusCode": "Një gabim ndodhi në server"
+  },
+  "no-projects": {
+    "msg": "Gabim: Nuk ka projekte të instaluara - ju lutem kontaktoni një admin të faqes"
+  },
+  "dev": {
+    "pageTitle": "Shtëpi"
+  },
+  "login": {
+    "pageTitle": "Hyrje"
+  },
+  "workerTest": {
+    "pageTitle": "Test për punëtorët"
+  },
+  "index": {
+    "by": "NGA",
+    "xr": "XR",
+    "foundation": "Fondacioni",
+    "description": "Realtime 3D aplikime sociale për të gjithë të gëzojnë."
+  },
+  "xrengineContact": {
+    "header": "Lidhuni!",
+    "description": "Do të donim t'ju ndihmonim me ngjarjet tuaja virtuale, shitjet dixhitale, argëtimin dhe nevojat e tjera.",
+    "lbl-name": "Emri",
+    "lbl-email": "Email",
+    "lbl-company": "Kompania",
+    "lbl-project": "Përshkruaj projektin tënd",
+    "lbl-send": "Dërgo",
+    "lbl-ok": "Në rregull",
+    "lbl-success": "Mesazhi i dërguar, ne do të kthehemi tek ju së shpejti.",
+    "lbl-failure": "Ndodhi një gabim, Plese provo përsëri",
+    "err-username": "Të lutem shkruaj emrin tënd.",
+    "err-email": "E-maili është i kërkuar.",
+    "err-msg": "Jep një përshkrim të shkurtër të projektit tënd."
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Pagina nu a fost găsită"
+  },
+  "503": {
+    "msg": "503 - Serviciu indisponibil"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Vi s-a interzis accesul în această locație",
+    "locationName": {
+      "pageTitle": "Domiciliu"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Proiecte",
+      "header": "Vă rugăm să Vă autentificați",
+      "welcomeMsg": "Bun venit",
+      "locationHeader": "Locații",
+      "projectHeader": "Proiecte",
+      "sceneHeader": "Scene",
+      "description": "Dacă sunteți nou aici, vă recomandăm să parcurgeți tutorialul. În caz contrar, săriți direct și creați un proiect de la zero sau de la unul dintre șabloanele noastre.",
+      "lbl-startTutorial": "Start Tutorial",
+      "lbl-newProject": "Proiect nou",
+      "lbl-createProject": "Crea",
+      "lbl-newScene": "Scenă nouă",
+      "lbl-searchProject": "Căutați proiecte existente...",
+      "back": "Spate",
+      "contextMenu": "Ștergere proiect",
+      "installed": "Proiecte instalate",
+      "official": "Proiecte oficiale",
+      "community": "Proiecte comunitare",
+      "install": "Instala",
+      "uninstall": "Dezinstalare",
+      "rename": "Redenumire",
+      "createProject": "Crearea proiectului",
+      "installProject": "Instalați Project",
+      "processing": "Prelucrare",
+      "projectName": "Nume proiect",
+      "projectURL": "ADRESA URL a proiectului"
+    }
+  },
+  "error": {
+    "goHomeLink": "Du-te acasă",
+    "withStatusCode": "A apărut o eroare {{code}} pe server",
+    "withoutStatusCode": "A apărut o eroare pe server"
+  },
+  "no-projects": {
+    "msg": "Eroare: Nu există proiecte instalate - vă rugăm să contactați un administrator al site-ului"
+  },
+  "dev": {
+    "pageTitle": "Domiciliu"
+  },
+  "login": {
+    "pageTitle": "Login"
+  },
+  "workerTest": {
+    "pageTitle": "Testul lucrătorului"
+  },
+  "index": {
+    "by": "LÂNGĂ",
+    "xr": "XR",
+    "foundation": "Fundație",
+    "description": "Aplicații sociale 3D în timp real pentru ca toată lumea să se bucure."
+  },
+  "xrengineContact": {
+    "header": "Luați legătura!",
+    "description": "Ne-ar plăcea să vă ajutăm cu evenimente virtuale, retail digital, divertisment și alte nevoi.",
+    "lbl-name": "Nume",
+    "lbl-email": "E-mail",
+    "lbl-company": "Firmă",
+    "lbl-project": "Descrie-ți proiectul",
+    "lbl-send": "Expedia",
+    "lbl-ok": "Ok",
+    "lbl-success": "Mesaj trimis, Vom reveni la tine în scurt timp.",
+    "lbl-failure": "A apărut o eroare, Plese încercați din nou",
+    "err-username": "Vă rugăm să introduceți numele dumneavoastră.",
+    "err-email": "E-mailul este necesar.",
+    "err-msg": "Furnizați o scurtă descriere a proiectului dvs."
+  }
+}

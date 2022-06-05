@@ -1,0 +1,718 @@
+{
+  "loading": "Proiektuaren karga",
+  "loadingMsg": "Proiektua kargatzen...",
+  "loadingError": "Akatsa proiektua kargatzean",
+  "loadingErrorMsg": "Akats bat gertatu da proiektua kargatzean.",
+  "selectSceneMsg": "Aukeratu Motorrarekin jolasten hasteko eszena",
+  "error": "Errorea",
+  "errorMsg": "Akats ezezagun bat izan zen.",
+  "generateScreenshot": "Proiektuaren pantaila-harrapaketa sortzea",
+  "generateScreenshotMsg": "Proiektuaren pantaila-harrapaketa sortuz...",
+  "newScene": "Eszena sortzea",
+  "saving": "Zaintza proiektua",
+  "savingMsg": "Proiektua aurreztea...",
+  "savingError": "Akatsa proiektua gordetzean",
+  "savingErrorMsg": "Akats bat gertatu da proiektua gordetzean.",
+  "savingSceneErrorMsg": "Eszena ez da behar bezala kargatzen. Saiatu eszena kargatzen.",
+  "duplicating": "Proiektuaren bikoizketa",
+  "duplicatingMsg": "Proiektua bikoiztuz...",
+  "exporting": "Proiektuaren esportazioa",
+  "exportingMsg": "Proiektua esportatzen...",
+  "exportingError": "Akatsa proiektua esportatzean",
+  "exportingErrorMsg": "Akats bat gertatu da proiektua esportatzean.",
+  "importLegacy": "Heredatutako mundua inportatzea",
+  "importLegacyMsg": "Ohartarazpena! Horrek zure eszena gaindituko du! Ziur al zaude jarraitu nahi duzula?",
+  "publishingError": "Akatsa proiektua argitaratzean",
+  "publishingErrorMsg": "Akats ezezagun bat izan zen.",
+  "publishingScene": "Argitalpen-eszena",
+  "publishingSceneMsg": "Argitalpen-eszena...",
+  "uploadingThumbnailMsg": "Miniaturak kargatzen...",
+  "uploadingSceneMsg": "Eszena igo:% {{percentage}}",
+  "envMapError": "Akatsa, {{files}} kuboaren mapako irudiak kargatzean",
+  "lbl-return": "Itzulketa",
+  "menubar": {
+    "newScene": "Eszena berria",
+    "saveScene": "Eszena gorde",
+    "saveAs": "Gorde nola",
+    "importAsset": "Aktiboki inportatzea",
+    "exportGLB": "GlTF binario gisa esportatu (.glb) ...",
+    "importScene": "Eszena inportatzea",
+    "exportScene": "Esportazio-eszena",
+    "quit": "Uko egin"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Artxibo mota ez da artxiborako bateragarria: \"{{name}}\". Artxiboak irudi, bideo edo glb eredu bat izan behar du.",
+    "addObject": "addObject: objektua aurkitu baino lehen",
+    "removeObject": "removeObject: aurkitu gabeko nodoa. Hori jada eszenan ez dagoen nodo bat ezabatzearen ondorio da.",
+    "noParent": "{{node}} \"{{name}}ez du gurasorik. Reparentek gaur egun eszenan dauden objektuetan bakarrik funtzionatzen du.",
+    "undefinedParent": "editorea.reparent: newParent ez definituta",
+    "notAuthenticated": "Ez autentifikazioa",
+    "fetchingProjectError": "Akatsa proiektuak bilatzean: {{error}}",
+    "fetchingRouteError": "Ibilbideak bilatzean akatsa: {{error}}",
+    "unknownError": "Akats ezezaguna",
+    "resolveURL": "Url \"{{url}}\" konpontzean akatsa:",
+    "mediaSearchAborted": "Baliogabetutako bitartekoen bilaketa",
+    "methodNotImplemented": "Inplementatu gabeko metodoa.",
+    "saveProjectAborted": "Eszena gordetzea, baliogabetuta",
+    "unsavedChanges": "Gorde gabeko aldaketak",
+    "unsavedChangesMsg": "Eszena aldatu egin da. Mesedez, gorde ittzan zure aldaketak.",
+    "projectCreationFail": "Proiektuaren sorreran huts egitea. {{reason}}",
+    "projectDeletionFail": "Akatsa proiektua ezabatzean. {{reason}}",
+    "savingProjectFail": "Akatsa proiektua gordetzean. {{reason}}",
+    "sceneTooLarge": "Eszena handiegia da ({{size}} MB) argitaratzeko. Gehienezko tamaina MB {{maxSize}} da.",
+    "sceneCreationFail": "Hutsegitea eszenak sortzean. {{reason}}",
+    "uploadAborted": "Karga baliogabetua",
+    "uploadFailed": "Akatsa {{reason}} kargatzean",
+    "assetDeletionFail": "Aktiboak ezabatzean huts egitea. {{reason}}",
+    "projectAssetDeletionFail": "Proiektuaren aktiboak ezabatzean huts egitea. {{reason}}",
+    "networkError": "Sareko akatsa: {{status}}. {{text}}",
+    "unknownStatus": "Egoera ezezaguna",
+    "CORS": "Litekeena da CORS akats bat",
+    "urlFetchError": "\"{{url}}\" lortzean akatsa"
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Kamera mugitu",
+      "flyFast": "Azkarrago egiten du hegan",
+      "orbit": "Órbita / Hautatu",
+      "pan": "Eltze",
+      "fly": "Hegan",
+      "focus": "Arreta-zentro",
+      "rotateLeft": "Ezkerrera biratu",
+      "rotateRight": "Eskuinera biratu",
+      "cancelPlacement": "Kokatzea bertan behera utzi",
+      "placeDuplicate": "Bikoiztu",
+      "cancelGrab": "Cancelar grab",
+      "grab": "Heldu",
+      "deselectAll": "Denen aukeraketa bertan behera utzi"
+    },
+    "state": {
+      "header": "Estatistikak",
+      "memory": "Memoria",
+      "geometries": "Geometriak",
+      "textures": "Ehundurak",
+      "render": "Egin",
+      "FPS": "FPS",
+      "frameTime": "Marko-denbora",
+      "calls": "Deiak",
+      "triangles": "Triangeluak",
+      "points": "Puntuak",
+      "lines": "Lineak"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Argitaratu",
+    "lbl-published": "Argitaratua",
+    "command": {
+      "translate": "Itzuli",
+      "rotate": "Rotar",
+      "scale": "Escama",
+      "toggleSpace": "Eraldaketa-espazioa txandakatzea",
+      "togglePivot": "Eraldaketa-pibotea txandakatu",
+      "toggleSnapMode": "Doikuntza-modua txandakatzea",
+      "toggleGrid": "Laukiaren ikuspena txandakatzea",
+      "increaseGridSize": "Laukiaren tamaina handitzea",
+      "descreaseGridSize": "Laukiaren tamaina gutxitzea",
+      "stopPreview": "Eszenaren aurreko ikustaldia geldiaraztea",
+      "playPreview": "Eszenaren aurreko bista"
+    }
+  },
+  "properties": {
+    "title": "Propietateak",
+    "lbl-visible": "Ikusgaia",
+    "lbl-preventBake": "Labea prebenitzea",
+    "lbl-persist": "Iraunkorra",
+    "multipleNodeSelected": "Aukeratutako mota ezberdinetako nodo ugari",
+    "noNodeSelected": "Ez aukeratutako nodorik",
+    "ambientLight": {
+      "name": "Ingurumen-argia",
+      "description": "Zure eszenako objektu guztiak argitzen dituen argia.",
+      "lbl-intensity": "Intentsitatea",
+      "lbl-color": "Kolore"
+    },
+    "envmap": {
+      "name": "Ingurunearen mapa",
+      "description": "ingurunearen maparen propietateak"
+    },
+    "asset": {
+      "name": "Aktiboa",
+      "description": "Eszena-osagaien talde bat, dinamikoki kargatu eta deskargatu daitekeena",
+      "lbl-options": "Aukerak",
+      "lbl-assetPath": "Aktiboen ibilbidea",
+      "lbl-assetName": "Esportazio-izena",
+      "lbl-exportOptions": "Esportazio-aukerak",
+      "lbl-export": "Aktiboak esportatu",
+      "lbl-load": "Eszenan kargatu",
+      "lbl-unload": "Deskargatu",
+      "lbl-reload": "Kargatu"
+    },
+    "audio": {
+      "name": "Audioa",
+      "description": "Audio-karga dinamikoa.",
+      "lbl-audiourl": "Audio Url",
+      "lbl-controls": "aginteak",
+      "info-controls": "Multimedia kontrolen ikusgarritasuna txandakatzen du.",
+      "lbl-autoplay": "Ugalketa automatikoa",
+      "info-autoplay": "Egia bada, bitartekoak lehen aldiz eszenan sartzean erreproduzituko dira.",
+      "lbl-synchronize": "Sinkronizatu",
+      "info-synchronize": "Truea bada, konektatutako bezero guztietan sinkronizatuko dira hedabideak.",
+      "lbl-loop": "Bucle",
+      "info-loop": "Egia bada, bitartekoak mugagabeki errepikatuko dira.",
+      "lbl-audioType": "Audio mota",
+      "lbl-distanceModel": "Distantzia-eredua",
+      "info-distanceModel": "Audio rolloffa kalkulatzeko erabiltzen den algorithima.",
+      "lbl-rolloffFactor": "Rolloff Factor",
+      "info-rolloffFactor": "Balio bikoitza, iturria entzulearengandik urruntzen den heinean bolumena murrizten duen azkartasuna deskribatzen duena. 0tik 1era",
+      "info-rfInfinity": "Balio bikoitza, iturria entzulearengandik urruntzen den heinean bolumena murrizten duen azkartasuna deskribatzen duena. 0 infinituraino",
+      "lbl-refDistance": "Erreferentzia-distantzia",
+      "info-refDistance": "Balio bikoitza, erreferentzia-distantzia adierazten duena, audio-iturria entzulearengandik urruntzen den heinean bolumena murrizteko.",
+      "lbl-maxDistance": "Gehienezko distantzia",
+      "info-maxDistance": "Audio-iturriaren eta entzulearen arteko gehieneko distantzia adierazten duen balio bikoitza, eta horren ondoren bolumena ez da gehiago murrizten.",
+      "lbl-coneInnerAngle": "Konoaren barne-angelua",
+      "info-coneInnerAngle": "Balio bikoitza, gradutan deskribatzen duena, kono batena, zeinaren barruan ez baita bolumen-murrizketarik izango.",
+      "lbl-coneOuterAngle": "Konoaren kanpoko angelua",
+      "info-coneOuterAngle": "Balio bikoitza, kono baten angelua gradutan deskribatzen duena, zeinetik kanpo bolumena balio konstante baten bidez murriztuko baita, koneo-atributuak definituta.",
+      "lbl-coreOuterGain": "Konoaren kanpoko irabazia",
+      "info-coreOuterGain": "Balio bikoitza, bolumen-murrizketaren kopurua konotik kanpo deskribatzen duena. Bere balio aurredeterminatua 0 da, eta horrek esan nahi du ezin dela soinurik entzun.",
+      "lbl-volume": "Bolumena",
+      "lbl-play": "Jolastu",
+      "lbl-pause": "Pausa",
+      "error-url": "Akatsa url-etik kargatzean"
+    },
+    "boxCollider": {
+      "description": "Kutxa ikusezin bat, objektuek gainean errebotatu edo atseden hartuko dutena.\nTalka egin gabe, objektuak pisuetatik behera eroriko dira eta hormak zeharkatuko dituzte.",
+      "lbl-isTrigger": "Detonatzaile"
+    },
+    "camera": {
+      "name": "Kamera",
+      "description": "Kameraren konfigurazioa.",
+      "lbl-camera-raycast": "Raycasting kamera",
+      "lbl-camera-raycast-toggle": "Gaituta",
+      "lbl-camera-raycast-frequency": "Maiztasuna",
+      "lbl-camera-raycast-count": "Tximistak kontatzea",
+      "lbl-camera-raycast-length": "Tximistaren luzera"
+    },
+    "directionalLight": {
+      "name": "Norabide-argia",
+      "description": "Eszena osoa argitzen duen argia, baina norabide bakar batean zehar igortzen duena.",
+      "lbl-color": "Kolore",
+      "lbl-intensity": "Intentsitatea",
+      "lbl-cameraFar": "Kamera urrun",
+      "lbl-cameraNear": "Kamera gertu",
+      "lbl-cameraTop": "Kameraren goikaldea",
+      "lbl-cameraBottom": "Kameraren behealdea",
+      "lbl-cameraLeft": "Ezkerreko ganbera",
+      "lbl-cameraRight": "Eskuineko ganbera",
+      "lbl-useInCSM": "Erabilera CSMn",
+      "lbl-castShadow": "Itzala proiektatu",
+      "lbl-disableForCSM": "Ur-jauziko itzalen mapa gaituta dagoelako desgaituta.",
+      "lbl-shadowmapResolution": "Itzalen maparen ebazpena",
+      "lbl-shadowBias": "Itzal-sesgoa",
+      "lbl-shadowRadius": "Itzal-irratia",
+      "lbl-showCameraHelper": "Kamera-laguntzailea erakutsi"
+    },
+    "groundPlane": {
+      "name": "Lur planoa",
+      "description": "Distantzian zabaltzen den lur lauko planoa.",
+      "lbl-color": "Kolore",
+      "lbl-receiveShadow": "Itzala jaso",
+      "lbl-generateNavmesh": "Navmesh sortu"
+    },
+    "link": {
+      "description": "Gela edo webgune batera enla egin.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "3D mapa geoespaziala, adibidez, hiri batena."
+    },
+    "model": {
+      "description": "3D modelo bat bere eszenan, URL edo GLTF artxibo batetik kargatua.",
+      "lbl-usingGPUInstancingFlag": "GPUren eskaerak erabili",
+      "lbl-modelurl": "Ereduaren URL",
+      "lbl-envmapUrl": "Ingurunearen maparen URL",
+      "lbl-textureOverride": "Ehundura bertan behera utzi",
+      "lbl-materialOverride": "Materiala deuseztatzea",
+      "error-url": "Akatsa url-etik kargatzean",
+      "lbl-loopAnimation": "Bukle animazioa",
+      "lbl-isAvatar": "Avatar da",
+      "lbl-isGPUInstancing": "GPUren eskaera erabiltzen ari da",
+      "lbl-isDynamic": "Dinamikoa da",
+      "lbl-castShadow": "Itzala proiektatu",
+      "lbl-receiveShadow": "Itzala jaso",
+      "lbl-interactable": "Interaktiboa",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Izena",
+      "lbl-url": "Ereduaren URL",
+      "lbl-buy": "URL erosi",
+      "lbl-learnMore": "URL informazio gehiago",
+      "lbl-htmlContent": "Html edukia",
+      "lbl-interactionText": "Interakzio testua",
+      "lbl-interactionType": "Interakzio mota"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Materiala",
+      "error-materialID": "Akatsa materiala aurkitzean",
+      "placeholder-materialID": "Materiala aukeratu",
+      "lbl-patternTarget": "Patroien kointzidentzia",
+      "lbl-pattern": "Patroia",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Interakzio mota",
+      "text": "Interakzio testua",
+      "distance": "Interakzio-distantzia",
+      "theme": "Interakzio-gaia",
+      "name": "Interakzio-izena",
+      "description": "Interakzioaren deskribapena",
+      "images": "Interakzio irudiak",
+      "videos": "Elkarrekintza bideoak",
+      "urls": "Interakzio url",
+      "models": "Elkarrekintza-ereduak"
+    },
+    "group": {
+      "name": "Taldea",
+      "description": "Elkarrekin mugitu edo bikoiz daitezkeen hainbat objektu.\nHierarkiaren taldean objektuak arrastatu eta askatu."
+    },
+    "hemisphere": {
+      "name": "Hemisferioaren argia",
+      "description": "Eszena zuzenean goitik argitzen duen argia.",
+      "lbl-skyColor": "Zeruaren kolorea",
+      "lbl-groundColor": "Lurzoruaren kolorea",
+      "lbl-intensity": "Intentsitatea"
+    },
+    "image": {
+      "name": "Irudia",
+      "description": "Irudi bat dinamikoki kargatzen du.",
+      "lbl-imgURL": "Irudiaren URL",
+      "lbl-transparency": "Gardentasun modua",
+      "lbl-alphaCutoff": "Alfa-muga",
+      "lbl-projection": "Proiekzioa",
+      "lbl-side": "Aldea",
+      "info-controls": "Multimedia kontrolen ikusgarritasuna txandakatzen du.",
+      "info-transparency": "Gardentasuna nola aplikatu:",
+      "info-opaque": "'opakoa' = gardentasunik gabe",
+      "info-blend": "'blend' = irudien alfa kanala erabili",
+      "info-mask": "'maskara' = ebaketa-balio zehatz bat erabili pizte/apagatuaren gardentasunerako (eraginkorragoa)",
+      "info-alphaCutoff": "Horren azpitik dauden alfa balioak dituzten pixelak gardenak izango dira",
+      "error-url": "URL ez da baliozkoa"
+    },
+    "name": {
+      "lbl-name": "Izena"
+    },
+    "partileEmitter": {
+      "description": "Partikulak sortzeko partikulen igorlea.",
+      "lbl-particleCount": "Partikulen zenbaketa",
+      "lbl-image": "Irudia",
+      "lbl-ageRandomness": "Adinaren aleatorietatea",
+      "lbl-lifetime": "Bizitza",
+      "lbl-lifetimeRandomness": "Bizitzaren aleatorietatea",
+      "lbl-sizeCurve": "Tamaina kurba",
+      "lbl-startPSize": "Partikularen tamaina hasi",
+      "lbl-endPSize": "Azken partikulen tamaina",
+      "lbl-sizeRandomness": "Tamainaren aleatorietatea",
+      "lbl-colorCurve": "Kolore-kurba",
+      "lbl-startColor": "Hasierako kolorea",
+      "lbl-startOpacity": "Aukerari ekin",
+      "lbl-middleColor": "Kolore ertaina",
+      "lbl-middleOpacity": "Batez besteko opakutasuna",
+      "lbl-endColor": "Azken kolorea",
+      "lbl-endOpacity": "Opakutasunaren amaiera",
+      "lbl-velocityCurve": "Abiadura kurba",
+      "lbl-startVelocity": "Hasierako abiadura",
+      "lbl-endVelocity": "Azken abiadura",
+      "lbl-angularVelocity": "Abiadura angeluarra",
+      "info-ageRandomness": "Partikulak sortzen diren unaren arteko aldakuntza-kopurua.",
+      "info-lifetime": "Partikula baten gehieneko adina berragertu baino lehen.",
+      "info-lifetimeRandomness": "Partikulen bizitzen arteko aldakuntza-kopurua.",
+      "info-sizeRandomness": "Partikulen hasierako tamainaren arteko aldakuntza-kopurua.",
+      "error-url": "Akatsa url-etik kargatzean"
+    },
+    "clouds": {
+      "name": "Hodeia",
+      "description": "Sprites-en oinarritutako hodei-bolumena.",
+      "lbl-image": "Spriteren irudia",
+      "lbl-wroldScale": "Mundu-eskala",
+      "lbl-dimensions": "Neurriak",
+      "lbl-noiseZoom": "Zarata zoom",
+      "lbl-noiseOffset": "Zarata konpentsatzea",
+      "lbl-spriteScale": "Sprite eskala",
+      "lbl-fogColor": "Laino kolorea",
+      "lbl-fogRange": "Laino-maila",
+      "error-url": "Akatsa url-etik kargatzean"
+    },
+    "ocean": {
+      "name": "Ozeanoa",
+      "description": "Ozeanoaren azalera, olatuekin eta aparrarekin",
+      "lbl-normalMap": "Mapa normala",
+      "lbl-distortionMap": "Distortsio mapa",
+      "lbl-envMap": "Ingurunearen mapa",
+      "lbl-color": "Kolore",
+      "lbl-shallowWaterColor": "Sakontasun gutxiko uraren kolorea",
+      "lbl-shallowToDeepDistance": "Sakontasun gutxiko distantzia sakoneran",
+      "lbl-opacityFadeDistance": "Opakutasun-desbaratze-distantzia",
+      "lbl-opacityRange": "Opakutasun-maila",
+      "lbl-shininess": "Brillo",
+      "lbl-reflectivity": "Erreflektibitatea",
+      "lbl-foamColor": "Aparraren kolorea",
+      "lbl-foamSpeed": "Apar-abiadura",
+      "lbl-foamTiling": "Aparra janzteak",
+      "lbl-bigWaveTiling": "Olatu handien mosaikoa",
+      "lbl-bigWaveSpeed": "Olatu handiaren abiadura",
+      "lbl-bigWaveHeight": "Olatuen altuera handia",
+      "lbl-waveSpeed": "Uhin-abiadura",
+      "lbl-waveScale": "Uhin-eskala",
+      "lbl-waveTiling": "Olatuen mosaikoa",
+      "lbl-waveDistortionSpeed": "Uhin-distortsioaren abiadura",
+      "lbl-waveDistortionTiling": "Uhin distortsio mosaikoa",
+      "error-url": "Akatsa url-etik kargatzean"
+    },
+    "water": {
+      "name": "Ura",
+      "description": "Ur-azalera txikia"
+    },
+    "interior": {
+      "name": "Herrizaingoa",
+      "description": "Kubo mapeatuaren egitura duen azalera, barne-giroak emularatzeko",
+      "lbl-cubeMap": "Kuboaren maparen ehundura",
+      "lbl-tiling": "Mosaiko kantitatea",
+      "lbl-size": "Azaleraren tamaina",
+      "error-url": "Akatsa url-etik kargatzean"
+    },
+    "pointLight": {
+      "description": "Argi hori norabide guztietan igortzen du puntu bakar batetik.",
+      "lbl-color": "Kolore",
+      "lbl-intensity": "Intentsitatea",
+      "lbl-range": "Gama",
+      "lbl-decay": "Gainbeheratu"
+    },
+    "scene": {
+      "name": "Eszena",
+      "description": "Eszenaren erroko objektua.",
+      "lbl-bgcolor": "Hondoko kolorea",
+      "lbl-fogType": "Laino mota",
+      "lbl-fogColor": "Laino kolorea",
+      "lbl-forNearDistance": "Lainoa distantziatik gertu",
+      "lbl-fogFarDistance": "Lainoa distantzia handira",
+      "lbl-fogDensity": "Laino dentsitatea",
+      "lbl-audioSettings": "Audio posizionala erabili",
+      "lbl-avatarDistanceModel": "Avatar-en distantzia-eredua",
+      "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
+      "lbl-avatarRefDistance": "Avatar-en erreferentzia-distantzia",
+      "lbl-avatarMaxDistance": "Avatarren gehieneko distantzia",
+      "lbl-mediaVolume": "Bitartekoen bolumena",
+      "lbl-mediaDistanceModel": "Bitartekoen distantzia-eredua",
+      "lbl-mediaRolloffFactor": "Hedabideen rolloff faktorea",
+      "lbl-mediaRefDistance": "Komunikabideen erreferentzia-distantzia",
+      "lbl-mediaMaxDistance": "Komunikabideen gehieneko distantzia",
+      "lbl-mediaConeInnerAngle": "Komunikabideen konoaren barne-angelua",
+      "lbl-mediaConeOuterAngle": "Komunikabideen konoaren kanpoko angelua",
+      "lbl-mediaConeOuterGain": "Komunikabideen konoaren kanpoko irabazia",
+      "info-avatarDistanceModel": "Audio rolloffa kalkulatzeko erabiltzen den algorithima.",
+      "info-avatarRolloffFactor": "Balio bikoitza, iturria entzulearengandik urruntzen den heinean bolumena murrizten duen azkartasuna deskribatzen duena. 0tik 1era",
+      "info-avatarRolloffFactorInifinity": "Balio bikoitza, iturria entzulearengandik urruntzen den heinean bolumena murrizten duen azkartasuna deskribatzen duena. 0 infinituraino",
+      "info-avatarRefDistance": "Balio bikoitza, erreferentzia-distantzia adierazten duena, audio-iturria entzulearengandik urruntzen den heinean bolumena murrizteko.",
+      "info-avatarMaxDistance": "Audio-iturriaren eta entzulearen arteko gehieneko distantzia adierazten duen balio bikoitza, eta horren ondoren bolumena ez da gehiago murrizten.",
+      "info-mediaDistanceModel": "Audio rolloffa kalkulatzeko erabiltzen den algorithima.",
+      "info-mediaRolloffFactor": "Balio bikoitza, iturria entzulearengandik urruntzen den heinean bolumena murrizten duen azkartasuna deskribatzen duena. 0tik 1era",
+      "info-mediaRolloffFactorInfinity": "Balio bikoitza, iturria entzulearengandik urruntzen den heinean bolumena murrizten duen azkartasuna deskribatzen duena. 0 infinituraino",
+      "info-mediaRefDistance": "Balio bikoitza, erreferentzia-distantzia adierazten duena, audio-iturria entzulearengandik urruntzen den heinean bolumena murrizteko.",
+      "info-mediaMaxDistance": "Audio-iturriaren eta entzulearen arteko gehieneko distantzia adierazten duen balio bikoitza, eta horren ondoren bolumena ez da gehiago murrizten.",
+      "info-mediaConeInnerAngle": "Balio bikoitza, gradutan deskribatzen duena, kono batena, zeinaren barruan ez baita bolumen-murrizketarik izango.",
+      "info-mediaConeOuterAngle": "Balio bikoitza, kono baten angelua gradutan deskribatzen duena, zeinetik kanpo bolumena balio konstante baten bidez murriztuko baita, koneo-atributuak definituta.",
+      "info-mediaConeOuterGain": "Balio bikoitza, bolumen-murrizketaren kopurua konotik kanpo deskribatzen duena. Bere balio aurredeterminatua 0 da, eta horrek esan nahi du ezin dela soinurik entzun.",
+      "lbl-simpleMaterials": "Material sinpleak erabili",
+      "lbl-lods": "LODak",
+      "info-lods": "Ea ezartzen dituen xehetasun-mailak aldatzen diren distantziak.",
+      "info-simpleMaterials": "Material garesti guztiak sinpleagoak bihurtzen ditu, eszena-irudikapenaren zama ezabatzeko.",
+      "lbl-rendererSettings": "Errenderizadoraren konfigurazioa bertan behera uztea",
+      "lbl-csm": "Ur-jauziko itzalen mapak",
+      "info-csm": "Ur-jauzian itzal-mapak jarri.",
+      "lbl-toneMapping": "Tonuen mapeoa",
+      "info-toneMapping": "Eszena-koskarian tonuak esleitzeko gaitzen du. Ez du inolako ondoriorik geroko prozesamendu bat gaitzen denean.",
+      "lbl-toneMappingExposure": "Tonuen mapeo erakusketa",
+      "info-toneMappingExposure": "Eszena-errepresentatzailean tonuak esleitzeko azalpena zehazten du. Ez du inolako ondoriorik geroko prozesamendu bat gaitzen denean.",
+      "lbl-shadowMapType": "Itzalen mapa mota",
+      "info-shadowMapType": "Itzalen mapa mota",
+      "error-url": "Akatsa url-etik kargatzean"
+    },
+    "sceneCamera": {
+      "name": "Eszenako aurretiazko bista-ganbera",
+      "description": "Eszenaren miniatura eta aurretiazko bista-kameraren hasierako posizioa sortzeko erabiltzen den kamera.",
+      "lbl-setFromViewPort": "Leiho grafikotik ezarri"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Eguneko ordua",
+      "lbl-color": "Kolore",
+      "lbl-latitude": "Latitudea",
+      "lbl-luminance": "Luminantzia",
+      "lbl-scattering": "Sakabanatze-kopurua",
+      "lbl-scatteringDistance": "Sakabanatze-distantzia",
+      "lbl-horizonStart": "Horizonteren hasiera",
+      "lbl-horizonEnd": "Zerumugaren amaiera",
+      "lbl-texture": "Textura",
+      "lbl-skyType": "Zeru mota",
+      "error-url": "Akatsa url-etik kargatzean"
+    },
+    "spawnPoint": {
+      "name": "Desobe-puntua",
+      "description": "Puntu horretan, pertsonak agertuko dira zure eszenan sartzean.\nLeiho grafikoaren ikonoak gora-egitearen benetako tamaina adierazten du."
+    },
+    "spotLight": {
+      "description": "Argi bat norabide batean zehar imititzen duena, kono baten barruan objektuak argitzen.",
+      "lbl-color": "Kolore",
+      "lbl-intensity": "Intentsitatea",
+      "lbl-penumbra": "Iluna",
+      "lbl-angle": "Angelua",
+      "lbl-range": "Gama",
+      "lbl-decay": "Gainbeheratu"
+    },
+    "transform": {
+      "title": "Transformatu",
+      "lbl-postition": "Posizioa",
+      "lbl-rotation": "Errotazioa",
+      "lbl-scale": "Escama"
+    },
+    "triggereVolume": {
+      "description": "Jabetza bat ezartzen du helmugako objektuan, sartu eta irtetean.",
+      "lbl-target": "Xedea",
+      "lbl-onenter": "Sartzean",
+      "lbl-onexit": "Irteeran",
+      "lbl-showHelper": "Sare laguntzailea erakutsi",
+      "ph-errorNode": "Nodo faltaren akatsa.",
+      "ph-selectNode": "Aukeratu nodoa..."
+    },
+    "video": {
+      "name": "Bideoa",
+      "description": "Bideo bat dinamikoki kargatzen du.",
+      "lbl-video": "Bideoa",
+      "lbl-projection": "Proiekzioa",
+      "lbl-islivestream": "Zuzeneko transmisioa",
+      "lbl-interactable": "Interaktiboa",
+      "lbl-id": "Elementuaren identifikatzailea",
+      "lbl-play": "Jolastu",
+      "lbl-pause": "Pausa",
+      "error-url": "Akatsa url-etik kargatzean"
+    },
+    "volumetric": {
+      "name": "Bolumetrikoa",
+      "description": "Bideo bolumetriko bat kargatzen du, dinamikoki.",
+      "uvolPaths": "UVOL ibilbideak",
+      "playmode": "Joko-modua",
+      "playtitle": "Jolastu",
+      "pausetitle": "Pausa"
+    },
+    "spline": {
+      "description": "Kurbak sortu eta pertsonalizatzen ditu dinamikoki.",
+      "lbl-addNode": "Bihurguneari nodoa erantsi."
+    },
+    "systemnode": {
+      "description": "Script erantsi.",
+      "lbl-filePath": "URL",
+      "lbl-systemUpdateType": "Injekzio-puntua",
+      "lbl-enableClient": "Bezeroa",
+      "lbl-enableServer": "Zerbitzari",
+      "lbl-args": "Args",
+      "error-url": "Akatsa URLetik script-a kargatzean"
+    },
+    "portal": {
+      "lbl-portal": "Lotutako ataria",
+      "lbl-redirect": "Orriaren birirezionamendua erabili",
+      "description": "Jokalariak zehaztutako kokalekura teletransportatzeko Portat bat",
+      "lbl-locationName": "Kokapena",
+      "lbl-modelUrl": "Ereduaren URL",
+      "lbl-displayText": "Testua erakutsi",
+      "lbl-cubemapBake": "Cubemap hornear",
+      "lbl-spawnPosition": "Spawn posizioa",
+      "lbl-spawnRotation": "Desobearen errotazioa",
+      "lbl-triggerPosition": "Katuaren posizioa",
+      "lbl-triggerRotation": "Astakeriaren errotazioa",
+      "lbl-triggerScale": "Tiro-eskala"
+    },
+    "postprocessing": {
+      "name": "Prozesatze osteko",
+      "description": "Eszenari prozesatze-ondoko efektuak aplikatzeko."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Proiektu berria",
+      "backLink": "Proiektuetara itzuli",
+      "featured": "Gomendatuak",
+      "all": "Dena",
+      "newProject": "Proiektu huts berria",
+      "ph-search": "Eszenak bilatu..."
+    },
+    "grid": {
+      "loading": "Karga..."
+    },
+    "page": {
+      "header": "Ongi etorri",
+      "headerMsg": "Hemen berria bazara, tutoriala jarraitzea gomendatzen dizugu. Bestela, zuzenean salto egiten du eta proiektu bat sortzen du zerotik edo gure txantiloi batetik.",
+      "lbl-startTutorial": "Tutoriala hasi",
+      "projects": "Proiektuak",
+      "lbl-newProject": "Proiektu berria"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Karga...",
+      "placeObject": "Place (objektua)",
+      "placeObjectAtOrigin": "Objektua jatorrian jartzea",
+      "copyURL": "UrL kopia",
+      "openInNewTab": "UrL ireki betile berrian",
+      "deleteAsset": "Aktiboki ezabatzea"
+    },
+    "filebrowser": {
+      "addNewFolder": "Karpeta berria gehitu",
+      "cutAsset": "Moztu",
+      "copyAsset": "Kopiatu",
+      "pasteAsset": "Pegar",
+      "renameAsset": "Berregokitu",
+      "viewAssetProperties": "Ikusi propietateak"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Berregokitu",
+    "lbl-duplicate": "Bikoiztua",
+    "lbl-group": "Taldea",
+    "lbl-delete": "Ezabatu",
+    "lbl-expandAll": "Dena zabaldu",
+    "lbl-collapseAll": "Dena hartu",
+    "isseus": "Gaiak:"
+  },
+  "dnd": {
+    "nodes": "{{count}} Aukeratutako nodoak",
+    "models": "{{count}} Aukeratutako Ereduak",
+    "images": "{{count}} Hautatutako irudiak",
+    "videos": "{{count}} Bideo hautatuak",
+    "audio": "{{count}} Aukeratutako audio-iturriak"
+  },
+  "dialog": {
+    "title": "Editor",
+    "lbl-confirm": "Ados",
+    "lbl-cancel": "Ezeztatu",
+    "exportProject": {
+      "title": "Esportazio proiektua",
+      "lbl-confirm": "Esportazio proiektua",
+      "lbl-combineMesh": "Sareak konbinatu",
+      "lbl-removeUnused": "Erabiltzen ez diren objektuak kendu"
+    },
+    "performance": {
+      "title": "Errendimendua egiaztatzea",
+      "lbl-confirm": "Eszena argitaratzea",
+      "learnMore": "Ikasi gehiago",
+      "lbl-polycount": "Poligonoen zenbaketa",
+      "lbl-material": "Materialak",
+      "lbl-texture": "Ehundurak",
+      "lbl-lights": "Argiak",
+      "lbl-fileSize": "Artxiboaren tamaina",
+      "info-polycount": "Bere eszenak gailu mugikorretarako 50,000 triangelu baino gehiago ez erabiltzea gomendatzen dugu.",
+      "info-material": "Bere eszenan 25 material bakar baino gehiago ez erabiltzea gomendatzen dugu, gailu mugikorretan marrazki-deiak murrizteko.",
+      "info-texture": "Bere ehunturek gailu mugikorretarako 256 MB baino gehiago ez erabiltzea gomendatzen dugu. 2048 x 2048 baino gehiagoko egiturak ez erabiltzea ere gomendatzen dugu.",
+      "info-lights": "Argi dinamikoak gailu mugikorretan gaituta ez daudenez ere, bere eszenan 3 argi baino gehiago ez erabiltzea gomendatzen dugu (ingurumen-argiak eta hemisferikoak alde batera utzita), bere eszena gama baxuko PCn exekutatu dadin.",
+      "info-fileSize": "16 MB-ko azken artxiboaren tamaina gomendatzen dugu banda-zabalera baxuko konexioetarako. Artxiboaren tamaina murrizteak eszena deskargatzeko behar den denbora murriztuko du.",
+      "txt-polycount": "triangelu {{count}}",
+      "txt-material": "material {{count}}",
+      "txt-ram": "~{{count}} RAM de video",
+      "txt-texture": "{{count}} Ehundura handiak",
+      "txt-lights": "argi {{count}}"
+    },
+    "progress": {
+      "title": "Karga...",
+      "msg": "Karga...",
+      "lbl-cancel": "Ezeztatu"
+    },
+    "publish": {
+      "title": "Eszena argitaratzea",
+      "lbl-confirm": "Gorde eta argitaratu",
+      "lbl-name": "Eszenaren izena",
+      "info-name": "Izenak 4 eta 64 karaktere artean izan behar ditu eta ezin du gidoi baxurik izan."
+    },
+    "published": {
+      "title": "Argitaratutako eszena",
+      "header": "Zure eszena argitaratua izan da.",
+      "lbl-view": "Eszena ikusi"
+    },
+    "saveNewProject": {
+      "title": "Babes",
+      "lbl-name": "Proiektuaren izena",
+      "info-name": "Izenak 4 eta 64 karaktere artean izan behar ditu eta ezin du gidoi baxurik izan.",
+      "lbl-confirm": "Proiektua gorde"
+    },
+    "support": {
+      "title": "Babes",
+      "header": "Arazoren bat izan behar al duzu?",
+      "msg": "<1>GitHub-en arazoren</1> bat aurkez dezakezu edo mezu elektroniko bat bidali <3>{{mail}}</3>",
+      "discord": "<1>Discord-en</1> ere aurki gaitzake"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing-en irudiak",
+      "search": "Bilatu Bing-en alde"
+    },
+    "bingVideo": {
+      "name": "Bing Bideoak",
+      "search": "Bilatu Bing-en alde"
+    },
+    "element": {
+      "name": "Elementuak"
+    },
+    "myAssets": {
+      "name": "Nire aktiboak"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Bilatu Googleren bidez"
+    },
+    "tenor": {
+      "name": "GIF tenore",
+      "search": "Bilatu Tenore bidez",
+      "ph-search": "BILATU GIFak..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Bilatu Sketchfab-en"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Kargatu aktiboa"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Irudiak bilatu..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Bideoak bilatu..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Aktiboak bilatu..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Ereduak bilatu..."
+    },
+    "useUpload": {
+      "multipleFileError": "Sarrerak ez ditu hainbat artxibo onartzen.",
+      "mineTypeError": "\"{{name}}ez dator bat honako mime edo hedadura mota hauekin: {{types}}",
+      "progressTitle": "Artxiboen karga",
+      "progressMsg": "{{total}}artxiboen karga {{uploaded}}: % {{percentage}}",
+      "uploadError": "Karga-akatsa",
+      "uploadErrorMsg": "Artxiboa kargatzean akatsa: {{message}}",
+      "uploadErrorDefaultMsg": "Akats ezezagun bat gertatu da"
+    }
+  },
+  "openLink": {
+    "description": "Klik egin Ireki-n, estekan nabigatzeko.",
+    "lbl-open": "Ireki"
+  },
+  "interactableModel": {
+    "lbl-buy": "Erosi",
+    "lbl-learnMore": "Ikasi gehiago"
+  },
+  "corsProxyButton": {
+    "tooltip": "Cors Proxy Server erabili"
+  }
+}

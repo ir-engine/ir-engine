@@ -1,0 +1,202 @@
+{
+  "addComment": "Kommentar dodać...",
+  "share": "Wuwólnić",
+  "suggestions": "Namjety za Was",
+  "seeAll": "Wšitke pokazanja",
+  "likes": "Mag",
+  "viewComments": "Wšitke {{count}} pokazaja komentary",
+  "more": "wjace",
+  "username": "Wužiwarske mjeno",
+  "fullName": "Předmjeno swójbne mjeno",
+  "reportInApporpriate": "Njepřiměrjene přizjewić",
+  "unfollow": "Nic wjace sćěhować",
+  "goToPost": "K přinoškej",
+  "shareModal": "Wuwólnić",
+  "copyLink": "Nalěwo kopěrować",
+  "embed": "Zawjazać",
+  "cancel": "Přetorhnyć",
+  "confirm": "Wobkrućenje",
+  "save": "Wuchować",
+  "profilePic": "{{user}}profilowy wobraz",
+  "ara": "Wołtar",
+  "follow": "Sćěhi",
+  "flames": "płomjenja",
+  "continue": "Pokročowanje",
+  "partyInvitationSent": "Sladowanje party rozesłali",
+  "arMedia": {
+    "back": "Wróćo",
+    "clip": "Wutrjebić",
+    "backgrounds": "Pozadki",
+    "start": "Započeć"
+  },
+  "arMediaform": {
+    "title": "Titul",
+    "type": "Družina",
+    "clip": "Wutrjebić",
+    "background": "Pozadk",
+    "scene": "Scena",
+    "save": "Wuchować",
+    "manifest-file": "Manifest-MANIFEST-datai",
+    "audio-file": "Mp4-Datei",
+    "dracosis-file": "Dracosis .uvol Datei",
+    "preview-file": "Vorschau der Bilddatei"
+  },
+  "creator": {
+    "myVideos": "Moje wideja",
+    "savedVideos": "Składowane wideja",
+    "back": "Wróćo",
+    "blocked-list": "Blokowana lisćina",
+    "block-user": "Wužiwarjo blokuja",
+    "dialog-content": "Woni njewidźa profil a wobsah wužiwarja"
+  },
+  "creatorForm": {
+    "back": "Wróćo",
+    "edit": "Profil wobdźěłać",
+    "save": "Wuchować",
+    "changeAvatar": "Awatarowy wobraz změnić",
+    "ph-selectPreview": "Vorschau auswählen",
+    "ph-name": "Jeje mjeno",
+    "ph-username": "Waše wužiwarske mjeno",
+    "ph-email": "Jeje e-mejlowa adresa",
+    "ph-tags": "Znamješka",
+    "ph-link": "Zwjazać",
+    "ph-aboutYou": "Wjace wo Was",
+    "ph-twitter": "Fifolić",
+    "ph-instagram": "Na Instagramje",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Wotzjewjenje"
+  },
+  "dashboard": {
+    "title": "Instrumentowa tafla",
+    "dashboard": "Instrumentowa tafla",
+    "users": "Wužiwarjo",
+    "feeds": "Zežiwjene",
+    "arMedia": "Widejowe medije",
+    "editor": "Redaktor",
+    "creator": "stworićel"
+  },
+  "featured": {
+    "empty-list": "Žane feedy za nětko ..."
+  },
+  "feed": {
+    "back": "Wróćo",
+    "related": "Přiwuzni feeds",
+    "is-repoted-message": "Feed so přizjewi!"
+  },
+  "feedForm": {
+    "back": "Wróćo",
+    "thanks": "Mějće dźak, zo sće našu community dźělili a polěpšili",
+    "share": "Dźělće něšto z community",
+    "upload": "Widejo nakładować",
+    "ph-selectVideo": "Widejo wuzwolić",
+    "preview": "Předstajenje wobraza",
+    "ph-selectPreview": "Vorschau auswählen",
+    "createFeed": "Zo byšće so feed zestajili, trjebajće widejo a z přikładom!!!",
+    "ph-videoName": "Mjeno twojeho wideja",
+    "ph-type": "Zapodajće, što chceće z community dźělić ... ",
+    "lbl-share": "Wuwólnić",
+    "save": "Składować a dale hić"
+  },
+  "feedMenu": {
+    "featured": "Wukmanjeny",
+    "creators": "Načołnje",
+    "feed": "Der Feed"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetrisch"
+  },
+  "login": {
+    "account": "Maće konto?",
+    "login": "So přizjewić",
+    "resetPassword": "Reset Password Fake button (tu by link z e-mailki) był",
+    "notHavingAccount": "Nimaće hišće žadyn konto?",
+    "signUp": "Přizjewić",
+    "forgotPassword": "Hesło zabyć?",
+    "back": "Wróćo",
+    "or": "ABO"
+  },
+  "comment": {
+    "add": "Přidajće swój komentar..."
+  },
+  "notification": {
+    "feedFire": " Sym swój feed zatepił",
+    "feedBookmarked": " Sadźće čitanske znamjo za Waš feed",
+    "comment": " Komentujće Waš feed:",
+    "commentFire": " Sym swój komentar k feedej wutepił",
+    "follow": " Započa, Wam sćěhować",
+    "unfollow": " Přestańće, Wam sćěhować",
+    "followed": " Sćěhowaše tebi",
+    "activity": "Aktiwita"
+  },
+  "onBoarding": {
+    "welcome": "Witajće!",
+    "description": "Najwjetša zběrka 370+ Layoutow za iOS prototyping.",
+    "next": "Přichodny",
+    "discover": "Artikle wotkryć,",
+    "news": "Nowostki & přinoški",
+    "lines": "To su tute začuća, kotrež našu lubosć k astronomiji a naše žadanje pohonja.",
+    "getStarted": "Loslegen",
+    "meetUp": "Zetkaće so z",
+    "friends": "Přećeljo.",
+    "meet": "Zetkaće so z přećelemi"
+  },
+  "shareForm": {
+    "arcMedia": "Wuwólnić",
+    "videoCreated": "Sym tute widejo zestajał",
+    "shareWithBuddies": "Z přećelemi dźělić",
+    "shareVideo": "Widejo dźělić",
+    "save": "W \"swójskich nahrawanjach\" składować",
+    "cancel": "Přetorhnyć",
+    "close": "Zawrěć",
+    "addFeed": "Feed dodać"
+  },
+  "simpleModal": {
+    "emptyList": "Prózdna lisćina",
+    "followers": " Sćěhowace",
+    "following": " Přiwisnikow",
+    "flames": " płomjenja"
+  },
+  "splash": {
+    "screen": "witanska wobrazowka",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "{{user}}profilowy wobraz"
+  },
+  "view": {
+    "cancel": "Přetorhnyć",
+    "choice": "Woni maja dwě wšelakej nahrawanskej modice na wuběr",
+    "verticalMode": "Zjednotnjeny modus ma rekordny čas 30 sekundow",
+    "horizontalMode": "Horicontalny modus ma njewobmjezowany čas přijimanja",
+    "start": "Započeć",
+    "not-show": "Nic wjace pokazać",
+    "welcome": "Witajće do ARC!  Čińće wosobinske wideja z jednym z našich hologramow a pósćelće je na swojich social-media-kanalach!",
+    "step": "KROK {{step}}",
+    "text-step-1": "Wuzwolće hologram z biblioteki.",
+    "text-step-2": "To je Augmented Reality, potajkim scannujće rum ze swojej kameru wotboka po boku za 3-5 sekundow, hdźež chceće hologramowe wuhnaće měć.",
+    "text-step-3-part-1": "Pokiwołujće raz na wobrazowku na městnje, na kotrymž ma so hologram zakótwić.",
+    "text-step-3-part-2": "PITNY PJENJEZ!  Pokitujće raz na druhim městnje, zo byšće hologram na druhu poziciju přestorčili.",
+    "text-step-3-part-3": "PITNY PJENJEZ!  Móžeće wulkosć holograma změnić, z tym zo wobrazowku z palcom a pokazowakom hromadźe stłóčiće abo rozšěrjiće.",
+    "text-step-4-part-1": "Dwójnje stupće na čerwjeny nahrawanski tast, zo byšće swoje widejowe nahrawanje STARTOWALI.",
+    "text-step-4-part-2": "Dwójnje ilušćće na čerwjeny nahrawansku tastu, zo byšće STOP sadźili."
+  },
+  "video": {
+    "back": "Wróćo"
+  },
+  "terms": {
+    "confirmTerms": "Přihłosuju wužiwanskim wuměnjenjam",
+    "confirmPolicy": "Přihłosuju wozjewjenju k datowemu škitej"
+  },
+  "registration": {
+    "ph-phoneEmail": "Telefon / e-mejlku wužiwać",
+    "facebook": "Dale z Facebookom",
+    "google": "Dale z Google",
+    "linkedin": "Dale z Lěwicu",
+    "twitter": "Dale z Twitterom",
+    "gitHub": "Dale z GitHub",
+    "connect": "Zwjazajće Wašu e-mejlowu adresu abo telefonowe čisło",
+    "logIn": "Přizjewić",
+    "LogInTo": "Přizjewće so pola",
+    "continueAsGuest": "Jako hósć pokročować"
+  }
+}

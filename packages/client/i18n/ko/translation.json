@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - 페이지를 찾을 수 없음"
+  },
+  "503": {
+    "msg": "503 - 서비스를 사용할 수 없음"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "이 위치에서 금지되었습니다.",
+    "locationName": {
+      "pageTitle": "집"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "프로젝트",
+      "header": "로그인하십시오",
+      "welcomeMsg": "환영",
+      "locationHeader": "위치",
+      "projectHeader": "프로젝트",
+      "sceneHeader": "장면",
+      "description": "당신이 여기에 새로운 경우 우리는 튜토리얼을 통해 이동하는 것이 좋습니다. 그렇지 않으면 바로 뛰어 들어 처음부터 또는 템플릿 중 하나에서 프로젝트를 만듭니다.",
+      "lbl-startTutorial": "튜토리얼 시작",
+      "lbl-newProject": "새 프로젝트",
+      "lbl-createProject": "창조하다",
+      "lbl-newScene": "새로운 장면",
+      "lbl-searchProject": "기존 프로젝트 검색...",
+      "back": "뒤로",
+      "contextMenu": "프로젝트 삭제",
+      "installed": "설치된 프로젝트",
+      "official": "공식 프로젝트",
+      "community": "커뮤니티 프로젝트",
+      "install": "설치하다",
+      "uninstall": "제거",
+      "rename": "이름 바꾸기",
+      "createProject": "프로젝트 만들기",
+      "installProject": "프로젝트 설치",
+      "processing": "가공",
+      "projectName": "프로젝트 이름",
+      "projectURL": "프로젝트 URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "집에 가세요",
+    "withStatusCode": "서버에서 오류 {{code}} 가 발생했습니다.",
+    "withoutStatusCode": "서버에서 오류가 발생했습니다."
+  },
+  "no-projects": {
+    "msg": "오류: 설치된 프로젝트가 없습니다 - 사이트 관리자에게 문의하십시오."
+  },
+  "dev": {
+    "pageTitle": "집"
+  },
+  "login": {
+    "pageTitle": "로그인"
+  },
+  "workerTest": {
+    "pageTitle": "작업자 테스트"
+  },
+  "index": {
+    "by": "곁에",
+    "xr": "증권 시세 표시기",
+    "foundation": "토대",
+    "description": "모두가 즐길 수있는 실시간 3D 소셜 응용 프로그램."
+  },
+  "xrengineContact": {
+    "header": "연락하세요!",
+    "description": "우리는 귀하의 가상 이벤트, 디지털 소매, 엔터테인먼트 및 기타 요구에 도움을 드리고자합니다.",
+    "lbl-name": "이름",
+    "lbl-email": "이메일",
+    "lbl-company": "회사",
+    "lbl-project": "프로젝트 설명",
+    "lbl-send": "보내기",
+    "lbl-ok": "그래",
+    "lbl-success": "메시지 전송, 곧 다시 연락 드리겠습니다.",
+    "lbl-failure": "오류가 발생했습니다. Plese가 다시 시도합니다.",
+    "err-username": "이름을 입력하십시오.",
+    "err-email": "이메일이 필요합니다.",
+    "err-msg": "프로젝트에 대한 간략한 설명을 제공합니다."
+  }
+}

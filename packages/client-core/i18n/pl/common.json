@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Ładowanie strony..."
+  },
+  "tooltip": {
+    "pressKey": "Naciśnij {{tip}} , aby {{message}}"
+  },
+  "toast": {
+    "joined": "Połączone",
+    "left": "Lewy"
+  },
+  "navUserWidget": {
+    "login": "Zaloguj się"
+  },
+  "loader": {
+    "connecting": "Łączenie się ze światem...",
+    "entering": "Wkraczanie w świat...",
+    "loading": "Ładowania...",
+    "objectRemaining": "{{count}} obiekt pozostały",
+    "objectRemainingPlural": "{{count}} pozostałych obiektów",
+    "loadingObjects": "Ładowanie obiektów",
+    "loadingComplete": "Ładowanie zakończone",
+    "joiningWorld": "Dołączanie do świata"
+  },
+  "alert": {
+    "eventWasSuccess": "Wydarzenie zakończyło się sukcesem",
+    "errorWasEncountered": "Wystąpił błąd",
+    "eventInProgress": "Wydarzenie w toku",
+    "seconds": "Sekund",
+    "cancelCountdown": "Zamknięcie tego modalu spowoduje anulowanie odliczania"
+  },
+  "debug": {
+    "refresh": "Odświeżyć",
+    "stats": "Statystyki",
+    "debugOptions": "Opcje debugowania",
+    "physicsDebug": "Fizyka",
+    "avatarDebug": "Awatar",
+    "nodeHelperDebug": "Pomocnik węzła",
+    "gridDebug": "Siatka",
+    "simpleMaterials": "Proste materiały",
+    "tick": "Kleszcz",
+    "worldStore": "Sklep Światowy",
+    "engineStore": "Sklep z silnikami",
+    "namedEntities": "Nazwane jednostki",
+    "networkObject": "Obiekt sieciowy",
+    "networkClients": "Klienci sieciowi"
+  },
+  "recording": {
+    "videoRecorder": "Magnetowid",
+    "waitingForPermissions": "Oczekiwanie na uprawnienia",
+    "selectVideoSource": "Wybierz źródło wideo",
+    "screen": "Ekran",
+    "camera": "Kamera",
+    "microphone": "Mikrofon",
+    "startRecording": "Rozpocznij nagrywanie",
+    "pauseRecording": "Wstrzymywanie nagrywania",
+    "resumeRecording": "Wznów nagrywanie",
+    "stopRecording": "Zatrzymaj nagrywanie"
+  },
+  "typing": "Wpisując...",
+  "gameServer": {
+    "browserError": "Błąd przeglądarki",
+    "browserErrorMessage": "Twoja przeglądarka nie obsługuje przechowywania w trybie przeglądania prywatnego. Spróbuj użyć innej przeglądarki lub wyjdź z trybu przeglądania prywatnego.",
+    "noAvailableServers": "Brak dostępnych serwerów",
+    "noAvailableServersMessage": "Nie ma żadnych serwerów, z którymi można się połączyć. Próba ponownego nawiązania połączenia w",
+    "worldDisconnected": "Świat odłączony",
+    "worldDisconnectedMessage": "Straciłeś połączenie ze światem. Postaramy się ponownie połączyć przed upływem następnego czasu, w przeciwnym razie zostaniesz przekierowany do innego wystąpienia.",
+    "webGLNotEnabled": "WebGL nie jest włączony",
+    "webGLNotEnabledMessage": "Twoja przeglądarka nie obsługuje WebGL lub jest wyłączona. Włącz WebGL lub rozważ uaktualnienie przeglądarki do najnowszej wersji.",
+    "youKickedFromWorld": "Zostałeś wyrzucony ze świata",
+    "youKickedFromWorldMessage": "Zostałeś wyrzucony z tego świata z następującego powodu",
+    "invalidLocation": "Nieprawidłowa lokalizacja",
+    "cantFindLocation": "Nie możemy znaleźć lokalizacji",
+    "misspelledOrNotExist": "Może być błędnie napisany lub może nie istnieć.",
+    "loading": "Ładowania",
+    "low-frame-error": "Wykryto słabą wydajność, rozważ włączenie opcji Użyj przyspieszania sprzętowego w przeglądarce i ponownie uruchom przeglądarkę",
+    "low-frame-title": "Włącz akcelerację sprzętową, aby uzyskać lepsze wrażenia!"
+  },
+  "error": {
+    "loading-error": "Nie można załadować danych użytkownika",
+    "validation-error": "Podaj poprawny {{type}}",
+    "login-error": "Nie udało się zalogować"
+  }
+}

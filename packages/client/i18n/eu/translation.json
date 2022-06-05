@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Aurkitu gabeko orria"
+  },
+  "503": {
+    "msg": "503 - Erabilgarri ez dagoen zerbitzua"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Kokaleku hori debekatu egin zaio",
+    "locationName": {
+      "pageTitle": "Etxea"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Proiektuak",
+      "header": "Mesedez, hasi saioa",
+      "welcomeMsg": "Ongi etorri",
+      "locationHeader": "Kokalekuak",
+      "projectHeader": "Proiektuak",
+      "sceneHeader": "Eszenak",
+      "description": "Berria bazara, tutorialetik pasatzea gomendatzen dizugu. Bestela, zuzenean salto egiten du eta proiektu bat sortzen du zerotik edo gure txantiloi batetik.",
+      "lbl-startTutorial": "Tutoriala hasi",
+      "lbl-newProject": "Proiektu berria",
+      "lbl-createProject": "Sortu",
+      "lbl-newScene": "Eszena berria",
+      "lbl-searchProject": "Dauden proiektuak bilatu...",
+      "back": "Atzera",
+      "contextMenu": "Proiektua ezabatzea",
+      "installed": "Instalatutako proiektuak",
+      "official": "Proiektu Ofizialak",
+      "community": "Proiektu Komunitarioak",
+      "install": "Instalatu",
+      "uninstall": "Desinslalatu",
+      "rename": "Berregokitu",
+      "createProject": "Proiektua sortzea",
+      "installProject": "Proiektua instalatu",
+      "processing": "Tratamendu",
+      "projectName": "Proiektuaren izena",
+      "projectURL": "Proiektuaren URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Zoaz etxera",
+    "withStatusCode": "Zerbitzarian akats bat {{code}} da",
+    "withoutStatusCode": "Zerbitzarian akats bat izan da"
+  },
+  "no-projects": {
+    "msg": "Errorea: Ez instalatutako proiekturik: jar zaitez harremanetan guneko administratzaile batekin"
+  },
+  "dev": {
+    "pageTitle": "Etxea"
+  },
+  "login": {
+    "pageTitle": "Saioa hasi"
+  },
+  "workerTest": {
+    "pageTitle": "Langile-proba"
+  },
+  "index": {
+    "by": "POR",
+    "xr": "XR",
+    "foundation": "Fundazioa",
+    "description": "3D aplikazio sozialak denbora errealean, guztiek goza dezaten."
+  },
+  "xrengineContact": {
+    "header": "Jarri harremanetan!",
+    "description": "Bere ekitaldi birtualekin, txikizkako salmenta digitalarekin, entretenimenduarekin eta beste behar batzuekin laguntzea gustatuko litzaiguke.",
+    "lbl-name": "Izena",
+    "lbl-email": "Posta elektroniko",
+    "lbl-company": "Konpainia",
+    "lbl-project": "Deskribatu zure proiektua",
+    "lbl-send": "Bidali",
+    "lbl-ok": "Ados",
+    "lbl-success": "Bidalitako mezua, laster jarriko gara zurekin harremanetan.",
+    "lbl-failure": "Akats bat izan da, Plese berriro saiatu da",
+    "err-username": "Mesedez, sartu zure izena.",
+    "err-email": "Posta elektronikoa behar da.",
+    "err-msg": "Eman bere proiektuaren deskribapen labur bat."
+  }
+}

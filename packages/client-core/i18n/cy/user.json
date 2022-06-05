@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Cadarnhad E-bost",
+      "resendEmail": "Gwiriwch eich e-bost i wirio'ch cyfrif. Os na chawsoch e-bost, cliciwch {{here}} i ailgyflwyno'r e-bost dilysu.",
+      "haveAnAccount": "Oes gennych chi gyfrif?"
+    },
+    "forgotPassword": {
+      "header": "Wedi Anghofio Cyfrinair",
+      "enterEmail": "Rhowch eich cyfeiriad e-bost cofrestredig a byddwn yn anfon dolen ailosod cyfrinair atoch.",
+      "lbl-email": "Cyfeiriad E-bost",
+      "lbl-submit": "Anfon Dolen",
+      "emailSent": "Ailosod Cyfrinair Anfonwyd e-bost. Gwiriwch eich e-bost."
+    },
+    "login": {
+      "email": "| e-bost SMS",
+      "username": "Enw Defnyddiwr + Cyfrinair",
+      "social": "Cymdeithasol"
+    },
+    "magiklink": {
+      "header": "Dolen Mewngofnodi",
+      "descriptionEmail": "Rhowch eich cyfeiriad e-bost a byddwn yn anfon dolen mewngofnodi atoch drwy E-bost.",
+      "descriptionSMS": "Rhowch eich rhif ffôn a byddwn yn anfon dolen mewngofnodi atoch drwy SMS.",
+      "descriptionEmailSMS": "Rhowch eich cyfeiriad e-bost neu'ch rhif ffôn (10 digid, UD yn unig) a byddwn yn anfon dolen mewngofnodi atoch drwy E-bost neu SMS.",
+      "descriptionSMSUS": "Rhowch eich rhif ffôn (10 digid, UD yn unig) a byddwn yn anfon dolen mewngofnodi atoch drwy SMS.",
+      "lbl-email": "Cyfeiriad e-bost",
+      "lbl-emailPhone": "E-bost neu rif ffôn",
+      "lbl-phone": "Rhif ffôn",
+      "agree": "Rwy'n cytuno i'r ",
+      "terms": "Telerau ac Amodau",
+      "lbl-submit": "Anfon Dolen Mewngofnodi",
+      "email-sent-msg": "Anfonwyd Dolen Hud Mewngofnodi. Gwiriwch eich E-bost.",
+      "success-msg": "Anfonwyd Dolen Hud Mewngofnodi. Gwiriwch eich E-bost neu SMS.",
+      "sms-sent-msg": "Anfonwyd Dolen Hud Mewngofnodi. Gwiriwch eich SMS."
+    },
+    "passwordLogin": {
+      "header": "Mewngofnodi",
+      "lbl-email": "Cyfeiriad E-bost",
+      "lbl-password": "Cyfrinair",
+      "lbl-rememberMe": "Cofiwch fi",
+      "lbl-signin": "Mewngofnodi",
+      "forgotPassword": "Wedi anghofio cyfrinair?",
+      "signup": "Does gennych chi ddim cyfrif? Ymuno",
+      "lbl-login": "Mewngofnodi",
+      "ph-password": "Cyfrinair",
+      "ph-email": "E-bost"
+    },
+    "social": {
+      "gitHub": "Mewngofnodi gyda GitHub",
+      "google": "Mewngofnodi gyda Google",
+      "facebook": "Mewngofnodi gyda Facebook",
+      "linkedin": "Mewngofnodi gyda Linkedin",
+      "twitter": "Mewngofnodi gyda Twitter"
+    },
+    "register": {
+      "header": "Ymuno",
+      "login": "Mewngofnodi",
+      "lbl-signup": "Ymuno",
+      "lbl-password": "Cyfrinair",
+      "lbl-email": "Cyfeiriad E-bost",
+      "passwordNotMatch": "Nid yw Cyfrineiriau'n Cyfateb",
+      "ph-password": "Cyfrinair",
+      "ph-confirmPassword": "Cadarnhau Cyfrinair",
+      "ph-email": "E-bost"
+    },
+    "resetPassword": {
+      "header": "Ailosod Cyfrinair",
+      "description": "Rhowch eich cyfrinair ar gyfer eich cyfeiriad e-bost",
+      "lbl-submit": "Ailosod Cyfrinair",
+      "lbl-password": "Cyfrinair",
+      "lbl-confirmPassword": "Cadarnhau Cyfrinair",
+      "passwordNotMatch": "Nid yw Cyfrineiriau'n Cyfateb",
+      "nowLoginYourAccount": "Gallwch nawr fewngofnodi i'ch cyfrif",
+      "yourPasswordResetSuccess": "Wedi llwyddo i ailosod eich cyfrinair!"
+    },
+    "verifyEmail": {
+      "header": "Dilysu E-bost",
+      "processing": "Arhoswch funud wrth brosesu..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Lleoliadau",
+      "loading": "Llwytho",
+      "col-name": "Enw",
+      "col-scene": "Golygfa",
+      "col-maxuser": "Defnyddwyr Max",
+      "lbl-search": "Chwilio am leoliadau",
+      "lbl-new": "Newydd"
+    },
+    "newLocation": {
+      "title": "Lleoliad",
+      "success": "Wedi Cadw'n Llwyddiannus.",
+      "failure": "Aeth rhywbeth o'i le.",
+      "removeSuccess": "Lleoliad wedi'i dynnu'n llwyddiannus.",
+      "nameInUse": "Mae'r enw'n cael ei ddefnyddio.",
+      "nameRequire": "Mae angen enw.",
+      "validNumber": "Dim ond rhifau(0-9) a ganiateir.",
+      "lbl-name": "Enw",
+      "lbl-maxuser": "Defnyddwyr Max",
+      "lbl-scene": "Golygfa",
+      "lbl-type": "Math",
+      "lbl-ve": "Fideo wedi'i Alluogi",
+      "lbl-gme": "Cyfryngau Byd-eang wedi'u Galluogi",
+      "lbl-update": "Diweddaru",
+      "lbl-create": "Creu",
+      "tooltipCanNotBeDeleted": "Does dim modd dileu lobi",
+      "confirmation": "Wyt ti'n siŵr?",
+      "lbl-yes": "Ie",
+      "lbl-no": "Na"
+    },
+    "share": {
+      "lbl-share": "Rhannu",
+      "ph-phoneEmail": "Gwahodd drwy e-bost neu rif ffôn",
+      "lbl-phoneEmail": "Anfon i e-bost neu rif ffôn",
+      "lbl-copy": "Copi",
+      "lbl-send-invite": "Anfon Gwahoddiad",
+      "title": "Rhannwch eich URL Lleoliad gyda'ch tîm",
+      "linkCopied": "Dolen wedi'i chopïo i'r clipfwrdd."
+    },
+    "setting": {
+      "audio": "Sain",
+      "lbl-volume": "Cyfrol",
+      "lbl-microphone": "Meicroffon",
+      "graphics": "Graffeg",
+      "controls": "Rheolaethau",
+      "lbl-control-type": "Math o Reolydd",
+      "lbl-control-scheme": "Cynllun Rheoli",
+      "lbl-resolution": "Cydraniad",
+      "lbl-shadow": "Cysgodion",
+      "lbl-pp": "Ôl-brosesu",
+      "lbl-pbr": "PBR llawn",
+      "lbl-automatic": "Awtomatig",
+      "xrusersetting": "Gosodiadau Defnyddiwr XR",
+      "rotation": "Cylchdro",
+      "rotation-smooth-speed": "Cyflymder Llyfn Cylchdroi",
+      "rotation-angle": "Ongl Cylchdro",
+      "moving": "Symud",
+      "user-avatar": "Gosodiad Avatar",
+      "invert-rotation": "Cylchdroi Gwrthdro A Symud Ffyn",
+      "show-avatar": "Dangos Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Proffil",
+      "lbl-settings": "Gosodiadau",
+      "lbl-username": "Enw defnyddiwr",
+      "update-msg": "Enw defnyddiwr wedi'i ddiweddaru",
+      "inviteCode": "Cod Gwahodd",
+      "youAreAn": "Rydych chi'n",
+      "youAreA": "Rydych chi'n",
+      "showUserId": "Dangos ID Defnyddiwr",
+      "hideUserId": "Cuddio ID Defnyddiwr",
+      "showApiKey": "Dangos allwedd API",
+      "hideApiKey": "Cuddio allwedd API",
+      "apiKey": "Allwedd API",
+      "logout": "Allgofnodi",
+      "connectPhone": "Cysylltu eich rhif ffôn",
+      "connectEmail": "Cysylltwch eich e-bost",
+      "connectPhoneEmail": "Cysylltwch eich e-bost neu rif ffôn",
+      "or": "Neu",
+      "lbl-wallet": "Mewngofnodi gyda Waled",
+      "ph-email": "E-bost",
+      "ph-phone": "Rhif Ffôn",
+      "ph-phoneEmail": "Rhif Ffôn / Email",
+      "phoneEmailError": "Ffôn annilys # neu gyfeiriad e-bost",
+      "phoneError": "Ffôn annilys #",
+      "emailError": "Cyfeiriad e-bost annilys",
+      "loginWithReadyPlayerMe": "Mewngofnodi gyda Chwaraewr Parod Fi",
+      "connectSocial": "Cysylltu â chyfrifon cymdeithasol",
+      "createOne": "Os nad oes gennych gyfrif, bydd un newydd yn cael ei greu ar eich cyfer chi",
+      "connections": {
+        "title": "Cysylltiadau",
+        "ipError": "Does dim modd tynnu'r Darparwr Hunaniaeth gweithredol",
+        "disconnect": "datgysylltu",
+        "connect": "Cysylltu"
+      },
+      "profileDropdown": {
+        "avatar": "Eicon Avatar Defnyddiwr",
+        "profile": "Proffil",
+        "adminConsole": "Consol Gweinyddol",
+        "logout": "Allgofnodi"
+      },
+      "userIcon": {
+        "lbl-name": "Dy enw",
+        "lbl-update": "Diweddaru",
+        "userId": "ID defnyddiwr",
+        "ph-uploadImg": "Uwchlwytho Delwedd Cynnyrch",
+        "lbl-selectAcvatar": "Dewiswch Avatar",
+        "lbl-submit": "Cynnig"
+      },
+      "userSettings": {
+        "volume": "Cyfrol",
+        "microphone": "Meicroffon",
+        "resolution": "Cydraniad",
+        "high": "Uchel",
+        "low": "Isel",
+        "spatialAudio": "Defnyddio Sain Gofodol",
+        "enterMuted": "Mynd i mewn i'r Ystafell wedi'i Mwmian"
+      }
+    },
+    "oauth": {
+      "authenticating": "Dilysu...",
+      "authFailed": "wedi methu dilysu {{service}}."
+    },
+    "magikLink": {
+      "wait": "Arhoswch funud wrth brosesu..."
+    },
+    "dashboard": {
+      "header": "Dangosfwrdd",
+      "dashboard": "Dangosfwrdd",
+      "users": "Defnyddwyr",
+      "feeds": "Crynodebau",
+      "instance": "Enghraifft",
+      "locations": "Lleoliadau",
+      "invites": "Gwahodd",
+      "sessions": "Sesiynau",
+      "groups": "Grwpiau",
+      "parties": "Partïon",
+      "chats": "Sgyrsiau",
+      "content": "Pecynnau Cynnwys",
+      "projects": "Projectau",
+      "scenes": "Llenni",
+      "avatars": "Avatars",
+      "benchmarking": "Meincnodi",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Dilysu...",
+    "authFailed": "wedi methu dilysu {{service}}."
+  },
+  "magikLink": {
+    "wait": "Arhoswch funud wrth brosesu..."
+  },
+  "dashboard": {
+    "header": "Dangosfwrdd",
+    "dashboard": "Dangosfwrdd",
+    "users": "Defnyddwyr",
+    "feeds": "Crynodebau",
+    "instance": "Enghraifft",
+    "locations": "Lleoliadau",
+    "routes": "Llwybrau",
+    "projects": "Projectau",
+    "invites": "Gwahodd",
+    "sessions": "Sesiynau",
+    "groups": "Grwpiau",
+    "parties": "Partïon",
+    "chats": "Sgyrsiau",
+    "content": "Pecynnau Cynnwys",
+    "scenes": "Llenni",
+    "avatars": "Avatars",
+    "benchmarking": "Meincnodi",
+    "bots": "Bots",
+    "setting": "Gosodiadau"
+  },
+  "avatar": {
+    "title": "Uwchlwytho Avatar",
+    "lbl-browse": "Pori",
+    "lbl-thumbnail": "Mân-luniau",
+    "lbl-upload": "Lanlwytho",
+    "selectAvatar": "Dewiswch Avatar...",
+    "selectThumbnail": "Dewiswch Thumbnail...",
+    "rotate": "Cylchdroi",
+    "pan": "Padell",
+    "noBone": "Nid yw Obejct yn cynnwys unrhyw esgyrn na chroen",
+    "outOfBound": "Mae'r gwrthrych allan o rwymo.",
+    "emptyObj": "Mae'r gwrthrych yn wag.",
+    "maxTriangleError": "Mae'r gwrthrych yn cynnwys mwy na {{allowedTriangles}} wynebau.",
+    "selectValidFile": "Dewiswch ffeil avatar 3d ddilys.",
+    "selectValidThumbnail": "Ffeil Thumbnail ddilys wedi'i dewis.",
+    "fileOversized": "Rhaid i faint ffeil Avatar fod rhwng {{minSize}} MB a {{maxSize}} MB",
+    "confirmation": "Wyt ti'n siŵr?",
+    "canNotBeRemoved": "Does dim modd tynnu Avatar Gweithredol",
+    "remove": "Tynnu avatar",
+    "uploadFiles": "Uwchlwytho ffeiliau",
+    "useUrlInstead": "Defnyddio url yn lle hynny",
+    "avatar": "Avatar",
+    "cancel": "Canslo",
+    "createAvatar": "Creu Avatar",
+    "delete": "Dileu",
+    "view": "Golwg",
+    "uploadAvatarInfo": "Diweddaru Gwybodaeth avatar",
+    "name": "Enw",
+    "enterName": "Rhowch enw",
+    "avatarInformation": "Gwybodaeth Avatar",
+    "description": "Disgrifiad",
+    "key": "Allwedd",
+    "none": "Dim",
+    "submit": "Cynnig",
+    "edit": "Golygu",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "Avatar wedi'i uwchlwytho'n llwyddiannus.",
+    "remove-success-msg": "Avatar wedi'i uwchlwytho'n llwyddiannus.",
+    "warning-msg": "Mae adnodd Avatar yn wag, ydych chi wedi cysoni avatars i'ch storfa ffeiliau statig?"
+  },
+  "personMenu": {
+    "inviteToParty": "Gwahoddiad i'r Parti",
+    "addAsFriend": "Ychwanegu Fel Ffrind",
+    "mute": "Treiglo",
+    "block": "Bloc"
+  },
+  "person": {
+    "you": "Ti",
+    "yourScreen": "Eich Sgrin",
+    "muteForEveryone": "Treiglo i bawb",
+    "unmuteForEveryone": "Digywilydd i bawb",
+    "muteMe": "Mwmian fi",
+    "unmuteMe": "Yn fy nychryn i",
+    "muteThisPerson": "Mwmian y person hwn",
+    "unmuteThisPerson": "Dad-wneud y person hwn",
+    "openPictureInPicture": "Agor y Llun yn y Llun"
+  }
+}

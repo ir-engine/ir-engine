@@ -1,0 +1,718 @@
+{
+  "loading": "Hleð inn verki",
+  "loadingMsg": "Hleð inn verki...",
+  "loadingError": "Villa við hleðslu verks",
+  "loadingErrorMsg": "Villa kom upp við hleðslu verksins.",
+  "selectSceneMsg": "Veldu senu til að byrja að spila með vélinni",
+  "error": "Villa",
+  "errorMsg": "Það var óþekkt villa.",
+  "generateScreenshot": "Skjámynd verks búið til",
+  "generateScreenshotMsg": "Verið er að búa til skjámynd verks...",
+  "newScene": "Búa til senu",
+  "saving": "Vista verk",
+  "savingMsg": "Vista verk...",
+  "savingError": "Villa við vistun verks",
+  "savingErrorMsg": "Villa kom upp við vistun verkefnisins.",
+  "savingSceneErrorMsg": "Atriðið er ekki rétt hlaðið inn. Prófaðu að endurhlaða atriðið.",
+  "duplicating": "Afrita verk",
+  "duplicatingMsg": "Afrita verk...",
+  "exporting": "Útflutningur verks",
+  "exportingMsg": "Útflutningur verks...",
+  "exportingError": "Villa við útflutning verks",
+  "exportingErrorMsg": "Villa kom upp við útflutning verksins.",
+  "importLegacy": "Flytja inn eldri heim",
+  "importLegacyMsg": "Viðvörun! Þetta mun skrifa yfir núverandi vettvangur þinn! Á örugglega að halda áfram?",
+  "publishingError": "Villa við birtingu verks",
+  "publishingErrorMsg": "Það var óþekkt villa.",
+  "publishingScene": "Útgáfuvettvangur",
+  "publishingSceneMsg": "Útgáfuatriði...",
+  "uploadingThumbnailMsg": "Hleður upp smámynd...",
+  "uploadingSceneMsg": "Upphleðsla vettvangur: {{percentage}}%",
+  "envMapError": "Villa við hleðslu teningsmynda {{files}}",
+  "lbl-return": "Skila",
+  "menubar": {
+    "newScene": "Ný sena",
+    "saveScene": "Vista atriði",
+    "saveAs": "Vista sem",
+    "importAsset": "Flytja inn eign",
+    "exportGLB": "Flytja út sem tvöfaldur glTF (.glb) ...",
+    "importScene": "Flytja inn atriði",
+    "exportScene": "Flytja út atriði",
+    "quit": "Hætta"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Óstudd skrárgerð fyrir skrá: \"{{name}}\". Skráin verður að vera mynd, mynd eða glb líkan.",
+    "addObject": "addObject: áður en hlutur fannst ekki",
+    "removeObject": "removeObject: hnútur fannst ekki. Þetta er vegna þess að fjarlægja hnút sem er ekki lengur á vettvangi.",
+    "noParent": "{{node}} \"{{name}}\" á ekkert foreldri. Reparent virkar aðeins á hluti sem eru í senunni.",
+    "undefinedParent": "editor.reparent: newParent er óskilgreint",
+    "notAuthenticated": "Ekki sannvottað",
+    "fetchingProjectError": "Villa við sókn verka: {{error}}",
+    "fetchingRouteError": "Villa við sókn leiða: {{error}}",
+    "unknownError": "Óþekkt villa",
+    "resolveURL": "Villa við úrlausn vefslóðar \"{{url}}\":",
+    "mediaSearchAborted": "Hætt við miðilsleit",
+    "methodNotImplemented": "Aðferð ekki innleidd.",
+    "saveProjectAborted": "Hætt við vistun atriðis",
+    "unsavedChanges": "Óvistaðar breytingar",
+    "unsavedChangesMsg": "Atriðinu hefur verið breytt. Vinsamlegast vistið breytingarnar.",
+    "projectCreationFail": "Stofnun verks mistókst. {{reason}}",
+    "projectDeletionFail": "Eyðing verks mistókst. {{reason}}",
+    "savingProjectFail": "Vistun verks mistókst. {{reason}}",
+    "sceneTooLarge": "Atriðið er of stórt ({{size}} MB) til að birta. Hámarksstærð er {{maxSize}} MB.",
+    "sceneCreationFail": "Sköpun atriðis mistókst. {{reason}}",
+    "uploadAborted": "Hætt við upphleðslu",
+    "uploadFailed": "Upphleðsla mistókst {{reason}}",
+    "assetDeletionFail": "Eyðing eigna mistókst. {{reason}}",
+    "projectAssetDeletionFail": "Eyðing verkeignar mistókst. {{reason}}",
+    "networkError": "Netvilla: {{status}}. {{text}}",
+    "unknownStatus": "Óþekkt staða",
+    "CORS": "Hugsanlega CORS-villa",
+    "urlFetchError": "Ekki tókst að sækja \"{{url}}\""
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Færa myndavél",
+      "flyFast": "Fljúgðu hraðar",
+      "orbit": "Sporbraut / Velja",
+      "pan": "Panna",
+      "fly": "Fljúga",
+      "focus": "Áhersla",
+      "rotateLeft": "Snúa til vinstri",
+      "rotateRight": "Snúa til hægri",
+      "cancelPlacement": "Hætta við staðsetningu",
+      "placeDuplicate": "Setja tvítekningu",
+      "cancelGrab": "Hætta við grípa",
+      "grab": "Grípa",
+      "deselectAll": "Hafna öllu"
+    },
+    "state": {
+      "header": "Ástand",
+      "memory": "Minni",
+      "geometries": "Geometries",
+      "textures": "Áferð",
+      "render": "Láta",
+      "FPS": "FPS",
+      "frameTime": "Rammatími",
+      "calls": "Símtöl",
+      "triangles": "Þríhyrningar",
+      "points": "Stig",
+      "lines": "Línur"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Birta",
+    "lbl-published": "Birt",
+    "command": {
+      "translate": "Þýða",
+      "rotate": "Snúa",
+      "scale": "Mælikvarði",
+      "toggleSpace": "Víxla umbreytingarrými",
+      "togglePivot": "Víxla umbreytingarsnúningi",
+      "toggleSnapMode": "Víxla skyndiham",
+      "toggleGrid": "Víxla sýnileika hnitanets",
+      "increaseGridSize": "Auka stærð hnitanets",
+      "descreaseGridSize": "Minnka stærð hnitanets",
+      "stopPreview": "Hætta að forskoða senu",
+      "playPreview": "Forskoða atriði"
+    }
+  },
+  "properties": {
+    "title": "Eiginleikar",
+    "lbl-visible": "Sýnilegur",
+    "lbl-preventBake": "Koma í veg fyrir bakstri",
+    "lbl-persist": "Varað",
+    "multipleNodeSelected": "Margir hnútar af mismunandi gerðum valdir",
+    "noNodeSelected": "Hnútur valinn",
+    "ambientLight": {
+      "name": "Umhverfisljós",
+      "description": "Ljós sem lýsir upp alla hluti í senunni þinni.",
+      "lbl-intensity": "Styrkleiki",
+      "lbl-color": "Litur"
+    },
+    "envmap": {
+      "name": "Umhverfiskort",
+      "description": "umhverfisvörpunareiginleikar"
+    },
+    "asset": {
+      "name": "Eign",
+      "description": "Flokkun vettvangsíhluta sem hægt er að hlaða kviklega og afferma",
+      "lbl-options": "Valkostir",
+      "lbl-assetPath": "Slóð eigna",
+      "lbl-assetName": "Útflutningsheiti",
+      "lbl-exportOptions": "Útflutningsvalkostir",
+      "lbl-export": "Flytja út eign",
+      "lbl-load": "Hlaða inn í senu",
+      "lbl-unload": "Afferma",
+      "lbl-reload": "Endurhlaða"
+    },
+    "audio": {
+      "name": "Hljóð",
+      "description": "Hleður hljóði kviklega inn.",
+      "lbl-audiourl": "Vefslóð hljóðs",
+      "lbl-controls": "stjórntæki",
+      "info-controls": "Víxla sýnileika miðilsstýringa.",
+      "lbl-autoplay": "Sjálfvirk spilun",
+      "info-autoplay": "Ef satt reynist munu fjölmiðlar spila þegar þeir koma fyrst inn á vettvang.",
+      "lbl-synchronize": "Samstilla",
+      "info-synchronize": "Ef satt reynist verður miðillinn samstilltur á öllum tengdum biðlurum.",
+      "lbl-loop": "Lykkja",
+      "info-loop": "Ef satt reynist munu fjölmiðlar lykkjast endalaust.",
+      "lbl-audioType": "Hljóðgerð",
+      "lbl-distanceModel": "Fjarlægð líkan",
+      "info-distanceModel": "The reiknirit notað til að reikna hljóð rolloff.",
+      "lbl-rolloffFactor": "Rolloff þáttur",
+      "info-rolloffFactor": "Tvöfalt gildi sem lýsir því hversu hratt hljóðstyrkurinn minnkar eftir því sem heimildin færist frá hlustandanum. 0 á móti 1",
+      "info-rfInfinity": "Tvöfalt gildi sem lýsir því hversu hratt hljóðstyrkurinn minnkar eftir því sem heimildin færist frá hlustandanum. 0 til óendanleika",
+      "lbl-refDistance": "Hreinsa fjarlægð",
+      "info-refDistance": "Tvöfalt gildi sem táknar viðmiðunarfjarlægðina til að draga úr hljóðstyrk eftir því sem hljóðgjafinn færist lengra frá hlustandanum.",
+      "lbl-maxDistance": "Hámarksfjarlægð",
+      "info-maxDistance": "Tvöfalt gildi sem táknar hámarksfjarlægð milli hljóðgjafans og hlustandans, en eftir það er hljóðstyrkurinn ekki minnkaður frekar.",
+      "lbl-coneInnerAngle": "Keila Innra horn",
+      "info-coneInnerAngle": "Tvöfalt gildi sem lýsir horninu, í gráðum, af keilu þar sem engin bindiminnkun verður.",
+      "lbl-coneOuterAngle": "Keila Ytra horn",
+      "info-coneOuterAngle": "Tvöfalt gildi sem lýsir horninu, í gráðum, keilu utan þar sem rúmmálið verður minnkað um stöðugt gildi, skilgreint með keiluOuterGain eigindinni.",
+      "lbl-coreOuterGain": "Keila Ytri Hagnaður",
+      "info-coreOuterGain": "Tvöfalt gildi sem lýsir magni minnkunar rúmmáls utan keila sem skilgreind er með keiluOuterAngle eigindinni. Sjálfgefið gildi þess er 0, sem þýðir að ekkert hljóð heyrist.",
+      "lbl-volume": "Bindi",
+      "lbl-play": "Leika",
+      "lbl-pause": "Gera hlé",
+      "error-url": "Villa við hleðslu úr vefslóð"
+    },
+    "boxCollider": {
+      "description": "Ósýnilegur kassi sem hlutir munu hopp burt af eða hvíla ofan á.\nÁn árekstra munu hlutir falla í gegnum gólf og fara í gegnum veggi.",
+      "lbl-isTrigger": "Gikkur"
+    },
+    "camera": {
+      "name": "Myndavél",
+      "description": "Myndavélarstillingar.",
+      "lbl-camera-raycast": "Myndavél Raycasting",
+      "lbl-camera-raycast-toggle": "Virkjaðar",
+      "lbl-camera-raycast-frequency": "Tíðni",
+      "lbl-camera-raycast-count": "Ray fjöldi",
+      "lbl-camera-raycast-length": "Lengd geisli"
+    },
+    "directionalLight": {
+      "name": "Stefnuljós",
+      "description": "Ljós sem lýsir upp allt atriðið, en gefur frá sér eftir einni átt.",
+      "lbl-color": "Litur",
+      "lbl-intensity": "Styrkleiki",
+      "lbl-cameraFar": "Myndavél langt",
+      "lbl-cameraNear": "Myndavél nálægt",
+      "lbl-cameraTop": "Myndavél Efst",
+      "lbl-cameraBottom": "Botn myndavélar",
+      "lbl-cameraLeft": "Myndavél til vinstri",
+      "lbl-cameraRight": "Myndavél til hægri",
+      "lbl-useInCSM": "Notkun í CSM",
+      "lbl-castShadow": "Varpa skugga",
+      "lbl-disableForCSM": "Óvirkt vegna þess að Cascade-skuggakort er virkt.",
+      "lbl-shadowmapResolution": "Upplausn skuggakorts",
+      "lbl-shadowBias": "Skugga hlutdrægni",
+      "lbl-shadowRadius": "Skuggaradíus",
+      "lbl-showCameraHelper": "Sýna myndavélahjálp"
+    },
+    "groundPlane": {
+      "name": "Jarðflugvél",
+      "description": "Íbúð jörð flugvél sem nær út í fjarlægð.",
+      "lbl-color": "Litur",
+      "lbl-receiveShadow": "Taka á móti skugga",
+      "lbl-generateNavmesh": "Mynda Navmesh"
+    },
+    "link": {
+      "description": "Tengill á herbergi eða vefsíðu.",
+      "lbl-url": "Vefslóð"
+    },
+    "map": {
+      "description": "3D geospatial kort af td borg."
+    },
+    "model": {
+      "description": "Þrívíddarlíkan í senunni þinni, hlaðið úr GLTF vefslóð eða skrá.",
+      "lbl-usingGPUInstancingFlag": "Nota GPU instancing",
+      "lbl-modelurl": "Vefslóð líkans",
+      "lbl-envmapUrl": "Vefslóð umhverfiskorts",
+      "lbl-textureOverride": "Hnekkja áferð",
+      "lbl-materialOverride": "Efnishnekkingar",
+      "error-url": "Villa við hleðslu úr vefslóð",
+      "lbl-loopAnimation": "Hreyfimynd lykkju",
+      "lbl-isAvatar": "Er Avatar",
+      "lbl-isGPUInstancing": "Er að nota GPU Instancing",
+      "lbl-isDynamic": "Er Kvika",
+      "lbl-castShadow": "Varpa skugga",
+      "lbl-receiveShadow": "Taka á móti skugga",
+      "lbl-interactable": "Gagnvirkt",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Nafn",
+      "lbl-url": "Vefslóð líkans",
+      "lbl-buy": "Kaupa vefslóð",
+      "lbl-learnMore": "Frekari upplýsingar Vefslóð",
+      "lbl-htmlContent": "Html-efni",
+      "lbl-interactionText": "Samskiptatexti",
+      "lbl-interactionType": "Tegund samskipta"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Efni",
+      "error-materialID": "Villa við leit að efni",
+      "placeholder-materialID": "Velja efni",
+      "lbl-patternTarget": "Mynstur samsvörun",
+      "lbl-pattern": "Mynstur",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Tegund samskipta",
+      "text": "Samskiptatexti",
+      "distance": "Samskiptafjarlægð",
+      "theme": "Samskiptaþema",
+      "name": "Heiti samskipta",
+      "description": "Lýsing samskipta",
+      "images": "Samskiptamyndir",
+      "videos": "Samskiptamyndbönd",
+      "urls": "Samskiptaslóðir",
+      "models": "Samskiptalíkön"
+    },
+    "group": {
+      "name": "Hópur",
+      "description": "Hópur margra hluta sem hægt er að færa eða afrita saman.\nDragðu og slepptu hlutum í flokkinn í stigveldinu."
+    },
+    "hemisphere": {
+      "name": "Ljós á hemili",
+      "description": "Ljós sem lýsir upp atriðið frá beint kostnaður.",
+      "lbl-skyColor": "Himinn litur",
+      "lbl-groundColor": "Litur á jörðu niðri",
+      "lbl-intensity": "Styrkleiki"
+    },
+    "image": {
+      "name": "Ímynd",
+      "description": "Hleður inn mynd kviklega.",
+      "lbl-imgURL": "Vefslóð myndar",
+      "lbl-transparency": "Gagnsæishamur",
+      "lbl-alphaCutoff": "Alfa cutoff",
+      "lbl-projection": "Ofanvarp",
+      "lbl-side": "Hlið",
+      "info-controls": "Víxla sýnileika miðilsstýringa.",
+      "info-transparency": "Hvernig á að beita gagnsæi:",
+      "info-opaque": "\"ógegnsætt\" = ekkert gagnsæi",
+      "info-blend": "'blanda' = nota myndirnar alfa rás",
+      "info-mask": "'gríma' = Nota tiltekið niðurskurðargildi fyrir gagnsæi í/án gagnsæis (fleiri flytjandi)",
+      "info-alphaCutoff": "Dílar með alfa gildi lægri en þetta verða gegnsæir",
+      "error-url": "Ógild vefslóð"
+    },
+    "name": {
+      "lbl-name": "Nafn"
+    },
+    "partileEmitter": {
+      "description": "Agnaútsendari til að búa til agnir.",
+      "lbl-particleCount": "Fjöldi agna",
+      "lbl-image": "Ímynd",
+      "lbl-ageRandomness": "Aldur slembival",
+      "lbl-lifetime": "Ævi",
+      "lbl-lifetimeRandomness": "Ævi slembival",
+      "lbl-sizeCurve": "Stærðarferill",
+      "lbl-startPSize": "Hefja stærð agna",
+      "lbl-endPSize": "Stærð lokaeindar",
+      "lbl-sizeRandomness": "Stærð Slembival",
+      "lbl-colorCurve": "Litaferill",
+      "lbl-startColor": "Upphafslitur",
+      "lbl-startOpacity": "Hefja ógagnsæi",
+      "lbl-middleColor": "Miðlitur",
+      "lbl-middleOpacity": "Mið ógagnsæi",
+      "lbl-endColor": "Lokalitur",
+      "lbl-endOpacity": "Binda enda á ógagnsæi",
+      "lbl-velocityCurve": "Ferill í hraða",
+      "lbl-startVelocity": "Hefja hraða",
+      "lbl-endVelocity": "End hraði",
+      "lbl-angularVelocity": "Hornhraði",
+      "info-ageRandomness": "Breytileikinn á milli þess sem agnir hrygna.",
+      "info-lifetime": "Hámarksaldur ögn áður en hún er endurgreidd.",
+      "info-lifetimeRandomness": "Breytileiki milli líftíma agna.",
+      "info-sizeRandomness": "Magn breytileika milli upphafsstærða agna.",
+      "error-url": "Villa við hleðslu úr vefslóð"
+    },
+    "clouds": {
+      "name": "Ský",
+      "description": "Sprite byggt ský bindi.",
+      "lbl-image": "Sprite mynd",
+      "lbl-wroldScale": "Heimsmælikvarði",
+      "lbl-dimensions": "Víddir",
+      "lbl-noiseZoom": "Hávaði Aðdráttur",
+      "lbl-noiseOffset": "Mótvægi við hávaða",
+      "lbl-spriteScale": "Sprite-kvarði",
+      "lbl-fogColor": "Þokulitur",
+      "lbl-fogRange": "Þokusvið",
+      "error-url": "Villa við hleðslu úr vefslóð"
+    },
+    "ocean": {
+      "name": "Ægir",
+      "description": "Yfirborð sjávar með öldum og froðu",
+      "lbl-normalMap": "Venjulegt kort",
+      "lbl-distortionMap": "Röskunarvörpun",
+      "lbl-envMap": "Umhverfiskort",
+      "lbl-color": "Litur",
+      "lbl-shallowWaterColor": "Grunnur vatnslitur",
+      "lbl-shallowToDeepDistance": "Grunnt að djúpri fjarlægð",
+      "lbl-opacityFadeDistance": "Ógagnsæi hverfa fjarlægð",
+      "lbl-opacityRange": "Ógagnsæi svið",
+      "lbl-shininess": "Shininess",
+      "lbl-reflectivity": "Endurspeglun",
+      "lbl-foamColor": "Froðulitur",
+      "lbl-foamSpeed": "Froðuhraði",
+      "lbl-foamTiling": "Froðuflísar",
+      "lbl-bigWaveTiling": "Stór bylgja flísar",
+      "lbl-bigWaveSpeed": "Stór bylgjuhraði",
+      "lbl-bigWaveHeight": "Stór bylgja hæð",
+      "lbl-waveSpeed": "Bylgjuhraði",
+      "lbl-waveScale": "Bylgjuskala",
+      "lbl-waveTiling": "Veifa flísar",
+      "lbl-waveDistortionSpeed": "Bylgjuröskunarhraði",
+      "lbl-waveDistortionTiling": "Bylgjuröskunarflísar",
+      "error-url": "Villa við hleðslu úr vefslóð"
+    },
+    "water": {
+      "name": "Vatn",
+      "description": "Lítið vatnsyfirborð"
+    },
+    "interior": {
+      "name": "Innri",
+      "description": "Yfirborð með kortlagðri teningsáferð til að líkja eftir innra umhverfi",
+      "lbl-cubeMap": "Teningavörpun áferð",
+      "lbl-tiling": "Upphæð flísar",
+      "lbl-size": "Stærð yfirborðs",
+      "error-url": "Villa við hleðslu úr vefslóð"
+    },
+    "pointLight": {
+      "description": "Ljós sem gefur frá sér í allar áttir frá einum punkti.",
+      "lbl-color": "Litur",
+      "lbl-intensity": "Styrkleiki",
+      "lbl-range": "Svið",
+      "lbl-decay": "Ýlda"
+    },
+    "scene": {
+      "name": "Vettvangur",
+      "description": "Rótarhluturinn í senunni.",
+      "lbl-bgcolor": "Bakgrunnslit",
+      "lbl-fogType": "Gerð þoku",
+      "lbl-fogColor": "Þokulitur",
+      "lbl-forNearDistance": "Þoka nálægt fjarlægð",
+      "lbl-fogFarDistance": "Þoka langt í burtu",
+      "lbl-fogDensity": "Þokuþéttleiki",
+      "lbl-audioSettings": "Nota stöðuhljóð",
+      "lbl-avatarDistanceModel": "Avatar fjarlægð líkan",
+      "lbl-avatarRolloffFactor": "Avatar rolloff þáttur",
+      "lbl-avatarRefDistance": "Avatar Ref fjarlægð",
+      "lbl-avatarMaxDistance": "Avatar Max fjarlægð",
+      "lbl-mediaVolume": "Hljóðstyrkur miðils",
+      "lbl-mediaDistanceModel": "Media Fjarlægð Model",
+      "lbl-mediaRolloffFactor": "Miðilsúttektarstuðull",
+      "lbl-mediaRefDistance": "Media Ref Fjarlægð",
+      "lbl-mediaMaxDistance": "Miðill Max Fjarlægð",
+      "lbl-mediaConeInnerAngle": "Innra horn fjölmiðlakeila",
+      "lbl-mediaConeOuterAngle": "Miðlakeila Ytra horn",
+      "lbl-mediaConeOuterGain": "Media Keila Ytri Hagnaður",
+      "info-avatarDistanceModel": "The reiknirit notað til að reikna hljóð rolloff.",
+      "info-avatarRolloffFactor": "Tvöfalt gildi sem lýsir því hversu hratt hljóðstyrkurinn minnkar eftir því sem heimildin færist frá hlustandanum. 0 á móti 1",
+      "info-avatarRolloffFactorInifinity": "Tvöfalt gildi sem lýsir því hversu hratt hljóðstyrkurinn minnkar eftir því sem heimildin færist frá hlustandanum. 0 til óendanleika",
+      "info-avatarRefDistance": "Tvöfalt gildi sem táknar viðmiðunarfjarlægðina til að draga úr hljóðstyrk eftir því sem hljóðgjafinn færist lengra frá hlustandanum.",
+      "info-avatarMaxDistance": "Tvöfalt gildi sem táknar hámarksfjarlægð milli hljóðgjafans og hlustandans, en eftir það er hljóðstyrkurinn ekki minnkaður frekar.",
+      "info-mediaDistanceModel": "The reiknirit notað til að reikna hljóð rolloff.",
+      "info-mediaRolloffFactor": "Tvöfalt gildi sem lýsir því hversu hratt hljóðstyrkurinn minnkar eftir því sem heimildin færist frá hlustandanum. 0 á móti 1",
+      "info-mediaRolloffFactorInfinity": "Tvöfalt gildi sem lýsir því hversu hratt hljóðstyrkurinn minnkar eftir því sem heimildin færist frá hlustandanum. 0 til óendanleika",
+      "info-mediaRefDistance": "Tvöfalt gildi sem táknar viðmiðunarfjarlægðina til að draga úr hljóðstyrk eftir því sem hljóðgjafinn færist lengra frá hlustandanum.",
+      "info-mediaMaxDistance": "Tvöfalt gildi sem táknar hámarksfjarlægð milli hljóðgjafans og hlustandans, en eftir það er hljóðstyrkurinn ekki minnkaður frekar.",
+      "info-mediaConeInnerAngle": "Tvöfalt gildi sem lýsir horninu, í gráðum, af keilu þar sem engin bindiminnkun verður.",
+      "info-mediaConeOuterAngle": "Tvöfalt gildi sem lýsir horninu, í gráðum, keilu utan þar sem rúmmálið verður minnkað um stöðugt gildi, skilgreint með keiluOuterGain eigindinni.",
+      "info-mediaConeOuterGain": "Tvöfalt gildi sem lýsir magni minnkunar rúmmáls utan keila sem skilgreind er með keiluOuterAngle eigindinni. Sjálfgefið gildi þess er 0, sem þýðir að ekkert hljóð heyrist.",
+      "lbl-simpleMaterials": "Nota einfalt efni",
+      "lbl-lods": "LODs",
+      "info-lods": "Stillir vegalengdir þar sem smáatriði breytast.",
+      "info-simpleMaterials": "Breytir öllum dýrum efnum í einfaldari til að taka álagið af senumyndgerð.",
+      "lbl-rendererSettings": "Hnekkja stillingum myndþýðisanda",
+      "lbl-csm": "Cascading Shadow Kort",
+      "info-csm": "Gerir kleift að hylja skuggakort.",
+      "lbl-toneMapping": "Tónvörpun",
+      "info-toneMapping": "Gerir tónvörpun mögulega á senumyndþýðandanum. Hefur engin áhrif þegar póstvinnsla er virkjuð.",
+      "lbl-toneMappingExposure": "Útsetning fyrir tónvörpun",
+      "info-toneMappingExposure": "Tilgreinir útsetningu fyrir tónvörpun á senumyndþýðandanum. Hefur engin áhrif þegar póstvinnsla er virkjuð.",
+      "lbl-shadowMapType": "Gerð skuggavörpunar",
+      "info-shadowMapType": "Gerð skuggavörpunar",
+      "error-url": "Villa við hleðslu úr vefslóð"
+    },
+    "sceneCamera": {
+      "name": "Forskoðunarmyndavél senu",
+      "description": "Myndavélin sem notuð var til að búa til smámyndina fyrir senuna þína og upphafsstöðu forskoðunarmyndavélarinnar.",
+      "lbl-setFromViewPort": "Stilla úr útsýnisglugga"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Tími dags",
+      "lbl-color": "Litur",
+      "lbl-latitude": "Breidd",
+      "lbl-luminance": "Luminance",
+      "lbl-scattering": "Dreifiupphæð",
+      "lbl-scatteringDistance": "Dreififjarlægð",
+      "lbl-horizonStart": "Sjóndeildarhringsbyrjun",
+      "lbl-horizonEnd": "Horizon End",
+      "lbl-texture": "Áferð",
+      "lbl-skyType": "Gerð himins",
+      "error-url": "Villa við hleðslu úr vefslóð"
+    },
+    "spawnPoint": {
+      "name": "Hrygningarpunktur",
+      "description": "Punktur þar sem fólk mun birtast þegar það kemur inn í atriðið þitt.\nTáknið í Viewport táknar raunverulega stærð avatars."
+    },
+    "spotLight": {
+      "description": "Ljós sem gefur frá sér eftir stefnu og lýsir upp hluti innan keilu.",
+      "lbl-color": "Litur",
+      "lbl-intensity": "Styrkleiki",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "Horn",
+      "lbl-range": "Svið",
+      "lbl-decay": "Ýlda"
+    },
+    "transform": {
+      "title": "Umbreyta",
+      "lbl-postition": "Staða",
+      "lbl-rotation": "Snúningur",
+      "lbl-scale": "Mælikvarði"
+    },
+    "triggereVolume": {
+      "description": "Stillir eiginleika á markhlutinn við inn og leyfi.",
+      "lbl-target": "Mótmæla",
+      "lbl-onenter": "Á færslu",
+      "lbl-onexit": "Við brottför",
+      "lbl-showHelper": "Sýna hjálparmöskva",
+      "ph-errorNode": "Villa vantar hnút.",
+      "ph-selectNode": "Velja hnút..."
+    },
+    "video": {
+      "name": "Myndband",
+      "description": "Hleður myndbandi kviklega inn.",
+      "lbl-video": "Myndband",
+      "lbl-projection": "Ofanvarp",
+      "lbl-islivestream": "Streymur í beinni út",
+      "lbl-interactable": "Gagnvirkt",
+      "lbl-id": "Kenni einingar",
+      "lbl-play": "Leika",
+      "lbl-pause": "Gera hlé",
+      "error-url": "Villa við hleðslu úr vefslóð"
+    },
+    "volumetric": {
+      "name": "Volumetric",
+      "description": "Hleður hljóðstyrksmyndbandi kviklega inn.",
+      "uvolPaths": "UVOL-slóðir",
+      "playmode": "Spilunarhamur",
+      "playtitle": "Leika",
+      "pausetitle": "Gera hlé"
+    },
+    "spline": {
+      "description": "Búa til og sérsníða ferla kviklega.",
+      "lbl-addNode": "Bæta hnút við feril."
+    },
+    "systemnode": {
+      "description": "Hengja við forskrift.",
+      "lbl-filePath": "Vefslóð",
+      "lbl-systemUpdateType": "Inndælingarpunktur",
+      "lbl-enableClient": "Skjólstæðingur",
+      "lbl-enableServer": "Netþjónn",
+      "lbl-args": "Args",
+      "error-url": "Villa við að hlaða inn forskrift úr vefslóð"
+    },
+    "portal": {
+      "lbl-portal": "Tengd gátt",
+      "lbl-redirect": "Nota síðuframleiðsla",
+      "description": "Portat til að flytja spilara á tilgreindan stað",
+      "lbl-locationName": "Staðsetning",
+      "lbl-modelUrl": "Vefslóð líkans",
+      "lbl-displayText": "Birta texta",
+      "lbl-cubemapBake": "Teningsmjöllubakstur",
+      "lbl-spawnPosition": "Hrygningarstaða",
+      "lbl-spawnRotation": "Hrogn Snúningur",
+      "lbl-triggerPosition": "Kveikja staða",
+      "lbl-triggerRotation": "Kveikja á snúningi",
+      "lbl-triggerScale": "Kveikjuskali"
+    },
+    "postprocessing": {
+      "name": "Bóka vinnslu",
+      "description": "Til að beita Post Processing áhrifum á þig vettvangur."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Nýtt verk",
+      "backLink": "Til baka í verkefni",
+      "featured": "Áhugaverð",
+      "all": "Allur",
+      "newProject": "Nýtt tómt verk",
+      "ph-search": "Leita í senum..."
+    },
+    "grid": {
+      "loading": "Hleðsla..."
+    },
+    "page": {
+      "header": "Velkominn",
+      "headerMsg": "Ef þú ert nýr hér mælum við með að fara í gegnum kennsluna. Annars skaltu hoppa beint inn og búa til verkefni frá grunni eða úr einu af sniðmátunum okkar.",
+      "lbl-startTutorial": "Hefja kennslu",
+      "projects": "Verk",
+      "lbl-newProject": "Nýtt verk"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Hleðsla...",
+      "placeObject": "Setja hlut",
+      "placeObjectAtOrigin": "Setja hlut við uppruna",
+      "copyURL": "Afrita vefslóð",
+      "openInNewTab": "Opna vefslóð í nýjum flipa",
+      "deleteAsset": "Eyða eign"
+    },
+    "filebrowser": {
+      "addNewFolder": "Bæta við nýrri möppu",
+      "cutAsset": "Skera",
+      "copyAsset": "Afrit",
+      "pasteAsset": "Klístur",
+      "renameAsset": "Endurnefna",
+      "viewAssetProperties": "Skoða eiginleika"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Endurnefna",
+    "lbl-duplicate": "Afrit",
+    "lbl-group": "Hópur",
+    "lbl-delete": "Eyða",
+    "lbl-expandAll": "Stækka allt",
+    "lbl-collapseAll": "Fella saman allt",
+    "isseus": "Málefni:"
+  },
+  "dnd": {
+    "nodes": "{{count}} hnútar valdir",
+    "models": "{{count}} gerðir valdar",
+    "images": "{{count}} myndir valdar",
+    "videos": "{{count}} myndbönd valin",
+    "audio": "{{count}} hljóðupptökur valdar"
+  },
+  "dialog": {
+    "title": "Ritstjóri",
+    "lbl-confirm": "Ókei",
+    "lbl-cancel": "Afturkalla",
+    "exportProject": {
+      "title": "Flytja út verk",
+      "lbl-confirm": "Flytja út verk",
+      "lbl-combineMesh": "Sameina möskva",
+      "lbl-removeUnused": "Fjarlægja ónotaða hluti"
+    },
+    "performance": {
+      "title": "Afkastaathugun",
+      "lbl-confirm": "Birta atriði",
+      "learnMore": "Læra meira",
+      "lbl-polycount": "Fjöldi marghyrninga",
+      "lbl-material": "Efni",
+      "lbl-texture": "Áferð",
+      "lbl-lights": "Ljós",
+      "lbl-fileSize": "Stærð skrár",
+      "info-polycount": "Við mælum með því að vettvangurinn þinn noti ekki meira en 50.000 þríhyrninga fyrir farsíma.",
+      "info-material": "Við mælum með því að nota ekki meira en 25 einstök efni í senunni þinni til að draga úr símtölum í farsímum.",
+      "info-texture": "Við mælum með áferð nota ekki meira en 256MB af vídeó vinnsluminni fyrir farsíma. Við mælum einnig með því að nota áferð stærri en 2048 x 2048.",
+      "info-lights": "Þó að kvik ljós séu ekki virk í farsímum, mælum við með því að nota ekki meira en 3 ljós í senunni þinni (að undanskildum umhverfis- og hemlaljósum) til að vettvangurinn þinn keyri á lágmark endir tölvum.",
+      "info-fileSize": "Við mælum með endanlegri skráarstærð sem er ekki meira en 16MB fyrir litlar bandbreiddartengingar. Að draga úr skráarstærðinni mun draga úr þeim tíma sem það tekur að hlaða niður senunni þinni.",
+      "txt-polycount": "{{count}} þríhyrninga",
+      "txt-material": "{{count}} Efni",
+      "txt-ram": "~{{count}} myndvinnsluminni",
+      "txt-texture": "{{count}} stór áferð",
+      "txt-lights": "{{count}} ljósin"
+    },
+    "progress": {
+      "title": "Hleðsla...",
+      "msg": "Hleðsla...",
+      "lbl-cancel": "Afturkalla"
+    },
+    "publish": {
+      "title": "Birta atriði",
+      "lbl-confirm": "Vista og birta",
+      "lbl-name": "Heiti atriðis",
+      "info-name": "Nafnið verður að vera á milli 4 og 64 stafir og má ekki innihalda undirstrikanir"
+    },
+    "published": {
+      "title": "Atriði birt",
+      "header": "Atriðið þitt hefur verið birt.",
+      "lbl-view": "Skoða atriðið þitt"
+    },
+    "saveNewProject": {
+      "title": "Styðja",
+      "lbl-name": "Heiti verks",
+      "info-name": "Nafnið verður að vera á milli 4 og 64 stafir og má ekki innihalda undirstrikanir",
+      "lbl-confirm": "Vista verk"
+    },
+    "support": {
+      "title": "Styðja",
+      "header": "Þarftu að tilkynna vandamál?",
+      "msg": "Þú getur sent <1>inn GitHub-útgáfu</1> eða sent okkur tölvupóst til stuðnings <3> hjá{{mail}}</3>",
+      "discord": "Þú getur líka fundið okkur á <1>Discord</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing myndir",
+      "search": "Leit eftir Bing"
+    },
+    "bingVideo": {
+      "name": "Bing myndbönd",
+      "search": "Leit eftir Bing"
+    },
+    "element": {
+      "name": "Þætti"
+    },
+    "myAssets": {
+      "name": "Mínar eignir"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Leita eftir Google"
+    },
+    "tenor": {
+      "name": "Tenór GIF",
+      "search": "Leita eftir Tenor",
+      "ph-search": "Leita í GIF..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Leita eftir Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Hlaða upp eign"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Leita í myndum..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Leita í myndskeiðum..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Leita í eignum..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Leita í líkönum..."
+    },
+    "useUpload": {
+      "multipleFileError": "Inntak tekur ekki við mörgum skrám.",
+      "mineTypeError": "\"{{name}}\" passar ekki við eftirfarandi MIME gerðir eða viðbætur: {{types}}",
+      "progressTitle": "Hleður upp skrám",
+      "progressMsg": "Hleð upp skrám {{uploaded}} af {{total}}: {{percentage}}%",
+      "uploadError": "Upphleðsluvilla",
+      "uploadErrorMsg": "Villa við upphleðslu skrár: {{message}}",
+      "uploadErrorDefaultMsg": "Óþekkt villa kom upp"
+    }
+  },
+  "openLink": {
+    "description": "Smelltu á Opna til að fara á tengilinn.",
+    "lbl-open": "Opinn"
+  },
+  "interactableModel": {
+    "lbl-buy": "Kaupa",
+    "lbl-learnMore": "Læra meira"
+  },
+  "corsProxyButton": {
+    "tooltip": "Nota staðgengilsþjón cors"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Heb Ddod o Hyd i'r Dudalen"
+  },
+  "503": {
+    "msg": "503 - Gwasanaeth ddim ar gael"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Rydych wedi cael eich gwahardd o'r lleoliad hwn",
+    "locationName": {
+      "pageTitle": "Cartref"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projectau",
+      "header": "Mewngofnodi os gwelwch yn dda",
+      "welcomeMsg": "Croeso",
+      "locationHeader": "Lleoliadau",
+      "projectHeader": "Projectau",
+      "sceneHeader": "Llenni",
+      "description": "Os ydych chi'n newydd yma rydym yn argymell mynd trwy'r tiwtorial. Fel arall, neidiwch i'r dde i mewn a chreu prosiect o'r dechrau neu o un o'n templedi.",
+      "lbl-startTutorial": "Cychwyn Tiwtorial",
+      "lbl-newProject": "Prosiect Newydd",
+      "lbl-createProject": "Creu",
+      "lbl-newScene": "Golygfa Newydd",
+      "lbl-searchProject": "Chwilio Prosiectau Sy'n Bodoli Eisoes...",
+      "back": "Cefn",
+      "contextMenu": "Dileu'r Prosiect",
+      "installed": "Prosiectau a osodwyd",
+      "official": "Prosiectau Swyddogol",
+      "community": "Prosiectau Cymunedol",
+      "install": "Gosod",
+      "uninstall": "Dadosod",
+      "rename": "Ailenwi",
+      "createProject": "Creu Prosiect",
+      "installProject": "Gosod Prosiect",
+      "processing": "Prosesu",
+      "projectName": "Enw'r Prosiect",
+      "projectURL": "URL y Prosiect"
+    }
+  },
+  "error": {
+    "goHomeLink": "Cer adref",
+    "withStatusCode": "Gwall {{code}} digwydd ar y gweinydd",
+    "withoutStatusCode": "Gwall ar y gweinydd"
+  },
+  "no-projects": {
+    "msg": "Gwall: Dim Prosiectau wedi'u Gosod - cysylltwch â gweinyddwr safle"
+  },
+  "dev": {
+    "pageTitle": "Cartref"
+  },
+  "login": {
+    "pageTitle": "Mewngofnod"
+  },
+  "workerTest": {
+    "pageTitle": "Prawf Gweithiwr"
+  },
+  "index": {
+    "by": "ERBYN",
+    "xr": "XR",
+    "foundation": "Sylfaen",
+    "description": "Cymwysiadau cymdeithasol 3D amser real i bawb eu mwynhau."
+  },
+  "xrengineContact": {
+    "header": "Cysylltwch â ni!",
+    "description": "Byddem wrth ein bodd yn eich helpu gyda'ch digwyddiadau rhithwir, manwerthu digidol, adloniant ac anghenion eraill.",
+    "lbl-name": "Enw",
+    "lbl-email": "E-bost",
+    "lbl-company": "Cwmni",
+    "lbl-project": "Disgrifiwch eich Prosiect",
+    "lbl-send": "Anfon",
+    "lbl-ok": "Ocê",
+    "lbl-success": "Anfon neges, Byddwn yn cysylltu â chi cyn bo hir.",
+    "lbl-failure": "Gwall, Plese rhowch gynnig arall arni",
+    "err-username": "Rhowch eich enw.",
+    "err-email": "Mae angen e-bost.",
+    "err-msg": "Rhowch ddisgrifiad byr o'ch prosiect."
+  }
+}

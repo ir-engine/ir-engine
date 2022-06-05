@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Paub meej email",
+      "resendEmail": "Thov xyuas koj tus account kom paub tseeb tias koj tus account. Yog hais tias koj tsis tau ib tug email, thov nyem {{here}} resend tus email.",
+      "haveAnAccount": "Puas muaj ib tug account?"
+    },
+    "forgotPassword": {
+      "header": "Forgot Password",
+      "enterEmail": "Thov sau koj qhov chaw nyob email chaw nyob thiab peb mam xa koj ib lo lus zais reset txuas.",
+      "lbl-email": "Email Chaw Nyob",
+      "lbl-submit": "Xa Mus Rau Qhov Txuas",
+      "emailSent": "Reset Password Email twb muab xa. Thov xyuas koj tus email."
+    },
+    "login": {
+      "email": "Email | SMS",
+      "username": "UserName + Password",
+      "social": "kev"
+    },
+    "magiklink": {
+      "header": "Login Link",
+      "descriptionEmail": "Thov sau koj qhov chaw nyob thiab peb mam xa koj ib login txuas ntawm Email.",
+      "descriptionSMS": "Thov sau koj tus xov tooj thiab peb mam xa koj ib login txuas ntawm SMS.",
+      "descriptionEmailSMS": "Thov sau koj qhov chaw nyob los yog tus xov tooj (10 digit, U.S. tsuas) thiab peb mam xa koj ib qhov txuas ntawm Email los yog SMS.",
+      "descriptionSMSUS": "Thov sau koj tus xov tooj (10 digit, US tsuas) thiab peb mam xa koj ib login txuas ntawm SMS.",
+      "lbl-email": "Email chaw nyob",
+      "lbl-emailPhone": "EMAIL LOS YOG TUS XOV TOOJ",
+      "lbl-phone": "xov tooj",
+      "agree": "Kuv pom zoo rau qhov ",
+      "terms": "Cov Ntsiab Lus & Tej Yam Kev Mob",
+      "lbl-submit": "Xa Login Link",
+      "email-sent-msg": "Login khawv koob txuas tau xa. Thov xyuas koj tus Email.",
+      "success-msg": "Login khawv koob txuas tau xa. Thov xyuas koj tus Email los yog SMS.",
+      "sms-sent-msg": "Login khawv koob txuas tau xa. Thov mus saib koj tus SMS."
+    },
+    "passwordLogin": {
+      "header": "Sau npe nkag mus",
+      "lbl-email": "Email Chaw Nyob",
+      "lbl-password": "Password",
+      "lbl-rememberMe": "Nco ntsoov kuv",
+      "lbl-signin": "Sau npe nkag mus",
+      "forgotPassword": "Forgot password?",
+      "signup": "Tsis muaj ib tug account? Cuv npe",
+      "lbl-login": "Nkag mus",
+      "ph-password": "Password",
+      "ph-email": "Tus email"
+    },
+    "social": {
+      "gitHub": "Login nrog GitHub",
+      "google": "Login nrog Google",
+      "facebook": "Login nrog Facebook",
+      "linkedin": "Login nrog Linkedin",
+      "twitter": "Login nrog Twitter"
+    },
+    "register": {
+      "header": "Cuv npe",
+      "login": "Nkag mus",
+      "lbl-signup": "Cuv npe",
+      "lbl-password": "Password",
+      "lbl-email": "Email Chaw Nyob",
+      "passwordNotMatch": "Passwords tsis phim",
+      "ph-password": "Password",
+      "ph-confirmPassword": "Password paub tseeb hais tias",
+      "ph-email": "Tus email"
+    },
+    "resetPassword": {
+      "header": "Reset Password",
+      "description": "Thov sau koj lo lus zais rau koj qhov chaw nyob",
+      "lbl-submit": "Reset Password",
+      "lbl-password": "Password",
+      "lbl-confirmPassword": "Password paub tseeb hais tias",
+      "passwordNotMatch": "Passwords tsis phim",
+      "nowLoginYourAccount": "Koj tam sim no log rau hauv koj tus account",
+      "yourPasswordResetSuccess": "Koj lo lus zais yog ntse reset!"
+    },
+    "verifyEmail": {
+      "header": "Saib Meej Email",
+      "processing": "Thov tos ib pliag thaum processing..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Cov chaw",
+      "loading": "loading",
+      "col-name": "Npe",
+      "col-scene": "scene",
+      "col-maxuser": "Max Cov Neeg Siv",
+      "lbl-search": "Nrhiav qhov chaw zov me nyuam",
+      "lbl-new": "Tshiab"
+    },
+    "newLocation": {
+      "title": "qhov chaw",
+      "success": "rua ntse.",
+      "failure": "Tej yam mus tsis ncaj ncees lawm.",
+      "removeSuccess": "Qhov chaw tshem tawm ntse.",
+      "nameInUse": "Lub npe yog siv.",
+      "nameRequire": "Lub npe yuav tsum muaj.",
+      "validNumber": "Tsuas yog cov zauv xwb(0-9) tsuas pub xwb.",
+      "lbl-name": "Npe",
+      "lbl-maxuser": "Max Cov Neeg Siv",
+      "lbl-scene": "scene",
+      "lbl-type": "Yam",
+      "lbl-ve": "Yees duab Enabled",
+      "lbl-gme": "Ntiaj teb no tawm Enabled",
+      "lbl-update": "hloov tshiab",
+      "lbl-create": "Rhawv",
+      "tooltipCanNotBeDeleted": "Lobby tsis tau deleted",
+      "confirmation": "Koj puas paub tseeb?",
+      "lbl-yes": "Muaj",
+      "lbl-no": "Tsis"
+    },
+    "share": {
+      "lbl-share": "Sib qhia tawm",
+      "ph-phoneEmail": "Caw los ntawm email los yog tus xov tooj",
+      "lbl-phoneEmail": "Xa email los yog tus xov tooj",
+      "lbl-copy": "Luam ib daim qauv",
+      "lbl-send-invite": "caw",
+      "title": "Muab koj qhov chaw URL nrog koj pab neeg no",
+      "linkCopied": "Txuas mus clipboard."
+    },
+    "setting": {
+      "audio": "Suab",
+      "lbl-volume": "ntim",
+      "lbl-microphone": "Microphone",
+      "graphics": "Graphics",
+      "controls": "Tswj cov kev tswj",
+      "lbl-control-type": "Controller Type",
+      "lbl-control-scheme": "Tswj tswvyim",
+      "lbl-resolution": "Daws Teeb Meem",
+      "lbl-shadow": "duab ntxoov ntxoo",
+      "lbl-pp": "Txheej Txheem",
+      "lbl-pbr": "Daim ntawv qhia txog PBR",
+      "lbl-automatic": "cia li",
+      "xrusersetting": "XR User Settings",
+      "rotation": "kev sib hloov",
+      "rotation-smooth-speed": "Lwj Smooth Speed",
+      "rotation-angle": "sib lwj",
+      "moving": "tsiv",
+      "user-avatar": "Avatar Teem",
+      "invert-rotation": "Invert Rotation thiab txav sticks",
+      "show-avatar": "Qhia Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Profile",
+      "lbl-settings": "Teev tseg",
+      "lbl-username": "Neeg siv",
+      "update-msg": "Username tshiab",
+      "inviteCode": "Caw Code",
+      "youAreAn": "Koj yog ib tug",
+      "youAreA": "Koj yog ib tug",
+      "showUserId": "Qhia neeg siv ID",
+      "hideUserId": "Nkaum neeg siv ID",
+      "showApiKey": "Qhia API tus yuam sij",
+      "hideApiKey": "Nkaum API tseem ceeb",
+      "apiKey": "API qhov tseem ceeb",
+      "logout": "log tawm",
+      "connectPhone": "Txuas koj tus xov tooj",
+      "connectEmail": "Txuas koj tus email",
+      "connectPhoneEmail": "Txuas koj tus email los yog tus xov tooj",
+      "or": "Lossis",
+      "lbl-wallet": "Login nrog Wallet",
+      "ph-email": "Tus email",
+      "ph-phone": "Xov Tooj",
+      "ph-phoneEmail": "Xov Tooj / Email",
+      "phoneEmailError": "Invalid xov tooj # los yog email chaw nyob",
+      "phoneError": "Invalid xov tooj #",
+      "emailError": "Invalid email chaw nyob",
+      "loginWithReadyPlayerMe": "Login nrog npaj neeg uas ua ntawv kuv",
+      "connectSocial": "Txuas nrog cov nyiaj",
+      "createOne": "Yog hais tias koj tsis muaj ib tug account, ib tug tshiab yuav tau tsim rau koj",
+      "connections": {
+        "title": "sib txuas",
+        "ipError": "Tsis txhob tshem tau tus neeg zov me nyuam Yog Leejtwg Tiag",
+        "disconnect": "disconnect",
+        "connect": "Txuas"
+      },
+      "profileDropdown": {
+        "avatar": "Neeg siv Avatar Icon",
+        "profile": "Profile",
+        "adminConsole": "Admin Console",
+        "logout": "logout"
+      },
+      "userIcon": {
+        "lbl-name": "Koj lub npe",
+        "lbl-update": "hloov tshiab",
+        "userId": "Neeg siv id",
+        "ph-uploadImg": "Upload khoom duab",
+        "lbl-selectAcvatar": "Xaiv Avatar",
+        "lbl-submit": "Xa"
+      },
+      "userSettings": {
+        "volume": "ntim",
+        "microphone": "Microphone",
+        "resolution": "Daws Teeb Meem",
+        "high": "Loj",
+        "low": "Qes",
+        "spatialAudio": "Siv spatial Audio",
+        "enterMuted": "Sau Chav Muted"
+      }
+    },
+    "oauth": {
+      "authenticating": "Authenticating...",
+      "authFailed": "{{service}} authentication tejyam."
+    },
+    "magikLink": {
+      "wait": "Thov tos ib pliag thaum processing..."
+    },
+    "dashboard": {
+      "header": "Dashboard",
+      "dashboard": "Dashboard",
+      "users": "Cov neeg siv",
+      "feeds": "pub",
+      "instance": "Lom",
+      "locations": "Cov chaw",
+      "invites": "Caw caw",
+      "sessions": "zaug",
+      "groups": "pawg",
+      "parties": "ob tog",
+      "chats": "Chats",
+      "content": "Cov Ntsiab Lus Packs",
+      "projects": "Tej yaam num",
+      "scenes": "Scenes",
+      "avatars": "Avatars",
+      "benchmarking": "Benchmarking",
+      "bots": "bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Authenticating...",
+    "authFailed": "{{service}} authentication tejyam."
+  },
+  "magikLink": {
+    "wait": "Thov tos ib pliag thaum processing..."
+  },
+  "dashboard": {
+    "header": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Cov neeg siv",
+    "feeds": "pub",
+    "instance": "Lom",
+    "locations": "Cov chaw",
+    "routes": "Tseem khiav",
+    "projects": "Tej yaam num",
+    "invites": "Caw caw",
+    "sessions": "zaug",
+    "groups": "pawg",
+    "parties": "ob tog",
+    "chats": "Chats",
+    "content": "Cov Ntsiab Lus Packs",
+    "scenes": "Scenes",
+    "avatars": "Avatars",
+    "benchmarking": "Benchmarking",
+    "bots": "bots",
+    "setting": "Teev tseg"
+  },
+  "avatar": {
+    "title": "Upload Avatar",
+    "lbl-browse": "Browse",
+    "lbl-thumbnail": "ntiv tes xoo",
+    "lbl-upload": "upload",
+    "selectAvatar": "Xaiv Avatar...",
+    "selectThumbnail": "Xaiv Thumbnail...",
+    "rotate": "rotate",
+    "pan": "yias",
+    "noBone": "Obejct tsis muaj cov pob txha los yog daim tawv nqaij",
+    "outOfBound": "Object yog tawm ntawm txhua yam.",
+    "emptyObj": "Yam khoom noj tas.",
+    "maxTriangleError": "Khoom muaj ntau dua {{allowedTriangles}} ntsib lub ntsej muag.",
+    "selectValidFile": "Xaiv valid 3d avatar.",
+    "selectValidThumbnail": "Xaiv valid Thumbnail ntaub ntawv.",
+    "fileOversized": "Avatar ntaub ntawv loj yuav tsum yog {{minSize}} MB thiab {{maxSize}} MB",
+    "confirmation": "Koj puas paub tseeb?",
+    "canNotBeRemoved": "Active Avatar yuav tsis raug tshem tawm",
+    "remove": "Tshem tawm avatar",
+    "uploadFiles": "Upload ntaub ntawv",
+    "useUrlInstead": "Siv url xwb",
+    "avatar": "Avatar",
+    "cancel": "raug muab tso tseg",
+    "createAvatar": "Tsim Avatar",
+    "delete": "Delete",
+    "view": "Saib",
+    "uploadAvatarInfo": "Cov lus qhia tshiab",
+    "name": "Npe",
+    "enterName": "Sau npe",
+    "avatarInformation": "Avatar Information",
+    "description": "piav qhia",
+    "key": "yuam sij",
+    "none": "Tsis muaj",
+    "submit": "Xa",
+    "edit": "Edit",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "Avatar uploaded ntse.",
+    "remove-success-msg": "Avatar uploaded ntse.",
+    "warning-msg": "Avatar qhov chaw muab kev pab yog tas, muaj koj synced avatars rau koj daim ntawv teev cia?"
+  },
+  "personMenu": {
+    "inviteToParty": "caw tog",
+    "addAsFriend": "Ntxiv raws li tus phooj ywg",
+    "mute": "mute",
+    "block": "thaiv"
+  },
+  "person": {
+    "you": "Koj",
+    "yourScreen": "Koj cov ntxaij vab tshaus",
+    "muteForEveryone": "Mute rau sawv daws",
+    "unmuteForEveryone": "Unmute rau sawv daws",
+    "muteMe": "Mute kuv",
+    "unmuteMe": "Unmute kuv",
+    "muteThisPerson": "Mute tus neeg no",
+    "unmuteThisPerson": "Unmute tus neeg no",
+    "openPictureInPicture": "Qhib duab hauv daim duab"
+  }
+}

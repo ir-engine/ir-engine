@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Ríomhphost Deimhnithe",
+      "resendEmail": "Seiceáil do r-phost le do thoil chun do chuntas a fhíorú. Mura bhfuair tú ríomhphost, cliceáil le do thoil {{here}} chun an ríomhphost fíoraithe a athdhíol.",
+      "haveAnAccount": "An bhfuil cuntas agat?"
+    },
+    "forgotPassword": {
+      "header": "Pasfhocal Dearmadta",
+      "enterEmail": "Iontráil do sheoladh ríomhphoist cláraithe agus seolfaimid nasc athshocraithe pasfhocail chugat.",
+      "lbl-email": "Seoladh Ríomhphoist",
+      "lbl-submit": "Seol Nasc",
+      "emailSent": "Seoladh Ríomhphost Athshocraigh Pasfhocal. Seiceáil do r-phost le do thoil."
+    },
+    "login": {
+      "email": "| Ríomhphoist SMS",
+      "username": "ÚsáideoirName + Pasfhocal",
+      "social": "Sóisialta"
+    },
+    "magiklink": {
+      "header": "Nasc Logála Isteach",
+      "descriptionEmail": "Cuir isteach do sheoladh ríomhphoist le do thoil agus seolfaimid nasc logála isteach chugat trí Ríomhphost.",
+      "descriptionSMS": "Iontráil d'uimhir theileafóin le do thoil agus seolfaimid nasc logála isteach chugat trí SMS.",
+      "descriptionEmailSMS": "Iontráil do sheoladh ríomhphoist nó d'uimhir theileafóin (10 ndigit, SAM amháin) agus seolfaimid nasc logála isteach chugat trí Ríomhphost nó SMS.",
+      "descriptionSMSUS": "Iontráil d'uimhir theileafóin (10 ndigit, SAM amháin) agus seolfaimid nasc logála isteach chugat trí SMS.",
+      "lbl-email": "Seoladh ríomhphoist",
+      "lbl-emailPhone": "Ríomhphost nó Uimhir theileafóin",
+      "lbl-phone": "Uimhir theileafóin",
+      "agree": "Aontaím leis an ",
+      "terms": "Téarmaí & Coinníollacha",
+      "lbl-submit": "Seol Nasc Logála Isteach",
+      "email-sent-msg": "Seoladh Nasc Magic Logála Isteach. Seiceáil do R-phost le do thoil.",
+      "success-msg": "Seoladh Nasc Magic Logála Isteach. Seiceáil do R-phost nó SMS le do thoil.",
+      "sms-sent-msg": "Seoladh Nasc Magic Logála Isteach. Seiceáil do SMS le do thoil."
+    },
+    "passwordLogin": {
+      "header": "Sínigh isteach",
+      "lbl-email": "Seoladh Ríomhphoist",
+      "lbl-password": "Pasfhocal",
+      "lbl-rememberMe": "Cuimhnigh orm",
+      "lbl-signin": "Sínigh isteach",
+      "forgotPassword": "Pasfhocal dearmadta?",
+      "signup": "Nach bhfuil cuntas agat? Cláraigh",
+      "lbl-login": "Logáil isteach",
+      "ph-password": "Pasfhocal",
+      "ph-email": "Ríomhphost"
+    },
+    "social": {
+      "gitHub": "Logáil isteach le GitHub",
+      "google": "Logáil isteach le Google",
+      "facebook": "Logáil isteach le Facebook",
+      "linkedin": "Logáil isteach le Linkedin",
+      "twitter": "Logáil isteach le Twitter"
+    },
+    "register": {
+      "header": "Cláraigh",
+      "login": "Logáil isteach",
+      "lbl-signup": "Cláraigh",
+      "lbl-password": "Pasfhocal",
+      "lbl-email": "Seoladh Ríomhphoist",
+      "passwordNotMatch": "Ní mheaitseálann pasfhocail",
+      "ph-password": "Pasfhocal",
+      "ph-confirmPassword": "Deimhnigh Pasfhocal",
+      "ph-email": "Ríomhphost"
+    },
+    "resetPassword": {
+      "header": "Athshocraigh pasfhocal",
+      "description": "Iontráil do phasfhocal le haghaidh do sheoladh ríomhphoist",
+      "lbl-submit": "Athshocraigh pasfhocal",
+      "lbl-password": "Pasfhocal",
+      "lbl-confirmPassword": "Deimhnigh Pasfhocal",
+      "passwordNotMatch": "Ní mheaitseálann pasfhocail",
+      "nowLoginYourAccount": "Is féidir leat logáil isteach i do chuntas anois",
+      "yourPasswordResetSuccess": "Athshocraíodh do phasfhocal go rathúil!"
+    },
+    "verifyEmail": {
+      "header": "Fíoraigh Ríomhphost",
+      "processing": "Fan nóiméad agus tú ag próiseáil..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Suíomhanna",
+      "loading": "Luchtú",
+      "col-name": "Ainm",
+      "col-scene": "Radharc",
+      "col-maxuser": "Úsáideoirí Max",
+      "lbl-search": "Cuardaigh suíomhanna",
+      "lbl-new": "Nua"
+    },
+    "newLocation": {
+      "title": "Suíomh",
+      "success": "Sábháilte go rathúil.",
+      "failure": "Chuaigh rud éigin mícheart.",
+      "removeSuccess": "Suíomh bainte Go rathúil.",
+      "nameInUse": "Tá an t-ainm in úsáid.",
+      "nameRequire": "Tá ainm ag teastáil.",
+      "validNumber": "Ní cheadaítear ach uimhreacha (0-9).",
+      "lbl-name": "Ainm",
+      "lbl-maxuser": "Úsáideoirí Max",
+      "lbl-scene": "Radharc",
+      "lbl-type": "Cineál",
+      "lbl-ve": "Físeán cumasaithe",
+      "lbl-gme": "Meáin Dhomhanda Cumasaithe",
+      "lbl-update": "Nuashonrú",
+      "lbl-create": "Cruthaigh",
+      "tooltipCanNotBeDeleted": "Ní féidir stocaireacht a scriosadh",
+      "confirmation": "An bhfuil tú cinnte?",
+      "lbl-yes": "Is féidir",
+      "lbl-no": "Ní hea"
+    },
+    "share": {
+      "lbl-share": "Comhroinn",
+      "ph-phoneEmail": "Tabhair cuireadh trí ríomhphost nó uimhir theileafóin",
+      "lbl-phoneEmail": "Seol chuig ríomhphost nó uimhir theileafóin",
+      "lbl-copy": "Cóipeáil",
+      "lbl-send-invite": "Seol Cuireadh",
+      "title": "Comhroinn do URL Suímh le d'fhoireann",
+      "linkCopied": "Cóipeáil an nasc go dtí an ghearrthaisce."
+    },
+    "setting": {
+      "audio": "Fuaim",
+      "lbl-volume": "Imleabhar",
+      "lbl-microphone": "Micreafón",
+      "graphics": "Grafaic",
+      "controls": "Rialuithe",
+      "lbl-control-type": "Cineál An Rialaitheora",
+      "lbl-control-scheme": "Scéim Rialaithe",
+      "lbl-resolution": "Taifeach",
+      "lbl-shadow": "Scáthanna",
+      "lbl-pp": "Post Próiseála",
+      "lbl-pbr": "Iomlán PBR",
+      "lbl-automatic": "Uathoibríoch",
+      "xrusersetting": "Socruithe Úsáideora XR",
+      "rotation": "Rothlú",
+      "rotation-smooth-speed": "Rothlú Luas Réidh",
+      "rotation-angle": "Uillinn Rothlaithe",
+      "moving": "Ag bogadh",
+      "user-avatar": "Socrú Avatar",
+      "invert-rotation": "Inbhéartaigh Rothlú agus Bog Maidí",
+      "show-avatar": "Taispeáin Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Próifíl",
+      "lbl-settings": "Socruithe",
+      "lbl-username": "Ainm Úsáideora",
+      "update-msg": "Nuashonraíodh an t-ainm úsáideora",
+      "inviteCode": "Tabhair cuireadh cód",
+      "youAreAn": "Tá tú i do",
+      "youAreA": "Tá tú i do",
+      "showUserId": "Taispeáin aitheantas úsáideora",
+      "hideUserId": "Folaigh aitheantas úsáideora",
+      "showApiKey": "Taispeáin eochair API",
+      "hideApiKey": "Folaigh eochair API",
+      "apiKey": "Eochair API",
+      "logout": "Logáil amach",
+      "connectPhone": "Ceangail d'uimhir theileafóin",
+      "connectEmail": "Ceangail do r-phost",
+      "connectPhoneEmail": "Ceangail do r-phost nó d'uimhir theileafóin",
+      "or": "nó",
+      "lbl-wallet": "Logáil isteach le Sparán",
+      "ph-email": "Ríomhphost",
+      "ph-phone": "Uimhir Theileafóin",
+      "ph-phoneEmail": "Uimhir Theileafóin / Ríomhphost",
+      "phoneEmailError": "Fón neamhbhailí # nó seoladh ríomhphoist",
+      "phoneError": "Fón neamhbhailí #",
+      "emailError": "Seoladh ríomhphoist neamhbhailí",
+      "loginWithReadyPlayerMe": "Logáil isteach le Ready Player Me",
+      "connectSocial": "Ceangail le cuntais shóisialta",
+      "createOne": "Mura bhfuil cuntas agat, cruthófar ceann nua duit",
+      "connections": {
+        "title": "Naisc",
+        "ipError": "Ní féidir soláthraí aitheantais gníomhach a bhaint",
+        "disconnect": "dícheangail",
+        "connect": "Ceangail"
+      },
+      "profileDropdown": {
+        "avatar": "Deilbhín Avatar Úsáideora",
+        "profile": "Próifíl",
+        "adminConsole": "Consól Riaracháin",
+        "logout": "Logáil amach"
+      },
+      "userIcon": {
+        "lbl-name": "D'ainm",
+        "lbl-update": "Nuashonrú",
+        "userId": "Aitheantas úsáideora",
+        "ph-uploadImg": "Uaslódáil Íomhá Táirge",
+        "lbl-selectAcvatar": "Roghnaigh Avatar",
+        "lbl-submit": "Cuir isteach"
+      },
+      "userSettings": {
+        "volume": "Imleabhar",
+        "microphone": "Micreafón",
+        "resolution": "Taifeach",
+        "high": "Ard",
+        "low": "Íseal",
+        "spatialAudio": "Úsáid Fuaim Spásúil",
+        "enterMuted": "Cuir isteach Seomra Muted"
+      }
+    },
+    "oauth": {
+      "authenticating": "Ag fíordheimhniú...",
+      "authFailed": "theip ar fhíordheimhniú {{service}}."
+    },
+    "magikLink": {
+      "wait": "Fan nóiméad agus tú ag próiseáil..."
+    },
+    "dashboard": {
+      "header": "Painéal na nIonstraimí",
+      "dashboard": "Painéal na nIonstraimí",
+      "users": "Úsáideoirí",
+      "feeds": "Fothaí",
+      "instance": "ásc",
+      "locations": "Suíomhanna",
+      "invites": "Cuireadh",
+      "sessions": "Seisiúin",
+      "groups": "Grúpaí",
+      "parties": "Páirtithe",
+      "chats": "Comhráite",
+      "content": "Pacáistí Ábhair",
+      "projects": "Tionscadail",
+      "scenes": "Radhairc",
+      "avatars": "Avatars",
+      "benchmarking": "Tagarmharcáil",
+      "bots": "Róbónna"
+    }
+  },
+  "oauth": {
+    "authenticating": "Ag fíordheimhniú...",
+    "authFailed": "theip ar fhíordheimhniú {{service}}."
+  },
+  "magikLink": {
+    "wait": "Fan nóiméad agus tú ag próiseáil..."
+  },
+  "dashboard": {
+    "header": "Painéal na nIonstraimí",
+    "dashboard": "Painéal na nIonstraimí",
+    "users": "Úsáideoirí",
+    "feeds": "Fothaí",
+    "instance": "ásc",
+    "locations": "Suíomhanna",
+    "routes": "Bealaí",
+    "projects": "Tionscadail",
+    "invites": "Cuireadh",
+    "sessions": "Seisiúin",
+    "groups": "Grúpaí",
+    "parties": "Páirtithe",
+    "chats": "Comhráite",
+    "content": "Pacáistí Ábhair",
+    "scenes": "Radhairc",
+    "avatars": "Avatars",
+    "benchmarking": "Tagarmharcáil",
+    "bots": "Róbónna",
+    "setting": "Socruithe"
+  },
+  "avatar": {
+    "title": "Uaslódáil Avatar",
+    "lbl-browse": "Brabhsáil",
+    "lbl-thumbnail": "Mionsamhail",
+    "lbl-upload": "Uaslódáil",
+    "selectAvatar": "Roghnaigh Avatar...",
+    "selectThumbnail": "Roghnaigh Mionsamhail...",
+    "rotate": "Rothlaigh",
+    "pan": "Pan",
+    "noBone": "Níl aon chnámha ná craiceann in obejct",
+    "outOfBound": "Tá an réad as ceangal.",
+    "emptyObj": "Tá an oibiacht folamh.",
+    "maxTriangleError": "Tá réad níos mó ná {{allowedTriangles}} aghaidheanna.",
+    "selectValidFile": "Roghnaigh comhad avatar 3d bailí.",
+    "selectValidThumbnail": "Comhad mionsamhlacha bailí roghnaithe.",
+    "fileOversized": "Ní mór avatar méid comhaid a bheith idir {{minSize}} MB agus {{maxSize}} MB",
+    "confirmation": "An bhfuil tú cinnte?",
+    "canNotBeRemoved": "Ní féidir Avatar Gníomhach a bhaint",
+    "remove": "Bain avatar",
+    "uploadFiles": "Uaslódáil comhaid",
+    "useUrlInstead": "Úsáid url ina ionad",
+    "avatar": "Avatar",
+    "cancel": "Cuir ar ceal",
+    "createAvatar": "Cruthaigh Avatar",
+    "delete": "Scrios",
+    "view": "Amharc ar",
+    "uploadAvatarInfo": "Nuashonraigh faisnéis avatar",
+    "name": "Ainm",
+    "enterName": "Iontráil ainm",
+    "avatarInformation": "Eolas Avatar",
+    "description": "Cur síos",
+    "key": "Eochair",
+    "none": "Níl aon cheann",
+    "submit": "Cuir isteach",
+    "edit": "Cuir in eagar",
+    "avatarUrl": "Url avatar",
+    "upload-success-msg": "Avatar Uaslódáilte go rathúil.",
+    "remove-success-msg": "Avatar Uaslódáilte go rathúil.",
+    "warning-msg": "Tá acmhainn Avatar folamh, an bhfuil avatars sioncronaithe agat le do stóráil comhad statach?"
+  },
+  "personMenu": {
+    "inviteToParty": "Tabhair cuireadh do Pháirtí",
+    "addAsFriend": "Cuir Mar Chara",
+    "mute": "Balbh",
+    "block": "Blocáil"
+  },
+  "person": {
+    "you": "Tá tú",
+    "yourScreen": "Do Scáileán",
+    "muteForEveryone": "Balbh do gach duine",
+    "unmuteForEveryone": "Unmute do gach duine",
+    "muteMe": "Balbh mé",
+    "unmuteMe": "Dímhoiscigh mé",
+    "muteThisPerson": "Balbh an duine seo",
+    "unmuteThisPerson": "Dímhúsáil an duine seo",
+    "openPictureInPicture": "Oscail Pictiúr sa Phictiúr"
+  }
+}

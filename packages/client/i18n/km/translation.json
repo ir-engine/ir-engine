@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - ទំព័រដែលមិនទាន់រកឃើញ"
+  },
+  "503": {
+    "msg": "503 - សេវាកម្មមិនអាចរកបាន"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "អ្នក ត្រូវ បាន ហាម ឃាត់ ពី ទីតាំង នេះ",
+    "locationName": {
+      "pageTitle": "ផ្ទះ"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "គម្រោង",
+      "header": "សូមចូល",
+      "welcomeMsg": "សូមស្វាគមន៍",
+      "locationHeader": "ទីតាំង",
+      "projectHeader": "គម្រោង",
+      "sceneHeader": "ឆាក",
+      "description": "ប្រសិន បើ អ្នក ថ្មី នៅ ទីនេះ យើង សូម ផ្តល់ អនុសាសន៍ ឲ្យ ឆ្លង កាត់ ការ បង្រៀន ។ បើ មិន ដូច្នោះ ទេ លោត ចូល ហើយ បង្កើត គម្រោង ពី ស្នាម របួស ឬ ពី ពុម្ព មួយ របស់ យើង ។",
+      "lbl-startTutorial": "ចាប់ផ្ដើម Tutorial",
+      "lbl-newProject": "គម្រោងថ្មី",
+      "lbl-createProject": "បង្កើត",
+      "lbl-newScene": "ទេសភាពថ្មី",
+      "lbl-searchProject": "ស្វែងរកគម្រោងដែលមានស្រាប់...",
+      "back": "ត្រឡប់ មក វិញ",
+      "contextMenu": "គម្រោង លុប",
+      "installed": "គម្រោងដំឡើង",
+      "official": "គម្រោងផ្លូវការ",
+      "community": "គម្រោងសហគមន៍",
+      "install": "ដំឡើង",
+      "uninstall": "៤. មិន ទៀង",
+      "rename": "ឈ្មោះ Rename",
+      "createProject": "បង្កើត Project",
+      "installProject": "ដំឡើងគម្រោង",
+      "processing": "ដំណើរការ",
+      "projectName": "ឈ្មោះគម្រោង",
+      "projectURL": "URL គម្រោង"
+    }
+  },
+  "error": {
+    "goHomeLink": "ទៅផ្ទះ",
+    "withStatusCode": "{{code}}  បាន កើត ឡើង នៅ លើ ម៉ាស៊ីន បម្រើ",
+    "withoutStatusCode": "កំហុស មួយ បាន កើត ឡើង នៅ លើ ម៉ាស៊ីន បម្រើ"
+  },
+  "no-projects": {
+    "msg": "Error: គ្មាន Projects Installed - please contact a site admin"
+  },
+  "dev": {
+    "pageTitle": "ផ្ទះ"
+  },
+  "login": {
+    "pageTitle": "ចូល"
+  },
+  "workerTest": {
+    "pageTitle": "ការធ្វើតេស្តការងារ"
+  },
+  "index": {
+    "by": "ដោយ",
+    "xr": "XR",
+    "foundation": "គ្រឹះស្ថាន",
+    "description": "កម្មវិធី សង្គម Realtime 3D សម្រាប់ មនុស្ស គ្រប់ គ្នា ដើម្បី រីករាយ ។"
+  },
+  "xrengineContact": {
+    "header": "ទទួលបានការប៉ះ!",
+    "description": "យើងចង់ជួយអ្នកនូវព្រឹត្តិការណ៍និម្មិតរបស់អ្នក, លក់រាយឌីជីថល, ការកម្សាន្តនិងតម្រូវការផ្សេងទៀត.",
+    "lbl-name": "ឈ្មោះ",
+    "lbl-email": "អ៊ីម៉ែល",
+    "lbl-company": "ក្រុមហ៊ុន",
+    "lbl-project": "ចូររៀបរាប់អំពីគម្រោងរបស់អ្នក",
+    "lbl-send": "ផ្ញើជូន",
+    "lbl-ok": "យល់ព្រម",
+    "lbl-success": "Message Sent, យើងនឹងត្រលប់ទៅអ្នកវិញក្នុងពេលឆាប់ៗនេះ.",
+    "lbl-failure": "កំហុស មួយ បាន កើត ឡើង, Plese សាក ល្បង ម្ដង ទៀត",
+    "err-username": "សូម បញ្ចូល ឈ្មោះ អ្នក ។",
+    "err-email": "អ៊ីម៉ែលគឺទាមទារ។",
+    "err-msg": "ផ្តល់នូវការពិពណ៌នាសង្ខេបខ្លះៗអំពីគម្រោងរបស់អ្នក។"
+  }
+}

@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Հավաստագրման էլ. փոստ",
+      "resendEmail": "Խնդրում ենք ստուգել Ձեր էլփոստը՝ ձեր հաշիվը ստուգելու համար: Եթե դուք էլեկտրոնային նամակ չեք ստանում, խնդրում ենք սեղմել {{here}} վերստուգտելու ստուգման էլփոստը:",
+      "haveAnAccount": "Հաշիվ ունե՞ք:"
+    },
+    "forgotPassword": {
+      "header": "Մոռացել ենք գաղտնաբառը",
+      "enterEmail": "Խնդրում ենք մուտքագրել Ձեր գրանցված էլփոստի հասցեն եւ մենք կուղարկենք Ձեզ գաղտնաբառի վերստուգման հղում:",
+      "lbl-email": "Էլ. փոստի հասցե",
+      "lbl-submit": "Ուղարկել հղումը",
+      "emailSent": "Ուղարկվեց Reset Password Email- ը: Խնդրում ենք ստուգել Ձեր էլփոստը:"
+    },
+    "login": {
+      "email": "Էլ. փոստ | SMS",
+      "username": "UserName + Գաղտնաբառ",
+      "social": "Սոցիալական"
+    },
+    "magiklink": {
+      "header": "Մուտքային հղում",
+      "descriptionEmail": "Խնդրում ենք մուտք գործել Ձեր էլփոստի հասցեն եւ մենք Ձեզ էլ. փոստի միջոցով կուղարկենք մուտքի հղում:",
+      "descriptionSMS": "Խնդրում ենք մուտք գործել Ձեր հեռախոսահամարը եւ մենք ձեզ SMS-ի միջոցով կուղարկենք մուտքային հղում:",
+      "descriptionEmailSMS": "Խնդրում ենք մուտք գործել Ձեր էլփոստի հասցեն կամ հեռախոսահամարը (10 նիշ, ՄԻԱՅՆ ԱՄՆ) եւ մենք ձեզ էլ. փոստի կամ SMS-ի միջոցով կուղարկենք մուտքի հղում:",
+      "descriptionSMSUS": "Խնդրում ենք մուտքագրել Ձեր հեռախոսահամարը (10 թվանշան, միայն US) եւ մենք ձեզ sms-ի միջոցով կուղարկենք մուտքի հղում:",
+      "lbl-email": "Էլ. փոստի հասցե",
+      "lbl-emailPhone": "Էլ. փոստ կամ հեռախոսահամար",
+      "lbl-phone": "Հեռախոսահամար",
+      "agree": "Համաձայն եմ ",
+      "terms": "Պայմաններ & Պայմաններ",
+      "lbl-submit": "Ուղարկել Մուտքային հղումը",
+      "email-sent-msg": "Ուղարկեցին Login Magic Link- ը: Խնդրում ենք ստուգել Ձեր Էլ. փոստը:",
+      "success-msg": "Ուղարկեցին Login Magic Link- ը: Խնդրում ենք ստուգել Ձեր Էլփոստը կամ SMS-ը:",
+      "sms-sent-msg": "Ուղարկեցին Login Magic Link- ը: Խնդրում ենք ստուգել Ձեր SMS-ները:"
+    },
+    "passwordLogin": {
+      "header": "Գրանցել",
+      "lbl-email": "Էլ. փոստի հասցե",
+      "lbl-password": "Անձնագիր",
+      "lbl-rememberMe": "Հիշիր ինձ",
+      "lbl-signin": "Գրանցել",
+      "forgotPassword": "Մոռացե՞լ է գաղտնաբառը",
+      "signup": "Հաշիվ չունե՞ք: Գրանցվել",
+      "lbl-login": "Մուտք գործել",
+      "ph-password": "Անձնագիր",
+      "ph-email": "Էլ. փոստ"
+    },
+    "social": {
+      "gitHub": "Մուտք GitHub-ի հետ",
+      "google": "Մուտք Google-ի հետ",
+      "facebook": "Մուտք Ֆեյսբուքի հետ",
+      "linkedin": "Մուտք Linkedin-ի հետ",
+      "twitter": "Մուտք Twitter-ի հետ"
+    },
+    "register": {
+      "header": "Գրանցվել",
+      "login": "Մուտք գործել",
+      "lbl-signup": "Գրանցվել",
+      "lbl-password": "Անձնագիր",
+      "lbl-email": "Էլ. փոստի հասցե",
+      "passwordNotMatch": "Գաղտնաբառերը չեն համապատասխանում",
+      "ph-password": "Անձնագիր",
+      "ph-confirmPassword": "Անձնագիրը հաստատող",
+      "ph-email": "Էլ. փոստ"
+    },
+    "resetPassword": {
+      "header": "Reset ծածկագիրը",
+      "description": "Խնդրում ենք մուտքագրել Ձեր էլփոստի հասցեի համար նախատեսված ձեր գաղտնաբառը",
+      "lbl-submit": "Reset ծածկագիրը",
+      "lbl-password": "Անձնագիր",
+      "lbl-confirmPassword": "Անձնագիրը հաստատող",
+      "passwordNotMatch": "Գաղտնաբառերը չեն համապատասխանում",
+      "nowLoginYourAccount": "Այսուհետ դուք կարող եք մուտք գործել Ձեր հաշվի",
+      "yourPasswordResetSuccess": "Ձեր գաղտնաբառը հաջողությամբ վերսկսվեց!"
+    },
+    "verifyEmail": {
+      "header": "Ստուգել էլփոստը",
+      "processing": "Խնդրում եմ մի պահ սպասեք մշակման ընթացքում..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Բնակավայրեր",
+      "loading": "Բեռնաթափում",
+      "col-name": "Անուն",
+      "col-scene": "Տեսարան",
+      "col-maxuser": "Մաքս Օգտվողներ",
+      "lbl-search": "Որոնել տեղանքներ",
+      "lbl-new": "Նոր"
+    },
+    "newLocation": {
+      "title": "Տեղակայում",
+      "success": "Փրկվել է հաջողությամբ:",
+      "failure": "Ինչ-որ բան սխալվեց:",
+      "removeSuccess": "Վայրը հեռացվել է հաջողությամբ:",
+      "nameInUse": "Անունը գործածության մեջ է:",
+      "nameRequire": "Անունը պարտադիր է:",
+      "validNumber": "Թույլատրվում է միայն թվեր(0-9):",
+      "lbl-name": "Անուն",
+      "lbl-maxuser": "Մաքս Օգտվողներ",
+      "lbl-scene": "Տեսարան",
+      "lbl-type": "Տեսակը",
+      "lbl-ve": "Տեսանյութը հնարավորություն է տալիս",
+      "lbl-gme": "Գլոբալ մեդիան հնարավորություն է տալիս",
+      "lbl-update": "Թարմացում",
+      "lbl-create": "Ստեղծագործել",
+      "tooltipCanNotBeDeleted": "Լոբբին չի կարելի ջնջել",
+      "confirmation": "Վստահ ես?",
+      "lbl-yes": "Այո",
+      "lbl-no": "Ոչ"
+    },
+    "share": {
+      "lbl-share": "Կիսվեք",
+      "ph-phoneEmail": "Հրավիրում ենք էլեկտրոնային փոստի կամ հեռախոսահամարի միջոցով",
+      "lbl-phoneEmail": "Ուղարկել էլփոստի կամ հեռախոսահամարի",
+      "lbl-copy": "Պատճենել",
+      "lbl-send-invite": "Ուղարկելհրավիրել",
+      "title": "Կիսվեք ձեր տեղակայման URL-ով ձեր թիմի հետ",
+      "linkCopied": "Link պատճենվել է clipboard."
+    },
+    "setting": {
+      "audio": "Աուդիոգիրք",
+      "lbl-volume": "Հատոր",
+      "lbl-microphone": "Միկրոֆոն",
+      "graphics": "Գրաֆիկա",
+      "controls": "Վերահսկողություններ",
+      "lbl-control-type": "Կարգավորիչ տեսակը",
+      "lbl-control-scheme": "Կառավարման սխեմա",
+      "lbl-resolution": "Լուծարում",
+      "lbl-shadow": "Ստվերներ",
+      "lbl-pp": "Պոստ-պրոցեսինգ",
+      "lbl-pbr": "Լրիվ PBR",
+      "lbl-automatic": "Ավտոմատ",
+      "xrusersetting": "XR Օգտվողի պարամետրերը",
+      "rotation": "Պտույտ",
+      "rotation-smooth-speed": "Պտույտի հարթ արագություն",
+      "rotation-angle": "Պտտման անկյուն",
+      "moving": "Տեղափոխում",
+      "user-avatar": "Ավատարի սահմանում",
+      "invert-rotation": "Ինվերտ պտույտ եւ շարժի կոճղեր",
+      "show-avatar": "Ցույց տալ Ավատարը"
+    },
+    "profile": {
+      "lbl-profile": "Պրոֆիլ",
+      "lbl-settings": "Պարամետրեր",
+      "lbl-username": "Username",
+      "update-msg": "Username updated",
+      "inviteCode": "Հրավիրում ենք Կոդ",
+      "youAreAn": "Դու ան",
+      "youAreA": "Դու ա",
+      "showUserId": "Ցույց տալ օգտվողի ID-ն",
+      "hideUserId": "Թաքցնել օգտվողի ID-ն",
+      "showApiKey": "Ցույց տալ API բանալին",
+      "hideApiKey": "Թաքցնել API բանալին",
+      "apiKey": "API բանալի",
+      "logout": "Դուրս գրեք",
+      "connectPhone": "Միացրեք ձեր հեռախոսահամարը",
+      "connectEmail": "Միացրեք ձեր էլփոստը",
+      "connectPhoneEmail": "Միացրեք ձեր էլփոստը կամ հեռախոսահամարը",
+      "or": "Կամ",
+      "lbl-wallet": "Մուտք դրամապանակով",
+      "ph-email": "Էլ. փոստ",
+      "ph-phone": "Հեռախոսահամար",
+      "ph-phoneEmail": "Հեռախոսահամար / Email",
+      "phoneEmailError": "Անվավեր հեռախոս # կամ էլփոստի հասցե",
+      "phoneError": "Անվավեր հեռախոս #",
+      "emailError": "Անվավեր էլեկտրոնային հասցե",
+      "loginWithReadyPlayerMe": "Մուտք գործեք Ready Player Me-ի հետ",
+      "connectSocial": "Կապ սոցիալական հաշիվների հետ",
+      "createOne": "Եթե հաշիվ չունեք, ձեզ համար կստեղծվի նոր",
+      "connections": {
+        "title": "Միացումներ",
+        "ipError": "Չի կարող հեռացնել ակտիվ ինքնությունը մատակարարողին",
+        "disconnect": "անջատել",
+        "connect": "Կապ"
+      },
+      "profileDropdown": {
+        "avatar": "User Avatar Icon",
+        "profile": "Պրոֆիլ",
+        "adminConsole": "Admin կոնսոլ",
+        "logout": "Լոգաուուտ"
+      },
+      "userIcon": {
+        "lbl-name": "Անունդ",
+        "lbl-update": "Թարմացում",
+        "userId": "User id",
+        "ph-uploadImg": "Վերբեռնել ապրանքի պատկերը",
+        "lbl-selectAcvatar": "Ընտրեք Avatar",
+        "lbl-submit": "Ներկայացնել"
+      },
+      "userSettings": {
+        "volume": "Հատոր",
+        "microphone": "Միկրոֆոն",
+        "resolution": "Լուծարում",
+        "high": "Բարձր",
+        "low": "Ցածր",
+        "spatialAudio": "Օգտագործեք տարածական ձայնապնակների",
+        "enterMuted": "Մտնել սենյակ Muted"
+      }
+    },
+    "oauth": {
+      "authenticating": "Աուտենտիկ...",
+      "authFailed": "{{service}} վավերացումը ձախողվեց։"
+    },
+    "magikLink": {
+      "wait": "Խնդրում եմ մի պահ սպասեք մշակման ընթացքում..."
+    },
+    "dashboard": {
+      "header": "Դաշբորդ",
+      "dashboard": "Դաշբորդ",
+      "users": "Օգտվողներ",
+      "feeds": "Կերակրում է",
+      "instance": "Դեպք",
+      "locations": "Բնակավայրեր",
+      "invites": "Հրավիրում է",
+      "sessions": "Նիստեր",
+      "groups": "Խմբեր",
+      "parties": "Կողմեր",
+      "chats": "Չաթս",
+      "content": "Բովանդակության փակոցներ",
+      "projects": "Նախագծեր",
+      "scenes": "Դրվագներ",
+      "avatars": "Ավատարներ",
+      "benchmarking": "Բենչմարքինգ",
+      "bots": "Բոտս"
+    }
+  },
+  "oauth": {
+    "authenticating": "Աուտենտիկ...",
+    "authFailed": "{{service}} վավերացումը ձախողվեց։"
+  },
+  "magikLink": {
+    "wait": "Խնդրում եմ մի պահ սպասեք մշակման ընթացքում..."
+  },
+  "dashboard": {
+    "header": "Դաշբորդ",
+    "dashboard": "Դաշբորդ",
+    "users": "Օգտվողներ",
+    "feeds": "Կերակրում է",
+    "instance": "Դեպք",
+    "locations": "Բնակավայրեր",
+    "routes": "Երթուղիներ",
+    "projects": "Նախագծեր",
+    "invites": "Հրավիրում է",
+    "sessions": "Նիստեր",
+    "groups": "Խմբեր",
+    "parties": "Կողմեր",
+    "chats": "Չաթս",
+    "content": "Բովանդակության փակոցներ",
+    "scenes": "Դրվագներ",
+    "avatars": "Ավատարներ",
+    "benchmarking": "Բենչմարքինգ",
+    "bots": "Բոտս",
+    "setting": "Պարամետրեր"
+  },
+  "avatar": {
+    "title": "Վերբեռնել Ավատարի",
+    "lbl-browse": "Բրաուզ",
+    "lbl-thumbnail": "Բութ մատով",
+    "lbl-upload": "Վերբեռնել",
+    "selectAvatar": "Ընտրեք Avatar...",
+    "selectThumbnail": "Ընտրեք Thumbnail...",
+    "rotate": "Պտտել",
+    "pan": "Պան",
+    "noBone": "Obejct-ը չի պարունակում ոչ մի ոսկր կամ մաշկ",
+    "outOfBound": "Օբյեկտն անկապ է:",
+    "emptyObj": "Առարկան դատարկ է:",
+    "maxTriangleError": "Օբյեկտը պարունակում է ավելի մեծ, քան {{allowedTriangles}} դեմքերը:",
+    "selectValidFile": "Ընտրեք վավեր 3d avatar ֆայլը:",
+    "selectValidThumbnail": "Ընտրված վավեր Thumbnail ֆայլը:",
+    "fileOversized": "Avatar ֆայլի չափը պետք է լինի {{minSize}} MB-ի եւ {{maxSize}} MB-ի միջեւ",
+    "confirmation": "Վստահ ես?",
+    "canNotBeRemoved": "Ակտիվ Ավատարին հնարավոր չէ հեռացնել",
+    "remove": "Հեռացնել avatar",
+    "uploadFiles": "Վերբեռնել ֆայլերը",
+    "useUrlInstead": "Դրա փոխարեն օգտագործեք url",
+    "avatar": "Ավատար",
+    "cancel": "Չեղարկել",
+    "createAvatar": "Ստեղծել Ավատարը",
+    "delete": "Ջնջել",
+    "view": "Դիտել",
+    "uploadAvatarInfo": "Թարմացնել ավատարի տեղեկատվությունը",
+    "name": "Անուն",
+    "enterName": "Մուտքագրեք անունը",
+    "avatarInformation": "Ավատարի տեղեկատվություն",
+    "description": "Նկարագրություն",
+    "key": "Բանալի",
+    "none": "Ոչ ոք",
+    "submit": "Ներկայացնել",
+    "edit": "Խմբագրել",
+    "avatarUrl": "Ավատար url",
+    "upload-success-msg": "Avatar Uploaded հաջող.",
+    "remove-success-msg": "Avatar Uploaded հաջող.",
+    "warning-msg": "Avatar ռեսուրսը դատարկ է, դուք սինթեզե՞լ եք ավատարները ձեր ստատիկ ֆայլի պահպանմանը:"
+  },
+  "personMenu": {
+    "inviteToParty": "Հրավիրում ենք կուսակցության",
+    "addAsFriend": "Ավելացնել որպես ընկեր",
+    "mute": "Մուտ",
+    "block": "Բլոկ"
+  },
+  "person": {
+    "you": "Դու",
+    "yourScreen": "Քո էկրանը",
+    "muteForEveryone": "Մուտ բոլորի համար",
+    "unmuteForEveryone": "Unmute բոլորի համար",
+    "muteMe": "Մուտե ինձ",
+    "unmuteMe": "Անմութ ինձ",
+    "muteThisPerson": "Մուտ այս անձին",
+    "unmuteThisPerson": "Unmute այս անձին",
+    "openPictureInPicture": "Բաց նկար նկարում"
+  }
+}

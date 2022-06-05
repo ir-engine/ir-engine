@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Chaje paj ..."
+  },
+  "tooltip": {
+    "pressKey": "Laprès {{tip}} pou {{message}}"
+  },
+  "toast": {
+    "joined": "mete ansanm",
+    "left": "Goch"
+  },
+  "navUserWidget": {
+    "login": "ouvri sesyon an"
+  },
+  "loader": {
+    "connecting": "Konekte nan mond lan ...",
+    "entering": "K ap antre nan mond lan ...",
+    "loading": "Chaje ...",
+    "objectRemaining": "{{count}} objè ki rete",
+    "objectRemainingPlural": "{{count}} objè ki rete yo",
+    "loadingObjects": "Chaje Objè yo",
+    "loadingComplete": "Chaje ranpli konplè",
+    "joiningWorld": "rantre nan mond lan"
+  },
+  "alert": {
+    "eventWasSuccess": "Evènman te gen siksè",
+    "errorWasEncountered": "Yo te rankontre yon erè",
+    "eventInProgress": "Evènman nan pwogrè",
+    "seconds": "segond yo",
+    "cancelCountdown": "Fèmen modal sa a ap anile dekont la"
+  },
+  "debug": {
+    "refresh": "Rafrechi",
+    "stats": "Stats",
+    "debugOptions": "Opsyon Debug",
+    "physicsDebug": "Fizik yo",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Èd Node",
+    "gridDebug": "Gwiyay",
+    "simpleMaterials": "Materyèl senp",
+    "tick": "satouyèt",
+    "worldStore": "Magazen mondyal",
+    "engineStore": "magazen motè",
+    "namedEntities": "Nonmen Antite",
+    "networkObject": "Rezo Objè",
+    "networkClients": "Kliyan rezo"
+  },
+  "recording": {
+    "videoRecorder": "Dosye videyo",
+    "waitingForPermissions": "Ap tann pou pèmisyon",
+    "selectVideoSource": "Chwazi sous videyo",
+    "screen": "twil",
+    "camera": "Kamera",
+    "microphone": "Mikwofòn",
+    "startRecording": "Kòmanse anrejistreman",
+    "pauseRecording": "Anrejistreman yon poz",
+    "resumeRecording": "Anrejistreman rekòmanse",
+    "stopRecording": "Sispann anrejistreman"
+  },
+  "typing": "Tape ...",
+  "gameServer": {
+    "browserError": "Navigatè erè",
+    "browserErrorMessage": "Navigatè ou a pa sipòte depo nan mòd Navigasyon prive. Swa eseye yon lòt navigatè, oswa sòti mòd Navigasyon prive.",
+    "noAvailableServers": "Pa gen serveurs ki disponib",
+    "noAvailableServersMessage": "Pa gen okenn serveurs ki disponib pou ou pou w konekte ak. Eseye re-konekte nan",
+    "worldDisconnected": "Mondyal dekonekte",
+    "worldDisconnectedMessage": "Ou te pèdi koneksyon ou ak mond lan. Nou pral eseye rekonekte anvan tan sa a kouri soti, otreman ou pral voye nan yon egzanp diferan.",
+    "webGLNotEnabled": "WebGL pa pèmèt",
+    "webGLNotEnabledMessage": "Navigatè ou a pa sipòte WebGL, oswa li enfim. Tanpri pèmèt WebGL oswa konsidere amelyore nan vèsyon an dènye nan navigatè ou a.",
+    "youKickedFromWorld": "Ou te choute soti nan mond lan",
+    "youKickedFromWorldMessage": "Ou te choute soti nan mond sa a pou rezon sa a",
+    "invalidLocation": "kote envalid",
+    "cantFindLocation": "Nou pa ka jwenn kote a",
+    "misspelledOrNotExist": "Li ka disparèt, oswa li ka pa egziste.",
+    "loading": "chaje",
+    "low-frame-error": "Detekte yon pèfòmans pòv konsidere pèmèt Sèvi akselerasyon Materyèl nan navigatè ou a ak relouvri navigatè ou a",
+    "low-frame-title": "Pèmèt aksèl pyès ki nan konpitè pou pi bon eksperyans!"
+  },
+  "error": {
+    "loading-error": "Echwe pou pou chaje done itilizatè",
+    "validation-error": "Tanpri opinyon ki valab {{type}}",
+    "login-error": "Echwe pou pou konekte"
+  }
+}

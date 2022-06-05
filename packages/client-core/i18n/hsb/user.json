@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Wobkrućenska mejlka",
+      "resendEmail": "Prošu přepruwujće Waše e-mejlki, zo byšće Waše konto wopodstatnili. Jeli njejsće mejlku dóstał(a) klikńće prošu na {{here}} , zo byšće wobkrućensku e-mejlku znowa pósłali.",
+      "haveAnAccount": "Maće konto?"
+    },
+    "forgotPassword": {
+      "header": "Hesło zabyć",
+      "enterEmail": "Prošu zapodajće Wašu registrowanu e-mejlowu adresu a pójmy Wam link k wróćosadźenju hesła.",
+      "lbl-email": "Mejlkowa adresa",
+      "lbl-submit": "Link wusyła",
+      "emailSent": "Hesło wróćo sadźić e-mail bu wotpósłane. Prošu přepruwujće Waše e-mejlki."
+    },
+    "login": {
+      "email": "| z e-mejlku rozpósłać SMS",
+      "username": "Wužiwarske mjeno + hesło",
+      "social": "Socialny"
+    },
+    "magiklink": {
+      "header": "Login-Link",
+      "descriptionEmail": "Prošu zapodajće Wašu e-mejlowu adresu a připójsńće Wam přizjewjenski link z mejlku.",
+      "descriptionSMS": "Prošu zapodajće Waše telefonowe čisło a připóznajmy Wam přizjewjenski link přez SMS.",
+      "descriptionEmailSMS": "Prošu zapodajće Wašu e-mejlowu adresu abo telefonowe čisło (10-nošnje, jenož USA) a pójšemy Wam přizjewjenski link přez e-mejlku abo SMS.",
+      "descriptionSMSUS": "Prošu zapodajće Waše telefonowe čisło (10-městno, jenož USA) a připójdźemy Wam přizjewjenski link přez SMS.",
+      "lbl-email": "Mejlkowa adresa",
+      "lbl-emailPhone": "E-mejlowa adresa abo telefonowe čisło",
+      "lbl-phone": "Telefonowe čisło",
+      "agree": "Přihłosuju ",
+      "terms": "Powšitkowne wobchodne wuměnjenja (AGB)",
+      "lbl-submit": "Login-Link wusyła",
+      "email-sent-msg": "Login Magic Link bu wusyłana. Prošu přepruwujće Waše e-mejlki.",
+      "success-msg": "Login Magic Link bu wusyłana. Prošu přepruwujće Wašu e-mejlku abo SMS.",
+      "sms-sent-msg": "Login Magic Link bu wusyłana. Prošu přepruwujće Wašu SMS."
+    },
+    "passwordLogin": {
+      "header": "Přizjewić",
+      "lbl-email": "Mejlkowa adresa",
+      "lbl-password": "Klučowe słowo",
+      "lbl-rememberMe": "Dopomniće so Wy na mnje",
+      "lbl-signin": "Přizjewić",
+      "forgotPassword": "Hesło zabyć?",
+      "signup": "Nimaće hišće žadyn konto? Přizjewić",
+      "lbl-login": "Přizjewić",
+      "ph-password": "Klučowe słowo",
+      "ph-email": "Mejlka"
+    },
+    "social": {
+      "gitHub": "Login z GitHub",
+      "google": "Login z Google",
+      "facebook": "Přizjewjenje z Facebookom",
+      "linkedin": "Login z Lěwicu",
+      "twitter": "Přizjewjenje z Twitter"
+    },
+    "register": {
+      "header": "Přizjewić",
+      "login": "Přizjewić",
+      "lbl-signup": "Přizjewić",
+      "lbl-password": "Klučowe słowo",
+      "lbl-email": "Mejlkowa adresa",
+      "passwordNotMatch": "Wopominanja njetrjechja kry",
+      "ph-password": "Klučowe słowo",
+      "ph-confirmPassword": "Hesło wobkrućić",
+      "ph-email": "Mejlka"
+    },
+    "resetPassword": {
+      "header": "Hesło wróćo sadźić",
+      "description": "Prošu zapodajće swoje hesło za Wašu e-mejlowu adresu",
+      "lbl-submit": "Hesło wróćo sadźić",
+      "lbl-password": "Klučowe słowo",
+      "lbl-confirmPassword": "Hesło wobkrućić",
+      "passwordNotMatch": "Wopominanja njetrjechja kry",
+      "nowLoginYourAccount": "Móžeće so nětko do Wašeho konta zalogować",
+      "yourPasswordResetSuccess": "Jeje hesło bu wuspěšnje wróćo stajene!"
+    },
+    "verifyEmail": {
+      "header": "E-mail wobkrućić",
+      "processing": "Prošu čakajće wokomik za čas wobdźěłanja..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Městna",
+      "loading": "Wobchod",
+      "col-name": "Mjeno",
+      "col-scene": "Scena",
+      "col-maxuser": "Maks. wužiwar",
+      "lbl-search": "Pytaj za stejninami",
+      "lbl-new": "Nowe"
+    },
+    "newLocation": {
+      "title": "Městnosć",
+      "success": "Wuspěšnje składowane.",
+      "failure": "Něšto je křiwje běžało.",
+      "removeSuccess": "Składowanišćo wuspěšnje zdalene.",
+      "nameInUse": "Mjeno so wužiwa.",
+      "nameRequire": "Mjeno je trěbne.",
+      "validNumber": "Jenož ličby (0-9) su dowolene.",
+      "lbl-name": "Mjeno",
+      "lbl-maxuser": "Maks. wužiwar",
+      "lbl-scene": "Scena",
+      "lbl-type": "Družina",
+      "lbl-ve": "Widejo aktiwěruje",
+      "lbl-gme": "Globalne medije aktiwizuja",
+      "lbl-update": "Aktualizować",
+      "lbl-create": "Tworjenje",
+      "tooltipCanNotBeDeleted": "Lobby njehodźi so zhašeć",
+      "confirmation": "Sy ty wěsty?",
+      "lbl-yes": "Haj",
+      "lbl-no": "Nětko je to"
+    },
+    "share": {
+      "lbl-share": "Wuwólnić",
+      "ph-phoneEmail": "Přeprošenje přez e-mejlku abo telefonowe čisło",
+      "lbl-phoneEmail": "Na e-mejlowej adresy abo telefonowe čisło wusyłać",
+      "lbl-copy": "Kopěrowanje",
+      "lbl-send-invite": "Přeprošenje wusyłać",
+      "title": "Dźělće swoju stejnišćo-URL ze swojim teamom",
+      "linkCopied": "Link do mjezy wotpołoženja kopěrowany."
+    },
+    "setting": {
+      "audio": "Audio",
+      "lbl-volume": "Wolumen",
+      "lbl-microphone": "Mikrofon",
+      "graphics": "Graphik",
+      "controls": "Wodźenje",
+      "lbl-control-type": "Controller-Typ",
+      "lbl-control-scheme": "Kontrolna šema",
+      "lbl-resolution": "Rozpušćenje",
+      "lbl-shadow": "Sćin",
+      "lbl-pp": "Dodatne wobdźěłanje",
+      "lbl-pbr": "Dospołny plahowanski etat",
+      "lbl-automatic": "Awtomatiske",
+      "xrusersetting": "XR-nastajenje",
+      "rotation": "Wjerćenje",
+      "rotation-smooth-speed": "Runostajna wjerćata ličba",
+      "rotation-angle": "Drehwinkel",
+      "moving": "Přesunyć",
+      "user-avatar": "Avatar-nastajenje",
+      "invert-rotation": "Rotaciju so zawróćić a wušiwać",
+      "show-avatar": "Avatar přizjewić"
+    },
+    "profile": {
+      "lbl-profile": "Profil",
+      "lbl-settings": "Nastajenja",
+      "lbl-username": "Wužiwarske mjeno",
+      "update-msg": "Wužiwarske mjeno aktualizowane",
+      "inviteCode": "Přeprošenski kode",
+      "youAreAn": "Woni su",
+      "youAreA": "Woni su",
+      "showUserId": "Wužiwar-ID pokazać",
+      "hideUserId": "Wužiwarjo-ID wublendować",
+      "showApiKey": "API-schlüssel pokazać",
+      "hideApiKey": "API-Schlüssel wublend",
+      "apiKey": "API-Schlüssel",
+      "logout": "Ausloggen",
+      "connectPhone": "Zwjazajće swoje telefonowe čisło",
+      "connectEmail": "Zwjazajće swoje e-mejlki",
+      "connectPhoneEmail": "Zwjazajće Wašu e-mejlowu adresu abo telefonowe čisło",
+      "or": "Abo",
+      "lbl-wallet": "Login z Wallet",
+      "ph-email": "Mejlka",
+      "ph-phone": "Telefonowe čisło",
+      "ph-phoneEmail": "Telefonowe čisło / e-mail",
+      "phoneEmailError": "Njepłaćiwy telefon # abo e-mejlowa adresa",
+      "phoneError": "Njepłaćiwy telefon #",
+      "emailError": "Njepłaćiwa e-mejlowa adresa",
+      "loginWithReadyPlayerMe": "Přizjewće so z Ready Player Me",
+      "connectSocial": "Zwjazajće so ze socialnymi kontami",
+      "createOne": "Jeli nimaće hišće žadyn konto, so nowe konto za Was zestaja.",
+      "connections": {
+        "title": "Zwiski",
+        "ipError": "Aktiwnych poskićowarjow identity njehodźi so wotstronić",
+        "disconnect": "dźělić",
+        "connect": "Zwjazać"
+      },
+      "profileDropdown": {
+        "avatar": "Wužiwar-avatar-symbol",
+        "profile": "Profil",
+        "adminConsole": "Admin-Konsole",
+        "logout": "Wotzjewjenje"
+      },
+      "userIcon": {
+        "lbl-name": "Jeje mjeno",
+        "lbl-update": "Aktualizować",
+        "userId": "Wužiwar-ID",
+        "ph-uploadImg": "Produktowy wobraz nakładować",
+        "lbl-selectAcvatar": "Avatar wuzwolić",
+        "lbl-submit": "Pósłać"
+      },
+      "userSettings": {
+        "volume": "Wolumen",
+        "microphone": "Mikrofon",
+        "resolution": "Rozpušćenje",
+        "high": "Wysoko",
+        "low": "Niske",
+        "spatialAudio": "Wužiwanje rumnostneho awdija",
+        "enterMuted": "Přistup do ruma něme sfałdowane"
+      }
+    },
+    "oauth": {
+      "authenticating": "Wobskoržiwši...",
+      "authFailed": "{{service}} Authentifizierung so faluje."
+    },
+    "magikLink": {
+      "wait": "Prošu čakajće wokomik za čas wobdźěłanja..."
+    },
+    "dashboard": {
+      "header": "Instrumentowa tafla",
+      "dashboard": "Instrumentowa tafla",
+      "users": "Wužiwarjo",
+      "feeds": "Zežiwjene",
+      "instance": "Přikład",
+      "locations": "Městna",
+      "invites": "Lädt",
+      "sessions": "Posedźenja",
+      "groups": "Skupiny",
+      "parties": "Strony",
+      "chats": "Bachta",
+      "content": "Wobsahowe pakćiki",
+      "projects": "Projekty",
+      "scenes": "Sceny",
+      "avatars": "Zjewjenja",
+      "benchmarking": "Benchmarking",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Wobskoržiwši...",
+    "authFailed": "{{service}} Authentifizierung so faluje."
+  },
+  "magikLink": {
+    "wait": "Prošu čakajće wokomik za čas wobdźěłanja..."
+  },
+  "dashboard": {
+    "header": "Instrumentowa tafla",
+    "dashboard": "Instrumentowa tafla",
+    "users": "Wužiwarjo",
+    "feeds": "Zežiwjene",
+    "instance": "Přikład",
+    "locations": "Městna",
+    "routes": "Čarow",
+    "projects": "Projekty",
+    "invites": "Lädt",
+    "sessions": "Posedźenja",
+    "groups": "Skupiny",
+    "parties": "Strony",
+    "chats": "Bachta",
+    "content": "Wobsahowe pakćiki",
+    "scenes": "Sceny",
+    "avatars": "Zjewjenja",
+    "benchmarking": "Benchmarking",
+    "bots": "Bots",
+    "setting": "Nastajenja"
+  },
+  "avatar": {
+    "title": "Awatar nakładować",
+    "lbl-browse": "Łopjena",
+    "lbl-thumbnail": "Daumennagel",
+    "lbl-upload": "Wysokoadad",
+    "selectAvatar": "Avatar wuzwolić...",
+    "selectThumbnail": "Wolće miniaturny napohlad...",
+    "rotate": "Wjerćeć",
+    "pan": "Pónoj",
+    "noBone": "Obejct njewobsahuje žane kosće abo kožu",
+    "outOfBound": "Objekt njeje dowoleny.",
+    "emptyObj": "Objekt je prózdny.",
+    "maxTriangleError": "Objekt wobsahuje wjace hač {{allowedTriangles}} płoniny.",
+    "selectValidFile": "Wuzwolće płaćiwu 3D-awatardataju.",
+    "selectValidThumbnail": "Płaćiwa miniaturna napohladowa dataja wuzwolena.",
+    "fileOversized": "Wulkosć awatar-dataje dyrbi mjez {{minSize}} MB a {{maxSize}} MB ležeć.",
+    "confirmation": "Sy ty wěsty?",
+    "canNotBeRemoved": "Aktiwny awatar njemóže so wotstronić",
+    "remove": "Avatar wotstronić",
+    "uploadFiles": "dataje nakładować",
+    "useUrlInstead": "Wužiwajće město toho URL",
+    "avatar": "Avatar",
+    "cancel": "Přetorhnyć",
+    "createAvatar": "Awatar zestajeć",
+    "delete": "Hašeć",
+    "view": "Pohladać",
+    "uploadAvatarInfo": "Avatar-informacije aktualizować",
+    "name": "Mjeno",
+    "enterName": "Mjeno zapodać",
+    "avatarInformation": "Avatar-informacije",
+    "description": "Wopisanje",
+    "key": "Kluče",
+    "none": "Ničo",
+    "submit": "Pósłać",
+    "edit": "Redigować",
+    "avatarUrl": "Avatar-URL",
+    "upload-success-msg": "Avatar wuspěšnje nakładźeny.",
+    "remove-success-msg": "Avatar wuspěšnje nakładźeny.",
+    "warning-msg": "Avatar-resursa je prózdna, sće Avatare ze swojim statiskim datajowym składom synchronizował?"
+  },
+  "personMenu": {
+    "inviteToParty": "Na party přeprosyć",
+    "addAsFriend": "Jako přećel dodać",
+    "mute": "Němy",
+    "block": "Blok"
+  },
+  "person": {
+    "you": "Ty",
+    "yourScreen": "Jeje wobrazowka",
+    "muteForEveryone": "Němy šaltowanje za wšitkich",
+    "unmuteForEveryone": "Němy šaltowanje za wšitkich zběhnyć",
+    "muteMe": "Mje němy šaltować",
+    "unmuteMe": "Němy šaltowanje zběhnyć",
+    "muteThisPerson": "Tuta wosoba němy zapinyć",
+    "unmuteThisPerson": "Němy šaltowanje tuteje wosoby zběhnyć",
+    "openPictureInPicture": "Wobraz we wobrazu wočinić"
+  }
+}

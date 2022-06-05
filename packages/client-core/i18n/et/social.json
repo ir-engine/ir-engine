@@ -1,0 +1,202 @@
+{
+  "addComment": "Lisa kommentaar...",
+  "share": "Jagama",
+  "suggestions": "Soovitused teie jaoks",
+  "seeAll": "Vaata kõiki",
+  "likes": "Meeldib",
+  "viewComments": "Vaata kõiki {{count}} kommentaare",
+  "more": "rohkem",
+  "username": "kasutajanimi",
+  "fullName": "Perekonnanimi",
+  "reportInApporpriate": "Sobimatust teatamine",
+  "unfollow": "Jälgimata",
+  "goToPost": "Mine postitusse",
+  "shareModal": "Jagama",
+  "copyLink": "Kopeeri link",
+  "embed": "Embed",
+  "cancel": "Tühistama",
+  "confirm": "Kinnitama",
+  "save": "Salvestama",
+  "profilePic": "{{user}}profiilipilt",
+  "ara": "Ara",
+  "follow": "Järgnema",
+  "flames": "Tuld",
+  "continue": "Jätkama",
+  "partyInvitationSent": "Peokutse saadetud",
+  "arMedia": {
+    "back": "Tagasi",
+    "clip": "Klipp",
+    "backgrounds": "Taustaga",
+    "start": "Alustama"
+  },
+  "arMediaform": {
+    "title": "Pealkiri",
+    "type": "Liik",
+    "clip": "Klipp",
+    "background": "Taust",
+    "scene": "Stseen",
+    "save": "Salvestama",
+    "manifest-file": "Manifesti manifestifail",
+    "audio-file": "MP4-fail",
+    "dracosis-file": "Drakoos .uvol fail",
+    "preview-file": "Pildifaili eelvaade"
+  },
+  "creator": {
+    "myVideos": "Minu videod",
+    "savedVideos": "Salvestatud videod",
+    "back": "Tagasi",
+    "blocked-list": "Blokeeritud loend",
+    "block-user": "Blokeeri kasutaja",
+    "dialog-content": "Te ei näe kasutaja profiili ja sisu"
+  },
+  "creatorForm": {
+    "back": "Tagasi",
+    "edit": "Profiili redigeerimine",
+    "save": "Salvestama",
+    "changeAvatar": "Avatari pildi muutmine",
+    "ph-selectPreview": "Eelvaate valimine",
+    "ph-name": "Sinu nimi",
+    "ph-username": "Teie kasutajanimi",
+    "ph-email": "Teie e-post",
+    "ph-tags": "Tags",
+    "ph-link": "Link",
+    "ph-aboutYou": "Rohkem infot sinu kohta",
+    "ph-twitter": "Twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Väljalogimine"
+  },
+  "dashboard": {
+    "title": "Armatuurlaua",
+    "dashboard": "Armatuurlaua",
+    "users": "Kasutajad",
+    "feeds": "Kanalid",
+    "arMedia": "Videokandja",
+    "editor": "Toimetaja",
+    "creator": "Looja"
+  },
+  "featured": {
+    "empty-list": "Praegu ei ole kanaleid ..."
+  },
+  "feed": {
+    "back": "Tagasi",
+    "related": "Seotud kanalid",
+    "is-repoted-message": "Söödast teatatakse!"
+  },
+  "feedForm": {
+    "back": "Tagasi",
+    "thanks": "Täname, et jagasite ja täiustasite meie kogukonda",
+    "share": "Jagage midagi kogukonnaga",
+    "upload": "Video üleslaadimine",
+    "ph-selectVideo": "Video valimine",
+    "preview": "Pildi eelvaade",
+    "ph-selectPreview": "Eelvaate valimine",
+    "createFeed": "Kanali loomiseks peab teil olema video ja eelvaatepilt!!!",
+    "ph-videoName": "Video nimi",
+    "ph-type": "Tippige, mida soovite kogukonnaga jagada ... ",
+    "lbl-share": "Jagama",
+    "save": "Salvesta ja mine Edasi"
+  },
+  "feedMenu": {
+    "featured": "Objekte",
+    "creators": "Loojad",
+    "feed": "Voog"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetric"
+  },
+  "login": {
+    "account": "Kas teil on konto?",
+    "login": "Login",
+    "resetPassword": "Parooli võltsimise lähtestamise nupp (siin oleks link e-posti teel)",
+    "notHavingAccount": "Kas teil pole kontot?",
+    "signUp": "Pane nimi kirja",
+    "forgotPassword": "Unustasid parooli?",
+    "back": "Tagasi",
+    "or": "VÕI"
+  },
+  "comment": {
+    "add": "Lisa oma kommentaar..."
+  },
+  "notification": {
+    "feedFire": " vallandas teie sööda",
+    "feedBookmarked": " kanali järjehoidja",
+    "comment": " kommenteeris oma voogu:",
+    "commentFire": " vallandas teie kommentaari, et toita",
+    "follow": " Hakkas sind jälitama",
+    "unfollow": " lõpetas sinu jälitamise",
+    "followed": " Järgnes sulle",
+    "activity": "Aktiivsus"
+  },
+  "onBoarding": {
+    "welcome": "Tere tulemast!",
+    "description": "Suurim kollektsioon 370+ paigutusest iOS prototüüpimiseks.",
+    "next": "Järgmine",
+    "discover": "Artiklite avastamine,",
+    "news": "uudised ja postitused",
+    "lines": "Just need tunded juhivad meie armastust astronoomia ja meie soovi vastu.",
+    "getStarted": "Alustamine",
+    "meetUp": "Kohtuge",
+    "friends": "Sõbrad.",
+    "meet": "Kohtumine sõpradega"
+  },
+  "shareForm": {
+    "arcMedia": "Jagama",
+    "videoCreated": "Ma lõin selle video",
+    "shareWithBuddies": "Sõpradega jagamine",
+    "shareVideo": "Video jagamine",
+    "save": "Salvesta kaamera rulli",
+    "cancel": "Tühistama",
+    "close": "Sulgema",
+    "addFeed": "Kanali lisamine"
+  },
+  "simpleModal": {
+    "emptyList": "Tühi loend",
+    "followers": " järgmine",
+    "following": " Järgijaid",
+    "flames": " Tuld"
+  },
+  "splash": {
+    "screen": "Splashi ekraan",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "{{user}}profiilipilt"
+  },
+  "view": {
+    "cancel": "Tühistama",
+    "choice": "Teil on kaks erinevat salvestusrežiimi, mille hulgast valida",
+    "verticalMode": "Vertikaalrežiimil on 30-sekundiline salvestusaeg",
+    "horizontalMode": "Horisontaalsel režiimil on piiramatu salvestusaeg",
+    "start": "Alustama",
+    "not-show": "Ära näita seda uuesti",
+    "welcome": "Tere tulemast ARC-i!  Tehke mõne meie hologrammiga isiklikke videoid ja postitage see oma sotsiaalmeedia kanalitesse!",
+    "step": "SAMM {{step}}",
+    "text-step-1": "Valige raamatukogust hologramm.",
+    "text-step-2": "See on liitreaalsus, nii et skannige kaameraga ruumi küljelt küljele 3-5 sekundit, kus soovite hologrammi jõudlust.",
+    "text-step-3-part-1": "Puudutage ekraani üks kord kohas, kus soovite hologrammi ankurdada.",
+    "text-step-3-part-2": "OTSA!  Hologrammi teise asendisse teisaldamiseks puudutage veel kord mujale.",
+    "text-step-3-part-3": "OTSA!  Hologrammi suuruse muutmiseks saate sõrme pöidla ja nimetissõrmega ekraani pigistada või laiendada.",
+    "text-step-4-part-1": "Videosalvestuse alustamiseks topeltpuudutage punast kirjenuppu.",
+    "text-step-4-part-2": "Topeltpuudutage nuppu Punane kirje, et peatada."
+  },
+  "video": {
+    "back": "Tagasi"
+  },
+  "terms": {
+    "confirmTerms": "Nõustun teenusetingimustega",
+    "confirmPolicy": "Nõustun privaatsuspoliitikaga"
+  },
+  "registration": {
+    "ph-phoneEmail": "Telefoni / e-posti kasutamine",
+    "facebook": "Jätka Facebookiga",
+    "google": "Google'iga jätkamine",
+    "linkedin": "Linkediniga jätkamine",
+    "twitter": "Jätka Twitteriga",
+    "gitHub": "Jätka GitHubiga",
+    "connect": "Meili- või telefoninumbri ühendamine",
+    "logIn": "Logi sisse",
+    "LogInTo": "Sisselogimine",
+    "continueAsGuest": "Külalisena jätkamine"
+  }
+}

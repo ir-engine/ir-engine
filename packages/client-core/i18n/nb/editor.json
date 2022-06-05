@@ -1,0 +1,718 @@
+{
+  "loading": "Laster inn prosjekt",
+  "loadingMsg": "Laster inn prosjekt...",
+  "loadingError": "Feil under innlasting av prosjekt",
+  "loadingErrorMsg": "Det oppstod en feil under innlasting av prosjektet.",
+  "selectSceneMsg": "Velg Scene for å begynne å spille med motoren",
+  "error": "Feil",
+  "errorMsg": "Det oppstod en ukjent feil.",
+  "generateScreenshot": "Generere skjermbilde av Project",
+  "generateScreenshotMsg": "Genererer prosjektskjermbilde...",
+  "newScene": "Opprett scene",
+  "saving": "Lagrer prosjekt",
+  "savingMsg": "Lagrer prosjekt...",
+  "savingError": "Feil under lagring av prosjekt",
+  "savingErrorMsg": "Det oppstod en feil under lagring av prosjektet.",
+  "savingSceneErrorMsg": "Scenen er ikke riktig lastet inn. Prøv å laste inn scenen på nytt.",
+  "duplicating": "Duplisere prosjekt",
+  "duplicatingMsg": "Dupliserer prosjekt...",
+  "exporting": "Eksporterer prosjekt",
+  "exportingMsg": "Eksporterer prosjekt...",
+  "exportingError": "Feil under eksport av prosjekt",
+  "exportingErrorMsg": "Det oppstod en feil under eksport av prosjektet.",
+  "importLegacy": "Importer eldre verden",
+  "importLegacyMsg": "Advarsel! Dette vil overskrive din eksisterende scene! Er du sikker på at du vil fortsette?",
+  "publishingError": "Feil under publisering av prosjekt",
+  "publishingErrorMsg": "Det oppstod en ukjent feil.",
+  "publishingScene": "Publiseringsscene",
+  "publishingSceneMsg": "Publiserer scene...",
+  "uploadingThumbnailMsg": "Laster opp miniatyrbilde...",
+  "uploadingSceneMsg": "Opplastingsscene: {{percentage}}%",
+  "envMapError": "Feil under lasting av kubekartbilder {{files}}",
+  "lbl-return": "Retur",
+  "menubar": {
+    "newScene": "Ny scene",
+    "saveScene": "Lagre scene",
+    "saveAs": "Lagre som",
+    "importAsset": "Importer aktiva",
+    "exportGLB": "Eksporter som binær glTF (.glb) ...",
+    "importScene": "Importer scene",
+    "exportScene": "Eksporter scene",
+    "quit": "Slutte"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Filtype som ikke støttes for filen: \"{{name}}\". Filen må være en bilde-, video- eller glb-modell.",
+    "addObject": "addObject: før objektet ikke ble funnet",
+    "removeObject": "removeObject: Finner ikke node. Dette skyldes fjerning av en node som ikke lenger er i scenen.",
+    "noParent": "{{node}}{{name}}har ingen overordnet. Reparent fungerer bare på objekter som er i scenen.",
+    "undefinedParent": "editor.reparent: newParent er udefinert",
+    "notAuthenticated": "Ikke godkjent",
+    "fetchingProjectError": "Feil under henting av prosjekter: {{error}}",
+    "fetchingRouteError": "Feil under henting av ruter: {{error}}",
+    "unknownError": "Ukjent feil",
+    "resolveURL": "Feil under løsing av URL-adresse{{url}}::",
+    "mediaSearchAborted": "Mediesøk avbrutt",
+    "methodNotImplemented": "Metoden er ikke implementert.",
+    "saveProjectAborted": "Lagre scene avbrutt",
+    "unsavedChanges": "Endringer som ikke er lagret",
+    "unsavedChangesMsg": "Scenen er endret. Lagre endringene.",
+    "projectCreationFail": "Prosjektoppretting mislyktes. {{reason}}",
+    "projectDeletionFail": "Sletting av prosjekt mislyktes. {{reason}}",
+    "savingProjectFail": "Lagring av project mislyktes. {{reason}}",
+    "sceneTooLarge": "Scenen er for stor ({{size}} MB) til å publiseres. Maksimal størrelse er {{maxSize}} MB.",
+    "sceneCreationFail": "Oppretting av scene mislyktes. {{reason}}",
+    "uploadAborted": "Opplastingen ble avbrutt",
+    "uploadFailed": "Opplasting mislyktes {{reason}}",
+    "assetDeletionFail": "Sletting av aktiva mislyktes. {{reason}}",
+    "projectAssetDeletionFail": "Sletting av prosjektaktiva mislyktes. {{reason}}",
+    "networkError": "Nettverksfeil: {{status}}. {{text}}",
+    "unknownStatus": "Ukjent status",
+    "CORS": "Muligens en CORS-feil",
+    "urlFetchError": "Kan ikke hente{{url}}"
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Flytt kamera",
+      "flyFast": "Fly raskere",
+      "orbit": "Bane / Velg",
+      "pan": "Pan",
+      "fly": "Fly",
+      "focus": "Fokus",
+      "rotateLeft": "Roter mot venstre",
+      "rotateRight": "Roter mot høyre",
+      "cancelPlacement": "Avbryt plassering",
+      "placeDuplicate": "Plasser duplikat",
+      "cancelGrab": "Avbryt grep",
+      "grab": "Gripe",
+      "deselectAll": "Opphev merking av alle"
+    },
+    "state": {
+      "header": "Statistikk",
+      "memory": "Hukommelse",
+      "geometries": "Geometrier",
+      "textures": "Teksturer",
+      "render": "Gjengi",
+      "FPS": "FPS",
+      "frameTime": "Tid for ramme",
+      "calls": "Samtaler",
+      "triangles": "Trekanter",
+      "points": "Pens",
+      "lines": "Linjer"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Utgi",
+    "lbl-published": "Publisert",
+    "command": {
+      "translate": "Oversette",
+      "rotate": "Rotere",
+      "scale": "Skala",
+      "toggleSpace": "Aktiver/deaktiver transformeringsområde",
+      "togglePivot": "Aktiver/deaktiver transformeringspivot",
+      "toggleSnapMode": "Aktiver/deaktiver festingsmodus",
+      "toggleGrid": "Aktiver/deaktiver synlighet for rutenett",
+      "increaseGridSize": "Øk størrelsen på rutenettet",
+      "descreaseGridSize": "Reduser rutenettstørrelse",
+      "stopPreview": "Stopp forhåndsvisning av scene",
+      "playPreview": "Forhåndsvisning av scene"
+    }
+  },
+  "properties": {
+    "title": "Egenskaper",
+    "lbl-visible": "Synlig",
+    "lbl-preventBake": "Forhindre bake",
+    "lbl-persist": "Vedvare",
+    "multipleNodeSelected": "Flere noder av forskjellige typer valgt",
+    "noNodeSelected": "Ingen node er valgt",
+    "ambientLight": {
+      "name": "Omgivelseslyset",
+      "description": "Et lys som lyser opp alle objekter i scenen din.",
+      "lbl-intensity": "Intensitet",
+      "lbl-color": "Farge"
+    },
+    "envmap": {
+      "name": "Miljøkart",
+      "description": "egenskaper for miljøkart"
+    },
+    "asset": {
+      "name": "Aktivum",
+      "description": "En gruppering av scenekomponenter som kan lastes inn og lastes ut dynamisk",
+      "lbl-options": "Alternativer",
+      "lbl-assetPath": "Bane til aktiva",
+      "lbl-assetName": "Navn på eksport",
+      "lbl-exportOptions": "Alternativer for eksport",
+      "lbl-export": "Eksporter aktiva",
+      "lbl-load": "Last inn i scenen",
+      "lbl-unload": "Losse",
+      "lbl-reload": "Reload"
+    },
+    "audio": {
+      "name": "Lyd",
+      "description": "Laster inn lyd dynamisk.",
+      "lbl-audiourl": "URL-adresse for lyd",
+      "lbl-controls": "Kontroller",
+      "info-controls": "Aktiver/deaktiver synligheten til mediekontrollene.",
+      "lbl-autoplay": "Spill av automatisk",
+      "info-autoplay": "Hvis sann, spilles mediet av første gang de kommer inn i scenen.",
+      "lbl-synchronize": "Synkronisere",
+      "info-synchronize": "Hvis sann, synkroniseres mediet på alle tilkoblede klienter.",
+      "lbl-loop": "Løkke",
+      "info-loop": "Hvis sann, vil mediet gjentas i det uendelige.",
+      "lbl-audioType": "Lydtype",
+      "lbl-distanceModel": "Avstandsmodell",
+      "info-distanceModel": "Algorithim brukes til å beregne lydavrulling.",
+      "lbl-rolloffFactor": "Rolloff-faktor",
+      "info-rolloffFactor": "En dobbel verdi som beskriver hvor raskt volumet reduseres etter hvert som kilden beveger seg bort fra lytteren. 0 til 1",
+      "info-rfInfinity": "En dobbel verdi som beskriver hvor raskt volumet reduseres etter hvert som kilden beveger seg bort fra lytteren. 0 til Uendelig",
+      "lbl-refDistance": "Ref Avstand",
+      "info-refDistance": "En dobbel verdi som representerer referanseavstanden for å redusere volumet etter hvert som lydkilden beveger seg lenger fra lytteren.",
+      "lbl-maxDistance": "Maksimal avstand",
+      "info-maxDistance": "En dobbel verdi som representerer den maksimale avstanden mellom lydkilden og lytteobjektet, hvoretter volumet ikke reduseres ytterligere.",
+      "lbl-coneInnerAngle": "Kjegle indre vinkel",
+      "info-coneInnerAngle": "En dobbel verdi som beskriver vinkelen, i grader, av en kjegle inni hvilken det ikke vil være volumreduksjon.",
+      "lbl-coneOuterAngle": "Kjegle ytre vinkel",
+      "info-coneOuterAngle": "En dobbel verdi som beskriver vinkelen, i grader, på en kjegle utenfor, der volumet reduseres med en konstant verdi, definert av attributtet coneOuterGain .",
+      "lbl-coreOuterGain": "Kjegle ytre gevinst",
+      "info-coreOuterGain": "En dobbel verdi som beskriver mengden volumreduksjon utenfor kjeglen som er definert av attributtet coneOuterAngle. Standardverdien er 0, noe som betyr at ingen lyd kan høres.",
+      "lbl-volume": "Volum",
+      "lbl-play": "Skuespill",
+      "lbl-pause": "Pause",
+      "error-url": "Feil under innlasting fra URL-adresse"
+    },
+    "boxCollider": {
+      "description": "En usynlig boks som objekter spretter ut av eller hviler oppå.\nUten kollisjoner vil gjenstander falle gjennom gulv og gå gjennom vegger.",
+      "lbl-isTrigger": "Avtrekker"
+    },
+    "camera": {
+      "name": "Kamera",
+      "description": "Kamerainnstillinger.",
+      "lbl-camera-raycast": "Raykasting av kamera",
+      "lbl-camera-raycast-toggle": "Aktivert",
+      "lbl-camera-raycast-frequency": "Frekvens",
+      "lbl-camera-raycast-count": "Antall stråler",
+      "lbl-camera-raycast-length": "Ray Lengde"
+    },
+    "directionalLight": {
+      "name": "Retningslys",
+      "description": "Et lys som lyser opp hele scenen, men avgir langs en enkelt retning.",
+      "lbl-color": "Farge",
+      "lbl-intensity": "Intensitet",
+      "lbl-cameraFar": "Kamera langt",
+      "lbl-cameraNear": "Kamera i nærheten",
+      "lbl-cameraTop": "Kamera ovenfra",
+      "lbl-cameraBottom": "Kameraets bunn",
+      "lbl-cameraLeft": "Kamera til venstre",
+      "lbl-cameraRight": "Kamera til høyre",
+      "lbl-useInCSM": "Bruk i CSM",
+      "lbl-castShadow": "Kastet skygge",
+      "lbl-disableForCSM": "Deaktivert fordi skyggetilordning for gjennomgripende er aktivert.",
+      "lbl-shadowmapResolution": "Oppløsning for skyggekart",
+      "lbl-shadowBias": "Skygge-bias",
+      "lbl-shadowRadius": "Skygge-radius",
+      "lbl-showCameraHelper": "Vis kamerahjelper"
+    },
+    "groundPlane": {
+      "name": "Bakkeplan",
+      "description": "Et flatt bakkeplan som strekker seg ut i det fjerne.",
+      "lbl-color": "Farge",
+      "lbl-receiveShadow": "Motta skygge",
+      "lbl-generateNavmesh": "Generer navmesh"
+    },
+    "link": {
+      "description": "Lenke til et rom eller et nettsted.",
+      "lbl-url": "URL-adresse"
+    },
+    "map": {
+      "description": "3D geospatialt kart over f.eks."
+    },
+    "model": {
+      "description": "En 3D-modell i scenen din, lastet inn fra en GLTF-URL eller fil.",
+      "lbl-usingGPUInstancingFlag": "Bruk GPU-instancing",
+      "lbl-modelurl": "Url-adresse for modell",
+      "lbl-envmapUrl": "URL-adresse for miljøkart",
+      "lbl-textureOverride": "Overstyr tekstur",
+      "lbl-materialOverride": "Overstyringer av materialer",
+      "error-url": "Feil under innlasting fra URL-adresse",
+      "lbl-loopAnimation": "Animasjon i løkke",
+      "lbl-isAvatar": "Er Avatar",
+      "lbl-isGPUInstancing": "Bruker GPU-instancing",
+      "lbl-isDynamic": "Er dynamisk",
+      "lbl-castShadow": "Kastet skygge",
+      "lbl-receiveShadow": "Motta skygge",
+      "lbl-interactable": "Kan samhandles",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Navn",
+      "lbl-url": "Url-adresse for modell",
+      "lbl-buy": "Kjøp URL-adresse",
+      "lbl-learnMore": "Finn ut mer om url-adresse",
+      "lbl-htmlContent": "Html-innhold",
+      "lbl-interactionText": "Tekst for samhandling",
+      "lbl-interactionType": "Samhandlingstype"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Materiale",
+      "error-materialID": "Feil under søk etter materiale",
+      "placeholder-materialID": "Velg materiale",
+      "lbl-patternTarget": "Samsvar med mønster",
+      "lbl-pattern": "Mønster",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Samhandlingstype",
+      "text": "Tekst for samhandling",
+      "distance": "Avstand for samhandling",
+      "theme": "Tema for samhandling",
+      "name": "Navn på samhandling",
+      "description": "Beskrivelse av samhandling",
+      "images": "Bilder av samhandling",
+      "videos": "Interaksjonsvideoer",
+      "urls": "Url-adresser for samhandling",
+      "models": "Interaksjonsmodeller"
+    },
+    "group": {
+      "name": "Gruppe",
+      "description": "En gruppe med flere objekter som kan flyttes eller dupliseres sammen.\nDra og slipp objekter i gruppen i hierarkiet."
+    },
+    "hemisphere": {
+      "name": "Halvkule Lys",
+      "description": "Et lys som lyser opp scenen fra direkte overhead.",
+      "lbl-skyColor": "Himmelfarge",
+      "lbl-groundColor": "Jordfarge",
+      "lbl-intensity": "Intensitet"
+    },
+    "image": {
+      "name": "Bilde",
+      "description": "Laster inn et bilde dynamisk.",
+      "lbl-imgURL": "Url-adresse for bilde",
+      "lbl-transparency": "Gjennomsiktighet- modus",
+      "lbl-alphaCutoff": "Alpha-avskjæring",
+      "lbl-projection": "Projeksjon",
+      "lbl-side": "Side",
+      "info-controls": "Aktiver/deaktiver synligheten til mediekontrollene.",
+      "info-transparency": "Slik bruker du gjennomsiktighet:",
+      "info-opaque": "\"Ugjennomsiktig\" = ingen gjennomsiktighet",
+      "info-blend": "\"blend\" = bruk alfakanalen for bilder",
+      "info-mask": "Maske = Bruk en angitt avskjæringsverdi for av/på-gjennomsiktighet (mer ytelsesfull)",
+      "info-alphaCutoff": "Bildepunkter med lavere alfaverdier enn dette vil være gjennomsiktige",
+      "error-url": "Ugyldig URL-adresse"
+    },
+    "name": {
+      "lbl-name": "Navn"
+    },
+    "partileEmitter": {
+      "description": "Partikkelemitter for å lage partikler.",
+      "lbl-particleCount": "Antall partikkeler",
+      "lbl-image": "Bilde",
+      "lbl-ageRandomness": "Alder Tilfeldighet",
+      "lbl-lifetime": "Livstid",
+      "lbl-lifetimeRandomness": "Livstids tilfeldighet",
+      "lbl-sizeCurve": "Endre størrelse på kurve",
+      "lbl-startPSize": "Start partikkelstørrelse",
+      "lbl-endPSize": "Størrelse på sluttpartikkel",
+      "lbl-sizeRandomness": "Tilfeldig størrelse",
+      "lbl-colorCurve": "Fargekurve",
+      "lbl-startColor": "Start farge",
+      "lbl-startOpacity": "Start tetthet",
+      "lbl-middleColor": "Midtre farge",
+      "lbl-middleOpacity": "Tetthet i midten",
+      "lbl-endColor": "Avslutt farge",
+      "lbl-endOpacity": "Avslutt tetthet",
+      "lbl-velocityCurve": "Hastighetskurve",
+      "lbl-startVelocity": "Start hastighet",
+      "lbl-endVelocity": "Slutthastighet",
+      "lbl-angularVelocity": "Vinkelhastighet",
+      "info-ageRandomness": "Mengden variasjon mellom når partikler gytes.",
+      "info-lifetime": "Maksimal alder på en partikkel før den sendes på nytt.",
+      "info-lifetimeRandomness": "Mengden variasjon mellom partikkellevetider.",
+      "info-sizeRandomness": "Mengden variasjon mellom partikkelstartstørrelser.",
+      "error-url": "Feil under innlasting fra URL-adresse"
+    },
+    "clouds": {
+      "name": "Sky",
+      "description": "Sprite-basert skyvolum.",
+      "lbl-image": "Sprite Bilde",
+      "lbl-wroldScale": "Verdensskala",
+      "lbl-dimensions": "Dimensjoner",
+      "lbl-noiseZoom": "Støyzoom",
+      "lbl-noiseOffset": "Støyforskyvning",
+      "lbl-spriteScale": "Sprite skala",
+      "lbl-fogColor": "Tåke Farge",
+      "lbl-fogRange": "Tåke rekkevidde",
+      "error-url": "Feil under innlasting fra URL-adresse"
+    },
+    "ocean": {
+      "name": "Hav",
+      "description": "Havoverflate med bølger og skum",
+      "lbl-normalMap": "Vanlig kart",
+      "lbl-distortionMap": "Kart over forvrengning",
+      "lbl-envMap": "Miljøkart",
+      "lbl-color": "Farge",
+      "lbl-shallowWaterColor": "Farge på grunt vann",
+      "lbl-shallowToDeepDistance": "Grunn til dyp avstand",
+      "lbl-opacityFadeDistance": "Ugjennomsiktighet toningsavstand",
+      "lbl-opacityRange": "Tetthetsområde",
+      "lbl-shininess": "Glans",
+      "lbl-reflectivity": "Reflektivitet",
+      "lbl-foamColor": "Skum Farge",
+      "lbl-foamSpeed": "Skum Hastighet",
+      "lbl-foamTiling": "Skum fliser",
+      "lbl-bigWaveTiling": "Stor bølge fliser",
+      "lbl-bigWaveSpeed": "Stor bølgehastighet",
+      "lbl-bigWaveHeight": "Stor bølgehøyde",
+      "lbl-waveSpeed": "Bølgehastighet",
+      "lbl-waveScale": "Bølgeskala",
+      "lbl-waveTiling": "Bølgefliser",
+      "lbl-waveDistortionSpeed": "Hastighet for bølgeforvrengning",
+      "lbl-waveDistortionTiling": "Bølgeforvrengningsfliser",
+      "error-url": "Feil under innlasting fra URL-adresse"
+    },
+    "water": {
+      "name": "Vann",
+      "description": "Liten vannoverflate"
+    },
+    "interior": {
+      "name": "Interiør",
+      "description": "En overflate med kartlagt kubetekstur for å etterligne indre miljøer",
+      "lbl-cubeMap": "Tekstur for kubekart",
+      "lbl-tiling": "Beløp for side ved side",
+      "lbl-size": "Størrelse på overflate",
+      "error-url": "Feil under innlasting fra URL-adresse"
+    },
+    "pointLight": {
+      "description": "Et lys som avgir i alle retninger fra et enkelt punkt.",
+      "lbl-color": "Farge",
+      "lbl-intensity": "Intensitet",
+      "lbl-range": "Rekkevidde",
+      "lbl-decay": "Forfall"
+    },
+    "scene": {
+      "name": "Scene",
+      "description": "Rotobjektet for scenen.",
+      "lbl-bgcolor": "Bakgrunnsfarge",
+      "lbl-fogType": "Tåke Type",
+      "lbl-fogColor": "Tåke Farge",
+      "lbl-forNearDistance": "Tåke nær avstand",
+      "lbl-fogFarDistance": "Tåke langt unna",
+      "lbl-fogDensity": "Tåke tetthet",
+      "lbl-audioSettings": "Bruk posisjonslyd",
+      "lbl-avatarDistanceModel": "Avatar Avstand Modell",
+      "lbl-avatarRolloffFactor": "Avatar rolloff-faktor",
+      "lbl-avatarRefDistance": "Avatar Ref-avstand",
+      "lbl-avatarMaxDistance": "Avatar Maks Avstand",
+      "lbl-mediaVolume": "Medievolum",
+      "lbl-mediaDistanceModel": "Modell for medieavstand",
+      "lbl-mediaRolloffFactor": "Årsak til medieavrulling",
+      "lbl-mediaRefDistance": "Avstand for mediereferanse",
+      "lbl-mediaMaxDistance": "Maksimalt mediumavstand",
+      "lbl-mediaConeInnerAngle": "Indre vinkel på mediekjegle",
+      "lbl-mediaConeOuterAngle": "Ytre vinkel for mediekjegle",
+      "lbl-mediaConeOuterGain": "Mediekjegle ytre forsterkning",
+      "info-avatarDistanceModel": "Algorithim brukes til å beregne lydavrulling.",
+      "info-avatarRolloffFactor": "En dobbel verdi som beskriver hvor raskt volumet reduseres etter hvert som kilden beveger seg bort fra lytteren. 0 til 1",
+      "info-avatarRolloffFactorInifinity": "En dobbel verdi som beskriver hvor raskt volumet reduseres etter hvert som kilden beveger seg bort fra lytteren. 0 til Uendelig",
+      "info-avatarRefDistance": "En dobbel verdi som representerer referanseavstanden for å redusere volumet etter hvert som lydkilden beveger seg lenger fra lytteren.",
+      "info-avatarMaxDistance": "En dobbel verdi som representerer den maksimale avstanden mellom lydkilden og lytteobjektet, hvoretter volumet ikke reduseres ytterligere.",
+      "info-mediaDistanceModel": "Algorithim brukes til å beregne lydavrulling.",
+      "info-mediaRolloffFactor": "En dobbel verdi som beskriver hvor raskt volumet reduseres etter hvert som kilden beveger seg bort fra lytteren. 0 til 1",
+      "info-mediaRolloffFactorInfinity": "En dobbel verdi som beskriver hvor raskt volumet reduseres etter hvert som kilden beveger seg bort fra lytteren. 0 til Uendelig",
+      "info-mediaRefDistance": "En dobbel verdi som representerer referanseavstanden for å redusere volumet etter hvert som lydkilden beveger seg lenger fra lytteren.",
+      "info-mediaMaxDistance": "En dobbel verdi som representerer den maksimale avstanden mellom lydkilden og lytteobjektet, hvoretter volumet ikke reduseres ytterligere.",
+      "info-mediaConeInnerAngle": "En dobbel verdi som beskriver vinkelen, i grader, av en kjegle inni hvilken det ikke vil være volumreduksjon.",
+      "info-mediaConeOuterAngle": "En dobbel verdi som beskriver vinkelen, i grader, på en kjegle utenfor, der volumet reduseres med en konstant verdi, definert av attributtet coneOuterGain .",
+      "info-mediaConeOuterGain": "En dobbel verdi som beskriver mengden volumreduksjon utenfor kjeglen som er definert av attributtet coneOuterAngle. Standardverdien er 0, noe som betyr at ingen lyd kan høres.",
+      "lbl-simpleMaterials": "Bruk enkle materialer",
+      "lbl-lods": "LODer",
+      "info-lods": "Angir avstandene som detaljnivåene endres på.",
+      "info-simpleMaterials": "Konverterer alle dyre materialer til enklere for å ta belastningen av scenegjengivelsen.",
+      "lbl-rendererSettings": "Overstyre innstillinger for gjengiver",
+      "lbl-csm": "Gjennomgripende skyggekart",
+      "info-csm": "Aktiverer gjennomgripende skyggekart.",
+      "lbl-toneMapping": "Tonetilordning",
+      "info-toneMapping": "Aktiverer tonetilordning på scenegjengivelseen. Har ingen virkning når en etterbehandling er aktivert.",
+      "lbl-toneMappingExposure": "Eksponering for tonekartlegging",
+      "info-toneMappingExposure": "Angir tonetilordningseksponeringen på scenegjengivelseen. Har ingen virkning når en etterbehandling er aktivert.",
+      "lbl-shadowMapType": "Type skyggekart",
+      "info-shadowMapType": "Type skyggekart",
+      "error-url": "Feil under innlasting fra URL-adresse"
+    },
+    "sceneCamera": {
+      "name": "Kamera for forhåndsvisning av scene",
+      "description": "Kameraet som brukes til å generere miniatyrbildet for scenen din og startposisjonen for forhåndsvisningskameraet.",
+      "lbl-setFromViewPort": "Angi fra visningsområde"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Klokkeslett",
+      "lbl-color": "Farge",
+      "lbl-latitude": "Breddegrad",
+      "lbl-luminance": "Lystetthet",
+      "lbl-scattering": "Spredningsbeløp",
+      "lbl-scatteringDistance": "Spredningsavstand",
+      "lbl-horizonStart": "Horisont start",
+      "lbl-horizonEnd": "Horisont slutt",
+      "lbl-texture": "Tekstur",
+      "lbl-skyType": "Himmeltype",
+      "error-url": "Feil under innlasting fra URL-adresse"
+    },
+    "spawnPoint": {
+      "name": "Gytepunkt",
+      "description": "Et punkt der folk vises når de kommer inn i scenen din.\nIkonet i visningsområdet representerer den faktiske størrelsen på en avatar."
+    },
+    "spotLight": {
+      "description": "Et lys som avgir langs en retning, opplysende gjenstander i en kjegle.",
+      "lbl-color": "Farge",
+      "lbl-intensity": "Intensitet",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "Vinkel",
+      "lbl-range": "Rekkevidde",
+      "lbl-decay": "Forfall"
+    },
+    "transform": {
+      "title": "Forvandle",
+      "lbl-postition": "Posisjon",
+      "lbl-rotation": "Rotasjon",
+      "lbl-scale": "Skala"
+    },
+    "triggereVolume": {
+      "description": "Angir en egenskap for målobjektet ved enter og leave.",
+      "lbl-target": "Objekt",
+      "lbl-onenter": "Ved Enter",
+      "lbl-onexit": "Ved avslutning",
+      "lbl-showHelper": "Vis hjelpenett",
+      "ph-errorNode": "Feil mangler node.",
+      "ph-selectNode": "Velg node..."
+    },
+    "video": {
+      "name": "Video",
+      "description": "Laster inn en video dynamisk.",
+      "lbl-video": "Video",
+      "lbl-projection": "Projeksjon",
+      "lbl-islivestream": "Direktesending",
+      "lbl-interactable": "Kan samhandles",
+      "lbl-id": "Element-ID",
+      "lbl-play": "Skuespill",
+      "lbl-pause": "Pause",
+      "error-url": "Feil under innlasting fra URL-adresse"
+    },
+    "volumetric": {
+      "name": "Volumetriske",
+      "description": "Laster inn en volumetrisk video dynamisk.",
+      "uvolPaths": "UVOL-baner",
+      "playmode": "Spill av-modus",
+      "playtitle": "Skuespill",
+      "pausetitle": "Pause"
+    },
+    "spline": {
+      "description": "Opprett og tilpass kurver dynamisk.",
+      "lbl-addNode": "Legg node til kurve."
+    },
+    "systemnode": {
+      "description": "Legg ved skript.",
+      "lbl-filePath": "URL-adresse",
+      "lbl-systemUpdateType": "Injeksjonspunkt",
+      "lbl-enableClient": "Klient",
+      "lbl-enableServer": "Server",
+      "lbl-args": "Argumenter",
+      "error-url": "Feil under innlasting av skript fra URL-adresse"
+    },
+    "portal": {
+      "lbl-portal": "Koblet portal",
+      "lbl-redirect": "Bruk omadressering av side",
+      "description": "En portat for å teleportere spillere til angitt plassering",
+      "lbl-locationName": "Plassering",
+      "lbl-modelUrl": "URL-adresse for modell",
+      "lbl-displayText": "Vis tekst",
+      "lbl-cubemapBake": "Cubemap bake",
+      "lbl-spawnPosition": "Gyteposisjon",
+      "lbl-spawnRotation": "Gyterotasjon",
+      "lbl-triggerPosition": "Plassering av utløser",
+      "lbl-triggerRotation": "Rotasjon av utløser",
+      "lbl-triggerScale": "Skala for utløser"
+    },
+    "postprocessing": {
+      "name": "Etter behandling",
+      "description": "For å bruke postbehandlingseffekter på scenen din."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Nytt prosjekt",
+      "backLink": "Tilbake til prosjekter",
+      "featured": "Utvalgte",
+      "all": "Alt",
+      "newProject": "Nytt tomt prosjekt",
+      "ph-search": "Søk i scener..."
+    },
+    "grid": {
+      "loading": "Lasting..."
+    },
+    "page": {
+      "header": "Velkommen",
+      "headerMsg": "Hvis du er ny her, anbefaler vi å gå gjennom opplæringen. Ellers hopper du rett inn og oppretter et prosjekt fra bunnen av eller fra en av malene våre.",
+      "lbl-startTutorial": "Start opplæring",
+      "projects": "Prosjekter",
+      "lbl-newProject": "Nytt prosjekt"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Lasting...",
+      "placeObject": "Plasser objekt",
+      "placeObjectAtOrigin": "Plasser objekt ved opprinnelse",
+      "copyURL": "Kopier URL-adresse",
+      "openInNewTab": "Åpne URL-adresse i ny fane",
+      "deleteAsset": "Slett aktiva"
+    },
+    "filebrowser": {
+      "addNewFolder": "Legg til ny mappe",
+      "cutAsset": "Klippe",
+      "copyAsset": "Kopi",
+      "pasteAsset": "Lime inn",
+      "renameAsset": "Gi nytt navn",
+      "viewAssetProperties": "Egenskaper for visning"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Gi nytt navn",
+    "lbl-duplicate": "Duplikat",
+    "lbl-group": "Gruppe",
+    "lbl-delete": "Slette",
+    "lbl-expandAll": "Vis alle",
+    "lbl-collapseAll": "Skjul alle",
+    "isseus": "Problemer:"
+  },
+  "dnd": {
+    "nodes": "{{count}} Noder valgt",
+    "models": "{{count}} modeller valgt",
+    "images": "{{count}} valgte bilder",
+    "videos": "{{count}} videoer valgt",
+    "audio": "{{count}} valgte lydkilder"
+  },
+  "dialog": {
+    "title": "Redaktør",
+    "lbl-confirm": "Ok",
+    "lbl-cancel": "Annullere",
+    "exportProject": {
+      "title": "Eksporter prosjekt",
+      "lbl-confirm": "Eksporter prosjekt",
+      "lbl-combineMesh": "Kombiner nett",
+      "lbl-removeUnused": "Fjern ubrukte objekter"
+    },
+    "performance": {
+      "title": "Kontroll av ytelse",
+      "lbl-confirm": "Publiser scene",
+      "learnMore": "Få mer informasjon",
+      "lbl-polycount": "Antall mangekanter",
+      "lbl-material": "Materialer",
+      "lbl-texture": "Teksturer",
+      "lbl-lights": "Lys",
+      "lbl-fileSize": "Filstørrelse",
+      "info-polycount": "Vi anbefaler at scenen din ikke bruker mer enn 50 000 trekanter for mobile enheter.",
+      "info-material": "Vi anbefaler at du ikke bruker mer enn 25 unike materialer i scenen din for å redusere trekkanrop på mobile enheter.",
+      "info-texture": "Vi anbefaler at teksturene dine ikke bruker mer enn 256 MB video-RAM for mobile enheter. Vi anbefaler også at du ikke bruker teksturer som er større enn 2048 x 2048.",
+      "info-lights": "Selv om dynamiske lys ikke er aktivert på mobile enheter, anbefaler vi at du ikke bruker mer enn tre lys i scenen (unntatt omgivelses- og halvkulelys) for at scenen skal kjøre på avanserte PCer.",
+      "info-fileSize": "Vi anbefaler en endelig filstørrelse på ikke mer enn 16 MB for tilkoblinger med lav båndbredde. Hvis du reduserer filstørrelsen, reduseres tiden det tar å laste ned scenen.",
+      "txt-polycount": "{{count}} trekanter",
+      "txt-material": "{{count}} materialer",
+      "txt-ram": "~{{count}} Video RAM",
+      "txt-texture": "{{count}} store teksturer",
+      "txt-lights": "{{count}} lys"
+    },
+    "progress": {
+      "title": "Lasting...",
+      "msg": "Lasting...",
+      "lbl-cancel": "Annullere"
+    },
+    "publish": {
+      "title": "Publiser scene",
+      "lbl-confirm": "Lagre og publiser",
+      "lbl-name": "Navn på scene",
+      "info-name": "Navnet må være mellom 4 og 64 tegn og kan ikke inneholde understrekingstegn"
+    },
+    "published": {
+      "title": "Scene publisert",
+      "header": "Scenen din er publisert.",
+      "lbl-view": "Vis scenen din"
+    },
+    "saveNewProject": {
+      "title": "Støtte",
+      "lbl-name": "Navn på prosjekt",
+      "info-name": "Navnet må være mellom 4 og 64 tegn og kan ikke inneholde understrekingstegn",
+      "lbl-confirm": "Lagre prosjekt"
+    },
+    "support": {
+      "title": "Støtte",
+      "header": "Trenger du å rapportere et problem?",
+      "msg": "Du kan sende inn et <1>GitHub-problem</1> eller sende oss en e-post for støtte på <3>{{mail}}</3>",
+      "discord": "Du kan også finne oss på <1>Discord</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing-bilder",
+      "search": "Søk etter Bing"
+    },
+    "bingVideo": {
+      "name": "Bing Videoer",
+      "search": "Søk etter Bing"
+    },
+    "element": {
+      "name": "Elementer"
+    },
+    "myAssets": {
+      "name": "Mine aktiva"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Søk etter Google"
+    },
+    "tenor": {
+      "name": "Tenor GIF-er",
+      "search": "Søk etter Tenor",
+      "ph-search": "Søk i GIF-er..."
+    },
+    "sketchfab": {
+      "name": "Skissefab",
+      "search": "Søk etter Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Last opp ressurs"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Søk i bilder..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Søk i videoer..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Søk etter innholdselementer..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Søk i modeller..."
+    },
+    "useUpload": {
+      "multipleFileError": "Inndata godtar ikke flere filer.",
+      "mineTypeError": "\"{{name}}\" samsvarer ikke med følgende MIME-typer eller -filtyper: {{types}}",
+      "progressTitle": "Laster opp filer",
+      "progressMsg": "Laster opp filer {{uploaded}} av {{total}}: {{percentage}}%",
+      "uploadError": "Feil ved opplasting",
+      "uploadErrorMsg": "Feil under opplasting av fil: {{message}}",
+      "uploadErrorDefaultMsg": "Det oppstod en ukjent feil"
+    }
+  },
+  "openLink": {
+    "description": "Klikk Åpne for å navigere til koblingen.",
+    "lbl-open": "Åpen"
+  },
+  "interactableModel": {
+    "lbl-buy": "Kjøpe",
+    "lbl-learnMore": "Få mer informasjon"
+  },
+  "corsProxyButton": {
+    "tooltip": "Bruk Cors Proxy Server"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Finner ikke siden"
+  },
+  "503": {
+    "msg": "503 - Tjenesten er ikke tilgjengelig"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Du har blitt utestengt fra dette stedet",
+    "locationName": {
+      "pageTitle": "Hjem"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Prosjekter",
+      "header": "Vennligst logg inn",
+      "welcomeMsg": "Velkommen",
+      "locationHeader": "Steder",
+      "projectHeader": "Prosjekter",
+      "sceneHeader": "Scener",
+      "description": "Hvis du er ny her, anbefaler vi å gå gjennom opplæringen. Ellers hopper du rett inn og oppretter et prosjekt fra bunnen av eller fra en av malene våre.",
+      "lbl-startTutorial": "Start opplæring",
+      "lbl-newProject": "Nytt prosjekt",
+      "lbl-createProject": "Skape",
+      "lbl-newScene": "Ny scene",
+      "lbl-searchProject": "Søk i eksisterende prosjekter...",
+      "back": "Tilbake",
+      "contextMenu": "Slett prosjekt",
+      "installed": "Installerte prosjekter",
+      "official": "Offisielle prosjekter",
+      "community": "Samfunnsprosjekter",
+      "install": "Installere",
+      "uninstall": "Avinstallere",
+      "rename": "Gi nytt navn",
+      "createProject": "Opprett prosjekt",
+      "installProject": "Installere Project",
+      "processing": "Behandling",
+      "projectName": "Navn på prosjekt",
+      "projectURL": "URL-adresse for prosjekt"
+    }
+  },
+  "error": {
+    "goHomeLink": "Gå hjem",
+    "withStatusCode": "Det oppstod en feil {{code}} på serveren",
+    "withoutStatusCode": "Det oppstod en feil på serveren"
+  },
+  "no-projects": {
+    "msg": "Feil: Ingen prosjekter er installert - kontakt en områdeadministrator"
+  },
+  "dev": {
+    "pageTitle": "Hjem"
+  },
+  "login": {
+    "pageTitle": "Pålogging"
+  },
+  "workerTest": {
+    "pageTitle": "Test av arbeider"
+  },
+  "index": {
+    "by": "VED",
+    "xr": "XR",
+    "foundation": "Fundament",
+    "description": "Sanntids 3D sosiale applikasjoner for alle å glede seg over."
+  },
+  "xrengineContact": {
+    "header": "Ta kontakt!",
+    "description": "Vi vil gjerne hjelpe deg med dine virtuelle arrangementer, digital detaljhandel, underholdning og andre behov.",
+    "lbl-name": "Navn",
+    "lbl-email": "E-post",
+    "lbl-company": "Firma",
+    "lbl-project": "Beskriv prosjektet",
+    "lbl-send": "Sende",
+    "lbl-ok": "Ok",
+    "lbl-success": "Melding sendt, vi kommer tilbake til deg om kort tid.",
+    "lbl-failure": "Det oppstod en feil.",
+    "err-username": "Skriv inn navnet ditt.",
+    "err-email": "E-post er obligatorisk.",
+    "err-msg": "Gi en kort beskrivelse av prosjektet."
+  }
+}

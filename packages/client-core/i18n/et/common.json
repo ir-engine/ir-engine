@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Lehe laadimine..."
+  },
+  "tooltip": {
+    "pressKey": "Vajutage {{message}} {{tip}}"
+  },
+  "toast": {
+    "joined": "Liidetud kohtuasjad",
+    "left": "Vasak"
+  },
+  "navUserWidget": {
+    "login": "Logi sisse"
+  },
+  "loader": {
+    "connecting": "Ühendus maailmaga...",
+    "entering": "Maailma sisenemine...",
+    "loading": "Laadimise...",
+    "objectRemaining": "{{count}} objekt jääb alles",
+    "objectRemainingPlural": "{{count}} objektid jäävad alles",
+    "loadingObjects": "Objektide laadimine",
+    "loadingComplete": "Laadimine lõpetatud",
+    "joiningWorld": "Maailmaga liitumine"
+  },
+  "alert": {
+    "eventWasSuccess": "Üritus oli edukas",
+    "errorWasEncountered": "Ilmnes tõrge",
+    "eventInProgress": "Pooleliolev sündmus",
+    "seconds": "Sekundit",
+    "cancelCountdown": "Selle modaali sulgemine tühistab loenduri"
+  },
+  "debug": {
+    "refresh": "Värskenda",
+    "stats": "Stats",
+    "debugOptions": "Silumissuvandid",
+    "physicsDebug": "Füüsika",
+    "avatarDebug": "Avatari",
+    "nodeHelperDebug": "Sõlmede abimees",
+    "gridDebug": "Ruudustik",
+    "simpleMaterials": "Lihtsad materjalid",
+    "tick": "Rist",
+    "worldStore": "Maailma pood",
+    "engineStore": "Mootori pood",
+    "namedEntities": "Nimega olemid",
+    "networkObject": "Võrguobjekt",
+    "networkClients": "Võrgukliendid"
+  },
+  "recording": {
+    "videoRecorder": "Videosalvesti",
+    "waitingForPermissions": "Õiguste ootamine",
+    "selectVideoSource": "Videoallika valimine",
+    "screen": "Ekraan",
+    "camera": "Kaamera",
+    "microphone": "Mikrofon",
+    "startRecording": "Salvestamise alustamine",
+    "pauseRecording": "Salvestamise peatamine",
+    "resumeRecording": "Jätkamise salvestamine",
+    "stopRecording": "Salvestamise lõpetamine"
+  },
+  "typing": "Kirjutades...",
+  "gameServer": {
+    "browserError": "Brauseri tõrge",
+    "browserErrorMessage": "Teie brauser ei toeta salvestusruumi privaatses sirvimisrežiimis. Proovige mõnda muud brauserit või väljuge privaatsest sirvimisrežiimist.",
+    "noAvailableServers": "Saadaolevaid servereid pole",
+    "noAvailableServersMessage": "Teil pole ühtegi serverit, millega ühenduse luua. Uuesti ühenduse loomise katse",
+    "worldDisconnected": "Maailm on välja lülitatud",
+    "worldDisconnectedMessage": "Sa oled kaotanud sideme maailmaga. Püüame uuesti ühenduse luua enne, kui järgmine aeg otsa saab, vastasel juhul suunatakse teid teise eksemplari.",
+    "webGLNotEnabled": "WebGL pole lubatud",
+    "webGLNotEnabledMessage": "Teie brauser ei toeta WebGL-i või on see keelatud. Palun lubage WebGL või kaaluge brauseri uusimale versioonile üleminekut.",
+    "youKickedFromWorld": "Sind on maailmast välja visatud.",
+    "youKickedFromWorldMessage": "Sind visati siit maailmast välja järgmisel põhjusel.",
+    "invalidLocation": "Sobimatu asukoht",
+    "cantFindLocation": "Me ei leia asukohta.",
+    "misspelledOrNotExist": "See võib olla valesti kirjutatud või seda ei pruugi olla olemas.",
+    "loading": "Laadimise",
+    "low-frame-error": "Tuvastas halva perfomance'i, kaaluge brauseris riistvara kiirendamise kasutamise lubamist ja brauseri relašeerimist",
+    "low-frame-title": "Luba riistvara kiirendus parema kogemuse saavutamiseks!"
+  },
+  "error": {
+    "loading-error": "Kasutajaandmete laadimine nurjus",
+    "validation-error": "Sisestage kehtivad {{type}}",
+    "login-error": "Sisselogimine nurjus"
+  }
+}

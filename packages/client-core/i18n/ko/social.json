@@ -1,0 +1,202 @@
+{
+  "addComment": "댓글 추가...",
+  "share": "공유",
+  "suggestions": "당신을 위한 제안",
+  "seeAll": "모두 보기",
+  "likes": "좋아하는",
+  "viewComments": "{{count}} 모든 댓글 보기",
+  "more": "더",
+  "username": "사용자 이름",
+  "fullName": "이름 성",
+  "reportInApporpriate": "부적절한 신고",
+  "unfollow": "팔로우 취소",
+  "goToPost": "게시물로 이동",
+  "shareModal": "공유",
+  "copyLink": "링크 복사",
+  "embed": "포함",
+  "cancel": "취소",
+  "confirm": "확인하다",
+  "save": "구해내다",
+  "profilePic": "{{user}}의 프로필 사진",
+  "ara": "제단자리",
+  "follow": "뒤따르다",
+  "flames": "화 염",
+  "continue": "계속하다",
+  "partyInvitationSent": "파티 초대장이 전송됨",
+  "arMedia": {
+    "back": "뒤로",
+    "clip": "클립",
+    "backgrounds": "배경",
+    "start": "시작하다"
+  },
+  "arMediaform": {
+    "title": "타이틀",
+    "type": "형",
+    "clip": "클립",
+    "background": "배경",
+    "scene": "장면",
+    "save": "구해내다",
+    "manifest-file": "매니페스트 .매니페스트 파일",
+    "audio-file": "MP4 파일",
+    "dracosis-file": "드라코시스 .uvol 파일",
+    "preview-file": "이미지 파일 미리보기"
+  },
+  "creator": {
+    "myVideos": "내 동영상",
+    "savedVideos": "저장된 동영상",
+    "back": "뒤로",
+    "blocked-list": "차단된 목록",
+    "block-user": "사용자 차단",
+    "dialog-content": "사용자의 프로필과 콘텐츠가 표시되지 않습니다."
+  },
+  "creatorForm": {
+    "back": "뒤로",
+    "edit": "프로필 편집",
+    "save": "구해내다",
+    "changeAvatar": "아바타 이미지 변경",
+    "ph-selectPreview": "미리보기 선택",
+    "ph-name": "사용자 이름",
+    "ph-username": "사용자 이름",
+    "ph-email": "귀하의 이메일",
+    "ph-tags": "태그",
+    "ph-link": "링크",
+    "ph-aboutYou": "당신에 대한 추가 정보",
+    "ph-twitter": "지저귀다",
+    "ph-instagram": "인스타그램",
+    "ph-tiktok": "틱톡",
+    "sign-out": "로그아웃"
+  },
+  "dashboard": {
+    "title": "대시보드",
+    "dashboard": "대시보드",
+    "users": "사용자",
+    "feeds": "피드",
+    "arMedia": "비디오 미디어",
+    "editor": "편집자",
+    "creator": "창조자"
+  },
+  "featured": {
+    "empty-list": "지금은 피드가 없습니다 ..."
+  },
+  "feed": {
+    "back": "뒤로",
+    "related": "관련 피드",
+    "is-repoted-message": "피드가 보고됩니다!"
+  },
+  "feedForm": {
+    "back": "뒤로",
+    "thanks": "커뮤니티를 공유하고 개선해 주셔서 감사합니다.",
+    "share": "커뮤니티와 무언가를 공유하십시오.",
+    "upload": "비디오 업로드",
+    "ph-selectVideo": "비디오 선택",
+    "preview": "이미지 미리보기",
+    "ph-selectPreview": "미리보기 선택",
+    "createFeed": "피드를 만들려면 비디오와 미리보기 이미지가 있어야 합!!!",
+    "ph-videoName": "동영상의 이름",
+    "ph-type": "커뮤니티와 공유하고 싶은 것을 입력하십시오 ... ",
+    "lbl-share": "공유",
+    "save": "저장하고 다음으로 이동"
+  },
+  "feedMenu": {
+    "featured": "추천",
+    "creators": "제작자",
+    "feed": "피드"
+  },
+  "header": {
+    "lbl-volumetric": "체적"
+  },
+  "login": {
+    "account": "계정이 있으신가요?",
+    "login": "로그인",
+    "resetPassword": "비밀번호 재설정 가짜 버튼 (여기에 이메일의 링크가 있습니다)",
+    "notHavingAccount": "계정이 없으신가요?",
+    "signUp": "등록하세요",
+    "forgotPassword": "비밀번호를 잊으셨습니까?",
+    "back": "뒤로",
+    "or": "또는"
+  },
+  "comment": {
+    "add": "댓글 추가..."
+  },
+  "notification": {
+    "feedFire": " 피드를 해고했습니다.",
+    "feedBookmarked": " 피드에 책갈피를 지정했습니다.",
+    "comment": " 피드에 댓글을 달았습니다.",
+    "commentFire": " 피드에 대한 귀하의 의견을 해고했습니다.",
+    "follow": " 당신을 따르기 시작했습니다.",
+    "unfollow": " 당신을 따르는 것을 멈췄다.",
+    "followed": " 너를 따라 갔다.",
+    "activity": "활동"
+  },
+  "onBoarding": {
+    "welcome": "환영!",
+    "description": "iOS 프로토 타이핑을위한 370 개 이상의 레이아웃 중 가장 큰 컬렉션입니다.",
+    "next": "다음",
+    "discover": "기사 발견,",
+    "news": "뉴스 및 게시물",
+    "lines": "천문학에 대한 우리의 사랑과 우리의 욕망을 이끌어내는 것은 그러한 감정입니다.",
+    "getStarted": "시작",
+    "meetUp": "만나다",
+    "friends": "친구.",
+    "meet": "친구들과 만나기"
+  },
+  "shareForm": {
+    "arcMedia": "공유",
+    "videoCreated": "나는이 비디오를 만들었다.",
+    "shareWithBuddies": "친구와 공유",
+    "shareVideo": "비디오 공유",
+    "save": "카메라 롤에 저장",
+    "cancel": "취소",
+    "close": "닫다",
+    "addFeed": "피드 추가"
+  },
+  "simpleModal": {
+    "emptyList": "빈 목록",
+    "followers": " 다음",
+    "following": " 추종자",
+    "flames": " 화 염"
+  },
+  "splash": {
+    "screen": "스플래시 화면",
+    "logo": "로고"
+  },
+  "story": {
+    "profilePic": "{{user}}의 프로필 사진"
+  },
+  "view": {
+    "cancel": "취소",
+    "choice": "선택할 수있는 두 가지 녹음 모드가 있습니다.",
+    "verticalMode": "수직 모드의 기록 시간은 30초입니다.",
+    "horizontalMode": "수평 모드에는 무제한 기록 시간이 있습니다.",
+    "start": "시작하다",
+    "not-show": "다시 표시하지 마십시오.",
+    "welcome": "ARC에 오신 것을 환영합니다!  홀로그램 중 하나로 개인 비디오를 만들고 소셜 미디어 채널에 게시하십시오!",
+    "step": "단계 {{step}}",
+    "text-step-1": "라이브러리에서 홀로그램을 선택합니다.",
+    "text-step-2": "이것은 증강 현실이므로 홀로그램 성능을 원하는 곳에서 3-5 초 동안 카메라로 공간을 좌우로 스캔하십시오.",
+    "text-step-3-part-1": "홀로그램을 고정하려는 위치에서 화면을 한 번 누릅니다.",
+    "text-step-3-part-2": "팁!  다른 곳을 한 번 탭하여 홀로그램을 다른 위치로 이동합니다.",
+    "text-step-3-part-3": "팁!  엄지와 검지 손가락으로 화면을 꼬집거나 확장하여 홀로그램의 크기를 조정할 수 있습니다.",
+    "text-step-4-part-1": "빨간색 녹화 버튼을 두 번 탭하여 비디오 녹화를 시작하십시오.",
+    "text-step-4-part-2": "빨간색 녹음 버튼을 두 번 탭하여 중지하십시오."
+  },
+  "video": {
+    "back": "뒤로"
+  },
+  "terms": {
+    "confirmTerms": "서비스 약관에 동의합니다.",
+    "confirmPolicy": "개인정보 보호정책에 동의합니다."
+  },
+  "registration": {
+    "ph-phoneEmail": "전화 / 이메일 사용",
+    "facebook": "페이스 북으로 계속",
+    "google": "구글로 계속",
+    "linkedin": "링크드인으로 계속 진행하십시오.",
+    "twitter": "트위터로 계속",
+    "gitHub": "GitHub 계속 사용",
+    "connect": "이메일 또는 전화번호 연결",
+    "logIn": "로그인",
+    "LogInTo": "에 로그인",
+    "continueAsGuest": "게스트로 계속"
+  }
+}

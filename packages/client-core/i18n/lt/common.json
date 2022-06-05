@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Įkeliamas puslapis..."
+  },
+  "tooltip": {
+    "pressKey": "Paspauskite {{tip}} į {{message}}"
+  },
+  "toast": {
+    "joined": "Prisijungė",
+    "left": "Į kairę"
+  },
+  "navUserWidget": {
+    "login": "Prisijungti, prisijunk"
+  },
+  "loader": {
+    "connecting": "Prisijungimas prie pasaulio...",
+    "entering": "Įžengimas į pasaulį...",
+    "loading": "Pakrovimo...",
+    "objectRemaining": "likęs {{count}} objektas",
+    "objectRemainingPlural": "{{count}} likę objektai",
+    "loadingObjects": "Objektų įkėlimas",
+    "loadingComplete": "Įkėlimas baigtas",
+    "joiningWorld": "Prisijungimas prie pasaulio"
+  },
+  "alert": {
+    "eventWasSuccess": "Renginys buvo sėkmingas",
+    "errorWasEncountered": "Aptikta klaida",
+    "eventInProgress": "Vykstantis įvykis",
+    "seconds": "Sekundžių",
+    "cancelCountdown": "Uždarius šį modalą bus atšauktas atgalinis skaičiavimas"
+  },
+  "debug": {
+    "refresh": "Atnaujinti",
+    "stats": "Statistika",
+    "debugOptions": "Derinimo parinktys",
+    "physicsDebug": "Fizika",
+    "avatarDebug": "Avataras",
+    "nodeHelperDebug": "Mazgo žinynas",
+    "gridDebug": "Tinklelis",
+    "simpleMaterials": "Paprastos medžiagos",
+    "tick": "Erkė",
+    "worldStore": "Pasaulinė parduotuvė",
+    "engineStore": "Variklių parduotuvė",
+    "namedEntities": "Įvardyti objektai",
+    "networkObject": "Tinklo objektas",
+    "networkClients": "Tinklo klientai"
+  },
+  "recording": {
+    "videoRecorder": "Vaizdo įrašymo įrenginys",
+    "waitingForPermissions": "Laukia leidimų",
+    "selectVideoSource": "Pasirinkti vaizdo įrašo šaltinį",
+    "screen": "Ekranas",
+    "camera": "Fotoaparatas",
+    "microphone": "Mikrofonas",
+    "startRecording": "Pradėti įrašymą",
+    "pauseRecording": "Pristabdyti įrašymą",
+    "resumeRecording": "Tęsti įrašymą",
+    "stopRecording": "Stabdyti įrašymą"
+  },
+  "typing": "Rašyti...",
+  "gameServer": {
+    "browserError": "Naršyklės klaida",
+    "browserErrorMessage": "Jūsų naršyklė nepalaiko saugojimo asmeninio naršymo režimu. Išbandykite kitą naršyklę arba išeikite iš privataus naršymo režimo.",
+    "noAvailableServers": "Nėra galimų serverių",
+    "noAvailableServersMessage": "Nėra serverių, prie kurių galėtumėte prisijungti. Bandoma iš naujo prisijungti",
+    "worldDisconnected": "Pasaulis atjungtas",
+    "worldDisconnectedMessage": "Jūs praradote ryšį su pasauliu. Bandysime iš naujo prisijungti, kol baigsis kitas laikas, kitaip būsite persiųsti į kitą egzempliorių.",
+    "webGLNotEnabled": "WebGL neįgalintas",
+    "webGLNotEnabledMessage": "Jūsų naršyklė nepalaiko \"WebGL\" arba yra išjungta. Įjunkite \"WebGL\" arba apsvarstykite galimybę atnaujinti į naujausią naršyklės versiją.",
+    "youKickedFromWorld": "Tu buvai išspirtas iš pasaulio",
+    "youKickedFromWorldMessage": "Tu buvai išspirtas iš šio pasaulio dėl šios priežasties.",
+    "invalidLocation": "Netinkama vieta",
+    "cantFindLocation": "Mes negalime rasti vietos",
+    "misspelledOrNotExist": "Jis gali būti klaidingai parašytas arba jo gali nebūti.",
+    "loading": "Pakrovimo",
+    "low-frame-error": "Aptiktas prastas perfomance apsvarstyti galimybę įjungti naudoti aparatūros pagreitį naršyklėje ir iš naujo paleisti naršyklę",
+    "low-frame-title": "Įgalinkite aparatūros pagreitį, kad gautumėte geresnę patirtį!"
+  },
+  "error": {
+    "loading-error": "Nepavyko įkelti vartotojo duomenų",
+    "validation-error": "Įveskite galiojančius {{type}}",
+    "login-error": "Nepavyko prisijungti"
+  }
+}

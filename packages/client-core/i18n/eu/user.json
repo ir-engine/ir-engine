@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Berrespen posta elektronikoa",
+      "resendEmail": "Mesedez, zure posta elektronikoa ikus zure kontua egiaztatzeko. Posta elektronikorik jasotzen ez baduzu, egin klik {{here}} egiaztapen-posta elektronikoa berriz bidaltzeko.",
+      "haveAnAccount": "Ba al duzu konturik?"
+    },
+    "forgotPassword": {
+      "header": "Pasahitza ahaztu nuen",
+      "enterEmail": "Sartu zure helbide elektroniko erregistratua eta pasahitza berrezartzeko esteka bat bidaliko dizugu.",
+      "lbl-email": "Posta elektronikoko helbidea",
+      "lbl-submit": "Lotura bidali",
+      "emailSent": "Pasahitza berrezartzeko posta elektronikoa bidali zen. Mesedez, zure posta elektronikoa berrikusten du."
+    },
+    "login": {
+      "email": "Posta elektronikoa | SMS",
+      "username": "Erabiltzaile-izena + Pasahitza",
+      "social": "Soziala"
+    },
+    "magiklink": {
+      "header": "Saio hasierako esteka",
+      "descriptionEmail": "Sartu zure helbide elektronikoa eta saio hasierako esteka bat bidaliko dizugu posta elektronikoz.",
+      "descriptionSMS": "Sartu zure telefono zenbakia eta saio hasierako esteka bat bidaliko dizugu SMS bidez.",
+      "descriptionEmailSMS": "Sartu zure helbide elektronikoa edo telefono zenbakia (10 digitu, AEBetan bakarrik) eta saio hasierako esteka bat bidaliko dizugu posta elektronikoz edo SMS bidez.",
+      "descriptionSMSUS": "Sartu zure telefono zenbakia (10 digitu, AEBetan bakarrik) eta saio hasierako esteka bat bidaliko dizugu SMS bidez.",
+      "lbl-email": "Posta elektronikoko helbidea",
+      "lbl-emailPhone": "Posta elektronikoa edo telefono zenbakia",
+      "lbl-phone": "Telefono zenbakia",
+      "agree": "Ados nago ",
+      "terms": "Hitzak eta Baldintzak",
+      "lbl-submit": "Saio hasierako lotura bidali",
+      "email-sent-msg": "Saio hasierako esteka magikoa bidali zen. Mesedez, zure posta elektronikoa berrikusten du.",
+      "success-msg": "Saio hasierako esteka magikoa bidali zen. Mesedez, zure posta elektronikoa edo SMSa.",
+      "sms-sent-msg": "Saio hasierako esteka magikoa bidali zen. Mesedez, berriz, zure SMSa."
+    },
+    "passwordLogin": {
+      "header": "Saioa hasi",
+      "lbl-email": "Posta elektronikoko helbidea",
+      "lbl-password": "Pasahitza",
+      "lbl-rememberMe": "Gogora nazazu",
+      "lbl-signin": "Saioa hasi",
+      "forgotPassword": "Ahaztu al zuen pasahitza?",
+      "signup": "Ez al duzu konturik? Egin bat",
+      "lbl-login": "Saioa hasi",
+      "ph-password": "Pasahitza",
+      "ph-email": "Posta elektroniko"
+    },
+    "social": {
+      "gitHub": "GitHubekin saioa hasi",
+      "google": "Googlerekin saioa hasi",
+      "facebook": "Saioa Facebookekin hasi",
+      "linkedin": "Saioa hasi Linkedinekin",
+      "twitter": "Saioa hasi Twitterrekin"
+    },
+    "register": {
+      "header": "Egin bat",
+      "login": "Saioa hasi",
+      "lbl-signup": "Egin bat",
+      "lbl-password": "Pasahitza",
+      "lbl-email": "Posta elektronikoko helbidea",
+      "passwordNotMatch": "Pasahitzak ez datoz bat",
+      "ph-password": "Pasahitza",
+      "ph-confirmPassword": "Pasahitza berrestea",
+      "ph-email": "Posta elektroniko"
+    },
+    "resetPassword": {
+      "header": "Pasahitza berrezartzea",
+      "description": "Sartu pasahitza helbide elektronikorako",
+      "lbl-submit": "Pasahitza berrezartzea",
+      "lbl-password": "Pasahitza",
+      "lbl-confirmPassword": "Pasahitza berrestea",
+      "passwordNotMatch": "Pasahitzak ez datoz bat",
+      "nowLoginYourAccount": "Orain, saioa has dezakezu zure kontuan",
+      "yourPasswordResetSuccess": "Bere pasahitza arrakastaz berrezarri zen!"
+    },
+    "verifyEmail": {
+      "header": "Posta elektronikoa egiaztatzea",
+      "processing": "Mesedez, itxoin pixka batean prozesatzen ari den bitartean..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Kokalekuak",
+      "loading": "Karga",
+      "col-name": "Izena",
+      "col-scene": "Eszena",
+      "col-maxuser": "Gehienez ere erabiltzaileak",
+      "lbl-search": "Kokalekuak bilatu",
+      "lbl-new": "Berri"
+    },
+    "newLocation": {
+      "title": "Kokapena",
+      "success": "Behar bezala gordea.",
+      "failure": "Zerbait gaizki atera zen.",
+      "removeSuccess": "Kokalekua behar bezala ezabatuta.",
+      "nameInUse": "Izena erabilia.",
+      "nameRequire": "Izena behar da.",
+      "validNumber": "Zenbakiak bakarrik baimentzen dira (0-9).",
+      "lbl-name": "Izena",
+      "lbl-maxuser": "Gehienez ere erabiltzaileak",
+      "lbl-scene": "Eszena",
+      "lbl-type": "Mota",
+      "lbl-ve": "Gaitutako bideoa",
+      "lbl-gme": "Gaitutako baliabide globalak",
+      "lbl-update": "Eguneratu",
+      "lbl-create": "Sortu",
+      "tooltipCanNotBeDeleted": "Lobbya ezin da ezabatu",
+      "confirmation": "Seguru zaude?",
+      "lbl-yes": "Bai",
+      "lbl-no": "Ez"
+    },
+    "share": {
+      "lbl-share": "Partekatu",
+      "ph-phoneEmail": "Posta elektronikoz edo telefono zenbakiz gonbidatzea",
+      "lbl-phoneEmail": "Posta elektronikora edo telefono zenbakira bidali",
+      "lbl-copy": "Kopiatu",
+      "lbl-send-invite": "Gonbidapena bidali",
+      "title": "Partekatu zure kokalekuaren URL-a zure taldearekin",
+      "linkCopied": "Esteka kopiatua portapapeletan."
+    },
+    "setting": {
+      "audio": "Audioa",
+      "lbl-volume": "Bolumena",
+      "lbl-microphone": "Mikrofonoa",
+      "graphics": "Grafismoa",
+      "controls": "Mandoak",
+      "lbl-control-type": "Kontrolatzaile mota",
+      "lbl-control-scheme": "Kontrol-eskema",
+      "lbl-resolution": "Ebazpena",
+      "lbl-shadow": "Itzalak",
+      "lbl-pp": "Prozesatze osteko",
+      "lbl-pbr": "PBR osoa",
+      "lbl-automatic": "Automatiko",
+      "xrusersetting": "XR erabiltzailearen konfigurazioa",
+      "rotation": "Errotazioa",
+      "rotation-smooth-speed": "Abiadura leunaren errotazioa",
+      "rotation-angle": "Errotazio angelua",
+      "moving": "Hunkigarri",
+      "user-avatar": "Avatar-aren konfigurazioa",
+      "invert-rotation": "Errotazioa inbertitzea eta makilak mugitzea",
+      "show-avatar": "Erakutsi avatar"
+    },
+    "profile": {
+      "lbl-profile": "Profila",
+      "lbl-settings": "Konfigurazioa",
+      "lbl-username": "Erabiltzaile-izena",
+      "update-msg": "Erabiltzaile-izena eguneratua",
+      "inviteCode": "Gonbidapen kodea",
+      "youAreAn": "Zu bat zara",
+      "youAreA": "Zu bat zara",
+      "showUserId": "Erabiltzailearen IDa erakutsi",
+      "hideUserId": "Erabiltzailearen IDa ezkutatzea",
+      "showApiKey": "API gakoa erakutsi",
+      "hideApiKey": "API-ren gakoa ezkutatzea",
+      "apiKey": "API klabea",
+      "logout": "Saioa itxi",
+      "connectPhone": "Konektatu zure telefono zenbakia",
+      "connectEmail": "Konektatu zure posta elektronikoa",
+      "connectPhoneEmail": "Konektatu zure posta elektronikoa edo telefono zenbakia",
+      "or": "O",
+      "lbl-wallet": "Saioa Hasi Walletekin",
+      "ph-email": "Posta elektroniko",
+      "ph-phone": "Telefono zenbakia",
+      "ph-phoneEmail": "Telefono zenbakia / posta elektronikoa",
+      "phoneEmailError": "Baliozkoak ez diren telefono-zenbakia edo helbide elektronikoa",
+      "phoneError": "Baliozkoa ez den telefonoa #",
+      "emailError": "Baliozkoa ez den posta elektronikoko helbidea",
+      "loginWithReadyPlayerMe": "Ready Player Me-rekin hasiko da saioa",
+      "connectSocial": "Konekta zaitez kontu sozialekin",
+      "createOne": "Konturik ez baduzu, berri bat sortuko da zuretzat",
+      "connections": {
+        "title": "Konexioak",
+        "ipError": "Ezin da nortasun aktiboen hornitzailea kendu",
+        "disconnect": "deskonektatu",
+        "connect": "Konektatu"
+      },
+      "profileDropdown": {
+        "avatar": "Erabiltzailearen gora-egitearen ikonoa",
+        "profile": "Profila",
+        "adminConsole": "Administrazio kontsola",
+        "logout": "Saioa itxi"
+      },
+      "userIcon": {
+        "lbl-name": "Deitzen zara",
+        "lbl-update": "Eguneratu",
+        "userId": "Erabiltzailearen IDa",
+        "ph-uploadImg": "Produktuaren irudia igo",
+        "lbl-selectAcvatar": "Aukeratu Avatar",
+        "lbl-submit": "Bidali"
+      },
+      "userSettings": {
+        "volume": "Bolumena",
+        "microphone": "Mikrofonoa",
+        "resolution": "Ebazpena",
+        "high": "Altu",
+        "low": "Baxu",
+        "spatialAudio": "Audio espaziala erabili",
+        "enterMuted": "Isildutako gelan sartu"
+      }
+    },
+    "oauth": {
+      "authenticating": "Autentifikazioa...",
+      "authFailed": "autentifikazio-akatsa {{service}}."
+    },
+    "magikLink": {
+      "wait": "Mesedez, itxoin pixka batean prozesatzen ari den bitartean..."
+    },
+    "dashboard": {
+      "header": "Zipriztindegia",
+      "dashboard": "Zipriztindegia",
+      "users": "Erabiltzaileak",
+      "feeds": "Elikatzea",
+      "instance": "Eskaera orria",
+      "locations": "Kokalekuak",
+      "invites": "Gonbidapena",
+      "sessions": "Saioak",
+      "groups": "Taldeak",
+      "parties": "Alderdiak",
+      "chats": "Txatak",
+      "content": "Eduki-paketeak",
+      "projects": "Proiektuak",
+      "scenes": "Eszenak",
+      "avatars": "Avatares",
+      "benchmarking": "Konparazio-ebaluazioa",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Autentifikazioa...",
+    "authFailed": "autentifikazio-akatsa {{service}}."
+  },
+  "magikLink": {
+    "wait": "Mesedez, itxoin pixka batean prozesatzen ari den bitartean..."
+  },
+  "dashboard": {
+    "header": "Zipriztindegia",
+    "dashboard": "Zipriztindegia",
+    "users": "Erabiltzaileak",
+    "feeds": "Elikatzea",
+    "instance": "Eskaera orria",
+    "locations": "Kokalekuak",
+    "routes": "Ibilbideak",
+    "projects": "Proiektuak",
+    "invites": "Gonbidapena",
+    "sessions": "Saioak",
+    "groups": "Taldeak",
+    "parties": "Alderdiak",
+    "chats": "Txatak",
+    "content": "Eduki-paketeak",
+    "scenes": "Eszenak",
+    "avatars": "Avatares",
+    "benchmarking": "Konparazio-ebaluazioa",
+    "bots": "Bots",
+    "setting": "Konfigurazioa"
+  },
+  "avatar": {
+    "title": "Igo gora gora",
+    "lbl-browse": "Hojeatu",
+    "lbl-thumbnail": "Miniatura",
+    "lbl-upload": "Igo",
+    "selectAvatar": "Aukeratu Avatar...",
+    "selectThumbnail": "Hautatu Miniatura...",
+    "rotate": "Rotar",
+    "pan": "Eltze",
+    "noBone": "Obejctek ez du hezurrik, ezta larrurik ere",
+    "outOfBound": "Objektua mugatik kanpo.",
+    "emptyObj": "Objektua hutsik.",
+    "maxTriangleError": "Objektuak {{allowedTriangles}} baino aurpegi handiagoak ditu.",
+    "selectValidFile": "Aukeratu baliozko 3D-ko abatatzeko artxibo bat.",
+    "selectValidThumbnail": "Hautatutako miniatura baliozko artxiboa.",
+    "fileOversized": "Avatar artxiboaren tamainak {{minSize}} MB eta {{maxSize}} MB artean egon behar du",
+    "confirmation": "Seguru zaude?",
+    "canNotBeRemoved": "Gorabehera aktiboa ezin da ezabatu",
+    "remove": "Ezabatu avatar",
+    "uploadFiles": "Artxiboak igo",
+    "useUrlInstead": "Bere ordez, url-a erabiltzen du",
+    "avatar": "Avatar",
+    "cancel": "Ezeztatu",
+    "createAvatar": "Avatar sortzea",
+    "delete": "Ezabatu",
+    "view": "Ikuspegia",
+    "uploadAvatarInfo": "Avatar-ari buruzko informazioa eguneratzea",
+    "name": "Izena",
+    "enterName": "Sartu izena",
+    "avatarInformation": "Avatar-aren informazioa",
+    "description": "Deskribapena",
+    "key": "Giltza",
+    "none": "Bat ere ez",
+    "submit": "Bidali",
+    "edit": "Editatu",
+    "avatarUrl": "Url avatar",
+    "upload-success-msg": "Behar bezala kargatuta gora egin.",
+    "remove-success-msg": "Behar bezala kargatuta gora egin.",
+    "warning-msg": "Gora egiteko baliabidea hutsik, artxibo estatikoen biltegiratzearekin sinkronizatu al duzu?"
+  },
+  "personMenu": {
+    "inviteToParty": "Festara gonbidatu",
+    "addAsFriend": "Gehitu lagun gisa",
+    "mute": "Mudo",
+    "block": "Blokeatu"
+  },
+  "person": {
+    "you": "Zu",
+    "yourScreen": "Zure pantaila",
+    "muteForEveryone": "Isiltasuna guztiontzat",
+    "unmuteForEveryone": "Guztiontzako desaktiba",
+    "muteMe": "Isildu",
+    "unmuteMe": "Desaktibatu",
+    "muteThisPerson": "Pertsona hori isilarazteak",
+    "unmuteThisPerson": "Pertsona horren isiltasuna aktibatzea",
+    "openPictureInPicture": "Irudia irudia ireki"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Leathanach á luchtú..."
+  },
+  "tooltip": {
+    "pressKey": "Brúigh {{tip}} chun {{message}}"
+  },
+  "toast": {
+    "joined": "chuaigh sé isteach",
+    "left": "ar chlé"
+  },
+  "navUserWidget": {
+    "login": "Logáil isteach"
+  },
+  "loader": {
+    "connecting": "Ag ceangal leis an domhan...",
+    "entering": "Ag dul isteach sa domhan...",
+    "loading": "Á luchtú...",
+    "objectRemaining": "{{count}} réad fágtha",
+    "objectRemainingPlural": "{{count}} rudaí fágtha",
+    "loadingObjects": "Réada á Luchtú",
+    "loadingComplete": "Luchtú Críochnaithe",
+    "joiningWorld": "Ag Dul isteach sa Domhan"
+  },
+  "alert": {
+    "eventWasSuccess": "D'éirigh leis an imeacht",
+    "errorWasEncountered": "Thángthas ar earráid",
+    "eventInProgress": "Imeacht idir lámha",
+    "seconds": "soicind",
+    "cancelCountdown": "Má dhúntar an modal seo cealófar an comhaireamh síos"
+  },
+  "debug": {
+    "refresh": "Athnuaigh",
+    "stats": "Stats",
+    "debugOptions": "Roghanna Dífhabhtaithe",
+    "physicsDebug": "Fisic",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Cúntóir Nód",
+    "gridDebug": "Greille",
+    "simpleMaterials": "Ábhair Shimplí",
+    "tick": "Cuir tic",
+    "worldStore": "Siopa Domhanda",
+    "engineStore": "Siopa Innill",
+    "namedEntities": "Eintitis Ainmnithe",
+    "networkObject": "Oibiacht Líonra",
+    "networkClients": "Cliaint Líonra"
+  },
+  "recording": {
+    "videoRecorder": "Fístaifeadán",
+    "waitingForPermissions": "Ag feitheamh le ceadanna",
+    "selectVideoSource": "Roghnaigh foinse físe",
+    "screen": "Scáileán",
+    "camera": "Ceamara",
+    "microphone": "Micreafón",
+    "startRecording": "Tosaigh ag taifeadadh",
+    "pauseRecording": "Cuir taifeadadh ar sos",
+    "resumeRecording": "Atosaigh taifeadadh",
+    "stopRecording": "Stop ag taifeadadh"
+  },
+  "typing": "Ag clóscríobh...",
+  "gameServer": {
+    "browserError": "Earráid bhrabhsálaí",
+    "browserErrorMessage": "Ní thacaíonn do bhrabhsálaí le stóráil i mód brabhsála príobháideach. Bain triail as brabhsálaí eile, nó scoir den mhód brabhsála príobháideach.",
+    "noAvailableServers": "Gan Freastalaithe ar Fáil",
+    "noAvailableServersMessage": "Níl aon fhreastalaithe ar fáil duit chun nasc a dhéanamh leo. Ag iarraidh athcheangal a dhéanamh i",
+    "worldDisconnected": "Dícheangailte an domhain",
+    "worldDisconnectedMessage": "Chaill tú do nasc leis an domhan. Déanfaimid iarracht athcheangal a dhéanamh sula dtéann an t-am seo a leanas amach, ar shlí eile cuirfear ar aghaidh chuig cás difriúil tú.",
+    "webGLNotEnabled": "WebGL gan a bheith cumasaithe",
+    "webGLNotEnabledMessage": "Ní thacaíonn do bhrabhsálaí le WebGL, nó tá sé díchumasaithe. Cumasaigh WebGL nó smaoinigh ar uasghrádú go dtí an leagan is déanaí de do bhrabhsálaí.",
+    "youKickedFromWorld": "Tá tú ciceáil ón domhan",
+    "youKickedFromWorldMessage": "Ciceáil tú ón saol seo ar an gcúis seo a leanas",
+    "invalidLocation": "Suíomh neamhbhailí",
+    "cantFindLocation": "Ní féidir linn an suíomh a aimsiú",
+    "misspelledOrNotExist": "D'fhéadfadh sé a bheith mílitrithe, nó b'fhéidir nach ann dó.",
+    "loading": "ag luchtú",
+    "low-frame-error": "Braitheadh droch-bhuanghrá ag smaoineamh ar luasghéarú Crua-earraí a chumasú i do bhrabhsálaí agus do bhrabhsálaí a athdhéanamh",
+    "low-frame-title": "Cumasaigh luasghéarú crua-earraí chun taithí níos fearr a fháil!"
+  },
+  "error": {
+    "loading-error": "Theip ar luchtú sonraí úsáideora",
+    "validation-error": "Cuir {{type}} bhailí isteach",
+    "login-error": "Theip ar logáil isteach"
+  }
+}

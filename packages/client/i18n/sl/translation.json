@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Stran ni najdena"
+  },
+  "503": {
+    "msg": "503 - Storitev ni na voljo"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Prepovedana vam je bila ta lokacija.",
+    "locationName": {
+      "pageTitle": "Doma"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projektov",
+      "header": "Prosimo, prijavite se",
+      "welcomeMsg": "Dobrodošli",
+      "locationHeader": "Lokacije",
+      "projectHeader": "Projektov",
+      "sceneHeader": "Prizorov",
+      "description": "Če ste novi tukaj priporočamo, da greste skozi vaje. V nasprotnem primeru, skočite naravnost v in ustvarite projekt iz nič ali iz ene od naših predlog.",
+      "lbl-startTutorial": "Začnite vadnice",
+      "lbl-newProject": "Nov projekt",
+      "lbl-createProject": "Ustvariti",
+      "lbl-newScene": "Nova scena",
+      "lbl-searchProject": "Iskanje obstoječih projektov ...",
+      "back": "Hrbet",
+      "contextMenu": "Izbriši projekt",
+      "installed": "Nameščeni projekti",
+      "official": "Uradni projekti",
+      "community": "Projekti Skupnosti",
+      "install": "Namestiti",
+      "uninstall": "Odstranitev",
+      "rename": "Preimenuj",
+      "createProject": "Ustvari projekt",
+      "installProject": "Namestitev projekta",
+      "processing": "Predelava",
+      "projectName": "Ime projekta",
+      "projectURL": "URL projekta"
+    }
+  },
+  "error": {
+    "goHomeLink": "Pojdi domov",
+    "withStatusCode": "Prišlo je {{code}} do napake v strežniku",
+    "withoutStatusCode": "V strežniku je prišlo do napake"
+  },
+  "no-projects": {
+    "msg": "Napaka: Ni nameščenih projektov - obrnite se na skrbnika mesta"
+  },
+  "dev": {
+    "pageTitle": "Doma"
+  },
+  "login": {
+    "pageTitle": "Prijavo"
+  },
+  "workerTest": {
+    "pageTitle": "Preskus delavca"
+  },
+  "index": {
+    "by": "BY",
+    "xr": "XR",
+    "foundation": "Temelj",
+    "description": "Realtime 3D socialne aplikacije za vsakogar uživati."
+  },
+  "xrengineContact": {
+    "header": "Pojdi v stik!",
+    "description": "Radi bi vam pomagali pri virtualnih dogodkih, digitalni maloprodaji, zabavi in drugih potrebam.",
+    "lbl-name": "Ime",
+    "lbl-email": "E-pošta",
+    "lbl-company": "Podjetje",
+    "lbl-project": "Opis projekta",
+    "lbl-send": "Poslati",
+    "lbl-ok": "V redu",
+    "lbl-success": "Sporočilo poslano, kmalu se vam bomo vrnili.",
+    "lbl-failure": "Prišlo je do napake, Plese poskusite znova",
+    "err-username": "Vnesite ime.",
+    "err-email": "E-pošta je potrebna.",
+    "err-msg": "Navedite kratek opis projekta."
+  }
+}

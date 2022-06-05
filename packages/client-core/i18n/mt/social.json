@@ -1,0 +1,202 @@
+{
+  "addComment": "Żid Kumment...",
+  "share": "Sehem",
+  "suggestions": "Suġġerimenti Għalik",
+  "seeAll": "Ara Kollox",
+  "likes": "Jħobb",
+  "viewComments": "Ara l-kummenti kollha {{count}}",
+  "more": "Aktar",
+  "username": "Username",
+  "fullName": "Kunjom isem",
+  "reportInApporpriate": "Rapport Mhux xieraq",
+  "unfollow": "Mhux issegwi",
+  "goToPost": "Mur għall-Post",
+  "shareModal": "Sehem",
+  "copyLink": "Ikkopja l-Link",
+  "embed": "Inkorpora",
+  "cancel": "Ikkanċella",
+  "confirm": "Jikkonferma",
+  "save": "Tissejvja",
+  "profilePic": "Pic tal-profil tal-{{user}}",
+  "ara": "Ara",
+  "follow": "Isegwu",
+  "flames": "Fjammi",
+  "continue": "Tkompli",
+  "partyInvitationSent": "Stedina tal-parti mibgħuta",
+  "arMedia": {
+    "back": "Lura",
+    "clip": "Klipp",
+    "backgrounds": "Sfondi",
+    "start": "Bidu"
+  },
+  "arMediaform": {
+    "title": "Titolu",
+    "type": "Tip",
+    "clip": "Klipp",
+    "background": "Sfond",
+    "scene": "Xena",
+    "save": "Tissejvja",
+    "manifest-file": "Fajl .manifest",
+    "audio-file": "Fajl Mp4",
+    "dracosis-file": "Fajl Dracosis .uvol",
+    "preview-file": "Previżjoni tal-fajl tal-immaġni"
+  },
+  "creator": {
+    "myVideos": "Il-Vidjows Tiegħi",
+    "savedVideos": "Vidjows Issejvjati",
+    "back": "Lura",
+    "blocked-list": "Lista Imblokkata",
+    "block-user": "Imblokka l-Utent",
+    "dialog-content": "Ma tarax il-profil u l-kontenut tal-utent"
+  },
+  "creatorForm": {
+    "back": "Lura",
+    "edit": "Editja l-Profil",
+    "save": "Tissejvja",
+    "changeAvatar": "Ibdel l-immaġni tal-avatar",
+    "ph-selectPreview": "Agħżel previżjoni",
+    "ph-name": "Ismek",
+    "ph-username": "Username tiegħek",
+    "ph-email": "L-Email tiegħek",
+    "ph-tags": "Tags",
+    "ph-link": "Link",
+    "ph-aboutYou": "Aktar dwarek",
+    "ph-twitter": "twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Oħroġ"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Utenti",
+    "feeds": "Feeds",
+    "arMedia": "Midja tal-Vidjo",
+    "editor": "Editur",
+    "creator": "Ħallieq"
+  },
+  "featured": {
+    "empty-list": "L-ebda feeds għalissa ..."
+  },
+  "feed": {
+    "back": "Lura",
+    "related": "Feeds relatati",
+    "is-repoted-message": "L-għalf huwa rrappurtat!"
+  },
+  "feedForm": {
+    "back": "Lura",
+    "thanks": "Grazzi għall-qsim u t-titjib tal-komunità tagħna",
+    "share": "Aqsam xi ħaġa mal-komunità",
+    "upload": "Tella ' Vidjo",
+    "ph-selectVideo": "Agħżel il-Vidjo",
+    "preview": "Previżjoni tal-immaġni",
+    "ph-selectPreview": "Agħżel previżjoni",
+    "createFeed": "Sabiex toħloq feed irid ikollok vidjo u immaġni ta' previżjoni!!!",
+    "ph-videoName": "L-isem tal-vidjo tiegħek",
+    "ph-type": "Ittajpja dak li trid taqsam mal-komunità ... ",
+    "lbl-share": "Sehem",
+    "save": "Issejvja u mur Li jmiss"
+  },
+  "feedMenu": {
+    "featured": "Tidher",
+    "creators": "Ħallieqa",
+    "feed": "L-Għalf"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetrika"
+  },
+  "login": {
+    "account": "Għandek kont?",
+    "login": "Idħol",
+    "resetPassword": "Irrisettja l-buttuna Fake password (hawn tkun link mill-email)",
+    "notHavingAccount": "M'għandekx kont?",
+    "signUp": "Iffirma",
+    "forgotPassword": "Insejt il-password?",
+    "back": "Lura",
+    "or": "JEW"
+  },
+  "comment": {
+    "add": "Żid il-kumment tiegħek..."
+  },
+  "notification": {
+    "feedFire": " keċċiet l-għalf tiegħek",
+    "feedBookmarked": " immarkajt l-għalf tiegħek",
+    "comment": " ikkummenta l-għalf tiegħek:",
+    "commentFire": " spara kumment tiegħek biex titma",
+    "follow": " beda jsegwik",
+    "unfollow": " waqaf wara li inti",
+    "followed": " segwejtek",
+    "activity": "Attività"
+  },
+  "onBoarding": {
+    "welcome": "Merħba!",
+    "description": "L-akbar kollezzjoni ta '370+ taqsim għall-prototipi iOS.",
+    "next": "Li jmiss",
+    "discover": "L-artikli ta' l-iskoperta,",
+    "news": "aħbarijiet & postijiet",
+    "lines": "Huma dawk is-sentimenti li jmexxu l-imħabba tagħna għall-astronomija u x-xewqa tagħna.",
+    "getStarted": "Ibda",
+    "meetUp": "Iltaqa 'ma'",
+    "friends": "Ħbieb.",
+    "meet": "Iltaqa 'mal-ħbieb"
+  },
+  "shareForm": {
+    "arcMedia": "Sehem",
+    "videoCreated": "Ħloqt Dan il-Video",
+    "shareWithBuddies": "Aqsam mal-ħbieb",
+    "shareVideo": "Ixxerja l-Vidjo",
+    "save": "Issejvja Għar-Roll tal-Kamera",
+    "cancel": "Ikkanċella",
+    "close": "Qrib",
+    "addFeed": "Żid Għalf"
+  },
+  "simpleModal": {
+    "emptyList": "Lista vojta",
+    "followers": " Wara",
+    "following": " segwaċi",
+    "flames": " fjammi"
+  },
+  "splash": {
+    "screen": "Skrin tat-Tixrid",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "Pic tal-profil tal-{{user}}"
+  },
+  "view": {
+    "cancel": "Ikkanċella",
+    "choice": "Għandek żewġ modi ta 'reġistrazzjoni differenti minn fejn jagħżlu",
+    "verticalMode": "Modalità vertikali għandha ħin ta 'rekord ta' 30 sec",
+    "horizontalMode": "Il-modalità orizzontali għandha ħin ta 'rekord illimitat",
+    "start": "Bidu",
+    "not-show": "Terġax turih",
+    "welcome": "Merħba għall-ARC!  Agħmel vidjows personali b'waħda mill-ologrammi tagħna u poġġih fuq il-kanali tal-midja soċjali tiegħek!",
+    "step": "PASS {{step}}",
+    "text-step-1": "Agħżel ologramma mil-librerija.",
+    "text-step-2": "Din hija Realtà Awmentata, għalhekk skennja l-ispazju bil-kamera tiegħek minn naħa għal oħra għal 3-5 sekondi fejn trid li tkun il-prestazzjoni tal-ologramma.",
+    "text-step-3-part-1": "Tektek l-iskrin darba fil-post fejn trid l-ologramma ankrata.",
+    "text-step-3-part-2": "PONTA!  Tektek darba x'imkien ieħor biex iċċaqlaq l-ologramma għal pożizzjoni oħra.",
+    "text-step-3-part-3": "PONTA!  Tista 'tbiddel id-daqs tal-ologramma billi toqros jew tespandi l-iskrin b'subgħajk il-kbir u s-saba' l-indiċi.",
+    "text-step-4-part-1": "Taptap buttuna tar-rekord aħmar doppja biex TIBDA r-reġistrazzjoni tal-vidjow tiegħek.",
+    "text-step-4-part-2": "Taptap buttuna tar-rekord aħmar doppja biex TIEQAF."
+  },
+  "video": {
+    "back": "Lura"
+  },
+  "terms": {
+    "confirmTerms": "Naqbel mat-Termini tas-Servizz",
+    "confirmPolicy": "Naqbel mal-Politika tal-Privatezza"
+  },
+  "registration": {
+    "ph-phoneEmail": "Uża t-telefon / email",
+    "facebook": "Kompli bil-Facebook",
+    "google": "Kompli bil-Google",
+    "linkedin": "Kompli ma 'Linkedin",
+    "twitter": "Kompli bi Twitter",
+    "gitHub": "Kompli ma 'GitHub",
+    "connect": "Qabbad l-email jew in-numru tat-telefon tiegħek",
+    "logIn": "Illogja",
+    "LogInTo": "Idħol għal",
+    "continueAsGuest": "Kompli bħala mistieden"
+  }
+}

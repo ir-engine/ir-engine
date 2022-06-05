@@ -1,0 +1,718 @@
+{
+  "loading": "ໂຄງການໂຫຼດ",
+  "loadingMsg": "ໂຄງການໂຫຼດ...",
+  "loadingError": "Error loading project",
+  "loadingErrorMsg": "ມີຄວາມຜິດພາດເມື່ອໂຫຼດໂຄງການ.",
+  "selectSceneMsg": "ເລືອກ ພາບ ທີ່ ຈະ ເລີ່ມ ຫລິ້ນ ກັບ ເຄື່ອງ ຈັກ",
+  "error": "ຄວາມຜິດພາດ",
+  "errorMsg": "ມີຂໍ້ຜິດພາດທີ່ບໍ່ຮູ້ຈັກ.",
+  "generateScreenshot": "ການສ້າງພາບຫນ້າຈໍໂຄງການ",
+  "generateScreenshotMsg": "ການສ້າງພາບຫນ້າຈໍໂຄງການ...",
+  "newScene": "ສ້າງພາບ",
+  "saving": "ໂຄງການປະຢັດ",
+  "savingMsg": "ໂຄງການປະຢັດ...",
+  "savingError": "Error Saving Project",
+  "savingErrorMsg": "ມີຄວາມຜິດພາດເມື່ອເກັບກູ້ໂຄງການ.",
+  "savingSceneErrorMsg": "ພາບບໍ່ໄດ້ຖືກໂຫຼດຢ່າງຖືກຕ້ອງ. ພະຍາຍາມreloading scene.",
+  "duplicating": "ໂຄງການແບບຊ້ໍາກັນ",
+  "duplicatingMsg": "ໂຄງການຊ້ໍາກັນ...",
+  "exporting": "ໂຄງການສົ່ງອອກ",
+  "exportingMsg": "ໂຄງການສົ່ງອອກ...",
+  "exportingError": "Error Exporting Project",
+  "exportingErrorMsg": "ມີຄວາມຜິດພາດເມື່ອສົ່ງອອກໂຄງການ.",
+  "importLegacy": "ໂລກມໍລະດົກການນໍາເຂົ້າ",
+  "importLegacyMsg": "ແຈ້ງເຕືອນ! ນີ້ຈະຂຽນພາບທີ່ມີຢູ່ແລ້ວຂອງທ່ານ! ທ່ານແນ່ໃຈວ່າທ່ານຕ້ອງການທີ່ຈະສືບຕໍ່?",
+  "publishingError": "Error Publishing Project",
+  "publishingErrorMsg": "ມີຂໍ້ຜິດພາດທີ່ບໍ່ຮູ້ຈັກ.",
+  "publishingScene": "ພາບການພິມ",
+  "publishingSceneMsg": "ພາບການພິມ...",
+  "uploadingThumbnailMsg": "ອັບໂຫຼດthumbnail...",
+  "uploadingSceneMsg": "ອັບໂຫຼດພາບ: {{percentage}}%",
+  "envMapError": "ຄວາມຜິດພາດໃນການໂຫຼດຮູບພາບ cubemap {{files}}",
+  "lbl-return": "ການກັບຄືນ",
+  "menubar": {
+    "newScene": "ພາບໃຫມ່",
+    "saveScene": "Save Scene",
+    "saveAs": "Save As",
+    "importAsset": "ຊັບສິນການນໍາເຂົ້າ",
+    "exportGLB": "ການສົ່ງອອກເປັນ binary glTF (.glb) ...",
+    "importScene": "ພາບການນໍາເຂົ້າ",
+    "exportScene": "ພາບການສົ່ງອອກ",
+    "quit": "ເລີກ"
+  },
+  "errors": {
+    "fileTypeNotSupported": "ປະເພດໄຟລ໌ທີ່ບໍ່ໄດ້ຮັບການສະຫນັບສະຫນູນສໍາລັບໄຟລ໌: \"{{name}}\". File ຕ້ອງເປັນຮູບ, ວິດີໂອ, ຫຼື glb model.",
+    "addObject": "addObject: ກ່ອນທີ່ວັດຖຸບໍ່ພົບ",
+    "removeObject": "removeObject: node ບໍ່ພົບ. ທັງ ນີ້ ກໍ ຍ້ອນ ການ ເອົາ ໂນດ ທີ່ ບໍ່ ໄດ້ ຢູ່ ໃນ ສາກົນ ອີກ ຕໍ່ ໄປ.",
+    "noParent": "{{node}} \"{{name}}\" ບໍ່ມີພໍ່ແມ່. Reparent ພຽງແຕ່ເຮັດວຽກກ່ຽວກັບວັດຖຸທີ່ກໍາລັງຢູ່ໃນສາກົນໃນເວລານີ້.",
+    "undefinedParent": "editor.reparent: newParent is undefined",
+    "notAuthenticated": "ບໍ່ໄດ້ຮັບການຢັ້ງຢືນ",
+    "fetchingProjectError": "ຂໍ້ຜິດພາດໃນການຮັບເອົາໂຄງການ: {{error}}",
+    "fetchingRouteError": "ຄວາມຜິດພາດໃນການໄປຫາເສັ້ນທາງ: {{error}}",
+    "unknownError": "ຂໍ້ຜິດພາດທີ່ບໍ່ຮູ້ຈັກ",
+    "resolveURL": "ຂໍ້ຜິດພາດໃນການແກ້ໄຂ url \"{{url}}\":",
+    "mediaSearchAborted": "ການຄົ້ນຄ້ວາສື່ມວນຊົນໄດ້ຖືກລົບ",
+    "methodNotImplemented": "ວິທີການບໍ່ຖືກນໍາໃຊ້.",
+    "saveProjectAborted": "Save scene ໄດ້ຖືກລົບ",
+    "unsavedChanges": "ການປ່ຽນແປງທີ່ບໍ່ໄດ້ຖືກເກັບໄວ້",
+    "unsavedChangesMsg": "ພາບໄດ້ຖືກດັດແປງແລ້ວ. ກະລຸນາປະຢັດການປ່ຽນແປງຂອງທ່ານ.",
+    "projectCreationFail": "ການສ້າງໂຄງການຫຼົ້ມແຫຼວ. {{reason}}",
+    "projectDeletionFail": "ການລຶບໂຄງການຫຼົ້ມເຫຼວ. {{reason}}",
+    "savingProjectFail": "ໂຄງການປະຢັດຄວາມລົ້ມເຫຼວ. {{reason}}",
+    "sceneTooLarge": "ພາບໃຫຍ່ເກີນໄປ ({{size}} MB) ທີ່ຈະພິມອອກ. ຂະຫນາດສູງສຸດແມ່ນ {{maxSize}} MB.",
+    "sceneCreationFail": "ການສ້າງພາບລົ້ມເຫຼວ. {{reason}}",
+    "uploadAborted": "ອັບໂຫຼດລູກອອກ",
+    "uploadFailed": "ອັບໂຫລດທີ່ຫຼົ້ມເຫຼວ {{reason}}",
+    "assetDeletionFail": "ການລຶບຊັບສິນຫຼົ້ມເຫລວ. {{reason}}",
+    "projectAssetDeletionFail": "ການລຶບຊັບສິນຂອງໂຄງການລົ້ມເຫຼວ. {{reason}}",
+    "networkError": "ຂໍ້ຜິດພາດຂອງເຄືອຂ່າຍ: {{status}}. {{text}}",
+    "unknownStatus": "ສະຖານະພາບທີ່ບໍ່ຮູ້ຈັກ",
+    "CORS": "ອາດຈະເປັນຄວາມຜິດພາດຂອງ CORS",
+    "urlFetchError": "ບໍ່ສາມາດຫາໄດ້ \"{{url}}\""
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "ກ້ອງເຄື່ອນຍ້າຍ",
+      "flyFast": "ບິນໄວຂຶ້ນ",
+      "orbit": "ວົງໂຄຈອນ / ເລືອກ",
+      "pan": "ແພນ",
+      "fly": "ບິນ",
+      "focus": "ຈຸດສຸມ",
+      "rotateLeft": "Rotate ຊ້າຍ",
+      "rotateRight": "Rotate ຂວາ",
+      "cancelPlacement": "Cancel Placement",
+      "placeDuplicate": "Place Duplicate",
+      "cancelGrab": "ຍົກເລີກ Grab",
+      "grab": "Grab",
+      "deselectAll": "Deselect All"
+    },
+    "state": {
+      "header": "Stats",
+      "memory": "ຄວາມຈໍາ",
+      "geometries": "Geometries",
+      "textures": "Textures",
+      "render": "Render",
+      "FPS": "FPS",
+      "frameTime": "ເວ ລາ Frame",
+      "calls": "ໂທ",
+      "triangles": "ສາມຫຼ່ຽມ",
+      "points": "ຈຸດ",
+      "lines": "ສາຍ"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "ຈັດພີມ",
+    "lbl-published": "ຈັດພີມ",
+    "command": {
+      "translate": "ແປ",
+      "rotate": "ຫມູນວຽນ",
+      "scale": "ມາດຕະຖານ",
+      "toggleSpace": "Toggle Transform Space",
+      "togglePivot": "Toggle Transform Pivot",
+      "toggleSnapMode": "Toggle Snap Mode",
+      "toggleGrid": "Toggle Grid Visibility",
+      "increaseGridSize": "ເພີ່ມຂະຫນາດ Grid",
+      "descreaseGridSize": "ການຫຼຸດຂະຫນາດ Grid",
+      "stopPreview": "Stop Previewing Scene",
+      "playPreview": "ພາບລ່ວງຫນ້າ"
+    }
+  },
+  "properties": {
+    "title": "ຄຸນສົມບັດ",
+    "lbl-visible": "ທີ່ເຫັນໄດ້",
+    "lbl-preventBake": "ປ້ອງກັນ Bake",
+    "lbl-persist": "ຍືນຍົງ",
+    "multipleNodeSelected": "Multiple Nodes ຂອງປະເພດທີ່ແຕກຕ່າງກັນຖືກຄັດເລືອກ",
+    "noNodeSelected": "Node ຖືກຄັດເລືອກ",
+    "ambientLight": {
+      "name": "Ambient ແສງສະຫວ່າງ",
+      "description": "ແສງ ສະຫວ່າງ ທີ່ ສ່ອງ ແສງ ໃຫ້ ເຫັນ ສິ່ງ ຂອງ ທັງ ຫມົດ ໃນ ພາບ ຂອງ ທ່ານ.",
+      "lbl-intensity": "ຄວາມແຮງ",
+      "lbl-color": "ສີ"
+    },
+    "envmap": {
+      "name": "ແຜນທີ່ສິ່ງແວດລ້ອມ",
+      "description": "ຄຸນສົມບັດແຜນທີ່ສະພາບແວດລ້ອມ"
+    },
+    "asset": {
+      "name": "ຊັບສິນ",
+      "description": "ການເປັນກຸ່ມຂອງອົງປະກອບພາບທີ່ສາມາດໂຫຼດໄດ້ຢ່າງມີປະສິດຕິພາບແລະunloaded",
+      "lbl-options": "ທາງເລືອກ",
+      "lbl-assetPath": "ເສັ້ນທາງຊັບສິນ",
+      "lbl-assetName": "ຊື່ສົ່ງອອກ",
+      "lbl-exportOptions": "ທາງເລືອກການສົ່ງອອກ",
+      "lbl-export": "ຊັບສິນການສົ່ງອອກ",
+      "lbl-load": "Load Into Scene",
+      "lbl-unload": "Unload",
+      "lbl-reload": "Reload"
+    },
+    "audio": {
+      "name": "ສຽງ",
+      "description": "Dynamically ໂຫຼດສຽງ.",
+      "lbl-audiourl": "Url ສຽງ",
+      "lbl-controls": "ການຄວບຄຸມ",
+      "info-controls": "Toggle ການເບິ່ງເຫັນຂອງການຄວບຄຸມສື່ມວນຊົນ.",
+      "lbl-autoplay": "Auto Play",
+      "info-autoplay": "ຖ້າ ເປັນ ຄວາມ ຈິງ, ສື່ ມວນ ຊົນ ຈະ ຫລິ້ນ ເມື່ອ ເຂົ້າ ສູ່ ສາກົນ ເປັນ ເທື່ອ ທໍາ ອິດ.",
+      "lbl-synchronize": "Synchronize",
+      "info-synchronize": "ຖ້າເປັນຄວາມຈິງ, ສື່ມວນຊົນຈະຖືກ Synchronized ກັບລູກຄ້າທີ່ເຊື່ອມຕໍ່ທັງຫມົດ.",
+      "lbl-loop": "Loop",
+      "info-loop": "ຖ້າ ເປັນ ຄວາມ ຈິງ ສື່ ມວນ ຊົນ ຈະ loop ຢ່າງ ບໍ່ ມີ ວັນ ສິ້ນ ສຸດ.",
+      "lbl-audioType": "Audio Type",
+      "lbl-distanceModel": "ຕົວແບບທາງໄກ",
+      "info-distanceModel": "algorithim ທີ່ໃຊ້ໃນການຄິດໄລ່rolloff ສຽງ.",
+      "lbl-rolloffFactor": "ປັດໄຈ Rolloff",
+      "info-rolloffFactor": "ຄຸນຄ່າສອງເທົ່າທີ່ພັນລະນາວ່າສຽງຈະຫຼຸດລົງໄວພຽງໃດໃນຂະນະທີ່ແຫຼ່ງຍ້າຍອອກໄປຈາກຜູ້ຟັງ. 0 ຫາ 1",
+      "info-rfInfinity": "ຄຸນຄ່າສອງເທົ່າທີ່ພັນລະນາວ່າສຽງຈະຫຼຸດລົງໄວພຽງໃດໃນຂະນະທີ່ແຫຼ່ງຍ້າຍອອກໄປຈາກຜູ້ຟັງ. 0 to Infinity",
+      "lbl-refDistance": "Ref ໄລຍະຫ່າງ",
+      "info-refDistance": "ມູນຄ່າສອງເທົ່າທີ່ສະແດງເຖິງໄລຍະຫ່າງອ້າງອີງສໍາລັບການຫຼຸດສຽງໃນຂະນະທີ່ແຫຼ່ງສຽງເຄື່ອນຍ້າຍຕໍ່ໄປຈາກຜູ້ຟັງ.",
+      "lbl-maxDistance": "Max ໄລຍະຫ່າງ",
+      "info-maxDistance": "ມູນຄ່າສອງເທົ່າທີ່ສະແດງເຖິງໄລຍະຫ່າງສູງສຸດລະຫວ່າງແຫຼ່ງສຽງແລະຜູ້ຟັງ, ຫຼັງຈາກນັ້ນສຽງບໍ່ໄດ້ຫຼຸດລົງອີກຕໍ່ໄປ.",
+      "lbl-coneInnerAngle": "Cone Inner Angle",
+      "info-coneInnerAngle": "ມູນຄ່າສອງເທົ່າທີ່ພັນລະນາເຖິງມຸມ, ໃນລະດັບ, ຂອງການພາຍໃນທີ່ຈະບໍ່ມີການຫຼຸດບໍລິມາດ.",
+      "lbl-coneOuterAngle": "Cone Outer Angle",
+      "info-coneOuterAngle": "ມູນຄ່າສອງເທົ່າທີ່ພັນລະນາມຸມ, ໃນລະດັບ, ຂອງຄອນທີ່ຢູ່ນອກເຊິ່ງບໍລິມາດຈະຫຼຸດລົງໂດຍມູນຄ່າທີ່ສະເຫມີ, ເຊິ່ງກໍານົດໂດຍຄຸນນະສົມບັດ coneOuterGain.",
+      "lbl-coreOuterGain": "Cone Outer Gain",
+      "info-coreOuterGain": "ມູນຄ່າສອງເທົ່າທີ່ພັນລະນາເຖິງປະລິມານການຫຼຸດບໍລິມາດຢູ່ນອກcone ທີ່ກໍານົດໂດຍຄຸນນະສົມບັດ coneOuterAngle. ມູນຄ່າມາດຕະຖານຂອງມັນແມ່ນ 0, ຫມາຍຄວາມວ່າບໍ່ສາມາດໄດ້ຍິນສຽງ.",
+      "lbl-volume": "ບໍລິມາດ",
+      "lbl-play": "ຫຼິ້ນ",
+      "lbl-pause": "Pause",
+      "error-url": "Error Loading From URL"
+    },
+    "boxCollider": {
+      "description": "ກ່ອງທີ່ເບິ່ງບໍ່ເຫັນທີ່ວັດຖຸຈະຫຼົບຫຼີກຫຼືພັກຜ່ອນຢູ່ເທິງສຸດ.\nຖ້າບໍ່ມີເຄື່ອງຕໍາກັນ, ສິ່ງຂອງຈະຕົກຜ່ານພື້ນແລະຜ່ານຝາ.",
+      "lbl-isTrigger": "Trigger"
+    },
+    "camera": {
+      "name": "ກ້ອງ",
+      "description": "ການຕັ້ງຄ່າກ້ອງ.",
+      "lbl-camera-raycast": "Camera Raycasting",
+      "lbl-camera-raycast-toggle": "Enabled",
+      "lbl-camera-raycast-frequency": "ຄວາມຖີ່",
+      "lbl-camera-raycast-count": "Ray Count",
+      "lbl-camera-raycast-length": "ຄວາມຍາວຂອງ Ray"
+    },
+    "directionalLight": {
+      "name": "ແສງທິດທາງ",
+      "description": "ແສງ ສະຫວ່າງ ທີ່ ສ່ອງ ແສງ ໃຫ້ ເຫັນ ພາບ ທັງ ຫມົດ, ແຕ່ ຈະ ສ່ອງ ແສງ ໄປ ຕາມ ທິດ ທາງ ດຽວ.",
+      "lbl-color": "ສີ",
+      "lbl-intensity": "ຄວາມແຮງ",
+      "lbl-cameraFar": "ກ້ອງໄກ",
+      "lbl-cameraNear": "ກ້ອງໃກ້",
+      "lbl-cameraTop": "Camera Top",
+      "lbl-cameraBottom": "ກ້ອງລຸ່ມ",
+      "lbl-cameraLeft": "ກ້ອງຊ້າຍ",
+      "lbl-cameraRight": "ກ້ອງເບື້ອງຂວາ",
+      "lbl-useInCSM": "ໃຊ້ໃນ CSM",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-disableForCSM": "ພິການເພາະວ່າແຜນທີ່ຮູບ ເງົາ Cascade ແມ່ນເປີດໃຊ້ໄດ້.",
+      "lbl-shadowmapResolution": "ການແກ້ໄຂແຜນທີ່ຮູບ ເງົາ",
+      "lbl-shadowBias": "Shadow Bias",
+      "lbl-shadowRadius": "Shadow Radius",
+      "lbl-showCameraHelper": "Show Camera Helper"
+    },
+    "groundPlane": {
+      "name": "ຍົນດິນ",
+      "description": "ຍົນ ພື້ນ ທີ່ ຮາບ ພຽງ ທີ່ ຂະຫຍາຍ ອອກ ໄປ ສູ່ ໄລຍະ ໄກ.",
+      "lbl-color": "ສີ",
+      "lbl-receiveShadow": "ຮັບShadow",
+      "lbl-generateNavmesh": "Generate Navmesh"
+    },
+    "link": {
+      "description": "ລິ້ງໄປຫາຫ້ອງຫຼືເວັບໄຊທ໌.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "ແຜນທີ່ 3D geospatial ຂອງe.g. ເມືອງ."
+    },
+    "model": {
+      "description": "ຮູບແບບ 3D ໃນ scene ຂອງທ່ານ, loaded ຈາກ URL GLTF ຫຼືໄຟລ໌.",
+      "lbl-usingGPUInstancingFlag": "ໃຊ້ GPU Instancing",
+      "lbl-modelurl": "Url ແບບຈໍາລອງ",
+      "lbl-envmapUrl": "Url ແຜນທີ່ສະພາບແວດລ້ອມ",
+      "lbl-textureOverride": "Override Texture",
+      "lbl-materialOverride": "Overrides ວັດສະດຸ",
+      "error-url": "Error Loading From URL",
+      "lbl-loopAnimation": "Loop Animation",
+      "lbl-isAvatar": "ແມ່ນ Avatar",
+      "lbl-isGPUInstancing": "ກໍາລັງໃຊ້ GPU Instancing",
+      "lbl-isDynamic": "ແມ່ນ Dynamic",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-receiveShadow": "ຮັບShadow",
+      "lbl-interactable": "Interactable",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "ຊື່",
+      "lbl-url": "Url ແບບຈໍາລອງ",
+      "lbl-buy": "ຊື້ Url",
+      "lbl-learnMore": "ຮຽນຮູ້ Url ເພີ່ມເຕີມ",
+      "lbl-htmlContent": "ເນື້ອຫາ Html",
+      "lbl-interactionText": "ຂໍ້ຄວາມການພົວພັນ",
+      "lbl-interactionType": "ປະເພດການພົວພັນ"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "ວັດສະດຸ",
+      "error-materialID": "ຂໍ້ຜິດພາດໃນການຊອກຫາວັດຖຸ",
+      "placeholder-materialID": "ຄັດເລືອກວັດສະດຸ",
+      "lbl-patternTarget": "ແບບແຜນMatch",
+      "lbl-pattern": "ແບບແຜນ",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "ປະເພດການພົວພັນ",
+      "text": "ຂໍ້ຄວາມການພົວພັນ",
+      "distance": "ໄລຍະທາງການພົວພັນ",
+      "theme": "ຫົວຂໍ້ການພົວພັນ",
+      "name": "ຊື່ການພົວພັນ",
+      "description": "ຄໍາບັນຍາຍການພົວພັນ",
+      "images": "ຮູບພາບການພົວພັນ",
+      "videos": "ວິດີໂອການພົວພັນ",
+      "urls": "Interaction Urls",
+      "models": "ຕົວແບບການພົວພັນ"
+    },
+    "group": {
+      "name": "ກຸ່ມ",
+      "description": "ກຸ່ມວັດຖຸຫຼາຍຊະນິດທີ່ສາມາດເຄື່ອນຍ້າຍຫຼືຊ້ໍາກັນໄດ້.\nລາກ ແລະ ປ່ອນ ສິ່ງ ຂອງ ເຂົ້າ ໄປ ໃນ ກຸ່ມ ໃນ ລະບອບ."
+    },
+    "hemisphere": {
+      "name": "ແສງສົ້ມຊີກ",
+      "description": "ແສງ ສະຫວ່າງ ທີ່ ສ່ອງ ແສງ ໃຫ້ ເຫັນ ພາບ ຈາກ ຫົວ ໂດຍ ກົງ.",
+      "lbl-skyColor": "ສີຟ້າ",
+      "lbl-groundColor": "ສີດິນ",
+      "lbl-intensity": "ຄວາມແຮງ"
+    },
+    "image": {
+      "name": "ຮູບພາບ",
+      "description": "Dynamically ໂຫຼດຮູບພາບ.",
+      "lbl-imgURL": "Url ຮູບພາບ",
+      "lbl-transparency": "ຮູບແບບຄວາມໂປ່ງໃສ",
+      "lbl-alphaCutoff": "Alpha Cutoff",
+      "lbl-projection": "ການປະມູນ",
+      "lbl-side": "ດ້ານ",
+      "info-controls": "Toggle ການເບິ່ງເຫັນຂອງການຄວບຄຸມສື່ມວນຊົນ.",
+      "info-transparency": "ວິທີນໍາໃຊ້ຄວາມໂປ່ງໃສ:",
+      "info-opaque": "'opaque' = ບໍ່ມີຄວາມໂປ່ງໃສ",
+      "info-blend": "'blend' = ໃຊ້ຮູບພາບຊ່ອງ alpha",
+      "info-mask": "'ຫນ້າກາກ' = ໃຊ້ຄ່າຕັດທີ່ລະບຸໄວ້ສໍາລັບຄວາມໂປ່ງໃສon/off (ປະຕິບັດເພີ່ມເຕີມ)",
+      "info-alphaCutoff": "Pixels ທີ່ມີຄຸນຄ່າ alpha ຕ່ໍາກວ່ານີ້ຈະມີຄວາມໂປ່ງໃສ",
+      "error-url": "URL ທີ່ບໍ່ຖືກຕ້ອງ"
+    },
+    "name": {
+      "lbl-name": "ຊື່"
+    },
+    "partileEmitter": {
+      "description": "Particle ສົ່ງອອກເພື່ອສ້າງລະອອງ.",
+      "lbl-particleCount": "Particle Count",
+      "lbl-image": "ຮູບພາບ",
+      "lbl-ageRandomness": "ອາຍຸ Randomness",
+      "lbl-lifetime": "ຕະຫຼອດຊີວິດ",
+      "lbl-lifetimeRandomness": "ການRandomness ຕະ ຫຼອດ ຊີ ວິດ",
+      "lbl-sizeCurve": "Size Curve",
+      "lbl-startPSize": "Start Particle ຂະຫນາດ",
+      "lbl-endPSize": "End Particle ຂະຫນາດ",
+      "lbl-sizeRandomness": "ຂະຫນາດ Randomness",
+      "lbl-colorCurve": "ສີCurve",
+      "lbl-startColor": "Start Color",
+      "lbl-startOpacity": "ເລີ່ມຕົ້ນ Opacity",
+      "lbl-middleColor": "ສີກາງ",
+      "lbl-middleOpacity": "Opacity ກາງ",
+      "lbl-endColor": "ສິ້ນສີ",
+      "lbl-endOpacity": "End Opacity",
+      "lbl-velocityCurve": "Velocity Curve",
+      "lbl-startVelocity": "Start Velocity",
+      "lbl-endVelocity": "ສິ້ນສຸດຄວາມວິໂລຊີ",
+      "lbl-angularVelocity": "Angular Velocity",
+      "info-ageRandomness": "ປະລິມານຄວາມແຕກຕ່າງກັນລະຫວ່າງເວລາທີ່ມີການspawned ຂອງparticles.",
+      "info-lifetime": "ອາຍຸສູງສຸດຂອງລະອອງກ່ອນທີ່ຈະໄດ້ຮັບການrespawned.",
+      "info-lifetimeRandomness": "ປະລິມານການປ່ຽນແປງລະຫວ່າງການດໍາລົງຊີວິດຂອງທາດລະລາຍ.",
+      "info-sizeRandomness": "ປະລິມານການປ່ຽນແປງລະຫວ່າງຂະຫນາດເລີ່ມຕົ້ນຂອງລະອອງ.",
+      "error-url": "Error Loading From URL"
+    },
+    "clouds": {
+      "name": "ເມກ",
+      "description": "ບໍລິມາດCloud ທີ່ອີງໃສ່ Sprite.",
+      "lbl-image": "ຮູບSprite",
+      "lbl-wroldScale": "ລະດັບໂລກ",
+      "lbl-dimensions": "ຂະຫນາດ",
+      "lbl-noiseZoom": "ສຽງ Zoom",
+      "lbl-noiseOffset": "Noise Offset",
+      "lbl-spriteScale": "Sprite Scale",
+      "lbl-fogColor": "ສີຫມອກ",
+      "lbl-fogRange": "Fog Range",
+      "error-url": "Error Loading From URL"
+    },
+    "ocean": {
+      "name": "ມະຫາສະຫມຸດ",
+      "description": "ຜິວຫນ້າມະຫາສະຫມຸດທີ່ມີຄື້ນແລະໂຟມ",
+      "lbl-normalMap": "ແຜນທີ່ປົກກະຕິ",
+      "lbl-distortionMap": "ແຜນທີ່ບິດເບືອນ",
+      "lbl-envMap": "ແຜນທີ່ສິ່ງແວດລ້ອມ",
+      "lbl-color": "ສີ",
+      "lbl-shallowWaterColor": "ສີນ້ໍາຕື້ນ",
+      "lbl-shallowToDeepDistance": "ຕື້ນຫາໄລຍະທາງເລິກ",
+      "lbl-opacityFadeDistance": "Opacity Fade ໄລຍະຫ່າງ",
+      "lbl-opacityRange": "Opacity Range",
+      "lbl-shininess": "ສ່ອງແສງ",
+      "lbl-reflectivity": "Reflectivity",
+      "lbl-foamColor": "ສີໂຟມ",
+      "lbl-foamSpeed": "ຄວາມໄວໂຟມ",
+      "lbl-foamTiling": "Foam Tiling",
+      "lbl-bigWaveTiling": "Tiling ຄື້ນໃຫຍ່",
+      "lbl-bigWaveSpeed": "ຄວາມໄວWave ໃຫຍ່",
+      "lbl-bigWaveHeight": "ຄວາມສູງຄື້ນໃຫຍ່",
+      "lbl-waveSpeed": "Wave ຄວາມໄວ",
+      "lbl-waveScale": "Wave Scale",
+      "lbl-waveTiling": "Wave Tiling",
+      "lbl-waveDistortionSpeed": "Wave Distortion ຄວາມໄວ",
+      "lbl-waveDistortionTiling": "Wave Distortion Tiling",
+      "error-url": "Error Loading From URL"
+    },
+    "water": {
+      "name": "ນ້ໍາ",
+      "description": "ຫນ້ານ້ໍາຂະຫນາດນ້ອຍ"
+    },
+    "interior": {
+      "name": "ພາຍໃນ",
+      "description": "ຫນ້າດິນທີ່ມີເນື້ອເຍື່ອcube ແຜນທີ່ເພື່ອຮຽນແບບສະພາບແວດລ້ອມພາຍໃນ",
+      "lbl-cubeMap": "Cube Map texture",
+      "lbl-tiling": "ຈໍານວນTiling",
+      "lbl-size": "ຂະຫນາດຫນ້າດິນ",
+      "error-url": "Error Loading From URL"
+    },
+    "pointLight": {
+      "description": "ແສງ ສະຫວ່າງ ທີ່ ສົ່ງ ອອກ ໄປ ໃນ ທຸກ ທິດ ທາງ ຈາກ ຈຸດ ດຽວ.",
+      "lbl-color": "ສີ",
+      "lbl-intensity": "ຄວາມແຮງ",
+      "lbl-range": "Range",
+      "lbl-decay": "Decay"
+    },
+    "scene": {
+      "name": "ພາບ",
+      "description": "ວັດຖຸຮາກຂອງພາບ.",
+      "lbl-bgcolor": "ສີພື້ນຫຼັງ",
+      "lbl-fogType": "ປະເພດຫມອກ",
+      "lbl-fogColor": "ສີຫມອກ",
+      "lbl-forNearDistance": "ຫມອກໃກ້ໄກ",
+      "lbl-fogFarDistance": "ຫມອກໄກ",
+      "lbl-fogDensity": "ຄວາມຫນາແຫນ້ນຫມອກ",
+      "lbl-audioSettings": "ໃຊ້Positional Audio",
+      "lbl-avatarDistanceModel": "ຕົວແບບທາງໄກ Avatar",
+      "lbl-avatarRolloffFactor": "ປັດໄຈ Avatar Rolloff",
+      "lbl-avatarRefDistance": "Avatar Ref ໄລຍະຫ່າງ",
+      "lbl-avatarMaxDistance": "Avatar Max ໄລຍະຫ່າງ",
+      "lbl-mediaVolume": "ສື່ມວນຊົນບໍລິມາດ",
+      "lbl-mediaDistanceModel": "ຕົວ ແບບ ກົນ ໄກ ສື່ ມວນ ຊົນ",
+      "lbl-mediaRolloffFactor": "Media Rolloff Factor",
+      "lbl-mediaRefDistance": "Media Ref ໄລຍະຫ່າງ",
+      "lbl-mediaMaxDistance": "Media Max ໄລຍະຫ່າງ",
+      "lbl-mediaConeInnerAngle": "Media Cone Inner Angle",
+      "lbl-mediaConeOuterAngle": "Media Cone Outer Angle",
+      "lbl-mediaConeOuterGain": "Media Cone Outer Gain",
+      "info-avatarDistanceModel": "algorithim ທີ່ໃຊ້ໃນການຄິດໄລ່rolloff ສຽງ.",
+      "info-avatarRolloffFactor": "ຄຸນຄ່າສອງເທົ່າທີ່ພັນລະນາວ່າສຽງຈະຫຼຸດລົງໄວພຽງໃດໃນຂະນະທີ່ແຫຼ່ງຍ້າຍອອກໄປຈາກຜູ້ຟັງ. 0 ຫາ 1",
+      "info-avatarRolloffFactorInifinity": "ຄຸນຄ່າສອງເທົ່າທີ່ພັນລະນາວ່າສຽງຈະຫຼຸດລົງໄວພຽງໃດໃນຂະນະທີ່ແຫຼ່ງຍ້າຍອອກໄປຈາກຜູ້ຟັງ. 0 to Infinity",
+      "info-avatarRefDistance": "ມູນຄ່າສອງເທົ່າທີ່ສະແດງເຖິງໄລຍະຫ່າງອ້າງອີງສໍາລັບການຫຼຸດສຽງໃນຂະນະທີ່ແຫຼ່ງສຽງເຄື່ອນຍ້າຍຕໍ່ໄປຈາກຜູ້ຟັງ.",
+      "info-avatarMaxDistance": "ມູນຄ່າສອງເທົ່າທີ່ສະແດງເຖິງໄລຍະຫ່າງສູງສຸດລະຫວ່າງແຫຼ່ງສຽງແລະຜູ້ຟັງ, ຫຼັງຈາກນັ້ນສຽງບໍ່ໄດ້ຫຼຸດລົງອີກຕໍ່ໄປ.",
+      "info-mediaDistanceModel": "algorithim ທີ່ໃຊ້ໃນການຄິດໄລ່rolloff ສຽງ.",
+      "info-mediaRolloffFactor": "ຄຸນຄ່າສອງເທົ່າທີ່ພັນລະນາວ່າສຽງຈະຫຼຸດລົງໄວພຽງໃດໃນຂະນະທີ່ແຫຼ່ງຍ້າຍອອກໄປຈາກຜູ້ຟັງ. 0 ຫາ 1",
+      "info-mediaRolloffFactorInfinity": "ຄຸນຄ່າສອງເທົ່າທີ່ພັນລະນາວ່າສຽງຈະຫຼຸດລົງໄວພຽງໃດໃນຂະນະທີ່ແຫຼ່ງຍ້າຍອອກໄປຈາກຜູ້ຟັງ. 0 to Infinity",
+      "info-mediaRefDistance": "ມູນຄ່າສອງເທົ່າທີ່ສະແດງເຖິງໄລຍະຫ່າງອ້າງອີງສໍາລັບການຫຼຸດສຽງໃນຂະນະທີ່ແຫຼ່ງສຽງເຄື່ອນຍ້າຍຕໍ່ໄປຈາກຜູ້ຟັງ.",
+      "info-mediaMaxDistance": "ມູນຄ່າສອງເທົ່າທີ່ສະແດງເຖິງໄລຍະຫ່າງສູງສຸດລະຫວ່າງແຫຼ່ງສຽງແລະຜູ້ຟັງ, ຫຼັງຈາກນັ້ນສຽງບໍ່ໄດ້ຫຼຸດລົງອີກຕໍ່ໄປ.",
+      "info-mediaConeInnerAngle": "ມູນຄ່າສອງເທົ່າທີ່ພັນລະນາເຖິງມຸມ, ໃນລະດັບ, ຂອງການພາຍໃນທີ່ຈະບໍ່ມີການຫຼຸດບໍລິມາດ.",
+      "info-mediaConeOuterAngle": "ມູນຄ່າສອງເທົ່າທີ່ພັນລະນາມຸມ, ໃນລະດັບ, ຂອງຄອນທີ່ຢູ່ນອກເຊິ່ງບໍລິມາດຈະຫຼຸດລົງໂດຍມູນຄ່າທີ່ສະເຫມີ, ເຊິ່ງກໍານົດໂດຍຄຸນນະສົມບັດ coneOuterGain.",
+      "info-mediaConeOuterGain": "ມູນຄ່າສອງເທົ່າທີ່ພັນລະນາເຖິງປະລິມານການຫຼຸດບໍລິມາດຢູ່ນອກcone ທີ່ກໍານົດໂດຍຄຸນນະສົມບັດ coneOuterAngle. ມູນຄ່າມາດຕະຖານຂອງມັນແມ່ນ 0, ຫມາຍຄວາມວ່າບໍ່ສາມາດໄດ້ຍິນສຽງ.",
+      "lbl-simpleMaterials": "ໃຊ້ວັດສະດຸງ່າຍໆ",
+      "lbl-lods": "LODs",
+      "info-lods": "ກໍານົດໄລຍະຫ່າງທີ່ລະດັບການປ່ຽນແປງລາຍລະອຽດ.",
+      "info-simpleMaterials": "ປ່ຽນ ວັດ ສະ ດຸ ທີ່ ມີ ລາຄາ ແພງ ທັງ ຫມົດ ໃຫ້ ເປັນ ວັດ ຖຸ ທີ່ ງ່າຍ ຂຶ້ນ ເພື່ອ ເອົາ ພາ ລະ ຫນັກ ອອກ ຈາກ ການ rendering ພາບ .",
+      "lbl-rendererSettings": "Override ການຕັ້ງຄ່າ Renderer",
+      "lbl-csm": "Cascading ແຜນທີ່ ຮູບ ເງົາ",
+      "info-csm": "ເຮັດໃຫ້ແຜນທີ່ຮູບ ເງົາ cascading ໄດ້.",
+      "lbl-toneMapping": "Tone Mapping",
+      "info-toneMapping": "ເຮັດ ໃຫ້ ການ ເຮັດ ແຜນ ທີ່ ສຽງ ໃນ ການ renderer ພາບ ໄດ້ . ບໍ່ມີຜົນກະທົບເມື່ອມີການດໍາເນີນການpost.",
+      "lbl-toneMappingExposure": "Tone Mapping Exposure",
+      "info-toneMappingExposure": "ລະ ບຸ ການ ສະ ແດງ ການ ເຮັດ ແຜນ ທີ່ ສຽງ ໃນ ການ renderer ພາບ . ບໍ່ມີຜົນກະທົບເມື່ອມີການດໍາເນີນການpost.",
+      "lbl-shadowMapType": "ປະເພດແຜນທີ່ຮູບ ເງົາ",
+      "info-shadowMapType": "ປະເພດຂອງແຜນທີ່ຮູບ ເງົາ",
+      "error-url": "Error Loading From URL"
+    },
+    "sceneCamera": {
+      "name": "Scene Preview Camera",
+      "description": "ກ້ອງຖ່າຍຮູບທີ່ໃຊ້ໃນການສ້າງຮູບພາບສໍາລັບພາບຂອງທ່ານແລະຕໍາແຫນ່ງເລີ່ມຕົ້ນສໍາລັບການເບິ່ງພາບ.",
+      "lbl-setFromViewPort": "Set From Viewport"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "ເວລາຂອງວັນ",
+      "lbl-color": "ສີ",
+      "lbl-latitude": "ລາທິບ",
+      "lbl-luminance": "Luminance",
+      "lbl-scattering": "ຈໍານວນທີ່ກະຈັດກະຈາຍ",
+      "lbl-scatteringDistance": "ການກະຈາຍໄລຍະຫ່າງ",
+      "lbl-horizonStart": "Horizon Start",
+      "lbl-horizonEnd": "ສຸດ Horizon",
+      "lbl-texture": "Texture",
+      "lbl-skyType": "ປະເພດຟ້າ",
+      "error-url": "Error Loading From URL"
+    },
+    "spawnPoint": {
+      "name": "Spawn Point",
+      "description": "ຈຸດທີ່ຜູ້ຄົນຈະປາກົດເມື່ອພວກເຂົາເຂົ້າໄປໃນscene ຂອງທ່ານ.\nຮູບພາບໃນ Viewport ສະແດງເຖິງຂະຫນາດຕົວຈິງຂອງ avatar."
+    },
+    "spotLight": {
+      "description": "ແສງ ສະຫວ່າງ ທີ່ ສົ່ງ ໄປ ຕາມ ທິດ ທາງ, ສ່ອງ ແສງ ສິ່ງ ຂອງ ພາຍ ໃນ ກະດູກ.",
+      "lbl-color": "ສີ",
+      "lbl-intensity": "ຄວາມແຮງ",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "ມຸມ",
+      "lbl-range": "Range",
+      "lbl-decay": "Decay"
+    },
+    "transform": {
+      "title": "ປ່ຽນ",
+      "lbl-postition": "ຕໍາແຫນ່ງ",
+      "lbl-rotation": "ການຫມູນວຽນ",
+      "lbl-scale": "ມາດຕະຖານ"
+    },
+    "triggereVolume": {
+      "description": "ກໍານົດຊັບສິນໃສ່ວັດຖຸເປົ້າຫມາຍໃນການເຂົ້າໄປແລະອອກ.",
+      "lbl-target": "ວັດຖຸ",
+      "lbl-onenter": "On ເຂົ້າ",
+      "lbl-onexit": "On Exit",
+      "lbl-showHelper": "ສະແດງຜູ້ຊ່ວຍ Mesh",
+      "ph-errorNode": "Error ຂາດnode.",
+      "ph-selectNode": "ເລືອກnode..."
+    },
+    "video": {
+      "name": "ວີດີໂອ",
+      "description": "Dynamically ໂຫຼດວິດີໂອ.",
+      "lbl-video": "ວີດີໂອ",
+      "lbl-projection": "ການປະມູນ",
+      "lbl-islivestream": "Live Stream",
+      "lbl-interactable": "Interactable",
+      "lbl-id": "Element Id",
+      "lbl-play": "ຫຼິ້ນ",
+      "lbl-pause": "Pause",
+      "error-url": "Error Loading From URL"
+    },
+    "volumetric": {
+      "name": "ບໍລິຄໍາໄຊ",
+      "description": "Dynamically loads ວິ ດີ ໂອ volumetric ໄດ້ .",
+      "uvolPaths": "UVOL Paths",
+      "playmode": "Play Mode",
+      "playtitle": "ຫຼິ້ນ",
+      "pausetitle": "Pause"
+    },
+    "spline": {
+      "description": "Dynamically ສ້າງແລະປັບແຕ່ງ curves.",
+      "lbl-addNode": "ໃສ່ໂນດເພື່ອcurve."
+    },
+    "systemnode": {
+      "description": "Attach script.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "ຈຸດສັກຢາ",
+      "lbl-enableClient": "ລູກຄ້າ",
+      "lbl-enableServer": "Server",
+      "lbl-args": "Args",
+      "error-url": "Error Loading Script ຈາກ URL"
+    },
+    "portal": {
+      "lbl-portal": "Linked Portal",
+      "lbl-redirect": "ໃຊ້ຫນ້າRedirect",
+      "description": "Portat to teleport players to specified location",
+      "lbl-locationName": "ສະຖານທີ່",
+      "lbl-modelUrl": "URL ແບບຈໍາລອງ",
+      "lbl-displayText": "Display Text",
+      "lbl-cubemapBake": "Cubemap bake",
+      "lbl-spawnPosition": "Spawn Position",
+      "lbl-spawnRotation": "Spawn ຫມູນວຽນ",
+      "lbl-triggerPosition": "Trigger Position",
+      "lbl-triggerRotation": "ການຫມູນວຽນ Trigger",
+      "lbl-triggerScale": "Trigger Scale"
+    },
+    "postprocessing": {
+      "name": "Post Processing",
+      "description": "ສໍາ ລັບ ການ ນໍາ ໃຊ້ ຜົນ ກະ ທົບ Post Processing ກັບ ທ່ານ scene ."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "ໂຄງການໃຫມ່",
+      "backLink": "ກັບຄືນສູ່ໂຄງການຕ່າງໆ",
+      "featured": "ຈຸດເດັ່ນ",
+      "all": "ທັງຫມົດ",
+      "newProject": "ໂຄງການເປົ່າໃຫມ່",
+      "ph-search": "ພາບຄົ້ນຄ້ວາ..."
+    },
+    "grid": {
+      "loading": "Loading..."
+    },
+    "page": {
+      "header": "ຍິນດີຕ້ອນຮັບ",
+      "headerMsg": "ຖ້າຫາກວ່າທ່ານເປັນໃຫມ່ທີ່ນີ້ພວກເຮົາຂໍແນະນໍາໃຫ້ຜ່ານtutorial. ຖ້າບໍ່ດັ່ງນັ້ນ, ກະໂດດຂວາເຂົ້າແລະສ້າງໂຄງການຈາກscratch ຫຼືຈາກຫນຶ່ງຂອງtemplates ຂອງພວກເຮົາ.",
+      "lbl-startTutorial": "Start Tutorial",
+      "projects": "ໂຄງການ",
+      "lbl-newProject": "ໂຄງການໃຫມ່"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Loading...",
+      "placeObject": "Place Object",
+      "placeObjectAtOrigin": "Place Object at Origin",
+      "copyURL": "ສໍາເນົາ URL",
+      "openInNewTab": "ເປີດ URL ໃນແທັບໃຫມ່",
+      "deleteAsset": "ລຶບຊັບສິນ"
+    },
+    "filebrowser": {
+      "addNewFolder": "ຕື່ມໂຟນເດີໃຫມ່",
+      "cutAsset": "ຕັດ",
+      "copyAsset": "ສໍາເນົາ",
+      "pasteAsset": "Paste",
+      "renameAsset": "ປ່ຽນຊື່",
+      "viewAssetProperties": "View Properties"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "ປ່ຽນຊື່",
+    "lbl-duplicate": "ການຊ້ໍາກັນ",
+    "lbl-group": "ກຸ່ມ",
+    "lbl-delete": "ລຶບ",
+    "lbl-expandAll": "ຂະຫຍາຍທັງຫມົດ",
+    "lbl-collapseAll": "Collapse ທັງຫມົດ",
+    "isseus": "ບັນຫາ:"
+  },
+  "dnd": {
+    "nodes": "{{count}} Nodes ເລືອກ",
+    "models": "{{count}} ແບບຈໍາລອງຖືກຄັດເລືອກ",
+    "images": "{{count}} ຮູບພາບທີ່ຖືກຄັດເລືອກ",
+    "videos": "{{count}} ວີດີໂອຄັດເລືອກ",
+    "audio": "{{count}} Audio Sources ເລືອກ"
+  },
+  "dialog": {
+    "title": "ບັນນາທິການ",
+    "lbl-confirm": "ໂອເຄ",
+    "lbl-cancel": "ຍົກເລີກ",
+    "exportProject": {
+      "title": "ໂຄງການສົ່ງອອກ",
+      "lbl-confirm": "ໂຄງການສົ່ງອອກ",
+      "lbl-combineMesh": "Combine Meshes",
+      "lbl-removeUnused": "ເອົາວັດຖຸທີ່ບໍ່ໄດ້ໃຊ້"
+    },
+    "performance": {
+      "title": "ການກວດສອບປະສິດທິພາບ",
+      "lbl-confirm": "Publish Scene",
+      "learnMore": "ຮຽນຮູ້ຕື່ມ",
+      "lbl-polycount": "Polygon Count",
+      "lbl-material": "ວັດສະດຸ",
+      "lbl-texture": "Textures",
+      "lbl-lights": "ແສງສະຫວ່າງ",
+      "lbl-fileSize": "ຂະຫນາດໄຟລ໌",
+      "info-polycount": "ພວກເຮົາແນະນໍາໃຫ້ພາບຂອງທ່ານໃຊ້ບໍ່ເກີນ 50,000 ສາມຫຼ່ຽມສໍາລັບອຸປະກອນມືຖື.",
+      "info-material": "ພວກເຮົາແນະນໍາໃຫ້ໃຊ້ບໍ່ເກີນ 25 ວັດສະດຸພິເສດໃນ scene ຂອງທ່ານເພື່ອຫຼຸດຜ່ອນການດຶງດູດການໂທໃນອຸປະກອນມືຖື.",
+      "info-texture": "ພວກເຮົາແນະນໍາໃຫ້ເນື້ອເຍື່ອຂອງທ່ານໃຊ້ບໍ່ເກີນ 256MB ຂອງວິດີໂອ RAM ສໍາລັບອຸປະກອນມືຖື. ພວກເຮົາຍັງແນະນໍາບໍ່ໃຫ້ໃຊ້ເນື້ອເຍື່ອທີ່ໃຫຍ່ກວ່າ 2048 x 2048.",
+      "info-lights": "ໃນຂະນະທີ່ໄຟທີ່ມີທ່າແຮງບໍ່ໄດ້ຖືກເປີດໃຊ້ໃນອຸປະກອນມືຖື, ພວກເຮົາຂໍແນະນໍາໃຫ້ໃຊ້ໄຟບໍ່ເກີນ 3 ໃນ scene ຂອງທ່ານ (ບໍ່ລວມໄຟທີ່ຢູ່ໃນໂລກແລະhemisphere) ສໍາລັບພາບຂອງທ່ານທີ່ຈະແລ່ນໃນPCs ທີ່ຕ່ໍາສຸດ.",
+      "info-fileSize": "ພວກເຮົາແນະນໍາຂະຫນາດໄຟລ໌ສຸດທ້າຍບໍ່ເກີນ 16MB ສໍາລັບການເຊື່ອມຕໍ່ bandwidth ຕ່ໍາ. ການຫຼຸດຂະຫນາດໄຟລ໌ຈະລົດເວລາທີ່ໃຊ້ເວລາໃນການດາວໂຫລດພາບຂອງທ່ານ.",
+      "txt-polycount": "{{count}} ສາມຫຼ່ຽມ",
+      "txt-material": "{{count}} ວັດສະດຸ",
+      "txt-ram": "~{{count}} ວີດີໂອ RAM",
+      "txt-texture": "{{count}} ເນື້ອເຍື່ອໃຫຍ່",
+      "txt-lights": "{{count}} ແສງສະຫວ່າງ"
+    },
+    "progress": {
+      "title": "Loading...",
+      "msg": "Loading...",
+      "lbl-cancel": "ຍົກເລີກ"
+    },
+    "publish": {
+      "title": "Publish Scene",
+      "lbl-confirm": "Save and Publish",
+      "lbl-name": "ຊື່ພາບ",
+      "info-name": "ຊື່ຕ້ອງຢູ່ລະຫວ່າງ 4 ຫາ 64 ຕົວອັກສອນ ແລະ ບໍ່ສາມາດບັນຈຸບົດເນັ້ນ"
+    },
+    "published": {
+      "title": "ພາບທີ່ຖືກພິມ",
+      "header": "ພາບຂອງທ່ານໄດ້ຖືກພິມເຜີຍແຜ່.",
+      "lbl-view": "ເບິ່ງພາບຂອງເຈົ້າ"
+    },
+    "saveNewProject": {
+      "title": "ການສະຫນັບສະຫນຸນ",
+      "lbl-name": "ຊື່ໂຄງການ",
+      "info-name": "ຊື່ຕ້ອງຢູ່ລະຫວ່າງ 4 ຫາ 64 ຕົວອັກສອນ ແລະ ບໍ່ສາມາດບັນຈຸບົດເນັ້ນ",
+      "lbl-confirm": "Save Project"
+    },
+    "support": {
+      "title": "ການສະຫນັບສະຫນຸນ",
+      "header": "ຕ້ອງການລາຍງານບັນຫາ?",
+      "msg": "<1>ທ່ານສາມາດຟອມGitHub Issue</1> ຫຼືອີເມລພວກເຮົາສໍາລັບການສະຫນັບສະຫນູນທີ່ <3>{{mail}}</3>",
+      "discord": "ນອກນັ້ນທ່ານຍັງສາມາດຊອກຫາພວກເຮົາໄດ້ໃນ <1>Discord</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing ຮູບພາບ",
+      "search": "ຄົ້ນຫາໂດຍ Bing"
+    },
+    "bingVideo": {
+      "name": "Bing ວີດີໂອ",
+      "search": "ຄົ້ນຫາໂດຍ Bing"
+    },
+    "element": {
+      "name": "ທາດ"
+    },
+    "myAssets": {
+      "name": "ຊັບສິນຂອງຂ້ອຍ"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "ຄົ້ນຫາໂດຍ Google"
+    },
+    "tenor": {
+      "name": "Tenor GIFs",
+      "search": "ຄົ້ນຫາໂດຍ Tenor",
+      "ph-search": "ຄົ້ນຫາ GIFs..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "ຄົ້ນຫາໂດຍ Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Upload Asset"
+    },
+    "imageSourcePanel": {
+      "ph-search": "ຮູບພາບຄົ້ນຫາ..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "ຄົ້ນຫາວີດີໂອ..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "ຄົ້ນຫາຊັບສິນ..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "ແບບຈໍາລອງຄົ້ນຫາ..."
+    },
+    "useUpload": {
+      "multipleFileError": "Input ບໍ່ຮັບເອົາໄຟລ໌ຫຼາຍ.",
+      "mineTypeError": "\"{{name}}\" ບໍ່ ສອດ ຄ່ອງ ກັບ ປະ ເພດ mime ຫຼື ການ ຂະ ຫຍາຍ ຕົວ ດັ່ງ ຕໍ່ ໄປ ນີ້ : {{types}}",
+      "progressTitle": "ອັບໂຫຼດໄຟລ໌",
+      "progressMsg": "ອັບໂຫຼດໄຟລ໌ {{uploaded}} {{total}}: {{percentage}}%",
+      "uploadError": "ອັບໂຫຼດຂໍ້ຜິດພາດ",
+      "uploadErrorMsg": "Error ອັບໂຫຼດໄຟລ໌: {{message}}",
+      "uploadErrorDefaultMsg": "ມີຄວາມຜິດພາດທີ່ບໍ່ຮູ້ຈັກ"
+    }
+  },
+  "openLink": {
+    "description": "ກະລຸນາຄລິກເປີດເພື່ອໄປຫາລິ້ງ.",
+    "lbl-open": "ເປີດ"
+  },
+  "interactableModel": {
+    "lbl-buy": "ຊື້",
+    "lbl-learnMore": "ຮຽນຮູ້ຕື່ມ"
+  },
+  "corsProxyButton": {
+    "tooltip": "ໃຊ້ Cors Proxy Server"
+  }
+}

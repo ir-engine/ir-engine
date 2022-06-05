@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Không tìm thấy Trang"
+  },
+  "503": {
+    "msg": "503 - Dịch vụ không khả dụng"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Bạn đã bị cấm đến địa điểm này.",
+    "locationName": {
+      "pageTitle": "Nhà"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Dự án",
+      "header": "Vui lòng đăng nhập",
+      "welcomeMsg": "Chào mừng",
+      "locationHeader": "Địa điểm",
+      "projectHeader": "Dự án",
+      "sceneHeader": "Cảnh",
+      "description": "Nếu bạn là người mới ở đây, chúng tôi khuyên bạn nên đi qua hướng dẫn. Nếu không, hãy nhảy ngay vào và tạo một dự án từ đầu hoặc từ một trong các mẫu của chúng tôi.",
+      "lbl-startTutorial": "Hướng dẫn Bắt đầu",
+      "lbl-newProject": "Dự án mới",
+      "lbl-createProject": "Tạo",
+      "lbl-newScene": "Cảnh Mới",
+      "lbl-searchProject": "Tìm kiếm các dự án hiện có...",
+      "back": "Lưng",
+      "contextMenu": "Xóa Dự án",
+      "installed": "Dự án đã cài đặt",
+      "official": "Dự án chính thức",
+      "community": "Dự án cộng đồng",
+      "install": "Cài đặt",
+      "uninstall": "Dỡ cài đặt",
+      "rename": "Rename",
+      "createProject": "Tạo Dự án",
+      "installProject": "Cài đặt Dự án",
+      "processing": "Xử lý",
+      "projectName": "Tên dự án",
+      "projectURL": "URL Dự án"
+    }
+  },
+  "error": {
+    "goHomeLink": "Về nhà",
+    "withStatusCode": "Lỗi {{code}} xảy ra trên hệ phục vụ",
+    "withoutStatusCode": "Lỗi xảy ra trên hệ phục vụ"
+  },
+  "no-projects": {
+    "msg": "Lỗi: Không có Dự án nào được cài đặt - vui lòng liên hệ với người quản trị trang"
+  },
+  "dev": {
+    "pageTitle": "Nhà"
+  },
+  "login": {
+    "pageTitle": "Đăng nhập"
+  },
+  "workerTest": {
+    "pageTitle": "Kiểm tra công nhân"
+  },
+  "index": {
+    "by": "BẰNG CÁCH",
+    "xr": "XR",
+    "foundation": "Cơ sở",
+    "description": "Các ứng dụng xã hội 3D thời gian thực cho mọi người thưởng thức."
+  },
+  "xrengineContact": {
+    "header": "Liên lạc đi!",
+    "description": "Chúng tôi rất muốn giúp bạn với các sự kiện ảo, bán lẻ kỹ thuật số, giải trí và các nhu cầu khác.",
+    "lbl-name": "Tên",
+    "lbl-email": "Email",
+    "lbl-company": "Công ty",
+    "lbl-project": "Mô tả dự án của bạn",
+    "lbl-send": "Gửi",
+    "lbl-ok": "Ok",
+    "lbl-success": "Tin nhắn được gửi, chúng tôi sẽ sớm liên lạc lại với bạn.",
+    "lbl-failure": "Một lỗi đã xảy ra, Plese thử lại",
+    "err-username": "Vui lòng nhập tên của bạn.",
+    "err-email": "Email là cần thiết.",
+    "err-msg": "Cung cấp một số mô tả ngắn gọn về dự án của bạn."
+  }
+}

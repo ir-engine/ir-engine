@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Kinnitusmeil",
+      "resendEmail": "Konto kinnitamiseks kontrollige oma e-posti aadressi. Kui te ei saanud e-kirja, klõpsake kinnitusmeili uuesti saatmiseks nuppu {{here}} .",
+      "haveAnAccount": "Kas teil on konto?"
+    },
+    "forgotPassword": {
+      "header": "Unustatud parool",
+      "enterEmail": "Sisestage oma registreeritud e-posti aadress ja me saadame teile parooli lähtestamise lingi.",
+      "lbl-email": "E-posti aadress",
+      "lbl-submit": "Saada link",
+      "emailSent": "Parooli lähtestamise meilisõnum saadeti. Palun kontrollige oma e-posti aadressi."
+    },
+    "login": {
+      "email": "E-posti | SMS",
+      "username": "UserName + parool",
+      "social": "Sotsiaalse"
+    },
+    "magiklink": {
+      "header": "Sisselogimislink",
+      "descriptionEmail": "Palun sisestage oma e-posti aadress ja me saadame teile e-posti teel sisselogimislingi.",
+      "descriptionSMS": "Palun sisestage oma telefoninumber ja saadame teile SMS-i teel sisselogimislingi.",
+      "descriptionEmailSMS": "Palun sisestage oma e-posti aadress või telefoninumber (10-kohaline, ainult USA) ja saadame teile sisselogimislingi e-posti või SMS-i teel.",
+      "descriptionSMSUS": "Palun sisestage oma telefoninumber (10-kohaline, ainult USA) ja saadame teile SMS-i kaudu sisselogimislingi.",
+      "lbl-email": "E-posti aadress",
+      "lbl-emailPhone": "E-posti või telefoninumber",
+      "lbl-phone": "Telefoninumber",
+      "agree": "Olen nõus, et ",
+      "terms": "Tingimused",
+      "lbl-submit": "Saada sisselogimislink",
+      "email-sent-msg": "Sisselogimine Magic Link saadeti. Palun kontrollige oma e-posti aadressi.",
+      "success-msg": "Sisselogimine Magic Link saadeti. Palun kontrollige oma e-posti või SMS-i.",
+      "sms-sent-msg": "Sisselogimine Magic Link saadeti. Palun kontrollige oma SMS-i."
+    },
+    "passwordLogin": {
+      "header": "Logi sisse",
+      "lbl-email": "E-posti aadress",
+      "lbl-password": "Salasõna",
+      "lbl-rememberMe": "Pea mind meeles.",
+      "lbl-signin": "Logi sisse",
+      "forgotPassword": "Unustasid parooli?",
+      "signup": "Kas teil pole kontot? Pane nimi kirja",
+      "lbl-login": "Logi sisse",
+      "ph-password": "Salasõna",
+      "ph-email": "Meil"
+    },
+    "social": {
+      "gitHub": "Sisselogimine GitHubiga",
+      "google": "Google'iga sisselogimine",
+      "facebook": "Logi facebookis sisse",
+      "linkedin": "Sisselogimine Linkediniga",
+      "twitter": "Sisselogimine Twitteriga"
+    },
+    "register": {
+      "header": "Pane nimi kirja",
+      "login": "Logi sisse",
+      "lbl-signup": "Pane nimi kirja",
+      "lbl-password": "Salasõna",
+      "lbl-email": "E-posti aadress",
+      "passwordNotMatch": "Paroolid ei ühti",
+      "ph-password": "Salasõna",
+      "ph-confirmPassword": "Parooli kinnitamine",
+      "ph-email": "Meil"
+    },
+    "resetPassword": {
+      "header": "Parooli lähtestamine",
+      "description": "Palun sisestage oma e-posti aadressi parool",
+      "lbl-submit": "Parooli lähtestamine",
+      "lbl-password": "Salasõna",
+      "lbl-confirmPassword": "Parooli kinnitamine",
+      "passwordNotMatch": "Paroolid ei ühti",
+      "nowLoginYourAccount": "Nüüd saate oma kontole sisse logida",
+      "yourPasswordResetSuccess": "Teie parool lähtestati edukalt!"
+    },
+    "verifyEmail": {
+      "header": "Meilisõnumite kinnitamine",
+      "processing": "Palun oodake töötlemise ajal hetk..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Asukohad",
+      "loading": "Laadimise",
+      "col-name": "Nimi",
+      "col-scene": "Stseen",
+      "col-maxuser": "Maksimaalsed kasutajad",
+      "lbl-search": "Asukohtade otsimine",
+      "lbl-new": "Uus"
+    },
+    "newLocation": {
+      "title": "Asukoht",
+      "success": "Salvestatud edukalt.",
+      "failure": "Midagi läks valesti.",
+      "removeSuccess": "Asukoht on edukalt eemaldatud.",
+      "nameInUse": "Nimi on kasutusel.",
+      "nameRequire": "Nimi on nõutav.",
+      "validNumber": "Lubatud on ainult numbrid (0-9).",
+      "lbl-name": "Nimi",
+      "lbl-maxuser": "Maksimaalsed kasutajad",
+      "lbl-scene": "Stseen",
+      "lbl-type": "Liik",
+      "lbl-ve": "Video lubatud",
+      "lbl-gme": "Globaalne meedia lubatud",
+      "lbl-update": "Uuendama",
+      "lbl-create": "Looma",
+      "tooltipCanNotBeDeleted": "Fuajeed ei saa kustutada",
+      "confirmation": "Kas oled kindel?",
+      "lbl-yes": "Jah",
+      "lbl-no": "Ei"
+    },
+    "share": {
+      "lbl-share": "Jagama",
+      "ph-phoneEmail": "Kutsu e-posti või telefoninumbriga",
+      "lbl-phoneEmail": "Saada e-posti aadressile või telefoninumbrile",
+      "lbl-copy": "Koopia",
+      "lbl-send-invite": "Saada kutse",
+      "title": "Asukoha URL-i jagamine meeskonnaga",
+      "linkCopied": "Lõikelauale kopeeritud link."
+    },
+    "setting": {
+      "audio": "Audio",
+      "lbl-volume": "Ruumala",
+      "lbl-microphone": "Mikrofon",
+      "graphics": "Graafika",
+      "controls": "Kontrolli",
+      "lbl-control-type": "Kontrolleri tüüp",
+      "lbl-control-scheme": "Kontrollskeem",
+      "lbl-resolution": "Otsus",
+      "lbl-shadow": "Varjud",
+      "lbl-pp": "Järeltöötlus",
+      "lbl-pbr": "Täielik PBR",
+      "lbl-automatic": "Automaatne",
+      "xrusersetting": "XR-i kasutajasätted",
+      "rotation": "Rotatsiooni",
+      "rotation-smooth-speed": "Pööramine Sujuv kiirus",
+      "rotation-angle": "Pöörlemisnurk",
+      "moving": "Liigub",
+      "user-avatar": "Avatari säte",
+      "invert-rotation": "Ümberpööramise pööramine ja teisaldamispulgad",
+      "show-avatar": "Näita Avatari"
+    },
+    "profile": {
+      "lbl-profile": "Profiili",
+      "lbl-settings": "Seaded",
+      "lbl-username": "Kasutajanimi",
+      "update-msg": "Kasutajanimi on uuendatud",
+      "inviteCode": "Kutsu kood",
+      "youAreAn": "Sa oled",
+      "youAreA": "Sa oled",
+      "showUserId": "Kuva kasutaja ID",
+      "hideUserId": "Kasutaja ID peitmine",
+      "showApiKey": "API-võtme kuvamine",
+      "hideApiKey": "PEIDA API-võti",
+      "apiKey": "API võti",
+      "logout": "Logi välja",
+      "connectPhone": "Telefoninumbri ühendamine",
+      "connectEmail": "Meilisõnumite ühendamine",
+      "connectPhoneEmail": "Meili- või telefoninumbri ühendamine",
+      "or": "Või",
+      "lbl-wallet": "Sisselogimine rahakotiga",
+      "ph-email": "Meil",
+      "ph-phone": "Telefoninumber",
+      "ph-phoneEmail": "Telefoninumber / e-post",
+      "phoneEmailError": "Kehtetu telefon # või e-posti aadress",
+      "phoneError": "Kehtetu telefon #",
+      "emailError": "Kehtetu meiliaadress",
+      "loginWithReadyPlayerMe": "Sisselogimine valmis mängijaga Mina",
+      "connectSocial": "Suhtluskontodega ühenduse loomine",
+      "createOne": "Kui teil kontot pole, luuakse teie jaoks uus konto.",
+      "connections": {
+        "title": "Ühendused",
+        "ipError": "Aktiivset identiteedipakkujat ei saa eemaldada",
+        "disconnect": "Katkesta",
+        "connect": "Ühendust"
+      },
+      "profileDropdown": {
+        "avatar": "Kasutaja avatari ikoon",
+        "profile": "Profiili",
+        "adminConsole": "Administraatori konsool",
+        "logout": "Logout"
+      },
+      "userIcon": {
+        "lbl-name": "Sinu nimi",
+        "lbl-update": "Uuendama",
+        "userId": "Kasutaja ID",
+        "ph-uploadImg": "Tootepildi üleslaadimine",
+        "lbl-selectAcvatar": "Vali Avatar",
+        "lbl-submit": "Esitada"
+      },
+      "userSettings": {
+        "volume": "Ruumala",
+        "microphone": "Mikrofon",
+        "resolution": "Otsus",
+        "high": "Kõrge",
+        "low": "Madal",
+        "spatialAudio": "Ruumilise heli kasutamine",
+        "enterMuted": "Sisestage ruumi vaigistatud"
+      }
+    },
+    "oauth": {
+      "authenticating": "Autentimine...",
+      "authFailed": "{{service}} autentimine nurjus."
+    },
+    "magikLink": {
+      "wait": "Palun oodake töötlemise ajal hetk..."
+    },
+    "dashboard": {
+      "header": "Armatuurlaua",
+      "dashboard": "Armatuurlaua",
+      "users": "Kasutajad",
+      "feeds": "Kanalid",
+      "instance": "Astme",
+      "locations": "Asukohad",
+      "invites": "Kutsub",
+      "sessions": "Istungid",
+      "groups": "Rühmad",
+      "parties": "Isikutele",
+      "chats": "Vestlused",
+      "content": "Sisupaketid",
+      "projects": "Projektide",
+      "scenes": "Stseene",
+      "avatars": "Avatarid",
+      "benchmarking": "Võrdlusuuringute",
+      "bots": "Eest"
+    }
+  },
+  "oauth": {
+    "authenticating": "Autentimine...",
+    "authFailed": "{{service}} autentimine nurjus."
+  },
+  "magikLink": {
+    "wait": "Palun oodake töötlemise ajal hetk..."
+  },
+  "dashboard": {
+    "header": "Armatuurlaua",
+    "dashboard": "Armatuurlaua",
+    "users": "Kasutajad",
+    "feeds": "Kanalid",
+    "instance": "Astme",
+    "locations": "Asukohad",
+    "routes": "Liinidel",
+    "projects": "Projektide",
+    "invites": "Kutsub",
+    "sessions": "Istungid",
+    "groups": "Rühmad",
+    "parties": "Isikutele",
+    "chats": "Vestlused",
+    "content": "Sisupaketid",
+    "scenes": "Stseene",
+    "avatars": "Avatarid",
+    "benchmarking": "Võrdlusuuringute",
+    "bots": "Eest",
+    "setting": "Seaded"
+  },
+  "avatar": {
+    "title": "Avatari üleslaadimine",
+    "lbl-browse": "Sirvi",
+    "lbl-thumbnail": "Pisipilt",
+    "lbl-upload": "Laadida",
+    "selectAvatar": "Vali Avatar...",
+    "selectThumbnail": "Vali Pisipilt...",
+    "rotate": "Pöörlema",
+    "pan": "Pan",
+    "noBone": "Obejct ei sisalda luid ega nahka",
+    "outOfBound": "Objekt on väljaspool piire.",
+    "emptyObj": "Objekt on tühi.",
+    "maxTriangleError": "Objekt sisaldab rohkem kui {{allowedTriangles}} nägusid.",
+    "selectValidFile": "Valige kehtiv 3D-avatari fail.",
+    "selectValidThumbnail": "Valitud kehtiv pisipildifail.",
+    "fileOversized": "Avatari faili suurus peab olema vahemikus {{minSize}} MB kuni {{maxSize}} MB",
+    "confirmation": "Kas oled kindel?",
+    "canNotBeRemoved": "Aktiivset Avatari ei saa eemaldada",
+    "remove": "Avatari eemaldamine",
+    "uploadFiles": "Failide üleslaadimine",
+    "useUrlInstead": "Selle asemel kasutage URL-i",
+    "avatar": "Avatari",
+    "cancel": "Tühistama",
+    "createAvatar": "Avatari loomine",
+    "delete": "Kustutama",
+    "view": "Vaade",
+    "uploadAvatarInfo": "Avatari teabe värskendamine",
+    "name": "Nimi",
+    "enterName": "Sisestage nimi.",
+    "avatarInformation": "Avatari teave",
+    "description": "Kirjeldus",
+    "key": "Võti",
+    "none": "Ükski",
+    "submit": "Esitada",
+    "edit": "Toimetama",
+    "avatarUrl": "Avatari URL",
+    "upload-success-msg": "Avatar on edukalt üles laaditud.",
+    "remove-success-msg": "Avatar on edukalt üles laaditud.",
+    "warning-msg": "Avatari ressurss on tühi, kas olete avatarid sünkrooninud staatilise failisalvestusruumiga?"
+  },
+  "personMenu": {
+    "inviteToParty": "Kutsu peole",
+    "addAsFriend": "Lisa sõbraks",
+    "mute": "Vaigistamiseks",
+    "block": "Blokeerida"
+  },
+  "person": {
+    "you": "Te",
+    "yourScreen": "Ekraan",
+    "muteForEveryone": "Vaigista kõigile",
+    "unmuteForEveryone": "Tühista vaigistuse tühistamine kõigi jaoks",
+    "muteMe": "Vaigista mind",
+    "unmuteMe": "Lülita mind vaigistuse välja",
+    "muteThisPerson": "Vaigista see inimene",
+    "unmuteThisPerson": "Selle isiku vaigistuse tühistamine",
+    "openPictureInPicture": "Pildi avamine pildil"
+  }
+}

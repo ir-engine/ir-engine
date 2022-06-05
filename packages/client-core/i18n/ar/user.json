@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "رسالة التأكيد الإلكترونية",
+      "resendEmail": "يرجى التحقق من بريدك الإلكتروني للتحقق من حسابك. إذا لم تتلق بريدا إلكترونيا، يرجى النقر {{here}} لإعادة إرسال رسالة التحقق الإلكترونية.",
+      "haveAnAccount": "هل لديك حساب؟"
+    },
+    "forgotPassword": {
+      "header": "نسيت كلمة المرور",
+      "enterEmail": "يرجى إدخال عنوان بريدك الإلكتروني المسجل وسنرسل لك رابط إعادة تعيين كلمة المرور.",
+      "lbl-email": "عنوان البريد الإلكتروني",
+      "lbl-submit": "إرسال رابط",
+      "emailSent": "تم إرسال البريد الإلكتروني لإعادة تعيين كلمة المرور. يرجى التحقق من بريدك الإلكتروني."
+    },
+    "login": {
+      "email": "البريد الإلكتروني | الرسائل القصيرة",
+      "username": "اسم المستخدم + كلمة المرور",
+      "social": "اجتماعي"
+    },
+    "magiklink": {
+      "header": "رابط تسجيل الدخول",
+      "descriptionEmail": "يرجى إدخال عنوان بريدك الإلكتروني وسنرسل لك رابط تسجيل الدخول عبر البريد الإلكتروني.",
+      "descriptionSMS": "يرجى إدخال رقم هاتفك وسنرسل لك رابط تسجيل الدخول عبر الرسائل القصيرة.",
+      "descriptionEmailSMS": "يرجى إدخال عنوان بريدك الإلكتروني أو رقم هاتفك (مكون من 10 أرقام، الولايات المتحدة فقط) وسنرسل لك رابط تسجيل الدخول عبر البريد الإلكتروني أو الرسائل القصيرة.",
+      "descriptionSMSUS": "يرجى إدخال رقم هاتفك (المكون من 10 أرقام، الولايات المتحدة فقط) وسنرسل لك رابط تسجيل الدخول عبر رسالة نصية قصيرة.",
+      "lbl-email": "عنوان البريد الإلكتروني",
+      "lbl-emailPhone": "البريد الإلكتروني أو رقم الهاتف",
+      "lbl-phone": "رقم الهاتف",
+      "agree": "أوافق على ",
+      "terms": "الشروط والأحكام",
+      "lbl-submit": "إرسال رابط تسجيل الدخول",
+      "email-sent-msg": "تم إرسال رابط تسجيل الدخول السحري. يرجى التحقق من بريدك الإلكتروني.",
+      "success-msg": "تم إرسال رابط تسجيل الدخول السحري. يرجى التحقق من بريدك الإلكتروني أو الرسائل النصية القصيرة.",
+      "sms-sent-msg": "تم إرسال رابط تسجيل الدخول السحري. يرجى التحقق من الرسائل القصيرة الخاصة بك."
+    },
+    "passwordLogin": {
+      "header": "تسجيل الدخول",
+      "lbl-email": "عنوان البريد الإلكتروني",
+      "lbl-password": "شعار",
+      "lbl-rememberMe": "تذكرني",
+      "lbl-signin": "تسجيل الدخول",
+      "forgotPassword": "هل نسيت كلمة المرور؟",
+      "signup": "ليس لديك حساب؟ التسجيل",
+      "lbl-login": "تسجيل الدخول",
+      "ph-password": "شعار",
+      "ph-email": "البريد الإلكتروني"
+    },
+    "social": {
+      "gitHub": "تسجيل الدخول باستخدام GitHub",
+      "google": "تسجيل الدخول باستخدام جوجل",
+      "facebook": "تسجيل الدخول باستخدام الفيسبوك",
+      "linkedin": "تسجيل الدخول باستخدام لينكد إن",
+      "twitter": "تسجيل الدخول باستخدام تويتر"
+    },
+    "register": {
+      "header": "التسجيل",
+      "login": "تسجيل الدخول",
+      "lbl-signup": "التسجيل",
+      "lbl-password": "شعار",
+      "lbl-email": "عنوان البريد الإلكتروني",
+      "passwordNotMatch": "كلمات المرور غير متطابقة",
+      "ph-password": "شعار",
+      "ph-confirmPassword": "تأكيد كلمة المرور",
+      "ph-email": "البريد الإلكتروني"
+    },
+    "resetPassword": {
+      "header": "إعادة تعيين كلمة المرور",
+      "description": "يرجى إدخال كلمة المرور الخاصة بك لعنوان البريد الإلكتروني الخاص بك",
+      "lbl-submit": "إعادة تعيين كلمة المرور",
+      "lbl-password": "شعار",
+      "lbl-confirmPassword": "تأكيد كلمة المرور",
+      "passwordNotMatch": "كلمات المرور غير متطابقة",
+      "nowLoginYourAccount": "يمكنك الآن تسجيل الدخول إلى حسابك",
+      "yourPasswordResetSuccess": "تمت إعادة تعيين كلمة المرور الخاصة بك بنجاح!"
+    },
+    "verifyEmail": {
+      "header": "التحقق من البريد الإلكتروني",
+      "processing": "يرجى الانتظار لحظة أثناء المعالجة ..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "مواقع",
+      "loading": "تحميل",
+      "col-name": "اسم",
+      "col-scene": "مشهد",
+      "col-maxuser": "الحد الأقصى للمستخدمين",
+      "lbl-search": "البحث عن المواقع",
+      "lbl-new": "الجديد"
+    },
+    "newLocation": {
+      "title": "مكان",
+      "success": "تم الحفظ بنجاح.",
+      "failure": "حدث خطأ ما.",
+      "removeSuccess": "تمت إزالة الموقع الجغرافي بنجاح.",
+      "nameInUse": "الاسم قيد الاستخدام.",
+      "nameRequire": "الاسم مطلوب.",
+      "validNumber": "يسمح فقط بالأرقام (0-9).",
+      "lbl-name": "اسم",
+      "lbl-maxuser": "الحد الأقصى للمستخدمين",
+      "lbl-scene": "مشهد",
+      "lbl-type": "نوع",
+      "lbl-ve": "تمكين الفيديو",
+      "lbl-gme": "تمكين الوسائط العالمية",
+      "lbl-update": "تحديث",
+      "lbl-create": "خلق",
+      "tooltipCanNotBeDeleted": "لا يمكن حذف ساحة الانتظار",
+      "confirmation": "هل أنت متأكد؟",
+      "lbl-yes": "نعم",
+      "lbl-no": "لا"
+    },
+    "share": {
+      "lbl-share": "سهم",
+      "ph-phoneEmail": "دعوة عن طريق البريد الإلكتروني أو رقم الهاتف",
+      "lbl-phoneEmail": "إرسال إلى البريد الإلكتروني أو رقم الهاتف",
+      "lbl-copy": "نسخ",
+      "lbl-send-invite": "إرسال دعوة",
+      "title": "مشاركة عنوان URL للموقع الجغرافي مع فريقك",
+      "linkCopied": "رابط تم نسخه إلى الحافظة."
+    },
+    "setting": {
+      "audio": "صوتي",
+      "lbl-volume": "حجم",
+      "lbl-microphone": "ميكروفون",
+      "graphics": "الرسومات",
+      "controls": "عناصر التحكم",
+      "lbl-control-type": "نوع وحدة التحكم",
+      "lbl-control-scheme": "مخطط التحكم",
+      "lbl-resolution": "دقة",
+      "lbl-shadow": "الظلال",
+      "lbl-pp": "المعالجة اللاحقة",
+      "lbl-pbr": "PBR كامل",
+      "lbl-automatic": "تلقائي",
+      "xrusersetting": "إعدادات مستخدم XR",
+      "rotation": "دوران",
+      "rotation-smooth-speed": "سرعة الدوران السلس",
+      "rotation-angle": "زاوية الدوران",
+      "moving": "تتحرك",
+      "user-avatar": "إعداد الصورة الرمزية",
+      "invert-rotation": "عكس الدوران وتحريك العصي",
+      "show-avatar": "عرض الصورة الرمزية"
+    },
+    "profile": {
+      "lbl-profile": "ملف تعريف",
+      "lbl-settings": "اعدادات",
+      "lbl-username": "اسم المستخدم",
+      "update-msg": "تم تحديث اسم المستخدم",
+      "inviteCode": "رمز الدعوة",
+      "youAreAn": "أنت",
+      "youAreA": "أنت",
+      "showUserId": "إظهار معرف المستخدم",
+      "hideUserId": "إخفاء معرف المستخدم",
+      "showApiKey": "إظهار مفتاح واجهة برمجة التطبيقات",
+      "hideApiKey": "إخفاء مفتاح واجهة برمجة التطبيقات",
+      "apiKey": "مفتاح واجهة برمجة التطبيقات",
+      "logout": "تسجيل الخروج",
+      "connectPhone": "قم بتوصيل رقم هاتفك",
+      "connectEmail": "ربط البريد الإلكتروني الخاص بك",
+      "connectPhoneEmail": "ربط بريدك الإلكتروني أو رقم هاتفك",
+      "or": "أو",
+      "lbl-wallet": "تسجيل الدخول باستخدام المحفظة",
+      "ph-email": "البريد الإلكتروني",
+      "ph-phone": "رقم الهاتف",
+      "ph-phoneEmail": "رقم الهاتف / البريد الإلكتروني",
+      "phoneEmailError": "رقم الهاتف أو عنوان البريد الإلكتروني غير صالح",
+      "phoneError": "هاتف غير صالح #",
+      "emailError": "عنوان بريد إلكتروني غير صالح",
+      "loginWithReadyPlayerMe": "تسجيل الدخول باستخدام Ready Player Me",
+      "connectSocial": "التواصل مع الحسابات الاجتماعية",
+      "createOne": "إذا لم يكن لديك حساب، إنشاء حساب جديد لك",
+      "connections": {
+        "title": "اتصالات",
+        "ipError": "لا يمكن إزالة موفر الهوية النشط",
+        "disconnect": "قطع الاتصال",
+        "connect": "عشق"
+      },
+      "profileDropdown": {
+        "avatar": "رمز الصورة الرمزية للمستخدم",
+        "profile": "ملف تعريف",
+        "adminConsole": "وحدة تحكم المشرف",
+        "logout": "الخروج"
+      },
+      "userIcon": {
+        "lbl-name": "الاسم",
+        "lbl-update": "تحديث",
+        "userId": "معرف المستخدم",
+        "ph-uploadImg": "تحميل صورة المنتج",
+        "lbl-selectAcvatar": "حدد الصورة الرمزية",
+        "lbl-submit": "إرسال"
+      },
+      "userSettings": {
+        "volume": "حجم",
+        "microphone": "ميكروفون",
+        "resolution": "دقة",
+        "high": "عال",
+        "low": "منخفض",
+        "spatialAudio": "استخدام الصوت المكاني",
+        "enterMuted": "أدخل الغرفة صامتة"
+      }
+    },
+    "oauth": {
+      "authenticating": "مصادقه...",
+      "authFailed": "فشلت مصادقة {{service}}."
+    },
+    "magikLink": {
+      "wait": "يرجى الانتظار لحظة أثناء المعالجة ..."
+    },
+    "dashboard": {
+      "header": "لوحه القياده",
+      "dashboard": "لوحه القياده",
+      "users": "المستعملون",
+      "feeds": "يغذي",
+      "instance": "مثيل",
+      "locations": "مواقع",
+      "invites": "تدعو",
+      "sessions": "دورات",
+      "groups": "المجموعات",
+      "parties": "احزاب",
+      "chats": "الدردشات",
+      "content": "حزم المحتوى",
+      "projects": "المشاريع",
+      "scenes": "مشاهد",
+      "avatars": "الالهه",
+      "benchmarking": "قياس",
+      "bots": "السير"
+    }
+  },
+  "oauth": {
+    "authenticating": "مصادقه...",
+    "authFailed": "فشلت مصادقة {{service}}."
+  },
+  "magikLink": {
+    "wait": "يرجى الانتظار لحظة أثناء المعالجة ..."
+  },
+  "dashboard": {
+    "header": "لوحه القياده",
+    "dashboard": "لوحه القياده",
+    "users": "المستعملون",
+    "feeds": "يغذي",
+    "instance": "مثيل",
+    "locations": "مواقع",
+    "routes": "طرق",
+    "projects": "المشاريع",
+    "invites": "تدعو",
+    "sessions": "دورات",
+    "groups": "المجموعات",
+    "parties": "احزاب",
+    "chats": "الدردشات",
+    "content": "حزم المحتوى",
+    "scenes": "مشاهد",
+    "avatars": "الالهه",
+    "benchmarking": "قياس",
+    "bots": "السير",
+    "setting": "اعدادات"
+  },
+  "avatar": {
+    "title": "تحميل الصورة الرمزية",
+    "lbl-browse": "تصفح",
+    "lbl-thumbnail": "الصوره المصغره",
+    "lbl-upload": "رفع",
+    "selectAvatar": "حدد الصورة الرمزية...",
+    "selectThumbnail": "حدد الصورة المصغرة...",
+    "rotate": "دور",
+    "pan": "عموم",
+    "noBone": "Obejct لا يحتوي على أي عظام أو جلد",
+    "outOfBound": "الكائن خارج الحدود.",
+    "emptyObj": "الكائن فارغ.",
+    "maxTriangleError": "يحتوي الكائن على وجوه أكبر من {{allowedTriangles}} .",
+    "selectValidFile": "حدد ملف الصورة الرمزية 3D صالح.",
+    "selectValidThumbnail": "ملف الصور المصغرة الصالح المحدد.",
+    "fileOversized": "يجب أن يتراوح حجم ملف الصورة الرمزية بين {{minSize}} ميغابايت و {{maxSize}} ميغابايت",
+    "confirmation": "هل أنت متأكد؟",
+    "canNotBeRemoved": "لا يمكن إزالة الصورة الرمزية النشطة",
+    "remove": "إزالة الصورة الرمزية",
+    "uploadFiles": "تحميل الملفات",
+    "useUrlInstead": "استخدم عنوان URL بدلا من ذلك",
+    "avatar": "الرمزيه",
+    "cancel": "إلغاء الأمر",
+    "createAvatar": "إنشاء الصورة الرمزية",
+    "delete": "حذف",
+    "view": "منظر",
+    "uploadAvatarInfo": "تحديث معلومات الصورة الرمزية",
+    "name": "اسم",
+    "enterName": "أدخل الاسم",
+    "avatarInformation": "معلومات الصورة الرمزية",
+    "description": "وصف",
+    "key": "مفتاح",
+    "none": "اي",
+    "submit": "إرسال",
+    "edit": "حرر",
+    "avatarUrl": "عنوان URL للصورة الرمزية",
+    "upload-success-msg": "الصورة الرمزية التي تم تحميلها بنجاح.",
+    "remove-success-msg": "الصورة الرمزية التي تم تحميلها بنجاح.",
+    "warning-msg": "مورد الصورة الرمزية فارغ ، هل قمت بمزامنة الصور الرمزية مع تخزين الملفات الثابتة؟"
+  },
+  "personMenu": {
+    "inviteToParty": "دعوة لحضور حفلة",
+    "addAsFriend": "أضف كصديق",
+    "mute": "أخرس",
+    "block": "حجز"
+  },
+  "person": {
+    "you": "أنت",
+    "yourScreen": "شاشتك",
+    "muteForEveryone": "كتم الصوت للجميع",
+    "unmuteForEveryone": "إلغاء كتم الصوت للجميع",
+    "muteMe": "كتم صوتي",
+    "unmuteMe": "إلغاء كتم صوتي",
+    "muteThisPerson": "كتم صوت هذا الشخص",
+    "unmuteThisPerson": "إلغاء كتم صوت هذا الشخص",
+    "openPictureInPicture": "فتح صورة داخل صورة"
+  }
+}

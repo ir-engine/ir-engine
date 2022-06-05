@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Kāore i Kitea te Whārangi"
+  },
+  "503": {
+    "msg": "503 - Kāore i te wātea te ratonga"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Kua rāhuitia koe mai i tēnei tauwāhi",
+    "locationName": {
+      "pageTitle": "Kāinga"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Ngā Kaupapa",
+      "header": "Takiuru koa",
+      "welcomeMsg": "Nau mai",
+      "locationHeader": "Ngā Tauwāhi",
+      "projectHeader": "Ngā Kaupapa",
+      "sceneHeader": "Ngā Tirohanga",
+      "description": "Mehemea he mea hou koe i konei e tūtohu ana mātau kia puta i te whakaakoranga. Ki te kore, peke ki roto me te waihanga i tētahi kaupapa mai i te raruraru, mai i tētahi rānei o ā mātou tātauira.",
+      "lbl-startTutorial": "Tīmata Akoranga",
+      "lbl-newProject": "Kaupapa Hōu",
+      "lbl-createProject": "Waihanga",
+      "lbl-newScene": "Tirohanga Hōu",
+      "lbl-searchProject": "Rapua Ngā Kaupapa Tīariari...",
+      "back": "Whakamuri",
+      "contextMenu": "Muku Kaupapa",
+      "installed": "Ngā Kaupapa Kua Tāutahia",
+      "official": "Kaupapa Whai Mana",
+      "community": "Ngā Kaupapa Hapori",
+      "install": "Tāuta",
+      "uninstall": "Tangotāuta",
+      "rename": "Whakaingoa anō",
+      "createProject": "Waihanga Kaupapa",
+      "installProject": "Tāuta Kaupapa",
+      "processing": "Tukatuka ana",
+      "projectName": "Ingoa Kaupapa",
+      "projectURL": "Kaupapa URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Hoki ki te kāinga",
+    "withStatusCode": "Kua puta mai tētahi {{code}} hapa i runga i te tūmau",
+    "withoutStatusCode": "Kua puta mai tētahi hapa i te tūmau"
+  },
+  "no-projects": {
+    "msg": "Hapa: Kāore he Kaupapa i Tāuta - whakapā atu koa ki tētahi kaiwhakahaere pae"
+  },
+  "dev": {
+    "pageTitle": "Kāinga"
+  },
+  "login": {
+    "pageTitle": "Takiuru"
+  },
+  "workerTest": {
+    "pageTitle": "Whakamātautau Kaimahi"
+  },
+  "index": {
+    "by": "NĀ",
+    "xr": "XR",
+    "foundation": "Tūranga",
+    "description": "Ngā taupānga pāpori Ahu-3 kia hari ai te katoa."
+  },
+  "xrengineContact": {
+    "header": "Haere Ki Te Pā!",
+    "description": "E hiahia ana mātou ki te āwhina i a koe ki ō takahanga mariko, te hokohoko mamati, te whakangahau me ētahi atu hiahia.",
+    "lbl-name": "Ingoa",
+    "lbl-email": "Ī-mēra",
+    "lbl-company": "Kamupene",
+    "lbl-project": "Whakaahuatia tō Kaupapa",
+    "lbl-send": "Tuku",
+    "lbl-ok": "Ka pai",
+    "lbl-success": "Kua tukua te karere, ka hoki wawe mātou ki a koe.",
+    "lbl-failure": "Kua puta mai tētahi hapa, ka ngana anō a Plese",
+    "err-username": "Tāurutia koa tō ingoa.",
+    "err-email": "E hiahiatia ana te īmēra.",
+    "err-msg": "Homai he whakaahuatanga poto o tō kaupapa."
+  }
+}

@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Potvrzovací e-mail",
+      "resendEmail": "Zkontrolujte prosím svůj e-mail a ověřte svůj účet. Pokud jste e-mail nedostali, kliknutím na {{here}} ověřovací e-mail odešlete znovu.",
+      "haveAnAccount": "Máte účet?"
+    },
+    "forgotPassword": {
+      "header": "Zapomenuté heslo",
+      "enterEmail": "Zadejte prosím svou registrovanou e-mailovou adresu a my vám zašleme odkaz pro obnovení hesla.",
+      "lbl-email": "E-mailová adresa",
+      "lbl-submit": "Odeslat odkaz",
+      "emailSent": "Resetovat heslo E-mail byl odeslán. Zkontrolujte prosím svůj e-mail."
+    },
+    "login": {
+      "email": "E-mailová | TEXTOVKA",
+      "username": "Uživatelské jméno + heslo",
+      "social": "Sociální"
+    },
+    "magiklink": {
+      "header": "Odkaz pro přihlášení",
+      "descriptionEmail": "Zadejte prosím svou e-mailovou adresu a my vám zašleme přihlašovací odkaz prostřednictvím e-mailu.",
+      "descriptionSMS": "Zadejte prosím své telefonní číslo a my vám zašleme přihlašovací odkaz prostřednictvím SMS.",
+      "descriptionEmailSMS": "Zadejte prosím svou e-mailovou adresu nebo telefonní číslo (10místné, pouze v USA) a my vám zašleme přihlašovací odkaz prostřednictvím e-mailu nebo SMS.",
+      "descriptionSMSUS": "Zadejte prosím své telefonní číslo (10 číslic, pouze v USA) a my vám zašleme přihlašovací odkaz prostřednictvím SMS.",
+      "lbl-email": "E-mailová adresa",
+      "lbl-emailPhone": "E-mail nebo telefonní číslo",
+      "lbl-phone": "Telefonní číslo",
+      "agree": "Souhlasím s ",
+      "terms": "Obchodní podmínky",
+      "lbl-submit": "Odeslat přihlašovací odkaz",
+      "email-sent-msg": "Přihlášení Magic Link byl odeslán. Zkontrolujte prosím svůj e-mail.",
+      "success-msg": "Přihlášení Magic Link byl odeslán. Zkontrolujte prosím svůj e-mail nebo SMS.",
+      "sms-sent-msg": "Přihlášení Magic Link byl odeslán. Zkontrolujte prosím svou SMS."
+    },
+    "passwordLogin": {
+      "header": "Přihlásit se",
+      "lbl-email": "E-mailová adresa",
+      "lbl-password": "Heslo",
+      "lbl-rememberMe": "Zapamatovat si mě",
+      "lbl-signin": "Přihlásit se",
+      "forgotPassword": "Zapomněli jste heslo?",
+      "signup": "Nemáte účet? Registrace",
+      "lbl-login": "Přihlásit se",
+      "ph-password": "Heslo",
+      "ph-email": "E-mail"
+    },
+    "social": {
+      "gitHub": "Přihlásit se přes GitHub",
+      "google": "Přihlásit se přes Google",
+      "facebook": "Přihlásit se přes Facebook",
+      "linkedin": "Přihlásit se přes Linkedin",
+      "twitter": "Přihlásit se přes Twitter"
+    },
+    "register": {
+      "header": "Registrace",
+      "login": "Přihlásit se",
+      "lbl-signup": "Registrace",
+      "lbl-password": "Heslo",
+      "lbl-email": "E-mailová adresa",
+      "passwordNotMatch": "Hesla se neshodují",
+      "ph-password": "Heslo",
+      "ph-confirmPassword": "Potvrzení hesla",
+      "ph-email": "E-mail"
+    },
+    "resetPassword": {
+      "header": "Obnovit heslo",
+      "description": "Zadejte prosím své heslo pro svou e-mailovou adresu",
+      "lbl-submit": "Obnovit heslo",
+      "lbl-password": "Heslo",
+      "lbl-confirmPassword": "Potvrzení hesla",
+      "passwordNotMatch": "Hesla se neshodují",
+      "nowLoginYourAccount": "Nyní se můžete přihlásit ke svému účtu",
+      "yourPasswordResetSuccess": "Vaše heslo bylo úspěšně resetováno!"
+    },
+    "verifyEmail": {
+      "header": "Ověřit e-mail",
+      "processing": "Počkejte prosím chvíli při zpracování..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Místa",
+      "loading": "Nakládka",
+      "col-name": "Jméno",
+      "col-scene": "Scéna",
+      "col-maxuser": "Maximální počet uživatelů",
+      "lbl-search": "Vyhledávání lokalit",
+      "lbl-new": "Nový"
+    },
+    "newLocation": {
+      "title": "Umístění",
+      "success": "Úspěšně uloženo.",
+      "failure": "Něco se pokazilo.",
+      "removeSuccess": "Umístění bylo úspěšně odebráno.",
+      "nameInUse": "Název se používá.",
+      "nameRequire": "Jméno je povinné.",
+      "validNumber": "Povolena jsou pouze čísla (0-9).",
+      "lbl-name": "Jméno",
+      "lbl-maxuser": "Maximální počet uživatelů",
+      "lbl-scene": "Scéna",
+      "lbl-type": "Typ",
+      "lbl-ve": "Video povoleno",
+      "lbl-gme": "Globální média povolena",
+      "lbl-update": "Aktualizace",
+      "lbl-create": "Vytvářet",
+      "tooltipCanNotBeDeleted": "Lobby nelze smazat",
+      "confirmation": "Opravdu?",
+      "lbl-yes": "Ano",
+      "lbl-no": "Ne"
+    },
+    "share": {
+      "lbl-share": "Sdílet",
+      "ph-phoneEmail": "Pozvání e-mailem nebo telefonním číslem",
+      "lbl-phoneEmail": "Odeslat na e-mail nebo telefonní číslo",
+      "lbl-copy": "Kopírovat",
+      "lbl-send-invite": "Odeslat pozvánku",
+      "title": "Sdílení adresy URL lokality s týmem",
+      "linkCopied": "Odkaz zkopírován do schránky."
+    },
+    "setting": {
+      "audio": "Audio",
+      "lbl-volume": "Hlasitost",
+      "lbl-microphone": "Mikrofon",
+      "graphics": "Grafika",
+      "controls": "Řízení",
+      "lbl-control-type": "Typ řadiče",
+      "lbl-control-scheme": "Řídicí schéma",
+      "lbl-resolution": "Usnesení",
+      "lbl-shadow": "Stíny",
+      "lbl-pp": "Následné zpracování",
+      "lbl-pbr": "Plný PBR",
+      "lbl-automatic": "Automatický",
+      "xrusersetting": "Uživatelská nastavení XR",
+      "rotation": "Rotace",
+      "rotation-smooth-speed": "Plynulá rychlost otáčení",
+      "rotation-angle": "Úhel natočení",
+      "moving": "Dojemný",
+      "user-avatar": "Nastavení avatara",
+      "invert-rotation": "Invertovat rotaci a pohybovat páčkami",
+      "show-avatar": "Zobrazit avatar"
+    },
+    "profile": {
+      "lbl-profile": "Profil",
+      "lbl-settings": "Nastavení",
+      "lbl-username": "Uživatelské jméno",
+      "update-msg": "Uživatelské jméno aktualizováno",
+      "inviteCode": "Pozvánkový kód",
+      "youAreAn": "Jste",
+      "youAreA": "Jste",
+      "showUserId": "Zobrazit ID uživatele",
+      "hideUserId": "Skrýt ID uživatele",
+      "showApiKey": "Zobrazit klíč rozhraní API",
+      "hideApiKey": "Skrýt klíč rozhraní API",
+      "apiKey": "Klíč rozhraní API",
+      "logout": "Odhlášení ze systému",
+      "connectPhone": "Připojení telefonního čísla",
+      "connectEmail": "Připojení e-mailu",
+      "connectPhoneEmail": "Připojení e-mailu nebo telefonního čísla",
+      "or": "Nebo",
+      "lbl-wallet": "Přihlásit se pomocí Walletu",
+      "ph-email": "E-mail",
+      "ph-phone": "Telefonní číslo",
+      "ph-phoneEmail": "Telefonní číslo / e-mail",
+      "phoneEmailError": "Neplatné číslo telefonu nebo e-mailová adresa",
+      "phoneError": "Neplatný telefon #",
+      "emailError": "Neplatná e-mailová adresa",
+      "loginWithReadyPlayerMe": "Přihlásit se s Ready Player Me",
+      "connectSocial": "Spojte se s účty na sociálních sítích",
+      "createOne": "Pokud účet nemáte, vytvoří se vám nový.",
+      "connections": {
+        "title": "Konexe",
+        "ipError": "Nelze odebrat aktivního zprostředkovatele identity",
+        "disconnect": "odpojit",
+        "connect": "Spojit"
+      },
+      "profileDropdown": {
+        "avatar": "Ikona avatara uživatele",
+        "profile": "Profil",
+        "adminConsole": "Admin Console",
+        "logout": "Odhlášení od sítě"
+      },
+      "userIcon": {
+        "lbl-name": "Tvoje jméno",
+        "lbl-update": "Aktualizace",
+        "userId": "ID uživatele",
+        "ph-uploadImg": "Nahrát obrázek produktu",
+        "lbl-selectAcvatar": "Vyberte Avatar",
+        "lbl-submit": "Podat"
+      },
+      "userSettings": {
+        "volume": "Hlasitost",
+        "microphone": "Mikrofon",
+        "resolution": "Usnesení",
+        "high": "Vysoko",
+        "low": "Nízký",
+        "spatialAudio": "Použití prostorového zvuku",
+        "enterMuted": "Vstup do místnosti ztlumený"
+      }
+    },
+    "oauth": {
+      "authenticating": "Ověřování...",
+      "authFailed": "{{service}} ověřování se nezdařilo."
+    },
+    "magikLink": {
+      "wait": "Počkejte prosím chvíli při zpracování..."
+    },
+    "dashboard": {
+      "header": "Palubní deska",
+      "dashboard": "Palubní deska",
+      "users": "Uživatelé",
+      "feeds": "Krmí",
+      "instance": "Instance",
+      "locations": "Místa",
+      "invites": "Zve",
+      "sessions": "Zasedání",
+      "groups": "Skupiny",
+      "parties": "Strany",
+      "chats": "Klábosí",
+      "content": "Balíčky obsahu",
+      "projects": "Projekty",
+      "scenes": "Scény",
+      "avatars": "Avatary",
+      "benchmarking": "Benchmarking",
+      "bots": "Roboty"
+    }
+  },
+  "oauth": {
+    "authenticating": "Ověřování...",
+    "authFailed": "{{service}} ověřování se nezdařilo."
+  },
+  "magikLink": {
+    "wait": "Počkejte prosím chvíli při zpracování..."
+  },
+  "dashboard": {
+    "header": "Palubní deska",
+    "dashboard": "Palubní deska",
+    "users": "Uživatelé",
+    "feeds": "Krmí",
+    "instance": "Instance",
+    "locations": "Místa",
+    "routes": "Trasy",
+    "projects": "Projekty",
+    "invites": "Zve",
+    "sessions": "Zasedání",
+    "groups": "Skupiny",
+    "parties": "Strany",
+    "chats": "Klábosí",
+    "content": "Balíčky obsahu",
+    "scenes": "Scény",
+    "avatars": "Avatary",
+    "benchmarking": "Benchmarking",
+    "bots": "Roboty",
+    "setting": "Nastavení"
+  },
+  "avatar": {
+    "title": "Nahrát avatara",
+    "lbl-browse": "Pást se",
+    "lbl-thumbnail": "Miniatura",
+    "lbl-upload": "Upload",
+    "selectAvatar": "Vyberte možnost Avatar...",
+    "selectThumbnail": "Vyberte možnost Thumbnail...",
+    "rotate": "Otáčet",
+    "pan": "Pánev",
+    "noBone": "Obejct neobsahuje žádné kosti ani kůži",
+    "outOfBound": "Objekt je mimo vazbu.",
+    "emptyObj": "Objekt je prázdný.",
+    "maxTriangleError": "Objekt obsahuje větší než {{allowedTriangles}} ploch.",
+    "selectValidFile": "Vyberte platný soubor 3D avatara.",
+    "selectValidThumbnail": "Vybraný platný soubor miniatur.",
+    "fileOversized": "Velikost souboru avatara musí být mezi {{minSize}} MB a {{maxSize}} MB",
+    "confirmation": "Opravdu?",
+    "canNotBeRemoved": "Aktivní avatar nelze odstranit",
+    "remove": "Odebrat avatara",
+    "uploadFiles": "Vkládat",
+    "useUrlInstead": "Místo toho použijte adresu URL",
+    "avatar": "Avatar",
+    "cancel": "Zrušit",
+    "createAvatar": "Vytvořit avatara",
+    "delete": "Vymazat",
+    "view": "Pohled",
+    "uploadAvatarInfo": "Aktualizace informací o avataru",
+    "name": "Jméno",
+    "enterName": "Zadejte jméno",
+    "avatarInformation": "Informace o avataru",
+    "description": "Popis",
+    "key": "Klíč",
+    "none": "Žádný",
+    "submit": "Podat",
+    "edit": "Upravit",
+    "avatarUrl": "Adresa URL avatara",
+    "upload-success-msg": "Avatar nahrán úspěšně.",
+    "remove-success-msg": "Avatar nahrán úspěšně.",
+    "warning-msg": "Zdroj avatara je prázdný, synchronizovali jste avatary se statickým úložištěm souborů?"
+  },
+  "personMenu": {
+    "inviteToParty": "Pozvat na párty",
+    "addAsFriend": "Přidat jako přítele",
+    "mute": "Ztlumit",
+    "block": "Blokovat"
+  },
+  "person": {
+    "you": "Ty",
+    "yourScreen": "Vaše obrazovka",
+    "muteForEveryone": "Ztlumení pro všechny",
+    "unmuteForEveryone": "Zrušit ztlumení pro všechny",
+    "muteMe": "Ztlumit mě",
+    "unmuteMe": "Zrušit ztlumení",
+    "muteThisPerson": "Ztlumit tuto osobu",
+    "unmuteThisPerson": "Zrušení ztlumení této osoby",
+    "openPictureInPicture": "Otevření okna Obrázek v obraze"
+  }
+}

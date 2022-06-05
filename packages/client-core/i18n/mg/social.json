@@ -1,0 +1,202 @@
+{
+  "addComment": "Hanampy fanamarihana...",
+  "share": "Hizara",
+  "suggestions": "Sosokevitra ho anao",
+  "seeAll": "Jereo izy rehetra",
+  "likes": "Tia",
+  "viewComments": "Hijery ireo fanehoan-kevitra {{count}} rehetra",
+  "more": "misimisy",
+  "username": "Anaran'ny mpampiasa",
+  "fullName": "Anaran'ny anaran'ny anarana",
+  "reportInApporpriate": "Report Inappropriate",
+  "unfollow": "Tsy torotoro",
+  "goToPost": "Ho any amin'ny Post",
+  "shareModal": "Hizara",
+  "copyLink": "Adikao ilay rohy",
+  "embed": "Embed",
+  "cancel": "Foano",
+  "confirm": "Manamafy",
+  "save": "Raiketo",
+  "profilePic": "{{user}}sarin'ny profil",
+  "ara": "Ara",
+  "follow": "Araho",
+  "flames": "Saina",
+  "continue": "Tohizo",
+  "partyInvitationSent": "Fanasan'ny antoko nalefa",
+  "arMedia": {
+    "back": "Miverina",
+    "clip": "Clip",
+    "backgrounds": "Afara",
+    "start": "Atomboy"
+  },
+  "arMediaform": {
+    "title": "Lohateny",
+    "type": "Karazana",
+    "clip": "Clip",
+    "background": "Afara",
+    "scene": "Scene",
+    "save": "Raiketo",
+    "manifest-file": "Asehoy ny rakitra .asehoy",
+    "audio-file": "Rakitra mp4",
+    "dracosis-file": "Dracosis .uvol file",
+    "preview-file": "Topy maso ny raki-tsary"
+  },
+  "creator": {
+    "myVideos": "Ireo Horonan-tsary nataoko",
+    "savedVideos": "Horonan-tsary voaraikitra",
+    "back": "Miverina",
+    "blocked-list": "Lisitra voabahana",
+    "block-user": "Block User",
+    "dialog-content": "Tsy hahita ny mombamomba ny mpampiasa sy ny votoatiny ianao"
+  },
+  "creatorForm": {
+    "back": "Miverina",
+    "edit": "Hanova profil",
+    "save": "Raiketo",
+    "changeAvatar": "Manova ny sarintavan'ny sarintava",
+    "ph-selectPreview": "Misafidiana topy maso",
+    "ph-name": "Ny anaranao",
+    "ph-username": "Ny anaran'ny mpampiasa anao",
+    "ph-email": "Ny Email-nao",
+    "ph-tags": "Tag",
+    "ph-link": "Rohy",
+    "ph-aboutYou": "Betsaka kokoa momba anao",
+    "ph-twitter": "twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Sign-Out"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Mpampiasa",
+    "feeds": "Fahanana",
+    "arMedia": "Horonan-tsary",
+    "editor": "Mpanova",
+    "creator": "Mpamorona"
+  },
+  "featured": {
+    "empty-list": "Tsy misy sakafo ho an'izao fotoana izao ..."
+  },
+  "feed": {
+    "back": "Miverina",
+    "related": "Sakafo mifandraika amin'izany",
+    "is-repoted-message": "Voatatitra ny fahana!"
+  },
+  "feedForm": {
+    "back": "Miverina",
+    "thanks": "Misaotra tamin'ny fizarana sy fanatsarana ny vondrom-piarahamoninay",
+    "share": "Mizara zavatra amin'ny vondrom-piarahamonina",
+    "upload": "Nampakatra ny Horonan-tsary",
+    "ph-selectVideo": "Misafidiana Horonan-tsary",
+    "preview": "Topy maso ny sary",
+    "ph-selectPreview": "Misafidiana topy maso",
+    "createFeed": "Mba hahazoana fahana dia tsy maintsy manana lahatsary sy sary topy maso ianao!!!",
+    "ph-videoName": "Ny anaran'ny horonan-tsaryo",
+    "ph-type": "Soraty izay tianao hozaraina amin'ny vondrom-piarahamonina ... ",
+    "lbl-share": "Hizara",
+    "save": "Vonjeo ary mandehana manaraka"
+  },
+  "feedMenu": {
+    "featured": "Voasorna",
+    "creators": "Mpamorona",
+    "feed": "Ny Sakafo"
+  },
+  "header": {
+    "lbl-volumetric": "Fanamavotana"
+  },
+  "login": {
+    "account": "Manana tantara ve?",
+    "login": "Fidirana",
+    "resetPassword": "Alefaso ny bokotra hoe :Teny fanalahidy Fake (ity misy rohy avy amin'ny mailaka)",
+    "notHavingAccount": "Tsy manana kaonty ve?",
+    "signUp": "Misoratra anarana",
+    "forgotPassword": "Adino ve ny teny fanalahidy?",
+    "back": "Miverina",
+    "or": "OR"
+  },
+  "comment": {
+    "add": "Ampidiro ny fanamarihanao..."
+  },
+  "notification": {
+    "feedFire": " Notifiriny ny sakafonao.",
+    "feedBookmarked": " Nasiana rohy ny fahanao.",
+    "comment": " Naneho hevitra momba ny fahanao:",
+    "commentFire": " Noroahana ny fanehoan-kevitrao mba hamahanana.",
+    "follow": " nanomboka nanaraka anao",
+    "unfollow": " najanony ny fanarahana anao",
+    "followed": " nanaraka anao",
+    "activity": "Asa atao"
+  },
+  "onBoarding": {
+    "welcome": "Tongasoa!",
+    "description": "Fanangonana goavana indrindra misy 370+ ho an'ny iOS prototyping.",
+    "next": "Manaraka",
+    "discover": "Fantaro ireo lahatsoratra,",
+    "news": "vaovao & lahatsoratra",
+    "lines": "Ireo fahatsapana ireo no mahatonga ny fitiavantsika ny astronomia sy ny faniriantsika.",
+    "getStarted": "Atomboy",
+    "meetUp": "Mihaona amin'ny",
+    "friends": "namana.",
+    "meet": "Mihaona amin'ny namana"
+  },
+  "shareForm": {
+    "arcMedia": "Hizara",
+    "videoCreated": "Namorona ity Horonantsary ity Aho",
+    "shareWithBuddies": "Zarao amin'ny buddies",
+    "shareVideo": "Hizara Horonan-tsary",
+    "save": "Raiketo ny hoso-taratasy fakantsary",
+    "cancel": "Foano",
+    "close": "Hidio",
+    "addFeed": "Hanampy Sakafo"
+  },
+  "simpleModal": {
+    "emptyList": "Lisitra foana",
+    "followers": " manaraka",
+    "following": " mpanara-dia",
+    "flames": " afo"
+  },
+  "splash": {
+    "screen": "Efijery",
+    "logo": "Sary famantarana"
+  },
+  "story": {
+    "profilePic": "{{user}}sarin'ny profil"
+  },
+  "view": {
+    "cancel": "Foano",
+    "choice": "Manana fomba fandraisam-peo roa samy hafa ianao mba hisafidianana avy amin'ny",
+    "verticalMode": "Manana fotoana 30 ny fomba mitsangana",
+    "horizontalMode": "Tsy voafetra ny fotoana tsy voafetran'ny firaketana",
+    "start": "Atomboy",
+    "not-show": "Aza aseho intsony izany",
+    "welcome": "Tongasoa eto amin'ny ARC!  Manaova lahatsary manokana miaraka amin'ny iray amin'ireo hologramas-nay ary alefaso ao amin'ny fantsona media sosialyreo!",
+    "step": "{{step}}",
+    "text-step-1": "Misafidiana holograma avy ao amin'ny tranomboky.",
+    "text-step-2": "Zava-misy marina izany, noho izany dia tsidiho ny toerana miaraka amin'ny fakantsarinao miaraka amin'ny fakantsarinao mandritra ny 3-5 segondra izay tianao hahatongavan'ny fampisehoana holograma.",
+    "text-step-3-part-1": "Indray mandeha dia alefaso eo amin'ny toerana tianao hifikirana ny holograma.",
+    "text-step-3-part-2": "SOSO - KEVITRA!  Mitehafa any amin'ny toeran-kafa mba hamindrana ilay holograma ho amin'ny toerana hafa.",
+    "text-step-3-part-3": "SOSO - KEVITRA!  Azonao atao ny mamerina ny holograma amin'ny alalan'ny fikikisana na fanitarana ny efijery amin'ny ankihibenao sy ny fanondronao.",
+    "text-step-4-part-1": "Bokotra mena amin'ny paokitra mba HANOMBOHANA ny horonan-tsarinao.",
+    "text-step-4-part-2": "Tsindry indroa amin'ny firaketana mena mba STOP."
+  },
+  "video": {
+    "back": "Miverina"
+  },
+  "terms": {
+    "confirmTerms": "Manaiky ny Fepetran'ny Asa Fanompoana aho.",
+    "confirmPolicy": "Manaiky ny Fitsipika arahina mikasika ny Tsiambaratelo aho"
+  },
+  "registration": {
+    "ph-phoneEmail": "Mampiasà finday / email",
+    "facebook": "Tohizo amin'ny Facebook",
+    "google": "Tohizo amin'ny Google",
+    "linkedin": "Tohizo amin'ny Roedin",
+    "twitter": "Tohizo amin'ny Twitter",
+    "gitHub": "Tohizo ny GitHub",
+    "connect": "Hifandray ny e-mail na ny laharan'ny findainao.",
+    "logIn": "Hiditra",
+    "LogInTo": "Hiditra ao amin'ny",
+    "continueAsGuest": "Tohizo toy ny vahiny"
+  }
+}

@@ -1,0 +1,718 @@
+{
+  "loading": "Loading peb tes num",
+  "loadingMsg": "Loading peb tes num...",
+  "loadingError": "Yuam kev loading peb tes num",
+  "loadingErrorMsg": "Muaj ib qho yuam kev thaum loading peb tes num.",
+  "selectSceneMsg": "Xaiv Scene pib ua si nrog lub cav",
+  "error": "Yuam kev",
+  "errorMsg": "Muaj ib qho yuam kev tsis paub yuam kev.",
+  "generateScreenshot": "Generating peb tes num Screenshot",
+  "generateScreenshotMsg": "Generating peb tes num screenshot...",
+  "newScene": "Tsim scene",
+  "saving": "Txuag peb tes num",
+  "savingMsg": "Txuag peb tes num...",
+  "savingError": "Yuam kev txuag peb tes num",
+  "savingErrorMsg": "Muaj ib qho yuam kev thaum txuag peb tes num.",
+  "savingSceneErrorMsg": "Scene yuav tsis loaded kom zoo. Sim reloading lub scene.",
+  "duplicating": "Duplicating peb tes num",
+  "duplicatingMsg": "Duplicating peb tes num...",
+  "exporting": "Exporting peb tes num",
+  "exportingMsg": "Exporting peb tes num...",
+  "exportingError": "Yuam kev exporting peb tes num",
+  "exportingErrorMsg": "Muaj ib qho yuam kev thaum exporting peb tes num.",
+  "importLegacy": "Import Legacy ntiaj teb",
+  "importLegacyMsg": "Ceeb toom! Qhov no yuav overwrite koj uas twb muaj lawm scene! Koj puas xav mus ntxiv?",
+  "publishingError": "Yuam kev Publishing peb tes num",
+  "publishingErrorMsg": "Muaj ib qho yuam kev tsis paub yuam kev.",
+  "publishingScene": "Publishing Scene",
+  "publishingSceneMsg": "Publishing scene...",
+  "uploadingThumbnailMsg": "Uploading thumbnail...",
+  "uploadingSceneMsg": "Uploading scene: {{percentage}}%",
+  "envMapError": "Yuam kev loading cubemap dluab {{files}}",
+  "lbl-return": "xa rov qab",
+  "menubar": {
+    "newScene": "Scene tshiab",
+    "saveScene": "Txuag scene",
+    "saveAs": "Txuag tau li",
+    "importAsset": "Cuab tam tseem ceeb",
+    "exportGLB": "Export li binary glTF (.glb)...",
+    "importScene": "Import scene",
+    "exportScene": "Export scene",
+    "quit": "Tawm"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Phau Vajlugkub hais tias: \"{{name}}\" . \" Yuav tsum muaj ib cov duab, yees duab, los yog glb qauv.",
+    "addObject": "addObject: ua ntej yuav tsis nrhiav tau",
+    "removeObject": "tshem TawmObject: node tsis nrhiav tau. Qhov no yog them rau tshem ib node uas yog lawm hauv lub scene.",
+    "noParent": "{{node}} \"{{name}}\" tsis muaj leej twg. Reparent tsuas ua haujlwm rau tej khoom uas tam sim no nyob rau hauv lub scene.",
+    "undefinedParent": "editor.reparent: newParent yog undefined",
+    "notAuthenticated": "Tsis authenticated",
+    "fetchingProjectError": "Yuam kev fetching tej yaam num: {{error}}",
+    "fetchingRouteError": "Yuam kev fetching tseem khiav: {{error}}",
+    "unknownError": "Tsis paub yuam kev",
+    "resolveURL": "Yuam kev daws url \"{{url}}\":",
+    "mediaSearchAborted": "Media nrhiav aborted",
+    "methodNotImplemented": "Txoj kev siv tsis siv.",
+    "saveProjectAborted": "Txuag scene aborted",
+    "unsavedChanges": "Unsaved hloov",
+    "unsavedChangesMsg": "Lub scene muaj tau hloov. Thov txuag koj cov kev hloov.",
+    "projectCreationFail": "Peb tes num creation tejyam. {{reason}}",
+    "projectDeletionFail": "Peb tes num deletion tejyam. {{reason}}",
+    "savingProjectFail": "Txuag peb tes num tejyam. {{reason}}",
+    "sceneTooLarge": "Scene yog ib yam nkaus thiab loj heev ({{size}} MB) luam tawm tsab. Qhov ntau npaum li cas yog {{maxSize}} MB.",
+    "sceneCreationFail": "Scene creation tejyam. {{reason}}",
+    "uploadAborted": "Upload aborted",
+    "uploadFailed": "Upload tejyam uas {{reason}}",
+    "assetDeletionFail": "Cuab tam deletion tejyam. {{reason}}",
+    "projectAssetDeletionFail": "Peb tes num deletion tejyam. {{reason}}",
+    "networkError": "Network Yuam kev: {{status}}. {{text}}",
+    "unknownStatus": "Tsis Paub Raws Cai",
+    "CORS": "Tej zaum ib CORS yuam kev",
+    "urlFetchError": "Ua tsis tau tejyam uas nqa mus rau{{url}}\""
+  },
+  "viewport": {
+    "title": "Saibport",
+    "command": {
+      "movecamera": "Txav koob yees duab",
+      "flyFast": "Ya sai sai",
+      "orbit": "Orbit / Select",
+      "pan": "yias",
+      "fly": "Ya",
+      "focus": "kub siab",
+      "rotateLeft": "Rotate tshuav",
+      "rotateRight": "Rotate txoj cai",
+      "cancelPlacement": "Qhov Kev Tso Cai",
+      "placeDuplicate": "Place Duplicate",
+      "cancelGrab": "Cancel Grab",
+      "grab": "lob",
+      "deselectAll": "Deselect All"
+    },
+    "state": {
+      "header": "Stats",
+      "memory": "cim xeeb",
+      "geometries": "Geometries",
+      "textures": "Ntawv Nyeem",
+      "render": "render",
+      "FPS": "FPS",
+      "frameTime": "Ncej sij hawm",
+      "calls": "hu",
+      "triangles": "Triangles",
+      "points": "Cov Ntsiab Lus Tseem Ceeb",
+      "lines": "Kab"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Luam tawm tsab",
+    "lbl-published": "luam tawm",
+    "command": {
+      "translate": "Txhais",
+      "rotate": "rotate",
+      "scale": "nplai",
+      "toggleSpace": "Toggle Transform chaw",
+      "togglePivot": "Toggle Transform Pivot",
+      "toggleSnapMode": "Toggle Snap Mode",
+      "toggleGrid": "Toggle Grid Visibility",
+      "increaseGridSize": "Ua kom grid size",
+      "descreaseGridSize": "Txo Qhov Tsawg Dua",
+      "stopPreview": "Tsis previewing Scene",
+      "playPreview": "Preview Scene"
+    }
+  },
+  "properties": {
+    "title": "zog",
+    "lbl-visible": "pom",
+    "lbl-preventBake": "Tiv Thaiv Kom Txhob Muaj Kev Ci",
+    "lbl-persist": "mob siab",
+    "multipleNodeSelected": "Ntau Yam Nodes ntau hom xaiv",
+    "noNodeSelected": "Tsis muaj node xaiv",
+    "ambientLight": {
+      "name": "Ambient teeb",
+      "description": "Ib lub teeb uas illuminates tag nrho cov khoom nyob rau hauv koj scene.",
+      "lbl-intensity": "Siv",
+      "lbl-color": "xim"
+    },
+    "envmap": {
+      "name": "Ib puag ncig map",
+      "description": "ib puag ncig map zog"
+    },
+    "asset": {
+      "name": "cuab tam",
+      "description": "Ib pawg scene components uas yuav tau dynamically loaded thiab unloaded",
+      "lbl-options": "Xaiv cov kev xaiv",
+      "lbl-assetPath": "Cuab tam path",
+      "lbl-assetName": "Export lub npe",
+      "lbl-exportOptions": "Export Options",
+      "lbl-export": "Export cuab tam",
+      "lbl-load": "Load rau hauv scene",
+      "lbl-unload": "unload",
+      "lbl-reload": "Reload"
+    },
+    "audio": {
+      "name": "Suab",
+      "description": "Dynamically loads audio.",
+      "lbl-audiourl": "Audio Url",
+      "lbl-controls": "tswj",
+      "info-controls": "Toggle tus visibility ntawm cov tawm controls.",
+      "lbl-autoplay": "Auto ua si",
+      "info-autoplay": "Yog muaj tseeb, tawm yuav ua si thaum xub nkag mus rau hauv lub scene.",
+      "lbl-synchronize": "Synchronize",
+      "info-synchronize": "Yog muaj tseeb, tawm yuav Synchronized rau tag nrho cov neeg txuas nrog cov neeg tau.",
+      "lbl-loop": "loop",
+      "info-loop": "Yog muaj tseeb tawm yuav loop indefinitely.",
+      "lbl-audioType": "Audio Type",
+      "lbl-distanceModel": "Qauv nyob deb li cas",
+      "info-distanceModel": "Lub algorithim siv los laij audio rolloff.",
+      "lbl-rolloffFactor": "Rolloff Factor",
+      "info-rolloffFactor": "Tus nqi ob npaug piav li cas sai npaum li cas lub ntim yog txo raws li qhov xyaum kom deb ntawm tus listener. 0 mus rau 1",
+      "info-rfInfinity": "Tus nqi ob npaug piav li cas sai npaum li cas lub ntim yog txo raws li qhov xyaum kom deb ntawm tus listener. 0 rau Infinity",
+      "lbl-refDistance": "Ref nyob deb li cas",
+      "info-refDistance": "Ib ob npaug sawv cev rau tus siv nyob deb li cas rau txo ntim li lub suab txav ntxiv los ntawm tus listener.",
+      "lbl-maxDistance": "Max Nyob deb li cas",
+      "info-maxDistance": "Tus nqi sawv cev rau qhov ntau nyob deb li cas ntawm lub suab thiab tus listener, tom qab uas lub ntim yog tsis txo tej ntxiv lawm.",
+      "lbl-coneInnerAngle": "Cone Inner Angle",
+      "info-coneInnerAngle": "Tus nqi ob npaug piav lub kaum sab xis, nyob rau hauv degrees, ntawm ib cone hauv uas yuav muaj tsis ntim txo.",
+      "lbl-coneOuterAngle": "Cone Outer Angle",
+      "info-coneOuterAngle": "Tus nqi ob npaug piav lub kaum sab xis, nyob rau hauv degrees, ntawm ib tug cone sab nraum uas lub ntim yuav raug txo los ntawm ib tug nqi lossis tus nqi, txhais los ntawm tus coneOuterGain attribute.",
+      "lbl-coreOuterGain": "Cone Outer Gain",
+      "info-coreOuterGain": "Tus nqi ob npaug piav qhov nyiaj ntim txo sab nraum lub cone txhais los ntawm tus coneOuterAngle attribute. Nws tus nqi default yog 0, qab hau tias tsis muaj suab yuav hnov.",
+      "lbl-volume": "ntim",
+      "lbl-play": "ua si",
+      "lbl-pause": "Ncua",
+      "error-url": "Yuam kev Loading ntawm URL"
+    },
+    "boxCollider": {
+      "description": "Ib lub thawv pom tias khoom yuav bounce tawm ntawm los yog so saum toj kawg nkaus.\nTsis colliders, khoom yuav poob los ntawm pem teb thiab mus txog phab ntsa.",
+      "lbl-isTrigger": "Txhais"
+    },
+    "camera": {
+      "name": "Koob yees duab",
+      "description": "Koob yees duab teev.",
+      "lbl-camera-raycast": "Koob yees duab Raycasting",
+      "lbl-camera-raycast-toggle": "Enabled",
+      "lbl-camera-raycast-frequency": "zauv",
+      "lbl-camera-raycast-count": "Suav Teb Sab Hnub Tuaj",
+      "lbl-camera-raycast-length": "Sab hauv lub qhov muag ntev"
+    },
+    "directionalLight": {
+      "name": "Kev Taw Qhia Txog Kev Cob Qhia",
+      "description": "Ib lub teeb uas illuminates tag nrho scene, tab sis emits raws ib zaug xwb.",
+      "lbl-color": "xim",
+      "lbl-intensity": "Siv",
+      "lbl-cameraFar": "Koob yees duab far",
+      "lbl-cameraNear": "Koob yees duab nyob ze",
+      "lbl-cameraTop": "Koob yees duab saum toj kawg nkaus",
+      "lbl-cameraBottom": "Koob yees duab hauv qab",
+      "lbl-cameraLeft": "Koob yees duab tshuav",
+      "lbl-cameraRight": "Koob yees duab txoj cai",
+      "lbl-useInCSM": "Siv hauv CSM",
+      "lbl-castShadow": "duab ntxoov ntxoo",
+      "lbl-disableForCSM": "Xiam oob qhab vim Cascade duab ntxoov ntxoo daim ntawv qhia yog enabled.",
+      "lbl-shadowmapResolution": "Duab ntxoov ntxoo Map Resolution Resolution",
+      "lbl-shadowBias": "Duab ntxoov ntxoo Bias",
+      "lbl-shadowRadius": "Duab ntxoov ntxoo Radius",
+      "lbl-showCameraHelper": "Qhia Koob yees duab Helper"
+    },
+    "groundPlane": {
+      "name": "Dav hlau av",
+      "description": "Lub dav hlau pav ca uas extends rau hauv tus nyob deb li cas.",
+      "lbl-color": "xim",
+      "lbl-receiveShadow": "Tau txais duab ntxoov ntxoo",
+      "lbl-generateNavmesh": "Generate Navmesh"
+    },
+    "link": {
+      "description": "Txuas mus rau ib chav los yog ib lub website.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "3D geospatial map ntawm e.g. ib lub nroog."
+    },
+    "model": {
+      "description": "Ib tug qauv 3D hauv koj scene, loaded ntawm ib GLTF URL los yog ntaub ntawv.",
+      "lbl-usingGPUInstancingFlag": "Siv GPU Instancing",
+      "lbl-modelurl": "Qauv Url",
+      "lbl-envmapUrl": "Ib puag ncig map Url",
+      "lbl-textureOverride": "Override Texture",
+      "lbl-materialOverride": "Khoom Overrides",
+      "error-url": "Yuam kev Loading ntawm URL",
+      "lbl-loopAnimation": "Loop Animation",
+      "lbl-isAvatar": "Is Avatar",
+      "lbl-isGPUInstancing": "Siv GPU Instancing",
+      "lbl-isDynamic": "Is Dynamic",
+      "lbl-castShadow": "duab ntxoov ntxoo",
+      "lbl-receiveShadow": "Tau txais duab ntxoov ntxoo",
+      "lbl-interactable": "interactable",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Npe",
+      "lbl-url": "Qauv Url",
+      "lbl-buy": "Yuav Url",
+      "lbl-learnMore": "Kawm ntxiv Url",
+      "lbl-htmlContent": "Html Content",
+      "lbl-interactionText": "Kev Sib Tshuam",
+      "lbl-interactionType": "Kev Sib Tshuam"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Ntaub",
+      "error-materialID": "Yuam kev nrhiav khoom",
+      "placeholder-materialID": "Xaiv cov khoom siv",
+      "lbl-patternTarget": "Qauv Ntais Ntawv",
+      "lbl-pattern": "qauv",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Kev Sib Tshuam",
+      "text": "Kev Sib Tshuam",
+      "distance": "Kev Sib Tshuam",
+      "theme": "Kev Sib Tshuam",
+      "name": "Kev Sib Tshuam Lub Npe",
+      "description": "Kev Sib Tshuam Txog Kev Sib Tshuam",
+      "images": "Dluab Dluab",
+      "videos": "Kev Sib Tshuam Yeeb Yaj Duab",
+      "urls": "Kev Sib Tshuam Urls",
+      "models": "Kev Sib Tshuam"
+    },
+    "group": {
+      "name": "Haiv",
+      "description": "Ib pawg ntau yam khoom uas yuav nyuam qhuav txav los yog duplicated ua ke.\nDrag thiab xa khoom rau hauv cov pab pawg neeg nyob hauv lub Hierarchy."
+    },
+    "hemisphere": {
+      "name": "Hemisphere teeb",
+      "description": "Ib lub teeb uas illuminates lub scene ntawm ncaj qha overhead.",
+      "lbl-skyColor": "ntuj xim",
+      "lbl-groundColor": "Av Xim Av",
+      "lbl-intensity": "Siv"
+    },
+    "image": {
+      "name": "duab",
+      "description": "Dynamically loads tus duab.",
+      "lbl-imgURL": "Duab Url",
+      "lbl-transparency": "Transparency Mode",
+      "lbl-alphaCutoff": "Alpha Cutoff",
+      "lbl-projection": "projection",
+      "lbl-side": "Ces",
+      "info-controls": "Toggle tus visibility ntawm cov tawm controls.",
+      "info-transparency": "Yuav thov transparency:",
+      "info-opaque": "'opaque' = tsis transparency",
+      "info-blend": "'blend' = siv cov dluab alpha channel",
+      "info-mask": "'Daim npog qhov ncauj qhov ntswg' = Siv ib tug nqi cutoff rau/off transparency (ntau performant)",
+      "info-alphaCutoff": "Pixels nrog alpha qhov tseem ceeb tsawg dua qhov no yuav pob tshab",
+      "error-url": "Invalid URL"
+    },
+    "name": {
+      "lbl-name": "Npe"
+    },
+    "partileEmitter": {
+      "description": "Particle emitter los ua particles.",
+      "lbl-particleCount": "Suav",
+      "lbl-image": "duab",
+      "lbl-ageRandomness": "Hnub nyoog Randomness",
+      "lbl-lifetime": "lub neej",
+      "lbl-lifetimeRandomness": "Lub neej Randomness",
+      "lbl-sizeCurve": "nkhaus",
+      "lbl-startPSize": "Pib Particle Size",
+      "lbl-endPSize": "Qhov Kawg Particle Size",
+      "lbl-sizeRandomness": "Size Randomness",
+      "lbl-colorCurve": "xim nkhaus",
+      "lbl-startColor": "Pib Xim",
+      "lbl-startOpacity": "Pib Opacity",
+      "lbl-middleColor": "Nruab Nrab Xim Muaj Xim",
+      "lbl-middleOpacity": "Nruab nrab Opacity",
+      "lbl-endColor": "xim kawg",
+      "lbl-endOpacity": "Kawg Opacity",
+      "lbl-velocityCurve": "Velocity Curve",
+      "lbl-startVelocity": "Pib Velocity",
+      "lbl-endVelocity": "Kawg Velocity",
+      "lbl-angularVelocity": "Angular Velocity",
+      "info-ageRandomness": "Tus nqi variation ntawm thaum particles yog spawned.",
+      "info-lifetime": "Qhov ntau tshaj plaws ntawm ib particle ua ntej nws yuav respawned.",
+      "info-lifetimeRandomness": "Tus nqi variation ntawm particle lub neej.",
+      "info-sizeRandomness": "Tus nqi variation ntawm particle pib luaj li cas.",
+      "error-url": "Yuam kev Loading ntawm URL"
+    },
+    "clouds": {
+      "name": "Huab",
+      "description": "Sprite raws li huab ntim.",
+      "lbl-image": "Duab sprite",
+      "lbl-wroldScale": "Ntiaj teb teev",
+      "lbl-dimensions": "dimensions",
+      "lbl-noiseZoom": "Vaj tsiaj vaj tsiaj",
+      "lbl-noiseOffset": "Suab offset",
+      "lbl-spriteScale": "Sprite Scale",
+      "lbl-fogColor": "pos huab",
+      "lbl-fogRange": "Fog Ntau yam",
+      "error-url": "Yuam kev Loading ntawm URL"
+    },
+    "ocean": {
+      "name": "dej hiav txwv",
+      "description": "Dej hiav txwv dej hiav txwv nrog tsis thiab foam",
+      "lbl-normalMap": "Normal Map",
+      "lbl-distortionMap": "Distortion Map",
+      "lbl-envMap": "Ib puag ncig map",
+      "lbl-color": "xim",
+      "lbl-shallowWaterColor": "ntiav cov dej",
+      "lbl-shallowToDeepDistance": "Ntiav Sib Sib Zog Nqus",
+      "lbl-opacityFadeDistance": "Opacity Fade nyob deb li cas",
+      "lbl-opacityRange": "Opacity Range",
+      "lbl-shininess": "ci iab",
+      "lbl-reflectivity": "Reflectivity",
+      "lbl-foamColor": "npuas",
+      "lbl-foamSpeed": "Foam Speed",
+      "lbl-foamTiling": "Foam Tiling",
+      "lbl-bigWaveTiling": "Yoj Tiling",
+      "lbl-bigWaveSpeed": "Yoj yoj ceev",
+      "lbl-bigWaveHeight": "Yoj yoj siab",
+      "lbl-waveSpeed": "yoj",
+      "lbl-waveScale": "yoj",
+      "lbl-waveTiling": "Yoj Tiling",
+      "lbl-waveDistortionSpeed": "Yoj Distortion speed",
+      "lbl-waveDistortionTiling": "Yoj distortion Tiling",
+      "error-url": "Yuam kev Loading ntawm URL"
+    },
+    "water": {
+      "name": "Dej",
+      "description": "dej me me"
+    },
+    "interior": {
+      "name": "tha xim sab hauv",
+      "description": "Ib qhov chaw uas mapped cube texture los emulate tha xim sab hauv tej chaw",
+      "lbl-cubeMap": "Cube Map texture",
+      "lbl-tiling": "tiling tus nqi",
+      "lbl-size": "qhov luaj li cas",
+      "error-url": "Yuam kev Loading ntawm URL"
+    },
+    "pointLight": {
+      "description": "Ib lub teeb uas emits nyob rau hauv tag nrho cov lus qhia los ntawm ib kis xwb.",
+      "lbl-color": "xim",
+      "lbl-intensity": "Siv",
+      "lbl-range": "Ntau yam",
+      "lbl-decay": "Lwj"
+    },
+    "scene": {
+      "name": "scene",
+      "description": "Lub hauv paus ntawm lub scene.",
+      "lbl-bgcolor": "Keeb kwm yav dhau los",
+      "lbl-fogType": "Fog Type",
+      "lbl-fogColor": "pos huab",
+      "lbl-forNearDistance": "Fog nyob deb li cas",
+      "lbl-fogFarDistance": "Nyob deb li cas",
+      "lbl-fogDensity": "Fog Density",
+      "lbl-audioSettings": "Siv Txoj Hauj Lwm Audio",
+      "lbl-avatarDistanceModel": "Avatar nyob deb li cas qauv",
+      "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
+      "lbl-avatarRefDistance": "Avatar Ref nyob deb li cas",
+      "lbl-avatarMaxDistance": "Avatar Max Nyob deb li cas",
+      "lbl-mediaVolume": "Media Volume",
+      "lbl-mediaDistanceModel": "Media nyob deb li cas qauv",
+      "lbl-mediaRolloffFactor": "Media Rolloff Factor",
+      "lbl-mediaRefDistance": "Media Ref Distance",
+      "lbl-mediaMaxDistance": "Media Max Distance",
+      "lbl-mediaConeInnerAngle": "Media Cone Inner Angle",
+      "lbl-mediaConeOuterAngle": "Media Cone Outer Angle",
+      "lbl-mediaConeOuterGain": "Media Cone Outer Gain",
+      "info-avatarDistanceModel": "Lub algorithim siv los laij audio rolloff.",
+      "info-avatarRolloffFactor": "Tus nqi ob npaug piav li cas sai npaum li cas lub ntim yog txo raws li qhov xyaum kom deb ntawm tus listener. 0 mus rau 1",
+      "info-avatarRolloffFactorInifinity": "Tus nqi ob npaug piav li cas sai npaum li cas lub ntim yog txo raws li qhov xyaum kom deb ntawm tus listener. 0 rau Infinity",
+      "info-avatarRefDistance": "Ib ob npaug sawv cev rau tus siv nyob deb li cas rau txo ntim li lub suab txav ntxiv los ntawm tus listener.",
+      "info-avatarMaxDistance": "Tus nqi sawv cev rau qhov ntau nyob deb li cas ntawm lub suab thiab tus listener, tom qab uas lub ntim yog tsis txo tej ntxiv lawm.",
+      "info-mediaDistanceModel": "Lub algorithim siv los laij audio rolloff.",
+      "info-mediaRolloffFactor": "Tus nqi ob npaug piav li cas sai npaum li cas lub ntim yog txo raws li qhov xyaum kom deb ntawm tus listener. 0 mus rau 1",
+      "info-mediaRolloffFactorInfinity": "Tus nqi ob npaug piav li cas sai npaum li cas lub ntim yog txo raws li qhov xyaum kom deb ntawm tus listener. 0 rau Infinity",
+      "info-mediaRefDistance": "Ib ob npaug sawv cev rau tus siv nyob deb li cas rau txo ntim li lub suab txav ntxiv los ntawm tus listener.",
+      "info-mediaMaxDistance": "Tus nqi sawv cev rau qhov ntau nyob deb li cas ntawm lub suab thiab tus listener, tom qab uas lub ntim yog tsis txo tej ntxiv lawm.",
+      "info-mediaConeInnerAngle": "Tus nqi ob npaug piav lub kaum sab xis, nyob rau hauv degrees, ntawm ib cone hauv uas yuav muaj tsis ntim txo.",
+      "info-mediaConeOuterAngle": "Tus nqi ob npaug piav lub kaum sab xis, nyob rau hauv degrees, ntawm ib tug cone sab nraum uas lub ntim yuav raug txo los ntawm ib tug nqi lossis tus nqi, txhais los ntawm tus coneOuterGain attribute.",
+      "info-mediaConeOuterGain": "Tus nqi ob npaug piav qhov nyiaj ntim txo sab nraum lub cone txhais los ntawm tus coneOuterAngle attribute. Nws tus nqi default yog 0, qab hau tias tsis muaj suab yuav hnov.",
+      "lbl-simpleMaterials": "Siv Cov Ntaub Ntawv Yooj Yim",
+      "lbl-lods": "LODS",
+      "info-lods": "Teev cov nyob deb li cas uas theem ntawm kev hloov.",
+      "info-simpleMaterials": "Converts tag nrho cov khoom kim heev rau yooj yim ones coj lub load tawm scene rendering.",
+      "lbl-rendererSettings": "Override Renderer Settings",
+      "lbl-csm": "Cascading duab ntxoov ntxoo Maps",
+      "info-csm": "Enables cascading duab ntxoov ntxoo maps.",
+      "lbl-toneMapping": "Tone Mapping",
+      "info-toneMapping": "Enables tone mapping rau lub scene renderer. Twb tsis nyhuv thaum ib tug ncej txheej txheem yog enabled.",
+      "lbl-toneMappingExposure": "Tone Mapping raug tus kab mob",
+      "info-toneMappingExposure": "Specifies lub suab mapping raug rau lub scene renderer. Twb tsis nyhuv thaum ib tug ncej txheej txheem yog enabled.",
+      "lbl-shadowMapType": "Duab ntxoov ntxoo Map type",
+      "info-shadowMapType": "Hom duab ntxoov ntxoo daim ntawv qhia txog daim ntawv qhia",
+      "error-url": "Yuam kev Loading ntawm URL"
+    },
+    "sceneCamera": {
+      "name": "Scene Preview Koob yees duab",
+      "description": "Lub koob yees duab siv los ua kom muaj cov thumbnail rau koj scene thiab pib txoj hauj lwm rau lub koob yees duab preview.",
+      "lbl-setFromViewPort": "Txheej ntawm Viewport"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "hnub",
+      "lbl-color": "xim",
+      "lbl-latitude": "Latitude",
+      "lbl-luminance": "Luminance",
+      "lbl-scattering": "Scattering Amount",
+      "lbl-scatteringDistance": "scattering nyob deb li cas",
+      "lbl-horizonStart": "Qab Ntug pib",
+      "lbl-horizonEnd": "Horizon kawg",
+      "lbl-texture": "zoo nkauj",
+      "lbl-skyType": "ntuj hom",
+      "error-url": "Yuam kev Loading ntawm URL"
+    },
+    "spawnPoint": {
+      "name": "Spawn Point",
+      "description": "Ib kis uas neeg yuav tshwm sim thaum lawv nkag mus rau koj scene.\nTus icon hauv lub Viewport nruab nrab yog qhov luaj li cas ntawm ib avatar."
+    },
+    "spotLight": {
+      "description": "Ib lub teeb uas emits raws ib cov kev taw qhia, illuminating khoom nyob rau hauv ib cone.",
+      "lbl-color": "xim",
+      "lbl-intensity": "Siv",
+      "lbl-penumbra": "cwj mem qhuav",
+      "lbl-angle": "kaum sab xis",
+      "lbl-range": "Ntau yam",
+      "lbl-decay": "Lwj"
+    },
+    "transform": {
+      "title": "Txa",
+      "lbl-postition": "txoj hauj lwm",
+      "lbl-rotation": "kev sib hloov",
+      "lbl-scale": "nplai"
+    },
+    "triggereVolume": {
+      "description": "Teev ib cuab yeej rau lub hom phiaj ntawm nkag mus rau hauv thiab tawm mus.",
+      "lbl-target": "kwv yees",
+      "lbl-onenter": "Nkag mus rau hauv",
+      "lbl-onexit": "Tawm ntawm exit",
+      "lbl-showHelper": "Qhia Helper Mesh",
+      "ph-errorNode": "Yuam kev uas ploj lawm node.",
+      "ph-selectNode": "Xaiv node..."
+    },
+    "video": {
+      "name": "Yees duab",
+      "description": "Dynamically loads tus yees duab.",
+      "lbl-video": "Yees duab",
+      "lbl-projection": "projection",
+      "lbl-islivestream": "kwj dej",
+      "lbl-interactable": "interactable",
+      "lbl-id": "Element Id",
+      "lbl-play": "ua si",
+      "lbl-pause": "Ncua",
+      "error-url": "Yuam kev Loading ntawm URL"
+    },
+    "volumetric": {
+      "name": "ntim ntim",
+      "description": "Dynamically loads ib volumetric yees duab.",
+      "uvolPaths": "UVOL Paths",
+      "playmode": "Hom ua si hom ua si",
+      "playtitle": "ua si",
+      "pausetitle": "Ncua"
+    },
+    "spline": {
+      "description": "Dynamically tsim thiab customize curves.",
+      "lbl-addNode": "Ntxiv node rau nkhaus."
+    },
+    "systemnode": {
+      "description": "rhais tsab ntawv.",
+      "lbl-filePath": "url",
+      "lbl-systemUpdateType": "Txhaj tshuaj",
+      "lbl-enableClient": "Tus Neeg Tau Txais Kev",
+      "lbl-enableServer": "Server",
+      "lbl-args": "Args",
+      "error-url": "Yuam kev loading tsab ntawv los ntawm URL"
+    },
+    "portal": {
+      "lbl-portal": "Txuas chaw nres nkoj",
+      "lbl-redirect": "Siv nplooj Ntawv Redirect",
+      "description": "Ib Portat rau teleport players specified qhov chaw",
+      "lbl-locationName": "qhov chaw",
+      "lbl-modelUrl": "Qauv URL",
+      "lbl-displayText": "Zaub Phau Ntawv",
+      "lbl-cubemapBake": "Cubemap bake",
+      "lbl-spawnPosition": "Spawn txoj hauj lwm",
+      "lbl-spawnRotation": "Spawn Rotation",
+      "lbl-triggerPosition": "Ua kom muaj txoj hauj lwm",
+      "lbl-triggerRotation": "Ua kom muaj kev sib lwj",
+      "lbl-triggerScale": "Txhais Tau hais tias"
+    },
+    "postprocessing": {
+      "name": "Txheej Txheem",
+      "description": "Thov post Processing teebmeem rau koj scene."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Peb tes num tshiab",
+      "backLink": "Rov qab mus rau tej yaam num",
+      "featured": "Featured",
+      "all": "Tag nrho",
+      "newProject": "Tas peb tes num tshiab",
+      "ph-search": "Nrhiav scenes..."
+    },
+    "grid": {
+      "loading": "Loading..."
+    },
+    "page": {
+      "header": "Zoo siab tos txais",
+      "headerMsg": "Yog hais tias koj nyob nraum tshiab ntawm no peb xav mus txog rau tutorial. Txwv tsis pub, dhia txoj cai nyob rau hauv thiab tsim ib qhov project ntawm kos los yog los ntawm ib tug ntawm peb templates.",
+      "lbl-startTutorial": "Pib tutorial",
+      "projects": "Tej yaam num",
+      "lbl-newProject": "Peb tes num tshiab"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Loading...",
+      "placeObject": "Muab Khoom",
+      "placeObjectAtOrigin": "Muab Tej Khoom Ntawm Keeb Kwm",
+      "copyURL": "Luam URL",
+      "openInNewTab": "Qhib URL nyob New Tab",
+      "deleteAsset": "Delete cuab tam"
+    },
+    "filebrowser": {
+      "addNewFolder": "Ntxiv Tshiab Folder",
+      "cutAsset": "Hlais",
+      "copyAsset": "Luam ib daim qauv",
+      "pasteAsset": "paste",
+      "renameAsset": "Rename",
+      "viewAssetProperties": "Saib zog"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Rename",
+    "lbl-duplicate": "duplicate",
+    "lbl-group": "Haiv",
+    "lbl-delete": "Delete",
+    "lbl-expandAll": "Nthuav tag nrho",
+    "lbl-collapseAll": "Cev qhuav dej tag nrho",
+    "isseus": "Teeb meem:"
+  },
+  "dnd": {
+    "nodes": "{{count}} Nodes xaiv",
+    "models": "{{count}} Qauv Xaiv",
+    "images": "dluab {{count}} xaiv",
+    "videos": "{{count}} yeeb yaj duab xaiv",
+    "audio": "{{count}} Audio qhov chaw xaiv"
+  },
+  "dialog": {
+    "title": "Editor",
+    "lbl-confirm": "Ua li",
+    "lbl-cancel": "raug muab tso tseg",
+    "exportProject": {
+      "title": "Export peb tes num",
+      "lbl-confirm": "Export peb tes num",
+      "lbl-combineMesh": "Combine Meshes",
+      "lbl-removeUnused": "Tshem Tawm Cov Khoom Uas Tsis Yog"
+    },
+    "performance": {
+      "title": "Kev Kawm Txog Yam Xeeb Txawm Muaj",
+      "lbl-confirm": "Luam tawm scene",
+      "learnMore": "Kawm ntxiv",
+      "lbl-polycount": "Polygon Suav",
+      "lbl-material": "Khoom Siv",
+      "lbl-texture": "Ntawv Nyeem",
+      "lbl-lights": "teeb",
+      "lbl-fileSize": "Ntaub Ntawv Loj Npaum Li Cas",
+      "info-polycount": "Peb xav kom koj scene siv tsis pub tshaj 50,000 triangles rau mobile li lawm.",
+      "info-material": "Peb xav siv tsis pub tshaj 25 nws cov ntaub ntawv nyob rau hauv koj scene kom txo kos hu rau mobile li.",
+      "info-texture": "Peb xav kom koj cov ntawv nyeem siv tsis pub tshaj 256MB ntawm yees duab RAM rau mobile li. Peb kuj xav kom siv cov ntawv nyeem loj tshaj 2048 x 2048.",
+      "info-lights": "Thaum dynamic teeb yuav tsis enabled rau mobile li, peb xav siv tsis muaj ntau tshaj 3 teeb nyob rau hauv koj scene (excluding ambient thiab hemisphere teeb) rau koj scene khiav rau tsawg kawg PCs.",
+      "info-fileSize": "Peb xav kom ib daim ntawv zaum kawg ntawm tsis muaj ntau tshaj 16MB rau tsawg bandwidth sib txuas. Txo cov ntaub ntawv loj yuav txo lub sij hawm nws yuav siv sij hawm los download koj scene.",
+      "txt-polycount": "{{count}} Triangles",
+      "txt-material": "{{count}} Ntaub ntawv",
+      "txt-ram": "●{{count}} yees duab RAM",
+      "txt-texture": "{{count}} loj Textures",
+      "txt-lights": "{{count}} teeb"
+    },
+    "progress": {
+      "title": "Loading...",
+      "msg": "Loading...",
+      "lbl-cancel": "raug muab tso tseg"
+    },
+    "publish": {
+      "title": "Luam tawm scene",
+      "lbl-confirm": "Txuag thiab luam tawm tsab",
+      "lbl-name": "Scene npe",
+      "info-name": "Lub npe yuav tsum ntawm 4 thiab 64 cim thiab tsis muaj underscores"
+    },
+    "published": {
+      "title": "Scene luam tawm",
+      "header": "Koj scene muaj tau luam tawm.",
+      "lbl-view": "Saib koj scene"
+    },
+    "saveNewProject": {
+      "title": "kev them nyiaj yug me",
+      "lbl-name": "Peb Tes Num Lub Npe",
+      "info-name": "Lub npe yuav tsum ntawm 4 thiab 64 cim thiab tsis muaj underscores",
+      "lbl-confirm": "Txuag peb tes num"
+    },
+    "support": {
+      "title": "kev them nyiaj yug me",
+      "header": "Yuav tsum tau qhia ib qho teeb meem?",
+      "msg": "Koj yuav ua tau ib <1>daim ntawv GitHub Qhov teeb meem</1> los yog e-mail peb txhawb rau <3>{{mail}}</3>",
+      "discord": "Koj kuj nrhiav tau peb ntawm <1>Discord</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Dluab Bing dluab",
+      "search": "Tshawb xyuas los ntawm Bing"
+    },
+    "bingVideo": {
+      "name": "Bing yeeb yaj duab",
+      "search": "Tshawb xyuas los ntawm Bing"
+    },
+    "element": {
+      "name": "Hais Txog Cov Ntsiab Lus"
+    },
+    "myAssets": {
+      "name": "Kuv Tej Khoom Vaj Khoom Tsev"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Tshawb los ntawm Google"
+    },
+    "tenor": {
+      "name": "Tenor GIFs",
+      "search": "Tshawb xyuas los ntawm Tenor",
+      "ph-search": "Nrhiav GIFs..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Nrhiav los ntawm Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Upload cuab tam"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Dluab dluab..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Nrhiav yeeb yaj duab..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Nrhiav tej khoom vaj khoom tsev..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Tshawb qauv..."
+    },
+    "useUpload": {
+      "multipleFileError": "Input tsis txais ntau yam ntaub ntawv.",
+      "mineTypeError": "Phau Vajlugkub hais tias: \"{{name}}tsis phim tej kev mob kev nkeeg lossis kev ncuam uas hais ntxiv {{types}}",
+      "progressTitle": "Uploading ntaub ntawv",
+      "progressMsg": "Uploading ntaub ntawv {{uploaded}} ntawm {{total}}: {{percentage}}%",
+      "uploadError": "Upload Error",
+      "uploadErrorMsg": "Yuam kev uploading ntaub ntawv: {{message}}",
+      "uploadErrorDefaultMsg": "Muaj ib qho yuam kev tsis paub yuam kev"
+    }
+  },
+  "openLink": {
+    "description": "Thov nias lub qhib rau navigate rau qhov txuas.",
+    "lbl-open": "Qhib"
+  },
+  "interactableModel": {
+    "lbl-buy": "Yuav",
+    "lbl-learnMore": "Kawm ntxiv"
+  },
+  "corsProxyButton": {
+    "tooltip": "Siv Cors Proxy Server"
+  }
+}

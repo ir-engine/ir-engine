@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "পৃষ্ঠা লোড করা হচ্ছে..."
+  },
+  "tooltip": {
+    "pressKey": "{{message}} করতে {{tip}} টিপুন"
+  },
+  "toast": {
+    "joined": "যোগদান",
+    "left": "বাঁদিকে"
+  },
+  "navUserWidget": {
+    "login": "লগ ইন করো"
+  },
+  "loader": {
+    "connecting": "বিশ্বের সাথে সংযোগ করা হচ্ছে...",
+    "entering": "বিশ্বে প্রবেশ...",
+    "loading": "লোড।।।",
+    "objectRemaining": "{{count}} অবজেক্ট অবশিষ্ট আছে",
+    "objectRemainingPlural": "{{count}} বস্তু অবশিষ্ট আছে",
+    "loadingObjects": "অবজেক্টলোড করা হচ্ছে",
+    "loadingComplete": "লোড করা সম্পূর্ণ",
+    "joiningWorld": "বিশ্বের যোগদান"
+  },
+  "alert": {
+    "eventWasSuccess": "ইভেন্টটি সফল হয়েছিল",
+    "errorWasEncountered": "একটি ত্রুটির সম্মুখীন হয়েছে",
+    "eventInProgress": "প্রগতিতে থাকা ঘটনা",
+    "seconds": "সেকেন্ড",
+    "cancelCountdown": "এই মোডালটি বন্ধ করা কাউন্টডাউন বাতিল করবে"
+  },
+  "debug": {
+    "refresh": "সতেজ",
+    "stats": "পরিসংখ্যান",
+    "debugOptions": "ডিবাগ পছন্দসমূহ",
+    "physicsDebug": "পদার্থবিজ্ঞান",
+    "avatarDebug": "অবতার",
+    "nodeHelperDebug": "নোড হেল্পার",
+    "gridDebug": "গরাদ",
+    "simpleMaterials": "সহজ উপকরণ",
+    "tick": "টিক দিন",
+    "worldStore": "ওয়ার্ল্ড স্টোর",
+    "engineStore": "ইঞ্জিন স্টোর",
+    "namedEntities": "নামযুক্ত সত্তা",
+    "networkObject": "নেটওয়ার্ক অবজেক্ট",
+    "networkClients": "নেটওয়ার্ক ক্লায়েন্ট"
+  },
+  "recording": {
+    "videoRecorder": "ভিডিও রেকর্ডার",
+    "waitingForPermissions": "অনুমতির জন্য অপেক্ষা করা হচ্ছে",
+    "selectVideoSource": "ভিডিও উৎস নির্বাচন করুন",
+    "screen": "স্ক্রীন",
+    "camera": "ক্যামেরা",
+    "microphone": "মাইক্রোফোন",
+    "startRecording": "রেকর্ডিং শুরু করুন",
+    "pauseRecording": "রেকর্ডিং বিরাম দিন",
+    "resumeRecording": "রেকর্ডিং পুনরারম্ভ করুন",
+    "stopRecording": "রেকর্ডিং বন্ধ করুন"
+  },
+  "typing": "টাইপ করা হচ্ছে...",
+  "gameServer": {
+    "browserError": "ব্রাউজার ত্রুটি",
+    "browserErrorMessage": "আপনার ব্রাউজার ব্যক্তিগত ব্রাউজিং মোডে সঞ্চয়স্থান সমর্থন করে না। হয় অন্য ব্রাউজার চেষ্টা করুন, অথবা ব্যক্তিগত ব্রাউজিং মোড থেকে প্রস্থান করুন।",
+    "noAvailableServers": "কোনও উপলভ্য সার্ভার নেই",
+    "noAvailableServersMessage": "আপনার সাথে সংযোগ করার জন্য কোনও সার্ভার সুলভ নেই। পুনরায় সংযোগ করার চেষ্টা করা হচ্ছে",
+    "worldDisconnected": "বিশ্বের সংযোগ বিচ্ছিন্ন",
+    "worldDisconnectedMessage": "আপনি বিশ্বের সাথে আপনার সংযোগ হারিয়ে ফেলেছেন। নিম্নলিখিত সময় শেষ হওয়ার আগে আমরা পুনরায় সংযোগ করার চেষ্টা করব, অন্যথায় আপনাকে একটি ভিন্ন উদাহরণে ফরোয়ার্ড করা হবে।",
+    "webGLNotEnabled": "WebGL সক্রিয় করা হয়নি",
+    "webGLNotEnabledMessage": "আপনার ব্রাউজার WebGL সমর্থন করে না, অথবা এটি অক্ষম করা হয়েছে। অনুগ্রহ করে WebGL সক্ষম করুন বা আপনার ব্রাউজারের সর্বশেষ সংস্করণে আপগ্রেড করার বিষয়টি বিবেচনা করুন।",
+    "youKickedFromWorld": "তোমাকে পৃথিবী থেকে বিতাড়িত করা হয়েছে",
+    "youKickedFromWorldMessage": "নিম্নলিখিত কারণে আপনাকে এই পৃথিবী থেকে লাথি মারা হয়েছিল",
+    "invalidLocation": "অকার্যকর অবস্থান",
+    "cantFindLocation": "আমরা অবস্থানটি খুঁজে পাচ্ছি না",
+    "misspelledOrNotExist": "এটি ভুল বানান হতে পারে, বা এটি বিদ্যমান নাও হতে পারে।",
+    "loading": "লোড",
+    "low-frame-error": "আপনার ব্রাউজারে হার্ডওয়্যার ত্বরণ ব্যবহার করুন সক্ষম করে এবং আপনার ব্রাউজারটি পুনরায় চালু করার বিষয়টি বিবেচনা করে একটি দুর্বল পারফোম্যান্স সনাক্ত করা হয়েছে",
+    "low-frame-title": "আরও ভাল অভিজ্ঞতার জন্য হার্ডওয়্যার ত্বরণ সক্ষম করুন!"
+  },
+  "error": {
+    "loading-error": "ব্যবহারকারীর তথ্য লোড করতে ব্যর্থ হয়েছে",
+    "validation-error": "অনুগ্রহ করে বৈধ {{type}} ইনপুট করুন",
+    "login-error": "লগইন করতে ব্যর্থ হয়েছে"
+  }
+}

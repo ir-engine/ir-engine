@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Paġna Ma Nstabitx"
+  },
+  "503": {
+    "msg": "503 - Servizz mhux disponibbli"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Ġejt ipprojbit minn dan il-post",
+    "locationName": {
+      "pageTitle": "Dar"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Proġetti",
+      "header": "Idħol",
+      "welcomeMsg": "Merħba",
+      "locationHeader": "Postijiet",
+      "projectHeader": "Proġetti",
+      "sceneHeader": "Xeni",
+      "description": "Jekk int ġdid hawn nirrakkomandaw li tgħaddi mit-tutorja. Inkella, aqbeż dritt u oħloq proġett mill-bidu jew minn wieħed mill-mudelli tagħna.",
+      "lbl-startTutorial": "Ibda t-Tutorja",
+      "lbl-newProject": "Proġett Ġdid",
+      "lbl-createProject": "Toħloq",
+      "lbl-newScene": "Xena Ġdida",
+      "lbl-searchProject": "Fittex Proġetti Eżistenti...",
+      "back": "Lura",
+      "contextMenu": "Ħassar il-Proġett",
+      "installed": "Proġetti Installati",
+      "official": "Proġetti Uffiċjali",
+      "community": "Proġetti tal-Komunità",
+      "install": "Tinstalla",
+      "uninstall": "Iddiżinstalla",
+      "rename": "Ibdel l-isem",
+      "createProject": "Oħloq Proġett",
+      "installProject": "Installa l-Proġett",
+      "processing": "Ipproċessar",
+      "projectName": "Isem il-Proġett",
+      "projectURL": "URL tal-proġett"
+    }
+  },
+  "error": {
+    "goHomeLink": "Mur id-dar",
+    "withStatusCode": "Sar żball {{code}} fis-server",
+    "withoutStatusCode": "Sar żball fis-server"
+  },
+  "no-projects": {
+    "msg": "Żball: Ebda Proġett Installat - jekk jogħġbok ikkuntattja amministratur tas-sit"
+  },
+  "dev": {
+    "pageTitle": "Dar"
+  },
+  "login": {
+    "pageTitle": "Idħol"
+  },
+  "workerTest": {
+    "pageTitle": "Test tal-Ħaddiem"
+  },
+  "index": {
+    "by": "MILL",
+    "xr": "XR",
+    "foundation": "Fondazzjoni",
+    "description": "Applikazzjonijiet soċjali 3D f'ħin reali għal kulħadd biex igawdi."
+  },
+  "xrengineContact": {
+    "header": "Ikkuntattja!",
+    "description": "Aħna nħobbu ngħinuk bl-avvenimenti virtwali tiegħek, il-bejgħ bl-imnut diġitali, id-divertiment u bżonnijiet oħra.",
+    "lbl-name": "Isem",
+    "lbl-email": "Email",
+    "lbl-company": "Kumpannija",
+    "lbl-project": "Iddeskrivi l-Proġett tiegħek",
+    "lbl-send": "Tibgħat",
+    "lbl-ok": "Kollox sew",
+    "lbl-success": "Messaġġ Mibgħut, Aħna ser nerġgħu lura lilek dalwaqt.",
+    "lbl-failure": "Sar żball, erġa' pprova l-Pliż",
+    "err-username": "Daħħal isem.",
+    "err-email": "L-email teħtieġ.",
+    "err-msg": "Ipprovdi xi deskrizzjoni qasira tal-proġett tiegħek."
+  }
+}

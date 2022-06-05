@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Nplooj Ntawv Tsis nrhiav tau"
+  },
+  "503": {
+    "msg": "503 - Unavailable Unavailable"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Koj tau raug banned los ntawm qhov chaw no",
+    "locationName": {
+      "pageTitle": "Tsev"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Tej yaam num",
+      "header": "Thov login",
+      "welcomeMsg": "Zoo siab tos txais",
+      "locationHeader": "Cov chaw",
+      "projectHeader": "Tej yaam num",
+      "sceneHeader": "Scenes",
+      "description": "Yog hais tias koj nyob ntawm no peb xav mus txog rau tutorial. Txwv tsis pub, dhia txoj cai nyob rau hauv thiab tsim ib qhov project ntawm kos los yog los ntawm ib tug ntawm peb templates.",
+      "lbl-startTutorial": "Pib tutorial",
+      "lbl-newProject": "Peb tes num tshiab",
+      "lbl-createProject": "Rhawv",
+      "lbl-newScene": "Scene tshiab",
+      "lbl-searchProject": "Nrhiav tej yaam num uas twb muaj lawm...",
+      "back": "sab nraum qab",
+      "contextMenu": "Delete Project",
+      "installed": "Ntsia tej yaam num",
+      "official": "Tej yaam num txug tej yaam num",
+      "community": "Zej Zog Tej Zej Zog",
+      "install": "nruab nrab",
+      "uninstall": "Uninstall",
+      "rename": "Rename",
+      "createProject": "Tsim Kom Muaj Kev Tsim Tsa",
+      "installProject": "Nruab nrab peb tes num",
+      "processing": "txheej txheem",
+      "projectName": "Peb Tes Num Lub Npe",
+      "projectURL": "Peb tes num URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Mus tsev",
+    "withStatusCode": "Ib qho yuam kev {{code}} tshwm sim rau server",
+    "withoutStatusCode": "Ib qho yuam kev tshwm sim rau server"
+  },
+  "no-projects": {
+    "msg": "Yuam kev: Tsis muaj tej yaam num installed - thov hu rau ib qhov chaw admin"
+  },
+  "dev": {
+    "pageTitle": "Tsev"
+  },
+  "login": {
+    "pageTitle": "login"
+  },
+  "workerTest": {
+    "pageTitle": "Neeg Ua Hauj Lwm Rau Kev Kuaj"
+  },
+  "index": {
+    "by": "LOS NTAWM",
+    "xr": "XR",
+    "foundation": "Foundations",
+    "description": "Realtime 3D kev siv rau sawv daws txaus siab rau sawv daws txaus siab."
+  },
+  "xrengineContact": {
+    "header": "Mus kov!",
+    "description": "Peb yuav hlub pab koj nrog koj cov txheej xwm virtual, cov khw muag khoom, lom ze thiab lwm yam kev xav tau.",
+    "lbl-name": "Npe",
+    "lbl-email": "Tus email",
+    "lbl-company": "tuam txhab",
+    "lbl-project": "Piav koj qhov project",
+    "lbl-send": "Xa",
+    "lbl-ok": "Ua li",
+    "lbl-success": "Hais xa, peb yuav tau rov qab mus rau koj tsocai.",
+    "lbl-failure": "Ib qho yuam kev tshwm sim, Plese sim dua",
+    "err-username": "Thov sau koj lub npe.",
+    "err-email": "Email yuav tsum tau.",
+    "err-msg": "Muab tej nqe lus piav qhia txog koj tes num."
+  }
+}

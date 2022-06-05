@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Página no encontrada"
+  },
+  "503": {
+    "msg": "503 - Servizo non dispoñible"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Está prohibido desde este lugar",
+    "locationName": {
+      "pageTitle": "Home"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Proxectos",
+      "header": "Please Login",
+      "welcomeMsg": "Benvido",
+      "locationHeader": "Ubicacións",
+      "projectHeader": "Proxectos",
+      "sceneHeader": "Escenas",
+      "description": "Se es novo, recomendámosche que sigas o tutorial. Se non, ir á dereita e crear un proxecto desde cero ou desde un dos nosos modelos.",
+      "lbl-startTutorial": "Inicio Tutorial",
+      "lbl-newProject": "Novo proxecto",
+      "lbl-createProject": "Creación",
+      "lbl-newScene": "Nova escena",
+      "lbl-searchProject": "Busca de proxectos existentes...",
+      "back": "Voltar",
+      "contextMenu": "Eliminar proxecto",
+      "installed": "Proxectos instalados",
+      "official": "Proxectos oficiais",
+      "community": "Proxectos comunitarios",
+      "install": "Instalar",
+      "uninstall": "Desinstalar",
+      "rename": "Renome",
+      "createProject": "Creación do proxecto",
+      "installProject": "Instalar proxecto",
+      "processing": "Procesamento",
+      "projectName": "Nome do proxecto",
+      "projectURL": "Proxecto URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Vaite a casa",
+    "withStatusCode": "Produciuse {{code}} un erro no servidor",
+    "withoutStatusCode": "Produciuse un erro no servidor"
+  },
+  "no-projects": {
+    "msg": "Erro: Non hai proxectos instalados - por favor, póñase en contacto cun administrador do sitio"
+  },
+  "dev": {
+    "pageTitle": "Home"
+  },
+  "login": {
+    "pageTitle": "Login"
+  },
+  "workerTest": {
+    "pageTitle": "Proba de traballo"
+  },
+  "index": {
+    "by": "POR",
+    "xr": "XR",
+    "foundation": "Fundación",
+    "description": "Aplicacións sociais 3D para que todo o mundo goce."
+  },
+  "xrengineContact": {
+    "header": "Entra en contacto!",
+    "description": "Encantaríanos axudarche cos teus eventos virtuais, venda polo miúdo dixital, entretemento e outras necesidades.",
+    "lbl-name": "Nome",
+    "lbl-email": "Correo electrónico",
+    "lbl-company": "Empresa",
+    "lbl-project": "Describe o teu proxecto",
+    "lbl-send": "Enviar",
+    "lbl-ok": "Ok",
+    "lbl-success": "Mensaxe enviada, en breve volveremos a vostede.",
+    "lbl-failure": "Produciuse un erro, próbao de novo",
+    "err-username": "Por favor, introduza o seu nome.",
+    "err-email": "O correo electrónico é necesario.",
+    "err-msg": "Fai unha breve descrición do teu proxecto."
+  }
+}

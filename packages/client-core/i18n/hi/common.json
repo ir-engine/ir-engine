@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "पृष्ठ लोड हो रहा है..."
+  },
+  "tooltip": {
+    "pressKey": "{{message}} करने के लिए {{tip}} दबाएँ"
+  },
+  "toast": {
+    "joined": "शामिल",
+    "left": "बाएँ"
+  },
+  "navUserWidget": {
+    "login": "लॉग इन करो"
+  },
+  "loader": {
+    "connecting": "दुनिया से कनेक्ट हो रहा है...",
+    "entering": "दुनिया में प्रवेश...",
+    "loading": "लोड।।।",
+    "objectRemaining": "शेष वस्तु {{count}}",
+    "objectRemainingPlural": "शेष वस्तुओं {{count}}",
+    "loadingObjects": "ऑब्जेक्ट्स लोड हो रहा है",
+    "loadingComplete": "पूर्ण लोड हो रहा है",
+    "joiningWorld": "दुनिया में शामिल होना"
+  },
+  "alert": {
+    "eventWasSuccess": "इवेंट सफल रहा",
+    "errorWasEncountered": "कोई त्रुटि आई थी",
+    "eventInProgress": "घटना प्रगति पर है",
+    "seconds": "सेकंड",
+    "cancelCountdown": "इस मोडल को बंद करने से उलटी गिनती रद्द हो जाएगी"
+  },
+  "debug": {
+    "refresh": "आराम देना",
+    "stats": "आँकड़े",
+    "debugOptions": "डीबग विकल्प",
+    "physicsDebug": "भौतिक विज्ञान",
+    "avatarDebug": "अवतार",
+    "nodeHelperDebug": "नोड सहायक",
+    "gridDebug": "ग्रिड",
+    "simpleMaterials": "सरल सामग्री",
+    "tick": "किलनी",
+    "worldStore": "वर्ल्ड स्टोर",
+    "engineStore": "इंजन स्टोर",
+    "namedEntities": "नामित एंटिटीज़",
+    "networkObject": "नेटवर्क ऑब्जेक्ट",
+    "networkClients": "नेटवर्क क्लाइंट"
+  },
+  "recording": {
+    "videoRecorder": "वीडियो रिकॉर्डर",
+    "waitingForPermissions": "अनुमतियों के लिए प्रतीक्षा कर रहा है",
+    "selectVideoSource": "वीडियो स्रोत का चयन करें",
+    "screen": "परदा",
+    "camera": "कैमरा",
+    "microphone": "माइक्रोफ़ोन",
+    "startRecording": "रिकॉर्डिंग प्रारंभ करें",
+    "pauseRecording": "रिकॉर्डिंग रोकें",
+    "resumeRecording": "रिकॉर्डिंग फिर से शुरू करें",
+    "stopRecording": "रिकॉर्डिंग रोकें"
+  },
+  "typing": "टंकण।।।",
+  "gameServer": {
+    "browserError": "ब्राउज़र त्रुटि",
+    "browserErrorMessage": "आपका ब्राउज़र निजी ब्राउज़िंग मोड में संग्रहण का समर्थन नहीं करता है. या तो किसी अन्य ब्राउज़र का प्रयास करें, या निजी ब्राउज़िंग मोड से बाहर निकलें।",
+    "noAvailableServers": "कोई उपलब्ध सर्वर नहीं",
+    "noAvailableServersMessage": "आपके लिए कनेक्ट करने के लिए कोई सर्वर उपलब्ध नहीं है. में पुन: कनेक्ट करने का प्रयास कर रहा है",
+    "worldDisconnected": "दुनिया डिस्कनेक्ट हो गई",
+    "worldDisconnectedMessage": "आपने दुनिया के साथ अपना संबंध खो दिया है। हम निम्नलिखित समय समाप्त होने से पहले पुन: कनेक्ट करने का प्रयास करेंगे, अन्यथा आपको एक अलग आवृत्ति पर अग्रेषित किया जाएगा।",
+    "webGLNotEnabled": "WebGL सक्षम नहीं किया गया है",
+    "webGLNotEnabledMessage": "आपका ब्राउज़र WebGL का समर्थन नहीं करता है, या यह अक्षम है. कृपया WebGL सक्षम करें या अपने ब्राउज़र के नवीनतम संस्करण में नवीनीकरण करने पर विचार करें.",
+    "youKickedFromWorld": "आपको दुनिया से लात मारी गई है",
+    "youKickedFromWorldMessage": "आपको निम्नलिखित कारणों से इस दुनिया से लात मारी गई थी",
+    "invalidLocation": "अमान्य स्थान",
+    "cantFindLocation": "हमें स्थान नहीं मिल रहा है",
+    "misspelledOrNotExist": "यह गलत वर्तनी हो सकती है, या यह मौजूद नहीं हो सकता है।",
+    "loading": "लोड",
+    "low-frame-error": "अपने ब्राउज़र में हार्डवेयर त्वरण का उपयोग करें सक्षम करने और अपने ब्राउज़र को फिर से शुरू करने पर विचार करने के लिए एक गरीब perfomance का पता लगाया",
+    "low-frame-title": "बेहतर अनुभव के लिए हार्डवेयर त्वरण सक्षम करें!"
+  },
+  "error": {
+    "loading-error": "उपयोगकर्ता डेटा लोड करने में विफल",
+    "validation-error": "कृपया इनपुट मान्य {{type}}",
+    "login-error": "लॉगिन करने में विफल"
+  }
+}

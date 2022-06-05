@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - ʻIkai Maʻu e Pēsí"
+  },
+  "503": {
+    "msg": "503 - ʻIkai maʻu ʻa e Ngāue Tokoní"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Kuo banned koe mei he feituʻu ni",
+    "locationName": {
+      "pageTitle": "ʻApi"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Ngaahi Ngāué",
+      "header": "Kātaki ʻo Login",
+      "welcomeMsg": "ʻOku Talitali Lelei Koe",
+      "locationHeader": "Ngaahi Feituʻú",
+      "projectHeader": "Ngaahi Ngāué",
+      "sceneHeader": "Ngaahi ʻAta",
+      "description": "Kapau ʻokú ke foʻou heni, ʻoku mau fokotuʻu atu ke ke akoʻi e lēsoni ko ʻení. Ka ʻikai, ke ke puna ki loto ʻo faʻu ha ngaue mei ha ngaahi meʻa kehe pe mei ha taha ʻo ʻetau ngaahi sipinga.",
+      "lbl-startTutorial": "Kamata ʻa e lesoni",
+      "lbl-newProject": "Ngāue Foʻou",
+      "lbl-createProject": "Faʻu",
+      "lbl-newScene": "Konga Foʻou",
+      "lbl-searchProject": "Kumi ʻa e Ngaahi Ngāue ʻOku Lolotonga Fakaʻaongaʻ",
+      "back": "ʻI mui",
+      "contextMenu": "Tāmateʻi e Ngāué",
+      "installed": "Ngaahi Ngāue Kuo Fokotuʻú",
+      "official": "Ngaahi Ngāue Fakaʻofisialé",
+      "community": "Ngaahi Ngāue Fakakolo",
+      "install": "Fokotuʻu",
+      "uninstall": "ʻIkai Fakahū",
+      "rename": "Toe Fakahingoa",
+      "createProject": "Fokotuʻutuʻu ha Ngāue ke Fai",
+      "installProject": "Fokotuʻu e Ngāué",
+      "processing": "Ngāue ki aí",
+      "projectName": "Hingoa ʻo e Ngāué",
+      "projectURL": "URL ʻo e Ngāué"
+    }
+  },
+  "error": {
+    "goHomeLink": "Foki ki ʻApi",
+    "withStatusCode": "Naʻe hoko ha fehālaaki {{code}} ʻi he server",
+    "withoutStatusCode": "Naʻe hoko ha fehālaaki ʻi he server"
+  },
+  "no-projects": {
+    "msg": "Fehalaaki: ʻIkai ha Ngaahi Ngāue Kuo Fokotuʻu - kātaki ʻo fetuʻutaki ki he pule ʻo e saití"
+  },
+  "dev": {
+    "pageTitle": "ʻApi"
+  },
+  "login": {
+    "pageTitle": "Login"
+  },
+  "workerTest": {
+    "pageTitle": "Sivi ʻo e Tokotaha Ngāué"
+  },
+  "index": {
+    "by": "ʻE",
+    "xr": "XR",
+    "foundation": "Fakavaʻe",
+    "description": "Taimi totonu 3H ngaahi polokalama fakasosiale ke fiefia ai ʻa e tokotaha kotoa pe."
+  },
+  "xrengineContact": {
+    "header": "Fetuʻutaki!",
+    "description": "ʻOku mau saiʻia ke tokoni atu ʻi hoʻomou ngaahi meʻa muná, fakatau fakamovetevete fakaʻilekitulōniká, fakafiefiá mo e ngaahi fie maʻu kehé.",
+    "lbl-name": "Hingoá",
+    "lbl-email": "ʻĪmeilí",
+    "lbl-company": "Kulupú",
+    "lbl-project": "Fakamatalaʻi hoʻo Ngāué",
+    "lbl-send": "ʻAve",
+    "lbl-ok": "Sai pē",
+    "lbl-success": "Pōpoaki Kuo ʻOatu, Te mau toe foki atu kiate koe ʻi ha taimi nounou pē.",
+    "lbl-failure": "Naʻe hoko ha fehalaaki, plese toe feinga",
+    "err-username": "Kātaki ʻo fakahū ho hingoá.",
+    "err-email": "Fie maʻu e ʻīmeilí.",
+    "err-msg": "ʻOange ha kiʻi fakamatala nounou ki hoʻo ngāué."
+  }
+}

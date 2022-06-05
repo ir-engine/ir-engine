@@ -1,0 +1,202 @@
+{
+  "addComment": "Lisää kommentti...",
+  "share": "Jakaa",
+  "suggestions": "Ehdotuksia sinulle",
+  "seeAll": "Katso kaikki",
+  "likes": "Tykkää",
+  "viewComments": "Näytä kaikki {{count}} kommentit",
+  "more": "enemmän",
+  "username": "käyttäjänimi",
+  "fullName": "Nimi Sukunimi",
+  "reportInApporpriate": "Ilmoita sopimattomasta",
+  "unfollow": "Lopeta seuraaminen",
+  "goToPost": "Siirry julkaisuun",
+  "shareModal": "Jakaa",
+  "copyLink": "Kopioi linkki",
+  "embed": "Upottaa",
+  "cancel": "Perua",
+  "confirm": "Vahvistaa",
+  "save": "Säästää",
+  "profilePic": "{{user}}profiilikuva",
+  "ara": "Alttari",
+  "follow": "Seurata",
+  "flames": "Liekit",
+  "continue": "Jatkaa",
+  "partyInvitationSent": "Juhlakutsu lähetetty",
+  "arMedia": {
+    "back": "Selkä",
+    "clip": "Klipsi",
+    "backgrounds": "Taustat",
+    "start": "Aloittaa"
+  },
+  "arMediaform": {
+    "title": "Nimike",
+    "type": "Tyyppi",
+    "clip": "Klipsi",
+    "background": "Tausta",
+    "scene": "Kohtaus",
+    "save": "Säästää",
+    "manifest-file": "Luettelotiedosto .manifest-tiedosto",
+    "audio-file": "Mp4-tiedosto",
+    "dracosis-file": "Dracosis .uvol-tiedosto",
+    "preview-file": "Esikatsele kuvatiedostoa"
+  },
+  "creator": {
+    "myVideos": "Omat videot",
+    "savedVideos": "Tallennetut videot",
+    "back": "Selkä",
+    "blocked-list": "Estetty luettelo",
+    "block-user": "Estä käyttäjä",
+    "dialog-content": "Et näe käyttäjän profiilia ja sisältöä"
+  },
+  "creatorForm": {
+    "back": "Selkä",
+    "edit": "Muokkaa profiilia",
+    "save": "Säästää",
+    "changeAvatar": "Avaarin kuvan muuttaminen",
+    "ph-selectPreview": "Valitse esikatselu",
+    "ph-name": "Nimesi",
+    "ph-username": "Käyttäjänimesi",
+    "ph-email": "Sähköpostisi",
+    "ph-tags": "Tunnisteet",
+    "ph-link": "Linkki",
+    "ph-aboutYou": "Lisätietoja sinusta",
+    "ph-twitter": "sirkuttaa",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Uloskirjautuminen"
+  },
+  "dashboard": {
+    "title": "Kojelauta",
+    "dashboard": "Kojelauta",
+    "users": "Käyttäjät",
+    "feeds": "Syötteet",
+    "arMedia": "Video Media",
+    "editor": "Editori",
+    "creator": "Luoja"
+  },
+  "featured": {
+    "empty-list": "Ei syötteitä toistaiseksi ..."
+  },
+  "feed": {
+    "back": "Selkä",
+    "related": "Aiheeseen liittyvät syötteet",
+    "is-repoted-message": "Syöte on ilmoitettu!"
+  },
+  "feedForm": {
+    "back": "Selkä",
+    "thanks": "Kiitos, että jaoit ja paransit yhteisöämme",
+    "share": "Jaa jotain yhteisön kanssa",
+    "upload": "Lataa video",
+    "ph-selectVideo": "Valitse video",
+    "preview": "Esikatsele kuvaa",
+    "ph-selectPreview": "Valitse esikatselu",
+    "createFeed": "Syötteen luominen edellyttää, että sinulla on video ja esikatselukuva!!!",
+    "ph-videoName": "Videon nimi",
+    "ph-type": "Kirjoita, mitä haluat jakaa yhteisön kanssa ... ",
+    "lbl-share": "Jakaa",
+    "save": "Tallenna ja siirry Seuraavaksi"
+  },
+  "feedMenu": {
+    "featured": "Suositeltavat",
+    "creators": "Luojat",
+    "feed": "Syöte"
+  },
+  "header": {
+    "lbl-volumetric": "Tilavuuden"
+  },
+  "login": {
+    "account": "Onko sinulla tili?",
+    "login": "Sisäänkirjautuminen",
+    "resetPassword": "Palauta salasana Fake -painike (tässä olisi linkki sähköpostista)",
+    "notHavingAccount": "Eikö sinulla ole tiliä?",
+    "signUp": "Kiinnittää",
+    "forgotPassword": "Unohditko salasanan?",
+    "back": "Selkä",
+    "or": "TAI"
+  },
+  "comment": {
+    "add": "Lisää kommenttisi..."
+  },
+  "notification": {
+    "feedFire": " laukaistiin syötteesi",
+    "feedBookmarked": " kirjanmerkillä syötteen",
+    "comment": " kommentoi syötettäsi:",
+    "commentFire": " lähetti kommenttisi syötettäväksi",
+    "follow": " alkoi seurata sinua",
+    "unfollow": " lakkasi seuraamasta sinua",
+    "followed": " seurasi sinua",
+    "activity": "Aktiviteetti"
+  },
+  "onBoarding": {
+    "welcome": "Tervetuloa!",
+    "description": "Suurin kokoelma yli 370 asettelua iOS-prototyyppien tekemiseen.",
+    "next": "Seuraava",
+    "discover": "Tutustu artikkeleihin,",
+    "news": "uutiset ja viestit",
+    "lines": "Juuri ne tunteet ajavat rakkautemme tähtitieteeseen ja haluumme.",
+    "getStarted": "Aloittaa",
+    "meetUp": "Tapaa",
+    "friends": "ystävät.",
+    "meet": "Tapaa ystäviä"
+  },
+  "shareForm": {
+    "arcMedia": "Jakaa",
+    "videoCreated": "Olen luonut tämän videon",
+    "shareWithBuddies": "Jaa kavereiden kanssa",
+    "shareVideo": "Jaa video",
+    "save": "Tallenna kameran rullaan",
+    "cancel": "Perua",
+    "close": "Sulkea",
+    "addFeed": "Lisää syöte"
+  },
+  "simpleModal": {
+    "emptyList": "Tyhjä luettelo",
+    "followers": " seuraava",
+    "following": " seuraajat",
+    "flames": " Liekit"
+  },
+  "splash": {
+    "screen": "Käynnistyskuva",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "{{user}}profiilikuva"
+  },
+  "view": {
+    "cancel": "Perua",
+    "choice": "Sinulla on kaksi erilaista tallennustilaa, joista valita",
+    "verticalMode": "Pystytilassa on 30 sekunnin tallennusaika",
+    "horizontalMode": "Vaakatilalla on rajoittamaton ennätysaika",
+    "start": "Aloittaa",
+    "not-show": "Älä näytä sitä uudelleen",
+    "welcome": "Tervetuloa ARC:iin!  Tee henkilökohtaisia videoita yhdellä hologrammeistamme ja lähetä se sosiaalisen median kanavillesi!",
+    "step": "VAIHE {{step}}",
+    "text-step-1": "Valitse hologrammi kirjastosta.",
+    "text-step-2": "Tämä on lisätty todellisuus, joten skannaa tilaa kamerallasi puolelta toiselle 3-5 sekunnin ajan, jossa haluat hologrammin suorituskyvyn olevan.",
+    "text-step-3-part-1": "Napauta näyttöä kerran paikassa, johon haluat ankkuroida hologrammin.",
+    "text-step-3-part-2": "JUOMARAHA!  Siirrä hologrammi toiseen paikkaan napauttamalla kerran muualla.",
+    "text-step-3-part-3": "JUOMARAHA!  Voit muuttaa hologrammin kokoa nipistämällä tai laajentamalla näyttöä peukalolla ja etusormella.",
+    "text-step-4-part-1": "Aloita videotallennus kaksoisnapauttamalla punaista tallennuspainiketta.",
+    "text-step-4-part-2": "Kaksoisnapauta punainen tallennuspainike STOP-kohtaan."
+  },
+  "video": {
+    "back": "Selkä"
+  },
+  "terms": {
+    "confirmTerms": "Hyväksyn käyttöehdot",
+    "confirmPolicy": "Hyväksyn tietosuojakäytännön"
+  },
+  "registration": {
+    "ph-phoneEmail": "Käytä puhelinta / sähköpostia",
+    "facebook": "Jatka Facebookin käyttöä",
+    "google": "Jatka Googlen käyttöä",
+    "linkedin": "Jatka Linkedinin käyttöä",
+    "twitter": "Jatka Twitterillä",
+    "gitHub": "Jatka GitHubin käyttöä",
+    "connect": "Sähköpostiosoitteen tai puhelinnumeron yhdistäminen",
+    "logIn": "Kirjaudu sisään",
+    "LogInTo": "Kirjaudu sisään kohteeseen",
+    "continueAsGuest": "Jatka vieraana"
+  }
+}

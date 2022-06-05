@@ -1,0 +1,202 @@
+{
+  "addComment": "Legg til kommentar...",
+  "share": "Aksje",
+  "suggestions": "Forslag til deg",
+  "seeAll": "Se alle",
+  "likes": "Liker",
+  "viewComments": "Vis alle {{count}} kommentarer",
+  "more": "mer",
+  "username": "brukernavn",
+  "fullName": "Etternavn",
+  "reportInApporpriate": "Rapporter upassende",
+  "unfollow": "Ikke følg",
+  "goToPost": "Gå til Innlegg",
+  "shareModal": "Aksje",
+  "copyLink": "Kopier kobling",
+  "embed": "Embed",
+  "cancel": "Annullere",
+  "confirm": "Bekrefte",
+  "save": "Lagre",
+  "profilePic": "profilbilde for {{user}}",
+  "ara": "Ara",
+  "follow": "Følge",
+  "flames": "Flammer",
+  "continue": "Fortsette",
+  "partyInvitationSent": "Partinvitasjon sendt",
+  "arMedia": {
+    "back": "Tilbake",
+    "clip": "Klippe",
+    "backgrounds": "Bakgrunner",
+    "start": "Start"
+  },
+  "arMediaform": {
+    "title": "Tittel",
+    "type": "Type",
+    "clip": "Klippe",
+    "background": "Bakgrunn",
+    "scene": "Scene",
+    "save": "Lagre",
+    "manifest-file": "Manifest .manifest fil",
+    "audio-file": "Mp4-fil",
+    "dracosis-file": "Dracosis .uvol-fil",
+    "preview-file": "Forhåndsvis bildefil"
+  },
+  "creator": {
+    "myVideos": "Mine videoer",
+    "savedVideos": "Lagrede videoer",
+    "back": "Tilbake",
+    "blocked-list": "Blokkert liste",
+    "block-user": "Blokker bruker",
+    "dialog-content": "Du vil ikke se brukerens profil og innhold"
+  },
+  "creatorForm": {
+    "back": "Tilbake",
+    "edit": "Rediger profil",
+    "save": "Lagre",
+    "changeAvatar": "Endre avatarbilde",
+    "ph-selectPreview": "Velg forhåndsvisning",
+    "ph-name": "Navnet ditt",
+    "ph-username": "Ditt brukernavn",
+    "ph-email": "Din e-post",
+    "ph-tags": "Tags",
+    "ph-link": "Lenke",
+    "ph-aboutYou": "Mer om deg",
+    "ph-twitter": "kvitre",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Logge av"
+  },
+  "dashboard": {
+    "title": "Dashbord",
+    "dashboard": "Dashbord",
+    "users": "Brukere",
+    "feeds": "Feeds",
+    "arMedia": "Videomedier",
+    "editor": "Redaktør",
+    "creator": "Skaper"
+  },
+  "featured": {
+    "empty-list": "Ingen feeder for nå ..."
+  },
+  "feed": {
+    "back": "Tilbake",
+    "related": "Relaterte feeder",
+    "is-repoted-message": "Feed er rapportert!"
+  },
+  "feedForm": {
+    "back": "Tilbake",
+    "thanks": "Takk for at du deler og forbedrer fellesskapet vårt",
+    "share": "Dele noe med fellesskapet",
+    "upload": "Last opp video",
+    "ph-selectVideo": "Velg video",
+    "preview": "Forhåndsvis bilde",
+    "ph-selectPreview": "Velg forhåndsvisning",
+    "createFeed": "Hvis du vil opprette en feed, må du ha en video og et forhåndsvisningsbilde!!!",
+    "ph-videoName": "Navnet på videoen",
+    "ph-type": "Skriv inn det du vil dele med fellesskapet ... ",
+    "lbl-share": "Aksje",
+    "save": "Lagre og gå til neste"
+  },
+  "feedMenu": {
+    "featured": "Utvalgte",
+    "creators": "Skaperne",
+    "feed": "Feeden"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetriske"
+  },
+  "login": {
+    "account": "Har du en konto?",
+    "login": "Pålogging",
+    "resetPassword": "Tilbakestill falskt passord-knappen (her ville være en lenke fra e-post)",
+    "notHavingAccount": "Har du ikke en konto?",
+    "signUp": "Melde seg på",
+    "forgotPassword": "Glemt passord?",
+    "back": "Tilbake",
+    "or": "ELLER"
+  },
+  "comment": {
+    "add": "Legg til kommentaren din..."
+  },
+  "notification": {
+    "feedFire": " avfyrte feeden din",
+    "feedBookmarked": " bokmerke feeden din",
+    "comment": " kommenterte feeden din:",
+    "commentFire": " avfyrte kommentaren din for å mate",
+    "follow": " begynte å følge deg",
+    "unfollow": " sluttet å følge deg",
+    "followed": " fulgte deg",
+    "activity": "Aktivitet"
+  },
+  "onBoarding": {
+    "welcome": "Velkommen!",
+    "description": "Største samling av 370+ oppsett for iOS-prototyping.",
+    "next": "Neste",
+    "discover": "Oppdag artikler,",
+    "news": "nyheter og innlegg",
+    "lines": "Det er de følelsene som driver vår kjærlighet til astronomi og vårt ønske.",
+    "getStarted": "Kom i gang",
+    "meetUp": "Møt opp med",
+    "friends": "Venner.",
+    "meet": "Møt venner"
+  },
+  "shareForm": {
+    "arcMedia": "Aksje",
+    "videoCreated": "Jeg opprettet denne videoen",
+    "shareWithBuddies": "Del med venner",
+    "shareVideo": "Del video",
+    "save": "Lagre i kamerarull",
+    "cancel": "Annullere",
+    "close": "Lukke",
+    "addFeed": "Legg til feed"
+  },
+  "simpleModal": {
+    "emptyList": "Tom liste",
+    "followers": " følgende",
+    "following": " Tilhengere",
+    "flames": " Flammer"
+  },
+  "splash": {
+    "screen": "Velkomstbilde",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "profilbilde for {{user}}"
+  },
+  "view": {
+    "cancel": "Annullere",
+    "choice": "Du har to forskjellige innspillingsmoduser å velge mellom",
+    "verticalMode": "Vertikal modus har en opptakstid på 30 sek",
+    "horizontalMode": "Horisontal modus har ubegrenset posttid",
+    "start": "Start",
+    "not-show": "Ikke vis den igjen",
+    "welcome": "Velkommen til ARC!  Lag personlige videoer med et av våre hologrammer og legg det ut på dine sosiale mediekanaler!",
+    "step": "TRINN {{step}}",
+    "text-step-1": "Velg et hologram fra biblioteket.",
+    "text-step-2": "Dette er Utvidet virkelighet, så skann plassen med kameraet fra side til side i 3-5 sekunder der du vil at hologramytelsen skal være.",
+    "text-step-3-part-1": "Trykk på skjermen én gang på stedet der du vil ha hologrammet forankret.",
+    "text-step-3-part-2": "TIPS!  Trykk én gang et annet sted for å flytte hologrammet til en annen posisjon.",
+    "text-step-3-part-3": "TIPS!  Du kan endre størrelsen på hologrammet ved å knipe sammen eller utvide skjermen med tommelen og pekefingeren.",
+    "text-step-4-part-1": "Dobbelttrykk på den røde opptaksknappen for å STARTE videoopptaket.",
+    "text-step-4-part-2": "Dobbelttrykk på den røde opptaksknappen for å STOPPE."
+  },
+  "video": {
+    "back": "Tilbake"
+  },
+  "terms": {
+    "confirmTerms": "Jeg godtar vilkårene for bruk",
+    "confirmPolicy": "Jeg godtar personvernreglene"
+  },
+  "registration": {
+    "ph-phoneEmail": "Bruk telefon/e-post",
+    "facebook": "Fortsett med Facebook",
+    "google": "Fortsett med Google",
+    "linkedin": "Fortsett med Linkedin",
+    "twitter": "Fortsett med Twitter",
+    "gitHub": "Fortsett med GitHub",
+    "connect": "Koble til e-postadressen eller telefonnummeret ditt",
+    "logIn": "Logg på",
+    "LogInTo": "Logg inn på",
+    "continueAsGuest": "Fortsett som gjest"
+  }
+}

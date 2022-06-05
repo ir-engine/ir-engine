@@ -1,0 +1,718 @@
+{
+  "loading": "S'està carregant el projecte",
+  "loadingMsg": "S'està carregant el projecte...",
+  "loadingError": "S'ha produït un error en carregar el projecte",
+  "loadingErrorMsg": "S'ha produït un error en carregar el projecte.",
+  "selectSceneMsg": "Seleccioneu Escena per començar a jugar amb el motor",
+  "error": "Error",
+  "errorMsg": "S'ha produït un error desconegut.",
+  "generateScreenshot": "S'està generant la captura de pantalla del projecte",
+  "generateScreenshotMsg": "S'està generant la captura de pantalla del projecte...",
+  "newScene": "Crea una escena",
+  "saving": "Projecte de desament",
+  "savingMsg": "S'està desant el projecte...",
+  "savingError": "Projecte de desament d'errors",
+  "savingErrorMsg": "S'ha produït un error en desar el projecte.",
+  "savingSceneErrorMsg": "L'escena no es carrega correctament. Proveu de tornar a carregar l'escena.",
+  "duplicating": "S'està duplicant el projecte",
+  "duplicatingMsg": "S'està duplicant el projecte...",
+  "exporting": "S'està exportant el projecte",
+  "exportingMsg": "S'està exportant el projecte...",
+  "exportingError": "S'ha produït un error en exportar el projecte",
+  "exportingErrorMsg": "S'ha produït un error en exportar el projecte.",
+  "importLegacy": "Importa el món heretat",
+  "importLegacyMsg": "Advertiment! Això sobreescriurà la vostra escena existent. Esteu segur que voleu continuar?",
+  "publishingError": "S'ha produït un error en publicar el projecte",
+  "publishingErrorMsg": "S'ha produït un error desconegut.",
+  "publishingScene": "Escena de publicació",
+  "publishingSceneMsg": "S'està publicant l'escena...",
+  "uploadingThumbnailMsg": "S'està carregant la miniatura...",
+  "uploadingSceneMsg": "Escena de càrrega: {{percentage}}%",
+  "envMapError": "S'ha produït un error en carregar les imatges de mapa de cubs {{files}}",
+  "lbl-return": "Retorn",
+  "menubar": {
+    "newScene": "Escena nova",
+    "saveScene": "Desa l'escena",
+    "saveAs": "Anomena i desa",
+    "importAsset": "Importa l'actiu",
+    "exportGLB": "Exporta com a glTF binari (.glb) ...",
+    "importScene": "Escena d'importació",
+    "exportScene": "Exporta l'escena",
+    "quit": "Sortir"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Tipus de fitxer no admès per al fitxer: \"{{name}}\". El fitxer ha de ser un model d'imatge, vídeo o glb.",
+    "addObject": "addObject: abans que no es trobi l'objecte",
+    "removeObject": "removeObject: no s'ha trobat el node. Això es deu a l'eliminació d'un node que ja no està en l'escena.",
+    "noParent": "{{node}} \"{{name}}\" no té pares. El retorn només funciona en objectes que es troben actualment en l'escena.",
+    "undefinedParent": "editor.reparent: newParent no està definit",
+    "notAuthenticated": "No autenticat",
+    "fetchingProjectError": "S'ha produït un error en obtenir projectes: {{error}}",
+    "fetchingRouteError": "S'ha produït un error en obtenir rutes: {{error}}",
+    "unknownError": "Error desconegut",
+    "resolveURL": "S'ha produït un error en resoldre l'url \"{{url}}\":",
+    "mediaSearchAborted": "S'ha interromput la cerca multimèdia",
+    "methodNotImplemented": "Mètode no implementat.",
+    "saveProjectAborted": "S'ha interromput l'escena de desament",
+    "unsavedChanges": "Canvis no desats",
+    "unsavedChangesMsg": "L'escena ha estat modificada. Deseu els canvis.",
+    "projectCreationFail": "La creació del projecte ha fallat. {{reason}}",
+    "projectDeletionFail": "No s'ha pogut suprimir el projecte. {{reason}}",
+    "savingProjectFail": "El projecte de desament ha fallat. {{reason}}",
+    "sceneTooLarge": "L'escena és massa gran ({{size}} MB) per publicar-la. La mida màxima és {{maxSize}} MB.",
+    "sceneCreationFail": "La creació d'escenes ha fallat. {{reason}}",
+    "uploadAborted": "S'ha interromput la càrrega",
+    "uploadFailed": "No s'ha pogut carregar {{reason}}",
+    "assetDeletionFail": "No s'ha pogut suprimir el recurs. {{reason}}",
+    "projectAssetDeletionFail": "No s'ha pogut suprimir l'actiu del projecte. {{reason}}",
+    "networkError": "Error de xarxa: {{status}}. {{text}}",
+    "unknownStatus": "Estat desconegut",
+    "CORS": "Possiblement un error cors",
+    "urlFetchError": "No s'ha pogut obtenir «{{url}}»"
+  },
+  "viewport": {
+    "title": "Port de visualització",
+    "command": {
+      "movecamera": "Mou la càmera",
+      "flyFast": "Vola més ràpid",
+      "orbit": "Òrbita / Selecció",
+      "pan": "Cassola",
+      "fly": "Volar",
+      "focus": "Focus",
+      "rotateLeft": "Gira cap a l'esquerra",
+      "rotateRight": "Gira cap a la dreta",
+      "cancelPlacement": "Cancel·la la col·locació",
+      "placeDuplicate": "Col·loca un duplicat",
+      "cancelGrab": "Cancel·la l'agafada",
+      "grab": "Agafar",
+      "deselectAll": "Anul·la la selecció de tots"
+    },
+    "state": {
+      "header": "Estadístiques",
+      "memory": "Memòria",
+      "geometries": "Geometries",
+      "textures": "Textures",
+      "render": "Rendir",
+      "FPS": "FPS",
+      "frameTime": "Temps de fotogrames",
+      "calls": "Trucades",
+      "triangles": "Triangles",
+      "points": "Punts",
+      "lines": "Línies"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Publicar",
+    "lbl-published": "Publicat",
+    "command": {
+      "translate": "Traduir",
+      "rotate": "Girar",
+      "scale": "Escala",
+      "toggleSpace": "Commuta l'espai de transformació",
+      "togglePivot": "Commuta el pivot de transformació",
+      "toggleSnapMode": "Commuta el mode d'ajustament",
+      "toggleGrid": "Commuta la visibilitat de la quadrícula",
+      "increaseGridSize": "Augmenta la mida de la quadrícula",
+      "descreaseGridSize": "Disminueix la mida de la quadrícula",
+      "stopPreview": "Atura la visualització prèvia de l'escena",
+      "playPreview": "Visualització prèvia de l'escena"
+    }
+  },
+  "properties": {
+    "title": "Propietats",
+    "lbl-visible": "Visible",
+    "lbl-preventBake": "Evita el forn",
+    "lbl-persist": "Persistir",
+    "multipleNodeSelected": "S'han seleccionat diversos nodes de diferents tipus",
+    "noNodeSelected": "No s'ha seleccionat cap node",
+    "ambientLight": {
+      "name": "Llum ambiental",
+      "description": "Una llum que il·lumina tots els objectes de la teva escena.",
+      "lbl-intensity": "Intensitat",
+      "lbl-color": "Color"
+    },
+    "envmap": {
+      "name": "Mapa de l'entorn",
+      "description": "propietats del mapa de l'entorn"
+    },
+    "asset": {
+      "name": "Actiu",
+      "description": "Agrupació de components d'escena que es poden carregar i descarregar dinàmicament",
+      "lbl-options": "Opcions",
+      "lbl-assetPath": "Camí de l'actiu",
+      "lbl-assetName": "Nom d'exportació",
+      "lbl-exportOptions": "Opcions d'exportació",
+      "lbl-export": "Exporta l'actiu",
+      "lbl-load": "Carrega-ho a l'escena",
+      "lbl-unload": "Descarregar",
+      "lbl-reload": "Recarregar"
+    },
+    "audio": {
+      "name": "Àudio",
+      "description": "Carrega dinàmicament l'àudio.",
+      "lbl-audiourl": "Adreça URL d'àudio",
+      "lbl-controls": "Controls",
+      "info-controls": "Commuta la visibilitat dels controls multimèdia.",
+      "lbl-autoplay": "Reproducció automàtica",
+      "info-autoplay": "Si és cert, els mitjans de comunicació es reproduiran quan entrin per primera vegada a l'escena.",
+      "lbl-synchronize": "Sincronitzar",
+      "info-synchronize": "Si és cert, el suport se sincronitzarà a tots els clients connectats.",
+      "lbl-loop": "Bucle",
+      "info-loop": "Si és cert, els mitjans de comunicació es faran circular indefinidament.",
+      "lbl-audioType": "Tipus d'àudio",
+      "lbl-distanceModel": "Model de distància",
+      "info-distanceModel": "L'algorithim s'utilitzava per calcular el llançament d'àudio.",
+      "lbl-rolloffFactor": "Factor de llançament",
+      "info-rolloffFactor": "Un doble valor que descriu la rapidesa amb què es redueix el volum a mesura que la font s'allunya de l'oient. 0 a 1",
+      "info-rfInfinity": "Un doble valor que descriu la rapidesa amb què es redueix el volum a mesura que la font s'allunya de l'oient. 0 fins a l'infinit",
+      "lbl-refDistance": "Distància de referència",
+      "info-refDistance": "Un doble valor que representa la distància de referència per reduir el volum a mesura que la font d'àudio s'allunya de l'oient.",
+      "lbl-maxDistance": "Distància màxima",
+      "info-maxDistance": "Un doble valor que representa la distància màxima entre la font d'àudio i l'oient, després de la qual cosa el volum no es redueix més.",
+      "lbl-coneInnerAngle": "Angle interior del con",
+      "info-coneInnerAngle": "Un doble valor que descriu l'angle, en graus, d'un con dins del qual no hi haurà reducció de volum.",
+      "lbl-coneOuterAngle": "Angle exterior del con",
+      "info-coneOuterAngle": "Un doble valor que descriu l'angle, en graus, d'un con fora del qual el volum es reduirà per un valor constant, definit per l'atribut coneOuterGain.",
+      "lbl-coreOuterGain": "Guany exterior de con",
+      "info-coreOuterGain": "Un doble valor que descriu la quantitat de reducció de volum fora del con definit per l'atribut coneOuterAngle. El seu valor per defecte és 0, el que significa que no es pot sentir cap so.",
+      "lbl-volume": "Volum",
+      "lbl-play": "Jugar",
+      "lbl-pause": "Pausa",
+      "error-url": "S'ha produït un error en carregar des de l'adreça"
+    },
+    "boxCollider": {
+      "description": "Una caixa invisible que els objectes rebotaran o descansaran a sobre.\nSense col·lisionadors, els objectes cauran per terres i passaran per les parets.",
+      "lbl-isTrigger": "Gallet"
+    },
+    "camera": {
+      "name": "Càmera",
+      "description": "Configuració de la càmera.",
+      "lbl-camera-raycast": "Raycasting de càmera",
+      "lbl-camera-raycast-toggle": "Permès",
+      "lbl-camera-raycast-frequency": "Freqüència",
+      "lbl-camera-raycast-count": "Recompte de raigs",
+      "lbl-camera-raycast-length": "Longitud dels raigs"
+    },
+    "directionalLight": {
+      "name": "Llum direccional",
+      "description": "Una llum que il·lumina tota l'escena, però que emet al llarg d'una sola direcció.",
+      "lbl-color": "Color",
+      "lbl-intensity": "Intensitat",
+      "lbl-cameraFar": "Càmera lluny",
+      "lbl-cameraNear": "Càmera a prop",
+      "lbl-cameraTop": "Part superior de la càmera",
+      "lbl-cameraBottom": "Càmera inferior",
+      "lbl-cameraLeft": "Càmera a l'esquerra",
+      "lbl-cameraRight": "Càmera dreta",
+      "lbl-useInCSM": "Ús en CSM",
+      "lbl-castShadow": "Ombra fosa",
+      "lbl-disableForCSM": "S'ha inhabilitat perquè el mapa ombra en cascada està habilitat.",
+      "lbl-shadowmapResolution": "Resolució del mapa d'ombres",
+      "lbl-shadowBias": "Biaix d'ombra",
+      "lbl-shadowRadius": "Radi de l'ombra",
+      "lbl-showCameraHelper": "Mostra l'ajudant de la càmera"
+    },
+    "groundPlane": {
+      "name": "Avió de terra",
+      "description": "Un avió pla que s'estén a la distància.",
+      "lbl-color": "Color",
+      "lbl-receiveShadow": "Rebeu l'ombra",
+      "lbl-generateNavmesh": "Genera Navmesh"
+    },
+    "link": {
+      "description": "Enllaç a una habitació o a una pàgina web.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "Mapa geoespacial 3D d'una ciutat."
+    },
+    "model": {
+      "description": "Un model 3D a l'escena, carregat des d'un URL o fitxer GLTF.",
+      "lbl-usingGPUInstancingFlag": "Utilitza la GPU Instancing",
+      "lbl-modelurl": "Model Url",
+      "lbl-envmapUrl": "Adreça URL de l'entorn",
+      "lbl-textureOverride": "Substitueix la textura",
+      "lbl-materialOverride": "Substitucions de material",
+      "error-url": "S'ha produït un error en carregar des de l'adreça",
+      "lbl-loopAnimation": "Animació en bucle",
+      "lbl-isAvatar": "És l'avatar",
+      "lbl-isGPUInstancing": "Utilitza la GPU Instancing",
+      "lbl-isDynamic": "És dinàmic",
+      "lbl-castShadow": "Ombra fosa",
+      "lbl-receiveShadow": "Rebeu l'ombra",
+      "lbl-interactable": "Interactuable",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Nom",
+      "lbl-url": "Model Url",
+      "lbl-buy": "Adreça URL de compra",
+      "lbl-learnMore": "Més informació url",
+      "lbl-htmlContent": "Contingut HTML",
+      "lbl-interactionText": "Text d'interacció",
+      "lbl-interactionType": "Tipus d'interacció"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Material",
+      "error-materialID": "S'ha produït un error en trobar material",
+      "placeholder-materialID": "Selecciona el material",
+      "lbl-patternTarget": "Coincidència de patrons",
+      "lbl-pattern": "Patró",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Tipus d'interacció",
+      "text": "Text d'interacció",
+      "distance": "Distància d'interacció",
+      "theme": "Tema d'interacció",
+      "name": "Nom de la interacció",
+      "description": "Descripció de la interacció",
+      "images": "Imatges d'interacció",
+      "videos": "Vídeos d'interacció",
+      "urls": "Url d'interacció",
+      "models": "Models d'interacció"
+    },
+    "group": {
+      "name": "Grup",
+      "description": "Un grup de diversos objectes que es poden moure o duplicar junts.\nArrossega i deixa anar objectes al grup de la jerarquia."
+    },
+    "hemisphere": {
+      "name": "Llum de l'hemisferi",
+      "description": "Una llum que il·lumina l'escena des de la part superior.",
+      "lbl-skyColor": "Color del cel",
+      "lbl-groundColor": "Color del sòl",
+      "lbl-intensity": "Intensitat"
+    },
+    "image": {
+      "name": "Imatge",
+      "description": "Carrega dinàmicament una imatge.",
+      "lbl-imgURL": "Url de la imatge",
+      "lbl-transparency": "Mode de transparència",
+      "lbl-alphaCutoff": "Tall alfa",
+      "lbl-projection": "Projecció",
+      "lbl-side": "Costat",
+      "info-controls": "Commuta la visibilitat dels controls multimèdia.",
+      "info-transparency": "Com aplicar la transparència:",
+      "info-opaque": "'opac' = sense transparència",
+      "info-blend": "'blend' = utilitza el canal alfa de les imatges",
+      "info-mask": "'mask' = Utilitza un valor de tall especificat per a la transparència on/off (més performant)",
+      "info-alphaCutoff": "Els píxels amb valors alfa inferiors a aquest seran transparents",
+      "error-url": "L'adreça URL no és vàlida"
+    },
+    "name": {
+      "lbl-name": "Nom"
+    },
+    "partileEmitter": {
+      "description": "Emissor de partícules per crear partícules.",
+      "lbl-particleCount": "Recompte de partícules",
+      "lbl-image": "Imatge",
+      "lbl-ageRandomness": "Aleatorietat de l'edat",
+      "lbl-lifetime": "Vida",
+      "lbl-lifetimeRandomness": "Aleatorietat de per vida",
+      "lbl-sizeCurve": "Corba de mida",
+      "lbl-startPSize": "Inicia la mida de la partícula",
+      "lbl-endPSize": "Mida de partícula final",
+      "lbl-sizeRandomness": "Aleatorietat de la mida",
+      "lbl-colorCurve": "Corba de color",
+      "lbl-startColor": "Color d'inici",
+      "lbl-startOpacity": "Inicia l'opacitat",
+      "lbl-middleColor": "Color mitjà",
+      "lbl-middleOpacity": "Opacitat mitjana",
+      "lbl-endColor": "Color final",
+      "lbl-endOpacity": "Finalitza l'opacitat",
+      "lbl-velocityCurve": "Corba de velocitat",
+      "lbl-startVelocity": "Velocitat d'inici",
+      "lbl-endVelocity": "Velocitat final",
+      "lbl-angularVelocity": "Velocitat angular",
+      "info-ageRandomness": "La quantitat de variació entre quan es generen partícules.",
+      "info-lifetime": "L'edat màxima d'una partícula abans de ser reespavada.",
+      "info-lifetimeRandomness": "La quantitat de variació entre les partícules.",
+      "info-sizeRandomness": "La quantitat de variació entre les mides inicials de partícules.",
+      "error-url": "S'ha produït un error en carregar des de l'adreça"
+    },
+    "clouds": {
+      "name": "Núvol",
+      "description": "Volum de núvol basat en personatges.",
+      "lbl-image": "Imatge de personatge",
+      "lbl-wroldScale": "Escala mundial",
+      "lbl-dimensions": "Dimensions",
+      "lbl-noiseZoom": "Zoom del soroll",
+      "lbl-noiseOffset": "Desplaçament del soroll",
+      "lbl-spriteScale": "Escala de personatges",
+      "lbl-fogColor": "Color de boira",
+      "lbl-fogRange": "Interval de boira",
+      "error-url": "S'ha produït un error en carregar des de l'adreça"
+    },
+    "ocean": {
+      "name": "Oceà",
+      "description": "Superfície oceànica amb ones i escuma",
+      "lbl-normalMap": "Mapa normal",
+      "lbl-distortionMap": "Mapa de distorsió",
+      "lbl-envMap": "Mapa de l'entorn",
+      "lbl-color": "Color",
+      "lbl-shallowWaterColor": "Color d'aigües poc profundes",
+      "lbl-shallowToDeepDistance": "Distància superficial a profunda",
+      "lbl-opacityFadeDistance": "Distància d'esvaïment de l'opacitat",
+      "lbl-opacityRange": "Interval d'opacitat",
+      "lbl-shininess": "Brillantor",
+      "lbl-reflectivity": "Reflectivitat",
+      "lbl-foamColor": "Color d'escuma",
+      "lbl-foamSpeed": "Velocitat de l'escuma",
+      "lbl-foamTiling": "Enrajolat d'escuma",
+      "lbl-bigWaveTiling": "Enrajolat de l'ona gran",
+      "lbl-bigWaveSpeed": "Velocitat d'ona gran",
+      "lbl-bigWaveHeight": "Alçada de la gran ona",
+      "lbl-waveSpeed": "Velocitat d'ona",
+      "lbl-waveScale": "Escala d'ona",
+      "lbl-waveTiling": "Enrajolat d'ona",
+      "lbl-waveDistortionSpeed": "Velocitat de distorsió de l'ona",
+      "lbl-waveDistortionTiling": "Enrajolat de distorsió d'ona",
+      "error-url": "S'ha produït un error en carregar des de l'adreça"
+    },
+    "water": {
+      "name": "Aigua",
+      "description": "Petita superfície d'aigua"
+    },
+    "interior": {
+      "name": "Interior",
+      "description": "Una superfície amb textura cúbica mapejada per emular ambients interiors",
+      "lbl-cubeMap": "Textura del mapa cúbic",
+      "lbl-tiling": "Import de l'enrajolat",
+      "lbl-size": "Mida de la superfície",
+      "error-url": "S'ha produït un error en carregar des de l'adreça"
+    },
+    "pointLight": {
+      "description": "Llum que emet en totes direccions des d'un únic punt.",
+      "lbl-color": "Color",
+      "lbl-intensity": "Intensitat",
+      "lbl-range": "Gamma",
+      "lbl-decay": "Decadència"
+    },
+    "scene": {
+      "name": "Escena",
+      "description": "L'objecte principal de l'escena.",
+      "lbl-bgcolor": "Color de fons",
+      "lbl-fogType": "Tipus de boira",
+      "lbl-fogColor": "Color de boira",
+      "lbl-forNearDistance": "Boira a prop de la distància",
+      "lbl-fogFarDistance": "Boira lluny",
+      "lbl-fogDensity": "Densitat de boira",
+      "lbl-audioSettings": "Utilitza l'àudio posicional",
+      "lbl-avatarDistanceModel": "Model de distància de l'avatar",
+      "lbl-avatarRolloffFactor": "Factor de llançament d'avatars",
+      "lbl-avatarRefDistance": "Distància de ref de l'avatar",
+      "lbl-avatarMaxDistance": "Distància màxima de l'avatar",
+      "lbl-mediaVolume": "Volum multimèdia",
+      "lbl-mediaDistanceModel": "Model de distància multimèdia",
+      "lbl-mediaRolloffFactor": "Factor de llançament multimèdia",
+      "lbl-mediaRefDistance": "Distància de ref multimèdia",
+      "lbl-mediaMaxDistance": "Distància màxima multimèdia",
+      "lbl-mediaConeInnerAngle": "Angle interior del con multimèdia",
+      "lbl-mediaConeOuterAngle": "Angle exterior del con multimèdia",
+      "lbl-mediaConeOuterGain": "Guany exterior del con multimèdia",
+      "info-avatarDistanceModel": "L'algorithim s'utilitzava per calcular el llançament d'àudio.",
+      "info-avatarRolloffFactor": "Un doble valor que descriu la rapidesa amb què es redueix el volum a mesura que la font s'allunya de l'oient. 0 a 1",
+      "info-avatarRolloffFactorInifinity": "Un doble valor que descriu la rapidesa amb què es redueix el volum a mesura que la font s'allunya de l'oient. 0 fins a l'infinit",
+      "info-avatarRefDistance": "Un doble valor que representa la distància de referència per reduir el volum a mesura que la font d'àudio s'allunya de l'oient.",
+      "info-avatarMaxDistance": "Un doble valor que representa la distància màxima entre la font d'àudio i l'oient, després de la qual cosa el volum no es redueix més.",
+      "info-mediaDistanceModel": "L'algorithim s'utilitzava per calcular el llançament d'àudio.",
+      "info-mediaRolloffFactor": "Un doble valor que descriu la rapidesa amb què es redueix el volum a mesura que la font s'allunya de l'oient. 0 a 1",
+      "info-mediaRolloffFactorInfinity": "Un doble valor que descriu la rapidesa amb què es redueix el volum a mesura que la font s'allunya de l'oient. 0 fins a l'infinit",
+      "info-mediaRefDistance": "Un doble valor que representa la distància de referència per reduir el volum a mesura que la font d'àudio s'allunya de l'oient.",
+      "info-mediaMaxDistance": "Un doble valor que representa la distància màxima entre la font d'àudio i l'oient, després de la qual cosa el volum no es redueix més.",
+      "info-mediaConeInnerAngle": "Un doble valor que descriu l'angle, en graus, d'un con dins del qual no hi haurà reducció de volum.",
+      "info-mediaConeOuterAngle": "Un doble valor que descriu l'angle, en graus, d'un con fora del qual el volum es reduirà per un valor constant, definit per l'atribut coneOuterGain.",
+      "info-mediaConeOuterGain": "Un doble valor que descriu la quantitat de reducció de volum fora del con definit per l'atribut coneOuterAngle. El seu valor per defecte és 0, el que significa que no es pot sentir cap so.",
+      "lbl-simpleMaterials": "Utilitzar materials senzills",
+      "lbl-lods": "LODs",
+      "info-lods": "Estableix les distàncies a les quals canvien els nivells de detall.",
+      "info-simpleMaterials": "Converteix tots els materials cars a més senzills per treure la càrrega de la representació de l'escena.",
+      "lbl-rendererSettings": "Substitueix la configuració del renderitzador",
+      "lbl-csm": "Mapes d'ombres en cascada",
+      "info-csm": "Habilita els mapes d'ombres en cascada.",
+      "lbl-toneMapping": "Assignació de tons",
+      "info-toneMapping": "Habilita l'assignació de tons al renderitzador d'escenes. No té cap efecte quan s'habilita un processament posterior.",
+      "lbl-toneMappingExposure": "Exposició de mapatge de tons",
+      "info-toneMappingExposure": "Especifica l'exposició a l'assignació de tons al renderitzador d'escena. No té cap efecte quan s'habilita un processament posterior.",
+      "lbl-shadowMapType": "Tipus de mapa d'ombres",
+      "info-shadowMapType": "Tipus de mapa d'ombres",
+      "error-url": "S'ha produït un error en carregar des de l'adreça"
+    },
+    "sceneCamera": {
+      "name": "Càmera de visualització prèvia de l'escena",
+      "description": "La càmera utilitzada per generar la miniatura de l'escena i la posició inicial de la càmera de previsualització.",
+      "lbl-setFromViewPort": "Defineix-ho des de l'portades"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Hora del dia",
+      "lbl-color": "Color",
+      "lbl-latitude": "Latitud",
+      "lbl-luminance": "Luminància",
+      "lbl-scattering": "Quantitat de dispersió",
+      "lbl-scatteringDistance": "Distància de dispersió",
+      "lbl-horizonStart": "Inici de l'horitzó",
+      "lbl-horizonEnd": "Final de l'horitzó",
+      "lbl-texture": "Textura",
+      "lbl-skyType": "Tipus de cel",
+      "error-url": "S'ha produït un error en carregar des de l'adreça"
+    },
+    "spawnPoint": {
+      "name": "Punt de fresa",
+      "description": "Un punt en què les persones apareixeran quan entrin a la vostra escena.\nLa icona de l'àrea de visualització representa la mida real d'un avatar."
+    },
+    "spotLight": {
+      "description": "Una llum que emet al llarg d'una direcció, il·luminant objectes dins d'un con.",
+      "lbl-color": "Color",
+      "lbl-intensity": "Intensitat",
+      "lbl-penumbra": "Penombra",
+      "lbl-angle": "Angle",
+      "lbl-range": "Gamma",
+      "lbl-decay": "Decadència"
+    },
+    "transform": {
+      "title": "Transformar",
+      "lbl-postition": "Posició",
+      "lbl-rotation": "Rotació",
+      "lbl-scale": "Escala"
+    },
+    "triggereVolume": {
+      "description": "Estableix una propietat a l'objecte de destinació en entrar i sortir.",
+      "lbl-target": "Objecte",
+      "lbl-onenter": "A l'entrada",
+      "lbl-onexit": "En sortir",
+      "lbl-showHelper": "Mostra la malla de l'ajudant",
+      "ph-errorNode": "Falta un node que falta.",
+      "ph-selectNode": "Selecciona el node..."
+    },
+    "video": {
+      "name": "Vídeo",
+      "description": "Carrega dinàmicament un vídeo.",
+      "lbl-video": "Vídeo",
+      "lbl-projection": "Projecció",
+      "lbl-islivestream": "Reproducció en directe",
+      "lbl-interactable": "Interactuable",
+      "lbl-id": "Identificador de l'element",
+      "lbl-play": "Jugar",
+      "lbl-pause": "Pausa",
+      "error-url": "S'ha produït un error en carregar des de l'adreça"
+    },
+    "volumetric": {
+      "name": "Volumètric",
+      "description": "Carrega dinàmicament un vídeo volumètric.",
+      "uvolPaths": "Camins UVOL",
+      "playmode": "Mode de reproducció",
+      "playtitle": "Jugar",
+      "pausetitle": "Pausa"
+    },
+    "spline": {
+      "description": "Creeu i personalitzeu dinàmicament corbes.",
+      "lbl-addNode": "Afegeix un node a la corba."
+    },
+    "systemnode": {
+      "description": "Adjunta l'script.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "Punt d'injecció",
+      "lbl-enableClient": "Client",
+      "lbl-enableServer": "Servidor",
+      "lbl-args": "Args",
+      "error-url": "S'ha produït un error en carregar l'script des de l'adreça"
+    },
+    "portal": {
+      "lbl-portal": "Portal enllaçat",
+      "lbl-redirect": "Utilitza la redirecció de pàgines",
+      "description": "Un Portat per teletransportar els jugadors a la ubicació especificada",
+      "lbl-locationName": "Ubicació",
+      "lbl-modelUrl": "Model URL",
+      "lbl-displayText": "Visualitza el text",
+      "lbl-cubemapBake": "Forn cubemap",
+      "lbl-spawnPosition": "Posició de la posta",
+      "lbl-spawnRotation": "Fresa de rotació",
+      "lbl-triggerPosition": "Posició de l'activador",
+      "lbl-triggerRotation": "Rotació de l'activador",
+      "lbl-triggerScale": "Escala d'activació"
+    },
+    "postprocessing": {
+      "name": "Processament posterior",
+      "description": "Per aplicar-vos efectes de processament posterior a l'escena."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Nou projecte",
+      "backLink": "Tornar als projectes",
+      "featured": "Hotels destacats",
+      "all": "Tot",
+      "newProject": "Nou projecte buit",
+      "ph-search": "Cerca escenes..."
+    },
+    "grid": {
+      "loading": "Càrrega..."
+    },
+    "page": {
+      "header": "Benvingut",
+      "headerMsg": "Si ets nou aquí et recomanem que passis pel tutorial. En cas contrari, salta directament i crea un projecte des de zero o des d'una de les nostres plantilles.",
+      "lbl-startTutorial": "Inicia el tutorial",
+      "projects": "Projectes",
+      "lbl-newProject": "Nou projecte"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Càrrega...",
+      "placeObject": "Col·loca l'objecte",
+      "placeObjectAtOrigin": "Col·loca l'objecte a l'origen",
+      "copyURL": "Copia l'adreça URL",
+      "openInNewTab": "Obre l'adreça URL a la pestanya nova",
+      "deleteAsset": "Suprimeix el recurs"
+    },
+    "filebrowser": {
+      "addNewFolder": "Afegeix una carpeta nova",
+      "cutAsset": "Tallar",
+      "copyAsset": "Copiar",
+      "pasteAsset": "Enganxar",
+      "renameAsset": "Rebatejar",
+      "viewAssetProperties": "Visualitza les propietats"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Rebatejar",
+    "lbl-duplicate": "Duplicat",
+    "lbl-group": "Grup",
+    "lbl-delete": "Esborrar",
+    "lbl-expandAll": "Expandeix-ho tot",
+    "lbl-collapseAll": "Redueix-ho tot",
+    "isseus": "Qüestions:"
+  },
+  "dnd": {
+    "nodes": "{{count}} nodes seleccionats",
+    "models": "{{count}} models seleccionats",
+    "images": "{{count}} imatges seleccionades",
+    "videos": "{{count}} vídeos seleccionats",
+    "audio": "{{count}} fonts d'àudio seleccionades"
+  },
+  "dialog": {
+    "title": "Editor",
+    "lbl-confirm": "OK",
+    "lbl-cancel": "Cancel·lar",
+    "exportProject": {
+      "title": "Exporta el projecte",
+      "lbl-confirm": "Exporta el projecte",
+      "lbl-combineMesh": "Combina malles",
+      "lbl-removeUnused": "Suprimeix els objectes no desitjats"
+    },
+    "performance": {
+      "title": "Comprovació de rendiment",
+      "lbl-confirm": "Publica l'escena",
+      "learnMore": "Més informació",
+      "lbl-polycount": "Recompte de polígons",
+      "lbl-material": "Materials",
+      "lbl-texture": "Textures",
+      "lbl-lights": "Llums",
+      "lbl-fileSize": "Mida del fitxer",
+      "info-polycount": "Us recomanem que la vostra escena no utilitzi més de 50.000 triangles per a dispositius mòbils.",
+      "info-material": "Us recomanem que utilitzeu no més de 25 materials únics a la vostra escena per reduir les trucades de dibuix en dispositius mòbils.",
+      "info-texture": "Et recomanem que les teves textures no utilitzin més de 256 MB de MEMÒRIA RAM de vídeo per a dispositius mòbils. També recomanem no utilitzar textures superiors a 2048 x 2048.",
+      "info-lights": "Tot i que els llums dinàmics no estan activats en dispositius mòbils, us recomanem que no utilitzeu més de 3 llums a l'escena (excloent-hi les llums ambientals i de l'hemisferi) perquè la vostra escena s'executi en ordinadors de gamma baixa.",
+      "info-fileSize": "Recomanem una mida de fitxer final de no més de 16MB per a connexions d'ample de banda baixes. La reducció de la mida del fitxer reduirà el temps que es triga a descarregar l'escena.",
+      "txt-polycount": "Triangles {{count}}",
+      "txt-material": "Materials {{count}}",
+      "txt-ram": "~{{count}} MEMÒRIA RAM de vídeo",
+      "txt-texture": "{{count}} textures grans",
+      "txt-lights": "llums {{count}}"
+    },
+    "progress": {
+      "title": "Càrrega...",
+      "msg": "Càrrega...",
+      "lbl-cancel": "Cancel·lar"
+    },
+    "publish": {
+      "title": "Publica l'escena",
+      "lbl-confirm": "Desa i publica",
+      "lbl-name": "Nom de l'escena",
+      "info-name": "El nom ha de tenir entre 4 i 64 caràcters i no pot contenir subratlls"
+    },
+    "published": {
+      "title": "Escena publicada",
+      "header": "S'ha publicat l'escena.",
+      "lbl-view": "Veure l'escena"
+    },
+    "saveNewProject": {
+      "title": "Recolzar",
+      "lbl-name": "Nom del projecte",
+      "info-name": "El nom ha de tenir entre 4 i 64 caràcters i no pot contenir subratlls",
+      "lbl-confirm": "Desa el projecte"
+    },
+    "support": {
+      "title": "Recolzar",
+      "header": "Necessites informar d'un problema?",
+      "msg": "Podeu presentar un <1>problema de GitHub</1> o enviar-nos un correu electrònic per obtenir assistència a <3>{{mail}}</3>",
+      "discord": "També ens pots trobar a <1>Discòrdia</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Imatges del Bing",
+      "search": "Cerca per Bing"
+    },
+    "bingVideo": {
+      "name": "Vídeos del Bing",
+      "search": "Cerca per Bing"
+    },
+    "element": {
+      "name": "Elements"
+    },
+    "myAssets": {
+      "name": "Els meus actius"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Cerca per Google"
+    },
+    "tenor": {
+      "name": "GIF tenor",
+      "search": "Cerca per tenor",
+      "ph-search": "Cerca GIF..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Cerca per Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Carrega l'actiu"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Cerca imatges..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Cerca vídeos..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Cerca els recursos..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Cerca models..."
+    },
+    "useUpload": {
+      "multipleFileError": "L'entrada no accepta diversos fitxers.",
+      "mineTypeError": "\"{{name}}\" no coincideix amb els següents tipus o extensions de mim: {{types}}",
+      "progressTitle": "S'estan carregant els fitxers",
+      "progressMsg": "S'estan carregant fitxers {{uploaded}} de {{total}}: {{percentage}}%",
+      "uploadError": "Error de càrrega",
+      "uploadErrorMsg": "S'ha produït un error en carregar el fitxer: {{message}}",
+      "uploadErrorDefaultMsg": "S'ha produït un error desconegut"
+    }
+  },
+  "openLink": {
+    "description": "Feu clic a l'Obert per navegar fins a l'enllaç.",
+    "lbl-open": "Obrir"
+  },
+  "interactableModel": {
+    "lbl-buy": "Comprar",
+    "lbl-learnMore": "Més informació"
+  },
+  "corsProxyButton": {
+    "tooltip": "Utilitza el servidor intermediari del Cors"
+  }
+}

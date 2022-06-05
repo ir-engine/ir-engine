@@ -1,0 +1,718 @@
+{
+  "loading": "Жүктеу жобасы",
+  "loadingMsg": "Жүктеу жобасы...",
+  "loadingError": "Қателерді жүктеу жобасы",
+  "loadingErrorMsg": "Жобаны жүктеу кезінде қате пайда болды.",
+  "selectSceneMsg": "Қозғалтқышпен ойнатуды бастау үшін Көріністі таңдау",
+  "error": "Қате",
+  "errorMsg": "Белгісіз қате пайда болды.",
+  "generateScreenshot": "Project скриншоты",
+  "generateScreenshotMsg": "Жоба скриншотын жасау...",
+  "newScene": "Көріністі жасау",
+  "saving": "Жобаны сақтау",
+  "savingMsg": "Жобаны сақтау...",
+  "savingError": "Жобаны сақтау қатесі",
+  "savingErrorMsg": "Жобаны сақтағанда қате пайда болды.",
+  "savingSceneErrorMsg": "Көрініс дұрыс жүктелмейді. Көріністі қайта жүктеп көріңіз.",
+  "duplicating": "Жобаның қайталануы",
+  "duplicatingMsg": "Жобаны қайталау...",
+  "exporting": "Жобаны экспорттау",
+  "exportingMsg": "Жобаны экспорттау...",
+  "exportingError": "Жобаны экспорттау қатесі",
+  "exportingErrorMsg": "Жобаны экспорттау кезінде қате пайда болды.",
+  "importLegacy": "Баяғы әлемді импорттау",
+  "importLegacyMsg": "Ескерту! Бұл бар көріністі қайта жазады! Жалғастырғыңыз келетініне сенімдісіз бе?",
+  "publishingError": "Қатені жариялау жобасы",
+  "publishingErrorMsg": "Белгісіз қате пайда болды.",
+  "publishingScene": "Жариялау көрінісі",
+  "publishingSceneMsg": "Жариялау көрінісі...",
+  "uploadingThumbnailMsg": "Нобайды кері жүктеу...",
+  "uploadingSceneMsg": "Кері жүктеу көрінісі: {{percentage}}%",
+  "envMapError": "Текше суреттерді жүктеу қатесі {{files}}",
+  "lbl-return": "Қайтарым",
+  "menubar": {
+    "newScene": "Жаңа көрініс",
+    "saveScene": "Көріністі сақтау",
+    "saveAs": "Басқаша сақтау",
+    "importAsset": "Импорт активі",
+    "exportGLB": "Екілік gLTF (.glb) ретінде экспорттау...",
+    "importScene": "Көріністі импорттау",
+    "exportScene": "Көріністі экспорттау",
+    "quit": "Шығу"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Файл үшін қолдау көрсетілмейтін файл түрі: \"{{name}}\". Файл кескін, бейне немесе glb үлгісі болуы тиіс.",
+    "addObject": "adDobject: нысан табылмас бұрын",
+    "removeObject": "жоюObject: торап табылмады. Бұл енді оқиға орнында жоқ түйінді алып тастаумен байланысты.",
+    "noParent": "{{node}} «{{name}}» ата-анасы жоқ. Өтем қазіргі уақытта оқиға орнында тұрған нысандарда ғана жұмыс істейді.",
+    "undefinedParent": "editor.recarent: newParent анықталмаған",
+    "notAuthenticated": "Аутентификацияланбаған",
+    "fetchingProjectError": "Жобаларды алу қатесі: {{error}}",
+    "fetchingRouteError": "Маршруттарды алу қатесі: {{error}}",
+    "unknownError": "Беймәлім қате",
+    "resolveURL": "«{{url}}» url мекенжайын шешу қатесі:",
+    "mediaSearchAborted": "Медиа іздеу доғарылды",
+    "methodNotImplemented": "Әдіс іске асырылмаған.",
+    "saveProjectAborted": "Көріністі доғару",
+    "unsavedChanges": "Тоқтатылмаған өзгерістер",
+    "unsavedChangesMsg": "Көрініс өзгертілген. Өзгертулеріңізді сақтаңыз.",
+    "projectCreationFail": "Жобаның жасалуы сәтсіз аяқталды. {{reason}}",
+    "projectDeletionFail": "Жоба өшірілмеді. {{reason}}",
+    "savingProjectFail": "Жобаны сақтау жаңылысы. {{reason}}",
+    "sceneTooLarge": "Көрініс тым үлкен ({{size}} MB) жариялауға болады. Ең үлкен өлшемі МБ {{maxSize}} .",
+    "sceneCreationFail": "Көрініс жасау сәтсіз аяқталды. {{reason}}",
+    "uploadAborted": "Доғарылған кері жүктеу",
+    "uploadFailed": "Кері жүктеу жаңылысы {{reason}}",
+    "assetDeletionFail": "Активтерді жою жаңылысы. {{reason}}",
+    "projectAssetDeletionFail": "Жоба активтерін жою жаңылысы. {{reason}}",
+    "networkError": "Желі қатесі: {{status}}. {{text}}",
+    "unknownStatus": "Беймәлім күй",
+    "CORS": "CORS қатесі болуы мүмкін",
+    "urlFetchError": "«{{url}}» алып кетпеген"
+  },
+  "viewport": {
+    "title": "Көрініс порты",
+    "command": {
+      "movecamera": "Камераны жылжыту",
+      "flyFast": "Жылдамырақ ұшу",
+      "orbit": "Орбита / Таңдау",
+      "pan": "Пан",
+      "fly": "Шыбын",
+      "focus": "Фокус",
+      "rotateLeft": "Солға бұру",
+      "rotateRight": "Оңға бұру",
+      "cancelPlacement": "Орналастырудан бас тарту",
+      "placeDuplicate": "Көшірмені орналастыру",
+      "cancelGrab": "Грейферден бас тарту",
+      "grab": "Грейфер",
+      "deselectAll": "Барлығын басу"
+    },
+    "state": {
+      "header": "Статс",
+      "memory": "Жады",
+      "geometries": "Геометрия",
+      "textures": "Текстуралар",
+      "render": "Көрсету",
+      "FPS": "FPS",
+      "frameTime": "Кадр уақыты",
+      "calls": "Қоңыраулар",
+      "triangles": "Үшбұрыштар",
+      "points": "Нүктелер",
+      "lines": "Сызықтар"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Жариялау",
+    "lbl-published": "Жарияланды",
+    "command": {
+      "translate": "Аудару",
+      "rotate": "Бұру",
+      "scale": "Масштаб",
+      "toggleSpace": "Түрлендіру кеңістігін ажырату",
+      "togglePivot": "Жиынтықты түрлендіруді ажырату",
+      "toggleSnapMode": "Снайпер режимін ажырату",
+      "toggleGrid": "Тор көрінуін ажырату",
+      "increaseGridSize": "Тор өлшемін ұлғайту",
+      "descreaseGridSize": "Тор өлшемін кішірейту",
+      "stopPreview": "Көріністі алдын ала қарауды тоқтату",
+      "playPreview": "Көріністі алдын ала қарау"
+    }
+  },
+  "properties": {
+    "title": "Сипаттары",
+    "lbl-visible": "Көрінетін",
+    "lbl-preventBake": "Бақанның алдын алу",
+    "lbl-persist": "Сақталсын",
+    "multipleNodeSelected": "Әр түрлі бірнеше тораптар таңдалды",
+    "noNodeSelected": "Торап таңдалмады",
+    "ambientLight": {
+      "name": "Қоршаған ортаның жарығы",
+      "description": "Көріністегі барлық нысандарды жарықтандыратын жарық.",
+      "lbl-intensity": "Интенсивтілік",
+      "lbl-color": "Түс"
+    },
+    "envmap": {
+      "name": "Қоршаған орта картасы",
+      "description": "орта картасының қасиеттері"
+    },
+    "asset": {
+      "name": "Актив",
+      "description": "Динамикалық түрде жүктелуі және түсірілуі мүмкін көрініс компоненттерінің топталуы",
+      "lbl-options": "Параметрлер",
+      "lbl-assetPath": "Активтер жолы",
+      "lbl-assetName": "Атауын экспорттау",
+      "lbl-exportOptions": "Экспорттау параметрлері",
+      "lbl-export": "Экспорттық актив",
+      "lbl-load": "Көрініске жүктеу",
+      "lbl-unload": "Жүктеу",
+      "lbl-reload": "Қайта жүктеу"
+    },
+    "audio": {
+      "name": "Дыбыс",
+      "description": "Дыбысты динамикалық түрде жүктейді.",
+      "lbl-audiourl": "Дыбыстық Url",
+      "lbl-controls": "басқару элементтері",
+      "info-controls": "Мультимедиа басқару элементтерінің көрінуін ажырату.",
+      "lbl-autoplay": "Авто ойнату",
+      "info-autoplay": "Рас болса, оқиға орнына алғаш кіргенде БАҚ ойнайды.",
+      "lbl-synchronize": "Синхрондау",
+      "info-synchronize": "Рас болса, медиа барлық қосылған клиенттерде синхрондалады.",
+      "lbl-loop": "Ілмек",
+      "info-loop": "Егер шындыққа сәйкес келсе, БАҚ белгісіз мерзімге ілмектеледі.",
+      "lbl-audioType": "Дыбыс түрі",
+      "lbl-distanceModel": "Қашықтық үлгісі",
+      "info-distanceModel": "Аудио роликті есептеу үшін қолданылған алгоритм.",
+      "lbl-rolloffFactor": "Роллоф факторы",
+      "info-rolloffFactor": "Дереккөздің тыңдаушыдан алшақтап кетуіне қарай көлемнің қаншалықты тез азайтылатынын сипаттайтын қос мән. 0-нен 1-ге дейін",
+      "info-rfInfinity": "Дереккөздің тыңдаушыдан алшақтап кетуіне қарай көлемнің қаншалықты тез азайтылатынын сипаттайтын қос мән. 0 шексіздікке дейін",
+      "lbl-refDistance": "Ref арақашықтығы",
+      "info-refDistance": "Дыбыс көзі тыңдаушыдан әрі қарай жылжыған сайын көлемді азайтуға арналған эталондық қашықтықты білдіретін қос мән.",
+      "lbl-maxDistance": "Макс арақашықтығы",
+      "info-maxDistance": "Дыбыс көзі мен тыңдаушы арасындағы ең үлкен арақашықтықты білдіретін қос мән, одан кейін көлемі одан әрі азайтылмайды.",
+      "lbl-coneInnerAngle": "Конус ішкі бұрышы",
+      "info-coneInnerAngle": "Бұрышын сипаттайтын қос мән, градуспен, ішінде көлемнің азаюы болмайтын конус.",
+      "lbl-coneOuterAngle": "Конустың сыртқы бұрышы",
+      "info-coneOuterAngle": "Конустың бұрышын сипаттайтын қос мән, градуспен, оның сыртындағы конустың көлемі конустың UterGain атрибутымен анықталатын тұрақты шамаға азайтылады.",
+      "lbl-coreOuterGain": "Конустың сыртқы пайдасы",
+      "info-coreOuterGain": "Конустың сыртындағы көлемнің азаю шамасын сипаттайтын қос мән конустың OuterAngle атрибутымен анықталады. Оның әдепкі мәні 0, яғни ешбір дыбыс естілмейді.",
+      "lbl-volume": "Көлемі",
+      "lbl-play": "Ойнату",
+      "lbl-pause": "Кідіріс",
+      "error-url": "URL мекенжайынан жүктеу қатесі"
+    },
+    "boxCollider": {
+      "description": "Нысандар секіріп кететін немесе үстінен демалатын көзге көрінбейтін жәшік.\nКоллидерсіз заттар еденнен түсіп, қабырғадан өтеді.",
+      "lbl-isTrigger": "Триггер"
+    },
+    "camera": {
+      "name": "Камера",
+      "description": "Камера параметрлері.",
+      "lbl-camera-raycast": "Камералық райкастинг",
+      "lbl-camera-raycast-toggle": "Қосулы",
+      "lbl-camera-raycast-frequency": "Жиілік",
+      "lbl-camera-raycast-count": "Рэй саны",
+      "lbl-camera-raycast-length": "Сәуле ұзындығы"
+    },
+    "directionalLight": {
+      "name": "Бағыттағы жарық",
+      "description": "Бүкіл көріністі жарықтандыратын, бірақ бір бағыт бойымен жарық түсіретін жарық.",
+      "lbl-color": "Түс",
+      "lbl-intensity": "Интенсивтілік",
+      "lbl-cameraFar": "Алыс камера",
+      "lbl-cameraNear": "Камераның жаны",
+      "lbl-cameraTop": "Камераның жоғарғы жағы",
+      "lbl-cameraBottom": "Камераның төменгі жағы",
+      "lbl-cameraLeft": "Сол жақтағы камера",
+      "lbl-cameraRight": "Оң жақтағы камера",
+      "lbl-useInCSM": "CSM қызметінде пайдалану",
+      "lbl-castShadow": "Каст-көлеңке",
+      "lbl-disableForCSM": "Cascade көлеңке картасы қосылғандықтан ажыратылды.",
+      "lbl-shadowmapResolution": "Көлеңкелі карта ажыратымдылығы",
+      "lbl-shadowBias": "Көлеңкелі биязылық",
+      "lbl-shadowRadius": "Көлеңке радиусы",
+      "lbl-showCameraHelper": "Камера анықтамасын көрсету"
+    },
+    "groundPlane": {
+      "name": "Жер үсті жазықтығы",
+      "description": "Арақашықтыққа созылатын жазық жер үсті жазықтығы.",
+      "lbl-color": "Түс",
+      "lbl-receiveShadow": "Көлеңке алу",
+      "lbl-generateNavmesh": "Navmesh жасау"
+    },
+    "link": {
+      "description": "Бөлмеге немесе веб-сайтқа сілтеме.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "3D геокеңістік карта, мысалы, қала."
+    },
+    "model": {
+      "description": "GLTF URL мекенжайынан немесе файлынан жүктелген көріністегі 3D үлгісі.",
+      "lbl-usingGPUInstancingFlag": "GPU insancing пайдалану",
+      "lbl-modelurl": "Үлгі Url",
+      "lbl-envmapUrl": "Қоршаған орта картасы Url",
+      "lbl-textureOverride": "Текстураны қайта өзгерту",
+      "lbl-materialOverride": "Материалдың артық сілтеуі",
+      "error-url": "URL мекенжайынан жүктеу қатесі",
+      "lbl-loopAnimation": "Ілмек анимациясы",
+      "lbl-isAvatar": "Аватар",
+      "lbl-isGPUInstancing": "GPU insancing пайдаланып жатыр",
+      "lbl-isDynamic": "Динамикалық",
+      "lbl-castShadow": "Каст-көлеңке",
+      "lbl-receiveShadow": "Көлеңке алу",
+      "lbl-interactable": "Интерактивті",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdatate",
+      "lbl-name": "Атауы",
+      "lbl-url": "Үлгі Url",
+      "lbl-buy": "Url мекенжайын сатып алу",
+      "lbl-learnMore": "Қосымша Url мекенжайын үйрену",
+      "lbl-htmlContent": "Html мазмұны",
+      "lbl-interactionText": "Өзара әрекеттесу мәтіні",
+      "lbl-interactionType": "Өзара әрекеттесу түрі"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Материал",
+      "error-materialID": "Материалды табу қатесі",
+      "placeholder-materialID": "Материалды таңдау",
+      "lbl-patternTarget": "Үлгі сәйкестігі",
+      "lbl-pattern": "Үлгі",
+      "lbl-isRegex": "Регекс"
+    },
+    "interaction": {
+      "type": "Өзара әрекеттесу түрі",
+      "text": "Өзара әрекеттесу мәтіні",
+      "distance": "Өзара әрекеттесу қашықтығы",
+      "theme": "Өзара әрекеттесу тақырыбы",
+      "name": "Өзара әрекеттесу атауы",
+      "description": "Өзара әрекеттесу сипаттамасы",
+      "images": "Өзара әрекеттесу суреттері",
+      "videos": "Өзара әрекеттесу бейнелері",
+      "urls": "Өзара әрекеттесу Urls",
+      "models": "Өзара әрекеттесу үлгілері"
+    },
+    "group": {
+      "name": "Топ",
+      "description": "Бірге жылжытуға немесе қайталауға болатын бірнеше нысандар тобы.\nНысандарды Иерархиядағы Топқа апарып тастаыңыз."
+    },
+    "hemisphere": {
+      "name": "Жарты шардың жарығы",
+      "description": "Көріністі тікелей жапсырмадан жарықтандыратын жарық.",
+      "lbl-skyColor": "Аспан түсі",
+      "lbl-groundColor": "Жердің түсі",
+      "lbl-intensity": "Интенсивтілік"
+    },
+    "image": {
+      "name": "Кескін",
+      "description": "Кескінді динамикалық түрде жүктейді.",
+      "lbl-imgURL": "Url кескіні",
+      "lbl-transparency": "Мөлдірлік режимі",
+      "lbl-alphaCutoff": "Альфа-Кутофф",
+      "lbl-projection": "Проекция",
+      "lbl-side": "Бүйір жағы",
+      "info-controls": "Мультимедиа басқару элементтерінің көрінуін ажырату.",
+      "info-transparency": "Мөлдірлікті қолдану әдісі:",
+      "info-opaque": "'мөлдір емес' = мөлдірлік жоқ",
+      "info-blend": "'blend' = суреттер альфа арнасын пайдаланыңыз",
+      "info-mask": "'маска' = Мөлдірлікті қосу/өшіру үшін көрсетілген қиып алу мәнін пайдаланыңыз (бұдан әрі - орындаушы)",
+      "info-alphaCutoff": "Альфа мәндері бұдан төмен пиксельдер мөлдір болады",
+      "error-url": "Жарамсыз URL мекенжайы"
+    },
+    "name": {
+      "lbl-name": "Атауы"
+    },
+    "partileEmitter": {
+      "description": "Бөлшектер жасау үшін бөлшектердің шығарындысы.",
+      "lbl-particleCount": "Бөлшектер саны",
+      "lbl-image": "Кескін",
+      "lbl-ageRandomness": "Жас кездейсоқтығы",
+      "lbl-lifetime": "Өмір сүру мерзімі",
+      "lbl-lifetimeRandomness": "Өмір бойы кездейсоқтық",
+      "lbl-sizeCurve": "Өлшем қисығы",
+      "lbl-startPSize": "Бөлшектер өлшемін бастау",
+      "lbl-endPSize": "Бөлшектер өлшемін аяқтау",
+      "lbl-sizeRandomness": "Кездейсоқтық өлшемі",
+      "lbl-colorCurve": "Түс қисығы",
+      "lbl-startColor": "Басталу түсі",
+      "lbl-startOpacity": "Мөлдірсіздікті бастау",
+      "lbl-middleColor": "Ортаңғы түс",
+      "lbl-middleOpacity": "Орта мөлдір емес",
+      "lbl-endColor": "Соңғы түсі",
+      "lbl-endOpacity": "Біту мөлдірсіздігі",
+      "lbl-velocityCurve": "Жылдамдық қисығы",
+      "lbl-startVelocity": "Жылдамдықты бастау",
+      "lbl-endVelocity": "Жылдамдықты аяқтау",
+      "lbl-angularVelocity": "Бұрыштық жылдамдық",
+      "info-ageRandomness": "Бөлшектер уылдырық шашқанда арасындағы вариация мөлшері.",
+      "info-lifetime": "Бөлшектердің оны қайта салғанға дейінгі ең үлкен жасы.",
+      "info-lifetimeRandomness": "Бөлшектердің қызмет ету мерзімі арасындағы вариация мөлшері.",
+      "info-sizeRandomness": "Бөлшектердің бастапқы өлшемдері арасындағы вариация мөлшері.",
+      "error-url": "URL мекенжайынан жүктеу қатесі"
+    },
+    "clouds": {
+      "name": "Бұлт",
+      "description": "Сприт негізіндегі бұлт көлемі.",
+      "lbl-image": "Шприт суреті",
+      "lbl-wroldScale": "Әлемдік масштаб",
+      "lbl-dimensions": "Өлшемдер",
+      "lbl-noiseZoom": "Шуды ұлғайту",
+      "lbl-noiseOffset": "Шу офсеті",
+      "lbl-spriteScale": "Сприт шкаласы",
+      "lbl-fogColor": "Тұман түсі",
+      "lbl-fogRange": "Тұман ауқымы",
+      "error-url": "URL мекенжайынан жүктеу қатесі"
+    },
+    "ocean": {
+      "name": "Мұхит",
+      "description": "Толқындары мен көбіктері бар мұхит беті",
+      "lbl-normalMap": "Қалыпты карта",
+      "lbl-distortionMap": "Бұрмалау картасы",
+      "lbl-envMap": "Қоршаған орта картасы",
+      "lbl-color": "Түс",
+      "lbl-shallowWaterColor": "Таяз су түсі",
+      "lbl-shallowToDeepDistance": "Терең қашықтыққа таяз",
+      "lbl-opacityFadeDistance": "Мөлдірсіздік сөну арақашықтығы",
+      "lbl-opacityRange": "Мөлдірсіздік ауқымы",
+      "lbl-shininess": "Жылтырлық",
+      "lbl-reflectivity": "Рефлексивтілік",
+      "lbl-foamColor": "Көбік түсі",
+      "lbl-foamSpeed": "Көбікті жылдамдық",
+      "lbl-foamTiling": "Көбік тігу",
+      "lbl-bigWaveTiling": "Үлкен толқынды еңкейту",
+      "lbl-bigWaveSpeed": "Үлкен толқын жылдамдығы",
+      "lbl-bigWaveHeight": "Үлкен толқын биіктігі",
+      "lbl-waveSpeed": "Толқын жылдамдығы",
+      "lbl-waveScale": "Толқын шкаласы",
+      "lbl-waveTiling": "Толқынды еңкейту",
+      "lbl-waveDistortionSpeed": "Толқынды бұрмалау жылдамдығы",
+      "lbl-waveDistortionTiling": "Толқынды бұрмалау",
+      "error-url": "URL мекенжайынан жүктеу қатесі"
+    },
+    "water": {
+      "name": "Су",
+      "description": "Кішігірім су беті"
+    },
+    "interior": {
+      "name": "Интерьер",
+      "description": "Ішкі орталарды эмуляциялауға арналған текше текстурасы картаға түсірілген бет",
+      "lbl-cubeMap": "Текше картасының текстурасы",
+      "lbl-tiling": "Еңкейту сомасы",
+      "lbl-size": "Бет өлшемі",
+      "error-url": "URL мекенжайынан жүктеу қатесі"
+    },
+    "pointLight": {
+      "description": "Барлық бағытта бір нүктеден шығатын жарық.",
+      "lbl-color": "Түс",
+      "lbl-intensity": "Интенсивтілік",
+      "lbl-range": "Ауқым",
+      "lbl-decay": "Ыдырау"
+    },
+    "scene": {
+      "name": "Көрініс",
+      "description": "Көріністің түпкі объектісі.",
+      "lbl-bgcolor": "Ая түсі",
+      "lbl-fogType": "Тұман түрі",
+      "lbl-fogColor": "Тұман түсі",
+      "lbl-forNearDistance": "Жақын арақашықтықтағы тұман",
+      "lbl-fogFarDistance": "Алыстағы тұман",
+      "lbl-fogDensity": "Тұман тығыздығы",
+      "lbl-audioSettings": "Позициялық дыбысты пайдалану",
+      "lbl-avatarDistanceModel": "Аватар қашықтық үлгісі",
+      "lbl-avatarRolloffFactor": "Avatar Rolloff факторы",
+      "lbl-avatarRefDistance": "Аватар реф арақашықтығы",
+      "lbl-avatarMaxDistance": "Аватар Макс арақашықтығы",
+      "lbl-mediaVolume": "Мультимедиа көлемі",
+      "lbl-mediaDistanceModel": "Медиа қашықтық үлгісі",
+      "lbl-mediaRolloffFactor": "Media Rolloff факторы",
+      "lbl-mediaRefDistance": "Media ref арақашықтығы",
+      "lbl-mediaMaxDistance": "Медиа Макс арақашықтығы",
+      "lbl-mediaConeInnerAngle": "Медиа Конус ішкі бұрышы",
+      "lbl-mediaConeOuterAngle": "Media Cone сыртқы бұрышы",
+      "lbl-mediaConeOuterGain": "Media Cone сыртқы пайдасы",
+      "info-avatarDistanceModel": "Аудио роликті есептеу үшін қолданылған алгоритм.",
+      "info-avatarRolloffFactor": "Дереккөздің тыңдаушыдан алшақтап кетуіне қарай көлемнің қаншалықты тез азайтылатынын сипаттайтын қос мән. 0-нен 1-ге дейін",
+      "info-avatarRolloffFactorInifinity": "Дереккөздің тыңдаушыдан алшақтап кетуіне қарай көлемнің қаншалықты тез азайтылатынын сипаттайтын қос мән. 0 шексіздікке дейін",
+      "info-avatarRefDistance": "Дыбыс көзі тыңдаушыдан әрі қарай жылжыған сайын көлемді азайтуға арналған эталондық қашықтықты білдіретін қос мән.",
+      "info-avatarMaxDistance": "Дыбыс көзі мен тыңдаушы арасындағы ең үлкен арақашықтықты білдіретін қос мән, одан кейін көлемі одан әрі азайтылмайды.",
+      "info-mediaDistanceModel": "Аудио роликті есептеу үшін қолданылған алгоритм.",
+      "info-mediaRolloffFactor": "Дереккөздің тыңдаушыдан алшақтап кетуіне қарай көлемнің қаншалықты тез азайтылатынын сипаттайтын қос мән. 0-нен 1-ге дейін",
+      "info-mediaRolloffFactorInfinity": "Дереккөздің тыңдаушыдан алшақтап кетуіне қарай көлемнің қаншалықты тез азайтылатынын сипаттайтын қос мән. 0 шексіздікке дейін",
+      "info-mediaRefDistance": "Дыбыс көзі тыңдаушыдан әрі қарай жылжыған сайын көлемді азайтуға арналған эталондық қашықтықты білдіретін қос мән.",
+      "info-mediaMaxDistance": "Дыбыс көзі мен тыңдаушы арасындағы ең үлкен арақашықтықты білдіретін қос мән, одан кейін көлемі одан әрі азайтылмайды.",
+      "info-mediaConeInnerAngle": "Бұрышын сипаттайтын қос мән, градуспен, ішінде көлемнің азаюы болмайтын конус.",
+      "info-mediaConeOuterAngle": "Конустың бұрышын сипаттайтын қос мән, градуспен, оның сыртындағы конустың көлемі конустың UterGain атрибутымен анықталатын тұрақты шамаға азайтылады.",
+      "info-mediaConeOuterGain": "Конустың сыртындағы көлемнің азаю шамасын сипаттайтын қос мән конустың OuterAngle атрибутымен анықталады. Оның әдепкі мәні 0, яғни ешбір дыбыс естілмейді.",
+      "lbl-simpleMaterials": "Қарапайым материалдарды пайдалану",
+      "lbl-lods": "ЛОДТАР",
+      "info-lods": "Егжей-тегжейлі деңгейлер өзгеретін арақашықтықтарды орнатады.",
+      "info-simpleMaterials": "Барлық қымбат материалдарды көрініс көрсету жүктемесін түсіру үшін қарапайым материалдарға түрлендіреді.",
+      "lbl-rendererSettings": "Редер параметрлерін қайта көрсету",
+      "lbl-csm": "Көлеңкелі карталарды каскадтау",
+      "info-csm": "Көлеңкелі карталарды каскадтауды іске қосу.",
+      "lbl-toneMapping": "Реңкті картаға түсіру",
+      "info-toneMapping": "Көріністі көрсетуде реңкті картаға түсіруді іске қосу. Жазбаны өңдеу қосылғанда ешқандай әсері жоқ.",
+      "lbl-toneMappingExposure": "Реңкті картографиялық экспозиция",
+      "info-toneMappingExposure": "Көрініс көрсетушідегі реңкті картографиялық экспозицияны нақтылайды. Жазбаны өңдеу қосылғанда ешқандай әсері жоқ.",
+      "lbl-shadowMapType": "Көлеңке картасының түрі",
+      "info-shadowMapType": "Көлеңкелі карта түрі",
+      "error-url": "URL мекенжайынан жүктеу қатесі"
+    },
+    "sceneCamera": {
+      "name": "Көріністі алдын ала қарау камерасы",
+      "description": "Көрініс үшін нобайды және алдын ала қарау камерасының бастапқы қалпын жасау үшін қолданылатын камера.",
+      "lbl-setFromViewPort": "Көрініс портынан орнату"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Тәулік уақыты",
+      "lbl-color": "Түс",
+      "lbl-latitude": "Ендік",
+      "lbl-luminance": "Люминесценция",
+      "lbl-scattering": "Шашырау сомасы",
+      "lbl-scatteringDistance": "Шашырау қашықтығы",
+      "lbl-horizonStart": "Көкжиек бастау",
+      "lbl-horizonEnd": "Көкжиектің соңы",
+      "lbl-texture": "Текстурасы",
+      "lbl-skyType": "Аспан түрі",
+      "error-url": "URL мекенжайынан жүктеу қатесі"
+    },
+    "spawnPoint": {
+      "name": "Уылдырық шашу нүктесі",
+      "description": "Адамдар сіздің көрінісіңізге кіргенде пайда болатын нүкте.\nКөрініс портындағы белгіше аватардың нақты өлшемін білдіреді."
+    },
+    "spotLight": {
+      "description": "Конус ішіндегі заттарды жарықтандыратын бағыт бойымен бөлінетін жарық.",
+      "lbl-color": "Түс",
+      "lbl-intensity": "Интенсивтілік",
+      "lbl-penumbra": "Пенумбра",
+      "lbl-angle": "Бұрыш",
+      "lbl-range": "Ауқым",
+      "lbl-decay": "Ыдырау"
+    },
+    "transform": {
+      "title": "Түрлендіру",
+      "lbl-postition": "Лауазымы",
+      "lbl-rotation": "Бұрылыс",
+      "lbl-scale": "Масштаб"
+    },
+    "triggereVolume": {
+      "description": "Объектіге кіру және шығу бойынша мүлікті орнатады.",
+      "lbl-target": "Нысан",
+      "lbl-onenter": "On Enter",
+      "lbl-onexit": "Шығуда",
+      "lbl-showHelper": "Көмекші торын көрсету",
+      "ph-errorNode": "Жоқ торап қатесі.",
+      "ph-selectNode": "Торапты таңдау..."
+    },
+    "video": {
+      "name": "Бейне",
+      "description": "Бейнені динамикалық түрде жүктейді.",
+      "lbl-video": "Бейне",
+      "lbl-projection": "Проекция",
+      "lbl-islivestream": "Live Stream",
+      "lbl-interactable": "Интерактивті",
+      "lbl-id": "Элемент идентифика- ты",
+      "lbl-play": "Ойнату",
+      "lbl-pause": "Кідіріс",
+      "error-url": "URL мекенжайынан жүктеу қатесі"
+    },
+    "volumetric": {
+      "name": "Көлемдік",
+      "description": "Көлемдік бейнені динамикалық түрде жүктейді.",
+      "uvolPaths": "UVOL жолдары",
+      "playmode": "Ойнату режимі",
+      "playtitle": "Ойнату",
+      "pausetitle": "Кідіріс"
+    },
+    "spline": {
+      "description": "Қисық сызықтарды динамикалық түрде жасау және реттеу.",
+      "lbl-addNode": "Қисық сызыққа түйін қосыңыз."
+    },
+    "systemnode": {
+      "description": "Скрипт тіркелді.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "Инъекция нүктесі",
+      "lbl-enableClient": "Клиент",
+      "lbl-enableServer": "Сервер",
+      "lbl-args": "Аргс",
+      "error-url": "Скриптті URL мекенжайынан жүктеу қатесі"
+    },
+    "portal": {
+      "lbl-portal": "Байланысқан портал",
+      "lbl-redirect": "Бетті қайта бағыттау",
+      "description": "Көрсетілген орынға телепорт ойыншыларына арналған портат",
+      "lbl-locationName": "Орналасуы",
+      "lbl-modelUrl": "Үлгі URL",
+      "lbl-displayText": "Мәтінді көрсету",
+      "lbl-cubemapBake": "Кубемап бақаны",
+      "lbl-spawnPosition": "Уылдырық шашу орны",
+      "lbl-spawnRotation": "Уылдырық шашу бұрылысы",
+      "lbl-triggerPosition": "Триггер орны",
+      "lbl-triggerRotation": "Триггер бұрылысы",
+      "lbl-triggerScale": "Триггер шкаласы"
+    },
+    "postprocessing": {
+      "name": "Post Processing",
+      "description": "Көрініске Post Processing әсерлерін қолдану үшін."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Жаңа жоба",
+      "backLink": "Жобаларға оралу",
+      "featured": "Танымал",
+      "all": "Барлығы",
+      "newProject": "Жаңа бос жоба",
+      "ph-search": "Көріністерді іздеу..."
+    },
+    "grid": {
+      "loading": "Жүктеу..."
+    },
+    "page": {
+      "header": "Қош келдіңіз",
+      "headerMsg": "Егер мұнда жаңа болсаңыз, оқулықтан өтуді ұсынамыз. Әйтпесе, оңға секіріп, жобаны нөлден немесе үлгілеріміздің бірінен жасаңыз.",
+      "lbl-startTutorial": "Оқулықты бастау",
+      "projects": "Жобалар",
+      "lbl-newProject": "Жаңа жоба"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Жүктеу...",
+      "placeObject": "Нысанды орналастыру",
+      "placeObjectAtOrigin": "Нысанды шығу тегі бойынша орналастыру",
+      "copyURL": "URL мекенжайын көшіру",
+      "openInNewTab": "Жаңа қойындыда URL мекенжайын ашу",
+      "deleteAsset": "Активті жою"
+    },
+    "filebrowser": {
+      "addNewFolder": "Жаңа қалтаны қосу",
+      "cutAsset": "Қиып алу",
+      "copyAsset": "Көшіру",
+      "pasteAsset": "Қою",
+      "renameAsset": "Атын өзгерту",
+      "viewAssetProperties": "Сипаттар көрінісі"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Атын өзгерту",
+    "lbl-duplicate": "Дубликат",
+    "lbl-group": "Топ",
+    "lbl-delete": "Өшіру",
+    "lbl-expandAll": "Барлығын кеңейту",
+    "lbl-collapseAll": "Барлығын тасалау",
+    "isseus": "Ақаулар:"
+  },
+  "dnd": {
+    "nodes": "{{count}} тораптары таңдалды",
+    "models": "{{count}} үлгілері таңдалды",
+    "images": "{{count}} кескіндер таңдалды",
+    "videos": "{{count}} бейнелері таңдалды",
+    "audio": "{{count}} дыбыс көздері таңдалды"
+  },
+  "dialog": {
+    "title": "Өңдегіш",
+    "lbl-confirm": "Жақсы",
+    "lbl-cancel": "Болдырмау",
+    "exportProject": {
+      "title": "Жоба экспорты",
+      "lbl-confirm": "Жоба экспорты",
+      "lbl-combineMesh": "Торларды біріктіру",
+      "lbl-removeUnused": "Пайдаланылмаған нысандарды жою"
+    },
+    "performance": {
+      "title": "Өнімділікті тексеру",
+      "lbl-confirm": "Көріністі жариялау",
+      "learnMore": "Көбірек біл",
+      "lbl-polycount": "Көпбұрыш санақ",
+      "lbl-material": "Материалдар",
+      "lbl-texture": "Текстуралар",
+      "lbl-lights": "Оттар",
+      "lbl-fileSize": "Файл өлшемі",
+      "info-polycount": "Сіздің көрінісіңізге мобильді құрылғылар үшін 50 000-нан аспайтын үшбұрыш қолдануды ұсынамыз.",
+      "info-material": "Мобильді құрылғыларға қоңырау шалуды азайту үшін сіздің көрінісіңізде 25-тен аспайтын бірегей материалдарды қолдануды ұсынамыз.",
+      "info-texture": "Текстураларыңызға мобильді құрылғылар үшін 256Мб-тан аспайтын бейне RAM қолдануды ұсынамыз. Сондай-ақ, 2048 x 2048-ден үлкен текстураларды пайдаланбауды ұсынамыз.",
+      "info-lights": "Мобильді құрылғыларда динамикалық оттар қосылмағанымен, көріністің төмен шеткі компьютерлерде іске қосуы үшін көріністе 3-тен аспайтын шамдарды (қоршаған орта мен жарты шар оттарын қоспағанда) пайдалануды ұсынамыз.",
+      "info-fileSize": "Өткізу қабілеті төмен қосылымдар үшін 16Мб-тан аспайтын соңғы файл өлшемін ұсынамыз. Файл өлшемін азайту көріністі жүктеуге кететін уақытты қысқартады.",
+      "txt-polycount": "{{count}} үшбұрышы",
+      "txt-material": "{{count}} материалдар",
+      "txt-ram": "©{{count}} Video RAM",
+      "txt-texture": "{{count}} үлкен текстуралар",
+      "txt-lights": "{{count}} оттары"
+    },
+    "progress": {
+      "title": "Жүктеу...",
+      "msg": "Жүктеу...",
+      "lbl-cancel": "Болдырмау"
+    },
+    "publish": {
+      "title": "Көріністі жариялау",
+      "lbl-confirm": "Сақтау және жариялау",
+      "lbl-name": "Көрініс атауы",
+      "info-name": "Атауы 4-тен 64 таңбаға дейінгі аралықта болуы керек және астын сызғыла алмайды"
+    },
+    "published": {
+      "title": "Көрініс жарияланды",
+      "header": "Сіздің көрінісіңіз жарияланды.",
+      "lbl-view": "Көріністі көру"
+    },
+    "saveNewProject": {
+      "title": "Қолдау",
+      "lbl-name": "Жоба атауы",
+      "info-name": "Атауы 4-тен 64 таңбаға дейінгі аралықта болуы керек және астын сызғыла алмайды",
+      "lbl-confirm": "Жобаны сақтау"
+    },
+    "support": {
+      "title": "Қолдау",
+      "header": "Мәселе туралы хабарлау керек пе?",
+      "msg": "Қолдау көрсету үшін <1>GitHub Issue</1> немесе электрондық поштаны <3>{{mail}}</3>",
+      "discord": "Сондай-ақ, бізді <1>Алауыздықтан табуға</1> болады"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing суреттері",
+      "search": "Bing арқылы іздеу"
+    },
+    "bingVideo": {
+      "name": "Bing бейнелері",
+      "search": "Bing арқылы іздеу"
+    },
+    "element": {
+      "name": "Элементтер"
+    },
+    "myAssets": {
+      "name": "Менің активтерім"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Google арқылы іздеу"
+    },
+    "tenor": {
+      "name": "Тенор ГИФС",
+      "search": "Тенор бойынша іздеу",
+      "ph-search": "GIF іздеу..."
+    },
+    "sketchfab": {
+      "name": "Эскизфаб",
+      "search": "Sketchfab арқылы іздеу"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Активті кері жүктеу"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Суреттерді іздеу..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Бейнелерді іздеу..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Іздеу активтері..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Үлгілерді іздеу..."
+    },
+    "useUpload": {
+      "multipleFileError": "Енгізу бірнеше файлды қабылдамайды.",
+      "mineTypeError": "«{{name}}» келесі MIME түрлеріне немесе кеңейтімдеріне сәйкес келмейді: {{types}}",
+      "progressTitle": "Файлдарды кері жүктеу",
+      "progressMsg": "файлдарды {{total}}{{uploaded}} кері жүктеу: {{percentage}}%",
+      "uploadError": "Кері жүктеу қатесі",
+      "uploadErrorMsg": "Файлды кері жүктеу қатесі: {{message}}",
+      "uploadErrorDefaultMsg": "Белгісіз қате пайда болды"
+    }
+  },
+  "openLink": {
+    "description": "Сілтемеге өту үшін Ашу түймешігін басыңыз.",
+    "lbl-open": "Ашу"
+  },
+  "interactableModel": {
+    "lbl-buy": "Сатып алу",
+    "lbl-learnMore": "Көбірек біл"
+  },
+  "corsProxyButton": {
+    "tooltip": "Cors прокси серверін пайдалану"
+  }
+}

@@ -1,0 +1,718 @@
+{
+  "loading": "Notiek projekta ielāde",
+  "loadingMsg": "Ielādē projektu...",
+  "loadingError": "Ielādējot projektu, radās kļūda",
+  "loadingErrorMsg": "Ielādējot projektu, radās kļūda.",
+  "selectSceneMsg": "Atlasiet Aina, lai sāktu spēlēt ar dzinēju",
+  "error": "Kļūda",
+  "errorMsg": "Radās nezināma kļūda.",
+  "generateScreenshot": "Notiek projekta ekrānuzņēmuma ģenerēšana",
+  "generateScreenshotMsg": "Notiek projekta ekrānuzņēmuma ģenerēšana...",
+  "newScene": "Izveidot ainu",
+  "saving": "Projekta saglabāšana",
+  "savingMsg": "Notiek projekta saglabāšana...",
+  "savingError": "Saglabājot projektu, radās kļūda",
+  "savingErrorMsg": "Saglabājot projektu, radās kļūda.",
+  "savingSceneErrorMsg": "Aina nav pareizi ielādēta. Mēģiniet pārlādēt ainu.",
+  "duplicating": "Projekta dublēšana",
+  "duplicatingMsg": "Projekta dublēšana...",
+  "exporting": "Notiek projekta eksportēšana",
+  "exportingMsg": "Notiek projekta eksportēšana...",
+  "exportingError": "Eksportējot projektu, radās kļūda",
+  "exportingErrorMsg": "Eksportējot projektu, radās kļūda.",
+  "importLegacy": "Importēt mantoto pasauli",
+  "importLegacyMsg": "Brīdinājums! Tas pārrakstīs jūsu esošo ainu! Vai tiešām vēlaties turpināt?",
+  "publishingError": "Kļūda, publicējot projektu",
+  "publishingErrorMsg": "Radās nezināma kļūda.",
+  "publishingScene": "Publicēšanas aina",
+  "publishingSceneMsg": "Notiek notiek ainas publicēšana...",
+  "uploadingThumbnailMsg": "Notiek sīktēla augšupielāde...",
+  "uploadingSceneMsg": "Augšupielādes aina: {{percentage}}%",
+  "envMapError": "Ielādējot cubemap attēlus {{files}}, radās kļūda",
+  "lbl-return": "Atgriezt",
+  "menubar": {
+    "newScene": "Jauna aina",
+    "saveScene": "Saglabāt ainu",
+    "saveAs": "Saglabāt kā",
+    "importAsset": "Importēt pamatlīdzekli",
+    "exportGLB": "Eksportēt kā bināro glTF (.glb) ...",
+    "importScene": "Importēt ainu",
+    "exportScene": "Eksportēt ainu",
+    "quit": "Atmest"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Neatbalstīts faila tips: \"{{name}}\". Failam jābūt attēla, video vai glb modelim.",
+    "addObject": "addObject: pirms objekts nav atrasts",
+    "removeObject": "removeObject: zars nav atrasts. Tas ir saistīts ar mezgla noņemšanu, kas vairs neatrodas ainā.",
+    "noParent": "{{node}} \"{{name}}\" nav vecāku. Reparent darbojas tikai uz objektiem, kas pašlaik atrodas notikuma vietā.",
+    "undefinedParent": "editor.reparent: newParent nav definēts",
+    "notAuthenticated": "Nav autentificēts",
+    "fetchingProjectError": "Kļūda, ienesot projektus: {{error}}",
+    "fetchingRouteError": "Kļūda, ienesot maršrutus: {{error}}",
+    "unknownError": "Nezināma kļūda",
+    "resolveURL": "Kļūda, atrisinot URL \"{{url}}\":",
+    "mediaSearchAborted": "Multivides meklēšana priekšlaikus pārtraukta",
+    "methodNotImplemented": "Metode nav ieviesta.",
+    "saveProjectAborted": "Saglabāt ainu priekšlaikus pārtrauktu",
+    "unsavedChanges": "Nesaglabātās izmaiņas",
+    "unsavedChangesMsg": "Aina ir modificēta. Lūdzu, saglabājiet izmaiņas.",
+    "projectCreationFail": "Projekta izveide neizdevās. {{reason}}",
+    "projectDeletionFail": "Projekta dzēšana neizdevās. {{reason}}",
+    "savingProjectFail": "Projekta saglabāšana neizdevās. {{reason}}",
+    "sceneTooLarge": "Aina ir pārāk liela ({{size}} MB), lai to publicētu. Maksimālais lielums ir {{maxSize}} MB.",
+    "sceneCreationFail": "Ainas izveide neizdevās. {{reason}}",
+    "uploadAborted": "Augšupielāde priekšlaikus pārtraukta",
+    "uploadFailed": "Augšupielāde neizdevās {{reason}}",
+    "assetDeletionFail": "Līdzekļu dzēšana neizdevās. {{reason}}",
+    "projectAssetDeletionFail": "Projekta līdzekļu dzēšana neizdevās. {{reason}}",
+    "networkError": "Tīkla kļūda: {{status}}. {{text}}",
+    "unknownStatus": "Nezināms statuss",
+    "CORS": "Iespējams, CORS kļūda",
+    "urlFetchError": "Neizdevās ienest \"{{url}}\""
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Pārvietot kameru",
+      "flyFast": "Lidojiet ātrāk",
+      "orbit": "Orbīta / Atlasīt",
+      "pan": "Panna",
+      "fly": "Muša",
+      "focus": "Koncentrēties",
+      "rotateLeft": "Pagriezt pa kreisi",
+      "rotateRight": "Pagriezt pa labi",
+      "cancelPlacement": "Atcelt izvietošanu",
+      "placeDuplicate": "Novietot dublikātu",
+      "cancelGrab": "Atcelt sagrābšanu",
+      "grab": "Greifers",
+      "deselectAll": "Noņemt atlasi visiem"
+    },
+    "state": {
+      "header": "Stats",
+      "memory": "Atmiņa",
+      "geometries": "Ģeometrijām",
+      "textures": "Faktūras",
+      "render": "Padarīt",
+      "FPS": "FPS",
+      "frameTime": "Kadra laiks",
+      "calls": "Zvanus",
+      "triangles": "Trīsstūri",
+      "points": "Punktus",
+      "lines": "Rindas"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Publicēt",
+    "lbl-published": "Publicēts",
+    "command": {
+      "translate": "Tulkot",
+      "rotate": "Pagriezt",
+      "scale": "Mērogs",
+      "toggleSpace": "Pārslēgt transformācijas vietu",
+      "togglePivot": "Pārslēgt transformācijas rakursu",
+      "toggleSnapMode": "Pārslēgt pieķeršanās režīmu",
+      "toggleGrid": "Pārslēgt režģa redzamību",
+      "increaseGridSize": "Palielināt režģa lielumu",
+      "descreaseGridSize": "Samazināt režģa lielumu",
+      "stopPreview": "Apturēt ainas priekšskatīšanu",
+      "playPreview": "Priekšskatīt ainu"
+    }
+  },
+  "properties": {
+    "title": "Rekvizīti",
+    "lbl-visible": "Redzams",
+    "lbl-preventBake": "Novērst cepšanu",
+    "lbl-persist": "Saglabājas",
+    "multipleNodeSelected": "Atlasīti vairāki dažādu tipu mezgli",
+    "noNodeSelected": "Nav atlasīts neviens zars",
+    "ambientLight": {
+      "name": "Apkārtējā gaisma",
+      "description": "Gaisma, kas izgaismo visus objektus jūsu ainā.",
+      "lbl-intensity": "Intensitāte",
+      "lbl-color": "Krāsa"
+    },
+    "envmap": {
+      "name": "Vides karte",
+      "description": "vides kartes rekvizīti"
+    },
+    "asset": {
+      "name": "Aktīvu",
+      "description": "Ainas komponentu grupēšana, ko var dinamiski ielādēt un izlādēt",
+      "lbl-options": "Opcijas",
+      "lbl-assetPath": "Līdzekļu ceļš",
+      "lbl-assetName": "Eksporta nosaukums",
+      "lbl-exportOptions": "Eksportēšanas opcijas",
+      "lbl-export": "Eksportēt pamatlīdzekli",
+      "lbl-load": "Ielādēt ainā",
+      "lbl-unload": "Izlādētu",
+      "lbl-reload": "Pārlādēt"
+    },
+    "audio": {
+      "name": "Audio",
+      "description": "Dinamiski ielādē audio.",
+      "lbl-audiourl": "Audio Url",
+      "lbl-controls": "Vadīklas",
+      "info-controls": "Pārslēdziet multivides vadīklu redzamību.",
+      "lbl-autoplay": "Automātiskā atskaņošana",
+      "info-autoplay": "Ja tā ir taisnība, multivide tiks atskaņota, pirmo reizi ieejot ainā.",
+      "lbl-synchronize": "Sinhronizēt",
+      "info-synchronize": "Ja tā ir taisnība, datu nesējs tiks sinhronizēts visos saistītajos klientos.",
+      "lbl-loop": "Cilpa",
+      "info-loop": "Ja tā ir taisnība, plašsaziņas līdzekļi tiks cilpoti bezgalīgi.",
+      "lbl-audioType": "Audio tips",
+      "lbl-distanceModel": "Attāluma modelis",
+      "info-distanceModel": "Algorīts, ko izmantoja, lai aprēķinātu audio atriti.",
+      "lbl-rolloffFactor": "Atrites koeficients",
+      "info-rolloffFactor": "Dubulta vērtība, kas apraksta, cik ātri skaļums tiek samazināts, avotam attālinoties no klausītāja. 0 līdz 1",
+      "info-rfInfinity": "Dubulta vērtība, kas apraksta, cik ātri skaļums tiek samazināts, avotam attālinoties no klausītāja. 0 līdz Bezgalībai",
+      "lbl-refDistance": "Ref attālums",
+      "info-refDistance": "Divkāršs raksturlielums, kas attēlo atsauces attālumu skaļuma samazināšanai, audio avotam virzoties tālāk no klausītāja.",
+      "lbl-maxDistance": "Maksimālais attālums",
+      "info-maxDistance": "Dubultvērtība, kas atspoguļo maksimālo attālumu starp audio avotu un klausītāju, pēc tam skaļums vairs netiek samazināts.",
+      "lbl-coneInnerAngle": "Konusa iekšējais leņķis",
+      "info-coneInnerAngle": "Dubulta vērtība, kas apraksta konusa leņķi grādos, kura iekšpusē nebūs tilpuma samazinājuma.",
+      "lbl-coneOuterAngle": "Konusa ārējais leņķis",
+      "info-coneOuterAngle": "Dubulta vērtība, kas apraksta konusa leņķi grādos, ārpus kura tilpums tiks samazināts par nemainīgu vērtību, ko nosaka atribūts coneOuterGain.",
+      "lbl-coreOuterGain": "Konusa ārējais pastiprinājums",
+      "info-coreOuterGain": "Divkārša vērtība, kas apraksta apjoma samazinājuma apjomu ārpus konusa, ko nosaka atribūts ConeOuterAngle. Tās noklusējuma vērtība ir 0, kas nozīmē, ka nevar dzirdēt skaņu.",
+      "lbl-volume": "Skaļums",
+      "lbl-play": "Spēlēt",
+      "lbl-pause": "Pauzes",
+      "error-url": "Ielādējot no URL, radās kļūda"
+    },
+    "boxCollider": {
+      "description": "Neredzams lodziņš, no kura objekti atlec vai atpūtīsies virsū.\nBez sadursmes priekšmeti nokritīs caur grīdām un iet caur sienām.",
+      "lbl-isTrigger": "Izraisīt"
+    },
+    "camera": {
+      "name": "Fotoaparāts",
+      "description": "Kameras iestatījumi.",
+      "lbl-camera-raycast": "Kameras reiraidīšana",
+      "lbl-camera-raycast-toggle": "Iespējota",
+      "lbl-camera-raycast-frequency": "Frekvence",
+      "lbl-camera-raycast-count": "Reju skaits",
+      "lbl-camera-raycast-length": "Stara garums"
+    },
+    "directionalLight": {
+      "name": "Virziena gaisma",
+      "description": "Gaisma, kas apgaismo visu ainu, bet izstaro vienā virzienā.",
+      "lbl-color": "Krāsa",
+      "lbl-intensity": "Intensitāte",
+      "lbl-cameraFar": "Kamera Tālu",
+      "lbl-cameraNear": "Kamera tuvumā",
+      "lbl-cameraTop": "Kameras augšdaļa",
+      "lbl-cameraBottom": "Kamera apakšā",
+      "lbl-cameraLeft": "Kamera pa kreisi",
+      "lbl-cameraRight": "Kamera pa labi",
+      "lbl-useInCSM": "Izmantošana CSM",
+      "lbl-castShadow": "Lietie ēna",
+      "lbl-disableForCSM": "Atspējots, jo ir iespējota kaskādes ēnu karte.",
+      "lbl-shadowmapResolution": "Ēnu kartes izšķirtspēja",
+      "lbl-shadowBias": "Ēnu aizspriedumi",
+      "lbl-shadowRadius": "Ēnas rādiuss",
+      "lbl-showCameraHelper": "Rādīt kameras palīgu"
+    },
+    "groundPlane": {
+      "name": "Zemes plakne",
+      "description": "Plakana iezemēta plakne, kas stiepjas tālumā.",
+      "lbl-color": "Krāsa",
+      "lbl-receiveShadow": "Saņemt ēnu",
+      "lbl-generateNavmesh": "Ģenerēt Navmesh"
+    },
+    "link": {
+      "description": "Saite uz istabu vai vietni.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "Piemēram, pilsētas 3D ģeotelpiskā karte."
+    },
+    "model": {
+      "description": "3D modelis jūsu ainā, kas ielādēts no GLTF URL vai faila.",
+      "lbl-usingGPUInstancingFlag": "GPU instancēšanas izmantošana",
+      "lbl-modelurl": "Modeļa URL",
+      "lbl-envmapUrl": "Vides kartes URL",
+      "lbl-textureOverride": "Ignorēt tekstūru",
+      "lbl-materialOverride": "Materiālu ignorēšana",
+      "error-url": "Ielādējot no URL, radās kļūda",
+      "lbl-loopAnimation": "Cilpas animācija",
+      "lbl-isAvatar": "Ir Avatārs",
+      "lbl-isGPUInstancing": "Izmanto GPU instancēšanu",
+      "lbl-isDynamic": "Ir dinamisks",
+      "lbl-castShadow": "Lietie ēna",
+      "lbl-receiveShadow": "Saņemt ēnu",
+      "lbl-interactable": "Mijiedarbojamies",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Vārds",
+      "lbl-url": "Modeļa URL",
+      "lbl-buy": "Iegādāties URL",
+      "lbl-learnMore": "Uzzināt vairāk URL",
+      "lbl-htmlContent": "Html saturs",
+      "lbl-interactionText": "Saziņas teksts",
+      "lbl-interactionType": "Saziņas tips"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Materiāls",
+      "error-materialID": "Kļūda, atrodot materiālu",
+      "placeholder-materialID": "Atlasīt materiālu",
+      "lbl-patternTarget": "Raksta atbilstība",
+      "lbl-pattern": "Modelis",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Saziņas tips",
+      "text": "Saziņas teksts",
+      "distance": "Mijiedarbības attālums",
+      "theme": "Mijiedarbības dizains",
+      "name": "Saziņas nosaukums",
+      "description": "Saziņas apraksts",
+      "images": "Mijiedarbības attēli",
+      "videos": "Saziņas videoklipi",
+      "urls": "Mijiedarbības URL",
+      "models": "Mijiedarbības modeļi"
+    },
+    "group": {
+      "name": "Grupa",
+      "description": "Vairāku objektu grupa, ko var pārvietot vai dublēt kopā.\nVelciet un nometiet objektus hierarhijas grupā."
+    },
+    "hemisphere": {
+      "name": "Puslodes gaisma",
+      "description": "Gaisma, kas izgaismo ainu no tieši virs galvas.",
+      "lbl-skyColor": "Debesu krāsa",
+      "lbl-groundColor": "Zemes krāsa",
+      "lbl-intensity": "Intensitāte"
+    },
+    "image": {
+      "name": "Attēlu",
+      "description": "Dinamiski ielādē attēlu.",
+      "lbl-imgURL": "Attēla URL",
+      "lbl-transparency": "Caurspīdīguma režīms",
+      "lbl-alphaCutoff": "Alfa nogrieznis",
+      "lbl-projection": "Projekcijas",
+      "lbl-side": "Pusē",
+      "info-controls": "Pārslēdziet multivides vadīklu redzamību.",
+      "info-transparency": "Kā piemērot pārredzamību:",
+      "info-opaque": "\"necaurspīdīgs\" = nav caurspīdīguma",
+      "info-blend": "'maisījums' = izmantot attēlus alfa kanālu",
+      "info-mask": "\"maska\" = ieslēgšanas/izslēgšanas caurspīdīgumam izmantojiet noteiktu robežvērtību (vairāk izpildītāja)",
+      "info-alphaCutoff": "Pikseļi ar alfa vērtībām, kas ir zemākas par šo, būs caurspīdīgi",
+      "error-url": "Nederīgs URL"
+    },
+    "name": {
+      "lbl-name": "Vārds"
+    },
+    "partileEmitter": {
+      "description": "Daļiņu emitētājs daļiņu radīšanai.",
+      "lbl-particleCount": "Daļiņu skaits",
+      "lbl-image": "Attēlu",
+      "lbl-ageRandomness": "Vecuma nejaušība",
+      "lbl-lifetime": "Kalpošanas",
+      "lbl-lifetimeRandomness": "Mūža nejaušība",
+      "lbl-sizeCurve": "Izmēru līkne",
+      "lbl-startPSize": "Sākt daļiņu izmēru",
+      "lbl-endPSize": "Gala daļiņu izmērs",
+      "lbl-sizeRandomness": "Lieluma nejaušība",
+      "lbl-colorCurve": "Krāsu līkne",
+      "lbl-startColor": "Sākuma krāsa",
+      "lbl-startOpacity": "Sākt necaurredzamību",
+      "lbl-middleColor": "Vidējā krāsa",
+      "lbl-middleOpacity": "Vidējā necaurredzamība",
+      "lbl-endColor": "Beigu krāsa",
+      "lbl-endOpacity": "Beigu necaurredzamība",
+      "lbl-velocityCurve": "Ātruma līkne",
+      "lbl-startVelocity": "Sākt ātrumu",
+      "lbl-endVelocity": "Beigu ātrums",
+      "lbl-angularVelocity": "Leņķiskais ātrums",
+      "info-ageRandomness": "Variācijas daudzums starp daļiņu nārstošanu.",
+      "info-lifetime": "Maksimālais daļiņas vecums pirms tās atkārtotas apēdošanas.",
+      "info-lifetimeRandomness": "Daļiņu kalpošanas laika variāciju daudzums.",
+      "info-sizeRandomness": "Daļiņu sākuma izmēru variācijas apjoms.",
+      "error-url": "Ielādējot no URL, radās kļūda"
+    },
+    "clouds": {
+      "name": "Mākonis",
+      "description": "Sprite bāzes mākoņa apjoms.",
+      "lbl-image": "Sprite attēls",
+      "lbl-wroldScale": "Pasaules mērogs",
+      "lbl-dimensions": "Dimensijas",
+      "lbl-noiseZoom": "Trokšņa tālummaiņa",
+      "lbl-noiseOffset": "Trokšņa nobīde",
+      "lbl-spriteScale": "Sprite skala",
+      "lbl-fogColor": "Miglas krāsa",
+      "lbl-fogRange": "Miglas diapazons",
+      "error-url": "Ielādējot no URL, radās kļūda"
+    },
+    "ocean": {
+      "name": "Okeāns",
+      "description": "Okeāna virsma ar viļņiem un putām",
+      "lbl-normalMap": "Parasta karte",
+      "lbl-distortionMap": "Kropļojumu karte",
+      "lbl-envMap": "Vides karte",
+      "lbl-color": "Krāsa",
+      "lbl-shallowWaterColor": "Sekla ūdens krāsa",
+      "lbl-shallowToDeepDistance": "Sekls līdz dziļam attālumam",
+      "lbl-opacityFadeDistance": "Necaurredzamības izbalēšanas attālums",
+      "lbl-opacityRange": "Necaurredzamības diapazons",
+      "lbl-shininess": "Spīdums",
+      "lbl-reflectivity": "Atstarošana",
+      "lbl-foamColor": "Putu krāsa",
+      "lbl-foamSpeed": "Putu ātrums",
+      "lbl-foamTiling": "Putu flīzēšana",
+      "lbl-bigWaveTiling": "Lielā viļņa flīzēšana",
+      "lbl-bigWaveSpeed": "Lielā viļņa ātrums",
+      "lbl-bigWaveHeight": "Lielā viļņa augstums",
+      "lbl-waveSpeed": "Viļņu ātrums",
+      "lbl-waveScale": "Viļņu skala",
+      "lbl-waveTiling": "Viļņu flīzēšana",
+      "lbl-waveDistortionSpeed": "Viļņu kropļojumu ātrums",
+      "lbl-waveDistortionTiling": "Viļņu kropļojumu flīzēšana",
+      "error-url": "Ielādējot no URL, radās kļūda"
+    },
+    "water": {
+      "name": "Ūdens",
+      "description": "Maza ūdens virsma"
+    },
+    "interior": {
+      "name": "Interjers",
+      "description": "Virsma ar kartētu kuba tekstūru, lai līdzinātos iekšējai videi",
+      "lbl-cubeMap": "Kuba kartes faktūra",
+      "lbl-tiling": "Flīzēšanas summa",
+      "lbl-size": "Virsmas izmērs",
+      "error-url": "Ielādējot no URL, radās kļūda"
+    },
+    "pointLight": {
+      "description": "Gaisma, kas izstaro visos virzienos no viena punkta.",
+      "lbl-color": "Krāsa",
+      "lbl-intensity": "Intensitāte",
+      "lbl-range": "Diapazonu",
+      "lbl-decay": "Samazinājuma"
+    },
+    "scene": {
+      "name": "Ainas",
+      "description": "Ainas saknes objekts.",
+      "lbl-bgcolor": "Fona krāsa",
+      "lbl-fogType": "Miglas tips",
+      "lbl-fogColor": "Miglas krāsa",
+      "lbl-forNearDistance": "Migla netālu no attāluma",
+      "lbl-fogFarDistance": "Miglas attālums",
+      "lbl-fogDensity": "Miglas blīvums",
+      "lbl-audioSettings": "Pozicionālā audio izmantošana",
+      "lbl-avatarDistanceModel": "Avatar attāluma modelis",
+      "lbl-avatarRolloffFactor": "Avatāra atrites koeficients",
+      "lbl-avatarRefDistance": "Avatar Ref attālums",
+      "lbl-avatarMaxDistance": "Avatar Max attālums",
+      "lbl-mediaVolume": "Multivides skaļums",
+      "lbl-mediaDistanceModel": "Multivides attāluma modelis",
+      "lbl-mediaRolloffFactor": "Multivides atrites koeficients",
+      "lbl-mediaRefDistance": "Multivides ref attālums",
+      "lbl-mediaMaxDistance": "Multivides maksimālais attālums",
+      "lbl-mediaConeInnerAngle": "Multivides konusa iekšējais leņķis",
+      "lbl-mediaConeOuterAngle": "Multivides konusa ārējais leņķis",
+      "lbl-mediaConeOuterGain": "Multivides konusa ārējais pastiprinājums",
+      "info-avatarDistanceModel": "Algorīts, ko izmantoja, lai aprēķinātu audio atriti.",
+      "info-avatarRolloffFactor": "Dubulta vērtība, kas apraksta, cik ātri skaļums tiek samazināts, avotam attālinoties no klausītāja. 0 līdz 1",
+      "info-avatarRolloffFactorInifinity": "Dubulta vērtība, kas apraksta, cik ātri skaļums tiek samazināts, avotam attālinoties no klausītāja. 0 līdz Bezgalībai",
+      "info-avatarRefDistance": "Divkāršs raksturlielums, kas attēlo atsauces attālumu skaļuma samazināšanai, audio avotam virzoties tālāk no klausītāja.",
+      "info-avatarMaxDistance": "Dubultvērtība, kas atspoguļo maksimālo attālumu starp audio avotu un klausītāju, pēc tam skaļums vairs netiek samazināts.",
+      "info-mediaDistanceModel": "Algorīts, ko izmantoja, lai aprēķinātu audio atriti.",
+      "info-mediaRolloffFactor": "Dubulta vērtība, kas apraksta, cik ātri skaļums tiek samazināts, avotam attālinoties no klausītāja. 0 līdz 1",
+      "info-mediaRolloffFactorInfinity": "Dubulta vērtība, kas apraksta, cik ātri skaļums tiek samazināts, avotam attālinoties no klausītāja. 0 līdz Bezgalībai",
+      "info-mediaRefDistance": "Divkāršs raksturlielums, kas attēlo atsauces attālumu skaļuma samazināšanai, audio avotam virzoties tālāk no klausītāja.",
+      "info-mediaMaxDistance": "Dubultvērtība, kas atspoguļo maksimālo attālumu starp audio avotu un klausītāju, pēc tam skaļums vairs netiek samazināts.",
+      "info-mediaConeInnerAngle": "Dubulta vērtība, kas apraksta konusa leņķi grādos, kura iekšpusē nebūs tilpuma samazinājuma.",
+      "info-mediaConeOuterAngle": "Dubulta vērtība, kas apraksta konusa leņķi grādos, ārpus kura tilpums tiks samazināts par nemainīgu vērtību, ko nosaka atribūts coneOuterGain.",
+      "info-mediaConeOuterGain": "Divkārša vērtība, kas apraksta apjoma samazinājuma apjomu ārpus konusa, ko nosaka atribūts ConeOuterAngle. Tās noklusējuma vērtība ir 0, kas nozīmē, ka nevar dzirdēt skaņu.",
+      "lbl-simpleMaterials": "Izmantojiet vienkāršus materiālus",
+      "lbl-lods": "LODS",
+      "info-lods": "Iestata attālumus, kuros mainās detalizācijas līmeņi.",
+      "info-simpleMaterials": "Pārvērš visus dārgos materiālus vienkāršākos, lai noņemtu slodzes atveidi.",
+      "lbl-rendererSettings": "Ignorēt renderētāja iestatījumus",
+      "lbl-csm": "Kaskādes ēnu kartes",
+      "info-csm": "Iespējo kaskādes ēnu kartes.",
+      "lbl-toneMapping": "Toņu kartēšana",
+      "info-toneMapping": "Iespējo toņa kartēšanu ainas renderētājā. Nav nekādas ietekmes, ja ir iespējota pēcapstrāde.",
+      "lbl-toneMappingExposure": "Toņa kartēšanas ekspozīcija",
+      "info-toneMappingExposure": "Norāda toņa kartēšanas ekspozīciju ainas renderētājā. Nav nekādas ietekmes, ja ir iespējota pēcapstrāde.",
+      "lbl-shadowMapType": "Ēnu kartes tips",
+      "info-shadowMapType": "Ēnu kartes tips",
+      "error-url": "Ielādējot no URL, radās kļūda"
+    },
+    "sceneCamera": {
+      "name": "Ainas priekšskatījuma kamera",
+      "description": "Kamera, kas tika izmantota, lai ģenerētu jūsu ainas sīktēlu un priekšskatījuma kameras sākuma pozīciju.",
+      "lbl-setFromViewPort": "Iestatīt no skata porta"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Diennakts laiks",
+      "lbl-color": "Krāsa",
+      "lbl-latitude": "Platuma",
+      "lbl-luminance": "Spilgtums",
+      "lbl-scattering": "Izkaisītā summa",
+      "lbl-scatteringDistance": "Izkliedes attālums",
+      "lbl-horizonStart": "Horizon startēšana",
+      "lbl-horizonEnd": "Horizonta beigas",
+      "lbl-texture": "Faktūru",
+      "lbl-skyType": "Debesu tips",
+      "error-url": "Ielādējot no URL, radās kļūda"
+    },
+    "spawnPoint": {
+      "name": "Nārsta punkts",
+      "description": "Punkts, kurā cilvēki parādīsies, ieejot jūsu ainā.\nViewport ikona attēlo iemiesojuma faktisko lielumu."
+    },
+    "spotLight": {
+      "description": "Gaisma, kas izstaro pa virzienu, apgaismojot priekšmetus konusā.",
+      "lbl-color": "Krāsa",
+      "lbl-intensity": "Intensitāte",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "Leņķis",
+      "lbl-range": "Diapazonu",
+      "lbl-decay": "Samazinājuma"
+    },
+    "transform": {
+      "title": "Pārveidot",
+      "lbl-postition": "Pozīcija",
+      "lbl-rotation": "Rotācijas",
+      "lbl-scale": "Mērogs"
+    },
+    "triggereVolume": {
+      "description": "Iestata rekvizītu mērķa objektam, ieejot un izejot no tā.",
+      "lbl-target": "Objektu",
+      "lbl-onenter": "Pēc enter",
+      "lbl-onexit": "Izejot",
+      "lbl-showHelper": "Rādīt palīga sietu",
+      "ph-errorNode": "Trūkst kļūdas zara.",
+      "ph-selectNode": "Atlasīt zaru..."
+    },
+    "video": {
+      "name": "Video",
+      "description": "Dinamiski ielādē videoklipu.",
+      "lbl-video": "Video",
+      "lbl-projection": "Projekcijas",
+      "lbl-islivestream": "Tiešraides straume",
+      "lbl-interactable": "Mijiedarbojamies",
+      "lbl-id": "Elementa ID",
+      "lbl-play": "Spēlēt",
+      "lbl-pause": "Pauzes",
+      "error-url": "Ielādējot no URL, radās kļūda"
+    },
+    "volumetric": {
+      "name": "Tilpuma",
+      "description": "Dinamiski ielādē tilpuma video.",
+      "uvolPaths": "UVOL ceļi",
+      "playmode": "Atskaņošanas režīms",
+      "playtitle": "Spēlēt",
+      "pausetitle": "Pauzes"
+    },
+    "spline": {
+      "description": "Dinamiski izveidojiet un pielāgojiet līknes.",
+      "lbl-addNode": "Pievienot zaru līknei."
+    },
+    "systemnode": {
+      "description": "Pievienot skriptu.",
+      "lbl-filePath": "URL",
+      "lbl-systemUpdateType": "Injekcijas punkts",
+      "lbl-enableClient": "Klients",
+      "lbl-enableServer": "Serveris",
+      "lbl-args": "Args",
+      "error-url": "Kļūda, ielādējot skriptu no URL"
+    },
+    "portal": {
+      "lbl-portal": "Saistītais portāls",
+      "lbl-redirect": "Lapas novirzīšanas izmantošana",
+      "description": "Portats, lai teleportētu spēlētājus uz norādīto atrašanās vietu",
+      "lbl-locationName": "Vieta",
+      "lbl-modelUrl": "Modeļa URL",
+      "lbl-displayText": "Parādīt tekstu",
+      "lbl-cubemapBake": "Cubemap sacepums",
+      "lbl-spawnPosition": "Nārsta pozīcija",
+      "lbl-spawnRotation": "Nārsta rotācija",
+      "lbl-triggerPosition": "Trigera pozīcija",
+      "lbl-triggerRotation": "Trigera pagriešana",
+      "lbl-triggerScale": "Trigera skala"
+    },
+    "postprocessing": {
+      "name": "Pēcapstrāde",
+      "description": "Lai pēcapstrādes efektus lietotu ainai."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Jauns projekts",
+      "backLink": "Atpakaļ uz projektiem",
+      "featured": "Featured",
+      "all": "Viss",
+      "newProject": "Jauns tukšs projekts",
+      "ph-search": "Meklēt ainas..."
+    },
+    "grid": {
+      "loading": "Iekraušanas..."
+    },
+    "page": {
+      "header": "Laipni lūdzam",
+      "headerMsg": "Ja esat jauns šeit, iesakām iziet apmācību. Pretējā gadījumā ieleciet tieši iekšā un izveidojiet projektu no nulles vai no kādas no mūsu veidnēm.",
+      "lbl-startTutorial": "Sākt apmācību",
+      "projects": "Projektiem",
+      "lbl-newProject": "Jauns projekts"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Iekraušanas...",
+      "placeObject": "Novietot objektu",
+      "placeObjectAtOrigin": "Objekta novietošana izcelsmes vietā",
+      "copyURL": "Kopēt URL",
+      "openInNewTab": "Atvērt vietrādi URL jaunā cilnē",
+      "deleteAsset": "Dzēst pamatlīdzekli"
+    },
+    "filebrowser": {
+      "addNewFolder": "Pievienot jaunu mapi",
+      "cutAsset": "Griezt",
+      "copyAsset": "Kopija",
+      "pasteAsset": "Ielīmēt",
+      "renameAsset": "Pārdēvēt",
+      "viewAssetProperties": "Skatīt rekvizītus"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Pārdēvēt",
+    "lbl-duplicate": "Dublēt",
+    "lbl-group": "Grupa",
+    "lbl-delete": "Dzēst",
+    "lbl-expandAll": "Izvērst visu",
+    "lbl-collapseAll": "Sakļaut visus",
+    "isseus": "Jautājumiem:"
+  },
+  "dnd": {
+    "nodes": "Atlasīti {{count}} mezgli",
+    "models": "{{count}} atlasītie modeļi",
+    "images": "atlasīti {{count}} attēli",
+    "videos": "atlasīti {{count}} videoklipi",
+    "audio": "{{count}} atlasīti audio avoti"
+  },
+  "dialog": {
+    "title": "Redaktors",
+    "lbl-confirm": "Labi",
+    "lbl-cancel": "Atcelt",
+    "exportProject": {
+      "title": "Eksportēt projektu",
+      "lbl-confirm": "Eksportēt projektu",
+      "lbl-combineMesh": "Kombinēt sietus",
+      "lbl-removeUnused": "Neizmantoto objektu noņemšana"
+    },
+    "performance": {
+      "title": "Veiktspējas pārbaude",
+      "lbl-confirm": "Publicēt ainu",
+      "learnMore": "Apgūt vairāk",
+      "lbl-polycount": "Daudzstūru skaits",
+      "lbl-material": "Materiāli",
+      "lbl-texture": "Faktūras",
+      "lbl-lights": "Gaismas",
+      "lbl-fileSize": "Faila lielums",
+      "info-polycount": "Mēs iesakām jūsu ainai mobilajām ierīcēm izmantot ne vairāk kā 50 000 trīsstūru.",
+      "info-material": "Lai samazinātu zvanu izdarīšanu mobilajās ierīcēs, ieteicams savā ainā izmantot ne vairāk kā 25 unikālus materiālus.",
+      "info-texture": "Mēs iesakām jūsu tekstūrām izmantot ne vairāk kā 256 MB video RAM mobilajām ierīcēm. Mēs arī iesakām neizmantot tekstūras, kas lielākas par 2048 x 2048.",
+      "info-lights": "Lai gan mobilajās ierīcēs dinamiskās gaismas nav iespējotas, ieteicams ainā izmantot ne vairāk kā 3 gaismas (izņemot apkārtējās vides un puslodes gaismas), lai aina darbotos zemas klases datoros.",
+      "info-fileSize": "Mēs iesakām galīgo faila lielumu ne vairāk kā 16 MB zema joslas platuma savienojumiem. Samazinot faila lielumu, tiks samazināts laiks, kas nepieciešams, lai lejupielādētu ainu.",
+      "txt-polycount": "{{count}} trīsstūri",
+      "txt-material": "{{count}} materiāli",
+      "txt-ram": "~{{count}} video RAM",
+      "txt-texture": "{{count}} lielas faktūras",
+      "txt-lights": "{{count}} gaismas"
+    },
+    "progress": {
+      "title": "Iekraušanas...",
+      "msg": "Iekraušanas...",
+      "lbl-cancel": "Atcelt"
+    },
+    "publish": {
+      "title": "Publicēt ainu",
+      "lbl-confirm": "Saglabāšana un publicēšana",
+      "lbl-name": "Ainas nosaukums",
+      "info-name": "Nosaukumam jābūt no 4 līdz 64 rakstzīmēm, un tajā nedrīkst būt pasvītrojumi"
+    },
+    "published": {
+      "title": "Publicēta aina",
+      "header": "Jūsu aina ir publicēta.",
+      "lbl-view": "Ainas skatīšana"
+    },
+    "saveNewProject": {
+      "title": "Atbalsta",
+      "lbl-name": "Projekta nosaukums",
+      "info-name": "Nosaukumam jābūt no 4 līdz 64 rakstzīmēm, un tajā nedrīkst būt pasvītrojumi",
+      "lbl-confirm": "Saglabāt projektu"
+    },
+    "support": {
+      "title": "Atbalsta",
+      "header": "Vai ir jāziņo par problēmu?",
+      "msg": "Jūs varat iesniegt <1>GitHub problēmu</1> vai nosūtīt mums e-pastu atbalsta saņemšanai vietnē <3>{{mail}}</3>",
+      "discord": "Mūs varat atrast arī <1>Discord</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing attēli",
+      "search": "Meklēt pēc Bing"
+    },
+    "bingVideo": {
+      "name": "Bing video",
+      "search": "Meklēt pēc Bing"
+    },
+    "element": {
+      "name": "Elementi"
+    },
+    "myAssets": {
+      "name": "Mani aktīvi"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Meklēt pēc Google"
+    },
+    "tenor": {
+      "name": "Tenora GIF faili",
+      "search": "Meklēt pēc Tenora",
+      "ph-search": "Meklēt GIF failus..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Meklēt pēc Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Augšupielādēt līdzekli"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Meklēt attēlus..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Meklēt videoklipus..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Meklēt līdzekļus..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Meklēt modeļus..."
+    },
+    "useUpload": {
+      "multipleFileError": "Ievade nepieņem vairākus failus.",
+      "mineTypeError": "\"{{name}}\" neatbilst šādiem mīmu tipiem vai paplašinājumiem: {{types}}",
+      "progressTitle": "Failu augšupielāde",
+      "progressMsg": "Failu augšupielāde {{uploaded}} no {{total}}: {{percentage}}%",
+      "uploadError": "Augšupielādes kļūda",
+      "uploadErrorMsg": "Faila augšupielādes kļūda: {{message}}",
+      "uploadErrorDefaultMsg": "Radās nezināma kļūda"
+    }
+  },
+  "openLink": {
+    "description": "Lūdzu, noklikšķiniet uz Atvērt, lai naviģētu uz saiti.",
+    "lbl-open": "Atvērts"
+  },
+  "interactableModel": {
+    "lbl-buy": "Pirkt",
+    "lbl-learnMore": "Apgūt vairāk"
+  },
+  "corsProxyButton": {
+    "tooltip": "Cors starpniekservera izmantošana"
+  }
+}

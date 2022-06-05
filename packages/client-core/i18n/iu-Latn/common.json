@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "iliuqqainiq makpiqtugarmik..."
+  },
+  "tooltip": {
+    "pressKey": "naqillugu {{tip}} {{message}}"
+  },
+  "toast": {
+    "joined": "ilaliutijuq",
+    "left": "saumiani"
+  },
+  "navUserWidget": {
+    "login": "titirarvik"
+  },
+  "loader": {
+    "connecting": "aktuaniqarniq nunarjuarmut...",
+    "entering": "nunarjuarmut isirniq...",
+    "loading": "Loading...",
+    "objectRemaining": "{{count}} amiakkua",
+    "objectRemainingPlural": "{{count}} amiakkuit",
+    "loadingObjects": "iliuqqainiq piqutinik",
+    "loadingComplete": "iliuqqainiq pijariiqtuq",
+    "joiningWorld": "ilauqatauniq nunarjuarmut"
+  },
+  "alert": {
+    "eventWasSuccess": "qanuiliurniujuq kajusittialauqtuq",
+    "errorWasEncountered": "tammaqtuqalauqpuq",
+    "eventInProgress": "piliriangujuq pilirianguvalliajuq",
+    "seconds": "tittakuluit",
+    "cancelCountdown": "matutillugu taanna atuqtaujunnaqtuq nuqqaqtittiniaqpuq naasainirmik"
+  },
+  "debug": {
+    "refresh": "tamulugaksat",
+    "stats": "kiglisiniaqtausimajut",
+    "debugOptions": "Debug Options",
+    "physicsDebug": "iqailisarniq",
+    "avatarDebug": "avatar",
+    "nodeHelperDebug": "ikajuqtiqanngittuq",
+    "gridDebug": "Grid",
+    "simpleMaterials": "pijariakittut piqutit",
+    "tick": "tik",
+    "worldStore": "nunarjuarmi niuvirvik",
+    "engineStore": "aulautinik niuvirvik",
+    "namedEntities": "taijausimajut timiujut",
+    "networkObject": "kasuqatigiitsimajjut piqutingit",
+    "networkClients": "pilirijinut tusaumaqattautiqatigiigutinik pijittiraqtaujut"
+  },
+  "recording": {
+    "videoRecorder": "tarrijaaksaliuqti",
+    "waitingForPermissions": "utaqqiniq pijunnaqtitaujjutinik",
+    "selectVideoSource": "niruarlugu tarrijaaksaq pivviujunnaqtuq",
+    "screen": "igalaujaq",
+    "camera": "ajjiliuruti",
+    "microphone": "qaninngurnauti",
+    "startRecording": "nipiliurivallianiq",
+    "pauseRecording": "nuqqangalaukangniq nipiliuriniq",
+    "resumeRecording": "titiraqsimajunit titiraqpallianiq",
+    "stopRecording": "nipiliurijunniirniq"
+  },
+  "typing": "naqittainiq...",
+  "gameServer": {
+    "browserError": "qiniqtuq tammaqtuq",
+    "browserErrorMessage": "qinirutiit ikajuqtuinngittuq tuqquqsisimavvingmit ilaakkuuqtunit qinirutimit. uuktukkannirlutit asianik qinirutinik, anilutilluunniit nangminiq qinirnirmik.",
+    "noAvailableServers": "atuinnaungittut pijitsiraqtiit",
+    "noAvailableServersMessage": "qarisaujakkuviqanngittuq ilingnut atajunnariaksaq. kasukkannirasungniq",
+    "worldDisconnected": "nunarjuarmi nakataujut",
+    "worldDisconnectedMessage": "asiujisimagavit aktuanirijarnik nunarjuarmut. kasuqtikannirasuarniaqpavut ukunani piviksavut nungulaunnginningani, asianut tunijaugajaravit.",
+    "webGLNotEnabled": "WebGL ajuqtitaujuq",
+    "webGLNotEnabledMessage": "qinirutiit ikajuqtuinngittuq ikiaqqivikkut, uvvaluunniit timimigut ajurutiqaqtuq. ikiaqqivikkut ikiaqqivikkut uvvaluunniit nutaannguriaqtittilutit nutaangulaamut qinirutingnut.",
+    "youKickedFromWorld": "pigiaqtausimagavit nunarjuarmi",
+    "youKickedFromWorldMessage": "pigialauqputit tavvanngat nunarjuarmi ukuninga pijjutiqaqpuk",
+    "invalidLocation": "innnganiittut",
+    "cantFindLocation": "nanijunnanngitavut nanijunnanngitavut",
+    "misspelledOrNotExist": "titirattiaqsimanngituinnarialik, uvvaluunniit pitaqanngituinnarialik.",
+    "loading": "iliuqqainiq",
+    "low-frame-error": "qaujittiannginniq ajuriqsiujjilluni aturunnaillitittijumik qarasaujarmut atugaksamik sukkaktigijumik qinirutingni amma qinikkannirlutit qinirutingnik",
+    "low-frame-title": "qarasaujarmut atugait sukkaklivaalliqullugit pilirittiarniqsauqullugit!"
+  },
+  "error": {
+    "loading-error": "1000000000000000000000",
+    "validation-error": "uqausiksat atuqtut {{type}}",
+    "login-error": "1000000000000000"
+  }
+}

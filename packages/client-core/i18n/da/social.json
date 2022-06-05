@@ -1,0 +1,202 @@
+{
+  "addComment": "Tilføj kommentar...",
+  "share": "Aktie",
+  "suggestions": "Forslag til dig",
+  "seeAll": "3 stjerner",
+  "likes": "Holder",
+  "viewComments": "Se alle {{count}} kommentarer",
+  "more": "mere",
+  "username": "brugernavn",
+  "fullName": "Navn Efternavn",
+  "reportInApporpriate": "Anmeld upassende",
+  "unfollow": "Følg ikke",
+  "goToPost": "Gå til Opslag",
+  "shareModal": "Aktie",
+  "copyLink": "Kopier link",
+  "embed": "Integrere",
+  "cancel": "Aflyse",
+  "confirm": "Bekræfte",
+  "save": "Spare",
+  "profilePic": "{{user}}'s profilbillede",
+  "ara": "Alteret",
+  "follow": "Følge",
+  "flames": "Flammer",
+  "continue": "Fortsætte",
+  "partyInvitationSent": "Festinvitation sendt",
+  "arMedia": {
+    "back": "Ryg",
+    "clip": "Klippe",
+    "backgrounds": "Baggrunde",
+    "start": "Begynde"
+  },
+  "arMediaform": {
+    "title": "Titel",
+    "type": "Slags",
+    "clip": "Klippe",
+    "background": "Baggrund",
+    "scene": "Scene",
+    "save": "Spare",
+    "manifest-file": "Manifest .manifest-fil",
+    "audio-file": "Mp4-fil",
+    "dracosis-file": "Dracosis .uvol-fil",
+    "preview-file": "Forhåndsvisning af billedfil"
+  },
+  "creator": {
+    "myVideos": "Mine videoer",
+    "savedVideos": "Gemte videoer",
+    "back": "Ryg",
+    "blocked-list": "Blokeret liste",
+    "block-user": "Bloker bruger",
+    "dialog-content": "Du kan ikke se brugerens profil og indhold"
+  },
+  "creatorForm": {
+    "back": "Ryg",
+    "edit": "Rediger profil",
+    "save": "Spare",
+    "changeAvatar": "Skift avatarbillede",
+    "ph-selectPreview": "Vælg forhåndsvisning",
+    "ph-name": "Dit navn",
+    "ph-username": "Dit brugernavn",
+    "ph-email": "Din e-mail",
+    "ph-tags": "Tags",
+    "ph-link": "Sammenkæde",
+    "ph-aboutYou": "Mere om dig",
+    "ph-twitter": "Kvidre",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Log ud"
+  },
+  "dashboard": {
+    "title": "Instrumentbræt",
+    "dashboard": "Instrumentbræt",
+    "users": "Brugere",
+    "feeds": "Feeds",
+    "arMedia": "Videomedier",
+    "editor": "Redaktør",
+    "creator": "Skaber"
+  },
+  "featured": {
+    "empty-list": "Ingen feeds for nu ..."
+  },
+  "feed": {
+    "back": "Ryg",
+    "related": "Relaterede feeds",
+    "is-repoted-message": "Foder rapporteres!"
+  },
+  "feedForm": {
+    "back": "Ryg",
+    "thanks": "Tak for at dele og forbedre vores fællesskab",
+    "share": "Del noget med fællesskabet",
+    "upload": "Upload Video",
+    "ph-selectVideo": "Vælg Video",
+    "preview": "Forhåndsvisning af billede",
+    "ph-selectPreview": "Vælg forhåndsvisning",
+    "createFeed": "For at oprette et feed skal du have en video og et eksempelbillede!!!",
+    "ph-videoName": "Navnet på din video",
+    "ph-type": "Skriv det, du vil dele med samfundet ... ",
+    "lbl-share": "Aktie",
+    "save": "Gem og gå Næste"
+  },
+  "feedMenu": {
+    "featured": "Fremhævede",
+    "creators": "Skaberne",
+    "feed": "Foderet"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetrisk"
+  },
+  "login": {
+    "account": "Har du en konto?",
+    "login": "Login",
+    "resetPassword": "Nulstil Password Fake-knappen (her ville være et link fra e-mail)",
+    "notHavingAccount": "Har du ikke en konto?",
+    "signUp": "Tilmeld dig",
+    "forgotPassword": "Glemt adgangskode?",
+    "back": "Ryg",
+    "or": "ELLER"
+  },
+  "comment": {
+    "add": "Tilføj din kommentar..."
+  },
+  "notification": {
+    "feedFire": " affyrede dit feed",
+    "feedBookmarked": " bogmærket dit feed",
+    "comment": " kommenterede dit feed:",
+    "commentFire": " affyrede din kommentar til Feed",
+    "follow": " begyndte at følge dig",
+    "unfollow": " stoppede med at følge dig",
+    "followed": " fulgte dig",
+    "activity": "Aktivitet"
+  },
+  "onBoarding": {
+    "welcome": "Velkommen!",
+    "description": "Største samling af mere end 370 layouts til iOS-prototyper.",
+    "next": "Næste",
+    "discover": "Opdag artikler,",
+    "news": "nyheder og indlæg",
+    "lines": "Det er disse følelser, der driver vores kærlighed til astronomi og vores ønske.",
+    "getStarted": "Sådan kommer du i gang",
+    "meetUp": "Mød op med",
+    "friends": "Venner.",
+    "meet": "Mød op med venner"
+  },
+  "shareForm": {
+    "arcMedia": "Aktie",
+    "videoCreated": "Jeg oprettede denne video",
+    "shareWithBuddies": "Del med venner",
+    "shareVideo": "Del video",
+    "save": "Gem på kamerarulle",
+    "cancel": "Aflyse",
+    "close": "Lukke",
+    "addFeed": "Tilføj feed"
+  },
+  "simpleModal": {
+    "emptyList": "Tom liste",
+    "followers": " følgende",
+    "following": " Tilhængere",
+    "flames": " Flammer"
+  },
+  "splash": {
+    "screen": "Velkomstbillede",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "{{user}}'s profilbillede"
+  },
+  "view": {
+    "cancel": "Aflyse",
+    "choice": "Du har to forskellige optagetilstande at vælge imellem",
+    "verticalMode": "Lodret tilstand har en rekordtid på 30 sekunder",
+    "horizontalMode": "Vandret tilstand har ubegrænset rekordtid",
+    "start": "Begynde",
+    "not-show": "Vis det ikke igen",
+    "welcome": "Velkommen til ARC!  Lav personlige videoer med et af vores hologrammer og send det til dine sociale mediekanaler!",
+    "step": "TRIN {{step}}",
+    "text-step-1": "Vælg et hologram fra biblioteket.",
+    "text-step-2": "Dette er Augmented Reality, så scan rummet med dit kamera fra side til side i 3-5 sekunder, hvor du vil have hologrammets ydeevne.",
+    "text-step-3-part-1": "Tryk én gang på skærmen på det sted, hvor hologrammet skal forankres.",
+    "text-step-3-part-2": "DRIKKEPENGE!  Tryk én gang et andet sted hen for at flytte hologrammet til en anden position.",
+    "text-step-3-part-3": "DRIKKEPENGE!  Du kan ændre størrelsen på hologrammet ved at klemme eller udvide skærmen med tommelfingeren og pegefingeren.",
+    "text-step-4-part-1": "Dobbeltklik på den røde optageknap for at STARTE din videooptagelse.",
+    "text-step-4-part-2": "Tryk to gange på den røde optageknap for at STOPPE."
+  },
+  "video": {
+    "back": "Ryg"
+  },
+  "terms": {
+    "confirmTerms": "Jeg accepterer Servicevilkårene",
+    "confirmPolicy": "Jeg accepterer fortrolighedspolitik"
+  },
+  "registration": {
+    "ph-phoneEmail": "Brug telefon / e-mail",
+    "facebook": "Fortsæt med Facebook",
+    "google": "Fortsæt med Google",
+    "linkedin": "Fortsæt med Linkedin",
+    "twitter": "Fortsæt med Twitter",
+    "gitHub": "Fortsæt med GitHub",
+    "connect": "Tilknyt din e-mail eller dit telefonnummer",
+    "logIn": "Log på",
+    "LogInTo": "Log ind på",
+    "continueAsGuest": "Fortsæt som gæst"
+  }
+}

@@ -1,202 +1,202 @@
 {
-  "addComment" : "Kommentar hinzufügen ... ",
-  "share" : "Gemeinsam nutzen ",
-  "suggestions" : "Vorschläge für Sie ",
-  "seeAll" : "Alle anzeigen ",
-  "likes" : "Mag ",
-  "viewComments" : "Alle {{count}} Kommentare anzeigen ",
-  "more" : "Mehr ",
-  "username" : "Benutzername ",
-  "fullName" : "Name Nachname ",
-  "reportInApporpriate" : "Bericht unangemessen ",
-  "unfollow" : "Nicht folgen ",
-  "goToPost" : "Gehe zu Post ",
-  "shareModal" : "Gemeinsam nutzen ",
-  "copyLink" : "Link kopieren ",
-  "embed" : "Embed ",
-  "cancel" : "Abbrechen ",
-  "confirm" : "Bestätigen ",
-  "save" : "Speichern ",
-  "profilePic" : "{{user}} Profil pic ",
-  "ara" : "Ara ",
-  "follow" : "Folgen ",
-  "flames" : "Flammen ",
-  "continue" : "Weiter ",
-  "partyInvitationSent" : "Einladung der Partei gesendet ",
-  "arMedia" : {
-    "back" : "Zurück ",
-    "clip" : "Clip ",
-    "backgrounds" : "Hintergründe ",
-    "start" : "Start "
+  "addComment": "Kommentar hinzufügen...",
+  "share": "Freigeben",
+  "suggestions": "Vorschläge für Sie",
+  "seeAll": "Alle anzeigen",
+  "likes": "Mag",
+  "viewComments": "Alle {{count}} anzeigen Kommentare",
+  "more": "mehr",
+  "username": "Nutzername",
+  "fullName": "Vorname Nachname",
+  "reportInApporpriate": "Unangemessen melden",
+  "unfollow": "Nicht mehr folgen",
+  "goToPost": "Zum Beitrag",
+  "shareModal": "Freigeben",
+  "copyLink": "Link kopieren",
+  "embed": "Einbinden",
+  "cancel": "Abbrechen",
+  "confirm": "Bestätigen",
+  "save": "Retten",
+  "profilePic": "{{user}}'s Profilbild",
+  "ara": "Altar",
+  "follow": "Folgen",
+  "flames": "Flammen",
+  "continue": "Fortsetzen",
+  "partyInvitationSent": "Partyeinladung verschickt",
+  "arMedia": {
+    "back": "Zurück",
+    "clip": "Scheren",
+    "backgrounds": "Hintergründe",
+    "start": "Anfangen"
   },
-  "arMediaform" : {
-    "title" : "Titel ",
-    "type" : "Typ ",
-    "clip" : "Clip ",
-    "background" : "Hintergrund ",
-    "scene" : "Szene ",
-    "save" : "Speichern ",
-    "manifest-file" : "Manifestdatei mit Manifestdatei ",
-    "audio-file" : "Mp4-Datei ",
-    "dracosis-file" : "Dracosis .uvol-Datei ",
-    "preview-file" : "Bilddatei voranzeigen "
+  "arMediaform": {
+    "title": "Titel",
+    "type": "Art",
+    "clip": "Scheren",
+    "background": "Hintergrund",
+    "scene": "Szene",
+    "save": "Retten",
+    "manifest-file": "Manifest-MANIFEST-Datei",
+    "audio-file": "Mp4-Datei",
+    "dracosis-file": "Dracosis .uvol Datei",
+    "preview-file": "Vorschau der Bilddatei"
   },
-  "creator" : {
-    "myVideos" : "Eigene Videos ",
-    "savedVideos" : "Gespeicherte Videos ",
-    "back" : "Zurück ",
-    "blocked-list" : "Blockierte Liste ",
-    "block-user" : "Blockbenutzer ",
-    "dialog-content" : "Sie werden das Profil und den Inhalt des Benutzers nicht sehen. "
+  "creator": {
+    "myVideos": "Meine Videos",
+    "savedVideos": "Gespeicherte Videos",
+    "back": "Zurück",
+    "blocked-list": "Blockierte Liste",
+    "block-user": "Benutzer blockieren",
+    "dialog-content": "Sie sehen das Profil und den Inhalt des Benutzers nicht"
   },
-  "creatorForm" : {
-    "back" : "Zurück ",
-    "edit" : "Profil bearbeiten ",
-    "save" : "Speichern ",
-    "changeAvatar" : "Avatar-Bild ändern ",
-    "ph-selectPreview" : "Voranzeige auswählen ",
-    "ph-name" : "Ihr Name ",
-    "ph-username" : "Ihr Benutzername ",
-    "ph-email" : "Ihre E-Mail ",
-    "ph-tags" : "Tags ",
-    "ph-link" : "Link ",
-    "ph-aboutYou" : "Mehr über Sie ",
-    "ph-twitter" : "Twitter ",
-    "ph-instagram" : "Instagram ",
-    "ph-tiktok" : "Tiktok ",
-    "sign-out" : "Abmelden "
+  "creatorForm": {
+    "back": "Zurück",
+    "edit": "Profil bearbeiten",
+    "save": "Retten",
+    "changeAvatar": "Avatarbild ändern",
+    "ph-selectPreview": "Vorschau auswählen",
+    "ph-name": "Ihr Name",
+    "ph-username": "Ihr Benutzername",
+    "ph-email": "Ihre E-Mail-Adresse",
+    "ph-tags": "Schilder",
+    "ph-link": "Verbinden",
+    "ph-aboutYou": "Mehr über Sie",
+    "ph-twitter": "zwitschern",
+    "ph-instagram": "Auf Instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Abmelden"
   },
-  "dashboard" : {
-    "title" : "Dashboard ",
-    "dashboard" : "Dashboard ",
-    "users" : "Benutzer ",
-    "feeds" : "Feeds ",
-    "arMedia" : "Videomedien ",
-    "editor" : "Editor ",
-    "creator" : "Ersteller "
+  "dashboard": {
+    "title": "Instrumententafel",
+    "dashboard": "Instrumententafel",
+    "users": "Benutzer",
+    "feeds": "Ernährt",
+    "arMedia": "Videomedien",
+    "editor": "Redakteur",
+    "creator": "Schöpfer"
   },
-  "featured" : {
-    "empty-list" : "Keine Feeds für jetzt ... "
+  "featured": {
+    "empty-list": "Keine Feeds für jetzt ..."
   },
-  "feed" : {
-    "back" : "Zurück ",
-    "related" : "Zugehörige Feeds ",
-    "is-repoted-message" : "Feed wird gemeldet! "
+  "feed": {
+    "back": "Zurück",
+    "related": "Verwandte Feeds",
+    "is-repoted-message": "Feed wird gemeldet!"
   },
-  "feedForm" : {
-    "back" : "Zurück ",
-    "thanks" : "Dank für den Austausch und die Verbesserung unserer Community ",
-    "share" : "Teilen Sie etwas mit der Community ",
-    "upload" : "Video hochladen ",
-    "ph-selectVideo" : "Video auswählen ",
-    "preview" : "Vorschaubild ",
-    "ph-selectPreview" : "Voranzeige auswählen ",
-    "createFeed" : "Um einen Feed zu erstellen, müssen Sie ein Video und ein Vorschaubild haben !!! ",
-    "ph-videoName" : "Der Name Ihres Videos ",
-    "ph-type" : "Geben Sie an, was Sie mit der Community teilen möchten ...   ",
-    "lbl-share" : "Gemeinsam nutzen ",
-    "save" : "Speichern und Weiter "
+  "feedForm": {
+    "back": "Zurück",
+    "thanks": "Vielen Dank, dass Sie unsere Community geteilt und verbessert haben",
+    "share": "Teilen Sie etwas mit der Community",
+    "upload": "Video hochladen",
+    "ph-selectVideo": "Video auswählen",
+    "preview": "Vorschau des Bildes",
+    "ph-selectPreview": "Vorschau auswählen",
+    "createFeed": "Um einen Feed zu erstellen, benötigen Sie ein Video und ein Vorschaubild!!!",
+    "ph-videoName": "Der Name deines Videos",
+    "ph-type": "Geben Sie ein, was Sie mit der Community teilen möchten ... ",
+    "lbl-share": "Freigeben",
+    "save": "Speichern und Weiter gehen"
   },
-  "feedMenu" : {
-    "featured" : "Vorgestellten ",
-    "creators" : "Schöpfer ",
-    "feed" : "Der Feed "
+  "feedMenu": {
+    "featured": "Befähigt",
+    "creators": "Erschaffer",
+    "feed": "Der Feed"
   },
-  "header" : {
-    "lbl-volumetric" : "Volumenstrom "
+  "header": {
+    "lbl-volumetric": "Volumetrisch"
   },
-  "login" : {
-    "account" : "Haben Sie ein Konto? ",
-    "login" : "Anmeldung ",
-    "resetPassword" : "Passwort zurücksetzen Fake-Taste (hier wäre ein Link von E-Mail) ",
-    "notHavingAccount" : "Haben Sie kein Konto? ",
-    "signUp" : "Info ",
-    "forgotPassword" : "Passwort vergessen? ",
-    "back" : "Zurück ",
-    "or" : "ODER "
+  "login": {
+    "account": "Haben Sie ein Konto?",
+    "login": "Einloggen",
+    "resetPassword": "Reset Password Fake button (hier wäre ein Link aus der E-Mail)",
+    "notHavingAccount": "Sie haben noch kein Konto?",
+    "signUp": "Anmelden",
+    "forgotPassword": "Passwort vergessen?",
+    "back": "Zurück",
+    "or": "ODER"
   },
-  "comment" : {
-    "add" : "Kommentar hinzufügen ... "
+  "comment": {
+    "add": "Fügen Sie Ihren Kommentar hinzu..."
   },
-  "notification" : {
-    "feedFire" : " Gefeuert ",
-    "feedBookmarked" : " Lesezeichen für Ihren Feed ",
-    "comment" : " Kommentar zu Ihrem Feed: ",
-    "commentFire" : " feuerte Ihren Kommentar zum Feed ",
-    "follow" : " begann nach Ihnen ",
-    "unfollow" : " Nach dem Stoppen ",
-    "followed" : " gefolgt von Ihnen ",
-    "activity" : "Aktivität "
+  "notification": {
+    "feedFire": " Habe deinen Feed gefeuert",
+    "feedBookmarked": " Setzen Sie ein Lesezeichen für Ihren Feed",
+    "comment": " kommentiert Ihren Feed:",
+    "commentFire": " Habe deinen Kommentar zum Feed abgefeuert",
+    "follow": " fing an, Ihnen zu folgen",
+    "unfollow": " Hört auf, Ihnen zu folgen",
+    "followed": " folgte dir",
+    "activity": "Aktivität"
   },
-  "onBoarding" : {
-    "welcome" : "Willkommen! ",
-    "description" : "Größte Sammlung von 370 + Layouts für das Prototyping von iOS. ",
-    "next" : "Weiter ",
-    "discover" : "Artikel entdecken, ",
-    "news" : "Nachrichten & Beiträge ",
-    "lines" : "Es sind jene Gefühle, die unsere Liebe zur Astronomie und unseren Wunsch antreiben. ",
-    "getStarted" : "Erste Schritte ",
-    "meetUp" : "Treffen Sie sich mit ",
-    "friends" : "Freunde. ",
-    "meet" : "Treffen Sie sich mit Freunden "
+  "onBoarding": {
+    "welcome": "Willkommen!",
+    "description": "Größte Sammlung von 370+ Layouts für iOS Prototyping.",
+    "next": "Nächster",
+    "discover": "Artikel entdecken,",
+    "news": "Neuigkeiten & Beiträge",
+    "lines": "Es sind diese Gefühle, die unsere Liebe zur Astronomie und unser Verlangen antreiben.",
+    "getStarted": "Loslegen",
+    "meetUp": "Treffen Sie sich mit",
+    "friends": "Freunde.",
+    "meet": "Treffen Sie sich mit Freunden"
   },
-  "shareForm" : {
-    "arcMedia" : "Gemeinsam nutzen ",
-    "videoCreated" : "Ich Habe Dieses Video Erstellt ",
-    "shareWithBuddies" : "Anteil an Buddies ",
-    "shareVideo" : "Video freigeben ",
-    "save" : "In Kamerarolle speichern ",
-    "cancel" : "Abbrechen ",
-    "close" : "Schließen ",
-    "addFeed" : "Feed hinzufügen "
+  "shareForm": {
+    "arcMedia": "Freigeben",
+    "videoCreated": "Ich habe dieses Video erstellt",
+    "shareWithBuddies": "Mit Freunden teilen",
+    "shareVideo": "Video teilen",
+    "save": "In \"Eigene Aufnahmen\" speichern",
+    "cancel": "Abbrechen",
+    "close": "Schließen",
+    "addFeed": "Feed hinzufügen"
   },
-  "simpleModal" : {
-    "emptyList" : "Leere Liste ",
-    "followers" : " Nach ",
-    "following" : " Follower ",
-    "flames" : " Flammen "
+  "simpleModal": {
+    "emptyList": "Leere Liste",
+    "followers": " Folgende",
+    "following": " Anhänger",
+    "flames": " Flammen"
   },
-  "splash" : {
-    "screen" : "Spritzwaschanzeige ",
-    "logo" : "Logo "
+  "splash": {
+    "screen": "Begrüßungsbildschirm",
+    "logo": "Logo"
   },
-  "story" : {
-    "profilePic" : "{{user}} Profil pic "
+  "story": {
+    "profilePic": "{{user}}'s Profilbild"
   },
-  "view" : {
-    "cancel" : "Abbrechen ",
-    "choice" : "Sie haben zwei verschiedene Aufzeichnungsmodi zur Auswahl ",
-    "verticalMode" : "Der vertikale Modus hat eine Rekordzeit von 30 Sekunden. ",
-    "horizontalMode" : "Der horizontale Modus weist eine unbegrenzte Satzzeit auf. ",
-    "start" : "Start ",
-    "not-show" : "Nicht erneut anzeigen ",
-    "welcome" : "Willkommen bei ARC!   Machen Sie persönliche Videos mit einem unserer Hologramme und posten Sie es auf Ihre Social-Media-Kanäle! ",
-    "step" : "SCHRITT {{step}} ",
-    "text-step-1" : "Wählen Sie ein Hologramm aus der Bibliothek aus. ",
-    "text-step-2" : "Dies ist Augmented Reality, so scannen Sie den Raum mit Ihrer Kamera von Seite zu Seite für 3-5 Sekunden, wo Sie wollen, dass die Hologramm-Leistung sein. ",
-    "text-step-3-part-1" : "Tippen Sie einmal an der Stelle auf, an der das Hologramm verankert werden soll. ",
-    "text-step-3-part-2" : "TIP!   Tippen Sie einmal an anderer Stelle, um das Hologramm in eine andere Position zu verschieben. ",
-    "text-step-3-part-3" : "TIP!   Sie können das Hologramm ändern, indem Sie den Bildschirm mit Daumen und Zeigefinger einklemmen oder erweitern. ",
-    "text-step-4-part-1" : "Doppelklicken Sie auf die rote Datensatzschaltfläche, um Ihre Videoaufzeichnung zu starten. ",
-    "text-step-4-part-2" : "Klicken Sie zum Stoppen des roten Datensatzes doppelt auf. "
+  "view": {
+    "cancel": "Abbrechen",
+    "choice": "Sie haben zwei verschiedene Aufnahmemodi zur Auswahl",
+    "verticalMode": "Der vertikale Modus hat eine Rekordzeit von 30 Sekunden",
+    "horizontalMode": "Der horizontale Modus hat eine unbegrenzte Aufnahmezeit",
+    "start": "Anfangen",
+    "not-show": "Nicht mehr anzeigen",
+    "welcome": "Willkommen bei ARC!  Machen Sie persönliche Videos mit einem unserer Hologramme und posten Sie es auf Ihren Social-Media-Kanälen!",
+    "step": "SCHRITT {{step}}",
+    "text-step-1": "Wählen Sie ein Hologramm aus der Bibliothek aus.",
+    "text-step-2": "Dies ist Augmented Reality, also scannen Sie den Raum mit Ihrer Kamera von Seite zu Seite für 3-5 Sekunden, wo Sie die Hologramm-Leistung haben möchten.",
+    "text-step-3-part-1": "Tippen Sie einmal auf den Bildschirm an der Stelle, an der das Hologramm verankert werden soll.",
+    "text-step-3-part-2": "TRINKGELD!  Tippen Sie einmal an einer anderen Stelle, um das Hologramm an eine andere Position zu verschieben.",
+    "text-step-3-part-3": "TRINKGELD!  Sie können die Größe des Hologramms ändern, indem Sie den Bildschirm mit Daumen und Zeigefinger zusammendrücken oder erweitern.",
+    "text-step-4-part-1": "Doppeltippen Sie auf die rote Aufnahmetaste, um Ihre Videoaufnahme zu STARTEN.",
+    "text-step-4-part-2": "Doppeltippen Sie auf die rote Aufnahmetaste, um STOP zu setzen."
   },
-  "video" : {
-    "back" : "Zurück "
+  "video": {
+    "back": "Zurück"
   },
-  "terms" : {
-    "confirmTerms" : "Ich stimme den Nutzungsbedingungen zu ",
-    "confirmPolicy" : "Ich stimme den Datenschutzbestimmungen zu "
+  "terms": {
+    "confirmTerms": "Ich stimme den Nutzungsbedingungen zu",
+    "confirmPolicy": "Ich stimme der Datenschutzerklärung zu"
   },
-  "registration" : {
-    "ph-phoneEmail" : "Telefon/E-Mail verwenden ",
-    "facebook" : "Weiter mit Facebook ",
-    "google" : "Weiter mit Google ",
-    "linkedin" : "Fahren Sie mit Linkedin fort. ",
-    "twitter" : "Weiter mit Twitter ",
-    "gitHub" : "Fahren Sie mit GitHub fort ",
-    "connect" : "Schließen Sie Ihre E-Mail oder Telefonnummer an ",
-    "logIn" : "Anmelden ",
-    "LogInTo" : "Anmelden bei ",
-    "continueAsGuest" : "Weiter als Gast"
+  "registration": {
+    "ph-phoneEmail": "Telefon / E-Mail verwenden",
+    "facebook": "Weiter mit Facebook",
+    "google": "Weiter mit Google",
+    "linkedin": "Weiter mit Linkedin",
+    "twitter": "Weiter mit Twitter",
+    "gitHub": "Weiter mit GitHub",
+    "connect": "Verbinden Sie Ihre E-Mail-Adresse oder Telefonnummer",
+    "logIn": "Anmelden",
+    "LogInTo": "Melden Sie sich an bei",
+    "continueAsGuest": "Als Gast fortfahren"
   }
 }

@@ -1,0 +1,202 @@
+{
+  "addComment": "ᐅᖃᐅᓯᒃᓴᖃᒃᑲᓐᓂᕆᑦ...",
+  "share": "ᐊᒥᖅᑳᖃᑎᖃᕐᓂᖅ",
+  "suggestions": "ᖃᓄᐃᓕᐅᖁᔨᓇᔭᕐᓃᑦ ᐃᓕᖕᓄᑦ",
+  "seeAll": "ᑕᑯᔭᐃᓐᓇᕆᓗᒋᑦ",
+  "likes": "ᐱᐅᑦᓴᖅᑐᖅ",
+  "viewComments": "ᕿᒥᕐᕈᓗᒋᑦ {{count}} ᐅᖃᐅᓯᒃᓴᓕᒫᑦ",
+  "more": "ᓱᓕᒃᑲᓐᓂᖅ",
+  "username": "ᐊᑐᖅᑑᑉ ᐊᑎᖓ",
+  "fullName": "ᐊᑎᖅ ᐊᑎᕈᓯᖅ",
+  "reportInApporpriate": "ᐅᓂᒃᑲᐅᓯᖅ ᓈᒻᒪᙱᑦᑐᖅ",
+  "unfollow": "ᖁᖅᓱᖅᑐᖅ",
+  "goToPost": "ᓴᖅᑭᓪᓗᒍ",
+  "shareModal": "ᐊᒥᖅᑳᖃᑎᖃᕐᓂᖅ",
+  "copyLink": "ᐊᔾᔨᖓ ᑲᓱᕐᕕᒃ",
+  "embed": "ᐃᓕᓯᒪᔪᖅ",
+  "cancel": "ᓄᖅᑲᖅᑎᓪᓗᒍᑦ",
+  "confirm": "ᓇᓗᓇᐃᕐᓗᒍ",
+  "save": "ᑐᖅᑯᕐᓗᒍ",
+  "profilePic": "{{user}}'ᐊᔾᔨᙳᐊᖓ ᐊᔾᔨᙳᐊᖓ",
+  "ara": "ᕋ",
+  "follow": "ᒪᓕᒡᓗᒍ",
+  "flames": "ᐃᑯᒪᑦ",
+  "continue": "ᑲᔪᓯᓗᒍ",
+  "partyInvitationSent": "ᐱᓕᕆᔨᐅᖃᑎᒌᑦ ᖃᐃᖁᔨᔾᔪᑎᖓ ᓇᒃᓯᐅᔾᔭᖅ",
+  "arMedia": {
+    "back": "ᑐᓄ",
+    "clip": "ᑲᓕᑉ",
+    "backgrounds": "ᐱᓕᕆᐊᖑᓯᒪᔪᑦ",
+    "start": "ᐱᒋᐊᕐᕕᖓ"
+  },
+  "arMediaform": {
+    "title": "ᑕᐃᒎᓯᐊ",
+    "type": "ᖃᓄᐃᑦᑑᓂᖓ",
+    "clip": "ᑲᓕᑉ",
+    "background": "ᐱᓕᕆᐊᖑᓯᒪᔪᑦ",
+    "scene": "ᓯᓇᕐᔭᖅ",
+    "save": "ᑐᖅᑯᕐᓗᒍ",
+    "manifest-file": "ᐊᐅᓚᑦᑎᓂᖅ .ᐊᐅᓚᑦᑎᔨᓄᑦ ᑐᖅᑯᐃᕕᒃ",
+    "audio-file": "MP4 ᑐᖅᑯᖅᑕᐅᓯᒪᔪᖅ",
+    "dracosis-file": "Dracosis .uvol File",
+    "preview-file": "ᕿᒥᕐᕈᕙᒌᕐᓂᖅ ᐊᔾᔨᙳᐊᑉ ᑐᖅᑯᖅᓯᒪᓂᖓ"
+  },
+  "creator": {
+    "myVideos": "ᑕᕐᕆᔮᒃᓴᒃᑲ",
+    "savedVideos": "ᐊᓯᐅᔾᔭᐃᖅᓯᒪᔪᑦ ᑕᕐᕆᔮᒃᓴᑦ",
+    "back": "ᑐᓄ",
+    "blocked-list": "ᐊᕕᒃᑐᖅᓯᒪᔪᑦ ᑎᑎᕋᖅᓯᒪᔪᑦ",
+    "block-user": "ᐊᑐᖅᑎ",
+    "dialog-content": "ᐊᑐᖅᑎᐅᑉ ᖃᓄᐃᓕᖓᓂᖓ ᐃᓗᓕᖏᓪᓗ ᑕᑯᔾᔮᙱᑕᑎᑦ"
+  },
+  "creatorForm": {
+    "back": "ᑐᓄ",
+    "edit": "ᐋᖅᑭᒋᐊᖅᑕᐅᓯᒪᔪᑦ",
+    "save": "ᑐᖅᑯᕐᓗᒍ",
+    "changeAvatar": "ᐊᓯᔾᔨᕐᓗᒍ ᐊᕙᑕᙳᐊᖅ",
+    "ph-selectPreview": "ᓂᕈᐊᕐᓗᒍ ᓯᕗᓂᐊᒍᑦ ᕿᒥᕐᕈᓂᖅ",
+    "ph-name": "ᐊᑏᑦ",
+    "ph-username": "ᐊᑐᖅᑑᑉ ᐊᑎᖓ",
+    "ph-email": "ᐃᕐᖐᓈᖅᑕᐅᑎᑦ",
+    "ph-tags": "ᓂᕕᙵᑖᑦ",
+    "ph-link": "ᐊᑦᑕᑕᕐᕕᒃᓴ",
+    "ph-aboutYou": "ᐃᓕᖕᓂ ᐱᔾᔪᑎᖃᒃᑲᓐᓂᕈᕕᑦ",
+    "ph-twitter": "ᑐᐃᑐ",
+    "ph-instagram": "ᐃᓐᔅᑕᒍᕌᒻ",
+    "ph-tiktok": "ᐱᒃᑐᒃ",
+    "sign-out": "ᐊᑎᓕᐅᕐᕕᒃ"
+  },
+  "dashboard": {
+    "title": "ᕿᑐᑦᑐᒐᐅᔭᖅ",
+    "dashboard": "ᕿᑐᑦᑐᒐᐅᔭᖅ",
+    "users": "ᐊᑐᖅᑏᑦ",
+    "feeds": "ᓂᕆᔾᔪᑏᑦ",
+    "arMedia": "ᑕᕐᕆᔮᒃᓴᑦ",
+    "editor": "ᐋᖅᑭᒃᓱᐃᔨ",
+    "creator": "Creator"
+  },
+  "featured": {
+    "empty-list": "ᒫᓐᓇ ᕿᒥᕆᔭᕆᐊᖃᙱᑦᑐᖅ ..."
+  },
+  "feed": {
+    "back": "ᑐᓄ",
+    "related": "ᐊᒃᑐᐊᓂᓖᑦ ᐊᒫᒪᒃᑎᑦᑎᓃᑦ",
+    "is-repoted-message": "ᓂᕆᑎᑕᐅᓂᖅ ᐅᖃᐅᓯᐅᕗᖅ!"
+  },
+  "feedForm": {
+    "back": "ᑐᓄ",
+    "thanks": "ᖁᔭᓐᓇᒦᒃ ᐊᒥᖅᑳᖃᑎᖃᕈᓐᓇᕋᕕᑦ ᐱᐅᓯᒋᐊᖅᑎᑦᑎᔪᓐᓇᕋᕕᓪᓗ ᓄᓇᓕᑦᑎᓐᓂᒃ",
+    "share": "ᓄᓇᓕᖕᒥᐅᓂᒃ ᑐᓴᖅᑎᑦᑎᓗᑎᑦ",
+    "upload": "ᒥᓇᕆᓗᒍ ᑕᕐᕆᔮᒃᓴᖅ",
+    "ph-selectVideo": "ᓂᕈᐊᕐᓗᑎᑦ ᑕᕐᕆᔮᒃᓴᒥᒃ",
+    "preview": "ᑕᐅᑦᑐᐊ",
+    "ph-selectPreview": "ᓂᕈᐊᕐᓗᒍ ᓯᕗᓂᐊᒍᑦ ᕿᒥᕐᕈᓂᖅ",
+    "createFeed": "ᓂᕆᑎᑦᑎᓂᐊᕈᕕᑦ ᑕᕐᕆᔮᒃᓴᖃᕆᐊᖃᖅᑐᑎᑦ ᐊᒻᒪ ᐊᔾᔨᙳᐊᖃᖅᐸᒌᕐᓗᑎᑦ!!!",
+    "ph-videoName": "ᑕᕐᕆᔭᐅᓯᐊᖅᐱᑦ ᐊᑎᖓ",
+    "ph-type": "ᐅᖃᐅᓯᕆᔪᒪᔭᑎᑦ ᓇᕿᑦᑕᕐᓗᒋᑦ ᓄᓇᓕᖕᓄᑦ... ",
+    "lbl-share": "ᐊᒥᖅᑳᖃᑎᖃᕐᓂᖅ",
+    "save": "ᓴᐳᑎᓗᒍ ᑭᖑᓪᓕᕐᒥᓗ"
+  },
+  "feedMenu": {
+    "featured": "ᓴᖅᑭᔮᖅᑎᑕᐅᔪᖅ",
+    "creators": "ᓴᓇᔪᕕᓂᖅ",
+    "feed": "ᕿᒥᕆᓂᖅ"
+  },
+  "header": {
+    "lbl-volumetric": "ᐊᖏᑎᒋᓂᖓ"
+  },
+  "login": {
+    "account": "ᓇᓕᖅᑲᖃᖅᐲᑦ?",
+    "login": "ᐃᓯᕈᑎ",
+    "resetPassword": "ᐋᖅᑭᒃᑲᓐᓂᕐᓗᒍ ᐃᓯᕈᓐᓇᐅᑖ (ᖃᕆᑕᐅᔭᒃᑯᑦ ᐊᑦᑕᑕᕐᕕᐅᓇᔭᖅᑐᖅ ᐃᕐᖐᓐᓈᖅᑕᐅᒃᑯᑦ)",
+    "notHavingAccount": "ᓇᓕᖅᑲᖃᖏᑉᐱᑦ?",
+    "signUp": "ᐊᑎᓕᐅᕆᑦ",
+    "forgotPassword": "ᐃᓯᕈᓐᓇᐅᑖ ᐳᐃᒍᖅᐱᐅᒃ?",
+    "back": "ᑐᓄ",
+    "or": "ᐅᕝᕙᓘᓐᓃᑦ"
+  },
+  "comment": {
+    "add": "ᐅᖃᐅᓯᒃᓴᑎᑦ ᐃᓚᒋᐊᕐᓗᒋᑦ..."
+  },
+  "notification": {
+    "feedFire": " ᐆᒻᒪᖁᑎᒋᔭᐃᑦ ᐃᑭᑎᓪᓗᒍ",
+    "feedBookmarked": " ᐅᖃᓕᒫᒐᖅ ᓇᓗᓇᐃᒃᑯᑦᑎᖅᓯᒪᔪᖅ ᓂᕆᓂᕆᔭᐃᑦ",
+    "comment": " ᓂᕆᓂᕆᔭᐃᑦ ᐅᖃᐅᓯᕆᓚᐅᖅᐱᐅᒃ:",
+    "commentFire": " ᐅᖃᐅᓯᒃᓴᑎᑦ ᓄᖅᑲᖅᑎᓪᓗᒋᑦ ᓂᕆᑎᓐᓂᐊᕐᓗᒋᑦ",
+    "follow": " ᒪᓕᒋᐊᓯᓗᑎᑦ ᐃᓕᓐᓂᒃ",
+    "unfollow": " ᓄᖅᑲᕐᓗᑎᑦ ᒪᓕᒡᓗᑎᑦ",
+    "followed": " ᒪᓕᒡᓗᑎᑦ",
+    "activity": "ᐱᓕᕆᐊᖑᔪᖅ"
+  },
+  "onBoarding": {
+    "welcome": "ᑐᖕᖓᓱᒋᑦ!",
+    "description": "370+−ᓂᒃ ᐊᖏᓂᖅᐸᓂᒃ ᑲᑎᖅᓱᐃᓂᖅ iOS−ᒧᑦ.",
+    "next": "ᑭᖑᓪᓕᖅ",
+    "discover": "ᖃᐅᔨᓗᒋᑦ ᑎᑎᕋᖅᓯᒪᔪᑦ,",
+    "news": "ᐱᕙᓪᓕᐊᔪᑦ ᐊᒻᒪ ᓴᖅᑭᑕᐅᔪᑦ",
+    "lines": "ᑕᒪᒃᑯᐊ ᐃᑉᐱᓐᓂᐊᓂᐅᔪᑦ ᓇᓪᓕᒋᔭᑦᑎᓐᓄᑦ ᐊᒻᒪᓗ ᐱᔪᒪᔭᑦᑎᓐᓄᑦ.",
+    "getStarted": "ᐱᒋᐊᕆᑦ",
+    "meetUp": "ᑲᑎᖃᑎᒋᓗᒋᑦ",
+    "friends": "ᐱᖃᓐᓇᕆᔭᑦ.",
+    "meet": "ᐱᖃᓐᓇᕆᔭᕐᓂᒃ ᑲᑎᖃᑎᖃᕐᓂᖅ"
+  },
+  "shareForm": {
+    "arcMedia": "ᐊᒥᖅᑳᖃᑎᖃᕐᓂᖅ",
+    "videoCreated": "ᑖᓐᓇ ᑕᕐᕆᔮᒃᓴᖅ ᓴᖅᑭᓚᐅᖅᑕᕋ",
+    "shareWithBuddies": "ᐊᒥᖅᑳᖃᑎᖃᕐᓂᖅ ᐸᑦᑕᑯᓗᖕᓂᑦ",
+    "shareVideo": "ᐊᒥᖅᑳᖃᑎᒌᖕᓂᖅ ᑕᕐᕆᔮᒃᓴᒥᒃ",
+    "save": "ᑐᖅᑯᕐᓗᒍ ᐊᔾᔨᓕᐅᕈᑎᒧᑦ ᐃᒧᓯᒪᔪᖅ",
+    "cancel": "ᓄᖅᑲᖅᑎᓪᓗᒍᑦ",
+    "close": "ᖃᓂᑦᑐᖅ",
+    "addFeed": "ᐃᓚᓗᒍ ᓂᕆᔾᔪᑎ"
+  },
+  "simpleModal": {
+    "emptyList": "ᑎᑎᕋᖅᓯᒪᔪᑦ ᐃᓗᓕᖃᙱᑦᑐᑦ",
+    "followers": " ᒪᓕᒃᑐᖅ",
+    "following": " ᒪᓕᒃᑏᑦ",
+    "flames": " ᐃᑯᒪᑦ"
+  },
+  "splash": {
+    "screen": "ᓯᐸᓛᔅ ᐃᒐᓚᐅᔭᖓ",
+    "logo": "ᑕᖅᓴᖓ"
+  },
+  "story": {
+    "profilePic": "{{user}}'ᐊᔾᔨᙳᐊᖓ ᐊᔾᔨᙳᐊᖓ"
+  },
+  "view": {
+    "cancel": "ᓄᖅᑲᖅᑎᓪᓗᒍᑦ",
+    "choice": "ᒪᕐᕉᖕᓂᒃ ᐊᔾᔨᒌᙱᑦᑑᖕᓂᒃ ᓂᐱᓕᐅᕆᔾᔪᑎᖃᖅᐳᑎᑦ ᓂᕈᐊᕐᕕᒋᔪᓐᓇᖅᑕᕐᓂᒃ",
+    "verticalMode": "30-ᓂᒃ ᑎᑦᑕᑯᓗᖕᓂ ᑎᑦᑕᑯᓗᖕᓂ ᑎᑎᕋᖅᓯᒪᔪᖁᑎᖃᖅᐳᖅ",
+    "horizontalMode": "Horizontal−ᖑᓂᕋᖅᑕᐅᔪᖅ ᐃᓱᖃᙱᑦᑐᒥᒃ ᑎᑎᕋᖅᓯᒪᔪᖁᑎᖃᖅᐳᖅ ᐱᕕᒃᓴᒥᒃ",
+    "start": "ᐱᒋᐊᕐᕕᖓ",
+    "not-show": "ᑕᑯᒃᓴᐅᑎᒃᑲᓐᓂᕈᓐᓃᕐᓗᒍ",
+    "welcome": "ᑐᙵᓱᒋᑦ ARC−ᒧᑦ!  ᓇᖕᒥᓂᖅ ᑕᕐᕆᔮᒃᓴᓕᐅᕐᓗᑎᑦ ᐊᔾᔨᙳᐊᓂᒃ ᓇᒃᓴᕐᓗᒍᓗ ᐃᓄᖕᓄᑦ ᑐᓴᒐᒃᓴᓄᑦ ᕿᓪᓚᔾᔪᒐᕐᓄᑦ!",
+    "step": "{{step}}",
+    "text-step-1": "ᓂᕈᐊᕐᓗᑎᑦ ᐊᓗᒐᙳᐊᒥᑦ ᐅᖃᓕᒫᒐᖃᕐᕕᖕᒥᑦ.",
+    "text-step-2": "ᑖᓐᓇ ᐃᓚᒋᐊᖅᓯᒪᔪᖅ ᐱᓪᓚᕆᑦᑐᖅ, ᐊᔾᔨᓕᐅᕐᓗᒍ ᐱᕕᖃᕐᓂᕆᔭᐃᑦ ᐊᔾᔨᓕᐅᕈᑎᓐᓄᑦ ᓴᓂᒧᑦ ᓴᓂᒧᑦ 3-5 ᓴᑲᓐᔅᒧᑦ ᑕᑯᔪᒪᒐᔭᖅᑕᕐᓂᑦ.",
+    "text-step-3-part-1": "ᓂᐱᑎᓪᓗᒍ ᓴᖅᑭᔮᖅᑐᖅ ᐊᑕᐅᓯᐊᕐᓗᒍ ᓇᓃᓐᓂᖓᓂ hologram a ᑭᓴᖅᓯᒪᕝᕕᒃ.",
+    "text-step-3-part-2": "ᐃᑲᔫᑎ!  ᓂᐱᑎᓪᓗᒍ ᐊᓯᐊᓄᑦ ᓅᑎᓪᓗᒍ ᑭᕕᒃᓯᔾᔪᑎ ᐊᓯᐊᓄᑦ ᐃᖅᑲᓇᐃᔮᒧᑦ.",
+    "text-step-3-part-3": "ᐃᑲᔫᑎ!  ᐊᑐᒃᑲᓐᓂᕈᓐᓇᖅᑕᑦ hologram ᑲᑭᖅᑯᐊᕐᓗᒍ ᐊᖏᒡᓕᒋᐊᕐᓗᒍᓘᓐᓃᑦ ᓴᖅᑭᔮᖅᑐᖅ ᑯᓪᓗᖕᓄᑦ ᐊᒻᒪ ᐊᒡᒐᖕᓄᑦ.",
+    "text-step-4-part-1": "ᒪᕐᕈᐃᕐᓗᒍ ᐊᐅᐸᖅᑐᖅ ᓇᕿᑦᑕᐅᑎ ᐱᒋᐊᖅᑎᓪᓗᒍ ᑕᕐᕆᔮᒃᓴᖅ ᓂᐱᓕᐅᕐᓗᒍ.",
+    "text-step-4-part-2": "ᒪᕐᕈᐃᕐᓗᒍ ᐊᐅᐸᖅᑐᖅ ᓇᕿᑦᑕᐅᑎ ᓄᖅᑲᖅᑎᓪᓗᒍ."
+  },
+  "video": {
+    "back": "ᑐᓄ"
+  },
+  "terms": {
+    "confirmTerms": "ᐊᖏᖅᐳᖓ ᐱᔨᑦᑎᕋᐅᑎᑦ ᒪᓕᑦᑕᐅᔭᕆᐊᖃᕐᓂᖏᓐᓄᑦ",
+    "confirmPolicy": "ᐊᖏᖅᐳᖓ ᑐᓴᐅᒪᔭᐅᔭᕆᐊᖃᙱᑦᑐᓄᑦ ᐊᑐᐊᒐᖅ"
+  },
+  "registration": {
+    "ph-phoneEmail": "ᐅᖃᓘᑎᒥᒃ ᐊᑐᕐᓗᑎᑦ / ᐃᕐᙲᓐᓈᖅᑕᐅᒃᑯᑦ",
+    "facebook": "ᑲᔪᓯᓗᓂ ᕙᐃᔅᐳᒃᑯᑦ",
+    "google": "ᑲᔪᓯᓗᓂ Google-ᒥᒃ",
+    "linkedin": "ᑲᔪᓯᓗᓂ ᓕᖕᒃᓕᓐᒥᑦ",
+    "twitter": "ᑲᔪᓯᓗᓂ ᑐᐃᑐᒃᑯᑦ",
+    "gitHub": "ᑲᔪᓯᓗᑎᑦ GitHub-ᒥᑦ",
+    "connect": "ᑲᓲᑎᓗᒍ ᐃᕐᖐᓐᓈᕈᑏᑦ ᐅᖃᓘᑎᕕᓪᓘᓐᓃᑦ ᓈᓴᐅᑖ",
+    "logIn": "ᖃᕆᓴᐅᔭᕐᒧᑦ ᐃᓯᕐᓗᑎᑦ",
+    "LogInTo": "ᐃᓯᕐᓗᑎᑦ",
+    "continueAsGuest": "ᖃᐃᖁᔭᐅᓯᒪᐃᓐᓇᕐᓗᑎᑦ"
+  }
+}

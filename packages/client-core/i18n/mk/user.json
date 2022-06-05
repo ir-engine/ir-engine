@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Мејл за потврда",
+      "resendEmail": "Ве молиме проверете го вашиот мејл за да го потврдите вашиот профил. Ако не сте добиле мејл, ве молиме кликнете {{here}} да го препратите мејлот за верификација.",
+      "haveAnAccount": "Имаш сметка?"
+    },
+    "forgotPassword": {
+      "header": "Заборавив лозинка.",
+      "enterEmail": "Ве молиме внесете ја вашата регистрирана мејл адреса и ќе ви испратиме линк за ресетирање на лозинката.",
+      "lbl-email": "Е-маил адреса",
+      "lbl-submit": "Испрати линк",
+      "emailSent": "Ресетирање на лозинката Email е испратен. Те молам провери го твојот мејл."
+    },
+    "login": {
+      "email": "Мејл | СМС",
+      "username": "UserName + Лозинка",
+      "social": "Општествени"
+    },
+    "magiklink": {
+      "header": "Линк за пријавување",
+      "descriptionEmail": "Ве молиме внесете ја вашата email адреса и ќе ви испратиме линк за влез преку Email.",
+      "descriptionSMS": "Ве молам внесете го вашиот телефонски број и ќе ви испратиме линк за влез преку СМС.",
+      "descriptionEmailSMS": "Ве молиме внесете ја вашата email адреса или телефонски број (само 10 цифри, само за САД) и ќе ви испратиме линк за влез преку Email или SMS.",
+      "descriptionSMSUS": "Ве молиме внесете го вашиот телефонски број (само 10 цифри, само за САД) и ќе ви испратиме линк за влез преку СМС.",
+      "lbl-email": "Email адреса",
+      "lbl-emailPhone": "Мејл или Телефонски број",
+      "lbl-phone": "Телефонски број.",
+      "agree": "Се согласувам со тоа. ",
+      "terms": "Услови и услови",
+      "lbl-submit": "Испрати линк за пријавување.",
+      "email-sent-msg": "Логин Меџик Линк е испратен. Те молам провери го твојот Мејл.",
+      "success-msg": "Логин Меџик Линк е испратен. Ве молам проверете го вашиот Email или SMS.",
+      "sms-sent-msg": "Логин Меџик Линк е испратен. Те молам провери го твојот СМС."
+    },
+    "passwordLogin": {
+      "header": "Пријави се",
+      "lbl-email": "Е-маил адреса",
+      "lbl-password": "Лозинка.",
+      "lbl-rememberMe": "Запомни ме.",
+      "lbl-signin": "Пријави се",
+      "forgotPassword": "Заборавив лозинка?",
+      "signup": "Немаш сметка? Регистрирај се",
+      "lbl-login": "Приклучи се",
+      "ph-password": "Лозинка.",
+      "ph-email": "Е-мејл"
+    },
+    "social": {
+      "gitHub": "Пријави се со GitHub",
+      "google": "Логин со Гугл",
+      "facebook": "Пријави се со Фејсбук",
+      "linkedin": "Логин со Линкедин",
+      "twitter": "Логин со Твитер"
+    },
+    "register": {
+      "header": "Регистрирај се",
+      "login": "Приклучи се",
+      "lbl-signup": "Регистрирај се",
+      "lbl-password": "Лозинка.",
+      "lbl-email": "Е-маил адреса",
+      "passwordNotMatch": "Лозинки не се совпаѓаат",
+      "ph-password": "Лозинка.",
+      "ph-confirmPassword": "Потврдете ја лозинката",
+      "ph-email": "Е-мејл"
+    },
+    "resetPassword": {
+      "header": "Ресетирање на лозинката",
+      "description": "Ве молиме внесете ја вашата лозинка за вашата email адреса",
+      "lbl-submit": "Ресетирање на лозинката",
+      "lbl-password": "Лозинка.",
+      "lbl-confirmPassword": "Потврдете ја лозинката",
+      "passwordNotMatch": "Лозинки не се совпаѓаат",
+      "nowLoginYourAccount": "Сега можеш да влезеш во твојата сметка.",
+      "yourPasswordResetSuccess": "Твојата лозинка успешно ја ресетираше!"
+    },
+    "verifyEmail": {
+      "header": "Потврдете ја е-поштата",
+      "processing": "Ве молам, почекајте малку додека обработувате..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Локации",
+      "loading": "Натоварување",
+      "col-name": "Име.",
+      "col-scene": "Сцена",
+      "col-maxuser": "Макс Корисници",
+      "lbl-search": "Потрага по локации",
+      "lbl-new": "Ново"
+    },
+    "newLocation": {
+      "title": "Локација",
+      "success": "Се спасив успешно.",
+      "failure": "Нешто тргна наопаку.",
+      "removeSuccess": "Локацијата е отстранета успешно.",
+      "nameInUse": "Името се користи.",
+      "nameRequire": "Името е потребно.",
+      "validNumber": "Само броеви(0-9) се дозволени.",
+      "lbl-name": "Име.",
+      "lbl-maxuser": "Макс Корисници",
+      "lbl-scene": "Сцена",
+      "lbl-type": "Тип",
+      "lbl-ve": "Видеото е овозможено.",
+      "lbl-gme": "Global Media Enabled",
+      "lbl-update": "Ажурирање",
+      "lbl-create": "Создадете",
+      "tooltipCanNotBeDeleted": "Лобито не може да се избрише.",
+      "confirmation": "Сигурен си?",
+      "lbl-yes": "Да.",
+      "lbl-no": "Не"
+    },
+    "share": {
+      "lbl-share": "Сподели",
+      "ph-phoneEmail": "Поканете по мејл или телефонски број",
+      "lbl-phoneEmail": "Пратете на мејл или телефонски број",
+      "lbl-copy": "Копирај",
+      "lbl-send-invite": "Испрати покана",
+      "title": "Сподели го твојот URL на локацијата со твојот тим",
+      "linkCopied": "Линкот е копиран во клипбордот."
+    },
+    "setting": {
+      "audio": "Аудио.",
+      "lbl-volume": "Волумен",
+      "lbl-microphone": "Микрофон.",
+      "graphics": "Графика",
+      "controls": "Контроли",
+      "lbl-control-type": "Тип на контролер",
+      "lbl-control-scheme": "Контролна шема",
+      "lbl-resolution": "Резолуција",
+      "lbl-shadow": "Сенки",
+      "lbl-pp": "Обработување на постови",
+      "lbl-pbr": "Целосен ПБР",
+      "lbl-automatic": "Автоматски",
+      "xrusersetting": "XR кориснички подесувања",
+      "rotation": "Ротација",
+      "rotation-smooth-speed": "Ротација Глатка брзина",
+      "rotation-angle": "Агол на ротација",
+      "moving": "Се движам.",
+      "user-avatar": "Аватар поставување",
+      "invert-rotation": "Стапчиња за вртење и движење",
+      "show-avatar": "Покажи го Аватар."
+    },
+    "profile": {
+      "lbl-profile": "Профил",
+      "lbl-settings": "Подесувања",
+      "lbl-username": "Корисништво",
+      "update-msg": "Ажурирано корисништво",
+      "inviteCode": "Покани шифра",
+      "youAreAn": "Ти си таков.",
+      "youAreA": "Ти си твоја",
+      "showUserId": "Прикажи ја идентификацијата на корисникот",
+      "hideUserId": "Скриете корисник идентификација",
+      "showApiKey": "Прикажи го API клучот",
+      "hideApiKey": "Сокриј го API клучот",
+      "apiKey": "API клуч",
+      "logout": "Излези",
+      "connectPhone": "Поврзи го телефонскиот број.",
+      "connectEmail": "Поврзи го твојот мејл",
+      "connectPhoneEmail": "Поврзете го вашиот мејл или телефонски број",
+      "or": "Или...",
+      "lbl-wallet": "Логин со Паричник",
+      "ph-email": "Е-мејл",
+      "ph-phone": "Телефонски број",
+      "ph-phoneEmail": "Телефонски број / Е-пошта",
+      "phoneEmailError": "Невалиден телефон # или email адреса",
+      "phoneError": "Невалиден телефон. #",
+      "emailError": "Невалидна мејл адреса",
+      "loginWithReadyPlayerMe": "Логин со спремен играч мене",
+      "connectSocial": "Поврзете се со социјалните сметки",
+      "createOne": "Ако немаш сметка, ќе биде создадена нова за тебе.",
+      "connections": {
+        "title": "Врски",
+        "ipError": "Не можам да го отстранам активниот провајдер на идентитет.",
+        "disconnect": "Исклучи се.",
+        "connect": "Поврзи се."
+      },
+      "profileDropdown": {
+        "avatar": "Корисник Аватар икона",
+        "profile": "Профил",
+        "adminConsole": "Админ конзола",
+        "logout": "Одјавување"
+      },
+      "userIcon": {
+        "lbl-name": "Твое име",
+        "lbl-update": "Ажурирање",
+        "userId": "Корисничка идентификација",
+        "ph-uploadImg": "Качување на слика од производи",
+        "lbl-selectAcvatar": "Изберете Аватар.",
+        "lbl-submit": "Поднеси"
+      },
+      "userSettings": {
+        "volume": "Волумен",
+        "microphone": "Микрофон.",
+        "resolution": "Резолуција",
+        "high": "Високо.",
+        "low": "Ниско.",
+        "spatialAudio": "Користете просторно аудио",
+        "enterMuted": "Внеси ја собата запрена."
+      }
+    },
+    "oauth": {
+      "authenticating": "Потврдување...",
+      "authFailed": "{{service}} неуспешна автентикација."
+    },
+    "magikLink": {
+      "wait": "Ве молам, почекајте малку додека обработувате..."
+    },
+    "dashboard": {
+      "header": "Аутоборд",
+      "dashboard": "Аутоборд",
+      "users": "Корисници",
+      "feeds": "Храни се.",
+      "instance": "На пример.",
+      "locations": "Локации",
+      "invites": "Покани.",
+      "sessions": "Седници",
+      "groups": "Групи",
+      "parties": "Партии",
+      "chats": "Чатови",
+      "content": "Пакети со содржина",
+      "projects": "Проекти",
+      "scenes": "Сцени",
+      "avatars": "Авати",
+      "benchmarking": "Бенчмаркинг",
+      "bots": "Ботови"
+    }
+  },
+  "oauth": {
+    "authenticating": "Потврдување...",
+    "authFailed": "{{service}} неуспешна автентикација."
+  },
+  "magikLink": {
+    "wait": "Ве молам, почекајте малку додека обработувате..."
+  },
+  "dashboard": {
+    "header": "Аутоборд",
+    "dashboard": "Аутоборд",
+    "users": "Корисници",
+    "feeds": "Храни се.",
+    "instance": "На пример.",
+    "locations": "Локации",
+    "routes": "Рути",
+    "projects": "Проекти",
+    "invites": "Покани.",
+    "sessions": "Седници",
+    "groups": "Групи",
+    "parties": "Партии",
+    "chats": "Чатови",
+    "content": "Пакети со содржина",
+    "scenes": "Сцени",
+    "avatars": "Авати",
+    "benchmarking": "Бенчмаркинг",
+    "bots": "Ботови",
+    "setting": "Подесувања"
+  },
+  "avatar": {
+    "title": "Качете го Аватар.",
+    "lbl-browse": "Пребарајте",
+    "lbl-thumbnail": "Сликање на слики",
+    "lbl-upload": "Качувај се.",
+    "selectAvatar": "Изберете Аватар...",
+    "selectThumbnail": "Изберете \"Thumbnail\"...",
+    "rotate": "Ротирај.",
+    "pan": "Пан",
+    "noBone": "Објектот не содржи коски или кожа",
+    "outOfBound": "Објектот не е врзан.",
+    "emptyObj": "Предметот е празен.",
+    "maxTriangleError": "Објектот содржи поголеми од {{allowedTriangles}} лица.",
+    "selectValidFile": "Изберете валиден 3d аватар фајл.",
+    "selectValidThumbnail": "Избрана валидна датотека за палета.",
+    "fileOversized": "Големината на аватарот мора да биде помеѓу {{minSize}} MB и {{maxSize}} MB",
+    "confirmation": "Сигурен си?",
+    "canNotBeRemoved": "Активниот Аватар не може да се отстрани",
+    "remove": "Тргни го аватарот.",
+    "uploadFiles": "Качување на датотеки",
+    "useUrlInstead": "Користете url наместо тоа",
+    "avatar": "Аватар",
+    "cancel": "Откажи",
+    "createAvatar": "Создадете Аватар.",
+    "delete": "Избришете",
+    "view": "Погледајте",
+    "uploadAvatarInfo": "Ажурирање на информации за аватар",
+    "name": "Име.",
+    "enterName": "Внеси име",
+    "avatarInformation": "Информација за Аватар",
+    "description": "Опис",
+    "key": "Клуч",
+    "none": "Никој не е.",
+    "submit": "Поднеси",
+    "edit": "Уредување",
+    "avatarUrl": "Аватар url",
+    "upload-success-msg": "Аватар успешно се качил.",
+    "remove-success-msg": "Аватар успешно се качил.",
+    "warning-msg": "Аватарскиот ресурс е празен, дали ги синхронизиравте аватите на вашето статичко складирање на датотеки?"
+  },
+  "personMenu": {
+    "inviteToParty": "Покана за забава",
+    "addAsFriend": "Додади како пријател.",
+    "mute": "Нем",
+    "block": "Блок"
+  },
+  "person": {
+    "you": "Ти",
+    "yourScreen": "Твојот екран",
+    "muteForEveryone": "Нем за сите",
+    "unmuteForEveryone": "Немутирај ги сите.",
+    "muteMe": "Заглуви ме.",
+    "unmuteMe": "Откачи ме.",
+    "muteThisPerson": "Заглушете ја оваа личност.",
+    "unmuteThisPerson": "Откачи ја оваа личност.",
+    "openPictureInPicture": "Отвори ја сликата во слика"
+  }
+}

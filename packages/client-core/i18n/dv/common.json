@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "ލޯޑިން ޕޭޖް..."
+  },
+  "tooltip": {
+    "pressKey": "{{message}} ޕްރެސް {{tip}}"
+  },
+  "toast": {
+    "joined": "ޖޮއިން",
+    "left": "ވާތްފަރާތަށް"
+  },
+  "navUserWidget": {
+    "login": "ވަދޭ"
+  },
+  "loader": {
+    "connecting": "ދުނިޔެއަށް ގުޅާ...",
+    "entering": "ދުނިޔެއަށް ވަނުމެވެ...",
+    "loading": "ލޯޑިން...",
+    "objectRemaining": "{{count}} އޮބްޖެކްޓް ބާކީ",
+    "objectRemainingPlural": "{{count}} އެއްޗެހި ބާކީ",
+    "loadingObjects": "އެއްޗެހި ލޯޑްކުރުން",
+    "loadingComplete": "ލޯޑިން ކޮމްޕްލީޓް",
+    "joiningWorld": "ޖޮއިންކުރާ ދުނިޔެ"
+  },
+  "alert": {
+    "eventWasSuccess": "އިވެންޓް ކާމިޔާބު",
+    "errorWasEncountered": "ްނުމަވިރެވިއަްް",
+    "eventInProgress": "ކުރިއަށްދާ އިވެންޓް",
+    "seconds": "ސިކުންތުތައް",
+    "cancelCountdown": "މި މޯމޯ"
+  },
+  "debug": {
+    "refresh": "ރިފްރެޝް",
+    "stats": "ތަފާސް",
+    "debugOptions": "އޮޕްޝަންސް ޑިބަގް",
+    "physicsDebug": "ފިޒިކްސް",
+    "avatarDebug": "އެވަޓާރ",
+    "nodeHelperDebug": "ނޫޑް ހެލްޕަރ",
+    "gridDebug": "ގްރިޑް",
+    "simpleMaterials": "ސިމްޕަލް މެޓީރިއަލްސް",
+    "tick": "ޓިކް",
+    "worldStore": "ވޯލްޑް ސްޓޯރ",
+    "engineStore": "އިންޖީން ސްޓޯރ",
+    "namedEntities": "ނަންދީފައިވާ އިދާރާތައް",
+    "networkObject": "ނެޓްވޯކް އޮބްޖެކްޓް",
+    "networkClients": "ނެޓް"
+  },
+  "recording": {
+    "videoRecorder": "ވީޑިއޯ ރެކޯޑަރ",
+    "waitingForPermissions": "ހުއްދަތަކަށް އިންތިޒާރުކުރުން",
+    "selectVideoSource": "ވީޑިއޯ ސޯ",
+    "screen": "ސްކްރީން",
+    "camera": "ކެމެރާ",
+    "microphone": "މައިކްރޯފޯން",
+    "startRecording": "ރިކޯޑްކުރަން ފަށާ",
+    "pauseRecording": "ރިކޯޑިންގ މަޑުޖައްސާލާ",
+    "resumeRecording": "އަލުން ރިކޯޑްކުރުން",
+    "stopRecording": "ރިކޯޑިންގ ކުރުން ހުއްޓާލުން"
+  },
+  "typing": "ޓައިޕްކުރުން...",
+  "gameServer": {
+    "browserError": "ބްރައުޒާ މައްސަލައެއް",
+    "browserErrorMessage": "އަމިއްލަ ބްރައުޒާ މޯޑުގައި ސްޓޯރޭޖް ކުރުމަށް ތިބާގެ ބްރައުޒާ ސަޕޯޓެއް ނުކުރެ އެވެ. އެހެން ބްރައުޒަރއެއް ޓްރައި ކޮށްލާ، ނުވަތަ ޕްރައިވެޓް ބްރައުޒާ މޯޑަށް ނިކުންނަން.",
+    "noAvailableServers": "ލިބެން ނެތް ސަރވަރ",
+    "noAvailableServersMessage": "ގުޅާނެ އެއްވެސް ސަރވަރއެއް ނެތް. އަލުން ގުޅަން މަސައްކަތް ކުރުން",
+    "worldDisconnected": "ދުނިޔެ ކެނޑިއްޖެ",
+    "worldDisconnectedMessage": "ދުނިޔެއާ ގުޅުން ކެނޑުނީ. އަޅުގަނޑުމެން މަސައްކަތް ކުރާނަން، ކުރިއަށް އޮތް ވަގުތު ހަމަވުމުގެ ކުރިން އަލުން ގުޅަން، އެހެން ނޫންނަމަ އެހެން އިންޒާރަކަށް ތިޔަބޭފުޅުން ފޮނުއްވާނެ.",
+    "webGLNotEnabled": "ވެބްޖީއެލް އެއް ނުކުރެވުނު",
+    "webGLNotEnabledMessage": "ތިބާގެ ބްރައުޒަރ ވެބްޖީއެލް އަށް ސަޕޯޓެއް ނުކުރޭ، ނުވަތަ ނުކުޅެދޭ. ވެބްޖީއެލް އަށް އަހުލުވެރި ކޮށްލާށެވެ ނުވަތަ ތިބާގެ ބްރައުޒަރގެ އެންމެ ފަހުގެ ވާޝަން އަށް އަޕްގްރޭޑް ކުރުމަށް ވިސްނާށެވެ.",
+    "youKickedFromWorld": "ކަލޭ ދުނިޔެ ދުނިޔެ ކަލޭ",
+    "youKickedFromWorldMessage": "މި ދުނިޔެއިން ކަލޭ",
+    "invalidLocation": "ބާތިލް ލޮކޭޝަން",
+    "cantFindLocation": "ްނުނޭްނުްނު",
+    "misspelledOrNotExist": "އެއީ ނުބައި ކޮށް ލިޔެވިދާނެ، ނުވަތަ ނުވެސް ހުރެދާނެ.",
+    "loading": "ލޯޑިން",
+    "low-frame-error": "ޑިޓެކް",
+    "low-frame-title": "ރަނގަޅު ތަޖުރިބާއަކަށް ހާޑްވެއާ އެކްސެލެރޭޝަން އިނޭބަލް ކުރޭ!"
+  },
+  "error": {
+    "loading-error": "ޔޫސަރ ޑޭޓާ ލޯޑް ނުކުރެވުނު",
+    "validation-error": "{{type}}",
+    "login-error": "ލޮގިން ނުވެ ފެއިލްވީ"
+  }
+}

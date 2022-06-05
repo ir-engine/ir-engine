@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Раҫлау электрон почтаһы",
+      "resendEmail": "Аккаунтығыҙҙы тикшереү өсөн электрон почтағыҙҙы тикшерегеҙ. Электрон хат алмаһағыҙ, тикшереү электрон почтаһын тергеҙеү өсөн {{here}} баҫығыҙ.",
+      "haveAnAccount": "Аккаунт бармы?"
+    },
+    "forgotPassword": {
+      "header": "Онотолған пароль",
+      "enterEmail": "Теркәлгән электрон почта адресығыҙҙы индерегеҙ һәм һеҙгә пароль ысырыу һылтанмаһын ебәрербеҙ.",
+      "lbl-email": "Электрон почта адресы",
+      "lbl-submit": "Ссылка",
+      "emailSent": "Reset Password E электрон почтаһы ебәрелгән. Электрон почтағыҙҙы тикшерегеҙ."
+    },
+    "login": {
+      "email": "Электрон почта | СМС",
+      "username": "UserName + Password",
+      "social": "Социаль"
+    },
+    "magiklink": {
+      "header": "Логин Һылтанмаһы",
+      "descriptionEmail": "Электрон почта адресығыҙҙы индерегеҙ һәм электрон почта аша һеҙгә логин һылтанмаһын ебәрәсәкбеҙ.",
+      "descriptionSMS": "Телефон номерығыҙҙы индерегеҙ һәм һеҙгә СМС аша логин һылтанмаһын ебәрербеҙ.",
+      "descriptionEmailSMS": "Электрон почта адресығыҙҙы йәки телефон номерығыҙҙы индерегеҙ (10 һан, аҡш ҡына) һәм беҙ һеҙгә Электрон почта йәки СМС аша логин һылтанмаһын ебәрәбеҙ.",
+      "descriptionSMSUS": "Зинһар, телефон номерығыҙҙы индерегеҙ (10 һан, АҠШ) һәм беҙ һеҙгә СМС аша логин һылтанмаһын ебәрәбеҙ.",
+      "lbl-email": "Электрон почта адресы",
+      "lbl-emailPhone": "Электрон почта йәки Телефон номеры",
+      "lbl-phone": "Телефон номеры",
+      "agree": "Ризамын ",
+      "terms": "Терминдар һәм шарттар",
+      "lbl-submit": "Логин һылтанмаһын ебәрегеҙ",
+      "email-sent-msg": "Логин тылсымлы һылтанма ебәрелгән. Электрон почтағыҙҙы тикшерегеҙ.",
+      "success-msg": "Логин тылсымлы һылтанма ебәрелгән. Электрон почтағыҙҙы йәки СМС-ығыҙҙы тикшерегеҙ.",
+      "sms-sent-msg": "Логин тылсымлы һылтанма ебәрелгән. СМС-тарығыҙҙы тикшерегеҙ."
+    },
+    "passwordLogin": {
+      "header": "Инергә",
+      "lbl-email": "Электрон почта адресы",
+      "lbl-password": "Пароль",
+      "lbl-rememberMe": "Хәтерегеҙҙә тотоғоҙ",
+      "lbl-signin": "Инергә",
+      "forgotPassword": "Пароль онотолғанмы?",
+      "signup": "Иҫәп юҡмы? Яҙылырға",
+      "lbl-login": "Инергә",
+      "ph-password": "Пароль",
+      "ph-email": "Электрон почта"
+    },
+    "social": {
+      "gitHub": "ГитХуб менән логин",
+      "google": "Google менән логин",
+      "facebook": "Facebook менән логин",
+      "linkedin": "Linkedin менән логин",
+      "twitter": "Твиттерҙа логин"
+    },
+    "register": {
+      "header": "Яҙылырға",
+      "login": "Инергә",
+      "lbl-signup": "Яҙылырға",
+      "lbl-password": "Пароль",
+      "lbl-email": "Электрон почта адресы",
+      "passwordNotMatch": "Парольдәр ярашмай",
+      "ph-password": "Пароль",
+      "ph-confirmPassword": "Пароль Раҫлау",
+      "ph-email": "Электрон почта"
+    },
+    "resetPassword": {
+      "header": "Пароль ысырыу",
+      "description": "Электрон почта адресығыҙ өсөн парольегеҙҙе индерегеҙ",
+      "lbl-submit": "Пароль ысырыу",
+      "lbl-password": "Пароль",
+      "lbl-confirmPassword": "Пароль Раҫлау",
+      "passwordNotMatch": "Парольдәр ярашмай",
+      "nowLoginYourAccount": "Хәҙер аккаунтҡа инергә мөмкин",
+      "yourPasswordResetSuccess": "Паролегеҙ уңышлы тергеҙелде!"
+    },
+    "verifyEmail": {
+      "header": "Электрон почтаны тикшереү",
+      "processing": "Эшкәрткәндә бер минут көтөгөҙ..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Урындары",
+      "loading": "Тейәү",
+      "col-name": "Атамаһы",
+      "col-scene": "Күренеше",
+      "col-maxuser": "Max Ҡулланыусылары",
+      "lbl-search": "Урындарҙы эҙләү",
+      "lbl-new": "Яңы"
+    },
+    "newLocation": {
+      "title": "Урынлашыуы",
+      "success": "Уңышлы ҡотҡарыла.",
+      "failure": "Нимәлер дөрөҫ булманы.",
+      "removeSuccess": "Урынлашыуы уңышлы алып ташлана.",
+      "nameInUse": "Атамаһы ҡулланыла.",
+      "nameRequire": "Исеме талап ителә.",
+      "validNumber": "Һандар ғына (0-9) рөхсәт ителә.",
+      "lbl-name": "Атамаһы",
+      "lbl-maxuser": "Max Ҡулланыусылары",
+      "lbl-scene": "Күренеше",
+      "lbl-type": "Төрө",
+      "lbl-ve": "Видеояҙма мөмкинлек бирә",
+      "lbl-gme": "Global Media Aboctioned",
+      "lbl-update": "Яңыртыу",
+      "lbl-create": "Ижад итеү",
+      "tooltipCanNotBeDeleted": "Вестибюлде юйып булмай",
+      "confirmation": "Ышанаһыңмы?",
+      "lbl-yes": "Эйе",
+      "lbl-no": "Юҡ"
+    },
+    "share": {
+      "lbl-share": "Өлөшө",
+      "ph-phoneEmail": "Электрон почта йәки телефон номеры буйынса саҡырыу",
+      "lbl-phoneEmail": "Электрон почтаға йәки телефон номерына ебәреү",
+      "lbl-copy": "Күсермәһе",
+      "lbl-send-invite": "Саҡырыу ебәрегеҙ",
+      "title": "Урынлашыу URL-ығыҙҙы командағыҙ менән уртаҡлашығыҙ",
+      "linkCopied": "Һылтанма ҡыҫҡысҡа күсерелде."
+    },
+    "setting": {
+      "audio": "Аудио",
+      "lbl-volume": "Күләме",
+      "lbl-microphone": "Микрофон",
+      "graphics": "Графика",
+      "controls": "Идара итеү",
+      "lbl-control-type": "Контролер тибы",
+      "lbl-control-scheme": "Идара итеү схемаһы",
+      "lbl-resolution": "Резолюция",
+      "lbl-shadow": "Күләгәләре",
+      "lbl-pp": "Пост Эшкәрткәндән һуң",
+      "lbl-pbr": "Тулы ПБР",
+      "lbl-automatic": "Автоматик",
+      "xrusersetting": "XR User Көйләүҙәре",
+      "rotation": "Әйләнеүе",
+      "rotation-smooth-speed": "Әйләнеү Шыма тиҙлек",
+      "rotation-angle": "Боролош мөйөшө",
+      "moving": "Хәрәкәт итеү",
+      "user-avatar": "Аватар ҡоролошо",
+      "invert-rotation": "Кире боролош һәм хәрәкәт таяҡсалары",
+      "show-avatar": "Аватар шоуы"
+    },
+    "profile": {
+      "lbl-profile": "Профиле",
+      "lbl-settings": "Көйләүҙәре",
+      "lbl-username": "Username",
+      "update-msg": "Яңыртылған Username",
+      "inviteCode": "Саҡырыу кодексы",
+      "youAreAn": "Һин — а",
+      "youAreA": "Һин — а",
+      "showUserId": "User ID-һын күрһәтегеҙ",
+      "hideUserId": "Hide User ID",
+      "showApiKey": "API асҡысы",
+      "hideApiKey": "API асҡысы",
+      "apiKey": "API асҡысы",
+      "logout": "Бүрәнә",
+      "connectPhone": "Телефон номерығыҙҙы тоташтырығыҙ",
+      "connectEmail": "Электрон почтағыҙҙы тоташтырығыҙ",
+      "connectPhoneEmail": "Электрон почтағыҙҙы йәки телефон номерығыҙҙы тоташтырығыҙ",
+      "or": "Йәки",
+      "lbl-wallet": "Валлет менән логин",
+      "ph-email": "Электрон почта",
+      "ph-phone": "Телефон номеры",
+      "ph-phoneEmail": "Телефон номеры / Электрон почта",
+      "phoneEmailError": "Ғәмәлдә булмаған телефон #йәки электрон почта адресы",
+      "phoneError": "Яраҡһыҙ телефон #",
+      "emailError": "Ғәмәлдән тыш электрон почта адресы",
+      "loginWithReadyPlayerMe": "Login с Ready Player Me",
+      "connectSocial": "Социаль аккаунттар менән бәйләнеш",
+      "createOne": "Аккаунтығыҙ булмаһа, һеҙҙең өсөн яңыһы булдырыласаҡ",
+      "connections": {
+        "title": "Бәйләнештәре",
+        "ipError": "Шәхесте раҫлау буйынса әүҙем провайдерҙы алып ташлай алмай",
+        "disconnect": "өҙөлөү",
+        "connect": "Тоташыу"
+      },
+      "profileDropdown": {
+        "avatar": "User Avatar Icon",
+        "profile": "Профиле",
+        "adminConsole": "Админ консоле",
+        "logout": "Логаут"
+      },
+      "userIcon": {
+        "lbl-name": "Исемең",
+        "lbl-update": "Яңыртыу",
+        "userId": "User id",
+        "ph-uploadImg": "Йөкләү Продукт һүрәте",
+        "lbl-selectAcvatar": "Аватар һайлағыҙ",
+        "lbl-submit": "Тапшырырға"
+      },
+      "userSettings": {
+        "volume": "Күләме",
+        "microphone": "Микрофон",
+        "resolution": "Резолюция",
+        "high": "Бейеклеге",
+        "low": "Түбән",
+        "spatialAudio": "Киңлек аудиоһын ҡулланыу",
+        "enterMuted": "Мутацияланған бүлмәгә инегеҙ"
+      }
+    },
+    "oauth": {
+      "authenticating": "Аутентификация...",
+      "authFailed": "{{service}} аутентификация уңышһыҙлыҡҡа тарый."
+    },
+    "magikLink": {
+      "wait": "Эшкәрткәндә бер минут көтөгөҙ..."
+    },
+    "dashboard": {
+      "header": "Прибор",
+      "dashboard": "Прибор",
+      "users": "Ҡулланыусылар",
+      "feeds": "Мал аҙығы",
+      "instance": "Инстанция",
+      "locations": "Урындары",
+      "invites": "Саҡырыуҙар",
+      "sessions": "Сеанстар",
+      "groups": "Төркөмдәр",
+      "parties": "Партиялар",
+      "chats": "Чат",
+      "content": "Контент пакеттары",
+      "projects": "Проекттары",
+      "scenes": "Күренештәре",
+      "avatars": "Аватар",
+      "benchmarking": "Бенчмаркинг",
+      "bots": "Боттар"
+    }
+  },
+  "oauth": {
+    "authenticating": "Аутентификация...",
+    "authFailed": "{{service}} аутентификация уңышһыҙлыҡҡа тарый."
+  },
+  "magikLink": {
+    "wait": "Эшкәрткәндә бер минут көтөгөҙ..."
+  },
+  "dashboard": {
+    "header": "Прибор",
+    "dashboard": "Прибор",
+    "users": "Ҡулланыусылар",
+    "feeds": "Мал аҙығы",
+    "instance": "Инстанция",
+    "locations": "Урындары",
+    "routes": "Маршруттар",
+    "projects": "Проекттары",
+    "invites": "Саҡырыуҙар",
+    "sessions": "Сеанстар",
+    "groups": "Төркөмдәр",
+    "parties": "Партиялар",
+    "chats": "Чат",
+    "content": "Контент пакеттары",
+    "scenes": "Күренештәре",
+    "avatars": "Аватар",
+    "benchmarking": "Бенчмаркинг",
+    "bots": "Боттар",
+    "setting": "Көйләүҙәре"
+  },
+  "avatar": {
+    "title": "Аватар йөкләнеше",
+    "lbl-browse": "Браузер",
+    "lbl-thumbnail": "Баш бармаҡ",
+    "lbl-upload": "Йөкләнеш",
+    "selectAvatar": "Аватар һайлағыҙ...",
+    "selectThumbnail": "Thumbnail һайлағыҙ...",
+    "rotate": "Әйләнеүе",
+    "pan": "Пан",
+    "noBone": "Обеджктта һөйәктәр ҙә, тиреләр ҙә юҡ",
+    "outOfBound": "Объект сиктән тыш.",
+    "emptyObj": "Объект буш.",
+    "maxTriangleError": "Объектта {{allowedTriangles}} йөҙҙән ҙурыраҡ.",
+    "selectValidFile": "Ғәмәлдәге 3d avatar файлын һайлағыҙ.",
+    "selectValidThumbnail": "Һайланма ғәмәлдәге Thumbnail файлы.",
+    "fileOversized": "Аватар файлдарының күләме {{minSize}} МБ һәм {{maxSize}} МБ араһында булырға тейеш",
+    "confirmation": "Ышанаһыңмы?",
+    "canNotBeRemoved": "Әүҙем Аватар алып ташлана алмай",
+    "remove": "Аватарҙы алып ташлау",
+    "uploadFiles": "Йөкләү файлдары",
+    "useUrlInstead": "Уның урынына урль ҡулланығыҙ",
+    "avatar": "Аватар",
+    "cancel": "Бөтөрөргә",
+    "createAvatar": "Аватар төҙөү",
+    "delete": "Юйыу",
+    "view": "Күренеше",
+    "uploadAvatarInfo": "Аватар мәғлүмәтте яңыртыу",
+    "name": "Атамаһы",
+    "enterName": "Исемде индерегеҙ",
+    "avatarInformation": "Аватар мәғлүмәте",
+    "description": "Тасуирламаһы",
+    "key": "Асҡыс",
+    "none": "Юҡ",
+    "submit": "Тапшырырға",
+    "edit": "Эдит",
+    "avatarUrl": "Аватар урҙаһы",
+    "upload-success-msg": "Аватар уңышлы йөкләнеш ала.",
+    "remove-success-msg": "Аватар уңышлы йөкләнеш ала.",
+    "warning-msg": "Аватар ресурсы буш, һеҙ аватарҙарҙы статик файл һаҡлағысығыҙға синхронләштерҙегеҙме?"
+  },
+  "personMenu": {
+    "inviteToParty": "Партияға саҡырыу",
+    "addAsFriend": "Дуҫтарса өҫтәгеҙ",
+    "mute": "Мута",
+    "block": "Блок"
+  },
+  "person": {
+    "you": "Һин",
+    "yourScreen": "Экранығыҙ",
+    "muteForEveryone": "Һәр кем өсөн телһеҙлек",
+    "unmuteForEveryone": "Барыһы өсөн дә хурлыҡлы",
+    "muteMe": "Мине ыҙалат",
+    "unmuteMe": "Мине мыҫҡыл ит",
+    "muteThisPerson": "Был кешене телһеҙләндерегеҙ",
+    "unmuteThisPerson": "Был кешене хурлама",
+    "openPictureInPicture": "Картинала асыҡ картина"
+  }
+}

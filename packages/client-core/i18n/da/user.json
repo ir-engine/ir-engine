@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Bekræftelses-e-mail",
+      "resendEmail": "Tjek din e-mail for at bekræfte din konto. Hvis du ikke har fået en e-mail, skal du klikke på {{here}} for at sende bekræftelsesmailen igen.",
+      "haveAnAccount": "Har du en konto?"
+    },
+    "forgotPassword": {
+      "header": "Glemt adgangskode",
+      "enterEmail": "Indtast din registrerede e-mailadresse, så sender vi dig et link til nulstilling af adgangskode.",
+      "lbl-email": "E-mailadresse",
+      "lbl-submit": "Send Link",
+      "emailSent": "Nulstil adgangskode E-mail blev sendt. Tjek venligst din e-mail."
+    },
+    "login": {
+      "email": "| SMS'E",
+      "username": "Brugernavn + adgangskode",
+      "social": "Social"
+    },
+    "magiklink": {
+      "header": "Login Link",
+      "descriptionEmail": "Indtast venligst din e-mailadresse, så sender vi dig et loginlink via e-mail.",
+      "descriptionSMS": "Indtast venligst dit telefonnummer, så sender vi dig et login-link via SMS.",
+      "descriptionEmailSMS": "Indtast venligst din e-mailadresse eller dit telefonnummer (10-cifret, kun USA), så sender vi dig et login-link via e-mail eller SMS.",
+      "descriptionSMSUS": "Indtast venligst dit telefonnummer (10-cifret, kun USA), så sender vi dig et login-link via SMS.",
+      "lbl-email": "E-mailadresse",
+      "lbl-emailPhone": "E-mail eller telefonnummer",
+      "lbl-phone": "Telefonnummer",
+      "agree": "Jeg er enig i ",
+      "terms": "Vilkår og betingelser",
+      "lbl-submit": "Send login-link",
+      "email-sent-msg": "Login Magic Link blev sendt. Tjek venligst din e-mail.",
+      "success-msg": "Login Magic Link blev sendt. Tjek venligst din e-mail eller SMS.",
+      "sms-sent-msg": "Login Magic Link blev sendt. Tjek venligst din SMS."
+    },
+    "passwordLogin": {
+      "header": "Log på",
+      "lbl-email": "E-mailadresse",
+      "lbl-password": "Kodeord",
+      "lbl-rememberMe": "Husk mig",
+      "lbl-signin": "Log på",
+      "forgotPassword": "Glemt adgangskode?",
+      "signup": "Har du ikke en konto? Tilmeld dig",
+      "lbl-login": "Log på",
+      "ph-password": "Kodeord",
+      "ph-email": "E-mail"
+    },
+    "social": {
+      "gitHub": "Log ind med GitHub",
+      "google": "Log ind med Google",
+      "facebook": "Log ind med Facebook",
+      "linkedin": "Log ind med Linkedin",
+      "twitter": "Log ind med Twitter"
+    },
+    "register": {
+      "header": "Tilmeld dig",
+      "login": "Log på",
+      "lbl-signup": "Tilmeld dig",
+      "lbl-password": "Kodeord",
+      "lbl-email": "E-mailadresse",
+      "passwordNotMatch": "Adgangskoder stemmer ikke overens",
+      "ph-password": "Kodeord",
+      "ph-confirmPassword": "Bekræft adgangskode",
+      "ph-email": "E-mail"
+    },
+    "resetPassword": {
+      "header": "Nulstil adgangskode",
+      "description": "Indtast din adgangskode til din e-mailadresse",
+      "lbl-submit": "Nulstil adgangskode",
+      "lbl-password": "Kodeord",
+      "lbl-confirmPassword": "Bekræft adgangskode",
+      "passwordNotMatch": "Adgangskoder stemmer ikke overens",
+      "nowLoginYourAccount": "Du kan nu logge ind på din konto",
+      "yourPasswordResetSuccess": "Din adgangskode blev nulstillet!"
+    },
+    "verifyEmail": {
+      "header": "Bekræft e-mail",
+      "processing": "Vent et øjeblik, mens du behandler..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Placeringer",
+      "loading": "Pålæsning",
+      "col-name": "Navn",
+      "col-scene": "Scene",
+      "col-maxuser": "Maks. brugere",
+      "lbl-search": "Søg efter placeringer",
+      "lbl-new": "Ny"
+    },
+    "newLocation": {
+      "title": "Sted",
+      "success": "Gemt med succes.",
+      "failure": "Noget gik galt.",
+      "removeSuccess": "Placering fjernet med succes.",
+      "nameInUse": "Navnet er i brug.",
+      "nameRequire": "Navn er påkrævet.",
+      "validNumber": "Kun tal(0-9) er tilladt.",
+      "lbl-name": "Navn",
+      "lbl-maxuser": "Maks. brugere",
+      "lbl-scene": "Scene",
+      "lbl-type": "Slags",
+      "lbl-ve": "Video aktiveret",
+      "lbl-gme": "Globale medier aktiveret",
+      "lbl-update": "Opdatering",
+      "lbl-create": "Skabe",
+      "tooltipCanNotBeDeleted": "Lobbyen kan ikke slettes",
+      "confirmation": "Er du sikker?",
+      "lbl-yes": "Ja",
+      "lbl-no": "Nej"
+    },
+    "share": {
+      "lbl-share": "Aktie",
+      "ph-phoneEmail": "Inviter via e-mail eller telefonnummer",
+      "lbl-phoneEmail": "Send til e-mail eller telefonnummer",
+      "lbl-copy": "Eksemplar",
+      "lbl-send-invite": "Send invitation",
+      "title": "Del webadressen til din placering med dit team",
+      "linkCopied": "Link kopieret til udklipsholder."
+    },
+    "setting": {
+      "audio": "Lyd",
+      "lbl-volume": "Lydstyrke",
+      "lbl-microphone": "Mikrofon",
+      "graphics": "Grafik",
+      "controls": "Kontrol",
+      "lbl-control-type": "Controller Type",
+      "lbl-control-scheme": "Kontrolordning",
+      "lbl-resolution": "Opløsning",
+      "lbl-shadow": "Skygger",
+      "lbl-pp": "Efterbehandling",
+      "lbl-pbr": "Fuld PBR",
+      "lbl-automatic": "Automatisk",
+      "xrusersetting": "XR-brugerindstillinger",
+      "rotation": "Rotation",
+      "rotation-smooth-speed": "Rotation Jævn hastighed",
+      "rotation-angle": "Rotationsvinkel",
+      "moving": "Rørende",
+      "user-avatar": "Avatar indstilling",
+      "invert-rotation": "Inverter rotation og flyt pinde",
+      "show-avatar": "Vis avatar"
+    },
+    "profile": {
+      "lbl-profile": "Profil",
+      "lbl-settings": "Indstillinger",
+      "lbl-username": "Brugernavn",
+      "update-msg": "Brugernavn opdateret",
+      "inviteCode": "Inviter kode",
+      "youAreAn": "Du er en",
+      "youAreA": "Du er en",
+      "showUserId": "Vis bruger-id",
+      "hideUserId": "Skjul bruger-id",
+      "showApiKey": "Vis API-nøgle",
+      "hideApiKey": "Skjul API-nøgle",
+      "apiKey": "API-nøgle",
+      "logout": "Log ud",
+      "connectPhone": "Tilslut dit telefonnummer",
+      "connectEmail": "Forbind din e-mail",
+      "connectPhoneEmail": "Tilknyt din e-mail eller dit telefonnummer",
+      "or": "Eller",
+      "lbl-wallet": "Log ind med Wallet",
+      "ph-email": "E-mail",
+      "ph-phone": "Telefonnummer",
+      "ph-phoneEmail": "Telefonnummer / e-mail",
+      "phoneEmailError": "Ugyldig telefon # eller e-mail-adresse",
+      "phoneError": "Ugyldig telefon #",
+      "emailError": "Ugyldig e-mailadresse",
+      "loginWithReadyPlayerMe": "Log ind med Ready Player Me",
+      "connectSocial": "Opret forbindelse til sociale konti",
+      "createOne": "Hvis du ikke har en konto, oprettes der en ny til dig",
+      "connections": {
+        "title": "Forbindelser",
+        "ipError": "Kan ikke fjerne aktiv identitetsudbyder",
+        "disconnect": "afbryde",
+        "connect": "Forbinde"
+      },
+      "profileDropdown": {
+        "avatar": "Ikon for brugeravatar",
+        "profile": "Profil",
+        "adminConsole": "Admin Console",
+        "logout": "Logout"
+      },
+      "userIcon": {
+        "lbl-name": "Dit navn",
+        "lbl-update": "Opdatering",
+        "userId": "Bruger-id",
+        "ph-uploadImg": "Upload produktbillede",
+        "lbl-selectAcvatar": "Vælg Avatar",
+        "lbl-submit": "Indsende"
+      },
+      "userSettings": {
+        "volume": "Lydstyrke",
+        "microphone": "Mikrofon",
+        "resolution": "Opløsning",
+        "high": "Høj",
+        "low": "Lav",
+        "spatialAudio": "Brug rumlig lyd",
+        "enterMuted": "Gå ind i værelset dæmpet"
+      }
+    },
+    "oauth": {
+      "authenticating": "Godkendelse...",
+      "authFailed": "{{service}} godkendelse mislykkedes."
+    },
+    "magikLink": {
+      "wait": "Vent et øjeblik, mens du behandler..."
+    },
+    "dashboard": {
+      "header": "Instrumentbræt",
+      "dashboard": "Instrumentbræt",
+      "users": "Brugere",
+      "feeds": "Feeds",
+      "instance": "Eksempel",
+      "locations": "Placeringer",
+      "invites": "Opfordrer",
+      "sessions": "Sessioner",
+      "groups": "Grupper",
+      "parties": "Parter",
+      "chats": "Chats",
+      "content": "Indholdspakker",
+      "projects": "Projekter",
+      "scenes": "Scener",
+      "avatars": "Avatarer",
+      "benchmarking": "Benchmarking",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Godkendelse...",
+    "authFailed": "{{service}} godkendelse mislykkedes."
+  },
+  "magikLink": {
+    "wait": "Vent et øjeblik, mens du behandler..."
+  },
+  "dashboard": {
+    "header": "Instrumentbræt",
+    "dashboard": "Instrumentbræt",
+    "users": "Brugere",
+    "feeds": "Feeds",
+    "instance": "Eksempel",
+    "locations": "Placeringer",
+    "routes": "Ruter",
+    "projects": "Projekter",
+    "invites": "Opfordrer",
+    "sessions": "Sessioner",
+    "groups": "Grupper",
+    "parties": "Parter",
+    "chats": "Chats",
+    "content": "Indholdspakker",
+    "scenes": "Scener",
+    "avatars": "Avatarer",
+    "benchmarking": "Benchmarking",
+    "bots": "Bots",
+    "setting": "Indstillinger"
+  },
+  "avatar": {
+    "title": "Upload Avatar",
+    "lbl-browse": "Gennemse",
+    "lbl-thumbnail": "Miniaturebillede",
+    "lbl-upload": "Uploade",
+    "selectAvatar": "Vælg Avatar...",
+    "selectThumbnail": "Vælg Miniaturebillede...",
+    "rotate": "Rotere",
+    "pan": "Pan",
+    "noBone": "Obejct indeholder ingen knogler eller hud",
+    "outOfBound": "Objektet er uden for grænsen.",
+    "emptyObj": "Objektet er tomt.",
+    "maxTriangleError": "Objektet indeholder mere end {{allowedTriangles}} ansigter.",
+    "selectValidFile": "Vælg gyldig 3d-avatarfil.",
+    "selectValidThumbnail": "Valgt gyldig miniaturefil.",
+    "fileOversized": "Avatarfilstørrelsen skal være mellem {{minSize}} MB og {{maxSize}} MB",
+    "confirmation": "Er du sikker?",
+    "canNotBeRemoved": "Aktiv avatar kan ikke fjernes",
+    "remove": "Fjern avatar",
+    "uploadFiles": "Upload filer",
+    "useUrlInstead": "Brug url i stedet",
+    "avatar": "Avatar",
+    "cancel": "Aflyse",
+    "createAvatar": "Opret avatar",
+    "delete": "Slette",
+    "view": "Udsigt",
+    "uploadAvatarInfo": "Opdater avataroplysninger",
+    "name": "Navn",
+    "enterName": "Indtast navn",
+    "avatarInformation": "Avatar Oplysninger",
+    "description": "Beskrivelse",
+    "key": "Nøgle",
+    "none": "Ingen",
+    "submit": "Indsende",
+    "edit": "Redigere",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "Avatar uploadet med succes.",
+    "remove-success-msg": "Avatar uploadet med succes.",
+    "warning-msg": "Avatar-ressourcen er tom, har du synkroniseret avatarer til dit statiske fillager?"
+  },
+  "personMenu": {
+    "inviteToParty": "Inviter til fest",
+    "addAsFriend": "Tilføj som ven",
+    "mute": "Stum",
+    "block": "Blok"
+  },
+  "person": {
+    "you": "Du",
+    "yourScreen": "Din skærm",
+    "muteForEveryone": "Slå lyden fra for alle",
+    "unmuteForEveryone": "Slå lyden til for alle",
+    "muteMe": "Slå lyden fra for mig",
+    "unmuteMe": "Slå lyden til for mig",
+    "muteThisPerson": "Slå lyden fra for denne person",
+    "unmuteThisPerson": "Slå lyden til for denne person",
+    "openPictureInPicture": "Åbn billede i billede"
+  }
+}

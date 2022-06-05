@@ -1,0 +1,718 @@
+{
+  "loading": "Project laden",
+  "loadingMsg": "Project laden...",
+  "loadingError": "Fout bij het laden van project",
+  "loadingErrorMsg": "Er is een fout opgetreden bij het laden van het project.",
+  "selectSceneMsg": "Selecteer Scène om te beginnen met spelen met de engine",
+  "error": "Fout",
+  "errorMsg": "Er is een onbekende fout opgetreden.",
+  "generateScreenshot": "Project screenshot genereren",
+  "generateScreenshotMsg": "Project screenshot genereren...",
+  "newScene": "Scène maken",
+  "saving": "Project opslaan",
+  "savingMsg": "Besparing project...",
+  "savingError": "Fout bij het opslaan van project",
+  "savingErrorMsg": "Er is een fout opgetreden bij het opslaan van het project.",
+  "savingSceneErrorMsg": "Scène is niet goed geladen. Probeer de scène opnieuw te laden.",
+  "duplicating": "Project dupliceren",
+  "duplicatingMsg": "Dupliceren project...",
+  "exporting": "Project exporteren",
+  "exportingMsg": "Project exporteren...",
+  "exportingError": "Fout bij het exporteren van project",
+  "exportingErrorMsg": "Er is een fout opgetreden bij het exporteren van het project.",
+  "importLegacy": "Legacy-wereld importeren",
+  "importLegacyMsg": "Waarschuwing! Dit zal je bestaande scène overschrijven! Weet je zeker dat je door wilt gaan?",
+  "publishingError": "Publicatieproject fout",
+  "publishingErrorMsg": "Er is een onbekende fout opgetreden.",
+  "publishingScene": "Uitgeverij Scene",
+  "publishingSceneMsg": "Uitgeverij scene...",
+  "uploadingThumbnailMsg": "Miniatuur uploaden...",
+  "uploadingSceneMsg": "Scène uploaden: {{percentage}}%",
+  "envMapError": "Fout bij het laden van cubemap images {{files}}",
+  "lbl-return": "Terugkeren",
+  "menubar": {
+    "newScene": "Nieuwe scène",
+    "saveScene": "Scène opslaan",
+    "saveAs": "Opslaan als",
+    "importAsset": "Asset importeren",
+    "exportGLB": "Exporteren als binaire glTF (.glb) ...",
+    "importScene": "Scène importeren",
+    "exportScene": "Scène exporteren",
+    "quit": "Verlaten"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Niet-ondersteund bestandstype voor bestand: \"{{name}}\". Het bestand moet een afbeeldings-, video- of GLB-model zijn.",
+    "addObject": "addObject: voordat object niet gevonden wordt",
+    "removeObject": "removeObject: node not found. Dit komt door het verwijderen van een knooppunt dat niet meer in de scène staat.",
+    "noParent": "{{node}} \"{{name}}\" heeft geen ouder. Reparent werkt alleen aan objecten die zich momenteel in de scène bevinden.",
+    "undefinedParent": "editor.reparent: newParent is undefined",
+    "notAuthenticated": "Niet geverifieerd",
+    "fetchingProjectError": "Fouten bij het ophalen van projecten: {{error}}",
+    "fetchingRouteError": "Fouten bij het ophalen van routes: {{error}}",
+    "unknownError": "Onbekende fout",
+    "resolveURL": "Fout bij het oplossen van url \"{{url}}\":",
+    "mediaSearchAborted": "Media zoeken afgebroken",
+    "methodNotImplemented": "Methode niet geïmplementeerd.",
+    "saveProjectAborted": "Scène opgeslagen opslaan",
+    "unsavedChanges": "Niet-opgeslagen wijzigingen",
+    "unsavedChangesMsg": "De scène is aangepast. Sla uw wijzigingen op.",
+    "projectCreationFail": "Het maken van projecten is mislukt. {{reason}}",
+    "projectDeletionFail": "Project verwijderen mislukt. {{reason}}",
+    "savingProjectFail": "Project opslaan is mislukt. {{reason}}",
+    "sceneTooLarge": "Scène is te groot ({{size}} MB) om te publiceren. De maximale grootte is {{maxSize}} MB.",
+    "sceneCreationFail": "Het maken van scènes is mislukt. {{reason}}",
+    "uploadAborted": "Upload afgebroken",
+    "uploadFailed": "Upload mislukt {{reason}}",
+    "assetDeletionFail": "Het verwijderen van activa is mislukt. {{reason}}",
+    "projectAssetDeletionFail": "Het verwijderen van projectactiva is mislukt. {{reason}}",
+    "networkError": "Netwerkfout: {{status}}. {{text}}",
+    "unknownStatus": "Onbekende status",
+    "CORS": "Mogelijk een CORS-fout",
+    "urlFetchError": "Kan \"{{url}}\" niet ophalen"
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Camera verplaatsen",
+      "flyFast": "Vlieg sneller",
+      "orbit": "Baan / Selecteer",
+      "pan": "Pan",
+      "fly": "Vliegen",
+      "focus": "Focus",
+      "rotateLeft": "Naar links draaien",
+      "rotateRight": "Naar rechts draaien",
+      "cancelPlacement": "Plaatsing annuleren",
+      "placeDuplicate": "Dubbel plaatsen",
+      "cancelGrab": "Annuleren Grab",
+      "grab": "Grijpen",
+      "deselectAll": "Alles deselecteren"
+    },
+    "state": {
+      "header": "Stats",
+      "memory": "Geheugen",
+      "geometries": "Geometrieën",
+      "textures": "Texturen",
+      "render": "Weergeven",
+      "FPS": "FPS",
+      "frameTime": "Frame tijd",
+      "calls": "Oproepen",
+      "triangles": "Driehoeken",
+      "points": "Punten",
+      "lines": "Lijnen"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Uitgeven",
+    "lbl-published": "Gepubliceerd",
+    "command": {
+      "translate": "Vertalen",
+      "rotate": "Draaien",
+      "scale": "Schub",
+      "toggleSpace": "Transformeer ruimte",
+      "togglePivot": "Transform Pivot in-/uitschakelen",
+      "toggleSnapMode": "Snap-modus in-/uitschakelen",
+      "toggleGrid": "Rasterzichtbaarheid in-/uitschakelen",
+      "increaseGridSize": "Rastergrootte vergroten",
+      "descreaseGridSize": "Rastergrootte verkleinen",
+      "stopPreview": "Stoppen met het voorvertonen van scènes",
+      "playPreview": "Scène voorvertonen"
+    }
+  },
+  "properties": {
+    "title": "Eigenschappen",
+    "lbl-visible": "Zichtbaar",
+    "lbl-preventBake": "Voorkomen bakken",
+    "lbl-persist": "Aanhouden",
+    "multipleNodeSelected": "Meerdere knooppunten van verschillende typen geselecteerd",
+    "noNodeSelected": "Geen knooppunt geselecteerd",
+    "ambientLight": {
+      "name": "Omgevingslicht",
+      "description": "Een licht dat alle objecten in uw scène verlicht.",
+      "lbl-intensity": "Intensiteit",
+      "lbl-color": "Kleur"
+    },
+    "envmap": {
+      "name": "Milieukaart",
+      "description": "eigenschappen van de omgevingskaart"
+    },
+    "asset": {
+      "name": "Bezit",
+      "description": "Een groepering van scènecomponenten die dynamisch kunnen worden geladen en gelost",
+      "lbl-options": "Opties",
+      "lbl-assetPath": "Pad naar activa",
+      "lbl-assetName": "Naam exporteren",
+      "lbl-exportOptions": "Exportopties",
+      "lbl-export": "Asset exporteren",
+      "lbl-load": "Laden in scène",
+      "lbl-unload": "Uitladen",
+      "lbl-reload": "Herladen"
+    },
+    "audio": {
+      "name": "Audio",
+      "description": "Laadt dynamisch audio.",
+      "lbl-audiourl": "Audio-URL",
+      "lbl-controls": "Besturingselementen",
+      "info-controls": "Schakel de zichtbaarheid van de mediabesturingselementen in.",
+      "lbl-autoplay": "Automatisch afspelen",
+      "info-autoplay": "Als dit waar is, zullen de media worden afgespeeld wanneer ze voor het eerst de scène betreden.",
+      "lbl-synchronize": "Synchroniseren",
+      "info-synchronize": "Als dit het geval is, worden de media gesynchroniseerd op alle aangesloten clients.",
+      "lbl-loop": "Strik",
+      "info-loop": "Als het waar is, zullen de media voor onbepaalde tijd doorlussen.",
+      "lbl-audioType": "Audiotype",
+      "lbl-distanceModel": "Afstand Model",
+      "info-distanceModel": "De algorithim die wordt gebruikt om de audio rolloff te berekenen.",
+      "lbl-rolloffFactor": "Rolloff-factor",
+      "info-rolloffFactor": "Een dubbele waarde die beschrijft hoe snel het volume wordt verlaagd naarmate de bron zich van de listener verwijdert. 0 tot 1",
+      "info-rfInfinity": "Een dubbele waarde die beschrijft hoe snel het volume wordt verlaagd naarmate de bron zich van de listener verwijdert. 0 tot oneindig",
+      "lbl-refDistance": "Ref Afstand",
+      "info-refDistance": "Een dubbele waarde die de referentieafstand weergeeft voor het verlagen van het volume naarmate de audiobron verder van de listener komt.",
+      "lbl-maxDistance": "Max Afstand",
+      "info-maxDistance": "Een dubbele waarde die de maximale afstand tussen de audiobron en de luisteraar weergeeft, waarna het volume niet verder wordt verlaagd.",
+      "lbl-coneInnerAngle": "Conus binnenhoek",
+      "info-coneInnerAngle": "Een dubbele waarde die de hoek beschrijft, in graden, van een kegel waarin zich geen volumereductie zal bevinden.",
+      "lbl-coneOuterAngle": "Kegel buitenste hoek",
+      "info-coneOuterAngle": "Een dubbele waarde die de hoek beschrijft, in graden, van een kegel waarbuiten het volume wordt verminderd met een constante waarde, gedefinieerd door het kenmerk coneOuterGain.",
+      "lbl-coreOuterGain": "Cone Outer Gain",
+      "info-coreOuterGain": "Een dubbele waarde die de hoeveelheid volumereductie beschrijft buiten de kegel die wordt gedefinieerd door het kenmerk coneOuterAngle. De standaardwaarde is 0, wat betekent dat er geen geluid te horen is.",
+      "lbl-volume": "Volume",
+      "lbl-play": "Spelen",
+      "lbl-pause": "Pauzeren",
+      "error-url": "Fout bij het laden vanaf URL"
+    },
+    "boxCollider": {
+      "description": "Een onzichtbare doos waar objecten van af stuiteren of bovenop rusten.\nZonder colliders zullen objecten door vloeren vallen en door muren gaan.",
+      "lbl-isTrigger": "Trekker"
+    },
+    "camera": {
+      "name": "Fototoestel",
+      "description": "Camera-instellingen.",
+      "lbl-camera-raycast": "Camera Raycasting",
+      "lbl-camera-raycast-toggle": "Ingeschakeld",
+      "lbl-camera-raycast-frequency": "Frequentie",
+      "lbl-camera-raycast-count": "Aantal rays",
+      "lbl-camera-raycast-length": "Ray Lengte"
+    },
+    "directionalLight": {
+      "name": "Gericht licht",
+      "description": "Een licht dat de hele scène verlicht, maar in één richting uitzendt.",
+      "lbl-color": "Kleur",
+      "lbl-intensity": "Intensiteit",
+      "lbl-cameraFar": "Camera Ver",
+      "lbl-cameraNear": "Camera in de buurt",
+      "lbl-cameraTop": "Bovenblad van de camera",
+      "lbl-cameraBottom": "Camera bodem",
+      "lbl-cameraLeft": "Camera links",
+      "lbl-cameraRight": "Camera rechts",
+      "lbl-useInCSM": "Gebruik in CSM",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-disableForCSM": "Uitgeschakeld omdat trapsgewijze schaduwtoewijzing is ingeschakeld.",
+      "lbl-shadowmapResolution": "Schaduwkaart resolutie",
+      "lbl-shadowBias": "Schaduw bias",
+      "lbl-shadowRadius": "Schaduwstraal",
+      "lbl-showCameraHelper": "Camera helper weergeven"
+    },
+    "groundPlane": {
+      "name": "Grondvlak",
+      "description": "Een plat grondvlak dat zich uitstrekt in de verte.",
+      "lbl-color": "Kleur",
+      "lbl-receiveShadow": "Ontvang Schaduw",
+      "lbl-generateNavmesh": "Genereer Navmesh"
+    },
+    "link": {
+      "description": "Link naar een kamer of een website.",
+      "lbl-url": "Url"
+    },
+    "map": {
+      "description": "3D geospatiale kaart van bijvoorbeeld een stad."
+    },
+    "model": {
+      "description": "Een 3D-model in uw scène, geladen vanuit een GLTF-URL of -bestand.",
+      "lbl-usingGPUInstancingFlag": "GPU-instancing gebruiken",
+      "lbl-modelurl": "Model-URL",
+      "lbl-envmapUrl": "Url van omgevingskaart",
+      "lbl-textureOverride": "Textuur overschrijven",
+      "lbl-materialOverride": "Materiaaloverschrijven",
+      "error-url": "Fout bij het laden vanaf URL",
+      "lbl-loopAnimation": "Loop Animatie",
+      "lbl-isAvatar": "Is Avatar",
+      "lbl-isGPUInstancing": "Gebruikt GPU Instancing",
+      "lbl-isDynamic": "Is dynamisch",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-receiveShadow": "Ontvang Schaduw",
+      "lbl-interactable": "Interactief",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Naam",
+      "lbl-url": "Model-URL",
+      "lbl-buy": "Url kopen",
+      "lbl-learnMore": "Url voor meer informatie",
+      "lbl-htmlContent": "HTML-inhoud",
+      "lbl-interactionText": "Interactie tekst",
+      "lbl-interactionType": "Interactie type"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Materiaal",
+      "error-materialID": "Fout bij het vinden van materiaal",
+      "placeholder-materialID": "Selecteer materiaal",
+      "lbl-patternTarget": "Patroon Match",
+      "lbl-pattern": "Patroon",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Interactie type",
+      "text": "Interactie tekst",
+      "distance": "Interactie Afstand",
+      "theme": "Interactie Thema",
+      "name": "Naam interactie",
+      "description": "Beschrijving van de interactie",
+      "images": "Interactie afbeeldingen",
+      "videos": "Interactie video's",
+      "urls": "Interactie URL's",
+      "models": "Interactie modellen"
+    },
+    "group": {
+      "name": "Groep",
+      "description": "Een groep van meerdere objecten die samen kunnen worden verplaatst of gedupliceerd.\nSleep objecten naar de groep in de hiërarchie."
+    },
+    "hemisphere": {
+      "name": "Halfrond Licht",
+      "description": "Een licht dat de scène van direct bovenaf verlicht.",
+      "lbl-skyColor": "Luchtkleur",
+      "lbl-groundColor": "Grondkleur",
+      "lbl-intensity": "Intensiteit"
+    },
+    "image": {
+      "name": "Beeld",
+      "description": "Een afbeelding wordt dynamisch geladen.",
+      "lbl-imgURL": "Afbeelding URL",
+      "lbl-transparency": "Transparantiemodus",
+      "lbl-alphaCutoff": "Alpha Cutoff",
+      "lbl-projection": "Projectie",
+      "lbl-side": "Kant",
+      "info-controls": "Schakel de zichtbaarheid van de mediabesturingselementen in.",
+      "info-transparency": "Hoe transparantie toe te passen:",
+      "info-opaque": "'ondoorzichtig' = geen transparantie",
+      "info-blend": "'blend' = gebruik het alpha-kanaal van de afbeeldingen",
+      "info-mask": "'masker' = Gebruik een opgegeven afkapwaarde voor aan/uit-transparantie (performanter)",
+      "info-alphaCutoff": "Pixels met alfawaarden lager dan dit zijn transparant",
+      "error-url": "Ongeldige URL"
+    },
+    "name": {
+      "lbl-name": "Naam"
+    },
+    "partileEmitter": {
+      "description": "Deeltjesstraler om deeltjes te creëren.",
+      "lbl-particleCount": "Aantal deeltjes",
+      "lbl-image": "Beeld",
+      "lbl-ageRandomness": "Leeftijd Willekeur",
+      "lbl-lifetime": "Levensduur",
+      "lbl-lifetimeRandomness": "Levenslange willekeur",
+      "lbl-sizeCurve": "Maat Curve",
+      "lbl-startPSize": "Begin met deeltjesgrootte",
+      "lbl-endPSize": "Einde deeltjesgrootte",
+      "lbl-sizeRandomness": "Grootte Willekeur",
+      "lbl-colorCurve": "Kleur curve",
+      "lbl-startColor": "Start kleur",
+      "lbl-startOpacity": "Dekking starten",
+      "lbl-middleColor": "Middelste kleur",
+      "lbl-middleOpacity": "Middelste ondoorzichtigheid",
+      "lbl-endColor": "Eindkleur",
+      "lbl-endOpacity": "Ondoorzichtigheid beëindigen",
+      "lbl-velocityCurve": "Snelheidscurve",
+      "lbl-startVelocity": "Startsnelheid",
+      "lbl-endVelocity": "Eindsnelheid",
+      "lbl-angularVelocity": "Hoeksnelheid",
+      "info-ageRandomness": "De hoeveelheid variatie tussen wanneer deeltjes worden voortgebracht.",
+      "info-lifetime": "De maximale leeftijd van een deeltje voordat het wordt gere respawned.",
+      "info-lifetimeRandomness": "De hoeveelheid variatie tussen deeltjeslevensduur.",
+      "info-sizeRandomness": "De hoeveelheid variatie tussen de deeltjesstartgroottes.",
+      "error-url": "Fout bij het laden vanaf URL"
+    },
+    "clouds": {
+      "name": "Wolk",
+      "description": "Op Sprite gebaseerd cloudvolume.",
+      "lbl-image": "Sprite Afbeelding",
+      "lbl-wroldScale": "Wereldschaal",
+      "lbl-dimensions": "Dimensies",
+      "lbl-noiseZoom": "Ruis Zoom",
+      "lbl-noiseOffset": "Ruis offset",
+      "lbl-spriteScale": "Sprite-schaal",
+      "lbl-fogColor": "Mist Kleur",
+      "lbl-fogRange": "Mist bereik",
+      "error-url": "Fout bij het laden vanaf URL"
+    },
+    "ocean": {
+      "name": "Oceaan",
+      "description": "Oceaanoppervlak met golven en schuim",
+      "lbl-normalMap": "Normale kaart",
+      "lbl-distortionMap": "Vervormingskaart",
+      "lbl-envMap": "Milieukaart",
+      "lbl-color": "Kleur",
+      "lbl-shallowWaterColor": "Ondiepe waterkleur",
+      "lbl-shallowToDeepDistance": "Ondiepe tot diepe afstand",
+      "lbl-opacityFadeDistance": "Afstand Opacity Fade",
+      "lbl-opacityRange": "Ondoorzichtigheidsbereik",
+      "lbl-shininess": "Glans",
+      "lbl-reflectivity": "Reflectiviteit",
+      "lbl-foamColor": "Foam Kleur",
+      "lbl-foamSpeed": "Schuimsnelheid",
+      "lbl-foamTiling": "Schuim betegeling",
+      "lbl-bigWaveTiling": "Big Wave Tegels",
+      "lbl-bigWaveSpeed": "Grote golfsnelheid",
+      "lbl-bigWaveHeight": "Grote golfhoogte",
+      "lbl-waveSpeed": "Golfsnelheid",
+      "lbl-waveScale": "Golfschaal",
+      "lbl-waveTiling": "Golf betegeling",
+      "lbl-waveDistortionSpeed": "Golf vervorming snelheid",
+      "lbl-waveDistortionTiling": "Golf vervorming tegels",
+      "error-url": "Fout bij het laden vanaf URL"
+    },
+    "water": {
+      "name": "Water",
+      "description": "Klein wateroppervlak"
+    },
+    "interior": {
+      "name": "Binnenste",
+      "description": "Een oppervlak met in kaart gebrachte kubustextuur om binnenomgevingen te emuleren",
+      "lbl-cubeMap": "Cube Kaart textuur",
+      "lbl-tiling": "Hoeveelheid betegeling",
+      "lbl-size": "Oppervlaktegrootte",
+      "error-url": "Fout bij het laden vanaf URL"
+    },
+    "pointLight": {
+      "description": "Een licht dat vanuit één punt in alle richtingen uitstraalt.",
+      "lbl-color": "Kleur",
+      "lbl-intensity": "Intensiteit",
+      "lbl-range": "Bereik",
+      "lbl-decay": "Verval"
+    },
+    "scene": {
+      "name": "Toneel",
+      "description": "Het hoofdobject van de scène.",
+      "lbl-bgcolor": "Achtergrondkleur",
+      "lbl-fogType": "Mist type",
+      "lbl-fogColor": "Mist Kleur",
+      "lbl-forNearDistance": "Mist dichtbij afstand",
+      "lbl-fogFarDistance": "Mist ver weg",
+      "lbl-fogDensity": "Mistdichtheid",
+      "lbl-audioSettings": "Positionele audio gebruiken",
+      "lbl-avatarDistanceModel": "Avatar Afstand Model",
+      "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
+      "lbl-avatarRefDistance": "Avatar Ref Afstand",
+      "lbl-avatarMaxDistance": "Avatar Max Afstand",
+      "lbl-mediaVolume": "Mediavolume",
+      "lbl-mediaDistanceModel": "Media afstand model",
+      "lbl-mediaRolloffFactor": "Media Rolloff Factor",
+      "lbl-mediaRefDistance": "Media Ref Afstand",
+      "lbl-mediaMaxDistance": "Media Max Afstand",
+      "lbl-mediaConeInnerAngle": "Media Conus Binnenhoek",
+      "lbl-mediaConeOuterAngle": "Media Cone Buitenhoek",
+      "lbl-mediaConeOuterGain": "Media Cone Buitenste Versterking",
+      "info-avatarDistanceModel": "De algorithim die wordt gebruikt om de audio rolloff te berekenen.",
+      "info-avatarRolloffFactor": "Een dubbele waarde die beschrijft hoe snel het volume wordt verlaagd naarmate de bron zich van de listener verwijdert. 0 tot 1",
+      "info-avatarRolloffFactorInifinity": "Een dubbele waarde die beschrijft hoe snel het volume wordt verlaagd naarmate de bron zich van de listener verwijdert. 0 tot oneindig",
+      "info-avatarRefDistance": "Een dubbele waarde die de referentieafstand weergeeft voor het verlagen van het volume naarmate de audiobron verder van de listener komt.",
+      "info-avatarMaxDistance": "Een dubbele waarde die de maximale afstand tussen de audiobron en de luisteraar weergeeft, waarna het volume niet verder wordt verlaagd.",
+      "info-mediaDistanceModel": "De algorithim die wordt gebruikt om de audio rolloff te berekenen.",
+      "info-mediaRolloffFactor": "Een dubbele waarde die beschrijft hoe snel het volume wordt verlaagd naarmate de bron zich van de listener verwijdert. 0 tot 1",
+      "info-mediaRolloffFactorInfinity": "Een dubbele waarde die beschrijft hoe snel het volume wordt verlaagd naarmate de bron zich van de listener verwijdert. 0 tot oneindig",
+      "info-mediaRefDistance": "Een dubbele waarde die de referentieafstand weergeeft voor het verlagen van het volume naarmate de audiobron verder van de listener komt.",
+      "info-mediaMaxDistance": "Een dubbele waarde die de maximale afstand tussen de audiobron en de luisteraar weergeeft, waarna het volume niet verder wordt verlaagd.",
+      "info-mediaConeInnerAngle": "Een dubbele waarde die de hoek beschrijft, in graden, van een kegel waarin zich geen volumereductie zal bevinden.",
+      "info-mediaConeOuterAngle": "Een dubbele waarde die de hoek beschrijft, in graden, van een kegel waarbuiten het volume wordt verminderd met een constante waarde, gedefinieerd door het kenmerk coneOuterGain.",
+      "info-mediaConeOuterGain": "Een dubbele waarde die de hoeveelheid volumereductie beschrijft buiten de kegel die wordt gedefinieerd door het kenmerk coneOuterAngle. De standaardwaarde is 0, wat betekent dat er geen geluid te horen is.",
+      "lbl-simpleMaterials": "Gebruik eenvoudige materialen",
+      "lbl-lods": "LODs",
+      "info-lods": "Hiermee stelt u de afstanden in waarop detailniveaus veranderen.",
+      "info-simpleMaterials": "Converteert alle dure materialen naar eenvoudigere materialen om de last van scèneweergave te verlichten.",
+      "lbl-rendererSettings": "Rendererinstellingen overschrijven",
+      "lbl-csm": "Cascading Shadow Kaarten",
+      "info-csm": "Maakt trapsgewijze schaduwkaarten mogelijk.",
+      "lbl-toneMapping": "Tonemapping",
+      "info-toneMapping": "Hiermee schakelt u tonemapping in op de scènerenderer. Heeft geen effect wanneer een nabewerking is ingeschakeld.",
+      "lbl-toneMappingExposure": "Tone Mapping Exposure",
+      "info-toneMappingExposure": "Hiermee geeft u de belichting van de tonemapping op de scènerenderer op. Heeft geen effect wanneer een nabewerking is ingeschakeld.",
+      "lbl-shadowMapType": "Schaduwkaarttype",
+      "info-shadowMapType": "Type schaduwkaart",
+      "error-url": "Fout bij het laden vanaf URL"
+    },
+    "sceneCamera": {
+      "name": "Scène preview camera",
+      "description": "De camera die wordt gebruikt om de miniatuur voor uw scène en de beginpositie voor de voorbeeldcamera te genereren.",
+      "lbl-setFromViewPort": "Set vanuit Viewport"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Tijd van de dag",
+      "lbl-color": "Kleur",
+      "lbl-latitude": "Breedtegraad",
+      "lbl-luminance": "Luminantie",
+      "lbl-scattering": "Verstrooiingshoeveelheid",
+      "lbl-scatteringDistance": "Strooiafstand",
+      "lbl-horizonStart": "Horizon Start",
+      "lbl-horizonEnd": "Horizon Einde",
+      "lbl-texture": "Textuur",
+      "lbl-skyType": "Hemeltype",
+      "error-url": "Fout bij het laden vanaf URL"
+    },
+    "spawnPoint": {
+      "name": "Spawn Punt",
+      "description": "Een punt waar mensen verschijnen wanneer ze uw scène betreden.\nHet pictogram in de Viewport vertegenwoordigt de werkelijke grootte van een avatar."
+    },
+    "spotLight": {
+      "description": "Een licht dat langs een richting uitstraalt en objecten in een kegel verlicht.",
+      "lbl-color": "Kleur",
+      "lbl-intensity": "Intensiteit",
+      "lbl-penumbra": "Bijschaduw",
+      "lbl-angle": "Hoek",
+      "lbl-range": "Bereik",
+      "lbl-decay": "Verval"
+    },
+    "transform": {
+      "title": "Transformeren",
+      "lbl-postition": "Positie",
+      "lbl-rotation": "Rotatie",
+      "lbl-scale": "Schub"
+    },
+    "triggereVolume": {
+      "description": "Hiermee stelt u een eigenschap in op het doelobject bij enter en leave.",
+      "lbl-target": "Object",
+      "lbl-onenter": "Bij Enter",
+      "lbl-onexit": "Bij vertrek",
+      "lbl-showHelper": "Helper Mesh weergeven",
+      "ph-errorNode": "Fout ontbrekend knooppunt.",
+      "ph-selectNode": "Selecteer knooppunt..."
+    },
+    "video": {
+      "name": "Video",
+      "description": "Laadt dynamisch een video.",
+      "lbl-video": "Video",
+      "lbl-projection": "Projectie",
+      "lbl-islivestream": "Live streamen",
+      "lbl-interactable": "Interactief",
+      "lbl-id": "Element-id",
+      "lbl-play": "Spelen",
+      "lbl-pause": "Pauzeren",
+      "error-url": "Fout bij het laden vanaf URL"
+    },
+    "volumetric": {
+      "name": "Volumetrische",
+      "description": "Laadt dynamisch een volumetrische video.",
+      "uvolPaths": "UVOL-paden",
+      "playmode": "Speelmodus",
+      "playtitle": "Spelen",
+      "pausetitle": "Pauzeren"
+    },
+    "spline": {
+      "description": "Dynamisch curven maken en aanpassen.",
+      "lbl-addNode": "Knooppunt toevoegen aan curve."
+    },
+    "systemnode": {
+      "description": "Script toevoegen.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "Injectiepunt",
+      "lbl-enableClient": "Klant",
+      "lbl-enableServer": "Server",
+      "lbl-args": "Args",
+      "error-url": "Fout bij het laden van script vanaf URL"
+    },
+    "portal": {
+      "lbl-portal": "Gekoppelde portal",
+      "lbl-redirect": "Paginaomleiding gebruiken",
+      "description": "Een Portat om spelers naar een opgegeven locatie te teleporteren",
+      "lbl-locationName": "Plaats",
+      "lbl-modelUrl": "Model-URL",
+      "lbl-displayText": "Tekst weergeven",
+      "lbl-cubemapBake": "Cubemap bakken",
+      "lbl-spawnPosition": "Spawn Positie",
+      "lbl-spawnRotation": "Spawn rotatie",
+      "lbl-triggerPosition": "Trigger positie",
+      "lbl-triggerRotation": "Trigger rotatie",
+      "lbl-triggerScale": "Triggerschaal"
+    },
+    "postprocessing": {
+      "name": "Nabewerking",
+      "description": "Voor het toepassen van postverwerkingseffecten op uw scène."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Nieuw project",
+      "backLink": "Terug naar projecten",
+      "featured": "Aanbevolen",
+      "all": "Alle",
+      "newProject": "Nieuw leeg project",
+      "ph-search": "Scènes zoeken..."
+    },
+    "grid": {
+      "loading": "Laden..."
+    },
+    "page": {
+      "header": "Welkom",
+      "headerMsg": "Als je hier nieuw bent, raden we je aan de zelfstudie te doorlopen. Anders spring je er meteen in en maak je een project helemaal opnieuw of vanuit een van onze sjablonen.",
+      "lbl-startTutorial": "Zelfstudie starten",
+      "projects": "Projecten",
+      "lbl-newProject": "Nieuw project"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Laden...",
+      "placeObject": "Object plaatsen",
+      "placeObjectAtOrigin": "Plaats object bij de oorsprong",
+      "copyURL": "URL kopiëren",
+      "openInNewTab": "URL openen in nieuw tabblad",
+      "deleteAsset": "Asset verwijderen"
+    },
+    "filebrowser": {
+      "addNewFolder": "Nieuwe map toevoegen",
+      "cutAsset": "Snijden",
+      "copyAsset": "Kopiëren",
+      "pasteAsset": "Plakken",
+      "renameAsset": "Herdopen",
+      "viewAssetProperties": "Bekijk eigenschappen"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Herdopen",
+    "lbl-duplicate": "Duplicaat",
+    "lbl-group": "Groep",
+    "lbl-delete": "Verwijderen",
+    "lbl-expandAll": "Alles uitvouwen",
+    "lbl-collapseAll": "Alles samenvouwen",
+    "isseus": "Kwesties:"
+  },
+  "dnd": {
+    "nodes": "{{count}} knooppunten geselecteerd",
+    "models": "{{count}} modellen geselecteerd",
+    "images": "{{count}} afbeeldingen geselecteerd",
+    "videos": "{{count}} video's geselecteerd",
+    "audio": "{{count}} audiobronnen geselecteerd"
+  },
+  "dialog": {
+    "title": "Editor",
+    "lbl-confirm": "OK",
+    "lbl-cancel": "Annuleren",
+    "exportProject": {
+      "title": "Project exporteren",
+      "lbl-confirm": "Project exporteren",
+      "lbl-combineMesh": "Meshes combineren",
+      "lbl-removeUnused": "Ongebruikte objecten verwijderen"
+    },
+    "performance": {
+      "title": "Prestatiecontrole",
+      "lbl-confirm": "Scène publiceren",
+      "learnMore": "Meer informatie",
+      "lbl-polycount": "Aantal veelhoeken",
+      "lbl-material": "Materiaal",
+      "lbl-texture": "Texturen",
+      "lbl-lights": "Lichten",
+      "lbl-fileSize": "Bestandsgrootte",
+      "info-polycount": "We raden je aan om in je scène niet meer dan 50.000 driehoeken te gebruiken voor mobiele apparaten.",
+      "info-material": "We raden u aan niet meer dan 25 unieke materialen in uw scène te gebruiken om trekoproepen op mobiele apparaten te verminderen.",
+      "info-texture": "We raden u aan uw texturen niet meer dan 256 MB video-RAM te gebruiken voor mobiele apparaten. We raden ook af om texturen te gebruiken die groter zijn dan 2048 x 2048.",
+      "info-lights": "Hoewel dynamische lampen niet zijn ingeschakeld op mobiele apparaten, raden we u aan niet meer dan 3 lampjes in uw scène te gebruiken (met uitzondering van omgevings- en halfrondlichten) om uw scène op low-end pc's te laten werken.",
+      "info-fileSize": "We raden een uiteindelijke bestandsgrootte van niet meer dan 16 MB aan voor verbindingen met een lage bandbreedte. Als u de bestandsgrootte verkleint, wordt de tijd verkort die nodig is om uw scène te downloaden.",
+      "txt-polycount": "{{count}} Driehoeken",
+      "txt-material": "{{count}} Materialen",
+      "txt-ram": "~{{count}} Video RAM",
+      "txt-texture": "{{count}} grote texturen",
+      "txt-lights": "{{count}} Lichten"
+    },
+    "progress": {
+      "title": "Laden...",
+      "msg": "Laden...",
+      "lbl-cancel": "Annuleren"
+    },
+    "publish": {
+      "title": "Scène publiceren",
+      "lbl-confirm": "Opslaan en publiceren",
+      "lbl-name": "Naam scène",
+      "info-name": "Naam moet tussen de 4 en 64 tekens lang zijn en mag geen onderstrepingstekens bevatten"
+    },
+    "published": {
+      "title": "Scène gepubliceerd",
+      "header": "Uw scène is gepubliceerd.",
+      "lbl-view": "Bekijk uw scène"
+    },
+    "saveNewProject": {
+      "title": "Steunen",
+      "lbl-name": "Projectnaam",
+      "info-name": "Naam moet tussen de 4 en 64 tekens lang zijn en mag geen onderstrepingstekens bevatten",
+      "lbl-confirm": "Project opslaan"
+    },
+    "support": {
+      "title": "Steunen",
+      "header": "Wilt u een probleem melden?",
+      "msg": "U kunt een <1>GitHub-probleem indienen</1> of ons een e-mail sturen voor ondersteuning op <3>{{mail}}</3>",
+      "discord": "U kunt ons ook vinden op <1>Discord</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing Afbeeldingen",
+      "search": "Zoeken op Bing"
+    },
+    "bingVideo": {
+      "name": "Bing-video's",
+      "search": "Zoeken op Bing"
+    },
+    "element": {
+      "name": "Elementen"
+    },
+    "myAssets": {
+      "name": "Mijn activa"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Zoeken op Google"
+    },
+    "tenor": {
+      "name": "Tenor GIF's",
+      "search": "Zoeken op Tenor",
+      "ph-search": "Gif's zoeken..."
+    },
+    "sketchfab": {
+      "name": "Schetsfab",
+      "search": "Zoeken op Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Asset uploaden"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Afbeeldingen zoeken..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Video's zoeken..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Zoek assets..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Zoek modellen..."
+    },
+    "useUpload": {
+      "multipleFileError": "Invoer accepteert niet meerdere bestanden.",
+      "mineTypeError": "\"{{name}}\" komt niet overeen met de volgende mimetypen of -extensies: {{types}}",
+      "progressTitle": "Bestanden uploaden",
+      "progressMsg": "Bestanden uploaden {{uploaded}} van {{total}}: {{percentage}}%",
+      "uploadError": "Uploadfout",
+      "uploadErrorMsg": "Fout bij het uploaden van bestand: {{message}}",
+      "uploadErrorDefaultMsg": "Er is een onbekende fout opgetreden"
+    }
+  },
+  "openLink": {
+    "description": "Klik op de Open om naar de link te navigeren.",
+    "lbl-open": "Openen"
+  },
+  "interactableModel": {
+    "lbl-buy": "Kopen",
+    "lbl-learnMore": "Meer informatie"
+  },
+  "corsProxyButton": {
+    "tooltip": "Cors Proxy Server gebruiken"
+  }
+}

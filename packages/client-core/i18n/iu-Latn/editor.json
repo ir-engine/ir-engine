@@ -1,0 +1,718 @@
+{
+  "loading": "Loading Project",
+  "loadingMsg": "Loading project...",
+  "loadingError": "tammaqtauninganut iliuqqainirmut piliriaq",
+  "loadingErrorMsg": "tammaqtuqalauqtuq piliriangutillugu.",
+  "selectSceneMsg": "niruarlugu Scene pinnguaqatiqariarluni aulautinik",
+  "error": "tammaqsimajuq",
+  "errorMsg": "nalujaujuqalauqtuq tammaqtuqalaurninganik.",
+  "generateScreenshot": "aulaniq piliriamut qaujisautiit",
+  "generateScreenshotMsg": "aulaaqtittiniq piliriamit...",
+  "newScene": "saqqillugit scene",
+  "saving": "piuqsuarnirmut piliriaq",
+  "savingMsg": "atuluaqtailiniq piliriamik...",
+  "savingError": "tammaqsimajunik atuluaqtailinirmut piliriaq",
+  "savingErrorMsg": "tammaqtuqalaurmat taanna piliriangujuq piuqsuaqtautillugu.",
+  "savingSceneErrorMsg": "Scene-kut tataattianngittut. niurainasuglutit.",
+  "duplicating": "marruliqsuiniq piliriamit",
+  "duplicatingMsg": "marruliqsuiniq piliriamit...",
+  "exporting": "aullaqtittiniq piliriamik",
+  "exportingMsg": "aullaqtittiniq piliriamik...",
+  "exportingError": "tammaqsimajunik aullaqtittiqattarnirmut piliriaq",
+  "exportingErrorMsg": "tammaqtuqalaurmat aullaqtitautillugu piliriaq.",
+  "importLegacy": "Import Legacy World",
+  "importLegacyMsg": "ujjiqsuqujauvutit! taanna tataaqtittiniaqtuq saqqijaarvigijarnik! kajusijumaviit?",
+  "publishingError": "tammaqsimajunik saqqittinirmut piliriaq",
+  "publishingErrorMsg": "nalujaujuqalauqtuq tammaqtuqalaurninganik.",
+  "publishingScene": "titiqqannguqtittiniq",
+  "publishingSceneMsg": "titiqqannguqtittiniq...",
+  "uploadingThumbnailMsg": "minarilugu kulluup...",
+  "uploadingSceneMsg": "qarasaujamuaqtirivvik: {{percentage}}%",
+  "envMapError": "tammaqsimajut iliuqqainiq ivajunik ajjinnguanik {{files}}",
+  "lbl-return": "utiqtuq",
+  "menubar": {
+    "newScene": "nutaaq scene",
+    "saveScene": "saputilugu scene",
+    "saveAs": "jagajjairlugu",
+    "importAsset": "kanataup silataaninngaaqtut piqutit",
+    "exportGLB": "export as binary glTF (.glb) ...",
+    "importScene": "kanataup silataaninngaaqtut",
+    "exportScene": "kanataup silataanut aullaqtitauvvik",
+    "quit": "nuqqarniq"
+  },
+  "errors": {
+    "fileTypeNotSupported": "ikajuqtausimanngittut titiqqat qanuittuuningit tuqquqtausimajut: \"{{name}}\". tuqquivik ajjinnguaq, tarrijaaksaq, uvvaluunniit glb−ngujuq.",
+    "addObject": "ilasiniqpiliriaksaq: piquti nanijaulaunnginningani",
+    "removeObject": "piirlugupilugu: nanijaunngittuq. tamanna pijjutiqartuq piijainirmit nipimit takuksaujunniiqtumit.",
+    "noParent": "{{node}} \"{{name}}\"angajuqqaangunngittuq. pilirituinnasuut piqutini maannaujuq takuksaujumi.",
+    "undefinedParent": "editor.reparent: newParent is undefined",
+    "notAuthenticated": "sulinngittuq",
+    "fetchingProjectError": "tammaqsimajut piliriangujut: {{error}}",
+    "fetchingRouteError": "tammaqsimajut aqqutingit: {{error}}",
+    "unknownError": "nalujaujuq tammaqtuq",
+    "resolveURL": "Error resolving url \"{{url}}\":",
+    "mediaSearchAborted": "pivalliajunik qinirniq",
+    "methodNotImplemented": "pilirijjusiq atuliqtitaunngittuq.",
+    "saveProjectAborted": "saputilugu takuksaujuq",
+    "unsavedChanges": "asijjiqsimajut asijjiqsimajut",
+    "unsavedChangesMsg": "taanna takuksauninga aaqqigiaqtausimaliqtuq. asijjiqtatit tuqqurlugit.",
+    "projectCreationFail": "piliriaq saqqitauninga kajusilaunngittuq. {{reason}}",
+    "projectDeletionFail": "piliriamut piiqtaujuq ajulauqtuq. {{reason}}",
+    "savingProjectFail": "piliriaq kajusinngippat. {{reason}}",
+    "sceneTooLarge": "Scene angiluaqpuq ({{size}} MB)-mik saqqitittiniarluni. angilaangujuq angininga {{maxSize}} MB.",
+    "sceneCreationFail": "Scene creation failed. {{reason}}",
+    "uploadAborted": "qaritaujamuaqtiriniq",
+    "uploadFailed": "minarilugu {{reason}}",
+    "assetDeletionFail": "piqutimik piiqtuq ajulilauqtuq. {{reason}}",
+    "projectAssetDeletionFail": "piliriamut piqutit piijaqtaujut ajulilauqtut. {{reason}}",
+    "networkError": "kasuqatigiitsimajjut tammaqtuq: {{status}}. {{text}}",
+    "unknownStatus": "qaujimajaunngittuq qanuilinganinga",
+    "CORS": "immaqa CORS−mut tammaqtuqatuinnarialik",
+    "urlFetchError": "failed to fetch \"{{url}}\""
+  },
+  "viewport": {
+    "title": "viewport",
+    "command": {
+      "movecamera": "nuullugit ajjiliurutiit",
+      "flyFast": "sukanniqsakkut",
+      "orbit": "orbit / niruarlugu",
+      "pan": "panajuq",
+      "fly": "Fly",
+      "focus": "tautuganga",
+      "rotateLeft": "nikittaaqtuq saumiani",
+      "rotateRight": "nikittaaqtuq taliqpiani",
+      "cancelPlacement": "nuqqaqtitaujuq",
+      "placeDuplicate": "ililugit ajjingit",
+      "cancelGrab": "nuqqaqtittiniq Grab−mik",
+      "grab": "Grab",
+      "deselectAll": "tamarmik"
+    },
+    "state": {
+      "header": "kiglisiniaqtausimajut",
+      "memory": "iqqaumaniq",
+      "geometries": "nunannguat",
+      "textures": "aaqqiksimaningit",
+      "render": "Render",
+      "FPS": "FPS",
+      "frameTime": "piviksarititaujuq",
+      "calls": "uqaalajut",
+      "triangles": "quagjuaqtut",
+      "points": "naisautit",
+      "lines": "tukiliaqtut"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "titiqqannguqtittiniq",
+    "lbl-published": "titiqqannguqtitaujuq",
+    "command": {
+      "translate": "tukiliuqtausimajuq",
+      "rotate": "nikittaarniq",
+      "scale": "uukturarniq",
+      "toggleSpace": "2015-2015-mi",
+      "togglePivot": "Toggle Transform Pivot",
+      "toggleSnapMode": "Toggle Snap Mode",
+      "toggleGrid": "1000000000000000000000000000",
+      "increaseGridSize": "angigligiarlugu uummaqqutiup angininga",
+      "descreaseGridSize": "mikłigiarlugit uummaqqutit anginingit",
+      "stopPreview": "nuqqaqtillugu qimirruniq",
+      "playPreview": "tauturarnaarniq"
+    }
+  },
+  "properties": {
+    "title": "piqutigijaujut",
+    "lbl-visible": "takuksaujut",
+    "lbl-preventBake": "igattaililugu",
+    "lbl-persist": "piinnarniq",
+    "multipleNodeSelected": "amisut ajjigiinngittut niruaqtausimajut",
+    "noNodeSelected": "node select",
+    "ambientLight": {
+      "name": "qaumajuq qaumajuq",
+      "description": "qaumajuq piqutilimaat takuksautitainnarilugit.",
+      "lbl-intensity": "aksururnarninga",
+      "lbl-color": "taqsanga"
+    },
+    "envmap": {
+      "name": "avatilirinirmut nunannguaq",
+      "description": "avatilirinirmut nunannguat"
+    },
+    "asset": {
+      "name": "piqutit",
+      "description": "katinngaurlutik takuksaujut ilulingit iliuqqaijunnattiarlutik niuraijunnanngiłłutiglu",
+      "lbl-options": "atuqtaungaarunnaqtut",
+      "lbl-assetPath": "piqutiup aqqutinga",
+      "lbl-assetName": "kanataup silataanut aullaqtutiup atinga",
+      "lbl-exportOptions": "kanataup silataanut aullaqtitaujunnaqtut",
+      "lbl-export": "aullaqtani piqutit",
+      "lbl-load": "iliuqqainiq takuksaujumut",
+      "lbl-unload": "niurainiq",
+      "lbl-reload": "niurainiq"
+    },
+    "audio": {
+      "name": "tusaajut",
+      "description": "ijaruvaujait nipingit.",
+      "lbl-audiourl": "tusaajut urul",
+      "lbl-controls": "aulattijjutit",
+      "info-controls": "takuksauninga pivalliajulirijikkut aulattijjutingit.",
+      "lbl-autoplay": "pinnguarniq",
+      "info-autoplay": "sulikpat, pivalliajulirijikkut pinnguarniaqtut isiqqaaliqtillugit.",
+      "lbl-synchronize": "akupliqtisimajuq",
+      "info-synchronize": "sulikpat, pivalliajulirijikkut katinngatitauniaqtut tamainnut aktuajunut kamagijaujunut.",
+      "lbl-loop": "Loop",
+      "info-loop": "sulikpat pivalliajulirijiit pikkumigijauttiarniaqtut.",
+      "lbl-audioType": "tusaajunnautiup qanuittuuninga",
+      "lbl-distanceModel": "ungasingninganut aaqqiumajuq",
+      "info-distanceModel": "algorithim atuqtaulauqtuq naasausirijjutaulluni nipinik.",
+      "lbl-rolloffFactor": "ruaav sulijjuti",
+      "info-rolloffFactor": "marruilluarluni akinga nalunaijaijuq qanutigi sukkatigijumik angininga mikłigiarmangaat pivviujuq nuutillugu naalaktumit. 0−nit 1−mut",
+      "info-rfInfinity": "marruilluarluni akinga nalunaijaijuq qanutigi sukkatigijumik angininga mikłigiarmangaat pivviujuq nuutillugu naalaktumit. 0−mit nalunaiqtaujuq",
+      "lbl-refDistance": "ungasingninga",
+      "info-refDistance": "marruilluarluni akinga kiggaqtuijuq nalunaikkutangata ungasingninganik mikłigiaqtillugu angininga nipiliuruti ingirratillugu naalaktumit.",
+      "lbl-maxDistance": "angilaaq ungasingninga",
+      "info-maxDistance": "marruilluarluni akinga kiggaqtuijuq angilaangani ungasingningani nipiup amma naalaktuup, kinguniagut angininga mikłigiakkanninngilluni qanutuinnaq.",
+      "lbl-coneInnerAngle": "kaan innu agli",
+      "info-coneInnerAngle": "marruilluarlugu akinga nalunaiqsisimajuq tiriqquani, ikkiinarninga, iluani anginingani mikłigiajjaanngiłłuni.",
+      "lbl-coneOuterAngle": "Cone Outer Angle",
+      "info-coneOuterAngle": "marruilluarluni akinga nalunaiqsisimajuq tiriqquani, uunarniujumi, anginingani silataani angininga mikłigiaqtauniaqtuq akigigajuktangani, nalunaiqtausimajuq kantuugainmut.",
+      "lbl-coreOuterGain": "Cone Outer Gain",
+      "info-coreOuterGain": "marruilluarlugu akinga nalunaiqsisimajuq angininganik mikłigiarutiup silataani nalunaiqtausimajuq kantaantiup. atunnginniq akinga 0−nguvuq, imanna tukiqaqłuni, nipinga tusaqtaujunnanngilaq.",
+      "lbl-volume": "angitigijuq",
+      "lbl-play": "pinnguarniq",
+      "lbl-pause": "nuqqangalaukakniq",
+      "error-url": "tammaqsimajut iliuqqaqtaujut URL−kunni"
+    },
+    "boxCollider": {
+      "description": "takuksaunngittuq kippaariktuq piqutit ajaktauniaqtut uvvaluunniit taqaiqsirlutik qaangagut.\ntuluqtuqanngippat, piqutit kataqattarniaqtut natikkut akinnakkullu.",
+      "lbl-isTrigger": "pijumalirnaqtut"
+    },
+    "camera": {
+      "name": "ajjiliuruti",
+      "description": "ajjiliurutiit aaqqiksimaningit.",
+      "lbl-camera-raycast": "ajjiliuruti raikasting",
+      "lbl-camera-raycast-toggle": "pijunnaqtittijuq",
+      "lbl-camera-raycast-frequency": "akulaittarninga",
+      "lbl-camera-raycast-count": "rai naasaqtauningit",
+      "lbl-camera-raycast-length": "rai takin"
+    },
+    "directionalLight": {
+      "name": "namunngauniarnirmut qaumaniq",
+      "description": "qaumajuq takuksaujuq, kisiani atausittainnarmut turaarluni.",
+      "lbl-color": "taqsanga",
+      "lbl-intensity": "aksururnarninga",
+      "lbl-cameraFar": "ajjiliuruti",
+      "lbl-cameraNear": "ajjiliurutit qanigijaani",
+      "lbl-cameraTop": "ajjiliurutiup qaanga",
+      "lbl-cameraBottom": "ajjiliuruti ataani",
+      "lbl-cameraLeft": "ajjiliuruti saumiani",
+      "lbl-cameraRight": "ajjiliurutiup taliqpiani",
+      "lbl-useInCSM": "aturniq CSM−mi",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-disableForCSM": "timimigut ajurutiqaqtut suuqaimma Cascade shadow nunannguanga ajuqtitaunngimmat.",
+      "lbl-shadowmapResolution": "Shadow nunannguamik aaqqiksiniq",
+      "lbl-shadowBias": "Shadow Bias",
+      "lbl-shadowRadius": "Shadow Radius",
+      "lbl-showCameraHelper": "takutillugu Camera Helper"
+    },
+    "groundPlane": {
+      "name": "maniqqami plane",
+      "description": "maniraq maniqqami qangatasuuq ungasingniqaqtuq.",
+      "lbl-color": "taqsanga",
+      "lbl-receiveShadow": "piniq Shadow−mit",
+      "lbl-generateNavmesh": "Generate Navmesh"
+    },
+    "link": {
+      "description": "attatarvigijunnaqtasi iglurusirmut ikiaqqivingmilluunniit.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "3D nunannguaq suurlu nunalipaujaq."
+    },
+    "model": {
+      "description": "3D−mik atuqtaujunnaqtumik inigijarni, iliuqqaivviulluni GLTF URL−mit uvvaluunniit titiqqaqutigijaujumit.",
+      "lbl-usingGPUInstancingFlag": "aturlugu GPU−mut pisitiuniq",
+      "lbl-modelurl": "Model Url",
+      "lbl-envmapUrl": "avatilirijikkut nunannguanga",
+      "lbl-textureOverride": "Override Texture",
+      "lbl-materialOverride": "piqutit qaangiutijut",
+      "error-url": "tammaqsimajut iliuqqaqtaujut URL−kunni",
+      "lbl-loopAnimation": "Loop Animation",
+      "lbl-isAvatar": "Is Avatar",
+      "lbl-isGPUInstancing": "GPU−mit atuqpuq",
+      "lbl-isDynamic": "ADynamic",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-receiveShadow": "piniq Shadow−mit",
+      "lbl-interactable": "piliriqatigiigunnarniq",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "atinga",
+      "lbl-url": "Model Url",
+      "lbl-buy": "niuvirlutit",
+      "lbl-learnMore": "ilittikkannirit",
+      "lbl-htmlContent": "Html ilulingit",
+      "lbl-interactionText": "piliriqatiqarnirmut titiraqsimajut",
+      "lbl-interactionType": "piliriqatigiigusiq qanuittuuninga"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "sunakkutaat",
+      "error-materialID": "tammaqtunik nanisinirmut sunakkutiit",
+      "placeholder-materialID": "niruarluti sunakkutaanit",
+      "lbl-patternTarget": "Pattern Match",
+      "lbl-pattern": "pattern",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "piliriqatigiigusiq qanuittuuninga",
+      "text": "piliriqatiqarnirmut titiraqsimajut",
+      "distance": "ungasigiiktiginiq",
+      "theme": "piliriqatigiigusiq",
+      "name": "inuuqatigusiup atinga",
+      "description": "piliriqatigiingnirmut nalunaijaqsimajut",
+      "images": "ajjiit",
+      "videos": "tarrijaaksat",
+      "urls": "piliriqatigiigusiit",
+      "models": "piliriqatigiigusiit"
+    },
+    "group": {
+      "name": "katinngajut",
+      "description": "katinngajut qassikallangnik piqutinik nuutaujunnaqtunik uvvaluunniit marrunnguqtitaujunnaqtunik atauttikkut.\nDrag amma drop objects into the Group in the Hierarchy."
+    },
+    "hemisphere": {
+      "name": "Hemisphere Light",
+      "description": "ikumajuq takuksaujuq quttiktumit.",
+      "lbl-skyColor": "sikai kuulor",
+      "lbl-groundColor": "nunaup taqsanga",
+      "lbl-intensity": "aksururnarninga"
+    },
+    "image": {
+      "name": "ajjinnguaq",
+      "description": "ajjinnguamik iliuqqainiq.",
+      "lbl-imgURL": "ajjinnguaq",
+      "lbl-transparency": "saqqijaarniq",
+      "lbl-alphaCutoff": "aavta kaav",
+      "lbl-projection": "qanuuniarasugijaujut",
+      "lbl-side": "saniraani",
+      "info-controls": "takuksauninga pivalliajulirijikkut aulattijjutingit.",
+      "info-transparency": "qanuq aturunnarmangaat takuksauttiarnirmik:",
+      "info-opaque": "'opaque' = takuksauttianngittuq",
+      "info-blend": "'katiqsuqsimajut' = aturlugit ajjinnguat alpha qillajjuganga",
+      "info-mask": "'mask' = aturlutit nalunaiqtausimajumit nakattinirmut akingani saqqijaattiarninganut (pilirijuq)",
+      "info-alphaCutoff": "pixels−qaqtut alpha−mut annirnarniqsaujut takuksauttiarniaqput",
+      "error-url": "Invalid URL"
+    },
+    "name": {
+      "lbl-name": "atinga"
+    },
+    "partileEmitter": {
+      "description": "particle emitter to create particles.",
+      "lbl-particleCount": "Particle Count",
+      "lbl-image": "ajjinnguaq",
+      "lbl-ageRandomness": "ukiungit nakituinnaq",
+      "lbl-lifetime": "inuusilimaaq",
+      "lbl-lifetimeRandomness": "inuusilimaaq nakituinnaq",
+      "lbl-sizeCurve": "angininga sangutitauninga",
+      "lbl-startPSize": "pigiarvigiqqaujait anginingit",
+      "lbl-endPSize": "isulillugu ilangata angininga",
+      "lbl-sizeRandomness": "angininga nakituinnaq",
+      "lbl-colorCurve": "Color Curve",
+      "lbl-startColor": "pigiarvinga",
+      "lbl-startOpacity": "Start Opacity",
+      "lbl-middleColor": "qitianiittut taqsangit",
+      "lbl-middleOpacity": "akunniqsuqtuq ijiup akunningani",
+      "lbl-endColor": "isulillugu taqsanga",
+      "lbl-endOpacity": "End Opacity",
+      "lbl-velocityCurve": "Velocity Curve",
+      "lbl-startVelocity": "Start Velocity",
+      "lbl-endVelocity": "isua",
+      "lbl-angularVelocity": "Angular Velocity",
+      "info-ageRandomness": "ajjigiinnginningit ilaujut talurukkuaqtillugit.",
+      "info-lifetime": "arraagungit ilainnangit atuqtaukkannilaunnginninginnit.",
+      "info-lifetimeRandomness": "qanuq angitigininga ajjigiinnginninga ukungnunnga, particle lifes.",
+      "info-sizeRandomness": "qanuq angitigininga ajjigiinnginninga ukungnunnga, particle−mut pigiarvigivalliajanginnut angininginnut.",
+      "error-url": "tammaqsimajut iliuqqaqtaujut URL−kunni"
+    },
+    "clouds": {
+      "name": "Cloud",
+      "description": "Sprite based cloud volume.",
+      "lbl-image": "Sprite Image",
+      "lbl-wroldScale": "nunarjuarmi qaujisaruti",
+      "lbl-dimensions": "ilulingit",
+      "lbl-noiseZoom": "nipis juam",
+      "lbl-noiseOffset": "nipinga",
+      "lbl-spriteScale": "Sprite Scale",
+      "lbl-fogColor": "Fog Color",
+      "lbl-fogRange": "arviqtaqtut",
+      "error-url": "tammaqsimajut iliuqqaqtaujut URL−kunni"
+    },
+    "ocean": {
+      "name": "tariuq",
+      "description": "tariuq qaanga malliqaqłuni amma foam−qaqłuni",
+      "lbl-normalMap": "atuqtaugajukpaktut nunannguaq",
+      "lbl-distortionMap": "Distortion Map",
+      "lbl-envMap": "avatilirinirmut nunannguaq",
+      "lbl-color": "taqsanga",
+      "lbl-shallowWaterColor": "ikkattuup taqsanga",
+      "lbl-shallowToDeepDistance": "ikkattukuluuluni ungasingninganut",
+      "lbl-opacityFadeDistance": "Opacity Fade Distance",
+      "lbl-opacityRange": "ijiup angininga",
+      "lbl-shininess": "qiliqsinarniq",
+      "lbl-reflectivity": "isumaksaqsiuttiarniq",
+      "lbl-foamColor": "Foam Color",
+      "lbl-foamSpeed": "sukkasarniq",
+      "lbl-foamTiling": "Foam Tiling",
+      "lbl-bigWaveTiling": "Big Wave Tiling",
+      "lbl-bigWaveSpeed": "angijuq sukkasaqtuq",
+      "lbl-bigWaveHeight": "angijuq agliruup puqtuninga",
+      "lbl-waveSpeed": "sukkasaqtumik",
+      "lbl-waveScale": "2015-2",
+      "lbl-waveTiling": "illaujaqtuq",
+      "lbl-waveDistortionSpeed": "sukkasarniq",
+      "lbl-waveDistortionTiling": "1000000000000000000",
+      "error-url": "tammaqsimajut iliuqqaqtaujut URL−kunni"
+    },
+    "water": {
+      "name": "imaq",
+      "description": "mikittuq imaup qaanga"
+    },
+    "interior": {
+      "name": "ilua",
+      "description": "qaanga nunanngualiqsimajuq kippaariktuq iluup iluanit",
+      "lbl-cubeMap": "Cube nunannguap aaqqiksimaninga",
+      "lbl-tiling": "qungasiruup angininga",
+      "lbl-size": "nunaup qaangata angininga",
+      "error-url": "tammaqsimajut iliuqqaqtaujut URL−kunni"
+    },
+    "pointLight": {
+      "description": "qaumajuq simiksijuq tamainnik turaarutinik atausirmik.",
+      "lbl-color": "taqsanga",
+      "lbl-intensity": "aksururnarninga",
+      "lbl-range": "ajjigiinngittut",
+      "lbl-decay": "auniqtaarniq"
+    },
+    "scene": {
+      "name": "Scene",
+      "description": "pijjutinga takuksaujuup.",
+      "lbl-bgcolor": "piliriangusimajut taqsangit",
+      "lbl-fogType": "Fog Type",
+      "lbl-fogColor": "Fog Color",
+      "lbl-forNearDistance": "Fog qanittukkut ungasingninga",
+      "lbl-fogFarDistance": "Fog Far Distance",
+      "lbl-fogDensity": "Fog Density",
+      "lbl-audioSettings": "aturlugu iqqanaijaamut nipiliuqsimajuq",
+      "lbl-avatarDistanceModel": "Avatar Distance Model",
+      "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
+      "lbl-avatarRefDistance": "Avatar Ref Distance",
+      "lbl-avatarMaxDistance": "avatar maaks ungasingninga",
+      "lbl-mediaVolume": "pivalliajuq angininga",
+      "lbl-mediaDistanceModel": "pivalliajunut ungasigigaluarlugu atuqtaunajaqtuq",
+      "lbl-mediaRolloffFactor": "pivalliajunut ruav sulijjuti",
+      "lbl-mediaRefDistance": "pivalliajunut nalunaikkutaq ungasingninga",
+      "lbl-mediaMaxDistance": "Media Max Distance",
+      "lbl-mediaConeInnerAngle": "Media Cone Inner Angle",
+      "lbl-mediaConeOuterAngle": "Media Cone Outer Angle",
+      "lbl-mediaConeOuterGain": "Media Cone Outer Gain",
+      "info-avatarDistanceModel": "algorithim atuqtaulauqtuq naasausirijjutaulluni nipinik.",
+      "info-avatarRolloffFactor": "marruilluarluni akinga nalunaijaijuq qanutigi sukkatigijumik angininga mikłigiarmangaat pivviujuq nuutillugu naalaktumit. 0−nit 1−mut",
+      "info-avatarRolloffFactorInifinity": "marruilluarluni akinga nalunaijaijuq qanutigi sukkatigijumik angininga mikłigiarmangaat pivviujuq nuutillugu naalaktumit. 0−mit nalunaiqtaujuq",
+      "info-avatarRefDistance": "marruilluarluni akinga kiggaqtuijuq nalunaikkutangata ungasingninganik mikłigiaqtillugu angininga nipiliuruti ingirratillugu naalaktumit.",
+      "info-avatarMaxDistance": "marruilluarluni akinga kiggaqtuijuq angilaangani ungasingningani nipiup amma naalaktuup, kinguniagut angininga mikłigiakkanninngilluni qanutuinnaq.",
+      "info-mediaDistanceModel": "algorithim atuqtaulauqtuq naasausirijjutaulluni nipinik.",
+      "info-mediaRolloffFactor": "marruilluarluni akinga nalunaijaijuq qanutigi sukkatigijumik angininga mikłigiarmangaat pivviujuq nuutillugu naalaktumit. 0−nit 1−mut",
+      "info-mediaRolloffFactorInfinity": "marruilluarluni akinga nalunaijaijuq qanutigi sukkatigijumik angininga mikłigiarmangaat pivviujuq nuutillugu naalaktumit. 0−mit nalunaiqtaujuq",
+      "info-mediaRefDistance": "marruilluarluni akinga kiggaqtuijuq nalunaikkutangata ungasingninganik mikłigiaqtillugu angininga nipiliuruti ingirratillugu naalaktumit.",
+      "info-mediaMaxDistance": "marruilluarluni akinga kiggaqtuijuq angilaangani ungasingningani nipiup amma naalaktuup, kinguniagut angininga mikłigiakkanninngilluni qanutuinnaq.",
+      "info-mediaConeInnerAngle": "marruilluarlugu akinga nalunaiqsisimajuq tiriqquani, ikkiinarninga, iluani anginingani mikłigiajjaanngiłłuni.",
+      "info-mediaConeOuterAngle": "marruilluarluni akinga nalunaiqsisimajuq tiriqquani, uunarniujumi, anginingani silataani angininga mikłigiaqtauniaqtuq akigigajuktangani, nalunaiqtausimajuq kantuugainmut.",
+      "info-mediaConeOuterGain": "marruilluarlugu akinga nalunaiqsisimajuq angininganik mikłigiarutiup silataani nalunaiqtausimajuq kantaantiup. atunnginniq akinga 0−nguvuq, imanna tukiqaqłuni, nipinga tusaqtaujunnanngilaq.",
+      "lbl-simpleMaterials": "aturlutit ajurnanngittunik piqutinik",
+      "lbl-lods": "LODs",
+      "info-lods": "aaqqiksivakpuq ungasingninginnik naliak naniititauniit ilulingit asijjiqpangninginnut.",
+      "info-simpleMaterials": "asijjiivakpuq tamainnik akitujunik piqutinik ajurnannginniqsakkut agjaqtauniarlutik.",
+      "lbl-rendererSettings": "Override Renderer Settings",
+      "lbl-csm": "Cascading Shadow nunannguat",
+      "info-csm": "pijunnaqtittijuq nunannguanik malikatagunnaqtunik.",
+      "lbl-toneMapping": "tone nunanngualiriniq",
+      "info-toneMapping": "nunanngualiurunnaqtittilluni takuksaujumi. aktuutiqanngilaq saqqitaujuq piliriangutillugu.",
+      "lbl-toneMappingExposure": "tui nunanngualirinirmut saqqijaarniq",
+      "info-toneMappingExposure": "nalunaiqsinirmit nunanngualiurnirmut saqqijaarviunirmut saqqijaarviunirmut. aktuutiqanngilaq saqqitaujuq piliriangutillugu.",
+      "lbl-shadowMapType": "Shadow nunannguap qanuittuuninga",
+      "info-shadowMapType": "qanuittuuninga nunannguap",
+      "error-url": "tammaqsimajut iliuqqaqtaujut URL−kunni"
+    },
+    "sceneCamera": {
+      "name": "Scene Preview Camera",
+      "description": "ajjiliurutiujuq kulluup kullunganik atulauqtuq takuksauvvigijarnut ammalu pigiarviginiaqtarnut ajjiliurutimut.",
+      "lbl-setFromViewPort": "aaqqiksiniq viewport−mit"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "ulluq",
+      "lbl-color": "taqsanga",
+      "lbl-latitude": "sanimut",
+      "lbl-luminance": "luminance",
+      "lbl-scattering": "Scattering Amount",
+      "lbl-scatteringDistance": "ungasigiiktiginiq",
+      "lbl-horizonStart": "Horizon Start",
+      "lbl-horizonEnd": "Horizon End",
+      "lbl-texture": "aaqqiksimaninga",
+      "lbl-skyType": "Sky Type",
+      "error-url": "tammaqsimajut iliuqqaqtaujut URL−kunni"
+    },
+    "spawnPoint": {
+      "name": "nuvua",
+      "description": "inuit upagviginiaqtangit isiraangata.\najjiit tauttunginni takuksautittivut angininganik avataup."
+    },
+    "spotLight": {
+      "description": "qaumajuq simiksijuq tukimuagutikkut, piqutiup iluaniitillugu.",
+      "lbl-color": "taqsanga",
+      "lbl-intensity": "aksururnarninga",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "agliruup",
+      "lbl-range": "ajjigiinngittut",
+      "lbl-decay": "auniqtaarniq"
+    },
+    "transform": {
+      "title": "transform",
+      "lbl-postition": "iqqanaijaanga",
+      "lbl-rotation": "nikittaarniq",
+      "lbl-scale": "uukturarniq"
+    },
+    "triggereVolume": {
+      "description": "aaqqiksivakpuq nangminirijaujumik turaarijaujumut piqutimut isirniarluni nuqqangalunilu.",
+      "lbl-target": "kisuuningit",
+      "lbl-onenter": "isiqtillugu",
+      "lbl-onexit": "aninialiqtillugit",
+      "lbl-showHelper": "takutillugu ikajuqti Mesh",
+      "ph-errorNode": "tammaqsimajuq pitaqangittuq.",
+      "ph-selectNode": "niruarlugu node..."
+    },
+    "video": {
+      "name": "tarrijaaksaq",
+      "description": "tarrijaaksaliusuut.",
+      "lbl-video": "tarrijaaksaq",
+      "lbl-projection": "qanuuniarasugijaujut",
+      "lbl-islivestream": "saqqijaakautigijuq",
+      "lbl-interactable": "piliriqatigiigunnarniq",
+      "lbl-id": "Element Id",
+      "lbl-play": "pinnguarniq",
+      "lbl-pause": "nuqqangalaukakniq",
+      "error-url": "tammaqsimajut iliuqqaqtaujut URL−kunni"
+    },
+    "volumetric": {
+      "name": "Volumetric",
+      "description": "tarrijausiat.",
+      "uvolPaths": "UVOL−mut aqqusinirijauvaktut",
+      "playmode": "pinnguaruti",
+      "playtitle": "pinnguarniq",
+      "pausetitle": "nuqqangalaukakniq"
+    },
+    "spline": {
+      "description": "sananikkut ammalu aaqqiksuinikkut kuulinik.",
+      "lbl-addNode": "ilalugu nipitirlugu."
+    },
+    "systemnode": {
+      "description": "ilaliutisimajuq titiraqsimajunik.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "kaup nuvua",
+      "lbl-enableClient": "pijittiraqtaujuq",
+      "lbl-enableServer": "Server",
+      "lbl-args": "Args",
+      "error-url": "tammaqsimajut iliuqqainirmut titiraqsimajut URL−mit"
+    },
+    "portal": {
+      "lbl-portal": "Linked Portal",
+      "lbl-redirect": "aturlugu makpiqtugaq sangutittiniq",
+      "description": "Portat to teleport pinnguaqtit nalunaiqtausimajut naniinningit",
+      "lbl-locationName": "iniginiaqtanga",
+      "lbl-modelUrl": "Model URL",
+      "lbl-displayText": "saqqijaaqtitaujuq titiqqaq",
+      "lbl-cubemapBake": "Cubemap igaup iluani",
+      "lbl-spawnPosition": "Spawn Position",
+      "lbl-spawnRotation": "sipauan nikittaarniq",
+      "lbl-triggerPosition": "pijumalirutaulirunnaqtuq iqqanaijaaq",
+      "lbl-triggerRotation": "nikittaarniq",
+      "lbl-triggerScale": "pigiaqtittinirmut anginilit"
+    },
+    "postprocessing": {
+      "name": "saqqitaujuksaq",
+      "description": "pinajugumaguvit post processing effects to you scene."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "nutaaq piliriaq",
+      "backLink": "utirluni piliriaksanut",
+      "featured": "saqqijaaqtitaujuq",
+      "all": "tamarmik",
+      "newProject": "nutaaq Empty piliriaq",
+      "ph-search": "qinirviujut..."
+    },
+    "grid": {
+      "loading": "Loading..."
+    },
+    "page": {
+      "header": "tunngasugit",
+      "headerMsg": "nutaanguguvit tavvani atuliqujivugut ilisaijitigut. taimainngippat, qiggiqtarluni aaqqiksilunilu piliriaksamit qisuktaunirmit uvvaluunniit titirarviksattinni.",
+      "lbl-startTutorial": "pigiarniq ilinniatitsinirmit",
+      "projects": "piliriat",
+      "lbl-newProject": "nutaaq piliriaq"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Loading...",
+      "placeObject": "ililugu piquti",
+      "placeObjectAtOrigin": "ililugu piquti Origin−mi",
+      "copyURL": "ajjinga URL",
+      "openInNewTab": "Open URL in New Tab",
+      "deleteAsset": "piiqtaq piquti"
+    },
+    "filebrowser": {
+      "addNewFolder": "ilalugu nutaaq qikurivvik",
+      "cutAsset": "aggurlugu",
+      "copyAsset": "ajjinga",
+      "pasteAsset": "paste",
+      "renameAsset": "atikkanninga",
+      "viewAssetProperties": "qimirrulugit piqutigijaujut"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "atikkanninga",
+    "lbl-duplicate": "ajjingit",
+    "lbl-group": "katinngajut",
+    "lbl-delete": "piiqtuq",
+    "lbl-expandAll": "angigligiarlugu tamarmik",
+    "lbl-collapseAll": "kataktuinnaulauqtut",
+    "isseus": "pijjutaujut:"
+  },
+  "dnd": {
+    "nodes": "{{count}} nodes niruaqtaujut",
+    "models": "{{count}} atuqtaujunnaqtut niruaqtaujut",
+    "images": "{{count}} ajjiit niruaqtausimajut",
+    "videos": "{{count}} tarrijaaksat niruaqtaujut",
+    "audio": "{{count}} tusaqsaujunnautit niruaqtaujut"
+  },
+  "dialog": {
+    "title": "aaqqiksuiji",
+    "lbl-confirm": "Ok",
+    "lbl-cancel": "nuqqaqtittiniq",
+    "exportProject": {
+      "title": "aullaqtarsinirmut piliriaq",
+      "lbl-confirm": "aullaqtarsinirmut piliriaq",
+      "lbl-combineMesh": "katillugit meshes",
+      "lbl-removeUnused": "piirlugit atuqtaunngittut piqutit"
+    },
+    "performance": {
+      "title": "pilirittiarmangaat qaujisarniq",
+      "lbl-confirm": "saqqittiniq",
+      "learnMore": "qaujigiakkannirit",
+      "lbl-polycount": "Polygon Count",
+      "lbl-material": "pilirijjutiit",
+      "lbl-texture": "aaqqiksimaningit",
+      "lbl-lights": "ikumait",
+      "lbl-fileSize": "tuqquqtausimajut anginingit",
+      "info-polycount": "50,000 ungataanit quagjuaqtunit atuqujattinnit atuqujavut.",
+      "info-material": "atuqujivugut 25 ungataaniunngittuq ajjiunngittunik piqutinik takuksauvvigijarni mikigligiaqtittijumanirmut uqaalajunik uqaalautiralaakkut.",
+      "info-texture": "atuqujavut 256MB−mit tarrijausiamit atuqunajaqtavut uqaluutiralaanut. atuqujinajarmijuguttauq aturluta titiraqsimajunik anginiqsanik 2048 x 2048−mit.",
+      "info-lights": "uummariktut ikumait ajuqtitaunngikkaluaqtillugit uqaluutiralaanut, atuqujijugut pingasut ungataanuunngittuq ikumat takuksauvvigijarni (ilaunngillutik amma hemisphere qaummaqqutit) takuksauvvigijarnut ingirratillugu attiktumit TACs−nit.",
+      "info-fileSize": "atuliqujivugut kingulliqpaami titiraqsimajunik angininganik 16MB ungataaniunngittuq qaritaujalirijunnautit attatarvinginnut. mikłitiriniq titiqait angininginnik mikłigiaqtittiniaqtuq piviqarnirmik qaritaujakkut pilugu takuksaunirijait.",
+      "txt-polycount": "{{count}} quagjuaqtut",
+      "txt-material": "{{count}} piqutit",
+      "txt-ram": "~{{count}} tarrijaaksaq RAM",
+      "txt-texture": "{{count}} angijut titiraqsimajut",
+      "txt-lights": "{{count}} aqsarniit"
+    },
+    "progress": {
+      "title": "Loading...",
+      "msg": "Loading...",
+      "lbl-cancel": "nuqqaqtittiniq"
+    },
+    "publish": {
+      "title": "saqqittiniq",
+      "lbl-confirm": "saputilugit amma saqqititat",
+      "lbl-name": "Scene Name",
+      "info-name": "atinga 4-lu 64-lu akunninginniittariaqaqtut ammalu iluliqarunnaratik ataaniittunit"
+    },
+    "published": {
+      "title": "Scene Published",
+      "header": "takuksaunirijait saqqitausimaliqtuq.",
+      "lbl-view": "takulugu takuksauvvigijait"
+    },
+    "saveNewProject": {
+      "title": "ikajuqtuinniq",
+      "lbl-name": "piliriaksaup atinga",
+      "info-name": "atinga 4-lu 64-lu akunninginniittariaqaqtut ammalu iluliqarunnaratik ataaniittunit",
+      "lbl-confirm": "saputilugu piliriaq"
+    },
+    "support": {
+      "title": "ikajuqtuinniq",
+      "header": "akaunngiliurutimik uqausiqariaqaqpiit?",
+      "msg": "<1>titirarunnaqtutit GitHub Issue</1> uvvaluunniit irngiinnaaqtaukkut uvattinnut ikajuqtaujumalutit <3>{{mail}}</3>",
+      "discord": "nanisijunnarivutittauq <1>Discord</1>−mi"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "pinguit ajjinnguat",
+      "search": "qinirlugu ping"
+    },
+    "bingVideo": {
+      "name": "pinnguurniq tarrijaaksanik",
+      "search": "qinirlugu ping"
+    },
+    "element": {
+      "name": "ilulingit"
+    },
+    "myAssets": {
+      "name": "piqutikka"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "qinirsarniq Google−kunnit"
+    },
+    "tenor": {
+      "name": "Tenor GIFs",
+      "search": "qinirlugu tupiup",
+      "ph-search": "qinirlugu GIFs..."
+    },
+    "sketchfab": {
+      "name": "titiraujaqsimajuq",
+      "search": "qinirlugu titiraujaqsimajuq"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "minarilugu piquti"
+    },
+    "imageSourcePanel": {
+      "ph-search": "qinirutiit ajjinnguat..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "tarrijaaksanik qinirniq..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "qinirniq piqutinik..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "qinirutiit..."
+    },
+    "useUpload": {
+      "multipleFileError": "tusaqtaujut angiqsiqattanngittut unuqtunik titiraqsimajunik.",
+      "mineTypeError": "\"{{name}}\"ajjigingitangit ataaniittut uvvaluunniit ungavariaqtaujut: {{types}}",
+      "progressTitle": "minarilugit tuqquqsimajut",
+      "progressMsg": "minarilugit tuqquqsimajut {{uploaded}} {{total}}: {{percentage}}%",
+      "uploadError": "minarilugu tammaqtuq",
+      "uploadErrorMsg": "tammaqsimajut qaritaujamuaqtirinirmut titiqait: {{message}}",
+      "uploadErrorDefaultMsg": "qaujimajaunngittumik tammaqtuqalaurninganik"
+    }
+  },
+  "openLink": {
+    "description": "naqillugu matuingajuq attatarvingmut.",
+    "lbl-open": "makpiingajuq"
+  },
+  "interactableModel": {
+    "lbl-buy": "niuvirlutit",
+    "lbl-learnMore": "qaujigiakkannirit"
+  },
+  "corsProxyButton": {
+    "tooltip": "aturlugu Cors Proxy Server"
+  }
+}

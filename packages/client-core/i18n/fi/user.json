@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Vahvistussähköposti",
+      "resendEmail": "Tarkista tilisi sähköpostistasi. Jos et saanut sähköpostia, lähetä vahvistussähköposti uudelleen napsauttamalla {{here}} .",
+      "haveAnAccount": "Onko sinulla tili?"
+    },
+    "forgotPassword": {
+      "header": "Unohtunut salasana",
+      "enterEmail": "Kirjoita rekisteröity sähköpostiosoitteesi, niin lähetämme sinulle salasanan palautuslinkin.",
+      "lbl-email": "Sähköpostiosoite",
+      "lbl-submit": "Lähetä linkki",
+      "emailSent": "Palauta salasana sähköposti lähetettiin. Tarkista sähköpostisi."
+    },
+    "login": {
+      "email": "Sähköpostin | TEKSTIVIESTI",
+      "username": "Käyttäjänimi + Salasana",
+      "social": "Sosiaalinen"
+    },
+    "magiklink": {
+      "header": "Kirjaudu linkki",
+      "descriptionEmail": "Anna sähköpostiosoitteesi, niin lähetämme sinulle kirjautumislinkin sähköpostitse.",
+      "descriptionSMS": "Anna puhelinnumerosi, niin lähetämme sinulle kirjautumislinkin tekstiviestillä.",
+      "descriptionEmailSMS": "Kirjoita sähköpostiosoitteesi tai puhelinnumerosi (10 numeroa, vain Yhdysvallat), niin lähetämme sinulle kirjautumislinkin sähköpostitse tai tekstiviestillä.",
+      "descriptionSMSUS": "Anna puhelinnumerosi (10 numeroa, vain Yhdysvallat), niin lähetämme sinulle kirjautumislinkin tekstiviestillä.",
+      "lbl-email": "Sähköpostiosoite",
+      "lbl-emailPhone": "Sähköpostiosoite tai puhelinnumero",
+      "lbl-phone": "Puhelinnumero",
+      "agree": "Suostun siihen, että ",
+      "terms": "Käyttöehdot",
+      "lbl-submit": "Lähetä kirjautumislinkki",
+      "email-sent-msg": "Login Magic Link lähetettiin. Tarkista sähköpostisi.",
+      "success-msg": "Login Magic Link lähetettiin. Tarkista sähköpostisi tai tekstiviestisi.",
+      "sms-sent-msg": "Login Magic Link lähetettiin. Tarkista tekstiviestisi."
+    },
+    "passwordLogin": {
+      "header": "Kirjaudu sisään",
+      "lbl-email": "Sähköpostiosoite",
+      "lbl-password": "Salasana",
+      "lbl-rememberMe": "Muista minut.",
+      "lbl-signin": "Kirjaudu sisään",
+      "forgotPassword": "Unohditko salasanan?",
+      "signup": "Eikö sinulla ole tiliä? Kiinnittää",
+      "lbl-login": "Kirjaudu sisään",
+      "ph-password": "Salasana",
+      "ph-email": "Sähköposti"
+    },
+    "social": {
+      "gitHub": "Kirjaudu sisään GitHubilla",
+      "google": "Kirjaudu Googlella",
+      "facebook": "Kirjaudu Sisään Facebookilla",
+      "linkedin": "Kirjaudu Linkedinillä",
+      "twitter": "Kirjaudu Sisään Twitterillä"
+    },
+    "register": {
+      "header": "Kiinnittää",
+      "login": "Kirjaudu sisään",
+      "lbl-signup": "Kiinnittää",
+      "lbl-password": "Salasana",
+      "lbl-email": "Sähköpostiosoite",
+      "passwordNotMatch": "Salasanat eivät täsmää",
+      "ph-password": "Salasana",
+      "ph-confirmPassword": "Salasanan vahvistaminen",
+      "ph-email": "Sähköposti"
+    },
+    "resetPassword": {
+      "header": "Palauta salasana",
+      "description": "Anna sähköpostiosoitteesi salasana",
+      "lbl-submit": "Palauta salasana",
+      "lbl-password": "Salasana",
+      "lbl-confirmPassword": "Salasanan vahvistaminen",
+      "passwordNotMatch": "Salasanat eivät täsmää",
+      "nowLoginYourAccount": "Voit nyt kirjautua tilillesi",
+      "yourPasswordResetSuccess": "Salasanasi nollattiin onnistuneesti!"
+    },
+    "verifyEmail": {
+      "header": "Vahvista sähköposti",
+      "processing": "Odota hetki käsittelyn aikana..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Sijainnit",
+      "loading": "Lastaaminen",
+      "col-name": "Nimi",
+      "col-scene": "Kohtaus",
+      "col-maxuser": "Käyttäjien enimmäismäärä",
+      "lbl-search": "Etsi sijainteja",
+      "lbl-new": "Uusi"
+    },
+    "newLocation": {
+      "title": "Paikka",
+      "success": "Tallentaminen onnistui.",
+      "failure": "Jokin meni pieleen.",
+      "removeSuccess": "Sijainnin poistaminen onnistui.",
+      "nameInUse": "Nimi on käytössä.",
+      "nameRequire": "Nimi on pakollinen.",
+      "validNumber": "Vain numerot (0-9) ovat sallittuja.",
+      "lbl-name": "Nimi",
+      "lbl-maxuser": "Käyttäjien enimmäismäärä",
+      "lbl-scene": "Kohtaus",
+      "lbl-type": "Tyyppi",
+      "lbl-ve": "Video käytössä",
+      "lbl-gme": "Yleinen media käytössä",
+      "lbl-update": "Päivittää",
+      "lbl-create": "Luoda",
+      "tooltipCanNotBeDeleted": "Odotustilaa ei voi poistaa",
+      "confirmation": "Oletko varma?",
+      "lbl-yes": "Kyllä",
+      "lbl-no": "Ei"
+    },
+    "share": {
+      "lbl-share": "Jakaa",
+      "ph-phoneEmail": "Kutsu sähköpostitse tai puhelinnumerolla",
+      "lbl-phoneEmail": "Lähetä sähköpostiosoitteeseen tai puhelinnumeroon",
+      "lbl-copy": "Kopioida",
+      "lbl-send-invite": "Lähetä kutsu",
+      "title": "Sijainnin URL-osoitteen jakaminen tiimin kanssa",
+      "linkCopied": "Leikepöydälle kopioitu linkki."
+    },
+    "setting": {
+      "audio": "Audio",
+      "lbl-volume": "Tilavuus",
+      "lbl-microphone": "Mikrofoni",
+      "graphics": "Grafiikka",
+      "controls": "Valvonta",
+      "lbl-control-type": "Ohjaimen tyyppi",
+      "lbl-control-scheme": "Valvontajärjestelmä",
+      "lbl-resolution": "Päätöslauselma",
+      "lbl-shadow": "Varjot",
+      "lbl-pp": "Jälkikäsittelyssä",
+      "lbl-pbr": "Täysi PBR",
+      "lbl-automatic": "Automaattinen",
+      "xrusersetting": "XR-käyttäjäasetukset",
+      "rotation": "Kierto",
+      "rotation-smooth-speed": "Pyörimisen tasainen nopeus",
+      "rotation-angle": "Kiertokulma",
+      "moving": "Liikuttava",
+      "user-avatar": "Avatarin asetus",
+      "invert-rotation": "Käännä kierto- ja siirtokepit",
+      "show-avatar": "Näytä Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Profiili",
+      "lbl-settings": "Asetukset",
+      "lbl-username": "Käyttäjänimi",
+      "update-msg": "Käyttäjänimi päivitetty",
+      "inviteCode": "Kutsu koodi",
+      "youAreAn": "Olet.",
+      "youAreA": "Olet.",
+      "showUserId": "Näytä käyttäjätunnus",
+      "hideUserId": "Piilota käyttäjätunnus",
+      "showApiKey": "Näytä API-avain",
+      "hideApiKey": "Piilota API-avain",
+      "apiKey": "API-avain",
+      "logout": "Kirjautua ulos",
+      "connectPhone": "Puhelinnumeron yhdistäminen",
+      "connectEmail": "Sähköpostin yhdistäminen",
+      "connectPhoneEmail": "Sähköpostiosoitteen tai puhelinnumeron yhdistäminen",
+      "or": "Tai",
+      "lbl-wallet": "Kirjaudu sisään Walletilla",
+      "ph-email": "Sähköposti",
+      "ph-phone": "Puhelinnumero",
+      "ph-phoneEmail": "Puhelinnumero / sähköpostiosoite",
+      "phoneEmailError": "Virheellinen puhelin # tai sähköpostiosoite",
+      "phoneError": "Virheellinen puhelin #",
+      "emailError": "Virheellinen sähköpostiosoite",
+      "loginWithReadyPlayerMe": "Kirjaudu sisään Ready Player Me :llä",
+      "connectSocial": "Yhteyden muodostaminen sosiaalisiin tileihin",
+      "createOne": "Jos sinulla ei ole tiliä, sinulle luodaan uusi tili",
+      "connections": {
+        "title": "Yhteydet",
+        "ipError": "Aktiivista tunnistetietojen toimittajaa ei voi poistaa",
+        "disconnect": "irrottaa",
+        "connect": "Yhdistää"
+      },
+      "profileDropdown": {
+        "avatar": "Käyttäjän avatar-kuvake",
+        "profile": "Profiili",
+        "adminConsole": "Hallintakonsolin",
+        "logout": "Uloskirjaus"
+      },
+      "userIcon": {
+        "lbl-name": "Nimesi",
+        "lbl-update": "Päivittää",
+        "userId": "Käyttäjätunnus",
+        "ph-uploadImg": "Lataa tuotteen kuva",
+        "lbl-selectAcvatar": "Valitse Avatar",
+        "lbl-submit": "Alistua"
+      },
+      "userSettings": {
+        "volume": "Tilavuus",
+        "microphone": "Mikrofoni",
+        "resolution": "Päätöslauselma",
+        "high": "Korkea",
+        "low": "Matala",
+        "spatialAudio": "Käytä tilaääntä",
+        "enterMuted": "Enter-huone mykistetty"
+      }
+    },
+    "oauth": {
+      "authenticating": "Todennetaan...",
+      "authFailed": "{{service}} todennus epäonnistui."
+    },
+    "magikLink": {
+      "wait": "Odota hetki käsittelyn aikana..."
+    },
+    "dashboard": {
+      "header": "Kojelauta",
+      "dashboard": "Kojelauta",
+      "users": "Käyttäjät",
+      "feeds": "Syötteet",
+      "instance": "Esimerkki",
+      "locations": "Sijainnit",
+      "invites": "Kutsuu",
+      "sessions": "Sessions",
+      "groups": "Ryhmät",
+      "parties": "Osapuolet",
+      "chats": "Chatit",
+      "content": "Sisältöpaketit",
+      "projects": "Projektit",
+      "scenes": "Kohtauksia",
+      "avatars": "Avatarit",
+      "benchmarking": "Esikuva-analyysi",
+      "bots": "Vastaan"
+    }
+  },
+  "oauth": {
+    "authenticating": "Todennetaan...",
+    "authFailed": "{{service}} todennus epäonnistui."
+  },
+  "magikLink": {
+    "wait": "Odota hetki käsittelyn aikana..."
+  },
+  "dashboard": {
+    "header": "Kojelauta",
+    "dashboard": "Kojelauta",
+    "users": "Käyttäjät",
+    "feeds": "Syötteet",
+    "instance": "Esimerkki",
+    "locations": "Sijainnit",
+    "routes": "Reitit",
+    "projects": "Projektit",
+    "invites": "Kutsuu",
+    "sessions": "Sessions",
+    "groups": "Ryhmät",
+    "parties": "Osapuolet",
+    "chats": "Chatit",
+    "content": "Sisältöpaketit",
+    "scenes": "Kohtauksia",
+    "avatars": "Avatarit",
+    "benchmarking": "Esikuva-analyysi",
+    "bots": "Vastaan",
+    "setting": "Asetukset"
+  },
+  "avatar": {
+    "title": "Lataa Avatar",
+    "lbl-browse": "Selata",
+    "lbl-thumbnail": "Pikkukuva",
+    "lbl-upload": "Lähettää tiedosto",
+    "selectAvatar": "Valitse Avatar...",
+    "selectThumbnail": "Valitse Pikkukuva...",
+    "rotate": "Kiertää",
+    "pan": "Pan",
+    "noBone": "Obejct ei sisällä luita tai ihoa",
+    "outOfBound": "Objekti on rajojen ulkopuolella.",
+    "emptyObj": "Objekti on tyhjä.",
+    "maxTriangleError": "Objekti sisältää suurempia kuin {{allowedTriangles}} kasvot.",
+    "selectValidFile": "Valitse kelvollinen 3D-avatar-tiedosto.",
+    "selectValidThumbnail": "Valittu kelvollinen pikkukuvatiedosto.",
+    "fileOversized": "Avatar-tiedoston koon on oltava {{minSize}} – {{maxSize}} Mt",
+    "confirmation": "Oletko varma?",
+    "canNotBeRemoved": "Aktiivista Avataria ei voi poistaa",
+    "remove": "Poista avatar",
+    "uploadFiles": "Lataa tiedostoja",
+    "useUrlInstead": "Käytä URL-osoitetta sen sijaan",
+    "avatar": "Avatar",
+    "cancel": "Perua",
+    "createAvatar": "Luo Avatar",
+    "delete": "Poistaa",
+    "view": "Näkymä",
+    "uploadAvatarInfo": "Päivitä avatarin tiedot",
+    "name": "Nimi",
+    "enterName": "Anna nimi",
+    "avatarInformation": "Avatarin tiedot",
+    "description": "Kuvaus",
+    "key": "Avain",
+    "none": "Ei lainkaan",
+    "submit": "Alistua",
+    "edit": "Muokata",
+    "avatarUrl": "Avatarin URL-osoite",
+    "upload-success-msg": "Avatarin lataaminen onnistui.",
+    "remove-success-msg": "Avatarin lataaminen onnistui.",
+    "warning-msg": "Avatar-resurssi on tyhjä, oletko synkronoinut avatarit staattiseen tiedostovarastoon?"
+  },
+  "personMenu": {
+    "inviteToParty": "Kutsu juhliin",
+    "addAsFriend": "Lisää ystäväksi",
+    "mute": "Mykistää",
+    "block": "Estää"
+  },
+  "person": {
+    "you": "Sinä",
+    "yourScreen": "Näyttö",
+    "muteForEveryone": "Mykistä kaikille",
+    "unmuteForEveryone": "Poista mykistys kaikille",
+    "muteMe": "Mykistä minut",
+    "unmuteMe": "Poista mykistys",
+    "muteThisPerson": "Mykistä tämä henkilö",
+    "unmuteThisPerson": "Poista tämän henkilön mykistys",
+    "openPictureInPicture": "Kuvan avaaminen kuvassa"
+  }
+}

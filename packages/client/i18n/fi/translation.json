@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Sivua ei löydy"
+  },
+  "503": {
+    "msg": "503 - Palvelu ei ole käytettävissä"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Sinut on kielletty tästä paikasta.",
+    "locationName": {
+      "pageTitle": "Koti"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projektit",
+      "header": "Ole hyvä ja kirjaudu sisään",
+      "welcomeMsg": "Tervetuloa",
+      "locationHeader": "Sijainnit",
+      "projectHeader": "Projektit",
+      "sceneHeader": "Kohtauksia",
+      "description": "Jos olet uusi täällä, suosittelemme käymään läpi opetusohjelman. Muussa tapauksessa hyppää suoraan sisään ja luo projekti tyhjästä tai jostakin malleistamme.",
+      "lbl-startTutorial": "Käynnistä-opetusohjelma",
+      "lbl-newProject": "Uusi projekti",
+      "lbl-createProject": "Luoda",
+      "lbl-newScene": "Uusi kohtaus",
+      "lbl-searchProject": "Hae aiemmin luotuja projekteja...",
+      "back": "Selkä",
+      "contextMenu": "Poista projekti",
+      "installed": "Asennetut projektit",
+      "official": "Viralliset projektit",
+      "community": "Yhteisön hankkeet",
+      "install": "Asentaa",
+      "uninstall": "Poista asennuksen poisto",
+      "rename": "Nimetä uudelleen",
+      "createProject": "Luo projekti",
+      "installProject": "Projectin asentaminen",
+      "processing": "Käsittely",
+      "projectName": "Projektin nimi",
+      "projectURL": "Projektin URL-osoite"
+    }
+  },
+  "error": {
+    "goHomeLink": "Painu kotiisi",
+    "withStatusCode": "Virhe {{code}} palvelimessa",
+    "withoutStatusCode": "Virhe palvelimessa"
+  },
+  "no-projects": {
+    "msg": "Virhe: Projekteja ei ole asennettu - ota yhteyttä sivuston järjestelmänvalvojaan"
+  },
+  "dev": {
+    "pageTitle": "Koti"
+  },
+  "login": {
+    "pageTitle": "Sisäänkirjautuminen"
+  },
+  "workerTest": {
+    "pageTitle": "Työntekijän testi"
+  },
+  "index": {
+    "by": "OHI",
+    "xr": "XR",
+    "foundation": "Säätiö",
+    "description": "Reaaliaikaiset 3D-sosiaaliset sovellukset, joista kaikki voivat nauttia."
+  },
+  "xrengineContact": {
+    "header": "Ota yhteyttä!",
+    "description": "Autamme mielellämme virtuaalitapahtumissa, digitaalisessa vähittäiskaupassa, viihteessä ja muissa tarpeissasi.",
+    "lbl-name": "Nimi",
+    "lbl-email": "Sähköposti",
+    "lbl-company": "Yritys",
+    "lbl-project": "Kuvaile projektiasi",
+    "lbl-send": "Lähettää",
+    "lbl-ok": "Okei",
+    "lbl-success": "Viesti lähetetty, palaamme asiaan pian.",
+    "lbl-failure": "Tapahtui virhe, Plese yrittää uudelleen",
+    "err-username": "Kirjoita nimesi.",
+    "err-email": "Sähköposti on pakollinen.",
+    "err-msg": "Anna lyhyt kuvaus projektistasi."
+  }
+}

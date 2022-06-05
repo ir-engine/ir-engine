@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "ئیمەیڵی دووپاتکردنەوە",
+      "resendEmail": "تکایە ئیمەیلەکەت بپشکنە بۆ سەلماندنی ئەژمێرەکەت. ئەگەر ئیمەیڵت دەست نەکەوێت، تکایە کرتە لە {{here}} بکە بۆ دووبارە ناردنەوەی ئیمەیلی دووپاتکردنەوە.",
+      "haveAnAccount": "ئەژمێرێکت هەیە؟"
+    },
+    "forgotPassword": {
+      "header": "نهێنوشە لەبیرچووە",
+      "enterEmail": "تکایە ناونیشانی ئیمەیڵی تۆمارکراوت تێبنووسە و لینکێکی ڕیسێتکردنی نهێنوشەت بۆ دەنێرین.",
+      "lbl-email": "ناونیشانی ئیمەیڵ",
+      "lbl-submit": "لینک بنێرە",
+      "emailSent": "ئیمەیڵی نهێنوشە دووبارە ڕێک بخەوە نێردراوە. تکایە ئیمەیلەکەت بپشکنە."
+    },
+    "login": {
+      "email": "ئیمەیڵ | SMS",
+      "username": "ناوی بەکارهێنەر + نهێنوشە",
+      "social": "کۆمەڵایەتی"
+    },
+    "magiklink": {
+      "header": "بەستەری چوونەژوورەوە",
+      "descriptionEmail": "تکایە ئیمەیڵەکەت تێبنووسە و ئێمە لینکی چوونەژوورەوەت بۆ دەنێرین لە ڕێگەی ئیمەیڵەوە.",
+      "descriptionSMS": "تکایە ژمارەی تەلەفۆنەکەت تێبنووسە و ئێمە لینکی چوونەژوورەوەت بۆ دەنێرین لەڕێی SMS.",
+      "descriptionEmailSMS": "تکایە ئیمەیڵەکەت یان ژمارە تەلەفۆنەکەت تێبنووسە (تەنها 10 ژمارەیی، ئەمریکا) و ئێمە لینکی چوونەژوورەوەت بۆ دەنێرین لە ڕێگەی ئیمەیڵ یان SMS.",
+      "descriptionSMSUS": "تکایە ژمارەی تەلەفۆنەکەت تێبنووسە (تەنها 10 ژمارەیی، ئەمریکا) و ئێمە لینکی چوونەژوورەوەت بۆ دەنێرین لەڕێی SMS.",
+      "lbl-email": "ناونیشانی ئیمەیڵ",
+      "lbl-emailPhone": "ئیمەیڵ یان ژمارەی تەلەفۆن",
+      "lbl-phone": "ژمارەی تەلەفۆن",
+      "agree": "ڕازیم بە ",
+      "terms": "مەرجەکان & مەرجەکان",
+      "lbl-submit": "لینکی چوونەژوورەوە بنێرە",
+      "email-sent-msg": "بەستەری چوونەژوورەوەی ماجیک نێردرا. تکایە ئیمەیڵەکەت بپشکنە.",
+      "success-msg": "بەستەری چوونەژوورەوەی ماجیک نێردرا. تکایە ئیمەیڵەکەت یان SMSەکەت بپشکنە.",
+      "sms-sent-msg": "بەستەری چوونەژوورەوەی ماجیک نێردرا. تکایە SMSەکەت بپشکنە."
+    },
+    "passwordLogin": {
+      "header": "چوونەژوورەوە",
+      "lbl-email": "ناونیشانی ئیمەیڵ",
+      "lbl-password": "نهێنوشە",
+      "lbl-rememberMe": "لەبیرم بکە",
+      "lbl-signin": "چوونەژوورەوە",
+      "forgotPassword": "نهێنوشە لەبیرچووە؟",
+      "signup": "ئەژمێری نیە؟ خۆ تۆمارکردن",
+      "lbl-login": "چوونەژوورەوە",
+      "ph-password": "نهێنوشە",
+      "ph-email": "ئیمەیڵ"
+    },
+    "social": {
+      "gitHub": "چوونەژوورەوە لەگەڵ گیت هاب",
+      "google": "چوونەژوورەوە لەگەڵ گووگڵ",
+      "facebook": "چوونەژوورەوە لەگەڵ فەیسبووک",
+      "linkedin": "چوونەژوورەوە لەگەڵ لینکدین",
+      "twitter": "چوونەژوورەوە لەگەڵ تویتەر"
+    },
+    "register": {
+      "header": "خۆ تۆمارکردن",
+      "login": "چوونەژوورەوە",
+      "lbl-signup": "خۆ تۆمارکردن",
+      "lbl-password": "نهێنوشە",
+      "lbl-email": "ناونیشانی ئیمەیڵ",
+      "passwordNotMatch": "نهێنوشەکان هاوتا نین",
+      "ph-password": "نهێنوشە",
+      "ph-confirmPassword": "پەسندکردنی نهێنوشە",
+      "ph-email": "ئیمەیڵ"
+    },
+    "resetPassword": {
+      "header": "ڕیسێتکردنی نهێنوشە",
+      "description": "تکایە نهێنوشەکەت تێبنووسە بۆ ناونیشانی ئیمەیڵەکەت",
+      "lbl-submit": "ڕیسێتکردنی نهێنوشە",
+      "lbl-password": "نهێنوشە",
+      "lbl-confirmPassword": "پەسندکردنی نهێنوشە",
+      "passwordNotMatch": "نهێنوشەکان هاوتا نین",
+      "nowLoginYourAccount": "ئێستا دەتوانیت بچیتە ناو ئەژمێرەکەتەوە",
+      "yourPasswordResetSuccess": "نهێنوشەکەت بە سەرکەوتوویی ڕیسێت کرا!"
+    },
+    "verifyEmail": {
+      "header": "ئیمەیڵ بسەلمێنە",
+      "processing": "تکایە ساتێک چاوەڕێکە لە کاتی پڕۆسەکردندا"
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "شوێنەکان",
+      "loading": "بارکردن",
+      "col-name": "ناو",
+      "col-scene": "دیمەن",
+      "col-maxuser": "بەکارهێنەرانی ماکس",
+      "lbl-search": "گەڕان بۆ شوێنەکان",
+      "lbl-new": "نوێ"
+    },
+    "newLocation": {
+      "title": "شوێن",
+      "success": "بە سەرکەوتوویی پاشەکەوت کرا.",
+      "failure": "شتێکی هەڵە ڕوویدا",
+      "removeSuccess": "شوێنەکە بە سەرکەوتوویی سڕایەوە.",
+      "nameInUse": "ناو لە کاردایە.",
+      "nameRequire": "ناو پێویستە.",
+      "validNumber": "تەنها ژمارە (0-9) ڕێپێدراوە.",
+      "lbl-name": "ناو",
+      "lbl-maxuser": "بەکارهێنەرانی ماکس",
+      "lbl-scene": "دیمەن",
+      "lbl-type": "جۆر",
+      "lbl-ve": "ڤیدیۆ چالاککراوە",
+      "lbl-gme": "میدیای جیهانی بەتواناکراو",
+      "lbl-update": "نوێکردنەوە",
+      "lbl-create": "دروستکردن",
+      "tooltipCanNotBeDeleted": "لۆبی ناتواندرێ بسڕدرێتەوە",
+      "confirmation": "ئایا دڵنیایت?",
+      "lbl-yes": "بەڵێ",
+      "lbl-no": "نەخێر"
+    },
+    "share": {
+      "lbl-share": "هاوبەشکردن",
+      "ph-phoneEmail": "بانگهێشتکردن بە ئیمەیڵ یان ژمارەی تەلەفۆن",
+      "lbl-phoneEmail": "بینێرە بۆ ئیمەیڵ یان ژمارەی تەلەفۆن",
+      "lbl-copy": "کۆپیکردن",
+      "lbl-send-invite": "ناردن بانگهێشت",
+      "title": "هاوبەشکردنی شوێنی URL لەگەڵ تیمەکەت",
+      "linkCopied": "لینک کۆپی کراوە بۆ کلیپبۆرد."
+    },
+    "setting": {
+      "audio": "دەنگ",
+      "lbl-volume": "قەبارە",
+      "lbl-microphone": "مایکرۆفۆن",
+      "graphics": "گرافیکەکان",
+      "controls": "کۆنترۆڵەکان",
+      "lbl-control-type": "جۆری کۆنترۆلکەر",
+      "lbl-control-scheme": "پلانی کۆنترۆڵ",
+      "lbl-resolution": "چارەسەر",
+      "lbl-shadow": "سێبەرەکان",
+      "lbl-pp": "پرۆسەکردنی بابەت",
+      "lbl-pbr": "پڕ PBR",
+      "lbl-automatic": "ئۆتۆماتیکی",
+      "xrusersetting": "ڕێکخستنەکانی بەکارهێنەری XR",
+      "rotation": "خولانەوە",
+      "rotation-smooth-speed": "خێرایی نەرمی خولانەوە",
+      "rotation-angle": "گۆشەی خولانەوە",
+      "moving": "جولاندن",
+      "user-avatar": "ڕێکخستنی Avatar",
+      "invert-rotation": "خولانەوە و جوڵاندنی گۆچانەکان",
+      "show-avatar": "پیشاندانی ئاڤاتار"
+    },
+    "profile": {
+      "lbl-profile": "پرۆفایل",
+      "lbl-settings": "ڕێکبەندەکان",
+      "lbl-username": "ناوی بەکارهێنەر",
+      "update-msg": "ناوی بەکارهێنەر نوێکرایەوە",
+      "inviteCode": "کۆدی بانگهێشتکردن",
+      "youAreAn": "تۆ",
+      "youAreA": "تۆ",
+      "showUserId": "ناسنامەی بەکارهێنەر نیشان بدە",
+      "hideUserId": "شاردنەوەی ناسنامەی بەکارهێنەر",
+      "showApiKey": "کلیلی API نیشان بدە",
+      "hideApiKey": "شاردنەوەی کلیلی API",
+      "apiKey": "کلیلی API",
+      "logout": "چوونە دەرەوە",
+      "connectPhone": "پەیوەندی بکە بە ژمارەی تەلەفۆنەکەت",
+      "connectEmail": "ئیمەیڵەکەت گرێ بدە",
+      "connectPhoneEmail": "پەیوەندی بکە بە ئیمەیڵەکەت یان ژمارەی تەلەفۆنەکەت",
+      "or": "یان",
+      "lbl-wallet": "چوونەژوورەوە لەگەڵ جزدان",
+      "ph-email": "ئیمەیڵ",
+      "ph-phone": "ژمارەی تەلەفۆن",
+      "ph-phoneEmail": "ژمارەی تەلەفۆن / ئیمەیڵ",
+      "phoneEmailError": "تەلەفۆنی نادروست # یان ناونیشانی ئیمەیڵ",
+      "phoneError": "تەلەفۆنی نادروست #",
+      "emailError": "ناونیشانی ئیمەیڵی نادروست",
+      "loginWithReadyPlayerMe": "چوونەژوورەوە لەگەڵ یاریزانی ئامادە",
+      "connectSocial": "پەیوەندی بکە بە ئەژمێرە کۆمەڵایەتیەکانەوە",
+      "createOne": "ئەگەر حیسابێکت نەبێت، دانەیەکی نوێت بۆ دروست دەبێت",
+      "connections": {
+        "title": "پەیوەندیەکان",
+        "ipError": "ناتوانێت دابینکەری ناسنامەی چالاک بسڕێتەوە",
+        "disconnect": "پچڕانی پەیوەندی",
+        "connect": "گرێدان"
+      },
+      "profileDropdown": {
+        "avatar": "ئایکۆنی Avatar بەکارهێنەر",
+        "profile": "پرۆفایل",
+        "adminConsole": "کۆنسولی بەڕێوەبەر",
+        "logout": "چوونەژوورەوە"
+      },
+      "userIcon": {
+        "lbl-name": "ناوت",
+        "lbl-update": "نوێکردنەوە",
+        "userId": "ناسنامەی بەکارهێنەر",
+        "ph-uploadImg": "بارکردنی وێنەی بەرهەم",
+        "lbl-selectAcvatar": "Avatar دیاریبکە",
+        "lbl-submit": "ناردن"
+      },
+      "userSettings": {
+        "volume": "قەبارە",
+        "microphone": "مایکرۆفۆن",
+        "resolution": "چارەسەر",
+        "high": "بەرز",
+        "low": "نزم",
+        "spatialAudio": "بەکارهێنانی دەنگی بۆشایی",
+        "enterMuted": "ژوورەکە بنووسە کپکراوە"
+      }
+    },
+    "oauth": {
+      "authenticating": "ڕاستکردنەوە",
+      "authFailed": "{{service}} سەلماندن سەرکەوتوو نەبوو."
+    },
+    "magikLink": {
+      "wait": "تکایە ساتێک چاوەڕێکە لە کاتی پڕۆسەکردندا"
+    },
+    "dashboard": {
+      "header": "داشبۆرد",
+      "dashboard": "داشبۆرد",
+      "users": "بەکارهێنەران",
+      "feeds": "فیدەکان",
+      "instance": "نموونە",
+      "locations": "شوێنەکان",
+      "invites": "بانگکردنەکان",
+      "sessions": "دانیشتنەکان",
+      "groups": "گرووپەکان",
+      "parties": "پارتەکان",
+      "chats": "چاتەکان",
+      "content": "بەستەکانی ناوەڕۆک",
+      "projects": "پڕۆژەکان",
+      "scenes": "دیمەنەکان",
+      "avatars": "ئاڤاتارەکان",
+      "benchmarking": "پێوانەکردن",
+      "bots": "بۆتەکان"
+    }
+  },
+  "oauth": {
+    "authenticating": "ڕاستکردنەوە",
+    "authFailed": "{{service}} سەلماندن سەرکەوتوو نەبوو."
+  },
+  "magikLink": {
+    "wait": "تکایە ساتێک چاوەڕێکە لە کاتی پڕۆسەکردندا"
+  },
+  "dashboard": {
+    "header": "داشبۆرد",
+    "dashboard": "داشبۆرد",
+    "users": "بەکارهێنەران",
+    "feeds": "فیدەکان",
+    "instance": "نموونە",
+    "locations": "شوێنەکان",
+    "routes": "ڕێگاکان",
+    "projects": "پڕۆژەکان",
+    "invites": "بانگکردنەکان",
+    "sessions": "دانیشتنەکان",
+    "groups": "گرووپەکان",
+    "parties": "پارتەکان",
+    "chats": "چاتەکان",
+    "content": "بەستەکانی ناوەڕۆک",
+    "scenes": "دیمەنەکان",
+    "avatars": "ئاڤاتارەکان",
+    "benchmarking": "پێوانەکردن",
+    "bots": "بۆتەکان",
+    "setting": "ڕێکبەندەکان"
+  },
+  "avatar": {
+    "title": "بارکردنی ئاڤاتار",
+    "lbl-browse": "گەڕان",
+    "lbl-thumbnail": "وێنە بچووکەکان",
+    "lbl-upload": "بارکردن",
+    "selectAvatar": "ئاڤاتار دیاریبکە",
+    "selectThumbnail": "وێنەی بچووک دیاریبکە",
+    "rotate": "سوڕانەوە",
+    "pan": "تاو",
+    "noBone": "ئۆبجێکت هیچ ئێسک و پێستێکی تێدا نییە",
+    "outOfBound": "ئۆبجێکت لە دەرەوەی سنوورە.",
+    "emptyObj": "ئۆبجێکت بەتاڵە.",
+    "maxTriangleError": "ئۆبجێکتەکە گەورەترە لە دەموچاوی {{allowedTriangles}} .",
+    "selectValidFile": "فایلی avatar 3d دروست دیاریبکە.",
+    "selectValidThumbnail": "فایلی Thumbnailی بڕوادار هەڵبژێردراو.",
+    "fileOversized": "قەبارەی فایلی Avatar دەبێت لە نێوان {{minSize}} مێگابایت و {{maxSize}} مێگابایت بێت",
+    "confirmation": "ئایا دڵنیایت?",
+    "canNotBeRemoved": "ئاڤاتارێکی چالاک ناکرێ لاببرێت",
+    "remove": "لابردنی avatar",
+    "uploadFiles": "بارکردنی فایلەکان",
+    "useUrlInstead": "لەجیاتی بەستەر بەکاربهێنە",
+    "avatar": "ئاڤاتار",
+    "cancel": "هەڵوەشاندنەوه",
+    "createAvatar": "دروستکردنی ئاڤاتار",
+    "delete": "سڕینەوە",
+    "view": "بینین",
+    "uploadAvatarInfo": "نوێکردنەوەی زانیاری avatar",
+    "name": "ناو",
+    "enterName": "ناو تێبنووسە",
+    "avatarInformation": "زانیاری ئاڤاتار",
+    "description": "وەسف",
+    "key": "کلیل",
+    "none": "هیچ",
+    "submit": "ناردن",
+    "edit": "بژارکردن",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "Avatar بە سەرکەوتوویی بارکرا.",
+    "remove-success-msg": "Avatar بە سەرکەوتوویی بارکرا.",
+    "warning-msg": "سەرچاوەی ئاڤاتار بەتاڵە، ئایا avatarsت هاودەم کردووە بۆ کۆگای فایلە جێگیرەکەت؟"
+  },
+  "personMenu": {
+    "inviteToParty": "بانگهێشتکردن بۆ پارتی",
+    "addAsFriend": "زیادکردن وەک هاوڕێ",
+    "mute": "کپکردن",
+    "block": "بلۆک"
+  },
+  "person": {
+    "you": "تۆ",
+    "yourScreen": "شاشەی تۆ",
+    "muteForEveryone": "بۆ هەموو کەسێک بڵە",
+    "unmuteForEveryone": "بۆ هەموو کەسێک ناتەوێت",
+    "muteMe": "من بپارێزە",
+    "unmuteMe": "بمبەخشە",
+    "muteThisPerson": "ئەم کەسە بپارێزە",
+    "unmuteThisPerson": "ئەم کەسە لادەبەوە",
+    "openPictureInPicture": "کردنەوەی وێنە لە وێنە"
+  }
+}

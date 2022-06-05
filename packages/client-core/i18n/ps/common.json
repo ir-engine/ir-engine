@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "د بارولو پاڼه..."
+  },
+  "tooltip": {
+    "pressKey": "مطبوعات {{tip}} ته {{message}}"
+  },
+  "toast": {
+    "joined": "یوځای شوی",
+    "left": "چپ"
+  },
+  "navUserWidget": {
+    "login": "دننه کېدل"
+  },
+  "loader": {
+    "connecting": "له نړۍ سره نښلول...",
+    "entering": "نړۍ ته ننوتل...",
+    "loading": "بارول...",
+    "objectRemaining": "{{count}} پاتې شی",
+    "objectRemainingPlural": "{{count}} پاتې شیان",
+    "loadingObjects": "د شیانو بارول",
+    "loadingComplete": "لوډ کول بشپړ",
+    "joiningWorld": "له نړۍ سره یوځای کیدل"
+  },
+  "alert": {
+    "eventWasSuccess": "پیښه بریالۍ وه",
+    "errorWasEncountered": "د یوې خطا سره مخ شو",
+    "eventInProgress": "د پرمختګ په حال کې پیښه",
+    "seconds": "ثانیې",
+    "cancelCountdown": "د دې موډل بندول به د شمېرلو حساب لغوه کړی"
+  },
+  "debug": {
+    "refresh": "تازه کول",
+    "stats": "د سرټمبه",
+    "debugOptions": "د ډیباګ اختیارونه",
+    "physicsDebug": "فزیک",
+    "avatarDebug": "اوتار",
+    "nodeHelperDebug": "د نود مرسته کوونکی",
+    "gridDebug": "ګریډ",
+    "simpleMaterials": "ساده مواد",
+    "tick": "ټک",
+    "worldStore": "نړیوال پلورنځی",
+    "engineStore": "انجن پلورنځی",
+    "namedEntities": "په نوم د ایشونو",
+    "networkObject": "د شبکې شی",
+    "networkClients": "د شبکې پیرودونکی"
+  },
+  "recording": {
+    "videoRecorder": "ویډیو ریکارډر",
+    "waitingForPermissions": "د مازیدو په انتظار",
+    "selectVideoSource": "د ویډیو سرچینه وټاکئ",
+    "screen": "سکرین",
+    "camera": "کیمره",
+    "microphone": "مایکروفون",
+    "startRecording": "ریکارډ پیل کړئ",
+    "pauseRecording": "د پاېټ ثبتول",
+    "resumeRecording": "د ریکارډنګ بیا پیل",
+    "stopRecording": "ریکارډ بند ول"
+  },
+  "typing": "ټایپ...",
+  "gameServer": {
+    "browserError": "د براوزر غلطی",
+    "browserErrorMessage": "ستاسو براوزر په شخصی براوز موډ کې د ذخیرې ملاتړ نه کوی. یا بل براوزر هڅه وکړئ، یا د شخصی براونډو حالت څخه ووزه.",
+    "noAvailableServers": "نه شته سرورونه",
+    "noAvailableServersMessage": "ستاسو لپاره هیڅ سرور شتون نه لری چې وصل شی. د بیا نښلول هڅه",
+    "worldDisconnected": "نړۍ سره تړلې ده",
+    "worldDisconnectedMessage": "تاسو د نړۍ سره اړیکه له لاسه ورکړې ده. مونږ به هڅه وکړو چې د لاندې وخت د ختمیدو نه مخکې بیا اړیکه ولرو، که نه نو تاسو به یو بل مثال ته وړاندې شئ.",
+    "webGLNotEnabled": "WebGL فعال نه شو",
+    "webGLNotEnabledMessage": "ستاسو براوزر د ویب سی ال ملاتړ نه کوی، یا دا معیوب دی. مهربانی وکړئ ویب ګل فعال کړئ یا د خپل براوزر وروستی نسخې ته د لوړولو په نظر کې ولرئ.",
+    "youKickedFromWorld": "تا ته د دنیا نه وهل شوی دی",
+    "youKickedFromWorldMessage": "ته په لاندې دلیل له دې نړۍ څخه ووهل شوې",
+    "invalidLocation": "بې اعتباره ځای",
+    "cantFindLocation": "موږ ځای نه شو موندلای",
+    "misspelledOrNotExist": "دا کیدای شی غلط ووئیل شی، یا دا ممکن شتون ونه لری.",
+    "loading": "بارکول",
+    "low-frame-error": "یو بې وزله پرفومنس په پام کې نیولو سره ستاسو په براوزر کې د هارډویر د ګړندیتوب د وړ کولو او خپل براوزر ته د بیرته اخیستلو په پام کې نیولو سره کشف شوی",
+    "low-frame-title": "د ښه تجربې لپاره د هارډویر ګړندی توب فعال کړئ!"
+  },
+  "error": {
+    "loading-error": "د کاروونکی ډاټا په بارولو کې ناکامه شوی",
+    "validation-error": "مهربانی وکړئ د اعتبار وړ {{type}}",
+    "login-error": "د داخلیدو څخه پاتې راغلی"
+  }
+}

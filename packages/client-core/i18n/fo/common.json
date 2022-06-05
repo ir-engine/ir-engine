@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Loading page."
+  },
+  "tooltip": {
+    "pressKey": "Trýst á {{tip}} at {{message}}"
+  },
+  "toast": {
+    "joined": "joined",
+    "left": "Gòch"
+  },
+  "navUserWidget": {
+    "login": "Rita inn"
+  },
+  "loader": {
+    "connecting": "Connecting til heimin.",
+    "entering": "Entering heimin.",
+    "loading": "Loading.",
+    "objectRemaining": "{{count}} lut verður verandi",
+    "objectRemainingPlural": "{{count}} ting verða verandi",
+    "loadingObjects": "Loading Objects",
+    "loadingComplete": "Loading Complete",
+    "joiningWorld": "Joining World"
+  },
+  "alert": {
+    "eventWasSuccess": "Sjálvt tað eydnaðist væl",
+    "errorWasEncountered": "Ein villa var saman við",
+    "eventInProgress": "Sjálvt í framgongd.",
+    "seconds": "sekund",
+    "cancelCountdown": "At klúgva hesa modal fer at avlýsa talið á hesum"
+  },
+  "debug": {
+    "refresh": "Refresh",
+    "stats": "Stats",
+    "debugOptions": "Debug Options",
+    "physicsDebug": "Alisfrøði",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Node Helper",
+    "gridDebug": "Grid",
+    "simpleMaterials": "Simple Materials",
+    "tick": "Tick",
+    "worldStore": "World Store",
+    "engineStore": "Engine Store",
+    "namedEntities": "Named Entities",
+    "networkObject": "Network Object",
+    "networkClients": "Network Clients"
+  },
+  "recording": {
+    "videoRecorder": "Video meter",
+    "waitingForPermissions": "Bíða/Bíðið eftir loyvium.",
+    "selectVideoSource": "Select video source",
+    "screen": "Screen",
+    "camera": "Camera",
+    "microphone": "Microphone",
+    "startRecording": "Byrja at taka upp.",
+    "pauseRecording": "Pause upptøku",
+    "resumeRecording": "Resume upptøku",
+    "stopRecording": "Gevst við at taka upp."
+  },
+  "typing": "Typing.",
+  "gameServer": {
+    "browserError": "Browser Error",
+    "browserErrorMessage": "Tín browser gevur ikki stor í privatum browum. Antin roynir ein annan kaga, ella útgongdar mode.",
+    "noAvailableServers": "No Available Servers",
+    "noAvailableServersMessage": "Tað eru ongar serverar tøkir hjá tær at seta teg í samband við. At royna at re-connect in",
+    "worldDisconnected": "World disconnected",
+    "worldDisconnectedMessage": "Tú/tit hevur/hava mist sambandið við heimin. Vit fara at royna at koma aftur, áðrenn tú/tit fert/fara at vera úti, annars verður/verða tú/tit fram til eitt annað dømi.",
+    "webGLNotEnabled": "WebGL ikki gjørdi tað.",
+    "webGLNotEnabledMessage": "Tín browser gevur ikki stuðul til, ella tað er brekaður. Ger/gerið so væl og hugsa um at fara til nýggja útgávuna av tínum/tykkara browser.",
+    "youKickedFromWorld": "Tú/tit ert/eru tveittur/blakað/systir/sparkar/koyrd úr heiminum",
+    "youKickedFromWorldMessage": "Tú/tit vart/vóru tveittur/blakað av hesi verð til næstu orsøk",
+    "invalidLocation": "Invalid stað",
+    "cantFindLocation": "Vit kunnu ikki finna stað",
+    "misspelledOrNotExist": "Tað kann vera ov seint, ella tað er kanska ikki til.",
+    "loading": "loading",
+    "low-frame-error": "Detected a poor perfomance consider enabling Use Hardware acceleration in browser and relauch tín browser",
+    "low-frame-title": "Enable hardware acceleration for betri royndir!"
+  },
+  "error": {
+    "loading-error": "Failed to load user data",
+    "validation-error": "Kanst/kunnu tú/tit {{type}}",
+    "login-error": "Failed to login"
+  }
+}

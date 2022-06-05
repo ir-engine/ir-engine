@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "S'està carregant la pàgina..."
+  },
+  "tooltip": {
+    "pressKey": "Premeu {{tip}} a {{message}}"
+  },
+  "toast": {
+    "joined": "s'ha unit",
+    "left": "Esquerra"
+  },
+  "navUserWidget": {
+    "login": "Inicia la sessió"
+  },
+  "loader": {
+    "connecting": "Connectant amb el món...",
+    "entering": "Entrant al món...",
+    "loading": "Càrrega...",
+    "objectRemaining": "{{count}} 'objecte restant",
+    "objectRemainingPlural": "{{count}} objectes restants",
+    "loadingObjects": "S'estan carregant els objectes",
+    "loadingComplete": "S'està carregant completat",
+    "joiningWorld": "Unir-se al món"
+  },
+  "alert": {
+    "eventWasSuccess": "L'esdeveniment ha tingut èxit",
+    "errorWasEncountered": "S'ha trobat un error",
+    "eventInProgress": "Esdeveniment en curs",
+    "seconds": "Segons",
+    "cancelCountdown": "Si tanqueu aquest modal, es cancel·larà el compte enrere"
+  },
+  "debug": {
+    "refresh": "Refrescar",
+    "stats": "Estadístiques",
+    "debugOptions": "Opcions de depuració",
+    "physicsDebug": "Física",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Ajudant de node",
+    "gridDebug": "Sida",
+    "simpleMaterials": "Materials senzills",
+    "tick": "Paparra",
+    "worldStore": "Botiga del món",
+    "engineStore": "Magatzem de motors",
+    "namedEntities": "Entitats amb nom",
+    "networkObject": "Objecte de xarxa",
+    "networkClients": "Clients de xarxa"
+  },
+  "recording": {
+    "videoRecorder": "Gravadora de vídeo",
+    "waitingForPermissions": "S'estan esperant els permisos",
+    "selectVideoSource": "Selecciona l'origen del vídeo",
+    "screen": "Pantalla",
+    "camera": "Càmera",
+    "microphone": "Micròfon",
+    "startRecording": "Inicia l'enregistrament",
+    "pauseRecording": "Posa en pausa l'enregistrament",
+    "resumeRecording": "Reprèn l'enregistrament",
+    "stopRecording": "Atura l'enregistrament"
+  },
+  "typing": "Escrivint...",
+  "gameServer": {
+    "browserError": "Error del navegador",
+    "browserErrorMessage": "El vostre navegador no admet l'emmagatzematge en mode de navegació privada. Proveu un altre navegador o sortiu del mode de navegació privada.",
+    "noAvailableServers": "No hi ha servidors disponibles",
+    "noAvailableServersMessage": "No hi ha cap servidor disponible per connectar-vos. S'està intentant tornar a connectar a",
+    "worldDisconnected": "Món desconnectat",
+    "worldDisconnectedMessage": "Has perdut la connexió amb el món. Intentarem tornar a connectar-nos abans que s'acabi el temps següent, en cas contrari se us reenviarà a una altra instància.",
+    "webGLNotEnabled": "WebGL no habilitat",
+    "webGLNotEnabledMessage": "El vostre navegador no és compatible amb WebGL o està inhabilitat. Habiliteu WebGL o considereu actualitzar-vos a la versió més recent del vostre navegador.",
+    "youKickedFromWorld": "T'han fet fora del món",
+    "youKickedFromWorldMessage": "Vas ser expulsat d'aquest món per la següent raó.",
+    "invalidLocation": "La ubicació no és vàlida",
+    "cantFindLocation": "No hem trobat la ubicació",
+    "misspelledOrNotExist": "Pot estar mal escrit o pot ser que no existeixi.",
+    "loading": "Càrrega",
+    "low-frame-error": "Detectat un error de perfomance considera habilitar l'acceleració d'ús del maquinari al navegador i tornar a col·laplir el navegador",
+    "low-frame-title": "Habilita l'acceleració del maquinari per obtenir una millor experiència!"
+  },
+  "error": {
+    "loading-error": "No s'han pogut carregar les dades de l'usuari",
+    "validation-error": "Introduïu {{type}} vàlides",
+    "login-error": "No s'ha pogut iniciar la sessió"
+  }
+}

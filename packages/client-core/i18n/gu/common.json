@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "પાનું લાવી રહ્યા છીએ..."
+  },
+  "tooltip": {
+    "pressKey": "{{message}} કરવા માટે {{tip}} દબાવો"
+  },
+  "toast": {
+    "joined": "જોડેલ છે",
+    "left": "ડાબો"
+  },
+  "navUserWidget": {
+    "login": "પ્રવેશ કરો"
+  },
+  "loader": {
+    "connecting": "દુનિયા સાથે જોડાઇ રહ્યા છીએ...",
+    "entering": "દુનિયામાં પ્રવેશી રહ્યા છીએ...",
+    "loading": "લોડ કરી રહ્યા છે...",
+    "objectRemaining": "{{count}} ઓબ્જેક્ટ બાકી રહેલ છે",
+    "objectRemainingPlural": "{{count}} ઓબ્જેક્ટો બાકી રહેલ છે",
+    "loadingObjects": "ઓબ્જેક્ટો લાવી રહ્યા છીએ",
+    "loadingComplete": "લોડ કરવાનું સમાપ્ત",
+    "joiningWorld": "વિશ્વમાં જોડાઇ રહ્યા છીએ"
+  },
+  "alert": {
+    "eventWasSuccess": "ઘટના સફળ રહી હતી",
+    "errorWasEncountered": "ભૂલ મળી આવી હતી",
+    "eventInProgress": "ઘટના પ્રગતિમાં છે",
+    "seconds": "સેકંડો",
+    "cancelCountdown": "આ મોડલને બંધ કરવાથી ગણતરી રદ થઈ જશે"
+  },
+  "debug": {
+    "refresh": "પુનઃતાજું કરો",
+    "stats": "પરિસ્થિતિ",
+    "debugOptions": "ડિબગ વિકલ્પો",
+    "physicsDebug": "ભૌતિકશાસ્ત્ર",
+    "avatarDebug": "અવતાર",
+    "nodeHelperDebug": "નોડ મદદગાર",
+    "gridDebug": "જાળી",
+    "simpleMaterials": "સરળ સામગ્રી",
+    "tick": "ટિક",
+    "worldStore": "વર્લ્ડ સ્ટોર",
+    "engineStore": "એન્જિન સંગ્રહ",
+    "namedEntities": "નામવાળી સંસ્થાઓ",
+    "networkObject": "નેટવર્ક ઓબ્જેક્ટ",
+    "networkClients": "નેટવર્ક ક્લાયન્ટ્સ"
+  },
+  "recording": {
+    "videoRecorder": "વિડિઓ રેકોર્ડ કરનાર",
+    "waitingForPermissions": "પરવાનગીઓ માટે રાહ જોઇ રહ્યા છે",
+    "selectVideoSource": "વિડિયો સ્ત્રોત પસંદ કરો",
+    "screen": "સ્ક્રીન",
+    "camera": "કેમેરા",
+    "microphone": "માઇક્રોફોન",
+    "startRecording": "રેકોર્ડ કરવાનું શરૂ કરો",
+    "pauseRecording": "રેકોર્ડીંગ અટકાવો",
+    "resumeRecording": "રેકોર્ડ કરવાનું ફરી શરૂ કરો",
+    "stopRecording": "રેકોર્ડ કરવાનું બંધ કરો"
+  },
+  "typing": "લખી રહ્યા છે...",
+  "gameServer": {
+    "browserError": "બ્રાઉઝર ભૂલ",
+    "browserErrorMessage": "તમારું બ્રાઉઝર ખાનગી બ્રાઉઝિંગ મોડમાં સંગ્રહને આધાર આપતું નથી. ક્યાંતો બીજા બ્રાઉઝરનો પ્રયત્ન કરો, અથવા ખાનગી બ્રાઉઝિંગ સ્થિતિમાંથી બહાર નીકળો.",
+    "noAvailableServers": "કોઈ સર્વરો ઉપલબ્ધ નથી",
+    "noAvailableServersMessage": "તમારી સાથે જોડાવા માટે ત્યાં કોઈપણ સર્વરો ઉપલબ્ધ નથી. માં પુન:જોડાવાનો પ્રયત્ન કરી રહ્યા છે",
+    "worldDisconnected": "દુનિયાનું જોડાણ તૂટી ગયુ",
+    "worldDisconnectedMessage": "તમે વિશ્વ સાથેનું તમારું જોડાણ ગુમાવી દીધું છે. નીચેનો સમય પૂરો થાય તે પહેલાં અમે ફરીથી જોડાવાનો પ્રયત્ન કરીશું, નહીંતર તમને એક અલગ દાખલા પર મોકલવામાં આવશે.",
+    "webGLNotEnabled": "WebGL સક્રિય થયેલ નથી",
+    "webGLNotEnabledMessage": "તમારું બ્રાઉઝર વેબજીએલને આધાર આપતું નથી, અથવા તે નિષ્ક્રિય છે. કૃપા કરીને વેબજીએલ સક્રિય કરો અથવા તમારા બ્રાઉઝરના નવીનતમ સંસ્કરણમાં અપગ્રેડ કરવાનું ધ્યાનમાં લો.",
+    "youKickedFromWorld": "તમને દુનિયામાંથી લાત મારવામાં આવી છે",
+    "youKickedFromWorldMessage": "નીચેના કારણોસર તમને આ દુનિયામાંથી લાત મારવામાં આવી હતી",
+    "invalidLocation": "અયોગ્ય સ્થાન",
+    "cantFindLocation": "અમે સ્થાન શોધી શકતા નથી",
+    "misspelledOrNotExist": "તેની જોડણી ખોટી હોઈ શકે, અથવા તો તેનું અસ્તિત્વ ન પણ હોઈ શકે.",
+    "loading": "લાવી રહ્યા છે",
+    "low-frame-error": "નબળી પર્ફોમાન્સ તમારા બ્રાઉઝરમાં હાર્ડવેર પ્રવેગને સક્રિય કરવાનું ધ્યાનમાં લે છે અને તમારા બ્રાઉઝરને ફરીથી લવારો છે",
+    "low-frame-title": "સારા અનુભવ માટે હાર્ડવેર પ્રવેગ સક્રિય કરો!"
+  },
+  "error": {
+    "loading-error": "વપરાશકર્તા માહિતી લોડ કરવામાં નિષ્ફળ",
+    "validation-error": "કૃપા કરીને માન્ય {{type}}",
+    "login-error": "પ્રવેશ કરવામાં નિષ્ફળ"
+  }
+}

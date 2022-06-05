@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - ገጽ አልተገኘም"
+  },
+  "503": {
+    "msg": "503 - አገልግሎት ማግኘት አልተቻለም"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "ከዚህ ቦታ ታግደሃል",
+    "locationName": {
+      "pageTitle": "ቤት"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "ፕሮጀክቶች",
+      "header": "እባክዎ መግቢያ",
+      "welcomeMsg": "እንኳን ደህና መጡ",
+      "locationHeader": "ቦታዎች",
+      "projectHeader": "ፕሮጀክቶች",
+      "sceneHeader": "ትዕይንቶች",
+      "description": "እዚህ አዲስ ከሆንክ ማስተማሪያውን ማለፍ እንዳለብን እናበረታታለን። አለበለዚያ ወደ ውስጥ ዘልለህ በመግባት ከጭራሽ ወይም ከአንዱ ቴምፕሌስ ፕሮጀክት ይፍጠሩ።",
+      "lbl-startTutorial": "ትምህርተ-ትምህርት ጀምር",
+      "lbl-newProject": "አዲስ ፕሮጀክት",
+      "lbl-createProject": "ፍጠር",
+      "lbl-newScene": "አዲስ ትዕይንት",
+      "lbl-searchProject": "አሁን ያሉ ፕሮጀክቶችን ፈልግ ...",
+      "back": "ወደ ኋላ",
+      "contextMenu": "ፕሮጄክት አጥፉ",
+      "installed": "የተገጠሙ ፕሮጀክቶች",
+      "official": "ይፋዊ ፕሮጀክቶች",
+      "community": "የማህበረሰብ ፕሮጀክቶች",
+      "install": "መግጠም",
+      "uninstall": "የማይገባ",
+      "rename": "የስም ስም",
+      "createProject": "ፕሮጄክት ይፍጠሩ",
+      "installProject": "ፕሮጄክት",
+      "processing": "አሰራር",
+      "projectName": "የፕሮጀክት ስም",
+      "projectURL": "ፕሮጀክት ዩአርኤል"
+    }
+  },
+  "error": {
+    "goHomeLink": "ወደቤት ሂድ",
+    "withStatusCode": "በሰርቨር ላይ {{code}} ስህተት ተከስቷል",
+    "withoutStatusCode": "በሰርቨር ላይ ስህተት ተከስቷል"
+  },
+  "no-projects": {
+    "msg": "ስህተት ምንም ፕሮጀክቶች አልተገጠመም - እባክዎ የድረ-ገጽ አድሚን ያነጋግሩ"
+  },
+  "dev": {
+    "pageTitle": "ቤት"
+  },
+  "login": {
+    "pageTitle": "መግቢያ"
+  },
+  "workerTest": {
+    "pageTitle": "የሰራተኛ ፈተና"
+  },
+  "index": {
+    "by": "",
+    "xr": "XR",
+    "foundation": "መሰረት",
+    "description": "Realtime 3D ማህበራዊ መተግበሪያዎች ሁሉም እንዲደሰቱ."
+  },
+  "xrengineContact": {
+    "header": "ተነካ!",
+    "description": "የእርስዎን የውሂብ ክስተቶች, ዲጂታል የችርቻሮ, የመዝናኛ እና ሌሎች ፍላጎቶች ጋር እርስዎን ለመርዳት እንወዳለን.",
+    "lbl-name": "ስም",
+    "lbl-email": "ኢሜይል",
+    "lbl-company": "ኩባንያ",
+    "lbl-project": "ፕሮጀክትህን ግለጽ",
+    "lbl-send": "ላክ",
+    "lbl-ok": "እሺ",
+    "lbl-success": "መልዕክት ላክ, በቅርቡ ወደ እርስዎ እንመለሳለን.",
+    "lbl-failure": "ስህተት ተፈፀመ፣ Plese እንደገና ይሞክሩ",
+    "err-username": "እባክዎ ስም ያስገቡ.",
+    "err-email": "ኢሜይል ያስፈልጋል።",
+    "err-msg": "ስለ ፕሮጀክትህ አጠር ያለ መግለጫ ስጥ።"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Sahypa Tapylmady"
+  },
+  "503": {
+    "msg": "503 - Hyzmat elýetersiz"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Bu ýerden gadagan edildiň,",
+    "locationName": {
+      "pageTitle": "Baş sahypa"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Taslamalar",
+      "header": "Please Login",
+      "welcomeMsg": "Hoş geldiňiz",
+      "locationHeader": "Ýerler",
+      "projectHeader": "Taslamalar",
+      "sceneHeader": "Sahnalar",
+      "description": "Eger siz bu ýerde ýaňy gelen bolsaňyz, onda biz okuwy geçirmegi maslahat berýäris. Ýogsa göni içeri böküň we gaşyndan ýa-da şablonlarymyzyň birinden proýekt dörediň.",
+      "lbl-startTutorial": "Sazlama",
+      "lbl-newProject": "Täze proýekt",
+      "lbl-createProject": "Ýarad",
+      "lbl-newScene": "Täze sahna",
+      "lbl-searchProject": "Öňbar bolan proýektleri saýla...",
+      "back": "Arka",
+      "contextMenu": "Sil",
+      "installed": "Gurnalan Proýektler",
+      "official": "Resmi taslamalar",
+      "community": "Jemgyýetçilik taslamalary",
+      "install": "Gaýd etmek",
+      "uninstall": "Gaýd etmek",
+      "rename": "Adyny Ewez Ed",
+      "createProject": "Proýekt Bejer",
+      "installProject": "Proýekti Gaýd Etmek",
+      "processing": "Işlenip düzüliş",
+      "projectName": "Proýekt ady",
+      "projectURL": "Url proýekti"
+    }
+  },
+  "error": {
+    "goHomeLink": "Öýüňe git",
+    "withStatusCode": "{{code}}",
+    "withoutStatusCode": "Saýlanan faýly gaýd etmek üçin hata boldy: %s"
+  },
+  "no-projects": {
+    "msg": "Hata: Hiç Bir Proýekt Ýerleşdirilmedi - Saýta admin ýüz tutuň"
+  },
+  "dev": {
+    "pageTitle": "Baş sahypa"
+  },
+  "login": {
+    "pageTitle": "Giriş"
+  },
+  "workerTest": {
+    "pageTitle": "Iş kesilenler synagy"
+  },
+  "index": {
+    "by": "BY",
+    "xr": "XR",
+    "foundation": "Düýp",
+    "description": "Her bir adamyň lezzet almak üçin realtime 3D sosial programmalar."
+  },
+  "xrengineContact": {
+    "header": "Habarlaşyň!",
+    "description": "Wirtual wakalaryňyzda, digital söwdegärleriňizde, göwün açmalaryňyzda we beýleki zerurlyklaryňyzda size kömek etmek isleýäris.",
+    "lbl-name": "Ady",
+    "lbl-email": "E-poçta",
+    "lbl-company": "Kompaniýa",
+    "lbl-project": "Siziň Proýektiňizi beýan ediň",
+    "lbl-send": "Iber",
+    "lbl-ok": "Bor",
+    "lbl-success": "Ugradylýan habar, biz tizden saňa dolanarys.",
+    "lbl-failure": "Hata ýüze çykdy, Plese ýene synanşyk",
+    "err-username": "Lütfen adyny giriň.",
+    "err-email": "E-poçta talap edilýär.",
+    "err-msg": "Taslamaňyz barada gysgaça maglumat beriň."
+  }
+}

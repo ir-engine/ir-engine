@@ -1,81 +1,81 @@
 {
-  "location" : {
-    "youHaveBeenBannedMsg" : "Sei stato vietato da questa località ",
-    "locationName" : {
-      "pageTitle" : "Home "
+  "404": {
+    "msg": "404 - Pagina non trovata"
+  },
+  "503": {
+    "msg": "503 - Servizio non disponibile"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Sei stato bandito da questa posizione",
+    "locationName": {
+      "pageTitle": "Casa"
     }
   },
-  "editor" : {
-    "projects" : {
-      "title" : "Progetti ",
-      "header" : "Login Login ",
-      "welcomeMsg" : "Benvenuto ",
-      "locationHeader" : "Località ",
-      "projectHeader" : "Progetti ",
-      "sceneHeader" : "Scene ",
-      "description" : "Se siete nuovi qui vi consigliamo di passare attraverso il tutorial.  Altrimenti saltare dritto in e creare un progetto da zero o da uno dei nostri modelli. ",
-      "lbl-startTutorial" : "Esercitazione di inizio ",
-      "lbl-newProject" : "Nuovo progetto ",
-      "lbl-createProject" : "Crea ",
-      "lbl-newScene" : "Nuova Scena ",
-      "lbl-searchProject" : "Ricerca Progetti esistenti ... ",
-      "back" : "Indietro ",
-      "contextMenu" : "Elimina progetto ",
-      "installed" : "Progetti installati ",
-      "official" : "Progetti ufficiali ",
-      "community" : "Progetti di comunità ",
-      "install" : "Installazione ",
-      "uninstall" : "Disinstallazione ",
-      "rename" : "Rinomina ",
-      "createProject" : "Crea progetto ",
-      "installProject" : "Progetto di installazione ",
-      "processing" : "Elaborazione ",
-      "projectName" : "Nome del progetto ",
-      "projectURL" : "URL del progetto "
+  "editor": {
+    "projects": {
+      "title": "Progetti",
+      "header": "Effettua il login",
+      "welcomeMsg": "Benvenuto",
+      "locationHeader": "Luoghi",
+      "projectHeader": "Progetti",
+      "sceneHeader": "Scene",
+      "description": "Se sei nuovo qui ti consigliamo di seguire il tutorial. Altrimenti, entra subito e crea un progetto da zero o da uno dei nostri modelli.",
+      "lbl-startTutorial": "Avvia tutorial",
+      "lbl-newProject": "Nuovo Progetto",
+      "lbl-createProject": "Creare",
+      "lbl-newScene": "Nuova scena",
+      "lbl-searchProject": "Cerca progetti esistenti...",
+      "back": "Indietro",
+      "contextMenu": "Elimina progetto",
+      "installed": "Progetti installati",
+      "official": "Progetti Ufficiali",
+      "community": "Progetti Comunitari",
+      "install": "Installare",
+      "uninstall": "Disinstalla",
+      "rename": "Ribattezzare",
+      "createProject": "Crea progetto",
+      "installProject": "Installa progetto",
+      "processing": "Elaborazione",
+      "projectName": "Nome del progetto",
+      "projectURL": "URL del progetto"
     }
   },
-  "error" : {
-    "goHomeLink" : "Vai a casa ",
-    "withStatusCode" : "Un errore {{codice}} si è verificato sul server ",
-    "withoutStatusCode" : "Si è verificato un errore sul server "
+  "error": {
+    "goHomeLink": "Va' a casa",
+    "withStatusCode": "Si è verificato un errore {{code}} sul server",
+    "withoutStatusCode": "Si è verificato un errore sul server"
   },
-  "404" : {
-    "msg" : "404 - Pagina non trovata "
+  "no-projects": {
+    "msg": "Errore: Nessun progetto installato - contattare un amministratore del sito"
   },
-  "503" : {
-    "msg" : "503 - Servizio non disponibile "
+  "dev": {
+    "pageTitle": "Casa"
   },
-  "no-projects" : {
-    "msg" : "Errore: Nessun progetto Installato - contattare un sito admin "
+  "login": {
+    "pageTitle": "Accesso"
   },
-  "dev" : {
-    "pageTitle" : "Home "
+  "workerTest": {
+    "pageTitle": "Test del lavoratore"
   },
-  "login" : {
-    "pageTitle" : "Login "
+  "index": {
+    "by": "PRESSO",
+    "xr": "XR",
+    "foundation": "Fondazione",
+    "description": "Applicazioni social 3D in tempo reale per il divertimento di tutti."
   },
-  "workerTest" : {
-    "pageTitle" : "Test di lavoro "
-  },
-  "index" : {
-    "by" : "BY ",
-    "xr" : "XR ",
-    "foundation" : "Fondazione ",
-    "description" : "Realtime 3D applicazioni sociali per tutti da godere. "
-  },
-  "xrengineContact" : {
-    "header" : "Get In Touch! ",
-    "description" : "Ci piacerebbe aiutarti con i tuoi eventi virtuali, il retail digitale, l'intrattenimento e altre esigenze. ",
-    "lbl-name" : "Nome ",
-    "lbl-email" : "Email ",
-    "lbl-company" : "Società ",
-    "lbl-project" : "Descrivi il tuo progetto ",
-    "lbl-send" : "Invia ",
-    "lbl-ok" : "Ok ",
-    "lbl-success" : "Messaggio Inviato, ci torneremo a breve. ",
-    "lbl-failure" : "Si è verificato un errore, Plese riprova ",
-    "err-username" : "Si prega di inserire il nome. ",
-    "err-email" : "L'email è richiesta. ",
-    "err-msg" : "Fornire una breve descrizione del tuo progetto."
+  "xrengineContact": {
+    "header": "Mettiti in contatto!",
+    "description": "Ci piacerebbe aiutarti con i tuoi eventi virtuali, la vendita al dettaglio digitale, l'intrattenimento e altre esigenze.",
+    "lbl-name": "Nome",
+    "lbl-email": "E-mail",
+    "lbl-company": "Società",
+    "lbl-project": "Descrivi il tuo progetto",
+    "lbl-send": "Invia",
+    "lbl-ok": "Ok",
+    "lbl-success": "Messaggio inviato, ti risponderemo a breve.",
+    "lbl-failure": "Si è verificato un errore, Plese riprova",
+    "err-username": "Inserisci il tuo nome.",
+    "err-email": "L'e-mail è obbligatoria.",
+    "err-msg": "Fornisci una breve descrizione del tuo progetto."
   }
 }

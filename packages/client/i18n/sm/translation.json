@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - E Le o Maua le Itulau"
+  },
+  "503": {
+    "msg": "503 - E Le o Maua le Auaunaga"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Ua faasaina oe mai lenei nofoaga",
+    "locationName": {
+      "pageTitle": "Aiga"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Galuega Faatino",
+      "header": "Faamolemole Alu i Totonu",
+      "welcomeMsg": "Susu maia",
+      "locationHeader": "Nofoaga",
+      "projectHeader": "Galuega Faatino",
+      "sceneHeader": "Vaaiga",
+      "description": "Afai e te fou iinei matou te fautuaina le faia o le aoaoga. A leai, ia oso sa'o i totonu ma fatu se galuega faatino mai le amataga pe mai se tasi o a tatou mamanu.",
+      "lbl-startTutorial": "Amata le Aoaoga",
+      "lbl-newProject": "Galuega Faatino Fou",
+      "lbl-createProject": "Fatu",
+      "lbl-newScene": "Vaaiga Fou",
+      "lbl-searchProject": "Saili Galuega Faatino o Loo I Ai...",
+      "back": "Toe Foi i Tua",
+      "contextMenu": "Tape le Galuega Faatino",
+      "installed": "Galuega Faatino ua Faapipiiina",
+      "official": "Galuega Faatino Aloaia",
+      "community": "Galuega Faatino a le Nuu",
+      "install": "Faapipii",
+      "uninstall": "E le o i ai se mea e mafai ona fai",
+      "rename": "Toefaaigoa",
+      "createProject": "Fatu se Galuega Faatino",
+      "installProject": "Faapipii le Galuega Faatino",
+      "processing": "Faagaoioia",
+      "projectName": "Igoa o le Galuega Faatino",
+      "projectURL": "Galuega Faatino URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Alu i le Fale",
+    "withStatusCode": "Na i ai se mea sese {{code}} tupu i luga o le tautua autu",
+    "withoutStatusCode": "Na i ai se mea sese i luga o le tautua autu"
+  },
+  "no-projects": {
+    "msg": "Faaletonu: Leai ni Galuega Faatino ua Faapipiiina - faamolemole faafesootai se admin o le saite"
+  },
+  "dev": {
+    "pageTitle": "Aiga"
+  },
+  "login": {
+    "pageTitle": "Alu i Totonu"
+  },
+  "workerTest": {
+    "pageTitle": "Suega a le Tagata Faigaluega"
+  },
+  "index": {
+    "by": "SAUNIA E",
+    "xr": "XR",
+    "foundation": "Faavae",
+    "description": "O le taimi moni, e 3D talosaga mo tagata uma e fiafia i ai."
+  },
+  "xrengineContact": {
+    "header": "Ia Pa'i Atu!",
+    "description": "Matou te fiafia e fesoasoani atu ia te oe i au mea e fai faafoliga, faleoloa faafuainumera, faafiafiaga ma isi manaoga.",
+    "lbl-name": "Igoa",
+    "lbl-email": "Imeli",
+    "lbl-company": "Kamupani",
+    "lbl-project": "Faamatala lau Galuega Faatino",
+    "lbl-send": "Auina Atu",
+    "lbl-ok": "Ok",
+    "lbl-success": "Auina atu le Savali, E le o toe mamao ona matou toe foi atu lea ia te oe.",
+    "lbl-failure": "Na i ai se mea sese na tupu, na toe taumafai Plese",
+    "err-username": "Faamolemole ta i totonu lou igoa.",
+    "err-email": "E manaomia le imeli.",
+    "err-msg": "Tuu atu se faamatalaga puupuu o lau galuega faatino."
+  }
+}

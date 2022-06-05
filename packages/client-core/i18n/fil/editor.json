@@ -1,0 +1,718 @@
+{
+  "loading": "Naglo-load ng Proyekto",
+  "loadingMsg": "Naglo-load ng proyekto...",
+  "loadingError": "Mali sa paglo-load ng proyekto",
+  "loadingErrorMsg": "May mali sa paglo-load ng proyekto.",
+  "selectSceneMsg": "Pumili ng Tagpo para magsimulang makipaglaro sa engine",
+  "error": "Mali",
+  "errorMsg": "May di-matukoy na mali.",
+  "generateScreenshot": "Pagbuo ng Screenshot ng Proyekto",
+  "generateScreenshotMsg": "Lumilikha ng screenshot ng proyekto...",
+  "newScene": "Lumikha ng Tagpo",
+  "saving": "Pag-save ng Proyekto",
+  "savingMsg": "Pagse-save ng proyekto...",
+  "savingError": "Mali sa Pag-save ng Proyekto",
+  "savingErrorMsg": "May mali sa pag-save ng proyekto.",
+  "savingSceneErrorMsg": "Ang tagpo ay hindi naka-load nang maayos. Subukang i-reload ang tagpo.",
+  "duplicating": "Duplikadong Proyekto",
+  "duplicatingMsg": "Duplikadong proyekto...",
+  "exporting": "Pag-eeksport ng Proyekto",
+  "exportingMsg": "Nag-eeksport ng proyekto...",
+  "exportingError": "Mali sa Pag-export ng Proyekto",
+  "exportingErrorMsg": "May mali sa pag-eeksport ng proyekto.",
+  "importLegacy": "I-import ang Pamana mundo",
+  "importLegacyMsg": "Babala! Ito ay magpapatupad ng iyong umiiral na tagpo! Sigurado ka ba na gusto mong magpatuloy?",
+  "publishingError": "Mali sa Paglalathala ng Proyekto",
+  "publishingErrorMsg": "May di-matukoy na mali.",
+  "publishingScene": "Tagpo sa Paglalathala",
+  "publishingSceneMsg": "Paglalathala ng tagpo...",
+  "uploadingThumbnailMsg": "Nag-i-upload ng thumbnail...",
+  "uploadingSceneMsg": "Pag-upload ng tanawin: {{percentage}}%",
+  "envMapError": "Mali sa paglo-load ng cubemap {{files}}",
+  "lbl-return": "Bumalik",
+  "menubar": {
+    "newScene": "Bagong Tagpo",
+    "saveScene": "I-save ang Tagpo",
+    "saveAs": "I-save Bilang",
+    "importAsset": "Mag-import ng Asset",
+    "exportGLB": "I-export bilang binary glTF (.glb) ...",
+    "importScene": "Mag-import ng tagpo",
+    "exportScene": "I-export ang tagpo",
+    "quit": "Tumigil"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Hindi suportadong tipo ng file para sa file: \"{{name}}\". Ang file ay kailangang imahe, video, o glb modelo.",
+    "addObject": "addObject: bago ang bagay na hindi natagpuan",
+    "removeObject": "tanggalin ang Object: node hindi natagpuan. Ito ay dahil sa pag-alis ng isang node na hindi na sa tanawin.",
+    "noParent": "{{node}}{{name}}\" ay walang magulang. Reparent lamang gumagana sa mga bagay na kasalukuyang nasa tanawin.",
+    "undefinedParent": "editor.reparent: bagong Magulang ay hindi natukoy",
+    "notAuthenticated": "Hindi pinatunayan",
+    "fetchingProjectError": "Mali sa pagbubuo ng mga proyekto: {{error}}",
+    "fetchingRouteError": "Mali sa pag-aalaga ng mga ruta: {{error}}",
+    "unknownError": "Di-matukoy na mali",
+    "resolveURL": "Mali sa paglutas ng url \"{{url}}\":",
+    "mediaSearchAborted": "Inabort na paghahanap ng media",
+    "methodNotImplemented": "Hindi ipinatupad ang pamamaraan.",
+    "saveProjectAborted": "I-save ang tagpong inaborted",
+    "unsavedChanges": "Mga Pagbabagong Hindi Na-save",
+    "unsavedChangesMsg": "Binago ang tagpo. Mangyaring i-save ang iyong mga pagbabago.",
+    "projectCreationFail": "Bigo ang paglikha ng proyekto. {{reason}}",
+    "projectDeletionFail": "Bigo ang pagtanggal ng proyekto. {{reason}}",
+    "savingProjectFail": "Bigo ang Pag-iipon ng Proyekto. {{reason}}",
+    "sceneTooLarge": "Tanawin ay masyadong malaki ({{size}} MB) upang ilathala. Pinakamataas na sukat ay {{maxSize}} MB.",
+    "sceneCreationFail": "Nabigo ang paglikha ng tagpo. {{reason}}",
+    "uploadAborted": "Mag-upload ng aborted",
+    "uploadFailed": "Nabigo ang pag-upload {{reason}}",
+    "assetDeletionFail": "Bigo ang pagtanggal ng asset. {{reason}}",
+    "projectAssetDeletionFail": "Bigo ang pagtanggal ng Proyekto ng Asset. {{reason}}",
+    "networkError": "Mali sa Network: {{status}}. {{text}}",
+    "unknownStatus": "Di-matukoy na Katayuan",
+    "CORS": "Marahil isang mali sa CORS",
+    "urlFetchError": "Nabigong makakuha ng \"{{url}}\""
+  },
+  "viewport": {
+    "title": "Tumanaw ng Tanaw",
+    "command": {
+      "movecamera": "Ilipat ang Camera",
+      "flyFast": "Lumipad mas mabilis",
+      "orbit": "Orbit / Piliin ang",
+      "pan": "Pan pan",
+      "fly": "lumipad",
+      "focus": "Magpokus",
+      "rotateLeft": "paikutin kaliwa",
+      "rotateRight": "paikutin kanan",
+      "cancelPlacement": "Kanselahin ang Placement",
+      "placeDuplicate": "Ilagay ang Duplikado",
+      "cancelGrab": "Kanselahin grab",
+      "grab": "Grab",
+      "deselectAll": "Deselect Lahat"
+    },
+    "state": {
+      "header": "Stats",
+      "memory": "Memori",
+      "geometries": "Geometries",
+      "textures": "Mga Texture",
+      "render": "Magsalin",
+      "FPS": "MGA FPS",
+      "frameTime": "Frame Time",
+      "calls": "Mga Tawag",
+      "triangles": "Tatsulok",
+      "points": "Mga Puntos",
+      "lines": "Mga Linya"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Ilathala",
+    "lbl-published": "Nailathala",
+    "command": {
+      "translate": "Isalin",
+      "rotate": "paikutin",
+      "scale": "Sukat",
+      "toggleSpace": "I-toggle ang Transform Space",
+      "togglePivot": "Toggle Transform Pivot",
+      "toggleSnapMode": "I-toggle ang Mode ng Snap",
+      "toggleGrid": "Toggle Grid Visibility",
+      "increaseGridSize": "Dagdagan ang Grid Laki",
+      "descreaseGridSize": "Bawasan ang grid laki",
+      "stopPreview": "Itigil ang Preview Scene",
+      "playPreview": "Preview Tanawin"
+    }
+  },
+  "properties": {
+    "title": "Mga Katangian",
+    "lbl-visible": "Nakikita",
+    "lbl-preventBake": "Pigilan ang Maghurno",
+    "lbl-persist": "Magtiyu",
+    "multipleNodeSelected": "Maramihang Nodes ng iba't ibang uri na napili",
+    "noNodeSelected": "Walang napiling nobya",
+    "ambientLight": {
+      "name": "Ambient Light",
+      "description": "Ang isang ilaw na nagliliwanag sa lahat ng bagay sa iyong tagpo.",
+      "lbl-intensity": "Tindi ng katindihan",
+      "lbl-color": "Kulay"
+    },
+    "envmap": {
+      "name": "Mapa ng Kapaligiran",
+      "description": "mga katangian ng mapa ng kapaligiran"
+    },
+    "asset": {
+      "name": "Asset",
+      "description": "Ang isang grupo ng mga bahagi ng tanawin na maaaring dynamically load at unloaded",
+      "lbl-options": "Mga Opsiyon",
+      "lbl-assetPath": "Landas ng Asset",
+      "lbl-assetName": "I-export ang Pangalan",
+      "lbl-exportOptions": "I-export ang mga Opsiyon",
+      "lbl-export": "I-export ang Asset",
+      "lbl-load": "Magkarga sa Tanawin",
+      "lbl-unload": "I-unload",
+      "lbl-reload": "I-reload"
+    },
+    "audio": {
+      "name": "Audio",
+      "description": "Dynamically naglo-load ng audio.",
+      "lbl-audiourl": "Audio Url",
+      "lbl-controls": "mga kontrol",
+      "info-controls": "I-toggle ang posibilidad ng mga kontrol ng media.",
+      "lbl-autoplay": "Awto Play",
+      "info-autoplay": "Kung totoo, maglalaro ang media kapag unang pumasok sa tagpo.",
+      "lbl-synchronize": "Magsingkronisa",
+      "info-synchronize": "Kung totoo, ang media ay Singkronisa sa lahat ng nakakonektang kliyente.",
+      "lbl-loop": "Loop",
+      "info-loop": "Kung totoo ang media ay loop nang walang katapusan.",
+      "lbl-audioType": "Tipo ng Audio",
+      "lbl-distanceModel": "Modelo ng Distansya",
+      "info-distanceModel": "Ang algorithim na ginamit upang kalkulahin ang audio rolloff.",
+      "lbl-rolloffFactor": "rolloff kadahilanan",
+      "info-rolloffFactor": "Ang isang double halaga na naglalarawan kung gaano kabilis ang dami ay nabawasan bilang ang pinagmulan ay gumagalaw ang layo mula sa tagapakinig. 0 hanggang 1",
+      "info-rfInfinity": "Ang isang double halaga na naglalarawan kung gaano kabilis ang dami ay nabawasan bilang ang pinagmulan ay gumagalaw ang layo mula sa tagapakinig. 0 sa kawalan ng",
+      "lbl-refDistance": "Sumangguni sa Distansya",
+      "info-refDistance": "Ang double halaga na kumakatawan sa distansya ng reperensya para sa pagbabawas ng dami bilang audio source ay gumagalaw pa mula sa tagapakinig.",
+      "lbl-maxDistance": "max distansya",
+      "info-maxDistance": "Ang isang double halaga na kumakatawan sa maximum na distansya sa pagitan ng pinagmulan ng audio at ng tagapakinig, pagkatapos na ang dami ay hindi nabawasan ang anumang karagdagang.",
+      "lbl-coneInnerAngle": "cone panloob na anggulo",
+      "info-coneInnerAngle": "Ang isang double halaga na naglalarawan ng anggulo, sa degrees, ng isang cone sa loob ng kung saan walang dami pagbabawas.",
+      "lbl-coneOuterAngle": "cone out anggulo",
+      "info-coneOuterAngle": "Ang isang double halaga na naglalarawan ng anggulo, sa degrees, ng isang cone sa labas kung saan ang dami ay mababawasan ng isang pare-parehong halaga, tinukoy sa pamamagitan ng coneOuterGain attribute.",
+      "lbl-coreOuterGain": "Cone outer makakuha ng",
+      "info-coreOuterGain": "Ang isang double halaga na naglalarawan ng halaga ng dami pagbabawas sa labas ng cone ay tinukoy ng coneOuterAngle. Ang default na halaga nito ay 0, ibig sabihin walang tunog na maririnig.",
+      "lbl-volume": "Tomo",
+      "lbl-play": "Magpaandar",
+      "lbl-pause": "Tumigil sandali",
+      "error-url": "Mali sa Paglo-load mula sa URL"
+    },
+    "boxCollider": {
+      "description": "Isang hindi nakikitang kahon na ang mga bagay ay bounce off o magpahinga sa tuktok ng.\nKung walang colliders, ang mga bagay-bagay ay mahuhulog sa pamamagitan ng mga sahig at pumunta sa pamamagitan ng mga pader.",
+      "lbl-isTrigger": "Mag-trigger"
+    },
+    "camera": {
+      "name": "Camera",
+      "description": "Mga setting ng Camera.",
+      "lbl-camera-raycast": "Camera Raycasting",
+      "lbl-camera-raycast-toggle": "Pinagana",
+      "lbl-camera-raycast-frequency": "Dalas",
+      "lbl-camera-raycast-count": "Ray County",
+      "lbl-camera-raycast-length": "ray haba"
+    },
+    "directionalLight": {
+      "name": "Direksyonal na Liwanag",
+      "description": "Ang isang ilaw na nagliliwanag sa buong tanawin, ngunit emits kasama ang isang solong direksyon.",
+      "lbl-color": "Kulay",
+      "lbl-intensity": "Tindi ng katindihan",
+      "lbl-cameraFar": "Camera Malayo",
+      "lbl-cameraNear": "Camera Malapit sa",
+      "lbl-cameraTop": "Kamera tuktok",
+      "lbl-cameraBottom": "kamera sa ibaba",
+      "lbl-cameraLeft": "Kaliwang Kamera",
+      "lbl-cameraRight": "Camera Kanan",
+      "lbl-useInCSM": "Gamitin sa CSM",
+      "lbl-castShadow": "cast anino",
+      "lbl-disableForCSM": "May kapansanan dahil pinagana ang mapa ng Cascade.",
+      "lbl-shadowmapResolution": "Anino map resolution",
+      "lbl-shadowBias": "anino bias",
+      "lbl-shadowRadius": "anino radius",
+      "lbl-showCameraHelper": "Ipakita ang Camera Helper"
+    },
+    "groundPlane": {
+      "name": "ground planeta",
+      "description": "Isang flat eroplano na umaabot sa di-kalayuan.",
+      "lbl-color": "Kulay",
+      "lbl-receiveShadow": "Tumanggap ng Anino",
+      "lbl-generateNavmesh": "Bumuo ng Navmesh"
+    },
+    "link": {
+      "description": "Link sa isang kuwarto o isang website.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "3D geospatial mapa ng e.g. isang lungsod."
+    },
+    "model": {
+      "description": "Isang 3D modelo sa iyong tanawin, na naka-load mula sa isang GLTF URL o file.",
+      "lbl-usingGPUInstancingFlag": "Gamitin ang GPU Instancing",
+      "lbl-modelurl": "modelo url",
+      "lbl-envmapUrl": "Kapaligiran Mapa Url",
+      "lbl-textureOverride": "Override Texture",
+      "lbl-materialOverride": "Materyal na Overrides",
+      "error-url": "Mali sa Paglo-load mula sa URL",
+      "lbl-loopAnimation": "Loop Animation",
+      "lbl-isAvatar": "Ay Avatar",
+      "lbl-isGPUInstancing": "Ay gumagamit ng GPU instancing",
+      "lbl-isDynamic": "Ay Dynamic",
+      "lbl-castShadow": "cast anino",
+      "lbl-receiveShadow": "Tumanggap ng Anino",
+      "lbl-interactable": "Interactable",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Pangalan",
+      "lbl-url": "modelo url",
+      "lbl-buy": "Bumili ng Url",
+      "lbl-learnMore": "Alamin pa ang Iba Pang Url",
+      "lbl-htmlContent": "Nilalaman ng Html",
+      "lbl-interactionText": "Teksto ng Pakikipag-ugnayan",
+      "lbl-interactionType": "Tipo ng Pakikipag-ugnayan"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Materyales",
+      "error-materialID": "Mali sa Paghahanap ng Materyal",
+      "placeholder-materialID": "Pumili ng Materyal",
+      "lbl-patternTarget": "pattern tugma",
+      "lbl-pattern": "Huwaran",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Tipo ng Pakikipag-ugnayan",
+      "text": "Teksto ng Pakikipag-ugnayan",
+      "distance": "Distansya ng Pakikipag-ugnayan",
+      "theme": "Pakikipag-ugnayan Tema",
+      "name": "Pangalan ng Pakikipag-ugnayan",
+      "description": "Deskripsiyon ng Pakikipag-ugnayan",
+      "images": "Interaksyon Imahen",
+      "videos": "Mga Video ng Pakikipag-ugnayan",
+      "urls": "Pakikipag-ugnayan Urls",
+      "models": "Mga Modelo ng Pakikipag-ugnayan"
+    },
+    "group": {
+      "name": "Pangkat",
+      "description": "Isang grupo ng maraming bagay na maaaring mailipat o madulas nang sama-sama.\nI-drag at i-drop ang mga bagay sa Grupo sa Hierarchy."
+    },
+    "hemisphere": {
+      "name": "Hemisphere Light",
+      "description": "Ang isang ilaw na nagliliwanag sa tanawin mula sa direktang pagbagsak.",
+      "lbl-skyColor": "Kalangitan Kulay",
+      "lbl-groundColor": "Kulay ng Lupa",
+      "lbl-intensity": "Tindi ng katindihan"
+    },
+    "image": {
+      "name": "Imahe",
+      "description": "Dynamically naglo-load ng isang imahe.",
+      "lbl-imgURL": "Image Url",
+      "lbl-transparency": "Modong Transparency",
+      "lbl-alphaCutoff": "Alpha Cutoff",
+      "lbl-projection": "Proyekto",
+      "lbl-side": "Gilid",
+      "info-controls": "I-toggle ang posibilidad ng mga kontrol ng media.",
+      "info-transparency": "Paano mag-aplik ng transparency:",
+      "info-opaque": "'opaque' = walang transparency",
+      "info-blend": "'timpla' = gamitin ang mga imahe alpha channel",
+      "info-mask": "'mask' = Gumamit ng tinukoy na cutoff halaga para sa / off transparency (mas performant)",
+      "info-alphaCutoff": "Pixels na may alpha halaga mas mababa kaysa sa ito ay transparent",
+      "error-url": "Di-maaaring URL"
+    },
+    "name": {
+      "lbl-name": "Pangalan"
+    },
+    "partileEmitter": {
+      "description": "Particle emitter upang lumikha ng mga particle.",
+      "lbl-particleCount": "Particle Count",
+      "lbl-image": "Imahe",
+      "lbl-ageRandomness": "Edad randomness",
+      "lbl-lifetime": "Habambuhay",
+      "lbl-lifetimeRandomness": "Habambuhay na Karamdaman",
+      "lbl-sizeCurve": "Kurbada ng Laki",
+      "lbl-startPSize": "Simulan ang Laki ng Partisipasyon",
+      "lbl-endPSize": "Tapusin ang Laki ng Particle",
+      "lbl-sizeRandomness": "Laki ng Random",
+      "lbl-colorCurve": "Kulay ng Curve",
+      "lbl-startColor": "Magsimula ng Kulay",
+      "lbl-startOpacity": "Simulan ang Opacity",
+      "lbl-middleColor": "Gitnang Kulay",
+      "lbl-middleOpacity": "Gitnang Opacity",
+      "lbl-endColor": "Tapusin ang Kulay",
+      "lbl-endOpacity": "Magwakas ng Kapasidad",
+      "lbl-velocityCurve": "Velocity Curve",
+      "lbl-startVelocity": "Simulan ang Velocity",
+      "lbl-endVelocity": "Magwakas ng Velocity",
+      "lbl-angularVelocity": "Angular Velocity",
+      "info-ageRandomness": "Ang halaga ng pagkakaiba-iba sa pagitan ng mga particle ay spawned.",
+      "info-lifetime": "Ang pinakamataas na edad ng isang particle bago ito ay binago.",
+      "info-lifetimeRandomness": "Ang halaga ng pagkakaiba-iba sa pagitan ng mga particle habambuhay.",
+      "info-sizeRandomness": "Ang halaga ng pagkakaiba-iba sa pagitan ng mga laki ng particle simula.",
+      "error-url": "Mali sa Paglo-load mula sa URL"
+    },
+    "clouds": {
+      "name": "Ulap",
+      "description": "Sprite batay ulap dami.",
+      "lbl-image": "Sprite Imahe",
+      "lbl-wroldScale": "Sukat ng Mundo",
+      "lbl-dimensions": "Mga Sukatan",
+      "lbl-noiseZoom": "Ingay zoom",
+      "lbl-noiseOffset": "Ingay offset",
+      "lbl-spriteScale": "Sprite Scale",
+      "lbl-fogColor": "kulay ng hamog",
+      "lbl-fogRange": "hamog saklaw",
+      "error-url": "Mali sa Paglo-load mula sa URL"
+    },
+    "ocean": {
+      "name": "karagatan",
+      "description": "Karagatan ibabaw na may mga waves at foam",
+      "lbl-normalMap": "Normal na Mapa",
+      "lbl-distortionMap": "Mapa ng Pagbaluktot",
+      "lbl-envMap": "Mapa ng Kapaligiran",
+      "lbl-color": "Kulay",
+      "lbl-shallowWaterColor": "Mababaw na Kulay ng Tubig",
+      "lbl-shallowToDeepDistance": "Mababaw sa Malalim na Distansya",
+      "lbl-opacityFadeDistance": "opacity fade distansya",
+      "lbl-opacityRange": "opacity saklaw",
+      "lbl-shininess": "kahihimutan",
+      "lbl-reflectivity": "Pakinilay",
+      "lbl-foamColor": "kulay ng foam",
+      "lbl-foamSpeed": "foam bilis",
+      "lbl-foamTiling": "Foam Tiling",
+      "lbl-bigWaveTiling": "malaki alon tiling",
+      "lbl-bigWaveSpeed": "malaki alon bilis",
+      "lbl-bigWaveHeight": "malaki alon taas",
+      "lbl-waveSpeed": "Bilis ng alon",
+      "lbl-waveScale": "alon scale",
+      "lbl-waveTiling": "Wave Tiling",
+      "lbl-waveDistortionSpeed": "Bilis ng pagbaluktot",
+      "lbl-waveDistortionTiling": "Alon pagbaluktot Tiling",
+      "error-url": "Mali sa Paglo-load mula sa URL"
+    },
+    "water": {
+      "name": "Tubig",
+      "description": "Maliit na tubig ibabaw"
+    },
+    "interior": {
+      "name": "Panloob na",
+      "description": "Isang ibabaw na may mapped cube texture upang tularan ang panloob na kapaligiran",
+      "lbl-cubeMap": "Texture ng Cube Map",
+      "lbl-tiling": "Tiling halaga",
+      "lbl-size": "Ibabaw laki",
+      "error-url": "Mali sa Paglo-load mula sa URL"
+    },
+    "pointLight": {
+      "description": "Ang liwanag na emits sa lahat ng direksyon mula sa isang punto.",
+      "lbl-color": "Kulay",
+      "lbl-intensity": "Tindi ng katindihan",
+      "lbl-range": "Saklaw",
+      "lbl-decay": "Pagkabulok"
+    },
+    "scene": {
+      "name": "Tagpo",
+      "description": "Ang ugat ng tanawin.",
+      "lbl-bgcolor": "Kulay ng Likuran",
+      "lbl-fogType": "Uri ng hamog",
+      "lbl-fogColor": "kulay ng hamog",
+      "lbl-forNearDistance": "Fog Malapit sa Distansya",
+      "lbl-fogFarDistance": "hamog malayo distansya",
+      "lbl-fogDensity": "Fog Density",
+      "lbl-audioSettings": "Gumamit ng Positional Audio",
+      "lbl-avatarDistanceModel": "avatar distansya modelo",
+      "lbl-avatarRolloffFactor": "avatar mapanganib gitling",
+      "lbl-avatarRefDistance": "Avatar ref distansya",
+      "lbl-avatarMaxDistance": "avatar max distansya",
+      "lbl-mediaVolume": "Tomo ng Media",
+      "lbl-mediaDistanceModel": "Modelo ng Distansya ng Media",
+      "lbl-mediaRolloffFactor": "Media Rolloff Kadahilanan",
+      "lbl-mediaRefDistance": "Distansya ng Distance ng Media",
+      "lbl-mediaMaxDistance": "Distansya ng Media Max",
+      "lbl-mediaConeInnerAngle": "Media Cone Inner Angle",
+      "lbl-mediaConeOuterAngle": "Media Cone outer anggulo",
+      "lbl-mediaConeOuterGain": "Media Cone Outer Makakuha",
+      "info-avatarDistanceModel": "Ang algorithim na ginamit upang kalkulahin ang audio rolloff.",
+      "info-avatarRolloffFactor": "Ang isang double halaga na naglalarawan kung gaano kabilis ang dami ay nabawasan bilang ang pinagmulan ay gumagalaw ang layo mula sa tagapakinig. 0 hanggang 1",
+      "info-avatarRolloffFactorInifinity": "Ang isang double halaga na naglalarawan kung gaano kabilis ang dami ay nabawasan bilang ang pinagmulan ay gumagalaw ang layo mula sa tagapakinig. 0 sa kawalan ng",
+      "info-avatarRefDistance": "Ang double halaga na kumakatawan sa distansya ng reperensya para sa pagbabawas ng dami bilang audio source ay gumagalaw pa mula sa tagapakinig.",
+      "info-avatarMaxDistance": "Ang isang double halaga na kumakatawan sa maximum na distansya sa pagitan ng pinagmulan ng audio at ng tagapakinig, pagkatapos na ang dami ay hindi nabawasan ang anumang karagdagang.",
+      "info-mediaDistanceModel": "Ang algorithim na ginamit upang kalkulahin ang audio rolloff.",
+      "info-mediaRolloffFactor": "Ang isang double halaga na naglalarawan kung gaano kabilis ang dami ay nabawasan bilang ang pinagmulan ay gumagalaw ang layo mula sa tagapakinig. 0 hanggang 1",
+      "info-mediaRolloffFactorInfinity": "Ang isang double halaga na naglalarawan kung gaano kabilis ang dami ay nabawasan bilang ang pinagmulan ay gumagalaw ang layo mula sa tagapakinig. 0 sa kawalan ng",
+      "info-mediaRefDistance": "Ang double halaga na kumakatawan sa distansya ng reperensya para sa pagbabawas ng dami bilang audio source ay gumagalaw pa mula sa tagapakinig.",
+      "info-mediaMaxDistance": "Ang isang double halaga na kumakatawan sa maximum na distansya sa pagitan ng pinagmulan ng audio at ng tagapakinig, pagkatapos na ang dami ay hindi nabawasan ang anumang karagdagang.",
+      "info-mediaConeInnerAngle": "Ang isang double halaga na naglalarawan ng anggulo, sa degrees, ng isang cone sa loob ng kung saan walang dami pagbabawas.",
+      "info-mediaConeOuterAngle": "Ang isang double halaga na naglalarawan ng anggulo, sa degrees, ng isang cone sa labas kung saan ang dami ay mababawasan ng isang pare-parehong halaga, tinukoy sa pamamagitan ng coneOuterGain attribute.",
+      "info-mediaConeOuterGain": "Ang isang double halaga na naglalarawan ng halaga ng dami pagbabawas sa labas ng cone ay tinukoy ng coneOuterAngle. Ang default na halaga nito ay 0, ibig sabihin walang tunog na maririnig.",
+      "lbl-simpleMaterials": "Gumamit ng mga Simpleng Materyal",
+      "lbl-lods": "MGA LOD",
+      "info-lods": "Nagseset ng distansya kung saan nagbabago ang mga antas ng detalye.",
+      "info-simpleMaterials": "Convert ang lahat ng mamahaling materyales sa mas simpleng mga mas simpleng mga bagay upang kunin ang load off scene na nagsasalin.",
+      "lbl-rendererSettings": "Mga Setting ng Override Renderer",
+      "lbl-csm": "Cascading Anino Mapa",
+      "info-csm": "Nagbibigay-kakayahan sa mga mapa ng cascading anino.",
+      "lbl-toneMapping": "tono mapping",
+      "info-toneMapping": "Nagbibigay-kakayahan sa tono ng pagmamapa sa tanawin ng render. Walang epekto kapag pinagana ang pagpoproseso ng post.",
+      "lbl-toneMappingExposure": "Tono Mapping Exposure",
+      "info-toneMappingExposure": "Tinutukoy ang tono ng mapping exposure sa tanawin ng render. Walang epekto kapag pinagana ang pagpoproseso ng post.",
+      "lbl-shadowMapType": "Uri ng Anino ng Mapa",
+      "info-shadowMapType": "Uri ng anino mapa",
+      "error-url": "Mali sa Paglo-load mula sa URL"
+    },
+    "sceneCamera": {
+      "name": "Tanawin Preview Camera",
+      "description": "Ang camera na ginamit upang makabuo ng thumbnail para sa iyong tanawin at ang panimulang posisyon para sa preview camera.",
+      "lbl-setFromViewPort": "Itakda mula sa Viewport"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Oras ng Araw",
+      "lbl-color": "Kulay",
+      "lbl-latitude": "Latitude",
+      "lbl-luminance": "Pagbagsak ng Ningning",
+      "lbl-scattering": "Nakakalat na Halaga",
+      "lbl-scatteringDistance": "Pagkalat ng Distansya",
+      "lbl-horizonStart": "Simula ng Pahalang",
+      "lbl-horizonEnd": "pahalang na pagtatapos",
+      "lbl-texture": "Texture",
+      "lbl-skyType": "Uri ng Kalangitan",
+      "error-url": "Mali sa Paglo-load mula sa URL"
+    },
+    "spawnPoint": {
+      "name": "Spawn Point",
+      "description": "Isang punto kung saan lilitaw ang mga tao kapag pumasok sila sa tagpo mo.\nAng icon sa Viewport ay kumakatawan sa aktwal na laki ng isang avatar."
+    },
+    "spotLight": {
+      "description": "Ang isang ilaw na emits kasama ang isang direksyon, na naglalarawan ng mga bagay sa loob ng isang cone.",
+      "lbl-color": "Kulay",
+      "lbl-intensity": "Tindi ng katindihan",
+      "lbl-penumbra": "penumbra",
+      "lbl-angle": "Anggulo",
+      "lbl-range": "Saklaw",
+      "lbl-decay": "Pagkabulok"
+    },
+    "transform": {
+      "title": "Transform",
+      "lbl-postition": "Posisyon",
+      "lbl-rotation": "pag-ikot",
+      "lbl-scale": "Sukat"
+    },
+    "triggereVolume": {
+      "description": "Nagseset ng ari-arian sa target na bagay sa ipasok at umalis.",
+      "lbl-target": "Bagay",
+      "lbl-onenter": "Ipasok ang",
+      "lbl-onexit": "Lumabas",
+      "lbl-showHelper": "Magpakita ng Helper Mesh",
+      "ph-errorNode": "Mali ang nawawalang node.",
+      "ph-selectNode": "Pumili ng node..."
+    },
+    "video": {
+      "name": "Video",
+      "description": "Dynamically naglo-load ng isang video.",
+      "lbl-video": "Video",
+      "lbl-projection": "Proyekto",
+      "lbl-islivestream": "Live Stream",
+      "lbl-interactable": "Interactable",
+      "lbl-id": "Elemento Id",
+      "lbl-play": "Magpaandar",
+      "lbl-pause": "Tumigil sandali",
+      "error-url": "Mali sa Paglo-load mula sa URL"
+    },
+    "volumetric": {
+      "name": "Volyumetric",
+      "description": "Dynamically naglo-load ng isang volume video.",
+      "uvolPaths": "UVOL Paths",
+      "playmode": "Modong Pagpapaandar",
+      "playtitle": "Magpaandar",
+      "pausetitle": "Tumigil sandali"
+    },
+    "spline": {
+      "description": "Dynamically lumikha at i-customize ang mga curves.",
+      "lbl-addNode": "Magdagdag ng node sa kurbada."
+    },
+    "systemnode": {
+      "description": "Ilakip ang iskrip.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "Iniksyon Punto",
+      "lbl-enableClient": "Kliyente",
+      "lbl-enableServer": "Server",
+      "lbl-args": "Args",
+      "error-url": "Mali sa Paglo-load ng Iskrip mula sa URL"
+    },
+    "portal": {
+      "lbl-portal": "Naka-link na Portal",
+      "lbl-redirect": "I-redirect ang Page",
+      "description": "Isang Portat sa mga manlalaro ng teleport para tukuyin ang lokasyon",
+      "lbl-locationName": "Lokasyon",
+      "lbl-modelUrl": "modelo URL",
+      "lbl-displayText": "Idispley ang Tek",
+      "lbl-cubemapBake": "Cubemap bakey",
+      "lbl-spawnPosition": "Spawn Posisyon",
+      "lbl-spawnRotation": "spawn pag-ikot",
+      "lbl-triggerPosition": "Mag-trigger ng Posisyon",
+      "lbl-triggerRotation": "mag-trigger ng pag-ikot",
+      "lbl-triggerScale": "Mag-trigger ng Sukat"
+    },
+    "postprocessing": {
+      "name": "Pagpoproseso ng Post",
+      "description": "Para sa pag-aaplya ng mga epekto ng Post Processing sa iyo tanawin."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Bagong Proyekto",
+      "backLink": "Bumalik sa mga proyekto",
+      "featured": "Itinatampok",
+      "all": "Lahat",
+      "newProject": "Bagong Proyektong Walang Laman",
+      "ph-search": "Mga tagpo sa paghahanap..."
+    },
+    "grid": {
+      "loading": "Naglo-load..."
+    },
+    "page": {
+      "header": "Maligayang pagdating",
+      "headerMsg": "Kung ikaw ay bago dito inirerekomenda naming pumunta sa pamamagitan ng tutorial. Kung hindi, tumalon sa kanan at lumikha ng isang proyekto mula sa scratch o mula sa isa sa aming mga template.",
+      "lbl-startTutorial": "Simulan ang Tutorial",
+      "projects": "Mga Proyekto",
+      "lbl-newProject": "Bagong Proyekto"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Naglo-load...",
+      "placeObject": "Maglagay ng Bagay",
+      "placeObjectAtOrigin": "Maglagay ng Bagay sa Pinagmulan",
+      "copyURL": "Kumopya ng URL",
+      "openInNewTab": "Buksan ang URL sa Bagong Tab",
+      "deleteAsset": "Magtanggal ng Asset"
+    },
+    "filebrowser": {
+      "addNewFolder": "Magdagdag ng Bagong Folder",
+      "cutAsset": "Gupitin",
+      "copyAsset": "Kopyahin",
+      "pasteAsset": "Magdikit",
+      "renameAsset": "Magpalit ng pangalan",
+      "viewAssetProperties": "Tumanaw ng mga Katangian"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Magpalit ng pangalan",
+    "lbl-duplicate": "Duplikadong",
+    "lbl-group": "Pangkat",
+    "lbl-delete": "Magtanggal",
+    "lbl-expandAll": "Palawakin Lahat",
+    "lbl-collapseAll": "Magpaliit Lahat",
+    "isseus": "Mga Isyu:"
+  },
+  "dnd": {
+    "nodes": "{{count}} Nodes Napili",
+    "models": "{{count}} modelo na Napili",
+    "images": "{{count}} Mga Larawang Napili",
+    "videos": "{{count}} Napili ang mga Video",
+    "audio": "{{count}} Audio Sources Napili"
+  },
+  "dialog": {
+    "title": "Patnugot",
+    "lbl-confirm": "Okey lang",
+    "lbl-cancel": "Kanselahin ang",
+    "exportProject": {
+      "title": "I-export ang Proyekto",
+      "lbl-confirm": "I-export ang Proyekto",
+      "lbl-combineMesh": "Pagsamahin ang mga Meshes",
+      "lbl-removeUnused": "Tanggalin ang mga Bagay na Hindi Nabuo"
+    },
+    "performance": {
+      "title": "Tseke ng Pagganap",
+      "lbl-confirm": "Ilathala ang Tagpo",
+      "learnMore": "Alamin pa ang iba",
+      "lbl-polycount": "Poligon Count",
+      "lbl-material": "Mga Materyales",
+      "lbl-texture": "Mga Texture",
+      "lbl-lights": "Mga Ilaw",
+      "lbl-fileSize": "Laki ng File",
+      "info-polycount": "Inirerekomenda namin ang iyong tagpo na gumamit ng hindi hihigit sa 50,000 tatsulok para sa mga mobile device.",
+      "info-material": "Inirerekomenda namin na gumamit ng hindi hihigit sa 25 natatanging mga materyal sa iyong tagpo upang mabawasan ang mga tawag sa mga mobile device.",
+      "info-texture": "Inirerekomenda namin ang iyong mga texture na gumamit ng hindi hihigit sa 256MB ng video RAM para sa mga mobile device. Inirerekomenda din namin laban sa paggamit ng mga texture na mas malaki kaysa sa 2048 x 2048.",
+      "info-lights": "Habang dynamic na ilaw ay hindi pinagana sa mga mobile device, inirerekomenda namin na gumamit ng hindi hihigit sa 3 ilaw sa iyong tanawin (maliban sa ambient at hemisphere lights) para sa iyong tanawin upang tumakbo sa mababang dulo ng PC.",
+      "info-fileSize": "Inirerekomenda namin ang huling sukat ng file na hindi hihigit sa 16MB para sa mababang bandwidth connections. Ang pagbabawas ng laki ng file ay babawasan ang oras na kailangan para mai-download ang iyong tanawin.",
+      "txt-polycount": "{{count}} Tatsulok",
+      "txt-material": "{{count}} Materyales",
+      "txt-ram": "~{{count}} Video RAM",
+      "txt-texture": "{{count}} malaking Textures",
+      "txt-lights": "{{count}} mga Ilaw"
+    },
+    "progress": {
+      "title": "Naglo-load...",
+      "msg": "Naglo-load...",
+      "lbl-cancel": "Kanselahin ang"
+    },
+    "publish": {
+      "title": "Ilathala ang Tagpo",
+      "lbl-confirm": "I-save at I-publish",
+      "lbl-name": "Pangalan ng Tagpo",
+      "info-name": "Ang pangalan ay kailangang nasa pagitan ng 4 at 64 na karakter at hindi maaaring maglaman ng mga undercores"
+    },
+    "published": {
+      "title": "Tagpong Inilathala",
+      "header": "Nailathala na ang tagpo mo.",
+      "lbl-view": "Tingnan ang Iyong Tagpo"
+    },
+    "saveNewProject": {
+      "title": "Suporta",
+      "lbl-name": "Pangalan ng Proyekto",
+      "info-name": "Ang pangalan ay kailangang nasa pagitan ng 4 at 64 na karakter at hindi maaaring maglaman ng mga undercores",
+      "lbl-confirm": "Mag-save ng Proyekto"
+    },
+    "support": {
+      "title": "Suporta",
+      "header": "Kailangan mong magreport ng problema?",
+      "msg": "Maaari kang mag-file ng <1>GitHub Isyu</1> o e-mail sa amin para sa <3> suporta{{mail}}</3>",
+      "discord": "Maaari mo ring mahanap sa amin <1>sa Discord</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Mga Imahe ng Bing",
+      "search": "Hanapin ayon sa Bing"
+    },
+    "bingVideo": {
+      "name": "Mga Video ng Bing",
+      "search": "Hanapin ayon sa Bing"
+    },
+    "element": {
+      "name": "Mga Elemento"
+    },
+    "myAssets": {
+      "name": "Ang Aking mga Ari-arian"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Maghanap sa pamamagitan ng Google"
+    },
+    "tenor": {
+      "name": "Tenor GIFs",
+      "search": "Hanapin ayon sa Tenor",
+      "ph-search": "Magsaliksik GIFS..."
+    },
+    "sketchfab": {
+      "name": "sketchfab",
+      "search": "Hanapin ayon sa Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "I-upload ang Asset"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Magsaliksik ng mga imahe..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Magsaliksik ng mga video..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Magsaliksik ng mga ari-arian..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Magsaliksik ng mga modelo..."
+    },
+    "useUpload": {
+      "multipleFileError": "Ang input ay hindi tumatanggap ng maraming file.",
+      "mineTypeError": "\"{{name}}\" ay hindi tumutugma sa mga sumusunod na uri ng mime o extension: {{types}}",
+      "progressTitle": "Nag-a-upload ng mga File",
+      "progressMsg": "Nag-a-upload ng mga {{uploaded}} ng {{total}}: {{percentage}}%",
+      "uploadError": "Mag-upload ng Mali",
+      "uploadErrorMsg": "Mali sa pag-upload ng file: {{message}}",
+      "uploadErrorDefaultMsg": "May di-matukoy na mali"
+    }
+  },
+  "openLink": {
+    "description": "I-klik lamang ang Open para mag-navigate sa link.",
+    "lbl-open": "Buksan"
+  },
+  "interactableModel": {
+    "lbl-buy": "Bumili",
+    "lbl-learnMore": "Alamin pa ang iba"
+  },
+  "corsProxyButton": {
+    "tooltip": "Gumamit ng Cors Proxy Server"
+  }
+}

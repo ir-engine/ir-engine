@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Pagina niet gevonden"
+  },
+  "503": {
+    "msg": "503 - Service niet beschikbaar"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Je bent verbannen van deze locatie",
+    "locationName": {
+      "pageTitle": "Thuis"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projecten",
+      "header": "Gelieve in te loggen",
+      "welcomeMsg": "Welkom",
+      "locationHeader": "Locaties",
+      "projectHeader": "Projecten",
+      "sceneHeader": "Scènes",
+      "description": "Als je hier nieuw bent, raden we je aan de tutorial te doorlopen. Anders spring je er meteen in en maak je een project helemaal opnieuw of vanuit een van onze sjablonen.",
+      "lbl-startTutorial": "Zelfstudie starten",
+      "lbl-newProject": "Nieuw project",
+      "lbl-createProject": "Scheppen",
+      "lbl-newScene": "Nieuwe scène",
+      "lbl-searchProject": "Bestaande projecten zoeken...",
+      "back": "Terug",
+      "contextMenu": "Project verwijderen",
+      "installed": "Geïnstalleerde projecten",
+      "official": "Officiële projecten",
+      "community": "Gemeenschapsprojecten",
+      "install": "Installeren",
+      "uninstall": "Verwijderen",
+      "rename": "Herdopen",
+      "createProject": "Project maken",
+      "installProject": "Project installeren",
+      "processing": "Verwerking",
+      "projectName": "Projectnaam",
+      "projectURL": "Project-URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Ga naar huis",
+    "withStatusCode": "Er is {{code}} een fout opgetreden op de server",
+    "withoutStatusCode": "Er is een fout opgetreden op de server"
+  },
+  "no-projects": {
+    "msg": "Fout: Geen projecten geïnstalleerd - neem contact op met een sitebeheerder"
+  },
+  "dev": {
+    "pageTitle": "Thuis"
+  },
+  "login": {
+    "pageTitle": "Inloggen"
+  },
+  "workerTest": {
+    "pageTitle": "Werknemerstest"
+  },
+  "index": {
+    "by": "BIJ",
+    "xr": "XR",
+    "foundation": "Stichting",
+    "description": "Realtime 3D sociale toepassingen waar iedereen van kan genieten."
+  },
+  "xrengineContact": {
+    "header": "Neem contact op!",
+    "description": "We helpen je graag met je virtuele evenementen, digitale retail, entertainment en andere behoeften.",
+    "lbl-name": "Naam",
+    "lbl-email": "E-mail",
+    "lbl-company": "Bedrijf",
+    "lbl-project": "Beschrijf uw project",
+    "lbl-send": "Verzenden",
+    "lbl-ok": "OK",
+    "lbl-success": "Bericht verzonden, We nemen zo snel mogelijk contact met u op.",
+    "lbl-failure": "Er is een fout opgetreden, Plese probeert het opnieuw",
+    "err-username": "Voer uw naam in.",
+    "err-email": "E-mail is vereist.",
+    "err-msg": "Geef een korte beschrijving van uw project."
+  }
+}

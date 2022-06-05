@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Email fandraisana ho mpikambana",
+      "resendEmail": "Jereo azafady ny mailakao mba hanamarinana ny kaontinao. Raha tsy nahazo mailaka ianao, tsindrio {{here}} raha hanova ny mailaka fanamarinana.",
+      "haveAnAccount": "Manana tantara ve?"
+    },
+    "forgotPassword": {
+      "header": "Adino ny teny fanalahidy",
+      "enterEmail": "Ampidiro ny adiresy email-nao ary handefa rohy fandefasana teny fanalahidy ho anao izahay.",
+      "lbl-email": "Adiresy mailaka",
+      "lbl-submit": "Handefa rohy",
+      "emailSent": "Nalefa ny teny fanalahidy. Jereo azafady ny mailakao."
+    },
+    "login": {
+      "email": "|'ny mailaka SMS",
+      "username": "Anaran'ny mpampiasa + Teny fanalahidy",
+      "social": "Fiaraha - monina"
+    },
+    "magiklink": {
+      "header": "Rohy fidirana",
+      "descriptionEmail": "Ampidiro ny adiresy email-nao dia handefa rohy fidirana ho anao amin'ny alalan'ny Email izahay.",
+      "descriptionSMS": "Ampidiro ny laharan'ny findainao dia handefa rohy fidirana ho anao amin'ny alalan'ny SMS izahay.",
+      "descriptionEmailSMS": "Ampidiro ao amin'ny adiresy email na ny laharan'ny findainao (10 isa, Etazonia ihany) ary handefa rohy fidirana ho anao amin'ny alalan'ny Email na SMS izahay.",
+      "descriptionSMSUS": "Ampidiro ny laharan'ny findainao (10 isa, Etazonia ihany) dia handefa rohy fidirana ho anao amin'ny alalan'ny SMS izahay.",
+      "lbl-email": "Adiresy mailaka",
+      "lbl-emailPhone": "Laharan'ny mailaka na laharan'ny telefaonina",
+      "lbl-phone": "Laharan'ny finday",
+      "agree": "Manaiky ny ",
+      "terms": "Terms &Conditions",
+      "lbl-submit": "Handefa rohy fidirana",
+      "email-sent-msg": "Nalefa ny fidirana Magic Link. Jereo azafady ny Email-nao.",
+      "success-msg": "Nalefa ny fidirana Magic Link. Jereo azafady ny Email na ny SMS-nao.",
+      "sms-sent-msg": "Nalefa ny fidirana Magic Link. Jereo azafady ny SMS-nao."
+    },
+    "passwordLogin": {
+      "header": "Midira",
+      "lbl-email": "Adiresy mailaka",
+      "lbl-password": "Teny fanalahidy",
+      "lbl-rememberMe": "Tsarovy aho",
+      "lbl-signin": "Midira",
+      "forgotPassword": "Adino ve ny teny fanalahidy?",
+      "signup": "Tsy manana kaonty ve? Misoratra anarana",
+      "lbl-login": "Hiditra",
+      "ph-password": "Teny fanalahidy",
+      "ph-email": "Email"
+    },
+    "social": {
+      "gitHub": "Fidirana miaraka amin'ny GitHub",
+      "google": "Fidirana miaraka amin'ny Google",
+      "facebook": "Fidirana miaraka amin'ny Facebook",
+      "linkedin": "Fidirana miaraka amin'ny Linkedin",
+      "twitter": "Fidirana amin'ny Twitter"
+    },
+    "register": {
+      "header": "Misoratra anarana",
+      "login": "Hiditra",
+      "lbl-signup": "Misoratra anarana",
+      "lbl-password": "Teny fanalahidy",
+      "lbl-email": "Adiresy mailaka",
+      "passwordNotMatch": "Tsy mifanaraka ny teny fanalahidy",
+      "ph-password": "Teny fanalahidy",
+      "ph-confirmPassword": "Teny fanalahidy",
+      "ph-email": "Email"
+    },
+    "resetPassword": {
+      "header": "Alefaso ilay teny fanalahidy",
+      "description": "Soraty ny teny fanalahidinao ho an'ny adiresy email-nao azafady",
+      "lbl-submit": "Alefaso ilay teny fanalahidy",
+      "lbl-password": "Teny fanalahidy",
+      "lbl-confirmPassword": "Teny fanalahidy",
+      "passwordNotMatch": "Tsy mifanaraka ny teny fanalahidy",
+      "nowLoginYourAccount": "Afaka miditra ao amin'ny kaontinao ianao izao",
+      "yourPasswordResetSuccess": "Vita soa aman-tsara ny teny fanalahidyo!"
+    },
+    "verifyEmail": {
+      "header": "Manamarina ny Email",
+      "processing": "Miandrasa kely azafady eo am-pikarohana..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Toerana",
+      "loading": "Maka",
+      "col-name": "Anarana",
+      "col-scene": "Scene",
+      "col-maxuser": "Max mpampiasa",
+      "lbl-search": "Mikaroka toerana",
+      "lbl-new": "Vaovao"
+    },
+    "newLocation": {
+      "title": "Toerana",
+      "success": "Voavonjy soa aman-tsara.",
+      "failure": "Nisy zavatra tsy nety.",
+      "removeSuccess": "Nesorina soa aman-tsara ny toerana.",
+      "nameInUse": "Ampiasaina ny anarana.",
+      "nameRequire": "Ilaina ny anarana.",
+      "validNumber": "Isa (0-9 ihany) ihany no mahazo alalana.",
+      "lbl-name": "Anarana",
+      "lbl-maxuser": "Max mpampiasa",
+      "lbl-scene": "Scene",
+      "lbl-type": "Karazana",
+      "lbl-ve": "Alefa ny horonan-tsary",
+      "lbl-gme": "Mandeha ny haino aman-jery maneran-tany",
+      "lbl-update": "Vaovao farany",
+      "lbl-create": "Hamorona",
+      "tooltipCanNotBeDeleted": "Tsy mety fafana ny fidirana",
+      "confirmation": "Azonao antoka ve?",
+      "lbl-yes": "Eny",
+      "lbl-no": "Tsia"
+    },
+    "share": {
+      "lbl-share": "Hizara",
+      "ph-phoneEmail": "Manasà amin'ny alalan'ny e-mail na ny laharan'ny telefaonina",
+      "lbl-phoneEmail": "Alefaso amin'ny mailaka na ny laharan'ny telefaonina",
+      "lbl-copy": "Adikao",
+      "lbl-send-invite": "Handefa Fanasana",
+      "title": "Zarao amin'ny ekipanao ny URL misy anao",
+      "linkCopied": "Rohy nadika tamin'ny fanindri-taratasy."
+    },
+    "setting": {
+      "audio": "Feo",
+      "lbl-volume": "Fitoerana",
+      "lbl-microphone": "Mikrôfônina",
+      "graphics": "Sary",
+      "controls": "Fifehezana",
+      "lbl-control-type": "Karazan'ny mpibaina",
+      "lbl-control-scheme": "Control Scheme",
+      "lbl-resolution": "Vahaolana",
+      "lbl-shadow": "Shadows",
+      "lbl-pp": "Asa aorian'ny lahatsoratra",
+      "lbl-pbr": "PBR feno",
+      "lbl-automatic": "Mandeha hoazy",
+      "xrusersetting": "Fandrindran'ny mpampiasa XR",
+      "rotation": "Fihodinana",
+      "rotation-smooth-speed": "Fihodinan'ny hafainganam-pandeha",
+      "rotation-angle": "Fihodinana",
+      "moving": "Mifindra",
+      "user-avatar": "Avatar Setting",
+      "invert-rotation": "Fihodinan'ny fihodinana ary afindrao ireo tapa-kazo",
+      "show-avatar": "Asehoy ny Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Profil",
+      "lbl-settings": "Fandrindran'ny",
+      "lbl-username": "Anaran'ny mpampiasa",
+      "update-msg": "Anaran'ny mpampiasa nohavaozina",
+      "inviteCode": "Mari-pa pamaharana ho an'",
+      "youAreAn": "Ianao dia",
+      "youAreA": "Ianao dia",
+      "showUserId": "Asehoy ny IDn'ny mpampiasa",
+      "hideUserId": "Afeno ny IDn'ny mpampiasa",
+      "showApiKey": "Asehoy ny kitendry API",
+      "hideApiKey": "Afeno ny kitendry API",
+      "apiKey": "Famaha API",
+      "logout": "Hivoaka",
+      "connectPhone": "Connect et cête de la cété",
+      "connectEmail": "Alefaso ny mailakao",
+      "connectPhoneEmail": "Hifandray ny e-mail na ny laharan'ny findainao.",
+      "or": "Na",
+      "lbl-wallet": "Fidirana miaraka amin'ny Wallet",
+      "ph-email": "Email",
+      "ph-phone": "Laharan'ny Telefaonina",
+      "ph-phoneEmail": "Laharan'ny finday / Email",
+      "phoneEmailError": "Antso an-tariby # na adiresy mailaka tsy mety",
+      "phoneError": "Telefaonina diso #",
+      "emailError": "Adiresy mailaka diso",
+      "loginWithReadyPlayerMe": "Midira miaraka amin'ny Mpamaky Efa Vonona",
+      "connectSocial": "Mifandraisa amin'ny kaonty sosialy",
+      "createOne": "Raha tsy manana kaonty ianao, dia hisy iray vaovao hatsangana ho anao.",
+      "connections": {
+        "title": "Fifandraisana",
+        "ipError": "Tsy afaka manala ny mpanome ny mari-panondroana miasa",
+        "disconnect": "tsy mifandray",
+        "connect": "Hifandray"
+      },
+      "profileDropdown": {
+        "avatar": "User Avatar Icon",
+        "profile": "Profil",
+        "adminConsole": "Admin Console",
+        "logout": "Fivoahana"
+      },
+      "userIcon": {
+        "lbl-name": "Ny anaranao",
+        "lbl-update": "Vaovao farany",
+        "userId": "Mpampiasa id",
+        "ph-uploadImg": "Nampakatra ny sarin'ny vokatra",
+        "lbl-selectAcvatar": "Safidio ny Avatar",
+        "lbl-submit": "Alefaso"
+      },
+      "userSettings": {
+        "volume": "Fitoerana",
+        "microphone": "Mikrôfônina",
+        "resolution": "Vahaolana",
+        "high": "Avo",
+        "low": "Ambany",
+        "spatialAudio": "Mampiasà feo Spatial",
+        "enterMuted": "Midira ao amin'ny efitra mikosaka"
+      }
+    },
+    "oauth": {
+      "authenticating": "Fanamarinana...",
+      "authFailed": "tsy nahomby ny fanamarinana {{service}}."
+    },
+    "magikLink": {
+      "wait": "Miandrasa kely azafady eo am-pikarohana..."
+    },
+    "dashboard": {
+      "header": "Dashboard",
+      "dashboard": "Dashboard",
+      "users": "Mpampiasa",
+      "feeds": "Fahanana",
+      "instance": "Instance",
+      "locations": "Toerana",
+      "invites": "Fanasana",
+      "sessions": "Ireo fivoriana",
+      "groups": "Vondrona",
+      "parties": "Antoko",
+      "chats": "Chats",
+      "content": "Packs ho an'ny mpiaty",
+      "projects": "Tetikasa",
+      "scenes": "Seho",
+      "avatars": "Avatars",
+      "benchmarking": "Benchmarking",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Fanamarinana...",
+    "authFailed": "tsy nahomby ny fanamarinana {{service}}."
+  },
+  "magikLink": {
+    "wait": "Miandrasa kely azafady eo am-pikarohana..."
+  },
+  "dashboard": {
+    "header": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Mpampiasa",
+    "feeds": "Fahanana",
+    "instance": "Instance",
+    "locations": "Toerana",
+    "routes": "Routes",
+    "projects": "Tetikasa",
+    "invites": "Fanasana",
+    "sessions": "Ireo fivoriana",
+    "groups": "Vondrona",
+    "parties": "Antoko",
+    "chats": "Chats",
+    "content": "Packs ho an'ny mpiaty",
+    "scenes": "Seho",
+    "avatars": "Avatars",
+    "benchmarking": "Benchmarking",
+    "bots": "Bots",
+    "setting": "Fandrindran'ny"
+  },
+  "avatar": {
+    "title": "Upload Avatar",
+    "lbl-browse": "Zahavo",
+    "lbl-thumbnail": "Hajian-tsary",
+    "lbl-upload": "Upload",
+    "selectAvatar": "Safidio ny Avatar...",
+    "selectThumbnail": "Misafidiana hajiantsary...",
+    "rotate": "Rotate",
+    "pan": "Pan",
+    "noBone": "Tsy misy taolana na hoditra ao amin'ny ôbejct",
+    "outOfBound": "Tsy voafatotra ny zavatra.",
+    "emptyObj": "Foana ilay zavatra.",
+    "maxTriangleError": "Misy endrika lehibe kokoa noho ny endrika {{allowedTriangles}} ilay zavatra azo tratraina.",
+    "selectValidFile": "Safidio ny rakitra avatar 3d manan-kery.",
+    "selectValidThumbnail": "Raki-tsary famantarana mitombina voafaritra.",
+    "fileOversized": "Tsy maintsy eo anelanelan'ny MB {{minSize}} sy {{maxSize}} MB ny haben'ny rakitry ny Avatar",
+    "confirmation": "Azonao antoka ve?",
+    "canNotBeRemoved": "Tsy mety esorina ny sarintava miasa",
+    "remove": "Esory ny sarintava",
+    "uploadFiles": "Mampakatra rakitra",
+    "useUrlInstead": "Ny url no ataovy solon'izany.",
+    "avatar": "Avatar",
+    "cancel": "Foano",
+    "createAvatar": "Mamorona Avatar",
+    "delete": "Fafao",
+    "view": "Hijery",
+    "uploadAvatarInfo": "Havaozy ny lazan'ny avatar",
+    "name": "Anarana",
+    "enterName": "Ampidiro ny anarana",
+    "avatarInformation": "Lazan'ny Avatar",
+    "description": "Fanoritsoritana",
+    "key": "Famaha",
+    "none": "Tsy misy",
+    "submit": "Alefaso",
+    "edit": "Hanova",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "Nahomby ny fivoahana tamin'ny Avatar.",
+    "remove-success-msg": "Nahomby ny fivoahana tamin'ny Avatar.",
+    "warning-msg": "Foana ny loharanon-karena avatar, efa nampifandrainao tamin'ny fitehirizana rakitra tsy miova ve ny sarintava?"
+  },
+  "personMenu": {
+    "inviteToParty": "Asao hanatrika fety",
+    "addAsFriend": "Ampio hoe Namana",
+    "mute": "Mute",
+    "block": "Fibahanana"
+  },
+  "person": {
+    "you": "Ianao",
+    "yourScreen": "Ny efijerinao",
+    "muteForEveryone": "Ho an'ny rehetra",
+    "unmuteForEveryone": "Tsy mety ho an'ny rehetra",
+    "muteMe": "Manemotra ahy",
+    "unmuteMe": "Unmute me",
+    "muteThisPerson": "Manakana io olona io.",
+    "unmuteThisPerson": "Esory io olona io.",
+    "openPictureInPicture": "Sokafy amin'ny sary ny sary"
+  }
+}

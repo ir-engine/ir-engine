@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Kei te tāuta i te whārangi..."
+  },
+  "tooltip": {
+    "pressKey": "Pēhia ngā {{tip}} ki te {{message}}"
+  },
+  "toast": {
+    "joined": "hono",
+    "left": "Mauī"
+  },
+  "navUserWidget": {
+    "login": "Takiuru"
+  },
+  "loader": {
+    "connecting": "Hono ana ki te ao...",
+    "entering": "E tomo ana ki te ao...",
+    "loading": "Kei te tāuta......",
+    "objectRemaining": "{{count}} ahanoa e toe ana",
+    "objectRemainingPlural": "{{count}} ahanoa e toe ana",
+    "loadingObjects": "Uta Ahanoa ana",
+    "loadingComplete": "Kua oti te uta",
+    "joiningWorld": "Hono ana ki te Ao"
+  },
+  "alert": {
+    "eventWasSuccess": "I momoho te takahanga",
+    "errorWasEncountered": "I tūtakia tētahi hapa",
+    "eventInProgress": "Kei te haere te takahanga",
+    "seconds": "hēkona",
+    "cancelCountdown": "Mā te kati i tēnei modal ka whakakore i te tatauranga"
+  },
+  "debug": {
+    "refresh": "Whakahou",
+    "stats": "Ngā Tāpae",
+    "debugOptions": "Ngā Kōwhiringa Patuiro",
+    "physicsDebug": "Ahupūngao",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Pūāwhina Node",
+    "gridDebug": "Mātiti",
+    "simpleMaterials": "Ngā Rauemi Māmā",
+    "tick": "Tick",
+    "worldStore": "Pātaka Ao",
+    "engineStore": "Pātaka Pūkaha",
+    "namedEntities": "Ngā Mea Ingoa",
+    "networkObject": "Ahanoa Whatunga",
+    "networkClients": "Ngā Kiritaki Whatunga"
+  },
+  "recording": {
+    "videoRecorder": "Hopu ataata",
+    "waitingForPermissions": "Tatari ana mō ngā whakaaetanga",
+    "selectVideoSource": "Tīpako pūtake ataata",
+    "screen": "Mata",
+    "camera": "Kāmera",
+    "microphone": "Uruoro",
+    "startRecording": "Tīmata ki te hopu ataata",
+    "pauseRecording": "Tatari tāhopu",
+    "resumeRecording": "Haere anō te tāhopu",
+    "stopRecording": "Kāti te hopu"
+  },
+  "typing": "Pato ana...",
+  "gameServer": {
+    "browserError": "Hapa Pūtirotiro",
+    "browserErrorMessage": "Kāore tō pūtirotiro e tautoko ana i te rokiroki i te aratau tirotiro tūmataiti. Me ngana tētahi atu pūtirotiro, puta atu rānei i te aratau tirotiro tūmataiti.",
+    "noAvailableServers": "Kāore he Tūmau Wātea",
+    "noAvailableServersMessage": "Kāore he tūmau e wātea ana hei hono atu māu. E ngana ana ki te hono anō",
+    "worldDisconnected": "Kua momotu te ao",
+    "worldDisconnectedMessage": "Kua ngaro i a koe to tūhononga ki te ao. Ka ngana mātou ki te tūhono anō i mua i te paunga o te wā e whai ake nei, ki te kore koe e whakamua ki tētahi tauira kē.",
+    "webGLNotEnabled": "Kāore i whakahohea te WebGL",
+    "webGLNotEnabledMessage": "Kāore tō pūtirotiro e tautoko i te WebGL, kua monokia rānei. Whakahohe koa i te WebGL, te whakaaro rānei ki te whakamohoa ki te putanga hōu rawa o tō pūtirotiro.",
+    "youKickedFromWorld": "Kua whana koe i te ao",
+    "youKickedFromWorldMessage": "I whanaina koe i tēnei ao mo te take e whai ake nei",
+    "invalidLocation": "Tauwāhi muhu",
+    "cantFindLocation": "Kāore e kitea te tauwāhi",
+    "misspelledOrNotExist": "Tērā pea ka hē, kāore rānei i te tīariari.",
+    "loading": "Kei te tāuta...",
+    "low-frame-error": "I kitea tētahi āhuatanga iti e whakaaro ana he whakahohe i te whakamahi whakaterenga Pūmārō i tō pūtirotiro me te whakapā anō i tō pūtirotiro",
+    "low-frame-title": "Whakahohe whakaterenga pūmārō mō te wheako pai ake!"
+  },
+  "error": {
+    "loading-error": "I rahua te uta raraunga kaiwhakamahi",
+    "validation-error": "Tāuru koa i te {{type}} tika",
+    "login-error": "Kāore i tika te takiuru"
+  }
+}

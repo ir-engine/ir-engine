@@ -1,0 +1,718 @@
+{
+  "loading": "লোডিং প্ৰকল্প",
+  "loadingMsg": "প্ৰকল্প লোড কৰা হৈছে...",
+  "loadingError": "প্ৰকল্প লোড কৰোঁতে ত্ৰুটি",
+  "loadingErrorMsg": "প্ৰকল্পটো লোড কৰোঁতে এটা ত্ৰুটি হৈছিল।",
+  "selectSceneMsg": "ইঞ্জিনৰ সৈতে বজোৱা আৰম্ভ কৰিবলৈ দৃশ্য বাছনি কৰক",
+  "error": "ত্ৰুটি",
+  "errorMsg": "এটা অজ্ঞাত ত্ৰুটি আছিল।",
+  "generateScreenshot": "প্ৰকল্প স্ক্ৰীণশ্বট সৃষ্টি কৰা হৈছে",
+  "generateScreenshotMsg": "প্ৰকল্পৰ স্ক্ৰীণশ্বট সৃষ্টি কৰা হৈছে...",
+  "newScene": "দৃশ্য সৃষ্টি কৰক",
+  "saving": "সংৰক্ষণ প্ৰকল্প",
+  "savingMsg": "প্ৰকল্প সংৰক্ষণ কৰা হৈছে...",
+  "savingError": "প্ৰকল্প সংৰক্ষণ কৰোতে ত্ৰুটি",
+  "savingErrorMsg": "প্ৰকল্পটো সংৰক্ষণ কৰোঁতে এটা ত্ৰুটি হৈছিল।",
+  "savingSceneErrorMsg": "দৃশ্যটো সঠিকভাৱে লোড কৰা হোৱা নাই। দৃশ্যটো পুনৰ লোড কৰিবলৈ চেষ্টা কৰক।",
+  "duplicating": "নকল প্ৰকল্প",
+  "duplicatingMsg": "ডুপ্লিকেটিং প্ৰকল্প...",
+  "exporting": "প্ৰকল্প ৰপ্তানি কৰা হৈছে",
+  "exportingMsg": "প্ৰকল্প ৰপ্তানি কৰা হৈছে...",
+  "exportingError": "প্ৰকল্প ৰপ্তানি কৰোতে ত্ৰুটি",
+  "exportingErrorMsg": "প্ৰকল্পটো ৰপ্তানি কৰোঁতে এটা ত্ৰুটি হৈছিল।",
+  "importLegacy": "উত্তৰাধিকাৰী পৃথিৱী আমদানি কৰক",
+  "importLegacyMsg": "সতৰ্কবাৰ্তা! ই আপোনাৰ বিদ্যমান দৃশ্যটো অভাৰৰাইট কৰিব! আপুনি অব্যাহত ৰাখিব বিচাৰে বুলি নিশ্চিতনে?",
+  "publishingError": "প্ৰকল্প প্ৰকাশ কৰোতে ত্ৰুটি",
+  "publishingErrorMsg": "এটা অজ্ঞাত ত্ৰুটি আছিল।",
+  "publishingScene": "প্ৰকাশৰ দৃশ্য",
+  "publishingSceneMsg": "প্ৰকাশৰ দৃশ্য...",
+  "uploadingThumbnailMsg": "থাম্বনেইল আপলোড কৰা হৈছে...",
+  "uploadingSceneMsg": "দৃশ্য আপলোড কৰা: {{percentage}}%",
+  "envMapError": "কিউবমেপ ছবি সমূহ {{files}} ল'ড কৰোঁতে ত্ৰুটি",
+  "lbl-return": "উভত",
+  "menubar": {
+    "newScene": "নতুন দৃশ্য",
+    "saveScene": "দৃশ্য সংৰক্ষণ কৰক",
+    "saveAs": "সংৰক্ষণ কৰক",
+    "importAsset": "সম্পদ আমদানি কৰক",
+    "exportGLB": "বাইনাৰী গ্লটিএফ (.জিএলবি) হিচাপে ৰপ্তানি কৰক...",
+    "importScene": "দৃশ্য আমদানি কৰক",
+    "exportScene": "ৰপ্তানি ৰপ্তানি ৰপ্তা",
+    "quit": "প্ৰস্থান কৰক"
+  },
+  "errors": {
+    "fileTypeNotSupported": "ফাইলৰ বাবে অসমৰ্থিত ফাইলৰ প্ৰকাৰ: \"{{name}}\"। ফাইল টো এটা ছবি, ভিডিঅ' বা জিএলবি মডেল হ'ব লাগিব।",
+    "addObject": "অবজেক্ট যোগ কৰক: অবজেক্ট পোৱাৰ আগতে",
+    "removeObject": "অবজেক্ট আঁতৰাওক: নোড পোৱা নগ'ল। এইটো এটা নোড আঁতৰ োৱাৰ কাৰণে যিটো এতিয়া দৃশ্যত নাই।",
+    "noParent": "{{node}} \"{{name}}\" কোনো অভিভাৱক নাই। ৰিপেৰেণ্টে কেৱল দৃশ্যটোত থকা বস্তুবোৰৰ ওপৰতহে কাম কৰে।",
+    "undefinedParent": "সম্পাদক।পুনৰ অভিভাৱক: নতুন অভিভাৱক অনিৰ্ধাৰিত",
+    "notAuthenticated": "প্ৰমাণীত নহয়",
+    "fetchingProjectError": "প্ৰকল্প সমূহ প্ৰাপ্ত কৰাত ত্ৰুটি: {{error}}",
+    "fetchingRouteError": "পথ প্ৰাপ্ত কৰাত ত্ৰুটি: {{error}}",
+    "unknownError": "অজ্ঞাত ত্ৰুটি",
+    "resolveURL": "\"{{url}}\":",
+    "mediaSearchAborted": "মিডিয়া অনুসন্ধান বাতিল কৰা হৈছে",
+    "methodNotImplemented": "পদ্ধতি ৰূপায়ণ কৰা হোৱা নাই।",
+    "saveProjectAborted": "দৃশ্য সংৰক্ষণ কৰক",
+    "unsavedChanges": "সংৰক্ষিত পৰিবৰ্তনসমূহ",
+    "unsavedChangesMsg": "দৃশ্যটো সংশোধন কৰা হৈছে। অনুগ্ৰহ কৰি আপোনাৰ পৰিৱৰ্তনবোৰ সংৰক্ষণ কৰক।",
+    "projectCreationFail": "প্ৰকল্প সৃষ্টি ব্যৰ্থ হৈছে। {{reason}}",
+    "projectDeletionFail": "প্ৰকল্প বিলোপ ব্যৰ্থ হৈছে। {{reason}}",
+    "savingProjectFail": "সংৰক্ষণ প্ৰকল্প ব্যৰ্থ হৈছে। {{reason}}",
+    "sceneTooLarge": "দৃশ্যটো প্ৰকাশ কৰিবলৈ অত্যাধিক ডাঙৰ ({{size}} এমবি)। সৰ্বাধিক আকাৰ {{maxSize}} এমবি।",
+    "sceneCreationFail": "দৃশ্য সৃষ্টি ব্যৰ্থ হৈছে। {{reason}}",
+    "uploadAborted": "আপলোড বাতিল কৰা হৈছে",
+    "uploadFailed": "আপলোড ব্যৰ্থ {{reason}}",
+    "assetDeletionFail": "সম্পদ বিলোপ ব্যৰ্থ হৈছে। {{reason}}",
+    "projectAssetDeletionFail": "প্ৰকল্প সম্পদ বিলোপ ব্যৰ্থ হৈছে। {{reason}}",
+    "networkError": "নেটৱৰ্ক ত্ৰুটি: {{status}}। {{text}}",
+    "unknownStatus": "অজ্ঞাত স্থিতি",
+    "CORS": "সম্ভৱতঃ এটা চি.ও.আৰ.এছ. ত্ৰুটি",
+    "urlFetchError": "\"{{url}}\" আনিবলৈ ব্যৰ্থ"
+  },
+  "viewport": {
+    "title": "দৰ্শনপৰ্ট",
+    "command": {
+      "movecamera": "কেমেৰা স্থানান্তৰ কৰক",
+      "flyFast": "দ্ৰুতগতিত উৰিব",
+      "orbit": "কক্ষপথ / বাছনি কৰক",
+      "pan": "পান",
+      "fly": "উৰি যাওক",
+      "focus": "ফোকাচ",
+      "rotateLeft": "বাওঁফালে ঘূৰাওক",
+      "rotateRight": "সোঁফালে ঘূৰাওক",
+      "cancelPlacement": "স্থান বাতিল কৰক",
+      "placeDuplicate": "স্থান ডুপ্লিকেট",
+      "cancelGrab": "গ্ৰেব বাতিল কৰক",
+      "grab": "গ্ৰেব",
+      "deselectAll": "সকলোবোৰ অবাছনি কৰক"
+    },
+    "state": {
+      "header": "পৰিসংখ্যা",
+      "memory": "স্মৃতি",
+      "geometries": "জ্যামিতিসমূহ",
+      "textures": "গাঁথনি",
+      "render": "ৰেণ্ডাৰ",
+      "FPS": "এফপিএছ",
+      "frameTime": "ফ্ৰেম সময়",
+      "calls": "কলসমূহ",
+      "triangles": "ত্ৰিভুজ",
+      "points": "বিন্দুসমূহ",
+      "lines": "শাৰীসমূহ"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "প্ৰকাশ",
+    "lbl-published": "প্ৰকাশিত",
+    "command": {
+      "translate": "অনুবাদ কৰক",
+      "rotate": "ঘূৰাওক",
+      "scale": "স্কেল",
+      "toggleSpace": "ট্ৰান্সফৰ্ম স্পেচ টগল কৰক",
+      "togglePivot": "টগল ট্ৰান্সফৰ্ম পিভট",
+      "toggleSnapMode": "স্নেপ মোড টগল কৰক",
+      "toggleGrid": "টগল গ্ৰিড দৃশ্যমানতা",
+      "increaseGridSize": "গ্ৰিডৰ আকাৰ বৃদ্ধি কৰক",
+      "descreaseGridSize": "গ্ৰিডৰ আকাৰ হ্ৰাস কৰক",
+      "stopPreview": "দৃশ্যৰ পূৰ্বলোকন বন্ধ কৰক",
+      "playPreview": "পূৰ্বদৰ্শন দৃশ্য"
+    }
+  },
+  "properties": {
+    "title": "বৈশিষ্ট্যসমূহ",
+    "lbl-visible": "দৃশ্যমান",
+    "lbl-preventBake": "বেক প্ৰতিৰোধ কৰক",
+    "lbl-persist": "অব্যাহত ৰাখে",
+    "multipleNodeSelected": "বিভিন্ন প্ৰকাৰৰ একাধিক নোড বাছনি কৰা হৈছে",
+    "noNodeSelected": "কোনো নোড নিৰ্বাচিত নহয়",
+    "ambientLight": {
+      "name": "পৰিৱেশৰ পোহৰ",
+      "description": "এটা পোহৰ যি আপোনাৰ দৃশ্যৰ সকলো বস্তুআলোকিত কৰে।",
+      "lbl-intensity": "তীব্ৰতা",
+      "lbl-color": "ৰং"
+    },
+    "envmap": {
+      "name": "পৰিৱেশ মানচিত্ৰ",
+      "description": "পৰিৱেশ মানচিত্ৰৰ বৈশিষ্ট্যসমূহ"
+    },
+    "asset": {
+      "name": "সম্পদ",
+      "description": "দৃশ্যউপাদানসমূহৰ এক গোট যাক গতিশীলভাৱে লোড আৰু আনলোড কৰিব পাৰি",
+      "lbl-options": "বিকল্পসমূহ",
+      "lbl-assetPath": "সম্পদ পথ",
+      "lbl-assetName": "ৰপ্তানি ৰপ্তানি ৰপ্তা",
+      "lbl-exportOptions": "ৰপ্তানি বিকল্পসমূহ",
+      "lbl-export": "ৰপ্তানি সম্পদ",
+      "lbl-load": "দৃশ্যত লোড কৰক",
+      "lbl-unload": "আনলোড কৰা হ'ব",
+      "lbl-reload": "পুনৰ লোড কৰক"
+    },
+    "audio": {
+      "name": "অডিঅ'",
+      "description": "গতিশীলভাৱে অডিঅ' লোড কৰে।",
+      "lbl-audiourl": "অডিঅ' ইউআৰএল",
+      "lbl-controls": "নিয়ন্ত্ৰণসমূহ",
+      "info-controls": "মিডিয়া নিয়ন্ত্ৰণৰ দৃশ্যমানতা টগল কৰক।",
+      "lbl-autoplay": "স্বয়ংক্ৰিয় প্লে",
+      "info-autoplay": "যদি সঁচা হয়, প্ৰথমে দৃশ্যটোত প্ৰৱেশ কৰোঁতে মিডিয়াখেলিব।",
+      "lbl-synchronize": "সুসংগত কৰক",
+      "info-synchronize": "যদি সঁচা হয়, সকলো সংযোজিত গ্ৰাহকৰ ওপৰত মিডিয়া চিঙ্ক্ৰোনাইজ কৰা হ'ব।",
+      "lbl-loop": "লুপ",
+      "info-loop": "যদি সঁচা হয় মিডিয়াঅনিৰ্দিষ্ট কাললৈ লুপ হ'ব।",
+      "lbl-audioType": "অডিঅ' ধৰণ",
+      "lbl-distanceModel": "দূৰত্ব মডেল",
+      "info-distanceModel": "এলগৰিথিমে অডিঅ' ৰোলঅফ গণনা কৰিছিল।",
+      "lbl-rolloffFactor": "ৰোলঅফ কাৰক",
+      "info-rolloffFactor": "উৎসটো শ্ৰোতাৰ পৰা আঁতৰি যোৱাৰ লগে লগে ভলিউম কিমান সোনকালে হ্ৰাস হয় বৰ্ণনা কৰা এটা দ্বৈত মূল্য। 0 ৰ পৰা 1",
+      "info-rfInfinity": "উৎসটো শ্ৰোতাৰ পৰা আঁতৰি যোৱাৰ লগে লগে ভলিউম কিমান সোনকালে হ্ৰাস হয় বৰ্ণনা কৰা এটা দ্বৈত মূল্য। 0 ৰ পৰা অসীম",
+      "lbl-refDistance": "ৰেফ দূৰত্ব",
+      "info-refDistance": "অডিঅ' উৎসশ্ৰোতাৰ পৰা আগবাঢ়ি যোৱাৰ লগে লগে ভলিউম হ্ৰাস কৰাৰ বাবে ৰেফাৰেন্স দূৰত্ব প্ৰতিনিধিত্ব কৰা এটা দ্বৈত মান।",
+      "lbl-maxDistance": "সৰ্বাধিক দূৰত্ব",
+      "info-maxDistance": "অডিঅ' উৎস আৰু শ্ৰোতাৰ মাজত সৰ্বাধিক দূৰত্ব প্ৰতিনিধিত্ব কৰা এক দ্বৈত মান, যাৰ পিছত ভলিউম আৰু হ্ৰাস কৰা নহয়।",
+      "lbl-coneInnerAngle": "শঙ্কু আভ্যন্তৰীণ কোণ",
+      "info-coneInnerAngle": "ডিগ্ৰীত কোণটো বৰ্ণনা কৰা এক দ্বৈত মূল্য, যাৰ ভিতৰত কোনো ভলিউম হ্ৰাস নহ'ব।",
+      "lbl-coneOuterAngle": "শঙ্কু বাহিৰৰ কোণ",
+      "info-coneOuterAngle": "ডিগ্ৰীত কোণটো বৰ্ণনা কৰা এক দ্বৈত মান যাৰ বাহিৰত আয়তন টো এটা স্থিৰ মূল্যৰ দ্বাৰা হ্ৰাস কৰা হ'ব, শঙ্কুআউটাৰগেইন গুণাগুণৰ দ্বাৰা নিৰ্ধাৰণ কৰা হয়।",
+      "lbl-coreOuterGain": "শঙ্কু বাহিৰৰ লাভ",
+      "info-coreOuterGain": "শঙ্কুটোৰ বাহিৰত ভলিউম হ্ৰাসৰ পৰিমাণ বৰ্ণনা কৰা এটা দ্বৈত মান। ইয়াৰ ডিফল্ট মান হৈছে 0, অৰ্থাৎ কোনো শব্দ শুনা নাযায়।",
+      "lbl-volume": "ভলিউম",
+      "lbl-play": "বজা",
+      "lbl-pause": "বিৰাম দিয়ক",
+      "error-url": "ইউআৰএলৰ পৰা লোড কৰোতে ত্ৰুটি"
+    },
+    "boxCollider": {
+      "description": "এটা অদৃশ্য বাকচ যাৰ ওপৰত অবজেক্টবোৰ বাউন্স হ'ব বা জিৰণি ল'ব।\nকোলাইডাৰ অবিহনে, বস্তুবোৰ মজিয়াৰ মাজেৰে পৰিব আৰু দেৱালৰ মাজেৰে যাব।",
+      "lbl-isTrigger": "ট্ৰিগাৰ"
+    },
+    "camera": {
+      "name": "কেমেৰা",
+      "description": "কেমেৰা ছেটিংছ।",
+      "lbl-camera-raycast": "কেমেৰা ৰেকাষ্টিং",
+      "lbl-camera-raycast-toggle": "সামৰ্থবান",
+      "lbl-camera-raycast-frequency": "কম্পনাঙ্ক",
+      "lbl-camera-raycast-count": "ৰে গণনা",
+      "lbl-camera-raycast-length": "ৰশ্মিৰ দৈৰ্ঘ্য"
+    },
+    "directionalLight": {
+      "name": "দিশগত পোহৰ",
+      "description": "এক পোহৰ যি সমগ্ৰ দৃশ্যটো আলোকিত কৰে, কিন্তু এটা দিশত নিৰ্গত হয়।",
+      "lbl-color": "ৰং",
+      "lbl-intensity": "তীব্ৰতা",
+      "lbl-cameraFar": "কেমেৰা দূৰ",
+      "lbl-cameraNear": "কেমেৰা ওচৰত",
+      "lbl-cameraTop": "কেমেৰা টপ",
+      "lbl-cameraBottom": "কেমেৰাৰ তল",
+      "lbl-cameraLeft": "কেমেৰা বাওঁফালে",
+      "lbl-cameraRight": "কেমেৰা সোঁফালে",
+      "lbl-useInCSM": "চিএচএমত ব্যৱহাৰ কৰক",
+      "lbl-castShadow": "কাষ্ট ছাঁ",
+      "lbl-disableForCSM": "অক্ষম কৰা হৈছে কাৰণ কেচকেড ছাঁ মেপ সক্ষম।",
+      "lbl-shadowmapResolution": "ছাঁ মানচিত্ৰ ৰিজলিউশ্বন",
+      "lbl-shadowBias": "ছাঁ পক্ষপাতিত্ব",
+      "lbl-shadowRadius": "ছাঁ ব্যাসাৰ্ধ",
+      "lbl-showCameraHelper": "কেমেৰা সহায়ক দেখুৱাওক"
+    },
+    "groundPlane": {
+      "name": "গ্ৰাউণ্ড প্লেন",
+      "description": "দূৰত্বলৈ বিস্তাৰিত এখন সমতল ভূমি বিমান।",
+      "lbl-color": "ৰং",
+      "lbl-receiveShadow": "ছাঁ প্ৰাপ্ত কৰক",
+      "lbl-generateNavmesh": "নৱমেশ সৃষ্টি কৰক"
+    },
+    "link": {
+      "description": "কোঠা বা ৱেবছাইটএটালৈ লিংক কৰক।",
+      "lbl-url": "ইউআৰএল"
+    },
+    "map": {
+      "description": "ত্ৰিমাত্ৰিক ভূ-স্থানিক মানচিত্ৰ যেনে এখন চহৰ।"
+    },
+    "model": {
+      "description": "আপোনাৰ দৃশ্যত এটা ত্ৰিডি মডেল, জিএলটিএফ ইউআৰএল বা ফাইলৰ পৰা লোড কৰা।",
+      "lbl-usingGPUInstancingFlag": "জিপিইউ ইনষ্টানচিং ব্যৱহাৰ কৰক",
+      "lbl-modelurl": "মডেল ইউআৰএল",
+      "lbl-envmapUrl": "পৰিৱেশ মানচিত্ৰ ইউআৰএল",
+      "lbl-textureOverride": "গাঁথনি অভাৰৰাইড কৰক",
+      "lbl-materialOverride": "সামগ্ৰী অভাৰৰাইড",
+      "error-url": "ইউআৰএলৰ পৰা লোড কৰোতে ত্ৰুটি",
+      "lbl-loopAnimation": "লুপ এনিমেচন",
+      "lbl-isAvatar": "অৱতাৰ নেকি",
+      "lbl-isGPUInstancing": "জিপিইউ ইনষ্টানচিং ব্যৱহাৰ কৰি আছে",
+      "lbl-isDynamic": "গতিশীল",
+      "lbl-castShadow": "কাষ্ট ছাঁ",
+      "lbl-receiveShadow": "ছাঁ প্ৰাপ্ত কৰক",
+      "lbl-interactable": "আদান-প্ৰদানযোগ্য",
+      "lbl-matrixAutoUpdate": "মেট্ৰিক্সস্বয়ংআপডেট",
+      "lbl-name": "নাম",
+      "lbl-url": "মডেল ইউআৰএল",
+      "lbl-buy": "ইউআৰএল ক্ৰয় কৰক",
+      "lbl-learnMore": "অধিক ইউআৰএল শিকক",
+      "lbl-htmlContent": "এইচটিএমএল সমল",
+      "lbl-interactionText": "আন্তঃক্ৰিয়া পাঠ",
+      "lbl-interactionType": "আন্তঃক্ৰিয়াৰ ধৰণ"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "সামগ্ৰী",
+      "error-materialID": "সামগ্ৰী বিচাৰি পোৱাত ত্ৰুটি",
+      "placeholder-materialID": "সামগ্ৰী নিৰ্বাচন কৰক",
+      "lbl-patternTarget": "পেটাৰ্ণ মিল",
+      "lbl-pattern": "আৰ্হি",
+      "lbl-isRegex": "ৰেগেক্স"
+    },
+    "interaction": {
+      "type": "আন্তঃক্ৰিয়াৰ ধৰণ",
+      "text": "আন্তঃক্ৰিয়া পাঠ",
+      "distance": "আন্তঃক্ৰিয়া দূৰত্ব",
+      "theme": "আন্তঃক্ৰিয়া ৰ থীম",
+      "name": "আন্তঃক্ৰিয়াৰ নাম",
+      "description": "আন্তঃক্ৰিয়াৰ বিৱৰণ",
+      "images": "আন্তঃক্ৰিয়া ছবিসমূহ",
+      "videos": "বাৰ্তালাপ ভিডিঅ'",
+      "urls": "আন্তঃক্ৰিয়া ৰউৰ্লসমূহ",
+      "models": "আন্তঃক্ৰিয়া মডেলসমূহ"
+    },
+    "group": {
+      "name": "দল",
+      "description": "একাধিক অবজেক্টৰ এটা গোট যাক একেলগে স্থানান্তৰ বা নকল কৰিব পাৰি।\nপদানুক্ৰমত অবজেক্টবোৰ গোটলৈ টানি নিয়ক আৰু পেলাই দিয়ক।"
+    },
+    "hemisphere": {
+      "name": "গোলাৰ্ধৰ পোহৰ",
+      "description": "এটা পোহৰ যিদৃশ্যটো পোনপটীয়াকৈ ওপৰৰ পৰা আলোকিত কৰে।",
+      "lbl-skyColor": "আকাশৰ ৰং",
+      "lbl-groundColor": "মাটিৰ ৰং",
+      "lbl-intensity": "তীব্ৰতা"
+    },
+    "image": {
+      "name": "ছবি",
+      "description": "গতিশীলভাৱে ছবি এখন লোড কৰে।",
+      "lbl-imgURL": "ছবিৰ ইউআৰএল",
+      "lbl-transparency": "স্বচ্ছতা মোড",
+      "lbl-alphaCutoff": "আলফা কাটঅফ",
+      "lbl-projection": "প্ৰক্ষেপণ",
+      "lbl-side": "কাষ",
+      "info-controls": "মিডিয়া নিয়ন্ত্ৰণৰ দৃশ্যমানতা টগল কৰক।",
+      "info-transparency": "স্বচ্ছতা কেনেদৰে প্ৰয়োগ কৰিব:",
+      "info-opaque": "'অস্বচ্ছ' = কোনো স্বচ্ছতা নাই",
+      "info-blend": "'ব্লেণ্ড' = ছবিসমূহ আলফা চেনেল ব্যৱহাৰ কৰক",
+      "info-mask": "'মাস্ক' = অন/অফ স্বচ্ছতাৰ বাবে এটা নিৰ্দিষ্ট কাটঅফ মান ব্যৱহাৰ কৰক (অধিক প্ৰদৰ্শনকাৰী)",
+      "info-alphaCutoff": "ইয়াতকৈ কম আলফা মান থকা পিক্সেলসমূহ স্বচ্ছ হ'ব",
+      "error-url": "অবৈধ ইউআৰএল"
+    },
+    "name": {
+      "lbl-name": "নাম"
+    },
+    "partileEmitter": {
+      "description": "কণা সৃষ্টি কৰিবলৈ কণা এমিটাৰ।",
+      "lbl-particleCount": "কণা গণনা",
+      "lbl-image": "ছবি",
+      "lbl-ageRandomness": "বয়সযাদৃচ্ছিকতা",
+      "lbl-lifetime": "জীৱনকাল",
+      "lbl-lifetimeRandomness": "জীৱনজোৰা যাদৃচ্ছিকতা",
+      "lbl-sizeCurve": "আকাৰ বক্ৰ",
+      "lbl-startPSize": "কণাৰ আকাৰ আৰম্ভ কৰক",
+      "lbl-endPSize": "কণাৰ আকাৰ সমাপ্ত কৰক",
+      "lbl-sizeRandomness": "আকাৰ যাদৃচ্ছিকতা",
+      "lbl-colorCurve": "ৰঙৰ বক্ৰ",
+      "lbl-startColor": "ৰং আৰম্ভ কৰক",
+      "lbl-startOpacity": "অস্বচ্ছতা আৰম্ভ কৰক",
+      "lbl-middleColor": "মধ্য ৰং",
+      "lbl-middleOpacity": "মধ্য অপাচিটি",
+      "lbl-endColor": "ৰং সমাপ্ত কৰক",
+      "lbl-endOpacity": "অস্বচ্ছতা সমাপ্ত কৰক",
+      "lbl-velocityCurve": "বেগ বক্ৰ",
+      "lbl-startVelocity": "আৰম্ভ বেগ",
+      "lbl-endVelocity": "সমাপ্তি বেগ",
+      "lbl-angularVelocity": "কৌণিক বেগ",
+      "info-ageRandomness": "কণাবোৰ সৃষ্টি হ'লে তাৰতম্যৰ পৰিমাণ।",
+      "info-lifetime": "এটা কণা পুনৰ সৃষ্টি হোৱাৰ আগতে ইয়াৰ সৰ্বাধিক বয়স।",
+      "info-lifetimeRandomness": "কণা জীৱনকালৰ মাজৰ তাৰতম্যৰ পৰিমাণ।",
+      "info-sizeRandomness": "কণা আৰম্ভণিৰ আকাৰৰ মাজৰ তাৰতম্যৰ পৰিমাণ।",
+      "error-url": "ইউআৰএলৰ পৰা লোড কৰোতে ত্ৰুটি"
+    },
+    "clouds": {
+      "name": "মেঘ",
+      "description": "স্প্ৰাইট আধাৰিত ক্লাউড ভলিউম।",
+      "lbl-image": "স্প্ৰাইট ছবি",
+      "lbl-wroldScale": "বিশ্ব স্কেল",
+      "lbl-dimensions": "মাত্ৰা",
+      "lbl-noiseZoom": "নয়েজ জুম",
+      "lbl-noiseOffset": "নয়েজ অফছেট",
+      "lbl-spriteScale": "স্প্ৰাইট স্কেল",
+      "lbl-fogColor": "কুঁৱলীৰ ৰং",
+      "lbl-fogRange": "কুঁৱলীৰ পৰিসৰ",
+      "error-url": "ইউআৰএলৰ পৰা লোড কৰোতে ত্ৰুটি"
+    },
+    "ocean": {
+      "name": "মহাসাগৰ",
+      "description": "তৰংগ আৰু ফেনৰ সৈতে মহাসাগৰৰ পৃষ্ঠ",
+      "lbl-normalMap": "সাধাৰণ মানচিত্ৰ",
+      "lbl-distortionMap": "বিকৃতি মানচিত্ৰ",
+      "lbl-envMap": "পৰিৱেশ মানচিত্ৰ",
+      "lbl-color": "ৰং",
+      "lbl-shallowWaterColor": "অগভীৰ পানীৰ ৰং",
+      "lbl-shallowToDeepDistance": "অগভীৰৰ পৰা গভীৰ দূৰত্বলৈ",
+      "lbl-opacityFadeDistance": "অস্বচ্ছতা ফেড দূৰত্ব",
+      "lbl-opacityRange": "অস্বচ্ছতাৰ পৰিসৰ",
+      "lbl-shininess": "উজ্জলতা",
+      "lbl-reflectivity": "প্ৰতিফলন",
+      "lbl-foamColor": "ফেনৰ ৰং",
+      "lbl-foamSpeed": "ফেনৰ গতি",
+      "lbl-foamTiling": "ফেন টাইলিং",
+      "lbl-bigWaveTiling": "বিগ ৱেভ টাইলিং",
+      "lbl-bigWaveSpeed": "বিগ ৱেভ স্পীড",
+      "lbl-bigWaveHeight": "ডাঙৰ তৰংগৰ উচ্চতা",
+      "lbl-waveSpeed": "তৰংগৰ গতি",
+      "lbl-waveScale": "তৰংগ স্কেল",
+      "lbl-waveTiling": "ৱেভ টাইলিং",
+      "lbl-waveDistortionSpeed": "তৰংগ বিকৃতিৰ গতি",
+      "lbl-waveDistortionTiling": "তৰংগ বিকৃতি টাইলিং",
+      "error-url": "ইউআৰএলৰ পৰা লোড কৰোতে ত্ৰুটি"
+    },
+    "water": {
+      "name": "পানী",
+      "description": "সৰু পানীৰ পৃষ্ঠ"
+    },
+    "interior": {
+      "name": "ভিতৰভাগ",
+      "description": "আভ্যন্তৰীণ পৰিৱেশ অনুকৰণ কৰিবলৈ মেপ কৰা ঘনক গাঁথনিৰ সৈতে এটা পৃষ্ঠ",
+      "lbl-cubeMap": "কিউব মেপ গাঁথনি",
+      "lbl-tiling": "টাইলিং পৰিমাণ",
+      "lbl-size": "পৃষ্ঠৰ আকাৰ",
+      "error-url": "ইউআৰএলৰ পৰা লোড কৰোতে ত্ৰুটি"
+    },
+    "pointLight": {
+      "description": "এটা পোহৰ যি এটা বিন্দুৰ পৰা সকলো দিশত নিৰ্গত হয়।",
+      "lbl-color": "ৰং",
+      "lbl-intensity": "তীব্ৰতা",
+      "lbl-range": "পৰিসৰ",
+      "lbl-decay": "ক্ষয়"
+    },
+    "scene": {
+      "name": "দৃশ্য",
+      "description": "দৃশ্যটোৰ মূল বস্তু।",
+      "lbl-bgcolor": "পৃষ্ঠভূমিৰ ৰং",
+      "lbl-fogType": "কুঁৱলীৰ প্ৰকাৰ",
+      "lbl-fogColor": "কুঁৱলীৰ ৰং",
+      "lbl-forNearDistance": "দূৰত্বৰ ওচৰত কুঁৱলী",
+      "lbl-fogFarDistance": "কুঁৱলী দূৰদূৰত্ব",
+      "lbl-fogDensity": "কুঁৱলীৰ ঘনত্ব",
+      "lbl-audioSettings": "অৱস্থানমূলক অডিঅ' ব্যৱহাৰ কৰক",
+      "lbl-avatarDistanceModel": "অৱতাৰ দূৰত্ব মডেল",
+      "lbl-avatarRolloffFactor": "অৱতাৰ ৰোলঅফ কাৰক",
+      "lbl-avatarRefDistance": "অৱতাৰ ৰেফ দূৰত্ব",
+      "lbl-avatarMaxDistance": "অৱতাৰ সৰ্বাধিক দূৰত্ব",
+      "lbl-mediaVolume": "মিডিয়া ভলিউম",
+      "lbl-mediaDistanceModel": "মিডিয়া দূৰত্ব মডেল",
+      "lbl-mediaRolloffFactor": "মিডিয়া ৰোলঅফ কাৰক",
+      "lbl-mediaRefDistance": "মিডিয়া ৰেফ দূৰত্ব",
+      "lbl-mediaMaxDistance": "মিডিয়া সৰ্বাধিক দূৰত্ব",
+      "lbl-mediaConeInnerAngle": "মিডিয়া শঙ্কু আভ্যন্তৰীণ কোণ",
+      "lbl-mediaConeOuterAngle": "মিডিয়া শঙ্কু বাহিৰৰ কোণ",
+      "lbl-mediaConeOuterGain": "মিডিয়া শঙ্কু বাহিৰৰ লাভ",
+      "info-avatarDistanceModel": "এলগৰিথিমে অডিঅ' ৰোলঅফ গণনা কৰিছিল।",
+      "info-avatarRolloffFactor": "উৎসটো শ্ৰোতাৰ পৰা আঁতৰি যোৱাৰ লগে লগে ভলিউম কিমান সোনকালে হ্ৰাস হয় বৰ্ণনা কৰা এটা দ্বৈত মূল্য। 0 ৰ পৰা 1",
+      "info-avatarRolloffFactorInifinity": "উৎসটো শ্ৰোতাৰ পৰা আঁতৰি যোৱাৰ লগে লগে ভলিউম কিমান সোনকালে হ্ৰাস হয় বৰ্ণনা কৰা এটা দ্বৈত মূল্য। 0 ৰ পৰা অসীম",
+      "info-avatarRefDistance": "অডিঅ' উৎসশ্ৰোতাৰ পৰা আগবাঢ়ি যোৱাৰ লগে লগে ভলিউম হ্ৰাস কৰাৰ বাবে ৰেফাৰেন্স দূৰত্ব প্ৰতিনিধিত্ব কৰা এটা দ্বৈত মান।",
+      "info-avatarMaxDistance": "অডিঅ' উৎস আৰু শ্ৰোতাৰ মাজত সৰ্বাধিক দূৰত্ব প্ৰতিনিধিত্ব কৰা এক দ্বৈত মান, যাৰ পিছত ভলিউম আৰু হ্ৰাস কৰা নহয়।",
+      "info-mediaDistanceModel": "এলগৰিথিমে অডিঅ' ৰোলঅফ গণনা কৰিছিল।",
+      "info-mediaRolloffFactor": "উৎসটো শ্ৰোতাৰ পৰা আঁতৰি যোৱাৰ লগে লগে ভলিউম কিমান সোনকালে হ্ৰাস হয় বৰ্ণনা কৰা এটা দ্বৈত মূল্য। 0 ৰ পৰা 1",
+      "info-mediaRolloffFactorInfinity": "উৎসটো শ্ৰোতাৰ পৰা আঁতৰি যোৱাৰ লগে লগে ভলিউম কিমান সোনকালে হ্ৰাস হয় বৰ্ণনা কৰা এটা দ্বৈত মূল্য। 0 ৰ পৰা অসীম",
+      "info-mediaRefDistance": "অডিঅ' উৎসশ্ৰোতাৰ পৰা আগবাঢ়ি যোৱাৰ লগে লগে ভলিউম হ্ৰাস কৰাৰ বাবে ৰেফাৰেন্স দূৰত্ব প্ৰতিনিধিত্ব কৰা এটা দ্বৈত মান।",
+      "info-mediaMaxDistance": "অডিঅ' উৎস আৰু শ্ৰোতাৰ মাজত সৰ্বাধিক দূৰত্ব প্ৰতিনিধিত্ব কৰা এক দ্বৈত মান, যাৰ পিছত ভলিউম আৰু হ্ৰাস কৰা নহয়।",
+      "info-mediaConeInnerAngle": "ডিগ্ৰীত কোণটো বৰ্ণনা কৰা এক দ্বৈত মূল্য, যাৰ ভিতৰত কোনো ভলিউম হ্ৰাস নহ'ব।",
+      "info-mediaConeOuterAngle": "ডিগ্ৰীত কোণটো বৰ্ণনা কৰা এক দ্বৈত মান যাৰ বাহিৰত আয়তন টো এটা স্থিৰ মূল্যৰ দ্বাৰা হ্ৰাস কৰা হ'ব, শঙ্কুআউটাৰগেইন গুণাগুণৰ দ্বাৰা নিৰ্ধাৰণ কৰা হয়।",
+      "info-mediaConeOuterGain": "শঙ্কুটোৰ বাহিৰত ভলিউম হ্ৰাসৰ পৰিমাণ বৰ্ণনা কৰা এটা দ্বৈত মান। ইয়াৰ ডিফল্ট মান হৈছে 0, অৰ্থাৎ কোনো শব্দ শুনা নাযায়।",
+      "lbl-simpleMaterials": "সৰল সামগ্ৰী ব্যৱহাৰ কৰক",
+      "lbl-lods": "এল.ও.ডি.",
+      "info-lods": "বিৱৰণৰ স্তৰ সলনি হোৱা দূৰত্ব নিৰ্ধাৰণ কৰে।",
+      "info-simpleMaterials": "সকলো ব্যয়বহুল সামগ্ৰী সৰল সামগ্ৰীলৈ ৰূপান্তৰ কৰে যাতে দৃশ্য ৰেণ্ডাৰিংৰ পৰা লোড আঁতৰ কৰিব পাৰে।",
+      "lbl-rendererSettings": "ৰেণ্ডাৰ সংহতিসমূহ অভাৰৰাইড কৰক",
+      "lbl-csm": "কেচকেডিং ছাঁ মানচিত্ৰ",
+      "info-csm": "কেচকেডিং ছাঁ মেপ সক্ষম কৰে।",
+      "lbl-toneMapping": "টোন মেপিং",
+      "info-toneMapping": "দৃশ্য ৰেণ্ডাৰত টোন মেপিং সক্ষম কৰে। পোষ্ট প্ৰচেছিং সক্ষম হ'লে কোনো প্ৰভাৱ নপৰে।",
+      "lbl-toneMappingExposure": "টোন মেপিং এক্সপোজাৰ",
+      "info-toneMappingExposure": "দৃশ্য ৰেণ্ডাৰত টোন মেপিং এক্সপোজাৰ নিৰ্ধাৰণ কৰে। পোষ্ট প্ৰচেছিং সক্ষম হ'লে কোনো প্ৰভাৱ নপৰে।",
+      "lbl-shadowMapType": "ছাঁ মানচিত্ৰৰ ধৰণ",
+      "info-shadowMapType": "ছাঁ মানচিত্ৰৰ ধৰণ",
+      "error-url": "ইউআৰএলৰ পৰা লোড কৰোতে ত্ৰুটি"
+    },
+    "sceneCamera": {
+      "name": "দৃশ্য পূৰ্বদৰ্শন কেমেৰা",
+      "description": "কেমেৰাটোৱে আপোনাৰ দৃশ্যৰ বাবে থাম্বনেইল আৰু পূৰ্বলোকন কেমেৰাৰ বাবে আৰম্ভণিৰ স্থিতি সৃষ্টি কৰিবলৈ ব্যৱহাৰ কৰিছিল।",
+      "lbl-setFromViewPort": "দৰ্শনপৰ্টৰ পৰা সংহতি কৰক"
+    },
+    "skybox": {
+      "name": "স্কাইবক্স",
+      "description": "",
+      "lbl-timeOfDay": "দিনৰ সময়",
+      "lbl-color": "ৰং",
+      "lbl-latitude": "অক্ষাংশ",
+      "lbl-luminance": "উজ্জ্বলতা",
+      "lbl-scattering": "বিক্ষিপ্ত পৰিমাণ",
+      "lbl-scatteringDistance": "বিক্ষিপ্ত দূৰত্ব",
+      "lbl-horizonStart": "দিগন্ত আৰম্ভ",
+      "lbl-horizonEnd": "হৰাইজন সমাপ্তি",
+      "lbl-texture": "গাঁথনি",
+      "lbl-skyType": "আকাশৰ ধৰণ",
+      "error-url": "ইউআৰএলৰ পৰা লোড কৰোতে ত্ৰুটি"
+    },
+    "spawnPoint": {
+      "name": "স্পাউন পইণ্ট",
+      "description": "এটা বিন্দু য'ত মানুহে আপোনাৰ দৃশ্যত প্ৰৱেশ কৰাৰ সময়ত উপস্থিত হ'ব।\nভিউপোৰ্টৰ আইকনটোৱে অৱতাৰ এটাৰ প্ৰকৃত আকাৰ প্ৰতিনিধিত্ব কৰে।"
+    },
+    "spotLight": {
+      "description": "এক পোহৰ যি এটা দিশৰ সৈতে নিৰ্গত হয়, শঙ্কুএটাৰ ভিতৰত বস্তুবোৰ আলোকিত কৰে।",
+      "lbl-color": "ৰং",
+      "lbl-intensity": "তীব্ৰতা",
+      "lbl-penumbra": "পেনুমব্ৰা",
+      "lbl-angle": "কোণ",
+      "lbl-range": "পৰিসৰ",
+      "lbl-decay": "ক্ষয়"
+    },
+    "transform": {
+      "title": "ৰূপান্তৰ",
+      "lbl-postition": "অৱস্থান",
+      "lbl-rotation": "ঘূৰ্ণন",
+      "lbl-scale": "স্কেল"
+    },
+    "triggereVolume": {
+      "description": "প্ৰৱেশ আৰু এৰি যোৱাৰ সময়ত লক্ষ্য অবজেক্টত এটা সম্পত্তি ছেট কৰে।",
+      "lbl-target": "অবজেক্ট",
+      "lbl-onenter": "প্ৰবিষ্ট কৰোতে",
+      "lbl-onexit": "প্ৰস্থানৰ সময়ত",
+      "lbl-showHelper": "সহায়ক মেছ দেখুৱাওক",
+      "ph-errorNode": "নোড অনুপস্থিত ত্ৰুটি।",
+      "ph-selectNode": "নোড বাছনি কৰক..."
+    },
+    "video": {
+      "name": "ভিডিঅ'",
+      "description": "গতিশীলভাৱে এটা ভিডিঅ' লোড কৰে।",
+      "lbl-video": "ভিডিঅ'",
+      "lbl-projection": "প্ৰক্ষেপণ",
+      "lbl-islivestream": "লাইভ স্ট্ৰিম",
+      "lbl-interactable": "আদান-প্ৰদানযোগ্য",
+      "lbl-id": "উপাদান আইডি",
+      "lbl-play": "বজা",
+      "lbl-pause": "বিৰাম দিয়ক",
+      "error-url": "ইউআৰএলৰ পৰা লোড কৰোতে ত্ৰুটি"
+    },
+    "volumetric": {
+      "name": "ভলিউমট্ৰিক",
+      "description": "গতিশীলভাৱে এটা ভলিউমট্ৰিক ভিডিঅ' লোড কৰে।",
+      "uvolPaths": "ইউভিওএল পথসমূহ",
+      "playmode": "প্লে মোড",
+      "playtitle": "বজা",
+      "pausetitle": "বিৰাম দিয়ক"
+    },
+    "spline": {
+      "description": "গতিশীলভাৱে বক্ৰসৃষ্টি আৰু অনুকূলিত কৰক।",
+      "lbl-addNode": "বক্ৰত নোড যোগ দিয়ক।"
+    },
+    "systemnode": {
+      "description": "স্ক্ৰিপ্ট সংলগ্ন কৰক।",
+      "lbl-filePath": "ইউআৰএল",
+      "lbl-systemUpdateType": "বেজী দিয়া বিন্দু",
+      "lbl-enableClient": "গ্রাহক",
+      "lbl-enableServer": "সেৱক",
+      "lbl-args": "আৰ্গচ",
+      "error-url": "ইউআৰএলৰ পৰা স্ক্ৰিপ্ট লোড কৰোতে ত্ৰু"
+    },
+    "portal": {
+      "lbl-portal": "লিংক কৰা পৰ্টেল",
+      "lbl-redirect": "পৃষ্ঠা পুনঃনিৰ্দেশিত ব্যৱহাৰ কৰক",
+      "description": "নিৰ্দিষ্ট অৱস্থানলৈ টেলিপোৰ্ট প্লেয়াৰসমূহলৈ এটা পোৰ্টেট",
+      "lbl-locationName": "অৱস্থান",
+      "lbl-modelUrl": "মডেল ইউআৰএল",
+      "lbl-displayText": "লিখনী প্ৰদৰ্শন কৰক",
+      "lbl-cubemapBake": "কিউবমেপ বেক",
+      "lbl-spawnPosition": "স্পাউন অৱস্থান",
+      "lbl-spawnRotation": "স্পাউন ঘূৰ্ণন",
+      "lbl-triggerPosition": "ট্ৰিগাৰ অৱস্থান",
+      "lbl-triggerRotation": "ঘূৰ্ণন আৰম্ভ কৰা হ'ব",
+      "lbl-triggerScale": "ট্ৰিগাৰ স্কেল"
+    },
+    "postprocessing": {
+      "name": "প্ৰক্ৰিয়াকৰণৰ পিছত",
+      "description": "আপোনাৰ দৃশ্যত পোষ্ট প্ৰচেছিং প্ৰভাৱ প্ৰয়োগ কৰাৰ বাবে।"
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "নতুন প্ৰকল্প",
+      "backLink": "প্ৰকল্পলৈ ঘূৰি যাওক",
+      "featured": "বৈশিষ্ট্যযুক্ত",
+      "all": "সকলো",
+      "newProject": "নতুন খালী প্ৰকল্প",
+      "ph-search": "দৃশ্যসমূহ সন্ধান কৰক..."
+    },
+    "grid": {
+      "loading": "লোড কৰা হৈছে..."
+    },
+    "page": {
+      "header": "স্বাগতম",
+      "headerMsg": "যদি আপুনি ইয়াত নতুন হয় আমি টিউটোৰিয়েলটো পঢ়োতে পৰামৰ্শ দিওঁ। অন্যথা, সোঁফালে জঁপিয়াই যাওঁক আৰু আৰম্ভণিৰ পৰা বা আমাৰ টেমপ্লেটৰ পৰা এটা প্ৰকল্প সৃষ্টি কৰক।",
+      "lbl-startTutorial": "টিউট'ৰিয়েল আৰম্ভ কৰক",
+      "projects": "প্ৰকল্পসমূহ",
+      "lbl-newProject": "নতুন প্ৰকল্প"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "লোড কৰা হৈছে...",
+      "placeObject": "স্থান অবজেক্ট",
+      "placeObjectAtOrigin": "অবজেক্টক উৎপত্তিস্থলত ৰাখক",
+      "copyURL": "ইউআৰএল প্ৰতিলিপি কৰক",
+      "openInNewTab": "নতুন টেবত ইউআৰএল খোলক",
+      "deleteAsset": "সম্পদ বিলোপ কৰক"
+    },
+    "filebrowser": {
+      "addNewFolder": "নতুন ফোল্ডাৰ যোগ কৰক",
+      "cutAsset": "কাট",
+      "copyAsset": "নকল",
+      "pasteAsset": "লুথুৰী",
+      "renameAsset": "পুনৰ নামকৰণ কৰক",
+      "viewAssetProperties": "বৈশিষ্ট্যসমূহ দৰ্শন কৰক"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "পুনৰ নামকৰণ কৰক",
+    "lbl-duplicate": "নকল",
+    "lbl-group": "দল",
+    "lbl-delete": "মচি পেলাওক",
+    "lbl-expandAll": "সকলো সম্প্ৰসাৰিত কৰক",
+    "lbl-collapseAll": "সকলো ধ্বস কৰক",
+    "isseus": "সমস্যাসমূহ:"
+  },
+  "dnd": {
+    "nodes": "{{count}} নোড চয়ন কৰা হৈছে",
+    "models": "{{count}} মডেল নিৰ্বাচিত",
+    "images": "{{count}} ছবি নিৰ্বাচিত",
+    "videos": "{{count}} ভিডিঅ' নিৰ্বাচিত",
+    "audio": "{{count}} অডিঅ' উৎস নিৰ্বাচিত"
+  },
+  "dialog": {
+    "title": "সম্পাদক",
+    "lbl-confirm": "হ'ব",
+    "lbl-cancel": "বাতিল কৰা",
+    "exportProject": {
+      "title": "ৰপ্তানি প্ৰকল্প",
+      "lbl-confirm": "ৰপ্তানি প্ৰকল্প",
+      "lbl-combineMesh": "মেশ্বেচ একত্ৰিত কৰক",
+      "lbl-removeUnused": "অব্যৱহৃত অবজেক্টসমূহ আঁতৰাওক"
+    },
+    "performance": {
+      "title": "প্ৰদৰ্শন পৰীক্ষা",
+      "lbl-confirm": "দৃশ্য প্ৰকাশ কৰক",
+      "learnMore": "অধিক জানা",
+      "lbl-polycount": "বহুভুজ গণনা",
+      "lbl-material": "সামগ্ৰীসমূহ",
+      "lbl-texture": "গাঁথনি",
+      "lbl-lights": "লাইট",
+      "lbl-fileSize": "ফাইলৰ আকাৰ",
+      "info-polycount": "আমি আপোনাৰ দৃশ্যটো মোবাইল ডিভাইচৰ বাবে 50,000 তকৈ অধিক ত্ৰিভুজ ব্যৱহাৰ নকৰিবলৈ পৰামৰ্শ দিওঁ।",
+      "info-material": "আমি মোবাইল ডিভাইচত ড্ৰ কল হ্ৰাস কৰিবলৈ আপোনাৰ দৃশ্যত 25 টাতকৈ অধিক অনন্য সামগ্ৰী ব্যৱহাৰ কৰাৰ পৰামৰ্শ দিওঁ।",
+      "info-texture": "আমি আপোনাৰ গাঁথনিবোৰ মোবাইল ডিভাইচৰ বাবে 256এমবিতকৈ অধিক ভিডিঅ' ৰেম ব্যৱহাৰ কৰাৰ পৰামৰ্শ দিওঁ। আমি ২০৪৮ এক্স ২০৪৮ তকৈ ডাঙৰ গাঁথনি ব্যৱহাৰ কৰাৰ বিৰুদ্ধেও পৰামৰ্শ দিওঁ।",
+      "info-lights": "যদিও মোবাইল ডিভাইচবোৰত ডাইনামিক লাইট সক্ষম নহয়, আমি আপোনাৰ দৃশ্যটো নিম্ন প্ৰান্তৰ পিচিত চলিবলৈ আপোনাৰ দৃশ্যত 3 টাতকৈ অধিক লাইট ব্যৱহাৰ কৰাৰ পৰামৰ্শ দিওঁ (পৰিৱেশ আৰু গোলাৰ্ধৰ লাইটৰ বাহিৰে)।",
+      "info-fileSize": "আমি কম বেণ্ডৱিথ সংযোগৰ বাবে 16এমবিতকৈ অধিক ফাইল আকাৰৰ চূড়ান্ত ফাইলৰ আকাৰৰ পৰামৰ্শ দিওঁ। ফাইলৰ আকাৰ হ্ৰাস কৰিলে আপোনাৰ দৃশ্য ডাউনলোড কৰিবলৈ লগা সময় হ্ৰাস হ'ব।",
+      "txt-polycount": "{{count}} ত্ৰিভুজ",
+      "txt-material": "{{count}} সামগ্ৰী",
+      "txt-ram": "~{{count}} ভিডিঅ' ৰেম",
+      "txt-texture": "{{count}} ডাঙৰ গাঁথনি",
+      "txt-lights": "{{count}} লাইট"
+    },
+    "progress": {
+      "title": "লোড কৰা হৈছে...",
+      "msg": "লোড কৰা হৈছে...",
+      "lbl-cancel": "বাতিল কৰা"
+    },
+    "publish": {
+      "title": "দৃশ্য প্ৰকাশ কৰক",
+      "lbl-confirm": "সংৰক্ষণ আৰু প্ৰকাশ কৰক",
+      "lbl-name": "দৃশ্যৰ নাম",
+      "info-name": "নাম 4 ৰ পৰা 64 টা বৰ্ণৰ মাজত হ'ব লাগিব আৰু ইয়াত আণ্ডাৰস্কোৰ থাকিব নোৱাৰে"
+    },
+    "published": {
+      "title": "দৃশ্য প্ৰকাশিত",
+      "header": "আপোনাৰ দৃশ্য প্ৰকাশ কৰা হৈছে।",
+      "lbl-view": "আপোনাৰ দৃশ্য চাওক"
+    },
+    "saveNewProject": {
+      "title": "সমৰ্থন",
+      "lbl-name": "প্ৰকল্পৰ নাম",
+      "info-name": "নাম 4 ৰ পৰা 64 টা বৰ্ণৰ মাজত হ'ব লাগিব আৰু ইয়াত আণ্ডাৰস্কোৰ থাকিব নোৱাৰে",
+      "lbl-confirm": "প্ৰকল্প সংৰক্ষণ কৰক"
+    },
+    "support": {
+      "title": "সমৰ্থন",
+      "header": "সমস্যা এটাৰ প্ৰতিবেদন দিব লাগিব নেকি?",
+      "msg": "আপুনি <1>এটা গিটহাব ইছ্যু</1> ফাইল কৰিব পাৰে বা <3> আমাক </3> সমৰ্থনৰ বাবে ই-মেইল কৰিব পাৰে{{mail}}",
+      "discord": "আপুনি আমাক <1>কলহৰ</1> ওপৰতো বিচাৰি পাব পাৰে"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "বিং ছবিসমূহ",
+      "search": "বিঙৰ দ্বাৰা সন্ধান কৰক"
+    },
+    "bingVideo": {
+      "name": "বিং ভিডিঅ'",
+      "search": "বিঙৰ দ্বাৰা সন্ধান কৰক"
+    },
+    "element": {
+      "name": "উপাদানসমূহ"
+    },
+    "myAssets": {
+      "name": "মোৰ সম্পদ"
+    },
+    "googlePoly": {
+      "name": "গুগল পলি",
+      "search": "গুগলৰ দ্বাৰা সন্ধান কৰক"
+    },
+    "tenor": {
+      "name": "টেনৰ জিআইএফ",
+      "search": "টেনৰ অনুসৰি সন্ধান কৰক",
+      "ph-search": "জিআইএফ সন্ধান কৰক..."
+    },
+    "sketchfab": {
+      "name": "স্কেচফেব",
+      "search": "স্কেচফেবৰ দ্বাৰা সন্ধান কৰক"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "সম্পদ আপলোড কৰক"
+    },
+    "imageSourcePanel": {
+      "ph-search": "ছবিসমূহ সন্ধান কৰক..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "ভিডিঅ' সন্ধান কৰক..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "সম্পদসন্ধান কৰক..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "মডেলসমূহ সন্ধান কৰক..."
+    },
+    "useUpload": {
+      "multipleFileError": "ইনপুটে একাধিক ফাইল গ্ৰহণ নকৰে।",
+      "mineTypeError": "\"{{name}}\" নিম্নলিখিত মাইম প্ৰকাৰ বা সম্প্ৰসাৰণৰ সৈতে মিলা নাই: {{types}}",
+      "progressTitle": "ফাইল সমূহ আপলোড কৰা হৈছে",
+      "progressMsg": "{{total}}{{uploaded}} ফাইল আপলোড কৰা হৈছে: {{percentage}}%",
+      "uploadError": "ত্ৰুটি আপলোড কৰক",
+      "uploadErrorMsg": "ফাইল আপলোড কৰোঁতে ত্ৰুটি: {{message}}",
+      "uploadErrorDefaultMsg": "এটা অজ্ঞাত ত্ৰুটি আছিল"
+    }
+  },
+  "openLink": {
+    "description": "অনুগ্ৰহ কৰি লিংকলৈ নেভিগেট কৰিবলৈ অপেনত ক্লিক কৰক।",
+    "lbl-open": "খুল"
+  },
+  "interactableModel": {
+    "lbl-buy": "ক্ৰয় কৰক",
+    "lbl-learnMore": "অধিক জানা"
+  },
+  "corsProxyButton": {
+    "tooltip": "কৰ্চ প্ৰক্সি চাৰ্ভাৰ ব্যৱহাৰ কৰক"
+  }
+}

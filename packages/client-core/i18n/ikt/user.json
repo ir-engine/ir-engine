@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Naunaiqtaujukhaq Qaritaujakkut Titirarvia",
+      "resendEmail": "Qiniqlugit qaritauyakuuqhimayut naunaiyagiangani atukiutitit. Qaritaujakkut titiqqilimaitkuvit, naqitlugu {{here}} tujuutigijaami qaritaujakkut titiqqidjutimik.",
+      "haveAnAccount": "Maniqarviqaqqa?"
+    },
+    "forgotPassword": {
+      "header": "Forgot Password",
+      "enterEmail": "Iliurarlugu atiliuqhimajumik qaritaujakkut titirarvikharnik tujurniaqtaffi angmaqhidjutikhat turrarvikhanik.",
+      "lbl-email": "Qaritauyakkut Titirarvia",
+      "lbl-submit": "Turaarvigilugu Turaarvigijangit",
+      "emailSent": "Ihuarhaffaaqtuq Angmaqtirutinga Qaritauyakkut titiraqvinga tuyuqtauyuq. Qiniqlugu qaritauyakkut."
+    },
+    "login": {
+      "email": "Qaritaujakkut | SMS",
+      "username": "UserName + Password",
+      "social": "Inungmiu"
+    },
+    "magiklink": {
+      "header": "Login Link",
+      "descriptionEmail": "Iliurarlugu qaritaujakkut titirarvit tujurniaqtaffilu qaritaujakkut titirarvikkut.",
+      "descriptionSMS": "Iliurarlugu hivayautit nampaa tuyuqniaqtaffilu angmaqtirutinga qaritauyakkut pulaarvinga SMS-kut.",
+      "descriptionEmailSMS": "Iliurarlugu qaritaujakkut titirarvit hivajautikkulluunniit (10 digit, USinnaq) tujurniaqtugunlu qaritaujakkut titiqqidjutikkut qaritaujakkut titiqqidjutikkut talvuunaluunniit SMS-kut.",
+      "descriptionSMSUS": "Iliurarlugu hivayautit nampaa (10 digit, US-mi) tuyuqniaqtaffilu qaritauyakkuurutikkut talvuuna SMS-kut.",
+      "lbl-email": "Qaritauyakkut Titirarvia",
+      "lbl-emailPhone": "Qaritauyakkut titiqqilvia hivayautaaluuniit nampaa",
+      "lbl-phone": "Hivayautaa nampaa",
+      "agree": "Angiqtunga uvanga ",
+      "terms": "Terms &Conditions",
+      "lbl-submit": "Turaarvigilugu Atiliurniq Turaarvigijangit",
+      "email-sent-msg": "Login Magic Link tuyuqtauyuq. Qiniqlugu qaritauyakkut titiraqvinga.",
+      "success-msg": "Login Magic Link tuyuqtauyuq. Qiniqlugit qaritauyakuuqhimayut uvaluuniin sms.",
+      "sms-sent-msg": "Login Magic Link tuyuqtauyuq. Qiniqlugit SMSkut."
+    },
+    "passwordLogin": {
+      "header": "Sainiruk",
+      "lbl-email": "Qaritauyakkut Titirarvia",
+      "lbl-password": "Angmaqhidjutikhat",
+      "lbl-rememberMe": "Itqaumalunga",
+      "lbl-signin": "Sainiruk",
+      "forgotPassword": "Kaitkaqtauyukhanut?",
+      "signup": "Atiqarviqangitpa? Sainiruk",
+      "lbl-login": "Angmaruk",
+      "ph-password": "Angmaqhidjutikhat",
+      "ph-email": "Qaritaujakkut titiqq"
+    },
+    "social": {
+      "gitHub": "Login GitHub-lu",
+      "google": "Login Google-lu",
+      "facebook": "Aularutilutik Facebook-kullu",
+      "linkedin": "Login with Linkedin",
+      "twitter": "Login Twitter-lu"
+    },
+    "register": {
+      "header": "Sainiruk",
+      "login": "Angmaruk",
+      "lbl-signup": "Sainiruk",
+      "lbl-password": "Angmaqhidjutikhat",
+      "lbl-email": "Qaritauyakkut Titirarvia",
+      "passwordNotMatch": "Angmaqhidjutikhat Match",
+      "ph-password": "Angmaqhidjutikhat",
+      "ph-confirmPassword": "Angmaqhidjutikhat Naunaiqhidjutikhat",
+      "ph-email": "Qaritaujakkut titiqq"
+    },
+    "resetPassword": {
+      "header": "Ihuaqhiffaarlugu Angmaqhidjutikhat",
+      "description": "Iliurarlugu angmaqhidjutikhat qaritaujakkut titirarvingnut",
+      "lbl-submit": "Ihuaqhiffaarlugu Angmaqhidjutikhat",
+      "lbl-password": "Angmaqhidjutikhat",
+      "lbl-confirmPassword": "Angmaqhidjutikhat Naunaiqhidjutikhat",
+      "passwordNotMatch": "Angmaqhidjutikhat Match",
+      "nowLoginYourAccount": "Iliuraqtaaqtatit atiliurukni",
+      "yourPasswordResetSuccess": "Angmaqhidjutikhat ihuaqtumik ihuaqhaqtauvaktuq!"
+    },
+    "verifyEmail": {
+      "header": "Naunaijarlugu Qaritaujakkut Titirarvia",
+      "processing": "Utaqqilutit havagvingmiitillutin..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Nayugait",
+      "loading": "Uhitiyut",
+      "col-name": "Atia",
+      "col-scene": "Scene",
+      "col-maxuser": "Kixnik Atuqtunun",
+      "lbl-search": "Qiniqhiayut nayugahainun",
+      "lbl-new": "Nutaaq"
+    },
+    "newLocation": {
+      "title": "Nayugaa",
+      "success": "Ilipqamayauyuq Nakuuyumik.",
+      "failure": "Hunamik ihuittuq.",
+      "removeSuccess": "Nayugaa unguvaqtauyuq Nakuuyumik.",
+      "nameInUse": "Atia atuqtauyuq.",
+      "nameRequire": "Atia piyariaqaqtuq.",
+      "validNumber": "Qafiunigit (0-9) pilaaqtut.",
+      "lbl-name": "Atia",
+      "lbl-maxuser": "Kixnik Atuqtunun",
+      "lbl-scene": "Scene",
+      "lbl-type": "Qanurittuq",
+      "lbl-ve": "Video Enabled",
+      "lbl-gme": "Global Media Enabled",
+      "lbl-update": "Nutaanguqtiqhimayuq",
+      "lbl-create": "Hanalutik",
+      "tooltipCanNotBeDeleted": "Lobby-mik taimaaqtitaulimaittuq",
+      "confirmation": "Ilihimaqpiaqqit?",
+      "lbl-yes": "Hii",
+      "lbl-no": "Imannaq"
+    },
+    "share": {
+      "lbl-share": "Atuqatigilugu",
+      "ph-phoneEmail": "Qaitqulugit qaritauyakkut uvaluuniin hivayautaata napaa",
+      "lbl-phoneEmail": "Tuyuutigilugu qaritauyakkut titiqqivianut hivayautikkulluunniit nampaanut",
+      "lbl-copy": "Aadjiliuqhimayuq",
+      "lbl-send-invite": "Tujuutigilugu Qaitqujauniq",
+      "title": "Uqautigilugit Nayugat URL havaqatingnun",
+      "linkCopied": "Atadjutait aadjiliuqhimayut kivyanun."
+    },
+    "setting": {
+      "audio": "Nallakti",
+      "lbl-volume": "Qaffiujut",
+      "lbl-microphone": "Uqauti",
+      "graphics": "Titirauyaqhimayut",
+      "controls": "Munaqhidjutit",
+      "lbl-control-type": "Munaqhiyuq Qanurittuq",
+      "lbl-control-scheme": "Munariniq Qanuriliurutinga",
+      "lbl-resolution": "Pigiaqtitauhimayuq",
+      "lbl-shadow": "Shadows",
+      "lbl-pp": "Post Processing",
+      "lbl-pbr": "Tamaat PBR",
+      "lbl-automatic": "Automatic",
+      "xrusersetting": "XR Atuqtut Ihuaqhaqhimayut",
+      "rotation": "Himmautinga",
+      "rotation-smooth-speed": "Himmautigiiklutin Smooth Kayumiktumik",
+      "rotation-angle": "Himmautinga Angle",
+      "moving": "Nuutirniq",
+      "user-avatar": "Avatar Setting",
+      "invert-rotation": "Invert Rotation And Move Sticks",
+      "show-avatar": "Takupkaqtittiyuq Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Naunaitkutaa",
+      "lbl-settings": "Ihuaqhaqhimayut",
+      "lbl-username": "Atuqtup atia",
+      "update-msg": "Atuqtup atia nutaanguqtiqhimayuq",
+      "inviteCode": "Qaitqulugit Naunaitkutaa",
+      "youAreAn": "Ilvit",
+      "youAreA": "Ilvit",
+      "showUserId": "Tautuktilugu Atuqtut ID",
+      "hideUserId": "Hide User ID",
+      "showApiKey": "Takupkaqtittilutik API-mik aturluaqtaminik",
+      "hideApiKey": "Hide API-guyuq aturluaqtauyuq",
+      "apiKey": "API aturniqhaq",
+      "logout": "Titiraqlugit",
+      "connectPhone": "Ilaliutilugu hivayautivit nampaa",
+      "connectEmail": "Ilaliutilugu qaritaujakkut titirarvit",
+      "connectPhoneEmail": "Ilaliutilugu qaritaujakkut titirarvit hivajautikkulluunniit nampaa",
+      "or": "Uvaluuniit",
+      "lbl-wallet": "Akmailutik Tikirarmiuni",
+      "ph-email": "Qaritaujakkut titiqq",
+      "ph-phone": "Hivayautaa Nampaa",
+      "ph-phoneEmail": "Hivayautaa / Qaritauyakkut Titiraqvinga",
+      "phoneEmailError": "Naunaittut hivajautit # qaritaujakkut titirarvialuuniit",
+      "phoneError": "Invalid hivajautit #",
+      "emailError": "Ihuaqtut qaritaujakkut titirarvia",
+      "loginWithReadyPlayerMe": "Akmaijavat Upalugaiqlugu Ulapqiyuq Uvamnut",
+      "connectSocial": "Katimaqatigilugit inungnut atugait",
+      "createOne": "Piqangitkuvit, nutaaq havaktauniaqtuq ilingnun",
+      "connections": {
+        "title": "Atadjutit",
+        "ipError": "Piilimaittuq hulilukaaqtunik Kinauyaakhamik Tuniyuq",
+        "disconnect": "ilitturinarlugu",
+        "connect": "Katitirlugit"
+      },
+      "profileDropdown": {
+        "avatar": "User Avatar Icon",
+        "profile": "Naunaitkutaa",
+        "adminConsole": "Admin Console",
+        "logout": "Piksanga"
+      },
+      "userIcon": {
+        "lbl-name": "Atiit",
+        "lbl-update": "Nutaanguqtiqhimayuq",
+        "userId": "User id",
+        "ph-uploadImg": "Iliuraqlugu Ujarananaqtunut Piksa",
+        "lbl-selectAcvatar": "Select Avatar",
+        "lbl-submit": "Tuyuq"
+      },
+      "userSettings": {
+        "volume": "Qaffiujut",
+        "microphone": "Uqauti",
+        "resolution": "Pigiaqtitauhimayuq",
+        "high": "Anginiqhaq",
+        "low": "Mikiyuq",
+        "spatialAudio": "Use Spatial Audio",
+        "enterMuted": "ItiqtirviaNut Igluamut"
+      }
+    },
+    "oauth": {
+      "authenticating": "Authenticating...",
+      "authFailed": "{{service}} pingittaami."
+    },
+    "magikLink": {
+      "wait": "Utaqqilutit havagvingmiitillutin..."
+    },
+    "dashboard": {
+      "header": "Dashboard",
+      "dashboard": "Dashboard",
+      "users": "Atuqtut",
+      "feeds": "Nigidjutit",
+      "instance": "Instance",
+      "locations": "Nayugait",
+      "invites": "Qaitquyauyunaquhi",
+      "sessions": "Katimajut",
+      "groups": "Atautimiuyut",
+      "parties": "Ilauyut",
+      "chats": "Chats",
+      "content": "Iluaniittut Puut",
+      "projects": "Havaakhat",
+      "scenes": "Scenes",
+      "avatars": "Avatars",
+      "benchmarking": "Naunaitkutikharnik",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Authenticating...",
+    "authFailed": "{{service}} pingittaami."
+  },
+  "magikLink": {
+    "wait": "Utaqqilutit havagvingmiitillutin..."
+  },
+  "dashboard": {
+    "header": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Atuqtut",
+    "feeds": "Nigidjutit",
+    "instance": "Instance",
+    "locations": "Nayugait",
+    "routes": "Aulaviit",
+    "projects": "Havaakhat",
+    "invites": "Qaitquyauyunaquhi",
+    "sessions": "Katimajut",
+    "groups": "Atautimiuyut",
+    "parties": "Ilauyut",
+    "chats": "Chats",
+    "content": "Iluaniittut Puut",
+    "scenes": "Scenes",
+    "avatars": "Avatars",
+    "benchmarking": "Naunaitkutikharnik",
+    "bots": "Bots",
+    "setting": "Ihuaqhaqhimayut"
+  },
+  "avatar": {
+    "title": "Upload Avatar",
+    "lbl-browse": "Marwse",
+    "lbl-thumbnail": "Thumbnail",
+    "lbl-upload": "Iliuraqlugu",
+    "selectAvatar": "Select Avatar...",
+    "selectThumbnail": "Select Thumbnail...",
+    "rotate": "Himmautinga",
+    "pan": "Pan",
+    "noBone": "Uviniit piqaluangitut hauninik uvinikluuniin",
+    "outOfBound": "Hunaujukhaq maliqajaujukhaq.",
+    "emptyObj": "Hunaujukhaq imaijaqtuq.",
+    "maxTriangleError": "Hunanik piqaqtut angitqijanik {{allowedTriangles}} akulianit.",
+    "selectValidFile": "Select valid 3d avatar file.",
+    "selectValidThumbnail": "Pilugu atuttiaqhimayuq Thumbnail titiraqarvia.",
+    "fileOversized": "Avatar-nik tutquumayut aktikkulaangit akunnganiittukhaq {{minSize}} MB unalu {{maxSize}} MB",
+    "confirmation": "Ilihimaqpiaqqit?",
+    "canNotBeRemoved": "Aulayuq Avatar unguvaqtaulimaituq",
+    "remove": "Remove avatar",
+    "uploadFiles": "Iliuraqlugit tutquqhimayut",
+    "useUrlInstead": "Aturlutit quiluaruiqlutit",
+    "avatar": "Avatar",
+    "cancel": "Taimaaqtauyuq",
+    "createAvatar": "Create Avatar",
+    "delete": "Piirlugu",
+    "view": "Tautuktait",
+    "uploadAvatarInfo": "Update avatar Information",
+    "name": "Atia",
+    "enterName": "Uuktuqtup atia",
+    "avatarInformation": "Avatar Information",
+    "description": "Uqatiaqniga",
+    "key": "Akhuurutauluaqtut",
+    "none": "Piittuq",
+    "submit": "Tuyuq",
+    "edit": "Ihuaqhaqhimayuq",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "Avatar Iliuraqtauyuq Nakuuyumik.",
+    "remove-success-msg": "Avatar Iliuraqtauyuq Nakuuyumik.",
+    "warning-msg": "Avatar-guyuq ihuaqut imaituq, atautimukhimavit avatarnik tuutqumaviknut tutqumaviani?"
+  },
+  "personMenu": {
+    "inviteToParty": "Qaitqulugit Ilauyunun",
+    "addAsFriend": "Ilanat",
+    "mute": "Mute",
+    "block": "Kiluuttaq"
+  },
+  "person": {
+    "you": "Ilvit",
+    "yourScreen": "Takujaqturlugu",
+    "muteForEveryone": "Mute tamainun",
+    "unmuteForEveryone": "Unmute inungnun tamainun",
+    "muteMe": "Mute me",
+    "unmuteMe": "Unmute me",
+    "muteThisPerson": "Mute una inuk",
+    "unmuteThisPerson": "Una inuk",
+    "openPictureInPicture": "Angmaumayuq Piksa Piksami"
+  }
+}

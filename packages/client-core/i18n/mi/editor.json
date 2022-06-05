@@ -1,0 +1,718 @@
+{
+  "loading": "Uta Kaupapa ana",
+  "loadingMsg": "Uta kaupapa ana...",
+  "loadingError": "I hapa te utanga o te kaupapa",
+  "loadingErrorMsg": "I hapa i te utanga o te kaupapa.",
+  "selectSceneMsg": "Tīpakohia te Scene hei tīmata ki te purei me te mīhini",
+  "error": "Hē",
+  "errorMsg": "He hapa tē mōhiotia.",
+  "generateScreenshot": "Hanga ana i te Matamata Kaupapa",
+  "generateScreenshotMsg": "Kei te hanga topengamata kaupapa...",
+  "newScene": "Waihanga Tirohanga",
+  "saving": "Tiaki Kaupapa ana",
+  "savingMsg": "Tiaki kaupapa ana...",
+  "savingError": "Kaupapa Tiaki Hapa",
+  "savingErrorMsg": "I hapa i te tiakitanga o te kaupapa.",
+  "savingSceneErrorMsg": "Kāore te tirohanga i te uta tika. Me ngana ki te tāuta anō i te tirohanga.",
+  "duplicating": "Kaupapa Tārite",
+  "duplicatingMsg": "Kei te tārua i te kaupapa...",
+  "exporting": "Kaweake Kaupapa ana",
+  "exportingMsg": "Kaweake ana i te kaupapa...",
+  "exportingError": "Kua hapa te Kaweake Kaupapa",
+  "exportingErrorMsg": "I hapa i te kaweaketanga o te kaupapa.",
+  "importLegacy": "Kawemai Ao Tawhito",
+  "importLegacyMsg": "Kia mataara!! Mā tēnei e tuhirua tō tirohanga tīariari! Me haere tonu?",
+  "publishingError": "Kua hapa te Whakaputa Kaupapa",
+  "publishingErrorMsg": "He hapa tē mōhiotia.",
+  "publishingScene": "Whakaputa ana i te Tirohanga",
+  "publishingSceneMsg": "Kei te whakaputa i te tirohanga...",
+  "uploadingThumbnailMsg": "Kei te tukuatu karakōnui...",
+  "uploadingSceneMsg": "Tiro tukuatu ana: {{percentage}}%",
+  "envMapError": "I hapa te utanga o ngā atahanga kupiki {{files}}",
+  "lbl-return": "Hoki mai",
+  "menubar": {
+    "newScene": "Tirohanga Hōu",
+    "saveScene": "Tiaki Scene",
+    "saveAs": "Tiaki hei",
+    "importAsset": "Kawemai Tautuhinga",
+    "exportGLB": "Kaweake hei glTF ā-rua (.glb) ...",
+    "importScene": "Tirohanga kawemai",
+    "exportScene": "Kaweake tirohanga",
+    "quit": "Whakamutu"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Momo kōnae kāore i te tautokona mō te kōnae: \"{{name}}\". Me noho te kōnae hei atahanga, ataata, tauira glb rānei.",
+    "addObject": "tāpiriObject: i mua i te ahanoa kāore i kitea",
+    "removeObject": "tangohia te Tuwhā: kāore i kitea te kōpuku. Nā te tango i tētahi kōpuku kua kore tonu i roto i te tirohanga.",
+    "noParent": "{{node}} \"{{name}}\" kaore he matua. Ka mahi anake te matua i ngā ahanoa kei te tirohanga ināianei.",
+    "undefinedParent": "editor.reparent: kāore anō kia tautuhia teParent hōu",
+    "notAuthenticated": "Kāore i whakamotuhēhētia",
+    "fetchingProjectError": "Kua hapa te tiki kaupapa: {{error}}",
+    "fetchingRouteError": "Kua hapa te tiki ararere: {{error}}",
+    "unknownError": "Hapa Tē Mōhiotia",
+    "resolveURL": "I hapa te whakatau url \"{{url}}\":",
+    "mediaSearchAborted": "Kua haukotia te rapu pāpāho",
+    "methodNotImplemented": "Kāore i whakatinanatia te aratuka.",
+    "saveProjectAborted": "Tiakina te tirohanga kua haukotia",
+    "unsavedChanges": "Ngā Huringa Kāore anō kia tiakina",
+    "unsavedChangesMsg": "Kua whakakētia te tirohanga. Tiakina koa ō huringa.",
+    "projectCreationFail": "I rahua te hanganga kaupapa. {{reason}}",
+    "projectDeletionFail": "I rahua te mukunga kaupapa. {{reason}}",
+    "savingProjectFail": "I rahua te tiaki Kaupapa. {{reason}}",
+    "sceneTooLarge": "He nui rawa te tirohanga ({{size}} MP) hei whakaputa. Ko te rahi mōrahi ko {{maxSize}} MP.",
+    "sceneCreationFail": "I rahua te hanganga tirohanga. {{reason}}",
+    "uploadAborted": "Kua haukotia te tukuatu",
+    "uploadFailed": "I rahua te tukuatu {{reason}}",
+    "assetDeletionFail": "I rahua te mukunga huinga. {{reason}}",
+    "projectAssetDeletionFail": "I rahua te mukunga Huinga Kaupapa. {{reason}}",
+    "networkError": "Hapa Whatunga: {{status}}. {{text}}",
+    "unknownStatus": "Tūnga tē mōhiotia",
+    "CORS": "He hapa CORS pea",
+    "urlFetchError": "I rahua te tiki i \"{{url}}\""
+  },
+  "viewport": {
+    "title": "Tirohia te tauranga",
+    "command": {
+      "movecamera": "Nuku Kāmera",
+      "flyFast": "Rere tere ake",
+      "orbit": "Āwhiotanga / Tīpako",
+      "pan": "Pan",
+      "fly": "Rere",
+      "focus": "Arotahi",
+      "rotateLeft": "Huri ki mauī",
+      "rotateRight": "Huri ki te matau",
+      "cancelPlacement": "Whakakore Wāhi",
+      "placeDuplicate": "Whakanoho Tārua",
+      "cancelGrab": "Whakakore Grab",
+      "grab": "Grab",
+      "deselectAll": "Tīpako Katoa"
+    },
+    "state": {
+      "header": "Ngā Tāpae",
+      "memory": "Pūmahara",
+      "geometries": "Ngā Āhuatanga",
+      "textures": "Ngā Kanokano",
+      "render": "Tāhuahua",
+      "FPS": "FPS",
+      "frameTime": "Wā Tāpare",
+      "calls": "Ngā Waea",
+      "triangles": "Tapatoru",
+      "points": "Ngā Ira",
+      "lines": "Ngā Raina"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Whakaputa",
+    "lbl-published": "Kua whakaputaina",
+    "command": {
+      "translate": "Whakamāorihia",
+      "rotate": "Hurihia",
+      "scale": "Tauine",
+      "toggleSpace": "Takahuri Mokowā Huri noa",
+      "togglePivot": "Takahuri Pivot",
+      "toggleSnapMode": "Takahuri Aratau Hopu",
+      "toggleGrid": "Takahuri Aritanga Mātiti",
+      "increaseGridSize": "Whakanuia te Rahi Mātiti",
+      "descreaseGridSize": "Whakaiti Rahi Mātiti",
+      "stopPreview": "Kāti te Arokite Scene",
+      "playPreview": "Arokite Tirohanga"
+    }
+  },
+  "properties": {
+    "title": "Ngā Āhuatanga",
+    "lbl-visible": "Ka taea te kite",
+    "lbl-preventBake": "Ārai Bake",
+    "lbl-persist": "Persist",
+    "multipleNodeSelected": "Ngā Kōpuku maha o ngā momo rerekē kua tīpakohia",
+    "noNodeSelected": "Kāore he kōpuku i tīpakohia",
+    "ambientLight": {
+      "name": "Kōmā Ambient",
+      "description": "He mārama e whakamārama ana i ngā ahanoa katoa i tō tirohanga.",
+      "lbl-intensity": "Kaha",
+      "lbl-color": "Tae"
+    },
+    "envmap": {
+      "name": "Mahere Taiao",
+      "description": "āhuatanga mahere taiao"
+    },
+    "asset": {
+      "name": "Huinga",
+      "description": "He whakarōpū wae tirohanga ka taea te uta hihiri, te tango rānei",
+      "lbl-options": "Ngā Kōwhiringa...",
+      "lbl-assetPath": "Ara Huinga",
+      "lbl-assetName": "Ingoa Kaweake",
+      "lbl-exportOptions": "Ngā Kōwhiringa Kaweake",
+      "lbl-export": "Kaweake Tautuhinga",
+      "lbl-load": "Utaina ki te tirohanga",
+      "lbl-unload": "Wetetāuta",
+      "lbl-reload": "Tāuta anō"
+    },
+    "audio": {
+      "name": "Puoro & Oro...",
+      "description": "Ka uta hihiri i te ororongo.",
+      "lbl-audiourl": "Url Ororongo",
+      "lbl-controls": "Ngā Mana...",
+      "info-controls": "Takahuri i te kitenga o ngā mana pāpāho.",
+      "lbl-autoplay": "Purei Aunoa",
+      "info-autoplay": "Ki te pono, ka purei te pāpāho ina tāuru tuatahi i te tirohanga.",
+      "lbl-synchronize": "Tukutahi",
+      "info-synchronize": "Ki te pono, ka tukutahitia te pāpāho ki ngā kiritaki tūhono katoa.",
+      "lbl-loop": "Koromeke",
+      "info-loop": "Mēnā e pono ana ka koromeke te pāpāho mō ake tonu atu.",
+      "lbl-audioType": "Momo Ororongo",
+      "lbl-distanceModel": "Tauira Tawhiti",
+      "info-distanceModel": "I whakamahia te hātepe papatono hei tatau i te rārangi ororongo.",
+      "lbl-rolloffFactor": "Āhuatanga Takahuri",
+      "info-rolloffFactor": "Ko tētahi uara taurua e whakamārama ana i te tere o te whakaiti i te rōrahi i te nekehanga atu o te pūtake i te kaiwhakarongo. 0 ki te 1",
+      "info-rfInfinity": "Ko tētahi uara taurua e whakamārama ana i te tere o te whakaiti i te rōrahi i te nekehanga atu o te pūtake i te kaiwhakarongo. 0 ki te Infinity",
+      "lbl-refDistance": "Tawhiti Ref",
+      "info-refDistance": "Ko tētahi uara taurua e tohu ana i te tawhiti tohutoro hei whakaiti i te rōrahi i te nekehanga atu o te pūtake ororongo mai i te kaiwhakarongo.",
+      "lbl-maxDistance": "Tawhiti Mōrahi",
+      "info-maxDistance": "Ko tētahi uara taurua e tohu ana i te tawhiti mōrahi i waenga i te pūtake ororongo me te kaiwhakarongo, ā muri ake nei kāore te rōrahi i whakahekea anōtia.",
+      "lbl-coneInnerAngle": "Koki Inner Inner",
+      "info-coneInnerAngle": "Ko tētahi uara taurua e whakamārama ana i te koki, i roto i ngā waeine, o tētahi kōkā i roto, ā, kāore he whakaiti rōrahi.",
+      "lbl-coneOuterAngle": "Ko te Angle Waho",
+      "info-coneOuterAngle": "Ko tētahi uara taurua e whakamārama ana i te koki, i roto i ngā waeine, o tētahi kōkā i waho ka whakahekea te rōrahi e tētahi uara taimau, e tautuhia ana e te huanga coneOuterGain.",
+      "lbl-coreOuterGain": "Ōrite Atu",
+      "info-coreOuterGain": "Ko tētahi uara taurua e whakamārama ana i te nui o te whakaiti rōrahi i waho o te kone i tautuhia e te huanga coneOuterAngle. Ko tōna uara taunoa ko te 0, ko te tikanga kāore he oro e rangona.",
+      "lbl-volume": "Rōrahi",
+      "lbl-play": "Tākaro",
+      "lbl-pause": "Tatari",
+      "error-url": "Hapa Uta mai i URL"
+    },
+    "boxCollider": {
+      "description": "He pouaka arikore ka tāwhana, ka okioki rānei ngā ahanoa ki runga.\nKaore he kaika, ka taka nga ahanoa i roto i nga papa, a, ka haere i roto i nga pakitara.",
+      "lbl-isTrigger": "Trigger"
+    },
+    "camera": {
+      "name": "Kāmera",
+      "description": "Ngā tautuhinga kāmera.",
+      "lbl-camera-raycast": "Raycasting Kāmera",
+      "lbl-camera-raycast-toggle": "Kua whakahohea",
+      "lbl-camera-raycast-frequency": "Frequency",
+      "lbl-camera-raycast-count": "Tatau Ray",
+      "lbl-camera-raycast-length": "Roa Ray"
+    },
+    "directionalLight": {
+      "name": "Kōmā Aronga",
+      "description": "He mārama e whakamārama ana i te tirohanga katoa, engari e whakaputa ana i te ahunga kotahi.",
+      "lbl-color": "Tae",
+      "lbl-intensity": "Kaha",
+      "lbl-cameraFar": "Kāmera Tawhiti",
+      "lbl-cameraNear": "Kāmera Tata",
+      "lbl-cameraTop": "Kāmera Runga",
+      "lbl-cameraBottom": "Kāmera Raro",
+      "lbl-cameraLeft": "Kāmera Mauī",
+      "lbl-cameraRight": "Kāmera Matau",
+      "lbl-useInCSM": "Whakamahia ki te CSM",
+      "lbl-castShadow": "Maka Kōruru",
+      "lbl-disableForCSM": "Kua monokia nā te mea kua whakahohea te mahere kōruru Cascade.",
+      "lbl-shadowmapResolution": "Taumira Mahere Kōruru",
+      "lbl-shadowBias": "Kōruru Bias",
+      "lbl-shadowRadius": "Kōruru Radius",
+      "lbl-showCameraHelper": "Whakaatu Kaiāwhina Kāmera"
+    },
+    "groundPlane": {
+      "name": "Mahere Whenua",
+      "description": "He waka rererangi whenua papatahi e toro atu ana ki te tawhiti.",
+      "lbl-color": "Tae",
+      "lbl-receiveShadow": "Whiwhi Kōruru",
+      "lbl-generateNavmesh": "Hanga Navmesh"
+    },
+    "link": {
+      "description": "Hono ki tētahi rūma, paetukutuku rānei.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "He mahere geospatial Ahu-3 o te e.g. he taone."
+    },
+    "model": {
+      "description": "He tauira Ahu-3 i tō tirohanga, kua utaina mai i tētahi URL GLTF, kōnae rānei.",
+      "lbl-usingGPUInstancingFlag": "Whakamahia te Instancing GPU",
+      "lbl-modelurl": "Tauira Url",
+      "lbl-envmapUrl": "Mahere Taiao Url",
+      "lbl-textureOverride": "Taupoki Kanokano",
+      "lbl-materialOverride": "Ngā Whakahekenga Rauemi",
+      "error-url": "Hapa Uta mai i URL",
+      "lbl-loopAnimation": "Hākoritanga Koromeke",
+      "lbl-isAvatar": "He Avatar",
+      "lbl-isGPUInstancing": "Kei te whakamahi i te instancing GPU",
+      "lbl-isDynamic": "He Hihiri",
+      "lbl-castShadow": "Maka Kōruru",
+      "lbl-receiveShadow": "Whiwhi Kōruru",
+      "lbl-interactable": "Kāore e taea te tauwhiti",
+      "lbl-matrixAutoUpdate": "Poukapa WhakaotiUpdate",
+      "lbl-name": "Ingoa",
+      "lbl-url": "Tauira Url",
+      "lbl-buy": "Hoko Url",
+      "lbl-learnMore": "Ako i ētahi atu Url",
+      "lbl-htmlContent": "Ihirangi Html",
+      "lbl-interactionText": "Kuputuhi Tauwhitinga",
+      "lbl-interactionType": "Momo Tauwhitinga"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Rawa",
+      "error-materialID": "Kua hapa te kimi Rauemi",
+      "placeholder-materialID": "Tīpako Rauemi",
+      "lbl-patternTarget": "Ōrite Tauira",
+      "lbl-pattern": "Tauira",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Momo Tauwhitinga",
+      "text": "Kuputuhi Tauwhitinga",
+      "distance": "Tawhiti Tauhohenga",
+      "theme": "Tāhuhu Tauwhitinga",
+      "name": "Ingoa Tauwhitinga",
+      "description": "Whakaahuatanga Tauwhitinga",
+      "images": "Ngā Atahanga Tauhohenga",
+      "videos": "Ngā Ataata Tauwhitinga",
+      "urls": "Urls Tauhohenga",
+      "models": "Ngā Tauira Tauhohenga"
+    },
+    "group": {
+      "name": "Rōpū",
+      "description": "He rōpū ahanoa maha ka taea te nuku, te tārua tahi rānei.\nTōia me te whakataka ahanoa ki roto i te Rōpū i te Hierarchy."
+    },
+    "hemisphere": {
+      "name": "Rama Hemisphere",
+      "description": "He mārama e whakamārama ana i te tirohanga mai i runga i te pane hāngai.",
+      "lbl-skyColor": "Tae Rangi",
+      "lbl-groundColor": "Tae Whenua",
+      "lbl-intensity": "Kaha"
+    },
+    "image": {
+      "name": "Atahanga",
+      "description": "Ka uta hihiri i tētahi atahanga.",
+      "lbl-imgURL": "Url Atahanga",
+      "lbl-transparency": "Aratau Pūataata",
+      "lbl-alphaCutoff": "Kua Tapahia te Reta",
+      "lbl-projection": "Kaupapa",
+      "lbl-side": "Taha",
+      "info-controls": "Takahuri i te kitenga o ngā mana pāpāho.",
+      "info-transparency": "Me pēhea te hoatu pūataata:",
+      "info-opaque": "'opaque' = kāore he pūataata",
+      "info-blend": "'blend' = whakamahia te hongere alpha atahanga",
+      "info-mask": "'mask' = Whakamahia tētahi uara motu kua whakapūtātia mō te pūataata kā/weto (mahi anō)",
+      "info-alphaCutoff": "Ka pūataata ngā pika whai uara pāpa i raro iho i tēnei",
+      "error-url": "URL muhu"
+    },
+    "name": {
+      "lbl-name": "Ingoa"
+    },
+    "partileEmitter": {
+      "description": "Particle emitter hei waihanga korakora.",
+      "lbl-particleCount": "Tatau Particle",
+      "lbl-image": "Atahanga",
+      "lbl-ageRandomness": "Tupurangi Pakeke",
+      "lbl-lifetime": "Wā ora",
+      "lbl-lifetimeRandomness": "Matapōkeretanga Wā Ora",
+      "lbl-sizeCurve": "Ānau Rahi",
+      "lbl-startPSize": "Tīmata Rahi Particle",
+      "lbl-endPSize": "Whakamutu Rahi Particle",
+      "lbl-sizeRandomness": "Rahi Tupurangi",
+      "lbl-colorCurve": "Ānau Tae",
+      "lbl-startColor": "Tīmata Tae",
+      "lbl-startOpacity": "Tīmata Opacity",
+      "lbl-middleColor": "Tae Waenganui",
+      "lbl-middleOpacity": "Opacity Waenganui",
+      "lbl-endColor": "Whakamutu Tae",
+      "lbl-endOpacity": "Whakamutua te Opacity",
+      "lbl-velocityCurve": "Ānau Velocity",
+      "lbl-startVelocity": "Tīmata Velocity",
+      "lbl-endVelocity": "Whakamutu Velocity",
+      "lbl-angularVelocity": "Tere Tapawhā",
+      "info-ageRandomness": "Ko te nui o te rerekētanga i waenganui i te wā e kitea ana ngā korakora.",
+      "info-lifetime": "Ko te tau mōrahi o te korakora i mua i te whakaputa anō.",
+      "info-lifetimeRandomness": "Te nui o te rerekētanga i waenganui i nga oranga korakora.",
+      "info-sizeRandomness": "Ko te nui o te rerekētanga i waenga i te korakora e tīmata ana i ngā rahinga.",
+      "error-url": "Hapa Uta mai i URL"
+    },
+    "clouds": {
+      "name": "Kapua",
+      "description": "He rōrahi kapua i runga anō i te sprite.",
+      "lbl-image": "Atahanga Sprite",
+      "lbl-wroldScale": "Tauine Ao",
+      "lbl-dimensions": "Ngā Ahu",
+      "lbl-noiseZoom": "Topa Whakakore",
+      "lbl-noiseOffset": "Wāhikē Turituri",
+      "lbl-spriteScale": "Tauine Sprite",
+      "lbl-fogColor": "Tae Fog",
+      "lbl-fogRange": "Awhe Kohu",
+      "error-url": "Hapa Uta mai i URL"
+    },
+    "ocean": {
+      "name": "Moana",
+      "description": "Mata moana me ngā ngaru me te huka",
+      "lbl-normalMap": "Mahere Pūnoa",
+      "lbl-distortionMap": "Mahere Whakawehe",
+      "lbl-envMap": "Mahere Taiao",
+      "lbl-color": "Tae",
+      "lbl-shallowWaterColor": "Tae Wai Pāpaku",
+      "lbl-shallowToDeepDistance": "Pāpaku ki te Tawhiti Hōhonu",
+      "lbl-opacityFadeDistance": "Tawhiti Muhani Opacity",
+      "lbl-opacityRange": "Awhe Opacity",
+      "lbl-shininess": "Shininess",
+      "lbl-reflectivity": "Whakaatatanga",
+      "lbl-foamColor": "Tae Foam",
+      "lbl-foamSpeed": "Tere Foam",
+      "lbl-foamTiling": "Foam Tiling",
+      "lbl-bigWaveTiling": "Tiling Ngaru Nui",
+      "lbl-bigWaveSpeed": "Terenga Ngaru Nui",
+      "lbl-bigWaveHeight": "Teitei Ngaru Nui",
+      "lbl-waveSpeed": "Terenga Ngaru",
+      "lbl-waveScale": "Tauine Ngaru",
+      "lbl-waveTiling": "Tiling Ngaru",
+      "lbl-waveDistortionSpeed": "Tere Whakakore Ngaru",
+      "lbl-waveDistortionTiling": "E tohu ana te Ngaru i te Tiling",
+      "error-url": "Hapa Uta mai i URL"
+    },
+    "water": {
+      "name": "Wai",
+      "description": "Mata wai iti"
+    },
+    "interior": {
+      "name": "Roto",
+      "description": "He mata whai kanokano kupiki mahere hei hōrite i ngā taiao o roto",
+      "lbl-cubeMap": "Kakano Mahere Kupiki",
+      "lbl-tiling": "Rahi Tiling",
+      "lbl-size": "Rahi mata",
+      "error-url": "Hapa Uta mai i URL"
+    },
+    "pointLight": {
+      "description": "He mārama e whakaputa ana i nga tohutohu katoa mai i te wāhi kotahi.",
+      "lbl-color": "Tae",
+      "lbl-intensity": "Kaha",
+      "lbl-range": "Awhe",
+      "lbl-decay": "Whakangao"
+    },
+    "scene": {
+      "name": "Tirohanga",
+      "description": "Te ahanoa iomatua o te tirohanga.",
+      "lbl-bgcolor": "Tae papamuri",
+      "lbl-fogType": "Momo Fog",
+      "lbl-fogColor": "Tae Fog",
+      "lbl-forNearDistance": "Fog Tata ki te Tawhiti",
+      "lbl-fogFarDistance": "Tawhiti o Te Kohu",
+      "lbl-fogDensity": "Kaha Kohu",
+      "lbl-audioSettings": "Whakamahia te Ororongo Tūnga",
+      "lbl-avatarDistanceModel": "Tauira Tawhiti Avatar",
+      "lbl-avatarRolloffFactor": "Āhuatanga Takahuri Avatar",
+      "lbl-avatarRefDistance": "Tawhiti Avatar Ref",
+      "lbl-avatarMaxDistance": "Tawhiti Avatar",
+      "lbl-mediaVolume": "Rōrahi Pāpāho",
+      "lbl-mediaDistanceModel": "Tauira Tawhiti Pāpāho",
+      "lbl-mediaRolloffFactor": "Āhuatanga Takahuri Pāpāho",
+      "lbl-mediaRefDistance": "Tawhiti Ref Pāpāho",
+      "lbl-mediaMaxDistance": "Tawhiti Mōrahi Pāpāho",
+      "lbl-mediaConeInnerAngle": "Koki Inner Pāpāho",
+      "lbl-mediaConeOuterAngle": "Angle Waho Pāpāho",
+      "lbl-mediaConeOuterGain": "Ka taea e te Pāpāho Cone Outer Gain",
+      "info-avatarDistanceModel": "I whakamahia te hātepe papatono hei tatau i te rārangi ororongo.",
+      "info-avatarRolloffFactor": "Ko tētahi uara taurua e whakamārama ana i te tere o te whakaiti i te rōrahi i te nekehanga atu o te pūtake i te kaiwhakarongo. 0 ki te 1",
+      "info-avatarRolloffFactorInifinity": "Ko tētahi uara taurua e whakamārama ana i te tere o te whakaiti i te rōrahi i te nekehanga atu o te pūtake i te kaiwhakarongo. 0 ki te Infinity",
+      "info-avatarRefDistance": "Ko tētahi uara taurua e tohu ana i te tawhiti tohutoro hei whakaiti i te rōrahi i te nekehanga atu o te pūtake ororongo mai i te kaiwhakarongo.",
+      "info-avatarMaxDistance": "Ko tētahi uara taurua e tohu ana i te tawhiti mōrahi i waenga i te pūtake ororongo me te kaiwhakarongo, ā muri ake nei kāore te rōrahi i whakahekea anōtia.",
+      "info-mediaDistanceModel": "I whakamahia te hātepe papatono hei tatau i te rārangi ororongo.",
+      "info-mediaRolloffFactor": "Ko tētahi uara taurua e whakamārama ana i te tere o te whakaiti i te rōrahi i te nekehanga atu o te pūtake i te kaiwhakarongo. 0 ki te 1",
+      "info-mediaRolloffFactorInfinity": "Ko tētahi uara taurua e whakamārama ana i te tere o te whakaiti i te rōrahi i te nekehanga atu o te pūtake i te kaiwhakarongo. 0 ki te Infinity",
+      "info-mediaRefDistance": "Ko tētahi uara taurua e tohu ana i te tawhiti tohutoro hei whakaiti i te rōrahi i te nekehanga atu o te pūtake ororongo mai i te kaiwhakarongo.",
+      "info-mediaMaxDistance": "Ko tētahi uara taurua e tohu ana i te tawhiti mōrahi i waenga i te pūtake ororongo me te kaiwhakarongo, ā muri ake nei kāore te rōrahi i whakahekea anōtia.",
+      "info-mediaConeInnerAngle": "Ko tētahi uara taurua e whakamārama ana i te koki, i roto i ngā waeine, o tētahi kōkā i roto, ā, kāore he whakaiti rōrahi.",
+      "info-mediaConeOuterAngle": "Ko tētahi uara taurua e whakamārama ana i te koki, i roto i ngā waeine, o tētahi kōkā i waho ka whakahekea te rōrahi e tētahi uara taimau, e tautuhia ana e te huanga coneOuterGain.",
+      "info-mediaConeOuterGain": "Ko tētahi uara taurua e whakamārama ana i te nui o te whakaiti rōrahi i waho o te kone i tautuhia e te huanga coneOuterAngle. Ko tōna uara taunoa ko te 0, ko te tikanga kāore he oro e rangona.",
+      "lbl-simpleMaterials": "Whakamahia ngā Rauemi Ngāwari",
+      "lbl-lods": "LODs",
+      "info-lods": "Ka tautuhi i ngā tawhiti ki te huringa taipitopito o ngā taumata o te taipitopito.",
+      "info-simpleMaterials": "Tahuri ai i ngā rauemi utu nui katoa hei māmā ake i ngā mea hei tango i te utanga i te tāhuahua tirohanga.",
+      "lbl-rendererSettings": "Ngā Tautuhinga Renderer Override",
+      "lbl-csm": "Ngā Mahere Kōruru Kaho",
+      "info-csm": "Ka whakahohe i ngā mahere kōruru hūkere.",
+      "lbl-toneMapping": "Tone Mapping",
+      "info-toneMapping": "Ka whakahohe i te mahere oro i runga i te pūhuahua tirohanga. Kāore he pānga ina whakahohea tētahi tukanga tuku.",
+      "lbl-toneMappingExposure": "Tone Mapping Exposure",
+      "info-toneMappingExposure": "He whakarite i te mārakerake mahere oro i runga i te pūhuahua tirohanga. Kāore he pānga ina whakahohea tētahi tukanga tuku.",
+      "lbl-shadowMapType": "Momo Mahere Kōruru",
+      "info-shadowMapType": "Momo mahere kōruru",
+      "error-url": "Hapa Uta mai i URL"
+    },
+    "sceneCamera": {
+      "name": "Kāmera Arokite Tirohanga",
+      "description": "I whakamahia e te kāmera hei hanga i te karakōnui mō tō tirohanga me te tūnga tīmata mō te kāmera arokite.",
+      "lbl-setFromViewPort": "Tautuhi Mai i Te Tiroport"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Wā o te Rā",
+      "lbl-color": "Tae",
+      "lbl-latitude": "Pae pae",
+      "lbl-luminance": "Luminance",
+      "lbl-scattering": "Rahi Marara",
+      "lbl-scatteringDistance": "Tawhiti Marara",
+      "lbl-horizonStart": "Tīmata Horizon",
+      "lbl-horizonEnd": "Mutunga Horizon",
+      "lbl-texture": "Kanokano",
+      "lbl-skyType": "Momo Rangi",
+      "error-url": "Hapa Uta mai i URL"
+    },
+    "spawnPoint": {
+      "name": "Ira Mokowā",
+      "description": "He wāhi e puta ai te tangata ina tomo rātau ki to tirohanga.\nKo te ata i te Tirohanga e tohu ana i te rahi tūturu o tētahi avatar."
+    },
+    "spotLight": {
+      "description": "He mārama e whakaputa ana i te ahunga, e whakamārama ana i ngā ahanoa i roto i te kōkā.",
+      "lbl-color": "Tae",
+      "lbl-intensity": "Kaha",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "Angle",
+      "lbl-range": "Awhe",
+      "lbl-decay": "Whakangao"
+    },
+    "transform": {
+      "title": "Panoni",
+      "lbl-postition": "Tūnga",
+      "lbl-rotation": "Takahuringa",
+      "lbl-scale": "Tauine"
+    },
+    "triggereVolume": {
+      "description": "Ka tautuhi i tētahi āhuatanga ki te ahanoa ūnga i te tāuru me te waiho.",
+      "lbl-target": "Ahanoa",
+      "lbl-onenter": "Kei te Tāuru",
+      "lbl-onexit": "Kei te Puta atu",
+      "lbl-showHelper": "Whakaatu Mesh Kaiāwhina",
+      "ph-errorNode": "Kua hapa te kōpuku ngaro.",
+      "ph-selectNode": "Tīpako kōpuku..."
+    },
+    "video": {
+      "name": "Tautuhinga Ataata...",
+      "description": "Ka uta hihiri i tētahi ataata.",
+      "lbl-video": "Tautuhinga Ataata...",
+      "lbl-projection": "Kaupapa",
+      "lbl-islivestream": "Roma Ora",
+      "lbl-interactable": "Kāore e taea te tauwhiti",
+      "lbl-id": "Id Huānga",
+      "lbl-play": "Tākaro",
+      "lbl-pause": "Tatari",
+      "error-url": "Hapa Uta mai i URL"
+    },
+    "volumetric": {
+      "name": "Rōrahi",
+      "description": "Ka uta hihiri i tētahi ataata rōrahi.",
+      "uvolPaths": "Ngā Ara UVOL",
+      "playmode": "Aratau Whakapāpāho",
+      "playtitle": "Tākaro",
+      "pausetitle": "Tatari"
+    },
+    "spline": {
+      "description": "Waihanga hihiri me te whakarite ake i ngā ānau.",
+      "lbl-addNode": "Tāpiri kōpuku ki te ānau."
+    },
+    "systemnode": {
+      "description": "Āpiti hōtuhi.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "Ira Whakatō",
+      "lbl-enableClient": "Kiritaki",
+      "lbl-enableServer": "Tūmau",
+      "lbl-args": "Args",
+      "error-url": "Hapa Uta Hōtuhi Mai i URL"
+    },
+    "portal": {
+      "lbl-portal": "Tomokanga Hono",
+      "lbl-redirect": "Whakamahia te Angakē Whārangi",
+      "description": "He Tauranga ki ngā pūpāpāho tauranga ki te tauwāhi kua whakapūtātia",
+      "lbl-locationName": "Tauwāhi",
+      "lbl-modelUrl": "Tauira URL",
+      "lbl-displayText": "Whakaatu Kuputuhi",
+      "lbl-cubemapBake": "Kupiki bake",
+      "lbl-spawnPosition": "Tūnga Mokowā",
+      "lbl-spawnRotation": "Takahuringa Spawn",
+      "lbl-triggerPosition": "Tūnga Trigger",
+      "lbl-triggerRotation": "Takahuri Trigger",
+      "lbl-triggerScale": "Tauine Trigger"
+    },
+    "postprocessing": {
+      "name": "Tukatuka Poutāpeta",
+      "description": "Mō te hoatu pānga Tukanga Poutāpeta ki a koe."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Kaupapa Hōu",
+      "backLink": "Hoki ki ngā kaupapa",
+      "featured": "Kua Āhuahiratia",
+      "all": "Katoa",
+      "newProject": "Kaupapa Putua Hōu",
+      "ph-search": "Rapua ngā tirohanga..."
+    },
+    "grid": {
+      "loading": "Kei te tāuta......"
+    },
+    "page": {
+      "header": "Nau mai",
+      "headerMsg": "Mehemea he mea hou koe i konei e tūtohu ana mātau kia puta i te whakaakoranga. Ki te kore, peke ki roto me te waihanga i tētahi kaupapa mai i te raruraru, mai i tētahi rānei o ā mātou tātauira.",
+      "lbl-startTutorial": "Tīmata Akoranga",
+      "projects": "Ngā Kaupapa",
+      "lbl-newProject": "Kaupapa Hōu"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Kei te tāuta......",
+      "placeObject": "Whakanoho Ahanoa",
+      "placeObjectAtOrigin": "Purua te Ahanoa ki Origin",
+      "copyURL": "Tārua URL",
+      "openInNewTab": "Whakatuwhera URL i te Ripa Hōu",
+      "deleteAsset": "Mukua te Huinga"
+    },
+    "filebrowser": {
+      "addNewFolder": "Tāpiri Kōpaki Hōu",
+      "cutAsset": "Tapahia",
+      "copyAsset": "Tārua",
+      "pasteAsset": "Whakapiri",
+      "renameAsset": "Whakaingoa anō",
+      "viewAssetProperties": "Tirohia Ngā Āhuatanga"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Whakaingoa anō",
+    "lbl-duplicate": "Tārua",
+    "lbl-group": "Rōpū",
+    "lbl-delete": "Whakakore",
+    "lbl-expandAll": "Whakarohaina te katoa",
+    "lbl-collapseAll": "Tiango katoa",
+    "isseus": "Ngā Take:"
+  },
+  "dnd": {
+    "nodes": "{{count}} Ngā Kōpuku kua Tīpakohia",
+    "models": "{{count}} Tīpakohia ngā Tauira",
+    "images": "{{count}} Atahanga kua Tīpakohia",
+    "videos": "{{count}} Ngā Ataata kua Tīpakohia",
+    "audio": "{{count}} Ngā Pūtake Ororongo kua Tīpakohia"
+  },
+  "dialog": {
+    "title": "Kaiwhakatika",
+    "lbl-confirm": "Ka pai",
+    "lbl-cancel": "Whakakore",
+    "exportProject": {
+      "title": "Kaweake Kaupapa",
+      "lbl-confirm": "Kaweake Kaupapa",
+      "lbl-combineMesh": "Paheko Meshes",
+      "lbl-removeUnused": "Tango Ahanoa Kāore i whakamahia"
+    },
+    "performance": {
+      "title": "Taki Mahinga",
+      "lbl-confirm": "Whakaputa Scene",
+      "learnMore": "Ako atu anō.",
+      "lbl-polycount": "Tatau Tapamaha",
+      "lbl-material": "Ngā Rauemi",
+      "lbl-texture": "Ngā Kanokano",
+      "lbl-lights": "Ngā Kōmā",
+      "lbl-fileSize": "Rahi o te kōnae",
+      "info-polycount": "E tūtohu ana mātou kia kaua tō tirohanga e whakamahi i ngā tapatoru neke atu i te 50,000 mō ngā pūrere pūkoro.",
+      "info-material": "E tūtohu ana mātou kia kaua e nui ake i te 25 ngā rauemi ahurei i tō tirohanga hei whakaiti i ngā waea tātuhi ki ngā pūrere pūkoro.",
+      "info-texture": "E tūtohu ana mātou kia kaua ō kanokano e whakamahi neke atu i te 256MB o te RAM ataata mō ngā pūrere pūkoro. E tūtohu ana hoki mātou ki te whakamahi i ngā kanokano nui ake i te 2048 x 2048.",
+      "info-lights": "Ahakoa kāore e whakahohea ngā rama hihiri ki ngā pūrere pūkoro, e tūtohu ana mātou mā te whakamahi i ngā rama neke atu i te 3 i tō tirohanga (tae atu ki ngā rama āpiti me ngā rama hemisphere) kia whakahaere ai tō tirohanga i ngā RW mutunga hahaka.",
+      "info-fileSize": "E tūtohu ana mātou i tētahi rahi kōnae whakamutunga kāore i neke atu i te 16MB mō ngā tūhononga hōkaiipurangi hahaka. Mā te whakaiti i te rahi kōnae e whakaiti i te wā hei tikiake i tō tirohanga.",
+      "txt-polycount": "Tapatoru {{count}}",
+      "txt-material": "Ngā Rauemi {{count}}",
+      "txt-ram": "~ RAM Ataata{{count}}",
+      "txt-texture": "{{count}} Ngā Kanokano Nui",
+      "txt-lights": "Ngā Kōmā {{count}}"
+    },
+    "progress": {
+      "title": "Kei te tāuta......",
+      "msg": "Kei te tāuta......",
+      "lbl-cancel": "Whakakore"
+    },
+    "publish": {
+      "title": "Whakaputa Scene",
+      "lbl-confirm": "Tiaki ka Whakaputa",
+      "lbl-name": "Ingoa Scene",
+      "info-name": "Me noho te ingoa ki waenga i te 4 me te 64 ngā pūāhua, ā, kāore e taea te whai tohutohu"
+    },
+    "published": {
+      "title": "Kua Whakaputaina te tirohanga",
+      "header": "Kua whakaputaina tō tirohanga.",
+      "lbl-view": "Tirohia Tō Tirohanga"
+    },
+    "saveNewProject": {
+      "title": "Manaakitanga",
+      "lbl-name": "Ingoa Kaupapa",
+      "info-name": "Me noho te ingoa ki waenga i te 4 me te 64 ngā pūāhua, ā, kāore e taea te whai tohutohu",
+      "lbl-confirm": "Tiaki Kaupapa"
+    },
+    "support": {
+      "title": "Manaakitanga",
+      "header": "Me pūrongo he raru?",
+      "msg": "Ka taea e koe te kōnae i tētahi <1>Take GitHub,</1> ī-mēra rānei hei tautoko i <3>{{mail}}</3>",
+      "discord": "Ka taea hoki e koe te kite i a mātou i runga i <1>te Kōpae</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Ngā Atahanga Bing",
+      "search": "Rapu mā Bing"
+    },
+    "bingVideo": {
+      "name": "Ngā Ataata Bing",
+      "search": "Rapu mā Bing"
+    },
+    "element": {
+      "name": "Ngā Huānga"
+    },
+    "myAssets": {
+      "name": "Aku Tautuhinga"
+    },
+    "googlePoly": {
+      "name": "Te Whare Wānanga o Google",
+      "search": "Rapua e Google"
+    },
+    "tenor": {
+      "name": "Tekauor GIFs",
+      "search": "Rapu ā-Pūnuku",
+      "ph-search": "Rapu GIFs..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Rapua e Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Tukuatu Tautuhinga"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Rapua ngā atahanga..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Rapua ngā ataata..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Rapua ngā rawa..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Rapua ngā tauira..."
+    },
+    "useUpload": {
+      "multipleFileError": "Kāore te tāuru e whakaae ki ngā kōnae maha.",
+      "mineTypeError": "\"{{name}}\" kāore i te ōrite ki ngā momo mime, toronga rānei e whai ake nei: {{types}}",
+      "progressTitle": "Kei te tukuatu Kōnae",
+      "progressMsg": "Kei te tukuatu i ngā {{uploaded}} kōnae o {{total}}: {{percentage}}%",
+      "uploadError": "Hapa Tukuatu",
+      "uploadErrorMsg": "I hapa te tukuatu kōnae: {{message}}",
+      "uploadErrorDefaultMsg": "He hapa tē mōhiotia"
+    }
+  },
+  "openLink": {
+    "description": "Pāwhiritia koa te Tūwhera hei whakatere ki te hono.",
+    "lbl-open": "Huaki"
+  },
+  "interactableModel": {
+    "lbl-buy": "Hoko",
+    "lbl-learnMore": "Ako atu anō."
+  },
+  "corsProxyButton": {
+    "tooltip": "Whakamahia te Tūmau Takawaenga Cors"
+  }
+}

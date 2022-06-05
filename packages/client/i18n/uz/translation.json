@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Sahifa topilmadi"
+  },
+  "503": {
+    "msg": "503 - Xizmat mavjud emas"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Sizga bu joydan taqiq qoʻyildi",
+    "locationName": {
+      "pageTitle": "Bosh sahifa"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Loyihalar",
+      "header": "Iltimos, kiring",
+      "welcomeMsg": "Xush kelibsiz",
+      "locationHeader": "Manzillar",
+      "projectHeader": "Loyihalar",
+      "sceneHeader": "Sahnalar",
+      "description": "Agar siz bu erda yangi bo'lsangiz, biz darslikdan o'tishni maslahat beramiz. Aks holda, to'g'ri ichkariga o'tish va noldan yoki shablonlarimizdan birini loyihani yaratish.",
+      "lbl-startTutorial": "Qo'llanmani boshlash",
+      "lbl-newProject": "Yangi loyiha",
+      "lbl-createProject": "Yaratish",
+      "lbl-newScene": "Yangi sahna",
+      "lbl-searchProject": "Mavjud loyihalarni qidirish...",
+      "back": "Orqaga",
+      "contextMenu": "Loyihani olib tashlash",
+      "installed": "Oʻrnatilgan loyihalar",
+      "official": "Rasmiy loyihalar",
+      "community": "Jamiyat loyihalari",
+      "install": "O'rnatish",
+      "uninstall": "Oʻrnatish",
+      "rename": "Nomini oʻzgartirish",
+      "createProject": "Loyihani yaratish",
+      "installProject": "Loyihani oʻrnatish",
+      "processing": "Qayta ishlash",
+      "projectName": "Loyiha nomi",
+      "projectURL": "Loyiha manzili"
+    }
+  },
+  "error": {
+    "goHomeLink": "Uyga boring",
+    "withStatusCode": "Serverda {{code}} xato roʻy berdi",
+    "withoutStatusCode": "Serverda xato roʻy berdi"
+  },
+  "no-projects": {
+    "msg": "Xato: Loyihalar o'rnatilmagan - iltimos sayt adminiga murojaat qiling"
+  },
+  "dev": {
+    "pageTitle": "Bosh sahifa"
+  },
+  "login": {
+    "pageTitle": "Kirish"
+  },
+  "workerTest": {
+    "pageTitle": "Ishchi test"
+  },
+  "index": {
+    "by": "BOʻYICHA",
+    "xr": "XR",
+    "foundation": "Asos",
+    "description": "Har bir kishi zavqlanishi uchun real vaqt rejimida 3D ijtimoiy dasturlar."
+  },
+  "xrengineContact": {
+    "header": "Aloqaga chiqing!",
+    "description": "Biz sizga virtual tadbirlaringiz, raqamli chakana savdo, o'yin-kulgi va boshqa ehtiyojlar bilan yordam berishni xohlaymiz.",
+    "lbl-name": "Nom",
+    "lbl-email": "E-pochta",
+    "lbl-company": "Kompaniya",
+    "lbl-project": "Loyihangizni tasvirlab bering",
+    "lbl-send": "Joʻnatish",
+    "lbl-ok": "Xo'p",
+    "lbl-success": "Xabar yuborildi, Tez orada sizga qaytamiz.",
+    "lbl-failure": "Xato roʻy berdi, Plese yana urinib koʻring",
+    "err-username": "Iltimos ismingizni kiriting.",
+    "err-email": "Elektron pochta talab qilinadi.",
+    "err-msg": "Loyihangiz haqida qisqacha ma'lumot bering."
+  }
+}

@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Correo electrónico de confirmación",
+      "resendEmail": "Por favor, comprobe o seu correo electrónico para comprobar a súa conta. Se non obtivese un correo electrónico, por favor prema {{here}} para reenviar o correo electrónico de verificación.",
+      "haveAnAccount": "Tes unha conta?"
+    },
+    "forgotPassword": {
+      "header": "Esqueceu o contrasinal",
+      "enterEmail": "Por favor, introduza o seu enderezo de correo electrónico rexistrado e enviarémoslle un enlace de restablecemento de contrasinal.",
+      "lbl-email": "Enderezo de correo electrónico",
+      "lbl-submit": "Enviar link",
+      "emailSent": "Reset password email foi enviado. Por favor, comprobe o seu correo electrónico."
+    },
+    "login": {
+      "email": "Correo | SMS",
+      "username": "Nome de usuario + contrasinal",
+      "social": "Social"
+    },
+    "magiklink": {
+      "header": "Login Link",
+      "descriptionEmail": "Por favor, introduza o seu enderezo de correo electrónico e enviarémoslle un enlace de login por correo electrónico.",
+      "descriptionSMS": "Por favor, introduza o seu número de teléfono e enviarémoslle un enlace de login a través de SMS.",
+      "descriptionEmailSMS": "Por favor, introduza o seu enderezo de correo electrónico ou número de teléfono (10 díxitos, só nós) e enviarémoslle unha ligazón de inicio de sesión por correo electrónico ou SMS.",
+      "descriptionSMSUS": "Por favor, introduza o seu número de teléfono (10 díxitos, só nós) e enviarémoslle unha ligazón de inicio de sesión a través de SMS.",
+      "lbl-email": "Enderezo de correo electrónico",
+      "lbl-emailPhone": "Correo electrónico ou número de teléfono",
+      "lbl-phone": "Número de teléfono",
+      "agree": "Estou de acordo co ",
+      "terms": "Termos & condicións",
+      "lbl-submit": "Enviar login Link",
+      "email-sent-msg": "Login Magic Link foi enviado. Por favor, comprobe o seu correo electrónico.",
+      "success-msg": "Login Magic Link foi enviado. Por favor, comprobe o seu correo electrónico ou SMS.",
+      "sms-sent-msg": "Login Magic Link foi enviado. Por favor, comprobe o seu SMS."
+    },
+    "passwordLogin": {
+      "header": "Sign In",
+      "lbl-email": "Enderezo de correo electrónico",
+      "lbl-password": "Password",
+      "lbl-rememberMe": "Lémbrate de min",
+      "lbl-signin": "Sign In",
+      "forgotPassword": "Esqueceu o contrasinal?",
+      "signup": "Non tes unha conta? Sign Up",
+      "lbl-login": "Log In",
+      "ph-password": "Password",
+      "ph-email": "Correo electrónico"
+    },
+    "social": {
+      "gitHub": "Login con GitHub",
+      "google": "Login con Google",
+      "facebook": "Login con Facebook",
+      "linkedin": "Login con Linkedin",
+      "twitter": "Login con Twitter"
+    },
+    "register": {
+      "header": "Sign Up",
+      "login": "Log In",
+      "lbl-signup": "Sign Up",
+      "lbl-password": "Password",
+      "lbl-email": "Enderezo de correo electrónico",
+      "passwordNotMatch": "Os contrasinais non coinciden",
+      "ph-password": "Password",
+      "ph-confirmPassword": "Contrasinal confirmado",
+      "ph-email": "Correo electrónico"
+    },
+    "resetPassword": {
+      "header": "Reset Password",
+      "description": "Por favor, introduza o seu contrasinal para o seu enderezo de correo electrónico",
+      "lbl-submit": "Reset Password",
+      "lbl-password": "Password",
+      "lbl-confirmPassword": "Contrasinal confirmado",
+      "passwordNotMatch": "Os contrasinais non coinciden",
+      "nowLoginYourAccount": "Xa podes acceder á túa conta",
+      "yourPasswordResetSuccess": "O seu contrasinal foi restablecido con éxito!"
+    },
+    "verifyEmail": {
+      "header": "Verificar o correo electrónico",
+      "processing": "Por favor, agarde un momento en procesar ..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Ubicacións",
+      "loading": "Loading",
+      "col-name": "Nome",
+      "col-scene": "Escena",
+      "col-maxuser": "Usuarios Max",
+      "lbl-search": "Busca de localizacións",
+      "lbl-new": "Novas"
+    },
+    "newLocation": {
+      "title": "Ubicación",
+      "success": "Salvado con éxito.",
+      "failure": "Algo saíu mal.",
+      "removeSuccess": "Localización eliminada con éxito.",
+      "nameInUse": "O nome está en uso.",
+      "nameRequire": "O nome é necesario.",
+      "validNumber": "Só se permiten números (0-9).",
+      "lbl-name": "Nome",
+      "lbl-maxuser": "Usuarios Max",
+      "lbl-scene": "Escena",
+      "lbl-type": "Tipo",
+      "lbl-ve": "Vídeo habilitado",
+      "lbl-gme": "Medios de comunicación habilitados",
+      "lbl-update": "Actualización",
+      "lbl-create": "Creación",
+      "tooltipCanNotBeDeleted": "O lobby non se pode eliminar",
+      "confirmation": "¿Estás seguro?",
+      "lbl-yes": "Si",
+      "lbl-no": "Non"
+    },
+    "share": {
+      "lbl-share": "Compartir",
+      "ph-phoneEmail": "Invitación por correo electrónico ou número de teléfono",
+      "lbl-phoneEmail": "Enviar ao correo electrónico ou número de teléfono",
+      "lbl-copy": "Copia",
+      "lbl-send-invite": "Enviar invitación",
+      "title": "Comparte a túa URL co teu equipo",
+      "linkCopied": "Ligazón copiada ao clipboard."
+    },
+    "setting": {
+      "audio": "Audio",
+      "lbl-volume": "Volume",
+      "lbl-microphone": "Micrófono",
+      "graphics": "Gráficos",
+      "controls": "Controis",
+      "lbl-control-type": "Controller Type",
+      "lbl-control-scheme": "Esquema de control",
+      "lbl-resolution": "Resolución",
+      "lbl-shadow": "Sombras",
+      "lbl-pp": "Post procesamento",
+      "lbl-pbr": "PBR completo",
+      "lbl-automatic": "Automática",
+      "xrusersetting": "Configuración de usuarios XR",
+      "rotation": "Rotación",
+      "rotation-smooth-speed": "Velocidade de rotación suave",
+      "rotation-angle": "Ángulo de rotación",
+      "moving": "Móvete",
+      "user-avatar": "Avatar Establecemento",
+      "invert-rotation": "Inverter rotación e mover paus",
+      "show-avatar": "Mostrar Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Perfil",
+      "lbl-settings": "Establecementos",
+      "lbl-username": "Nome de usuario",
+      "update-msg": "Nome de usuario actualizado",
+      "inviteCode": "Código de invitación",
+      "youAreAn": "Vostede é un",
+      "youAreA": "Vostede é a",
+      "showUserId": "Mostrar o ID de usuario",
+      "hideUserId": "Ocultar o ID de usuario",
+      "showApiKey": "Mostrar API Key",
+      "hideApiKey": "Ocultar a clave da API",
+      "apiKey": "API Key",
+      "logout": "Log Out",
+      "connectPhone": "Conecta o teu número de teléfono",
+      "connectEmail": "Conecta o teu correo electrónico",
+      "connectPhoneEmail": "Conecte o seu correo electrónico ou número de teléfono",
+      "or": "Ou",
+      "lbl-wallet": "Login con carteira",
+      "ph-email": "Correo electrónico",
+      "ph-phone": "Número de teléfono",
+      "ph-phoneEmail": "Teléfono / Correo electrónico",
+      "phoneEmailError": "Teléfono inválido # ou enderezo de correo electrónico",
+      "phoneError": "Teléfono inválido #",
+      "emailError": "Enderezo de correo electrónico inválido",
+      "loginWithReadyPlayerMe": "Seguinte artigoCine: READY PLAYER ME",
+      "connectSocial": "Conectar con contas sociais",
+      "createOne": "Se non tes unha conta, crearás unha nova para ti.",
+      "connections": {
+        "title": "Conexións",
+        "ipError": "Non se pode eliminar o provedor de identidade activo",
+        "disconnect": "Desconectar",
+        "connect": "Connect"
+      },
+      "profileDropdown": {
+        "avatar": "Icona de avatar",
+        "profile": "Perfil",
+        "adminConsole": "Admin Console",
+        "logout": "Logout"
+      },
+      "userIcon": {
+        "lbl-name": "O teu nome",
+        "lbl-update": "Actualización",
+        "userId": "Id de usuario",
+        "ph-uploadImg": "Subir imaxe do produto",
+        "lbl-selectAcvatar": "Seleccione Avatar",
+        "lbl-submit": "Subscríbe"
+      },
+      "userSettings": {
+        "volume": "Volume",
+        "microphone": "Micrófono",
+        "resolution": "Resolución",
+        "high": "Alta",
+        "low": "Baixo",
+        "spatialAudio": "Uso de audio espacial",
+        "enterMuted": "Entrar na sala mutada"
+      }
+    },
+    "oauth": {
+      "authenticating": "Autenticación...",
+      "authFailed": "{{service}} autenticación fallou."
+    },
+    "magikLink": {
+      "wait": "Por favor, agarde un momento en procesar ..."
+    },
+    "dashboard": {
+      "header": "Dashboard",
+      "dashboard": "Dashboard",
+      "users": "Usuarios",
+      "feeds": "Feeds",
+      "instance": "Instance",
+      "locations": "Ubicacións",
+      "invites": "Invitacións",
+      "sessions": "Sesións",
+      "groups": "Grupos",
+      "parties": "Partidos",
+      "chats": "Chats",
+      "content": "Paquetes de contido",
+      "projects": "Proxectos",
+      "scenes": "Escenas",
+      "avatars": "Avatares",
+      "benchmarking": "Benchmarking",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Autenticación...",
+    "authFailed": "{{service}} autenticación fallou."
+  },
+  "magikLink": {
+    "wait": "Por favor, agarde un momento en procesar ..."
+  },
+  "dashboard": {
+    "header": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Usuarios",
+    "feeds": "Feeds",
+    "instance": "Instance",
+    "locations": "Ubicacións",
+    "routes": "Rutas",
+    "projects": "Proxectos",
+    "invites": "Invitacións",
+    "sessions": "Sesións",
+    "groups": "Grupos",
+    "parties": "Partidos",
+    "chats": "Chats",
+    "content": "Paquetes de contido",
+    "scenes": "Escenas",
+    "avatars": "Avatares",
+    "benchmarking": "Benchmarking",
+    "bots": "Bots",
+    "setting": "Establecementos"
+  },
+  "avatar": {
+    "title": "Subir Avatar",
+    "lbl-browse": "Browse",
+    "lbl-thumbnail": "Thumbnail",
+    "lbl-upload": "Subida",
+    "selectAvatar": "Seleccione Avatar",
+    "selectThumbnail": "Seleccionar Thumbnail...",
+    "rotate": "Rotate",
+    "pan": "Pan",
+    "noBone": "Obejct non contén ósos nin peles.",
+    "outOfBound": "O obxecto está fóra de límite.",
+    "emptyObj": "O obxecto está baleiro.",
+    "maxTriangleError": "O obxecto contén máis que {{allowedTriangles}} caras.",
+    "selectValidFile": "Seleccione o ficheiro de avatar 3D válido.",
+    "selectValidThumbnail": "Ficheiro de miniatura válido.",
+    "fileOversized": "O tamaño do ficheiro debe estar entre {{minSize}} MB e {{maxSize}} MB.",
+    "confirmation": "¿Estás seguro?",
+    "canNotBeRemoved": "O avatar activo non se pode eliminar.",
+    "remove": "Eliminar avatar",
+    "uploadFiles": "Subir arquivos",
+    "useUrlInstead": "Uso de URL",
+    "avatar": "Avatar",
+    "cancel": "Cancelación",
+    "createAvatar": "Creando Avatar",
+    "delete": "Eliminar",
+    "view": "Ver",
+    "uploadAvatarInfo": "Actualización de avatar",
+    "name": "Nome",
+    "enterName": "Introducir o nome",
+    "avatarInformation": "Información avatar",
+    "description": "Descrición",
+    "key": "Chaves",
+    "none": "Ningunha",
+    "submit": "Subscríbe",
+    "edit": "Edit",
+    "avatarUrl": "Avatar URL",
+    "upload-success-msg": "Avatar subiu con éxito.",
+    "remove-success-msg": "Avatar subiu con éxito.",
+    "warning-msg": "O recurso de Avatar está baleiro, ten sincronizado avatares para o seu almacenamento de arquivos estáticos?"
+  },
+  "personMenu": {
+    "inviteToParty": "Invitación á festa",
+    "addAsFriend": "Añadir como amigo",
+    "mute": "Mudo",
+    "block": "Bloque"
+  },
+  "person": {
+    "you": "Ti",
+    "yourScreen": "A túa pantalla",
+    "muteForEveryone": "Mudo para todos",
+    "unmuteForEveryone": "Desprazamento para todos",
+    "muteMe": "Mudo",
+    "unmuteMe": "Desmeiii-me",
+    "muteThisPerson": "Mudo esta persoa",
+    "unmuteThisPerson": "Desmutar a esta persoa",
+    "openPictureInPicture": "Imaxe aberta en imaxe"
+  }
+}

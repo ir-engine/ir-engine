@@ -1,0 +1,718 @@
+{
+  "loading": "Բեռնման նախագիծ",
+  "loadingMsg": "Բեռնաթափման նախագիծ...",
+  "loadingError": "Սխալների բեռնման նախագիծ",
+  "loadingErrorMsg": "Նախագիծը բեռնելիս սխալ է եղել:",
+  "selectSceneMsg": "Ընտրեք Տեսարանը սկսել խաղալ շարժիչի հետ",
+  "error": "Սխալ",
+  "errorMsg": "Անհայտ սխալ է եղել.",
+  "generateScreenshot": "Գեներացնող project Screenshot",
+  "generateScreenshotMsg": "Գեներացնող պրոյեկտ սքրինշոթ...",
+  "newScene": "Ստեղծեք տեսարան",
+  "saving": "Խնայողական նախագիծ",
+  "savingMsg": "Խնայողական նախագիծ...",
+  "savingError": "Սխալների պահուստային նախագիծ",
+  "savingErrorMsg": "Սխալ է եղել նախագիծը խնայելիս:",
+  "savingSceneErrorMsg": "Տեսարանը ճիշտ չի բեռնված. Փորձեք վերբեռնել տեսարանը:",
+  "duplicating": "Կրկնօրինակման նախագիծ",
+  "duplicatingMsg": "Դուպլիկացնող նախագիծ...",
+  "exporting": "Արտադրական նախագիծ",
+  "exportingMsg": "Արտադրական նախագիծ...",
+  "exportingError": "Սխալների արտանետման նախագիծ",
+  "exportingErrorMsg": "Նախագիծն արտահանելիս սխալ է եղել:",
+  "importLegacy": "Ներմուծման Legacy World",
+  "importLegacyMsg": "Զգուշացում! Սա կգրի ձեր գոյություն ունեցող տեսարանը! Համոզվա ՞ծ եք, որ ցանկանում եք շարունակել ձեր ծառայությունը ։",
+  "publishingError": "Սխալների հրատարակման նախագիծ",
+  "publishingErrorMsg": "Անհայտ սխալ է եղել.",
+  "publishingScene": "Հրատարակչական տեսարան",
+  "publishingSceneMsg": "Հրատարակչական տեսարան...",
+  "uploadingThumbnailMsg": "Բութ մատների վերբեռնում...",
+  "uploadingSceneMsg": "Վերբեռնման տեսարան: {{percentage}}%",
+  "envMapError": "Սխալի բեռնումը cubemap պատկերներ {{files}}",
+  "lbl-return": "Վերադարձ",
+  "menubar": {
+    "newScene": "Նոր տեսարան",
+    "saveScene": "Փրկել տեսարանը",
+    "saveAs": "Save As",
+    "importAsset": "Ներմուծման ակտիվ",
+    "exportGLB": "Արտահանումը որպես բինար glTF (.glb) ...",
+    "importScene": "Ներմուծման տեսարան",
+    "exportScene": "Արտադրական տեսարան",
+    "quit": "Կեցցեք"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Ֆայլի համար չապահովված ֆայլի տեսակը{{name}}. Ֆայլը պետք է լինի պատկեր, վիդեո կամ glb մոդել:",
+    "addObject": "addObject: Նախքան օբյեկտը չգտնվելը",
+    "removeObject": "removeObject: հանգույցը չգտնվեց: Պատճառն այն է, որ հեռացվում է հանգույցը, որն այլեւս չի գտնվում տեսարանում։",
+    "noParent": "{{node}} «{{name}}» ծնող չունի ։ Reparent-ը աշխատում է միայն այն օբյեկտների վրա, որոնք ներկայումս գտնվում են տեսարանում:",
+    "undefinedParent": "editor.reparent: newParent is undefined",
+    "notAuthenticated": "Չի վավերացվել",
+    "fetchingProjectError": "Սխալների բերումով նախագծեր. {{error}}",
+    "fetchingRouteError": "Սխալի բերում երթուղիներ. {{error}}",
+    "unknownError": "Անհայտ սխալ",
+    "resolveURL": "Սխալ լուծել url »{{url}}.",
+    "mediaSearchAborted": "Լրատվամիջոցների որոնումները դադարեցվեցին",
+    "methodNotImplemented": "Մեթոդը չի կիրառվում:",
+    "saveProjectAborted": "Փրկեք տեսարանը աբորտ է",
+    "unsavedChanges": "Չփոխված փոփոխություններ",
+    "unsavedChangesMsg": "Դեպքի վայրը փոփոխվել է. Խնդրում ենք խնայել ձեր փոփոխությունները:",
+    "projectCreationFail": "Նախագծի ստեղծումը ձախողվեց: {{reason}}",
+    "projectDeletionFail": "Նախագծի ջնջումը ձախողվեց: {{reason}}",
+    "savingProjectFail": "Խնայողական նախագիծը ձախողվեց: {{reason}}",
+    "sceneTooLarge": "Տեսարանը չափազանց մեծ է ({{size}} MB) հրատարակելու համար: Առավելագույն չափը {{maxSize}} ՄԲ:",
+    "sceneCreationFail": "Տեսարանի ստեղծումը ձախողվեց։ {{reason}}",
+    "uploadAborted": "Վերբեռնել աբորտը",
+    "uploadFailed": "Վերբեռնել ձախողված {{reason}}",
+    "assetDeletionFail": "Ունեցվածքի ջնջումը ձախողվեց։ {{reason}}",
+    "projectAssetDeletionFail": "Project Asset-ի ջնջումը ձախողվեց: {{reason}}",
+    "networkError": "Ցանցային սխալ՝ {{status}}. {{text}}",
+    "unknownStatus": "Անհայտ վիճակ",
+    "CORS": "Հնարավոր է ԿՈՐՍ-ի սխալ",
+    "urlFetchError": "«{{url}}» "
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Շարժեք տեսախցիկը",
+      "flyFast": "Թռեք ավելի արագ",
+      "orbit": "Ուղեծիր / Ընտրել",
+      "pan": "Պան",
+      "fly": "Թռուցք",
+      "focus": "Ֆոկուս",
+      "rotateLeft": "Պտտել ձախ",
+      "rotateRight": "Պտտել աջ",
+      "cancelPlacement": "Չեղարկել տեղադրումը",
+      "placeDuplicate": "Տեղավորեք կրկնօրինակը",
+      "cancelGrab": "Չեղարկել Grab",
+      "grab": "Գրաբ",
+      "deselectAll": "Deselect Բոլորը"
+    },
+    "state": {
+      "header": "Վիճակագրություններ",
+      "memory": "Հիշողություն",
+      "geometries": "Երկրաչափություններ",
+      "textures": "Տեքստուրաներ",
+      "render": "Ռենդեր",
+      "FPS": "FPS",
+      "frameTime": "Կաղապարի ժամ",
+      "calls": "Զանգեր",
+      "triangles": "Եռանկյուններ",
+      "points": "Կետեր",
+      "lines": "Գծեր"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Հրատարակչություն",
+    "lbl-published": "Հրապարակված է",
+    "command": {
+      "translate": "Թարգմանիր",
+      "rotate": "Պտտել",
+      "scale": "Կշեռք",
+      "toggleSpace": "Toggle Տրանսֆորմատոր Սփեյս",
+      "togglePivot": "Toggle Տրանսֆորմատոր Պիվոտ",
+      "toggleSnapMode": "Toggle Snap Mode",
+      "toggleGrid": "Toggle Grid Visibility",
+      "increaseGridSize": "Մեծացնել ցանցի չափսերը",
+      "descreaseGridSize": "Փոքրացնել grid չափը",
+      "stopPreview": "Դադարեցրեք նախադիտումը",
+      "playPreview": "Նախադիտման տեսարան"
+    }
+  },
+  "properties": {
+    "title": "Հատկությունները",
+    "lbl-visible": "Տեսանելի",
+    "lbl-preventBake": "Կանխեք թխելը",
+    "lbl-persist": "Պերսիստ",
+    "multipleNodeSelected": "Ընտրված տարբեր տեսակի բազմաթիվ հանգույցներ",
+    "noNodeSelected": "No node ընտրված",
+    "ambientLight": {
+      "name": "Ամբիենտ լույս",
+      "description": "Լույս, որը լուսավորում է ձեր տեսարանի բոլոր առարկաները:",
+      "lbl-intensity": "Ինտենսիվություն",
+      "lbl-color": "Գույն"
+    },
+    "envmap": {
+      "name": "Շրջակա միջավայրի քարտեզ",
+      "description": "միջավայրի քարտեզի հատկությունները"
+    },
+    "asset": {
+      "name": "Ունեցվածք",
+      "description": "Տեսարանային բաղադրիչների խմբավորում, որը կարող է դինամիկորեն բեռնվել եւ բեռնաթափվել",
+      "lbl-options": "Ընտրանքներ",
+      "lbl-assetPath": "Ունեցվածքի արահետ",
+      "lbl-assetName": "Արտադրման անվանումը",
+      "lbl-exportOptions": "Արտահանման տարբերակներ",
+      "lbl-export": "Արտադրական ակտիվներ",
+      "lbl-load": "Բեռնել տեսարան",
+      "lbl-unload": "Բեռնաթափում",
+      "lbl-reload": "Վերբեռնել"
+    },
+    "audio": {
+      "name": "Աուդիոգիրք",
+      "description": "Դինամիկորեն բեռնում է աուդիո.",
+      "lbl-audiourl": "Աուդիո Url",
+      "lbl-controls": "վերահսկողություններ",
+      "info-controls": "Լրատվամիջոցների վերահսկողության տեսանելիությունը:",
+      "lbl-autoplay": "Auto Play",
+      "info-autoplay": "Եթե ճիշտ է, ապա առաջին անգամ տեսարան մտնելիս մեդիան կխաղա։",
+      "lbl-synchronize": "Սինքրոնիզացնել",
+      "info-synchronize": "Եթե ճիշտ է, ապա մեդիան սինխրոնիզացվի բոլոր միացված հաճախորդների վրա:",
+      "lbl-loop": "Լուոպ",
+      "info-loop": "Եթե ճիշտ է, ապա լրատվամիջոցներն անվերջ կշողան:",
+      "lbl-audioType": "Աուդիո տեսակ",
+      "lbl-distanceModel": "Հեռավորության մոդել",
+      "info-distanceModel": "Ալգորիթիմը, որն օգտագործվում էր ձայնային ռոումինգը հաշվարկելու համար։",
+      "lbl-rolloffFactor": "Ռոլլոֆի գործոն",
+      "info-rolloffFactor": "Կրկնակի արժեք, որը նկարագրում է, թե որքան արագ է ծավալը կրճատվում, երբ աղբյուրը հեռանում է լսողից։ 0-1",
+      "info-rfInfinity": "Կրկնակի արժեք, որը նկարագրում է, թե որքան արագ է ծավալը կրճատվում, երբ աղբյուրը հեռանում է լսողից։ 0 to Infinity",
+      "lbl-refDistance": "Ռեֆ Հեռավորությունը",
+      "info-refDistance": "Կրկնակի արժեք, որը ներկայացնում է ձայնի ծավալի նվազեցման համար հղման հեռավորությունը, երբ ձայնային աղբյուրը ավելի է շարժվում ունկնդրից:",
+      "lbl-maxDistance": "Մաքսի հեռավորություն",
+      "info-maxDistance": "Ձայնային աղբյուրի եւ լսողի միջեւ առավելագույն հեռավորությունը ներկայացնող կրկնակի արժեք, որից հետո ձայնարկությունը այլեւս չի կրճատվում:",
+      "lbl-coneInnerAngle": "Կոն ներքին անկյունագիծ",
+      "info-coneInnerAngle": "Կրկնակի արժեք, որը նկարագրում է անկյունը, աստիճաններով, կոնի ներսում, որի ներսում չի լինի ծավալի նվազեցում:",
+      "lbl-coneOuterAngle": "Կոն Ելային անկյուն",
+      "info-coneOuterAngle": "Կրկնակի արժեք, որը նկարագրում է անկյունը, աստիճաններով, այն կոնից դուրս, որի ծավալը կկրճատվի հաստատուն արժեքով, որը սահմանվում է coneOuterGain ատրիբուտով:",
+      "lbl-coreOuterGain": "Կոն ելային գեյն",
+      "info-coreOuterGain": "Կրկնակի արժեք, որը նկարագրում է կոնից դուրս ծավալի կրճատման գումարը, որը սահմանված է coneOuterAngle ատրիբուտով: Նրա նախնական արժեքը 0 է, ինչը նշանակում է, որ ոչ մի ձայն չի կարող լսվել։",
+      "lbl-volume": "Հատոր",
+      "lbl-play": "Խաղալ",
+      "lbl-pause": "Պոեզիա",
+      "error-url": "Սխալի բեռնում URL-ից"
+    },
+    "boxCollider": {
+      "description": "Անտեսանելի արկղ, որի առարկաները կփչանան կամ կհանգստանան վերեւում։\nԱռանց բախման առարկաները կընկնեն հատակի միջով եւ կանցնեն պատերի միջով:",
+      "lbl-isTrigger": "Թրիգեր"
+    },
+    "camera": {
+      "name": "Տեսախցիկ",
+      "description": "Տեսախցիկների պարամետրերը:",
+      "lbl-camera-raycast": "Տեսախցիկ Raycasting",
+      "lbl-camera-raycast-toggle": "Հնարավորություն",
+      "lbl-camera-raycast-frequency": "Հաճախականություն",
+      "lbl-camera-raycast-count": "Ռեյի հաշվում",
+      "lbl-camera-raycast-length": "Ռեյի երկարություն"
+    },
+    "directionalLight": {
+      "name": "Ուղղական լույս",
+      "description": "Լույս, որը լուսավորում է ողջ տեսարանը, բայց արտանետվում է մեկ ուղղությամբ:",
+      "lbl-color": "Գույն",
+      "lbl-intensity": "Ինտենսիվություն",
+      "lbl-cameraFar": "Տեսախցիկ Far",
+      "lbl-cameraNear": "Տեսախցիկ Մոտ",
+      "lbl-cameraTop": "Տեսախցիկ Top",
+      "lbl-cameraBottom": "Տեսախցիկ Ներքեւում",
+      "lbl-cameraLeft": "Տեսախցիկ Ձախ",
+      "lbl-cameraRight": "Տեսախցիկ աջ",
+      "lbl-useInCSM": "Օգտագործումը CSM-ում",
+      "lbl-castShadow": "Cast ստվեր",
+      "lbl-disableForCSM": "Հաշմանդամ, քանի որ Կասկադի ստվերային քարտեզը հնարավորություն է տալիս:",
+      "lbl-shadowmapResolution": "Ստվերային քարտեզի բանաձեւ",
+      "lbl-shadowBias": "Ստվերային բիաս",
+      "lbl-shadowRadius": "Ստվերային ճառագայթ",
+      "lbl-showCameraHelper": "Ցուցափեղկերի օգնական"
+    },
+    "groundPlane": {
+      "name": "Գետնի պլան",
+      "description": "Հարթ հողահեռացք, որը տարածվում է մինչեւ հեռավորություն:",
+      "lbl-color": "Գույն",
+      "lbl-receiveShadow": "Ստացեք ստվեր",
+      "lbl-generateNavmesh": "Գեներացնել Navmesh"
+    },
+    "link": {
+      "description": "Կապնեք սենյակի կամ կայքի հետ:",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "3D գեոսփական քարտեզը e.g. a city."
+    },
+    "model": {
+      "description": "Ձեր տեսարանում 3D մոդել, որը բեռնված է GLTF URL-ից կամ ֆայլից:",
+      "lbl-usingGPUInstancingFlag": "Օգտագործեք GPU Instancing",
+      "lbl-modelurl": "Մոդել Url",
+      "lbl-envmapUrl": "Շրջակա միջավայրի քարտեզ Url",
+      "lbl-textureOverride": "Override Texture",
+      "lbl-materialOverride": "Նյութի գերագնահատում",
+      "error-url": "Սխալի բեռնում URL-ից",
+      "lbl-loopAnimation": "Loop Անիմացիա",
+      "lbl-isAvatar": "Աւատար է",
+      "lbl-isGPUInstancing": "օգտագործում է GPU instancing",
+      "lbl-isDynamic": "Դինամիկ է",
+      "lbl-castShadow": "Cast ստվեր",
+      "lbl-receiveShadow": "Ստացեք ստվեր",
+      "lbl-interactable": "Փոխազդող",
+      "lbl-matrixAutoUpdate": "ՄատրիցաԱվտոՈւպդաթթու",
+      "lbl-name": "Անուն",
+      "lbl-url": "Մոդել Url",
+      "lbl-buy": "Գնել Url",
+      "lbl-learnMore": "Իմացեք ավելին Url",
+      "lbl-htmlContent": "Html Բովանդակություն",
+      "lbl-interactionText": "Փոխազդեցության տեքստ",
+      "lbl-interactionType": "Փոխազդեցության տեսակ"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Նյութ",
+      "error-materialID": "Սխալ գտնել նյութը",
+      "placeholder-materialID": "Ընտրեք նյութը",
+      "lbl-patternTarget": "Pattern Match",
+      "lbl-pattern": "Պատյան",
+      "lbl-isRegex": "Ռեգեքս"
+    },
+    "interaction": {
+      "type": "Փոխազդեցության տեսակ",
+      "text": "Փոխազդեցության տեքստ",
+      "distance": "Փոխազդեցության հեռավորություն",
+      "theme": "Փոխազդեցության թեմա",
+      "name": "Ինտուիցիայի անվանումը",
+      "description": "Ինտուիցիայի նկարագրություն",
+      "images": "Ինտուիցիա պատկերներ",
+      "videos": "Ինտուիցիա տեսանյութեր",
+      "urls": "Ինտուիցիա Urls",
+      "models": "Փոխազդեցության մոդելներ"
+    },
+    "group": {
+      "name": "Խումբ",
+      "description": "Բազմակի օբյեկտների խումբ, որը կարող է տեղաշարժվել կամ կրկնօրինակվել միասին:\nDrag եւ նետել առարկաները խմբի մեջ Hierarchy."
+    },
+    "hemisphere": {
+      "name": "Կիսալուսին",
+      "description": "Լույս, որը լուսավորում է տեսարանը ուղիղ գլխավերեւից:",
+      "lbl-skyColor": "Երկնքի գույն",
+      "lbl-groundColor": "Հողի գույնը",
+      "lbl-intensity": "Ինտենսիվություն"
+    },
+    "image": {
+      "name": "Պատկեր",
+      "description": "Դինամիկորեն բեռնում է պատկերը:",
+      "lbl-imgURL": "Երազահան Ուրլ",
+      "lbl-transparency": "Թափանցիկության ռեժիմ",
+      "lbl-alphaCutoff": "Ալֆա Կուտոֆ",
+      "lbl-projection": "Պրոյեկցիա",
+      "lbl-side": "Կողային",
+      "info-controls": "Լրատվամիջոցների վերահսկողության տեսանելիությունը:",
+      "info-transparency": "Ինչպես կիրառել թափանցիկությունը.",
+      "info-opaque": "'opaque' = ոչ թափանցիկություն",
+      "info-blend": "'blend' = օգտագործեք պատկերները alpha channel",
+      "info-mask": "'mask' = Օգտագործել կոնկրետ կտրվածքով արժեք on/off թափանցիկության համար (ավելի կատարողական)",
+      "info-alphaCutoff": "Սրանից ցածր ալֆա արժեքներ ունեցող պիքսելները թափանցիկ կլինեն",
+      "error-url": "Անվավեր URL"
+    },
+    "name": {
+      "lbl-name": "Անուն"
+    },
+    "partileEmitter": {
+      "description": "Մասնիկներ ստեղծելու համար մասնիկների արտանետում:",
+      "lbl-particleCount": "Մասնիկի հաշվում",
+      "lbl-image": "Պատկեր",
+      "lbl-ageRandomness": "Տարիքային պատահականություն",
+      "lbl-lifetime": "Կենդանություն",
+      "lbl-lifetimeRandomness": "Կյանքի պատահականություն",
+      "lbl-sizeCurve": "Չափսերի թեքություն",
+      "lbl-startPSize": "Սկսեք մասնիկի չափերը",
+      "lbl-endPSize": "Ավարտեք մասնիկի չափը",
+      "lbl-sizeRandomness": "Չափի պատահականություն",
+      "lbl-colorCurve": "Գունային թեքություն",
+      "lbl-startColor": "Սկսեք գունավորել",
+      "lbl-startOpacity": "Սկիզբ Opacity",
+      "lbl-middleColor": "Միջին գույն",
+      "lbl-middleOpacity": "Միջին օպցիա",
+      "lbl-endColor": "Վերջի գույն",
+      "lbl-endOpacity": "Վերջ դնել օպցիաներին",
+      "lbl-velocityCurve": "Արագության թեքություն",
+      "lbl-startVelocity": "Սկիզբ արագություն",
+      "lbl-endVelocity": "Վերջի արագություն",
+      "lbl-angularVelocity": "Անգուլյար արագություն",
+      "info-ageRandomness": "Մասնիկների տրոհման ժամանակ տարբերության գումարը:",
+      "info-lifetime": "Մասնիկի առավելագույն տարիքը, նախքան այն կվերածվի:",
+      "info-lifetimeRandomness": "Մասնիկների կյանքի տարբերության քանակը:",
+      "info-sizeRandomness": "Մասնիկների սկզբնական մեծությունների միջեւ տարբերակման քանակը:",
+      "error-url": "Սխալի բեռնում URL-ից"
+    },
+    "clouds": {
+      "name": "Ամպամած",
+      "description": "Sprite հիմքով ամպի ծավալը:",
+      "lbl-image": "Sprite պատկերասրահ",
+      "lbl-wroldScale": "Համաշխարհային սանդղակ",
+      "lbl-dimensions": "Չափերը",
+      "lbl-noiseZoom": "Աղմուկի մեծացման",
+      "lbl-noiseOffset": "Աղմուկ Օֆսեթ",
+      "lbl-spriteScale": "Sprite սանդղակ",
+      "lbl-fogColor": "Մառախուղի գույն",
+      "lbl-fogRange": "Մառախուղ Range",
+      "error-url": "Սխալի բեռնում URL-ից"
+    },
+    "ocean": {
+      "name": "Օվկիանոս",
+      "description": "Օվկիանոսի մակերեւույթը ալիքներով եւ փրփուրով",
+      "lbl-normalMap": "Սովորական քարտեզ",
+      "lbl-distortionMap": "Շեղման քարտեզ",
+      "lbl-envMap": "Շրջակա միջավայրի քարտեզ",
+      "lbl-color": "Գույն",
+      "lbl-shallowWaterColor": "Ծանծաղ ջրային գույն",
+      "lbl-shallowToDeepDistance": "Խորը հեռավորություն",
+      "lbl-opacityFadeDistance": "Opacity Fade Հեռավորություն",
+      "lbl-opacityRange": "Օպցիոնների շարք",
+      "lbl-shininess": "Շինություն",
+      "lbl-reflectivity": "Անդրադարձ",
+      "lbl-foamColor": "Փրփուրի գույն",
+      "lbl-foamSpeed": "Փրփրուն արագություն",
+      "lbl-foamTiling": "Փրփուր Թիլինգ",
+      "lbl-bigWaveTiling": "Մեծ ալիք Tiling",
+      "lbl-bigWaveSpeed": "Մեծ ալիքի արագություն",
+      "lbl-bigWaveHeight": "Մեծ ալիքի բարձրություն",
+      "lbl-waveSpeed": "Ալիքային արագություն",
+      "lbl-waveScale": "Ալիքային սանդղակ",
+      "lbl-waveTiling": "Ալիք tiling",
+      "lbl-waveDistortionSpeed": "Ալիքների շեղման արագություն",
+      "lbl-waveDistortionTiling": "Ալիքային շեղում Tiling",
+      "error-url": "Սխալի բեռնում URL-ից"
+    },
+    "water": {
+      "name": "Ջուր",
+      "description": "Ջրի փոքր մակերես"
+    },
+    "interior": {
+      "name": "Ներքին",
+      "description": "Ներքին միջավայրերը ընդօրինակելու համար նախատեսված քարտեզավորված խորանարդի տեքստուրայով մակերեւույթ",
+      "lbl-cubeMap": "Cube Քարտեզի տեքստուրա",
+      "lbl-tiling": "Թիլինգի գումարը",
+      "lbl-size": "Մակերեսային մեծություն",
+      "error-url": "Սխալի բեռնում URL-ից"
+    },
+    "pointLight": {
+      "description": "Լույս, որը մի կետից արտանետում է բոլոր ուղղություններով:",
+      "lbl-color": "Գույն",
+      "lbl-intensity": "Ինտենսիվություն",
+      "lbl-range": "Ռենջ",
+      "lbl-decay": "Քայքայում"
+    },
+    "scene": {
+      "name": "Տեսարան",
+      "description": "Տեսարանի բուն առարկան:",
+      "lbl-bgcolor": "Ֆոնային գունավորում",
+      "lbl-fogType": "Մառախուղի տեսակ",
+      "lbl-fogColor": "Մառախուղի գույն",
+      "lbl-forNearDistance": "Մառախուղ Հեռավորության մոտ",
+      "lbl-fogFarDistance": "Մառախուղ Հեռավոր",
+      "lbl-fogDensity": "Մառախուղի խտություն",
+      "lbl-audioSettings": "Օգտագործեք Positional Աուդիո",
+      "lbl-avatarDistanceModel": "Ավատարի հեռավորության մոդել",
+      "lbl-avatarRolloffFactor": "Ավատար rolloff Factor",
+      "lbl-avatarRefDistance": "Avatar Ref Հեռավորություն",
+      "lbl-avatarMaxDistance": "Ավատար Մաքսի հեռավորություն",
+      "lbl-mediaVolume": "Մեդիահղում",
+      "lbl-mediaDistanceModel": "Մեդիայի հեռահարության մոդել",
+      "lbl-mediaRolloffFactor": "Մեդիալոֆֆ ֆակտոր",
+      "lbl-mediaRefDistance": "Մեդիա Ռեֆ Հեռ.",
+      "lbl-mediaMaxDistance": "Մեդիամաքս հեռակա",
+      "lbl-mediaConeInnerAngle": "Մեդիա Կոն ներքին անկյուն",
+      "lbl-mediaConeOuterAngle": "Մեդիա Կոն Արտաքին Անկյուն",
+      "lbl-mediaConeOuterGain": "Մեդիա Կոն Արտաքին Գեյն",
+      "info-avatarDistanceModel": "Ալգորիթիմը, որն օգտագործվում էր ձայնային ռոումինգը հաշվարկելու համար։",
+      "info-avatarRolloffFactor": "Կրկնակի արժեք, որը նկարագրում է, թե որքան արագ է ծավալը կրճատվում, երբ աղբյուրը հեռանում է լսողից։ 0-1",
+      "info-avatarRolloffFactorInifinity": "Կրկնակի արժեք, որը նկարագրում է, թե որքան արագ է ծավալը կրճատվում, երբ աղբյուրը հեռանում է լսողից։ 0 to Infinity",
+      "info-avatarRefDistance": "Կրկնակի արժեք, որը ներկայացնում է ձայնի ծավալի նվազեցման համար հղման հեռավորությունը, երբ ձայնային աղբյուրը ավելի է շարժվում ունկնդրից:",
+      "info-avatarMaxDistance": "Ձայնային աղբյուրի եւ լսողի միջեւ առավելագույն հեռավորությունը ներկայացնող կրկնակի արժեք, որից հետո ձայնարկությունը այլեւս չի կրճատվում:",
+      "info-mediaDistanceModel": "Ալգորիթիմը, որն օգտագործվում էր ձայնային ռոումինգը հաշվարկելու համար։",
+      "info-mediaRolloffFactor": "Կրկնակի արժեք, որը նկարագրում է, թե որքան արագ է ծավալը կրճատվում, երբ աղբյուրը հեռանում է լսողից։ 0-1",
+      "info-mediaRolloffFactorInfinity": "Կրկնակի արժեք, որը նկարագրում է, թե որքան արագ է ծավալը կրճատվում, երբ աղբյուրը հեռանում է լսողից։ 0 to Infinity",
+      "info-mediaRefDistance": "Կրկնակի արժեք, որը ներկայացնում է ձայնի ծավալի նվազեցման համար հղման հեռավորությունը, երբ ձայնային աղբյուրը ավելի է շարժվում ունկնդրից:",
+      "info-mediaMaxDistance": "Ձայնային աղբյուրի եւ լսողի միջեւ առավելագույն հեռավորությունը ներկայացնող կրկնակի արժեք, որից հետո ձայնարկությունը այլեւս չի կրճատվում:",
+      "info-mediaConeInnerAngle": "Կրկնակի արժեք, որը նկարագրում է անկյունը, աստիճաններով, կոնի ներսում, որի ներսում չի լինի ծավալի նվազեցում:",
+      "info-mediaConeOuterAngle": "Կրկնակի արժեք, որը նկարագրում է անկյունը, աստիճաններով, այն կոնից դուրս, որի ծավալը կկրճատվի հաստատուն արժեքով, որը սահմանվում է coneOuterGain ատրիբուտով:",
+      "info-mediaConeOuterGain": "Կրկնակի արժեք, որը նկարագրում է կոնից դուրս ծավալի կրճատման գումարը, որը սահմանված է coneOuterAngle ատրիբուտով: Նրա նախնական արժեքը 0 է, ինչը նշանակում է, որ ոչ մի ձայն չի կարող լսվել։",
+      "lbl-simpleMaterials": "Օգտագործեք պարզ նյութեր",
+      "lbl-lods": "ԼՈԴՆԵՐ",
+      "info-lods": "Սահմանում է այն հեռավորությունները, որոնց վրա մանրամասն փոփոխությունների մակարդակները:",
+      "info-simpleMaterials": "Բոլոր թանկարժեք նյութերը փոխակերպում է ավելի պարզ նյութերի, որպեսզի բեռը հանվի տեսարանից։",
+      "lbl-rendererSettings": "Override Renderer պարամետրերը",
+      "lbl-csm": "Կասկադինգ ստվերային քարտեզներ",
+      "info-csm": "Հնարավորություն է տալիս կասկադինգային ստվերային քարտեզներ:",
+      "lbl-toneMapping": "Տոնային քարտեզագրում",
+      "info-toneMapping": "Հնարավորություն է տալիս պատկերի վրա պատկերել հնչյունները։ Ոչ մի ազդեցություն չի ունենում, երբ հնարավոր է լինում փոստատարի մշակումը:",
+      "lbl-toneMappingExposure": "Տոնային քարտեզագրության լուսաբանում",
+      "info-toneMappingExposure": "Հատկանշում է տեսարանի պատկերի վրա պատկերող հնչյունների քարտեզագրությունը: Ոչ մի ազդեցություն չի ունենում, երբ հնարավոր է լինում փոստատարի մշակումը:",
+      "lbl-shadowMapType": "Ստվերային քարտեզի տիպ",
+      "info-shadowMapType": "Ստվերային քարտեզի տեսակը",
+      "error-url": "Սխալի բեռնում URL-ից"
+    },
+    "sceneCamera": {
+      "name": "Տեսարան նախադիտման տեսախցիկ",
+      "description": "Տեսախցիկը, որն օգտագործվում էր ձեր տեսարանի համար բութ մատը ստեղծելու համար, եւ սկզբնական դիրքը նախադիտման տեսախցիկի համար։",
+      "lbl-setFromViewPort": "Viewport-ից սահմանված"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Օրվա ժամ",
+      "lbl-color": "Գույն",
+      "lbl-latitude": "Լատիտուդա",
+      "lbl-luminance": "Լյումինանս",
+      "lbl-scattering": "Ցրել գումարը",
+      "lbl-scatteringDistance": "Ցրված հեռավորություն",
+      "lbl-horizonStart": "Հորիզոնի սկիզբ",
+      "lbl-horizonEnd": "Հորիզոնի վերջ",
+      "lbl-texture": "Տեքստուրա",
+      "lbl-skyType": "Երկնքի տեսակ",
+      "error-url": "Սխալի բեռնում URL-ից"
+    },
+    "spawnPoint": {
+      "name": "Սպաուն Փոյնթ",
+      "description": "Մի կետ, որտեղ մարդիկ կհայտնվեն, երբ մտնեն ձեր տեսարանը։\nViewport-ի սրբապատկերը ներկայացնում է ավատարի իրական չափը:"
+    },
+    "spotLight": {
+      "description": "Լույս, որն արտանետվում է ուղղության երկայնքով, լուսավորում է կոնի ներսում գտնվող օբյեկտները:",
+      "lbl-color": "Գույն",
+      "lbl-intensity": "Ինտենսիվություն",
+      "lbl-penumbra": "Պենումբրա",
+      "lbl-angle": "Անկյուն",
+      "lbl-range": "Ռենջ",
+      "lbl-decay": "Քայքայում"
+    },
+    "transform": {
+      "title": "Տրանսֆորմացիայի",
+      "lbl-postition": "Դիրք",
+      "lbl-rotation": "Պտույտ",
+      "lbl-scale": "Կշեռք"
+    },
+    "triggereVolume": {
+      "description": "Թիրախային օբյեկտի վրա գույք է սահմանում մուտք գործելու եւ դուրս գալու ժամանակ:",
+      "lbl-target": "Օբյեկտ",
+      "lbl-onenter": "Enter-ում",
+      "lbl-onexit": "Ելքի վրա",
+      "lbl-showHelper": "Շոու Օգնական Mesh",
+      "ph-errorNode": "Սխալը բացակայում է հանգույցը:",
+      "ph-selectNode": "Ընտրեք հանգույցը..."
+    },
+    "video": {
+      "name": "Տեսանյութ",
+      "description": "Դինամիկորեն բեռնում է տեսանյութ:",
+      "lbl-video": "Տեսանյութ",
+      "lbl-projection": "Պրոյեկցիա",
+      "lbl-islivestream": "Կենդանի հոսանք",
+      "lbl-interactable": "Փոխազդող",
+      "lbl-id": "Էլեմենտ Id",
+      "lbl-play": "Խաղալ",
+      "lbl-pause": "Պոեզիա",
+      "error-url": "Սխալի բեռնում URL-ից"
+    },
+    "volumetric": {
+      "name": "Հատոր",
+      "description": "Դինամիկորեն բեռնում է ներբեռնման վիդեո:",
+      "uvolPaths": "UVOL-ի արահետները",
+      "playmode": "Խաղային ռեժիմ",
+      "playtitle": "Խաղալ",
+      "pausetitle": "Պոեզիա"
+    },
+    "spline": {
+      "description": "Դինամիկ կերպով ստեղծեք եւ հարմարեցնեք թեքությունները:",
+      "lbl-addNode": "Ավելացնել հանգույցը թեքության մեջ:"
+    },
+    "systemnode": {
+      "description": "Կցեք գիրը:",
+      "lbl-filePath": "Ուրլ",
+      "lbl-systemUpdateType": "Ներարկման կետ",
+      "lbl-enableClient": "Հարակից ծրագրակազմ",
+      "lbl-enableServer": "Սերվեր",
+      "lbl-args": "Արգս",
+      "error-url": "Սխալ Բեռնման սցենար uRL-ից"
+    },
+    "portal": {
+      "lbl-portal": "Կապակցված պորտալ",
+      "lbl-redirect": "Օգտագործեք էջի ուղղումը",
+      "description": "Պորտատը՝ խաղացողներին հեռագրելու համար նշված վայրը",
+      "lbl-locationName": "Տեղակայում",
+      "lbl-modelUrl": "Մոդել URL",
+      "lbl-displayText": "Ցուցադրել տեքստը",
+      "lbl-cubemapBake": "Թխվածք «Cubemap»",
+      "lbl-spawnPosition": "Սպունգի դիրք",
+      "lbl-spawnRotation": "Սպունգի պտույտ",
+      "lbl-triggerPosition": "Թրիգերային դիրք",
+      "lbl-triggerRotation": "Թրիգեր ռոտացիա",
+      "lbl-triggerScale": "Թրիգեր սանդղակ"
+    },
+    "postprocessing": {
+      "name": "Պոստ-պրոցեսինգ",
+      "description": "Post Processing էֆեկտների կիրառման համար Ձեզ համար տեսարան:"
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Նոր նախագիծ",
+      "backLink": "Վերադառնալ նախագծերին",
+      "featured": "Featured",
+      "all": "Բոլորը",
+      "newProject": "Նոր դատարկ նախագիծ",
+      "ph-search": "Որոնման տեսարաններ..."
+    },
+    "grid": {
+      "loading": "Բեռնաթափում..."
+    },
+    "page": {
+      "header": "Բարի գալուստ",
+      "headerMsg": "Եթե դուք նոր եք այստեղ, խորհուրդ ենք տալիս անցնել ուսուցման: Հակառակ դեպքում, ցատկեք անմիջապես ներս եւ ստեղծեք նախագիծ քերծվածքից կամ մեր մոդելներից մեկից:",
+      "lbl-startTutorial": "Սկիզբ Tutorial",
+      "projects": "Նախագծեր",
+      "lbl-newProject": "Նոր նախագիծ"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Բեռնաթափում...",
+      "placeObject": "Տեղադրեք օբյեկտը",
+      "placeObjectAtOrigin": "Տեղադրեք օբյեկտը սկզբնապատճառում",
+      "copyURL": "Պատճենեք URL",
+      "openInNewTab": "Նոր Տաբում բացեք URL",
+      "deleteAsset": "Ջնջել ունեցվածքը"
+    },
+    "filebrowser": {
+      "addNewFolder": "Ավելացնել նոր թղթապանակ",
+      "cutAsset": "Կտրեք",
+      "copyAsset": "Պատճենել",
+      "pasteAsset": "Պաստա",
+      "renameAsset": "Անվանափոխել",
+      "viewAssetProperties": "Դիտել հատկանիշները"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Անվանափոխել",
+    "lbl-duplicate": "Դուպլիկատ",
+    "lbl-group": "Խումբ",
+    "lbl-delete": "Ջնջել",
+    "lbl-expandAll": "Ընդլայնեք բոլորը",
+    "lbl-collapseAll": "Քանդեք բոլորը",
+    "isseus": "Հարցեր."
+  },
+  "dnd": {
+    "nodes": "{{count}} հանգույցները ընտրված են",
+    "models": "{{count}} մոդելներ ընտրված",
+    "images": "{{count}} Ընտրված պատկերներ",
+    "videos": "{{count}} տեսանյութերը ընտրված են",
+    "audio": "{{count}} Աուդիո աղբյուրներն ընտրված"
+  },
+  "dialog": {
+    "title": "Խմբագիր",
+    "lbl-confirm": "Լավ",
+    "lbl-cancel": "Չեղարկել",
+    "exportProject": {
+      "title": "Արտադրական նախագիծ",
+      "lbl-confirm": "Արտադրական նախագիծ",
+      "lbl-combineMesh": "Միացրու Մեսեսին",
+      "lbl-removeUnused": "Հեռացնել չօգտագործված առարկաները"
+    },
+    "performance": {
+      "title": "Կատարման ստուգում",
+      "lbl-confirm": "Տպագրական տեսարան",
+      "learnMore": "Իմանալ ավելին",
+      "lbl-polycount": "Պոլիգոնի հաշվում",
+      "lbl-material": "Նյութեր",
+      "lbl-texture": "Տեքստուրաներ",
+      "lbl-lights": "Լույսեր",
+      "lbl-fileSize": "Ֆայլի չափը",
+      "info-polycount": "Առաջարկում ենք Ձեր տեսարանը օգտագործել ոչ ավելի, քան 50.000 եռանկյունի շարժական սարքերի համար:",
+      "info-material": "Մենք խորհուրդ ենք տալիս ձեր տեսարանում օգտագործել ոչ ավելի քան 25 եզակի նյութեր շարժական սարքերի վրա զանգերը նվազեցնելու համար:",
+      "info-texture": "Մենք խորհուրդ ենք տալիս Ձեր textures-ում օգտագործել ոչ ավելի, քան 256MB վիդեո RAM բջջային սարքերի համար: Խորհուրդ ենք տալիս նաեւ չօգտագործել 2048 x 2048-ից ավելի մեծ հյուսվածքներ:",
+      "info-lights": "Թեեւ դինամիկ լույսերը հնարավորություն չեն տալիս շարժական սարքերի վրա, մենք խորհուրդ ենք տալիս ձեր տեսարանում օգտագործել ոչ ավելի, քան 3 լուսարձակներ (բացառելով շրջակա միջավայրը եւ կիսագնդի լույսերը), որպեսզի ձեր տեսարանը աշխատի ցածրորակ համակարգիչների վրա:",
+      "info-fileSize": "Առաջարկում ենք ցածր bandwidth միացումների համար վերջնական ֆայլի չափը 16MB-ից ոչ ավելի: Ֆայլի չափը նվազեցնելը կնվազեցնի այն ժամանակը, որը անհրաժեշտ է ձեր տեսարանը բեռնելու համար:",
+      "txt-polycount": "{{count}} եռանկյուններ",
+      "txt-material": "{{count}} նյութեր",
+      "txt-ram": "~{{count}} Վիդեո RAM",
+      "txt-texture": "{{count}} խոշոր տեքստային",
+      "txt-lights": "{{count}} լույսեր"
+    },
+    "progress": {
+      "title": "Բեռնաթափում...",
+      "msg": "Բեռնաթափում...",
+      "lbl-cancel": "Չեղարկել"
+    },
+    "publish": {
+      "title": "Տպագրական տեսարան",
+      "lbl-confirm": "Պահպանել եւ հրապարակել",
+      "lbl-name": "Տեսարանի անվանումը",
+      "info-name": "Անունը պետք է լինի 4-ից 64 տառի միջեւ եւ չի կարող պարունակել ընդգծումներ"
+    },
+    "published": {
+      "title": "Հրապարակվում է տեսարան",
+      "header": "Ձեր տեսարանը հրապարակվել է:",
+      "lbl-view": "Դիտել ձեր տեսարանը"
+    },
+    "saveNewProject": {
+      "title": "Աջակցություն",
+      "lbl-name": "Նախագծի անվանումը",
+      "info-name": "Անունը պետք է լինի 4-ից 64 տառի միջեւ եւ չի կարող պարունակել ընդգծումներ",
+      "lbl-confirm": "Սեյվ փրոջեքթ"
+    },
+    "support": {
+      "title": "Աջակցություն",
+      "header": "Կարիք կա՞ որեւէ խնդրի մասին հայտնելու:",
+      "msg": "Դուք կարող եք ուղարկել <1>GitHub Issue</1> կամ էլեկտրոնային փոստով մեզ աջակցության համար <3>{{mail}}</3>",
+      "discord": "Դուք կարող եք նաեւ գտնել մեզ <1>Discord-ում</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Բինգի պատկերներ",
+      "search": "Որոնում Բինգի կողմից"
+    },
+    "bingVideo": {
+      "name": "Bing տեսանյութեր",
+      "search": "Որոնում Բինգի կողմից"
+    },
+    "element": {
+      "name": "Տարրեր"
+    },
+    "myAssets": {
+      "name": "Իմ ունեցվածքը"
+    },
+    "googlePoly": {
+      "name": "Google Պոլի",
+      "search": "Որոնում Google-ի կողմից"
+    },
+    "tenor": {
+      "name": "Տենոր ԳԻՖ-ներ",
+      "search": "Տենորների որոնում",
+      "ph-search": "Փնտրել GIF-երը..."
+    },
+    "sketchfab": {
+      "name": "Սքեթչֆաբ",
+      "search": "Sketchfab-ի որոնում"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Վերբեռնել ունեցվածքը"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Որոնել պատկերներ..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Որոնել տեսանյութեր..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Որոնման ակտիվներ..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Որոնման մոդելներ..."
+    },
+    "useUpload": {
+      "multipleFileError": "Մուտքագրումը չի ընդունում բազմակի ֆայլեր:",
+      "mineTypeError": "«{{name}}» չի համապատասխանում հետեւյալ mime տիպերին կամ ընդլայնումներին. {{types}}",
+      "progressTitle": "Ֆայլերի վերբեռնում",
+      "progressMsg": "Ֆայլերի վերբեռնում {{total}}{{uploaded}} : {{percentage}}%",
+      "uploadError": "Վերբեռնել սխալը",
+      "uploadErrorMsg": "Error uploading file: {{message}}",
+      "uploadErrorDefaultMsg": "Անհայտ սխալ է եղել"
+    }
+  },
+  "openLink": {
+    "description": "Խնդրում ենք սեղմել Open-ը, որպեսզի կողմնորոշվեք դեպի հղումը:",
+    "lbl-open": "Բաց"
+  },
+  "interactableModel": {
+    "lbl-buy": "Գնել",
+    "lbl-learnMore": "Իմանալ ավելին"
+  },
+  "corsProxyButton": {
+    "tooltip": "Օգտագործեք Cors Proxy server"
+  }
+}

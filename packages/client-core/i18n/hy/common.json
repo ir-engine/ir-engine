@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Բեռնման էջ..."
+  },
+  "tooltip": {
+    "pressKey": "Մամուլի {{tip}} {{message}}"
+  },
+  "toast": {
+    "joined": "միացան",
+    "left": "Ձախ"
+  },
+  "navUserWidget": {
+    "login": "Մուտք գործել"
+  },
+  "loader": {
+    "connecting": "Աշխարհի հետ կապ...",
+    "entering": "Աշխարհ մտնելը...",
+    "loading": "Բեռնաթափում...",
+    "objectRemaining": "մնացած {{count}} առարկան",
+    "objectRemainingPlural": "{{count}} մնացած օբյեկտները",
+    "loadingObjects": "Բեռնման օբյեկտներ",
+    "loadingComplete": "Բեռնել ամբողջական",
+    "joiningWorld": "Միանալով աշխարհին"
+  },
+  "alert": {
+    "eventWasSuccess": "Իրադարձությունը հաջող էր",
+    "errorWasEncountered": "Սխալի հանդիպեցին",
+    "eventInProgress": "Իրադարձությունն ընթացքի մեջ է",
+    "seconds": "վայրկյաններ",
+    "cancelCountdown": "Այս մոդալը փակելը կչեղարկի հաշվեքննությունը"
+  },
+  "debug": {
+    "refresh": "Թարմություն",
+    "stats": "Վիճակագրություններ",
+    "debugOptions": "Դեբուգի ընտրանքներ",
+    "physicsDebug": "Ֆիզիկա",
+    "avatarDebug": "Ավատար",
+    "nodeHelperDebug": "Նոդե Հելդեր",
+    "gridDebug": "Գրիդ",
+    "simpleMaterials": "Պարզ նյութեր",
+    "tick": "Տիկ",
+    "worldStore": "Համաշխարհային խանութ",
+    "engineStore": "Շարժիչի խանութ",
+    "namedEntities": "Անվանակոչված սուբյեկտներ",
+    "networkObject": "Ցանցային օբյեկտ",
+    "networkClients": "Ցանցային հաճախորդներ"
+  },
+  "recording": {
+    "videoRecorder": "Վիդեո ձայնագրիչ",
+    "waitingForPermissions": "Սպասում ենք թույլտվությունների",
+    "selectVideoSource": "Ընտրեք վիդեո աղբյուրը",
+    "screen": "Էկրան",
+    "camera": "Տեսախցիկ",
+    "microphone": "Միկրոֆոն",
+    "startRecording": "Սկսեք ձայնագրել",
+    "pauseRecording": "Դադարի ձայնագրություն",
+    "resumeRecording": "Վերսկսեք ձայնագրությունը",
+    "stopRecording": "Դադարեք ձայնագրել"
+  },
+  "typing": "Typing...",
+  "gameServer": {
+    "browserError": "Բրաուզերի սխալ",
+    "browserErrorMessage": "Ձեր բրաուզերը չի աջակցում պահեստավորմանը մասնավոր բրաուզերի ռեժիմում: Կամ փորձեք մեկ այլ բրաուզեր, կամ դուրս գալ մասնավոր բրաուզերի ռեժիմից:",
+    "noAvailableServers": "Առկա սերվերներ չկան",
+    "noAvailableServersMessage": "Չկան որեւէ սերվերներ, որոնց դուք կարող եք միանալ: Փորձում են նորից միացնել",
+    "worldDisconnected": "Աշխարհը անջատված է",
+    "worldDisconnectedMessage": "Դու կորցրել ես կապդ աշխարհի հետ: Մենք կփորձենք կրկին կապ հաստատել, նախքան հաջորդ ժամանակը կավարտվի, հակառակ դեպքում դուք կառաջնորդվեք մեկ այլ դեպքի:",
+    "webGLNotEnabled": "WebGL-ը հնարավորություն չի տալիս",
+    "webGLNotEnabledMessage": "Ձեր բրաուզերը չի աջակցում WebGL- ին, կամ այն հաշմանդամ է: Խնդրում ենք հնարավորություն տալ WebGL-ին կամ մտածել ձեր բրաուզերի վերջին տարբերակի թարմացման մասին:",
+    "youKickedFromWorld": "Քեզ աշխարհից քացի են տվել",
+    "youKickedFromWorldMessage": "Ձեզ այս աշխարհից քացի տվեցին հետեւյալ պատճառով",
+    "invalidLocation": "Անհամատեղելի տեղակայում",
+    "cantFindLocation": "Մենք չենք կարող գտնել տեղանքը",
+    "misspelledOrNotExist": "Այն կարող է սխալ գրվել կամ գոյություն չունենալ։",
+    "loading": "բեռնաթափում",
+    "low-frame-error": "Հայտնաբերվել է վատ perfomance- ը հաշվի առնելով, որ հնարավորություն է տալիս օգտագործել Hardware արագացումը ձեր բրաուզերում եւ փոխանցել ձեր բրաուզերը",
+    "low-frame-title": "Հնարավորություն է տալիս ավելի լավ փորձ ձեռք բերելու համար hardware արագացում!"
+  },
+  "error": {
+    "loading-error": "Չի հաջողվել բեռնել օգտագործողի տվյալները",
+    "validation-error": "Խնդրում ենք մուտքագրել վավեր {{type}}",
+    "login-error": "Ձախողվել է մուտք գործել"
+  }
+}

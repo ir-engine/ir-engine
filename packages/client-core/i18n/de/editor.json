@@ -1,718 +1,718 @@
 {
-  "loading" : "Projekt wird geladen ",
-  "loadingMsg" : "Projekt wird geladen ... ",
-  "loadingError" : "Fehler beim Laden des Projekts ",
-  "loadingErrorMsg" : "Beim Laden des Projekts ist ein Fehler aufgetreten. ",
-  "selectSceneMsg" : "Wählen Sie Szene aus, um mit dem Motor zu spielen ",
-  "error" : "Fehler ",
-  "errorMsg" : "Es war ein unbekannter Fehler aufgetreten. ",
-  "generateScreenshot" : "Projekt-Screenshot generieren ",
-  "generateScreenshotMsg" : "Projektscreenshot wird generiert ... ",
-  "newScene" : "Szene erstellen ",
-  "saving" : "Projekt wird gespeichert ",
-  "savingMsg" : "Projekt wird gespeichert ... ",
-  "savingError" : "Fehler beim Speichern des Projekts ",
-  "savingErrorMsg" : "Beim Speichern des Projekts ist ein Fehler aufgetreten. ",
-  "savingSceneErrorMsg" : "Szene wird nicht ordnungsgemäß geladen.  Versuchen Sie, die Szene erneut zu laden. ",
-  "duplicating" : "Projekt duplizieren ",
-  "duplicatingMsg" : "Projekt wird dupliziert ... ",
-  "exporting" : "Projekt wird exportiert ",
-  "exportingMsg" : "Projekt wird exportiert ... ",
-  "exportingError" : "Fehler beim Exportieren des Projekts ",
-  "exportingErrorMsg" : "Beim Exportieren des Projekts ist ein Fehler aufgetreten. ",
-  "importLegacy" : "Traditionelle Welt importieren ",
-  "importLegacyMsg" : "Warnung!  Dadurch wird Ihre vorhandene Szene überschrieben!  Sind Sie sicher, dass Sie fortfahren möchten? ",
-  "publishingError" : "Fehler beim Veröffentlichen des Projekts ",
-  "publishingErrorMsg" : "Es war ein unbekannter Fehler aufgetreten. ",
-  "publishingScene" : "Szene veröffentlichen ",
-  "publishingSceneMsg" : "Szene wird veröffentlicht ... ",
-  "uploadingThumbnailMsg" : "Miniaturbild wird hochgeladen ... ",
-  "uploadingSceneMsg" : "Szene wird hochgeladen: {{percentage}}% ",
-  "envMapError" : "Fehler beim Laden der Cubemap-Images {{files}} ",
-  "lbl-return" : "Rücklauf ",
-  "menubar" : {
-    "newScene" : "Neue Szene ",
-    "saveScene" : "Szene speichern ",
-    "saveAs" : "Speichern unter ",
-    "importAsset" : "Asset importieren ",
-    "exportGLB" : "Als binärer glTF exportieren (.glb) ... ",
-    "importScene" : "Importszene ",
-    "exportScene" : "Szene exportieren ",
-    "quit" : "Beenden "
+  "loading": "Projekt wird geladen",
+  "loadingMsg": "Projekt wird geladen...",
+  "loadingError": "Fehler beim Laden des Projekts",
+  "loadingErrorMsg": "Beim Laden des Projekts ist ein Fehler aufgetreten.",
+  "selectSceneMsg": "Wählen Sie Szene, um mit der Wiedergabe mit der Engine zu beginnen.",
+  "error": "Fehler",
+  "errorMsg": "Es ist ein unbekannter Fehler aufgetreten.",
+  "generateScreenshot": "Generieren des Projekt-Screenshots",
+  "generateScreenshotMsg": "Projekt-Screenshot wird generiert...",
+  "newScene": "Szene erstellen",
+  "saving": "Projekt speichern",
+  "savingMsg": "Projekt speichern...",
+  "savingError": "Fehler beim Speichern des Projekts",
+  "savingErrorMsg": "Beim Speichern des Projekts ist ein Fehler aufgetreten.",
+  "savingSceneErrorMsg": "Die Szene wird nicht richtig geladen. Versuchen Sie, die Szene neu zu laden.",
+  "duplicating": "Duplizierendes Projekts",
+  "duplicatingMsg": "Projekt duplizieren...",
+  "exporting": "Projekt exportieren",
+  "exportingMsg": "Projekt wird exportiert...",
+  "exportingError": "Fehler beim Exportieren des Projekts",
+  "exportingErrorMsg": "Beim Exportieren des Projekts ist ein Fehler aufgetreten.",
+  "importLegacy": "Importieren von Legacy World",
+  "importLegacyMsg": "Warnung! Dies wird Ihre bestehende Szene überschreiben! Sind Sie sicher, dass Sie fortfahren möchten?",
+  "publishingError": "Fehler beim Veröffentlichen des Projekts",
+  "publishingErrorMsg": "Es ist ein unbekannter Fehler aufgetreten.",
+  "publishingScene": "Veröffentlichungsszene",
+  "publishingSceneMsg": "Verlagsszene...",
+  "uploadingThumbnailMsg": "Thumbnail wird hochgeladen...",
+  "uploadingSceneMsg": "Hochladen der Szene: {{percentage}}%",
+  "envMapError": "Fehler beim Laden von Cubemap-Bildern {{files}}",
+  "lbl-return": "Rückgabe",
+  "menubar": {
+    "newScene": "Neue Szene",
+    "saveScene": "Szene speichern",
+    "saveAs": "Speichern unter",
+    "importAsset": "Asset importieren",
+    "exportGLB": "Export als binäres glTF (.glb) ...",
+    "importScene": "Szene importieren",
+    "exportScene": "Szene exportieren",
+    "quit": "Verlassen"
   },
-  "errors" : {
-    "fileTypeNotSupported" : "Nicht unterstützter Dateityp für Datei: \"{{name}}\".  Datei muss ein Bild-, Video-oder Glb-Modell sein. ",
-    "addObject" : "addObject: before object not found ",
-    "removeObject" : "removeObject: Knoten wurde nicht gefunden.  Dies ist darauf zurückzuführen, dass ein Knoten entfernt wird, der nicht mehr in der Szene vorhanden ist. ",
-    "noParent" : "{{node}} \"{{name}}\" hat kein übergeordnetes Element.  Reparent arbeitet nur an Objekten, die sich derzeit in der Szene befinden. ",
-    "undefinedParent" : "editor.reparent: newParent ist nicht definiert ",
-    "notAuthenticated" : "Nicht authentifiziert ",
-    "fetchingProjectError" : "Fehler beim Abrufen von Projekten: {{error}} ",
-    "fetchingRouteError" : "Fehler beim Abrufen von Routen: {{error}} ",
-    "unknownError" : "Unbekannter Fehler ",
-    "resolveURL" : "Fehler beim Auflösen des URL \"{{url}}\": \n ",
-    "mediaSearchAborted" : "Datenträgersuche abgebrochen ",
-    "methodNotImplemented" : "Methode nicht implementiert. ",
-    "saveProjectAborted" : "Speichern der Szene abgebrochen ",
-    "unsavedChanges" : "Nicht gespeicherte Änderungen ",
-    "unsavedChangesMsg" : "Die Szene wurde geändert.  Speichern Sie Ihre Änderungen. ",
-    "projectCreationFail" : "Projekterstellung fehlgeschlagen.  {{reason}} ",
-    "projectDeletionFail" : "Löschen des Projekts fehlgeschlagen.  {{reason}} ",
-    "savingProjectFail" : "Speichern des Projekts fehlgeschlagen.  {{reason}} ",
-    "sceneTooLarge" : "Szene ist zu groß ({{size}} MB), um zu veröffentlichen.  Die maximale Größe ist {{maxSize}} MB. ",
-    "sceneCreationFail" : "Szenenerstellung fehlgeschlagen.  {{reason}} ",
-    "uploadAborted" : "Upload abgebrochen ",
-    "uploadFailed" : "Upload fehlgeschlagen {{reason}} ",
-    "assetDeletionFail" : "Das Löschen der Anlage ist fehlgeschlagen  {{reason}} ",
-    "projectAssetDeletionFail" : "Das Löschen des Projekts Asset ist fehlgeschlagen.  {{reason}} ",
-    "networkError" : "Netzfehler: {{status}}. {{text}} ",
-    "unknownStatus" : "Unbekannter Status ",
-    "CORS" : "Möglicherweise ein CORS-Fehler ",
-    "urlFetchError" : "Fehler beim Abrufen von \"{{url}}\" "
+  "errors": {
+    "fileTypeNotSupported": "Nicht unterstützter Dateityp für Datei: \"{{name}}\". Die Datei muss ein Bild-, Video- oder GLB-Modell sein.",
+    "addObject": "addObject: vor Objekt nicht gefunden",
+    "removeObject": "removeObject: Knoten nicht gefunden. Dies ist darauf zurückzuführen, dass ein Knoten entfernt wurde, der sich nicht mehr in der Szene befindet.",
+    "noParent": "{{node}} \"{{name}}\" hat keinen Elternteil. Reparent funktioniert nur bei Objekten, die sich gerade in der Szene befinden.",
+    "undefinedParent": "editor.reparent: newParent ist nicht definiert",
+    "notAuthenticated": "Nicht authentifiziert",
+    "fetchingProjectError": "Fehler beim Abrufen von Projekten: {{error}}",
+    "fetchingRouteError": "Fehler beim Abrufen von Routen: {{error}}",
+    "unknownError": "Unbekannter Fehler",
+    "resolveURL": "Fehler beim Beheben der URL \"{{url}}\":",
+    "mediaSearchAborted": "Mediensuche abgebrochen",
+    "methodNotImplemented": "Methode nicht implementiert.",
+    "saveProjectAborted": "Speicherszene abgebrochen",
+    "unsavedChanges": "Nicht gespeicherte Änderungen",
+    "unsavedChangesMsg": "Die Szene wurde geändert. Bitte speichern Sie Ihre Änderungen.",
+    "projectCreationFail": "Die Projekterstellung ist fehlgeschlagen. {{reason}}",
+    "projectDeletionFail": "Das Löschen des Projekts ist fehlgeschlagen. {{reason}}",
+    "savingProjectFail": "Das Speichern des Projekts ist fehlgeschlagen. {{reason}}",
+    "sceneTooLarge": "Die Szene ist zu groß ({{size}} MB), um sie zu veröffentlichen. Die maximale Größe beträgt {{maxSize}} MB.",
+    "sceneCreationFail": "Die Szenenerstellung ist fehlgeschlagen. {{reason}}",
+    "uploadAborted": "Upload abgebrochen",
+    "uploadFailed": "Upload fehlgeschlagen {{reason}}",
+    "assetDeletionFail": "Das Löschen von Assets ist fehlgeschlagen. {{reason}}",
+    "projectAssetDeletionFail": "Das Löschen von Projektobjekten ist fehlgeschlagen. {{reason}}",
+    "networkError": "Netzwerkfehler: {{status}}. {{text}}",
+    "unknownStatus": "Unbekannter Status",
+    "CORS": "Möglicherweise ein CORS-Fehler",
+    "urlFetchError": "\"{{url}}\" fehlgeschlagen \""
   },
-  "viewport" : {
-    "title" : "Viewport ",
-    "command" : {
-      "movecamera" : "Kamera verschieben ",
-      "flyFast" : "Schneller fliegen ",
-      "orbit" : "Orbit/Select ",
-      "pan" : "Schwenken ",
-      "fly" : "Fliegen ",
-      "focus" : "Fokus ",
-      "rotateLeft" : "Links drehen ",
-      "rotateRight" : "Rechts drehen ",
-      "cancelPlacement" : "Platzierung abbrechen ",
-      "placeDuplicate" : "Duplikat duplizieren ",
-      "cancelGrab" : "Grab abbrechen ",
-      "grab" : "Grab ",
-      "deselectAll" : "Alles abwählen "
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Kamera bewegen",
+      "flyFast": "Schneller fliegen",
+      "orbit": "Umlaufbahn / Auswahl",
+      "pan": "Pfanne",
+      "fly": "Fliegen",
+      "focus": "Brennpunkt",
+      "rotateLeft": "Nach links drehen",
+      "rotateRight": "Nach rechts drehen",
+      "cancelPlacement": "Platzierung stornieren",
+      "placeDuplicate": "Duplizieren platzieren",
+      "cancelGrab": "Grab abbrechen",
+      "grab": "Packen",
+      "deselectAll": "Auswahl aller aufheben"
     },
-    "state" : {
-      "header" : "Statistik ",
-      "memory" : "Speicher ",
-      "geometries" : "Geometrien ",
-      "textures" : "Texturen ",
-      "render" : "Rendern ",
-      "FPS" : "FPS ",
-      "frameTime" : "Rahmenzeit ",
-      "calls" : "Aufrufe ",
-      "triangles" : "Dreiecke ",
-      "points" : "Punkte ",
-      "lines" : "Zeilen "
+    "state": {
+      "header": "Statistiken",
+      "memory": "Gedächtnis",
+      "geometries": "Geometrien",
+      "textures": "Gewebe",
+      "render": "Erbringen",
+      "FPS": "EGO-SHOOTER",
+      "frameTime": "Frame-Zeit",
+      "calls": "Anrufe",
+      "triangles": "Dreiecke",
+      "points": "Punkte",
+      "lines": "Linien"
     }
   },
-  "toolbar" : {
-    "lbl-publish" : "Publizieren ",
-    "lbl-published" : "Veröffentlicht ",
-    "command" : {
-      "translate" : "Übersetzen ",
-      "rotate" : "Drehen ",
-      "scale" : "Maßstab ",
-      "toggleSpace" : "Transformationsbereich umschalten ",
-      "togglePivot" : "Transformierdrehpunkt umschalten ",
-      "toggleSnapMode" : "Schnappmodus umschalten ",
-      "toggleGrid" : "Rastersichtbarkeit umschalten ",
-      "increaseGridSize" : "Rastergröße vergrößern ",
-      "descreaseGridSize" : "Rastergröße verkleinern ",
-      "stopPreview" : "Vorschau der Szene stoppen ",
-      "playPreview" : "Vorschauszene "
+  "toolbar": {
+    "lbl-publish": "Veröffentlichen",
+    "lbl-published": "Veröffentlicht",
+    "command": {
+      "translate": "Übersetzen",
+      "rotate": "Drehen",
+      "scale": "Maßstab",
+      "toggleSpace": "Umschalten des Transformationsraums",
+      "togglePivot": "Umschalten des Transformationspivots",
+      "toggleSnapMode": "Einrastmodus umschalten",
+      "toggleGrid": "Rastersichtbarkeit ein-/ausschalten",
+      "increaseGridSize": "Erhöhen der Rastergröße",
+      "descreaseGridSize": "Verringern der Rastergröße",
+      "stopPreview": "Beenden der Vorschau der Szene",
+      "playPreview": "Vorschau der Szene"
     }
   },
-  "properties" : {
-    "title" : "Eigenschaften ",
-    "lbl-visible" : "Sichtbar ",
-    "lbl-preventBake" : "Bake verhindern ",
-    "lbl-persist" : "Persistent ",
-    "multipleNodeSelected" : "Mehrere Knoten mit verschiedenen Typen ausgewählt ",
-    "noNodeSelected" : "Kein Knoten ausgewählt ",
-    "ambientLight" : {
-      "name" : "Umgebungslicht ",
-      "description" : "Ein Licht, das alle Objekte in Ihrer Szene beleuchtet. ",
-      "lbl-intensity" : "Intensität ",
-      "lbl-color" : "Farbe "
+  "properties": {
+    "title": "Eigenschaften",
+    "lbl-visible": "Sichtbar",
+    "lbl-preventBake": "Bake verhindern",
+    "lbl-persist": "Beharren",
+    "multipleNodeSelected": "Mehrere Knoten unterschiedlicher Typen ausgewählt",
+    "noNodeSelected": "Kein Knoten ausgewählt",
+    "ambientLight": {
+      "name": "Umgebungslicht",
+      "description": "Ein Licht, das alle Objekte in Ihrer Szene beleuchtet.",
+      "lbl-intensity": "Intensität",
+      "lbl-color": "Farbe"
     },
-    "envmap" : {
-      "name" : "Umgebungszuordnung ",
-      "description" : "Umgebungszuordnungseigenschaften "
+    "envmap": {
+      "name": "Umgebungskarte",
+      "description": "Eigenschaften der Umgebungskarte"
     },
-    "asset" : {
-      "name" : "Anlage ",
-      "description" : "Eine Gruppierung von Szenenkomponenten, die dynamisch geladen und entladen werden können ",
-      "lbl-options" : "Optionen ",
-      "lbl-assetPath" : "Assetpfad ",
-      "lbl-assetName" : "Exportname ",
-      "lbl-exportOptions" : "Exportoptionen ",
-      "lbl-export" : "Asset exportieren ",
-      "lbl-load" : "In Szene laden ",
-      "lbl-unload" : "Entladen ",
-      "lbl-reload" : "Erneut laden "
+    "asset": {
+      "name": "Vermögenswert",
+      "description": "Eine Gruppierung von Szenenkomponenten, die dynamisch geladen und entladen werden können",
+      "lbl-options": "Optionen",
+      "lbl-assetPath": "Asset-Pfad",
+      "lbl-assetName": "Name exportieren",
+      "lbl-exportOptions": "Exportoptionen",
+      "lbl-export": "Exportieren von Vermögenswerten",
+      "lbl-load": "In Szene laden",
+      "lbl-unload": "Entladen",
+      "lbl-reload": "Nachladen"
     },
-    "audio" : {
-      "name" : "Audio ",
-      "description" : "Lädt Audio dynamisch. ",
-      "lbl-audiourl" : "Audio-URL ",
-      "lbl-controls" : "Steuerelemente ",
-      "info-controls" : "Blenden Sie die Sichtbarkeit der Datenträgersteuerelemente ein. ",
-      "lbl-autoplay" : "Automatische Wiedergabe ",
-      "info-autoplay" : "Wenn wahr, werden die Medien spielen, wenn sie zum ersten Mal in die Szene einsteigen. ",
-      "lbl-synchronize" : "Synchronisieren ",
-      "info-synchronize" : "Bei 'true' werden die Datenträger auf allen verbundenen Clients synchronisiert. ",
-      "lbl-loop" : "Schleife ",
-      "info-loop" : "Wenn wahr, werden die Medien auf unbestimmte Zeit schleifen. ",
-      "lbl-audioType" : "Audiotyp ",
-      "lbl-distanceModel" : "Abstandsmodell ",
-      "info-distanceModel" : "Der Algorithmus für die Berechnung von Audio-Rolloff. ",
-      "lbl-rolloffFactor" : "Rolloff-Faktor ",
-      "info-rolloffFactor" : "Ein Doppelwert, der beschreibt, wie schnell sich der Datenträger verringert, wenn sich die Quelle vom Empfangsprogramm entfernt.  0 bis 1 ",
-      "info-rfInfinity" : "Ein Doppelwert, der beschreibt, wie schnell sich der Datenträger verringert, wenn sich die Quelle vom Empfangsprogramm entfernt.  0 bis Infinity ",
-      "lbl-refDistance" : "Ref-Abstand ",
-      "info-refDistance" : "Ein Doppelwert, der den Referenzabstand für die Verringerung des Volumens darstellt, während sich die Audioquelle weiter von dem Listener entfernt. ",
-      "lbl-maxDistance" : "Max. Abstand ",
-      "info-maxDistance" : "Ein Doppelwert, der den maximalen Abstand zwischen der Audioquelle und dem Empfangsprogramm darstellt, nach dem das Volumen nicht weiter reduziert wird. ",
-      "lbl-coneInnerAngle" : "Kegelinnenwinkel ",
-      "info-coneInnerAngle" : "Ein Doppelwert, der den Winkel in Grad eines Kegels beschreibt, in dem sich keine Volumenverringerung befindet. ",
-      "lbl-coneOuterAngle" : "Kegel-Außenwinkel ",
-      "info-coneOuterAngle" : "Ein Doppelwert, der den Winkel in Grad eines Kegels beschreibt, außerhalb dessen der Datenträger um einen konstanten Wert verringert wird, der durch das Attribut coneOuterGain definiert wird. ",
-      "lbl-coreOuterGain" : "Cone Outer Gain ",
-      "info-coreOuterGain" : "Ein doppelter Wert, der die Menge der Volumenverkleinerung außerhalb des Kegels beschreibt, die durch das Attribut coneOuterAngle definiert wird.  Der Standardwert ist 0, was bedeutet, dass kein Ton gehört werden kann. ",
-      "lbl-volume" : "Datenträger ",
-      "lbl-play" : "Spielen ",
-      "lbl-pause" : "Pause ",
-      "error-url" : "Fehler beim Laden von URL "
+    "audio": {
+      "name": "Audio",
+      "description": "Dynamisches Laden von Audio.",
+      "lbl-audiourl": "Audio-URL",
+      "lbl-controls": "Steuerung",
+      "info-controls": "Schalten Sie die Sichtbarkeit der Mediensteuerelemente um.",
+      "lbl-autoplay": "Automatische Wiedergabe",
+      "info-autoplay": "Wenn dies der Fall ist, werden die Medien beim ersten Betreten der Szene abgespielt.",
+      "lbl-synchronize": "Synchronisieren",
+      "info-synchronize": "Wenn true, werden die Medien auf allen verbundenen Clients synchronisiert.",
+      "lbl-loop": "Schleife",
+      "info-loop": "Wenn dies wahr ist, werden sich die Medien auf unbestimmte Zeit wiederholen.",
+      "lbl-audioType": "Audio-Typ",
+      "lbl-distanceModel": "Entfernungsmodell",
+      "info-distanceModel": "Der Algorithim wurde verwendet, um den Audio-Rolloff zu berechnen.",
+      "lbl-rolloffFactor": "Rolloff-Faktor",
+      "info-rolloffFactor": "Ein doppelter Wert, der beschreibt, wie schnell die Lautstärke reduziert wird, wenn sich die Quelle vom Zuhörer entfernt. 0 bis 1",
+      "info-rfInfinity": "Ein doppelter Wert, der beschreibt, wie schnell die Lautstärke reduziert wird, wenn sich die Quelle vom Zuhörer entfernt. 0 bis unendlich",
+      "lbl-refDistance": "Ref Entfernung",
+      "info-refDistance": "Ein doppelter Wert, der den Referenzabstand zum Verringern der Lautstärke darstellt, wenn sich die Audioquelle weiter vom Zuhörer entfernt.",
+      "lbl-maxDistance": "Max. Entfernung",
+      "info-maxDistance": "Ein doppelter Wert, der den maximalen Abstand zwischen der Audioquelle und dem Zuhörer darstellt, nach dem die Lautstärke nicht weiter reduziert wird.",
+      "lbl-coneInnerAngle": "Kegel-Innenwinkel",
+      "info-coneInnerAngle": "Ein doppelter Wert, der den Winkel eines Kegels in Grad beschreibt, in dem es keine Volumenreduzierung gibt.",
+      "lbl-coneOuterAngle": "Kegel-Außenwinkel",
+      "info-coneOuterAngle": "Ein doppelter Wert, der den Winkel eines Kegels in Grad beschreibt, außerhalb dessen das Volumen um einen konstanten Wert reduziert wird, der durch das coneOuterGain-Attribut definiert wird.",
+      "lbl-coreOuterGain": "Kegel-Außenverstärkung",
+      "info-coreOuterGain": "Ein doppelter Wert, der den Betrag der Volumenreduzierung außerhalb des durch das coneOuterAngle-Attribut definierten Kegels beschreibt. Der Standardwert ist 0, was bedeutet, dass kein Ton zu hören ist.",
+      "lbl-volume": "Volumen",
+      "lbl-play": "Spielen",
+      "lbl-pause": "Pause",
+      "error-url": "Fehler beim Laden von URL"
     },
-    "boxCollider" : {
-      "description" : "Ein unsichtbares Kästchen, das von Objekten abprallt oder sich auf dem oberen Rand befindet. \nOhne Kollisionen werden Gegenstände durch Böden fallen und durch Wände gehen. ",
-      "lbl-isTrigger" : "Auslöser "
+    "boxCollider": {
+      "description": "Eine unsichtbare Box, von der Objekte abprallen oder auf der sie ruhen.\nOhne Beschleuniger fallen Objekte durch Böden und gehen durch Wände.",
+      "lbl-isTrigger": "Auslösen"
     },
-    "camera" : {
-      "name" : "Kamera ",
-      "description" : "Kameraeinstellungen. ",
-      "lbl-camera-raycast" : "Kamera Raycasting ",
-      "lbl-camera-raycast-toggle" : "Aktiviert ",
-      "lbl-camera-raycast-frequency" : "Häufigkeit ",
-      "lbl-camera-raycast-count" : "Ray Count ",
-      "lbl-camera-raycast-length" : "Strahlenlänge "
+    "camera": {
+      "name": "Kamera",
+      "description": "Kameraeinstellungen.",
+      "lbl-camera-raycast": "Kamera Raycasting",
+      "lbl-camera-raycast-toggle": "Ermöglichte",
+      "lbl-camera-raycast-frequency": "Frequenz",
+      "lbl-camera-raycast-count": "Ray Count",
+      "lbl-camera-raycast-length": "Ray-Länge"
     },
-    "directionalLight" : {
-      "name" : "Direktes Licht ",
-      "description" : "Ein Licht, das die gesamte Szene beleuchtet, aber entlang einer einzigen Richtung ausstrahlt. ",
-      "lbl-color" : "Farbe ",
-      "lbl-intensity" : "Intensität ",
-      "lbl-cameraFar" : "Kamera weit entfernt ",
-      "lbl-cameraNear" : "Kamera nahe ",
-      "lbl-cameraTop" : "Kamera-Top ",
-      "lbl-cameraBottom" : "Kamera unten ",
-      "lbl-cameraLeft" : "Kamera nach links ",
-      "lbl-cameraRight" : "Kamera rechts ",
-      "lbl-useInCSM" : "Verwendung in CSM ",
-      "lbl-castShadow" : "Cast-Schatten ",
-      "lbl-disableForCSM" : "Inaktiviert, weil die Cascade-Spiegelmap aktiviert ist. ",
-      "lbl-shadowmapResolution" : "Auflösung der Spiegelkarte ",
-      "lbl-shadowBias" : "Schattenvorspannung ",
-      "lbl-shadowRadius" : "Schattenradius ",
-      "lbl-showCameraHelper" : "Kamera-Helper anzeigen "
+    "directionalLight": {
+      "name": "Gerichtetes Licht",
+      "description": "Ein Licht, das die gesamte Szene beleuchtet, aber entlang einer einzigen Richtung ausstrahlt.",
+      "lbl-color": "Farbe",
+      "lbl-intensity": "Intensität",
+      "lbl-cameraFar": "Kamera weit",
+      "lbl-cameraNear": "Kamera in der Nähe",
+      "lbl-cameraTop": "Kamera Top",
+      "lbl-cameraBottom": "Kamera unten",
+      "lbl-cameraLeft": "Kamera links",
+      "lbl-cameraRight": "Kamera rechts",
+      "lbl-useInCSM": "Verwendung in CSM",
+      "lbl-castShadow": "Schatten werfen",
+      "lbl-disableForCSM": "Deaktiviert, da die Cascade shadow map aktiviert ist.",
+      "lbl-shadowmapResolution": "Auflösung der Schattenkarte",
+      "lbl-shadowBias": "Schatten-Voreingenommenheit",
+      "lbl-shadowRadius": "Schattenradius",
+      "lbl-showCameraHelper": "Kamera-Helfer anzeigen"
     },
-    "groundPlane" : {
-      "name" : "Masseebene ",
-      "description" : "Eine ebene Masseebene, die sich bis in die Entfernung erstreckt. ",
-      "lbl-color" : "Farbe ",
-      "lbl-receiveShadow" : "Schatten empfangen ",
-      "lbl-generateNavmesh" : "Navmesh generieren "
+    "groundPlane": {
+      "name": "Grundebene",
+      "description": "Eine flache Grundplatte, die sich in die Ferne erstreckt.",
+      "lbl-color": "Farbe",
+      "lbl-receiveShadow": "Schatten empfangen",
+      "lbl-generateNavmesh": "Navmesh generieren"
     },
-    "link" : {
-      "description" : "Link zu einem Zimmer oder einer Website. ",
-      "lbl-url" : "URL "
+    "link": {
+      "description": "Link zu einem Raum oder einer Website.",
+      "lbl-url": "URL (URL)"
     },
-    "map" : {
-      "description" : "3D-Geodaten-Karte von z.B. einer Stadt. "
+    "map": {
+      "description": "3D-Geodatenkarte von z.B. einer Stadt."
     },
-    "model" : {
-      "description" : "Ein 3D-Modell in Ihrer Szene, das aus einer GLTF-URL oder einer GLTF-Datei geladen wurde. ",
-      "lbl-usingGPUInstancingFlag" : "GPU-Instancing verwenden ",
-      "lbl-modelurl" : "Modell-URL ",
-      "lbl-envmapUrl" : "URL der Umgebungszuordnung ",
-      "lbl-textureOverride" : "Textur überschreiben ",
-      "lbl-materialOverride" : "Materialüberschreibungen ",
-      "error-url" : "Fehler beim Laden von URL ",
-      "lbl-loopAnimation" : "Schleifenanimation ",
-      "lbl-isAvatar" : "Ist Avatar ",
-      "lbl-isGPUInstancing" : "Wird mit Hilfe von GPU-Instancing ",
-      "lbl-isDynamic" : "Ist dynamisch ",
-      "lbl-castShadow" : "Cast-Schatten ",
-      "lbl-receiveShadow" : "Schatten empfangen ",
-      "lbl-interactable" : "Interactable ",
-      "lbl-matrixAutoUpdate" : "MatrixAutoUpdate ",
-      "lbl-name" : "Name ",
-      "lbl-url" : "Modell-URL ",
-      "lbl-buy" : "URL kaufen ",
-      "lbl-learnMore" : "Weitere URL erfahren ",
-      "lbl-htmlContent" : "Html-Inhalt ",
-      "lbl-interactionText" : "Interaktionstext ",
-      "lbl-interactionType" : "Interaktionsart "
+    "model": {
+      "description": "Ein 3D-Modell in Ihrer Szene, das von einer GLTF-URL oder -Datei geladen wird.",
+      "lbl-usingGPUInstancingFlag": "Verwenden der GPU-Instanziierung",
+      "lbl-modelurl": "Modell-URL",
+      "lbl-envmapUrl": "URL der Umgebungskarte",
+      "lbl-textureOverride": "Textur überschreiben",
+      "lbl-materialOverride": "Materialüberschreibungen",
+      "error-url": "Fehler beim Laden von URL",
+      "lbl-loopAnimation": "Loop-Animation",
+      "lbl-isAvatar": "Ist Avatar",
+      "lbl-isGPUInstancing": "Verwendet GPU-Instancing",
+      "lbl-isDynamic": "Ist dynamisch",
+      "lbl-castShadow": "Schatten werfen",
+      "lbl-receiveShadow": "Schatten empfangen",
+      "lbl-interactable": "Interaktierbar",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Name",
+      "lbl-url": "Modell-URL",
+      "lbl-buy": "URL kaufen",
+      "lbl-learnMore": "Weitere Informationen URL",
+      "lbl-htmlContent": "HTML-Inhalt",
+      "lbl-interactionText": "Interaktionstext",
+      "lbl-interactionType": "Art der Interaktion"
     },
-    "materialAssignment" : {
-      "lbl-materialID" : "Material ",
-      "error-materialID" : "Fehler beim Suchen von Material ",
-      "placeholder-materialID" : "Material auswählen ",
-      "lbl-patternTarget" : "Musterübereinstimmung ",
-      "lbl-pattern" : "Muster ",
-      "lbl-isRegex" : "Regex "
+    "materialAssignment": {
+      "lbl-materialID": "Material",
+      "error-materialID": "Fehler beim Auffinden von Material",
+      "placeholder-materialID": "Material auswählen",
+      "lbl-patternTarget": "Musterübereinstimmung",
+      "lbl-pattern": "Muster",
+      "lbl-isRegex": "Regex"
     },
-    "interaction" : {
-      "type" : "Interaktionsart ",
-      "text" : "Interaktionstext ",
-      "distance" : "Interaktionsabstand ",
-      "theme" : "Interaktionsschema ",
-      "name" : "Interaktionsname ",
-      "description" : "Interaktionsbeschreibung ",
-      "images" : "Interaktionsbilder ",
-      "videos" : "Interaktionsvideos ",
-      "urls" : "Interaktionsurls ",
-      "models" : "Interaktionsmodelle "
+    "interaction": {
+      "type": "Art der Interaktion",
+      "text": "Interaktionstext",
+      "distance": "Interaktionsdistanz",
+      "theme": "Interaktionsthema",
+      "name": "Name der Interaktion",
+      "description": "Beschreibung der Interaktion",
+      "images": "Interaktionsbilder",
+      "videos": "Interaktionsvideos",
+      "urls": "Interaktions-URLs",
+      "models": "Interaktionsmodelle"
     },
-    "group" : {
-      "name" : "Gruppe ",
-      "description" : "Eine Gruppe von mehreren Objekten, die gemeinsam verschoben oder dupliziert werden können. \nZiehen und übergeben Sie Objekte in die Gruppe in der Hierarchie. "
+    "group": {
+      "name": "Gruppe",
+      "description": "Eine Gruppe mehrerer Objekte, die zusammen verschoben oder dupliziert werden können.\nZiehen Sie Objekte per Drag & Drop in die Gruppe in der Hierarchie."
     },
-    "hemisphere" : {
-      "name" : "Hemisphere-Licht ",
-      "description" : "Ein Licht, das die Szene vom direkten Overhead ausleuchtet. ",
-      "lbl-skyColor" : "Himmelfarbe ",
-      "lbl-groundColor" : "Grundfarbe ",
-      "lbl-intensity" : "Intensität "
+    "hemisphere": {
+      "name": "Licht der Hemisphäre",
+      "description": "Ein Licht, das die Szene direkt von oben beleuchtet.",
+      "lbl-skyColor": "Himmelsfarbe",
+      "lbl-groundColor": "Grundfarbe",
+      "lbl-intensity": "Intensität"
     },
-    "image" : {
-      "name" : "Bild ",
-      "description" : "Lädt ein Image dynamisch. ",
-      "lbl-imgURL" : "Image-URL ",
-      "lbl-transparency" : "Transparenzmodus ",
-      "lbl-alphaCutoff" : "Alpha Cutoff ",
-      "lbl-projection" : "Projektion ",
-      "lbl-side" : "Seite ",
-      "info-controls" : "Blenden Sie die Sichtbarkeit der Datenträgersteuerelemente ein. ",
-      "info-transparency" : "Wie man Transparenz anwendet: ",
-      "info-opaque" : "'undurchsichtig' = keine Transparenz ",
-      "info-blend" : "'blend' = Verwenden Sie den Alpha-Kanal der Bilder ",
-      "info-mask" : "'mask' = Einen angegebenen Abschaltwert für Ein-/Aus-Transparenz verwenden (ausführlicher) ",
-      "info-alphaCutoff" : "Pixel mit einem niedrigeren Alpha-Wert als transparent ",
-      "error-url" : "Ungültige URL "
+    "image": {
+      "name": "Bild",
+      "description": "Lädt dynamisch ein Bild.",
+      "lbl-imgURL": "Bild-URL",
+      "lbl-transparency": "Transparenz-Modus",
+      "lbl-alphaCutoff": "Alpha-Cutoff",
+      "lbl-projection": "Projektion",
+      "lbl-side": "Seite",
+      "info-controls": "Schalten Sie die Sichtbarkeit der Mediensteuerelemente um.",
+      "info-transparency": "Wie man Transparenz anwendet:",
+      "info-opaque": "'undurchsichtig' = keine Transparenz",
+      "info-blend": "'blend' = Verwenden Sie den Alphakanal der Bilder",
+      "info-mask": "'mask' = Verwenden Sie einen angegebenen Grenzwert für die Ein-/Aus-Transparenz (performanter)",
+      "info-alphaCutoff": "Pixel mit niedrigeren Alphawerten sind transparent",
+      "error-url": "Ungültige URL"
     },
-    "name" : {
-      "lbl-name" : "Name "
+    "name": {
+      "lbl-name": "Name"
     },
-    "partileEmitter" : {
-      "description" : "Teilchenemitter zum Erzeugen von Partikeln. ",
-      "lbl-particleCount" : "Anzahl der Partikel ",
-      "lbl-image" : "Bild ",
-      "lbl-ageRandomness" : "Alterszufälligkeiten ",
-      "lbl-lifetime" : "Lebensdauer ",
-      "lbl-lifetimeRandomness" : "Lifetime Randomness ",
-      "lbl-sizeCurve" : "Größenkurve ",
-      "lbl-startPSize" : "Partikelgröße starten ",
-      "lbl-endPSize" : "Partikelgröße beenden ",
-      "lbl-sizeRandomness" : "Größenzufallslosigkeit ",
-      "lbl-colorCurve" : "Farbkurve ",
-      "lbl-startColor" : "Farbe starten ",
-      "lbl-startOpacity" : "Opazität starten ",
-      "lbl-middleColor" : "Mittelfarbe ",
-      "lbl-middleOpacity" : "Mittlere Opazität ",
-      "lbl-endColor" : "Endfarbe ",
-      "lbl-endOpacity" : "Endopazität ",
-      "lbl-velocityCurve" : "Geschwindigkeitskurve ",
-      "lbl-startVelocity" : "Startgeschwindigkeit ",
-      "lbl-endVelocity" : "Endgeschwindigkeit ",
-      "lbl-angularVelocity" : "Winkelgeschwindigkeit ",
-      "info-ageRandomness" : "Die Menge der Variation zwischen dem Zeitpunkt, an dem die Partikel verspawnt werden. ",
-      "info-lifetime" : "Das maximale Alter eines Teilchens, bevor es wieder aufgenommen wird. ",
-      "info-lifetimeRandomness" : "Die Menge der Variation zwischen den Partikellebenszeiten. ",
-      "info-sizeRandomness" : "Die Menge der Variation zwischen den Partikelstartgrößen. ",
-      "error-url" : "Fehler beim Laden von URL "
+    "partileEmitter": {
+      "description": "Partikelemitter zur Erzeugung von Partikeln.",
+      "lbl-particleCount": "Partikelanzahl",
+      "lbl-image": "Bild",
+      "lbl-ageRandomness": "Alter Zufälligkeit",
+      "lbl-lifetime": "Lebensdauer",
+      "lbl-lifetimeRandomness": "Lebenslange Zufälligkeit",
+      "lbl-sizeCurve": "Größenkurve",
+      "lbl-startPSize": "Partikelgröße starten",
+      "lbl-endPSize": "Endpartikelgröße",
+      "lbl-sizeRandomness": "Größen-Zufälligkeit",
+      "lbl-colorCurve": "Farbkurve",
+      "lbl-startColor": "Startfarbe",
+      "lbl-startOpacity": "Deckkraft starten",
+      "lbl-middleColor": "Mittlere Farbe",
+      "lbl-middleOpacity": "Mittlere Deckkraft",
+      "lbl-endColor": "Endfarbe",
+      "lbl-endOpacity": "Deckkraft beenden",
+      "lbl-velocityCurve": "Geschwindigkeitskurve",
+      "lbl-startVelocity": "Starten Sie Velocity",
+      "lbl-endVelocity": "Endgeschwindigkeit",
+      "lbl-angularVelocity": "Winkelgeschwindigkeit",
+      "info-ageRandomness": "Der Grad der Variation zwischen dem Zeitpunkt, zu dem Partikel erzeugt werden.",
+      "info-lifetime": "Das maximale Alter eines Teilchens, bevor es respawnt wird.",
+      "info-lifetimeRandomness": "Das Ausmaß der Variation zwischen den Partikellebensdauer.",
+      "info-sizeRandomness": "Der Grad der Variation zwischen den Partikelausgangsgrößen.",
+      "error-url": "Fehler beim Laden von URL"
     },
-    "clouds" : {
-      "name" : "Cloud ",
-      "description" : "Auf Sprite basierendes Cloudvolumen. ",
-      "lbl-image" : "Sprite-Bild ",
-      "lbl-wroldScale" : "Weltmaßstab ",
-      "lbl-dimensions" : "Dimensionen ",
-      "lbl-noiseZoom" : "Rauschen-Zoom ",
-      "lbl-noiseOffset" : "Rauschoffset ",
-      "lbl-spriteScale" : "Sprite-Skala ",
-      "lbl-fogColor" : "Fog-Farbe ",
-      "lbl-fogRange" : "Fog-Bereich ",
-      "error-url" : "Fehler beim Laden von URL "
+    "clouds": {
+      "name": "Wolke",
+      "description": "Sprite-basiertes Cloud-Volumen.",
+      "lbl-image": "Sprite-Bild",
+      "lbl-wroldScale": "Weltmaßstab",
+      "lbl-dimensions": "Dimensionen",
+      "lbl-noiseZoom": "Rausch-Zoom",
+      "lbl-noiseOffset": "Rauschausgleich",
+      "lbl-spriteScale": "Sprite-Skala",
+      "lbl-fogColor": "Nebelfarbe",
+      "lbl-fogRange": "Nebelbereich",
+      "error-url": "Fehler beim Laden von URL"
     },
-    "ocean" : {
-      "name" : "Ozean ",
-      "description" : "Meeresoberfläche mit Wellen und Schaum ",
-      "lbl-normalMap" : "Normale Zuordnung ",
-      "lbl-distortionMap" : "Verzerrungszuordnung ",
-      "lbl-envMap" : "Umgebungszuordnung ",
-      "lbl-color" : "Farbe ",
-      "lbl-shallowWaterColor" : "Seichte Wasserfarbe ",
-      "lbl-shallowToDeepDistance" : "Flache bis tiefe Entfernung ",
-      "lbl-opacityFadeDistance" : "Opazität-Abblendabstand ",
-      "lbl-opacityRange" : "Opazitätsbereich ",
-      "lbl-shininess" : "Glänzende ",
-      "lbl-reflectivity" : "Reflektivität ",
-      "lbl-foamColor" : "Schaumfarbe ",
-      "lbl-foamSpeed" : "Schaumgeschwindigkeit ",
-      "lbl-foamTiling" : "Schäumung ",
-      "lbl-bigWaveTiling" : "Big Wave Tiling ",
-      "lbl-bigWaveSpeed" : "Große Wellengeschwindigkeit ",
-      "lbl-bigWaveHeight" : "Große Wellenhöhe ",
-      "lbl-waveSpeed" : "Wellengeschwindigkeit ",
-      "lbl-waveScale" : "Wellenmaßstab ",
-      "lbl-waveTiling" : "Wellen-Tiling ",
-      "lbl-waveDistortionSpeed" : "Wellenverzerrungsgeschwindigkeit ",
-      "lbl-waveDistortionTiling" : "Wellenverzerrungstiling ",
-      "error-url" : "Fehler beim Laden von URL "
+    "ocean": {
+      "name": "Ozean",
+      "description": "Meeresoberfläche mit Wellen und Schaum",
+      "lbl-normalMap": "Normale Karte",
+      "lbl-distortionMap": "Verzerrungskarte",
+      "lbl-envMap": "Umgebungskarte",
+      "lbl-color": "Farbe",
+      "lbl-shallowWaterColor": "Flache Wasserfarbe",
+      "lbl-shallowToDeepDistance": "Flache bis tiefe Entfernung",
+      "lbl-opacityFadeDistance": "Opazitäts-Fade-Abstand",
+      "lbl-opacityRange": "Opazitätsbereich",
+      "lbl-shininess": "Glanz",
+      "lbl-reflectivity": "Reflexionsvermögen",
+      "lbl-foamColor": "Schaumfarbe",
+      "lbl-foamSpeed": "Schaumgeschwindigkeit",
+      "lbl-foamTiling": "Schaumfliesen",
+      "lbl-bigWaveTiling": "Große Wellenfliesen",
+      "lbl-bigWaveSpeed": "Große Wellengeschwindigkeit",
+      "lbl-bigWaveHeight": "Große Wellenhöhe",
+      "lbl-waveSpeed": "Wellengeschwindigkeit",
+      "lbl-waveScale": "Wellenskala",
+      "lbl-waveTiling": "Wellenkacheln",
+      "lbl-waveDistortionSpeed": "Wellenverzerrungsgeschwindigkeit",
+      "lbl-waveDistortionTiling": "Kacheln für Wellenverzerrungen",
+      "error-url": "Fehler beim Laden von URL"
     },
-    "water" : {
-      "name" : "Wasser ",
-      "description" : "Kleine Wasseroberfläche "
+    "water": {
+      "name": "Wasser",
+      "description": "Kleine Wasseroberfläche"
     },
-    "interior" : {
-      "name" : "Inneres ",
-      "description" : "Eine Oberfläche mit zugeordneter Cube-Textur zur Emulation von Innenräumen ",
-      "lbl-cubeMap" : "Cube Map-Textur ",
-      "lbl-tiling" : "Tiling-Betrag ",
-      "lbl-size" : "Oberflächengröße ",
-      "error-url" : "Fehler beim Laden von URL "
+    "interior": {
+      "name": "Inneres",
+      "description": "Eine Oberfläche mit zugeordneter Würfeltextur zur Nachahmung von Innenumgebungen",
+      "lbl-cubeMap": "Cube Map-Textur",
+      "lbl-tiling": "Kachelbetrag",
+      "lbl-size": "Flächengröße",
+      "error-url": "Fehler beim Laden von URL"
     },
-    "pointLight" : {
-      "description" : "Ein Licht, das aus einem einzigen Punkt in alle Richtungen ausstrahlt. ",
-      "lbl-color" : "Farbe ",
-      "lbl-intensity" : "Intensität ",
-      "lbl-range" : "Bereich ",
-      "lbl-decay" : "Decay "
+    "pointLight": {
+      "description": "Ein Licht, das von einem einzigen Punkt aus in alle Richtungen emittiert wird.",
+      "lbl-color": "Farbe",
+      "lbl-intensity": "Intensität",
+      "lbl-range": "Bereich",
+      "lbl-decay": "Verfallen"
     },
-    "scene" : {
-      "name" : "Szene ",
-      "description" : "Das Stammobjekt der Szene. ",
-      "lbl-bgcolor" : "Hintergrundfarbe ",
-      "lbl-fogType" : "Fog-Typ ",
-      "lbl-fogColor" : "Fog-Farbe ",
-      "lbl-forNearDistance" : "Fog Naher Abstand ",
-      "lbl-fogFarDistance" : "Fog Far Distance ",
-      "lbl-fogDensity" : "Fog-Dichte ",
-      "lbl-audioSettings" : "Positionston verwenden ",
-      "lbl-avatarDistanceModel" : "Avatar-Abstandsmodell ",
-      "lbl-avatarRolloffFactor" : "Avatar Rolloff-Faktor ",
-      "lbl-avatarRefDistance" : "Avatar-Referenzabstand ",
-      "lbl-avatarMaxDistance" : "Avatar Max. Abstand ",
-      "lbl-mediaVolume" : "Datenträgerdatenträger ",
-      "lbl-mediaDistanceModel" : "Datenträgerentfernungsmodell ",
-      "lbl-mediaRolloffFactor" : "Datenträger-Rolloff-Faktor ",
-      "lbl-mediaRefDistance" : "Abstand der Datenträgerreferenz ",
-      "lbl-mediaMaxDistance" : "Max. Abstand der Datenträger ",
-      "lbl-mediaConeInnerAngle" : "Innenwinkel des Medienkonus ",
-      "lbl-mediaConeOuterAngle" : "Außenwinkel des Medienkonus ",
-      "lbl-mediaConeOuterGain" : "Media Cone Outer Gain ",
-      "info-avatarDistanceModel" : "Der Algorithmus für die Berechnung von Audio-Rolloff. ",
-      "info-avatarRolloffFactor" : "Ein Doppelwert, der beschreibt, wie schnell sich der Datenträger verringert, wenn sich die Quelle vom Empfangsprogramm entfernt.  0 bis 1 ",
-      "info-avatarRolloffFactorInifinity" : "Ein Doppelwert, der beschreibt, wie schnell sich der Datenträger verringert, wenn sich die Quelle vom Empfangsprogramm entfernt.  0 bis Infinity ",
-      "info-avatarRefDistance" : "Ein Doppelwert, der den Referenzabstand für die Verringerung des Volumens darstellt, während sich die Audioquelle weiter von dem Listener entfernt. ",
-      "info-avatarMaxDistance" : "Ein Doppelwert, der den maximalen Abstand zwischen der Audioquelle und dem Empfangsprogramm darstellt, nach dem das Volumen nicht weiter reduziert wird. ",
-      "info-mediaDistanceModel" : "Der Algorithmus für die Berechnung von Audio-Rolloff. ",
-      "info-mediaRolloffFactor" : "Ein Doppelwert, der beschreibt, wie schnell sich der Datenträger verringert, wenn sich die Quelle vom Empfangsprogramm entfernt.  0 bis 1 ",
-      "info-mediaRolloffFactorInfinity" : "Ein Doppelwert, der beschreibt, wie schnell sich der Datenträger verringert, wenn sich die Quelle vom Empfangsprogramm entfernt.  0 bis Infinity ",
-      "info-mediaRefDistance" : "Ein Doppelwert, der den Referenzabstand für die Verringerung des Volumens darstellt, während sich die Audioquelle weiter von dem Listener entfernt. ",
-      "info-mediaMaxDistance" : "Ein Doppelwert, der den maximalen Abstand zwischen der Audioquelle und dem Empfangsprogramm darstellt, nach dem das Volumen nicht weiter reduziert wird. ",
-      "info-mediaConeInnerAngle" : "Ein Doppelwert, der den Winkel in Grad eines Kegels beschreibt, in dem sich keine Volumenverringerung befindet. ",
-      "info-mediaConeOuterAngle" : "Ein Doppelwert, der den Winkel in Grad eines Kegels beschreibt, außerhalb dessen der Datenträger um einen konstanten Wert verringert wird, der durch das Attribut coneOuterGain definiert wird. ",
-      "info-mediaConeOuterGain" : "Ein doppelter Wert, der die Menge der Volumenverkleinerung außerhalb des Kegels beschreibt, die durch das Attribut coneOuterAngle definiert wird.  Der Standardwert ist 0, was bedeutet, dass kein Ton gehört werden kann. ",
-      "lbl-simpleMaterials" : "Einfache Materialien verwenden ",
-      "lbl-lods" : "LODs ",
-      "info-lods" : "Legt die Abstände fest, bei denen die Detaillierungsebene geändert wird. ",
-      "info-simpleMaterials" : "Konvertiert alle teuren Materialien in einfachere, um die Rendering-Rendering-Funktion zu übernehmen. ",
-      "lbl-rendererSettings" : "Renderer-Einstellungen überschreiben ",
-      "lbl-csm" : "Cascading Shadow Maps ",
-      "info-csm" : "Ermöglicht kaskadierende Spiegelkarten. ",
-      "lbl-toneMapping" : "Tonzuordnung ",
-      "info-toneMapping" : "Aktiviert die Tonzuordnung auf dem Szenenrenderer.  Hat keine Auswirkung, wenn eine Nachbearbeitung aktiviert ist. ",
-      "lbl-toneMappingExposure" : "Ton-Mapping-Belichtung ",
-      "info-toneMappingExposure" : "Gibt die Tonabbildungsexposition für den Szenenrenderer an.  Hat keine Auswirkung, wenn eine Nachbearbeitung aktiviert ist. ",
-      "lbl-shadowMapType" : "Typ der Spiegelzuordnung ",
-      "info-shadowMapType" : "Typ der Spiegelmap ",
-      "error-url" : "Fehler beim Laden von URL "
+    "scene": {
+      "name": "Szene",
+      "description": "Das Stammobjekt der Szene.",
+      "lbl-bgcolor": "Hintergrundfarbe",
+      "lbl-fogType": "Nebeltyp",
+      "lbl-fogColor": "Nebelfarbe",
+      "lbl-forNearDistance": "Nebel in der Nähe",
+      "lbl-fogFarDistance": "Nebel in großer Entfernung",
+      "lbl-fogDensity": "Nebeldichte",
+      "lbl-audioSettings": "Verwenden von Positionsaudio",
+      "lbl-avatarDistanceModel": "Avatar-Entfernungsmodell",
+      "lbl-avatarRolloffFactor": "Avatar-Rolloff-Faktor",
+      "lbl-avatarRefDistance": "Avatar Ref Entfernung",
+      "lbl-avatarMaxDistance": "Avatar Max Entfernung",
+      "lbl-mediaVolume": "Medienvolumen",
+      "lbl-mediaDistanceModel": "Medienabstandsmodell",
+      "lbl-mediaRolloffFactor": "Medien-Rolloff-Faktor",
+      "lbl-mediaRefDistance": "Media Ref Entfernung",
+      "lbl-mediaMaxDistance": "Maximale Medienentfernung",
+      "lbl-mediaConeInnerAngle": "Innenwinkel des Medienkegels",
+      "lbl-mediaConeOuterAngle": "Außenwinkel des Medienkegels",
+      "lbl-mediaConeOuterGain": "Äußere Verstärkung des Medienkegels",
+      "info-avatarDistanceModel": "Der Algorithim wurde verwendet, um den Audio-Rolloff zu berechnen.",
+      "info-avatarRolloffFactor": "Ein doppelter Wert, der beschreibt, wie schnell die Lautstärke reduziert wird, wenn sich die Quelle vom Zuhörer entfernt. 0 bis 1",
+      "info-avatarRolloffFactorInifinity": "Ein doppelter Wert, der beschreibt, wie schnell die Lautstärke reduziert wird, wenn sich die Quelle vom Zuhörer entfernt. 0 bis unendlich",
+      "info-avatarRefDistance": "Ein doppelter Wert, der den Referenzabstand zum Verringern der Lautstärke darstellt, wenn sich die Audioquelle weiter vom Zuhörer entfernt.",
+      "info-avatarMaxDistance": "Ein doppelter Wert, der den maximalen Abstand zwischen der Audioquelle und dem Zuhörer darstellt, nach dem die Lautstärke nicht weiter reduziert wird.",
+      "info-mediaDistanceModel": "Der Algorithim wurde verwendet, um den Audio-Rolloff zu berechnen.",
+      "info-mediaRolloffFactor": "Ein doppelter Wert, der beschreibt, wie schnell die Lautstärke reduziert wird, wenn sich die Quelle vom Zuhörer entfernt. 0 bis 1",
+      "info-mediaRolloffFactorInfinity": "Ein doppelter Wert, der beschreibt, wie schnell die Lautstärke reduziert wird, wenn sich die Quelle vom Zuhörer entfernt. 0 bis unendlich",
+      "info-mediaRefDistance": "Ein doppelter Wert, der den Referenzabstand zum Verringern der Lautstärke darstellt, wenn sich die Audioquelle weiter vom Zuhörer entfernt.",
+      "info-mediaMaxDistance": "Ein doppelter Wert, der den maximalen Abstand zwischen der Audioquelle und dem Zuhörer darstellt, nach dem die Lautstärke nicht weiter reduziert wird.",
+      "info-mediaConeInnerAngle": "Ein doppelter Wert, der den Winkel eines Kegels in Grad beschreibt, in dem es keine Volumenreduzierung gibt.",
+      "info-mediaConeOuterAngle": "Ein doppelter Wert, der den Winkel eines Kegels in Grad beschreibt, außerhalb dessen das Volumen um einen konstanten Wert reduziert wird, der durch das coneOuterGain-Attribut definiert wird.",
+      "info-mediaConeOuterGain": "Ein doppelter Wert, der den Betrag der Volumenreduzierung außerhalb des durch das coneOuterAngle-Attribut definierten Kegels beschreibt. Der Standardwert ist 0, was bedeutet, dass kein Ton zu hören ist.",
+      "lbl-simpleMaterials": "Verwenden Sie einfache Materialien",
+      "lbl-lods": "LODs",
+      "info-lods": "Legt die Abstände fest, in denen sich die Detailebenen ändern.",
+      "info-simpleMaterials": "Konvertiert alle teuren Materialien in einfachere, um das Rendern von Szenen zu entlasten.",
+      "lbl-rendererSettings": "Renderereinstellungen überschreiben",
+      "lbl-csm": "Kaskadierende Schattenkarten",
+      "info-csm": "Aktiviert kaskadierende Schattenkarten.",
+      "lbl-toneMapping": "Tone-Mapping",
+      "info-toneMapping": "Aktiviert die Tonemapping im Szenenrenderer. Hat keine Auswirkung, wenn eine Nachbearbeitung aktiviert ist.",
+      "lbl-toneMappingExposure": "Tone Mapping-Belichtung",
+      "info-toneMappingExposure": "Gibt die Tone-Mapping-Belichtung im Szenenrenderer an. Hat keine Auswirkung, wenn eine Nachbearbeitung aktiviert ist.",
+      "lbl-shadowMapType": "Schattenkartentyp",
+      "info-shadowMapType": "Art der Schattenkarte",
+      "error-url": "Fehler beim Laden von URL"
     },
-    "sceneCamera" : {
-      "name" : "Szene-Vorschau-Kamera ",
-      "description" : "Die Kamera, die verwendet wurde, um das Thumbnail für Ihre Szene und die Startposition für die Vorschaukamera zu generieren. ",
-      "lbl-setFromViewPort" : "Von Viewport festlegen "
+    "sceneCamera": {
+      "name": "Szenenvorschau-Kamera",
+      "description": "Die Kamera hat die Miniaturansicht für Ihre Szene und die Startposition für die Vorschaukamera generiert.",
+      "lbl-setFromViewPort": "Vom Ansichtsfenster festlegen"
     },
-    "skybox" : {
-      "name" : "Skybox ",
-      "description" : " ",
-      "lbl-timeOfDay" : "Zeit des Tages ",
-      "lbl-color" : "Farbe ",
-      "lbl-latitude" : "Breitengrad ",
-      "lbl-luminance" : "Leuchtdichte ",
-      "lbl-scattering" : "Streubetrag ",
-      "lbl-scatteringDistance" : "Streuabstand ",
-      "lbl-horizonStart" : "Horizon Start ",
-      "lbl-horizonEnd" : "Horizon-Ende ",
-      "lbl-texture" : "Textur ",
-      "lbl-skyType" : "Sky-Typ ",
-      "error-url" : "Fehler beim Laden von URL "
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Tageszeit",
+      "lbl-color": "Farbe",
+      "lbl-latitude": "Breite",
+      "lbl-luminance": "Leuchtdichte",
+      "lbl-scattering": "Streubetrag",
+      "lbl-scatteringDistance": "Streudistanz",
+      "lbl-horizonStart": "Horizon Start",
+      "lbl-horizonEnd": "Horizon Ende",
+      "lbl-texture": "Textur",
+      "lbl-skyType": "Himmelstyp",
+      "error-url": "Fehler beim Laden von URL"
     },
-    "spawnPoint" : {
-      "name" : "Spawn Point ",
-      "description" : "Ein Punkt, an dem die Menschen erscheinen, wenn sie Ihre Szene betreten. \nDas Symbol im Viewport stellt die tatsächliche Größe eines Avatars dar. "
+    "spawnPoint": {
+      "name": "Spawn-Punkt",
+      "description": "Ein Punkt, an dem Personen erscheinen, wenn sie Ihre Szene betreten.\nDas Symbol im Viewport stellt die tatsächliche Größe eines Avatars dar."
     },
-    "spotLight" : {
-      "description" : "Ein Licht, das entlang einer Richtung ausstrahlt, wobei Objekte innerhalb eines Kegels beleuchtet werden. ",
-      "lbl-color" : "Farbe ",
-      "lbl-intensity" : "Intensität ",
-      "lbl-penumbra" : "Penumbra ",
-      "lbl-angle" : "Winkel ",
-      "lbl-range" : "Bereich ",
-      "lbl-decay" : "Decay "
+    "spotLight": {
+      "description": "Ein Licht, das in eine Richtung emittiert und Objekte innerhalb eines Kegels beleuchtet.",
+      "lbl-color": "Farbe",
+      "lbl-intensity": "Intensität",
+      "lbl-penumbra": "Halbschatten",
+      "lbl-angle": "Winkel",
+      "lbl-range": "Bereich",
+      "lbl-decay": "Verfallen"
     },
-    "transform" : {
-      "title" : "Transformation ",
-      "lbl-postition" : "Position ",
-      "lbl-rotation" : "Drehung ",
-      "lbl-scale" : "Maßstab "
+    "transform": {
+      "title": "Umwandeln",
+      "lbl-postition": "Position",
+      "lbl-rotation": "Drehung",
+      "lbl-scale": "Maßstab"
     },
-    "triggereVolume" : {
-      "description" : "Legt eine Eigenschaft für das Zielobjekt bei der Eingabe und dem Verlassen fest. ",
-      "lbl-target" : "Objekt ",
-      "lbl-onenter" : "In der Eingabetaste ",
-      "lbl-onexit" : "Bei Exit ",
-      "lbl-showHelper" : "Helper-Netz anzeigen ",
-      "ph-errorNode" : "Fehler beim fehlenden Knoten. ",
-      "ph-selectNode" : "Knoten auswählen ... "
+    "triggereVolume": {
+      "description": "Legt beim Betreten und Verlassen eine Eigenschaft für das Zielobjekt fest.",
+      "lbl-target": "Objekt",
+      "lbl-onenter": "Bei Eingabetaste",
+      "lbl-onexit": "Beim Beenden",
+      "lbl-showHelper": "Hilfsnetz anzeigen",
+      "ph-errorNode": "Fehler fehlender Knoten.",
+      "ph-selectNode": "Knoten auswählen..."
     },
-    "video" : {
-      "name" : "Video ",
-      "description" : "Lädt ein Video dynamisch. ",
-      "lbl-video" : "Video ",
-      "lbl-projection" : "Projektion ",
-      "lbl-islivestream" : "Live-Stream ",
-      "lbl-interactable" : "Interactable ",
-      "lbl-id" : "Element-ID ",
-      "lbl-play" : "Spielen ",
-      "lbl-pause" : "Pause ",
-      "error-url" : "Fehler beim Laden von URL "
+    "video": {
+      "name": "Video",
+      "description": "Lädt dynamisch ein Video.",
+      "lbl-video": "Video",
+      "lbl-projection": "Projektion",
+      "lbl-islivestream": "Live-Stream",
+      "lbl-interactable": "Interaktierbar",
+      "lbl-id": "Element-ID",
+      "lbl-play": "Spielen",
+      "lbl-pause": "Pause",
+      "error-url": "Fehler beim Laden von URL"
     },
-    "volumetric" : {
-      "name" : "Volumenstrom ",
-      "description" : "Lädt ein volumetrisches Video dynamisch. ",
-      "uvolPaths" : "UVOL-Pfade ",
-      "playmode" : "Spielmodus ",
-      "playtitle" : "Spielen ",
-      "pausetitle" : "Pause "
+    "volumetric": {
+      "name": "Volumetrisch",
+      "description": "Lädt dynamisch ein volumetrisches Video.",
+      "uvolPaths": "UVOL-Pfade",
+      "playmode": "Wiedergabemodus",
+      "playtitle": "Spielen",
+      "pausetitle": "Pause"
     },
-    "spline" : {
-      "description" : "Kurven dynamisch erstellen und anpassen. ",
-      "lbl-addNode" : "Knoten zu Kurve hinzufügen. "
+    "spline": {
+      "description": "Dynamisches Erstellen und Anpassen von Kurven.",
+      "lbl-addNode": "Fügen Sie der Kurve einen Knoten hinzu."
     },
-    "systemnode" : {
-      "description" : "Script anhängen. ",
-      "lbl-filePath" : "URL ",
-      "lbl-systemUpdateType" : "Injektionspunkt ",
-      "lbl-enableClient" : "Client ",
-      "lbl-enableServer" : "Server ",
-      "lbl-args" : "Args ",
-      "error-url" : "Fehler beim Laden des Scripts von der URL "
+    "systemnode": {
+      "description": "Skript anhängen.",
+      "lbl-filePath": "URL (URL)",
+      "lbl-systemUpdateType": "Injektionspunkt",
+      "lbl-enableClient": "Kunde",
+      "lbl-enableServer": "Server",
+      "lbl-args": "Args",
+      "error-url": "Fehler beim Laden des Skripts von der URL"
     },
-    "portal" : {
-      "lbl-portal" : "Verknüpftes Portal ",
-      "lbl-redirect" : "Seitenumleitung verwenden ",
-      "description" : "Ein Portat, um Spieler an die angegebene Position zu teleportieren ",
-      "lbl-locationName" : "Position ",
-      "lbl-modelUrl" : "Modell-URL ",
-      "lbl-displayText" : "Text anzeigen ",
-      "lbl-cubemapBake" : "Cubemap Bake ",
-      "lbl-spawnPosition" : "Spawn-Position ",
-      "lbl-spawnRotation" : "Spawn Rotation ",
-      "lbl-triggerPosition" : "Auslöserposition ",
-      "lbl-triggerRotation" : "Triggerdrehung ",
-      "lbl-triggerScale" : "Triggermaßstab "
+    "portal": {
+      "lbl-portal": "Verlinktes Portal",
+      "lbl-redirect": "Seitenumleitung verwenden",
+      "description": "Ein Portat zum Teleportieren von Playern an einen bestimmten Ort",
+      "lbl-locationName": "Ort",
+      "lbl-modelUrl": "Modell-URL",
+      "lbl-displayText": "Text anzeigen",
+      "lbl-cubemapBake": "Cubemap Backen",
+      "lbl-spawnPosition": "Spawn-Position",
+      "lbl-spawnRotation": "Spawn-Rotation",
+      "lbl-triggerPosition": "Trigger-Position",
+      "lbl-triggerRotation": "Trigger-Drehung",
+      "lbl-triggerScale": "Trigger-Skalierung"
     },
-    "postprocessing" : {
-      "name" : "Nachbearbeitung ",
-      "description" : "Für die Anwendung von Post-Processing-Effekten auf Ihre Szene. "
+    "postprocessing": {
+      "name": "Nachbearbeitung",
+      "description": "Zum Anwenden von Post-Processing-Effekten auf Ihre Szene."
     }
   },
-  "projects" : {
-    "createProject" : {
-      "header" : "Neues Projekt ",
-      "backLink" : "Zurück zu Projekten ",
-      "featured" : "Vorgestellten ",
-      "all" : "Alle ",
-      "newProject" : "Neues leeres Projekt ",
-      "ph-search" : "Szenen suchen ... "
+  "projects": {
+    "createProject": {
+      "header": "Neues Projekt",
+      "backLink": "Zurück zu Projekte",
+      "featured": "Befähigt",
+      "all": "Alle",
+      "newProject": "Neues leeres Projekt",
+      "ph-search": "Szenen suchen..."
     },
-    "grid" : {
-      "loading" : "Wird geladen ... "
+    "grid": {
+      "loading": "Laden..."
     },
-    "page" : {
-      "header" : "Begrüßung ",
-      "headerMsg" : "Wenn Sie hier neu sind, empfehlen wir Ihnen, das Tutorial zu durchlaufen.  Wechseln Sie andernfalls direkt in und erstellen Sie ein Projekt von Grund auf neu oder von einer unserer Vorlagen. ",
-      "lbl-startTutorial" : "Lernprogramm starten ",
-      "projects" : "Projekte ",
-      "lbl-newProject" : "Neues Projekt "
+    "page": {
+      "header": "Willkommen",
+      "headerMsg": "Wenn Sie neu hier sind, empfehlen wir Ihnen, das Tutorial durchzugehen. Andernfalls springen Sie direkt hinein und erstellen Sie ein Projekt von Grund auf oder aus einer unserer Vorlagen.",
+      "lbl-startTutorial": "Lernprogramm starten",
+      "projects": "Projekte",
+      "lbl-newProject": "Neues Projekt"
     }
   },
-  "layout" : {
-    "assetGrid" : {
-      "loading" : "Wird geladen ... ",
-      "placeObject" : "Objektobjekt ",
-      "placeObjectAtOrigin" : "Objekt auf Ursprung platzieren ",
-      "copyURL" : "URL kopieren ",
-      "openInNewTab" : "URL in neuer Registerkarte öffnen ",
-      "deleteAsset" : "Anlage löschen "
+  "layout": {
+    "assetGrid": {
+      "loading": "Laden...",
+      "placeObject": "Objekt platzieren",
+      "placeObjectAtOrigin": "Objekt am Ursprung platzieren",
+      "copyURL": "URL kopieren",
+      "openInNewTab": "URL auf neuer Registerkarte öffnen",
+      "deleteAsset": "Asset löschen"
     },
-    "filebrowser" : {
-      "addNewFolder" : "Neuen Ordner hinzufügen ",
-      "cutAsset" : "Ausschneiden ",
-      "copyAsset" : "Kopieren ",
-      "pasteAsset" : "Einfügen ",
-      "renameAsset" : "Umbenennen ",
-      "viewAssetProperties" : "Eigenschaften anzeigen "
+    "filebrowser": {
+      "addNewFolder": "Neuen Ordner hinzufügen",
+      "cutAsset": "Schneiden",
+      "copyAsset": "Kopieren",
+      "pasteAsset": "Kleister",
+      "renameAsset": "Umbenennen",
+      "viewAssetProperties": "Eigenschaften anzeigen"
     }
   },
-  "hierarchy" : {
-    "lbl-rename" : "Umbenennen ",
-    "lbl-duplicate" : "Duplizieren ",
-    "lbl-group" : "Gruppe ",
-    "lbl-delete" : "Löschen ",
-    "lbl-expandAll" : "Alle einblenden ",
-    "lbl-collapseAll" : "Alle ausblenden ",
-    "isseus" : "Probleme: "
+  "hierarchy": {
+    "lbl-rename": "Umbenennen",
+    "lbl-duplicate": "Duplikat",
+    "lbl-group": "Gruppe",
+    "lbl-delete": "Löschen",
+    "lbl-expandAll": "Alle einblenden",
+    "lbl-collapseAll": "Alle ausblenden",
+    "isseus": "Probleme:"
   },
-  "dnd" : {
-    "nodes" : "{{count}} Knoten ausgewählt ",
-    "models" : "{{count}} Modelle ausgewählt ",
-    "images" : "{{count}} Bilder ausgewählt ",
-    "videos" : "{{count}} Videos ausgewählt ",
-    "audio" : "{{count}} Audioquellen ausgewählt "
+  "dnd": {
+    "nodes": "{{count}} Ausgewählte Knoten",
+    "models": "{{count}} Ausgewählte Modelle",
+    "images": "{{count}} Bilder ausgewählt",
+    "videos": "{{count}} Videos ausgewählt",
+    "audio": "{{count}} Ausgewählte Audioquellen"
   },
-  "dialog" : {
-    "title" : "Editor ",
-    "lbl-confirm" : "OK ",
-    "lbl-cancel" : "Abbrechen ",
-    "exportProject" : {
-      "title" : "Projekt exportieren ",
-      "lbl-confirm" : "Projekt exportieren ",
-      "lbl-combineMesh" : "Meshes kombinieren ",
-      "lbl-removeUnused" : "Nicht verwendete Objekte entfernen "
+  "dialog": {
+    "title": "Redakteur",
+    "lbl-confirm": "Okay",
+    "lbl-cancel": "Abbrechen",
+    "exportProject": {
+      "title": "Projekt exportieren",
+      "lbl-confirm": "Projekt exportieren",
+      "lbl-combineMesh": "Kombinieren von Netzen",
+      "lbl-removeUnused": "Nicht verwendete Objekte entfernen"
     },
-    "performance" : {
-      "title" : "Leistungsprüfung ",
-      "lbl-confirm" : "Szene veröffentlichen ",
-      "learnMore" : "Weitere Informationen ",
-      "lbl-polycount" : "Polygon-Anzahl ",
-      "lbl-material" : "Materialien ",
-      "lbl-texture" : "Texturen ",
-      "lbl-lights" : "Lichter ",
-      "lbl-fileSize" : "Dateigröße ",
-      "info-polycount" : "Wir empfehlen, dass Ihre Szene nicht mehr als 50.000 Dreiecke für mobile Geräte verwendet. ",
-      "info-material" : "Wir empfehlen, nicht mehr als 25 einzigartige Materialien in Ihrer Szene zu verwenden, um die Auslosung von Auslosungen auf mobilen Geräten zu reduzieren. ",
-      "info-texture" : "Wir empfehlen, dass Ihre Texturen nicht mehr als 256MB Video-RAM für mobile Geräte verwenden.  Wir empfehlen auch, Texturen größer als 2048 x 2048 zu verwenden. ",
-      "info-lights" : "Während dynamische Lichter auf mobilen Geräten nicht aktiviert sind, empfehlen wir, nicht mehr als 3 Lichter in Ihrer Szene (ohne Ambient-und Hemisphäre-Lichter) für Ihre Szene zu verwenden, um auf Low-End-PCs zu laufen. ",
-      "info-fileSize" : "Wir empfehlen eine endgültige Dateigröße von nicht mehr als 16 MB für Verbindungen mit geringer Bandbreite.  Durch die Reduzierung der Dateigröße wird die Zeit reduziert, die zum Herunterladen Ihrer Szene benötigt wird. ",
-      "txt-polycount" : "Dreiecke {{count}} ",
-      "txt-material" : "{{count}} Materialien ",
-      "txt-ram" : "~ {{count}} Video-RAM ",
-      "txt-texture" : "{{count}} große Texturen ",
-      "txt-lights" : "{{count}} Lights "
+    "performance": {
+      "title": "Leistungsprüfung",
+      "lbl-confirm": "Szene veröffentlichen",
+      "learnMore": "Weitere Informationen",
+      "lbl-polycount": "Anzahl der Polygone",
+      "lbl-material": "Materialien",
+      "lbl-texture": "Gewebe",
+      "lbl-lights": "Lichter",
+      "lbl-fileSize": "Dateigröße",
+      "info-polycount": "Wir empfehlen Ihrer Szene, nicht mehr als 50.000 Dreiecke für mobile Geräte zu verwenden.",
+      "info-material": "Wir empfehlen, nicht mehr als 25 einzigartige Materialien in Ihrer Szene zu verwenden, um Ziehanrufe auf mobilen Geräten zu reduzieren.",
+      "info-texture": "Wir empfehlen, dass Ihre Texturen nicht mehr als 256 MB Video-RAM für mobile Geräte verwenden. Wir raten auch davon ab, Texturen zu verwenden, die größer als 2048 x 2048 sind.",
+      "info-lights": "Obwohl dynamische Lichter auf mobilen Geräten nicht aktiviert sind, empfehlen wir, nicht mehr als 3 Lichtquellen in Ihrer Szene zu verwenden (ausgenommen Umgebungs- und Hemisphärenlichter), damit Ihre Szene auf Low-End-PCs ausgeführt werden kann.",
+      "info-fileSize": "Wir empfehlen eine endgültige Dateigröße von nicht mehr als 16 MB für Verbindungen mit geringer Bandbreite. Wenn Sie die Dateigröße reduzieren, wird die Zeit reduziert, die zum Herunterladen Ihrer Szene benötigt wird.",
+      "txt-polycount": "{{count}} Dreiecke",
+      "txt-material": "{{count}} Werkstoffe",
+      "txt-ram": "~{{count}} Video-RAM",
+      "txt-texture": "{{count}} Große Texturen",
+      "txt-lights": "{{count}} Lichter"
     },
-    "progress" : {
-      "title" : "Wird geladen ... ",
-      "msg" : "Wird geladen ... ",
-      "lbl-cancel" : "Abbrechen "
+    "progress": {
+      "title": "Laden...",
+      "msg": "Laden...",
+      "lbl-cancel": "Abbrechen"
     },
-    "publish" : {
-      "title" : "Szene veröffentlichen ",
-      "lbl-confirm" : "Speichern und veröffentlichen ",
-      "lbl-name" : "Szenenname ",
-      "info-name" : "Der Name muss zwischen 4 und 64 Zeichen lang sein und darf keine Unterstreichungszeichen enthalten. "
+    "publish": {
+      "title": "Szene veröffentlichen",
+      "lbl-confirm": "Speichern und Veröffentlichen",
+      "lbl-name": "Name der Szene",
+      "info-name": "Der Name muss zwischen 4 und 64 Zeichen lang sein und darf keine Unterstriche enthalten."
     },
-    "published" : {
-      "title" : "Szene veröffentlicht ",
-      "header" : "Ihre Szene wurde veröffentlicht. ",
-      "lbl-view" : "Sehen Sie Ihre Szene "
+    "published": {
+      "title": "Szene veröffentlicht",
+      "header": "Ihre Szene wurde veröffentlicht.",
+      "lbl-view": "Sehen Sie sich Ihre Szene an"
     },
-    "saveNewProject" : {
-      "title" : "Unterstützung ",
-      "lbl-name" : "Projektname ",
-      "info-name" : "Der Name muss zwischen 4 und 64 Zeichen lang sein und darf keine Unterstreichungszeichen enthalten. ",
-      "lbl-confirm" : "Projekt speichern "
+    "saveNewProject": {
+      "title": "Unterstützen",
+      "lbl-name": "Projektname",
+      "info-name": "Der Name muss zwischen 4 und 64 Zeichen lang sein und darf keine Unterstriche enthalten.",
+      "lbl-confirm": "Projekt speichern"
     },
-    "support" : {
-      "title" : "Unterstützung ",
-      "header" : "Müssen Sie ein Problem melden? ",
-      "msg" : "Sie können ein <1> GitHub-Problem </1> oder eine E-Mail an uns für die Unterstützung unter <3> {{mail}} </3> ",
-      "discord" : "Sie finden uns auch unter <1> Discord </1> "
+    "support": {
+      "title": "Unterstützen",
+      "header": "Müssen Sie ein Problem melden?",
+      "msg": "Sie können ein <1>GitHub-Problem</1> einreichen oder uns eine E-Mail senden, um Unterstützung bei <3>{{mail}}</3> zu erhalten",
+      "discord": "Sie finden uns auch auf <1>Discord</1>"
     }
   },
-  "sources" : {
-    "bingImage" : {
-      "name" : "Bing-Bilder ",
-      "search" : "Von Bing suchen "
+  "sources": {
+    "bingImage": {
+      "name": "Bing-Bilder",
+      "search": "Suche nach Bing"
     },
-    "bingVideo" : {
-      "name" : "Bing-Videos ",
-      "search" : "Von Bing suchen "
+    "bingVideo": {
+      "name": "Bing-Videos",
+      "search": "Suche nach Bing"
     },
-    "element" : {
-      "name" : "Elemente "
+    "element": {
+      "name": "Elemente"
     },
-    "myAssets" : {
-      "name" : "Eigene Anlagen "
+    "myAssets": {
+      "name": "Mein Vermögen"
     },
-    "googlePoly" : {
-      "name" : "Google Poly ",
-      "search" : "Suche nach Google "
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Suche nach Google"
     },
-    "tenor" : {
-      "name" : "Tenor-GIFs ",
-      "search" : "Suche nach Tenor ",
-      "ph-search" : "GIFs durchsuchen ... "
+    "tenor": {
+      "name": "Tenor-GIFs",
+      "search": "Suche nach Tenor",
+      "ph-search": "GIFs suchen..."
     },
-    "sketchfab" : {
-      "name" : "Sketchfab ",
-      "search" : "Suche nach Sketchfab "
+    "sketchfab": {
+      "name": "Skizzen-Fab",
+      "search": "Suche nach Sketchfab"
     }
   },
-  "asset" : {
-    "dropZone" : {
-      "title" : "Asset hochladen "
+  "asset": {
+    "dropZone": {
+      "title": "Asset hochladen"
     },
-    "imageSourcePanel" : {
-      "ph-search" : "Bilder suchen ... "
+    "imageSourcePanel": {
+      "ph-search": "Bilder suchen..."
     },
-    "videoSourcePanel" : {
-      "ph-search" : "Videos durchsuchen ... "
+    "videoSourcePanel": {
+      "ph-search": "Videos suchen..."
     },
-    "assetSourcePanel" : {
-      "ph-search" : "Assets suchen ... "
+    "assetSourcePanel": {
+      "ph-search": "Assets suchen..."
     },
-    "modelSourcePanel" : {
-      "ph-search" : "Modelle suchen ... "
+    "modelSourcePanel": {
+      "ph-search": "Modelle suchen..."
     },
-    "useUpload" : {
-      "multipleFileError" : "Die Eingabe akzeptiert keine mehreren Dateien. ",
-      "mineTypeError" : "\"{{name}}\" stimmt nicht mit den folgenden MIME-Typen oder -Erweiterungen überein: {{types}} ",
-      "progressTitle" : "Dateien hochladen ",
-      "progressMsg" : "Hochladen von Dateien {{hochgeladen}} von {{total}}: {{percentage}}% ",
-      "uploadError" : "Fehler beim Hochladen ",
-      "uploadErrorMsg" : "Fehler beim Hochladen der Datei: {{message}} ",
-      "uploadErrorDefaultMsg" : "Es war ein unbekannter Fehler aufgetreten. "
+    "useUpload": {
+      "multipleFileError": "Input akzeptiert nicht mehrere Dateien.",
+      "mineTypeError": "\"{{name}}\" stimmt nicht mit den folgenden MIME-Typen oder -Erweiterungen überein: {{types}}",
+      "progressTitle": "Hochladen von Dateien",
+      "progressMsg": "Hochladen von Dateien {{uploaded}} von {{total}}: {{percentage}}%",
+      "uploadError": "Upload-Fehler",
+      "uploadErrorMsg": "Fehler beim Hochladen der Datei: {{message}}",
+      "uploadErrorDefaultMsg": "Es ist ein unbekannter Fehler aufgetreten"
     }
   },
-  "openLink" : {
-    "description" : "Klicken Sie auf die Option Öffnen, um zu dem Link zu navigieren. ",
-    "lbl-open" : "Öffnen "
+  "openLink": {
+    "description": "Klicken Sie auf Öffnen, um zu dem Link zu navigieren.",
+    "lbl-open": "Offen"
   },
-  "interactableModel" : {
-    "lbl-buy" : "Kaufen ",
-    "lbl-learnMore" : "Weitere Informationen "
+  "interactableModel": {
+    "lbl-buy": "Kaufen",
+    "lbl-learnMore": "Weitere Informationen"
   },
-  "corsProxyButton" : {
-    "tooltip" : "Cors-Proxy-Server verwenden"
+  "corsProxyButton": {
+    "tooltip": "Verwenden von Cors Proxy Server"
   }
 }

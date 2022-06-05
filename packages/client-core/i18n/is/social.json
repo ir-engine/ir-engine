@@ -1,0 +1,202 @@
+{
+  "addComment": "Bæta við athugasemd...",
+  "share": "Deila",
+  "suggestions": "Tillögur fyrir þig",
+  "seeAll": "Sjá allt",
+  "likes": "Líkar",
+  "viewComments": "Skoða allar {{count}} athugasemdir",
+  "more": "fleiri",
+  "username": "notandanafn",
+  "fullName": "Nafn Eftirnafn",
+  "reportInApporpriate": "Skýrsla óviðeigandi",
+  "unfollow": "Hætta að fylgjast með",
+  "goToPost": "Fara í Póst",
+  "shareModal": "Deila",
+  "copyLink": "Afrita tengil",
+  "embed": "Ívafið",
+  "cancel": "Afturkalla",
+  "confirm": "Staðfesta",
+  "save": "Spara",
+  "profilePic": "Prófílmynd {{user}}",
+  "ara": "Ara",
+  "follow": "Fylgja",
+  "flames": "Logar",
+  "continue": "Halda áfram",
+  "partyInvitationSent": "Veisluboð sent",
+  "arMedia": {
+    "back": "Bak",
+    "clip": "Klemma",
+    "backgrounds": "Bakgrunn",
+    "start": "Ræsa"
+  },
+  "arMediaform": {
+    "title": "Titill",
+    "type": "Gerð",
+    "clip": "Klemma",
+    "background": "Bakgrunnur",
+    "scene": "Vettvangur",
+    "save": "Spara",
+    "manifest-file": "Manifest .manifest skrá",
+    "audio-file": "Mp4 skrá",
+    "dracosis-file": "Dracosis .uvol skrá",
+    "preview-file": "Forskoða myndskrá"
+  },
+  "creator": {
+    "myVideos": "Myndböndin mín",
+    "savedVideos": "Vistuð myndbönd",
+    "back": "Bak",
+    "blocked-list": "Útilokaður listi",
+    "block-user": "Útiloka notanda",
+    "dialog-content": "Þú munt ekki sjá prófíl og innihald notandans"
+  },
+  "creatorForm": {
+    "back": "Bak",
+    "edit": "Breyta forstillingu",
+    "save": "Spara",
+    "changeAvatar": "Breyta avatarmynd",
+    "ph-selectPreview": "Velja forskoðun",
+    "ph-name": "Nafnið þitt",
+    "ph-username": "Notandanafnið þitt",
+    "ph-email": "Netfangið þitt",
+    "ph-tags": "Tags",
+    "ph-link": "Hlekkur",
+    "ph-aboutYou": "Meira um þig",
+    "ph-twitter": "tísta",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Útskráning"
+  },
+  "dashboard": {
+    "title": "Mælaborð",
+    "dashboard": "Mælaborð",
+    "users": "Notendur",
+    "feeds": "Straumar",
+    "arMedia": "Myndefnismiðill",
+    "editor": "Ritstjóri",
+    "creator": "Skapari"
+  },
+  "featured": {
+    "empty-list": "Engir straumar í bili..."
+  },
+  "feed": {
+    "back": "Bak",
+    "related": "Tengdir straumar",
+    "is-repoted-message": "Fóður er tilkynnt!"
+  },
+  "feedForm": {
+    "back": "Bak",
+    "thanks": "Takk fyrir að deila og bæta samfélagið okkar",
+    "share": "Deila einhverju með samfélaginu",
+    "upload": "Hlaða upp myndskeiði",
+    "ph-selectVideo": "Velja myndefni",
+    "preview": "Forskoða mynd",
+    "ph-selectPreview": "Velja forskoðun",
+    "createFeed": "Til þess að búa til straum verður þú að hafa myndskeið og forskoðunarmynd!!!",
+    "ph-videoName": "Nafnið á myndbandinu þínu",
+    "ph-type": "Sláðu inn það sem þú vilt deila með samfélaginu ... ",
+    "lbl-share": "Deila",
+    "save": "Vista og fara næst"
+  },
+  "feedMenu": {
+    "featured": "Áhugaverð",
+    "creators": "Höfundum",
+    "feed": "Fóðrið"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetric"
+  },
+  "login": {
+    "account": "Ertu með reikning?",
+    "login": "Innskráning",
+    "resetPassword": "Endurstilla lykilorð Falsa hnappur (hér væri tengill úr tölvupósti)",
+    "notHavingAccount": "Ertu ekki með reikning?",
+    "signUp": "Skrá sig",
+    "forgotPassword": "Gleymdir þú lykilorðinu?",
+    "back": "Bak",
+    "or": "EÐA"
+  },
+  "comment": {
+    "add": "Bættu við athugasemd þinni..."
+  },
+  "notification": {
+    "feedFire": " skaut fóðrinu þínu",
+    "feedBookmarked": " bókamerkta fóðrið þitt",
+    "comment": " kommentaði á fóðrið þitt:",
+    "commentFire": " skaut athugasemd þinni til að fæða",
+    "follow": " byrjaði að fylgja þér",
+    "unfollow": " hætti að fylgja þér",
+    "followed": " fylgdi þér",
+    "activity": "Virkni"
+  },
+  "onBoarding": {
+    "welcome": "Velkominn!",
+    "description": "Stærsta safn af 370 + skipulag fyrir IOS prototyping.",
+    "next": "Næstur",
+    "discover": "Uppgötvaðu greinar,",
+    "news": "fréttir & færslur",
+    "lines": "Það eru þessar tilfinningar sem knýja ást okkar á stjörnufræði og löngun okkar.",
+    "getStarted": "Hafist handa",
+    "meetUp": "Að hittast með",
+    "friends": "Vini.",
+    "meet": "Að hitta vini sína"
+  },
+  "shareForm": {
+    "arcMedia": "Deila",
+    "videoCreated": "Ég bjó til þetta myndband",
+    "shareWithBuddies": "Deildu með félögum",
+    "shareVideo": "Deila myndbandi",
+    "save": "Vista í myndavélarrúllu",
+    "cancel": "Afturkalla",
+    "close": "Loka",
+    "addFeed": "Bæta við straumi"
+  },
+  "simpleModal": {
+    "emptyList": "Auður listi",
+    "followers": " eftirfarandi",
+    "following": " Fylgjendur",
+    "flames": " logar"
+  },
+  "splash": {
+    "screen": "Skvetta skjár",
+    "logo": "Merki"
+  },
+  "story": {
+    "profilePic": "Prófílmynd {{user}}"
+  },
+  "view": {
+    "cancel": "Afturkalla",
+    "choice": "Þú hefur úr tveimur mismunandi upptökustillingum",
+    "verticalMode": "Lóðrétt stilling hefur 30 sek mettíma",
+    "horizontalMode": "Láréttur háttur hefur ótakmarkaðan mettíma",
+    "start": "Ræsa",
+    "not-show": "Ekki sýna það aftur",
+    "welcome": "Velkomin í BOGA!  Gerðu persónuleg myndbönd með einum af heilmyndum okkar og sendu það á samfélagsmiðlarásirnar þínar!",
+    "step": "SKREF {{step}}",
+    "text-step-1": "Veldu heilmynd af bókasafninu.",
+    "text-step-2": "Þetta er Viðhaldið Reality, svo skannaðu plássið með myndavélinni þinni frá hlið til hliðar í 3-5 sekúndur þar sem þú vilt að heilmyndarárangurinn sé.",
+    "text-step-3-part-1": "Pikkaðu á skjáinn einu sinni á stað þar sem þú vilt að heilmyndin sé fest.",
+    "text-step-3-part-2": "ÞJÓRFÉ!  Pikkaðu einu sinni annars staðar til að færa heilmyndina í aðra stöðu.",
+    "text-step-3-part-3": "ÞJÓRFÉ!  Þú getur breytt stærð heilmyndarinnar með því að klípa eða stækka skjáinn með þumalfingri og vísifingri.",
+    "text-step-4-part-1": "Pikkaðu tvisvar á rauðan plötuhnapp til að hefja myndbandsupptökuna þína.",
+    "text-step-4-part-2": "Pikkaðu tvisvar á rauðan plötuhnapp til að STÖÐVA."
+  },
+  "video": {
+    "back": "Bak"
+  },
+  "terms": {
+    "confirmTerms": "Ég samþykki þjónustuskilmála",
+    "confirmPolicy": "Ég samþykki persónuverndarstefnu"
+  },
+  "registration": {
+    "ph-phoneEmail": "Notaðu síma / tölvupóst",
+    "facebook": "Haltu áfram með Facebook",
+    "google": "Haltu áfram með Google",
+    "linkedin": "Haltu áfram með Linkedin",
+    "twitter": "Halda áfram með Twitter",
+    "gitHub": "Halda áfram með GitHub",
+    "connect": "Tengdu tölvupóstinn þinn eða símanúmerið þitt",
+    "logIn": "Skrá inn",
+    "LogInTo": "Skráðu þig inn á",
+    "continueAsGuest": "Halda áfram sem gestur"
+  }
+}

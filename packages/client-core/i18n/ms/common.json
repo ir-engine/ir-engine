@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Memuatkan halaman..."
+  },
+  "tooltip": {
+    "pressKey": "Tekan {{tip}} ke {{message}}"
+  },
+  "toast": {
+    "joined": "Menyertai",
+    "left": "Kiri"
+  },
+  "navUserWidget": {
+    "login": "Log masuk"
+  },
+  "loader": {
+    "connecting": "Menyambung ke dunia...",
+    "entering": "Memasuki dunia...",
+    "loading": "Memuatkan...",
+    "objectRemaining": "{{count}} baki objek",
+    "objectRemainingPlural": "{{count}} objek berbaki",
+    "loadingObjects": "Memuatkan Objek",
+    "loadingComplete": "Memuatkan Selesai",
+    "joiningWorld": "Menyertai Dunia"
+  },
+  "alert": {
+    "eventWasSuccess": "Acara berjaya",
+    "errorWasEncountered": "Ralat telah ditemui",
+    "eventInProgress": "Acara sedang berjalan",
+    "seconds": "Saat",
+    "cancelCountdown": "Menutup modal ini akan membatalkan undur"
+  },
+  "debug": {
+    "refresh": "Refresh",
+    "stats": "Statistik",
+    "debugOptions": "Opsyen Nyahpepijat",
+    "physicsDebug": "Fizik",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Pembantu Nod",
+    "gridDebug": "Grid",
+    "simpleMaterials": "Bahan Mudah",
+    "tick": "Tandakan",
+    "worldStore": "Kedai Dunia",
+    "engineStore": "Kedai Enjin",
+    "namedEntities": "Entiti Bernama",
+    "networkObject": "Objek Rangkaian",
+    "networkClients": "Pelanggan Rangkaian"
+  },
+  "recording": {
+    "videoRecorder": "Perakam video",
+    "waitingForPermissions": "Menunggu keizinan",
+    "selectVideoSource": "Pilih sumber video",
+    "screen": "Skrin",
+    "camera": "Kamera",
+    "microphone": "Mikrofon",
+    "startRecording": "Mulakan rakaman",
+    "pauseRecording": "Jeda rakaman",
+    "resumeRecording": "Sambung semula rakaman",
+    "stopRecording": "Berhenti merakam"
+  },
+  "typing": "Menaip...",
+  "gameServer": {
+    "browserError": "Ralat Pelayar",
+    "browserErrorMessage": "Pelayar anda tidak menyokong storan dalam mod penyemakan imbas peribadi. Sama ada cuba pelayar lain, atau keluar dari mod penyemakan imbas peribadi.",
+    "noAvailableServers": "Tiada Pelayan Tersedia",
+    "noAvailableServersMessage": "Tidak ada pelayan yang tersedia untuk anda sambungkan. Cuba untuk menyambung semula masuk",
+    "worldDisconnected": "Dunia terputus",
+    "worldDisconnectedMessage": "Anda telah kehilangan hubungan Anda dengan dunia. Kami akan cuba menyambung semula sebelum masa berikut habis, jika tidak, anda akan dimajukan ke contoh lain.",
+    "webGLNotEnabled": "WebGL tidak dibenarkan",
+    "webGLNotEnabledMessage": "Pelayar anda tidak menyokong WebGL, atau ia dinyahdayakan. Sila dayakan WebGL atau pertimbangkan untuk menaik taraf kepada versi terkini pelayar anda.",
+    "youKickedFromWorld": "Kau telah ditendang dari dunia.",
+    "youKickedFromWorldMessage": "Kau ditendang dari dunia ini untuk alasan berikut",
+    "invalidLocation": "Lokasi tidak sah",
+    "cantFindLocation": "Kami tidak dapat mencari lokasi",
+    "misspelledOrNotExist": "Ia mungkin tersalah eja, atau ia mungkin tidak wujud.",
+    "loading": "Memuatkan",
+    "low-frame-error": "Mengesan perfomance yang lemah mempertimbangkan untuk mendayakan Penggunaan pecutan Perkakasan dalam pelayar anda dan melancarkan semula penyemak imbas anda",
+    "low-frame-title": "Membolehkan pecutan perkakasan untuk pengalaman yang lebih baik!"
+  },
+  "error": {
+    "loading-error": "Gagal memuatkan data pengguna",
+    "validation-error": "Sila masukkan {{type}} yang sah",
+    "login-error": "Gagal log masuk"
+  }
+}

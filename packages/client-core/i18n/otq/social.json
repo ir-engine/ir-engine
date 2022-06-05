@@ -1,0 +1,202 @@
+{
+  "addComment": "Añadir comentario...",
+  "share": "T'uni",
+  "suggestions": "Sugerencias pa nu'i",
+  "seeAll": "Ga ga̲tho",
+  "likes": "Ho",
+  "viewComments": "Ga ga̲tho ya comentarios {{count}}",
+  "more": "mäs",
+  "username": "thuuhu usuario",
+  "fullName": "Thuuhu mbo̲xu̲thuhuu",
+  "reportInApporpriate": "Reportar inapropiado",
+  "unfollow": "Dejar ar seguir",
+  "goToPost": "Ma Publicar",
+  "shareModal": "T'uni",
+  "copyLink": "Copiar enlace",
+  "embed": "Insertar",
+  "cancel": "Cancelar",
+  "confirm": "Confirmar",
+  "save": "Salvar",
+  "profilePic": "Fotografiya perfil {{user}}",
+  "ara": "Ara",
+  "follow": "Seguir",
+  "flames": "Llamas",
+  "continue": "Da 'ño",
+  "partyInvitationSent": "Nts'ohni ko ya dängo enviada",
+  "arMedia": {
+    "back": "Atrás",
+    "clip": "Pinza",
+    "backgrounds": "Fondos",
+    "start": "'Bu̲i"
+  },
+  "arMediaform": {
+    "title": "Hontho",
+    "type": "Ar klase",
+    "clip": "Pinza",
+    "background": "Ts'o̲e",
+    "scene": "Escena",
+    "save": "Salvar",
+    "manifest-file": "Archivo.manifest",
+    "audio-file": "Archivo Mp4",
+    "dracosis-file": "Archivo Dracosis.uvol",
+    "preview-file": "Thandi previa archivo tsita"
+  },
+  "creator": {
+    "myVideos": "Ma Videos",
+    "savedVideos": "Videos guardados",
+    "back": "Atrás",
+    "blocked-list": "Nthuts'i bloqueados",
+    "block-user": "Bloquear usuario",
+    "dialog-content": "Hingi gi nuhmä ge ar perfil ne ar contenido ar usuario"
+  },
+  "creatorForm": {
+    "back": "Atrás",
+    "edit": "Editar perfil",
+    "save": "Salvar",
+    "changeAvatar": "Mpa̲ti tsita avatar",
+    "ph-selectPreview": "Seleccionar thandi previa",
+    "ph-name": "Hu'i",
+    "ph-username": "Ár thuhuu ar usuario",
+    "ph-email": "Ár correo electrónico",
+    "ph-tags": "Etiquetas",
+    "ph-link": "Enlace",
+    "ph-aboutYou": "Mäs dige nu'i",
+    "ph-twitter": "Twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Cerrar sesión"
+  },
+  "dashboard": {
+    "title": "Salpicadero",
+    "dashboard": "Salpicadero",
+    "users": "Usuarios",
+    "feeds": "Alimenta",
+    "arMedia": "Nt'ot'e video",
+    "editor": "Editor",
+    "creator": "Creador"
+  },
+  "featured": {
+    "empty-list": "Otho ar feeds ya nu'bya..."
+  },
+  "feed": {
+    "back": "Atrás",
+    "related": "Feeds relacionados",
+    "is-repoted-message": "Ar gi ungu̲mfädi ar ar alimentación!"
+  },
+  "feedForm": {
+    "back": "Atrás",
+    "thanks": "Di jamädi t'uni ne mejorar ma hnini",
+    "share": "Comparte 'naxtu̲i ko ar hnini",
+    "upload": "Ndi video",
+    "ph-selectVideo": "Seleccionar vídeo",
+    "preview": "Thandi previa ar tsita",
+    "ph-selectPreview": "Seleccionar thandi previa",
+    "createFeed": "Pa da t'ot'e 'nar feed da 'ñehe 'nar video ne 'nar tsita thandi previa!!!",
+    "ph-videoName": "Ar thuuhu ir vídeo",
+    "ph-type": "Gi 'yot'i nä'ä gi t'uni ko jar hnini... ",
+    "lbl-share": "T'uni",
+    "save": "Guardar ne listo Siguiente"
+  },
+  "feedMenu": {
+    "featured": "Recomendados",
+    "creators": "Creadores",
+    "feed": "Ar Feed"
+  },
+  "header": {
+    "lbl-volumetric": "Volumétrico"
+  },
+  "login": {
+    "account": "¿Gí 'ñehe 'nar nu?",
+    "login": "Da du'mi ya sesión",
+    "resetPassword": "Botón da t'ot'e contraseña falsa (nuwa habría 'nar enlace ar correo electrónico)",
+    "notHavingAccount": "¿Hingi gí 'ñehe 'nar nu?",
+    "signUp": "Gi unir",
+    "forgotPassword": "¿Olvidó ár contraseña?",
+    "back": "Atrás",
+    "or": "O"
+  },
+  "comment": {
+    "add": "Añade ir comentario..."
+  },
+  "notification": {
+    "feedFire": " disparó ir feed",
+    "feedBookmarked": " mbeni komongu ne mäs ir feed",
+    "comment": " comentó ár feed:",
+    "commentFire": " disparó ár comentario pa alimentar",
+    "follow": " comenzó ga seguir",
+    "unfollow": " ya bí seguir",
+    "followed": " Gi sigi",
+    "activity": "Nt'ot'e"
+  },
+  "onBoarding": {
+    "welcome": "Hogu̲ntso̲ho̲!",
+    "description": "Ar dätä colección ar mäs ar 370 diseños pa ar creación prototipos iOS.",
+    "next": "Xtí",
+    "discover": "Descubre ar xeni Nthuts'i,",
+    "news": "noticias ne posts",
+    "lines": "Ya esos sentimientos mi impulsan ma hne ja ar astronomía ne ma hne.",
+    "getStarted": "Ndi ndu̲i",
+    "meetUp": "Ar reunir ko",
+    "friends": "mpädi.",
+    "meet": "Reunir ga ko mpädi"
+  },
+  "shareForm": {
+    "arcMedia": "T'uni",
+    "videoCreated": "Xta creado nuna ar video",
+    "shareWithBuddies": "T'uni ko mpädi",
+    "shareVideo": "T'uni video",
+    "save": "Guardar ar carrete ar cámara",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "addFeed": "Añadir feed"
+  },
+  "simpleModal": {
+    "emptyList": "Ar Nthuts'i vacía",
+    "followers": " Xtí",
+    "following": " Seguidores",
+    "flames": " Llamas"
+  },
+  "splash": {
+    "screen": "Pantalla presentación",
+    "logo": "Logotipo"
+  },
+  "story": {
+    "profilePic": "Fotografiya perfil {{user}}"
+  },
+  "view": {
+    "cancel": "Cancelar",
+    "choice": "Pe̲ts'i yoho modos ar grabación 'na'ño pa da 'ñets'i",
+    "verticalMode": "Ar modo vertical pe̲ts'i 'nar pa grabación 30 ya 'na̲te ya segundo",
+    "horizontalMode": "Ar modo horizontal pe̲ts'i 'nar pa ar grabación ilimitado",
+    "start": "'Bu̲i",
+    "not-show": "Hingi ndi vuelva ma mostrar",
+    "welcome": "Hogu̲ntso̲ho̲ ma ARC!  Gi hyoki ya videos thuhuse̲ ko 'na HMUNTS'UJE hologramas ne publicar nä'ä jar canales redes ja ya 'mui!",
+    "step": "BI THOGI {{step}}",
+    "text-step-1": "Elija 'nar holograma ar biblioteca.",
+    "text-step-2": "Nuna gehna gu̲ki makwäni Aumentada, nja'bu̲ da escanea ar espacio ir cámara ngehnu̲ ngehnu̲ Nxoge 3 — 5 ya 'na̲te ya mfe̲ts'i ho gi da ntsuni rendimiento ar holograma.",
+    "text-step-3-part-1": "Toque ar pantalla 'nar pa jar lugar ho gi nä'ä bí ancle ar holograma.",
+    "text-step-3-part-2": "PROPINA!  Toque 'nar pa jar ma'na lugar pa mover ar holograma ma gi nt'o̲t'e.",
+    "text-step-3-part-3": "PROPINA!  Pe mpa̲ti ar tamaño ar holograma pellizcando wa expandiendo pantalla ko ar pulgar ne ar dedo índice.",
+    "text-step-4-part-1": "Toque yoho ya 'nandi ar botón xí nthe̲ni grabación pa da DU'MI jár grabación ar video.",
+    "text-step-4-part-2": "Toque yoho ya 'nandi ar botón xí nthe̲ni grabación da DETENER."
+  },
+  "video": {
+    "back": "Atrás"
+  },
+  "terms": {
+    "confirmTerms": "Acepto ya ngäts'i hontho",
+    "confirmPolicy": "Acepto ar nt'eje Privacidad"
+  },
+  "registration": {
+    "ph-phoneEmail": "Ga teléfono yá correo electrónico",
+    "facebook": "Da 'ño ko Facebook",
+    "google": "Da 'ño ko Google",
+    "linkedin": "Da 'ño ko Linkedin",
+    "twitter": "Da 'ño ko Twitter",
+    "gitHub": "Da 'ño ko GitHub",
+    "connect": "Conecta ir correo electrónico wa ya 'bede ya teléfono",
+    "logIn": "Gi du̲i sesión",
+    "LogInTo": "Inicie sesión jar",
+    "continueAsGuest": "Da 'ño ngu invitado"
+  }
+}

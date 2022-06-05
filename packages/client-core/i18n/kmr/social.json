@@ -1,0 +1,202 @@
+{
+  "addComment": "Şîrove lê zêde bike...",
+  "share": "Parve bike",
+  "suggestions": "Pêşniyarên ji bo te",
+  "seeAll": "Hemûyan Bibîne",
+  "likes": "Hez dike",
+  "viewComments": "Hemû şîroveyên {{count}} bibîne",
+  "more": "zêdetir",
+  "username": "navê bikarhêner",
+  "fullName": "Nav paşnav",
+  "reportInApporpriate": "Rapora neguncaw",
+  "unfollow": "Veneqetîne",
+  "goToPost": "Here Postê",
+  "shareModal": "Parve bike",
+  "copyLink": "Girêdanê Kopî Bike",
+  "embed": "Veşartî",
+  "cancel": "Betal kirin",
+  "confirm": "Bipejirîne",
+  "save": "Tomar bike",
+  "profilePic": "{{user}}' profîla wêneyan",
+  "ara": "Ara",
+  "follow": "Bişopîne",
+  "flames": "Pêt",
+  "continue": "berdewam bike",
+  "partyInvitationSent": "parti daveti gönderildi",
+  "arMedia": {
+    "back": "Paşve",
+    "clip": "Klîp",
+    "backgrounds": "Rûerd",
+    "start": "Destpêk"
+  },
+  "arMediaform": {
+    "title": "Sernivîs",
+    "type": "Cure",
+    "clip": "Klîp",
+    "background": "Rûerd",
+    "scene": "Dîmen",
+    "save": "Tomar bike",
+    "manifest-file": "Dosyeya diyarkirî",
+    "audio-file": "Pela MP4",
+    "dracosis-file": "Pelê Dracosis .uvol",
+    "preview-file": "Pela wêne ya pêşdîtinê"
+  },
+  "creator": {
+    "myVideos": "Vîdeoyên Min",
+    "savedVideos": "Vîdeoyên Tomarkirî",
+    "back": "Paşve",
+    "blocked-list": "Lîsteya Astengkirî",
+    "block-user": "Bikarhêner asteng bike",
+    "dialog-content": "Tu yê profîla bikarhêner û naverokê nebînî"
+  },
+  "creatorForm": {
+    "back": "Paşve",
+    "edit": "Profîlê Sererast Bike",
+    "save": "Tomar bike",
+    "changeAvatar": "Wêneya avatarê biguherîne",
+    "ph-selectPreview": "Pêşdîtinê hilbijêre",
+    "ph-name": "Navê te",
+    "ph-username": "Navê te yê bikarhêner",
+    "ph-email": "oensîyona te",
+    "ph-tags": "Etîket",
+    "ph-link": "Girêdan",
+    "ph-aboutYou": "bêtir li ser te",
+    "ph-twitter": "twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Nîşan-derketin"
+  },
+  "dashboard": {
+    "title": "Panela Kontrolê",
+    "dashboard": "Panela Kontrolê",
+    "users": "Bikarhêner",
+    "feeds": "Bexşîş",
+    "arMedia": "Medyaya Vîdeoyê",
+    "editor": "Edîtor",
+    "creator": "Afirandêr"
+  },
+  "featured": {
+    "empty-list": "Ji bo niha xwarin tune ..."
+  },
+  "feed": {
+    "back": "Paşve",
+    "related": "Têrkerên têkildar",
+    "is-repoted-message": "Bexşîş hat ragihandin!"
+  },
+  "feedForm": {
+    "back": "Paşve",
+    "thanks": "Spas ji bo parvekirin û pêşvebirina civaka me",
+    "share": "bi civakê re tiştekî parve bikin",
+    "upload": "Vîdeoyê Bar Bike",
+    "ph-selectVideo": "Vîdeoyê Hilbijêre",
+    "preview": "Pêşdîtin:",
+    "ph-selectPreview": "Pêşdîtinê hilbijêre",
+    "createFeed": "Ji bo afirandina xwedîkirina xwarinê divê vîdeoyek û dîmeneka pêşdîtinê hebe!!!",
+    "ph-videoName": "Navê vîdeoya te",
+    "ph-type": "Tişta ku hûn dixwazin bi civakê re par ve bikin binivîsin ... ",
+    "lbl-share": "Parve bike",
+    "save": "Tomar bike û here Next"
+  },
+  "feedMenu": {
+    "featured": "bijarte",
+    "creators": "Afirîner",
+    "feed": "The Feed"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetric"
+  },
+  "login": {
+    "account": "Hesabekî we heye?",
+    "login": "Têketin",
+    "resetPassword": "Bişkoka Sexte ya Şîfreyê ji nû ve saz bike (li vir dê bibe girêdana ji e-nameyê)",
+    "notHavingAccount": "Hesabekî te tune ye?",
+    "signUp": "Tomar kirin",
+    "forgotPassword": "Şîfreya te ji bîr kir?",
+    "back": "Paşve",
+    "or": "OR"
+  },
+  "comment": {
+    "add": "Şîroveya xwe lê zêde bike..."
+  },
+  "notification": {
+    "feedFire": " êmê xwe derxist",
+    "feedBookmarked": " Xwarina we nîşan kir",
+    "comment": " xwarina xwe şîrove kir:",
+    "commentFire": " Şîroveya xwe derxist da ku têr bike",
+    "follow": " dest bi şopandina te kir",
+    "unfollow": " dev ji şopandina te berda",
+    "followed": " li pey te çû",
+    "activity": "Çalakî"
+  },
+  "onBoarding": {
+    "welcome": "Bi xêr hatî!",
+    "description": "Ji bo prototîpînga IOSê koleksîyona herî mezin a 370+ planan.",
+    "next": "Pêş",
+    "discover": "Gotaran bibîne,",
+    "news": "Nûçe û post",
+    "lines": "Ew hîs in ku evîna me ya astronomî û xwesteka me diajo.",
+    "getStarted": "Dest Pê Bike",
+    "meetUp": "bicive",
+    "friends": "hevalino.",
+    "meet": "bi hevalên xwe re hevdîtin pêk bînin"
+  },
+  "shareForm": {
+    "arcMedia": "Parve bike",
+    "videoCreated": "Min Ev Vîdeo Afirand",
+    "shareWithBuddies": "Bi hevalî re parve bikin",
+    "shareVideo": "Vîdeoyê Parve Bike",
+    "save": "Li Kamera Rollê Tomar Bike",
+    "cancel": "Betal kirin",
+    "close": "Bigire",
+    "addFeed": "Lê Zêdekirina Xudan"
+  },
+  "simpleModal": {
+    "emptyList": "Lîsteya vala",
+    "followers": " li pey",
+    "following": " peyrew",
+    "flames": " pêt"
+  },
+  "splash": {
+    "screen": "Dîmendera Splash",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "{{user}}' profîla wêneyan"
+  },
+  "view": {
+    "cancel": "Betal kirin",
+    "choice": "Du modên tomarkirinê yên cuda hene ku hûn ji wan hilbijêrin.",
+    "verticalMode": "Dema tomarkirina tîkane 30 sanîye ye",
+    "horizontalMode": "Dema tomarkirina bêsînor a moda berwarî heye",
+    "start": "Destpêk",
+    "not-show": "careke din nîşan nede",
+    "welcome": "Bi xêr hatî ARC!  Vîdeoyên şexsî bi yek ji hologramên me çêkin û ji kanalên xwe yên medyaya civakî re bişînin!",
+    "step": "PÊNGAV {{step}}",
+    "text-step-1": "Ji pirtûkxaneyê hologramekê hilbijêrin.",
+    "text-step-2": "Ev Rastîya Berfirehkirî ye, ji ber vê yekê hûn dixwazin performansa hologramê li ku derê be, bi kameraya xwe ra 3-5 sanîyeyan li cihekî binihêrin.",
+    "text-step-3-part-1": "Carekê li cihê ku hûn dixwazin hologram lê were xemilandin ekranê bitikîne.",
+    "text-step-3-part-2": "Tîp!  Ji bo ku hologramê veguhêzin cihekî din, carekê pê lê bikin.",
+    "text-step-3-part-3": "Tîp!  Hûn dikarin hologramê bi tilîya xwe ya tilî û tilîya xwe ya nîşankirî pîne bikin an jî mezin bikin.",
+    "text-step-4-part-1": "Ji bo destpêkirina tomarkirina vîdeoyê du caran bişkoka tomarkirina sor bitikînin.",
+    "text-step-4-part-2": "Ji bo RAWESTANDINê du caran bişkoka tomarkirina sor bitikînin."
+  },
+  "video": {
+    "back": "Paşve"
+  },
+  "terms": {
+    "confirmTerms": "Ez qebûl dikim ku Şertên Xizmetê",
+    "confirmPolicy": "Ez bi Siyaseta Nepenîtiyê razî me"
+  },
+  "registration": {
+    "ph-phoneEmail": "Telefon / email bi kar bîne",
+    "facebook": "bi Facebookê berdewam bike",
+    "google": "bi Google'ê berdewam bike",
+    "linkedin": "bi Linkedin re berdewam bike",
+    "twitter": "bi Twîtterê dewam bike",
+    "gitHub": "Bi GitHub'ê berdewam bike",
+    "connect": "E-posta an jî hejmara telefona xwe girê bide",
+    "logIn": "Têkeve",
+    "LogInTo": "Têketin",
+    "continueAsGuest": "wek mêvan berdewam bike"
+  }
+}

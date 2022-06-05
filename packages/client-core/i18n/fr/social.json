@@ -1,0 +1,202 @@
+{
+  "addComment": "Ajouter un commentaire...",
+  "share": "Partager",
+  "suggestions": "Suggestions pour vous",
+  "seeAll": "Voir tout",
+  "likes": "Aime",
+  "viewComments": "Voir tous les commentaires {{count}}",
+  "more": "plus",
+  "username": "nom d’utilisateur",
+  "fullName": "Nom Nom",
+  "reportInApporpriate": "Signaler un rapport inapproprié",
+  "unfollow": "Ne plus suivre",
+  "goToPost": "Aller à Post",
+  "shareModal": "Partager",
+  "copyLink": "Copier le lien",
+  "embed": "Incorporer",
+  "cancel": "Annuler",
+  "confirm": "Confirmer",
+  "save": "Sauvegarder",
+  "profilePic": "Photo de profil de {{user}}",
+  "ara": "Autel",
+  "follow": "Suivre",
+  "flames": "Flammes",
+  "continue": "Continuer",
+  "partyInvitationSent": "Invitation à une fête envoyée",
+  "arMedia": {
+    "back": "Précédent",
+    "clip": "Capture",
+    "backgrounds": "Milieux",
+    "start": "Commencer"
+  },
+  "arMediaform": {
+    "title": "Titre",
+    "type": "Type",
+    "clip": "Capture",
+    "background": "Arrière-plan",
+    "scene": "Scène",
+    "save": "Sauvegarder",
+    "manifest-file": "Fichier .manifest",
+    "audio-file": "Fichier Mp4",
+    "dracosis-file": "Fichier .uvol Dracosis",
+    "preview-file": "Prévisualiser le fichier image"
+  },
+  "creator": {
+    "myVideos": "Mes vidéos",
+    "savedVideos": "Vidéos enregistrées",
+    "back": "Précédent",
+    "blocked-list": "Liste bloquée",
+    "block-user": "Bloquer l’utilisateur",
+    "dialog-content": "Vous ne verrez pas le profil et le contenu de l’utilisateur"
+  },
+  "creatorForm": {
+    "back": "Précédent",
+    "edit": "Modifier le profil",
+    "save": "Sauvegarder",
+    "changeAvatar": "Modifier l’image de l’avatar",
+    "ph-selectPreview": "Sélectionner l’aperçu",
+    "ph-name": "Votre nom",
+    "ph-username": "Votre nom d’utilisateur",
+    "ph-email": "Votre adresse e-mail",
+    "ph-tags": "Étiquettes",
+    "ph-link": "Lien",
+    "ph-aboutYou": "En savoir plus sur vous",
+    "ph-twitter": "gazouiller",
+    "ph-instagram": "Instagram (en anglais)",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Déconnexion"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "dashboard": "Tableau de bord",
+    "users": "Utilisateurs",
+    "feeds": "Flux",
+    "arMedia": "Médias vidéo",
+    "editor": "Éditeur",
+    "creator": "Créateur"
+  },
+  "featured": {
+    "empty-list": "Pas de flux pour l’instant..."
+  },
+  "feed": {
+    "back": "Précédent",
+    "related": "Flux associés",
+    "is-repoted-message": "L’alimentation est signalée!"
+  },
+  "feedForm": {
+    "back": "Précédent",
+    "thanks": "Merci d’avoir partagé et amélioré notre communauté",
+    "share": "Partagez quelque chose avec la communauté",
+    "upload": "Télécharger la vidéo",
+    "ph-selectVideo": "Sélectionnez Vidéo",
+    "preview": "Aperçu de l’image",
+    "ph-selectPreview": "Sélectionner l’aperçu",
+    "createFeed": "Pour créer un flux, vous devez disposer d’une vidéo et d’une image d’aperçu!!!",
+    "ph-videoName": "Le nom de votre vidéo",
+    "ph-type": "Tapez ce que vous voulez partager avec la communauté ... ",
+    "lbl-share": "Partager",
+    "save": "Enregistrer et passer à l’étape suivante"
+  },
+  "feedMenu": {
+    "featured": "Vedettes",
+    "creators": "Créateurs",
+    "feed": "Le flux"
+  },
+  "header": {
+    "lbl-volumetric": "Volumétrique"
+  },
+  "login": {
+    "account": "Vous avez un compte ?",
+    "login": "Connectez-vous",
+    "resetPassword": "Bouton Réinitialiser le mot de passe faux (ici serait un lien de l’e-mail)",
+    "notHavingAccount": "Vous n’avez pas de compte ?",
+    "signUp": "S’enregistrer",
+    "forgotPassword": "Mot de passe oublié?",
+    "back": "Précédent",
+    "or": "OU"
+  },
+  "comment": {
+    "add": "Ajoutez votre commentaire..."
+  },
+  "notification": {
+    "feedFire": " déclenché votre flux",
+    "feedBookmarked": " mis votre flux en signet",
+    "comment": " commenté votre flux :",
+    "commentFire": " a lancé votre commentaire pour alimenter",
+    "follow": " a commencé à vous suivre",
+    "unfollow": " cessé de vous suivre",
+    "followed": " vous a suivi",
+    "activity": "Activité"
+  },
+  "onBoarding": {
+    "welcome": "Bienvenue!",
+    "description": "La plus grande collection de plus de 370 mises en page pour le prototypage iOS.",
+    "next": "Prochain",
+    "discover": "Découvrir les articles,",
+    "news": "nouvelles et articles",
+    "lines": "Ce sont ces sentiments qui animent notre amour de l’astronomie et notre désir.",
+    "getStarted": "Démarrer",
+    "meetUp": "Rencontrez",
+    "friends": "amis.",
+    "meet": "Rencontrez des amis"
+  },
+  "shareForm": {
+    "arcMedia": "Partager",
+    "videoCreated": "J’ai créé cette vidéo",
+    "shareWithBuddies": "Partager avec des amis",
+    "shareVideo": "Partager la vidéo",
+    "save": "Enregistrer sur la pellicule",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "addFeed": "Ajouter un flux"
+  },
+  "simpleModal": {
+    "emptyList": "Liste vide",
+    "followers": " suivant",
+    "following": " adhérents",
+    "flames": " Flammes"
+  },
+  "splash": {
+    "screen": "Écran de démarrage",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "Photo de profil de {{user}}"
+  },
+  "view": {
+    "cancel": "Annuler",
+    "choice": "Vous avez le choix entre deux modes d’enregistrement différents",
+    "verticalMode": "Le mode vertical a un temps record de 30 secondes",
+    "horizontalMode": "Le mode horizontal a un temps d’enregistrement illimité",
+    "start": "Commencer",
+    "not-show": "Ne le montrez plus jamais",
+    "welcome": "Bienvenue à ARC!  Faites des vidéos personnelles avec l’un de nos hologrammes et publiez-le sur vos réseaux sociaux!",
+    "step": "ÉTAPE {{step}}",
+    "text-step-1": "Choisissez un hologramme dans la bibliothèque.",
+    "text-step-2": "Il s’agit de réalité augmentée, alors scannez l’espace avec votre caméra d’un côté à l’autre pendant 3 à 5 secondes où vous voulez que les performances de l’hologramme soient.",
+    "text-step-3-part-1": "Appuyez sur l’écran une fois à l’endroit où vous souhaitez ancrer l’hologramme.",
+    "text-step-3-part-2": "POURBOIRE!  Appuyez une fois ailleurs pour déplacer l’hologramme vers une autre position.",
+    "text-step-3-part-3": "POURBOIRE!  Vous pouvez redimensionner l’hologramme en pinçant ou en élargissant l’écran avec votre pouce et votre index.",
+    "text-step-4-part-1": "Appuyez deux fois sur le bouton d’enregistrement rouge pour DÉMARRER votre enregistrement vidéo.",
+    "text-step-4-part-2": "Appuyez deux fois sur le bouton d’enregistrement rouge pour ARRÊTER."
+  },
+  "video": {
+    "back": "Précédent"
+  },
+  "terms": {
+    "confirmTerms": "J’accepte les conditions d’utilisation",
+    "confirmPolicy": "J’accepte la politique de confidentialité"
+  },
+  "registration": {
+    "ph-phoneEmail": "Utiliser le téléphone / e-mail",
+    "facebook": "Continuer avec Facebook",
+    "google": "Continuer avec Google",
+    "linkedin": "Continuer avec Linkedin",
+    "twitter": "Continuer avec Twitter",
+    "gitHub": "Continuer avec GitHub",
+    "connect": "Connectez votre adresse e-mail ou votre numéro de téléphone",
+    "logIn": "S'identifier",
+    "LogInTo": "Connectez-vous à",
+    "continueAsGuest": "Continuer en tant qu’invité"
+  }
+}

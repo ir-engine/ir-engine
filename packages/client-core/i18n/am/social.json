@@ -1,0 +1,202 @@
+{
+  "addComment": "Comment ጨምሩ ...",
+  "share": "አካፍሉ",
+  "suggestions": "ለአንተ የቀረቡ ሐሳቦች",
+  "seeAll": "ሁሉንም ይመልከቱ",
+  "likes": "ይወዳሉ",
+  "viewComments": "ሁሉንም {{count}} አስተያየቶች ይመልከቱ",
+  "more": "ተጨማሪ",
+  "username": "የተጠቃሚ ስም",
+  "fullName": "የስም ስም",
+  "reportInApporpriate": "ተገቢ ያልሆነ ሪፖርት",
+  "unfollow": "የማይከተል",
+  "goToPost": "ወደ ፖስት ሂድ",
+  "shareModal": "አካፍሉ",
+  "copyLink": "ኮፒ አገናኝ",
+  "embed": "ኤምቤድ",
+  "cancel": "ተወው",
+  "confirm": "አረጋግጥ",
+  "save": "አስቀምጥ",
+  "profilePic": "{{user}}የፕሮፌል ስዕል",
+  "ara": "አራ",
+  "follow": "ተከተሉ",
+  "flames": "የእሳት ነበልባል",
+  "continue": "ቀጥል",
+  "partyInvitationSent": "የግብዣ ግብዣ ተላከ",
+  "arMedia": {
+    "back": "ወደ ኋላ",
+    "clip": "ክሊፕ",
+    "backgrounds": "የኋላ ታሪክ",
+    "start": "ጀምር"
+  },
+  "arMediaform": {
+    "title": "ርዕስ",
+    "type": "አይነት",
+    "clip": "ክሊፕ",
+    "background": "የኋላ ታሪክ",
+    "scene": "ትዕይንት",
+    "save": "አስቀምጥ",
+    "manifest-file": "መገለጫ .መገለጫ ፋይል",
+    "audio-file": "Mp4 ፋይል",
+    "dracosis-file": "Dracosis .uvol file",
+    "preview-file": "የምስል ፋይል ቅድመ ዕይታ"
+  },
+  "creator": {
+    "myVideos": "የእኔ ቪዲዮዎች",
+    "savedVideos": "የተረፈ ቪዲዮዎች",
+    "back": "ወደ ኋላ",
+    "blocked-list": "ዝግ ዝርዝር",
+    "block-user": "የተጠቃሚ ተጠቃሚን መዝጋት",
+    "dialog-content": "የተጠቃሚውን ፕሮፋይል እና ይዘት አታዩም"
+  },
+  "creatorForm": {
+    "back": "ወደ ኋላ",
+    "edit": "ፕሮፋይልን አስረግጥ",
+    "save": "አስቀምጥ",
+    "changeAvatar": "አቫታር ምስልቀይር",
+    "ph-selectPreview": "ቅድመ ዕይታ ይምረጡ",
+    "ph-name": "የአንተ ስም",
+    "ph-username": "የእርስዎ የተጠቃሚ ስም",
+    "ph-email": "የእርስዎ ኢሜይል",
+    "ph-tags": "Tags",
+    "ph-link": "አገናኝ",
+    "ph-aboutYou": "ስለ አንተ ተጨማሪ",
+    "ph-twitter": "twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "ምልክት-ውጪ"
+  },
+  "dashboard": {
+    "title": "ዳሽቦርድ",
+    "dashboard": "ዳሽቦርድ",
+    "users": "ተጠቃሚዎች",
+    "feeds": "መግብያዎች",
+    "arMedia": "ቪድዮ ሚዲያ",
+    "editor": "አዘጋጅ",
+    "creator": "ፈጣሪ"
+  },
+  "featured": {
+    "empty-list": "ለአሁኑ ምንም ምግብ የለም ..."
+  },
+  "feed": {
+    "back": "ወደ ኋላ",
+    "related": "ተዛማጅ ምግብ",
+    "is-repoted-message": "ገበታ ተዘገበ!"
+  },
+  "feedForm": {
+    "back": "ወደ ኋላ",
+    "thanks": "ማህበረሰባችንን በማጋራት እና በማሻሻል እናመሰግናለን",
+    "share": "አንድ ነገር ለማህበረሰቡ አካፍሉ",
+    "upload": "አውርድ ቪዲዮ",
+    "ph-selectVideo": "ቪድዮ ይምረጡ",
+    "preview": "የቅድመ ዕይታ ምስል",
+    "ph-selectPreview": "ቅድመ ዕይታ ይምረጡ",
+    "createFeed": "መተግበያ ለመፍጠር የቪዲዮ እና የቅድመ ዕይታ ምስል ሊኖርዎት ይገባል!!!",
+    "ph-videoName": "የእርስዎ ቪዲዮ ስም",
+    "ph-type": "ከማህበረሰቡ ጋር ማጋራት የምትፈልገውን ጻፍ ... ",
+    "lbl-share": "አካፍሉ",
+    "save": "አስቀምጥ ና ቀጥሎ ሂድ"
+  },
+  "feedMenu": {
+    "featured": "Featured",
+    "creators": "ፈጣሪዎች",
+    "feed": "መግብያ"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetric"
+  },
+  "login": {
+    "account": "ዘገባ አለህ?",
+    "login": "መግቢያ",
+    "resetPassword": "የይለፍ ቃል የውሸት መተግበሪያ (ከኢሜይል አገናኝ እዚህ ይሆናል)",
+    "notHavingAccount": "አካውንት የለህም እንዴ?",
+    "signUp": "ተመዝገብ",
+    "forgotPassword": "የተረሳ የይለፍ ቃል?",
+    "back": "ወደ ኋላ",
+    "or": "ወይም"
+  },
+  "comment": {
+    "add": "አስተያየታችሁን ጨምሩ ..."
+  },
+  "notification": {
+    "feedFire": " ምግብህን አቃጠለ",
+    "feedBookmarked": " መምህራችሁን በምልክት አስቀምጠህ አስቀምጠህ",
+    "comment": " የእርስዎን ምገባ አስተያየት ሰጥቷል",
+    "commentFire": " አስተያየትዎን ለመተግበብ አጥፍቶ",
+    "follow": " አንተን መከተል ጀመረ",
+    "unfollow": " አንተን መከተል አቁሙ",
+    "followed": " አንተን ተከትለሃል",
+    "activity": "እንቅስቃሴ"
+  },
+  "onBoarding": {
+    "welcome": "እንኳን ደህና መጡ!",
+    "description": "ትልቁ ስብስብ 370+ የ iOS prototyping ንድፍ.",
+    "next": "ቀጣይ",
+    "discover": "ርዕሶችን ያግኛሉ,",
+    "news": "ዜና & post",
+    "lines": "ለሥነ ፈለክና ለምኞታችን ፍቅር እንዲያድርብን የሚገፋፋን እነዚህ ስሜቶች ናቸው ።",
+    "getStarted": "ጀምር",
+    "meetUp": "ተገናኙ",
+    "friends": "ጓደኞች ።",
+    "meet": "ከጓደኞችህ ጋር ተገናኝ"
+  },
+  "shareForm": {
+    "arcMedia": "አካፍሉ",
+    "videoCreated": "ይህን ቪዲዮ ፈጠርኩ",
+    "shareWithBuddies": "ከbuddies ጋር ያጋሩ",
+    "shareVideo": "ቪድዮ አካፍሉ",
+    "save": "ወደ ካሜራ ጥቅልል አስቀምጥ",
+    "cancel": "ተወው",
+    "close": "አቅርቡ",
+    "addFeed": "Feed ጨምር"
+  },
+  "simpleModal": {
+    "emptyList": "ባዶ ዝርዝር",
+    "followers": " ቀጥሎ",
+    "following": " ተከታዮች",
+    "flames": " የእሳት ነበልባል"
+  },
+  "splash": {
+    "screen": "ስፕላሽ ስክሪን",
+    "logo": "ሎጎ"
+  },
+  "story": {
+    "profilePic": "{{user}}የፕሮፌል ስዕል"
+  },
+  "view": {
+    "cancel": "ተወው",
+    "choice": "እርስዎ ለመምረጥ ሁለት የተለያዩ የተቀማጭ ዘዴ አለዎት",
+    "verticalMode": "ቀጥ ያለ ዘዴ የ 30 ሰከንድ የመዝገበ ጊዜ አለው",
+    "horizontalMode": "አግድም ዘዴ ገደብ የሌለው የመዝገብ ጊዜ አለው",
+    "start": "ጀምር",
+    "not-show": "ዳግመኛ አታሳዩት",
+    "welcome": "ወደ አርሲ እንኳን ደህና መጡ!  የግል ቪዲዮዎችን ከአንዱ ሆሎግራማችን ጋር ያድርጉ እና ወደ ማህበራዊ ሚዲያ ጣቢያዎችዎ ይለጥፉ!",
+    "step": "{{step}}",
+    "text-step-1": "ከቤተ መጻሕፍቱ ሆሎግራም ይምረጡ።",
+    "text-step-2": "ይህ Augmented Reality ነው, ስለዚህ ከካሜራዎ ጋር ያለውን ቦታ ከጎን ወደ ጎን ለ3-5 ሰከንዶች ይመልከቱ.",
+    "text-step-3-part-1": "ሆሎግራሙ መልሕቁን እንዲያድርበት በምትፈልጉበት ቦታ ላይ አንድ ጊዜ ስክሪን ንቡ።",
+    "text-step-3-part-2": "ጠቃሚ ምክር!  ሆሎግራማውን ወደ ሌላ ቦታ ለማዛወር አንድ ጊዜ ወደ ሌላ ቦታ ቁልቁል።",
+    "text-step-3-part-3": "ጠቃሚ ምክር!  በጣታችሁና በማውጫ ጣታችሁ ስክሪኑን በመጨበጥ ወይም በማስፋፋት ሆሎግራሙን ማስተካከል ትችላላችሁ።",
+    "text-step-4-part-1": "ሁለት እጥፍ ጠቅ ያድርጉ ቀይ የተቀማጭ ቁልፍ የእርስዎን የቪዲዮ መቅረዝ Start ለማድረግ.",
+    "text-step-4-part-2": "ወደ STOP ድርብ መንካት ቀይ የመዝገበ-በይነገጽ ቁልፍ."
+  },
+  "video": {
+    "back": "ወደ ኋላ"
+  },
+  "terms": {
+    "confirmTerms": "የአገልግሎት ስምምነት ላይ እስማማለሁ",
+    "confirmPolicy": "በግላዊነት ፖሊሲ እስማማለሁ"
+  },
+  "registration": {
+    "ph-phoneEmail": "ስልክ / ኢሜይል ይጠቀሙ",
+    "facebook": "ከFacebook ጋር ይቀጥሉ",
+    "google": "ከ Google ጋር ቀጥል",
+    "linkedin": "ከ Linkedin ጋር ቀጥል",
+    "twitter": "ትዊተር ጋር ይቀጥሉ",
+    "gitHub": "ከ GitHub ጋር ይቀጥሉ",
+    "connect": "የእርስዎ ኢሜይል ወይም ስልክ ቁጥር ያገናኙ",
+    "logIn": "በመለያ ግባ",
+    "LogInTo": "ወደ ውስጥ መግባት",
+    "continueAsGuest": "በእንግድነት ቀጥል"
+  }
+}

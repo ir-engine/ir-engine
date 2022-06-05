@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "নিশ্চিতকরণ ইমেল",
+      "resendEmail": "আপনার অ্যাকাউন্ট যাচাই করতে অনুগ্রহ করে আপনার ইমেল চেক করুন। আপনি যদি কোনও ইমেল না পেয়ে থাকেন তবে যাচাইকরণ ইমেলটি পুনরায় পাঠাতে দয়া করে {{here}} ক্লিক করুন।",
+      "haveAnAccount": "একটি অ্যাকাউন্ট আছে?"
+    },
+    "forgotPassword": {
+      "header": "পাসওয়ার্ড ভুলে গেছেন",
+      "enterEmail": "অনুগ্রহ করে আপনার নিবন্ধিত ইমেল ঠিকানা লিখুন এবং আমরা আপনাকে একটি পাসওয়ার্ড রিসেট লিঙ্ক পাঠাব।",
+      "lbl-email": "ইমেল ঠিকানা",
+      "lbl-submit": "লিংক প্রেরণ করুন",
+      "emailSent": "রিসেট পাসওয়ার্ড ইমেল পাঠানো হয়েছে। অনুগ্রহ করে আপনার ইমেইল চেক করুন।"
+    },
+    "login": {
+      "email": "ইমেল | এসএমএস",
+      "username": "ব্যবহারকারীর নাম + পাসওয়ার্ড",
+      "social": "সামাজিক"
+    },
+    "magiklink": {
+      "header": "লগইন লিংক",
+      "descriptionEmail": "অনুগ্রহ করে আপনার ইমেল ঠিকানা লিখুন এবং আমরা আপনাকে ইমেলের মাধ্যমে একটি লগইন লিঙ্ক পাঠাব।",
+      "descriptionSMS": "অনুগ্রহ করে আপনার ফোন নম্বর লিখুন এবং আমরা আপনাকে এসএমএসের মাধ্যমে একটি লগইন লিঙ্ক পাঠাব।",
+      "descriptionEmailSMS": "অনুগ্রহ করে আপনার ইমেল ঠিকানা বা ফোন নম্বর লিখুন (10 ডিজিট, শুধুমাত্র মার্কিন যুক্তরাষ্ট্র) এবং আমরা আপনাকে ইমেল বা এসএমএসের মাধ্যমে একটি লগইন লিঙ্ক পাঠাব।",
+      "descriptionSMSUS": "অনুগ্রহ করে আপনার ফোন নম্বর লিখুন (10 ডিজিট, শুধুমাত্র মার্কিন যুক্তরাষ্ট্র) এবং আমরা আপনাকে SMS এর মাধ্যমে একটি লগইন লিঙ্ক পাঠাব।",
+      "lbl-email": "ইমেল ঠিকানা",
+      "lbl-emailPhone": "ইমেল বা ফোন নম্বর",
+      "lbl-phone": "ফোন নম্বর",
+      "agree": "আমি তো একমত যে ",
+      "terms": "বিধি ও শর্তাবলী",
+      "lbl-submit": "লগইন লিঙ্ক পাঠান",
+      "email-sent-msg": "লগইন ম্যাজিক লিঙ্ক পাঠানো হয়েছে। অনুগ্রহ করে আপনার ইমেইল চেক করুন।",
+      "success-msg": "লগইন ম্যাজিক লিঙ্ক পাঠানো হয়েছে। অনুগ্রহ করে আপনার ইমেইল বা এসএমএস চেক করুন।",
+      "sms-sent-msg": "লগইন ম্যাজিক লিঙ্ক পাঠানো হয়েছে। অনুগ্রহ করে আপনার এসএমএস চেক করুন।"
+    },
+    "passwordLogin": {
+      "header": "সাইন ইন করো",
+      "lbl-email": "ইমেল ঠিকানা",
+      "lbl-password": "পাসওয়ার্ড",
+      "lbl-rememberMe": "আমাকে মনে রেখো",
+      "lbl-signin": "সাইন ইন করো",
+      "forgotPassword": "পাসওয়ার্ড ভুলে গেছেন?",
+      "signup": "আপনার কি কোন একাউন্ট নেই? সাইন আপ করো",
+      "lbl-login": "লগ ইন করো",
+      "ph-password": "পাসওয়ার্ড",
+      "ph-email": "ইমেল"
+    },
+    "social": {
+      "gitHub": "GitHub দিয়ে লগইন করুন",
+      "google": "Google দিয়ে লগইন করুন",
+      "facebook": "ফেসবুকে লগইন করুন",
+      "linkedin": "Linkedin দিয়ে লগইন করুন",
+      "twitter": "টুইটার দিয়ে লগইন করুন"
+    },
+    "register": {
+      "header": "সাইন আপ করো",
+      "login": "লগ ইন করো",
+      "lbl-signup": "সাইন আপ করো",
+      "lbl-password": "পাসওয়ার্ড",
+      "lbl-email": "ইমেল ঠিকানা",
+      "passwordNotMatch": "পাসওয়ার্ডগুলি মেলে না",
+      "ph-password": "পাসওয়ার্ড",
+      "ph-confirmPassword": "পাসওয়ার্ড নিশ্চিত করুন",
+      "ph-email": "ইমেল"
+    },
+    "resetPassword": {
+      "header": "পাসওয়ার্ড রিসেট করুন",
+      "description": "আপনার ইমেল ঠিকানার জন্য অনুগ্রহ করে আপনার পাসওয়ার্ড লিখুন",
+      "lbl-submit": "পাসওয়ার্ড রিসেট করুন",
+      "lbl-password": "পাসওয়ার্ড",
+      "lbl-confirmPassword": "পাসওয়ার্ড নিশ্চিত করুন",
+      "passwordNotMatch": "পাসওয়ার্ডগুলি মেলে না",
+      "nowLoginYourAccount": "আপনি এখন আপনার অ্যাকাউন্টে লগ ইন করতে পারেন",
+      "yourPasswordResetSuccess": "আপনার পাসওয়ার্ড সফলভাবে পুনরায় সেট করা হয়েছে!"
+    },
+    "verifyEmail": {
+      "header": "ইমেল যাচাই করুন",
+      "processing": "প্রক্রিয়াকরণের সময় অনুগ্রহ করে কিছুক্ষণ অপেক্ষা করুন..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "অবস্থান",
+      "loading": "লোড",
+      "col-name": "নাম",
+      "col-scene": "দৃশ্য",
+      "col-maxuser": "সর্বাধিক ব্যবহারকারী",
+      "lbl-search": "অবস্থানগুলি অনুসন্ধান করুন",
+      "lbl-new": "নতুন"
+    },
+    "newLocation": {
+      "title": "অবস্থান",
+      "success": "সফলভাবে সংরক্ষণ করা হয়েছে।",
+      "failure": "কিছু একটা ভুল হয়েছে।",
+      "removeSuccess": "অবস্থান সফলভাবে অপসারিত হয়েছে।",
+      "nameInUse": "নাম টি ব্যবহার করা হচ্ছে।",
+      "nameRequire": "নাম প্রয়োজন।",
+      "validNumber": "শুধুমাত্র সংখ্যা (0-9) অনুমোদিত।",
+      "lbl-name": "নাম",
+      "lbl-maxuser": "সর্বাধিক ব্যবহারকারী",
+      "lbl-scene": "দৃশ্য",
+      "lbl-type": "টাইপ",
+      "lbl-ve": "ভিডিও সক্রিয় করা হয়েছে",
+      "lbl-gme": "গ্লোবাল মিডিয়া সক্রিয় করা হয়েছে",
+      "lbl-update": "আধুনিকীকরণ",
+      "lbl-create": "তৈরি",
+      "tooltipCanNotBeDeleted": "লবি মুছে ফেলা যাবে না",
+      "confirmation": "তুমি কি নিশ্চিত?",
+      "lbl-yes": "হ্যাঁ",
+      "lbl-no": "না"
+    },
+    "share": {
+      "lbl-share": "অংশীদারি",
+      "ph-phoneEmail": "ইমেল বা ফোন নম্বর দ্বারা আমন্ত্রণ করুন",
+      "lbl-phoneEmail": "ইমেল বা ফোন নম্বরে পাঠান",
+      "lbl-copy": "অনুলিপি",
+      "lbl-send-invite": "আমন্ত্রণ প্রেরণ করুন",
+      "title": "আপনার দলের সাথে আপনার অবস্থানের URL শেয়ার করুন",
+      "linkCopied": "লিঙ্কটি ক্লিপবোর্ডে অনুলিপি করা হয়েছে।"
+    },
+    "setting": {
+      "audio": "অডিও",
+      "lbl-volume": "ভলিউম",
+      "lbl-microphone": "মাইক্রোফোন",
+      "graphics": "গ্রাফিক্স",
+      "controls": "নিয়ন্ত্রণ",
+      "lbl-control-type": "নিয়ন্ত্রকের ধরন",
+      "lbl-control-scheme": "নিয়ন্ত্রণ বিন্যাস",
+      "lbl-resolution": "স্পষ্টতা",
+      "lbl-shadow": "ছায়া",
+      "lbl-pp": "পোস্ট প্রসেসিং",
+      "lbl-pbr": "সম্পূর্ণ পিবিআর",
+      "lbl-automatic": "স্বয়ংক্রিয়",
+      "xrusersetting": "XR ব্যবহারকারী সেটিংস",
+      "rotation": "আবর্তন",
+      "rotation-smooth-speed": "ঘূর্ণন মসৃণ গতি",
+      "rotation-angle": "ঘূর্ণন কোণ",
+      "moving": "সরানোতে",
+      "user-avatar": "অবতার সেটিং",
+      "invert-rotation": "ঘূর্ণন উল্টানো এবং লাঠি সরান",
+      "show-avatar": "অবতার দেখান"
+    },
+    "profile": {
+      "lbl-profile": "প্রোফাইল",
+      "lbl-settings": "সেটিংস",
+      "lbl-username": "ব্যবহারকারীর নাম",
+      "update-msg": "ব্যবহারকারীর নাম আপডেট করা হয়েছে",
+      "inviteCode": "কোড আমন্ত্রণ করুন",
+      "youAreAn": "তুমি একজন",
+      "youAreA": "তুমি একজন",
+      "showUserId": "ইউজার আইডি দেখান",
+      "hideUserId": "ইউজার আইডি লুকান",
+      "showApiKey": "API কী দেখান",
+      "hideApiKey": "API কী লুকান",
+      "apiKey": "এপিআই কী",
+      "logout": "লগ আউট করুন",
+      "connectPhone": "আপনার ফোন নম্বর সংযোগ করুন",
+      "connectEmail": "আপনার ইমেল সংযোগ করুন",
+      "connectPhoneEmail": "আপনার ইমেল বা ফোন নম্বর সংযোগ করুন",
+      "or": "বা",
+      "lbl-wallet": "ওয়ালেট দিয়ে লগইন করুন",
+      "ph-email": "ইমেল",
+      "ph-phone": "ফোন নম্বর",
+      "ph-phoneEmail": "ফোন নম্বর / ইমেল",
+      "phoneEmailError": "অবৈধ ফোন # বা ইমেল ঠিকানা",
+      "phoneError": "অবৈধ ফোন #",
+      "emailError": "অবৈধ ইমেল ঠিকানা",
+      "loginWithReadyPlayerMe": "রেডি প্লেয়ার আমার সাথে লগইন করুন",
+      "connectSocial": "সামাজিক অ্যাকাউন্টের সাথে সংযোগ করুন",
+      "createOne": "আপনার যদি কোনও অ্যাকাউন্ট না থাকে তবে আপনার জন্য একটি নতুন তৈরি করা হবে",
+      "connections": {
+        "title": "কানেকশন",
+        "ipError": "সক্রিয় পরিচয় প্রদানকারী অপসারণ করা যাচ্ছে না",
+        "disconnect": "বিচ্ছিন্ন",
+        "connect": "সংযোগ"
+      },
+      "profileDropdown": {
+        "avatar": "ব্যবহারকারী অবতার আইকন",
+        "profile": "প্রোফাইল",
+        "adminConsole": "অ্যাডমিন কনসোল",
+        "logout": "লগআউট"
+      },
+      "userIcon": {
+        "lbl-name": "তোমার নাম",
+        "lbl-update": "আধুনিকীকরণ",
+        "userId": "ইউজার আইডি",
+        "ph-uploadImg": "পণ্যের ছবি আপলোড করুন",
+        "lbl-selectAcvatar": "অবতার নির্বাচন করুন",
+        "lbl-submit": "জমা"
+      },
+      "userSettings": {
+        "volume": "ভলিউম",
+        "microphone": "মাইক্রোফোন",
+        "resolution": "স্পষ্টতা",
+        "high": "উচ্চ",
+        "low": "নিম্ন",
+        "spatialAudio": "স্থানিক অডিও ব্যবহার করুন",
+        "enterMuted": "রুম মিউট করা প্রবেশ করান"
+      }
+    },
+    "oauth": {
+      "authenticating": "প্রমাণীকরণ করা হচ্ছে...",
+      "authFailed": "{{service}} প্রমাণীকরণ ব্যর্থ হয়েছে।"
+    },
+    "magikLink": {
+      "wait": "প্রক্রিয়াকরণের সময় অনুগ্রহ করে কিছুক্ষণ অপেক্ষা করুন..."
+    },
+    "dashboard": {
+      "header": "ড্যাশবোর্ড",
+      "dashboard": "ড্যাশবোর্ড",
+      "users": "ব্যবহারকারী",
+      "feeds": "ফীডগুলি",
+      "instance": "নজির",
+      "locations": "অবস্থান",
+      "invites": "আমন্ত্রণসমূহ",
+      "sessions": "সেশনসমূহ",
+      "groups": "গোষ্ঠী",
+      "parties": "দল",
+      "chats": "চ্যাট",
+      "content": "বিষয়বস্তুর প্যাকসমূহ",
+      "projects": "প্রকল্পসমূহ",
+      "scenes": "দৃশ্যসমূহ",
+      "avatars": "অবতার",
+      "benchmarking": "বেঞ্চমার্কিং",
+      "bots": "বট"
+    }
+  },
+  "oauth": {
+    "authenticating": "প্রমাণীকরণ করা হচ্ছে...",
+    "authFailed": "{{service}} প্রমাণীকরণ ব্যর্থ হয়েছে।"
+  },
+  "magikLink": {
+    "wait": "প্রক্রিয়াকরণের সময় অনুগ্রহ করে কিছুক্ষণ অপেক্ষা করুন..."
+  },
+  "dashboard": {
+    "header": "ড্যাশবোর্ড",
+    "dashboard": "ড্যাশবোর্ড",
+    "users": "ব্যবহারকারী",
+    "feeds": "ফীডগুলি",
+    "instance": "নজির",
+    "locations": "অবস্থান",
+    "routes": "রুটসমূহ",
+    "projects": "প্রকল্পসমূহ",
+    "invites": "আমন্ত্রণসমূহ",
+    "sessions": "সেশনসমূহ",
+    "groups": "গোষ্ঠী",
+    "parties": "দল",
+    "chats": "চ্যাট",
+    "content": "বিষয়বস্তুর প্যাকসমূহ",
+    "scenes": "দৃশ্যসমূহ",
+    "avatars": "অবতার",
+    "benchmarking": "বেঞ্চমার্কিং",
+    "bots": "বট",
+    "setting": "সেটিংস"
+  },
+  "avatar": {
+    "title": "আপলোড অবতার",
+    "lbl-browse": "ব্রাউজ",
+    "lbl-thumbnail": "অনুদর্শন",
+    "lbl-upload": "আপলোড",
+    "selectAvatar": "অবতার নির্বাচন করুন...",
+    "selectThumbnail": "থাম্বনেইল নির্বাচন করুন...",
+    "rotate": "পর্যাবৃত্ত",
+    "pan": "প্যান",
+    "noBone": "Obejct কোন হাড় বা ত্বক ধারণ করে না",
+    "outOfBound": "বস্তুটি সীমার বাইরে।",
+    "emptyObj": "বস্তুটি খালি।",
+    "maxTriangleError": "অবজেক্টে {{allowedTriangles}} মুখের চেয়ে বেশি রয়েছে।",
+    "selectValidFile": "বৈধ 3D অবতার ফাইল নির্বাচন করুন।",
+    "selectValidThumbnail": "বৈধ থাম্বনেইল ফাইল নির্বাচন করা হয়েছে।",
+    "fileOversized": "আমার ফাইলের আকার অবশ্যই {{minSize}} MB এবং {{maxSize}} MB এর মধ্যে হতে হবে",
+    "confirmation": "তুমি কি নিশ্চিত?",
+    "canNotBeRemoved": "সক্রিয় অবতার অপসারণ করা যাবে না",
+    "remove": "অবতার অপসারণ করুন",
+    "uploadFiles": "ফাইলগুলি আপলোড করুন",
+    "useUrlInstead": "পরিবর্তে URL ব্যবহার করুন",
+    "avatar": "অবতার",
+    "cancel": "বাতিল",
+    "createAvatar": "অবতার তৈরি করুন",
+    "delete": "বিলোপ",
+    "view": "দর্শন",
+    "uploadAvatarInfo": "অবতার তথ্য আপডেট করুন",
+    "name": "নাম",
+    "enterName": "নাম লিখুন",
+    "avatarInformation": "অবতার তথ্য",
+    "description": "বর্ণনা",
+    "key": "কী",
+    "none": "কোনটিই নয়",
+    "submit": "জমা",
+    "edit": "সম্পাদনা",
+    "avatarUrl": "অবতার url",
+    "upload-success-msg": "আমার সফলভাবে আপলোড করা হয়েছে।",
+    "remove-success-msg": "আমার সফলভাবে আপলোড করা হয়েছে।",
+    "warning-msg": "আমার সংস্থান খালি, আপনি কি আপনার স্ট্যাটিক ফাইল সঞ্চয়স্থানে অবতারগুলি সিঙ্ক করেছেন?"
+  },
+  "personMenu": {
+    "inviteToParty": "পার্টিতে আমন্ত্রণ করুন",
+    "addAsFriend": "বন্ধু হিসাবে যোগ করুন",
+    "mute": "মৌন",
+    "block": "অবরোধ"
+  },
+  "person": {
+    "you": "আপনি",
+    "yourScreen": "আপনার স্ক্রীন",
+    "muteForEveryone": "সবার জন্য নিঃশব্দ করুন",
+    "unmuteForEveryone": "সবার জন্য Unmute",
+    "muteMe": "আমাকে নিঃশব্দ করুন",
+    "unmuteMe": "আমাকে আনমিউট করুন",
+    "muteThisPerson": "এই ব্যক্তিকে নীরব করুন",
+    "unmuteThisPerson": "এই ব্যক্তিকে আনমিউট করুন",
+    "openPictureInPicture": "ছবিতে ছবি খুলুন"
+  }
+}

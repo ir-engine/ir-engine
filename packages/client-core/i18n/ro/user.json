@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "E-mail de confirmare",
+      "resendEmail": "Vă rugăm să verificați e-mailul pentru a vă verifica contul. Dacă nu ați primit un e-mail, faceți clic pe {{here}} pentru a retrimite e-mailul de verificare.",
+      "haveAnAccount": "Aveți un cont?"
+    },
+    "forgotPassword": {
+      "header": "Am uitat parola",
+      "enterEmail": "Vă rugăm să introduceți adresa de e-mail înregistrată și vă vom trimite un link de resetare a parolei.",
+      "lbl-email": "Adresa de e-mail",
+      "lbl-submit": "Trimite link-ul",
+      "emailSent": "Resetarea parolei e-mail a fost trimisă. Vă rugăm să verificați e-mailul."
+    },
+    "login": {
+      "email": "E-mail | SMS",
+      "username": "Nume utilizator + Parolă",
+      "social": "Social"
+    },
+    "magiklink": {
+      "header": "Login Link",
+      "descriptionEmail": "Vă rugăm să introduceți adresa de e-mail și vă vom trimite un link de conectare prin e-mail.",
+      "descriptionSMS": "Vă rugăm să introduceți numărul de telefon și vă vom trimite un link de conectare prin SMS.",
+      "descriptionEmailSMS": "Vă rugăm să introduceți adresa de e-mail sau numărul de telefon (10 cifre, numai în SUA) și vă vom trimite un link de conectare prin e-mail sau SMS.",
+      "descriptionSMSUS": "Vă rugăm să introduceți numărul de telefon (10 cifre, numai în SUA) și vă vom trimite un link de conectare prin SMS.",
+      "lbl-email": "Adresa de e-mail",
+      "lbl-emailPhone": "E-mail sau număr de telefon",
+      "lbl-phone": "Număr de telefon",
+      "agree": "Sunt de acord cu ",
+      "terms": "Termeni și condiții",
+      "lbl-submit": "Trimite link-ul de conectare",
+      "email-sent-msg": "Login Magic Link a fost trimis. Vă rugăm să verificați e-mailul.",
+      "success-msg": "Login Magic Link a fost trimis. Vă rugăm să verificați e-mailul sau SMS-ul.",
+      "sms-sent-msg": "Login Magic Link a fost trimis. Vă rugăm să verificați SMS-ul."
+    },
+    "passwordLogin": {
+      "header": "Conectează-te",
+      "lbl-email": "Adresa de e-mail",
+      "lbl-password": "Parolă",
+      "lbl-rememberMe": "Amintiți-vă de mine",
+      "lbl-signin": "Conectează-te",
+      "forgotPassword": "Ai uitat parola?",
+      "signup": "Nu aveți un cont? Înscrie-te",
+      "lbl-login": "Conectează-te",
+      "ph-password": "Parolă",
+      "ph-email": "E-mail"
+    },
+    "social": {
+      "gitHub": "Conectați-vă cu GitHub",
+      "google": "Conectați-vă cu Google",
+      "facebook": "Autentifică-te cu Facebook",
+      "linkedin": "Conectați-vă cu Linkedin",
+      "twitter": "Conectați-vă cu Twitter"
+    },
+    "register": {
+      "header": "Înscrie-te",
+      "login": "Conectează-te",
+      "lbl-signup": "Înscrie-te",
+      "lbl-password": "Parolă",
+      "lbl-email": "Adresa de e-mail",
+      "passwordNotMatch": "Parolele nu se potrivesc",
+      "ph-password": "Parolă",
+      "ph-confirmPassword": "Confirmare parolă",
+      "ph-email": "E-mail"
+    },
+    "resetPassword": {
+      "header": "Resetare parolă",
+      "description": "Vă rugăm să introduceți parola pentru adresa de e-mail",
+      "lbl-submit": "Resetare parolă",
+      "lbl-password": "Parolă",
+      "lbl-confirmPassword": "Confirmare parolă",
+      "passwordNotMatch": "Parolele nu se potrivesc",
+      "nowLoginYourAccount": "Acum vă puteți conecta la contul dvs.",
+      "yourPasswordResetSuccess": "Parola a fost resetată cu succes!"
+    },
+    "verifyEmail": {
+      "header": "Verificați e-mailul",
+      "processing": "Vă rugăm să așteptați un moment în timp ce de prelucrare ..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Locații",
+      "loading": "Încărcare",
+      "col-name": "Nume",
+      "col-scene": "Scenă",
+      "col-maxuser": "Utilizatori maximi",
+      "lbl-search": "Căutați locații",
+      "lbl-new": "Nou"
+    },
+    "newLocation": {
+      "title": "Loc",
+      "success": "Salvat cu succes.",
+      "failure": "Ceva nu a mers bine.",
+      "removeSuccess": "Locația eliminată cu succes.",
+      "nameInUse": "Numele este în uz.",
+      "nameRequire": "Numele este necesar.",
+      "validNumber": "Numai numerele (0-9) sunt permise.",
+      "lbl-name": "Nume",
+      "lbl-maxuser": "Utilizatori maximi",
+      "lbl-scene": "Scenă",
+      "lbl-type": "Tip",
+      "lbl-ve": "Video activat",
+      "lbl-gme": "Media globală activată",
+      "lbl-update": "Actualiza",
+      "lbl-create": "Crea",
+      "tooltipCanNotBeDeleted": "Lobby-ul nu poate fi șters",
+      "confirmation": "Eşti sigur?",
+      "lbl-yes": "Da",
+      "lbl-no": "Nu"
+    },
+    "share": {
+      "lbl-share": "Acțiune",
+      "ph-phoneEmail": "Invitație prin e-mail sau număr de telefon",
+      "lbl-phoneEmail": "Trimiterea la adresa de e-mail sau la numărul de telefon",
+      "lbl-copy": "Copie",
+      "lbl-send-invite": "Trimiteți invitația",
+      "title": "Partajați adresa URL a locației cu echipa dvs.",
+      "linkCopied": "Link copiat în clipboard."
+    },
+    "setting": {
+      "audio": "Audio",
+      "lbl-volume": "Volum",
+      "lbl-microphone": "Microfon",
+      "graphics": "Grafică",
+      "controls": "Controale",
+      "lbl-control-type": "Tipul controlerului",
+      "lbl-control-scheme": "Schema de control",
+      "lbl-resolution": "Rezoluție",
+      "lbl-shadow": "Umbre",
+      "lbl-pp": "Post-procesare",
+      "lbl-pbr": "PBR complet",
+      "lbl-automatic": "Automat",
+      "xrusersetting": "Setările utilizatorului XR",
+      "rotation": "Rotație",
+      "rotation-smooth-speed": "Viteza de rotație lină",
+      "rotation-angle": "Unghiul de rotație",
+      "moving": "Mișcător",
+      "user-avatar": "Avatar Setarea",
+      "invert-rotation": "Inversați rotirea și mutați bastoanele",
+      "show-avatar": "Arată Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Profil",
+      "lbl-settings": "Setări",
+      "lbl-username": "Nume de utilizator",
+      "update-msg": "Nume de utilizator actualizat",
+      "inviteCode": "Codul de invitație",
+      "youAreAn": "Sunteți un",
+      "youAreA": "Sunteți un",
+      "showUserId": "Afișare ID utilizator",
+      "hideUserId": "Ascunderea ID-ului de utilizator",
+      "showApiKey": "Afișare cheie API",
+      "hideApiKey": "Ascundeți cheia API",
+      "apiKey": "Cheie API",
+      "logout": "Deconectează-te",
+      "connectPhone": "Conectați-vă numărul de telefon",
+      "connectEmail": "Conectați-vă e-mailul",
+      "connectPhoneEmail": "Conectarea e-mailului sau a numărului de telefon",
+      "or": "Sau",
+      "lbl-wallet": "Autentifică-te cu Wallet",
+      "ph-email": "E-mail",
+      "ph-phone": "Număr de telefon",
+      "ph-phoneEmail": "Număr de telefon / E-mail",
+      "phoneEmailError": "Telefon nevalid # sau adresă de e-mail",
+      "phoneError": "Telefon nevalid #",
+      "emailError": "Adresă de e-mail nevalidă",
+      "loginWithReadyPlayerMe": "Login cu Ready Player Me",
+      "connectSocial": "Conectați-vă cu conturile sociale",
+      "createOne": "Dacă nu aveți un cont, va fi creat unul nou pentru dvs.",
+      "connections": {
+        "title": "Conexiuni",
+        "ipError": "Nu se poate elimina furnizorul de identitate activ",
+        "disconnect": "deconecta",
+        "connect": "Conecta"
+      },
+      "profileDropdown": {
+        "avatar": "Utilizator Avatar Icon",
+        "profile": "Profil",
+        "adminConsole": "Consola de administrare",
+        "logout": "Deconectare"
+      },
+      "userIcon": {
+        "lbl-name": "Numele tău",
+        "lbl-update": "Actualiza",
+        "userId": "Id utilizator",
+        "ph-uploadImg": "Încărcați imaginea produsului",
+        "lbl-selectAcvatar": "Selectează Avatar",
+        "lbl-submit": "Prezinte"
+      },
+      "userSettings": {
+        "volume": "Volum",
+        "microphone": "Microfon",
+        "resolution": "Rezoluție",
+        "high": "Înalt",
+        "low": "Jos",
+        "spatialAudio": "Utilizarea sunetului spațial",
+        "enterMuted": "Intră în cameră dezactivată"
+      }
+    },
+    "oauth": {
+      "authenticating": "Autentificare...",
+      "authFailed": "{{service}} autentificarea nu a reușit."
+    },
+    "magikLink": {
+      "wait": "Vă rugăm să așteptați un moment în timp ce de prelucrare ..."
+    },
+    "dashboard": {
+      "header": "Tablou",
+      "dashboard": "Tablou",
+      "users": "Utilizatorii",
+      "feeds": "Fluxuri",
+      "instance": "Exemplu",
+      "locations": "Locații",
+      "invites": "Invită",
+      "sessions": "Sesiuni",
+      "groups": "Grupuri",
+      "parties": "Părţi",
+      "chats": "Chat",
+      "content": "Pachete de conținut",
+      "projects": "Proiecte",
+      "scenes": "Scene",
+      "avatars": "Avatare",
+      "benchmarking": "Benchmarking",
+      "bots": "Roboţii"
+    }
+  },
+  "oauth": {
+    "authenticating": "Autentificare...",
+    "authFailed": "{{service}} autentificarea nu a reușit."
+  },
+  "magikLink": {
+    "wait": "Vă rugăm să așteptați un moment în timp ce de prelucrare ..."
+  },
+  "dashboard": {
+    "header": "Tablou",
+    "dashboard": "Tablou",
+    "users": "Utilizatorii",
+    "feeds": "Fluxuri",
+    "instance": "Exemplu",
+    "locations": "Locații",
+    "routes": "Rute",
+    "projects": "Proiecte",
+    "invites": "Invită",
+    "sessions": "Sesiuni",
+    "groups": "Grupuri",
+    "parties": "Părţi",
+    "chats": "Chat",
+    "content": "Pachete de conținut",
+    "scenes": "Scene",
+    "avatars": "Avatare",
+    "benchmarking": "Benchmarking",
+    "bots": "Roboţii",
+    "setting": "Setări"
+  },
+  "avatar": {
+    "title": "Încărcați Avatar",
+    "lbl-browse": "Răsfoi",
+    "lbl-thumbnail": "Miniatură",
+    "lbl-upload": "Încărca",
+    "selectAvatar": "Selectează Avatar...",
+    "selectThumbnail": "Selectați Miniatură...",
+    "rotate": "Roti",
+    "pan": "Tigaie",
+    "noBone": "Obejct nu conține oase sau piele",
+    "outOfBound": "Obiectul este în afara limitelor.",
+    "emptyObj": "Obiectul este gol.",
+    "maxTriangleError": "Obiectul conține fețe mai mari decât {{allowedTriangles}} .",
+    "selectValidFile": "Selectați valid 3d avatar fișier.",
+    "selectValidThumbnail": "Selectat fișier miniatură validă.",
+    "fileOversized": "Dimensiunea fișierului Avatar trebuie să fie între {{minSize}} MB și {{maxSize}} MB",
+    "confirmation": "Eşti sigur?",
+    "canNotBeRemoved": "Avatarul activ nu poate fi eliminat",
+    "remove": "Eliminați avatarul",
+    "uploadFiles": "Încărcarea fișierelor",
+    "useUrlInstead": "Utilizați url-ul în schimb",
+    "avatar": "Avatar",
+    "cancel": "Anula",
+    "createAvatar": "Creați Avatar",
+    "delete": "Șterge",
+    "view": "Vedere",
+    "uploadAvatarInfo": "Actualizați avatar informații",
+    "name": "Nume",
+    "enterName": "Introduceți numele",
+    "avatarInformation": "Avatar Informații",
+    "description": "Descriere",
+    "key": "Cheie",
+    "none": "Niciunul",
+    "submit": "Prezinte",
+    "edit": "Editare",
+    "avatarUrl": "Avatar URL-ul",
+    "upload-success-msg": "Avatar încărcat cu succes.",
+    "remove-success-msg": "Avatar încărcat cu succes.",
+    "warning-msg": "Avatar de resurse este gol, ai sincronizat avatare pentru a vă statice de stocare a fișierelor?"
+  },
+  "personMenu": {
+    "inviteToParty": "Invitație la petrecere",
+    "addAsFriend": "Adaugă ca prieten",
+    "mute": "Mut",
+    "block": "Bloca"
+  },
+  "person": {
+    "you": "Tu",
+    "yourScreen": "Ecranul dvs.",
+    "muteForEveryone": "Dezactivare sunet pentru toată lumea",
+    "unmuteForEveryone": "Dezactivarea sunetului pentru toată lumea",
+    "muteMe": "Mute-mă",
+    "unmuteMe": "Dezactivează-mă",
+    "muteThisPerson": "Dezactivați sunetul acestei persoane",
+    "unmuteThisPerson": "Dezactivarea sunetului între această persoană",
+    "openPictureInPicture": "Deschiderea imaginii în imagine"
+  }
+}

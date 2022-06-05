@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Níor aimsíodh an leathanach"
+  },
+  "503": {
+    "msg": "503 - Níl an tseirbhís ar fáil"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Cuireadh cosc ort ón suíomh seo",
+    "locationName": {
+      "pageTitle": "Baile"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Tionscadail",
+      "header": "Logáil isteach le do thoil",
+      "welcomeMsg": "Fáilte",
+      "locationHeader": "Suíomhanna",
+      "projectHeader": "Tionscadail",
+      "sceneHeader": "Radhairc",
+      "description": "Má tá tú nua anseo molaimid dul tríd an rang teagaisc. Seachas sin, léim ceart isteach agus tionscadal a chruthú ón tús nó ó cheann dár dteimpléid.",
+      "lbl-startTutorial": "Tosaigh Rang Teagaisc",
+      "lbl-newProject": "Tionscadal Nua",
+      "lbl-createProject": "Cruthaigh",
+      "lbl-newScene": "Radharc Nua",
+      "lbl-searchProject": "Cuardaigh Tionscadail atá ann cheana...",
+      "back": "Ar ais",
+      "contextMenu": "Scrios tionscadal",
+      "installed": "Tionscadail Suiteáilte",
+      "official": "Tionscadail Oifigiúla",
+      "community": "Tionscadail Phobail",
+      "install": "Suiteáil",
+      "uninstall": "Díshuiteáil",
+      "rename": "Athainmnigh",
+      "createProject": "Cruthaigh Tionscadal",
+      "installProject": "Suiteáil tionscadal",
+      "processing": "Próiseáil",
+      "projectName": "Ainm an Tionscadail",
+      "projectURL": "URL an tionscadail"
+    }
+  },
+  "error": {
+    "goHomeLink": "Téigh abhaile",
+    "withStatusCode": "Tharla earráid {{code}} ar an bhfreastalaí",
+    "withoutStatusCode": "Tharla earráid ar an bhfreastalaí"
+  },
+  "no-projects": {
+    "msg": "Earráid: Níl Aon Tionscadail Suiteáilte - téigh i dteagmháil le riarachán suímh"
+  },
+  "dev": {
+    "pageTitle": "Baile"
+  },
+  "login": {
+    "pageTitle": "Logáil isteach"
+  },
+  "workerTest": {
+    "pageTitle": "Tástáil Oibrithe"
+  },
+  "index": {
+    "by": "AG",
+    "xr": "XR",
+    "foundation": "Fondúireacht",
+    "description": "Feidhmchláir shóisialta Realtime 3D do gach duine taitneamh a bhaint astu."
+  },
+  "xrengineContact": {
+    "header": "Téigh i dteagmháil!",
+    "description": "Ba bhreá linn cabhrú leat le d'imeachtaí fíorúla, miondíol digiteach, siamsaíocht agus riachtanais eile.",
+    "lbl-name": "Ainm",
+    "lbl-email": "Ríomhphost",
+    "lbl-company": "Cuideachta",
+    "lbl-project": "Déan cur síos ar do Thionscadal",
+    "lbl-send": "Seol",
+    "lbl-ok": "Ceart go leor",
+    "lbl-success": "Teachtaireacht Seolta, Cuirfimid ar ais chugat go luath.",
+    "lbl-failure": "Tharla earráid, bain triail eile as an bpléitplese",
+    "err-username": "Iontráil ainm duit, le do thoil.",
+    "err-email": "Teastaíonn ríomhphost.",
+    "err-msg": "Tabhair cur síos gairid ar do thionscadal."
+  }
+}

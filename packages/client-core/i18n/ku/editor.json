@@ -1,0 +1,718 @@
+{
+  "loading": "پرۆژەی بارکردن",
+  "loadingMsg": "بارکردنی پرۆژە...",
+  "loadingError": "هەڵە لە بارکردنی پرۆژە",
+  "loadingErrorMsg": "هەڵەیەک ڕوویدا لەکاتی بارکردنی پرۆژەکە.",
+  "selectSceneMsg": "دیمەنەکە دیاریبکە بۆ دەستکردن بە یاریکردن لەگەڵ بزوێنەرەکە",
+  "error": "هەڵە",
+  "errorMsg": "هەڵەیەکی نەناسراو ڕوویدا.",
+  "generateScreenshot": "دروستکردنی شاشەی پرۆژە",
+  "generateScreenshotMsg": "دروستکردنی شاشەی پرۆژە",
+  "newScene": "دروستکردنی دیمەن",
+  "saving": "پاشەکەوتکردنی پرۆژە",
+  "savingMsg": "پاشەکەوت کردنی پرۆژە...",
+  "savingError": "هەڵەی پاشەکەوتکردنی پرۆژە",
+  "savingErrorMsg": "هەڵەیەک ڕوویدا لە کاتی پاشەکەوت کردنی پرۆژەکە.",
+  "savingSceneErrorMsg": "دیمەنەکە بە باشی بار نەکراوە. هەوڵ بدە دیمەنەکە دووبارە پڕبکەرەوە.",
+  "duplicating": "دووبارەکردنەوەی پرۆژە",
+  "duplicatingMsg": "دووبارەکردنەوەی پرۆژە...",
+  "exporting": "پرۆژەی هەناردەکردن",
+  "exportingMsg": "پرۆژەی هەناردەکردن",
+  "exportingError": "هەڵە لە هەناردەکردنی پرۆژە",
+  "exportingErrorMsg": "هەڵەیەک ڕوویدا لە کاتی هەناردەکردنی پرۆژەکە.",
+  "importLegacy": "هێنانی جیهانی میرات",
+  "importLegacyMsg": "ئاگادارکردنەوە! ئەمە دیمەنی ئێستات دەنووسێتەوە! ئایا دڵنیایت کە دەتەوێت بەردەوام بیت؟",
+  "publishingError": "هەڵەی پرۆژەی بڵاوکردنەوە",
+  "publishingErrorMsg": "هەڵەیەکی نەناسراو ڕوویدا.",
+  "publishingScene": "دیمەنی بڵاوکردنەوە",
+  "publishingSceneMsg": "دیمەنی بڵاوکردنەوە",
+  "uploadingThumbnailMsg": "بارکردنی وێنە بچووکەکە",
+  "uploadingSceneMsg": "دیمەنی بارکردن: {{percentage}}٪",
+  "envMapError": "هەڵە لە بارکردنی وێنەکانی شەش گۆشە {{files}}",
+  "lbl-return": "گەڕانەوە",
+  "menubar": {
+    "newScene": "دیمەنی نوێ",
+    "saveScene": "دیمەنەکە بپارێزە",
+    "saveAs": "بپارێزە وەک",
+    "importAsset": "هێنانی سەرمایە",
+    "exportGLB": "ناردن وەک دوانی glTF (.glb)",
+    "importScene": "هێنانی دیمەن",
+    "exportScene": "ناردن دیمەن",
+    "quit": "وازهێنان"
+  },
+  "errors": {
+    "fileTypeNotSupported": "جۆری فایلی پشتگیری نەکراو بۆ فایل: \"{{name}}\". فایلەکە دەبێت وێنە، ڤیدیۆ، یان مۆدێلی glb بێت.",
+    "addObject": "addObject: پێش ئەوەی ئۆبجێکت نەدۆزرایەوە",
+    "removeObject": "لابردنیObject: گرێ نەدۆزرایەوە. ئەمە دەگەڕێتەوە بۆ لابردنی گرێیەک کە چیتر لە دیمەنەکەدا نییە.",
+    "noParent": "{{node}} \"{{name}}\" دایک و باوکی نیە. دووبارە ئامادەکردنەوە تەنها کار لەسەر شتەکان دەکات کە ئێستا لە دیمەنەکەدان.",
+    "undefinedParent": "editor.reparent: NewParent پێناسە نەکراوە",
+    "notAuthenticated": "ڕەسەنایەتی نەکراوە",
+    "fetchingProjectError": "هەڵە لە هەڵکردنی پرۆژەکان: {{error}}",
+    "fetchingRouteError": "هەڵە لە گرتنی ڕێگاکان: {{error}}",
+    "unknownError": "هەڵەیەکی نەناسراو",
+    "resolveURL": "هەڵە لە چارەسەرکردنی url \"{{url}}\":",
+    "mediaSearchAborted": "گەڕانی میدیا هەڵوەشاوە",
+    "methodNotImplemented": "شێواز جێبەجێ نەکراوە.",
+    "saveProjectAborted": "دیمەنی هەڵمژین بپارێزە",
+    "unsavedChanges": "گۆڕانکاریە هەڵنەگیراوەکان",
+    "unsavedChangesMsg": "دیمەنەکە دەستکاری کراوە. تکایە گۆڕانکاریەکانت خەزن بکە.",
+    "projectCreationFail": "دروستکردنی پرۆژە سەرکەوتوو نەبوو. {{reason}}",
+    "projectDeletionFail": "سڕینەوەی پرۆژە سەرکەوتوو نەبوو. {{reason}}",
+    "savingProjectFail": "پاشەکەوتکردنی پرۆژە سەرکەوتوو نەبوو. {{reason}}",
+    "sceneTooLarge": "دیمەنەکە زۆر گەورەیە ({{size}} مێگابایت) بۆ بڵاوکردنەوە. زۆرترین قەبارە {{maxSize}} مێگابایت.",
+    "sceneCreationFail": "درووستکردنی دیمەنەکە سەرکەوتوو نەبوو. {{reason}}",
+    "uploadAborted": "بارکردن هەڵوەشاوە",
+    "uploadFailed": "بارکردن سەرکەوتوو نەبوو {{reason}}",
+    "assetDeletionFail": "سڕینەوەی سامان سەرکەوتوو نەبوو. {{reason}}",
+    "projectAssetDeletionFail": "سڕینەوەی سەرمایەی پرۆژە سەرکەوتوو نەبوو. {{reason}}",
+    "networkError": "هەڵەی تۆڕ: {{status}}. {{text}}",
+    "unknownStatus": "باری نەناسراو",
+    "CORS": "لەوانەیە هەڵەیەکی CORS",
+    "urlFetchError": "سەرکەوتوو نەبوو لە گرتنی \"{{url}}\""
+  },
+  "viewport": {
+    "title": "نیشاندان",
+    "command": {
+      "movecamera": "جوولاندنی کامێرا",
+      "flyFast": "خێراتر بفڕە",
+      "orbit": "خولگە/ دیاریبکە",
+      "pan": "تاو",
+      "fly": "فڕین",
+      "focus": "فۆکوس",
+      "rotateLeft": "سووڕاندن بۆ لای چەپ",
+      "rotateRight": "سوڕانەوە بۆ لای ڕاست",
+      "cancelPlacement": "پاشگەزبەوە لە شوێندانان",
+      "placeDuplicate": "دووبارەیی دابنێ",
+      "cancelGrab": "پاشگەزبەوە لە گرتنی",
+      "grab": "سەندن",
+      "deselectAll": "سڕینەوەی هەموو"
+    },
+    "state": {
+      "header": "ئامارەکان",
+      "memory": "بیرگە",
+      "geometries": "ئەندازەیەکان",
+      "textures": "چنراوەکان",
+      "render": "نمایشکردن",
+      "FPS": "FPS",
+      "frameTime": "کاتی چوارچێوە",
+      "calls": "پەیوەندیەکان",
+      "triangles": "سێگۆشە",
+      "points": "خاڵەکان",
+      "lines": "هێڵەکان"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "بڵاوکردنەوە",
+    "lbl-published": "بڵاوکراوەتەوە",
+    "command": {
+      "translate": "وەرگێڕان",
+      "rotate": "سوڕانەوە",
+      "scale": "پێوەر",
+      "toggleSpace": "گۆڕینی بۆشایی گۆڕینی رەوش",
+      "togglePivot": "گۆڕینی گۆڕینی Pivot",
+      "toggleSnapMode": "گۆڕینی رەوشی سناپ",
+      "toggleGrid": "گۆڕینی رەوشی بینینی تۆڕ",
+      "increaseGridSize": "قەبارەی تۆڕ زیاد بکە",
+      "descreaseGridSize": "کەمکردنەوەی قەبارەی تۆڕ",
+      "stopPreview": "دیمەنی پێشبینین بوەستێنە",
+      "playPreview": "دیمەنی پێشبینین"
+    }
+  },
+  "properties": {
+    "title": "خاسیەتەکان",
+    "lbl-visible": "بینراو",
+    "lbl-preventBake": "ڕێگری بکە لە برژاندن",
+    "lbl-persist": "بەردەوامبوون",
+    "multipleNodeSelected": "فرە گرێی جۆری جیاواز هەڵبژێردراو",
+    "noNodeSelected": "هیچ گرێیەک دیاری نەکراوە",
+    "ambientLight": {
+      "name": "ڕوناکی Ambient",
+      "description": "ڕووناکییەکە کە هەموو شتەکان لە دیمەنەکەتدا ڕووناک دەکاتەوە.",
+      "lbl-intensity": "چڕی",
+      "lbl-color": "ڕەنگ"
+    },
+    "envmap": {
+      "name": "نەخشەی ژینگە",
+      "description": "تایبەتمەندیەکانی نەخشەی ژینگە"
+    },
+    "asset": {
+      "name": "سامان",
+      "description": "گروپێک لە پێکهاتەکانی دیمەن کە دەتوانرێت بە شێوەیەکی داینامیکی باربکرێت و باربکرێت",
+      "lbl-options": "هەڵبژاردنەکان",
+      "lbl-assetPath": "ڕێگای سامان",
+      "lbl-assetName": "ناردن ناو",
+      "lbl-exportOptions": "هەڵبژاردنەکانی ناردن",
+      "lbl-export": "هەناردەکردنی سەرمایە",
+      "lbl-load": "بارکردن بۆ ناو دیمەن",
+      "lbl-unload": "بەتاڵ کەرەوە",
+      "lbl-reload": "دووبارە بارکردنەوە"
+    },
+    "audio": {
+      "name": "دەنگ",
+      "description": "بە شێوەیەکی داینامیکی دەنگ بار دەکات.",
+      "lbl-audiourl": "بەستەری دەنگ",
+      "lbl-controls": "کۆنترۆڵەکان",
+      "info-controls": "گۆڕینی رەوشی بینین لە کۆنتڕۆڵەکانی میدیا.",
+      "lbl-autoplay": "پەخشکردنی خۆکار",
+      "info-autoplay": "ئەگەر ڕاست بێت، میدیا یاری دەکات کاتێک یەکەم جار دەچێتە ناو دیمەنەکەوە.",
+      "lbl-synchronize": "هاوکاتکردن",
+      "info-synchronize": "ئەگەر ڕاست بێت، میدیاکان هاوکات دەکرێن لەسەر هەموو کڕیارەکانی پەیوەندیدار.",
+      "lbl-loop": "ئەڵقە",
+      "info-loop": "ئەگەر راست بێت میدیاکە بە نادیاریی دەپێچێتەوە.",
+      "lbl-audioType": "جۆری دەنگ",
+      "lbl-distanceModel": "مۆدێلی دووری",
+      "info-distanceModel": "ئەلگۆریتیم بەکارهاتووە بۆ ژماردنی هەڵگەڕانەوەی دەنگ.",
+      "lbl-rolloffFactor": "فاکتەری لولۆف",
+      "info-rolloffFactor": "بەهای دووانی باس دەکات کە چۆن بە خێرایی قەبارە کەمدەکرێتەوە کاتێک سەرچاوەکە لە گوێگرەکە دوور بێتەوە. 0 بۆ 1",
+      "info-rfInfinity": "بەهای دووانی باس دەکات کە چۆن بە خێرایی قەبارە کەمدەکرێتەوە کاتێک سەرچاوەکە لە گوێگرەکە دوور بێتەوە. 0 بۆ بێکۆتایی",
+      "lbl-refDistance": "دووری کردنەوە",
+      "info-refDistance": "بەهای دووانی نیشاندەری مەودای سەرچاوەکان بۆ کەمکردنەوەی قەبارە وەک سەرچاوەی دەنگ زیاتر دەجوڵێت لە گوێگر.",
+      "lbl-maxDistance": "مەودای ماکس",
+      "info-maxDistance": "بەهای دووانی نیشاندەری زۆرترین مەودا لە نێوان سەرچاوەی دەنگ و گوێگر، دوای ئەوە قەبارەی زیاتر کەم ناکرێتەوە.",
+      "lbl-coneInnerAngle": "گۆشەی ناوەکی قوچەک بکە",
+      "info-coneInnerAngle": "بەهای دووانی باسکردنی گۆشەیەکە، لە پلە، لە قوچەکێک کە هیچ کەم کردنەوەی قەبارەی تێدا نابێت.",
+      "lbl-coneOuterAngle": "گۆشەی دەرەکی قونیس",
+      "info-coneOuterAngle": "بەهای دووانی وەسفکردنی گۆشەیەکە، لە پلە، لە قوچەکێک کە لە دەرەوەی ئەو قەبارەیە بە بەهایەکی نەگۆڕ کەم دەکرێتەوە، کە بە سیفەتی coneOuterGain پێناسە دەکرێت.",
+      "lbl-coreOuterGain": "کۆن ئۆتەر گەینس",
+      "info-coreOuterGain": "بەهای دووانی باسکردنی بڕی کەمکردنەوەی قەبارە لە دەرەوەی قوچەکەکە کە بە تایبەتمەندی coneOuterAngle پێناسە کراوە. بەهای نموونەیی ٠، واتە هیچ دەنگێک نابیسترێت.",
+      "lbl-volume": "قەبارە",
+      "lbl-play": "پەخش کردن",
+      "lbl-pause": "ڕاوەستان",
+      "error-url": "هەڵە لە بارکردنی URL"
+    },
+    "boxCollider": {
+      "description": "سندوقێکی نادیار کە ئۆبجێکتەکان لە سەرەوە هەڵدەپەڕن یان پشوو دەدەن.\nبە بێ بەریەککەوتن، ئۆبجێکتەکان دەکەونە سەر زەویەکان و بە دیوارەکاندا دەڕۆن.",
+      "lbl-isTrigger": "ماشێن"
+    },
+    "camera": {
+      "name": "کامێرا",
+      "description": "ڕێکبەندەکانی کامێرا.",
+      "lbl-camera-raycast": "کامێرا رایکاستینگ",
+      "lbl-camera-raycast-toggle": "چالاککراوە",
+      "lbl-camera-raycast-frequency": "فرێکانس",
+      "lbl-camera-raycast-count": "ژماردنی ڕەی",
+      "lbl-camera-raycast-length": "درێژی تیشک"
+    },
+    "directionalLight": {
+      "name": "ڕوناکی ئاڕاستەیی",
+      "description": "ڕووناکییەکە کە هەموو دیمەنەکە ڕووناک دەکاتەوە، بەڵام بە درێژایی یەک ئاڕاستە دەهەژێتەوە.",
+      "lbl-color": "ڕەنگ",
+      "lbl-intensity": "چڕی",
+      "lbl-cameraFar": "کامێرای دوور",
+      "lbl-cameraNear": "کامێرای نزیک",
+      "lbl-cameraTop": "سەرەوەی کامێرا",
+      "lbl-cameraBottom": "خوارەوەی کامێرا",
+      "lbl-cameraLeft": "کامێرای چەپ",
+      "lbl-cameraRight": "کامێرای ڕاست",
+      "lbl-useInCSM": "بەکاربهێنە لە CSM",
+      "lbl-castShadow": "سێبەری کاست",
+      "lbl-disableForCSM": "لە کارخراوە لەبەرئەوەی نەخشەی سێبەری کاسکاید چالاککراوە.",
+      "lbl-shadowmapResolution": "چارەسەری نەخشەی سێبەر",
+      "lbl-shadowBias": "لایەنگری سێبەر",
+      "lbl-shadowRadius": "تیشکی سێبەر",
+      "lbl-showCameraHelper": "هاریکاری کامێرا نیشان بدە"
+    },
+    "groundPlane": {
+      "name": "فڕۆکەی زەمینی",
+      "description": "فڕۆکەیەکی تەختی زەوی کە درێژ دەبێتەوە بۆ دوورییەکە.",
+      "lbl-color": "ڕەنگ",
+      "lbl-receiveShadow": "سێبەر وەربگریت",
+      "lbl-generateNavmesh": "ناڤمیش دروست بکە"
+    },
+    "link": {
+      "description": "بەستەر بە ژوورێک یان ماڵپەڕێک.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "نەخشەی 3دی جیۆسپاتیال بۆنەک شارێک"
+    },
+    "model": {
+      "description": "مۆدێلێکی سێ ڕەهەندی لە دیمەنەکەتدا، بارکراوە لە URL یان فایلی GLTF.",
+      "lbl-usingGPUInstancingFlag": "بەکارهێنانی دەرهینانی GPU",
+      "lbl-modelurl": "بەستەری مۆدێل",
+      "lbl-envmapUrl": "URL ی نەخشەی ژینگە",
+      "lbl-textureOverride": "زیادەڕۆیی لە چنراو",
+      "lbl-materialOverride": "زیادەڕۆیی مادەکان",
+      "error-url": "هەڵە لە بارکردنی URL",
+      "lbl-loopAnimation": "ئەنیمەیشنی ئەڵقە",
+      "lbl-isAvatar": "ئاڤاتارە",
+      "lbl-isGPUInstancing": "بەکارهێنانی دەرهینانی GPU",
+      "lbl-isDynamic": "داینامیکیە",
+      "lbl-castShadow": "سێبەری کاست",
+      "lbl-receiveShadow": "سێبەر وەربگریت",
+      "lbl-interactable": "کارلێککردن",
+      "lbl-matrixAutoUpdate": "ماترێکس ئۆتۆوپدات",
+      "lbl-name": "ناو",
+      "lbl-url": "بەستەری مۆدێل",
+      "lbl-buy": "بەستەر بکڕە",
+      "lbl-learnMore": "فێربوونی بەستەری زیاتر",
+      "lbl-htmlContent": "ناوەڕۆکی HTML",
+      "lbl-interactionText": "تێکستی کارلێک",
+      "lbl-interactionType": "جۆری کارلێکردن"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "مادە",
+      "error-materialID": "هەڵە لە دۆزینەوەی مادە",
+      "placeholder-materialID": "مادە دیاریبکە",
+      "lbl-patternTarget": "هاوتای نموونە",
+      "lbl-pattern": "شێواز",
+      "lbl-isRegex": "ڕیگێکس"
+    },
+    "interaction": {
+      "type": "جۆری کارلێکردن",
+      "text": "تێکستی کارلێک",
+      "distance": "مەودای کارلێکردن",
+      "theme": "تێمی کارلێکردن",
+      "name": "ناوی کارلێکردن",
+      "description": "وەسفی کارلێکردن",
+      "images": "وێنەکانی کارلێکردن",
+      "videos": "ڤیدیۆکانی کارلێکردن",
+      "urls": "بەستەرەکانی کارلێکردن",
+      "models": "مۆدێلەکانی کارلێکردن"
+    },
+    "group": {
+      "name": "گرووپ",
+      "description": "گروپێک لە ئامانجە هەمەجۆرەکان کە دەتوانرێت بجوڵێنرێن یان دووبارە بکرێنەوە بەیەکەوە.\nڕاکێشان و فڕێدانی ئۆبجێکتەکان بۆ ناو گروپەکە لە پلەبەندی."
+    },
+    "hemisphere": {
+      "name": "ڕوناکی هێمیسفێر",
+      "description": "ڕووناکییەکە کە دیمەنەکە لە سەرەوەی ڕاستەوخۆ ڕووناک دەکاتەوە.",
+      "lbl-skyColor": "ڕەنگی ئاسمان",
+      "lbl-groundColor": "ڕەنگی زەمینی",
+      "lbl-intensity": "چڕی"
+    },
+    "image": {
+      "name": "وێنە",
+      "description": "بە شێوەیەکی داینامیکی وێنەیەک بار دەکات.",
+      "lbl-imgURL": "بەستەری وێنە",
+      "lbl-transparency": "مۆدی شەفافییەت",
+      "lbl-alphaCutoff": "ئەلفا کەتۆف",
+      "lbl-projection": "پرۆجێشن",
+      "lbl-side": "لا",
+      "info-controls": "گۆڕینی رەوشی بینین لە کۆنتڕۆڵەکانی میدیا.",
+      "info-transparency": "چۆن شەفافیەت جێبەجێ بکەین:",
+      "info-opaque": "'ناکۆکی' = بێ شەفافیەت",
+      "info-blend": "'تێکەڵ' = بەکارهێنانی وێنەکانی کەناڵی ئەلفا",
+      "info-mask": "'ماسک' = بەهای بڕینی دیاریکراو بەکاربێنە بۆ شەفافییەتی داگیرساندن/کوژاندنەوە (جێبەجێکارێکی زیاتر)",
+      "info-alphaCutoff": "پیکسڵەکان بە بەهاکانی ئەلفا کەمتر لەمە شەفاف دەبن",
+      "error-url": "URL نادروستە"
+    },
+    "name": {
+      "lbl-name": "ناو"
+    },
+    "partileEmitter": {
+      "description": "گەردیلە بۆ دروستکردنی گەردیلە.",
+      "lbl-particleCount": "ژماردنی گەردیل",
+      "lbl-image": "وێنە",
+      "lbl-ageRandomness": "هەڕەمەکیی تەمەن",
+      "lbl-lifetime": "ژیان",
+      "lbl-lifetimeRandomness": "هەڕەمەکیی هەتاهەتایی",
+      "lbl-sizeCurve": "چەماوەی قەبارە",
+      "lbl-startPSize": "دەستکردن بە قەبارەی گەردیل",
+      "lbl-endPSize": "کۆتایی قەبارەی گەردیل",
+      "lbl-sizeRandomness": "قەبارەی هەڕەمەکی",
+      "lbl-colorCurve": "چەماوەی ڕەنگ",
+      "lbl-startColor": "ڕەنگی دەستپێکردن",
+      "lbl-startOpacity": "دەستپێکردنی بۆشایی",
+      "lbl-middleColor": "ڕەنگی ناوەڕاست",
+      "lbl-middleOpacity": "بۆشایی ناوەڕاست",
+      "lbl-endColor": "کۆتایی ڕەنگ",
+      "lbl-endOpacity": "کۆتایی Opacity",
+      "lbl-velocityCurve": "چەماوەی خێرایی",
+      "lbl-startVelocity": "دەست بکە بە خێرایی",
+      "lbl-endVelocity": "کۆتایی پێهێنانی خێرایی",
+      "lbl-angularVelocity": "خێرایی گۆشەیی",
+      "info-ageRandomness": "بڕی جیاوازی نێوان کاتێک گەردیلەکان دروست دەکرێن.",
+      "info-lifetime": "بەرزترین تەمەنی گەردیلێک پێش ئەوەی دووبارە بگۆڕدرێتەوە.",
+      "info-lifetimeRandomness": "بڕی جیاوازی نێوان ژیانی گەردیلە.",
+      "info-sizeRandomness": "بڕی جیاوازی نێوان قەبارەی دەسپێکردنی گەردیلە.",
+      "error-url": "هەڵە لە بارکردنی URL"
+    },
+    "clouds": {
+      "name": "هەور",
+      "description": "سپرایت لەسەر بنەمای قەبارەی هەور.",
+      "lbl-image": "وێنەی سپرایت",
+      "lbl-wroldScale": "پێوەری جیهانی",
+      "lbl-dimensions": "ڕەهەندەکان",
+      "lbl-noiseZoom": "زوومی دەنگ",
+      "lbl-noiseOffset": "ئۆفسێتی دەنگ",
+      "lbl-spriteScale": "پێوەری سپرایت",
+      "lbl-fogColor": "ڕەنگی تەم",
+      "lbl-fogRange": "مەودای تەم",
+      "error-url": "هەڵە لە بارکردنی URL"
+    },
+    "ocean": {
+      "name": "زەریا",
+      "description": "ڕووکەشی زەریا بە شەپۆل و کەف",
+      "lbl-normalMap": "نەخشەی ئاسایی",
+      "lbl-distortionMap": "نەخشەی شێواندن",
+      "lbl-envMap": "نەخشەی ژینگە",
+      "lbl-color": "ڕەنگ",
+      "lbl-shallowWaterColor": "ڕەنگی ئاوی چەماوی",
+      "lbl-shallowToDeepDistance": "لێشاو بۆ دووری قووڵ",
+      "lbl-opacityFadeDistance": "بۆشایی دووری کاڵ",
+      "lbl-opacityRange": "مەودای بۆشایی",
+      "lbl-shininess": "بریقەدار",
+      "lbl-reflectivity": "ڕەنگدانەوەی",
+      "lbl-foamColor": "ڕەنگی کەف",
+      "lbl-foamSpeed": "خێرایی فوم",
+      "lbl-foamTiling": "کەف تیلینگ",
+      "lbl-bigWaveTiling": "شەپۆلی گەورە بەستنەوەی",
+      "lbl-bigWaveSpeed": "خێرایی شەپۆلی گەورە",
+      "lbl-bigWaveHeight": "بەرزی شەپۆلی گەورە",
+      "lbl-waveSpeed": "خێرایی شەپۆل",
+      "lbl-waveScale": "پێوەری شەپۆل",
+      "lbl-waveTiling": "تەوژمکردنی شەپۆل",
+      "lbl-waveDistortionSpeed": "خێرایی شێواندنی شەپۆل",
+      "lbl-waveDistortionTiling": "شێواندنی شەپۆلی پێچانەوە",
+      "error-url": "هەڵە لە بارکردنی URL"
+    },
+    "water": {
+      "name": "ئاو",
+      "description": "ڕووکەشی ئاوی بچووک"
+    },
+    "interior": {
+      "name": "ناوەوە",
+      "description": "ڕووکەشێک لەگەڵ چنینی شەش پاڵوی نەخشێنراو بۆ تێکەڵکردنی ژینگەی ناوەوە",
+      "lbl-cubeMap": "دەقی نەخشەی شەش پاڵو",
+      "lbl-tiling": "بڕی بەستنەوە",
+      "lbl-size": "قەبارەی ڕووکەش",
+      "error-url": "هەڵە لە بارکردنی URL"
+    },
+    "pointLight": {
+      "description": "ڕووناکییەکە کە لە هەموو ئاڕاستەکان لە یەک خاڵەوە دەخالەت دەکات.",
+      "lbl-color": "ڕەنگ",
+      "lbl-intensity": "چڕی",
+      "lbl-range": "مەودا",
+      "lbl-decay": "لادان"
+    },
+    "scene": {
+      "name": "دیمەن",
+      "description": "ئامانجی ڕەگی دیمەنەکە.",
+      "lbl-bgcolor": "ڕەنگی باکگراوند",
+      "lbl-fogType": "جۆری تەم",
+      "lbl-fogColor": "ڕەنگی تەم",
+      "lbl-forNearDistance": "دووری نزیکی تەم",
+      "lbl-fogFarDistance": "دووری تەم",
+      "lbl-fogDensity": "چڕیی تەم",
+      "lbl-audioSettings": "ئۆدیۆی شوێن بەکاربێنە",
+      "lbl-avatarDistanceModel": "مۆدێلی مەودای ئاڤاتار",
+      "lbl-avatarRolloffFactor": "فاکتۆری ئاڤاتار رۆلۆف",
+      "lbl-avatarRefDistance": "دووری Avatar Ref",
+      "lbl-avatarMaxDistance": "مەودای ئاڤاتار ماکس",
+      "lbl-mediaVolume": "قەبارەی میدیا",
+      "lbl-mediaDistanceModel": "مۆدێلی مەودای میدیا",
+      "lbl-mediaRolloffFactor": "فاکتۆری ڕۆلۆفی میدیا",
+      "lbl-mediaRefDistance": "مەودای ڕیفکردنی میدیا",
+      "lbl-mediaMaxDistance": "مەودای ماکس میدیا",
+      "lbl-mediaConeInnerAngle": "گۆشەی ناوەوەی گونجانی میدیا",
+      "lbl-mediaConeOuterAngle": "گۆشەی دەرەکی کۆنی میدیا",
+      "lbl-mediaConeOuterGain": "مێدیا کۆن ئۆتەر گەینس",
+      "info-avatarDistanceModel": "ئەلگۆریتیم بەکارهاتووە بۆ ژماردنی هەڵگەڕانەوەی دەنگ.",
+      "info-avatarRolloffFactor": "بەهای دووانی باس دەکات کە چۆن بە خێرایی قەبارە کەمدەکرێتەوە کاتێک سەرچاوەکە لە گوێگرەکە دوور بێتەوە. 0 بۆ 1",
+      "info-avatarRolloffFactorInifinity": "بەهای دووانی باس دەکات کە چۆن بە خێرایی قەبارە کەمدەکرێتەوە کاتێک سەرچاوەکە لە گوێگرەکە دوور بێتەوە. 0 بۆ بێکۆتایی",
+      "info-avatarRefDistance": "بەهای دووانی نیشاندەری مەودای سەرچاوەکان بۆ کەمکردنەوەی قەبارە وەک سەرچاوەی دەنگ زیاتر دەجوڵێت لە گوێگر.",
+      "info-avatarMaxDistance": "بەهای دووانی نیشاندەری زۆرترین مەودا لە نێوان سەرچاوەی دەنگ و گوێگر، دوای ئەوە قەبارەی زیاتر کەم ناکرێتەوە.",
+      "info-mediaDistanceModel": "ئەلگۆریتیم بەکارهاتووە بۆ ژماردنی هەڵگەڕانەوەی دەنگ.",
+      "info-mediaRolloffFactor": "بەهای دووانی باس دەکات کە چۆن بە خێرایی قەبارە کەمدەکرێتەوە کاتێک سەرچاوەکە لە گوێگرەکە دوور بێتەوە. 0 بۆ 1",
+      "info-mediaRolloffFactorInfinity": "بەهای دووانی باس دەکات کە چۆن بە خێرایی قەبارە کەمدەکرێتەوە کاتێک سەرچاوەکە لە گوێگرەکە دوور بێتەوە. 0 بۆ بێکۆتایی",
+      "info-mediaRefDistance": "بەهای دووانی نیشاندەری مەودای سەرچاوەکان بۆ کەمکردنەوەی قەبارە وەک سەرچاوەی دەنگ زیاتر دەجوڵێت لە گوێگر.",
+      "info-mediaMaxDistance": "بەهای دووانی نیشاندەری زۆرترین مەودا لە نێوان سەرچاوەی دەنگ و گوێگر، دوای ئەوە قەبارەی زیاتر کەم ناکرێتەوە.",
+      "info-mediaConeInnerAngle": "بەهای دووانی باسکردنی گۆشەیەکە، لە پلە، لە قوچەکێک کە هیچ کەم کردنەوەی قەبارەی تێدا نابێت.",
+      "info-mediaConeOuterAngle": "بەهای دووانی وەسفکردنی گۆشەیەکە، لە پلە، لە قوچەکێک کە لە دەرەوەی ئەو قەبارەیە بە بەهایەکی نەگۆڕ کەم دەکرێتەوە، کە بە سیفەتی coneOuterGain پێناسە دەکرێت.",
+      "info-mediaConeOuterGain": "بەهای دووانی باسکردنی بڕی کەمکردنەوەی قەبارە لە دەرەوەی قوچەکەکە کە بە تایبەتمەندی coneOuterAngle پێناسە کراوە. بەهای نموونەیی ٠، واتە هیچ دەنگێک نابیسترێت.",
+      "lbl-simpleMaterials": "بەکارهێنانی کەرەستە سادەکان",
+      "lbl-lods": "لۆدس",
+      "info-lods": "مەوداکان ڕێکبکە لە کام ئاستەکانی گۆڕانکاری ووردەکاری.",
+      "info-simpleMaterials": "هەموو کەرەستە گرانبەهاکان بگۆڕە بۆ سادەتر بۆ ئەوەی بارەکە لە دیمەنی نمایشکردن بکوژێتەوە.",
+      "lbl-rendererSettings": "زیادەڕۆییکردنی ڕێکبەندەکانی نمایشکەر",
+      "lbl-csm": "نەخشەی سێبەرەکان",
+      "info-csm": "نەخشە سێبەرەکان چالاک دەکات.",
+      "lbl-toneMapping": "نەخشەکێشانی تۆن",
+      "info-toneMapping": "نەخشەکێشانی تۆن بەتوانا دەکات لەسەر نمایشکەری دیمەنەکە. هیچ کاریگەریەکی نیە کاتێک پرۆسەکردنی بابەت چالاک کرا.",
+      "lbl-toneMappingExposure": "بەرکەوتنی نەخشەکێشانی تۆن",
+      "info-toneMappingExposure": "پیشاندانی نەخشەکێشانی تۆنەکە دیاری دەکات لەسەر نمایشکەری دیمەنەکە. هیچ کاریگەریەکی نیە کاتێک پرۆسەکردنی بابەت چالاک کرا.",
+      "lbl-shadowMapType": "جۆری نەخشەی سێبەر",
+      "info-shadowMapType": "جۆری نەخشەی سێبەر",
+      "error-url": "هەڵە لە بارکردنی URL"
+    },
+    "sceneCamera": {
+      "name": "کامێرای پێشبینینی دیمەن",
+      "description": "کامێراکە بەکاردێت بۆ دروستکردنی وێنە بچووکەکە بۆ دیمەنەکەت و شوێنی دەستپێکردن بۆ کامێرای پێشبینین.",
+      "lbl-setFromViewPort": "لە Viewport دابنێ"
+    },
+    "skybox": {
+      "name": "سکایبۆکس",
+      "description": "",
+      "lbl-timeOfDay": "کاتی ڕۆژ",
+      "lbl-color": "ڕەنگ",
+      "lbl-latitude": "پانیی",
+      "lbl-luminance": "بریقەداری",
+      "lbl-scattering": "بڕی پەرشوبڵاو",
+      "lbl-scatteringDistance": "مەودای پەرشوبڵاو",
+      "lbl-horizonStart": "دەسپێکردنی ئاسۆیی",
+      "lbl-horizonEnd": "ئاسۆیی کۆتایی",
+      "lbl-texture": "چنراو",
+      "lbl-skyType": "جۆری سکای",
+      "error-url": "هەڵە لە بارکردنی URL"
+    },
+    "spawnPoint": {
+      "name": "خاڵی هێلکەدان",
+      "description": "خاڵێک کە خەڵک دەردەکەون کاتێک دەچنە ناو دیمەنەکەتەوە.\nئایکۆنەکە لە Viewport نیشاندەری قەبارەی ڕاستی avatar."
+    },
+    "spotLight": {
+      "description": "ڕووناکیەکە کە بە ئاڕاستەیەکدا بڵاو دەبێتەوە، ئۆبجێکتەکان لە ناو قوچەکێکدا ڕووناک دەکاتەوە.",
+      "lbl-color": "ڕەنگ",
+      "lbl-intensity": "چڕی",
+      "lbl-penumbra": "پێنۆمبرا",
+      "lbl-angle": "گۆشە",
+      "lbl-range": "مەودا",
+      "lbl-decay": "لادان"
+    },
+    "transform": {
+      "title": "بگۆڕە",
+      "lbl-postition": "شوێن",
+      "lbl-rotation": "خولانەوە",
+      "lbl-scale": "پێوەر"
+    },
+    "triggereVolume": {
+      "description": "تایبەتمەندیەکە ڕێکبکە لەسەر ئامانجی ئامانجەکە لە چوونەناو و ڕۆیشتن.",
+      "lbl-target": "ئۆبجێکت",
+      "lbl-onenter": "لە تێنووس",
+      "lbl-onexit": "لە دەرچوون",
+      "lbl-showHelper": "پشاندانی یارمەتیدەر مێش",
+      "ph-errorNode": "هەڵەی گرێی ونبوو.",
+      "ph-selectNode": "گرێ دیاریبکە..."
+    },
+    "video": {
+      "name": "ڤیدیۆ",
+      "description": "بە شێوەیەکی داینامیکی ڤیدیۆیەک بار دەکات.",
+      "lbl-video": "ڤیدیۆ",
+      "lbl-projection": "پرۆجێشن",
+      "lbl-islivestream": "ڕاستەوخۆی جۆگەلە",
+      "lbl-interactable": "کارلێککردن",
+      "lbl-id": "ناسنامەی توخم",
+      "lbl-play": "پەخش کردن",
+      "lbl-pause": "ڕاوەستان",
+      "error-url": "هەڵە لە بارکردنی URL"
+    },
+    "volumetric": {
+      "name": "قەبارە",
+      "description": "بە شێوەیەکی داینامیکی ڤیدیۆیەکی قەبارەیی بار دەکات.",
+      "uvolPaths": "ڕێڕەوەکانی UVOL",
+      "playmode": "مۆدی پەخشکردن",
+      "playtitle": "پەخش کردن",
+      "pausetitle": "ڕاوەستان"
+    },
+    "spline": {
+      "description": "بە شێوەیەکی داینامیکی چەماوەکان دروست بکە و تایبەتمەند بکە.",
+      "lbl-addNode": "زیادکردنی گرێ بۆ چەماوە."
+    },
+    "systemnode": {
+      "description": "هاوپێچکردنی سکریپت.",
+      "lbl-filePath": "بەستەر",
+      "lbl-systemUpdateType": "خاڵی دەرزی",
+      "lbl-enableClient": "کڕیار",
+      "lbl-enableServer": "سێرڤەر",
+      "lbl-args": "ئارگس",
+      "error-url": "هەڵە لە بارکردنی سکریپت لە URL"
+    },
+    "portal": {
+      "lbl-portal": "دەروازەی لینککراو",
+      "lbl-redirect": "دووبارە ئاڕاستەکردنی پەڕە بەکاربهێنە",
+      "description": "پۆرتاتێک بۆ یاریزانانی تەلەپۆرت بۆ شوێنی دیاریکراو",
+      "lbl-locationName": "شوێن",
+      "lbl-modelUrl": "URL ی مۆدێل",
+      "lbl-displayText": "پیشاندانی دەق",
+      "lbl-cubemapBake": "نانی شەش پاڵێو",
+      "lbl-spawnPosition": "شوێنی هێلکەدان",
+      "lbl-spawnRotation": "خولانەوەی هێلکە",
+      "lbl-triggerPosition": "شوێنی ماشێن",
+      "lbl-triggerRotation": "خولانەوەی ماشێن",
+      "lbl-triggerScale": "پێوەری ماشێن"
+    },
+    "postprocessing": {
+      "name": "پرۆسەکردنی بابەت",
+      "description": "بۆ جێبەجێ کردنی کاریگەریەکانی پرۆسەکردنی بابەت بۆ دیمەنی تۆ."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "پرۆژەی نوێ",
+      "backLink": "گەڕانەوە بۆ پڕۆژەکان",
+      "featured": "تایبەت",
+      "all": "هەموو",
+      "newProject": "پرۆژەی بەتاڵی نوێ",
+      "ph-search": "دیمەنەکانی گەڕان"
+    },
+    "grid": {
+      "loading": "بارکردن..."
+    },
+    "page": {
+      "header": "بەخێربێیت",
+      "headerMsg": "ئەگەر تۆ تازەیت لێرە ئێمە پێشنیاری چوونە ناو فێرکاریەکە دەکەین. ئەگینا، باز بدە بۆ ژوورەوە و پرۆژەیەک دروست بکە لە ڕووش یان لە یەکێک لە تێمپلەیتەکانمان.",
+      "lbl-startTutorial": "دەستکردن بە فێرکاری",
+      "projects": "پڕۆژەکان",
+      "lbl-newProject": "پرۆژەی نوێ"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "بارکردن...",
+      "placeObject": "ئۆبجێکت دابنێ",
+      "placeObjectAtOrigin": "ئۆبجێکتەکە لە بنچینە دابنێ",
+      "copyURL": "کۆپیکردنی URL",
+      "openInNewTab": "کردنەوەی URL لە تابی نوێ",
+      "deleteAsset": "سڕینەوەی سەرمایە"
+    },
+    "filebrowser": {
+      "addNewFolder": "فۆڵدەری نوێ زیاد بکە",
+      "cutAsset": "بڕین",
+      "copyAsset": "کۆپیکردن",
+      "pasteAsset": "لکاندن",
+      "renameAsset": "ناولێنانەوەی",
+      "viewAssetProperties": "تایبەتمەندیەکان نیشان بدە"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "ناولێنانەوەی",
+    "lbl-duplicate": "دووبارەکردنەوە",
+    "lbl-group": "گرووپ",
+    "lbl-delete": "سڕینەوە",
+    "lbl-expandAll": "فراوانکردنی هەموو",
+    "lbl-collapseAll": "نوشتانەوەی هەموو",
+    "isseus": "کێشەکان:"
+  },
+  "dnd": {
+    "nodes": "{{count}} گرێ هەڵبژێردراوەکان",
+    "models": "{{count}} مۆدێلەکان هەڵبژێردراون",
+    "images": "{{count}} وێنە هەڵبژێردراوەکان",
+    "videos": "ڤیدیۆکانی {{count}} هەڵبژێردراو",
+    "audio": "{{count}} سەرچاوەی دەنگ هەڵبژێردراو"
+  },
+  "dialog": {
+    "title": "سەرنووسەر",
+    "lbl-confirm": "باشه",
+    "lbl-cancel": "هەڵوەشاندنەوه",
+    "exportProject": {
+      "title": "هەناردەکردنی پرۆژە",
+      "lbl-confirm": "هەناردەکردنی پرۆژە",
+      "lbl-combineMesh": "تێکەڵکردنی مشەکان",
+      "lbl-removeUnused": "ئامانجە بەکارنەهاتووەکان لابدە"
+    },
+    "performance": {
+      "title": "پشکنینی ئەدا",
+      "lbl-confirm": "دیمەنی بڵاوکردنەوە",
+      "learnMore": "زیاتر فێربه",
+      "lbl-polycount": "ژماردنی فرەگۆشە",
+      "lbl-material": "کەرەستەکان",
+      "lbl-texture": "چنراوەکان",
+      "lbl-lights": "گڵۆپەکان",
+      "lbl-fileSize": "قەبارەی فایل",
+      "info-polycount": "ئێمە پێشنیاری ئەوە دەکەین دیمەنەکەت زیاتر لە 50,000 سێگۆشە بۆ ئامێرەکانی مۆبایل بەکاربهێنێت.",
+      "info-material": "ئێمە پێشنیاری بەکارهێنانی زیاتر لە 25 ماددەی بێهاوتا دەکەین لە دیمەنەکەت بۆ کەمکردنەوەی پەیوەندیەکانی وێنەکێشان لەسەر ئامێرەکانی مۆبایل.",
+      "info-texture": "ئێمە پێشنیاری ئەوە دەکەین کە چنراوەکانت زیاتر لە 256مگابایت لە ڤیدیۆ RAM بۆ ئامێرەکانی مۆبایل بەکارنەهێنن. هەروەها ئێمە پێشنیاری دەکەین دژی بەکارهێنانی چنینی گەورەتر لە 2048 x 2048.",
+      "info-lights": "لە کاتێکدا گڵۆپە داینامیکەکان چالاک نین لەسەر ئامێرەکانی مۆبایل، ئێمە پێشنیاری بەکارهێنانی زیاتر لە 3 چرا لە دیمەنەکەتدا (بەدەرکردن لە گڵۆپەکانی دەوروبەر و نیمسفێر) بۆ دیمەنەکەت بۆ ڕاکردن لەسەر کۆمپیوتەرەکانی کۆتایی نزم.",
+      "info-fileSize": "ئێمە پێشنیاری کۆتا قەبارەی فایل دەکەین کە زیاتر لە 16 مێگابایت نەبێت بۆ پەیوەندیەکانی پانی باندە نزمەکان. کەمکردنەوەی قەبارەی فایل دەبێتەهۆکاری کەمکردنەوەی کاتی دابەزاندنی دیمەنەکەت.",
+      "txt-polycount": "سێگۆشەی {{count}}",
+      "txt-material": "{{count}} کەرەستەکان",
+      "txt-ram": "~{{count}} ڤیدیۆ RAM",
+      "txt-texture": "{{count}} چنراوەکانی گەورە",
+      "txt-lights": "{{count}} گڵۆپەکان"
+    },
+    "progress": {
+      "title": "بارکردن...",
+      "msg": "بارکردن...",
+      "lbl-cancel": "هەڵوەشاندنەوه"
+    },
+    "publish": {
+      "title": "دیمەنی بڵاوکردنەوە",
+      "lbl-confirm": "هەڵگرتن و بڵاوکردنەوە",
+      "lbl-name": "ناوی دیمەن",
+      "info-name": "ناو دەبێت لە نێوان 4 و 64 پیتدا بێت و ناتوانێت بنەبڕەکانی تێدابێت"
+    },
+    "published": {
+      "title": "دیمەنەکە بڵاوکرایەوە",
+      "header": "دیمەنەکەت بڵاوکرایەوە.",
+      "lbl-view": "دیمەنەکەت نیشان بدە"
+    },
+    "saveNewProject": {
+      "title": "پشتگیری",
+      "lbl-name": "ناوی پرۆژە",
+      "info-name": "ناو دەبێت لە نێوان 4 و 64 پیتدا بێت و ناتوانێت بنەبڕەکانی تێدابێت",
+      "lbl-confirm": "پرۆژە بپارێزە"
+    },
+    "support": {
+      "title": "پشتگیری",
+      "header": "پێویستت بە راپۆرتی کێشەیەک هەیە؟",
+      "msg": "دەتوانیت <1>فایلی کێشەی GitHub</1> یان ئیمەیڵمان بۆ پشتگیری لە <3>{{mail}}</3>",
+      "discord": "هەروەها دەتوانی ئێمە بدۆزیتەوە لەسەر <1>دیسکۆرد</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "وێنەی Bing",
+      "search": "گەڕان بە پێی Bing"
+    },
+    "bingVideo": {
+      "name": "ڤیدیۆکانی Bing",
+      "search": "گەڕان بە پێی Bing"
+    },
+    "element": {
+      "name": "توخمەکان"
+    },
+    "myAssets": {
+      "name": "سەرمایەکانم"
+    },
+    "googlePoly": {
+      "name": "گووگڵ پۆلی",
+      "search": "گەڕان لەلایەن گووگڵ"
+    },
+    "tenor": {
+      "name": "تێنۆر گی ئێف ئێس",
+      "search": "گەڕان لەلایەن تێنۆر",
+      "ph-search": "گەڕان لە GIFs"
+    },
+    "sketchfab": {
+      "name": "سکێچفاب",
+      "search": "گەڕان لەلایەن سکێچفاب"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "بارکردنی سەرمایە"
+    },
+    "imageSourcePanel": {
+      "ph-search": "گەڕان لە وێنەکاندا..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "گەڕان لە ڤیدیۆکان"
+    },
+    "assetSourcePanel": {
+      "ph-search": "گەڕان لە سامانەکان"
+    },
+    "modelSourcePanel": {
+      "ph-search": "مۆدێلەکانی گەڕان"
+    },
+    "useUpload": {
+      "multipleFileError": "تێکردن چەند فایلێک قبوڵ ناکات.",
+      "mineTypeError": "\"{{name}}\" لەگەڵ ئەم جۆرە میم یان درێژکراوەی خوارەوە ناگونجێت: {{types}}",
+      "progressTitle": "بارکردنی فایلەکان",
+      "progressMsg": "بارکردنی فایلەکان {{uploaded}} {{total}}: {{percentage}}٪",
+      "uploadError": "هەڵەی بارکردن",
+      "uploadErrorMsg": "هەڵە لە بارکردنی فایل: {{message}}",
+      "uploadErrorDefaultMsg": "هەڵەیەکی نەناسراو ڕوویدا"
+    }
+  },
+  "openLink": {
+    "description": "تکایە کرتە بکە لەسەر کردنەوە بۆ گەڕان بۆ لینکەکە.",
+    "lbl-open": "کردنەوە"
+  },
+  "interactableModel": {
+    "lbl-buy": "بکڕە",
+    "lbl-learnMore": "زیاتر فێربه"
+  },
+  "corsProxyButton": {
+    "tooltip": "بەکارهێنانی Cors Proxy Server"
+  }
+}

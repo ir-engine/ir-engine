@@ -1,202 +1,202 @@
 {
-  "addComment" : "Aggiungi Commento ... ",
-  "share" : "Condividi ",
-  "suggestions" : "Suggerimenti Per Te ",
-  "seeAll" : "Vedi tutto ",
-  "likes" : "Piace ",
-  "viewComments" : "Visualizza tutti i {{count}} commenti ",
-  "more" : "più ",
-  "username" : "username ",
-  "fullName" : "Nome Surname ",
-  "reportInApporpriate" : "Report Inappropriate ",
-  "unfollow" : "Inseguimento ",
-  "goToPost" : "Vai al Post ",
-  "shareModal" : "Condividi ",
-  "copyLink" : "Copia collegamento ",
-  "embed" : "Embed ",
-  "cancel" : "Annulla ",
-  "confirm" : "Conferma ",
-  "save" : "Salva ",
-  "profilePic" : "{{user}} il profilo di profilo ",
-  "ara" : "Ara ",
-  "follow" : "Segui ",
-  "flames" : "Fiamme ",
-  "continue" : "Continua ",
-  "partyInvitationSent" : "Invito di parte inviato ",
-  "arMedia" : {
-    "back" : "Indietro ",
-    "clip" : "Clip ",
-    "backgrounds" : "Retroterra ",
-    "start" : "Inizio "
+  "addComment": "Aggiungi commento...",
+  "share": "Condividi",
+  "suggestions": "Suggerimenti per te",
+  "seeAll": "Vedi tutto",
+  "likes": "Preferenza",
+  "viewComments": "Visualizza tutti i commenti {{count}}",
+  "more": "più",
+  "username": "nome utente",
+  "fullName": "Nome Cognome",
+  "reportInApporpriate": "Segnala inappropriato",
+  "unfollow": "Smetti di seguire",
+  "goToPost": "Vai a Post",
+  "shareModal": "Condividi",
+  "copyLink": "Copia link",
+  "embed": "Incorpora",
+  "cancel": "Annulla",
+  "confirm": "Confermare",
+  "save": "Salvare",
+  "profilePic": "foto del profilo di {{user}}",
+  "ara": "Altare",
+  "follow": "Seguire",
+  "flames": "Fiamme",
+  "continue": "Continuare",
+  "partyInvitationSent": "Invito alla festa inviato",
+  "arMedia": {
+    "back": "Indietro",
+    "clip": "Morsetto",
+    "backgrounds": "Sfondi",
+    "start": "Inizio"
   },
-  "arMediaform" : {
-    "title" : "Titolo ",
-    "type" : "Tipo ",
-    "clip" : "Clip ",
-    "background" : "Sfondo ",
-    "scene" : "Scena ",
-    "save" : "Salva ",
-    "manifest-file" : "File .manifest manifest ",
-    "audio-file" : "File Mp4 ",
-    "dracosis-file" : "File Dracosi .uvol ",
-    "preview-file" : "Anteprima file immagine "
+  "arMediaform": {
+    "title": "Titolo",
+    "type": "Digitare",
+    "clip": "Morsetto",
+    "background": "Sfondo",
+    "scene": "Scena",
+    "save": "Salvare",
+    "manifest-file": "File manifest manifest",
+    "audio-file": "File Mp4",
+    "dracosis-file": "Dracosis .uvol file",
+    "preview-file": "Anteprima del file immagine"
   },
-  "creator" : {
-    "myVideos" : "I Miei Video ",
-    "savedVideos" : "Video Salvati ",
-    "back" : "Indietro ",
-    "blocked-list" : "Elenco bloccato ",
-    "block-user" : "Blocco utente ",
-    "dialog-content" : "Non vedrete il profilo e il contenuto dell'utente "
+  "creator": {
+    "myVideos": "I miei video",
+    "savedVideos": "Video salvati",
+    "back": "Indietro",
+    "blocked-list": "Elenco bloccati",
+    "block-user": "Blocca utente",
+    "dialog-content": "Non vedrai il profilo e il contenuto dell'utente"
   },
-  "creatorForm" : {
-    "back" : "Indietro ",
-    "edit" : "Modifica profilo ",
-    "save" : "Salva ",
-    "changeAvatar" : "Modifica immagine avatar ",
-    "ph-selectPreview" : "Seleziona anteprima ",
-    "ph-name" : "Il tuo nome ",
-    "ph-username" : "Il tuo Username ",
-    "ph-email" : "La Tua Email ",
-    "ph-tags" : "Tag ",
-    "ph-link" : "Link ",
-    "ph-aboutYou" : "Più su di te ",
-    "ph-twitter" : "twitter ",
-    "ph-instagram" : "instagram ",
-    "ph-tiktok" : "tiktok ",
-    "sign-out" : "Sign - Out "
+  "creatorForm": {
+    "back": "Indietro",
+    "edit": "Modifica profilo",
+    "save": "Salvare",
+    "changeAvatar": "Cambia immagine avatar",
+    "ph-selectPreview": "Seleziona anteprima",
+    "ph-name": "Il tuo nome",
+    "ph-username": "Il tuo nome utente",
+    "ph-email": "La tua email",
+    "ph-tags": "Tag",
+    "ph-link": "Collegamento",
+    "ph-aboutYou": "Di più su di te",
+    "ph-twitter": "cinguettare",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Esci"
   },
-  "dashboard" : {
-    "title" : "Dashboard ",
-    "dashboard" : "Dashboard ",
-    "users" : "Utenti ",
-    "feeds" : "Feed ",
-    "arMedia" : "Supporti video ",
-    "editor" : "Editor ",
-    "creator" : "Creatore "
+  "dashboard": {
+    "title": "Cruscotto",
+    "dashboard": "Cruscotto",
+    "users": "Gli utenti",
+    "feeds": "Feed",
+    "arMedia": "Supporti video",
+    "editor": "Editore",
+    "creator": "Creatore"
   },
-  "featured" : {
-    "empty-list" : "Nessun feed per ora ... "
+  "featured": {
+    "empty-list": "Nessun feed per ora ..."
   },
-  "feed" : {
-    "back" : "Indietro ",
-    "related" : "Feed correlati ",
-    "is-repoted-message" : "Feed è riportato! "
+  "feed": {
+    "back": "Indietro",
+    "related": "Feed correlati",
+    "is-repoted-message": "Il feed è segnalato!"
   },
-  "feedForm" : {
-    "back" : "Indietro ",
-    "thanks" : "Grazie per la condivisione e il miglioramento della nostra comunità ",
-    "share" : "Condividere qualcosa con la comunità ",
-    "upload" : "Upload Video ",
-    "ph-selectVideo" : "Seleziona video ",
-    "preview" : "Immagine di anteprima ",
-    "ph-selectPreview" : "Seleziona anteprima ",
-    "createFeed" : "Per creare un feed devi avere un video e un'immagine in anteprima !!! ",
-    "ph-videoName" : "Il nome del tuo video ",
-    "ph-type" : "Digita quello che vuoi condividere con la community ...   ",
-    "lbl-share" : "Condividi ",
-    "save" : "Salva e vai Avanti "
+  "feedForm": {
+    "back": "Indietro",
+    "thanks": "Grazie per aver condiviso e migliorato la nostra community",
+    "share": "Condividere qualcosa con la community",
+    "upload": "Carica video",
+    "ph-selectVideo": "Seleziona Video",
+    "preview": "Anteprima immagine",
+    "ph-selectPreview": "Seleziona anteprima",
+    "createFeed": "Per creare un feed devi avere un video e un'immagine di anteprima!!!",
+    "ph-videoName": "Il nome del tuo video",
+    "ph-type": "Digita ciò che vuoi condividere con la community ... ",
+    "lbl-share": "Condividi",
+    "save": "Salva e vai Avanti"
   },
-  "feedMenu" : {
-    "featured" : "Caratterizzato ",
-    "creators" : "Creatori ",
-    "feed" : "Il Feed "
+  "feedMenu": {
+    "featured": "In primo piano",
+    "creators": "Creatori",
+    "feed": "Il Feed"
   },
-  "header" : {
-    "lbl-volumetric" : "Volumetrico "
+  "header": {
+    "lbl-volumetric": "Volumetrico"
   },
-  "login" : {
-    "account" : "Avere un account? ",
-    "login" : "Login ",
-    "resetPassword" : "Reset Password Fake pulsante (qui sarebbe un link da email) ",
-    "notHavingAccount" : "Non avere un account? ",
-    "signUp" : "Firma Up ",
-    "forgotPassword" : "Password dimenticata? ",
-    "back" : "Indietro ",
-    "or" : "OR "
+  "login": {
+    "account": "Hai un account?",
+    "login": "Accesso",
+    "resetPassword": "Pulsante Reimposta password falsa (qui sarebbe un link dall'e-mail)",
+    "notHavingAccount": "Non hai un account?",
+    "signUp": "Registrati",
+    "forgotPassword": "Hai dimenticato la password?",
+    "back": "Indietro",
+    "or": "O"
   },
-  "comment" : {
-    "add" : "Aggiungi il tuo commento ... "
+  "comment": {
+    "add": "Aggiungi il tuo commento..."
   },
-  "notification" : {
-    "feedFire" : " licenziato il tuo feed ",
-    "feedBookmarked" : " segnalibro il tuo feed ",
-    "comment" : " ha commentato il tuo feed: ",
-    "commentFire" : " ha sparato il tuo commento all'alimentazione ",
-    "follow" : " iniziato seguendo te ",
-    "unfollow" : " arrestato seguirti ",
-    "followed" : " seguirti ",
-    "activity" : "Attività "
+  "notification": {
+    "feedFire": " ha attivato il tuo feed",
+    "feedBookmarked": " aggiunto ai segnalibri del feed",
+    "comment": " ha commentato il tuo feed:",
+    "commentFire": " ha attivato il tuo commento per il feed",
+    "follow": " ha iniziato a seguirti",
+    "unfollow": " ha smesso di seguirti",
+    "followed": " ti ha seguito",
+    "activity": "Attività"
   },
-  "onBoarding" : {
-    "welcome" : "Benvenuti! ",
-    "description" : "Maggiore raccolta di 370 + layout per la prototipazione iOS. ",
-    "next" : "Successivo ",
-    "discover" : "Scopri articoli, ",
-    "news" : "news & post ",
-    "lines" : "Sono quei sentimenti che guidano il nostro amore per l'astronomia e il nostro desiderio. ",
-    "getStarted" : "Get Avviati ",
-    "meetUp" : "Incontro con ",
-    "friends" : "amici. ",
-    "meet" : "Incontra gli amici "
+  "onBoarding": {
+    "welcome": "Benvenuto!",
+    "description": "La più grande collezione di oltre 370 layout per la prototipazione iOS.",
+    "next": "Prossimo",
+    "discover": "Scopri gli articoli,",
+    "news": "news & post",
+    "lines": "Sono quei sentimenti che guidano il nostro amore per l'astronomia e il nostro desiderio.",
+    "getStarted": "Inizia subito",
+    "meetUp": "Incontra",
+    "friends": "amici.",
+    "meet": "Incontra gli amici"
   },
-  "shareForm" : {
-    "arcMedia" : "Condividi ",
-    "videoCreated" : "Ho Creato Questo Video ",
-    "shareWithBuddies" : "Condividi con i compagni ",
-    "shareVideo" : "Condividi Video ",
-    "save" : "Salva To Camera Roll ",
-    "cancel" : "Annulla ",
-    "close" : "Chiudi ",
-    "addFeed" : "Aggiungi Feed "
+  "shareForm": {
+    "arcMedia": "Condividi",
+    "videoCreated": "Ho creato questo video",
+    "shareWithBuddies": "Condividi con gli amici",
+    "shareVideo": "Condividi video",
+    "save": "Salva nel rullino fotografico",
+    "cancel": "Annulla",
+    "close": "Chiudere",
+    "addFeed": "Aggiungi feed"
   },
-  "simpleModal" : {
-    "emptyList" : "Elenco vuoto ",
-    "followers" : " seguito ",
-    "following" : " seguaci ",
-    "flames" : " fiamme "
+  "simpleModal": {
+    "emptyList": "Elenco vuoto",
+    "followers": " seguente",
+    "following": " Seguaci",
+    "flames": " Fiamme"
   },
-  "splash" : {
-    "screen" : "Scherma di splash ",
-    "logo" : "Logo "
+  "splash": {
+    "screen": "Schermata iniziale",
+    "logo": "Logo"
   },
-  "story" : {
-    "profilePic" : "{{user}} il profilo di profilo "
+  "story": {
+    "profilePic": "foto del profilo di {{user}}"
   },
-  "view" : {
-    "cancel" : "Annulla ",
-    "choice" : "Hai due diverse modalità di registrazione tra cui scegliere ",
-    "verticalMode" : "La modalità verticale ha un tempo record di 30 sec minuti ",
-    "horizontalMode" : "La modalità orizzontale ha un tempo record illimitato ",
-    "start" : "Inizio ",
-    "not-show" : "Non mostrarlo di nuovo ",
-    "welcome" : "Benvenuti in ARC!   Fare video personali con uno dei nostri ologrammi e postarlo ai tuoi canali social! ",
-    "step" : "STEP {{step}} ",
-    "text-step-1" : "Scegli un ologramma dalla libreria. ",
-    "text-step-2" : "Questo è Augmented Reality, quindi scansione lo spazio con la tua fotocamera da lato a lato per 3 - 5 seconds dove vuoi che la performance olografica sia. ",
-    "text-step-3-part-1" : "Screen screen una volta sulla posizione in cui si desidera l'ancoraggio dell'ologramma. ",
-    "text-step-3-part-2" : "TIP!   Tappa una volta altrove per spostare l'ologramma in un'altra posizione. ",
-    "text-step-3-part-3" : "TIP!   È possibile ridimensionare l'ologramma pizzicando o espandendo lo schermo con il pollice e l'indice. ",
-    "text-step-4-part-1" : "Doppio bottone rosso tap a START la tua registrazione video. ",
-    "text-step-4-part-2" : "Pulsante record rosso doppio tap a STOP. "
+  "view": {
+    "cancel": "Annulla",
+    "choice": "Hai due diverse modalità di registrazione tra cui scegliere",
+    "verticalMode": "La modalità verticale ha un tempo record di 30 secondi",
+    "horizontalMode": "La modalità orizzontale ha un tempo di registrazione illimitato",
+    "start": "Inizio",
+    "not-show": "Non mostrarlo più",
+    "welcome": "Benvenuto in ARC!  Realizza video personali con uno dei nostri ologrammi e pubblicali sui tuoi canali di social media!",
+    "step": "PASSO {{step}}",
+    "text-step-1": "Scegli un ologramma dalla libreria.",
+    "text-step-2": "Questa è la realtà aumentata, quindi scansiona lo spazio con la tua fotocamera da un lato all'altro per 3-5 secondi dove vuoi che siano le prestazioni dell'ologramma.",
+    "text-step-3-part-1": "Tocca lo schermo una volta nella posizione in cui desideri ancorare l'ologramma.",
+    "text-step-3-part-2": "MANCIA!  Tocca una volta altrove per spostare l'ologramma in un'altra posizione.",
+    "text-step-3-part-3": "MANCIA!  È possibile ridimensionare l'ologramma pizzicando o espandendo lo schermo con il pollice e l'indice.",
+    "text-step-4-part-1": "Tocca due volte il pulsante rosso di registrazione per AVVIARE la registrazione video.",
+    "text-step-4-part-2": "Tocca due volte il pulsante rosso di registrazione per STOP."
   },
-  "video" : {
-    "back" : "Indietro "
+  "video": {
+    "back": "Indietro"
   },
-  "terms" : {
-    "confirmTerms" : "Concordo con Termini di Servizio ",
-    "confirmPolicy" : "Concordo sulla Privacy Policy "
+  "terms": {
+    "confirmTerms": "Accetto i Termini di servizio",
+    "confirmPolicy": "Accetto l'Informativa sulla privacy"
   },
-  "registration" : {
-    "ph-phoneEmail" : "Usa telefono / email ",
-    "facebook" : "Continua con Facebook ",
-    "google" : "Continua con Google ",
-    "linkedin" : "Continua con Linkedin ",
-    "twitter" : "Continua con Twitter ",
-    "gitHub" : "Continua con GitHub ",
-    "connect" : "Collega la tua email o numero di telefono ",
-    "logIn" : "Accedi in ",
-    "LogInTo" : "Accedi a ",
-    "continueAsGuest" : "Continua come ospite"
+  "registration": {
+    "ph-phoneEmail": "Usa telefono / e-mail",
+    "facebook": "Continua con Facebook",
+    "google": "Continua con Google",
+    "linkedin": "Continua con Linkedin",
+    "twitter": "Continua con Twitter",
+    "gitHub": "Continua con GitHub",
+    "connect": "Collega la tua e-mail o il tuo numero di telefono",
+    "logIn": "Accedi",
+    "LogInTo": "Accedi a",
+    "continueAsGuest": "Continua come ospite"
   }
 }

@@ -1,0 +1,718 @@
+{
+  "loading": "Ачаа ачих төсөл",
+  "loadingMsg": "Ачаа ачих төсөл...",
+  "loadingError": "Алдаа ачих төсөл",
+  "loadingErrorMsg": "Төслийг ачаалах үед алдаа гарсан.",
+  "selectSceneMsg": "Хөдөлгүүрээр тоглож эхлэх Scene-ийг сонгох",
+  "error": "Алдаа",
+  "errorMsg": "Үл мэдэгдэх алдаа байлаа.",
+  "generateScreenshot": "Төслийн дэлгэцийн зураг гаргах",
+  "generateScreenshotMsg": "Төслийн дэлгэцийн зураг гаргах...",
+  "newScene": "Дүр зургийг бүтээх",
+  "saving": "Хадгаламж төсөл",
+  "savingMsg": "Аврах төсөл...",
+  "savingError": "Алдаа хэмнэх төсөл",
+  "savingErrorMsg": "Төслийг аврахад алдаа гарсан.",
+  "savingSceneErrorMsg": "Дүр зургийг зохих ёсоор ачаалдаггүй. Үйл явдлыг дахин ачаалахыг хичээгээрэй.",
+  "duplicating": "Хуулбарлах төсөл",
+  "duplicatingMsg": "Дупликатингийн төсөл...",
+  "exporting": "Экспорт төсөл",
+  "exportingMsg": "Төсөл хэрэгжүүлэх...",
+  "exportingError": "Алдаа экспортлох төсөл",
+  "exportingErrorMsg": "Төслийг экспортлоход алдаа гарсан.",
+  "importLegacy": "Импортын өв дэлхий",
+  "importLegacyMsg": "Сэрэмжлүүлэг! Энэ нь таны байгаа дүр зургийг давхар бичнэ! Та үргэлжлүүлэхийг хүсэж байгаа гэдэгтээ итгэлтэй байна уу?",
+  "publishingError": "Алдаатай хэвлэх төсөл",
+  "publishingErrorMsg": "Үл мэдэгдэх алдаа байлаа.",
+  "publishingScene": "Хэвлэлийн дүр зураг",
+  "publishingSceneMsg": "Хэвлэлийн газар...",
+  "uploadingThumbnailMsg": "Эрхий хурууны хумсаа татаж авах...",
+  "uploadingSceneMsg": "Зураг татаж авах : {{percentage}}%",
+  "envMapError": "Cubemap зураг ачаалах алдаа {{files}}",
+  "lbl-return": "Буцах",
+  "menubar": {
+    "newScene": "Шинэ дүр зураг",
+    "saveScene": "Scene-ийг аврах",
+    "saveAs": "Асч аврагдсан",
+    "importAsset": "Импортын хөрөнгө",
+    "exportGLB": "Хоёрдогч glTF (.glb) болгон экспорт ...",
+    "importScene": "Импортын дүр зураг",
+    "exportScene": "Экспортын дүр зураг",
+    "quit": "Тамхинаас гар"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Файлын хувьд дэмжиэгдээгүй файлын төрөл: \"{{name}}\" . Файл нь зураг, видео эсвэл glb загвар байх ёстой.",
+    "addObject": "addObject: эд зүйл олдохгүй болохоос өмнө",
+    "removeObject": "removeObject: node олдсонгүй. Энэ нь тухайн газар байхгүй болсон ноднинг зайлуулснаас үүдэлтэй юм.",
+    "noParent": "{{node}}{{name}}эцэг эхгүй. Reparent нь одоогоор байгаа эд зүйлс дээр л ажилладаг.",
+    "undefinedParent": "editor.reparent: newParent нь тодорхойгүй байна",
+    "notAuthenticated": "Баталгаажаагүй",
+    "fetchingProjectError": "Алдаа авах төслүүд: {{error}}",
+    "fetchingRouteError": "Алдаа авах чиглэл: {{error}}",
+    "unknownError": "Үл мэдэгдэх алдаа",
+    "resolveURL": "Алдаа шийдвэрлэх url \"{{url}}\":",
+    "mediaSearchAborted": "Хэвлэл мэдээллийн хэрэгслийн хайлтыг үр хөндүүлсэн",
+    "methodNotImplemented": "Хэрэгжүүлэхгүй арга.",
+    "saveProjectAborted": "Аврах үйл явдлыг үр хөндүүлсэн нь",
+    "unsavedChanges": "Өөрчлөгдөөгүй өөрчлөлтүүд",
+    "unsavedChangesMsg": "Үйл явдал өөрчлөгдсөн. Өөрчлөлтөө хадгална уу.",
+    "projectCreationFail": "Төсөл бүтэлгүйтсэн. {{reason}}",
+    "projectDeletionFail": "Төслийн устгал бүтэлгүйтсэн. {{reason}}",
+    "savingProjectFail": "Аврах төсөл бүтэлгүйтсэн. {{reason}}",
+    "sceneTooLarge": "Scene нь хэтэрхий том ({{size}} MB) хэвлэх. Хамгийн их хэмжээ нь MB {{maxSize}} .",
+    "sceneCreationFail": "Үзэгдэл бүтэлгүйтсэн. {{reason}}",
+    "uploadAborted": "Үр хөндүүлсэн татаж авах",
+    "uploadFailed": "Татаж авах нь бүтэлгүй {{reason}}",
+    "assetDeletionFail": "Хөрөнгө арилжих ажил бүтэлгүйтсэн. {{reason}}",
+    "projectAssetDeletionFail": "Төслийн хөрөнгийг арилжих ажил бүтэлгүйтсэн. {{reason}}",
+    "networkError": "Сүлжээний алдаа: {{status}}. {{text}}",
+    "unknownStatus": "Тодорхойгүй статус",
+    "CORS": "КОРС-ийн алдаа байж магадгүй",
+    "urlFetchError": "«{{url}}» авч чадаагүй"
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Зургийн аппарат зөөх",
+      "flyFast": "Хурдан нисэх",
+      "orbit": "Орбит / Сонгох",
+      "pan": "Пан",
+      "fly": "Нисэх",
+      "focus": "Фокус",
+      "rotateLeft": "Зүүн гар тийш эргэх",
+      "rotateRight": "Баруун тийш эргэх",
+      "cancelPlacement": "Цуцлагдсан байрлал",
+      "placeDuplicate": "Хувилгаан газар",
+      "cancelGrab": "Цуцлагдсан нь",
+      "grab": "Атгах",
+      "deselectAll": "Бүхнийг селекц"
+    },
+    "state": {
+      "header": "Статууд",
+      "memory": "Ой тогтоолт",
+      "geometries": "Геометрүүд",
+      "textures": "Нэхмэлийн зүйлс",
+      "render": "Рендер",
+      "FPS": "FPS",
+      "frameTime": "Цаг хугацаа",
+      "calls": "Дуудлага",
+      "triangles": "Гурвалжин",
+      "points": "Онцлох санаанууд",
+      "lines": "Шугам"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Хэвлэх",
+    "lbl-published": "Эрхлэн гаргасан",
+    "command": {
+      "translate": "Орчуулах",
+      "rotate": "Ээлжлэх",
+      "scale": "Хэмжүүр",
+      "toggleSpace": "Toggle хувиргах орон зай",
+      "togglePivot": "Toggle хувиргах пивот",
+      "toggleSnapMode": "Toggle Snap Mode",
+      "toggleGrid": "Toggle Grid Харагдах байдал",
+      "increaseGridSize": "Цахилгааны хэмжээг нэмэгдүүлэх",
+      "descreaseGridSize": "Гридийн хэмжээг бууруулах",
+      "stopPreview": "Үйл явдлыг урьдчилан харахаа боль",
+      "playPreview": "Урьдчилан харах Scene"
+    }
+  },
+  "properties": {
+    "title": "Properties",
+    "lbl-visible": "Харагдах",
+    "lbl-preventBake": "Бэйкээс сэргийлье",
+    "lbl-persist": "Цөхрөлтгүй",
+    "multipleNodeSelected": "Сонгосон төрөл бүрийн олон nodes",
+    "noNodeSelected": "No Node сонгосонгүй",
+    "ambientLight": {
+      "name": "Амбийцийн гэрэл",
+      "description": "Таны дүр зураг дахь бүх эд зүйлсийг гэрэлтүүлдэг гэрэл.",
+      "lbl-intensity": "Эрчим хүч",
+      "lbl-color": "Өнгө"
+    },
+    "envmap": {
+      "name": "Байгаль орчны газрын зураг",
+      "description": "орчны газрын зургийн шинж чанар"
+    },
+    "asset": {
+      "name": "Хөрөнгө",
+      "description": "Динамикаар ачиж, буулгаж болох дүр зургийн хэсгүүдийг бүлэглэх",
+      "lbl-options": "Сонголтууд",
+      "lbl-assetPath": "Хөрөнгийн замнал",
+      "lbl-assetName": "Экспортын нэр",
+      "lbl-exportOptions": "Экспортын сонголт",
+      "lbl-export": "Экспортын хөрөнгө",
+      "lbl-load": "Тайзан дээр ачаа зөөлнээр",
+      "lbl-unload": "Ачаагүй",
+      "lbl-reload": "Дахин ачаалах"
+    },
+    "audio": {
+      "name": "Аудио",
+      "description": "Динамикаар аудио ачаалдаг.",
+      "lbl-audiourl": "Аудио Url",
+      "lbl-controls": "хяналт",
+      "info-controls": "Хэвлэл мэдээллийн хяналтын харагдах байдлыг тод томруул.",
+      "lbl-autoplay": "Авто Play",
+      "info-autoplay": "Хэрэв үнэн бол хэвлэл мэдээллийн хэрэгслүүд анх удаа тухайн үйл явдалд орохдоо тоглох болно.",
+      "lbl-synchronize": "Синхрончлол",
+      "info-synchronize": "Хэрэв үнэн бол бүх холбогдсон клиентүүд дээр хэвлэл мэдээллийн хэрэгсэл Синхрончлогдох болно.",
+      "lbl-loop": "Лүүп",
+      "info-loop": "Хэрэв үнэн бол хэвлэл мэдээллийн хэрэгсэл эцэс төгсгөлгүй эргэлдэх болно.",
+      "lbl-audioType": "Аудио төрөл",
+      "lbl-distanceModel": "Нийслэлийн загвар",
+      "info-distanceModel": "Algorithim нь аудио rolloff тооцоолоход ашигладаг байсан.",
+      "lbl-rolloffFactor": "Роллофф Фактор",
+      "info-rolloffFactor": "Эх сурвалж сонсогчоос холдох тусам чансааг хэр хурдан бууруулдгийг дүрсэлсэн хоёр дахин үнэ цэнэ. 0-1",
+      "info-rfInfinity": "Эх сурвалж сонсогчоос холдох тусам чансааг хэр хурдан бууруулдгийг дүрсэлсэн хоёр дахин үнэ цэнэ. 0 Infinity хүртэл",
+      "lbl-refDistance": "Реф Зай",
+      "info-refDistance": "Аудио эх сурвалж сонсогчоос холдох үед чансааг багасгах лавлах зайг төлөөлсөн хоёр дахин үнэ цэнэ.",
+      "lbl-maxDistance": "Макс Холд",
+      "info-maxDistance": "Дуу авианы эх сурвалж болон сонсогчийн хоорондох хамгийн их зайг төлөөлсөн хоёрдогч үнэ цэнэ. Үүний дараа чансааг цаашид бууруулахгүй.",
+      "lbl-coneInnerAngle": "Конус дотоод өнцөг",
+      "info-coneInnerAngle": "Дотор нь конусын өнцгийг дүрсэлсэн хоёр дахин үнэ цэнэ.",
+      "lbl-coneOuterAngle": "Конус Outer Ангилал",
+      "info-coneOuterAngle": "Өнцгийг дүрсэлсэн хоёрдогч үнэ цэнэ, гаднах конусын хэмжээ нь конусouterGain attribute-ээр тодорхойлогдож, тогтмол үнэ цэнээр багасах болно.",
+      "lbl-coreOuterGain": "Конус Outer Gain",
+      "info-coreOuterGain": "ConeOuterAngle attribute-ээр тодорхойлогдсон конусын гаднах хэмжээ багасах хэмжээг дүрсэлсэн хоёрдогч үнэ цэнэ. Түүний стандарт үнэ цэнэ нь 0, ямар ч дуу чимээ сонсогдохгүй гэсэн үг юм.",
+      "lbl-volume": "Хэмжээ",
+      "lbl-play": "Тоглох",
+      "lbl-pause": "Түр зогс",
+      "error-url": "URL-аас алдаа ачаалах"
+    },
+    "boxCollider": {
+      "description": "Биетүүд үсрэх эсвэл дээр нь амрах үл үзэгдэгч хайрцаг.\nМөргөлдөхгүй бол эд зүйлс шалан дундуур унаж, ханан дундуур явна.",
+      "lbl-isTrigger": "Триггер"
+    },
+    "camera": {
+      "name": "Камер",
+      "description": "Камерын тохиргоо.",
+      "lbl-camera-raycast": "Камер raycasting",
+      "lbl-camera-raycast-toggle": "Боломжтой болсон",
+      "lbl-camera-raycast-frequency": "Давтамж",
+      "lbl-camera-raycast-count": "Рэй тоолол",
+      "lbl-camera-raycast-length": "Рэй Урт"
+    },
+    "directionalLight": {
+      "name": "Чиглэлийн гэрэл",
+      "description": "Бүх дүр зургийг гэрэлтүүлдэг ч нэг зүг рүү цацруулдаг гэрэл.",
+      "lbl-color": "Өнгө",
+      "lbl-intensity": "Эрчим хүч",
+      "lbl-cameraFar": "Камер Алс",
+      "lbl-cameraNear": "Камер ойр",
+      "lbl-cameraTop": "Камер дээд",
+      "lbl-cameraBottom": "Камер доод",
+      "lbl-cameraLeft": "Камер зүүн талд",
+      "lbl-cameraRight": "Камер баруун талд",
+      "lbl-useInCSM": "CSM-д хэрэглэх нь",
+      "lbl-castShadow": "Каст Сүүдрэв",
+      "lbl-disableForCSM": "Каскад сүүдрийн газрын зураг боломжтой учраас хөгжлийн бэрхшээлтэй.",
+      "lbl-shadowmapResolution": "Сүүдрийн газрын зургийн шийдэл",
+      "lbl-shadowBias": "Сүүдрийн биас",
+      "lbl-shadowRadius": "Сүүдрийн радиус",
+      "lbl-showCameraHelper": "Камер Туслагчийг харуул"
+    },
+    "groundPlane": {
+      "name": "Газар онгоц",
+      "description": "Алсад сунаж буй хавтгай газар онгоц.",
+      "lbl-color": "Өнгө",
+      "lbl-receiveShadow": "Сүүдрийг хүлээн авах",
+      "lbl-generateNavmesh": "Навмешийг бий болгох"
+    },
+    "link": {
+      "description": "Өрөө эсвэл вэбсайт руу холбох.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "3D геоспатиаль газрын зураг. уб хот."
+    },
+    "model": {
+      "description": "GLTF URL эсвэл файлаас ачаалагдсан таны дүр зураг дахь 3D загвар.",
+      "lbl-usingGPUInstancingFlag": "GPU Instancing ашиглах",
+      "lbl-modelurl": "Загварын Урлан",
+      "lbl-envmapUrl": "Байгаль орчны газрын зураг Url",
+      "lbl-textureOverride": "Давхар Текстур",
+      "lbl-materialOverride": "Материалын давхар исэл",
+      "error-url": "URL-аас алдаа ачаалах",
+      "lbl-loopAnimation": "Лүүп анимэйшн",
+      "lbl-isAvatar": "Аватар мөн үү",
+      "lbl-isGPUInstancing": "GPU Instancing ашиглаж байна уу",
+      "lbl-isDynamic": "Динамик мөн үү",
+      "lbl-castShadow": "Каст Сүүдрэв",
+      "lbl-receiveShadow": "Сүүдрийг хүлээн авах",
+      "lbl-interactable": "Харилцах боломжтой",
+      "lbl-matrixAutoUpdate": "МатрицАутоУпдэйт",
+      "lbl-name": "Нэр",
+      "lbl-url": "Загварын Урлан",
+      "lbl-buy": "Худалдан авах Url",
+      "lbl-learnMore": "Илүү ихийг сурцгаая Url",
+      "lbl-htmlContent": "Html агуулга",
+      "lbl-interactionText": "Харилцах текст",
+      "lbl-interactionType": "Харилцан үйлчлэлийн төрөл"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Материал",
+      "error-materialID": "Алдаа материал олох",
+      "placeholder-materialID": "Материал сонгох",
+      "lbl-patternTarget": "Загварын тохиргоо",
+      "lbl-pattern": "Загвар",
+      "lbl-isRegex": "Регекс"
+    },
+    "interaction": {
+      "type": "Харилцан үйлчлэлийн төрөл",
+      "text": "Харилцах текст",
+      "distance": "Харилцааны зай",
+      "theme": "Харилцах сэдэв",
+      "name": "Харилцах нэр",
+      "description": "Харилцах тодорхойлолт",
+      "images": "Харилцан үйлчлэл зураг",
+      "videos": "Харилцах видео",
+      "urls": "Харилцааны Urls",
+      "models": "Харилцааны загварууд"
+    },
+    "group": {
+      "name": "Бүлэг",
+      "description": "Хамт зөөж эсвэл хувилж болдог олон биетийн бүлэг.\nХиерархи дахь Бүлэг рүү чирэх, буулгах эд зүйлсийг буулгана."
+    },
+    "hemisphere": {
+      "name": "Хагас бөмбөрцөг гэрэл",
+      "description": "Тухайн үйл явдлыг шууд дээрээс нь гэрэлтүүлдэг гэрэл.",
+      "lbl-skyColor": "Тэнгэрийн өнгө",
+      "lbl-groundColor": "Газрын өнгө",
+      "lbl-intensity": "Эрчим хүч"
+    },
+    "image": {
+      "name": "Аймаг",
+      "description": "Динамикаар дүрс ачаалдаг.",
+      "lbl-imgURL": "Зургийн Url",
+      "lbl-transparency": "Ил тод байдал Мод",
+      "lbl-alphaCutoff": "Альфа Катофф",
+      "lbl-projection": "Төсөөлөл",
+      "lbl-side": "Сайд",
+      "info-controls": "Хэвлэл мэдээллийн хяналтын харагдах байдлыг тод томруул.",
+      "info-transparency": "Ил тод байдлыг хэрхэн хэрэгжүүлэх вэ:",
+      "info-opaque": "'opaque' = ил тод байдал байхгүй",
+      "info-blend": "'blend' = дүрсүүдийг альфа сувгийг ашиглах",
+      "info-mask": "'маск' = On/off ил тод байдлын төлөө тодорхой зүсэлтийн үнэ цэнийг ашиглах (илүү гүйцэтгэлтэй)",
+      "info-alphaCutoff": "Үүнээс доогуур альфа үнэт зүйлс бүхий пикселүүд ил тод болно",
+      "error-url": "Хүчингүй URL"
+    },
+    "name": {
+      "lbl-name": "Нэр"
+    },
+    "partileEmitter": {
+      "description": "Жижиг хэсгүүдийг үүсгэхийн тулд жижиг хэсгүүдийг ялгаруулдаг.",
+      "lbl-particleCount": "Хэсэгчилсэн тооллого",
+      "lbl-image": "Аймаг",
+      "lbl-ageRandomness": "Нас Бие Гүйцсэн Санамсаргүй",
+      "lbl-lifetime": "Насан туршдаа",
+      "lbl-lifetimeRandomness": "Насан туршийн санамсаргүй байдал",
+      "lbl-sizeCurve": "Хэмжээ муруй",
+      "lbl-startPSize": "Particle хэмжээг эхлүүлэх",
+      "lbl-endPSize": "Төгсгөл хэсэг хэмжээ",
+      "lbl-sizeRandomness": "Хэмжээ Randomness",
+      "lbl-colorCurve": "Өнгөний муруй",
+      "lbl-startColor": "Эхлэл Өнгө",
+      "lbl-startOpacity": "Бүдүүлэг байдлыг эхлүүл",
+      "lbl-middleColor": "Дунд зэргийн өнгө",
+      "lbl-middleOpacity": "Дунд зэргийн харанхуй",
+      "lbl-endColor": "Хөвсгөлийн өнгө",
+      "lbl-endOpacity": "Төгсгөлгүй бүдүүлэг байдал",
+      "lbl-velocityCurve": "Хурдны муруй",
+      "lbl-startVelocity": "Хурдаа эхлүүл",
+      "lbl-endVelocity": "Төгсгөл Хурд",
+      "lbl-angularVelocity": "Ангилал Хурд",
+      "info-ageRandomness": "Жижиг хэсгүүдийг бий болгосон үеийн хувьсах хэмжээ.",
+      "info-lifetime": "Нэг жижиг хэсгийг дахин сэргээхээс өмнө хамгийн их наслах.",
+      "info-lifetimeRandomness": "Жижиг хэсгүүдийн амьдралын хоорондох хувьсах хэмжээ.",
+      "info-sizeRandomness": "Жижиг хэсгүүдийн эхлэх хэмжээ хоорондын хувьсах хэмжээ.",
+      "error-url": "URL-аас алдаа ачаалах"
+    },
+    "clouds": {
+      "name": "Үүл",
+      "description": "Sprite дээр суурилсан үүлний хэмжээ.",
+      "lbl-image": "Сприт зураг",
+      "lbl-wroldScale": "Дэлхийн хэмжүүр",
+      "lbl-dimensions": "Хэмжээс",
+      "lbl-noiseZoom": "Дуу чимээ Зоом",
+      "lbl-noiseOffset": "Шуугиан Офсет",
+      "lbl-spriteScale": "Сприт масштаб",
+      "lbl-fogColor": "Манан будгийн өнгө",
+      "lbl-fogRange": "Манангийн хүрээ",
+      "error-url": "URL-аас алдаа ачаалах"
+    },
+    "ocean": {
+      "name": "Далай",
+      "description": "Давалгаа, пийшинтэй далайн гадаргуу",
+      "lbl-normalMap": "Ердийн газрын зураг",
+      "lbl-distortionMap": "Гажуудлын газрын зураг",
+      "lbl-envMap": "Байгаль орчны газрын зураг",
+      "lbl-color": "Өнгө",
+      "lbl-shallowWaterColor": "Гүехэн усны өнгө",
+      "lbl-shallowToDeepDistance": "Гүн алсад хүрэх гүехэн",
+      "lbl-opacityFadeDistance": "Oпасити фэйд хол",
+      "lbl-opacityRange": "Цар хүрээ",
+      "lbl-shininess": "Шингэн байдал",
+      "lbl-reflectivity": "Эргэцүүлж бодох",
+      "lbl-foamColor": "Foam өнгө",
+      "lbl-foamSpeed": "Фоам хурд",
+      "lbl-foamTiling": "Фоам Тиллинг",
+      "lbl-bigWaveTiling": "Том долгионы хазайлт",
+      "lbl-bigWaveSpeed": "Том долгионы хурд",
+      "lbl-bigWaveHeight": "Том долгионы өндөр",
+      "lbl-waveSpeed": "Давалгааны хурд",
+      "lbl-waveScale": "Давалгааны хэмжүүр",
+      "lbl-waveTiling": "Долгион Tiling",
+      "lbl-waveDistortionSpeed": "Долгионы мушгиа хурд",
+      "lbl-waveDistortionTiling": "Долгионы мушгиа Tiling",
+      "error-url": "URL-аас алдаа ачаалах"
+    },
+    "water": {
+      "name": "Ус",
+      "description": "Жижиг усны гадаргуу"
+    },
+    "interior": {
+      "name": "Дотоод",
+      "description": "Газрын зурагтай шоо текстуртай гадаргуу нь дотоод орчныг дуурайх",
+      "lbl-cubeMap": "Cube Газрын зураг текстур",
+      "lbl-tiling": "Tiling хэмжээ",
+      "lbl-size": "Гадаргуугийн хэмжээ",
+      "error-url": "URL-аас алдаа ачаалах"
+    },
+    "pointLight": {
+      "description": "Нэг цэгээс бүх чиглэлд цацруулдаг гэрэл.",
+      "lbl-color": "Өнгө",
+      "lbl-intensity": "Эрчим хүч",
+      "lbl-range": "Хамрах хүрээ",
+      "lbl-decay": "Ялзрал"
+    },
+    "scene": {
+      "name": "Дүр зураг",
+      "description": "Үйл явдлын үндсэн зүйл.",
+      "lbl-bgcolor": "Ар талын өнгө",
+      "lbl-fogType": "Манангийн төрөл",
+      "lbl-fogColor": "Манан будгийн өнгө",
+      "lbl-forNearDistance": "Алсад ойрхон манан",
+      "lbl-fogFarDistance": "Манан алс хол",
+      "lbl-fogDensity": "Манангийн нягтрал",
+      "lbl-audioSettings": "Байршлын аудио бичлэгийг ашиглах",
+      "lbl-avatarDistanceModel": "Аватар зайны загвар",
+      "lbl-avatarRolloffFactor": "Аватар Роллофф Фактор",
+      "lbl-avatarRefDistance": "Аватар Реф Алсын зай",
+      "lbl-avatarMaxDistance": "Аватар Макс Нийслэл",
+      "lbl-mediaVolume": "Мэдээллийн хэрэгслийн багтаамж",
+      "lbl-mediaDistanceModel": "Хэвлэл мэдээллийн хэрэгслийн зайны загвар",
+      "lbl-mediaRolloffFactor": "Мэдээллийн Роллофф Фактор",
+      "lbl-mediaRefDistance": "Мэдээ Реф Алсын зай",
+      "lbl-mediaMaxDistance": "Мэдээ Макс нийслэл",
+      "lbl-mediaConeInnerAngle": "Хэвлэл мэдээллийн конус дотоод өнцөг",
+      "lbl-mediaConeOuterAngle": "Мэдээ Конус Outer Ангилал",
+      "lbl-mediaConeOuterGain": "Хэвлэл мэдээллийн хэрэгсэл Конус Outer Gain",
+      "info-avatarDistanceModel": "Algorithim нь аудио rolloff тооцоолоход ашигладаг байсан.",
+      "info-avatarRolloffFactor": "Эх сурвалж сонсогчоос холдох тусам чансааг хэр хурдан бууруулдгийг дүрсэлсэн хоёр дахин үнэ цэнэ. 0-1",
+      "info-avatarRolloffFactorInifinity": "Эх сурвалж сонсогчоос холдох тусам чансааг хэр хурдан бууруулдгийг дүрсэлсэн хоёр дахин үнэ цэнэ. 0 Infinity хүртэл",
+      "info-avatarRefDistance": "Аудио эх сурвалж сонсогчоос холдох үед чансааг багасгах лавлах зайг төлөөлсөн хоёр дахин үнэ цэнэ.",
+      "info-avatarMaxDistance": "Дуу авианы эх сурвалж болон сонсогчийн хоорондох хамгийн их зайг төлөөлсөн хоёрдогч үнэ цэнэ. Үүний дараа чансааг цаашид бууруулахгүй.",
+      "info-mediaDistanceModel": "Algorithim нь аудио rolloff тооцоолоход ашигладаг байсан.",
+      "info-mediaRolloffFactor": "Эх сурвалж сонсогчоос холдох тусам чансааг хэр хурдан бууруулдгийг дүрсэлсэн хоёр дахин үнэ цэнэ. 0-1",
+      "info-mediaRolloffFactorInfinity": "Эх сурвалж сонсогчоос холдох тусам чансааг хэр хурдан бууруулдгийг дүрсэлсэн хоёр дахин үнэ цэнэ. 0 Infinity хүртэл",
+      "info-mediaRefDistance": "Аудио эх сурвалж сонсогчоос холдох үед чансааг багасгах лавлах зайг төлөөлсөн хоёр дахин үнэ цэнэ.",
+      "info-mediaMaxDistance": "Дуу авианы эх сурвалж болон сонсогчийн хоорондох хамгийн их зайг төлөөлсөн хоёрдогч үнэ цэнэ. Үүний дараа чансааг цаашид бууруулахгүй.",
+      "info-mediaConeInnerAngle": "Дотор нь конусын өнцгийг дүрсэлсэн хоёр дахин үнэ цэнэ.",
+      "info-mediaConeOuterAngle": "Өнцгийг дүрсэлсэн хоёрдогч үнэ цэнэ, гаднах конусын хэмжээ нь конусouterGain attribute-ээр тодорхойлогдож, тогтмол үнэ цэнээр багасах болно.",
+      "info-mediaConeOuterGain": "ConeOuterAngle attribute-ээр тодорхойлогдсон конусын гаднах хэмжээ багасах хэмжээг дүрсэлсэн хоёрдогч үнэ цэнэ. Түүний стандарт үнэ цэнэ нь 0, ямар ч дуу чимээ сонсогдохгүй гэсэн үг юм.",
+      "lbl-simpleMaterials": "Энгийн материал ашиглах",
+      "lbl-lods": "ЛОД-ууд",
+      "info-lods": "Аль түвшний нарийвчлал өөрчлөгдөх зайг тогтооно.",
+      "info-simpleMaterials": "Бүх үнэтэй материалыг илүү энгийн материал болгон хувиргаж, дүрс бичлэгийн орчуулгыг буулгана.",
+      "lbl-rendererSettings": "Рендерийн тохиргоог хүчингүй болгох",
+      "lbl-csm": "Кадастрын зураглал",
+      "info-csm": "Сүүдэр газрын зургийг хайчлах боломжийг олгодог.",
+      "lbl-toneMapping": "Өнгө зүс газрын зураг",
+      "info-toneMapping": "Зураг дээр өнгө аясыг зураглах боломжийг олгодог. Пост боловсруулалт хийх боломжтой болсон үед ямар ч үр дүнгүй.",
+      "lbl-toneMappingExposure": "Өнгө зүсийг газрын зураглах үзүүлэлт",
+      "info-toneMappingExposure": "Зураг дээр дүрс бичлэг хийх өнгө аясыг тодорхойл. Пост боловсруулалт хийх боломжтой болсон үед ямар ч үр дүнгүй.",
+      "lbl-shadowMapType": "Сүүдрийн газрын зургийн төрөл",
+      "info-shadowMapType": "Сүүдрийн газрын зургийн төрөл",
+      "error-url": "URL-аас алдаа ачаалах"
+    },
+    "sceneCamera": {
+      "name": "Үзэгдэл Урьдчилан харах Камер",
+      "description": "Камер нь таны үйл явдалд зориулсан эрхий хурууны хумс болон урьдчилан харах камерын эхлэх байрлалыг бий болгодог байсан.",
+      "lbl-setFromViewPort": "«Вьюпортоос»"
+    },
+    "skybox": {
+      "name": "Тэнгэрийн хайрцаг",
+      "description": "",
+      "lbl-timeOfDay": "Өдрийн цаг",
+      "lbl-color": "Өнгө",
+      "lbl-latitude": "Латьетуд",
+      "lbl-luminance": "Гэрэлтүүлэгч",
+      "lbl-scattering": "Тархай бутархай хэмжээ",
+      "lbl-scatteringDistance": "Тархан суурьшсан зай",
+      "lbl-horizonStart": "Хорезмын эхлэл",
+      "lbl-horizonEnd": "Хорезмын төгсгөл",
+      "lbl-texture": "Текстур",
+      "lbl-skyType": "Тэнгэрийн төрөл",
+      "error-url": "URL-аас алдаа ачаалах"
+    },
+    "spawnPoint": {
+      "name": "Spawn Point",
+      "description": "Хүмүүс таны дүр зураг руу орохдоо гарч ирэх цэг.\nViewport дахь зураг нь аватарын бодит хэмжээг илэрхийлнэ."
+    },
+    "spotLight": {
+      "description": "Зүг чигээр нь цацруулдаг гэрэл, конус дотор юмсыг гэрэлтүүлдэг.",
+      "lbl-color": "Өнгө",
+      "lbl-intensity": "Эрчим хүч",
+      "lbl-penumbra": "Пенумбра",
+      "lbl-angle": "Ангилал",
+      "lbl-range": "Хамрах хүрээ",
+      "lbl-decay": "Ялзрал"
+    },
+    "transform": {
+      "title": "Хувиргах",
+      "lbl-postition": "Хаяг байршил",
+      "lbl-rotation": "Ээлжлэх",
+      "lbl-scale": "Хэмжүүр"
+    },
+    "triggereVolume": {
+      "description": "Орж, явах үед байны зүйл дээр өмч хөрөнгө тогтооно.",
+      "lbl-target": "Объект",
+      "lbl-onenter": "Enter дээр",
+      "lbl-onexit": "Гарах дээр",
+      "lbl-showHelper": "Туслагч Мешийг үзүүл",
+      "ph-errorNode": "Алдаа алга байна.",
+      "ph-selectNode": "Node-г сонго..."
+    },
+    "video": {
+      "name": "Видео",
+      "description": "Видео бичлэгийг динамикаар ачаалдаг.",
+      "lbl-video": "Видео",
+      "lbl-projection": "Төсөөлөл",
+      "lbl-islivestream": "Амьд урсгал",
+      "lbl-interactable": "Харилцах боломжтой",
+      "lbl-id": "Элемент Id",
+      "lbl-play": "Тоглох",
+      "lbl-pause": "Түр зогс",
+      "error-url": "URL-аас алдаа ачаалах"
+    },
+    "volumetric": {
+      "name": "Боть ном",
+      "description": "Чанга яригчтай видеог динамикаар ачаалдаг.",
+      "uvolPaths": "UVOL-ийн замууд",
+      "playmode": "Mode тоглох",
+      "playtitle": "Тоглох",
+      "pausetitle": "Түр зогс"
+    },
+    "spline": {
+      "description": "Динамикаар муруйг үүсгэж, тохируулах.",
+      "lbl-addNode": "Нугалахын тулд node нэмнэ."
+    },
+    "systemnode": {
+      "description": "Бичлэг хавсаргана уу.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "Тарианы цэг",
+      "lbl-enableClient": "Үйлчлүүлэгч",
+      "lbl-enableServer": "Сервер",
+      "lbl-args": "Аргс",
+      "error-url": "URL-аас алдаа ачаалах скрипт"
+    },
+    "portal": {
+      "lbl-portal": "Холбоо бүхий портал",
+      "lbl-redirect": "Ашиглах хуудас Redirect",
+      "description": "Тодорхой байршил руу телепорт тоглуулагч портат",
+      "lbl-locationName": "Хаяг байршил",
+      "lbl-modelUrl": "Загварын URL",
+      "lbl-displayText": "Текст харуулах",
+      "lbl-cubemapBake": "Кубемапын жигнэмэг",
+      "lbl-spawnPosition": "Spawn-ийн байрлал",
+      "lbl-spawnRotation": "Spawn ээлтэй",
+      "lbl-triggerPosition": "Триггерийн байрлал",
+      "lbl-triggerRotation": "Триггерийн ээлжит",
+      "lbl-triggerScale": "Триггерийн хэмжүүр"
+    },
+    "postprocessing": {
+      "name": "Post Боловсруулах",
+      "description": "Post Processing effects-ийг таны дүр зураг дээр хэрэгжүүлэхийн тулд."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Шинэ төсөл",
+      "backLink": "Эргээд төслүүд рүү",
+      "featured": "Онцлог",
+      "all": "Бүгд",
+      "newProject": "Шинэ Хоосон Төсөл",
+      "ph-search": "Эрэн хайх үйл явдал..."
+    },
+    "grid": {
+      "loading": "Ачаа ачих..."
+    },
+    "page": {
+      "header": "Тавтай морил",
+      "headerMsg": "Хэрэв та энд шинээр ирсэн бол бид сургалтаар явахыг зөвлөж байна. Эс бөгөөс шууд үсэрч, нүд ирмэхийн зуур эсвэл бидний нэг темплэйтээс төсөл зохио.",
+      "lbl-startTutorial": "Эхлэл Сургалт",
+      "projects": "Төслүүд",
+      "lbl-newProject": "Шинэ төсөл"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Ачаа ачих...",
+      "placeObject": "Объект байрлуулах",
+      "placeObjectAtOrigin": "Оригнал дээр объект байрлуулах",
+      "copyURL": "Copy URL",
+      "openInNewTab": "Шинэ Таб дахь нээлттэй URL",
+      "deleteAsset": "Хөрөнгө арилгах"
+    },
+    "filebrowser": {
+      "addNewFolder": "Шинэ хавтас нэмэх",
+      "cutAsset": "Хайчилбар",
+      "copyAsset": "Хуулбарлах",
+      "pasteAsset": "Паст",
+      "renameAsset": "Нэр өөрчлөх",
+      "viewAssetProperties": "Шинж чанар харах"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Нэр өөрчлөх",
+    "lbl-duplicate": "Хувилах",
+    "lbl-group": "Бүлэг",
+    "lbl-delete": "Устгах",
+    "lbl-expandAll": "Бүх хүрээгээ тэлнэ",
+    "lbl-collapseAll": "Бүх нуралт",
+    "isseus": "Асуудлууд:"
+  },
+  "dnd": {
+    "nodes": "{{count}} Nodes сонгон шалгаруулав",
+    "models": "{{count}} загваруудыг сонгожээ",
+    "images": "{{count}} зураг сонгон авсан",
+    "videos": "{{count}} видео сонгон авсан",
+    "audio": "{{count}} аудио эх сурвалжийг сонгон авсан нь"
+  },
+  "dialog": {
+    "title": "Редактор",
+    "lbl-confirm": "За",
+    "lbl-cancel": "Цуцлах",
+    "exportProject": {
+      "title": "Экспортын төсөл",
+      "lbl-confirm": "Экспортын төсөл",
+      "lbl-combineMesh": "Мессийг нийлүүлэх",
+      "lbl-removeUnused": "Ашиггүй эд зүйлсийг зайлуулах"
+    },
+    "performance": {
+      "title": "Гүйцэтгэлийн шалгалт",
+      "lbl-confirm": "Тайз хэвлүүлэх",
+      "learnMore": "Илүү ихийг мэдэх",
+      "lbl-polycount": "Олонлог тоолол",
+      "lbl-material": "Бараа материал",
+      "lbl-texture": "Нэхмэлийн зүйлс",
+      "lbl-lights": "Гэрэлтүүлэг",
+      "lbl-fileSize": "Файлын хэмжээ",
+      "info-polycount": "Бид таны дүр зургийг зөөврийн хэрэгсэлд 50 000-аас илүүгүй гурвалжин ашиглахыг зөвлөж байна.",
+      "info-material": "Бид зөөврийн хэрэгслийн зургийн дуудлагыг багасгахын тулд таны үйл явдалд 25-аас илүүгүй өвөрмөц материал ашиглахыг зөвлөж байна.",
+      "info-texture": "Бид таны текстуруудыг хөдөлгөөнт төхөөрөмжүүдэд 256MB-аас илүүгүй видео RAM ашиглахыг зөвлөж байна. Мөн бид 2048 x 2048-аас том текстур ашиглахгүй байхыг зөвлөж байна.",
+      "info-lights": "Хөдөлгөөнт төхөөрөмжүүд дээр динамик гэрэл ашиглах боломжгүй ч бид таны үйл явдалд 3-аас илүүгүй гэрэл (амбиц, хагас гэрлийг оролцуулалгүйгээр) ашиглан бага төгсгөлийн PC дээр таны дүр зургийг ажиллуулахыг зөвлөж байна.",
+      "info-fileSize": "Бид bandwidth бага холболтын хувьд 16MB-аас илүүгүй эцсийн файлын хэмжээг санал болгож байна. Файлын хэмжээг багасгах нь таны дүр зургийг татаж авахад шаардагдах хугацааг багасгана.",
+      "txt-polycount": "{{count}} гурвалжин",
+      "txt-material": "{{count}} материал",
+      "txt-ram": "~{{count}} видео RAM",
+      "txt-texture": "{{count}} Том аарц",
+      "txt-lights": "{{count}} гэрэл"
+    },
+    "progress": {
+      "title": "Ачаа ачих...",
+      "msg": "Ачаа ачих...",
+      "lbl-cancel": "Цуцлах"
+    },
+    "publish": {
+      "title": "Тайз хэвлүүлэх",
+      "lbl-confirm": "Хадгалах, хэвлэх",
+      "lbl-name": "Тайзны нэр",
+      "info-name": "Нэр нь 4-64 үсгийн хооронд байх ёстой бөгөөд онцлох зүйлсийг агуулж чадахгүй"
+    },
+    "published": {
+      "title": "Онцлох нийтлэл",
+      "header": "Таны дүр зураг нийтлэгджээ.",
+      "lbl-view": "Дүрээ хар"
+    },
+    "saveNewProject": {
+      "title": "Дэмжлэг",
+      "lbl-name": "Төслийн нэр",
+      "info-name": "Нэр нь 4-64 үсгийн хооронд байх ёстой бөгөөд онцлох зүйлсийг агуулж чадахгүй",
+      "lbl-confirm": "Төсөл хадгалах"
+    },
+    "support": {
+      "title": "Дэмжлэг",
+      "header": "Асуудлыг мэдээлэх хэрэгтэй юу?",
+      "msg": "Та <1>GitHub Issue-ийг</1> оруулах эсвэл <3>{{mail}}</3> бидэнд дэмжлэг үзүүлэхээр и-мэйл илгээх боломжтой",
+      "discord": "Та бас <1>дискорд</1> дээр биднийг олж болно"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing Images",
+      "search": "Bing-ийн хайлт"
+    },
+    "bingVideo": {
+      "name": "Bing Видео",
+      "search": "Bing-ийн хайлт"
+    },
+    "element": {
+      "name": "Элементүүд"
+    },
+    "myAssets": {
+      "name": "Миний хөрөнгө"
+    },
+    "googlePoly": {
+      "name": "Гүүгл Поли",
+      "search": "Google-ийн хайлт"
+    },
+    "tenor": {
+      "name": "Тенор ГИФ-ууд",
+      "search": "Тенорын хайлт",
+      "ph-search": "ГИФ-үүдийг хай..."
+    },
+    "sketchfab": {
+      "name": "Скетчфаб",
+      "search": "Sketchfab-ийн хайлт"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Хөрөнгө оруулах"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Зураг хайх..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Бичлэг хайх..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Хайгуулын хөрөнгө..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Хайлтын загварууд..."
+    },
+    "useUpload": {
+      "multipleFileError": "Оролт нь олон файлыг хүлээн зөвшөөрдөггүй.",
+      "mineTypeError": "\"{{name}}\" нь дараах мим төрлийн болон сунгалттай тохирохгүй: {{types}}",
+      "progressTitle": "Файлуудыг татаж авах",
+      "progressMsg": "файлуудыг {{total}}{{uploaded}} оруулах : {{percentage}}%",
+      "uploadError": "Алдаа татаж авах",
+      "uploadErrorMsg": "Алдаа оруулах файл: {{message}}",
+      "uploadErrorDefaultMsg": "Үл мэдэгдэх алдаа гарсан"
+    }
+  },
+  "openLink": {
+    "description": "Open дарж холбоос руу зүгшрээрэй.",
+    "lbl-open": "Нээлттэй"
+  },
+  "interactableModel": {
+    "lbl-buy": "Худалдан авах",
+    "lbl-learnMore": "Илүү ихийг мэдэх"
+  },
+  "corsProxyButton": {
+    "tooltip": "Cors Прокси сервер ашиглах"
+  }
+}

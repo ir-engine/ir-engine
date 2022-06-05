@@ -1,0 +1,718 @@
+{
+  "loading": "Carga ar 'be̲fi",
+  "loadingMsg": "Cargando 'be̲fi...",
+  "loadingError": "Error 'na ar cargar ar 'be̲fi",
+  "loadingErrorMsg": "Ar xi producido 'nar error ja ar cargar ar 'be̲fi.",
+  "selectSceneMsg": "Seleccione Escena pa ndi ndu̲i 'ñeni ko ar motor",
+  "error": "Error",
+  "errorMsg": "Mi 'bu̲i 'nar error desconocido.",
+  "generateScreenshot": "Generación captura pantalla ar 'be̲fi",
+  "generateScreenshotMsg": "Generando captura pantalla ar 'be̲fi...",
+  "newScene": "Da t'ot'e escena",
+  "saving": "'Be̲fi ar guardado",
+  "savingMsg": "Ar ahorro ar 'be̲fi...",
+  "savingError": "Error 'na ar guardar ar 'be̲fi",
+  "savingErrorMsg": "Ar xi producido 'nar error ja ar guardar ar 'be̲fi.",
+  "savingSceneErrorMsg": "Ar escena hingi ar carga correctamente. Intenta recargar ar escena.",
+  "duplicating": "Duplicación ar 'be̲fi",
+  "duplicatingMsg": "Duplicando 'be̲fi...",
+  "exporting": "Exportación ar 'be̲fi",
+  "exportingMsg": "Exportando 'be̲fi...",
+  "exportingError": "Error 'na ar exportar ar 'be̲fi",
+  "exportingErrorMsg": "Ar xi producido 'nar error ja ar exportar ar 'be̲fi.",
+  "importLegacy": "Importar ar ximha̲i zogi",
+  "importLegacyMsg": "Advertencia! 'Me̲hna sobrescribirá ir escena existente! ¿Gi pödi xa hño ya da gi ne da 'ño?",
+  "publishingError": "Error 'na ar publicar ar 'be̲fi",
+  "publishingErrorMsg": "Mi 'bu̲i 'nar error desconocido.",
+  "publishingScene": "Escena editorial",
+  "publishingSceneMsg": "Escena editorial...",
+  "uploadingThumbnailMsg": "Cargando miniaturas...",
+  "uploadingSceneMsg": "Ndi escena: {{percentage}}%",
+  "envMapError": "Ar error ja ar cargar imágenes 'me̲ni cubo {{files}}",
+  "lbl-return": "Devolución",
+  "menubar": {
+    "newScene": "'Ra'yo escena",
+    "saveScene": "Guardar escena",
+    "saveAs": "Guardar komongu",
+    "importAsset": "Importar activo",
+    "exportGLB": "Exportar Honja binario glTF (.glb)...",
+    "importScene": "Importar escena",
+    "exportScene": "Escena exportación",
+    "quit": "Renunciar"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Ar klase ar archivo hingi compatible pa ar archivo: \"{{name}}\". Ar archivo ar gi 'bu̲i 'nar modelo ar tsita, vídeo wa glb.",
+    "addObject": "addObject: Ante ar nt'ot'e hingi ar encontrara",
+    "removeObject": "removeObject: nodo hingi encontrado. 'Me̲hna ar da da eliminación 'nar nodo ya hingi 'bu̲i ja ar escena.",
+    "noParent": "{{node}} \"{{name}}\" hingi pe̲ts'i mengu. Reparent ho̲ntho funciona jar objetos mi 'bu̲i 'bu̲'bya jar ar escena.",
+    "undefinedParent": "editor.reparent: newParent hingi 'bu̲i definido",
+    "notAuthenticated": "Hindi autenticado",
+    "fetchingProjectError": "Error ar honi 'yot'e: {{error}}",
+    "fetchingRouteError": "Error ar honi rutas: {{error}}",
+    "unknownError": "Error desconocido",
+    "resolveURL": "Error 'na jar resolver url \"{{url}}\":",
+    "mediaSearchAborted": "Nthoni nt'ot'e anulada",
+    "methodNotImplemented": "Nt'ot'e hingi implementado.",
+    "saveProjectAborted": "Guardar escena anulada",
+    "unsavedChanges": "Cambios hindi guardados",
+    "unsavedChangesMsg": "Ar escena xi xi modificada. Jaki ar mäte, guarde yá cambios.",
+    "projectCreationFail": "Ar error jar creación ar 'be̲fi. {{reason}}",
+    "projectDeletionFail": "Ar error jar eliminación ar 'be̲fi. {{reason}}",
+    "savingProjectFail": "Ar error ja ar guardar ar 'be̲fi. {{reason}}",
+    "sceneTooLarge": "Ar escena ar xki dätä ({{size}} MB) pa dá publicar. Ar tamaño ar máximo ar {{maxSize}} MB.",
+    "sceneCreationFail": "Ar error jar creación escenas. {{reason}}",
+    "uploadAborted": "Carga anulada",
+    "uploadFailed": "Error 'na jar cargar {{reason}}",
+    "assetDeletionFail": "Ar error jar eliminación activos. {{reason}}",
+    "projectAssetDeletionFail": "Ar error jar eliminación activos ar 'be̲fi. {{reason}}",
+    "networkError": "Error red: {{status}}. {{text}}",
+    "unknownStatus": "Dätä desconocido",
+    "CORS": "Posiblemente 'nar error CORS",
+    "urlFetchError": "Error 'na ar uni \"hmä{{url}}\""
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Mover cámara",
+      "flyFast": "Vuela mäs ngutha",
+      "orbit": "Órbita yá Seleccionar",
+      "pan": "Cacerola",
+      "fly": "Volar",
+      "focus": "Made Ntheti",
+      "rotateLeft": "Girar ar izquierda",
+      "rotateRight": "Girar ar derecha",
+      "cancelPlacement": "Cancelar colocación",
+      "placeDuplicate": "Hoki ar duplicado",
+      "cancelGrab": "Cancelar grab",
+      "grab": "Agarrar",
+      "deselectAll": "Anule selección ga̲tho"
+    },
+    "state": {
+      "header": "Estadísticas",
+      "memory": "Memoria",
+      "geometries": "Geometrías",
+      "textures": "Texturas",
+      "render": "Gi 'yo̲t",
+      "FPS": "FPS",
+      "frameTime": "Pa marco",
+      "calls": "Llamadas",
+      "triangles": "Triángulos",
+      "points": "Puntos",
+      "lines": "Lineas"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Publicar",
+    "lbl-published": "Publicado",
+    "command": {
+      "translate": "Gi 'rats'",
+      "rotate": "Rotar",
+      "scale": "Escama",
+      "toggleSpace": "Alternar espacio transformación",
+      "togglePivot": "Alternar pivote transformación",
+      "toggleSnapMode": "Alternar ar modo ar za",
+      "toggleGrid": "Alternar visibilidad cuadrícula",
+      "increaseGridSize": "Aumentar ar tamaño ar cuadrícula",
+      "descreaseGridSize": "Disminuir ar tamaño ar cuadrícula",
+      "stopPreview": "Detener jar thandi previa ar escena",
+      "playPreview": "Thandi previa ar escena"
+    }
+  },
+  "properties": {
+    "title": "Propiedades",
+    "lbl-visible": "Visible",
+    "lbl-preventBake": "Da mä 'met'o ar horneado",
+    "lbl-persist": "Persistir",
+    "multipleNodeSelected": "Múltiples nodos Bu̲i xingu seleccionados",
+    "noNodeSelected": "Otho ar nodo seleccionado",
+    "ambientLight": {
+      "name": "Ra tsibi ambiental",
+      "description": "'Nar tsibi da ilumina ga̲tho ya objetos ir escena.",
+      "lbl-intensity": "Intensidad",
+      "lbl-color": "Ar njät'i"
+    },
+    "envmap": {
+      "name": "'Me̲ni ar entorno",
+      "description": "propiedades ar 'me̲ni ar entorno"
+    },
+    "asset": {
+      "name": "Activo",
+      "description": "'Nar agrupación componentes escena ar xi cargar ne descargar dinámicamente",
+      "lbl-options": "Opciones",
+      "lbl-assetPath": "Ruta ya activos",
+      "lbl-assetName": "Thuuhu exportación",
+      "lbl-exportOptions": "Opciones exportación",
+      "lbl-export": "Exportar activos",
+      "lbl-load": "Cargar escena",
+      "lbl-unload": "Descargar",
+      "lbl-reload": "Recargar"
+    },
+    "audio": {
+      "name": "Audio",
+      "description": "Carga audio dinámicamente.",
+      "lbl-audiourl": "Audio Url",
+      "lbl-controls": "mandos",
+      "info-controls": "Alterna ar visibilidad ya controles multimedia.",
+      "lbl-autoplay": "Reproducción automática",
+      "info-autoplay": "Nu'bu̲ ge makwäni, ya nt'ot'e da reproducirán nu'bu̲ entren ya bes jar escena.",
+      "lbl-synchronize": "Sincronizar",
+      "info-synchronize": "Xähmö nu'bu̲ true, ya nt'ot'e da sincronizarán jar ga̲tho ya clientes conectados.",
+      "lbl-loop": "Bucle",
+      "info-loop": "Nu'bu̲ ge makwäni, ya nt'ot'e da repetirán indefinidamente.",
+      "lbl-audioType": "Ar klase ar audio",
+      "lbl-distanceModel": "Modelo mbi",
+      "info-distanceModel": "Ar algorithim utilizado pa calcular rolloff audio.",
+      "lbl-rolloffFactor": "Rolloff Factor",
+      "info-rolloffFactor": "'Nar hmädi doble da pede rapidez ko dá nä'ä bí reduce ar volumen medida da ar fuente bí aleja ar ar oyente. 0 da 1",
+      "info-rfInfinity": "'Nar hmädi doble da pede rapidez ko dá nä'ä bí reduce ar volumen medida da ar fuente bí aleja ar ar oyente. 0 asta ar infinito",
+      "lbl-refDistance": "Distancia ar referencia",
+      "info-refDistance": "'Nar hmädi doble mi o̲t'e mbi referencia pa reducir ar volumen medida da fuente ar audio bí aleja ar ar oyente.",
+      "lbl-maxDistance": "Distancia máxima",
+      "info-maxDistance": "'Nar hmädi doble mi o̲t'e mbi máxima entre ár fuente ar audio ne ar oyente, 'me̲fa ar nä'ä ar volumen hingi ar reduce nä'ä.",
+      "lbl-coneInnerAngle": "Ángulo mbo jar cono",
+      "info-coneInnerAngle": "'Nar hmädi doble da pede ar ángulo, ja ya grado, ar cono mbo nuna hingi da reducción ar volumen.",
+      "lbl-coneOuterAngle": "Ángulo exterior ar cono",
+      "info-coneOuterAngle": "'Nar hmädi doble da pede ar ángulo, ja ya grado, ar cono 'bu̲ nuna ar volumen bí reducirá ja 'nar hmädi nzäm'bu̲, definido ya atributo ar coneOuterGain.",
+      "lbl-coreOuterGain": "Ganancia exterior ar cono",
+      "info-coreOuterGain": "'Nar hmädi doble da pede yá 'bede ya reducción volumen da cono definido ya atributo ar coneOuterAngle. Ár hmädi predeterminado ar 0, nä'ä ir bo̲ni ke hingi ar tsa̲ da 'mu̲ise̲ ningún nzu̲nt'i.",
+      "lbl-volume": "Volumen",
+      "lbl-play": "'Ñeni",
+      "lbl-pause": "Pausa",
+      "error-url": "Error 'na jar cargar ndezu̲ ar url"
+    },
+    "boxCollider": {
+      "description": "'Nar caja invisible dá ne ya objetos rebotarán wa descansarán encima.\n'Ñotho ar colisionadores, ya objetos caerán a través de ya pisos ne atravesarán ya paredes.",
+      "lbl-isTrigger": "Detonante"
+    },
+    "camera": {
+      "name": "Cámara",
+      "description": "Configuración ar cámara.",
+      "lbl-camera-raycast": "Cámara Raycasting",
+      "lbl-camera-raycast-toggle": "Habilitado",
+      "lbl-camera-raycast-frequency": "Frecuencia",
+      "lbl-camera-raycast-count": "Recuento ya jwe̲i",
+      "lbl-camera-raycast-length": "Longitud ar rayo"
+    },
+    "directionalLight": {
+      "name": "Ra tsibi direccional",
+      "description": "'Nar tsibi da ilumina nga̲tho ar escena, pe da emite a lo largo de sola 'nar 'mui.",
+      "lbl-color": "Ar njät'i",
+      "lbl-intensity": "Intensidad",
+      "lbl-cameraFar": "Cámara na ya'bu̲",
+      "lbl-cameraNear": "Cámara getu'bu̲",
+      "lbl-cameraTop": "'Nar xe̲ni mäs xi ngu ar cámara",
+      "lbl-cameraBottom": "'Nar xe̲ni inferior ar cámara",
+      "lbl-cameraLeft": "Cámara izquierda",
+      "lbl-cameraRight": "Cámara derecha",
+      "lbl-useInCSM": "Njapu'befi jar CSM",
+      "lbl-castShadow": "Proyectar sombra",
+      "lbl-disableForCSM": "Deshabilitado ngetho ar 'me̲ni sombras jar cascada xi habilitado.",
+      "lbl-shadowmapResolution": "Resolución ar 'me̲ni sombras",
+      "lbl-shadowBias": "Sesgo sombra",
+      "lbl-shadowRadius": "Thuhu sombra",
+      "lbl-showCameraHelper": "Mostrar ayudante cámara"
+    },
+    "groundPlane": {
+      "name": "Plano ar ha̲i",
+      "description": "'Nar plano ya ha̲i plana da extiende jar ar mbi.",
+      "lbl-color": "Ar njät'i",
+      "lbl-receiveShadow": "Ga hä sombra",
+      "lbl-generateNavmesh": "Generar Navmesh"
+    },
+    "link": {
+      "description": "Ar enlace ja 'nar habitación wa 'nar sitio web.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "'Me̲ni geoespacial 3D ar, ngu, 'nar Dähnini."
+    },
+    "model": {
+      "description": "'Nar modelo 3D jar ár escena, cargado ndezu̲ 'nar URL wa archivo GLTF.",
+      "lbl-usingGPUInstancingFlag": "Ga instancias ar GPU",
+      "lbl-modelurl": "URL ar modelo",
+      "lbl-envmapUrl": "URL ar 'me̲ni ar entorno",
+      "lbl-textureOverride": "Anular textura",
+      "lbl-materialOverride": "Anulaciones hñei",
+      "error-url": "Error 'na jar cargar ndezu̲ ar url",
+      "lbl-loopAnimation": "Animación bucle",
+      "lbl-isAvatar": "Ar Avatar",
+      "lbl-isGPUInstancing": "Xi usando jar hnini GPU",
+      "lbl-isDynamic": "Ar dinámico",
+      "lbl-castShadow": "Proyectar sombra",
+      "lbl-receiveShadow": "Ga hä sombra",
+      "lbl-interactable": "Interactivo",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Thuhuu",
+      "lbl-url": "URL ar modelo",
+      "lbl-buy": "Ta̲i ya URL",
+      "lbl-learnMore": "Mäs ungumfädi URL",
+      "lbl-htmlContent": "Contenido Html",
+      "lbl-interactionText": "Texto interacción",
+      "lbl-interactionType": "Ar klase ar interacción"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Hñei",
+      "error-materialID": "Error tini ar material",
+      "placeholder-materialID": "Seleccionar material",
+      "lbl-patternTarget": "Coincidencia patrones",
+      "lbl-pattern": "Hmu",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Ar klase ar interacción",
+      "text": "Texto interacción",
+      "distance": "Distancia ar interacción",
+      "theme": "Tema interacción",
+      "name": "Thuuhu interacción",
+      "description": "Descripción ar interacción",
+      "images": "Imágenes interacción",
+      "videos": "Videos interacción",
+      "urls": "URL interacción",
+      "models": "Modelos interacción"
+    },
+    "group": {
+      "name": "Ar Hmunts'i",
+      "description": "'Nar hmunts'i ya varios objetos nä'ä da xi mover wa duplicar ga̲tho.\nArrastre ne suelte objetos jar Hmunts'i ar jerarquía."
+    },
+    "hemisphere": {
+      "name": "Ar tsibi ar hemisferio",
+      "description": "'Nar tsibi da ilumina ar escena Hmunts'i ndezu̲ mañä.",
+      "lbl-skyColor": "Njät'i ñu̲ni",
+      "lbl-groundColor": "Ar njät'i jar ha̲i",
+      "lbl-intensity": "Intensidad"
+    },
+    "image": {
+      "name": "Tsita",
+      "description": "Carga dinámicamente 'nar tsita.",
+      "lbl-imgURL": "URL ar tsita",
+      "lbl-transparency": "Modo transparencia",
+      "lbl-alphaCutoff": "Límite alfa",
+      "lbl-projection": "Proyección",
+      "lbl-side": "Ngehnu̲",
+      "info-controls": "Alterna ar visibilidad ya controles multimedia.",
+      "info-transparency": "Temu̲ da t'uni ar transparencia:",
+      "info-opaque": "'opaco' = sin transparencia",
+      "info-blend": "'blend' = utilizar el canal alfa de imágenes",
+      "info-mask": "'máscara' = Utilice un valor de corte especificado para la transparencia de encendido/apagado (más eficaz)",
+      "info-alphaCutoff": "Ya píxeles valores alfa inferiores jar nuna da transparentes",
+      "error-url": "URL hindi válida"
+    },
+    "name": {
+      "lbl-name": "Thuhuu"
+    },
+    "partileEmitter": {
+      "description": "Emisor ar partículas pa da t'ot'e ya partículas.",
+      "lbl-particleCount": "Recuento partículas",
+      "lbl-image": "Tsita",
+      "lbl-ageRandomness": "Aleatoriedad ar bätsitho",
+      "lbl-lifetime": "Nzaki",
+      "lbl-lifetimeRandomness": "Aleatoriedad ar hño nzaki",
+      "lbl-sizeCurve": "Curva tamaño",
+      "lbl-startPSize": "Da du'mi tamaño partícula",
+      "lbl-endPSize": "Tamaño partícula final",
+      "lbl-sizeRandomness": "Aleatoriedad ar tamaño",
+      "lbl-colorCurve": "Curva ar njät'i",
+      "lbl-startColor": "Njät'i inicio",
+      "lbl-startOpacity": "Da du'mi ya Opacidad",
+      "lbl-middleColor": "Ar njät'i made",
+      "lbl-middleOpacity": "Opacidad made",
+      "lbl-endColor": "Ar njät'i final",
+      "lbl-endOpacity": "Ar ngäts'i ar opacidad",
+      "lbl-velocityCurve": "Curva velocidad",
+      "lbl-startVelocity": "Velocidad inicio",
+      "lbl-endVelocity": "Velocidad final",
+      "lbl-angularVelocity": "Velocidad angular",
+      "info-ageRandomness": "Yá 'bede ya variación ja ya t'olo ora da generan ya partículas.",
+      "info-lifetime": "Ar bätsitho máxima 'nar partícula Ante reaparezca.",
+      "info-lifetimeRandomness": "Yá 'bede ya variación ja ya vidas ya partículas.",
+      "info-sizeRandomness": "Yá 'bede ya variación ja ya tamaños iniciales partículas.",
+      "error-url": "Error 'na jar cargar ndezu̲ ar url"
+    },
+    "clouds": {
+      "name": "Gui",
+      "description": "Volumen ar gui xi basado jar Sprites.",
+      "lbl-image": "Tsita Sprite",
+      "lbl-wroldScale": "Escala jar nxoge ximhai",
+      "lbl-dimensions": "Dimensiones",
+      "lbl-noiseZoom": "Zoom mafi",
+      "lbl-noiseOffset": "Compensación mafi",
+      "lbl-spriteScale": "Escala Sprite",
+      "lbl-fogColor": "Ar njät'i 'mo̲ngui",
+      "lbl-fogRange": "Rango 'mo̲ngui",
+      "error-url": "Error 'na jar cargar ndezu̲ ar url"
+    },
+    "ocean": {
+      "name": "Océano",
+      "description": "Superficie ar océano olas ne espuma",
+      "lbl-normalMap": "'Me̲ni ar Normal",
+      "lbl-distortionMap": "'Me̲ni ar distorsión",
+      "lbl-envMap": "'Me̲ni ar entorno",
+      "lbl-color": "Ar njät'i",
+      "lbl-shallowWaterColor": "Ar njät'i ar dehe tx'u̲tho profunda",
+      "lbl-shallowToDeepDistance": "Distancia ar poca profundidad ma profundidad",
+      "lbl-opacityFadeDistance": "Distancia ar desvanecimiento opacidad",
+      "lbl-opacityRange": "Rango opacidad",
+      "lbl-shininess": "Brillo",
+      "lbl-reflectivity": "Reflectividad",
+      "lbl-foamColor": "Njät'i ar espuma",
+      "lbl-foamSpeed": "Velocidad espuma",
+      "lbl-foamTiling": "Revestimiento espuma",
+      "lbl-bigWaveTiling": "Mosaico olas dätä",
+      "lbl-bigWaveSpeed": "Velocidad Nar dätä hño pa nts'e̲di",
+      "lbl-bigWaveHeight": "Nar dätä hño altura pa nts'e̲di",
+      "lbl-waveSpeed": "Velocidad onda",
+      "lbl-waveScale": "Escala onda",
+      "lbl-waveTiling": "Mosaico olas",
+      "lbl-waveDistortionSpeed": "Velocidad distorsión onda",
+      "lbl-waveDistortionTiling": "Mosaico distorsión onda",
+      "error-url": "Error 'na jar cargar ndezu̲ ar url"
+    },
+    "water": {
+      "name": "Ar dehe",
+      "description": "T'olo superficie ar dehe"
+    },
+    "interior": {
+      "name": "Interior",
+      "description": "'Nar superficie ko textura cubo mapeada pa emular ambientes interiores",
+      "lbl-cubeMap": "Textura ar 'me̲ni ar cubo",
+      "lbl-tiling": "Yá 'bede ya mosaico",
+      "lbl-size": "Tamaño ar superficie",
+      "error-url": "Error 'na jar cargar ndezu̲ ar url"
+    },
+    "pointLight": {
+      "description": "'Nar tsibi da emite jar ga̲tho ya direcciones ndezu̲ Honto 'nar punto.",
+      "lbl-color": "Ar njät'i",
+      "lbl-intensity": "Intensidad",
+      "lbl-range": "Gama",
+      "lbl-decay": "Decaer"
+    },
+    "scene": {
+      "name": "Escena",
+      "description": "Nt'ot'e raíz ar escena.",
+      "lbl-bgcolor": "Njät'i ts'o̲e",
+      "lbl-fogType": "Ar klase ar 'mo̲ngui",
+      "lbl-fogColor": "Ar njät'i 'mo̲ngui",
+      "lbl-forNearDistance": "'Mo̲ngui cerca de ar mbi",
+      "lbl-fogFarDistance": "'Mo̲ngui Nar dätä hño mbi",
+      "lbl-fogDensity": "Densidad 'mo̲ngui",
+      "lbl-audioSettings": "Ga audio posicional",
+      "lbl-avatarDistanceModel": "Modelo mbi avatar",
+      "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
+      "lbl-avatarRefDistance": "Distancia ar referencia ar avatar",
+      "lbl-avatarMaxDistance": "Distancia máxima ar avatar",
+      "lbl-mediaVolume": "Volumen ya nt'ot'e",
+      "lbl-mediaDistanceModel": "Modelo mbi nt'ot'e",
+      "lbl-mediaRolloffFactor": "Factor rolloff nt'ot'e",
+      "lbl-mediaRefDistance": "Distancia ar referencia ar nt'ot'e",
+      "lbl-mediaMaxDistance": "Distancia máxima ya nt'ot'e",
+      "lbl-mediaConeInnerAngle": "Ángulo interno cono nt'ot'e",
+      "lbl-mediaConeOuterAngle": "Ángulo exterior cono nt'ot'e",
+      "lbl-mediaConeOuterGain": "Ganancia externa cono nt'ot'e",
+      "info-avatarDistanceModel": "Ar algorithim utilizado pa calcular rolloff audio.",
+      "info-avatarRolloffFactor": "'Nar hmädi doble da pede rapidez ko dá nä'ä bí reduce ar volumen medida da ar fuente bí aleja ar ar oyente. 0 da 1",
+      "info-avatarRolloffFactorInifinity": "'Nar hmädi doble da pede rapidez ko dá nä'ä bí reduce ar volumen medida da ar fuente bí aleja ar ar oyente. 0 asta ar infinito",
+      "info-avatarRefDistance": "'Nar hmädi doble mi o̲t'e mbi referencia pa reducir ar volumen medida da fuente ar audio bí aleja ar ar oyente.",
+      "info-avatarMaxDistance": "'Nar hmädi doble mi o̲t'e mbi máxima entre ár fuente ar audio ne ar oyente, 'me̲fa ar nä'ä ar volumen hingi ar reduce nä'ä.",
+      "info-mediaDistanceModel": "Ar algorithim utilizado pa calcular rolloff audio.",
+      "info-mediaRolloffFactor": "'Nar hmädi doble da pede rapidez ko dá nä'ä bí reduce ar volumen medida da ar fuente bí aleja ar ar oyente. 0 da 1",
+      "info-mediaRolloffFactorInfinity": "'Nar hmädi doble da pede rapidez ko dá nä'ä bí reduce ar volumen medida da ar fuente bí aleja ar ar oyente. 0 asta ar infinito",
+      "info-mediaRefDistance": "'Nar hmädi doble mi o̲t'e mbi referencia pa reducir ar volumen medida da fuente ar audio bí aleja ar ar oyente.",
+      "info-mediaMaxDistance": "'Nar hmädi doble mi o̲t'e mbi máxima entre ár fuente ar audio ne ar oyente, 'me̲fa ar nä'ä ar volumen hingi ar reduce nä'ä.",
+      "info-mediaConeInnerAngle": "'Nar hmädi doble da pede ar ángulo, ja ya grado, ar cono mbo nuna hingi da reducción ar volumen.",
+      "info-mediaConeOuterAngle": "'Nar hmädi doble da pede ar ángulo, ja ya grado, ar cono 'bu̲ nuna ar volumen bí reducirá ja 'nar hmädi nzäm'bu̲, definido ya atributo ar coneOuterGain.",
+      "info-mediaConeOuterGain": "'Nar hmädi doble da pede yá 'bede ya reducción volumen da cono definido ya atributo ar coneOuterAngle. Ár hmädi predeterminado ar 0, nä'ä ir bo̲ni ke hingi ar tsa̲ da 'mu̲ise̲ ningún nzu̲nt'i.",
+      "lbl-simpleMaterials": "Usa materiales simples",
+      "lbl-lods": "LODs",
+      "info-lods": "Establece ya distancias jar nu'u da cambian ya niveles detalle.",
+      "info-simpleMaterials": "Bi pa̲ti ga̲tho ya materiales caros ja ma 'ra mäs simples pa da hñäki ya carga ar nt'udi escenas.",
+      "lbl-rendererSettings": "Anular ar configuración ar renderizador",
+      "lbl-csm": "'Meni 'mui sombras jar cascada",
+      "info-csm": "Habilita 'meni 'mui sombras jar cascada.",
+      "lbl-toneMapping": "Mapeo ya nzu̲nt'i thuhu",
+      "info-toneMapping": "Habilita asignación nzu̲nt'i thuhu jar renderizador escenas. Hingi pe̲ts'i ningún ntsoni nu'bu̲ bí habilita 'nar procesamiento 'mefa ár njäts'i Tange'u.",
+      "lbl-toneMappingExposure": "Exposición mapeo nzu̲nt'i thuhu",
+      "info-toneMappingExposure": "Especifica ar exposición asignación nzu̲nt'i thuhu jar representador escenas. Hingi pe̲ts'i ningún ntsoni nu'bu̲ bí habilita 'nar procesamiento 'mefa ár njäts'i Tange'u.",
+      "lbl-shadowMapType": "Ar klase ar 'me̲ni sombras",
+      "info-shadowMapType": "Ar klase ar 'me̲ni sombras",
+      "error-url": "Error 'na jar cargar ndezu̲ ar url"
+    },
+    "sceneCamera": {
+      "name": "Cámara thandi previa escena",
+      "description": "Ar cámara utilizada pa generar ar miniatura ar escena ne ar nt'o̲t'e inicial cámara thandi previa.",
+      "lbl-setFromViewPort": "Da t'ot'e ndezu̲ ar ventana 'ra"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Ora ar pa",
+      "lbl-color": "Ar njät'i",
+      "lbl-latitude": "Latitud",
+      "lbl-luminance": "Luminancia",
+      "lbl-scattering": "Yá 'bede ya dispersión",
+      "lbl-scatteringDistance": "Distancia ar dispersión",
+      "lbl-horizonStart": "Inicio de Horizonte",
+      "lbl-horizonEnd": "Ar ngäts'i ar horizonte",
+      "lbl-texture": "Textura",
+      "lbl-skyType": "Ar klase ar hments'i'i",
+      "error-url": "Error 'na jar cargar ndezu̲ ar url"
+    },
+    "spawnPoint": {
+      "name": "Punto desove",
+      "description": "'Nar punto ja ya jä'i aparecerán nu'bu̲ entren ir escena.\nAr icono ar ventana 'ra o̲t'e ar tamaño real 'nar avatar."
+    },
+    "spotLight": {
+      "description": "'Nar tsibi da emite a lo largo de 'nar 'mui, iluminando objetos mbo 'nar cono.",
+      "lbl-color": "Ar njät'i",
+      "lbl-intensity": "Intensidad",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "Ángulo",
+      "lbl-range": "Gama",
+      "lbl-decay": "Decaer"
+    },
+    "transform": {
+      "title": "Transformar",
+      "lbl-postition": "Nt'o̲t'e",
+      "lbl-rotation": "Rotación",
+      "lbl-scale": "Escama"
+    },
+    "triggereVolume": {
+      "description": "Establece 'nar ha̲i jar nt'ot'e 'mu̲i jar entrar ne po̲ni.",
+      "lbl-target": "Nt'ot'e",
+      "lbl-onenter": "Ya ar entrar",
+      "lbl-onexit": "Ma jar salida",
+      "lbl-showHelper": "Mostrar malla auxiliar",
+      "ph-errorNode": "Error nzäm'bu̲ xi nodo.",
+      "ph-selectNode": "Seleccione ar nodo..."
+    },
+    "video": {
+      "name": "Vídeo",
+      "description": "Carga dinámicamente 'nar vídeo.",
+      "lbl-video": "Vídeo",
+      "lbl-projection": "Proyección",
+      "lbl-islivestream": "Transmisión jar vivo",
+      "lbl-interactable": "Interactivo",
+      "lbl-id": "Identificador 'nar 'mu̲i",
+      "lbl-play": "'Ñeni",
+      "lbl-pause": "Pausa",
+      "error-url": "Error 'na jar cargar ndezu̲ ar url"
+    },
+    "volumetric": {
+      "name": "Volumétrico",
+      "description": "Carga dinámicamente 'nar vídeo volumétrico.",
+      "uvolPaths": "Rutas UVOL",
+      "playmode": "Modo 'ñeni",
+      "playtitle": "'Ñeni",
+      "pausetitle": "Pausa"
+    },
+    "spline": {
+      "description": "Crea ne personaliza curvas dinámicamente.",
+      "lbl-addNode": "Agregar nodo 'na jar curva."
+    },
+    "systemnode": {
+      "description": "Adjuntar script.",
+      "lbl-filePath": "URL",
+      "lbl-systemUpdateType": "Punto inyección",
+      "lbl-enableClient": "Cliente",
+      "lbl-enableServer": "Servidor",
+      "lbl-args": "Args",
+      "error-url": "Error 'na ar cargar ar script ndezu̲ ar URL"
+    },
+    "portal": {
+      "lbl-portal": "Portal vinculado",
+      "lbl-redirect": "Ga redireccionamiento ar página",
+      "description": "'Nar Portat da teletransportar ya jugadores ar ja yá 'mui especificada",
+      "lbl-locationName": "Ja yá 'mui",
+      "lbl-modelUrl": "URL ar modelo",
+      "lbl-displayText": "Mostrar texto",
+      "lbl-cubemapBake": "Cubemap hornear",
+      "lbl-spawnPosition": "Ja ya spawn",
+      "lbl-spawnRotation": "Rotación desove",
+      "lbl-triggerPosition": "Ja ar gatillo",
+      "lbl-triggerRotation": "Rotación ar disparador",
+      "lbl-triggerScale": "Escala disparo"
+    },
+    "postprocessing": {
+      "name": "Post Procesamiento",
+      "description": "Pa da t'uni efectos posprocesamiento 'na jar escena."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "'Ra'yo 'be̲fi",
+      "backLink": "Volver da 'yot'e",
+      "featured": "Recomendados",
+      "all": "Nga̲tho",
+      "newProject": "'Ra'yo 'be̲fi vacío",
+      "ph-search": "Honi escenas..."
+    },
+    "grid": {
+      "loading": "Carga..."
+    },
+    "page": {
+      "header": "Hogu̲ntso̲ho",
+      "headerMsg": "Nu'bu̲ Gar 'ra'yo nuwa di recomendamos da sigas ar tutorial. Nä'ä contrario, salta Hmunts'i ne crea 'nar 'be̲fi ndezu̲ xí mpa wa ndezu̲ 'na nuestras plantillas.",
+      "lbl-startTutorial": "Da du'mi ya tutorial",
+      "projects": "'Yot'e",
+      "lbl-newProject": "'Ra'yo 'be̲fi"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Carga...",
+      "placeObject": "Place (nt'ot'e)",
+      "placeObjectAtOrigin": "Hoki ar nt'ot'e ja ya ndu'mi",
+      "copyURL": "Copiar URL",
+      "openInNewTab": "Abrir URL ja ya 'ra'yo pestaña",
+      "deleteAsset": "Da hñäki ya activo"
+    },
+    "filebrowser": {
+      "addNewFolder": "Agregar ar 'ra'yo carpeta",
+      "cutAsset": "Tu̲ki",
+      "copyAsset": "Copiar",
+      "pasteAsset": "Pegar",
+      "renameAsset": "Rebautizar",
+      "viewAssetProperties": "Ga propiedades"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Rebautizar",
+    "lbl-duplicate": "Duplicado",
+    "lbl-group": "Ar Hmunts'i",
+    "lbl-delete": "Borrar",
+    "lbl-expandAll": "Expandir ga̲tho",
+    "lbl-collapseAll": "Ndo̲ ga̲tho",
+    "isseus": "Nt'ot'e:"
+  },
+  "dnd": {
+    "nodes": "{{count}} Nodos seleccionados",
+    "models": "{{count}} Modelos seleccionados",
+    "images": "{{count}} Imágenes seleccionadas",
+    "videos": "{{count}} Videos seleccionados",
+    "audio": "{{count}} ya 'mui mbo audio seleccionadas"
+  },
+  "dialog": {
+    "title": "Editor",
+    "lbl-confirm": "Ar nkohi",
+    "lbl-cancel": "Cancelar",
+    "exportProject": {
+      "title": "'Be̲fi exportación",
+      "lbl-confirm": "'Be̲fi exportación",
+      "lbl-combineMesh": "Combinar mallas",
+      "lbl-removeUnused": "Pats'u̲ga̲ objetos hindi utilizados"
+    },
+    "performance": {
+      "title": "Comprobación rendimiento",
+      "lbl-confirm": "Publicar escena",
+      "learnMore": "Hmeya mäs",
+      "lbl-polycount": "Recuento ar polígonos",
+      "lbl-material": "Materiales",
+      "lbl-texture": "Texturas",
+      "lbl-lights": "Ya",
+      "lbl-fileSize": "Tamaño ar archivo",
+      "info-polycount": "Recomendamos ke ár escena hingi use mäs ar 50,000 triángulos pa dispositivos móviles.",
+      "info-material": "Recomendamos ga hingi mäs ar 25 materiales únicos jar ár escena da reducir ya llamadas ja̲t'i jar dispositivos móviles.",
+      "info-texture": "Recomendamos da yá texturas hingi usen nä'ä 256 MB RAM video pa dispositivos móviles. 'Nehe recomendamos hingi zu̲di texturas pe̲ts'i 2048 x 2048.",
+      "info-lights": "Nu'bu̲ bien ya ya dinámicas hingi gi 'bu̲hu̲ habilitadas jar dispositivos móviles, recomendamos zu̲di hingi mäs de 3 ya ja ár escena (excluyendo ya ya ambientales ne ya hemisféricas) pa da ár escena ar ejecute jar PC gama xí hñets'i'i.",
+      "info-fileSize": "Recomendamos 'nar tamaño archivo final ya ho̲ntho'ö ar 16 MB pa conexiones hñets'i'i ancho 'me̲i. Reducir ar tamaño ar archivo reducirá ar pa tarda jar descargar ar escena.",
+      "txt-polycount": "triángulos {{count}}",
+      "txt-material": "materiales {{count}}",
+      "txt-ram": "~{{count}} RAM de vídeo",
+      "txt-texture": "{{count}} Texturas dätä",
+      "txt-lights": "{{count}} ya"
+    },
+    "progress": {
+      "title": "Carga...",
+      "msg": "Carga...",
+      "lbl-cancel": "Cancelar"
+    },
+    "publish": {
+      "title": "Publicar escena",
+      "lbl-confirm": "Guardar ne publicar",
+      "lbl-name": "Thuhuu ar escena",
+      "info-name": "Ár thuhuu da ga ja ya 4 ne ya 64 caracteres ne hingi tsa̲ da contener guiones bajos"
+    },
+    "published": {
+      "title": "Escena publicada",
+      "header": "Ir escena xi xi publicada.",
+      "lbl-view": "Ga ar escena"
+    },
+    "saveNewProject": {
+      "title": "Apoyo",
+      "lbl-name": "Thuhuu ar 'be̲fi",
+      "info-name": "Ár thuhuu da ga ja ya 4 ne ya 64 caracteres ne hingi tsa̲ da contener guiones bajos",
+      "lbl-confirm": "Guardar ar 'be̲fi"
+    },
+    "support": {
+      "title": "Apoyo",
+      "header": "¿T'ot'e reportar 'nar hñäki?",
+      "msg": "Pe 'ñuse̲ 'nar <1>hñäki GitHub</1> wa pe̲hni ga correo 'nar electrónico pa da soporte <3>{{mail}}</3>",
+      "discord": "'Nehe tsa̲ tingigi mbo ga jar <1>Discord</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Imágenes de Bing",
+      "search": "Honi ya Bing"
+    },
+    "bingVideo": {
+      "name": "Bing Videos",
+      "search": "Honi ya Bing"
+    },
+    "element": {
+      "name": "Xe̲ni"
+    },
+    "myAssets": {
+      "name": "Ma activos"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Nthoni ya Google"
+    },
+    "tenor": {
+      "name": "GIF tenor",
+      "search": "Nthoni ya Tenor",
+      "ph-search": "Honi GIFs..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Honi ya Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Cargar activo"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Honi imágenes..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Honi vídeos..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Honi activos..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Honi modelos..."
+    },
+    "useUpload": {
+      "multipleFileError": "Ar entrada hingi zits'uwi varios ar archivos.",
+      "mineTypeError": "\"hmä{{name}}\" hingi coincide ko ya nuya xingu ya mime wa extensiones: {{types}}",
+      "progressTitle": "Carga archivos",
+      "progressMsg": "Carga archivos {{uploaded}} {{total}}: {{percentage}}%",
+      "uploadError": "Error carga",
+      "uploadErrorMsg": "Error 'na ar cargar ar archivo: {{message}}",
+      "uploadErrorDefaultMsg": "Ar xi producido 'nar error desconocido"
+    }
+  },
+  "openLink": {
+    "description": "'Yot'e clic jar Abrir pa navegar ar enlace.",
+    "lbl-open": "Abrir"
+  },
+  "interactableModel": {
+    "lbl-buy": "Ta̲i",
+    "lbl-learnMore": "Hmeya mäs"
+  },
+  "corsProxyButton": {
+    "tooltip": "Usar cors Proxy Server"
+  }
+}

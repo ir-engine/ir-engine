@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Loading nplooj ntawv..."
+  },
+  "tooltip": {
+    "pressKey": "Xovxwm {{tip}} {{message}}"
+  },
+  "toast": {
+    "joined": "nkaus",
+    "left": "Sab laug"
+  },
+  "navUserWidget": {
+    "login": "Nkag mus"
+  },
+  "loader": {
+    "connecting": "Txuas nrog rau ntiaj teb...",
+    "entering": "Nkag mus rau hauv lub ntiaj teb...",
+    "loading": "Loading...",
+    "objectRemaining": "{{count}} yam khoom ntxiv",
+    "objectRemainingPlural": "{{count}} khoom ntxiv",
+    "loadingObjects": "Loading Khoom",
+    "loadingComplete": "Loading tiav",
+    "joiningWorld": "Pub ntxiv tshaj ntiaj teb"
+  },
+  "alert": {
+    "eventWasSuccess": "Kev tshwm sim yog vam meej",
+    "errorWasEncountered": "Ib qho yuam kev yog ces yuav tsum ces yuav tsum",
+    "eventInProgress": "Kev tshwm sim nyob rau hauv kev kawm",
+    "seconds": "vib nas this",
+    "cancelCountdown": "Kaw no modal yuav muab lub countdown"
+  },
+  "debug": {
+    "refresh": "refresh",
+    "stats": "Stats",
+    "debugOptions": "Debug Options",
+    "physicsDebug": "Physics",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Node Helper",
+    "gridDebug": "grid",
+    "simpleMaterials": "Cov Ntaub Ntawv Yooj Yim",
+    "tick": "zuam",
+    "worldStore": "Ntiaj teb khw",
+    "engineStore": "cav khw",
+    "namedEntities": "Npe",
+    "networkObject": "Network Object",
+    "networkClients": "Network Clients"
+  },
+  "recording": {
+    "videoRecorder": "Yees duab recorder",
+    "waitingForPermissions": "Tos kev tso cai",
+    "selectVideoSource": "Xaiv yees duab qhov chaw",
+    "screen": "Vijtsam",
+    "camera": "Koob yees duab",
+    "microphone": "Microphone",
+    "startRecording": "Pib teev tseg",
+    "pauseRecording": "Pause teev tseg",
+    "resumeRecording": "Resume teev tseg",
+    "stopRecording": "Teev cia"
+  },
+  "typing": "Typing...",
+  "gameServer": {
+    "browserError": "Browser Error",
+    "browserErrorMessage": "Koj browser tsis txhawb cia nyob rau hauv ntiav browsing hom. Xws li sim lwm browser, los yog tawm lwm yam browsing hom.",
+    "noAvailableServers": "Tsis muaj servers",
+    "noAvailableServersMessage": "Muaj tsis muaj servers muaj rau koj txuas nrog. Sim rov txuas nrog",
+    "worldDisconnected": "Ntiaj teb disconnected",
+    "worldDisconnectedMessage": "Koj twb poob koj qhov zoo sib xws nrog lub ntiaj teb. Peb mam li sim reconnect ua ntej lub sij hawm tom qab sau tawm, txwv tsis pub koj yuav tau forwarded rau ib tug txawv piv txwv.",
+    "webGLNotEnabled": "WebGL tsis enabled",
+    "webGLNotEnabledMessage": "Koj browser tsis txhawb WebGL, los yog nws xiam oob qhab. Thov pab webGL los yog xav upgrading rau qhov tseeb version ntawm koj browser.",
+    "youKickedFromWorld": "Koj twb tau ncaws ntawm lub ntiaj teb no",
+    "youKickedFromWorldMessage": "Koj tau ncaws ntawm lub ntiaj teb no rau cov nram qab no",
+    "invalidLocation": "Invalid qhov chaw",
+    "cantFindLocation": "Peb tsis nrhiav tau qhov chaw",
+    "misspelledOrNotExist": "Tej zaum nws yuav misspelled, los yog nws yuav tsis nyob ua ib ke.",
+    "loading": "loading",
+    "low-frame-error": "Kuaj ib perfomance xav enabling Siv Hardware acceleration hauv koj browser thiab relauch koj browser",
+    "low-frame-title": "Enable hardware acceleration rau kev zoo!"
+  },
+  "error": {
+    "loading-error": "Tejyam uas load neeg siv cov ntaub ntawv",
+    "validation-error": "Thov muab cov {{type}}",
+    "login-error": "Tejyam uas login"
+  }
+}

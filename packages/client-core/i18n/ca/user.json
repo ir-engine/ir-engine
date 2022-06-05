@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Correu electrònic de confirmació",
+      "resendEmail": "Comproveu el correu electrònic per verificar el vostre compte. Si no heu rebre cap correu electrònic, feu clic a {{here}} per tornar a enviar el correu electrònic de verificació.",
+      "haveAnAccount": "Tens un compte?"
+    },
+    "forgotPassword": {
+      "header": "S'ha oblidat la contrasenya",
+      "enterEmail": "Introduïu la vostra adreça de correu electrònic registrada i us enviarem un enllaç de restabliment de contrasenya.",
+      "lbl-email": "Adreça electrònica",
+      "lbl-submit": "Envia un enllaç",
+      "emailSent": "S'ha enviat el correu electrònic de la contrasenya de reinicialització. Si us plau, comproveu el vostre correu electrònic."
+    },
+    "login": {
+      "email": "| de correu electrònic SMS",
+      "username": "Nom d'usuari + contrasenya",
+      "social": "Social"
+    },
+    "magiklink": {
+      "header": "Enllaç d'inici de sessió",
+      "descriptionEmail": "Introduïu la vostra adreça de correu electrònic i us enviarem un enllaç d'inici de sessió per correu electrònic.",
+      "descriptionSMS": "Introdueix el teu número de telèfon i t'enviarem un enllaç d'inici de sessió per SMS.",
+      "descriptionEmailSMS": "Introduïu la vostra adreça de correu electrònic o número de telèfon (només 10 dígits, només als EUA) i us enviarem un enllaç d'inici de sessió per correu electrònic o SMS.",
+      "descriptionSMSUS": "Introdueix el teu número de telèfon (només 10 dígits, només als EUA) i t'enviarem un enllaç d'inici de sessió per SMS.",
+      "lbl-email": "Adreça electrònica",
+      "lbl-emailPhone": "Correu electrònic o número de telèfon",
+      "lbl-phone": "Número de telèfon",
+      "agree": "Estic d'acord amb la ",
+      "terms": "Termes i condicions",
+      "lbl-submit": "Envia un enllaç d'inici de sessió",
+      "email-sent-msg": "S'ha enviat l'enllaç magic d'inici de sessió. Si us plau, comproveu el vostre correu electrònic.",
+      "success-msg": "S'ha enviat l'enllaç magic d'inici de sessió. Si us plau, comproveu el vostre correu electrònic o SMS.",
+      "sms-sent-msg": "S'ha enviat l'enllaç magic d'inici de sessió. Si us plau, comproveu els vostres SMS."
+    },
+    "passwordLogin": {
+      "header": "Inicia la sessió",
+      "lbl-email": "Adreça electrònica",
+      "lbl-password": "Contrasenya",
+      "lbl-rememberMe": "Recorda't de mi",
+      "lbl-signin": "Inicia la sessió",
+      "forgotPassword": "Heu oblidat la contrasenya?",
+      "signup": "No tens compte? Inscriure",
+      "lbl-login": "Inicia la sessió",
+      "ph-password": "Contrasenya",
+      "ph-email": "Correu electrònic"
+    },
+    "social": {
+      "gitHub": "Inici de sessió amb GitHub",
+      "google": "Inici de sessió amb Google",
+      "facebook": "Inicia la sessió amb Facebook",
+      "linkedin": "Inici de sessió amb Linkedin",
+      "twitter": "Inicia la sessió amb Twitter"
+    },
+    "register": {
+      "header": "Inscriure",
+      "login": "Inicia la sessió",
+      "lbl-signup": "Inscriure",
+      "lbl-password": "Contrasenya",
+      "lbl-email": "Adreça electrònica",
+      "passwordNotMatch": "Les contrasenyes no coincideixen",
+      "ph-password": "Contrasenya",
+      "ph-confirmPassword": "Confirmació de la contrasenya",
+      "ph-email": "Correu electrònic"
+    },
+    "resetPassword": {
+      "header": "Reinicialitza la contrasenya",
+      "description": "Introduïu la contrasenya de la vostra adreça de correu electrònic",
+      "lbl-submit": "Reinicialitza la contrasenya",
+      "lbl-password": "Contrasenya",
+      "lbl-confirmPassword": "Confirmació de la contrasenya",
+      "passwordNotMatch": "Les contrasenyes no coincideixen",
+      "nowLoginYourAccount": "Ja pots iniciar sessió al teu compte",
+      "yourPasswordResetSuccess": "La contrasenya s'ha restablert correctament!"
+    },
+    "verifyEmail": {
+      "header": "Verifica el correu electrònic",
+      "processing": "Espereu un moment mentre processeu..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Ubicacions",
+      "loading": "Càrrega",
+      "col-name": "Nom",
+      "col-scene": "Escena",
+      "col-maxuser": "Usuaris màxims",
+      "lbl-search": "Cerca d'ubicacions",
+      "lbl-new": "Nou"
+    },
+    "newLocation": {
+      "title": "Ubicació",
+      "success": "S'ha desat correctament.",
+      "failure": "Alguna cosa ha anat malament.",
+      "removeSuccess": "La ubicació s'ha suprimit correctament.",
+      "nameInUse": "El nom s'està utilitzant.",
+      "nameRequire": "El nom és obligatori.",
+      "validNumber": "Només es permeten números(0-9).",
+      "lbl-name": "Nom",
+      "lbl-maxuser": "Usuaris màxims",
+      "lbl-scene": "Escena",
+      "lbl-type": "Tipus",
+      "lbl-ve": "Vídeo habilitat",
+      "lbl-gme": "Multimèdia global habilitat",
+      "lbl-update": "Actualitzar",
+      "lbl-create": "Crear",
+      "tooltipCanNotBeDeleted": "El vestíbul no es pot suprimir",
+      "confirmation": "N'estàs segur?",
+      "lbl-yes": "Sí",
+      "lbl-no": "No"
+    },
+    "share": {
+      "lbl-share": "Compartir",
+      "ph-phoneEmail": "Invitació per correu electrònic o número de telèfon",
+      "lbl-phoneEmail": "Envia-ho al correu electrònic o al número de telèfon",
+      "lbl-copy": "Copiar",
+      "lbl-send-invite": "Envia la invitació",
+      "title": "Compartir l'URL d'ubicació amb l'equip",
+      "linkCopied": "Enllaç copiat al porta-retalls."
+    },
+    "setting": {
+      "audio": "Àudio",
+      "lbl-volume": "Volum",
+      "lbl-microphone": "Micròfon",
+      "graphics": "Gràfics",
+      "controls": "Controls",
+      "lbl-control-type": "Tipus de controlador",
+      "lbl-control-scheme": "Esquema de control",
+      "lbl-resolution": "Resolució",
+      "lbl-shadow": "Ombres",
+      "lbl-pp": "Processament posterior",
+      "lbl-pbr": "PBR complet",
+      "lbl-automatic": "Automàtic",
+      "xrusersetting": "Configuració de l'usuari XR",
+      "rotation": "Rotació",
+      "rotation-smooth-speed": "Velocitat suau de rotació",
+      "rotation-angle": "Angle de rotació",
+      "moving": "Moure",
+      "user-avatar": "Configuració de l'avatar",
+      "invert-rotation": "Inverteix la rotació i mou els pals",
+      "show-avatar": "Mostra l'avatar"
+    },
+    "profile": {
+      "lbl-profile": "Perfil",
+      "lbl-settings": "Configuració",
+      "lbl-username": "Nom d'usuari",
+      "update-msg": "S'ha actualitzat el nom d'",
+      "inviteCode": "Codi d'invitació",
+      "youAreAn": "Ets un",
+      "youAreA": "Ets un",
+      "showUserId": "Mostra l'identificador d'usuari",
+      "hideUserId": "Amaga l'identificador d'usuari",
+      "showApiKey": "Mostra la clau de l'API",
+      "hideApiKey": "Amaga la clau de l'API",
+      "apiKey": "Clau de l'API",
+      "logout": "Tanca la sessió",
+      "connectPhone": "Connectar el número de telèfon",
+      "connectEmail": "Connecta el teu correu electrònic",
+      "connectPhoneEmail": "Connecta el teu correu electrònic o número de telèfon",
+      "or": "O",
+      "lbl-wallet": "Inicia la sessió amb la cartera",
+      "ph-email": "Correu electrònic",
+      "ph-phone": "Número de telèfon",
+      "ph-phoneEmail": "Número de telèfon / correu electrònic",
+      "phoneEmailError": "El telèfon # o l'adreça electrònica no són vàlids",
+      "phoneError": "El telèfon no és vàlid #",
+      "emailError": "L'adreça electrònica no és vàlida",
+      "loginWithReadyPlayerMe": "Inicia la sessió amb el jugador preparat",
+      "connectSocial": "Connectar amb els comptes socials",
+      "createOne": "Si no tens un compte, se'n crearà un de nou.",
+      "connections": {
+        "title": "Connexions",
+        "ipError": "No es pot suprimir el proveïdor d'identitat actiu",
+        "disconnect": "desconnectar",
+        "connect": "Connectar"
+      },
+      "profileDropdown": {
+        "avatar": "Icona de l'avatar d'usuari",
+        "profile": "Perfil",
+        "adminConsole": "Consola d'administració",
+        "logout": "Logout"
+      },
+      "userIcon": {
+        "lbl-name": "El teu nom",
+        "lbl-update": "Actualitzar",
+        "userId": "Identificador d'usuari",
+        "ph-uploadImg": "Carrega la imatge del producte",
+        "lbl-selectAcvatar": "Selecciona l'avatar",
+        "lbl-submit": "Sotmetre"
+      },
+      "userSettings": {
+        "volume": "Volum",
+        "microphone": "Micròfon",
+        "resolution": "Resolució",
+        "high": "Alt",
+        "low": "Baix",
+        "spatialAudio": "Utilitza l'àudio espacial",
+        "enterMuted": "Entra a l'habitació silenciada"
+      }
+    },
+    "oauth": {
+      "authenticating": "Autenticar...",
+      "authFailed": "{{service}} 'autenticació ha fallat."
+    },
+    "magikLink": {
+      "wait": "Espereu un moment mentre processeu..."
+    },
+    "dashboard": {
+      "header": "Comandament",
+      "dashboard": "Comandament",
+      "users": "Usuaris",
+      "feeds": "Menjars",
+      "instance": "Instància",
+      "locations": "Ubicacions",
+      "invites": "Convida",
+      "sessions": "Sessions",
+      "groups": "Grups",
+      "parties": "Parts",
+      "chats": "Xats",
+      "content": "Paquets de contingut",
+      "projects": "Projectes",
+      "scenes": "Escenes",
+      "avatars": "Avatars",
+      "benchmarking": "Test",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Autenticar...",
+    "authFailed": "{{service}} 'autenticació ha fallat."
+  },
+  "magikLink": {
+    "wait": "Espereu un moment mentre processeu..."
+  },
+  "dashboard": {
+    "header": "Comandament",
+    "dashboard": "Comandament",
+    "users": "Usuaris",
+    "feeds": "Menjars",
+    "instance": "Instància",
+    "locations": "Ubicacions",
+    "routes": "Rutes",
+    "projects": "Projectes",
+    "invites": "Convida",
+    "sessions": "Sessions",
+    "groups": "Grups",
+    "parties": "Parts",
+    "chats": "Xats",
+    "content": "Paquets de contingut",
+    "scenes": "Escenes",
+    "avatars": "Avatars",
+    "benchmarking": "Test",
+    "bots": "Bots",
+    "setting": "Configuració"
+  },
+  "avatar": {
+    "title": "Carrega l'avatar",
+    "lbl-browse": "Fullejar",
+    "lbl-thumbnail": "Miniatura",
+    "lbl-upload": "Pujar",
+    "selectAvatar": "Selecciona l'avatar...",
+    "selectThumbnail": "Selecciona la miniatura...",
+    "rotate": "Girar",
+    "pan": "Cassola",
+    "noBone": "Obejct no conté ossos ni pell",
+    "outOfBound": "L'objecte està fora de límit.",
+    "emptyObj": "L'objecte està buit.",
+    "maxTriangleError": "L'objecte conté més que {{allowedTriangles}} cares.",
+    "selectValidFile": "Seleccioneu un fitxer d'avatar en 3D vàlid.",
+    "selectValidThumbnail": "Fitxer de miniatura vàlid seleccionat.",
+    "fileOversized": "La mida del fitxer de l'avatar ha d'estar entre {{minSize}} MB i mb {{maxSize}}",
+    "confirmation": "N'estàs segur?",
+    "canNotBeRemoved": "L'Avatar actiu no es pot suprimir",
+    "remove": "Suprimeix l'avatar",
+    "uploadFiles": "Carrega fitxers",
+    "useUrlInstead": "Utilitza l'adreça URL",
+    "avatar": "Avatar",
+    "cancel": "Cancel·lar",
+    "createAvatar": "Crea un avatar",
+    "delete": "Esborrar",
+    "view": "Vista",
+    "uploadAvatarInfo": "Actualitza la informació de l'avatar",
+    "name": "Nom",
+    "enterName": "Introduïu el nom",
+    "avatarInformation": "Informació de l'avatar",
+    "description": "Descripció",
+    "key": "Clau",
+    "none": "Cap",
+    "submit": "Sotmetre",
+    "edit": "Editar",
+    "avatarUrl": "URL de l'avatar",
+    "upload-success-msg": "Avatar s'ha carregat correctament.",
+    "remove-success-msg": "Avatar s'ha carregat correctament.",
+    "warning-msg": "El recurs d'Avatar està buit, heu sincronitzat els avatars amb l'emmagatzematge estàtic de fitxers?"
+  },
+  "personMenu": {
+    "inviteToParty": "Convida a la festa",
+    "addAsFriend": "Afegeix-ho com a amic",
+    "mute": "Mut",
+    "block": "Bloc"
+  },
+  "person": {
+    "you": "Tu",
+    "yourScreen": "La pantalla",
+    "muteForEveryone": "Silenciar per a tothom",
+    "unmuteForEveryone": "Desmuta per a tothom",
+    "muteMe": "Silencia'm",
+    "unmuteMe": "Desmuta'm",
+    "muteThisPerson": "Silencia aquesta persona",
+    "unmuteThisPerson": "Desmuta aquesta persona",
+    "openPictureInPicture": "Obre la imatge a la imatge"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "ຫນ້າໂຫຼດ..."
+  },
+  "tooltip": {
+    "pressKey": "ສື່ {{tip}} {{message}}"
+  },
+  "toast": {
+    "joined": "ເຂົ້າຮ່ວມ",
+    "left": "ຊ້າຍ"
+  },
+  "navUserWidget": {
+    "login": "ເຂົ້າສູ່ລະບົບ"
+  },
+  "loader": {
+    "connecting": "ການເຊື່ອມໂຍງກັບໂລກ...",
+    "entering": "ເຂົ້າສູ່ໂລກ...",
+    "loading": "Loading...",
+    "objectRemaining": "{{count}} ສິ່ງທີ່ຍັງເຫຼືອ",
+    "objectRemainingPlural": "{{count}} ສິ່ງຂອງທີ່ຍັງເຫຼືອ",
+    "loadingObjects": "Loading Objects",
+    "loadingComplete": "Loading Complete",
+    "joiningWorld": "ການເຂົ້າຮ່ວມໂລກ"
+  },
+  "alert": {
+    "eventWasSuccess": "ເຫດການໄດ້ຮັບຜົນສໍາເລັດ",
+    "errorWasEncountered": "ມີການພົບຄວາມຜິດພາດ",
+    "eventInProgress": "ເຫດການທີ່ກໍາລັງດໍາເນີນຢູ່",
+    "seconds": "ວິນາທີ",
+    "cancelCountdown": "ການປິດmodal ນີ້ຈະຍົກເລີກການນັບ"
+  },
+  "debug": {
+    "refresh": "ເສບສົດ",
+    "stats": "Stats",
+    "debugOptions": "ທາງເລືອກDebug",
+    "physicsDebug": "ຟີຊິກສາດ",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Node Helper",
+    "gridDebug": "ກະຈົກ",
+    "simpleMaterials": "ວັດສະດຸງ່າຍໆ",
+    "tick": "Tick",
+    "worldStore": "ຮ້ານໂລກ",
+    "engineStore": "ຮ້ານຂາຍເຄື່ອງຈັກ",
+    "namedEntities": "ຊື່Entities",
+    "networkObject": "Network Object",
+    "networkClients": "ລູກຄ້າເຄືອຂ່າຍ"
+  },
+  "recording": {
+    "videoRecorder": "ບັນທຶກວິດີໂອ",
+    "waitingForPermissions": "ການລໍຖ້າການອະນຸຍາດ",
+    "selectVideoSource": "ເລືອກແຫຼ່ງວີດີໂອ",
+    "screen": "ຫນ້າຈໍ",
+    "camera": "ກ້ອງ",
+    "microphone": "ໄມໂຄຣໂຟນ",
+    "startRecording": "ເລີ່ມຕົ້ນການບັນທຶກ",
+    "pauseRecording": "ການບັນທຶກການຢຸດ",
+    "resumeRecording": "Resume ການບັນທຶກ",
+    "stopRecording": "ຢຸດການບັນທຶກ"
+  },
+  "typing": "ການພິມ...",
+  "gameServer": {
+    "browserError": "ຂໍ້ຜິດພາດຂອງເວັບໄຊທ໌",
+    "browserErrorMessage": "ເວັບໄຊທ໌ຂອງທ່ານບໍ່ສະຫນັບສະຫນູນການເກັບຮັກສາໃນຮູບແບບການເບີ່ງສ່ວນຕົວ. ອາດຈະລອງໃຊ້ເວັບໄຊທ໌ອື່ນ, ຫຼືອອກຈາກຮູບແບບການເບີ່ງສ່ວນຕົວ.",
+    "noAvailableServers": "ບໍ່ມີ Server ທີ່ມີຢູ່",
+    "noAvailableServersMessage": "ບໍ່ ມີ ເວັບ ໄຊ ທ ໌ ໃດ ທີ່ ມີ ໄວ້ ໃຫ້ ທ່ານ ເພື່ອ ເຊື່ອມ ຕໍ່ . ການພະຍາຍາມທີ່ຈະເຊື່ອມຕໍ່ຄືນໃຫມ່ໃນ",
+    "worldDisconnected": "ໂລກບໍ່ຕິດ",
+    "worldDisconnectedMessage": "ທ່ານໄດ້ສູນເສຍການພົວພັນຂອງທ່ານກັບໂລກ. ພວກ ເຮົາ ຈະ ພະ ຍາ ຍາມ ທີ່ ຈະ ຕິດ ຕໍ່ ໃຫມ່ ກ່ອນ ທີ່ ຈະ ຫມົດ ເວ ລາ ຕໍ່ ໄປ , ຖ້າ ບໍ່ ດັ່ງ ນັ້ນ ທ່ານ ຈະ ຖືກ ສົ່ງ ໄປ ຫາ ຕົວ ຢ່າງ ອື່ນ .",
+    "webGLNotEnabled": "WebGL ບໍ່ໄດ້ເປີດ",
+    "webGLNotEnabledMessage": "ເວັບໄຊທ໌ຂອງທ່ານບໍ່ໄດ້ສະຫນັບສະຫນູນ WebGL, ຫຼືມັນເປັນຄົນພິການ. ກະລຸນາເຮັດໃຫ້ WebGL ຫຼືພິຈາລະນາການຍົກລະດັບເປັນເວີຊັນຫຼ້າສຸດຂອງເວັບໄຊທ໌ຂອງທ່ານ.",
+    "youKickedFromWorld": "ທ່ານໄດ້ຖືກໄລ່ອອກຈາກໂລກ",
+    "youKickedFromWorldMessage": "ທ່ານໄດ້ຖືກໄລ່ອອກຈາກໂລກນີ້ ດ້ວຍເຫດຜົນດັ່ງຕໍ່ໄປນີ້",
+    "invalidLocation": "ສະຖານທີ່ທີ່ບໍ່ມີປະສິດ",
+    "cantFindLocation": "ພວກເຮົາບໍ່ສາມາດຊອກຫາສະຖານທີ່",
+    "misspelledOrNotExist": "ມັນອາດຈະຖືກຂຽນຜິດ, ຫຼືອາດຈະບໍ່ມີ.",
+    "loading": "ການໂຫຼດ",
+    "low-frame-error": "ຄົ້ນພົບperfomance ທີ່ທຸກຍາກພິຈາລະນາເຮັດໃຫ້ການເລັ່ງການນໍາໃຊ້ Hardware ໃນເວັບໄຊທ໌ຂອງທ່ານແລະ relauch ເວັບໄຊທ໌ຂອງທ່ານ",
+    "low-frame-title": "ເຮັດໃຫ້ການເລັ່ງຮາດແວເພື່ອປະສົບການທີ່ດີກວ່າ!"
+  },
+  "error": {
+    "loading-error": "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນຂອງຜູ້ໃຊ້ໄດ້",
+    "validation-error": "ກະລຸນານໍາເຂົ້າທີ່ມີຜົນສັກສິດ {{type}}",
+    "login-error": "ບໍ່ສາມາດເຂົ້າລະບົບໄດ້"
+  }
+}

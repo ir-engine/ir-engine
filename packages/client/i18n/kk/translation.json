@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Бет табылмады"
+  },
+  "503": {
+    "msg": "503 - Қызмет көрсету қол жетімді емес"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Сізге бұл орынға тыйым салынды",
+    "locationName": {
+      "pageTitle": "Үй"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Жобалар",
+      "header": "Кіруді өтінемін",
+      "welcomeMsg": "Қош келдіңіз",
+      "locationHeader": "Орналасулар",
+      "projectHeader": "Жобалар",
+      "sceneHeader": "Көріністер",
+      "description": "Егер сіз осында жаңа болсаңыз, оқулықтан өтуді ұсынамыз. Әйтпесе, оңға секіріп, жобаны нөлден немесе үлгілеріміздің бірінен жасаңыз.",
+      "lbl-startTutorial": "Оқулықты бастау",
+      "lbl-newProject": "Жаңа жоба",
+      "lbl-createProject": "Жасау",
+      "lbl-newScene": "Жаңа көрініс",
+      "lbl-searchProject": "Бар жобаларды іздеу...",
+      "back": "Артқа",
+      "contextMenu": "Жобаны жою",
+      "installed": "Орнатылған жобалар",
+      "official": "Ресми жобалар",
+      "community": "Қауымдастық жобалары",
+      "install": "Орнату",
+      "uninstall": "Жою",
+      "rename": "Атын өзгерту",
+      "createProject": "Жобаны жасау",
+      "installProject": "Жобаны орнату",
+      "processing": "Өңдеу",
+      "projectName": "Жоба атауы",
+      "projectURL": "Project URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Үйге қайт",
+    "withStatusCode": "Серверде {{code}} қате пайда болды",
+    "withoutStatusCode": "Серверде қате пайда болды"
+  },
+  "no-projects": {
+    "msg": "Қате: Projects орнатылмаған - сайт әкімшісімен байланысуыңызды сұраймыз"
+  },
+  "dev": {
+    "pageTitle": "Үй"
+  },
+  "login": {
+    "pageTitle": "Кіру"
+  },
+  "workerTest": {
+    "pageTitle": "Жұмысшы тесті"
+  },
+  "index": {
+    "by": "1000000",
+    "xr": "XR",
+    "foundation": "Қор",
+    "description": "Барлығына арналған Realtime 3D әлеуметтік өтінімдері."
+  },
+  "xrengineContact": {
+    "header": "Сенсорға кіріңіз!",
+    "description": "Біз сіздерге виртуалды іс-шараларға, сандық бөлшек саудаға, ойын-сауыққа және басқа да қажеттіліктерге көмектескенді жақсы көреміз.",
+    "lbl-name": "Атауы",
+    "lbl-email": "Электрондық пошта",
+    "lbl-company": "Компания",
+    "lbl-project": "Жобаңызды сипаттау",
+    "lbl-send": "Жіберу",
+    "lbl-ok": "Жақсы",
+    "lbl-success": "Хабар жіберілді, қысқа уақыт ішінде сізге қайта ораламыз.",
+    "lbl-failure": "Қате пайда болды, Plese қайталап көріңіз",
+    "err-username": "Атыңызды енгізіңіз.",
+    "err-email": "Электрондық пошта қажет.",
+    "err-msg": "Жобаңыздың қысқаша сипаттамасын беріңіз."
+  }
+}

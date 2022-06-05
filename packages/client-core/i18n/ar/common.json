@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "تحميل الصفحة..."
+  },
+  "tooltip": {
+    "pressKey": "اضغط على {{tip}} إلى {{message}}"
+  },
+  "toast": {
+    "joined": "معقود",
+    "left": "يسار"
+  },
+  "navUserWidget": {
+    "login": "تسجيل الدخول"
+  },
+  "loader": {
+    "connecting": "التواصل مع العالم...",
+    "entering": "دخول العالم...",
+    "loading": "تحميل...",
+    "objectRemaining": "كائن {{count}} المتبقي",
+    "objectRemainingPlural": "الكائنات {{count}} المتبقية",
+    "loadingObjects": "تحميل الكائنات",
+    "loadingComplete": "تحميل كامل",
+    "joiningWorld": "الانضمام إلى العالم"
+  },
+  "alert": {
+    "eventWasSuccess": "الحدث كان ناجحا",
+    "errorWasEncountered": "تمت مصادفة خطأ",
+    "eventInProgress": "حدث قيد التنفيذ",
+    "seconds": "الثواني",
+    "cancelCountdown": "سيؤدي إغلاق هذا المشروط إلى إلغاء العد التنازلي"
+  },
+  "debug": {
+    "refresh": "تحديث",
+    "stats": "احصائيات",
+    "debugOptions": "خيارات تصحيح الأخطاء",
+    "physicsDebug": "فيزياء",
+    "avatarDebug": "الرمزيه",
+    "nodeHelperDebug": "مساعد العقدة",
+    "gridDebug": "شبكة",
+    "simpleMaterials": "مواد بسيطة",
+    "tick": "تك",
+    "worldStore": "المتجر العالمي",
+    "engineStore": "متجر المحركات",
+    "namedEntities": "الكيانات المسماة",
+    "networkObject": "كائن الشبكة",
+    "networkClients": "عملاء الشبكة"
+  },
+  "recording": {
+    "videoRecorder": "مسجل فيديو",
+    "waitingForPermissions": "انتظار الأذونات",
+    "selectVideoSource": "حدد مصدر الفيديو",
+    "screen": "شاشة",
+    "camera": "كاميرا",
+    "microphone": "ميكروفون",
+    "startRecording": "بدء التسجيل",
+    "pauseRecording": "إيقاف التسجيل مؤقتا",
+    "resumeRecording": "استئناف التسجيل",
+    "stopRecording": "إيقاف التسجيل"
+  },
+  "typing": "كتابه...",
+  "gameServer": {
+    "browserError": "خطأ في المتصفح",
+    "browserErrorMessage": "لا يدعم متصفحك التخزين في وضع التصفح الخاص. جرب متصفحا آخر أو اخرج من وضع التصفح الخاص.",
+    "noAvailableServers": "لا توجد خوادم متوفرة",
+    "noAvailableServersMessage": "لا توجد أي خوادم متاحة لك للاتصال بها. محاولة إعادة الاتصال في",
+    "worldDisconnected": "عالم منفصل",
+    "worldDisconnectedMessage": "لقد فقدت اتصالك بالعالم. سنحاول إعادة الاتصال قبل نفاد الوقت التالي، وإلا ستتم إعادة توجيهك إلى مثيل مختلف.",
+    "webGLNotEnabled": "WebGL غير ممكن",
+    "webGLNotEnabledMessage": "متصفحك لا يدعم WebGL ، أو أنه معطل. يرجى تمكين WebGL أو النظر في الترقية إلى أحدث إصدار من متصفحك.",
+    "youKickedFromWorld": "لقد تم طردك من العالم",
+    "youKickedFromWorldMessage": "لقد طردت من هذا العالم للسبب التالي",
+    "invalidLocation": "موقع غير صالح",
+    "cantFindLocation": "لا يمكننا العثور على الموقع",
+    "misspelledOrNotExist": "قد يكون هناك خطأ إملائي ، أو قد لا يكون موجودا.",
+    "loading": "تحميل",
+    "low-frame-error": "اكتشاف أداء ضعيف فكر في تمكين تسريع استخدام الأجهزة في متصفحك وقم بإعادة تشغيل متصفحك",
+    "low-frame-title": "تمكين تسريع الأجهزة للحصول على تجربة أفضل!"
+  },
+  "error": {
+    "loading-error": "فشل تحميل بيانات المستخدم",
+    "validation-error": "يرجى إدخال {{type}} صالحة",
+    "login-error": "فشل تسجيل الدخول"
+  }
+}

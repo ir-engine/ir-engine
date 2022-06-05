@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "페이지로드 중..."
+  },
+  "tooltip": {
+    "pressKey": "{{tip}}를 눌러 {{message}}"
+  },
+  "toast": {
+    "joined": "합류",
+    "left": "왼쪽"
+  },
+  "navUserWidget": {
+    "login": "로그인"
+  },
+  "loader": {
+    "connecting": "세계에 연결하는 중...",
+    "entering": "세계로 진입 중...",
+    "loading": "로드...",
+    "objectRemaining": "남아 있는 개체 {{count}}",
+    "objectRemainingPlural": "남아 있는 {{count}} 개체",
+    "loadingObjects": "객체 로드",
+    "loadingComplete": "로딩 완료",
+    "joiningWorld": "세계에 합류하기"
+  },
+  "alert": {
+    "eventWasSuccess": "이벤트가 성공했습니다.",
+    "errorWasEncountered": "오류가 발생했습니다.",
+    "eventInProgress": "진행 중인 이벤트",
+    "seconds": "초",
+    "cancelCountdown": "이 모달을 닫으면 카운트 다운이 취소됩니다."
+  },
+  "debug": {
+    "refresh": "리프레쉬",
+    "stats": "통계",
+    "debugOptions": "디버그 옵션",
+    "physicsDebug": "물리학",
+    "avatarDebug": "아바타",
+    "nodeHelperDebug": "노드 도우미",
+    "gridDebug": "그리드",
+    "simpleMaterials": "간단한 재료",
+    "tick": "진드기",
+    "worldStore": "월드 스토어",
+    "engineStore": "엔진 스토어",
+    "namedEntities": "명명된 엔티티",
+    "networkObject": "네트워크 개체",
+    "networkClients": "네트워크 클라이언트"
+  },
+  "recording": {
+    "videoRecorder": "비디오 레코더",
+    "waitingForPermissions": "사용 권한 대기 중",
+    "selectVideoSource": "비디오 소스 선택",
+    "screen": "화면",
+    "camera": "사진기",
+    "microphone": "마이크",
+    "startRecording": "녹화 시작",
+    "pauseRecording": "녹화 일시 중지",
+    "resumeRecording": "녹화 재개",
+    "stopRecording": "녹화 중지"
+  },
+  "typing": "입력...",
+  "gameServer": {
+    "browserError": "브라우저 오류",
+    "browserErrorMessage": "브라우저가 개인 정보 보호 브라우징 모드의 저장소를 지원하지 않습니다. 다른 브라우저를 시도하거나 개인 정보 보호 브라우징 모드를 종료하십시오.",
+    "noAvailableServers": "사용 가능한 서버 없음",
+    "noAvailableServersMessage": "연결할 수 있는 서버가 없습니다. 에서 다시 연결 시도",
+    "worldDisconnected": "세계 연결 끊김",
+    "worldDisconnectedMessage": "당신은 세상과의 관계를 잃었습니다. 다음 시간이 다 떨어지기 전에 다시 연결을 시도하며, 그렇지 않으면 다른 인스턴스로 전달됩니다.",
+    "webGLNotEnabled": "WebGL을 사용할 수 없음",
+    "webGLNotEnabledMessage": "브라우저가 WebGL을 지원하지 않거나 비활성화되어 있습니다. WebGL을 활성화하거나 최신 버전의 브라우저로 업그레이드하는 것이 좋습니다.",
+    "youKickedFromWorld": "당신은 세상에서 쫓겨났습니다.",
+    "youKickedFromWorldMessage": "당신은 다음과 같은 이유로 이 세상에서 쫓겨났습니다.",
+    "invalidLocation": "잘못된 위치",
+    "cantFindLocation": "위치를 찾을 수 없습니다.",
+    "misspelledOrNotExist": "철자가 틀리거나 존재하지 않을 수 있습니다.",
+    "loading": "로드",
+    "low-frame-error": "성능 저하가 감지되면 브라우저에서 하드웨어 가속 사용을 사용하도록 설정하고 브라우저를 다시 사용할 수 있습니다.",
+    "low-frame-title": "더 나은 경험을 위해 하드웨어 가속을 활성화하십시오!"
+  },
+  "error": {
+    "loading-error": "사용자 데이터를 로드하지 못했습니다.",
+    "validation-error": "유효한 {{type}}를 입력하십시오.",
+    "login-error": "로그인하지 못했습니다."
+  }
+}

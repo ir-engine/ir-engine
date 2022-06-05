@@ -1,0 +1,718 @@
+{
+  "loading": "د بارولو پروژه",
+  "loadingMsg": "د بارولو پروژه...",
+  "loadingError": "د بارولو د پروژې غلطی",
+  "loadingErrorMsg": "د پروژې د بارولو په وخت کې خطا وه.",
+  "selectSceneMsg": "د انجن سره د لوبې د پیل لپاره صحنه وټاکئ",
+  "error": "خطا",
+  "errorMsg": "هلته یوه نامعلومه غلطی وه.",
+  "generateScreenshot": "د پروژې د سکرین شاټ تولیدول",
+  "generateScreenshotMsg": "د پروژې سکرین شاټ تولیدول...",
+  "newScene": "صحنه جوړه کړه",
+  "saving": "د پروژې سپما",
+  "savingMsg": "د پروژې سپما...",
+  "savingError": "د غلطۍ د خوندی کولو پروژه",
+  "savingErrorMsg": "د پروژې د خوندی کولو په وخت کې یو غلطی وه.",
+  "savingSceneErrorMsg": "صحنه په سمه توګه نه ده بار شوې. هڅه وکړئ چې صحنه بیرته بار کړئ.",
+  "duplicating": "تکراری پروژه",
+  "duplicatingMsg": "تکراری پروژه...",
+  "exporting": "د صادرولو پروژه",
+  "exportingMsg": "د صادرولو پروژه...",
+  "exportingError": "د صادرولو د غلطۍ پروژه",
+  "exportingErrorMsg": "د پروژې د صادرولو په وخت کې خطا وه.",
+  "importLegacy": "د وارداتو میراثی نړۍ",
+  "importLegacyMsg": "اخطار ! دا به ستاسو موجوده صحنه له سره ولیکی! ایا تاسو ډاډه یاست چې تاسو د دوام هیله لرئ؟",
+  "publishingError": "د خطا خپراوی پروژه",
+  "publishingErrorMsg": "هلته یوه نامعلومه غلطی وه.",
+  "publishingScene": "د خپراوی صحنه",
+  "publishingSceneMsg": "د خپراوی صحنه...",
+  "uploadingThumbnailMsg": "د انډمیک پورته کول...",
+  "uploadingSceneMsg": "د پورته کولو صحنه : {{percentage}}٪",
+  "envMapError": "د cubemap د تصویرونو د بارولو غلطی {{files}}",
+  "lbl-return": "بیرته راستنیدونکی",
+  "menubar": {
+    "newScene": "نوې صحنه",
+    "saveScene": "صحنه خوندی کړه",
+    "saveAs": "خوندی کول لکه",
+    "importAsset": "د وارداتو شتمنی",
+    "exportGLB": "صادرات د باینری glTF ( . glb ) ...",
+    "importScene": "د وارداتو صحنه",
+    "exportScene": "د صادراتو صحنه",
+    "quit": "پرېښودل"
+  },
+  "errors": {
+    "fileTypeNotSupported": "د فایل لپاره د نه ملاتړ شوی فایل ډول: \"{{name}}\". فایل باید یو تصویر، ویډیو، یا ګلب ماډل وی.",
+    "addObject": "addObject : مخکې له دې چې شی ونه موندل شی",
+    "removeObject": "removeObject: node نه موندل کیږی. دا د هغه نوډ د لرې کولو له امله دی چې نور په صحنه کې نه وی.",
+    "noParent": "{{node}} \"{{name}}\" مور او پلار نه لری. د پلار پلار یوازې په هغه شیانو کار کوی چې دا مهال په صحنه کې دی.",
+    "undefinedParent": "editor . reparent : newParent is undefined",
+    "notAuthenticated": "نه دی باوری شوی",
+    "fetchingProjectError": "د پروژو په اړه غلطی : {{error}}",
+    "fetchingRouteError": "د غلطۍ د لارې غلطی : {{error}}",
+    "unknownError": "نامعلومه غلطی",
+    "resolveURL": "خطا حل ول url \"{{url}}\":",
+    "mediaSearchAborted": "د رسنیو پلټنه لغوه شوې",
+    "methodNotImplemented": "طریقه عملی نه شوه.",
+    "saveProjectAborted": "صحنه لغوه کړه",
+    "unsavedChanges": "ناژغورل شوی بدلونونه",
+    "unsavedChangesMsg": "صحنه بدل شوې ده. مهربانی وکړئ خپل بدلونونه خوندی کړئ.",
+    "projectCreationFail": "د پروژې جوړونه ناکامه شوه. {{reason}}",
+    "projectDeletionFail": "د پروژې پریکول ناکام شو. {{reason}}",
+    "savingProjectFail": "د پروژې سپما ناکامه شوه. {{reason}}",
+    "sceneTooLarge": "صحنه ډیره لویه ده ({{size}} ایم بی) چی خپره کړی. اعظمی اندازه ده {{maxSize}} ایم بی.",
+    "sceneCreationFail": "د صحنه جوړونه ناکامه شوه. {{reason}}",
+    "uploadAborted": "پورته کول",
+    "uploadFailed": "پورته کول ناکام {{reason}}",
+    "assetDeletionFail": "د شتمنیو پریکول ناکام شو. {{reason}}",
+    "projectAssetDeletionFail": "د پروژې د شتمنیو پریکول ناکام شو. {{reason}}",
+    "networkError": "د شبکې خطا : {{status}}. {{text}}",
+    "unknownStatus": "نامعلوم حالت",
+    "CORS": "ممکن د کورس غلطی",
+    "urlFetchError": "د \" د \"{{url}}\" په اړه ناکامه شو"
+  },
+  "viewport": {
+    "title": "د لید پورټ",
+    "command": {
+      "movecamera": "کیمره وخوځیده",
+      "flyFast": "ګړندی الوتنه",
+      "orbit": "مدار / انتخاب",
+      "pan": "پان",
+      "fly": "الوتنه",
+      "focus": "تمرکز",
+      "rotateLeft": "چپ وڅرخول",
+      "rotateRight": "ښی ته څرخی",
+      "cancelPlacement": "ځای پر ځای کول لغوه کول",
+      "placeDuplicate": "ځای تکراری",
+      "cancelGrab": "لغوه کول",
+      "grab": "نیول",
+      "deselectAll": "ټول انتخاب کړئ"
+    },
+    "state": {
+      "header": "د سرټمبه",
+      "memory": "حافظه",
+      "geometries": "هندسی",
+      "textures": "د متنونو",
+      "render": "وړاندې کول",
+      "FPS": "د افغانستان د ملی امنیت اداره",
+      "frameTime": "د چوکاټ وخت",
+      "calls": "زنګونه",
+      "triangles": "مثلث",
+      "points": "نقطې",
+      "lines": "کرښې"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "خپراوی",
+    "lbl-published": "چاپ شوی",
+    "command": {
+      "translate": "ژباړه وکړه",
+      "rotate": "څرخیدنه",
+      "scale": "ترازو",
+      "toggleSpace": "د بدلون فضا ته بدلون ورکول",
+      "togglePivot": "بدلون ته بدلون ورکول",
+      "toggleSnapMode": "د اسنیپ حالت ته لاس اچول",
+      "toggleGrid": "د ګریډ لید ته زور ورکول",
+      "increaseGridSize": "د ګریډ اندازه زیاته کړه",
+      "descreaseGridSize": "د ګریډ اندازه کمول",
+      "stopPreview": "د مخکتنې صحنه ودرول",
+      "playPreview": "د مخکتنې صحنه"
+    }
+  },
+  "properties": {
+    "title": "ملکیتونه",
+    "lbl-visible": "د لیدو وړ",
+    "lbl-preventBake": "د باکی مخنیوی",
+    "lbl-persist": "دوام",
+    "multipleNodeSelected": "د مختلفو ډولونو څو نوډونه انتخاب شوی",
+    "noNodeSelected": "هیڅ نوډ نه دی ټاکل شوی",
+    "ambientLight": {
+      "name": "د امینت رڼا",
+      "description": "یوه رڼا چې ستاسو په صحنه کې ټول شیان روښانه کوی.",
+      "lbl-intensity": "شدت",
+      "lbl-color": "رنګ"
+    },
+    "envmap": {
+      "name": "د چاپیریال نقشه",
+      "description": "د چاپیریال د نقشې ملکیتونه"
+    },
+    "asset": {
+      "name": "شتمنی",
+      "description": "د صحنه د اجزاوو یوه ډله چې په ډینامیک ډول بار او بې ډکه کیدای شی",
+      "lbl-options": "اختیارونه",
+      "lbl-assetPath": "د شتمنیو لاره",
+      "lbl-assetName": "د صادراتو نوم",
+      "lbl-exportOptions": "د صادراتو اختیارونه",
+      "lbl-export": "د صادراتو شتمنی",
+      "lbl-load": "بار په صحنه کې",
+      "lbl-unload": "بیخ کول",
+      "lbl-reload": "بیا بارکول"
+    },
+    "audio": {
+      "name": "غږیزه",
+      "description": "په ډیانامیک ډول آډیو بار کوی.",
+      "lbl-audiourl": "غږیزه Url",
+      "lbl-controls": "کنټرولونه",
+      "info-controls": "د رسنیو د کنټرول لید ته زور ورکړی.",
+      "lbl-autoplay": "اتومات لوبه",
+      "info-autoplay": "که ریښتیا وی، رسنۍ به د لومړی ځل لپاره صحنه ته د ننوتلو په وخت کې لوبې کوی.",
+      "lbl-synchronize": "همغږې کول",
+      "info-synchronize": "که ریښتیا وی، رسنۍ به په ټولو تړل شویو پیرودونکو کې همغږې شی.",
+      "lbl-loop": "کړۍ",
+      "info-loop": "که رښتیا وی رسنۍ به تر ناڅه پورې ودروی.",
+      "lbl-audioType": "غږیز ډول",
+      "lbl-distanceModel": "د واټن ماډل",
+      "info-distanceModel": "الګوریټیم د غږیزه رولف محاسبه کولو لپاره کارول.",
+      "lbl-rolloffFactor": "رولف فکتور",
+      "info-rolloffFactor": "یو غبرګ ارزښت تشریح کوی چې څومره ژر حجم کمیږی څنګه چې سرچینه له اورېدونکی څخه لرې کیږی. 0 څخه تر 1",
+      "info-rfInfinity": "یو غبرګ ارزښت تشریح کوی چې څومره ژر حجم کمیږی څنګه چې سرچینه له اورېدونکی څخه لرې کیږی. ۰ تر بې تله",
+      "lbl-refDistance": "له واټن څخه ډډه کول",
+      "info-refDistance": "یو غبرګ ارزښت چې د حجم د کمولو لپاره د سرچینې د واټن استازیتوب کوی لکه څنګه چې غږیزه سرچینه له اورېدونکی څخه نور هم حرکت کوی.",
+      "lbl-maxDistance": "د مګس فاصله",
+      "info-maxDistance": "یو دوه چنده ارزښت چې د غږیزه سرچینې او اورېدونکی تر منځ د اعظمی واټن استازیتوب کوی، له هغه وروسته حجم نور نه کمیږی.",
+      "lbl-coneInnerAngle": "د ننی زاویې د Cone",
+      "info-coneInnerAngle": "یو ډبل ارزښت چې د زاویې په اړه یې وواېی، په درجی کې، د هغه په دننه کې به د حجم کمول نه وی.",
+      "lbl-coneOuterAngle": "د ټون اوټ زاویې",
+      "info-coneOuterAngle": "یو دوه ګونی ارزښت چې د زاویې تعریف کوی، په درجی کې، د هغه څخه بهر یو ګونچې چې حجم به یې د ثابت ارزښت له مخې کم شی، د coneOuterGain د منسوبت له مخې تعریف شوی.",
+      "lbl-coreOuterGain": "د ټون اوتر لاس ته ورتلل",
+      "info-coreOuterGain": "یو دوه ګونی ارزښت چې د حجم د کمولو اندازه په بهر کې د coneOuterAngle په واسطه تعریف شوې ده. د دې ډیفالټ ارزښت 0 دی، په دې مانا چې هیڅ غږ نه اوریدل کیږی.",
+      "lbl-volume": "حجم",
+      "lbl-play": "لوبې کول",
+      "lbl-pause": "سد کول",
+      "error-url": "د URL څخه د بارولو غلطی"
+    },
+    "boxCollider": {
+      "description": "یو نه لیدل کېدونکی بکس چې شیان به د پاسه یا استراحت وکړی.\nد بادوونکو پرته، شیان به د منزلونو له لارې ولویږی او د دیوالونو څخه به لاړ شی.",
+      "lbl-isTrigger": "ماشه"
+    },
+    "camera": {
+      "name": "کیمره",
+      "description": "د کیمرې تنظیمات.",
+      "lbl-camera-raycast": "کیمرې رای کسټېنټ",
+      "lbl-camera-raycast-toggle": "فعالشوی",
+      "lbl-camera-raycast-frequency": "فریکونسی",
+      "lbl-camera-raycast-count": "د ری شمیرنه",
+      "lbl-camera-raycast-length": "د ری اوږدوالی"
+    },
+    "directionalLight": {
+      "name": "جهتی رڼا",
+      "description": "یوه رڼا چې ټوله صحنه روښانه کوی، مګر د یو واحد جهت په اوږدو کې ځای نیسی.",
+      "lbl-color": "رنګ",
+      "lbl-intensity": "شدت",
+      "lbl-cameraFar": "کیمره لرې",
+      "lbl-cameraNear": "نږدې کامره",
+      "lbl-cameraTop": "د کامره لوړ",
+      "lbl-cameraBottom": "د کامرې بیخ",
+      "lbl-cameraLeft": "کیمره چپ",
+      "lbl-cameraRight": "کیمره ښی",
+      "lbl-useInCSM": "په CSM کې کارول",
+      "lbl-castShadow": "سیوری",
+      "lbl-disableForCSM": "معیوب ځکه چې د کاسکیډ سیوری نقشه فعاله ده.",
+      "lbl-shadowmapResolution": "د سیوری نقشه پرېکړه لیک",
+      "lbl-shadowBias": "د سیوری د بیاس",
+      "lbl-shadowRadius": "د سیوری وړانګه",
+      "lbl-showCameraHelper": "د کیمرې مرسته کوونکی وښایه"
+    },
+    "groundPlane": {
+      "name": "د مځکې الوتکه",
+      "description": "یوه مځکه الوتکه چې واټن ته غزیږی.",
+      "lbl-color": "رنګ",
+      "lbl-receiveShadow": "سیوری ترلاسه کړه",
+      "lbl-generateNavmesh": "نویمش تولید کړئ"
+    },
+    "link": {
+      "description": "د کوټې یا ویب پاڼې سره اړیکه ولرئ.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "د یو ښار په توګه 3 D جیوزمی نقشه."
+    },
+    "model": {
+      "description": "ستاسو په صحنه کې د 3 D ماډل، د GLTF URL یا فایل څخه بار شوی.",
+      "lbl-usingGPUInstancingFlag": "د GPU د انستانسینګ کارول",
+      "lbl-modelurl": "ماډل Url",
+      "lbl-envmapUrl": "د چاپیریال د نقشې Url",
+      "lbl-textureOverride": "د مخ په زیاتولو د جوړښت",
+      "lbl-materialOverride": "د موادو سرزوری",
+      "error-url": "د URL څخه د بارولو غلطی",
+      "lbl-loopAnimation": "د لیپ انمیشن",
+      "lbl-isAvatar": "ایا اواتار دی",
+      "lbl-isGPUInstancing": "د GPU د انسټنسینګ څخه استفاده کوی",
+      "lbl-isDynamic": "آیا داینامیا ده",
+      "lbl-castShadow": "سیوری",
+      "lbl-receiveShadow": "سیوری ترلاسه کړه",
+      "lbl-interactable": "د انترنش وړ",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "نوم",
+      "lbl-url": "ماډل Url",
+      "lbl-buy": "Url واخلئ",
+      "lbl-learnMore": "نور Url زده کړئ",
+      "lbl-htmlContent": "د Html منځپانګه",
+      "lbl-interactionText": "د متقابل ې متن",
+      "lbl-interactionType": "د متقابل ډول"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "مواد",
+      "error-materialID": "د موادو په موندلو کې غلطی",
+      "placeholder-materialID": "مواد انتخاب کړئ",
+      "lbl-patternTarget": "د نمو میچ",
+      "lbl-pattern": "نمونه",
+      "lbl-isRegex": "ریګس"
+    },
+    "interaction": {
+      "type": "د متقابل ډول",
+      "text": "د متقابل ې متن",
+      "distance": "د متقابل واټن",
+      "theme": "د متقابل کار موضوع",
+      "name": "د متقابل ې نوم",
+      "description": "د متقابل وضیع",
+      "images": "د متقابلو تصویرونو",
+      "videos": "د انترنش او انډول ویډیوګانې",
+      "urls": "د متقابلې ادرو",
+      "models": "د متقابلو ماډلونو"
+    },
+    "group": {
+      "name": "ډله",
+      "description": "د څو شیانو یوه ډله چې یو ځای وخوځیږی او یا تکرار شی.\nپه ګروپ کې شیان راووځئ او راوغورزئ."
+    },
+    "hemisphere": {
+      "name": "همی د رڼا",
+      "description": "یوه رڼا چې په مستقیم ډول د سر څخه صحنه روښانه کوی.",
+      "lbl-skyColor": "د اسمان رنګ",
+      "lbl-groundColor": "د ځمکې رنګ",
+      "lbl-intensity": "شدت"
+    },
+    "image": {
+      "name": "تصویر",
+      "description": "په ډیانامیک ډول یو تصویر بار کوی.",
+      "lbl-imgURL": "د تصویر Url",
+      "lbl-transparency": "د شفافیت حالت",
+      "lbl-alphaCutoff": "الفا قطع",
+      "lbl-projection": "طرحه",
+      "lbl-side": "اړخ",
+      "info-controls": "د رسنیو د کنټرول لید ته زور ورکړی.",
+      "info-transparency": "څنګه شفافیت پلی شی:",
+      "info-opaque": "'opaque' = نه شفافیت",
+      "info-blend": "'blend' = د تصویرونو د الفا چینل کارول",
+      "info-mask": "'ماسک' = د روڼوالی لپاره ټاکلی قطع شوی ارزښت وکاروئ (ډیر ترسره کوونکی)",
+      "info-alphaCutoff": "هغه پیکسلونه چې د الفا ارزښتونه یې له دې څخه کم وی ، شفاف به وی",
+      "error-url": "بې اعتباره URL"
+    },
+    "name": {
+      "lbl-name": "نوم"
+    },
+    "partileEmitter": {
+      "description": "د ذرو د جوړولو لپاره د ذرو امېټر کوی.",
+      "lbl-particleCount": "د مادې شمېرنه",
+      "lbl-image": "تصویر",
+      "lbl-ageRandomness": "د عمر تصادفی توب",
+      "lbl-lifetime": "ژوند",
+      "lbl-lifetimeRandomness": "د ژوند تصادفی",
+      "lbl-sizeCurve": "د اندازې د خمیدو",
+      "lbl-startPSize": "د مادې اندازه پیل کړئ",
+      "lbl-endPSize": "د پای د اندازې ( Particle Size )",
+      "lbl-sizeRandomness": "د اندازې تصادفی والی",
+      "lbl-colorCurve": "د رنګ انډول",
+      "lbl-startColor": "پیل رنګ",
+      "lbl-startOpacity": "د ظلم پیل",
+      "lbl-middleColor": "منځنی رنګ",
+      "lbl-middleOpacity": "منځنی اوپرابلم",
+      "lbl-endColor": "پای رنګ",
+      "lbl-endOpacity": "پای اوبلن",
+      "lbl-velocityCurve": "د بلاوو د کچې",
+      "lbl-startVelocity": "د وبا پیل کول",
+      "lbl-endVelocity": "پای د وسیت",
+      "lbl-angularVelocity": "د انګولی وسیت",
+      "info-ageRandomness": "د ذرو د منځ د توپیر اندازه کله چې ذرې منځ ته راشی.",
+      "info-lifetime": "د دې د بیا رامنځه کولو نه وړاندې د یو د وچې عمر زیات دی.",
+      "info-lifetimeRandomness": "د مادې د ژوند تر منځ د توپیر اندازه.",
+      "info-sizeRandomness": "د اندازې د پیل کولو د اندازې تر منځ د توپیر اندازه.",
+      "error-url": "د URL څخه د بارولو غلطی"
+    },
+    "clouds": {
+      "name": "وریځ",
+      "description": "د وریځو د حجم په اساس.",
+      "lbl-image": "بې برخې تصویر",
+      "lbl-wroldScale": "نړۍ",
+      "lbl-dimensions": "بعدونه",
+      "lbl-noiseZoom": "شور زمیده",
+      "lbl-noiseOffset": "شور اواز",
+      "lbl-spriteScale": "د سرپریټ ترازو",
+      "lbl-fogColor": "د مه رنګ",
+      "lbl-fogRange": "د فوګ د سر حد",
+      "error-url": "د URL څخه د بارولو غلطی"
+    },
+    "ocean": {
+      "name": "سمندر",
+      "description": "د سمندر سطحه د څپې او فوم سره",
+      "lbl-normalMap": "عادی نقشه",
+      "lbl-distortionMap": "د تشوش نقشه",
+      "lbl-envMap": "د چاپیریال نقشه",
+      "lbl-color": "رنګ",
+      "lbl-shallowWaterColor": "د اوبو رنګ",
+      "lbl-shallowToDeepDistance": "ژور واټن ته کم خوی",
+      "lbl-opacityFadeDistance": "د کنایې واټن کماوی",
+      "lbl-opacityRange": "د کبانو د ژوند سلسله",
+      "lbl-shininess": "ځلا",
+      "lbl-reflectivity": "انعکاس",
+      "lbl-foamColor": "د فوم رنګ",
+      "lbl-foamSpeed": "فوم سرعت",
+      "lbl-foamTiling": "د فوم تیلینګ",
+      "lbl-bigWaveTiling": "د لویې څپې د کږولو",
+      "lbl-bigWaveSpeed": "د لویې څپې سرعت",
+      "lbl-bigWaveHeight": "د لویې څپې لوړوالی",
+      "lbl-waveSpeed": "د څپو سرعت",
+      "lbl-waveScale": "د څپو ترازو",
+      "lbl-waveTiling": "د څپرکی وده",
+      "lbl-waveDistortionSpeed": "د څپو د تشوش سرعت",
+      "lbl-waveDistortionTiling": "د څپو د تشوش تیلینګ",
+      "error-url": "د URL څخه د بارولو غلطی"
+    },
+    "water": {
+      "name": "اوبه",
+      "description": "د اوبو کوچنۍ سطحه"
+    },
+    "interior": {
+      "name": "داخله",
+      "description": "یوه سطحه چې د داخلی چاپیریال د جوړښت لپاره نقشه شوی د حبه د جوړښت سره",
+      "lbl-cubeMap": "د کیوب میپ د جوړښت جوړښت",
+      "lbl-tiling": "د کږولو اندازه",
+      "lbl-size": "د سطحې اندازه",
+      "error-url": "د URL څخه د بارولو غلطی"
+    },
+    "pointLight": {
+      "description": "یوه رڼا چې د یو ټکی څخه په ټولو جهتونو کې ځای پر ځای کیږی.",
+      "lbl-color": "رنګ",
+      "lbl-intensity": "شدت",
+      "lbl-range": "حد",
+      "lbl-decay": "خرابی"
+    },
+    "scene": {
+      "name": "صحنه",
+      "description": "د صحنه ریښه شی.",
+      "lbl-bgcolor": "د شالید رنګ",
+      "lbl-fogType": "د مه ډول",
+      "lbl-fogColor": "د مه رنګ",
+      "lbl-forNearDistance": "له واټن سره نږدې مه",
+      "lbl-fogFarDistance": "د مه لرې واټن",
+      "lbl-fogDensity": "د مه ګڼوالی",
+      "lbl-audioSettings": "موقعیتی آډیو وکاروئ",
+      "lbl-avatarDistanceModel": "د اواتار د واټن ماډل",
+      "lbl-avatarRolloffFactor": "د اوتار رولف فکتور",
+      "lbl-avatarRefDistance": "Avatar Ref Distance",
+      "lbl-avatarMaxDistance": "Avatar Max فاصله",
+      "lbl-mediaVolume": "د رسنیو حجم",
+      "lbl-mediaDistanceModel": "د رسنیو د واټن ماډل",
+      "lbl-mediaRolloffFactor": "د رسنیو رولف فکتور",
+      "lbl-mediaRefDistance": "د رسنیو د رد واټن",
+      "lbl-mediaMaxDistance": "د مېډیا ماکس فاصله",
+      "lbl-mediaConeInnerAngle": "د رسنیو د Cone داخلی زاویه",
+      "lbl-mediaConeOuterAngle": "د رسنیو د Cone Outer Angle",
+      "lbl-mediaConeOuterGain": "د رسنیو Cone Outer Gain",
+      "info-avatarDistanceModel": "الګوریټیم د غږیزه رولف محاسبه کولو لپاره کارول.",
+      "info-avatarRolloffFactor": "یو غبرګ ارزښت تشریح کوی چې څومره ژر حجم کمیږی څنګه چې سرچینه له اورېدونکی څخه لرې کیږی. 0 څخه تر 1",
+      "info-avatarRolloffFactorInifinity": "یو غبرګ ارزښت تشریح کوی چې څومره ژر حجم کمیږی څنګه چې سرچینه له اورېدونکی څخه لرې کیږی. ۰ تر بې تله",
+      "info-avatarRefDistance": "یو غبرګ ارزښت چې د حجم د کمولو لپاره د سرچینې د واټن استازیتوب کوی لکه څنګه چې غږیزه سرچینه له اورېدونکی څخه نور هم حرکت کوی.",
+      "info-avatarMaxDistance": "یو دوه چنده ارزښت چې د غږیزه سرچینې او اورېدونکی تر منځ د اعظمی واټن استازیتوب کوی، له هغه وروسته حجم نور نه کمیږی.",
+      "info-mediaDistanceModel": "الګوریټیم د غږیزه رولف محاسبه کولو لپاره کارول.",
+      "info-mediaRolloffFactor": "یو غبرګ ارزښت تشریح کوی چې څومره ژر حجم کمیږی څنګه چې سرچینه له اورېدونکی څخه لرې کیږی. 0 څخه تر 1",
+      "info-mediaRolloffFactorInfinity": "یو غبرګ ارزښت تشریح کوی چې څومره ژر حجم کمیږی څنګه چې سرچینه له اورېدونکی څخه لرې کیږی. ۰ تر بې تله",
+      "info-mediaRefDistance": "یو غبرګ ارزښت چې د حجم د کمولو لپاره د سرچینې د واټن استازیتوب کوی لکه څنګه چې غږیزه سرچینه له اورېدونکی څخه نور هم حرکت کوی.",
+      "info-mediaMaxDistance": "یو دوه چنده ارزښت چې د غږیزه سرچینې او اورېدونکی تر منځ د اعظمی واټن استازیتوب کوی، له هغه وروسته حجم نور نه کمیږی.",
+      "info-mediaConeInnerAngle": "یو ډبل ارزښت چې د زاویې په اړه یې وواېی، په درجی کې، د هغه په دننه کې به د حجم کمول نه وی.",
+      "info-mediaConeOuterAngle": "یو دوه ګونی ارزښت چې د زاویې تعریف کوی، په درجی کې، د هغه څخه بهر یو ګونچې چې حجم به یې د ثابت ارزښت له مخې کم شی، د coneOuterGain د منسوبت له مخې تعریف شوی.",
+      "info-mediaConeOuterGain": "یو دوه ګونی ارزښت چې د حجم د کمولو اندازه په بهر کې د coneOuterAngle په واسطه تعریف شوې ده. د دې ډیفالټ ارزښت 0 دی، په دې مانا چې هیڅ غږ نه اوریدل کیږی.",
+      "lbl-simpleMaterials": "ساده مواد وکاروئ",
+      "lbl-lods": "لوډز",
+      "info-lods": "هغه واټنونه چی په کومو سطحو کی د تفصیل بدلون دی ترتیب کړی.",
+      "info-simpleMaterials": "ټول قیمتی مواد ساده ته بدلوی چې بار د صحنه وړاندې کولو لپاره واخلی.",
+      "lbl-rendererSettings": "د ریدرر تنظیمونه",
+      "lbl-csm": "د سیوری نقشې",
+      "info-csm": "د سیوری نقشو ته د کاسکینګ کولو توان ورکوی.",
+      "lbl-toneMapping": "د ټنې د نخشی",
+      "info-toneMapping": "په صحنه کې د ټن نخشې کولو ته توان ورکوی. کله چې د پوسټ پروسس فعال شی نو هیڅ اثر نه لری.",
+      "lbl-toneMappingExposure": "د ټنه د نخشی د تنې د تماشی په اړه",
+      "info-toneMappingExposure": "په صحنه کې د تنې د نخشې د ځای په وړاندې کولو کې د تنې د نخشې په اړه ځانګړې کوی. کله چې د پوسټ پروسس فعال شی نو هیڅ اثر نه لری.",
+      "lbl-shadowMapType": "د سیوری د نقشې ډول",
+      "info-shadowMapType": "د سیوری د نقشې ډول",
+      "error-url": "د URL څخه د بارولو غلطی"
+    },
+    "sceneCamera": {
+      "name": "د صحنه د مخکتنې کامره",
+      "description": "کامره ستاسو د صحنه او د مخکتنې د کیمرې لپاره د پیل کولو موقعیت لپاره د تصویرونو د تولید لپاره کارول کیږی.",
+      "lbl-setFromViewPort": "له ویوپورټ څخه تنظیم کړئ"
+    },
+    "skybox": {
+      "name": "سکای بکس",
+      "description": "",
+      "lbl-timeOfDay": "د ورځې وخت",
+      "lbl-color": "رنګ",
+      "lbl-latitude": "د لته",
+      "lbl-luminance": "درومی",
+      "lbl-scattering": "خواره واره اندازه",
+      "lbl-scatteringDistance": "خواره فاصله",
+      "lbl-horizonStart": "د افق پیل",
+      "lbl-horizonEnd": "د افق پای",
+      "lbl-texture": "متن",
+      "lbl-skyType": "د آسمان ډول",
+      "error-url": "د URL څخه د بارولو غلطی"
+    },
+    "spawnPoint": {
+      "name": "د سپو نقطې",
+      "description": "یو ټکی چې خلک به ښکاره شی کله چې دوی ستاسو ځای ته ننوځی.\nپه ویوپورټ کې ایکن د یو اوټار واقعی اندازه څرګندوی."
+    },
+    "spotLight": {
+      "description": "یوه رڼا چې د یو جهت په اوږدو کې ځای پر ځای کیږی، د یو ټون په دننه کې شیان روښانه کوی.",
+      "lbl-color": "رنګ",
+      "lbl-intensity": "شدت",
+      "lbl-penumbra": "پنومبرا",
+      "lbl-angle": "زاویه",
+      "lbl-range": "حد",
+      "lbl-decay": "خرابی"
+    },
+    "transform": {
+      "title": "بدلون",
+      "lbl-postition": "مقام",
+      "lbl-rotation": "تاویدل",
+      "lbl-scale": "ترازو"
+    },
+    "triggereVolume": {
+      "description": "د هدف په شی باندې د ننوتلو او پریښودو په وخت کې یو ملکیت وښایاست.",
+      "lbl-target": "شی",
+      "lbl-onenter": "په داخل کې",
+      "lbl-onexit": "د وتلو پر مهال",
+      "lbl-showHelper": "مرسته کوونکی میش وښایه",
+      "ph-errorNode": "خطا ورک شوی نوډ.",
+      "ph-selectNode": "نوډ انتخاب کړئ..."
+    },
+    "video": {
+      "name": "ویډیو",
+      "description": "په ډینامیک ډول ویډیو بار کوی.",
+      "lbl-video": "ویډیو",
+      "lbl-projection": "طرحه",
+      "lbl-islivestream": "ژوندی جریان",
+      "lbl-interactable": "د انترنش وړ",
+      "lbl-id": "عنصری تداوۍ",
+      "lbl-play": "لوبې کول",
+      "lbl-pause": "سد کول",
+      "error-url": "د URL څخه د بارولو غلطی"
+    },
+    "volumetric": {
+      "name": "حجمی",
+      "description": "په ډینامیک ډول د حجم ویډیو بار کوی.",
+      "uvolPaths": "د UVOL لارې",
+      "playmode": "د لوبې موډ",
+      "playtitle": "لوبې کول",
+      "pausetitle": "سد کول"
+    },
+    "spline": {
+      "description": "په ډیانامکه توګه د انونو جوړول او تنظیمول.",
+      "lbl-addNode": "نوډ په خمیدو کښې اضافه کړئ."
+    },
+    "systemnode": {
+      "description": "ضمیمه سکریپټ.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "د انجیکشن ټکی",
+      "lbl-enableClient": "موکل",
+      "lbl-enableServer": "سرور",
+      "lbl-args": "ارګس",
+      "error-url": "د URL څخه د بار کولو سکریپټ خطا"
+    },
+    "portal": {
+      "lbl-portal": "تړل شوی پورټال",
+      "lbl-redirect": "د صفحی ریمستقیم استعمال ولګوئ",
+      "description": "یو پورټ د ټیلی پورټ لوبغاړو ته ټاکل شوی ځای ته",
+      "lbl-locationName": "ځای",
+      "lbl-modelUrl": "ماډل URL",
+      "lbl-displayText": "متن ښکاره کول",
+      "lbl-cubemapBake": "د کیوبېمپ پکول",
+      "lbl-spawnPosition": "د سپن ځای",
+      "lbl-spawnRotation": "د سپو ډډ وډ",
+      "lbl-triggerPosition": "د ماشه موقعیت",
+      "lbl-triggerRotation": "د ماشه د تاویدلو",
+      "lbl-triggerScale": "د ماشه ترازو"
+    },
+    "postprocessing": {
+      "name": "د پوسټ پروسس",
+      "description": "د پوسټ پروسس اثرات تاسو ته په صحنه کښې د عملی کولو لپاره."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "نوې پروژه",
+      "backLink": "بیا پروژو ته",
+      "featured": "محصور",
+      "all": "ټول",
+      "newProject": "نوې تشه پروژه",
+      "ph-search": "د لټون صحنې..."
+    },
+    "grid": {
+      "loading": "بارول..."
+    },
+    "page": {
+      "header": "ښه راغلاست",
+      "headerMsg": "که تاسو دلته نوی یاست موږ سپارښتنه کوو چې د زده کړې څخه تیر شو. که نه نو، سم په کښې ټوپ ووهئ او یوه پروژه جوړه کړئ د سر څخه یا زمونږ د کینډۍ څخه.",
+      "lbl-startTutorial": "پیل زده کړه",
+      "projects": "پروژې",
+      "lbl-newProject": "نوې پروژه"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "بارول...",
+      "placeObject": "ځای شی",
+      "placeObjectAtOrigin": "په مبدا کې د شی ځای",
+      "copyURL": "د URL کاپی کول",
+      "openInNewTab": "په نوی ټب کې URL خلاص کړه",
+      "deleteAsset": "شتمنی حذف کړئ"
+    },
+    "filebrowser": {
+      "addNewFolder": "نوی فولډر اضافه کړئ",
+      "cutAsset": "قطع کول",
+      "copyAsset": "کاپی",
+      "pasteAsset": "رُب",
+      "renameAsset": "بیا نوم",
+      "viewAssetProperties": "ملکیتونه وویئ"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "بیا نوم",
+    "lbl-duplicate": "تکرار",
+    "lbl-group": "ډله",
+    "lbl-delete": "حذف کول",
+    "lbl-expandAll": "ټول پراخکړی",
+    "lbl-collapseAll": "سقوط ټول",
+    "isseus": "مسایل :"
+  },
+  "dnd": {
+    "nodes": "{{count}} ټاکل شوی نودونه",
+    "models": "{{count}} غوره شوی ماډل",
+    "images": "{{count}} غوره شوی انځورونه",
+    "videos": "{{count}} ټاکل شوې ویډیوګانې",
+    "audio": "{{count}} د غږیزه سرچینو ټاکل"
+  },
+  "dialog": {
+    "title": "ایډیټر",
+    "lbl-confirm": "سمه ده",
+    "lbl-cancel": "لغوه کول",
+    "exportProject": {
+      "title": "د صادراتو پروژه",
+      "lbl-confirm": "د صادراتو پروژه",
+      "lbl-combineMesh": "د میشې یو ځای کول",
+      "lbl-removeUnused": "ناکارول شوی څیزونه لرې کړئ"
+    },
+    "performance": {
+      "title": "د اجراچک",
+      "lbl-confirm": "د چاپ صحنه",
+      "learnMore": "نور زده کړئ",
+      "lbl-polycount": "د پولیګونو شمیر",
+      "lbl-material": "مواد",
+      "lbl-texture": "د متنونو",
+      "lbl-lights": "څراغونه",
+      "lbl-fileSize": "د فایل اندازه",
+      "info-polycount": "مونږ ستاسو د صحنه سپارښتنه کوو چې د ګرځنده الاتو لپاره د 50,000 څخه زیات مثلث ونه کاروی.",
+      "info-material": "مونږ سپارښتنه کوو چې ستاسو په صحنه کې د ۲۵ څخه زیات بې ساری مواد ونه کاروئ چې په موبایل وسیلو باندې د تماسونو د کمولو لپاره.",
+      "info-texture": "مونږ ستاسو د نکلونو سپارښتنه کوو چې د ګرځنده الاتو لپاره د 256MB څخه زیات ویډیو رام استعمال نه کړی. موږ د 2 0 4 8 x 2 0 4 8 څخه لوی د نکلونو کارولو په مقابل کې هم سپارښتنه کوو.",
+      "info-lights": "په داسې حال کې چې په ګرځنده الو کې ډاینامیک څراغونه فعال نه دی، موږ سپارښتنه کوو چې ستاسو په صحنه کې د 3 څراغونو څخه زیات نه کار واخستل شی (د چاپیریال او د همیفټر څراغونو پرته) ستاسو د صحنه لپاره چې په ټیټ پای کمپیوټر وچلیږی.",
+      "info-fileSize": "مونږ د ټیټ بانډ په بلنوالی د اړیکې لپاره د 16MB څخه زیات نه د وروستی فایل اندازه وړاندیز کوو. د فایل اندازه کمول به ستاسو د صحنه ډاونلوډ کولو لپاره وخت کم کړی.",
+      "txt-polycount": "{{count}} مثلث",
+      "txt-material": "{{count}} مواد",
+      "txt-ram": "~{{count}} ویډیو RAM",
+      "txt-texture": "{{count}} د پراخو متنونو",
+      "txt-lights": "{{count}} څراغونه"
+    },
+    "progress": {
+      "title": "بارول...",
+      "msg": "بارول...",
+      "lbl-cancel": "لغوه کول"
+    },
+    "publish": {
+      "title": "د چاپ صحنه",
+      "lbl-confirm": "سپما او خپراوی",
+      "lbl-name": "د صحنه نوم",
+      "info-name": "نوم باید د ٤ څخه تر ٦٤ کرکترونو پورې وی او نشی کولای چې کم شمیرې ولری"
+    },
+    "published": {
+      "title": "صحنه چاپ شوې",
+      "header": "ستاسو صحنه چاپ شوې ده.",
+      "lbl-view": "خپله صحنه وویئ"
+    },
+    "saveNewProject": {
+      "title": "ملاتړ",
+      "lbl-name": "د پروژې نوم",
+      "info-name": "نوم باید د ٤ څخه تر ٦٤ کرکترونو پورې وی او نشی کولای چې کم شمیرې ولری",
+      "lbl-confirm": "د پروژې خوندی کول"
+    },
+    "support": {
+      "title": "ملاتړ",
+      "header": "ایا اړتیا لری چی یوه ستونزه راپور کړی؟",
+      "msg": "تاسو کولی شئ د <1>GitHub</1> موضوع فایل کړئ او یا موږ ته په بریښنالیک <3> </3> کې د ملاتړ لپاره{{mail}}",
+      "discord": "تاسو کولی شئ چې موږ په ډیسکورډ <1>کې هم پیدا کړئ</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "بینګ انځورونه",
+      "search": "لټون د بینګ لخوا"
+    },
+    "bingVideo": {
+      "name": "بینګ ویډیوګانې",
+      "search": "لټون د بینګ لخوا"
+    },
+    "element": {
+      "name": "عناصر"
+    },
+    "myAssets": {
+      "name": "زما شتمنی"
+    },
+    "googlePoly": {
+      "name": "ګوګل پولی",
+      "search": "د ګوګل په واسطه لټون"
+    },
+    "tenor": {
+      "name": "ټینور جی آی ایف ز",
+      "search": "لټون د تنور له خوا",
+      "ph-search": "پلټنه GIFs..."
+    },
+    "sketchfab": {
+      "name": "سکیچفاب",
+      "search": "پلټنه د Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "شتمنی پورته کول"
+    },
+    "imageSourcePanel": {
+      "ph-search": "لټون انځورونه..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "د لټون ویډیوګانې..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "د لټون شتمنی..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "د لټون ماډلونه..."
+    },
+    "useUpload": {
+      "multipleFileError": "داخل ول څو فایلونه نه منی.",
+      "mineTypeError": "\"{{name}}\" د لاندې میمی ډولونه یا اندیشنونه سره سمون نه خوری: {{types}}",
+      "progressTitle": "د فایلونو پورته کول",
+      "progressMsg": "د فایلونو {{uploaded}} {{total}}: {{percentage}}٪",
+      "uploadError": "د پورته کولو غلطی",
+      "uploadErrorMsg": "د فایل په پورته کولو کې غلطی : {{message}}",
+      "uploadErrorDefaultMsg": "یوه نامعلومه غلطی وه"
+    }
+  },
+  "openLink": {
+    "description": "مهربانی وکړئ په خلاص کلیک وکړئ چې لینک ته لاړ شئ.",
+    "lbl-open": "پرانیسته"
+  },
+  "interactableModel": {
+    "lbl-buy": "پیرودنه",
+    "lbl-learnMore": "نور زده کړئ"
+  },
+  "corsProxyButton": {
+    "tooltip": "د کورس پروکسی سرور استعمال کړئ"
+  }
+}

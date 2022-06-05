@@ -1,0 +1,718 @@
+{
+  "loading": "Įkeliamas projektas",
+  "loadingMsg": "Įkeliamas projektas...",
+  "loadingError": "Įkeliant projektą įvyko klaida",
+  "loadingErrorMsg": "Įkeliant projektą įvyko klaida.",
+  "selectSceneMsg": "Pasirinkite Scena, kad pradėtumėte žaisti su varikliu",
+  "error": "Klaida",
+  "errorMsg": "Įvyko nežinoma klaida.",
+  "generateScreenshot": "Generuojama projekto ekrano kopija",
+  "generateScreenshotMsg": "Generuojama projekto ekrano kopija...",
+  "newScene": "Kurti sceną",
+  "saving": "Projekto įrašymas",
+  "savingMsg": "Įrašomas projektas...",
+  "savingError": "Klaida įrašant projektą",
+  "savingErrorMsg": "Įrašant projektą įvyko klaida.",
+  "savingSceneErrorMsg": "Scena nėra tinkamai įkelta. Pabandykite iš naujo įkelti sceną.",
+  "duplicating": "Dubliavimo projektas",
+  "duplicatingMsg": "Dubliuojamas projektas...",
+  "exporting": "Projekto eksportavimas",
+  "exportingMsg": "Eksportuojamas projektas...",
+  "exportingError": "Klaida eksportuojant projektą",
+  "exportingErrorMsg": "Eksportuojant projektą įvyko klaida.",
+  "importLegacy": "Importuoti senstelėjusį pasaulį",
+  "importLegacyMsg": "Įspėjimas! Tai perrašys jūsų esamą sceną! Ar tikrai norite tęsti?",
+  "publishingError": "Klaida publikuojant projektą",
+  "publishingErrorMsg": "Įvyko nežinoma klaida.",
+  "publishingScene": "Publikavimo scena",
+  "publishingSceneMsg": "Publikavimo scena...",
+  "uploadingThumbnailMsg": "Įkeliama miniatiūra...",
+  "uploadingSceneMsg": "Įkėlimo scena: {{percentage}}%",
+  "envMapError": "Klaida įkeliant cubemap vaizdus {{files}}",
+  "lbl-return": "Grįžti",
+  "menubar": {
+    "newScene": "Nauja scena",
+    "saveScene": "Įrašyti sceną",
+    "saveAs": "Įrašyti kaip",
+    "importAsset": "Importuoti turtą",
+    "exportGLB": "Eksportuoti kaip dvejetainis glTF (.glb) ...",
+    "importScene": "Importavimo scena",
+    "exportScene": "Eksportuoti sceną",
+    "quit": "Atsistatydinti"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Nepalaikomas failo tipas: \"{{name}}\". Failas turi būti vaizdas, vaizdo įrašas arba gLB modelis.",
+    "addObject": "addObject: prieš objektą nerastas",
+    "removeObject": "removeObject: mazgas nerastas. Taip yra dėl to, kad pašalinamas mazgas, kurio nebėra scenoje.",
+    "noParent": "{{node}} \"{{name}}\" neturi tėvų. \"Reparent\" veikia tik su objektais, kurie šiuo metu yra scenoje.",
+    "undefinedParent": "editor.reparent: newParent yra neapibrėžtas",
+    "notAuthenticated": "Neautentifikuotas",
+    "fetchingProjectError": "Klaida gaunant projektus: {{error}}",
+    "fetchingRouteError": "Klaida gaunant maršrutus: {{error}}",
+    "unknownError": "Nežinoma klaida",
+    "resolveURL": "Klaida išsprendžiant URL \"{{url}}\":",
+    "mediaSearchAborted": "Žiniasklaidos paieška nutraukta",
+    "methodNotImplemented": "Metodas neįgyvendintas.",
+    "saveProjectAborted": "Įrašyti sceną nutraukta",
+    "unsavedChanges": "Neįrašyti keitimai",
+    "unsavedChangesMsg": "Scena buvo pakeista. Įrašykite pakeitimus.",
+    "projectCreationFail": "Nepavyko sukurti projekto. {{reason}}",
+    "projectDeletionFail": "Projekto panaikinti nepavyko. {{reason}}",
+    "savingProjectFail": "Projekto įrašyti nepavyko. {{reason}}",
+    "sceneTooLarge": "Scena yra per didelė ({{size}} MB), kad ją būtų galima publikuoti. Maksimalus dydis yra {{maxSize}} MB.",
+    "sceneCreationFail": "Scenos sukurti nepavyko. {{reason}}",
+    "uploadAborted": "Nusiuntimas nutrauktas",
+    "uploadFailed": "Nusiųsti nepavyko {{reason}}",
+    "assetDeletionFail": "Turto panaikinti nepavyko. {{reason}}",
+    "projectAssetDeletionFail": "Projekto turto panaikinti nepavyko. {{reason}}",
+    "networkError": "Tinklo klaida: {{status}}. {{text}}",
+    "unknownStatus": "Nežinoma būsena",
+    "CORS": "Galima CORS klaida",
+    "urlFetchError": "Nepavyko gauti \"{{url}}\""
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Perkelti fotoaparatą",
+      "flyFast": "Skriskite greičiau",
+      "orbit": "Orbita / Pasirinkite",
+      "pan": "Panas",
+      "fly": "Skristi",
+      "focus": "Dėmesio",
+      "rotateLeft": "Pasukti kairėn",
+      "rotateRight": "Pasukti dešinėn",
+      "cancelPlacement": "Atšaukti vietą",
+      "placeDuplicate": "Įdėti dublikatą",
+      "cancelGrab": "Atšaukti paėmimą",
+      "grab": "Patraukti",
+      "deselectAll": "Panaikinti visų žymėjimą"
+    },
+    "state": {
+      "header": "Statistika",
+      "memory": "Atmintis",
+      "geometries": "Geometrijos",
+      "textures": "Tekstūros",
+      "render": "Teikti",
+      "FPS": "FPS",
+      "frameTime": "Kadro laikas",
+      "calls": "Skambučius",
+      "triangles": "Trikampiai",
+      "points": "Taškų",
+      "lines": "Linijos"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Publikuoti",
+    "lbl-published": "Paskelbtas",
+    "command": {
+      "translate": "Išversti",
+      "rotate": "Pasukti",
+      "scale": "Skalė",
+      "toggleSpace": "Perjungti transformavimo erdvę",
+      "togglePivot": "Perjungti \"Pivot\" transformavimą",
+      "toggleSnapMode": "Kaitalioti prikabinimo režimą",
+      "toggleGrid": "Perjungti tinklelio matomumą",
+      "increaseGridSize": "Padidinti tinklelio dydį",
+      "descreaseGridSize": "Sumažinti tinklelio dydį",
+      "stopPreview": "Sustabdyti scenos peržiūrą",
+      "playPreview": "Peržiūrėti sceną"
+    }
+  },
+  "properties": {
+    "title": "Apgyvendinimo įstaigos",
+    "lbl-visible": "Matomas",
+    "lbl-preventBake": "Užkirsti kelią kepimui",
+    "lbl-persist": "Išlieka",
+    "multipleNodeSelected": "Pasirinkti keli skirtingų tipų mazgai",
+    "noNodeSelected": "Nepasirinktas joks mazgas",
+    "ambientLight": {
+      "name": "Aplinkos šviesa",
+      "description": "Šviesa, kuri apšviečia visus jūsų scenos objektus.",
+      "lbl-intensity": "Intensyvumas",
+      "lbl-color": "Spalva"
+    },
+    "envmap": {
+      "name": "Aplinkos žemėlapis",
+      "description": "aplinkos žemėlapio ypatybės"
+    },
+    "asset": {
+      "name": "Turto",
+      "description": "Scenos komponentų, kuriuos galima dinamiškai įkelti ir iškrauti, grupavimas",
+      "lbl-options": "Parinktys",
+      "lbl-assetPath": "Turto maršrutas",
+      "lbl-assetName": "Eksportuoti pavadinimą",
+      "lbl-exportOptions": "Eksportavimo parinktys",
+      "lbl-export": "Eksportuoti turtą",
+      "lbl-load": "Įkelti į sceną",
+      "lbl-unload": "Iškrauti",
+      "lbl-reload": "Perkrauti"
+    },
+    "audio": {
+      "name": "Garso",
+      "description": "Dinamiškai įkelia garsą.",
+      "lbl-audiourl": "Garso URL",
+      "lbl-controls": "Kontrolė",
+      "info-controls": "Perjungti medijos valdiklių matomumą.",
+      "lbl-autoplay": "Automatinis leidimas",
+      "info-autoplay": "Jei tai tiesa, žiniasklaida žais, kai pirmą kartą pateks į sceną.",
+      "lbl-synchronize": "Sinchronizuoti",
+      "info-synchronize": "Jei taip, laikmena bus sinchronizuojama su visais prijungtais klientais.",
+      "lbl-loop": "Kilpa",
+      "info-loop": "Jei tai tiesa, žiniasklaida suksis neribotą laiką.",
+      "lbl-audioType": "Garso tipas",
+      "lbl-distanceModel": "Atstumo modelis",
+      "info-distanceModel": "Algoritas, naudojamas garso išleidimui apskaičiuoti.",
+      "lbl-rolloffFactor": "Išskleidžiamumo koeficientas",
+      "info-rolloffFactor": "Dviguba reikšmė, apibūdinanti, kaip greitai sumažėja garsumas, kai šaltinis tolsta nuo klausytojo. nuo 0 iki 1",
+      "info-rfInfinity": "Dviguba reikšmė, apibūdinanti, kaip greitai sumažėja garsumas, kai šaltinis tolsta nuo klausytojo. Nuo 0 iki begalybės",
+      "lbl-refDistance": "Ref atstumas",
+      "info-refDistance": "Dviguba reikšmė, nurodanti atskaitos atstumą garsumui sumažinti, kai garso šaltinis juda toliau nuo klausytojo.",
+      "lbl-maxDistance": "Maksimalus atstumas",
+      "info-maxDistance": "Dviguba reikšmė, nurodanti maksimalų atstumą tarp garso šaltinio ir klausytojo, po kurio garsumas toliau nesumažėja.",
+      "lbl-coneInnerAngle": "Kūgio vidinis kampas",
+      "info-coneInnerAngle": "Dviguba vertė, apibūdinanti kūgio kampą laipsniais, kurio viduje nebus tūrio sumažėjimo.",
+      "lbl-coneOuterAngle": "Kūgio išorinis kampas",
+      "info-coneOuterAngle": "Dviguba vertė, apibūdinanti kūgio kampą laipsniais, už kurio ribų tūris bus sumažintas pastovia verte, apibrėžta atributu ConeOuterGain.",
+      "lbl-coreOuterGain": "Kūgio išorinis pelnas",
+      "info-coreOuterGain": "Dviguba reikšmė, apibūdinanti garsumo mažinimo sumą už kūgio ribų, apibrėžtą atributu ConeOuterAngle. Jo numatytoji reikšmė yra 0, o tai reiškia, kad garsas negali būti girdimas.",
+      "lbl-volume": "Tomas",
+      "lbl-play": "Žaisti",
+      "lbl-pause": "Pauzė",
+      "error-url": "Įkeliant iš URL įvyko klaida"
+    },
+    "boxCollider": {
+      "description": "Nematoma dėžutė, nuo kurios objektai atšoks arba pailsės ant viršaus.\nBe greitintuvų objektai kris per grindis ir eis per sienas.",
+      "lbl-isTrigger": "Trigeris"
+    },
+    "camera": {
+      "name": "Fotoaparatas",
+      "description": "Fotoaparato nustatymai.",
+      "lbl-camera-raycast": "Fotoaparatas \"Raycasting\"",
+      "lbl-camera-raycast-toggle": "Įjungtas",
+      "lbl-camera-raycast-frequency": "Dažnis",
+      "lbl-camera-raycast-count": "Spindulių skaičius",
+      "lbl-camera-raycast-length": "Spindulių ilgis"
+    },
+    "directionalLight": {
+      "name": "Kryptinė šviesa",
+      "description": "Šviesa, kuri apšviečia visą sceną, bet skleidžia viena kryptimi.",
+      "lbl-color": "Spalva",
+      "lbl-intensity": "Intensyvumas",
+      "lbl-cameraFar": "Fotoaparatas toli",
+      "lbl-cameraNear": "Fotoaparatas šalia",
+      "lbl-cameraTop": "Fotoaparato viršus",
+      "lbl-cameraBottom": "Fotoaparato apačia",
+      "lbl-cameraLeft": "Fotoaparatas kairėje",
+      "lbl-cameraRight": "Fotoaparatas dešinėje",
+      "lbl-useInCSM": "Naudojimas CSM",
+      "lbl-castShadow": "Mesti šešėlį",
+      "lbl-disableForCSM": "Išjungta, nes įgalinta pakopinė šešėlinė schema.",
+      "lbl-shadowmapResolution": "Šešėlinio žemėlapio skiriamoji geba",
+      "lbl-shadowBias": "Šešėlių šališkumas",
+      "lbl-shadowRadius": "Šešėlio spindulys",
+      "lbl-showCameraHelper": "Rodyti fotoaparato žinyną"
+    },
+    "groundPlane": {
+      "name": "Antžeminis lėktuvas",
+      "description": "Plokščias žemės lėktuvas, kuris tęsiasi į tolį.",
+      "lbl-color": "Spalva",
+      "lbl-receiveShadow": "Gauti šešėlį",
+      "lbl-generateNavmesh": "Generuoti \"Navmesh\""
+    },
+    "link": {
+      "description": "Nuoroda į kambarį ar svetainę.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "3D geoerdvinis žemėlapis, pvz., miestas."
+    },
+    "model": {
+      "description": "3D modelis jūsų scenoje, įkeltas iš GLTF URL arba failo.",
+      "lbl-usingGPUInstancingFlag": "Gpu instancing naudojimas",
+      "lbl-modelurl": "Modelio URL",
+      "lbl-envmapUrl": "Aplinkos žemėlapio URL",
+      "lbl-textureOverride": "Nepaisyti tekstūros",
+      "lbl-materialOverride": "Medžiagos nepaisymas",
+      "error-url": "Įkeliant iš URL įvyko klaida",
+      "lbl-loopAnimation": "Kilpos animacija",
+      "lbl-isAvatar": "Yra avataras",
+      "lbl-isGPUInstancing": "Naudoja GPU instancing",
+      "lbl-isDynamic": "Yra dinamiškas",
+      "lbl-castShadow": "Mesti šešėlį",
+      "lbl-receiveShadow": "Gauti šešėlį",
+      "lbl-interactable": "Sąveikus",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Vardas, pavadinimas",
+      "lbl-url": "Modelio URL",
+      "lbl-buy": "Pirkti URL",
+      "lbl-learnMore": "Sužinokite daugiau URL",
+      "lbl-htmlContent": "HTML turinys",
+      "lbl-interactionText": "Veiksmo tekstas",
+      "lbl-interactionType": "Veiksmo tipas"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Medžiaga",
+      "error-materialID": "Klaida ieškant medžiagos",
+      "placeholder-materialID": "Pasirinkti medžiagą",
+      "lbl-patternTarget": "Rašto atitikmuo",
+      "lbl-pattern": "Raštas",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Veiksmo tipas",
+      "text": "Veiksmo tekstas",
+      "distance": "Sąveikos atstumas",
+      "theme": "Sąveikos tema",
+      "name": "Veiksmo pavadinimas",
+      "description": "Veiksmo aprašas",
+      "images": "Sąveikos vaizdai",
+      "videos": "Sąveikos vaizdo įrašai",
+      "urls": "Veiksmų URL",
+      "models": "Veiksmų modeliai"
+    },
+    "group": {
+      "name": "Grupė",
+      "description": "Kelių objektų grupė, kurią galima perkelti arba dubliuoti kartu.\nVilkite ir numeskite objektus į hierarchijos grupę."
+    },
+    "hemisphere": {
+      "name": "Pusrutulio šviesa",
+      "description": "Šviesa, kuri apšviečia sceną tiesiai iš viršaus.",
+      "lbl-skyColor": "Dangaus spalva",
+      "lbl-groundColor": "Žemės spalva",
+      "lbl-intensity": "Intensyvumas"
+    },
+    "image": {
+      "name": "Vaizdas",
+      "description": "Dinamiškai įkelia vaizdą.",
+      "lbl-imgURL": "Vaizdo URL",
+      "lbl-transparency": "Skaidrumo režimas",
+      "lbl-alphaCutoff": "Alfa riba",
+      "lbl-projection": "Projekcija",
+      "lbl-side": "Šalis",
+      "info-controls": "Perjungti medijos valdiklių matomumą.",
+      "info-transparency": "Kaip taikyti skaidrumą:",
+      "info-opaque": "\"neskaidrus\" = nėra skaidrumo",
+      "info-blend": "\"mišinys\" = naudoti vaizdus alfa kanalu",
+      "info-mask": "\"kaukė\" = naudokite nurodytą ribinę vertę įjungimo / išjungimo skaidrumui (daugiau našumo)",
+      "info-alphaCutoff": "Pikseliai, kurių alfa reikšmės yra mažesnės nei ši, bus skaidrūs",
+      "error-url": "Neleistinas URL"
+    },
+    "name": {
+      "lbl-name": "Vardas, pavadinimas"
+    },
+    "partileEmitter": {
+      "description": "Dalelių skleidėjas dalelėms sukurti.",
+      "lbl-particleCount": "Dalelių skaičius",
+      "lbl-image": "Vaizdas",
+      "lbl-ageRandomness": "Amžiaus atsitiktinumas",
+      "lbl-lifetime": "Gyvenime",
+      "lbl-lifetimeRandomness": "Atsitiktinumas visam gyvenimui",
+      "lbl-sizeCurve": "Dydžio kreivė",
+      "lbl-startPSize": "Pradėti dalelių dydį",
+      "lbl-endPSize": "Pabaigos dalelių dydis",
+      "lbl-sizeRandomness": "Dydžio atsitiktinumas",
+      "lbl-colorCurve": "Spalvų kreivė",
+      "lbl-startColor": "Pradžios spalva",
+      "lbl-startOpacity": "Pradėti neskaidrumą",
+      "lbl-middleColor": "Vidurinė spalva",
+      "lbl-middleOpacity": "Vidurinis neskaidrumas",
+      "lbl-endColor": "Pabaigos spalva",
+      "lbl-endOpacity": "Baigti neskaidrumą",
+      "lbl-velocityCurve": "Greičio kreivė",
+      "lbl-startVelocity": "Pradžios greitis",
+      "lbl-endVelocity": "Pabaigos greitis",
+      "lbl-angularVelocity": "Kampinis greitis",
+      "info-ageRandomness": "Variacijos kiekis tarp dalelių neršto.",
+      "info-lifetime": "Maksimalus dalelės amžius prieš ją persodinant.",
+      "info-lifetimeRandomness": "Variacijos tarp dalelių tarnavimo laikas.",
+      "info-sizeRandomness": "Dalelių pradinių dydžių variacijos kiekis.",
+      "error-url": "Įkeliant iš URL įvyko klaida"
+    },
+    "clouds": {
+      "name": "Debesis",
+      "description": "\"Sprite\" pagrįstas debesies tūris.",
+      "lbl-image": "Sprinto vaizdas",
+      "lbl-wroldScale": "Pasaulio mastelis",
+      "lbl-dimensions": "Matmenys",
+      "lbl-noiseZoom": "Triukšmo mastelio keitimas",
+      "lbl-noiseOffset": "Triukšmo poslinkis",
+      "lbl-spriteScale": "Sprinto skalė",
+      "lbl-fogColor": "Rūko spalva",
+      "lbl-fogRange": "Rūko diapazonas",
+      "error-url": "Įkeliant iš URL įvyko klaida"
+    },
+    "ocean": {
+      "name": "Vandenynas",
+      "description": "Vandenyno paviršius su bangomis ir putomis",
+      "lbl-normalMap": "Įprastas žemėlapis",
+      "lbl-distortionMap": "Iškraipymų žemėlapis",
+      "lbl-envMap": "Aplinkos žemėlapis",
+      "lbl-color": "Spalva",
+      "lbl-shallowWaterColor": "Sekli vandens spalva",
+      "lbl-shallowToDeepDistance": "Seklus iki gilaus atstumo",
+      "lbl-opacityFadeDistance": "Neskaidrumo išnykimo atstumas",
+      "lbl-opacityRange": "Neskaidrumo diapazonas",
+      "lbl-shininess": "Blizgumas",
+      "lbl-reflectivity": "Atspindys",
+      "lbl-foamColor": "Putų spalva",
+      "lbl-foamSpeed": "Putų greitis",
+      "lbl-foamTiling": "Putų plytelės",
+      "lbl-bigWaveTiling": "Didžiosios bangos plytelės",
+      "lbl-bigWaveSpeed": "Didelės bangos greitis",
+      "lbl-bigWaveHeight": "Didžiosios bangos aukštis",
+      "lbl-waveSpeed": "Bangų greitis",
+      "lbl-waveScale": "Bangų skalė",
+      "lbl-waveTiling": "Bangų plytelės",
+      "lbl-waveDistortionSpeed": "Bangų iškraipymo greitis",
+      "lbl-waveDistortionTiling": "Bangų iškraipymo plytelės",
+      "error-url": "Įkeliant iš URL įvyko klaida"
+    },
+    "water": {
+      "name": "Vanduo",
+      "description": "Mažas vandens paviršius"
+    },
+    "interior": {
+      "name": "Interjero",
+      "description": "Paviršius su susietu kubo tekstūra, kad imituotų interjero aplinką",
+      "lbl-cubeMap": "Kubo žemėlapio tekstūra",
+      "lbl-tiling": "Plytelių suma",
+      "lbl-size": "Paviršiaus dydis",
+      "error-url": "Įkeliant iš URL įvyko klaida"
+    },
+    "pointLight": {
+      "description": "Šviesa, kuri skleidžia visomis kryptimis iš vieno taško.",
+      "lbl-color": "Spalva",
+      "lbl-intensity": "Intensyvumas",
+      "lbl-range": "Diapazonas",
+      "lbl-decay": "Ėduonis"
+    },
+    "scene": {
+      "name": "Scena",
+      "description": "Pagrindinis scenos objektas.",
+      "lbl-bgcolor": "Fono spalva",
+      "lbl-fogType": "Rūko tipas",
+      "lbl-fogColor": "Rūko spalva",
+      "lbl-forNearDistance": "Rūkas netoli atstumo",
+      "lbl-fogFarDistance": "Rūko tolimas atstumas",
+      "lbl-fogDensity": "Rūko tankis",
+      "lbl-audioSettings": "Naudoti pozicinį garsą",
+      "lbl-avatarDistanceModel": "Avataro atstumo modelis",
+      "lbl-avatarRolloffFactor": "Avataro \"Rolloff Factor\"",
+      "lbl-avatarRefDistance": "Avataro ref atstumas",
+      "lbl-avatarMaxDistance": "Avataro maksimalus atstumas",
+      "lbl-mediaVolume": "Laikmenos tomas",
+      "lbl-mediaDistanceModel": "Medijos atstumo modelis",
+      "lbl-mediaRolloffFactor": "Medijos apibendrinimo koeficientas",
+      "lbl-mediaRefDistance": "Laikmenos ref atstumas",
+      "lbl-mediaMaxDistance": "Maksimalus medijos atstumas",
+      "lbl-mediaConeInnerAngle": "Medijos kūgio vidinis kampas",
+      "lbl-mediaConeOuterAngle": "Medijos kūgio išorinis kampas",
+      "lbl-mediaConeOuterGain": "Medijos kūgio išorinis pelnas",
+      "info-avatarDistanceModel": "Algoritas, naudojamas garso išleidimui apskaičiuoti.",
+      "info-avatarRolloffFactor": "Dviguba reikšmė, apibūdinanti, kaip greitai sumažėja garsumas, kai šaltinis tolsta nuo klausytojo. nuo 0 iki 1",
+      "info-avatarRolloffFactorInifinity": "Dviguba reikšmė, apibūdinanti, kaip greitai sumažėja garsumas, kai šaltinis tolsta nuo klausytojo. Nuo 0 iki begalybės",
+      "info-avatarRefDistance": "Dviguba reikšmė, nurodanti atskaitos atstumą garsumui sumažinti, kai garso šaltinis juda toliau nuo klausytojo.",
+      "info-avatarMaxDistance": "Dviguba reikšmė, nurodanti maksimalų atstumą tarp garso šaltinio ir klausytojo, po kurio garsumas toliau nesumažėja.",
+      "info-mediaDistanceModel": "Algoritas, naudojamas garso išleidimui apskaičiuoti.",
+      "info-mediaRolloffFactor": "Dviguba reikšmė, apibūdinanti, kaip greitai sumažėja garsumas, kai šaltinis tolsta nuo klausytojo. nuo 0 iki 1",
+      "info-mediaRolloffFactorInfinity": "Dviguba reikšmė, apibūdinanti, kaip greitai sumažėja garsumas, kai šaltinis tolsta nuo klausytojo. Nuo 0 iki begalybės",
+      "info-mediaRefDistance": "Dviguba reikšmė, nurodanti atskaitos atstumą garsumui sumažinti, kai garso šaltinis juda toliau nuo klausytojo.",
+      "info-mediaMaxDistance": "Dviguba reikšmė, nurodanti maksimalų atstumą tarp garso šaltinio ir klausytojo, po kurio garsumas toliau nesumažėja.",
+      "info-mediaConeInnerAngle": "Dviguba vertė, apibūdinanti kūgio kampą laipsniais, kurio viduje nebus tūrio sumažėjimo.",
+      "info-mediaConeOuterAngle": "Dviguba vertė, apibūdinanti kūgio kampą laipsniais, už kurio ribų tūris bus sumažintas pastovia verte, apibrėžta atributu ConeOuterGain.",
+      "info-mediaConeOuterGain": "Dviguba reikšmė, apibūdinanti garsumo mažinimo sumą už kūgio ribų, apibrėžtą atributu ConeOuterAngle. Jo numatytoji reikšmė yra 0, o tai reiškia, kad garsas negali būti girdimas.",
+      "lbl-simpleMaterials": "Naudokite paprastas medžiagas",
+      "lbl-lods": "LODS",
+      "info-lods": "Nustato atstumus, kuriais keičiasi detalių lygiai.",
+      "info-simpleMaterials": "Konvertuoja visas brangias medžiagas į paprastesnes, kad būtų galima nuimti apkrovą nuo scenos atvaizdavimo.",
+      "lbl-rendererSettings": "Nepaisyti generavimo priemonės parametrų",
+      "lbl-csm": "Pakopiniai šešėlių žemėlapiai",
+      "info-csm": "Įgalina pakopinius šešėlių žemėlapius.",
+      "lbl-toneMapping": "Tono susiejimas",
+      "info-toneMapping": "Įgalina tono susiejimą scenos atvaizdavimo priemonėje. Neturi jokio poveikio, kai įgalintas pašto apdorojimas.",
+      "lbl-toneMappingExposure": "Tono susiejimo ekspozicija",
+      "info-toneMappingExposure": "Nurodo tono susiejimo ekspoziciją scenos atvaizdavimo priemonėje. Neturi jokio poveikio, kai įgalintas pašto apdorojimas.",
+      "lbl-shadowMapType": "Šešėlinės schemos tipas",
+      "info-shadowMapType": "Šešėlinio žemėlapio tipas",
+      "error-url": "Įkeliant iš URL įvyko klaida"
+    },
+    "sceneCamera": {
+      "name": "Scenos peržiūros kamera",
+      "description": "Fotoaparatas, naudojamas jūsų scenos miniatiūrai ir peržiūros kameros pradžios padėčiai generuoti.",
+      "lbl-setFromViewPort": "Nustatyti iš peržiūros srities"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Dienos laikas",
+      "lbl-color": "Spalva",
+      "lbl-latitude": "Platuma",
+      "lbl-luminance": "Skaisčio",
+      "lbl-scattering": "Sklaidos suma",
+      "lbl-scatteringDistance": "Sklaidos atstumas",
+      "lbl-horizonStart": "\"Horizon Start\"",
+      "lbl-horizonEnd": "Horizonto pabaiga",
+      "lbl-texture": "Tekstūros",
+      "lbl-skyType": "Dangaus tipas",
+      "error-url": "Įkeliant iš URL įvyko klaida"
+    },
+    "spawnPoint": {
+      "name": "Neršto vieta",
+      "description": "Taškas, kuriame žmonės pasirodys, kai jie pateks į jūsų sceną.\nPeržiūros srities piktograma nurodo tikrąjį avataro dydį."
+    },
+    "spotLight": {
+      "description": "Šviesa, skleidžianti kryptimi, apšviečianti objektus kūgyje.",
+      "lbl-color": "Spalva",
+      "lbl-intensity": "Intensyvumas",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "Kampas",
+      "lbl-range": "Diapazonas",
+      "lbl-decay": "Ėduonis"
+    },
+    "transform": {
+      "title": "Transformuoti",
+      "lbl-postition": "Poziciją",
+      "lbl-rotation": "Sukimosi",
+      "lbl-scale": "Skalė"
+    },
+    "triggereVolume": {
+      "description": "Nustato ypatybę paskirties objekte įeinant ir išeinant.",
+      "lbl-target": "Daiktas",
+      "lbl-onenter": "Įeinant",
+      "lbl-onexit": "Išeinant",
+      "lbl-showHelper": "Rodyti žinyno tinklelį",
+      "ph-errorNode": "Trūksta mazgo klaidos.",
+      "ph-selectNode": "Pasirinkti mazgą..."
+    },
+    "video": {
+      "name": "Video",
+      "description": "Dinamiškai įkelia vaizdo įrašą.",
+      "lbl-video": "Video",
+      "lbl-projection": "Projekcija",
+      "lbl-islivestream": "Tiesioginis srautas",
+      "lbl-interactable": "Sąveikus",
+      "lbl-id": "Elemento ID",
+      "lbl-play": "Žaisti",
+      "lbl-pause": "Pauzė",
+      "error-url": "Įkeliant iš URL įvyko klaida"
+    },
+    "volumetric": {
+      "name": "Matavimo",
+      "description": "Dinamiškai įkeliamas tūrinis vaizdo įrašas.",
+      "uvolPaths": "UVOL keliai",
+      "playmode": "Leidimo režimas",
+      "playtitle": "Žaisti",
+      "pausetitle": "Pauzė"
+    },
+    "spline": {
+      "description": "Dinamiškai kurti ir pritaikyti kreives.",
+      "lbl-addNode": "Įtraukite mazgą į kreivę."
+    },
+    "systemnode": {
+      "description": "Pridėti scenarijų.",
+      "lbl-filePath": "URL",
+      "lbl-systemUpdateType": "Įpurškimo taškas",
+      "lbl-enableClient": "Klientas",
+      "lbl-enableServer": "Serveris",
+      "lbl-args": "Argai",
+      "error-url": "Įkeliant scenarijų iš URL įvyko klaida"
+    },
+    "portal": {
+      "lbl-portal": "Susietas portalas",
+      "lbl-redirect": "Puslapio peradresavimo naudojimas",
+      "description": "Portat teleportuoti žaidėjus į nurodytą vietą",
+      "lbl-locationName": "Vieta",
+      "lbl-modelUrl": "Modelio URL",
+      "lbl-displayText": "Rodyti tekstą",
+      "lbl-cubemapBake": "Cubemap kepti",
+      "lbl-spawnPosition": "Neršto padėtis",
+      "lbl-spawnRotation": "Neršto sukimasis",
+      "lbl-triggerPosition": "Paleidiklio padėtis",
+      "lbl-triggerRotation": "Paleidiklio sukimas",
+      "lbl-triggerScale": "Paleidiklio skalė"
+    },
+    "postprocessing": {
+      "name": "Registruoti apdorojimą",
+      "description": "Norėdami taikyti \"Post Processing\" efektus scenai."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Naujas projektas",
+      "backLink": "Atgal į projektus",
+      "featured": "Rekomenduojami",
+      "all": "Visas",
+      "newProject": "Naujas tuščias projektas",
+      "ph-search": "Ieškoti scenų..."
+    },
+    "grid": {
+      "loading": "Pakrovimo..."
+    },
+    "page": {
+      "header": "Sveikas atvykęs",
+      "headerMsg": "Jei esate naujas čia, rekomenduojame pereiti per pamoką. Priešingu atveju peršokite tiesiai ir sukurkite projektą nuo nulio arba iš vieno iš mūsų šablonų.",
+      "lbl-startTutorial": "Paleisti mokymo programą",
+      "projects": "Projektus",
+      "lbl-newProject": "Naujas projektas"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Pakrovimo...",
+      "placeObject": "Įdėti objektą",
+      "placeObjectAtOrigin": "Objekto vieta kilmės vietoje",
+      "copyURL": "Kopijuoti URL",
+      "openInNewTab": "Atidaryti URL naujame skirtuke",
+      "deleteAsset": "Naikinti turtą"
+    },
+    "filebrowser": {
+      "addNewFolder": "Įtraukti naują aplanką",
+      "cutAsset": "Kirpti",
+      "copyAsset": "Kopija",
+      "pasteAsset": "Įklijuoti",
+      "renameAsset": "Pervardyti",
+      "viewAssetProperties": "Peržiūrėti ypatybes"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Pervardyti",
+    "lbl-duplicate": "Pasikartojančius",
+    "lbl-group": "Grupė",
+    "lbl-delete": "Naikinti",
+    "lbl-expandAll": "Išplėsti viską",
+    "lbl-collapseAll": "Sutraukti viską",
+    "isseus": "Klausimus:"
+  },
+  "dnd": {
+    "nodes": "{{count}} pažymėti mazgai",
+    "models": "Pasirinkti {{count}} modeliai",
+    "images": "{{count}} pasirinkti vaizdai",
+    "videos": "{{count}} pasirinkti vaizdo įrašai",
+    "audio": "{{count}} pasirinkti garso šaltiniai"
+  },
+  "dialog": {
+    "title": "Redaktorius",
+    "lbl-confirm": "Gerai",
+    "lbl-cancel": "Atšaukti",
+    "exportProject": {
+      "title": "Eksportuoti projektą",
+      "lbl-confirm": "Eksportuoti projektą",
+      "lbl-combineMesh": "Sujungti akis",
+      "lbl-removeUnused": "Šalinti nenaudojamus objektus"
+    },
+    "performance": {
+      "title": "Našumo tikrinimas",
+      "lbl-confirm": "Publikuoti sceną",
+      "learnMore": "Sužinoti daugiau, sužinok daugiau",
+      "lbl-polycount": "Daugiakampių skaičius",
+      "lbl-material": "Medžiagų",
+      "lbl-texture": "Tekstūros",
+      "lbl-lights": "Šviesos",
+      "lbl-fileSize": "Failo dydis",
+      "info-polycount": "Rekomenduojame jūsų scenai naudoti ne daugiau kaip 50 000 trikampių mobiliesiems įrenginiams.",
+      "info-material": "Rekomenduojame naudoti ne daugiau kaip 25 unikalias medžiagas savo scenoje, kad sumažintumėte skambučių pritraukimą mobiliuosiuose įrenginiuose.",
+      "info-texture": "Rekomenduojame savo tekstūroms mobiliesiems įrenginiams naudoti ne daugiau kaip 256 MB vaizdo RAM. Taip pat rekomenduojame nenaudoti didesnių nei 2048 x 2048 tekstūrų.",
+      "info-lights": "Nors dinaminės lemputės nėra įjungtos mobiliuosiuose įrenginiuose, rekomenduojame naudoti ne daugiau kaip 3 šviesas jūsų scenoje (išskyrus aplinkos ir pusrutulio šviesas), kad jūsų scena veiktų žemos klasės kompiuteriuose.",
+      "info-fileSize": "Mažo pralaidumo ryšiams rekomenduojame galutinį failo dydį ne daugiau kaip 16 MB. Sumažinus failo dydį, sumažės laikas, kurio reikia scenai atsisiųsti.",
+      "txt-polycount": "{{count}} trikampiai",
+      "txt-material": "{{count}} medžiagos",
+      "txt-ram": "~{{count}} Vaizdo RAM",
+      "txt-texture": "{{count}} didelės tekstūros",
+      "txt-lights": "{{count}} žiburiai"
+    },
+    "progress": {
+      "title": "Pakrovimo...",
+      "msg": "Pakrovimo...",
+      "lbl-cancel": "Atšaukti"
+    },
+    "publish": {
+      "title": "Publikuoti sceną",
+      "lbl-confirm": "Įrašyti ir publikuoti",
+      "lbl-name": "Scenos pavadinimas",
+      "info-name": "Pavadinimas turi būti nuo 4 iki 64 simbolių ir jame negali būti pabraukimų"
+    },
+    "published": {
+      "title": "Scena paskelbta",
+      "header": "Jūsų scena buvo paskelbta.",
+      "lbl-view": "Peržiūrėkite savo sceną"
+    },
+    "saveNewProject": {
+      "title": "Parama",
+      "lbl-name": "Projekto pavadinimas",
+      "info-name": "Pavadinimas turi būti nuo 4 iki 64 simbolių ir jame negali būti pabraukimų",
+      "lbl-confirm": "Įrašyti projektą"
+    },
+    "support": {
+      "title": "Parama",
+      "header": "Reikia pranešti apie problemą?",
+      "msg": "Galite pateikti <1>\"GitHub\" problemą</1> arba el. laišką mums palaikymui <3>{{mail}}</3>",
+      "discord": "Mus taip pat galite rasti <1>\"Discord\"</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "\"Bing\" vaizdai",
+      "search": "Ieškoti pagal \"Bing\""
+    },
+    "bingVideo": {
+      "name": "\"Bing\" vaizdo įrašai",
+      "search": "Ieškoti pagal \"Bing\""
+    },
+    "element": {
+      "name": "Elementai"
+    },
+    "myAssets": {
+      "name": "Mano turtas"
+    },
+    "googlePoly": {
+      "name": "\"Google Poly\"",
+      "search": "Paieška pagal Google"
+    },
+    "tenor": {
+      "name": "Tenoro GIF",
+      "search": "Paieška pagal Tenorą",
+      "ph-search": "Ieškoti GIF..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Ieškoti pagal Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Nusiųsti turtą"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Ieškoti vaizdų..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Ieškoti vaizdo įrašų..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Ieškoti išteklių..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Ieškos modeliai..."
+    },
+    "useUpload": {
+      "multipleFileError": "Įvestis nepriima kelių failų.",
+      "mineTypeError": "\"{{name}}\" neatitinka šių mime tipų ar plėtinių: {{types}}",
+      "progressTitle": "Failų nusiuntimas",
+      "progressMsg": "Failų {{uploaded}} {{total}}: {{percentage}}%",
+      "uploadError": "Nusiuntimo klaida",
+      "uploadErrorMsg": "Nusiuntus failą įvyko klaida: {{message}}",
+      "uploadErrorDefaultMsg": "Įvyko nežinoma klaida"
+    }
+  },
+  "openLink": {
+    "description": "Spustelėkite parinktį Atidaryti, kad pereitumėte į saitą.",
+    "lbl-open": "Atidaryta"
+  },
+  "interactableModel": {
+    "lbl-buy": "Pirkti",
+    "lbl-learnMore": "Sužinoti daugiau, sužinok daugiau"
+  },
+  "corsProxyButton": {
+    "tooltip": "Naudoti Cors tarpinio serverio serverį"
+  }
+}

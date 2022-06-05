@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Megerősítő e-mail",
+      "resendEmail": "Kérjük, ellenőrizze e-mailjeit a fiók ellenőrzéséhez. Ha nem kapott e-mailt, kérjük, kattintson {{here}} gombra az ellenőrző e-mail újraküldéséhez.",
+      "haveAnAccount": "Van számlája?"
+    },
+    "forgotPassword": {
+      "header": "Elfelejtett jelszó",
+      "enterEmail": "Kérjük, adja meg regisztrált e-mail címét, és küldünk Önnek egy jelszó-visszaállítási linket.",
+      "lbl-email": "E-mail cím",
+      "lbl-submit": "Hivatkozás küldése",
+      "emailSent": "A jelszó alaphelyzetbe állítása elküldésre került. Kérjük, ellenőrizze az e-mailjeit."
+    },
+    "login": {
+      "email": "E-mail | SMS",
+      "username": "Felhasználónév + jelszó",
+      "social": "Társadalmi"
+    },
+    "magiklink": {
+      "header": "Bejelentkezési hivatkozás",
+      "descriptionEmail": "Kérjük, adja meg e-mail címét, és e-mailben küldünk Önnek egy bejelentkezési linket.",
+      "descriptionSMS": "Kérjük, adja meg telefonszámát, és sms-ben küldünk Önnek egy bejelentkezési linket.",
+      "descriptionEmailSMS": "Kérjük, adja meg e-mail címét vagy telefonszámát (csak 10 számjegy, csak az Egyesült Államok), és küldünk Önnek egy bejelentkezési linket e-mailben vagy SMS-ben.",
+      "descriptionSMSUS": "Kérjük, adja meg telefonszámát (10 számjegyű, csak az Egyesült Államokban), és sms-ben küldünk Önnek egy bejelentkezési linket.",
+      "lbl-email": "E-mail cím",
+      "lbl-emailPhone": "E-mail vagy telefonszám",
+      "lbl-phone": "Telefonszám",
+      "agree": "Egyetértek azzal, hogy a ",
+      "terms": "Általános Szerződési Feltételek",
+      "lbl-submit": "Bejelentkezési hivatkozás küldése",
+      "email-sent-msg": "Bejelentkezési magic link elküldve. Kérjük, ellenőrizze az e-mailjeit.",
+      "success-msg": "Bejelentkezési magic link elküldve. Kérjük, ellenőrizze e-mailjeit vagy SMS-ét.",
+      "sms-sent-msg": "Bejelentkezési magic link elküldve. Kérjük, ellenőrizze az SMS-t."
+    },
+    "passwordLogin": {
+      "header": "Bejelentkezés",
+      "lbl-email": "E-mail cím",
+      "lbl-password": "Jelszó",
+      "lbl-rememberMe": "Emlékezz rám!",
+      "lbl-signin": "Bejelentkezés",
+      "forgotPassword": "Elfelejtette a jelszavát?",
+      "signup": "Nincs számlája? Feliratkozni",
+      "lbl-login": "Bejelentkezés",
+      "ph-password": "Jelszó",
+      "ph-email": "E-mail"
+    },
+    "social": {
+      "gitHub": "Bejelentkezés a GitHub segítségével",
+      "google": "Bejelentkezés a Google-lal",
+      "facebook": "Bejelentkezés a Facebookkal",
+      "linkedin": "Bejelentkezés a LinkedIn segítségével",
+      "twitter": "Bejelentkezés a Twitterrel"
+    },
+    "register": {
+      "header": "Feliratkozni",
+      "login": "Bejelentkezés",
+      "lbl-signup": "Feliratkozni",
+      "lbl-password": "Jelszó",
+      "lbl-email": "E-mail cím",
+      "passwordNotMatch": "A jelszavak nem egyeznek",
+      "ph-password": "Jelszó",
+      "ph-confirmPassword": "Jelszó megerősítése",
+      "ph-email": "E-mail"
+    },
+    "resetPassword": {
+      "header": "Jelszó alaphelyzetbe állítása",
+      "description": "Kérjük, adja meg jelszavát az e-mail címéhez",
+      "lbl-submit": "Jelszó alaphelyzetbe állítása",
+      "lbl-password": "Jelszó",
+      "lbl-confirmPassword": "Jelszó megerősítése",
+      "passwordNotMatch": "A jelszavak nem egyeznek",
+      "nowLoginYourAccount": "Most már bejelentkezhet a fiókjába",
+      "yourPasswordResetSuccess": "A jelszó alaphelyzetbe állítása sikeresen megtörtént!"
+    },
+    "verifyEmail": {
+      "header": "E-mailek ellenőrzése",
+      "processing": "Kérjük, várjon egy percet a feldolgozás alatt..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Helyek",
+      "loading": "Berakás",
+      "col-name": "Név",
+      "col-scene": "Jelenet",
+      "col-maxuser": "Felhasználók maximális száma",
+      "lbl-search": "Helyek keresése",
+      "lbl-new": "Új"
+    },
+    "newLocation": {
+      "title": "Hely",
+      "success": "A mentés sikeresen megtörtént.",
+      "failure": "Valami elromlott.",
+      "removeSuccess": "A hely eltávolítása sikeresen megtörtént.",
+      "nameInUse": "A név használatban van.",
+      "nameRequire": "Név megadása kötelező.",
+      "validNumber": "Csak számok (0-9) engedélyezettek.",
+      "lbl-name": "Név",
+      "lbl-maxuser": "Felhasználók maximális száma",
+      "lbl-scene": "Jelenet",
+      "lbl-type": "Típus",
+      "lbl-ve": "Videó engedélyezve",
+      "lbl-gme": "Globális adathordozó engedélyezve",
+      "lbl-update": "Frissít",
+      "lbl-create": "Alkot",
+      "tooltipCanNotBeDeleted": "A lobby nem törölhető",
+      "confirmation": "Biztos vagy benne?",
+      "lbl-yes": "Igen",
+      "lbl-no": "Nem"
+    },
+    "share": {
+      "lbl-share": "Részvény",
+      "ph-phoneEmail": "Meghívás e-mailben vagy telefonszámon",
+      "lbl-phoneEmail": "Küldés e-mail címre vagy telefonszámra",
+      "lbl-copy": "Másolat",
+      "lbl-send-invite": "Meghívó küldése",
+      "title": "A hely URL-címének megosztása a csapattal",
+      "linkCopied": "A vágólapra másolt hivatkozás."
+    },
+    "setting": {
+      "audio": "Hanganyag",
+      "lbl-volume": "Térfogat",
+      "lbl-microphone": "Mikrofon",
+      "graphics": "Grafika",
+      "controls": "Vezérlőberendezés",
+      "lbl-control-type": "Vezérlő típusa",
+      "lbl-control-scheme": "Ellenőrzési séma",
+      "lbl-resolution": "Felbontás",
+      "lbl-shadow": "Árnyékok",
+      "lbl-pp": "Utófeldolgozás",
+      "lbl-pbr": "Teljes PBR",
+      "lbl-automatic": "Automatikus",
+      "xrusersetting": "XR felhasználói beállítások",
+      "rotation": "Forgás",
+      "rotation-smooth-speed": "Forgás sima sebessége",
+      "rotation-angle": "Forgatási szög",
+      "moving": "Megindító",
+      "user-avatar": "Avatar beállítás",
+      "invert-rotation": "Forgás megfordítása és botok mozgatása",
+      "show-avatar": "Avatar megjelenítése"
+    },
+    "profile": {
+      "lbl-profile": "Profil",
+      "lbl-settings": "Beállítások",
+      "lbl-username": "Felhasználónév",
+      "update-msg": "Felhasználónév frissítve",
+      "inviteCode": "Kód meghívása",
+      "youAreAn": "Ön egy",
+      "youAreA": "Ön egy",
+      "showUserId": "Felhasználói azonosító megjelenítése",
+      "hideUserId": "Felhasználói azonosító elrejtése",
+      "showApiKey": "API-kulcs megjelenítése",
+      "hideApiKey": "API-kulcs elrejtése",
+      "apiKey": "API-kulcs",
+      "logout": "Kijelentkezik",
+      "connectPhone": "A telefonszám csatlakoztatása",
+      "connectEmail": "Az e-mailek csatlakoztatása",
+      "connectPhoneEmail": "E-mail vagy telefonszám csatlakoztatása",
+      "or": "Vagy",
+      "lbl-wallet": "Bejelentkezés pénztárcával",
+      "ph-email": "E-mail",
+      "ph-phone": "Telefonszám",
+      "ph-phoneEmail": "Telefonszám / E-mail",
+      "phoneEmailError": "Érvénytelen telefonszám vagy e-mail cím",
+      "phoneError": "Érvénytelen telefon #",
+      "emailError": "Érvénytelen e-mail cím",
+      "loginWithReadyPlayerMe": "Bejelentkezés a Ready Player Me segítségével",
+      "connectSocial": "Kapcsolatfelvétel közösségi fiókokkal",
+      "createOne": "Ha nincs fiókja, egy újat hoz létre az Ön számára.",
+      "connections": {
+        "title": "Kapcsolatok",
+        "ipError": "Az aktív identitásszolgáltató nem távolítható el",
+        "disconnect": "szétkapcsol",
+        "connect": "Összeköt"
+      },
+      "profileDropdown": {
+        "avatar": "Felhasználói avatar ikon",
+        "profile": "Profil",
+        "adminConsole": "Felügyeleti konzol",
+        "logout": "Jel"
+      },
+      "userIcon": {
+        "lbl-name": "A neved",
+        "lbl-update": "Frissít",
+        "userId": "Felhasználói azonosító",
+        "ph-uploadImg": "Termékkép feltöltése",
+        "lbl-selectAcvatar": "Avatar kiválasztása",
+        "lbl-submit": "Előterjeszt"
+      },
+      "userSettings": {
+        "volume": "Térfogat",
+        "microphone": "Mikrofon",
+        "resolution": "Felbontás",
+        "high": "Magas",
+        "low": "Alacsony",
+        "spatialAudio": "Térbeli hang használata",
+        "enterMuted": "A helyiségbe elnémítva"
+      }
+    },
+    "oauth": {
+      "authenticating": "Hitelesítő...",
+      "authFailed": "{{service}} hitelesítés sikertelen."
+    },
+    "magikLink": {
+      "wait": "Kérjük, várjon egy percet a feldolgozás alatt..."
+    },
+    "dashboard": {
+      "header": "Műszerfal",
+      "dashboard": "Műszerfal",
+      "users": "Felhasználók",
+      "feeds": "Eszik",
+      "instance": "Eset",
+      "locations": "Helyek",
+      "invites": "Felkéri",
+      "sessions": "Ülés",
+      "groups": "Csoportok",
+      "parties": "Felek",
+      "chats": "Beszélgetések",
+      "content": "Tartalomcsomagok",
+      "projects": "Projektek",
+      "scenes": "Jelenetek",
+      "avatars": "Avatarok",
+      "benchmarking": "Teljesítményértékelés",
+      "bots": "Botok"
+    }
+  },
+  "oauth": {
+    "authenticating": "Hitelesítő...",
+    "authFailed": "{{service}} hitelesítés sikertelen."
+  },
+  "magikLink": {
+    "wait": "Kérjük, várjon egy percet a feldolgozás alatt..."
+  },
+  "dashboard": {
+    "header": "Műszerfal",
+    "dashboard": "Műszerfal",
+    "users": "Felhasználók",
+    "feeds": "Eszik",
+    "instance": "Eset",
+    "locations": "Helyek",
+    "routes": "Útvonalak",
+    "projects": "Projektek",
+    "invites": "Felkéri",
+    "sessions": "Ülés",
+    "groups": "Csoportok",
+    "parties": "Felek",
+    "chats": "Beszélgetések",
+    "content": "Tartalomcsomagok",
+    "scenes": "Jelenetek",
+    "avatars": "Avatarok",
+    "benchmarking": "Teljesítményértékelés",
+    "bots": "Botok",
+    "setting": "Beállítások"
+  },
+  "avatar": {
+    "title": "Avatar feltöltése",
+    "lbl-browse": "Böngészik",
+    "lbl-thumbnail": "Miniatűr",
+    "lbl-upload": "Feltölt",
+    "selectAvatar": "Válassza az Avatar lehetőséget...",
+    "selectThumbnail": "Miniatűr kiválasztása...",
+    "rotate": "Forog",
+    "pan": "Serpenyő",
+    "noBone": "Az Obejct nem tartalmaz csontokat vagy bőrt",
+    "outOfBound": "Az objektum kívül esik a határon.",
+    "emptyObj": "Az objektum üres.",
+    "maxTriangleError": "Az objektum több mint {{allowedTriangles}} lapot tartalmaz.",
+    "selectValidFile": "Válassza ki az érvényes 3D avatar fájlt.",
+    "selectValidThumbnail": "Kijelölt érvényes miniatűr fájl.",
+    "fileOversized": "Az Avatar fájlméretének {{minSize}} MB és {{maxSize}} MB között kell lennie",
+    "confirmation": "Biztos vagy benne?",
+    "canNotBeRemoved": "Az Active Avatar nem távolítható el",
+    "remove": "Avatar eltávolítása",
+    "uploadFiles": "Fájlok feltöltése",
+    "useUrlInstead": "Url használata helyett",
+    "avatar": "Megtestesülés",
+    "cancel": "Érvénytelenít",
+    "createAvatar": "Avatar létrehozása",
+    "delete": "Töröl",
+    "view": "Nézet",
+    "uploadAvatarInfo": "Avataradatok frissítése",
+    "name": "Név",
+    "enterName": "Írja be a nevet",
+    "avatarInformation": "Avatar információk",
+    "description": "Leírás",
+    "key": "Kulcs",
+    "none": "Egyik sem",
+    "submit": "Előterjeszt",
+    "edit": "Szerkeszt",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "Az Avatar feltöltése sikeresen megtörtént.",
+    "remove-success-msg": "Az Avatar feltöltése sikeresen megtörtént.",
+    "warning-msg": "Avatar erőforrás üres, szinkronizálta avatarok a statikus fájl tárolására?"
+  },
+  "personMenu": {
+    "inviteToParty": "Meghívó a partira",
+    "addAsFriend": "Hozzáadás barátként",
+    "mute": "Néma",
+    "block": "Blokk"
+  },
+  "person": {
+    "you": "Te",
+    "yourScreen": "Az Ön képernyője",
+    "muteForEveryone": "Némítás mindenkinek",
+    "unmuteForEveryone": "Némítás megszüntetése mindenki számára",
+    "muteMe": "Némíts el",
+    "unmuteMe": "Némíts el",
+    "muteThisPerson": "Elnémítja ezt a személyt",
+    "unmuteThisPerson": "A személy elnémítása",
+    "openPictureInPicture": "Kép megnyitása a képen"
+  }
+}

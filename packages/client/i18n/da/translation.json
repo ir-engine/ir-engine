@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Siden blev ikke fundet"
+  },
+  "503": {
+    "msg": "503 - Tjenesten er ikke tilgængelig"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Du er blevet forbudt fra dette sted",
+    "locationName": {
+      "pageTitle": "Hjem"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projekter",
+      "header": "Log venligst ind",
+      "welcomeMsg": "Velkommen",
+      "locationHeader": "Placeringer",
+      "projectHeader": "Projekter",
+      "sceneHeader": "Scener",
+      "description": "Hvis du er ny her, anbefaler vi at gennemgå vejledningen. Ellers skal du hoppe lige ind og oprette et projekt fra bunden eller fra en af vores skabeloner.",
+      "lbl-startTutorial": "Start vejledning",
+      "lbl-newProject": "Nyt projekt",
+      "lbl-createProject": "Skabe",
+      "lbl-newScene": "Ny scene",
+      "lbl-searchProject": "Søg i eksisterende projekter...",
+      "back": "Ryg",
+      "contextMenu": "Slet projekt",
+      "installed": "Installerede projekter",
+      "official": "Officielle projekter",
+      "community": "Fællesskabsprojekter",
+      "install": "Installere",
+      "uninstall": "Afinstaller",
+      "rename": "Omdøb",
+      "createProject": "Opret projekt",
+      "installProject": "Installer projekt",
+      "processing": "Behandling",
+      "projectName": "Projektets navn",
+      "projectURL": "URL-adresse til projektet"
+    }
+  },
+  "error": {
+    "goHomeLink": "Gå hjem",
+    "withStatusCode": "Der opstod {{code}} en fejl på serveren",
+    "withoutStatusCode": "Der opstod en fejl på serveren"
+  },
+  "no-projects": {
+    "msg": "Fejl: Ingen projekter installeret - kontakt venligst en webstedsadministrator"
+  },
+  "dev": {
+    "pageTitle": "Hjem"
+  },
+  "login": {
+    "pageTitle": "Login"
+  },
+  "workerTest": {
+    "pageTitle": "Test af arbejdstager"
+  },
+  "index": {
+    "by": "VED",
+    "xr": "XR",
+    "foundation": "Grund",
+    "description": "3D-sociale applikationer i realtid, som alle kan nyde."
+  },
+  "xrengineContact": {
+    "header": "Kontakt os!",
+    "description": "Vi vil meget gerne hjælpe dig med dine virtuelle begivenheder, digital detailhandel, underholdning og andre behov.",
+    "lbl-name": "Navn",
+    "lbl-email": "E-mail",
+    "lbl-company": "Firma",
+    "lbl-project": "Beskriv dit projekt",
+    "lbl-send": "Sende",
+    "lbl-ok": "Ok",
+    "lbl-success": "Besked sendt, Vi vender tilbage til dig snarest.",
+    "lbl-failure": "Der opstod en fejl, Plese prøv igen",
+    "err-username": "Indtast venligst dit navn.",
+    "err-email": "E-mail er krævet.",
+    "err-msg": "Giv en kort beskrivelse af dit projekt."
+  }
+}

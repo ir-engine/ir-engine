@@ -1,0 +1,718 @@
+{
+  "loading": "프로젝트 로딩",
+  "loadingMsg": "프로젝트 로딩 중...",
+  "loadingError": "프로젝트를 로드하는 중 오류 발생",
+  "loadingErrorMsg": "프로젝트를 로드할 때 오류가 발생했습니다.",
+  "selectSceneMsg": "씬을 선택하여 엔진 재생을 시작합니다.",
+  "error": "오류",
+  "errorMsg": "알 수 없는 오류가 발생했습니다.",
+  "generateScreenshot": "프로젝트 스크린샷 생성",
+  "generateScreenshotMsg": "프로젝트 스크린 샷 생성 중...",
+  "newScene": "장면 만들기",
+  "saving": "프로젝트 저장",
+  "savingMsg": "프로젝트 저장 중...",
+  "savingError": "프로젝트 저장 중 오류 발생",
+  "savingErrorMsg": "프로젝트를 저장할 때 오류가 발생했습니다.",
+  "savingSceneErrorMsg": "장면이 제대로 로드되지 않습니다. 장면을 다시로드하십시오.",
+  "duplicating": "프로젝트 복제",
+  "duplicatingMsg": "프로젝트 복제 중...",
+  "exporting": "프로젝트 내보내기",
+  "exportingMsg": "프로젝트 내보내기 중...",
+  "exportingError": "프로젝트 내보내기 중 오류 발생",
+  "exportingErrorMsg": "프로젝트를 내보낼 때 오류가 발생했습니다.",
+  "importLegacy": "레거시 월드 가져오기",
+  "importLegacyMsg": "경고! 그러면 기존 장면을 덮어씁니다! 계속하시겠습니까?",
+  "publishingError": "프로젝트 게시 중 오류 발생",
+  "publishingErrorMsg": "알 수 없는 오류가 발생했습니다.",
+  "publishingScene": "출판 장면",
+  "publishingSceneMsg": "출판 장면...",
+  "uploadingThumbnailMsg": "썸네일 업로드 중...",
+  "uploadingSceneMsg": "업로드 장면: {{percentage}}%",
+  "envMapError": "큐브맵 이미지를 {{files}} 로드하는 중 오류 발생",
+  "lbl-return": "돌아오다",
+  "menubar": {
+    "newScene": "새로운 장면",
+    "saveScene": "장면 저장",
+    "saveAs": "다른 이름으로 저장",
+    "importAsset": "자산 가져오기",
+    "exportGLB": "바이너리 glTF (.glb)로 내보내기 ...",
+    "importScene": "가져오기 장면",
+    "exportScene": "내보내기 장면",
+    "quit": "사임하다"
+  },
+  "errors": {
+    "fileTypeNotSupported": "파일에 대해 지원되지 않는 파일 형식: \"{{name}}\". 파일은 이미지, 비디오 또는 glb 모델이어야 합니다.",
+    "addObject": "addObject: 개체를 찾을 수 없는 이전",
+    "removeObject": "removeObject: 노드를 찾을 수 없습니다. 이는 더 이상 장면에 없는 노드를 제거하기 때문입니다.",
+    "noParent": "{{node}} \"{{name}}\"에는 부모가 없습니다. Reparent 는 현재 장면에 있는 객체에서만 작동합니다.",
+    "undefinedParent": "editor.reparent: newParent 가 정의되지 않았습니다.",
+    "notAuthenticated": "인증되지 않음",
+    "fetchingProjectError": "프로젝트를 가져 오는 중 오류 발생 : {{error}}",
+    "fetchingRouteError": "경로를 가져오는 중 오류 발생: {{error}}",
+    "unknownError": "알 수 없는 오류",
+    "resolveURL": "url \"{{url}}\"를 해결하는 중 오류 발생 :",
+    "mediaSearchAborted": "미디어 검색이 중단되었습니다.",
+    "methodNotImplemented": "메서드가 구현되지 않았습니다.",
+    "saveProjectAborted": "중단된 저장 장면",
+    "unsavedChanges": "저장되지 않은 변경 사항",
+    "unsavedChangesMsg": "장면이 수정되었습니다. 변경 사항을 저장하십시오.",
+    "projectCreationFail": "프로젝트를 만들지 못했습니다. {{reason}}",
+    "projectDeletionFail": "프로젝트 삭제에 실패했습니다. {{reason}}",
+    "savingProjectFail": "프로젝트 저장에 실패했습니다. {{reason}}",
+    "sceneTooLarge": "장면이 너무 커서 게시할 수 없{{size}} 습니다( 최대 크기는 {{maxSize}} MB입니다.",
+    "sceneCreationFail": "장면 생성에 실패했습니다. {{reason}}",
+    "uploadAborted": "업로드가 중단됨",
+    "uploadFailed": "업로드 실패 {{reason}}",
+    "assetDeletionFail": "자산 삭제에 실패했습니다. {{reason}}",
+    "projectAssetDeletionFail": "프로젝트 자산 삭제에 실패했습니다. {{reason}}",
+    "networkError": "네트워크 오류: {{status}}. {{text}}",
+    "unknownStatus": "알 수 없는 상태",
+    "CORS": "CORS 오류 일 수 있습니다.",
+    "urlFetchError": "\"{{url}}\" 을 가져오지 못했습니다."
+  },
+  "viewport": {
+    "title": "뷰포트",
+    "command": {
+      "movecamera": "카메라 이동",
+      "flyFast": "더 빠른 비행",
+      "orbit": "궤도 / 선택",
+      "pan": "팬",
+      "fly": "파리",
+      "focus": "초점",
+      "rotateLeft": "왼쪽으로 회전",
+      "rotateRight": "오른쪽으로 회전",
+      "cancelPlacement": "배치 취소",
+      "placeDuplicate": "중복 배치",
+      "cancelGrab": "잡기 취소",
+      "grab": "잡다",
+      "deselectAll": "모두 선택 취소"
+    },
+    "state": {
+      "header": "통계",
+      "memory": "기억",
+      "geometries": "형상",
+      "textures": "텍스처",
+      "render": "번역하다",
+      "FPS": "증권 시세 표시기",
+      "frameTime": "프레임 시간",
+      "calls": "호출",
+      "triangles": "삼각형",
+      "points": "포인트",
+      "lines": "라인"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "출판하다",
+    "lbl-published": "게시",
+    "command": {
+      "translate": "번역하기",
+      "rotate": "돌다",
+      "scale": "저울",
+      "toggleSpace": "변환 공간 토글",
+      "togglePivot": "변환 피벗 토글",
+      "toggleSnapMode": "스냅 모드 전환",
+      "toggleGrid": "그리드 가시성 토글",
+      "increaseGridSize": "그리드 크기 늘리기",
+      "descreaseGridSize": "그리드 크기 줄이기",
+      "stopPreview": "장면 미리보기 중지",
+      "playPreview": "미리보기 장면"
+    }
+  },
+  "properties": {
+    "title": "속성",
+    "lbl-visible": "보이는",
+    "lbl-preventBake": "베이크 방지",
+    "lbl-persist": "고집하다",
+    "multipleNodeSelected": "서로 다른 유형의 여러 노드가 선택됨",
+    "noNodeSelected": "선택한 노드가 없습니다.",
+    "ambientLight": {
+      "name": "주변광",
+      "description": "장면의 모든 물체를 비추는 조명입니다.",
+      "lbl-intensity": "강렬",
+      "lbl-color": "색"
+    },
+    "envmap": {
+      "name": "환경 맵",
+      "description": "환경 맵 속성"
+    },
+    "asset": {
+      "name": "자산",
+      "description": "동적으로 로드하고 언로드할 수 있는 장면 구성 요소의 그룹화",
+      "lbl-options": "옵션",
+      "lbl-assetPath": "자산 경로",
+      "lbl-assetName": "내보내기 이름",
+      "lbl-exportOptions": "내보내기 옵션",
+      "lbl-export": "자산 내보내기",
+      "lbl-load": "장면에로드",
+      "lbl-unload": "언로드",
+      "lbl-reload": "새로고침"
+    },
+    "audio": {
+      "name": "오디오",
+      "description": "오디오를 동적으로 로드합니다.",
+      "lbl-audiourl": "오디오 URL",
+      "lbl-controls": "컨트롤",
+      "info-controls": "미디어 컨트롤의 가시성을 전환합니다.",
+      "lbl-autoplay": "자동 재생",
+      "info-autoplay": "true이면 장면에 처음 들어갈 때 미디어가 재생됩니다.",
+      "lbl-synchronize": "동기화",
+      "info-synchronize": "true이면 연결된 모든 클라이언트에서 미디어가 동기화됩니다.",
+      "lbl-loop": "루프",
+      "info-loop": "true이면 미디어가 무기한 반복됩니다.",
+      "lbl-audioType": "오디오 유형",
+      "lbl-distanceModel": "거리 모델",
+      "info-distanceModel": "오디오 롤오프를 계산하는 데 사용되는 알고리텀.",
+      "lbl-rolloffFactor": "롤오프 계수",
+      "info-rolloffFactor": "소스가 수신기에서 멀어질 때 볼륨이 얼마나 빨리 감소되는지를 설명하는 이중 값입니다. 0 대 1",
+      "info-rfInfinity": "소스가 수신기에서 멀어질 때 볼륨이 얼마나 빨리 감소되는지를 설명하는 이중 값입니다. 0 ~ 무한대",
+      "lbl-refDistance": "참조 거리",
+      "info-refDistance": "오디오 소스가 청취자로부터 더 멀리 이동할 때 볼륨을 줄이기 위한 기준 거리를 나타내는 이중 값입니다.",
+      "lbl-maxDistance": "최대 거리",
+      "info-maxDistance": "오디오 소스와 청취자 사이의 최대 거리를 나타내는 이중 값으로, 그 이후에는 볼륨이 더 이상 줄어들지 않습니다.",
+      "lbl-coneInnerAngle": "콘 내부 각도",
+      "info-coneInnerAngle": "볼륨 감소가 없는 원뿔 내부의 각도를 각도(도)로 설명하는 이중 값입니다.",
+      "lbl-coneOuterAngle": "콘 외부 각도",
+      "info-coneOuterAngle": "볼륨이 상수 값으로 감소되는 원뿔 외부의 각도(도)를 설명하는 이중 값으로, coneOuterGain 속성에 의해 정의됩니다.",
+      "lbl-coreOuterGain": "콘 외부 게인",
+      "info-coreOuterGain": "coneOuterAngle 속성에 의해 정의된 원뿔 외부의 볼륨 감소량을 설명하는 이중 값입니다. 기본값은 0으로, 소리가 들리지 않음을 의미합니다.",
+      "lbl-volume": "음량",
+      "lbl-play": "놀다",
+      "lbl-pause": "일시 중지",
+      "error-url": "URL에서 로드하는 중 오류 발생"
+    },
+    "boxCollider": {
+      "description": "물체가 튕겨 나오거나 그 위에 놓일 보이지 않는 상자.\n충돌기가 없으면 물체가 바닥을 통과하여 벽을 통과합니다.",
+      "lbl-isTrigger": "방아쇠"
+    },
+    "camera": {
+      "name": "사진기",
+      "description": "카메라 설정.",
+      "lbl-camera-raycast": "카메라 레이캐스팅",
+      "lbl-camera-raycast-toggle": "사용",
+      "lbl-camera-raycast-frequency": "빈도",
+      "lbl-camera-raycast-count": "레이 카운트",
+      "lbl-camera-raycast-length": "광선 길이"
+    },
+    "directionalLight": {
+      "name": "방향성 조명",
+      "description": "전체 장면을 비추지만 한 방향을 따라 방출하는 빛입니다.",
+      "lbl-color": "색",
+      "lbl-intensity": "강렬",
+      "lbl-cameraFar": "카메라 원거리",
+      "lbl-cameraNear": "카메라 근처",
+      "lbl-cameraTop": "카메라 상단",
+      "lbl-cameraBottom": "카메라 하단",
+      "lbl-cameraLeft": "카메라 왼쪽",
+      "lbl-cameraRight": "카메라 오른쪽",
+      "lbl-useInCSM": "CSM에서 사용",
+      "lbl-castShadow": "캐스트 섀도우",
+      "lbl-disableForCSM": "캐스케이드 섀도우 맵이 활성화되어 있기 때문에 비활성화됩니다.",
+      "lbl-shadowmapResolution": "섀도우 맵 해상도",
+      "lbl-shadowBias": "그림자 바이어스",
+      "lbl-shadowRadius": "그림자 반경",
+      "lbl-showCameraHelper": "카메라 도우미 표시"
+    },
+    "groundPlane": {
+      "name": "지상 평면",
+      "description": "거리까지 확장되는 평평한 접지면입니다.",
+      "lbl-color": "색",
+      "lbl-receiveShadow": "그림자 받기",
+      "lbl-generateNavmesh": "나브메쉬 생성"
+    },
+    "link": {
+      "description": "회의실 또는 웹 사이트에 연결합니다.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "예를 들어 도시의 3D 지리 공간지도."
+    },
+    "model": {
+      "description": "GLTF URL 또는 파일에서 로드된 장면의 3D 모델입니다.",
+      "lbl-usingGPUInstancingFlag": "GPU 인스턴스화 사용",
+      "lbl-modelurl": "모델 URL",
+      "lbl-envmapUrl": "환경 맵 URL",
+      "lbl-textureOverride": "텍스처 재정의",
+      "lbl-materialOverride": "재료 재정의",
+      "error-url": "URL에서 로드하는 중 오류 발생",
+      "lbl-loopAnimation": "루프 애니메이션",
+      "lbl-isAvatar": "아바타입니다",
+      "lbl-isGPUInstancing": "GPU 인스턴스화를 사용 중입니다.",
+      "lbl-isDynamic": "동적임",
+      "lbl-castShadow": "캐스트 섀도우",
+      "lbl-receiveShadow": "그림자 받기",
+      "lbl-interactable": "상호 작용 가능",
+      "lbl-matrixAutoUpdate": "매트릭스자동 업데이트",
+      "lbl-name": "이름",
+      "lbl-url": "모델 URL",
+      "lbl-buy": "URL 구매",
+      "lbl-learnMore": "더 많은 URL 배우기",
+      "lbl-htmlContent": "HTML 콘텐츠",
+      "lbl-interactionText": "상호 작용 텍스트",
+      "lbl-interactionType": "상호 작용 유형"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "재료",
+      "error-materialID": "재료를 찾는 중 오류 발생",
+      "placeholder-materialID": "재료 선택",
+      "lbl-patternTarget": "패턴 일치",
+      "lbl-pattern": "무늬",
+      "lbl-isRegex": "정규식"
+    },
+    "interaction": {
+      "type": "상호 작용 유형",
+      "text": "상호 작용 텍스트",
+      "distance": "상호 작용 거리",
+      "theme": "상호 작용 테마",
+      "name": "상호 작용 이름",
+      "description": "상호 작용 설명",
+      "images": "상호 작용 이미지",
+      "videos": "상호 작용 비디오",
+      "urls": "상호 작용 URL",
+      "models": "상호 작용 모델"
+    },
+    "group": {
+      "name": "그룹",
+      "description": "함께 이동하거나 복제할 수 있는 여러 개체 그룹입니다.\n개체를 계층 구조의 그룹으로 끌어다 놓습니다."
+    },
+    "hemisphere": {
+      "name": "반구 빛",
+      "description": "직접 오버 헤드에서 장면을 비추는 빛.",
+      "lbl-skyColor": "스카이 컬러",
+      "lbl-groundColor": "접지 색상",
+      "lbl-intensity": "강렬"
+    },
+    "image": {
+      "name": "이미지",
+      "description": "이미지를 동적으로 로드합니다.",
+      "lbl-imgURL": "이미지 URL",
+      "lbl-transparency": "투명도 모드",
+      "lbl-alphaCutoff": "알파 컷오프",
+      "lbl-projection": "투사",
+      "lbl-side": "쪽",
+      "info-controls": "미디어 컨트롤의 가시성을 전환합니다.",
+      "info-transparency": "투명성을 적용하는 방법:",
+      "info-opaque": "'불투명' = 투명도 없음",
+      "info-blend": "'blend' = 이미지 알파 채널 사용",
+      "info-mask": "'mask' = 켜기/끄기 투명도에 지정된 컷오프 값 사용(성능이 향상됨)",
+      "info-alphaCutoff": "알파 값이 이보다 낮은 픽셀은 투명합니다.",
+      "error-url": "잘못된 URL"
+    },
+    "name": {
+      "lbl-name": "이름"
+    },
+    "partileEmitter": {
+      "description": "파티클을 생성하는 파티클 이미터입니다.",
+      "lbl-particleCount": "파티클 카운트",
+      "lbl-image": "이미지",
+      "lbl-ageRandomness": "연령 임의성",
+      "lbl-lifetime": "평생",
+      "lbl-lifetimeRandomness": "평생 임의성",
+      "lbl-sizeCurve": "크기 곡선",
+      "lbl-startPSize": "시작 입자 크기",
+      "lbl-endPSize": "최종 입자 크기",
+      "lbl-sizeRandomness": "크기 임의성",
+      "lbl-colorCurve": "컬러 커브",
+      "lbl-startColor": "시작 색상",
+      "lbl-startOpacity": "불투명도 시작",
+      "lbl-middleColor": "중간 색상",
+      "lbl-middleOpacity": "중간 불투명도",
+      "lbl-endColor": "끝 색상",
+      "lbl-endOpacity": "끝 불투명도",
+      "lbl-velocityCurve": "속도 곡선",
+      "lbl-startVelocity": "시작 속도",
+      "lbl-endVelocity": "끝 속도",
+      "lbl-angularVelocity": "각속도",
+      "info-ageRandomness": "파티클이 스폰되는 시점 사이의 변화량입니다.",
+      "info-lifetime": "파티클이 다시 생성되기 전의 최대 수명입니다.",
+      "info-lifetimeRandomness": "입자 수명 사이의 변동량입니다.",
+      "info-sizeRandomness": "입자 시작 크기 사이의 변화량입니다.",
+      "error-url": "URL에서 로드하는 중 오류 발생"
+    },
+    "clouds": {
+      "name": "구름",
+      "description": "스프라이트 기반 클라우드 볼륨.",
+      "lbl-image": "스프라이트 이미지",
+      "lbl-wroldScale": "세계 규모",
+      "lbl-dimensions": "차원",
+      "lbl-noiseZoom": "노이즈 줌",
+      "lbl-noiseOffset": "노이즈 오프셋",
+      "lbl-spriteScale": "스프라이트 스케일",
+      "lbl-fogColor": "안개 색깔",
+      "lbl-fogRange": "안개 범위",
+      "error-url": "URL에서 로드하는 중 오류 발생"
+    },
+    "ocean": {
+      "name": "대양",
+      "description": "파도와 거품이있는 바다 표면",
+      "lbl-normalMap": "일반 맵",
+      "lbl-distortionMap": "왜곡 맵",
+      "lbl-envMap": "환경 맵",
+      "lbl-color": "색",
+      "lbl-shallowWaterColor": "얕은 수채화",
+      "lbl-shallowToDeepDistance": "얕은 거리부터 깊은 거리까지",
+      "lbl-opacityFadeDistance": "불투명도 페이드 거리",
+      "lbl-opacityRange": "불투명도 범위",
+      "lbl-shininess": "광택",
+      "lbl-reflectivity": "반사도",
+      "lbl-foamColor": "거품 색깔",
+      "lbl-foamSpeed": "거품 속도",
+      "lbl-foamTiling": "폼 타일링",
+      "lbl-bigWaveTiling": "빅 웨이브 타일링",
+      "lbl-bigWaveSpeed": "빅 웨이브 속도",
+      "lbl-bigWaveHeight": "빅 웨이브 높이",
+      "lbl-waveSpeed": "웨이브 속도",
+      "lbl-waveScale": "웨이브 스케일",
+      "lbl-waveTiling": "웨이브 타일링",
+      "lbl-waveDistortionSpeed": "웨이브 왜곡 속도",
+      "lbl-waveDistortionTiling": "웨이브 왜곡 타일링",
+      "error-url": "URL에서 로드하는 중 오류 발생"
+    },
+    "water": {
+      "name": "물",
+      "description": "작은 물 표면"
+    },
+    "interior": {
+      "name": "내부",
+      "description": "내부 환경을 에뮬레이트하기 위해 매핑된 큐브 텍스처가 있는 서피스",
+      "lbl-cubeMap": "큐브 맵 텍스처",
+      "lbl-tiling": "타일링 양",
+      "lbl-size": "표면 크기",
+      "error-url": "URL에서 로드하는 중 오류 발생"
+    },
+    "pointLight": {
+      "description": "단일 지점에서 모든 방향으로 방출되는 빛.",
+      "lbl-color": "색",
+      "lbl-intensity": "강렬",
+      "lbl-range": "레인지",
+      "lbl-decay": "썩다"
+    },
+    "scene": {
+      "name": "장면",
+      "description": "장면의 루트 개체입니다.",
+      "lbl-bgcolor": "배경색",
+      "lbl-fogType": "안개 유형",
+      "lbl-fogColor": "안개 색깔",
+      "lbl-forNearDistance": "안개 근처 거리",
+      "lbl-fogFarDistance": "안개 먼 거리",
+      "lbl-fogDensity": "안개 밀도",
+      "lbl-audioSettings": "위치 오디오 사용",
+      "lbl-avatarDistanceModel": "아바타 거리 모델",
+      "lbl-avatarRolloffFactor": "아바타 롤오프 팩터",
+      "lbl-avatarRefDistance": "아바타 참조 거리",
+      "lbl-avatarMaxDistance": "아바타 최대 거리",
+      "lbl-mediaVolume": "미디어 볼륨",
+      "lbl-mediaDistanceModel": "미디어 거리 모델",
+      "lbl-mediaRolloffFactor": "미디어 롤오프 계수",
+      "lbl-mediaRefDistance": "미디어 참조 거리",
+      "lbl-mediaMaxDistance": "미디어 최대 거리",
+      "lbl-mediaConeInnerAngle": "미디어 콘 내부 각도",
+      "lbl-mediaConeOuterAngle": "미디어 콘 외부 각도",
+      "lbl-mediaConeOuterGain": "미디어 콘 외부 게인",
+      "info-avatarDistanceModel": "오디오 롤오프를 계산하는 데 사용되는 알고리텀.",
+      "info-avatarRolloffFactor": "소스가 수신기에서 멀어질 때 볼륨이 얼마나 빨리 감소되는지를 설명하는 이중 값입니다. 0 대 1",
+      "info-avatarRolloffFactorInifinity": "소스가 수신기에서 멀어질 때 볼륨이 얼마나 빨리 감소되는지를 설명하는 이중 값입니다. 0 ~ 무한대",
+      "info-avatarRefDistance": "오디오 소스가 청취자로부터 더 멀리 이동할 때 볼륨을 줄이기 위한 기준 거리를 나타내는 이중 값입니다.",
+      "info-avatarMaxDistance": "오디오 소스와 청취자 사이의 최대 거리를 나타내는 이중 값으로, 그 이후에는 볼륨이 더 이상 줄어들지 않습니다.",
+      "info-mediaDistanceModel": "오디오 롤오프를 계산하는 데 사용되는 알고리텀.",
+      "info-mediaRolloffFactor": "소스가 수신기에서 멀어질 때 볼륨이 얼마나 빨리 감소되는지를 설명하는 이중 값입니다. 0 대 1",
+      "info-mediaRolloffFactorInfinity": "소스가 수신기에서 멀어질 때 볼륨이 얼마나 빨리 감소되는지를 설명하는 이중 값입니다. 0 ~ 무한대",
+      "info-mediaRefDistance": "오디오 소스가 청취자로부터 더 멀리 이동할 때 볼륨을 줄이기 위한 기준 거리를 나타내는 이중 값입니다.",
+      "info-mediaMaxDistance": "오디오 소스와 청취자 사이의 최대 거리를 나타내는 이중 값으로, 그 이후에는 볼륨이 더 이상 줄어들지 않습니다.",
+      "info-mediaConeInnerAngle": "볼륨 감소가 없는 원뿔 내부의 각도를 각도(도)로 설명하는 이중 값입니다.",
+      "info-mediaConeOuterAngle": "볼륨이 상수 값으로 감소되는 원뿔 외부의 각도(도)를 설명하는 이중 값으로, coneOuterGain 속성에 의해 정의됩니다.",
+      "info-mediaConeOuterGain": "coneOuterAngle 속성에 의해 정의된 원뿔 외부의 볼륨 감소량을 설명하는 이중 값입니다. 기본값은 0으로, 소리가 들리지 않음을 의미합니다.",
+      "lbl-simpleMaterials": "간단한 재료 사용",
+      "lbl-lods": "로이드",
+      "info-lods": "세부 수준이 변경되는 거리를 설정합니다.",
+      "info-simpleMaterials": "값 비싼 모든 재료를 더 간단한 재질로 변환하여 장면 렌더링에서 부하를 제거합니다.",
+      "lbl-rendererSettings": "렌더러 설정 재정의",
+      "lbl-csm": "계단식 그림자 맵",
+      "info-csm": "계단식 그림자 맵을 사용하도록 설정합니다.",
+      "lbl-toneMapping": "톤 매핑",
+      "info-toneMapping": "장면 렌더러에서 톤 매핑을 사용하도록 설정합니다. 사후 처리가 활성화된 경우에는 효과가 없습니다.",
+      "lbl-toneMappingExposure": "톤 매핑 노출",
+      "info-toneMappingExposure": "장면 렌더러의 톤 매핑 노출을 지정합니다. 사후 처리가 활성화된 경우에는 효과가 없습니다.",
+      "lbl-shadowMapType": "섀도우 맵 유형",
+      "info-shadowMapType": "그림자 맵의 종류",
+      "error-url": "URL에서 로드하는 중 오류 발생"
+    },
+    "sceneCamera": {
+      "name": "장면 미리보기 카메라",
+      "description": "장면의 축소판 그림과 미리 보기 카메라의 시작 위치를 생성하는 데 사용되는 카메라입니다.",
+      "lbl-setFromViewPort": "뷰포트에서 설정"
+    },
+    "skybox": {
+      "name": "스카이박스",
+      "description": "",
+      "lbl-timeOfDay": "하루 중 시간",
+      "lbl-color": "색",
+      "lbl-latitude": "위도",
+      "lbl-luminance": "휘도",
+      "lbl-scattering": "산란량",
+      "lbl-scatteringDistance": "산란 거리",
+      "lbl-horizonStart": "호라이즌 스타트",
+      "lbl-horizonEnd": "호라이즌 엔드",
+      "lbl-texture": "텍스처",
+      "lbl-skyType": "스카이 타입",
+      "error-url": "URL에서 로드하는 중 오류 발생"
+    },
+    "spawnPoint": {
+      "name": "스폰 포인트",
+      "description": "사람들이 장면에 들어갈 때 나타나는 지점입니다.\n뷰포트의 아이콘은 아바타의 실제 크기를 나타냅니다."
+    },
+    "spotLight": {
+      "description": "방향을 따라 방출하여 원뿔 안의 물체를 비추는 빛.",
+      "lbl-color": "색",
+      "lbl-intensity": "강렬",
+      "lbl-penumbra": "페넘브라",
+      "lbl-angle": "각",
+      "lbl-range": "레인지",
+      "lbl-decay": "썩다"
+    },
+    "transform": {
+      "title": "변압하다",
+      "lbl-postition": "위치",
+      "lbl-rotation": "회전",
+      "lbl-scale": "저울"
+    },
+    "triggereVolume": {
+      "description": "입력 및 나가기에 대상 개체에 대한 속성을 설정합니다.",
+      "lbl-target": "객체",
+      "lbl-onenter": "입력 시",
+      "lbl-onexit": "출구",
+      "lbl-showHelper": "도우미 메시 표시",
+      "ph-errorNode": "노드가 누락된 오류가 발생했습니다.",
+      "ph-selectNode": "노드 선택..."
+    },
+    "video": {
+      "name": "비디오",
+      "description": "비디오를 동적으로 로드합니다.",
+      "lbl-video": "비디오",
+      "lbl-projection": "투사",
+      "lbl-islivestream": "라이브 스트림",
+      "lbl-interactable": "상호 작용 가능",
+      "lbl-id": "요소 ID",
+      "lbl-play": "놀다",
+      "lbl-pause": "일시 중지",
+      "error-url": "URL에서 로드하는 중 오류 발생"
+    },
+    "volumetric": {
+      "name": "체적",
+      "description": "체적 비디오를 동적으로 로드합니다.",
+      "uvolPaths": "UVOL 경로",
+      "playmode": "플레이 모드",
+      "playtitle": "놀다",
+      "pausetitle": "일시 중지"
+    },
+    "spline": {
+      "description": "커브를 동적으로 생성하고 사용자 지정할 수 있습니다.",
+      "lbl-addNode": "커브에 노드를 추가합니다."
+    },
+    "systemnode": {
+      "description": "스크립트를 첨부합니다.",
+      "lbl-filePath": "URL",
+      "lbl-systemUpdateType": "주입 지점",
+      "lbl-enableClient": "클라이언트",
+      "lbl-enableServer": "서버",
+      "lbl-args": "아르그",
+      "error-url": "URL에서 스크립트를 로드하는 중 오류 발생"
+    },
+    "portal": {
+      "lbl-portal": "연결된 포털",
+      "lbl-redirect": "페이지 리디렉션 사용",
+      "description": "플레이어를 지정된 위치로 텔레포트하는 Portat",
+      "lbl-locationName": "위치",
+      "lbl-modelUrl": "모델 URL",
+      "lbl-displayText": "텍스트 표시",
+      "lbl-cubemapBake": "큐브맵 베이크",
+      "lbl-spawnPosition": "스폰 위치",
+      "lbl-spawnRotation": "스폰 회전",
+      "lbl-triggerPosition": "트리거 위치",
+      "lbl-triggerRotation": "트리거 회전",
+      "lbl-triggerScale": "트리거 스케일"
+    },
+    "postprocessing": {
+      "name": "후처리",
+      "description": "장면에 사후 처리 효과를 적용하기 위해."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "새 프로젝트",
+      "backLink": "프로젝트로 돌아가기",
+      "featured": "추천",
+      "all": "모두",
+      "newProject": "새 빈 프로젝트",
+      "ph-search": "검색 장면..."
+    },
+    "grid": {
+      "loading": "로드..."
+    },
+    "page": {
+      "header": "환영",
+      "headerMsg": "여기에 새로 오신 경우 자습서를 진행하는 것이 좋습니다. 그렇지 않으면 바로 뛰어 들어 처음부터 또는 템플릿 중 하나에서 프로젝트를 만듭니다.",
+      "lbl-startTutorial": "튜토리얼 시작",
+      "projects": "프로젝트",
+      "lbl-newProject": "새 프로젝트"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "로드...",
+      "placeObject": "객체 배치",
+      "placeObjectAtOrigin": "원점에 객체 배치",
+      "copyURL": "URL 복사",
+      "openInNewTab": "새 탭에서 URL 열기",
+      "deleteAsset": "자산 삭제"
+    },
+    "filebrowser": {
+      "addNewFolder": "새 폴더 추가",
+      "cutAsset": "삭감",
+      "copyAsset": "복사",
+      "pasteAsset": "붙여넣기",
+      "renameAsset": "이름 바꾸기",
+      "viewAssetProperties": "속성 보기"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "이름 바꾸기",
+    "lbl-duplicate": "복사하다",
+    "lbl-group": "그룹",
+    "lbl-delete": "삭제하다",
+    "lbl-expandAll": "모두 확장",
+    "lbl-collapseAll": "모두 축소",
+    "isseus": "문제:"
+  },
+  "dnd": {
+    "nodes": "{{count}} 선택된 노드",
+    "models": "{{count}} 모델 선택",
+    "images": "{{count}} 이미지 선택",
+    "videos": "선택한 비디오 {{count}}",
+    "audio": "{{count}} 오디오 소스 선택"
+  },
+  "dialog": {
+    "title": "편집자",
+    "lbl-confirm": "그래",
+    "lbl-cancel": "취소",
+    "exportProject": {
+      "title": "프로젝트 내보내기",
+      "lbl-confirm": "프로젝트 내보내기",
+      "lbl-combineMesh": "메쉬 결합",
+      "lbl-removeUnused": "사용하지 않는 객체 제거"
+    },
+    "performance": {
+      "title": "성능 확인",
+      "lbl-confirm": "장면 게시",
+      "learnMore": "더 알아보세요",
+      "lbl-polycount": "다각형 개수",
+      "lbl-material": "자료",
+      "lbl-texture": "텍스처",
+      "lbl-lights": "조명",
+      "lbl-fileSize": "파일 크기",
+      "info-polycount": "장면은 모바일 장치에 50,000개 이하의 삼각형을 사용하지 않는 것이 좋습니다.",
+      "info-material": "모바일 장치에서 그리기 호출을 줄이기 위해 장면에 25개 이하의 고유한 재질을 사용하는 것이 좋습니다.",
+      "info-texture": "텍스처는 모바일 장치에 256MB 이하의 비디오 RAM을 사용하지 않는 것이 좋습니다. 또한 2048 x 2048보다 큰 텍스처를 사용하지 않는 것이 좋습니다.",
+      "info-lights": "모바일 장치에서는 동적 조명을 사용할 수 없지만 씬에서 씬을 실행하기 위해 장면에 3개 이하의 조명(주변 및 반구 조명 제외)을 사용하지 않는 것이 좋습니다.",
+      "info-fileSize": "낮은 대역폭 연결을 위해 최종 파일 크기는 16MB를 넘지 않는 것이 좋습니다. 파일 크기를 줄이면 장면을 다운로드하는 데 걸리는 시간이 줄어듭니다.",
+      "txt-polycount": "{{count}} 삼각형",
+      "txt-material": "{{count}} 재료",
+      "txt-ram": "~{{count}} 비디오 RAM",
+      "txt-texture": "큰 텍스처 {{count}}",
+      "txt-lights": "{{count}} 조명"
+    },
+    "progress": {
+      "title": "로드...",
+      "msg": "로드...",
+      "lbl-cancel": "취소"
+    },
+    "publish": {
+      "title": "장면 게시",
+      "lbl-confirm": "저장 및 게시",
+      "lbl-name": "장면 이름",
+      "info-name": "이름은 4자에서 64자 사이여야 하며 밑줄을 포함할 수 없습니다."
+    },
+    "published": {
+      "title": "장면 게시",
+      "header": "장면이 게시되었습니다.",
+      "lbl-view": "장면 보기"
+    },
+    "saveNewProject": {
+      "title": "지원",
+      "lbl-name": "프로젝트 이름",
+      "info-name": "이름은 4자에서 64자 사이여야 하며 밑줄을 포함할 수 없습니다.",
+      "lbl-confirm": "프로젝트 저장"
+    },
+    "support": {
+      "title": "지원",
+      "header": "문제를 보고해야 합니까?",
+      "msg": "<1>GitHub 이슈</1>를 제출하거나 지원을 위해 이메일을 보내 <3>{{mail}}</3>",
+      "discord": "<1>당신은 또한 불화</1>에서 우리를 찾을 수 있습니다"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "빙 이미지",
+      "search": "빙으로 검색"
+    },
+    "bingVideo": {
+      "name": "빙 동영상",
+      "search": "빙으로 검색"
+    },
+    "element": {
+      "name": "요소"
+    },
+    "myAssets": {
+      "name": "내 자산"
+    },
+    "googlePoly": {
+      "name": "구글 폴리",
+      "search": "구글로 검색"
+    },
+    "tenor": {
+      "name": "테너 GIF",
+      "search": "테너로 검색",
+      "ph-search": "GIF 검색..."
+    },
+    "sketchfab": {
+      "name": "스케치팹",
+      "search": "Sketchfab으로 검색"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "자산 업로드"
+    },
+    "imageSourcePanel": {
+      "ph-search": "이미지 검색..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "동영상 검색..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "자산 검색..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "모델 검색..."
+    },
+    "useUpload": {
+      "multipleFileError": "입력은 여러 파일을 허용하지 않습니다.",
+      "mineTypeError": "\"{{name}}\"가 다음 MIME 유형 또는 확장과 일치하지 않습니다. {{types}}",
+      "progressTitle": "파일 업로드",
+      "progressMsg": "파일 업로드 {{uploaded}} 의 {{total}}: {{percentage}}%",
+      "uploadError": "업로드 오류",
+      "uploadErrorMsg": "파일 업로드 중 오류 발생: {{message}}",
+      "uploadErrorDefaultMsg": "알 수 없는 오류가 발생했습니다."
+    }
+  },
+  "openLink": {
+    "description": "열기를 클릭하여 링크로 이동하십시오.",
+    "lbl-open": "열다"
+  },
+  "interactableModel": {
+    "lbl-buy": "사다",
+    "lbl-learnMore": "더 알아보세요"
+  },
+  "corsProxyButton": {
+    "tooltip": "코드 프록시 서버 사용"
+  }
+}

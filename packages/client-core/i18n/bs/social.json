@@ -1,0 +1,202 @@
+{
+  "addComment": "Dodaj komentar...",
+  "share": "Dijeliti",
+  "suggestions": "Prijedlozi za vas",
+  "seeAll": "Vidi sve",
+  "likes": "Voli",
+  "viewComments": "Pogledaj sve {{count}} komentare",
+  "more": "više",
+  "username": "korisničko ime",
+  "fullName": "Prezime",
+  "reportInApporpriate": "Prijavi neprikladno",
+  "unfollow": "Unfollow",
+  "goToPost": "Idi na Post",
+  "shareModal": "Dijeliti",
+  "copyLink": "Kopiraj vezu",
+  "embed": "Ugnjetaj",
+  "cancel": "Otkazati",
+  "confirm": "Potvrditi",
+  "save": "Spasiti",
+  "profilePic": "{{user}}profila",
+  "ara": "Ara",
+  "follow": "Pratiti",
+  "flames": "Plamenu",
+  "continue": "Nastaviti",
+  "partyInvitationSent": "Pozivnica za zabavu poslana",
+  "arMedia": {
+    "back": "Leđa",
+    "clip": "Isječak",
+    "backgrounds": "Pozadine",
+    "start": "Početak"
+  },
+  "arMediaform": {
+    "title": "Naslov",
+    "type": "Tip",
+    "clip": "Isječak",
+    "background": "Pozadinu",
+    "scene": "Scena",
+    "save": "Spasiti",
+    "manifest-file": "Manifest .manifest datoteka",
+    "audio-file": "Mp4 datoteka",
+    "dracosis-file": "Drakoza .uvol datoteka",
+    "preview-file": "Pregledaj datoteku slike"
+  },
+  "creator": {
+    "myVideos": "Moji video zapisi",
+    "savedVideos": "Sačuvani video zapisi",
+    "back": "Leđa",
+    "blocked-list": "Blokirana lista",
+    "block-user": "Blokiraj korisnika",
+    "dialog-content": "Nećete vidjeti korisnički profil i sadržaj"
+  },
+  "creatorForm": {
+    "back": "Leđa",
+    "edit": "Uredi profil",
+    "save": "Spasiti",
+    "changeAvatar": "Promijeni sliku avatara",
+    "ph-selectPreview": "Odaberi pregled",
+    "ph-name": "Tvoje ime",
+    "ph-username": "Vaše korisničko ime",
+    "ph-email": "Vaš E-mail",
+    "ph-tags": "Oznake",
+    "ph-link": "Vezu",
+    "ph-aboutYou": "Više o tebi",
+    "ph-twitter": "twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Odjava"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Korisnike",
+    "feeds": "Sažetke sadržaja",
+    "arMedia": "Video mediji",
+    "editor": "Urednik",
+    "creator": "Kreator"
+  },
+  "featured": {
+    "empty-list": "Nema feedova za sada..."
+  },
+  "feed": {
+    "back": "Leđa",
+    "related": "Srodni feedovi",
+    "is-repoted-message": "Feed je prijavljen!"
+  },
+  "feedForm": {
+    "back": "Leđa",
+    "thanks": "Hvala što ste podijelili i poboljšali našu zajednicu",
+    "share": "Podijelite nešto sa zajednicom",
+    "upload": "Upload Video",
+    "ph-selectVideo": "Izaberi video",
+    "preview": "Slika za pregled",
+    "ph-selectPreview": "Odaberi pregled",
+    "createFeed": "Da biste kreirali feed morate imati video i sliku za pregled!!!",
+    "ph-videoName": "Ime vašeg videa",
+    "ph-type": "Ukucajte ono što želite podijeliti sa zajednicom ... ",
+    "lbl-share": "Dijeliti",
+    "save": "Sačuvaj i idi Dalje"
+  },
+  "feedMenu": {
+    "featured": "Uocilo",
+    "creators": "Kreatori",
+    "feed": "The Feed"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetrijsko"
+  },
+  "login": {
+    "account": "Imaš račun?",
+    "login": "Prijava",
+    "resetPassword": "Reset Lozinka Lažno dugme (ovdje bi bio link iz e-maila)",
+    "notHavingAccount": "Nemaš račun?",
+    "signUp": "Prijavi se",
+    "forgotPassword": "Zaboravio si lozinku?",
+    "back": "Leđa",
+    "or": "ILI"
+  },
+  "comment": {
+    "add": "Dodaj svoj komentar..."
+  },
+  "notification": {
+    "feedFire": " ispalio tvoj feed",
+    "feedBookmarked": " bookmarked your feed",
+    "comment": " komentirao vaš feed:",
+    "commentFire": " otpustio svoj komentar za hranjenje",
+    "follow": " počeo da te prati",
+    "unfollow": " prestao te pratiti",
+    "followed": " pratio te",
+    "activity": "Aktivnosti"
+  },
+  "onBoarding": {
+    "welcome": "Dobrodošli!",
+    "description": "Najveća kolekcija od 370+ rasporeda za iOS prototip.",
+    "next": "Sljedeći",
+    "discover": "Otkrijte članke,",
+    "news": "novosti & postova",
+    "lines": "Ta osećanja su ta koja pokreće našu ljubav prema astronomiji i našoj želji.",
+    "getStarted": "Početak",
+    "meetUp": "Nađite se sa",
+    "friends": "Prijatelji.",
+    "meet": "Nađite se sa prijateljima"
+  },
+  "shareForm": {
+    "arcMedia": "Dijeliti",
+    "videoCreated": "Kreirao sam ovaj video",
+    "shareWithBuddies": "Podijeli sa drugarima",
+    "shareVideo": "Dijeli video",
+    "save": "Sačuvaj u kameru Roll",
+    "cancel": "Otkazati",
+    "close": "Blizak",
+    "addFeed": "Dodaj feed"
+  },
+  "simpleModal": {
+    "emptyList": "Prazna lista",
+    "followers": " Sljedeće",
+    "following": " Sljedbenike",
+    "flames": " Plamenu"
+  },
+  "splash": {
+    "screen": "Prskanje ekrana",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "{{user}}profila"
+  },
+  "view": {
+    "cancel": "Otkazati",
+    "choice": "Imate dva različita načina snimanja između",
+    "verticalMode": "Vertikalni režim ima rekordno vrijeme od 30 sekundi",
+    "horizontalMode": "Horizontalni režim ima neograničeno vrijeme zapisa",
+    "start": "Početak",
+    "not-show": "Ne pokazi ga ponovo.",
+    "welcome": "Dobrodošli u ARC!  Napravite lične video snimke sa jednim od naših holograma i objavite ga na svojim kanalima društvenih medija!",
+    "step": "KORAK {{step}}",
+    "text-step-1": "Izaberite hologram iz biblioteke.",
+    "text-step-2": "Ovo je Augmented Reality, zato skenirajte prostor kamerom s jedne na drugu stranu na 3-5 sekundi gdje želite da nastup holograma bude.",
+    "text-step-3-part-1": "Jednom tapnite ekran na lokaciji gdje želite da se hologram usidri.",
+    "text-step-3-part-2": "NAPOJNICA!  Tapni jednom drugdje da premjestiš hologram na drugu poziciju.",
+    "text-step-3-part-3": "NAPOJNICA!  Hologram možete da se resizujete tako što ćete prstom i kažiprstom štipnuti ili proširiti ekran.",
+    "text-step-4-part-1": "Dvostruko tapnite crveno dugme za snimanje da pokrenete video snimanje.",
+    "text-step-4-part-2": "Dvaput tapnite crveno dugme za snimanje za STOP."
+  },
+  "video": {
+    "back": "Leđa"
+  },
+  "terms": {
+    "confirmTerms": "Slažem se sa Uslovima usluge",
+    "confirmPolicy": "Slažem se sa Politikom privatnosti"
+  },
+  "registration": {
+    "ph-phoneEmail": "Koristi telefon / e-mail",
+    "facebook": "Nastavi sa Facebookom",
+    "google": "Nastavi sa Googleom",
+    "linkedin": "Nastavi sa Linkedin",
+    "twitter": "Nastavi sa Twitterom",
+    "gitHub": "Nastavi sa GitHubom",
+    "connect": "Povežite e-mail ili telefonski broj",
+    "logIn": "Prijavi se",
+    "LogInTo": "Prijavite se u",
+    "continueAsGuest": "Nastavi kao gost"
+  }
+}

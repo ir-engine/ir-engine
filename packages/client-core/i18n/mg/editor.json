@@ -1,0 +1,718 @@
+{
+  "loading": "Fakana tetikasa",
+  "loadingMsg": "Maka ny tetikasa...",
+  "loadingError": "Nisy olana teo am-pakana ny tetikasa",
+  "loadingErrorMsg": "Nisy olana teo am-pakana ilay tetikasa.",
+  "selectSceneMsg": "Safidio ny Seho hanombohana ny filalaovana amin'ny alalan'ny motera",
+  "error": "Tsy fetezana",
+  "errorMsg": "Nisy olana tsy fantatra.",
+  "generateScreenshot": "Mamorona ny Pikantsary ho an'ny Tetikasa",
+  "generateScreenshotMsg": "Mamorona pikantsary momba ny tetikasa...",
+  "newScene": "Hamorona sehatra",
+  "saving": "Tetikasa Famonjena",
+  "savingMsg": "Mandraikitra ny tetikasa...",
+  "savingError": "Nisy olana teo am-pandraiketam-bola ny tetikasa",
+  "savingErrorMsg": "Nisy olana teo am-pandraiketany ilay tetik'asa.",
+  "savingSceneErrorMsg": "Tsy azo atao araka ny tokony ho izy ny sary. Andramo alefa ny zava - nitranga.",
+  "duplicating": "Tetikasa fanaovana dika mitovy",
+  "duplicatingMsg": "Tetikasa fanaovana dika mitovy...",
+  "exporting": "Tetikasa Fanondranana",
+  "exportingMsg": "Tetikasa fanondranana...",
+  "exportingError": "Nisy olana teo am-panondranana tetikasa",
+  "exportingErrorMsg": "Nisy olana teo am-panondranana ilay tetikasa.",
+  "importLegacy": "Manafatra ny Lova",
+  "importLegacyMsg": "Fampitandremana! Ho fenoin'izany ny zava -mitrangao efa misy! Azonao antoka ve fa te hanohy ianao?",
+  "publishingError": "Nisy olana teo am-pamoahana ny tetikasa",
+  "publishingErrorMsg": "Nisy olana tsy fantatra.",
+  "publishingScene": "Famoahana ny sehatra",
+  "publishingSceneMsg": "Sehon'ny famoahana...",
+  "uploadingThumbnailMsg": "Mampiditra sary madinika...",
+  "uploadingSceneMsg": "Sehatra famoahana: {{percentage}}%",
+  "envMapError": "Nisy olana teo am-pakana ireo sary cubemap {{files}}",
+  "lbl-return": "Miverina",
+  "menubar": {
+    "newScene": "Toe-javatra vaovao",
+    "saveScene": "Raiketo ilay seha-",
+    "saveAs": "Raiketo toy izao",
+    "importAsset": "Import Asset",
+    "exportGLB": "Manondrana toy ny glTF (.glb) ...",
+    "importScene": "Manafatra sehon'ny",
+    "exportScene": "Sehon'ny fanondranana",
+    "quit": "Hijanona"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Karazan - drakitra tsy raisina an - tànana: \"{{name}}\". Tsy maintsy maodely glb ilay rakitra.",
+    "addObject": "addObject: alohan'ny tsy ahitana zavatra",
+    "removeObject": "esory nyObject: tsy hita ny node. Izany dia noho ny fanesorana ny node izay tsy eo amin'ny sehatra intsony.",
+    "noParent": "Tsy manan - {{node}} ray aman - dreny ny{{name}}\" . Ny tsy firaharahana dia miasa fotsiny amin'ny zavatra izay eo an-toerana amin'izao fotoana izao.",
+    "undefinedParent": "editor.repat: Tsy voafaritra nyParent vaovao",
+    "notAuthenticated": "Tsy voamarina",
+    "fetchingProjectError": "Nisy olana teo am-pakana ireo tetikasa: {{error}}",
+    "fetchingRouteError": "Nisy olana teo am-pakana ny làlana: {{error}}",
+    "unknownError": "Tsy fetezana tsy fantatra",
+    "resolveURL": "Nisy olana teo am - pamakiana ny url \"{{url}}\":",
+    "mediaSearchAborted": "Najanona ny fikarohana media",
+    "methodNotImplemented": "Tsy ampiharina ny fomba fanao.",
+    "saveProjectAborted": "Raiketo ny toerana nalana azy",
+    "unsavedChanges": "Fiovana tsy voaraikitra",
+    "unsavedChangesMsg": "Novaina ny zava-nitranga. Tehirizo azafady ireo fanovana nataonao.",
+    "projectCreationFail": "Tsy nahomby ny famoronana tetikasa. {{reason}}",
+    "projectDeletionFail": "Tsy nahomby ny famafana tetikasa. {{reason}}",
+    "savingProjectFail": "Tsy nahomby ny tetikasa famonjena. {{reason}}",
+    "sceneTooLarge": "Lehibe loatra ny sehatra ({{size}} MB) ka tsy afaka mamoaka azy. Ny habeny ambony indrindra dia {{maxSize}} MB.",
+    "sceneCreationFail": "Tsy nahomby ny famoronana an-tsehatra. {{reason}}",
+    "uploadAborted": "Nakarina",
+    "uploadFailed": "Tsy nahomby ny fakana {{reason}}",
+    "assetDeletionFail": "Tsy nahomby ny famafana. {{reason}}",
+    "projectAssetDeletionFail": "Tsy nahomby ny famafana ny tetikasa Asset. {{reason}}",
+    "networkError": "Tsy fetezana teo amin'ny rezo: {{status}}. {{text}}",
+    "unknownStatus": "Toetra tsy fantatra",
+    "CORS": "Mety ho tsy fetezana CORS",
+    "urlFetchError": "Tsy nahazo '{{url}}'"
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Afindrao ny fakantsary",
+      "flyFast": "Fly haingana kokoa",
+      "orbit": "Orbit / Safidio",
+      "pan": "Pan",
+      "fly": "Fly",
+      "focus": "Mifantoha",
+      "rotateLeft": "Rotate ankavia",
+      "rotateRight": "Alefaso ny ankavanana",
+      "cancelPlacement": "Foano ny toerana",
+      "placeDuplicate": "Place Duplicate",
+      "cancelGrab": "Foano ny faka",
+      "grab": "Grab",
+      "deselectAll": "Aelefaso izy rehetra"
+    },
+    "state": {
+      "header": "Antontan'isa",
+      "memory": "Arika",
+      "geometries": "Geometries",
+      "textures": "Textures",
+      "render": "Render",
+      "FPS": "FPS",
+      "frameTime": "Fotoanan'ilay frame",
+      "calls": "Antso",
+      "triangles": "Triangles",
+      "points": "Hevitra",
+      "lines": "Andalana"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Famoahana",
+    "lbl-published": "Navoaka",
+    "command": {
+      "translate": "Mandika",
+      "rotate": "Rotate",
+      "scale": "Scale",
+      "toggleSpace": "Mamaritra ny elanelana",
+      "togglePivot": "Mamaritra ny fanovana pivot",
+      "toggleSnapMode": "Fomban'ny Snap",
+      "toggleGrid": "Mamaritra ny Fahitana ny Grid",
+      "increaseGridSize": "Mampitombo ny haben'ny grid",
+      "descreaseGridSize": "Atsaharo ny haben'ny grid",
+      "stopPreview": "Atsaharo ny fijerena ny zava-miseho",
+      "playPreview": "Topy maso ny zava-miseho"
+    }
+  },
+  "properties": {
+    "title": "Toetoetra",
+    "lbl-visible": "Hita maso",
+    "lbl-preventBake": "Sorohy ny Bake",
+    "lbl-persist": "Persist",
+    "multipleNodeSelected": "Ireo karazana karazan-tsoratra samihafa voafaritra",
+    "noNodeSelected": "Tsy misy node voafaritra",
+    "ambientLight": {
+      "name": "Fahazavana Tsy Mazava",
+      "description": "Hazavana iray izay manazava ny zavatra rehetra eo amin'ny sehatra misy anao.",
+      "lbl-intensity": "Fahatrezana",
+      "lbl-color": "Loko"
+    },
+    "envmap": {
+      "name": "Sarintanin'ny tontolo iainana",
+      "description": "toetoetran'ny tontolo iainana"
+    },
+    "asset": {
+      "name": "Asset",
+      "description": "Andian-javatra izay azo ampitondraina sy tsy ampakarina.",
+      "lbl-options": "Safidy",
+      "lbl-assetPath": "Sori-dàlana",
+      "lbl-assetName": "Anaran'ny fanondranana",
+      "lbl-exportOptions": "Safidin'ny fanondranana",
+      "lbl-export": "Export Asset",
+      "lbl-load": "Nampidirina tao amin'ny sehatra",
+      "lbl-unload": "Unload",
+      "lbl-reload": "Alefaso"
+    },
+    "audio": {
+      "name": "Feo",
+      "description": "Maka ny feo amin'ny fomba tsotra.",
+      "lbl-audiourl": "Audio Url",
+      "lbl-controls": "fanaraha-maso",
+      "info-controls": "Mamaritra ny fahitana ny fanaraha-maso ny haino aman-jery.",
+      "lbl-autoplay": "Kilalao hoazy",
+      "info-autoplay": "Raha marina izay voalaza, dia hilalao ny haino aman-jery rehefa miditra voalohany amin'ny sehatra.",
+      "lbl-synchronize": "Synchronize",
+      "info-synchronize": "Raha marina izay voalaza, dia ho voafaritra amin'ireo mpanjifa rehetra mifandray aminy ny haino aman-jery.",
+      "lbl-loop": "Loop",
+      "info-loop": "Raha marina ny haino aman-jery dia ho foana mandrakizay.",
+      "lbl-audioType": "Karazan'ny feo",
+      "lbl-distanceModel": "Modelin'ny Distance",
+      "info-distanceModel": "Ny algôrithima dia nampiasaina mba hanaovana kajy ny feo.",
+      "lbl-rolloffFactor": "Anon'ny Rolloff",
+      "info-rolloffFactor": "Misy isa roa mamaritra ny fihenan'ny hamafin'ny feo rehefa miala amin'ny mpihaino ny loharano. 0 ka hatramin'ny 1",
+      "info-rfInfinity": "Misy isa roa mamaritra ny fihenan'ny hamafin'ny feo rehefa miala amin'ny mpihaino ny loharano. 0 ho an'ny tsy manam - petarana",
+      "lbl-refDistance": "Halaviro",
+      "info-refDistance": "Ny sanda roa sosona maneho ny elanelana misy eo amin'ny fihenan'ny hamafin'ny feo dia mikisaka lavidavitra kokoa avy amin'ny mpihaino.",
+      "lbl-maxDistance": "Max Distance",
+      "info-maxDistance": "Ny sanda roa sosona maneho ny elanelana ambony indrindra eo amin'ny loharanon'ny feo sy ny mpihaino, ary aorian'izany dia tsy mihena intsony ny hamafin'ny feo.",
+      "lbl-coneInnerAngle": "Cone Inner Angle",
+      "info-coneInnerAngle": "Sanda roa mamaritra ny zoro, amin'ny mari-dralà, izay tsy hisy fihenana be ny habevoka ao anatiny.",
+      "lbl-coneOuterAngle": "Cone Outer Angle",
+      "info-coneOuterAngle": "Sanda roa mamaritra ny zoro, amin'ny mari-pahaizana, amin'ny ambaratonga ivelan'izany no hampihenana ny hamafin'ny feo amin'ny sanda tsy tapaka, nofaritan'ny toetran'ny coneOuterGain.",
+      "lbl-coreOuterGain": "Cone Outer Gain",
+      "info-coreOuterGain": "Sanda roa mamaritra ny habetsahan'ny fihenan'ny feo ivelan'ny faritra nofaritan'ny marika coneOuterAngle. Ny sanda tsotran'izy io dia 0, izay midika fa tsy misy feo azo henoina.",
+      "lbl-volume": "Fitoerana",
+      "lbl-play": "Mamaky",
+      "lbl-pause": "Miato",
+      "error-url": "Nisy olana teo am-pakana ny URL"
+    },
+    "boxCollider": {
+      "description": "Boaty iray tsy hita maso izay tsy ho hitan'ny zavatra na hiala sasatra eo amboniny.\nRaha tsy misy fifandonana, dia hianjera amin'ny tany ny zavatra ary hamakivaky ny rindrina.",
+      "lbl-isTrigger": "Trigger"
+    },
+    "camera": {
+      "name": "Fakantsary",
+      "description": "Fandrindran'ny fakantsary.",
+      "lbl-camera-raycast": "Fakantsary Raycasting",
+      "lbl-camera-raycast-toggle": "Alefaso",
+      "lbl-camera-raycast-frequency": "Frequency",
+      "lbl-camera-raycast-count": "Manisa ny Ray",
+      "lbl-camera-raycast-length": "Halavan'ny Ray"
+    },
+    "directionalLight": {
+      "name": "Fahazavana tari-dalana",
+      "description": "Hazavana iray izay manazava ny zava-miseho iray manontolo, saingy mandeha amin'ny lalana tokana.",
+      "lbl-color": "Loko",
+      "lbl-intensity": "Fahatrezana",
+      "lbl-cameraFar": "Camera Far",
+      "lbl-cameraNear": "Fakantsary akaiky",
+      "lbl-cameraTop": "Fakantsary ambony",
+      "lbl-cameraBottom": "Ambany fakantsary",
+      "lbl-cameraLeft": "Fakantsary ankavia",
+      "lbl-cameraRight": "Fakantsary havanana",
+      "lbl-useInCSM": "Ampiasaina amin'ny CSM",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-disableForCSM": "Natsahatra satria mandeha ny sarintanin'ny aloka Cascade.",
+      "lbl-shadowmapResolution": "Vahaolana amin'ny Sarintanin'i Shadow",
+      "lbl-shadowBias": "Shadow Bias",
+      "lbl-shadowRadius": "Shadow Radius",
+      "lbl-showCameraHelper": "Asehoy ny mpanome fakantsary"
+    },
+    "groundPlane": {
+      "name": "Fiaramanidina an-tanety",
+      "description": "Fiaramanidina fisaka iray izay mitatra lavitra.",
+      "lbl-color": "Loko",
+      "lbl-receiveShadow": "Raiso ny Shadow",
+      "lbl-generateNavmesh": "Mamokatra navmesh"
+    },
+    "link": {
+      "description": "Rohy mankany amin'ny efitrano na tranonkala iray.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "Sarintanin'ny e.g. a."
+    },
+    "model": {
+      "description": "Modely 3D eo amin'ny sehatra misy anao, nalaina avy amin'ny URL na rakitra GLTF.",
+      "lbl-usingGPUInstancingFlag": "Ampiasao ny instancing GPU",
+      "lbl-modelurl": "Model Url",
+      "lbl-envmapUrl": "Sarintanin'ny Tontolo Iainana",
+      "lbl-textureOverride": "Override Texture",
+      "lbl-materialOverride": "Fihoa-bola",
+      "error-url": "Nisy olana teo am-pakana ny URL",
+      "lbl-loopAnimation": "Sary mihetsika loop",
+      "lbl-isAvatar": "Is Avatar",
+      "lbl-isGPUInstancing": "Mampiasa ny GPU Instancing",
+      "lbl-isDynamic": "Mavitrika ve",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-receiveShadow": "Raiso ny Shadow",
+      "lbl-interactable": "Azo alefa",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Anarana",
+      "lbl-url": "Model Url",
+      "lbl-buy": "Mividiana Url",
+      "lbl-learnMore": "Mianara Url bebe kokoa",
+      "lbl-htmlContent": "Votoatiny Html",
+      "lbl-interactionText": "Lahabolana ho an'ny fifandraisana",
+      "lbl-interactionType": "Karazan'ny fifandraisana"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Fitaovana",
+      "error-materialID": "Nisy olana teo am-pahitana ireo fitaovana",
+      "placeholder-materialID": "Misafidiana fitaovana",
+      "lbl-patternTarget": "Pattern Match",
+      "lbl-pattern": "Lamina",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Karazan'ny fifandraisana",
+      "text": "Lahabolana ho an'ny fifandraisana",
+      "distance": "Elanelan'ny fifandraisana",
+      "theme": "Endrika fifandraisana",
+      "name": "Anaran'ny fifandraisana",
+      "description": "Famaritana ny fifandraisana",
+      "images": "Sary mifandray",
+      "videos": "Horonan-tsary fifandraisana",
+      "urls": "Urlction",
+      "models": "Modelin'ny fifandraisana"
+    },
+    "group": {
+      "name": "Vondrona",
+      "description": "Vondron-javatra maro izay azo afindra na adika miaraka.\nAlaivo ary alatsaho ao amin'ny Vondrona ao amin'ny Hierarchy ireo zavatra."
+    },
+    "hemisphere": {
+      "name": "Fahazavan'ny Ilam-bolantany",
+      "description": "Hazavana iray manazava ny zava-miseho avy eny ambony loha mivantana.",
+      "lbl-skyColor": "Lokon'ny lanitra",
+      "lbl-groundColor": "Lokon'ny tany",
+      "lbl-intensity": "Fahatrezana"
+    },
+    "image": {
+      "name": "Sary",
+      "description": "Maka sary amin'ny fomba mavitrika.",
+      "lbl-imgURL": "Sary Url",
+      "lbl-transparency": "Fomban'ny mangarahara",
+      "lbl-alphaCutoff": "Alpha Cutoff",
+      "lbl-projection": "Projection",
+      "lbl-side": "An-tsisin",
+      "info-controls": "Mamaritra ny fahitana ny fanaraha-maso ny haino aman-jery.",
+      "info-transparency": "Ahoana ny fomba hampiharana ny mangarahara:",
+      "info-opaque": "'opaque' = no transparency",
+      "info-blend": "'blend' = ampiasao ny fantsona alpha",
+      "info-mask": "'mask' = Mampiasà sanda tapaka voafaritra ho an'ny mangarahara (mpilalao bebe kokoa)",
+      "info-alphaCutoff": "Mangarahara ny Pixel miaraka amin'ny sandan'ny alpha ambany noho ity",
+      "error-url": "URL diso"
+    },
+    "name": {
+      "lbl-name": "Anarana"
+    },
+    "partileEmitter": {
+      "description": "Ny singany dia mamorona poti-javatra.",
+      "lbl-particleCount": "Isa misy ampahany",
+      "lbl-image": "Sary",
+      "lbl-ageRandomness": "Fahasihafan'ny taona",
+      "lbl-lifetime": "Fiainana",
+      "lbl-lifetimeRandomness": "Tsy fahatomontana mandritra ny androm- piainana",
+      "lbl-sizeCurve": "Haben'ny fiolakolahana",
+      "lbl-startPSize": "Atomboy ny haben'ny singany",
+      "lbl-endPSize": "Farano ny haben'ny singany",
+      "lbl-sizeRandomness": "Habe ny isan'ny olona tsy mahay",
+      "lbl-colorCurve": "Fikirakirana loko",
+      "lbl-startColor": "Atomboy ny loko",
+      "lbl-startOpacity": "Atomboy ny habetsahana",
+      "lbl-middleColor": "Loko afovoany",
+      "lbl-middleOpacity": "Ny tsy fahazakana antonony",
+      "lbl-endColor": "Lokon'ny faran'ny farany",
+      "lbl-endOpacity": "Manafoana ny fahasimpahana",
+      "lbl-velocityCurve": "Fahafinaretam - po",
+      "lbl-startVelocity": "Atomboy ny Fahalefahana",
+      "lbl-endVelocity": "Farano ny Fahadalana",
+      "lbl-angularVelocity": "Angular Velocity",
+      "info-ageRandomness": "Ny habetsahan'ny fahasamihafana eo amin'ny hoe misy poti-javatra miparitaka.",
+      "info-lifetime": "Ny taona ambony indrindra amin'ny sombiny alohan'ny hamerenana azy indray.",
+      "info-lifetimeRandomness": "Ny habetsahan'ny fahasamihafana eo amin'ny fiainana.",
+      "info-sizeRandomness": "Ny habetsahan'ny fahasamihafana eo amin'ny singany manomboka amin'ny habeny.",
+      "error-url": "Nisy olana teo am-pakana ny URL"
+    },
+    "clouds": {
+      "name": "Cloud",
+      "description": "Sprite based cloud volume.",
+      "lbl-image": "Sarin'ny Sprite",
+      "lbl-wroldScale": "Scale eran-tany",
+      "lbl-dimensions": "Dimensions",
+      "lbl-noiseZoom": "Noise Zoom",
+      "lbl-noiseOffset": "Fivoahan'ny Feo",
+      "lbl-spriteScale": "Haben'ny Sprite",
+      "lbl-fogColor": "Lokon'ny zavona",
+      "lbl-fogRange": "Zavona",
+      "error-url": "Nisy olana teo am-pakana ny URL"
+    },
+    "ocean": {
+      "name": "Ranomasimbe",
+      "description": "Ny ranomasimbe miaraka amin'ny onja sy ny zavona.",
+      "lbl-normalMap": "Sarintany ara-dalàna",
+      "lbl-distortionMap": "Sarintanin'ny fanodinam-bola",
+      "lbl-envMap": "Sarintanin'ny tontolo iainana",
+      "lbl-color": "Loko",
+      "lbl-shallowWaterColor": "Lokon'ny rano marivo",
+      "lbl-shallowToDeepDistance": "Mihinana any amin'ny halavirana lalina",
+      "lbl-opacityFadeDistance": "Tsy misy dikany ny tsy fahampian ' 'Opacity'",
+      "lbl-opacityRange": "Elanelan'ny tsy fahazakana",
+      "lbl-shininess": "Fahamaivanan'ny Zava-maha",
+      "lbl-reflectivity": "Fisaintsainana",
+      "lbl-foamColor": "Loko Foam",
+      "lbl-foamSpeed": "Hafainganan'ny Foam",
+      "lbl-foamTiling": "Foam Tiling",
+      "lbl-bigWaveTiling": "Fihehet-tena Lehibe",
+      "lbl-bigWaveSpeed": "Hafainganan'ny Wave Lehibe",
+      "lbl-bigWaveHeight": "Henjan'ny Onja Lehibe",
+      "lbl-waveSpeed": "Hafainganan'ny Onja",
+      "lbl-waveScale": "Wave Scale",
+      "lbl-waveTiling": "Wave Tiling",
+      "lbl-waveDistortionSpeed": "Hafainganan'ny fikorisana amin'ny onja",
+      "lbl-waveDistortionTiling": "Fikororosiana ny onja",
+      "error-url": "Nisy olana teo am-pakana ny URL"
+    },
+    "water": {
+      "name": "Rano",
+      "description": "Rano kely"
+    },
+    "interior": {
+      "name": "Atitany",
+      "description": "Faritra misy soratra kodiakely mba hakana tahaka ny tontolo anatiny",
+      "lbl-cubeMap": "Sarintanin'ny Cube",
+      "lbl-tiling": "Vola",
+      "lbl-size": "Haben'ny Surface",
+      "error-url": "Nisy olana teo am-pakana ny URL"
+    },
+    "pointLight": {
+      "description": "Fahazavana iray izay mamoaka ny lalana rehetra avy amin'ny teboka iray.",
+      "lbl-color": "Loko",
+      "lbl-intensity": "Fahatrezana",
+      "lbl-range": "Range",
+      "lbl-decay": "Decay"
+    },
+    "scene": {
+      "name": "Scene",
+      "description": "Ny tena fototry ny zava-nitranga.",
+      "lbl-bgcolor": "Loko afara",
+      "lbl-fogType": "Karazan'ny zavona",
+      "lbl-fogColor": "Lokon'ny zavona",
+      "lbl-forNearDistance": "Zahavo akaiky",
+      "lbl-fogFarDistance": "Elanelan'ny zavona",
+      "lbl-fogDensity": "Zavona",
+      "lbl-audioSettings": "Mampiasà feo misy toerana",
+      "lbl-avatarDistanceModel": "Modelin'ny Halaviran'ny Avatar",
+      "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
+      "lbl-avatarRefDistance": "Avatar Ref Distance",
+      "lbl-avatarMaxDistance": "Avatar Max Distance",
+      "lbl-mediaVolume": "Fitoerana Media",
+      "lbl-mediaDistanceModel": "Modelin'ny haino aman-jery",
+      "lbl-mediaRolloffFactor": "Anon'ny haino aman-jery",
+      "lbl-mediaRefDistance": "Fifanakalozam-bola amin'ny haino aman-jery",
+      "lbl-mediaMaxDistance": "Elanelan'ny haino aman-jery",
+      "lbl-mediaConeInnerAngle": "Media Cone Inner Angle",
+      "lbl-mediaConeOuterAngle": "Media Cone Outer Angle",
+      "lbl-mediaConeOuterGain": "Ny haino aman-jery Cone Outer Gain",
+      "info-avatarDistanceModel": "Ny algôrithima dia nampiasaina mba hanaovana kajy ny feo.",
+      "info-avatarRolloffFactor": "Misy isa roa mamaritra ny fihenan'ny hamafin'ny feo rehefa miala amin'ny mpihaino ny loharano. 0 ka hatramin'ny 1",
+      "info-avatarRolloffFactorInifinity": "Misy isa roa mamaritra ny fihenan'ny hamafin'ny feo rehefa miala amin'ny mpihaino ny loharano. 0 ho an'ny tsy manam - petarana",
+      "info-avatarRefDistance": "Ny sanda roa sosona maneho ny elanelana misy eo amin'ny fihenan'ny hamafin'ny feo dia mikisaka lavidavitra kokoa avy amin'ny mpihaino.",
+      "info-avatarMaxDistance": "Ny sanda roa sosona maneho ny elanelana ambony indrindra eo amin'ny loharanon'ny feo sy ny mpihaino, ary aorian'izany dia tsy mihena intsony ny hamafin'ny feo.",
+      "info-mediaDistanceModel": "Ny algôrithima dia nampiasaina mba hanaovana kajy ny feo.",
+      "info-mediaRolloffFactor": "Misy isa roa mamaritra ny fihenan'ny hamafin'ny feo rehefa miala amin'ny mpihaino ny loharano. 0 ka hatramin'ny 1",
+      "info-mediaRolloffFactorInfinity": "Misy isa roa mamaritra ny fihenan'ny hamafin'ny feo rehefa miala amin'ny mpihaino ny loharano. 0 ho an'ny tsy manam - petarana",
+      "info-mediaRefDistance": "Ny sanda roa sosona maneho ny elanelana misy eo amin'ny fihenan'ny hamafin'ny feo dia mikisaka lavidavitra kokoa avy amin'ny mpihaino.",
+      "info-mediaMaxDistance": "Ny sanda roa sosona maneho ny elanelana ambony indrindra eo amin'ny loharanon'ny feo sy ny mpihaino, ary aorian'izany dia tsy mihena intsony ny hamafin'ny feo.",
+      "info-mediaConeInnerAngle": "Sanda roa mamaritra ny zoro, amin'ny mari-dralà, izay tsy hisy fihenana be ny habevoka ao anatiny.",
+      "info-mediaConeOuterAngle": "Sanda roa mamaritra ny zoro, amin'ny mari-pahaizana, amin'ny ambaratonga ivelan'izany no hampihenana ny hamafin'ny feo amin'ny sanda tsy tapaka, nofaritan'ny toetran'ny coneOuterGain.",
+      "info-mediaConeOuterGain": "Sanda roa mamaritra ny habetsahan'ny fihenan'ny feo ivelan'ny faritra nofaritan'ny marika coneOuterAngle. Ny sanda tsotran'izy io dia 0, izay midika fa tsy misy feo azo henoina.",
+      "lbl-simpleMaterials": "Mampiasà fitaovana tsotra",
+      "lbl-lods": "LODs",
+      "info-lods": "Mamaritra ny elanelana misy eo amin'ny ambaratongan'ny fiovana amin'ny antsipirihany.",
+      "info-simpleMaterials": "Manova ny fitaovana lafo vidy rehetra ho lasa tsotra kokoa mba hanesorana ny enta-mavesatra.",
+      "lbl-rendererSettings": "Fandrindran'ny renderer Override",
+      "lbl-csm": "Sarintanin'ny Shadow",
+      "info-csm": "Alefaso ny sarintanin'ny aloka.",
+      "lbl-toneMapping": "Sarintanin'ny Tone",
+      "info-toneMapping": "Ahafahana manao sarintany eo amin'ny sary eo amin'ny sary. Tsy misy fiantraikany ny fikirakirana aorian'ny lahatsoratra.",
+      "lbl-toneMappingExposure": "Sarintanin'ny Tone",
+      "info-toneMappingExposure": "Mamaritra ny fisehoan'ny sarintany eo amin'ny sehatra. Tsy misy fiantraikany ny fikirakirana aorian'ny lahatsoratra.",
+      "lbl-shadowMapType": "Karazan'ny sarintanin'ny Shadow",
+      "info-shadowMapType": "Karazana sarintanin'ny shadow",
+      "error-url": "Nisy olana teo am-pakana ny URL"
+    },
+    "sceneCamera": {
+      "name": "Topy maso amin'ny fakantsary",
+      "description": "Ny fakantsary dia nampiasaina mba hamoahana ny hajiantsera ho an'ny sehatra misy anao sy ny toerana fanombohana amin'ny fakantsary.",
+      "lbl-setFromViewPort": "Nalaina avy amin'ny seho"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Fotoanan'ny andro",
+      "lbl-color": "Loko",
+      "lbl-latitude": "Latitude",
+      "lbl-luminance": "Luminance",
+      "lbl-scattering": "Mampiely ny Amount",
+      "lbl-scatteringDistance": "Mampiely ny halavirana",
+      "lbl-horizonStart": "Horizon Start",
+      "lbl-horizonEnd": "Horizon End",
+      "lbl-texture": "Texture",
+      "lbl-skyType": "Karazan'ny Lanitra",
+      "error-url": "Nisy olana teo am-pakana ny URL"
+    },
+    "spawnPoint": {
+      "name": "Teboka spawn",
+      "description": "Fotoana iray izay hisehoan'ny olona rehefa miditra ao amin'ny sehatra misy anao izy ireo.\nNy sary masina ao amin'ny Viewport dia maneho ny tena haben'ny sarintava."
+    },
+    "spotLight": {
+      "description": "Hazavana iray izay mihodina mankany amin'ny lalana iray, manazava zavatra ao anatin'ny faritra iray.",
+      "lbl-color": "Loko",
+      "lbl-intensity": "Fahatrezana",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "Angle",
+      "lbl-range": "Range",
+      "lbl-decay": "Decay"
+    },
+    "transform": {
+      "title": "Fiovana",
+      "lbl-postition": "Toerana",
+      "lbl-rotation": "Fihodinana",
+      "lbl-scale": "Scale"
+    },
+    "triggereVolume": {
+      "description": "Mametraka fananana iray eo amin'ilay zavatra kendrena mba hidirana ary avelao.",
+      "lbl-target": "Zavatra",
+      "lbl-onenter": "Midira",
+      "lbl-onexit": "Rehefa milay",
+      "lbl-showHelper": "Asehoy ny Mesh mpanampy",
+      "ph-errorNode": "Nisy olana teo am-pamakiana ny olana.",
+      "ph-selectNode": "Hisafidy node..."
+    },
+    "video": {
+      "name": "Horonan-tsary",
+      "description": "Maka lahatsary amin'ny fomba mavitrika.",
+      "lbl-video": "Horonan-tsary",
+      "lbl-projection": "Projection",
+      "lbl-islivestream": "Live Stream",
+      "lbl-interactable": "Azo alefa",
+      "lbl-id": "Idn'ny singantaharo",
+      "lbl-play": "Mamaky",
+      "lbl-pause": "Miato",
+      "error-url": "Nisy olana teo am-pakana ny URL"
+    },
+    "volumetric": {
+      "name": "Fanamavotana",
+      "description": "Maka horonan-tsary misy kapila amin'ny ankapobeny.",
+      "uvolPaths": "Sori-dàlan'ny UVOL",
+      "playmode": "Fomba filalaovana",
+      "playtitle": "Mamaky",
+      "pausetitle": "Miato"
+    },
+    "spline": {
+      "description": "Mamorona sy manova ny curves.",
+      "lbl-addNode": "Asio node raha te-hiongotra."
+    },
+    "systemnode": {
+      "description": "Astach script.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "Teboka fampidirana",
+      "lbl-enableClient": "Mpivaro-tena",
+      "lbl-enableServer": "Mpizara",
+      "lbl-args": "Args",
+      "error-url": "Nisy olana teo am-pakana ny soratra avy amin'ny URL"
+    },
+    "portal": {
+      "lbl-portal": "Portal mifandray",
+      "lbl-redirect": "Mampiasà familiana ny pejy",
+      "description": "Afy ho an'ireo mpilalao amin'ny fifandraisandy amin'ireo mpilalao mba hamaririana ny toerana voafaritra",
+      "lbl-locationName": "Toerana",
+      "lbl-modelUrl": "Model URL",
+      "lbl-displayText": "Asehoy ny soratra",
+      "lbl-cubemapBake": "Bake",
+      "lbl-spawnPosition": "Toerana malalaka",
+      "lbl-spawnRotation": "Fihodinan'ny Spawn",
+      "lbl-triggerPosition": "Toeran'ny trigger",
+      "lbl-triggerRotation": "Trigger Rotation",
+      "lbl-triggerScale": "Trigger Scale"
+    },
+    "postprocessing": {
+      "name": "Asa aorian'ny lahatsoratra",
+      "description": "Ho fampiharana ny fiantraikan'ny Post Processing eo amin'ny sehatra misy anao."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Tetikasa Vaovao",
+      "backLink": "Miverina amin'ny tetikasa",
+      "featured": "Voasorna",
+      "all": "Izy rehetra",
+      "newProject": "Tetikasa vaovao foana",
+      "ph-search": "Hikaroka ireo seho..."
+    },
+    "grid": {
+      "loading": "Maka..."
+    },
+    "page": {
+      "header": "Tonga soa",
+      "headerMsg": "Raha vaovao ianao eto dia manoro hevitra izahay mba hamakivaky ny toro-hevitra. Raha tsy izany, mitsambikina avy hatrany ary mamorona tetikasa iray avy amin'ny tsy misy na avy amin'ny iray amin'ireo fakan-tahaka.",
+      "lbl-startTutorial": "Atomboy ny toro-hevitra",
+      "projects": "Tetikasa",
+      "lbl-newProject": "Tetikasa Vaovao"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Maka...",
+      "placeObject": "Apetraho ilay zavatra",
+      "placeObjectAtOrigin": "Apetraho eo amin'ny fiandohan'ny toe-javatra",
+      "copyURL": "Adikao io URL io",
+      "openInNewTab": "Sokafy anaty vakizoro vaovao ny URL",
+      "deleteAsset": "Fafao ilay asset"
+    },
+    "filebrowser": {
+      "addNewFolder": "Hampiditra laha-tahiry vaovao",
+      "cutAsset": "Hetezo",
+      "copyAsset": "Adikao",
+      "pasteAsset": "Apetao",
+      "renameAsset": "Taremy ny anarana",
+      "viewAssetProperties": "Hijery ireo toetoetran'ny"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Taremy ny anarana",
+    "lbl-duplicate": "Dika mitovy",
+    "lbl-group": "Vondrona",
+    "lbl-delete": "Fafao",
+    "lbl-expandAll": "Hatsarao izy rehetra",
+    "lbl-collapseAll": "Ario izy rehetra",
+    "isseus": "Olana:"
+  },
+  "dnd": {
+    "nodes": "Nodes {{count}} voafidy",
+    "models": "{{count}} modely nofantenana",
+    "images": "{{count}} voafaritra ireo sary",
+    "videos": "{{count}} horonan-tsary nofantenana",
+    "audio": "{{count}} ireo loharanom-peo voafaritra"
+  },
+  "dialog": {
+    "title": "Mpanova",
+    "lbl-confirm": "Eny",
+    "lbl-cancel": "Foano",
+    "exportProject": {
+      "title": "Tetikasa fanafarana",
+      "lbl-confirm": "Tetikasa fanafarana",
+      "lbl-combineMesh": "Combine Meshes",
+      "lbl-removeUnused": "Esory ireo zavatra tsy misy fampiasa"
+    },
+    "performance": {
+      "title": "Fizahana",
+      "lbl-confirm": "Publish Scene",
+      "learnMore": "Mianara Bebe Kokoa",
+      "lbl-polycount": "Fanisana Polygon",
+      "lbl-material": "Fitaovana",
+      "lbl-texture": "Textures",
+      "lbl-lights": "Fahazavana",
+      "lbl-fileSize": "Haben'ilay rakitra",
+      "info-polycount": "Manoro hevitra anao izahay mba tsy hampiasa telolafy mihoatra ny 50.000 ho an'ny fitaovana finday.",
+      "info-material": "Manoro hevitra izahay ny tsy hampiasa fitaovana manokana mihoatra ny 25 eo amin'ny sehatra misy anao mba hampihenana ny antso amin'ny fitaovana finday.",
+      "info-texture": "Manoro hevitra ny lahatsoratrareo izahay mba tsy hampiasa lahatsary mihoatra ny 256MB ho an'ny fitaovana finday. Manoro hevitra ihany koa izahay ny amin'ny fampiasana lamba lehibe kokoa noho ny taona 2048 x 2048.",
+      "info-lights": "Na dia tsy afaka mandeha amin'ny fitaovana finday aza ny jiro mavitrika, dia manoro hevitra izahay ny tsy hampiasana jiro mihoatra ny 3 eo amin'ny sehatra misy anao (mandrehitra jiro sy jiron-tany) ho an'ny sehatra misy anao mba handeha amin'ny PC.",
+      "info-fileSize": "Manoro hevitra izahay ny amin'ny haben'ny rakitra farany tsy mihoatra ny 16MB ho an'ny fifandraisana ambany amin'ny \"bande passante\". Hampihena ny fotoana ilaina amin'ny fitrohana ny toerana misy anao ny fametrahana ny haben'ilay rakitra.",
+      "txt-polycount": "{{count}} Telolafy",
+      "txt-material": "fitaovana {{count}}",
+      "txt-ram": "~ horonan{{count}} - tsary RAM",
+      "txt-texture": "Soratra lehibe {{count}}",
+      "txt-lights": "{{count}} Fahazavana"
+    },
+    "progress": {
+      "title": "Maka...",
+      "msg": "Maka...",
+      "lbl-cancel": "Foano"
+    },
+    "publish": {
+      "title": "Publish Scene",
+      "lbl-confirm": "Raiketo sy avoaka",
+      "lbl-name": "Anaran'ny seho",
+      "info-name": "Tsy maintsy eo anelanelan'ny marika 4 ka hatramin'ny 64 ny anarana ary tsy afaka ahitana fanamarihana"
+    },
+    "published": {
+      "title": "Scene Published",
+      "header": "Navoaka ny sehatrao.",
+      "lbl-view": "Hijery ny toe - javatra misy anao"
+    },
+    "saveNewProject": {
+      "title": "Fanohanana",
+      "lbl-name": "Anaran'ny tetikasa",
+      "info-name": "Tsy maintsy eo anelanelan'ny marika 4 ka hatramin'ny 64 ny anarana ary tsy afaka ahitana fanamarihana",
+      "lbl-confirm": "Raiketo ilay tetikasa"
+    },
+    "support": {
+      "title": "Fanohanana",
+      "header": "Mila mitatitra olana ve?",
+      "msg": "Azonao atao ny mametraka <1>ny laharana GitHub</1> na mandefa e-mail ho anay ho fanohanana ao <3> amin'ny{{mail}}</3>",
+      "discord": "Afaka mahita anay ao anatin'ny <1>Discord ihany koa ianao</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing Images",
+      "search": "Mikaroka amin'ny alalan'ny Bing"
+    },
+    "bingVideo": {
+      "name": "Bing Horonan-tsary",
+      "search": "Mikaroka amin'ny alalan'ny Bing"
+    },
+    "element": {
+      "name": "Singantaharo"
+    },
+    "myAssets": {
+      "name": "Ny fananako"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Fikarohana nataon'ny Google"
+    },
+    "tenor": {
+      "name": "Trano boninkahi-tsôkôlôro",
+      "search": "Fikarohana nataon'i Tenor",
+      "ph-search": "Hikaroka GIF..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Fikarohana nataon'i Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Upload Asset"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Hikaroka sary..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Hikaroka horonan-tsary..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Hikaroka fananana..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Hikaroka ireo maodely..."
+    },
+    "useUpload": {
+      "multipleFileError": "Tsy manaiky rakitra maro ny fampidirana.",
+      "mineTypeError": "Tsy mifanaraka amin'ireto karazana na tovana manaraka ireto ny hoe \"{{name}}\": {{types}}",
+      "progressTitle": "Mampakatra rakitra",
+      "progressMsg": "Fangaro ny {{uploaded}} 'ny {{total}}: {{percentage}}%",
+      "uploadError": "Tsy fetezana teo am-pandraisana",
+      "uploadErrorMsg": "Nisy olana teo am-pamakiana ny rakitra '%s': {{message}}",
+      "uploadErrorDefaultMsg": "Nisy olana tsy fantatra"
+    }
+  },
+  "openLink": {
+    "description": "Tsindrio ny Open raha te-hamakivaky ny rohy.",
+    "lbl-open": "Sokafy"
+  },
+  "interactableModel": {
+    "lbl-buy": "Mividiana",
+    "lbl-learnMore": "Mianara Bebe Kokoa"
+  },
+  "corsProxyButton": {
+    "tooltip": "Mampiasà mpizara proxy"
+  }
+}

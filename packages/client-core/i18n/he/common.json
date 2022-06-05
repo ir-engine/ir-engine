@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "טוען דף..."
+  },
+  "tooltip": {
+    "pressKey": "לחץ על {{tip}} כדי {{message}}"
+  },
+  "toast": {
+    "joined": "הצטרף",
+    "left": "שמאל"
+  },
+  "navUserWidget": {
+    "login": "כנס"
+  },
+  "loader": {
+    "connecting": "מתחברים לעולם...",
+    "entering": "נכנסים לעולם...",
+    "loading": "טעינת...",
+    "objectRemaining": "{{count}} אובייקטים שנותרו",
+    "objectRemainingPlural": "אובייקטים {{count}} שנותרו",
+    "loadingObjects": "טעינת אובייקטים",
+    "loadingComplete": "טעינת הושלם",
+    "joiningWorld": "הצטרפות לעולם"
+  },
+  "alert": {
+    "eventWasSuccess": "האירוע היה מוצלח",
+    "errorWasEncountered": "אירעה שגיאה",
+    "eventInProgress": "האירוע בעיצומו",
+    "seconds": "שניות",
+    "cancelCountdown": "סגירת מודאלי זה תבטל את הספירה לאחור"
+  },
+  "debug": {
+    "refresh": "לרענן",
+    "stats": "סטטיסטיקה",
+    "debugOptions": "אפשרויות איתור באגים",
+    "physicsDebug": "פיזיקה",
+    "avatarDebug": "גלגול",
+    "nodeHelperDebug": "עוזר צומת",
+    "gridDebug": "רשת",
+    "simpleMaterials": "חומרים פשוטים",
+    "tick": "שנתות",
+    "worldStore": "חנות עולמית",
+    "engineStore": "חנות מנועים",
+    "namedEntities": "ישויות בעלות שם",
+    "networkObject": "אובייקט רשת",
+    "networkClients": "לקוחות רשת"
+  },
+  "recording": {
+    "videoRecorder": "מקליט וידאו",
+    "waitingForPermissions": "מחכה להרשאות",
+    "selectVideoSource": "בחר מקור וידאו",
+    "screen": "מסך",
+    "camera": "מצלמה",
+    "microphone": "מיקרופון",
+    "startRecording": "התחל להקליט",
+    "pauseRecording": "השהה את ההקלטה",
+    "resumeRecording": "הקלטת קורות חיים",
+    "stopRecording": "הפסקת הקלטה"
+  },
+  "typing": "הקלדה...",
+  "gameServer": {
+    "browserError": "שגיאת דפדפן",
+    "browserErrorMessage": "הדפדפן שלך אינו תומך באחסון במצב גלישה פרטית. נסה דפדפן אחר, או צא ממצב גלישה פרטי.",
+    "noAvailableServers": "אין שרתים זמינים",
+    "noAvailableServersMessage": "אין שרתים זמינים שתוכלו להתחבר אליהם. מנסה להתחבר מחדש ב-",
+    "worldDisconnected": "העולם מנותק",
+    "worldDisconnectedMessage": "איבדת את הקשר שלך עם העולם. ננסה להתחבר מחדש לפני שייגמר הזמן הבא, אחרת תועבר למופע אחר.",
+    "webGLNotEnabled": "WebGL לא הופעל",
+    "webGLNotEnabledMessage": "הדפדפן שלך אינו תומך ב- WebGL, או שהוא מושבת. אנא הפעל את WebGL או שקול לשדרג לגרסה העדכנית ביותר של הדפדפן שלך.",
+    "youKickedFromWorld": "נבעטתם מהעולם",
+    "youKickedFromWorldMessage": "נזרקתם מהעולם הזה מהסיבה הבאה",
+    "invalidLocation": "מיקום לא חוקי",
+    "cantFindLocation": "אנחנו לא מוצאים את המיקום",
+    "misspelledOrNotExist": "זה יכול להיות שגוי, או שזה לא יכול להיות קיים.",
+    "loading": "טעינת",
+    "low-frame-error": "זיהה perfomance גרוע לשקול לאפשר שימוש בהאצת חומרה בדפדפן שלך relauch הדפדפן שלך relauch",
+    "low-frame-title": "אפשר האצת חומרה לחוויה טובה יותר!"
+  },
+  "error": {
+    "loading-error": "טעינת נתוני משתמש נכשלה",
+    "validation-error": "אנא הזן {{type}} חוקיים",
+    "login-error": "ההתחברות נכשלה"
+  }
+}

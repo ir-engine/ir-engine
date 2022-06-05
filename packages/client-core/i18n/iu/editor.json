@@ -1,0 +1,718 @@
+{
+  "loading": "ᐅᓯᓕᖅᓱᐃᓂᕐᒧᑦ ᐱᓕᕆᐊᖅ",
+  "loadingMsg": "ᐱᓕᕆᐊᖑᓂᖓᓄᑦ ᐱᓕᕆᐊᖅ...",
+  "loadingError": "ᑕᒻᒪᖅᓯᒪᔪᓂᒃ ᐃᓕᐅᖅᑲᐃᓂᕐᒧᑦ ᐱᓕᕆᐊᖅ",
+  "loadingErrorMsg": "ᑕᒻᒪᖅᑐᖃᓚᐅᕐᒪᑦ ᐅᓯᓕᐅᔾᔭᐅᑎᓪᓗᒍ ᐱᓕᕆᐊᖅ.",
+  "selectSceneMsg": "ᓂᕈᐊᕐᓗᒍ ᓇᕿᓪᓗᒍ ᐱᙳᐊᖃᑎᖃᖅᐸᓪᓕᐊᓂᐊᕐᓗᑎᑦ ᐊᐅᓚᐅᑎᓂᒃ",
+  "error": "ᑕᒻᒪᖅᓯᒪᔪᖅ",
+  "errorMsg": "ᖃᐅᔨᒪᔭᐅᙱᑦᑐᒥᒃ ᑕᒻᒪᖅᑐᖃᓚᐅᕐᒪᑦ.",
+  "generateScreenshot": "ᐊᐅᓚᐅᑎᓅᖅᑐᑦ ᐱᓕᕆᐊᓄᑦ ᐃᒐᓚᐅᔭᙳᐊᑦ",
+  "generateScreenshotMsg": "ᐊᐅᓚᑎᓪᓗᒍ ᐱᓕᕆᐊᖅ ᓴᖅᑭᔮᖅᑐᖅ...",
+  "newScene": "ᓴᓇᓗᑎᑦ Scene−ᒥᑦ",
+  "saving": "ᐱᐅᖅᓱᐊᕐᓂᕐᒧᑦ ᐱᓕᕆᐊᖅ",
+  "savingMsg": "ᐱᐅᖅᓱᐊᕐᓂᕐᒧᑦ ᐱᓕᕆᐊᖅ...",
+  "savingError": "ᑕᒻᒪᖅᓯᒪᔪᓂᒃ ᐱᐅᖅᓱᐊᕐᓂᕐᒧᑦ ᐱᓕᕆᐊᖅ",
+  "savingErrorMsg": "ᑕᒻᒪᖅᑐᖃᓚᐅᕐᒪᑦ ᐱᐅᓕᑦᓯᔪᖃᑦᑎᓪᓗᒍ ᐱᓕᕆᐊᒥᒃ.",
+  "savingSceneErrorMsg": "ᓯᓇᕐᓗᐊᖓ ᐅᓯᑦᑎᐊᕐᓯᒪᙱᑦᑐᖅ. ᓂᐅᕋᐃᓇᓱᒡᓗᑎᑦ.",
+  "duplicating": "ᐊᔾᔨᖏᓐᓂᒃ ᐱᓕᕆᐊᖃᕐᓂᖅ",
+  "duplicatingMsg": "2013-2014-ᒥ, 2014-15-ᒥ,",
+  "exporting": "ᑲᓇᑕᐅᑉ ᓯᓚᑖᓄᑦ ᐱᓕᕆᐊᖅ",
+  "exportingMsg": "ᑲᓇᑕᐅᑉ ᓯᓚᑖᓄᑦ ᐊᐅᓪᓚᖅᑎᑦᑎᓂᕐᒧᑦ ᐱᓕᕆᐊᖅ...",
+  "exportingError": "ᑕᒻᒪᖅᓯᒪᔪᓂᒃ ᐊᐅᓪᓚᖅᑎᑦᑎᓂᕐᒧᑦ ᐱᓕᕆᐊᖅ",
+  "exportingErrorMsg": "ᑕᒻᒪᖅᑐᖃᓚᐅᕐᒪᑦ ᐊᐅᓪᓚᖅᑎᑦᑎᑎᓪᓗᒋᑦ ᐱᓕᕆᐊᒥᒃ.",
+  "importLegacy": "ᑲᓇᑕᐅᑉ ᓯᓚᑖᓂᙶᖅᑐᑦ ᓕᒐᓯ ᓄᓇᕐᔪᐊᖅ",
+  "importLegacyMsg": "ᐅᔾᔨᖅᓱᕆᑦ! ᑖᓐᓇ ᑎᑎᕋᓗᐊᕐᓂᐊᖅᑐᖅ ᓴᖅᑭᔮᕐᕕᒋᔭᕐᓂᒃ! ᖃᐅᔨᒪᕖᑦ ᑲᔪᓯᔪᒪᓂᕐᓄᑦ?",
+  "publishingError": "ᑕᒻᒪᖅᓯᒪᔪᓂᒃ ᓴᖅᑭᑦᑎᓂᕐᒧᑦ ᐱᓕᕆᐊᖅ",
+  "publishingErrorMsg": "ᖃᐅᔨᒪᔭᐅᙱᑦᑐᒥᒃ ᑕᒻᒪᖅᑐᖃᓚᐅᕐᒪᑦ.",
+  "publishingScene": "ᑎᑎᖅᑲᙳᖅᑎᑦᑎᓂᖅ",
+  "publishingSceneMsg": "ᑎᑎᖅᑲᙳᖅᑎᓪᓗᒍ...",
+  "uploadingThumbnailMsg": "ᖃᕆᑕᐅᔭᕐᒧᐊᖅᑎᕆᓂᖅ ᑯᓪᓗᒥᒃ...",
+  "uploadingSceneMsg": "ᖃᕆᑕᐅᔭᕐᒧᐊᖅᑎᕆᕝᕕᐅᔪᖅ: {{percentage}}%",
+  "envMapError": "ᑕᒻᒪᖅᑐᒥᒃ ᐃᓕᐅᖅᑲᐃᓂᖅ ᐊᔾᔨᙳᐊᓂᒃ {{files}}",
+  "lbl-return": "ᐅᑎᖅᑐᖅ",
+  "menubar": {
+    "newScene": "ᓄᑖᖅ Scene",
+    "saveScene": "ᓴᑉᕆᓯ ᓯᓯ",
+    "saveAs": "ᐊᓯᐅᔾᔭᐃᕐᓗᒍ",
+    "importAsset": "ᑲᓇᑕᐅᑉ ᓯᓚᑖᓂᙶᖅᑐᑦ ᐱᖁᑎᑦ",
+    "exportGLB": "ᐊᐅᓪᓚᖅᑎᑕᐅᔪᑦ glary glTF (.glb) ...",
+    "importScene": "ᑲᓇᑕᐅᑉ ᓯᓚᑖᓂ",
+    "exportScene": "ᑲᓇᑕᐅᑉ ᓯᓚᑖᓂᙶᖅᑐᑦ",
+    "quit": "ᓄᖅᑲᕐᓂᖅ"
+  },
+  "errors": {
+    "fileTypeNotSupported": "ᐃᑲᔪᖅᑕᐅᓯᒪᖏᑦᑐᑦ ᑎᑎᖅᑲᐃᑦ ᑎᑎᖅᑲᐃᑦ ᑐᖅᑯᖅᓯᒪᔪᑦ: \"{{name}}\". ᑎᑎᖃᐃᑦ ᐊᔾᔨᙳᐊᖑᔭᕆᐊᓖᑦ, ᑕᕐᕆᔮᒃᓴᐅᓗᑎᒃ, ᐅᕝᕙᓘᓐᓃᑦ ᓂᐱᑦᑕᔫᓗᑎᒃ.",
+    "addObject": "ᐃᓚᓗᒍᐊᔾᔨᕐᓗᒍ: ᑭᓱᑐᐃᓐᓇᖅ ᓇᓂᔭᐅᓚᐅᙱᓐᓂᖓᓂ",
+    "removeObject": "ᐲᕐᓗᒍᐊᔾᔨᕐᓗᒍ: ᓇᓂᔭᐅᙱᑦᑐᖅ. ᑕᒪᓐᓇ ᑕᐃᒪᐃᔾᔪᑎᖃᖅᐳᖅ ᐲᖅᓯᓂᕐᒥᒃ ᓂᐱᒥᒃ ᑕᐃᑲᓃᒍᓐᓃᖅᑐᒥᒃ.",
+    "noParent": "{{node}} \"{{name}}\" ᐊᖓᔪᖅᑳᖃᖏᑦᑐᖅ. 2013-2014-ᒥ, 2014-15-ᒥ, 2015-16-ᒥ, 2015-16-ᒥ,",
+    "undefinedParent": "ᑎᑎᕋᖅᑎ.ᐅᐸᓗᖓᐃᔭᖅᓯᒪᔪᖅ: ᓄᑖᖅᐊᑭᓖᔪᖅ ᓇᓗᓇᐃᖅᑕᐅᓯᒪᙱᑦᑐᖅ",
+    "notAuthenticated": "ᐱᓪᓚᑦᑖᖑᙱᑦᑐᖅ",
+    "fetchingProjectError": "ᑕᒻᒪᖅᑕᐅᔪᑦ ᐱᓕᕆᐊᒃᓴᑦ: {{error}}",
+    "fetchingRouteError": "ᑕᒻᒪᖅᑐᑦ: {{error}}",
+    "unknownError": "ᖃᐅᔨᒪᔭᐅᙱᑦᑐᖅ ᑕᒻᒪᖅᑐᖅ",
+    "resolveURL": "ᑕᒻᒪᖅᑐᒥᒃ ᐋᖅᑭᒃᓯᓂᖅ \"{{url}}\":",
+    "mediaSearchAborted": "ᑐᓴᒐᒃᓴᓕᕆᔨᑦ ᕿᓂᖅᑎᓪᓗᒋᑦ",
+    "methodNotImplemented": "ᐱᓕᕆᔾᔪᓯᖅ ᐊᑐᓕᖅᑎᑕᐅᙱᑦᑐᖅ.",
+    "saveProjectAborted": "ᓴᐳᑎᓗᒍ ᓴᖅᑭᔮᖅᑐᖅ",
+    "unsavedChanges": "ᐊᓯᔾᔨᖅᓯᒪᔪᑦ",
+    "unsavedChangesMsg": "ᐱᓕᕆᕝᕕᐅᔪᖅ ᐋᖅᑭᒋᐊᖅᑕᐅᓯᒪᔪᖅ. ᐊᓯᔾᔨᖅᑕᑎᑦ ᐊᓯᐅᔾᔭᐃᕐᓗᒋᑦ.",
+    "projectCreationFail": "ᐱᓕᕆᐊᔅᓴᖅ ᓴᖅᑭᖅᑕᐅᔪᓐᓇᐃᓕᔪᖅ. {{reason}}",
+    "projectDeletionFail": "ᐱᓕᕆᐊᖅ ᐲᖅᑕᐅᔪᓐᓇᖏᑦᑐᖅ. {{reason}}",
+    "savingProjectFail": "ᐱᓕᕆᐊᖅ ᐱᐅᕐᓱᐊᙱᓐᓂᖅ ᐊᔪᖅᑐᖅ. {{reason}}",
+    "sceneTooLarge": "Scene ᐊᖏᓗᐊᖅᐳᖅ ({{size}} MB) ᑎᑎᖅᑲᙳᖅᑎᓪᓗᒍ. ᐊᖏᓛᕆᔪᓐᓇᖅᑕᖓ {{maxSize}} MB−ᖑᕗᖅ.",
+    "sceneCreationFail": "Scene-ᒧᑦ ᓴᖅᑭᑦᑎᓂᖅ ᐊᔪᖅᑐᖅ. {{reason}}",
+    "uploadAborted": "ᒥᓇᕆᓗᒍ ᐱᓯᒪᔪᖅ",
+    "uploadFailed": "ᒥᓇᕆᓗᒍ ᐊᔪᓕᖅᑐᖅ {{reason}}",
+    "assetDeletionFail": "ᐱᖁᑎᑦ ᐲᖅᑕᐅᓐᓂᖏᑦᑐᑦ. {{reason}}",
+    "projectAssetDeletionFail": "ᐱᓕᕆᐊᒧᑦ ᐱᖁᑎᑦ ᐲᖅᑕᐅᓂᖏᑦ ᐊᔪᓚᐅᖅᑐᑦ. {{reason}}",
+    "networkError": "ᐱᓕᕆᔨᓄᑦ ᑐᓴᐅᒪᖃᑦᑕᐅᑎᖃᑎᒌᒍᑎᓂᒃ ᑕᒻᒪᕐᓂᖅ: {{status}}. {{text}}",
+    "unknownStatus": "ᖃᐅᔨᒪᔭᐅᙱᑦᑐᖅ ᖃᓄᐃᓕᖓᓂᖓ",
+    "CORS": "ᐃᒻᒪᖄ CORS−ᒥᒃ ᑕᒻᒪᖅᑐᖃᑐᐃᓐᓇᕆᐊᓕᒃ",
+    "urlFetchError": "\"{{url}}\""
+  },
+  "viewport": {
+    "title": "ᑕᑯᒃᓴᐅᓂᖓ",
+    "command": {
+      "movecamera": "ᐊᔾᔨᓕᐅᕈᑎᒥᒃ ᓅᑎᕆᓂᖅ",
+      "flyFast": "ᓱᒃᑲᓂᖅᓴᐅᓗᓂ",
+      "orbit": "2015-16",
+      "pan": "ᐹᓐ",
+      "fly": "ᖃᖓᑕᔪᖅ",
+      "focus": "ᑐᕌᒐᖅ",
+      "rotateLeft": "ᐅᐃᔾᔮᖅᑐᖅ ᓴᐅᒥᐊᓂ",
+      "rotateRight": "ᐅᐃᔾᔮᖅᑐᖅ ᑕᓕᖅᐱᒃ",
+      "cancelPlacement": "ᓄᖅᑲᖅᑎᑕᐅᓂᖓ ᐃᓂᑖᖅᑎᑕᐅᓂᖅ",
+      "placeDuplicate": "ᐃᓕᓯᓗᓂ ᐊᔾᔨᖓᓂᒃ",
+      "cancelGrab": "ᓄᖅᑲᑎᓪᓗᒍ ᒍᕌᑉ",
+      "grab": "ᒍᕋᑉ",
+      "deselectAll": "ᓂᕈᐊᖅᑕᐃᓐᓇᕆᓗᒋᑦ"
+    },
+    "state": {
+      "header": "ᑭᒡᓕᓯᓂᐊᖅᑕᐅᓯᒪᔪᑦ",
+      "memory": "ᐳᐃᒍᑐᓂᖅ",
+      "geometries": "ᓄᓇᓕᕆᓂᖅ",
+      "textures": "ᐋᖅᑭᒃᓯᒪᓃᑦ",
+      "render": "ᑕᓪᓗᕈᑦ",
+      "FPS": "FPS",
+      "frameTime": "ᐱᕕᒃᓴᕆᑎᑕᐅᔪᖅ",
+      "calls": "ᐅᖄᓚᔪᑦ",
+      "triangles": "ᖁᐊᒡᔪᐊᖅᑐᑦ",
+      "points": "ᓇᐃᓴᐅᑎᑦ",
+      "lines": "ᑐᑭᓕᐊᖅᑐᑦ"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "ᑎᑎᖅᑲᙳᖅᑎᑕᖅ",
+    "lbl-published": "ᑎᑎᕋᖅᑕᐅᔪᖅ",
+    "command": {
+      "translate": "ᑐᑭᓕᐅᕐᓗᒍ",
+      "rotate": "ᐅᐃᔾᔮᖅᑐᖅ",
+      "scale": "ᖃᐅᔨᓴᕈᑎ",
+      "toggleSpace": "ᐃᒡᒑᑉ ᐊᓯᔾᔨᕐᕕᖓ",
+      "togglePivot": "ᐃᒡᒑᒃ ᐊᓯᔾᔨᖅᑐᖅ",
+      "toggleSnapMode": "ᐃᒡᒑᒃ ᓯᓇᑉ",
+      "toggleGrid": "ᐃᒡᒑᒃ ᑕᑯᒃᓴᐅᓂᖓ",
+      "increaseGridSize": "ᐊᖏᒡᓕᒋᐊᕐᓗᒍ Grid ᐊᖏᓂᖓ",
+      "descreaseGridSize": "ᒥᒃᖠᒋᐊᕐᓗᒋᑦ Grid ᐊᖏᓂᖓ",
+      "stopPreview": "ᓄᖅᑲᖅᑎᓪᓗᒍ ᕿᒥᕐᕈᕙᒌᕐᓂᖅ",
+      "playPreview": "ᕿᒥᕐᕈᓂᖅ"
+    }
+  },
+  "properties": {
+    "title": "ᐱᖁᑎᒋᔭᐅᔪᑦ",
+    "lbl-visible": "ᑕᑯᒃᓴᐅᔪᑦ",
+    "lbl-preventBake": "ᐃᒐᐅᑉ ᐃᓗᐊᓂ ᐆᑦᑕᐃᓕᒪᓗᒍ",
+    "lbl-persist": "ᓴᔪᒃᐱᕆᓐᓇᖅᑐᖅ",
+    "multipleNodeSelected": "ᐊᒥᓱᑦ ᐊᔾᔨᒌᙱᑦᑐᑦ ᓂᕈᐊᖅᑕᐅᔪᑦ",
+    "noNodeSelected": "ᓂᕈᐊᖅᑕᐅᔪᖃᙱᑦᑐᖅ",
+    "ambientLight": {
+      "name": "ᖃᐅᒪᐃᑦ",
+      "description": "ᖃᐅᒪᔪᖅ ᑭᓱᑐᐃᓐᓇᑦᑎᐊᓂᒃ ᐱᖁᑎᓂᒃ ᑕᑯᒃᓴᐅᔪᖃᙱᖦᖢᓂ.",
+      "lbl-intensity": "ᐊᒃᓱᕈᓗᐊᕐᓂᖅ",
+      "lbl-color": "ᑕᖅᓴᖅ"
+    },
+    "envmap": {
+      "name": "ᐊᕙᑎᓕᕆᓂᕐᒧᑦ ᓄᓇᙳᐊᖅ",
+      "description": "ᐊᕙᑎᒧᑦ ᓄᓇᙳᐊᑦ ᐱᖁᑏᑦ"
+    },
+    "asset": {
+      "name": "ᐱᖁᑎᑦ",
+      "description": "ᑲᑎᙵᓗᑎᒃ ᑕᑯᒃᓴᐅᔪᑦ ᐃᓗᓕᖏᑦ ᐃᓗᓪᓕᖅᓱᖅᑕᐅᔪᓐᓇᖅᑐᑦ ᓂᐅᕋᐃᕝᕕᐅᔪᓐᓇᖅᖢᑎᒡᓗ",
+      "lbl-options": "ᐊᑐᖅᑕᐅᖔᕈᓐᓇᖅᑐᑦ",
+      "lbl-assetPath": "ᐱᖁᑎᓄᑦ ᐊᖅᑯᑎᒃᓴᖅ",
+      "lbl-assetName": "ᑲᓇᑕᐅᑉ ᓯᓚᑖᓂᙶᖅᑐᖅ ᐊᑎᖓ",
+      "lbl-exportOptions": "ᐊᐅᓪᓚᖅᑎᑦᑎᓂᕐᒧᑦ ᐊᑐᖅᑕᐅᖔᕈᓐᓇᖅᑐᑦ",
+      "lbl-export": "ᑲᓇᑕᐅᑉ ᓯᓚᑖᓂᙶᖅᑐᑦ ᐱᖁᑎᑦ",
+      "lbl-load": "ᓯᓇᕐᓚᒡᕕᖕᒧᐊᕐᓗᒍ",
+      "lbl-unload": "ᓂᐅᕋᐃᓂᖅ",
+      "lbl-reload": "ᓂᐅᕋᐃᓂᖅ"
+    },
+    "audio": {
+      "name": "ᓂᐱᖃᐅᑎ",
+      "description": "ᑐᓴᖅᓴᐅᔪᑦ ᑐᓴᖅᓴᐅᔪᑦ.",
+      "lbl-audiourl": "ᓂᐱᓕᐅᖅᓯᒪᔪᖅ ᐆᓪ",
+      "lbl-controls": "ᐊᐅᓚᑦᑎᔾᔪᑏᑦ",
+      "info-controls": "ᑕᑯᒃᓴᐅᓂᖓ ᑐᓴᒐᒃᓴᓕᐅᖅᑎᓄᑦ ᐊᐅᓚᑕᐅᓂᖓ.",
+      "lbl-autoplay": "ᐃᒻᒥᓂᒃ ᐱᙳᐊᕐᓂᖅ",
+      "info-autoplay": "ᓱᓕᒃᐸᑦ, ᑐᓴᒐᒃᓴᓕᕆᔨᑦ ᐱᙳᐊᕐᓂᐊᖅᑐᑦ ᐃᓯᓵᖅᑎᓪᓗᒋᑦ.",
+      "lbl-synchronize": "ᐊᑕᐅᓯᕈᖅᑎᓯᒪᓗᒍ",
+      "info-synchronize": "ᓱᓕᒃᐸᑦ, ᑐᓴᒐᒃᓴᓕᕆᔨᑦ ᐊᑕᐅᓯᙳᖅᑎᑕᐅᓂᐊᖅᑐᑦ ᑕᒪᐃᓐᓄᑦ ᐊᑦᑕᑕᖅᑎᑕᐅᓯᒪᔪᓄᑦ ᐃᑲᔪᖅᑕᐅᔭᕆᐊᓕᖕᓄᑦ.",
+      "lbl-loop": "ᓂᐊᖂᑉ",
+      "info-loop": "ᓱᓕᒃᐸᑦ ᑐᓴᒐᒃᓴᓕᕆᔨᑦ ᐅᖃᑦᑎᐊᒻᒪᕆᖕᓂᐊᖅᑐᑦ.",
+      "lbl-audioType": "ᓂᐱᐅᑉ ᖃᓄᐃᑦᑑᓂᖓ",
+      "lbl-distanceModel": "ᐅᖓᓯᒋᒐᓗᐊᕐᓗᒍ",
+      "info-distanceModel": "algorithim ᐊᑐᖅᑕᐅᓚᐅᖅᑐᖅ ᓈᓴᐅᓯᕆᓂᕐᒧᑦ ᓂᐱᓕᐅᖅᓯᒪᔪᓂᒃ.",
+      "lbl-rolloffFactor": "Rolloff Factor",
+      "info-rolloffFactor": "ᒪᕐᕈᐃᓪᓗᐊᖅᑐᒥᒃ ᐱᐅᓂᖃᖅᑐᒥᒃ ᓇᓗᓇᐃᖅᓯᔪᒥᒃ ᖃᓄᖅ ᓱᒃᑲᑎᒋᔪᒥᒃ ᐊᖏᓂᖓ ᒥᒃᖠᒋᐊᖅᓯᒪᖕᒪᖔᑦ ᓇᑭᙶᕐᓂᖓ ᕿᒪᒃᐸᓪᓕᐊᑎᓪᓗᒍ ᓈᓚᒃᑎᒥᑦ. 0−ᒥᑦ 1−ᒧᑦ",
+      "info-rfInfinity": "ᒪᕐᕈᐃᓪᓗᐊᖅᑐᒥᒃ ᐱᐅᓂᖃᖅᑐᒥᒃ ᓇᓗᓇᐃᖅᓯᔪᒥᒃ ᖃᓄᖅ ᓱᒃᑲᑎᒋᔪᒥᒃ ᐊᖏᓂᖓ ᒥᒃᖠᒋᐊᖅᓯᒪᖕᒪᖔᑦ ᓇᑭᙶᕐᓂᖓ ᕿᒪᒃᐸᓪᓕᐊᑎᓪᓗᒍ ᓈᓚᒃᑎᒥᑦ. 0−ᒥᑦ ᓇᓗᓇᖅᑐᒦᓐᓂᖅ",
+      "lbl-refDistance": "ᐅᖓᓯᒋᓗᐊᙱᑕᖓ",
+      "info-refDistance": "ᒪᕐᕈᐃᓪᓗᐊᖅᑐᒥᒃ ᐊᑭᖃᖅᑐᖅ ᑭᒡᒐᖅᑐᐃᕗᖅ ᐅᖃᐅᓯᐅᔫᑉ ᐅᖓᓯᒋᓂᖓᓂᒃ ᒥᑭᒡᓕᒋᐊᖅᑎᑦᑎᓂᐊᕐᓗᓂ ᖃᓄᖅ ᐊᖏᑎᒋᓂᖓᓂᒃ ᑖᓐᓇ ᓂᐱᓕᐅᖅᓯᒪᔪᖅ ᓅᑉᐸᓪᓕᐊᑎᓪᓗᒍ ᓈᓚᒃᑎᒥᑦ.",
+      "lbl-maxDistance": "ᐊᖏᓛᖑᔪᖅ ᐅᖓᓯᖕᓂᖓ",
+      "info-maxDistance": "ᒪᕐᕈᐃᓪᓗᐊᖅᑐᒥᒃ ᐊᑭᖃᓪᓗᐊᖅᑐᒥᒃ ᑭᒡᒐᖅᑐᐃᔪᒥᒃ ᐊᖏᓛᒥᒃ ᐅᖓᓯᒌᒃᑎᒋᓂᖓᓂᒃ ᑐᓴᖅᓴᐅᔫᑉ ᓈᓚᒃᑐᕐᓗ, ᑕᒪᓐᓇ ᖃᓄᖅ ᐊᖏᑎᒋᓂᖓ ᒥᑭᒡᓕᒋᐊᖅᑎᑕᐅᒃᑲᓐᓂᙱᖦᖢᓂ.",
+      "lbl-coneInnerAngle": "Cone Inner Angle",
+      "info-coneInnerAngle": "ᒪᕐᕈᐃᓪᓗᐊᕐᓗᒍ ᐊᑭᖓ ᓇᓗᓇᐃᖅᓯᔪᖅ ᑎᕆᖅᑯᐊᓂᒃ, ᖃᓄᑎᒋᐅᓂᖓᓂᒃ, ᐃᓗᐊᓂ ᒥᒃᖠᒋᐊᕐᓂᖃᔾᔮᖏᑦᑐᖅ.",
+      "lbl-coneOuterAngle": "ᐊᓂᐊᕕᖓᓂ",
+      "info-coneOuterAngle": "ᒪᕐᕈᐃᓪᓗᐊᕐᓗᒍ ᐊᑭᖓ ᓇᓗᓇᐃᖅᓯᔪᖅ ᑎᕆᖅᑯᐊᓂᒃ, ᖃᓄᑎᒋᐅᓂᖓᓂᒃ, ᐊᖏᓂᖓᑕ ᐊᖏᓂᖓ ᒥᒃᖠᒋᐊᖅᑕᐅᓗᓂ ᐊᑭᐅᖏᓐᓇᖅᑐᒧᑦ, ᓇᓗᓇᐃᖅᑕᐅᔪᖅ ᑲᓐᑐᒍ ᒍᐃᓐᒧᑦ.",
+      "lbl-coreOuterGain": "ᑲᓐᑐ ᒍᐃᓐ",
+      "info-coreOuterGain": "ᒪᕐᕈᐃᓪᓗᐊᕐᓗᒍ ᐊᑭᖓ ᓇᓗᓇᐃᔭᐃᔪᖅ ᐊᖏᓂᖓᓂᒃ ᒥᒃᖠᒋᐊᕈᑎ ᓯᓚᑖᓂ ᕐᑳᖓᓂ ᓇᓗᓇᐃᖅᓯᒪᔪᖅ coneOuterAngle−ᒧᑦ. ᐊᑐᙱᓐᓂᖅ 0−ᐅᕗᖅ, ᐃᒪᓐᓇ ᑐᑭᖃᖅᖢᓂ, ᓂᐱᖓ ᑐᓴᖅᑕᐅᔪᓐᓇᙱᓚᖅ.",
+      "lbl-volume": "ᐊᖏᑎᒋᔪᖅ",
+      "lbl-play": "ᐱᙳᐊᕐᓂᖅ",
+      "lbl-pause": "ᓄᖅᑲᖓᓚᐅᑲᖕᓂᖅ",
+      "error-url": "ᑕᒻᒪᖅᑐᒥᒃ ᐃᓕᐅᖅᑲᐃᓂᖅ URL−ᒥᑦ"
+    },
+    "boxCollider": {
+      "description": "ᑕᑯᒃᓴᐅᙱᑦᑐᖅ ᐴᖅ ᐱᖁᑎ ᕐᑳᖏᖅᑕᐅᓂᐊᖅᑐᖅ ᑕᖃᐃᖅᓯᕐᓗᓂᓘᓐᓃᑦ ᖁᓛᓂ.\nᑐᓗᖅᑕᖃᙱᑉᐸᑦ, ᐱᖁᑏᑦ ᑲᑕᒃᑲᔭᖅᑐᑦ ᓇᑎᒃᑯᑦ ᐊᑭᓐᓇᒃᑰᕐᓗᑎᒃᓗ.",
+      "lbl-isTrigger": "ᑐᕆᒍᓪ"
+    },
+    "camera": {
+      "name": "ᐊᔾᔨᓕᐅᕈᑦ",
+      "description": "ᐊᔾᔨᓕᐅᕈᑏᑦ.",
+      "lbl-camera-raycast": "ᐊᔾᔨᓕᐅᕈᑦ ᕋᐃᑲᓯᖕ",
+      "lbl-camera-raycast-toggle": "ᐱᔪᓐᓇᕐᑎᑕᐅᔪᖅ",
+      "lbl-camera-raycast-frequency": "ᐊᑯᓚᐃᑦᑕᕐᓂᖓ",
+      "lbl-camera-raycast-count": "ᕋᐃ ᓈᓴᐃᓂᖅ",
+      "lbl-camera-raycast-length": "ᕋᐃ ᐊᑯᓂᐅᓂᖓ"
+    },
+    "directionalLight": {
+      "name": "ᓇᒧᙵᐅᓂᐊᕐᓂᕆᔭᒥ ᖃᐅᒪᔪᖅ",
+      "description": "ᖃᐅᒪᔪᖅ ᓴᖅᑭᔮᖅᑎᑦᑎᔪᖅ ᑕᒪᐃᓐᓂᒃ ᑕᑯᒃᓴᐅᔪᒥᒃ, ᑭᓯᐊᓂ ᐊᑕᐅᓯᑦᑕᐃᓐᓇᕐᒧᑦ ᑐᕌᖅᑐᖅ.",
+      "lbl-color": "ᑕᖅᓴᖅ",
+      "lbl-intensity": "ᐊᒃᓱᕈᓗᐊᕐᓂᖅ",
+      "lbl-cameraFar": "ᐊᔾᔨᓕᐅᕈᑎ",
+      "lbl-cameraNear": "ᐊᔾᔨᓕᐅᕈᑎ ᖃᓂᒋᔭᖓᓂ",
+      "lbl-cameraTop": "ᐊᔾᔨᓕᐅᕈᑎᐅᑉ ᖄᖓ",
+      "lbl-cameraBottom": "ᐊᔾᔨᓕᐅᕈᑎᐅᑉ ᐊᑖᓂ",
+      "lbl-cameraLeft": "ᐊᔾᔨᓕᐅᕈᑦ ᓴᐅᒥᐊᓂ",
+      "lbl-cameraRight": "ᐊᔾᔨᓕᐅᕈᑎᐅᑉ ᑕᓕᖅᐱᐊ",
+      "lbl-useInCSM": "CSM−ᒥ ᐊᑐᖅᑕᐅᓂᖅ",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-disableForCSM": "ᑎᒥᒥᒍᑦ ᐊᔪᕈᑎᖃᖅᑐᖅ Cascade shadow ᓄᓇᙳᐊᖅ ᐊᔪᕈᓐᓃᖅᑎᑕᐅᖕᒪᑦ.",
+      "lbl-shadowmapResolution": "Shadow ᓄᓇᙳᐊᒥᑦ ᐱᖁᔨᕗᖔᕈᑎ",
+      "lbl-shadowBias": "ᓵᑦᑐᔮᖅᑐᖅ",
+      "lbl-shadowRadius": "ᓵᑐ ᕌᑎᔅ",
+      "lbl-showCameraHelper": "ᐊᔾᔨᓕᐅᕈᑎᒧᑦ ᐃᑲᔪᖅᑎ"
+    },
+    "groundPlane": {
+      "name": "ᒪᓂᖅᑲᒥ ᖃᖓᑕᓲᖅ",
+      "description": "ᒪᓂᕋᕐᒥᑦ ᖃᖓᑕᓲᒥᑦ ᐅᖓᓯᑦᑐᒧᑦ ᑎᑭᖃᑦᑕᖅᑐᖅ.",
+      "lbl-color": "ᑕᖅᓴᖅ",
+      "lbl-receiveShadow": "ᐱᓗᓂ ᓵᑐᒥᒃ",
+      "lbl-generateNavmesh": "ᐊᐅᓚᑎᓪᓗᒍ ᓈᕝᑖᔅ"
+    },
+    "link": {
+      "description": "ᐊᑦᑕᑕᕐᕕᒃᓴᖅ ᐃᒡᓗᕈᓯᕐᒧᑦ ᐅᕝᕙᓘᓐᓃᑦ ᐃᑭᐊᖅᑭᕕᖕᒧᑦ.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "3D ᓄᓇᙳᐊᖅ ᓲᕐᓗ ᓄᓇᓕᐸᐅᔭᖅ."
+    },
+    "model": {
+      "description": "3D−ᒥᒃ ᐊᑐᖅᑐᖃᕐᓗᓂ ᐃᓂᒋᔭᕐᓂ, ᐃᓕᓯᒪᓪᓗᓂ GLTF URL−ᒥᑦ ᑎᑎᖅᑲᖁᑎᒥᒡᓘᓐᓃᑦ.",
+      "lbl-usingGPUInstancingFlag": "ᐊᑐᕐᓗᑎᑦ GPU−ᒥᒃ",
+      "lbl-modelurl": "ᐆᕈᓪ",
+      "lbl-envmapUrl": "ᐊᕙᑎᓕᕆᓂᕐᒧᑦ ᓄᓇᙳᐊᖅ ᐆᕈᓪ",
+      "lbl-textureOverride": "ᕐᑳᖏᐅᑎᓯᒪᔪᖅ",
+      "lbl-materialOverride": "ᐱᖁᑎᑦ ᖃᓪᓕᖅᓯᓯᒪᔪᑦ",
+      "error-url": "ᑕᒻᒪᖅᑐᒥᒃ ᐃᓕᐅᖅᑲᐃᓂᖅ URL−ᒥᑦ",
+      "lbl-loopAnimation": "ᓂᖀᑦ ᐃᔾᔪᐊᖅᓯᓂᖓ",
+      "lbl-isAvatar": "ᐊᕙᑕᖅ",
+      "lbl-isGPUInstancing": "ᐊᑐᖅᐳᖅ GPU−ᒥᒃ ᐊᑐᖅᑕᐅᓯᑲᐅᑎᒋᔪᓂᒃ",
+      "lbl-isDynamic": "ᐆᒻᒪᕆᒃᑐᖅ",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-receiveShadow": "ᐱᓗᓂ ᓵᑐᒥᒃ",
+      "lbl-interactable": "ᖃᓄᐃᓕᐅᖃᑦᑕᐅᑎᔪᓐᓇᕐᓂᖅ",
+      "lbl-matrixAutoUpdate": "MatrixAutoᓄᑖᙳᕆᐊᖅᑕᐅᔪᖅ",
+      "lbl-name": "ᐊᑎᖓ",
+      "lbl-url": "ᐆᕈᓪ",
+      "lbl-buy": "ᓂᐅᕕᖅᑐᖅ ᐆᕈᓪ",
+      "lbl-learnMore": "Url−ᒥᑦ ᖃᐅᔨᒋᐊᒃᑲᓐᓂᕆᑦ",
+      "lbl-htmlContent": "Html ᐃᓗᓕᖏᑦ",
+      "lbl-interactionText": "ᐱᓕᕆᖃᑎᒌᒃᐸᖕᓂᖏᓐᓄᑦ ᑎᑎᕋᖅᓯᒪᔪᑦ",
+      "lbl-interactionType": "ᐃᓅᖃᑎᖃᕈᓐᓇᕐᓂᐅᑉ ᖃᓄᐃᑦᑑᓂᖓ"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "ᓱᓇᒃᑯᑖᑦ",
+      "error-materialID": "ᑕᒻᒪᖅᓯᒪᔪᓂᒃ ᓇᓂᓯᔾᔪᑏᑦ",
+      "placeholder-materialID": "ᓂᕈᐊᕐᓗᒋᑦ ᐱᖁᑏᑦ",
+      "lbl-patternTarget": "1000000",
+      "lbl-pattern": "ᐸᑎᐅᔭᖅ",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "ᐃᓅᖃᑎᖃᕈᓐᓇᕐᓂᐅᑉ ᖃᓄᐃᑦᑑᓂᖓ",
+      "text": "ᐱᓕᕆᖃᑎᒌᒃᐸᖕᓂᖏᓐᓄᑦ ᑎᑎᕋᖅᓯᒪᔪᑦ",
+      "distance": "ᐃᓅᖃᑎᖃᖅᐸᖕᓂᖅ ᐅᖓᓯᒌᒃᑲᓗᐊᖅᖢᓂ",
+      "theme": "ᐱᓕᕆᖃᑎᒌᒍᑕᐅᓂᐊᖅᑐᖅ",
+      "name": "ᑲᑎᓐᓂᐅᑉ ᐊᑎᖓ",
+      "description": "ᐱᓕᕆᖃᑎᒌᖕᓂᐅᑉ ᐅᓂᒃᑳᖅᓯᒪᓂᖓ",
+      "images": "ᑲᑎᖃᑦᑕᐅᑎᓂᕐᒧᑦ ᐊᔾᔨᙳᐊᑦ",
+      "videos": "ᑕᕐᕆᔭᐅᑎᑦ",
+      "urls": "1000000000000000000",
+      "models": "ᐱᓕᕆᖃᑎᒌᒍᓯᑦ"
+    },
+    "group": {
+      "name": "ᑲᑎᙵᔪᓄᑦ",
+      "description": "ᖃᔅᓯᑲᓪᓚᖕᓂᒃ ᐱᖁᑎᓂᒃ ᓅᑎᑕᐅᔪᖃᕈᓐᓇᖅᐳᖅ ᐃᔾᔪᐊᖅᑕᐅᔪᖃᕈᓐᓇᖅᑐᕐᓘᓐᓃᑦ ᐊᑕᐅᑦᑎᒃᑯᑦ.\nᓂᖀᑦ ᐊᒡᔭᕐᓗᒋᓪᓗ ᑲᑎᙵᔪᓄᑦ."
+    },
+    "hemisphere": {
+      "name": "ᕼᐃᒥᔅᐳᕐ ᓚᐃᑦ",
+      "description": "ᖃᐅᒪᔪᖅ ᑕᑯᒃᓴᐅᑎᑦᑎᔪᖅ ᑕᑯᒃᓴᐅᔪᒥᒃ ᑕᒃᐸᐅᖓᑦᑎᐊᖅ.",
+      "lbl-skyColor": "Sky Color",
+      "lbl-groundColor": "ᓯᖃᓪᓕᓯᒪᔪᖅ ᑕᖅᓴᖅ",
+      "lbl-intensity": "ᐊᒃᓱᕈᓗᐊᕐᓂᖅ"
+    },
+    "image": {
+      "name": "ᐊᔾᔨᙳᐊᖅ",
+      "description": "ᐊᔾᔨᖁᑎᒥᒃ ᐃᓕᐅᖅᑲᐃᓪᓗᓂ.",
+      "lbl-imgURL": "ᐊᔾᔨᖑᐊᖅ Url",
+      "lbl-transparency": "ᓴᖅᑭᔮᑦᑎᐊᖕᓂᖅ",
+      "lbl-alphaCutoff": "Alpha Cutoff",
+      "lbl-projection": "ᓇᓚᐅᑦᑖᖅᑕᐅᔪᖅ",
+      "lbl-side": "ᓴᓂᕋᖅ",
+      "info-controls": "ᑕᑯᒃᓴᐅᓂᖓ ᑐᓴᒐᒃᓴᓕᐅᖅᑎᓄᑦ ᐊᐅᓚᑕᐅᓂᖓ.",
+      "info-transparency": "ᖃᓄᖅ ᓴᖅᑭᔮᑦᑎᐊᖕᓂᖕᒥᑦ ᐊᑐᕈᓐᓇᖕᒪᖔᑦ:",
+      "info-opaque": "'Opaque' = ᑕᑯᒃᓴᐅᙱᑦᑐᖅ",
+      "info-blend": "'ᑲᑎᙵᔪᑦ' = ᐊᑐᕐᓗᒋᑦ ᐊᔾᔨᙳᐊᑦ alpha ᕿᓪᓚᔾᔪᒐᖅ",
+      "info-mask": "'mask' = ᐊᑐᕐᓗᑎᑦ ᓇᓗᓇᐃᖅᓯᒪᔪᒥᑦ ᓇᑲᑎᖅᓯᒪᔪᒥᑦ ᐅᕙᓂ/ᐲᖅᓯᓂᕐᒧᑦ ᑕᑯᒃᓴᐅᑦᑎᐊᕐᓂᕐᒥᑦ (ᐱᓕᕆᓂᖅᓴᐅᔪᖅ)",
+      "info-alphaCutoff": "Pixels alpha−ᒧᑦ ᐱᒻᒪᕆᐅᒋᔭᐅᔪᑦ ᐊᑦᑎᖕᓂᖅᓴᐅᔪᑦ ᑖᔅᓱᒪᙵᑦ ᑕᑯᒃᓴᐅᑦᑎᐊᕐᓂᐊᖅᑐᑦ",
+      "error-url": "ᐊᑐᙱᓐᓂᖅ URL"
+    },
+    "name": {
+      "lbl-name": "ᐊᑎᖓ"
+    },
+    "partileEmitter": {
+      "description": "ᐃᓚᐅᕈᑎᓕᐅᕐᓗᓂ ᐃᓚᐅᕈᑎᓂᒃ.",
+      "lbl-particleCount": "ᐃᓚᐅᔪᑦ ᓈᓴᖅᑕᐅᓂᖏᑦ",
+      "lbl-image": "ᐊᔾᔨᙳᐊᖅ",
+      "lbl-ageRandomness": "ᐅᑭᐅᖏᑦ ᓇᑭᑐᐃᓐᓇᖅ",
+      "lbl-lifetime": "ᐃᓅᓯᓕᒫᖅ",
+      "lbl-lifetimeRandomness": "ᐃᓅᓯᓕᒫᒧᑦ ᓇᒥᑐᐃᓐᓇᒃᑯᑦ",
+      "lbl-sizeCurve": "ᐊᖏᓂᖓᑕ ᓴᖑᓂᖓ",
+      "lbl-startPSize": "ᐱᒋᐊᕐᕕᐅᑉ ᐊᖏᓂᖓ",
+      "lbl-endPSize": "ᐃᓱᐊᑕ ᐊᖏᓂᖓ",
+      "lbl-sizeRandomness": "ᐊᖏᓂᖓ ᓇᑭᑐᐃᓐᓇᖅ",
+      "lbl-colorCurve": "ᑕᖅᓯᖅᓱᐃᓂᖅ",
+      "lbl-startColor": "ᑕᖅᓯᖅᓱᐃᓂᖅ",
+      "lbl-startOpacity": "ᐱᒋᐊᕈᑎᖓ",
+      "lbl-middleColor": "ᕿᑎᐊᓃᑦᑐᑦ ᑕᖅᓴᖏᑦ",
+      "lbl-middleOpacity": "ᕿᑎᐊᓃᑦᑐᑦ",
+      "lbl-endColor": "ᐃᓱᐊᓂ ᑕᖅᓴᖅ",
+      "lbl-endOpacity": "ᐃᓱᓕᑉᐸᓪᓕᐊᓂᖅ",
+      "lbl-velocityCurve": "Velocity Curve",
+      "lbl-startVelocity": "ᐱᒋᐊᕐᓂᖅ",
+      "lbl-endVelocity": "ᐃᓱᐊᓂ",
+      "lbl-angularVelocity": "ᑭᒍᑎᐅᑉ ᓯᖒᔭᕐᓂᖓ",
+      "info-ageRandomness": "ᖃᓄᖅ ᐊᔾᔨᒌᙱᑎᒋᓂᖏᑦ ᐃᓚᐅᕈᑎᓖᑦ ᐃᒍᑦᑎᖅᑕᐅᔭᕌᖓᑕ.",
+      "info-lifetime": "ᐊᖏᓛᕆᔪᓐᓇᖅᑕᖓ ᐊᕐᕌᒍᖏᑦ ᐃᓚᐅᕈᑎᐅᑉ ᐅᑎᖅᑎᑕᐅᓚᐅᙱᓐᓂᖓᓂ.",
+      "info-lifetimeRandomness": "ᖃᓄᖅ ᐊᔾᔨᒌᙱᑎᒋᓂᖏᑦ ᐃᓅᓯᓕᒫᒧᑦ.",
+      "info-sizeRandomness": "ᐊᒥᓲᓂᖏᑦ ᐊᔾᔨᒌᖏᓐᓂᖏᑦ ᐊᑯᓐᓂᖏᓐᓂᑦ ᐃᓚᐅᕈᑎᐅᑉ ᐊᖏᓂᖏᑦ.",
+      "error-url": "ᑕᒻᒪᖅᑐᒥᒃ ᐃᓕᐅᖅᑲᐃᓂᖅ URL−ᒥᑦ"
+    },
+    "clouds": {
+      "name": "ᓄᕗᔭ",
+      "description": "1000000000000000000000",
+      "lbl-image": "ᐊᔾᔨᙳᐊᖓ",
+      "lbl-wroldScale": "ᓄᓇᕐᔪᐊᓕᒫᒥᑦ ᖃᐅᔨᓴᕈᑎ",
+      "lbl-dimensions": "ᐃᓗᑐᓂᖏᑦ",
+      "lbl-noiseZoom": "ᓂᐱᖅᑯᖅᑐᔪᖅ",
+      "lbl-noiseOffset": "ᓂᐱᖁᖅᑐᔪᖅ",
+      "lbl-spriteScale": "2013-2014",
+      "lbl-fogColor": "ᑕᖅᓴᖓ",
+      "lbl-fogRange": "ᓂᖀᑦ",
+      "error-url": "ᑕᒻᒪᖅᑐᒥᒃ ᐃᓕᐅᖅᑲᐃᓂᖅ URL−ᒥᑦ"
+    },
+    "ocean": {
+      "name": "ᑕᕆᐅᕐᔪᐊᖅ",
+      "description": "ᐃᒪᕕᐅᑉ ᖄᖓ ᒪᓪᓕᖅᖢᓂ ᐊᒻᒪ ᑕᖅᓯᖅᖢᓂ",
+      "lbl-normalMap": "ᓈᒻᒪᒃᑐᑦ ᓄᓇᙳᐊᑦ",
+      "lbl-distortionMap": "ᐱᐅᙱᓐᓂᖓ ᓄᓇᙳᐊᖅ",
+      "lbl-envMap": "ᐊᕙᑎᓕᕆᓂᕐᒧᑦ ᓄᓇᙳᐊᖅ",
+      "lbl-color": "ᑕᖅᓴᖅ",
+      "lbl-shallowWaterColor": "ᐃᒃᑲᑦᑐᑯᑖᒃ ᐃᒪᐅᑉ ᑕᖅᓴᖓ",
+      "lbl-shallowToDeepDistance": "ᐃᓗᑐᓂᖅ ᐅᖓᓯᒋᑎᒋᓗᓂ",
+      "lbl-opacityFadeDistance": "Opacity Fade ᐅᖓᓯᖕᓂᖓ",
+      "lbl-opacityRange": "ᖃᓄᖅ ᐊᔾᔨᒌᙱᑎᒋᓂᖏᑦ",
+      "lbl-shininess": "ᓴᔪᖕᓂᖅ",
+      "lbl-reflectivity": "ᐃᓱᒪᒃᓴᖅᓯᐅᕈᓐᓇᑦᑎᐊᕐᓂᖅ",
+      "lbl-foamColor": "ᑕᖅᓴᖓ",
+      "lbl-foamSpeed": "ᐊᕿᓯᓂᖅ ᓱᒃᑲᓕᓂᖅ",
+      "lbl-foamTiling": "Foam Tiling",
+      "lbl-bigWaveTiling": "ᐊᖏᔪᖅ ᐅᕕᓗᖅ",
+      "lbl-bigWaveSpeed": "ᐊᖏᔪᖅ Wave ᓱᒃᑲᔪᖅ",
+      "lbl-bigWaveHeight": "ᐊᖏᔪᖅ ᐅᐊᓪᕝ ᐳᖅᑐᓂᖓ",
+      "lbl-waveSpeed": "ᐊᒪᕈᖅ ᓱᒃᑲᓕᔪᖅ",
+      "lbl-waveScale": "ᐊᒪᕈᖅ ᓈᓴᐅᑎ",
+      "lbl-waveTiling": "ᐊᐅᑉ ᓯᓕᖕ",
+      "lbl-waveDistortionSpeed": "••",
+      "lbl-waveDistortionTiling": "•",
+      "error-url": "ᑕᒻᒪᖅᑐᒥᒃ ᐃᓕᐅᖅᑲᐃᓂᖅ URL−ᒥᑦ"
+    },
+    "water": {
+      "name": "ᐃᒥᖅ",
+      "description": "ᐃᒥᕐᕕᕋᓛᖅ"
+    },
+    "interior": {
+      "name": "ᐃᓗᐊ",
+      "description": "ᖄᖓ ᓄᓇᙳᐊᖃᕐᖢᓂ ᕐᑳᖓᓂ ᐋᖅᑭᒃᓯᒪᓂᖃᖅᖢᓂ ᐃᓗᓪᓕᖓᓂ ᐊᕙᑎᖃᖁᓪᓗᒍ",
+      "lbl-cubeMap": "ᓄᓇᙳᐊᑉ ᐋᖅᑭᒃᓯᒪᓂᖓ",
+      "lbl-tiling": "ᕿᓪᓕᖅᑕᖅ ᖃᔅᓯᐅᓂᖓ",
+      "lbl-size": "ᓄᓇᐅᑉ ᖄᖓᑕ ᐊᖏᓂᖓ",
+      "error-url": "ᑕᒻᒪᖅᑐᒥᒃ ᐃᓕᐅᖅᑲᐃᓂᖅ URL−ᒥᑦ"
+    },
+    "pointLight": {
+      "description": "ᖃᐅᒪᔪᖅ ᓇᒧᑐᐃᓐᓈᖅᑐᖅ ᐊᑕᐅᓯᕐᒦᙶᖅᖢᓂ.",
+      "lbl-color": "ᑕᖅᓴᖅ",
+      "lbl-intensity": "ᐊᒃᓱᕈᓗᐊᕐᓂᖅ",
+      "lbl-range": "ᐊᑯᑦᑐᓂᖓ",
+      "lbl-decay": "ᑎᓪᓕᕐᓂᖅ"
+    },
+    "scene": {
+      "name": "ᓯᓇᕐᔭᖅ",
+      "description": "ᑭᓱᓪᓗᐊᑕᖓ ᓴᖅᑭᔮᖅᑐᖅ.",
+      "lbl-bgcolor": "ᐱᓕᕆᐊᖑᓯᒪᔪᑦ ᑕᖅᓴᖏᑦ",
+      "lbl-fogType": "ᖃᓄᐃᑦᑑᓂᖓ",
+      "lbl-fogColor": "ᑕᖅᓴᖓ",
+      "lbl-forNearDistance": "ᐅᖓᓯᒋᓗᐊᙱᑕᒧᑦ",
+      "lbl-fogFarDistance": "ᐅᖓᓯᖕᓂᖓ",
+      "lbl-fogDensity": "ᐊᕿᒡᒋᖅᐸᕕᓂᐅᑉ ᖃᑦᑎᐅᓂᖏᑦ",
+      "lbl-audioSettings": "ᐊᑐᖅᑐᖃᕐᓗᓂ ᐃᓂᒥᒃ ᓂᐱᒥᒃ",
+      "lbl-avatarDistanceModel": "ᐊᕙᑕ ᐅᖓᓯᑦᑐᒧᑦ ᐆᑦᑑᑎ",
+      "lbl-avatarRolloffFactor": "ᐊᕙᑕ ᕉᓪᕝ ᓱᓕᔾᔪᑎ",
+      "lbl-avatarRefDistance": "ᐊᕙᑕᐅᑉ ᐅᖓᓯᖕᓂᖓ",
+      "lbl-avatarMaxDistance": "ᐊᕙᑕ ᒫᒃᔅ ᐅᖓᓯᖕᓂᖓ",
+      "lbl-mediaVolume": "ᐱᕙᓪᓕᐊᔪᑦ ᐅᓄᕐᓂᖏᑦ",
+      "lbl-mediaDistanceModel": "ᐱᕙᓪᓕᐊᔪᓄᑦ ᐅᖓᓯᒋᔭᖃᕐᓂᖅ",
+      "lbl-mediaRolloffFactor": "ᑐᓴᒐᒃᓴᓄᑦ ᓱᓕᔪᑦ",
+      "lbl-mediaRefDistance": "ᑐᓴᒐᒃᓴᓕᕆᔨᑦ ᐅᖓᓯᒋᒐᓗᐊᕐᓗᒍ",
+      "lbl-mediaMaxDistance": "Media Max Distance",
+      "lbl-mediaConeInnerAngle": "ᑐᓴᒐᒃᓴᓕᕆᔨᑦ",
+      "lbl-mediaConeOuterAngle": "ᑐᓴᒐᒃᓴᓕᕆᔨᑦ ᐊᖕᒪᓗᖅᑐᑦ",
+      "lbl-mediaConeOuterGain": "ᑐᓴᒐᒃᓴᓕᕆᔨᑦ",
+      "info-avatarDistanceModel": "algorithim ᐊᑐᖅᑕᐅᓚᐅᖅᑐᖅ ᓈᓴᐅᓯᕆᓂᕐᒧᑦ ᓂᐱᓕᐅᖅᓯᒪᔪᓂᒃ.",
+      "info-avatarRolloffFactor": "ᒪᕐᕈᐃᓪᓗᐊᖅᑐᒥᒃ ᐱᐅᓂᖃᖅᑐᒥᒃ ᓇᓗᓇᐃᖅᓯᔪᒥᒃ ᖃᓄᖅ ᓱᒃᑲᑎᒋᔪᒥᒃ ᐊᖏᓂᖓ ᒥᒃᖠᒋᐊᖅᓯᒪᖕᒪᖔᑦ ᓇᑭᙶᕐᓂᖓ ᕿᒪᒃᐸᓪᓕᐊᑎᓪᓗᒍ ᓈᓚᒃᑎᒥᑦ. 0−ᒥᑦ 1−ᒧᑦ",
+      "info-avatarRolloffFactorInifinity": "ᒪᕐᕈᐃᓪᓗᐊᖅᑐᒥᒃ ᐱᐅᓂᖃᖅᑐᒥᒃ ᓇᓗᓇᐃᖅᓯᔪᒥᒃ ᖃᓄᖅ ᓱᒃᑲᑎᒋᔪᒥᒃ ᐊᖏᓂᖓ ᒥᒃᖠᒋᐊᖅᓯᒪᖕᒪᖔᑦ ᓇᑭᙶᕐᓂᖓ ᕿᒪᒃᐸᓪᓕᐊᑎᓪᓗᒍ ᓈᓚᒃᑎᒥᑦ. 0−ᒥᑦ ᓇᓗᓇᖅᑐᒦᓐᓂᖅ",
+      "info-avatarRefDistance": "ᒪᕐᕈᐃᓪᓗᐊᖅᑐᒥᒃ ᐊᑭᖃᖅᑐᖅ ᑭᒡᒐᖅᑐᐃᕗᖅ ᐅᖃᐅᓯᐅᔫᑉ ᐅᖓᓯᒋᓂᖓᓂᒃ ᒥᑭᒡᓕᒋᐊᖅᑎᑦᑎᓂᐊᕐᓗᓂ ᖃᓄᖅ ᐊᖏᑎᒋᓂᖓᓂᒃ ᑖᓐᓇ ᓂᐱᓕᐅᖅᓯᒪᔪᖅ ᓅᑉᐸᓪᓕᐊᑎᓪᓗᒍ ᓈᓚᒃᑎᒥᑦ.",
+      "info-avatarMaxDistance": "ᒪᕐᕈᐃᓪᓗᐊᖅᑐᒥᒃ ᐊᑭᖃᓪᓗᐊᖅᑐᒥᒃ ᑭᒡᒐᖅᑐᐃᔪᒥᒃ ᐊᖏᓛᒥᒃ ᐅᖓᓯᒌᒃᑎᒋᓂᖓᓂᒃ ᑐᓴᖅᓴᐅᔫᑉ ᓈᓚᒃᑐᕐᓗ, ᑕᒪᓐᓇ ᖃᓄᖅ ᐊᖏᑎᒋᓂᖓ ᒥᑭᒡᓕᒋᐊᖅᑎᑕᐅᒃᑲᓐᓂᙱᖦᖢᓂ.",
+      "info-mediaDistanceModel": "algorithim ᐊᑐᖅᑕᐅᓚᐅᖅᑐᖅ ᓈᓴᐅᓯᕆᓂᕐᒧᑦ ᓂᐱᓕᐅᖅᓯᒪᔪᓂᒃ.",
+      "info-mediaRolloffFactor": "ᒪᕐᕈᐃᓪᓗᐊᖅᑐᒥᒃ ᐱᐅᓂᖃᖅᑐᒥᒃ ᓇᓗᓇᐃᖅᓯᔪᒥᒃ ᖃᓄᖅ ᓱᒃᑲᑎᒋᔪᒥᒃ ᐊᖏᓂᖓ ᒥᒃᖠᒋᐊᖅᓯᒪᖕᒪᖔᑦ ᓇᑭᙶᕐᓂᖓ ᕿᒪᒃᐸᓪᓕᐊᑎᓪᓗᒍ ᓈᓚᒃᑎᒥᑦ. 0−ᒥᑦ 1−ᒧᑦ",
+      "info-mediaRolloffFactorInfinity": "ᒪᕐᕈᐃᓪᓗᐊᖅᑐᒥᒃ ᐱᐅᓂᖃᖅᑐᒥᒃ ᓇᓗᓇᐃᖅᓯᔪᒥᒃ ᖃᓄᖅ ᓱᒃᑲᑎᒋᔪᒥᒃ ᐊᖏᓂᖓ ᒥᒃᖠᒋᐊᖅᓯᒪᖕᒪᖔᑦ ᓇᑭᙶᕐᓂᖓ ᕿᒪᒃᐸᓪᓕᐊᑎᓪᓗᒍ ᓈᓚᒃᑎᒥᑦ. 0−ᒥᑦ ᓇᓗᓇᖅᑐᒦᓐᓂᖅ",
+      "info-mediaRefDistance": "ᒪᕐᕈᐃᓪᓗᐊᖅᑐᒥᒃ ᐊᑭᖃᖅᑐᖅ ᑭᒡᒐᖅᑐᐃᕗᖅ ᐅᖃᐅᓯᐅᔫᑉ ᐅᖓᓯᒋᓂᖓᓂᒃ ᒥᑭᒡᓕᒋᐊᖅᑎᑦᑎᓂᐊᕐᓗᓂ ᖃᓄᖅ ᐊᖏᑎᒋᓂᖓᓂᒃ ᑖᓐᓇ ᓂᐱᓕᐅᖅᓯᒪᔪᖅ ᓅᑉᐸᓪᓕᐊᑎᓪᓗᒍ ᓈᓚᒃᑎᒥᑦ.",
+      "info-mediaMaxDistance": "ᒪᕐᕈᐃᓪᓗᐊᖅᑐᒥᒃ ᐊᑭᖃᓪᓗᐊᖅᑐᒥᒃ ᑭᒡᒐᖅᑐᐃᔪᒥᒃ ᐊᖏᓛᒥᒃ ᐅᖓᓯᒌᒃᑎᒋᓂᖓᓂᒃ ᑐᓴᖅᓴᐅᔫᑉ ᓈᓚᒃᑐᕐᓗ, ᑕᒪᓐᓇ ᖃᓄᖅ ᐊᖏᑎᒋᓂᖓ ᒥᑭᒡᓕᒋᐊᖅᑎᑕᐅᒃᑲᓐᓂᙱᖦᖢᓂ.",
+      "info-mediaConeInnerAngle": "ᒪᕐᕈᐃᓪᓗᐊᕐᓗᒍ ᐊᑭᖓ ᓇᓗᓇᐃᖅᓯᔪᖅ ᑎᕆᖅᑯᐊᓂᒃ, ᖃᓄᑎᒋᐅᓂᖓᓂᒃ, ᐃᓗᐊᓂ ᒥᒃᖠᒋᐊᕐᓂᖃᔾᔮᖏᑦᑐᖅ.",
+      "info-mediaConeOuterAngle": "ᒪᕐᕈᐃᓪᓗᐊᕐᓗᒍ ᐊᑭᖓ ᓇᓗᓇᐃᖅᓯᔪᖅ ᑎᕆᖅᑯᐊᓂᒃ, ᖃᓄᑎᒋᐅᓂᖓᓂᒃ, ᐊᖏᓂᖓᑕ ᐊᖏᓂᖓ ᒥᒃᖠᒋᐊᖅᑕᐅᓗᓂ ᐊᑭᐅᖏᓐᓇᖅᑐᒧᑦ, ᓇᓗᓇᐃᖅᑕᐅᔪᖅ ᑲᓐᑐᒍ ᒍᐃᓐᒧᑦ.",
+      "info-mediaConeOuterGain": "ᒪᕐᕈᐃᓪᓗᐊᕐᓗᒍ ᐊᑭᖓ ᓇᓗᓇᐃᔭᐃᔪᖅ ᐊᖏᓂᖓᓂᒃ ᒥᒃᖠᒋᐊᕈᑎ ᓯᓚᑖᓂ ᕐᑳᖓᓂ ᓇᓗᓇᐃᖅᓯᒪᔪᖅ coneOuterAngle−ᒧᑦ. ᐊᑐᙱᓐᓂᖅ 0−ᐅᕗᖅ, ᐃᒪᓐᓇ ᑐᑭᖃᖅᖢᓂ, ᓂᐱᖓ ᑐᓴᖅᑕᐅᔪᓐᓇᙱᓚᖅ.",
+      "lbl-simpleMaterials": "ᐱᔭᕆᐊᑭᑦᑐᓂᒃ ᐱᖁᑎᓂᒃ ᐊᑐᕐᓗᑎᑦ",
+      "lbl-lods": "LODS",
+      "info-lods": "ᐋᖅᑭᒃᓯᕙᒃᐳᖅ ᐅᖓᓯᒋᑎᒋᓂᖏᓐᓂᒃ ᑕᒪᒃᑯᐊ ᓇᓗᓇᐃᔭᖅᓯᒪᑦᑎᐊᖅᑐᑦ ᐊᓯᔾᔨᖅᖢᑎᒃ.",
+      "info-simpleMaterials": "ᐊᓯᔾᔨᕐᓗᒋᑦ ᑕᒪᕐᒥᑦᑎᐊᖅ ᐊᑭᑐᔪᑦ ᐱᖁᑎᑦ ᐊᔪᕐᓇᙱᓐᓂᖅᓴᐅᖁᓪᓗᒋᑦ ᓂᐅᕋᐃᕝᕕᐅᕙᒃᑐᑦ.",
+      "lbl-rendererSettings": "ᐅᖓᑎᓗᐊᖓᓄᑦ ᐋᖅᑭᒃᓯᒪᓃᑦ",
+      "lbl-csm": "Cascading Shadow ᓄᓇᙳᐊᑦ",
+      "info-csm": "ᐊᔪᖖᒋᑎᑦᑎᔪᖅ ᑕᖅᓴᓕᖅᓯᓂᕐᒥᒃ ᓄᓇᙳᐊᓂᒃ.",
+      "lbl-toneMapping": "ᓂᐱᖓ ᓄᓇᙳᐊᓕᕆᓂᖅ",
+      "info-toneMapping": "ᐱᔪᓐᓇᖅᑎᑦᑎᔪᖅ ᓂᐱᒥᒃ ᓄᓇᙳᐊᓕᐅᕐᓂᕐᒥᒃ ᓴᖅᑭᔮᖅᑐᒥ. ᐊᒃᑐᐃᓂᖃᙱᑦᑐᖅ ᑎᑎᖅᑲᓕᕆᓂᖅ ᐊᔪᕈᓐᓃᖅᑎᑕᐅᒃᐸᑦ.",
+      "lbl-toneMappingExposure": "ᓂᐱᒃᑯᑦ ᓄᓇᙳᐊᒃᑯᑦ ᓴᖅᑭᔮᕐᓂᖅ",
+      "info-toneMappingExposure": "ᓇᓗᓇᐃᕐᓗᒍ ᓂᐱᒃᑯᑦ ᓄᓇᙳᐊᓕᕆᓂᖅ ᓴᖅᑭᔮᕐᓂᖓ ᑕᑯᒃᓴᐅᔫᑉ. ᐊᒃᑐᐃᓂᖃᙱᑦᑐᖅ ᑎᑎᖅᑲᓕᕆᓂᖅ ᐊᔪᕈᓐᓃᖅᑎᑕᐅᒃᐸᑦ.",
+      "lbl-shadowMapType": "Shadow ᓄᓇᙳᐊᑉ ᖃᓄᐃᑦᑑᓂᖓ",
+      "info-shadowMapType": "ᖃᓄᐃᑦᑑᓂᖓ ᐊᖓᒃᑰᑉ ᓄᓇᙳᐊᑉ",
+      "error-url": "ᑕᒻᒪᖅᑐᒥᒃ ᐃᓕᐅᖅᑲᐃᓂᖅ URL−ᒥᑦ"
+    },
+    "sceneCamera": {
+      "name": "Scene Preview Camera",
+      "description": "ᐊᔾᔨᓕᐅᕈᑦ ᐊᐅᓚᔾᔪᑕᐅᕙᓚᐅᖅᑐᖅ ᑯᓪᓗᒧᑦ ᑕᑯᒃᓴᐅᔪᒧᑦ ᐊᒻᒪᓗ ᐱᒋᐊᕐᓂᖓᓄᑦ ᐊᔾᔨᓕᐅᕈᑎᒧᑦ.",
+      "lbl-setFromViewPort": "ᐋᖅᑭᒡᓗᒍᑦ ᑕᐅᑐᒃᑕᐅᓂᖓ"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "ᓯᕿᙳᔭᖅ ᐅᓪᓗᖅ",
+      "lbl-color": "ᑕᖅᓴᖅ",
+      "lbl-latitude": "ᓴᓂᒧᑦ",
+      "lbl-luminance": "ᓗᒥᓐᔅ",
+      "lbl-scattering": "2013-2014",
+      "lbl-scatteringDistance": "ᐅᖓᓯᒌᒃᑕᕐᓂᖅ",
+      "lbl-horizonStart": "ᓴᓂᒨᖓᔪᖅ ᐱᒋᐊᕐᕕᖓ",
+      "lbl-horizonEnd": "ᕼᐅᕋᐃᓴᓐ ᐃᓱᐊ",
+      "lbl-texture": "ᐋᖅᑭᒃᓯᒪᓂᖓ",
+      "lbl-skyType": "ᖃᓄᐃᑦᑑᓂᖓ",
+      "error-url": "ᑕᒻᒪᖅᑐᒥᒃ ᐃᓕᐅᖅᑲᐃᓂᖅ URL−ᒥᑦ"
+    },
+    "spawnPoint": {
+      "name": "ᓄᕗᐊ",
+      "description": "ᐃᓄᐃᑦ ᐅᐸᒡᕕᒋᖃᑦᑕᓛᖅᑕᖏᑦ ᐅᐸᒡᕕᒋᔭᕐᓄᑦ ᐃᓯᕌᖓᒥᒃ.\nᐊᔾᔨᓐᖑᐊᖅ ᑕᑯᓐᓇᒐᕐᒥᑦ ᑭᒡᒐᖅᑐᐃᕗᖅ ᐊᖏᓂᖓᓂᒃ ᐊᕙᑕᐅᑉ."
+    },
+    "spotLight": {
+      "description": "ᖃᐅᒪᓂᖓ ᑐᑭᒧᐊᖓᓪᓗᓂ, ᐋᓐᓂᐊᓇᖅᑐᓂ ᐃᓗᐊᓂ.",
+      "lbl-color": "ᑕᖅᓴᖅ",
+      "lbl-intensity": "ᐊᒃᓱᕈᓗᐊᕐᓂᖅ",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "ᑎᕆᖅᑯᖅ",
+      "lbl-range": "ᐊᑯᑦᑐᓂᖓ",
+      "lbl-decay": "ᑎᓪᓕᕐᓂᖅ"
+    },
+    "transform": {
+      "title": "ᐊᓯᔾᔨᖅᑐᖅ",
+      "lbl-postition": "ᐃᖅᑲᓇᐃᔮᖓ",
+      "lbl-rotation": "ᓂᑭᑦᑖᕐᓂᖅ",
+      "lbl-scale": "ᖃᐅᔨᓴᕈᑎ"
+    },
+    "triggereVolume": {
+      "description": "ᐋᖅᑭᒃᓯᕙᒃᐳᖅ ᐱᖁᑎᒋᔭᐅᔪᒥᒃ ᑐᕌᕆᔭᐅᔪᒧᑦ ᐱᖁᑎᒧᑦ ᐃᓯᕆᐊᕐᕕᖕᒧᑦ ᕿᒪᒃᓯᓂᕐᒧᓪᓗ.",
+      "lbl-target": "ᑭᓲᔭᖏᑦ",
+      "lbl-onenter": "ᐃᓯᕈᑖ",
+      "lbl-onexit": "ᐊᓂᕝᕕᒃ",
+      "lbl-showHelper": "ᐃᑲᔪᖅᑎᒧᑦ ᑕᑯᑎᓪᓗᒍ",
+      "ph-errorNode": "ᑕᒻᒪᖅᓯᒪᔪᖅ ᓂᐱᖓ.",
+      "ph-selectNode": "ᓂᕈᐊᕐᓗᒍ Node..."
+    },
+    "video": {
+      "name": "ᑕᕐᕆᔮᒃᓴᖅ",
+      "description": "ᑕᕐᕆᔭᐅᓯᐊᖅ.",
+      "lbl-video": "ᑕᕐᕆᔮᒃᓴᖅ",
+      "lbl-projection": "ᓇᓚᐅᑦᑖᖅᑕᐅᔪᖅ",
+      "lbl-islivestream": "ᓴᖅᑭᔮᑲᐅᑎᒋᔪᖅ",
+      "lbl-interactable": "ᖃᓄᐃᓕᐅᖃᑦᑕᐅᑎᔪᓐᓇᕐᓂᖅ",
+      "lbl-id": "ᐃᓗᓕᖏᑦ ᓇᓗᓇᐃᒃᑯᑕᑦ",
+      "lbl-play": "ᐱᙳᐊᕐᓂᖅ",
+      "lbl-pause": "ᓄᖅᑲᖓᓚᐅᑲᖕᓂᖅ",
+      "error-url": "ᑕᒻᒪᖅᑐᒥᒃ ᐃᓕᐅᖅᑲᐃᓂᖅ URL−ᒥᑦ"
+    },
+    "volumetric": {
+      "name": "ᐊᖏᑎᒋᓂᖓ",
+      "description": "ᑕᕐᕆᔭᐅᓯᐊᖅ ᐊᖏᔫᓪᓗᓂ.",
+      "uvolPaths": "UVOL ᐊᖅᑯᑎᖏᑦ",
+      "playmode": "ᐱᙳᐊᕐᓂᖅ",
+      "playtitle": "ᐱᙳᐊᕐᓂᖅ",
+      "pausetitle": "ᓄᖅᑲᖓᓚᐅᑲᖕᓂᖅ"
+    },
+    "spline": {
+      "description": "ᓴᓇᓗᑎᑦ ᐊᒻᒪ ᐋᖅᑭᔅᓱᐃᓗᑎᑦ ᓴᖑᖓᔾᔪᑎᖏᓐᓂᑦ.",
+      "lbl-addNode": "ᐃᓚᓗᒍ ᓂᖀᑦ ᐋᖅᑭᖕᓂᐊᕐᓗᒍ."
+    },
+    "systemnode": {
+      "description": "ᐊᑦᑕᑕᖅᓯᓗᑎᑦ ᑎᑎᕋᖅᓯᒪᔪᓂᒃ.",
+      "lbl-filePath": "ᐆᕈᓪ",
+      "lbl-systemUpdateType": "ᑲᐱᓯᕕᐅᔪᖅ",
+      "lbl-enableClient": "ᐱᔨᑦᑎᕋᖅᑕᐅᔪᖅ",
+      "lbl-enableServer": "ᐃᑭᐊᖅᑭᑎᑦᑎᕕᒃ",
+      "lbl-args": "ᐋᒡᒑᒃ",
+      "error-url": "ᑕᒻᒪᖅᓯᒪᔪᑦ ᐃᓕᐅᖅᑲᐃᓂᕐᒧᑦ ᑎᑎᕋᖅᓯᒪᔪᑦ URL−ᒥᑦ"
+    },
+    "portal": {
+      "lbl-portal": "ᐊᑦᑕᑕᕐᕕᒃ",
+      "lbl-redirect": "ᐊᑐᕐᓗᒍ ᒪᒃᐱᖅᑐᒐᖅ ᓴᖑᒋᐊᕐᓗᒍ",
+      "description": "ᐅᒥᐊᕐᔪᐊᒃᑯᑦ ᐊᐅᓪᓚᖅᑎᑦᑎᕙᒃᑐᓄᑦ ᐱᙳᐊᖅᑎᑦ ᓇᓃᓐᓂᐊᕐᓂᖏᑦ ᓇᓗᓇᐃᖅᑕᐅᓗᑎᒃ",
+      "lbl-locationName": "ᐃᓂᒋᓂᐊᖅᑕᖓ",
+      "lbl-modelUrl": "Model URL",
+      "lbl-displayText": "ᓴᖅᑭᓪᓗᒍ ᑎᑎᖅᑲᖅ",
+      "lbl-cubemapBake": "ᐃᒐᐅᑉ ᐃᓗᐊᓂ ᐆᑦᑎᓯ",
+      "lbl-spawnPosition": "ᓱᑉᓗᓕᒃ",
+      "lbl-spawnRotation": "ᓱᐴᑎᖓᑕ ᓯᕕᖓᓂᖓ",
+      "lbl-triggerPosition": "ᐃᖅᑲᐃᓕᓴᕈᑎ ᐃᖅᑲᓇᐃᔮᖅ",
+      "lbl-triggerRotation": "ᖀᖅᓱᕐᓂᖅ",
+      "lbl-triggerScale": "ᖁᐱᕐᕆᔾᔪᑕᐅᓲᑦ"
+    },
+    "postprocessing": {
+      "name": "ᑭᖑᓂᐊᒍᑦ ᐱᓕᕆᓂᖅ",
+      "description": "ᐱᓇᔪᖕᓂᐊᕐᓗᓂ ᑭᖑᓂᐊᒍᑦ ᐱᓕᕆᔾᔪᓯᕐᒧᑦ ᐊᒃᑐᐃᔾᔪᑎᓂᒃ ᐃᓕᖕᓄᑦ."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "ᓄᑖᖅ ᐱᓕᕆᐊᒃᓴᖅ",
+      "backLink": "ᐅᑎᖅᑎᓪᓗᒋᑦ ᐱᓕᕆᐊᓄᑦ",
+      "featured": "ᓴᖅᑭᔮᖅᑎᑕᐅᔪᖅ",
+      "all": "ᑕᒪᕐᒥᒃ",
+      "newProject": "ᓄᑖᖅ ᐃᓄᖃᖏᑦᑐᖅ ᐱᓕᕆᐊᖅ",
+      "ph-search": "ᕿᓂᕐᕕᐅᔪᑦ..."
+    },
+    "grid": {
+      "loading": "ᐃᓕᐅᖅᑲᐃᓂᖅ..."
+    },
+    "page": {
+      "header": "ᑐᖕᖓᓱᒋᑦ",
+      "headerMsg": "ᓄᑖᖑᒍᕕᑦ ᑕᕝᕙᓂ ᐊᑐᓕᖁᔨᕗᒍᑦ ᐃᓕᓴᐃᔨᙳᕆᐅᖅᓴᓂᖅ ᐊᑐᖁᓇᔭᖅᑕᕗᑦ. ᐊᓯᐊᒍᓪᓕ, ᕿᒡᒋᖅᑕᕐᓗᑎᑦ ᐱᓕᕆᐊᒃᓴᓕᐅᕐᓗᑎᓪᓗ ᕿᑦᑐᒐᐅᔭᒥᑦ ᐅᕝᕙᓘᓐᓃᑦ ᑎᑎᕋᕐᕕᒃᓴᑦᑎᓐᓂᑦ.",
+      "lbl-startTutorial": "ᐱᒋᐊᕐᓂᕐᒧᑦ ᐃᓕᓐᓂᐊᑎᑦᓯᓂᖅ",
+      "projects": "ᐱᓕᕆᐊᑦ",
+      "lbl-newProject": "ᓄᑖᖅ ᐱᓕᕆᐊᒃᓴᖅ"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "ᐃᓕᐅᖅᑲᐃᓂᖅ...",
+      "placeObject": "ᐱᖁᑎᑦ ᐃᓂᖏᑦ",
+      "placeObjectAtOrigin": "ᐱᖁᑎ ᓇᑭᙶᕐᒪᖔᑦ ᐃᓕᓗᒍ",
+      "copyURL": "ᐊᔾᔨᖓ URL",
+      "openInNewTab": "ᒪᑐᐃᙶᖅᑐᖅ URL−ᒥ ᓄᑖᒥ Tab−ᒥ",
+      "deleteAsset": "ᐲᔭᖅᑕᐅᔪᖅ ᐱᖁᑎᑦ"
+    },
+    "filebrowser": {
+      "addNewFolder": "ᓄᑖᕐᒥᑦ ᑐᖅᑯᖅᓯᓯᒪᕕᓕᕐᒥᑦ ᐃᓚᓗᒍ",
+      "cutAsset": "ᑭᐱᔭᐅᓂᖅ",
+      "copyAsset": "ᐊᔾᔨᖓ",
+      "pasteAsset": "ᑭᖑᒻᓂᖔᖅ",
+      "renameAsset": "ᐊᑎᖅᑖᒃᑲᓐᓂᕐᓂᖅ",
+      "viewAssetProperties": "ᕿᒥᕐᕈᓗᒋᑦ ᐱᖁᑎᒋᔭᑦ"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "ᐊᑎᖅᑖᒃᑲᓐᓂᕐᓂᖅ",
+    "lbl-duplicate": "ᐊᔾᔨᖓ",
+    "lbl-group": "ᑲᑎᙵᔪᓄᑦ",
+    "lbl-delete": "ᐲᔭᕐᓗᒋᑦ",
+    "lbl-expandAll": "ᐊᖏᓪᓕᒋᐊᖅᑕᐃᓐᓇᕆᓗᒋᑦ",
+    "lbl-collapseAll": "ᑕᒪᕐᒥᒃ",
+    "isseus": "ᐃᓱᒫᓘᑕᐅᔪᑦ:"
+  },
+  "dnd": {
+    "nodes": "{{count}} Nodes ᓂᕈᐊᖅᑕᐅᔪᑦ",
+    "models": "{{count}} ᓂᕈᐊᖅᑕᐅᔪᑦ",
+    "images": "{{count}} ᐊᔾᔨᙳᐊᓂᒃ ᓂᕈᐊᖅᑕᐅᔪᑦ",
+    "videos": "{{count}} ᑕᕐᕆᔮᒃᓴᑦ ᓂᕈᐊᖅᑕᐅᔪᑦ",
+    "audio": "{{count}} ᓂᐱᓕᐅᖅᓯᒪᔪᑦ ᓂᕈᐊᖅᑕᐅᔪᑦ"
+  },
+  "dialog": {
+    "title": "ᐋᖅᑭᒃᓱᐃᔨ",
+    "lbl-confirm": "ᓈᒻᒪᒃᑐᖅ",
+    "lbl-cancel": "ᓄᖅᑲᖅᑎᓪᓗᒍᑦ",
+    "exportProject": {
+      "title": "ᐊᐅᓪᓚᖅᑎᑦᑎᓂᕐᒧᑦ ᐱᓕᕆᐊᖅ",
+      "lbl-confirm": "ᐊᐅᓪᓚᖅᑎᑦᑎᓂᕐᒧᑦ ᐱᓕᕆᐊᖅ",
+      "lbl-combineMesh": "ᓂᖀᑦ ᓂᖀᑦ",
+      "lbl-removeUnused": "ᐲᔭᕐᓗᒋᑦ ᐊᑐᖅᓯᒪᙱᑦᑐᑦ ᐱᖁᑎᑦ"
+    },
+    "performance": {
+      "title": "ᐱᓕᕆᐊᖏᓐᓂᑦ ᖃᐅᔨᓴᕐᓂᖅ",
+      "lbl-confirm": "ᑎᑎᖅᑲᙳᖅᑎᓪᓗᒍ Scene",
+      "learnMore": "ᖃᐅᔨᒋᐊᒃᑲᓐᓂᕆᑦ",
+      "lbl-polycount": "Polygon ᓈᓴᐃᓂᖅ",
+      "lbl-material": "ᐱᓕᕆᔾᔪᑏᑦ",
+      "lbl-texture": "ᐋᖅᑭᒃᓯᒪᓃᑦ",
+      "lbl-lights": "ᐃᑯᒪᑦ",
+      "lbl-fileSize": "ᑐᖅᑯᖅᓯᒪᕝᕕᐅᑉ ᐊᖏᓂᖓ",
+      "info-polycount": "ᐊᑐᖁᕙᑦᑎᒋᑦ 50,000 ᐅᖓᑖᓂᐅᙱᑦᑐᖅ ᖁᐊᒡᔪᐊᖅᑐᓂᒃ ᐅᖃᓘᑎᕋᓛᓄᑦ.",
+      "info-material": "ᐊᑐᖁᔨᕗᒍᑦ 25 ᐅᖓᑖᓂᐅᙱᑦᑐᖅ ᐊᔾᔨᐅᙱᑦᑐᓂᒃ ᐱᖁᑎᓂᒃ ᓴᖅᑭᔮᕐᕕᒋᔭᕐᓂ ᒥᒃᖠᒋᐊᖁᓪᓗᒍ ᐅᖄᓚᖃᑦᑕᕐᓂᖅ ᐅᖃᓘᑎᕋᓛᓄᑦ.",
+      "info-texture": "ᐊᑐᖁᕙᑦᑎᒋᑦ ᐅᖄᓚᐅᑎᕋᓛᑦ ᐊᑐᖁᓗᒋᑦ 256MB ᐅᖓᑖᓂᐅᙱᑦᑐᖅ ᑕᕐᕆᔮᒃᓴᒥᑦ RAM−ᒥᑦ ᐅᖃᓘᑎᕋᓛᓄᑦ. ᐊᑐᖁᔨᙱᒃᑭᕗᒍᑦᑕᐅᖅ ᖃᓪᓗᓈᖅᑕᓂᒃ ᐊᖏᓂᖅᓴᓂᒃ 2048 x 2048−ᒥ.",
+      "info-lights": "ᖃᐅᒪᐃᑦ ᐊᔪᖅᑎᑕᐅᒐᓗᐊᖅᑎᓪᓗᒋᑦ ᐅᖃᓘᑎᕋᓛᓄᑦ, ᐊᑐᖁᔨᕗᒍᑦ ᐱᖓᓱᑦ ᐅᖓᑖᓂ ᖃᐅᒻᒪᖅᑯᑎᓂᒃ ᐊᑐᖅᐸᒡᓗᑕ ᑕᑯᒃᓴᐅᕝᕕᒋᔭᕐᓂ (ᐃᓚᐅᙱᖦᖢᑎᒃ ᖃᐅᒻᒪᖅᑯᑎᑦ ᐊᒻᒪ hemisphere ᖃᐅᒻᒪᖅᑯᑎᑦ) ᓴᖅᑭᔮᕐᕕᒋᔭᕐᓄᑦ ᐃᖏᕐᕋᔪᓐᓇᖁᓪᓗᑎᑦ ᐊᑦᑎᒃᑐᒥ ᖃᑦᑕᓂᒃ.",
+      "info-fileSize": "ᐊᑐᓕᖁᔨᕗᒍᑦ ᑭᖑᓪᓕᖅᐹᒥ ᑎᑎᖅᑲᖁᑎᑦ ᐊᖏᓂᖏᓐᓂᒃ 16MB ᐅᖓᑖᓅᙱᑦᑐᖅ ᖃᕆᑕᐅᔭᓕᕆᔪᓐᓇᐅᑎᑦ ᐅᓄᙱᓐᓂᖅᓴᓄᑦ. ᒥᑭᒡᓕᒋᐊᖅᑎᑦᑎᓂᖅ ᑐᖅᑯᖅᓯᓯᒪᕝᕕᐅᑉ ᐊᖏᓂᖓᓂᒃ ᒥᑭᒡᓕᒋᐊᖅᑎᑦᑎᓇᔭᖅᐳᖅ ᐱᕕᒃᓴᒥᒃ ᖃᕆᑕᐅᔭᕐᒧᐊᖅᑎᕆᓂᐊᕐᓗᓂ ᐱᓕᕆᕝᕕᒋᔭᕐᓂᒃ.",
+      "txt-polycount": "{{count}} ᖁᐊᒡᔪᐊᖅᑐᑦ",
+      "txt-material": "{{count}} ᓱᓇᒃᑯᑖᑦ",
+      "txt-ram": "~{{count}} ᑕᕐᕆᔮᒃᓴᖅ",
+      "txt-texture": "{{count}} ᐊᖏᔫᑏᑦ",
+      "txt-lights": "{{count}} ᐃᑯᒪᐃᑦ"
+    },
+    "progress": {
+      "title": "ᐃᓕᐅᖅᑲᐃᓂᖅ...",
+      "msg": "ᐃᓕᐅᖅᑲᐃᓂᖅ...",
+      "lbl-cancel": "ᓄᖅᑲᖅᑎᓪᓗᒍᑦ"
+    },
+    "publish": {
+      "title": "ᑎᑎᖅᑲᙳᖅᑎᓪᓗᒍ Scene",
+      "lbl-confirm": "ᑐᖅᑯᕐᓗᒍ ᓴᖅᑭᑎᓪᓗᒍᓗ",
+      "lbl-name": "ᐊᑎᖓ",
+      "info-name": "ᐊᑎᖅ 4 ᐊᒻᒪ 64 ᐊᑯᓐᓂᖏᓐᓃᑦᑕᕆᐊᖃᖅᑐᖅ ᐊᒻᒪ ᐊᑖᓂ ᑎᑎᕋᖅᓯᒪᔭᕆᐊᖃᙱᑦᑐᖅ"
+    },
+    "published": {
+      "title": "Scene Published",
+      "header": "ᓴᖅᑭᔮᕐᓂᕆᔭᐃᑦ ᓴᖅᑭᑕᐅᓯᒪᓕᖅᑐᖅ.",
+      "lbl-view": "ᑕᑯᓗᒍ ᓴᖅᑭᔮᕐᕕᒋᔭᑦ"
+    },
+    "saveNewProject": {
+      "title": "ᐃᑲᔪᖅᑐᐃᓐᓂᖅ",
+      "lbl-name": "ᐱᓕᕆᐊᒃᓴᐅᑉ ᐊᑎᖓ",
+      "info-name": "ᐊᑎᖅ 4 ᐊᒻᒪ 64 ᐊᑯᓐᓂᖏᓐᓃᑦᑕᕆᐊᖃᖅᑐᖅ ᐊᒻᒪ ᐊᑖᓂ ᑎᑎᕋᖅᓯᒪᔭᕆᐊᖃᙱᑦᑐᖅ",
+      "lbl-confirm": "ᐱᓕᕆᐊᖅ ᑐᖅᑯᕐᓗᒍ"
+    },
+    "support": {
+      "title": "ᐃᑲᔪᖅᑐᐃᓐᓂᖅ",
+      "header": "ᐅᖃᐅᓯᖃᕆᐊᖃᖅᐲᑦ ᐊᑲᐅᙱᓕᐅᕈᑎᒥᒃ?",
+      "msg": "<1>GitHub−ᒧᑦ ᐃᓱᒪᒋᔭᒃᓴᒥᒃ</1> ᐅᕝᕙᓘᓐᓃᑦ ᐃᕐᖐᓐᓈᖅᑕᐅᒃᑯᑦ ᑎᑎᕋᕐᕕᒋᔪᓐᓇᖅᑕᑦ ᐃᑲᔪᖅᑕᐅᔪᒪᓗᑕ <3>{{mail}}</3>",
+      "discord": "ᓇᓂᓯᔪᓐᓇᕐᒥᔪᑎᑦᑕᐅᖅ <1>ᐱᐅᓴᙱᑕᒥᒃ</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "ᐱᖕᖑᐊᑦ ᐊᔾᔩᑦ",
+      "search": "ᐱᖕᒃ−ᑯᑦ ᕿᓂᕐᓗᒋᑦ"
+    },
+    "bingVideo": {
+      "name": "ᐱᖕ ᑕᕐᕆᔮᒃᓴᑦ",
+      "search": "ᐱᖕᒃ−ᑯᑦ ᕿᓂᕐᓗᒋᑦ"
+    },
+    "element": {
+      "name": "ᐃᓗᓕᖏᑦ"
+    },
+    "myAssets": {
+      "name": "ᐱᖁᑎᒃᑲ"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "ᕿᓂᖅᑕᐅᔪᖅ Google−ᑯᑦ"
+    },
+    "tenor": {
+      "name": "1000000000000000000",
+      "search": "ᕿᓂᖅᑕᐅᔪᖅ ᑐᐱᕐᒧᑦ",
+      "ph-search": "ᕿᓂᕐᓂᖅ GFs..."
+    },
+    "sketchfab": {
+      "name": "ᑎᑎᕋᐅᔭᖅᓯᒪᔪᖅ",
+      "search": "ᕿᓂᖅᑕᐅᔪᖅ Sketchfab−ᑯᑦ"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "ᒥᓇᕆᓗᒍ ᐱᖁᑎ"
+    },
+    "imageSourcePanel": {
+      "ph-search": "ᐊᔾᔨᙳᐊᓂᒃ ᕿᓂᕐᓂᖅ..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "ᑕᕐᕆᔮᒃᓴᓂᒃ ᕿᓂᕐᓂᖅ..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "ᕿᓂᕐᓂᖅ ᐱᖁᑎᓂᒃ..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "ᕿᓂᕐᓂᖅ ᐊᑐᖅᑕᐅᔪᓐᓇᖅᑐᓂᒃ..."
+    },
+    "useUpload": {
+      "multipleFileError": "ᐃᓕᐅᖅᑲᖅᑕᐅᔪᑦ ᐊᖏᖅᓯᕙᙱᓚᑦ ᖃᔅᓯᑲᓪᓚᖕᓂᒃ ᑎᑎᖅᑲᖁᑎᒋᔭᐅᔪᓂᒃ.",
+      "mineTypeError": "\"{{name}}\" ᐊᔾᔨᖃᙱᓚᖅ ᐅᑯᓂᖓ mime−ᓂᒃ ᐅᕝᕙᓘᓐᓃᑦ ᐅᖓᕙᕆᐊᖅᑕᐅᔪᓂᒃ: {{types}}",
+      "progressTitle": "ᖃᕆᑕᐅᔭᕐᒧᐊᖅᑎᕆᓂᖅ ᑐᖅᑯᖅᓯᒪᔪᓂᒃ",
+      "progressMsg": "ᖃᕆᑕᐅᔭᕐᒧᐊᖅᑎᕆᓂᖅ ᑎᑎᖅᑲᓂᒃ {{uploaded}} {{total}}- {{percentage}}%",
+      "uploadError": "ᒥᓇᕆᓗᒍ ᑕᒻᒪᖅᓯᒪᔪᖅ",
+      "uploadErrorMsg": "ᑕᒻᒪᖅᑐᒥᒃ ᖃᕆᑕᐅᔭᕐᒧᐊᖅᑎᕆᓂᖅ ᑐᖅᑯᖅᓯᓯᒪᕝᕕᒃ: {{message}}",
+      "uploadErrorDefaultMsg": "ᖃᐅᔨᒪᔭᐅᙱᑦᑐᒥᒃ ᑕᒻᒪᖅᓯᒪᔪᖃᓚᐅᖅᑐᖅ"
+    }
+  },
+  "openLink": {
+    "description": "ᓇᕿᓪᓗᒍ ᒪᑐᐃᖓᔪᖅ ᓇᕿᓐᓂᐊᕐᓗᒍ ᑲᓲᑎᔾᔪᑎ.",
+    "lbl-open": "ᒪᑐᐃᙶᖅᑐᖅ"
+  },
+  "interactableModel": {
+    "lbl-buy": "ᓂᐅᕕᖅᑐᖅ",
+    "lbl-learnMore": "ᖃᐅᔨᒋᐊᒃᑲᓐᓂᕆᑦ"
+  },
+  "corsProxyButton": {
+    "tooltip": "ᐊᑐᕐᓗᑎ Cors Proxy ᐃᑭᐊᖅᑭᑎᑦᑎᕕᒃ"
+  }
+}

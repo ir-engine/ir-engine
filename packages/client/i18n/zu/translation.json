@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Ikhasi Alitholakali"
+  },
+  "503": {
+    "msg": "503 - Service Atholakala"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Uvinjelwe kule ndawo",
+    "locationName": {
+      "pageTitle": "Ikhaya"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projects",
+      "header": "Ucelwa ukuba ungene",
+      "welcomeMsg": "Wamukelekile",
+      "locationHeader": "Izindawo",
+      "projectHeader": "Projects",
+      "sceneHeader": "Imifanekiso",
+      "description": "Uma umusha lapha situsa ukuba udlule kumfundisi. Ngalé kwalokho, gxumela khona kanye futhi wakhe umsebenzi ngokuklwebha noma komunye wamatemplate ethu.",
+      "lbl-startTutorial": "Qala Ukufundisa",
+      "lbl-newProject": "Iphrojeki Entsha",
+      "lbl-createProject": "Yakha",
+      "lbl-newScene": "Isenzakalo Esisha",
+      "lbl-searchProject": "Cinga Imisebenzi Ekhona...",
+      "back": "Emuva",
+      "contextMenu": "Susa Iphrojeki",
+      "installed": "Imisebenzi Efakiwe",
+      "official": "Imisebenzi Engokomthetho",
+      "community": "Imisebenzi Yomphakathi",
+      "install": "Faka",
+      "uninstall": "Khipha",
+      "rename": "Qamba Kabusha",
+      "createProject": "Yakha Iphrojeki",
+      "installProject": "Faka Iphrojeki",
+      "processing": "Processing",
+      "projectName": "Igama Lephrojeki",
+      "projectURL": "Project URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Hamba ekhaya",
+    "withStatusCode": "Kwenzeke {{code}} yephutha kumnikezeli",
+    "withoutStatusCode": "Kwenzeke iphutha kumnikezeli"
+  },
+  "no-projects": {
+    "msg": "Iphutha: Ayikho iphrojeki efakiwe - ucelwa ukuba uthintane ne-admin yendawo"
+  },
+  "dev": {
+    "pageTitle": "Ikhaya"
+  },
+  "login": {
+    "pageTitle": "Ngena"
+  },
+  "workerTest": {
+    "pageTitle": "Isivivinyo Sesisebenzi"
+  },
+  "index": {
+    "by": "BY",
+    "xr": "XR",
+    "foundation": "Isisekelo",
+    "description": "Izicelo zezenhlalo zesikhathi sangempela ezingu - 3D zokuba wonke umuntu ajabulele."
+  },
+  "xrengineContact": {
+    "header": "Xhumana!",
+    "description": "Singathanda ukukusiza ngezenzakalo zakho, ukuphindisela ngezinombolo, ukuzijabulisa nezinye izidingo.",
+    "lbl-name": "Igama",
+    "lbl-email": "Iposi le-e",
+    "lbl-company": "Company",
+    "lbl-project": "Chaza Iphrojeki yakho",
+    "lbl-send": "Thumela",
+    "lbl-ok": "Kulungile",
+    "lbl-success": "Umyalezo Othunyelwe, Sizobuyela kuwe ngokushesha.",
+    "lbl-failure": "Kwenzeke iphutha, Plese zama futhi",
+    "err-username": "Ucelwa ukuba ufake igama lakho.",
+    "err-email": "Iposi le-elekthroniki liyadingeka.",
+    "err-msg": "Nikeza incazelo emfushane yomsebenzi wakho."
+  }
+}

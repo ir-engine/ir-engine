@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Səhifə Tapılmadı"
+  },
+  "503": {
+    "msg": "503 - Xidmət əlçatan deyil"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Sizə bu məkanda qadağa qoyulub",
+    "locationName": {
+      "pageTitle": "Ana səhifə"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Layihələr",
+      "header": "Xahiş edirik giriş",
+      "welcomeMsg": "Xoş gəlmisiniz",
+      "locationHeader": "Yerlər",
+      "projectHeader": "Layihələr",
+      "sceneHeader": "Səhnələr",
+      "description": "Əgər burada yenisinizsə, biz təlimatdan keçməyi məsləhət görürük. Əks halda, sağa tullanıb sıfırdan və ya şablonlarımızdan birindən layihə yaradın.",
+      "lbl-startTutorial": "Öyrədicini başlat",
+      "lbl-newProject": "Layihə",
+      "lbl-createProject": "Yarat",
+      "lbl-newScene": "Yeni Səhnə",
+      "lbl-searchProject": "Mövcud olan layihələri axtar...",
+      "back": "Geri",
+      "contextMenu": "Faylı sil (commit)",
+      "installed": "Quraşdırılmış Layihələr",
+      "official": "Rəsmi Layihələr",
+      "community": "İcma Layihələri",
+      "install": "Quraşdır",
+      "uninstall": "SSSR-in",
+      "rename": "Yenidən adlandır",
+      "createProject": "Layihə Yarat",
+      "installProject": "Layihəni Sistemə Qur",
+      "processing": "İşləmə",
+      "projectName": "Lahiyə Adı",
+      "projectURL": "Lahiyə Qeydi"
+    }
+  },
+  "error": {
+    "goHomeLink": "Evə gedin",
+    "withStatusCode": "Vericidə xəta {{code}}",
+    "withoutStatusCode": "Vericidə xəta oldu"
+  },
+  "no-projects": {
+    "msg": "Səhv: Heç bir layihə quraşdırılmır - zəhmət olmasa sayt admin ilə əlaqə saxlayın"
+  },
+  "dev": {
+    "pageTitle": "Ana səhifə"
+  },
+  "login": {
+    "pageTitle": "Giriş"
+  },
+  "workerTest": {
+    "pageTitle": "İşçi sınağı"
+  },
+  "index": {
+    "by": "BY",
+    "xr": "XR",
+    "foundation": "Dəstə",
+    "description": "Realtime 3D hər kəsin zövq almaq üçün sosial applications."
+  },
+  "xrengineContact": {
+    "header": "Əlaqə saxlayın!",
+    "description": "Virtual tədbirləriniz, rəqəmsal ticarət, əyləncə və digər ehtiyaclarınız ilə bağlı sizə kömək etmək istərdik.",
+    "lbl-name": "Ad",
+    "lbl-email": "E-poçt",
+    "lbl-company": "Firma",
+    "lbl-project": "Layihənizi təsvir edin",
+    "lbl-send": "Göndər",
+    "lbl-ok": "Yaxşı",
+    "lbl-success": "Mesaj göndərildi, tezliklə sizə qayıdacağıq.",
+    "lbl-failure": "Xəta baş verdi, Plese yenidən cəhd edin",
+    "err-username": "Zəhmət olmasa adınızı daxil edin.",
+    "err-email": "E-poçt tələb olunur.",
+    "err-msg": "Layihəniz haqqında qısa məlumat verin."
+  }
+}

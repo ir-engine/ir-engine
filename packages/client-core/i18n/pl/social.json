@@ -1,0 +1,202 @@
+{
+  "addComment": "Dodaj komentarz...",
+  "share": "Udostępnij",
+  "suggestions": "Sugestie dla Ciebie",
+  "seeAll": "Zobacz wszystkie",
+  "likes": "Lubi",
+  "viewComments": "Zobacz wszystkie komentarze {{count}}",
+  "more": "więcej",
+  "username": "nazwa użytkownika",
+  "fullName": "Imię Nazwisko",
+  "reportInApporpriate": "Zgłoś niewłaściwe",
+  "unfollow": "Przestań obserwować",
+  "goToPost": "Przejdź do postu",
+  "shareModal": "Udostępnij",
+  "copyLink": "Kopiuj link",
+  "embed": "Osadź",
+  "cancel": "Anuluj",
+  "confirm": "Potwierdzić",
+  "save": "Zapisać",
+  "profilePic": "Zdjęcie profilowe {{user}}",
+  "ara": "Ara",
+  "follow": "Następować",
+  "flames": "Płomienie",
+  "continue": "Kontynuować",
+  "partyInvitationSent": "Wysłane zaproszenie na imprezę",
+  "arMedia": {
+    "back": "Wstecz",
+    "clip": "Klips",
+    "backgrounds": "Tła",
+    "start": "Początek"
+  },
+  "arMediaform": {
+    "title": "Tytuł",
+    "type": "Typ",
+    "clip": "Klips",
+    "background": "Tło",
+    "scene": "Scena",
+    "save": "Zapisać",
+    "manifest-file": "Plik manifestu manifestu",
+    "audio-file": "Plik Mp4",
+    "dracosis-file": "Plik .uvol Dracosis",
+    "preview-file": "Podgląd pliku obrazu"
+  },
+  "creator": {
+    "myVideos": "Moje filmy",
+    "savedVideos": "Zapisane filmy",
+    "back": "Wstecz",
+    "blocked-list": "Lista zablokowanych",
+    "block-user": "Zablokuj użytkownika",
+    "dialog-content": "Nie zobaczysz profilu i treści użytkownika"
+  },
+  "creatorForm": {
+    "back": "Wstecz",
+    "edit": "Edytuj profil",
+    "save": "Zapisać",
+    "changeAvatar": "Zmień obraz awatara",
+    "ph-selectPreview": "Wybierz podgląd",
+    "ph-name": "Imię i nazwisko",
+    "ph-username": "Twoja nazwa użytkownika",
+    "ph-email": "Twój e-mail",
+    "ph-tags": "Tagi",
+    "ph-link": "Łącze",
+    "ph-aboutYou": "Więcej o Tobie",
+    "ph-twitter": "świergot",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Wyloguj się"
+  },
+  "dashboard": {
+    "title": "Deska rozdzielcza",
+    "dashboard": "Deska rozdzielcza",
+    "users": "Użytkowników",
+    "feeds": "Kanały",
+    "arMedia": "Multimedia wideo",
+    "editor": "Redaktor",
+    "creator": "Twórca"
+  },
+  "featured": {
+    "empty-list": "Brak kanałów na razie ..."
+  },
+  "feed": {
+    "back": "Wstecz",
+    "related": "Powiązane kanały",
+    "is-repoted-message": "Kanał jest zgłaszany!"
+  },
+  "feedForm": {
+    "back": "Wstecz",
+    "thanks": "Dziękujemy za dzielenie się i ulepszanie naszej społeczności",
+    "share": "Podziel się czymś ze społecznością",
+    "upload": "Prześlij wideo",
+    "ph-selectVideo": "Wybierz Wideo",
+    "preview": "Podgląd obrazu",
+    "ph-selectPreview": "Wybierz podgląd",
+    "createFeed": "Aby utworzyć kanał, musisz mieć film i obraz podglądu!!!",
+    "ph-videoName": "Nazwa filmu",
+    "ph-type": "Wpisz, czym chcesz się podzielić ze społecznością ... ",
+    "lbl-share": "Udostępnij",
+    "save": "Zapisz i przejdź dalej"
+  },
+  "feedMenu": {
+    "featured": "Rekomendowane",
+    "creators": "Twórców",
+    "feed": "Kanał"
+  },
+  "header": {
+    "lbl-volumetric": "Pomiarowej"
+  },
+  "login": {
+    "account": "Masz konto?",
+    "login": "Login",
+    "resetPassword": "Resetuj fałszywe hasło (tutaj byłby link z wiadomości e-mail)",
+    "notHavingAccount": "Nie masz konta?",
+    "signUp": "Zarejestruj się",
+    "forgotPassword": "Zapomniałeś hasła?",
+    "back": "Wstecz",
+    "or": "LUB"
+  },
+  "comment": {
+    "add": "Dodaj swój komentarz..."
+  },
+  "notification": {
+    "feedFire": " odpalił Twój kanał",
+    "feedBookmarked": " dodał swój kanał do zakładek",
+    "comment": " skomentował Twój kanał:",
+    "commentFire": " odpalił Twój komentarz do kanału",
+    "follow": " zaczął Cię obserwować",
+    "unfollow": " przestał cię obserwować",
+    "followed": " poszedł za tobą",
+    "activity": "Aktywność"
+  },
+  "onBoarding": {
+    "welcome": "Mile widziany!",
+    "description": "Największa kolekcja ponad 370 układów do prototypowania iOS.",
+    "next": "Następny",
+    "discover": "Odkryj artykuły,",
+    "news": "aktualności i posty",
+    "lines": "To właśnie te uczucia napędzają naszą miłość do astronomii i nasze pragnienie.",
+    "getStarted": "Rozpocząć",
+    "meetUp": "Spotkaj się z",
+    "friends": "Przyjaciele.",
+    "meet": "Spotkaj się z przyjaciółmi"
+  },
+  "shareForm": {
+    "arcMedia": "Udostępnij",
+    "videoCreated": "Stworzyłem ten film",
+    "shareWithBuddies": "Podziel się z kumplami",
+    "shareVideo": "Udostępnij wideo",
+    "save": "Zapisz w rolce z aparatu",
+    "cancel": "Anuluj",
+    "close": "Zamykać",
+    "addFeed": "Dodaj kanał"
+  },
+  "simpleModal": {
+    "emptyList": "Pusta lista",
+    "followers": " następujący",
+    "following": " Zwolenników",
+    "flames": " Płomienie"
+  },
+  "splash": {
+    "screen": "Ekran powitalny",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "Zdjęcie profilowe {{user}}"
+  },
+  "view": {
+    "cancel": "Anuluj",
+    "choice": "Masz do wyboru dwa różne tryby nagrywania",
+    "verticalMode": "Tryb pionowy ma czas nagrywania 30 sekund",
+    "horizontalMode": "Tryb poziomy ma nieograniczony czas nagrywania",
+    "start": "Początek",
+    "not-show": "Nie pokazuj go ponownie",
+    "welcome": "Witamy w ARC!  Twórz osobiste filmy za pomocą jednego z naszych hologramów i publikuj je na swoich kanałach mediów społecznościowych!",
+    "step": "KROK {{step}}",
+    "text-step-1": "Wybierz hologram z biblioteki.",
+    "text-step-2": "To jest rzeczywistość rozszerzona, więc skanuj przestrzeń za pomocą kamery z boku na bok przez 3-5 sekund tam, gdzie chcesz, aby wydajność hologramu była.",
+    "text-step-3-part-1": "Dotknij ekranu raz w miejscu, w którym chcesz zakotwiczyć hologram.",
+    "text-step-3-part-2": "NAPIWEK!  Stuknij raz w inne miejsce, aby przenieść hologram w inne miejsce.",
+    "text-step-3-part-3": "NAPIWEK!  Możesz zmienić rozmiar hologramu, ściskając lub rozszerzając ekran kciukiem i palcem wskazującym.",
+    "text-step-4-part-1": "Stuknij dwukrotnie czerwony przycisk nagrywania, aby ROZPOCZĄĆ nagrywanie wideo.",
+    "text-step-4-part-2": "Stuknij dwukrotnie czerwony przycisk nagrywania, aby zatrzymać."
+  },
+  "video": {
+    "back": "Wstecz"
+  },
+  "terms": {
+    "confirmTerms": "Zgadzam się na Warunki korzystania z usługi",
+    "confirmPolicy": "Zgadzam się z Polityką Prywatności"
+  },
+  "registration": {
+    "ph-phoneEmail": "Użyj telefonu / e-maila",
+    "facebook": "Kontynuuj korzystanie z Facebooka",
+    "google": "Kontynuuj z Google",
+    "linkedin": "Kontynuuj z Linkedin",
+    "twitter": "Kontynuuj na Twitterze",
+    "gitHub": "Kontynuuj korzystanie z usługi GitHub",
+    "connect": "Łączenie adresu e-mail lub numeru telefonu",
+    "logIn": "Zaloguj się",
+    "LogInTo": "Zaloguj się do",
+    "continueAsGuest": "Kontynuuj jako gość"
+  }
+}

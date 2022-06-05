@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Sega ni Kune na Tabana"
+  },
+  "503": {
+    "msg": "503 - Sega ni Tiko na Veiqaravi"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "O sa vakatabui mai na vanua oqo",
+    "locationName": {
+      "pageTitle": "Vale"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Cakacaka",
+      "header": "Yalovinaka Curuiloma",
+      "welcomeMsg": "Ni Matavinaka mai",
+      "locationHeader": "Vanua",
+      "projectHeader": "Cakacaka",
+      "sceneHeader": "iYaloyalo",
+      "description": "Ke o se ka vou eke keitou vakatura mo curuma na veituberi. Kevaka e sega, mo lade sara vakadodonu ka bulia e dua na cakacaka mai na rara se mai na dua na noda ivakaraitaki.",
+      "lbl-startTutorial": "Tekivuna na Veituberi",
+      "lbl-newProject": "Cakacaka Vou",
+      "lbl-createProject": "Cakava",
+      "lbl-newScene": "iVakatakata Vou",
+      "lbl-searchProject": "Vakasaqaqara ena Cakacaka sa Tu Rawa...",
+      "back": "E muri",
+      "contextMenu": "Bokoca na Cakacaka",
+      "installed": "Cakacaka sa Vakacurumi",
+      "official": "Cakacaka Vakadonui",
+      "community": "Cakacaka ni iTikotiko Raraba",
+      "install": "Vakacuruma",
+      "uninstall": "Vakasukai ni sa vakasukai",
+      "rename": "Vakayacana Vou",
+      "createProject": "Bulia na Cakacaka",
+      "installProject": "Vakacuruma na Cakacaka",
+      "processing": "Cakacakataki",
+      "projectName": "Yaca ni Cakacaka",
+      "projectURL": "URL ni Cakacaka"
+    }
+  },
+  "error": {
+    "goHomeLink": "Lako i Vale",
+    "withStatusCode": "E dua na cala {{code}} yaco ena server",
+    "withoutStatusCode": "A yaco e dua na cala ena server"
+  },
+  "no-projects": {
+    "msg": "Error: Sega na Cakacaka e Vakacurumi - yalovinaka veitaratara kei na dua na iliuliu ni mataveilawa"
+  },
+  "dev": {
+    "pageTitle": "Vale"
+  },
+  "login": {
+    "pageTitle": "Curuiloma"
+  },
+  "workerTest": {
+    "pageTitle": "Vakatovotovo ni Vakatovotovo"
+  },
+  "index": {
+    "by": "MAI VEI",
+    "xr": "VLW",
+    "foundation": "Yavu",
+    "description": "iVolakerekere ni veimaliwai 3D ena gauna donu me ra marautaka kece na tamata."
+  },
+  "xrengineContact": {
+    "header": "Tarai iko!",
+    "description": "Keitou taleitaka me keitou vukei kemuni ena nomuni soqo ni veikilai, volivolitaki livaliva, veivakamarautaki kei na gagadre tale eso.",
+    "lbl-name": "Yaca",
+    "lbl-email": "Imeli",
+    "lbl-company": "Kabani",
+    "lbl-project": "Vakamacalataka na nomu Cakacaka",
+    "lbl-send": "Vakauta",
+    "lbl-ok": "Io",
+    "lbl-success": "iTukutuku Sa Vakau, Keitou na lesu tale vei iko ena dua na gauna lekaleka mai oqo.",
+    "lbl-failure": "A yaco e dua na cala, Vakalaisa tovolea tale",
+    "err-username": "Yalovinaka vakacuruma na yacamu.",
+    "err-email": "E gadrevi na imeli.",
+    "err-msg": "Vakarautaka eso na ivakamacala lekaleka ni nomu cakacaka."
+  }
+}

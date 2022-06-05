@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Lehte ei leitud"
+  },
+  "503": {
+    "msg": "503 – teenus pole saadaval"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Teil on keelatud sellest kohast lahkuda.",
+    "locationName": {
+      "pageTitle": "Kodu"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projektide",
+      "header": "Palun logige sisse",
+      "welcomeMsg": "Tere tulemast",
+      "locationHeader": "Asukohad",
+      "projectHeader": "Projektide",
+      "sceneHeader": "Stseene",
+      "description": "Kui olete siin uus, soovitame õpetuse läbida. Vastasel juhul hüpake otse sisse ja looge projekt nullist või mõnest meie mallist.",
+      "lbl-startTutorial": "Algusõpetus",
+      "lbl-newProject": "Uus projekt",
+      "lbl-createProject": "Looma",
+      "lbl-newScene": "Uus stseen",
+      "lbl-searchProject": "Otsi olemasolevaid projekte...",
+      "back": "Tagasi",
+      "contextMenu": "Projekti kustutamine",
+      "installed": "Installitud projektid",
+      "official": "Ametlikud projektid",
+      "community": "Ühenduse projektid",
+      "install": "Installida",
+      "uninstall": "Desinstallimine",
+      "rename": "Ümber nimetada",
+      "createProject": "Projekti loomine",
+      "installProject": "Projekti installimine",
+      "processing": "Töötlemine",
+      "projectName": "Projekti nimi",
+      "projectURL": "Projekti URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Mine koju",
+    "withStatusCode": "Serveris ilmnes {{code}} tõrge",
+    "withoutStatusCode": "Serveris ilmnes tõrge"
+  },
+  "no-projects": {
+    "msg": "Tõrge: projekte pole installitud – võtke ühendust saidiadministraatoriga"
+  },
+  "dev": {
+    "pageTitle": "Kodu"
+  },
+  "login": {
+    "pageTitle": "Login"
+  },
+  "workerTest": {
+    "pageTitle": "Töötaja test"
+  },
+  "index": {
+    "by": "BY",
+    "xr": "XR",
+    "foundation": "Sihtasutus",
+    "description": "Reaalajas 3D sotsiaalsed rakendused kõigile nautimiseks."
+  },
+  "xrengineContact": {
+    "header": "Võta ühendust!",
+    "description": "Soovime teid aidata teie virtuaalsete sündmuste, digitaalse jaemüügi, meelelahutuse ja muude vajadustega.",
+    "lbl-name": "Nimi",
+    "lbl-email": "Meil",
+    "lbl-company": "Ettevõte",
+    "lbl-project": "Kirjeldage oma projekti",
+    "lbl-send": "Saatma",
+    "lbl-ok": "Ok",
+    "lbl-success": "Saadetud sõnum, me võtame teiega varsti ühendust.",
+    "lbl-failure": "Ilmnes tõrge, Plese proovib uuesti",
+    "err-username": "Palun sisestage oma nimi.",
+    "err-email": "E-post on vajalik.",
+    "err-msg": "Esitage oma projekti lühikirjeldus."
+  }
+}

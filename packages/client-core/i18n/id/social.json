@@ -1,0 +1,202 @@
+{
+  "addComment": "Tambahkan Komentar...",
+  "share": "Bagi",
+  "suggestions": "Saran Untuk Anda",
+  "seeAll": "Lihat Semua",
+  "likes": "Suka",
+  "viewComments": "Lihat semua komentar {{count}}",
+  "more": "lebih",
+  "username": "nama pengguna",
+  "fullName": "Nama keluarga",
+  "reportInApporpriate": "Laporkan Tidak Pantas",
+  "unfollow": "Berhenti mengikuti",
+  "goToPost": "Buka Posting",
+  "shareModal": "Bagi",
+  "copyLink": "Salin Tautan",
+  "embed": "Embed",
+  "cancel": "Membatalkan",
+  "confirm": "Mengkonfirmasi",
+  "save": "Simpan",
+  "profilePic": "foto profil {{user}}",
+  "ara": "Ara",
+  "follow": "Mengikuti",
+  "flames": "Nyala",
+  "continue": "Terus",
+  "partyInvitationSent": "Undangan pesta dikirim",
+  "arMedia": {
+    "back": "Belakang",
+    "clip": "Klip",
+    "backgrounds": "Latar belakang",
+    "start": "Mulai"
+  },
+  "arMediaform": {
+    "title": "Titel",
+    "type": "Jenis",
+    "clip": "Klip",
+    "background": "Latar",
+    "scene": "Adegan",
+    "save": "Simpan",
+    "manifest-file": "Manifes .manifest file",
+    "audio-file": "Berkas mp4",
+    "dracosis-file": "Dracosis .uvol file",
+    "preview-file": "Pratinjau file gambar"
+  },
+  "creator": {
+    "myVideos": "Video Saya",
+    "savedVideos": "Video yang Disimpan",
+    "back": "Belakang",
+    "blocked-list": "Daftar yang Diblokir",
+    "block-user": "Blokir Pengguna",
+    "dialog-content": "Anda tidak akan melihat profil dan konten pengguna"
+  },
+  "creatorForm": {
+    "back": "Belakang",
+    "edit": "Edit Profil",
+    "save": "Simpan",
+    "changeAvatar": "Ubah gambar avatar",
+    "ph-selectPreview": "Pilih pratinjau",
+    "ph-name": "Namamu",
+    "ph-username": "Nama Pengguna Anda",
+    "ph-email": "Email Anda",
+    "ph-tags": "Tags",
+    "ph-link": "Tautan",
+    "ph-aboutYou": "Lebih lanjut tentang Anda",
+    "ph-twitter": "Twitter",
+    "ph-instagram": "instagram (dalam bahasa Inggris",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Keluar"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Pengguna",
+    "feeds": "Feed",
+    "arMedia": "Video Media",
+    "editor": "Editor",
+    "creator": "Pencipta"
+  },
+  "featured": {
+    "empty-list": "Tidak ada feed untuk saat ini ..."
+  },
+  "feed": {
+    "back": "Belakang",
+    "related": "Umpan terkait",
+    "is-repoted-message": "Pakan dilaporkan!"
+  },
+  "feedForm": {
+    "back": "Belakang",
+    "thanks": "Terima kasih telah berbagi dan meningkatkan komunitas kami",
+    "share": "Berbagi sesuatu dengan komunitas",
+    "upload": "Unggah Video",
+    "ph-selectVideo": "Pilih Video",
+    "preview": "Pratinjau gambar",
+    "ph-selectPreview": "Pilih pratinjau",
+    "createFeed": "Untuk membuat umpan, Anda harus memiliki video dan gambar pratinjau!!!",
+    "ph-videoName": "Nama video Anda",
+    "ph-type": "Ketik apa yang ingin Anda bagikan dengan komunitas ... ",
+    "lbl-share": "Bagi",
+    "save": "Simpan dan pergi Berikutnya"
+  },
+  "feedMenu": {
+    "featured": "Feature",
+    "creators": "Pencipta",
+    "feed": "Umpan"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetrik"
+  },
+  "login": {
+    "account": "Punya akun?",
+    "login": "Login",
+    "resetPassword": "Tombol Reset Password Fake (di sini akan ada tautan dari email)",
+    "notHavingAccount": "Tidak punya akun?",
+    "signUp": "Tandatangan",
+    "forgotPassword": "Lupa kata sandi?",
+    "back": "Belakang",
+    "or": "ATAU"
+  },
+  "comment": {
+    "add": "Tambahkan komentar Anda..."
+  },
+  "notification": {
+    "feedFire": " menembakkan umpan Anda",
+    "feedBookmarked": " menandai feed Anda",
+    "comment": " mengomentari feed Anda:",
+    "commentFire": " memecat komentar Anda untuk memberi makan",
+    "follow": " mulai mengikuti Anda",
+    "unfollow": " berhenti mengikuti Anda",
+    "followed": " mengikuti Anda",
+    "activity": "Aktivitas"
+  },
+  "onBoarding": {
+    "welcome": "Selamat datang!",
+    "description": "Koleksi terbesar dari 370+ tata letak untuk pembuatan prototipe iOS.",
+    "next": "Depan",
+    "discover": "Temukan artikel,",
+    "news": "berita & posting",
+    "lines": "Perasaan itulah yang mendorong kecintaan kita pada astronomi dan keinginan kita.",
+    "getStarted": "Memulai",
+    "meetUp": "Bertemu dengan",
+    "friends": "Teman.",
+    "meet": "Bertemu dengan teman-teman"
+  },
+  "shareForm": {
+    "arcMedia": "Bagi",
+    "videoCreated": "Saya Membuat Video Ini",
+    "shareWithBuddies": "Berbagi dengan teman-teman",
+    "shareVideo": "Bagikan Video",
+    "save": "Simpan Ke Rol Kamera",
+    "cancel": "Membatalkan",
+    "close": "Tutup",
+    "addFeed": "Tambahkan Feed"
+  },
+  "simpleModal": {
+    "emptyList": "Daftar kosong",
+    "followers": " berikut",
+    "following": " pengikut",
+    "flames": " nyala"
+  },
+  "splash": {
+    "screen": "Layar Splash",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "foto profil {{user}}"
+  },
+  "view": {
+    "cancel": "Membatalkan",
+    "choice": "Anda memiliki dua mode perekaman yang berbeda untuk dipilih",
+    "verticalMode": "Mode vertikal memiliki waktu rekor 30 detik",
+    "horizontalMode": "Mode horizontal memiliki waktu rekam tak terbatas",
+    "start": "Mulai",
+    "not-show": "Jangan menunjukkannya lagi",
+    "welcome": "Selamat datang di ARC!  Buat video pribadi dengan salah satu hologram kami dan posting ke saluran media sosial Anda!",
+    "step": "LANGKAH {{step}}",
+    "text-step-1": "Pilih hologram dari perpustakaan.",
+    "text-step-2": "Ini adalah Augmented Reality, jadi pindai ruang dengan kamera Anda dari sisi ke sisi selama 3-5 detik di mana Anda ingin kinerja hologram berada.",
+    "text-step-3-part-1": "Ketuk layar sekali di lokasi di mana Anda ingin hologram berlabuh.",
+    "text-step-3-part-2": "UJUNG!  Ketuk sekali di tempat lain untuk memindahkan hologram ke posisi lain.",
+    "text-step-3-part-3": "UJUNG!  Anda dapat mengubah ukuran hologram dengan mencubit atau memperluas layar dengan ibu jari dan jari telunjuk Anda.",
+    "text-step-4-part-1": "Ketuk dua kali tombol rekam merah untuk MEMULAI perekaman video Anda.",
+    "text-step-4-part-2": "Ketuk dua kali tombol rekam merah untuk BERHENTI."
+  },
+  "video": {
+    "back": "Belakang"
+  },
+  "terms": {
+    "confirmTerms": "Saya setuju dengan Ketentuan Layanan",
+    "confirmPolicy": "Saya setuju dengan Kebijakan Privasi"
+  },
+  "registration": {
+    "ph-phoneEmail": "Gunakan telepon / email",
+    "facebook": "Lanjutkan dengan Facebook",
+    "google": "Lanjutkan dengan Google",
+    "linkedin": "Lanjutkan dengan Linkedin",
+    "twitter": "Lanjutkan dengan Twitter",
+    "gitHub": "Lanjutkan dengan GitHub",
+    "connect": "Menyambungkan email atau nomor telepon Anda",
+    "logIn": "Masuk",
+    "LogInTo": "Masuk ke",
+    "continueAsGuest": "Lanjutkan sebagai tamu"
+  }
+}

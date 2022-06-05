@@ -1,0 +1,718 @@
+{
+  "loading": "Йөк тейәү проекты",
+  "loadingMsg": "Йөкләү проекты...",
+  "loadingError": "Хаталарҙы тейәү проекты",
+  "loadingErrorMsg": "Проектты тейәгәндә хата булған.",
+  "selectSceneMsg": "Двигатель менән уйнай башлау өсөн сәхнәне һайлағыҙ",
+  "error": "Хатаһы",
+  "errorMsg": "Билдәһеҙ хата булған.",
+  "generateScreenshot": "Генерирлаусы проект Скриншот",
+  "generateScreenshotMsg": "Генерирлаусы проект скриншот...",
+  "newScene": "Сәхнәне булдырыу",
+  "saving": "Ҡотҡарыу проекты",
+  "savingMsg": "Экономиялау проекты...",
+  "savingError": "Хатаны ҡотҡарыу проекты",
+  "savingErrorMsg": "Проектты ҡотҡарғанда хата булған.",
+  "savingSceneErrorMsg": "Сәхнә тейешенсә тейәлмәгән. Ваҡиға урынын яңынан тейәп ҡарарға тырышығыҙ.",
+  "duplicating": "Ҡабатлау проекты",
+  "duplicatingMsg": "Проектты ҡабатлау...",
+  "exporting": "Экспортлау проекты",
+  "exportingMsg": "Экспортлау проекты...",
+  "exportingError": "Хаталарҙы экспортлау проекты",
+  "exportingErrorMsg": "Проектты экспортлағанда хата булған.",
+  "importLegacy": "Импорт мираҫы донъяһы",
+  "importLegacyMsg": "Иҫкәртеү! Был һеҙҙең булған күренешегеҙҙе артыҡ яҙыр! Артабан да дауам итергә теләүегеҙгә ышанаһығыҙмы?",
+  "publishingError": "Хаталарҙы баҫтырыу проекты",
+  "publishingErrorMsg": "Билдәһеҙ хата булған.",
+  "publishingScene": "Издательство Сцена",
+  "publishingSceneMsg": "Издательство...",
+  "uploadingThumbnailMsg": "Тейәү thumbnail...",
+  "uploadingSceneMsg": "Тейәү күренеше: {{percentage}}%",
+  "envMapError": "Кубемап һүрәттәрен тейәү хатаһы {{files}}",
+  "lbl-return": "Ҡайтыуы",
+  "menubar": {
+    "newScene": "Яңы күренеш",
+    "saveScene": "Сәхнәне ҡотҡарығыҙ",
+    "saveAs": "As-ҙы ҡотҡарығыҙ",
+    "importAsset": "Импорт активы",
+    "exportGLB": "Икеле glTF (.glb) сифатында экспорт...",
+    "importScene": "Импорт күренеше",
+    "exportScene": "Экспорт сәхнәһе",
+    "quit": "Эштән китеү"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Файл өсөн ярҙамһыҙ файл тибы: «{{name}}». Файл һүрәт, видео йәки глб моделе булырға тейеш.",
+    "addObject": "аддобьект: объект табылмағанға тиклем",
+    "removeObject": "resideObject: тюльпан табылмай. Был инде ваҡиға урынында булмаған баш эйеүҙе алып ташлау менән бәйле.",
+    "noParent": "{{node}} «{{name}}» ата-әсәһе юҡ. Репарент әлеге ваҡытта ваҡиға урынында булған объекттар өҫтөндә генә эшләй.",
+    "undefinedParent": "editor.reparent: newParent билдәләнмәгән",
+    "notAuthenticated": "Аутентификацияланмаған",
+    "fetchingProjectError": "Хаталарҙы алып барыу проекттары: {{error}}",
+    "fetchingRouteError": "Хаталар алып барыу маршруттары: {{error}}",
+    "unknownError": "Билдәһеҙ хата",
+    "resolveURL": "«{{url}}» тигән хата:",
+    "mediaSearchAborted": "Киң мәғлүмәт сараларында эҙләү туҡтатылды",
+    "methodNotImplemented": "Ҡулланылмаған ысул.",
+    "saveProjectAborted": "Ҡотҡарыу күренеше туҡтатылды",
+    "unsavedChanges": "Ҡотолғоһоҙ үҙгәрештәр",
+    "unsavedChangesMsg": "Күренеш үҙгәртелгән. Үҙгәрештәрегеҙҙе һаҡлап ҡалығыҙ.",
+    "projectCreationFail": "Проектты төҙөү уңышһыҙлыҡҡа осрай. {{reason}}",
+    "projectDeletionFail": "Проектты юйыу уңышһыҙлыҡҡа осраны. {{reason}}",
+    "savingProjectFail": "Ҡотҡарыу проекты уңышһыҙлыҡҡа тарый. {{reason}}",
+    "sceneTooLarge": "Сәхнә артыҡ ҙур ({{size}} МБ) баҫтырып сығара алмаҫлыҡ ҙур. Максималь дәүмәле — МБ {{maxSize}} .",
+    "sceneCreationFail": "Сәхнәне булдырыу уңышһыҙлыҡҡа осрай. {{reason}}",
+    "uploadAborted": "Йөкләнеш туҡтатылды",
+    "uploadFailed": "Йөкләү уңышһыҙлыҡҡа тарый {{reason}}",
+    "assetDeletionFail": "Активтарҙы юйыу уңышһыҙлыҡҡа осрай. {{reason}}",
+    "projectAssetDeletionFail": "Проект активтарын юйыу уңышһыҙлыҡҡа осрай. {{reason}}",
+    "networkError": "Селтәр хатаһы: {{status}}. {{text}}",
+    "unknownStatus": "Билдәһеҙ статусы",
+    "CORS": "Бәлки, CORS хатаһы булыуы ихтимал",
+    "urlFetchError": "«{{url}}» алып килә алмаған"
+  },
+  "viewport": {
+    "title": "Видпорт",
+    "command": {
+      "movecamera": "Хәрәкәт камераһы",
+      "flyFast": "Тиҙерәк осоу",
+      "orbit": "Орбита / Һайлап алыу",
+      "pan": "Пан",
+      "fly": "Флайт",
+      "focus": "Фокус",
+      "rotateLeft": "Һулға боролош",
+      "rotateRight": "Уңға боролош",
+      "cancelPlacement": "Урынлаштырыуҙы ғәмәлдән сығарыу",
+      "placeDuplicate": "Урын Дубликат",
+      "cancelGrab": "Грабты ғәмәлдән сығарыу",
+      "grab": "Грейфер",
+      "deselectAll": "Бөтөнөһөн дә һайлап ал"
+    },
+    "state": {
+      "header": "Статистика",
+      "memory": "Хәтер",
+      "geometries": "Геометриялар",
+      "textures": "Фактуралары",
+      "render": "Рендер",
+      "FPS": "ФПС",
+      "frameTime": "Ваҡыт арауығы",
+      "calls": "Шылтыратыуҙар",
+      "triangles": "Өсмөйөштәр",
+      "points": "Мәрәйҙәр",
+      "lines": "Һыҙығы"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Баҫмалары",
+    "lbl-published": "Баҫылып сыҡҡан",
+    "command": {
+      "translate": "Тәржемә ит",
+      "rotate": "Әйләнеүе",
+      "scale": "Масштабы",
+      "toggleSpace": "Тогль трансформация киңлеге",
+      "togglePivot": "Тогль Трансформация пивоты",
+      "toggleSnapMode": "Тогль снап-режимы",
+      "toggleGrid": "Тогль селтәренең күренеүсәнлеге",
+      "increaseGridSize": "Селтәр күләмен арттырыу",
+      "descreaseGridSize": "Селтәр күләменең кәмеүе",
+      "stopPreview": "Күренеште алдан күреүҙән туҡтағыҙ",
+      "playPreview": "Алдан күреү күренеше"
+    }
+  },
+  "properties": {
+    "title": "Үҙенсәлектәре",
+    "lbl-visible": "Күренеп торғаны",
+    "lbl-preventBake": "Бейкты булдырмау",
+    "lbl-persist": "Ныҡышмалылыҡ",
+    "multipleNodeSelected": "Һайлап алынған төрлө типтарҙағы күп һанлы тәүлеләр",
+    "noNodeSelected": "Һайланған баш эйеү юҡ",
+    "ambientLight": {
+      "name": "Тирә-яҡ яҡтылыҡ",
+      "description": "Сәхнәләге барлыҡ әйберҙәрҙе яҡтыртҡан яҡтылыҡ.",
+      "lbl-intensity": "Көсөргәнешлек",
+      "lbl-color": "Төҫө"
+    },
+    "envmap": {
+      "name": "Тирә-яҡ мөхит картаһы",
+      "description": "тирә-яҡ мөхит картаһы үҙенсәлектәре"
+    },
+    "asset": {
+      "name": "Активтары",
+      "description": "Динамик рәүештә тейәлергә һәм төшөрөлөргә мөмкин булған сәхнә компоненттарын төркөмләү",
+      "lbl-options": "Варианттары",
+      "lbl-assetPath": "Активтар юлы",
+      "lbl-assetName": "Экспорт атамаһы",
+      "lbl-exportOptions": "Экспорт варианттары",
+      "lbl-export": "Экспорт активы",
+      "lbl-load": "Сәхнәгә йөкләнеш",
+      "lbl-unload": "Бушатыу",
+      "lbl-reload": "Ҡайтанан йөкләнеш"
+    },
+    "audio": {
+      "name": "Аудио",
+      "description": "Динамик рәүештә аудио йөкләй.",
+      "lbl-audiourl": "Аудио Урль",
+      "lbl-controls": "идара итеү",
+      "info-controls": "Киң мәғлүмәт саралары контроленең күренеүсәнлеген тоҡандырыу.",
+      "lbl-autoplay": "Автоплэй",
+      "info-autoplay": "Дөрөҫ булһа, ваҡиға урынына тәүге тапҡыр ингәндә киң мәғлүмәт саралары уйнаясаҡ.",
+      "lbl-synchronize": "Синхрониз",
+      "info-synchronize": "Дөрөҫ булһа, киң мәғлүмәт саралары тоташтырылған барлыҡ клиенттарҙа ла Синхронлаштырыласаҡ.",
+      "lbl-loop": "Элмәк",
+      "info-loop": "Әгәр дөрөҫ булһа, киң мәғлүмәт саралары билдәһеҙ ваҡытҡа эленеп ҡалыр.",
+      "lbl-audioType": "Аудио тип",
+      "lbl-distanceModel": "Дистанция моделе",
+      "info-distanceModel": "Алгоритим аудиояҙмаларҙы иҫәпләү өсөн ҡулланылған.",
+      "lbl-rolloffFactor": "Роллофф факторы",
+      "info-rolloffFactor": "Сығанаҡ тыңлаусынан алыҫлашҡан һайын күләмдең ни тиклем тиҙ кәмеүен һүрәтләгән икеләтә ҡиммәт. 0 -ҙән 1-гә тиклем",
+      "info-rfInfinity": "Сығанаҡ тыңлаусынан алыҫлашҡан һайын күләмдең ни тиклем тиҙ кәмеүен һүрәтләгән икеләтә ҡиммәт. 0 -ҙән Infinity-ға",
+      "lbl-refDistance": "Реф дистанцияһы",
+      "info-refDistance": "Аудиояҙма тыңлаусынан алыҫлашҡан һайын күләмде кәметеү өсөн белешмә арауығын сағылдырған икеләтә ҡиммәт.",
+      "lbl-maxDistance": "Макс дистанцияһы",
+      "info-maxDistance": "Аудиояҙма менән тыңлаусы араһындағы максималь арауыҡты сағылдырған икеләтә ҡиммәт, шунан һуң күләме кәмемәй.",
+      "lbl-coneInnerAngle": "Конус Эске мөйөш",
+      "info-coneInnerAngle": "Конустың мөйөшөн һүрәтләгән икеләтә ҡиммәт, уның эсендә күләм кәмемәйәсәк.",
+      "lbl-coneOuterAngle": "Конус тышҡы мөйөшө",
+      "info-coneOuterAngle": "Конустың мөйөшөн һүрәтләгән икеләтә ҡиммәт, уның тышында конустың күләме конус OuterGain атрибуты менән билдәләнгән даими ҡиммәткә кәмейәсәк.",
+      "lbl-coreOuterGain": "Конус аутсайдеры",
+      "info-coreOuterGain": "Конустан тыш күләмде кәметеү күләмен һүрәтләгән икеләтә ҡиммәт, ул coneOuterAngle атрибуты менән билдәләнә. Уның дефолт ҡиммәте — 0, тимәк, бер ниндәй ҙә тауыш ишетелмәй.",
+      "lbl-volume": "Күләме",
+      "lbl-play": "Пьесаһы",
+      "lbl-pause": "Пауза",
+      "error-url": "Хаталарҙы URL-ҙан тейәү"
+    },
+    "boxCollider": {
+      "description": "Объекттар өҫкә һикерә йәки өҫтөнә ял итә торған күҙгә күренмәҫ йәшник.\nКоллидерһыҙ объекттар иҙәндән төшөп стеналар аша үтә.",
+      "lbl-isTrigger": "Триггер"
+    },
+    "camera": {
+      "name": "Фотоаппарат",
+      "description": "Камера көйләүҙәре.",
+      "lbl-camera-raycast": "Фотоаппарат Рэйкастинг",
+      "lbl-camera-raycast-toggle": "Мөмкинлектәр",
+      "lbl-camera-raycast-frequency": "Йышлыҡ",
+      "lbl-camera-raycast-count": "Рэй графы",
+      "lbl-camera-raycast-length": "Нур оҙонлоғо"
+    },
+    "directionalLight": {
+      "name": "Йүнәлешле яҡтылыҡ",
+      "description": "Бөтә күренеште яҡтыртҡан, әммә берҙәм йүнәлештә сыҡҡан яҡтылыҡ.",
+      "lbl-color": "Төҫө",
+      "lbl-intensity": "Көсөргәнешлек",
+      "lbl-cameraFar": "Алыҫ камера",
+      "lbl-cameraNear": "Яҡында фотоаппарат",
+      "lbl-cameraTop": "Фотоаппарат өҫ кейеме",
+      "lbl-cameraBottom": "Камера төбө",
+      "lbl-cameraLeft": "Һул фотоаппарат",
+      "lbl-cameraRight": "Фотоаппарат Уңда",
+      "lbl-useInCSM": "ЦСМ-да ҡулланыу",
+      "lbl-castShadow": "Күләгәлә",
+      "lbl-disableForCSM": "Каскад күләгәһе картаһы булғанға инвалидтар.",
+      "lbl-shadowmapResolution": "Күләгә картаһы резолюцияһы",
+      "lbl-shadowBias": "Күләгәләге тайпылыш",
+      "lbl-shadowRadius": "Күләгәле радиус",
+      "lbl-showCameraHelper": "Шоу-камера ярҙамсыһы"
+    },
+    "groundPlane": {
+      "name": "Ер өҫтө яҫылыҡ",
+      "description": "Алыҫлыҡҡа һуҙылыусы яҫы ер өҫтө яҫылығы.",
+      "lbl-color": "Төҫө",
+      "lbl-receiveShadow": "Күләгә ал",
+      "lbl-generateNavmesh": "Навмешты барлыҡҡа килтереү"
+    },
+    "link": {
+      "description": "Бүлмәгә йәки сайтҡа һылтанма.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "Ҡаланың 3D геоспатия картаһы."
+    },
+    "model": {
+      "description": "Сәхнәгеҙҙә GLTF URL йәки файлдан тейәлгән 3D-модель.",
+      "lbl-usingGPUInstancingFlag": "ГПУ инстанцинацияһын ҡулланыу",
+      "lbl-modelurl": "Урль моделе",
+      "lbl-envmapUrl": "Тирә-яҡ мөхит картаһы Урль",
+      "lbl-textureOverride": "Артыҡ текстура",
+      "lbl-materialOverride": "Оверридтар материалы",
+      "error-url": "Хаталарҙы URL-ҙан тейәү",
+      "lbl-loopAnimation": "Элмәк анимацияһы",
+      "lbl-isAvatar": "Аватар",
+      "lbl-isGPUInstancing": "ГПУ-ның инстанцидингын ҡулланыу",
+      "lbl-isDynamic": "Динамика",
+      "lbl-castShadow": "Күләгәлә",
+      "lbl-receiveShadow": "Күләгә ал",
+      "lbl-interactable": "Интерактив",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Атамаһы",
+      "lbl-url": "Урль моделе",
+      "lbl-buy": "Урль һатып алығыҙ",
+      "lbl-learnMore": "Тулыраҡ мәғлүмәт Урл",
+      "lbl-htmlContent": "Html Content",
+      "lbl-interactionText": "Үҙ-ара тәьҫир итешеү тексы",
+      "lbl-interactionType": "Үҙ-ара тәьҫир итешеү төрө"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Материал",
+      "error-materialID": "Материалды табыуҙа хаталар",
+      "placeholder-materialID": "Һайланма материал",
+      "lbl-patternTarget": "Ҡалыптар матчы",
+      "lbl-pattern": "Өлгөһө",
+      "lbl-isRegex": "Регекс"
+    },
+    "interaction": {
+      "type": "Үҙ-ара тәьҫир итешеү төрө",
+      "text": "Үҙ-ара тәьҫир итешеү тексы",
+      "distance": "Үҙ-ара тәьҫир итешеү алыҫлығы",
+      "theme": "Үҙ-ара тәьҫир итешеү темаһы",
+      "name": "Үҙ-ара тәьҫир итешеү атамаһы",
+      "description": "Үҙ-ара тәьҫир итешеү тасуирламаһы",
+      "images": "Үҙ-ара тәьҫир итешеү һүрәттәре",
+      "videos": "Үҙ-ара тәьҫир итешеү Видеояҙма",
+      "urls": "Үҙ-ара тәьҫир итешеү Урльс",
+      "models": "Үҙ-ара тәьҫир итешеү моделдәре"
+    },
+    "group": {
+      "name": "Төркөмдәр",
+      "description": "Бергә күсерергә йәки ҡабатларға мөмкин булған бер нисә объект төркөмө.\nИерархиялағы төркөмгә әйберҙәрҙе һөйрәп төшөрөргә һәм төшөрөргә."
+    },
+    "hemisphere": {
+      "name": "Ярымшар яҡтылығы",
+      "description": "Күренеште туранан-тура өҫтән яҡтыртҡан яҡтылыҡ.",
+      "lbl-skyColor": "Күк төҫ",
+      "lbl-groundColor": "Ер өҫтө төҫө",
+      "lbl-intensity": "Көсөргәнешлек"
+    },
+    "image": {
+      "name": "Һүрәте",
+      "description": "Динамик рәүештә һүрәтте тейәп тора.",
+      "lbl-imgURL": "Урль һүрәте",
+      "lbl-transparency": "Асыҡлыҡ режимы",
+      "lbl-alphaCutoff": "Альфа Кутофф",
+      "lbl-projection": "Проекция",
+      "lbl-side": "Ҡабырғаһы",
+      "info-controls": "Киң мәғлүмәт саралары контроленең күренеүсәнлеген тоҡандырыу.",
+      "info-transparency": "Асыҡлыҡты нисек ҡулланырға:",
+      "info-opaque": "'opaque' = асыҡлыҡ юҡ",
+      "info-blend": "'blend' = альфа-канал һүрәттәрен ҡулланығыҙ",
+      "info-mask": "'битлек' = Асыҡлыҡ өсөн күрһәтелгән ҡырҡыу ҡиммәтен ҡулланығыҙ (күберәк башҡарыусы)",
+      "info-alphaCutoff": "Альфа-ҡиммәттәре унан түбән булған пикселдәр үтә асыҡ буласаҡ",
+      "error-url": "Ғәмәлдән өрөп бөткөһөҙ URL"
+    },
+    "name": {
+      "lbl-name": "Атамаһы"
+    },
+    "partileEmitter": {
+      "description": "Киҫәксәләр барлыҡҡа килтереүсе киҫәксәләр.",
+      "lbl-particleCount": "Киҫәксәләр иҫәбе",
+      "lbl-image": "Һүрәте",
+      "lbl-ageRandomness": "Йәш осраҡлылығы",
+      "lbl-lifetime": "Тере сағы",
+      "lbl-lifetimeRandomness": "Ғүмер буйы осраҡлылыҡ",
+      "lbl-sizeCurve": "Үлсәм кәкрелеге",
+      "lbl-startPSize": "Старт киҫәксәләренең ҙурлығы",
+      "lbl-endPSize": "Һуңғы киҫәксәләр үлсәме",
+      "lbl-sizeRandomness": "Ҙурлығы Осраҡлылыҡ",
+      "lbl-colorCurve": "Төҫлө кәкрелек",
+      "lbl-startColor": "Старт төҫө",
+      "lbl-startOpacity": "Start Opacity",
+      "lbl-middleColor": "Урта төҫ",
+      "lbl-middleOpacity": "Урта асыҡлыҡ",
+      "lbl-endColor": "Һуңғы төҫ",
+      "lbl-endOpacity": "Ахырғы асыҡлыҡ",
+      "lbl-velocityCurve": "Тиҙлек кәкрелеге",
+      "lbl-startVelocity": "Тиҙлекте башлау",
+      "lbl-endVelocity": "Ахырғы тиҙлек",
+      "lbl-angularVelocity": "Мөйөш тиҙлеге",
+      "info-ageRandomness": "Киҫәксәләр ыуылдырыҡ сәсә башлағанда вариация миҡдары.",
+      "info-lifetime": "Киҫәксәнең репавтацияға тиклемге максималь йәше.",
+      "info-lifetimeRandomness": "Киҫәксәләр тереклеге араһындағы вариация миҡдары.",
+      "info-sizeRandomness": "Киҫәксәләрҙең старт үлсәмдәре араһындағы вариация миҡдары.",
+      "error-url": "Хаталарҙы URL-ҙан тейәү"
+    },
+    "clouds": {
+      "name": "Болот",
+      "description": "Сприт нигеҙендәге болот күләме.",
+      "lbl-image": "Сприт һүрәте",
+      "lbl-wroldScale": "Донъя масштабы",
+      "lbl-dimensions": "Үлсәмдәре",
+      "lbl-noiseZoom": "Шау-шыулы ҙурайтыу",
+      "lbl-noiseOffset": "Шау-шыу офсет",
+      "lbl-spriteScale": "Сприт шкалаһы",
+      "lbl-fogColor": "Томан төҫө",
+      "lbl-fogRange": "Томан һырты",
+      "error-url": "Хаталарҙы URL-ҙан тейәү"
+    },
+    "ocean": {
+      "name": "Океан",
+      "description": "Тулҡындар һәм пенополиуретан менән океан өҫтө",
+      "lbl-normalMap": "Нормаль карта",
+      "lbl-distortionMap": "Боҙоу картаһы",
+      "lbl-envMap": "Тирә-яҡ мөхит картаһы",
+      "lbl-color": "Төҫө",
+      "lbl-shallowWaterColor": "Һай һыу төҫө",
+      "lbl-shallowToDeepDistance": "Тәрән араларға һайыраҡ",
+      "lbl-opacityFadeDistance": "Фаде арауығы",
+      "lbl-opacityRange": "Асыҡлыҡ диапазоны",
+      "lbl-shininess": "Ялтырауыҡ",
+      "lbl-reflectivity": "Рефлекторлыҡ",
+      "lbl-foamColor": "Күбек төҫө",
+      "lbl-foamSpeed": "Пенополиуретан тиҙлеге",
+      "lbl-foamTiling": "Пенополиуретан Тиллин",
+      "lbl-bigWaveTiling": "Ҙур тулҡын плиткаһы",
+      "lbl-bigWaveSpeed": "Ҙур тулҡын тиҙлеге",
+      "lbl-bigWaveHeight": "Ҙур тулҡын бейеклеге",
+      "lbl-waveSpeed": "Тиҙлек тулҡыны",
+      "lbl-waveScale": "Тулҡындар шкалаһы",
+      "lbl-waveTiling": "Тулҡын тирбәлеү",
+      "lbl-waveDistortionSpeed": "Тулҡындың боҙолоу тиҙлеге",
+      "lbl-waveDistortionTiling": "Тулҡындың боҙолоуы Тилинг",
+      "error-url": "Хаталарҙы URL-ҙан тейәү"
+    },
+    "water": {
+      "name": "Һыу",
+      "description": "Ваҡ һыу өҫтө"
+    },
+    "interior": {
+      "name": "Интерьеры",
+      "description": "Эске мөхитте кәүҙәләндереү өсөн картаға төшөрөлгән куб фактураһы менән өҫкө йөҙ",
+      "lbl-cubeMap": "Куб картаһы фактураһы",
+      "lbl-tiling": "Плитканың күләме",
+      "lbl-size": "Өҫкө йөҙөнөң ҙурлығы",
+      "error-url": "Хаталарҙы URL-ҙан тейәү"
+    },
+    "pointLight": {
+      "description": "Бер нөктәнән бөтә яҡҡа бүлеп сығарған яҡтылыҡ.",
+      "lbl-color": "Төҫө",
+      "lbl-intensity": "Көсөргәнешлек",
+      "lbl-range": "Диапазон",
+      "lbl-decay": "Тарҡалыу"
+    },
+    "scene": {
+      "name": "Күренеше",
+      "description": "Күренештең төп объекты.",
+      "lbl-bgcolor": "Фон төҫө",
+      "lbl-fogType": "Томан тибы",
+      "lbl-fogColor": "Томан төҫө",
+      "lbl-forNearDistance": "Алыҫ араға томан",
+      "lbl-fogFarDistance": "Алыҫ ара томан",
+      "lbl-fogDensity": "Томан тығыҙлығы",
+      "lbl-audioSettings": "Позицион аудио ҡулланыу",
+      "lbl-avatarDistanceModel": "Аватар дистанцияһы моделе",
+      "lbl-avatarRolloffFactor": "Аватар Роллофф факторы",
+      "lbl-avatarRefDistance": "Аватар -Реф дистанцияһы",
+      "lbl-avatarMaxDistance": "Аватар Макс дистанцияһы",
+      "lbl-mediaVolume": "Киң мәғлүмәт сараларының күләме",
+      "lbl-mediaDistanceModel": "Media Mastion Model",
+      "lbl-mediaRolloffFactor": "Media Rolloff Factor",
+      "lbl-mediaRefDistance": "Медиа-реф дистанцияһы",
+      "lbl-mediaMaxDistance": "Media Max Parts",
+      "lbl-mediaConeInnerAngle": "Media Cone Inner Angle",
+      "lbl-mediaConeOuterAngle": "Media Cone Outer Angle",
+      "lbl-mediaConeOuterGain": "Media Cone Outer Again",
+      "info-avatarDistanceModel": "Алгоритим аудиояҙмаларҙы иҫәпләү өсөн ҡулланылған.",
+      "info-avatarRolloffFactor": "Сығанаҡ тыңлаусынан алыҫлашҡан һайын күләмдең ни тиклем тиҙ кәмеүен һүрәтләгән икеләтә ҡиммәт. 0 -ҙән 1-гә тиклем",
+      "info-avatarRolloffFactorInifinity": "Сығанаҡ тыңлаусынан алыҫлашҡан һайын күләмдең ни тиклем тиҙ кәмеүен һүрәтләгән икеләтә ҡиммәт. 0 -ҙән Infinity-ға",
+      "info-avatarRefDistance": "Аудиояҙма тыңлаусынан алыҫлашҡан һайын күләмде кәметеү өсөн белешмә арауығын сағылдырған икеләтә ҡиммәт.",
+      "info-avatarMaxDistance": "Аудиояҙма менән тыңлаусы араһындағы максималь арауыҡты сағылдырған икеләтә ҡиммәт, шунан һуң күләме кәмемәй.",
+      "info-mediaDistanceModel": "Алгоритим аудиояҙмаларҙы иҫәпләү өсөн ҡулланылған.",
+      "info-mediaRolloffFactor": "Сығанаҡ тыңлаусынан алыҫлашҡан һайын күләмдең ни тиклем тиҙ кәмеүен һүрәтләгән икеләтә ҡиммәт. 0 -ҙән 1-гә тиклем",
+      "info-mediaRolloffFactorInfinity": "Сығанаҡ тыңлаусынан алыҫлашҡан һайын күләмдең ни тиклем тиҙ кәмеүен һүрәтләгән икеләтә ҡиммәт. 0 -ҙән Infinity-ға",
+      "info-mediaRefDistance": "Аудиояҙма тыңлаусынан алыҫлашҡан һайын күләмде кәметеү өсөн белешмә арауығын сағылдырған икеләтә ҡиммәт.",
+      "info-mediaMaxDistance": "Аудиояҙма менән тыңлаусы араһындағы максималь арауыҡты сағылдырған икеләтә ҡиммәт, шунан һуң күләме кәмемәй.",
+      "info-mediaConeInnerAngle": "Конустың мөйөшөн һүрәтләгән икеләтә ҡиммәт, уның эсендә күләм кәмемәйәсәк.",
+      "info-mediaConeOuterAngle": "Конустың мөйөшөн һүрәтләгән икеләтә ҡиммәт, уның тышында конустың күләме конус OuterGain атрибуты менән билдәләнгән даими ҡиммәткә кәмейәсәк.",
+      "info-mediaConeOuterGain": "Конустан тыш күләмде кәметеү күләмен һүрәтләгән икеләтә ҡиммәт, ул coneOuterAngle атрибуты менән билдәләнә. Уның дефолт ҡиммәте — 0, тимәк, бер ниндәй ҙә тауыш ишетелмәй.",
+      "lbl-simpleMaterials": "Ябай материалдарҙы ҡулланыу",
+      "lbl-lods": "ЛОД-тары",
+      "info-lods": "Деталдәр кимәле үҙгәргән арауыҡтарҙы билдәләй.",
+      "info-simpleMaterials": "Бөтә ҡиммәтле материалдарҙы ябай материалдарға әйләндерә.",
+      "lbl-rendererSettings": "Оверридлы Рендерер көйләүҙәре",
+      "lbl-csm": "Каскадлы күләгә карталары",
+      "info-csm": "Каскадлы күләгә карталары.",
+      "lbl-toneMapping": "Тон-Маппинг",
+      "info-toneMapping": "Сәхнә редерында тон картографияһын үткәреү мөмкинлеген бирә. Пост эшкәртеү мөмкинлеге булғанда бер ниндәй ҙә һөҙөмтә бирмәй.",
+      "lbl-toneMappingExposure": "Тон картаһы экспозицияһы",
+      "info-toneMappingExposure": "Сәхнә редерында тонлы картография экспозицияһы күрһәтелгән. Пост эшкәртеү мөмкинлеге булғанда бер ниндәй ҙә һөҙөмтә бирмәй.",
+      "lbl-shadowMapType": "Күләгәләге картаның төрө",
+      "info-shadowMapType": "Күләгәләге картаның төрө",
+      "error-url": "Хаталарҙы URL-ҙан тейәү"
+    },
+    "sceneCamera": {
+      "name": "Күренеште алдан күреү камераһы",
+      "description": "Фотоаппарат һеҙҙең күренеш өсөн баш бармаҡты һәм алдан күреү камераһы өсөн старт торошон булдырыу өсөн ҡулланылған.",
+      "lbl-setFromViewPort": "Viewport-тан ҡуйылған комплект"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Көн ваҡыты",
+      "lbl-color": "Төҫө",
+      "lbl-latitude": "Киңлек",
+      "lbl-luminance": "Яҡтылыҡ",
+      "lbl-scattering": "Таралыу суммаһы",
+      "lbl-scatteringDistance": "Таралыу арауығы",
+      "lbl-horizonStart": "Офоҡ старты",
+      "lbl-horizonEnd": "Офоҡ осо",
+      "lbl-texture": "Фактураһы",
+      "lbl-skyType": "Күк тибы",
+      "error-url": "Хаталарҙы URL-ҙан тейәү"
+    },
+    "spawnPoint": {
+      "name": "Ыуылдырыҡ сәтләүеге",
+      "description": "Кешеләр һеҙҙең сәхнәгә сыҡҡанда күренер нөктә.\nViewport-тағы икона аватар күләмен сағылдыра."
+    },
+    "spotLight": {
+      "description": "Конус эсендәге әйберҙәрҙе яҡтыртҡан яҡтылыҡ.",
+      "lbl-color": "Төҫө",
+      "lbl-intensity": "Көсөргәнешлек",
+      "lbl-penumbra": "Пенумбра",
+      "lbl-angle": "Мөйөш",
+      "lbl-range": "Диапазон",
+      "lbl-decay": "Тарҡалыу"
+    },
+    "transform": {
+      "title": "Үҙгәртеп ҡороу",
+      "lbl-postition": "Позицияһы",
+      "lbl-rotation": "Әйләнеүе",
+      "lbl-scale": "Масштабы"
+    },
+    "triggereVolume": {
+      "description": "Ингәндә һәм сығып киткәндә сәп объектына мөлкәт ҡуя.",
+      "lbl-target": "Объект",
+      "lbl-onenter": "Инеү тураһында",
+      "lbl-onexit": "Сығыу юлында",
+      "lbl-showHelper": "Ярҙамсы Меште күрһәтегеҙ",
+      "ph-errorNode": "Баш эйеүҙе юғалтҡан хата.",
+      "ph-selectNode": "Һайлағыҙ баш эйегеҙ..."
+    },
+    "video": {
+      "name": "Видео",
+      "description": "Динамик рәүештә видеояҙма тейә.",
+      "lbl-video": "Видео",
+      "lbl-projection": "Проекция",
+      "lbl-islivestream": "Йәнле ағым",
+      "lbl-interactable": "Интерактив",
+      "lbl-id": "Элемент id",
+      "lbl-play": "Пьесаһы",
+      "lbl-pause": "Пауза",
+      "error-url": "Хаталарҙы URL-ҙан тейәү"
+    },
+    "volumetric": {
+      "name": "Томпатрик",
+      "description": "Динамик рәүештә күләмле видеояҙма тейә.",
+      "uvolPaths": "УВОЛ юлдары",
+      "playmode": "Уйын режимы",
+      "playtitle": "Пьесаһы",
+      "pausetitle": "Пауза"
+    },
+    "spline": {
+      "description": "Динамик рәүештә кәкрелектәрҙе булдырыу һәм көйләү.",
+      "lbl-addNode": "Кәкрегә тэн өҫтәгеҙ."
+    },
+    "systemnode": {
+      "description": "Сценарийҙы беркеткет.",
+      "lbl-filePath": "Урль",
+      "lbl-systemUpdateType": "Инъекция нөктәһе",
+      "lbl-enableClient": "Клиент",
+      "lbl-enableServer": "Сервер",
+      "lbl-args": "Аргс",
+      "error-url": "Хата Тейәү сценарийы URL"
+    },
+    "portal": {
+      "lbl-portal": "Бәйләнгән портал",
+      "lbl-redirect": "Страницаны яңынан йүнәлтеү",
+      "description": "Портат уйынсыларға күрһәтелгән урынға портпорт",
+      "lbl-locationName": "Урынлашыуы",
+      "lbl-modelUrl": "URL моделе",
+      "lbl-displayText": "Дисплей тексы",
+      "lbl-cubemapBake": "Кубемап бешереү",
+      "lbl-spawnPosition": "Ыуылдырыҡ сәсеү урыны",
+      "lbl-spawnRotation": "Ыуылдырыҡтың әйләнеүе",
+      "lbl-triggerPosition": "Триггерҙың урынлашыуы",
+      "lbl-triggerRotation": "Триггерҙың әйләнеүе",
+      "lbl-triggerScale": "Триггер шкалаһы"
+    },
+    "postprocessing": {
+      "name": "Пост Эшкәрткәндән һуң",
+      "description": "Пост Эшкәртеү эффекттарын һеҙгә сәхнәгә ҡулланыу өсөн."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Яңы проект",
+      "backLink": "Проекттарға ҡайтыу",
+      "featured": "Һайланмалары",
+      "all": "Всё",
+      "newProject": "Яңы буш проект",
+      "ph-search": "Эҙләү күренештәре..."
+    },
+    "grid": {
+      "loading": "Йөкләү..."
+    },
+    "page": {
+      "header": "Рәхим итегеҙ",
+      "headerMsg": "Бында яңы булһағыҙ, дәреслекте үтергә кәңәш итәбеҙ. Юғиһә, туранан-тура һикереп, нулдән йәки беҙҙең ҡалыптарҙың береһенән проект төҙөгөҙ.",
+      "lbl-startTutorial": "Башланғыс дәреслек",
+      "projects": "Проекттары",
+      "lbl-newProject": "Яңы проект"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Йөкләү...",
+      "placeObject": "Урын объекты",
+      "placeObjectAtOrigin": "Объекттың килеп сығышы буйынса урынлаштырыу",
+      "copyURL": "URL күсермәһе",
+      "openInNewTab": "Open URL in New Tab",
+      "deleteAsset": "Активты юйығыҙ"
+    },
+    "filebrowser": {
+      "addNewFolder": "Яңы пальдер өҫтәгеҙ",
+      "cutAsset": "Киҫәге",
+      "copyAsset": "Күсермәһе",
+      "pasteAsset": "Пасте",
+      "renameAsset": "Яңырыуы",
+      "viewAssetProperties": "Үҙенсәлектәр"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Яңырыуы",
+    "lbl-duplicate": "Дубликат",
+    "lbl-group": "Төркөмдәр",
+    "lbl-delete": "Юйыу",
+    "lbl-expandAll": "Барыһын да киңәйтеү",
+    "lbl-collapseAll": "Бөтөнләй тарҡалыу",
+    "isseus": "Мәсьәләләре:"
+  },
+  "dnd": {
+    "nodes": "{{count}} Nodes Selected",
+    "models": "{{count}} моделдәре һайлап алынған",
+    "images": "{{count}} һайланған һүрәттәр",
+    "videos": "{{count}} һайланған видеояҙмалар",
+    "audio": "{{count}} аудио сығанаҡтары Һайланған"
+  },
+  "dialog": {
+    "title": "Мөхәррире",
+    "lbl-confirm": "Ярай",
+    "lbl-cancel": "Бөтөрөргә",
+    "exportProject": {
+      "title": "Экспорт проекты",
+      "lbl-confirm": "Экспорт проекты",
+      "lbl-combineMesh": "Мешес ҡушмаһы",
+      "lbl-removeUnused": "Ҡулланылмаған объекттарҙы алып ташлау"
+    },
+    "performance": {
+      "title": "Сығыштарҙы тикшереү",
+      "lbl-confirm": "Издательство Сцена",
+      "learnMore": "Күберәк өйрән",
+      "lbl-polycount": "Полигондар иҫәбе",
+      "lbl-material": "Материалдар",
+      "lbl-texture": "Фактуралары",
+      "lbl-lights": "Уттар",
+      "lbl-fileSize": "Файл үлсәме",
+      "info-polycount": "Сәхнәгеҙгә мобиль ҡоролмалар өсөн 50 000-дән артыҡ өсмөйөш ҡулланырға кәңәш итәбеҙ.",
+      "info-material": "Мобиль ҡоролмаларҙа йәрәбә шылтыратыуҙарын кәметеү өсөн сәхнәгеҙҙә 25-тән артыҡ уникаль материал ҡулланырға кәңәш итәбеҙ.",
+      "info-texture": "Фактураларығыҙға мобиль ҡоролмалар өсөн 256 МБ видео RAM ҡулланырға кәңәш итәбеҙ. Шулай уҡ 2048 х 2048 йылдан ҙурыраҡ фактураларҙы ҡулланмаҫҡа кәңәш итәбеҙ.",
+      "info-lights": "Мобиль ҡоролмаларҙа динамик яҡтыртҡыстар эшләнмәһә лә, күренешегеҙ түбән осондағы компакт-дисктарҙа эшләһен өсөн сәхнәгеҙҙә 3-тән артыҡ яҡтыртҡыс ҡулланырға кәңәш итәбеҙ (тирә-яҡ мөхит һәм ярымшар яҡтыртҡыстарын иҫәпкә алмағанда).",
+      "info-fileSize": "Үткәреү һәләте түбән булған тоташыуҙар өсөн файлдың йомғаҡлау күләмен 16МБ-тан артыҡ түгел тәҡдим итәбеҙ. Файлдың күләмен кәметеү сәхнәне йөкләү ваҡытын ҡыҫҡартасаҡ.",
+      "txt-polycount": "{{count}} өсмөйөш",
+      "txt-material": "{{count}} материалдар",
+      "txt-ram": "↑{{count}} Видео РАМ",
+      "txt-texture": "{{count}} Ҙур фактураһы",
+      "txt-lights": "{{count}} уттары"
+    },
+    "progress": {
+      "title": "Йөкләү...",
+      "msg": "Йөкләү...",
+      "lbl-cancel": "Бөтөрөргә"
+    },
+    "publish": {
+      "title": "Издательство Сцена",
+      "lbl-confirm": "Һаҡлағыҙ һәм баҫтырып сығарығыҙ",
+      "lbl-name": "Күренеш атамаһы",
+      "info-name": "Исеме 4-64 персонаж араһында булырға тейеш һәм һыҙыҡтарҙы үҙ эсенә ала алмай"
+    },
+    "published": {
+      "title": "Сәхнә баҫылып сыға",
+      "header": "Һеҙҙең сәхнә донъя күрҙе.",
+      "lbl-view": "Күренешегеҙҙе ҡарарға"
+    },
+    "saveNewProject": {
+      "title": "Ярҙам",
+      "lbl-name": "Проекттың исеме",
+      "info-name": "Исеме 4-64 персонаж араһында булырға тейеш һәм һыҙыҡтарҙы үҙ эсенә ала алмай",
+      "lbl-confirm": "«Ҡотҡарығыҙ» проекты"
+    },
+    "support": {
+      "title": "Ярҙам",
+      "header": "Проблема тураһында хәбәр итергә кәрәкме?",
+      "msg": "Ярҙам һорап <1>GitHub сығарылышын</1> яҙырға йәки ярҙам һорап электрон почта аша ебәрергә <3> мөмкин{{mail}}</3>",
+      "discord": "Шулай уҡ беҙҙе <1>Дискордта</1> табырға мөмкин"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing Images",
+      "search": "Бингтың эҙләнеүҙәре"
+    },
+    "bingVideo": {
+      "name": "Видеояҙмалар",
+      "search": "Бингтың эҙләнеүҙәре"
+    },
+    "element": {
+      "name": "Элементтар"
+    },
+    "myAssets": {
+      "name": "Минең активтарым"
+    },
+    "googlePoly": {
+      "name": "Google Pole",
+      "search": "Google компанияһының эҙләүе"
+    },
+    "tenor": {
+      "name": "Тенор ГИФ-тары",
+      "search": "Тенорҙың эҙләнеүҙәре",
+      "ph-search": "Эҙләү ГИФ-тары..."
+    },
+    "sketchfab": {
+      "name": "Эскизфаб",
+      "search": "Эскизфабтың эҙләнеүҙәре"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Йөкләү активы"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Эҙләү һүрәттәре..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Эҙләү видеояҙмалары..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Эҙләү активтары..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Эҙләү моделдәре..."
+    },
+    "useUpload": {
+      "multipleFileError": "Индереү бер нисә файлды ҡабул итмәй.",
+      "mineTypeError": "«{{name}}» түбәндәге мим төрҙәренә йәки төкәтмәләренә тап килмәй: {{types}}",
+      "progressTitle": "Файлдарҙы йөкләү",
+      "progressMsg": "файлдарҙы тейәү {{total}}{{uploaded}} : {{percentage}}%",
+      "uploadError": "Йөкләү хатаһы",
+      "uploadErrorMsg": "Хаталарҙы йөкләү файлы: {{message}}",
+      "uploadErrorDefaultMsg": "Билдәһеҙ хата булған"
+    }
+  },
+  "openLink": {
+    "description": "Һылтанма буйынса йүнәлеш алыу өсөн Open-ҡа баҫығыҙ.",
+    "lbl-open": "Асыҡ"
+  },
+  "interactableModel": {
+    "lbl-buy": "Һатып алыу",
+    "lbl-learnMore": "Күберәк өйрән"
+  },
+  "corsProxyButton": {
+    "tooltip": "Cors Proxy Server ҡулланыу"
+  }
+}

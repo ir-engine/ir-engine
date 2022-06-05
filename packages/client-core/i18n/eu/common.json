@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Orria kargatzen..."
+  },
+  "tooltip": {
+    "pressKey": "{{message}} presio {{tip}}"
+  },
+  "toast": {
+    "joined": "batua",
+    "left": "Ezker"
+  },
+  "navUserWidget": {
+    "login": "Saioa hasi"
+  },
+  "loader": {
+    "connecting": "Munduarekin konektatzen...",
+    "entering": "Munduan sartzen...",
+    "loading": "Karga...",
+    "objectRemaining": "gainerako objektu {{count}}",
+    "objectRemainingPlural": "gainerako objektuak {{count}}",
+    "loadingObjects": "Objektuen karga",
+    "loadingComplete": "Karga osoa",
+    "joiningWorld": "Munduarekin bat egin"
+  },
+  "alert": {
+    "eventWasSuccess": "Ekitaldia arrakastatsua izan zen",
+    "errorWasEncountered": "Akats bat aurkitu da",
+    "eventInProgress": "Abian den ekitaldia",
+    "seconds": "sobera",
+    "cancelCountdown": "Moda horren itxierak atzerako kontaketa bertan behera utziko du"
+  },
+  "debug": {
+    "refresh": "Eguneratu",
+    "stats": "Estatistikak",
+    "debugOptions": "Arazketa aukerak",
+    "physicsDebug": "Fisika",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Nodo laguntzailea",
+    "gridDebug": "Sareta",
+    "simpleMaterials": "Material sinpleak",
+    "tick": "Garrapata",
+    "worldStore": "Munduko Denda",
+    "engineStore": "Motorren biltegia",
+    "namedEntities": "Izena duten erakundeak",
+    "networkObject": "Network objektua",
+    "networkClients": "Sareko bezeroak"
+  },
+  "recording": {
+    "videoRecorder": "Bideo grabatzailea",
+    "waitingForPermissions": "Baimenen zain",
+    "selectVideoSource": "Aukeratu bideo-iturria",
+    "screen": "Pantaila",
+    "camera": "Kamera",
+    "microphone": "Mikrofonoa",
+    "startRecording": "Grabazioa hasi",
+    "pauseRecording": "Grabazioa eten",
+    "resumeRecording": "Grabazioari berriro ekitea",
+    "stopRecording": "Grabazioa gelditu"
+  },
+  "typing": "Mekanografia...",
+  "gameServer": {
+    "browserError": "Nabigatzailearen akatsa",
+    "browserErrorMessage": "Zure nabigatzaileak ez du nabigazio pribatu moduan biltegiratzea onartzen. Probatu beste nabigatzaile batekin edo atera nabigazio pribatutik.",
+    "noAvailableServers": "Ez zerbitzaririk",
+    "noAvailableServersMessage": "Ez zerbitzaririk konektatzeko. Berriro konektatzen saiatzea",
+    "worldDisconnected": "Mundu deskonektatua",
+    "worldDisconnectedMessage": "Munduarekin duzun lotura galdu duzu. Hurrengo denbora agortu baino lehen berriro konektatzen saiatuko gara, bestela beste instantzia batera bidaliko dugu.",
+    "webGLNotEnabled": "Gaitu gabeko WebGL",
+    "webGLNotEnabledMessage": "Zure nabigatzailea ez da WebGLrekin bateragarria, edo desgaituta. WebGL jarri edo zure nabigatzailearen azken bertsioa eguneratu.",
+    "youKickedFromWorld": "Mundutik bota zaituzte",
+    "youKickedFromWorldMessage": "Mundu honetatik kanporatua izan zinen hurrengo arrazoiarengatik",
+    "invalidLocation": "Kokapen ez-baliozkoa",
+    "cantFindLocation": "Ezin dugu kokalekua aurkitu",
+    "misspelledOrNotExist": "Gaizki idatzita egon daiteke, edo ez da existituko.",
+    "loading": "karga",
+    "low-frame-error": "Errendimendu eskasa antzeman, bere nabigatzailean hardware azelerazioa gaitu eta nabigatzailea berriro ontziratzea",
+    "low-frame-title": "Hardware azelerazioa esperientzia hobe baterako!"
+  },
+  "error": {
+    "loading-error": "Akatsa erabiltzailearen datuak kargatzean",
+    "validation-error": "Sartu baliozko {{type}}",
+    "login-error": "Akatsa saioa hastean"
+  }
+}

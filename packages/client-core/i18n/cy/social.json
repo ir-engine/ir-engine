@@ -1,0 +1,202 @@
+{
+  "addComment": "Ychwanegu Sylw...",
+  "share": "Rhannu",
+  "suggestions": "Awgrymiadau i chi",
+  "seeAll": "Gweld y Cyfan",
+  "likes": "Hoffi",
+  "viewComments": "Gweld yr holl sylwadau {{count}}",
+  "more": "rhagor",
+  "username": "enw defnyddiwr",
+  "fullName": "Enw Cyfenw",
+  "reportInApporpriate": "Rhoi gwybod am amhriodol",
+  "unfollow": "Unfollow",
+  "goToPost": "Ewch i'r Post",
+  "shareModal": "Rhannu",
+  "copyLink": "Copïo'r Ddolen",
+  "embed": "Ymgorffori",
+  "cancel": "Canslo",
+  "confirm": "Cadarnhau",
+  "save": "Achub",
+  "profilePic": "Llun proffil {{user}}",
+  "ara": "Ara",
+  "follow": "Dilyn",
+  "flames": "Flames",
+  "continue": "Parhau",
+  "partyInvitationSent": "Gwahoddiad parti wedi'i anfon",
+  "arMedia": {
+    "back": "Cefn",
+    "clip": "Clipio",
+    "backgrounds": "Cefndiroedd",
+    "start": "Cychwyn"
+  },
+  "arMediaform": {
+    "title": "Teitl",
+    "type": "Math",
+    "clip": "Clipio",
+    "background": "Cefndir",
+    "scene": "Golygfa",
+    "save": "Achub",
+    "manifest-file": "Ffeil manifest .manifest",
+    "audio-file": "Ffeil Mp4",
+    "dracosis-file": "Ffeil Dracosis .uvol",
+    "preview-file": "Rhagolwg o'r ffeil delwedd"
+  },
+  "creator": {
+    "myVideos": "Fy Fideos",
+    "savedVideos": "Fideos wedi'u Cadw",
+    "back": "Cefn",
+    "blocked-list": "Rhestr wedi'i Rhwystro",
+    "block-user": "Defnyddiwr Bloc",
+    "dialog-content": "Ni fyddwch yn gweld proffil a chynnwys y defnyddiwr"
+  },
+  "creatorForm": {
+    "back": "Cefn",
+    "edit": "Golygu'r Proffil",
+    "save": "Achub",
+    "changeAvatar": "Newid delwedd avatar",
+    "ph-selectPreview": "Dewis rhagolwg",
+    "ph-name": "Dy enw",
+    "ph-username": "Eich Enw Defnyddiwr",
+    "ph-email": "Eich E-bost",
+    "ph-tags": "Tagiau",
+    "ph-link": "Dolen",
+    "ph-aboutYou": "Mwy amdanoch chi",
+    "ph-twitter": "trydar",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Allgofnodi"
+  },
+  "dashboard": {
+    "title": "Dangosfwrdd",
+    "dashboard": "Dangosfwrdd",
+    "users": "Defnyddwyr",
+    "feeds": "Crynodebau",
+    "arMedia": "Cyfryngau Fideo",
+    "editor": "Golygydd",
+    "creator": "Crëwr"
+  },
+  "featured": {
+    "empty-list": "Dim crynodebau am nawr ..."
+  },
+  "feed": {
+    "back": "Cefn",
+    "related": "Crynodebau cysylltiedig",
+    "is-repoted-message": "Adroddir am borthiant!"
+  },
+  "feedForm": {
+    "back": "Cefn",
+    "thanks": "Diolch am rannu a gwella ein cymuned",
+    "share": "Rhannu rhywbeth gyda'r gymuned",
+    "upload": "Uwchlwytho Fideo",
+    "ph-selectVideo": "Dewiswch Fideo",
+    "preview": "Rhagolwg o'r ddelwedd",
+    "ph-selectPreview": "Dewis rhagolwg",
+    "createFeed": "Er mwyn creu crynodeb mae'n rhaid i chi gael fideo a delwedd rhagolwg!!!",
+    "ph-videoName": "Enw eich fideo",
+    "ph-type": "Teipiwch yr hyn rydych chi am ei rannu gyda'r gymuned ... ",
+    "lbl-share": "Rhannu",
+    "save": "Cadw a mynd Nesaf"
+  },
+  "feedMenu": {
+    "featured": "Nodwedd",
+    "creators": "Creawdwyr",
+    "feed": "Y Porthiant"
+  },
+  "header": {
+    "lbl-volumetric": "Cyfrol"
+  },
+  "login": {
+    "account": "Oes gennych chi gyfrif?",
+    "login": "Mewngofnod",
+    "resetPassword": "Ailosod botwm Ffug Cyfrinair (dyma ddolen o e-bost)",
+    "notHavingAccount": "Does gennych chi ddim cyfrif?",
+    "signUp": "Ymuno",
+    "forgotPassword": "Wedi anghofio cyfrinair?",
+    "back": "Cefn",
+    "or": "NEU"
+  },
+  "comment": {
+    "add": "Ychwanegwch eich sylw..."
+  },
+  "notification": {
+    "feedFire": " tanio eich porthiant",
+    "feedBookmarked": " rhoi nod tudalen ar eich porthiant",
+    "comment": " sylwadau ar eich porthiant:",
+    "commentFire": " tanio eich sylw i fwydo",
+    "follow": " dechrau eich dilyn",
+    "unfollow": " stopio'ch dilyn",
+    "followed": " eich dilyn",
+    "activity": "Gweithgaredd"
+  },
+  "onBoarding": {
+    "welcome": "Croeso!",
+    "description": "Casgliad mwyaf o gynlluniau 370+ ar gyfer prototeipio iOS.",
+    "next": "Nesaf",
+    "discover": "Darganfod erthyglau,",
+    "news": "newyddion & swyddi",
+    "lines": "Y teimladau hynny sy'n gyrru ein cariad at seryddiaeth a'n hawydd.",
+    "getStarted": "Cychwyn Arni",
+    "meetUp": "Cwrdd â",
+    "friends": "cyfeillion.",
+    "meet": "Cwrdd â ffrindiau"
+  },
+  "shareForm": {
+    "arcMedia": "Rhannu",
+    "videoCreated": "Fe wnes i greu'r fideo hwn",
+    "shareWithBuddies": "Rhannu gyda chyfeillion",
+    "shareVideo": "Rhannu Fideo",
+    "save": "Cadw At Gofrestr y Camera",
+    "cancel": "Canslo",
+    "close": "Cau",
+    "addFeed": "Ychwanegu Bwyd Anifeiliaid"
+  },
+  "simpleModal": {
+    "emptyList": "Rhestr wag",
+    "followers": " canlynol",
+    "following": " Dilynwyr",
+    "flames": " Flames"
+  },
+  "splash": {
+    "screen": "Sgrin Sblash",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "Llun proffil {{user}}"
+  },
+  "view": {
+    "cancel": "Canslo",
+    "choice": "Mae gennych ddau ddull cofnodi gwahanol i ddewis ohonynt",
+    "verticalMode": "Mae gan y modd fertigol amser cofnodi 30 sec",
+    "horizontalMode": "Mae gan y modd llorweddol amser recordio diderfyn",
+    "start": "Cychwyn",
+    "not-show": "Peidiwch â'i ddangos eto",
+    "welcome": "Croeso i ARC!  Gwnewch fideos personol gydag un o'n hologramau a'i bostio i'ch sianeli cyfryngau cymdeithasol!",
+    "step": "cam {{step}}",
+    "text-step-1": "Dewiswch hologram o'r llyfrgell.",
+    "text-step-2": "Mae hyn yn Realiti Estynedig, felly sganiwch y gofod gyda'ch camera o ochr i ochr am 3-5 eiliad lle rydych chi am i'r perfformiad hologram fod.",
+    "text-step-3-part-1": "Tap sgrin unwaith ar leoliad lle rydych chi am i'r hologram angori.",
+    "text-step-3-part-2": "BLAEN!  Tap unwaith mewn mannau eraill i symud y hologram i safle arall.",
+    "text-step-3-part-3": "BLAEN!  Gallwch newid maint y hologram drwy binsio neu ehangu'r sgrin gyda'ch bawd a'ch bys mynegai.",
+    "text-step-4-part-1": "Dwbl tap coch botwm recordio i START eich recordiad fideo.",
+    "text-step-4-part-2": "Tap dwbl botwm cofnod coch i STOPIO."
+  },
+  "video": {
+    "back": "Cefn"
+  },
+  "terms": {
+    "confirmTerms": "Rwy'n cytuno i Delerau'r Gwasanaeth",
+    "confirmPolicy": "Rwy'n cytuno â'r Polisi Preifatrwydd"
+  },
+  "registration": {
+    "ph-phoneEmail": "Defnyddio ffôn / e-bost",
+    "facebook": "Parhau gyda Facebook",
+    "google": "Parhau gyda Google",
+    "linkedin": "Parhau gyda Linkedin",
+    "twitter": "Parhau gyda Twitter",
+    "gitHub": "Parhau gyda GitHub",
+    "connect": "Cysylltwch eich e-bost neu rif ffôn",
+    "logIn": "Mewngofnodi",
+    "LogInTo": "Mewngofnodwch i",
+    "continueAsGuest": "Parhau fel gwestai"
+  }
+}

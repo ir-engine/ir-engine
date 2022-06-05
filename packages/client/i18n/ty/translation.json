@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Api aita i itehia"
+  },
+  "503": {
+    "msg": "503 - Aita e taviniraa"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Ua opanihia outou i teie vahi",
+    "locationName": {
+      "pageTitle": "Te fare"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Te mau opuaraa",
+      "header": "A hi'o na i te mana'o",
+      "welcomeMsg": "Manava",
+      "locationHeader": "Te mau vahi",
+      "projectHeader": "Te mau opuaraa",
+      "sceneHeader": "Te mau hoho'a",
+      "description": "Mai te mea e, e mea apî outou i ô nei, te faaitoito nei matou ia haere na roto i te haapiiraa. Aita ana'e, a ou'a ' tu i roto e a hamani i te hoê opuaraa mai te haamataraa mai aore ra mai roto mai i te hoê o ta tatou mau hoho'a.",
+      "lbl-startTutorial": "A haamata i te haapii",
+      "lbl-newProject": "Opuaraa Apî",
+      "lbl-createProject": "Hamani",
+      "lbl-newScene": "Hoho'a apî",
+      "lbl-searchProject": "Ma'imiraa i te mau opuaraa e vai ra...",
+      "back": "I muri",
+      "contextMenu": "Tumâ i te opuaraa",
+      "installed": "Te mau opuaraa i haamauhia",
+      "official": "Te mau opuaraa mana",
+      "community": "Te mau opuaraa a te oire",
+      "install": "Tamau",
+      "uninstall": "Te mau mana'o tauturu no te haapiiraa",
+      "rename": "Taui i te i'oa",
+      "createProject": "Faatupu i te opuaraa",
+      "installProject": "Tamau i te opuaraa",
+      "processing": "Te faaineineraa",
+      "projectName": "I'oa o te opuaraa",
+      "projectURL": "Opuaraa URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "A ho'i i te fare",
+    "withStatusCode": "Ua tupu te hoê hape {{code}} i ni'a i te tavini",
+    "withoutStatusCode": "Ua tupu te hoê hape i ni'a i te tavini"
+  },
+  "no-projects": {
+    "msg": "Hape: Aita e opuaraa i haamauhia no te farerei i te hoê taata faatere i te vahi"
+  },
+  "dev": {
+    "pageTitle": "Te fare"
+  },
+  "login": {
+    "pageTitle": "Login"
+  },
+  "workerTest": {
+    "pageTitle": "Hi'opo'araa i te nuuraa o te"
+  },
+  "index": {
+    "by": "NA ROTO i te",
+    "xr": "XR",
+    "foundation": "Niu",
+    "description": "I te mau taime atoa, e nehenehe te mau taata atoa e fana'o i te mau aniraa i te pae totiale."
+  },
+  "xrengineContact": {
+    "header": "A tapea i to outou rima!",
+    "description": "Te hinaaro nei matou e tauturu ia outou i roto i ta outou mau ohipa, te mau matini roro uira, te mau faaanaanataeraa e te tahi atu mau hinaaro.",
+    "lbl-name": "I'oa",
+    "lbl-email": "Rata uira",
+    "lbl-company": "Te taiete",
+    "lbl-project": "Faaite i ta oe opuaraa",
+    "lbl-send": "Hapono",
+    "lbl-ok": "Ok",
+    "lbl-success": "Parau poro'i, e ho'i oioi matou i piha'i iho ia oe.",
+    "lbl-failure": "Ua tupu te hoê hape, ua tamata faahou o Plese",
+    "err-username": "A papa'i i to outou i'oa.",
+    "err-email": "E titauhia te rata uira.",
+    "err-msg": "A horo'a i te tahi faataaraa poto no ta oe opuaraa."
+  }
+}

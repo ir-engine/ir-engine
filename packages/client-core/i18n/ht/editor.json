@@ -1,0 +1,718 @@
+{
+  "loading": "Pwojè chaje",
+  "loadingMsg": "Chaje pwojè ...",
+  "loadingError": "Pwojè chaj erè",
+  "loadingErrorMsg": "Te gen yon erè lè chaje pwojè a.",
+  "selectSceneMsg": "Chwazi sèn yo kòmanse jwe ak motè a",
+  "error": "Erè",
+  "errorMsg": "Te gen yon erè enkoni.",
+  "generateScreenshot": "Génération Pwojè Ekran",
+  "generateScreenshotMsg": "Génération pwojè Ekran ...",
+  "newScene": "Kreye sèn",
+  "saving": "Pwojè ekonolojik",
+  "savingMsg": "Ekonomojèn pwojè ...",
+  "savingError": "Pwojè ekonolojik ekonolojik",
+  "savingErrorMsg": "Te gen yon erè lè ekonole pwojè a.",
+  "savingSceneErrorMsg": "Sèn pa chaje byen. Eseye lekti sèn nan.",
+  "duplicating": "pwojè doub",
+  "duplicatingMsg": "Duplicating pwojè ...",
+  "exporting": "Pwojè ekspòte",
+  "exportingMsg": "Ekspòte pwojè ...",
+  "exportingError": "Erè pwojè ekspòte",
+  "exportingErrorMsg": "Te gen yon erè lè ekspòte pwojè a.",
+  "importLegacy": "Enpòte Eritaj Mondyal",
+  "importLegacyMsg": "Avètisman! Sa a pral ekri sèn ki egziste deja ou! Èske ou sèten ou vle kontinye?",
+  "publishingError": "Pwojè pibliye erè",
+  "publishingErrorMsg": "Te gen yon erè enkoni.",
+  "publishingScene": "Pibliye sèn",
+  "publishingSceneMsg": "Pibliye sèn ...",
+  "uploadingThumbnailMsg": "Uploading thumbnail ...",
+  "uploadingSceneMsg": "Uploading sèn: {{percentage}}%",
+  "envMapError": "Erè chaje imaj kib {{files}}",
+  "lbl-return": "Retounen",
+  "menubar": {
+    "newScene": "Nouvo sèn",
+    "saveScene": "Sove sèn",
+    "saveAs": "Sove kòm",
+    "importAsset": "Enpòte Byen",
+    "exportGLB": "Ekspòtasyon kòm gltF binè (.glb) ...",
+    "importScene": "Sèn enpòte",
+    "exportScene": "Ekspòtasyon sèn",
+    "quit": "Sispann"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Kalite dosye ki pa konte pou dosye: \"{{name}}\". Deklarasyon dwe yon imaj, videyo, oswa modèl glb.",
+    "addObject": "ajoute: anvan objè pa jwenn",
+    "removeObject": "retireObjè: nen pa jwenn. Sa a se akòz retire yon nœud ki pa nan sèn nan ankò.",
+    "noParent": "{{node}} \"{{name}}\" pa gen paran. Reparan sèlman travay sou objè ki aktyèlman nan sèn nan.",
+    "undefinedParent": "editè.reparent: newParent se endefini",
+    "notAuthenticated": "Pa otantifye",
+    "fetchingProjectError": "Erè pwojè pwan: {{error}}",
+    "fetchingRouteError": "Erè wout pwan wout: {{error}}",
+    "unknownError": "Unknown erè",
+    "resolveURL": "Erè rezoud pwoblèm \"{{url}}\":",
+    "mediaSearchAborted": "Rechèch medya avòtman",
+    "methodNotImplemented": "Metòd pa aplike.",
+    "saveProjectAborted": "Sove sèn avòtman",
+    "unsavedChanges": "Chanjman ki pa resepsyon",
+    "unsavedChangesMsg": "Sèn nan te modifye. Tanpri sove chanjman ou yo.",
+    "projectCreationFail": "Kreyasyon pwojè echwe. {{reason}}",
+    "projectDeletionFail": "Deleksyon pwojè echwe. {{reason}}",
+    "savingProjectFail": "Ekonolojik Pwojè echwe. {{reason}}",
+    "sceneTooLarge": "Sèn twò gwo ({{size}} MB) pibliye. Gwosè maksimòm se {{maxSize}} MB.",
+    "sceneCreationFail": "Kreyasyon sèn echwe. {{reason}}",
+    "uploadAborted": "Upload avòtman",
+    "uploadFailed": "Upload echwe {{reason}}",
+    "assetDeletionFail": "Echwe. {{reason}}",
+    "projectAssetDeletionFail": "Pwojè echwe. {{reason}}",
+    "networkError": "Rezo Erè: {{status}}. {{text}}",
+    "unknownStatus": "Estati enkoni",
+    "CORS": "Pètèt yon erè CORS",
+    "urlFetchError": "Li pa t reyisi \"{{url}}\", \"  \"."
+  },
+  "viewport": {
+    "title": "Gade",
+    "command": {
+      "movecamera": "Deplase Kamera",
+      "flyFast": "Vole pi vit",
+      "orbit": "Òbit / Chwazi",
+      "pan": "Kastwèl",
+      "fly": "vole",
+      "focus": "Fwaye",
+      "rotateLeft": "Wotasyon gòch",
+      "rotateRight": "Rotate Dwa",
+      "cancelPlacement": "Plasman anile",
+      "placeDuplicate": "Plas Kopi",
+      "cancelGrab": "Anile grab",
+      "grab": "pwan pwatrin",
+      "deselectAll": "Deselect Tout"
+    },
+    "state": {
+      "header": "Stats",
+      "memory": "Memwa",
+      "geometries": "Jeometri yo",
+      "textures": "Tèksture",
+      "render": "Rann",
+      "FPS": "FPS",
+      "frameTime": "Ankripsyon Tan",
+      "calls": "Apèl",
+      "triangles": "triyang",
+      "points": "Pwen",
+      "lines": "Liy yo"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Pibliye",
+    "lbl-published": "Pibliye",
+    "command": {
+      "translate": "Tradwi",
+      "rotate": "Wotasyon",
+      "scale": "Balans",
+      "toggleSpace": "Toggle transfòme espas",
+      "togglePivot": "Toggle Transfòm Pivot",
+      "toggleSnapMode": "Toggle Snap mòd",
+      "toggleGrid": "Toggle Grid vizibilite",
+      "increaseGridSize": "Ogmante Gwosè Grid",
+      "descreaseGridSize": "Diminye Gwosè Grid",
+      "stopPreview": "Sispann Prevwa sèn",
+      "playPreview": "Preview Sèn"
+    }
+  },
+  "properties": {
+    "title": "Pwopriyete yo",
+    "lbl-visible": "Vizib",
+    "lbl-preventBake": "Anpeche kwit",
+    "lbl-persist": "Pèsiste",
+    "multipleNodeSelected": "Plizyè Nodes nan diferan kalite chwazi",
+    "noNodeSelected": "Pa gen okenn nœud chwazi",
+    "ambientLight": {
+      "name": "Limyè anbisye",
+      "description": "Yon limyè ki klere tout objè nan sèn ou.",
+      "lbl-intensity": "Entansite",
+      "lbl-color": "Koulè"
+    },
+    "envmap": {
+      "name": "Kat jeyografik anviwònman",
+      "description": "pwopriyete kat jeyografik anviwònman"
+    },
+    "asset": {
+      "name": "Byen",
+      "description": "Yon gwoup konpozan sèn ki ka dinamik chaje ak dechaje",
+      "lbl-options": "Opsyon yo",
+      "lbl-assetPath": "Chemen Asset",
+      "lbl-assetName": "Non ekspòtasyon",
+      "lbl-exportOptions": "Opsyon ekspòtasyon",
+      "lbl-export": "Ekspòtasyon Byen",
+      "lbl-load": "Chaj nan sèn",
+      "lbl-unload": "Dechaje",
+      "lbl-reload": "Reload"
+    },
+    "audio": {
+      "name": "Odyo",
+      "description": "Dinamik chaje odyo.",
+      "lbl-audiourl": "Odyo Url",
+      "lbl-controls": "kontwòl yo",
+      "info-controls": "Togler vizibilite nan kontwòl yo medya yo.",
+      "lbl-autoplay": "Oto jwe",
+      "info-autoplay": "Si se vre, medya yo pral jwe lè premye k ap antre nan sèn nan.",
+      "lbl-synchronize": "Senkroniz",
+      "info-synchronize": "Si se vre, medya yo pral senkronize sou tout kliyan yo ki konekte.",
+      "lbl-loop": "riban",
+      "info-loop": "Si vre medya yo pral bouk endefiniman.",
+      "lbl-audioType": "kalite odyo",
+      "lbl-distanceModel": "Modèl Distans",
+      "info-distanceModel": "Algorithim a itilize pou kalkile rolloff odyo.",
+      "lbl-rolloffFactor": "Faktè rolloff",
+      "info-rolloffFactor": "Yon valè doub ki dekri ki jan byen vit volim nan redwi kòm sous la deplase lwen koute a. 0 a 1",
+      "info-rfInfinity": "Yon valè doub ki dekri ki jan byen vit volim nan redwi kòm sous la deplase lwen koute a. 0 a enfini",
+      "lbl-refDistance": "Reflechi distans",
+      "info-refDistance": "Yon valè doub ki reprezante distans referans pou diminye volim kòm sous la odyo deplase pi lwen soti nan koute a.",
+      "lbl-maxDistance": "Max Distans",
+      "info-maxDistance": "Yon valè doub ki reprezante distans maksimòm ant sous odyo a ak koute a, apre yo fin ki volim nan pa redwi nenpòt ki lòt.",
+      "lbl-coneInnerAngle": "Kòn Enner ang",
+      "info-coneInnerAngle": "Yon valè doub ki dekri ang lan, nan degre, nan yon kòn andedan ki pa pral gen okenn rediksyon volim.",
+      "lbl-coneOuterAngle": "Kòn eksteryè Ang",
+      "info-coneOuterAngle": "Yon valè doub ki dekri ang lan, nan degre, nan yon kòn deyò nan ki volim nan pral redwi pa yon valè konstan, defini pa atribi a coneOuterGain.",
+      "lbl-coreOuterGain": "Kòn Eksteryè Benefis",
+      "info-coreOuterGain": "Yon valè doub ki dekri kantite lajan an nan rediksyon volim deyò koneksyon an defini pa atribi a coneWoterAngle. Valè default li se 0, sa vle di ke pa gen okenn son ka tande.",
+      "lbl-volume": "Volim",
+      "lbl-play": "Jwe",
+      "lbl-pause": "Yon poz",
+      "error-url": "Erè chaje soti nan URL"
+    },
+    "boxCollider": {
+      "description": "Yon bwat envizib ki objè yo pral rebondi oswa repoze sou tèt.\nSan yo pa kolizyon, objè yo pral tonbe nan planche yo epi ale nan mi yo.",
+      "lbl-isTrigger": "Deklanche"
+    },
+    "camera": {
+      "name": "Kamera",
+      "description": "Anviwònman Kamera.",
+      "lbl-camera-raycast": "Kamera Raycasting",
+      "lbl-camera-raycast-toggle": "Pèmèt",
+      "lbl-camera-raycast-frequency": "Fwekans",
+      "lbl-camera-raycast-count": "Konte rechiya",
+      "lbl-camera-raycast-length": "Longè Ray"
+    },
+    "directionalLight": {
+      "name": "limyè direksyon",
+      "description": "Yon limyè ki klere sèn nan tout antye, men emèt ansanm yon direksyon sèl.",
+      "lbl-color": "Koulè",
+      "lbl-intensity": "Entansite",
+      "lbl-cameraFar": "Kamera byen lwen",
+      "lbl-cameraNear": "Kamera tou pre",
+      "lbl-cameraTop": "Kamera Top",
+      "lbl-cameraBottom": "Kamera anba",
+      "lbl-cameraLeft": "Kamera gòch",
+      "lbl-cameraRight": "Kamera Dwa",
+      "lbl-useInCSM": "Itilize nan CSM",
+      "lbl-castShadow": "Jete lonbraj",
+      "lbl-disableForCSM": "Andikape paske kat lonbraj Cascade pèmèt.",
+      "lbl-shadowmapResolution": "Lonbraj kat jeyografik rezolisyon",
+      "lbl-shadowBias": "Lonbraj patipri",
+      "lbl-shadowRadius": "Reyon lonbraj",
+      "lbl-showCameraHelper": "Montre Kamera Ede"
+    },
+    "groundPlane": {
+      "name": "Avyon de gè",
+      "description": "Yon avyon tè ki pwolonje nan distans la.",
+      "lbl-color": "Koulè",
+      "lbl-receiveShadow": "Resevwa lonbraj",
+      "lbl-generateNavmesh": "Jenere Navmesh"
+    },
+    "link": {
+      "description": "Lyen ki mennen nan yon chanm oswa yon sit entènèt.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "Kat jewografik nan epòk nou an."
+    },
+    "model": {
+      "description": "Yon modèl 3D nan sèn ou, chaje soti nan yon URL GLTF oswa dosye.",
+      "lbl-usingGPUInstancingFlag": "Sèvi ak GPU Enstantane",
+      "lbl-modelurl": "Modèl Url",
+      "lbl-envmapUrl": "Kat jeyografik anviwònman",
+      "lbl-textureOverride": "Teksti depase",
+      "lbl-materialOverride": "Materyèl Overrides",
+      "error-url": "Erè chaje soti nan URL",
+      "lbl-loopAnimation": "Bouki animasyon",
+      "lbl-isAvatar": "èske Avatar",
+      "lbl-isGPUInstancing": "Ap itilize GPU Enstantane",
+      "lbl-isDynamic": "Èske dinamik",
+      "lbl-castShadow": "Jete lonbraj",
+      "lbl-receiveShadow": "Resevwa lonbraj",
+      "lbl-interactable": "Entèaktif",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Fe-apel",
+      "lbl-url": "Modèl Url",
+      "lbl-buy": "Achte Url",
+      "lbl-learnMore": "Aprann plis Url",
+      "lbl-htmlContent": "Html Kontni",
+      "lbl-interactionText": "Tèks entèraksyon",
+      "lbl-interactionType": "Kalite entèraksyon"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Materyèl",
+      "error-materialID": "Erè jwenn materyèl",
+      "placeholder-materialID": "Chwazi Materyèl",
+      "lbl-patternTarget": "Modèl Match",
+      "lbl-pattern": "Modèl",
+      "lbl-isRegex": "Rejè"
+    },
+    "interaction": {
+      "type": "Kalite entèraksyon",
+      "text": "Tèks entèraksyon",
+      "distance": "Distans entèraksyon",
+      "theme": "Tèm entèraksyon",
+      "name": "Non entèraksyon",
+      "description": "Deskripsyon entèraksyon",
+      "images": "Imaj Entèraksyon",
+      "videos": "Entèraksyon Videyo",
+      "urls": "Entèraksyon Urls",
+      "models": "Modèl Entèraksyon"
+    },
+    "group": {
+      "name": "Gwoup",
+      "description": "Yon gwoup objè miltip ki ka deplase oswa kopi ansanm.\nTrennen ak gout objè nan Gwoup la nan Yerachi a."
+    },
+    "hemisphere": {
+      "name": "Limyè Emisfè",
+      "description": "Yon limyè ki klere sèn nan soti nan dirèkteman anlè.",
+      "lbl-skyColor": "Sky Koulè",
+      "lbl-groundColor": "koulè tè",
+      "lbl-intensity": "Entansite"
+    },
+    "image": {
+      "name": "Imaj",
+      "description": "Dinamik chaje yon imaj.",
+      "lbl-imgURL": "Imaj Url",
+      "lbl-transparency": "Mòd transparans",
+      "lbl-alphaCutoff": "Alpha Cutoff",
+      "lbl-projection": "Pwojeksyon",
+      "lbl-side": "Bò",
+      "info-controls": "Togler vizibilite nan kontwòl yo medya yo.",
+      "info-transparency": "Ki jan pou aplike pou transparans:",
+      "info-opaque": "'opaque' = pa gen transparans",
+      "info-blend": "'melanj' = sèvi ak imaj yo alfabè chanèl",
+      "info-mask": "'mask' = Sèvi ak yon valè cutoff espesifye pou sou / off transparans (plis pèfòmans)",
+      "info-alphaCutoff": "Pixels ak valè alfa pi ba pase sa a pral transparan",
+      "error-url": "URL envalid"
+    },
+    "name": {
+      "lbl-name": "Fe-apel"
+    },
+    "partileEmitter": {
+      "description": "Emetera patikil yo kreye patikil.",
+      "lbl-particleCount": "Konte patikil",
+      "lbl-image": "Imaj",
+      "lbl-ageRandomness": "O aza laj",
+      "lbl-lifetime": "Pou lavi",
+      "lbl-lifetimeRandomness": "O aza pou tout lavi",
+      "lbl-sizeCurve": "Gwosè koub",
+      "lbl-startPSize": "Kòmanse gwosè patikil",
+      "lbl-endPSize": "Fen gwosè patikil",
+      "lbl-sizeRandomness": "Gwosè o aza",
+      "lbl-colorCurve": "Koub koub",
+      "lbl-startColor": "Kòmanse koulè",
+      "lbl-startOpacity": "Kòmanse Opatid",
+      "lbl-middleColor": "Koulè mwayen",
+      "lbl-middleOpacity": "Mwayennaj",
+      "lbl-endColor": "Fen koulè",
+      "lbl-endOpacity": "Fen opòtinite",
+      "lbl-velocityCurve": "Koub vitès",
+      "lbl-startVelocity": "Kòmanse vitès",
+      "lbl-endVelocity": "Vitès fini",
+      "lbl-angularVelocity": "Vitès angilè",
+      "info-ageRandomness": "Kantite varyasyon ant lè patikil yo epaye.",
+      "info-lifetime": "Laj maksimòm yon patikil anvan li repare.",
+      "info-lifetimeRandomness": "Kantite varyasyon ant lavi patikil.",
+      "info-sizeRandomness": "Kantite varyasyon ant gwosè patikil kòmanse.",
+      "error-url": "Erè chaje soti nan URL"
+    },
+    "clouds": {
+      "name": "Cloud",
+      "description": "Sprite ki baze sou volim nwaj.",
+      "lbl-image": "Imaj Sprite",
+      "lbl-wroldScale": "Echèl mondyal",
+      "lbl-dimensions": "Dimansyon",
+      "lbl-noiseZoom": "Bri Zoom",
+      "lbl-noiseOffset": "Bri ofisye",
+      "lbl-spriteScale": "Echèl sprite",
+      "lbl-fogColor": "Koulè bwouya",
+      "lbl-fogRange": "Bwouya Ranje",
+      "error-url": "Erè chaje soti nan URL"
+    },
+    "ocean": {
+      "name": "Ocean",
+      "description": "Sifas lanmè ak vag ak kim",
+      "lbl-normalMap": "Kat nòmal",
+      "lbl-distortionMap": "Kat defòmasyon",
+      "lbl-envMap": "Kat jeyografik anviwònman",
+      "lbl-color": "Koulè",
+      "lbl-shallowWaterColor": "Koulè dlo fon",
+      "lbl-shallowToDeepDistance": "Fon gwo twou san fon distans",
+      "lbl-opacityFadeDistance": "Distans kouche",
+      "lbl-opacityRange": "Ranje Opacity",
+      "lbl-shininess": "Tranblemanntè",
+      "lbl-reflectivity": "Refleksyon",
+      "lbl-foamColor": "Koulè kim",
+      "lbl-foamSpeed": "Kim vitès",
+      "lbl-foamTiling": "Kim Tiling",
+      "lbl-bigWaveTiling": "Gwo vag tiling",
+      "lbl-bigWaveSpeed": "Gwo vag vitès",
+      "lbl-bigWaveHeight": "Gwo vag wotè",
+      "lbl-waveSpeed": "Vitès vag",
+      "lbl-waveScale": "echèl vag",
+      "lbl-waveTiling": "Vag tay",
+      "lbl-waveDistortionSpeed": "Vitès defòmasyon vag",
+      "lbl-waveDistortionTiling": "Vag defòmasyon tiling",
+      "error-url": "Erè chaje soti nan URL"
+    },
+    "water": {
+      "name": "Dlo",
+      "description": "Ti sifas dlo"
+    },
+    "interior": {
+      "name": "Enteryè",
+      "description": "Yon sifas ki gen kat teksti kib yo rivalize anviwònman enteryè",
+      "lbl-cubeMap": "Cube Map teksti",
+      "lbl-tiling": "Kantite lajan tache",
+      "lbl-size": "gwosè sifas",
+      "error-url": "Erè chaje soti nan URL"
+    },
+    "pointLight": {
+      "description": "Yon limyè ki emèt nan tout direksyon ki soti nan yon pwen sèl.",
+      "lbl-color": "Koulè",
+      "lbl-intensity": "Entansite",
+      "lbl-range": "Pòte",
+      "lbl-decay": "pouriti"
+    },
+    "scene": {
+      "name": "Sèn",
+      "description": "Objè rasin sèn nan.",
+      "lbl-bgcolor": "Koulè background",
+      "lbl-fogType": "bwouya",
+      "lbl-fogColor": "Koulè bwouya",
+      "lbl-forNearDistance": "Bwouya tou pre Distans",
+      "lbl-fogFarDistance": "Distans fouyay",
+      "lbl-fogDensity": "Bwouya dansite",
+      "lbl-audioSettings": "Sèvi ak pozisyon odyo",
+      "lbl-avatarDistanceModel": "Modèl Distans Avatar",
+      "lbl-avatarRolloffFactor": "Avatar Rolloff faktè",
+      "lbl-avatarRefDistance": "Avatar Refize Distans",
+      "lbl-avatarMaxDistance": "Avatar Max Distans",
+      "lbl-mediaVolume": "Medya Volim",
+      "lbl-mediaDistanceModel": "Modèl medya distans",
+      "lbl-mediaRolloffFactor": "Medya Rolloff faktè",
+      "lbl-mediaRefDistance": "Medya Distans",
+      "lbl-mediaMaxDistance": "Medya Max Distans",
+      "lbl-mediaConeInnerAngle": "Medya Cone Inner Angle",
+      "lbl-mediaConeOuterAngle": "Medya Cone Eter Angle",
+      "lbl-mediaConeOuterGain": "Medya Cone eksteryè Bein",
+      "info-avatarDistanceModel": "Algorithim a itilize pou kalkile rolloff odyo.",
+      "info-avatarRolloffFactor": "Yon valè doub ki dekri ki jan byen vit volim nan redwi kòm sous la deplase lwen koute a. 0 a 1",
+      "info-avatarRolloffFactorInifinity": "Yon valè doub ki dekri ki jan byen vit volim nan redwi kòm sous la deplase lwen koute a. 0 a enfini",
+      "info-avatarRefDistance": "Yon valè doub ki reprezante distans referans pou diminye volim kòm sous la odyo deplase pi lwen soti nan koute a.",
+      "info-avatarMaxDistance": "Yon valè doub ki reprezante distans maksimòm ant sous odyo a ak koute a, apre yo fin ki volim nan pa redwi nenpòt ki lòt.",
+      "info-mediaDistanceModel": "Algorithim a itilize pou kalkile rolloff odyo.",
+      "info-mediaRolloffFactor": "Yon valè doub ki dekri ki jan byen vit volim nan redwi kòm sous la deplase lwen koute a. 0 a 1",
+      "info-mediaRolloffFactorInfinity": "Yon valè doub ki dekri ki jan byen vit volim nan redwi kòm sous la deplase lwen koute a. 0 a enfini",
+      "info-mediaRefDistance": "Yon valè doub ki reprezante distans referans pou diminye volim kòm sous la odyo deplase pi lwen soti nan koute a.",
+      "info-mediaMaxDistance": "Yon valè doub ki reprezante distans maksimòm ant sous odyo a ak koute a, apre yo fin ki volim nan pa redwi nenpòt ki lòt.",
+      "info-mediaConeInnerAngle": "Yon valè doub ki dekri ang lan, nan degre, nan yon kòn andedan ki pa pral gen okenn rediksyon volim.",
+      "info-mediaConeOuterAngle": "Yon valè doub ki dekri ang lan, nan degre, nan yon kòn deyò nan ki volim nan pral redwi pa yon valè konstan, defini pa atribi a coneOuterGain.",
+      "info-mediaConeOuterGain": "Yon valè doub ki dekri kantite lajan an nan rediksyon volim deyò koneksyon an defini pa atribi a coneWoterAngle. Valè default li se 0, sa vle di ke pa gen okenn son ka tande.",
+      "lbl-simpleMaterials": "Sèvi ak Materyèl senp",
+      "lbl-lods": "LOJMAN",
+      "info-lods": "Etabli distans yo nan ki nivo chanjman detay.",
+      "info-simpleMaterials": "Konvèti tout materyèl chè yo pi senp yo pran chay la nan sèn rann.",
+      "lbl-rendererSettings": "Override Renderer Anviwònman",
+      "lbl-csm": "Cascading lonbraj Kat",
+      "info-csm": "Pèmèt kat lonbraj lonbraj.",
+      "lbl-toneMapping": "Tone Mapping",
+      "info-toneMapping": "Pèmèt ton kat jeyografik sou sèn nan rann. Pa gen okenn efè lè yon pwosesis pòs pèmèt.",
+      "lbl-toneMappingExposure": "Tone Mapping Ekspozisyon",
+      "info-toneMappingExposure": "Espesifye ekspoze a ton kat jeyografik sou rann sèn nan. Pa gen okenn efè lè yon pwosesis pòs pèmèt.",
+      "lbl-shadowMapType": "Lonbraj kat kalite",
+      "info-shadowMapType": "Kalite kat lonbraj",
+      "error-url": "Erè chaje soti nan URL"
+    },
+    "sceneCamera": {
+      "name": "Kamera Preview Preview",
+      "description": "Kamera a itilize jenere thumbnail la pou sèn ou ak pozisyon an kòmanse pou kamera a preview.",
+      "lbl-setFromViewPort": "Mete soti nan Viewport"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Tan Jou",
+      "lbl-color": "Koulè",
+      "lbl-latitude": "Latitid",
+      "lbl-luminance": "liminans",
+      "lbl-scattering": "Kantite lajan ki gaye",
+      "lbl-scatteringDistance": "Distans ki ap grenpe",
+      "lbl-horizonStart": "Kòmanse orizontal",
+      "lbl-horizonEnd": "Orizonn",
+      "lbl-texture": "Teksti",
+      "lbl-skyType": "Syèl kalite",
+      "error-url": "Erè chaje soti nan URL"
+    },
+    "spawnPoint": {
+      "name": "Pwen espas",
+      "description": "Yon pwen kote moun ap parèt lè yo antre nan sèn ou.\nIcon nan Viewport la reprezante gwosè aktyèl la nan yon avatar."
+    },
+    "spotLight": {
+      "description": "Yon limyè ki emèt ansanm yon direksyon, limine objè nan yon kòn.",
+      "lbl-color": "Koulè",
+      "lbl-intensity": "Entansite",
+      "lbl-penumbra": "Penibra",
+      "lbl-angle": "Ang",
+      "lbl-range": "Pòte",
+      "lbl-decay": "pouriti"
+    },
+    "transform": {
+      "title": "transfòme",
+      "lbl-postition": "Pozisyon",
+      "lbl-rotation": "Wotasyon",
+      "lbl-scale": "Balans"
+    },
+    "triggereVolume": {
+      "description": "Mete yon pwopriyete sou objè a sib sou antre epi kite.",
+      "lbl-target": "Objè",
+      "lbl-onenter": "Sou Antre",
+      "lbl-onexit": "sou sòti",
+      "lbl-showHelper": "Montre èd Mesh",
+      "ph-errorNode": "Erè ki manke nœude.",
+      "ph-selectNode": "Chwazi node ..."
+    },
+    "video": {
+      "name": "Videyo",
+      "description": "Dinamik chaje yon videyo.",
+      "lbl-video": "Videyo",
+      "lbl-projection": "Pwojeksyon",
+      "lbl-islivestream": "Kouran ap viv",
+      "lbl-interactable": "Entèaktif",
+      "lbl-id": "Eleman Id",
+      "lbl-play": "Jwe",
+      "lbl-pause": "Yon poz",
+      "error-url": "Erè chaje soti nan URL"
+    },
+    "volumetric": {
+      "name": "Volim",
+      "description": "Dinamik chaje yon videyo volim.",
+      "uvolPaths": "Chemen UVOL",
+      "playmode": "Jwe mòd",
+      "playtitle": "Jwe",
+      "pausetitle": "Yon poz"
+    },
+    "spline": {
+      "description": "Dinamik kreye ak Customize koub.",
+      "lbl-addNode": "Ajoute nen pou koub."
+    },
+    "systemnode": {
+      "description": "Tache script.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "Pwen piki",
+      "lbl-enableClient": "Kliyan",
+      "lbl-enableServer": "sèvè",
+      "lbl-args": "Args",
+      "error-url": "Erè chaje Script soti nan URL"
+    },
+    "portal": {
+      "lbl-portal": "Lye Portal",
+      "lbl-redirect": "Itilize Redireksyon Paj",
+      "description": "Yon Pòtay pou jwè telepòte yo espesifye kote",
+      "lbl-locationName": "Kote",
+      "lbl-modelUrl": "Modèl URL",
+      "lbl-displayText": "Montre tèks",
+      "lbl-cubemapBake": "Cubemap kwit",
+      "lbl-spawnPosition": "Pozisyon èspasyal",
+      "lbl-spawnRotation": "Wotasyon espas",
+      "lbl-triggerPosition": "Pozisyon deklanche",
+      "lbl-triggerRotation": "Wotasyon deklanche",
+      "lbl-triggerScale": "Echèl deklanche"
+    },
+    "postprocessing": {
+      "name": "Pwosesis post",
+      "description": "Pou aplike efè Pwosesis Post ou sèn."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Nouvo Pwojè",
+      "backLink": "Retounen nan pwojè yo",
+      "featured": "Anons chin an tap",
+      "all": "Tout",
+      "newProject": "Nouvo pwojè deklarasyon",
+      "ph-search": "Sèn rechèch ..."
+    },
+    "grid": {
+      "loading": "Chaje ..."
+    },
+    "page": {
+      "header": "Byenvini",
+      "headerMsg": "Si ou se nouvo isit la nou rekòmande pou ale nan leson patikilye a. Sinon, sote dwa nan ak kreye yon pwojè nan grate oswa nan youn nan modèl nou yo.",
+      "lbl-startTutorial": "Kòmanse leson patikilye",
+      "projects": "Pwojè",
+      "lbl-newProject": "Nouvo Pwojè"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Chaje ...",
+      "placeObject": "Plas objè",
+      "placeObjectAtOrigin": "Mete Objè nan orijin",
+      "copyURL": "Kopi URL",
+      "openInNewTab": "Louvri URL nan Nouvo Tab",
+      "deleteAsset": "Efase Byen"
+    },
+    "filebrowser": {
+      "addNewFolder": "Ajoute nouvo Katab",
+      "cutAsset": "Koupé",
+      "copyAsset": "Kopi",
+      "pasteAsset": "kale",
+      "renameAsset": "Chanje savan",
+      "viewAssetProperties": "Gade Pwopriyete yo"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Chanje savan",
+    "lbl-duplicate": "Doub",
+    "lbl-group": "Gwoup",
+    "lbl-delete": "efase",
+    "lbl-expandAll": "Elaji Tout",
+    "lbl-collapseAll": "Tonbo",
+    "isseus": "Pwoblèm:"
+  },
+  "dnd": {
+    "nodes": "{{count}} Nodes chwazi",
+    "models": "{{count}} Modèl chwazi",
+    "images": "{{count}} Imaj chwazi",
+    "videos": "{{count}} Videyo chwazi",
+    "audio": "{{count}} Sous Odyo chwazi"
+  },
+  "dialog": {
+    "title": "Editè",
+    "lbl-confirm": "Oke",
+    "lbl-cancel": "Anile",
+    "exportProject": {
+      "title": "Pwojè ekspòtasyon",
+      "lbl-confirm": "Pwojè ekspòtasyon",
+      "lbl-combineMesh": "Meshes konbine",
+      "lbl-removeUnused": "Retire Objè ki pat retire"
+    },
+    "performance": {
+      "title": "Chèk pèfòmans",
+      "lbl-confirm": "Pibliye sèn",
+      "learnMore": "Aprann plis",
+      "lbl-polycount": "Konte poligòn",
+      "lbl-material": "Materyèl",
+      "lbl-texture": "Tèksture",
+      "lbl-lights": "Limyè",
+      "lbl-fileSize": "Gwosè dosye",
+      "info-polycount": "Nou rekòmande sèn ou pa plis pase 50,000 triyang pou aparèy mobil.",
+      "info-material": "Nou rekòmande pou itilize pa plis pase 25 materyèl inik nan sèn ou diminye apèl trase sou aparèy mobil.",
+      "info-texture": "Nou rekòmande tèksture ou yo itilize pa plis pase 256MB nan RAM videyo pou aparèy mobil. Nou rekòmande tou kont lè l sèvi avèk tèksture pi gwo pase 2048 x 2048.",
+      "info-lights": "Pandan ke limyè dinamik yo pa pèmèt sou aparèy mobil, nou rekòmande pou itilize pa plis pase 3 limyè nan sèn ou (eskli limyè anbyen ak emisfè) pou sèn ou a kouri sou PC ki ba.",
+      "info-fileSize": "Nou rekòmande yon gwosè dosye final ki pa plis pase 16MB pou koneksyon Pleasant ki ba. Diminye gwosè a dosye ap diminye tan an li pran yo download sèn ou.",
+      "txt-polycount": "{{count}} triyang",
+      "txt-material": "{{count}} Materyèl",
+      "txt-ram": "~{{count}} VIdeyo RAM",
+      "txt-texture": "{{count}} gwo tèkstur",
+      "txt-lights": "limyè {{count}}"
+    },
+    "progress": {
+      "title": "Chaje ...",
+      "msg": "Chaje ...",
+      "lbl-cancel": "Anile"
+    },
+    "publish": {
+      "title": "Pibliye sèn",
+      "lbl-confirm": "Sove ak Pibliye",
+      "lbl-name": "Non sèn",
+      "info-name": "Non yo dwe ant 4 ak 64 karaktè epi yo pa ka gen souskou"
+    },
+    "published": {
+      "title": "Sèn pibliye",
+      "header": "Sèn ou te pibliye.",
+      "lbl-view": "Gade sèn ou"
+    },
+    "saveNewProject": {
+      "title": "Sipò",
+      "lbl-name": "Non pwojè",
+      "info-name": "Non yo dwe ant 4 ak 64 karaktè epi yo pa ka gen souskou",
+      "lbl-confirm": "Ekonoye pwojè"
+    },
+    "support": {
+      "title": "Sipò",
+      "header": "Ou bezwen rapòte yon pwoblèm?",
+      "msg": "Ou ka depoze yon <1>pwoblèm GitHub</1> oswa e-mail nou pou sipò nan <3>{{mail}}</3>",
+      "discord": "Ou ka jwenn nou tou sou <1>Dekorasyon</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing Imaj",
+      "search": "Rechèch pa Bing"
+    },
+    "bingVideo": {
+      "name": "Bing Videyo",
+      "search": "Rechèch pa Bing"
+    },
+    "element": {
+      "name": "Eleman yo"
+    },
+    "myAssets": {
+      "name": "Byen mwen yo"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Rechèch pa Google"
+    },
+    "tenor": {
+      "name": "Dis GIFs",
+      "search": "Rechèch pa Tenor",
+      "ph-search": "Rechèch GIFs ..."
+    },
+    "sketchfab": {
+      "name": "Chema",
+      "search": "Rechèch pa Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Upload Asset"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Rechèch imaj ..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Rechèch videyo ..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Byen rechèch ..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Modèl rechèch ..."
+    },
+    "useUpload": {
+      "multipleFileError": "Opinyon pa aksepte plizyè dosye.",
+      "mineTypeError": "\"{{name}}\" pa koresponn ak kalite mikwòb oswa ekstansyon sa yo: {{types}}",
+      "progressTitle": "Uploading Dosye",
+      "progressMsg": "Telechaje dosye {{uploaded}} nan {{total}}: {{percentage}}%",
+      "uploadError": "Upload Erè",
+      "uploadErrorMsg": "Erè uploading dosye: {{message}}",
+      "uploadErrorDefaultMsg": "Te gen yon erè enkoni"
+    }
+  },
+  "openLink": {
+    "description": "Tanpri klike sou Ouvè a navige nan lyen an.",
+    "lbl-open": "Louvri"
+  },
+  "interactableModel": {
+    "lbl-buy": "Achte",
+    "lbl-learnMore": "Aprann plis"
+  },
+  "corsProxyButton": {
+    "tooltip": "Sèvi ak Cors Proxy sèvè"
+  }
+}

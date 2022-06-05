@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": " ?"
+  },
+  "503": {
+    "msg": "  "
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "  **",
+    "locationName": {
+      "pageTitle": ""
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "",
+      "header": "",
+      "welcomeMsg": "",
+      "locationHeader": "",
+      "projectHeader": "",
+      "sceneHeader": "",
+      "description": "             ",
+      "lbl-startTutorial": "",
+      "lbl-newProject": "",
+      "lbl-createProject": "",
+      "lbl-newScene": "",
+      "lbl-searchProject": " ",
+      "back": "",
+      "contextMenu": "",
+      "installed": "",
+      "official": "",
+      "community": "",
+      "install": "",
+      "uninstall": "",
+      "rename": "",
+      "createProject": "",
+      "installProject": "",
+      "processing": "",
+      "projectName": "",
+      "projectURL": ""
+    }
+  },
+  "error": {
+    "goHomeLink": " ",
+    "withStatusCode": "@____ ",
+    "withoutStatusCode": " "
+  },
+  "no-projects": {
+    "msg": "  :"
+  },
+  "dev": {
+    "pageTitle": ""
+  },
+  "login": {
+    "pageTitle": ""
+  },
+  "workerTest": {
+    "pageTitle": ""
+  },
+  "index": {
+    "by": "",
+    "xr": "",
+    "foundation": "",
+    "description": "   "
+  },
+  "xrengineContact": {
+    "header": "  !",
+    "description": "                 ",
+    "lbl-name": "",
+    "lbl-email": "",
+    "lbl-company": "",
+    "lbl-project": "  ",
+    "lbl-send": "",
+    "lbl-ok": "",
+    "lbl-success": "    ",
+    "lbl-failure": "   ",
+    "err-username": " ",
+    "err-email": "  ",
+    "err-msg": " "
+  }
+}

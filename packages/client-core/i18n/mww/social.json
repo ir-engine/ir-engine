@@ -1,0 +1,202 @@
+{
+  "addComment": "Ntxiv saib...",
+  "share": "Sib qhia tawm",
+  "suggestions": "Tej uas koj kawm hauv phau Ntawv Rau Koj",
+  "seeAll": "Saib tag nrho",
+  "likes": "nyiam",
+  "viewComments": "Saib tag nrho {{count}} lus",
+  "more": "Ntau",
+  "username": "neeg siv",
+  "fullName": "Npe Surname",
+  "reportInApporpriate": "Ceeb Toom Txog Tej Yam Tsis Zoo",
+  "unfollow": "unfollow",
+  "goToPost": "Mus ncej",
+  "shareModal": "Sib qhia tawm",
+  "copyLink": "Txuas Mus Rau Kev Txuas Mus",
+  "embed": "embed",
+  "cancel": "raug muab tso tseg",
+  "confirm": "tshawb kom paub meej",
+  "save": "Tseg",
+  "profilePic": "{{user}}' profile pic",
+  "ara": "Ara",
+  "follow": "ua raws li",
+  "flames": "taws",
+  "continue": "Mus",
+  "partyInvitationSent": "Tog caw xa",
+  "arMedia": {
+    "back": "sab nraum qab",
+    "clip": "Clip",
+    "backgrounds": "Keeb kwm yav dhau los",
+    "start": "Pib"
+  },
+  "arMediaform": {
+    "title": "Title",
+    "type": "Yam",
+    "clip": "Clip",
+    "background": "Keeb kwm yav dhau",
+    "scene": "scene",
+    "save": "Tseg",
+    "manifest-file": "Manifest.manifest ntaub ntawv",
+    "audio-file": "Mp4 ntaub ntawv",
+    "dracosis-file": "Dracosis .uvol ntaub ntawv",
+    "preview-file": "Preview duab"
+  },
+  "creator": {
+    "myVideos": "Kuv yeeb yaj duab",
+    "savedVideos": "Rua yeeb yaj duab",
+    "back": "sab nraum qab",
+    "blocked-list": "Sim sau npe",
+    "block-user": "Thaiv cov neeg siv",
+    "dialog-content": "Koj yuav tsis pom tus neeg siv profile thiab cov ntsiab lus"
+  },
+  "creatorForm": {
+    "back": "sab nraum qab",
+    "edit": "Edit Profile",
+    "save": "Tseg",
+    "changeAvatar": "Hloov cov duab avatar",
+    "ph-selectPreview": "Xaiv saib ua ntej",
+    "ph-name": "Koj lub npe",
+    "ph-username": "Koj Cov Neeg Siv Cov Neeg Siv",
+    "ph-email": "Koj Tus Email",
+    "ph-tags": "tag nrho",
+    "ph-link": "Txuas",
+    "ph-aboutYou": "Ntxiv txog koj",
+    "ph-twitter": "twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Kos Npe Rau-Tawm"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Cov neeg siv",
+    "feeds": "pub",
+    "arMedia": "Yees duab tawm",
+    "editor": "Editor",
+    "creator": "Tswv tsim"
+  },
+  "featured": {
+    "empty-list": "Tsis pub noj rau tam sim no..."
+  },
+  "feed": {
+    "back": "sab nraum qab",
+    "related": "Lwm yam kev noj qab nyob zoo",
+    "is-repoted-message": "Pub dawb yog qhia!"
+  },
+  "feedForm": {
+    "back": "sab nraum qab",
+    "thanks": "Tsaug sib koom thiab kev txhim kho peb lub zej zog",
+    "share": "Muab ib yam dab tsi uas lub zej zog",
+    "upload": "Upload yees duab",
+    "ph-selectVideo": "Xaiv yees duab",
+    "preview": "Preview duab",
+    "ph-selectPreview": "Xaiv saib ua ntej",
+    "createFeed": "Yuav kom tsim ib tug pub koj yuav tsum muaj ib tug yees duab thiab ib preview duab!!!",
+    "ph-videoName": "Lub npe ntawm koj tus yees duab",
+    "ph-type": "Hom koj xav muab nrog lub zej zog... ",
+    "lbl-share": "Sib qhia tawm",
+    "save": "Txuag thiab mus tom ntej no ntxiv"
+  },
+  "feedMenu": {
+    "featured": "Featured",
+    "creators": "Tswvyim",
+    "feed": "Tus pub mis rau noj"
+  },
+  "header": {
+    "lbl-volumetric": "ntim ntim"
+  },
+  "login": {
+    "account": "Puas muaj ib tug account?",
+    "login": "login",
+    "resetPassword": "Reset Password Fake khawm (ntawm no yuav yog ib qhov txuas ntawm email)",
+    "notHavingAccount": "Tsis muaj ib tug account?",
+    "signUp": "Cuv npe",
+    "forgotPassword": "Forgot password?",
+    "back": "sab nraum qab",
+    "or": "LOSSIS"
+  },
+  "comment": {
+    "add": "Ntxiv koj saib..."
+  },
+  "notification": {
+    "feedFire": " raug rho tawm haujlwm",
+    "feedBookmarked": " bookmarked koj noj",
+    "comment": " tawm tswv yim rau koj noj:",
+    "commentFire": " raug rho tawm haujlwm rau pub",
+    "follow": " pib tom qab koj",
+    "unfollow": " tso tseg tsis raws li koj",
+    "followed": " raws li koj tau ua raws li koj",
+    "activity": "kev ua ub no"
+  },
+  "onBoarding": {
+    "welcome": "Zoo siab tos txais!",
+    "description": "Biggest sau los ntawm 370 + layouts rau iOS prototyping.",
+    "next": "Lwm",
+    "discover": "Nrhiav tau lwm yam,",
+    "news": "xov xwm & posts",
+    "lines": "Nws yog cov kev xav uas tsav peb hlub astronomy thiab peb muaj siab.",
+    "getStarted": "Pib",
+    "meetUp": "Ntsib nrog",
+    "friends": "phooj ywg.",
+    "meet": "Ntsib nrog tej phooj ywg"
+  },
+  "shareForm": {
+    "arcMedia": "Sib qhia tawm",
+    "videoCreated": "Kuv tsim no yees duab",
+    "shareWithBuddies": "Muab nrog buddies",
+    "shareVideo": "Muab yees duab",
+    "save": "Txuag koob yees duab yob",
+    "cancel": "raug muab tso tseg",
+    "close": "Kaw",
+    "addFeed": "Ntxiv pub ntxiv"
+  },
+  "simpleModal": {
+    "emptyList": "tas nrho",
+    "followers": " nram qab no",
+    "following": " followers",
+    "flames": " taws"
+  },
+  "splash": {
+    "screen": "txaws screen",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "{{user}}' profile pic"
+  },
+  "view": {
+    "cancel": "raug muab tso tseg",
+    "choice": "Koj muaj ob hom ntaub ntawv los xaiv los ntawm",
+    "verticalMode": "Vertical hom muaj ib daim ntawv 30 sec ntaub ntawv lub sij hawm",
+    "horizontalMode": "Horizontal hom muaj ib daim ntawv unlimited lub sij hawm",
+    "start": "Pib",
+    "not-show": "Tsis txhob qhia nws dua",
+    "welcome": "Txais tos rau ARC!  Ua tej yeeb yaj duab nrog ib tug ntawm peb holograms thiab ncej nws rau koj kev tawm channels!",
+    "step": "KAUJ RUAM {{step}}",
+    "text-step-1": "Xaiv ib hologram ntawm lub tsev qiv ntawv.",
+    "text-step-2": "Qhov no yog Augmented kev muaj tiag, ces scan qhov chaw nrog koj lub koob yees duab ntawm sab rau 3-5 vib nas theem uas koj xav tau cov hologram kev kawm kom tau.",
+    "text-step-3-part-1": "Coj mus rhaub ib zaug rau qhov chaw uas koj xav tau lub hologram anchored.",
+    "text-step-3-part-2": "TSWV YIM!  Coj mus rhaub ib zaug sim lwm qhov txav lub hologram rau lwm txoj hauj lwm.",
+    "text-step-3-part-3": "TSWV YIM!  Koj yuav resize lub hologram los pinching los yog expanding qhov screen nrog koj thumb thiab Index ntiv tes.",
+    "text-step-4-part-1": "Coj mus rhaub liab khawm kom PIB koj cov ntaub ntawv yees duab.",
+    "text-step-4-part-2": "Ob npaug coj mus rhaub liab khawm kom TXHOB NRES."
+  },
+  "video": {
+    "back": "sab nraum qab"
+  },
+  "terms": {
+    "confirmTerms": "Kuv pom zoo rau Cov Ntsiab Lus Uas Muab Kev Pab",
+    "confirmPolicy": "Kuv pom zoo rau Privacy Policy"
+  },
+  "registration": {
+    "ph-phoneEmail": "Siv xov tooj / email",
+    "facebook": "Tseem nrog Facebook",
+    "google": "Tseem nrog Google",
+    "linkedin": "Tseem nrog Linkedin",
+    "twitter": "Mus ntxiv nrog Twitter",
+    "gitHub": "Tseem nrog GitHub",
+    "connect": "Txuas koj tus email los yog tus xov tooj",
+    "logIn": "Nkag mus",
+    "LogInTo": "Log log rau hauv",
+    "continueAsGuest": "Tseem qhua li qhua"
+  }
+}

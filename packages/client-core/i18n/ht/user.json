@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Imèl konfimasyon",
+      "resendEmail": "Tanpri tcheke imèl ou pou verifye kont ou. Si ou pa t 'jwenn yon imèl, tanpri klike sou {{here}} pou reense imèl verifikasyon an.",
+      "haveAnAccount": "Gen yon kont?"
+    },
+    "forgotPassword": {
+      "header": "Bliye modpas",
+      "enterEmail": "Tanpri antre nan adrès imèl ki anrejistre ou epi nou pral voye ba ou yon lyen Modpas Reyajiste.",
+      "lbl-email": "Adrès Imèl",
+      "lbl-submit": "Voye lyen",
+      "emailSent": "Imèl Reyajiste modpas yo te voye. Tanpri tcheke imèl ou."
+    },
+    "login": {
+      "email": "Imèl | SANT",
+      "username": "ItilizatèName + Modpas",
+      "social": "Sosyal"
+    },
+    "magiklink": {
+      "header": "Login Link",
+      "descriptionEmail": "Tanpri antre nan adrès imèl ou epi nou pral voye ba ou yon lyen login atravè Imèl.",
+      "descriptionSMS": "Tanpri antre nimewo telefòn ou epi nou pral voye ba ou yon lyen login atravè SMS.",
+      "descriptionEmailSMS": "Tanpri antre nan adrès imel ou oswa nimewo telefòn (10 chif, US sèlman) epi nou pral voye ba ou yon lyen login atravè Imèl oswa SMS.",
+      "descriptionSMSUS": "Tanpri antre nimewo telefòn ou (10 chif, US sèlman) epi nou pral voye ba ou yon lyen konekte atravè SMS.",
+      "lbl-email": "Adrès imèl",
+      "lbl-emailPhone": "Imèl oswa nimewo telefòn",
+      "lbl-phone": "Nimewo telefòn",
+      "agree": "Mwen dakò ak ",
+      "terms": "Tèm ak Kondisyon yo",
+      "lbl-submit": "Voye Login Lyen",
+      "email-sent-msg": "Login Magic Link te voye. Tanpri tcheke Imèl ou.",
+      "success-msg": "Login Magic Link te voye. Tanpri tcheke imèl ou oswa SMS ou.",
+      "sms-sent-msg": "Login Magic Link te voye. Tanpri tcheke SMS ou."
+    },
+    "passwordLogin": {
+      "header": "Antre",
+      "lbl-email": "Adrès Imèl",
+      "lbl-password": "Modpas",
+      "lbl-rememberMe": "Sonje mwen",
+      "lbl-signin": "Antre",
+      "forgotPassword": "Bliye modpas?",
+      "signup": "Pa gen yon kont? Enskri",
+      "lbl-login": "ouvri sesyon an",
+      "ph-password": "Modpas",
+      "ph-email": "Imel"
+    },
+    "social": {
+      "gitHub": "Login ak GitHub",
+      "google": "Login ak Google",
+      "facebook": "Login ak Facebook",
+      "linkedin": "Login ak Linkedin",
+      "twitter": "Login ak Twitter"
+    },
+    "register": {
+      "header": "Enskri",
+      "login": "ouvri sesyon an",
+      "lbl-signup": "Enskri",
+      "lbl-password": "Modpas",
+      "lbl-email": "Adrès Imèl",
+      "passwordNotMatch": "Modpas pa matche ak",
+      "ph-password": "Modpas",
+      "ph-confirmPassword": "Modpas Konfime",
+      "ph-email": "Imel"
+    },
+    "resetPassword": {
+      "header": "Modpas Reyajiste",
+      "description": "Tanpri antre nan modpas ou pou adrès imèl ou",
+      "lbl-submit": "Modpas Reyajiste",
+      "lbl-password": "Modpas",
+      "lbl-confirmPassword": "Modpas Konfime",
+      "passwordNotMatch": "Modpas pa matche ak",
+      "nowLoginYourAccount": "Ou kapab kounye a ouvri sesyon an nan kont ou",
+      "yourPasswordResetSuccess": "Modpas ou te avèk siksè Reyajiste!"
+    },
+    "verifyEmail": {
+      "header": "Verifye Imèl",
+      "processing": "Tanpri rete tann yon moman pandan y ap trete ..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Kote",
+      "loading": "chaje",
+      "col-name": "Fe-apel",
+      "col-scene": "Sèn",
+      "col-maxuser": "Max Itilizatè yo",
+      "lbl-search": "Chèche kote yo ye",
+      "lbl-new": "New"
+    },
+    "newLocation": {
+      "title": "Kote",
+      "success": "Sove avèk siksè.",
+      "failure": "Gen yon bagay ki te pase mal.",
+      "removeSuccess": "Kote yo te retire avèk siksè.",
+      "nameInUse": "Non se nan itilize.",
+      "nameRequire": "Non obligatwa.",
+      "validNumber": "Se sèlman chif yo (0-9) yo gen dwa.",
+      "lbl-name": "Fe-apel",
+      "lbl-maxuser": "Max Itilizatè yo",
+      "lbl-scene": "Sèn",
+      "lbl-type": "Tip",
+      "lbl-ve": "Videyo pèmèt",
+      "lbl-gme": "Medya mondyal pèmèt",
+      "lbl-update": "Mizajou",
+      "lbl-create": "Kreye",
+      "tooltipCanNotBeDeleted": "Gwoup pa ka efase",
+      "confirmation": "Eske ou si?",
+      "lbl-yes": "Wi",
+      "lbl-no": "Non"
+    },
+    "share": {
+      "lbl-share": "Pataje",
+      "ph-phoneEmail": "Envite pa imèl oswa nimewo telefòn",
+      "lbl-phoneEmail": "Voye nan imèl oswa nimewo telefòn",
+      "lbl-copy": "Kopi",
+      "lbl-send-invite": "Voye envite",
+      "title": "Pataje URL kote ou ye a ak ekip ou a",
+      "linkCopied": "Lyen kopye papye."
+    },
+    "setting": {
+      "audio": "Odyo",
+      "lbl-volume": "Volim",
+      "lbl-microphone": "Mikwofòn",
+      "graphics": "Grafik",
+      "controls": "Kontwòl",
+      "lbl-control-type": "Kalite kontwolè",
+      "lbl-control-scheme": "Konplo kontwòl",
+      "lbl-resolution": "Rezolisyon",
+      "lbl-shadow": "lonbraj",
+      "lbl-pp": "Pwosesis post",
+      "lbl-pbr": "Plen PBR",
+      "lbl-automatic": "Otomatik",
+      "xrusersetting": "XR Anviwònman itilizatè",
+      "rotation": "Wotasyon",
+      "rotation-smooth-speed": "Wotasyon lis vitès",
+      "rotation-angle": "Wotasyon ang",
+      "moving": "Deplase",
+      "user-avatar": "Anviwònman Avatar",
+      "invert-rotation": "Invert Wotation ak deplase bwa",
+      "show-avatar": "Montre Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Pwofil",
+      "lbl-settings": "Anviwònman",
+      "lbl-username": "Non itilizatè",
+      "update-msg": "Non itilizatè mete ajou",
+      "inviteCode": "Kòd Envite",
+      "youAreAn": "Ou se yon",
+      "youAreA": "Ou se yon",
+      "showUserId": "Montre ID itilizatè",
+      "hideUserId": "Kache ID Itilizatè",
+      "showApiKey": "Montre kle API",
+      "hideApiKey": "Kle Hide API",
+      "apiKey": "Kle API",
+      "logout": "louvri sesyon an",
+      "connectPhone": "Konekte nimewo telefòn ou",
+      "connectEmail": "Konekte imèl ou",
+      "connectPhoneEmail": "Konekte imèl ou oswa nimewo telefòn ou",
+      "or": "Oubyen",
+      "lbl-wallet": "Login ak Wallet",
+      "ph-email": "Imel",
+      "ph-phone": "Nimewo telefòn",
+      "ph-phoneEmail": "Nimewo telefòn / Imèl",
+      "phoneEmailError": "Telefòn envalid # oswa adrès imèl",
+      "phoneError": "Telefòn envalid #",
+      "emailError": "Adrès imèl envalid",
+      "loginWithReadyPlayerMe": "Login ak Pare jwè m '",
+      "connectSocial": "Konekte ak kont sosyal",
+      "createOne": "Si ou pa gen yon kont, yo pral kreye yon nouvo ap kreye pou ou",
+      "connections": {
+        "title": "Koneksyon",
+        "ipError": "Pa ka retire Founisè Idantite aktif",
+        "disconnect": "dekonekte",
+        "connect": "Konekte"
+      },
+      "profileDropdown": {
+        "avatar": "Itilizatè Avatar Icon",
+        "profile": "Pwofil",
+        "adminConsole": "Admin Console",
+        "logout": "Logout"
+      },
+      "userIcon": {
+        "lbl-name": "Non ou",
+        "lbl-update": "Mizajou",
+        "userId": "Id itilizatè",
+        "ph-uploadImg": "Upload Imaj Pwodwi",
+        "lbl-selectAcvatar": "Chwazi Avatar",
+        "lbl-submit": "Soumèt"
+      },
+      "userSettings": {
+        "volume": "Volim",
+        "microphone": "Mikwofòn",
+        "resolution": "Rezolisyon",
+        "high": "Gwo",
+        "low": "Basen",
+        "spatialAudio": "Sèvi ak Spatial Audio",
+        "enterMuted": "Antre nan chanm"
+      }
+    },
+    "oauth": {
+      "authenticating": "Natif natal ...",
+      "authFailed": "{{service}} otantifikasyon echwe."
+    },
+    "magikLink": {
+      "wait": "Tanpri rete tann yon moman pandan y ap trete ..."
+    },
+    "dashboard": {
+      "header": "tablodbò",
+      "dashboard": "tablodbò",
+      "users": "Itilizatè yo",
+      "feeds": "Bay manje",
+      "instance": "Pa egzanp",
+      "locations": "Kote",
+      "invites": "Envite",
+      "sessions": "Sesyon yo",
+      "groups": "Gwoup",
+      "parties": "Pati",
+      "chats": "Chat",
+      "content": "Pake kontni",
+      "projects": "Pwojè",
+      "scenes": "sèn",
+      "avatars": "Avatars",
+      "benchmarking": "Benchmarking",
+      "bots": "Boutèy yo"
+    }
+  },
+  "oauth": {
+    "authenticating": "Natif natal ...",
+    "authFailed": "{{service}} otantifikasyon echwe."
+  },
+  "magikLink": {
+    "wait": "Tanpri rete tann yon moman pandan y ap trete ..."
+  },
+  "dashboard": {
+    "header": "tablodbò",
+    "dashboard": "tablodbò",
+    "users": "Itilizatè yo",
+    "feeds": "Bay manje",
+    "instance": "Pa egzanp",
+    "locations": "Kote",
+    "routes": "Wout yo",
+    "projects": "Pwojè",
+    "invites": "Envite",
+    "sessions": "Sesyon yo",
+    "groups": "Gwoup",
+    "parties": "Pati",
+    "chats": "Chat",
+    "content": "Pake kontni",
+    "scenes": "sèn",
+    "avatars": "Avatars",
+    "benchmarking": "Benchmarking",
+    "bots": "Boutèy yo",
+    "setting": "Anviwònman"
+  },
+  "avatar": {
+    "title": "Upload Avatar",
+    "lbl-browse": "Browse",
+    "lbl-thumbnail": "Ti kras",
+    "lbl-upload": "Upload",
+    "selectAvatar": "Chwazi Avatar ...",
+    "selectThumbnail": "Chwazi Thumbnail ...",
+    "rotate": "Wotasyon",
+    "pan": "Kastwèl",
+    "noBone": "Obejè pa gen okenn zo oswa po",
+    "outOfBound": "Objè se soti nan limit.",
+    "emptyObj": "Objè se vid.",
+    "maxTriangleError": "Objè gen pi gran pase figi {{allowedTriangles}} .",
+    "selectValidFile": "Chwazi valab 3d avatar dosye.",
+    "selectValidThumbnail": "Chwazi dosye valab valab.",
+    "fileOversized": "Gwosè dosye Avatar dwe ant {{minSize}} MB ak MB {{maxSize}}",
+    "confirmation": "Eske ou si?",
+    "canNotBeRemoved": "Aktif Avatar pa ka retire",
+    "remove": "Retire avatar",
+    "uploadFiles": "Upload dosye",
+    "useUrlInstead": "Sèvi ak url olye",
+    "avatar": "Avatar",
+    "cancel": "Anile",
+    "createAvatar": "Kreye Avatar",
+    "delete": "efase",
+    "view": "View",
+    "uploadAvatarInfo": "Mizajou avatar Information",
+    "name": "Fe-apel",
+    "enterName": "Non antre",
+    "avatarInformation": "Enfòmasyon Avatar",
+    "description": "Deskripsyon",
+    "key": "Kle",
+    "none": "anyen",
+    "submit": "Soumèt",
+    "edit": "Edit",
+    "avatarUrl": "url avatar",
+    "upload-success-msg": "Avatar Uploaded avèk siksè.",
+    "remove-success-msg": "Avatar Uploaded avèk siksè.",
+    "warning-msg": "Resous Avatar se vid, èske ou senkrete avatar nan depo dosye estatik ou a?"
+  },
+  "personMenu": {
+    "inviteToParty": "Envite pati",
+    "addAsFriend": "Ajoute kòm zanmi",
+    "mute": "bèbè",
+    "block": "Blòk"
+  },
+  "person": {
+    "you": "Ou",
+    "yourScreen": "Ekran ou",
+    "muteForEveryone": "Bèbè pou tout moun",
+    "unmuteForEveryone": "Unmute pou tout moun",
+    "muteMe": "bèbè m",
+    "unmuteMe": "Ki pa remèd mwen",
+    "muteThisPerson": "bèbèf",
+    "unmuteThisPerson": "Detekte moun sa a",
+    "openPictureInPicture": "Louvri foto nan foto"
+  }
+}

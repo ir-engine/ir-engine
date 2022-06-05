@@ -1,0 +1,202 @@
+{
+  "addComment": "Ajoute kòmantè ...",
+  "share": "Pataje",
+  "suggestions": "Sijesyon pou ou",
+  "seeAll": "Gade tout",
+  "likes": "Li renmen",
+  "viewComments": "Gade tout kòmantè {{count}}",
+  "more": "Plis",
+  "username": "non itilizatè",
+  "fullName": "Non siyati",
+  "reportInApporpriate": "Rapò ki pa apwopriye",
+  "unfollow": "Unfollow",
+  "goToPost": "Ale nan Pòs",
+  "shareModal": "Pataje",
+  "copyLink": "Kopi lyen",
+  "embed": "Entegre",
+  "cancel": "Anile",
+  "confirm": "Konfime",
+  "save": "Sove",
+  "profilePic": "pik {{user}}",
+  "ara": "Ara",
+  "follow": "Swiv",
+  "flames": "Flanm dife",
+  "continue": "Kontinye",
+  "partyInvitationSent": "Pati envitasyon voye",
+  "arMedia": {
+    "back": "Do",
+    "clip": "Klips",
+    "backgrounds": "Orijin",
+    "start": "Kòmanse"
+  },
+  "arMediaform": {
+    "title": "",
+    "type": "Tip",
+    "clip": "Klips",
+    "background": "Orijin",
+    "scene": "Sèn",
+    "save": "Sove",
+    "manifest-file": "Manifest .manifeste dosye",
+    "audio-file": "Mp4 dosye",
+    "dracosis-file": "Dracosis .uvol dosye",
+    "preview-file": "Dosye imaj Preview"
+  },
+  "creator": {
+    "myVideos": "Videyo mwen yo",
+    "savedVideos": "Sove videyo",
+    "back": "Do",
+    "blocked-list": "Lis bloke",
+    "block-user": "Bloke itilizatè",
+    "dialog-content": "Ou pa pral wè pwofil itilizatè a ak kontni"
+  },
+  "creatorForm": {
+    "back": "Do",
+    "edit": "Edit Pwofil",
+    "save": "Sove",
+    "changeAvatar": "Chanjman avatar imaj",
+    "ph-selectPreview": "Chwazi preview",
+    "ph-name": "Non ou",
+    "ph-username": "Non itilizatè ou an",
+    "ph-email": "Imèl ou",
+    "ph-tags": "Tags",
+    "ph-link": "Lyen",
+    "ph-aboutYou": "Plis enfòmasyon sou ou",
+    "ph-twitter": "twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Siyen"
+  },
+  "dashboard": {
+    "title": "tablodbò",
+    "dashboard": "tablodbò",
+    "users": "Itilizatè yo",
+    "feeds": "Bay manje",
+    "arMedia": "Videyo Medya",
+    "editor": "Editè",
+    "creator": "Kreyatè"
+  },
+  "featured": {
+    "empty-list": "Pa gen manje pou kounye a ..."
+  },
+  "feed": {
+    "back": "Do",
+    "related": "Manje ki gen rapò",
+    "is-repoted-message": "Manje rapòte!"
+  },
+  "feedForm": {
+    "back": "Do",
+    "thanks": "Mèsi pou pataje ak amelyore kominote nou an",
+    "share": "Pataje yon bagay avèk kominote a",
+    "upload": "Upload Videyo",
+    "ph-selectVideo": "Chwazi Videyo",
+    "preview": "Imaj Preview",
+    "ph-selectPreview": "Chwazi preview",
+    "createFeed": "Yo nan lòd yo kreye yon manje ou dwe gen yon videyo ak yon imaj preview!!!",
+    "ph-videoName": "Non videyo ou",
+    "ph-type": "Tape sa ou vle pataje avèk kominote a ... ",
+    "lbl-share": "Pataje",
+    "save": "Sove epi ale Pwochen"
+  },
+  "feedMenu": {
+    "featured": "Anons chin an tap",
+    "creators": "Kreyatè yo",
+    "feed": "Manje a"
+  },
+  "header": {
+    "lbl-volumetric": "Volim"
+  },
+  "login": {
+    "account": "Gen yon kont?",
+    "login": "Konekte",
+    "resetPassword": "Reyajiste modpas Fo bouton (isit la ta dwe yon lyen ki soti nan imèl)",
+    "notHavingAccount": "Pa gen yon kont?",
+    "signUp": "Enskri",
+    "forgotPassword": "Bliye modpas?",
+    "back": "Do",
+    "or": "OUBYEN"
+  },
+  "comment": {
+    "add": "Ajoute kòmantè ou ..."
+  },
+  "notification": {
+    "feedFire": " revoke manje ou",
+    "feedBookmarked": " makè",
+    "comment": " kòmante manje ou:",
+    "commentFire": " revoke kòmantè ou pou nouri",
+    "follow": " te kòmanse swiv ou",
+    "unfollow": " te sispann swiv ou",
+    "followed": " te swiv ou",
+    "activity": "Aktivite"
+  },
+  "onBoarding": {
+    "welcome": "Byenvini!",
+    "description": "Pi gwo koleksyon nan 370 + kouman pou iOS pwototip.",
+    "next": "Pwochen",
+    "discover": "Dekouvri atik,",
+    "news": "nouvèl &a posts",
+    "lines": "Se santiman sa yo ki kondui lanmou nou pou astwonomi ak dezi nou.",
+    "getStarted": "Jwenn te kòmanse",
+    "meetUp": "Rankontre avèk",
+    "friends": "Zanmi.",
+    "meet": "Rankontre ak zanmi yo"
+  },
+  "shareForm": {
+    "arcMedia": "Pataje",
+    "videoCreated": "Mwen te kreye videyo sa a",
+    "shareWithBuddies": "Pataje ak boujon",
+    "shareVideo": "Pataje Videyo",
+    "save": "Sove nan Kamera woule",
+    "cancel": "Anile",
+    "close": "Fèmen",
+    "addFeed": "Ajoute manje"
+  },
+  "simpleModal": {
+    "emptyList": "Lis vid",
+    "followers": " Swiv",
+    "following": " disip yo",
+    "flames": " flanm dife yo"
+  },
+  "splash": {
+    "screen": "ekran Splash",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "pik {{user}}"
+  },
+  "view": {
+    "cancel": "Anile",
+    "choice": "Ou gen de mòd anrejistreman diferan yo chwazi nan",
+    "verticalMode": "Mòd vètikal gen yon tan dosye 30 secord",
+    "horizontalMode": "Mòd orizontal gen yon tan dosye san limit",
+    "start": "Kòmanse",
+    "not-show": "Pa montre li ankò",
+    "welcome": "Byenveni nan ARC!  Fè videyo pèsonèl ak youn nan ologram nou yo ak afiche li nan chanèl medya sosyal ou!",
+    "step": "{{step}} etap",
+    "text-step-1": "Chwazi yon hologram nan bibliyotèk la.",
+    "text-step-2": "Sa a se reyalite ogmante, se konsa eskane espas la ak kamera ou soti nan bò pou 3-5 segonn kote ou vle pèfòmans nan hologram yo dwe.",
+    "text-step-3-part-1": "Tape ekran yon fwa kote ou vle hologram ankore.",
+    "text-step-3-part-2": "PWENT!  Tape yon lòt kote pou avanse pou pi hologram nan yon lòt pozisyon.",
+    "text-step-3-part-3": "PWENT!  Ou ka reyalize hologram a pa zongle oswa agrandi ekran an ak dwèt endèks ou ak dwèt endèks.",
+    "text-step-4-part-1": "Doub tape dosye dosye wouj bouton yo kòmanse anrejistreman videyo ou.",
+    "text-step-4-part-2": "Doub tape dosye dosye bouton yo sispann."
+  },
+  "video": {
+    "back": "Do"
+  },
+  "terms": {
+    "confirmTerms": "Mwen dakò pou Tèm sèvis",
+    "confirmPolicy": "Mwen dakò ak Règleman sou enfòmasyon prive"
+  },
+  "registration": {
+    "ph-phoneEmail": "Itilize telefòn / imèl",
+    "facebook": "Kontinye ak Facebook",
+    "google": "Kontinye ak Google",
+    "linkedin": "Kontinye ak Linkedin",
+    "twitter": "Kontinye ak Twitter",
+    "gitHub": "Kontinye ak GitHub",
+    "connect": "Konekte imèl ou oswa nimewo telefòn ou",
+    "logIn": "Ouvri sesyon an",
+    "LogInTo": "Ouvri sesyon an nan",
+    "continueAsGuest": "Kontinye kòm envite"
+  }
+}

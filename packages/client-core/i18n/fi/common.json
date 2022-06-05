@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Ladataan sivua..."
+  },
+  "tooltip": {
+    "pressKey": "Paina {{tip}} {{message}}"
+  },
+  "toast": {
+    "joined": "yhdistetty",
+    "left": "Vasen"
+  },
+  "navUserWidget": {
+    "login": "Kirjaudu sisään"
+  },
+  "loader": {
+    "connecting": "Muodostetaan yhteyttä maailmaan...",
+    "entering": "Tulossa maailmaan...",
+    "loading": "Lastaaminen...",
+    "objectRemaining": "{{count}} objekti jäljellä",
+    "objectRemainingPlural": "{{count}} jäljellä olevat objektit",
+    "loadingObjects": "Ladataan objekteja",
+    "loadingComplete": "Lataus valmis",
+    "joiningWorld": "Liittyminen maailmaan"
+  },
+  "alert": {
+    "eventWasSuccess": "Tapahtuma onnistui",
+    "errorWasEncountered": "Tapahtui virhe",
+    "eventInProgress": "Tapahtuma käynnissä",
+    "seconds": "Sekuntia",
+    "cancelCountdown": "Tämän modaalin sulkeminen peruuttaa lähtölaskennan"
+  },
+  "debug": {
+    "refresh": "Virkistää",
+    "stats": "Tilastot",
+    "debugOptions": "Virheenkorjauksen asetukset",
+    "physicsDebug": "Fysiikka",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Solmun avustaja",
+    "gridDebug": "Hila",
+    "simpleMaterials": "Yksinkertaiset materiaalit",
+    "tick": "Punkki",
+    "worldStore": "World Store",
+    "engineStore": "Moottorin myymälä",
+    "namedEntities": "Nimetyt entiteetit",
+    "networkObject": "Verkko-objekti",
+    "networkClients": "Verkkoasiakkaat"
+  },
+  "recording": {
+    "videoRecorder": "Videonauhuri",
+    "waitingForPermissions": "Odotetaan käyttöoikeuksia",
+    "selectVideoSource": "Valitse videolähde",
+    "screen": "Kuvaruutu",
+    "camera": "Kamera",
+    "microphone": "Mikrofoni",
+    "startRecording": "Aloita tallennus",
+    "pauseRecording": "Keskeytä tallennus",
+    "resumeRecording": "Jatka tallennusta",
+    "stopRecording": "Lopeta tallennus"
+  },
+  "typing": "Konekirjoitus...",
+  "gameServer": {
+    "browserError": "Selaimen virhe",
+    "browserErrorMessage": "Selaimesi ei tue tallennustilaa yksityisessä selaustilassa. Kokeile toista selainta tai poistu yksityisestä selaustilasta.",
+    "noAvailableServers": "Ei käytettävissä olevia palvelimia",
+    "noAvailableServersMessage": "Käytettävissäsi ei ole palvelimia, joihin voit muodostaa yhteyden. Yritetään muodostaa uudelleen yhteyttä -järjestelmässä",
+    "worldDisconnected": "Maailma katkaistu",
+    "worldDisconnectedMessage": "Olet menettänyt yhteytesi maailmaan. Yritämme muodostaa yhteyden uudelleen, ennen kuin seuraava aika loppuu, muuten sinut välitetään toiseen esiintymään.",
+    "webGLNotEnabled": "WebGL ei ole käytössä",
+    "webGLNotEnabledMessage": "Selaimesi ei tue WebGL:ää, tai se on poistettu käytöstä. Ota WebGL käyttöön tai harkitse päivittämistä selaimesi uusimpaan versioon.",
+    "youKickedFromWorld": "Sinut on potkittu maailmasta.",
+    "youKickedFromWorldMessage": "Sinut erotettiin tästä maailmasta seuraavasta syystä.",
+    "invalidLocation": "Virheellinen sijainti",
+    "cantFindLocation": "Emme löydä sijaintia.",
+    "misspelledOrNotExist": "Se voi olla kirjoitettu väärin tai sitä ei ehkä ole olemassa.",
+    "loading": "lastaaminen",
+    "low-frame-error": "Havaittu huono perfomance harkitse laitteistokiihdytyksen ottaminen käyttöön selaimessa ja selaimen tarkistaminen uudelleen",
+    "low-frame-title": "Ota laitteistokiihdytys käyttöön paremman kokemuksen saamiseksi!"
+  },
+  "error": {
+    "loading-error": "Käyttäjätietojen lataaminen epäonnistui",
+    "validation-error": "Anna kelvollinen {{type}}",
+    "login-error": "Kirjautuminen epäonnistui"
+  }
+}

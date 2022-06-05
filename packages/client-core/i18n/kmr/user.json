@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "E-nameya erêkirinê",
+      "resendEmail": "Ji kerema xwe ji bo ku hûn hesabê xwe rast bikin e-postaya xwe kontrol bikin. Heke we e-maîlek wernegirtibe, ji bo ku hûn e-postaya piştrastkirinê ji nû ve bişînin ji kerema xwe {{here}} bitikînin.",
+      "haveAnAccount": "Hesabekî we heye?"
+    },
+    "forgotPassword": {
+      "header": "Şîfre ji bîr kir",
+      "enterEmail": "Ji kerema xwe navnîşana xwe ya e-postayê ya qeydkirî binivîsin û em dê ji we ra lînka nûkirina şîfreyê bişînin.",
+      "lbl-email": "Navnîşan",
+      "lbl-submit": "Girêdanê Bişîne",
+      "emailSent": "E-postaya Şîfreyê ji nû ve saz bike hat şandin. Ji kerema xwe e-nameya xwe kontrol bikin."
+    },
+    "login": {
+      "email": "E-peyam | SMS",
+      "username": "Navê Bikarhêner + Nasnav",
+      "social": "civakî"
+    },
+    "magiklink": {
+      "header": "Girêdana Têketinê",
+      "descriptionEmail": "Ji kerema xwe navnîşana xwe ya e-maîlê binivîsin û em ê ji we ra bi rêya E-nameyê lînka têketinê bişînin.",
+      "descriptionSMS": "Ji kerema xwe numreya telefona xwe binivîsin û em dê ji we ra bi rêya SMSê pêwendîyeka têketinê bişînin.",
+      "descriptionEmailSMS": "Ji kerema xwe navnîşana xwe ya e-maîlê an jî hejmara telefona xwe binivîsin (bi tenê 10 reqem, DYAyê) û em ê ji we ra bi rêya E-mail an jî SMSê lînka têketinê bişînin.",
+      "descriptionSMSUS": "Ji kerema xwe hejmara telefona xwe binivîsin (10 hejmar, tenê DYAyê) û em ê bi rêya SMSê ji we ra lînka têketinê bişînin.",
+      "lbl-email": "Navnîşana e-peyamê",
+      "lbl-emailPhone": "E-peyam an jî hejmara telefonê",
+      "lbl-phone": "Nimreya telefonê",
+      "agree": "ez razî me ku ",
+      "terms": "Şert û Merc",
+      "lbl-submit": "Lînka Têketinê Bişîne",
+      "email-sent-msg": "Lînka Sihirbazî ya Têketinê hat şandin. Ji kerema xwe e-postaya xwe kontrol bikin.",
+      "success-msg": "Lînka Sihirbazî ya Têketinê hat şandin. Ji kerema xwe e-postaya xwe an jî SMSya xwe kontrol bikin.",
+      "sms-sent-msg": "Lînka Sihirbazî ya Têketinê hat şandin. Ji kerema xwe smsa xwe kontrol bikin."
+    },
+    "passwordLogin": {
+      "header": "Têketin",
+      "lbl-email": "Navnîşan",
+      "lbl-password": "Şîfre",
+      "lbl-rememberMe": "Tê bîra min",
+      "lbl-signin": "Têketin",
+      "forgotPassword": "Şîfreya te ji bîr kir?",
+      "signup": "Hesabekî te tune ye? Tomar kirin",
+      "lbl-login": "Têkeve",
+      "ph-password": "Şîfre",
+      "ph-email": "E-peyam"
+    },
+    "social": {
+      "gitHub": "Bi GitHub re têkevin",
+      "google": "Bi Googleyê têkeve",
+      "facebook": "Têketin bi Facebookê re",
+      "linkedin": "Têketin bi Linkedin re",
+      "twitter": "Têketin bi Twîtterê re"
+    },
+    "register": {
+      "header": "Tomar kirin",
+      "login": "Têkeve",
+      "lbl-signup": "Tomar kirin",
+      "lbl-password": "Şîfre",
+      "lbl-email": "Navnîşan",
+      "passwordNotMatch": "Şîfre Li Hev Nayên",
+      "ph-password": "Şîfre",
+      "ph-confirmPassword": "Şîfre Pejirandî",
+      "ph-email": "E-peyam"
+    },
+    "resetPassword": {
+      "header": "Şîfreyê veqetîne",
+      "description": "Ji kerema xwe şîfreya xwe ji bo navnîşana e-nameya xwe binivîsin",
+      "lbl-submit": "Şîfreyê veqetîne",
+      "lbl-password": "Şîfre",
+      "lbl-confirmPassword": "Şîfre Pejirandî",
+      "passwordNotMatch": "Şîfre Li Hev Nayên",
+      "nowLoginYourAccount": "Tu êdî dikarî têkevî hesabê xwe",
+      "yourPasswordResetSuccess": "Şîfreya te bi serkeftin hat nûkirin!"
+    },
+    "verifyEmail": {
+      "header": "E-peyamê piştrast bike",
+      "processing": "Ji kerema xwe, di dema karkirinê da kêliyekê bisekine..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Cih",
+      "loading": "Bar dike",
+      "col-name": "Nav",
+      "col-scene": "Dîmen",
+      "col-maxuser": "Bikarhênerên Max",
+      "lbl-search": "Li cihan bigere",
+      "lbl-new": "Nû"
+    },
+    "newLocation": {
+      "title": "Cih",
+      "success": "Serkeftî Hate Tomarkirin.",
+      "failure": "Tiştek xelet derket.",
+      "removeSuccess": "Cî bi serkeftî hate rakirin.",
+      "nameInUse": "Nav tê bikaranîn.",
+      "nameRequire": "Nav lazim e.",
+      "validNumber": "Tenê jimar (0-9) destûr tê dayîn.",
+      "lbl-name": "Nav",
+      "lbl-maxuser": "Bikarhênerên Max",
+      "lbl-scene": "Dîmen",
+      "lbl-type": "Cure",
+      "lbl-ve": "Vîdyo çalak e",
+      "lbl-gme": "Medyaya Gerdûnî Çalak e",
+      "lbl-update": "Rojanekirin",
+      "lbl-create": "Biafirîne",
+      "tooltipCanNotBeDeleted": "Lobî nayên jêbirin",
+      "confirmation": "Gelo tu emîn î?",
+      "lbl-yes": "Erê",
+      "lbl-no": "Na"
+    },
+    "share": {
+      "lbl-share": "Parve bike",
+      "ph-phoneEmail": "Bi e-peyam an jî jimara telefonê vexwînin",
+      "lbl-phoneEmail": "E-peyam an jî jimara telefonê bişîne",
+      "lbl-copy": "Jibergirtin",
+      "lbl-send-invite": "Vexwendinê Bişîne",
+      "title": "URL'ya xwe ya cihan bi ekîba xwe re parve bike",
+      "linkCopied": "Lînka jibergirtî ji bo panoyê."
+    },
+    "setting": {
+      "audio": "Deng",
+      "lbl-volume": "Deng",
+      "lbl-microphone": "Mîkrofon",
+      "graphics": "Grafîk",
+      "controls": "Kontrol",
+      "lbl-control-type": "Cureyê Kontrolkerê",
+      "lbl-control-scheme": "Şemaya kontrolê",
+      "lbl-resolution": "Biryardarî",
+      "lbl-shadow": "Sî",
+      "lbl-pp": "Post Processing",
+      "lbl-pbr": "PBR tijî",
+      "lbl-automatic": "Bixweber",
+      "xrusersetting": "Mîhengên Bikarhêner ên XR",
+      "rotation": "Zivirandin",
+      "rotation-smooth-speed": "Leza Rotasyona Rotasyonê",
+      "rotation-angle": "Çerxa Rotasyonê",
+      "moving": "Guhastin",
+      "user-avatar": "Avatar Eyar",
+      "invert-rotation": "Zivirandin û Veguheztina Stikan",
+      "show-avatar": "Avatarê nîşan bide"
+    },
+    "profile": {
+      "lbl-profile": "Profîl",
+      "lbl-settings": "Mîheng",
+      "lbl-username": "Navê bikarhêner",
+      "update-msg": "Navê bikarhêner hate nûkirin",
+      "inviteCode": "Koda vexwendinê",
+      "youAreAn": "Tu yî",
+      "youAreA": "Tu yî",
+      "showUserId": "Nasnameya Bikarhêner nîşan bide",
+      "hideUserId": "Nasnameya Bikarhêner veşêre",
+      "showApiKey": "Bişkoka API nîşan bide",
+      "hideApiKey": "Mifteya API veşêre",
+      "apiKey": "Bişkoka API",
+      "logout": "Derkeve",
+      "connectPhone": "Numreya telefona xwe girê bide",
+      "connectEmail": "E-postaya xwe girê bide",
+      "connectPhoneEmail": "E-posta an jî hejmara telefona xwe girê bide",
+      "or": "an",
+      "lbl-wallet": "Bi cizdan têkevin",
+      "ph-email": "E-peyam",
+      "ph-phone": "Hejmara têlefonê",
+      "ph-phoneEmail": "Telefon Numara / Email",
+      "phoneEmailError": "Telefona nederbasdar # an jî navnîşana e-peyamê",
+      "phoneError": "Telefona nederbasdar #",
+      "emailError": "Navnîşana e-peyamê ya nederbasdar",
+      "loginWithReadyPlayerMe": "Bi Lîstikvanê Amade Me re Têkeve",
+      "connectSocial": "bi hesabên civakî re têkiliyê deynin",
+      "createOne": "Eger hesabekî we tunebe , dê ji bo we yeka nû bê afirandin",
+      "connections": {
+        "title": "Girêdan",
+        "ipError": "Peydekerê Nasnameyê yê çalak nikare rake",
+        "disconnect": "girêdan qut kirin",
+        "connect": "Girêdan"
+      },
+      "profileDropdown": {
+        "avatar": "Îkona Avatarê bikarhêner",
+        "profile": "Profîl",
+        "adminConsole": "Konsola Admin",
+        "logout": "Derketin"
+      },
+      "userIcon": {
+        "lbl-name": "Navê te",
+        "lbl-update": "Rojanekirin",
+        "userId": "Nasnameya bikarhêner",
+        "ph-uploadImg": "Wêneyê Bar Bike",
+        "lbl-selectAcvatar": "Avatarê hilbijêre",
+        "lbl-submit": "Pêşkêş kirin"
+      },
+      "userSettings": {
+        "volume": "Deng",
+        "microphone": "Mîkrofon",
+        "resolution": "Biryardarî",
+        "high": "Bilind",
+        "low": "Nizm",
+        "spatialAudio": "Spatial Audio bi kar bîne",
+        "enterMuted": "Odeya Bêdeng Binivîse"
+      }
+    },
+    "oauth": {
+      "authenticating": "Tê piştrastkirin...",
+      "authFailed": "{{service}} piştrastkirinê bi ser neket."
+    },
+    "magikLink": {
+      "wait": "Ji kerema xwe, di dema karkirinê da kêliyekê bisekine..."
+    },
+    "dashboard": {
+      "header": "Panela Kontrolê",
+      "dashboard": "Panela Kontrolê",
+      "users": "Bikarhêner",
+      "feeds": "Bexşîş",
+      "instance": "Mînak",
+      "locations": "Cih",
+      "invites": "Vexwîne",
+      "sessions": "Danişîn",
+      "groups": "Kom",
+      "parties": "Partî",
+      "chats": "Pevaxaftin",
+      "content": "Pakêtên Naverokê",
+      "projects": "Proje",
+      "scenes": "Dîmen",
+      "avatars": "Avatar",
+      "benchmarking": "Benchmarking",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Tê piştrastkirin...",
+    "authFailed": "{{service}} piştrastkirinê bi ser neket."
+  },
+  "magikLink": {
+    "wait": "Ji kerema xwe, di dema karkirinê da kêliyekê bisekine..."
+  },
+  "dashboard": {
+    "header": "Panela Kontrolê",
+    "dashboard": "Panela Kontrolê",
+    "users": "Bikarhêner",
+    "feeds": "Bexşîş",
+    "instance": "Mînak",
+    "locations": "Cih",
+    "routes": "Rêwiyên",
+    "projects": "Proje",
+    "invites": "Vexwîne",
+    "sessions": "Danişîn",
+    "groups": "Kom",
+    "parties": "Partî",
+    "chats": "Pevaxaftin",
+    "content": "Pakêtên Naverokê",
+    "scenes": "Dîmen",
+    "avatars": "Avatar",
+    "benchmarking": "Benchmarking",
+    "bots": "Bots",
+    "setting": "Mîheng"
+  },
+  "avatar": {
+    "title": "Avatarê Bar Bike",
+    "lbl-browse": "Binihêre",
+    "lbl-thumbnail": "Neynûka tilîkan",
+    "lbl-upload": "Bar bike",
+    "selectAvatar": "Avatarê hilbijêre...",
+    "selectThumbnail": "Tilîyên Mezin Hilbijêre...",
+    "rotate": "Bizivirîne",
+    "pan": "Pan",
+    "noBone": "Obejct ne hestî û çerm e",
+    "outOfBound": "Bireser derveyî sînor e.",
+    "emptyObj": "Bireser vala ye.",
+    "maxTriangleError": "Heyber, ji rûyên {{allowedTriangles}} mezintir dihewîne.",
+    "selectValidFile": "Dosyeya derbasdar ya 3d avatarê hilbijêrin.",
+    "selectValidThumbnail": "Pela tilîyên derbasdar hatine bijartin.",
+    "fileOversized": "Mezinahiya dosyeya Avatar divê di navbera MB û {{maxSize}} MB {{minSize}} de be",
+    "confirmation": "Gelo tu emîn î?",
+    "canNotBeRemoved": "Avatarê çalak nikare bê rakirin",
+    "remove": "Avatarê rake",
+    "uploadFiles": "Pelan bar bike",
+    "useUrlInstead": "Şûna wê url bi kar bîne",
+    "avatar": "Avatar",
+    "cancel": "Betal kirin",
+    "createAvatar": "Avatar ê biafirîne",
+    "delete": "Jê bibe",
+    "view": "Dîtin",
+    "uploadAvatarInfo": "Agahiya avatarê rojane bike",
+    "name": "Nav",
+    "enterName": "Nav binivîse",
+    "avatarInformation": "Agahiya Avatarê",
+    "description": "Ravekirin",
+    "key": "Mifte",
+    "none": "Ne yek jî",
+    "submit": "Pêşkêş kirin",
+    "edit": "Sererast Bike",
+    "avatarUrl": "url ya avatarê",
+    "upload-success-msg": "Avatar Bi Serkeftî Hate Barkirin.",
+    "remove-success-msg": "Avatar Bi Serkeftî Hate Barkirin.",
+    "warning-msg": "Çavkanîya avatarê vala ye, te avatar an jî depokirina dosyaya xwe ya statîk senkronîze kir?"
+  },
+  "personMenu": {
+    "inviteToParty": "Vexwîne Partîyê",
+    "addAsFriend": "Wekî Heval Lê Zêde Bike",
+    "mute": "Bêdeng",
+    "block": "Blok"
+  },
+  "person": {
+    "you": "Tu",
+    "yourScreen": "Ekrana te",
+    "muteForEveryone": "Ji bo her kesî bêdeng be",
+    "unmuteForEveryone": "Ji bo her kesî vedihewîne",
+    "muteMe": "Min bêdeng bike",
+    "unmuteMe": "Min vedihewîne",
+    "muteThisPerson": "Vî kesî bêdeng bike",
+    "unmuteThisPerson": "Vî kesî veke",
+    "openPictureInPicture": "Wêneyê Di Wênede Veke"
+  }
+}

@@ -1,0 +1,718 @@
+{
+  "loading": "پروژه بارگیری",
+  "loadingMsg": "پروژه بارگیری...",
+  "loadingError": "پروژه بارگیری خطا",
+  "loadingErrorMsg": "خطا در هنگام بارگذاری پروژه وجود دارد.",
+  "selectSceneMsg": "انتخاب صحنه برای شروع بازی با موتور",
+  "error": "خطا",
+  "errorMsg": "یک خطای ناشناخته وجود داشت.",
+  "generateScreenshot": "تولید تصویر پروژه",
+  "generateScreenshotMsg": "تولید تصویر پروژه...",
+  "newScene": "ایجاد صحنه",
+  "saving": "پروژه صرفه جویی",
+  "savingMsg": "پروژه صرفه جویی...",
+  "savingError": "پروژه صرفه جویی در خطا",
+  "savingErrorMsg": "یک خطا در هنگام صرفه جویی در پروژه وجود دارد.",
+  "savingSceneErrorMsg": "صحنه به درستی بارگیری نشده است. سعی کنید صحنه را دوباره بارگیری کنید.",
+  "duplicating": "پروژه تکراری",
+  "duplicatingMsg": "پروژه تکراری...",
+  "exporting": "پروژه صادرات",
+  "exportingMsg": "پروژه صادرات...",
+  "exportingError": "پروژه صادرات خطا",
+  "exportingErrorMsg": "در هنگام صادرات پروژه خطا وجود داشت.",
+  "importLegacy": "واردات میراث جهانی",
+  "importLegacyMsg": "هشدار! این صحنه موجود خود را رو نویس! آیا مطمئن هستید که می خواهید ادامه دهید؟",
+  "publishingError": "پروژه نشر خطا",
+  "publishingErrorMsg": "یک خطای ناشناخته وجود داشت.",
+  "publishingScene": "صحنه نشر",
+  "publishingSceneMsg": "صحنه انتشار...",
+  "uploadingThumbnailMsg": "ارسال تصویر انگشتی...",
+  "uploadingSceneMsg": "آپلود صحنه: {{percentage}}٪",
+  "envMapError": "خطا بارگذاری تصاویر مکعب {{files}}",
+  "lbl-return": "بازگشت",
+  "menubar": {
+    "newScene": "صحنه جدید",
+    "saveScene": "ذخیره صحنه",
+    "saveAs": "ذخیره به عنوان",
+    "importAsset": "دارایی واردات",
+    "exportGLB": "صادرات به عنوان دوتایی glTF (.glb) ...",
+    "importScene": "صحنه واردات",
+    "exportScene": "صحنه صادرات",
+    "quit": "ترک"
+  },
+  "errors": {
+    "fileTypeNotSupported": "نوع پرونده پشتیبانی نشده برای فایل: \"{{name}}\". پرونده باید یک تصویر، ویدیو یا مدل glb باشد.",
+    "addObject": "addObject : قبل از شی یافت نشد",
+    "removeObject": "حذف موضوع: سرنخ یافت نشد. این به دلیل از بین بردن یک node است که دیگر در صحنه.",
+    "noParent": "{{node}} \"{{name}}\" هیچ پدر و مادری ندارد. رپارتنت فقط روی اشیایی کار می کند که در حال حاضر در صحنه هستند.",
+    "undefinedParent": "editor.reparent: پدر بزرگ جدید تعریف نشده است",
+    "notAuthenticated": "تصدیق نشده",
+    "fetchingProjectError": "پروژه های خطا در حال {{error}}",
+    "fetchingRouteError": "خطا راه های هدر دادن: {{error}}",
+    "unknownError": "خطای ناشناخته",
+    "resolveURL": "آدرس حل خطا \"{{url}}\":",
+    "mediaSearchAborted": "جستجوی رسانه ها سقط شد",
+    "methodNotImplemented": "روش اجرا نشده است.",
+    "saveProjectAborted": "ذخیره صحنه سقط",
+    "unsavedChanges": "تغییرات بدون صرفه جویی",
+    "unsavedChangesMsg": "صحنه اصلاح شده لطفا تغییرات خود را ذخیره کنید.",
+    "projectCreationFail": "ایجاد پروژه شکست خورد. {{reason}}",
+    "projectDeletionFail": "پروژه از بین رفت. {{reason}}",
+    "savingProjectFail": "پروژه صرفه جویی شکست خورد. {{reason}}",
+    "sceneTooLarge": "صحنه بیش از حد بزرگ است ({{size}} مگابایت) به انتشار. حداکثر اندازه در {{maxSize}} است.",
+    "sceneCreationFail": "خلق صحنه شکست خورد. {{reason}}",
+    "uploadAborted": "ارسال سقط شده",
+    "uploadFailed": "ارسال ناموفق {{reason}}",
+    "assetDeletionFail": "از بین رفت دارایی ها شکست خورد. {{reason}}",
+    "projectAssetDeletionFail": "پروژه از بین رفت دارایی شکست خورد. {{reason}}",
+    "networkError": "خطای شبکه: {{status}}. {{text}}",
+    "unknownStatus": "وضعیت ناشناخته",
+    "CORS": "احتمالا خطای CORS",
+    "urlFetchError": "موفق به{{url}}\""
+  },
+  "viewport": {
+    "title": "نمای نمای",
+    "command": {
+      "movecamera": "حرکت دوربین",
+      "flyFast": "سریع تر پرواز کنید",
+      "orbit": "مدار / انتخاب",
+      "pan": "پان",
+      "fly": "پرواز",
+      "focus": "تمرکز",
+      "rotateLeft": "چرخش چپ",
+      "rotateRight": "چرخش راست",
+      "cancelPlacement": "لغو قرار دادن",
+      "placeDuplicate": "محل تکراری",
+      "cancelGrab": "لغو گرفتن",
+      "grab": "گرفتن",
+      "deselectAll": "از بین بردن همه"
+    },
+    "state": {
+      "header": "آمار",
+      "memory": "حافظه",
+      "geometries": "اقتصاد",
+      "textures": "بافت ها",
+      "render": "رندر",
+      "FPS": "FPS",
+      "frameTime": "زمان قاب",
+      "calls": "تماس ها",
+      "triangles": "مثلث",
+      "points": "امتیاز",
+      "lines": "خطوط"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "انتشار",
+    "lbl-published": "منتشر شده",
+    "command": {
+      "translate": "ترجمه کردن",
+      "rotate": "چرخش",
+      "scale": "مقیاس",
+      "toggleSpace": "تغییر شکل فضا",
+      "togglePivot": "تغییر شکل دادن به تغییر شکل",
+      "toggleSnapMode": "حالت ضربه محکم و ناگهانی",
+      "toggleGrid": "تغییر در دید شبکه",
+      "increaseGridSize": "افزایش اندازه شبکه",
+      "descreaseGridSize": "کاهش اندازه شبکه",
+      "stopPreview": "توقف پیش نمایش صحنه",
+      "playPreview": "پیش نمایش صحنه"
+    }
+  },
+  "properties": {
+    "title": "خواص",
+    "lbl-visible": "قابل مشاهده",
+    "lbl-preventBake": "جلوگیری از پخت",
+    "lbl-persist": "ادامه داشته باشد",
+    "multipleNodeSelected": "چند تا از انواع مختلف انتخاب شده",
+    "noNodeSelected": "بدون انتخاب هیچ سر و صدا",
+    "ambientLight": {
+      "name": "نور محیط",
+      "description": "نوری که همه اشیا را در صحنه شما روشن می کند.",
+      "lbl-intensity": "شدت",
+      "lbl-color": "رنگ"
+    },
+    "envmap": {
+      "name": "نقشه محیط زیست",
+      "description": "خواص نقشه محیط زیست"
+    },
+    "asset": {
+      "name": "دارایی",
+      "description": "گروه بندی اجزای صحنه است که می تواند به صورت پویا لود و تخلیه",
+      "lbl-options": "گزینه ها",
+      "lbl-assetPath": "مسیر دارایی",
+      "lbl-assetName": "نام صادرات",
+      "lbl-exportOptions": "گزینه های صادرات",
+      "lbl-export": "دارایی صادرات",
+      "lbl-load": "بار به صحنه",
+      "lbl-unload": "تخلیه",
+      "lbl-reload": "بازنگری"
+    },
+    "audio": {
+      "name": "صوتی",
+      "description": "به صورت پویا بارهای صوتی.",
+      "lbl-audiourl": "آدرس صوتی",
+      "lbl-controls": "کنترل",
+      "info-controls": "تغییر دید کنترل رسانه ها.",
+      "lbl-autoplay": "خودکار بازی",
+      "info-autoplay": "اگر درست باشد، رسانه ها هنگام ورود به صحنه بازی خواهند کرد.",
+      "lbl-synchronize": "همگام سازی",
+      "info-synchronize": "اگر درست باشد، رسانه ها در تمام مشتریان متصل همگام خواهد شد.",
+      "lbl-loop": "حلقه",
+      "info-loop": "اگر درست باشد رسانه ها به طور نامحدود حلقه.",
+      "lbl-audioType": "نوع صوتی",
+      "lbl-distanceModel": "مدل فاصله",
+      "info-distanceModel": "الگوریتم مورد استفاده برای محاسبه رولوف صوتی.",
+      "lbl-rolloffFactor": "عامل رولوف",
+      "info-rolloffFactor": "ارزش دو برابر توصیف چگونه به سرعت حجم کاهش می یابد به عنوان منبع حرکت می کند به دور از شنونده. 0 تا 1",
+      "info-rfInfinity": "ارزش دو برابر توصیف چگونه به سرعت حجم کاهش می یابد به عنوان منبع حرکت می کند به دور از شنونده. 0 تا بی نهایت",
+      "lbl-refDistance": "فاصله عکس",
+      "info-refDistance": "ارزش دو برابر به نمایندگی از فاصله مرجع برای کاهش حجم به عنوان منبع صوتی حرکت می کند بیشتر از شنونده.",
+      "lbl-maxDistance": "حداکثر فاصله",
+      "info-maxDistance": "مقدار دو برابر نشان دهنده حداکثر فاصله بین منبع صوتی و شنونده، پس از آن حجم بیشتر کاهش نمی یابد.",
+      "lbl-coneInnerAngle": "زاویه داخلی کون",
+      "info-coneInnerAngle": "یک مقدار دو برابر توصیف زاویه، در درجه، از یک cone که در داخل آن وجود خواهد داشت هیچ کاهش حجم.",
+      "lbl-coneOuterAngle": "زاویه بیرونی کون",
+      "info-coneOuterAngle": "یک مقدار دو برابر توصیف زاویه، در درجه، از یک cone که در خارج از آن حجم خواهد شد توسط یک مقدار ثابت کاهش می یابد، تعریف شده توسط ویژگی coneOuterGain.",
+      "lbl-coreOuterGain": "سود بیرونی کون",
+      "info-coreOuterGain": "ارزش دو برابر توصیف مقدار کاهش حجم در خارج از cone تعریف شده توسط ویژگی coneOuterAngle. مقدار پیش فرض آن 0 است، به این معنی که هیچ صدایی شنیده نمی شود.",
+      "lbl-volume": "حجم",
+      "lbl-play": "بازی",
+      "lbl-pause": "مکث",
+      "error-url": "بارگیری خطا از آدرس اینترنتی"
+    },
+    "boxCollider": {
+      "description": "جعبه نامرئی است که اشیاء گزاف گویی کردن و یا استراحت در بالای.\nبدون برخورد، اشیاء را از طریق طبقه سقوط و رفتن را از طریق دیوار.",
+      "lbl-isTrigger": "ماشه"
+    },
+    "camera": {
+      "name": "دوربین",
+      "description": "تنظیمات دوربین.",
+      "lbl-camera-raycast": "پخش دوربین",
+      "lbl-camera-raycast-toggle": "فعال",
+      "lbl-camera-raycast-frequency": "فرکانس",
+      "lbl-camera-raycast-count": "تعداد ری",
+      "lbl-camera-raycast-length": "طول ری"
+    },
+    "directionalLight": {
+      "name": "نور جهت",
+      "description": "نوری که کل صحنه را روشن می کند، اما در امتداد یک جهت انتشار می دهد.",
+      "lbl-color": "رنگ",
+      "lbl-intensity": "شدت",
+      "lbl-cameraFar": "دوربین دور",
+      "lbl-cameraNear": "دوربین نزدیک",
+      "lbl-cameraTop": "دوربین بالا",
+      "lbl-cameraBottom": "دوربین پایین",
+      "lbl-cameraLeft": "دوربین سمت چپ",
+      "lbl-cameraRight": "دوربین سمت راست",
+      "lbl-useInCSM": "استفاده در CSM",
+      "lbl-castShadow": "بازیگران سایه",
+      "lbl-disableForCSM": "غیر فعال به دلیل نقشه سایه کاسکد فعال است.",
+      "lbl-shadowmapResolution": "وضوح نقشه سایه",
+      "lbl-shadowBias": "تعصب سایه",
+      "lbl-shadowRadius": "سایه تابش",
+      "lbl-showCameraHelper": "نمایش یاب دوربین"
+    },
+    "groundPlane": {
+      "name": "هواپیما زمینی",
+      "description": "یک هواپیمای زمینی مسطح که به فاصله گسترش می دهد.",
+      "lbl-color": "رنگ",
+      "lbl-receiveShadow": "دریافت سایه",
+      "lbl-generateNavmesh": "تولید ناومش"
+    },
+    "link": {
+      "description": "لینک به یک اتاق یا یک وب سایت.",
+      "lbl-url": "آدرس اینترنتی"
+    },
+    "map": {
+      "description": "نقشه سه بعدي از يک شهر"
+    },
+    "model": {
+      "description": "یک مدل سه بعدی در صحنه شما، از یک آدرس یا فایل GLTF بارگیری شده است.",
+      "lbl-usingGPUInstancingFlag": "استفاده از دستگاه های محرکه",
+      "lbl-modelurl": "آدرس مدل",
+      "lbl-envmapUrl": "آدرس نقشه محیط زیست",
+      "lbl-textureOverride": "لغو بافت",
+      "lbl-materialOverride": "مواد لغو",
+      "error-url": "بارگیری خطا از آدرس اینترنتی",
+      "lbl-loopAnimation": "حلقه انیمیشن",
+      "lbl-isAvatar": "آواتار است",
+      "lbl-isGPUInstancing": "استفاده از دستگاه های محرکه",
+      "lbl-isDynamic": "پویا است",
+      "lbl-castShadow": "بازیگران سایه",
+      "lbl-receiveShadow": "دریافت سایه",
+      "lbl-interactable": "قابل تعامل",
+      "lbl-matrixAutoUpdate": "ماتریکس اوتواپدات",
+      "lbl-name": "نام",
+      "lbl-url": "آدرس مدل",
+      "lbl-buy": "خرید آدرس",
+      "lbl-learnMore": "اطلاعات بیشتر آدرس",
+      "lbl-htmlContent": "محتوای اچ تی ام ال",
+      "lbl-interactionText": "متن تعامل",
+      "lbl-interactionType": "نوع تعامل"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "مواد",
+      "error-materialID": "خطا در پیدا کردن مواد",
+      "placeholder-materialID": "انتخاب مواد",
+      "lbl-patternTarget": "الگوی مطابقت",
+      "lbl-pattern": "الگو",
+      "lbl-isRegex": "ریجکس"
+    },
+    "interaction": {
+      "type": "نوع تعامل",
+      "text": "متن تعامل",
+      "distance": "فاصله تعامل",
+      "theme": "موضوع تعامل",
+      "name": "نام تعامل",
+      "description": "شرح تعامل",
+      "images": "تصاویر تعامل",
+      "videos": "فیلم تعامل",
+      "urls": "آدرس های تعامل",
+      "models": "مدل های تعامل"
+    },
+    "group": {
+      "name": "گروه",
+      "description": "گروهی از اشیاء متعدد است که می تواند نقل مکان کرد و یا تکراری با هم.\nکشیدن و رها کردن اشیاء را به گروه در سلسله مراتب."
+    },
+    "hemisphere": {
+      "name": "نور همیسفر",
+      "description": "نوری که صحنه را از بالای سر مستقیم روشن می کند.",
+      "lbl-skyColor": "آسمان رنگ",
+      "lbl-groundColor": "رنگ زمین",
+      "lbl-intensity": "شدت"
+    },
+    "image": {
+      "name": "تصویر",
+      "description": "به صورت پویا یک تصویر را بار می کند.",
+      "lbl-imgURL": "آدرس تصویر",
+      "lbl-transparency": "حالت شفافیت",
+      "lbl-alphaCutoff": "آلفا قطع",
+      "lbl-projection": "طرح ریزی",
+      "lbl-side": "سمت",
+      "info-controls": "تغییر دید کنترل رسانه ها.",
+      "info-transparency": "نحوه اعمال شفافیت:",
+      "info-opaque": "'شفاف' = بدون شفافیت",
+      "info-blend": "'مخلوط' = استفاده از تصاویر کانال آلفا",
+      "info-mask": "'ماسک' = استفاده از یک مقدار قطع مشخص شده برای شفافیت روشن / خاموش (بیشتر مجری)",
+      "info-alphaCutoff": "پیکسل با مقادیر آلفا پایین تر از این شفاف خواهد بود",
+      "error-url": "آدرس ناموید"
+    },
+    "name": {
+      "lbl-name": "نام"
+    },
+    "partileEmitter": {
+      "description": "ذرات برای ایجاد ذرات.",
+      "lbl-particleCount": "تعداد ذرات",
+      "lbl-image": "تصویر",
+      "lbl-ageRandomness": "سن تصادفی",
+      "lbl-lifetime": "طول عمر",
+      "lbl-lifetimeRandomness": "تصادفی بودن طول عمر",
+      "lbl-sizeCurve": "منحنی اندازه",
+      "lbl-startPSize": "اندازه ذرات را شروع کنید",
+      "lbl-endPSize": "پایان اندازه ذرات",
+      "lbl-sizeRandomness": "تصادفی اندازه",
+      "lbl-colorCurve": "منحنی رنگ",
+      "lbl-startColor": "شروع رنگ",
+      "lbl-startOpacity": "شروع به فرصت",
+      "lbl-middleColor": "رنگ میانی",
+      "lbl-middleOpacity": "میانه فرصت",
+      "lbl-endColor": "پایان رنگ",
+      "lbl-endOpacity": "پایان دادن به فرصت",
+      "lbl-velocityCurve": "منحنی سرعت",
+      "lbl-startVelocity": "سرعت شروع",
+      "lbl-endVelocity": "سرعت پایان",
+      "lbl-angularVelocity": "سرعت های آنگویی",
+      "info-ageRandomness": "مقدار تنوع بین زمانی که ذرات تولید می شوند.",
+      "info-lifetime": "حداکثر سن یک ذرات قبل از آن دوباره تنظیم شده است.",
+      "info-lifetimeRandomness": "مقدار تنوع بین طول عمر ذرات.",
+      "info-sizeRandomness": "مقدار تنوع بین اندازه شروع ذرات.",
+      "error-url": "بارگیری خطا از آدرس اینترنتی"
+    },
+    "clouds": {
+      "name": "ابر",
+      "description": "حجم ابر بر اساس جوانه.",
+      "lbl-image": "تصویر جوانه",
+      "lbl-wroldScale": "مقیاس جهانی",
+      "lbl-dimensions": "ابعاد",
+      "lbl-noiseZoom": "زوم سر و صدا",
+      "lbl-noiseOffset": "سر و صدا جبران",
+      "lbl-spriteScale": "مقیاس جوانه",
+      "lbl-fogColor": "مه رنگ",
+      "lbl-fogRange": "محدوده مه",
+      "error-url": "بارگیری خطا از آدرس اینترنتی"
+    },
+    "ocean": {
+      "name": "اقیانوس",
+      "description": "سطح اقیانوس با امواج و کف",
+      "lbl-normalMap": "نقشه عادی",
+      "lbl-distortionMap": "نقشه تحریف",
+      "lbl-envMap": "نقشه محیط زیست",
+      "lbl-color": "رنگ",
+      "lbl-shallowWaterColor": "رنگ آب کم عمق",
+      "lbl-shallowToDeepDistance": "کم عمق به فاصله عمیق",
+      "lbl-opacityFadeDistance": "فاصله محو شدن فرصت",
+      "lbl-opacityRange": "محدوده فرصت",
+      "lbl-shininess": "براق",
+      "lbl-reflectivity": "بازتاب",
+      "lbl-foamColor": "رنگ کف",
+      "lbl-foamSpeed": "سرعت کف",
+      "lbl-foamTiling": "کاشی سازی کف",
+      "lbl-bigWaveTiling": "کاشی سازی موج بزرگ",
+      "lbl-bigWaveSpeed": "سرعت موج بزرگ",
+      "lbl-bigWaveHeight": "ارتفاع موج بزرگ",
+      "lbl-waveSpeed": "سرعت موج",
+      "lbl-waveScale": "مقیاس موج",
+      "lbl-waveTiling": "کاشی سازی موج",
+      "lbl-waveDistortionSpeed": "سرعت تحریف موج",
+      "lbl-waveDistortionTiling": "کاشی سازی تحریف موج",
+      "error-url": "بارگیری خطا از آدرس اینترنتی"
+    },
+    "water": {
+      "name": "آب",
+      "description": "سطح آب کوچک"
+    },
+    "interior": {
+      "name": "داخلی",
+      "description": "سطحی با بافت مکعب نقشه برداری شده برای شبیه سازی محیط های داخلی",
+      "lbl-cubeMap": "مکعب بافت نقشه",
+      "lbl-tiling": "مقدار کاشی",
+      "lbl-size": "اندازه سطح",
+      "error-url": "بارگیری خطا از آدرس اینترنتی"
+    },
+    "pointLight": {
+      "description": "نوری که از یک نقطه در تمام جهات انتشار می دهد.",
+      "lbl-color": "رنگ",
+      "lbl-intensity": "شدت",
+      "lbl-range": "محدوده",
+      "lbl-decay": "هلا شدن"
+    },
+    "scene": {
+      "name": "صحنه",
+      "description": "هدف اصلی صحنه.",
+      "lbl-bgcolor": "رنگ پس زمینه",
+      "lbl-fogType": "نوع مه",
+      "lbl-fogColor": "مه رنگ",
+      "lbl-forNearDistance": "مه از فاصله نزدیک",
+      "lbl-fogFarDistance": "مه فاصله دور",
+      "lbl-fogDensity": "مه های فشرده",
+      "lbl-audioSettings": "استفاده از صوتی موقعیتی",
+      "lbl-avatarDistanceModel": "مدل فاصله آواتار",
+      "lbl-avatarRolloffFactor": "آواتار عامل رولوف",
+      "lbl-avatarRefDistance": "آواتار از راه دور عکس",
+      "lbl-avatarMaxDistance": "فاصله حداکثر آواتار",
+      "lbl-mediaVolume": "حجم رسانه ها",
+      "lbl-mediaDistanceModel": "مدل فاصله رسانه ای",
+      "lbl-mediaRolloffFactor": "رسانه عامل رولوف",
+      "lbl-mediaRefDistance": "رسانه ها از راه دور عکس",
+      "lbl-mediaMaxDistance": "رسانه حداکثر فاصله",
+      "lbl-mediaConeInnerAngle": "رسانه ها زاویه درونی",
+      "lbl-mediaConeOuterAngle": "رسانه ها زاویه بیرونی کون",
+      "lbl-mediaConeOuterGain": "رسانه ها به دست آوردن کون بیرونی",
+      "info-avatarDistanceModel": "الگوریتم مورد استفاده برای محاسبه رولوف صوتی.",
+      "info-avatarRolloffFactor": "ارزش دو برابر توصیف چگونه به سرعت حجم کاهش می یابد به عنوان منبع حرکت می کند به دور از شنونده. 0 تا 1",
+      "info-avatarRolloffFactorInifinity": "ارزش دو برابر توصیف چگونه به سرعت حجم کاهش می یابد به عنوان منبع حرکت می کند به دور از شنونده. 0 تا بی نهایت",
+      "info-avatarRefDistance": "ارزش دو برابر به نمایندگی از فاصله مرجع برای کاهش حجم به عنوان منبع صوتی حرکت می کند بیشتر از شنونده.",
+      "info-avatarMaxDistance": "مقدار دو برابر نشان دهنده حداکثر فاصله بین منبع صوتی و شنونده، پس از آن حجم بیشتر کاهش نمی یابد.",
+      "info-mediaDistanceModel": "الگوریتم مورد استفاده برای محاسبه رولوف صوتی.",
+      "info-mediaRolloffFactor": "ارزش دو برابر توصیف چگونه به سرعت حجم کاهش می یابد به عنوان منبع حرکت می کند به دور از شنونده. 0 تا 1",
+      "info-mediaRolloffFactorInfinity": "ارزش دو برابر توصیف چگونه به سرعت حجم کاهش می یابد به عنوان منبع حرکت می کند به دور از شنونده. 0 تا بی نهایت",
+      "info-mediaRefDistance": "ارزش دو برابر به نمایندگی از فاصله مرجع برای کاهش حجم به عنوان منبع صوتی حرکت می کند بیشتر از شنونده.",
+      "info-mediaMaxDistance": "مقدار دو برابر نشان دهنده حداکثر فاصله بین منبع صوتی و شنونده، پس از آن حجم بیشتر کاهش نمی یابد.",
+      "info-mediaConeInnerAngle": "یک مقدار دو برابر توصیف زاویه، در درجه، از یک cone که در داخل آن وجود خواهد داشت هیچ کاهش حجم.",
+      "info-mediaConeOuterAngle": "یک مقدار دو برابر توصیف زاویه، در درجه، از یک cone که در خارج از آن حجم خواهد شد توسط یک مقدار ثابت کاهش می یابد، تعریف شده توسط ویژگی coneOuterGain.",
+      "info-mediaConeOuterGain": "ارزش دو برابر توصیف مقدار کاهش حجم در خارج از cone تعریف شده توسط ویژگی coneOuterAngle. مقدار پیش فرض آن 0 است، به این معنی که هیچ صدایی شنیده نمی شود.",
+      "lbl-simpleMaterials": "استفاده از مواد ساده",
+      "lbl-lods": "LODs",
+      "info-lods": "فاصله هایی را تعیین می کند که در آن سطوح جزئیات تغییر می کنند.",
+      "info-simpleMaterials": "تبدیل تمام مواد گران قیمت به آنهایی که ساده تر را به بار کردن ارائه صحنه.",
+      "lbl-rendererSettings": "لغو تنظیمات رندر",
+      "lbl-csm": "نقشه سایه های کاهنده",
+      "info-csm": "نقشه های سایه را قادر می سازد.",
+      "lbl-toneMapping": "نقشه برداری تن",
+      "info-toneMapping": "نقشه برداری تن در ارائه دهنده صحنه را قادر می سازد. هیچ تاثیری ندارد وقتی که یک پردازش پست فعال است.",
+      "lbl-toneMappingExposure": "قرار گرفتن در معرض نقشه برداری تن",
+      "info-toneMappingExposure": "مشخص قرار گرفتن در معرض نقشه برداری تن در ارائه دهنده صحنه. هیچ تاثیری ندارد وقتی که یک پردازش پست فعال است.",
+      "lbl-shadowMapType": "نوع نقشه سایه",
+      "info-shadowMapType": "نوع نقشه سایه",
+      "error-url": "بارگیری خطا از آدرس اینترنتی"
+    },
+    "sceneCamera": {
+      "name": "دوربین پیش نمایش صحنه",
+      "description": "دوربین مورد استفاده برای تولید تصویر انگشتی برای صحنه خود و موقعیت شروع برای دوربین پیش نمایش.",
+      "lbl-setFromViewPort": "تنظیم از نمای"
+    },
+    "skybox": {
+      "name": "جعبه آسمان",
+      "description": "",
+      "lbl-timeOfDay": "زمان روز",
+      "lbl-color": "رنگ",
+      "lbl-latitude": "عرض جغرافیایی",
+      "lbl-luminance": "درز",
+      "lbl-scattering": "مقدار پراکنده",
+      "lbl-scatteringDistance": "فاصله پراکنده",
+      "lbl-horizonStart": "افق شروع",
+      "lbl-horizonEnd": "افق پایان",
+      "lbl-texture": "بافت",
+      "lbl-skyType": "نوع آسمان",
+      "error-url": "بارگیری خطا از آدرس اینترنتی"
+    },
+    "spawnPoint": {
+      "name": "نقطه ای",
+      "description": "نقطه ای که در آن مردم ظاهر خواهد شد زمانی که آنها وارد صحنه خود را.\nنماد در ویوپورت نشان دهنده اندازه واقعی آواتار است."
+    },
+    "spotLight": {
+      "description": "نوری که در امتداد یک جهت انتشار می دهد، اجسام را در داخل یک cone روشن می کند.",
+      "lbl-color": "رنگ",
+      "lbl-intensity": "شدت",
+      "lbl-penumbra": "پنومبرا",
+      "lbl-angle": "زاویه",
+      "lbl-range": "محدوده",
+      "lbl-decay": "هلا شدن"
+    },
+    "transform": {
+      "title": "تبدیل",
+      "lbl-postition": "موقعیت",
+      "lbl-rotation": "چرخش",
+      "lbl-scale": "مقیاس"
+    },
+    "triggereVolume": {
+      "description": "یک ملک را روی شیء هدف در حال ورود و ترک قرار می دهد.",
+      "lbl-target": "شی",
+      "lbl-onenter": "در تاریخ وارد کنید",
+      "lbl-onexit": "در خروج",
+      "lbl-showHelper": "نمایش یاب",
+      "ph-errorNode": "خطا گم شده است.",
+      "ph-selectNode": "انتخاب نام..."
+    },
+    "video": {
+      "name": "ویدیو",
+      "description": "به صورت پویا یک ویدیو را بار می کند.",
+      "lbl-video": "ویدیو",
+      "lbl-projection": "طرح ریزی",
+      "lbl-islivestream": "جریان زنده",
+      "lbl-interactable": "قابل تعامل",
+      "lbl-id": "عنصر Id",
+      "lbl-play": "بازی",
+      "lbl-pause": "مکث",
+      "error-url": "بارگیری خطا از آدرس اینترنتی"
+    },
+    "volumetric": {
+      "name": "حجمی",
+      "description": "به صورت پویا یک ویدیو حجمی را بار می کند.",
+      "uvolPaths": "مسیرهای UVOL",
+      "playmode": "حالت بازی",
+      "playtitle": "بازی",
+      "pausetitle": "مکث"
+    },
+    "spline": {
+      "description": "به صورت پویا ایجاد و سفارشی کردن منحنی.",
+      "lbl-addNode": "اضافه کردن گرز به منحنی."
+    },
+    "systemnode": {
+      "description": "ضمیمه فیلمنامه.",
+      "lbl-filePath": "آدرس",
+      "lbl-systemUpdateType": "نقطه تزریق",
+      "lbl-enableClient": "مشتری",
+      "lbl-enableServer": "سرور",
+      "lbl-args": "آرگز",
+      "error-url": "خطا در بارگذاری اسکریپت از آدرس"
+    },
+    "portal": {
+      "lbl-portal": "پورتال مرتبط",
+      "lbl-redirect": "استفاده از تغییر خط صفحه",
+      "description": "پورتات به بازیکنان دور به محل مشخص شده",
+      "lbl-locationName": "محل سکونت",
+      "lbl-modelUrl": "آدرس مدل",
+      "lbl-displayText": "نمایش متن",
+      "lbl-cubemapBake": "پخت مکعب",
+      "lbl-spawnPosition": "موقعیت اسپیون",
+      "lbl-spawnRotation": "چرخش به وجود میآیند",
+      "lbl-triggerPosition": "موقعیت ماشه",
+      "lbl-triggerRotation": "چرخش ماشه",
+      "lbl-triggerScale": "مقیاس ماشه"
+    },
+    "postprocessing": {
+      "name": "پردازش پست",
+      "description": "برای اعمال اثرات پردازش پست به شما صحنه."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "پروژه جدید",
+      "backLink": "بازگشت به پروژه ها",
+      "featured": "برجسته",
+      "all": "همه",
+      "newProject": "پروژه جدید خالی",
+      "ph-search": "صحنه های جستجو..."
+    },
+    "grid": {
+      "loading": "بارگیری..."
+    },
+    "page": {
+      "header": "خوش آمدید",
+      "headerMsg": "اگر شما جدید در اینجا توصیه می کنیم رفتن را از طریق آموزش. در غیر این صورت ، پرش حق در و ایجاد یک پروژه از ابتدا و یا از یکی از قالب های ما است.",
+      "lbl-startTutorial": "آموزش شروع",
+      "projects": "پروژه ها",
+      "lbl-newProject": "پروژه جدید"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "بارگیری...",
+      "placeObject": "محل شی",
+      "placeObjectAtOrigin": "محل شی در منشاء",
+      "copyURL": "آدرس کپی",
+      "openInNewTab": "باز کردن آدرس در زبانه جدید",
+      "deleteAsset": "حذف دارایی"
+    },
+    "filebrowser": {
+      "addNewFolder": "افزودن پوشه جدید",
+      "cutAsset": "برش",
+      "copyAsset": "کپی",
+      "pasteAsset": "خمیر کردن",
+      "renameAsset": "تغییر نام",
+      "viewAssetProperties": "مشاهده خواص"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "تغییر نام",
+    "lbl-duplicate": "تکراری",
+    "lbl-group": "گروه",
+    "lbl-delete": "حذف",
+    "lbl-expandAll": "گسترش همه",
+    "lbl-collapseAll": "سقوط همه",
+    "isseus": "مسائل:"
+  },
+  "dnd": {
+    "nodes": "{{count}} های انتخاب شده",
+    "models": "{{count}} های انتخاب شده",
+    "images": "{{count}} تصاویر انتخاب شده",
+    "videos": "{{count}} فیلم ها انتخاب",
+    "audio": "{{count}} های صوتی انتخاب شده"
+  },
+  "dialog": {
+    "title": "ویراستار",
+    "lbl-confirm": "درست است",
+    "lbl-cancel": "لغو کردن",
+    "exportProject": {
+      "title": "پروژه صادرات",
+      "lbl-confirm": "پروژه صادرات",
+      "lbl-combineMesh": "ترکیب Meshes",
+      "lbl-removeUnused": "حذف اشیای استفاده نشده"
+    },
+    "performance": {
+      "title": "بررسی عملکرد",
+      "lbl-confirm": "انتشار صحنه",
+      "learnMore": "بیشتر بدانید",
+      "lbl-polycount": "تعداد چندگانه",
+      "lbl-material": "مواد",
+      "lbl-texture": "بافت ها",
+      "lbl-lights": "چراغ ها",
+      "lbl-fileSize": "اندازه پرونده",
+      "info-polycount": "ما توصیه می کنیم صحنه خود را استفاده از بیش از 50،000 مثلث برای دستگاه های تلفن همراه.",
+      "info-material": "ما توصیه می کنیم با استفاده از بیش از 25 مواد منحصر به فرد در صحنه خود را به منظور کاهش قرعه کشی تماس در دستگاه های تلفن همراه.",
+      "info-texture": "ما توصیه می کنیم بافت های شما استفاده از بیش از 256MB رم ویدیو برای دستگاه های تلفن همراه. ما همچنین در برابر استفاده از بافت های بزرگتر از توصیه 2048 x 2048.",
+      "info-lights": "در حالی که چراغ های پویا در دستگاه های تلفن همراه فعال نیست، توصیه می کنیم با استفاده از بیش از 3 چراغ در صحنه شما (به استثنای چراغ های محیط و نیمکره) برای صحنه خود را به اجرا در کامپیوترهای شخصی پایان کم است.",
+      "info-fileSize": "ما توصیه می کنیم اندازه فایل نهایی بیش از 16MB برای اتصالات با سرعت باند کم است. کاهش اندازه فایل زمان لازم برای دانلود صحنه خود را کاهش دهد.",
+      "txt-polycount": "{{count}} مثلث",
+      "txt-material": "{{count}} مواد",
+      "txt-ram": "~{{count}} رم ویدیو",
+      "txt-texture": "{{count}} بافت های بزرگ",
+      "txt-lights": "{{count}} چراغ"
+    },
+    "progress": {
+      "title": "بارگیری...",
+      "msg": "بارگیری...",
+      "lbl-cancel": "لغو کردن"
+    },
+    "publish": {
+      "title": "انتشار صحنه",
+      "lbl-confirm": "ذخیره و انتشار",
+      "lbl-name": "نام صحنه",
+      "info-name": "نام باید بین 4 و 64 کاراکتر باشد و نمی تواند شامل تاکید"
+    },
+    "published": {
+      "title": "صحنه منتشر شده",
+      "header": "صحنه شما منتشر شده است.",
+      "lbl-view": "مشاهده صحنه شما"
+    },
+    "saveNewProject": {
+      "title": "پشتیبانی",
+      "lbl-name": "نام پروژه",
+      "info-name": "نام باید بین 4 و 64 کاراکتر باشد و نمی تواند شامل تاکید",
+      "lbl-confirm": "ذخیره پروژه"
+    },
+    "support": {
+      "title": "پشتیبانی",
+      "header": "آیا نیاز به گزارش یک مشکل؟",
+      "msg": "شما می توانید یک شماره <1>GitHub فایل و</1> یا ایمیل ما را برای پشتیبانی در <3>{{mail}}</3>",
+      "discord": "شما همچنین می توانید ما را در <1>اختلاف پیدا کنید</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "تصاویر بینگ",
+      "search": "جستجو توسط بینگ"
+    },
+    "bingVideo": {
+      "name": "فیلم بینگ",
+      "search": "جستجو توسط بینگ"
+    },
+    "element": {
+      "name": "عناصر"
+    },
+    "myAssets": {
+      "name": "دارایی های من"
+    },
+    "googlePoly": {
+      "name": "گوگل پلی",
+      "search": "جستجو توسط گوگل"
+    },
+    "tenor": {
+      "name": "تنور قاب",
+      "search": "جستجو توسط تنور",
+      "ph-search": "جستجو در قاب..."
+    },
+    "sketchfab": {
+      "name": "طرح",
+      "search": "جستجو توسط اسکچفب"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "ارسال دارایی"
+    },
+    "imageSourcePanel": {
+      "ph-search": "جستجو تصاویر..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "فیلم جستجو..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "دارایی های جستجو..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "مدل های جستجو..."
+    },
+    "useUpload": {
+      "multipleFileError": "این نهاد چندین پرونده را قبول نمی کند.",
+      "mineTypeError": "\"{{name}}\" نشانی از انواع زیر میم و یا پسند مطابقت ندارد : {{types}}",
+      "progressTitle": "آپلود فایل ها",
+      "progressMsg": "آپلود فایل {{uploaded}} از {{total}}: {{percentage}}٪",
+      "uploadError": "خطای آپلود",
+      "uploadErrorMsg": "پرونده آپلود خطا: {{message}}",
+      "uploadErrorDefaultMsg": "یک خطای ناشناخته وجود داشت"
+    }
+  },
+  "openLink": {
+    "description": "لطفا برای حرکت به لینک روی باز کلیک کنید.",
+    "lbl-open": "باز کردن"
+  },
+  "interactableModel": {
+    "lbl-buy": "خرید",
+    "lbl-learnMore": "بیشتر بدانید"
+  },
+  "corsProxyButton": {
+    "tooltip": "استفاده از کورس پراکسی سرور"
+  }
+}

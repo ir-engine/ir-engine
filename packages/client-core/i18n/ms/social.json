@@ -1,0 +1,202 @@
+{
+  "addComment": "Tambah Komen...",
+  "share": "Berkongsi",
+  "suggestions": "Cadangan Untuk Anda",
+  "seeAll": "Lihat Semua",
+  "likes": "Suka",
+  "viewComments": "Lihat semua komen {{count}}",
+  "more": "Lebih banyak",
+  "username": "Nama pengguna",
+  "fullName": "Nama Keluarga",
+  "reportInApporpriate": "Laporan Tidak Sesuai",
+  "unfollow": "Unfollow",
+  "goToPost": "Pergi ke Pos",
+  "shareModal": "Berkongsi",
+  "copyLink": "Salin Pautan",
+  "embed": "Terbenam",
+  "cancel": "Membatalkan",
+  "confirm": "Mengesahkan",
+  "save": "Simpan",
+  "profilePic": "gambar profil {{user}}",
+  "ara": "Ara",
+  "follow": "Ikut",
+  "flames": "Api",
+  "continue": "Teruskan",
+  "partyInvitationSent": "Jemputan parti dihantar",
+  "arMedia": {
+    "back": "Kembali",
+    "clip": "Klip",
+    "backgrounds": "Latar belakang",
+    "start": "Mula"
+  },
+  "arMediaform": {
+    "title": "Tajuk",
+    "type": "Jenis",
+    "clip": "Klip",
+    "background": "Latar belakang",
+    "scene": "Adegan",
+    "save": "Simpan",
+    "manifest-file": "Nyata fail .manifest",
+    "audio-file": "Fail Mp4",
+    "dracosis-file": "Dracosis .uvol file",
+    "preview-file": "Pratonton fail imej"
+  },
+  "creator": {
+    "myVideos": "Video Saya",
+    "savedVideos": "Video yang Disimpan",
+    "back": "Kembali",
+    "blocked-list": "Senarai Disekat",
+    "block-user": "Sekat Pengguna",
+    "dialog-content": "Anda tidak akan melihat profil dan kandungan pengguna"
+  },
+  "creatorForm": {
+    "back": "Kembali",
+    "edit": "Edit Profil",
+    "save": "Simpan",
+    "changeAvatar": "Tukar imej avatar",
+    "ph-selectPreview": "Pilih pratonton",
+    "ph-name": "Nama awak",
+    "ph-username": "Nama Pengguna Anda",
+    "ph-email": "E-mel Anda",
+    "ph-tags": "Tags",
+    "ph-link": "Pautan",
+    "ph-aboutYou": "Lebih lanjut tentang anda",
+    "ph-twitter": "Twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Daftar Keluar"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Pengguna",
+    "feeds": "Suapan",
+    "arMedia": "Video Media",
+    "editor": "Editor",
+    "creator": "Pencipta"
+  },
+  "featured": {
+    "empty-list": "Tiada suapan buat masa ini ..."
+  },
+  "feed": {
+    "back": "Kembali",
+    "related": "Suapan berkaitan",
+    "is-repoted-message": "Suapan dilaporkan!"
+  },
+  "feedForm": {
+    "back": "Kembali",
+    "thanks": "Terima kasih kerana berkongsi dan meningkatkan komuniti kami",
+    "share": "Kongsi sesuatu dengan komuniti",
+    "upload": "Muat Naik Video",
+    "ph-selectVideo": "Pilih Video",
+    "preview": "Imej pratonton",
+    "ph-selectPreview": "Pilih pratonton",
+    "createFeed": "Untuk membuat suapan, anda mesti mempunyai video dan imej pratonton!!!",
+    "ph-videoName": "Nama video anda",
+    "ph-type": "Taip apa yang anda ingin kongsi dengan komuniti ... ",
+    "lbl-share": "Berkongsi",
+    "save": "Simpan dan pergi Seterusnya"
+  },
+  "feedMenu": {
+    "featured": "Diketengahkan",
+    "creators": "Pencipta",
+    "feed": "Suapan"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetrik"
+  },
+  "login": {
+    "account": "Mempunyai akaun?",
+    "login": "Log masuk",
+    "resetPassword": "Butang Reset Password Palsu (di sini akan menjadi pautan dari e-mel)",
+    "notHavingAccount": "Tidak mempunyai akaun?",
+    "signUp": "Mendaftar",
+    "forgotPassword": "Lupa kata laluan?",
+    "back": "Kembali",
+    "or": "ATAU"
+  },
+  "comment": {
+    "add": "Tambah komen anda..."
+  },
+  "notification": {
+    "feedFire": " memecat suapan anda",
+    "feedBookmarked": " ditanda buku suapan anda",
+    "comment": " mengulas suapan anda:",
+    "commentFire": " memecat komen anda untuk memberi makan",
+    "follow": " mula mengikuti anda",
+    "unfollow": " berhenti mengikuti anda",
+    "followed": " mengikuti anda",
+    "activity": "Aktiviti"
+  },
+  "onBoarding": {
+    "welcome": "Selamat datang!",
+    "description": "Koleksi terbesar 370+ susun atur untuk prototaip iOS.",
+    "next": "Seterusnya",
+    "discover": "Temui artikel,",
+    "news": "berita & siaran",
+    "lines": "Ini adalah perasaan yang mendorong cinta kita astronomi dan keinginan kita.",
+    "getStarted": "Bermula",
+    "meetUp": "Bertemu dengan",
+    "friends": "Rakan.",
+    "meet": "Bertemu dengan rakan-rakan"
+  },
+  "shareForm": {
+    "arcMedia": "Berkongsi",
+    "videoCreated": "Saya Mencipta Video Ini",
+    "shareWithBuddies": "Kongsi dengan rakan-rakan",
+    "shareVideo": "Kongsi Video",
+    "save": "Simpan Ke Gulungan Kamera",
+    "cancel": "Membatalkan",
+    "close": "Tutup",
+    "addFeed": "Tambah Suapan"
+  },
+  "simpleModal": {
+    "emptyList": "Senarai kosong",
+    "followers": " Berikut",
+    "following": " Pengikut",
+    "flames": " Api"
+  },
+  "splash": {
+    "screen": "Skrin Percikan",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "gambar profil {{user}}"
+  },
+  "view": {
+    "cancel": "Membatalkan",
+    "choice": "Anda mempunyai dua mod rakaman yang berbeza untuk dipilih",
+    "verticalMode": "Mod menegak mempunyai masa rekod 30 saat",
+    "horizontalMode": "Mod mendatar mempunyai masa rekod tanpa had",
+    "start": "Mula",
+    "not-show": "Jangan tunjukkan lagi",
+    "welcome": "Selamat datang ke ARC!  Buat video peribadi dengan salah satu hologram kami dan siarkan ke saluran media sosial anda!",
+    "step": "LANGKAH {{step}}",
+    "text-step-1": "Pilih hologram dari perpustakaan.",
+    "text-step-2": "Ini adalah Augmented Reality, jadi imbas ruang dengan kamera anda dari sisi ke sisi selama 3-5 saat di mana anda mahu prestasi hologram menjadi.",
+    "text-step-3-part-1": "Ketik skrin sekali di lokasi di mana anda mahu hologram berlabuh.",
+    "text-step-3-part-2": "PETUA!  Ketik sekali di tempat lain untuk memindahkan hologram ke kedudukan lain.",
+    "text-step-3-part-3": "PETUA!  Anda boleh mengubah saiz hologram dengan mencubit atau mengembangkan skrin dengan ibu jari dan jari telunjuk anda.",
+    "text-step-4-part-1": "Butang rekod merah ketuk dua kali untuk MEMULAKAN rakaman video anda.",
+    "text-step-4-part-2": "Butang rekod merah ketik dua kali ke STOP."
+  },
+  "video": {
+    "back": "Kembali"
+  },
+  "terms": {
+    "confirmTerms": "Saya bersetuju dengan Terma Perkhidmatan",
+    "confirmPolicy": "Saya bersetuju dengan Dasar Privasi"
+  },
+  "registration": {
+    "ph-phoneEmail": "Gunakan telefon / e-mel",
+    "facebook": "Teruskan dengan Facebook",
+    "google": "Teruskan dengan Google",
+    "linkedin": "Teruskan dengan Linkedin",
+    "twitter": "Teruskan dengan Twitter",
+    "gitHub": "Teruskan dengan GitHub",
+    "connect": "Sambungkan e-mel atau nombor telefon anda",
+    "logIn": "Log masuk",
+    "LogInTo": "Log masuk ke",
+    "continueAsGuest": "Teruskan sebagai tetamu"
+  }
+}

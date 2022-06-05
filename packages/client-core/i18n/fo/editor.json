@@ -1,0 +1,718 @@
+{
+  "loading": "Loading Project",
+  "loadingMsg": "Load verkætlan.",
+  "loadingError": "Error loading project",
+  "loadingErrorMsg": "Tað var ein feilur, tá ið hann tók verkætlanina.",
+  "selectSceneMsg": "Select Scene at byrja at spæla við motorin.",
+  "error": "Erè",
+  "errorMsg": "Tað var ein ókend villa.",
+  "generateScreenshot": "Generating Project Screenshot",
+  "generateScreenshotMsg": "Ílegur verkætlan skíggjar.",
+  "newScene": "Create Scene",
+  "saving": "Saving Project",
+  "savingMsg": "At flyta verkætlan.",
+  "savingError": "Error Saving Project",
+  "savingErrorMsg": "Tað var ein feilur, tá ið spari verkætlanini saman.",
+  "savingSceneErrorMsg": "Scene er ikki løtt. Royn/roynið at senda sjónina aftur.",
+  "duplicating": "Duplicating Project",
+  "duplicatingMsg": "Duplicating project.",
+  "exporting": "Exporting Project",
+  "exportingMsg": "At útflutninga verkætlan.",
+  "exportingError": "Error Exporting Project",
+  "exportingErrorMsg": "Tað var ein feilur, tá ið hann flutti verkætlanina út.",
+  "importLegacy": "Import Legacy World",
+  "importLegacyMsg": "Avètisman! Hetta fer at skriva ov nógv av tíni/tykkara/tygara nú. Ert tú vísur/vís í, at tú ynskir at halda fram?",
+  "publishingError": "Error Publishing Project",
+  "publishingErrorMsg": "Tað var ein ókend villa.",
+  "publishingScene": "Publishing Scene",
+  "publishingSceneMsg": "Publishing scene.",
+  "uploadingThumbnailMsg": "Uploading tum.",
+  "uploadingSceneMsg": "Uploading scene: {{percentage}}%",
+  "envMapError": "Error loading soviemap images {{files}}",
+  "lbl-return": "Retounen",
+  "menubar": {
+    "newScene": "New Scene",
+    "saveScene": "Save Scene",
+    "saveAs": "Save As",
+    "importAsset": "Import Asset",
+    "exportGLB": "Útflutningurin so nógv, sum tF (.glb) ...",
+    "importScene": "Import scene",
+    "exportScene": "Export scene",
+    "quit": "Sispann"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Unsupported file type for file: \"{{name}}\". File má vera ein mynd, video ella glb model.",
+    "addObject": "addObject: áðrenn object ikki fann",
+    "removeObject": "removeObject: node not fann. Hetta eigur at taka eina node, at hatta ikki er longur á staðnum.",
+    "noParent": "{{node}} \"{{name}}\" hevur einki foreldur. Fyri at arbeiða bara á lutir, sum eru í løtuni á staðnum.",
+    "undefinedParent": "editor.reparent: newParent is undefined",
+    "notAuthenticated": "Not authenticated",
+    "fetchingProjectError": "Error fetching verkætlan: {{error}}",
+    "fetchingRouteError": "Error fetching routes: {{error}}",
+    "unknownError": "Un kent error",
+    "resolveURL": "Error re loysa url \"{{url}}\":",
+    "mediaSearchAborted": "Media leitaði aborted",
+    "methodNotImplemented": "Method ikki implement.",
+    "saveProjectAborted": "Save scene aborted",
+    "unsavedChanges": "Unsaved Changes",
+    "unsavedChangesMsg": "Hendingin er modified. Kanst tú spara tínar broytingar.",
+    "projectCreationFail": "Project kreytt miseydnaðist. {{reason}}",
+    "projectDeletionFail": "Project deletion miseydnaðist. {{reason}}",
+    "savingProjectFail": "At flyta Project miseydnaðist. {{reason}}",
+    "sceneTooLarge": "Scene er ov stór ({{size}} MB) til at geva út. Maximum stødd er {{maxSize}} MB.",
+    "sceneCreationFail": "Scene kreytt miseydnaðist. {{reason}}",
+    "uploadAborted": "Upload aborted",
+    "uploadFailed": "Upload miseydnaðist {{reason}}",
+    "assetDeletionFail": "Asset deletion miseydnaðist. {{reason}}",
+    "projectAssetDeletionFail": "Project Asset deletion miseydnaðist. {{reason}}",
+    "networkError": "Network Error: {{status}}. {{text}}",
+    "unknownStatus": "Un kent Status",
+    "CORS": "Kanska ein CORS error",
+    "urlFetchError": "Failed to fetch \"{{url}}\""
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Move Camera",
+      "flyFast": "Fly skjótari",
+      "orbit": "Orbit / Select",
+      "pan": "Pan",
+      "fly": "Fly",
+      "focus": "Fwaye",
+      "rotateLeft": "Rotate Left",
+      "rotateRight": "Rotate rætt",
+      "cancelPlacement": "Cancel Placement",
+      "placeDuplicate": "Place Duplicate",
+      "cancelGrab": "Cancel Grab",
+      "grab": "Tak/Takið tær/",
+      "deselectAll": "Deselect All"
+    },
+    "state": {
+      "header": "Stats",
+      "memory": "Memwa",
+      "geometries": "Geometries",
+      "textures": "Textures",
+      "render": "Render",
+      "FPS": "FPS",
+      "frameTime": "Frame Time",
+      "calls": "Ring/ringið til",
+      "triangles": "Triangles",
+      "points": "Pwen",
+      "lines": "Lines"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Publish",
+    "lbl-published": "Published",
+    "command": {
+      "translate": "Týða",
+      "rotate": "Rotate",
+      "scale": "Scale",
+      "toggleSpace": "Toggle Transform Space",
+      "togglePivot": "Toggle Transform Pivot",
+      "toggleSnapMode": "Toggle Snap Mode",
+      "toggleGrid": "Toggle Grid Visibility",
+      "increaseGridSize": "Ink Grid Size",
+      "descreaseGridSize": "Decrease Grid Size",
+      "stopPreview": "Gevst/gevist atview scene",
+      "playPreview": "Preview Scene"
+    }
+  },
+  "properties": {
+    "title": "Properties",
+    "lbl-visible": "Visible",
+    "lbl-preventBake": "Prevent Bake",
+    "lbl-persist": "Persist",
+    "multipleNodeSelected": "Multiple Nodes of ymisk sløgs selected",
+    "noNodeSelected": "No node selected",
+    "ambientLight": {
+      "name": "Ambient Light",
+      "description": "Eitt ljós, sum upptekur øll lutir á tínum leikmyndim.",
+      "lbl-intensity": "Intensity",
+      "lbl-color": "Koulè"
+    },
+    "envmap": {
+      "name": "Environment Map",
+      "description": "environment map properties"
+    },
+    "asset": {
+      "name": "Asset",
+      "description": "Ein bólkur av leikmyndinum, sum kann vera dynamitt og unloaded",
+      "lbl-options": "Options",
+      "lbl-assetPath": "Asset Path",
+      "lbl-assetName": "Export Name",
+      "lbl-exportOptions": "Export Options",
+      "lbl-export": "Export Asset",
+      "lbl-load": "Load Into Scene",
+      "lbl-unload": "Unload",
+      "lbl-reload": "Reload"
+    },
+    "audio": {
+      "name": "Audio",
+      "description": "Dynamittar load ljóð.",
+      "lbl-audiourl": "Audio Url",
+      "lbl-controls": "vald hevur vald.",
+      "info-controls": "Toggle visibility í medianum.",
+      "lbl-autoplay": "Auto Play",
+      "info-autoplay": "Um satt, fer median at spæla, tá ið fyrsta inn á staðnum kemur á staðnum.",
+      "lbl-synchronize": "Synchronize",
+      "info-synchronize": "Um satt, verður median á øllum samanbundunum.",
+      "lbl-loop": "Loop",
+      "info-loop": "Um satt, fer median at loop ídefinitely.",
+      "lbl-audioType": "Audio Type",
+      "lbl-distanceModel": "Distance Model",
+      "info-distanceModel": "Algorithim plagdi at rokna ljóð.",
+      "lbl-rolloffFactor": "Rolloff Factor",
+      "info-rolloffFactor": "Eitt dupult virði describing, hvussu skjótt ljóðið er minkaður, sum source flyta seg burtur frá lurta. 0 to 1",
+      "info-rfInfinity": "Eitt dupult virði describing, hvussu skjótt ljóðið er minkaður, sum source flyta seg burtur frá lurta. 0 to Infinity",
+      "lbl-refDistance": "Ref Distance",
+      "info-refDistance": "Eitt dupult virði umboðar frástøðu fyri at minka um ljóð, sum ljóðið er flutt longur frá lurta.",
+      "lbl-maxDistance": "Max Distance",
+      "info-maxDistance": "Eitt dupult virði umboðar maximum frástøðu millum ljóð source og lurta eftir, at ljóðið er ikki longur.",
+      "lbl-coneInnerAngle": "Cone Inner Angle",
+      "info-coneInnerAngle": "Eitt dupult virði describingin, í stigum, av einum cone inni í tí, sum eingin bindur verður.",
+      "lbl-coneOuterAngle": "Cone Outer Angle",
+      "info-coneOuterAngle": "Eitt dupult virði describing angle, í stig, av einum cone uttanfyri, sum ljóðið verður minkað av einum constanti, defined av coneOuterGain attribute.",
+      "lbl-coreOuterGain": "Cone Outer Gain",
+      "info-coreOuterGain": "Eitt dupult virði describingin av volumei uttan fyri cone defined av coneOuterAngle attribute. Tað er default virði er 0, merkir, at einki ljóð kann hoyrast.",
+      "lbl-volume": "Volim",
+      "lbl-play": "Jwe",
+      "lbl-pause": "Pause",
+      "error-url": "Error Loading From URL"
+    },
+    "boxCollider": {
+      "description": "Ein ósjónliga eskjan, sum fer at støkka av ella hvíla seg upp á tindin.\nUttan colliders, fer lutir at falla gjøgnum hæddir og fara ígjøgnum veggirnar.",
+      "lbl-isTrigger": "Trigger"
+    },
+    "camera": {
+      "name": "Camera",
+      "description": "Camera settings.",
+      "lbl-camera-raycast": "Camera Raycasting",
+      "lbl-camera-raycast-toggle": "Enabled",
+      "lbl-camera-raycast-frequency": "Fwekans",
+      "lbl-camera-raycast-count": "Ray Count",
+      "lbl-camera-raycast-length": "Ray Length"
+    },
+    "directionalLight": {
+      "name": "Directional Light",
+      "description": "Eitt ljós, sum upptekur allar leikmyndina, men emits fram við einum einasta veg.",
+      "lbl-color": "Koulè",
+      "lbl-intensity": "Intensity",
+      "lbl-cameraFar": "Camera Far",
+      "lbl-cameraNear": "Camera nær",
+      "lbl-cameraTop": "Camera Top",
+      "lbl-cameraBottom": "Camera Bottom",
+      "lbl-cameraLeft": "Camera Left",
+      "lbl-cameraRight": "Camera rætt",
+      "lbl-useInCSM": "Use in CSM",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-disableForCSM": "Disabled, tí Cascade skugga er føran.",
+      "lbl-shadowmapResolution": "Shadow Map Resolution",
+      "lbl-shadowBias": "Shadow Bias",
+      "lbl-shadowRadius": "Shadow Radius",
+      "lbl-showCameraHelper": "Vís Camera Helper"
+    },
+    "groundPlane": {
+      "name": "Ground Plane",
+      "description": "Eitt flatt flogfar, sum leingjar seg inn í fjarsýni.",
+      "lbl-color": "Koulè",
+      "lbl-receiveShadow": "Receive Shadow",
+      "lbl-generateNavmesh": "Generate Navmesh"
+    },
+    "link": {
+      "description": "Link til eitt kamar ella eina heimasíðu.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "3D geospatial mwen ap of e.g. ein býur."
+    },
+    "model": {
+      "description": "Ein 3D model í tínum leikmyndi, legði frá einum GLTF URL ella file.",
+      "lbl-usingGPUInstancingFlag": "Use GPU Instancing",
+      "lbl-modelurl": "Model Url",
+      "lbl-envmapUrl": "Environment Map Url",
+      "lbl-textureOverride": "Override Texture",
+      "lbl-materialOverride": "Material Overrides",
+      "error-url": "Error Loading From URL",
+      "lbl-loopAnimation": "Loop Animation",
+      "lbl-isAvatar": "Is Avatar",
+      "lbl-isGPUInstancing": "Er at brúka GPU instancing",
+      "lbl-isDynamic": "Er Dynamic",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-receiveShadow": "Receive Shadow",
+      "lbl-interactable": "Interactable",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Non",
+      "lbl-url": "Model Url",
+      "lbl-buy": "Keyp Url",
+      "lbl-learnMore": "Lær/Lærið meira Url",
+      "lbl-htmlContent": "Html Content",
+      "lbl-interactionText": "Interaction Text",
+      "lbl-interactionType": "Interaction Type"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Materyèl",
+      "error-materialID": "Error finna Material",
+      "placeholder-materialID": "Select Material",
+      "lbl-patternTarget": "Pattern Match",
+      "lbl-pattern": "Pattern",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Interaction Type",
+      "text": "Interaction Text",
+      "distance": "Interaction Distance",
+      "theme": "Interaction Theme",
+      "name": "Interaction Name",
+      "description": "Interaction Description",
+      "images": "Interaction Images",
+      "videos": "Interaction Videos",
+      "urls": "Interaction Urls",
+      "models": "Interaction Models"
+    },
+    "group": {
+      "name": "Gwoup",
+      "description": "Ein bólkur av fleiri lutir, sum kunnu flytast ella duplicat saman.\nFarvæl og dropi lutir í Group í Hierarchy."
+    },
+    "hemisphere": {
+      "name": "Hann hálvur Light",
+      "description": "Eitt ljós, sum upptekur sjónina beint frá beint yvir.",
+      "lbl-skyColor": "Sky Color",
+      "lbl-groundColor": "Ground Color",
+      "lbl-intensity": "Intensity"
+    },
+    "image": {
+      "name": "Imaj",
+      "description": "Dynamic ger eina mynd.",
+      "lbl-imgURL": "Image Url",
+      "lbl-transparency": "Transparency Mode",
+      "lbl-alphaCutoff": "Raða/riygnið.",
+      "lbl-projection": "Projection",
+      "lbl-side": "Bò",
+      "info-controls": "Toggle visibility í medianum.",
+      "info-transparency": "Hvussu at søkja transparency:",
+      "info-opaque": "'opaque' = no transparency",
+      "info-blend": "'blend' = use images alpha channel",
+      "info-mask": "'mask' = Use a specified cutoff value for on/off transparency (more performant)",
+      "info-alphaCutoff": "Pixels við alpha virði lægri enn hetta fer at vera transparent.",
+      "error-url": "Invalid URL"
+    },
+    "name": {
+      "lbl-name": "Non"
+    },
+    "partileEmitter": {
+      "description": "Farvæl emitter at skapa pátt.",
+      "lbl-particleCount": "Farvæl Count",
+      "lbl-image": "Imaj",
+      "lbl-ageRandomness": "Age Randomness",
+      "lbl-lifetime": "Líviðtime",
+      "lbl-lifetimeRandomness": "Líviðtime Randomness",
+      "lbl-sizeCurve": "Size Curve",
+      "lbl-startPSize": "Starta Size",
+      "lbl-endPSize": "End Particle Size",
+      "lbl-sizeRandomness": "Size Randomness",
+      "lbl-colorCurve": "Color Curve",
+      "lbl-startColor": "Start Color",
+      "lbl-startOpacity": "Start Opacity",
+      "lbl-middleColor": "Middle Color",
+      "lbl-middleOpacity": "Middle Opacity",
+      "lbl-endColor": "End Color",
+      "lbl-endOpacity": "End Opacity",
+      "lbl-velocityCurve": "Velocity Curve",
+      "lbl-startVelocity": "Start Velocity",
+      "lbl-endVelocity": "End Velocity",
+      "lbl-angularVelocity": "Angular Velocity",
+      "info-ageRandomness": "Mongdin av variation millum, tá ið pjóttir eru spak.",
+      "info-lifetime": "maximum aldurin av einum particle, áðrenn tað verður sett.",
+      "info-lifetimeRandomness": "Mongdin av variation millum particle lívið.",
+      "info-sizeRandomness": "Mongdin av variation millum particle byrjaði stødd.",
+      "error-url": "Error Loading From URL"
+    },
+    "clouds": {
+      "name": "Cloud",
+      "description": "Sprite based cloud volume.",
+      "lbl-image": "Sprite Image",
+      "lbl-wroldScale": "World Scale",
+      "lbl-dimensions": "Dimensions",
+      "lbl-noiseZoom": "Noise Zoom",
+      "lbl-noiseOffset": "Noise Offset",
+      "lbl-spriteScale": "Sprite Scale",
+      "lbl-fogColor": "Fog Color",
+      "lbl-fogRange": "Fog Range",
+      "error-url": "Error Loading From URL"
+    },
+    "ocean": {
+      "name": "Ocean",
+      "description": "Ocean surface við aldur og skúmi.",
+      "lbl-normalMap": "Normal Map",
+      "lbl-distortionMap": "Distortion Map",
+      "lbl-envMap": "Environment Map",
+      "lbl-color": "Koulè",
+      "lbl-shallowWaterColor": "Grunn vatn Color",
+      "lbl-shallowToDeepDistance": "Grunn to Deep Distance",
+      "lbl-opacityFadeDistance": "Opacity Fade Distance",
+      "lbl-opacityRange": "Opacity Range",
+      "lbl-shininess": "Shininess",
+      "lbl-reflectivity": "Reflectivity",
+      "lbl-foamColor": "Foam Color",
+      "lbl-foamSpeed": "Foam Speed",
+      "lbl-foamTiling": "Foam Tiling",
+      "lbl-bigWaveTiling": "Big Wave Tiling",
+      "lbl-bigWaveSpeed": "Big Wave Speed",
+      "lbl-bigWaveHeight": "Big Wave Height",
+      "lbl-waveSpeed": "Wave Speed",
+      "lbl-waveScale": "Wave Scale",
+      "lbl-waveTiling": "Wave Tiling",
+      "lbl-waveDistortionSpeed": "Wave Distortion Speed",
+      "lbl-waveDistortionTiling": "Wave Distortion Tiling",
+      "error-url": "Error Loading From URL"
+    },
+    "water": {
+      "name": "Dlo",
+      "description": "Small vatn surface"
+    },
+    "interior": {
+      "name": "Enteryè",
+      "description": "Ein surface við mappeda texture to emulate interior environments",
+      "lbl-cubeMap": "Phoenie Map texture",
+      "lbl-tiling": "Tiling amount",
+      "lbl-size": "Surface size",
+      "error-url": "Error Loading From URL"
+    },
+    "pointLight": {
+      "description": "Eitt ljós, sum emits í øllum vegleiðingum frá einum einasta punkti.",
+      "lbl-color": "Koulè",
+      "lbl-intensity": "Intensity",
+      "lbl-range": "Pòte",
+      "lbl-decay": "Decay"
+    },
+    "scene": {
+      "name": "Sèn",
+      "description": "Rótin lut í leikmyndini.",
+      "lbl-bgcolor": "Background Color",
+      "lbl-fogType": "Fog Type",
+      "lbl-fogColor": "Fog Color",
+      "lbl-forNearDistance": "Fog nær Distance",
+      "lbl-fogFarDistance": "Fog Far Distance",
+      "lbl-fogDensity": "Fog Density",
+      "lbl-audioSettings": "Use Positional Audio",
+      "lbl-avatarDistanceModel": "Avatar Distance Model",
+      "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
+      "lbl-avatarRefDistance": "Avatar Ref Distance",
+      "lbl-avatarMaxDistance": "Avatar Max Distance",
+      "lbl-mediaVolume": "Media Volume",
+      "lbl-mediaDistanceModel": "Media Distance Model",
+      "lbl-mediaRolloffFactor": "Media Rolloff Factor",
+      "lbl-mediaRefDistance": "Media Ref Distance",
+      "lbl-mediaMaxDistance": "Media Max Distance",
+      "lbl-mediaConeInnerAngle": "Media Cone Inner Angle",
+      "lbl-mediaConeOuterAngle": "Media Cone Outer Angle",
+      "lbl-mediaConeOuterGain": "Media Cone Outer Gain",
+      "info-avatarDistanceModel": "Algorithim plagdi at rokna ljóð.",
+      "info-avatarRolloffFactor": "Eitt dupult virði describing, hvussu skjótt ljóðið er minkaður, sum source flyta seg burtur frá lurta. 0 to 1",
+      "info-avatarRolloffFactorInifinity": "Eitt dupult virði describing, hvussu skjótt ljóðið er minkaður, sum source flyta seg burtur frá lurta. 0 to Infinity",
+      "info-avatarRefDistance": "Eitt dupult virði umboðar frástøðu fyri at minka um ljóð, sum ljóðið er flutt longur frá lurta.",
+      "info-avatarMaxDistance": "Eitt dupult virði umboðar maximum frástøðu millum ljóð source og lurta eftir, at ljóðið er ikki longur.",
+      "info-mediaDistanceModel": "Algorithim plagdi at rokna ljóð.",
+      "info-mediaRolloffFactor": "Eitt dupult virði describing, hvussu skjótt ljóðið er minkaður, sum source flyta seg burtur frá lurta. 0 to 1",
+      "info-mediaRolloffFactorInfinity": "Eitt dupult virði describing, hvussu skjótt ljóðið er minkaður, sum source flyta seg burtur frá lurta. 0 to Infinity",
+      "info-mediaRefDistance": "Eitt dupult virði umboðar frástøðu fyri at minka um ljóð, sum ljóðið er flutt longur frá lurta.",
+      "info-mediaMaxDistance": "Eitt dupult virði umboðar maximum frástøðu millum ljóð source og lurta eftir, at ljóðið er ikki longur.",
+      "info-mediaConeInnerAngle": "Eitt dupult virði describingin, í stigum, av einum cone inni í tí, sum eingin bindur verður.",
+      "info-mediaConeOuterAngle": "Eitt dupult virði describing angle, í stig, av einum cone uttanfyri, sum ljóðið verður minkað av einum constanti, defined av coneOuterGain attribute.",
+      "info-mediaConeOuterGain": "Eitt dupult virði describingin av volumei uttan fyri cone defined av coneOuterAngle attribute. Tað er default virði er 0, merkir, at einki ljóð kann hoyrast.",
+      "lbl-simpleMaterials": "Use Simple Materials",
+      "lbl-lods": "LODs",
+      "info-lods": "Sets langt burturi, sum treingja til nágreiniliga broyting.",
+      "info-simpleMaterials": "Converts øll dýr til lættari at einfaldari tær fyri at taka vekt av staðnum.",
+      "lbl-rendererSettings": "Override Renderer Settings",
+      "lbl-csm": "Cascading Shadow Maps",
+      "info-csm": "Enables cascading skugga maps.",
+      "lbl-toneMapping": "Tone Mapping",
+      "info-toneMapping": "Enables tone mapping á staðnum renderer. Hevur einki ávirkan, tá ein post tilgongd er førur fyri.",
+      "lbl-toneMappingExposure": "Tone Mapping Exposure",
+      "info-toneMappingExposure": "Specifies tone mapping á staðnum renderer. Hevur einki ávirkan, tá ein post tilgongd er førur fyri.",
+      "lbl-shadowMapType": "Shadow Map Type",
+      "info-shadowMapType": "Type of skugga mwen ap",
+      "error-url": "Error Loading From URL"
+    },
+    "sceneCamera": {
+      "name": "Scene Preview Camera",
+      "description": "Myndatólið plagdi at skapa tumil til tín/tykkara leikmyndi og byrjaði starvið til preview myndatólið.",
+      "lbl-setFromViewPort": "Set From Viewport"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Tíðin á degnum.",
+      "lbl-color": "Koulè",
+      "lbl-latitude": "Latitude",
+      "lbl-luminance": "Luminance",
+      "lbl-scattering": "Scattering Amount",
+      "lbl-scatteringDistance": "Scattering Distance",
+      "lbl-horizonStart": "Horizon Start",
+      "lbl-horizonEnd": "Horizon End",
+      "lbl-texture": "Texture",
+      "lbl-skyType": "Sky Type",
+      "error-url": "Error Loading From URL"
+    },
+    "spawnPoint": {
+      "name": "Spawn Point",
+      "description": "Eitt punkt, har fólk fara at tykjast, tá ið tey koma inn á tína leikmyndi.\niconið í Viewport umboðar actual stødd í eini avatar."
+    },
+    "spotLight": {
+      "description": "Eitt ljós, sum emits fram við einum vegi, meðan ein cone.",
+      "lbl-color": "Koulè",
+      "lbl-intensity": "Intensity",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "Ang",
+      "lbl-range": "Pòte",
+      "lbl-decay": "Decay"
+    },
+    "transform": {
+      "title": "Transform",
+      "lbl-postition": "Pozisyon",
+      "lbl-rotation": "Rotation",
+      "lbl-scale": "Scale"
+    },
+    "triggereVolume": {
+      "description": "Sets eina ogn á málinum, sum koma inn og fara.",
+      "lbl-target": "Object",
+      "lbl-onenter": "On Enter",
+      "lbl-onexit": "On Exit",
+      "lbl-showHelper": "Vís Helper Mesh",
+      "ph-errorNode": "Error manglar node.",
+      "ph-selectNode": "Select node..."
+    },
+    "video": {
+      "name": "Videyo",
+      "description": "Dynamic ger eina sjónfílu.",
+      "lbl-video": "Videyo",
+      "lbl-projection": "Projection",
+      "lbl-islivestream": "Live Stream",
+      "lbl-interactable": "Interactable",
+      "lbl-id": "Element Id",
+      "lbl-play": "Jwe",
+      "lbl-pause": "Pause",
+      "error-url": "Error Loading From URL"
+    },
+    "volumetric": {
+      "name": "Volumetric",
+      "description": "Dynamically load eina volumetric video.",
+      "uvolPaths": "UVOL Paths",
+      "playmode": "Spæl Mode",
+      "playtitle": "Jwe",
+      "pausetitle": "Pause"
+    },
+    "spline": {
+      "description": "Dynamic ger og customize bugar.",
+      "lbl-addNode": "Lat/Latið vera við at buga."
+    },
+    "systemnode": {
+      "description": "Viðhefti script.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "Injection Point",
+      "lbl-enableClient": "Client",
+      "lbl-enableServer": "Server",
+      "lbl-args": "Args",
+      "error-url": "Error Loading Script From URL"
+    },
+    "portal": {
+      "lbl-portal": "Linked Portal",
+      "lbl-redirect": "Use Page Redirect",
+      "description": "A Portat to teleport players to specified location",
+      "lbl-locationName": "Kote",
+      "lbl-modelUrl": "Model URL",
+      "lbl-displayText": "Display Text",
+      "lbl-cubemapBake": "Phoeniemap baka",
+      "lbl-spawnPosition": "Spawn Position",
+      "lbl-spawnRotation": "Spawn Rotation",
+      "lbl-triggerPosition": "Trigger Position",
+      "lbl-triggerRotation": "Trigger Rotation",
+      "lbl-triggerScale": "Trigger Scale"
+    },
+    "postprocessing": {
+      "name": "Post Processing",
+      "description": "Fyri at søkja Post Processing hjá tær/tykkum/tygum."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "New Project",
+      "backLink": "Far aftur til verkætlanir.",
+      "featured": "Featured",
+      "all": "Tout",
+      "newProject": "New Empty Project",
+      "ph-search": "Search leikmyndir."
+    },
+    "grid": {
+      "loading": "Loading."
+    },
+    "page": {
+      "header": "Vælkomin",
+      "headerMsg": "Ert tú nýggjur/nýggj her, vit viðmæla at fara ígjøgnum tutorial. Annars, hoppa rætt í og ger eina verkætlan frá klóra ella frá einum av okkara templates.",
+      "lbl-startTutorial": "Start Tutorial",
+      "projects": "Pwojè",
+      "lbl-newProject": "New Project"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Loading.",
+      "placeObject": "Place Object",
+      "placeObjectAtOrigin": "Place Object at Origin",
+      "copyURL": "Copy URL",
+      "openInNewTab": "Open URL in New Tab",
+      "deleteAsset": "Delete Asset"
+    },
+    "filebrowser": {
+      "addNewFolder": "Add New Folder",
+      "cutAsset": "Sker/skerið niður",
+      "copyAsset": "Kopi",
+      "pasteAsset": "Paste",
+      "renameAsset": "Rename",
+      "viewAssetProperties": "View Properties"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Rename",
+    "lbl-duplicate": "Duplicate",
+    "lbl-group": "Gwoup",
+    "lbl-delete": "Delete",
+    "lbl-expandAll": "Expand All",
+    "lbl-collapseAll": "Collapse All",
+    "isseus": "Issues:"
+  },
+  "dnd": {
+    "nodes": "{{count}} Nodes Selected",
+    "models": "{{count}} Models Selected",
+    "images": "{{count}} Images Selected",
+    "videos": "{{count}} Videos Selected",
+    "audio": "{{count}} Audio Sources Selected"
+  },
+  "dialog": {
+    "title": "Editor",
+    "lbl-confirm": "Ókey",
+    "lbl-cancel": "Avlýsa",
+    "exportProject": {
+      "title": "Export Project",
+      "lbl-confirm": "Export Project",
+      "lbl-combineMesh": "Combine Meshes",
+      "lbl-removeUnused": "Remove Unused Objects"
+    },
+    "performance": {
+      "title": "Performance Check",
+      "lbl-confirm": "Publish Scene",
+      "learnMore": "Lær meir",
+      "lbl-polycount": "Polygon Count",
+      "lbl-material": "Materyèl",
+      "lbl-texture": "Textures",
+      "lbl-lights": "Ljósið ljós.",
+      "lbl-fileSize": "File Size",
+      "info-polycount": "Vit viðmæla tína leikmyndir ikki meira enn 50.000 500 dollarar til fartelefon.",
+      "info-material": "Vit viðmæla ikki meira enn 25 unique tilfari í tínum/tykkara leikmyndim at minka um fartelefon.",
+      "info-texture": "Vit viðmæla tín/tykkara tekstur brúka ikki meira enn 256MB av video RAM for mobile. Vit viðmæla eisini ímóti at brúka tekstur størri enn 2048 x 2048.",
+      "info-lights": "Meðan dynamic ljós eru ikki før fyri fartelefonar, viðmæla vit ikki meira enn 3 ljós í tínum leikmyndim (excluding ambient og hann.",
+      "info-fileSize": "Vit viðmæla eina endaliga fílu av ikki meira enn 16MB for lágt bandwidth connections. Reytta fíluna fer at lækka tíðina, tá ið tað tekur niður á tína leikmyndi.",
+      "txt-polycount": "{{count}} Triangles",
+      "txt-material": "{{count}} Materials",
+      "txt-ram": "~{{count}} Video RAM",
+      "txt-texture": "{{count}} Large Textures",
+      "txt-lights": "{{count}} Ljósum."
+    },
+    "progress": {
+      "title": "Loading.",
+      "msg": "Loading.",
+      "lbl-cancel": "Avlýsa"
+    },
+    "publish": {
+      "title": "Publish Scene",
+      "lbl-confirm": "Save og Publish",
+      "lbl-name": "Scene Name",
+      "info-name": "Name má vera millum 4 og 64 persónar og kunnu ikki inniheldur undirscores"
+    },
+    "published": {
+      "title": "Scene Published",
+      "header": "Tín/tykkara leikmyndi er útgivin.",
+      "lbl-view": "View tín Scene"
+    },
+    "saveNewProject": {
+      "title": "Sipò",
+      "lbl-name": "Project Name",
+      "info-name": "Name má vera millum 4 og 64 persónar og kunnu ikki inniheldur undirscores",
+      "lbl-confirm": "Save Project"
+    },
+    "support": {
+      "title": "Sipò",
+      "header": "Er neyðugt at boða frá einum trupulleika?",
+      "msg": "Tú/tit kanst/kunnu senda eina <1>GitHub Issue</1> ella e-mail us for support at <3>{{mail}}</3>",
+      "discord": "Tú/tit kanst/kunnu eisini finna okkum á <1>Discord</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing Images",
+      "search": "Search by Bing"
+    },
+    "bingVideo": {
+      "name": "Bing Videos",
+      "search": "Search by Bing"
+    },
+    "element": {
+      "name": "Elements"
+    },
+    "myAssets": {
+      "name": "Mínar assetsir."
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Search við Google"
+    },
+    "tenor": {
+      "name": "Tenor GIFs",
+      "search": "Search by Tenor",
+      "ph-search": "Search GIFs."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Search by Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Upload Asset"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Hav/takið myndir."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Hav/verið í sjónbond."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Hav/verið áognognum."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Search models."
+    },
+    "useUpload": {
+      "multipleFileError": "Input tekur ikki ímóti fleiri fílurum.",
+      "mineTypeError": "\"{{name}}\" hóskar ikki saman við hesum mime types ella extension: {{types}}",
+      "progressTitle": "Uploading Files",
+      "progressMsg": "Uploading files {{uploaded}} of {{total}}: {{percentage}}%",
+      "uploadError": "Upload Error",
+      "uploadErrorMsg": "Error uploading file: {{message}}",
+      "uploadErrorDefaultMsg": "Tað var ein ókend villa"
+    }
+  },
+  "openLink": {
+    "description": "Kanst tú tøppa upp fyri at navigata til leinkið.",
+    "lbl-open": "Louvri"
+  },
+  "interactableModel": {
+    "lbl-buy": "Achte",
+    "lbl-learnMore": "Lær meir"
+  },
+  "corsProxyButton": {
+    "tooltip": "Use Cors Proxy Server"
+  }
+}

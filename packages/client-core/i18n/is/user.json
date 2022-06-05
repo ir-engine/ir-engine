@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Staðfestingartölvupóstur",
+      "resendEmail": "Vinsamlegast athugaðu tölvupóstinn þinn til að staðfesta reikninginn þinn. Ef þú fékkst ekki tölvupóst, vinsamlegast smelltu á {{here}} til að senda staðfestingartölvupóstinn aftur.",
+      "haveAnAccount": "Ertu með reikning?"
+    },
+    "forgotPassword": {
+      "header": "Gleymt lykilorð",
+      "enterEmail": "Vinsamlegast sláðu inn skráða netfangið þitt og við sendum þér tengil á endurstilla lykilorð.",
+      "lbl-email": "Netfang",
+      "lbl-submit": "Senda tengil",
+      "emailSent": "Endurstilla lykilorð tölvupóstur var sendur. Vinsamlegast athugaðu tölvupóstinn þinn."
+    },
+    "login": {
+      "email": "Tölvupóstur | SMS",
+      "username": "Notandanafn + Lykilorð",
+      "social": "Félagslegur"
+    },
+    "magiklink": {
+      "header": "Innskráningartengill",
+      "descriptionEmail": "Vinsamlegast sláðu inn netfangið þitt og við sendum þér innskráningarhlekk með tölvupósti.",
+      "descriptionSMS": "Vinsamlegast sláðu inn símanúmerið þitt og við sendum þér innskráningartengil með SMS.",
+      "descriptionEmailSMS": "Vinsamlegast sláðu inn netfangið þitt eða símanúmer (aðeins 10 tölustafir, aðeins í Bandaríkjunum) og við sendum þér innskráningartengil með tölvupósti eða SMS.",
+      "descriptionSMSUS": "Vinsamlegast sláðu inn símanúmerið þitt (aðeins 10 tölustafir, aðeins í Bandaríkjunum) og við sendum þér innskráningartengil með SMS.",
+      "lbl-email": "Netfang",
+      "lbl-emailPhone": "Netfang eða símanúmer",
+      "lbl-phone": "Símanúmer",
+      "agree": "Ég er sammála því að ",
+      "terms": "Skilmálar og skilyrði",
+      "lbl-submit": "Senda innskráningartengil",
+      "email-sent-msg": "Innskráningargaldurstengill var sendur. Vinsamlegast athugaðu tölvupóstinn þinn.",
+      "success-msg": "Innskráningargaldurstengill var sendur. Vinsamlegast athugaðu tölvupóstinn þinn eða SMS.",
+      "sms-sent-msg": "Innskráningargaldurstengill var sendur. Vinsamlegast kíkið á SMS-skilaboðin ykkar."
+    },
+    "passwordLogin": {
+      "header": "Skrá inn",
+      "lbl-email": "Netfang",
+      "lbl-password": "Aðgangsorð",
+      "lbl-rememberMe": "Mundu eftir mér",
+      "lbl-signin": "Skrá inn",
+      "forgotPassword": "Gleymdir þú lykilorðinu?",
+      "signup": "Ertu ekki með reikning? Skrá sig",
+      "lbl-login": "Skrá inn",
+      "ph-password": "Aðgangsorð",
+      "ph-email": "Tölvupóstur"
+    },
+    "social": {
+      "gitHub": "Innskráning með GitHub",
+      "google": "Innskráning með Google",
+      "facebook": "Innskráning með Facebook",
+      "linkedin": "Innskráning með Linkedin",
+      "twitter": "Innskráning með Twitter"
+    },
+    "register": {
+      "header": "Skrá sig",
+      "login": "Skrá inn",
+      "lbl-signup": "Skrá sig",
+      "lbl-password": "Aðgangsorð",
+      "lbl-email": "Netfang",
+      "passwordNotMatch": "Lykilorð Passa ekki saman",
+      "ph-password": "Aðgangsorð",
+      "ph-confirmPassword": "Staðfestu aðgangsorð",
+      "ph-email": "Tölvupóstur"
+    },
+    "resetPassword": {
+      "header": "Endurstilla aðgangsorð",
+      "description": "Vinsamlegast sláðu inn lykilorðið þitt fyrir netfangið þitt",
+      "lbl-submit": "Endurstilla aðgangsorð",
+      "lbl-password": "Aðgangsorð",
+      "lbl-confirmPassword": "Staðfestu aðgangsorð",
+      "passwordNotMatch": "Lykilorð Passa ekki saman",
+      "nowLoginYourAccount": "Þú getur nú skráð þig inn á reikninginn þinn",
+      "yourPasswordResetSuccess": "Aðgangsorðið þitt var endurstillt!"
+    },
+    "verifyEmail": {
+      "header": "Sannprófa tölvupóst",
+      "processing": "Vinsamlegast bíddu í smá stund meðan þú vinnur..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Staðsetningar",
+      "loading": "Hleðsla",
+      "col-name": "Nafn",
+      "col-scene": "Vettvangur",
+      "col-maxuser": "Hámarksnotendur",
+      "lbl-search": "Leita að staðsetningum",
+      "lbl-new": "Nýtt"
+    },
+    "newLocation": {
+      "title": "Staðsetning",
+      "success": "Vistuð tókst.",
+      "failure": "Eitthvað fór úrskeiðis.",
+      "removeSuccess": "Staðsetning var fjarlægð.",
+      "nameInUse": "Nafnið er í notkun.",
+      "nameRequire": "Nafns er krafist.",
+      "validNumber": "Aðeins tölur(0-9) eru leyfðar.",
+      "lbl-name": "Nafn",
+      "lbl-maxuser": "Hámarksnotendur",
+      "lbl-scene": "Vettvangur",
+      "lbl-type": "Gerð",
+      "lbl-ve": "Myndefni virkt",
+      "lbl-gme": "Global Media virkt",
+      "lbl-update": "Uppfæra",
+      "lbl-create": "Skapa",
+      "tooltipCanNotBeDeleted": "Ekki er hægt að eyða anddyrinu",
+      "confirmation": "Ertu viss?",
+      "lbl-yes": "Já",
+      "lbl-no": "Nei"
+    },
+    "share": {
+      "lbl-share": "Deila",
+      "ph-phoneEmail": "Bjóða með tölvupósti eða símanúmeri",
+      "lbl-phoneEmail": "Senda á netfangið eða símanúmerið",
+      "lbl-copy": "Afrit",
+      "lbl-send-invite": "Senda boð",
+      "title": "Deildu staðsetningarslóðinni þinni með teyminu þínu",
+      "linkCopied": "Tengill afritaður á klemmuspjald."
+    },
+    "setting": {
+      "audio": "Hljóð",
+      "lbl-volume": "Bindi",
+      "lbl-microphone": "Hljóðnemi",
+      "graphics": "Grafík",
+      "controls": "Stjórntæki",
+      "lbl-control-type": "Gerð stjóra",
+      "lbl-control-scheme": "Stjórnskema",
+      "lbl-resolution": "Ályktun",
+      "lbl-shadow": "Skugga",
+      "lbl-pp": "Bóka vinnslu",
+      "lbl-pbr": "Fullt PBR",
+      "lbl-automatic": "Sjálfvirkur",
+      "xrusersetting": "XR notandastillingar",
+      "rotation": "Snúningur",
+      "rotation-smooth-speed": "Snúningur sléttur hraði",
+      "rotation-angle": "Snúningshorn",
+      "moving": "Átakanlegur",
+      "user-avatar": "Avatar stilling",
+      "invert-rotation": "Hvolfa snúningi og færa prik",
+      "show-avatar": "Sýna Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Vangasvipur",
+      "lbl-settings": "Stillingar",
+      "lbl-username": "Notandanafn",
+      "update-msg": "Notandanafn uppfært",
+      "inviteCode": "Bjóða kóta",
+      "youAreAn": "Þú ert",
+      "youAreA": "Þú ert a",
+      "showUserId": "Sýna notandakenni",
+      "hideUserId": "Fela notandakenni",
+      "showApiKey": "Sýna API-lykil",
+      "hideApiKey": "Fela API-lykil",
+      "apiKey": "API-lykill",
+      "logout": "Skrá út",
+      "connectPhone": "Tengdu símanúmerið þitt",
+      "connectEmail": "Tengdu tölvupóstinn þinn",
+      "connectPhoneEmail": "Tengdu tölvupóstinn þinn eða símanúmerið þitt",
+      "or": "Eða",
+      "lbl-wallet": "Innskráning með veski",
+      "ph-email": "Tölvupóstur",
+      "ph-phone": "Símanúmer",
+      "ph-phoneEmail": "Símanúmer / tölvupóstur",
+      "phoneEmailError": "Ógilt sími # eða netfang",
+      "phoneError": "Ótækur sími #",
+      "emailError": "Ógilt netfang",
+      "loginWithReadyPlayerMe": "Skráðu þig inn með tilbúinn leikmaður mig",
+      "connectSocial": "Tengjast félagslegum reikningum",
+      "createOne": "Ef þú ert ekki með reikning verður nýr stofnaður fyrir þig",
+      "connections": {
+        "title": "Tengingar",
+        "ipError": "Ekki er hægt að fjarlægja virka auðkennisveitu",
+        "disconnect": "Aftengja",
+        "connect": "Tengja"
+      },
+      "profileDropdown": {
+        "avatar": "Notandatákn Avatar",
+        "profile": "Vangasvipur",
+        "adminConsole": "Stjórnborð stjórnanda",
+        "logout": "Nafnplata"
+      },
+      "userIcon": {
+        "lbl-name": "Nafnið þitt",
+        "lbl-update": "Uppfæra",
+        "userId": "Notandakenni",
+        "ph-uploadImg": "Hlaða upp vörumynd",
+        "lbl-selectAcvatar": "Velja Avatar",
+        "lbl-submit": "Leggja inn"
+      },
+      "userSettings": {
+        "volume": "Bindi",
+        "microphone": "Hljóðnemi",
+        "resolution": "Ályktun",
+        "high": "Hár",
+        "low": "Lágur",
+        "spatialAudio": "Nota staðbundna hljóð",
+        "enterMuted": "Sláðu inn herbergi þaggað niður"
+      }
+    },
+    "oauth": {
+      "authenticating": "Sannvottun...",
+      "authFailed": "{{service}} sannvottun mistókst."
+    },
+    "magikLink": {
+      "wait": "Vinsamlegast bíddu í smá stund meðan þú vinnur..."
+    },
+    "dashboard": {
+      "header": "Mælaborð",
+      "dashboard": "Mælaborð",
+      "users": "Notendur",
+      "feeds": "Straumar",
+      "instance": "Dæmi",
+      "locations": "Staðsetningar",
+      "invites": "Bjóða",
+      "sessions": "Fundur",
+      "groups": "Flokka",
+      "parties": "Aðila",
+      "chats": "Spjall",
+      "content": "Efnispakkar",
+      "projects": "Verk",
+      "scenes": "Vettvangur",
+      "avatars": "Avatars",
+      "benchmarking": "Kvóti",
+      "bots": "Botswana"
+    }
+  },
+  "oauth": {
+    "authenticating": "Sannvottun...",
+    "authFailed": "{{service}} sannvottun mistókst."
+  },
+  "magikLink": {
+    "wait": "Vinsamlegast bíddu í smá stund meðan þú vinnur..."
+  },
+  "dashboard": {
+    "header": "Mælaborð",
+    "dashboard": "Mælaborð",
+    "users": "Notendur",
+    "feeds": "Straumar",
+    "instance": "Dæmi",
+    "locations": "Staðsetningar",
+    "routes": "Leiðir",
+    "projects": "Verk",
+    "invites": "Bjóða",
+    "sessions": "Fundur",
+    "groups": "Flokka",
+    "parties": "Aðila",
+    "chats": "Spjall",
+    "content": "Efnispakkar",
+    "scenes": "Vettvangur",
+    "avatars": "Avatars",
+    "benchmarking": "Kvóti",
+    "bots": "Botswana",
+    "setting": "Stillingar"
+  },
+  "avatar": {
+    "title": "Hlaða upp Avatar",
+    "lbl-browse": "Vafra",
+    "lbl-thumbnail": "Smámynd",
+    "lbl-upload": "Upphal",
+    "selectAvatar": "Velja Avatar...",
+    "selectThumbnail": "Velja smámynd...",
+    "rotate": "Snúa",
+    "pan": "Panna",
+    "noBone": "Obejct inniheldur engin bein eða húð",
+    "outOfBound": "Hluturinn er utan marka.",
+    "emptyObj": "Hluturinn er tómur.",
+    "maxTriangleError": "Hluturinn inniheldur stærri en {{allowedTriangles}} andlit.",
+    "selectValidFile": "Veldu gilda þrívíddar avatarskrá.",
+    "selectValidThumbnail": "Valin gild smámyndaskrá.",
+    "fileOversized": "Stærð Avatar skráar verður að vera á milli {{minSize}} MB og {{maxSize}} MB",
+    "confirmation": "Ertu viss?",
+    "canNotBeRemoved": "Ekki er hægt að fjarlægja Virka Avatar",
+    "remove": "Fjarlægja avatar",
+    "uploadFiles": "Senda inn skrár",
+    "useUrlInstead": "Nota vefslóð í staðinn",
+    "avatar": "Avatar",
+    "cancel": "Afturkalla",
+    "createAvatar": "Búa til Avatar",
+    "delete": "Eyða",
+    "view": "Útsýni",
+    "uploadAvatarInfo": "Uppfæra avatar Upplýsingar",
+    "name": "Nafn",
+    "enterName": "Sláðu inn nafn",
+    "avatarInformation": "Upplýsingar um Avatar",
+    "description": "Lýsing",
+    "key": "Lykill",
+    "none": "Enginn",
+    "submit": "Leggja inn",
+    "edit": "Klippa",
+    "avatarUrl": "Vefslóð avatars",
+    "upload-success-msg": "Avatar var hlaðið upp.",
+    "remove-success-msg": "Avatar var hlaðið upp.",
+    "warning-msg": "Avatar úrræði er tómt, hefur þú samstillt avatars við truflanir skrá geymslu?"
+  },
+  "personMenu": {
+    "inviteToParty": "Bjóða í partý",
+    "addAsFriend": "Bæta við sem vinur",
+    "mute": "Deyfa",
+    "block": "Blokk"
+  },
+  "person": {
+    "you": "Þú",
+    "yourScreen": "Skjárinn þinn",
+    "muteForEveryone": "Þöggun fyrir alla",
+    "unmuteForEveryone": "Óspennandi fyrir alla",
+    "muteMe": "Slökktu á mér",
+    "unmuteMe": "Losaðu mig",
+    "muteThisPerson": "Slökktu á þessari manneskju",
+    "unmuteThisPerson": "Losaðu þig við þennan einstakling",
+    "openPictureInPicture": "Opna mynd á mynd"
+  }
+}

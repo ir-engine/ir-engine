@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Rûpel Nehat Dîtin"
+  },
+  "503": {
+    "msg": "503 - Xizmetkar nayê peyda kirin"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Li vê derê qedexe li we hatiye kirin",
+    "locationName": {
+      "pageTitle": "Mal"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Proje",
+      "header": "Ji kerema xwe têkevinê",
+      "welcomeMsg": "Bi xêr hatî",
+      "locationHeader": "Cih",
+      "projectHeader": "Proje",
+      "sceneHeader": "Dîmen",
+      "description": "Heke hûn li vir nû bin, em pêşnîyaz dikin ku hûn dersê derbas bikin. Wekî din, xwe bispêrin hundir û projeyekê ji xêzkirin an jî ji yek ji şablonên me biafirînin.",
+      "lbl-startTutorial": "Dersdariyê Dest Pê Bike",
+      "lbl-newProject": "Projeya Nû",
+      "lbl-createProject": "Biafirîne",
+      "lbl-newScene": "Dîmena Nû",
+      "lbl-searchProject": "Li Projeyên Heyî Bigere...",
+      "back": "Paşve",
+      "contextMenu": "Projeyê Jê Bibe",
+      "installed": "Projeyên Sazkirî",
+      "official": "Projeyên Fermî",
+      "community": "Projeyên Civakê",
+      "install": "Saz Bike",
+      "uninstall": "Rake",
+      "rename": "Nav biguherandin",
+      "createProject": "Proje Biafirîne",
+      "installProject": "Proje Saz Bike",
+      "processing": "Kirarî",
+      "projectName": "Navê Projeyê",
+      "projectURL": "URL ya Projeyê"
+    }
+  },
+  "error": {
+    "goHomeLink": "Here malê",
+    "withStatusCode": "Di pêşkêşkerê de çewtiyek {{code}} rû da",
+    "withoutStatusCode": "Çewtiyek di pêşkêşker de çêbû"
+  },
+  "no-projects": {
+    "msg": "Çewtî: Tu proje nehatine sazkirin - ji kerema xwe bi rêveberekî malperê re têkilî daynin"
+  },
+  "dev": {
+    "pageTitle": "Mal"
+  },
+  "login": {
+    "pageTitle": "Têketin"
+  },
+  "workerTest": {
+    "pageTitle": "Testa Karker"
+  },
+  "index": {
+    "by": "BI",
+    "xr": "XR",
+    "foundation": "Weqf",
+    "description": "Ji bo kêfa her kesî sepanên civakî yên dema rastîn 3D."
+  },
+  "xrengineContact": {
+    "header": "Têkeve Touchê!",
+    "description": "Em dixwazin ji bo çalakîyên we yên ferazî, perakendeya dîjîtal, şahî û hewcedarîyên we yên din alîkarîya we bikin.",
+    "lbl-name": "Nav",
+    "lbl-email": "E-peyam",
+    "lbl-company": "Şîrket",
+    "lbl-project": "Projeya xwe diyar bike",
+    "lbl-send": "Bişîne",
+    "lbl-ok": "Temam",
+    "lbl-success": "Peyam hat şandin, em dê di demeka kurt da li te vegerin.",
+    "lbl-failure": "Çewtiyek çêbû, Plese dîsa biceribîne",
+    "err-username": "Ji kerema xwe navê xwe binivîse.",
+    "err-email": "E-peyam lazim e.",
+    "err-msg": "Derbarê projeya xwe da hin pênaseyên kurt pêşkêş bikin."
+  }
+}

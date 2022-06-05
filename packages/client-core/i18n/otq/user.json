@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Correo electrónico confirmación",
+      "resendEmail": "Jaki ar mäte, revise ár correo electrónico pa gí hñeti ha ár nu. Nu'bu̲ hingi recibiste 'nar correo electrónico, gi clic jar {{here}} pa volver pe̲hni ar correo electrónico verificación.",
+      "haveAnAccount": "¿Gí 'ñehe 'nar nu?"
+    },
+    "forgotPassword": {
+      "header": "Olvidé ma contraseña",
+      "enterEmail": "Introduce ir 'mui ar correo electrónico registrada ne gi enviaremos 'nar enlace pa da t'ot'e jar contraseña.",
+      "lbl-email": "'Mui correo electrónico",
+      "lbl-submit": "Pe̲hni enlace",
+      "emailSent": "Ar envió ar correo electrónico ar 'mui contraseña. Jaki ar mäte, revise ár correo ar electrónico."
+    },
+    "login": {
+      "email": "Correo electrónico | SMS",
+      "username": "Thuuhu usuario + Contraseña",
+      "social": "'Mui"
+    },
+    "magiklink": {
+      "header": "Enlace inicio sesión",
+      "descriptionEmail": "Ingrese ár 'mui correo electrónico ne bí enviaremos 'nar enlace inicio sesión ya correo electrónico.",
+      "descriptionSMS": "Introduce ir 'bede ya teléfono ne gi enviaremos 'nar enlace inicio sesión a través de SMS.",
+      "descriptionEmailSMS": "Ingrese ár 'mui correo electrónico wa ya 'bede ya teléfono (10 dígitos, ho̲ntho jar EE. UU.) ne enviaremos 'nar enlace inicio sesión ya correo electrónico wa ya SMS.",
+      "descriptionSMSUS": "Ingrese ár 'bede ya teléfono (10 dígitos, ho̲ntho jar EE. UU.) ne bí enviaremos 'nar enlace inicio sesión a través de SMS.",
+      "lbl-email": "'Mui correo electrónico",
+      "lbl-emailPhone": "Correo electrónico wa ya 'bede ya teléfono",
+      "lbl-phone": "'Bede ya teléfono",
+      "agree": "Di ar acuerdo ko ar ",
+      "terms": "Ngäts'i ne ya nkohi",
+      "lbl-submit": "Pe̲hni enlace inicio sesión",
+      "email-sent-msg": "Ar envió ar enlace mágico inicio sesión. Jaki ar mäte, revise ár correo ar electrónico.",
+      "success-msg": "Ar envió ar enlace mágico inicio sesión. Jaki ar mäte, revise ár correo electrónico wa ya SMS.",
+      "sms-sent-msg": "Ar envió ar enlace mágico inicio sesión. Jaki ar mäte, revise ár SMS."
+    },
+    "passwordLogin": {
+      "header": "Gi du̲i sesión",
+      "lbl-email": "'Mui correo electrónico",
+      "lbl-password": "Contraseña",
+      "lbl-rememberMe": "Tsa̲ gi mbeni di",
+      "lbl-signin": "Gi du̲i sesión",
+      "forgotPassword": "¿Olvidó ár contraseña?",
+      "signup": "¿Hingi gí 'ñehe 'nar nu? Gi unir",
+      "lbl-login": "Gi du̲i sesión",
+      "ph-password": "Contraseña",
+      "ph-email": "Correo electrónico"
+    },
+    "social": {
+      "gitHub": "Da du'mi sesión ko GitHub",
+      "google": "Da du'mi sesión ko Google",
+      "facebook": "Da du'mi sesión ko Facebook",
+      "linkedin": "Da du'mi sesión ko Linkedin",
+      "twitter": "Da du'mi sesión ko Twitter"
+    },
+    "register": {
+      "header": "Gi unir",
+      "login": "Gi du̲i sesión",
+      "lbl-signup": "Gi unir",
+      "lbl-password": "Contraseña",
+      "lbl-email": "'Mui correo electrónico",
+      "passwordNotMatch": "Ya contraseñas hindi coinciden",
+      "ph-password": "Contraseña",
+      "ph-confirmPassword": "Confirmación contraseña",
+      "ph-email": "Correo electrónico"
+    },
+    "resetPassword": {
+      "header": "Da t'ot'e contraseña",
+      "description": "Introduzca ár contraseña pa ár 'mui correo electrónico",
+      "lbl-submit": "Da t'ot'e contraseña",
+      "lbl-password": "Contraseña",
+      "lbl-confirmPassword": "Confirmación contraseña",
+      "passwordNotMatch": "Ya contraseñas hindi coinciden",
+      "nowLoginYourAccount": "Nu'bya to da du'mi sesión ja ár",
+      "yourPasswordResetSuccess": "Ár contraseña ar restableció ko éxito!"
+    },
+    "verifyEmail": {
+      "header": "Gí hñeti ha correo electrónico",
+      "processing": "Jaki ar mäte, espere 'nar t'olo ora Mente procesa..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Ubicaciones",
+      "loading": "Carga",
+      "col-name": "Thuhuu",
+      "col-scene": "Escena",
+      "col-maxuser": "Máximo usuarios",
+      "lbl-search": "Honi ubicaciones",
+      "lbl-new": "'Ra'yo je"
+    },
+    "newLocation": {
+      "title": "Ja yá 'mui",
+      "success": "Guardado correctamente.",
+      "failure": "'Naxtu̲i himbi bo̲ni mal.",
+      "removeSuccess": "Ja yá 'mui eliminada correctamente.",
+      "nameInUse": "Thuuhu xi njapu'befi.",
+      "nameRequire": "Ar requiere thuhuu",
+      "validNumber": "Ho̲ntho bí permiten 'bede (0 — 9).",
+      "lbl-name": "Thuhuu",
+      "lbl-maxuser": "Máximo usuarios",
+      "lbl-scene": "Escena",
+      "lbl-type": "Ar klase",
+      "lbl-ve": "Vídeo habilitado",
+      "lbl-gme": "Nt'ot'e globales habilitados",
+      "lbl-update": "Actualizar",
+      "lbl-create": "Da t'ot'",
+      "tooltipCanNotBeDeleted": "Ar lobby hingi ar to da hñäki",
+      "confirmation": "¿Gi pödi majöni?",
+      "lbl-yes": "Hä",
+      "lbl-no": "Hi'nä"
+    },
+    "share": {
+      "lbl-share": "T'uni",
+      "ph-phoneEmail": "Invitar ya correo electrónico wa ya 'bede ya teléfono",
+      "lbl-phoneEmail": "Pe̲hni da correo electrónico wa ya 'bede ya teléfono",
+      "lbl-copy": "Copiar",
+      "lbl-send-invite": "Pe̲hni nts'ohni ko",
+      "title": "Comparte URL ir ja yá 'mui ko ir equipo",
+      "linkCopied": "Enlace copiado ar portapapeles."
+    },
+    "setting": {
+      "audio": "Audio",
+      "lbl-volume": "Volumen",
+      "lbl-microphone": "Micrófono",
+      "graphics": "Grafismo",
+      "controls": "Mandos",
+      "lbl-control-type": "Ar klase ar controlador",
+      "lbl-control-scheme": "Esquema control",
+      "lbl-resolution": "Resolución",
+      "lbl-shadow": "Sombras",
+      "lbl-pp": "Post Procesamiento",
+      "lbl-pbr": "PBR completo",
+      "lbl-automatic": "Automático",
+      "xrusersetting": "Configuración de usuario de XR",
+      "rotation": "Rotación",
+      "rotation-smooth-speed": "Rotación Velocidad za̲tho",
+      "rotation-angle": "Ángulo rotación",
+      "moving": "Conmovedor",
+      "user-avatar": "Configuración ar avatar",
+      "invert-rotation": "Invertir ar rotación ne mover palos",
+      "show-avatar": "Mostrar avatar"
+    },
+    "profile": {
+      "lbl-profile": "Perfil",
+      "lbl-settings": "Configuración",
+      "lbl-username": "Thuuhu usuario",
+      "update-msg": "Thuuhu usuario actualizado",
+      "inviteCode": "Código nts'ohni ko",
+      "youAreAn": "Gar 'nar",
+      "youAreA": "Gar 'nar",
+      "showUserId": "Mostrar ID ar usuario",
+      "hideUserId": "Ocultar ID ar usuario",
+      "showApiKey": "Mostrar clave de API",
+      "hideApiKey": "Ocultar clave de API",
+      "apiKey": "Clave de API",
+      "logout": "Cerrar sesión",
+      "connectPhone": "Conecta ir 'bede ya teléfono",
+      "connectEmail": "Conecta ir correo electrónico",
+      "connectPhoneEmail": "Conecta ir correo electrónico wa ya 'bede ya teléfono",
+      "or": "O",
+      "lbl-wallet": "Da du'mi sesión ko Wallet",
+      "ph-email": "Correo electrónico",
+      "ph-phone": "'Bede ya teléfono",
+      "ph-phoneEmail": "'Bede ya teléfono yá correo electrónico",
+      "phoneEmailError": "'Bede ya teléfono wa ya 'mui correo electrónico hindi válidos",
+      "phoneError": "Teléfono hindi válido #",
+      "emailError": "'Mui ar correo electrónico hindi válida",
+      "loginWithReadyPlayerMe": "Inicie sesión ko Ready Player ga",
+      "connectSocial": "Conectar ar ko ya cuentas ja ya 'mui",
+      "createOne": "Nu'bu̲ hingi pe̲ts'i 'nar nu, bí creará 'nar nueva pa nu'i",
+      "connections": {
+        "title": "Conexiones",
+        "ipError": "Hingi ar tsa̲ da pats'u̲ga̲ ar proveedor ar identidades activo",
+        "disconnect": "desconectar",
+        "connect": "Conectar"
+      },
+      "profileDropdown": {
+        "avatar": "Icono avatar usuario",
+        "profile": "Perfil",
+        "adminConsole": "Consola Ntsuni",
+        "logout": "Cerrar sesión"
+      },
+      "userIcon": {
+        "lbl-name": "Hu'i",
+        "lbl-update": "Actualizar",
+        "userId": "ID usuario",
+        "ph-uploadImg": "Ndi tsita ar producto",
+        "lbl-selectAcvatar": "Selecciona Avatar",
+        "lbl-submit": "Pe̲hni"
+      },
+      "userSettings": {
+        "volume": "Volumen",
+        "microphone": "Micrófono",
+        "resolution": "Resolución",
+        "high": "Hñets'i",
+        "low": "Hñets'i'",
+        "spatialAudio": "Ga audio espacial",
+        "enterMuted": "Entrar habitación silenciada"
+      }
+    },
+    "oauth": {
+      "authenticating": "Autenticación...",
+      "authFailed": "error autenticación {{service}}."
+    },
+    "magikLink": {
+      "wait": "Jaki ar mäte, espere 'nar t'olo ora Mente procesa..."
+    },
+    "dashboard": {
+      "header": "Salpicadero",
+      "dashboard": "Salpicadero",
+      "users": "Usuarios",
+      "feeds": "Alimenta",
+      "instance": "Hnini",
+      "locations": "Ubicaciones",
+      "invites": "Invita",
+      "sessions": "Hmunts'i",
+      "groups": "Hmunts'i",
+      "parties": "Ya xeni",
+      "chats": "Chats",
+      "content": "Paquetes contenido",
+      "projects": "'Yot'e",
+      "scenes": "Escenas",
+      "avatars": "Avatares",
+      "benchmarking": "Evaluación comparativa",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Autenticación...",
+    "authFailed": "error autenticación {{service}}."
+  },
+  "magikLink": {
+    "wait": "Jaki ar mäte, espere 'nar t'olo ora Mente procesa..."
+  },
+  "dashboard": {
+    "header": "Salpicadero",
+    "dashboard": "Salpicadero",
+    "users": "Usuarios",
+    "feeds": "Alimenta",
+    "instance": "Hnini",
+    "locations": "Ubicaciones",
+    "routes": "Rutas",
+    "projects": "'Yot'e",
+    "invites": "Invita",
+    "sessions": "Hmunts'i",
+    "groups": "Hmunts'i",
+    "parties": "Ya xeni",
+    "chats": "Chats",
+    "content": "Paquetes contenido",
+    "scenes": "Escenas",
+    "avatars": "Avatares",
+    "benchmarking": "Evaluación comparativa",
+    "bots": "Bots",
+    "setting": "Configuración"
+  },
+  "avatar": {
+    "title": "Ndi avatar",
+    "lbl-browse": "Hojear",
+    "lbl-thumbnail": "Miniatura",
+    "lbl-upload": "Ndi",
+    "selectAvatar": "Selecciona Avatar...",
+    "selectThumbnail": "Seleccione Miniatura...",
+    "rotate": "Rotar",
+    "pan": "Cacerola",
+    "noBone": "Obejct hingi contiene huesos ne piel",
+    "outOfBound": "Ar nt'ot'e xi fuera de límite.",
+    "emptyObj": "Ar nt'ot'e xi vacío.",
+    "maxTriangleError": "Ar nt'ot'e contiene caras pe̲ts'i da {{allowedTriangles}} .",
+    "selectValidFile": "Seleccione 'nar archivo avatar 3D válido.",
+    "selectValidThumbnail": "Archivo ar miniatura válido seleccionado.",
+    "fileOversized": "Ar tamaño ar archivo avatar gi 'bu̲i entre {{minSize}} MB ne {{maxSize}} MB",
+    "confirmation": "¿Gi pödi majöni?",
+    "canNotBeRemoved": "Ar avatar activo hingi ar to da hñäki",
+    "remove": "Da hñäki ya avatar",
+    "uploadFiles": "Ndi archivos",
+    "useUrlInstead": "Usa url da su lugar",
+    "avatar": "Avatar",
+    "cancel": "Cancelar",
+    "createAvatar": "Da t'ot'e avatar",
+    "delete": "Borrar",
+    "view": "Thandi",
+    "uploadAvatarInfo": "Actualizar nuna ar avatar",
+    "name": "Thuhuu",
+    "enterName": "Introduzca ar thuhuu",
+    "avatarInformation": "Nuna ar avatar",
+    "description": "Descripción",
+    "key": "Llave",
+    "none": "Ninguno",
+    "submit": "Pe̲hni",
+    "edit": "Editar",
+    "avatarUrl": "URL avatar",
+    "upload-success-msg": "Avatar cargado correctamente.",
+    "remove-success-msg": "Avatar cargado correctamente.",
+    "warning-msg": "Ár hño avatar xi vacío, ¿xka sincronizado avatares ko ir almacenamiento archivos estáticos?"
+  },
+  "personMenu": {
+    "inviteToParty": "Invitar ar dängo",
+    "addAsFriend": "Añadir komongu ya mpädi",
+    "mute": "Mudo",
+    "block": "Bloquear"
+  },
+  "person": {
+    "you": "Nu'i",
+    "yourScreen": "Ir pantalla",
+    "muteForEveryone": "Silencio pa nga̲tho",
+    "unmuteForEveryone": "Desactiva pa nga̲tho",
+    "muteMe": "Di silenciar",
+    "unmuteMe": "Di desactivar",
+    "muteThisPerson": "Silenciar nuna ar jä'i",
+    "unmuteThisPerson": "Activar silencio nuna ya jä'i",
+    "openPictureInPicture": "Abrir ar tsita jar tsita"
+  }
+}

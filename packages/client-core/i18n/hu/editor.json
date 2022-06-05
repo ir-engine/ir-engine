@@ -1,0 +1,718 @@
+{
+  "loading": "Projekt betöltése",
+  "loadingMsg": "Projekt betöltése...",
+  "loadingError": "Hiba a projekt betöltésekor",
+  "loadingErrorMsg": "Hiba történt a projekt betöltésekor.",
+  "selectSceneMsg": "Válassza a Jelenet lehetőséget a motorral való játék megkezdéséhez",
+  "error": "Hiba",
+  "errorMsg": "Ismeretlen hiba történt.",
+  "generateScreenshot": "Projekt képernyőképének létrehozása",
+  "generateScreenshotMsg": "Projekt képernyőképének létrehozása...",
+  "newScene": "Jelenet létrehozása",
+  "saving": "Projekt mentése",
+  "savingMsg": "Projekt mentése...",
+  "savingError": "Hiba a projekt mentésekor",
+  "savingErrorMsg": "Hiba történt a projekt mentésekor.",
+  "savingSceneErrorMsg": "A jelenet nincs megfelelően betöltve. Próbálja meg újratölteni a jelenetet.",
+  "duplicating": "Projekt másolása",
+  "duplicatingMsg": "A projekt megkettőzése...",
+  "exporting": "Projekt exportálása",
+  "exportingMsg": "Projekt exportálása...",
+  "exportingError": "Hiba a projekt exportálása közben",
+  "exportingErrorMsg": "Hiba történt a projekt exportálása közben.",
+  "importLegacy": "Örökölt világ importálása",
+  "importLegacyMsg": "Figyelmeztetés! Ez felülírja a meglévő jelenetedet! Biztos, hogy folytatni szeretné?",
+  "publishingError": "Hiba a projekt közzétételekor",
+  "publishingErrorMsg": "Ismeretlen hiba történt.",
+  "publishingScene": "Közzétételi jelenet",
+  "publishingSceneMsg": "Közzétételi jelenet...",
+  "uploadingThumbnailMsg": "Miniatűr feltöltése...",
+  "uploadingSceneMsg": "Feltöltési jelenet: {{percentage}}%",
+  "envMapError": "Hiba a kockatérképes képek betöltésekor {{files}}",
+  "lbl-return": "Visszatérés",
+  "menubar": {
+    "newScene": "Új jelenet",
+    "saveScene": "Jelenet mentése",
+    "saveAs": "Mentés másként",
+    "importAsset": "Eszköz importálása",
+    "exportGLB": "Exportálás bináris glTF (.glb) formátumban ...",
+    "importScene": "Jelenet importálása",
+    "exportScene": "Jelenet exportálása",
+    "quit": "Felmond"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Nem támogatott fájltípus: \"{{name}}\". A fájlnak képnek, videónak vagy glb modellnek kell lennie.",
+    "addObject": "addObjektum: mielőtt az objektum nem található",
+    "removeObject": "removeObject: csomópont nem található. Ennek oka egy olyan csomópont eltávolítása, amely már nincs a jelenetben.",
+    "noParent": "{{node}} \"{{name}}\" -nak nincs szülője. A Reparent csak a jelenetben lévő objektumokon működik.",
+    "undefinedParent": "editor.reparent: newParent meghatározatlan",
+    "notAuthenticated": "Nincs hitelesítve",
+    "fetchingProjectError": "Hiba a projektek beolvasása közben: {{error}}",
+    "fetchingRouteError": "Hiba az útvonalak beolvasása közben: {{error}}",
+    "unknownError": "Ismeretlen hiba",
+    "resolveURL": "Hiba az URL \"{{url}}\" feloldásakor:",
+    "mediaSearchAborted": "Megszakított médiakeresés",
+    "methodNotImplemented": "A metódus nincs megvalósítva.",
+    "saveProjectAborted": "A jelenet mentése megszakítva",
+    "unsavedChanges": "Nem mentett módosítások",
+    "unsavedChangesMsg": "A jelenetet módosították. Mentse a módosításokat.",
+    "projectCreationFail": "A projekt létrehozása nem sikerült. {{reason}}",
+    "projectDeletionFail": "A projekt törlése nem sikerült. {{reason}}",
+    "savingProjectFail": "A projekt mentése nem sikerült. {{reason}}",
+    "sceneTooLarge": "A jelenet túl nagy ({{size}} MB) a közzétételhez. A maximális méret mb {{maxSize}} MB.",
+    "sceneCreationFail": "A jelenet létrehozása nem sikerült. {{reason}}",
+    "uploadAborted": "Feltöltés megszakítva",
+    "uploadFailed": "A feltöltés nem sikerült {{reason}}",
+    "assetDeletionFail": "Az eszköz törlése nem sikerült. {{reason}}",
+    "projectAssetDeletionFail": "A project eszköz törlése nem sikerült. {{reason}}",
+    "networkError": "Hálózati hiba: {{status}}. {{text}}",
+    "unknownStatus": "Ismeretlen állapot",
+    "CORS": "Esetleg CORS hiba",
+    "urlFetchError": "Nem sikerült beolvasni a \"{{url}}\""
+  },
+  "viewport": {
+    "title": "Nézetablak",
+    "command": {
+      "movecamera": "Kamera mozgatása",
+      "flyFast": "Gyorsabban repülhet",
+      "orbit": "Orbit / Select",
+      "pan": "Serpenyő",
+      "fly": "Repül",
+      "focus": "Fókusz",
+      "rotateLeft": "Elforgatás balra",
+      "rotateRight": "Elforgatás jobbra",
+      "cancelPlacement": "Elhelyezés megszakítása",
+      "placeDuplicate": "Másolat elhelyezése",
+      "cancelGrab": "Mégse Megragadás",
+      "grab": "Megragad",
+      "deselectAll": "Az összes kijelölésének megszüntetése"
+    },
+    "state": {
+      "header": "Statisztika",
+      "memory": "Emlékezet",
+      "geometries": "Geometriák",
+      "textures": "Textúrák",
+      "render": "Megjelenít",
+      "FPS": "FPS",
+      "frameTime": "Keretezési idő",
+      "calls": "Hívások",
+      "triangles": "Háromszögek",
+      "points": "Váltó",
+      "lines": "Sorok"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Közzétesz",
+    "lbl-published": "Közzétett",
+    "command": {
+      "translate": "Fordít",
+      "rotate": "Forog",
+      "scale": "Hangsor",
+      "toggleSpace": "Átalakítási tér váltása",
+      "togglePivot": "Kimutatás átalakítása váltása",
+      "toggleSnapMode": "Illesztési mód váltása",
+      "toggleGrid": "Rács láthatóságának váltása",
+      "increaseGridSize": "Rács méretének növelése",
+      "descreaseGridSize": "Rács méretének csökkentése",
+      "stopPreview": "Jelenet előnézetének leállítása",
+      "playPreview": "Jelenet előnézete"
+    }
+  },
+  "properties": {
+    "title": "Kellékek",
+    "lbl-visible": "Látható",
+    "lbl-preventBake": "Sütés megakadályozása",
+    "lbl-persist": "Kitart",
+    "multipleNodeSelected": "Több különböző típusú csomópont van kijelölve",
+    "noNodeSelected": "Nincs kijelölt csomópont",
+    "ambientLight": {
+      "name": "Környezeti fény",
+      "description": "Egy fény, amely megvilágítja a jeleneted minden objektumát.",
+      "lbl-intensity": "Intenzitás",
+      "lbl-color": "Szín"
+    },
+    "envmap": {
+      "name": "Környezeti térkép",
+      "description": "környezeti térkép tulajdonságai"
+    },
+    "asset": {
+      "name": "Eszköz",
+      "description": "Dinamikusan be- és kirakható jelenetösszetevők csoportosítása",
+      "lbl-options": "Beállítások",
+      "lbl-assetPath": "Eszköz elérési útja",
+      "lbl-assetName": "Exportálás neve",
+      "lbl-exportOptions": "Exportálási beállítások",
+      "lbl-export": "Eszköz exportálása",
+      "lbl-load": "Betöltés a jelenetbe",
+      "lbl-unload": "Kirak",
+      "lbl-reload": "Újratöltés"
+    },
+    "audio": {
+      "name": "Hanganyag",
+      "description": "Dinamikusan betölti a hangot.",
+      "lbl-audiourl": "Hang URL-címe",
+      "lbl-controls": "vezérlőberendezés",
+      "info-controls": "Az adathordozó-vezérlők láthatóságának váltása.",
+      "lbl-autoplay": "Automatikus lejátszás",
+      "info-autoplay": "Ha ez igaz, a média akkor fog lejátszódni, amikor először lép be a jelenetbe.",
+      "lbl-synchronize": "Szinkronizálni",
+      "info-synchronize": "Ha igaz, az adathordozó szinkronizálva lesz az összes csatlakoztatott ügyfélen.",
+      "lbl-loop": "Hurok",
+      "info-loop": "Ha igaz, a média korlátlan ideig hurkolódik.",
+      "lbl-audioType": "Hang típusa",
+      "lbl-distanceModel": "Távolsági modell",
+      "info-distanceModel": "Az algorithim, amit a hanggördülés kiszámításához használtak.",
+      "lbl-rolloffFactor": "Rolloff tényező",
+      "info-rolloffFactor": "Kettős érték, amely leírja, hogy a hangerő milyen gyorsan csökken, amikor a forrás távolodik a figyelőtől. 0 az 1-hez",
+      "info-rfInfinity": "Kettős érték, amely leírja, hogy a hangerő milyen gyorsan csökken, amikor a forrás távolodik a figyelőtől. 0 a végtelenbe",
+      "lbl-refDistance": "Hivatkozási távolság",
+      "info-refDistance": "Kettős érték, amely a hangerő csökkentésének referenciatávolságát jelöli, amikor a hangforrás távolabb kerül a figyelőtől.",
+      "lbl-maxDistance": "Maximális távolság",
+      "info-maxDistance": "A hangforrás és a hallgató közötti maximális távolságot képviselő kettős érték, amely után a hangerő nem csökken tovább.",
+      "lbl-coneInnerAngle": "Kúp belső szöge",
+      "info-coneInnerAngle": "Kettős érték, amely leírja egy kúp szögét fokban, amelyen belül nem lesz térfogatcsökkenés.",
+      "lbl-coneOuterAngle": "Kúp külső szöge",
+      "info-coneOuterAngle": "Egy kúp szögét fokban leíró kettős érték, amelyen kívül a térfogatot a coneOuterGain attribútum által meghatározott állandó érték csökkenti.",
+      "lbl-coreOuterGain": "Kúp külső nyereség",
+      "info-coreOuterGain": "A coneOuterAngle attribútum által meghatározott kúpon kívüli térfogatcsökkentés mennyiségét leíró kettős érték. Alapértelmezett értéke 0, ami azt jelenti, hogy nem hallható hang.",
+      "lbl-volume": "Térfogat",
+      "lbl-play": "Játszik",
+      "lbl-pause": "Szünet",
+      "error-url": "Hiba az URL-címről történő betöltésekor"
+    },
+    "boxCollider": {
+      "description": "Egy láthatatlan doboz, amelyről a tárgyak lepattannak, vagy a tetején nyugszanak.\nÜtközők nélkül a tárgyak átesnek a padlón és áthaladnak a falakon.",
+      "lbl-isTrigger": "Kivált"
+    },
+    "camera": {
+      "name": "Fényképezőgép",
+      "description": "Kamera beállításai.",
+      "lbl-camera-raycast": "Kamera Raycasting",
+      "lbl-camera-raycast-toggle": "Engedélyezve",
+      "lbl-camera-raycast-frequency": "Frekvencia",
+      "lbl-camera-raycast-count": "Sugárszám",
+      "lbl-camera-raycast-length": "Sugár hossza"
+    },
+    "directionalLight": {
+      "name": "Irányított fény",
+      "description": "Egy fény, amely megvilágítja az egész jelenetet, de egyetlen irányban bocsát ki.",
+      "lbl-color": "Szín",
+      "lbl-intensity": "Intenzitás",
+      "lbl-cameraFar": "Kamera messze",
+      "lbl-cameraNear": "Kamera a közelben",
+      "lbl-cameraTop": "Kamera felső",
+      "lbl-cameraBottom": "Kamera alsó része",
+      "lbl-cameraLeft": "Kamera balra",
+      "lbl-cameraRight": "Kamera jobbra",
+      "lbl-useInCSM": "Használat a CSM-ben",
+      "lbl-castShadow": "Árnyék",
+      "lbl-disableForCSM": "Letiltva, mert a Kaszkádolt árnyékleképezés engedélyezve van.",
+      "lbl-shadowmapResolution": "Árnyéktérkép felbontása",
+      "lbl-shadowBias": "Árnyék torzítása",
+      "lbl-shadowRadius": "Árnyék sugara",
+      "lbl-showCameraHelper": "Kamerasegítő megjelenítése"
+    },
+    "groundPlane": {
+      "name": "Földi sík",
+      "description": "Egy sík földi sík, amely a távolba nyúlik.",
+      "lbl-color": "Szín",
+      "lbl-receiveShadow": "Árnyék fogadása",
+      "lbl-generateNavmesh": "Navmesh létrehozása"
+    },
+    "link": {
+      "description": "Link egy szobához vagy egy weboldalhoz.",
+      "lbl-url": "URL-cím"
+    },
+    "map": {
+      "description": "3D térinformatikai térkép pl. egy városról."
+    },
+    "model": {
+      "description": "3D modell a jelenetben, gltf URL-ről vagy fájlból töltve.",
+      "lbl-usingGPUInstancingFlag": "A GPU instancing használata",
+      "lbl-modelurl": "Modell URL-címe",
+      "lbl-envmapUrl": "Környezeti térkép URL-címe",
+      "lbl-textureOverride": "Struktúra felülbírálása",
+      "lbl-materialOverride": "Anyag felülbírálása",
+      "error-url": "Hiba az URL-címről történő betöltésekor",
+      "lbl-loopAnimation": "Hurokanimáció",
+      "lbl-isAvatar": "Az Avatar az Avatar",
+      "lbl-isGPUInstancing": "GPU instancingot használ",
+      "lbl-isDynamic": "Dinamikus",
+      "lbl-castShadow": "Árnyék",
+      "lbl-receiveShadow": "Árnyék fogadása",
+      "lbl-interactable": "Interakcióba léphető",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Név",
+      "lbl-url": "Modell URL-címe",
+      "lbl-buy": "Url vásárlása",
+      "lbl-learnMore": "További információ URL-cím",
+      "lbl-htmlContent": "Html-tartalom",
+      "lbl-interactionText": "Kapcsolati tevékenység szövege",
+      "lbl-interactionType": "Kapcsolati tevékenység típusa"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Anyag",
+      "error-materialID": "Hiba az anyag keresésekor",
+      "placeholder-materialID": "Anyag kiválasztása",
+      "lbl-patternTarget": "Mintaegyezés",
+      "lbl-pattern": "Minta",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Kapcsolati tevékenység típusa",
+      "text": "Kapcsolati tevékenység szövege",
+      "distance": "Interakciós távolság",
+      "theme": "Interakció témája",
+      "name": "Kapcsolati tevékenység neve",
+      "description": "Kapcsolati tevékenység leírása",
+      "images": "Interakciós képek",
+      "videos": "Interakciós videók",
+      "urls": "Kapcsolatitevékenység URL-címei",
+      "models": "Interakciós modellek"
+    },
+    "group": {
+      "name": "Csoport",
+      "description": "Több objektumból álló csoport, amely együtt mozgatható vagy másolható.\nObjektumok húzása a hierarchia csoportjába."
+    },
+    "hemisphere": {
+      "name": "Félgömb fény",
+      "description": "Egy fény, amely közvetlenül a feje fölöttről világítja meg a jelenetet.",
+      "lbl-skyColor": "Ég színe",
+      "lbl-groundColor": "Őrölt szín",
+      "lbl-intensity": "Intenzitás"
+    },
+    "image": {
+      "name": "Kép",
+      "description": "Dinamikusan betölt egy képet.",
+      "lbl-imgURL": "Kép URL-címe",
+      "lbl-transparency": "Áttetszőségi mód",
+      "lbl-alphaCutoff": "Alfa-elzárás",
+      "lbl-projection": "Vetítés",
+      "lbl-side": "Oldal",
+      "info-controls": "Az adathordozó-vezérlők láthatóságának váltása.",
+      "info-transparency": "Az átláthatóság alkalmazása:",
+      "info-opaque": "\"átlátszatlan\" = nincs átlátszóság",
+      "info-blend": "\"blend\" = használja a képek alfa csatorna",
+      "info-mask": "\"maszk\" = Megadott küszöbérték használata a be- és kikapcsolási áttetszőséghez (több előadó)",
+      "info-alphaCutoff": "Az ennél alacsonyabb alfa-értékekkel rendelkező képpontok átlátszóak lesznek",
+      "error-url": "Érvénytelen URL-cím"
+    },
+    "name": {
+      "lbl-name": "Név"
+    },
+    "partileEmitter": {
+      "description": "Részecskekibocsátó, hogy részecskéket hozzon létre.",
+      "lbl-particleCount": "Részecskeszám",
+      "lbl-image": "Kép",
+      "lbl-ageRandomness": "Életkor véletlenszerűsége",
+      "lbl-lifetime": "Élettartam",
+      "lbl-lifetimeRandomness": "Élethosszig tartó véletlenszerűség",
+      "lbl-sizeCurve": "Méretgörbe",
+      "lbl-startPSize": "Részecskeméret indítása",
+      "lbl-endPSize": "Végrészecske mérete",
+      "lbl-sizeRandomness": "Méret véletlenszerűség",
+      "lbl-colorCurve": "Színgörbe",
+      "lbl-startColor": "Kezdő szín",
+      "lbl-startOpacity": "Opacitás indítása",
+      "lbl-middleColor": "Középső szín",
+      "lbl-middleOpacity": "Középső átlátszatlanság",
+      "lbl-endColor": "Záró szín",
+      "lbl-endOpacity": "Átlátszatlanság vége",
+      "lbl-velocityCurve": "Sebességgörbe",
+      "lbl-startVelocity": "Indítási sebesség",
+      "lbl-endVelocity": "Végsebesség",
+      "lbl-angularVelocity": "Szögsebesség",
+      "info-ageRandomness": "A részecskék keletkezésének mértéke.",
+      "info-lifetime": "A részecske maximális életkora, mielőtt újrapozitálná.",
+      "info-lifetimeRandomness": "A részecskeélettartamok közötti eltérés mértéke.",
+      "info-sizeRandomness": "A részecske kezdőméretek közötti eltérés mennyisége.",
+      "error-url": "Hiba az URL-címről történő betöltésekor"
+    },
+    "clouds": {
+      "name": "Felhő",
+      "description": "Sprite alapú felhőmennyiség.",
+      "lbl-image": "Sprite-kép",
+      "lbl-wroldScale": "Világméretek",
+      "lbl-dimensions": "Méretek",
+      "lbl-noiseZoom": "Zaj nagyítása",
+      "lbl-noiseOffset": "Zajeltolás",
+      "lbl-spriteScale": "Sprite-skála",
+      "lbl-fogColor": "Köd színe",
+      "lbl-fogRange": "Köd tartomány",
+      "error-url": "Hiba az URL-címről történő betöltésekor"
+    },
+    "ocean": {
+      "name": "Óceán",
+      "description": "Óceánfelszín hullámokkal és habbal",
+      "lbl-normalMap": "Normál térkép",
+      "lbl-distortionMap": "Torzítási térkép",
+      "lbl-envMap": "Környezeti térkép",
+      "lbl-color": "Szín",
+      "lbl-shallowWaterColor": "Sekély víz színe",
+      "lbl-shallowToDeepDistance": "Sekélytől a mély távolságig",
+      "lbl-opacityFadeDistance": "Átlátszatlanság elhalványulási távolsága",
+      "lbl-opacityRange": "Átlátszatlanság tartománya",
+      "lbl-shininess": "Fényesség",
+      "lbl-reflectivity": "Fényvisszaverődés",
+      "lbl-foamColor": "Hab színe",
+      "lbl-foamSpeed": "Hab sebessége",
+      "lbl-foamTiling": "Hab csempézés",
+      "lbl-bigWaveTiling": "Nagy hullám csempézés",
+      "lbl-bigWaveSpeed": "Nagy hullámsebesség",
+      "lbl-bigWaveHeight": "Nagy hullám magassága",
+      "lbl-waveSpeed": "Hullámsebesség",
+      "lbl-waveScale": "Hullámskála",
+      "lbl-waveTiling": "Hullám csempézés",
+      "lbl-waveDistortionSpeed": "Hullámtorzulás sebessége",
+      "lbl-waveDistortionTiling": "Hullámtorzulás csempézés",
+      "error-url": "Hiba az URL-címről történő betöltésekor"
+    },
+    "water": {
+      "name": "Víz",
+      "description": "Kis vízfelület"
+    },
+    "interior": {
+      "name": "Belső",
+      "description": "Leképezett kocka textúrájú felület a belső környezetek emulálásához",
+      "lbl-cubeMap": "Kockatérkép textúrája",
+      "lbl-tiling": "Csempézési összeg",
+      "lbl-size": "Felület mérete",
+      "error-url": "Hiba az URL-címről történő betöltésekor"
+    },
+    "pointLight": {
+      "description": "Olyan fény, amely minden irányban egyetlen pontból bocsát ki.",
+      "lbl-color": "Szín",
+      "lbl-intensity": "Intenzitás",
+      "lbl-range": "Tartomány",
+      "lbl-decay": "Bomlás"
+    },
+    "scene": {
+      "name": "Jelenet",
+      "description": "A jelenet gyökérobjektuma.",
+      "lbl-bgcolor": "Háttérszín",
+      "lbl-fogType": "Köd típusa",
+      "lbl-fogColor": "Köd színe",
+      "lbl-forNearDistance": "Köd közel a távolhoz",
+      "lbl-fogFarDistance": "Köd távolságra",
+      "lbl-fogDensity": "Köd sűrűsége",
+      "lbl-audioSettings": "Pozicionált hang használata",
+      "lbl-avatarDistanceModel": "Avatar távolságmodell",
+      "lbl-avatarRolloffFactor": "Avatar rolloff tényező",
+      "lbl-avatarRefDistance": "Avatar ref távolság",
+      "lbl-avatarMaxDistance": "Avatar maximális távolság",
+      "lbl-mediaVolume": "Médiakötet",
+      "lbl-mediaDistanceModel": "Médiatávolság-modell",
+      "lbl-mediaRolloffFactor": "Média rolloff tényező",
+      "lbl-mediaRefDistance": "Adathordozó ref távolsága",
+      "lbl-mediaMaxDistance": "Adathordozó maximális távolsága",
+      "lbl-mediaConeInnerAngle": "Média kúp belső szöge",
+      "lbl-mediaConeOuterAngle": "Médiatölcsér külső szöge",
+      "lbl-mediaConeOuterGain": "Média kúp külső nyereség",
+      "info-avatarDistanceModel": "Az algorithim, amit a hanggördülés kiszámításához használtak.",
+      "info-avatarRolloffFactor": "Kettős érték, amely leírja, hogy a hangerő milyen gyorsan csökken, amikor a forrás távolodik a figyelőtől. 0 az 1-hez",
+      "info-avatarRolloffFactorInifinity": "Kettős érték, amely leírja, hogy a hangerő milyen gyorsan csökken, amikor a forrás távolodik a figyelőtől. 0 a végtelenbe",
+      "info-avatarRefDistance": "Kettős érték, amely a hangerő csökkentésének referenciatávolságát jelöli, amikor a hangforrás távolabb kerül a figyelőtől.",
+      "info-avatarMaxDistance": "A hangforrás és a hallgató közötti maximális távolságot képviselő kettős érték, amely után a hangerő nem csökken tovább.",
+      "info-mediaDistanceModel": "Az algorithim, amit a hanggördülés kiszámításához használtak.",
+      "info-mediaRolloffFactor": "Kettős érték, amely leírja, hogy a hangerő milyen gyorsan csökken, amikor a forrás távolodik a figyelőtől. 0 az 1-hez",
+      "info-mediaRolloffFactorInfinity": "Kettős érték, amely leírja, hogy a hangerő milyen gyorsan csökken, amikor a forrás távolodik a figyelőtől. 0 a végtelenbe",
+      "info-mediaRefDistance": "Kettős érték, amely a hangerő csökkentésének referenciatávolságát jelöli, amikor a hangforrás távolabb kerül a figyelőtől.",
+      "info-mediaMaxDistance": "A hangforrás és a hallgató közötti maximális távolságot képviselő kettős érték, amely után a hangerő nem csökken tovább.",
+      "info-mediaConeInnerAngle": "Kettős érték, amely leírja egy kúp szögét fokban, amelyen belül nem lesz térfogatcsökkenés.",
+      "info-mediaConeOuterAngle": "Egy kúp szögét fokban leíró kettős érték, amelyen kívül a térfogatot a coneOuterGain attribútum által meghatározott állandó érték csökkenti.",
+      "info-mediaConeOuterGain": "A coneOuterAngle attribútum által meghatározott kúpon kívüli térfogatcsökkentés mennyiségét leíró kettős érték. Alapértelmezett értéke 0, ami azt jelenti, hogy nem hallható hang.",
+      "lbl-simpleMaterials": "Egyszerű anyagok használata",
+      "lbl-lods": "LOD-k",
+      "info-lods": "Beállítja azokat a távolságokat, amelyeken a részletességi szintek változnak.",
+      "info-simpleMaterials": "Az összes drága anyagot egyszerűbb anyaggá alakítja, hogy levegye a terhelést a jelenet rendereléséről.",
+      "lbl-rendererSettings": "Renderelő beállításainak felülbírálása",
+      "lbl-csm": "Lépcsőzetes árnyéktérképek",
+      "info-csm": "Engedélyezi a lépcsőzetes árnyékleképezéseket.",
+      "lbl-toneMapping": "Tónusleképezés",
+      "info-toneMapping": "Engedélyezi a tónusleképezést a jelenet renderelőjén. Nincs hatása, ha az utófeldolgozás engedélyezve van.",
+      "lbl-toneMappingExposure": "Tónusleképezési expozíció",
+      "info-toneMappingExposure": "Megadja a jelenetmegjelenítő tónusleképezési expozícióját. Nincs hatása, ha az utófeldolgozás engedélyezve van.",
+      "lbl-shadowMapType": "Árnyéktérkép típusa",
+      "info-shadowMapType": "Az árnyéktérkép típusa",
+      "error-url": "Hiba az URL-címről történő betöltésekor"
+    },
+    "sceneCamera": {
+      "name": "Jelenet előnézeti kamerája",
+      "description": "A jelenet miniatűrjének és az előnézeti kamera kezdőpozíciójának létrehozásához használt kamera.",
+      "lbl-setFromViewPort": "Beállítás nézetablakból"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "A napszak",
+      "lbl-color": "Szín",
+      "lbl-latitude": "Szélesség",
+      "lbl-luminance": "Fénysűrűség",
+      "lbl-scattering": "Szórási összeg",
+      "lbl-scatteringDistance": "Szórási távolság",
+      "lbl-horizonStart": "Horizont kezdete",
+      "lbl-horizonEnd": "Horizont vége",
+      "lbl-texture": "Szövet",
+      "lbl-skyType": "Ég típusa",
+      "error-url": "Hiba az URL-címről történő betöltésekor"
+    },
+    "spawnPoint": {
+      "name": "Ívási pont",
+      "description": "Egy pont, ahol az emberek megjelennek, amikor belépnek a jelenetbe.\nA Viewport ikonja az avatar tényleges méretét jelöli."
+    },
+    "spotLight": {
+      "description": "Egy fény, amely egy irány mentén bocsát ki, megvilágítva a kúpon belüli tárgyakat.",
+      "lbl-color": "Szín",
+      "lbl-intensity": "Intenzitás",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "Szög",
+      "lbl-range": "Tartomány",
+      "lbl-decay": "Bomlás"
+    },
+    "transform": {
+      "title": "Átalakít",
+      "lbl-postition": "Pozíció",
+      "lbl-rotation": "Forgás",
+      "lbl-scale": "Hangsor"
+    },
+    "triggereVolume": {
+      "description": "Tulajdonság beállítása a célobjektumon az Enter és a Kilépéskor.",
+      "lbl-target": "Tárgy",
+      "lbl-onenter": "Beíráskor",
+      "lbl-onexit": "Kilépéskor",
+      "lbl-showHelper": "Segítő háló megjelenítése",
+      "ph-errorNode": "Hiba a csomópont hiányakor.",
+      "ph-selectNode": "Csomópont kiválasztása..."
+    },
+    "video": {
+      "name": "Video",
+      "description": "Dinamikusan betölt egy videót.",
+      "lbl-video": "Video",
+      "lbl-projection": "Vetítés",
+      "lbl-islivestream": "Élő közvetítés",
+      "lbl-interactable": "Interakcióba léphető",
+      "lbl-id": "Elemazonosító",
+      "lbl-play": "Játszik",
+      "lbl-pause": "Szünet",
+      "error-url": "Hiba az URL-címről történő betöltésekor"
+    },
+    "volumetric": {
+      "name": "Térfogat",
+      "description": "Dinamikusan betölt egy térfogati videót.",
+      "uvolPaths": "UVOL elérési utak",
+      "playmode": "Lejátszási mód",
+      "playtitle": "Játszik",
+      "pausetitle": "Szünet"
+    },
+    "spline": {
+      "description": "Görbék dinamikus létrehozása és testreszabása.",
+      "lbl-addNode": "Csomópont hozzáadása görbéhez."
+    },
+    "systemnode": {
+      "description": "Parancsfájl csatolása.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "Befecskendezési pont",
+      "lbl-enableClient": "Ügyfél",
+      "lbl-enableServer": "Kiszolgáló",
+      "lbl-args": "Args",
+      "error-url": "Hiba a parancsfájl URL-címről történő betöltésekor"
+    },
+    "portal": {
+      "lbl-portal": "Csatolt portál",
+      "lbl-redirect": "Lapátirányítás használata",
+      "description": "A Portat a játékosok teleportálásához a megadott helyre",
+      "lbl-locationName": "Hely",
+      "lbl-modelUrl": "Modell URL-címe",
+      "lbl-displayText": "Szöveg megjelenítése",
+      "lbl-cubemapBake": "Cubemap sütni",
+      "lbl-spawnPosition": "Spawn pozíció",
+      "lbl-spawnRotation": "Spawn rotáció",
+      "lbl-triggerPosition": "Eseményindító pozíciója",
+      "lbl-triggerRotation": "Eseményindító elforgatása",
+      "lbl-triggerScale": "Eseményindító léptéke"
+    },
+    "postprocessing": {
+      "name": "Utófeldolgozás",
+      "description": "Az Utófeldolgozási effektusok alkalmazásához a jelenetre."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Új projekt",
+      "backLink": "Vissza a projektekhez",
+      "featured": "Kiemelt",
+      "all": "Összes",
+      "newProject": "Új üres projekt",
+      "ph-search": "Jelenetek keresése..."
+    },
+    "grid": {
+      "loading": "Berakás..."
+    },
+    "page": {
+      "header": "Isten hozott",
+      "headerMsg": "Ha új vagy itt, javasoljuk, hogy menjen át a bemutatón. Ellenkező esetben ugorjon be, és hozzon létre egy projektet a semmiből vagy valamelyik sablonunkból.",
+      "lbl-startTutorial": "Oktatóanyag indítása",
+      "projects": "Projektek",
+      "lbl-newProject": "Új projekt"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Berakás...",
+      "placeObject": "Objektum elhelyezése",
+      "placeObjectAtOrigin": "Objektum elhelyezése az eredetnél",
+      "copyURL": "URL másolása",
+      "openInNewTab": "URL megnyitása az Új lapon",
+      "deleteAsset": "Eszköz törlése"
+    },
+    "filebrowser": {
+      "addNewFolder": "Új mappa hozzáadása",
+      "cutAsset": "Vág",
+      "copyAsset": "Másolat",
+      "pasteAsset": "Paszta",
+      "renameAsset": "Átnevez",
+      "viewAssetProperties": "Tulajdonságok megtekintése"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Átnevez",
+    "lbl-duplicate": "Ismétlődő",
+    "lbl-group": "Csoport",
+    "lbl-delete": "Töröl",
+    "lbl-expandAll": "Az összes kibontása",
+    "lbl-collapseAll": "Az összes összecsukása",
+    "isseus": "Kérdések:"
+  },
+  "dnd": {
+    "nodes": "{{count}} csomópontok kijelölése",
+    "models": "{{count}} kiválasztott modellek",
+    "images": "{{count}} kijelölt képek",
+    "videos": "{{count}} kiválasztott videók",
+    "audio": "{{count}} kijelölt hangforrások"
+  },
+  "dialog": {
+    "title": "Szerkesztő",
+    "lbl-confirm": "Oké",
+    "lbl-cancel": "Érvénytelenít",
+    "exportProject": {
+      "title": "Projekt exportálása",
+      "lbl-confirm": "Projekt exportálása",
+      "lbl-combineMesh": "Hálók kombinálása",
+      "lbl-removeUnused": "Nem használt objektumok eltávolítása"
+    },
+    "performance": {
+      "title": "Teljesítményellenőrzés",
+      "lbl-confirm": "Jelenet közzététele",
+      "learnMore": "Tudj meg többet",
+      "lbl-polycount": "Sokszögek száma",
+      "lbl-material": "Anyagok",
+      "lbl-texture": "Textúrák",
+      "lbl-lights": "Fények",
+      "lbl-fileSize": "Fájlméret",
+      "info-polycount": "Javasoljuk, hogy a jelenetet legfeljebb 50 000 háromszöget használjon mobileszközökhöz.",
+      "info-material": "Javasoljuk, hogy ne használjon legfeljebb 25 egyedi anyagot a jelenetben, hogy csökkentse a mobileszközökön a híváshívásokat.",
+      "info-texture": "Javasoljuk, hogy textúrái legfeljebb 256 MB video RAM-ot használjanak mobileszközökhöz. Azt is javasoljuk, hogy ne használjon 2048 x 2048-nál nagyobb textúrákat.",
+      "info-lights": "Bár a dinamikus fények nincsenek engedélyezve a mobileszközökön, javasoljuk, hogy ne használjon legfeljebb 3 fényt a jelenetben (kivéve a környezeti és félteke fényeit), hogy a jelenet alacsony végű számítógépeken fusson.",
+      "info-fileSize": "Alacsony sávszélességű kapcsolatok esetén legfeljebb 16 MB végső fájlméretet ajánlunk. A fájlméret csökkentése csökkenti a jelenet letöltéséhez szükséges időt.",
+      "txt-polycount": "{{count}} háromszögek",
+      "txt-material": "{{count}} anyagok",
+      "txt-ram": "~{{count}} Videó RAM",
+      "txt-texture": "{{count}} nagy textúrák",
+      "txt-lights": "{{count}} fények"
+    },
+    "progress": {
+      "title": "Berakás...",
+      "msg": "Berakás...",
+      "lbl-cancel": "Érvénytelenít"
+    },
+    "publish": {
+      "title": "Jelenet közzététele",
+      "lbl-confirm": "Mentés és közzététel",
+      "lbl-name": "Jelenet neve",
+      "info-name": "A névnek 4 és 64 karakter között kell lennie, és nem tartalmazhat aláhúzásjeleket."
+    },
+    "published": {
+      "title": "Megjelent jelenet",
+      "header": "A jeleneted megjelent.",
+      "lbl-view": "A jelenet megtekintése"
+    },
+    "saveNewProject": {
+      "title": "Támogat",
+      "lbl-name": "Projekt neve",
+      "info-name": "A névnek 4 és 64 karakter között kell lennie, és nem tartalmazhat aláhúzásjeleket.",
+      "lbl-confirm": "Projekt mentése"
+    },
+    "support": {
+      "title": "Támogat",
+      "header": "Jelentenie kell egy problémát?",
+      "msg": "<1>GitHub-problémát</1> nyújthat be, vagy e-mailt küldhet nekünk támogatásért <3> a{{mail}}</3>",
+      "discord": "A <1>Discordon</1> is megtalálsz minket."
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing-képek",
+      "search": "Keresés Bing szerint"
+    },
+    "bingVideo": {
+      "name": "Bing videók",
+      "search": "Keresés Bing szerint"
+    },
+    "element": {
+      "name": "Elemek"
+    },
+    "myAssets": {
+      "name": "Saját eszközök"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Keresés a Google által"
+    },
+    "tenor": {
+      "name": "Tenor GIF-ek",
+      "search": "Keresés tenor szerint",
+      "ph-search": "GIF-ek keresése..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Keresés a Sketchfab szerint"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Eszköz feltöltése"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Képek keresése..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Videók keresése..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Eszközök keresése..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Modellek keresése..."
+    },
+    "useUpload": {
+      "multipleFileError": "A bemenet nem fogad el több fájlt.",
+      "mineTypeError": "A \"{{name}}\" nem egyezik meg a következő mimikai típusokkal vagy kiterjesztésekkel: {{types}}",
+      "progressTitle": "Fájlok feltöltése",
+      "progressMsg": "fájlok feltöltése {{total}}{{uploaded}} : {{percentage}}%",
+      "uploadError": "Feltöltési hiba",
+      "uploadErrorMsg": "Hiba a fájl feltöltése közben: {{message}}",
+      "uploadErrorDefaultMsg": "Ismeretlen hiba történt"
+    }
+  },
+  "openLink": {
+    "description": "A hivatkozáshoz való navigáláshoz kattintson a Megnyitás gombra.",
+    "lbl-open": "Nyitott"
+  },
+  "interactableModel": {
+    "lbl-buy": "Vesz",
+    "lbl-learnMore": "Tudj meg többet"
+  },
+  "corsProxyButton": {
+    "tooltip": "Cors proxykiszolgáló használata"
+  }
+}

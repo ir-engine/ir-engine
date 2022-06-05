@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - makpiqtugaq nanijaunngittuq"
+  },
+  "503": {
+    "msg": "503 - pijittirautit atuinnaunngittut"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "nuqqaqtitauvutit tavvanngat inimit",
+    "locationName": {
+      "pageTitle": "angirraq"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "piliriat",
+      "header": "Login−kut",
+      "welcomeMsg": "tunngasugit",
+      "locationHeader": "nunait",
+      "projectHeader": "piliriat",
+      "sceneHeader": "Scenes",
+      "description": "nutaanguguvit tavvani atuliqujivugut ilisaijitigut. taimainngippat, qiggiqtarluni aaqqiksilunilu piliriaksamit qisuktaunirmit uvvaluunniit titirarviksattinni.",
+      "lbl-startTutorial": "pigiarniq ilinniatitsinirmit",
+      "lbl-newProject": "nutaaq piliriaq",
+      "lbl-createProject": "saqqittiniq",
+      "lbl-newScene": "nutaaq scene",
+      "lbl-searchProject": "qinirlugit pilirianguvagiiqtut...",
+      "back": "utimut",
+      "contextMenu": "piiqsiniq piliriamit",
+      "installed": "ilijausimajut piliriaksat",
+      "official": "piliriaksait ilisarijausimajut",
+      "community": "nunalingni piliriat",
+      "install": "ilijauluni",
+      "uninstall": "Uninstall",
+      "rename": "atikkanninga",
+      "createProject": "saqqittilutik piliriamit",
+      "installProject": "ilijauninga piliriaq",
+      "processing": "piliriaqarniq",
+      "projectName": "piliriaksaup atinga",
+      "projectURL": "piliriamut URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "angirraulutit",
+    "withStatusCode": "tammaqtuqalauqpuq {{code}} ikiaravvingmit",
+    "withoutStatusCode": "tammaqtuqalauqtuq ikiaravvingmit"
+  },
+  "no-projects": {
+    "msg": "tammaqsimajuq: piliriaksaqtaqanngittuq − qaujigiarvigilugu iningata amataa"
+  },
+  "dev": {
+    "pageTitle": "angirraq"
+  },
+  "login": {
+    "pageTitle": "Login"
+  },
+  "workerTest": {
+    "pageTitle": "iqqanaijaqtimut qaujisaqtauniq"
+  },
+  "index": {
+    "by": "BY",
+    "xr": "XR",
+    "foundation": "tunngavinga",
+    "description": "3D−nik inungnut pinajuutinik kikkulimaanut quviagijauqullugit."
+  },
+  "xrengineContact": {
+    "header": "aktuqsilutit!",
+    "description": "ikajurumattiaqpattigut qaritaujakkut qanuiliurutinut, qaritaujakkut niuviaksanut, qunngiaqtittinirni asinginniklu pijarialingnit.",
+    "lbl-name": "atinga",
+    "lbl-email": "irngiinnaaqtaut",
+    "lbl-company": "pilirivvik",
+    "lbl-project": "nalunairlugu piliriarijait",
+    "lbl-send": "naksiutijat",
+    "lbl-ok": "Ok",
+    "lbl-success": "tusaqtittijjuti, utirvigilaaqpagit qangattiakkut.",
+    "lbl-failure": "tammaqtuqalauqtuq, pikkakkannirlutit uuktukkannirlutit",
+    "err-username": "atiit titirarlugu.",
+    "err-email": "irngiinnaaqtautikkut pijarialik.",
+    "err-msg": "naittumik unikkaarlutit piliriarijarnik."
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Učitavanje stranice..."
+  },
+  "tooltip": {
+    "pressKey": "Pritisnite {{tip}} da {{message}}"
+  },
+  "toast": {
+    "joined": "pridruzio",
+    "left": "Lijevo"
+  },
+  "navUserWidget": {
+    "login": "Prijavi se"
+  },
+  "loader": {
+    "connecting": "Povezivanje sa svijetom...",
+    "entering": "Ulazak u svijet...",
+    "loading": "Učitavanje...",
+    "objectRemaining": "{{count}} objekat je ostao",
+    "objectRemainingPlural": "{{count}} preostali objekti",
+    "loadingObjects": "Učitavanje objekata",
+    "loadingComplete": "Učitavanje dovršeno",
+    "joiningWorld": "Pridružujući se svijetu"
+  },
+  "alert": {
+    "eventWasSuccess": "Događaj je bio uspješan",
+    "errorWasEncountered": "Naišla je na grešku",
+    "eventInProgress": "Događaj u toku",
+    "seconds": "Sekundi",
+    "cancelCountdown": "Zatvaranje ovog modala će otkazati odbrojavanje"
+  },
+  "debug": {
+    "refresh": "Osvježi",
+    "stats": "Stats",
+    "debugOptions": "Opcije za debug",
+    "physicsDebug": "Fizika",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Pomagač za node",
+    "gridDebug": "Mreža",
+    "simpleMaterials": "Jednostavni materijali",
+    "tick": "Tik",
+    "worldStore": "World Store",
+    "engineStore": "Prodavnica motora",
+    "namedEntities": "Imenovani entiteti",
+    "networkObject": "Mrežni objekat",
+    "networkClients": "Mrežni klijenti"
+  },
+  "recording": {
+    "videoRecorder": "Video snimač",
+    "waitingForPermissions": "Čekanje dozvola",
+    "selectVideoSource": "Odaberi izvor videa",
+    "screen": "Ekran",
+    "camera": "Kamera",
+    "microphone": "Mikrofon",
+    "startRecording": "Započni snimanje",
+    "pauseRecording": "Pauziraj snimanje",
+    "resumeRecording": "Nastavi snimanje",
+    "stopRecording": "Prekini snimanje"
+  },
+  "typing": "Kucas...",
+  "gameServer": {
+    "browserError": "Greška preglednika",
+    "browserErrorMessage": "Vaš preglednik ne podržava skladištenje u privatnom režimu pregledanja. Ili pokušajte sa drugim preglednikom, ili izađite iz privatnog načina pregledanja.",
+    "noAvailableServers": "Nema dostupnih servera",
+    "noAvailableServersMessage": "Nema dostupnih servera na koje bi se mogao povezati. Pokušavam se povezati.",
+    "worldDisconnected": "Prekinuta veza sa svijetom",
+    "worldDisconnectedMessage": "Izgubio si vezu sa svijetom. Pokušaćemo da se ponovo ekonektujemo pre nego što ponestane sledeće vreme, inače ćete biti prosleđivani na drugu instancu.",
+    "webGLNotEnabled": "WebGL nije omogućen",
+    "webGLNotEnabledMessage": "Vaš preglednik ne podržava WebGL, ili je onemogućen. Molimo vas da omogućite WebGL ili razmislite o nadogradnji na najnoviju verziju vašeg pretraživača.",
+    "youKickedFromWorld": "Izbaиen si iz svijeta",
+    "youKickedFromWorldMessage": "Izbaиen si iz ovog svijeta iz slijedeжih razloga",
+    "invalidLocation": "Nevažeća lokacija",
+    "cantFindLocation": "Ne možemo naći lokaciju",
+    "misspelledOrNotExist": "Možda je pogrešno napisana, ili možda ne postoji.",
+    "loading": "Učitavanje",
+    "low-frame-error": "Otkrivena loša perfomancija razmotrite omogućavanje Use Hardware ubrzanja u vašem pregledniku i relauch vaš preglednik",
+    "low-frame-title": "Omogući hardversko ubrzanje za bolje iskustvo!"
+  },
+  "error": {
+    "loading-error": "Učitavanje korisničkih podataka nije uspjelo",
+    "validation-error": "Molimo vas da ukažete važeće {{type}}",
+    "login-error": "Prijavljivanje nije uspjelo"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "ਪੇਜ਼ ਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ..."
+  },
+  "tooltip": {
+    "pressKey": "{{message}} ਕਰਨ ਲਈ {{tip}} ਦਬਾਓ"
+  },
+  "toast": {
+    "joined": "ਸ਼ਾਮਲ ਹੋਏ",
+    "left": "ਖੱਬਾ"
+  },
+  "navUserWidget": {
+    "login": "ਲਾਗਇਨ ਕਰੋ"
+  },
+  "loader": {
+    "connecting": "ਸੰਸਾਰ ਨਾਲ ਜੁੜਿਆ ਜਾ ਰਿਹਾ ਹੈ...",
+    "entering": "ਸੰਸਾਰ ਵਿੱਚ ਦਾਖਲ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...",
+    "loading": "ਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...",
+    "objectRemaining": "{{count}} ਵਸਤੂ ਬਾਕੀ ਹੈ",
+    "objectRemainingPlural": "{{count}} ਬਾਕੀ ਬਚੀਆਂ ਵਸਤੂਆਂ",
+    "loadingObjects": "ਇਕਾਈਆਂ ਲੋਡ ਕੀਤੀਆਂ ਜਾ ਰਹੀਆਂ ਹਨ",
+    "loadingComplete": "ਲੋਡ ਕਰਨਾ ਮੁਕੰਮਲ",
+    "joiningWorld": "ਸੰਸਾਰ ਵਿੱਚ ਸ਼ਾਮਲ ਹੋਣਾ"
+  },
+  "alert": {
+    "eventWasSuccess": "ਈਵੈਂਟ ਸਫਲ ਰਿਹਾ ਸੀ",
+    "errorWasEncountered": "ਇੱਕ ਗਲਤੀ ਆਈ ਹੈ",
+    "eventInProgress": "ਇਵੈਂਟ ਚੱਲ ਰਿਹਾ ਹੈ",
+    "seconds": "ਸਕਿੰਟ",
+    "cancelCountdown": "ਇਸ ਮੋਡਲ ਨੂੰ ਬੰਦ ਕਰਨ ਨਾਲ ਉਲਟੀ ਗਿਣਤੀ ਰੱਦ ਹੋ ਜਾਵੇਗੀ"
+  },
+  "debug": {
+    "refresh": "ਤਾਜ਼ਾ ਕਰੋ",
+    "stats": "ਅੰਕੜੇ",
+    "debugOptions": "ਡੀਬੱਗ ਚੋਣਾਂ",
+    "physicsDebug": "ਭੌਤਿਕ ਵਿਗਿਆਨ",
+    "avatarDebug": "ਅਵਤਾਰ",
+    "nodeHelperDebug": "ਨੋਡ ਸਹਾਇਕ",
+    "gridDebug": "ਗਰਿੱਡ",
+    "simpleMaterials": "ਸਧਾਰਨ ਸਮੱਗਰੀ",
+    "tick": "ਟਿੱਕ ਕਰੋ",
+    "worldStore": "ਵਰਲਡ ਸਟੋਰ",
+    "engineStore": "ਇੰਜਣ ਸਟੋਰ",
+    "namedEntities": "ਨਾਮੀ ਇਕਾਈਆਂ",
+    "networkObject": "ਨੈੱਟਵਰਕ ਆਬਜੈਕਟ",
+    "networkClients": "ਨੈੱਟਵਰਕ ਕਲਾਇਟ"
+  },
+  "recording": {
+    "videoRecorder": "ਵਿਡੀਓ ਰਿਕਾਰਡਰ",
+    "waitingForPermissions": "ਇਜਾਜ਼ਤਾਂ ਲਈ ਉਡੀਕ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ",
+    "selectVideoSource": "ਵਿਡੀਓ ਸਰੋਤ ਚੁਣੋ",
+    "screen": "ਸਕਰੀਨ",
+    "camera": "ਕੈਮਰਾ",
+    "microphone": "ਮਾਈਕ੍ਰੋਫ਼ੋਨ",
+    "startRecording": "ਰਿਕਾਰਡ ਕਰਨਾ ਸ਼ੁਰੂ",
+    "pauseRecording": "ਰਿਕਾਰਡਿੰਗ ਰੋਕੋ",
+    "resumeRecording": "ਰਿਕਾਰਡਿੰਗ ਮੁੜ-ਸ਼ੁਰੂ ਕਰੋ",
+    "stopRecording": "ਰਿਕਾਰਡ ਕਰਨਾ ਰੋਕੋ"
+  },
+  "typing": "ਟਾਈਪ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...",
+  "gameServer": {
+    "browserError": "ਬਰਾਊਜ਼ਰ ਗਲਤੀ",
+    "browserErrorMessage": "ਤੁਹਾਡਾ ਬ੍ਰਾਊਜ਼ਰ ਨਿੱਜੀ ਬ੍ਰਾਊਜ਼ਿੰਗ ਮੋਡ ਵਿੱਚ ਸਟੋਰੇਜ ਦਾ ਸਮਰਥਨ ਨਹੀਂ ਕਰਦਾ ਹੈ। ਜਾਂ ਤਾਂ ਕਿਸੇ ਹੋਰ ਬ੍ਰਾਊਜ਼ਰ ਨੂੰ ਅਜ਼ਮਾਓ, ਜਾਂ ਨਿੱਜੀ ਬ੍ਰਾਊਜ਼ਿੰਗ ਮੋਡ ਤੋਂ ਬਾਹਰ ਜਾਓ।",
+    "noAvailableServers": "ਕੋਈ ਸਰਵਰ ਉਪਲੱਬਧ ਨਹੀਂ",
+    "noAvailableServersMessage": "ਤੁਹਾਡੇ ਨਾਲ ਕਨੈਕਟ ਕਰਨ ਲਈ ਕੋਈ ਵੀ ਸਰਵਰ ਉਪਲਬਧ ਨਹੀਂ ਹਨ। ਵਿੱਚ ਮੁੜ-ਕਨੈਕਟ ਕਰਨ ਦੀ ਕੋਸ਼ਿਸ਼ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ",
+    "worldDisconnected": "ਸੰਸਾਰ ਡਿਸ- ਕੁਨੈਕਟ ਹੋ ਗਿਆ",
+    "worldDisconnectedMessage": "ਤੁਸੀਂ ਸੰਸਾਰ ਨਾਲ ਆਪਣਾ ਸੰਪਰਕ ਗੁਆ ਲਿਆ ਹੈ। ਨਿਮਨਲਿਖਤ ਸਮਾਂ ਸਮਾਪਤ ਹੋਣ ਤੋਂ ਪਹਿਲਾਂ ਅਸੀਂ ਮੁੜ-ਕਨੈਕਟ ਕਰਨ ਦੀ ਕੋਸ਼ਿਸ਼ ਕਰਾਂਗੇ, ਨਹੀਂ ਤਾਂ ਤੁਹਾਨੂੰ ਕਿਸੇ ਹੋਰ ਉਦਾਹਰਨ 'ਤੇ ਅੱਗੇ ਭੇਜ ਦਿੱਤਾ ਜਾਵੇਗਾ।",
+    "webGLNotEnabled": "WebGL ਚਾਲੂ ਨਹੀਂ ਹੈ",
+    "webGLNotEnabledMessage": "ਤੁਹਾਡਾ ਬ੍ਰਾਊਜ਼ਰ WebGL ਦਾ ਸਮਰਥਨ ਨਹੀਂ ਕਰਦਾ, ਜਾਂ ਇਸਨੂੰ ਅਯੋਗ ਬਣਾ ਦਿੱਤਾ ਗਿਆ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ WebGL ਨੂੰ ਯੋਗ ਬਣਾਓ ਜਾਂ ਆਪਣੇ ਬ੍ਰਾਊਜ਼ਰ ਦੇ ਨਵੀਨਤਮ ਸੰਸਕਰਣ 'ਤੇ ਅੱਪਗਰੇਡ ਕਰਨ 'ਤੇ ਵਿਚਾਰ ਕਰੋ।",
+    "youKickedFromWorld": "ਤੁਹਾਨੂੰ ਦੁਨੀਆ ਤੋਂ ਬਾਹਰ ਕੱਢ ਦਿੱਤਾ ਗਿਆ ਹੈ",
+    "youKickedFromWorldMessage": "ਤੁਹਾਨੂੰ ਨਿਮਨਲਿਖਤ ਕਾਰਨ ਕਰਕੇ ਇਸ ਸੰਸਾਰ ਤੋਂ ਕੱਢ ਦਿੱਤਾ ਗਿਆ ਸੀ",
+    "invalidLocation": "ਗਲਤ ਟਿਕਾਣਾ",
+    "cantFindLocation": "ਅਸੀਂ ਟਿਕਾਣਾ ਨਹੀਂ ਲੱਭ ਸਕਦੇ",
+    "misspelledOrNotExist": "ਹੋ ਸਕਦਾ ਹੈ ਕਿ ਇਸ ਦੇ ਸ਼ਬਦ-ਜੋੜ ਗਲਤ ਲਿਖੇ ਹੋਣ, ਜਾਂ ਹੋ ਸਕਦਾ ਹੈ ਇਹ ਮੌਜੂਦ ਨਾ ਹੋਵੇ।",
+    "loading": "ਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ",
+    "low-frame-error": "ਮਾੜੇ ਪਰਫੌਮੈਂਸ ਦਾ ਪਤਾ ਲਗਾਉਣ ਨਾਲ ਆਪਣੇ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਹਾਰਡਵੇਅਰ ਗਤੀਵਰਧਣ ਦੀ ਵਰਤੋਂ ਨੂੰ ਸਮਰੱਥ ਕਰਨ ਅਤੇ ਆਪਣੇ ਬ੍ਰਾਊਜ਼ਰ ਨੂੰ ਮੁੜ-ਲਾਂਚ ਕਰਨ 'ਤੇ ਵਿਚਾਰ ਕਰੋ",
+    "low-frame-title": "ਬਿਹਤਰ ਅਨੁਭਵ ਲਈ ਹਾਰਡਵੇਅਰ ਗਤੀਵਰਧਣ ਨੂੰ ਸਮਰੱਥ ਕਰੋ!"
+  },
+  "error": {
+    "loading-error": "ਉਪਭੋਗਤਾ ਡੇਟਾ ਨੂੰ ਲੋਡ ਕਰਨਾ ਅਸਫਲ ਰਿਹਾ",
+    "validation-error": "ਕਿਰਪਾ ਕਰਕੇ ਵੈਧ {{type}} ਦਾਖਲ ਕਰੋ",
+    "login-error": "ਲਾਗਇਨ ਕਰਨ ਲਈ ਫੇਲ੍ਹ"
+  }
+}

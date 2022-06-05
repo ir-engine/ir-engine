@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Lapa nav atrasta"
+  },
+  "503": {
+    "msg": "503 - Pakalpojums nav pieejams"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Jums ir aizliegts atrasties šajā vietā",
+    "locationName": {
+      "pageTitle": "Mājas"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projektiem",
+      "header": "Lūdzu, piesakieties",
+      "welcomeMsg": "Laipni lūdzam",
+      "locationHeader": "Atrašanās vietas",
+      "projectHeader": "Projektiem",
+      "sceneHeader": "Ainas",
+      "description": "Ja esat jauns šeit, mēs iesakām iziet apmācību. Pretējā gadījumā ieleciet tieši iekšā un izveidojiet projektu no nulles vai no kādas no mūsu veidnēm.",
+      "lbl-startTutorial": "Sākt apmācību",
+      "lbl-newProject": "Jauns projekts",
+      "lbl-createProject": "Radīt",
+      "lbl-newScene": "Jauna aina",
+      "lbl-searchProject": "Meklēt esošos projektus...",
+      "back": "Mugura",
+      "contextMenu": "Dzēst projektu",
+      "installed": "Instalētie projekti",
+      "official": "Oficiālie projekti",
+      "community": "Kopienas projekti",
+      "install": "Instalēt",
+      "uninstall": "Atinstalēt",
+      "rename": "Pārdēvēt",
+      "createProject": "Izveidot projektu",
+      "installProject": "Instalēt projektu",
+      "processing": "Apstrādes",
+      "projectName": "Projekta nosaukums",
+      "projectURL": "Projekta URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Doties mājās",
+    "withStatusCode": "Serverī radās {{code}} kļūda",
+    "withoutStatusCode": "Serverī radās kļūda"
+  },
+  "no-projects": {
+    "msg": "Kļūda: nav instalēts neviens projekts - lūdzu, sazinieties ar vietnes administratoru"
+  },
+  "dev": {
+    "pageTitle": "Mājas"
+  },
+  "login": {
+    "pageTitle": "Pieteikšanās"
+  },
+  "workerTest": {
+    "pageTitle": "Darbinieka tests"
+  },
+  "index": {
+    "by": "PA",
+    "xr": "XR",
+    "foundation": "Pamats",
+    "description": "Reāllaika 3D sociālās lietojumprogrammas, lai ikviens varētu baudīt."
+  },
+  "xrengineContact": {
+    "header": "Sazinieties!",
+    "description": "Mēs labprāt jums palīdzēsim virtuālajos pasākumos, digitālajā mazumtirdzniecībā, izklaidē un citās vajadzībās.",
+    "lbl-name": "Vārds",
+    "lbl-email": "E-pasts",
+    "lbl-company": "Sabiedrība",
+    "lbl-project": "Aprakstiet savu projektu",
+    "lbl-send": "Sūtīt",
+    "lbl-ok": "Labi",
+    "lbl-success": "Ziņojums nosūtīts, mēs drīz sazināsimies ar jums.",
+    "lbl-failure": "Radās kļūda, Plese mēģiniet vēlreiz",
+    "err-username": "Lūdzu, ievadiet savu vārdu.",
+    "err-email": "Nepieciešams e-pasts.",
+    "err-msg": "Sniedziet īsu sava projekta aprakstu."
+  }
+}

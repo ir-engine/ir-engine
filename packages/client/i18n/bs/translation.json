@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Stranica nije pronađena"
+  },
+  "503": {
+    "msg": "503 - Usluga nedostupna"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Zabranjen vam je ulaz na ovu lokaciju.",
+    "locationName": {
+      "pageTitle": "Dom"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projekata",
+      "header": "Molimo Prijavite se",
+      "welcomeMsg": "Dobrodošli",
+      "locationHeader": "Lokacije",
+      "projectHeader": "Projekata",
+      "sceneHeader": "Scene",
+      "description": "Ako ste novi ovdje preporučujemo da prođete kroz tutorial. Inače, uskočite odmah i napravite projekat od nule ili iz jednog od naših predložaka.",
+      "lbl-startTutorial": "Pokreni Tutorial",
+      "lbl-newProject": "Novi projekat",
+      "lbl-createProject": "Kreirati",
+      "lbl-newScene": "Nova scena",
+      "lbl-searchProject": "Pretraži postojeće projekte...",
+      "back": "Leđa",
+      "contextMenu": "Izbriši projekat",
+      "installed": "Instalirani projekti",
+      "official": "Službeni projekti",
+      "community": "Projekti zajednice",
+      "install": "Instalirati",
+      "uninstall": "Deinstaliraj",
+      "rename": "Preimenuj",
+      "createProject": "Kreiraj projekat",
+      "installProject": "Instaliraj projekt",
+      "processing": "Obrada",
+      "projectName": "Ime projekta",
+      "projectURL": "URL projekta"
+    }
+  },
+  "error": {
+    "goHomeLink": "Odi kući",
+    "withStatusCode": "Došlo je {{code}} na serveru",
+    "withoutStatusCode": "Došlo je do greške na serveru"
+  },
+  "no-projects": {
+    "msg": "Greška: Nema instaliranih projekata - obratite se administratoru sajta"
+  },
+  "dev": {
+    "pageTitle": "Dom"
+  },
+  "login": {
+    "pageTitle": "Prijava"
+  },
+  "workerTest": {
+    "pageTitle": "Test radnika"
+  },
+  "index": {
+    "by": "PORED",
+    "xr": "XR",
+    "foundation": "Temelj",
+    "description": "Realtime 3D društvene aplikacije za sve da uživaju."
+  },
+  "xrengineContact": {
+    "header": "Get In Touch!",
+    "description": "Rado bismo vam pomogli sa vašim virtuelnim događajima, digitalnom maloprodajom, zabavom i drugim potrebama.",
+    "lbl-name": "Ime",
+    "lbl-email": "E-pošta",
+    "lbl-company": "Društvo",
+    "lbl-project": "Opišite svoj Projekt",
+    "lbl-send": "Poslati",
+    "lbl-ok": "Ok",
+    "lbl-success": "Poruka poslana, brzo ćemo vam se vratiti.",
+    "lbl-failure": "Došlo je do greške, Plese pokušaj ponovo",
+    "err-username": "Molim vas unesite svoje ime.",
+    "err-email": "Email je potreban.",
+    "err-msg": "Pružite neki kratak opis vašeg projekta."
+  }
+}

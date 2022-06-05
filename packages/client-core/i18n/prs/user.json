@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "ایمیل تایید",
+      "resendEmail": "لطفا ایمیل خود را بررسی کنید تا حساب کاربری خود را بررسی کنید. اگر ایمیلی دریافت نکردید، لطفاً روی {{here}} ایمیل تأیید مجدد کلیک کنید.",
+      "haveAnAccount": "حساب داري؟"
+    },
+    "forgotPassword": {
+      "header": "رمز عبور را فراموش کرده ام",
+      "enterEmail": "لطفا آدرس ایمیل ثبت شده خود را وارد کنید و ما به شما یک لینک تنظیم مجدد رمز عبور ارسال کنید.",
+      "lbl-email": "آدرس ایمیل",
+      "lbl-submit": "ارسال لینک",
+      "emailSent": "تنظیم مجدد ایمیل رمز عبور ارسال شد. لطفا ایمیل خود را بررسی کنید."
+    },
+    "login": {
+      "email": "ایمیل | اس ام اس",
+      "username": "نام کاربری + رمز عبور",
+      "social": "اجتماعی"
+    },
+    "magiklink": {
+      "header": "لینک ورود",
+      "descriptionEmail": "لطفا آدرس ایمیل خود را وارد کنید و ما به شما یک لینک ورود از طریق ایمیل ارسال کنید.",
+      "descriptionSMS": "لطفا شماره تلفن خود را وارد کنید و ما یک لینک ورود به سیستم از طریق اس ام اس برای شما ارسال کنید.",
+      "descriptionEmailSMS": "لطفا آدرس ایمیل یا شماره تلفن خود را وارد کنید (10 رقمی، ایالات متحده تنها) و ما به شما یک لینک ورود از طریق ایمیل یا پیامک ارسال کنید.",
+      "descriptionSMSUS": "لطفا شماره تلفن خود را وارد کنید (10 رقمی، ایالات متحده تنها) و ما به شما یک لینک ورود از طریق اس ام اس ارسال کنید.",
+      "lbl-email": "آدرس ایمیل",
+      "lbl-emailPhone": "ایمیل یا شماره تلفن",
+      "lbl-phone": "شماره تلفن",
+      "agree": "من به توافق برسند ",
+      "terms": "شرایط و ضوابط",
+      "lbl-submit": "ارسال لینک ورود",
+      "email-sent-msg": "ورود به سیستم سحر و جادو لینک فرستاده شد. لطفا ایمیل خود را بررسی کنید.",
+      "success-msg": "ورود به سیستم سحر و جادو لینک فرستاده شد. لطفا ایمیل یا پیامک خود را بررسی کنید.",
+      "sms-sent-msg": "ورود به سیستم سحر و جادو لینک فرستاده شد. لطفا اس ام اس خود را بررسی کنید."
+    },
+    "passwordLogin": {
+      "header": "ورود",
+      "lbl-email": "آدرس ایمیل",
+      "lbl-password": "رمز عبور",
+      "lbl-rememberMe": "مرا به یاد داشته باشید",
+      "lbl-signin": "ورود",
+      "forgotPassword": "رمز عبور رو فراموش کردی؟",
+      "signup": "حساب نداريد؟ ثبت نام",
+      "lbl-login": "وارد شدن",
+      "ph-password": "رمز عبور",
+      "ph-email": "ایمیل"
+    },
+    "social": {
+      "gitHub": "ورود به سیستم با گیت هاب",
+      "google": "ورود به سیستم با گوگل",
+      "facebook": "ورود به سیستم با فیس بوک",
+      "linkedin": "ورود به سیستم با لینکدین",
+      "twitter": "ورود به سیستم با توییتر"
+    },
+    "register": {
+      "header": "ثبت نام",
+      "login": "وارد شدن",
+      "lbl-signup": "ثبت نام",
+      "lbl-password": "رمز عبور",
+      "lbl-email": "آدرس ایمیل",
+      "passwordNotMatch": "رمزهای عبور مطابقت ندارد",
+      "ph-password": "رمز عبور",
+      "ph-confirmPassword": "تایید رمز عبور",
+      "ph-email": "ایمیل"
+    },
+    "resetPassword": {
+      "header": "تنظیم مجدد رمز عبور",
+      "description": "لطفا رمز عبور خود را برای آدرس ایمیل خود وارد کنید",
+      "lbl-submit": "تنظیم مجدد رمز عبور",
+      "lbl-password": "رمز عبور",
+      "lbl-confirmPassword": "تایید رمز عبور",
+      "passwordNotMatch": "رمزهای عبور مطابقت ندارد",
+      "nowLoginYourAccount": "شما هم اکنون می توانید به حساب خود وارد شوید",
+      "yourPasswordResetSuccess": "رمز عبور شما با موفقیت تنظیم مجدد شد!"
+    },
+    "verifyEmail": {
+      "header": "بررسی ایمیل",
+      "processing": "لطفا یک لحظه صبر کنید در حالی که پردازش..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "مکان ها",
+      "loading": "بارگیری",
+      "col-name": "نام",
+      "col-scene": "صحنه",
+      "col-maxuser": "حداکثر کاربران",
+      "lbl-search": "جستجو برای مکان ها",
+      "lbl-new": "جدید"
+    },
+    "newLocation": {
+      "title": "محل سکونت",
+      "success": "با موفقیت ذخیره شد.",
+      "failure": "یه مشکلی پیش اومد",
+      "removeSuccess": "مکان با موفقیت حذف شد.",
+      "nameInUse": "نام در حال استفاده است.",
+      "nameRequire": "نام مورد نیاز است.",
+      "validNumber": "فقط اعداد(0-9) مجاز هستند.",
+      "lbl-name": "نام",
+      "lbl-maxuser": "حداکثر کاربران",
+      "lbl-scene": "صحنه",
+      "lbl-type": "نوع",
+      "lbl-ve": "ویدیو فعال",
+      "lbl-gme": "فعال سازی رسانه های جهانی",
+      "lbl-update": "به روز رسانی",
+      "lbl-create": "ایجاد",
+      "tooltipCanNotBeDeleted": "لابی را نمی توان حذف کرد",
+      "confirmation": "مطمئنی?",
+      "lbl-yes": "بله",
+      "lbl-no": "نه"
+    },
+    "share": {
+      "lbl-share": "اشتراک گذاری",
+      "ph-phoneEmail": "دعوت از طریق ایمیل یا شماره تلفن",
+      "lbl-phoneEmail": "ارسال به ایمیل یا شماره تلفن",
+      "lbl-copy": "کپی",
+      "lbl-send-invite": "ارسال دعوت",
+      "title": "آدرس موقعیت مکانی خود را با تیم خود به اشتراک بگذارید",
+      "linkCopied": "لینک به کلیپ بورد کوپی شده است."
+    },
+    "setting": {
+      "audio": "صوتی",
+      "lbl-volume": "حجم",
+      "lbl-microphone": "میکروفون",
+      "graphics": "گرافیک",
+      "controls": "کنترل ها",
+      "lbl-control-type": "نوع کنترل کننده",
+      "lbl-control-scheme": "طرح کنترل",
+      "lbl-resolution": "قطعنامه",
+      "lbl-shadow": "سایه ها",
+      "lbl-pp": "پردازش پست",
+      "lbl-pbr": "کامل پی بی آر",
+      "lbl-automatic": "خودکار",
+      "xrusersetting": "تنظیمات کاربر XR",
+      "rotation": "چرخش",
+      "rotation-smooth-speed": "چرخش سرعت صاف",
+      "rotation-angle": "زاویه چرخش",
+      "moving": "حرکت",
+      "user-avatar": "تنظیم آواتار",
+      "invert-rotation": "چرخش و حرکت چرخش",
+      "show-avatar": "نمایش آواتار"
+    },
+    "profile": {
+      "lbl-profile": "مشخصات",
+      "lbl-settings": "تنظیمات",
+      "lbl-username": "نام کاربری",
+      "update-msg": "نام کاربری به روز شده",
+      "inviteCode": "کد دعوت",
+      "youAreAn": "شما یک",
+      "youAreA": "شما یک",
+      "showUserId": "نمایش کارت شناسایی کاربر",
+      "hideUserId": "پنهان کردن کارت شناسایی کاربر",
+      "showApiKey": "نمایش کلید API",
+      "hideApiKey": "مخفی کردن کلید API",
+      "apiKey": "کلید API",
+      "logout": "از سیستم خارج شوید",
+      "connectPhone": "شماره تلفن خود را وصل کنید",
+      "connectEmail": "ایمیل خود را وصل کنید",
+      "connectPhoneEmail": "ایمیل یا شماره تلفن خود را وصل کنید",
+      "or": "یا",
+      "lbl-wallet": "ورود به سیستم با کیف پول",
+      "ph-email": "ایمیل",
+      "ph-phone": "شماره تلفن",
+      "ph-phoneEmail": "شماره تلفن / ایمیل",
+      "phoneEmailError": "تلفن ناموید # یا آدرس ایمیل",
+      "phoneError": "تلفن ناموید #",
+      "emailError": "آدرس ایمیل ناموید",
+      "loginWithReadyPlayerMe": "ورود به سیستم با بازیکن آماده من",
+      "connectSocial": "ارتباط با حساب های اجتماعی",
+      "createOne": "اگر حساب کاربری ندارید، حساب جدیدی برای شما ایجاد خواهد شد",
+      "connections": {
+        "title": "اتصالات",
+        "ipError": "نمی توانید ارائه دهنده هویت فعال را حذف کنید",
+        "disconnect": "قطع ارتباط",
+        "connect": "اتصال"
+      },
+      "profileDropdown": {
+        "avatar": "نماد آواتار کاربر",
+        "profile": "مشخصات",
+        "adminConsole": "کنسول مدیریت",
+        "logout": "ورود به سیستم"
+      },
+      "userIcon": {
+        "lbl-name": "اسم شما",
+        "lbl-update": "به روز رسانی",
+        "userId": "کارت شناسایی کاربر",
+        "ph-uploadImg": "ارسال تصویر محصول",
+        "lbl-selectAcvatar": "آواتار را انتخاب کنید",
+        "lbl-submit": "ارسال کردن"
+      },
+      "userSettings": {
+        "volume": "حجم",
+        "microphone": "میکروفون",
+        "resolution": "قطعنامه",
+        "high": "بالا",
+        "low": "کم",
+        "spatialAudio": "استفاده از صوتی",
+        "enterMuted": "اتاق خاموش را وارد کنید"
+      }
+    },
+    "oauth": {
+      "authenticating": "احراز هویت...",
+      "authFailed": "{{service}} اعتبار ناموفق بود."
+    },
+    "magikLink": {
+      "wait": "لطفا یک لحظه صبر کنید در حالی که پردازش..."
+    },
+    "dashboard": {
+      "header": "داشبورد",
+      "dashboard": "داشبورد",
+      "users": "کاربران",
+      "feeds": "خوراک ها",
+      "instance": "نمونه",
+      "locations": "مکان ها",
+      "invites": "دعوت",
+      "sessions": "جلسات",
+      "groups": "گروه ها",
+      "parties": "احزاب",
+      "chats": "چت",
+      "content": "بسته های محتوا",
+      "projects": "پروژه ها",
+      "scenes": "صحنه ها",
+      "avatars": "آواتار ها",
+      "benchmarking": "معیار",
+      "bots": "روتس"
+    }
+  },
+  "oauth": {
+    "authenticating": "احراز هویت...",
+    "authFailed": "{{service}} اعتبار ناموفق بود."
+  },
+  "magikLink": {
+    "wait": "لطفا یک لحظه صبر کنید در حالی که پردازش..."
+  },
+  "dashboard": {
+    "header": "داشبورد",
+    "dashboard": "داشبورد",
+    "users": "کاربران",
+    "feeds": "خوراک ها",
+    "instance": "نمونه",
+    "locations": "مکان ها",
+    "routes": "مسیرها",
+    "projects": "پروژه ها",
+    "invites": "دعوت",
+    "sessions": "جلسات",
+    "groups": "گروه ها",
+    "parties": "احزاب",
+    "chats": "چت",
+    "content": "بسته های محتوا",
+    "scenes": "صحنه ها",
+    "avatars": "آواتار ها",
+    "benchmarking": "معیار",
+    "bots": "روتس",
+    "setting": "تنظیمات"
+  },
+  "avatar": {
+    "title": "ارسال آواتار",
+    "lbl-browse": "مرور",
+    "lbl-thumbnail": "تصویر انگشتی",
+    "lbl-upload": "ارسال",
+    "selectAvatar": "آواتار را انتخاب کنید...",
+    "selectThumbnail": "تصویر انگشتی را انتخاب کنید...",
+    "rotate": "چرخش",
+    "pan": "پان",
+    "noBone": "Obejct هیچ استخوان یا پوست را شامل نمی شود",
+    "outOfBound": "شی خارج از محدوده است.",
+    "emptyObj": "شی خالی است.",
+    "maxTriangleError": "شی شامل بزرگتر از {{allowedTriangles}} است.",
+    "selectValidFile": "پرونده آواتار 3d معتبر را انتخاب کنید.",
+    "selectValidThumbnail": "انتخاب فایل تصویر انگشتی معتبر.",
+    "fileOversized": "اندازه فایل آواتار باید بین {{minSize}} MB و {{maxSize}} MB باشد",
+    "confirmation": "مطمئنی?",
+    "canNotBeRemoved": "آواتار فعال را نمی توان حذف کرد",
+    "remove": "حذف آواتار",
+    "uploadFiles": "ارسال فایل ها",
+    "useUrlInstead": "استفاده از آدرس به جای",
+    "avatar": "آواتار",
+    "cancel": "لغو کردن",
+    "createAvatar": "ایجاد آواتار",
+    "delete": "حذف",
+    "view": "مشاهده",
+    "uploadAvatarInfo": "به روز رسانی اطلاعات آواتار",
+    "name": "نام",
+    "enterName": "نام را وارد کنید",
+    "avatarInformation": "آواتار اطلاعات",
+    "description": "توضیحات",
+    "key": "کلید",
+    "none": "هیچ کدام",
+    "submit": "ارسال کردن",
+    "edit": "ویرایش",
+    "avatarUrl": "آدرس آواتار",
+    "upload-success-msg": "آواتار ارسال شده با موفقیت.",
+    "remove-success-msg": "آواتار ارسال شده با موفقیت.",
+    "warning-msg": "منبع آواتار خالی است، آیا آواتارها را با ذخیره سازی فایل استاتیک خود همگام سازی کرده اید؟"
+  },
+  "personMenu": {
+    "inviteToParty": "دعوت به حزب",
+    "addAsFriend": "اضافه کردن به عنوان دوست",
+    "mute": "بی قرار",
+    "block": "بلوک"
+  },
+  "person": {
+    "you": "شما",
+    "yourScreen": "صفحه نمایش شما",
+    "muteForEveryone": "بی قرار برای همه",
+    "unmuteForEveryone": "برای همه بی رحم",
+    "muteMe": "من رو قطع کن",
+    "unmuteMe": "من رو ازم باز کن",
+    "muteThisPerson": "این شخص را قطع کنید",
+    "unmuteThisPerson": "این شخص را از بین بریم",
+    "openPictureInPicture": "باز کردن تصویر در تصویر"
+  }
+}

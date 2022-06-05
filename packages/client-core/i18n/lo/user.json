@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "ອີເມລ໌ການຢືນຢັນ",
+      "resendEmail": "ກະລຸນາກວດເບິ່ງອີເມວຂອງທ່ານເພື່ອຢັ້ງຢືນບັນຊີຂອງທ່ານ. ຖ້າຫາກວ່າທ່ານບໍ່ໄດ້ຮັບອີເມວ, ກະລຸນາຄລິກ {{here}} ເພື່ອສົ່ງອີເມວຢັ້ງຢືນຄືນ.",
+      "haveAnAccount": "ມີບັນຊີ?"
+    },
+    "forgotPassword": {
+      "header": "ລືມລະຫັດຜ່ານ",
+      "enterEmail": "ກະລຸນາໃສ່ທີ່ຢູ່ອີເມວທີ່ລົງທະບຽນຂອງທ່ານແລະພວກເຮົາຈະສົ່ງການເຊື່ອມຕໍ່ການຕັ້ງລະຫັດຜ່ານໃຫ້ທ່ານ.",
+      "lbl-email": "ທີ່ຢູ່ອີເມວ",
+      "lbl-submit": "ສົ່ງ Link",
+      "emailSent": "Reset Password Email ຖືກສົ່ງ. ກະລຸນາກວດເບິ່ງອີເມວຂອງທ່ານ."
+    },
+    "login": {
+      "email": "ອີເມລ | SMS",
+      "username": "UserName + ລະຫັດຜ່ານ",
+      "social": "ສັງຄົມ"
+    },
+    "magiklink": {
+      "header": "Login Link",
+      "descriptionEmail": "ກະລຸນາໃສ່ທີ່ຢູ່ອີເມວຂອງທ່ານແລະພວກເຮົາຈະສົ່ງລິ້ງເຂົ້າລະຫັດຜ່ານEmail.",
+      "descriptionSMS": "ກະລຸນາໃສ່ເບີໂທລະສັບຂອງທ່ານແລະພວກເຮົາຈະສົ່ງທ່ານloginເຊື່ອມຕໍ່ຜ່ານ SMS.",
+      "descriptionEmailSMS": "ກະລຸນາໃສ່ທີ່ຢູ່ອີເມວຫຼືເບີໂທລະສັບຂອງທ່ານ (10 ຕົວເລກ, US only) ແລະພວກເຮົາຈະສົ່ງລິ້ງເຂົ້າສູ່ລະບົບຜ່ານEmail ຫຼື SMS.",
+      "descriptionSMSUS": "ກະລຸນາໃສ່ເບີໂທລະສັບຂອງທ່ານ (10 ຕົວເລກ, US only) ແລະພວກເຮົາຈະສົ່ງລິ້ງເຂົ້າສູ່ລະບົບຜ່ານ SMS.",
+      "lbl-email": "ທີ່ຢູ່ອີເມວ",
+      "lbl-emailPhone": "ອີເມລ ຫຼື ເບີໂທລະສັບ",
+      "lbl-phone": "ເບີໂທລະສັບ",
+      "agree": "ຂ້າພະ ເຈົ້າ ເຫັນ ພ້ອມ ກັບ ການ ",
+      "terms": "ຂໍ້ກໍານົດ & ເງື່ອນໄຂ",
+      "lbl-submit": "ສົ່ງ Login Link",
+      "email-sent-msg": "Login Magic Link ຖືກສົ່ງ. ກະລຸນາກວດເບິ່ງອີເມວຂອງທ່ານ.",
+      "success-msg": "Login Magic Link ຖືກສົ່ງ. ກະລຸນາກວດເບິ່ງອີເມວຫຼື SMS ຂອງທ່ານ.",
+      "sms-sent-msg": "Login Magic Link ຖືກສົ່ງ. ກະລຸນາກວດສອບ SMS ຂອງທ່ານ."
+    },
+    "passwordLogin": {
+      "header": "ເຂົ້າສູ່ລະບົບ",
+      "lbl-email": "ທີ່ຢູ່ອີເມວ",
+      "lbl-password": "ລະຫັດຜ່ານ",
+      "lbl-rememberMe": "ຈົ່ງຈື່ຂ້ອຍ",
+      "lbl-signin": "ເຂົ້າສູ່ລະບົບ",
+      "forgotPassword": "ລືມລະຫັດຜ່ານ?",
+      "signup": "ບໍ່ມີບັນຊີ? ລົງທະບຽນ",
+      "lbl-login": "ເຂົ້າສູ່ລະບົບ",
+      "ph-password": "ລະຫັດຜ່ານ",
+      "ph-email": "ອີເມລ໌"
+    },
+    "social": {
+      "gitHub": "Login ກັບ GitHub",
+      "google": "Login ກັບ Google",
+      "facebook": "Login ກັບ Facebook",
+      "linkedin": "Login ກັບ Linkedin",
+      "twitter": "Login ກັບ Twitter"
+    },
+    "register": {
+      "header": "ລົງທະບຽນ",
+      "login": "ເຂົ້າສູ່ລະບົບ",
+      "lbl-signup": "ລົງທະບຽນ",
+      "lbl-password": "ລະຫັດຜ່ານ",
+      "lbl-email": "ທີ່ຢູ່ອີເມວ",
+      "passwordNotMatch": "ລະຫັດບໍ່ກົງກັນ",
+      "ph-password": "ລະຫັດຜ່ານ",
+      "ph-confirmPassword": "ລະຫັດຢືນຢັນ",
+      "ph-email": "ອີເມລ໌"
+    },
+    "resetPassword": {
+      "header": "Reset Password",
+      "description": "ກະລຸນາໃສ່ລະຫັດຜ່ານຂອງທ່ານສໍາລັບທີ່ຢູ່ອີເມວຂອງທ່ານ",
+      "lbl-submit": "Reset Password",
+      "lbl-password": "ລະຫັດຜ່ານ",
+      "lbl-confirmPassword": "ລະຫັດຢືນຢັນ",
+      "passwordNotMatch": "ລະຫັດບໍ່ກົງກັນ",
+      "nowLoginYourAccount": "ບັດ ນີ້ ທ່ານ ສາ ມາດ ເຂົ້າ ສູ່ ບັນ ຊີ ຂອງ ທ່ານ ໄດ້",
+      "yourPasswordResetSuccess": "ລະຫັດຂອງທ່ານໄດ້ຖືກreset ຢ່າງສໍາເລັດຜົນ!"
+    },
+    "verifyEmail": {
+      "header": "ກວດສອບອີເມລ",
+      "processing": "ກະລຸນາລໍຖ້າບຶດຫນຶ່ງໃນຂະນະທີ່ຂະບວນການ..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "ສະຖານທີ່",
+      "loading": "Loading",
+      "col-name": "ຊື່",
+      "col-scene": "ພາບ",
+      "col-maxuser": "ຜູ້ໃຊ້ Max",
+      "lbl-search": "ຄົ້ນຫາສະຖານທີ່ຕ່າງໆ",
+      "lbl-new": "ໃໝ່"
+    },
+    "newLocation": {
+      "title": "ສະຖານທີ່",
+      "success": "ໄດ້ຮັບຄວາມສໍາເລັດ.",
+      "failure": "ບາງສິ່ງບາງຢ່າງຜິດພາດ.",
+      "removeSuccess": "ທີ່ຕັ້ງໄດ້ຖືກປົດອອກຢ່າງສໍາເລັດຜົນ.",
+      "nameInUse": "ຊື່ແມ່ນໃຊ້.",
+      "nameRequire": "ຕ້ອງການຊື່.",
+      "validNumber": "ມີແຕ່ຈໍານວນ(0-9) ເທົ່ານັ້ນ.",
+      "lbl-name": "ຊື່",
+      "lbl-maxuser": "ຜູ້ໃຊ້ Max",
+      "lbl-scene": "ພາບ",
+      "lbl-type": "ພິມ",
+      "lbl-ve": "ວີໂອເອເອ",
+      "lbl-gme": "Global Media Enabled",
+      "lbl-update": "ອັບເດດ",
+      "lbl-create": "ສ້າງ",
+      "tooltipCanNotBeDeleted": "Lobby ບໍ່ສາມາດລຶບໄດ້",
+      "confirmation": "ເຈົ້າແນ່ໃຈຫວາ?",
+      "lbl-yes": "ແມ່ນແລ້ວ",
+      "lbl-no": "ບໍ່"
+    },
+    "share": {
+      "lbl-share": "ແບ່ງປັນ",
+      "ph-phoneEmail": "ເຊີນໂດຍອີເມວຫຼືເບີໂທລະສັບ",
+      "lbl-phoneEmail": "ສົ່ງໄປຫາອີເມວຫຼືເບີໂທລະສັບ",
+      "lbl-copy": "ສໍາເນົາ",
+      "lbl-send-invite": "ສົ່ງເຊີນ",
+      "title": "ແບ່ງປັນ URL Location ຂອງທ່ານກັບທີມງານຂອງທ່ານ",
+      "linkCopied": "ລິ້ງສໍາເນົາຄລິບ."
+    },
+    "setting": {
+      "audio": "ສຽງ",
+      "lbl-volume": "ບໍລິມາດ",
+      "lbl-microphone": "ໄມໂຄຣໂຟນ",
+      "graphics": "Graphics",
+      "controls": "ການຄວບຄຸມ",
+      "lbl-control-type": "ປະເພດຜູ້ຄວບຄຸມ",
+      "lbl-control-scheme": "ແຜນງານຄວບຄຸມ",
+      "lbl-resolution": "ການແກ້ໄຂ",
+      "lbl-shadow": "ຮົ່ມ",
+      "lbl-pp": "Post Processing",
+      "lbl-pbr": "PBR ເຕັມ",
+      "lbl-automatic": "ອັດຕະໂນມັດ",
+      "xrusersetting": "XR ການຕັ້ງຄ່າຜູ້ໃຊ້",
+      "rotation": "ການຫມູນວຽນ",
+      "rotation-smooth-speed": "ຄວາມໄວການຫມູນວຽນSmooth",
+      "rotation-angle": "ມຸມຫມູນວຽນ",
+      "moving": "ການເຄື່ອນຍ້າຍ",
+      "user-avatar": "Avatar ການຕັ້ງຄ່າ",
+      "invert-rotation": "Invert Rotation And Move Sticks",
+      "show-avatar": "ສະແດງ Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Profile",
+      "lbl-settings": "ການຕັ້ງຄ່າ",
+      "lbl-username": "Username",
+      "update-msg": "ອັບເດດUsername",
+      "inviteCode": "ເຊີນປະມວນກົດຫມາຍ",
+      "youAreAn": "ທ່ານເປັນ",
+      "youAreA": "ທ່ານເປັນ",
+      "showUserId": "ສະແດງUSER ID",
+      "hideUserId": "ເຊື່ອງ ID User",
+      "showApiKey": "ສະແດງຂໍກະແຈ API",
+      "hideApiKey": "ເຊື່ອງກະແຈ API",
+      "apiKey": "ສໍາຄັນ ຂອງ API",
+      "logout": "ລົງທະບຽນ",
+      "connectPhone": "ເຊື່ອມຕໍ່ເບີໂທລະສັບຂອງທ່ານ",
+      "connectEmail": "ເຊື່ອມຕໍ່ອີເມວຂອງທ່ານ",
+      "connectPhoneEmail": "ເຊື່ອມຕໍ່ອີເມວຫຼືເບີໂທລະສັບຂອງທ່ານ",
+      "or": "ຫຼື",
+      "lbl-wallet": "Login ກັບ Wallet",
+      "ph-email": "ອີເມລ໌",
+      "ph-phone": "ເບີໂທລະສັບ",
+      "ph-phoneEmail": "ເບີໂທລະສັບ / ອີເມລ",
+      "phoneEmailError": "ໂທລະສັບບໍ່ຖືກ # ຫຼື ທີ່ຢູ່ອີເມວ",
+      "phoneError": "ໂທລະສັບທີ່ບໍ່ມີປະສິດ #",
+      "emailError": "ທີ່ຢູ່ອີເມວທີ່ບໍ່ຖືກຕ້ອງ",
+      "loginWithReadyPlayerMe": "Login ກັບ Ready Player Me",
+      "connectSocial": "ເຊື່ອມຕໍ່ກັບບັນຊີສັງຄົມ",
+      "createOne": "ຖ້າທ່ານບໍ່ມີບັນຊີ, ຫນຶ່ງໃຫມ່ຈະຖືກສ້າງຂື້ນສໍາລັບທ່ານ",
+      "connections": {
+        "title": "ການເຊື່ອມຕໍ່",
+        "ipError": "ບໍ່ສາມາດກໍາຈັດຜູ້ໃຫ້ບໍລິການIdentity ທີ່ເຄື່ອນໄຫວໄດ້",
+        "disconnect": "disconnect",
+        "connect": "Connect"
+      },
+      "profileDropdown": {
+        "avatar": "User Avatar Icon",
+        "profile": "Profile",
+        "adminConsole": "Admin Console",
+        "logout": "Logout"
+      },
+      "userIcon": {
+        "lbl-name": "ຊື່ຂອງເຈົ້າ",
+        "lbl-update": "ອັບເດດ",
+        "userId": "id ຜູ້ໃຊ້",
+        "ph-uploadImg": "ອັບໂຫຼດຮູບພາບຜະລິດຕະພັນ",
+        "lbl-selectAcvatar": "ເລືອກ Avatar",
+        "lbl-submit": "ຍື່ນສະເໜີ"
+      },
+      "userSettings": {
+        "volume": "ບໍລິມາດ",
+        "microphone": "ໄມໂຄຣໂຟນ",
+        "resolution": "ການແກ້ໄຂ",
+        "high": "ສູງ",
+        "low": "ຕ່ໍາ",
+        "spatialAudio": "ໃຊ້ Spatial Audio",
+        "enterMuted": "ເຂົ້າຫ້ອງ Muted"
+      }
+    },
+    "oauth": {
+      "authenticating": "ການຢັ້ງຢືນ...",
+      "authFailed": "{{service}} ການຢັ້ງຢືນໄດ້ຫຼົ້ມແຫຼວ."
+    },
+    "magikLink": {
+      "wait": "ກະລຸນາລໍຖ້າບຶດຫນຶ່ງໃນຂະນະທີ່ຂະບວນການ..."
+    },
+    "dashboard": {
+      "header": "Dashboard",
+      "dashboard": "Dashboard",
+      "users": "ຜູ້ໃຊ້",
+      "feeds": "ອາຫານ",
+      "instance": "ຕົວຢ່າງ",
+      "locations": "ສະຖານທີ່",
+      "invites": "ເຊີນເຊີນ",
+      "sessions": "ພາກວິຊາ",
+      "groups": "ກຸ່ມ",
+      "parties": "ພາກສ່ວນ",
+      "chats": "Chats",
+      "content": "Content Packs",
+      "projects": "ໂຄງການ",
+      "scenes": "ພາບ",
+      "avatars": "Avatars",
+      "benchmarking": "Benchmarking",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "ການຢັ້ງຢືນ...",
+    "authFailed": "{{service}} ການຢັ້ງຢືນໄດ້ຫຼົ້ມແຫຼວ."
+  },
+  "magikLink": {
+    "wait": "ກະລຸນາລໍຖ້າບຶດຫນຶ່ງໃນຂະນະທີ່ຂະບວນການ..."
+  },
+  "dashboard": {
+    "header": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "ຜູ້ໃຊ້",
+    "feeds": "ອາຫານ",
+    "instance": "ຕົວຢ່າງ",
+    "locations": "ສະຖານທີ່",
+    "routes": "ເສັ້ນທາງ",
+    "projects": "ໂຄງການ",
+    "invites": "ເຊີນເຊີນ",
+    "sessions": "ພາກວິຊາ",
+    "groups": "ກຸ່ມ",
+    "parties": "ພາກສ່ວນ",
+    "chats": "Chats",
+    "content": "Content Packs",
+    "scenes": "ພາບ",
+    "avatars": "Avatars",
+    "benchmarking": "Benchmarking",
+    "bots": "Bots",
+    "setting": "ການຕັ້ງຄ່າ"
+  },
+  "avatar": {
+    "title": "ອັບໂຫຼດ Avatar",
+    "lbl-browse": "Browse",
+    "lbl-thumbnail": "Thumbnail",
+    "lbl-upload": "ອັບໂຫຼດ",
+    "selectAvatar": "ເລືອກ Avatar...",
+    "selectThumbnail": "ເລືອກThumbnail...",
+    "rotate": "ຫມູນວຽນ",
+    "pan": "ແພນ",
+    "noBone": "Obejct ບໍ່ມີກະດູກຫຼືຜິວ",
+    "outOfBound": "ວັດຖຸບໍ່ຖືກມັດ.",
+    "emptyObj": "ວັດຖຸຫວ່າງເປົ່າ.",
+    "maxTriangleError": "ວັດຖຸມີໃບຫນ້າຫຼາຍກວ່າ {{allowedTriangles}} .",
+    "selectValidFile": "ເລືອກໄຟລ໌ avatar 3d ທີ່ໃຊ້ໄດ້.",
+    "selectValidThumbnail": "ຄັດເລືອກໄຟລ໌ Thumbnail ທີ່ຖືກຄັດເລືອກ.",
+    "fileOversized": "ຂະຫນາດໄຟລ໌ Avatar ຕ້ອງຢູ່ລະຫວ່າງ {{minSize}} MB ແລະ {{maxSize}} MB",
+    "confirmation": "ເຈົ້າແນ່ໃຈຫວາ?",
+    "canNotBeRemoved": "Avatar ທີ່ເຄື່ອນໄຫວບໍ່ສາມາດຖອດອອກໄດ້",
+    "remove": "ເອົາ avatar",
+    "uploadFiles": "ອັບໂຫຼດໄຟລ໌",
+    "useUrlInstead": "ໃຊ້ url ແທນ",
+    "avatar": "Avatar",
+    "cancel": "ຍົກເລີກ",
+    "createAvatar": "ສ້າງ Avatar",
+    "delete": "ລຶບ",
+    "view": "ພາບ",
+    "uploadAvatarInfo": "ອັບເດດຂໍ້ມູນ avatar",
+    "name": "ຊື່",
+    "enterName": "ເຂົ້າຊື່",
+    "avatarInformation": "ຂໍ້ມູນ Avatar",
+    "description": "ຄໍາບັນຍາຍ",
+    "key": "ກະ ແຈ",
+    "none": "ບໍ່ມີ",
+    "submit": "ຍື່ນສະເໜີ",
+    "edit": "ແກ້ໄຂ",
+    "avatarUrl": "Url Avatar",
+    "upload-success-msg": "Avatar Uploaded ສໍາເລັດ.",
+    "remove-success-msg": "Avatar Uploaded ສໍາເລັດ.",
+    "warning-msg": "Avatar resource ແມ່ນຫວ່າງເປົ່າ, ທ່ານໄດ້ synced avatars ກັບການເກັບຮັກສາໄຟລ໌ static ຂອງທ່ານ?"
+  },
+  "personMenu": {
+    "inviteToParty": "ເຊີນໄປຮ່ວມງານລ້ຽງ",
+    "addAsFriend": "ເພີ່ມເປັນເພື່ອນ",
+    "mute": "Mute",
+    "block": "ບລັອກ"
+  },
+  "person": {
+    "you": "ທ່ານ",
+    "yourScreen": "ຫນ້າຈໍຂອງທ່ານ",
+    "muteForEveryone": "Mute ສໍາລັບທຸກຄົນ",
+    "unmuteForEveryone": "Unmute ສໍາລັບທຸກຄົນ",
+    "muteMe": "Mute ຂ້ອຍ",
+    "unmuteMe": "Unmute ຂ້ອຍ",
+    "muteThisPerson": "ສາລະຄະດີຄົນນີ້",
+    "unmuteThisPerson": "Unmute ບຸກຄົນນີ້",
+    "openPictureInPicture": "ເປີດຮູບໃນຮູບ"
+  }
+}

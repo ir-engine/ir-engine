@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Patvirtinimo el. laiškas",
+      "resendEmail": "Patikrinkite savo el. paštą, kad patvirtintumėte savo paskyrą. Jei negavote el. laiško, spustelėkite {{here}} , kad persiųstumėte patvirtinimo el. laišką.",
+      "haveAnAccount": "Turite sąskaitą?"
+    },
+    "forgotPassword": {
+      "header": "Pamiršote slaptažodį",
+      "enterEmail": "Įveskite savo registruotą el. pašto adresą ir mes atsiųsime jums slaptažodžio nustatymo iš naujo nuorodą.",
+      "lbl-email": "El. pašto adresas",
+      "lbl-submit": "Siųsti saitą",
+      "emailSent": "Išsiųstas iš naujo slaptažodžio el. laiškas. Patikrinkite savo elektroninį paštą."
+    },
+    "login": {
+      "email": "El. pašto | SMS",
+      "username": "UserName + slaptažodis",
+      "social": "Socialinės"
+    },
+    "magiklink": {
+      "header": "Prisijungimo saitas",
+      "descriptionEmail": "Įveskite savo el. pašto adresą ir mes atsiųsime jums prisijungimo nuorodą el. paštu.",
+      "descriptionSMS": "Įveskite savo telefono numerį ir mes atsiųsime jums prisijungimo nuorodą SMS žinute.",
+      "descriptionEmailSMS": "Įveskite savo el. pašto adresą arba telefono numerį (10 skaitmenų, tik JAV) ir mes atsiųsime jums prisijungimo nuorodą el. paštu arba SMS žinute.",
+      "descriptionSMSUS": "Įveskite savo telefono numerį (10 skaitmenų, tik JAV) ir mes atsiųsime jums prisijungimo nuorodą SMS žinute.",
+      "lbl-email": "El. pašto adresas",
+      "lbl-emailPhone": "El. pašto arba telefono numeris",
+      "lbl-phone": "Telefono numeris",
+      "agree": "Sutinku su ",
+      "terms": "Terminai ir sąlygos",
+      "lbl-submit": "Siųsti prisijungimo saitą",
+      "email-sent-msg": "\"Login Magic Link\" buvo išsiųstas. Patikrinkite savo el. paštą.",
+      "success-msg": "\"Login Magic Link\" buvo išsiųstas. Patikrinkite savo el. paštą arba SMS žinutę.",
+      "sms-sent-msg": "\"Login Magic Link\" buvo išsiųstas. Patikrinkite savo SMS žinutę."
+    },
+    "passwordLogin": {
+      "header": "Prisijungti, prisijunk",
+      "lbl-email": "El. pašto adresas",
+      "lbl-password": "Slaptažodis",
+      "lbl-rememberMe": "Prisimink mane",
+      "lbl-signin": "Prisijungti, prisijunk",
+      "forgotPassword": "Pamiršote slaptažodį?",
+      "signup": "Neturite paskyros? Užsiregistruoti, užsiregistruok",
+      "lbl-login": "Prisijungti, prisijunk",
+      "ph-password": "Slaptažodis",
+      "ph-email": "El paštas"
+    },
+    "social": {
+      "gitHub": "Prisijungimas prie \"GitHub\"",
+      "google": "Prisijungimas prie \"Google\"",
+      "facebook": "Prisijungimas prie \"Facebook\"",
+      "linkedin": "Prisijungimas prie \"Linkedin\"",
+      "twitter": "Prisijungimas naudojant \"Twitter\""
+    },
+    "register": {
+      "header": "Užsiregistruoti, užsiregistruok",
+      "login": "Prisijungti, prisijunk",
+      "lbl-signup": "Užsiregistruoti, užsiregistruok",
+      "lbl-password": "Slaptažodis",
+      "lbl-email": "El. pašto adresas",
+      "passwordNotMatch": "Slaptažodžiai nesutampa",
+      "ph-password": "Slaptažodis",
+      "ph-confirmPassword": "Slaptažodžio patvirtinimas",
+      "ph-email": "El paštas"
+    },
+    "resetPassword": {
+      "header": "Iš naujo nustatyti slaptažodį",
+      "description": "Įveskite savo el. pašto adreso slaptažodį",
+      "lbl-submit": "Iš naujo nustatyti slaptažodį",
+      "lbl-password": "Slaptažodis",
+      "lbl-confirmPassword": "Slaptažodžio patvirtinimas",
+      "passwordNotMatch": "Slaptažodžiai nesutampa",
+      "nowLoginYourAccount": "Dabar galite prisijungti prie savo paskyros",
+      "yourPasswordResetSuccess": "Jūsų slaptažodis sėkmingai nustatytas iš naujo!"
+    },
+    "verifyEmail": {
+      "header": "Tikrinti el. paštą",
+      "processing": "Palaukite šiek tiek laiko, kol apdorojate ..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Vietos",
+      "loading": "Pakrovimo",
+      "col-name": "Vardas, pavadinimas",
+      "col-scene": "Scena",
+      "col-maxuser": "Maksimalus vartotojų skaičius",
+      "lbl-search": "Ieškoti vietų",
+      "lbl-new": "Naujas"
+    },
+    "newLocation": {
+      "title": "Vieta",
+      "success": "Įrašyta sėkmingai.",
+      "failure": "Kažkas ne taip.",
+      "removeSuccess": "Vieta sėkmingai pašalinta.",
+      "nameInUse": "Vardas naudojamas.",
+      "nameRequire": "Vardas yra būtinas.",
+      "validNumber": "Leidžiami tik skaičiai (0-9).",
+      "lbl-name": "Vardas, pavadinimas",
+      "lbl-maxuser": "Maksimalus vartotojų skaičius",
+      "lbl-scene": "Scena",
+      "lbl-type": "Rūšis",
+      "lbl-ve": "Vaizdo įrašas įgalintas",
+      "lbl-gme": "Įgalinta visuotinė medija",
+      "lbl-update": "Naujinti",
+      "lbl-create": "Kurti",
+      "tooltipCanNotBeDeleted": "Vestibiulio panaikinti negalima",
+      "confirmation": "Ar tikrai?",
+      "lbl-yes": "Taip",
+      "lbl-no": "Ne"
+    },
+    "share": {
+      "lbl-share": "Akcija",
+      "ph-phoneEmail": "Kvietimas el. paštu arba telefono numeriu",
+      "lbl-phoneEmail": "Siųsti el. paštu arba telefono numeriu",
+      "lbl-copy": "Kopija",
+      "lbl-send-invite": "Siųsti kvietimą",
+      "title": "Vietovės URL bendrinimas su komanda",
+      "linkCopied": "Saitas nukopijuotas į mainų sritį."
+    },
+    "setting": {
+      "audio": "Garso",
+      "lbl-volume": "Tomas",
+      "lbl-microphone": "Mikrofonas",
+      "graphics": "Grafika",
+      "controls": "Kontrolė",
+      "lbl-control-type": "Valdiklio tipas",
+      "lbl-control-scheme": "Kontrolės schema",
+      "lbl-resolution": "Rezoliucija",
+      "lbl-shadow": "Šešėliai",
+      "lbl-pp": "Registruoti apdorojimą",
+      "lbl-pbr": "Visas PBR",
+      "lbl-automatic": "Automatinis",
+      "xrusersetting": "XR vartotojo parametrai",
+      "rotation": "Sukimosi",
+      "rotation-smooth-speed": "Sukimosi sklandus greitis",
+      "rotation-angle": "Sukimosi kampas",
+      "moving": "Juda",
+      "user-avatar": "Avataro parametras",
+      "invert-rotation": "Apversti sukimąsi ir perkelti lazdas",
+      "show-avatar": "Rodyti avatarą"
+    },
+    "profile": {
+      "lbl-profile": "Profilis",
+      "lbl-settings": "Parametrai",
+      "lbl-username": "Vartotojo vardas",
+      "update-msg": "Vartotojo vardas atnaujintas",
+      "inviteCode": "Kvietimo kodas",
+      "youAreAn": "Jūs esate",
+      "youAreA": "Jūs esate",
+      "showUserId": "Rodyti vartotojo ID",
+      "hideUserId": "Slėpti vartotojo ID",
+      "showApiKey": "Rodyti API raktą",
+      "hideApiKey": "Slėpti API raktą",
+      "apiKey": "API raktas",
+      "logout": "Atsijungti",
+      "connectPhone": "Telefono numerio prijungimas",
+      "connectEmail": "El. pašto prijungimas",
+      "connectPhoneEmail": "Prijunkite savo el. pašto adresą arba telefono numerį",
+      "or": "Arba",
+      "lbl-wallet": "Prisijungimas su pinigine",
+      "ph-email": "El paštas",
+      "ph-phone": "Telefono numeris",
+      "ph-phoneEmail": "Telefono numeris / El. paštas",
+      "phoneEmailError": "Neleistinas telefono # arba el. pašto adresas",
+      "phoneError": "Neleistinas telefonas #",
+      "emailError": "Neleistinas el. pašto adresas",
+      "loginWithReadyPlayerMe": "Prisijungimas prie \"Ready Player Me\"",
+      "connectSocial": "Prisijungimas prie socialinių paskyrų",
+      "createOne": "Jei neturite paskyros, jums bus sukurta nauja",
+      "connections": {
+        "title": "Ryšius",
+        "ipError": "Negalima pašalinti aktyvaus tapatybės teikėjo",
+        "disconnect": "Atjungti",
+        "connect": "Jungti"
+      },
+      "profileDropdown": {
+        "avatar": "Vartotojo avataro piktograma",
+        "profile": "Profilis",
+        "adminConsole": "Administravimo konsolė",
+        "logout": "Išsiregistruoti"
+      },
+      "userIcon": {
+        "lbl-name": "Tavo vardas",
+        "lbl-update": "Naujinti",
+        "userId": "Vartotojo ID",
+        "ph-uploadImg": "Nusiųsti produkto vaizdą",
+        "lbl-selectAcvatar": "Pasirinkti avatarą",
+        "lbl-submit": "Pateikti"
+      },
+      "userSettings": {
+        "volume": "Tomas",
+        "microphone": "Mikrofonas",
+        "resolution": "Rezoliucija",
+        "high": "Aukštas",
+        "low": "Žemas",
+        "spatialAudio": "Erdvinio garso naudojimas",
+        "enterMuted": "Įvesti nutildytą kambarį"
+      }
+    },
+    "oauth": {
+      "authenticating": "Patvirtinamas...",
+      "authFailed": "{{service}} autentifikavimas nepavyko."
+    },
+    "magikLink": {
+      "wait": "Palaukite šiek tiek laiko, kol apdorojate ..."
+    },
+    "dashboard": {
+      "header": "Prietaisų skydelis",
+      "dashboard": "Prietaisų skydelis",
+      "users": "Vartotojai",
+      "feeds": "Kanalai",
+      "instance": "Egzempliorius",
+      "locations": "Vietos",
+      "invites": "Kviečia",
+      "sessions": "Sesijų",
+      "groups": "Grupės",
+      "parties": "Šalių",
+      "chats": "Pokalbiai",
+      "content": "Turinio paketai",
+      "projects": "Projektus",
+      "scenes": "Scenos",
+      "avatars": "Avataros",
+      "benchmarking": "Lyginamoji analizė",
+      "bots": "Robotai"
+    }
+  },
+  "oauth": {
+    "authenticating": "Patvirtinamas...",
+    "authFailed": "{{service}} autentifikavimas nepavyko."
+  },
+  "magikLink": {
+    "wait": "Palaukite šiek tiek laiko, kol apdorojate ..."
+  },
+  "dashboard": {
+    "header": "Prietaisų skydelis",
+    "dashboard": "Prietaisų skydelis",
+    "users": "Vartotojai",
+    "feeds": "Kanalai",
+    "instance": "Egzempliorius",
+    "locations": "Vietos",
+    "routes": "Maršrutų",
+    "projects": "Projektus",
+    "invites": "Kviečia",
+    "sessions": "Sesijų",
+    "groups": "Grupės",
+    "parties": "Šalių",
+    "chats": "Pokalbiai",
+    "content": "Turinio paketai",
+    "scenes": "Scenos",
+    "avatars": "Avataros",
+    "benchmarking": "Lyginamoji analizė",
+    "bots": "Robotai",
+    "setting": "Parametrai"
+  },
+  "avatar": {
+    "title": "Nusiųsti avatarą",
+    "lbl-browse": "Naršyti",
+    "lbl-thumbnail": "Miniatiūros",
+    "lbl-upload": "Nusiuntimas",
+    "selectAvatar": "Pasirinkite Avataras...",
+    "selectThumbnail": "Pasirinkite Miniatiūrą...",
+    "rotate": "Pasukti",
+    "pan": "Panas",
+    "noBone": "Obejct sudėtyje nėra kaulų ar odos",
+    "outOfBound": "Objektas yra neįrištas.",
+    "emptyObj": "Objektas tuščias.",
+    "maxTriangleError": "Objekte yra daugiau nei {{allowedTriangles}} veidų.",
+    "selectValidFile": "Pasirinkite tinkamą 3D avataro failą.",
+    "selectValidThumbnail": "Pasirinktas tinkamas miniatiūros failas.",
+    "fileOversized": "Avataro failo dydis turi būti nuo {{minSize}} MB iki {{maxSize}} MB",
+    "confirmation": "Ar tikrai?",
+    "canNotBeRemoved": "Aktyvaus avataro pašalinti negalima",
+    "remove": "Pašalinti avatarą",
+    "uploadFiles": "Nusiųsti failus",
+    "useUrlInstead": "Vietoj to naudoti URL",
+    "avatar": "Avataras",
+    "cancel": "Atšaukti",
+    "createAvatar": "Kurti avatarą",
+    "delete": "Naikinti",
+    "view": "Rodinys",
+    "uploadAvatarInfo": "Naujinti avataro informaciją",
+    "name": "Vardas, pavadinimas",
+    "enterName": "Įvesti pavadinimą",
+    "avatarInformation": "Avataro informacija",
+    "description": "Apibūdinimas",
+    "key": "Raktas",
+    "none": "Joks",
+    "submit": "Pateikti",
+    "edit": "Redaguoti",
+    "avatarUrl": "Avataro URL",
+    "upload-success-msg": "Avataras sėkmingai įkeltas.",
+    "remove-success-msg": "Avataras sėkmingai įkeltas.",
+    "warning-msg": "Avataro ištekliai yra tušti, ar sinchronizuojote avatarus su savo statine failų saugykla?"
+  },
+  "personMenu": {
+    "inviteToParty": "Kvietimas į vakarėlį",
+    "addAsFriend": "Pridėti kaip draugą",
+    "mute": "Nutildyti",
+    "block": "Blokuoti"
+  },
+  "person": {
+    "you": "Tu",
+    "yourScreen": "Jūsų ekranas",
+    "muteForEveryone": "Nutildyti visiems",
+    "unmuteForEveryone": "Nutildyti visiems",
+    "muteMe": "Nutildyti mane",
+    "unmuteMe": "Nutildyti mane",
+    "muteThisPerson": "Nutildyti šį asmenį",
+    "unmuteThisPerson": "Nutildyti šį asmenį",
+    "openPictureInPicture": "Atidaryti paveikslėlį paveikslėliu"
+  }
+}

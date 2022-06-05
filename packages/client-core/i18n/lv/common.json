@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Ielādē lapu..."
+  },
+  "tooltip": {
+    "pressKey": "Nospiediet {{tip}} uz {{message}}"
+  },
+  "toast": {
+    "joined": "Pievienojās",
+    "left": "Pa kreisi"
+  },
+  "navUserWidget": {
+    "login": "Pieteikties"
+  },
+  "loader": {
+    "connecting": "Pieslēdzas pasaulei...",
+    "entering": "Ieiešana pasaulē...",
+    "loading": "Iekraušanas...",
+    "objectRemaining": "{{count}} atlikušais objekts",
+    "objectRemainingPlural": "{{count}} atlikušie objekti",
+    "loadingObjects": "Notiek objektu ielāde",
+    "loadingComplete": "Ielāde pabeigta",
+    "joiningWorld": "Pievienošanās pasaulei"
+  },
+  "alert": {
+    "eventWasSuccess": "Pasākums bija veiksmīgs",
+    "errorWasEncountered": "Radās kļūda",
+    "eventInProgress": "Notiekošais notikums",
+    "seconds": "Sekundes",
+    "cancelCountdown": "Aizverot šo modālu, tiks atcelta atpakaļskaitīšana"
+  },
+  "debug": {
+    "refresh": "Atsvaidzināt",
+    "stats": "Stats",
+    "debugOptions": "Atkļūdošanas opcijas",
+    "physicsDebug": "Fizika",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Mezgla palīgs",
+    "gridDebug": "Režģis",
+    "simpleMaterials": "Vienkārši materiāli",
+    "tick": "Ērce",
+    "worldStore": "Pasaules veikals",
+    "engineStore": "Dzinēju veikals",
+    "namedEntities": "Nosauktās entītijas",
+    "networkObject": "Tīkla objekts",
+    "networkClients": "Tīkla klienti"
+  },
+  "recording": {
+    "videoRecorder": "Videomagnetofona",
+    "waitingForPermissions": "Gaida atļaujas",
+    "selectVideoSource": "Atlasīt video avotu",
+    "screen": "Ekrāns",
+    "camera": "Fotoaparāts",
+    "microphone": "Mikrofons",
+    "startRecording": "Sākt ierakstīšanu",
+    "pauseRecording": "Pauzēt ierakstīšanu",
+    "resumeRecording": "Atsākt ierakstīšanu",
+    "stopRecording": "Ierakstīšanas pārtraukšana"
+  },
+  "typing": "Rakstīt...",
+  "gameServer": {
+    "browserError": "Pārlūkprogrammas kļūda",
+    "browserErrorMessage": "Jūsu pārlūkprogramma neatbalsta krātuvi privātās pārlūkošanas režīmā. Vai nu izmēģiniet citu pārlūkprogrammu, vai izejiet no privātā pārlūkošanas režīma.",
+    "noAvailableServers": "Nav pieejamu serveru",
+    "noAvailableServersMessage": "Nav pieejami serveri, ar kuriem izveidot savienojumu. Notiek mēģinājums atkārtoti izveidot savienojumu",
+    "worldDisconnected": "Pasaule atvienota",
+    "worldDisconnectedMessage": "Tu esi zaudējis saikni ar pasauli. Mēs centīsimies atjaunot savienojumu pirms nākamā laika beigām, pretējā gadījumā jūs tiksiet pārsūtīts uz citu gadījumu.",
+    "webGLNotEnabled": "WebGL nav iespējots",
+    "webGLNotEnabledMessage": "Jūsu pārlūkprogramma neatbalsta WebGL vai arī tā ir atspējota. Lūdzu, iespējojiet WebGL vai apsveriet iespēju jaunināt uz jaunāko pārlūkprogrammas versiju.",
+    "youKickedFromWorld": "Tu esi izspiests no pasaules",
+    "youKickedFromWorldMessage": "Jūs tikāt izspiests no šīs pasaules šāda iemesla dēļ",
+    "invalidLocation": "Nederīga atrašanās vieta",
+    "cantFindLocation": "Mēs nevaram atrast atrašanās vietu",
+    "misspelledOrNotExist": "Tas var būt nepareizi uzrakstīts, vai arī tas var neeksistēt.",
+    "loading": "Iekraušanas",
+    "low-frame-error": "Konstatēja sliktu perfomance apsveriet iespēju iespējot izmantot aparatūras paātrinājumu pārlūkprogrammā un atsākt pārlūka darbību",
+    "low-frame-title": "Iespējojiet aparatūras paātrinājumu labākai pieredzei!"
+  },
+  "error": {
+    "loading-error": "Neizdevās ielādēt lietotāja datus",
+    "validation-error": "Lūdzu, ievadiet derīgu {{type}}",
+    "login-error": "Neizdevās pieteikties"
+  }
+}

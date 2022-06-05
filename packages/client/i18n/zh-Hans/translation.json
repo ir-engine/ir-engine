@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - 页面未找到"
+  },
+  "503": {
+    "msg": "503 - 服务不可用"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "您已被禁止进入此位置",
+    "locationName": {
+      "pageTitle": "家"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "项目",
+      "header": "请登录",
+      "welcomeMsg": "欢迎",
+      "locationHeader": "地点",
+      "projectHeader": "项目",
+      "sceneHeader": "场景",
+      "description": "如果您是新手，我们建议您完成本教程。否则，请直接跳入并从头开始或从我们的模板之一创建项目。",
+      "lbl-startTutorial": "开始教程",
+      "lbl-newProject": "新建项目",
+      "lbl-createProject": "创造",
+      "lbl-newScene": "新建场景",
+      "lbl-searchProject": "搜索现有项目...",
+      "back": "返回",
+      "contextMenu": "删除项目",
+      "installed": "已安装项目",
+      "official": "官方项目",
+      "community": "社区项目",
+      "install": "安装",
+      "uninstall": "卸载",
+      "rename": "重命名",
+      "createProject": "创建项目",
+      "installProject": "安装项目",
+      "processing": "加工",
+      "projectName": "项目名称",
+      "projectURL": "项目网址"
+    }
+  },
+  "error": {
+    "goHomeLink": "回家",
+    "withStatusCode": "服务器上 {{code}} 出错",
+    "withoutStatusCode": "服务器上发生错误"
+  },
+  "no-projects": {
+    "msg": "错误：未安装任何项目 - 请联系站点管理员"
+  },
+  "dev": {
+    "pageTitle": "家"
+  },
+  "login": {
+    "pageTitle": "登录"
+  },
+  "workerTest": {
+    "pageTitle": "工人测试"
+  },
+  "index": {
+    "by": "由",
+    "xr": "断续器",
+    "foundation": "基础",
+    "description": "实时3D社交应用程序，供每个人享受。"
+  },
+  "xrengineContact": {
+    "header": "保持联系！",
+    "description": "我们很乐意帮助您满足虚拟活动，数字零售，娱乐和其他需求。",
+    "lbl-name": "名字",
+    "lbl-email": "电子邮件",
+    "lbl-company": "公司",
+    "lbl-project": "描述您的项目",
+    "lbl-send": "发送",
+    "lbl-ok": "还行",
+    "lbl-success": "消息已发送，我们会尽快回复您。",
+    "lbl-failure": "出现错误，请重试",
+    "err-username": "请输入您的姓名。",
+    "err-email": "电子邮件是必需的。",
+    "err-msg": "提供项目的一些简要描述。"
+  }
+}

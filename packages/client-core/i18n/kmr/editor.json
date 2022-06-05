@@ -1,0 +1,718 @@
+{
+  "loading": "Projeya Barkirinê",
+  "loadingMsg": "Projeya barkirinê...",
+  "loadingError": "Di barkirina projeyê de çewtî",
+  "loadingErrorMsg": "Di barkirina projeyê de çewtiyek çêbû.",
+  "selectSceneMsg": "Ji bo ku hûn bi motorê bilîzin dîmenekê hilbijêrin.",
+  "error": "Çewtî",
+  "errorMsg": "Çewtiyeke nediyar çêbû.",
+  "generateScreenshot": "Wêneya Ekranê ya Projeyê Diafrîne",
+  "generateScreenshotMsg": "Dîmenê projeyê diafrîne...",
+  "newScene": "Dîmen Biafirîne",
+  "saving": "Projeya Tomarkirinê",
+  "savingMsg": "Proje tê tomarkirin...",
+  "savingError": "Projeya Tomarkirina Çewtiyê",
+  "savingErrorMsg": "Di tomarkirina projeyê de çewtiyek çêbû.",
+  "savingSceneErrorMsg": "Dîmen bi rêk û pêk nayê barkirin. Ji nû ve barkirina dîmenê biceribînin.",
+  "duplicating": "Projeya Dubarekirinê",
+  "duplicatingMsg": "Projeya dubarekirina...",
+  "exporting": "Projeya Îxracatê",
+  "exportingMsg": "Projeya îxrackirinê...",
+  "exportingError": "Projeya Îxracata Çewtiyê",
+  "exportingErrorMsg": "Di îxracata projeyê de çewtiyek çêbû.",
+  "importLegacy": "Dinyaya Mîrasê Îthal Bike",
+  "importLegacyMsg": "Hişyar be! Ev yek wê li ser sekna we ya heyî binivîsîne! Tu pê bawer î ku tu dixwazî berdewam bikî?",
+  "publishingError": "Projeya Weşandina Çewtiyê",
+  "publishingErrorMsg": "Çewtiyeke nediyar çêbû.",
+  "publishingScene": "Sehneya Weşangeriyê",
+  "publishingSceneMsg": "Dîmenê weşanxanê...",
+  "uploadingThumbnailMsg": "Wêneyên berçav tê barkirin...",
+  "uploadingSceneMsg": "Dîmen tê barkirin: {{percentage}}%",
+  "envMapError": "Di barkirina wêneyên cubemap de çewtî {{files}}",
+  "lbl-return": "Vegere",
+  "menubar": {
+    "newScene": "Dîmena Nû",
+    "saveScene": "Dîmenan Tomar Bike",
+    "saveAs": "Tomar bike wekî",
+    "importAsset": "Veguheze mal",
+    "exportGLB": "Hinardekirin wekî glTF ya dualî (.glb) ...",
+    "importScene": "Dîmena îthalatê",
+    "exportScene": "Dîmenê îxracatê",
+    "quit": "Dev jê berde"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Ji bo dosyayê cureyê pelê nayê destekirin: \"{{name}}\". Divê dosya bibe wêne, vîdeo an jî modeleke glb.",
+    "addObject": "addObject: berî ku bireser neyê dîtin",
+    "removeObject": "RakirinObject: girêk nehat dîtin. Ev ji ber rakirina girêkekê ye ku êdî li cihê bûyerê nemaye.",
+    "noParent": "{{node}} \"{{name}}\" dê û bavê wî tune ye. Reparent tenê li ser tiştên ku niha li cihê bûyerê ne dixebite.",
+    "undefinedParent": "edîtor.reparent: newParent nenaskirî ye",
+    "notAuthenticated": "Nehatiye piştrastkirin",
+    "fetchingProjectError": "Di standina projeyan de çewtî: {{error}}",
+    "fetchingRouteError": "Dema rê dibir çewtî: {{error}}",
+    "unknownError": "Çewtiya nenas",
+    "resolveURL": "Di çewtiya çareserkirina url de \"{{url}}\" :",
+    "mediaSearchAborted": "Lêgerîna medyayê hate betalkirin",
+    "methodNotImplemented": "Metod nehate sepandin.",
+    "saveProjectAborted": "Cihê tomarkirinê hate betalkirin",
+    "unsavedChanges": "Guhertinên netomarkirî",
+    "unsavedChangesMsg": "Dîmen hatiye guhertin. Ji kerema xwe guhertinên xwe tomar bikin.",
+    "projectCreationFail": "Afirandina projeyê bi ser neket. {{reason}}",
+    "projectDeletionFail": "Jêbirina projeyê bi ser neket. {{reason}}",
+    "savingProjectFail": "Projeya Tomarkirinê bi ser neket. {{reason}}",
+    "sceneTooLarge": "Ji bo weşandinê dîmen pir mezin e ({{size}} MB). Mezinahiya maksîmûm {{maxSize}} MB ye.",
+    "sceneCreationFail": "Afirandina dîmenan bi ser neket. {{reason}}",
+    "uploadAborted": "Barkirin bele",
+    "uploadFailed": "Barkirin biserneket {{reason}}",
+    "assetDeletionFail": "Jêbirina malî bi ser neket. {{reason}}",
+    "projectAssetDeletionFail": "Jêbirina Projeya Hebûnê bi ser neket. {{reason}}",
+    "networkError": "Çewtiya torê: {{status}}. {{text}}",
+    "unknownStatus": "Rewşa nenas",
+    "CORS": "Dibe ku xeletiyek CORS be",
+    "urlFetchError": "Nekariye \"{{url}}\" bîne"
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Kamerayê Biguhezîne",
+      "flyFast": "Bileztir bifirin",
+      "orbit": "Orbit / Select",
+      "pan": "Pan",
+      "fly": "Mêş",
+      "focus": "Fokus",
+      "rotateLeft": "Bizivirîne Çepê",
+      "rotateRight": "Bizivirîne Rastê",
+      "cancelPlacement": "Bicihkirinê Betal Bike",
+      "placeDuplicate": "Dubare bike",
+      "cancelGrab": "Pêvekê Betal Bike",
+      "grab": "Pêvek",
+      "deselectAll": "Hemûyan Hilnebijêre"
+    },
+    "state": {
+      "header": "Stats",
+      "memory": "Bîr",
+      "geometries": "Geometrî",
+      "textures": "Textor",
+      "render": "Render",
+      "FPS": "FPS",
+      "frameTime": "Dema çarçovê",
+      "calls": "Bang",
+      "triangles": "Sêgoşe",
+      "points": "Xal",
+      "lines": "Xêz"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Biweşîne",
+    "lbl-published": "weşand",
+    "command": {
+      "translate": "Wergerandin",
+      "rotate": "Bizivirîne",
+      "scale": "Pîvan",
+      "toggleSpace": "Cihê veguherîne",
+      "togglePivot": "Guhastin Pivot",
+      "toggleSnapMode": "Moda Snap ya Toggle",
+      "toggleGrid": "Toggle Grid Visibility",
+      "increaseGridSize": "Mezinahiya Gridê Zêde Bike",
+      "descreaseGridSize": "Mezinahiya Gridê Kêm Bike",
+      "stopPreview": "Pêşdîtina Dîmenan Rawestîne",
+      "playPreview": "Dîmena Pêşdîtinê"
+    }
+  },
+  "properties": {
+    "title": "Taybetmendî",
+    "lbl-visible": "Xuya",
+    "lbl-preventBake": "pêşî ya bake bigirin",
+    "lbl-persist": "Domdar",
+    "multipleNodeSelected": "Pirgirên ji cureyên cuda yên hatine hilbijartin",
+    "noNodeSelected": "Tu girêk nehatiye bijartin",
+    "ambientLight": {
+      "name": "Ronahiya Hawîrdorê",
+      "description": "Ronahîyeke ku hemû tiştên di sehneya we da ronî dike.",
+      "lbl-intensity": "zexmbûn",
+      "lbl-color": "Reng"
+    },
+    "envmap": {
+      "name": "Nexşeya Hawirdorê",
+      "description": "taybetmendiyên nexşeya hawirdorê"
+    },
+    "asset": {
+      "name": "Mal",
+      "description": "Komek ji hêmanên dîmenan ên ku dikarin bi awayekî dînamîk werin barkirin û rakirin",
+      "lbl-options": "Vebijêrk",
+      "lbl-assetPath": "Rêya Malî",
+      "lbl-assetName": "Navê Îxracatê",
+      "lbl-exportOptions": "Vebijêrkên Veguheztinê",
+      "lbl-export": "Veguheze Malî",
+      "lbl-load": "Bar bike cihê bûyerê",
+      "lbl-unload": "Bar bike",
+      "lbl-reload": "Ji nû ve bar bike"
+    },
+    "audio": {
+      "name": "Deng",
+      "description": "Deng bi awayekî dînamîk bar dike.",
+      "lbl-audiourl": "Url ya Dengî",
+      "lbl-controls": "kontrol",
+      "info-controls": "Çavlirêbûna kontrolên medyayê veke.",
+      "lbl-autoplay": "Lêdana Bixweber",
+      "info-autoplay": "Heke rast be, medya dema ku ewil têkeve cihê bûyerê dê bilîze.",
+      "lbl-synchronize": "Senkronîze bike",
+      "info-synchronize": "Heke rast be, medya dê li ser hemû mişterîyên girêdayî hev senkronîze bibe.",
+      "lbl-loop": "Lûp",
+      "info-loop": "Heke rast be, medya dê bêdawî bizivre.",
+      "lbl-audioType": "Cureyê Dengê",
+      "lbl-distanceModel": "Modela Dûrahî",
+      "info-distanceModel": "Algorîtîm ji bo hesabkirina dengî tê bikaranîn.",
+      "lbl-rolloffFactor": "Faktora Rolloff",
+      "info-rolloffFactor": "Dema çavkanî ji guhdarvan dûr dikeve, nirxekî duqat ku tê ravekirin ka deng çiqas zû tê kêmkirin. 0 heta 1",
+      "info-rfInfinity": "Dema çavkanî ji guhdarvan dûr dikeve, nirxekî duqat ku tê ravekirin ka deng çiqas zû tê kêmkirin. 0 ber Bêdawîtî",
+      "lbl-refDistance": "Dûrahiya Ref",
+      "info-refDistance": "Ji ber ku çavkanîya deng ji guhdaran zêdetir diçe, nirxa dualî ya ku mesafeya referansê ji bo kêmkirina dengê nîşan dide.",
+      "lbl-maxDistance": "Dûrahiya Maks",
+      "info-maxDistance": "Nirxa duqat î ku mesafeya herî zêde ya di navbera çavkanîya deng û guhdarvanan da nîşan dide, piştî vê deng zêdetir nayê kêmkirin.",
+      "lbl-coneInnerAngle": "Cone Inner Angle",
+      "info-coneInnerAngle": "Nirxeka dukesî ya ku quncikê rave dike, di dereceyan da, ji konîyeka di hundirê wê da dê qet kêmkirina qalibê nebe.",
+      "lbl-coneOuterAngle": "Cone Outer Angle",
+      "info-coneOuterAngle": "Nirxeka dualî ya ku quncikê rave dike, di dereceyan da, ji konîyeka li derveyî wê, ji hêla taybetmendîya coneOuterGain ê ve dihê pênasekirin, bi nirxekî domdar dihê kêmkirin.",
+      "lbl-coreOuterGain": "Cone Outer Gain",
+      "info-coreOuterGain": "Nirxekî dualî yê ku ji derveyî konîya ku ji alîyê taybetmendîya coneOuterAngle ve hatîye pênasekirin, rêjeya kêmkirina dengî rave dike. Nirxa wê ya jixweber 0 e, tê vê wateyê ku deng nayê bihîstin.",
+      "lbl-volume": "Deng",
+      "lbl-play": "Lê bixe",
+      "lbl-pause": "Raweste",
+      "error-url": "Di Barkirina Ji URL de Çewtî"
+    },
+    "boxCollider": {
+      "description": "Qutîyeka nexuya yî ku tişt dê ji jor derkevin an jî li jor bisekinin.\nBêyî ku rûbirû bibin, dê tişt di qatan re derbas bibin û di dîwaran re derbas bibin.",
+      "lbl-isTrigger": "Tetîk"
+    },
+    "camera": {
+      "name": "Kamera",
+      "description": "Eyarên kamerayê.",
+      "lbl-camera-raycast": "Kamera Raycasting",
+      "lbl-camera-raycast-toggle": "Çalak",
+      "lbl-camera-raycast-frequency": "Frekans",
+      "lbl-camera-raycast-count": "Hejmara Ray",
+      "lbl-camera-raycast-length": "Dirêjahiya Ray"
+    },
+    "directionalLight": {
+      "name": "Ronahiya Beralî",
+      "description": "Ronahîyeke ku hemû sehneyê ronî dike, lê li ser hêlekê vedihewîne.",
+      "lbl-color": "Reng",
+      "lbl-intensity": "zexmbûn",
+      "lbl-cameraFar": "Kamera dûr",
+      "lbl-cameraNear": "Kamera nêzîk",
+      "lbl-cameraTop": "Kamera Top",
+      "lbl-cameraBottom": "Kamera jêrîn",
+      "lbl-cameraLeft": "Kamera Çep",
+      "lbl-cameraRight": "Kamera rast",
+      "lbl-useInCSM": "Di CSM de bi kar bîne",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-disableForCSM": "Neçalak e ji ber ku nexşeya sîberê ya Cascadeyê çalak e.",
+      "lbl-shadowmapResolution": "Zelalîya Nexşeya Sîyê",
+      "lbl-shadowBias": "Siya Bias",
+      "lbl-shadowRadius": "Shadow Radius",
+      "lbl-showCameraHelper": "Alîkara Kamerayê Nîşan Bide"
+    },
+    "groundPlane": {
+      "name": "Balefira bejahî",
+      "description": "Balafireka rasta erdê ya ku li dûrahîyê dirêj dibe.",
+      "lbl-color": "Reng",
+      "lbl-receiveShadow": "Sî bistîne",
+      "lbl-generateNavmesh": "Navmesh biafirinin"
+    },
+    "link": {
+      "description": "Girêdana bi odeyekê an jî malperekê ra.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "3D nexşeya geospatial a wekî bajarekî."
+    },
+    "model": {
+      "description": "Modeleka 3Dyê ya di sehneya we da, ji URL ya GLTF an jî dosyeya we barkirî ye.",
+      "lbl-usingGPUInstancingFlag": "Enstancing a GPU bi kar bîne",
+      "lbl-modelurl": "Model Url",
+      "lbl-envmapUrl": "Url ya Nexşeya Hawirdorê",
+      "lbl-textureOverride": "Texture'u devirin",
+      "lbl-materialOverride": "Sermaseyên Materyalan",
+      "error-url": "Di Barkirina Ji URL de Çewtî",
+      "lbl-loopAnimation": "Lûp Anîmasyon",
+      "lbl-isAvatar": "Avatar e",
+      "lbl-isGPUInstancing": "bikar tîne",
+      "lbl-isDynamic": "dînamîk e",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-receiveShadow": "Sî bistîne",
+      "lbl-interactable": "Têkildar",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Nav",
+      "lbl-url": "Model Url",
+      "lbl-buy": "Url bikire",
+      "lbl-learnMore": "Url ya Zêdetir Fêr Bibe",
+      "lbl-htmlContent": "Naveroka Html",
+      "lbl-interactionText": "Teksta hevbandoriyê",
+      "lbl-interactionType": "Cureyê Hevbandoriyê"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Materyal",
+      "error-materialID": "Di lêgerîna materyalê de çewtî",
+      "placeholder-materialID": "Materyalê Hilbijêre",
+      "lbl-patternTarget": "Hevcotkirina Nîgarê",
+      "lbl-pattern": "Desen",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Cureyê Hevbandoriyê",
+      "text": "Teksta hevbandoriyê",
+      "distance": "Mesafeya hevbandoriyê",
+      "theme": "Temaya Hevbandoriyê",
+      "name": "Navê Hevbandoriyê",
+      "description": "Danasîna Hevbandoriyê",
+      "images": "Dîmenên hevbandoriyê",
+      "videos": "Vîdeoyên Hevbandoriyê",
+      "urls": "Url'yên Hevbandoriyê",
+      "models": "Modelên Hevbandoriyê"
+    },
+    "group": {
+      "name": "Kom",
+      "description": "Komeka ji pir hêmanan ku dikarin bi hev ra bihên barkirin an dubarekirin.\nDi Hiyerarşiyê de heyberan bikişînin û biavêjin nava komê."
+    },
+    "hemisphere": {
+      "name": "Ronahiya Hemisferê",
+      "description": "Ronahîyeke ku ji serî rasterast dîmenan ronî dike.",
+      "lbl-skyColor": "Rengê ezmanî",
+      "lbl-groundColor": "Rengê Zemînê",
+      "lbl-intensity": "zexmbûn"
+    },
+    "image": {
+      "name": "Wêne",
+      "description": "Îmajek bi awayekî dînamîk bar dike.",
+      "lbl-imgURL": "Urlya Wêneyan",
+      "lbl-transparency": "Moda Zelaliyê",
+      "lbl-alphaCutoff": "Alpha Cutoff",
+      "lbl-projection": "Projeksiyon",
+      "lbl-side": "Kêlek",
+      "info-controls": "Çavlirêbûna kontrolên medyayê veke.",
+      "info-transparency": "Awayê sepandina zelaliyê:",
+      "info-opaque": "' opaque ' = bê şefafî",
+      "info-blend": "' têkel ' = bi kar anîna kanala alfaya wêneyan",
+      "info-mask": "'mask' = Ji bo zelaliyê nirxa qutkirinê ya dîyarkirî bi kar bîne (bêtir performansan)",
+      "info-alphaCutoff": "Pîkselên xwedî nirxên alfayê yên ji vê kêmtir dê zelal bin",
+      "error-url": "URL ya nederbasdar"
+    },
+    "name": {
+      "lbl-name": "Nav"
+    },
+    "partileEmitter": {
+      "description": "Ji bo afirandina dabeşkerê parçikê.",
+      "lbl-particleCount": "Hejmartina parçikê",
+      "lbl-image": "Wêne",
+      "lbl-ageRandomness": "Rasthatîbûna temen",
+      "lbl-lifetime": "Jîyan",
+      "lbl-lifetimeRandomness": "Jiyana Rasthatî",
+      "lbl-sizeCurve": "Kevana Mezinahiyê",
+      "lbl-startPSize": "Mezinahiya Parçikê Destpê Bike",
+      "lbl-endPSize": "Mezinahiya Parçikê Biqede",
+      "lbl-sizeRandomness": "Rasthatîbûna Mezinahiyê",
+      "lbl-colorCurve": "Kevana Rengan",
+      "lbl-startColor": "Reng Dest Pê Bike",
+      "lbl-startOpacity": "Opacity dest pê bike",
+      "lbl-middleColor": "Rengê Navîn",
+      "lbl-middleOpacity": "Opacity Navîn",
+      "lbl-endColor": "Rengê Dawîn",
+      "lbl-endOpacity": "Opacity bi dawî bibe",
+      "lbl-velocityCurve": "Velocity Curve",
+      "lbl-startVelocity": "Leza Destpêkirinê",
+      "lbl-endVelocity": "Dawiya Velocity",
+      "lbl-angularVelocity": "Angular Velocity",
+      "info-ageRandomness": "Dema ku parçik tên veçirandin, mîqdara varyasyonê.",
+      "info-lifetime": "Berîya ku ji nû ve were vehûnandin temenê herî zêde yê parçikê ye.",
+      "info-lifetimeRandomness": "Mîqdara varyasyonê ya di navbera temenê nimreya parçikan de.",
+      "info-sizeRandomness": "Di navbera rehenda destpêkê ya parçikan da, mîqdara varyasyonê.",
+      "error-url": "Di Barkirina Ji URL de Çewtî"
+    },
+    "clouds": {
+      "name": "Ewr",
+      "description": "Yekeya ewr a bi bingeha spriteyê.",
+      "lbl-image": "Sprite Image",
+      "lbl-wroldScale": "Pîvanga Cîhanê",
+      "lbl-dimensions": "Rehend",
+      "lbl-noiseZoom": "Noise Zoom",
+      "lbl-noiseOffset": "Offset a dengî",
+      "lbl-spriteScale": "Pîvanga Sprite",
+      "lbl-fogColor": "Rengê fog",
+      "lbl-fogRange": "Fog Range",
+      "error-url": "Di Barkirina Ji URL de Çewtî"
+    },
+    "ocean": {
+      "name": "Okyanûs",
+      "description": "Rûyê okyanûsê bi pêl û kef",
+      "lbl-normalMap": "Nexşeya Asayî",
+      "lbl-distortionMap": "Nexşeya Distortion",
+      "lbl-envMap": "Nexşeya Hawirdorê",
+      "lbl-color": "Reng",
+      "lbl-shallowWaterColor": "Rengê Ava Şor",
+      "lbl-shallowToDeepDistance": "Şallow ji bo dûrahiya kûr",
+      "lbl-opacityFadeDistance": "Dûrahiya Fade ya Opacity",
+      "lbl-opacityRange": "Opacity Range",
+      "lbl-shininess": "Şewq",
+      "lbl-reflectivity": "Refleksîte",
+      "lbl-foamColor": "Rengê kefê",
+      "lbl-foamSpeed": "Leza Kefê",
+      "lbl-foamTiling": "Tîrêjên kefê",
+      "lbl-bigWaveTiling": "Tilinga Pêla Mezin",
+      "lbl-bigWaveSpeed": "Leza Pêla Mezin",
+      "lbl-bigWaveHeight": "Big Wave Height",
+      "lbl-waveSpeed": "Leza Pêlê",
+      "lbl-waveScale": "Pîvanga Pêlê",
+      "lbl-waveTiling": "Pêl Tiling",
+      "lbl-waveDistortionSpeed": "Leza Distortion Wave",
+      "lbl-waveDistortionTiling": "Pêl Distortion Tiling",
+      "error-url": "Di Barkirina Ji URL de Çewtî"
+    },
+    "water": {
+      "name": "Av",
+      "description": "Rûbera avê ya biçûk"
+    },
+    "interior": {
+      "name": "Hindirrîn",
+      "description": "Rûyek bi dirûvê qubeya maqûl ji bo emulekirina jîngehên hundurîn",
+      "lbl-cubeMap": "Textûreya Nexşeya Kubê",
+      "lbl-tiling": "Mîqdara tilingê",
+      "lbl-size": "Mezinahiya rûerdê",
+      "error-url": "Di Barkirina Ji URL de Çewtî"
+    },
+    "pointLight": {
+      "description": "Ronahîyeke ku ji xalekê ve di her alî da vedihewîne.",
+      "lbl-color": "Reng",
+      "lbl-intensity": "zexmbûn",
+      "lbl-range": "Menzîl",
+      "lbl-decay": "Decay"
+    },
+    "scene": {
+      "name": "Dîmen",
+      "description": "Objeya kok a cihê bûyerê ye.",
+      "lbl-bgcolor": "Rengê Rûerdê",
+      "lbl-fogType": "Cureyê Fog",
+      "lbl-fogColor": "Rengê fog",
+      "lbl-forNearDistance": "Mij nêzîkî dûrahîyê",
+      "lbl-fogFarDistance": "Dûrahiya Dûr",
+      "lbl-fogDensity": "Dendika fog",
+      "lbl-audioSettings": "Dengê Pozîsyonal Bi Kar Bîne",
+      "lbl-avatarDistanceModel": "Avatar Mesafe Model",
+      "lbl-avatarRolloffFactor": "Faktora Avatar Rolloff",
+      "lbl-avatarRefDistance": "Avatar Ref Mesafe",
+      "lbl-avatarMaxDistance": "Avatar Maks Mesafe",
+      "lbl-mediaVolume": "Dengê Medyayê",
+      "lbl-mediaDistanceModel": "Modêla Dûrahiya Medyayê",
+      "lbl-mediaRolloffFactor": "Faktora Medya Rolloff",
+      "lbl-mediaRefDistance": "Dûrahiya Medya Ref",
+      "lbl-mediaMaxDistance": "Mesafeya Medîa Max",
+      "lbl-mediaConeInnerAngle": "Media Cone Inner Angle",
+      "lbl-mediaConeOuterAngle": "Media Cone Outer Angle",
+      "lbl-mediaConeOuterGain": "Medya Cone Outer Gain",
+      "info-avatarDistanceModel": "Algorîtîm ji bo hesabkirina dengî tê bikaranîn.",
+      "info-avatarRolloffFactor": "Dema çavkanî ji guhdarvan dûr dikeve, nirxekî duqat ku tê ravekirin ka deng çiqas zû tê kêmkirin. 0 heta 1",
+      "info-avatarRolloffFactorInifinity": "Dema çavkanî ji guhdarvan dûr dikeve, nirxekî duqat ku tê ravekirin ka deng çiqas zû tê kêmkirin. 0 ber Bêdawîtî",
+      "info-avatarRefDistance": "Ji ber ku çavkanîya deng ji guhdaran zêdetir diçe, nirxa dualî ya ku mesafeya referansê ji bo kêmkirina dengê nîşan dide.",
+      "info-avatarMaxDistance": "Nirxa duqat î ku mesafeya herî zêde ya di navbera çavkanîya deng û guhdarvanan da nîşan dide, piştî vê deng zêdetir nayê kêmkirin.",
+      "info-mediaDistanceModel": "Algorîtîm ji bo hesabkirina dengî tê bikaranîn.",
+      "info-mediaRolloffFactor": "Dema çavkanî ji guhdarvan dûr dikeve, nirxekî duqat ku tê ravekirin ka deng çiqas zû tê kêmkirin. 0 heta 1",
+      "info-mediaRolloffFactorInfinity": "Dema çavkanî ji guhdarvan dûr dikeve, nirxekî duqat ku tê ravekirin ka deng çiqas zû tê kêmkirin. 0 ber Bêdawîtî",
+      "info-mediaRefDistance": "Ji ber ku çavkanîya deng ji guhdaran zêdetir diçe, nirxa dualî ya ku mesafeya referansê ji bo kêmkirina dengê nîşan dide.",
+      "info-mediaMaxDistance": "Nirxa duqat î ku mesafeya herî zêde ya di navbera çavkanîya deng û guhdarvanan da nîşan dide, piştî vê deng zêdetir nayê kêmkirin.",
+      "info-mediaConeInnerAngle": "Nirxeka dukesî ya ku quncikê rave dike, di dereceyan da, ji konîyeka di hundirê wê da dê qet kêmkirina qalibê nebe.",
+      "info-mediaConeOuterAngle": "Nirxeka dualî ya ku quncikê rave dike, di dereceyan da, ji konîyeka li derveyî wê, ji hêla taybetmendîya coneOuterGain ê ve dihê pênasekirin, bi nirxekî domdar dihê kêmkirin.",
+      "info-mediaConeOuterGain": "Nirxekî dualî yê ku ji derveyî konîya ku ji alîyê taybetmendîya coneOuterAngle ve hatîye pênasekirin, rêjeya kêmkirina dengî rave dike. Nirxa wê ya jixweber 0 e, tê vê wateyê ku deng nayê bihîstin.",
+      "lbl-simpleMaterials": "Materyalên Hêsan Bi Kar Bîne",
+      "lbl-lods": "LODS",
+      "info-lods": "Mesafeyan eyar dike ku di kîjan astên hûrgilîyan da diguhere.",
+      "info-simpleMaterials": "Hemû materyalên biha vediguherîne malzemeyên hêsantir da ku barjimarkirina dîmenê ji cihê bûyerê derxe.",
+      "lbl-rendererSettings": "Mîhengên Renderer biguherîne",
+      "lbl-csm": "Nexşeyên Sîya Kascading",
+      "info-csm": "Nexşeyên sîyê yên asêmayî çalak dike.",
+      "lbl-toneMapping": "Ton Mapping",
+      "info-toneMapping": "Nexşekirina tonan ya di dîmendera pêşkêşkerê dîmenan da çalak dike. Dema ku kirarîyeka postê çalak bibe, tu bandorê nake.",
+      "lbl-toneMappingExposure": "Pozîyona Nexşekirina Tonê",
+      "info-toneMappingExposure": "Pozîyona nexşekirina tonê ya li ser rendererê sehneyê dîyar dike. Dema ku kirarîyeka postê çalak bibe, tu bandorê nake.",
+      "lbl-shadowMapType": "Cureyê Nexşeya Sî",
+      "info-shadowMapType": "Cureyê nexşeya siya",
+      "error-url": "Di Barkirina Ji URL de Çewtî"
+    },
+    "sceneCamera": {
+      "name": "Kameraya Pêşdîtina Dîmenan",
+      "description": "Kamera, ji bo dîmena we û ji bo kameraya pêşdîtinê pozîsyona destpêkê, mînaka wê çê dikir.",
+      "lbl-setFromViewPort": "Ji Viewportê Saz Bike"
+    },
+    "skybox": {
+      "name": "Qutiya Skyboxê",
+      "description": "",
+      "lbl-timeOfDay": "Dema Rojê",
+      "lbl-color": "Reng",
+      "lbl-latitude": "Latitude",
+      "lbl-luminance": "Şewq",
+      "lbl-scattering": "Dabeşkirina mîqdarê",
+      "lbl-scatteringDistance": "Dûrahiya Belavbûnê",
+      "lbl-horizonStart": "Horizon Start",
+      "lbl-horizonEnd": "Dawiya Horizonê",
+      "lbl-texture": "Textûre",
+      "lbl-skyType": "Cureya Ezmanî",
+      "error-url": "Di Barkirina Ji URL de Çewtî"
+    },
+    "spawnPoint": {
+      "name": "Spawn Point",
+      "description": "Nuqteyeke ku dema mirov bikevin cihê bûyerê wê xuya bikin.\nÎkona di Viewportê da, rehenda rastî ya avatarê nîşan dide."
+    },
+    "spotLight": {
+      "description": "Ronahîyeke ku li ser hêlekê ye, tiştên di nava konîyekê da ronî dike.",
+      "lbl-color": "Reng",
+      "lbl-intensity": "zexmbûn",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "Gûl",
+      "lbl-range": "Menzîl",
+      "lbl-decay": "Decay"
+    },
+    "transform": {
+      "title": "Veguherîne",
+      "lbl-postition": "Pozîsyon",
+      "lbl-rotation": "Zivirandin",
+      "lbl-scale": "Pîvan"
+    },
+    "triggereVolume": {
+      "description": "Di ketin û derketinê da taybetmendîyekê li ser objeya hedefê eyar dike.",
+      "lbl-target": "Bireser",
+      "lbl-onenter": "On Enter",
+      "lbl-onexit": "Li Derketinê",
+      "lbl-showHelper": "Helper Meş nîşan bide",
+      "ph-errorNode": "Di girêkê de çewtî kêm e.",
+      "ph-selectNode": "Girêkê hilbijêre..."
+    },
+    "video": {
+      "name": "Vîdeo",
+      "description": "Bi awayekî dînamîk vîdeoyekê bar dike.",
+      "lbl-video": "Vîdeo",
+      "lbl-projection": "Projeksiyon",
+      "lbl-islivestream": "Herikandina Zindî",
+      "lbl-interactable": "Têkildar",
+      "lbl-id": "Element Id",
+      "lbl-play": "Lê bixe",
+      "lbl-pause": "Raweste",
+      "error-url": "Di Barkirina Ji URL de Çewtî"
+    },
+    "volumetric": {
+      "name": "Volumetric",
+      "description": "Bi awayekî dînamîk vîdeoyeke volumetrik bar dike.",
+      "uvolPaths": "Riya UVOL",
+      "playmode": "Moda LêDan",
+      "playtitle": "Lê bixe",
+      "pausetitle": "Raweste"
+    },
+    "spline": {
+      "description": "Bi awayekî dînamîk kevanan biafirînin û taybet bikin.",
+      "lbl-addNode": "Girêkê li kevanê zêde bike."
+    },
+    "systemnode": {
+      "description": "Skrîptê lê zêde bike.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "Xala enjeksîyonê",
+      "lbl-enableClient": "Daxwazker",
+      "lbl-enableServer": "Pêşkêşkar",
+      "lbl-args": "Ejmên",
+      "error-url": "Çewtî Barkirina Skrîptê ji URL"
+    },
+    "portal": {
+      "lbl-portal": "Portala Girêdanê",
+      "lbl-redirect": "Beralîkirina Rûpelê Bi Kar Bîne",
+      "description": "Portat ji bo lîstikvanên teleportê ji bo cîhê diyarkirî",
+      "lbl-locationName": "Cih",
+      "lbl-modelUrl": "URL'ya model",
+      "lbl-displayText": "Tekst Nîşan De",
+      "lbl-cubemapBake": "Kubemap bake",
+      "lbl-spawnPosition": "Pozîsyona Spawn",
+      "lbl-spawnRotation": "Zivirandina Spawn",
+      "lbl-triggerPosition": "Pozîsyona Tetîkê",
+      "lbl-triggerRotation": "Zivirandina Tetîkê",
+      "lbl-triggerScale": "Pîvanga Tetîkê"
+    },
+    "postprocessing": {
+      "name": "Post Processing",
+      "description": "Ji bo sepandina efektên Post Processingê ji bo dîmena we."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Projeya Nû",
+      "backLink": "Vegere projeyan",
+      "featured": "bijarte",
+      "all": "Hemû",
+      "newProject": "Projeya Nû ya Vala",
+      "ph-search": "Dîmenên lêgerînê..."
+    },
+    "grid": {
+      "loading": "Bar dike..."
+    },
+    "page": {
+      "header": "Bi xêr hatî",
+      "headerMsg": "Heke hûn li vir nû bin, em pêşnîyaz dikin ku hûn dersê bidin. Wekî din, xwe bispêrin hundir û projeyekê ji xêzkirin an jî ji yek ji şablonên me biafirînin.",
+      "lbl-startTutorial": "Dersdariyê Dest Pê Bike",
+      "projects": "Proje",
+      "lbl-newProject": "Projeya Nû"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Bar dike...",
+      "placeObject": "Biresera Cih",
+      "placeObjectAtOrigin": "Di Eslê xwe de Biresera Cih",
+      "copyURL": "URLyê kopî bike",
+      "openInNewTab": "Di Hilpekîna Nû de URL veke",
+      "deleteAsset": "Jê Bibe"
+    },
+    "filebrowser": {
+      "addNewFolder": "Peldanka Nû Lê Zêde Bike",
+      "cutAsset": "Jê bike",
+      "copyAsset": "Jibergirtin",
+      "pasteAsset": "Paste",
+      "renameAsset": "Nav biguherandin",
+      "viewAssetProperties": "Taybetmendiyên Dîtinê"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Nav biguherandin",
+    "lbl-duplicate": "Dubare bike",
+    "lbl-group": "Kom",
+    "lbl-delete": "Jê bibe",
+    "lbl-expandAll": "Hemûyan Fireh Bike",
+    "lbl-collapseAll": "Hemûyan Hilweşîne",
+    "isseus": "Pirsgirêk:"
+  },
+  "dnd": {
+    "nodes": "Girêkên {{count}} Hatin Hilbijartin",
+    "models": "Modelên {{count}} Hatine Hilbijartin",
+    "images": "Wêneyên {{count}} Hatine Hilbijartin",
+    "videos": "Vîdyoyên {{count}} Hatin Hilbijartin",
+    "audio": "{{count}} Çavkaniyên Dengê Hatine Bijartin"
+  },
+  "dialog": {
+    "title": "Edîtor",
+    "lbl-confirm": "Temam",
+    "lbl-cancel": "Betal kirin",
+    "exportProject": {
+      "title": "Projeya Îxracatê",
+      "lbl-confirm": "Projeya Îxracatê",
+      "lbl-combineMesh": "Meshes bihevra bikin",
+      "lbl-removeUnused": "Bireserên Nehatine Bikaranîn Rake"
+    },
+    "performance": {
+      "title": "Kontrola Performansê",
+      "lbl-confirm": "Dîmen biweşîne",
+      "learnMore": "Zêdetîr hîn bibe",
+      "lbl-polycount": "Hejmartina polîgon",
+      "lbl-material": "Materyal",
+      "lbl-texture": "Textor",
+      "lbl-lights": "Ronahî",
+      "lbl-fileSize": "Mezinahiya Pelî",
+      "info-polycount": "Em pêşnîyaz dikin ku sehneya we ji bo cîhazên mobîl ji 50.000sî zêdetir sêgoşeyan bi kar neyînin.",
+      "info-material": "Ji bo kêmkirina bangewazîyên li ser cîhazên mobîl, em pêşnîyaz dikin ku di dîmena we da zêdetirî 25 keresteyên bêhempa bi kar neînin.",
+      "info-texture": "Em pêşnîyaz dikin ku tekstên we ji bo cîhazên mobîl ji 256 MB'yî zêdetir RAM a vîdeoyê bi kar neyînin. Her wiha em li dijî bikaranîna tekstên ji 2048 x 2048an mezintir pêşnîyaz dikin.",
+      "info-lights": "Di cîhazên mobîl da ronahîyên dînamîk ne çalak bin jî, ji bo ku dîmena we li ser pCyên kêm ên dawî yê bixebite, em pêşnîyaz dikin ku di dîmena we da ji 3 yan zêdetir 3 ronahiyan bi kar neyînin ( ji bilî ronahîyên hawirdor û hemisferê).",
+      "info-fileSize": "Ji bo pêwendîyên firehîya bandê ya kêm, em dosyeyeka dawî pêşnîyar dikin ku ji 16MByan zêdetir tune ye. Kêmkirina mezinahîya dosyeyê, ji bo daxistina dîmenê we dema ku hewce dike kêm bike.",
+      "txt-polycount": "{{count}} Sêgoşeyan",
+      "txt-material": "Materyalên {{count}}",
+      "txt-ram": "~{{count}} Vîdeo RAM",
+      "txt-texture": "{{count}} Tekstên Mezin",
+      "txt-lights": "{{count}} Ronahiyan"
+    },
+    "progress": {
+      "title": "Bar dike...",
+      "msg": "Bar dike...",
+      "lbl-cancel": "Betal kirin"
+    },
+    "publish": {
+      "title": "Dîmen biweşîne",
+      "lbl-confirm": "Tomar bike û Biweşîne",
+      "lbl-name": "Dîmen Nav",
+      "info-name": "Divê nav di navbera 4 û 64 karakteran de be û nekare jêrenotan binivîse"
+    },
+    "published": {
+      "title": "Dîmen hate weşandin",
+      "header": "Dîmenê we hate weşandin.",
+      "lbl-view": "Dîmena Xwe Bibîne"
+    },
+    "saveNewProject": {
+      "title": "Piştgirî",
+      "lbl-name": "Navê Projeyê",
+      "info-name": "Divê nav di navbera 4 û 64 karakteran de be û nekare jêrenotan binivîse",
+      "lbl-confirm": "Projeyê Tomar Bike"
+    },
+    "support": {
+      "title": "Piştgirî",
+      "header": "Divê tu pirsgirêkekê ragihînî?",
+      "msg": "Hûn dikarin ji bo piştgiriya <3> di{{mail}}</3> de <1>Pirsgirêka GitHub</1> an e-nameyê ji me re bişînin",
+      "discord": "Hûn dikarin me li ser <1>Dîskord</1> jî bibînin"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Wêneyên Bîng",
+      "search": "Lêgerîn ji aliyê Çewlikê ve"
+    },
+    "bingVideo": {
+      "name": "Vîdyoyên Bing",
+      "search": "Lêgerîn ji aliyê Çewlikê ve"
+    },
+    "element": {
+      "name": "Hêman"
+    },
+    "myAssets": {
+      "name": "Malîyetên min"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Li google bigere"
+    },
+    "tenor": {
+      "name": "Tenor GIFs",
+      "search": "Ji Tenûrê lêgerîn",
+      "ph-search": "Li GIF'an bigere..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Lêgerîna ji aliyê Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Malî bar bike"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Li wêneyan bigere..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Vîdyoyan bigere..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Malîyetên lêgerînê..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Modelên lêgerînê..."
+    },
+    "useUpload": {
+      "multipleFileError": "Têketin gelek dosyayan napejirîne.",
+      "mineTypeError": "\"{{name}}\" bi cureyên mime an dirêjkirinên jêrîn re hevnagire: {{types}}",
+      "progressTitle": "Barkirina Pelan",
+      "progressMsg": "Pelên {{uploaded}} {{total}}têne barkirin: {{percentage}}%",
+      "uploadError": "Çewtiya Barkirinê",
+      "uploadErrorMsg": "Di barkirina dosyayê de çewtî: {{message}}",
+      "uploadErrorDefaultMsg": "Çewtiyeke nediyar çêbû"
+    }
+  },
+  "openLink": {
+    "description": "Ji bo ku hûn li lînkê bigerin ji kerema xwe Openê bitikînin.",
+    "lbl-open": "Vekirin"
+  },
+  "interactableModel": {
+    "lbl-buy": "Bikire",
+    "lbl-learnMore": "Zêdetîr hîn bibe"
+  },
+  "corsProxyButton": {
+    "tooltip": "Pêşkêşkera Proxy ya Korsê bi kar bîne"
+  }
+}

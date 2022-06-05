@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Email Konfirmasi",
+      "resendEmail": "Silakan periksa email Anda untuk memverifikasi akun Anda. Jika Anda tidak mendapatkan email, silakan klik {{here}} untuk mengirim ulang email verifikasi.",
+      "haveAnAccount": "Punya akun?"
+    },
+    "forgotPassword": {
+      "header": "Lupa Password",
+      "enterEmail": "Silakan masukkan alamat email Anda yang terdaftar dan kami akan mengirimkan tautan pengaturan ulang kata sandi.",
+      "lbl-email": "Alamat Email",
+      "lbl-submit": "Kirim Link",
+      "emailSent": "Reset Password Email telah dikirim. Silakan periksa email Anda."
+    },
+    "login": {
+      "email": "| Email SMS",
+      "username": "UserName + Kata Sandi",
+      "social": "Sosial"
+    },
+    "magiklink": {
+      "header": "Tautan Masuk",
+      "descriptionEmail": "Silakan masukkan alamat email Anda dan kami akan mengirimkan tautan login melalui Email.",
+      "descriptionSMS": "Silakan masukkan nomor telepon Anda dan kami akan mengirimkan tautan login melalui SMS.",
+      "descriptionEmailSMS": "Silakan masukkan alamat email atau nomor telepon Anda (10 digit, khusus AS) dan kami akan mengirimkan tautan login melalui Email atau SMS.",
+      "descriptionSMSUS": "Silakan masukkan nomor telepon Anda (10 digit, khusus AS) dan kami akan mengirimkan tautan login melalui SMS.",
+      "lbl-email": "Alamat email",
+      "lbl-emailPhone": "Email atau Nomor telepon",
+      "lbl-phone": "Nomor telepon",
+      "agree": "Saya setuju dengan ",
+      "terms": "Syarat &Ketentuan",
+      "lbl-submit": "Kirim Link Login",
+      "email-sent-msg": "Login Magic Link telah dikirim. Silakan periksa Email Anda.",
+      "success-msg": "Login Magic Link telah dikirim. Silakan periksa Email atau SMS Anda.",
+      "sms-sent-msg": "Login Magic Link telah dikirim. Silakan periksa SMS Anda."
+    },
+    "passwordLogin": {
+      "header": "Tandatangan",
+      "lbl-email": "Alamat Email",
+      "lbl-password": "Kata sandi",
+      "lbl-rememberMe": "Ingat saya",
+      "lbl-signin": "Tandatangan",
+      "forgotPassword": "Lupa kata sandi?",
+      "signup": "Tidak punya akun? Tandatangan",
+      "lbl-login": "Masuk",
+      "ph-password": "Kata sandi",
+      "ph-email": "Email"
+    },
+    "social": {
+      "gitHub": "Login dengan GitHub",
+      "google": "Login dengan Google",
+      "facebook": "Login dengan Facebook",
+      "linkedin": "Login dengan Linkedin",
+      "twitter": "Login dengan Twitter"
+    },
+    "register": {
+      "header": "Tandatangan",
+      "login": "Masuk",
+      "lbl-signup": "Tandatangan",
+      "lbl-password": "Kata sandi",
+      "lbl-email": "Alamat Email",
+      "passwordNotMatch": "Kata Sandi Tidak Cocok",
+      "ph-password": "Kata sandi",
+      "ph-confirmPassword": "Konfirmasi Kata Sandi",
+      "ph-email": "Email"
+    },
+    "resetPassword": {
+      "header": "Setel Ulang Kata Sandi",
+      "description": "Silakan masukkan kata sandi Anda untuk alamat email Anda",
+      "lbl-submit": "Setel Ulang Kata Sandi",
+      "lbl-password": "Kata sandi",
+      "lbl-confirmPassword": "Konfirmasi Kata Sandi",
+      "passwordNotMatch": "Kata Sandi Tidak Cocok",
+      "nowLoginYourAccount": "Anda sekarang dapat masuk ke akun Anda",
+      "yourPasswordResetSuccess": "Kata sandi Anda berhasil diatur ulang!"
+    },
+    "verifyEmail": {
+      "header": "Verifikasi Email",
+      "processing": "Harap tunggu sebentar sambil memproses..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Lokasi",
+      "loading": "Loading",
+      "col-name": "Nama",
+      "col-scene": "Adegan",
+      "col-maxuser": "Pengguna Maks",
+      "lbl-search": "Cari lokasi",
+      "lbl-new": "Baru"
+    },
+    "newLocation": {
+      "title": "Tempat",
+      "success": "Berhasil Disimpan.",
+      "failure": "Ada yang tidak beres.",
+      "removeSuccess": "Lokasi berhasil dihapus.",
+      "nameInUse": "Nama sedang digunakan.",
+      "nameRequire": "Nama diperlukan.",
+      "validNumber": "Hanya angka (0-9) yang diizinkan.",
+      "lbl-name": "Nama",
+      "lbl-maxuser": "Pengguna Maks",
+      "lbl-scene": "Adegan",
+      "lbl-type": "Jenis",
+      "lbl-ve": "Video Diaktifkan",
+      "lbl-gme": "Media Global Diaktifkan",
+      "lbl-update": "Pemutakhiran",
+      "lbl-create": "Menciptakan",
+      "tooltipCanNotBeDeleted": "Lobi tidak dapat dihapus",
+      "confirmation": "Kamu yakin?",
+      "lbl-yes": "Ya",
+      "lbl-no": "Tidak"
+    },
+    "share": {
+      "lbl-share": "Bagi",
+      "ph-phoneEmail": "Undang melalui email atau nomor telepon",
+      "lbl-phoneEmail": "Kirim ke email atau nomor telepon",
+      "lbl-copy": "Menyalin",
+      "lbl-send-invite": "Kirim Undangan",
+      "title": "Membagikan URL Lokasi dengan tim Anda",
+      "linkCopied": "Tautan disalin ke clipboard."
+    },
+    "setting": {
+      "audio": "Audio",
+      "lbl-volume": "Jilid",
+      "lbl-microphone": "Mikrofon",
+      "graphics": "Grafis",
+      "controls": "Kontrol",
+      "lbl-control-type": "Jenis Pengontrol",
+      "lbl-control-scheme": "Skema Kontrol",
+      "lbl-resolution": "Resolusi",
+      "lbl-shadow": "Bayangan",
+      "lbl-pp": "Pasca Pemrosesan",
+      "lbl-pbr": "PBR Penuh",
+      "lbl-automatic": "Otomatis",
+      "xrusersetting": "Pengaturan Pengguna XR",
+      "rotation": "Rotasi",
+      "rotation-smooth-speed": "Kecepatan Rotasi Halus",
+      "rotation-angle": "Sudut Rotasi",
+      "moving": "Bergerak",
+      "user-avatar": "Pengaturan Avatar",
+      "invert-rotation": "Balikkan Rotasi Dan Pindahkan Tongkat",
+      "show-avatar": "Tampilkan Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Profil",
+      "lbl-settings": "Pengaturan",
+      "lbl-username": "Nama pengguna",
+      "update-msg": "Nama pengguna diperbarui",
+      "inviteCode": "Kode Undangan",
+      "youAreAn": "Anda adalah seorang",
+      "youAreA": "Anda adalah seorang",
+      "showUserId": "Tampilkan ID Pengguna",
+      "hideUserId": "Sembunyikan ID Pengguna",
+      "showApiKey": "Tampilkan kunci API",
+      "hideApiKey": "Sembunyikan kunci API",
+      "apiKey": "Kunci API",
+      "logout": "Keluar",
+      "connectPhone": "Hubungkan nomor telepon Anda",
+      "connectEmail": "Hubungkan email Anda",
+      "connectPhoneEmail": "Menyambungkan email atau nomor telepon Anda",
+      "or": "Atau",
+      "lbl-wallet": "Login dengan Wallet",
+      "ph-email": "Email",
+      "ph-phone": "Nomor Telepon",
+      "ph-phoneEmail": "Nomor Telepon / Email",
+      "phoneEmailError": "Alamat telepon atau email tidak valid",
+      "phoneError": "Telepon tidak valid #",
+      "emailError": "Alamat email tidak valid",
+      "loginWithReadyPlayerMe": "Login dengan Ready Player Me",
+      "connectSocial": "Terhubung dengan akun sosial",
+      "createOne": "Jika Anda tidak memiliki akun, akun baru akan dibuat untuk Anda",
+      "connections": {
+        "title": "Koneksi",
+        "ipError": "Tidak dapat menghapus Penyedia Identitas aktif",
+        "disconnect": "Lepaskan",
+        "connect": "Sambung"
+      },
+      "profileDropdown": {
+        "avatar": "Ikon Avatar Pengguna",
+        "profile": "Profil",
+        "adminConsole": "Konsol Admin",
+        "logout": "Logout"
+      },
+      "userIcon": {
+        "lbl-name": "Namamu",
+        "lbl-update": "Pemutakhiran",
+        "userId": "Id pengguna",
+        "ph-uploadImg": "Unggah Gambar Produk",
+        "lbl-selectAcvatar": "Pilih Avatar",
+        "lbl-submit": "Tunduk"
+      },
+      "userSettings": {
+        "volume": "Jilid",
+        "microphone": "Mikrofon",
+        "resolution": "Resolusi",
+        "high": "Tinggi",
+        "low": "Rendah",
+        "spatialAudio": "Gunakan Audio Spasial",
+        "enterMuted": "Masuk ke Ruang Diredam"
+      }
+    },
+    "oauth": {
+      "authenticating": "Otentikasi...",
+      "authFailed": "{{service}} autentikasi gagal."
+    },
+    "magikLink": {
+      "wait": "Harap tunggu sebentar sambil memproses..."
+    },
+    "dashboard": {
+      "header": "Dashboard",
+      "dashboard": "Dashboard",
+      "users": "Pengguna",
+      "feeds": "Feed",
+      "instance": "Sebagai contoh",
+      "locations": "Lokasi",
+      "invites": "Mengundang",
+      "sessions": "Sesi",
+      "groups": "Kelompok",
+      "parties": "Pihak",
+      "chats": "Chatting",
+      "content": "Paket Konten",
+      "projects": "Proyek",
+      "scenes": "Adegan",
+      "avatars": "Avatar",
+      "benchmarking": "Pembandingan",
+      "bots": "Bot"
+    }
+  },
+  "oauth": {
+    "authenticating": "Otentikasi...",
+    "authFailed": "{{service}} autentikasi gagal."
+  },
+  "magikLink": {
+    "wait": "Harap tunggu sebentar sambil memproses..."
+  },
+  "dashboard": {
+    "header": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Pengguna",
+    "feeds": "Feed",
+    "instance": "Sebagai contoh",
+    "locations": "Lokasi",
+    "routes": "Rute",
+    "projects": "Proyek",
+    "invites": "Mengundang",
+    "sessions": "Sesi",
+    "groups": "Kelompok",
+    "parties": "Pihak",
+    "chats": "Chatting",
+    "content": "Paket Konten",
+    "scenes": "Adegan",
+    "avatars": "Avatar",
+    "benchmarking": "Pembandingan",
+    "bots": "Bot",
+    "setting": "Pengaturan"
+  },
+  "avatar": {
+    "title": "Unggah Avatar",
+    "lbl-browse": "Ramban",
+    "lbl-thumbnail": "Gambar mini",
+    "lbl-upload": "Unggah",
+    "selectAvatar": "Pilih Avatar...",
+    "selectThumbnail": "Pilih Thumbnail...",
+    "rotate": "Memutar",
+    "pan": "Panci",
+    "noBone": "Obejct tidak mengandung tulang atau kulit",
+    "outOfBound": "Objek berada di luar batas.",
+    "emptyObj": "Objek kosong.",
+    "maxTriangleError": "Objek berisi wajah yang lebih besar dari {{allowedTriangles}} .",
+    "selectValidFile": "Pilih file avatar 3d yang valid.",
+    "selectValidThumbnail": "File Thumbnail valid yang dipilih.",
+    "fileOversized": "Ukuran file avatar harus antara {{minSize}} MB dan {{maxSize}} MB",
+    "confirmation": "Kamu yakin?",
+    "canNotBeRemoved": "Avatar Aktif tidak dapat dihapus",
+    "remove": "Hapus avatar",
+    "uploadFiles": "Unggah file",
+    "useUrlInstead": "Gunakan url sebagai gantinya",
+    "avatar": "Avatar",
+    "cancel": "Membatalkan",
+    "createAvatar": "Buat Avatar",
+    "delete": "Menghapus",
+    "view": "Melihat",
+    "uploadAvatarInfo": "Perbarui Informasi avatar",
+    "name": "Nama",
+    "enterName": "Masukkan nama",
+    "avatarInformation": "Informasi Avatar",
+    "description": "Deskripsi",
+    "key": "Kunci",
+    "none": "Tidak",
+    "submit": "Tunduk",
+    "edit": "Mengedit",
+    "avatarUrl": "Url avatar",
+    "upload-success-msg": "Avatar berhasil diunggah.",
+    "remove-success-msg": "Avatar berhasil diunggah.",
+    "warning-msg": "Sumber daya avatar kosong, sudahkah Anda menyinkronkan avatar ke penyimpanan file statis Anda?"
+  },
+  "personMenu": {
+    "inviteToParty": "Undang Ke Pesta",
+    "addAsFriend": "Tambahkan Sebagai Teman",
+    "mute": "Bisu",
+    "block": "Halangi"
+  },
+  "person": {
+    "you": "Kamu",
+    "yourScreen": "Layar Anda",
+    "muteForEveryone": "Bisu untuk semua orang",
+    "unmuteForEveryone": "Menyalakan suara untuk semua orang",
+    "muteMe": "Bisu saya",
+    "unmuteMe": "Menyalakan suara saya",
+    "muteThisPerson": "Bisu orang ini",
+    "unmuteThisPerson": "Nyalakan suara orang ini",
+    "openPictureInPicture": "Buka Gambar dalam Gambar"
+  }
+}

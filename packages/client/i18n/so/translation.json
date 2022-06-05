@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Page Ma Helin"
+  },
+  "503": {
+    "msg": "503 - Adeegga Aan la heli karin"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Waa lagaa mamnuucay meeshan",
+    "locationName": {
+      "pageTitle": "Haku"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Mashaariicda",
+      "header": "Fadlan gudagal",
+      "welcomeMsg": "Soo dhawoow",
+      "locationHeader": "Goobaha",
+      "projectHeader": "Mashaariicda",
+      "sceneHeader": "Muuqaallada",
+      "description": "Haddii aad halkan ku cusub tahay waxaan kugula talinaynaa in aad marto tutorial-ka. Haddii kale, u bood siig gudaha oo la abuuro mashruuc ka xoqin ama ka mid ah habyaaladeena.",
+      "lbl-startTutorial": "Bilow Tutorial",
+      "lbl-newProject": "Mashruuc cusub",
+      "lbl-createProject": "Abuuri",
+      "lbl-newScene": "Muuqaalka Cusub",
+      "lbl-searchProject": "Search Mashaariicda jira ...",
+      "back": "Hore",
+      "contextMenu": "Mashruuca Delete",
+      "installed": "Ku rakiban Mashaariicda",
+      "official": "Mashaariicda Official",
+      "community": "Mashaariicda Community",
+      "install": "rakib",
+      "uninstall": "Uninstall",
+      "rename": "Rename",
+      "createProject": "Abuur Mashruuca",
+      "installProject": "Rakib Mashruuca",
+      "processing": "Processing",
+      "projectName": "Magaca Mashruuca",
+      "projectURL": "Mashruuca URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Guriga tag",
+    "withStatusCode": "Khalad {{code}} ayaa ka dhacay server",
+    "withoutStatusCode": "Khalad ayaa ka dhacay on server"
+  },
+  "no-projects": {
+    "msg": "Qalad: Mashaariicda mashaariicda lagu rakibay - fadlan la xiriir goobta adminka"
+  },
+  "dev": {
+    "pageTitle": "Haku"
+  },
+  "login": {
+    "pageTitle": "Gudagal"
+  },
+  "workerTest": {
+    "pageTitle": "Imtixaanka shaqaalaha"
+  },
+  "index": {
+    "by": "BY",
+    "xr": "XR",
+    "foundation": "Foundation",
+    "description": "Realtime 3D codsiyada bulshada ee qof walba inuu ku raaxaysto."
+  },
+  "xrengineContact": {
+    "header": "Iska soo xiriir!",
+    "description": "Waxaan jecelnahay inaan kaa caawino dhacdooyinkaaga dalwaddii, tafaariiqda dijitaalka ah, madadaalada iyo baahiyaha kale.",
+    "lbl-name": "magaca",
+    "lbl-email": "Email",
+    "lbl-company": "Company",
+    "lbl-project": "Sharaxaad ka bixi Mashruucaaga",
+    "lbl-send": "U dir",
+    "lbl-ok": "Haye",
+    "lbl-success": "Fariin loo soo diray, Wax yar ayaan kuugu soo celineynaa.",
+    "lbl-failure": "Qalad ayaa dhacay, Plese isku day mar kale",
+    "err-username": "Fadlan ha kugu qoro magaca.",
+    "err-email": "Email ayaa loo baahan yahay.",
+    "err-msg": "Bixi sharaxaad kooban oo ku saabsan mashruucaada."
+  }
+}

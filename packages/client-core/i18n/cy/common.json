@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Wrthi'n llwytho tudalen..."
+  },
+  "tooltip": {
+    "pressKey": "Pwyswch {{tip}} i {{message}}"
+  },
+  "toast": {
+    "joined": "Ymuno â",
+    "left": "Chwith"
+  },
+  "navUserWidget": {
+    "login": "Mewngofnodi"
+  },
+  "loader": {
+    "connecting": "Wrthi'n cysylltu â'r byd...",
+    "entering": "Mynd i fyd...",
+    "loading": "Llwytho...",
+    "objectRemaining": "{{count}} gwrthrych yn weddill",
+    "objectRemainingPlural": "{{count}} gwrthrychau sy'n weddill",
+    "loadingObjects": "Wrthi'n Llwytho Gwrthrychau",
+    "loadingComplete": "Llwytho wedi'i Gwblhau",
+    "joiningWorld": "Ymuno â'r Byd"
+  },
+  "alert": {
+    "eventWasSuccess": "Bu'r digwyddiad yn llwyddiannus",
+    "errorWasEncountered": "Daethpwyd ar draws gwall",
+    "eventInProgress": "Digwyddiad ar y gweill",
+    "seconds": "eiliadau",
+    "cancelCountdown": "Bydd cau'r moddol hwn yn canslo'r cyfrif i lawr"
+  },
+  "debug": {
+    "refresh": "Adnewyddu",
+    "stats": "Stats",
+    "debugOptions": "Dewisiadau Debug",
+    "physicsDebug": "Ffiseg",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Node Helper",
+    "gridDebug": "Grid",
+    "simpleMaterials": "Deunyddiau Syml",
+    "tick": "Ticio",
+    "worldStore": "Siop y Byd",
+    "engineStore": "Storfa Injan",
+    "namedEntities": "Endidau a Enwir",
+    "networkObject": "Gwrthrych y Rhwydwaith",
+    "networkClients": "Cleientiaid Rhwydwaith"
+  },
+  "recording": {
+    "videoRecorder": "Recordydd fideo",
+    "waitingForPermissions": "Aros am ganiatâd",
+    "selectVideoSource": "Dewis ffynhonnell fideo",
+    "screen": "Sgrin",
+    "camera": "Camera",
+    "microphone": "Meicroffon",
+    "startRecording": "Dechrau recordio",
+    "pauseRecording": "Oedi cofnodi",
+    "resumeRecording": "Ailddechrau recordio",
+    "stopRecording": "Stopio recordio"
+  },
+  "typing": "Teipio...",
+  "gameServer": {
+    "browserError": "Gwall Porwr",
+    "browserErrorMessage": "Dydy eich porwr ddim yn cefnogi storio yn y modd pori preifat. Naill ai rhowch gynnig ar borwr arall, neu gadewch y modd pori preifat.",
+    "noAvailableServers": "Dim Gweinyddwyr ar gael",
+    "noAvailableServersMessage": "Does dim gweinyddwyr ar gael i chi gysylltu â nhw. Wrthi'n ceisio ailgysylltu yn",
+    "worldDisconnected": "Byd wedi'i ddatgysylltu",
+    "worldDisconnectedMessage": "Rydych chi wedi colli eich cysylltiad â'r byd. Byddwn yn ceisio ailgysylltu cyn i'r amser canlynol ddod i ben, neu fel arall byddwch yn cael eich anfon i achos gwahanol.",
+    "webGLNotEnabled": "Dydy WebGL ddim wedi'i alluogi",
+    "webGLNotEnabledMessage": "Dydy eich porwr ddim yn cefnogi WebGL, neu mae wedi'i analluogi. Galluogi WebGL neu ystyried uwchraddio i'r fersiwn ddiweddaraf o'ch porwr.",
+    "youKickedFromWorld": "Rydych chi wedi cael eich cicio o'r byd",
+    "youKickedFromWorldMessage": "Cawsoch eich cicio o'r byd hwn am y rheswm canlynol",
+    "invalidLocation": "Lleoliad annilys",
+    "cantFindLocation": "Ni allwn ddod o hyd i'r lleoliad",
+    "misspelledOrNotExist": "Gall gael ei gamsillafu, neu efallai nad yw'n bodoli.",
+    "loading": "Llwytho",
+    "low-frame-error": "Wedi canfod persawr gwael ystyriwch alluogi Defnyddio cyflymiad Caledwedd yn eich porwr a relauch eich porwr",
+    "low-frame-title": "Galluogi cyflymiad caledwedd i gael profiad gwell!"
+  },
+  "error": {
+    "loading-error": "Wedi methu llwytho data defnyddwyr",
+    "validation-error": "Rhowch {{type}} dilys os gwelwch yn dda",
+    "login-error": "Wedi methu mewngofnodi"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Хуудас олдсонгүй"
+  },
+  "503": {
+    "msg": "503 - Үйлчилгээ байхгүй"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Таныг энэ газраас хориглосон",
+    "locationName": {
+      "pageTitle": "Эх орон"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Төслүүд",
+      "header": "Логин байна уу",
+      "welcomeMsg": "Тавтай морил",
+      "locationHeader": "Хаяг байршил",
+      "projectHeader": "Төслүүд",
+      "sceneHeader": "Үйл явдал",
+      "description": "Хэрэв та энд шинээр ирсэн бол бид сургалтаар явахыг зөвлөж байна. Эс бөгөөс шууд үсэрч, нүд ирмэхийн зуур эсвэл бидний нэг темплэйтээс төсөл зохио.",
+      "lbl-startTutorial": "Эхлэл Сургалт",
+      "lbl-newProject": "Шинэ төсөл",
+      "lbl-createProject": "Үүсгэх",
+      "lbl-newScene": "Шинэ дүр зураг",
+      "lbl-searchProject": "Одоо байгаа төслүүдээ хай...",
+      "back": "Буцаа",
+      "contextMenu": "Төсөл устгах",
+      "installed": "Суурилагдсан төслүүд",
+      "official": "Албан ёсны төслүүд",
+      "community": "Холбоо барих төслүүд",
+      "install": "Суулгах",
+      "uninstall": "Uninstall",
+      "rename": "Нэр өөрчлөх",
+      "createProject": "Төсөл зохиох",
+      "installProject": "Төсөл суулгах",
+      "processing": "Үйл явц",
+      "projectName": "Төслийн нэр",
+      "projectURL": "Төслийн URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Гэртээ харь",
+    "withStatusCode": "Сервер дээр алдаа {{code}}",
+    "withoutStatusCode": "Сервер дээр алдаа гарсан"
+  },
+  "no-projects": {
+    "msg": "Алдаа: Ямар ч төсөл суулгадаггүй. Сайт admin-д хандана уу"
+  },
+  "dev": {
+    "pageTitle": "Эх орон"
+  },
+  "login": {
+    "pageTitle": "Логин"
+  },
+  "workerTest": {
+    "pageTitle": "Ажил хэрэгч тест"
+  },
+  "index": {
+    "by": "Би",
+    "xr": "XR",
+    "foundation": "Суурь",
+    "description": "Хүн бүрт таалагдах бодит 3D нийгмийн хэрэглээ."
+  },
+  "xrengineContact": {
+    "header": "Холбоо барина уу!",
+    "description": "Бид таны цахим үйл явдал, цахим худалдаа, үзвэр үйлчилгээ болон бусад хэрэгцээнд туслахыг хүсч байна.",
+    "lbl-name": "Нэр",
+    "lbl-email": "И-мэйл",
+    "lbl-company": "Компани",
+    "lbl-project": "Төслөө тодорхойл",
+    "lbl-send": "Илгээх",
+    "lbl-ok": "За",
+    "lbl-success": "Message Sent, Бид удахгүй танд эргэн ирэх болно.",
+    "lbl-failure": "Алдаа гарсан, Plese дахин оролдох",
+    "err-username": "Нэрээ оруулна уу.",
+    "err-email": "И-мэйл шаардлагатай.",
+    "err-msg": "Төслийнхөө талаар товч мэдээлэл өгнө үү."
+  }
+}

@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "信电子邮件",
+      "resendEmail": "请省子之电子邮件以验子之帐户。 若未得电子邮件,请点击 {{here}} 更发验电子邮件。",
+      "haveAnAccount": "已有帐户?"
+    },
+    "forgotPassword": {
+      "header": "忘密码",
+      "enterEmail": "请输君注电子邮件,将发密码置链接。",
+      "lbl-email": "电邮地址",
+      "lbl-submit": "发链接",
+      "emailSent": "重置密码电子邮件已发。 请观子之电子邮件。"
+    },
+    "login": {
+      "email": "电子邮件| 短信",
+      "username": "用户名 + 密码",
+      "social": "世间也"
+    },
+    "magiklink": {
+      "header": "录链接",
+      "descriptionEmail": "请输君电子邮件址,将因电子邮件发链接。",
+      "descriptionSMS": "请输君电话号码,短信送君链接。",
+      "descriptionEmailSMS": "请输君电子邮件或电话号码(10 位数,仅限美国),当因电子邮件短信而发链接。",
+      "descriptionSMSUS": "请输君电话号码(10数,仅限美国)短信为君链接。",
+      "lbl-email": "电子邮箱",
+      "lbl-emailPhone": "电子邮件或电话号码",
+      "lbl-phone": "电话号码",
+      "agree": "余然之 ",
+      "terms": "条及细则",
+      "lbl-submit": "发送录链接",
+      "email-sent-msg": "录魔链接已发。 请观子之电子邮件。",
+      "success-msg": "录魔链接已发。 请省电子邮件短信。",
+      "sms-sent-msg": "录魔链接已发。 请省君短信。"
+    },
+    "passwordLogin": {
+      "header": "登录",
+      "lbl-email": "电邮地址",
+      "lbl-password": "密码",
+      "lbl-rememberMe": "记我",
+      "lbl-signin": "登录",
+      "forgotPassword": "忘密码?",
+      "signup": "无帐户? 登记",
+      "lbl-login": "登录",
+      "ph-password": "密码",
+      "ph-email": "电子邮件"
+    },
+    "social": {
+      "gitHub": "用 GitHub 录",
+      "google": "用谷歌录",
+      "facebook": "用脸书录",
+      "linkedin": "用LinkedIn录",
+      "twitter": "用推特录"
+    },
+    "register": {
+      "header": "登记",
+      "login": "登录",
+      "lbl-signup": "登记",
+      "lbl-password": "密码",
+      "lbl-email": "电邮地址",
+      "passwordNotMatch": "密码不匹",
+      "ph-password": "密码",
+      "ph-confirmPassword": "密码然之",
+      "ph-email": "电子邮件"
+    },
+    "resetPassword": {
+      "header": "复置密码",
+      "description": "请输君电子邮件地密码",
+      "lbl-submit": "复置密码",
+      "lbl-password": "密码",
+      "lbl-confirmPassword": "密码然之",
+      "passwordNotMatch": "密码不匹",
+      "nowLoginYourAccount": "君今可录君帐户",
+      "yourPasswordResetSuccess": "君密码已成功!"
+    },
+    "verifyEmail": {
+      "header": "验电子邮件",
+      "processing": "请少待片刻,并处分..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "地点",
+      "loading": "载之",
+      "col-name": "名",
+      "col-scene": "现在",
+      "col-maxuser": "最用户数",
+      "lbl-search": "搜索位置",
+      "lbl-new": "新增功能"
+    },
+    "newLocation": {
+      "title": "位",
+      "success": "成功已存。",
+      "failure": "微有所问。",
+      "removeSuccess": "已成删位。",
+      "nameInUse": "名在用中。",
+      "nameRequire": "名曰必填项。",
+      "validNumber": "止许用数 (0-9)。",
+      "lbl-name": "名",
+      "lbl-maxuser": "最用户数",
+      "lbl-scene": "现在",
+      "lbl-type": "类也",
+      "lbl-ve": "视频启用",
+      "lbl-gme": "启用全局媒体",
+      "lbl-update": "惟新",
+      "lbl-create": "创",
+      "tooltipCanNotBeDeleted": "无由删除大厅",
+      "confirmation": "是否确定?",
+      "lbl-yes": "然",
+      "lbl-no": "否"
+    },
+    "share": {
+      "lbl-share": "共享",
+      "ph-phoneEmail": "因电子邮件或电话号码邀之",
+      "lbl-phoneEmail": "发电子邮件或电话号码",
+      "lbl-copy": "复制",
+      "lbl-send-invite": "发遣邀请",
+      "title": "与君团队共网址",
+      "linkCopied": "链接已复制到剪贴板。"
+    },
+    "setting": {
+      "audio": "音频",
+      "lbl-volume": "卷",
+      "lbl-microphone": "麦沴风",
+      "graphics": "图形",
+      "controls": "制之",
+      "lbl-control-type": "控制器类也",
+      "lbl-control-scheme": "控制方略",
+      "lbl-resolution": "分辨率",
+      "lbl-shadow": "阴景",
+      "lbl-pp": "后处分",
+      "lbl-pbr": "全分苯橡胶",
+      "lbl-automatic": "自动",
+      "xrusersetting": "XR 用户置",
+      "rotation": "旋转",
+      "rotation-smooth-speed": "旋转平速",
+      "rotation-angle": "旋转角度",
+      "moving": "移动",
+      "user-avatar": "头似设",
+      "invert-rotation": "反旋移动摇杆",
+      "show-avatar": "示其象也"
+    },
+    "profile": {
+      "lbl-profile": "轮廓",
+      "lbl-settings": "置",
+      "lbl-username": "用户名",
+      "update-msg": "用户名已更新",
+      "inviteCode": "邀码",
+      "youAreAn": "公是也",
+      "youAreA": "公是也",
+      "showUserId": "示用户 ID",
+      "hideUserId": "匿用户 ID",
+      "showApiKey": "示接口密钥",
+      "hideApiKey": "藏 API 密钥",
+      "apiKey": "接口密钥",
+      "logout": "登出",
+      "connectPhone": "连君电话号码",
+      "connectEmail": "接君之电子邮件",
+      "connectPhoneEmail": "连电子邮件或电话号码",
+      "or": "或",
+      "lbl-wallet": "用电子钱包录",
+      "ph-email": "电子邮件",
+      "ph-phone": "电话号码",
+      "ph-phoneEmail": "电话号码/电子邮件",
+      "phoneEmailError": "无效者电话号码或电子邮件地址",
+      "phoneError": "无效者手机 #",
+      "emailError": "无效者电子邮件地",
+      "loginWithReadyPlayerMe": "用Ready Player Me录",
+      "connectSocial": "与社交帐户接",
+      "createOne": "如君无帐户,统将为公创一新帐户",
+      "connections": {
+        "title": "连接",
+        "ipError": "无以删之",
+        "disconnect": "断",
+        "connect": "连接"
+      },
+      "profileDropdown": {
+        "avatar": "用户头如图标",
+        "profile": "轮廓",
+        "adminConsole": "管理控制台",
+        "logout": "注销"
+      },
+      "userIcon": {
+        "lbl-name": "君姓名",
+        "lbl-update": "惟新",
+        "userId": "用户标识",
+        "ph-uploadImg": "上传产品图片",
+        "lbl-selectAcvatar": "择头像",
+        "lbl-submit": "交"
+      },
+      "userSettings": {
+        "volume": "卷",
+        "microphone": "麦沴风",
+        "resolution": "分辨率",
+        "high": "高",
+        "low": "下",
+        "spatialAudio": "用空间音频",
+        "enterMuted": "静音入室"
+      }
+    },
+    "oauth": {
+      "authenticating": "认证。",
+      "authFailed": "{{service}} 身份验证败。"
+    },
+    "magikLink": {
+      "wait": "请少待片刻,并处分..."
+    },
+    "dashboard": {
+      "header": "当泥板",
+      "dashboard": "当泥板",
+      "users": "用户",
+      "feeds": "食",
+      "instance": "实例",
+      "locations": "地点",
+      "invites": "邀之",
+      "sessions": "善言",
+      "groups": "组",
+      "parties": "诸方",
+      "chats": "聊复尔耳",
+      "content": "包",
+      "projects": "项目",
+      "scenes": "景",
+      "avatars": "化身",
+      "benchmarking": "标杆",
+      "bots": "机器人"
+    }
+  },
+  "oauth": {
+    "authenticating": "认证。",
+    "authFailed": "{{service}} 身份验证败。"
+  },
+  "magikLink": {
+    "wait": "请少待片刻,并处分..."
+  },
+  "dashboard": {
+    "header": "当泥板",
+    "dashboard": "当泥板",
+    "users": "用户",
+    "feeds": "食",
+    "instance": "实例",
+    "locations": "地点",
+    "routes": "路",
+    "projects": "项目",
+    "invites": "邀之",
+    "sessions": "善言",
+    "groups": "组",
+    "parties": "诸方",
+    "chats": "聊复尔耳",
+    "content": "包",
+    "scenes": "景",
+    "avatars": "化身",
+    "benchmarking": "标杆",
+    "bots": "机器人",
+    "setting": "置"
+  },
+  "avatar": {
+    "title": "上传头像",
+    "lbl-browse": "流览无已",
+    "lbl-thumbnail": "缩略图",
+    "lbl-upload": "上传",
+    "selectAvatar": "择头像...",
+    "selectThumbnail": "择缩略图...",
+    "rotate": "旋转",
+    "pan": "泛",
+    "noBone": "Obejct无骨皮",
+    "outOfBound": "所出已越界。",
+    "emptyObj": "为空。",
+    "maxTriangleError": "所包面大于 {{allowedTriangles}} 。",
+    "selectValidFile": "择有效者3D头如文。",
+    "selectValidThumbnail": "选定者有效缩略图文。",
+    "fileOversized": "头如文件大小必介 于 {{minSize}} MB 、 {{maxSize}} MB 之间",
+    "confirmation": "是否确定?",
+    "canNotBeRemoved": "无以除之",
+    "remove": "移除头像",
+    "uploadFiles": "上传其文",
+    "useUrlInstead": "改用阙址",
+    "avatar": "化身",
+    "cancel": "罢之",
+    "createAvatar": "创头像",
+    "delete": "除之",
+    "view": "视图",
+    "uploadAvatarInfo": "更新头似信息",
+    "name": "名",
+    "enterName": "输名",
+    "avatarInformation": "头如信息",
+    "description": "述",
+    "key": "钥匙",
+    "none": "无有",
+    "submit": "交",
+    "edit": "编辑",
+    "avatarUrl": "头如网址",
+    "upload-success-msg": "头如上传成功。",
+    "remove-success-msg": "头如上传成功。",
+    "warning-msg": "头似资源空,君同步静文否。"
+  },
+  "personMenu": {
+    "inviteToParty": "请与派对",
+    "addAsFriend": "益为好友",
+    "mute": "静音",
+    "block": "块"
+  },
+  "person": {
+    "you": "汝",
+    "yourScreen": "君屏幕",
+    "muteForEveryone": "为所有人设为静音",
+    "unmuteForEveryone": "所除静音",
+    "muteMe": "将我静音",
+    "unmuteMe": "去静音",
+    "muteThisPerson": "将此人静音",
+    "unmuteThisPerson": "去静音",
+    "openPictureInPicture": "开画中"
+  }
+}

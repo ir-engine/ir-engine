@@ -1,0 +1,202 @@
+{
+  "addComment": "ilasilutit uqausiksamit...",
+  "share": "amiqqaaqatiqarniq",
+  "suggestions": "qanuiliuqujinajarniit ilingnut",
+  "seeAll": "takujainnarilugit",
+  "likes": "piugijaujut",
+  "viewComments": "takujainnarilugit {{count}} uqausiksat",
+  "more": "sulikkanniq",
+  "username": "atuqtiup atinga",
+  "fullName": "atirusiq",
+  "reportInApporpriate": "unikkaap naammanngittuq",
+  "unfollow": "naammanngittuq",
+  "goToPost": "saqqitaujuksaq",
+  "shareModal": "amiqqaaqatiqarniq",
+  "copyLink": "ajjinga kasurvik",
+  "embed": "ilisimajut",
+  "cancel": "nuqqaqtittiniq",
+  "confirm": "nalunairlugu",
+  "save": "save",
+  "profilePic": "{{user}}'ajjinnguanga",
+  "ara": "ara",
+  "follow": "maliglugit",
+  "flames": "ikumat",
+  "continue": "kajusilugu",
+  "partyInvitationSent": "piliriqatigiinut qaiqujiniq naksiujjaujuq",
+  "arMedia": {
+    "back": "utimut",
+    "clip": "Clip",
+    "backgrounds": "piliriangusimajut",
+    "start": "pigiarvik"
+  },
+  "arMediaform": {
+    "title": "taiguusia",
+    "type": "qanuittuuninga",
+    "clip": "Clip",
+    "background": "piliriangusimajut",
+    "scene": "Scene",
+    "save": "save",
+    "manifest-file": "Manifest .manifest file",
+    "audio-file": "Mp4 tuqquqtausimajut",
+    "dracosis-file": "Dracosis .uvol file",
+    "preview-file": "ajjinnguap tuqquqsimaninga"
+  },
+  "creator": {
+    "myVideos": "tarrijaaksakka",
+    "savedVideos": "tuqquqtausimajut tarrijaaksat",
+    "back": "utimut",
+    "blocked-list": "Blocked List",
+    "block-user": "atuqtiujuq",
+    "dialog-content": "takujjaanngitat atuqtiup qanuilinganinga ilulingillu"
+  },
+  "creatorForm": {
+    "back": "utimut",
+    "edit": "aaqqigiaqsinirmut qanuilinganinga",
+    "save": "save",
+    "changeAvatar": "Change avatar image",
+    "ph-selectPreview": "niruarlugu qimirruniq",
+    "ph-name": "atiit",
+    "ph-username": "atuqtillutit atinga",
+    "ph-email": "irngiinnaaqtaut",
+    "ph-tags": "nivinngataat",
+    "ph-link": "attatarviksaq",
+    "ph-aboutYou": "sulikkanniq ivvit miksaanut",
+    "ph-twitter": "twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "atiliurniq"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "atuqtiit",
+    "feeds": "nirijjutit",
+    "arMedia": "tarrijaaksalirijikkut",
+    "editor": "aaqqiksuiji",
+    "creator": "Creator"
+  },
+  "featured": {
+    "empty-list": "maanna niriqattajjaanngittut ..."
+  },
+  "feed": {
+    "back": "utimut",
+    "related": "aktuaniliit nirititauvaktut",
+    "is-repoted-message": "Feed is reported!"
+  },
+  "feedForm": {
+    "back": "utimut",
+    "thanks": "qujannamiik tusaqtittijunnarassi amma piusigiaqtittijunnarassi nunattinni",
+    "share": "nunalingni tusaqtittilutit",
+    "upload": "minarilugu tarrijaaksaq",
+    "ph-selectVideo": "niruarlugu tarrijaaksaq",
+    "preview": "ajjinnguap ajjinnguanga",
+    "ph-selectPreview": "niruarlugu qimirruniq",
+    "createFeed": "saqqitittijumaguvit nirititaujunnaqtumik tarrijautiqariaqaqputit ammalu tautunnguarlutit!!!",
+    "ph-videoName": "tarrijausiavit atinga",
+    "ph-type": "naqittarumanajaqtatit nunalingnut... ",
+    "lbl-share": "amiqqaaqatiqarniq",
+    "save": "saputilugu kingullirmuarlutillu"
+  },
+  "feedMenu": {
+    "featured": "saqqijaaqtitaujuq",
+    "creators": "Creators",
+    "feed": "niriniq"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetric"
+  },
+  "login": {
+    "account": "kiinaujakkuviqaqpiit?",
+    "login": "Login",
+    "resetPassword": "Reset Password Fake naqittagaq (taanna attatarviunajaqtuq irngiinnaaqtaukkut)",
+    "notHavingAccount": "kiinaujakkuviqanngilat?",
+    "signUp": "atiliurit",
+    "forgotPassword": "Forgot password?",
+    "back": "utimut",
+    "or": "uvvaluunniit"
+  },
+  "comment": {
+    "add": "ilalugu uqausiksatit..."
+  },
+  "notification": {
+    "feedFire": " qamitaullutit niritiqattaqtatit",
+    "feedBookmarked": " qimirruagaq nirititait",
+    "comment": " niritiqattaqtatit uqausirilauqtat:",
+    "commentFire": " uqausirisaaqtatit ikitillugu",
+    "follow": " maliliqtatit",
+    "unfollow": " maligunniiqtatit",
+    "followed": " malittiarit",
+    "activity": "piliriangujuq"
+  },
+  "onBoarding": {
+    "welcome": "tunngasugit!",
+    "description": "370+ aaqqiksimaningit iOS−mut.",
+    "next": "kingulliq",
+    "discover": "discover titiraqsimajut,",
+    "news": "pivalliajut amma saqqitaujut",
+    "lines": "tamakkua ikpigijavut nagligusungnittinni nagligusungnittinni amma pijumajattinni.",
+    "getStarted": "pigialirit",
+    "meetUp": "katiqatiqarniq",
+    "friends": "piqannarijat.",
+    "meet": "piqannarijatit katiqatigilugit"
+  },
+  "shareForm": {
+    "arcMedia": "amiqqaaqatiqarniq",
+    "videoCreated": "taanna tarrijaaksaq saqqilauqtara",
+    "shareWithBuddies": "piqatiminik piqatiqaqatiqarluni",
+    "shareVideo": "tarrijaaksaq",
+    "save": "ajjiliurutimut saputilugu",
+    "cancel": "nuqqaqtittiniq",
+    "close": "matulugu",
+    "addFeed": "niritikkannirlugu"
+  },
+  "simpleModal": {
+    "emptyList": "titiraqsimajut",
+    "followers": " ukua:",
+    "following": " maliqattaqtut",
+    "flames": " ikumajut"
+  },
+  "splash": {
+    "screen": "sipalaas screen",
+    "logo": "taqsanga"
+  },
+  "story": {
+    "profilePic": "{{user}}'ajjinnguanga"
+  },
+  "view": {
+    "cancel": "nuqqaqtittiniq",
+    "choice": "marruungnik ajjigiinngittunik nipiliurijjutinik piqaqputit niruarviginiarlugu",
+    "verticalMode": "30 tittakuluit 30 tittakuluit",
+    "horizontalMode": "Horizontal mode has an unli isuliksimanngittut piviksangit",
+    "start": "pigiarvik",
+    "not-show": "takukkanniqtailiguk",
+    "welcome": "tunngasugit ARC−kunnut!  nangminiq tarrijaaksaliurlutit naliangnutuinnaq titiraqsimajunik saqqitillugulu inungnut tusagaksanut qillajjugarnut!",
+    "step": "{{step}}",
+    "text-step-1": "niruarlutit angmaluqsisimajumik uqalimaagaqarvingmit.",
+    "text-step-2": "taanna angigligiaqsimajuq pillarittuq, ajjiliurlugu iniujuq ajjiliurutingnut saniraagut saniraanut 3-5 tittakulungnut angmaluqsisimajuq.",
+    "text-step-3-part-1": "igalaujannguami kuvilugu iningani angmaluqtuq guraam kisaliuqujilutit.",
+    "text-step-3-part-2": "IKAJUUTI!  asianut kuvilugu asianut nuullugu angmaluqsijuq asianut iqqanaijaamut.",
+    "text-step-3-part-3": "IKAJUUTI!  aaqqiksukkannirunnaqtait angmaluqsisimajuq pujjurlugu angigligiarluguluunniit saqqijaaqtuq kullungnut amma aggangnut.",
+    "text-step-4-part-1": "marruiqtarlugu aupaqtuq naqittagaq START−mut tarrijaaksanut nipiliuqtarnut.",
+    "text-step-4-part-2": "marruuttarlutik aupaqtut titiraqsimajut naqittagangit STOP−mut."
+  },
+  "video": {
+    "back": "utimut"
+  },
+  "terms": {
+    "confirmTerms": "angiqpunga pijittirautinut",
+    "confirmPolicy": "angiqtunga tusaqtaujariaqanngittunut atuagaq"
+  },
+  "registration": {
+    "ph-phoneEmail": "uqaluutimik aturniq/irngiinnaaqtaukkut titiraqattautivvikkut",
+    "facebook": "kajusigit vaispukkut",
+    "google": "kajusiluni Google−kunnut",
+    "linkedin": "kajusiluni Linkedin−mut",
+    "twitter": "kajusiluni tuitukkut",
+    "gitHub": "kajusitillugu GitHub",
+    "connect": "irnngiinnaaqtaukkuurutiit uqaluutiilluunniit",
+    "logIn": "titirarvik",
+    "LogInTo": "titirarvigilugit",
+    "continueAsGuest": "kajusitillugu qaiqujausimatillugu"
+  }
+}

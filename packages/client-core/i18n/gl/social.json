@@ -1,0 +1,202 @@
+{
+  "addComment": "Añadir comentario...",
+  "share": "Compartir",
+  "suggestions": "Propostas para ti",
+  "seeAll": "Ver todos",
+  "likes": "Gústame",
+  "viewComments": "Ver todos os comentarios {{count}}",
+  "more": "Máis",
+  "username": "Nome de usuario",
+  "fullName": "Nome nome",
+  "reportInApporpriate": "Informe inapropiado",
+  "unfollow": "Unfollow",
+  "goToPost": "Ir ao post",
+  "shareModal": "Compartir",
+  "copyLink": "Copiar Link",
+  "embed": "Embed",
+  "cancel": "Cancelación",
+  "confirm": "Confirmación",
+  "save": "Salvemos",
+  "profilePic": "Perfil de {{user}}",
+  "ara": "Ara",
+  "follow": "Seguimento",
+  "flames": "Lumes",
+  "continue": "Continúa",
+  "partyInvitationSent": "Invitación enviada",
+  "arMedia": {
+    "back": "Voltar",
+    "clip": "Clip",
+    "backgrounds": "Antecedentes",
+    "start": "Inicio"
+  },
+  "arMediaform": {
+    "title": "Título",
+    "type": "Tipo",
+    "clip": "Clip",
+    "background": "Antecedentes",
+    "scene": "Escena",
+    "save": "Salvemos",
+    "manifest-file": "Manifesto .manifest ficheiro",
+    "audio-file": "Mp4 ficheiro",
+    "dracosis-file": "Dracosis .uvol file",
+    "preview-file": "Preview Image File"
+  },
+  "creator": {
+    "myVideos": "Os meus vídeos",
+    "savedVideos": "Vídeos gardados",
+    "back": "Voltar",
+    "blocked-list": "Lista bloqueada",
+    "block-user": "Bloque de usuarios",
+    "dialog-content": "Non verá o perfil e o contido do usuario."
+  },
+  "creatorForm": {
+    "back": "Voltar",
+    "edit": "Editar perfil",
+    "save": "Salvemos",
+    "changeAvatar": "Cambiar a imaxe de avatar",
+    "ph-selectPreview": "Seleccionar Preview",
+    "ph-name": "O teu nome",
+    "ph-username": "O teu nome de usuario",
+    "ph-email": "O teu correo electrónico",
+    "ph-tags": "Tags",
+    "ph-link": "Link",
+    "ph-aboutYou": "Máis sobre ti",
+    "ph-twitter": "Twitter",
+    "ph-instagram": "Instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Sign-out"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Usuarios",
+    "feeds": "Feeds",
+    "arMedia": "Video Media",
+    "editor": "Editor",
+    "creator": "Creador"
+  },
+  "featured": {
+    "empty-list": "De momento non hai alimento..."
+  },
+  "feed": {
+    "back": "Voltar",
+    "related": "Alimentos relacionados",
+    "is-repoted-message": "A alimentación está informada."
+  },
+  "feedForm": {
+    "back": "Voltar",
+    "thanks": "Grazas por compartir e mellorar a nosa comunidade.",
+    "share": "Compartir algo coa comunidade",
+    "upload": "Upload Video",
+    "ph-selectVideo": "Seleccionar vídeo",
+    "preview": "Preview image",
+    "ph-selectPreview": "Seleccionar Preview",
+    "createFeed": "Para crear un feed debes ter un vídeo e unha imaxe de vista previa!!!",
+    "ph-videoName": "O nome do vídeo",
+    "ph-type": "O que queres compartir coa comunidade... ",
+    "lbl-share": "Compartir",
+    "save": "Salvemos e vaite a continuación"
+  },
+  "feedMenu": {
+    "featured": "Destacados",
+    "creators": "Creadores",
+    "feed": "A alimentación"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetric"
+  },
+  "login": {
+    "account": "Tes unha conta?",
+    "login": "Login",
+    "resetPassword": "Reiniciar o botón de contrasinal (aquí estaría un enlace desde o correo electrónico)",
+    "notHavingAccount": "Non tes unha conta?",
+    "signUp": "Sign Up",
+    "forgotPassword": "Esqueceu o contrasinal?",
+    "back": "Voltar",
+    "or": "OU"
+  },
+  "comment": {
+    "add": "Deixa o teu comentario..."
+  },
+  "notification": {
+    "feedFire": " Despida o teu feed",
+    "feedBookmarked": " Marca o teu feed",
+    "comment": " Comenta o teu feed:",
+    "commentFire": " Despedimos o teu comentario para alimentar",
+    "follow": " Comeza a segui-lo",
+    "unfollow": " Deixa de seguirte",
+    "followed": " Te sigo",
+    "activity": "Actividade"
+  },
+  "onBoarding": {
+    "welcome": "Benvido!",
+    "description": "Maior colección de 370 + deseños para prototipado iOS.",
+    "next": "Seguinte",
+    "discover": "Descubrindo artigos,",
+    "news": "Noticias & Publicacións",
+    "lines": "Son eses sentimentos os que impulsan o noso amor pola astronomía e o noso desexo.",
+    "getStarted": "Comeza",
+    "meetUp": "Atopámonos con",
+    "friends": "Amigos.",
+    "meet": "Reencontro cos amigos"
+  },
+  "shareForm": {
+    "arcMedia": "Compartir",
+    "videoCreated": "Creamos este vídeo",
+    "shareWithBuddies": "Compartindo cos amigos",
+    "shareVideo": "Compartir vídeo",
+    "save": "Gardar a cámara de rolo",
+    "cancel": "Cancelación",
+    "close": "Pechado",
+    "addFeed": "Adicionar feed"
+  },
+  "simpleModal": {
+    "emptyList": "Lista baleira",
+    "followers": " Seguimento",
+    "following": " Seguidores",
+    "flames": " Lumes"
+  },
+  "splash": {
+    "screen": "Pantalla Splash",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "Perfil de {{user}}"
+  },
+  "view": {
+    "cancel": "Cancelación",
+    "choice": "Ten dous modos de gravación diferentes para escoller",
+    "verticalMode": "O modo vertical ten un tempo récord de 30 segundos.",
+    "horizontalMode": "O modo horizontal ten un tempo de rexistro ilimitado.",
+    "start": "Inicio",
+    "not-show": "Non o mostre de novo",
+    "welcome": "Benvidos ao Arco!  Fai vídeos persoais cun dos nosos hologramas e mándao nas túas canles de redes sociais!",
+    "step": "Paso {{step}}",
+    "text-step-1": "Escolle un holograma da biblioteca.",
+    "text-step-2": "Esta é a realidade aumentada, así que escanea o espazo coa túa cámara dun lado a outro durante 3-5 segundos onde queres que sexa o rendemento do holograma.",
+    "text-step-3-part-1": "Pulse pantalla unha vez no lugar onde quere o holograma ancorado.",
+    "text-step-3-part-2": "TIP!  Pulse unha vez noutro lugar para mover o holograma a outra posición.",
+    "text-step-3-part-3": "TIP!  Pode redimensionar o holograma pinchando ou ampliando a pantalla co polgar e o dedo índice.",
+    "text-step-4-part-1": "Pulsa o botón de gravación vermella para iniciar a gravación de vídeo.",
+    "text-step-4-part-2": "Pulsa o botón de rexistro vermello para parar."
+  },
+  "video": {
+    "back": "Voltar"
+  },
+  "terms": {
+    "confirmTerms": "Acepto as condicións de servizo",
+    "confirmPolicy": "Acepto a política de privacidade"
+  },
+  "registration": {
+    "ph-phoneEmail": "Teléfono / correo electrónico",
+    "facebook": "Continúa con Facebook",
+    "google": "Continúa con Google",
+    "linkedin": "Continúa con Linkedin",
+    "twitter": "Continúa con Twitter",
+    "gitHub": "Continuar con GitHub",
+    "connect": "Conecte o seu correo electrónico ou número de teléfono",
+    "logIn": "Log in",
+    "LogInTo": "Log in to",
+    "continueAsGuest": "Continúa como convidado"
+  }
+}

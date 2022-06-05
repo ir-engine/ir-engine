@@ -1,0 +1,202 @@
+{
+  "addComment": "コメントを追加...",
+  "share": "共有",
+  "suggestions": "あなたのための提案",
+  "seeAll": "すべて見る",
+  "likes": "好き",
+  "viewComments": "すべての {{count}} コメントを表示",
+  "more": "もっとその",
+  "username": "ユーザー名",
+  "fullName": "名前 姓",
+  "reportInApporpriate": "不適切な報告",
+  "unfollow": "フォロー解除",
+  "goToPost": "投稿に移動",
+  "shareModal": "共有",
+  "copyLink": "リンクのコピー",
+  "embed": "埋め込み",
+  "cancel": "キャンセル",
+  "confirm": "確認する",
+  "save": "セーブ",
+  "profilePic": "{{user}}のプロフィール写真",
+  "ara": "アラ",
+  "follow": "従う",
+  "flames": "炎",
+  "continue": "続ける",
+  "partyInvitationSent": "パーティー招待状の送信",
+  "arMedia": {
+    "back": "戻る",
+    "clip": "刈る",
+    "backgrounds": "背景",
+    "start": "始める"
+  },
+  "arMediaform": {
+    "title": "タイトル",
+    "type": "種類",
+    "clip": "刈る",
+    "background": "バックグラウンド",
+    "scene": "シーン",
+    "save": "セーブ",
+    "manifest-file": "マニフェスト .マニフェスト ファイル",
+    "audio-file": "MP4 ファイル",
+    "dracosis-file": "ドラコシス .uvol ファイル",
+    "preview-file": "プレビュー画像ファイル"
+  },
+  "creator": {
+    "myVideos": "マイビデオ",
+    "savedVideos": "保存されたビデオ",
+    "back": "戻る",
+    "blocked-list": "ブロックリスト",
+    "block-user": "ユーザーのブロック",
+    "dialog-content": "ユーザーのプロフィールとコンテンツは表示されません。"
+  },
+  "creatorForm": {
+    "back": "戻る",
+    "edit": "プロファイルの編集",
+    "save": "セーブ",
+    "changeAvatar": "アバター画像の変更",
+    "ph-selectPreview": "プレビューを選択",
+    "ph-name": "お名前 *",
+    "ph-username": "あなたのユーザー名",
+    "ph-email": "あなたのメールアドレス",
+    "ph-tags": "タグ",
+    "ph-link": "リンク",
+    "ph-aboutYou": "あなたについての詳細",
+    "ph-twitter": "囀る",
+    "ph-instagram": "インスタグラム",
+    "ph-tiktok": "ティクトク",
+    "sign-out": "サインアウト"
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "dashboard": "ダッシュボード",
+    "users": "ユーザー",
+    "feeds": "フィード",
+    "arMedia": "ビデオメディア",
+    "editor": "編集者",
+    "creator": "造物主"
+  },
+  "featured": {
+    "empty-list": "今のところフィードはありません..."
+  },
+  "feed": {
+    "back": "戻る",
+    "related": "関連フィード",
+    "is-repoted-message": "フィードが報告されました!"
+  },
+  "feedForm": {
+    "back": "戻る",
+    "thanks": "私たちのコミュニティを共有し、改善してくれてありがとう",
+    "share": "コミュニティと何かを共有する",
+    "upload": "ビデオのアップロード",
+    "ph-selectVideo": "ビデオの選択",
+    "preview": "プレビュー画像",
+    "ph-selectPreview": "プレビューを選択",
+    "createFeed": "フィードを作成するには、ビデオとプレビュー画像が必要!!!",
+    "ph-videoName": "動画の名前",
+    "ph-type": "コミュニティと共有したいものを入力してください... ",
+    "lbl-share": "共有",
+    "save": "保存して次へ"
+  },
+  "feedMenu": {
+    "featured": "注目",
+    "creators": "クリエイター",
+    "feed": "フィード"
+  },
+  "header": {
+    "lbl-volumetric": "体積"
+  },
+  "login": {
+    "account": "アカウントをお持ちですか?",
+    "login": "ログイン",
+    "resetPassword": "パスワードのリセット偽のボタン(ここに電子メールからのリンクがあります)",
+    "notHavingAccount": "アカウントをお持ちではありませんか?",
+    "signUp": "サインアップ",
+    "forgotPassword": "パスワードをお忘れですか?",
+    "back": "戻る",
+    "or": "又は"
+  },
+  "comment": {
+    "add": "コメントを追加..."
+  },
+  "notification": {
+    "feedFire": " フィードを解雇",
+    "feedBookmarked": " フィードをブックマークする",
+    "comment": " あなたのフィードをコメント:",
+    "commentFire": " フィードにあなたのコメントを発射",
+    "follow": " あなたをフォローし始めました",
+    "unfollow": " フォローを停止しました",
+    "followed": " あなたをフォロー",
+    "activity": "活動"
+  },
+  "onBoarding": {
+    "welcome": "ようこそ！",
+    "description": "iOSプロトタイピング用の370以上のレイアウトの最大のコレクション。",
+    "next": "次に",
+    "discover": "記事を発見し、",
+    "news": "ニュースと投稿",
+    "lines": "天文学への愛と欲望を駆り立てるのは、これらの感情です。",
+    "getStarted": "はじめに",
+    "meetUp": "ミートアップ",
+    "friends": "フレンズ。",
+    "meet": "友達と会う"
+  },
+  "shareForm": {
+    "arcMedia": "共有",
+    "videoCreated": "私はこのビデオを作成しました",
+    "shareWithBuddies": "仲間と共有する",
+    "shareVideo": "ビデオを共有する",
+    "save": "カメラロールに保存",
+    "cancel": "キャンセル",
+    "close": "閉める",
+    "addFeed": "フィードの追加"
+  },
+  "simpleModal": {
+    "emptyList": "空のリスト",
+    "followers": " 次",
+    "following": " 取り巻き",
+    "flames": " 炎"
+  },
+  "splash": {
+    "screen": "スプラッシュ画面",
+    "logo": "ロゴ"
+  },
+  "story": {
+    "profilePic": "{{user}}のプロフィール写真"
+  },
+  "view": {
+    "cancel": "キャンセル",
+    "choice": "2つの異なる録画モードから選択できます",
+    "verticalMode": "垂直モードは30秒の記録時間を持っています",
+    "horizontalMode": "水平モードは無制限の記録時間を持っています",
+    "start": "始める",
+    "not-show": "二度と表示しない",
+    "welcome": "ARCへようこそ! 私たちのホログラムの1つで個人的なビデオを作成し、あなたのソーシャルメディアチャンネルに投稿してください!",
+    "step": "ステップ {{step}}",
+    "text-step-1": "ライブラリからホログラムを選択します。",
+    "text-step-2": "これは拡張現実感なので、ホログラムのパフォーマンスを望む場所で3〜5秒間、カメラで空間を左右にスキャンします。",
+    "text-step-3-part-1": "ホログラムを固定する場所で画面を 1 回タップします。",
+    "text-step-3-part-2": "先端！ 別の場所を 1 回タップすると、ホログラムが別の位置に移動します。",
+    "text-step-3-part-3": "先端！ ホログラムのサイズを変更するには、親指と人差し指で画面をつまんだり拡大したりします。",
+    "text-step-4-part-1": "赤い録画ボタンをダブルタップして、ビデオ録画を開始します。",
+    "text-step-4-part-2": "赤い録音ボタンをダブルタップして停止します。"
+  },
+  "video": {
+    "back": "戻る"
+  },
+  "terms": {
+    "confirmTerms": "利用規約に同意します",
+    "confirmPolicy": "プライバシーポリシーに同意します"
+  },
+  "registration": {
+    "ph-phoneEmail": "電話/電子メールを使用する",
+    "facebook": "フェイスブックを続ける",
+    "google": "グーグルで続ける",
+    "linkedin": "Linkedin に続く",
+    "twitter": "ツイッターで続ける",
+    "gitHub": "GitHub で続行する",
+    "connect": "メールアドレスまたは電話番号を接続する",
+    "logIn": "ログイン",
+    "LogInTo": "ログイン先",
+    "continueAsGuest": "ゲストとして続行"
+  }
+}

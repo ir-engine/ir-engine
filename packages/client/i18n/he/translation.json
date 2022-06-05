@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - הדף לא נמצא"
+  },
+  "503": {
+    "msg": "503 - שירות לא זמין"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "הורחקתם ממקום זה",
+    "locationName": {
+      "pageTitle": "הביתה"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "פרוייקטים",
+      "header": "אנא התחבר",
+      "welcomeMsg": "ברוך הבא",
+      "locationHeader": "מיקומים",
+      "projectHeader": "פרוייקטים",
+      "sceneHeader": "סצינות",
+      "description": "אם אתה חדש כאן אנו ממליצים לעבור על המדריך. אחרת, קפוץ ישר פנימה וצור פרויקט מאפס או מאחת התבניות שלנו.",
+      "lbl-startTutorial": "התחל הדרכה",
+      "lbl-newProject": "פרויקט חדש",
+      "lbl-createProject": "יצר",
+      "lbl-newScene": "סצנה חדשה",
+      "lbl-searchProject": "חפש פרויקטים קיימים...",
+      "back": "גב",
+      "contextMenu": "מחיקת פרוייקט",
+      "installed": "פרויקטים מותקנים",
+      "official": "פרויקטים רשמיים",
+      "community": "פרויקטים קהילתיים",
+      "install": "התקין",
+      "uninstall": "הסרת התקנה",
+      "rename": "לשנות",
+      "createProject": "יצירת פרוייקט",
+      "installProject": "התקנת פרויקט",
+      "processing": "עיבוד",
+      "projectName": "שם הפרויקט",
+      "projectURL": "כתובת URL של הפרויקט"
+    }
+  },
+  "error": {
+    "goHomeLink": "לך הביתה",
+    "withStatusCode": "אירעה שגיאה {{code}} בשרת",
+    "withoutStatusCode": "אירעה שגיאה בשרת"
+  },
+  "no-projects": {
+    "msg": "שגיאה: לא הותקנו פרויקטים - אנא צור קשר עם מנהל אתר"
+  },
+  "dev": {
+    "pageTitle": "הביתה"
+  },
+  "login": {
+    "pageTitle": "כניסה"
+  },
+  "workerTest": {
+    "pageTitle": "מבחן עובד"
+  },
+  "index": {
+    "by": "באמצעות",
+    "xr": "XR",
+    "foundation": "קרן",
+    "description": "יישומים חברתיים תלת-ממדיים בזמן אמת שכולם יוכלו ליהנות מהם."
+  },
+  "xrengineContact": {
+    "header": "צרו קשר!",
+    "description": "נשמח לעזור לך באירועים הווירטואליים שלך, בקמעונאות הדיגיטלית, בבידור ובצרכים אחרים.",
+    "lbl-name": "שם",
+    "lbl-email": "דואר אלקטרוני",
+    "lbl-company": "חברה",
+    "lbl-project": "תאר את הפרוייקט שלך",
+    "lbl-send": "שלח",
+    "lbl-ok": "אוקיי",
+    "lbl-success": "הודעה שנשלחה, נחזור אליך בקרוב.",
+    "lbl-failure": "אירעה שגיאה, פלז נסה שוב",
+    "err-username": "אנא הזן את שמך.",
+    "err-email": "דואר אלקטרוני הוא הכרחי.",
+    "err-msg": "ספק תיאור קצר של הפרוייקט שלך."
+  }
+}

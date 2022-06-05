@@ -1,84 +1,84 @@
 {
-  "pageLoader" : {
-    "loading" : "Página de carregamento ... "
+  "pageLoader": {
+    "loading": "Página de carregamento..."
   },
-  "tooltip" : {
-    "pressKey" : "Pressione {{tip}} para {{message}} "
+  "tooltip": {
+    "pressKey": "Pressione {{tip}} para {{message}}"
   },
-  "toast" : {
-    "joined" : "unidos ",
-    "left" : "esquerda "
+  "toast": {
+    "joined": "unido",
+    "left": "Esquerda"
   },
-  "navUserWidget" : {
-    "login" : "Log Em "
+  "navUserWidget": {
+    "login": "Iniciar sessão"
   },
-  "loader" : {
-    "connecting" : "Conectando ao mundo ... ",
-    "entering" : "Entrando no mundo ... ",
-    "loading" : "Carregando ... ",
-    "objectRemaining" : "{{count}} objeto restante ",
-    "objectRemainingPlural" : "{{count}} objetos restantes ",
-    "loadingObjects" : "Carregando Objetos ",
-    "loadingComplete" : "Carregamento Completo ",
-    "joiningWorld" : "Adesão ao Mundo "
+  "loader": {
+    "connecting": "Conectando-se ao mundo...",
+    "entering": "Entrando no mundo...",
+    "loading": "Carregamento...",
+    "objectRemaining": "{{count}} objeto restante",
+    "objectRemainingPlural": "{{count}} objetos restantes",
+    "loadingObjects": "Carregando objetos",
+    "loadingComplete": "Carregamento completo",
+    "joiningWorld": "Unindo mundo"
   },
-  "alert" : {
-    "eventWasSuccess" : "Evento foi bem-sucedido ",
-    "errorWasEncountered" : "Um erro foi encontrado ",
-    "eventInProgress" : "Evento em andamento ",
-    "seconds" : "segundos ",
-    "cancelCountdown" : "Fechando este modal irá cancelar a contagem regressada "
+  "alert": {
+    "eventWasSuccess": "Evento foi bem sucedido",
+    "errorWasEncountered": "Um erro foi encontrado",
+    "eventInProgress": "Evento em andamento",
+    "seconds": "Segundos",
+    "cancelCountdown": "Fechar este modal cancelará a contagem regressiva"
   },
-  "debug" : {
-    "refresh" : "Atualização ",
-    "stats" : "Stats ",
-    "debugOptions" : "Opções de Debug ",
-    "physicsDebug" : "Física ",
-    "avatarDebug" : "Avatar ",
-    "nodeHelperDebug" : "Auxiliar de Nó ",
-    "gridDebug" : "Grade ",
-    "simpleMaterials" : "Materiais Simples ",
-    "tick" : "Tique ",
-    "worldStore" : "Loja Mundial ",
-    "engineStore" : "Loja de Mecanismo ",
-    "namedEntities" : "Entidades Denominadas ",
-    "networkObject" : "Objeto de Rede ",
-    "networkClients" : "Clientes De Rede "
+  "debug": {
+    "refresh": "Atualizar",
+    "stats": "Estatísticas",
+    "debugOptions": "Opções de depuração",
+    "physicsDebug": "Física",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Auxiliar de nó",
+    "gridDebug": "Grade",
+    "simpleMaterials": "Materiais Simples",
+    "tick": "Carrapato",
+    "worldStore": "Loja Mundial",
+    "engineStore": "Loja de Motores",
+    "namedEntities": "Entidades Nomeadas",
+    "networkObject": "Objeto de rede",
+    "networkClients": "Clientes de rede"
   },
-  "recording" : {
-    "videoRecorder" : "Gravador de vídeo ",
-    "waitingForPermissions" : "Aguardando permissões ",
-    "selectVideoSource" : "Selecionar fonte de vídeo ",
-    "screen" : "Tela ",
-    "camera" : "Câmera ",
-    "microphone" : "Microfone ",
-    "startRecording" : "Iniciar a gravação ",
-    "pauseRecording" : "Gravação de pausa ",
-    "resumeRecording" : "Retomar a gravação ",
-    "stopRecording" : "Parar de gravar "
+  "recording": {
+    "videoRecorder": "Gravador de vídeo",
+    "waitingForPermissions": "Esperando por permissões",
+    "selectVideoSource": "Selecione a fonte de vídeo",
+    "screen": "Tela",
+    "camera": "Câmera",
+    "microphone": "Microfone",
+    "startRecording": "Comece a gravar",
+    "pauseRecording": "Pausar a gravação",
+    "resumeRecording": "Retomar a gravação",
+    "stopRecording": "Pare de gravar"
   },
-  "typing" : "Digitação ... ",
-  "gameServer" : {
-    "browserError" : "Erro do Navegador ",
-    "browserErrorMessage" : "Seu navegador não suporta armazenamento no modo de navegação privada.  Tente outro navegador, ou saia do modo de navegação privada. ",
-    "noAvailableServers" : "Sem Servidores Disponíveis ",
-    "noAvailableServersMessage" : "Não há nenhum servidor disponível para você se conectar.  Tentando se reconectar em ",
-    "worldDisconnected" : "Mundo desconectado ",
-    "worldDisconnectedMessage" : "Perdeu a conexão com o mundo.  Tentaremos se reconectar antes que o tempo seguinte se esgote, caso contrário, você será encaminhado para uma instância diferente. ",
-    "webGLNotEnabled" : "WebGL não ativado ",
-    "webGLNotEnabledMessage" : "Seu navegador não suporta WebGL, ou ele é desativado.  Por favor, ative o WebGL ou considere a atualização para a versão mais recente do seu navegador. ",
-    "youKickedFromWorld" : "Você foi expulso do mundo ",
-    "youKickedFromWorldMessage" : "Você foi expulso deste mundo pela seguinte razão ",
-    "invalidLocation" : "Local inválido ",
-    "cantFindLocation" : "Não conseguimos encontrar o local ",
-    "misspelledOrNotExist" : "Pode ser digitado de forma errada, ou pode não existir. ",
-    "loading" : "carregando ",
-    "low-frame-error" : "Detectada uma má perfomance considere ativar a aceleração de Hardware de Uso em seu navegador e relaute seu navegador ",
-    "low-frame-title" : "Habilitar a aceleração de hardware para melhor experiência! "
+  "typing": "Digitação...",
+  "gameServer": {
+    "browserError": "Erro do navegador",
+    "browserErrorMessage": "Seu navegador não suporta armazenamento no modo de navegação privada. Tente outro navegador ou saia do modo de navegação privada.",
+    "noAvailableServers": "Sem servidores disponíveis",
+    "noAvailableServersMessage": "Não há servidores disponíveis para você se conectar. Tentando se reconectar",
+    "worldDisconnected": "Mundo desconectado",
+    "worldDisconnectedMessage": "Você perdeu sua conexão com o mundo. Tentaremos nos reconectar antes que o tempo seguinte se esgotem, caso contrário, você será encaminhado para outra instância.",
+    "webGLNotEnabled": "WebGL não habilitado",
+    "webGLNotEnabledMessage": "Seu navegador não suporta WebGL ou é desativado. Por favor, habilite o WebGL ou considere atualizar para a versão mais recente do seu navegador.",
+    "youKickedFromWorld": "Você foi expulso do mundo.",
+    "youKickedFromWorldMessage": "Você foi expulso deste mundo pela seguinte razão.",
+    "invalidLocation": "Localização inválida",
+    "cantFindLocation": "Não conseguimos encontrar a localização.",
+    "misspelledOrNotExist": "Pode estar escrito errado, ou pode não existir.",
+    "loading": "carregamento",
+    "low-frame-error": "Detectou uma má perfomance considerar ativar a aceleração do use hardware no seu navegador e rerelasse seu navegador",
+    "low-frame-title": "Habilite a aceleração de hardware para uma melhor experiência!"
   },
-  "error" : {
-    "loading-error" : "Falha ao carregar dados do usuário ",
-    "validation-error" : "Por favor, input válido {{type}} ",
-    "login-error" : "Falha ao login"
+  "error": {
+    "loading-error": "Falha em carregar dados do usuário",
+    "validation-error": "Por favor, inserem {{type}}",
+    "login-error": "Falha ao login"
   }
 }

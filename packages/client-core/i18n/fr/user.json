@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "E-mail de confirmation",
+      "resendEmail": "Veuillez vérifier votre adresse e-mail pour vérifier votre compte. Si vous n’avez pas reçu d’e-mail, veuillez cliquer sur {{here}} pour renvoyer l’e-mail de vérification.",
+      "haveAnAccount": "Vous avez un compte ?"
+    },
+    "forgotPassword": {
+      "header": "Mot de passe oublié",
+      "enterEmail": "Veuillez entrer votre adresse e-mail enregistrée et nous vous enverrons un lien de réinitialisation du mot de passe.",
+      "lbl-email": "Adresse courriel",
+      "lbl-submit": "Envoyer le lien",
+      "emailSent": "L’e-mail de réinitialisation du mot de passe a été envoyé. Veuillez vérifier votre adresse e-mail."
+    },
+    "login": {
+      "email": "| par e-mail SMS",
+      "username": "Nom d’utilisateur + Mot de passe",
+      "social": "Social"
+    },
+    "magiklink": {
+      "header": "Lien de connexion",
+      "descriptionEmail": "Veuillez entrer votre adresse e-mail et nous vous enverrons un lien de connexion par e-mail.",
+      "descriptionSMS": "Veuillez entrer votre numéro de téléphone et nous vous enverrons un lien de connexion par SMS.",
+      "descriptionEmailSMS": "Veuillez entrer votre adresse e-mail ou votre numéro de téléphone (10 chiffres, États-Unis uniquement) et nous vous enverrons un lien de connexion par e-mail ou SMS.",
+      "descriptionSMSUS": "Veuillez entrer votre numéro de téléphone (10 chiffres, États-Unis uniquement) et nous vous enverrons un lien de connexion par SMS.",
+      "lbl-email": "Adresse courriel",
+      "lbl-emailPhone": "Courriel ou numéro de téléphone",
+      "lbl-phone": "Numéro de téléphone",
+      "agree": "J’accepte le ",
+      "terms": "Termes & Conditions",
+      "lbl-submit": "Envoyer le lien de connexion",
+      "email-sent-msg": "Login Magic Link a été envoyé. Veuillez vérifier votre adresse e-mail.",
+      "success-msg": "Login Magic Link a été envoyé. Veuillez vérifier votre e-mail ou sms.",
+      "sms-sent-msg": "Login Magic Link a été envoyé. Veuillez vérifier vos SMS."
+    },
+    "passwordLogin": {
+      "header": "Connexion",
+      "lbl-email": "Adresse courriel",
+      "lbl-password": "Mot de passe",
+      "lbl-rememberMe": "Souvenez-vous de moi",
+      "lbl-signin": "Connexion",
+      "forgotPassword": "Mot de passe oublié?",
+      "signup": "Vous n’avez pas de compte ? S’enregistrer",
+      "lbl-login": "S'identifier",
+      "ph-password": "Mot de passe",
+      "ph-email": "Messagerie électronique"
+    },
+    "social": {
+      "gitHub": "Connectez-vous avec GitHub",
+      "google": "Connectez-vous avec Google",
+      "facebook": "Connectez-vous avec Facebook",
+      "linkedin": "Connectez-vous avec Linkedin",
+      "twitter": "Connectez-vous avec Twitter"
+    },
+    "register": {
+      "header": "S’enregistrer",
+      "login": "S'identifier",
+      "lbl-signup": "S’enregistrer",
+      "lbl-password": "Mot de passe",
+      "lbl-email": "Adresse courriel",
+      "passwordNotMatch": "Les mots de passe ne correspondent pas",
+      "ph-password": "Mot de passe",
+      "ph-confirmPassword": "Confirmer le mot de passe",
+      "ph-email": "Messagerie électronique"
+    },
+    "resetPassword": {
+      "header": "Réinitialiser le mot de passe",
+      "description": "Veuillez entrer votre mot de passe pour votre adresse e-mail",
+      "lbl-submit": "Réinitialiser le mot de passe",
+      "lbl-password": "Mot de passe",
+      "lbl-confirmPassword": "Confirmer le mot de passe",
+      "passwordNotMatch": "Les mots de passe ne correspondent pas",
+      "nowLoginYourAccount": "Vous pouvez maintenant vous connecter à votre compte",
+      "yourPasswordResetSuccess": "Votre mot de passe a été réinitialisé avec succès!"
+    },
+    "verifyEmail": {
+      "header": "Vérifier l’e-mail",
+      "processing": "Veuillez patienter un instant pendant le traitement..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Lieux",
+      "loading": "Chargement",
+      "col-name": "Nom",
+      "col-scene": "Scène",
+      "col-maxuser": "Nombre maximal d’utilisateurs",
+      "lbl-search": "Rechercher des emplacements",
+      "lbl-new": "Nouveau"
+    },
+    "newLocation": {
+      "title": "Emplacement",
+      "success": "Enregistré avec succès.",
+      "failure": "Quelque chose a mal tourné.",
+      "removeSuccess": "Emplacement supprimé avec succès.",
+      "nameInUse": "Le nom est en cours d’utilisation.",
+      "nameRequire": "Le nom est requis.",
+      "validNumber": "Seuls les nombres (0-9) sont autorisés.",
+      "lbl-name": "Nom",
+      "lbl-maxuser": "Nombre maximal d’utilisateurs",
+      "lbl-scene": "Scène",
+      "lbl-type": "Type",
+      "lbl-ve": "Vidéo activée",
+      "lbl-gme": "Médias mondiaux activés",
+      "lbl-update": "Mettre à jour",
+      "lbl-create": "Créer",
+      "tooltipCanNotBeDeleted": "Lobby ne peut pas être supprimé",
+      "confirmation": "Es-tu sûr?",
+      "lbl-yes": "Oui",
+      "lbl-no": "Non"
+    },
+    "share": {
+      "lbl-share": "Partager",
+      "ph-phoneEmail": "Inviter par e-mail ou numéro de téléphone",
+      "lbl-phoneEmail": "Envoyer à l’adresse e-mail ou au numéro de téléphone",
+      "lbl-copy": "Copier",
+      "lbl-send-invite": "Envoyer une invitation",
+      "title": "Partagez votre URL de localisation avec votre équipe",
+      "linkCopied": "Lien copié dans le Presse-papiers."
+    },
+    "setting": {
+      "audio": "Audio",
+      "lbl-volume": "Volume",
+      "lbl-microphone": "Microphone",
+      "graphics": "Graphisme",
+      "controls": "Contrôles",
+      "lbl-control-type": "Type de contrôleur",
+      "lbl-control-scheme": "Schéma de contrôle",
+      "lbl-resolution": "Résolution",
+      "lbl-shadow": "Ombre",
+      "lbl-pp": "Post-traitement",
+      "lbl-pbr": "PBR complet",
+      "lbl-automatic": "Automatique",
+      "xrusersetting": "Paramètres utilisateur XR",
+      "rotation": "Rotation",
+      "rotation-smooth-speed": "Vitesse de rotation lisse",
+      "rotation-angle": "Rotation Angle",
+      "moving": "Émouvant",
+      "user-avatar": "Paramètre de l’avatar",
+      "invert-rotation": "Inverser la rotation et déplacer les bâtons",
+      "show-avatar": "Afficher l’avatar"
+    },
+    "profile": {
+      "lbl-profile": "Profil",
+      "lbl-settings": "Paramètres",
+      "lbl-username": "Nom d’utilisateur",
+      "update-msg": "Nom d’utilisateur mis à jour",
+      "inviteCode": "Code d’invitation",
+      "youAreAn": "Vous êtes un",
+      "youAreA": "Vous êtes un",
+      "showUserId": "Afficher l’ID utilisateur",
+      "hideUserId": "Masquer l’ID utilisateur",
+      "showApiKey": "Afficher la clé API",
+      "hideApiKey": "Masquer la clé API",
+      "apiKey": "Clé API",
+      "logout": "Se déconnecter",
+      "connectPhone": "Connectez votre numéro de téléphone",
+      "connectEmail": "Connectez votre e-mail",
+      "connectPhoneEmail": "Connectez votre adresse e-mail ou votre numéro de téléphone",
+      "or": "Ou",
+      "lbl-wallet": "Connectez-vous avec Wallet",
+      "ph-email": "Messagerie électronique",
+      "ph-phone": "Numéro de téléphone",
+      "ph-phoneEmail": "Numéro de téléphone / Email",
+      "phoneEmailError": "Numéro de téléphone ou adresse e-mail non valide",
+      "phoneError": "Téléphone non valide #",
+      "emailError": "Adresse e-mail non valide",
+      "loginWithReadyPlayerMe": "Connectez-vous avec Ready Player Me",
+      "connectSocial": "Se connecter avec des comptes sociaux",
+      "createOne": "Si vous n’avez pas de compte, un nouveau compte sera créé pour vous",
+      "connections": {
+        "title": "Connexions",
+        "ipError": "Impossible de supprimer le fournisseur d’identité actif",
+        "disconnect": "déconnecter",
+        "connect": "Relier"
+      },
+      "profileDropdown": {
+        "avatar": "Icône d’avatar de l’utilisateur",
+        "profile": "Profil",
+        "adminConsole": "Console d’administration",
+        "logout": "Déconnexion"
+      },
+      "userIcon": {
+        "lbl-name": "Votre nom",
+        "lbl-update": "Mettre à jour",
+        "userId": "Identifiant",
+        "ph-uploadImg": "Télécharger l’image du produit",
+        "lbl-selectAcvatar": "Sélectionnez Avatar",
+        "lbl-submit": "Envoyer"
+      },
+      "userSettings": {
+        "volume": "Volume",
+        "microphone": "Microphone",
+        "resolution": "Résolution",
+        "high": "Haut",
+        "low": "Bas",
+        "spatialAudio": "Utiliser l’audio spatial",
+        "enterMuted": "Entrer dans la salle en sourdine"
+      }
+    },
+    "oauth": {
+      "authenticating": "Authentification...",
+      "authFailed": "{{service}} authentification a échoué."
+    },
+    "magikLink": {
+      "wait": "Veuillez patienter un instant pendant le traitement..."
+    },
+    "dashboard": {
+      "header": "Tableau de bord",
+      "dashboard": "Tableau de bord",
+      "users": "Utilisateurs",
+      "feeds": "Flux",
+      "instance": "Instance",
+      "locations": "Lieux",
+      "invites": "Invite",
+      "sessions": "Sessions",
+      "groups": "Groupe",
+      "parties": "Parties",
+      "chats": "Chats",
+      "content": "Packs de contenu",
+      "projects": "Projets",
+      "scenes": "Scènes",
+      "avatars": "Avatars",
+      "benchmarking": "Étalonnage des performances",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Authentification...",
+    "authFailed": "{{service}} authentification a échoué."
+  },
+  "magikLink": {
+    "wait": "Veuillez patienter un instant pendant le traitement..."
+  },
+  "dashboard": {
+    "header": "Tableau de bord",
+    "dashboard": "Tableau de bord",
+    "users": "Utilisateurs",
+    "feeds": "Flux",
+    "instance": "Instance",
+    "locations": "Lieux",
+    "routes": "Itinéraires",
+    "projects": "Projets",
+    "invites": "Invite",
+    "sessions": "Sessions",
+    "groups": "Groupe",
+    "parties": "Parties",
+    "chats": "Chats",
+    "content": "Packs de contenu",
+    "scenes": "Scènes",
+    "avatars": "Avatars",
+    "benchmarking": "Étalonnage des performances",
+    "bots": "Bots",
+    "setting": "Paramètres"
+  },
+  "avatar": {
+    "title": "Télécharger l’avatar",
+    "lbl-browse": "Parcourir",
+    "lbl-thumbnail": "Miniature",
+    "lbl-upload": "Télécharger",
+    "selectAvatar": "Sélectionnez Avatar...",
+    "selectThumbnail": "Sélectionnez Miniature...",
+    "rotate": "Tourner",
+    "pan": "Pan",
+    "noBone": "Obejct ne contient pas d’os ou de peau",
+    "outOfBound": "L’objet est hors limite.",
+    "emptyObj": "L’objet est vide.",
+    "maxTriangleError": "L’objet contient plus de {{allowedTriangles}} faces.",
+    "selectValidFile": "Sélectionnez un fichier d’avatar 3D valide.",
+    "selectValidThumbnail": "Fichier miniature valide sélectionné.",
+    "fileOversized": "La taille du fichier avatar doit être comprise entre {{minSize}} Mo et {{maxSize}} Mo",
+    "confirmation": "Es-tu sûr?",
+    "canNotBeRemoved": "L’avatar actif ne peut pas être supprimé",
+    "remove": "Supprimer l’avatar",
+    "uploadFiles": "Télécharger des fichiers",
+    "useUrlInstead": "Utilisez l’url à la place",
+    "avatar": "Avatar",
+    "cancel": "Annuler",
+    "createAvatar": "Créer un avatar",
+    "delete": "Supprimer",
+    "view": "Vue",
+    "uploadAvatarInfo": "Mettre à jour les informations de l’avatar",
+    "name": "Nom",
+    "enterName": "Entrez le nom",
+    "avatarInformation": "Informations sur l’avatar",
+    "description": "Description",
+    "key": "Clé",
+    "none": "Aucun",
+    "submit": "Envoyer",
+    "edit": "Éditer",
+    "avatarUrl": "URL de l’avatar",
+    "upload-success-msg": "Avatar téléchargé avec succès.",
+    "remove-success-msg": "Avatar téléchargé avec succès.",
+    "warning-msg": "La ressource Avatar est vide, avez-vous synchronisé les avatars avec votre stockage de fichiers statiques ?"
+  },
+  "personMenu": {
+    "inviteToParty": "Inviter à la fête",
+    "addAsFriend": "Ajouter en tant qu’ami",
+    "mute": "Muet",
+    "block": "Bloquer"
+  },
+  "person": {
+    "you": "Vous",
+    "yourScreen": "Votre écran",
+    "muteForEveryone": "Muet pour tout le monde",
+    "unmuteForEveryone": "Activer le son pour tout le monde",
+    "muteMe": "Me mettre en sourdine",
+    "unmuteMe": "Activer le son",
+    "muteThisPerson": "Mettre cette personne en sourdine",
+    "unmuteThisPerson": "Réactiver le son de cette personne",
+    "openPictureInPicture": "Ouvrir l’image dans l’image"
+  }
+}

@@ -1,0 +1,202 @@
+{
+  "addComment": "Pievienot komentāru...",
+  "share": "Koplietot",
+  "suggestions": "Ieteikumi jums",
+  "seeAll": "Skatīt visu",
+  "likes": "Patīk",
+  "viewComments": "Skatīt visus {{count}} komentārus",
+  "more": "vairāk",
+  "username": "lietotājvārds",
+  "fullName": "Vārds Uzvārds",
+  "reportInApporpriate": "Ziņošana par nepiemērotu",
+  "unfollow": "Unfollow",
+  "goToPost": "Doties uz pastu",
+  "shareModal": "Koplietot",
+  "copyLink": "Kopēt saiti",
+  "embed": "Iegult",
+  "cancel": "Atcelt",
+  "confirm": "Apstiprināt",
+  "save": "Glābt",
+  "profilePic": "{{user}}profila attēls",
+  "ara": "Ara",
+  "follow": "Sekot",
+  "flames": "Liesmas",
+  "continue": "Turpināt",
+  "partyInvitationSent": "Nosūtīts ielūgums uz ballīti",
+  "arMedia": {
+    "back": "Mugura",
+    "clip": "Klipu",
+    "backgrounds": "Fonus",
+    "start": "Sākt"
+  },
+  "arMediaform": {
+    "title": "Nosaukums",
+    "type": "Tips",
+    "clip": "Klipu",
+    "background": "Fons",
+    "scene": "Ainas",
+    "save": "Glābt",
+    "manifest-file": "Manifesta .manifest fails",
+    "audio-file": "Mp4 fails",
+    "dracosis-file": "Drakoze .uvol fails",
+    "preview-file": "Priekšskatīt attēla failu"
+  },
+  "creator": {
+    "myVideos": "Mani videoklipi",
+    "savedVideos": "Saglabātie videoklipi",
+    "back": "Mugura",
+    "blocked-list": "Bloķētais saraksts",
+    "block-user": "Bloķēt lietotāju",
+    "dialog-content": "Jūs neredzēsiet lietotāja profilu un saturu"
+  },
+  "creatorForm": {
+    "back": "Mugura",
+    "edit": "Rediģēt profilu",
+    "save": "Glābt",
+    "changeAvatar": "Iemiesojuma attēla mainīšana",
+    "ph-selectPreview": "Atlasīt priekšskatījumu",
+    "ph-name": "Tavs vārds",
+    "ph-username": "Jūsu lietotājvārds",
+    "ph-email": "Jūsu e-pasts",
+    "ph-tags": "Tags",
+    "ph-link": "Saikne",
+    "ph-aboutYou": "Vairāk par jums",
+    "ph-twitter": "Čivināt",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Izrakstīšanās"
+  },
+  "dashboard": {
+    "title": "Paneļa",
+    "dashboard": "Paneļa",
+    "users": "Lietotājiem",
+    "feeds": "Plūsmas",
+    "arMedia": "Video datu nesējs",
+    "editor": "Redaktors",
+    "creator": "Radītājs"
+  },
+  "featured": {
+    "empty-list": "Pagaidām nav barības ..."
+  },
+  "feed": {
+    "back": "Mugura",
+    "related": "Saistītās plūsmas",
+    "is-repoted-message": "Tiek ziņots par barību!"
+  },
+  "feedForm": {
+    "back": "Mugura",
+    "thanks": "Paldies, ka kopīgojāt un uzlabojāt mūsu kopienu",
+    "share": "Kopīgojiet kaut ko ar kopienu",
+    "upload": "Augšupielādēt video",
+    "ph-selectVideo": "Atlasīt video",
+    "preview": "Priekšskatīt attēlu",
+    "ph-selectPreview": "Atlasīt priekšskatījumu",
+    "createFeed": "Lai izveidotu plūsmu, ir nepieciešams videoklips un priekšskatījuma attēls!!!",
+    "ph-videoName": "Videoklipa nosaukums",
+    "ph-type": "Ierakstiet to, ko vēlaties kopīgot ar kopienu ... ",
+    "lbl-share": "Koplietot",
+    "save": "Saglabāt un iet tālāk"
+  },
+  "feedMenu": {
+    "featured": "Featured",
+    "creators": "Veidotājiem",
+    "feed": "Plūsma"
+  },
+  "header": {
+    "lbl-volumetric": "Tilpuma"
+  },
+  "login": {
+    "account": "Vai jums ir konts?",
+    "login": "Pieteikšanās",
+    "resetPassword": "Atiestatīšanas paroles viltus poga (šeit būtu saite no e-pasta)",
+    "notHavingAccount": "Vai jums nav konta?",
+    "signUp": "Piedalīties",
+    "forgotPassword": "Aizmirsāt paroli?",
+    "back": "Mugura",
+    "or": "VAI"
+  },
+  "comment": {
+    "add": "Pievienot savu komentāru..."
+  },
+  "notification": {
+    "feedFire": " izšāva jūsu plūsmu",
+    "feedBookmarked": " ar grāmatzīmi jūsu plūsmai tika atzīmēta ar grāmatzīmi",
+    "comment": " komentēja jūsu plūsmu:",
+    "commentFire": " izšāva jūsu komentāru , lai pabarotu",
+    "follow": " sāka sekot jums",
+    "unfollow": " pārstāja sekot jums",
+    "followed": " jums sekoja",
+    "activity": "Aktivitāte"
+  },
+  "onBoarding": {
+    "welcome": "Laipni lūdzam!",
+    "description": "Lielākā vairāk nekā 370 izkārtojumu kolekcija iOS prototipēšanai.",
+    "next": "Nākamo",
+    "discover": "Atklājiet rakstus,",
+    "news": "jaunumi un ziņas",
+    "lines": "Tieši šīs jūtas virza mūsu mīlestību pret astronomiju un mūsu vēlmi.",
+    "getStarted": "Sāktu",
+    "meetUp": "Iepazīstieties ar",
+    "friends": "Draugiem.",
+    "meet": "Iepazīstieties ar draugiem"
+  },
+  "shareForm": {
+    "arcMedia": "Koplietot",
+    "videoCreated": "Es izveidoju šo videoklipu",
+    "shareWithBuddies": "Kopīgošana ar draugiem",
+    "shareVideo": "Video kopīgošana",
+    "save": "Saglabāt kameras rullī",
+    "cancel": "Atcelt",
+    "close": "Aizvērt",
+    "addFeed": "Pievienot plūsmu"
+  },
+  "simpleModal": {
+    "emptyList": "Tukšs saraksts",
+    "followers": " Šādi",
+    "following": " Sekotāji",
+    "flames": " Liesmas"
+  },
+  "splash": {
+    "screen": "Šļakatu ekrāns",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "{{user}}profila attēls"
+  },
+  "view": {
+    "cancel": "Atcelt",
+    "choice": "Jums ir divi dažādi ierakstīšanas režīmi, no kuriem izvēlēties",
+    "verticalMode": "Vertikālajam režīmam ir 30 sekunžu ieraksta laiks",
+    "horizontalMode": "Horizontālajam režīmam ir neierobežots ieraksta laiks",
+    "start": "Sākt",
+    "not-show": "Vairs nerādīt to",
+    "welcome": "Laipni lūdzam ARC!  Izveidojiet personiskus videoklipus, izmantojot kādu no mūsu hologrammām, un ievietojiet tos savos sociālo mediju kanālos!",
+    "step": "{{step}} SOLIS",
+    "text-step-1": "Bibliotēkā izvēlieties hologrammu.",
+    "text-step-2": "Šī ir paplašinātā realitāte, tāpēc skenējiet telpu ar kameru no vienas puses uz otru 3-5 sekundes, kur vēlaties hologrammas veiktspēju.",
+    "text-step-3-part-1": "Vienreiz pieskarieties ekrānam vietā, kur vēlaties noenkurot hologrammu.",
+    "text-step-3-part-2": "PADOMS!  Vienreiz pieskarieties citur, lai hologrammu pārvietotu uz citu pozīciju.",
+    "text-step-3-part-3": "PADOMS!  Hologrammas izmērus var mainīt, saspiežot vai paplašinot ekrānu ar īkšķi un rādītājpirkstu.",
+    "text-step-4-part-1": "Veiciet dubultskārienu pie sarkanā ieraksta pogas, lai sāktu video ierakstīšanu.",
+    "text-step-4-part-2": "Veiciet dubultskārienu pie sarkanā ieraksta pogas, lai APTURĒTu."
+  },
+  "video": {
+    "back": "Mugura"
+  },
+  "terms": {
+    "confirmTerms": "Es piekrītu pakalpojumu sniegšanas noteikumiem",
+    "confirmPolicy": "Es piekrītu Privātuma politikai"
+  },
+  "registration": {
+    "ph-phoneEmail": "Tālruņa / e-pasta izmantošana",
+    "facebook": "Turpināt ar Facebook",
+    "google": "Turpināt ar Google",
+    "linkedin": "Turpināt ar Linkedin",
+    "twitter": "Turpināt ar Twitter",
+    "gitHub": "Turpināt ar GitHub",
+    "connect": "E-pasta vai tālruņa numura savienošana",
+    "logIn": "Pieteikties",
+    "LogInTo": "Piesakieties",
+    "continueAsGuest": "Turpināt kā viesis"
+  }
+}

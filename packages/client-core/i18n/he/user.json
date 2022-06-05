@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "דוא\"ל אישור",
+      "resendEmail": "אנא בדוק את הדוא\"ל שלך כדי לאמת את חשבונך. אם לא קיבלת דוא\"ל, לחץ על {{here}} כדי לשלוח מחדש את דוא\"ל האימות.",
+      "haveAnAccount": "יש לך חשבון?"
+    },
+    "forgotPassword": {
+      "header": "שכחתי סיסמה",
+      "enterEmail": "אנא הזן את כתובת הדוא\"ל הרשומה שלך ואנו נשלח לך קישור לאיפוס סיסמה.",
+      "lbl-email": "כתובת דוא\"ל",
+      "lbl-submit": "שלח קישור",
+      "emailSent": "דוא\"ל איפוס סיסמה נשלח. אנא בדוק את הדוא\"ל שלך."
+    },
+    "login": {
+      "email": "דוא\"ל | סמס",
+      "username": "שם משתמש + סיסמה",
+      "social": "חברתית"
+    },
+    "magiklink": {
+      "header": "קישור כניסה",
+      "descriptionEmail": "אנא הזן את כתובת הדוא\"ל שלך ואנו נשלח לך קישור כניסה באמצעות דוא\"ל.",
+      "descriptionSMS": "אנא הזן את מספר הטלפון שלך ואנו נשלח לך קישור כניסה באמצעות SMS.",
+      "descriptionEmailSMS": "אנא הזן את כתובת הדוא\"ל או מספר הטלפון שלך (10 ספרות, ארה\"ב בלבד) ואנו נשלח לך קישור כניסה באמצעות דוא\"ל או SMS.",
+      "descriptionSMSUS": "אנא הזן את מספר הטלפון שלך (10 ספרות, ארה\"ב בלבד) ואנו נשלח לך קישור כניסה באמצעות SMS.",
+      "lbl-email": "כתובת דוא\"ל",
+      "lbl-emailPhone": "דוא\"ל או מספר טלפון",
+      "lbl-phone": "מספר טלפון",
+      "agree": "אני מסכים ל ",
+      "terms": "תנאים והתניות",
+      "lbl-submit": "שלח קישור התחברות",
+      "email-sent-msg": "קישור הקסם של הכניסה נשלח. אנא בדוק את הדוא\"ל שלך.",
+      "success-msg": "קישור הקסם של הכניסה נשלח. אנא בדוק את הדוא\"ל או ה- SMS שלך.",
+      "sms-sent-msg": "קישור הקסם של הכניסה נשלח. אנא בדוק את הודעת ה- SMS שלך."
+    },
+    "passwordLogin": {
+      "header": "הירשם",
+      "lbl-email": "כתובת דוא\"ל",
+      "lbl-password": "סיסמה",
+      "lbl-rememberMe": "תזכרו אותי",
+      "lbl-signin": "הירשם",
+      "forgotPassword": "שכחתם סיסמה?",
+      "signup": "אין לך חשבון? הירשם",
+      "lbl-login": "כנס",
+      "ph-password": "סיסמה",
+      "ph-email": "דואר אלקטרוני"
+    },
+    "social": {
+      "gitHub": "התחברות באמצעות GitHub",
+      "google": "התחברות באמצעות גוגל",
+      "facebook": "התחברות באמצעות פייסבוק",
+      "linkedin": "התחברות באמצעות לינקדאין",
+      "twitter": "התחברות באמצעות טוויטר"
+    },
+    "register": {
+      "header": "הירשם",
+      "login": "כנס",
+      "lbl-signup": "הירשם",
+      "lbl-password": "סיסמה",
+      "lbl-email": "כתובת דוא\"ל",
+      "passwordNotMatch": "סיסמאות אינן תואמות",
+      "ph-password": "סיסמה",
+      "ph-confirmPassword": "אישור סיסמה",
+      "ph-email": "דואר אלקטרוני"
+    },
+    "resetPassword": {
+      "header": "איפוס סיסמה",
+      "description": "אנא הזן את הסיסמה שלך עבור כתובת הדוא\"ל שלך",
+      "lbl-submit": "איפוס סיסמה",
+      "lbl-password": "סיסמה",
+      "lbl-confirmPassword": "אישור סיסמה",
+      "passwordNotMatch": "סיסמאות אינן תואמות",
+      "nowLoginYourAccount": "כעת תוכל להיכנס לחשבון שלך",
+      "yourPasswordResetSuccess": "הסיסמה שלך אופסה בהצלחה!"
+    },
+    "verifyEmail": {
+      "header": "אמת דואר אלקטרוני",
+      "processing": "אנא המתן רגע תוך כדי עיבוד..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "מיקומים",
+      "loading": "טעינת",
+      "col-name": "שם",
+      "col-scene": "סצנה",
+      "col-maxuser": "מקסימום משתמשים",
+      "lbl-search": "חיפוש מיקומים",
+      "lbl-new": "חדש"
+    },
+    "newLocation": {
+      "title": "מקום",
+      "success": "נשמר בהצלחה.",
+      "failure": "משהו השתבש.",
+      "removeSuccess": "המיקום הוסר בהצלחה.",
+      "nameInUse": "השם נמצא בשימוש.",
+      "nameRequire": "נדרש שם.",
+      "validNumber": "רק מספרים(0-9) מותרים.",
+      "lbl-name": "שם",
+      "lbl-maxuser": "מקסימום משתמשים",
+      "lbl-scene": "סצנה",
+      "lbl-type": "סוג",
+      "lbl-ve": "וידאו זמין",
+      "lbl-gme": "מדיה גלובלית מופעלת",
+      "lbl-update": "עדכון",
+      "lbl-create": "יצר",
+      "tooltipCanNotBeDeleted": "לא ניתן למחוק את הלובי",
+      "confirmation": "אתה בטוח?",
+      "lbl-yes": "כן",
+      "lbl-no": "לא"
+    },
+    "share": {
+      "lbl-share": "לשתף",
+      "ph-phoneEmail": "הזמנה בדוא\"ל או במספר טלפון",
+      "lbl-phoneEmail": "שלח לדוא\"ל או למספר טלפון",
+      "lbl-copy": "עותק",
+      "lbl-send-invite": "שלח הזמנה",
+      "title": "שתף את כתובת ה- URL של המיקום שלך עם הצוות שלך",
+      "linkCopied": "קישור שהועתק ללוח."
+    },
+    "setting": {
+      "audio": "שמע",
+      "lbl-volume": "נפח",
+      "lbl-microphone": "מיקרופון",
+      "graphics": "גרפיקה",
+      "controls": "פקדים",
+      "lbl-control-type": "סוג בקר",
+      "lbl-control-scheme": "ערכת בקרה",
+      "lbl-resolution": "רזולוציה",
+      "lbl-shadow": "צללים",
+      "lbl-pp": "עיבוד פוסט",
+      "lbl-pbr": "PBR מלא",
+      "lbl-automatic": "אוטומטי",
+      "xrusersetting": "הגדרות משתמש XR",
+      "rotation": "סיבוב",
+      "rotation-smooth-speed": "סיבוב מהירות חלקה",
+      "rotation-angle": "זווית סיבוב",
+      "moving": "נע",
+      "user-avatar": "הגדרת אווטר",
+      "invert-rotation": "סיבוב הפוך ומקלות הזזה",
+      "show-avatar": "הצג אווטאר"
+    },
+    "profile": {
+      "lbl-profile": "פרופיל",
+      "lbl-settings": "הגדרות",
+      "lbl-username": "שם משתמש",
+      "update-msg": "שם המשתמש עודכן",
+      "inviteCode": "קוד הזמנה",
+      "youAreAn": "אתה",
+      "youAreA": "אתה",
+      "showUserId": "הצגת מזהה משתמש",
+      "hideUserId": "הסתרת מזהה משתמש",
+      "showApiKey": "הצגת מפתח API",
+      "hideApiKey": "הסתר מקש API",
+      "apiKey": "מפתח API",
+      "logout": "התנתקות",
+      "connectPhone": "חיבור מספר הטלפון שלך",
+      "connectEmail": "חבר את הדואר האלקטרוני שלך",
+      "connectPhoneEmail": "חבר את כתובת הדוא\"ל או מספר הטלפון שלך",
+      "or": "או",
+      "lbl-wallet": "התחברות באמצעות ארנק",
+      "ph-email": "דואר אלקטרוני",
+      "ph-phone": "מספר טלפון",
+      "ph-phoneEmail": "מספר טלפון / דוא\"ל",
+      "phoneEmailError": "טלפון לא חוקי # או כתובת דוא\"ל",
+      "phoneError": "טלפון לא חוקי #",
+      "emailError": "כתובת דוא\"ל לא חוקית",
+      "loginWithReadyPlayerMe": "התחבר עם נגן מוכן לי",
+      "connectSocial": "התחברות לחשבונות חברתיים",
+      "createOne": "אם אין לך חשבון, ייווצר עבורך חשבון חדש",
+      "connections": {
+        "title": "חיבורי",
+        "ipError": "לא ניתן להסיר ספק זהויות פעיל",
+        "disconnect": "ניתק",
+        "connect": "התחבר"
+      },
+      "profileDropdown": {
+        "avatar": "סמל אווטר משתמש",
+        "profile": "פרופיל",
+        "adminConsole": "מסוף ניהול",
+        "logout": "התנתקות"
+      },
+      "userIcon": {
+        "lbl-name": "שמך",
+        "lbl-update": "עדכון",
+        "userId": "מזהה משתמש",
+        "ph-uploadImg": "העלה תמונת מוצר",
+        "lbl-selectAcvatar": "בחר אווטאר",
+        "lbl-submit": "שלח"
+      },
+      "userSettings": {
+        "volume": "נפח",
+        "microphone": "מיקרופון",
+        "resolution": "רזולוציה",
+        "high": "גבוה",
+        "low": "נמוך",
+        "spatialAudio": "שימוש בשמע מרחבי",
+        "enterMuted": "הזן חדר מושתק"
+      }
+    },
+    "oauth": {
+      "authenticating": "אימות...",
+      "authFailed": "אימות {{service}} נכשל."
+    },
+    "magikLink": {
+      "wait": "אנא המתן רגע תוך כדי עיבוד..."
+    },
+    "dashboard": {
+      "header": "לוח המחוונים",
+      "dashboard": "לוח המחוונים",
+      "users": "משתמשים",
+      "feeds": "הזנות",
+      "instance": "מופע",
+      "locations": "מיקומים",
+      "invites": "מזמין",
+      "sessions": "הפעלות",
+      "groups": "קבוצות",
+      "parties": "מסיבות",
+      "chats": "השיחות",
+      "content": "חבילות תוכן",
+      "projects": "פרוייקטים",
+      "scenes": "סצינות",
+      "avatars": "אווטרים",
+      "benchmarking": "תפעול",
+      "bots": "בוטים"
+    }
+  },
+  "oauth": {
+    "authenticating": "אימות...",
+    "authFailed": "אימות {{service}} נכשל."
+  },
+  "magikLink": {
+    "wait": "אנא המתן רגע תוך כדי עיבוד..."
+  },
+  "dashboard": {
+    "header": "לוח המחוונים",
+    "dashboard": "לוח המחוונים",
+    "users": "משתמשים",
+    "feeds": "הזנות",
+    "instance": "מופע",
+    "locations": "מיקומים",
+    "routes": "נתיבי",
+    "projects": "פרוייקטים",
+    "invites": "מזמין",
+    "sessions": "הפעלות",
+    "groups": "קבוצות",
+    "parties": "מסיבות",
+    "chats": "השיחות",
+    "content": "חבילות תוכן",
+    "scenes": "סצינות",
+    "avatars": "אווטרים",
+    "benchmarking": "תפעול",
+    "bots": "בוטים",
+    "setting": "הגדרות"
+  },
+  "avatar": {
+    "title": "העלאת אווטאר",
+    "lbl-browse": "לדפדף",
+    "lbl-thumbnail": "תמונה ממוזערת",
+    "lbl-upload": "העלאה",
+    "selectAvatar": "בחר אווטאר...",
+    "selectThumbnail": "בחר תמונה ממוזערת...",
+    "rotate": "לסובב",
+    "pan": "פאן",
+    "noBone": "Obejct אינו מכיל עצמות או עור",
+    "outOfBound": "האובייקט הוא מחוץ לתחום.",
+    "emptyObj": "האובייקט ריק.",
+    "maxTriangleError": "האובייקט מכיל יותר מפרצופים {{allowedTriangles}} .",
+    "selectValidFile": "בחר קובץ אווטאר תלת-ממדי חוקי.",
+    "selectValidThumbnail": "קובץ תמונה ממוזערת חוקי שנבחר.",
+    "fileOversized": "גודל הקובץ של אווטאר חייב להיות בין {{minSize}} MB ל- {{maxSize}} MB",
+    "confirmation": "אתה בטוח?",
+    "canNotBeRemoved": "לא ניתן להסיר אווטאר פעיל",
+    "remove": "הסרת אווטאר",
+    "uploadFiles": "העלאת קבצים",
+    "useUrlInstead": "השתמש בכתובת URL במקום זאת",
+    "avatar": "גלגול",
+    "cancel": "ביטל",
+    "createAvatar": "צור אווטאר",
+    "delete": "למחוק",
+    "view": "נוף",
+    "uploadAvatarInfo": "עדכן את פרטי האווטאר",
+    "name": "שם",
+    "enterName": "הזן שם",
+    "avatarInformation": "מידע על האווטר",
+    "description": "תיאור",
+    "key": "מפתח",
+    "none": "ללא",
+    "submit": "שלח",
+    "edit": "עריכה",
+    "avatarUrl": "כתובת אתר אווטאר",
+    "upload-success-msg": "אווטאר הועלה בהצלחה.",
+    "remove-success-msg": "אווטאר הועלה בהצלחה.",
+    "warning-msg": "משאב האווטאר ריק, האם סנכרנתם אווטארים לאחסון הקבצים הסטטי שלכם?"
+  },
+  "personMenu": {
+    "inviteToParty": "הזמינו למסיבה",
+    "addAsFriend": "הוסף כחבר",
+    "mute": "אילם",
+    "block": "חסימה"
+  },
+  "person": {
+    "you": "אתה",
+    "yourScreen": "המסך שלך",
+    "muteForEveryone": "השתקה לכולם",
+    "unmuteForEveryone": "בטל השתקה לכולם",
+    "muteMe": "השתיק אותי",
+    "unmuteMe": "בטל את ההשתקה שלי",
+    "muteThisPerson": "להשתיק את האדם הזה",
+    "unmuteThisPerson": "בטל השתקה של אדם זה",
+    "openPictureInPicture": "פתיחת תמונה בתמונה"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Хуудас ачих..."
+  },
+  "tooltip": {
+    "pressKey": "{{message}} {{tip}} шахах"
+  },
+  "toast": {
+    "joined": "нэгдсэн",
+    "left": "зүүн талд"
+  },
+  "navUserWidget": {
+    "login": "Нэвтрэх"
+  },
+  "loader": {
+    "connecting": "Дэлхийтэй холбогдох нь...",
+    "entering": "Ертөнцөд орох...",
+    "loading": "Ачаа ачих...",
+    "objectRemaining": "{{count}} объект үлдэгдэл",
+    "objectRemainingPlural": "{{count}} эд зүйлс үлдсэн",
+    "loadingObjects": "Объект ачих",
+    "loadingComplete": "Бүрэн ачаалах",
+    "joiningWorld": "Дэлхийд нэгдэх нь"
+  },
+  "alert": {
+    "eventWasSuccess": "Үйл явдал амжилттай болж өнгөрлөө",
+    "errorWasEncountered": "Алдаатай тулгарав",
+    "eventInProgress": "Үйл явдал өрнөж байна",
+    "seconds": "секунд",
+    "cancelCountdown": "Энэ модуль хаах нь тоолуурыг цуцална"
+  },
+  "debug": {
+    "refresh": "Сэргэлэн",
+    "stats": "Статууд",
+    "debugOptions": "Дебуг сонголт",
+    "physicsDebug": "Физик",
+    "avatarDebug": "Аватар",
+    "nodeHelperDebug": "Ноднид Туслагч",
+    "gridDebug": "Грид",
+    "simpleMaterials": "Энгийн материал",
+    "tick": "Тик",
+    "worldStore": "Дэлхийн дэлгүүр",
+    "engineStore": "Хөдөлгүүрийн дэлгүүр",
+    "namedEntities": "Нэр бүхий субъектууд",
+    "networkObject": "Сүлжээний объект",
+    "networkClients": "Сүлжээний клиентүүд"
+  },
+  "recording": {
+    "videoRecorder": "Видео бичлэг",
+    "waitingForPermissions": "Зөвшөөрөл хүлээж байна",
+    "selectVideoSource": "Видео эх сурвалжийг сонгох",
+    "screen": "Дэлгэц",
+    "camera": "Камер",
+    "microphone": "Микрофон",
+    "startRecording": "Бичлэг хийж эхлэх",
+    "pauseRecording": "Түр зогсолтын бичлэг",
+    "resumeRecording": "Resume бичлэг",
+    "stopRecording": "Бичлэг хийхээ боль"
+  },
+  "typing": "Бичгийн...",
+  "gameServer": {
+    "browserError": "Браузерын алдаа",
+    "browserErrorMessage": "Таны браузер хувийн харах хэлбэрээр нөөцийг дэмждэггүй. Эсвэл өөр хөтчийг туршиж үзэх, эсвэл хувийн харах хэв маягаас гарах.",
+    "noAvailableServers": "No Байхгүй Сервер",
+    "noAvailableServersMessage": "Танд холбогдох ямар ч сервер байхгүй. Дахин холбогдохыг оролдох нь",
+    "worldDisconnected": "Дэлхий холбоогоо тасалсан",
+    "worldDisconnectedMessage": "Та дэлхийтэй холбоогоо таслаа. Бид дараагийн хугацаа дуусахаас өмнө дахин холбогдохыг хичээнэ. Эс бөгөөс та өөр тохиолдол руу чиглэгдэх болно.",
+    "webGLNotEnabled": "WebGL боломжгүй",
+    "webGLNotEnabledMessage": "Таны браузер WebGL дэмждэггүй, эсвэл хөгжлийн бэрхшээлтэй. WebGL-г боломжтой болгох эсвэл өөрийн хөтчийн хамгийн сүүлийн хувилбарыг дээшлүүлэх талаар бодож үзнэ үү.",
+    "youKickedFromWorld": "Чамайг дэлхийгээс өшиглөсөн",
+    "youKickedFromWorldMessage": "Та дараах шалтгааны улмаас энэ дэлхийгээс хөөгдсөн",
+    "invalidLocation": "Хүчингүй байршил",
+    "cantFindLocation": "Бид байршлыг нь олж чадахгүй",
+    "misspelledOrNotExist": "Энэ нь буруугаар бичжээ эсвэл байхгүй байж болно.",
+    "loading": "ачаалах",
+    "low-frame-error": "Таны хөтөч дээр Use Hardware хурдасгуурыг боломжтой болгох, таны браузерыг дахин ашиглах боломжийг олгох талаар perfomance-ийг илрүүлсэн",
+    "low-frame-title": "Илүү сайн туршлага хуримтлуулахын тулд техник хангамжийн хурдасгуурыг боломжтой болго!"
+  },
+  "error": {
+    "loading-error": "Хэрэглэгчийн мэдээллийг ачаалахгүй болсон",
+    "validation-error": "Хүчинтэй {{type}} оруулна уу",
+    "login-error": "Орж чадаагүй"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Page de chargement..."
+  },
+  "tooltip": {
+    "pressKey": "{{tip}} de presse sur {{message}}"
+  },
+  "toast": {
+    "joined": "rejoint",
+    "left": "Gauche"
+  },
+  "navUserWidget": {
+    "login": "S’identifier"
+  },
+  "loader": {
+    "connecting": "Se connecter au monde...",
+    "entering": "Entrer dans le monde...",
+    "loading": "Chargement...",
+    "objectRemaining": "{{count}} objet restant",
+    "objectRemainingPlural": "{{count}} objets restants",
+    "loadingObjects": "Chargement d’objets",
+    "loadingComplete": "Chargement terminé",
+    "joiningWorld": "Rejoindre le monde"
+  },
+  "alert": {
+    "eventWasSuccess": "L’événement a été couronné de succès",
+    "errorWasEncountered": "Une erreur s’est produite",
+    "eventInProgress": "Événement en cours",
+    "seconds": "secondes",
+    "cancelCountdown": "La fermeture de ce modal annulera le compte à rebours"
+  },
+  "debug": {
+    "refresh": "Actualiser",
+    "stats": "Statistiques",
+    "debugOptions": "Options de débogage",
+    "physicsDebug": "Physique",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Aide de nœud",
+    "gridDebug": "Grille",
+    "simpleMaterials": "Matériaux simples",
+    "tick": "Cochez",
+    "worldStore": "Magasin du monde",
+    "engineStore": "Magasin de moteurs",
+    "namedEntities": "Entités nommées",
+    "networkObject": "Objet réseau",
+    "networkClients": "Clients réseau"
+  },
+  "recording": {
+    "videoRecorder": "Enregistreur vidéo",
+    "waitingForPermissions": "En attente d’autorisations",
+    "selectVideoSource": "Sélectionner la source vidéo",
+    "screen": "Écran",
+    "camera": "Appareil photo",
+    "microphone": "Microphone",
+    "startRecording": "Commencer l’enregistrement",
+    "pauseRecording": "Enregistrement de pause",
+    "resumeRecording": "Reprendre l’enregistrement",
+    "stopRecording": "Arrêter l’enregistrement"
+  },
+  "typing": "Taper...",
+  "gameServer": {
+    "browserError": "Erreur de navigateur",
+    "browserErrorMessage": "Votre navigateur ne prend pas en charge le stockage en mode de navigation privée. Essayez un autre navigateur ou quittez le mode de navigation privé.",
+    "noAvailableServers": "Aucun serveur disponible",
+    "noAvailableServersMessage": "Il n’y a pas de serveurs à votre disposition pour vous connecter. Tentative de re-connexion dans",
+    "worldDisconnected": "Monde déconnecté",
+    "worldDisconnectedMessage": "Vous avez perdu votre connexion avec le monde. Nous essaierons de nous reconnecter avant que le temps suivant ne soit épuisé, sinon vous serez transféré vers une autre instance.",
+    "webGLNotEnabled": "WebGL n’est pas activé",
+    "webGLNotEnabledMessage": "Votre navigateur ne prend pas en charge WebGL ou il est désactivé. Veuillez activer WebGL ou envisager de passer à la dernière version de votre navigateur.",
+    "youKickedFromWorld": "Vous avez été expulsé du monde",
+    "youKickedFromWorldMessage": "Vous avez été expulsé de ce monde pour la raison suivante",
+    "invalidLocation": "Emplacement non valide",
+    "cantFindLocation": "Nous ne trouvons pas l’emplacement",
+    "misspelledOrNotExist": "Il peut être mal orthographié, ou il peut ne pas exister.",
+    "loading": "chargement",
+    "low-frame-error": "Détecté une mauvaise perfomance envisager d’activer utiliser l’accélération matérielle dans votre navigateur et relauch votre navigateur",
+    "low-frame-title": "Activez l’accélération matérielle pour une meilleure expérience!"
+  },
+  "error": {
+    "loading-error": "Impossible de charger les données utilisateur",
+    "validation-error": "Veuillez saisir des {{type}} valides",
+    "login-error": "Impossible de se connecter"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - ページが見つかりません"
+  },
+  "503": {
+    "msg": "503 - サービスが利用できません"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "あなたはこの場所から禁止されています",
+    "locationName": {
+      "pageTitle": "家"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "プロジェクト",
+      "header": "ログインしてください",
+      "welcomeMsg": "ようこそ",
+      "locationHeader": "場所",
+      "projectHeader": "プロジェクト",
+      "sceneHeader": "シーン",
+      "description": "あなたがここで初めての場合は、チュートリアルを読むことをお勧めします。それ以外の場合は、すぐにジャンプして、ゼロから、またはテンプレートの1つからプロジェクトを作成します。",
+      "lbl-startTutorial": "チュートリアルの開始",
+      "lbl-newProject": "新規プロジェクト",
+      "lbl-createProject": "創造する",
+      "lbl-newScene": "新しいシーン",
+      "lbl-searchProject": "既存のプロジェクトを検索...",
+      "back": "戻る",
+      "contextMenu": "プロジェクトの削除",
+      "installed": "インストール済みプロジェクト",
+      "official": "公式プロジェクト",
+      "community": "コミュニティプロジェクト",
+      "install": "取り付ける",
+      "uninstall": "アンインストール",
+      "rename": "改名する",
+      "createProject": "プロジェクトの作成",
+      "installProject": "プロジェクトのインストール",
+      "processing": "加工",
+      "projectName": "プロジェクト名",
+      "projectURL": "プロジェクトの URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "家へ帰ってください",
+    "withStatusCode": "サーバーでエラー {{code}} が発生しました",
+    "withoutStatusCode": "サーバーでエラーが発生しました"
+  },
+  "no-projects": {
+    "msg": "エラー: プロジェクトがインストールされていません - サイト管理者に連絡してください"
+  },
+  "dev": {
+    "pageTitle": "家"
+  },
+  "login": {
+    "pageTitle": "ログイン"
+  },
+  "workerTest": {
+    "pageTitle": "ワーカーテスト"
+  },
+  "index": {
+    "by": "によって",
+    "xr": "ティッカー",
+    "foundation": "財団",
+    "description": "誰もが楽しめるリアルタイムの3Dソーシャルアプリケーション。"
+  },
+  "xrengineContact": {
+    "header": "連絡を取る!",
+    "description": "私たちはあなたの仮想イベント、デジタル小売、エンターテイメント、その他のニーズであなたを助けたいと思います。",
+    "lbl-name": "名前",
+    "lbl-email": "電子メール",
+    "lbl-company": "会社",
+    "lbl-project": "プロジェクトの説明",
+    "lbl-send": "送信",
+    "lbl-ok": "わかりました",
+    "lbl-success": "メッセージが送信されました。まもなく返信します。",
+    "lbl-failure": "エラーが発生しました。Plese は再試行してください。",
+    "err-username": "名前を入力してください。",
+    "err-email": "電子メールが必要です。",
+    "err-msg": "プロジェクトの簡単な説明を入力します。"
+  }
+}

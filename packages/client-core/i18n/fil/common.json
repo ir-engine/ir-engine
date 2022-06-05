@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Naglo-load ng pahina..."
+  },
+  "tooltip": {
+    "pressKey": "Pindutin {{tip}} sa {{message}}"
+  },
+  "toast": {
+    "joined": "sumali",
+    "left": "kaliwa"
+  },
+  "navUserWidget": {
+    "login": "Mag-log In"
+  },
+  "loader": {
+    "connecting": "Kumokonekta sa mundo...",
+    "entering": "Pumapasok sa mundo...",
+    "loading": "Naglo-load...",
+    "objectRemaining": "{{count}} natitirang bagay",
+    "objectRemainingPlural": "{{count}} mga bagay na natitira",
+    "loadingObjects": "Naglo-load ng mga Bagay",
+    "loadingComplete": "Kumpleto ang Paglo-load",
+    "joiningWorld": "Pagsali sa Mundo"
+  },
+  "alert": {
+    "eventWasSuccess": "Matagumpay ang kaganapan",
+    "errorWasEncountered": "Isang mali ang naranasan",
+    "eventInProgress": "Kaganapan sa pag-unlad",
+    "seconds": "segundo",
+    "cancelCountdown": "Pagsasara ng modal na ito ay kanselahin ang countdown"
+  },
+  "debug": {
+    "refresh": "I-refresh",
+    "stats": "Stats",
+    "debugOptions": "Mga Opsiyon sa Debug",
+    "physicsDebug": "Physics",
+    "avatarDebug": "avatar mangangaso",
+    "nodeHelperDebug": "Node Helper",
+    "gridDebug": "grid",
+    "simpleMaterials": "Mga Simpleng Materyal",
+    "tick": "tick",
+    "worldStore": "Tindahan ng Mundo",
+    "engineStore": "Tindahan ng Engine",
+    "namedEntities": "Pinangalanang mga Entity",
+    "networkObject": "Bagay sa Network",
+    "networkClients": "Mga Kliyente ng Network"
+  },
+  "recording": {
+    "videoRecorder": "Video recorder",
+    "waitingForPermissions": "Naghihintay ng mga pahintulot",
+    "selectVideoSource": "Pumili ng pinagmulan ng video",
+    "screen": "Screen",
+    "camera": "Camera",
+    "microphone": "Mikropono",
+    "startRecording": "Simulan ang recording",
+    "pauseRecording": "I-pause ang recording",
+    "resumeRecording": "Magpatuloy ng pagrerekord",
+    "stopRecording": "Itigil ang pagrerekord"
+  },
+  "typing": "Pag-typon...",
+  "gameServer": {
+    "browserError": "Mali sa Browser",
+    "browserErrorMessage": "Hindi sinusuportahan ng browser mo ang imbakan sa pribadong modong pagbraws. Subukan ang isa pang browser, o lumabas sa pribadong modong pagbraws.",
+    "noAvailableServers": "Walang Magagamit na mga Server",
+    "noAvailableServersMessage": "Walang anumang mga server na magagamit mo para kumonekta ka. Pagtatangkang muling kumonekta sa",
+    "worldDisconnected": "Diskonektado ang Mundo",
+    "worldDisconnectedMessage": "Nawala sa inyo ang inyong koneksyon sa mundo. Susubukan naming muling kunekta bago ang sumusunod na oras na naubusan, kung hindi man ay pasulong ka sa ibang pagkakataon.",
+    "webGLNotEnabled": "Hindi pinagana ang WebGL",
+    "webGLNotEnabledMessage": "Hindi sinusuportahan ng browser mo ang WebGL, o hindi ito pinagana. Mangyaring paganahin ang WebGL o isaalang-alang ang pag-upgrade sa pinakabagong bersyon ng iyong browser.",
+    "youKickedFromWorld": "Ikaw ay kicked mula sa mundo",
+    "youKickedFromWorldMessage": "Ikaw ay kicked mula sa mundong ito para sa mga sumusunod na dahilan",
+    "invalidLocation": "Imbalidong lokasyon",
+    "cantFindLocation": "Hindi natin makita ang lokasyon",
+    "misspelledOrNotExist": "Maaaring hindi ito nabaybay, o maaaring hindi ito umiiral.",
+    "loading": "naglo-load ng",
+    "low-frame-error": "Natukoy ang isang mahihirap na pabango isaalang-alang ang pagbibigay-kakayahan sa Paggamit ng Hardware acceleration sa iyong browser at muling i-relach ang iyong browser",
+    "low-frame-title": "Paganahin ang pagpabibilis ng hardware para sa mas magandang karanasan!"
+  },
+  "error": {
+    "loading-error": "Hindi na-load ang data ng gumagamit",
+    "validation-error": "Mangyaring mag-input ng {{type}}",
+    "login-error": "Hindi na-login"
+  }
+}

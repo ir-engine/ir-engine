@@ -1,0 +1,718 @@
+{
+  "loading": "Proiect de încărcare",
+  "loadingMsg": "Încărcarea proiectului...",
+  "loadingError": "Proiect de încărcare a erorilor",
+  "loadingErrorMsg": "A existat o eroare la încărcarea proiectului.",
+  "selectSceneMsg": "Selectați Scenă pentru a începe să jucați cu motorul",
+  "error": "Eroare",
+  "errorMsg": "A existat o eroare necunoscută.",
+  "generateScreenshot": "Generarea de captură de ecran a proiectului",
+  "generateScreenshotMsg": "Generarea de captură de ecran de proiect ...",
+  "newScene": "Creare scenă",
+  "saving": "Salvarea proiectului",
+  "savingMsg": "Proiectul de economisire...",
+  "savingError": "Proiect de salvare a erorilor",
+  "savingErrorMsg": "A existat o eroare la salvarea proiectului.",
+  "savingSceneErrorMsg": "Scena nu este încărcată corect. Încercați să reîncărcați scena.",
+  "duplicating": "Duplicarea proiectului",
+  "duplicatingMsg": "Duplicarea proiectului...",
+  "exporting": "Proiect de export",
+  "exportingMsg": "Proiectul de export...",
+  "exportingError": "Eroare la exportul proiectului",
+  "exportingErrorMsg": "A existat o eroare la exportul proiectului.",
+  "importLegacy": "Import Legacy World",
+  "importLegacyMsg": "Avertisment! Acest lucru va suprascrie scena existentă! Sunteți sigur că doriți să continuați?",
+  "publishingError": "Proiect de publicare a erorilor",
+  "publishingErrorMsg": "A existat o eroare necunoscută.",
+  "publishingScene": "Scena de publicare",
+  "publishingSceneMsg": "Scena editorială...",
+  "uploadingThumbnailMsg": "Încărcarea miniaturii...",
+  "uploadingSceneMsg": "Scena de încărcare: {{percentage}}%",
+  "envMapError": "Eroare la încărcarea imaginilor cubemap {{files}}",
+  "lbl-return": "Restitui",
+  "menubar": {
+    "newScene": "Scenă nouă",
+    "saveScene": "Salvare scenă",
+    "saveAs": "Salvare ca",
+    "importAsset": "Import activ",
+    "exportGLB": "Export ca binar glTF (.glb) ...",
+    "importScene": "Scenă de import",
+    "exportScene": "Scena de export",
+    "quit": "Pleca"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Tip de fișier neacceptat pentru fișier: \"{{name}}\". Fișierul trebuie să fie o imagine, un videoclip sau un model glb.",
+    "addObject": "addObject: înainte ca obiectul să nu fie găsit",
+    "removeObject": "removeObject: nod nu a fost găsit. Acest lucru se datorează eliminării unui nod care nu mai este în scenă.",
+    "noParent": "{{node}} \"{{name}}\" nu are părinte. Reparent funcționează numai pe obiectele care se află în prezent în scenă.",
+    "undefinedParent": "editor.reparent: newParent este nedefinit",
+    "notAuthenticated": "Nu este autentificat",
+    "fetchingProjectError": "Eroare la preluarea proiectelor: {{error}}",
+    "fetchingRouteError": "Eroare la preluarea rutelor: {{error}}",
+    "unknownError": "Eroare necunoscută",
+    "resolveURL": "Eroare la rezolvarea URL-ului \"{{url}}\":",
+    "mediaSearchAborted": "Căutare media anulată",
+    "methodNotImplemented": "Metoda nu a fost implementată.",
+    "saveProjectAborted": "Salvarea scenei avortate",
+    "unsavedChanges": "Modificări nesalvate",
+    "unsavedChangesMsg": "Scena a fost modificată. Vă rugăm să salvați modificările.",
+    "projectCreationFail": "Crearea proiectului nu a reușit. {{reason}}",
+    "projectDeletionFail": "Ștergerea proiectului nu a reușit. {{reason}}",
+    "savingProjectFail": "Salvarea Project nu a reușit. {{reason}}",
+    "sceneTooLarge": "Scena este prea mare ({{size}} MB) pentru a publica. Dimensiunea maximă este de {{maxSize}} MB.",
+    "sceneCreationFail": "Crearea scenei a eșuat. {{reason}}",
+    "uploadAborted": "Încărcați avortat",
+    "uploadFailed": "Încărcarea nu a reușit {{reason}}",
+    "assetDeletionFail": "Ștergerea activelor nu a reușit. {{reason}}",
+    "projectAssetDeletionFail": "Ștergerea activelor proiectului nu a reușit. {{reason}}",
+    "networkError": "Eroare de rețea: {{status}}. {{text}}",
+    "unknownStatus": "Stare necunoscută",
+    "CORS": "Eventual o eroare CORS",
+    "urlFetchError": "Nu a reușit să aducă \"{{url}}\""
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Mutare cameră",
+      "flyFast": "Zburați mai repede",
+      "orbit": "Orbită / Selectare",
+      "pan": "Tigaie",
+      "fly": "Muscă",
+      "focus": "Focar",
+      "rotateLeft": "Rotire la stânga",
+      "rotateRight": "Rotire la dreapta",
+      "cancelPlacement": "Anulați poziționarea",
+      "placeDuplicate": "Locul duplicat",
+      "cancelGrab": "Anulați graba",
+      "grab": "Apuca",
+      "deselectAll": "Deselectarea tuturor"
+    },
+    "state": {
+      "header": "Statistici",
+      "memory": "Memorie",
+      "geometries": "Geometrii",
+      "textures": "Texturi",
+      "render": "Face",
+      "FPS": "FPS",
+      "frameTime": "Timp de cadru",
+      "calls": "Apeluri",
+      "triangles": "Triunghiuri",
+      "points": "Puncte",
+      "lines": "Linii"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Anunța",
+    "lbl-published": "Publicat",
+    "command": {
+      "translate": "Traduce",
+      "rotate": "Roti",
+      "scale": "Cântar",
+      "toggleSpace": "Comutarea spațiului de transformare",
+      "togglePivot": "Comutarea pivotului transformare",
+      "toggleSnapMode": "Comutarea modului Ajustare",
+      "toggleGrid": "Comutarea vizibilității grilei",
+      "increaseGridSize": "Măriți dimensiunea grilei",
+      "descreaseGridSize": "Micșorarea dimensiunii grilei",
+      "stopPreview": "Oprirea previzualizării scenei",
+      "playPreview": "Previzualizare scenă"
+    }
+  },
+  "properties": {
+    "title": "Proprietăți",
+    "lbl-visible": "Vizibil",
+    "lbl-preventBake": "Preveni coaceți",
+    "lbl-persist": "Persistă",
+    "multipleNodeSelected": "Noduri multiple de diferite tipuri selectate",
+    "noNodeSelected": "Niciun nod nu a fost selectat",
+    "ambientLight": {
+      "name": "Lumină ambientală",
+      "description": "O lumină care luminează toate obiectele din scena ta.",
+      "lbl-intensity": "Intensitate",
+      "lbl-color": "Culoare"
+    },
+    "envmap": {
+      "name": "Harta mediului",
+      "description": "proprietățile hărții de mediu"
+    },
+    "asset": {
+      "name": "Activ",
+      "description": "O grupare a componentelor scenei care pot fi încărcate și descărcate dinamic",
+      "lbl-options": "Opțiuni",
+      "lbl-assetPath": "Calea activelor",
+      "lbl-assetName": "Nume export",
+      "lbl-exportOptions": "Opțiuni de export",
+      "lbl-export": "Export activ",
+      "lbl-load": "Încărcare în scenă",
+      "lbl-unload": "Descărca",
+      "lbl-reload": "Reîncărca"
+    },
+    "audio": {
+      "name": "Audio",
+      "description": "Încarcă dinamic audio.",
+      "lbl-audiourl": "Audio Url",
+      "lbl-controls": "Controale",
+      "info-controls": "Comutați vizibilitatea controalelor media.",
+      "lbl-autoplay": "Redare automată",
+      "info-autoplay": "Dacă este adevărat, mass-media va juca la prima intrare în scenă.",
+      "lbl-synchronize": "Sincroniza",
+      "info-synchronize": "Dacă este adevărat, suportul media va fi sincronizat pe toți clienții conectați.",
+      "lbl-loop": "Buclă",
+      "info-loop": "Dacă este adevărat mass-media va bucla la nesfârșit.",
+      "lbl-audioType": "Tip audio",
+      "lbl-distanceModel": "Model de distanță",
+      "info-distanceModel": "Algorithim folosit pentru a calcula rolloff audio.",
+      "lbl-rolloffFactor": "Rolloff Factor",
+      "info-rolloffFactor": "O valoare dublă care descrie cât de repede volumul este redus pe măsură ce sursa se îndepărtează de ascultător. De la 0 la 1",
+      "info-rfInfinity": "O valoare dublă care descrie cât de repede volumul este redus pe măsură ce sursa se îndepărtează de ascultător. De la 0 la Infinit",
+      "lbl-refDistance": "Distanța Ref",
+      "info-refDistance": "O valoare dublă reprezentând distanța de referință pentru reducerea volumului pe măsură ce sursa audio se deplasează mai departe de ascultător.",
+      "lbl-maxDistance": "Distanța maximă",
+      "info-maxDistance": "O valoare dublă reprezentând distanța maximă dintre sursa audio și ascultător, după care volumul nu mai este redus.",
+      "lbl-coneInnerAngle": "Unghiul interior al conului",
+      "info-coneInnerAngle": "O valoare dublă care descrie unghiul, în grade, al unui con în interiorul căruia nu va exista nici o reducere a volumului.",
+      "lbl-coneOuterAngle": "Unghiul exterior al conului",
+      "info-coneOuterAngle": "O valoare dublă care descrie unghiul, în grade, al unui con în afara căruia volumul va fi redus cu o valoare constantă, definită de atributul coneOuterGain.",
+      "lbl-coreOuterGain": "Conul exterior Gain",
+      "info-coreOuterGain": "O valoare dublă care descrie cantitatea de reducere a volumului în afara conului definită de atributul coneOuterAngle. Valoarea sa implicită este 0, ceea ce înseamnă că nu se poate auzi niciun sunet.",
+      "lbl-volume": "Volum",
+      "lbl-play": "Juca",
+      "lbl-pause": "Pauză",
+      "error-url": "Eroare la încărcarea de la ADRESA URL"
+    },
+    "boxCollider": {
+      "description": "O cutie invizibilă pe care obiectele o vor sări sau se vor odihni deasupra ei.\nFără coliziuni, obiectele vor cădea prin podele și vor trece prin pereți.",
+      "lbl-isTrigger": "Declanșa"
+    },
+    "camera": {
+      "name": "Aparat foto",
+      "description": "Setările camerei.",
+      "lbl-camera-raycast": "Camera Raycasting",
+      "lbl-camera-raycast-toggle": "Activat",
+      "lbl-camera-raycast-frequency": "Frecvență",
+      "lbl-camera-raycast-count": "Număr de raze",
+      "lbl-camera-raycast-length": "Lungimea razei"
+    },
+    "directionalLight": {
+      "name": "Lumina direcțională",
+      "description": "O lumină care luminează întreaga scenă, dar emite de-a lungul unei singure direcții.",
+      "lbl-color": "Culoare",
+      "lbl-intensity": "Intensitate",
+      "lbl-cameraFar": "Camera Far",
+      "lbl-cameraNear": "Camera aproape",
+      "lbl-cameraTop": "Camera de sus",
+      "lbl-cameraBottom": "Camera de jos",
+      "lbl-cameraLeft": "Camera foto stânga",
+      "lbl-cameraRight": "Camera dreapta",
+      "lbl-useInCSM": "Utilizarea în CSM",
+      "lbl-castShadow": "Umbră turnată",
+      "lbl-disableForCSM": "Dezactivat, deoarece este activată harta umbrelor în cascadă.",
+      "lbl-shadowmapResolution": "Rezoluția hărții umbrelor",
+      "lbl-shadowBias": "Părtinire umbră",
+      "lbl-shadowRadius": "Rază umbră",
+      "lbl-showCameraHelper": "Arată Ajutor cameră"
+    },
+    "groundPlane": {
+      "name": "Planul de la sol",
+      "description": "Un plan plat la sol care se extinde în depărtare.",
+      "lbl-color": "Culoare",
+      "lbl-receiveShadow": "Primirea umbrei",
+      "lbl-generateNavmesh": "Genera Navmesh"
+    },
+    "link": {
+      "description": "Link către o cameră sau un site web.",
+      "lbl-url": "URL-ul"
+    },
+    "map": {
+      "description": "Hartă geospațială 3D, de exemplu, a unui oraș."
+    },
+    "model": {
+      "description": "Un model 3D în scena dvs., încărcat dintr-un URL sau fișier GLTF.",
+      "lbl-usingGPUInstancingFlag": "Utilizați GPU Instancing",
+      "lbl-modelurl": "Url-ul modelului",
+      "lbl-envmapUrl": "Url-ul hărții de mediu",
+      "lbl-textureOverride": "Suprascrie textura",
+      "lbl-materialOverride": "Materialul suprascrie",
+      "error-url": "Eroare la încărcarea de la ADRESA URL",
+      "lbl-loopAnimation": "Animație în buclă",
+      "lbl-isAvatar": "Este Avatar",
+      "lbl-isGPUInstancing": "Utilizează GPU Instancing",
+      "lbl-isDynamic": "Este dinamic",
+      "lbl-castShadow": "Umbră turnată",
+      "lbl-receiveShadow": "Primirea umbrei",
+      "lbl-interactable": "Interacționabil",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Nume",
+      "lbl-url": "Url-ul modelului",
+      "lbl-buy": "Cumpara URL-ul",
+      "lbl-learnMore": "Aflați mai multe URL-ul",
+      "lbl-htmlContent": "Conținut HTML",
+      "lbl-interactionText": "Textul interacțiunii",
+      "lbl-interactionType": "Tip de interacțiune"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Material",
+      "error-materialID": "Eroare la găsirea materialului",
+      "placeholder-materialID": "Selectați Material",
+      "lbl-patternTarget": "Potrivire model",
+      "lbl-pattern": "Model",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Tip de interacțiune",
+      "text": "Textul interacțiunii",
+      "distance": "Distanța de interacțiune",
+      "theme": "Tema interacțiunii",
+      "name": "Nume interacțiune",
+      "description": "Descrierea interacțiunii",
+      "images": "Imagini de interacțiune",
+      "videos": "Videoclipuri de interacțiune",
+      "urls": "Url-uri de interacțiune",
+      "models": "Modele de interacțiune"
+    },
+    "group": {
+      "name": "Grup",
+      "description": "Un grup de mai multe obiecte care pot fi mutate sau dublate împreună.\nGlisați și fixați obiecte în grupul din ierarhie."
+    },
+    "hemisphere": {
+      "name": "Emisfera lumina",
+      "description": "O lumină care luminează scena direct deasupra capului.",
+      "lbl-skyColor": "Culoarea cerului",
+      "lbl-groundColor": "Culoarea solului",
+      "lbl-intensity": "Intensitate"
+    },
+    "image": {
+      "name": "Imagine",
+      "description": "Încarcă dinamic o imagine.",
+      "lbl-imgURL": "Url-ul imaginii",
+      "lbl-transparency": "Mod transparență",
+      "lbl-alphaCutoff": "Alpha Cutoff",
+      "lbl-projection": "Proiecție",
+      "lbl-side": "Parte",
+      "info-controls": "Comutați vizibilitatea controalelor media.",
+      "info-transparency": "Cum se aplică transparența:",
+      "info-opaque": "\"opac\" = fără transparență",
+      "info-blend": "\"amestec\" = utilizați imaginile canal alfa",
+      "info-mask": "'masca' = Utilizați o valoare de întrerupere specificată pentru transparența on/off (mai performantă)",
+      "info-alphaCutoff": "Pixelii cu valori alfa mai mici decât aceasta vor fi transparenți",
+      "error-url": "Adresă URL nevalidă"
+    },
+    "name": {
+      "lbl-name": "Nume"
+    },
+    "partileEmitter": {
+      "description": "Emițător de particule pentru a crea particule.",
+      "lbl-particleCount": "Numărul de particule",
+      "lbl-image": "Imagine",
+      "lbl-ageRandomness": "Vârsta randomness",
+      "lbl-lifetime": "Generație",
+      "lbl-lifetimeRandomness": "Randomness durata de viață",
+      "lbl-sizeCurve": "Curba de dimensiune",
+      "lbl-startPSize": "Porniți dimensiunea particulelor",
+      "lbl-endPSize": "Dimensiunea particulelor finale",
+      "lbl-sizeRandomness": "Dimensiune randomness",
+      "lbl-colorCurve": "Curbă de culoare",
+      "lbl-startColor": "Pornire culoare",
+      "lbl-startOpacity": "Pornire opacitate",
+      "lbl-middleColor": "Culoare mijlocie",
+      "lbl-middleOpacity": "Opacitatea mijlocie",
+      "lbl-endColor": "Culoare de terminare",
+      "lbl-endOpacity": "Opacitatea finală",
+      "lbl-velocityCurve": "Curba vitezei",
+      "lbl-startVelocity": "Viteza de pornire",
+      "lbl-endVelocity": "Viteza de final",
+      "lbl-angularVelocity": "Viteza unghiulară",
+      "info-ageRandomness": "Cantitatea de variație între momentul în care particulele sunt spawned.",
+      "info-lifetime": "Vârsta maximă a unei particule înainte de a fi respawned.",
+      "info-lifetimeRandomness": "Cantitatea de variație între durata de viață a particulelor.",
+      "info-sizeRandomness": "Cantitatea de variație între dimensiunile de pornire a particulelor.",
+      "error-url": "Eroare la încărcarea de la ADRESA URL"
+    },
+    "clouds": {
+      "name": "Nor",
+      "description": "Volumul norului bazat pe Sprite.",
+      "lbl-image": "Sprite Imagine",
+      "lbl-wroldScale": "Scară mondială",
+      "lbl-dimensions": "Dimensiuni",
+      "lbl-noiseZoom": "Zoom de zgomot",
+      "lbl-noiseOffset": "Compensarea zgomotului",
+      "lbl-spriteScale": "Scala Sprite",
+      "lbl-fogColor": "Ceață de culoare",
+      "lbl-fogRange": "Gama de ceață",
+      "error-url": "Eroare la încărcarea de la ADRESA URL"
+    },
+    "ocean": {
+      "name": "Ocean",
+      "description": "Suprafața oceanului cu valuri și spumă",
+      "lbl-normalMap": "Hartă normală",
+      "lbl-distortionMap": "Harta distorsiunilor",
+      "lbl-envMap": "Harta mediului",
+      "lbl-color": "Culoare",
+      "lbl-shallowWaterColor": "Culoare apă puțin adâncă",
+      "lbl-shallowToDeepDistance": "Superficial la distanță profundă",
+      "lbl-opacityFadeDistance": "Distanța de estompare a opacității",
+      "lbl-opacityRange": "Interval de opacitate",
+      "lbl-shininess": "Strălucire",
+      "lbl-reflectivity": "Reflexivitate",
+      "lbl-foamColor": "Spuma de culoare",
+      "lbl-foamSpeed": "Viteza spumei",
+      "lbl-foamTiling": "Placare cu spumă",
+      "lbl-bigWaveTiling": "Big Wave Tiling",
+      "lbl-bigWaveSpeed": "Viteza valurilor mari",
+      "lbl-bigWaveHeight": "Big Wave Înălțime",
+      "lbl-waveSpeed": "Viteza valurilor",
+      "lbl-waveScale": "Scara valurilor",
+      "lbl-waveTiling": "Wave Tiling",
+      "lbl-waveDistortionSpeed": "Viteza de distorsiune a valurilor",
+      "lbl-waveDistortionTiling": "Val distorsiune placare",
+      "error-url": "Eroare la încărcarea de la ADRESA URL"
+    },
+    "water": {
+      "name": "Apă",
+      "description": "Suprafață mică de apă"
+    },
+    "interior": {
+      "name": "Interior",
+      "description": "O suprafață cu textură de cub mapată pentru a imita mediile interioare",
+      "lbl-cubeMap": "Textura Hărții cubului",
+      "lbl-tiling": "Cantitatea de placare",
+      "lbl-size": "Dimensiunea suprafeței",
+      "error-url": "Eroare la încărcarea de la ADRESA URL"
+    },
+    "pointLight": {
+      "description": "O lumină care emite în toate direcțiile dintr-un singur punct.",
+      "lbl-color": "Culoare",
+      "lbl-intensity": "Intensitate",
+      "lbl-range": "Gama",
+      "lbl-decay": "Descompune"
+    },
+    "scene": {
+      "name": "Scenă",
+      "description": "Obiectul rădăcină al scenei.",
+      "lbl-bgcolor": "Culoare de fundal",
+      "lbl-fogType": "Tip de ceață",
+      "lbl-fogColor": "Ceață de culoare",
+      "lbl-forNearDistance": "Ceață aproape de distanță",
+      "lbl-fogFarDistance": "Ceață la distanță mare",
+      "lbl-fogDensity": "Densitatea de ceață",
+      "lbl-audioSettings": "Utilizarea sunetului pozițional",
+      "lbl-avatarDistanceModel": "Avatar Distanta Model",
+      "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
+      "lbl-avatarRefDistance": "Avatar Ref Distanta",
+      "lbl-avatarMaxDistance": "Avatar Max Distanta",
+      "lbl-mediaVolume": "Volum media",
+      "lbl-mediaDistanceModel": "Modelul distanței media",
+      "lbl-mediaRolloffFactor": "Media Rolloff Factor",
+      "lbl-mediaRefDistance": "Media Ref Distanta",
+      "lbl-mediaMaxDistance": "Media Max Distanta",
+      "lbl-mediaConeInnerAngle": "Media Cone Interior Angle",
+      "lbl-mediaConeOuterAngle": "Media Cone unghi exterior",
+      "lbl-mediaConeOuterGain": "Media Cone exterior Gain",
+      "info-avatarDistanceModel": "Algorithim folosit pentru a calcula rolloff audio.",
+      "info-avatarRolloffFactor": "O valoare dublă care descrie cât de repede volumul este redus pe măsură ce sursa se îndepărtează de ascultător. De la 0 la 1",
+      "info-avatarRolloffFactorInifinity": "O valoare dublă care descrie cât de repede volumul este redus pe măsură ce sursa se îndepărtează de ascultător. De la 0 la Infinit",
+      "info-avatarRefDistance": "O valoare dublă reprezentând distanța de referință pentru reducerea volumului pe măsură ce sursa audio se deplasează mai departe de ascultător.",
+      "info-avatarMaxDistance": "O valoare dublă reprezentând distanța maximă dintre sursa audio și ascultător, după care volumul nu mai este redus.",
+      "info-mediaDistanceModel": "Algorithim folosit pentru a calcula rolloff audio.",
+      "info-mediaRolloffFactor": "O valoare dublă care descrie cât de repede volumul este redus pe măsură ce sursa se îndepărtează de ascultător. De la 0 la 1",
+      "info-mediaRolloffFactorInfinity": "O valoare dublă care descrie cât de repede volumul este redus pe măsură ce sursa se îndepărtează de ascultător. De la 0 la Infinit",
+      "info-mediaRefDistance": "O valoare dublă reprezentând distanța de referință pentru reducerea volumului pe măsură ce sursa audio se deplasează mai departe de ascultător.",
+      "info-mediaMaxDistance": "O valoare dublă reprezentând distanța maximă dintre sursa audio și ascultător, după care volumul nu mai este redus.",
+      "info-mediaConeInnerAngle": "O valoare dublă care descrie unghiul, în grade, al unui con în interiorul căruia nu va exista nici o reducere a volumului.",
+      "info-mediaConeOuterAngle": "O valoare dublă care descrie unghiul, în grade, al unui con în afara căruia volumul va fi redus cu o valoare constantă, definită de atributul coneOuterGain.",
+      "info-mediaConeOuterGain": "O valoare dublă care descrie cantitatea de reducere a volumului în afara conului definită de atributul coneOuterAngle. Valoarea sa implicită este 0, ceea ce înseamnă că nu se poate auzi niciun sunet.",
+      "lbl-simpleMaterials": "Utilizați materiale simple",
+      "lbl-lods": "LOD-uri",
+      "info-lods": "Setează distanțele la care se modifică nivelurile de detaliu.",
+      "info-simpleMaterials": "Convertește toate materialele scumpe în cele mai simple pentru a lua sarcina de pe scena de redare.",
+      "lbl-rendererSettings": "Suprascrie setările renderului",
+      "lbl-csm": "Hărți umbre în cascadă",
+      "info-csm": "Permite hărți de umbre în cascadă.",
+      "lbl-toneMapping": "Cartografierea tonurilor",
+      "info-toneMapping": "Permite maparea tonurilor pe randarea scenei. Nu are niciun efect atunci când este activată o procesare post.",
+      "lbl-toneMappingExposure": "Expunerea la cartografierea tonului",
+      "info-toneMappingExposure": "Specifică expunerea la maparea tonurilor pe renderul scenei. Nu are niciun efect atunci când este activată o procesare post.",
+      "lbl-shadowMapType": "Tip hartă umbră",
+      "info-shadowMapType": "Tipul hărții umbrelor",
+      "error-url": "Eroare la încărcarea de la ADRESA URL"
+    },
+    "sceneCamera": {
+      "name": "Cameră de previzualizare a scenei",
+      "description": "Camera utilizată pentru a genera miniatura pentru scenă și poziția de pornire pentru camera de previzualizare.",
+      "lbl-setFromViewPort": "Setare din Viewport"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Ora din zi",
+      "lbl-color": "Culoare",
+      "lbl-latitude": "Latitudine",
+      "lbl-luminance": "Luminanţă",
+      "lbl-scattering": "Suma de împrăștiere",
+      "lbl-scatteringDistance": "Distanța de împrăștiere",
+      "lbl-horizonStart": "Orizont start",
+      "lbl-horizonEnd": "Sfârșitul orizontului",
+      "lbl-texture": "Textură",
+      "lbl-skyType": "Tipul cerului",
+      "error-url": "Eroare la încărcarea de la ADRESA URL"
+    },
+    "spawnPoint": {
+      "name": "Punct de reproducere",
+      "description": "Un punct în care oamenii vor apărea atunci când intră în scena ta.\nPictograma din Viewport reprezintă dimensiunea reală a unui avatar."
+    },
+    "spotLight": {
+      "description": "O lumină care emite de-a lungul unei direcții, luminând obiectele dintr-un con.",
+      "lbl-color": "Culoare",
+      "lbl-intensity": "Intensitate",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "Unghi",
+      "lbl-range": "Gama",
+      "lbl-decay": "Descompune"
+    },
+    "transform": {
+      "title": "Transforma",
+      "lbl-postition": "Poziție",
+      "lbl-rotation": "Rotație",
+      "lbl-scale": "Cântar"
+    },
+    "triggereVolume": {
+      "description": "Setează o proprietate pe obiectul țintă la intrare și la ieșire.",
+      "lbl-target": "Obiect",
+      "lbl-onenter": "Pe Enter",
+      "lbl-onexit": "La ieșire",
+      "lbl-showHelper": "Afișare plasă de ajutor",
+      "ph-errorNode": "Eroare nod lipsă.",
+      "ph-selectNode": "Selectați nodul..."
+    },
+    "video": {
+      "name": "Video",
+      "description": "Încarcă dinamic un videoclip.",
+      "lbl-video": "Video",
+      "lbl-projection": "Proiecție",
+      "lbl-islivestream": "Live Stream",
+      "lbl-interactable": "Interacționabil",
+      "lbl-id": "Element Id",
+      "lbl-play": "Juca",
+      "lbl-pause": "Pauză",
+      "error-url": "Eroare la încărcarea de la ADRESA URL"
+    },
+    "volumetric": {
+      "name": "Volumetrice",
+      "description": "Încarcă dinamic un videoclip volumetric.",
+      "uvolPaths": "Căi UVOL",
+      "playmode": "Mod de redare",
+      "playtitle": "Juca",
+      "pausetitle": "Pauză"
+    },
+    "spline": {
+      "description": "Creați și personalizați dinamic curbe.",
+      "lbl-addNode": "Adăugați nodul la curbă."
+    },
+    "systemnode": {
+      "description": "Atașați script-ul.",
+      "lbl-filePath": "URL-ul",
+      "lbl-systemUpdateType": "Punct de injectare",
+      "lbl-enableClient": "Client",
+      "lbl-enableServer": "Server",
+      "lbl-args": "Args",
+      "error-url": "Eroare la încărcarea scriptului de la URL"
+    },
+    "portal": {
+      "lbl-portal": "Portal legat",
+      "lbl-redirect": "Utilizarea Redirecționării paginilor",
+      "description": "Un Portat pentru a teleporta jucătorii în locația specificată",
+      "lbl-locationName": "Loc",
+      "lbl-modelUrl": "ADRESA URL a modelului",
+      "lbl-displayText": "Afișare text",
+      "lbl-cubemapBake": "Cubemap coace",
+      "lbl-spawnPosition": "Poziția icrelor",
+      "lbl-spawnRotation": "Rotirea icrelor",
+      "lbl-triggerPosition": "Poziția de declanșare",
+      "lbl-triggerRotation": "Rotirea declanșatorului",
+      "lbl-triggerScale": "Scară de declanșare"
+    },
+    "postprocessing": {
+      "name": "Post-procesare",
+      "description": "Pentru aplicarea efectelor Post Processing pentru tine scena."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Proiect nou",
+      "backLink": "Înapoi la proiecte",
+      "featured": "Hoteluri recomandate",
+      "all": "Tot",
+      "newProject": "Noul proiect gol",
+      "ph-search": "Scene de căutare..."
+    },
+    "grid": {
+      "loading": "Încărcare..."
+    },
+    "page": {
+      "header": "Bun venit",
+      "headerMsg": "Dacă sunteți nou aici, vă recomandăm să parcurgeți tutorialul. În caz contrar, săriți direct și creați un proiect de la zero sau de la unul dintre șabloanele noastre.",
+      "lbl-startTutorial": "Start Tutorial",
+      "projects": "Proiecte",
+      "lbl-newProject": "Proiect nou"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Încărcare...",
+      "placeObject": "Plasarea obiectului",
+      "placeObjectAtOrigin": "Plasarea obiectului la origine",
+      "copyURL": "Copiați adresa URL",
+      "openInNewTab": "Deschiderea adresei URL în filă nouă",
+      "deleteAsset": "Ștergeți activul"
+    },
+    "filebrowser": {
+      "addNewFolder": "Adăugare folder nou",
+      "cutAsset": "Tăia",
+      "copyAsset": "Copie",
+      "pasteAsset": "Pastă",
+      "renameAsset": "Redenumire",
+      "viewAssetProperties": "Vizualizare proprietăți"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Redenumire",
+    "lbl-duplicate": "Duplicat",
+    "lbl-group": "Grup",
+    "lbl-delete": "Șterge",
+    "lbl-expandAll": "Extindeți toate",
+    "lbl-collapseAll": "Restrângere totală",
+    "isseus": "Probleme:"
+  },
+  "dnd": {
+    "nodes": "{{count}} noduri selectate",
+    "models": "{{count}} modele selectate",
+    "images": "{{count}} selectat",
+    "videos": "{{count}} videoclipuri selectate",
+    "audio": "{{count}} audio selectat"
+  },
+  "dialog": {
+    "title": "Editor",
+    "lbl-confirm": "Ok",
+    "lbl-cancel": "Anula",
+    "exportProject": {
+      "title": "Proiect de export",
+      "lbl-confirm": "Proiect de export",
+      "lbl-combineMesh": "Combinarea ochiurilor de plasă",
+      "lbl-removeUnused": "Eliminarea obiectelor neutilizate"
+    },
+    "performance": {
+      "title": "Verificarea performanței",
+      "lbl-confirm": "Scena publicării",
+      "learnMore": "Află mai multe",
+      "lbl-polycount": "Număr de poligoane",
+      "lbl-material": "Materiale",
+      "lbl-texture": "Texturi",
+      "lbl-lights": "Lumini",
+      "lbl-fileSize": "Dimensiune fișier",
+      "info-polycount": "Vă recomandăm ca scena să nu utilizeze mai mult de 50.000 de triunghiuri pentru dispozitive mobile.",
+      "info-material": "Vă recomandăm să nu utilizați mai mult de 25 de materiale unice în scena dvs., pentru a reduce apelurile de atragere pe dispozitivele mobile.",
+      "info-texture": "Vă recomandăm texturile să nu utilizeze mai mult de 256 MB de memorie RAM video pentru dispozitive mobile. De asemenea, vă recomandăm să nu utilizați texturi mai mari decât 2048 x 2048.",
+      "info-lights": "Deși luminile dinamice nu sunt activate pe dispozitivele mobile, vă recomandăm să nu utilizați mai mult de 3 lumini în scenă (cu excepția luminilor ambientale și emisfere) pentru ca scena să ruleze pe PC-uri low-end.",
+      "info-fileSize": "Vă recomandăm o dimensiune finală a fișierului de cel mult 16 MB pentru conexiuni cu lățime de bandă redusă. Reducerea dimensiunii fișierului va reduce timpul necesar pentru a descărca scena.",
+      "txt-polycount": "Triunghiuri {{count}}",
+      "txt-material": "materiale {{count}}",
+      "txt-ram": "~{{count}} RAM video",
+      "txt-texture": "{{count}} texturi mari",
+      "txt-lights": "lumini {{count}}"
+    },
+    "progress": {
+      "title": "Încărcare...",
+      "msg": "Încărcare...",
+      "lbl-cancel": "Anula"
+    },
+    "publish": {
+      "title": "Scena publicării",
+      "lbl-confirm": "Salvare și publicare",
+      "lbl-name": "Numele scenei",
+      "info-name": "Numele trebuie să aibă între 4 și 64 de caractere și nu poate conține sublinieri"
+    },
+    "published": {
+      "title": "Scena publicata",
+      "header": "Scena ta a fost publicată.",
+      "lbl-view": "Vizualizați-vă scena"
+    },
+    "saveNewProject": {
+      "title": "Sprijini",
+      "lbl-name": "Nume proiect",
+      "info-name": "Numele trebuie să aibă între 4 și 64 de caractere și nu poate conține sublinieri",
+      "lbl-confirm": "Salvați Project"
+    },
+    "support": {
+      "title": "Sprijini",
+      "header": "Trebuie să raportați o problemă?",
+      "msg": "Puteți să depuneți o <1>problemă GitHub</1> sau să ne trimiteți un e-mail pentru asistență la <3>{{mail}}</3>",
+      "discord": "Ne puteți găsi și pe <1>Discord</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Imagini Bing",
+      "search": "Căutare după Bing"
+    },
+    "bingVideo": {
+      "name": "Videoclipuri Bing",
+      "search": "Căutare după Bing"
+    },
+    "element": {
+      "name": "Elemente"
+    },
+    "myAssets": {
+      "name": "Activele mele"
+    },
+    "googlePoly": {
+      "name": "Google Poli",
+      "search": "Căutare după Google"
+    },
+    "tenor": {
+      "name": "GIF-uri tenor",
+      "search": "Căutare după Tenor",
+      "ph-search": "Căutați GIF-uri..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Căutare de Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Încărcați activul"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Caută imagini..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Căutați videoclipuri..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Căutați active..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Caută modele..."
+    },
+    "useUpload": {
+      "multipleFileError": "Intrarea nu acceptă mai multe fișiere.",
+      "mineTypeError": "\"{{name}}\" nu se potrivește cu următoarele tipuri sau extensii mime: {{types}}",
+      "progressTitle": "Încărcarea fișierelor",
+      "progressMsg": "Încărcarea fișierelor {{uploaded}} de {{total}}: {{percentage}}%",
+      "uploadError": "Eroare de încărcare",
+      "uploadErrorMsg": "Eroare la încărcarea fișierului: {{message}}",
+      "uploadErrorDefaultMsg": "A existat o eroare necunoscută"
+    }
+  },
+  "openLink": {
+    "description": "Vă rugăm să faceți clic pe Deschidere pentru a naviga la link-ul.",
+    "lbl-open": "Deschide"
+  },
+  "interactableModel": {
+    "lbl-buy": "Cumpăra",
+    "lbl-learnMore": "Află mai multe"
+  },
+  "corsProxyButton": {
+    "tooltip": "Utilizați Cors Proxy Server"
+  }
+}

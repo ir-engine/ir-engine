@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - ገጽ ኣይተረኽበን"
+  },
+  "503": {
+    "msg": "503 - ኣገልግሎት ኣይተረኽበን"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "ካብዚ ቦታ እዚ ተኣጊድካ ኢኻ",
+    "locationName": {
+      "pageTitle": "ቤት"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "ፕሮጀክትታት",
+      "header": "በጃኹም ኣእትዩ",
+      "welcomeMsg": "እንቋዕ ብደሓን መጻእኩም",
+      "locationHeader": "ቦታታት",
+      "projectHeader": "ፕሮጀክትታት",
+      "sceneHeader": "ትርኢት",
+      "description": "ኣብዚ ሓድሽ እንተ ዄንካ ነቲ ትምህርቲ ኽትሓልፎ ኢና እንምሕጸነካ። እንተ ዘይኰይኑ ብኡንብኡ ዘሊልካ ብምእታው ካብ ቍራጽ ወይ ካብ ሓደ ኻብቲ ቕርጽታትና ፕሮጀክት ፍጠር።",
+      "lbl-startTutorial": "ትምህርቲ ጀምር",
+      "lbl-newProject": "ሓድሽ ፕሮጀክት",
+      "lbl-createProject": "ፍጠር",
+      "lbl-newScene": "ሓድሽ ትርኢት",
+      "lbl-searchProject": "ህሉው ፕሮጀክትታት ድለዩ...",
+      "back": "ንድሕሪት ተመለስኩ",
+      "contextMenu": "ፕሮጀክት ኣወግድ",
+      "installed": "እተገጥመ ፕሮጀክትታት",
+      "official": "ወግዓዊ ፕሮጀክትታት",
+      "community": "ፕሮጀክትታት ማሕበረሰብ",
+      "install": "ግጠም",
+      "uninstall": "ዘይገጣጠም",
+      "rename": "ስም ካዕካዕ",
+      "createProject": "ፕሮጀክት ፍጠር",
+      "installProject": "ፕሮጀክት ግጠም",
+      "processing": "መስርሕ",
+      "projectName": "ስም ፕሮጀክት",
+      "projectURL": "ፕሮጀክት URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "ገዛኻ ኪድ",
+    "withStatusCode": "ኣብ ሰርቨር ጌጋ {{code}} ኣጋጠመ",
+    "withoutStatusCode": "ኣብ ሰርቨር ጌጋ ኣጋጠመ"
+  },
+  "no-projects": {
+    "msg": "ጌጋ ፦ ፕሮጀክትታት ኣይተገጥመሉን - በጃኻ ምስ ኣመሓዳሪ ወብ ሳይት ተራኸብ"
+  },
+  "dev": {
+    "pageTitle": "ቤት"
+  },
+  "login": {
+    "pageTitle": "መእተዊ"
+  },
+  "workerTest": {
+    "pageTitle": "ናይ ሰራሕተኛ ፈተና"
+  },
+  "index": {
+    "by": "ባይ",
+    "xr": "XR",
+    "foundation": "መሰረት",
+    "description": "ኵሉ ሰብ ምእንቲ ኺሕጐሰሉ ኣብ ናይ ሓቂ ግዜ 3D ማሕበራዊ መመልከቲ ።"
+  },
+  "xrengineContact": {
+    "header": "ተራኸብ!",
+    "description": "ኣብ ናይ ቪድዮ ፍጻመታትካ ኣብ ኤለክትሮኒካዊ ዕዳጋኻ ኣብ መዘናግዒኻ ከምኡውን ኣብ ካልእ ዘድልየካ ነገራት ክንሕግዘካ ምደለና።",
+    "lbl-name": "ስም",
+    "lbl-email": "ኢ-መይል",
+    "lbl-company": "ኩባንያ",
+    "lbl-project": "ፕሮጀክትካ ግለጽ",
+    "lbl-send": "ልኣኽ",
+    "lbl-ok": "ሐራይ",
+    "lbl-success": "መልእኽቲ ምስ ተላእከ ድሕሪ ሓጺር እዋን ክንምለሰካ ኢና።",
+    "lbl-failure": "ጌጋ ተፈጸመ ፕሌስ እንደገና ፈተነ",
+    "err-username": "በጃኻ ስምካ ኣእቱ ።",
+    "err-email": "ኢ-መይል የድሊ እዩ።",
+    "err-msg": "ብዛዕባ ፕሮጀክትካ ኣሕጽር ኣቢልካ ግለጽ።"
+  }
+}

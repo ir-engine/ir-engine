@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Laster inn side..."
+  },
+  "tooltip": {
+    "pressKey": "Trykk {{tip}} for å {{message}}"
+  },
+  "toast": {
+    "joined": "Sluttet seg",
+    "left": "Venstre"
+  },
+  "navUserWidget": {
+    "login": "Logg på"
+  },
+  "loader": {
+    "connecting": "Kobler til verden...",
+    "entering": "Inn i verden...",
+    "loading": "Lasting...",
+    "objectRemaining": "{{count}} objektet gjenstår",
+    "objectRemainingPlural": "{{count}} objekter som gjenstår",
+    "loadingObjects": "Laster inn objekter",
+    "loadingComplete": "Innlasting fullført",
+    "joiningWorld": "Bli med i verden"
+  },
+  "alert": {
+    "eventWasSuccess": "Hendelsen var vellykket",
+    "errorWasEncountered": "Det oppstod en feil",
+    "eventInProgress": "Hendelse pågår",
+    "seconds": "Sekunder",
+    "cancelCountdown": "Hvis du lukker denne modalen, avbrytes nedtellingen"
+  },
+  "debug": {
+    "refresh": "Forfriske",
+    "stats": "Statistikk",
+    "debugOptions": "Alternativer for feilsøking",
+    "physicsDebug": "Fysikk",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Hjelp for node",
+    "gridDebug": "Rutenett",
+    "simpleMaterials": "Enkle materialer",
+    "tick": "Flått",
+    "worldStore": "Verdensbutikk",
+    "engineStore": "Motorforretning",
+    "namedEntities": "Navngitte enheter",
+    "networkObject": "Nettverksobjekt",
+    "networkClients": "Nettverksklienter"
+  },
+  "recording": {
+    "videoRecorder": "Videoopptaker",
+    "waitingForPermissions": "Venter på tillatelser",
+    "selectVideoSource": "Velg videokilde",
+    "screen": "Skjerm",
+    "camera": "Kamera",
+    "microphone": "Mikrofon",
+    "startRecording": "Start innspilling",
+    "pauseRecording": "Stans innspillingen midlertidig",
+    "resumeRecording": "Fortsett innspillingen",
+    "stopRecording": "Stopp innspilling"
+  },
+  "typing": "Skrive...",
+  "gameServer": {
+    "browserError": "Nettleserfeil",
+    "browserErrorMessage": "Nettleseren din støtter ikke lagring i privat nettlesingsmodus. Prøv en annen nettleser, eller avslutt privat søkemodus.",
+    "noAvailableServers": "Ingen tilgjengelige servere",
+    "noAvailableServersMessage": "Det er ingen servere tilgjengelig for deg å koble til. Prøver å koble til på nytt i",
+    "worldDisconnected": "Verden frakoblet",
+    "worldDisconnectedMessage": "Du har mistet forbindelsen med verden. Vi prøver å koble til på nytt før neste tid renner ut, ellers blir du videresendt til en annen forekomst.",
+    "webGLNotEnabled": "WebGL er ikke aktivert",
+    "webGLNotEnabledMessage": "Leseren støtter ikke WebGL, eller den er deaktivert. Aktiver WebGL eller vurder å oppgradere til den nyeste versjonen av webleseren.",
+    "youKickedFromWorld": "Du har blitt sparket fra verden",
+    "youKickedFromWorldMessage": "Du ble sparket fra denne verden av følgende grunn",
+    "invalidLocation": "Ugyldig plassering",
+    "cantFindLocation": "Vi finner ikke stedet",
+    "misspelledOrNotExist": "Den kan være feilstavet, eller den finnes kanskje ikke.",
+    "loading": "lasting",
+    "low-frame-error": "Oppdaget en dårlig perfomance vurdere å aktivere Bruk maskinvare akselerasjon i nettleseren din og relauch nettleseren din",
+    "low-frame-title": "Aktiver maskinvareakselerasjon for bedre opplevelse!"
+  },
+  "error": {
+    "loading-error": "Kan ikke laste inn brukerdata",
+    "validation-error": "Skriv inn gyldig {{type}}",
+    "login-error": "Kan ikke logge på"
+  }
+}

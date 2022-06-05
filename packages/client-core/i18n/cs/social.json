@@ -1,0 +1,202 @@
+{
+  "addComment": "Přidat komentář...",
+  "share": "Sdílet",
+  "suggestions": "Návrhy pro vás",
+  "seeAll": "Zobrazit vše",
+  "likes": "Má rád",
+  "viewComments": "Zobrazit všechny {{count}} komentáře",
+  "more": "více",
+  "username": "uživatelské jméno",
+  "fullName": "Jméno Příjmení",
+  "reportInApporpriate": "Nahlásit nevhodné",
+  "unfollow": "Zrušit sledování",
+  "goToPost": "Přejít na Příspěvek",
+  "shareModal": "Sdílet",
+  "copyLink": "Kopírovat odkaz",
+  "embed": "Vložit",
+  "cancel": "Zrušit",
+  "confirm": "Potvrdit",
+  "save": "Uložit",
+  "profilePic": "Profilový obrázek {{user}}",
+  "ara": "Ara",
+  "follow": "Následovat",
+  "flames": "Plameny",
+  "continue": "Pokračovat",
+  "partyInvitationSent": "Pozvánka na párty odeslána",
+  "arMedia": {
+    "back": "Hřbet",
+    "clip": "Spona",
+    "backgrounds": "Pozadí",
+    "start": "Začínat"
+  },
+  "arMediaform": {
+    "title": "Titul",
+    "type": "Typ",
+    "clip": "Spona",
+    "background": "Pozadí",
+    "scene": "Scéna",
+    "save": "Uložit",
+    "manifest-file": "Manifest .manifest soubor",
+    "audio-file": "Soubor Mp4",
+    "dracosis-file": "Dracosis .uvol soubor",
+    "preview-file": "Náhled obrazového souboru"
+  },
+  "creator": {
+    "myVideos": "Moje videa",
+    "savedVideos": "Uložená videa",
+    "back": "Hřbet",
+    "blocked-list": "Seznam blokovaných položek",
+    "block-user": "Blokovat uživatele",
+    "dialog-content": "Neuvidíte profil a obsah uživatele"
+  },
+  "creatorForm": {
+    "back": "Hřbet",
+    "edit": "Upravit profil",
+    "save": "Uložit",
+    "changeAvatar": "Změna obrázku avatara",
+    "ph-selectPreview": "Vybrat náhled",
+    "ph-name": "Tvoje jméno",
+    "ph-username": "Vaše uživatelské jméno",
+    "ph-email": "Váš e-mail",
+    "ph-tags": "Visačky",
+    "ph-link": "Propojit",
+    "ph-aboutYou": "Více o vás",
+    "ph-twitter": "cvrlikat",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "Tiktok",
+    "sign-out": "Odhlášení"
+  },
+  "dashboard": {
+    "title": "Palubní deska",
+    "dashboard": "Palubní deska",
+    "users": "Uživatelé",
+    "feeds": "Krmí",
+    "arMedia": "Video média",
+    "editor": "Editor",
+    "creator": "Tvůrce"
+  },
+  "featured": {
+    "empty-list": "Zatím žádné zdroje ..."
+  },
+  "feed": {
+    "back": "Hřbet",
+    "related": "Související zdroje",
+    "is-repoted-message": "Krmivo je hlášeno!"
+  },
+  "feedForm": {
+    "back": "Hřbet",
+    "thanks": "Děkujeme za sdílení a zlepšování naší komunity",
+    "share": "Sdílejte něco s komunitou",
+    "upload": "Nahrát video",
+    "ph-selectVideo": "Vybrat video",
+    "preview": "Náhled obrázku",
+    "ph-selectPreview": "Vybrat náhled",
+    "createFeed": "Chcete-li vytvořit zdroj, musíte mít video a obrázek náhledu!!!",
+    "ph-videoName": "Název videa",
+    "ph-type": "Zadejte, co chcete sdílet s komunitou ... ",
+    "lbl-share": "Sdílet",
+    "save": "Uložit a přejít na Další"
+  },
+  "feedMenu": {
+    "featured": "Utvářený",
+    "creators": "Tvůrci",
+    "feed": "Krmivo"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetrický"
+  },
+  "login": {
+    "account": "Máte účet?",
+    "login": "Přihlášení do systému",
+    "resetPassword": "Tlačítko Obnovit falešné heslo (zde by byl odkaz z e-mailu)",
+    "notHavingAccount": "Nemáte účet?",
+    "signUp": "Registrace",
+    "forgotPassword": "Zapomněli jste heslo?",
+    "back": "Hřbet",
+    "or": "NEBO"
+  },
+  "comment": {
+    "add": "Přidejte svůj komentář..."
+  },
+  "notification": {
+    "feedFire": " vypálil váš zdroj",
+    "feedBookmarked": " záložka vašeho zdroje",
+    "comment": " komentoval váš zdroj:",
+    "commentFire": " vypálil váš komentář do kanálu",
+    "follow": " začal vás sledovat",
+    "unfollow": " přestal vás sledovat",
+    "followed": " následoval vás",
+    "activity": "Aktivita"
+  },
+  "onBoarding": {
+    "welcome": "Vítejte!",
+    "description": "Největší sbírka více než 370 rozvržení pro prototypování iOS.",
+    "next": "Další",
+    "discover": "Objevte články,",
+    "news": "novinky a příspěvky",
+    "lines": "Jsou to právě tyto pocity, které pohánějí naši lásku k astronomii a naši touhu.",
+    "getStarted": "Rozjet",
+    "meetUp": "Seznamte se s",
+    "friends": "přátelé.",
+    "meet": "Seznamte se s přáteli"
+  },
+  "shareForm": {
+    "arcMedia": "Sdílet",
+    "videoCreated": "Vytvořil jsem toto video",
+    "shareWithBuddies": "Sdílení s kamarády",
+    "shareVideo": "Sdílet video",
+    "save": "Uložit do složky Z fotoaparátu",
+    "cancel": "Zrušit",
+    "close": "Zavřít",
+    "addFeed": "Přidat zdroj"
+  },
+  "simpleModal": {
+    "emptyList": "Prázdný seznam",
+    "followers": " následující",
+    "following": " stoupenci",
+    "flames": " plameny"
+  },
+  "splash": {
+    "screen": "Úvodní obrazovka",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "Profilový obrázek {{user}}"
+  },
+  "view": {
+    "cancel": "Zrušit",
+    "choice": "Na výběr máte dva různé režimy nahrávání",
+    "verticalMode": "Vertikální režim má rekordní čas 30 sekund",
+    "horizontalMode": "Horizontální režim má neomezený čas záznamu",
+    "start": "Začínat",
+    "not-show": "Nezobrazovat jej znovu",
+    "welcome": "Vítejte v ARC!  Vytvořte osobní videa s jedním z našich hologramů a zveřejněte je na svých kanálech sociálních médií!",
+    "step": "KROK {{step}}",
+    "text-step-1": "Vyberte si hologram z knihovny.",
+    "text-step-2": "Jedná se o rozšířenou realitu, takže skenujte prostor fotoaparátem ze strany na stranu po dobu 3-5 sekund, kde chcete, aby byl výkon hologramu.",
+    "text-step-3-part-1": "Klepněte jednou na obrazovku na místě, kde chcete hologram ukotvit.",
+    "text-step-3-part-2": "SPROPITNÉ!  Jedním klepnutím na jiné místo přesunete hologram na jiné místo.",
+    "text-step-3-part-3": "SPROPITNÉ!  Velikost hologramu můžete změnit sevřením nebo rozbalením obrazovky palcem a ukazováčkem.",
+    "text-step-4-part-1": "Poklepáním na červené tlačítko záznamu spusťte nahrávání videa.",
+    "text-step-4-part-2": "Poklepejte na červené tlačítko záznamu pro STOP."
+  },
+  "video": {
+    "back": "Hřbet"
+  },
+  "terms": {
+    "confirmTerms": "Souhlasím s Podmínkami služby",
+    "confirmPolicy": "Souhlasím se Zásadami ochrany osobních údajů"
+  },
+  "registration": {
+    "ph-phoneEmail": "Použijte telefon / e-mail",
+    "facebook": "Pokračovat s Facebookem",
+    "google": "Pokračovat s Googlem",
+    "linkedin": "Pokračovat s Linkedin",
+    "twitter": "Pokračovat s Twitterem",
+    "gitHub": "Pokračovat s GitHubem",
+    "connect": "Připojení e-mailu nebo telefonního čísla",
+    "logIn": "Přihlásit se",
+    "LogInTo": "Přihlaste se do",
+    "continueAsGuest": "Pokračovat jako host"
+  }
+}

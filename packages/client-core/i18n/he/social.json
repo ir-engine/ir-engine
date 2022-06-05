@@ -1,0 +1,202 @@
+{
+  "addComment": "הוסף תגובה...",
+  "share": "לשתף",
+  "suggestions": "הצעות עבורך",
+  "seeAll": "צפו בהכל",
+  "likes": "אוהב",
+  "viewComments": "הצג את כל התגובות {{count}}",
+  "more": "עוד",
+  "username": "שם משתמש",
+  "fullName": "שם משפחה",
+  "reportInApporpriate": "דיווח לא הולם",
+  "unfollow": "בטל את המעקב",
+  "goToPost": "עבור אל פרסם",
+  "shareModal": "לשתף",
+  "copyLink": "העתק קישור",
+  "embed": "להטביע",
+  "cancel": "ביטל",
+  "confirm": "לאשר",
+  "save": "שמר",
+  "profilePic": "תמונת הפרופיל של {{user}}",
+  "ara": "עארה",
+  "follow": "בצע",
+  "flames": "הלהבות",
+  "continue": "נמשך",
+  "partyInvitationSent": "הזמנה למסיבה נשלחה",
+  "arMedia": {
+    "back": "גב",
+    "clip": "קליפ",
+    "backgrounds": "רקעים",
+    "start": "התחלה"
+  },
+  "arMediaform": {
+    "title": "כותר",
+    "type": "סוג",
+    "clip": "קליפ",
+    "background": "רקע",
+    "scene": "סצנה",
+    "save": "שמר",
+    "manifest-file": "קובץ מניפסט .manifest",
+    "audio-file": "קובץ Mp4",
+    "dracosis-file": "דראקוזיס .קובץ uvol",
+    "preview-file": "תצוגה מקדימה של קובץ תמונה"
+  },
+  "creator": {
+    "myVideos": "הסרטונים שלי",
+    "savedVideos": "סרטונים שמורים",
+    "back": "גב",
+    "blocked-list": "רשימה חסומה",
+    "block-user": "חסום משתמש",
+    "dialog-content": "לא תראה את הפרופיל והתוכן של המשתמש"
+  },
+  "creatorForm": {
+    "back": "גב",
+    "edit": "עריכת פרופיל",
+    "save": "שמר",
+    "changeAvatar": "שינוי תמונת אווטאר",
+    "ph-selectPreview": "בחר תצוגה מקדימה",
+    "ph-name": "שמך",
+    "ph-username": "שם המשתמש שלך",
+    "ph-email": "הדוא\"ל שלך",
+    "ph-tags": "תגיות",
+    "ph-link": "קישור",
+    "ph-aboutYou": "עוד אודותיך",
+    "ph-twitter": "טוויטר",
+    "ph-instagram": "אינסטגרם",
+    "ph-tiktok": "tiktok",
+    "sign-out": "התנתקות"
+  },
+  "dashboard": {
+    "title": "לוח המחוונים",
+    "dashboard": "לוח המחוונים",
+    "users": "משתמשים",
+    "feeds": "הזנות",
+    "arMedia": "מדיית וידאו",
+    "editor": "עורך",
+    "creator": "יוצר"
+  },
+  "featured": {
+    "empty-list": "אין הזנות לעת עתה ..."
+  },
+  "feed": {
+    "back": "גב",
+    "related": "הזנות קשורות",
+    "is-repoted-message": "הפיד מדווח!"
+  },
+  "feedForm": {
+    "back": "גב",
+    "thanks": "תודה ששיתפת ושיפרת את הקהילה שלנו",
+    "share": "שתף משהו עם הקהילה",
+    "upload": "העלה סרטון",
+    "ph-selectVideo": "בחר וידאו",
+    "preview": "תצוגה מקדימה של תמונה",
+    "ph-selectPreview": "בחר תצוגה מקדימה",
+    "createFeed": "על מנת ליצור פיד עליך להיות בעל סרטון וידאו ותמונת תצוגה מקדימה!!!",
+    "ph-videoName": "שם הסרטון שלך",
+    "ph-type": "הקלד את מה שברצונך לשתף עם הקהילה ... ",
+    "lbl-share": "לשתף",
+    "save": "שמור ועבור את הבא"
+  },
+  "feedMenu": {
+    "featured": "נבחרים",
+    "creators": "יוצרי",
+    "feed": "ההזנה"
+  },
+  "header": {
+    "lbl-volumetric": "נפחי"
+  },
+  "login": {
+    "account": "יש לך חשבון?",
+    "login": "כניסה",
+    "resetPassword": "אפס סיסמה זיוף כפתור (כאן יהיה קישור מדוא\"ל)",
+    "notHavingAccount": "אין לך חשבון?",
+    "signUp": "הירשם",
+    "forgotPassword": "שכחתם סיסמה?",
+    "back": "גב",
+    "or": "או"
+  },
+  "comment": {
+    "add": "הוסף את התגובה שלך..."
+  },
+  "notification": {
+    "feedFire": " פיטרת את הפיד שלך",
+    "feedBookmarked": " סמן את הפיד שלך בסימניה",
+    "comment": " הגיב הפיד שלך:",
+    "commentFire": " פיטרת את התגובה שלך כדי להזין",
+    "follow": " התחיל לעקוב אחריך",
+    "unfollow": " הפסיק לעקוב אחריך",
+    "followed": " הלך אחריך",
+    "activity": "פעילות"
+  },
+  "onBoarding": {
+    "welcome": "ברוך הבא!",
+    "description": "האוסף הגדול ביותר של יותר מ-370 פריסות עבור יצירת אב-טיפוס של iOS.",
+    "next": "הבא",
+    "discover": "גלה מאמרים,",
+    "news": "חדשות ופוסטים",
+    "lines": "אלה הרגשות שמניעים את אהבתנו לאסטרונומיה ואת הרצון שלנו.",
+    "getStarted": "תחילת העבודה",
+    "meetUp": "להיפגש עם",
+    "friends": "חברים.",
+    "meet": "להיפגש עם חברים"
+  },
+  "shareForm": {
+    "arcMedia": "לשתף",
+    "videoCreated": "יצרתי את הסרטון הזה",
+    "shareWithBuddies": "שתף עם חברים",
+    "shareVideo": "שתף וידאו",
+    "save": "שמירה בלוח הצילום",
+    "cancel": "ביטל",
+    "close": "קרוב",
+    "addFeed": "הוספת פיד"
+  },
+  "simpleModal": {
+    "emptyList": "רשימה ריקה",
+    "followers": " הבאה",
+    "following": " חסידיו",
+    "flames": " הלהבות"
+  },
+  "splash": {
+    "screen": "מסך פתיחה",
+    "logo": "לוגו"
+  },
+  "story": {
+    "profilePic": "תמונת הפרופיל של {{user}}"
+  },
+  "view": {
+    "cancel": "ביטל",
+    "choice": "יש לך שני מצבי הקלטה שונים לבחירה",
+    "verticalMode": "למצב אנכי יש זמן שיא של 30 שניות",
+    "horizontalMode": "למצב אופקי יש זמן שיא בלתי מוגבל",
+    "start": "התחלה",
+    "not-show": "אל תציג את זה שוב",
+    "welcome": "ברוכים הבאים ל-ARC!  צרו סרטונים אישיים עם אחת מההולוגרמות שלנו ופרסמו אותה בערוצי המדיה החברתית שלכם!",
+    "step": "שלב {{step}}",
+    "text-step-1": "בחר הולוגרמה מהספרייה.",
+    "text-step-2": "זוהי מציאות רבודה, לכן סרוק את החלל עם המצלמה שלך מצד לצד למשך 3-5 שניות היכן שאתה רוצה שביצועי ההולוגרמה יהיו.",
+    "text-step-3-part-1": "הקש על המסך פעם אחת במיקום שבו ברצונך שההולוגרמה תהיה מעוגנת.",
+    "text-step-3-part-2": "תשר!  הקש פעם אחת במקום אחר כדי להעביר את ההולוגרמה למצב אחר.",
+    "text-step-3-part-3": "תשר!  ניתן לשנות את גודל ההולוגרמה על ידי צביטה או הרחבה של המסך באמצעות האגודל והאצבע המורה.",
+    "text-step-4-part-1": "הקש פעמיים על לחצן הקלטה אדום כדי להפעיל את הקלטת הווידאו שלך.",
+    "text-step-4-part-2": "הקש פעמיים על כפתור ההקלטה האדומה כדי לעצור."
+  },
+  "video": {
+    "back": "גב"
+  },
+  "terms": {
+    "confirmTerms": "אני מסכים לתנאי השירות",
+    "confirmPolicy": "אני מסכים למדיניות הפרטיות"
+  },
+  "registration": {
+    "ph-phoneEmail": "שימוש בטלפון / דוא\"ל",
+    "facebook": "המשך עם פייסבוק",
+    "google": "המשך עם גוגל",
+    "linkedin": "המשך עם לינקדאין",
+    "twitter": "המשך עם טוויטר",
+    "gitHub": "המשך עם GitHub",
+    "connect": "חבר את כתובת הדוא\"ל או מספר הטלפון שלך",
+    "logIn": "כנס",
+    "LogInTo": "התחברו אל",
+    "continueAsGuest": "המשך כאורחים"
+  }
+}

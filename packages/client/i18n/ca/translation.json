@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - No s'ha trobat la pàgina"
+  },
+  "503": {
+    "msg": "503 - Servei no disponible"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Se us ha prohibit sortir d'aquesta ubicació",
+    "locationName": {
+      "pageTitle": "Llar"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projectes",
+      "header": "Si us plau, inicieu la sessió",
+      "welcomeMsg": "Benvingut",
+      "locationHeader": "Ubicacions",
+      "projectHeader": "Projectes",
+      "sceneHeader": "Escenes",
+      "description": "Si ets nou aquí et recomanem que passis pel tutorial. En cas contrari, salta directament i crea un projecte des de zero o des d'una de les nostres plantilles.",
+      "lbl-startTutorial": "Inicia el tutorial",
+      "lbl-newProject": "Nou projecte",
+      "lbl-createProject": "Crear",
+      "lbl-newScene": "Escena nova",
+      "lbl-searchProject": "Cerca els projectes existents...",
+      "back": "Esquena",
+      "contextMenu": "Suprimeix el projecte",
+      "installed": "Projectes instal·lats",
+      "official": "Projectes Oficials",
+      "community": "Projectes comunitaris",
+      "install": "Instal·lar",
+      "uninstall": "Desinstal·lar",
+      "rename": "Rebatejar",
+      "createProject": "Crea un projecte",
+      "installProject": "Instal·la el projecte",
+      "processing": "Processament",
+      "projectName": "Nom del projecte",
+      "projectURL": "Adreça URL del projecte"
+    }
+  },
+  "error": {
+    "goHomeLink": "Vés a casa",
+    "withStatusCode": "S' {{code}} produït un error al servidor",
+    "withoutStatusCode": "S'ha produït un error al servidor"
+  },
+  "no-projects": {
+    "msg": "Error: No hi ha cap projecte instal·lat: poseu-vos en contacte amb un administrador del lloc"
+  },
+  "dev": {
+    "pageTitle": "Llar"
+  },
+  "login": {
+    "pageTitle": "Connexió"
+  },
+  "workerTest": {
+    "pageTitle": "Prova del treballador"
+  },
+  "index": {
+    "by": "PER",
+    "xr": "XR",
+    "foundation": "Fundació",
+    "description": "Aplicacions socials 3D en temps real perquè tothom en pugui gaudir."
+  },
+  "xrengineContact": {
+    "header": "Posa't en contacte!",
+    "description": "Ens encantaria ajudar-vos amb els vostres esdeveniments virtuals, venda al detall digital, entreteniment i altres necessitats.",
+    "lbl-name": "Nom",
+    "lbl-email": "Correu electrònic",
+    "lbl-company": "Companyia",
+    "lbl-project": "Descriu el teu projecte",
+    "lbl-send": "Enviar",
+    "lbl-ok": "OK",
+    "lbl-success": "Missatge enviat, En breu ens posarem en marxa.",
+    "lbl-failure": "S'ha produït un error, la plecosa torna a intentar-ho",
+    "err-username": "Si us plau, introduïu el nom.",
+    "err-email": "El correu electrònic és de cal.",
+    "err-msg": "Breu descripció del seu projecte."
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "chotlh vIlegh'a'?"
+  },
+  "503": {
+    "msg": "Ha', tlhogh yIbuS"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "quvHa'ghachwIj Daleghpu', *be'neDIq*.",
+    "locationName": {
+      "pageTitle": "juH"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Qovpatlh",
+      "header": "QI'tu'",
+      "welcomeMsg": "yI'el",
+      "locationHeader": "pagh",
+      "projectHeader": "Qovpatlh",
+      "sceneHeader": "Qapla'",
+      "description": "qaStaHvIS ramjep, choparHa'chugh je. pay' jIvumtaHbogh qamchoH porgh latlh je, 'ej pe'vIl 'e' vImev.",
+      "lbl-startTutorial": "ghom",
+      "lbl-newProject": "chu'",
+      "lbl-createProject": "chenmoH",
+      "lbl-newScene": "chu'",
+      "lbl-searchProject": "ghe''orDaq maghoS.",
+      "back": "chap",
+      "contextMenu": "Doq",
+      "installed": "roSHa'choHlu'.",
+      "official": "qech",
+      "community": "QumwI'",
+      "install": "jom",
+      "uninstall": "'um",
+      "rename": "naDev",
+      "createProject": "Hegh",
+      "installProject": "roSHa'choH",
+      "processing": "mIw",
+      "projectName": "vengHom",
+      "projectURL": "qeng"
+    }
+  },
+  "error": {
+    "goHomeLink": "juH yIjaH",
+    "withStatusCode": "{{code}} Hoch'",
+    "withoutStatusCode": "ngechmeywIj latlhpu'"
+  },
+  "no-projects": {
+    "msg": "SuvwI'pu' QumpIn jay':"
+  },
+  "dev": {
+    "pageTitle": "juH"
+  },
+  "login": {
+    "pageTitle": "QonoS"
+  },
+  "workerTest": {
+    "pageTitle": "QI'yaH"
+  },
+  "index": {
+    "by": "qONWI'",
+    "xr": "jav",
+    "foundation": "tlhaQ",
+    "description": "tugh qaStaHvIS Hoch tlhaq."
+  },
+  "xrengineContact": {
+    "header": "ghe''or yuQDaq yIlan!",
+    "description": "jupDaj pov neH 'ej QuptaHvIS, tlhogh 'ej naDev poSvo' ngabDI', naDevvo' ponglIjDaq ba'taHvIS, tlhogh 'ej naDev poSvo' ngab.",
+    "lbl-name": "pong",
+    "lbl-email": "maSIl",
+    "lbl-company": "wey",
+    "lbl-project": "qaStaHvIS QehlIj, bIQap'a'",
+    "lbl-send": "ngeH",
+    "lbl-ok": "lu'",
+    "lbl-success": "batlh mangop ' e' vISov.",
+    "lbl-failure": "'ach DaH yIDIlmeH ngeDqu'choHlu'",
+    "err-username": "yIqengmeH chol.",
+    "err-email": "'ach romuluSngan ghaH.",
+    "err-msg": "yo' qIjDaq"
+  }
+}

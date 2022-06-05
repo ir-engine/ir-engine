@@ -1,0 +1,718 @@
+{
+  "loading": "Laai projek",
+  "loadingMsg": "Laai projek...",
+  "loadingError": "Fout laai projek",
+  "loadingErrorMsg": "Daar was 'n fout met die laai van die projek.",
+  "selectSceneMsg": "Kies Toneel om met die enjin te begin speel",
+  "error": "Fout",
+  "errorMsg": "Daar was 'n onbekende fout.",
+  "generateScreenshot": "Genereer projek skermkiekie",
+  "generateScreenshotMsg": "Genereer projek skermkiekie...",
+  "newScene": "Skep toneel",
+  "saving": "Stoor projek",
+  "savingMsg": "Stoor projek...",
+  "savingError": "Fout met die stoor van projek",
+  "savingErrorMsg": "Daar was 'n fout met die stoor van die projek.",
+  "savingSceneErrorMsg": "Toneel is nie behoorlik gelaai nie. Probeer om die toneel te herlaai.",
+  "duplicating": "Duplisering projek",
+  "duplicatingMsg": "Duplisering van projek...",
+  "exporting": "Uitvoer projek",
+  "exportingMsg": "Besig om projek uit te voer...",
+  "exportingError": "Fout uitvoer projek",
+  "exportingErrorMsg": "Daar was 'n fout met die uitvoer van die projek.",
+  "importLegacy": "Voer nalatenskap wêreld in",
+  "importLegacyMsg": "Waarskuwing! Dit sal jou bestaande toneel oorskryf! Is jy seker jy wil voortgaan?",
+  "publishingError": "Fout publiseer projek",
+  "publishingErrorMsg": "Daar was 'n onbekende fout.",
+  "publishingScene": "Publiseer toneel",
+  "publishingSceneMsg": "Besig om toneel te publiseer...",
+  "uploadingThumbnailMsg": "Besig om duimnael op te laai...",
+  "uploadingSceneMsg": "Oplaai van toneel: {{percentage}}%",
+  "envMapError": "Fout met die laai van kubuskaartbeelde {{files}}",
+  "lbl-return": "Terugkeer",
+  "menubar": {
+    "newScene": "Nuwe toneel",
+    "saveScene": "Stoor toneel",
+    "saveAs": "Stoor as",
+    "importAsset": "Voer bate in",
+    "exportGLB": "Uitvoer as binêre glTF (.glb) ...",
+    "importScene": "Voer toneel in",
+    "exportScene": "Voer toneel uit",
+    "quit": "Sluit"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Onondersteunde lêertipe vir lêer: \"{{name}}\". Lêer moet 'n beeld-, video- of glb-model wees.",
+    "addObject": "addObject: voordat voorwerp nie gevind is nie",
+    "removeObject": "verwyderObject: nodus nie gevind nie. Dit is te danke aan die verwydering van 'n nodus wat nie meer op die toneel is nie.",
+    "noParent": "{{node}} \"{{name}}\" het geen ouer nie. Reparent werk slegs op voorwerpe wat tans in die toneel is.",
+    "undefinedParent": "editor.reparent: newParent is ongedefinieerd",
+    "notAuthenticated": "Nie gewaarmerk nie",
+    "fetchingProjectError": "Fout met die haal van projekte: {{error}}",
+    "fetchingRouteError": "Fout met die haal van roetes: {{error}}",
+    "unknownError": "Onbekende fout",
+    "resolveURL": "Fout met die oplossing van url \"{{url}}\":",
+    "mediaSearchAborted": "Mediasoektog gestaak",
+    "methodNotImplemented": "Metode nie geïmplementeer nie.",
+    "saveProjectAborted": "Stoor toneel geaborteer",
+    "unsavedChanges": "Ongestoorde veranderinge",
+    "unsavedChangesMsg": "Die toneel is verander. Stoor asseblief jou veranderinge.",
+    "projectCreationFail": "Projekskepping het misluk. {{reason}}",
+    "projectDeletionFail": "Projek skrapping het misluk. {{reason}}",
+    "savingProjectFail": "Stoorprojek het misluk. {{reason}}",
+    "sceneTooLarge": "Toneel is te groot ({{size}} MB) om te publiseer. Die maksimum grootte is {{maxSize}} MB.",
+    "sceneCreationFail": "Toneelskepping het misluk. {{reason}}",
+    "uploadAborted": "Laai geaborteer op",
+    "uploadFailed": "Oplaai het mislukte {{reason}}",
+    "assetDeletionFail": "Bate-skrapping het misluk. {{reason}}",
+    "projectAssetDeletionFail": "Projek bate skrapping het misluk. {{reason}}",
+    "networkError": "Netwerkfout: {{status}}. {{text}}",
+    "unknownStatus": "Onbekende status",
+    "CORS": "Moontlik 'n CORS-fout",
+    "urlFetchError": "Kon nie \"{{url}}\" haal nie"
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Skuif kamera",
+      "flyFast": "Vlieg vinniger",
+      "orbit": "Wentelbaan / Kies",
+      "pan": "Pan",
+      "fly": "Vlieg",
+      "focus": "Fokus",
+      "rotateLeft": "Roteer links",
+      "rotateRight": "Roteer regs",
+      "cancelPlacement": "Kanselleer Plasing",
+      "placeDuplicate": "Plaas Duplikaat",
+      "cancelGrab": "Kanselleer Gryp",
+      "grab": "Gryp",
+      "deselectAll": "Ontkies alles"
+    },
+    "state": {
+      "header": "Statistieke",
+      "memory": "Geheue",
+      "geometries": "Geometries",
+      "textures": "Teksture",
+      "render": "Lewer",
+      "FPS": "FPS",
+      "frameTime": "Raam tyd",
+      "calls": "Oproepe",
+      "triangles": "Driehoeke",
+      "points": "Punte",
+      "lines": "Lyne"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Publiseer",
+    "lbl-published": "Gepubliseer",
+    "command": {
+      "translate": "Vertaal",
+      "rotate": "Roteer",
+      "scale": "Skaal",
+      "toggleSpace": "Wissel transformasie ruimte",
+      "togglePivot": "Wissel transform spilpunt",
+      "toggleSnapMode": "Wissel Snap-modus",
+      "toggleGrid": "Wissel rooster sigbaarheid",
+      "increaseGridSize": "Verhoog roostergrootte",
+      "descreaseGridSize": "Verminder roostergrootte",
+      "stopPreview": "Hou op om toneel te voorskou",
+      "playPreview": "Voorskou toneel"
+    }
+  },
+  "properties": {
+    "title": "Eienskappe",
+    "lbl-visible": "Sigbaar",
+    "lbl-preventBake": "Voorkom bak",
+    "lbl-persist": "Voortduur",
+    "multipleNodeSelected": "Veelvuldige nodusse van verskillende tipes gekies",
+    "noNodeSelected": "Geen nodus gekies nie",
+    "ambientLight": {
+      "name": "Omringende lig",
+      "description": "'n Lig wat alle voorwerpe in jou toneel verlig.",
+      "lbl-intensity": "Intensiteit",
+      "lbl-color": "Kleur"
+    },
+    "envmap": {
+      "name": "Omgewingskaart",
+      "description": "omgewing kaart eienskappe"
+    },
+    "asset": {
+      "name": "Bate",
+      "description": "'N Groepering van toneelkomponente wat dinamies gelaai en afgelaai kan word",
+      "lbl-options": "Opsies",
+      "lbl-assetPath": "Batepad",
+      "lbl-assetName": "Voer naam uit",
+      "lbl-exportOptions": "Voer opsies uit",
+      "lbl-export": "Voer bate uit",
+      "lbl-load": "Laai in die toneel",
+      "lbl-unload": "Laai af",
+      "lbl-reload": "Herlaai"
+    },
+    "audio": {
+      "name": "Oudio",
+      "description": "Dinamies laai oudio.",
+      "lbl-audiourl": "Oudio-url",
+      "lbl-controls": "Kontroles",
+      "info-controls": "Wissel die sigbaarheid van die mediakontroles.",
+      "lbl-autoplay": "Outo-speel",
+      "info-autoplay": "As dit waar is, sal die media speel wanneer hulle eers die toneel betree.",
+      "lbl-synchronize": "Sinchroniseer",
+      "info-synchronize": "As dit waar is, sal die media op al die gekoppelde kliënte gesinchroniseer word.",
+      "lbl-loop": "Lus",
+      "info-loop": "As dit waar is, sal die media vir ewig loop.",
+      "lbl-audioType": "Oudiotipe",
+      "lbl-distanceModel": "Afstand Model",
+      "info-distanceModel": "Die algorithim wat gebruik word om klankafrol te bereken.",
+      "lbl-rolloffFactor": "Rolloff Faktor",
+      "info-rolloffFactor": "'N Dubbele waarde wat beskryf hoe vinnig die volume verminder word namate die bron van die luisteraar af wegbeweeg. 0 tot 1",
+      "info-rfInfinity": "'N Dubbele waarde wat beskryf hoe vinnig die volume verminder word namate die bron van die luisteraar af wegbeweeg. 0 tot oneindigheid",
+      "lbl-refDistance": "Ref Afstand",
+      "info-refDistance": "'N Dubbele waarde wat die verwysingsafstand verteenwoordig om volume te verminder, aangesien die klankbron verder van die luisteraar beweeg.",
+      "lbl-maxDistance": "Maksimum afstand",
+      "info-maxDistance": "'n Dubbelwaarde wat die maksimum afstand tussen die klankbron en die luisteraar verteenwoordig, waarna die volume nie verder verminder word nie.",
+      "lbl-coneInnerAngle": "Keël Innerlike Hoek",
+      "info-coneInnerAngle": "'N Dubbele waarde wat die hoek beskryf, in grade, van 'n keël binne waarvan daar geen volumevermindering sal wees nie.",
+      "lbl-coneOuterAngle": "Kegel Buitenste Hoek",
+      "info-coneOuterAngle": "'N Dubbele waarde wat die hoek beskryf, in grade, van 'n keël buite waarvan die volume verminder sal word deur 'n konstante waarde, gedefinieer deur die coneOuterGain kenmerk.",
+      "lbl-coreOuterGain": "Kegel Buitenste Wins",
+      "info-coreOuterGain": "'N Dubbele waarde wat die hoeveelheid volumevermindering buite die keël beskryf wat deur die coneOuterAngle-kenmerk gedefinieer word. Die verstekwaarde daarvan is 0, wat beteken dat geen klank gehoor kan word nie.",
+      "lbl-volume": "Volume",
+      "lbl-play": "Speel",
+      "lbl-pause": "Wag",
+      "error-url": "Fout met laai vanaf URL"
+    },
+    "boxCollider": {
+      "description": "'N Onsigbare boks wat voorwerpe sal bons of rus op die top van.\nSonder colliders sal voorwerpe deur vloere val en deur mure gaan.",
+      "lbl-isTrigger": "Sneller"
+    },
+    "camera": {
+      "name": "Kamera",
+      "description": "Kamera-instellings.",
+      "lbl-camera-raycast": "Kamera Raycasting",
+      "lbl-camera-raycast-toggle": "Geaktiveer",
+      "lbl-camera-raycast-frequency": "Frekwensie",
+      "lbl-camera-raycast-count": "Ray Telling",
+      "lbl-camera-raycast-length": "Ray Lengte"
+    },
+    "directionalLight": {
+      "name": "Rigtinglig",
+      "description": "'N Lig wat die hele toneel verlig, maar langs 'n enkele rigting uitstraal.",
+      "lbl-color": "Kleur",
+      "lbl-intensity": "Intensiteit",
+      "lbl-cameraFar": "Kamera ver",
+      "lbl-cameraNear": "Kamera Naby",
+      "lbl-cameraTop": "Kamera Top",
+      "lbl-cameraBottom": "Kamera Bodem",
+      "lbl-cameraLeft": "Kamera links",
+      "lbl-cameraRight": "Kamera Regs",
+      "lbl-useInCSM": "Gebruik in CSM",
+      "lbl-castShadow": "Gooi skaduwee",
+      "lbl-disableForCSM": "Gedeaktiveer omdat Cascade-skadukaart geaktiveer is.",
+      "lbl-shadowmapResolution": "Skaduwee Kaart Resolusie",
+      "lbl-shadowBias": "Skaduwee Vooroordeel",
+      "lbl-shadowRadius": "Skaduwee Radius",
+      "lbl-showCameraHelper": "Wys kamera helper"
+    },
+    "groundPlane": {
+      "name": "Grondvliegtuig",
+      "description": "'N Plat grondvliegtuig wat in die verte strek.",
+      "lbl-color": "Kleur",
+      "lbl-receiveShadow": "Ontvang Skaduwee",
+      "lbl-generateNavmesh": "Genereer Navmesh"
+    },
+    "link": {
+      "description": "Skakel na 'n kamer of 'n webwerf.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "3D geospatiale kaart van bv'n stad."
+    },
+    "model": {
+      "description": "'n 3D-model in jou toneel, gelaai vanaf 'n GLTF-URL of lêer.",
+      "lbl-usingGPUInstancingFlag": "Gebruik GPU-instancing",
+      "lbl-modelurl": "Model Url",
+      "lbl-envmapUrl": "Omgewingskaart-url",
+      "lbl-textureOverride": "Oorheers tekstuur",
+      "lbl-materialOverride": "Materiaal oorheers",
+      "error-url": "Fout met laai vanaf URL",
+      "lbl-loopAnimation": "Loop Animasie",
+      "lbl-isAvatar": "Is Avatar",
+      "lbl-isGPUInstancing": "Gebruik GPU-instancing",
+      "lbl-isDynamic": "Is dinamies",
+      "lbl-castShadow": "Gooi skaduwee",
+      "lbl-receiveShadow": "Ontvang Skaduwee",
+      "lbl-interactable": "Kommunikeerbaar",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Naam",
+      "lbl-url": "Model Url",
+      "lbl-buy": "Koop Url",
+      "lbl-learnMore": "Kom meer te wete oor url",
+      "lbl-htmlContent": "Html-inhoud",
+      "lbl-interactionText": "Interaksie Teks",
+      "lbl-interactionType": "Interaksie Tipe"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Materiaal",
+      "error-materialID": "Fout met die vind van materiaal",
+      "placeholder-materialID": "Kies Materiaal",
+      "lbl-patternTarget": "Patroon Wedstryd",
+      "lbl-pattern": "Patroon",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Interaksie Tipe",
+      "text": "Interaksie Teks",
+      "distance": "Interaksie Afstand",
+      "theme": "Interaksie Tema",
+      "name": "Interaksie Naam",
+      "description": "Interaksie Beskrywing",
+      "images": "Interaksie Beelde",
+      "videos": "Interaksie Video's",
+      "urls": "Interaksie Urls",
+      "models": "Interaksie Modelle"
+    },
+    "group": {
+      "name": "Groep",
+      "description": "'n Groep veelvuldige voorwerpe wat saam geskuif of gedupliseer kan word.\nSleep en laat val voorwerpe in die Groep in die Hiërargie."
+    },
+    "hemisphere": {
+      "name": "Halfrond Lig",
+      "description": "'N Lig wat die toneel van direk oorhoofse verlig.",
+      "lbl-skyColor": "Lugkleur",
+      "lbl-groundColor": "Grond kleur",
+      "lbl-intensity": "Intensiteit"
+    },
+    "image": {
+      "name": "Beeld",
+      "description": "Dinamies laai 'n beeld.",
+      "lbl-imgURL": "Beeld-url",
+      "lbl-transparency": "Deursigtigheidsmodus",
+      "lbl-alphaCutoff": "Alpha Cutoff",
+      "lbl-projection": "Projeksie",
+      "lbl-side": "Newe",
+      "info-controls": "Wissel die sigbaarheid van die mediakontroles.",
+      "info-transparency": "Hoe om deursigtigheid toe te pas:",
+      "info-opaque": "'ondeursigtig' = geen deursigtigheid nie",
+      "info-blend": "'versnit' = gebruik die beelde alfa kanaal",
+      "info-mask": "'masker' = Gebruik 'n gespesifiseerde afsnywaarde vir on/ af deursigtigheid (meer performant)",
+      "info-alphaCutoff": "Pixels met alfa waardes laer as dit sal deursigtig wees",
+      "error-url": "Ongeldige URL"
+    },
+    "name": {
+      "lbl-name": "Naam"
+    },
+    "partileEmitter": {
+      "description": "Deeltjie-emitter om deeltjies te skep.",
+      "lbl-particleCount": "Deeltjie Telling",
+      "lbl-image": "Beeld",
+      "lbl-ageRandomness": "Ouderdom Ewekansigheid",
+      "lbl-lifetime": "Leeftyd",
+      "lbl-lifetimeRandomness": "Leeftyd Ewekansigheid",
+      "lbl-sizeCurve": "Grootte Kurwe",
+      "lbl-startPSize": "Begin deeltjiegrootte",
+      "lbl-endPSize": "Eind deeltjie grootte",
+      "lbl-sizeRandomness": "Grootte Ewekansigheid",
+      "lbl-colorCurve": "Kleur Kurwe",
+      "lbl-startColor": "Begin kleur",
+      "lbl-startOpacity": "Begin Ondeursigtigheid",
+      "lbl-middleColor": "Middelkleur",
+      "lbl-middleOpacity": "Middel ondeursigtigheid",
+      "lbl-endColor": "Eindkleur",
+      "lbl-endOpacity": "Beëindig Ondeursigtigheid",
+      "lbl-velocityCurve": "Snelheidskurwe",
+      "lbl-startVelocity": "Begin snelheid",
+      "lbl-endVelocity": "Beëindig snelheid",
+      "lbl-angularVelocity": "Hoekige snelheid",
+      "info-ageRandomness": "Die hoeveelheid variasie tussen wanneer deeltjies voortgebring word.",
+      "info-lifetime": "Die maksimum ouderdom van 'n deeltjie voordat dit herverkoop word.",
+      "info-lifetimeRandomness": "Die hoeveelheid variasie tussen deeltjieleeftye.",
+      "info-sizeRandomness": "Die hoeveelheid variasie tussen deeltjie begin groottes.",
+      "error-url": "Fout met laai vanaf URL"
+    },
+    "clouds": {
+      "name": "Wolk",
+      "description": "Sprite-gebaseerde wolkvolume.",
+      "lbl-image": "Sprite Beeld",
+      "lbl-wroldScale": "Wêreldskaal",
+      "lbl-dimensions": "Dimensies",
+      "lbl-noiseZoom": "Geraas Zoom",
+      "lbl-noiseOffset": "Geraas Verreken",
+      "lbl-spriteScale": "Sprite Skaal",
+      "lbl-fogColor": "Mis kleur",
+      "lbl-fogRange": "Mis reeks",
+      "error-url": "Fout met laai vanaf URL"
+    },
+    "ocean": {
+      "name": "Oseaan",
+      "description": "Oseaan oppervlak met golwe en skuim",
+      "lbl-normalMap": "Normale kaart",
+      "lbl-distortionMap": "Verdraaiingskaart",
+      "lbl-envMap": "Omgewingskaart",
+      "lbl-color": "Kleur",
+      "lbl-shallowWaterColor": "Vlak water kleur",
+      "lbl-shallowToDeepDistance": "Vlak tot diep afstand",
+      "lbl-opacityFadeDistance": "Ondeursigtigheid Vervaag Afstand",
+      "lbl-opacityRange": "Ondeursigtigheidsreeks",
+      "lbl-shininess": "Blinkheid",
+      "lbl-reflectivity": "Reflektiwiteit",
+      "lbl-foamColor": "Skuim kleur",
+      "lbl-foamSpeed": "Skuim spoed",
+      "lbl-foamTiling": "Skuim Tiling",
+      "lbl-bigWaveTiling": "Groot Golf Tiling",
+      "lbl-bigWaveSpeed": "Groot Golf Spoed",
+      "lbl-bigWaveHeight": "Groot Golf Hoogte",
+      "lbl-waveSpeed": "Golf Spoed",
+      "lbl-waveScale": "Golf skaal",
+      "lbl-waveTiling": "Golf Tiling",
+      "lbl-waveDistortionSpeed": "Golf verdraaiing spoed",
+      "lbl-waveDistortionTiling": "Golf Verdraaiing Tiling",
+      "error-url": "Fout met laai vanaf URL"
+    },
+    "water": {
+      "name": "Water",
+      "description": "Klein wateroppervlak"
+    },
+    "interior": {
+      "name": "Binneland",
+      "description": "'N Oppervlak met gekarteer kubustekstuur om binne-omgewings na te boots",
+      "lbl-cubeMap": "Kubus kaart tekstuur",
+      "lbl-tiling": "Tiling bedrag",
+      "lbl-size": "Oppervlak grootte",
+      "error-url": "Fout met laai vanaf URL"
+    },
+    "pointLight": {
+      "description": "'N Lig wat vanaf 'n enkele punt in alle rigtings uitstraal.",
+      "lbl-color": "Kleur",
+      "lbl-intensity": "Intensiteit",
+      "lbl-range": "Reeks",
+      "lbl-decay": "Verval"
+    },
+    "scene": {
+      "name": "Toneel",
+      "description": "Die wortelvoorwerp van die toneel.",
+      "lbl-bgcolor": "Agtergrond kleur",
+      "lbl-fogType": "Mis Tipe",
+      "lbl-fogColor": "Mis kleur",
+      "lbl-forNearDistance": "Mis naby afstand",
+      "lbl-fogFarDistance": "Mis ver afstand",
+      "lbl-fogDensity": "Mis digtheid",
+      "lbl-audioSettings": "Gebruik posisionele oudio",
+      "lbl-avatarDistanceModel": "Avatar Afstand Model",
+      "lbl-avatarRolloffFactor": "Avatar Rolloff Faktor",
+      "lbl-avatarRefDistance": "Avatar Ref Afstand",
+      "lbl-avatarMaxDistance": "Avatar Max Afstand",
+      "lbl-mediaVolume": "Media Volume",
+      "lbl-mediaDistanceModel": "Media afstand model",
+      "lbl-mediaRolloffFactor": "Media Rolloff Faktor",
+      "lbl-mediaRefDistance": "Media Ref Afstand",
+      "lbl-mediaMaxDistance": "Media Max Afstand",
+      "lbl-mediaConeInnerAngle": "Media Keël Innerlike Hoek",
+      "lbl-mediaConeOuterAngle": "Media Keël Buitenste Hoek",
+      "lbl-mediaConeOuterGain": "Media Keël Buitenste Wins",
+      "info-avatarDistanceModel": "Die algorithim wat gebruik word om klankafrol te bereken.",
+      "info-avatarRolloffFactor": "'N Dubbele waarde wat beskryf hoe vinnig die volume verminder word namate die bron van die luisteraar af wegbeweeg. 0 tot 1",
+      "info-avatarRolloffFactorInifinity": "'N Dubbele waarde wat beskryf hoe vinnig die volume verminder word namate die bron van die luisteraar af wegbeweeg. 0 tot oneindigheid",
+      "info-avatarRefDistance": "'N Dubbele waarde wat die verwysingsafstand verteenwoordig om volume te verminder, aangesien die klankbron verder van die luisteraar beweeg.",
+      "info-avatarMaxDistance": "'n Dubbelwaarde wat die maksimum afstand tussen die klankbron en die luisteraar verteenwoordig, waarna die volume nie verder verminder word nie.",
+      "info-mediaDistanceModel": "Die algorithim wat gebruik word om klankafrol te bereken.",
+      "info-mediaRolloffFactor": "'N Dubbele waarde wat beskryf hoe vinnig die volume verminder word namate die bron van die luisteraar af wegbeweeg. 0 tot 1",
+      "info-mediaRolloffFactorInfinity": "'N Dubbele waarde wat beskryf hoe vinnig die volume verminder word namate die bron van die luisteraar af wegbeweeg. 0 tot oneindigheid",
+      "info-mediaRefDistance": "'N Dubbele waarde wat die verwysingsafstand verteenwoordig om volume te verminder, aangesien die klankbron verder van die luisteraar beweeg.",
+      "info-mediaMaxDistance": "'n Dubbelwaarde wat die maksimum afstand tussen die klankbron en die luisteraar verteenwoordig, waarna die volume nie verder verminder word nie.",
+      "info-mediaConeInnerAngle": "'N Dubbele waarde wat die hoek beskryf, in grade, van 'n keël binne waarvan daar geen volumevermindering sal wees nie.",
+      "info-mediaConeOuterAngle": "'N Dubbele waarde wat die hoek beskryf, in grade, van 'n keël buite waarvan die volume verminder sal word deur 'n konstante waarde, gedefinieer deur die coneOuterGain kenmerk.",
+      "info-mediaConeOuterGain": "'N Dubbele waarde wat die hoeveelheid volumevermindering buite die keël beskryf wat deur die coneOuterAngle-kenmerk gedefinieer word. Die verstekwaarde daarvan is 0, wat beteken dat geen klank gehoor kan word nie.",
+      "lbl-simpleMaterials": "Gebruik eenvoudige materiale",
+      "lbl-lods": "LODs",
+      "info-lods": "Stel die afstande op watter vlakke van detail verander.",
+      "info-simpleMaterials": "Skakel alle duur materiaal om na eenvoudiger materiaal om die las van die toneelweergawe af te haal.",
+      "lbl-rendererSettings": "Oorheers Renderer-instellings",
+      "lbl-csm": "Cascading Shadow Maps",
+      "info-csm": "Aktiveer cascading skaduwee kaarte.",
+      "lbl-toneMapping": "Toon Kartering",
+      "info-toneMapping": "Aktiveer toon kartering op die toneel renderer. Het geen effek wanneer 'n posverwerking geaktiveer is nie.",
+      "lbl-toneMappingExposure": "Toon kartering Blootstelling",
+      "info-toneMappingExposure": "Spesifiseer die toon kartering blootstelling op die toneel renderer. Het geen effek wanneer 'n posverwerking geaktiveer is nie.",
+      "lbl-shadowMapType": "Skaduwee Kaart Tipe",
+      "info-shadowMapType": "Tipe skadukaart",
+      "error-url": "Fout met laai vanaf URL"
+    },
+    "sceneCamera": {
+      "name": "Toneel voorskou kamera",
+      "description": "Die kamera wat gebruik word om die duimnael vir jou toneel en die beginposisie vir die voorskoukamera te genereer.",
+      "lbl-setFromViewPort": "Stel van Aansigport"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Tyd van die dag",
+      "lbl-color": "Kleur",
+      "lbl-latitude": "Breedtegraad",
+      "lbl-luminance": "Luminance",
+      "lbl-scattering": "Verstrooiingsbedrag",
+      "lbl-scatteringDistance": "Verstrooiing van afstand",
+      "lbl-horizonStart": "Horison Begin",
+      "lbl-horizonEnd": "Horizon End",
+      "lbl-texture": "Tekstuur",
+      "lbl-skyType": "Sky Tipe",
+      "error-url": "Fout met laai vanaf URL"
+    },
+    "spawnPoint": {
+      "name": "Spawn Point",
+      "description": "'N Punt waar mense sal verskyn wanneer hulle jou toneel betree.\nDie ikoon in die Viewport verteenwoordig die werklike grootte van 'n avatar."
+    },
+    "spotLight": {
+      "description": "'N Lig wat langs 'n rigting uitstraal en voorwerpe binne 'n keël verlig.",
+      "lbl-color": "Kleur",
+      "lbl-intensity": "Intensiteit",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "Hoek",
+      "lbl-range": "Reeks",
+      "lbl-decay": "Verval"
+    },
+    "transform": {
+      "title": "Transformeer",
+      "lbl-postition": "Posisie",
+      "lbl-rotation": "Rotasie",
+      "lbl-scale": "Skaal"
+    },
+    "triggereVolume": {
+      "description": "Stel 'n eiendom op die teikenvoorwerp op enter en vertrek.",
+      "lbl-target": "Objek",
+      "lbl-onenter": "Op Tik",
+      "lbl-onexit": "Op uitgang",
+      "lbl-showHelper": "Wys Helper Mesh",
+      "ph-errorNode": "Fout ontbrekende nodus.",
+      "ph-selectNode": "Kies nodus..."
+    },
+    "video": {
+      "name": "Video",
+      "description": "Dinamies laai 'n video.",
+      "lbl-video": "Video",
+      "lbl-projection": "Projeksie",
+      "lbl-islivestream": "Live Stroom",
+      "lbl-interactable": "Kommunikeerbaar",
+      "lbl-id": "Element Id",
+      "lbl-play": "Speel",
+      "lbl-pause": "Wag",
+      "error-url": "Fout met laai vanaf URL"
+    },
+    "volumetric": {
+      "name": "Volumetriese",
+      "description": "Dinamies laai 'n volumetriese video.",
+      "uvolPaths": "UVOL Paaie",
+      "playmode": "Speel modus",
+      "playtitle": "Speel",
+      "pausetitle": "Wag"
+    },
+    "spline": {
+      "description": "Dinamies skep en pas kurwes aan.",
+      "lbl-addNode": "Voeg nodus by kurwe."
+    },
+    "systemnode": {
+      "description": "Heg skrip aan.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "Inspuiting Punt",
+      "lbl-enableClient": "Kliënt",
+      "lbl-enableServer": "Bediener",
+      "lbl-args": "Args",
+      "error-url": "Fout met die laai van skrip vanaf URL"
+    },
+    "portal": {
+      "lbl-portal": "Gekoppelde portaal",
+      "lbl-redirect": "Gebruik Bladsy Herlei",
+      "description": "'n Portat om spelers na gespesifiseerde ligging te teleporteer",
+      "lbl-locationName": "Ligging",
+      "lbl-modelUrl": "Model URL",
+      "lbl-displayText": "Vertoon teks",
+      "lbl-cubemapBake": "Cubemap bak",
+      "lbl-spawnPosition": "Spawn Posisie",
+      "lbl-spawnRotation": "Spawn Rotasie",
+      "lbl-triggerPosition": "Sneller Posisie",
+      "lbl-triggerRotation": "Sneller Rotasie",
+      "lbl-triggerScale": "Sneller skaal"
+    },
+    "postprocessing": {
+      "name": "Posverwerking",
+      "description": "Vir die toepassing van Post Verwerking effekte op jou toneel."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Nuwe projek",
+      "backLink": "Terug na projekte",
+      "featured": "Gewilde",
+      "all": "Alle",
+      "newProject": "Nuwe leë projek",
+      "ph-search": "Soek tonele..."
+    },
+    "grid": {
+      "loading": "Laai tans..."
+    },
+    "page": {
+      "header": "Welkom",
+      "headerMsg": "As jy nuut hier is, beveel ons aan om deur die handleiding te gaan. Andersins, spring regs in en skep 'n projek van nuuts af of van een van ons templates.",
+      "lbl-startTutorial": "Begin Handleiding",
+      "projects": "Projekte",
+      "lbl-newProject": "Nuwe projek"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Laai tans...",
+      "placeObject": "Plaas voorwerp",
+      "placeObjectAtOrigin": "Plaas voorwerp by oorsprong",
+      "copyURL": "Kopieer URL",
+      "openInNewTab": "Maak URL in Nuwe Oortjie oop",
+      "deleteAsset": "Skrap bate"
+    },
+    "filebrowser": {
+      "addNewFolder": "Voeg nuwe vouer by",
+      "cutAsset": "Knip",
+      "copyAsset": "Kopieer",
+      "pasteAsset": "Plak",
+      "renameAsset": "Hernoem",
+      "viewAssetProperties": "Bekyk eienskappe"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Hernoem",
+    "lbl-duplicate": "Dupliseer",
+    "lbl-group": "Groep",
+    "lbl-delete": "Skrap",
+    "lbl-expandAll": "Brei alles uit",
+    "lbl-collapseAll": "Ineenstort alles",
+    "isseus": "Kwessies:"
+  },
+  "dnd": {
+    "nodes": "{{count}} nodusse gekies",
+    "models": "{{count}} modelle gekies",
+    "images": "{{count}} beelde gekies",
+    "videos": "{{count}} video's gekies",
+    "audio": "{{count}} Oudiobronne gekies"
+  },
+  "dialog": {
+    "title": "Redakteur",
+    "lbl-confirm": "Oukei",
+    "lbl-cancel": "Kanselleer",
+    "exportProject": {
+      "title": "Uitvoer Projek",
+      "lbl-confirm": "Uitvoer Projek",
+      "lbl-combineMesh": "Kombineer Meshes",
+      "lbl-removeUnused": "Verwyder ongebruikte voorwerpe"
+    },
+    "performance": {
+      "title": "Prestasie tjek",
+      "lbl-confirm": "Publiseer toneel",
+      "learnMore": "Leer meer",
+      "lbl-polycount": "Polygon Telling",
+      "lbl-material": "Materiaal",
+      "lbl-texture": "Teksture",
+      "lbl-lights": "Ligte",
+      "lbl-fileSize": "Lêergrootte",
+      "info-polycount": "Ons beveel aan dat u toneel nie meer as 50,000 driehoeke vir mobiele toestelle gebruik nie.",
+      "info-material": "Ons beveel aan dat u nie meer as 25 unieke materiale in u toneel gebruik om trekkingsoproepe op mobiele toestelle te verminder nie.",
+      "info-texture": "Ons beveel aan dat u teksture nie meer as 256 MB videoRAM vir mobiele toestelle gebruik nie. Ons beveel ook aan om teksture groter as 2048 x 2048 te gebruik.",
+      "info-lights": "Terwyl dinamiese ligte nie op mobiele toestelle geaktiveer is nie, beveel ons aan dat u nie meer as 3 ligte in u toneel gebruik nie (omringende en hemisfeerligte uitgesluit) sodat u toneel op lae-end rekenaars kan loop.",
+      "info-fileSize": "Ons beveel 'n finale lêergrootte van nie meer as 16MB aan vir verbindings met 'n lae bandwydte nie. Die vermindering van die lêergrootte sal die tyd wat dit neem om u toneel af te laai, verminder.",
+      "txt-polycount": "{{count}} Driehoeke",
+      "txt-material": "{{count}} materiaal",
+      "txt-ram": "~{{count}} Video RAM",
+      "txt-texture": "{{count}} groot teksture",
+      "txt-lights": "{{count}} ligte"
+    },
+    "progress": {
+      "title": "Laai tans...",
+      "msg": "Laai tans...",
+      "lbl-cancel": "Kanselleer"
+    },
+    "publish": {
+      "title": "Publiseer toneel",
+      "lbl-confirm": "Stoor en publiseer",
+      "lbl-name": "Toneel Naam",
+      "info-name": "Naam moet tussen 4 en 64 karakters wees en kan nie onderstreepte bevat nie"
+    },
+    "published": {
+      "title": "Toneel gepubliseer",
+      "header": "Jou toneel is gepubliseer.",
+      "lbl-view": "Bekyk jou toneel"
+    },
+    "saveNewProject": {
+      "title": "Ondersteuning",
+      "lbl-name": "Projek Naam",
+      "info-name": "Naam moet tussen 4 en 64 karakters wees en kan nie onderstreepte bevat nie",
+      "lbl-confirm": "Stoor Projek"
+    },
+    "support": {
+      "title": "Ondersteuning",
+      "header": "Moet u 'n probleem aanmeld?",
+      "msg": "Jy kan 'n <1>GitHub-kwessie indien</1> of ons e-pos vir ondersteuning by <3>{{mail}}</3>",
+      "discord": "U kan ons ook op <1>Discord</1> vind"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing Beelde",
+      "search": "Soek deur Bing"
+    },
+    "bingVideo": {
+      "name": "Bing Video's",
+      "search": "Soek deur Bing"
+    },
+    "element": {
+      "name": "Elemente"
+    },
+    "myAssets": {
+      "name": "My bates"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Soek deur Google"
+    },
+    "tenor": {
+      "name": "Tenoor GIF's",
+      "search": "Soek deur Tenor",
+      "ph-search": "Soek GIF's..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Soek deur Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Laai bate op"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Soek tans beelde..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Soek video's..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Soek bates..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Soek modelle..."
+    },
+    "useUpload": {
+      "multipleFileError": "Insette aanvaar nie verskeie lêers nie.",
+      "mineTypeError": "\"{{name}}\" stem nie ooreen met die volgende mimiektipes of uitbreidings nie: {{types}}",
+      "progressTitle": "Laai lêers op",
+      "progressMsg": "Laai lêers {{uploaded}} van {{total}}op : {{percentage}}%",
+      "uploadError": "Laai fout op",
+      "uploadErrorMsg": "Fout met die oplaai van lêer: {{message}}",
+      "uploadErrorDefaultMsg": "Daar was 'n onbekende fout."
+    }
+  },
+  "openLink": {
+    "description": "Klik asseblief op die Oop om na die skakel te navigeer.",
+    "lbl-open": "Oop"
+  },
+  "interactableModel": {
+    "lbl-buy": "Koop",
+    "lbl-learnMore": "Leer meer"
+  },
+  "corsProxyButton": {
+    "tooltip": "Gebruik Cors Proxy Server"
+  }
+}

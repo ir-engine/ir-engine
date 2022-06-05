@@ -1,0 +1,202 @@
+{
+  "addComment": "Add Comment...",
+  "share": "ចែករំលែក",
+  "suggestions": "យោបល់សម្រាប់អ្នក",
+  "seeAll": "មើលទាំងអស់គ្នា",
+  "likes": "ចូលចិត្ត",
+  "viewComments": "មើល មតិ {{count}} ទាំងអស់",
+  "more": "បន្ថែម",
+  "username": "ឈ្មោះអ្នកប្រើ",
+  "fullName": "ឈ្មោះ Surname",
+  "reportInApporpriate": "រាយការណ៍មិនសមរម្យ",
+  "unfollow": "មិន អណ្តែត",
+  "goToPost": "ទៅ Post",
+  "shareModal": "ចែករំលែក",
+  "copyLink": "តំណភ្ជាប់ចម្លង",
+  "embed": "បង្កប់",
+  "cancel": "លប់ចោល",
+  "confirm": "បញ្ជាក់",
+  "save": "រក្សាទុក",
+  "profilePic": "{{user}}'s profile pic",
+  "ara": "អារ៉ា",
+  "follow": "ធ្វើតាម",
+  "flames": "អណ្តាតភ្លើង",
+  "continue": "បន្ត",
+  "partyInvitationSent": "ការ អញ្ជើញ របស់ គណបក្ស បាន ផ្ញើ",
+  "arMedia": {
+    "back": "ត្រឡប់ មក វិញ",
+    "clip": "ឈុត",
+    "backgrounds": "ផ្ទៃខាងក្រោយ",
+    "start": "ចាប់ផ្ដើម"
+  },
+  "arMediaform": {
+    "title": "ចំណងជើង",
+    "type": "ប្រភេទ",
+    "clip": "ឈុត",
+    "background": "ផ្ទៃខាងក្រោយ",
+    "scene": "ទិដ្ឋភាព",
+    "save": "រក្សាទុក",
+    "manifest-file": "ឯកសារបង្ហាញ .ការបង្ហាញ",
+    "audio-file": "ឯកសារ Mp4",
+    "dracosis-file": "ឯកសារ Dracosis .uvol",
+    "preview-file": "ឯកសារ រូបភាព មុន"
+  },
+  "creator": {
+    "myVideos": "វីដេអូខ្ញុំ",
+    "savedVideos": "វីដេអូដែលបានរក្សាទុក",
+    "back": "ត្រឡប់ មក វិញ",
+    "blocked-list": "បញ្ជីដែលបានបិទ",
+    "block-user": "អ្នក ប្រើ ប្លុក",
+    "dialog-content": "អ្នក នឹង មិន ឃើញ ទម្រង់ និង មាតិកា របស់ អ្នក ប្រើ ទេ"
+  },
+  "creatorForm": {
+    "back": "ត្រឡប់ មក វិញ",
+    "edit": "ទម្រង់ កែសម្រួល",
+    "save": "រក្សាទុក",
+    "changeAvatar": "ផ្លាស់ប្ដូរ រូបភាព avatar",
+    "ph-selectPreview": "ជ្រើស ការ មើល ជា មុន",
+    "ph-name": "ឈ្មោះ​របស់​អ្នក",
+    "ph-username": "ឈ្មោះអ្នកប្រើរបស់អ្នក",
+    "ph-email": "អ៊ីម៉ែលរបស់អ្នក",
+    "ph-tags": "ស្លាក",
+    "ph-link": "តំណ",
+    "ph-aboutYou": "បន្ថែម អំពី អ្នក",
+    "ph-twitter": "twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Sign-Out"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "អ្នកប្រើប្រាស់",
+    "feeds": "មតិ",
+    "arMedia": "ប្រព័ន្ធផ្សព្វផ្សាយវីដេអូ",
+    "editor": "អ្នក និពន្ធ",
+    "creator": "អ្នកបង្កើត"
+  },
+  "featured": {
+    "empty-list": "គ្មាន ចំណី សម្រាប់ ពេល នេះ ទេ ..."
+  },
+  "feed": {
+    "back": "ត្រឡប់ មក វិញ",
+    "related": "Related feeds",
+    "is-repoted-message": "បញ្ចេញមតិត្រូវបានរាយការណ៍!"
+  },
+  "feedForm": {
+    "back": "ត្រឡប់ មក វិញ",
+    "thanks": "អរគុណដែលបានចែករំលែកនិងកែលម្អសហគមន៍របស់យើង",
+    "share": "ចែករំលែកអ្វីមួយជាមួយសហគមន៍",
+    "upload": "Upload វីដេអូ",
+    "ph-selectVideo": "ជ្រើស វីដេអូ",
+    "preview": "រូបភាព មើល មុន",
+    "ph-selectPreview": "ជ្រើស ការ មើល ជា មុន",
+    "createFeed": "ដើម្បីបង្កើត feed អ្នកត្រូវតែមានវីដេអូ និងរូបភាពមើលជាមុន!!!",
+    "ph-videoName": "ឈ្មោះ វីដេអូ របស់ អ្នក",
+    "ph-type": "វាយអ្វីដែលអ្នកចង់ចែករំលែកជាមួយសហគមន៍ ... ",
+    "lbl-share": "ចែករំលែក",
+    "save": "រក្សាទុក និង ទៅ Next"
+  },
+  "feedMenu": {
+    "featured": "Featured",
+    "creators": "អ្នកបង្កើត",
+    "feed": "មតិ"
+  },
+  "header": {
+    "lbl-volumetric": "កម្រិត សំឡេង"
+  },
+  "login": {
+    "account": "មានគណនី?",
+    "login": "ចូល",
+    "resetPassword": "Reset Password Fake button (នៅទីនេះនឹងជាតំណពីអ៊ីម៉ែល)",
+    "notHavingAccount": "អត់មានគណនីទេ?",
+    "signUp": "ចុះ​ឈ្មោះ",
+    "forgotPassword": "Forgot password?",
+    "back": "ត្រឡប់ មក វិញ",
+    "or": "ឬ"
+  },
+  "comment": {
+    "add": "បន្ថែមមតិរបស់អ្នក..."
+  },
+  "notification": {
+    "feedFire": " បណ្តេញ មតិ របស់ អ្នក ចេញ",
+    "feedBookmarked": " បាន កត់ ចំណាំ មតិ ព័ត៌មាន របស់ អ្នក",
+    "comment": " បាន commented your feed:",
+    "commentFire": " បាន បណ្តេញ មតិ យោបល់ របស់ អ្នក ទៅ មតិ ព័ត៌មាន",
+    "follow": " បាន ចាប់ ផ្ដើម តាម ដាន អ្នក",
+    "unfollow": " បានឈប់ធ្វើតាមអ្នក",
+    "followed": " ធ្វើតាមអ្នក",
+    "activity": "សកម្មភាព"
+  },
+  "onBoarding": {
+    "welcome": "សូមស្វាគមន៍!",
+    "description": "ការប្រមូលបានធំបំផុតនៃប្លង់ 370+ សម្រាប់ប្រូតូទីន iOS ។",
+    "next": "Next",
+    "discover": "រកឃើញអត្ថបទ,",
+    "news": "news & posts",
+    "lines": "វា គឺ ជា អារម្មណ៍ ទាំង នោះ ដែល ជំរុញ ឲ្យ យើង ស្រឡាញ់ តារា វិទូ និង បំណង ប្រាថ្នា របស់ យើង ។",
+    "getStarted": "ចាប់ ផ្ដើម",
+    "meetUp": "ជួប ជាមួយ",
+    "friends": "មិត្រ។",
+    "meet": "ជួប ជាមួយ មិត្ត ភក្តិ"
+  },
+  "shareForm": {
+    "arcMedia": "ចែករំលែក",
+    "videoCreated": "ខ្ញុំបានបង្កើតវីដេអូនេះ",
+    "shareWithBuddies": "ចែក រំលែក ជាមួយ មិត្ត ភក្តិ",
+    "shareVideo": "Share វីដេអូ",
+    "save": "រក្សា ទុក សម្រាប់ រមូរ ម៉ាស៊ីន ថត",
+    "cancel": "លប់ចោល",
+    "close": "បិទ",
+    "addFeed": "បន្ថែម មតិ"
+  },
+  "simpleModal": {
+    "emptyList": "បញ្ជីទទេ",
+    "followers": " ខាងក្រោមនេះ",
+    "following": " អ្នក ដើរ តាម",
+    "flames": " អណ្តាតភ្លើង"
+  },
+  "splash": {
+    "screen": "អេក្រង់ Splash",
+    "logo": "ឡូហ្គោ"
+  },
+  "story": {
+    "profilePic": "{{user}}'s profile pic"
+  },
+  "view": {
+    "cancel": "លប់ចោល",
+    "choice": "អ្នក មាន របៀប ថត ពីរ ផ្សេង គ្នា ដើម្បី ជ្រើស ពី",
+    "verticalMode": "របៀបបញ្ឈរមានពេលវេលាកត់ត្រា 30 sec",
+    "horizontalMode": "របៀប ផ្តេក មាន ពេល វេលា កំណត់ ត្រា មិន កំណត់",
+    "start": "ចាប់ផ្ដើម",
+    "not-show": "កុំ បង្ហាញ វា ម្ដង ទៀត",
+    "welcome": "សូមស្វាគមន៍មកកាន់ ARC!  ធ្វើវីដេអូផ្ទាល់ខ្លួនជាមួយ holograms មួយរបស់យើងហើយបង្ហោះវាទៅប៉ុស្តិ៍ផ្សព្វផ្សាយសង្គមរបស់អ្នក!",
+    "step": "STEP {{step}}",
+    "text-step-1": "ជ្រើស រើស ហូឡូក្រាម ពី បណ្ណាល័យ ។",
+    "text-step-2": "នេះ គឺ ជា ការ ពិត ដែល បាន បន្ថែម ដូច្នេះ សូម ស្កេន កន្លែង ដែល មាន ម៉ាស៊ីន ថត របស់ អ្នក ពី ម្ខាង ទៅ ម្ខាង ក្នុង រយៈ ពេល 3-5 វិនាទី ដែល អ្នក ចង់ ឲ្យ ការ សម្តែង ហូឡូក្រាម ក្លាយ ជា កន្លែង ។",
+    "text-step-3-part-1": "អេក្រង់ ថេប ម្តង នៅ ទីតាំង ដែល អ្នក ចង់ បាន យុថ្កា ហូឡូក្រាម ។",
+    "text-step-3-part-2": "TIP!  វាយ ម្តង នៅ កន្លែង ផ្សេង ទៀត ដើម្បី ផ្លាស់ ប្តូរ ហូឡូក្រាម ទៅ កាន់ ទី តាំង មួយ ផ្សេង ទៀត ។",
+    "text-step-3-part-3": "TIP!  អ្នក អាច ធ្វើ ឲ្យ ហូឡូក្រាម ឡើង វិញ ដោយ ចាក់ ឬ ពង្រីក អេក្រង់ ដោយ ម្រាម ដៃ ម្រាម ដៃ និង លិបិក្រម របស់ អ្នក ។",
+    "text-step-4-part-1": "ប៊ូតុង កំណត់ ត្រា ក្រហម ទ្វេ ដង ដើម្បី ចាប់ផ្ដើម ការ ថត វីដេអូ របស់ អ្នក & # 160; ។",
+    "text-step-4-part-2": "ប៊ូតុង កំណត់ ត្រា ក្រហម ទ្វេ ដង ទៅ STOP & # 160; ។"
+  },
+  "video": {
+    "back": "ត្រឡប់ មក វិញ"
+  },
+  "terms": {
+    "confirmTerms": "ខ្ញុំ យល់ ព្រម ចំពោះ លក្ខខណ្ឌ នៃ ការ បម្រើ",
+    "confirmPolicy": "ខ្ញុំ យល់ ស្រប នឹង គោលការណ៍ ឯកជន"
+  },
+  "registration": {
+    "ph-phoneEmail": "ប្រើ ទូរស័ព្ទ / អ៊ីមែល",
+    "facebook": "បន្តជាមួយ Facebook",
+    "google": "បន្តជាមួយ Google",
+    "linkedin": "បន្តជាមួយ Linkedin",
+    "twitter": "បន្តជាមួយ Twitter",
+    "gitHub": "បន្តជាមួយ GitHub",
+    "connect": "តភ្ជាប់អ៊ីមែលឬលេខទូរស័ព្ទរបស់អ្នក",
+    "logIn": "ចូល",
+    "LogInTo": "ចូល ទៅ ក្នុង",
+    "continueAsGuest": "បន្តជាភ្ញៀវ"
+  }
+}

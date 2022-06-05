@@ -1,0 +1,718 @@
+{
+  "loading": "Wrthi'n Llwytho Prosiect",
+  "loadingMsg": "Wrthi'n llwytho prosiect...",
+  "loadingError": "Wrthi'n llwytho gwallau yn y prosiect",
+  "loadingErrorMsg": "Roedd gwall wrth lwytho'r prosiect.",
+  "selectSceneMsg": "Dewiswch Scene i ddechrau chwarae gyda'r injan",
+  "error": "Gwall",
+  "errorMsg": "Gwall anhysbys.",
+  "generateScreenshot": "Cynhyrchu Sgrinlun Prosiect",
+  "generateScreenshotMsg": "Wrthi'n cynhyrchu sgrinlun prosiect...",
+  "newScene": "Creu Golygfa",
+  "saving": "Prosiect Cadw",
+  "savingMsg": "Wrthi'n cadw prosiect...",
+  "savingError": "Prosiect Arbed Gwallau",
+  "savingErrorMsg": "Roedd gwall wrth achub y prosiect.",
+  "savingSceneErrorMsg": "Dydy'r olygfa ddim wedi'i llwytho'n iawn. Ceisiwch ail-lwytho'r olygfa.",
+  "duplicating": "Prosiect Dyblygu",
+  "duplicatingMsg": "Wrthi'n dyblygu prosiect...",
+  "exporting": "Prosiect Allforio",
+  "exportingMsg": "Wrthi'n allforio prosiect...",
+  "exportingError": "Gwall wrth Allforio Prosiect",
+  "exportingErrorMsg": "Roedd gwall wrth allforio'r prosiect.",
+  "importLegacy": "Mewngludo'r Byd Etifeddiaeth",
+  "importLegacyMsg": "Rhybudd! Bydd hyn yn disodli eich sîn bresennol! Ydych chi'n siŵr eich bod am barhau?",
+  "publishingError": "Prosiect Cyhoeddi Gwallau",
+  "publishingErrorMsg": "Gwall anhysbys.",
+  "publishingScene": "Cyhoeddi'r Sîn",
+  "publishingSceneMsg": "Wrthi'n cyhoeddi'r sîn...",
+  "uploadingThumbnailMsg": "Wrthi'n uwchlwytho mân-luniau...",
+  "uploadingSceneMsg": "Lleoliad uwchlwytho: {{percentage}}%",
+  "envMapError": "Gwall wrth lwytho delweddau ciwbemap {{files}}",
+  "lbl-return": "Dychwelyd",
+  "menubar": {
+    "newScene": "Golygfa Newydd",
+    "saveScene": "Cadw'r Olygfa",
+    "saveAs": "Cadw Fel",
+    "importAsset": "Mewngludo Ased",
+    "exportGLB": "Allforio fel glTF deuaidd (.glb) ...",
+    "importScene": "Mewngludo'r olygfa",
+    "exportScene": "Allgludo'r sîn",
+    "quit": "Ymddiswyddo"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Math o ffeil heb gymorth ar gyfer ffeil: \"{{name}}\". Rhaid i'r ffeil fod yn fodel delwedd, fideo neu glb.",
+    "addObject": "addObject: cyn i'r gwrthrych beidio â dod o hyd iddo",
+    "removeObject": "removeObject: heb ddod o hyd i nod. Mae hyn o ganlyniad i dynnu cwgn nad yw yn y fan a'r lle mwyach.",
+    "noParent": "Nid oes gan {{node}} \"{{name}}\" riant. Dim ond ar wrthrychau sydd yn y fan a'r lle ar hyn o bryd y mae Ad-dalu yn gweithio.",
+    "undefinedParent": "golygydd.reparent: mae newParent heb ei ddiffinio",
+    "notAuthenticated": "Heb ei ddilysu",
+    "fetchingProjectError": "Gwall wrth fetio prosiectau: {{error}}",
+    "fetchingRouteError": "Gwall wrth nôl llwybrau: {{error}}",
+    "unknownError": "Gwall anhysbys",
+    "resolveURL": "Gwall wrth ddatrys url \"{{url}}\":",
+    "mediaSearchAborted": "Chwilio'r cyfryngau wedi dod i ben",
+    "methodNotImplemented": "Ni weithredwyd y dull.",
+    "saveProjectAborted": "Cadw'r olygfa wedi'i erthylu",
+    "unsavedChanges": "Newidiadau heb eu Cadw",
+    "unsavedChangesMsg": "Mae'r olygfa wedi'i haddasu. Cadwch eich newidiadau.",
+    "projectCreationFail": "Wedi methu creu prosiectau. {{reason}}",
+    "projectDeletionFail": "Wedi methu dileu'r prosiect. {{reason}}",
+    "savingProjectFail": "Wedi methu Cadw'r Prosiect. {{reason}}",
+    "sceneTooLarge": "Mae'r olygfa'n rhy fawr ({{size}} MB) i'w chyhoeddi. Mae'r maint mwyaf {{maxSize}} MB.",
+    "sceneCreationFail": "Wedi methu creu golygfeydd. {{reason}}",
+    "uploadAborted": "Llwytho i fyny wedi'i erthylu",
+    "uploadFailed": "Wedi methu uwchlwytho {{reason}}",
+    "assetDeletionFail": "Wedi methu dileu asedau. {{reason}}",
+    "projectAssetDeletionFail": "Wedi methu dileu Asedau'r Prosiect. {{reason}}",
+    "networkError": "Gwall Rhwydwaith: {{status}}. {{text}}",
+    "unknownStatus": "Statws Anhysbys",
+    "CORS": "Gwall CORS o bosibl",
+    "urlFetchError": "Wedi methu nôl \"{{url}}\""
+  },
+  "viewport": {
+    "title": "Viewport",
+    "command": {
+      "movecamera": "Symud Camera",
+      "flyFast": "Hedfan yn gyflymach",
+      "orbit": "Orbit / Dewis",
+      "pan": "Padell",
+      "fly": "Hedfan",
+      "focus": "Canolbwynt",
+      "rotateLeft": "Cylchdroi i'r Chwith",
+      "rotateRight": "Cylchdroi i'r Dde",
+      "cancelPlacement": "Canslo'r Lleoliad",
+      "placeDuplicate": "Rhowch y Dyblygu",
+      "cancelGrab": "Canslo Cipio",
+      "grab": "Cydio",
+      "deselectAll": "Dad-ddethol y Cyfan"
+    },
+    "state": {
+      "header": "Stats",
+      "memory": "Cof",
+      "geometries": "Geometrau",
+      "textures": "Gweadau",
+      "render": "Rendr",
+      "FPS": "FPS",
+      "frameTime": "Amser Ffrâm",
+      "calls": "Galwadau",
+      "triangles": "Trionglau",
+      "points": "Pwyntiau",
+      "lines": "Llinellau"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Cyhoeddi",
+    "lbl-published": "Cyhoeddedig",
+    "command": {
+      "translate": "Cyfieithu",
+      "rotate": "Cylchdroi",
+      "scale": "Graddfa",
+      "toggleSpace": "Gofod Trawsnewid Toggle",
+      "togglePivot": "Pivot Trawsnewid Toggle",
+      "toggleSnapMode": "Modd Toglo Snap",
+      "toggleGrid": "Gwelededd Grid Toggle",
+      "increaseGridSize": "Cynyddu Maint y Grid",
+      "descreaseGridSize": "Lleihau Maint y Grid",
+      "stopPreview": "Stopio'r Olygfa Rhagolwg",
+      "playPreview": "Rhagolwg o'r Olygfa"
+    }
+  },
+  "properties": {
+    "title": "Priodweddau",
+    "lbl-visible": "Gweladwy",
+    "lbl-preventBake": "Atal Pobi",
+    "lbl-persist": "Dyfalbarhau",
+    "multipleNodeSelected": "Nifer o Nodau o wahanol fathau wedi'u dewis",
+    "noNodeSelected": "Does dim nod wedi'i ddewis",
+    "ambientLight": {
+      "name": "Golau Amgylchynol",
+      "description": "Golau sy'n goleuo pob gwrthrych yn eich golygfa.",
+      "lbl-intensity": "Angerdd",
+      "lbl-color": "Lliw"
+    },
+    "envmap": {
+      "name": "Map o'r Amgylchedd",
+      "description": "priodweddau mapiau amgylchedd"
+    },
+    "asset": {
+      "name": "Ased",
+      "description": "Grŵp o gydrannau golygfeydd y gellir eu llwytho a'u dadlwytho'n ddeinamig",
+      "lbl-options": "Dewisiadau",
+      "lbl-assetPath": "Llwybr Asedau",
+      "lbl-assetName": "Enw Allforio",
+      "lbl-exportOptions": "Dewisiadau Allforio",
+      "lbl-export": "Ased Allforio",
+      "lbl-load": "Llwytho i Mewn i'r Sîn",
+      "lbl-unload": "Dadlwytho",
+      "lbl-reload": "Ail-lwytho"
+    },
+    "audio": {
+      "name": "Sain",
+      "description": "Mae'n llwytho sain yn ddeinamig.",
+      "lbl-audiourl": "Url Sain",
+      "lbl-controls": "rheolaethau",
+      "info-controls": "Toglo gwelededd y rheolyddion cyfryngau.",
+      "lbl-autoplay": "Chwarae Auto",
+      "info-autoplay": "Os yw'n wir, bydd y cyfryngau'n chwarae wrth fynd i mewn i'r olygfa am y tro cyntaf.",
+      "lbl-synchronize": "Cysoni",
+      "info-synchronize": "Os yw'n wir, bydd y cyfryngau'n cael eu Cysoni ar yr holl gleientiaid cysylltiedig.",
+      "lbl-loop": "Dolen",
+      "info-loop": "Os yw'n wir, bydd y cyfryngau'n dolen am gyfnod amhenodol.",
+      "lbl-audioType": "Math o Sain",
+      "lbl-distanceModel": "Model Pellter",
+      "info-distanceModel": "Yr algorithim a ddefnyddir i gyfrifo'r gofrestr sain.",
+      "lbl-rolloffFactor": "Ffactor Rolloff",
+      "info-rolloffFactor": "Gwerth dwbl sy'n disgrifio pa mor gyflym y caiff y gyfrol ei lleihau wrth i'r ffynhonnell symud i ffwrdd o'r gwrandäwr. 0 i 1",
+      "info-rfInfinity": "Gwerth dwbl sy'n disgrifio pa mor gyflym y caiff y gyfrol ei lleihau wrth i'r ffynhonnell symud i ffwrdd o'r gwrandäwr. 0 i Anfeidredd",
+      "lbl-refDistance": "Cyf Pellter",
+      "info-refDistance": "Gwerth dwbl sy'n cynrychioli'r pellter cyfeirio ar gyfer lleihau cyfaint wrth i'r ffynhonnell sain symud ymhellach oddi wrth y gwrandäwr.",
+      "lbl-maxDistance": "Pellter Uchaf",
+      "info-maxDistance": "Gwerth dwbl sy'n cynrychioli'r pellter mwyaf rhwng y ffynhonnell sain a'r gwrandäwr, ac ar ôl hynny nid yw'r gyfrol yn cael ei lleihau ymhellach.",
+      "lbl-coneInnerAngle": "Ongl Fewnol Cone",
+      "info-coneInnerAngle": "Gwerth dwbl sy'n disgrifio'r ongl, mewn graddau, o gont y tu mewn na fydd gostyngiad cyfaint ohono.",
+      "lbl-coneOuterAngle": "Ongl Allanol Cone",
+      "info-coneOuterAngle": "Gwerth dwbl sy'n disgrifio'r ongl, mewn graddau, o gont y tu allan y bydd y gyfrol yn cael ei lleihau gan werth cyson, a ddiffinnir gan briodoledd coneOuterGain.",
+      "lbl-coreOuterGain": "Enillion Allanol Cone",
+      "info-coreOuterGain": "Gwerth dwbl sy'n disgrifio faint o ostyngiad cyfaint y tu allan i'r cone a ddiffinnir gan y coneOuterAngle. Ei werth diofyn yw 0, sy'n golygu na ellir clywed unrhyw sain.",
+      "lbl-volume": "Cyfrol",
+      "lbl-play": "Chwarae",
+      "lbl-pause": "Saib",
+      "error-url": "Gwall wrth Lwytho O'r URL"
+    },
+    "boxCollider": {
+      "description": "Blwch anweledig y bydd gwrthrychau'n bownsio neu'n gorffwys ar ei ben.\nHeb wrthdrawiadau, bydd gwrthrychau'n disgyn drwy loriau ac yn mynd drwy waliau.",
+      "lbl-isTrigger": "Clicied"
+    },
+    "camera": {
+      "name": "Camera",
+      "description": "Gosodiadau'r camera.",
+      "lbl-camera-raycast": "Pelydrau Camera",
+      "lbl-camera-raycast-toggle": "Galluog",
+      "lbl-camera-raycast-frequency": "Amledd",
+      "lbl-camera-raycast-count": "Cyfrif Pelydrau",
+      "lbl-camera-raycast-length": "Hyd y Pelydr"
+    },
+    "directionalLight": {
+      "name": "Golau Cyfeiriadol",
+      "description": "Golau sy'n goleuo'r olygfa gyfan, ond sy'n allyrru ar hyd un cyfeiriad.",
+      "lbl-color": "Lliw",
+      "lbl-intensity": "Angerdd",
+      "lbl-cameraFar": "Camera'n Bell",
+      "lbl-cameraNear": "Camera Ger",
+      "lbl-cameraTop": "Camera Top",
+      "lbl-cameraBottom": "Gwaelod Camera",
+      "lbl-cameraLeft": "Camera ar y chwith",
+      "lbl-cameraRight": "Camera Ar y Dde",
+      "lbl-useInCSM": "Defnyddio mewn CSM",
+      "lbl-castShadow": "Cysgod y Cast",
+      "lbl-disableForCSM": "Anabl oherwydd bod map cysgod Cascade wedi'i alluogi.",
+      "lbl-shadowmapResolution": "Datrys Map Cysgodol",
+      "lbl-shadowBias": "Gogwydd Cysgodol",
+      "lbl-shadowRadius": "Radiws Cysgodol",
+      "lbl-showCameraHelper": "Dangos Cynorthwyydd Camera"
+    },
+    "groundPlane": {
+      "name": "Planhigyn Daear",
+      "description": "Planhigyn tir gwastad sy'n ymestyn i'r pellter.",
+      "lbl-color": "Lliw",
+      "lbl-receiveShadow": "Derbyn Cysgod",
+      "lbl-generateNavmesh": "Cynhyrchu Navmesh"
+    },
+    "link": {
+      "description": "Dolen i ystafell neu wefan.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "Map geoofodol 3D o e.e. dinas."
+    },
+    "model": {
+      "description": "Model 3D yn eich sîn, wedi'i lwytho o URL neu ffeil GLTF.",
+      "lbl-usingGPUInstancingFlag": "Defnyddio GpU Instancing",
+      "lbl-modelurl": "Url Enghreifftiol",
+      "lbl-envmapUrl": "Url Map Amgylchedd",
+      "lbl-textureOverride": "Diystyru Gwead",
+      "lbl-materialOverride": "Diystyru Deunydd",
+      "error-url": "Gwall wrth Lwytho O'r URL",
+      "lbl-loopAnimation": "Animeiddio Dolen",
+      "lbl-isAvatar": "A yw Avatar",
+      "lbl-isGPUInstancing": "Yn Defnyddio Instancing GPU",
+      "lbl-isDynamic": "Yn Ddynamig",
+      "lbl-castShadow": "Cysgod y Cast",
+      "lbl-receiveShadow": "Derbyn Cysgod",
+      "lbl-interactable": "Rhyngweithredol",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Enw",
+      "lbl-url": "Url Enghreifftiol",
+      "lbl-buy": "Prynu Url",
+      "lbl-learnMore": "Dysgu Mwy Url",
+      "lbl-htmlContent": "Cynnwys HTML",
+      "lbl-interactionText": "Testun Rhyngweithio",
+      "lbl-interactionType": "Math o Ryngweithio"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Deunydd",
+      "error-materialID": "Gwall wrth ddod o hyd i Ddeunydd",
+      "placeholder-materialID": "Dewis Deunydd",
+      "lbl-patternTarget": "Cyfateb Patrwm",
+      "lbl-pattern": "Patrwm",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Math o Ryngweithio",
+      "text": "Testun Rhyngweithio",
+      "distance": "Pellter Rhyngweithio",
+      "theme": "Thema Rhyngweithio",
+      "name": "Enw'r Rhyngweithio",
+      "description": "Disgrifiad o'r Rhyngweithio",
+      "images": "Delweddau Rhyngweithio",
+      "videos": "Fideos Rhyngweithio",
+      "urls": "Urls Rhyngweithio",
+      "models": "Modelau Rhyngweithio"
+    },
+    "group": {
+      "name": "Grŵp",
+      "description": "Grŵp o wrthrychau lluosog y gellir eu symud neu eu dyblygu gyda'i gilydd.\nLlusgwch a gollwng gwrthrychau i'r Grŵp yn yr Hierarchaeth."
+    },
+    "hemisphere": {
+      "name": "Golau Hemisffer",
+      "description": "Golau sy'n goleuo'r olygfa o orbenion uniongyrchol.",
+      "lbl-skyColor": "Lliw Sky",
+      "lbl-groundColor": "Lliw'r Ddaear",
+      "lbl-intensity": "Angerdd"
+    },
+    "image": {
+      "name": "Delwedd",
+      "description": "Mae'n llwytho delwedd yn ddeinamig.",
+      "lbl-imgURL": "Url Delwedd",
+      "lbl-transparency": "Modd Tryloywder",
+      "lbl-alphaCutoff": "Alpha Cutoff",
+      "lbl-projection": "Amcanestyniad",
+      "lbl-side": "Ochr",
+      "info-controls": "Toglo gwelededd y rheolyddion cyfryngau.",
+      "info-transparency": "Sut i gymhwyso tryloywder:",
+      "info-opaque": "'anhryloyw' = dim tryloywder",
+      "info-blend": "'blend' = defnyddiwch y sianel alpha delweddau",
+      "info-mask": "'masg' = Defnyddiwch werth toriad penodol ar gyfer tryloywder ar/oddi ar dryloywder (mwy o berfformio)",
+      "info-alphaCutoff": "Bydd picseli â gwerthoedd alpha yn is na hyn yn dryloyw",
+      "error-url": "URL annilys"
+    },
+    "name": {
+      "lbl-name": "Enw"
+    },
+    "partileEmitter": {
+      "description": "Allyrrydd gronynnau i greu gronynnau.",
+      "lbl-particleCount": "Cyfrif Gronynnau",
+      "lbl-image": "Delwedd",
+      "lbl-ageRandomness": "Ar hap oedran",
+      "lbl-lifetime": "Oes",
+      "lbl-lifetimeRandomness": "Ar hap gydol oes",
+      "lbl-sizeCurve": "Cromlin Maint",
+      "lbl-startPSize": "Dechrau Maint Gronynnau",
+      "lbl-endPSize": "Diwedd Maint y Gronyn",
+      "lbl-sizeRandomness": "Maint Ar Hap",
+      "lbl-colorCurve": "Cromlin Lliw",
+      "lbl-startColor": "Dechrau'r Lliw",
+      "lbl-startOpacity": "Dechrau Anhryloywder",
+      "lbl-middleColor": "Lliw Canol",
+      "lbl-middleOpacity": "Anhryloywder Canol",
+      "lbl-endColor": "Gorffen Lliw",
+      "lbl-endOpacity": "Gorffen Anhryloywder",
+      "lbl-velocityCurve": "Cromlin Cyflymder",
+      "lbl-startVelocity": "Cychwyn Cyflymder",
+      "lbl-endVelocity": "Gorffen Cyflymder",
+      "lbl-angularVelocity": "Cyflymder Angau",
+      "info-ageRandomness": "Faint o amrywiad rhwng pryd y caiff gronynnau eu silio.",
+      "info-lifetime": "Uchafswm oedran gronynnau cyn iddo gael ei ad-dalu.",
+      "info-lifetimeRandomness": "Faint o amrywiad rhwng oes gronynnau.",
+      "info-sizeRandomness": "Faint o amrywiad rhwng meintiau cychwyn gronynnau.",
+      "error-url": "Gwall wrth Lwytho O'r URL"
+    },
+    "clouds": {
+      "name": "Cwmwl",
+      "description": "Cyfrol cwmwl wedi'i seilio ar chwistrellu.",
+      "lbl-image": "Delwedd Sprite",
+      "lbl-wroldScale": "Graddfa'r Byd",
+      "lbl-dimensions": "Dimensiynau",
+      "lbl-noiseZoom": "Chwyddo Sŵn",
+      "lbl-noiseOffset": "Gwrthbwyso Sŵn",
+      "lbl-spriteScale": "Graddfa Sprite",
+      "lbl-fogColor": "Lliw Niwl",
+      "lbl-fogRange": "Ystod y Niwl",
+      "error-url": "Gwall wrth Lwytho O'r URL"
+    },
+    "ocean": {
+      "name": "Cefnfor",
+      "description": "Arwyneb y cefnfor gyda thonnau ac ewyn",
+      "lbl-normalMap": "Map Arferol",
+      "lbl-distortionMap": "Map Llurgunio",
+      "lbl-envMap": "Map o'r Amgylchedd",
+      "lbl-color": "Lliw",
+      "lbl-shallowWaterColor": "Lliw Dŵr Bas",
+      "lbl-shallowToDeepDistance": "Bas i Bellter Dwfn",
+      "lbl-opacityFadeDistance": "Pellter Pylu Anhryloyw",
+      "lbl-opacityRange": "Ystod Anhryloywder",
+      "lbl-shininess": "Disgleirdeb",
+      "lbl-reflectivity": "Myfyrdod",
+      "lbl-foamColor": "Lliw Ewyn",
+      "lbl-foamSpeed": "Cyflymder Ewyn",
+      "lbl-foamTiling": "Teilsio Ewyn",
+      "lbl-bigWaveTiling": "Teilsio Tonnau Mawr",
+      "lbl-bigWaveSpeed": "Cyflymder y Don Fawr",
+      "lbl-bigWaveHeight": "Uchder y Don Fawr",
+      "lbl-waveSpeed": "Cyflymder Tonnau",
+      "lbl-waveScale": "Graddfa'r Tonnau",
+      "lbl-waveTiling": "Teilsio Tonnau",
+      "lbl-waveDistortionSpeed": "Cyflymder Ystumio Tonnau",
+      "lbl-waveDistortionTiling": "Teilsio Afluniad Tonnau",
+      "error-url": "Gwall wrth Lwytho O'r URL"
+    },
+    "water": {
+      "name": "Dŵr",
+      "description": "Arwyneb dŵr bach"
+    },
+    "interior": {
+      "name": "Mewnol",
+      "description": "Arwyneb gyda gwead ciwb wedi'i fapio i efelychu amgylcheddau mewnol",
+      "lbl-cubeMap": "Gwead Map Ciwb",
+      "lbl-tiling": "Swm teils",
+      "lbl-size": "Maint yr arwyneb",
+      "error-url": "Gwall wrth Lwytho O'r URL"
+    },
+    "pointLight": {
+      "description": "Golau sy'n allyrru i bob cyfeiriad o un pwynt.",
+      "lbl-color": "Lliw",
+      "lbl-intensity": "Angerdd",
+      "lbl-range": "Ystod",
+      "lbl-decay": "Braenu"
+    },
+    "scene": {
+      "name": "Golygfa",
+      "description": "Gwrthrych gwraidd yr olygfa.",
+      "lbl-bgcolor": "Lliw Cefndir",
+      "lbl-fogType": "Math o Niwl",
+      "lbl-fogColor": "Lliw Niwl",
+      "lbl-forNearDistance": "Niwl ger Pellter Agos",
+      "lbl-fogFarDistance": "Pellter Pell Niwl",
+      "lbl-fogDensity": "Dwysedd Niwl",
+      "lbl-audioSettings": "Defnyddio Sain Safle",
+      "lbl-avatarDistanceModel": "Model Pellter Avatar",
+      "lbl-avatarRolloffFactor": "Ffeithiol Rolloff Avatar",
+      "lbl-avatarRefDistance": "Avatar Ref Distance",
+      "lbl-avatarMaxDistance": "Pellter Max Avatar",
+      "lbl-mediaVolume": "Cyfrol y Cyfryngau",
+      "lbl-mediaDistanceModel": "Model Pellter y Cyfryngau",
+      "lbl-mediaRolloffFactor": "Ffeithiol Cyflwyno'r Cyfryngau",
+      "lbl-mediaRefDistance": "Pellter Cyf y Cyfryngau",
+      "lbl-mediaMaxDistance": "Pellter Max Cyfryngau",
+      "lbl-mediaConeInnerAngle": "Ongl Fewnol Cone Cyfryngau",
+      "lbl-mediaConeOuterAngle": "Ongl Allanol Cone Cyfryngau",
+      "lbl-mediaConeOuterGain": "Enillion Allanol Cone Cyfryngau",
+      "info-avatarDistanceModel": "Yr algorithim a ddefnyddir i gyfrifo'r gofrestr sain.",
+      "info-avatarRolloffFactor": "Gwerth dwbl sy'n disgrifio pa mor gyflym y caiff y gyfrol ei lleihau wrth i'r ffynhonnell symud i ffwrdd o'r gwrandäwr. 0 i 1",
+      "info-avatarRolloffFactorInifinity": "Gwerth dwbl sy'n disgrifio pa mor gyflym y caiff y gyfrol ei lleihau wrth i'r ffynhonnell symud i ffwrdd o'r gwrandäwr. 0 i Anfeidredd",
+      "info-avatarRefDistance": "Gwerth dwbl sy'n cynrychioli'r pellter cyfeirio ar gyfer lleihau cyfaint wrth i'r ffynhonnell sain symud ymhellach oddi wrth y gwrandäwr.",
+      "info-avatarMaxDistance": "Gwerth dwbl sy'n cynrychioli'r pellter mwyaf rhwng y ffynhonnell sain a'r gwrandäwr, ac ar ôl hynny nid yw'r gyfrol yn cael ei lleihau ymhellach.",
+      "info-mediaDistanceModel": "Yr algorithim a ddefnyddir i gyfrifo'r gofrestr sain.",
+      "info-mediaRolloffFactor": "Gwerth dwbl sy'n disgrifio pa mor gyflym y caiff y gyfrol ei lleihau wrth i'r ffynhonnell symud i ffwrdd o'r gwrandäwr. 0 i 1",
+      "info-mediaRolloffFactorInfinity": "Gwerth dwbl sy'n disgrifio pa mor gyflym y caiff y gyfrol ei lleihau wrth i'r ffynhonnell symud i ffwrdd o'r gwrandäwr. 0 i Anfeidredd",
+      "info-mediaRefDistance": "Gwerth dwbl sy'n cynrychioli'r pellter cyfeirio ar gyfer lleihau cyfaint wrth i'r ffynhonnell sain symud ymhellach oddi wrth y gwrandäwr.",
+      "info-mediaMaxDistance": "Gwerth dwbl sy'n cynrychioli'r pellter mwyaf rhwng y ffynhonnell sain a'r gwrandäwr, ac ar ôl hynny nid yw'r gyfrol yn cael ei lleihau ymhellach.",
+      "info-mediaConeInnerAngle": "Gwerth dwbl sy'n disgrifio'r ongl, mewn graddau, o gont y tu mewn na fydd gostyngiad cyfaint ohono.",
+      "info-mediaConeOuterAngle": "Gwerth dwbl sy'n disgrifio'r ongl, mewn graddau, o gont y tu allan y bydd y gyfrol yn cael ei lleihau gan werth cyson, a ddiffinnir gan briodoledd coneOuterGain.",
+      "info-mediaConeOuterGain": "Gwerth dwbl sy'n disgrifio faint o ostyngiad cyfaint y tu allan i'r cone a ddiffinnir gan y coneOuterAngle. Ei werth diofyn yw 0, sy'n golygu na ellir clywed unrhyw sain.",
+      "lbl-simpleMaterials": "Defnyddio Deunyddiau Syml",
+      "lbl-lods": "LODs",
+      "info-lods": "Pennu'r pellteroedd y mae lefelau manylder yn newid.",
+      "info-simpleMaterials": "Trosi'r holl ddeunyddiau drud i rai symlach i dynnu'r llwyth oddi ar rendro'r olygfa.",
+      "lbl-rendererSettings": "Diystyru Gosodiadau Rendro",
+      "lbl-csm": "Mapiau Cysgod rhaeadru",
+      "info-csm": "Galluogi rhaeadru mapiau cysgodol.",
+      "lbl-toneMapping": "Mapio Tôns",
+      "info-toneMapping": "Galluogi mapio tôn ar rendr y sîn. Nid yw'n cael unrhyw effaith pan fydd prosesu ôl-brosesu wedi'i alluogi.",
+      "lbl-toneMappingExposure": "Amlygiad i Fapio Tôn",
+      "info-toneMappingExposure": "Pennu'r amlygiad mapio tôn ar y rendr golygfa. Nid yw'n cael unrhyw effaith pan fydd prosesu ôl-brosesu wedi'i alluogi.",
+      "lbl-shadowMapType": "Math o Fap Cysgodol",
+      "info-shadowMapType": "Math o fap cysgodol",
+      "error-url": "Gwall wrth Lwytho O'r URL"
+    },
+    "sceneCamera": {
+      "name": "Camera Rhagolwg Scene",
+      "description": "Roedd y camera'n arfer cynhyrchu'r bawd ar gyfer eich sîn a'r man cychwyn ar gyfer y camera rhagolwg.",
+      "lbl-setFromViewPort": "Wedi'i Osod O Viewport"
+    },
+    "skybox": {
+      "name": "Blwch Awyr",
+      "description": "",
+      "lbl-timeOfDay": "Amser y Dydd",
+      "lbl-color": "Lliw",
+      "lbl-latitude": "Lledred",
+      "lbl-luminance": "Luminance",
+      "lbl-scattering": "Swm Gwasgaredig",
+      "lbl-scatteringDistance": "Pellter Gwasgaredig",
+      "lbl-horizonStart": "Dechrau Horizon",
+      "lbl-horizonEnd": "Diwedd Horizon",
+      "lbl-texture": "Gwead",
+      "lbl-skyType": "Math o Sky",
+      "error-url": "Gwall wrth Lwytho O'r URL"
+    },
+    "spawnPoint": {
+      "name": "Pwynt Sbwng",
+      "description": "Pwynt lle bydd pobl yn ymddangos pan fyddant yn dod i mewn i'ch lleoliad.\nMae'r eicon yn y Viewport yn cynrychioli maint gwirioneddol avatar."
+    },
+    "spotLight": {
+      "description": "Golau sy'n allyrru ar hyd cyfeiriad, gan oleuo gwrthrychau o fewn cone.",
+      "lbl-color": "Lliw",
+      "lbl-intensity": "Angerdd",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "Ongl",
+      "lbl-range": "Ystod",
+      "lbl-decay": "Braenu"
+    },
+    "transform": {
+      "title": "Trawsffurfio",
+      "lbl-postition": "Safle",
+      "lbl-rotation": "Cylchdro",
+      "lbl-scale": "Graddfa"
+    },
+    "triggereVolume": {
+      "description": "Gosod eiddo ar y gwrthrych targed wrth fynd i mewn a gadael.",
+      "lbl-target": "Gwrthrych",
+      "lbl-onenter": "Wrth Fynd i Mewn",
+      "lbl-onexit": "Ar Ymadael",
+      "lbl-showHelper": "Dangos Mesh Helpwr",
+      "ph-errorNode": "Gwall wrth golli'r nod.",
+      "ph-selectNode": "Dewiswch nod..."
+    },
+    "video": {
+      "name": "Fideo",
+      "description": "Mae'n llwytho fideo yn ddeinamig.",
+      "lbl-video": "Fideo",
+      "lbl-projection": "Amcanestyniad",
+      "lbl-islivestream": "Ffrwd Fyw",
+      "lbl-interactable": "Rhyngweithredol",
+      "lbl-id": "Elfen ID",
+      "lbl-play": "Chwarae",
+      "lbl-pause": "Saib",
+      "error-url": "Gwall wrth Lwytho O'r URL"
+    },
+    "volumetric": {
+      "name": "Cyfrol",
+      "description": "Yn ddynamig yn llwytho fideo foltrig.",
+      "uvolPaths": "Llwybrau UVOL",
+      "playmode": "Modd Chwarae",
+      "playtitle": "Chwarae",
+      "pausetitle": "Saib"
+    },
+    "spline": {
+      "description": "Creu ac addasu cyrens yn ddeinamig.",
+      "lbl-addNode": "Ychwanegu nod at gromlin."
+    },
+    "systemnode": {
+      "description": "Atodwch y sgript.",
+      "lbl-filePath": "Url",
+      "lbl-systemUpdateType": "Pwynt Chwistrellu",
+      "lbl-enableClient": "Cleient",
+      "lbl-enableServer": "Gweinydd",
+      "lbl-args": "Args",
+      "error-url": "Gwall wrth Lwytho Sgript O URL"
+    },
+    "portal": {
+      "lbl-portal": "Porth Cysylltiedig",
+      "lbl-redirect": "Defnyddio Ailgyfeirio Tudalennau",
+      "description": "Portat i chwaraewyr teleport i leoliad penodol",
+      "lbl-locationName": "Lleoliad",
+      "lbl-modelUrl": "Url Enghreifftiol",
+      "lbl-displayText": "Dangos Testun",
+      "lbl-cubemapBake": "Pobi ciwb",
+      "lbl-spawnPosition": "Safle Spawn",
+      "lbl-spawnRotation": "Cylchdroi Sbwng",
+      "lbl-triggerPosition": "Safle Sbardun",
+      "lbl-triggerRotation": "Cylchdroi Sbardun",
+      "lbl-triggerScale": "Graddfa Sbardun"
+    },
+    "postprocessing": {
+      "name": "Ôl-brosesu",
+      "description": "Ar gyfer cymhwyso effeithiau Ôl-Brosesu i chi."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Prosiect Newydd",
+      "backLink": "Yn ôl i'r prosiectau",
+      "featured": "Nodwedd",
+      "all": "Holl",
+      "newProject": "Prosiect Gwag Newydd",
+      "ph-search": "Chwilio'r golygfeydd..."
+    },
+    "grid": {
+      "loading": "Llwytho..."
+    },
+    "page": {
+      "header": "Croeso",
+      "headerMsg": "Os ydych chi'n newydd yma rydym yn argymell mynd trwy'r tiwtorial. Fel arall, neidiwch i'r dde i mewn a chreu prosiect o'r dechrau neu o un o'n templedi.",
+      "lbl-startTutorial": "Cychwyn Tiwtorial",
+      "projects": "Projectau",
+      "lbl-newProject": "Prosiect Newydd"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Llwytho...",
+      "placeObject": "Gosod Gwrthrych",
+      "placeObjectAtOrigin": "Gosod Gwrthrych yn y Tarddiad",
+      "copyURL": "Copïo URL",
+      "openInNewTab": "Agor URL yn y Tab Newydd",
+      "deleteAsset": "Dileu Ased"
+    },
+    "filebrowser": {
+      "addNewFolder": "Ychwanegu Ffolder Newydd",
+      "cutAsset": "Torri",
+      "copyAsset": "Copi",
+      "pasteAsset": "Pastio",
+      "renameAsset": "Ailenwi",
+      "viewAssetProperties": "Gweld Priodweddau"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Ailenwi",
+    "lbl-duplicate": "Dyblyg",
+    "lbl-group": "Grŵp",
+    "lbl-delete": "Dileu",
+    "lbl-expandAll": "Ehangu'r Cyfan",
+    "lbl-collapseAll": "Chwalu'r Cyfan",
+    "isseus": "Materion:"
+  },
+  "dnd": {
+    "nodes": "nodau {{count}} wedi'u dewis",
+    "models": "Modelau {{count}} a Ddewiswyd",
+    "images": "Delweddau {{count}} wedi'u Dewis",
+    "videos": "Fideos {{count}} wedi'u Dewis",
+    "audio": "Ffynonellau Sain {{count}} a Ddewiswyd"
+  },
+  "dialog": {
+    "title": "Golygydd",
+    "lbl-confirm": "Ocê",
+    "lbl-cancel": "Canslo",
+    "exportProject": {
+      "title": "Prosiect Allforio",
+      "lbl-confirm": "Prosiect Allforio",
+      "lbl-combineMesh": "Cyfuno Meshes",
+      "lbl-removeUnused": "Tynnu Gwrthrychau nas defnyddiwyd"
+    },
+    "performance": {
+      "title": "Gwirio Perfformiad",
+      "lbl-confirm": "Cyhoeddi'r Olygfa",
+      "learnMore": "Dysgu mwy",
+      "lbl-polycount": "Cyfrif Polygon",
+      "lbl-material": "Defnyddiau",
+      "lbl-texture": "Gweadau",
+      "lbl-lights": "Goleuadau",
+      "lbl-fileSize": "Maint Ffeil",
+      "info-polycount": "Rydym yn argymell nad yw eich golygfa yn defnyddio mwy na 50,000 o drionglau ar gyfer dyfeisiau symudol.",
+      "info-material": "Rydym yn argymell defnyddio dim mwy na 25 o ddeunyddiau unigryw yn eich sîn i leihau galwadau tynnu llun ar ddyfeisiau symudol.",
+      "info-texture": "Rydym yn argymell nad yw eich gwead yn defnyddio mwy na 256MB o RAM fideo ar gyfer dyfeisiau symudol. Rydym hefyd yn argymell yn erbyn defnyddio gweadau sy'n fwy na 2048 x 2048.",
+      "info-lights": "Er nad yw goleuadau deinamig wedi'u galluogi ar ddyfeisiau symudol, rydym yn argymell defnyddio dim mwy na 3 golau yn eich sîn (ac eithrio goleuadau amgylchynol a hemisffer) i'ch sîn redeg ar gyfrifiaduron pen isel.",
+      "info-fileSize": "Rydym yn argymell maint ffeil terfynol o ddim mwy na 16MB ar gyfer cysylltiadau lled band isel. Bydd lleihau maint y ffeil yn lleihau'r amser y mae'n ei gymryd i lawrlwytho eich golygfa.",
+      "txt-polycount": "Trionglau {{count}}",
+      "txt-material": "Deunyddiau {{count}}",
+      "txt-ram": "~ RAM Fideo{{count}}",
+      "txt-texture": "Gweadau Mawr {{count}}",
+      "txt-lights": "Goleuadau'r {{count}}"
+    },
+    "progress": {
+      "title": "Llwytho...",
+      "msg": "Llwytho...",
+      "lbl-cancel": "Canslo"
+    },
+    "publish": {
+      "title": "Cyhoeddi'r Olygfa",
+      "lbl-confirm": "Cadw a Chyhoeddi",
+      "lbl-name": "Enw'r Olygfa",
+      "info-name": "Rhaid i'r enw fod rhwng 4 a 64 nod ac ni all gynnwys tanlinellau"
+    },
+    "published": {
+      "title": "Cyhoeddi'r Sîn",
+      "header": "Mae eich golygfa wedi'i chyhoeddi.",
+      "lbl-view": "Gweld Eich Golygfa"
+    },
+    "saveNewProject": {
+      "title": "Cefnogi",
+      "lbl-name": "Enw'r Prosiect",
+      "info-name": "Rhaid i'r enw fod rhwng 4 a 64 nod ac ni all gynnwys tanlinellau",
+      "lbl-confirm": "Cadw'r Prosiect"
+    },
+    "support": {
+      "title": "Cefnogi",
+      "header": "Angen rhoi gwybod am broblem?",
+      "msg": "Gallwch ffeilio <1>Rhifyn GitHub</1> neu anfon e-bost atom am gymorth yn <3>{{mail}}</3>",
+      "discord": "Gallwch hefyd ddod o hyd i ni ar <1>Discord</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Delweddau Bing",
+      "search": "Chwilio yn ôl Bing"
+    },
+    "bingVideo": {
+      "name": "Fideos Bing",
+      "search": "Chwilio yn ôl Bing"
+    },
+    "element": {
+      "name": "Elfennau"
+    },
+    "myAssets": {
+      "name": "Fy Asedau"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Chwilio yn ôl Google"
+    },
+    "tenor": {
+      "name": "Tenor GIFs",
+      "search": "Chwilio yn ôl Tenor",
+      "ph-search": "Chwilio GIFs..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Chwilio yn ôl Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Uwchlwytho Ased"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Chwilio delweddau..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Chwilio fideos..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Wrthi'n chwilio asedau..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Chwilio modelau..."
+    },
+    "useUpload": {
+      "multipleFileError": "Dydy mewnbwn ddim yn derbyn ffeiliau lluosog.",
+      "mineTypeError": "Nid yw \"{{name}}\" yn cyfateb i'r mathau neu estyniadau canlynol: {{types}}",
+      "progressTitle": "Uwchlwytho Ffeiliau",
+      "progressMsg": "Uwchlwytho ffeiliau {{uploaded}} {{total}}: {{percentage}}%",
+      "uploadError": "Gwall Uwchlwytho",
+      "uploadErrorMsg": "Gwall wrth uwchlwytho ffeil: {{message}}",
+      "uploadErrorDefaultMsg": "Gwall anhysbys"
+    }
+  },
+  "openLink": {
+    "description": "Cliciwch yr Agored i lywio i'r ddolen.",
+    "lbl-open": "Agor"
+  },
+  "interactableModel": {
+    "lbl-buy": "Prynu",
+    "lbl-learnMore": "Dysgu mwy"
+  },
+  "corsProxyButton": {
+    "tooltip": "Defnyddio Dirprwy Weinydd Cors"
+  }
+}

@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Təsdiq E-poçt",
+      "resendEmail": "Hesabınızı yoxlamaq üçün zəhmət olmasa e-poçtunuzu yoxlayın. E-poçt almadınızsa, lütfən {{here}} klikləyərək yoxlama e-poçtuna yenidən göndərin.",
+      "haveAnAccount": "Hesab edin?"
+    },
+    "forgotPassword": {
+      "header": "Şifrəni unutdur",
+      "enterEmail": "Zəhmət olmasa, qeyd etdiyiniz e-mail ünvanınızı daxil edin və biz sizə şifrə sıfırla bağlantısını göndərəcəyik.",
+      "lbl-email": "E-Poçt Ünvanı",
+      "lbl-submit": "Körpünü Göndər",
+      "emailSent": "Şifrəni Sıfırla E-Mail göndərildi. Zəhmət olmasa e-poçtunuzu yoxlayın."
+    },
+    "login": {
+      "email": "E-poçt | SMS",
+      "username": "İstifadəçi Adı + Şifrə",
+      "social": "Sosial"
+    },
+    "magiklink": {
+      "header": "Bağla",
+      "descriptionEmail": "Xahiş edirik e-poçt ünvanınızı daxil edin və biz sizə Email vasitəsilə giriş linki göndərəcəyik.",
+      "descriptionSMS": "Zəhmət olmasa telefon nömrənizi daxil edin və sizə SMS vasitəsilə giriş linki göndərəcəyik.",
+      "descriptionEmailSMS": "Zəhmət olmasa, e-poçt ünvanınızı və ya telefon nömrənizi (10 ədəd, yalnız ABŞ) daxil edin. Sizə E-poçt və ya SMS vasitəsilə giriş linki göndərəcəyik.",
+      "descriptionSMSUS": "Zəhmət olmasa telefon nömrənizi daxil edin (10 ədəd, yalnız ABŞ). Sizə SMS vasitəsilə giriş linki göndərəcəyik.",
+      "lbl-email": "E-poçt ünvanı",
+      "lbl-emailPhone": "E-poçt və ya Telefon nömrəsi",
+      "lbl-phone": "Telefon nömrəsi",
+      "agree": "Razıyam ",
+      "terms": "Terminlər & Şərtlər",
+      "lbl-submit": "_Giriş Körpüsünü Göndər",
+      "email-sent-msg": "Login Magic Link göndərildi. Zəhmət olmasa E-poçtunuzu yoxlayın.",
+      "success-msg": "Login Magic Link göndərildi. Zəhmət olmasa Email və ya SMS-lərinizi yoxlayın.",
+      "sms-sent-msg": "Login Magic Link göndərildi. Sms-lərinizi yoxlayın zəhmət olmasa."
+    },
+    "passwordLogin": {
+      "header": "Daxil olmaq",
+      "lbl-email": "E-Poçt Ünvanı",
+      "lbl-password": "Şifrə",
+      "lbl-rememberMe": "Xatırla məni",
+      "lbl-signin": "Daxil olmaq",
+      "forgotPassword": "Şifrə unuduldu?",
+      "signup": "Hesabın yoxdur? Qeydiyyatdan keçmək",
+      "lbl-login": "Daxil ol",
+      "ph-password": "Şifrə",
+      "ph-email": "E-poçt"
+    },
+    "social": {
+      "gitHub": "GitHub ilə giriş",
+      "google": "Google ilə giriş",
+      "facebook": "Facebook ilə giriş",
+      "linkedin": "Linkedin ilə giriş",
+      "twitter": "Twitter ilə giriş"
+    },
+    "register": {
+      "header": "Qeydiyyatdan keçmək",
+      "login": "Daxil ol",
+      "lbl-signup": "Qeydiyyatdan keçmək",
+      "lbl-password": "Şifrə",
+      "lbl-email": "E-Poçt Ünvanı",
+      "passwordNotMatch": "Şifrələr uyğun gəlmir",
+      "ph-password": "Şifrə",
+      "ph-confirmPassword": "Şifrə təsdiqlə",
+      "ph-email": "E-poçt"
+    },
+    "resetPassword": {
+      "header": "Şifrəni Sıfırla",
+      "description": "Xahiş edirik e-poçt ünvanınız üçün şifrənizi daxil edin",
+      "lbl-submit": "Şifrəni Sıfırla",
+      "lbl-password": "Şifrə",
+      "lbl-confirmPassword": "Şifrə təsdiqlə",
+      "passwordNotMatch": "Şifrələr uyğun gəlmir",
+      "nowLoginYourAccount": "İndi hesabınıza daxil ola bilərsiniz",
+      "yourPasswordResetSuccess": "Şifrəniz uğurla sıfırlandı!"
+    },
+    "verifyEmail": {
+      "header": "E-poçtu yoxla",
+      "processing": "Zəhmət olmasa işlənərkən bir an gözləyin..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Yerlər",
+      "loading": "Yüklənir",
+      "col-name": "Ad",
+      "col-scene": "Səhnə",
+      "col-maxuser": "Maks İstifadəçiləri",
+      "lbl-search": "Məkanlar üzrə axtarış",
+      "lbl-new": "Yeni"
+    },
+    "newLocation": {
+      "title": "Yer",
+      "success": "Müvəffəqiyyətlə qeyd olunub.",
+      "failure": "Nə isə pis oldu.",
+      "removeSuccess": "Mövqe müvəffəqiyyətlə silindi.",
+      "nameInUse": "Ad istifadədədir.",
+      "nameRequire": "İsim tələb olunur.",
+      "validNumber": "Yalnız ədədlərə(0-9) icazə verilir.",
+      "lbl-name": "Ad",
+      "lbl-maxuser": "Maks İstifadəçiləri",
+      "lbl-scene": "Səhnə",
+      "lbl-type": "Növ",
+      "lbl-ve": "Video fəallaşdı",
+      "lbl-gme": "Qlobal Media Fəallaşdı",
+      "lbl-update": "Yenilə",
+      "lbl-create": "Yarat",
+      "tooltipCanNotBeDeleted": "Dəhliz silinə bilməz",
+      "confirmation": "Sən əminsən?",
+      "lbl-yes": "Bəli",
+      "lbl-no": "Xeyr"
+    },
+    "share": {
+      "lbl-share": "Paylaş",
+      "ph-phoneEmail": "E-poçt və ya telefon nömrəsi ilə dəvət",
+      "lbl-phoneEmail": "E-poçta və ya telefon nömrəsinə göndərin",
+      "lbl-copy": "Köçür",
+      "lbl-send-invite": "Dəvət Göndər",
+      "title": "Location URL-nizi komandanızla paylaşın",
+      "linkCopied": "Panoya köçürülən link."
+    },
+    "setting": {
+      "audio": "Səs",
+      "lbl-volume": "Cild",
+      "lbl-microphone": "Mikrofon",
+      "graphics": "Qrafika",
+      "controls": "İdarələr",
+      "lbl-control-type": "İdarəçi növü",
+      "lbl-control-scheme": "İdarə Etmə Sxemi",
+      "lbl-resolution": "Qətnamə",
+      "lbl-shadow": "Kölgələr",
+      "lbl-pp": "Post İşləmə",
+      "lbl-pbr": "Tam PBR",
+      "lbl-automatic": "Avtomatik",
+      "xrusersetting": "XR İstifadəçi Qurğuları",
+      "rotation": "Dönmə",
+      "rotation-smooth-speed": "Dönmə Hamar Sürət",
+      "rotation-angle": "Dönmə açısı",
+      "moving": "Köçür",
+      "user-avatar": "Avatar Qurğuları",
+      "invert-rotation": "İnvert Dönmə və Hərəkət Çubuqları",
+      "show-avatar": "Avatar göstər"
+    },
+    "profile": {
+      "lbl-profile": "Profil",
+      "lbl-settings": "Qurğular",
+      "lbl-username": "İstifadəçi Adı",
+      "update-msg": "İstifadəçi adı yeniləndi",
+      "inviteCode": "Kodu dəvət et",
+      "youAreAn": "Sən bir",
+      "youAreA": "Sən bir",
+      "showUserId": "İstifadəçi ID-lərini göstər",
+      "hideUserId": "İstifadəçi ID-lərini gizlət",
+      "showApiKey": "Açarı göstər",
+      "hideApiKey": "Açarı gizlət",
+      "apiKey": "API açarı",
+      "logout": "Giriş",
+      "connectPhone": "Telefon nömrənizi bağlayın",
+      "connectEmail": "E-poçtunuzu bağlayın",
+      "connectPhoneEmail": "E-poçt və ya telefon nömrənizi bağlayın",
+      "or": "Və ya",
+      "lbl-wallet": "Pul kisəsi ilə giriş",
+      "ph-email": "E-poçt",
+      "ph-phone": "Telefon Nömrəsi",
+      "ph-phoneEmail": "Telefon Nömrəsi / E-mail",
+      "phoneEmailError": "Fakturalı telefon # və ya e-poçt ünvanı",
+      "phoneError": "Səhv telefon #",
+      "emailError": "Səhv e-poçt ünvanı",
+      "loginWithReadyPlayerMe": "Ready Player Me ilə Daxil Ol",
+      "connectSocial": "Sosial hesablarla əlaqə",
+      "createOne": "Əgər hesabınız yoxdursa, sizin üçün yenisi yaradılacaq",
+      "connections": {
+        "title": "Bağlan",
+        "ipError": "Fəal Şəxsiyyət Təminatçını aradan qaldırmaq mümkün deyil",
+        "disconnect": "əlaqəni kəs",
+        "connect": "Bağla"
+      },
+      "profileDropdown": {
+        "avatar": "İstifadəçi Avatar İkonası",
+        "profile": "Profil",
+        "adminConsole": "Admin Konsolu",
+        "logout": "Logout"
+      },
+      "userIcon": {
+        "lbl-name": "Sənin adın",
+        "lbl-update": "Yenilə",
+        "userId": "İstifadəçi id",
+        "ph-uploadImg": "Məhsul Şəkili Yukle",
+        "lbl-selectAcvatar": "Avatar Seç",
+        "lbl-submit": "Göndərmək"
+      },
+      "userSettings": {
+        "volume": "Cild",
+        "microphone": "Mikrofon",
+        "resolution": "Qətnamə",
+        "high": "Hündürlük",
+        "low": "Alçaq",
+        "spatialAudio": "Patial Audio'u işlət",
+        "enterMuted": "Otağa Daxil Ol Muted"
+      }
+    },
+    "oauth": {
+      "authenticating": "Təsdiq edir...",
+      "authFailed": "{{service}} tanıtma bacarılmadı."
+    },
+    "magikLink": {
+      "wait": "Zəhmət olmasa işlənərkən bir an gözləyin..."
+    },
+    "dashboard": {
+      "header": "Daş lövhəsi",
+      "dashboard": "Daş lövhəsi",
+      "users": "İstifadəçilər",
+      "feeds": "Qidalananlar",
+      "instance": "Nümunə",
+      "locations": "Yerlər",
+      "invites": "Dəvət edir",
+      "sessions": "İclaslar",
+      "groups": "Qruplar",
+      "parties": "Tərəflər",
+      "chats": "Çatlar",
+      "content": "Məzmun Paketləri",
+      "projects": "Layihələr",
+      "scenes": "Səhnələr",
+      "avatars": "Avatarlar",
+      "benchmarking": "Bençmarkinq",
+      "bots": "Botlar"
+    }
+  },
+  "oauth": {
+    "authenticating": "Təsdiq edir...",
+    "authFailed": "{{service}} tanıtma bacarılmadı."
+  },
+  "magikLink": {
+    "wait": "Zəhmət olmasa işlənərkən bir an gözləyin..."
+  },
+  "dashboard": {
+    "header": "Daş lövhəsi",
+    "dashboard": "Daş lövhəsi",
+    "users": "İstifadəçilər",
+    "feeds": "Qidalananlar",
+    "instance": "Nümunə",
+    "locations": "Yerlər",
+    "routes": "Gedişlər",
+    "projects": "Layihələr",
+    "invites": "Dəvət edir",
+    "sessions": "İclaslar",
+    "groups": "Qruplar",
+    "parties": "Tərəflər",
+    "chats": "Çatlar",
+    "content": "Məzmun Paketləri",
+    "scenes": "Səhnələr",
+    "avatars": "Avatarlar",
+    "benchmarking": "Bençmarkinq",
+    "bots": "Botlar",
+    "setting": "Qurğular"
+  },
+  "avatar": {
+    "title": "Avatar yukle",
+    "lbl-browse": "Göz gəzdir",
+    "lbl-thumbnail": "Baş barmaq",
+    "lbl-upload": "Yüklə",
+    "selectAvatar": "Avatar seç...",
+    "selectThumbnail": "Thumbnail seç...",
+    "rotate": "Döndər",
+    "pan": "Pan",
+    "noBone": "Obyektin tərkibində heç bir sümük və dəri yoxdur",
+    "outOfBound": "Cism bağlı deyil.",
+    "emptyObj": "Cism boşdur.",
+    "maxTriangleError": "Cismin {{allowedTriangles}} üzlərindən böyük olması.",
+    "selectValidFile": "Hökmlü 3d avatar faylını seçin.",
+    "selectValidThumbnail": "Seçili əsas faylın adı:",
+    "fileOversized": "Avatar fayl ölçüsü {{minSize}} MB ilə {{maxSize}} MB arasında olmalıdır",
+    "confirmation": "Sən əminsən?",
+    "canNotBeRemoved": "Fəal Avatar silinə bilmir",
+    "remove": "Avatar",
+    "uploadFiles": "Fayllar yüklə",
+    "useUrlInstead": "Url-in yerinə işlət",
+    "avatar": "Avatar",
+    "cancel": "Ləğv etmək",
+    "createAvatar": "Avatar yarat",
+    "delete": "Sil",
+    "view": "Baxış",
+    "uploadAvatarInfo": "Avatar Məlumat Yüklə",
+    "name": "Ad",
+    "enterName": "Adı daxil edin",
+    "avatarInformation": "Avatar Məlumat",
+    "description": "İzah",
+    "key": "Açar",
+    "none": "Heç biri",
+    "submit": "Göndərmək",
+    "edit": "_Düzəlt",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "Avatar uğurla yükləndi.",
+    "remove-success-msg": "Avatar uğurla yükləndi.",
+    "warning-msg": "Avatar resursu boşdur, statik fayl anbarınıza avatarları sinxronizasiya etmisiz?"
+  },
+  "personMenu": {
+    "inviteToParty": "Partiyaya dəvət",
+    "addAsFriend": "Dost Olaraq Əlavə Et",
+    "mute": "S-n",
+    "block": "Blok"
+  },
+  "person": {
+    "you": "Sən",
+    "yourScreen": "Ekranınız",
+    "muteForEveryone": "Hər kəs üçün mute",
+    "unmuteForEveryone": "Hər kəs üçün unmute",
+    "muteMe": "Məni müt ' ə",
+    "unmuteMe": "Üstümə eylə məni",
+    "muteThisPerson": "Bu şəxsi müdt",
+    "unmuteThisPerson": "Bu şəxsi ünvanla",
+    "openPictureInPicture": "Şəkildə şəkil aç"
+  }
+}

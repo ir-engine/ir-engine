@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "ᓇᓗᓇᐃᖅᓯᔾᔪᑎ ᐃᕐᖐᓐᓈᖅᑕᐅᒃᑯᑦ",
+      "resendEmail": "ᐃᕐᖐᓐᓈᖅᑕᐅᑎᑎᑦ ᖃᐅᔨᒋᐊᕐᓗᒋᑦ ᓇᓗᓇᐃᖅᓯᖁᓪᓗᑎᑦ ᑮᓇᐅᔭᖁᑎᖕᓂᑦ. ᐃᕐᖐᓐᓈᖅᑕᐅᑎᑖᓚᐅᙱᒃᑯᕕᑦ, {{here}} ᓇᕿᓪᓗᒍ ᐃᕐᖐᓐᓈᖅᑕᐅᑦ ᓇᕿᒃᑲᓐᓂᕐᓗᒍ.",
+      "haveAnAccount": "ᓇᓕᖅᑲᖃᖅᐲᑦ?"
+    },
+    "forgotPassword": {
+      "header": "ᐃᓯᕈᓐᓇᐅᑖ",
+      "enterEmail": "ᐊᑎᓕᐅᕐᕕᒃᐱᑦ ᐃᕐᙲᓐᓈᖅᑕᐅᒃᑰᕈᑖ ᑎᑎᕋᕐᓗᒍ ᐊᒻᒪ ᐃᕐᙲᓐᓈᖅᑕᐅᒃᑰᕈᑏᑦ ᐃᑭᐊᖅᑭᕕᖕᒧᐊᖅᑕᐅᒃᑲᓐᓂᖁᓂᐊᖅᐸᑦᑎᒋᑦ.",
+      "lbl-email": "ᐃᕐᖐᓐᓈᖅᑕᐅᑦ",
+      "lbl-submit": "ᓇᒃᓯᐅᑎᓗᒍ ᑲᓱᕐᕕᒃ",
+      "emailSent": "ᐋᖅᑭᒃᑲᓐᓂᕈᒃ ᐃᓯᕈᓐᓇᐅᑖ ᐃᕐᖐᓐᓇᒃᑰᕈᑖ ᓇᒃᓯᐅᔾᔭᐅᓚᐅᖅᑐᖅ. ᐃᕐᖐᓐᓈᖅᑕᐅᑎᑦ ᑎᑎᕐᓗᒋᑦ."
+    },
+    "login": {
+      "email": "ᐃᕐᖐᓈᖅᑕᐅᒃᑯᑦ | SMS",
+      "username": "ᐊᑐᖅᑑᑉ ᐊᑎᐊᐊ + ᐃᓯᕈᓐᓇᐅᑎᖓ",
+      "social": "ᐃᓅᖃᑎᒌᑉᐸᓐᓂᕐᒧᑦ"
+    },
+    "magiklink": {
+      "header": "ᐃᓯᕈᓐᓇᐅᑎᒧᑦ ᐊᑦᑕᑕᕐᕕᒃ",
+      "descriptionEmail": "ᐃᕐᖐᓐᓈᖅᑕᐅᒃᑯᑦ ᑐᕌᕈᑎᓯ ᑎᑎᕋᕐᓗᒋᑦ ᐊᒻᒪ ᐃᕐᖐᓐᓈᖅᑕᐅᒃᑯᑦ ᑎᑎᕋᕈᓐᓇᖅᐳᑎᑦ.",
+      "descriptionSMS": "ᐅᖃᓘᑎᕕᑦ ᓈᓴᐅᑖ ᑎᑎᕋᕐᓗᒍ ᐊᒻᒪ ᐃᓯᕈᓐᓇᐅᑎᒥᒃ ᓇᒃᓯᐅᔾᔨᕕᒋᓂᐊᖅᐸᑦᑎᒋᑦ SMS−ᑯᑦ.",
+      "descriptionEmailSMS": "ᐃᕐᖐᓐᓈᖅᑕᐅᑎᕕᑦ ᑐᕌᕈᑖ ᐅᕝᕙᓘᓐᓃᑦ ᐅᖃᓘᑎᕕᑦ ᓈᓴᐅᑖ ᑎᑎᕋᕐᓗᒍ (ᖁᓕᑦ ᖃᕆᑕᐅᔭᑦ, ᒥᐊᓕᒐᒃᑯᑦ ᑭᓯᐊᓂ) ᐃᕐᙲᓐᓈᖅᑕᐅᒃᑯᑦ ᐅᕝᕙᓘᓐᓃᑦ SMS−ᑯᑦ.",
+      "descriptionSMSUS": "ᐅᖃᓘᑎᕕᑦ ᓈᓴᐅᑖ ᑎᑎᕋᕐᓗᒍ (10 ᖃᕆᑕᐅᔭᑦ, ᒥᐊᓕᒐᒃᑯᑦᑐᐊᖅ) ᖃᕆᑕᐅᔭᒃᑯᓪᓗ ᐃᓯᕈᑎᒃᑯᑦ ᓇᒃᓯᐅᔾᔨᕕᒋᓂᐊᖅᐸᑦᑎᒋᑦ SMS−ᑯᑎᒍᑦ.",
+      "lbl-email": "ᐃᕐᖐᓐᓈᖅᑕᐅᑦ",
+      "lbl-emailPhone": "ᐃᕐᖐᓐᓈᖅᑕᐅᑦ ᐅᕝᕙᓘᓐᓃᑦ ᐅᖃᓘᑎᖓᑕ ᓈᓴᐅᑖ",
+      "lbl-phone": "ᐅᖄᓚᐅᑎᖓᑕ ᓈᓴᐅᑖ",
+      "agree": "ᐊᖏᖅᐳᖓ ",
+      "terms": "ᑐᑭᖏᑦ ᒪᓕᒐᖏᓪᓗ",
+      "lbl-submit": "ᓇᒃᓯᐅᑎᓗᒍ ᐃᓯᕈᓐᓇᐅᑎᒧᑦ ᐊᑦᑕᑕᕐᕕᒃ",
+      "email-sent-msg": "ᐃᓯᕈᑎᖓ ᒫᒋᒃ ᓕᖕᒃ ᓇᒃᓯᐅᔾᔭᐅᓚᐅᖅᑐᖅ. ᐃᕐᖐᓐᓈᖅᑕᐅᑎᑦ ᑎᑎᕐᓗᒋᑦ.",
+      "success-msg": "ᐃᓯᕈᑎᖓ ᒫᒋᒃ ᓕᖕᒃ ᓇᒃᓯᐅᔾᔭᐅᓚᐅᖅᑐᖅ. ᐃᕐᖐᓐᓈᖅᑕᐅᑎᑎᑦ ᖃᐅᔨᒋᐊᕐᓗᒋᑦ ᐅᕝᕙᓘᓐᓃᑦ SMS.",
+      "sms-sent-msg": "ᐃᓯᕈᑎᖓ ᒫᒋᒃ ᓕᖕᒃ ᓇᒃᓯᐅᔾᔭᐅᓚᐅᖅᑐᖅ. ᑎᑎᕐᓗᒍ SMS."
+    },
+    "passwordLogin": {
+      "header": "ᐃᓯᖅᐸᓪᓕᐊᔪᑦ ᐊᑎᓕᐅᕐᓗᑎᒃ",
+      "lbl-email": "ᐃᕐᖐᓐᓈᖅᑕᐅᑦ",
+      "lbl-password": "ᐃᓯᕈᓐᓇᐅᑖ",
+      "lbl-rememberMe": "ᐃᖅᑲᐅᒪᙵ",
+      "lbl-signin": "ᐃᓯᖅᐸᓪᓕᐊᔪᑦ ᐊᑎᓕᐅᕐᓗᑎᒃ",
+      "forgotPassword": "ᐃᓯᕈᓐᓇᐅᑖ ᐳᐃᒍᖅᐱᐅᒃ?",
+      "signup": "ᓇᓕᖅᑲᖃᖏᑉᐱᑦ? ᐊᑎᓕᐅᕆᑦ",
+      "lbl-login": "ᖃᕆᓴᐅᔭᕐᒧᑦ ᐃᓯᕐᓗᑎᑦ",
+      "ph-password": "ᐃᓯᕈᓐᓇᐅᑖ",
+      "ph-email": "ᐃᕐᖐᓐᓈᖅᑕᐅᑦ"
+    },
+    "social": {
+      "gitHub": "ᐃᓯᕐᓗᑎᑦ GitHub−ᒧᑦ",
+      "google": "ᐃᓯᕐᓗᑎᑦ Google−ᒥᑦ",
+      "facebook": "ᐃᓯᕐᓗᑎᑦ ᕙᐃᔅᐳᒃᑯᑦ",
+      "linkedin": "ᐃᓯᕐᓗᑎᑦ ᓕᖕᒃᓕᓐᒥᑦ",
+      "twitter": "ᑐᐃᑐᒥᑦ"
+    },
+    "register": {
+      "header": "ᐊᑎᓕᐅᕆᑦ",
+      "login": "ᖃᕆᓴᐅᔭᕐᒧᑦ ᐃᓯᕐᓗᑎᑦ",
+      "lbl-signup": "ᐊᑎᓕᐅᕆᑦ",
+      "lbl-password": "ᐃᓯᕈᓐᓇᐅᑖ",
+      "lbl-email": "ᐃᕐᖐᓐᓈᖅᑕᐅᑦ",
+      "passwordNotMatch": "ᐃᓯᕈᓐᓇᐅᑖᑦ ᐊᔾᔨᖃᙱᑦᑐᑦ",
+      "ph-password": "ᐃᓯᕈᓐᓇᐅᑖ",
+      "ph-confirmPassword": "ᐃᓯᕈᓐᓇᐅᑖ ᓇᓗᓇᐃᖅᑕᐅᔪᖅ",
+      "ph-email": "ᐃᕐᖐᓐᓈᖅᑕᐅᑦ"
+    },
+    "resetPassword": {
+      "header": "ᐋᖅᑭᒃᑲᓐᓂᕈᒃ ᐃᓯᕈᓐᓇᐅᑖ",
+      "description": "ᐃᓕᓗᒍ ᐃᓯᕈᓐᓇᐅᑖ ᐃᕐᖐᓐᓈᖅᑕᐅᑎᕕᑦ ᑐᕌᕈᑎᖕᓄᑦ",
+      "lbl-submit": "ᐋᖅᑭᒃᑲᓐᓂᕈᒃ ᐃᓯᕈᓐᓇᐅᑖ",
+      "lbl-password": "ᐃᓯᕈᓐᓇᐅᑖ",
+      "lbl-confirmPassword": "ᐃᓯᕈᓐᓇᐅᑖ ᓇᓗᓇᐃᖅᑕᐅᔪᖅ",
+      "passwordNotMatch": "ᐃᓯᕈᓐᓇᐅᑖᑦ ᐊᔾᔨᖃᙱᑦᑐᑦ",
+      "nowLoginYourAccount": "ᐃᓯᕈᓐᓇᖅᓯᕗᑎᑦ ᑮᓇᐅᔭᖁᑎᖃᕐᕕᖕᓄᑦ",
+      "yourPasswordResetSuccess": "ᖃᕆᑕᐅᔭᕐᒧᑦ ᒪᒃᐱᕈᓐᓇᐅᑖ ᐋᖅᑭᒋᐊᖅᑕᐅᑦᑎᐊᓚᐅᖅᐳᖅ!"
+    },
+    "verifyEmail": {
+      "header": "ᐃᕐᖐᓈᖅᑕᐅᑦ ᓇᓗᓇᐃᕐᓗᒍ",
+      "processing": "ᐅᑕᖅᑭᓚᐅᑲᒡᓗᑎᑦ ᐱᓕᕆᐊᖑᕙᓪᓕᐊᑎᓪᓗᒍ..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "ᓇᓃᓐᓂᖏᑦ",
+      "loading": "ᐅᓯᓕᖅᓱᐃᓂᖅ",
+      "col-name": "ᐊᑎᖓ",
+      "col-scene": "ᓯᓇᕐᔭᖅ",
+      "col-maxuser": "ᐊᒥᓲᓛᓂᑦ ᐊᑐᖅᐸᒃᑐᑦ",
+      "lbl-search": "ᕿᓂᕐᓂᖅ ᐃᓂᖏᓐᓂᒃ",
+      "lbl-new": "ᓄᑖᖅ"
+    },
+    "newLocation": {
+      "title": "ᐃᓂᒋᓂᐊᖅᑕᖓ",
+      "success": "ᓴᓂᕐᕙᑦᑎᐊᓚᐅᖅᑕᑦ.",
+      "failure": "ᑭᓱᑭᐊᖅ ᑕᒻᒪᓚᐅᕐᒪᑦ.",
+      "removeSuccess": "ᓇᒦᓐᓂᖓ ᐲᖅᑕᐅᑦᑎᐊᓚᐅᖅᑐᖅ.",
+      "nameInUse": "ᐊᑎᖓ ᐊᑐᖅᑕᐅᔪᖅ.",
+      "nameRequire": "ᐊᑎᖓ ᐱᔭᐅᔭᕆᐊᓕᒃ.",
+      "validNumber": "ᓈᓴᐅᑎᑐᐊᑦ(0-9) ᐱᔪᓐᓇᖅᑎᑕᐅᔪᑦ.",
+      "lbl-name": "ᐊᑎᖓ",
+      "lbl-maxuser": "ᐊᒥᓲᓛᓂᑦ ᐊᑐᖅᐸᒃᑐᑦ",
+      "lbl-scene": "ᓯᓇᕐᔭᖅ",
+      "lbl-type": "ᖃᓄᐃᑦᑑᓂᖓ",
+      "lbl-ve": "ᑕᕐᕆᔮᒃᓴᖅ ᐊᔪᕈᓐᓃᖅᑎᑕᐅᔪᖅ",
+      "lbl-gme": "ᓄᓇᕐᔪᐊᕐᒥ ᑐᓴᐅᒪᔪᓕᕆᔾᔪᑎᑦ ᐊᔪᖅᑎᑕᐅᙱᑦᑐᑦ",
+      "lbl-update": "ᓄᑖᙳᕆᐊᖅᓯᒪᔪᑦ",
+      "lbl-create": "ᓴᓇᓗᑎᑦ",
+      "tooltipCanNotBeDeleted": "ᐃᓯᕐᕕᖓ ᐲᖅᑕᐅᔪᓐᓇᙱᑦᑐᖅ",
+      "confirmation": "ᐄᓪᓚᕆᐅᕙ?",
+      "lbl-yes": "ᐄ",
+      "lbl-no": "ᐋᒃᑲ"
+    },
+    "share": {
+      "lbl-share": "ᐊᒥᖅᑳᖃᑎᖃᕐᓂᖅ",
+      "ph-phoneEmail": "ᖃᐃᖁᔭᐅᓗᑎᑦ ᐃᕐᖐᓐᓇᒃᑰᕈᑎᒃᑯᑦ ᐅᖄᓚᐅᑎᒃᑯᓪᓘᓐᓃᑦ",
+      "lbl-phoneEmail": "ᓇᒃᓯᐅᑎᓗᒍ ᐃᕐᖐᓐᓇᒃᑰᕈᑎᒃᑯᑦ ᐅᖃᓘᑎᒃᑯᓪᓘᓐᓃᑦ",
+      "lbl-copy": "ᐊᔾᔨᖓ",
+      "lbl-send-invite": "ᖃᐃᖁᔨᓂᖅ ᓇᒃᓯᐅᑎᓗᒍ",
+      "title": "URL−ᑯᑦ ᐅᖃᐅᓯᕆᒃᑭᑦ ᐱᓕᕆᖃᑎᒋᔭᕐᓄᑦ",
+      "linkCopied": "ᑲᓱᕐᓗᒍ ᐊᔾᔨᖓ ᕿᑐᑦᑐᒐᐅᔭᕐᒧᑦ."
+    },
+    "setting": {
+      "audio": "ᓂᐱᖃᐅᑎ",
+      "lbl-volume": "ᐊᖏᑎᒋᔪᖅ",
+      "lbl-microphone": "ᖃᓂᙳᕐᓇᐅᑎ",
+      "graphics": "ᑎᑎᖅᑐᒐᐃᑦ",
+      "controls": "ᐊᐅᓚᑦᑎᔾᔪᑏᑦ",
+      "lbl-control-type": "ᑮᓇᐅᔭᓕᕆᔨᑉ ᖃᓄᐃᑦᑑᓂᖓ",
+      "lbl-control-scheme": "ᐊᐅᓚᑦᑎᓂᖅ",
+      "lbl-resolution": "ᑐᑭᑖᕈᑎ",
+      "lbl-shadow": "ᓵᑦᑐᔮᑦ",
+      "lbl-pp": "ᑭᖑᓂᐊᒍᑦ ᐱᓕᕆᓂᖅ",
+      "lbl-pbr": "ᐊᑕᖏᖅᑐᖅ PBR",
+      "lbl-automatic": "ᐃᕐᖐᓐᓇᖅ",
+      "xrusersetting": "XR ᐊᑐᖅᑎᐅᑉ ᐋᖅᑭᒃᓯᒪᓂᖓ",
+      "rotation": "ᓂᑭᑦᑖᕐᓂᖅ",
+      "rotation-smooth-speed": "ᓱᒃᑲᓴᕐᓂᖓ ᓱᒃᑲᓂᖓ",
+      "rotation-angle": "ᓂᑭᑦᑖᕐᓂᖅ",
+      "moving": "ᓅᓐᓂᖅ",
+      "user-avatar": "ᐊᕙᑕᐅᑉ ᐋᖅᑭᒃᓯᒪᓂᖓ",
+      "invert-rotation": "ᐅᐃᔾᔮᕐᓂᖅ ᐊᒻᒪ ᓄᑦᑕᕐᓂᖅ",
+      "show-avatar": "ᑕᑯᒃᓴᐅᑎᑦᑎᓂᖅ ᐊᕙᑕᒥᒃ"
+    },
+    "profile": {
+      "lbl-profile": "ᖃᓄᐃᓕᖓᓂᖓ",
+      "lbl-settings": "ᐋᖅᑭᒃᓯᒪᓂᖏᑦ",
+      "lbl-username": "ᐊᑐᖅᑑᑉ ᐊᑎᖓ",
+      "update-msg": "ᐊᑐᖅᑑᑉ ᐊᑎᖓ ᓄᑖᙳᕆᐊᖅᑕᐅᔪᖅ",
+      "inviteCode": "ᖃᐃᖁᔨᓂᕐᒧᑦ ᓇᓗᓇᐃᒃᑯᑕᖅ",
+      "youAreAn": "ᐃᕝᕕᑦ",
+      "youAreA": "ᐃᕝᕕᑦ",
+      "showUserId": "ᐊᑐᖅᑑᑉ ᓇᓗᓇᐃᒃᑯᑕᖓᓂᒃ ᑕᑯᑎᑦᑎᔪᖅ",
+      "hideUserId": "ᐊᒥᖓᓂ ᐊᑐᖅᑑᑉ ᓇᓗᓇᐃᒃᑯᑕᖓ",
+      "showApiKey": "ᑕᑯᑎᓪᓗᒋᑦ API−ᒧᑦ ᑮᖏᑦ",
+      "hideApiKey": "ᐊᒥᖓ API−ᒧᑦ ᑮᖏᑦ",
+      "apiKey": "API−ᒧᑦ ᑮᖏᑦ",
+      "logout": "ᐊᓂᓂᖅ",
+      "connectPhone": "ᐅᖄᓚᐅᑏᑦ ᑲᓲᑎᓗᒍ",
+      "connectEmail": "ᐃᕐᙲᓐᓈᖅᑕᐅᒃᑰᕈᑏᑦ ᐊᑦᑕᑕᖅᑎᖃᑦᑕᕐᓗᒍ",
+      "connectPhoneEmail": "ᑲᓲᑎᓗᒍ ᐃᕐᖐᓐᓈᕈᑏᑦ ᐅᖃᓘᑎᕕᓪᓘᓐᓃᑦ ᓈᓴᐅᑖ",
+      "or": "ᐅᕝᕙᓘᓐᓃᑦ",
+      "lbl-wallet": "ᐃᓯᕐᓗᑎᑦ ᐊᑭᓐᓇᕐᒥᑦ",
+      "ph-email": "ᐃᕐᖐᓐᓈᖅᑕᐅᑦ",
+      "ph-phone": "ᐅᖄᓚᐅᑎᖓᑕ ᓈᓴᐅᑖ",
+      "ph-phoneEmail": "ᐅᖄᓚᐅᑎᖓᑕ ᓈᓴᐅᑖ / ᐃᕐᖐᓐᓈᖅᑕᐅᑦ",
+      "phoneEmailError": "ᐅᖄᓚᐅᑎᖓᑕ ᓈᓴᐅᑖ ᐃᕐᖐᓐᓈᖅᑕᐅᒃᑯᓪᓘᓐᓃᑦ ᑐᕌᕈᑖ",
+      "phoneError": "ᐊᑐᑦᑎᐊᖅᑐᖅ ᐅᖃᓘᑎ #",
+      "emailError": "ᐊᑐᑦᑎᐊᖅᑐᑦ ᐃᕐᖐᓐᓈᖅᑕᐅᑦ ᑐᕌᕈᑎᖏᑦ",
+      "loginWithReadyPlayerMe": "ᐃᓯᕐᓗᑎᑦ ᐱᑐᐃᓐᓇᕆᐊᖃᓕᖅᑐᒥᒃ ᐱᙳᐊᖅᑎᒥᒃ ᐅᕙᓐᓂᒃ",
+      "connectSocial": "ᑲᓲᑎᓂᖅ ᐃᓄᓅᖓᔪᓅᖓᔪᓄᑦ",
+      "createOne": "ᓇᓕᖅᑲᖃᙱᒃᑯᕕᑦ, ᓄᑖᒥᒃ ᓴᖅᑭᑦᑎᓂᐊᖅᐳᑎᑦ ᐃᓕᖕᓄᑦ",
+      "connections": {
+        "title": "ᑲᓱᖅᓯᒪᓃᑦ",
+        "ipError": "ᐲᖅᓯᔪᓐᓇᙱᑦᑐᖅ ᑭᓇᐅᓂᕐᒧᑦ ᓇᓗᓇᐃᖅᓯᔾᔪᑎᒥᒃ",
+        "disconnect": "ᓇᑲᑕᐅᓂᖅ",
+        "connect": "ᑲᓲᑎᓂᖅ"
+      },
+      "profileDropdown": {
+        "avatar": "ᐊᑐᖅᐸᒃᑐᖅ ᐊᕙᑕᕐ Icon",
+        "profile": "ᖃᓄᐃᓕᖓᓂᖓ",
+        "adminConsole": "ᐊᒡᓚᕝᕕᓕᕆᔨ",
+        "logout": "ᐃᓯᕐᓂᖅ"
+      },
+      "userIcon": {
+        "lbl-name": "ᐊᑏᑦ",
+        "lbl-update": "ᓄᑖᙳᕆᐊᖅᓯᒪᔪᑦ",
+        "userId": "ᐊᑐᖅᑑᑉ ᓇᓗᓇᐃᒃᑯᑕᖓ",
+        "ph-uploadImg": "ᒥᓇᕆᓗᒍ ᐱᖁᑎᐅᑉ ᐊᔾᔨᙳᐊᖓ",
+        "lbl-selectAcvatar": "ᓂᕈᐊᕐᓗᒍ ᐊᕙᑕ",
+        "lbl-submit": "ᑐᓂᓯᓂᖅ"
+      },
+      "userSettings": {
+        "volume": "ᐊᖏᑎᒋᔪᖅ",
+        "microphone": "ᖃᓂᙳᕐᓇᐅᑎ",
+        "resolution": "ᑐᑭᑖᕈᑎ",
+        "high": "ᖁᑦᑎᒃᑐᖅ",
+        "low": "ᐊᑦᑎᒃᑐᖅ",
+        "spatialAudio": "ᓂᐱᖃᐅᑎᒥᒃ ᐊᑐᕐᓗᑎᑦ",
+        "enterMuted": "ᐃᓯᕐᕕᖕᒧᑦ ᑐᖁᑕᐅᔪᖅ"
+      }
+    },
+    "oauth": {
+      "authenticating": "ᓱᓕᓂᕋᐃᓂᖅ...",
+      "authFailed": "{{service}} ᓱᓕᔪᒥᑦ ᑲᔪᓯᓚᐅᙲᓐᓇᖅᐳᖅ."
+    },
+    "magikLink": {
+      "wait": "ᐅᑕᖅᑭᓚᐅᑲᒡᓗᑎᑦ ᐱᓕᕆᐊᖑᕙᓪᓕᐊᑎᓪᓗᒍ..."
+    },
+    "dashboard": {
+      "header": "ᕿᑐᑦᑐᒐᐅᔭᖅ",
+      "dashboard": "ᕿᑐᑦᑐᒐᐅᔭᖅ",
+      "users": "ᐊᑐᖅᑏᑦ",
+      "feeds": "ᓂᕆᔾᔪᑏᑦ",
+      "instance": "ᓲᕐᓗ",
+      "locations": "ᓇᓃᓐᓂᖏᑦ",
+      "invites": "ᖃᐃᖁᔨᔪᑦ",
+      "sessions": "ᑲᑎᒪᖃᑎᒌᖕᓃᑦ",
+      "groups": "ᑲᑎᙵᔪᑦ",
+      "parties": "ᐱᓕᕆᖃᑎᒌᑦ",
+      "chats": "ᓵᓚᑦ",
+      "content": "ᐃᓗᓕᖏᑦᑕ ᐴᖏᑦ",
+      "projects": "ᐱᓕᕆᐊᑦ",
+      "scenes": "ᓯᓇᕐᓗᐊᑦ",
+      "avatars": "ᐊᕙᑕᔅ",
+      "benchmarking": "ᐱᒋᐊᕐᕕᐅᔪᓐᓇᖅᑐᖅ",
+      "bots": "ᐴᑦ"
+    }
+  },
+  "oauth": {
+    "authenticating": "ᓱᓕᓂᕋᐃᓂᖅ...",
+    "authFailed": "{{service}} ᓱᓕᔪᒥᑦ ᑲᔪᓯᓚᐅᙲᓐᓇᖅᐳᖅ."
+  },
+  "magikLink": {
+    "wait": "ᐅᑕᖅᑭᓚᐅᑲᒡᓗᑎᑦ ᐱᓕᕆᐊᖑᕙᓪᓕᐊᑎᓪᓗᒍ..."
+  },
+  "dashboard": {
+    "header": "ᕿᑐᑦᑐᒐᐅᔭᖅ",
+    "dashboard": "ᕿᑐᑦᑐᒐᐅᔭᖅ",
+    "users": "ᐊᑐᖅᑏᑦ",
+    "feeds": "ᓂᕆᔾᔪᑏᑦ",
+    "instance": "ᓲᕐᓗ",
+    "locations": "ᓇᓃᓐᓂᖏᑦ",
+    "routes": "ᐊᖅᑯᑏᑦ",
+    "projects": "ᐱᓕᕆᐊᑦ",
+    "invites": "ᖃᐃᖁᔨᔪᑦ",
+    "sessions": "ᑲᑎᒪᖃᑎᒌᖕᓃᑦ",
+    "groups": "ᑲᑎᙵᔪᑦ",
+    "parties": "ᐱᓕᕆᖃᑎᒌᑦ",
+    "chats": "ᓵᓚᑦ",
+    "content": "ᐃᓗᓕᖏᑦᑕ ᐴᖏᑦ",
+    "scenes": "ᓯᓇᕐᓗᐊᑦ",
+    "avatars": "ᐊᕙᑕᔅ",
+    "benchmarking": "ᐱᒋᐊᕐᕕᐅᔪᓐᓇᖅᑐᖅ",
+    "bots": "ᐴᑦ",
+    "setting": "ᐋᖅᑭᒃᓯᒪᓂᖏᑦ"
+  },
+  "avatar": {
+    "title": "ᒥᓇᕆᓗᒍ ᐊᕙᑕ",
+    "lbl-browse": "ᕿᓂᕐᓂᖅ",
+    "lbl-thumbnail": "ᑕᒻᐱᓇᐃᓪ",
+    "lbl-upload": "ᒥᓇᕆᓗᒍ",
+    "selectAvatar": "ᓂᕈᐊᕐᓗᒍ ᐊᕙᑕ...",
+    "selectThumbnail": "ᓂᕈᐊᕐᓗᒍ Thumbnail...",
+    "rotate": "ᐅᐃᔾᔮᖅᑐᖅ",
+    "pan": "ᐹᓐ",
+    "noBone": "Obejct ᓴᐅᓂᖃᙱᑦᑐᖅ ᐅᕕᓂᖕᓂᓪᓘᓐᓃᑦ",
+    "outOfBound": "ᑭᓱᒃᓵᕐᔪᑦ ᐊᑐᕈᓐᓇᐃᓪᓕᔪᑦ.",
+    "emptyObj": "ᐱᖁᑎ ᐃᓗᓕᖃᙱᑦᑐᖅ.",
+    "maxTriangleError": "ᐱᖁᑏᑦ ᐃᓗᓕᖃᕐᓂᖅᓴᐅᕗᑦ {{allowedTriangles}} ᑮᓇᖏᓐᓂᒃ.",
+    "selectValidFile": "ᓂᕈᐊᕐᓗᒍ ᐊᑐᖅᑐᖅ 3d avatar file.",
+    "selectValidThumbnail": "ᓂᕈᐊᖅᑕᐅᓯᒪᔪᖅ ᐊᑐᕈᓐᓇᖅᑐᖅ Thumbnail File.",
+    "fileOversized": "Avatar file size−ᖃᕆᐊᖃᖅᐳᖅ {{minSize}} MB ᐊᒻᒪ {{maxSize}} MB ᐊᑯᓐᓂᖓᓂ",
+    "confirmation": "ᐄᓪᓚᕆᐅᕙ?",
+    "canNotBeRemoved": "ᐊᕙᑕ ᐲᖅᑕᐅᔪᓐᓇᙱᑦᑐᖅ",
+    "remove": "ᐲᕐᓗᒍ ᐊᕙᑕᖅ",
+    "uploadFiles": "ᒥᓇᕆᓗᒋᑦ ᑐᖅᑯᖅᓯᒪᔪᑦ",
+    "useUrlInstead": "ᐅᖂᑎᒥᒃ ᐊᑐᖔᕐᓗᑎᑦ",
+    "avatar": "ᐊᕙᑕᖅ",
+    "cancel": "ᓄᖅᑲᖅᑎᓪᓗᒍᑦ",
+    "createAvatar": "ᐊᕙᑕᓕᐅᕐᓗᑎᑦ",
+    "delete": "ᐲᔭᕐᓗᒋᑦ",
+    "view": "ᑕᑯᓗᒍ",
+    "uploadAvatarInfo": "ᓄᑖᙳᕆᐊᖅᑕᖅ ᐊᕙᑕᒧᑦ ᑐᓴᐅᒪᔾᔪᑎᒃᓴᑦ",
+    "name": "ᐊᑎᖓ",
+    "enterName": "ᐊᑎᖓ ᑎᑎᕋᕐᓗᒍ",
+    "avatarInformation": "ᐊᕙᑕᒧᑦ ᑐᑭᓯᒋᐊᕈᑎᑦ",
+    "description": "ᖃᓄᐃᑦᑑᓂᖓ",
+    "key": "ᑮ",
+    "none": "ᐱᑕᖃᔮ",
+    "submit": "ᑐᓂᓯᓂᖅ",
+    "edit": "ᐋᖅᑭᒋᐊᖅᓯᓂᖅ",
+    "avatarUrl": "ᐊᕙᑕ ᐅᕈᓪ",
+    "upload-success-msg": "ᐊᕙᑕᐅᑉ ᖃᕆᑕᐅᔭᕐᒧᐊᖅᑎᑦᑎᐊᓚᐅᖅᑕᖓ.",
+    "remove-success-msg": "ᐊᕙᑕᐅᑉ ᖃᕆᑕᐅᔭᕐᒧᐊᖅᑎᑦᑎᐊᓚᐅᖅᑕᖓ.",
+    "warning-msg": "ᐊᕙᑕᐅᑉ ᐃᑲᔫᑎᒃᓴᖏᑦ ᐃᓗᓕᖃᙱᒻᒪᑕ, ᐊᕙᑕᓂᒃ ᐊᕙᑕᓂᒃ ᑐᖅᑯᖅᓯᒪᕕᒋᔭᕐᓄᑦ?"
+  },
+  "personMenu": {
+    "inviteToParty": "ᖃᐃᖁᔨᓂᖅ ᐱᓕᕆᖃᑕᐅᔪᓄᑦ",
+    "addAsFriend": "ᐃᓚᓗᒍ ᐱᖃᓐᓇᕆᔭᕐᓄᑦ",
+    "mute": "ᒧᑎ",
+    "block": "ᓄᓇᖁᑖ"
+  },
+  "person": {
+    "you": "ᐃᕝᕕᑦ",
+    "yourScreen": "ᑕᕐᕆᔭᕐᕕᒃ",
+    "muteForEveryone": "ᓂᖅᑐᐃᓂᖅ ᑭᒃᑯᓕᒫᓄᑦ",
+    "unmuteForEveryone": "ᑭᒃᑯᑐᐃᓐᓇᓄᑦ ᐊᑐᖅᑕᐅᙱᓪᓗᓂ",
+    "muteMe": "ᒧᑎᖓ",
+    "unmuteMe": "ᐅᕙᓐᓄᑦ ᓈᒻᒪᒋᙱᖦᖢᖓ",
+    "muteThisPerson": "ᑖᓐᓇ ᐃᓄᒃ ᓂᒥᑎᓪᓗᒍ",
+    "unmuteThisPerson": "ᑖᓐᓇ ᐃᓄᒃ ᐊᑐᙱᓪᓗᒍ",
+    "openPictureInPicture": "ᒪᑐᐃᖓᔪᖅ ᐊᔾᔨᙳᐊᖅ"
+  }
+}

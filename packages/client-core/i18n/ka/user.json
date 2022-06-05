@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "დადასტურების ელ.ფოსტა",
+      "resendEmail": "გთხოვთ, შეამოწმოთ თქვენი ელ.წერილი თქვენი ანგარიშის გადამოწმებისთვის. თუ ელ.წერილი არ მიგიღიათ, გთხოვთ, დააწკაპუნოთ {{here}} გადამოწმების ელ.ფოსტის გადამოწმების მიზნით.",
+      "haveAnAccount": "გაქვთ ანგარიში?"
+    },
+    "forgotPassword": {
+      "header": "დაგავიწყდა პაროლი",
+      "enterEmail": "გთხოვთ შეიყვანოთ თქვენი რეგისტრირებული ელ.ფოსტის მისამართი და ჩვენ გამოგიგზავნით პაროლის გადატვირთვის ბმულს.",
+      "lbl-email": "ელ.ფოსტის მისამართი",
+      "lbl-submit": "ბმულის გაგზავნა",
+      "emailSent": "პაროლის ელ.ფოსტის გადატვირთვა გაიგზავნა. გთხოვთ, შეამოწმოთ თქვენი ელ.ფოსტა."
+    },
+    "login": {
+      "email": "ელ.ფოსტით | SMS",
+      "username": "მომხმარებელიName + პაროლი",
+      "social": "სოციალური"
+    },
+    "magiklink": {
+      "header": "შესვლის ბმული",
+      "descriptionEmail": "გთხოვთ შეიყვანოთ თქვენი ელ.ფოსტის მისამართი და ჩვენ გამოგიგზავნით შესვლის ბმულს ელ.ფოსტით.",
+      "descriptionSMS": "გთხოვთ შეიყვანოთ თქვენი ტელეფონის ნომერი და ჩვენ გამოგიგზავნით შესვლის ბმულს SMS– ის საშუალებით.",
+      "descriptionEmailSMS": "გთხოვთ შეიყვანოთ თქვენი ელ.ფოსტის მისამართი ან ტელეფონის ნომერი (მხოლოდ 10 ციფრი, აშშ) და ჩვენ გამოგიგზავნით შესვლის ბმულს ელ.ფოსტის ან SMS საშუალებით.",
+      "descriptionSMSUS": "გთხოვთ შეიყვანოთ თქვენი ტელეფონის ნომერი (მხოლოდ 10 ციფრი, აშშ) და ჩვენ გამოგიგზავნით შესვლის ბმულს SMS– ის საშუალებით.",
+      "lbl-email": "ელ.ფოსტის მისამართი",
+      "lbl-emailPhone": "ელ.ფოსტა ან ტელეფონის ნომერი",
+      "lbl-phone": "ტელეფონის ნომერი",
+      "agree": "ვეთანხმები ",
+      "terms": "წესები და პირობები",
+      "lbl-submit": "შესვლის ბმულის გაგზავნა",
+      "email-sent-msg": "Login Magic Link გაიგზავნა. გთხოვთ, შეამოწმოთ თქვენი ელ.ფოსტა.",
+      "success-msg": "Login Magic Link გაიგზავნა. გთხოვთ, შეამოწმოთ თქვენი ელ.ფოსტა ან SMS.",
+      "sms-sent-msg": "Login Magic Link გაიგზავნა. გთხოვთ შეამოწმოთ თქვენი SMS."
+    },
+    "passwordLogin": {
+      "header": "სისტემაში შესვლა",
+      "lbl-email": "ელ.ფოსტის მისამართი",
+      "lbl-password": "პაროლი",
+      "lbl-rememberMe": "ოჲმნთქ მთ",
+      "lbl-signin": "სისტემაში შესვლა",
+      "forgotPassword": "პაროლი დაგავიწყდა?",
+      "signup": "არ გაქვთ ანგარიში? რეგისტრაცია",
+      "lbl-login": "შესვლა",
+      "ph-password": "პაროლი",
+      "ph-email": "ელ.ფოსტა"
+    },
+    "social": {
+      "gitHub": "შესვლა GitHub- ით",
+      "google": "შესვლა Google-ით",
+      "facebook": "შესვლა Facebook-ით",
+      "linkedin": "შესვლა Linkedin- ით",
+      "twitter": "შესვლა Twitter-ით"
+    },
+    "register": {
+      "header": "რეგისტრაცია",
+      "login": "შესვლა",
+      "lbl-signup": "რეგისტრაცია",
+      "lbl-password": "პაროლი",
+      "lbl-email": "ელ.ფოსტის მისამართი",
+      "passwordNotMatch": "პაროლები არ ემთხვევა",
+      "ph-password": "პაროლი",
+      "ph-confirmPassword": "პაროლის დადასტურება",
+      "ph-email": "ელ.ფოსტა"
+    },
+    "resetPassword": {
+      "header": "პაროლის გადატვირთვა",
+      "description": "გთხოვთ, შეიყვანოთ თქვენი პაროლი თქვენი ელ.ფოსტის მისამართისთვის",
+      "lbl-submit": "პაროლის გადატვირთვა",
+      "lbl-password": "პაროლი",
+      "lbl-confirmPassword": "პაროლის დადასტურება",
+      "passwordNotMatch": "პაროლები არ ემთხვევა",
+      "nowLoginYourAccount": "ახლა შეგიძლიათ შეხვიდეთ თქვენს ანგარიშში",
+      "yourPasswordResetSuccess": "თქვენი პაროლი წარმატებით გადატვირთული იყო!"
+    },
+    "verifyEmail": {
+      "header": "ელ.ფოსტის გადამოწმება",
+      "processing": "გთხოვთ, დაელოდოთ დამუშავების დროს მომენტს..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "მდებარეობები",
+      "loading": "დატვირთვა",
+      "col-name": "სახელი",
+      "col-scene": "სცენა",
+      "col-maxuser": "მაქს მომხმარებლები",
+      "lbl-search": "მოძებნეთ ადგილები",
+      "lbl-new": "ახალი"
+    },
+    "newLocation": {
+      "title": "მდებარეობა",
+      "success": "შენახულია წარმატებით.",
+      "failure": "რაღაც არასწორედ წარიდგა.",
+      "removeSuccess": "ადგილმდებარეობა წარმატებით მოიხსნა.",
+      "nameInUse": "სახელი გამოიყენება.",
+      "nameRequire": "სახელი საჭიროა.",
+      "validNumber": "დასაშვებია მხოლოდ ნომრები (0-9).",
+      "lbl-name": "სახელი",
+      "lbl-maxuser": "მაქს მომხმარებლები",
+      "lbl-scene": "სცენა",
+      "lbl-type": "ტიპი",
+      "lbl-ve": "ვიდეო ჩართულია",
+      "lbl-gme": "გლობალური მედია ჩართულია",
+      "lbl-update": "განახლება",
+      "lbl-create": "შექმნა",
+      "tooltipCanNotBeDeleted": "ლობი ვერ წაიშლება",
+      "confirmation": "დარწმუნებული ხარ??",
+      "lbl-yes": "დიახ",
+      "lbl-no": "არა"
+    },
+    "share": {
+      "lbl-share": "გაზიარება",
+      "ph-phoneEmail": "მოიწვიეთ ელ.ფოსტით ან ტელეფონის ნომრით",
+      "lbl-phoneEmail": "გაგზავნეთ ელ.ფოსტის ან ტელეფონის ნომერზე",
+      "lbl-copy": "კოპირება",
+      "lbl-send-invite": "გამოიგზავნე მოწვევა",
+      "title": "გაუზიარეთ თქვენი მდებარეობა URL თქვენს გუნდს",
+      "linkCopied": "ბმული კოპირებული ბუფერში."
+    },
+    "setting": {
+      "audio": "აუდიო",
+      "lbl-volume": "მოცულობა",
+      "lbl-microphone": "მიკროფონი",
+      "graphics": "გრაფიკა",
+      "controls": "კონტროლი",
+      "lbl-control-type": "კონტროლერის ტიპი",
+      "lbl-control-scheme": "კონტროლის სქემა",
+      "lbl-resolution": "რეზოლუცია",
+      "lbl-shadow": "ჩრდილები",
+      "lbl-pp": "საფოსტო დამუშავება",
+      "lbl-pbr": "სრული PBR",
+      "lbl-automatic": "ავტომატური",
+      "xrusersetting": "XR მომხმარებლის პარამეტრები",
+      "rotation": "როტაცია",
+      "rotation-smooth-speed": "როტაციის გლუვი სიჩქარე",
+      "rotation-angle": "როტაციის კუთხე",
+      "moving": "მოძრავი",
+      "user-avatar": "ავატარის პარამეტრი",
+      "invert-rotation": "ინვერსიული როტაცია და გადაადგილება ჩხირები",
+      "show-avatar": "ავატარის ჩვენება"
+    },
+    "profile": {
+      "lbl-profile": "პროფილი",
+      "lbl-settings": "პარამეტრები",
+      "lbl-username": "მომხმარებლის სახელი",
+      "update-msg": "მომხმარებლის სახელი განახლებულია",
+      "inviteCode": "მოწვევის კოდი",
+      "youAreAn": "რთ ჟთ თნსზეა",
+      "youAreA": "რთ ჟთ ა",
+      "showUserId": "მომხმარებლის პირადობის მოწმობის ჩვენება",
+      "hideUserId": "მომხმარებლის პირადობის მოწმობის დამალვა",
+      "showApiKey": "API გასაღების ჩვენება",
+      "hideApiKey": "API გასაღების დამალვა",
+      "apiKey": "API გასაღები",
+      "logout": "გამოსვლა",
+      "connectPhone": "დააკავშირეთ თქვენი ტელეფონის ნომერი",
+      "connectEmail": "შეაერთეთ თქვენი ელ.ფოსტა",
+      "connectPhoneEmail": "დააკავშირეთ თქვენი ელ.ფოსტა ან ტელეფონის ნომერი",
+      "or": "ან",
+      "lbl-wallet": "შესვლა საფულესთან ერთად",
+      "ph-email": "ელ.ფოსტა",
+      "ph-phone": "ტელეფონის ნომერი",
+      "ph-phoneEmail": "ტელეფონის ნომერი / ელ.ფოსტა",
+      "phoneEmailError": "არასწორი ტელეფონი # ან ელ.ფოსტის მისამართი",
+      "phoneError": "არასწორი ტელეფონი #",
+      "emailError": "არასწორი ელ.ფოსტის მისამართი",
+      "loginWithReadyPlayerMe": "შესვლა მზა მოთამაშესთან",
+      "connectSocial": "დაკავშირება სოციალურ ანგარიშებთან",
+      "createOne": "თუ ანგარიში არ გაქვთ, თქვენთვის შეიქმნება ახალი",
+      "connections": {
+        "title": "კავშირები",
+        "ipError": "ვერ ამოიღებს პირადობის აქტიურ პროვაიდერს",
+        "disconnect": "გათიშვა",
+        "connect": "დაკავშირება"
+      },
+      "profileDropdown": {
+        "avatar": "მომხმარებელი Avatar Icon",
+        "profile": "პროფილი",
+        "adminConsole": "ადმინისტრატორის კონსოლი",
+        "logout": "შესვლა"
+      },
+      "userIcon": {
+        "lbl-name": "შენი სახელი",
+        "lbl-update": "განახლება",
+        "userId": "მომხმარებლის id",
+        "ph-uploadImg": "ატვირთეთ პროდუქტის სურათი",
+        "lbl-selectAcvatar": "აირჩიეთ ავატარი",
+        "lbl-submit": "ჩააბარე"
+      },
+      "userSettings": {
+        "volume": "მოცულობა",
+        "microphone": "მიკროფონი",
+        "resolution": "რეზოლუცია",
+        "high": "მაღალი",
+        "low": "დაბალი",
+        "spatialAudio": "გამოიყენეთ სივრცითი აუდიო",
+        "enterMuted": "შეიყვანეთ ოთახი მდუმარე"
+      }
+    },
+    "oauth": {
+      "authenticating": "ავთენტიფიკაცია...",
+      "authFailed": "{{service}} ავთენტიფიკაცია ვერ შედგა."
+    },
+    "magikLink": {
+      "wait": "გთხოვთ, დაელოდოთ დამუშავების დროს მომენტს..."
+    },
+    "dashboard": {
+      "header": "დაფა",
+      "dashboard": "დაფა",
+      "users": "მომხმარებლები",
+      "feeds": "კვება",
+      "instance": "Instance",
+      "locations": "მდებარეობები",
+      "invites": "იწვევს",
+      "sessions": "სხდომები",
+      "groups": "ჯგუფები",
+      "parties": "წვეულებები",
+      "chats": "ჩეთები",
+      "content": "შინაარსის პაკეტები",
+      "projects": "პროექტები",
+      "scenes": "სცენები",
+      "avatars": "ავატარები",
+      "benchmarking": "ბენჩმარკინგი",
+      "bots": "ბოტები"
+    }
+  },
+  "oauth": {
+    "authenticating": "ავთენტიფიკაცია...",
+    "authFailed": "{{service}} ავთენტიფიკაცია ვერ შედგა."
+  },
+  "magikLink": {
+    "wait": "გთხოვთ, დაელოდოთ დამუშავების დროს მომენტს..."
+  },
+  "dashboard": {
+    "header": "დაფა",
+    "dashboard": "დაფა",
+    "users": "მომხმარებლები",
+    "feeds": "კვება",
+    "instance": "Instance",
+    "locations": "მდებარეობები",
+    "routes": "მარშრუტები",
+    "projects": "პროექტები",
+    "invites": "იწვევს",
+    "sessions": "სხდომები",
+    "groups": "ჯგუფები",
+    "parties": "წვეულებები",
+    "chats": "ჩეთები",
+    "content": "შინაარსის პაკეტები",
+    "scenes": "სცენები",
+    "avatars": "ავატარები",
+    "benchmarking": "ბენჩმარკინგი",
+    "bots": "ბოტები",
+    "setting": "პარამეტრები"
+  },
+  "avatar": {
+    "title": "ავატარის ატვირთვა",
+    "lbl-browse": "დაათვალიერეთ",
+    "lbl-thumbnail": "მინიატურა",
+    "lbl-upload": "ატვირთვა",
+    "selectAvatar": "აირჩიეთ ავატარი...",
+    "selectThumbnail": "აირჩიეთ მინიატურა...",
+    "rotate": "როტაცია",
+    "pan": "პან",
+    "noBone": "Obejct არ შეიცავს ძვლებს ან კანს",
+    "outOfBound": "ობიექტი არ არის შეკრული.",
+    "emptyObj": "ობიექტი ცარიელია.",
+    "maxTriangleError": "ობიექტი შეიცავს {{allowedTriangles}} სახეზე მეტს.",
+    "selectValidFile": "აირჩიეთ მოქმედი 3d ავატარის ფაილი.",
+    "selectValidThumbnail": "შერჩეული მოქმედი მინიატურული ფაილი.",
+    "fileOversized": "Avatar ფაილის ზომა უნდა იყოს {{minSize}} MB და {{maxSize}} MB",
+    "confirmation": "დარწმუნებული ხარ??",
+    "canNotBeRemoved": "აქტიური ავატარი არ შეიძლება მოიხსნას",
+    "remove": "ავატარის წაშლა",
+    "uploadFiles": "ფაილების ატვირთვა",
+    "useUrlInstead": "ამის ნაცვლად გამოიყენეთ url",
+    "avatar": "ავატარი",
+    "cancel": "გაუქმება",
+    "createAvatar": "ავატარის შექმნა",
+    "delete": "წაშლა",
+    "view": "ნახვა",
+    "uploadAvatarInfo": "განაახლეთ ავატარის ინფორმაცია",
+    "name": "სახელი",
+    "enterName": "შეიყვანეთ სახელი",
+    "avatarInformation": "ავატარის ინფორმაცია",
+    "description": "აღწერა",
+    "key": "გასაღები",
+    "none": "არცერთი",
+    "submit": "ჩააბარე",
+    "edit": "რედაქტირება",
+    "avatarUrl": "ავატარი url",
+    "upload-success-msg": "ავატარი წარმატებით აიტვირთა.",
+    "remove-success-msg": "ავატარი წარმატებით აიტვირთა.",
+    "warning-msg": "ავატარის რესურსი ცარიელია, სინქრონიზება გაქვთ თქვენს სტატიკურ ფაილურ მეხსიერებაში?"
+  },
+  "personMenu": {
+    "inviteToParty": "მოიწვიეთ პარტია",
+    "addAsFriend": "დაამატეთ როგორც მეგობარი",
+    "mute": "მუნჯი",
+    "block": "ბლოკი"
+  },
+  "person": {
+    "you": "რთ",
+    "yourScreen": "თქვენი ეკრანი",
+    "muteForEveryone": "მუნჯი ყველასთვის",
+    "unmuteForEveryone": "ყველასთვის უმწეოდ",
+    "muteMe": "მუნჯი",
+    "unmuteMe": "განმარცხდი",
+    "muteThisPerson": "მუნჯი ეს ადამიანი",
+    "unmuteThisPerson": "გააუქმეთ ეს ადამიანი",
+    "openPictureInPicture": "ღია სურათი სურათზე"
+  }
+}

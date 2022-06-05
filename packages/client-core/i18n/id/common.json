@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Memuat halaman..."
+  },
+  "tooltip": {
+    "pressKey": "Tekan {{tip}} untuk {{message}}"
+  },
+  "toast": {
+    "joined": "Bergabung",
+    "left": "Kiri"
+  },
+  "navUserWidget": {
+    "login": "Masuk"
+  },
+  "loader": {
+    "connecting": "Terhubung ke dunia...",
+    "entering": "Memasuki dunia ...",
+    "loading": "Loading...",
+    "objectRemaining": "{{count}} objek yang tersisa",
+    "objectRemainingPlural": "{{count}} objek yang tersisa",
+    "loadingObjects": "Memuat Objek",
+    "loadingComplete": "Memuat Selesai",
+    "joiningWorld": "Bergabung dengan Dunia"
+  },
+  "alert": {
+    "eventWasSuccess": "Acara berhasil",
+    "errorWasEncountered": "Kesalahan terjadi",
+    "eventInProgress": "Acara sedang berlangsung",
+    "seconds": "Detik",
+    "cancelCountdown": "Menutup modal ini akan membatalkan hitungan mundur"
+  },
+  "debug": {
+    "refresh": "Refresh",
+    "stats": "Statistik",
+    "debugOptions": "Opsi Debug",
+    "physicsDebug": "Fisika",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Pembantu Node",
+    "gridDebug": "Grid",
+    "simpleMaterials": "Bahan Sederhana",
+    "tick": "Kutu",
+    "worldStore": "Toko Dunia",
+    "engineStore": "Toko Mesin",
+    "namedEntities": "Entitas bernama",
+    "networkObject": "Objek Jaringan",
+    "networkClients": "Klien Jaringan"
+  },
+  "recording": {
+    "videoRecorder": "Perekam video",
+    "waitingForPermissions": "Menunggu izin",
+    "selectVideoSource": "Pilih sumber video",
+    "screen": "Layar",
+    "camera": "Kamera",
+    "microphone": "Mikrofon",
+    "startRecording": "Mulai merekam",
+    "pauseRecording": "Menjeda perekaman",
+    "resumeRecording": "Melanjutkan perekaman",
+    "stopRecording": "Berhenti merekam"
+  },
+  "typing": "Mengetik...",
+  "gameServer": {
+    "browserError": "Kesalahan Browser",
+    "browserErrorMessage": "Browser Anda tidak mendukung penyimpanan dalam mode penjelajahan pribadi. Coba browser lain, atau keluar dari mode penjelajahan pribadi.",
+    "noAvailableServers": "Tidak Ada Server yang Tersedia",
+    "noAvailableServersMessage": "Tidak ada server yang tersedia untuk Anda sambungkan. Mencoba untuk terhubung kembali di",
+    "worldDisconnected": "Dunia terputus",
+    "worldDisconnectedMessage": "Anda telah kehilangan koneksi Anda dengan dunia. Kami akan mencoba menghubungkan kembali sebelum waktu berikutnya habis, jika tidak, Anda akan diteruskan ke instance lain.",
+    "webGLNotEnabled": "WebGL tidak diaktifkan",
+    "webGLNotEnabledMessage": "Browser Anda tidak mendukung WebGL, atau dinonaktifkan. Harap aktifkan WebGL atau pertimbangkan untuk meningkatkan ke versi terbaru browser Anda.",
+    "youKickedFromWorld": "Anda telah ditendang dari dunia",
+    "youKickedFromWorldMessage": "Anda ditendang dari dunia ini karena alasan berikut",
+    "invalidLocation": "Lokasi tidak valid",
+    "cantFindLocation": "Kami tidak dapat menemukan lokasinya",
+    "misspelledOrNotExist": "Mungkin salah eja, atau mungkin tidak ada.",
+    "loading": "Loading",
+    "low-frame-error": "Mendeteksi perfomance yang buruk mempertimbangkan untuk mengaktifkan Gunakan akselerasi Perangkat Keras di browser Anda dan ucapkan kembali browser Anda",
+    "low-frame-title": "Aktifkan akselerasi perangkat keras untuk pengalaman yang lebih baik!"
+  },
+  "error": {
+    "loading-error": "Gagal memuat data pengguna",
+    "validation-error": "Mohon masukan {{type}} yang valid",
+    "login-error": "Gagal login"
+  }
+}

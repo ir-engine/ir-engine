@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Tabana ni vakavodoki..."
+  },
+  "tooltip": {
+    "pressKey": "Tabaka na {{tip}} mo {{message}}"
+  },
+  "toast": {
+    "joined": "curu kina",
+    "left": "iMawi"
+  },
+  "navUserWidget": {
+    "login": "Curu ki Loma"
+  },
+  "loader": {
+    "connecting": "Sema ki vuravura...",
+    "entering": "Curu yani ki vuravura...",
+    "loading": "Vakavodoki...",
+    "objectRemaining": "{{count}} ivakaraitaki e vo tiko",
+    "objectRemainingPlural": "{{count}} vo tiko na iyaya",
+    "loadingObjects": "Vakavodoki ni iYaya",
+    "loadingComplete": "Vakacavari na Vakavodoki",
+    "joiningWorld": "Lewena na Vuravura"
+  },
+  "alert": {
+    "eventWasSuccess": "A rawa vinaka na veika a yaco",
+    "errorWasEncountered": "A sotavi e dua na cala",
+    "eventInProgress": "Veika sa yaco tiko",
+    "seconds": "sekodi",
+    "cancelCountdown": "Ni sogo na inaki oqo ena bokoca na ivakasokumu"
+  },
+  "debug": {
+    "refresh": "Vakayadrata tale",
+    "stats": "iSoqaqa",
+    "debugOptions": "Digidigi ni Debug",
+    "physicsDebug": "Fisiki",
+    "avatarDebug": "iTavuna",
+    "nodeHelperDebug": "Dauveivuke ni Node",
+    "gridDebug": "Veilawa",
+    "simpleMaterials": "iYaya Rawarawa",
+    "tick": "iVatuvatuva",
+    "worldStore": "Sitoa ni Vuravura",
+    "engineStore": "Sitoa ni Idini",
+    "namedEntities": "iYau yacana",
+    "networkObject": "iYaya ni Veitaratara",
+    "networkClients": "Veikilai Vakacakacaka"
+  },
+  "recording": {
+    "videoRecorder": "Vunivola ni vidio",
+    "waitingForPermissions": "Waraka tiko na veivakadonui",
+    "selectVideoSource": "Digitaka na ivurevure ni vidio",
+    "screen": "Sikirini",
+    "camera": "iTaaba",
+    "microphone": "Maikorofoni",
+    "startRecording": "Tekivu katokatoni",
+    "pauseRecording": "Cegu mada na katokatoni",
+    "resumeRecording": "Tomana tale na katokatoni",
+    "stopRecording": "Muduka na kena katoni"
+  },
+  "typing": "Taipataki...",
+  "gameServer": {
+    "browserError": "Cala ena Barausa",
+    "browserErrorMessage": "E sega ni tokona na nomu barausa na mamaroroi ena sala ni sarasvi yadudua. Tovolea tale e dua na barausa, se curu tani mai na ivakarau ni saras vanua vakaitaukei.",
+    "noAvailableServers": "Sega na Gacagaca ni Veiqaravi",
+    "noAvailableServersMessage": "E sega ni tiko e dua na gacagaca ni veiqaravi mo sema kina. Tovolea tiko mo sema tale ki na",
+    "worldDisconnected": "Sa tagutuvi na vuravura",
+    "worldDisconnectedMessage": "O sa vakayalia na nomu isema kei vuravura. Keitou na tovolea mo se tomana tale ni bera ni oti na gauna ka tarava, kevaka e sega, o na vakauti ki na dua tale na gauna.",
+    "webGLNotEnabled": "Sega ni cakacaka na WebGL",
+    "webGLNotEnabledMessage": "Na nomu barausa e sega ni tokona na WebGL, se sa vakamatei. Yalovinaka vakayagataka na WebGL se vakasamataka na kena vakatovotovotaki ki na iotioti ni nomu barausa.",
+    "youKickedFromWorld": "O sa caqetaki mai vuravura",
+    "youKickedFromWorldMessage": "Ko ni a cemuri mai na vuravura oqo ena vuku ni vuna oqo",
+    "invalidLocation": "Vanua sega ni vakabau",
+    "cantFindLocation": "Keimami sega ni kunea rawa na vanua",
+    "misspelledOrNotExist": "Ena rairai cala na kena cala, se sega beka ni tiko.",
+    "loading": "vakavodoki",
+    "low-frame-error": "Raica e dua na malumalumu ni vakasama ni vakayagataka na totolo ni Gacagaca ni Gacagaca ena nomu barausa ka vakasaqaqara ena nomu barausa",
+    "low-frame-title": "Vakayagataka na totolo ni gacagaca me vinaka cake na veika e sotavi!"
+  },
+  "error": {
+    "loading-error": "Sega ni vakacuruma na itukutuku nei koya e vakayagataka tiko",
+    "validation-error": "Yalovinaka vakacuruma na {{type}} donu",
+    "login-error": "Sega ni curu rawa"
+  }
+}

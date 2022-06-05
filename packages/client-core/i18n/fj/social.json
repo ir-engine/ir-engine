@@ -1,0 +1,202 @@
+{
+  "addComment": "Vakuria na iVakamacala...",
+  "share": "Wasea",
+  "suggestions": "Vakatutu Me Baleti Iko",
+  "seeAll": "Raica Taucoko",
+  "likes": "Taleitaka",
+  "viewComments": "Raica taucoko na ivakamacala {{count}}",
+  "more": "levu cake",
+  "username": "yaca vakayagataki",
+  "fullName": "Yaca ni Matavuvale",
+  "reportInApporpriate": "Ripote Sega ni Veiganiti",
+  "unfollow": "Sega ni malumalumu",
+  "goToPost": "Lako ki na Posi",
+  "shareModal": "Wasea",
+  "copyLink": "Lavetaka na iSema",
+  "embed": "Vakacuruma",
+  "cancel": "Bokoca",
+  "confirm": "Vakadeitaki",
+  "save": "Maroroya",
+  "profilePic": "{{user}}veika vakaivola",
+  "ara": "Ara",
+  "follow": "Muria",
+  "flames": "Yameyame",
+  "continue": "Tomana tale",
+  "partyInvitationSent": "Vakau na veisureti ni pati",
+  "arMedia": {
+    "back": "E muri",
+    "clip": "iVakatakata",
+    "backgrounds": "iTuvaki",
+    "start": "Tekivuna"
+  },
+  "arMediaform": {
+    "title": "Ulutaga",
+    "type": "Mataqali",
+    "clip": "iVakatakata",
+    "background": "iTuvaki e muri",
+    "scene": "iVakatakata",
+    "save": "Maroroya",
+    "manifest-file": "Vakaraitaka na faile .manifest",
+    "audio-file": "Faile ni MP4",
+    "dracosis-file": "Faile ni Dracosis .uvol",
+    "preview-file": "Raica na faile ni iyaloyalo"
+  },
+  "creator": {
+    "myVideos": "Noqu Vidio",
+    "savedVideos": "Vidio sa Maroroi",
+    "back": "E muri",
+    "blocked-list": "Lisi Bulokotaki",
+    "block-user": "Dauvakayagataki Buloko",
+    "dialog-content": "O na sega ni raica na nona itukutuku kei na lewena o koya e vakayagataka"
+  },
+  "creatorForm": {
+    "back": "E muri",
+    "edit": "Veisautaka na iTukutuku",
+    "save": "Maroroya",
+    "changeAvatar": "Veisautaka na iyaloyalo ni veika tale eso",
+    "ph-selectPreview": "Digitaka na ivakaraitaki taumada",
+    "ph-name": "Na yacamu",
+    "ph-username": "Nomu Yaca Vakayagataki",
+    "ph-email": "Nomu Imeli",
+    "ph-tags": "iVakatakilakila",
+    "ph-link": "iSema",
+    "ph-aboutYou": "Eso tale na ka baleti iko",
+    "ph-twitter": "twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "moka",
+    "sign-out": "Curuiloma"
+  },
+  "dashboard": {
+    "title": "IVakasoqani",
+    "dashboard": "IVakasoqani",
+    "users": "O Ira era Vakayagataka",
+    "feeds": "Vakani",
+    "arMedia": "iTukutuku Vakaraitaki ni Vidio",
+    "editor": "Edita",
+    "creator": "Dauniveibuli"
+  },
+  "featured": {
+    "empty-list": "Sega na kakana ena gauna oqo ..."
+  },
+  "feed": {
+    "back": "E muri",
+    "related": "iVakani kakana veiwekani",
+    "is-repoted-message": "Sa ripotetaki na vakani!"
+  },
+  "feedForm": {
+    "back": "E muri",
+    "thanks": "Vinaka vakalevu na veiwasei kei na vakavinakataki ni noda itikotiko raraba",
+    "share": "Wasea e dua na ka ki na itikotiko raraba",
+    "upload": "Vakavodoka na Vidio",
+    "ph-selectVideo": "Digitaka na Vidio",
+    "preview": "Raica taumada na iyaloyalo",
+    "ph-selectPreview": "Digitaka na ivakaraitaki taumada",
+    "createFeed": "Me rawa ni caka e dua na kakana me tiko vei iko e dua na vidio kei na dua na iyaloyalo ni raici!!!",
+    "ph-videoName": "Na yaca ni nomu vidio",
+    "ph-type": "Taipataka na veika o via wasea ki na itikotiko ... ",
+    "lbl-share": "Wasea",
+    "save": "Maroroya ka lako Tarava"
+  },
+  "feedMenu": {
+    "featured": "Matataki",
+    "creators": "Dauveibuli",
+    "feed": "Na Vakani"
+  },
+  "header": {
+    "lbl-volumetric": "iVakarau ni Yauqaqa"
+  },
+  "login": {
+    "account": "Dua beka na nomu akaude?",
+    "login": "Curuiloma",
+    "resetPassword": "Bulukau Ni Vakadabera Tale na Vosanicuru Ka Lasutaki (oqo ena dua na isema mai na imeli)",
+    "notHavingAccount": "Sega ni dua na nomu akaude?",
+    "signUp": "Curuiloma",
+    "forgotPassword": "Guilecava na vosanicuru?",
+    "back": "E muri",
+    "or": "SE"
+  },
+  "comment": {
+    "add": "Kuria na nomu vakasama..."
+  },
+  "notification": {
+    "feedFire": " vakasaqataka nomu kakana",
+    "feedBookmarked": " makataka na nomu ivakatawa ni matavuvale",
+    "comment": " tukuna na nomu ivakani:",
+    "commentFire": " vakayadrataka nomu vosa mo vakani",
+    "follow": " tekivu vakamuri iko",
+    "unfollow": " muduka na nomu muri iko",
+    "followed": " muri iko",
+    "activity": "iTaviqaravi"
+  },
+  "onBoarding": {
+    "welcome": "Ni Matavinaka mai!",
+    "description": "Ivakasokumuni levu duadua ni 370+ na ituvatuva me baleta na kena vakatovotovotaki na iOS.",
+    "next": "Tarava",
+    "discover": "Kunea na itukutuku,",
+    "news": "itukutuku kei na itukutuku",
+    "lines": "Na yalo oqori e kauta mai na noda taleitaka na vakadinadina kei na noda gagadre.",
+    "getStarted": "Tekivuna",
+    "meetUp": "Sota vata kei",
+    "friends": "itokani.",
+    "meet": "Sota vata kei ira na itokani"
+  },
+  "shareForm": {
+    "arcMedia": "Wasea",
+    "videoCreated": "Au a Cakava na Vidio Oqo",
+    "shareWithBuddies": "Wasea vata kei ira na duidui",
+    "shareVideo": "Wasea na Vidio",
+    "save": "Maroroi ki na iTaaba Ni iTaaba",
+    "cancel": "Bokoca",
+    "close": "Sogo",
+    "addFeed": "Kuria na iVakani"
+  },
+  "simpleModal": {
+    "emptyList": "Lisi lala",
+    "followers": " muri mai",
+    "following": " daumuria",
+    "flames": " yameyame"
+  },
+  "splash": {
+    "screen": "Sikirini ni Splash",
+    "logo": "Tawake"
+  },
+  "story": {
+    "profilePic": "{{user}}veika vakaivola"
+  },
+  "view": {
+    "cancel": "Bokoca",
+    "choice": "E rua na ivakarau ni katoni duidui mo digidigi mai kina",
+    "verticalMode": "Na ivakarau e 20 na 30 na  se gauna ni itukutuku",
+    "horizontalMode": "Na ivakatakata e sega ni yalani na kena gauna vakaivola",
+    "start": "Tekivuna",
+    "not-show": "Kakua tale ni vakaraitaka",
+    "welcome": "Ni sa kidavaki mai ki na ARC!  Cakava na vidio yadua vata kei na dua na noda lewa ni isema ka vakabira ki na nomuni sala ni vakauitukutuku ni veimaliwai!",
+    "step": "IKALAWA {{step}}",
+    "text-step-1": "Digitaka e dua na nona iserau mai na valenivola.",
+    "text-step-2": "Oqo na Augmented Reality, o koya mo qai vakadikeva na vanua vata kei na nomu itaba mai na dua na yasana ki na yasana me 3-5 na sekodi o vinakata me tiko kina na vakaraitaki ni veivosaki.",
+    "text-step-3-part-1": "Tabaka vakadua na sikirini ena vanua o vinakata me kelevaki kina na kedrau ikelekele na kemu ituvaki.",
+    "text-step-3-part-2": "IVAKASALA!  Tabaka ena dua tale na vanua me kauti koya na veilataitaki ki na dua tale na itutu.",
+    "text-step-3-part-3": "IVAKASALA!  Sa rawa ni o veisautaka tale na veivosaki ni kalou ena nomu vakacurumi ira se vakarabailevutaka na sikirini ena nomu iqaqalo ni kakana kei na iqaqalo ni ligamu.",
+    "text-step-4-part-1": "Tabaka vakarua na bulukau damudamu ni katokatoni me TEKIVUtaki na nomu katokatoni ni vidio.",
+    "text-step-4-part-2": "Tabaka vakarua na bulukau damudamu me baleta na TAROVI."
+  },
+  "video": {
+    "back": "E muri"
+  },
+  "terms": {
+    "confirmTerms": "Au vakadonuya na Lawa ni Veiqaravi",
+    "confirmPolicy": "Au sa vakadonuya na Lawatu Vakatikitiki"
+  },
+  "registration": {
+    "ph-phoneEmail": "Vakayagataka na talevoni / imeli",
+    "facebook": "Tomana ena Facebook",
+    "google": "Tomana vata kei na Google",
+    "linkedin": "Tomana vata kei Linkedin",
+    "twitter": "Tomana ena Twitter",
+    "gitHub": "Tomana na GitGit.Git.)",
+    "connect": "Semata nomu imeli se naba ni talevoni",
+    "logIn": "Curu ki loma",
+    "LogInTo": "Curu ki na",
+    "continueAsGuest": "Tomana me vaka e dua na vulagi dokai"
+  }
+}

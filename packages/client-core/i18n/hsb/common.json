@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Strona so přeproša..."
+  },
+  "tooltip": {
+    "pressKey": "Tłóčće {{tip}} k {{message}}"
+  },
+  "toast": {
+    "joined": "Přirjadowany",
+    "left": "Nalěwo"
+  },
+  "navUserWidget": {
+    "login": "Přizjewić"
+  },
+  "loader": {
+    "connecting": "Zwisk k swětej...",
+    "entering": "Přistup na swět...",
+    "loading": "Wobchod...",
+    "objectRemaining": "{{count}} zbywacy objekt",
+    "objectRemainingPlural": "{{count}} zbywace objekty",
+    "loadingObjects": "Wobchod objektow",
+    "loadingComplete": "Wobchod zakónčeny",
+    "joiningWorld": "Swětej přistupić"
+  },
+  "alert": {
+    "eventWasSuccess": "Zarjadowanje bě wuspěšne",
+    "errorWasEncountered": "Je so zmylk jewił",
+    "eventInProgress": "Podawk we wobdźěłanju",
+    "seconds": "Doražka",
+    "cancelCountdown": "Hdyž tutón modal zawrějeće, so countdown wotłama."
+  },
+  "debug": {
+    "refresh": "Wožiwjacy",
+    "stats": "Statistiki",
+    "debugOptions": "Debug-opcije",
+    "physicsDebug": "Fyzika",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Knoten-Helfer",
+    "gridDebug": "Lěsycy",
+    "simpleMaterials": "Jednore materialije",
+    "tick": "Ticken",
+    "worldStore": "Swěto-skład",
+    "engineStore": "Motorowe lěhwa",
+    "namedEntities": "Pomjenowane entity",
+    "networkObject": "Syćowy objekt",
+    "networkClients": "Syć-Clients"
+  },
+  "recording": {
+    "videoRecorder": "Widejowi rekordery",
+    "waitingForPermissions": "Čakanje na woprawnjenja",
+    "selectVideoSource": "Widejowe žórło wuzwolić",
+    "screen": "Wobrazowka",
+    "camera": "Kamera",
+    "microphone": "Mikrofon",
+    "startRecording": "Přiwzaće startować",
+    "pauseRecording": "Přiwzaće zastać",
+    "resumeRecording": "Přiwzaće dale wjesć",
+    "stopRecording": "Přiwzaće stopować"
+  },
+  "typing": "Typisierung...",
+  "gameServer": {
+    "browserError": "Browser-Fehler",
+    "browserErrorMessage": "Jeje browser njepodpěruje składowanje w priwatnym modusu browsera. Spytajće to pak z druhim browserom, pak skónčće priwatny modus browsera.",
+    "noAvailableServers": "Žane k dispoziciji stejace serwery",
+    "noAvailableServersMessage": "Njesteja žane serwery k dispoziciji, z kotrymiž móžeće zwisk zhotowić. Pospyt, zwisk zaso wutworić",
+    "worldDisconnected": "Swět dźěleny",
+    "worldDisconnectedMessage": "Ty sy swój zwisk k swětej zhubił. Budźemy spytać, zwisk zaso wróćo stajić, prjedy hač slědowacy čas wotběži, hewak so k druhej instancy dale daće.",
+    "webGLNotEnabled": "WebGL njecitěruje",
+    "webGLNotEnabledMessage": "Jich browser njepodpěruje webGL abo je deaktiwěrowany. Prošu aktiwěrujće WebGL abo rozwažće upgrada na najnowšu wersiju Wašeho browsera.",
+    "youKickedFromWorld": "Ty bu ze swěta ćisnjeny",
+    "youKickedFromWorldMessage": "Ty bu ze sćěhowaceje přičiny z tutoho swěta ćisnjeny",
+    "invalidLocation": "Njepłaćiwe składnišćo",
+    "cantFindLocation": "Njemóžemy stejnišćo namakać",
+    "misspelledOrNotExist": "To móže wopak napisane być, abo njemóže eksistować.",
+    "loading": "Wobchod",
+    "low-frame-error": "Bu špatny wukon zwěsćeny, hdyž hardware pospěšenje wužiwaće w swojim browseru aktiwěrujeće a swój browser znowa aktiwěrujeće",
+    "low-frame-title": "Aktiwěrujće hardwarebe pospěšenje za lěpše nazhonjenje!"
+  },
+  "error": {
+    "loading-error": "Zmylki při wobchodźe wužiwarskich datow",
+    "validation-error": "Prošu zapodajće płaćiwe {{type}}",
+    "login-error": "Přizjewjenje njeradźane"
+  }
+}

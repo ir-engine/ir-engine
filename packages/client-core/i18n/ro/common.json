@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Pagina de încărcare..."
+  },
+  "tooltip": {
+    "pressKey": "Apăsați {{tip}} pentru a {{message}}"
+  },
+  "toast": {
+    "joined": "Alăturat",
+    "left": "Stânga"
+  },
+  "navUserWidget": {
+    "login": "Conectează-te"
+  },
+  "loader": {
+    "connecting": "Conectarea la lume...",
+    "entering": "Intrarea în lume...",
+    "loading": "Încărcare...",
+    "objectRemaining": "{{count}} obiect rămas",
+    "objectRemainingPlural": "{{count}} obiecte rămase",
+    "loadingObjects": "Încărcarea obiectelor",
+    "loadingComplete": "Încărcare completă",
+    "joiningWorld": "Aderarea la lume"
+  },
+  "alert": {
+    "eventWasSuccess": "Evenimentul a avut succes",
+    "errorWasEncountered": "S-a întâlnit o eroare",
+    "eventInProgress": "Eveniment în curs de desfășurare",
+    "seconds": "Secunde",
+    "cancelCountdown": "Închiderea acestui modal va anula numărătoarea inversă"
+  },
+  "debug": {
+    "refresh": "Împrospăta",
+    "stats": "Statistici",
+    "debugOptions": "Opțiuni de depanare",
+    "physicsDebug": "Fizică",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Nod Helper",
+    "gridDebug": "Grilă",
+    "simpleMaterials": "Materiale simple",
+    "tick": "Căpușă",
+    "worldStore": "Magazin mondial",
+    "engineStore": "Motor Store",
+    "namedEntities": "Entități denumite",
+    "networkObject": "Obiect de rețea",
+    "networkClients": "Clienți de rețea"
+  },
+  "recording": {
+    "videoRecorder": "Înregistrator video",
+    "waitingForPermissions": "În așteptarea permisiunilor",
+    "selectVideoSource": "Selectați sursa video",
+    "screen": "Ecran",
+    "camera": "Aparat foto",
+    "microphone": "Microfon",
+    "startRecording": "Începeți înregistrarea",
+    "pauseRecording": "Întrerupeți înregistrarea",
+    "resumeRecording": "Reluarea înregistrării",
+    "stopRecording": "Oprirea înregistrării"
+  },
+  "typing": "Tastarea...",
+  "gameServer": {
+    "browserError": "Eroare de browser",
+    "browserErrorMessage": "Browserul nu acceptă stocarea în modul de navigare privată. Fie încercați un alt browser, fie ieșiți din modul de navigare privată.",
+    "noAvailableServers": "Nu există servere disponibile",
+    "noAvailableServersMessage": "Nu există servere disponibile la care să vă conectați. Încercarea de a vă reconecta",
+    "worldDisconnected": "Lume deconectată",
+    "worldDisconnectedMessage": "Ți-ai pierdut legătura cu lumea. Vom încerca să ne reconectăm înainte de expirarea următoarei perioade, altfel veți fi redirecționat către o altă instanță.",
+    "webGLNotEnabled": "WebGL nu este activat",
+    "webGLNotEnabledMessage": "Browserul nu acceptă WebGL sau este dezactivat. Vă rugăm să activați WebGL sau să luați în considerare upgrade-ul la cea mai recentă versiune a browserului dvs.",
+    "youKickedFromWorld": "Ai fost dat afară din lume",
+    "youKickedFromWorldMessage": "Ai fost dat afară din această lume pentru următorul motiv",
+    "invalidLocation": "Locație nevalidă",
+    "cantFindLocation": "Nu putem găsi locația",
+    "misspelledOrNotExist": "Acesta poate fi ortografiat greșit, sau nu poate exista.",
+    "loading": "Încărcare",
+    "low-frame-error": "Detectat o perfomance săraci ia în considerare activarea utilizarea hardware-ul de accelerare în browser-ul și relauch browser-ul dvs.",
+    "low-frame-title": "Activați accelerarea hardware pentru o experiență mai bună!"
+  },
+  "error": {
+    "loading-error": "Nu s-a reușit încărcarea datelor utilizatorilor",
+    "validation-error": "Vă rugăm să introduceți {{type}} valabile",
+    "login-error": "Nu a reușit să vă conectați"
+  }
+}

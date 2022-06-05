@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "ਪੁਸ਼ਟੀ ਈਮੇਲ",
+      "resendEmail": "ਆਪਣੇ ਖਾਤੇ ਦੀ ਪੁਸ਼ਟੀ ਕਰਨ ਲਈ ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੀ ਈਮੇਲ ਦੇਖੋ। ਜੇ ਤੁਹਾਨੂੰ ਕੋਈ ਈਮੇਲ ਨਹੀਂ ਮਿਲੀ, ਤਾਂ ਕਿਰਪਾ ਕਰਕੇ ਪੁਸ਼ਟੀਕਰਨ ਈਮੇਲ ਨੂੰ ਮੁੜ-ਭੇਜਣ ਲਈ {{here}} 'ਤੇ ਕਲਿੱਕ ਕਰੋ।",
+      "haveAnAccount": "ਕੀ ਤੁਹਾਡਾ ਕੋਈ ਖਾਤਾ ਹੈ?"
+    },
+    "forgotPassword": {
+      "header": "ਪਾਸਵਰਡ ਭੁੱਲ ਗਿਆ",
+      "enterEmail": "ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ ਪੰਜੀਕਿਰਤ ਈਮੇਲ ਪਤਾ ਦਾਖਲ ਕਰੋ ਅਤੇ ਅਸੀਂ ਤੁਹਾਨੂੰ ਇੱਕ ਪਾਸਵਰਡ ਰੀਸੈੱਟ ਲਿੰਕ ਭੇਜਾਂਗੇ।",
+      "lbl-email": "ਈਮੇਲ ਐਡਰੈੱਸ",
+      "lbl-submit": "ਲਿੰਕ ਭੇਜੋ",
+      "emailSent": "ਪਾਸਵਰਡ ਰੀਸੈੱਟ ਕਰੋ ਈਮੇਲ ਭੇਜ ਦਿੱਤੀ ਗਈ ਸੀ। ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੀ ਈਮੇਲ ਦੀ ਜਾਂਚ ਕਰੋ।"
+    },
+    "login": {
+      "email": "ਈਮੇਲ | SMSComment",
+      "username": "ਯੂਜ਼ਰ- ਨਾਂ + ਪਾਸਵਰਡ",
+      "social": "ਸਮਾਜਿਕ"
+    },
+    "magiklink": {
+      "header": "ਲਾਗਇਨ ਲਿੰਕ",
+      "descriptionEmail": "ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ ਈਮੇਲ ਪਤਾ ਦਾਖਲ ਕਰੋ ਅਤੇ ਅਸੀਂ ਤੁਹਾਨੂੰ ਈਮੇਲ ਰਾਹੀਂ ਇੱਕ ਲੌਗਇਨ ਲਿੰਕ ਭੇਜਾਂਗੇ।",
+      "descriptionSMS": "ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ ਫ਼ੋਨ ਨੰਬਰ ਦਾਖਲ ਕਰੋ ਅਤੇ ਅਸੀਂ ਤੁਹਾਨੂੰ SMS ਰਾਹੀਂ ਇੱਕ ਲੌਗਇਨ ਲਿੰਕ ਭੇਜਾਂਗੇ।",
+      "descriptionEmailSMS": "ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ ਈਮੇਲ ਪਤਾ ਜਾਂ ਫ਼ੋਨ ਨੰਬਰ (10 ਅੰਕੀ, ਕੇਵਲ ਯੂ.ਐੱਸ.) ਦਾਖਲ ਕਰੋ ਅਤੇ ਅਸੀਂ ਤੁਹਾਨੂੰ ਈਮੇਲ ਜਾਂ SMS ਰਾਹੀਂ ਇੱਕ ਲੌਗਇਨ ਲਿੰਕ ਭੇਜਾਂਗੇ।",
+      "descriptionSMSUS": "ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ ਫ਼ੋਨ ਨੰਬਰ ਦਾਖਲ ਕਰੋ (10 ਅੰਕੀ, ਕੇਵਲ ਯੂ.ਐੱਸ.) ਅਤੇ ਅਸੀਂ ਤੁਹਾਨੂੰ SMS ਰਾਹੀਂ ਇੱਕ ਲੌਗਇਨ ਲਿੰਕ ਭੇਜਾਂਗੇ।",
+      "lbl-email": "ਈਮੇਲ ਐਡਰੈੱਸ",
+      "lbl-emailPhone": "ਈਮੇਲ ਜਾਂ ਫ਼ੋਨ ਨੰਬਰ",
+      "lbl-phone": "ਫੋਨ ਨੰਬਰ",
+      "agree": "ਮੈਂ ਇਸ ਨਾਲ ਸਹਿਮਤ ਹਾਂ ",
+      "terms": "ਨਿਯਮ ਅਤੇ ਸ਼ਰਤਾਂ",
+      "lbl-submit": "ਲਾਗਇਨ ਲਿੰਕ ਭੇਜੋ",
+      "email-sent-msg": "ਲੌਗਇਨ ਮੈਜਿਕ ਲਿੰਕ ਭੇਜਿਆ ਗਿਆ ਸੀ। ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੀ ਈਮੇਲ ਦੀ ਜਾਂਚ ਕਰੋ।",
+      "success-msg": "ਲੌਗਇਨ ਮੈਜਿਕ ਲਿੰਕ ਭੇਜਿਆ ਗਿਆ ਸੀ। ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੀ ਈਮੇਲ ਜਾਂ SMS ਦੀ ਜਾਂਚ ਕਰੋ।",
+      "sms-sent-msg": "ਲੌਗਇਨ ਮੈਜਿਕ ਲਿੰਕ ਭੇਜਿਆ ਗਿਆ ਸੀ। ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੇ SMS ਦੀ ਜਾਂਚ ਕਰੋ।"
+    },
+    "passwordLogin": {
+      "header": "ਸਾਈਨ ਇਨ ਕਰੋ",
+      "lbl-email": "ਈਮੇਲ ਐਡਰੈੱਸ",
+      "lbl-password": "ਪਾਸਵਰਡ",
+      "lbl-rememberMe": "ਮੈਨੂੰ ਯਾਦ ਰੱਖੋ",
+      "lbl-signin": "ਸਾਈਨ ਇਨ ਕਰੋ",
+      "forgotPassword": "ਕੀ ਪਾਸਵਰਡ ਭੁੱਲ ਗਏ ਹੋ?",
+      "signup": "ਤੁਹਾਡਾ ਕੋਈ ਖਾਤਾ ਨਹੀਂ ਹੈ? ਸਾਈਨ ਅੱਪ ਕਰੋ",
+      "lbl-login": "ਲਾਗਇਨ ਕਰੋ",
+      "ph-password": "ਪਾਸਵਰਡ",
+      "ph-email": "ਈ- ਮੇਲ"
+    },
+    "social": {
+      "gitHub": "GitHub ਨਾਲ ਲਾਗਇਨ",
+      "google": "ਗੂਗਲ ਨਾਲ ਲੌਗਇਨ ਕਰੋ",
+      "facebook": "ਫੇਸਬੁੱਕ ਨਾਲ ਲੌਗਇਨ ਕਰੋ",
+      "linkedin": "Linkedin ਨਾਲ ਲੌਗਇਨ ਕਰੋ",
+      "twitter": "ਟਵਿੱਟਰ ਨਾਲ ਲੌਗਇਨ ਕਰੋ"
+    },
+    "register": {
+      "header": "ਸਾਈਨ ਅੱਪ ਕਰੋ",
+      "login": "ਲਾਗਇਨ ਕਰੋ",
+      "lbl-signup": "ਸਾਈਨ ਅੱਪ ਕਰੋ",
+      "lbl-password": "ਪਾਸਵਰਡ",
+      "lbl-email": "ਈਮੇਲ ਐਡਰੈੱਸ",
+      "passwordNotMatch": "ਪਾਸਵਰਡ ਮੇਲ ਨਹੀਂ ਖਾਂਦੇ",
+      "ph-password": "ਪਾਸਵਰਡ",
+      "ph-confirmPassword": "ਪਾਸਵਰਡ ਪੁਸ਼ਟੀ",
+      "ph-email": "ਈ- ਮੇਲ"
+    },
+    "resetPassword": {
+      "header": "ਪਾਸਵਰਡ ਮੁੜ- ਸੈੱਟ",
+      "description": "ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੇ ਈਮੇਲ ਪਤੇ ਵਾਸਤੇ ਆਪਣਾ ਪਾਸਵਰਡ ਦਾਖਲ ਕਰੋ",
+      "lbl-submit": "ਪਾਸਵਰਡ ਮੁੜ- ਸੈੱਟ",
+      "lbl-password": "ਪਾਸਵਰਡ",
+      "lbl-confirmPassword": "ਪਾਸਵਰਡ ਪੁਸ਼ਟੀ",
+      "passwordNotMatch": "ਪਾਸਵਰਡ ਮੇਲ ਨਹੀਂ ਖਾਂਦੇ",
+      "nowLoginYourAccount": "ਹੁਣ ਤੁਸੀਂ ਆਪਣੇ ਖਾਤੇ ਵਿੱਚ ਲੌਗਇਨ ਕਰ ਸਕਦੇ ਹੋ",
+      "yourPasswordResetSuccess": "ਤੁਹਾਡਾ ਪਾਸਵਰਡ ਸਫਲਤਾਪੂਰਵਕ ਰੀਸੈੱਟ ਹੋ ਗਿਆ ਸੀ!"
+    },
+    "verifyEmail": {
+      "header": "ਈਮੇਲ ਜਾਂਚ",
+      "processing": "ਕਿਰਪਾ ਕਰਕੇ ਪ੍ਰਕਿਰਿਆ ਕਰਨ ਦੌਰਾਨ ਇੱਕ ਪਲ ਉਡੀਕ ਕਰੋ..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "ਟਿਕਾਣੇ",
+      "loading": "ਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ",
+      "col-name": "ਨਾਂ",
+      "col-scene": "ਸੀਨ",
+      "col-maxuser": "ਵੱਧੋ- ਵੱਧ ਯੂਜ਼ਰ",
+      "lbl-search": "ਟਿਕਾਣਿਆਂ ਦੀ ਖੋਜ",
+      "lbl-new": "ਨਵਾਂ"
+    },
+    "newLocation": {
+      "title": "ਟਿਕਾਣਾ",
+      "success": "ਸਫਲਤਾਪੂਰਵਕ ਸੰਭਾਲਿਆ ਗਿਆ ।",
+      "failure": "ਕੁਝ ਗੜਬੜ ਹੋ ਗਈ।",
+      "removeSuccess": "ਟਿਕਾਣਾ ਸਫਲਤਾਪੂਰਵਕ ਹਟਾਇਆ ਗਿਆ ।",
+      "nameInUse": "ਨਾਮ ਵਰਤੋਂ ਵਿੱਚ ਹੈ।",
+      "nameRequire": "ਨਾਂ ਚਾਹੀਦਾ ਹੈ।",
+      "validNumber": "ਸਿਰਫ਼ ਨੰਬਰ(0-9) ਦੀ ਆਗਿਆ ਹੈ।",
+      "lbl-name": "ਨਾਂ",
+      "lbl-maxuser": "ਵੱਧੋ- ਵੱਧ ਯੂਜ਼ਰ",
+      "lbl-scene": "ਸੀਨ",
+      "lbl-type": "ਕਿਸਮ",
+      "lbl-ve": "ਵਿਡੀਓ ਚਾਲੂ",
+      "lbl-gme": "ਗਲੋਬਲ ਮੀਡੀਆ ਚਾਲੂ ਹੈ",
+      "lbl-update": "ਅੱਪਡੇਟ",
+      "lbl-create": "ਬਣਾਓ",
+      "tooltipCanNotBeDeleted": "ਲਾਬੀ ਨੂੰ ਮਿਟਾਇਆ ਨਹੀਂ ਜਾ ਸਕਦਾ",
+      "confirmation": "ਕੀ ਤੁਹਾਨੂੰ ਯਕੀਨ ਹੈ?",
+      "lbl-yes": "ਹਾਂ",
+      "lbl-no": "ਨਹੀਂ"
+    },
+    "share": {
+      "lbl-share": "ਸਾਂਝਾ ਕਰੋ",
+      "ph-phoneEmail": "ਈਮੇਲ ਜਾਂ ਫ਼ੋਨ ਨੰਬਰ ਦੁਆਰਾ ਸੱਦਾ ਦਿਓ",
+      "lbl-phoneEmail": "ਈਮੇਲ ਜਾਂ ਫ਼ੋਨ ਨੰਬਰ 'ਤੇ ਭੇਜੋ",
+      "lbl-copy": "ਕਾਪੀ ਕਰੋ",
+      "lbl-send-invite": "ਸੱਦਾ ਭੇਜੋ",
+      "title": "ਆਪਣੀ ਟੀਮ ਨਾਲ ਆਪਣਾ ਟਿਕਾਣਾ URL ਸਾਂਝਾ ਕਰੋ",
+      "linkCopied": "ਲਿੰਕ ਕਲਿੱਪਬੋਰਡ 'ਤੇ ਕਾਪੀ ਕੀਤਾ ਗਿਆ ।"
+    },
+    "setting": {
+      "audio": "ਆਡੀਓ",
+      "lbl-volume": "ਵਾਲੀਅਮ",
+      "lbl-microphone": "ਮਾਈਕ੍ਰੋਫ਼ੋਨ",
+      "graphics": "ਗਰਾਫਿਕਸ",
+      "controls": "ਕੰਟਰੋਲ",
+      "lbl-control-type": "ਕੰਟਰੋਲਰ ਕਿਸਮ",
+      "lbl-control-scheme": "ਕੰਟਰੋਲ ਸਕੀਮ",
+      "lbl-resolution": "ਰੈਜ਼ੋਲੂਸ਼ਨ",
+      "lbl-shadow": "ਪਰਛਾਵੇਂ",
+      "lbl-pp": "ਪੋਸਟ ਪਰੋਸੈਸਿੰਗ",
+      "lbl-pbr": "ਪੂਰਾ PBR",
+      "lbl-automatic": "ਆਟੋਮੈਟਿਕ",
+      "xrusersetting": "XR ਯੂਜ਼ਰ ਸੈਟਿੰਗ",
+      "rotation": "ਘੁੰਮਾਓ",
+      "rotation-smooth-speed": "ਘੁੰਮਾਓ ਨਿਰਵਿਘਨ ਗਤੀ",
+      "rotation-angle": "ਘੁੰਮਾਉਣ ਕੋਣ",
+      "moving": "ਹਿਲਾਉਣਾ",
+      "user-avatar": "ਅਵਤਾਰ ਸੈਟਿੰਗ",
+      "invert-rotation": "ਰੋਟੇਸ਼ਨ ਨੂੰ ਉਲਟਾ ਕਰੋ ਅਤੇ ਸਟਿੱਕਾਂ ਨੂੰ ਹਿਲਾਓ",
+      "show-avatar": "ਅਵਤਾਰ ਵੇਖੋ"
+    },
+    "profile": {
+      "lbl-profile": "ਪਰੋਫਾਇਲ",
+      "lbl-settings": "ਸੈਟਿੰਗ",
+      "lbl-username": "ਯੂਜ਼ਰ ਨਾਂ",
+      "update-msg": "ਯੂਜ਼ਰ ਨਾਂ ਅੱਪਡੇਟ ਕੀਤਾ",
+      "inviteCode": "ਕੋਡ ਸੱਦਾ",
+      "youAreAn": "ਤੁਸੀਂ ਇੱਕ ਹੋ",
+      "youAreA": "ਤੁਸੀਂ ਇੱਕ ਹੋ",
+      "showUserId": "ਯੂਜ਼ਰ ID ਵੇਖੋ",
+      "hideUserId": "ਯੂਜ਼ਰ ID ਓਹਲੇ",
+      "showApiKey": "API ਕੁੰਜੀ ਵੇਖੋ",
+      "hideApiKey": "API ਕੁੰਜੀ ਓਹਲੇ",
+      "apiKey": "API ਕੁੰਜੀ",
+      "logout": "ਲਾਗ ਆਉਟ",
+      "connectPhone": "ਆਪਣਾ ਫ਼ੋਨ ਨੰਬਰ ਕਨੈਕਟ ਕਰੋ",
+      "connectEmail": "ਆਪਣੀ ਈਮੇਲ ਕੁਨੈਕਟ ਕਰੋ",
+      "connectPhoneEmail": "ਆਪਣਾ ਈਮੇਲ ਜਾਂ ਫ਼ੋਨ ਨੰਬਰ ਕਨੈਕਟ ਕਰੋ",
+      "or": "ਜਾਂ",
+      "lbl-wallet": "ਵਾਲੇਟ ਨਾਲ ਲਾਗਇਨ",
+      "ph-email": "ਈ- ਮੇਲ",
+      "ph-phone": "ਫੋਨ ਨੰਬਰ",
+      "ph-phoneEmail": "ਫੋਨ ਨੰਬਰ / ਈਮੇਲ",
+      "phoneEmailError": "ਅਵੈਧ ਫ਼ੋਨ # ਜਾਂ ਈਮੇਲ ਪਤਾ",
+      "phoneError": "ਅਵੈਧ ਫੋਨ #",
+      "emailError": "ਅਵੈਧ ਈਮੇਲ ਐਡਰੈੱਸ",
+      "loginWithReadyPlayerMe": "ਰੈਡੀ ਪਲੇਅਰ ਮੀ ਨਾਲ ਲੌਗਇਨ ਕਰੋ",
+      "connectSocial": "ਸਮਾਜਕ ਖਾਤਿਆਂ ਨਾਲ ਸਬੰਧ ਜੋੜੋ",
+      "createOne": "ਜੇ ਤੁਹਾਡੇ ਕੋਲ ਕੋਈ ਖਾਤਾ ਨਹੀਂ ਹੈ, ਤਾਂ ਤੁਹਾਡੇ ਲਈ ਇੱਕ ਨਵਾਂ ਖਾਤਾ ਬਣਾਇਆ ਜਾਵੇਗਾ",
+      "connections": {
+        "title": "ਕੁਨੈਕਸ਼ਨ",
+        "ipError": "ਕਿਰਿਆਸ਼ੀਲ ਪਛਾਣ ਪ੍ਰਦਾਨਕ ਨੂੰ ਹਟਾਇਆ ਨਹੀਂ ਜਾ ਸਕਦਾ",
+        "disconnect": "ਡਿਸ- ਕੁਨੈਕਟ ਕਰੋ",
+        "connect": "ਕੁਨੈਕਟ ਕਰੋ"
+      },
+      "profileDropdown": {
+        "avatar": "ਯੂਜ਼ਰ ਅਵਤਾਰ ਆਈਕਾਨ",
+        "profile": "ਪਰੋਫਾਇਲ",
+        "adminConsole": "ਐਡਮਿਨ ਕਨਸੋਲ",
+        "logout": "ਲਾਗਆਉਟ"
+      },
+      "userIcon": {
+        "lbl-name": "ਤੁਹਾਡਾ ਨਾਮ",
+        "lbl-update": "ਅੱਪਡੇਟ",
+        "userId": "ਯੂਜ਼ਰ id",
+        "ph-uploadImg": "ਉਤਪਾਦ ਚਿੱਤਰ ਅੱਪਲੋਡ ਕਰੋ",
+        "lbl-selectAcvatar": "ਅਵਤਾਰ ਚੁਣੋ",
+        "lbl-submit": "ਸਪੁਰਦ ਕਰੋ"
+      },
+      "userSettings": {
+        "volume": "ਵਾਲੀਅਮ",
+        "microphone": "ਮਾਈਕ੍ਰੋਫ਼ੋਨ",
+        "resolution": "ਰੈਜ਼ੋਲੂਸ਼ਨ",
+        "high": "ਉੱਚ",
+        "low": "ਘੱਟ",
+        "spatialAudio": "ਸਥਾਨਿਕ ਆਡੀਓ ਵਰਤੋਂ",
+        "enterMuted": "ਕਮਰਾ ਚੁੱਪ ਕਰੋ ਦਾਖਲ ਕਰੋ"
+      }
+    },
+    "oauth": {
+      "authenticating": "ਪਰਮਾਣਿਤ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...",
+      "authFailed": "{{service}} ਪ੍ਰਮਾਣੀਕਰਨ ਅਸਫਲ ਰਿਹਾ।"
+    },
+    "magikLink": {
+      "wait": "ਕਿਰਪਾ ਕਰਕੇ ਪ੍ਰਕਿਰਿਆ ਕਰਨ ਦੌਰਾਨ ਇੱਕ ਪਲ ਉਡੀਕ ਕਰੋ..."
+    },
+    "dashboard": {
+      "header": "ਡੈਸ਼ਬੋਰਡ",
+      "dashboard": "ਡੈਸ਼ਬੋਰਡ",
+      "users": "ਯੂਜ਼ਰ",
+      "feeds": "ਫੀਡ",
+      "instance": "ਉਦਾਹਰਨ",
+      "locations": "ਟਿਕਾਣੇ",
+      "invites": "ਸੱਦਾ",
+      "sessions": "ਸ਼ੈਸ਼ਨ",
+      "groups": "ਗਰੁੱਪ",
+      "parties": "ਪਾਰਟੀਆਂ",
+      "chats": "ਗੱਲਬਾਤ",
+      "content": "ਸਮੱਗਰੀ ਪੈਕ",
+      "projects": "ਪ੍ਰੋਜੈਕਟ",
+      "scenes": "ਸੀਨ",
+      "avatars": "ਅਵਤਾਰ",
+      "benchmarking": "ਬੈਂਚਮਾਰਕਿੰਗ",
+      "bots": "ਬੋਟ"
+    }
+  },
+  "oauth": {
+    "authenticating": "ਪਰਮਾਣਿਤ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...",
+    "authFailed": "{{service}} ਪ੍ਰਮਾਣੀਕਰਨ ਅਸਫਲ ਰਿਹਾ।"
+  },
+  "magikLink": {
+    "wait": "ਕਿਰਪਾ ਕਰਕੇ ਪ੍ਰਕਿਰਿਆ ਕਰਨ ਦੌਰਾਨ ਇੱਕ ਪਲ ਉਡੀਕ ਕਰੋ..."
+  },
+  "dashboard": {
+    "header": "ਡੈਸ਼ਬੋਰਡ",
+    "dashboard": "ਡੈਸ਼ਬੋਰਡ",
+    "users": "ਯੂਜ਼ਰ",
+    "feeds": "ਫੀਡ",
+    "instance": "ਉਦਾਹਰਨ",
+    "locations": "ਟਿਕਾਣੇ",
+    "routes": "ਰੂਟ",
+    "projects": "ਪ੍ਰੋਜੈਕਟ",
+    "invites": "ਸੱਦਾ",
+    "sessions": "ਸ਼ੈਸ਼ਨ",
+    "groups": "ਗਰੁੱਪ",
+    "parties": "ਪਾਰਟੀਆਂ",
+    "chats": "ਗੱਲਬਾਤ",
+    "content": "ਸਮੱਗਰੀ ਪੈਕ",
+    "scenes": "ਸੀਨ",
+    "avatars": "ਅਵਤਾਰ",
+    "benchmarking": "ਬੈਂਚਮਾਰਕਿੰਗ",
+    "bots": "ਬੋਟ",
+    "setting": "ਸੈਟਿੰਗ"
+  },
+  "avatar": {
+    "title": "ਅਵਤਾਰ ਅੱਪਲੋਡ ਕਰੋ",
+    "lbl-browse": "ਝਲਕ",
+    "lbl-thumbnail": "ਥੰਮਨੇਲ",
+    "lbl-upload": "ਅੱਪਲੋਡ",
+    "selectAvatar": "ਅਵਤਾਰ ਚੁਣੋ...",
+    "selectThumbnail": "ਥੰਮਨੇਲ ਚੁਣੋ...",
+    "rotate": "ਘੁੰਮਾਓ",
+    "pan": "ਪੈਨName",
+    "noBone": "Obejct ਵਿੱਚ ਕੋਈ ਹੱਡੀਆਂ ਜਾਂ ਚਮੜੀ ਨਹੀਂ ਹੁੰਦੀਆਂ",
+    "outOfBound": "ਵਸਤੂ ਬੰਧਨ ਤੋਂ ਬਾਹਰ ਹੈ।",
+    "emptyObj": "ਆਬਜੈਕਟ ਖਾਲੀ ਹੈ।",
+    "maxTriangleError": "ਵਸਤੂ ਵਿੱਚ {{allowedTriangles}} ਤੋਂ ਵੱਡੇ ਫੇਸ ਹੁੰਦੇ ਹਨ।",
+    "selectValidFile": "ਵੈਧ 3d ਅਵਤਾਰ ਫਾਈਲ ਚੁਣੋ।",
+    "selectValidThumbnail": "ਚੁਣੀ ਠੀਕ ਥੰਮਨੇਲ ਫਾਇਲ ।",
+    "fileOversized": "ਅਵਤਾਰ ਫ਼ਾਈਲ ਆਕਾਰ {{minSize}} MB ਅਤੇ {{maxSize}} MB ਵਿਚਕਾਰ ਹੋਣਾ ਲਾਜ਼ਮੀ ਹੈ",
+    "confirmation": "ਕੀ ਤੁਹਾਨੂੰ ਯਕੀਨ ਹੈ?",
+    "canNotBeRemoved": "ਕਿਰਿਆਸ਼ੀਲ ਅਵਤਾਰ ਨੂੰ ਹਟਾਇਆ ਨਹੀਂ ਜਾ ਸਕਦਾ",
+    "remove": "ਅਵਤਾਰ ਹਟਾਓ",
+    "uploadFiles": "ਫਾਇਲਾਂ ਅੱਪਲੋਡ ਕਰੋ",
+    "useUrlInstead": "ਇਸ ਦੀ ਬਜਾਏ url ਵਰਤੋਂ",
+    "avatar": "ਅਵਤਾਰ",
+    "cancel": "ਰੱਦ ਕਰੋ",
+    "createAvatar": "ਅਵਤਾਰ ਬਣਾਓ",
+    "delete": "ਹਟਾਓ",
+    "view": "ਵੇਖੋ",
+    "uploadAvatarInfo": "ਅਵਤਾਰ ਜਾਣਕਾਰੀ ਅੱਪਡੇਟ ਕਰੋ",
+    "name": "ਨਾਂ",
+    "enterName": "ਨਾਂ ਦਿਓ",
+    "avatarInformation": "ਅਵਤਾਰ ਜਾਣਕਾਰੀ",
+    "description": "ਵੇਰਵਾ",
+    "key": "ਕੁੰਜੀ",
+    "none": "ਕੋਈ ਨਹੀਂ",
+    "submit": "ਸਪੁਰਦ ਕਰੋ",
+    "edit": "ਸੋਧ",
+    "avatarUrl": "ਅਵਤਾਰ url",
+    "upload-success-msg": "ਅਵਤਾਰ ਨੂੰ ਸਫਲਤਾਪੂਰਵਕ ਅੱਪਲੋਡ ਕੀਤਾ ਗਿਆ।",
+    "remove-success-msg": "ਅਵਤਾਰ ਨੂੰ ਸਫਲਤਾਪੂਰਵਕ ਅੱਪਲੋਡ ਕੀਤਾ ਗਿਆ।",
+    "warning-msg": "ਅਵਤਾਰ ਸਰੋਤ ਖਾਲੀ ਹੈ, ਕੀ ਤੁਸੀਂ ਅਵਤਾਰਾਂ ਨੂੰ ਆਪਣੀ ਸਥਿਰ ਫ਼ਾਈਲ ਸਟੋਰੇਜ 'ਤੇ ਸਿੰਕ ਕੀਤਾ ਹੈ?"
+  },
+  "personMenu": {
+    "inviteToParty": "ਪਾਰਟੀ ਲਈ ਸੱਦਾ",
+    "addAsFriend": "ਦੋਸਤ ਵਜੋਂ ਸ਼ਾਮਲ ਕਰੋ",
+    "mute": "ਚੁੱਪ",
+    "block": "ਬਲਾਕ"
+  },
+  "person": {
+    "you": "ਤੁਸੀਂ",
+    "yourScreen": "ਤੁਹਾਡੀ ਸਕਰੀਨ",
+    "muteForEveryone": "ਹਰ ਕਿਸੇ ਲਈ ਚੁੱਪ ਕਰੋ",
+    "unmuteForEveryone": "ਹਰ ਕਿਸੇ ਲਈ ਅਨ- ਸਮੂਟ",
+    "muteMe": "ਮੈਨੂੰ ਚੁੱਪ ਕਰੋ",
+    "unmuteMe": "ਮੈਨੂੰ ਅਨਮੂਟ ਕਰੋ",
+    "muteThisPerson": "ਇਸ ਵਿਅਕਤੀ ਨੂੰ ਚੁੱਪ ਕਰੋ",
+    "unmuteThisPerson": "ਇਸ ਵਿਅਕਤੀ ਨੂੰ ਅਨਮਿਊਟ ਕਰੋ",
+    "openPictureInPicture": "ਤਸਵੀਰ ਵਿੱਚ ਤਸਵੀਰ ਖੋਲ੍ਹੋ"
+  }
+}

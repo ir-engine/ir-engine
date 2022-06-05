@@ -1,0 +1,202 @@
+{
+  "addComment": "Cuir Trácht Leis...",
+  "share": "Comhroinn",
+  "suggestions": "Moltaí Duitse",
+  "seeAll": "Féach Gach Rud",
+  "likes": "Is maith",
+  "viewComments": "Féach ar na tuairimí {{count}} go léir",
+  "more": "níos mó",
+  "username": "ainm úsáideora",
+  "fullName": "Ainm Sloinne",
+  "reportInApporpriate": "Tuairiscigh Míchuí",
+  "unfollow": "Unfollow",
+  "goToPost": "Téigh go dtí an Post",
+  "shareModal": "Comhroinn",
+  "copyLink": "Cóipeáil Nasc",
+  "embed": "Leabaigh",
+  "cancel": "Cuir ar ceal",
+  "confirm": "Deimhnigh",
+  "save": "Sábháil",
+  "profilePic": "{{user}}'próifíl pic",
+  "ara": "Ara",
+  "follow": "Lean",
+  "flames": "Lasracha",
+  "continue": "Lean ar aghaidh",
+  "partyInvitationSent": "Cuireadh páirtí seolta",
+  "arMedia": {
+    "back": "Ar ais",
+    "clip": "Gearrthóg",
+    "backgrounds": "Cúlraí",
+    "start": "Tosaigh"
+  },
+  "arMediaform": {
+    "title": "Teideal",
+    "type": "Cineál",
+    "clip": "Gearrthóg",
+    "background": "Cúlra",
+    "scene": "Radharc",
+    "save": "Sábháil",
+    "manifest-file": "Manifest comhad .manifest",
+    "audio-file": "Comhad mp4",
+    "dracosis-file": "Comhad Dracosis .uvol",
+    "preview-file": "Réamhamharc ar chomhad íomhá"
+  },
+  "creator": {
+    "myVideos": "Mo Chuid Físeáin",
+    "savedVideos": "Físeáin Shábháilte",
+    "back": "Ar ais",
+    "blocked-list": "Liosta Blocáilte",
+    "block-user": "Cuir bac ar úsáideoir",
+    "dialog-content": "Ní fheicfidh tú próifíl agus ábhar an úsáideora"
+  },
+  "creatorForm": {
+    "back": "Ar ais",
+    "edit": "Cuir Próifíl in Eagar",
+    "save": "Sábháil",
+    "changeAvatar": "Athraigh íomhá avatar",
+    "ph-selectPreview": "Roghnaigh réamhamharc",
+    "ph-name": "D'ainm",
+    "ph-username": "D'Ainm Úsáideora",
+    "ph-email": "Do R-phost",
+    "ph-tags": "Clibeanna",
+    "ph-link": "Nasc",
+    "ph-aboutYou": "Tuilleadh fútsa",
+    "ph-twitter": "ar an twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Sínigh Amach"
+  },
+  "dashboard": {
+    "title": "Painéal na nIonstraimí",
+    "dashboard": "Painéal na nIonstraimí",
+    "users": "Úsáideoirí",
+    "feeds": "Fothaí",
+    "arMedia": "Meáin Físe",
+    "editor": "Eagarthóir",
+    "creator": "Cruthaitheoir"
+  },
+  "featured": {
+    "empty-list": "Níl aon fhothaí ann anois ..."
+  },
+  "feed": {
+    "back": "Ar ais",
+    "related": "Fothaí gaolmhara",
+    "is-repoted-message": "Tuairiscítear fotha!"
+  },
+  "feedForm": {
+    "back": "Ar ais",
+    "thanks": "Go raibh maith agat as ár bpobal a roinnt agus a fheabhsú",
+    "share": "Roinn rud éigin leis an bpobal",
+    "upload": "Uaslódáil Físeán",
+    "ph-selectVideo": "Roghnaigh Físeán",
+    "preview": "Íomhá réamhamhairc",
+    "ph-selectPreview": "Roghnaigh réamhamharc",
+    "createFeed": "D'fhonn fotha a chruthú caithfidh físeán agus íomhá réamhamhairc a bheith agat!!!",
+    "ph-videoName": "Ainm d'fhíseáin",
+    "ph-type": "Clóscríobh an méid is mian leat a roinnt leis an bpobal ... ",
+    "lbl-share": "Comhroinn",
+    "save": "Sábháil agus téigh Ar Aghaidh"
+  },
+  "feedMenu": {
+    "featured": "Réadmhaoin",
+    "creators": "Cruthaitheoirí",
+    "feed": "An Fotha"
+  },
+  "header": {
+    "lbl-volumetric": "Toirtmhéadrach"
+  },
+  "login": {
+    "account": "An bhfuil cuntas agat?",
+    "login": "Logáil isteach",
+    "resetPassword": "Athshocraigh cnaipe Pasfhocal Falsa (seo nasc ó ríomhphost)",
+    "notHavingAccount": "Nach bhfuil cuntas agat?",
+    "signUp": "Cláraigh",
+    "forgotPassword": "Pasfhocal dearmadta?",
+    "back": "Ar ais",
+    "or": "NÓ"
+  },
+  "comment": {
+    "add": "Cuir do thrácht leis..."
+  },
+  "notification": {
+    "feedFire": " scaoil do bheatha",
+    "feedBookmarked": " leabharmharcáilte do bheatha",
+    "comment": " trácht ar do bheatha:",
+    "commentFire": " scaoil do thrácht chun beatha",
+    "follow": " thosaigh tú ag leanúint ort",
+    "unfollow": " stopadh á leanúint agat",
+    "followed": " lean sibh",
+    "activity": "Gníomhaíocht"
+  },
+  "onBoarding": {
+    "welcome": "Fáilte!",
+    "description": "An bailiúchán is mó de leagan amach 370 + le haghaidh fréamhshamhlú iOS.",
+    "next": "Ar Aghaidh",
+    "discover": "Faigh amach ailt,",
+    "news": "nuacht & poist",
+    "lines": "Is iad na mothúcháin sin a spreagann ár ngrá don réalteolaíocht agus dár mian.",
+    "getStarted": "Tús a chur leis",
+    "meetUp": "Buail le",
+    "friends": "agus a chairde.",
+    "meet": "Buail le cairde"
+  },
+  "shareForm": {
+    "arcMedia": "Comhroinn",
+    "videoCreated": "Chruthaigh mé an físeán seo",
+    "shareWithBuddies": "Comhroinn le cairde",
+    "shareVideo": "Comhroinn Físeán",
+    "save": "Sábháil go Rolla Ceamara",
+    "cancel": "Cuir ar ceal",
+    "close": "Dún",
+    "addFeed": "Cuir Fotha Leis"
+  },
+  "simpleModal": {
+    "emptyList": "Liosta folamh",
+    "followers": " tar éis",
+    "following": " lucht leanúna",
+    "flames": " lasracha"
+  },
+  "splash": {
+    "screen": "Splancscáileán",
+    "logo": "Lógó"
+  },
+  "story": {
+    "profilePic": "{{user}}'próifíl pic"
+  },
+  "view": {
+    "cancel": "Cuir ar ceal",
+    "choice": "Tá dhá mhodh taifeadta éagsúla agat le roghnú as",
+    "verticalMode": "Tá am taifeadta 30 soic ag an mód ingearach",
+    "horizontalMode": "Tá am taifeadta neamhtheoranta ag an mód cothrománach",
+    "start": "Tosaigh",
+    "not-show": "Ná taispeáin arís é",
+    "welcome": "Fáilte go ARC!  Déan físeáin phearsanta le ceann dár holagraim agus cuir sa phost é chuig do chainéil meán sóisialta!",
+    "step": "céim {{step}}",
+    "text-step-1": "Roghnaigh holagram ón leabharlann.",
+    "text-step-2": "Is é seo Réaltacht Méadaithe, mar sin scan an spás le do cheamara ó thaobh go taobh ar feadh 3-5 soicind áit ar mhaith leat an fheidhmíocht holagram a bheith.",
+    "text-step-3-part-1": "Beartaíonn scáileán uair amháin ar an suíomh inar mian leat an holagram ar ancaire.",
+    "text-step-3-part-2": "LEID!  Beartaíonn uair amháin in áiteanna eile chun an holagram a bhogadh go suíomh eile.",
+    "text-step-3-part-3": "LEID!  Is féidir leat an holagram a athrú tríd an scáileán a phionnáil nó a leathnú le d'ordóg agus d'innéacsmhéarr.",
+    "text-step-4-part-1": "Tapáil faoi dhó ar an gcnaipe taifead dearg chun do thaifeadadh físe a THOSÚ.",
+    "text-step-4-part-2": "Cnaipe taifead dearg sconna dúbailte go STOP."
+  },
+  "video": {
+    "back": "Ar ais"
+  },
+  "terms": {
+    "confirmTerms": "Aontaím le Téarmaí Seirbhíse",
+    "confirmPolicy": "Aontaím leis an bPolasaí Príobháideachta"
+  },
+  "registration": {
+    "ph-phoneEmail": "Úsáid fón / ríomhphost",
+    "facebook": "Lean ar aghaidh le Facebook",
+    "google": "Lean ar aghaidh le Google",
+    "linkedin": "Lean ar aghaidh le Linkedin",
+    "twitter": "Lean ar aghaidh le Twitter",
+    "gitHub": "Lean ar aghaidh le GitHub",
+    "connect": "Ceangail do r-phost nó d'uimhir theileafóin",
+    "logIn": "Logáil isteach",
+    "LogInTo": "Logáil isteach i",
+    "continueAsGuest": "Lean ar aghaidh mar aoi"
+  }
+}

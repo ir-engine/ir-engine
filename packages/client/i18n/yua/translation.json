@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - linki abas kaambal ma' encontrada"
+  },
+  "503": {
+    "msg": "503 ti'-mayaj ma' disponible"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "U ti' u prohibido le tu'ux ku yaantal",
+    "locationName": {
+      "pageTitle": "Wotoch"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Múuch' meyajo'ob.",
+      "header": "Much inicie xoknáalo'obo'",
+      "welcomeMsg": "Máanen",
+      "locationHeader": "Ubicaciones",
+      "projectHeader": "Múuch' meyajo'ob.",
+      "sceneHeader": "Escenas",
+      "description": "Wa teech túumben waye' a recomendamos máan tumen le tutorial. Tu contrario, salta Jun yéetel crea jump'éel tsol tak cero wa tak jump'éel k plantillas.",
+      "lbl-startTutorial": "Máaxo'ob tutorial",
+      "lbl-newProject": "Túumben tsol",
+      "lbl-createProject": "Crear",
+      "lbl-newScene": "Túumben beyo'",
+      "lbl-searchProject": "Kaxant múuch'meyaj existentes...",
+      "back": "Paachil",
+      "contextMenu": "Tselik tsol",
+      "installed": "Múuch' meyajo'ob instalados",
+      "official": "Múuch' meyajo'ob Oficiales",
+      "community": "Múuch' meyajo'ob Comunitarios",
+      "install": "Instalar",
+      "uninstall": "Desinstalar",
+      "rename": "Rebautizar",
+      "createProject": "Crear tsol",
+      "installProject": "Instalar tsol",
+      "processing": "Ts'a'akal",
+      "projectName": "K'aaba' úuchik",
+      "projectURL": "URL úuchik"
+    }
+  },
+  "error": {
+    "goHomeLink": "Xen tanaj",
+    "withStatusCode": "Ku {{code}} producido jump'éel ba'alo' ti' le servidor",
+    "withoutStatusCode": "U ts'o'ok producido jump'éel ba'alo' ti' le servidor"
+  },
+  "no-projects": {
+    "msg": "Ba'alo': Mina'an múuch'meyaj instalados: Búukint u ti' máax ku jump'éel administrador le ts'ono'oto'"
+  },
+  "dev": {
+    "pageTitle": "Wotoch"
+  },
+  "login": {
+    "pageTitle": "Máaxo'ob xoknáalo'obo'"
+  },
+  "workerTest": {
+    "pageTitle": "Prueba trabajador"
+  },
+  "index": {
+    "by": "TUMÉEN",
+    "xr": "XR",
+    "foundation": "Béeychajal",
+    "description": "Aplicaciones ts'áabal 3D tu k'iinil xíimbal tumen utia'al u láaj disfruten."
+  },
+  "xrengineContact": {
+    "header": "Búukint ti' máax ku!",
+    "description": "K encantaría wáantik yéetel u k'inbesajo'ob virtuales, koonol minorista digital, entretenimiento yéetel uláak' kajtalo'ob ichil.",
+    "lbl-name": "K'aaba'",
+    "lbl-email": "Correo electrónico",
+    "lbl-company": "Compañía",
+    "lbl-project": "Describe a tsol",
+    "lbl-send": "Tuxt a meyaj",
+    "lbl-ok": "Ma'alo'ob",
+    "lbl-success": "T'aan túuxtik, k pondremos ti' máax ku tech ti' breve.",
+    "lbl-failure": "U ts'o'ok u producido jump'éel ba'alo', Plese ku intentar u",
+    "err-username": "Much introduzca u k'aaba'.",
+    "err-email": "K'a'abet correo electrónico.",
+    "err-msg": "Proporcione breve tsoolil u tsol."
+  }
+}

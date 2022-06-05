@@ -1,0 +1,718 @@
+{
+  "loading": "Vakavodoki ni Cakacaka",
+  "loadingMsg": "Cakacaka ni vakavodoki...",
+  "loadingError": "Leqa ni kena vakavodoki na cakacaka",
+  "loadingErrorMsg": "A dua na cala ni vakavodoki tiko na cakacaka.",
+  "selectSceneMsg": "Digitaka na iVakaraitaki mo tekivu qitotaka na idini",
+  "error": "Cala",
+  "errorMsg": "A dua na cala tawakilai.",
+  "generateScreenshot": "Vakarautaka na sikirini ni Cakacaka",
+  "generateScreenshotMsg": "Vakarautaka na sikirini ni cakacaka...",
+  "newScene": "Cakava na iVakatakata",
+  "saving": "Cakacaka ni Maroroi",
+  "savingMsg": "Vakabulai ni cakacaka...",
+  "savingError": "Cala na Cakacaka ni Maroroi",
+  "savingErrorMsg": "A dua na cala ni maroroi na cakacaka.",
+  "savingSceneErrorMsg": "E sega ni vakavodoki vakavinaka na ivakaraitaki. Tovolea mo vakauta tale na ka sa yaco.",
+  "duplicating": "Vakaruataki ni Cakacaka",
+  "duplicatingMsg": "Cakacaka ni vakaruataki...",
+  "exporting": "Cakacaka ni Kena Vakau",
+  "exportingMsg": "Vakauta na cakacaka...",
+  "exportingError": "Leqa ni Kena Vakau na Cakacaka",
+  "exportingErrorMsg": "A dua na cala ena kena vakau na cakacaka.",
+  "importLegacy": "Vakacuruma mai na Vuravura ni iVotavota",
+  "importLegacyMsg": "iVakasala! Oqo ena vakasauri ga na veika o sa raica oti! O gadreva dina mo tomana tale?",
+  "publishingError": "Leqa ni Tabaivola ni Cakacaka",
+  "publishingErrorMsg": "A dua na cala tawakilai.",
+  "publishingScene": "iVakaraitaki ni Tabaki",
+  "publishingSceneMsg": "Tabaki ni ivakatakata...",
+  "uploadingThumbnailMsg": "Vakavodoki ni ivakalailai...",
+  "uploadingSceneMsg": "Vakavodoki ni iyaloyalo: {{percentage}}%",
+  "envMapError": "Leqa ena vakavodoki ni iyaloyalo ni cubemap {{files}}",
+  "lbl-return": "Lesu mai",
+  "menubar": {
+    "newScene": "iVakatakata Vou",
+    "saveScene": "Maroroya na iVakatakata",
+    "saveAs": "Maroroya Me Vaka",
+    "importAsset": "Vakacuruma na iYutaukeni",
+    "exportGLB": "Vakauta me ivakacava iliuliu ni GLTF (.gss) ...",
+    "importScene": "Vakacuruma na ivakatakata",
+    "exportScene": "iVakatakata ni Vakau",
+    "quit": "Biuta"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Mataqali faile sega ni tokoni me baleta na faile: \"{{name}}\". Na faile e dodonu me iyaloyalo, vidio, se ivakaraitaki ni buli.",
+    "addObject": "addObject: ni bera ni kune na iyaya",
+    "removeObject": "kauta laivi naObject: sega ni kune e dua na galala. Oqo e baleta na kena kau laivi e dua na itikotiko sa sega tale ni tiko ena vanua sa laurai.",
+    "noParent": "{{node}} \"{{name}}\" e sega na nona itubutubu. Vakavodoka ga na cakacaka ena iyaya era sa tu ena gauna oqo.",
+    "undefinedParent": "edit.reparent: vouVakadinadina e sega ni vakadeitaki",
+    "notAuthenticated": "Sega ni vakadewataki",
+    "fetchingProjectError": "Cala ni kena kau mai na cakacaka: {{error}}",
+    "fetchingRouteError": "Cala ni yaco tiko na sala: {{error}}",
+    "unknownError": "Cala sega ni kilai",
+    "resolveURL": "Cala ena wali ni url \"{{url}}\":",
+    "mediaSearchAborted": "Sega ni vakayagataki na vakasaqaqara ni media",
+    "methodNotImplemented": "Sega ni tekivutaki na iwalewale.",
+    "saveProjectAborted": "Sega ni taqomaki na ivakatakata",
+    "unsavedChanges": "Veisau Se Sega ni Maroroi",
+    "unsavedChangesMsg": "Sa veisau na veika sa yaco. Yalovinaka maroroya na nomu veisau.",
+    "projectCreationFail": "Sega ni rawa ni buli na cakacaka. {{reason}}",
+    "projectDeletionFail": "Sega ni bokoci na cakacaka. {{reason}}",
+    "savingProjectFail": "Sega ni rawa na Cakacaka ni Maroroi. {{reason}}",
+    "sceneTooLarge": "Sa rui levu na ka e raica ({{size}} MB) me tabaki. Na kena levu taucoko e {{maxSize}} MB.",
+    "sceneCreationFail": "Sega ni rawa ni buli na ivakaraitaki. {{reason}}",
+    "uploadAborted": "Sega ni vakataotaki na vakavodoki",
+    "uploadFailed": "Sega ni rawa ni vakavodoki {{reason}}",
+    "assetDeletionFail": "Sega ni bokoci na iyautaukeni. {{reason}}",
+    "projectAssetDeletionFail": "Sega ni bokoci na iYautaukeni ni Cakacaka. {{reason}}",
+    "networkError": "Cala ni Veisemati: {{status}}. {{text}}",
+    "unknownStatus": "iTuvaki Tawakilai",
+    "CORS": "Ke dua na cala ena CORS",
+    "urlFetchError": "Sega ni yaco rawa na \"{{url}}\""
+  },
+  "viewport": {
+    "title": "Sarava na vanua ni veiqaravi",
+    "command": {
+      "movecamera": "Tosoya na Itaba",
+      "flyFast": "Vuka vakatotolo",
+      "orbit": "Orbit / Digitaka",
+      "pan": "Vakasaqa",
+      "fly": "Vuka",
+      "focus": "Vakanamata",
+      "rotateLeft": "Veidukitaka na Imawi",
+      "rotateRight": "Veidukitaka ena Imatau",
+      "cancelPlacement": "Bokoca na Veivakatikori",
+      "placeDuplicate": "Biuta me Lavetaki",
+      "cancelGrab": "Bokoca na Kuku",
+      "grab": "Kukuva",
+      "deselectAll": "Kakua ni Digitaka Taucoko"
+    },
+    "state": {
+      "header": "iSoqaqa",
+      "memory": "iVakananumi",
+      "geometries": "iYaya Yaragi",
+      "textures": "iTuvatuva Vakaituvatuva",
+      "render": "Cakava",
+      "FPS": "FPS",
+      "frameTime": "Gauna Vakarautaki",
+      "calls": "Veikacivi",
+      "triangles": "Muatolu",
+      "points": "Veika Eso",
+      "lines": "Laini"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Tabaka vakaivola",
+    "lbl-published": "Tabaki vakaivola",
+    "command": {
+      "translate": "Vakadewataka",
+      "rotate": "Veisobulataka",
+      "scale": "Vakatautauvata",
+      "toggleSpace": "vukica na Vanua me Veisautaki",
+      "togglePivot": "Veisautaka na Veisau Pivot",
+      "toggleSnapMode": "iSaqaqa ni Snap",
+      "toggleGrid": "Vakasokumu me Laurai na Grid Visibility",
+      "increaseGridSize": "Vakalevutaka na Levu ni Veilawa",
+      "descreaseGridSize": "Vakalailaitaka na Levu ni Veilawa",
+      "stopPreview": "Muduka na Raici Ni Veika e Raici",
+      "playPreview": "Raica Taumada na iVakaraitaki"
+    }
+  },
+  "properties": {
+    "title": "iYaroqaqa",
+    "lbl-visible": "Laurai",
+    "lbl-preventBake": "Tarova na Sokamu",
+    "lbl-persist": "Tudei Tikoga",
+    "multipleNodeSelected": "Levu na iTikotiko ni Veimataqali mataqali digitaki",
+    "noNodeSelected": "Sega ni digitaki e dua na itikotiko",
+    "ambientLight": {
+      "name": "Rarama ni Bula",
+      "description": "E dua na rarama ka vakararamataka na veika kece sara ena nomu raica.",
+      "lbl-intensity": "Kaukauwa",
+      "lbl-color": "Roka"
+    },
+    "envmap": {
+      "name": "Mape ni iTikotiko",
+      "description": "iyau ni mape ni draki ni bula"
+    },
+    "asset": {
+      "name": "Iyautaukeni",
+      "description": "Na wasewasei ni veitikina e rawa ni vakavodoki ka talaci",
+      "lbl-options": "Digidigi eso",
+      "lbl-assetPath": "Sala ni iYutaukeni",
+      "lbl-assetName": "Vakauta na Yaca",
+      "lbl-exportOptions": "Digidigi me Vakau",
+      "lbl-export": "Vakauta na iYukeni ni Vakauta",
+      "lbl-load": "Vakasokumu ki na iTuvatuva",
+      "lbl-unload": "Vakasoburi",
+      "lbl-reload": "Vakavodoki tale"
+    },
+    "audio": {
+      "name": "Vakarorogo",
+      "description": "Lavetaka vakararavi na rorogo.",
+      "lbl-audiourl": "Url ni Vakarorogo",
+      "lbl-controls": "qarauni ni",
+      "info-controls": "Mo qarauna na kena laurai na sala ni vakauitukutuku.",
+      "lbl-autoplay": "Gacagaca Gacagaca",
+      "info-autoplay": "Kevaka e dina, ena vakaraitaki na itukutuku ena imatai ni gauna me vakacurumi kina.",
+      "lbl-synchronize": "Tuvanaki vakatautauvata",
+      "info-synchronize": "Kevaka e dina, sa na vakatautauvatataki na itukutuku vakaraitaki vei ira kece era semati kina.",
+      "lbl-loop": "iVakatakata",
+      "info-loop": "Kevaka e dina na itukutuku vakaraitaki ena sega ni vakaiyaqaqa.",
+      "lbl-audioType": "Mataqali Vakarorogo",
+      "lbl-distanceModel": "iVakaraitaki ni Yawa",
+      "info-distanceModel": "Na algorithim e vakayagataki me cakacakataka na irogorogo ni vakarorogo.",
+      "lbl-rolloffFactor": "iVakacava ni iSoqaqa",
+      "info-rolloffFactor": "E dua na yavunilewa vakarua ka vakamacalataka na kena sa vakalailaitaki sobu na kena rorogo ena kena toso tani na ivurevure mai vei koya e vakarorogo. 0 ki na 1",
+      "info-rfInfinity": "E dua na yavunilewa vakarua ka vakamacalataka na kena sa vakalailaitaki sobu na kena rorogo ena kena toso tani na ivurevure mai vei koya e vakarorogo. 0 ki na Sega ni Vakataotaki",
+      "lbl-refDistance": "Veiyawaki",
+      "info-refDistance": "E dua na yavunilewa vakarua ka matataka na yawa ni vanua e tukuna tiko me vakalailaitaki kina na kena rorogo ni toso tikoga mai vua na vakarorogo na ivurevure ni vakarorogo.",
+      "lbl-maxDistance": "Kena Yawa",
+      "info-maxDistance": "E rua na kena yaga ka matataka na balavu ni kena yawa ena kedrau maliwa na ivurevure ni vakarorogo kei koya e vakarorogo, ni oti o ya e sega ni vakalailaitaki tale na kena rorogo.",
+      "lbl-coneInnerAngle": "ITuvatuva Ni Loma ni IQaqa",
+      "info-coneInnerAngle": "E rua na kena yaga ka vakamacalataki tiko na itutu, na kena itagede, ni dua na ivakarau e loma ka na sega ni vakalailaitaki kina e dua na kena iwiliwili.",
+      "lbl-coneOuterAngle": "ITuvatuva e Tautuba",
+      "info-coneOuterAngle": "E dua na yavunilewa vakarua ka vakamacalataki tiko na itagede, ni dua na ivakarau e tautuba ka na vakalailaitaki na ivola ena dua na kena yaga tudei, ka vakamacalataki ena ivakarau ni coneOuterGain.",
+      "lbl-coreOuterGain": "Rawati ni iTuvatuva e Tautuba",
+      "info-coreOuterGain": "E dua na yavunilewa vakarua e vakamacalataka tiko na kena vakalailaitaki e taudaku ni koti e tukuni tiko ena ivakarau ni coneOuterAngle. Na kena yavunibula e 0, kena ibalebale ni sega ni rogoci e dua na rorogo.",
+      "lbl-volume": "iVola",
+      "lbl-play": "Qito",
+      "lbl-pause": "Cegu vakalailai",
+      "error-url": "Cala na Vakavodoki mai na URL"
+    },
+    "boxCollider": {
+      "description": "E dua na kato sega ni laurai rawa ka ra na lutu sobu se vakacegu e cake na iyaya.\nNi sega na veivakasaqaqara, ena lutu na iyaya ena vuloa ka curuma na lalaga.",
+      "lbl-isTrigger": "iVakasaribariba"
+    },
+    "camera": {
+      "name": "iTaaba",
+      "description": "Vanua ni itaba.",
+      "lbl-camera-raycast": "Veitaqaitaki ni Mata iTaaba",
+      "lbl-camera-raycast-toggle": "Rawa ni Vakayagataki",
+      "lbl-camera-raycast-frequency": "Levu ni gauna",
+      "lbl-camera-raycast-count": "Wiliwili ni Ray",
+      "lbl-camera-raycast-length": "Balavu ni Ray"
+    },
+    "directionalLight": {
+      "name": "Rarama Ni Veidusimaki",
+      "description": "E dua na rarama ka vakararamataka na veika taucoko, ia e dau vakararamataka e dua ga na sala.",
+      "lbl-color": "Roka",
+      "lbl-intensity": "Kaukauwa",
+      "lbl-cameraFar": "iTaaba Yawa",
+      "lbl-cameraNear": "iTaaba Voleka",
+      "lbl-cameraTop": "iTaaba e Cake",
+      "lbl-cameraBottom": "Ra ni Itaba",
+      "lbl-cameraLeft": "iTaaba iMawi",
+      "lbl-cameraRight": "iTaaba iMatau",
+      "lbl-useInCSM": "Vakayagataki ena CSM",
+      "lbl-castShadow": "Vakataotaka na Iyaloyalo",
+      "lbl-disableForCSM": "Sega ni cakacakataki baleta ni sa vakayagataki na mape ni dede ni iyaloyalo.",
+      "lbl-shadowmapResolution": "iNaki ni Mape ni Iyaloyalo",
+      "lbl-shadowBias": "iTuvatuva Ni Yaloyalo",
+      "lbl-shadowRadius": "iTuvatuva ni Iyaloyalo",
+      "lbl-showCameraHelper": "Vakaraitaka na Dauveivuke ni Itaba"
+    },
+    "groundPlane": {
+      "name": "Waqavuka e Ra",
+      "description": "E dua na waqavuka rabailevu ka dodo yani vakayawa.",
+      "lbl-color": "Roka",
+      "lbl-receiveShadow": "Ciqoma na Iyaloyalo",
+      "lbl-generateNavmesh": "Vakayaqataka na Veivakaukauwataki"
+    },
+    "link": {
+      "description": "Sema ki na dua na rumu se mataveilawa.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "Mape ni geospatial ena 3D ena k. v. e dua na siti."
+    },
+    "model": {
+      "description": "E dua na ivakaraitaki 3D ena nomu irairai, vakavodoki mai na dua na URL se faili ni GLTF.",
+      "lbl-usingGPUInstancingFlag": "Vakayagataka na ICA ni Vakarau ni ICA",
+      "lbl-modelurl": "Url ni iVakaraitaki",
+      "lbl-envmapUrl": "Url ni Mape ni iTikotiko",
+      "lbl-textureOverride": "iTuvatuva Vakasaqaso",
+      "lbl-materialOverride": "Vakasaqasosotaki ni iYaya",
+      "error-url": "Cala na Vakavodoki mai na URL",
+      "lbl-loopAnimation": "iVakatakata Ni iVakatakata",
+      "lbl-isAvatar": "E Dua na iSoqosoqo",
+      "lbl-isGPUInstancing": "Vakayagataka Tiko na ICA ni ICA ni Kaukauwa",
+      "lbl-isDynamic": "Vakasakiti O ya",
+      "lbl-castShadow": "Vakataotaka na Iyaloyalo",
+      "lbl-receiveShadow": "Ciqoma na Iyaloyalo",
+      "lbl-interactable": "Rawa ni Veitaratara",
+      "lbl-matrixAutoUpdate": "MatakaSokumuTakasokumu",
+      "lbl-name": "Yaca",
+      "lbl-url": "Url ni iVakaraitaki",
+      "lbl-buy": "Voli Url",
+      "lbl-learnMore": "Vulica Eso Tale na Url",
+      "lbl-htmlContent": "Lewe ni HTML",
+      "lbl-interactionText": "iTukutuku ni Veitaratara",
+      "lbl-interactionType": "Mataqali Veitaratara"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "iYaya Ni Vuli",
+      "error-materialID": "Leqa ena kunei ni iYaya",
+      "placeholder-materialID": "Digitaka na iYaya",
+      "lbl-patternTarget": "Veisotari ni iVakarau",
+      "lbl-pattern": "iVakarau",
+      "lbl-isRegex": "Vakasevi Lesu"
+    },
+    "interaction": {
+      "type": "Mataqali Veitaratara",
+      "text": "iTukutuku ni Veitaratara",
+      "distance": "Veiyawaki",
+      "theme": "iToko ni Veitaratara",
+      "name": "Yaca ni Veitaratara",
+      "description": "iVakamacala ni Veitaratara",
+      "images": "iYaloyalo Veitaratara",
+      "videos": "Vidio ni Veitaratara",
+      "urls": "Url ni Veitaratara",
+      "models": "iVakaraitaki ni Veitaratara"
+    },
+    "group": {
+      "name": "iLawalawa",
+      "description": "E dua na ilawalawa levu ni iyaya e rawa ni yavalati se lavetaki vata.\nDreta ka vakalutuma na iyaya ki na iLawalawa ena iSoqosoqo ni Veiqaravi."
+    },
+    "hemisphere": {
+      "name": "Rarama ni Vuravura",
+      "description": "E dua na rarama ka vakararamataka na irairai mai na kena e cake sara ga.",
+      "lbl-skyColor": "Roka ni Lomalagi",
+      "lbl-groundColor": "Roka ni Qele",
+      "lbl-intensity": "Kaukauwa"
+    },
+    "image": {
+      "name": "iYaloyalo",
+      "description": "Lavetaka vakasakiti e dua na iyaloyalo.",
+      "lbl-imgURL": "Url ni iYaloyalo",
+      "lbl-transparency": "iTuvatuva ni Duavata",
+      "lbl-alphaCutoff": "Alpha Muduki",
+      "lbl-projection": "iTuvatuva ni iTu",
+      "lbl-side": "Yasana",
+      "info-controls": "Mo qarauna na kena laurai na sala ni vakauitukutuku.",
+      "info-transparency": "iWalewale ni kena vakayagataki na duavata:",
+      "info-opaque": "'seyaga' = sega na rawarawa",
+      "info-blend": "'veiwaki' = vakayagataka na sala ni veikauyaka ni iyaloyalo",
+      "info-mask": "'iUbi' = Vakayagataka e dua na iwiliwili digitaki ni muduki ni duavata kei na kena e vakayacori (vakaitavi vakalevu cake)",
+      "info-alphaCutoff": "Na ikaika e lailai sobu na kena yavunilewa mai na kena e sega ni laurai rawa",
+      "error-url": "URL Sega ni Vakabau"
+    },
+    "name": {
+      "lbl-name": "Yaca"
+    },
+    "partileEmitter": {
+      "description": "Dau veikau lailai me buli na tiki ni kete.",
+      "lbl-particleCount": "iWiliwili ni iVotavota",
+      "lbl-image": "iYaloyalo",
+      "lbl-ageRandomness": "Vakaituvatuva Ni Yabaki",
+      "lbl-lifetime": "Bula Taucoko",
+      "lbl-lifetimeRandomness": "Veivatuvatuva Ni Bula Taucoko",
+      "lbl-sizeCurve": "iYaqaqa ni Kena Levu",
+      "lbl-startPSize": "Tekivu na Levu ni Tiki ni iKituki",
+      "lbl-endPSize": "Levu ni iTamera ni Kena iOtioti",
+      "lbl-sizeRandomness": "Matata ni iWiliwili",
+      "lbl-colorCurve": "Dromu ni Roka",
+      "lbl-startColor": "Roka ni Tekivu",
+      "lbl-startOpacity": "Tekivu na Balavu ni Vanua",
+      "lbl-middleColor": "Roka e Loma",
+      "lbl-middleOpacity": "Balavu ni Lomadonu",
+      "lbl-endColor": "Roka ni Cava",
+      "lbl-endOpacity": "iCavacava ni Kena Balavu",
+      "lbl-velocityCurve": "IYau ni Davui",
+      "lbl-startVelocity": "Tekivuna na Velocity",
+      "lbl-endVelocity": "Vakacavara na Velocity",
+      "lbl-angularVelocity": "Angular Velocity",
+      "info-ageRandomness": "Na levu ni duidui ena gauna e basika kina na tiki ni lailai.",
+      "info-lifetime": "Na iwiliwili taucoko ni yabaki ni dua na tikina lailai ni bera ni qai vakasevi tale.",
+      "info-lifetimeRandomness": "Na levu ni duidui ena kedrau maliwa na itoqa ni gauna ni bula.",
+      "info-sizeRandomness": "Na levu ni duidui ena kena tekivutaki na tiki ni lailai.",
+      "error-url": "Cala na Vakavodoki mai na URL"
+    },
+    "clouds": {
+      "name": "o",
+      "description": "iVola ni o e yavutaki ena iVakasu.",
+      "lbl-image": "iYaloyalo ni iTuvatuva",
+      "lbl-wroldScale": "iVakatautauvata kei Vuravura",
+      "lbl-dimensions": "Kena Levu",
+      "lbl-noiseZoom": "Toqai ni Rorogo",
+      "lbl-noiseOffset": "Veiraurau ni iY rorogo",
+      "lbl-spriteScale": "iVakarau ni Vakasaqa",
+      "lbl-fogColor": "Roka ni Kabu",
+      "lbl-fogRange": "iSerau ni Kabu",
+      "error-url": "Cala na Vakavodoki mai na URL"
+    },
+    "ocean": {
+      "name": "Wasawasa",
+      "description": "Na wasawasa ena ua kei na cagi",
+      "lbl-normalMap": "Mape Gacagaca",
+      "lbl-distortionMap": "Mape ni Veivakacalai",
+      "lbl-envMap": "Mape ni iTikotiko",
+      "lbl-color": "Roka",
+      "lbl-shallowWaterColor": "Roka Vovodea ni Wai",
+      "lbl-shallowToDeepDistance": "Vovodea ki na Yawa Vakayawa",
+      "lbl-opacityFadeDistance": "Seyavu na Yawa ni Vanua",
+      "lbl-opacityRange": "iSau ni Kelevu",
+      "lbl-shininess": "Kaukauwa",
+      "lbl-reflectivity": "Vakasama Vakayaloyalo",
+      "lbl-foamColor": "Roka ni iSa",
+      "lbl-foamSpeed": "Totolo ni iSa",
+      "lbl-foamTiling": "Tilinga na iSa",
+      "lbl-bigWaveTiling": "Vakatasobu ni Ua Lelevu",
+      "lbl-bigWaveSpeed": "Totolo ni Ua Lelevu",
+      "lbl-bigWaveHeight": "Cere Levu ni Ua",
+      "lbl-waveSpeed": "Totolo ni Ua",
+      "lbl-waveScale": "iTuvatuva ni Ua",
+      "lbl-waveTiling": "Vakatasobu ni Ua",
+      "lbl-waveDistortionSpeed": "Totolo ni Vakatani ni Ua",
+      "lbl-waveDistortionTiling": "Veiyaloyalo Sega ni Veiyaloyalo",
+      "error-url": "Cala na Vakavodoki mai na URL"
+    },
+    "water": {
+      "name": "Wai",
+      "description": "Wai lailai e dela ni wai"
+    },
+    "interior": {
+      "name": "e loma",
+      "description": "E dua na iqaqalo e tu kina na kena kiube me vakatotomuria na ituvaki e loma",
+      "lbl-cubeMap": "iTuvatuva ni Mape kiube",
+      "lbl-tiling": "Levu ni iwiliwili ni sulu",
+      "lbl-size": "Levu ni matanalevu",
+      "error-url": "Cala na Vakavodoki mai na URL"
+    },
+    "pointLight": {
+      "description": "E dua na rarama ka dau vakaraitaka na sala kecega mai na dua ga na vanua.",
+      "lbl-color": "Roka",
+      "lbl-intensity": "Kaukauwa",
+      "lbl-range": "Veigacagaca",
+      "lbl-decay": "Vuca"
+    },
+    "scene": {
+      "name": "iVakatakata",
+      "description": "Na wakatu ni ka e yaco.",
+      "lbl-bgcolor": "Roka mai Dakuna",
+      "lbl-fogType": "Mataqali Kabu",
+      "lbl-fogColor": "Roka ni Kabu",
+      "lbl-forNearDistance": "Sa Voleka na Kabu",
+      "lbl-fogFarDistance": "Yawa Sara na Kabu",
+      "lbl-fogDensity": "iTuvatuva ni Kabu",
+      "lbl-audioSettings": "Vakayagataka na iRogorogo ni Tutu",
+      "lbl-avatarDistanceModel": "iVakaraitaki ni iYawaki ni iTavotavota",
+      "lbl-avatarRolloffFactor": "iVakasoqani ni iWiliwili o Tese—iWi",
+      "lbl-avatarRefDistance": "iTuvatuva ni iTuvatuva ni Yawa",
+      "lbl-avatarMaxDistance": "Yawa o Koya me Vukei Koya",
+      "lbl-mediaVolume": "iVola Vakaraitaki",
+      "lbl-mediaDistanceModel": "iVakaraitaki ni iTukutuku Vakaraitaki",
+      "lbl-mediaRolloffFactor": "iVakayaloyalo ni iTukutuku Raraba ni Kena Vaqiqici",
+      "lbl-mediaRefDistance": "Veiyawaki ni iTukutuku Vakaraitaki",
+      "lbl-mediaMaxDistance": "Yawa ni iTukutuku Vakaraitaki",
+      "lbl-mediaConeInnerAngle": "ITuvatuva ni Loma ni iTukutuku Vakaraitaki",
+      "lbl-mediaConeOuterAngle": "ITuvatuva Tautuba ni iTukutuku Vakaraitaki",
+      "lbl-mediaConeOuterGain": "Rawati ni iTukutuku Vakaraitaki e Tautuba",
+      "info-avatarDistanceModel": "Na algorithim e vakayagataki me cakacakataka na irogorogo ni vakarorogo.",
+      "info-avatarRolloffFactor": "E dua na yavunilewa vakarua ka vakamacalataka na kena sa vakalailaitaki sobu na kena rorogo ena kena toso tani na ivurevure mai vei koya e vakarorogo. 0 ki na 1",
+      "info-avatarRolloffFactorInifinity": "E dua na yavunilewa vakarua ka vakamacalataka na kena sa vakalailaitaki sobu na kena rorogo ena kena toso tani na ivurevure mai vei koya e vakarorogo. 0 ki na Sega ni Vakataotaki",
+      "info-avatarRefDistance": "E dua na yavunilewa vakarua ka matataka na yawa ni vanua e tukuna tiko me vakalailaitaki kina na kena rorogo ni toso tikoga mai vua na vakarorogo na ivurevure ni vakarorogo.",
+      "info-avatarMaxDistance": "E rua na kena yaga ka matataka na balavu ni kena yawa ena kedrau maliwa na ivurevure ni vakarorogo kei koya e vakarorogo, ni oti o ya e sega ni vakalailaitaki tale na kena rorogo.",
+      "info-mediaDistanceModel": "Na algorithim e vakayagataki me cakacakataka na irogorogo ni vakarorogo.",
+      "info-mediaRolloffFactor": "E dua na yavunilewa vakarua ka vakamacalataka na kena sa vakalailaitaki sobu na kena rorogo ena kena toso tani na ivurevure mai vei koya e vakarorogo. 0 ki na 1",
+      "info-mediaRolloffFactorInfinity": "E dua na yavunilewa vakarua ka vakamacalataka na kena sa vakalailaitaki sobu na kena rorogo ena kena toso tani na ivurevure mai vei koya e vakarorogo. 0 ki na Sega ni Vakataotaki",
+      "info-mediaRefDistance": "E dua na yavunilewa vakarua ka matataka na yawa ni vanua e tukuna tiko me vakalailaitaki kina na kena rorogo ni toso tikoga mai vua na vakarorogo na ivurevure ni vakarorogo.",
+      "info-mediaMaxDistance": "E rua na kena yaga ka matataka na balavu ni kena yawa ena kedrau maliwa na ivurevure ni vakarorogo kei koya e vakarorogo, ni oti o ya e sega ni vakalailaitaki tale na kena rorogo.",
+      "info-mediaConeInnerAngle": "E rua na kena yaga ka vakamacalataki tiko na itutu, na kena itagede, ni dua na ivakarau e loma ka na sega ni vakalailaitaki kina e dua na kena iwiliwili.",
+      "info-mediaConeOuterAngle": "E dua na yavunilewa vakarua ka vakamacalataki tiko na itagede, ni dua na ivakarau e tautuba ka na vakalailaitaki na ivola ena dua na kena yaga tudei, ka vakamacalataki ena ivakarau ni coneOuterGain.",
+      "info-mediaConeOuterGain": "E dua na yavunilewa vakarua e vakamacalataka tiko na kena vakalailaitaki e taudaku ni koti e tukuni tiko ena ivakarau ni coneOuterAngle. Na kena yavunibula e 0, kena ibalebale ni sega ni rogoci e dua na rorogo.",
+      "lbl-simpleMaterials": "Vakayagataka na iYaya Rawarawa",
+      "lbl-lods": "VDS",
+      "info-lods": "Tuvanaka na veiyawaki me veisau kina na ivakatagedegede matailalai.",
+      "info-simpleMaterials": "Saumaki mai na iyaya sau levu taucoko ki na kena e rawarawa cake me kau laivi kina na icolacola e laurai tiko.",
+      "lbl-rendererSettings": "Vakasowaletaka na iTuvatuva ni Dauniveivakasauri",
+      "lbl-csm": "Mape e Rugurugua",
+      "info-csm": "Vakarautaka na mape ka tutaki mai matanalevu.",
+      "lbl-toneMapping": "Mape ni Rorogo",
+      "info-toneMapping": "Ena rawa ni vakayagataka na mape ni rorogo ena daunivakaraitaki. Ena sega ni mana ni sa cakacakataki na sitaba ni posi.",
+      "lbl-toneMappingExposure": "iTuvatuva ni Mape",
+      "info-toneMappingExposure": "Vakamatatataka na kena laurai na itinitini ni rorogo ena daunivakatakilakila. Ena sega ni mana ni sa cakacakataki na sitaba ni posi.",
+      "lbl-shadowMapType": "Mataqali Mape Ni Iyaloyalo",
+      "info-shadowMapType": "Mataqali mape ni iyaloyalo",
+      "error-url": "Cala na Vakavodoki mai na URL"
+    },
+    "sceneCamera": {
+      "name": "iTaaba ni Raici",
+      "description": "Na itaba e vakayagataki me vakaraitaka na ivakalailai ni kemu irairai kei na itutu ni itaba ni vakaraitaki.",
+      "lbl-setFromViewPort": "iTuvatuva Mai Viewport"
+    },
+    "skybox": {
+      "name": "Lomalagi",
+      "description": "",
+      "lbl-timeOfDay": "Gauna ni Siga",
+      "lbl-color": "Roka",
+      "lbl-latitude": "Ulubale",
+      "lbl-luminance": "Vdfvnt",
+      "lbl-scattering": "Levu ni Veiseyaki",
+      "lbl-scatteringDistance": "Veiyawaki ni Vanua",
+      "lbl-horizonStart": "Tekivu mai na iYavulagi",
+      "lbl-horizonEnd": "iCavacava ni Vunilagi",
+      "lbl-texture": "iTuvatuva Vakaituva",
+      "lbl-skyType": "Mataqali Lomalagi",
+      "error-url": "Cala na Vakavodoki mai na URL"
+    },
+    "spawnPoint": {
+      "name": "Gauna ni Vakasemu",
+      "description": "Na vanua era na basika mai kina na tamata ni ra sa curuma yani na veika o raica.\nNa ivakatakilakila ena Viewport e matataka na levu dina ni dua na ivakatakilakila."
+    },
+    "spotLight": {
+      "description": "E dua na rarama ka dau vakaraitaka yani e dua na iyaya veivakararamataki ena loma ni dua na gaunisala.",
+      "lbl-color": "Roka",
+      "lbl-intensity": "Kaukauwa",
+      "lbl-penumbra": "Penumbra",
+      "lbl-angle": "iTuvatuva",
+      "lbl-range": "Veigacagaca",
+      "lbl-decay": "Vuca"
+    },
+    "transform": {
+      "title": "Veisau",
+      "lbl-postition": "iTutu",
+      "lbl-rotation": "Veimuataki",
+      "lbl-scale": "Vakatautauvata"
+    },
+    "triggereVolume": {
+      "description": "Tuvanaka e dua na iyauqaqa ena iyaya ni takete ni curu yani ka biubiu.",
+      "lbl-target": "iYaya Vakaraitaki",
+      "lbl-onenter": "Ena Curu",
+      "lbl-onexit": "Ni Sa Curu Yani",
+      "lbl-showHelper": "Vakaraitaka na Helper Mesh",
+      "ph-errorNode": "Cala e yali tiko na ivakamacala.",
+      "ph-selectNode": "Digitaka na itikotiko..."
+    },
+    "video": {
+      "name": "Vidio",
+      "description": "Lavetaka vakararavi e dua na vidio.",
+      "lbl-video": "Vidio",
+      "lbl-projection": "iTuvatuva ni iTu",
+      "lbl-islivestream": "Vakaraitaki Bula",
+      "lbl-interactable": "Rawa ni Veitaratara",
+      "lbl-id": "iVakatakilakila ni Gacagaca",
+      "lbl-play": "Qito",
+      "lbl-pause": "Cegu vakalailai",
+      "error-url": "Cala na Vakavodoki mai na URL"
+    },
+    "volumetric": {
+      "name": "iVakarau ni Yauqaqa",
+      "description": "Lavetaka vakararavi e dua na vidio ni volumetric.",
+      "uvolPaths": "Sala ni VDNT",
+      "playmode": "iTuvatuva ni Qito",
+      "playtitle": "Qito",
+      "pausetitle": "Cegu vakalailai"
+    },
+    "spline": {
+      "description": "Vakasakiti na kena bulia ka vakararamataka na droini.",
+      "lbl-addNode": "Vakuria na idei ki na kuro."
+    },
+    "systemnode": {
+      "description": "Vakabira na itukutuku.",
+      "lbl-filePath": "URL",
+      "lbl-systemUpdateType": "Gauna ni Icula",
+      "lbl-enableClient": "Veivoli",
+      "lbl-enableServer": "seva (Server)",
+      "lbl-args": "Yalolailai",
+      "error-url": "Cala na Vakavodoki ni iTukutuku mai na URL"
+    },
+    "portal": {
+      "lbl-portal": "Sema ni Tikina",
+      "lbl-redirect": "Vakayagataka na Vagolei Tale ni Draunipepa",
+      "description": "E dua na Portat ki na veiqito ni teleport players ki na vanua lokuci",
+      "lbl-locationName": "Vanua e Tiko kina",
+      "lbl-modelUrl": "URL iVakaraitaki",
+      "lbl-displayText": "Vakaraitaka na iTukutuku",
+      "lbl-cubemapBake": "Vakasaqaqa ena kisimap",
+      "lbl-spawnPosition": "iTuvatuva ni Vakasevi",
+      "lbl-spawnRotation": "Veisoyamu ni Vakasevi",
+      "lbl-triggerPosition": "iTutu ni iVakasaribariba",
+      "lbl-triggerRotation": "iVakasaribariba ni iVakasaribariba",
+      "lbl-triggerScale": "iVakarau ni iVakasaribariba"
+    },
+    "postprocessing": {
+      "name": "Cakacakataki ni Posi",
+      "description": "Me baleta na kena vakayagataki na revurevu ni Vakacagaca ni Posi ki na veika o raica."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Cakacaka Vou",
+      "backLink": "Lesu tale ki na veivakatorocaketaki",
+      "featured": "Matataki",
+      "all": "Taucoko",
+      "newProject": "Cakacaka Vou Lala",
+      "ph-search": "Vakasaqara na veika eso..."
+    },
+    "grid": {
+      "loading": "Vakavodoki..."
+    },
+    "page": {
+      "header": "Ni Matavinaka mai",
+      "headerMsg": "Ke o se ka vou eke keitou vakatura mo curuma na veituberi. Kevaka e sega, mo lade sara vakadodonu ka bulia e dua na cakacaka mai na rara se mai na dua na noda ivakaraitaki.",
+      "lbl-startTutorial": "Tekivuna na Veituberi",
+      "projects": "Cakacaka",
+      "lbl-newProject": "Cakacaka Vou"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Vakavodoki...",
+      "placeObject": "Biuta na iYaya",
+      "placeObjectAtOrigin": "Biuta na iYaya ena iTekitekivu",
+      "copyURL": "Lavetaka na URL",
+      "openInNewTab": "Dolava na URL ena Tab Vou",
+      "deleteAsset": "Bokoca na iYautaukeni"
+    },
+    "filebrowser": {
+      "addNewFolder": "Vakuria na Folder Vou",
+      "cutAsset": "Kotiva",
+      "copyAsset": "Lavetaki",
+      "pasteAsset": "Vakabira",
+      "renameAsset": "Vakayacana Vou",
+      "viewAssetProperties": "Raica na iYaroqaqa"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Vakayacana Vou",
+    "lbl-duplicate": "Lavetaki",
+    "lbl-group": "iLawalawa",
+    "lbl-delete": "Bokoca",
+    "lbl-expandAll": "Vakarabailevutaka Taucoko",
+    "lbl-collapseAll": "Kasura Taucoko",
+    "isseus": "iLavelave Eso:"
+  },
+  "dnd": {
+    "nodes": "{{count}} Digitaki na iTikotiko",
+    "models": "{{count}} Digitaki na iVakaraitaki",
+    "images": "{{count}} Digitaki na iYaloyalo",
+    "videos": "Vidio {{count}} Digitaki",
+    "audio": "{{count}} iVurevure Ni Vakarorogo Digitaki"
+  },
+  "dialog": {
+    "title": "Edita",
+    "lbl-confirm": "Io",
+    "lbl-cancel": "Bokoca",
+    "exportProject": {
+      "title": "Cakacaka ni Vakau",
+      "lbl-confirm": "Cakacaka ni Vakau",
+      "lbl-combineMesh": "Cokovata na Meshes",
+      "lbl-removeUnused": "Vagalalataka na iYaya Sega ni Vakayagataki"
+    },
+    "performance": {
+      "title": "Jeke ni Vakatasuasua",
+      "lbl-confirm": "Tabaki ni iYaloyalo",
+      "learnMore": "Vulica Eso Tale na Ka",
+      "lbl-polycount": "iWiliwili ni Polygon",
+      "lbl-material": "iYaya ni Veiqaravi",
+      "lbl-texture": "iTuvatuva Vakaituvatuva",
+      "lbl-lights": "Cina",
+      "lbl-fileSize": "Levu ni Faile",
+      "info-polycount": "Keitou vakatura mo vakayagataka na nomu iyaloyalo me kakua ni sivia na 50,000 na muatolu me baleta na gacagaca ni talevoni veikauyaki.",
+      "info-material": "Keitou vakatura me kakua ni sivia na 25 na iyaya duatani ena nomu vanua me vakalailaitaka na droinitaki ni talevoni ena misini veikauyaki.",
+      "info-texture": "Keitou vakatura mo vakayagataka na nomu iwalewewele me kakua ni sivia na 256MB ni RAM ni vidio me baleta na gacagaca ni talevoni veikauyaki. Eda vakatura talega me kakua ni vakayagataki na kena icakacaka e levu cake mai na 2048 x 2048.",
+      "info-lights": "Me vaka ni sega ni rawa na cina vakasakiti ena misini lalai veikauyaki, keitou vakatura me vakayagataki me kakua ni sivia na 3 na cina ena nomu vanua (sega ni okati kina na cina ni dua kei na vuravura e vuravura) me baleta na nomu ituvaki mo cicivaka ena TVL e ra.",
+      "info-fileSize": "Keitou vakatura e dua na iotioti ni iwiliwili ni faile me kakua ni sivia na 16MB me baleta na isema lailai ni veitarataravi vakatautauvata. Ni vakalailaitaki sobu na levu ni faile ena vakalailaitaka na gauna e gadrevi me lavetaki kina na veika o raica.",
+      "txt-polycount": "{{count}} Veititolu",
+      "txt-material": "iYaya ni {{count}}",
+      "txt-ram": "~{{count}} RAM Vidio",
+      "txt-texture": "{{count}} iTuvatuva Lelevu",
+      "txt-lights": "{{count}} Cina"
+    },
+    "progress": {
+      "title": "Vakavodoki...",
+      "msg": "Vakavodoki...",
+      "lbl-cancel": "Bokoca"
+    },
+    "publish": {
+      "title": "Tabaki ni iYaloyalo",
+      "lbl-confirm": "Maroroya ka Tabaki Vakaivola",
+      "lbl-name": "Yaca ni Ka e Raici",
+      "info-name": "Na yaca e dodonu me tiko ena maliwa ni 4 ki na 64 na matanivola ka sega ni rawa me vakamatatataki kina na"
+    },
+    "published": {
+      "title": "Tabaki na iYaloyalo",
+      "header": "Sa tabaki na kemu irairai.",
+      "lbl-view": "Raica na Veika o Raica"
+    },
+    "saveNewProject": {
+      "title": "Veitokoni",
+      "lbl-name": "Yaca ni Cakacaka",
+      "info-name": "Na yaca e dodonu me tiko ena maliwa ni 4 ki na 64 na matanivola ka sega ni rawa me vakamatatataki kina na",
+      "lbl-confirm": "Maroroya na Cakacaka"
+    },
+    "support": {
+      "title": "Veitokoni",
+      "header": "Gadrevi mo ripotetaka e dua na leqa?",
+      "msg": "E rawa ni o failitaka e dua na <1>GitNuman</1> se imeli mai vei keimami me baleta na veitokoni ena <3>{{mail}}</3>",
+      "discord": "E rawa talega ni o kunei keimami ena <1>Discord</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "iYaloyalo ni Bing",
+      "search": "Vakasaqaqara mai vei Bing"
+    },
+    "bingVideo": {
+      "name": "Vidio Bing",
+      "search": "Vakasaqaqara mai vei Bing"
+    },
+    "element": {
+      "name": "Veitikina"
+    },
+    "myAssets": {
+      "name": "Noqu iYutaukeni"
+    },
+    "googlePoly": {
+      "name": "Veikaruwani ni Google",
+      "search": "Vakasaqaqara ena Google"
+    },
+    "tenor": {
+      "name": "VVV ni iVakarau Ni iTavota",
+      "search": "Vakasaqaqara ena Kena iTuvatuva",
+      "ph-search": "Vakasaqaqara ena GVV..."
+    },
+    "sketchfab": {
+      "name": "iVakatakata",
+      "search": "Vakasaqaqara ena Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Vakavodoka na iYautaukeni"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Vakasaqara na iyaloyalo..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Vakasaqara na vidio..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Vakasaqara na iyautaukeni..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Vakasaqara na ivakaraitaki..."
+    },
+    "useUpload": {
+      "multipleFileError": "E sega ni ciqomi na faile e vuqa na ka e vakacurumi.",
+      "mineTypeError": "\"{{name}}\" e sega ni veidonui kei na mataqali mime se isema vakaveitaravi oqo: {{types}}",
+      "progressTitle": "Vakavodoki ni Faile",
+      "progressMsg": "Vakavodoki ni faile {{uploaded}} ni {{total}}: {{percentage}}%",
+      "uploadError": "Cala ni Vakavodoki",
+      "uploadErrorMsg": "Cala ena vakavodoki ni faile: {{message}}",
+      "uploadErrorDefaultMsg": "A dua na cala tawakilai"
+    }
+  },
+  "openLink": {
+    "description": "Yalovinaka kiliki ena Open mo gole kina ki na isema.",
+    "lbl-open": "Dolava"
+  },
+  "interactableModel": {
+    "lbl-buy": "Volivoli",
+    "lbl-learnMore": "Vulica Eso Tale na Ka"
+  },
+  "corsProxyButton": {
+    "tooltip": "Vakayagataka na Gacagaca Vakaveisosomitaki ni CORS"
+  }
+}

@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Электрондық поштаны растау",
+      "resendEmail": "Тіркелгіңізді тексеру үшін электрондық поштаңызды тексеріңіз. Егер электрондық поштаны алмасаңыз, тексеру электрондық поштасын қайта жіберу үшін {{here}} түймешігін басыңыз.",
+      "haveAnAccount": "Тіркелгі бар ма?"
+    },
+    "forgotPassword": {
+      "header": "Құпиясөзді жамылғылату",
+      "enterEmail": "Тіркелген электрондық пошта мекенжайын енгізіп, құпия сөзді ысыру сілтемесін жібереміз.",
+      "lbl-email": "Электрондық пошта мекенжайы",
+      "lbl-submit": "Сілтемені жіберу",
+      "emailSent": "Құпия сөзді қалпына келтіру электрондық поштасы жіберілді. Электрондық поштаңызды тексеріңіз."
+    },
+    "login": {
+      "email": "Электрондық пошта | SMS",
+      "username": "UserName + Құпия сөз",
+      "social": "Әлеуметтік"
+    },
+    "magiklink": {
+      "header": "Кіру сілтемесі",
+      "descriptionEmail": "Электрондық пошта мекенжайыңызды енгізіп, электрондық пошта арқылы кіру сілтемесін жібереміз.",
+      "descriptionSMS": "Телефон нөмірін енгізіп, SMS арқылы кіру сілтемесін жібереміз.",
+      "descriptionEmailSMS": "Электрондық пошта мекенжайын немесе телефон нөмірін (тек 10 сан, ТЕК АҚШ) енгізіңіз және біз сізге Электрондық пошта немесе SMS арқылы кіру сілтемесін жібереміз.",
+      "descriptionSMSUS": "Телефон нөмірін (10 сан, тек АҚШ) енгізіңіз және біз сізге SMS арқылы кіру сілтемесін жібереміз.",
+      "lbl-email": "Электрондық пошта мекенжайы",
+      "lbl-emailPhone": "Электрондық пошта немесе телефон нөмірі",
+      "lbl-phone": "Телефон нөмірі",
+      "agree": "Келісемін ___________________________ (өтініш берушінің Т.А. ",
+      "terms": "Шарттар мен шарттар",
+      "lbl-submit": "Кіру сілтемесін жіберу",
+      "email-sent-msg": "Login Magic Link жіберілді. Электрондық поштаңызды тексеріңіз.",
+      "success-msg": "Login Magic Link жіберілді. Электрондық поштаңызды немесе SMS-ті тексеріңіз.",
+      "sms-sent-msg": "Login Magic Link жіберілді. SMS-хабарды тексеріңіз."
+    },
+    "passwordLogin": {
+      "header": "Жүйеге кіру",
+      "lbl-email": "Электрондық пошта мекенжайы",
+      "lbl-password": "Пароль",
+      "lbl-rememberMe": "Мені есте сақтаңыз",
+      "lbl-signin": "Жүйеге кіру",
+      "forgotPassword": "Құпиясөзді жаңылыспай ма?",
+      "signup": "Тіркелгі жоқ па? Тіркелу",
+      "lbl-login": "Жүйеге кіру",
+      "ph-password": "Пароль",
+      "ph-email": "Электрондық пошта"
+    },
+    "social": {
+      "gitHub": "GitHub көмегімен кіру",
+      "google": "Google-мен кіру",
+      "facebook": "Facebook желісімен кіру",
+      "linkedin": "Linkedin көмегімен кіру",
+      "twitter": "Twitter көмегімен кіру"
+    },
+    "register": {
+      "header": "Тіркелу",
+      "login": "Жүйеге кіру",
+      "lbl-signup": "Тіркелу",
+      "lbl-password": "Пароль",
+      "lbl-email": "Электрондық пошта мекенжайы",
+      "passwordNotMatch": "Құпия сөздер сәйкес келмейді",
+      "ph-password": "Пароль",
+      "ph-confirmPassword": "Парольді растау",
+      "ph-email": "Электрондық пошта"
+    },
+    "resetPassword": {
+      "header": "Құпиясөзді қалпына келтіру",
+      "description": "Электрондық пошта мекенжайыңыз үшін құпиясөзді енгізіңіз",
+      "lbl-submit": "Құпиясөзді қалпына келтіру",
+      "lbl-password": "Пароль",
+      "lbl-confirmPassword": "Парольді растау",
+      "passwordNotMatch": "Құпия сөздер сәйкес келмейді",
+      "nowLoginYourAccount": "Енді тіркелгіңізге кіруге болады",
+      "yourPasswordResetSuccess": "Құпия сөзіңіз сәтті қалпына келтірілді!"
+    },
+    "verifyEmail": {
+      "header": "Электрондық поштаны тексеру",
+      "processing": "Өңдеу кезінде бір сәт күтуіңізді сұраймын..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Орналасулар",
+      "loading": "Жүктеу",
+      "col-name": "Атауы",
+      "col-scene": "Көрініс",
+      "col-maxuser": "Max пайдаланушылары",
+      "lbl-search": "Орындарды іздеу",
+      "lbl-new": "Жаңа"
+    },
+    "newLocation": {
+      "title": "Орналасуы",
+      "success": "Сәтті сақталды.",
+      "failure": "Бірдеңе дұрыс болмады.",
+      "removeSuccess": "Орын сәтті жойылды.",
+      "nameInUse": "Атауы қолданыста.",
+      "nameRequire": "Атауы талап етіледі.",
+      "validNumber": "Тек сандарға ғана (0-9) рұқсат етіледі.",
+      "lbl-name": "Атауы",
+      "lbl-maxuser": "Max пайдаланушылары",
+      "lbl-scene": "Көрініс",
+      "lbl-type": "Түрі",
+      "lbl-ve": "Бейне қосылған",
+      "lbl-gme": "Global Media қосылған",
+      "lbl-update": "Жаңарту",
+      "lbl-create": "Жасау",
+      "tooltipCanNotBeDeleted": "Лоббиді жою мүмкін емес",
+      "confirmation": "Сенімдісің бе?",
+      "lbl-yes": "Иә",
+      "lbl-no": "Жоқ"
+    },
+    "share": {
+      "lbl-share": "Ортақ пайдалану",
+      "ph-phoneEmail": "Электрондық пошта немесе телефон нөмірі арқылы шақыру",
+      "lbl-phoneEmail": "Электрондық поштаға немесе телефон нөміріне жіберу",
+      "lbl-copy": "Көшіру",
+      "lbl-send-invite": "Шақыруды жіберу",
+      "title": "Орналасқан жеріңіздің URL мекенжайын топпен ортақ пайдалану",
+      "linkCopied": "Алмасу буферіне көшірілген сілтеме."
+    },
+    "setting": {
+      "audio": "Дыбыс",
+      "lbl-volume": "Көлемі",
+      "lbl-microphone": "Микрофон",
+      "graphics": "Графика",
+      "controls": "Басқару элементтері",
+      "lbl-control-type": "Контроллер түрі",
+      "lbl-control-scheme": "Басқару схемасы",
+      "lbl-resolution": "Резолюция",
+      "lbl-shadow": "Көлеңкелер",
+      "lbl-pp": "Post Processing",
+      "lbl-pbr": "Толық PBR",
+      "lbl-automatic": "Автоматты түрде",
+      "xrusersetting": "XR пайдаланушы параметрлері",
+      "rotation": "Бұрылыс",
+      "rotation-smooth-speed": "Айналу тегіс жылдамдығы",
+      "rotation-angle": "Бұру бұрышы",
+      "moving": "Жылжыту",
+      "user-avatar": "Аватар параметрі",
+      "invert-rotation": "Бұруды терістеу және таяқшаларды жылжыту",
+      "show-avatar": "Аватар көрсетілсін"
+    },
+    "profile": {
+      "lbl-profile": "Профилі",
+      "lbl-settings": "Параметрлер",
+      "lbl-username": "Пайдаланушы аты",
+      "update-msg": "Пайдаланушы аты жаңартылды",
+      "inviteCode": "Шақыру коды",
+      "youAreAn": "Сіз ан",
+      "youAreA": "Сіз а",
+      "showUserId": "Пайдаланушы идентификатын көрсету",
+      "hideUserId": "Пайдаланушы идентификатын жасыру",
+      "showApiKey": "API пернесін көрсету",
+      "hideApiKey": "API кілтін жасыру",
+      "apiKey": "API кілті",
+      "logout": "Журналға жазу",
+      "connectPhone": "Телефон нөмірін қосу",
+      "connectEmail": "Электрондық поштаны қосу",
+      "connectPhoneEmail": "Электрондық поштаны немесе телефон нөмірін қосу",
+      "or": "Немесе",
+      "lbl-wallet": "Әминетпен кіру",
+      "ph-email": "Электрондық пошта",
+      "ph-phone": "Телефон нөмірі",
+      "ph-phoneEmail": "Телефон нөмірі / Электрондық пошта",
+      "phoneEmailError": "Жарамсыз телефон # немесе электрондық пошта мекенжайы",
+      "phoneError": "Жарамсыз телефон #",
+      "emailError": "Дұрыс емес электрондық пошта мекенжайы",
+      "loginWithReadyPlayerMe": "Ready Player Me көмегімен кіру",
+      "connectSocial": "Әлеуметтік шоттармен байланысу",
+      "createOne": "Егер тіркелгіңіз болмаса, сіз үшін жаңасы жасалады",
+      "connections": {
+        "title": "Байланыстар",
+        "ipError": "Белсенді сәйкестік куәлігі провайдері өшірілмеді",
+        "disconnect": "ажырату",
+        "connect": "Қосылу"
+      },
+      "profileDropdown": {
+        "avatar": "Пайдаланушы Аватар белгішесі",
+        "profile": "Профилі",
+        "adminConsole": "Әкімші консолі",
+        "logout": "Logout"
+      },
+      "userIcon": {
+        "lbl-name": "Есімің",
+        "lbl-update": "Жаңарту",
+        "userId": "Пайдаланушы идентифика- ты",
+        "ph-uploadImg": "Өнім суретін кері жүктеу",
+        "lbl-selectAcvatar": "Аватар тармағын таңдау",
+        "lbl-submit": "Жіберу"
+      },
+      "userSettings": {
+        "volume": "Көлемі",
+        "microphone": "Микрофон",
+        "resolution": "Резолюция",
+        "high": "Жоғары",
+        "low": "Төмен",
+        "spatialAudio": "Кеңістік дыбысын пайдалану",
+        "enterMuted": "Бөлменің өшірілгенін енгізу"
+      }
+    },
+    "oauth": {
+      "authenticating": "Аутентификациялау...",
+      "authFailed": "{{service}} аутентификациясы жаңылысы."
+    },
+    "magikLink": {
+      "wait": "Өңдеу кезінде бір сәт күтуіңізді сұраймын..."
+    },
+    "dashboard": {
+      "header": "Бақылау тақтасы",
+      "dashboard": "Бақылау тақтасы",
+      "users": "Пайдаланушылар",
+      "feeds": "Арналар",
+      "instance": "Ð Ð°Ð1/2",
+      "locations": "Орналасулар",
+      "invites": "Шақырулар",
+      "sessions": "Сеанстар",
+      "groups": "Топтар",
+      "parties": "Тараптар",
+      "chats": "Чаттар",
+      "content": "Мазмұн бумалары",
+      "projects": "Жобалар",
+      "scenes": "Көріністер",
+      "avatars": "Аватарлар",
+      "benchmarking": "Бенчмаркинг",
+      "bots": "Ботс"
+    }
+  },
+  "oauth": {
+    "authenticating": "Аутентификациялау...",
+    "authFailed": "{{service}} аутентификациясы жаңылысы."
+  },
+  "magikLink": {
+    "wait": "Өңдеу кезінде бір сәт күтуіңізді сұраймын..."
+  },
+  "dashboard": {
+    "header": "Бақылау тақтасы",
+    "dashboard": "Бақылау тақтасы",
+    "users": "Пайдаланушылар",
+    "feeds": "Арналар",
+    "instance": "Ð Ð°Ð1/2",
+    "locations": "Орналасулар",
+    "routes": "Маршруттар",
+    "projects": "Жобалар",
+    "invites": "Шақырулар",
+    "sessions": "Сеанстар",
+    "groups": "Топтар",
+    "parties": "Тараптар",
+    "chats": "Чаттар",
+    "content": "Мазмұн бумалары",
+    "scenes": "Көріністер",
+    "avatars": "Аватарлар",
+    "benchmarking": "Бенчмаркинг",
+    "bots": "Ботс",
+    "setting": "Параметрлер"
+  },
+  "avatar": {
+    "title": "Avatar кері жүктеу",
+    "lbl-browse": "Шолу",
+    "lbl-thumbnail": "Нобай",
+    "lbl-upload": "Кері жүктеу",
+    "selectAvatar": "Аватар тармағын таңдаңыз...",
+    "selectThumbnail": "Нобайды таңдаңыз...",
+    "rotate": "Бұру",
+    "pan": "Пан",
+    "noBone": "Обеджкт құрамында ешбір сүйек немесе тері жоқ",
+    "outOfBound": "Объект шектен тыс.",
+    "emptyObj": "Нысан бос.",
+    "maxTriangleError": "Нысанның құрамында {{allowedTriangles}} -нен көп тұлғалар бар.",
+    "selectValidFile": "Жарамды 3d аватар файлын таңдаңыз.",
+    "selectValidThumbnail": "Таңдалған жарамды нобай файлы.",
+    "fileOversized": "Аватар файлының өлшемі {{minSize}} MB мен {{maxSize}} MB арасында болуы тиіс",
+    "confirmation": "Сенімдісің бе?",
+    "canNotBeRemoved": "Белсенді Аватар жойылмайды",
+    "remove": "Аватар өшіру",
+    "uploadFiles": "Файлдарды кері жүктеу",
+    "useUrlInstead": "Оның орнына url мекенжайын пайдалану",
+    "avatar": "Аватар",
+    "cancel": "Болдырмау",
+    "createAvatar": "Аватар жасау",
+    "delete": "Өшіру",
+    "view": "Көрініс",
+    "uploadAvatarInfo": "Avatar ақпаратын жаңарту",
+    "name": "Атауы",
+    "enterName": "Атауын енгізу",
+    "avatarInformation": "Аватар ақпараты",
+    "description": "Сипаттама",
+    "key": "Кілт",
+    "none": "Ешқайсысы",
+    "submit": "Жіберу",
+    "edit": "Өңдеу",
+    "avatarUrl": "Аватар",
+    "upload-success-msg": "Avatar Upload сәтті жүктелді.",
+    "remove-success-msg": "Avatar Upload сәтті жүктелді.",
+    "warning-msg": "Аватар ресурсы бос, сіз аватарларды статикалық файл жадыңызға синхрондадыңыз ба?"
+  },
+  "personMenu": {
+    "inviteToParty": "Партияға шақыру",
+    "addAsFriend": "Дос ретінде қосу",
+    "mute": "Дыбысты өшіру",
+    "block": "Блок"
+  },
+  "person": {
+    "you": "Сіз",
+    "yourScreen": "Экраныңыз",
+    "muteForEveryone": "Барлығына дыбысты өшіру",
+    "unmuteForEveryone": "Барлығына арналған ауыспалы",
+    "muteMe": "Мені өшіру",
+    "unmuteMe": "Мені ажырату",
+    "muteThisPerson": "Бұл кісінің дыбысын өшіру",
+    "unmuteThisPerson": "Бұл кісінің қосындысын ашу",
+    "openPictureInPicture": "Суретті суретте ашу"
+  }
+}

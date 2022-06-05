@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Loading page..."
+  },
+  "tooltip": {
+    "pressKey": "ចុច {{tip}} ទៅ {{message}}"
+  },
+  "toast": {
+    "joined": "បាន ចូល រួម",
+    "left": "ឆ្វេង"
+  },
+  "navUserWidget": {
+    "login": "ចូល"
+  },
+  "loader": {
+    "connecting": "ការភ្ជាប់ទៅកាន់ពិភពលោក...",
+    "entering": "ការចូលពិភពលោក...",
+    "loading": "Loading...",
+    "objectRemaining": "{{count}} វត្ថុ ដែល នៅ សល់",
+    "objectRemainingPlural": "{{count}} វត្ថុ ដែល នៅ សល់",
+    "loadingObjects": "ផ្ទុក វត្ថុ",
+    "loadingComplete": "Loading ចប់",
+    "joiningWorld": "ការចូលរួមជាមួយពិភពលោក"
+  },
+  "alert": {
+    "eventWasSuccess": "ព្រឹត្តិការណ៍ ទទួល បាន ជោគជ័យ",
+    "errorWasEncountered": "កំហុស មួយ ត្រូវ បាន ជួប",
+    "eventInProgress": "ព្រឹត្តិការណ៍ ក្នុង ការ រីក ចម្រើន",
+    "seconds": "វិនាទី",
+    "cancelCountdown": "ការ បិទ ម៉ូដាល់ នេះ នឹង លុប ចោល ការ រាប់ ថយ ក្រោយ"
+  },
+  "debug": {
+    "refresh": "ស្រស់ស្រាយ",
+    "stats": "ស្ថិតិ",
+    "debugOptions": "ជម្រើស Debug",
+    "physicsDebug": "រូបវិទ្យា",
+    "avatarDebug": "អាវ៉ាតា",
+    "nodeHelperDebug": "Node ជួយអ្នក",
+    "gridDebug": "ក្រឡាចត្រង្គ",
+    "simpleMaterials": "សម្ភារសាមញ្ញ",
+    "tick": "ធីក",
+    "worldStore": "ហាង ពិភព លោក",
+    "engineStore": "ហាងម៉ាស៊ីន",
+    "namedEntities": "ឈ្មោះ Entities",
+    "networkObject": "វត្ថុបណ្តាញ",
+    "networkClients": "អតិថិ ជន បណ្ដាញ"
+  },
+  "recording": {
+    "videoRecorder": "អ្នក ថត វីដេអូ",
+    "waitingForPermissions": "រង់ចាំការអនុញ្ញាត",
+    "selectVideoSource": "ជ្រើស ប្រភព វីដេអូ",
+    "screen": "អេក្រង់",
+    "camera": "កាមេរ៉ា",
+    "microphone": "មីក្រូហ្វូន",
+    "startRecording": "ចាប់ផ្ដើម ថត",
+    "pauseRecording": "ផ្អាក ការ ថត",
+    "resumeRecording": "បន្ត ការ ថត",
+    "stopRecording": "ឈប់ ថត"
+  },
+  "typing": "វាយ...",
+  "gameServer": {
+    "browserError": "កំហុស កម្មវិធី រុករក",
+    "browserErrorMessage": "កម្មវិធី រុករក របស់ អ្នក មិន គាំទ្រ ការ ផ្ទុក ក្នុង របៀប រុករក ឯកជន ទេ & # 160; ។ ទាំង សាកល្បង កម្មវិធី រុករក ផ្សេង ទៀត ឬ ចេញ របៀប រុករក ឯកជន & # 160; ។",
+    "noAvailableServers": "គ្មាន Servers ដែល មាន",
+    "noAvailableServersMessage": "មិន មាន ម៉ាស៊ីន បម្រើ ណា មួយ ដែល មាន សម្រាប់ អ្នក ដើម្បី តភ្ជាប់ & # 160; ។ ការព្យាយាមភ្ជាប់ឡើងវិញនៅក្នុង",
+    "worldDisconnected": "ផ្តាច់ ពិភពលោក",
+    "worldDisconnectedMessage": "អ្នក បាន បាត់បង់ ទំនាក់ទំនង របស់ អ្នក ជាមួយ ពិភព លោក ។ យើង នឹង ព្យាយាម ត ភ្ជាប់ ឡើង វិញ មុន ពេល ពេល ខាង ក្រោម អស់ បើ ពុំ នោះ សោត ទេ អ្នក នឹង ត្រូវ បាន បញ្ជូន ទៅ ករណី ផ្សេង ទៀត ។",
+    "webGLNotEnabled": "WebGL មិន បាន អនុញ្ញាត",
+    "webGLNotEnabledMessage": "កម្មវិធីរុករករបស់អ្នកមិនគាំទ្រ WebGL, ឬវាត្រូវបានបិទ. សូម បើក WebGL ឬ ពិចារណា ធ្វើ ឲ្យ ប្រសើរ ឡើង ទៅ កំណែ ចុង ក្រោយ បំផុត របស់ កម្មវិធី រុករក របស់ អ្នក ។",
+    "youKickedFromWorld": "អ្នក ត្រូវ បាន ទាត់ ចេញ ពី ពិភព លោក",
+    "youKickedFromWorldMessage": "អ្នក ត្រូវ បាន ទាត់ ចេញ ពី ពិភព លោក នេះ ដោយ ហេតុ ផល ខាង ក្រោម នេះ",
+    "invalidLocation": "ទីតាំង មិន ត្រឹមត្រូវ",
+    "cantFindLocation": "យើង មិន អាច រក ទីតាំង បាន ទេ",
+    "misspelledOrNotExist": "វា ប្រហែល ជា មិន ត្រូវ បាន សរសេរ ខុស ឬ វា ប្រហែល ជា មិន ទាន់ មាន នៅ ឡើយ ទេ ។",
+    "loading": "ផ្ទុក",
+    "low-frame-error": "បាន រក ឃើញ ការ វិនាស មិន ល្អ ដោយ ពិចារណា ពី ការ អនុញ្ញាត ឲ្យ ប្រើ ការ បង្កើន ល្បឿន ផ្នែក រឹង នៅ ក្នុង កម្មវិធី រុករក របស់ អ្នក ហើយ ស្តារ កម្មវិធី រុករក របស់ អ្នក ឡើង វិញ",
+    "low-frame-title": "បើក ការ បង្កើន ល្បឿន ផ្នែក រឹង សម្រាប់ បទពិសោធន៍ កាន់ តែ ប្រសើរ !"
+  },
+  "error": {
+    "loading-error": "បរាជ័យ ក្នុង ការ ផ្ទុក ទិន្នន័យ អ្នក ប្រើ",
+    "validation-error": "សូម បញ្ចូល {{type}} ឲ្យ បាន ត្រឹមត្រូវ",
+    "login-error": "បរាជ័យក្នុងការចូល"
+  }
+}

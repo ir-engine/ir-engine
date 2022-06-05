@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "تصدیق ایمیل",
+      "resendEmail": "مهربانی وکړئ خپل ایمیل وګورئ چې ستاسو اکاونټ تصدیق کړی. که تاسو بریښنالیک ترلاسه نه کړ، مهربانی وکړئ د تصدیق {{here}} بیا لیږلو لپاره کلیک وکړئ.",
+      "haveAnAccount": "اکاونټ ولری؟"
+    },
+    "forgotPassword": {
+      "header": "هیر شوی پاسورډ",
+      "enterEmail": "مهربانی وکړئ خپل ثبت شوی ایمیل ادرس داخل کړئ او موږ به تاسو ته د پاسورډ بیا سټېټ لینک درواستوو.",
+      "lbl-email": "د بریښنالیک پته",
+      "lbl-submit": "لینک واستوی",
+      "emailSent": "د بیا تنظیم پاسورډ ایمیل ولیږل شو. مهربانی وکړئ خپل ایمیل وګورئ."
+    },
+    "login": {
+      "email": "ایمیل | اس ایم اس",
+      "username": "UserName + Password",
+      "social": "ټولنیز"
+    },
+    "magiklink": {
+      "header": "د لاګاین لینک",
+      "descriptionEmail": "مهربانی وکړئ خپل ایمیل ادرس داخل کړئ او موږ به تاسو ته د بریښنالیک له لارې د ننوتلو لینک درواستوو.",
+      "descriptionSMS": "مهربانی وکړئ خپل تلیفون شمیره داخل کړئ او موږ به تاسو ته د ایس ایم ایس له لارې د ننوتلو لینک درواستوو.",
+      "descriptionEmailSMS": "مهربانی وکړئ خپل ایمیل ادرس یا د تلیفون شمیره ( 10 ډیجیټ، امریکا یوازې) داخل کړئ او مونږ به تاسو ته د بریښنالیک یا ایس ایم ایس له لارې د ننوتلو لینک درواستوو.",
+      "descriptionSMSUS": "مهربانی وکړئ خپل د تلیفون شمیره ( 10 ډیجیټ، امریکا یوازې) داخل کړئ او موږ به تاسو ته د ایس ایم ایس له لارې د ننوتلو لینک درواستوو.",
+      "lbl-email": "د بریښنالیک پته",
+      "lbl-emailPhone": "د بریښنالیک یا تلیفون شمیره",
+      "lbl-phone": "د تلیفون شمیره",
+      "agree": "زه د دې سره موافق یم ",
+      "terms": "شرایط او شرایط",
+      "lbl-submit": "د لاګاین لینک واستوه",
+      "email-sent-msg": "د لاګاین جادو لینک ولیږل شو. مهربانی وکړئ خپل ایمیل وګورئ.",
+      "success-msg": "د لاګاین جادو لینک ولیږل شو. مهربانی وکړئ خپل ایمیل یا ایس ایم ایس وګورئ.",
+      "sms-sent-msg": "د لاګاین جادو لینک ولیږل شو. مهربانی وکړئ خپل ایس ایم ایس وګورئ."
+    },
+    "passwordLogin": {
+      "header": "دننه شه",
+      "lbl-email": "د بریښنالیک پته",
+      "lbl-password": "پاسورډ",
+      "lbl-rememberMe": "ما په یاد لره",
+      "lbl-signin": "دننه شه",
+      "forgotPassword": "پاسورډ هیر کړی؟",
+      "signup": "ایا اکاونټ نه لری؟ ګډون وکړه",
+      "lbl-login": "دننه کېدل",
+      "ph-password": "پاسورډ",
+      "ph-email": "بریښنالیک"
+    },
+    "social": {
+      "gitHub": "د GitHub سره لاګاین",
+      "google": "د ګوګل سره لاګاین",
+      "facebook": "د فیسبوک سره لاګاین",
+      "linkedin": "د لیډنډن سره لاګاین",
+      "twitter": "د ټویټر سره لاګاین"
+    },
+    "register": {
+      "header": "ګډون وکړه",
+      "login": "دننه کېدل",
+      "lbl-signup": "ګډون وکړه",
+      "lbl-password": "پاسورډ",
+      "lbl-email": "د بریښنالیک پته",
+      "passwordNotMatch": "پاسورډونه مه برابروه",
+      "ph-password": "پاسورډ",
+      "ph-confirmPassword": "د پاسورډ تایید",
+      "ph-email": "بریښنالیک"
+    },
+    "resetPassword": {
+      "header": "بیا سمول پاسورډ",
+      "description": "مهربانی وکړئ خپل پاسورډ د خپل ایمیل ادرس لپاره داخل کړئ",
+      "lbl-submit": "بیا سمول پاسورډ",
+      "lbl-password": "پاسورډ",
+      "lbl-confirmPassword": "د پاسورډ تایید",
+      "passwordNotMatch": "پاسورډونه مه برابروه",
+      "nowLoginYourAccount": "تاسو اوس خپل اکاونټ ته ننوزئ",
+      "yourPasswordResetSuccess": "ستاسو پاسورډ په بریالیتوب سره بیا تنظیم شو!"
+    },
+    "verifyEmail": {
+      "header": "د بریښنالیک تصدیق کول",
+      "processing": "مهربانی وکړئ د پروسس په وخت کې یوه لحظه صبر وکړئ..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "ځایونه",
+      "loading": "بارول",
+      "col-name": "نوم",
+      "col-scene": "صحنه",
+      "col-maxuser": "مګس کاروونکی",
+      "lbl-search": "د ځایونو لټون",
+      "lbl-new": "نوی"
+    },
+    "newLocation": {
+      "title": "ځای",
+      "success": "په بریالیتوب سره ژغورل شوی.",
+      "failure": "یو څه غلط شوی وو.",
+      "removeSuccess": "موقعیت په بریالیتوب سره لرې شو.",
+      "nameInUse": "نوم په کار دی.",
+      "nameRequire": "نوم پکار دی.",
+      "validNumber": "یوازې شمېرې(0-9) اجازه لری.",
+      "lbl-name": "نوم",
+      "lbl-maxuser": "مګس کاروونکی",
+      "lbl-scene": "صحنه",
+      "lbl-type": "ټایپ",
+      "lbl-ve": "ویډیو فعاله شوې",
+      "lbl-gme": "ګلوبل میډیا فعاله کړه",
+      "lbl-update": "اپډیټ",
+      "lbl-create": "ایجاد",
+      "tooltipCanNotBeDeleted": "لابی نشی حذف کیدای",
+      "confirmation": "آیا ته باوري یې?",
+      "lbl-yes": "هو",
+      "lbl-no": "نا"
+    },
+    "share": {
+      "lbl-share": "شریکول",
+      "ph-phoneEmail": "د برېښنالیک یا د ټلیفون د شمېرې له لارې بلنه",
+      "lbl-phoneEmail": "ایمیل یا د تلیفون شمیره ته واستوی",
+      "lbl-copy": "کاپی",
+      "lbl-send-invite": "بلنه واستوی",
+      "title": "خپل د موقعیت URL د خپل ټیم سره شریک کړئ",
+      "linkCopied": "کلیپ بورډ ته کاپی شوی لینک."
+    },
+    "setting": {
+      "audio": "غږیزه",
+      "lbl-volume": "حجم",
+      "lbl-microphone": "مایکروفون",
+      "graphics": "ګرافیک",
+      "controls": "کنټرولونه",
+      "lbl-control-type": "کنټرولونکی ډول",
+      "lbl-control-scheme": "د کنټرول پلان",
+      "lbl-resolution": "پرېکړه لیک",
+      "lbl-shadow": "سیوری",
+      "lbl-pp": "د پوسټ پروسس",
+      "lbl-pbr": "بشپړ PBR",
+      "lbl-automatic": "اوټماټ",
+      "xrusersetting": "د XR کاروونکی تنظیمات",
+      "rotation": "تاویدل",
+      "rotation-smooth-speed": "د خولو چټکتیا",
+      "rotation-angle": "د تاویدلو زاویه",
+      "moving": "خوځنده",
+      "user-avatar": "Avatar Setting",
+      "invert-rotation": "د تګ او حرکت لښتې په بل ډول",
+      "show-avatar": "اوتار وښایه"
+    },
+    "profile": {
+      "lbl-profile": "پروفایل",
+      "lbl-settings": "تنظیمات",
+      "lbl-username": "د کارنامو نوم",
+      "update-msg": "د کارونکی نوم نوی شوی",
+      "inviteCode": "د دعوت کوډ",
+      "youAreAn": "ته یو",
+      "youAreA": "تاسو د",
+      "showUserId": "د کاروونکی ID ښکاره کول",
+      "hideUserId": "د کاروونکی ایډ پټول",
+      "showApiKey": "د API کیلی وښایه",
+      "hideApiKey": "د API کیلی پټه کړه",
+      "apiKey": "د API کیلی",
+      "logout": "بهر ته ووزه",
+      "connectPhone": "خپل د تلیفون شمیره سره ونښلوئ",
+      "connectEmail": "خپل ایمیل سره وصل کړئ",
+      "connectPhoneEmail": "خپل ایمیل یا د تلیفون شمیره سره وصل کړئ",
+      "or": "یا",
+      "lbl-wallet": "د کوالیت سره لاګاین",
+      "ph-email": "بریښنالیک",
+      "ph-phone": "د تلیفون شمیره",
+      "ph-phoneEmail": "د ټلیفون شمېره / برېښنالیک",
+      "phoneEmailError": "بې اعتباره تلیفون # یا ایمیل پته",
+      "phoneError": "بې اعتباره تلیفون #",
+      "emailError": "د بریښنالیک ادرس نامعتبر",
+      "loginWithReadyPlayerMe": "د چمتو لوبغاړی ما سره لاګاین",
+      "connectSocial": "د ټولنیزو حسابونو سره اړیکه",
+      "createOne": "که تاسو اکاونټ نه لرئ ، نو ستاسو لپاره به یو نوی جوړ شی",
+      "connections": {
+        "title": "اړیکې",
+        "ipError": "د فعاله پیژندنې وړاندې کوونکی نه شی لرې کولی",
+        "disconnect": "تړل",
+        "connect": "نښلول"
+      },
+      "profileDropdown": {
+        "avatar": "د کاروونکی Avatar آیکن",
+        "profile": "پروفایل",
+        "adminConsole": "د ادمیډ نل",
+        "logout": "لاګاوټ"
+      },
+      "userIcon": {
+        "lbl-name": "ستا نامه",
+        "lbl-update": "اپډیټ",
+        "userId": "د کارونکی ایډ",
+        "ph-uploadImg": "د محصول تصویر پورته کړئ",
+        "lbl-selectAcvatar": "اواتار وټاکې",
+        "lbl-submit": "وړاندې کړه"
+      },
+      "userSettings": {
+        "volume": "حجم",
+        "microphone": "مایکروفون",
+        "resolution": "پرېکړه لیک",
+        "high": "لوړ",
+        "low": "ټیټ",
+        "spatialAudio": "د ځایې آډیو کارول",
+        "enterMuted": "کوټه موټ شوی ته داخل کړئ"
+      }
+    },
+    "oauth": {
+      "authenticating": "اصلی کول...",
+      "authFailed": "{{service}} تصدیق ناکام شو."
+    },
+    "magikLink": {
+      "wait": "مهربانی وکړئ د پروسس په وخت کې یوه لحظه صبر وکړئ..."
+    },
+    "dashboard": {
+      "header": "ډشبورډ",
+      "dashboard": "ډشبورډ",
+      "users": "کاروونکی",
+      "feeds": "خواړه",
+      "instance": "مثال",
+      "locations": "ځایونه",
+      "invites": "بلنه",
+      "sessions": "غونډې",
+      "groups": "ډلې",
+      "parties": "ګوندونه",
+      "chats": "چټ",
+      "content": "د محتوا بسته",
+      "projects": "پروژې",
+      "scenes": "صحنې",
+      "avatars": "آوتارونه",
+      "benchmarking": "معیار",
+      "bots": "بوټان"
+    }
+  },
+  "oauth": {
+    "authenticating": "اصلی کول...",
+    "authFailed": "{{service}} تصدیق ناکام شو."
+  },
+  "magikLink": {
+    "wait": "مهربانی وکړئ د پروسس په وخت کې یوه لحظه صبر وکړئ..."
+  },
+  "dashboard": {
+    "header": "ډشبورډ",
+    "dashboard": "ډشبورډ",
+    "users": "کاروونکی",
+    "feeds": "خواړه",
+    "instance": "مثال",
+    "locations": "ځایونه",
+    "routes": "لارې",
+    "projects": "پروژې",
+    "invites": "بلنه",
+    "sessions": "غونډې",
+    "groups": "ډلې",
+    "parties": "ګوندونه",
+    "chats": "چټ",
+    "content": "د محتوا بسته",
+    "scenes": "صحنې",
+    "avatars": "آوتارونه",
+    "benchmarking": "معیار",
+    "bots": "بوټان",
+    "setting": "تنظیمات"
+  },
+  "avatar": {
+    "title": "اپډ اواتار",
+    "lbl-browse": "ویې لید",
+    "lbl-thumbnail": "د سر نشکول",
+    "lbl-upload": "پورته کول",
+    "selectAvatar": "انتخاب Avatar...",
+    "selectThumbnail": "انتخاب کړئ بندونه...",
+    "rotate": "څرخیدنه",
+    "pan": "پان",
+    "noBone": "اوبجکټ هډوکی او پوستکی نه لری",
+    "outOfBound": "شی له حد څخه بهر دی.",
+    "emptyObj": "شی خالی دی .",
+    "maxTriangleError": "شی د مخو څخه ډیر {{allowedTriangles}} لری.",
+    "selectValidFile": "د اعتبار وړ 3d avatar فایل انتخاب کړئ.",
+    "selectValidThumbnail": "ټاکل شوی معتبر د شټ میخ فایل.",
+    "fileOversized": "د Avatar فایل اندازه باید د {{minSize}} او {{maxSize}} MB",
+    "confirmation": "آیا ته باوري یې?",
+    "canNotBeRemoved": "فعال اواتار نه شی لرې کیدای",
+    "remove": "د اواتار لرې کول",
+    "uploadFiles": "فایلونه پورته کړئ",
+    "useUrlInstead": "پر ځای یې url وکاروئ",
+    "avatar": "اوتار",
+    "cancel": "لغوه کول",
+    "createAvatar": "Avatar جوړ کړئ",
+    "delete": "حذف کول",
+    "view": "لید",
+    "uploadAvatarInfo": "د اواتار معلومات تازه کړئ",
+    "name": "نوم",
+    "enterName": "نوم داخل کړی",
+    "avatarInformation": "د اواتار معلومات",
+    "description": "تشریح",
+    "key": "کیلی",
+    "none": "نه",
+    "submit": "وړاندې کړه",
+    "edit": "ایډیټ",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "Avatar Uploaded په بریالیتوب سره.",
+    "remove-success-msg": "Avatar Uploaded په بریالیتوب سره.",
+    "warning-msg": "د اواتار سرچینه خالی ده، ایا تاسو د خپل ستاتیکی فایل ذخیرې ته د اوټارټرونه همغږې کړی دی؟"
+  },
+  "personMenu": {
+    "inviteToParty": "ګوند ته بلنه",
+    "addAsFriend": "د ملګری په توګه اضافه کول",
+    "mute": "خاموشی",
+    "block": "بلاک"
+  },
+  "person": {
+    "you": "ته",
+    "yourScreen": "ستاسو سکرین",
+    "muteForEveryone": "د هر چا لپاره میټ",
+    "unmuteForEveryone": "د هر چا لپاره نه بدلېدنه",
+    "muteMe": "ما خاموشه کړئ",
+    "unmuteMe": "ما خاموشه کړئ",
+    "muteThisPerson": "دا شخص خاموشه کړه",
+    "unmuteThisPerson": "دا شخص بې خپراوی",
+    "openPictureInPicture": "انځور په انځور کې پرانیستی"
+  }
+}

@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Ī-mēra Whakaū",
+      "resendEmail": "Tirohia koa tō īmēra hei manatoko i tō pūkete. Mēnā kāore koe i whiwhi īmēra, pāwhiritia koa {{here}} hei tuku anō i te īmēra manatokonga.",
+      "haveAnAccount": "He pūkete anō?"
+    },
+    "forgotPassword": {
+      "header": "Kua warewaretia tō kupuhipa?",
+      "enterEmail": "Tāurutia koa tō wāhitau īmēra kua rēhitatia, ā, mā mātou e tuku hononga tautuhi kupuhipa anō ki a koe.",
+      "lbl-email": "Wāhitau īmēra",
+      "lbl-submit": "Tuku Hono",
+      "emailSent": "I tukua te Tautuhi Kupuhipa Ī-mēra. Tirohia koa tō īmēra."
+    },
+    "login": {
+      "email": "Ī-mēra | SMS",
+      "username": "Ingoa Kaiwhakamahi + Kupuhipa",
+      "social": "Pāpori"
+    },
+    "magiklink": {
+      "header": "Hono Takiuru",
+      "descriptionEmail": "Tāurutia koa tō wāhitau īmēra, ā, mā mātou e tuku hononga takiuru ki a koe mā te Ī-mēra.",
+      "descriptionSMS": "Tāurutia koa tō tau waea, ā, mā mātou e tuku hononga takiuru ki a koe mā te SMS.",
+      "descriptionEmailSMS": "Tāurutia koa tō wāhitau īmēra, tau waea rānei (10 mati, US anake) ā, mā mātou e tuku hononga takiuru mā te Īmēra, SMS rānei.",
+      "descriptionSMSUS": "Tāurutia koa tō tau waea (10 mati, US anake) ā, mā mātou e tuku hononga takiuru mā te SMS.",
+      "lbl-email": "Wāhitau īmēra",
+      "lbl-emailPhone": "Tau īmēra, Waea rānei",
+      "lbl-phone": "Tau waea:",
+      "agree": "E whakaae ana ahau ki te ",
+      "terms": "Ngā Ture me Ngā Here",
+      "lbl-submit": "Tuku Hono Takiuru",
+      "email-sent-msg": "I tukua te Hononga Magic Takiuru. Tirohia koa tō Ī-mēra.",
+      "success-msg": "I tukua te Hononga Magic Takiuru. Tirohia koa tō Ī-mēra, SMS rānei.",
+      "sms-sent-msg": "I tukua te Hononga Magic Takiuru. Tirohia koa tō SMS."
+    },
+    "passwordLogin": {
+      "header": "Takiuru",
+      "lbl-email": "Wāhitau īmēra",
+      "lbl-password": "Kupuhipa",
+      "lbl-rememberMe": "Maumahara i Ahau",
+      "lbl-signin": "Takiuru",
+      "forgotPassword": "Kua warewaretia tō kupuhipa??",
+      "signup": "Kāore he pūkete? Takiuru",
+      "lbl-login": "Takiuru",
+      "ph-password": "Kupuhipa",
+      "ph-email": "Ī-mēra"
+    },
+    "social": {
+      "gitHub": "Takiuru me GitHub",
+      "google": "Takiuru me Google",
+      "facebook": "Takiuru me facebook",
+      "linkedin": "Takiuru me Linkedin",
+      "twitter": "Takiuru me Twitter"
+    },
+    "register": {
+      "header": "Takiuru",
+      "login": "Takiuru",
+      "lbl-signup": "Takiuru",
+      "lbl-password": "Kupuhipa",
+      "lbl-email": "Wāhitau īmēra",
+      "passwordNotMatch": "Kāore ngā kupuhipa i te Ōrite",
+      "ph-password": "Kupuhipa",
+      "ph-confirmPassword": "Whakaū Kupuhipa",
+      "ph-email": "Ī-mēra"
+    },
+    "resetPassword": {
+      "header": "Tautuhia anō te kupuhipa",
+      "description": "Tāurutia koa tō kupuhipa mō tō wāhitau īmēra",
+      "lbl-submit": "Tautuhia anō te kupuhipa",
+      "lbl-password": "Kupuhipa",
+      "lbl-confirmPassword": "Whakaū Kupuhipa",
+      "passwordNotMatch": "Kāore ngā kupuhipa i te Ōrite",
+      "nowLoginYourAccount": "Ka taea e koe ināianei te taki uru ki tō pūkete",
+      "yourPasswordResetSuccess": "I tutuki pai te tautuhi anō i tō kupuhipa!"
+    },
+    "verifyEmail": {
+      "header": "Manatoko Ī-mēra",
+      "processing": "Taihoa koa mō tētahi wā e tukatuka ana..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Ngā Tauwāhi",
+      "loading": "Kei te tāuta...",
+      "col-name": "Ingoa",
+      "col-scene": "Tirohanga",
+      "col-maxuser": "Ngā Kaiwhakamahi Mōrahi",
+      "lbl-search": "Rapua ngā tauwāhi",
+      "lbl-new": "Hōu"
+    },
+    "newLocation": {
+      "title": "Tauwāhi",
+      "success": "I momoho te tiaki.",
+      "failure": "Kua pā tētahi raru..",
+      "removeSuccess": "I momoho te tango i te tauwāhi.",
+      "nameInUse": "Kei te whakamahia te ingoa.",
+      "nameRequire": "E hiahiatia ana te ingoa.",
+      "validNumber": "Ko ngā tau anake(0-9) e whakaaetia ana.",
+      "lbl-name": "Ingoa",
+      "lbl-maxuser": "Ngā Kaiwhakamahi Mōrahi",
+      "lbl-scene": "Tirohanga",
+      "lbl-type": "Momo",
+      "lbl-ve": "Kua Whakahohea te ataata",
+      "lbl-gme": "Kua Whakahohea te Pāpāho Huri noa",
+      "lbl-update": "Whakahōu",
+      "lbl-create": "Waihanga",
+      "tooltipCanNotBeDeleted": "Kāore e taea te muku i te Lobby",
+      "confirmation": "Koina tō hiahia??",
+      "lbl-yes": "Āe",
+      "lbl-no": "Kāore"
+    },
+    "share": {
+      "lbl-share": "Tohaina",
+      "ph-phoneEmail": "Tono mā te īmēra, tau waea rānei",
+      "lbl-phoneEmail": "Tuku ki te īmēra, tau waea rānei",
+      "lbl-copy": "Tārua",
+      "lbl-send-invite": "Tuku Tono",
+      "title": "Tiria tō URL Tauwāhi ki tō tīma",
+      "linkCopied": "I tāruatia te hononga ki te papatopenga."
+    },
+    "setting": {
+      "audio": "Puoro & Oro...",
+      "lbl-volume": "Rōrahi",
+      "lbl-microphone": "Uruoro",
+      "graphics": "Whakanikoniko",
+      "controls": "Ngā Mana...",
+      "lbl-control-type": "Momo Pūmana",
+      "lbl-control-scheme": "Aronui Mana",
+      "lbl-resolution": "Taumira",
+      "lbl-shadow": "Ngā Kōruru",
+      "lbl-pp": "Tukatuka Poutāpeta",
+      "lbl-pbr": "PBR Katoa",
+      "lbl-automatic": "Aunoa",
+      "xrusersetting": "Ngā Tautuhinga Kaiwhakamahi XR",
+      "rotation": "Takahuringa",
+      "rotation-smooth-speed": "Tere Smooth Takahuri",
+      "rotation-angle": "Koki Takahuri",
+      "moving": "Nuku Ana",
+      "user-avatar": "Tautuhinga Avatar",
+      "invert-rotation": "Takahuringa Huri noa me te Nuku Rākau",
+      "show-avatar": "Whakaatu Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Pūkete",
+      "lbl-settings": "Ngā Tautuhinga",
+      "lbl-username": "Ingoa Kaiwhakamahi",
+      "update-msg": "Kua whakahōutia te ingoa kaiwhakamahi",
+      "inviteCode": "Tono Waehere",
+      "youAreAn": "He",
+      "youAreA": "He",
+      "showUserId": "Whakaatu TT Kaiwhakamahi",
+      "hideUserId": "Hunaia te TT Kaiwhakamahi",
+      "showApiKey": "Whakaaturia te pātuhi API",
+      "hideApiKey": "Hunaia te pātuhi API",
+      "apiKey": "pātuhi API",
+      "logout": "Taki puta",
+      "connectPhone": "Tūhonoa tō tau waea",
+      "connectEmail": "Tūhonoa tō īmēra",
+      "connectPhoneEmail": "Tūhonoa tō tau īmēra, tau waea rānei",
+      "or": "rānei",
+      "lbl-wallet": "Takiuru me Wallet",
+      "ph-email": "Ī-mēra",
+      "ph-phone": "Tau waea:",
+      "ph-phoneEmail": "Tau Waea / Ī-mēra",
+      "phoneEmailError": "Wāhitau waea muhu, wāhitau īmēra rānei",
+      "phoneError": "Waea muhu #",
+      "emailError": "Wāhitau īmēra muhu",
+      "loginWithReadyPlayerMe": "Takiuru me te Pūpāpāho Reri Me",
+      "connectSocial": "Tūhono ki ngā pūkete pāpori",
+      "createOne": "Mēnā kāore i a koe tētahi pūkete, ka waihangatia he mea hōu māu",
+      "connections": {
+        "title": "Ngā Tūhononga",
+        "ipError": "Kāore e taea te tango i te Kaituku Tuakiri hohe",
+        "disconnect": "Motukia",
+        "connect": "Hono"
+      },
+      "profileDropdown": {
+        "avatar": "Ata Avatar Kaiwhakamahi",
+        "profile": "Pūkete",
+        "adminConsole": "Papatohu Kaiwhakahaere",
+        "logout": "Takiputa"
+      },
+      "userIcon": {
+        "lbl-name": "Ko tō ingoa",
+        "lbl-update": "Whakahōu",
+        "userId": "Id kaiwhakamahi",
+        "ph-uploadImg": "Tukuatu Atahanga Hua",
+        "lbl-selectAcvatar": "Tīpako Avatar",
+        "lbl-submit": "Whakaurungia"
+      },
+      "userSettings": {
+        "volume": "Rōrahi",
+        "microphone": "Uruoro",
+        "resolution": "Taumira",
+        "high": "Tiketike",
+        "low": "Iti",
+        "spatialAudio": "Whakamahia te Ororongo Mokowā",
+        "enterMuted": "Tāuru Rūma Muted"
+      }
+    },
+    "oauth": {
+      "authenticating": "Whakamotuhēhē ana...",
+      "authFailed": "{{service}} rahua te motuhēhēnga."
+    },
+    "magikLink": {
+      "wait": "Taihoa koa mō tētahi wā e tukatuka ana..."
+    },
+    "dashboard": {
+      "header": "Papa Pīhono",
+      "dashboard": "Papa Pīhono",
+      "users": "Ngā Kaiwhakamahi",
+      "feeds": "Ngā Whāngai",
+      "instance": "Ōritetanga",
+      "locations": "Ngā Tauwāhi",
+      "invites": "Ngā Tono",
+      "sessions": "Ngā Wātū",
+      "groups": "Ngā Rōpū",
+      "parties": "Ngā Rōpū",
+      "chats": "Ngā Kōrerorero",
+      "content": "Ngā Pōkai Ihirangi",
+      "projects": "Ngā Kaupapa",
+      "scenes": "Ngā Tirohanga",
+      "avatars": "Avatars",
+      "benchmarking": "Waihanga papa",
+      "bots": "Ngā Momo"
+    }
+  },
+  "oauth": {
+    "authenticating": "Whakamotuhēhē ana...",
+    "authFailed": "{{service}} rahua te motuhēhēnga."
+  },
+  "magikLink": {
+    "wait": "Taihoa koa mō tētahi wā e tukatuka ana..."
+  },
+  "dashboard": {
+    "header": "Papa Pīhono",
+    "dashboard": "Papa Pīhono",
+    "users": "Ngā Kaiwhakamahi",
+    "feeds": "Ngā Whāngai",
+    "instance": "Ōritetanga",
+    "locations": "Ngā Tauwāhi",
+    "routes": "Ngā Ararere",
+    "projects": "Ngā Kaupapa",
+    "invites": "Ngā Tono",
+    "sessions": "Ngā Wātū",
+    "groups": "Ngā Rōpū",
+    "parties": "Ngā Rōpū",
+    "chats": "Ngā Kōrerorero",
+    "content": "Ngā Pōkai Ihirangi",
+    "scenes": "Ngā Tirohanga",
+    "avatars": "Avatars",
+    "benchmarking": "Waihanga papa",
+    "bots": "Ngā Momo",
+    "setting": "Ngā Tautuhinga"
+  },
+  "avatar": {
+    "title": "Tukuatu Avatar",
+    "lbl-browse": "Tirotiro",
+    "lbl-thumbnail": "Karakōnui",
+    "lbl-upload": "Tukuatu",
+    "selectAvatar": "Tīpako Avatar...",
+    "selectThumbnail": "Tīpako Karakōnui...",
+    "rotate": "Hurihia",
+    "pan": "Pan",
+    "noBone": "Kāore he wheua, kiri rānei kei roto i te obejct",
+    "outOfBound": "Kua pau te ahanoa i te herenga.",
+    "emptyObj": "Kei te putu te ahanoa.",
+    "maxTriangleError": "He nui ake i te {{allowedTriangles}} ngā kanohi kei roto i te ahanoa.",
+    "selectValidFile": "Tīpakohia te kōnae avatar 3d tika.",
+    "selectValidThumbnail": "Kua tīpakohia te kōnae Karakōnui whaimana.",
+    "fileOversized": "Me noho te rahi kōnae Avatar i waenga i te {{minSize}} MP me {{maxSize}} MP",
+    "confirmation": "Koina tō hiahia??",
+    "canNotBeRemoved": "Kāore e taea te Avatar Hohe te tango",
+    "remove": "Tangohia te maihao",
+    "uploadFiles": "Tukuatu ngā kōnae",
+    "useUrlInstead": "Whakamahia kētia te url",
+    "avatar": "Avatar",
+    "cancel": "Whakakore",
+    "createAvatar": "Waihanga Avatar",
+    "delete": "Whakakore",
+    "view": "Tiro",
+    "uploadAvatarInfo": "Whakahōu Mōhiohio avatar",
+    "name": "Ingoa",
+    "enterName": "Tāuru ingoa",
+    "avatarInformation": "Mōhiohio Avatar",
+    "description": "Whakamārama:",
+    "key": "Kī",
+    "none": "Kore",
+    "submit": "Whakaurungia",
+    "edit": "Whakatika",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "I tutuki pai te tukuatu a Avatar.",
+    "remove-success-msg": "I tutuki pai te tukuatu a Avatar.",
+    "warning-msg": "Kei te putu te rauemi Avatar, kua tukutahitia e koe ngā maihao ki tō rokiroki kōnae pateko?"
+  },
+  "personMenu": {
+    "inviteToParty": "Tono ki te Rōpū",
+    "addAsFriend": "Tāpiri Hei Hoa",
+    "mute": "Whakangū",
+    "block": "Paraka"
+  },
+  "person": {
+    "you": "Koe",
+    "yourScreen": "Tō Mata",
+    "muteForEveryone": "Whakangū mō te katoa",
+    "unmuteForEveryone": "Kāore e taea te tango mō te katoa",
+    "muteMe": "Whakangū mai",
+    "unmuteMe": "Tangohia ahau",
+    "muteThisPerson": "Whakangūtia tēnei tangata",
+    "unmuteThisPerson": "Wetemunatia tēnei tangata",
+    "openPictureInPicture": "Whakatuwhera Pikitia i te Pikitia"
+  }
+}

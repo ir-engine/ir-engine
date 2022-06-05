@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Laai bladsy..."
+  },
+  "tooltip": {
+    "pressKey": "Druk {{tip}} om te {{message}}"
+  },
+  "toast": {
+    "joined": "Aangesluit",
+    "left": "Links"
+  },
+  "navUserWidget": {
+    "login": "Teken aan"
+  },
+  "loader": {
+    "connecting": "Verbind met die wêreld...",
+    "entering": "Betree die wêreld...",
+    "loading": "Laai tans...",
+    "objectRemaining": "{{count}} voorwerp oor",
+    "objectRemainingPlural": "{{count}} voorwerpe oor",
+    "loadingObjects": "Laai voorwerpe",
+    "loadingComplete": "Laai voltooi",
+    "joiningWorld": "Sluit aan by die wêreld"
+  },
+  "alert": {
+    "eventWasSuccess": "Die gebeurtenis was suksesvol",
+    "errorWasEncountered": "'n Fout is teëgekom",
+    "eventInProgress": "Gebeurtenis aan die gang",
+    "seconds": "Sekondes",
+    "cancelCountdown": "Die sluiting van hierdie modale sal die aftelling kanselleer"
+  },
+  "debug": {
+    "refresh": "Verfris",
+    "stats": "Statistieke",
+    "debugOptions": "Ontfoutingsopsies",
+    "physicsDebug": "Fisika",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Nodus Helper",
+    "gridDebug": "Rooster",
+    "simpleMaterials": "Eenvoudige materiale",
+    "tick": "Merk",
+    "worldStore": "Wêreld winkel",
+    "engineStore": "Enjin Winkel",
+    "namedEntities": "Genoemde entiteite",
+    "networkObject": "Netwerkobjek",
+    "networkClients": "Netwerkkliënte"
+  },
+  "recording": {
+    "videoRecorder": "Video-opnemer",
+    "waitingForPermissions": "Wag vir toestemmings",
+    "selectVideoSource": "Kies videobron",
+    "screen": "Skerm",
+    "camera": "Kamera",
+    "microphone": "Mikrofoon",
+    "startRecording": "Begin opname",
+    "pauseRecording": "Pouseer opname",
+    "resumeRecording": "Hervat opname",
+    "stopRecording": "Hou op om op te neem"
+  },
+  "typing": "Tik...",
+  "gameServer": {
+    "browserError": "Blaaierfout",
+    "browserErrorMessage": "Jou blaaier ondersteun nie berging in privaat blaaimodus nie. Probeer óf 'n ander blaaier, of verlaat privaat blaaimodus.",
+    "noAvailableServers": "Geen beskikbare bedieners nie",
+    "noAvailableServersMessage": "Daar is geen bedieners beskikbaar vir jou om aan te koppel nie. Probeer om weer aan te sluit in",
+    "worldDisconnected": "Wêreld ontkoppel",
+    "worldDisconnectedMessage": "Jy verloor jou verhouding met die wêreld. Ons sal probeer om weer aan te sluit voordat die volgende tyd opraak, anders sal u na 'n ander geval gestuur word.",
+    "webGLNotEnabled": "WebGL nie geaktiveer nie",
+    "webGLNotEnabledMessage": "Jou blaaier ondersteun nie WebGL nie, of dit is gedeaktiveer. Aktiveer asseblief WebGL of oorweeg dit om op te gradeer na die nuutste weergawe van jou blaaier.",
+    "youKickedFromWorld": "Jy is uit die wêreld geskop",
+    "youKickedFromWorldMessage": "Jy is om die volgende rede uit hierdie wêreld geskop",
+    "invalidLocation": "Ongeldige ligging",
+    "cantFindLocation": "Ons kan nie die ligging vind nie",
+    "misspelledOrNotExist": "Dit kan verkeerd gespel word, of dit mag nie bestaan nie.",
+    "loading": "Laai tans",
+    "low-frame-error": "Bespeur 'n swak perfomance oorweeg dit om Gebruik Hardeware versnelling in jou blaaier te aktiveer en jou blaaier te herwin",
+    "low-frame-title": "Aktiveer hardewareversnelling vir beter ervaring!"
+  },
+  "error": {
+    "loading-error": "Kon nie gebruikersdata laai nie",
+    "validation-error": "Tik asseblief geldige {{type}} in",
+    "login-error": "Kon nie aanteken nie"
+  }
+}

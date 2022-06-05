@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "የመጫን ገጽ ..."
+  },
+  "tooltip": {
+    "pressKey": "ወደ {{message}} {{tip}} ይጫኑ"
+  },
+  "toast": {
+    "joined": "ይቀላቀሉ",
+    "left": "ግራ"
+  },
+  "navUserWidget": {
+    "login": "በመለያ ግባ"
+  },
+  "loader": {
+    "connecting": "ከአለም ጋር መገናኘት ...",
+    "entering": "ዓለም መግባት...",
+    "loading": "መጫን ...",
+    "objectRemaining": "{{count}} ነገር ቀረ",
+    "objectRemainingPlural": "{{count}} የቀሩ ዕቃዎች",
+    "loadingObjects": "ዕቃዎችን መጫን",
+    "loadingComplete": "ጭኖ ሙሉ በሙሉ",
+    "joiningWorld": "ዓለምን መቀላቀል"
+  },
+  "alert": {
+    "eventWasSuccess": "ክንውን ተሳክቶለት ነበር",
+    "errorWasEncountered": "አንድ ስሕተት ገጠመው",
+    "eventInProgress": "በዝግጅት ላይ ያለው ክንውን",
+    "seconds": "ሰከንዶች",
+    "cancelCountdown": "ይህን ሞዳል መዝጋት ቆጠራውን ይሰርዛል"
+  },
+  "debug": {
+    "refresh": "እረፍት",
+    "stats": "ስታት",
+    "debugOptions": "ዴቡግ ምርጫዎች",
+    "physicsDebug": "ፊዚክስ",
+    "avatarDebug": "አቫታር",
+    "nodeHelperDebug": "ኖድ ረዳ",
+    "gridDebug": "የመስመር ላይ",
+    "simpleMaterials": "ቀላል ማቴሪያሎች",
+    "tick": "መዥገሮች",
+    "worldStore": "የዓለም መደብር",
+    "engineStore": "ሞተር መደብር",
+    "namedEntities": "የተሰየሙ አካላት",
+    "networkObject": "የአውታረ መረብ አውታረ መረብ",
+    "networkClients": "የበይነመረብ ደንበኞች"
+  },
+  "recording": {
+    "videoRecorder": "የቪዲዮ መቀረጫ",
+    "waitingForPermissions": "ፍቃድ መጠበቅ",
+    "selectVideoSource": "የቪዲዮ ምንጭ ይምረጡ",
+    "screen": "ስክሪን",
+    "camera": "ካሜራ",
+    "microphone": "ማይክሮፎን",
+    "startRecording": "መቅዳት ጀምር",
+    "pauseRecording": "የመቅዳት አቆም",
+    "resumeRecording": "የመቅዳት ሥራ ንቅሳቱን ቀጥል",
+    "stopRecording": "መቅረጽ አቁሙ"
+  },
+  "typing": "የጽሁፍ...",
+  "gameServer": {
+    "browserError": "የድር ማሰሻ ስህተት",
+    "browserErrorMessage": "የእርስዎ ማሰሻ በግል የመቃኘት ዘዴ ውስጥ ማከማቻን አይደግፍም. ወይ ሌላ መቃኛ ይሞክሩ, ወይም የግል የመቃኘት ዘዴ ይውጡ.",
+    "noAvailableServers": "አልተገኘም Servers",
+    "noAvailableServersMessage": "እርስዎ ለመገናኘት የሚያስችል ምንም ሰርቨሮች የሉም. እንደገና ለመገናኘት መሞከር",
+    "worldDisconnected": "ዓለም ተቋረጠ",
+    "worldDisconnectedMessage": "ከዓለም ጋር ያለህን ግንኙነት አጥተሃል። የሚቀጥለው ጊዜ ከማለቁ በፊት እንደገና ለመገናኘት እንሞክራለን፤ አለዚያ ወደ ሌላ አጋጣሚ ትላካላችሁ።",
+    "webGLNotEnabled": "ዌብጂል አልተቻለም",
+    "webGLNotEnabledMessage": "የእርስዎ ማሰሻ WebGL አይደግፍም, ወይም የአካል ጉዳተኛ ነው. እባክዎ WebGL ን ያስችሉ ወይም ወደ የቅርብ ስሪት የእርስዎ የድር መተግበሪያ አሻሽል ያስቡ.",
+    "youKickedFromWorld": "ከአለም ተምረሃል",
+    "youKickedFromWorldMessage": "ከዚህ አለም የተረገጣችሁት በሚከተለው ምክንያት ነው",
+    "invalidLocation": "የማይረባ ቦታ",
+    "cantFindLocation": "ቦታውን ማግኘት አንችልም",
+    "misspelledOrNotExist": "በስህተት ሊጻፍ ወይም ላይኖር ይችላል ።",
+    "loading": "መጫን",
+    "low-frame-error": "የተሳሳተ ፐርፎማንስ በመረመሪያህ ውስጥ የሃርድዌር ፍጥነትን ለመጠቀም እና መቃኛችሁን ለመመለስ አስበዋል",
+    "low-frame-title": "የተሻለ ልምድ ለማግኘት የሃርድዌር ፍጥነት ያስችሉ!"
+  },
+  "error": {
+    "loading-error": "የተጠቃሚ መረጃ መጫን አልተቻለም",
+    "validation-error": "እባክዎ ትክክለኛ {{type}} ያስገቡ",
+    "login-error": "መግባት አልተቻለም"
+  }
+}

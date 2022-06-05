@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Bevestiging e-pos",
+      "resendEmail": "Gaan asseblief jou e-pos na om jou rekening te verifieer. As jy nie 'n e-pos gekry het nie, klik asseblief {{here}} om die verifikasie-e-pos te stuur.",
+      "haveAnAccount": "Het jy 'n rekening?"
+    },
+    "forgotPassword": {
+      "header": "Wagwoord vergeet",
+      "enterEmail": "Voer asseblief jou geregistreerde e-posadres in en ons sal vir jou 'n wagwoordterugstelskakel stuur.",
+      "lbl-email": "E-posadres",
+      "lbl-submit": "Stuur Skakel",
+      "emailSent": "Stel wagwoord-e-pos terug is gestuur. Gaan asseblief jou e-pos na."
+    },
+    "login": {
+      "email": "E-pos | SMS",
+      "username": "UserName + Wagwoord",
+      "social": "Sosiale"
+    },
+    "magiklink": {
+      "header": "Teken skakel aan",
+      "descriptionEmail": "Voer asseblief u e-posadres in en ons sal u 'n aanmeldskakel per e-pos stuur.",
+      "descriptionSMS": "Tik asseblief jou telefoonnommer in en ons sal vir jou 'n aanmeldskakel per SMS stuur.",
+      "descriptionEmailSMS": "Voer asseblief jou e-posadres of telefoonnommer in (slegs 10 syfer, VSA) en ons sal vir jou 'n aanmeldskakel per e-pos of SMS stuur.",
+      "descriptionSMSUS": "Voer asseblief u telefoonnommer in (slegs 10 syfer, VSA) en ons sal u 'n aanmeldskakel per SMS stuur.",
+      "lbl-email": "E-posadres",
+      "lbl-emailPhone": "E-pos of telefoonnommer",
+      "lbl-phone": "Telefoonnommer",
+      "agree": "Ek stem saam met die ",
+      "terms": "Bepalings en voorwaardes",
+      "lbl-submit": "Stuur aanmeldskakel",
+      "email-sent-msg": "Login Magic Link is gestuur. Gaan asseblief jou e-pos na.",
+      "success-msg": "Login Magic Link is gestuur. Gaan asseblief jou e-pos of SMS na.",
+      "sms-sent-msg": "Login Magic Link is gestuur. Gaan asseblief jou SMS na."
+    },
+    "passwordLogin": {
+      "header": "Teken aan",
+      "lbl-email": "E-posadres",
+      "lbl-password": "Wagwoord",
+      "lbl-rememberMe": "Onthou my",
+      "lbl-signin": "Teken aan",
+      "forgotPassword": "Wagwoord vergeet?",
+      "signup": "Het jy nie 'n rekening nie? Teken in",
+      "lbl-login": "Teken aan",
+      "ph-password": "Wagwoord",
+      "ph-email": "E-pos"
+    },
+    "social": {
+      "gitHub": "Teken in met GitHub",
+      "google": "Teken in met Google",
+      "facebook": "Teken in met Facebook",
+      "linkedin": "Teken in met Linkedin",
+      "twitter": "Teken in op Twitter"
+    },
+    "register": {
+      "header": "Teken in",
+      "login": "Teken aan",
+      "lbl-signup": "Teken in",
+      "lbl-password": "Wagwoord",
+      "lbl-email": "E-posadres",
+      "passwordNotMatch": "Wagwoorde stem nie ooreen nie",
+      "ph-password": "Wagwoord",
+      "ph-confirmPassword": "Wagwoord bevestig",
+      "ph-email": "E-pos"
+    },
+    "resetPassword": {
+      "header": "Stel wagwoord terug",
+      "description": "Tik asseblief jou wagwoord vir jou e-posadres in",
+      "lbl-submit": "Stel wagwoord terug",
+      "lbl-password": "Wagwoord",
+      "lbl-confirmPassword": "Wagwoord bevestig",
+      "passwordNotMatch": "Wagwoorde stem nie ooreen nie",
+      "nowLoginYourAccount": "Jy kan nou by jou rekening aanmeld",
+      "yourPasswordResetSuccess": "Jou wagwoord is suksesvol teruggestel!"
+    },
+    "verifyEmail": {
+      "header": "Verifieer e-pos",
+      "processing": "Wag asseblief 'n oomblik terwyl u dit verwerk ..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Plekke",
+      "loading": "Laai tans",
+      "col-name": "Naam",
+      "col-scene": "Toneel",
+      "col-maxuser": "Max-gebruikers",
+      "lbl-search": "Soek na liggings",
+      "lbl-new": "Nuwe"
+    },
+    "newLocation": {
+      "title": "Ligging",
+      "success": "Suksesvol gestoor.",
+      "failure": "Iets het verkeerd gegaan.",
+      "removeSuccess": "Ligging suksesvol verwyder.",
+      "nameInUse": "Die naam is in gebruik.",
+      "nameRequire": "Naam is nodig.",
+      "validNumber": "Slegs getalle (0-9) word toegelaat.",
+      "lbl-name": "Naam",
+      "lbl-maxuser": "Max-gebruikers",
+      "lbl-scene": "Toneel",
+      "lbl-type": "Tik",
+      "lbl-ve": "Video geaktiveer",
+      "lbl-gme": "Globale media geaktiveer",
+      "lbl-update": "Bywerking",
+      "lbl-create": "Skep",
+      "tooltipCanNotBeDeleted": "Lobby kan nie geskrap word nie",
+      "confirmation": "Is jy seker?",
+      "lbl-yes": "Ja",
+      "lbl-no": "Nee"
+    },
+    "share": {
+      "lbl-share": "Deel",
+      "ph-phoneEmail": "Nooi per e-pos of telefoonnommer",
+      "lbl-phoneEmail": "Stuur na e-pos of telefoonnommer",
+      "lbl-copy": "Kopieer",
+      "lbl-send-invite": "Stuur Uitnodiging",
+      "title": "Deel jou Ligging-URL met jou span",
+      "linkCopied": "Skakel gekopieer na knipbord."
+    },
+    "setting": {
+      "audio": "Oudio",
+      "lbl-volume": "Volume",
+      "lbl-microphone": "Mikrofoon",
+      "graphics": "Grafiese",
+      "controls": "Kontroles",
+      "lbl-control-type": "Kontroleerder Tipe",
+      "lbl-control-scheme": "Beheer skema",
+      "lbl-resolution": "Resolusie",
+      "lbl-shadow": "Skadu",
+      "lbl-pp": "Posverwerking",
+      "lbl-pbr": "Volle PBR",
+      "lbl-automatic": "Outomatiese",
+      "xrusersetting": "XR-gebruikersinstellings",
+      "rotation": "Rotasie",
+      "rotation-smooth-speed": "Rotasie Gladde Spoed",
+      "rotation-angle": "Rotasie Hoek",
+      "moving": "Beweeg",
+      "user-avatar": "Avatar-instelling",
+      "invert-rotation": "Keer rotasie om en beweeg stokke",
+      "show-avatar": "Wys Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Profiel",
+      "lbl-settings": "Instellings",
+      "lbl-username": "Gebruikersnaam",
+      "update-msg": "Gebruikersnaam opgedateer",
+      "inviteCode": "Nooi Kode uit",
+      "youAreAn": "Jy is 'n",
+      "youAreA": "Jy is 'n",
+      "showUserId": "Wys gebruiker-ID",
+      "hideUserId": "Versteek gebruiker-ID",
+      "showApiKey": "Wys API-sleutel",
+      "hideApiKey": "Versteek API-sleutel",
+      "apiKey": "API-sleutel",
+      "logout": "Teken uit",
+      "connectPhone": "Koppel jou telefoonnommer",
+      "connectEmail": "Koppel jou e-pos",
+      "connectPhoneEmail": "Koppel jou e-pos of telefoonnommer",
+      "or": "Of",
+      "lbl-wallet": "Teken aan met Wallet",
+      "ph-email": "E-pos",
+      "ph-phone": "Telefoonnommer",
+      "ph-phoneEmail": "Telefoonnommer / E-pos",
+      "phoneEmailError": "Ongeldige foon # of e-posadres",
+      "phoneError": "Ongeldige foon #",
+      "emailError": "Ongeldige e-posadres",
+      "loginWithReadyPlayerMe": "Teken in met Gereed Speler My",
+      "connectSocial": "Verbind met sosiale rekeninge",
+      "createOne": "As jy nie 'n rekening het nie, sal 'n nuwe een vir jou geskep word",
+      "connections": {
+        "title": "Verbindings",
+        "ipError": "Kan nie aktiewe identiteitsverskaffer verwyder nie",
+        "disconnect": "Ontkoppel",
+        "connect": "Koppel"
+      },
+      "profileDropdown": {
+        "avatar": "Gebruiker Avatar Ikoon",
+        "profile": "Profiel",
+        "adminConsole": "Admin Console",
+        "logout": "Logout"
+      },
+      "userIcon": {
+        "lbl-name": "Jou naam",
+        "lbl-update": "Bywerking",
+        "userId": "Gebruiker-ID",
+        "ph-uploadImg": "Laai produkbeeld op",
+        "lbl-selectAcvatar": "Kies Avatar",
+        "lbl-submit": "Dien in"
+      },
+      "userSettings": {
+        "volume": "Volume",
+        "microphone": "Mikrofoon",
+        "resolution": "Resolusie",
+        "high": "Hoë",
+        "low": "Lae",
+        "spatialAudio": "Gebruik ruimtelike oudio",
+        "enterMuted": "Tik kamer gedemp"
+      }
+    },
+    "oauth": {
+      "authenticating": "Outentisering...",
+      "authFailed": "{{service}} waarmerking het misluk."
+    },
+    "magikLink": {
+      "wait": "Wag asseblief 'n oomblik terwyl u dit verwerk ..."
+    },
+    "dashboard": {
+      "header": "Paneelbord",
+      "dashboard": "Paneelbord",
+      "users": "Gebruikers",
+      "feeds": "Toevoere",
+      "instance": "Geval",
+      "locations": "Plekke",
+      "invites": "Nooi",
+      "sessions": "Sessies",
+      "groups": "Groepe",
+      "parties": "Partye",
+      "chats": "Geselsies",
+      "content": "Inhoud pakke",
+      "projects": "Projekte",
+      "scenes": "Tonele",
+      "avatars": "Avatars",
+      "benchmarking": "Prestasiemeting",
+      "bots": "Bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Outentisering...",
+    "authFailed": "{{service}} waarmerking het misluk."
+  },
+  "magikLink": {
+    "wait": "Wag asseblief 'n oomblik terwyl u dit verwerk ..."
+  },
+  "dashboard": {
+    "header": "Paneelbord",
+    "dashboard": "Paneelbord",
+    "users": "Gebruikers",
+    "feeds": "Toevoere",
+    "instance": "Geval",
+    "locations": "Plekke",
+    "routes": "Roetes",
+    "projects": "Projekte",
+    "invites": "Nooi",
+    "sessions": "Sessies",
+    "groups": "Groepe",
+    "parties": "Partye",
+    "chats": "Geselsies",
+    "content": "Inhoud pakke",
+    "scenes": "Tonele",
+    "avatars": "Avatars",
+    "benchmarking": "Prestasiemeting",
+    "bots": "Bots",
+    "setting": "Instellings"
+  },
+  "avatar": {
+    "title": "Laai Avatar op",
+    "lbl-browse": "Blaai",
+    "lbl-thumbnail": "Posseëlprentjie",
+    "lbl-upload": "Oplaai",
+    "selectAvatar": "Kies Avatar...",
+    "selectThumbnail": "Kies Duimnael...",
+    "rotate": "Roteer",
+    "pan": "Pan",
+    "noBone": "Obejct bevat geen bene of vel nie",
+    "outOfBound": "Objek is buite gebind.",
+    "emptyObj": "Die objek is leeg.",
+    "maxTriangleError": "Voorwerp bevat groter as {{allowedTriangles}} gesigte.",
+    "selectValidFile": "Kies geldige 3d avatar lêer.",
+    "selectValidThumbnail": "Geselekteerde geldige Duimnaellêer.",
+    "fileOversized": "Avatar lêer grootte moet wees tussen {{minSize}} MB en {{maxSize}} MB",
+    "confirmation": "Is jy seker?",
+    "canNotBeRemoved": "Aktiewe Avatar kan nie verwyder word nie",
+    "remove": "Verwyder avatar",
+    "uploadFiles": "Laai lêers op",
+    "useUrlInstead": "Gebruik eerder url",
+    "avatar": "Avatar",
+    "cancel": "Kanselleer",
+    "createAvatar": "Skep Avatar",
+    "delete": "Skrap",
+    "view": "Bekyk",
+    "uploadAvatarInfo": "Werk avatar-inligting by",
+    "name": "Naam",
+    "enterName": "Tik naam in",
+    "avatarInformation": "Avatar-inligting",
+    "description": "Beskrywing",
+    "key": "Sleutel",
+    "none": "Geen",
+    "submit": "Dien in",
+    "edit": "Redigeer",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "Avatar suksesvol opgelaai.",
+    "remove-success-msg": "Avatar suksesvol opgelaai.",
+    "warning-msg": "Avatar hulpbron is leeg, het jy avatars gesinkroniseer na jou statiese lêer stoor?"
+  },
+  "personMenu": {
+    "inviteToParty": "Nooi na partytjie",
+    "addAsFriend": "Voeg by as vriend",
+    "mute": "Demp",
+    "block": "Blokkeer"
+  },
+  "person": {
+    "you": "Jy",
+    "yourScreen": "Jou skerm",
+    "muteForEveryone": "Stom vir almal",
+    "unmuteForEveryone": "Onbeskadig vir almal",
+    "muteMe": "Demp my",
+    "unmuteMe": "Ontmut my",
+    "muteThisPerson": "Demp hierdie persoon",
+    "unmuteThisPerson": "Ontwortel hierdie persoon",
+    "openPictureInPicture": "Maak prent in prent oop"
+  }
+}

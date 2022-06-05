@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Hindi Natagpuan ang Pahina"
+  },
+  "503": {
+    "msg": "503 - Serbisyo hindi magagamit"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Ikaw ay pinagbawalan mula sa lokasyong ito",
+    "locationName": {
+      "pageTitle": "Tahanan"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Mga Proyekto",
+      "header": "Mag-login lamang",
+      "welcomeMsg": "Maligayang pagdating",
+      "locationHeader": "Mga Lokasyon",
+      "projectHeader": "Mga Proyekto",
+      "sceneHeader": "Mga Tagpo",
+      "description": "Kung ikaw ay bagong dito inirerekomenda naming pumunta sa pamamagitan ng tutorial. Kung hindi, tumalon sa kanan at lumikha ng isang proyekto mula sa scratch o mula sa isa sa aming mga template.",
+      "lbl-startTutorial": "Simulan ang Tutorial",
+      "lbl-newProject": "Bagong Proyekto",
+      "lbl-createProject": "Lumikha",
+      "lbl-newScene": "Bagong Tagpo",
+      "lbl-searchProject": "Magsaliksik ng umiiral na mga Proyekto...",
+      "back": "Bumalik",
+      "contextMenu": "Magtanggal ng Proyekto",
+      "installed": "Nakainstalang mga Proyekto",
+      "official": "Opisyal na Proyekto",
+      "community": "Mga Proyekto ng Komunidad",
+      "install": "Mag-instala",
+      "uninstall": "Magtanggal-instala",
+      "rename": "Magpalit ng pangalan",
+      "createProject": "Lumikha ng Proyekto",
+      "installProject": "Mag-instala ng Proyekto",
+      "processing": "Pagpoproseso",
+      "projectName": "Pangalan ng Proyekto",
+      "projectURL": "Proyekto URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Umuwi",
+    "withStatusCode": "Isang mali {{code}} nangyari sa server",
+    "withoutStatusCode": "Isang mali ang naganap sa server"
+  },
+  "no-projects": {
+    "msg": "Error: Walang mga Proyektong Naka-install - mangyaring makipag-ugnayan sa isang site admin"
+  },
+  "dev": {
+    "pageTitle": "Tahanan"
+  },
+  "login": {
+    "pageTitle": "Mag-login"
+  },
+  "workerTest": {
+    "pageTitle": "Pagsubok ng Manggagawa"
+  },
+  "index": {
+    "by": "SA PAMAMAGITAN NG",
+    "xr": "XR",
+    "foundation": "Pundasyon",
+    "description": "Realtime 3D social application para sa lahat upang tamasahin."
+  },
+  "xrengineContact": {
+    "header": "Kumuha ng Touch!",
+    "description": "Gustung-gusto naming tulungan ka sa iyong mga virtual na kaganapan, digital retail, libangan at iba pang mga pangangailangan.",
+    "lbl-name": "Pangalan",
+    "lbl-email": "Email",
+    "lbl-company": "Kumpanya",
+    "lbl-project": "Ilarawan ang iyong Proyekto",
+    "lbl-send": "Ipadala",
+    "lbl-ok": "Okey lang",
+    "lbl-success": "Mensaheng Ipinadala, Babalik kami sa iyo kaagad.",
+    "lbl-failure": "Isang mali ang naganap, Plese subukang muli",
+    "err-username": "Pakipasok ka ng pangalan mo.",
+    "err-email": "Kailangan ang email.",
+    "err-msg": "Magbigay ng ilang maikling paglalarawan ng iyong proyekto."
+  }
+}

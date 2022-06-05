@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "بارکردنی لاپەڕە..."
+  },
+  "tooltip": {
+    "pressKey": "فشار خستنە سەر {{tip}} بۆ {{message}}"
+  },
+  "toast": {
+    "joined": "چووە پاڵ",
+    "left": "چەپ"
+  },
+  "navUserWidget": {
+    "login": "چوونەژوورەوە"
+  },
+  "loader": {
+    "connecting": "پەیوەندی کردن بە جیهانەوە",
+    "entering": "چوونە ناو جیهانەوە",
+    "loading": "بارکردن...",
+    "objectRemaining": "ئۆبجێکتی {{count}} ماوە",
+    "objectRemainingPlural": "ئۆبجێکتەکانی {{count}} ماون",
+    "loadingObjects": "بارکردنی ئۆبجێکتەکان",
+    "loadingComplete": "بارکردنی تەواو",
+    "joiningWorld": "چوونە پاڵ جیهان"
+  },
+  "alert": {
+    "eventWasSuccess": "ڕووداو سەرکەوتوو بوو",
+    "errorWasEncountered": "هەڵەیەک ڕوویدا",
+    "eventInProgress": "ڕووداو لە پەرەسەندندایە",
+    "seconds": "چرکە",
+    "cancelCountdown": "داخستنی ئەم مۆدالە ژماردنەکە هەڵدەوەشێنێتەوە"
+  },
+  "debug": {
+    "refresh": "نوێکردنەوە",
+    "stats": "ئامارەکان",
+    "debugOptions": "ئۆپشنەکانی لادان",
+    "physicsDebug": "فیزیا",
+    "avatarDebug": "ئاڤاتار",
+    "nodeHelperDebug": "یارمەتیدەری گرێ",
+    "gridDebug": "هێڵە شەترەنجییەکان",
+    "simpleMaterials": "کەرەستە سادەکان",
+    "tick": "تیک",
+    "worldStore": "فرۆشگای جیهانی",
+    "engineStore": "کۆگای مەکینە",
+    "namedEntities": "قەوارە ناونراوەکان",
+    "networkObject": "ئامانجی تۆڕ",
+    "networkClients": "کڕیارەکانی تۆڕ"
+  },
+  "recording": {
+    "videoRecorder": "تۆمارکەری ڤیدیۆ",
+    "waitingForPermissions": "چاوەڕوانی مۆڵەتەکان",
+    "selectVideoSource": "سەرچاوەی ڤیدیۆ دیاریبکە",
+    "screen": "شاشە",
+    "camera": "کامێرا",
+    "microphone": "مایکرۆفۆن",
+    "startRecording": "دەست بکە بە تۆمارکردن",
+    "pauseRecording": "وەستاندنی تۆمارکردن",
+    "resumeRecording": "دەستکردن بە تۆمارکردن",
+    "stopRecording": "وەستاندنی تۆمارکردن"
+  },
+  "typing": "نووسین...",
+  "gameServer": {
+    "browserError": "هەڵەی وێبگەڕ",
+    "browserErrorMessage": "وێبگەڕەکەت پشتگیری خەزنکردن ناکات لە دۆخی گەڕانی تایبەت. یان وێبگەڕێکی تر تاقی بکەوە، یان لە دۆخی گەڕانی تایبەت دەربچن.",
+    "noAvailableServers": "هیچ خزمەتکارێکی بەردەست نیە",
+    "noAvailableServersMessage": "هیچ سێرڤەرێک بەردەست نیە بۆ تۆ بۆ پەیوەندی کردن بە. هەوڵدان بۆ دووبارە گرێدانەوە لە",
+    "worldDisconnected": "جیهان پچڕا",
+    "worldDisconnectedMessage": "تۆ پەیوەندیت بە جیهانەوە لە دەست داوە ئێمە هەوڵ دەدەین دووبارە پەیوەندی بکەین پێش ئەوەی کاتێکی داهاتوو تەواو بێت، ئەگەرنا تۆ دەنێریتەوە بۆ نموونەیەکی جیاواز.",
+    "webGLNotEnabled": "WebGL چالاک نەکراوە",
+    "webGLNotEnabledMessage": "وێبگەڕەکەت پشتگیری WebGL ناکات، یان ناچالاک کراوە. تکایە WebGL چالاک بکە یان ڕەچاوی بەرزکردنەوە بکە بۆ نوێترین وەشانی وێبگەڕەکەت.",
+    "youKickedFromWorld": "لە جیهانەوە لێت دراوە",
+    "youKickedFromWorldMessage": "لەبەر ئەم هۆکارەی خوارەوە لەم جیهانەوە لێت درا",
+    "invalidLocation": "شوێنی نادروست",
+    "cantFindLocation": "ناتوانین شوێنەکە بدۆزینەوە",
+    "misspelledOrNotExist": "لەوانەیە بە هەڵە دەربچێت، یان لەوانەیە بوونی نەبێت.",
+    "loading": "بارکردن",
+    "low-frame-error": "دۆزینەوەی کەم بوونەوەیەکی کەم ڕەچاوکردنی بەتواناکردنی بەکارهێنانی خێراکردنی هاردوێر لە وێبگەڕەکەتدا و گەڕۆکەکەت پەشیمان بکەرەوە",
+    "low-frame-title": "چالاککردنی خێراکردنی هاردوێر بۆ ئەزموونی باشتر!"
+  },
+  "error": {
+    "loading-error": "لە بارکردنی داتای بەکارهێنەر سەرکەوتوو نەبوو",
+    "validation-error": "تکایە {{type}} بڕوادار تێبنووسە",
+    "login-error": "سەرکەوتوو نەبوو لە چوونەژوورەوە"
+  }
+}

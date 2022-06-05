@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Maka ny pejy..."
+  },
+  "tooltip": {
+    "pressKey": "Tsindrio ny {{tip}} {{message}}"
+  },
+  "toast": {
+    "joined": "nanatevin-daharana",
+    "left": "ankavia"
+  },
+  "navUserWidget": {
+    "login": "Hiditra"
+  },
+  "loader": {
+    "connecting": "Mifandray amin'izao tontolo izao...",
+    "entering": "Miditra eto amin'izao tontolo izao...",
+    "loading": "Maka...",
+    "objectRemaining": "Zavatra {{count}} sisa tavela.",
+    "objectRemainingPlural": "Zavatra {{count}} sisa tavela",
+    "loadingObjects": "Maka zavatra",
+    "loadingComplete": "Maka ny fahafenoana",
+    "joiningWorld": "Niditra teto amin'izao tontolo izao"
+  },
+  "alert": {
+    "eventWasSuccess": "Nahomby ny zava - nitranga",
+    "errorWasEncountered": "Nisy olana nafatotra",
+    "eventInProgress": "Zava-mitranga eo an-dalarana",
+    "seconds": "segaondra",
+    "cancelCountdown": "Hanafoana ny fanisana ny fanakatonana ity modal ity"
+  },
+  "debug": {
+    "refresh": "Mamelombelona",
+    "stats": "Antontan'isa",
+    "debugOptions": "Safidin'ny debug",
+    "physicsDebug": "Fizika",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Node Helper",
+    "gridDebug": "Grid",
+    "simpleMaterials": "Fitaovana Tsotra",
+    "tick": "Tick",
+    "worldStore": "Trano Fivarotan'izao Tontolo",
+    "engineStore": "Engine Store",
+    "namedEntities": "Anaran'ireo zavatra ilaina",
+    "networkObject": "Zavatra rezo",
+    "networkClients": "Mpivandry rezo"
+  },
+  "recording": {
+    "videoRecorder": "Fandraketana horonan-tsary",
+    "waitingForPermissions": "Miandry fahazoan-dalana",
+    "selectVideoSource": "Misafidiana loharanon-tsary",
+    "screen": "Efijery",
+    "camera": "Fakantsary",
+    "microphone": "Mikrôfônina",
+    "startRecording": "Atomboy ny fandraisam-peo",
+    "pauseRecording": "Fiatoana kely ny fandraisam-peo",
+    "resumeRecording": "Atovoy ny fandraisam-peo",
+    "stopRecording": "Atsaharo ny fandraisam-peo"
+  },
+  "typing": "Manoratra...",
+  "gameServer": {
+    "browserError": "Tsy fetezana teo amin'ny mpitety",
+    "browserErrorMessage": "Tsy manohana ny fitehirizana amin'ny fomba fiteteziana manokana ny navigateur ampiasainao. Na manandrana mpitety iray hafa, na miala amin'ny fomba fizahana manokana.",
+    "noAvailableServers": "Tsy misy mpizara misy",
+    "noAvailableServersMessage": "Tsy misy lohamilina azonao ifandraisana. Manandrana mamerina mifandray indray",
+    "worldDisconnected": "Tsy mifandray lavitra izao tontolo izao",
+    "worldDisconnectedMessage": "Very ny fifandraisanao amin'izao tontolo izao. Hiezaka ny hifandray indray izahay alohan'ny hivoahan'ny fotoana manaraka, raha tsy izany dia halefa amin'ny tranga hafa ianao.",
+    "webGLNotEnabled": "Tsy alefa ny tranonkala",
+    "webGLNotEnabledMessage": "Tsy mandray an-tànana ny WebGL ny navigateur ampiasainao, na misy kilemaina. Alefaso ny WebGL na diniho ny hohatsaraina amin'ny endrika farany amin'ny navigateur ampiasainao.",
+    "youKickedFromWorld": "Voaroaka avy amin'izao tontolo izao ianao",
+    "youKickedFromWorldMessage": "Voaroaka teto amin'ity izao tontolo izao ity ianao noho ity antony manaraka ity",
+    "invalidLocation": "Toerana tsy mety",
+    "cantFindLocation": "Tsy afaka mahita ny toerana izahay.",
+    "misspelledOrNotExist": "Mety ho diso fandrinesana izy io, na mety tsy hisy.",
+    "loading": "Maka",
+    "low-frame-error": "Mangom-bola kely izay mihevitra fa afaka mampiasa fitaovana fanafainganana amin'ny alalan'ny navigateur ampiasainao ary mamerina ny navigateur ampiasainao.",
+    "low-frame-title": "Alefaso ny fitaovana ho amin'ny traikefa tsara kokoa!"
+  },
+  "error": {
+    "loading-error": "Tsy afaka naka ny datan'ny mpampiasa",
+    "validation-error": "Azafady mba {{type}} manan-kery",
+    "login-error": "Tsy afaka nidirana"
+  }
+}

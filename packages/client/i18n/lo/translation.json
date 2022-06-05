@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - ຫນ້າບໍ່ພົບ"
+  },
+  "503": {
+    "msg": "503 - ການບໍລິການບໍ່ມີ"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "ທ່ານໄດ້ຖືກຫ້າມຈາກສະຖານທີ່ແຫ່ງນີ້",
+    "locationName": {
+      "pageTitle": "Home"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "ໂຄງການ",
+      "header": "ກະລຸນາLogin",
+      "welcomeMsg": "ຍິນດີຕ້ອນຮັບ",
+      "locationHeader": "ສະຖານທີ່",
+      "projectHeader": "ໂຄງການ",
+      "sceneHeader": "ພາບ",
+      "description": "ຖ້າຫາກວ່າທ່ານເປັນໃຫມ່ທີ່ນີ້ພວກເຮົາຂໍແນະນໍາໃຫ້ຜ່ານtutorial. ຖ້າບໍ່ດັ່ງນັ້ນ, ກະໂດດຂວາເຂົ້າແລະສ້າງໂຄງການຈາກscratch ຫຼືຈາກຫນຶ່ງຂອງtemplates ຂອງພວກເຮົາ.",
+      "lbl-startTutorial": "Start Tutorial",
+      "lbl-newProject": "ໂຄງການໃຫມ່",
+      "lbl-createProject": "ສ້າງ",
+      "lbl-newScene": "ພາບໃຫມ່",
+      "lbl-searchProject": "ຄົ້ນຫາໂຄງການທີ່ມີຢູ່ແລ້ວ...",
+      "back": "ຫຼັງ",
+      "contextMenu": "ລຶບໂຄງການ",
+      "installed": "ໂຄງການຕິດຕັ້ງ",
+      "official": "ໂຄງການທາງການ",
+      "community": "ໂຄງການຊຸມຊົນ",
+      "install": "ຕິດຕັ້ງ",
+      "uninstall": "Uninstall",
+      "rename": "ປ່ຽນຊື່",
+      "createProject": "ສ້າງໂຄງການ",
+      "installProject": "ຕິດຕັ້ງໂຄງການ",
+      "processing": "ການປະມວນຜົນ",
+      "projectName": "ຊື່ໂຄງການ",
+      "projectURL": "URL ຂອງໂຄງການ"
+    }
+  },
+  "error": {
+    "goHomeLink": "ກັບເຮືອນ",
+    "withStatusCode": "ຂໍ້ ຜິດພາດ {{code}} ເກີດ ຂຶ້ນ ຢູ່ ໃນ server",
+    "withoutStatusCode": "ເກີດຂໍ້ຜິດພາດໃນserver"
+  },
+  "no-projects": {
+    "msg": "ຂໍ້ຜິດພາດ: ບໍ່ມີໂຄງການຕິດຕັ້ງ - ກະລຸນາຕິດຕໍ່admin ເວັບໄຊທ໌"
+  },
+  "dev": {
+    "pageTitle": "Home"
+  },
+  "login": {
+    "pageTitle": "Login"
+  },
+  "workerTest": {
+    "pageTitle": "ການທົດສອບຜູ້ອອກແຮງງານ"
+  },
+  "index": {
+    "by": "ໂດຍ",
+    "xr": "XR",
+    "foundation": "ພື້ນຖານ",
+    "description": "ການນໍາໃຊ້ທາງສັງຄົມ 3D Realtime ສໍາລັບທຸກຄົນທີ່ຈະມ່ວນຊື່ນ."
+  },
+  "xrengineContact": {
+    "header": "ຮັບIn Touch!",
+    "description": "ພວກເຮົາຈະມັກທີ່ຈະຊ່ວຍທ່ານກັບເຫດການ virtual ຂອງທ່ານ, ຂາຍຍ່ອຍດິຈິຕອນ, ຄວາມບັນເທີງແລະຄວາມຕ້ອງການອື່ນໆ.",
+    "lbl-name": "ຊື່",
+    "lbl-email": "ອີເມລ໌",
+    "lbl-company": "ບໍລິສັດ",
+    "lbl-project": "ບັນ ລະ ຍາຍ ໂຄງ ການ ຂອງ ທ່ານ",
+    "lbl-send": "ສົ່ງ",
+    "lbl-ok": "ໂອເຄ",
+    "lbl-success": "Message Sent, ພວກເຮົາຈະກັບມາຫາທ່ານໃນບໍ່ດົນ.",
+    "lbl-failure": "ເກີດຂໍ້ຜິດພາດ, Plese ພະຍາຍາມອີກຄັ້ງ",
+    "err-username": "ກະລຸນາໃສ່ຊື່ທ່ານ.",
+    "err-email": "ອີເມລ໌ແມ່ນຮຽກຮ້ອງ.",
+    "err-msg": "ໃຫ້ຄໍາບັນຍາຍສັ້ນໆກ່ຽວກັບໂຄງການຂອງທ່ານ."
+  }
+}

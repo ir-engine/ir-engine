@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Page Not Found"
+  },
+  "503": {
+    "msg": "503 - Service Unavailable"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Tú/tit hevur/hava fingið bannað frá hesum stað",
+    "locationName": {
+      "pageTitle": "Lakay"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Pwojè",
+      "header": "Vinarliga Login",
+      "welcomeMsg": "Vælkomin",
+      "locationHeader": "Locations",
+      "projectHeader": "Pwojè",
+      "sceneHeader": "Scenes",
+      "description": "Ert tú nýggjur/nýggj her, vit viðmæla at fara ígjøgnum tutorial. Annars, hoppa rætt í og ger eina verkætlan frá klóra ella frá einum av okkara templates.",
+      "lbl-startTutorial": "Start Tutorial",
+      "lbl-newProject": "New Project",
+      "lbl-createProject": "Kreye",
+      "lbl-newScene": "New Scene",
+      "lbl-searchProject": "SearchIng Projects.",
+      "back": "Do",
+      "contextMenu": "Delete Project",
+      "installed": "Installed Projects",
+      "official": "Official Projects",
+      "community": "Community Projects",
+      "install": "Install",
+      "uninstall": "Uninstall",
+      "rename": "Rename",
+      "createProject": "Create Project",
+      "installProject": "Install Project",
+      "processing": "Processing",
+      "projectName": "Project Name",
+      "projectURL": "Project URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Fara heim",
+    "withStatusCode": "Ein villa {{code}} fram server",
+    "withoutStatusCode": "Ein villa hendi á server"
+  },
+  "no-projects": {
+    "msg": "Error: No Projects Installed - takk a site admin"
+  },
+  "dev": {
+    "pageTitle": "Lakay"
+  },
+  "login": {
+    "pageTitle": "Login"
+  },
+  "workerTest": {
+    "pageTitle": "Worker Test"
+  },
+  "index": {
+    "by": "PA",
+    "xr": "XR",
+    "foundation": "Foundation",
+    "description": "Realtime 3D social application fyri øll at njóta."
+  },
+  "xrengineContact": {
+    "header": "Kom/Komið í samband!",
+    "description": "Vit høvdu elskað at hjálpt tær/tykkum við tínum/tykkara virtualum, digiti og øðrum tørvar.",
+    "lbl-name": "Non",
+    "lbl-email": "Email",
+    "lbl-company": "Konpayi",
+    "lbl-project": "Lýs tín Project",
+    "lbl-send": "Voye",
+    "lbl-ok": "Ókey",
+    "lbl-success": "Message Sent, vit koma aftur til tín/tykkara stutt.",
+    "lbl-failure": "Ein villa hendi, Plese try aftur.",
+    "err-username": "Kom/komið inn í teg/tykkum.",
+    "err-email": "Email er neyðug.",
+    "err-msg": "Provide nakrar stutt lýsing av tíni verkætlan."
+  }
+}

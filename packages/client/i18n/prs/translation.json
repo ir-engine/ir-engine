@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - صفحه یافت نشد"
+  },
+  "503": {
+    "msg": "503 - خدمات در دسترس نیست"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "شما از این مکان ممنوع شده است",
+    "locationName": {
+      "pageTitle": "صفحه اصلی"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "پروژه ها",
+      "header": "لطفا وارد شوید",
+      "welcomeMsg": "خوش آمدید",
+      "locationHeader": "مکان ها",
+      "projectHeader": "پروژه ها",
+      "sceneHeader": "صحنه ها",
+      "description": "اگر شما جدید در اینجا توصیه می کنیم رفتن را از طریق آموزش. در غیر این صورت ، پرش حق در و ایجاد یک پروژه از ابتدا و یا از یکی از قالب های ما است.",
+      "lbl-startTutorial": "آموزش شروع",
+      "lbl-newProject": "پروژه جدید",
+      "lbl-createProject": "ایجاد",
+      "lbl-newScene": "صحنه جدید",
+      "lbl-searchProject": "جستجو در پروژه های موجود...",
+      "back": "بازگشت",
+      "contextMenu": "حذف پروژه",
+      "installed": "پروژه های نصب شده",
+      "official": "پروژه های رسمی",
+      "community": "پروژه های اجتماعی",
+      "install": "نصب",
+      "uninstall": "غیر قابل استفاده",
+      "rename": "تغییر نام",
+      "createProject": "ایجاد پروژه",
+      "installProject": "نصب پروژه",
+      "processing": "پردازش",
+      "projectName": "نام پروژه",
+      "projectURL": "آدرس پروژه"
+    }
+  },
+  "error": {
+    "goHomeLink": "برو خانه",
+    "withStatusCode": "خطایی {{code}} روی سرور رخ داده است",
+    "withoutStatusCode": "خطایی در سرور رخ داده است"
+  },
+  "no-projects": {
+    "msg": "خطا : بدون پروژه های نصب شده -- لطفا با مدیر سایت تماس بگیرید"
+  },
+  "dev": {
+    "pageTitle": "صفحه اصلی"
+  },
+  "login": {
+    "pageTitle": "ورود به سیستم"
+  },
+  "workerTest": {
+    "pageTitle": "تست کارگر"
+  },
+  "index": {
+    "by": "توسط",
+    "xr": "XR",
+    "foundation": "بنیاد",
+    "description": "برنامه های کاربردی اجتماعی بی درنگ 3D برای همه برای لذت بردن از."
+  },
+  "xrengineContact": {
+    "header": "در تماس باشید!",
+    "description": "ما دوست داریم به شما کمک کند با رویدادهای مجازی خود را, خرده فروشی دیجیتال, سرگرمی و نیازهای دیگر.",
+    "lbl-name": "نام",
+    "lbl-email": "ایمیل",
+    "lbl-company": "شرکت",
+    "lbl-project": "شرح پروژه خود را",
+    "lbl-send": "ارسال",
+    "lbl-ok": "درست است",
+    "lbl-success": "پیام ارسال شده، ما به زودی به شما بر می گردیم.",
+    "lbl-failure": "خطا رخ داده است ، Plese دوباره سعی کنید",
+    "err-username": "لطفا نام خود را وارد کنید.",
+    "err-email": "ایمیل نیاز است.",
+    "err-msg": "ارائه برخی از شرح مختصری از پروژه خود را."
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Iliuraqlugu makpiraaq..."
+  },
+  "tooltip": {
+    "pressKey": "Tuhaqtitilugu {{tip}} {{message}}"
+  },
+  "toast": {
+    "joined": "ilauliqtuq",
+    "left": "haumik"
+  },
+  "navUserWidget": {
+    "login": "Angmaruk"
+  },
+  "loader": {
+    "connecting": "Atadjutikhait nunarjuami...",
+    "entering": "Ililugu nunaqyuaq...",
+    "loading": "Uhiliqturlugu...",
+    "objectRemaining": "{{count}} hunaungmangaat aullajuittuq",
+    "objectRemainingPlural": "{{count}} hunavaluit aulahimajun",
+    "loadingObjects": "Uhiyut Hunat",
+    "loadingComplete": "Uhidjutit Iniqtiqhimayut",
+    "joiningWorld": "Ilaulukaarniq Nunaqyuaptingnik"
+  },
+  "alert": {
+    "eventWasSuccess": "Hulilukaarutikhaq ihuaqtumik aulavakhimayuq",
+    "errorWasEncountered": "Ihuittumik takuyauyuq",
+    "eventInProgress": "Hulilukaarutikhaq auladjutikharnik",
+    "seconds": "seconds",
+    "cancelCountdown": "Umiktiginikkut uminga modal taimaaqtitiniaqtun qaffiutilaanganik"
+  },
+  "debug": {
+    "refresh": "Refresh",
+    "stats": "Stats",
+    "debugOptions": "Debug Options",
+    "physicsDebug": "Physics",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Node Helper",
+    "gridDebug": "Grid",
+    "simpleMaterials": "Ayurnaittut Hunavaluit",
+    "tick": "Tick",
+    "worldStore": "Nunaryuami Niuvvaavinga",
+    "engineStore": "Engine Niuvaavia",
+    "namedEntities": "Atiqaqtugap Piyughat",
+    "networkObject": "Network Hunanik",
+    "networkClients": "Ikiaqqivingni Kivgaqtugat"
+  },
+  "recording": {
+    "videoRecorder": "Qun'ngiakhaq",
+    "waitingForPermissions": "Utaqqiyut angirutikhanut",
+    "selectVideoSource": "Pilugu piksasiuq",
+    "screen": "Piksa",
+    "camera": "Piksaliurut",
+    "microphone": "Uqauti",
+    "startRecording": "Titiralirlugu",
+    "pauseRecording": "Pause nipiliurniq",
+    "resumeRecording": "Resume nipiliurniq",
+    "stopRecording": "Nutqaqlutin titirarniq"
+  },
+  "typing": "Typing...",
+  "gameServer": {
+    "browserError": "Browser Ihuinaarutit",
+    "browserErrorMessage": "Qiniqhiayutit ikayuutaungitut tutquqtirinirmun nanminiqaqtunun qiniqhianirmun. Naliik uuktuqlutit aallamik qiniqhianirmik, imaaluuniit anitirnirmik inmikkut qun'ngiaqtitilutit.",
+    "noAvailableServers": "Piqangitun Qaritaujaliqidjutikharnik Kivgaqtuijukharnik",
+    "noAvailableServersMessage": "Piqangitun tuniqhaidjutikharnik pigiaqaqtun katitigiyaangat. Uuktuffaaqhuni ataffaaqhuni",
+    "worldDisconnected": "Nunaryuaptikni ilaungittuq",
+    "worldDisconnectedMessage": "Tamaihimayutin katitirutikharnik nunaqyuaptingnun. Katimaffaarniaqtugut hapkuninga aqpaluaqtinnatik, hivumuuqtitauguvit aallamut.",
+    "webGLNotEnabled": "WebGL notabled",
+    "webGLNotEnabledMessage": "Takuyat ikayungitaa Qaritauyakkut Pulaarvinga, ayurhautigiyauyuqluuniit. Piyaangat WebGLmik ihumaliurlutinluuniit nuutaanguqtirutikharnik nuutaanguqtiqhimayunik titiraqhimayunik qiniqhiadjutikharnik.",
+    "youKickedFromWorld": "Itingmiqtauvaktutin nunaqyuaptingnin",
+    "youKickedFromWorldMessage": "Itingmiqtauvakhimayutin uvani nunaqyuaptingnin ukuninga ihumaliurnikkut",
+    "invalidLocation": "Naliit nayugait",
+    "cantFindLocation": "Nanilimaitavut nayugaa",
+    "misspelledOrNotExist": "Kingunginarniaqtuq, uvaluuniin atuqtaulimaituq.",
+    "loading": "uhidjutit",
+    "low-frame-error": "Naunaiqhimayuq nakuungittumik ihumagiyarnik pipkaidjutiyuq Aturiami Qaritauyanik iliurainiq qun'ngiarvingni himmirlugulu qiniqhiadjutiknik",
+    "low-frame-title": "Pipkaqlugit qaritauyaliqutit ihuaqnikkut atugiangani!"
+  },
+  "error": {
+    "loading-error": "Iliuraqhimaittumik atuqtut nampangit",
+    "validation-error": "Uqaqlutin ihuaqtunik {{type}}",
+    "login-error": "Atiliuqtaungitkumik"
+  }
+}

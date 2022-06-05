@@ -1,0 +1,202 @@
+{
+  "addComment": "Reactie toevoegen...",
+  "share": "Delen",
+  "suggestions": "Suggesties voor u",
+  "seeAll": "Alles weergeven",
+  "likes": "Houdt",
+  "viewComments": "Bekijk alle {{count}} reacties",
+  "more": "meer",
+  "username": "gebruikersnaam",
+  "fullName": "Voornaam Achternaam",
+  "reportInApporpriate": "Ongepast melden",
+  "unfollow": "Ontbladeren",
+  "goToPost": "Ga naar Bericht",
+  "shareModal": "Delen",
+  "copyLink": "Link kopiëren",
+  "embed": "Insluiten",
+  "cancel": "Annuleren",
+  "confirm": "Bevestigen",
+  "save": "Redden",
+  "profilePic": "profielfoto van {{user}}",
+  "ara": "Altaar",
+  "follow": "Volgen",
+  "flames": "Vlammen",
+  "continue": "Voortzetten",
+  "partyInvitationSent": "Uitnodiging voor feest verzonden",
+  "arMedia": {
+    "back": "Terug",
+    "clip": "Knippen",
+    "backgrounds": "Achtergronden",
+    "start": "Beginnen"
+  },
+  "arMediaform": {
+    "title": "Titel",
+    "type": "Type",
+    "clip": "Knippen",
+    "background": "Achtergrond",
+    "scene": "Toneel",
+    "save": "Redden",
+    "manifest-file": "Manifest-bestand manifest",
+    "audio-file": "Mp4 bestand",
+    "dracosis-file": "Dracosis .uvol bestand",
+    "preview-file": "Voorbeeld van afbeeldingsbestand"
+  },
+  "creator": {
+    "myVideos": "Mijn video's",
+    "savedVideos": "Opgeslagen video's",
+    "back": "Terug",
+    "blocked-list": "Geblokkeerde lijst",
+    "block-user": "Gebruiker blokkeren",
+    "dialog-content": "U ziet het profiel en de inhoud van de gebruiker niet"
+  },
+  "creatorForm": {
+    "back": "Terug",
+    "edit": "Profiel bewerken",
+    "save": "Redden",
+    "changeAvatar": "Avatarafbeelding wijzigen",
+    "ph-selectPreview": "Selecteer voorbeeld",
+    "ph-name": "Uw naam",
+    "ph-username": "Uw gebruikersnaam",
+    "ph-email": "Uw e-mailadres",
+    "ph-tags": "Tags",
+    "ph-link": "Verbinden",
+    "ph-aboutYou": "Meer over jou",
+    "ph-twitter": "sjilpen",
+    "ph-instagram": "Instagram",
+    "ph-tiktok": "TikTok",
+    "sign-out": "Afmelden"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Gebruikers",
+    "feeds": "Feeds",
+    "arMedia": "Videomedia",
+    "editor": "Editor",
+    "creator": "Schepper"
+  },
+  "featured": {
+    "empty-list": "Voorlopig geen feeds ..."
+  },
+  "feed": {
+    "back": "Terug",
+    "related": "Gerelateerde feeds",
+    "is-repoted-message": "Feed wordt gerapporteerd!"
+  },
+  "feedForm": {
+    "back": "Terug",
+    "thanks": "Bedankt voor het delen en verbeteren van onze community",
+    "share": "Deel iets met de community",
+    "upload": "Video uploaden",
+    "ph-selectVideo": "Selecteer Video",
+    "preview": "Voorbeeldafbeelding",
+    "ph-selectPreview": "Selecteer voorbeeld",
+    "createFeed": "Om een feed te maken, moet je een video en een voorbeeldafbeelding hebben!!!",
+    "ph-videoName": "De naam van je video",
+    "ph-type": "Typ wat je wilt delen met de community ... ",
+    "lbl-share": "Delen",
+    "save": "Opslaan en gaan volgende"
+  },
+  "feedMenu": {
+    "featured": "Aanbevolen",
+    "creators": "Makers",
+    "feed": "De Feed"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetrische"
+  },
+  "login": {
+    "account": "Heb je een account?",
+    "login": "Inloggen",
+    "resetPassword": "Reset wachtwoord Nep knop (hier zou een link uit e-mail zijn)",
+    "notHavingAccount": "Heb je nog geen account?",
+    "signUp": "Inschrijven",
+    "forgotPassword": "Wachtwoord vergeten?",
+    "back": "Terug",
+    "or": "OF"
+  },
+  "comment": {
+    "add": "Voeg je reactie toe..."
+  },
+  "notification": {
+    "feedFire": " vuurde je feed",
+    "feedBookmarked": " je feed met een bladwijzer",
+    "comment": " je feed heeft becommentarieerd:",
+    "commentFire": " heeft uw reactie op feed geactiveerd",
+    "follow": " begon je te volgen",
+    "unfollow": " gestopt met u te volgen",
+    "followed": " volgde je",
+    "activity": "Activiteit"
+  },
+  "onBoarding": {
+    "welcome": "Welkom!",
+    "description": "Grootste verzameling van meer dan 370 lay-outs voor iOS-prototyping.",
+    "next": "Volgend",
+    "discover": "Ontdek artikelen,",
+    "news": "nieuws & berichten",
+    "lines": "Het zijn die gevoelens die onze liefde voor astronomie en ons verlangen drijven.",
+    "getStarted": "Slag",
+    "meetUp": "Maak kennis met",
+    "friends": "vrienden.",
+    "meet": "Spreek af met vrienden"
+  },
+  "shareForm": {
+    "arcMedia": "Delen",
+    "videoCreated": "Ik heb deze video gemaakt",
+    "shareWithBuddies": "Delen met vrienden",
+    "shareVideo": "Video delen",
+    "save": "Opslaan in filmrol",
+    "cancel": "Annuleren",
+    "close": "Sluiten",
+    "addFeed": "Feed toevoegen"
+  },
+  "simpleModal": {
+    "emptyList": "Lege lijst",
+    "followers": " volgend",
+    "following": " achterban",
+    "flames": " Vlammen"
+  },
+  "splash": {
+    "screen": "Plonsscherm",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "profielfoto van {{user}}"
+  },
+  "view": {
+    "cancel": "Annuleren",
+    "choice": "Je hebt twee verschillende opnamemodi om uit te kiezen",
+    "verticalMode": "Verticale modus heeft een opnametijd van 30 seconden",
+    "horizontalMode": "Horizontale modus heeft een onbeperkte opnametijd",
+    "start": "Beginnen",
+    "not-show": "Laat het niet meer zien",
+    "welcome": "Welkom bij ARC!  Maak persoonlijke video's met een van onze hologrammen en post deze op je social media kanalen!",
+    "step": "STAP {{step}}",
+    "text-step-1": "Kies een hologram uit de bibliotheek.",
+    "text-step-2": "Dit is Augmented Reality, dus scan de ruimte met je camera 3-5 seconden van links naar rechts waar je de hologramprestaties wilt hebben.",
+    "text-step-3-part-1": "Tik eenmaal op het scherm op de locatie waar u het hologram wilt verankeren.",
+    "text-step-3-part-2": "FOOI!  Tik eenmaal ergens anders om het hologram naar een andere positie te verplaatsen.",
+    "text-step-3-part-3": "FOOI!  U kunt het formaat van het hologram wijzigen door met duim en wijsvinger in het scherm te knijpen of uit te vouwen.",
+    "text-step-4-part-1": "Dubbeltik op de rode opnameknop om uw video-opname te STARTEN.",
+    "text-step-4-part-2": "Dubbeltik op de rode opnameknop om te STOPPEN."
+  },
+  "video": {
+    "back": "Terug"
+  },
+  "terms": {
+    "confirmTerms": "Ik ga akkoord met de Servicevoorwaarden",
+    "confirmPolicy": "Ik ga akkoord met het privacybeleid"
+  },
+  "registration": {
+    "ph-phoneEmail": "Gebruik telefoon / e-mail",
+    "facebook": "Doorgaan met Facebook",
+    "google": "Doorgaan met Google",
+    "linkedin": "Ga verder met Linkedin",
+    "twitter": "Doorgaan met Twitter",
+    "gitHub": "Doorgaan met GitHub",
+    "connect": "Uw e-mailadres of telefoonnummer koppelen",
+    "logIn": "Aanmelden",
+    "LogInTo": "Log in op",
+    "continueAsGuest": "Doorgaan als gast"
+  }
+}

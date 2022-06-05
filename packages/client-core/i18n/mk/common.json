@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Вчитувачка страница..."
+  },
+  "tooltip": {
+    "pressKey": "Притиснете {{tip}} да {{message}}"
+  },
+  "toast": {
+    "joined": "Се приклучив.",
+    "left": "Лево."
+  },
+  "navUserWidget": {
+    "login": "Приклучи се"
+  },
+  "loader": {
+    "connecting": "Поврзување со светот...",
+    "entering": "Влегување во светот...",
+    "loading": "Натоварување...",
+    "objectRemaining": "{{count}} преостанат предмет",
+    "objectRemainingPlural": "{{count}} објекти останаа",
+    "loadingObjects": "Товарење на објекти",
+    "loadingComplete": "Завршено полнење",
+    "joiningWorld": "Приклучување кон светот"
+  },
+  "alert": {
+    "eventWasSuccess": "Настанот беше успешен",
+    "errorWasEncountered": "Се сретна грешка",
+    "eventInProgress": "Настан во тек",
+    "seconds": "Секунди.",
+    "cancelCountdown": "Затворањето на овој модал ќе го откаже одбројувањето"
+  },
+  "debug": {
+    "refresh": "Освежи се.",
+    "stats": "Статистички податоци",
+    "debugOptions": "Debug Опции",
+    "physicsDebug": "Физика.",
+    "avatarDebug": "Аватар",
+    "nodeHelperDebug": "Помошник на јазли",
+    "gridDebug": "Мрежа",
+    "simpleMaterials": "Едноставни материјали",
+    "tick": "Тик",
+    "worldStore": "Светска продавница",
+    "engineStore": "Продавница за мотори",
+    "namedEntities": "Именувани ентитети",
+    "networkObject": "Мрежен објект",
+    "networkClients": "Мрежни клиенти"
+  },
+  "recording": {
+    "videoRecorder": "Видео рекордер",
+    "waitingForPermissions": "Чекам дозволи.",
+    "selectVideoSource": "Изберете видео извор",
+    "screen": "Екран",
+    "camera": "Камера",
+    "microphone": "Микрофон.",
+    "startRecording": "Почни да снимаш.",
+    "pauseRecording": "Пауза на снимањето",
+    "resumeRecording": "Продолжете со снимањето.",
+    "stopRecording": "Престани да снимаш."
+  },
+  "typing": "Пишување...",
+  "gameServer": {
+    "browserError": "Грешка во прелистувачот",
+    "browserErrorMessage": "Вашиот прелистувач не подржува складирање во приватен режим на прелистување. Или обидете се со друг прелистувач, или излез од приватен режим на прелистување.",
+    "noAvailableServers": "Нема достапни сервери",
+    "noAvailableServersMessage": "Нема сервери на располагање за да се поврзете со вас. Обид за повторно поврзување во",
+    "worldDisconnected": "Светот е исклучен.",
+    "worldDisconnectedMessage": "Ја изгуби врската со светот. Ќе се обидеме да се поврземе повторно пред да истече следното време, во спротивно ќе бидете препратени на друг пример.",
+    "webGLNotEnabled": "WebGL не е овозможено",
+    "webGLNotEnabledMessage": "Вашиот прелистувач не поддржува WebGL, или е оневозможен. Ве молиме овозможете WebGL или размислете за надградба до најновата верзија на вашиот прелистувач.",
+    "youKickedFromWorld": "Те избркаа од светот.",
+    "youKickedFromWorldMessage": "Те избркаа од овој свет поради следната причина.",
+    "invalidLocation": "Невалидна локација",
+    "cantFindLocation": "Не можеме да ја најдеме локацијата.",
+    "misspelledOrNotExist": "Можеби е погрешно напишан, или можеби не постои.",
+    "loading": "Товарање",
+    "low-frame-error": "Детектиравте лоша перфумност размислете за овозможување на користење на хардверско забрзување во вашиот прелистувач и повторно размислување за вашиот прелистувач",
+    "low-frame-title": "Овозможи хардверско забрзување за подобро искуство!"
+  },
+  "error": {
+    "loading-error": "Не успеа да ги наполни податоците за корисникот.",
+    "validation-error": "Ве молиме внесете важечки {{type}}",
+    "login-error": "Не успеа да се пријави."
+  }
+}

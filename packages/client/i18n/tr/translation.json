@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Sayfa Bulunamadı"
+  },
+  "503": {
+    "msg": "503 - Hizmet Kullanılamıyor"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Bu konumdan yasaklandınız",
+    "locationName": {
+      "pageTitle": "Ev"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Proje",
+      "header": "Lütfen Giriş Yapın",
+      "welcomeMsg": "Hoş geldin",
+      "locationHeader": "Konumlar",
+      "projectHeader": "Proje",
+      "sceneHeader": "Sahne",
+      "description": "Burada yeniyseniz, öğreticiden geçmenizi öneririz. Aksi takdirde, hemen içeri atlayın ve sıfırdan veya şablonlarımızdan birinden bir proje oluşturun.",
+      "lbl-startTutorial": "Öğreticiyi Başlat",
+      "lbl-newProject": "Yeni Proje",
+      "lbl-createProject": "Yaratmak",
+      "lbl-newScene": "Yeni Sahne",
+      "lbl-searchProject": "Mevcut Projeleri Ara...",
+      "back": "Geri",
+      "contextMenu": "Projeyi Sil",
+      "installed": "Kurulu Projeler",
+      "official": "Resmi Projeler",
+      "community": "Topluluk Projeleri",
+      "install": "Yüklemek",
+      "uninstall": "Kaldırma",
+      "rename": "Yeniden Adlandır",
+      "createProject": "Proje Oluştur",
+      "installProject": "Project'i Yükleme",
+      "processing": "Işleme",
+      "projectName": "Proje Adı",
+      "projectURL": "Proje URL'si"
+    }
+  },
+  "error": {
+    "goHomeLink": "Eve Gidin",
+    "withStatusCode": "Sunucuda bir hata oluştu {{code}}",
+    "withoutStatusCode": "Sunucuda bir hata oluştu"
+  },
+  "no-projects": {
+    "msg": "Hata: Yüklü Proje Yok - lütfen bir site yöneticisine başvurun"
+  },
+  "dev": {
+    "pageTitle": "Ev"
+  },
+  "login": {
+    "pageTitle": "Oturum açma"
+  },
+  "workerTest": {
+    "pageTitle": "İşçi Testi"
+  },
+  "index": {
+    "by": "TARAFINDAN",
+    "xr": "XR",
+    "foundation": "Vakıf",
+    "description": "Herkesin keyfini çıkarması için gerçek zamanlı 3D sosyal uygulamalar."
+  },
+  "xrengineContact": {
+    "header": "İletişime Geçin!",
+    "description": "Sanal etkinliklerinizde, dijital perakendecilikte, eğlencede ve diğer ihtiyaçlarınızda size yardımcı olmaktan mutluluk duyarız.",
+    "lbl-name": "Ad",
+    "lbl-email": "E-posta",
+    "lbl-company": "Şirket",
+    "lbl-project": "Projenizi Tanımlayın",
+    "lbl-send": "Gönder",
+    "lbl-ok": "Tamam",
+    "lbl-success": "Mesaj Gönderildi, Size en kısa sürede geri dönüş yapacağız.",
+    "lbl-failure": "Bir hata oluştu, Plese yeniden deneyin",
+    "err-username": "Lütfen adınızı giriniz.",
+    "err-email": "E-posta gereklidir.",
+    "err-msg": "Projenizin kısa bir açıklamasını sağlayın."
+  }
+}

@@ -1,0 +1,718 @@
+{
+  "loading": "פרויקט טעינה",
+  "loadingMsg": "פרויקט טעינה...",
+  "loadingError": "פרוייקט טעינת שגיאות",
+  "loadingErrorMsg": "אירעה שגיאה בעת טעינת הפרויקט.",
+  "selectSceneMsg": "בחר סצנה כדי להתחיל לשחק עם המנוע",
+  "error": "שגיאה",
+  "errorMsg": "הייתה שגיאה לא ידועה.",
+  "generateScreenshot": "יצירת צילום מסך של הפרויקט",
+  "generateScreenshotMsg": "יצירת צילום מסך של הפרויקט...",
+  "newScene": "יצירת סצנה",
+  "saving": "חיסכון בפרויקט",
+  "savingMsg": "חיסכון בפרויקט...",
+  "savingError": "פרויקט שמירת שגיאות",
+  "savingErrorMsg": "אירעה שגיאה בעת שמירת הפרויקט.",
+  "savingSceneErrorMsg": "הסצנה אינה נטענת כראוי. נסה לטעון מחדש את הסצנה.",
+  "duplicating": "שכפול פרויקט",
+  "duplicatingMsg": "שכפול פרויקט...",
+  "exporting": "פרויקט ייצוא",
+  "exportingMsg": "ייצוא פרויקט...",
+  "exportingError": "שגיאה בייצוא פרוייקט",
+  "exportingErrorMsg": "אירעה שגיאה בעת ייצוא הפרויקט.",
+  "importLegacy": "ייבוא עולם מורשת",
+  "importLegacyMsg": "אזהרה! זה יחליף את הסצנה הקיימת שלך! האם אתה בטוח שברצונך להמשיך?",
+  "publishingError": "פרויקט פרסום שגיאות",
+  "publishingErrorMsg": "הייתה שגיאה לא ידועה.",
+  "publishingScene": "סצנת ההוצאה לאור",
+  "publishingSceneMsg": "סצנת הוצאה לאור...",
+  "uploadingThumbnailMsg": "העלאת תמונה ממוזערת...",
+  "uploadingSceneMsg": "סצנת העלאה: {{percentage}}%",
+  "envMapError": "שגיאה בטעינת תמונות מפת קוביות {{files}}",
+  "lbl-return": "החזיר",
+  "menubar": {
+    "newScene": "סצנה חדשה",
+    "saveScene": "שמור סצנה",
+    "saveAs": "שמור כ",
+    "importAsset": "ייבוא נכס",
+    "exportGLB": "ייצוא כמו glTF בינארי (.glb) ...",
+    "importScene": "סצנת ייבוא",
+    "exportScene": "סצנת הייצוא",
+    "quit": "התפטר"
+  },
+  "errors": {
+    "fileTypeNotSupported": "סוג קובץ שאינו נתמך עבור קובץ: \"{{name}}\". הקובץ חייב להיות תמונה, וידאו או דגם glb.",
+    "addObject": "addObject: לפני שהאובייקט לא נמצא",
+    "removeObject": "removeObject: צומת לא נמצא. זאת בשל הסרת צומת שאינו נמצא עוד בזירה.",
+    "noParent": "{{node}} \"{{name}}\" אין הורה. Reparent עובד רק על אובייקטים שנמצאים כרגע בסצנה.",
+    "undefinedParent": "editor.reparent: newParent אינו מוגדר",
+    "notAuthenticated": "לא מאומת",
+    "fetchingProjectError": "פרויקטים של הבאת שגיאות: {{error}}",
+    "fetchingRouteError": "נתיבי הבאת שגיאות: {{error}}",
+    "unknownError": "שגיאה לא ידועה",
+    "resolveURL": "שגיאה בפתרון כתובת האתר \"{{url}}\":",
+    "mediaSearchAborted": "חיפוש במדיה בוטל",
+    "methodNotImplemented": "השיטה לא יושמה.",
+    "saveProjectAborted": "שמירת הסצנה בוטלה",
+    "unsavedChanges": "שינויים שלא נשמרו",
+    "unsavedChangesMsg": "הסצנה שונתה. אנא שמור את השינויים שלך.",
+    "projectCreationFail": "יצירת הפרויקט נכשלה. {{reason}}",
+    "projectDeletionFail": "מחיקת הפרויקט נכשלה. {{reason}}",
+    "savingProjectFail": "פרויקט ההצלה נכשל. {{reason}}",
+    "sceneTooLarge": "הסצנה גדולה מדי ({{size}} MB) מכדי לפרסם אותה. הגודל המרבי הוא {{maxSize}} MB.",
+    "sceneCreationFail": "יצירת הסצנה נכשלה. {{reason}}",
+    "uploadAborted": "העלאה מבוטלת",
+    "uploadFailed": "ההעלאה נכשלה {{reason}}",
+    "assetDeletionFail": "מחיקת הנכסים נכשלה. {{reason}}",
+    "projectAssetDeletionFail": "מחיקת נכסי הפרויקט נכשלה. {{reason}}",
+    "networkError": "שגיאת רשת: {{status}}. {{text}}",
+    "unknownStatus": "סטטוס לא ידוע",
+    "CORS": "אולי שגיאת CORS",
+    "urlFetchError": "לא הצליח להביא \"{{url}}\""
+  },
+  "viewport": {
+    "title": "אשנב",
+    "command": {
+      "movecamera": "הזזת מצלמה",
+      "flyFast": "טוס מהר יותר",
+      "orbit": "מסלול / בחירה",
+      "pan": "פאן",
+      "fly": "זבוב",
+      "focus": "מוקד",
+      "rotateLeft": "סיבוב שמאלה",
+      "rotateRight": "סיבוב ימינה",
+      "cancelPlacement": "ביטול מיקום",
+      "placeDuplicate": "מקם שכפול",
+      "cancelGrab": "בטל תפוס",
+      "grab": "לתפוס",
+      "deselectAll": "בטל את הבחירה באפשרות הכל"
+    },
+    "state": {
+      "header": "סטטיסטיקה",
+      "memory": "זכרון",
+      "geometries": "גיאומטריות",
+      "textures": "מרקמים",
+      "render": "רינדור",
+      "FPS": "FPS",
+      "frameTime": "זמן מסגרת",
+      "calls": "שיחות",
+      "triangles": "משולשים",
+      "points": "נקודות",
+      "lines": "קווים"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "לפרסם",
+    "lbl-published": "פורסם",
+    "command": {
+      "translate": "תרגם",
+      "rotate": "לסובב",
+      "scale": "סולם",
+      "toggleSpace": "החלף שינוי צורה במרחב",
+      "togglePivot": "החלפת ציר שינוי צורה",
+      "toggleSnapMode": "החלפת מצב הצמדה",
+      "toggleGrid": "החלפת ניראות רשת",
+      "increaseGridSize": "הגדל את גודל הרשת",
+      "descreaseGridSize": "הקטנת גודל הרשת",
+      "stopPreview": "הפסק את התצוגה המקדימה של הסצנה",
+      "playPreview": "סצנת תצוגה מקדימה"
+    }
+  },
+  "properties": {
+    "title": "מאפייני",
+    "lbl-visible": "נראה",
+    "lbl-preventBake": "מניעת אפייה",
+    "lbl-persist": "להתמיד",
+    "multipleNodeSelected": "צמתים מרובים מסוגים שונים שנבחרו",
+    "noNodeSelected": "צומת לא נבחר",
+    "ambientLight": {
+      "name": "תאורת סביבה",
+      "description": "אור שמאיר את כל האובייקטים בסצנה שלך.",
+      "lbl-intensity": "עוצמת",
+      "lbl-color": "צבע"
+    },
+    "envmap": {
+      "name": "מפת סביבה",
+      "description": "מאפייני מפת סביבה"
+    },
+    "asset": {
+      "name": "נכס",
+      "description": "קיבוץ של רכיבי סצנה שניתן לטעון ולפרוק באופן דינמי",
+      "lbl-options": "אפשרויות",
+      "lbl-assetPath": "נתיב נכסים",
+      "lbl-assetName": "ייצוא שם",
+      "lbl-exportOptions": "אפשרויות ייצוא",
+      "lbl-export": "נכס ייצוא",
+      "lbl-load": "טען לסצנה",
+      "lbl-unload": "לפרוק",
+      "lbl-reload": "טען מחדש"
+    },
+    "audio": {
+      "name": "שמע",
+      "description": "טוען אודיו באופן דינמי.",
+      "lbl-audiourl": "כתובת שמע",
+      "lbl-controls": "פקדים",
+      "info-controls": "החלף את הנראות של פקדי המדיה.",
+      "lbl-autoplay": "הפעלה אוטומטית",
+      "info-autoplay": "אם זה נכון, המדיה תופעל כאשר תיכנס לראשונה לסצנה.",
+      "lbl-synchronize": "סנכרן",
+      "info-synchronize": "אם זה נכון, המדיה תהיה מסונכרנת על כל הלקוחות המחוברים.",
+      "lbl-loop": "לולאה",
+      "info-loop": "אם זה נכון, המדיה תהיה לולאה ללא הגבלת זמן.",
+      "lbl-audioType": "סוג שמע",
+      "lbl-distanceModel": "מודל מרחק",
+      "info-distanceModel": "האלגוריתים נהגו לחשב גלגול שמע.",
+      "lbl-rolloffFactor": "גורם גלגול",
+      "info-rolloffFactor": "ערך כפול המתאר את המהירות שבה עוצמת הקול מופחתת ככל שהמקור מתרחק מהמאזין. 0 עד 1",
+      "info-rfInfinity": "ערך כפול המתאר את המהירות שבה עוצמת הקול מופחתת ככל שהמקור מתרחק מהמאזין. 0 עד אינפיניטי",
+      "lbl-refDistance": "מרחק מפלט",
+      "info-refDistance": "ערך כפול המייצג את מרחק הייחוס להפחתת עוצמת הקול ככל שמקור השמע מתרחק יותר מהמאזין.",
+      "lbl-maxDistance": "מרחק מרבי",
+      "info-maxDistance": "ערך כפול המייצג את המרחק המרבי בין מקור השמע למאזין, ולאחר מכן עוצמת הקול אינה מופחתת עוד יותר.",
+      "lbl-coneInnerAngle": "חרוט זווית פנימית",
+      "info-coneInnerAngle": "ערך כפול המתאר את הזווית, במעלות, של חרוט שבתוכו לא תהיה הפחתת נפח.",
+      "lbl-coneOuterAngle": "חרוט זווית חיצונית",
+      "info-coneOuterAngle": "ערך כפול המתאר את הזווית, במעלות, של חרוט שמחוץ לו הנפח יופחת על ידי ערך קבוע, המוגדר על ידי תכונת coneOuterGain.",
+      "lbl-coreOuterGain": "חרוט רווח חיצוני",
+      "info-coreOuterGain": "ערך כפול המתאר את כמות הקטנת הנפח מחוץ לחרוט המוגדר על-ידי התכונה coneOuterAngle. ערך ברירת המחדל שלו הוא 0, כלומר לא ניתן לשמוע צליל.",
+      "lbl-volume": "נפח",
+      "lbl-play": "משחק",
+      "lbl-pause": "השהה",
+      "error-url": "טעינת שגיאה מכתובת URL"
+    },
+    "boxCollider": {
+      "description": "תיבה בלתי נראית שחפצים יקפצו ממנה או ינוחו עליה.\nללא התנגשויות, חפצים ייפלו דרך רצפות ויעברו דרך קירות.",
+      "lbl-isTrigger": "ההדק"
+    },
+    "camera": {
+      "name": "מצלמה",
+      "description": "הגדרות מצלמה.",
+      "lbl-camera-raycast": "שידור קרני מצלמה",
+      "lbl-camera-raycast-toggle": "מופעלת",
+      "lbl-camera-raycast-frequency": "תדירות",
+      "lbl-camera-raycast-count": "ספירת קרניים",
+      "lbl-camera-raycast-length": "אורך קרן"
+    },
+    "directionalLight": {
+      "name": "אור כיווני",
+      "description": "אור שמאיר את הסצנה כולה, אך פולט לאורך כיוון אחד.",
+      "lbl-color": "צבע",
+      "lbl-intensity": "עוצמת",
+      "lbl-cameraFar": "מצלמה רחוקה",
+      "lbl-cameraNear": "מצלמה ליד",
+      "lbl-cameraTop": "החלק העליון של המצלמה",
+      "lbl-cameraBottom": "מצלמה תחתית",
+      "lbl-cameraLeft": "מצלמה שמאלה",
+      "lbl-cameraRight": "מצלמה ימינה",
+      "lbl-useInCSM": "שימוש ב- CSM",
+      "lbl-castShadow": "הטלת צל",
+      "lbl-disableForCSM": "מושבת מכיוון שמפת צל אשד מופעלת.",
+      "lbl-shadowmapResolution": "רזולוציית מפת צל",
+      "lbl-shadowBias": "הטיית צל",
+      "lbl-shadowRadius": "רדיוס צל",
+      "lbl-showCameraHelper": "הצג עוזר מצלמה"
+    },
+    "groundPlane": {
+      "name": "מטוס קרקע",
+      "description": "מישור קרקע שטוח המשתרע למרחקים.",
+      "lbl-color": "צבע",
+      "lbl-receiveShadow": "קבל צל",
+      "lbl-generateNavmesh": "צור את Navmesh"
+    },
+    "link": {
+      "description": "קישור לחדר או לאתר אינטרנט.",
+      "lbl-url": "כתובת אתר"
+    },
+    "map": {
+      "description": "מפה גיאו-מרחבית תלת-ממדית של עיר למשל."
+    },
+    "model": {
+      "description": "מודל תלת-ממדי בסצנה שלך, שנטען מכתובת URL או קובץ GLTF.",
+      "lbl-usingGPUInstancingFlag": "השתמש בהטמעת GPU",
+      "lbl-modelurl": "כתובת מודל",
+      "lbl-envmapUrl": "כתובת אתר של מפת הסביבה",
+      "lbl-textureOverride": "לעקוף מרקם",
+      "lbl-materialOverride": "עקיפת חומרים",
+      "error-url": "טעינת שגיאה מכתובת URL",
+      "lbl-loopAnimation": "הנפשת לולאה",
+      "lbl-isAvatar": "האם אווטאר",
+      "lbl-isGPUInstancing": "משתמש בהטמעת GPU",
+      "lbl-isDynamic": "הוא דינמי",
+      "lbl-castShadow": "הטלת צל",
+      "lbl-receiveShadow": "קבל צל",
+      "lbl-interactable": "ניתן לאינטראקציה",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "שם",
+      "lbl-url": "כתובת מודל",
+      "lbl-buy": "קנה כתובת אתר",
+      "lbl-learnMore": "למד עוד כתובת URL",
+      "lbl-htmlContent": "תוכן HTML",
+      "lbl-interactionText": "טקסט אינטראקציה",
+      "lbl-interactionType": "סוג אינטראקציה"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "חומר",
+      "error-materialID": "שגיאה במציאת חומר",
+      "placeholder-materialID": "בחר חומר",
+      "lbl-patternTarget": "התאמת תבנית",
+      "lbl-pattern": "תבנית",
+      "lbl-isRegex": "רגקס"
+    },
+    "interaction": {
+      "type": "סוג אינטראקציה",
+      "text": "טקסט אינטראקציה",
+      "distance": "מרחק אינטראקציה",
+      "theme": "ערכת נושא של אינטראקציה",
+      "name": "שם האינטראקציה",
+      "description": "תיאור האינטראקציה",
+      "images": "תמונות אינטראקציה",
+      "videos": "סרטוני אינטראקציה",
+      "urls": "כתובות URL של אינטראקציה",
+      "models": "מודלים של אינטראקציה"
+    },
+    "group": {
+      "name": "קבוצה",
+      "description": "קבוצה של אובייקטים מרובים שניתן להזיז או לשכפל יחד.\nגרור ושחרר אובייקטים לקבוצה בהיררכיה."
+    },
+    "hemisphere": {
+      "name": "אור חצי הכדור",
+      "description": "אור שמאיר את הסצנה ישירות מלמעלה.",
+      "lbl-skyColor": "צבע שמיים",
+      "lbl-groundColor": "צבע הקרקע",
+      "lbl-intensity": "עוצמת"
+    },
+    "image": {
+      "name": "תמונה",
+      "description": "טוען תמונה באופן דינמי.",
+      "lbl-imgURL": "כתובת אתר תמונה",
+      "lbl-transparency": "מצב שקיפות",
+      "lbl-alphaCutoff": "אלפא ניתוק",
+      "lbl-projection": "הקרנה",
+      "lbl-side": "צד",
+      "info-controls": "החלף את הנראות של פקדי המדיה.",
+      "info-transparency": "כיצד ליישם שקיפות:",
+      "info-opaque": "'אטום' = ללא שקיפות",
+      "info-blend": "'blend' = השתמש בתמונות ערוץ אלפא",
+      "info-mask": "'מסיכה' = השתמש בערך חיתוך שצוין לשקיפות הפעלה/כיבוי (יותר ביצועים)",
+      "info-alphaCutoff": "פיקסלים עם ערכי אלפא נמוכים מזה יהיו שקופים",
+      "error-url": "כתובת URL לא חוקית"
+    },
+    "name": {
+      "lbl-name": "שם"
+    },
+    "partileEmitter": {
+      "description": "חלקיקים פולטים ליצירת חלקיקים.",
+      "lbl-particleCount": "ספירת חלקיקים",
+      "lbl-image": "תמונה",
+      "lbl-ageRandomness": "אקראיות גיל",
+      "lbl-lifetime": "חיים שלמים",
+      "lbl-lifetimeRandomness": "אקראיות לכל החיים",
+      "lbl-sizeCurve": "עקומת גודל",
+      "lbl-startPSize": "התחל את גודל החלקיק",
+      "lbl-endPSize": "גודל חלקיק קצה",
+      "lbl-sizeRandomness": "אקראיות גודל",
+      "lbl-colorCurve": "עקומת צבע",
+      "lbl-startColor": "התחל צבע",
+      "lbl-startOpacity": "התחל אטימות",
+      "lbl-middleColor": "צבע אמצעי",
+      "lbl-middleOpacity": "אטימות אמצעית",
+      "lbl-endColor": "סוף צבע",
+      "lbl-endOpacity": "סוף אטימות",
+      "lbl-velocityCurve": "עקומת מהירות",
+      "lbl-startVelocity": "התחל מהירות",
+      "lbl-endVelocity": "סוף מהירות",
+      "lbl-angularVelocity": "מהירות זוויתית",
+      "info-ageRandomness": "כמות השונות בין כאשר חלקיקים מושרים.",
+      "info-lifetime": "הגיל המרבי של חלקיק לפני שהוא נסחף מחדש.",
+      "info-lifetimeRandomness": "כמות השונות בין חיי החלקיקים.",
+      "info-sizeRandomness": "כמות השונות בין גדלי ההתחלה של החלקיקים.",
+      "error-url": "טעינת שגיאה מכתובת URL"
+    },
+    "clouds": {
+      "name": "ענן",
+      "description": "נפח ענן מבוסס ספרייט.",
+      "lbl-image": "תמונת ספרייט",
+      "lbl-wroldScale": "קנה מידה עולמי",
+      "lbl-dimensions": "מידות",
+      "lbl-noiseZoom": "זום רעש",
+      "lbl-noiseOffset": "היסט רעשים",
+      "lbl-spriteScale": "סולם ספרייט",
+      "lbl-fogColor": "צבע ערפל",
+      "lbl-fogRange": "טווח ערפל",
+      "error-url": "טעינת שגיאה מכתובת URL"
+    },
+    "ocean": {
+      "name": "אוקיינוס",
+      "description": "פני האוקיינוס עם גלים וקצף",
+      "lbl-normalMap": "מפה רגילה",
+      "lbl-distortionMap": "מפת עיוותים",
+      "lbl-envMap": "מפת סביבה",
+      "lbl-color": "צבע",
+      "lbl-shallowWaterColor": "צבע מים רדודים",
+      "lbl-shallowToDeepDistance": "רדוד למרחק עמוק",
+      "lbl-opacityFadeDistance": "מרחק עמימות דהייה",
+      "lbl-opacityRange": "טווח אטימות",
+      "lbl-shininess": "מבריקות",
+      "lbl-reflectivity": "רפלקטיביות",
+      "lbl-foamColor": "צבע קצף",
+      "lbl-foamSpeed": "מהירות קצף",
+      "lbl-foamTiling": "ריצוף קצף",
+      "lbl-bigWaveTiling": "ריצוף גלים גדולים",
+      "lbl-bigWaveSpeed": "מהירות גלים גדולים",
+      "lbl-bigWaveHeight": "גובה גל גדול",
+      "lbl-waveSpeed": "מהירות גל",
+      "lbl-waveScale": "סולם גלים",
+      "lbl-waveTiling": "ריצוף גלים",
+      "lbl-waveDistortionSpeed": "מהירות עיוות גלים",
+      "lbl-waveDistortionTiling": "ריצוף עיוות גלים",
+      "error-url": "טעינת שגיאה מכתובת URL"
+    },
+    "water": {
+      "name": "מים",
+      "description": "פני מים קטנים"
+    },
+    "interior": {
+      "name": "פנים",
+      "description": "משטח עם מרקם קובייה ממופה לחיקוי סביבות פנים",
+      "lbl-cubeMap": "מרקם מפת קוביות",
+      "lbl-tiling": "כמות הריצוף",
+      "lbl-size": "גודל פני השטח",
+      "error-url": "טעינת שגיאה מכתובת URL"
+    },
+    "pointLight": {
+      "description": "אור שנפלט לכל הכיוונים מנקודה אחת.",
+      "lbl-color": "צבע",
+      "lbl-intensity": "עוצמת",
+      "lbl-range": "טווח",
+      "lbl-decay": "דעיכה"
+    },
+    "scene": {
+      "name": "סצנה",
+      "description": "מושא השורש של הסצנה.",
+      "lbl-bgcolor": "צבע רקע",
+      "lbl-fogType": "סוג ערפל",
+      "lbl-fogColor": "צבע ערפל",
+      "lbl-forNearDistance": "ערפל קרוב למרחק",
+      "lbl-fogFarDistance": "ערפל רחוק",
+      "lbl-fogDensity": "צפיפות ערפל",
+      "lbl-audioSettings": "השתמש בשמע מיקום",
+      "lbl-avatarDistanceModel": "מודל מרחק האווטר",
+      "lbl-avatarRolloffFactor": "פקטור גלגול אווטאר",
+      "lbl-avatarRefDistance": "אווטאר Ref מרחק",
+      "lbl-avatarMaxDistance": "אווטאר מרחק מקסימלי",
+      "lbl-mediaVolume": "נפח מדיה",
+      "lbl-mediaDistanceModel": "מודל מרחק מדיה",
+      "lbl-mediaRolloffFactor": "גורם גלגול מדיה",
+      "lbl-mediaRefDistance": "מרחק מפלט מדיה",
+      "lbl-mediaMaxDistance": "מרחק מקסימלי של מדיה",
+      "lbl-mediaConeInnerAngle": "זווית פנימית של חרוט מדיה",
+      "lbl-mediaConeOuterAngle": "זווית חיצונית של חרוט מדיה",
+      "lbl-mediaConeOuterGain": "מדיה קונוס רווח חיצוני",
+      "info-avatarDistanceModel": "האלגוריתים נהגו לחשב גלגול שמע.",
+      "info-avatarRolloffFactor": "ערך כפול המתאר את המהירות שבה עוצמת הקול מופחתת ככל שהמקור מתרחק מהמאזין. 0 עד 1",
+      "info-avatarRolloffFactorInifinity": "ערך כפול המתאר את המהירות שבה עוצמת הקול מופחתת ככל שהמקור מתרחק מהמאזין. 0 עד אינפיניטי",
+      "info-avatarRefDistance": "ערך כפול המייצג את מרחק הייחוס להפחתת עוצמת הקול ככל שמקור השמע מתרחק יותר מהמאזין.",
+      "info-avatarMaxDistance": "ערך כפול המייצג את המרחק המרבי בין מקור השמע למאזין, ולאחר מכן עוצמת הקול אינה מופחתת עוד יותר.",
+      "info-mediaDistanceModel": "האלגוריתים נהגו לחשב גלגול שמע.",
+      "info-mediaRolloffFactor": "ערך כפול המתאר את המהירות שבה עוצמת הקול מופחתת ככל שהמקור מתרחק מהמאזין. 0 עד 1",
+      "info-mediaRolloffFactorInfinity": "ערך כפול המתאר את המהירות שבה עוצמת הקול מופחתת ככל שהמקור מתרחק מהמאזין. 0 עד אינפיניטי",
+      "info-mediaRefDistance": "ערך כפול המייצג את מרחק הייחוס להפחתת עוצמת הקול ככל שמקור השמע מתרחק יותר מהמאזין.",
+      "info-mediaMaxDistance": "ערך כפול המייצג את המרחק המרבי בין מקור השמע למאזין, ולאחר מכן עוצמת הקול אינה מופחתת עוד יותר.",
+      "info-mediaConeInnerAngle": "ערך כפול המתאר את הזווית, במעלות, של חרוט שבתוכו לא תהיה הפחתת נפח.",
+      "info-mediaConeOuterAngle": "ערך כפול המתאר את הזווית, במעלות, של חרוט שמחוץ לו הנפח יופחת על ידי ערך קבוע, המוגדר על ידי תכונת coneOuterGain.",
+      "info-mediaConeOuterGain": "ערך כפול המתאר את כמות הקטנת הנפח מחוץ לחרוט המוגדר על-ידי התכונה coneOuterAngle. ערך ברירת המחדל שלו הוא 0, כלומר לא ניתן לשמוע צליל.",
+      "lbl-simpleMaterials": "שימוש בחומרים פשוטים",
+      "lbl-lods": "LODs",
+      "info-lods": "מגדיר את המרחקים שבהם רמות הפירוט משתנות.",
+      "info-simpleMaterials": "ממיר את כל החומרים היקרים לחומרים פשוטים יותר כדי להוריד את העומס מעיבוד הסצנה.",
+      "lbl-rendererSettings": "עקיפת הגדרות Renderer",
+      "lbl-csm": "מפות צל מדורגות",
+      "info-csm": "מאפשר מפות צל מדורגות.",
+      "lbl-toneMapping": "מיפוי גוונים",
+      "info-toneMapping": "מאפשר מיפוי צלילים במעבד הסצנה. אין לו השפעה כאשר עיבוד פוסט מופעל.",
+      "lbl-toneMappingExposure": "חשיפה למיפוי גוונים",
+      "info-toneMappingExposure": "מציין את חשיפת מיפוי הגוונים במעבד הסצנה. אין לו השפעה כאשר עיבוד פוסט מופעל.",
+      "lbl-shadowMapType": "סוג מפת צל",
+      "info-shadowMapType": "סוג מפת צל",
+      "error-url": "טעינת שגיאה מכתובת URL"
+    },
+    "sceneCamera": {
+      "name": "מצלמת תצוגה מקדימה של סצנה",
+      "description": "המצלמה נהגה ליצור את התמונה הממוזערת עבור הסצנה ואת מיקום ההתחלה של מצלמת התצוגה המקדימה.",
+      "lbl-setFromViewPort": "סט מ-Viewport"
+    },
+    "skybox": {
+      "name": "סקייבוקס",
+      "description": "",
+      "lbl-timeOfDay": "שעה ביום",
+      "lbl-color": "צבע",
+      "lbl-latitude": "קו רוחב",
+      "lbl-luminance": "זוהר",
+      "lbl-scattering": "כמות הפיזור",
+      "lbl-scatteringDistance": "מרחק פיזור",
+      "lbl-horizonStart": "אופק התחלה",
+      "lbl-horizonEnd": "אופק סוף",
+      "lbl-texture": "מרקם",
+      "lbl-skyType": "סוג שמיים",
+      "error-url": "טעינת שגיאה מכתובת URL"
+    },
+    "spawnPoint": {
+      "name": "ספון פוינט",
+      "description": "נקודה שבה אנשים יופיעו כשהם נכנסים לסצנה שלך.\nהסמל ב-Viewport מייצג את הגודל האמיתי של אווטאר."
+    },
+    "spotLight": {
+      "description": "אור הפולט לאורך כיוון, מאיר עצמים בתוך חרוט.",
+      "lbl-color": "צבע",
+      "lbl-intensity": "עוצמת",
+      "lbl-penumbra": "פנומברה",
+      "lbl-angle": "פינה",
+      "lbl-range": "טווח",
+      "lbl-decay": "דעיכה"
+    },
+    "transform": {
+      "title": "שינוי צורה",
+      "lbl-postition": "מיקום",
+      "lbl-rotation": "סיבוב",
+      "lbl-scale": "סולם"
+    },
+    "triggereVolume": {
+      "description": "הגדרת מאפיין על אובייקט היעד בכניסה ובעזיבה.",
+      "lbl-target": "חפץ",
+      "lbl-onenter": "ב-Enter",
+      "lbl-onexit": "ביציאה",
+      "lbl-showHelper": "הצג רשת של עוזר",
+      "ph-errorNode": "שגיאה חסרה צומת.",
+      "ph-selectNode": "בחר צומת..."
+    },
+    "video": {
+      "name": "וידאו",
+      "description": "נטען באופן דינמי סרטון.",
+      "lbl-video": "וידאו",
+      "lbl-projection": "הקרנה",
+      "lbl-islivestream": "שידור חי",
+      "lbl-interactable": "ניתן לאינטראקציה",
+      "lbl-id": "מזהה אלמנט",
+      "lbl-play": "משחק",
+      "lbl-pause": "השהה",
+      "error-url": "טעינת שגיאה מכתובת URL"
+    },
+    "volumetric": {
+      "name": "נפחי",
+      "description": "טוען באופן דינמי סרטון נפחי.",
+      "uvolPaths": "נתיבי UVOL",
+      "playmode": "מצב משחק",
+      "playtitle": "משחק",
+      "pausetitle": "השהה"
+    },
+    "spline": {
+      "description": "צור באופן דינמי והתאם אישית עקומות.",
+      "lbl-addNode": "הוסף צומת לעקומה."
+    },
+    "systemnode": {
+      "description": "צרף סקריפט.",
+      "lbl-filePath": "כתובת אתר",
+      "lbl-systemUpdateType": "נקודת הזרקה",
+      "lbl-enableClient": "לקוח",
+      "lbl-enableServer": "שרת",
+      "lbl-args": "ארגס",
+      "error-url": "שגיאה בטעינת סקריפט מכתובת URL"
+    },
+    "portal": {
+      "lbl-portal": "פורטל מקושר",
+      "lbl-redirect": "שימוש בהפניית דף",
+      "description": "פורטאט לטלפורט שחקנים למיקום שצוין",
+      "lbl-locationName": "מקום",
+      "lbl-modelUrl": "כתובת URL של דגם",
+      "lbl-displayText": "הצגת טקסט",
+      "lbl-cubemapBake": "אפיית מפת קוביות",
+      "lbl-spawnPosition": "עמדת שרצים",
+      "lbl-spawnRotation": "סיבוב שרצים",
+      "lbl-triggerPosition": "עמדת טריגר",
+      "lbl-triggerRotation": "סיבוב ההדק",
+      "lbl-triggerScale": "סולם ההדק"
+    },
+    "postprocessing": {
+      "name": "עיבוד פוסט",
+      "description": "להחלת אפקטים של עיבוד פוסט על הסצנה שלך."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "פרויקט חדש",
+      "backLink": "חזרה לפרויקטים",
+      "featured": "נבחרים",
+      "all": "כל",
+      "newProject": "פרויקט ריק חדש",
+      "ph-search": "סצינות חיפוש..."
+    },
+    "grid": {
+      "loading": "טעינת..."
+    },
+    "page": {
+      "header": "ברוך הבא",
+      "headerMsg": "אם אתה חדש כאן אנו ממליצים לעבור על המדריך. אחרת, קפוץ ישר פנימה וצור פרויקט מאפס או מאחת התבניות שלנו.",
+      "lbl-startTutorial": "התחל הדרכה",
+      "projects": "פרוייקטים",
+      "lbl-newProject": "פרויקט חדש"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "טעינת...",
+      "placeObject": "מקם אובייקט",
+      "placeObjectAtOrigin": "הצבת אובייקט במקור",
+      "copyURL": "העתקת כתובת URL",
+      "openInNewTab": "פתיחת כתובת URL בכרטיסיה חדשה",
+      "deleteAsset": "מחיקת נכס"
+    },
+    "filebrowser": {
+      "addNewFolder": "הוספת תיקיה חדשה",
+      "cutAsset": "חתך",
+      "copyAsset": "עותק",
+      "pasteAsset": "הדבק",
+      "renameAsset": "לשנות",
+      "viewAssetProperties": "הצג מאפיינים"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "לשנות",
+    "lbl-duplicate": "שכפל",
+    "lbl-group": "קבוצה",
+    "lbl-delete": "למחוק",
+    "lbl-expandAll": "הרחב הכל",
+    "lbl-collapseAll": "כווץ הכל",
+    "isseus": "בעיות:"
+  },
+  "dnd": {
+    "nodes": "{{count}} צמתים נבחרים",
+    "models": "{{count}} דגמים נבחרים",
+    "images": "{{count}} תמונות נבחרות",
+    "videos": "{{count}} סרטונים נבחרים",
+    "audio": "{{count}} מקורות שמע נבחרים"
+  },
+  "dialog": {
+    "title": "עורך",
+    "lbl-confirm": "אוקיי",
+    "lbl-cancel": "ביטל",
+    "exportProject": {
+      "title": "פרויקט ייצוא",
+      "lbl-confirm": "פרויקט ייצוא",
+      "lbl-combineMesh": "שילוב רשתות",
+      "lbl-removeUnused": "הסרת אובייקטים שאינם בשימוש"
+    },
+    "performance": {
+      "title": "בדיקת ביצועים",
+      "lbl-confirm": "פרסם סצנה",
+      "learnMore": "למד עוד",
+      "lbl-polycount": "ספירת מצולעים",
+      "lbl-material": "חומרים",
+      "lbl-texture": "מרקמים",
+      "lbl-lights": "אורות",
+      "lbl-fileSize": "גודל הקובץ",
+      "info-polycount": "אנו ממליצים שהסצנה שלך תשתמש בלא יותר מ-50,000 משולשים למכשירים ניידים.",
+      "info-material": "אנו ממליצים להשתמש בלא יותר מ-25 חומרים ייחודיים בסצנה כדי להפחית את שיחות המשיכה במכשירים ניידים.",
+      "info-texture": "אנו ממליצים שהמרקמים שלך ישתמשו בלא יותר מ- 256MB של זיכרון RAM של וידאו עבור מכשירים ניידים. אנו ממליצים גם שלא להשתמש במרקמים הגדולים מ-2048 x 2048.",
+      "info-lights": "בעוד שנורות דינמיות אינן מופעלות במכשירים ניידים, אנו ממליצים להשתמש בלא יותר מ-3 נורות בסצנה (לא כולל אורות סביבה והמיספרה) כדי שהסצנה שלך תפעל במחשבים זולים.",
+      "info-fileSize": "אנו ממליצים על גודל קובץ סופי של לא יותר מ-16MB עבור חיבורים ברוחב פס נמוך. הקטנת גודל הקובץ תפחית את הזמן שלוקח להוריד את הסצנה.",
+      "txt-polycount": "משולשים {{count}}",
+      "txt-material": "{{count}} חומרים",
+      "txt-ram": "~{{count}} זיכרון RAM של וידאו",
+      "txt-texture": "{{count}} טקסטורות גדולות",
+      "txt-lights": "{{count}} אורות"
+    },
+    "progress": {
+      "title": "טעינת...",
+      "msg": "טעינת...",
+      "lbl-cancel": "ביטל"
+    },
+    "publish": {
+      "title": "פרסם סצנה",
+      "lbl-confirm": "שמירה ופרסום",
+      "lbl-name": "שם הסצנה",
+      "info-name": "השם חייב להיות בין 4 ל-64 תווים ואינו יכול להכיל קווים תחתונים"
+    },
+    "published": {
+      "title": "הסצנה פורסמה",
+      "header": "הסצנה שלך פורסמה.",
+      "lbl-view": "הצג את הסצנה שלך"
+    },
+    "saveNewProject": {
+      "title": "תמיכה",
+      "lbl-name": "שם הפרויקט",
+      "info-name": "השם חייב להיות בין 4 ל-64 תווים ואינו יכול להכיל קווים תחתונים",
+      "lbl-confirm": "שמור פרוייקט"
+    },
+    "support": {
+      "title": "תמיכה",
+      "header": "צריך לדווח על בעיה?",
+      "msg": "אתה יכול להגיש <1>גיליון GitHub</1> או לשלוח לנו דוא\"ל לתמיכה בכתובת <3>{{mail}}</3>",
+      "discord": "אתה יכול גם למצוא אותנו <1>בדיסקורד</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "תמונות בינג",
+      "search": "חיפוש לפי בינג"
+    },
+    "bingVideo": {
+      "name": "סרטוני בינג",
+      "search": "חיפוש לפי בינג"
+    },
+    "element": {
+      "name": "רכיבי"
+    },
+    "myAssets": {
+      "name": "הנכסים שלי"
+    },
+    "googlePoly": {
+      "name": "גוגל פולי",
+      "search": "חיפוש לפי גוגל"
+    },
+    "tenor": {
+      "name": "קובצי GIF של טנור",
+      "search": "חיפוש לפי טנור",
+      "ph-search": "חפש קובצי GIF..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "חיפוש על ידי Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "העלה נכס"
+    },
+    "imageSourcePanel": {
+      "ph-search": "חפש תמונות..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "חפש סרטונים..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "חיפוש נכסים..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "חיפוש מודלים..."
+    },
+    "useUpload": {
+      "multipleFileError": "הקלט אינו מקבל קבצים מרובים.",
+      "mineTypeError": "\"{{name}}\" אינו תואם את סוגי הפנטומימה או ההרחבות הבאים: {{types}}",
+      "progressTitle": "העלאת קבצים",
+      "progressMsg": "העלאת קבצים {{uploaded}} של {{total}}: {{percentage}}%",
+      "uploadError": "שגיאת העלאה",
+      "uploadErrorMsg": "שגיאה בהעלאת קובץ: {{message}}",
+      "uploadErrorDefaultMsg": "אירעה שגיאה לא ידועה"
+    }
+  },
+  "openLink": {
+    "description": "אנא לחץ על פתח כדי לנווט לקישור.",
+    "lbl-open": "פתוח"
+  },
+  "interactableModel": {
+    "lbl-buy": "לקנות",
+    "lbl-learnMore": "למד עוד"
+  },
+  "corsProxyButton": {
+    "tooltip": "השתמש בשרת הפרוקסי של Cors"
+  }
+}

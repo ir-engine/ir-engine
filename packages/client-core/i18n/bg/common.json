@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Зареждане на страница..."
+  },
+  "tooltip": {
+    "pressKey": "Натиснете {{tip}} , за да {{message}}"
+  },
+  "toast": {
+    "joined": "Присъедини",
+    "left": "Ляво"
+  },
+  "navUserWidget": {
+    "login": "Влизане"
+  },
+  "loader": {
+    "connecting": "Свързване със света...",
+    "entering": "Влизане в света...",
+    "loading": "Зареждане...",
+    "objectRemaining": "{{count}} обект остава",
+    "objectRemainingPlural": "{{count}} оставащи обекти",
+    "loadingObjects": "Зареждане на обекти",
+    "loadingComplete": "Зареждането е завършено",
+    "joiningWorld": "Присъединяване към Света"
+  },
+  "alert": {
+    "eventWasSuccess": "Събитието беше успешно",
+    "errorWasEncountered": "Възникна грешка",
+    "eventInProgress": "Събитие в ход",
+    "seconds": "Секунди",
+    "cancelCountdown": "Затварянето на този модал ще отмени обратното броене"
+  },
+  "debug": {
+    "refresh": "Опреснявам",
+    "stats": "Статистика",
+    "debugOptions": "Опции за отстраняване на албуми",
+    "physicsDebug": "Физика",
+    "avatarDebug": "Аватар",
+    "nodeHelperDebug": "Помощник за възли",
+    "gridDebug": "Мрежа",
+    "simpleMaterials": "Прости Материали",
+    "tick": "Цъкане",
+    "worldStore": "Световен магазин",
+    "engineStore": "Магазин за двигатели",
+    "namedEntities": "Наименувани обекти",
+    "networkObject": "Мрежов обект",
+    "networkClients": "Мрежови клиенти"
+  },
+  "recording": {
+    "videoRecorder": "Видео рекордер",
+    "waitingForPermissions": "Изчакване на разрешения",
+    "selectVideoSource": "Избор на видео източник",
+    "screen": "Екран",
+    "camera": "Фотоапарат",
+    "microphone": "Микрофон",
+    "startRecording": "Започни записа",
+    "pauseRecording": "Пауза на записа",
+    "resumeRecording": "Възобновяване на записа",
+    "stopRecording": "Спиране на записването"
+  },
+  "typing": "Пишете...",
+  "gameServer": {
+    "browserError": "Грешка в браузъра",
+    "browserErrorMessage": "Вашият браузър не поддържа съхранение в режим на частно сърфиране. Или опитайте друг браузър, или излезете от режима на частно сърфиране.",
+    "noAvailableServers": "Няма налични сървъри",
+    "noAvailableServersMessage": "Няма налични сървъри, с които да се свързвате. Опит за повторно свързване в",
+    "worldDisconnected": "Прекъснат свят",
+    "worldDisconnectedMessage": "Загуби връзката си със света. Ще се опитаме да се свържем отново, преди да изтече следното време, в противен случай ще бъдете препратени на друг екземпляр.",
+    "webGLNotEnabled": "WebGL не е разрешен",
+    "webGLNotEnabledMessage": "Вашият браузър не поддържа WebGL, или е забранен. Моля, активирайте WebGL или помислете за надстройване до най-новата версия на вашия браузър.",
+    "youKickedFromWorld": "Ритнат си от света",
+    "youKickedFromWorldMessage": "Ти беше ритнат от този свят по следната причина",
+    "invalidLocation": "Невалидно местоположение",
+    "cantFindLocation": "Не можем да намерим местоположението",
+    "misspelledOrNotExist": "Може да е грешно изписана, или да не съществува.",
+    "loading": "Зареждане",
+    "low-frame-error": "Засече лоша перфомация помислете дали да активирате Използване на хардуерно ускорение във вашия браузър и да повторухнете браузъра си",
+    "low-frame-title": "Активирайте хардуерното ускорение за по-добър опит!"
+  },
+  "error": {
+    "loading-error": "Неуспешно зареждане на потребителски данни",
+    "validation-error": "Моля, въведете валиден {{type}}",
+    "login-error": "Неуспешно влизане"
+  }
+}

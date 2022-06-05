@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Páxina de carga..."
+  },
+  "tooltip": {
+    "pressKey": "Preme {{tip}} para {{message}}"
+  },
+  "toast": {
+    "joined": "Unidos",
+    "left": "Esquerda"
+  },
+  "navUserWidget": {
+    "login": "Log In"
+  },
+  "loader": {
+    "connecting": "Conectando co mundo...",
+    "entering": "Entrando no mundo...",
+    "loading": "Cargando...",
+    "objectRemaining": "{{count}} obxecto queda",
+    "objectRemainingPlural": "{{count}} obxectos que quedan",
+    "loadingObjects": "Carga de obxectos",
+    "loadingComplete": "Carga completa",
+    "joiningWorld": "Únete ao mundo"
+  },
+  "alert": {
+    "eventWasSuccess": "O evento tivo éxito",
+    "errorWasEncountered": "Atopouse un erro",
+    "eventInProgress": "Evento en progreso",
+    "seconds": "Segundos",
+    "cancelCountdown": "Pechar esta modal cancelará a conta atrás"
+  },
+  "debug": {
+    "refresh": "Refrescos",
+    "stats": "Estatutos",
+    "debugOptions": "Opcións de debuxo",
+    "physicsDebug": "Física",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Node Helper",
+    "gridDebug": "Grid",
+    "simpleMaterials": "Materiais simples",
+    "tick": "Tick",
+    "worldStore": "World Store",
+    "engineStore": "Motor Store",
+    "namedEntities": "Entidades nomeadas",
+    "networkObject": "Obxecto de rede",
+    "networkClients": "Rede de clientes"
+  },
+  "recording": {
+    "videoRecorder": "Video Recorder",
+    "waitingForPermissions": "Esperando permisos",
+    "selectVideoSource": "Seleccionar fonte de vídeo",
+    "screen": "Pantalla",
+    "camera": "Cámara",
+    "microphone": "Micrófono",
+    "startRecording": "Inicio Gravación",
+    "pauseRecording": "Gravación pausa",
+    "resumeRecording": "Resume a gravación",
+    "stopRecording": "Parar de gravar"
+  },
+  "typing": "Typing...",
+  "gameServer": {
+    "browserError": "Erro de browser",
+    "browserErrorMessage": "O seu navegador non soporta almacenamento en modo de navegación privado. Ou proba outro navegador ou sae do modo de navegación privado.",
+    "noAvailableServers": "Non hai servidores dispoñibles",
+    "noAvailableServersMessage": "Non hai servidores dispoñibles para conectarse. Para volver a conectarse en",
+    "worldDisconnected": "Mundo desconectado",
+    "worldDisconnectedMessage": "Perdeu a conexión co mundo. Intentaremos reconectar antes de que o seguinte tempo se esgota, se non, será reenviado a unha instancia diferente.",
+    "webGLNotEnabled": "WebGL non está habilitado",
+    "webGLNotEnabledMessage": "O seu navegador non soporta WebGL, ou está deshabilitado. Por favor, habilite WebGL ou considere actualizar á última versión do seu navegador.",
+    "youKickedFromWorld": "Estás expulsado do mundo",
+    "youKickedFromWorldMessage": "Foi expulsado deste mundo pola seguinte razón:",
+    "invalidLocation": "Localización inválida",
+    "cantFindLocation": "Non atopamos a ubicación",
+    "misspelledOrNotExist": "Pode ser que non exista, ou que non exista.",
+    "loading": "Cargando",
+    "low-frame-error": "Detectado unha mala perfomance considera permitir o uso de hardware de aceleración no seu navegador e relatar o seu navegador",
+    "low-frame-title": "Permite a aceleración de hardware para unha mellor experiencia."
+  },
+  "error": {
+    "loading-error": "Non se puido cargar os datos do usuario",
+    "validation-error": "Por favor, introduza {{type}} válidos",
+    "login-error": "Fallou o login"
+  }
+}

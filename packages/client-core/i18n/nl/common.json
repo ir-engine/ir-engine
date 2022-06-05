@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Pagina wordt geladen..."
+  },
+  "tooltip": {
+    "pressKey": "Druk op {{tip}} om te {{message}}"
+  },
+  "toast": {
+    "joined": "Toegetreden",
+    "left": "Links"
+  },
+  "navUserWidget": {
+    "login": "Aanmelden"
+  },
+  "loader": {
+    "connecting": "Verbinding maken met de wereld...",
+    "entering": "De wereld betreden...",
+    "loading": "Laden...",
+    "objectRemaining": "{{count}} object over",
+    "objectRemainingPlural": "{{count}} resterende objecten",
+    "loadingObjects": "Objecten laden",
+    "loadingComplete": "Laden voltooid",
+    "joiningWorld": "Lid worden van World"
+  },
+  "alert": {
+    "eventWasSuccess": "Evenement was succesvol",
+    "errorWasEncountered": "Er is een fout opgetreden",
+    "eventInProgress": "Evenement in uitvoering",
+    "seconds": "Seconden",
+    "cancelCountdown": "Als u deze modal sluit, wordt het aftellen geannuleerd"
+  },
+  "debug": {
+    "refresh": "Opfrissen",
+    "stats": "Stats",
+    "debugOptions": "Opties voor foutopsporing",
+    "physicsDebug": "Natuurkunde",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Node Helper",
+    "gridDebug": "Rooster",
+    "simpleMaterials": "Eenvoudige materialen",
+    "tick": "Teek",
+    "worldStore": "Wereldwinkel",
+    "engineStore": "Motorenwinkel",
+    "namedEntities": "Met naam genoemde entiteiten",
+    "networkObject": "Netwerkobject",
+    "networkClients": "Netwerkclients"
+  },
+  "recording": {
+    "videoRecorder": "Videorecorder",
+    "waitingForPermissions": "Wachten op machtigingen",
+    "selectVideoSource": "Selecteer videobron",
+    "screen": "Scherm",
+    "camera": "Fototoestel",
+    "microphone": "Microfoon",
+    "startRecording": "Begin met opnemen",
+    "pauseRecording": "Opname pauzeren",
+    "resumeRecording": "Opname hervatten",
+    "stopRecording": "Opname stoppen"
+  },
+  "typing": "Typen...",
+  "gameServer": {
+    "browserError": "Browserfout",
+    "browserErrorMessage": "Uw browser ondersteunt geen opslag in de modus voor privé browsen. Probeer een andere browser of sluit de modus voor privé browsen af.",
+    "noAvailableServers": "Geen beschikbare servers",
+    "noAvailableServersMessage": "Er zijn geen servers beschikbaar waarmee u verbinding kunt maken. Proberen opnieuw verbinding te maken met",
+    "worldDisconnected": "Wereld losgekoppeld",
+    "worldDisconnectedMessage": "Je bent je verbinding met de wereld kwijt. We proberen opnieuw verbinding te maken voordat de volgende tijd om is, anders wordt u doorgestuurd naar een ander exemplaar.",
+    "webGLNotEnabled": "WebGL niet ingeschakeld",
+    "webGLNotEnabledMessage": "Uw browser ondersteunt WebGL niet of is uitgeschakeld. Schakel WebGL in of overweeg een upgrade naar de nieuwste versie van uw browser.",
+    "youKickedFromWorld": "Je bent van de wereld geschopt",
+    "youKickedFromWorldMessage": "Je bent van deze wereld geschopt om de volgende reden",
+    "invalidLocation": "Ongeldige locatie",
+    "cantFindLocation": "We kunnen de locatie niet vinden",
+    "misspelledOrNotExist": "Het kan verkeerd gespeld zijn, of het kan niet bestaan.",
+    "loading": "Laden",
+    "low-frame-error": "Gedetecteerd een slechte prestatie overwegen in te schakelen Gebruik hardware versnelling in uw browser en relauch uw browser",
+    "low-frame-title": "Schakel hardwareversnelling in voor een betere ervaring!"
+  },
+  "error": {
+    "loading-error": "Kan gebruikersgegevens niet laden",
+    "validation-error": "Voer geldige {{type}} in",
+    "login-error": "Kan niet inloggen"
+  }
+}

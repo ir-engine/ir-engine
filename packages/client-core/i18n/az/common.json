@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Səhifə yüklənir..."
+  },
+  "tooltip": {
+    "pressKey": "Mətbuat {{tip}} {{message}}"
+  },
+  "toast": {
+    "joined": "qoşuldu",
+    "left": "Sol"
+  },
+  "navUserWidget": {
+    "login": "Daxil ol"
+  },
+  "loader": {
+    "connecting": "Dünyaya bağlanmaq...",
+    "entering": "Dünyaya girmək...",
+    "loading": "Yüklənir...",
+    "objectRemaining": "{{count}} cismi",
+    "objectRemainingPlural": "{{count}} obyektlər",
+    "loadingObjects": "Cismlər Yüklənir",
+    "loadingComplete": "Yükləmə Başa Çatdı",
+    "joiningWorld": "Dünya ilə birləşmək"
+  },
+  "alert": {
+    "eventWasSuccess": "Hadisə uğurlu oldu",
+    "errorWasEncountered": "Xəta ilə rastlaşıldı",
+    "eventInProgress": "Hadisə gedişatında",
+    "seconds": "saniyə",
+    "cancelCountdown": "Bu modalın bağlanması sayqını ləğv edəcək"
+  },
+  "debug": {
+    "refresh": "Təzələ",
+    "stats": "Statistika",
+    "debugOptions": "Xəta aq",
+    "physicsDebug": "Fizika",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Düyünün yardımçısı",
+    "gridDebug": "Şəbəkə",
+    "simpleMaterials": "Sadə Materiallar",
+    "tick": "Tik",
+    "worldStore": "Dünya mağazası",
+    "engineStore": "Mühərrik mağazası",
+    "namedEntities": "Adı çəkilən üzvlər",
+    "networkObject": "Şəbəkə Obyekti",
+    "networkClients": "Şəbəkə müştəriləri"
+  },
+  "recording": {
+    "videoRecorder": "Videoqeydçi",
+    "waitingForPermissions": "İcazələri gözləmək",
+    "selectVideoSource": "Video mənbəsi seç",
+    "screen": "Ekran",
+    "camera": "Kamera",
+    "microphone": "Mikrofon",
+    "startRecording": "Yazılmağa başla",
+    "pauseRecording": "Pauza qeydi",
+    "resumeRecording": "Qeydləri davam etdir",
+    "stopRecording": "Yazmanı dayandır"
+  },
+  "typing": "Qeyd et...",
+  "gameServer": {
+    "browserError": "Brauzer xətası",
+    "browserErrorMessage": "Brauzeriniz şəxsi axtarış rejimində saxlanılmasını dəstəkləmir. Ya başqa brauzeri sınayın, ya da şəxsi axtarış rejimindən çıxın.",
+    "noAvailableServers": "Mövcud Server yoxdur",
+    "noAvailableServersMessage": "Bağlana biləcəyiniz heç bir verici yoxdur. Yenidən bağlanmağa cəhd",
+    "worldDisconnected": "Dünya əlaqəsi kəsildi",
+    "worldDisconnectedMessage": "Dünya ilə əlaqəni itirdin. Növbəti vaxt qurtarmamış yenidən əlaqə yaratmağa çalışacağıq. Əks halda, başqa bir nümunəyə doğru irəliləmiş olacaqsınız.",
+    "webGLNotEnabled": "WebGL fəal deyil",
+    "webGLNotEnabledMessage": "Brauzeriniz WebGL-ni dəstəkləmir və ya qeyri-fəaldır. Xahiş edirik WebGL-ni fəallaşdırsın və ya brauzerinizin son versiyasına yüksəlməyi nəzərdən keçirəsiniz.",
+    "youKickedFromWorld": "Səni dünyadan təpikləyiblər,",
+    "youKickedFromWorldMessage": "Aşağıdakı səbəbə görə bu dünyadan təpikləndiniz",
+    "invalidLocation": "Səhv yer",
+    "cantFindLocation": "Yeri tapa bilmirik",
+    "misspelledOrNotExist": "Bu, səhv yazılan və ya mövcud olmayan ola bilər.",
+    "loading": "yüklənir",
+    "low-frame-error": "Aşkar bir yoxsul perfomance nəzərə browserinizdə Istifadə Hardware sürətləndirmə imkan verir və brauzerinizi yenidən emal",
+    "low-frame-title": "Daha yaxşı təcrübə üçün hardware sürətləndirməni fəallaşdır!"
+  },
+  "error": {
+    "loading-error": "İstifadəçi məlumatları yüklənə bilmədi",
+    "validation-error": "Xahiş edirik, hökmlü {{type}} daxil edin",
+    "login-error": "%s yüklənə bilmədi"
+  }
+}

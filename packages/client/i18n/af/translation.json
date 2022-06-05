@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Bladsy nie gevind nie"
+  },
+  "503": {
+    "msg": "503 - Diens nie beskikbaar nie"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Jy is verban uit hierdie plek",
+    "locationName": {
+      "pageTitle": "Huis"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projekte",
+      "header": "Teken asseblief aan",
+      "welcomeMsg": "Welkom",
+      "locationHeader": "Plekke",
+      "projectHeader": "Projekte",
+      "sceneHeader": "Tonele",
+      "description": "As u nuut is, beveel ons aan om deur die tutoriaal te gaan. Andersins, spring regs in en skep 'n projek van nuuts af of van een van ons templates.",
+      "lbl-startTutorial": "Begin Handleiding",
+      "lbl-newProject": "Nuwe projek",
+      "lbl-createProject": "Skep",
+      "lbl-newScene": "Nuwe toneel",
+      "lbl-searchProject": "Soek bestaande projekte...",
+      "back": "Terug",
+      "contextMenu": "Skrap Projek",
+      "installed": "Geïnstalleerde projekte",
+      "official": "Amptelike Projekte",
+      "community": "Gemeenskapsprojekte",
+      "install": "Installeer",
+      "uninstall": "Deïnstalleer",
+      "rename": "Hernoem",
+      "createProject": "Skep Projek",
+      "installProject": "Installeer Projek",
+      "processing": "Verwerking",
+      "projectName": "Projek Naam",
+      "projectURL": "Projek URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Gaan huis toe",
+    "withStatusCode": "'n Fout {{code}} op bediener voorgekom het",
+    "withoutStatusCode": "'n Fout het op bediener voorgekom"
+  },
+  "no-projects": {
+    "msg": "Fout: Geen projekte geïnstalleer nie - kontak asseblief 'n werfadministrateur"
+  },
+  "dev": {
+    "pageTitle": "Huis"
+  },
+  "login": {
+    "pageTitle": "Aanteken"
+  },
+  "workerTest": {
+    "pageTitle": "Werker toets"
+  },
+  "index": {
+    "by": "DEUR",
+    "xr": "XR",
+    "foundation": "Fondament",
+    "description": "Realtime 3D sosiale toepassings vir almal om te geniet."
+  },
+  "xrengineContact": {
+    "header": "Kom in kontak!",
+    "description": "Ons wil u graag help met u virtuele geleenthede, digitale kleinhandel, vermaak en ander behoeftes.",
+    "lbl-name": "Naam",
+    "lbl-email": "E-pos",
+    "lbl-company": "Maatskappy",
+    "lbl-project": "Beskryf jou projek",
+    "lbl-send": "Stuur",
+    "lbl-ok": "Oukei",
+    "lbl-success": "Boodskap gestuur, Ons sal binnekort terugkom na jou toe.",
+    "lbl-failure": "'n Fout het voorgekom, Plese probeer weer",
+    "err-username": "Tik asseblief jou naam in.",
+    "err-email": "E-pos is nodig.",
+    "err-msg": "Gee 'n kort beskrywing van jou projek."
+  }
+}

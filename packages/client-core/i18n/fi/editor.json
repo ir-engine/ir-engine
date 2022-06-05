@@ -1,0 +1,718 @@
+{
+  "loading": "Ladataan projektia",
+  "loadingMsg": "Ladataan projektia...",
+  "loadingError": "Virhe ladattaessa projektia",
+  "loadingErrorMsg": "Virhe ladattaessa projektia.",
+  "selectSceneMsg": "Valitse Kohtaus, jos haluat aloittaa pelaamisen moottorilla",
+  "error": "Virhe",
+  "errorMsg": "Tapahtui tuntematon virhe.",
+  "generateScreenshot": "Luodaan projektin näyttökuvaa",
+  "generateScreenshotMsg": "Luodaan projektin kuvakaappausta...",
+  "newScene": "Luo kohtaus",
+  "saving": "Projektin tallentaminen",
+  "savingMsg": "Tallennetaan projektia...",
+  "savingError": "Virhe tallennettaessa projektia",
+  "savingErrorMsg": "Virhe tallennettaessa projektia.",
+  "savingSceneErrorMsg": "Kohtausta ei ole ladattu oikein. Yritä ladata kohtaus uudelleen.",
+  "duplicating": "Projektin monistaminen",
+  "duplicatingMsg": "Kopioidaan projektia...",
+  "exporting": "Viedään projektia",
+  "exportingMsg": "Viedään projektia...",
+  "exportingError": "Virhe vietäessä projektia",
+  "exportingErrorMsg": "Virhe vietäessä projektia.",
+  "importLegacy": "Tuo vanha maailma",
+  "importLegacyMsg": "Varoitus! Tämä korvaa nykyisen kohtauksesi! Oletko varma, että haluat jatkaa?",
+  "publishingError": "Virhe julkaistaessa projektia",
+  "publishingErrorMsg": "Tapahtui tuntematon virhe.",
+  "publishingScene": "Julkaisunäkymä",
+  "publishingSceneMsg": "Julkaisukohtaus...",
+  "uploadingThumbnailMsg": "Ladataan pikkukuvaa...",
+  "uploadingSceneMsg": "Latauskohtaus: {{percentage}}%",
+  "envMapError": "Virhe ladattaessa kuutiokarttakuvia {{files}}",
+  "lbl-return": "Paluu",
+  "menubar": {
+    "newScene": "Uusi kohtaus",
+    "saveScene": "Tallenna kohtaus",
+    "saveAs": "Tallenna nimellä",
+    "importAsset": "Tuo resurssi",
+    "exportGLB": "Vie binaarisena glTF:nä (.glb) ...",
+    "importScene": "Tuo kohtaus",
+    "exportScene": "Vie näkymä",
+    "quit": "Lopettaa"
+  },
+  "errors": {
+    "fileTypeNotSupported": "Tiedoston tiedostotyyppiä ei tueta: \"{{name}}\". Tiedoston on oltava kuva-, video- tai glb-malli.",
+    "addObject": "addObject: ennen kuin objektia ei löydy",
+    "removeObject": "removeObject: solmua ei löydy. Tämä johtuu solmun poistamisesta, joka ei ole enää kohtauksessa.",
+    "noParent": "{{node}} \"{{name}}\" ei ole ylätasoa. Reparent toimii vain objekteissa, jotka ovat tällä hetkellä tapahtumapaikalla.",
+    "undefinedParent": "editor.reparent: newParent on määrittelemätön",
+    "notAuthenticated": "Ei todennettu",
+    "fetchingProjectError": "Virhe noudettaessa projekteja: {{error}}",
+    "fetchingRouteError": "Virhe noudettaessa reittejä: {{error}}",
+    "unknownError": "Tuntematon virhe",
+    "resolveURL": "Virhe ratkaista url-osoitetta \"{{url}}\":",
+    "mediaSearchAborted": "Mediahaku keskeytetty",
+    "methodNotImplemented": "Menetelmää ei ole toteutettu.",
+    "saveProjectAborted": "Tallenna kohtaus keskeytettynä",
+    "unsavedChanges": "Tallentamattomat muutokset",
+    "unsavedChangesMsg": "Kohtausta on muokattu. Tallenna muutokset.",
+    "projectCreationFail": "Projektin luominen epäonnistui. {{reason}}",
+    "projectDeletionFail": "Projektin poistaminen epäonnistui. {{reason}}",
+    "savingProjectFail": "Projectin tallentaminen epäonnistui. {{reason}}",
+    "sceneTooLarge": "Kohtaus on liian suuri ({{size}} Mt) julkaistavaksi. Enimmäiskoko on {{maxSize}} Mt.",
+    "sceneCreationFail": "Kohtauksen luominen epäonnistui. {{reason}}",
+    "uploadAborted": "Lataus keskeytetty",
+    "uploadFailed": "Lataaminen epäonnistui {{reason}}",
+    "assetDeletionFail": "Resurssien poistaminen epäonnistui. {{reason}}",
+    "projectAssetDeletionFail": "Projektiresurssien poistaminen epäonnistui. {{reason}}",
+    "networkError": "Verkkovirhe: {{status}}. {{text}}",
+    "unknownStatus": "Tuntematon tila",
+    "CORS": "Mahdollisesti CORS-virhe",
+    "urlFetchError": "\"{{url}}\" noutaminen epäonnistui"
+  },
+  "viewport": {
+    "title": "Näyttöikkunan",
+    "command": {
+      "movecamera": "Siirrä kameraa",
+      "flyFast": "Lennä nopeammin",
+      "orbit": "Kiertorata / Valitse",
+      "pan": "Pan",
+      "fly": "Lentää",
+      "focus": "Polttopiste",
+      "rotateLeft": "Kierrä vasemmalle",
+      "rotateRight": "Kierrä oikealle",
+      "cancelPlacement": "Peruuta sijoittelu",
+      "placeDuplicate": "Sijoita kaksoiskappale",
+      "cancelGrab": "Peruuta tarttuminen",
+      "grab": "Anastaa",
+      "deselectAll": "Poista Kaikkien valinta"
+    },
+    "state": {
+      "header": "Tilastot",
+      "memory": "Muisti",
+      "geometries": "Geometriat",
+      "textures": "Tekstuurit",
+      "render": "Tehdä",
+      "FPS": "FPS",
+      "frameTime": "Kehysaika",
+      "calls": "Puhelut",
+      "triangles": "Kolmiot",
+      "points": "Pistettä",
+      "lines": "Rivit"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "Julkaista",
+    "lbl-published": "Julkaistu",
+    "command": {
+      "translate": "Kääntää",
+      "rotate": "Kiertää",
+      "scale": "Mittakaava",
+      "toggleSpace": "Vaihda muunnostilaa",
+      "togglePivot": "Vaihda muunnos-pivotia",
+      "toggleSnapMode": "Vaihda kohdistustilaa",
+      "toggleGrid": "Vaihda ruudukon näkyvyyttä",
+      "increaseGridSize": "Ruudukon koon suurentaminen",
+      "descreaseGridSize": "Pienennä ruudukon kokoa",
+      "stopPreview": "Lopeta kohtauksen esikatselu",
+      "playPreview": "Esikatsele kohtausta"
+    }
+  },
+  "properties": {
+    "title": "Majoituspaikkaa",
+    "lbl-visible": "Näkyvä",
+    "lbl-preventBake": "Estä leivonta",
+    "lbl-persist": "Kestää",
+    "multipleNodeSelected": "Useita erityyppisiä solmuja valittu",
+    "noNodeSelected": "Solmua ei ole valittu",
+    "ambientLight": {
+      "name": "Ympäristön valo",
+      "description": "Valo, joka valaisee kaikki kohtauksen kohteet.",
+      "lbl-intensity": "Intensiteetti",
+      "lbl-color": "Väri"
+    },
+    "envmap": {
+      "name": "Ympäristökartta",
+      "description": "ympäristökartan ominaisuudet"
+    },
+    "asset": {
+      "name": "Etu",
+      "description": "Kohtauskomponenttien ryhmittely, joka voidaan ladata ja purkaa dynaamisesti",
+      "lbl-options": "Asetukset",
+      "lbl-assetPath": "Resurssin polku",
+      "lbl-assetName": "Viennin nimi",
+      "lbl-exportOptions": "Vientiasetukset",
+      "lbl-export": "Vie resurssi",
+      "lbl-load": "Lataa kohtaukseen",
+      "lbl-unload": "Purkaa lasti",
+      "lbl-reload": "Ladata uudelleen"
+    },
+    "audio": {
+      "name": "Audio",
+      "description": "Lataa äänen dynaamisesti.",
+      "lbl-audiourl": "Äänen URL-osoite",
+      "lbl-controls": "Valvonta",
+      "info-controls": "Vaihda mediaohjausobjektien näkyvyyttä.",
+      "lbl-autoplay": "Automaattinen toisto",
+      "info-autoplay": "Jos se on totta, media toistetaan, kun se saapuu ensimmäisen kerran kohtaukseen.",
+      "lbl-synchronize": "Synkronoida",
+      "info-synchronize": "Jos tosi on, tietoväline synkronoidaan kaikissa yhdistetyissä asiakkaissa.",
+      "lbl-loop": "Silmukka",
+      "info-loop": "Jos se on totta, tietoväline kiertää loputtomiin.",
+      "lbl-audioType": "Äänen tyyppi",
+      "lbl-distanceModel": "Etäisyyden malli",
+      "info-distanceModel": "Algorithimit laskivat äänen roiskun.",
+      "lbl-rolloffFactor": "Rolloff-kerroin",
+      "info-rolloffFactor": "Kaksinkertainen arvo, joka kuvaa, kuinka nopeasti äänenvoimakkuus pienenee, kun lähde siirtyy pois kuuntelijasta. 0-1",
+      "info-rfInfinity": "Kaksinkertainen arvo, joka kuvaa, kuinka nopeasti äänenvoimakkuus pienenee, kun lähde siirtyy pois kuuntelijasta. 0 äärettömyyteen",
+      "lbl-refDistance": "Viite-etäisyys",
+      "info-refDistance": "Kaksinkertainen arvo, joka edustaa viiteetäisyyttä äänenvoimakkuuden vähentämiseksi, kun äänilähde siirtyy kauemmas kuuntelijasta.",
+      "lbl-maxDistance": "Suurin etäisyys",
+      "info-maxDistance": "Kaksinkertainen arvo, joka edustaa äänilähteen ja kuuntelijan välistä enimmäisetäisyyttä, minkä jälkeen äänenvoimakkuutta ei vähennetä enää.",
+      "lbl-coneInnerAngle": "Kartion sisäkulma",
+      "info-coneInnerAngle": "Kaksinkertainen arvo, joka kuvaa kartion kulmaa asteina, jonka sisällä ei vähennetä tilavuutta.",
+      "lbl-coneOuterAngle": "Kartion ulkokulma",
+      "info-coneOuterAngle": "Kaksinkertainen arvo, joka kuvaa kartion kulmaa asteina, jonka ulkopuolella äänenvoimakkuutta vähennetään coneOuterGain-määritteen määrittämällä vakioarvolla.",
+      "lbl-coreOuterGain": "Kartion ulkovahvistus",
+      "info-coreOuterGain": "Kaksinkertainen arvo, joka kuvaa äänenvoimakkuuden vähennysmäärää coneOuterAngle-määritteen määrittämän kartion ulkopuolella. Sen oletusarvo on 0, mikä tarkoittaa, että ääntä ei voida kuulla.",
+      "lbl-volume": "Tilavuus",
+      "lbl-play": "Leikkiä",
+      "lbl-pause": "Tauko",
+      "error-url": "Virhe ladattaessa URL-osoitteesta"
+    },
+    "boxCollider": {
+      "description": "Näkymätön ruutu, josta objektit kimpoavat tai lepäävät sen päällä.\nIlman kollimaattoreita esineet putoavat lattioiden läpi ja menevät seinien läpi.",
+      "lbl-isTrigger": "Laukaista"
+    },
+    "camera": {
+      "name": "Kamera",
+      "description": "Kameran asetukset.",
+      "lbl-camera-raycast": "Kameran sädetys",
+      "lbl-camera-raycast-toggle": "Käytössä",
+      "lbl-camera-raycast-frequency": "Taajuus",
+      "lbl-camera-raycast-count": "Säteen määrä",
+      "lbl-camera-raycast-length": "Säteen pituus"
+    },
+    "directionalLight": {
+      "name": "Suuntaava valo",
+      "description": "Valo, joka valaisee koko kohtauksen, mutta säteilee yhtä suuntaa.",
+      "lbl-color": "Väri",
+      "lbl-intensity": "Intensiteetti",
+      "lbl-cameraFar": "Kamera kaukana",
+      "lbl-cameraNear": "Kamera lähellä",
+      "lbl-cameraTop": "Kameran yläosa",
+      "lbl-cameraBottom": "Kameran alaosa",
+      "lbl-cameraLeft": "Kamera vasemmalla",
+      "lbl-cameraRight": "Kamera oikealle",
+      "lbl-useInCSM": "Käyttö CSM:ssä",
+      "lbl-castShadow": "Valun varjostus",
+      "lbl-disableForCSM": "Poistettu käytöstä, koska Limitys-varjokartta on käytössä.",
+      "lbl-shadowmapResolution": "Varjostuksen kartan tarkkuus",
+      "lbl-shadowBias": "Varjostuksen vinouma",
+      "lbl-shadowRadius": "Varjostuksen säde",
+      "lbl-showCameraHelper": "Näytä kameran avustaja"
+    },
+    "groundPlane": {
+      "name": "Maalentokone",
+      "description": "Tasainen maataso, joka ulottuu etäisyyteen.",
+      "lbl-color": "Väri",
+      "lbl-receiveShadow": "Vastaanota varjostus",
+      "lbl-generateNavmesh": "Luo Navmesh"
+    },
+    "link": {
+      "description": "Linkki huoneeseen tai verkkosivustoon.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "Esimerkiksi kaupungin 3D-geospatiaalinen kartta."
+    },
+    "model": {
+      "description": "Kohtauksessasi oleva 3D-malli, joka ladataan GLTF-URL-osoitteesta tai tiedostosta.",
+      "lbl-usingGPUInstancingFlag": "Käytä grafiikkasuorittimen asennusta",
+      "lbl-modelurl": "Mallin URL-osoite",
+      "lbl-envmapUrl": "Ympäristökartan URL-osoite",
+      "lbl-textureOverride": "Ohita materiaalikuvio",
+      "lbl-materialOverride": "Materiaalin ohitukset",
+      "error-url": "Virhe ladattaessa URL-osoitteesta",
+      "lbl-loopAnimation": "Silmukan animaatio",
+      "lbl-isAvatar": "Onko Avatar",
+      "lbl-isGPUInstancing": "Käyttää GPU-asennusta",
+      "lbl-isDynamic": "On dynaaminen",
+      "lbl-castShadow": "Valun varjostus",
+      "lbl-receiveShadow": "Vastaanota varjostus",
+      "lbl-interactable": "Vuorovaikutuksessa",
+      "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+      "lbl-name": "Nimi",
+      "lbl-url": "Mallin URL-osoite",
+      "lbl-buy": "Osta URL-osoite",
+      "lbl-learnMore": "Lisätietoja URL-osoitteesta",
+      "lbl-htmlContent": "HTML-sisältö",
+      "lbl-interactionText": "Vuorovaikutuksen teksti",
+      "lbl-interactionType": "Vuorovaikutuksen tyyppi"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "Materiaali",
+      "error-materialID": "Virhe etsittäessä materiaalia",
+      "placeholder-materialID": "Valitse materiaali",
+      "lbl-patternTarget": "Kuvion vastaavuus",
+      "lbl-pattern": "Kuvio",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "Vuorovaikutuksen tyyppi",
+      "text": "Vuorovaikutuksen teksti",
+      "distance": "Vuorovaikutuksen etäisyys",
+      "theme": "Vuorovaikutus-teema",
+      "name": "Vuorovaikutuksen nimi",
+      "description": "Vuorovaikutuksen kuvaus",
+      "images": "Vuorovaikutuksen kuvat",
+      "videos": "Vuorovaikutusvideot",
+      "urls": "Vuorovaikutuksen URL-osoitteet",
+      "models": "Vuorovaikutusmallit"
+    },
+    "group": {
+      "name": "Ryhmä",
+      "description": "Useiden objektien ryhmä, joka voidaan siirtää tai monistaa yhteen.\nVedä ja pudota objekteja hierarkian ryhmään."
+    },
+    "hemisphere": {
+      "name": "Pallonpuoliskon valo",
+      "description": "Valo, joka valaisee kohtauksen suoraan ylhäältä.",
+      "lbl-skyColor": "Taivaan väri",
+      "lbl-groundColor": "Maadoitettu väri",
+      "lbl-intensity": "Intensiteetti"
+    },
+    "image": {
+      "name": "Kuva",
+      "description": "Lataa kuvan dynaamisesti.",
+      "lbl-imgURL": "Kuvan URL-osoite",
+      "lbl-transparency": "Läpinäkyvyystila",
+      "lbl-alphaCutoff": "Alfa-aukko",
+      "lbl-projection": "Projektio",
+      "lbl-side": "Puoli",
+      "info-controls": "Vaihda mediaohjausobjektien näkyvyyttä.",
+      "info-transparency": "Läpinäkyvyyden soveltaminen:",
+      "info-opaque": "\"Läpinäkymätön\" = ei läpinäkyvyyttä",
+      "info-blend": "'sekoitus' = käytä kuvia alfakanava",
+      "info-mask": "'maski' = Käytä määritettyä raja-arvoa päälle/pois-läpinäkyvyyteen (enemmän performanttia)",
+      "info-alphaCutoff": "Pikselit, joiden alfa-arvot ovat tätä pienemmät, ovat läpinäkyviä",
+      "error-url": "Virheellinen URL-osoite"
+    },
+    "name": {
+      "lbl-name": "Nimi"
+    },
+    "partileEmitter": {
+      "description": "Hiukkaslähetin hiukkasten luomiseksi.",
+      "lbl-particleCount": "Hiukkasten määrä",
+      "lbl-image": "Kuva",
+      "lbl-ageRandomness": "Iän satunnaisuus",
+      "lbl-lifetime": "Elinikä",
+      "lbl-lifetimeRandomness": "Elinikäinen satunnaisuus",
+      "lbl-sizeCurve": "Koko-käyrä",
+      "lbl-startPSize": "Aloita hiukkaskoko",
+      "lbl-endPSize": "Lopeta hiukkaskoko",
+      "lbl-sizeRandomness": "Koon satunnaisuus",
+      "lbl-colorCurve": "Värikäyrä",
+      "lbl-startColor": "Aloita väri",
+      "lbl-startOpacity": "Aloita peittävyys",
+      "lbl-middleColor": "Keskimmäinen väri",
+      "lbl-middleOpacity": "Keskimmäinen peittävyys",
+      "lbl-endColor": "Lopeta väri",
+      "lbl-endOpacity": "Lopeta peittävyys",
+      "lbl-velocityCurve": "Nopeuskäyrä",
+      "lbl-startVelocity": "Käynnistysnopeus",
+      "lbl-endVelocity": "Lopeta nopeus",
+      "lbl-angularVelocity": "Kulmanopeus",
+      "info-ageRandomness": "Hiukkasten kutemisen välillä tapahtuvan vaihtelun määrä.",
+      "info-lifetime": "Hiukkasen enimmäisikä ennen kuin se respawnoidaan.",
+      "info-lifetimeRandomness": "Hiukkasten elinaikojen välisen vaihtelun määrä.",
+      "info-sizeRandomness": "Hiukkasten aloituskokojen välisen vaihtelun määrä.",
+      "error-url": "Virhe ladattaessa URL-osoitteesta"
+    },
+    "clouds": {
+      "name": "Pilvi",
+      "description": "Sprite-pohjainen pilvimäärä.",
+      "lbl-image": "Sprite-kuva",
+      "lbl-wroldScale": "Maailman mittakaava",
+      "lbl-dimensions": "Mitat",
+      "lbl-noiseZoom": "Kohinan zoomaus",
+      "lbl-noiseOffset": "Kohinan poikkeama",
+      "lbl-spriteScale": "Sprite-asteikko",
+      "lbl-fogColor": "Sumun väri",
+      "lbl-fogRange": "Sumualue",
+      "error-url": "Virhe ladattaessa URL-osoitteesta"
+    },
+    "ocean": {
+      "name": "Valtameri",
+      "description": "Valtameren pinta aalloilla ja vaahdolla",
+      "lbl-normalMap": "Normaali kartta",
+      "lbl-distortionMap": "Vääristymäkartta",
+      "lbl-envMap": "Ympäristökartta",
+      "lbl-color": "Väri",
+      "lbl-shallowWaterColor": "Matalan veden väri",
+      "lbl-shallowToDeepDistance": "Matalasta syvään etäisyyteen",
+      "lbl-opacityFadeDistance": "Peittävyyden häivytysetäisyys",
+      "lbl-opacityRange": "Peittävyysalue",
+      "lbl-shininess": "Kiilto",
+      "lbl-reflectivity": "Heijastuvuus",
+      "lbl-foamColor": "Vaahdon väri",
+      "lbl-foamSpeed": "Vaahdon nopeus",
+      "lbl-foamTiling": "Vaahdon laatoitus",
+      "lbl-bigWaveTiling": "Big Wave -laatoitus",
+      "lbl-bigWaveSpeed": "Suuren aallon nopeus",
+      "lbl-bigWaveHeight": "Ison aallon korkeus",
+      "lbl-waveSpeed": "Aallon nopeus",
+      "lbl-waveScale": "Aallon asteikko",
+      "lbl-waveTiling": "Aaltolaatoitus",
+      "lbl-waveDistortionSpeed": "Aallon vääristymän nopeus",
+      "lbl-waveDistortionTiling": "Aalto vääristymän laatoitus",
+      "error-url": "Virhe ladattaessa URL-osoitteesta"
+    },
+    "water": {
+      "name": "Vesi",
+      "description": "Pieni vedenpinta"
+    },
+    "interior": {
+      "name": "Sisus",
+      "description": "Pinta, jossa on kartoitettu kuution rakenne sisäympäristöjen jäljittelemiseksi",
+      "lbl-cubeMap": "Kuutiokartan tekstuuri",
+      "lbl-tiling": "Laatoituksen määrä",
+      "lbl-size": "Pinnan koko",
+      "error-url": "Virhe ladattaessa URL-osoitteesta"
+    },
+    "pointLight": {
+      "description": "Valo, joka säteilee kaikkiin suuntiin yhdestä pisteestä.",
+      "lbl-color": "Väri",
+      "lbl-intensity": "Intensiteetti",
+      "lbl-range": "Etäisyys",
+      "lbl-decay": "Rappio"
+    },
+    "scene": {
+      "name": "Kohtaus",
+      "description": "Kohtauksen pääkohde.",
+      "lbl-bgcolor": "Taustaväri",
+      "lbl-fogType": "Sumun tyyppi",
+      "lbl-fogColor": "Sumun väri",
+      "lbl-forNearDistance": "Sumu lähellä etäisyyttä",
+      "lbl-fogFarDistance": "Sumu kaukana",
+      "lbl-fogDensity": "Sumun tiheys",
+      "lbl-audioSettings": "Käytä sijaintiääntä",
+      "lbl-avatarDistanceModel": "Avatarin etäisyysmalli",
+      "lbl-avatarRolloffFactor": "Avatarin roiseerauskerroin",
+      "lbl-avatarRefDistance": "Etäisyys Avatar Ref",
+      "lbl-avatarMaxDistance": "Avatarin enimmäisetäisyys",
+      "lbl-mediaVolume": "Tietovälineen äänenvoimakkuus",
+      "lbl-mediaDistanceModel": "Mediaetäisyyden malli",
+      "lbl-mediaRolloffFactor": "Median käynnistyskerroin",
+      "lbl-mediaRefDistance": "Etäisyys tietovälineen viitetiedot",
+      "lbl-mediaMaxDistance": "Median enimmäisetäisyys",
+      "lbl-mediaConeInnerAngle": "Tietovälineen kartion sisäkulma",
+      "lbl-mediaConeOuterAngle": "Tietovälinekartion ulkokulma",
+      "lbl-mediaConeOuterGain": "Tietovälinekartion ulompi vahvistus",
+      "info-avatarDistanceModel": "Algorithimit laskivat äänen roiskun.",
+      "info-avatarRolloffFactor": "Kaksinkertainen arvo, joka kuvaa, kuinka nopeasti äänenvoimakkuus pienenee, kun lähde siirtyy pois kuuntelijasta. 0-1",
+      "info-avatarRolloffFactorInifinity": "Kaksinkertainen arvo, joka kuvaa, kuinka nopeasti äänenvoimakkuus pienenee, kun lähde siirtyy pois kuuntelijasta. 0 äärettömyyteen",
+      "info-avatarRefDistance": "Kaksinkertainen arvo, joka edustaa viiteetäisyyttä äänenvoimakkuuden vähentämiseksi, kun äänilähde siirtyy kauemmas kuuntelijasta.",
+      "info-avatarMaxDistance": "Kaksinkertainen arvo, joka edustaa äänilähteen ja kuuntelijan välistä enimmäisetäisyyttä, minkä jälkeen äänenvoimakkuutta ei vähennetä enää.",
+      "info-mediaDistanceModel": "Algorithimit laskivat äänen roiskun.",
+      "info-mediaRolloffFactor": "Kaksinkertainen arvo, joka kuvaa, kuinka nopeasti äänenvoimakkuus pienenee, kun lähde siirtyy pois kuuntelijasta. 0-1",
+      "info-mediaRolloffFactorInfinity": "Kaksinkertainen arvo, joka kuvaa, kuinka nopeasti äänenvoimakkuus pienenee, kun lähde siirtyy pois kuuntelijasta. 0 äärettömyyteen",
+      "info-mediaRefDistance": "Kaksinkertainen arvo, joka edustaa viiteetäisyyttä äänenvoimakkuuden vähentämiseksi, kun äänilähde siirtyy kauemmas kuuntelijasta.",
+      "info-mediaMaxDistance": "Kaksinkertainen arvo, joka edustaa äänilähteen ja kuuntelijan välistä enimmäisetäisyyttä, minkä jälkeen äänenvoimakkuutta ei vähennetä enää.",
+      "info-mediaConeInnerAngle": "Kaksinkertainen arvo, joka kuvaa kartion kulmaa asteina, jonka sisällä ei vähennetä tilavuutta.",
+      "info-mediaConeOuterAngle": "Kaksinkertainen arvo, joka kuvaa kartion kulmaa asteina, jonka ulkopuolella äänenvoimakkuutta vähennetään coneOuterGain-määritteen määrittämällä vakioarvolla.",
+      "info-mediaConeOuterGain": "Kaksinkertainen arvo, joka kuvaa äänenvoimakkuuden vähennysmäärää coneOuterAngle-määritteen määrittämän kartion ulkopuolella. Sen oletusarvo on 0, mikä tarkoittaa, että ääntä ei voida kuulla.",
+      "lbl-simpleMaterials": "Käytä yksinkertaisia materiaaleja",
+      "lbl-lods": "LOD:t",
+      "info-lods": "Määrittää etäisyydet, joilla yksityiskohtien tasot muuttuvat.",
+      "info-simpleMaterials": "Muuntaa kaikki kalliit materiaalit yksinkertaisemmiksi, jotta kuorma poistuu kohtauksen renderöinnistä.",
+      "lbl-rendererSettings": "Ohita hahmonnusasetukset",
+      "lbl-csm": "Limittäiset varjostuskartat",
+      "info-csm": "Ottaa käyttöön johdannaisten varjokartat.",
+      "lbl-toneMapping": "Sävyn kartoitus",
+      "info-toneMapping": "Ottaa äänimäärityksen käyttöön kohtauksen hahmontimessa. Sillä ei ole vaikutusta, kun jälkikäsittely on käytössä.",
+      "lbl-toneMappingExposure": "Sävykartoituksen valotus",
+      "info-toneMappingExposure": "Määrittää näkymän hahmontimen äänimäärityksen valotuksen. Sillä ei ole vaikutusta, kun jälkikäsittely on käytössä.",
+      "lbl-shadowMapType": "Varjostuskartan tyyppi",
+      "info-shadowMapType": "Varjokartan tyyppi",
+      "error-url": "Virhe ladattaessa URL-osoitteesta"
+    },
+    "sceneCamera": {
+      "name": "Kohtauksen esikatselukamera",
+      "description": "Kamera, jota käytettiin luomaan pikkukuva kohtauksellesi ja esikatselukameran aloitusasento.",
+      "lbl-setFromViewPort": "Aseta näyttöikkunasta"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "Kellonaika",
+      "lbl-color": "Väri",
+      "lbl-latitude": "Leveysaste",
+      "lbl-luminance": "Luminanssi",
+      "lbl-scattering": "Sirontasumma",
+      "lbl-scatteringDistance": "Hajontaetäisyys",
+      "lbl-horizonStart": "Horisontin alku",
+      "lbl-horizonEnd": "Horisontin loppu",
+      "lbl-texture": "Rakenne",
+      "lbl-skyType": "Taivaan tyyppi",
+      "error-url": "Virhe ladattaessa URL-osoitteesta"
+    },
+    "spawnPoint": {
+      "name": "Kutupiste",
+      "description": "Kohta, jossa ihmiset näkyvät, kun he tulevat kohtaukseesi.\nViewportin kuvake edustaa avatarin todellista kokoa."
+    },
+    "spotLight": {
+      "description": "Valo, joka säteilee suuntaa pitkin ja valaisee esineitä kartion sisällä.",
+      "lbl-color": "Väri",
+      "lbl-intensity": "Intensiteetti",
+      "lbl-penumbra": "Puolivarjo",
+      "lbl-angle": "Kulma",
+      "lbl-range": "Etäisyys",
+      "lbl-decay": "Rappio"
+    },
+    "transform": {
+      "title": "Muuttaa",
+      "lbl-postition": "Asema",
+      "lbl-rotation": "Kierto",
+      "lbl-scale": "Mittakaava"
+    },
+    "triggereVolume": {
+      "description": "Määrittää kohdeobjektin ominaisuuden kirjoitettaessa ja lähtiessä.",
+      "lbl-target": "Objekti",
+      "lbl-onenter": "Syötettäessä",
+      "lbl-onexit": "Poistuttaessa",
+      "lbl-showHelper": "Näytä avustajaverkko",
+      "ph-errorNode": "Virhe puuttuu solmusta.",
+      "ph-selectNode": "Valitse solmu..."
+    },
+    "video": {
+      "name": "Video",
+      "description": "Lataa videon dynaamisesti.",
+      "lbl-video": "Video",
+      "lbl-projection": "Projektio",
+      "lbl-islivestream": "Livestriimi",
+      "lbl-interactable": "Vuorovaikutuksessa",
+      "lbl-id": "Elementin tunnus",
+      "lbl-play": "Leikkiä",
+      "lbl-pause": "Tauko",
+      "error-url": "Virhe ladattaessa URL-osoitteesta"
+    },
+    "volumetric": {
+      "name": "Tilavuuden",
+      "description": "Lataa dynaamisesti volumetrisen videon.",
+      "uvolPaths": "UVOL-polut",
+      "playmode": "Toistotila",
+      "playtitle": "Leikkiä",
+      "pausetitle": "Tauko"
+    },
+    "spline": {
+      "description": "Luo ja mukauta käyriä dynaamisesti.",
+      "lbl-addNode": "Lisää solmu käyrään."
+    },
+    "systemnode": {
+      "description": "Liitä komentosarja.",
+      "lbl-filePath": "URL",
+      "lbl-systemUpdateType": "Pistospiste",
+      "lbl-enableClient": "Asiakas",
+      "lbl-enableServer": "Palvelin",
+      "lbl-args": "Args",
+      "error-url": "Virhe ladattaessa komentosarjaa URL-osoitteesta"
+    },
+    "portal": {
+      "lbl-portal": "Linkitetty portaali",
+      "lbl-redirect": "Käytä sivun uudelleenohjausta",
+      "description": "Portat, joka teleportoi pelaajat määritettyyn sijaintiin",
+      "lbl-locationName": "Paikka",
+      "lbl-modelUrl": "Mallin URL-osoite",
+      "lbl-displayText": "Näytä teksti",
+      "lbl-cubemapBake": "Cubemap-leivonta",
+      "lbl-spawnPosition": "Kutun sijainti",
+      "lbl-spawnRotation": "Kutun kierto",
+      "lbl-triggerPosition": "Liipaisimen sijainti",
+      "lbl-triggerRotation": "Liipaisimen kierto",
+      "lbl-triggerScale": "Käynnistimen asteikko"
+    },
+    "postprocessing": {
+      "name": "Jälkikäsittelyssä",
+      "description": "Jälkikäsittelytehosteiden käyttämiseksi kohtauksessasi."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "Uusi projekti",
+      "backLink": "Takaisin projekteihin",
+      "featured": "Suositeltavat",
+      "all": "Kaikki",
+      "newProject": "Uusi tyhjä projekti",
+      "ph-search": "Hae kohtauksia..."
+    },
+    "grid": {
+      "loading": "Lastaaminen..."
+    },
+    "page": {
+      "header": "Tervetuloa",
+      "headerMsg": "Jos olet uusi täällä, suosittelemme käymään läpi opetusohjelman. Muussa tapauksessa hyppää suoraan sisään ja luo projekti tyhjästä tai jostakin malleistamme.",
+      "lbl-startTutorial": "Käynnistä-opetusohjelma",
+      "projects": "Projektit",
+      "lbl-newProject": "Uusi projekti"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "Lastaaminen...",
+      "placeObject": "Sijoita objekti",
+      "placeObjectAtOrigin": "Sijoita objekti originiin",
+      "copyURL": "Kopioi URL-osoite",
+      "openInNewTab": "Avaa URL-osoite Uudessa välilehdessä",
+      "deleteAsset": "Poista resurssi"
+    },
+    "filebrowser": {
+      "addNewFolder": "Lisää uusi kansio",
+      "cutAsset": "Leikata",
+      "copyAsset": "Kopioida",
+      "pasteAsset": "Tahna",
+      "renameAsset": "Nimetä uudelleen",
+      "viewAssetProperties": "Näytä ominaisuudet"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "Nimetä uudelleen",
+    "lbl-duplicate": "Kaksoiskappale",
+    "lbl-group": "Ryhmä",
+    "lbl-delete": "Poistaa",
+    "lbl-expandAll": "Laajenna kaikki",
+    "lbl-collapseAll": "Tiivistä kaikki",
+    "isseus": "Kysymyksiä:"
+  },
+  "dnd": {
+    "nodes": "{{count}} solmut valittu",
+    "models": "{{count}} mallit valittu",
+    "images": "{{count}} valitut kuvat",
+    "videos": "{{count}} videot valittu",
+    "audio": "{{count}} äänilähteet valittu"
+  },
+  "dialog": {
+    "title": "Editori",
+    "lbl-confirm": "Okei",
+    "lbl-cancel": "Perua",
+    "exportProject": {
+      "title": "Vie projekti",
+      "lbl-confirm": "Vie projekti",
+      "lbl-combineMesh": "Yhdistä silmät",
+      "lbl-removeUnused": "Poista käyttämättömät objektit"
+    },
+    "performance": {
+      "title": "Suorituskyvyn tarkistus",
+      "lbl-confirm": "Julkaise näkymä",
+      "learnMore": "Opi lisää",
+      "lbl-polycount": "Monikulmioiden määrä",
+      "lbl-material": "Materiaalit",
+      "lbl-texture": "Tekstuurit",
+      "lbl-lights": "Valot",
+      "lbl-fileSize": "Tiedostokoko",
+      "info-polycount": "Suosittelemme, että käytät mobiililaitteissa enintään 50 000 kolmiota.",
+      "info-material": "Suosittelemme käyttämään enintään 25 ainutlaatuista materiaalia kohtauksessasi vähentääksesi vetopuheluita mobiililaitteilla.",
+      "info-texture": "Suosittelemme, että tekstuurisi käyttävät mobiililaitteisiin enintään 256 Mt video-RAM-muistia. Suosittelemme myös, että et käytä tekstuureja, jotka ovat suurempia kuin 2048 x 2048.",
+      "info-lights": "Vaikka dynaamiset valot eivät ole käytössä mobiililaitteissa, suosittelemme käyttämään enintään 3 valoa kohtauksessasi (lukuun ottamatta ympäristön ja pallonpuoliskon valoja), jotta kohtaus toimii matalan tason tietokoneissa.",
+      "info-fileSize": "Suosittelemme, että lopullinen tiedostokoko on enintään 16 Mt pienen kaistanleveyden yhteyksille. Tiedostokoon pienentäminen lyhentää kohtauksen lataamiseen kuluvaa aikaa.",
+      "txt-polycount": "kolmioiden {{count}}",
+      "txt-material": "{{count}} materiaalit",
+      "txt-ram": "~{{count}} video RAM-muistia",
+      "txt-texture": "{{count}} suuret tekstuurit",
+      "txt-lights": "{{count}} valot"
+    },
+    "progress": {
+      "title": "Lastaaminen...",
+      "msg": "Lastaaminen...",
+      "lbl-cancel": "Perua"
+    },
+    "publish": {
+      "title": "Julkaise näkymä",
+      "lbl-confirm": "Tallenna ja julkaise",
+      "lbl-name": "Kohtauksen nimi",
+      "info-name": "Nimen on oltava 4–64 merkkiä pitkä, eikä siinä saa olla alaviivoja"
+    },
+    "published": {
+      "title": "Kohtaus julkaistu",
+      "header": "Kohtauksesi on julkaistu.",
+      "lbl-view": "Näytä kohtauksesi"
+    },
+    "saveNewProject": {
+      "title": "Tuki",
+      "lbl-name": "Projektin nimi",
+      "info-name": "Nimen on oltava 4–64 merkkiä pitkä, eikä siinä saa olla alaviivoja",
+      "lbl-confirm": "Tallenna projekti"
+    },
+    "support": {
+      "title": "Tuki",
+      "header": "Haluatko ilmoittaa ongelmasta?",
+      "msg": "Voit jättää <1>GitHub-ongelman</1> tai lähettää meille sähköpostia tukea varten osoitteessa <3>{{mail}}</3>",
+      "discord": "Löydät meidät myös <1>Discordista</1>"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "Bing Kuvat",
+      "search": "Hae Bingin mukaan"
+    },
+    "bingVideo": {
+      "name": "Bing Videot",
+      "search": "Hae Bingin mukaan"
+    },
+    "element": {
+      "name": "Luonnonvoimat"
+    },
+    "myAssets": {
+      "name": "Omat varat"
+    },
+    "googlePoly": {
+      "name": "Google Poly",
+      "search": "Hae Googlen mukaan"
+    },
+    "tenor": {
+      "name": "Tenori GIF-tiedostot",
+      "search": "Hae Tenorin mukaan",
+      "ph-search": "Hae GIF-tiedostoja..."
+    },
+    "sketchfab": {
+      "name": "Sketchfab",
+      "search": "Haku tekijältä Sketchfab"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "Lataa resurssi"
+    },
+    "imageSourcePanel": {
+      "ph-search": "Hae kuvia..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "Hae videoita..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "Hae resursseja..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "Hae malleja..."
+    },
+    "useUpload": {
+      "multipleFileError": "Syöte ei hyväksy useita tiedostoja.",
+      "mineTypeError": "\"{{name}}\" ei vastaa seuraavia mime-tyyppejä tai laajennuksia: {{types}}",
+      "progressTitle": "Ladataan tiedostoja",
+      "progressMsg": "Ladataan tiedostoja {{uploaded}} {{total}}: {{percentage}}%",
+      "uploadError": "Latausvirhe",
+      "uploadErrorMsg": "Virhe ladattaessa tiedostoa: {{message}}",
+      "uploadErrorDefaultMsg": "Tuntematon virhe"
+    }
+  },
+  "openLink": {
+    "description": "Siirry linkkiin napsauttamalla Avaa-kohtaa.",
+    "lbl-open": "Avata"
+  },
+  "interactableModel": {
+    "lbl-buy": "Ostaa",
+    "lbl-learnMore": "Opi lisää"
+  },
+  "corsProxyButton": {
+    "tooltip": "Cors-välityspalvelimen käyttäminen"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - A lap nem található"
+  },
+  "503": {
+    "msg": "503 - A szolgáltatás nem érhető el"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Kitiltottak erről a helyről.",
+    "locationName": {
+      "pageTitle": "Otthon"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projektek",
+      "header": "Kérjük, jelentkezzen be",
+      "welcomeMsg": "Isten hozott",
+      "locationHeader": "Helyek",
+      "projectHeader": "Projektek",
+      "sceneHeader": "Jelenetek",
+      "description": "Ha új vagy itt, javasoljuk, hogy menjen át a bemutatón. Ellenkező esetben ugorjon be, és hozzon létre egy projektet a semmiből vagy valamelyik sablonunkból.",
+      "lbl-startTutorial": "Oktatóanyag indítása",
+      "lbl-newProject": "Új projekt",
+      "lbl-createProject": "Alkot",
+      "lbl-newScene": "Új jelenet",
+      "lbl-searchProject": "Keresés meglévő projektekben...",
+      "back": "Hát",
+      "contextMenu": "Projekt törlése",
+      "installed": "Telepített projektek",
+      "official": "Hivatalos projektek",
+      "community": "Közösségi projektek",
+      "install": "Felszerel",
+      "uninstall": "Eltávolítás",
+      "rename": "Átnevez",
+      "createProject": "Projekt létrehozása",
+      "installProject": "A Project telepítése",
+      "processing": "Feldolgozás",
+      "projectName": "Projekt neve",
+      "projectURL": "Projekt URL-címe"
+    }
+  },
+  "error": {
+    "goHomeLink": "Menj haza",
+    "withStatusCode": "Hiba történt {{code}} kiszolgálón",
+    "withoutStatusCode": "Hiba történt a kiszolgálón"
+  },
+  "no-projects": {
+    "msg": "Hiba: Nincs telepítve projekt - kérjük, lépjen kapcsolatba egy webhely rendszergazdájával"
+  },
+  "dev": {
+    "pageTitle": "Otthon"
+  },
+  "login": {
+    "pageTitle": "Bejelentkezés"
+  },
+  "workerTest": {
+    "pageTitle": "Dolgozói teszt"
+  },
+  "index": {
+    "by": "MELLETT",
+    "xr": "XR",
+    "foundation": "Alapítvány",
+    "description": "Valós idejű 3D-s szociális alkalmazások mindenki számára, hogy élvezze."
+  },
+  "xrengineContact": {
+    "header": "Vedd fel a kapcsolatot!",
+    "description": "Szívesen segítünk virtuális rendezvényeivel, digitális kiskereskedelmével, szórakoztatásával és egyéb igényeivel.",
+    "lbl-name": "Név",
+    "lbl-email": "E-mail",
+    "lbl-company": "Cég",
+    "lbl-project": "A projekt leírása",
+    "lbl-send": "Küld",
+    "lbl-ok": "Oké",
+    "lbl-success": "Üzenet elküldve, hamarosan jelentkezünk.",
+    "lbl-failure": "Hiba történt, Plese próbálkozzon újra",
+    "err-username": "Adja meg a nevét.",
+    "err-email": "E-mail szükséges.",
+    "err-msg": "Adjon meg néhány rövid leírást a projektről."
+  }
+}

@@ -1,0 +1,718 @@
+{
+  "loading": "प्रोजेक्ट लोड हो रहा है",
+  "loadingMsg": "प्रोजेक्ट लोड हो रहा है...",
+  "loadingError": "प्रोजेक्ट लोड करने में त्रुटि",
+  "loadingErrorMsg": "प्रोजेक्ट लोड करते समय कोई त्रुटि आई.",
+  "selectSceneMsg": "इंजन के साथ खेलना शुरू करने के लिए दृश्य का चयन करें",
+  "error": "भूल",
+  "errorMsg": "कोई अज्ञात त्रुटि थी.",
+  "generateScreenshot": "प्रोजेक्ट स्क्रीनशॉट जनरेट कर रहा है",
+  "generateScreenshotMsg": "प्रोजेक्ट स्क्रीनशॉट जनरेट किया जा रहा है...",
+  "newScene": "दृश्य बनाएँ",
+  "saving": "प्रोजेक्ट सहेजना",
+  "savingMsg": "प्रोजेक्ट सहेज रहा है...",
+  "savingError": "प्रोजेक्ट सहेजने में त्रुटि",
+  "savingErrorMsg": "प्रोजेक्ट सहेजते समय कोई त्रुटि आई.",
+  "savingSceneErrorMsg": "दृश्य ठीक से लोड नहीं किया गया है। दृश्य को पुनः लोड करने का प्रयास करें.",
+  "duplicating": "डुप्लिकेटिंग परियोजना",
+  "duplicatingMsg": "डुप्लिकेट प्रोजेक्ट...",
+  "exporting": "प्रोजेक्ट निर्यात कर रहा है",
+  "exportingMsg": "प्रोजेक्ट निर्यात किया जा रहा है...",
+  "exportingError": "प्रोजेक्ट निर्यात करने में त्रुटि",
+  "exportingErrorMsg": "प्रोजेक्ट निर्यात करते समय कोई त्रुटि आई.",
+  "importLegacy": "आयात विरासत दुनिया",
+  "importLegacyMsg": "चेतावनी! यह आपके मौजूदा दृश्य को अधिलेखित कर देगा! क्या आप वाकई जारी रखना चाहते हैं?",
+  "publishingError": "प्रोजेक्ट प्रकाशित करने में त्रुटि",
+  "publishingErrorMsg": "कोई अज्ञात त्रुटि थी.",
+  "publishingScene": "प्रकाशन दृश्य",
+  "publishingSceneMsg": "दृश्य प्रकाशित किया जा रहा है...",
+  "uploadingThumbnailMsg": "थंबनेल अपलोड किया जा रहा है...",
+  "uploadingSceneMsg": "दृश्य अपलोड किया जा रहा है: {{percentage}}% #",
+  "envMapError": "क्यूबमैप छवियों को लोड करने में त्रुटि {{files}}",
+  "lbl-return": "लौटना",
+  "menubar": {
+    "newScene": "नया दृश्य",
+    "saveScene": "दृश्य सहेजें",
+    "saveAs": "इस रूप में सहेजें",
+    "importAsset": "आयात संपत्ति",
+    "exportGLB": "बाइनरी glTF (.glb) के रूप में निर्यात ...",
+    "importScene": "दृश्य आयात करें",
+    "exportScene": "निर्यात दृश्य",
+    "quit": "छोड़ना"
+  },
+  "errors": {
+    "fileTypeNotSupported": "फ़ाइल के लिए असमर्थित फ़ाइल प्रकार: \"{{name}}\". फ़ाइल एक छवि, वीडियो, या glb मॉडल होना चाहिए।",
+    "addObject": "addObject: ऑब्जेक्ट नहीं मिलने से पहले",
+    "removeObject": "RemoveObject: नोड नहीं मिला. यह एक नोड को हटाने के कारण है जो अब दृश्य में नहीं है।",
+    "noParent": "{{node}} \"{{name}}\" का कोई माता-पिता नहीं है। Reparent केवल उन वस्तुओं पर काम करता है जो वर्तमान में दृश्य में हैं।",
+    "undefinedParent": "editor.reparent: newParent अपरिभाषित है",
+    "notAuthenticated": "प्रमाणीकृत नहीं",
+    "fetchingProjectError": "प्रोजेक्ट्स लाने में त्रुटि: {{error}}",
+    "fetchingRouteError": "मार्ग ों को लाने में त्रुटि: {{error}}",
+    "unknownError": "अज्ञात त्रुटि",
+    "resolveURL": "URL \"{{url}}\" को हल करने में त्रुटि:",
+    "mediaSearchAborted": "मीडिया खोज निरस्त की गई",
+    "methodNotImplemented": "विधि लागू नहीं की गई है.",
+    "saveProjectAborted": "दृश्य सहेजना निरस्त किया गया",
+    "unsavedChanges": "सहेजे न किए गए परिवर्तन",
+    "unsavedChangesMsg": "दृश्य को संशोधित किया गया है। कृपया अपने परिवर्तन सहेजें.",
+    "projectCreationFail": "प्रोजेक्ट निर्माण विफल रहा. {{reason}}",
+    "projectDeletionFail": "प्रोजेक्ट हटाना विफल रहा. {{reason}}",
+    "savingProjectFail": "प्रोजेक्ट सहेजना विफल रहा. {{reason}}",
+    "sceneTooLarge": "दृश्य प्रकाशित करने के लिए बहुत बड़ा ({{size}} MB) है। अधिकतम आकार MB {{maxSize}} है.",
+    "sceneCreationFail": "दृश्य निर्माण विफल रहा. {{reason}}",
+    "uploadAborted": "अपलोड निरस्त किया गया",
+    "uploadFailed": "अपलोड विफल {{reason}}",
+    "assetDeletionFail": "संपत्ति हटाना विफल रहा. {{reason}}",
+    "projectAssetDeletionFail": "प्रोजेक्ट संपत्ति हटाना विफल रहा. {{reason}}",
+    "networkError": "नेटवर्क त्रुटि: {{status}}| {{text}}",
+    "unknownStatus": "अज्ञात स्थिति",
+    "CORS": "संभवतः एक CORS त्रुटि",
+    "urlFetchError": "\"{{url}}\" लाने में विफल"
+  },
+  "viewport": {
+    "title": "व्यूपोर्ट",
+    "command": {
+      "movecamera": "कैमरा ले जाएँ",
+      "flyFast": "तेजी से उड़ना",
+      "orbit": "कक्षा / चुनें",
+      "pan": "बरतन",
+      "fly": "उड़ना",
+      "focus": "फ़ोकस",
+      "rotateLeft": "बाएँ घुमाएँ",
+      "rotateRight": "दाएँ घुमाएँ",
+      "cancelPlacement": "प्लेसमेंट रद्द करें",
+      "placeDuplicate": "डुप्लिकेट रखें",
+      "cancelGrab": "ग्रैब रद्द करें",
+      "grab": "पकड़ना",
+      "deselectAll": "सभी का चयन रद्द करें"
+    },
+    "state": {
+      "header": "आँकड़े",
+      "memory": "याद",
+      "geometries": "ज्यामिति",
+      "textures": "Textures",
+      "render": "बना लेना",
+      "FPS": "एफपीएस",
+      "frameTime": "फ़्रेम समय",
+      "calls": "कॉल",
+      "triangles": "त्रिकोण",
+      "points": "अंक",
+      "lines": "लाइनों"
+    }
+  },
+  "toolbar": {
+    "lbl-publish": "प्रकाशित करना",
+    "lbl-published": "प्रकाशित",
+    "command": {
+      "translate": "अनुवाद करना",
+      "rotate": "घूमना",
+      "scale": "पैमाना",
+      "toggleSpace": "ट्रांस्फ़ॉर्म स्पेस टॉगल करें",
+      "togglePivot": "ट्रांस्फ़ॉर्म पिवट टॉगल करें",
+      "toggleSnapMode": "स्नैप मोड टॉगल करें",
+      "toggleGrid": "ग्रिड दृश्यता टॉगल करें",
+      "increaseGridSize": "ग्रिड आकार बढ़ाएँ",
+      "descreaseGridSize": "ग्रिड का आकार घटाएँ",
+      "stopPreview": "दृश्य का पूर्वावलोकन करना बंद करें",
+      "playPreview": "पूर्वावलोकन दृश्य"
+    }
+  },
+  "properties": {
+    "title": "गुण",
+    "lbl-visible": "दृश्य",
+    "lbl-preventBake": "सेंकना रोकें",
+    "lbl-persist": "दृढ़ रहना",
+    "multipleNodeSelected": "चयनित विभिन्न प्रकार के एकाधिक नोड्स",
+    "noNodeSelected": "कोई नोड चयनित नहीं है",
+    "ambientLight": {
+      "name": "परिवेश प्रकाश",
+      "description": "एक प्रकाश जो आपके दृश्य में सभी वस्तुओं को प्रकाशित करता है।",
+      "lbl-intensity": "तीव्रता",
+      "lbl-color": "रंग"
+    },
+    "envmap": {
+      "name": "पर्यावरण मानचित्र",
+      "description": "पर्यावरण मानचित्र गुणधर्म"
+    },
+    "asset": {
+      "name": "परिसंपत्ति",
+      "description": "दृश्य घटकों का एक समूहन जिसे गतिशील रूप से लोड और अनलोड किया जा सकता है",
+      "lbl-options": "विकल्प",
+      "lbl-assetPath": "परिसंपत्ति पथ",
+      "lbl-assetName": "निर्यात नाम",
+      "lbl-exportOptions": "निर्यात विकल्प",
+      "lbl-export": "निर्यात संपत्ति",
+      "lbl-load": "दृश्य में लोड करें",
+      "lbl-unload": "उतारना",
+      "lbl-reload": "फिर से भरना"
+    },
+    "audio": {
+      "name": "श्रव्य",
+      "description": "गतिशील रूप से ऑडियो लोड करता है।",
+      "lbl-audiourl": "ऑडियो Url",
+      "lbl-controls": "नियंत्रण",
+      "info-controls": "मीडिया नियंत्रणों की दृश्यता टॉगल करें.",
+      "lbl-autoplay": "स्वत: चलाएँ",
+      "info-autoplay": "यदि सच है, तो पहली बार दृश्य में प्रवेश करते समय मीडिया खेलेगा।",
+      "lbl-synchronize": "सिंक्रनाइज़",
+      "info-synchronize": "यदि सच है, तो मीडिया सभी कनेक्टकिए गए क्लाइंट पर सिंक्रनाइज़ किया जाएगा।",
+      "lbl-loop": "फंदा",
+      "info-loop": "यदि सच है तो मीडिया अनिश्चित काल तक लूप करेगा।",
+      "lbl-audioType": "ऑडियो प्रकार",
+      "lbl-distanceModel": "दूरी मॉडल",
+      "info-distanceModel": "एल्गोरिथिम का उपयोग ऑडियो रोलऑफ की गणना करने के लिए किया जाता था।",
+      "lbl-rolloffFactor": "रोलऑफ़ फैक्टर",
+      "info-rolloffFactor": "एक दोहरा मान जो यह वर्णन करता है कि स्रोत श्रोता से दूर जाने के साथ मात्रा कितनी जल्दी कम हो जाती है। 0 से 1",
+      "info-rfInfinity": "एक दोहरा मान जो यह वर्णन करता है कि स्रोत श्रोता से दूर जाने के साथ मात्रा कितनी जल्दी कम हो जाती है। 0 से Infinity",
+      "lbl-refDistance": "रेफरी दूरी",
+      "info-refDistance": "ऑडियो स्रोत के श्रोता से आगे बढ़ने के रूप में वॉल्यूम को कम करने के लिए संदर्भ दूरी का प्रतिनिधित्व करने वाला एक दोहरा मान।",
+      "lbl-maxDistance": "अधिकतम दूरी",
+      "info-maxDistance": "श्रव्य स्रोत और श्रोता के बीच अधिकतम दूरी का प्रतिनिधित्व करने वाला एक दोहरा मान, जिसके बाद वॉल्यूम को और कम नहीं किया जाता है।",
+      "lbl-coneInnerAngle": "शंकु आंतरिक कोण",
+      "info-coneInnerAngle": "एक डबल मान जो कोण का वर्णन करता है, डिग्री में, एक शंकु के अंदर जिसके अंदर कोई मात्रा में कमी नहीं होगी।",
+      "lbl-coneOuterAngle": "शंकु बाह्य कोण",
+      "info-coneOuterAngle": "कोण का वर्णन करने वाला एक दोहरा मान, डिग्री में, एक शंकु के बाहर की मात्रा को एक स्थिर मान द्वारा कम कर दिया जाएगा, जिसे शंकुआउटरगेन विशेषता द्वारा परिभाषित किया गया है।",
+      "lbl-coreOuterGain": "शंकु बाहरी लाभ",
+      "info-coreOuterGain": "शंकुOuterAngle विशेषता द्वारा परिभाषित शंकु के बाहर वॉल्यूम में कमी की मात्रा का वर्णन करने वाला एक दोहरा मान. इसका डिफ़ॉल्ट मान 0 है, जिसका अर्थ है कि कोई ध्वनि नहीं सुनी जा सकती है।",
+      "lbl-volume": "आयतन",
+      "lbl-play": "खेल",
+      "lbl-pause": "रुकना",
+      "error-url": "URL से लोड हो रहा है त्रुटि"
+    },
+    "boxCollider": {
+      "description": "एक अदृश्य बॉक्स जो वस्तुओं को उछाल देगा या उसके शीर्ष पर आराम करेगा।\nकोलाइडर के बिना, वस्तुएं फर्श के माध्यम से गिर जाएंगी और दीवारों के माध्यम से जाएंगी।",
+      "lbl-isTrigger": "घोड़ा"
+    },
+    "camera": {
+      "name": "कैमरा",
+      "description": "कैमरा सेटिंग्स.",
+      "lbl-camera-raycast": "कैमरा Raycasting",
+      "lbl-camera-raycast-toggle": "सक्षम",
+      "lbl-camera-raycast-frequency": "आवृत्ति",
+      "lbl-camera-raycast-count": "रे गणना",
+      "lbl-camera-raycast-length": "किरण लंबाई"
+    },
+    "directionalLight": {
+      "name": "दिशात्मक प्रकाश",
+      "description": "एक प्रकाश जो पूरे दृश्य को रोशन करता है, लेकिन एक ही दिशा में उत्सर्जित होता है।",
+      "lbl-color": "रंग",
+      "lbl-intensity": "तीव्रता",
+      "lbl-cameraFar": "कैमरा दूर",
+      "lbl-cameraNear": "कैमरा के पास",
+      "lbl-cameraTop": "कैमरा शीर्ष",
+      "lbl-cameraBottom": "कैमरा नीचे",
+      "lbl-cameraLeft": "कैमरा बायाँ",
+      "lbl-cameraRight": "कैमरा दाएँ",
+      "lbl-useInCSM": "CSM में उपयोग करें",
+      "lbl-castShadow": "कास्ट छाया",
+      "lbl-disableForCSM": "अक्षम किया गया क्योंकि कैस्केड छाया मानचित्र सक्षम किया गया है.",
+      "lbl-shadowmapResolution": "छाया मानचित्र रिज़ॉल्यूशन",
+      "lbl-shadowBias": "छाया पूर्वाग्रह",
+      "lbl-shadowRadius": "छाया त्रिज्या",
+      "lbl-showCameraHelper": "कैमरा सहायक दिखाएँ"
+    },
+    "groundPlane": {
+      "name": "ग्राउंड प्लेन",
+      "description": "एक समतल समतल समतल जो दूरी तक फैला हुआ है।",
+      "lbl-color": "रंग",
+      "lbl-receiveShadow": "छाया प्राप्त करें",
+      "lbl-generateNavmesh": "नवमेश जनरेट करें"
+    },
+    "link": {
+      "description": "एक कमरे या एक वेबसाइट के लिए लिंक.",
+      "lbl-url": "URL"
+    },
+    "map": {
+      "description": "3 डी भू-स्थानिक मानचित्र जैसे एक शहर।"
+    },
+    "model": {
+      "description": "आपके दृश्य में एक 3 डी मॉडल, एक GLTF URL या फ़ाइल से लोड किया गया है।",
+      "lbl-usingGPUInstancingFlag": "GPU Instancing का उपयोग करें",
+      "lbl-modelurl": "मॉडल Url",
+      "lbl-envmapUrl": "पर्यावरण मानचित्र Url",
+      "lbl-textureOverride": "बनावट ओवरराइड करें",
+      "lbl-materialOverride": "सामग्री ओवरराइड",
+      "error-url": "URL से लोड हो रहा है त्रुटि",
+      "lbl-loopAnimation": "लूप एनिमेशन",
+      "lbl-isAvatar": "अवतार है",
+      "lbl-isGPUInstancing": "GPU Instancing का उपयोग कर रहा है",
+      "lbl-isDynamic": "गतिशील है",
+      "lbl-castShadow": "कास्ट छाया",
+      "lbl-receiveShadow": "छाया प्राप्त करें",
+      "lbl-interactable": "इंटरैक्टेबल",
+      "lbl-matrixAutoUpdate": "मैट्रिक्सऑटोअपडेट",
+      "lbl-name": "नाम",
+      "lbl-url": "मॉडल Url",
+      "lbl-buy": "खरीदें Url",
+      "lbl-learnMore": "अधिक URL जानें",
+      "lbl-htmlContent": "HTML सामग्री",
+      "lbl-interactionText": "इंटरैक्शन पाठ",
+      "lbl-interactionType": "इंटरैक्शन प्रकार"
+    },
+    "materialAssignment": {
+      "lbl-materialID": "भौतिक",
+      "error-materialID": "सामग्री ढूँढने में त्रुटि",
+      "placeholder-materialID": "सामग्री का चयन करें",
+      "lbl-patternTarget": "पैटर्न मिलान",
+      "lbl-pattern": "नमूना",
+      "lbl-isRegex": "Regex"
+    },
+    "interaction": {
+      "type": "इंटरैक्शन प्रकार",
+      "text": "इंटरैक्शन पाठ",
+      "distance": "इंटरैक्शन दूरी",
+      "theme": "इंटरैक्शन थीम",
+      "name": "इंटरैक्शन नाम",
+      "description": "इंटरैक्शन विवरण",
+      "images": "इंटरैक्शन छवियाँ",
+      "videos": "इंटरैक्शन वीडियो",
+      "urls": "इंटरैक्शन Urls",
+      "models": "इंटरैक्शन मॉडल"
+    },
+    "group": {
+      "name": "समूह",
+      "description": "एकाधिक वस्तुओं का एक समूह जिसे एक साथ ले जाया या डुप्लिकेट किया जा सकता है.\nपदानुक्रम में समूह में ऑब्जेक्ट्स को खींचें और छोड़ें."
+    },
+    "hemisphere": {
+      "name": "गोलार्ध प्रकाश",
+      "description": "एक प्रकाश जो दृश्य को सीधे ओवरहेड से रोशन करता है।",
+      "lbl-skyColor": "आकाश रंग",
+      "lbl-groundColor": "जमीन का रंग",
+      "lbl-intensity": "तीव्रता"
+    },
+    "image": {
+      "name": "प्रतिबिंब",
+      "description": "गतिशील रूप से एक छवि लोड करता है।",
+      "lbl-imgURL": "छवि Url",
+      "lbl-transparency": "पारदर्शिता मोड",
+      "lbl-alphaCutoff": "अल्फा कटऑफ",
+      "lbl-projection": "प्रक्षेपण",
+      "lbl-side": "ओर",
+      "info-controls": "मीडिया नियंत्रणों की दृश्यता टॉगल करें.",
+      "info-transparency": "पारदर्शिता कैसे लागू करें:",
+      "info-opaque": "'अपारदर्शी' = कोई पारदर्शिता नहीं",
+      "info-blend": "'मिश्रण' = छवियों अल्फा चैनल का उपयोग करें",
+      "info-mask": "'मुखौटा' = चालू/बंद पारदर्शिता के लिए एक निर्दिष्ट कटऑफ मान का उपयोग करें (अधिक performant)",
+      "info-alphaCutoff": "इससे कम अल्फा मान वाले पिक्सेल पारदर्शी होंगे",
+      "error-url": "अमान्य URL"
+    },
+    "name": {
+      "lbl-name": "नाम"
+    },
+    "partileEmitter": {
+      "description": "कण ों को बनाने के लिए कण उत्सर्जक.",
+      "lbl-particleCount": "कण गणना",
+      "lbl-image": "प्रतिबिंब",
+      "lbl-ageRandomness": "आयु यादृच्छिकता",
+      "lbl-lifetime": "जीवन-काल",
+      "lbl-lifetimeRandomness": "जीवनभर यादृच्छिकता",
+      "lbl-sizeCurve": "आकार वक्र",
+      "lbl-startPSize": "प्रारंभ कण आकार",
+      "lbl-endPSize": "अंत कण आकार",
+      "lbl-sizeRandomness": "आकार यादृच्छिकता",
+      "lbl-colorCurve": "रंग वक्र",
+      "lbl-startColor": "रंग प्रारंभ करें",
+      "lbl-startOpacity": "अस्पष्टता प्रारंभ करें",
+      "lbl-middleColor": "मध्य रंग",
+      "lbl-middleOpacity": "मध्य अस्पष्टता",
+      "lbl-endColor": "अंत रंग",
+      "lbl-endOpacity": "अस्पष्टता समाप्त करें",
+      "lbl-velocityCurve": "वेग वक्र",
+      "lbl-startVelocity": "प्रारंभ वेग",
+      "lbl-endVelocity": "अंत वेग",
+      "lbl-angularVelocity": "कोणीय वेग",
+      "info-ageRandomness": "जब कणों को जन्म दिया जाता है, तब के बीच भिन्नता की मात्रा.",
+      "info-lifetime": "किसी कण को फिर से चित्रित करने से पहले उसकी अधिकतम आयु।",
+      "info-lifetimeRandomness": "कण जीवनकाल के बीच भिन्नता की मात्रा।",
+      "info-sizeRandomness": "कण के आरंभिक आकारों के बीच भिन्नता की मात्रा.",
+      "error-url": "URL से लोड हो रहा है त्रुटि"
+    },
+    "clouds": {
+      "name": "बादल",
+      "description": "स्प्राइट आधारित क्लाउड वॉल्यूम।",
+      "lbl-image": "स्प्राइट छवि",
+      "lbl-wroldScale": "विश्व पैमाने",
+      "lbl-dimensions": "आयाम",
+      "lbl-noiseZoom": "शोर ज़ूम",
+      "lbl-noiseOffset": "शोर ऑफसेट",
+      "lbl-spriteScale": "स्प्राइट स्केल",
+      "lbl-fogColor": "कोहरे का रंग",
+      "lbl-fogRange": "कोहरे रेंज",
+      "error-url": "URL से लोड हो रहा है त्रुटि"
+    },
+    "ocean": {
+      "name": "महासागर",
+      "description": "लहरों और फोम के साथ समुद्र की सतह",
+      "lbl-normalMap": "सामान्य मानचित्र",
+      "lbl-distortionMap": "विरूपण मानचित्र",
+      "lbl-envMap": "पर्यावरण मानचित्र",
+      "lbl-color": "रंग",
+      "lbl-shallowWaterColor": "उथले पानी का रंग",
+      "lbl-shallowToDeepDistance": "उथले से गहरी दूरी",
+      "lbl-opacityFadeDistance": "अपारदर्शिता फीका दूरी",
+      "lbl-opacityRange": "अपारदर्शिता रेंज",
+      "lbl-shininess": "चमकदारता",
+      "lbl-reflectivity": "भावना",
+      "lbl-foamColor": "फोम रंग",
+      "lbl-foamSpeed": "फोम स्पीड",
+      "lbl-foamTiling": "फोम टाइलिंग",
+      "lbl-bigWaveTiling": "बिग वेव टाइलिंग",
+      "lbl-bigWaveSpeed": "बिग वेव स्पीड",
+      "lbl-bigWaveHeight": "बिग वेव ऊंचाई",
+      "lbl-waveSpeed": "तरंग गति",
+      "lbl-waveScale": "तरंग स्केल",
+      "lbl-waveTiling": "तरंग टाइलिंग",
+      "lbl-waveDistortionSpeed": "तरंग विरूपण गति",
+      "lbl-waveDistortionTiling": "तरंग विरूपण टाइलिंग",
+      "error-url": "URL से लोड हो रहा है त्रुटि"
+    },
+    "water": {
+      "name": "पानी",
+      "description": "छोटे पानी की सतह"
+    },
+    "interior": {
+      "name": "अंदर",
+      "description": "आंतरिक वातावरण का अनुकरण करने के लिए मैप की गई घन बनावट के साथ एक सतह",
+      "lbl-cubeMap": "घन मानचित्र बनावट",
+      "lbl-tiling": "टाइलिंग राशि",
+      "lbl-size": "सतह का आकार",
+      "error-url": "URL से लोड हो रहा है त्रुटि"
+    },
+    "pointLight": {
+      "description": "एक प्रकाश जो एक ही बिंदु से सभी दिशाओं में उत्सर्जित होता है।",
+      "lbl-color": "रंग",
+      "lbl-intensity": "तीव्रता",
+      "lbl-range": "श्रेणी",
+      "lbl-decay": "क्षय"
+    },
+    "scene": {
+      "name": "दृश्य",
+      "description": "दृश्य की मूल वस्तु।",
+      "lbl-bgcolor": "पृष्ठभूमि रंग",
+      "lbl-fogType": "कोहरे का प्रकार",
+      "lbl-fogColor": "कोहरे का रंग",
+      "lbl-forNearDistance": "दूरी के पास कोहरा",
+      "lbl-fogFarDistance": "कोहरे दूर की दूरी",
+      "lbl-fogDensity": "कोहरे का घनत्व",
+      "lbl-audioSettings": "स्थितिगत ऑडियो का उपयोग करें",
+      "lbl-avatarDistanceModel": "अवतार दूरी मॉडल",
+      "lbl-avatarRolloffFactor": "अवतार रोलऑफ़ फैक्टर",
+      "lbl-avatarRefDistance": "अवतार रेफरी दूरी",
+      "lbl-avatarMaxDistance": "अवतार अधिकतम दूरी",
+      "lbl-mediaVolume": "मीडिया वॉल्यूम",
+      "lbl-mediaDistanceModel": "मीडिया दूरी मॉडल",
+      "lbl-mediaRolloffFactor": "मीडिया रोलऑफ़ फैक्टर",
+      "lbl-mediaRefDistance": "मीडिया रेफरी दूरी",
+      "lbl-mediaMaxDistance": "मीडिया अधिकतम दूरी",
+      "lbl-mediaConeInnerAngle": "मीडिया शंकु आंतरिक कोण",
+      "lbl-mediaConeOuterAngle": "मीडिया शंकु बाहरी कोण",
+      "lbl-mediaConeOuterGain": "मीडिया शंकु बाहरी लाभ",
+      "info-avatarDistanceModel": "एल्गोरिथिम का उपयोग ऑडियो रोलऑफ की गणना करने के लिए किया जाता था।",
+      "info-avatarRolloffFactor": "एक दोहरा मान जो यह वर्णन करता है कि स्रोत श्रोता से दूर जाने के साथ मात्रा कितनी जल्दी कम हो जाती है। 0 से 1",
+      "info-avatarRolloffFactorInifinity": "एक दोहरा मान जो यह वर्णन करता है कि स्रोत श्रोता से दूर जाने के साथ मात्रा कितनी जल्दी कम हो जाती है। 0 से Infinity",
+      "info-avatarRefDistance": "ऑडियो स्रोत के श्रोता से आगे बढ़ने के रूप में वॉल्यूम को कम करने के लिए संदर्भ दूरी का प्रतिनिधित्व करने वाला एक दोहरा मान।",
+      "info-avatarMaxDistance": "श्रव्य स्रोत और श्रोता के बीच अधिकतम दूरी का प्रतिनिधित्व करने वाला एक दोहरा मान, जिसके बाद वॉल्यूम को और कम नहीं किया जाता है।",
+      "info-mediaDistanceModel": "एल्गोरिथिम का उपयोग ऑडियो रोलऑफ की गणना करने के लिए किया जाता था।",
+      "info-mediaRolloffFactor": "एक दोहरा मान जो यह वर्णन करता है कि स्रोत श्रोता से दूर जाने के साथ मात्रा कितनी जल्दी कम हो जाती है। 0 से 1",
+      "info-mediaRolloffFactorInfinity": "एक दोहरा मान जो यह वर्णन करता है कि स्रोत श्रोता से दूर जाने के साथ मात्रा कितनी जल्दी कम हो जाती है। 0 से Infinity",
+      "info-mediaRefDistance": "ऑडियो स्रोत के श्रोता से आगे बढ़ने के रूप में वॉल्यूम को कम करने के लिए संदर्भ दूरी का प्रतिनिधित्व करने वाला एक दोहरा मान।",
+      "info-mediaMaxDistance": "श्रव्य स्रोत और श्रोता के बीच अधिकतम दूरी का प्रतिनिधित्व करने वाला एक दोहरा मान, जिसके बाद वॉल्यूम को और कम नहीं किया जाता है।",
+      "info-mediaConeInnerAngle": "एक डबल मान जो कोण का वर्णन करता है, डिग्री में, एक शंकु के अंदर जिसके अंदर कोई मात्रा में कमी नहीं होगी।",
+      "info-mediaConeOuterAngle": "कोण का वर्णन करने वाला एक दोहरा मान, डिग्री में, एक शंकु के बाहर की मात्रा को एक स्थिर मान द्वारा कम कर दिया जाएगा, जिसे शंकुआउटरगेन विशेषता द्वारा परिभाषित किया गया है।",
+      "info-mediaConeOuterGain": "शंकुOuterAngle विशेषता द्वारा परिभाषित शंकु के बाहर वॉल्यूम में कमी की मात्रा का वर्णन करने वाला एक दोहरा मान. इसका डिफ़ॉल्ट मान 0 है, जिसका अर्थ है कि कोई ध्वनि नहीं सुनी जा सकती है।",
+      "lbl-simpleMaterials": "सरल सामग्री का उपयोग करें",
+      "lbl-lods": "LODs",
+      "info-lods": "उन दूरियों को सेट करता है जिन पर विस्तार के स्तर बदलते हैं।",
+      "info-simpleMaterials": "दृश्य प्रतिपादन से लोड लेने के लिए सभी महंगी सामग्रियों को सरल लोगों में कनवर्ट करता है।",
+      "lbl-rendererSettings": "रेंडरर सेटिंग्स ओवरराइड करें",
+      "lbl-csm": "कैस्केडिंग छाया मानचित्र",
+      "info-csm": "कैस्केडिंग छाया मानचित्र सक्षम करता है.",
+      "lbl-toneMapping": "टोन मैपिंग",
+      "info-toneMapping": "दृश्य रेंडरर पर टोन मैपिंग सक्षम करता है. जब कोई पोस्ट प्रोसेसिंग सक्षम किया गया है तो इसका कोई प्रभाव नहीं पड़ता है।",
+      "lbl-toneMappingExposure": "टोन मैपिंग एक्सपोजर",
+      "info-toneMappingExposure": "दृश्य रेंडरर पर टोन मैपिंग एक्सपोज़र निर्दिष्ट करता है. जब कोई पोस्ट प्रोसेसिंग सक्षम किया गया है तो इसका कोई प्रभाव नहीं पड़ता है।",
+      "lbl-shadowMapType": "छाया मानचित्र प्रकार",
+      "info-shadowMapType": "छाया मानचित्र का प्रकार",
+      "error-url": "URL से लोड हो रहा है त्रुटि"
+    },
+    "sceneCamera": {
+      "name": "दृश्य पूर्वावलोकन कैमरा",
+      "description": "कैमरा आपके दृश्य के लिए थंबनेल और पूर्वावलोकन कैमरे के लिए प्रारंभिक स्थिति उत्पन्न करने के लिए उपयोग किया जाता है।",
+      "lbl-setFromViewPort": "व्यूपोर्ट से सेट करें"
+    },
+    "skybox": {
+      "name": "Skybox",
+      "description": "",
+      "lbl-timeOfDay": "दिन का समय",
+      "lbl-color": "रंग",
+      "lbl-latitude": "अक्षांश",
+      "lbl-luminance": "Luminance",
+      "lbl-scattering": "प्रकीर्णन राशि",
+      "lbl-scatteringDistance": "प्रकीर्णन दूरी",
+      "lbl-horizonStart": "क्षितिज प्रारंभ",
+      "lbl-horizonEnd": "क्षितिज अंत",
+      "lbl-texture": "बुनावट",
+      "lbl-skyType": "आकाश प्रकार",
+      "error-url": "URL से लोड हो रहा है त्रुटि"
+    },
+    "spawnPoint": {
+      "name": "स्पॉन बिंदु",
+      "description": "एक बिंदु जहां लोग आपके दृश्य में प्रवेश करते समय दिखाई देंगे।\nव्यूपोर्ट में आइकन एक अवतार के वास्तविक आकार का प्रतिनिधित्व करता है।"
+    },
+    "spotLight": {
+      "description": "एक प्रकाश जो एक दिशा के साथ उत्सर्जित होता है, एक शंकु के भीतर वस्तुओं को रोशन करता है।",
+      "lbl-color": "रंग",
+      "lbl-intensity": "तीव्रता",
+      "lbl-penumbra": "पेनुम्ब्रा",
+      "lbl-angle": "कोण",
+      "lbl-range": "श्रेणी",
+      "lbl-decay": "क्षय"
+    },
+    "transform": {
+      "title": "बदलना",
+      "lbl-postition": "पद",
+      "lbl-rotation": "चक्कर",
+      "lbl-scale": "पैमाना"
+    },
+    "triggereVolume": {
+      "description": "दर्ज करें और छोड़ने पर लक्ष्य ऑब्जेक्ट पर कोई गुण सेट करता है.",
+      "lbl-target": "वस्तु",
+      "lbl-onenter": "दर्ज करें पर",
+      "lbl-onexit": "बाहर निकलने पर",
+      "lbl-showHelper": "सहायक मेष दिखाएँ",
+      "ph-errorNode": "त्रुटि अनुपलब्ध नोड.",
+      "ph-selectNode": "नोड का चयन करें..."
+    },
+    "video": {
+      "name": "वीडियो",
+      "description": "गतिशील रूप से एक वीडियो लोड करता है।",
+      "lbl-video": "वीडियो",
+      "lbl-projection": "प्रक्षेपण",
+      "lbl-islivestream": "लाइव स्ट्रीम",
+      "lbl-interactable": "इंटरैक्टेबल",
+      "lbl-id": "तत्व Id",
+      "lbl-play": "खेल",
+      "lbl-pause": "रुकना",
+      "error-url": "URL से लोड हो रहा है त्रुटि"
+    },
+    "volumetric": {
+      "name": "आयतनमितीय",
+      "description": "गतिशील रूप से एक वॉल्यूमेट्रिक वीडियो लोड करता है।",
+      "uvolPaths": "UVOL पथ",
+      "playmode": "प्ले मोड",
+      "playtitle": "खेल",
+      "pausetitle": "रुकना"
+    },
+    "spline": {
+      "description": "गतिशील रूप से बनाएँ और वक्र अनुकूलित करें।",
+      "lbl-addNode": "वक्र में नोड जोड़ें."
+    },
+    "systemnode": {
+      "description": "स्क्रिप्ट अनुलग्न करें.",
+      "lbl-filePath": "URL",
+      "lbl-systemUpdateType": "इंजेक्शन बिंदु",
+      "lbl-enableClient": "ग्राहक",
+      "lbl-enableServer": "सर्वर",
+      "lbl-args": "Args",
+      "error-url": "URL से स्क्रिप्ट लोड करने में त्रुटि"
+    },
+    "portal": {
+      "lbl-portal": "लिंक किया गया पोर्टल",
+      "lbl-redirect": "पृष्ठ पुनर्निर्देशन का उपयोग करें",
+      "description": "निर्दिष्ट स्थान पर टेलीपोर्ट प्लेयर्स के लिए एक पोर्टेट",
+      "lbl-locationName": "स्थान",
+      "lbl-modelUrl": "मॉडल URL",
+      "lbl-displayText": "पाठ प्रदर्शित करें",
+      "lbl-cubemapBake": "क्यूबमैप सेंकना",
+      "lbl-spawnPosition": "स्पॉन स्थिति",
+      "lbl-spawnRotation": "स्पॉन रोटेशन",
+      "lbl-triggerPosition": "ट्रिगर स्थिति",
+      "lbl-triggerRotation": "ट्रिगर रोटेशन",
+      "lbl-triggerScale": "ट्रिगर स्केल"
+    },
+    "postprocessing": {
+      "name": "पोस्ट प्रोसेसिंग",
+      "description": "आप दृश्य के लिए पोस्ट प्रसंस्करण प्रभाव लागू करने के लिए."
+    }
+  },
+  "projects": {
+    "createProject": {
+      "header": "नई परियोजना",
+      "backLink": "परियोजनाओं पर लौटें",
+      "featured": "चित्रित किया",
+      "all": "सब",
+      "newProject": "नई खाली परियोजना",
+      "ph-search": "दृश्यों को खोजें..."
+    },
+    "grid": {
+      "loading": "लोड।।।"
+    },
+    "page": {
+      "header": "स्वागत है",
+      "headerMsg": "यदि आप यहां नए हैं, तो हम ट्यूटोरियल के माध्यम से जाने की सलाह देते हैं। अन्यथा, सही में कूद और खरोंच से या हमारे टेम्पलेट्स में से एक से एक परियोजना बनाने के लिए।",
+      "lbl-startTutorial": "ट्यूटोरियल प्रारंभ करें",
+      "projects": "परियोजनाओं",
+      "lbl-newProject": "नई परियोजना"
+    }
+  },
+  "layout": {
+    "assetGrid": {
+      "loading": "लोड।।।",
+      "placeObject": "ऑब्जेक्ट रखें",
+      "placeObjectAtOrigin": "ऑब्जेक्ट को मूल पर रखें",
+      "copyURL": "URL की प्रतिलिपि बनाएँ",
+      "openInNewTab": "URL को नए टैब में खोलें",
+      "deleteAsset": "संपत्ति हटाएँ"
+    },
+    "filebrowser": {
+      "addNewFolder": "नया फ़ोल्डर जोड़ें",
+      "cutAsset": "कटौती",
+      "copyAsset": "प्रतिलिपि",
+      "pasteAsset": "लेई",
+      "renameAsset": "पुनर्नामित",
+      "viewAssetProperties": "गुण देखें"
+    }
+  },
+  "hierarchy": {
+    "lbl-rename": "पुनर्नामित",
+    "lbl-duplicate": "प्रतिलिपि",
+    "lbl-group": "समूह",
+    "lbl-delete": "मिटाना",
+    "lbl-expandAll": "सभी विस्तृत करें",
+    "lbl-collapseAll": "सभी संक्षिप्त करें",
+    "isseus": "मुद्दे:"
+  },
+  "dnd": {
+    "nodes": "चयनित नोड्स {{count}}",
+    "models": "चयनित मॉडल {{count}}",
+    "images": "चयनित छवियों {{count}}",
+    "videos": "चयनित वीडियो {{count}}",
+    "audio": "चयनित ऑडियो स्रोत {{count}}"
+  },
+  "dialog": {
+    "title": "संपादक",
+    "lbl-confirm": "ठीक है",
+    "lbl-cancel": "रद्द करना",
+    "exportProject": {
+      "title": "निर्यात प्रोजेक्ट",
+      "lbl-confirm": "निर्यात प्रोजेक्ट",
+      "lbl-combineMesh": "Meshes संयोजित करें",
+      "lbl-removeUnused": "अप्रयुक्त ऑब्जेक्ट्स निकालें"
+    },
+    "performance": {
+      "title": "प्रदर्शन जाँचें",
+      "lbl-confirm": "दृश्य प्रकाशित करें",
+      "learnMore": "और जानो",
+      "lbl-polycount": "बहुभुज गणना",
+      "lbl-material": "सामग्री",
+      "lbl-texture": "Textures",
+      "lbl-lights": "रोशनी",
+      "lbl-fileSize": "फ़ाइल का आकार",
+      "info-polycount": "हम अनुशंसा करते हैं कि आपका दृश्य मोबाइल उपकरणों के लिए 50,000 से अधिक त्रिभुजों का उपयोग न करें।",
+      "info-material": "हम मोबाइल उपकरणों पर ड्रा कॉल को कम करने के लिए आपके दृश्य में 25 से अधिक अद्वितीय सामग्रियों का उपयोग करने की सलाह देते हैं।",
+      "info-texture": "हम अनुशंसा करते हैं कि आपकी बनावट मोबाइल उपकरणों के लिए 256MB से अधिक वीडियो RAM का उपयोग न करें। हम 2048 x 2048 से बड़े बनावट का उपयोग करने के खिलाफ भी सलाह देते हैं।",
+      "info-lights": "जबकि गतिशील रोशनी मोबाइल उपकरणों पर सक्षम नहीं हैं, हम आपके दृश्य में 3 से अधिक रोशनी का उपयोग करने की सलाह देते हैं (परिवेश और गोलार्ध रोशनी को छोड़कर) आपके दृश्य को कम अंत पीसी पर चलाने के लिए।",
+      "info-fileSize": "हम कम बैंडविड्थ कनेक्शन के लिए 16MB से अधिक का अंतिम फ़ाइल आकार नहीं सुझाते हैं। फ़ाइल के आकार को कम करने से आपके दृश्य को डाउनलोड करने में लगने वाले समय को कम कर दिया जाएगा।",
+      "txt-polycount": "{{count}} त्रिभुज",
+      "txt-material": "{{count}} सामग्री",
+      "txt-ram": "~{{count}} वीडियो रैम",
+      "txt-texture": "{{count}} बड़ी बनावट",
+      "txt-lights": "{{count}} लाइट्स"
+    },
+    "progress": {
+      "title": "लोड।।।",
+      "msg": "लोड।।।",
+      "lbl-cancel": "रद्द करना"
+    },
+    "publish": {
+      "title": "दृश्य प्रकाशित करें",
+      "lbl-confirm": "सहेजें और प्रकाशित करें",
+      "lbl-name": "दृश्य का नाम",
+      "info-name": "नाम 4 और 64 वर्णों के बीच होना चाहिए और इसमें अंडरस्कोर नहीं हो सकते"
+    },
+    "published": {
+      "title": "दृश्य प्रकाशित",
+      "header": "आपका दृश्य प्रकाशित हो चुका है।",
+      "lbl-view": "अपना दृश्य देखें"
+    },
+    "saveNewProject": {
+      "title": "सहारा",
+      "lbl-name": "प्रोजेक्ट का नाम",
+      "info-name": "नाम 4 और 64 वर्णों के बीच होना चाहिए और इसमें अंडरस्कोर नहीं हो सकते",
+      "lbl-confirm": "प्रोजेक्ट सहेजें"
+    },
+    "support": {
+      "title": "सहारा",
+      "header": "एक समस्या की रिपोर्ट करने की आवश्यकता है?",
+      "msg": "आप एक <1>GitHub समस्या</1> फ़ाइल कर सकते हैं या{{mail}}पर समर्थन के लिए हमें ई-मेल कर सकते <3> हैं </3>",
+      "discord": "आप हमें <1>डिस्कॉर्ड</1> पर भी पा सकते हैं"
+    }
+  },
+  "sources": {
+    "bingImage": {
+      "name": "बिंग छवियाँ",
+      "search": "Bing द्वारा खोजें"
+    },
+    "bingVideo": {
+      "name": "बिंग वीडियो",
+      "search": "Bing द्वारा खोजें"
+    },
+    "element": {
+      "name": "तत्वों"
+    },
+    "myAssets": {
+      "name": "मेरी संपत्ति"
+    },
+    "googlePoly": {
+      "name": "गूगल पॉली",
+      "search": "Google द्वारा खोजें"
+    },
+    "tenor": {
+      "name": "टेनर GIFs",
+      "search": "Tenor द्वारा खोजें",
+      "ph-search": "GIFs खोजें..."
+    },
+    "sketchfab": {
+      "name": "स्केचफैब",
+      "search": "Sketchfab द्वारा खोजें"
+    }
+  },
+  "asset": {
+    "dropZone": {
+      "title": "संपत्ति अपलोड करें"
+    },
+    "imageSourcePanel": {
+      "ph-search": "छवियाँ खोजें..."
+    },
+    "videoSourcePanel": {
+      "ph-search": "वीडियो खोजें..."
+    },
+    "assetSourcePanel": {
+      "ph-search": "संपत्ति खोजें..."
+    },
+    "modelSourcePanel": {
+      "ph-search": "खोज मॉडल..."
+    },
+    "useUpload": {
+      "multipleFileError": "इनपुट एकाधिक फ़ाइलों को स्वीकार नहीं करता है।",
+      "mineTypeError": "\"{{name}}\" निम्न माइम प्रकार या एक्सटेंशन से मेल नहीं खाता: {{types}}",
+      "progressTitle": "फ़ाइलें अपलोड कर रहा है",
+      "progressMsg": "{{total}}की {{uploaded}} फ़ाइलें अपलोड कर रहा है : {{percentage}}%",
+      "uploadError": "अपलोड त्रुटि",
+      "uploadErrorMsg": "फ़ाइल अपलोड करने में त्रुटि: {{message}}",
+      "uploadErrorDefaultMsg": "कोई अज्ञात त्रुटि थी"
+    }
+  },
+  "openLink": {
+    "description": "कृपया लिंक पर नेविगेट करने के लिए खोलें क्लिक करें.",
+    "lbl-open": "खोलना"
+  },
+  "interactableModel": {
+    "lbl-buy": "खरीद",
+    "lbl-learnMore": "और जानो"
+  },
+  "corsProxyButton": {
+    "tooltip": "कोर्स प्रॉक्सी सर्वर का उपयोग करें"
+  }
+}

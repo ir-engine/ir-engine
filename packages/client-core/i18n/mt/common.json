@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Paġna tat-Tagħbija..."
+  },
+  "tooltip": {
+    "pressKey": "{{tip}} għall-istampa lill-{{message}}"
+  },
+  "toast": {
+    "joined": "Magħqud",
+    "left": "Xellug"
+  },
+  "navUserWidget": {
+    "login": "Illogja"
+  },
+  "loader": {
+    "connecting": "Qed jikkonnettja mad-dinja...",
+    "entering": "Qed jidħol fid-dinja...",
+    "loading": "Tagħbija...",
+    "objectRemaining": "{{count}} -oġġett li jifdal",
+    "objectRemainingPlural": "{{count}} li jifdal oġġetti",
+    "loadingObjects": "Oġġetti tagħbija",
+    "loadingComplete": "It-Tagħbija Kompluta",
+    "joiningWorld": "Ingħaqad mad-Dinja"
+  },
+  "alert": {
+    "eventWasSuccess": "L-avveniment irnexxa",
+    "errorWasEncountered": "Sar żball waqt il-qi'",
+    "eventInProgress": "Avveniment għaddej",
+    "seconds": "Sekondi",
+    "cancelCountdown": "L-għeluq ta 'dan il-modali jikkanċella l-countdown"
+  },
+  "debug": {
+    "refresh": "Aġġorna",
+    "stats": "Stats",
+    "debugOptions": "Għażliet ta 'Debug",
+    "physicsDebug": "Fiżika",
+    "avatarDebug": "Avatar",
+    "nodeHelperDebug": "Helper tan-Nodu",
+    "gridDebug": "Grilja",
+    "simpleMaterials": "Materjali Sempliċi",
+    "tick": "Immarka",
+    "worldStore": "Aħżen Dinji",
+    "engineStore": "Aħżen tal-Magna",
+    "namedEntities": "Entitajiet imsemmija",
+    "networkObject": "Oġġett tan-Netwerk",
+    "networkClients": "Klijenti tan-Netwerk"
+  },
+  "recording": {
+    "videoRecorder": "Reġistratur tal-vidjo",
+    "waitingForPermissions": "Qed jistenna l-permessi",
+    "selectVideoSource": "Agħżel is-sors tal-vidjo",
+    "screen": "Iskrin",
+    "camera": "Kamera",
+    "microphone": "Mikrofonu",
+    "startRecording": "Ibda r-reġistrazzjoni",
+    "pauseRecording": "Is-sospiż tar-reġistrazzjoni",
+    "resumeRecording": "Kompli r-reġistrazzjoni",
+    "stopRecording": "Waqqaf ir-reġistrazzjoni"
+  },
+  "typing": "Tittajpja...",
+  "gameServer": {
+    "browserError": "Żball tal-Browser",
+    "browserErrorMessage": "Il-browser tiegħek ma jappoġġjax il-ħażna fil-modalità ta 'browsing privat. Jew ipprova browser ieħor, jew oħroġ mill-modalità ta 'browsing privat.",
+    "noAvailableServers": "Ebda Server Disponibbli",
+    "noAvailableServersMessage": "M'hemm l-ebda servers disponibbli għalik biex tikkonnettja magħhom. Tipprova terġa 'tikkonnettja",
+    "worldDisconnected": "Id-dinja skonnettjata",
+    "worldDisconnectedMessage": "Tlift il-konnessjoni tiegħek mad-dinja. Aħna nippruvaw nerġgħu nikkonnettjaw qabel ma jispiċċa l-ħin li ġej, inkella tintbagħat għal każ differenti.",
+    "webGLNotEnabled": "Il-WebGL mhux attivat",
+    "webGLNotEnabledMessage": "Il-browser tiegħek ma jappoġġjax il-WebGL, jew huwa diżattivat. Jekk jogħġbok attiva l-WebGL jew ikkunsidra li taġġorna għall-aħħar verżjoni tal-browser tiegħek.",
+    "youKickedFromWorld": "Int ġejt imkeċċi mid-dinja",
+    "youKickedFromWorldMessage": "Ġejt imkeċċi minn din id-dinja għar-raġuni li ġejja",
+    "invalidLocation": "Post invalidu",
+    "cantFindLocation": "Ma nistgħux insibu l-post",
+    "misspelledOrNotExist": "Jista' jitkeċċa ħażin, jew jista' ma jeżistix.",
+    "loading": "Tagħbija",
+    "low-frame-error": "Skopert perfomanza fqira tikkunsidra li tippermetti l-aċċelerazzjoni tal-Ħardwer Uża fil-browser tiegħek u terġa 'tirkadi l-browser tiegħek",
+    "low-frame-title": "Attiva l-aċċelerazzjoni tal-ħardwer għal esperjenza aħjar!"
+  },
+  "error": {
+    "loading-error": "Ma rnexxilux jillowdja d-dejta tal-utent",
+    "validation-error": "Daħħal {{type}} validu",
+    "login-error": "Ma rnexxilux jilloggja"
+  }
+}

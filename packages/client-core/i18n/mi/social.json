@@ -1,0 +1,202 @@
+{
+  "addComment": "Tāpiri Tākupu...",
+  "share": "Tohaina",
+  "suggestions": "Ngā Huatau Māu",
+  "seeAll": "Tirohia te katoa",
+  "likes": "Pēnei",
+  "viewComments": "Tirohia ngā tākupu {{count}} katoa",
+  "more": "ētahi atu",
+  "username": "ingoakaiwhakamahi",
+  "fullName": "Ingoa Ingoa Whakaingoa",
+  "reportInApporpriate": "Pūrongo Tika",
+  "unfollow": "Kāore e taea te tango",
+  "goToPost": "Haere ki te Tuku",
+  "shareModal": "Tohaina",
+  "copyLink": "Tārua hono",
+  "embed": "Embed",
+  "cancel": "Whakakore",
+  "confirm": "Whakaū",
+  "save": "Tiaki",
+  "profilePic": "{{user}}te whakaahua kōtaha o ",
+  "ara": "Ara",
+  "follow": "Whai",
+  "flames": "Ngā Flames",
+  "continue": "Haere tonu",
+  "partyInvitationSent": "Kua tukua te tono a te rōpū",
+  "arMedia": {
+    "back": "Whakamuri",
+    "clip": "Topenga",
+    "backgrounds": "Ngā Papamuri",
+    "start": "Tīmata"
+  },
+  "arMediaform": {
+    "title": "Taitara",
+    "type": "Momo",
+    "clip": "Topenga",
+    "background": "Papamuri",
+    "scene": "Tirohanga",
+    "save": "Tiaki",
+    "manifest-file": "Manifest .manifest file",
+    "audio-file": "Kōnae Mp4",
+    "dracosis-file": "Kōnae Dracosis .uvol",
+    "preview-file": "Arokite kōnae atahanga"
+  },
+  "creator": {
+    "myVideos": "Aku Ataata",
+    "savedVideos": "Ngā Ataata i Tiakina",
+    "back": "Whakamuri",
+    "blocked-list": "Rārangi Kua Āraia",
+    "block-user": "Ārai Kaiwhakamahi",
+    "dialog-content": "Kāore koe e kite i te kōtaha me ngā ihirangi o te kaiwhakamahi"
+  },
+  "creatorForm": {
+    "back": "Whakamuri",
+    "edit": "Whakatika Kōtaha",
+    "save": "Tiaki",
+    "changeAvatar": "Hurihia te atahanga avatar",
+    "ph-selectPreview": "Tīpako arokite",
+    "ph-name": "Ko tō ingoa",
+    "ph-username": "Tō Ingoa Kaiwhakamahi",
+    "ph-email": "Tō Ī-mēra",
+    "ph-tags": "Ngā Tūtohu",
+    "ph-link": "Hono",
+    "ph-aboutYou": "Ētahi atu mea mōu",
+    "ph-twitter": "twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Waitohu-Atu"
+  },
+  "dashboard": {
+    "title": "Papa Pīhono",
+    "dashboard": "Papa Pīhono",
+    "users": "Ngā Kaiwhakamahi",
+    "feeds": "Ngā Whāngai",
+    "arMedia": "Pāpāho Ataata",
+    "editor": "Kaiwhakatika",
+    "creator": "Kaihanga"
+  },
+  "featured": {
+    "empty-list": "Kāore he whāngai mō tēnei wā ..."
+  },
+  "feed": {
+    "back": "Whakamuri",
+    "related": "Ngā whāngai whai pānga",
+    "is-repoted-message": "Kua pūrongotia te whāngai!"
+  },
+  "feedForm": {
+    "back": "Whakamuri",
+    "thanks": "Ngā mihi mō te tiritiri me te whakapiki i to tātau iwi",
+    "share": "Tiria tētahi mea ki te iwi whānui",
+    "upload": "Tukuatu Ataata",
+    "ph-selectVideo": "Tīpako Ataata",
+    "preview": "Arokite atahanga",
+    "ph-selectPreview": "Tīpako arokite",
+    "createFeed": "Hei waihanga i tētahi whāngai me whai ataata me tētahi atahanga arokite!!!",
+    "ph-videoName": "Te ingoa o tō ataata",
+    "ph-type": "Patohia tāu e hiahia ana ki te tiri ki te iwi ... ",
+    "lbl-share": "Tohaina",
+    "save": "Tiaki ka haere Panuku"
+  },
+  "feedMenu": {
+    "featured": "Kua Āhuahiratia",
+    "creators": "Kaihanga",
+    "feed": "Te Whāngai"
+  },
+  "header": {
+    "lbl-volumetric": "Rōrahi"
+  },
+  "login": {
+    "account": "He pūkete anō?",
+    "login": "Takiuru",
+    "resetPassword": "Tautuhi anō i te pātene Kupuhipa Fake (he hononga tēnei mai i te īmēra)",
+    "notHavingAccount": "Kāore he pūkete?",
+    "signUp": "Takiuru",
+    "forgotPassword": "Kua warewaretia tō kupuhipa??",
+    "back": "Whakamuri",
+    "or": "RĀNEI"
+  },
+  "comment": {
+    "add": "Tāpirihia tō tākupu..."
+  },
+  "notification": {
+    "feedFire": " pūhia tō whāngai",
+    "feedBookmarked": " tohuwāhitia tō whāngai",
+    "comment": " kōrero ki tō whāngai:",
+    "commentFire": " pūhia tō tākupu ki te whāngai",
+    "follow": " tīmata ki te whai i a koe",
+    "unfollow": " tū i muri i a koe",
+    "followed": " whai i a koe",
+    "activity": "Ngohe"
+  },
+  "onBoarding": {
+    "welcome": "Nau mai!",
+    "description": "Kohinga nui rawa o ngā tahora 370+ mō te prototyping iOS.",
+    "next": "Panuku",
+    "discover": "Kōrerotia ngā tuhipānui,",
+    "news": "rongokōrero me ngā whakairinga",
+    "lines": "Ko aua whakaaro e whakahaere ana i to tātau aroha ki te whakaaro nui me to tātau hiahia.",
+    "getStarted": "Tīmata",
+    "meetUp": "Tūtaki ki",
+    "friends": "hoa.",
+    "meet": "Tūtaki ki ngā hoa"
+  },
+  "shareForm": {
+    "arcMedia": "Tohaina",
+    "videoCreated": "I waihangatia e au tēnei ataata",
+    "shareWithBuddies": "Tiria ki ngā hoa",
+    "shareVideo": "Tiri Ataata",
+    "save": "Tiaki Ki te Rārangi Kāmera",
+    "cancel": "Whakakore",
+    "close": "Katia",
+    "addFeed": "Tāpiri Whāngai"
+  },
+  "simpleModal": {
+    "emptyList": "Rārangi Putua",
+    "followers": " e whai ake nei",
+    "following": " whaiwhai",
+    "flames": " mura"
+  },
+  "splash": {
+    "screen": "Mata Splash",
+    "logo": "Takiuru"
+  },
+  "story": {
+    "profilePic": "{{user}}te whakaahua kōtaha o "
+  },
+  "view": {
+    "cancel": "Whakakore",
+    "choice": "E rua ō aratau tāhopu rerekē hei kōwhiri mai i",
+    "verticalMode": "He wā pūkete sec 30 tā te aratau poutū",
+    "horizontalMode": "He wā pūkete mutunga kore te aratau whakapae",
+    "start": "Tīmata",
+    "not-show": "Kaua e whakaatu anō",
+    "welcome": "Nau mai ki ARC!  Hangaia ngā ataata whaiaro ki tētahi o ā mātou holograms me te whakairi ki ō hongere pāpāho pāpori!",
+    "step": "STEP {{step}}",
+    "text-step-1": "Kōwhiria he hologram mai i te puna.",
+    "text-step-2": "He Ao Rangirua tēnei, nā reira ka karapatia te mokowā ki tō kāmera mai i te taha ki te taha mō te 3-5 hēkona e hiahia ana koe kia noho te mahinga hologram.",
+    "text-step-3-part-1": "Kia kotahi te mata i te tauwāhi e hiahia ana koe kia punga te hologram.",
+    "text-step-3-part-2": "AKI!  Kia kotahi te pato ki tētahi atu wāhi hei nuku i te hologram ki tētahi atu tūnga.",
+    "text-step-3-part-3": "AKI!  Ka taea e koe te whakarahi anō i te hologram mā te kini, mā te whakawhānui rānei i te mata ki tō kōnui me tō matimati taupū.",
+    "text-step-4-part-1": "Pato tauruatia te pātene pūkete whero hei START i tō hopukanga ataata.",
+    "text-step-4-part-2": "Pato tauruatia te pātene pūkete whero ki STOP."
+  },
+  "video": {
+    "back": "Whakamuri"
+  },
+  "terms": {
+    "confirmTerms": "E whakaae ana ahau ki ngā Ture Ratonga",
+    "confirmPolicy": "E whakaae ana ahau ki te Kaupapahere Tūmataitinga"
+  },
+  "registration": {
+    "ph-phoneEmail": "Whakamahia te waea / īmēra",
+    "facebook": "Haere tonu me te Facebook",
+    "google": "Haere tonu me Google",
+    "linkedin": "Haere tonu me Linkedin",
+    "twitter": "Haere tonu me twitter",
+    "gitHub": "Haere tonu me GitHub",
+    "connect": "Tūhonoa tō tau īmēra, tau waea rānei",
+    "logIn": "Takiuru",
+    "LogInTo": "Takiuru ki",
+    "continueAsGuest": "Haere tonu hei manuhiri"
+  }
+}

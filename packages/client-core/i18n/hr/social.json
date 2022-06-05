@@ -1,0 +1,202 @@
+{
+  "addComment": "Dodaj komentar...",
+  "share": "Dijeliti",
+  "suggestions": "Prijedlozi za vas",
+  "seeAll": "Vidi sve",
+  "likes": "Voli",
+  "viewComments": "Prikaz svih {{count}} komentara",
+  "more": "više",
+  "username": "korisničko ime",
+  "fullName": "Prezime imena",
+  "reportInApporpriate": "Prijava neprikladna",
+  "unfollow": "Prekini praćenje",
+  "goToPost": "Idi na objavu",
+  "shareModal": "Dijeliti",
+  "copyLink": "Kopiraj vezu",
+  "embed": "Ugraditi",
+  "cancel": "Otkazati",
+  "confirm": "Potvrditi",
+  "save": "Spasiti",
+  "profilePic": "{{user}}slika profila",
+  "ara": "Ara",
+  "follow": "Pratiti",
+  "flames": "Plamenu",
+  "continue": "Nastaviti",
+  "partyInvitationSent": "Pozivnica za zabavu poslana",
+  "arMedia": {
+    "back": "Leđa",
+    "clip": "Isječak",
+    "backgrounds": "Pozadine",
+    "start": "Početak"
+  },
+  "arMediaform": {
+    "title": "Naslov",
+    "type": "Tip",
+    "clip": "Isječak",
+    "background": "Pozadina",
+    "scene": "Scena",
+    "save": "Spasiti",
+    "manifest-file": "Manifest .manifestna datoteka",
+    "audio-file": "Mp4 datoteka",
+    "dracosis-file": "Dracosis .uvol datoteka",
+    "preview-file": "Pretpregled slikovne datoteke"
+  },
+  "creator": {
+    "myVideos": "Moji videozapisi",
+    "savedVideos": "Spremljeni videozapisi",
+    "back": "Leđa",
+    "blocked-list": "Blokirani popis",
+    "block-user": "Blokiraj korisnika",
+    "dialog-content": "Nećete vidjeti profil i sadržaj korisnika"
+  },
+  "creatorForm": {
+    "back": "Leđa",
+    "edit": "Uređivanje profila",
+    "save": "Spasiti",
+    "changeAvatar": "Promjena slike avatara",
+    "ph-selectPreview": "Odabir pretpregleda",
+    "ph-name": "Tvoje ime",
+    "ph-username": "Vaše korisničko ime",
+    "ph-email": "Vaša e-pošta",
+    "ph-tags": "Tags",
+    "ph-link": "Povezati",
+    "ph-aboutYou": "Više o vama",
+    "ph-twitter": "cvrkut",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Odjava"
+  },
+  "dashboard": {
+    "title": "Nadzorna ploča",
+    "dashboard": "Nadzorna ploča",
+    "users": "Korisnici",
+    "feeds": "Feedove",
+    "arMedia": "Video medijski sadržaji",
+    "editor": "Urednik",
+    "creator": "Tvorac"
+  },
+  "featured": {
+    "empty-list": "Za sada nema feedova ..."
+  },
+  "feed": {
+    "back": "Leđa",
+    "related": "Povezani sažeci sadržaja",
+    "is-repoted-message": "Feed je prijavljen!"
+  },
+  "feedForm": {
+    "back": "Leđa",
+    "thanks": "Hvala na dijeljenju i poboljšanju naše zajednice",
+    "share": "Podijelite nešto sa zajednicom",
+    "upload": "Prenesi videozapis",
+    "ph-selectVideo": "Odabir videozapisa",
+    "preview": "Pretpregled slike",
+    "ph-selectPreview": "Odabir pretpregleda",
+    "createFeed": "Da biste stvorili sažetak sadržaja, morate imati videozapis i sliku pretpregleda!!!",
+    "ph-videoName": "Naziv videozapisa",
+    "ph-type": "Upišite ono što želite zajednički koristiti sa zajednicom ... ",
+    "lbl-share": "Dijeliti",
+    "save": "Spremi i idi dalje"
+  },
+  "feedMenu": {
+    "featured": "Preporučeni",
+    "creators": "Kreatori",
+    "feed": "Sažetak sadržaja"
+  },
+  "header": {
+    "lbl-volumetric": "Zapreminski"
+  },
+  "login": {
+    "account": "Imate li račun?",
+    "login": "Prijava",
+    "resetPassword": "Gumb Reset Password Fake (ovdje bi bila veza iz e-pošte)",
+    "notHavingAccount": "Nemate račun?",
+    "signUp": "Prijavi se",
+    "forgotPassword": "Zaboravili ste lozinku?",
+    "back": "Leđa",
+    "or": "ILI"
+  },
+  "comment": {
+    "add": "Dodavanje komentara..."
+  },
+  "notification": {
+    "feedFire": " ispalio vaš feed",
+    "feedBookmarked": " označeno knjižnom oznakom sažetka sadržaja",
+    "comment": " komentirao je sažetak sadržaja:",
+    "commentFire": " ispalio vaš komentar na feed",
+    "follow": " počeo vas pratiti",
+    "unfollow": " prestao vas pratiti",
+    "followed": " pratio vas",
+    "activity": "Aktivnost"
+  },
+  "onBoarding": {
+    "welcome": "Dobrodošao!",
+    "description": "Najveća kolekcija od 370+ izgleda za iOS izradu prototipova.",
+    "next": "Sljedeći",
+    "discover": "Otkrijte članke,",
+    "news": "vijesti i postovi",
+    "lines": "Upravo ti osjećaji pokreću našu ljubav prema astronomiji i našu želju.",
+    "getStarted": "Prvi koraci",
+    "meetUp": "Upoznajte se s",
+    "friends": "prijatelji.",
+    "meet": "Upoznajte se s prijateljima"
+  },
+  "shareForm": {
+    "arcMedia": "Dijeliti",
+    "videoCreated": "Stvorio sam ovaj videozapis",
+    "shareWithBuddies": "Podijelite s prijateljima",
+    "shareVideo": "Zajedničko korištenje videozapisa",
+    "save": "Spremi u snimanje fotoaparata",
+    "cancel": "Otkazati",
+    "close": "Blizak",
+    "addFeed": "Dodaj sažetak sadržaja"
+  },
+  "simpleModal": {
+    "emptyList": "Prazan popis",
+    "followers": " sljedeće",
+    "following": " Sljedbenika",
+    "flames": " Plamenu"
+  },
+  "splash": {
+    "screen": "Zaslon za prskanje",
+    "logo": "Logotip"
+  },
+  "story": {
+    "profilePic": "{{user}}slika profila"
+  },
+  "view": {
+    "cancel": "Otkazati",
+    "choice": "Možete birati između dva različita načina snimanja",
+    "verticalMode": "Okomiti način rada ima vrijeme snimanja od 30 sekundi",
+    "horizontalMode": "Vodoravni način rada ima neograničeno vrijeme snimanja",
+    "start": "Početak",
+    "not-show": "Ne pokazuj ga više",
+    "welcome": "Dobrodošli u ARC!  Napravite osobne videozapise s jednim od naših holograma i objavite ih na svojim kanalima na društvenim mrežama!",
+    "step": "STEP {{step}}",
+    "text-step-1": "Odaberite hologram iz biblioteke.",
+    "text-step-2": "Ovo je proširena stvarnost, stoga skenirajte prostor kamerom s jedne na drugu stranu 3-5 sekundi gdje želite da performanse holograma budu.",
+    "text-step-3-part-1": "Jednom dodirnite zaslon na mjestu na kojem želite usidriti hologram.",
+    "text-step-3-part-2": "NAPOJNICA!  Dodirnite jednom negdje drugdje da biste hologram premjestili na drugo mjesto.",
+    "text-step-3-part-3": "NAPOJNICA!  Hologram možete promijeniti veličinu tako da prstom ili proširite zaslon palcem i kažiprstom.",
+    "text-step-4-part-1": "Dvaput dodirnite crveni gumb za snimanje videozapisa da biste pokrenuli snimanje videozapisa.",
+    "text-step-4-part-2": "Dvaput dodirnite crveni gumb za snimanje da biste zaustavili."
+  },
+  "video": {
+    "back": "Leđa"
+  },
+  "terms": {
+    "confirmTerms": "Slažem se s Uvjetima pružanja usluge",
+    "confirmPolicy": "Slažem se s Pravilima o privatnosti"
+  },
+  "registration": {
+    "ph-phoneEmail": "Korištenje telefona / e-pošte",
+    "facebook": "Nastavite s Facebookom",
+    "google": "Nastavite s Googleom",
+    "linkedin": "Nastavi s Linkedinom",
+    "twitter": "Nastavi s Twitterom",
+    "gitHub": "Nastavi s GitHubom",
+    "connect": "Povezivanje e-pošte ili telefonskog broja",
+    "logIn": "Prijavi se",
+    "LogInTo": "Prijava u",
+    "continueAsGuest": "Nastavite kao gost"
+  }
+}

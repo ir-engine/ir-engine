@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "正在加载页面..."
+  },
+  "tooltip": {
+    "pressKey": "按 {{tip}} 键 {{message}}"
+  },
+  "toast": {
+    "joined": "入之",
+    "left": "左"
+  },
+  "navUserWidget": {
+    "login": "登录"
+  },
+  "loader": {
+    "connecting": "接世界...",
+    "entering": "入世界...",
+    "loading": "载。",
+    "objectRemaining": "余{{count}}",
+    "objectRemainingPlural": "余{{count}}",
+    "loadingObjects": "加载",
+    "loadingComplete": "加载成",
+    "joiningWorld": "入世界"
+  },
+  "alert": {
+    "eventWasSuccess": "动而成功",
+    "errorWasEncountered": "误矣",
+    "eventInProgress": "事中",
+    "seconds": "秒",
+    "cancelCountdown": "闭式将除倒计时"
+  },
+  "debug": {
+    "refresh": "刷新",
+    "stats": "计之",
+    "debugOptions": "调试选项",
+    "physicsDebug": "物理",
+    "avatarDebug": "化身",
+    "nodeHelperDebug": "节点佐",
+    "gridDebug": "网格",
+    "simpleMaterials": "简材",
+    "tick": "蜱",
+    "worldStore": "世界商店",
+    "engineStore": "发动机店",
+    "namedEntities": "命曰实体",
+    "networkObject": "网络也",
+    "networkClients": "网络客户端"
+  },
+  "recording": {
+    "videoRecorder": "录像机",
+    "waitingForPermissions": "待权限",
+    "selectVideoSource": "择视频源",
+    "screen": "屏",
+    "camera": "照相机",
+    "microphone": "麦沴风",
+    "startRecording": "始录制",
+    "pauseRecording": "停录制",
+    "resumeRecording": "复录制",
+    "stopRecording": "停录制"
+  },
+  "typing": "打字。",
+  "gameServer": {
+    "browserError": "浏览器误",
+    "browserErrorMessage": "君浏览器不支无痕览式下存。 试他浏览器,退无痕览式。",
+    "noAvailableServers": "无用服务器",
+    "noAvailableServersMessage": "无服务器可接。 试重接",
+    "worldDisconnected": "世界断开连接",
+    "worldDisconnectedMessage": "汝已失世界。 试将以下时用完之前重接,否则系统将你转发到他例。",
+    "webGLNotEnabled": "未启用 WebGL",
+    "webGLNotEnabledMessage": "君浏览器不持 WebGL,或禁之。 请启用 WebGL 或思升级最新版本之浏览器。",
+    "youKickedFromWorld": "你被踢出了世界",
+    "youKickedFromWorldMessage": "你踢出这世界如下",
+    "invalidLocation": "无效位",
+    "cantFindLocation": "我们寻找不到该位",
+    "misspelledOrNotExist": "其可拼写错误也,或可无也。",
+    "loading": "载之",
+    "low-frame-error": "检性能不佳,请思浏览器中启用硬件速发浏览器",
+    "low-frame-title": "用硬件速以得善体!"
+  },
+  "error": {
+    "loading-error": "无以加载用户数",
+    "validation-error": "请输有效者 {{type}}",
+    "login-error": "录败"
+  }
+}

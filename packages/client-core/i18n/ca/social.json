@@ -1,0 +1,202 @@
+{
+  "addComment": "Afegeix un comentari...",
+  "share": "Compartir",
+  "suggestions": "Suggeriments per a tu",
+  "seeAll": "Veure-ho tot",
+  "likes": "Li agrada",
+  "viewComments": "Veure tots els comentaris {{count}}",
+  "more": "més",
+  "username": "nom d'usuari",
+  "fullName": "Cognom del nom",
+  "reportInApporpriate": "Informar d'un resultat inadequat",
+  "unfollow": "Deixar de seguir",
+  "goToPost": "Vés a l'entrada",
+  "shareModal": "Compartir",
+  "copyLink": "Copia l'enllaç",
+  "embed": "Incrustar",
+  "cancel": "Cancel·lar",
+  "confirm": "Confirmar",
+  "save": "Salvar",
+  "profilePic": "foto de perfil de {{user}}",
+  "ara": "Altar",
+  "follow": "Seguir",
+  "flames": "Flames",
+  "continue": "Continuar",
+  "partyInvitationSent": "S'ha enviat la invitació del partit",
+  "arMedia": {
+    "back": "Esquena",
+    "clip": "Clip",
+    "backgrounds": "Fons",
+    "start": "Començar"
+  },
+  "arMediaform": {
+    "title": "Títol",
+    "type": "Tipus",
+    "clip": "Clip",
+    "background": "Fons",
+    "scene": "Escena",
+    "save": "Salvar",
+    "manifest-file": "Manifest .manifest fitxer",
+    "audio-file": "Fitxer Mp4",
+    "dracosis-file": "Fitxer Dracosis .uvol",
+    "preview-file": "Visualització prèvia del fitxer d'imatge"
+  },
+  "creator": {
+    "myVideos": "Els meus vídeos",
+    "savedVideos": "Vídeos desats",
+    "back": "Esquena",
+    "blocked-list": "Llista blocada",
+    "block-user": "Bloca l'usuari",
+    "dialog-content": "No veuràs el perfil i el contingut de l'usuari"
+  },
+  "creatorForm": {
+    "back": "Esquena",
+    "edit": "Edita el perfil",
+    "save": "Salvar",
+    "changeAvatar": "Canvia la imatge de l'avatar",
+    "ph-selectPreview": "Selecciona la visualització prèvia",
+    "ph-name": "El teu nom",
+    "ph-username": "El vostre nom d'usuari",
+    "ph-email": "El teu correu electrònic",
+    "ph-tags": "Etiquetes",
+    "ph-link": "Lligam",
+    "ph-aboutYou": "Més sobre tu",
+    "ph-twitter": "Twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Tanca la sessió"
+  },
+  "dashboard": {
+    "title": "Comandament",
+    "dashboard": "Comandament",
+    "users": "Usuaris",
+    "feeds": "Menjars",
+    "arMedia": "Contingut multimèdia de vídeo",
+    "editor": "Editor",
+    "creator": "Creador"
+  },
+  "featured": {
+    "empty-list": "De moment no hi ha canals de continguts ..."
+  },
+  "feed": {
+    "back": "Esquena",
+    "related": "Canals de continguts relacionats",
+    "is-repoted-message": "S'ha informat del canal de continguts!"
+  },
+  "feedForm": {
+    "back": "Esquena",
+    "thanks": "Gràcies per compartir i millorar la nostra comunitat",
+    "share": "Compartir alguna cosa amb la comunitat",
+    "upload": "Carrega vídeo",
+    "ph-selectVideo": "Selecciona el vídeo",
+    "preview": "Visualització prèvia de la imatge",
+    "ph-selectPreview": "Selecciona la visualització prèvia",
+    "createFeed": "Per crear un feed has de tenir un vídeo i una imatge de previsualització!!!",
+    "ph-videoName": "El nom del teu vídeo",
+    "ph-type": "Escriviu el que voleu compartir amb la comunitat ... ",
+    "lbl-share": "Compartir",
+    "save": "Desa i vés a continuació"
+  },
+  "feedMenu": {
+    "featured": "Hotels destacats",
+    "creators": "Creadors",
+    "feed": "El canal"
+  },
+  "header": {
+    "lbl-volumetric": "Volumètric"
+  },
+  "login": {
+    "account": "Tens un compte?",
+    "login": "Connexió",
+    "resetPassword": "Reinicialitza el botó Fake password (aquí hi hauria un enllaç des del correu electrònic)",
+    "notHavingAccount": "No tens compte?",
+    "signUp": "Inscriure",
+    "forgotPassword": "Heu oblidat la contrasenya?",
+    "back": "Esquena",
+    "or": "O"
+  },
+  "comment": {
+    "add": "Afegeix el teu comentari..."
+  },
+  "notification": {
+    "feedFire": " ha disparat el feed",
+    "feedBookmarked": " marcadors del feed",
+    "comment": " ha comentat el vostre feed:",
+    "commentFire": " ha disparat el vostre comentari per alimentar",
+    "follow": " va començar a seguir-te",
+    "unfollow": " Ha deixat de seguir-te",
+    "followed": " T'ha seguit",
+    "activity": "Activitat"
+  },
+  "onBoarding": {
+    "welcome": "Benvingut!",
+    "description": "La col·lecció més gran de més de 370 dissenys per a prototips d'iOS.",
+    "next": "Proper",
+    "discover": "Descobreix articles,",
+    "news": "notícies i publicacions",
+    "lines": "Són aquests sentiments els que impulsen el nostre amor per l'astronomia i el nostre desig.",
+    "getStarted": "Començar",
+    "meetUp": "Trobada amb",
+    "friends": "Amics.",
+    "meet": "Trobada amb amics"
+  },
+  "shareForm": {
+    "arcMedia": "Compartir",
+    "videoCreated": "He creat aquest vídeo",
+    "shareWithBuddies": "Compartir amb els amics",
+    "shareVideo": "Compartir vídeo",
+    "save": "Desa-ho al rodet de la càmera",
+    "cancel": "Cancel·lar",
+    "close": "Tancar",
+    "addFeed": "Afegeix un canal de continguts"
+  },
+  "simpleModal": {
+    "emptyList": "Llista buida",
+    "followers": " següent",
+    "following": " Seguidors",
+    "flames": " Flames"
+  },
+  "splash": {
+    "screen": "Pantalla de presentació",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "foto de perfil de {{user}}"
+  },
+  "view": {
+    "cancel": "Cancel·lar",
+    "choice": "Teniu dos modes d'enregistrament diferents per triar",
+    "verticalMode": "El mode vertical té un temps de registre de 30 segons",
+    "horizontalMode": "El mode horitzontal té un temps de registre il·limitat",
+    "start": "Començar",
+    "not-show": "No ho tornis a mostrar",
+    "welcome": "Benvinguts a l'ARC!  Fes vídeos personals amb un dels nostres hologrames i publica'ls als teus canals de xarxes socials!",
+    "step": "pas {{step}}",
+    "text-step-1": "Trieu un holograma de la biblioteca.",
+    "text-step-2": "Això és realitat augmentada, de manera que escanegeu l'espai amb la càmera d'un costat a un altre durant 3-5 segons on voleu que sigui el rendiment de l'holograma.",
+    "text-step-3-part-1": "Toca la pantalla un cop a la ubicació on vulguis que l'holograma estigui ancorat.",
+    "text-step-3-part-2": "PROPINA!  Toca un cop en un altre lloc per moure l'holograma a una altra posició.",
+    "text-step-3-part-3": "PROPINA!  Pots canviar la mida de l'holograma pessigant o expandint la pantalla amb el polze i el dit índex.",
+    "text-step-4-part-1": "Prem dues vegades el botó de gravació vermella per iniciar la gravació de vídeo.",
+    "text-step-4-part-2": "Prem dues vegades el botó de registre vermell per ATURAR."
+  },
+  "video": {
+    "back": "Esquena"
+  },
+  "terms": {
+    "confirmTerms": "Accepto les condicions del servei",
+    "confirmPolicy": "Estic d'acord amb la política de privacitat"
+  },
+  "registration": {
+    "ph-phoneEmail": "Utilitza el telèfon / correu electrònic",
+    "facebook": "Continua amb Facebook",
+    "google": "Continuar amb Google",
+    "linkedin": "Continua amb Linkedin",
+    "twitter": "Continuem amb Twitter",
+    "gitHub": "Continua amb GitHub",
+    "connect": "Connecta el teu correu electrònic o número de telèfon",
+    "logIn": "Inicia la sessió",
+    "LogInTo": "Inicia la sessió a",
+    "continueAsGuest": "Continua com a convidat"
+  }
+}

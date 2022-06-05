@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Halaman Tidak Ditemukan"
+  },
+  "503": {
+    "msg": "503 - Layanan Tidak Tersedia"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Anda telah dilarang dari lokasi ini",
+    "locationName": {
+      "pageTitle": "Rumah"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Proyek",
+      "header": "Silahkan Login",
+      "welcomeMsg": "Selamat datang",
+      "locationHeader": "Lokasi",
+      "projectHeader": "Proyek",
+      "sceneHeader": "Adegan",
+      "description": "Jika Anda baru di sini, kami sarankan untuk membaca tutorialnya. Jika tidak, langsung masuk dan buat proyek dari awal atau dari salah satu templat kami.",
+      "lbl-startTutorial": "Mulai Tutorial",
+      "lbl-newProject": "Proyek Baru",
+      "lbl-createProject": "Menciptakan",
+      "lbl-newScene": "Adegan Baru",
+      "lbl-searchProject": "Cari Proyek yang Ada...",
+      "back": "Belakang",
+      "contextMenu": "Hapus Proyek",
+      "installed": "Proyek yang Diinstal",
+      "official": "Proyek Resmi",
+      "community": "Proyek Komunitas",
+      "install": "Pasang",
+      "uninstall": "Copot pemasangan",
+      "rename": "Ubah nama",
+      "createProject": "Buat Proyek",
+      "installProject": "Instal Proyek",
+      "processing": "Pengolahan",
+      "projectName": "Nama Proyek",
+      "projectURL": "URL proyek"
+    }
+  },
+  "error": {
+    "goHomeLink": "Pulang sana",
+    "withStatusCode": "Kesalahan {{code}} terjadi di server",
+    "withoutStatusCode": "Terjadi kesalahan pada server"
+  },
+  "no-projects": {
+    "msg": "Kesalahan: Tidak Ada Proyek yang Diinstal - silakan hubungi admin situs"
+  },
+  "dev": {
+    "pageTitle": "Rumah"
+  },
+  "login": {
+    "pageTitle": "Login"
+  },
+  "workerTest": {
+    "pageTitle": "Tes Pekerja"
+  },
+  "index": {
+    "by": "OLEH",
+    "xr": "XR",
+    "foundation": "Fondasi",
+    "description": "Aplikasi sosial 3D waktu nyata untuk dinikmati semua orang."
+  },
+  "xrengineContact": {
+    "header": "Hubungi kami!",
+    "description": "Kami ingin membantu Anda dengan acara virtual, ritel digital, hiburan, dan kebutuhan lainnya.",
+    "lbl-name": "Nama",
+    "lbl-email": "Email",
+    "lbl-company": "Firma",
+    "lbl-project": "Jelaskan Proyek Anda",
+    "lbl-send": "Kirim",
+    "lbl-ok": "Oke",
+    "lbl-success": "Pesan Terkirim, Kami akan segera menghubungi Anda kembali.",
+    "lbl-failure": "Terjadi kesalahan, Plese coba lagi",
+    "err-username": "Silakan masukkan nama Anda.",
+    "err-email": "Email diperlukan.",
+    "err-msg": "Berikan beberapa deskripsi singkat tentang proyek Anda."
+  }
+}

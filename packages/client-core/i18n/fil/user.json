@@ -1,0 +1,313 @@
+{
+  "auth": {
+    "confirmEmail": {
+      "header": "Email sa Kumpirmasyon",
+      "resendEmail": "Mangyaring suriin ang iyong email para i-verify ang iyong account. Kung hindi ka nakakuha ng email, i-klik lamang {{here}} ipadala ang verification email.",
+      "haveAnAccount": "Mayroon bang account?"
+    },
+    "forgotPassword": {
+      "header": "Nakalimutan ang Password",
+      "enterEmail": "Ipasok ang iyong rehistradong email address at magpapadala kami sa iyo ng password reset link.",
+      "lbl-email": "Email Address",
+      "lbl-submit": "Magpadala ng Link",
+      "emailSent": "Ipinadala ang Reset Password Email. Mangyaring suriin ang iyong email."
+    },
+    "login": {
+      "email": "Email | SMS",
+      "username": "UserName + Password",
+      "social": "Panlipunang Lipunan"
+    },
+    "magiklink": {
+      "header": "Mag-login Link",
+      "descriptionEmail": "Ipasok ang iyong email address at magpapadala kami ng login link sa pamamagitan ng Email.",
+      "descriptionSMS": "Mangyaring ipasok ang numero ng telepono mo at magpapadala kami ng login link sa pamamagitan ng SMS.",
+      "descriptionEmailSMS": "Ipasok lamang ang iyong email address o numero ng telepono (10 digit, US lamang) at magpapadala kami ng login link sa pamamagitan ng Email o SMS.",
+      "descriptionSMSUS": "Mangyaring ipasok ang numero ng telepono mo (10 digit, US lamang) at magpapadala kami sa iyo ng login link sa pamamagitan ng SMS.",
+      "lbl-email": "Email address",
+      "lbl-emailPhone": "Numero ng Email o Telepono",
+      "lbl-phone": "Numero ng telepono",
+      "agree": "Sang-ayon ako sa ",
+      "terms": "Mga Tuntunin at Kondisyon",
+      "lbl-submit": "Magpadala ng Login Link",
+      "email-sent-msg": "Login Magic Link ay ipinadala. Mangyaring tingnan ang iyong Email.",
+      "success-msg": "Login Magic Link ay ipinadala. Mangyaring suriin ang iyong Email o SMS.",
+      "sms-sent-msg": "Login Magic Link ay ipinadala. Mangyaring suriin ang iyong SMS."
+    },
+    "passwordLogin": {
+      "header": "Mag-sign In",
+      "lbl-email": "Email Address",
+      "lbl-password": "Password",
+      "lbl-rememberMe": "Alalahanin ako",
+      "lbl-signin": "Mag-sign In",
+      "forgotPassword": "Nakalimutan ang password?",
+      "signup": "Wala ka bang account? Mag-sign Up",
+      "lbl-login": "Mag-log In",
+      "ph-password": "Password",
+      "ph-email": "Email"
+    },
+    "social": {
+      "gitHub": "Mag-login sa GitHub",
+      "google": "Mag-login sa Google",
+      "facebook": "Mag-login gamit ang Facebook",
+      "linkedin": "Mag-login gamit ang Linkedin",
+      "twitter": "Mag-login gamit ang Twitter"
+    },
+    "register": {
+      "header": "Mag-sign Up",
+      "login": "Mag-log In",
+      "lbl-signup": "Mag-sign Up",
+      "lbl-password": "Password",
+      "lbl-email": "Email Address",
+      "passwordNotMatch": "Hindi Magkatugma ang mga Password",
+      "ph-password": "Password",
+      "ph-confirmPassword": "Kumpirmahin ang Password",
+      "ph-email": "Email"
+    },
+    "resetPassword": {
+      "header": "I-reset ang Password",
+      "description": "Ipasok ang password mo para sa iyong email address",
+      "lbl-submit": "I-reset ang Password",
+      "lbl-password": "Password",
+      "lbl-confirmPassword": "Kumpirmahin ang Password",
+      "passwordNotMatch": "Hindi Magkatugma ang mga Password",
+      "nowLoginYourAccount": "Maaari ka nang mag-log in sa iyong account",
+      "yourPasswordResetSuccess": "Matagumpay na na-reset ang password mo!"
+    },
+    "verifyEmail": {
+      "header": "I-verify ang Email",
+      "processing": "Mangyaring maghintay ng isang sandali habang proseso..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Mga Lokasyon",
+      "loading": "Naglo-load",
+      "col-name": "Pangalan",
+      "col-scene": "Tagpo",
+      "col-maxuser": "Mga Gumagamit ng Max",
+      "lbl-search": "Maghanap ng mga lokasyon",
+      "lbl-new": "Bago"
+    },
+    "newLocation": {
+      "title": "Lokasyon",
+      "success": "Matagumpay na nai-save.",
+      "failure": "May nangyaring mali.",
+      "removeSuccess": "Matagumpay na tinanggal ang Lokasyon.",
+      "nameInUse": "Ginagamit ang pangalan.",
+      "nameRequire": "Kailangan ang pangalan.",
+      "validNumber": "Tanging ang mga numero (0-9) ang pinapayagan.",
+      "lbl-name": "Pangalan",
+      "lbl-maxuser": "Mga Gumagamit ng Max",
+      "lbl-scene": "Tagpo",
+      "lbl-type": "Tipo",
+      "lbl-ve": "Pinagana ang Video",
+      "lbl-gme": "Pinagana ang Global Media",
+      "lbl-update": "Magsunod-sa-",
+      "lbl-create": "Lumikha",
+      "tooltipCanNotBeDeleted": "Lobby ay hindi maaaring tinanggal",
+      "confirmation": "Sigurado ka ba?",
+      "lbl-yes": "Oo",
+      "lbl-no": "Hindi"
+    },
+    "share": {
+      "lbl-share": "Ibahagi",
+      "ph-phoneEmail": "Mag-imbita sa pamamagitan ng email o numero ng telepono",
+      "lbl-phoneEmail": "Ipadala sa email o numero ng telepono",
+      "lbl-copy": "Kopyahin",
+      "lbl-send-invite": "Magpadala ng Mag-anyaya",
+      "title": "Ibahagi ang iyong Lokasyon URL sa iyong koponan",
+      "linkCopied": "Kopyahin ang link sa clipboard."
+    },
+    "setting": {
+      "audio": "Audio",
+      "lbl-volume": "Tomo",
+      "lbl-microphone": "Mikropono",
+      "graphics": "Graphics",
+      "controls": "Mga Kontrol",
+      "lbl-control-type": "Uri ng Controller",
+      "lbl-control-scheme": "Kontrol Scheme",
+      "lbl-resolution": "Resolution",
+      "lbl-shadow": "Anino",
+      "lbl-pp": "Pagpoproseso ng Post",
+      "lbl-pbr": "Buong PBR",
+      "lbl-automatic": "Awtomatikong",
+      "xrusersetting": "Mga Setting ng Gumagamit ng XR",
+      "rotation": "pag-ikot",
+      "rotation-smooth-speed": "Rotation makinis bilis",
+      "rotation-angle": "rotation anggulo",
+      "moving": "Paglipat",
+      "user-avatar": "Avatar Setting",
+      "invert-rotation": "Invert rotation at Ilipat Sticks",
+      "show-avatar": "Ipakita ang Avatar"
+    },
+    "profile": {
+      "lbl-profile": "Profile",
+      "lbl-settings": "Mga Setting",
+      "lbl-username": "Username",
+      "update-msg": "Naisunod-sa-panahon ang Username",
+      "inviteCode": "Mag-imbita ng Code",
+      "youAreAn": "Ikaw ay isang",
+      "youAreA": "Ikaw ay isang",
+      "showUserId": "Magpakita ng ID ng Gumagamit",
+      "hideUserId": "Itago ang ID ng Gumagamit",
+      "showApiKey": "Magpakita ng key ng API",
+      "hideApiKey": "Itago ang key ng API",
+      "apiKey": "API key",
+      "logout": "Lumabas",
+      "connectPhone": "Ikonekta ang numero ng telepono mo",
+      "connectEmail": "Ikonekta ang iyong email",
+      "connectPhoneEmail": "Ikonekta ang iyong email o numero ng telepono",
+      "or": "O",
+      "lbl-wallet": "Mag-login sa Wallet",
+      "ph-email": "Email",
+      "ph-phone": "Numero ng Telepono",
+      "ph-phoneEmail": "Numero ng telepono / Email",
+      "phoneEmailError": "Di-maaaring telepono # o email address",
+      "phoneError": "Di-maaaring telepono #",
+      "emailError": "Di-maaaring email address",
+      "loginWithReadyPlayerMe": "Mag-login gamit ang Handa Player Me",
+      "connectSocial": "Kumonekta sa mga social account",
+      "createOne": "Kung wala kang account, may isa pang lilikha para sa iyo",
+      "connections": {
+        "title": "Mga Koneksyon",
+        "ipError": "Hindi matanggal ang aktibong Identidad provider",
+        "disconnect": "magdiskonek",
+        "connect": "Kumonekta"
+      },
+      "profileDropdown": {
+        "avatar": "Icon ng Gumagamit Avatar",
+        "profile": "Profile",
+        "adminConsole": "Admin Console",
+        "logout": "Mag-logout"
+      },
+      "userIcon": {
+        "lbl-name": "Ang iyong pangalan",
+        "lbl-update": "Magsunod-sa-",
+        "userId": "Id ng gumagamit",
+        "ph-uploadImg": "I-upload ang Imahen ng Produkto",
+        "lbl-selectAcvatar": "Pumili ng Avatar",
+        "lbl-submit": "Isumite"
+      },
+      "userSettings": {
+        "volume": "Tomo",
+        "microphone": "Mikropono",
+        "resolution": "Resolution",
+        "high": "Mataas",
+        "low": "Mababa",
+        "spatialAudio": "Gumamit ng Spatial Audio",
+        "enterMuted": "Pumasok sa Kuwarto muted"
+      }
+    },
+    "oauth": {
+      "authenticating": "Pagpapatunay...",
+      "authFailed": "{{service}} nabigo ang pagpapatunay."
+    },
+    "magikLink": {
+      "wait": "Mangyaring maghintay ng isang sandali habang proseso..."
+    },
+    "dashboard": {
+      "header": "dashboard",
+      "dashboard": "dashboard",
+      "users": "Mga Gumagamit",
+      "feeds": "Mga Feed",
+      "instance": "Halimbawa",
+      "locations": "Mga Lokasyon",
+      "invites": "Mga Imbitasyon",
+      "sessions": "Mga Sesyon",
+      "groups": "Mga Grupo",
+      "parties": "Mga Partido",
+      "chats": "Mga Chat",
+      "content": "Mga Pack ng Nilalaman",
+      "projects": "Mga Proyekto",
+      "scenes": "Mga Tagpo",
+      "avatars": "avataryo",
+      "benchmarking": "Benchmarking",
+      "bots": "bots"
+    }
+  },
+  "oauth": {
+    "authenticating": "Pagpapatunay...",
+    "authFailed": "{{service}} nabigo ang pagpapatunay."
+  },
+  "magikLink": {
+    "wait": "Mangyaring maghintay ng isang sandali habang proseso..."
+  },
+  "dashboard": {
+    "header": "dashboard",
+    "dashboard": "dashboard",
+    "users": "Mga Gumagamit",
+    "feeds": "Mga Feed",
+    "instance": "Halimbawa",
+    "locations": "Mga Lokasyon",
+    "routes": "Mga Ruta",
+    "projects": "Mga Proyekto",
+    "invites": "Mga Imbitasyon",
+    "sessions": "Mga Sesyon",
+    "groups": "Mga Grupo",
+    "parties": "Mga Partido",
+    "chats": "Mga Chat",
+    "content": "Mga Pack ng Nilalaman",
+    "scenes": "Mga Tagpo",
+    "avatars": "avataryo",
+    "benchmarking": "Benchmarking",
+    "bots": "bots",
+    "setting": "Mga Setting"
+  },
+  "avatar": {
+    "title": "Mag-upload ng Avatar",
+    "lbl-browse": "Magbraws",
+    "lbl-thumbnail": "Thumbnail",
+    "lbl-upload": "Mag-upload",
+    "selectAvatar": "Pumili ng Avatar...",
+    "selectThumbnail": "Pumili ng Thumbnail...",
+    "rotate": "paikutin",
+    "pan": "Pan pan",
+    "noBone": "Obejct ay hindi naglalaman ng anumang buto o balat",
+    "outOfBound": "Ang bagay ay hindi nakatali.",
+    "emptyObj": "Walang laman ang bagay.",
+    "maxTriangleError": "Ang object ay naglalaman ng mas malaki kaysa {{allowedTriangles}} mukha.",
+    "selectValidFile": "Pumili ng valid 3d avatar file.",
+    "selectValidThumbnail": "Napiling balidong file ng Thumbnail.",
+    "fileOversized": "Avatar file laki ay dapat sa pagitan ng {{minSize}} MB at {{maxSize}} MB",
+    "confirmation": "Sigurado ka ba?",
+    "canNotBeRemoved": "Aktibong Avatar ay hindi maaaring alisin",
+    "remove": "Tanggalin ang avatar",
+    "uploadFiles": "Mag-upload ng mga file",
+    "useUrlInstead": "Gamitin ang url sa halip na",
+    "avatar": "avatar mangangaso",
+    "cancel": "Kanselahin ang",
+    "createAvatar": "Lumikha ng Avatar",
+    "delete": "Magtanggal",
+    "view": "Tumanaw",
+    "uploadAvatarInfo": "Magsunod-sa-panahon ng Impormasyon ng avatar",
+    "name": "Pangalan",
+    "enterName": "Magpasok ng pangalan",
+    "avatarInformation": "Avatar Impormasyon",
+    "description": "Deskrip",
+    "key": "Susi",
+    "none": "Wala",
+    "submit": "Isumite",
+    "edit": "I-edit",
+    "avatarUrl": "avatar url",
+    "upload-success-msg": "Matagumpay na na-upload ang Avatar.",
+    "remove-success-msg": "Matagumpay na na-upload ang Avatar.",
+    "warning-msg": "Avatar resource ay walang laman, mayroon ka bang na-sync avatars sa iyong static file imbakan?"
+  },
+  "personMenu": {
+    "inviteToParty": "Mag-anyaya sa Party",
+    "addAsFriend": "Magdagdag Bilang Kaibigan",
+    "mute": "Mute",
+    "block": "Harangan ang Block"
+  },
+  "person": {
+    "you": "Ikaw",
+    "yourScreen": "Ang Iyong Screen",
+    "muteForEveryone": "Magmukhang Mute para sa lahat",
+    "unmuteForEveryone": "Magmungkahi para sa lahat",
+    "muteMe": "Imungkahi sa akin",
+    "unmuteMe": "Walang bahid-bahala sa akin",
+    "muteThisPerson": "Imungkahi sa taong ito",
+    "unmuteThisPerson": "I-unmute ang taong ito",
+    "openPictureInPicture": "Buksan ang Larawan sa Larawan"
+  }
+}

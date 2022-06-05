@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Stránka sa nenašla"
+  },
+  "503": {
+    "msg": "503 - Služba nie je k dispozícii"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Bol vám zakázaný vstup na toto miesto",
+    "locationName": {
+      "pageTitle": "Domov"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projekty",
+      "header": "Prosím prihláste sa",
+      "welcomeMsg": "Vitaj",
+      "locationHeader": "Miesta",
+      "projectHeader": "Projekty",
+      "sceneHeader": "Scény",
+      "description": "Ak ste tu nový, odporúčame prejsť si tutoriál. V opačnom prípade skočte priamo dovnútra a vytvorte projekt od nuly alebo z jednej z našich šablón.",
+      "lbl-startTutorial": "Spustiť výukový program",
+      "lbl-newProject": "Nový projekt",
+      "lbl-createProject": "Vytvoriť",
+      "lbl-newScene": "Nová scéna",
+      "lbl-searchProject": "Vyhľadávajú sa existujúce projekty...",
+      "back": "Chrbát",
+      "contextMenu": "Odstránenie Projektu",
+      "installed": "Nainštalované projekty",
+      "official": "Oficiálne projekty",
+      "community": "Komunitné projekty",
+      "install": "Inštalovať",
+      "uninstall": "Odinštalovanie",
+      "rename": "Premenovať",
+      "createProject": "Vytvorenie projektu",
+      "installProject": "Inštalácia Projectu",
+      "processing": "Spracovanie",
+      "projectName": "Názov projektu",
+      "projectURL": "URL adresa projektu"
+    }
+  },
+  "error": {
+    "goHomeLink": "Choď domov",
+    "withStatusCode": "Na serveri {{code}} sa vyskytla chyba",
+    "withoutStatusCode": "Na serveri sa vyskytla chyba"
+  },
+  "no-projects": {
+    "msg": "Chyba: Neboli nainštalované žiadne projekty - obráťte sa na správcu lokality"
+  },
+  "dev": {
+    "pageTitle": "Domov"
+  },
+  "login": {
+    "pageTitle": "Prihlásenie"
+  },
+  "workerTest": {
+    "pageTitle": "Test pracovníka"
+  },
+  "index": {
+    "by": "OD",
+    "xr": "XR",
+    "foundation": "Nadácia",
+    "description": "Realtime 3D sociálne aplikácie pre každého, kto si ich môže vychutnať."
+  },
+  "xrengineContact": {
+    "header": "Ozvite sa!",
+    "description": "Radi vám pomôžeme s vašimi virtuálnymi udalosťami, digitálnym maloobchodom, zábavou a ďalšími potrebami.",
+    "lbl-name": "Meno",
+    "lbl-email": "E-mail",
+    "lbl-company": "Spoločnosť",
+    "lbl-project": "Opíšte svoj projekt",
+    "lbl-send": "Poslať",
+    "lbl-ok": "Ok",
+    "lbl-success": "Správa odoslaná, čoskoro sa vám ozveme.",
+    "lbl-failure": "Vyskytla sa chyba, Plese to skúste znova",
+    "err-username": "Prosím, zadajte svoje meno.",
+    "err-email": "E-mail je potrebný.",
+    "err-msg": "Uveďte stručný popis vášho projektu."
+  }
+}

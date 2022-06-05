@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - Pejy Tsy Hita"
+  },
+  "503": {
+    "msg": "503 - Tsy misy"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Voaràra tsy mahazo mahazo ity toerana ity ianao.",
+    "locationName": {
+      "pageTitle": "Fandraisana"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Tetikasa",
+      "header": "Midira azafady",
+      "welcomeMsg": "Tonga soa",
+      "locationHeader": "Toerana",
+      "projectHeader": "Tetikasa",
+      "sceneHeader": "Seho",
+      "description": "Raha vaovao ianao eto dia manoro hevitra izahay mba hamakivaky ny toro-hevitra. Raha tsy izany, mitsambikina avy hatrany ary mamorona tetikasa iray avy amin'ny tsy misy na avy amin'ny iray amin'ireo fakan-tahaka.",
+      "lbl-startTutorial": "Atomboy ny toro-hevitra",
+      "lbl-newProject": "Tetikasa Vaovao",
+      "lbl-createProject": "Hamorona",
+      "lbl-newScene": "Toe-javatra vaovao",
+      "lbl-searchProject": "Hikaroka ireo tetikasa efa misy...",
+      "back": "Miverina",
+      "contextMenu": "Fafao ny Tetikasa",
+      "installed": "Tetikasa napetraka",
+      "official": "Tetikasa Ofisialy",
+      "community": "Tetikasam-piarahamonina",
+      "install": "Hametraka",
+      "uninstall": "Uninstall",
+      "rename": "Taremy ny anarana",
+      "createProject": "Hamorona Tetikasa",
+      "installProject": "Hametraka tetikasa",
+      "processing": "Asa",
+      "projectName": "Anaran'ny tetikasa",
+      "projectURL": "Project URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Mandehana mody",
+    "withStatusCode": "Nisy olana teo am {{code}} pizara",
+    "withoutStatusCode": "Nisy olana nitranga teo amin'ny mpizara"
+  },
+  "no-projects": {
+    "msg": "Tsy mety: Tsy misy tetikasa napetraka - mifandraisa amin'ny mpitantana tranonkala iray azafady"
+  },
+  "dev": {
+    "pageTitle": "Fandraisana"
+  },
+  "login": {
+    "pageTitle": "Fidirana"
+  },
+  "workerTest": {
+    "pageTitle": "Fitsapana ny mpiasa"
+  },
+  "index": {
+    "by": "BY",
+    "xr": "XR",
+    "foundation": "Fototra",
+    "description": "Fampiharana ara-tsosialy tena izy 3D ho an'ny rehetra mba hankafizin'ny rehetra."
+  },
+  "xrengineContact": {
+    "header": "Mifandraisa!",
+    "description": "Tianay ny hanampy anao amin'ny hetsika virtoaly, ny fivarotana nomerika, ny fialamboly ary ny filàna hafa.",
+    "lbl-name": "Anarana",
+    "lbl-email": "Email",
+    "lbl-company": "Orinasa",
+    "lbl-project": "Fariparito ny tetikasanao",
+    "lbl-send": "Alefaso",
+    "lbl-ok": "Eny",
+    "lbl-success": "Hafatra nalefa, hiverina aminareo tsy ho ela izahay.",
+    "lbl-failure": "Nisy olana nitranga, nanandrana indray i Plese",
+    "err-username": "Ampidiro amin'ny anaranao azafady.",
+    "err-email": "Takiana ny mailaka.",
+    "err-msg": "Manomeza famaritana fohy momba ny tetikasanao."
+  }
+}

@@ -1,0 +1,202 @@
+{
+  "addComment": "Voeg kommentaar by...",
+  "share": "Deel",
+  "suggestions": "Wenke vir jou",
+  "seeAll": "Sien Alles",
+  "likes": "Hou",
+  "viewComments": "Bekyk alle {{count}} kommentaar",
+  "more": "Meer",
+  "username": "Gebruikersnaam",
+  "fullName": "Naam Van",
+  "reportInApporpriate": "Rapporteer onvanpas",
+  "unfollow": "Unfollow",
+  "goToPost": "Gaan na Pos",
+  "shareModal": "Deel",
+  "copyLink": "Kopieer skakel",
+  "embed": "Embed",
+  "cancel": "Kanselleer",
+  "confirm": "Bevestig",
+  "save": "Stoor",
+  "profilePic": "{{user}}se profielfoto",
+  "ara": "Ara",
+  "follow": "Volg",
+  "flames": "Vlamme",
+  "continue": "Voortgaan",
+  "partyInvitationSent": "Party uitnodiging gestuur",
+  "arMedia": {
+    "back": "Terug",
+    "clip": "Snit",
+    "backgrounds": "Agtergronde",
+    "start": "Begin"
+  },
+  "arMediaform": {
+    "title": "Titel",
+    "type": "Tik",
+    "clip": "Snit",
+    "background": "Agtergrond",
+    "scene": "Toneel",
+    "save": "Stoor",
+    "manifest-file": "Manifesteer .manifest lêer",
+    "audio-file": "Mp4 lêer",
+    "dracosis-file": "Dracosis .uvol lêer",
+    "preview-file": "Voorskou beeld lêer"
+  },
+  "creator": {
+    "myVideos": "My video's",
+    "savedVideos": "Gestoorde video's",
+    "back": "Terug",
+    "blocked-list": "Geblokkeerde lys",
+    "block-user": "Blokkeer gebruiker",
+    "dialog-content": "Jy sal nie die gebruiker se profiel en inhoud sien nie"
+  },
+  "creatorForm": {
+    "back": "Terug",
+    "edit": "Redigeer profiel",
+    "save": "Stoor",
+    "changeAvatar": "Verander avatar-beeld",
+    "ph-selectPreview": "Kies voorskou",
+    "ph-name": "Jou naam",
+    "ph-username": "Jou gebruikersnaam",
+    "ph-email": "Jou e-pos",
+    "ph-tags": "Merkers",
+    "ph-link": "Skakel",
+    "ph-aboutYou": "Meer oor jou",
+    "ph-twitter": "Twitter",
+    "ph-instagram": "instagram",
+    "ph-tiktok": "tiktok",
+    "sign-out": "Teken-out"
+  },
+  "dashboard": {
+    "title": "Paneelbord",
+    "dashboard": "Paneelbord",
+    "users": "Gebruikers",
+    "feeds": "Toevoere",
+    "arMedia": "Video Media",
+    "editor": "Redakteur",
+    "creator": "Skepper"
+  },
+  "featured": {
+    "empty-list": "Geen voere vir nou nie ..."
+  },
+  "feed": {
+    "back": "Terug",
+    "related": "Verwante toevoere",
+    "is-repoted-message": "Voer word aangemeld!"
+  },
+  "feedForm": {
+    "back": "Terug",
+    "thanks": "Dankie vir die deel en verbetering van ons gemeenskap",
+    "share": "Deel iets met die gemeenskap",
+    "upload": "Laai video op",
+    "ph-selectVideo": "Kies Video",
+    "preview": "Voorskou beeld",
+    "ph-selectPreview": "Kies voorskou",
+    "createFeed": "Om 'n toevoer te skep, moet jy 'n video en 'n voorskoubeeld hê!!!",
+    "ph-videoName": "Die naam van jou video",
+    "ph-type": "Tik wat jy met die gemeenskap wil deel ... ",
+    "lbl-share": "Deel",
+    "save": "Stoor en gaan volgende"
+  },
+  "feedMenu": {
+    "featured": "Gewilde",
+    "creators": "Skeppers",
+    "feed": "Die voer"
+  },
+  "header": {
+    "lbl-volumetric": "Volumetriese"
+  },
+  "login": {
+    "account": "Het jy 'n rekening?",
+    "login": "Aanteken",
+    "resetPassword": "Stel wagwoord vals knoppie terug (hier sou 'n skakel van e-pos wees)",
+    "notHavingAccount": "Het jy nie 'n rekening nie?",
+    "signUp": "Teken in",
+    "forgotPassword": "Wagwoord vergeet?",
+    "back": "Terug",
+    "or": "OF"
+  },
+  "comment": {
+    "add": "Voeg jou kommentaar by..."
+  },
+  "notification": {
+    "feedFire": " afgedank jou voer",
+    "feedBookmarked": " boekmerk jou voer",
+    "comment": " kommentaar op jou voer:",
+    "commentFire": " afgedank jou kommentaar om te voed",
+    "follow": " Begin om jou te volg",
+    "unfollow": " Hou op om jou te volg",
+    "followed": " Volg jou",
+    "activity": "Aktiwiteit"
+  },
+  "onBoarding": {
+    "welcome": "Welkom!",
+    "description": "Grootste versameling van 370 + uitlegte vir iOS prototipering.",
+    "next": "Volgende",
+    "discover": "Ontdek artikels,",
+    "news": "nuus en plasings",
+    "lines": "Dit is daardie gevoelens wat ons liefde vir sterrekunde en ons begeerte dryf.",
+    "getStarted": "Begin",
+    "meetUp": "Ontmoet met",
+    "friends": "Vriende.",
+    "meet": "Ontmoet vriende"
+  },
+  "shareForm": {
+    "arcMedia": "Deel",
+    "videoCreated": "Ek het hierdie video gemaak",
+    "shareWithBuddies": "Deel met vriende",
+    "shareVideo": "Deel Video",
+    "save": "Stoor na kamerarol",
+    "cancel": "Kanselleer",
+    "close": "Sluit",
+    "addFeed": "Voeg voer by"
+  },
+  "simpleModal": {
+    "emptyList": "Leë lys",
+    "followers": " Volgende",
+    "following": " Volgelinge",
+    "flames": " Vlamme"
+  },
+  "splash": {
+    "screen": "Splash Skerm",
+    "logo": "Logo"
+  },
+  "story": {
+    "profilePic": "{{user}}se profielfoto"
+  },
+  "view": {
+    "cancel": "Kanselleer",
+    "choice": "U het twee verskillende opnamemodusse om van te kies",
+    "verticalMode": "Vertikale modus het 'n 30 sek rekord tyd",
+    "horizontalMode": "Horisontale modus het 'n onbeperkte rekordtyd",
+    "start": "Begin",
+    "not-show": "Moenie dit weer wys nie",
+    "welcome": "Welkom by ARC!  Maak persoonlike video's met een van ons hologramme en plaas dit op u sosiale media-kanale!",
+    "step": "STAP {{step}}",
+    "text-step-1": "Kies 'n hologram uit die biblioteek.",
+    "text-step-2": "Dit is aangevulde realiteit, so skandeer die ruimte met jou kamera van kant tot kant vir 3-5 sekondes waar jy wil hê die hologramprestasie moet wees.",
+    "text-step-3-part-1": "Tik op die skerm een keer op die plek waar jy wil hê dat die hologram geanker is.",
+    "text-step-3-part-2": "WENK!  Tik een keer elders om die hologram na 'n ander posisie te skuif.",
+    "text-step-3-part-3": "WENK!  U kan die hologram verander deur die skerm met u duim en wysvinger te knyp of uit te brei.",
+    "text-step-4-part-1": "Tik twee keer op die rooi rekordknoppie om jou video-opname te begin.",
+    "text-step-4-part-2": "Dubbel tik op die rooi rekordknoppie om te stop."
+  },
+  "video": {
+    "back": "Terug"
+  },
+  "terms": {
+    "confirmTerms": "Ek stem in tot diensbepalings",
+    "confirmPolicy": "Ek stem saam met privaatheidsbeleid"
+  },
+  "registration": {
+    "ph-phoneEmail": "Gebruik telefoon / e-pos",
+    "facebook": "Gaan voort met Facebook",
+    "google": "Gaan voort met Google",
+    "linkedin": "Gaan voort met Linkedin",
+    "twitter": "Gaan voort met Twitter",
+    "gitHub": "Gaan voort met GitHub",
+    "connect": "Koppel jou e-pos of telefoonnommer",
+    "logIn": "Teken aan",
+    "LogInTo": "Teken aan by",
+    "continueAsGuest": "Gaan voort as gas"
+  }
+}

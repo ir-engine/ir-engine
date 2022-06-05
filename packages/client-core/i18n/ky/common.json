@@ -1,0 +1,84 @@
+{
+  "pageLoader": {
+    "loading": "Жүктөө баракчасы..."
+  },
+  "tooltip": {
+    "pressKey": "Пресс- {{tip}} {{message}}"
+  },
+  "toast": {
+    "joined": "кошулду",
+    "left": "солдо"
+  },
+  "navUserWidget": {
+    "login": "Кирүү"
+  },
+  "loader": {
+    "connecting": "Дүйнөгө туташуу...",
+    "entering": "Дүйнөгө кирүү...",
+    "loading": "Жүктөө...",
+    "objectRemaining": "{{count}} объект калган",
+    "objectRemainingPlural": "калган объектилер {{count}}",
+    "loadingObjects": "Объектилерди жүктөө",
+    "loadingComplete": "Жүктөө аяктады",
+    "joiningWorld": "Дүйнөгө кошулуу"
+  },
+  "alert": {
+    "eventWasSuccess": "Иш-чара ийгиликтүү болду",
+    "errorWasEncountered": "Ката кетирилген",
+    "eventInProgress": "Иш-чара болуп жатат",
+    "seconds": "секуд",
+    "cancelCountdown": "Бул модалды жабуу тескери саноону жокко чыгарат"
+  },
+  "debug": {
+    "refresh": "Сергитүү",
+    "stats": "Статистика",
+    "debugOptions": "Дебуг параметрлери",
+    "physicsDebug": "Физика",
+    "avatarDebug": "Аватар",
+    "nodeHelperDebug": "Түйүн жардамчысы",
+    "gridDebug": "Тор",
+    "simpleMaterials": "Жөнөкөй материалдар",
+    "tick": "Кене",
+    "worldStore": "Дүйнөлүк дүкөн",
+    "engineStore": "Кыймылдаткыч дүкөнү",
+    "namedEntities": "Аталган субъекттер",
+    "networkObject": "Тармак объекти",
+    "networkClients": "Тармак кардарлары"
+  },
+  "recording": {
+    "videoRecorder": "Видеожазуучу",
+    "waitingForPermissions": "Уруксат күтүү",
+    "selectVideoSource": "Видео булагын тандоо",
+    "screen": "Экран",
+    "camera": "Камера",
+    "microphone": "Микрофон",
+    "startRecording": "Жаздырууну баштоо",
+    "pauseRecording": "Жазууну токтотуу",
+    "resumeRecording": "Жазууну улантуу",
+    "stopRecording": "Жазууну токтотуу"
+  },
+  "typing": "Терүү...",
+  "gameServer": {
+    "browserError": "Браузер катасы",
+    "browserErrorMessage": "Сиздин браузер жеке сереп режиминде сактоону колдобойт. Же дагы бир браузерди сынап көргүлө, же жеке сереп режимин чыгуу.",
+    "noAvailableServers": "Жеткиликтүү серверлер жок",
+    "noAvailableServersMessage": "Сиз туташуу үчүн жеткиликтүү серверлер жок. Кайра туташууга аракет кылуу",
+    "worldDisconnected": "Дүйнө ажыратылды",
+    "worldDisconnectedMessage": "Сиз дүйнө менен байланышыңызды жоготтуңуз. Кийинки убакыт бүтө электе кайрадан байланышууга аракет кылабыз, болбосо сиз башка учурга жөнөтүлөсүңөр.",
+    "webGLNotEnabled": "WebGL иштетилбейт",
+    "webGLNotEnabledMessage": "Сиздин браузер WebGL колдобойт, же өчүрүлгөн. WebGL-ге кирүү же браузериңиздин акыркы версиясына жогорулатуу жөнүндө ойлонуп көргүлө.",
+    "youKickedFromWorld": "Сиз дүйнөдөн кууп чыкты",
+    "youKickedFromWorldMessage": "Төмөнкү себеп менен сизди бул дүйнөдөн кууп чыгышты",
+    "invalidLocation": "Жараксыз жайгашкан жери",
+    "cantFindLocation": "Жайгашкан жерин таба албайбыз",
+    "misspelledOrNotExist": "Бул туура эмес жазылышы мүмкүн, же жок болушу мүмкүн.",
+    "loading": "жүктөө",
+    "low-frame-error": "Браузериңизде аппараттык жабдууларды колдонууну тездетүүгө жана браузериңизди кайра иштетүүгө мүмкүндүк берүү жөнүндө ойлонуп көргүлө",
+    "low-frame-title": "Жакшы тажрыйба алуу үчүн аппараттык тездетүүгө мүмкүндүк берүү!"
+  },
+  "error": {
+    "loading-error": "Колдонуучулардын маалыматтарын жүктөө ишке ашпады",
+    "validation-error": "Сураныч, жарактуу {{type}} киргизүү",
+    "login-error": "Кирүү ишке ашпады"
+  }
+}

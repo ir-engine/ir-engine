@@ -1,0 +1,81 @@
+{
+  "404": {
+    "msg": "404 - strona nic namakana"
+  },
+  "503": {
+    "msg": "503 - serwis nic k dispoziciji"
+  },
+  "location": {
+    "youHaveBeenBannedMsg": "Woni buchu wot tuteje wsy wuhnjeni",
+    "locationName": {
+      "pageTitle": "Dom"
+    }
+  },
+  "editor": {
+    "projects": {
+      "title": "Projekty",
+      "header": "Prošu nałžiće so",
+      "welcomeMsg": "Witajće",
+      "locationHeader": "Městna",
+      "projectHeader": "Projekty",
+      "sceneHeader": "Sceny",
+      "description": "Hdyž sće nowy tu, doporučamy Wam, Tutorial přeńć. Hewak skočiće direktnje nutř a zestajejće projekt wot přičiny na abo z jedneje z našich předłohow.",
+      "lbl-startTutorial": "Wuknjenski program startować",
+      "lbl-newProject": "Nowy projekt",
+      "lbl-createProject": "Tworjenje",
+      "lbl-newScene": "Nowa scena",
+      "lbl-searchProject": "Wobstejace projekty přepytać...",
+      "back": "Wróćo",
+      "contextMenu": "Projekt wotstronić",
+      "installed": "Instalowane projekty",
+      "official": "Oficialne projekty",
+      "community": "Community-projekty",
+      "install": "Instalować",
+      "uninstall": "Twoje instalować",
+      "rename": "přemjenować",
+      "createProject": "Projekt zestajeć",
+      "installProject": "Projekt instalować",
+      "processing": "Předźěłanje",
+      "projectName": "Projektne mjeno",
+      "projectURL": "Projekt-URL"
+    }
+  },
+  "error": {
+    "goHomeLink": "Dźi domoj",
+    "withStatusCode": "Na serweru je {{code}} zmylk wustupił",
+    "withoutStatusCode": "Na serweru je so zmylk jewił"
+  },
+  "no-projects": {
+    "msg": "Zmylk: Žane projekty instalowane - prošu wobroćće so na site-administratora"
+  },
+  "dev": {
+    "pageTitle": "Dom"
+  },
+  "login": {
+    "pageTitle": "So přizjewić"
+  },
+  "workerTest": {
+    "pageTitle": "Worker-Test"
+  },
+  "index": {
+    "by": "BIS",
+    "xr": "XR",
+    "foundation": "Fundament",
+    "description": "Echtzeit-3D-Social-Anwendungen für alle."
+  },
+  "xrengineContact": {
+    "header": "Nawjazajće kontakt z nami!",
+    "description": "My Wam rady při Wašich wirtuelnych zarjadowanjach, digitalnym drobnowikowanju, bjesadźe a druhich potrjebach pomhamy.",
+    "lbl-name": "Mjeno",
+    "lbl-email": "Mejlka",
+    "lbl-company": "Firma",
+    "lbl-project": "Wopisajće swój projekt",
+    "lbl-send": "Pósłać",
+    "lbl-ok": "Okay",
+    "lbl-success": "Powěsć wusyłane, budźemy so bórze pola Was přizjewić.",
+    "lbl-failure": "Zmylk je so jewił, próstwu spytajće to znowa",
+    "err-username": "Prošu zapodajće Waše mjeno.",
+    "err-email": "E-mail je trěbna.",
+    "err-msg": "Podajće krótke wopisanje Wašeho projekta."
+  }
+}
