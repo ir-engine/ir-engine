@@ -13,6 +13,7 @@ import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxCo
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObjectDirtyTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isDynamicBody, isStaticBody } from '../classes/Physics'
@@ -90,6 +91,7 @@ const processNetworkBodies = (world: World) => {
     const collider = getComponent(entity, ColliderComponent)
     const transform = getComponent(entity, TransformComponent)
     const body = collider.body as PhysX.PxRigidDynamic
+    if (!isDynamicBody(body)) continue
 
     teleportRigidbody(body, transform.position, transform.rotation)
 
