@@ -7,6 +7,7 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
@@ -63,16 +64,16 @@ export const updateScaleTransform = function (entity: Entity) {
   const data = serializeBoxCollider(entity) as any
   const boxColliderProps = parseBoxColliderProperties(data.props)
 
-  removeComponent(entity, ColliderComponent)
+  const component = getComponent(entity, ColliderComponent)
   const transform = getComponent(entity, TransformComponent)
-  const world = useWorld()
-  const shape = world.physics.createShape(
+  const shape = Engine.instance.currentWorld.physics.createShape(
     new PhysX.PxBoxGeometry(Math.abs(transform.scale.x), Math.abs(transform.scale.y), Math.abs(transform.scale.z)),
     undefined,
     boxColliderProps as any
   )
-  const body = createBody(entity, { bodyType: 0 }, [shape])
-  addComponent(entity, ColliderComponent, { body })
+
+  Engine.instance.currentWorld.physics.removeBody(component.body)
+  component.body = createBody(entity, { bodyType: 0 }, [shape])
 }
 
 export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity, props: BoxColliderProps) => {

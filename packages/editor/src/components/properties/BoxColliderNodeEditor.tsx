@@ -28,7 +28,7 @@ export const BoxColliderNodeEditor: EditorComponentType = (props) => {
     if (selectionState.propertyName.value === 'scale') {
       updateScaleTransform(props.node.entity)
     }
-  }, [selectionState.propertyName.value])
+  }, [selectionState.objectChangeCounter.value, selectionState.propertyName.value])
 
   return (
     <NodeEditor {...props} description={t('editor:properties.boxCollider.description')}>
