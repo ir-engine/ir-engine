@@ -1,5 +1,5 @@
 import * as bitecs from 'bitecs'
-import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene, XRFrame } from 'three'
+import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -44,7 +44,7 @@ const TimerConfig = {
 export const CreateWorld = Symbol('CreateWorld')
 export class World {
   private constructor() {
-    bitecs.createWorld(this)
+    bitecs.createWorld(this, 1000)
     Engine.instance.worlds.push(this)
 
     this.worldEntity = createEntity(this)
@@ -158,6 +158,10 @@ export class World {
   /** Map of user client IDs to numerical user index */
   userIdToUserIndex = new Map<UserId, number>()
 
+  /**
+   * The index to increment when a new user joins
+   * NOTE: Must only be updated by the host
+   */
   userIndexCount = 0
 
   /**
@@ -287,4 +291,9 @@ export class World {
 
 export function createWorld() {
   return World[CreateWorld]()
+}
+
+export function destroyWorld(world: World) {
+  bitecs.resetWorld(world)
+  bitecs.deleteWorld(world)
 }
