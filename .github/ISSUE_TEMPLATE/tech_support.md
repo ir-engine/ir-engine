@@ -1,7 +1,10 @@
+---
 name: Installation Tech Support
 about: I'm having difficulty installing XREngine
 title: '[Ticket]: '
 labels: '[ticket]'
+assignees: ''
+
 body:
   - type: markdown
     attributes:
@@ -38,3 +41,5 @@ body:
       label: Relevant log output
       description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
       render: shell
+
+---
