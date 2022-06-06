@@ -1,4 +1,4 @@
-# Deploying XREngine on minikube
+# XREngine on Minikube
 
 ## Install kubectl, Helm, Docker, and VirtualBox
 If [kubectl](https://kubernetes.io/docs/tasks/tools/), [Helm](https://helm.sh/docs/intro/install/),

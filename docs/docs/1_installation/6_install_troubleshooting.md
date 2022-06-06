@@ -1,3 +1,5 @@
+# Troubleshooting
+
 ### Browser Debug
 
 ```p key``` debug colliders view
@@ -136,5 +138,3 @@ or if on windows
 ```
 npm run dev-reinit-windows
 ```
-
-[Next =>>](running-on-static-IP.md)

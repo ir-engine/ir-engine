@@ -1,4 +1,4 @@
-# Setting up XREngine on AWS
+# XREngine on AWS
 
 ## Create EKS cluster
 You first need to set up an EKS cluster for XREngine to run on.
@@ -145,7 +145,7 @@ one admin role with full access to all AWS services, but we recommend making sep
 each individual service. To create a role, do the following:
 
 ### Creating an IAM role
-Go to IAM->Users, and click on the Add User button. For User Name, enter <service>-admin, e.g. `S3-admin`.
+Go to IAM->Users, and click on the Add User button. For User Name, enter `<service>-admin`, e.g. `S3-admin`.
 Check the box for Programmatic Access, the click on the Next:Permissions button.
 Click on 'Attach existing policies directly'. In the Filter Policies text box, you'll want to
 enter the name of the service to narrow down the policy list significantly. Then, look for the FullAccess
@@ -369,7 +369,7 @@ When you go back to the Load Balancer list, make note of the DNS name of the App
 loadbalancer you just created. It should be similar to the name of the classic one.
 
 Highlight the new ALB and click on the Listeners tab. Select the HTTPS:443 listener and click Edit.
-There should be one entry under Default Action(s), and it should be Forward To <ID of both load balancers>.
+There should be one entry under Default Action(s), and it should be Forward To `<ID of both load balancers>`.
 Click the pencil icon on the left to edit it, then open the accordion for Group-Level Stickiness,
 check the checkbox next to Enable Up To and switch 'hours' to 'days', leaving it as 'Enable up to 1 days'.
 (Several hours would also be an acceptable setting; we just don't want connections to time out after an hour).
@@ -429,7 +429,7 @@ Various static files are stored in S3 behind a Cloudfront distribution.
 
 ### Create S3 bucket
 In the AWS web client, go to S3 -> Buckets and click Create Bucket.
-Name the bucket <name>-static-resources, e.g. ```xrengine-static-resources```, and have it be in Region us-east-1.
+Name the bucket `<name>-static-resources`, e.g. ```xrengine-static-resources```, and have it be in Region us-east-1.
 Under Object Ownership, select 'ACLs enabled', and under that select 'Object Writer'.
 Under Block Public Access Settings For The Bucket, uncheck the checkbox Block *all* Public Access; 
 you need the bucket to be publicly accessible.
@@ -470,9 +470,9 @@ Cache and origin request settings should be left on 'Use a cache policy and orig
 For Origin Request Policy, select 'Managed-CORS-S3Origin'
 
 Under Distribution Settings, you can change Price Class to 'Use Only U.S. Canada and Europe' to save some money.
-For Alternate Domain Names, enter 'resources.<domain>', e.g. ```resources.xrengine.io```.
+For Alternate Domain Names, enter 'resources.`<domain>`', e.g. ```resources.xrengine.io```.
 For SSL Certificate, select Custom SSL Certificate, then when you click on the box, choose
-the 'resources.<domain>' certificate you made earlier.
+the 'resources.`<domain>`' certificate you made earlier.
 
 Everything else can be left at the default values, click Create Distribution.
 
@@ -512,7 +512,7 @@ You also need to make an 'A' record pointing 'resources.xrengine.io' to the Clou
 
 ## Create GitHub fork of XREngine repository.
 The XREngine codebase is most easily deployed by forking it and configuring some Secrets so that the included GitHub
-Actions can run the deployment for you. You can run all of the commands that the <dev/prod>-deploy action runs manually
+Actions can run the deployment for you. You can run all of the commands that the `<dev/prod>`-deploy action runs manually
 if you so choose, and in that case, you don't need to fork the GH repo.
 
 Go to https://github.com/XRFoundation/XREngine. In the upper right-hand corner, there's a button 'Fork'. Click that,
@@ -549,11 +549,11 @@ In order to let other users access the cluster, you must apply an aws-auth confi
 granting access to specific IAM users. A template for this file can be found in packages/ops/config/aws-auth-template.yml.
 
 You'll need to provide a few values for this file. To find `<rolearn>`, in AWS go to EKS->Clusters->
-<your cluster>->Compute->Select a nodegroup.  In the details should be 'Node IAM Role ARN'; copy this
-and replace `<rolearn>` in the aws-auth file. <account_id> is the ID of your AWS account; in the upper
-right corner of the AWS client should be <your_username>@<abcd-1234-efgh>. The 12-character string
+`<your cluster>`->Compute->Select a nodegroup.  In the details should be 'Node IAM Role ARN'; copy this
+and replace `<rolearn>` in the aws-auth file. `<account_id>` is the ID of your AWS account; in the upper
+right corner of the AWS client should be `<your_username>@<abcd-1234-efgh>`. The 12-character string
 after the @ is the account ID. Make sure to remove the `-`'s from the account ID when pasting it in.
-<IAM_username> is the username of the IAM user you want to give access, e.g. `Github-Actions-User`.
+`<IAM_username>` is the username of the IAM user you want to give access, e.g. `Github-Actions-User`.
 
 You can add multiple users by copying the `- groups:` section under `mapUsers`, e.g.
 
@@ -584,7 +584,7 @@ Both the builder and main deployments should use the same config file. When the 
 it needs a number of values that only need to be configured for the other services, so all of the values
 need to be defined in one config file.
 
-There are many fields to fill in, most marked with <>. Not all are necessary for all situations - if you're not
+There are many fields to fill in, most marked with `<>`. Not all are necessary for all situations - if you're not
 using social login, for instance, you don't need credentials for Github/Google/Facebook/etc.
 
 ### Configuration variables of note
