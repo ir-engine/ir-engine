@@ -44,7 +44,7 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
   )
 
   const body = createBody(entity, { bodyType: 0 }, [shape])
-  addComponent(entity, ColliderComponent, { body, isTrigger: boxColliderProps.isTrigger })
+  addComponent(entity, ColliderComponent, { body })
   addComponent(entity, CollisionComponent, { collisions: [] })
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_BOX_COLLIDER)
@@ -57,6 +57,13 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
   })
 
   meshObjs.forEach((mesh) => mesh.removeFromParent())
+}
+
+export const updateTrigger = function (entity: Entity, isTrigger: boolean) {
+  const data = serializeBoxCollider(entity) as any
+  data.props.isTrigger = isTrigger
+  const boxColliderProps = parseBoxColliderProperties(data.props)
+  updateBoxCollider(entity, boxColliderProps)
 }
 
 export const updateScaleTransform = function (entity: Entity) {
