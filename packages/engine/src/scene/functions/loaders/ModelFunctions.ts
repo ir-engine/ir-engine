@@ -1,3 +1,5 @@
+import { Texture } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
@@ -67,6 +69,15 @@ export const updateModel: ComponentUpdateFunction = (entity: Entity, properties:
 export const serializeModel: ComponentSerializeFunction = (entity) => {
   const component = getComponent(entity, ModelComponent)
   if (!component) return
+  component.materialOverrides.forEach((override) => {
+    if (override.args) {
+      Object.entries(override.args)
+        .filter(([k, v]) => (v as Texture)?.isTexture)
+        .forEach(([k, v]) => {
+          override.args[k] = (v as Texture).source.data?.src ?? ''
+        })
+    }
+  })
   return {
     name: SCENE_COMPONENT_MODEL,
     props: {

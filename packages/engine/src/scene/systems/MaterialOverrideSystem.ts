@@ -27,16 +27,19 @@ export default async function MaterialOverrideSystem(world: World) {
   const overrideTable: Map<Entity, EntityEntry> = new Map()
 
   async function register(override: MaterialOverrideComponentType) {
+    const target = override.targetEntity
+    if (!overrideTable.has(target)) overrideTable.set(target, new Map())
+    const tableEntry = overrideTable.get(target)!
+    if (tableEntry.has(override)) {
+      remove(override)
+    }
     const [defaults, matParm] = await assignMaterial(override)
     if (defaults.length > 0) {
-      const target = override.targetEntity
-      if (!overrideTable.has(target)) overrideTable.set(target, new Map())
-      const tableEntry = overrideTable.get(target)!
       tableEntry.set(override, { matParm, defaults })
     }
   }
 
-  async function remove(override: MaterialOverrideComponentType) {
+  function remove(override: MaterialOverrideComponentType) {
     const entEntry = overrideTable.get(override.targetEntity)!
     const tableEntry = entEntry.get(override)!
     for (const matRend of tableEntry.defaults) {

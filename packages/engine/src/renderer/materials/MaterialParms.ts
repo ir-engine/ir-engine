@@ -10,10 +10,16 @@ import { Engine } from '../../ecs/classes/Engine'
 import { MaterialOverrideComponentType } from '../../scene/components/MaterialOverrideComponent'
 import { MatRend } from '../../scene/systems/MaterialOverrideSystem'
 import { MaterialLibrary } from './MaterialLibrary'
+import { formatMaterialArgs } from './Utilities'
 
 export type MaterialParms = {
   material: Material
   update: (delta: number) => void
+}
+
+export const DudTexture = {
+  isDud: true,
+  isTexture: true
 }
 
 export enum PatternTarget {
@@ -36,7 +42,13 @@ function checkMatch(toCheck: string, assignment: MaterialOverrideComponentType):
 export async function assignMaterial(override: MaterialOverrideComponentType): Promise<[MatRend[], MaterialParms]> {
   const result: MatRend[] = []
   //first retrieve material to build assignment
-  const matParm: MaterialParms = await MaterialLibrary[override.materialID](override.args)
+  const factory = MaterialLibrary[override.materialID]
+  if (!factory) {
+    console.warn('Could not find factory function for material' + override.materialID)
+    return [result, { material: new Material(), update: () => {} }]
+  }
+  const formattedArgs = formatMaterialArgs(override.args)
+  const matParm: MaterialParms = await factory(formattedArgs)
   const target = getComponent(override.targetEntity, Object3DComponent)?.value
   if (!target) {
     console.error('Failed material override for override', override, ': target Object3D does not exist')

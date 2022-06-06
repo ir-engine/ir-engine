@@ -1,6 +1,6 @@
 import { ShaderMaterial, Texture } from 'three'
 
-import { MaterialParms } from '../MaterialParms'
+import { DudTexture, MaterialParms } from '../MaterialParms'
 
 export const vertexShader = `
 varying vec2 vUv;
@@ -31,7 +31,7 @@ const fragmentShader = `
 
 #define MIN_CELLSIZE 2.
 #define CELLSIZE_RANGE 1.
-#define NUM_MARCH_ITERS 120
+#define NUM_MARCH_ITERS 32
 
 uniform vec3 iResolution;
 uniform sampler2D iChannel0;
@@ -437,7 +437,7 @@ export default async function AliasVortex(args?: {
 }): Promise<MaterialParms> {
   const mat = new ShaderMaterial({
     uniforms: {
-      iChannel0: { value: args?.iChannel0 ?? DefaultArgs.iChannel0 },
+      iChannel0: { value: args?.iChannel0 ?? null },
       iTime: { value: args?.iTime ?? DefaultArgs.iTime },
       iResolution: { value: args?.iResolution ?? DefaultArgs.iResolution }
     },

@@ -5,6 +5,7 @@ import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type MaterialOverrideComponentType = {
   entity: Entity
+  uuid?: string
   targetEntity: Entity
   materialID: string
   patternTarget: PatternTarget

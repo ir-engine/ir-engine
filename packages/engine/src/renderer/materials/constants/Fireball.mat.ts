@@ -2,7 +2,7 @@ import { ShaderMaterial, Texture } from 'three'
 
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 
-import { MaterialParms } from '../MaterialParms'
+import { DudTexture, MaterialParms } from '../MaterialParms'
 
 export const vertexShader = `
 varying vec2 vUv;
@@ -162,8 +162,8 @@ export default async function Fireball(args?: {
     uniforms: {
       iTime: { value: args?.iTime ?? DefaultArgs.iTime },
       iResolution: { value: args?.iResolution ?? DefaultArgs.iResolution },
-      iChannel0: { value: args?.iChannel0 ?? DefaultArgs.iChannel0 },
-      iChannel1: { value: args?.iChannel1 ?? DefaultArgs.iChannel1 }
+      iChannel0: { value: args?.iChannel0 ?? new Texture() },
+      iChannel1: { value: args?.iChannel1 ?? new Texture() }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

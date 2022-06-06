@@ -9,6 +9,7 @@ import { ModelComponent } from '../../components/ModelComponent'
 export async function initializeOverride(target: Entity, override: MaterialOverrideComponentType) {
   const nuOR: MaterialOverrideComponentType = { ...override }
   if (nuOR.args) {
+    nuOR.args = { ...nuOR.args }
     await Promise.all(
       Object.entries(nuOR.args).map(async ([k, v], idx) => {
         if (typeof v === 'string' && AssetLoader.getAssetClass(v) === AssetClass.Image) {
@@ -33,9 +34,10 @@ export async function refreshMaterials(target: Entity) {
       })
   )
   await new Promise((resolve) => {
-    setTimeout(resolve, 15)
+    setTimeout(resolve, 100)
   })
   model.materialOverrides = await Promise.all(
     model.materialOverrides.map(async (override) => await initializeOverride(target, override))
   )
+  return model.materialOverrides
 }
