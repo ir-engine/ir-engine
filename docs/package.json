@@ -54,7 +54,7 @@
     "@types/react-router-dom": "5.3.3",
     "cross-env": "7.0.3",
     "docusaurus-plugin-typedoc": "0.17.3",
-    "typedoc": "0.22.15",
+    "typedoc": "0.22.17",
     "typedoc-plugin-markdown": "3.12.0"
   }
 }
