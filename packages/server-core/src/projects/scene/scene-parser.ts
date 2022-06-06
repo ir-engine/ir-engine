@@ -3,7 +3,7 @@ import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 
 import config from '../../appconfig'
-import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
+import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 
 export const sceneRelativePathIdentifier = '__$project$__'
 export const sceneCorsPathIdentifier = '__$cors-proxy$__'
@@ -12,18 +12,14 @@ export const corsPath =
     ? `https://${config.server.hostname}:${config.server.corsServerPort}`
     : `https://${config.server.hostname}/cors-proxy`
 
-export const parseSceneDataCacheURLs = (sceneData: any, cacheDomain: string, internal = false) => {
+export const parseSceneDataCacheURLs = (sceneData: any, cacheDomain: string) => {
   for (const [key, val] of Object.entries(sceneData)) {
     if (val && typeof val === 'object') {
-      sceneData[key] = parseSceneDataCacheURLs(val, cacheDomain, internal)
+      sceneData[key] = parseSceneDataCacheURLs(val, cacheDomain)
     }
     if (typeof val === 'string') {
       if (val.includes(sceneRelativePathIdentifier)) {
-        if (config.server.storageProvider === 'local' && config.kubernetes.enabled && internal)
-          cacheDomain = config.server.localStorageProviderPort
-            ? `host.minikube.internal:${config.server.localStorageProviderPort}`
-            : 'host.minikube.internal'
-        sceneData[key] = getCachedAsset(val.replace(sceneRelativePathIdentifier, '/projects'), cacheDomain, internal)
+        sceneData[key] = getCachedURL(val.replace(sceneRelativePathIdentifier, '/projects'), cacheDomain)
       } else if (val.startsWith(sceneCorsPathIdentifier)) {
         sceneData[key] = val.replace(sceneCorsPathIdentifier, corsPath)
       }

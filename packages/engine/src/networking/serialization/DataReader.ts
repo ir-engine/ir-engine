@@ -14,9 +14,11 @@ import { XRInputSourceComponent } from '../../xr/components/XRInputSourceCompone
 import { XRHandBones } from '../../xr/types/XRHandBones'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectDirtyTag } from '../components/NetworkObjectDirtyTag'
+import { expand, FLOAT_PRECISION_MULT, QUAT_MAX_RANGE } from './Utils'
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
 import {
   createViewCursor,
+  readInt16,
   readProp,
   readUint8,
   readUint16,
@@ -78,10 +80,70 @@ export const readVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Enti
   if (checkBitflag(changeMask, 1 << b++)) readComponentProp(v, vector4.w, entity)
 }
 
+// Reads a compressed rotation value from the network stream. This value must have been previously written
+// with WriteCompressedRotation() in order to be properly decompressed.
+export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity | undefined) => {
+  const changeMask = readUint8(v)
+  if (changeMask <= 0) return
+
+  let compressedBinaryData = readUint32(v)
+
+  // Read the other three fields and derive the value of the omitted field
+  let c = expand(compressedBinaryData)
+  compressedBinaryData = compressedBinaryData >>> 10
+  let b = expand(compressedBinaryData)
+  compressedBinaryData = compressedBinaryData >>> 10
+  let a = expand(compressedBinaryData)
+  compressedBinaryData = compressedBinaryData >>> 10
+
+  const bitMaskForMaxIndex = 0b00000000000000000000000000000011
+  let maxIndex = compressedBinaryData & bitMaskForMaxIndex
+
+  a /= QUAT_MAX_RANGE * FLOAT_PRECISION_MULT
+  b /= QUAT_MAX_RANGE * FLOAT_PRECISION_MULT
+  c /= QUAT_MAX_RANGE * FLOAT_PRECISION_MULT
+  let d = Math.sqrt(1 - (a * a + b * b + c * c))
+
+  let x, y, z, w
+  if (maxIndex === 0) {
+    x = d
+    y = a
+    z = b
+    w = c
+  } else if (maxIndex === 1) {
+    x = a
+    y = d
+    z = b
+    w = c
+  } else if (maxIndex === 2) {
+    x = a
+    y = b
+    z = d
+    w = c
+  } else {
+    x = a
+    y = b
+    z = c
+    w = d
+  }
+
+  if (entity !== undefined) {
+    vector4.x[entity] = x
+    vector4.y[entity] = y
+    vector4.z[entity] = z
+    vector4.w[entity] = w
+  } else {
+    // readComponentProp(v, vector4.x, entity)
+    // readComponentProp(v, vector4.y, entity)
+    // readComponentProp(v, vector4.z, entity)
+    // readComponentProp(v, vector4.w, entity)
+  }
+}
+
 export const readPosition = readVector3(TransformComponent.position)
 export const readLinearVelocity = readVector3(VelocityComponent.linear)
 export const readAngularVelocity = readVector3(VelocityComponent.angular)
-export const readRotation = readVector4(TransformComponent.rotation)
+export const readRotation = readCompressedRotation(TransformComponent.rotation) //readVector4(TransformComponent.rotation)
 
 export const readTransform = (v: ViewCursor, entity: Entity | undefined) => {
   const changeMask = readUint8(v)
@@ -98,22 +160,28 @@ export const readVelocity = (v: ViewCursor, entity: Entity | undefined) => {
 }
 
 export const readXRContainerPosition = readVector3(XRInputSourceComponent.container.position)
-export const readXRContainerRotation = readVector4(XRInputSourceComponent.container.quaternion)
+export const readXRContainerRotation = readCompressedRotation(XRInputSourceComponent.container.quaternion)
 
 export const readXRHeadPosition = readVector3(XRInputSourceComponent.head.position)
-export const readXRHeadRotation = readVector4(XRInputSourceComponent.head.quaternion)
+export const readXRHeadRotation = readCompressedRotation(XRInputSourceComponent.head.quaternion)
 
 export const readXRControllerLeftPosition = readVector3(XRInputSourceComponent.controllerLeftParent.position)
-export const readXRControllerLeftRotation = readVector4(XRInputSourceComponent.controllerLeftParent.quaternion)
+export const readXRControllerLeftRotation = readCompressedRotation(
+  XRInputSourceComponent.controllerLeftParent.quaternion
+)
 
 export const readXRControllerGripLeftPosition = readVector3(XRInputSourceComponent.controllerGripLeftParent.position)
-export const readXRControllerGripLeftRotation = readVector4(XRInputSourceComponent.controllerGripLeftParent.quaternion)
+export const readXRControllerGripLeftRotation = readCompressedRotation(
+  XRInputSourceComponent.controllerGripLeftParent.quaternion
+)
 
 export const readXRControllerRightPosition = readVector3(XRInputSourceComponent.controllerRightParent.position)
-export const readXRControllerRightRotation = readVector4(XRInputSourceComponent.controllerRightParent.quaternion)
+export const readXRControllerRightRotation = readCompressedRotation(
+  XRInputSourceComponent.controllerRightParent.quaternion
+)
 
 export const readXRControllerGripRightPosition = readVector3(XRInputSourceComponent.controllerGripRightParent.position)
-export const readXRControllerGripRightRotation = readVector4(
+export const readXRControllerGripRightRotation = readCompressedRotation(
   XRInputSourceComponent.controllerGripRightParent.quaternion
 )
 
@@ -149,7 +217,7 @@ export const readXRHandBoneJoints = (v: ViewCursor, entity: Entity | undefined, 
       readVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity)
     }
     if (checkBitflag(changeMask, 1 << b++)) {
-      readVector4(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity)
+      readCompressedRotation(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity)
     }
   })
 }
