@@ -24,6 +24,7 @@ export default async function MainMenuButtonsSystem(world: World) {
 
   return () => {
     const mainMenuButtonsXRUI = getComponent(MainMenuButtonsUI.entity, XRUIComponent)
+
     if (mainMenuButtonsXRUI) {
       ObjectFitFunctions.attachObjectToHand(mainMenuButtonsXRUI.container, 1, 0.1)
     }

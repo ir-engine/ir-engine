@@ -24,8 +24,6 @@ export default async function ShareLocationUISystem(world: World) {
   return () => {
     const shareLocationXRUI = getComponent(ui.entity, XRUIComponent)
 
-    ui.state.shareMenuOpen.set(MainMenuButtonState.shareMenuOpen.value)
-
     if (shareLocationXRUI) {
       const rootLayerElement = shareLocationXRUI.container.rootLayer.element
       ObjectFitFunctions.attachObjectToPreferredTransform(

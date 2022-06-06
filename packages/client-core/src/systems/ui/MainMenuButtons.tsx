@@ -38,11 +38,7 @@ export function createMainMenuButtonsView() {
 
 function createMainMenuButtonsState() {
   return createState({
-    showButtons: false,
-    chatMenuOpen: false,
-    emoteMenuOpen: false,
-    settingMenuOpen: false,
-    shareMenuOpen: false
+    showButtons: false
   })
 }
 
@@ -114,16 +110,16 @@ const MainMenuButtons = () => {
 
   return (
     <div style={styles.container as {}}>
-      <div xr-layer="" style={styles.button} onClick={() => toggleEmoteMenu()}>
+      <div xr-layer="" style={styles.button} onClick={toggleEmoteMenu}>
         <EmoteIcon />
       </div>
-      <div xr-layer="" style={styles.button} onClick={() => toggleShareMenu()}>
+      <div xr-layer="" style={styles.button} onClick={toggleShareMenu}>
         <LinkIcon />
       </div>
-      <div xr-layer="" style={styles.button} onClick={() => toggleSettingMenu()}>
+      <div xr-layer="" style={styles.button} onClick={toggleSettingMenu}>
         <SettingsIcon />
       </div>
-      <div xr-layer="" style={styles.button} onClick={() => toggleChatWindow()}>
+      <div xr-layer="" style={styles.button} onClick={toggleChatWindow}>
         <Badge
           color="primary"
           variant="dot"
