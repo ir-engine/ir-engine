@@ -1,96 +1,117 @@
 import { Paginated } from '@feathersjs/feathers'
-import { createState, none, useState } from '@speigg/hookstate'
+import { none, useState } from '@speigg/hookstate'
 
 import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
 import { RelationshipSeed } from '@xrengine/common/src/interfaces/Relationship'
 import { User } from '@xrengine/common/src/interfaces/User'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import {
+  addActionReceptor,
+  defineAction,
+  defineState,
+  dispatchAction,
+  getState,
+  registerState
+} from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 
 //State
-const state = createState({
-  relationship: RelationshipSeed,
-  users: [] as Array<User>,
-  updateNeeded: true,
-  layerUsers: [] as Array<User>,
-  layerUsersUpdateNeeded: true,
-  channelLayerUsers: [] as Array<User>,
-  channelLayerUsersUpdateNeeded: true
+const UserState = defineState({
+  name: 'UserState',
+  initial: () => ({
+    relationship: RelationshipSeed,
+    users: [] as Array<User>,
+    updateNeeded: true,
+    layerUsers: [] as Array<User>,
+    layerUsersUpdateNeeded: true,
+    channelLayerUsers: [] as Array<User>,
+    channelLayerUsersUpdateNeeded: true
+  })
 })
 
-store.receptors.push((action: UserActionType): void => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'LOADED_RELATIONSHIP':
-        return s.merge({ relationship: action.relationship, updateNeeded: false })
-      case 'ADMIN_LOADED_USERS':
-        return s.merge({ users: action.users, updateNeeded: false })
-      case 'CHANGED_RELATION':
-        return s.updateNeeded.set(true)
-      case 'CLEAR_LAYER_USERS':
-        return s.merge({ layerUsers: [], layerUsersUpdateNeeded: true })
-      case 'LOADED_LAYER_USERS':
-        return s.merge({ layerUsers: action.users, layerUsersUpdateNeeded: false })
-      case 'ADDED_LAYER_USER': {
-        const newUser = action.user
-        const idx = s.layerUsers.findIndex((layerUser) => {
-          return layerUser != null && layerUser.id.value === newUser.id
+export const registerUserServiceActions = () => {
+  registerState(UserState)
+
+  addActionReceptor(function UserServiceReceptor(action) {
+    getState(UserState).batch((s) => {
+      matches(action)
+        .when(UserAction.loadedUserRelationshipAction.matches, (action) => {
+          return s.merge({ relationship: action.relationship, updateNeeded: false })
         })
-        if (idx === -1) {
-          return s.layerUsers.merge([newUser])
-        } else {
-          return s.layerUsers[idx].set(newUser)
-        }
-      }
-      case 'REMOVED_LAYER_USER': {
-        const layerUsers = s.layerUsers
-        const idx = layerUsers.findIndex((layerUser) => {
-          return layerUser != null && layerUser.value.id === action.user.id
+        .when(UserAction.loadedUsersAction.matches, (action) => {
+          s.merge({ users: action.users, updateNeeded: false })
         })
-        return s.layerUsers[idx].set(none)
-      }
-      case 'CLEAR_CHANNEL_LAYER_USERS':
-        return s.merge({
-          channelLayerUsers: [],
-          channelLayerUsersUpdateNeeded: true
+        .when(UserAction.changedRelationAction.matches, () => {
+          return s.updateNeeded.set(true)
         })
-      case 'LOADED_CHANNEL_LAYER_USERS':
-        return s.merge({
-          channelLayerUsers: action.users,
-          channelLayerUsersUpdateNeeded: false
+        .when(UserAction.clearLayerUsersAction.matches, () => {
+          return s.merge({ layerUsers: [], layerUsersUpdateNeeded: true })
         })
-      case 'ADDED_CHANNEL_LAYER_USER': {
-        const newUser = action.user
-        const idx = s.channelLayerUsers.findIndex((layerUser) => {
-          return layerUser != null && layerUser.value.id === newUser.id
+        .when(UserAction.loadedLayerUsersAction.matches, (action) => {
+          return s.merge({ layerUsers: action.users, layerUsersUpdateNeeded: false })
         })
-        if (idx === -1) {
-          return s.channelLayerUsers.merge([newUser])
-        } else {
-          return s.channelLayerUsers[idx].set(newUser)
-        }
-      }
-      case 'REMOVED_CHANNEL_LAYER_USER':
-        const newUser = action.user
-        if (newUser) {
+        .when(UserAction.addedLayerUserAction.matches, (action) => {
+          const newUser = action.user
+          const idx = s.layerUsers.findIndex((layerUser) => {
+            return layerUser != null && layerUser.id.value === newUser.id
+          })
+          if (idx === -1) {
+            return s.layerUsers.merge([newUser])
+          } else {
+            return s.layerUsers[idx].set(newUser)
+          }
+        })
+        .when(UserAction.removedLayerUserAction.matches, (action) => {
+          const layerUsers = s.layerUsers
+          const idx = layerUsers.findIndex((layerUser) => {
+            return layerUser != null && layerUser.value.id === action.user.id
+          })
+          return s.layerUsers[idx].set(none)
+        })
+        .when(UserAction.clearChannelLayerUsersAction.matches, () => {
+          return s.merge({
+            channelLayerUsers: [],
+            channelLayerUsersUpdateNeeded: true
+          })
+        })
+        .when(UserAction.loadedChannelLayerUsersAction.matches, (action) => {
+          return s.merge({
+            channelLayerUsers: action.users,
+            channelLayerUsersUpdateNeeded: false
+          })
+        })
+        .when(UserAction.addedChannelLayerUserAction.matches, (action) => {
+          const newUser = action.user
           const idx = s.channelLayerUsers.findIndex((layerUser) => {
             return layerUser != null && layerUser.value.id === newUser.id
           })
-          return s.channelLayerUsers[idx].set(none)
-        } else return s
-    }
-  }, action.type)
-})
+          if (idx === -1) {
+            return s.channelLayerUsers.merge([newUser])
+          } else {
+            return s.channelLayerUsers[idx].set(newUser)
+          }
+        })
+        .when(UserAction.removedChannelLayerUserAction.matches, (action) => {
+          const newUser = action.user
+          if (newUser) {
+            const idx = s.channelLayerUsers.findIndex((layerUser) => {
+              return layerUser != null && layerUser.value.id === newUser.id
+            })
+            return s.channelLayerUsers[idx].set(none)
+          } else return s
+        })
+    })
+  })
+}
 
-export const accessUserState = () => state
-export const useUserState = () => useState(state) as any as typeof state as unknown as typeof state
+export const accessUserState = () => getState(UserState)
+export const useUserState = () => useState(accessUserState()) as any as typeof UserState as unknown as typeof UserState
 
 //Service
 export const UserService = {
   getUserRelationship: async (userId: string) => {
-    const dispatch = useDispatch()
-
     client
       .service('user-relationship')
       .findAll({
@@ -99,7 +120,7 @@ export const UserService = {
         }
       })
       .then((res: Relationship) => {
-        dispatch(UserAction.loadedUserRelationship(res as Relationship))
+        dispatchAction(UserAction.loadedUserRelationshipAction({ relationship: res as Relationship }))
       })
       .catch((err: any) => {
         console.log(err)
@@ -107,7 +128,6 @@ export const UserService = {
   },
 
   getLayerUsers: async (instance) => {
-    const dispatch = useDispatch()
     const search = window.location.search
     let instanceId
     if (search != null) {
@@ -121,8 +141,10 @@ export const UserService = {
         instanceId
       }
     })) as Paginated<User>
-    dispatch(
-      instance ? UserAction.loadedLayerUsers(layerUsers.data) : UserAction.loadedChannelLayerUsers(layerUsers.data)
+    dispatchAction(
+      instance
+        ? UserAction.loadedLayerUsersAction({ users: layerUsers.data })
+        : UserAction.loadedChannelLayerUsersAction({ users: layerUsers.data })
     )
   },
 
@@ -148,8 +170,6 @@ export const UserService = {
 }
 
 function createRelation(userId: string, relatedUserId: string, type: 'friend' | 'blocking') {
-  const dispatch = useDispatch()
-
   client
     .service('user-relationship')
     .create({
@@ -157,7 +177,7 @@ function createRelation(userId: string, relatedUserId: string, type: 'friend' | 
       userRelationshipType: type
     })
     .then((res: any) => {
-      dispatch(UserAction.changedRelation())
+      dispatchAction(UserAction.changedRelationAction())
     })
     .catch((err: any) => {
       console.log(err)
@@ -165,13 +185,11 @@ function createRelation(userId: string, relatedUserId: string, type: 'friend' | 
 }
 
 function removeRelation(userId: string, relatedUserId: string) {
-  const dispatch = useDispatch()
-
   client
     .service('user-relationship')
     .remove(relatedUserId)
     .then((res: any) => {
-      dispatch(UserAction.changedRelation())
+      dispatchAction(UserAction.changedRelationAction())
     })
     .catch((err: any) => {
       console.log(err)
@@ -179,15 +197,13 @@ function removeRelation(userId: string, relatedUserId: string) {
 }
 
 function patchRelation(userId: string, relatedUserId: string, type: 'friend') {
-  const dispatch = useDispatch()
-
   client
     .service('user-relationship')
     .patch(relatedUserId, {
       userRelationshipType: type
     })
     .then((res: any) => {
-      dispatch(UserAction.changedRelation())
+      dispatchAction(UserAction.changedRelationAction())
     })
     .catch((err: any) => {
       console.log(err)
@@ -195,87 +211,73 @@ function patchRelation(userId: string, relatedUserId: string, type: 'friend') {
 }
 
 //Action
-export const UserAction = {
-  userPatched: (user: User) => {
-    return {
-      type: 'USER_PATCHED' as const,
-      user: user
-    }
-  },
+export class UserAction {
+  static userPatchedAction = defineAction({
+    store: 'ENGINE',
+    type: 'USER_PATCHED' as const,
+    user: matches.object
+  })
 
-  loadedUserRelationship: (relationship: Relationship) => {
-    return {
-      type: 'LOADED_RELATIONSHIP' as const,
-      relationship
-    }
-  },
+  static loadedUserRelationshipAction = defineAction({
+    store: 'ENGINE',
+    type: 'LOADED_RELATIONSHIP' as const,
+    relationship: matches.object as Validator<unknown, Relationship>
+  })
 
-  loadedUsers: (users: User[]) => {
-    return {
-      type: 'ADMIN_LOADED_USERS' as const,
-      users
-    }
-  },
+  static loadedUsersAction = defineAction({
+    store: 'ENGINE',
+    type: 'ADMIN_LOADED_USERS' as const,
+    users: matches.array as Validator<unknown, User[]>
+  })
 
-  changedRelation: () => {
-    return {
-      type: 'CHANGED_RELATION' as const
-    }
-  },
+  static changedRelationAction = defineAction({
+    store: 'ENGINE',
+    type: 'CHANGED_RELATION' as const
+  })
 
-  loadedLayerUsers: (users: User[]) => {
-    return {
-      type: 'LOADED_LAYER_USERS' as const,
-      users: users
-    }
-  },
+  static loadedLayerUsersAction = defineAction({
+    store: 'ENGINE',
+    type: 'LOADED_LAYER_USERS' as const,
+    users: matches.array as Validator<unknown, User[]>
+  })
 
-  clearLayerUsers: () => {
-    return {
-      type: 'CLEAR_LAYER_USERS' as const
-    }
-  },
+  static clearLayerUsersAction = defineAction({
+    store: 'ENGINE',
+    type: 'CLEAR_LAYER_USERS' as const
+  })
 
-  addedLayerUser: (user: User) => {
-    return {
-      type: 'ADDED_LAYER_USER' as const,
-      user: user
-    }
-  },
+  static addedLayerUserAction = defineAction({
+    store: 'ENGINE',
+    type: 'ADDED_LAYER_USER' as const,
+    user: matches.object as Validator<unknown, User>
+  })
 
-  removedLayerUser: (user: User) => {
-    return {
-      type: 'REMOVED_LAYER_USER' as const,
-      user: user
-    }
-  },
+  static removedLayerUserAction = defineAction({
+    store: 'ENGINE',
+    type: 'REMOVED_LAYER_USER' as const,
+    user: matches.object as Validator<unknown, User>
+  })
 
-  loadedChannelLayerUsers: (users: User[]) => {
-    return {
-      type: 'LOADED_CHANNEL_LAYER_USERS' as const,
-      users: users
-    }
-  },
+  static loadedChannelLayerUsersAction = defineAction({
+    store: 'ENGINE',
+    type: 'LOADED_CHANNEL_LAYER_USERS' as const,
+    users: matches.array as Validator<unknown, User[]>
+  })
 
-  clearChannelLayerUsers: () => {
-    return {
-      type: 'CLEAR_CHANNEL_LAYER_USERS' as const
-    }
-  },
+  static clearChannelLayerUsersAction = defineAction({
+    store: 'ENGINE',
+    type: 'CLEAR_CHANNEL_LAYER_USERS' as const
+  })
 
-  addedChannelLayerUser: (user: User) => {
-    return {
-      type: 'ADDED_CHANNEL_LAYER_USER' as const,
-      user: user
-    }
-  },
+  static addedChannelLayerUserAction = defineAction({
+    store: 'ENGINE',
+    type: 'ADDED_CHANNEL_LAYER_USER' as const,
+    user: matches.object as Validator<unknown, User>
+  })
 
-  removedChannelLayerUser: (user: User) => {
-    return {
-      type: 'REMOVED_CHANNEL_LAYER_USER' as const,
-      user: user
-    }
-  }
+  static removedChannelLayerUserAction = defineAction({
+    store: 'ENGINE',
+    type: 'REMOVED_CHANNEL_LAYER_USER' as const,
+    user: matches.object as Validator<unknown, User>
+  })
 }
-
-export type UserActionType = ReturnType<typeof UserAction[keyof typeof UserAction]>

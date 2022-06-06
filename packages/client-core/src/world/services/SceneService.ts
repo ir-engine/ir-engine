@@ -12,7 +12,6 @@ import {
 } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
 
 const SceneState = defineState({
   name: 'SceneState',
