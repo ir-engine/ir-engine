@@ -4,6 +4,7 @@ import { Group, Quaternion, Vector3 } from 'three'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
+import { roundNumberToPlaces } from '../../common/functions/roundVector'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -14,6 +15,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { XRHandBones } from '../../xr/types/XRHandBones'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { readRotation } from './DataReader'
 import {
   createDataWriter,
   writeComponent,
@@ -34,7 +36,7 @@ describe('DataWriter', () => {
 
   it('should writeComponent', () => {
     const writeView = createViewCursor()
-    const entity = 1234 as Entity
+    const entity = 42 as Entity
     Engine.instance.currentWorld.fixedTick = 1
 
     const [x, y, z] = [1.5, 2.5, 3.5]
@@ -73,7 +75,7 @@ describe('DataWriter', () => {
 
   it('should writeVector3', () => {
     const writeView = createViewCursor()
-    const entity = 1234 as Entity
+    const entity = 42 as Entity
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -109,7 +111,7 @@ describe('DataWriter', () => {
 
   it('should writePosition', () => {
     const writeView = createViewCursor()
-    const entity = 1234 as Entity
+    const entity = 42 as Entity
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -128,11 +130,15 @@ describe('DataWriter', () => {
     strictEqual(readFloat32(readView), z)
   })
 
-  it('should writeRotation', () => {
+  it('should writeCompressedRotation', () => {
     const writeView = createViewCursor()
-    const entity = 1234 as Entity
+    const entity = 42 as Entity
 
-    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
+    // construct values for a valid quaternion
+    const [a, b, c] = [0.167, 0.167, 0.167]
+    let d = Math.sqrt(1 - (a * a + b * b + c * c))
+
+    const [x, y, z, w] = [a, b, c, d]
     TransformComponent.rotation.x[entity] = x
     TransformComponent.rotation.y[entity] = y
     TransformComponent.rotation.z[entity] = z
@@ -141,25 +147,31 @@ describe('DataWriter', () => {
     writeRotation(writeView, entity)
 
     const readView = createViewCursor(writeView.buffer)
+    readRotation(readView, entity)
 
-    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 4 * Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Float32Array.BYTES_PER_ELEMENT)
 
-    strictEqual(readUint8(readView), 0b1111)
-    strictEqual(readFloat32(readView), x)
-    strictEqual(readFloat32(readView), y)
-    strictEqual(readFloat32(readView), z)
-    strictEqual(readFloat32(readView), w)
+    // Round values to 3 decimal places and compare
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(x, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(y, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(z, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(w, 3))
   })
 
   it('should writeTransform', () => {
     const writeView = createViewCursor()
     const entity = createEntity()
 
-    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
+    // construct values for a valid quaternion
+    const [a, b, c] = [0.167, 0.167, 0.167]
+    let d = Math.sqrt(1 - (a * a + b * b + c * c))
+
+    const [posX, posY, posZ] = [1.5, 2.5, 3.5]
+    const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
     addComponent(entity, TransformComponent, {
-      position: createVector3Proxy(TransformComponent.position, entity).set(x, y, z),
-      rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x, y, z, w),
+      position: createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
+      rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
       scale: new Vector3(1, 1, 1)
     })
 
@@ -167,21 +179,23 @@ describe('DataWriter', () => {
 
     const readView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 3 * Uint8Array.BYTES_PER_ELEMENT + 7 * Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(writeView.cursor, 3 * Uint8Array.BYTES_PER_ELEMENT + 4 * Float32Array.BYTES_PER_ELEMENT)
 
     strictEqual(readUint8(readView), 0b11)
 
     strictEqual(readUint8(readView), 0b111)
 
-    strictEqual(readFloat32(readView), x)
-    strictEqual(readFloat32(readView), y)
-    strictEqual(readFloat32(readView), z)
+    strictEqual(readFloat32(readView), posX)
+    strictEqual(readFloat32(readView), posY)
+    strictEqual(readFloat32(readView), posZ)
 
-    strictEqual(readUint8(readView), 0b1111)
-    strictEqual(readFloat32(readView), x)
-    strictEqual(readFloat32(readView), y)
-    strictEqual(readFloat32(readView), z)
-    strictEqual(readFloat32(readView), w)
+    readRotation(readView, entity)
+
+    // Round values to 3 decimal places and compare
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
   })
 
   it('should writeXRHands', () => {
@@ -193,7 +207,12 @@ describe('DataWriter', () => {
       joints = joints.concat(bone as any)
     })
 
-    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
+    // construct values for a valid quaternion
+    const [a, b, c] = [0.167, 0.167, 0.167]
+    let d = Math.sqrt(1 - (a * a + b * b + c * c))
+
+    const [posX, posY, posZ] = [1.5, 2.5, 3.5]
+    const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
     const hands = [new Group(), new Group()]
     hands[0].userData.handedness = 'left'
@@ -208,8 +227,13 @@ describe('DataWriter', () => {
 
       // proxify and copy values
       joints.forEach((jointName) => {
-        createVector3Proxy(XRHandsInputComponent[handedness][jointName].position, entity).set(x, y, z)
-        createQuaternionProxy(XRHandsInputComponent[handedness][jointName].quaternion, entity).set(x, y, z, w)
+        createVector3Proxy(XRHandsInputComponent[handedness][jointName].position, entity).set(posX, posY, posZ)
+        createQuaternionProxy(XRHandsInputComponent[handedness][jointName].quaternion, entity).set(
+          rotX,
+          rotY,
+          rotZ,
+          rotW
+        )
       })
     })
 
@@ -236,7 +260,7 @@ describe('DataWriter', () => {
         (1 * Uint16Array.BYTES_PER_ELEMENT +
           1 * Uint8Array.BYTES_PER_ELEMENT +
           6 * Uint16Array.BYTES_PER_ELEMENT +
-          (2 * Uint8Array.BYTES_PER_ELEMENT + 7 * Float32Array.BYTES_PER_ELEMENT) * numOfJoints) *
+          (2 * Uint8Array.BYTES_PER_ELEMENT + 4 * Float32Array.BYTES_PER_ELEMENT) * numOfJoints) *
           numOfHands
     )
 
@@ -256,15 +280,17 @@ describe('DataWriter', () => {
 
         bone.forEach((joint) => {
           strictEqual(readUint8(readView), 0b111)
-          strictEqual(readFloat32(readView), x)
-          strictEqual(readFloat32(readView), y)
-          strictEqual(readFloat32(readView), z)
+          strictEqual(readFloat32(readView), posX)
+          strictEqual(readFloat32(readView), posY)
+          strictEqual(readFloat32(readView), posZ)
 
-          strictEqual(readUint8(readView), 0b1111)
-          strictEqual(readFloat32(readView), x)
-          strictEqual(readFloat32(readView), y)
-          strictEqual(readFloat32(readView), z)
-          strictEqual(readFloat32(readView), w)
+          readRotation(readView, entity)
+
+          // Round values to 3 decimal places and compare
+          strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+          strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+          strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+          strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
         })
       })
     })
@@ -277,11 +303,16 @@ describe('DataWriter', () => {
     const userId = '0' as UserId
     const userIndex = 0
 
-    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
+    // construct values for a valid quaternion
+    const [a, b, c] = [0.167, 0.167, 0.167]
+    let d = Math.sqrt(1 - (a * a + b * b + c * c))
+
+    const [posX, posY, posZ] = [1.5, 2.5, 3.5]
+    const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
     addComponent(entity, TransformComponent, {
-      position: createVector3Proxy(TransformComponent.position, entity).set(x, y, z),
-      rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x, y, z, w),
+      position: createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
+      rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
       scale: new Vector3(1, 1, 1)
     })
 
@@ -300,7 +331,7 @@ describe('DataWriter', () => {
 
     strictEqual(
       writeView.cursor,
-      1 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 7 * Float32Array.BYTES_PER_ELEMENT
+      1 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 4 * Float32Array.BYTES_PER_ELEMENT
     )
 
     // read networkId
@@ -316,18 +347,18 @@ describe('DataWriter', () => {
     strictEqual(readUint8(readView), 0b111)
 
     // read position values
-    strictEqual(readFloat32(readView), x)
-    strictEqual(readFloat32(readView), y)
-    strictEqual(readFloat32(readView), z)
-
-    // read writeRotation changeMask
-    strictEqual(readUint8(readView), 0b1111)
+    strictEqual(readFloat32(readView), posX)
+    strictEqual(readFloat32(readView), posY)
+    strictEqual(readFloat32(readView), posZ)
 
     // read rotation values
-    strictEqual(readFloat32(readView), x)
-    strictEqual(readFloat32(readView), y)
-    strictEqual(readFloat32(readView), z)
-    strictEqual(readFloat32(readView), w)
+    readRotation(readView, entity)
+
+    // Round values to 3 decimal places and compare
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
   })
 
   it('should writeEntities', () => {
@@ -338,7 +369,12 @@ describe('DataWriter', () => {
       .fill(0)
       .map(() => createEntity())
 
-    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
+    // construct values for a valid quaternion
+    const [a, b, c] = [0.167, 0.167, 0.167]
+    let d = Math.sqrt(1 - (a * a + b * b + c * c))
+
+    const [posX, posY, posZ] = [1.5, 2.5, 3.5]
+    const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
@@ -346,8 +382,8 @@ describe('DataWriter', () => {
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
       addComponent(entity, TransformComponent, {
-        position: createVector3Proxy(TransformComponent.position, entity).set(x, y, z),
-        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x, y, z, w),
+        position: createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
+        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
         scale: new Vector3(1, 1, 1)
       })
       addComponent(entity, NetworkObjectComponent, {
@@ -363,7 +399,7 @@ describe('DataWriter', () => {
 
     const expectedBytes =
       1 * Uint32Array.BYTES_PER_ELEMENT +
-      n * (1 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 7 * Float32Array.BYTES_PER_ELEMENT)
+      n * (1 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 4 * Float32Array.BYTES_PER_ELEMENT)
 
     strictEqual(writeView.cursor, 0)
     strictEqual(packet.byteLength, expectedBytes)
@@ -387,18 +423,18 @@ describe('DataWriter', () => {
       strictEqual(readUint8(readView), 0b111)
 
       // read position values
-      strictEqual(readFloat32(readView), x)
-      strictEqual(readFloat32(readView), y)
-      strictEqual(readFloat32(readView), z)
-
-      // read writeRotation changeMask
-      strictEqual(readUint8(readView), 0b1111)
+      strictEqual(readFloat32(readView), posX)
+      strictEqual(readFloat32(readView), posY)
+      strictEqual(readFloat32(readView), posZ)
 
       // read rotation values
-      strictEqual(readFloat32(readView), x)
-      strictEqual(readFloat32(readView), y)
-      strictEqual(readFloat32(readView), z)
-      strictEqual(readFloat32(readView), w)
+      readRotation(readView, entities[i])
+
+      // Round values to 3 decimal places and compare
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entities[i]], 3), roundNumberToPlaces(rotX, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entities[i]], 3), roundNumberToPlaces(rotY, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entities[i]], 3), roundNumberToPlaces(rotZ, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entities[i]], 3), roundNumberToPlaces(rotW, 3))
     }
   })
 
@@ -412,7 +448,12 @@ describe('DataWriter', () => {
       .fill(0)
       .map(() => createEntity())
 
-    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
+    // construct values for a valid quaternion
+    const [a, b, c] = [0.167, 0.167, 0.167]
+    let d = Math.sqrt(1 - (a * a + b * b + c * c))
+
+    const [posX, posY, posZ] = [1.5, 2.5, 3.5]
+    const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
@@ -420,8 +461,8 @@ describe('DataWriter', () => {
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
       addComponent(entity, TransformComponent, {
-        position: createVector3Proxy(TransformComponent.position, entity).set(x, y, z),
-        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x, y, z, w),
+        position: createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
+        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
         scale: new Vector3(1, 1, 1)
       })
       addComponent(entity, NetworkObjectComponent, {
@@ -436,7 +477,7 @@ describe('DataWriter', () => {
 
     const expectedBytes =
       3 * Uint32Array.BYTES_PER_ELEMENT +
-      n * (1 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 7 * Float32Array.BYTES_PER_ELEMENT)
+      n * (1 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 4 * Float32Array.BYTES_PER_ELEMENT)
 
     strictEqual(packet.byteLength, expectedBytes)
 
@@ -462,18 +503,18 @@ describe('DataWriter', () => {
       strictEqual(readUint8(readView), 0b111)
 
       // read position values
-      strictEqual(readFloat32(readView), x)
-      strictEqual(readFloat32(readView), y)
-      strictEqual(readFloat32(readView), z)
-
-      // read writeRotation changeMask
-      strictEqual(readUint8(readView), 0b1111)
+      strictEqual(readFloat32(readView), posX)
+      strictEqual(readFloat32(readView), posY)
+      strictEqual(readFloat32(readView), posZ)
 
       // read rotation values
-      strictEqual(readFloat32(readView), x)
-      strictEqual(readFloat32(readView), y)
-      strictEqual(readFloat32(readView), z)
-      strictEqual(readFloat32(readView), w)
+      readRotation(readView, entities[i])
+
+      // Round values to 3 decimal places and compare
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entities[i]], 3), roundNumberToPlaces(rotX, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entities[i]], 3), roundNumberToPlaces(rotY, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entities[i]], 3), roundNumberToPlaces(rotZ, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entities[i]], 3), roundNumberToPlaces(rotW, 3))
     }
   })
 })

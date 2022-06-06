@@ -32,19 +32,13 @@ describe('scene.test', () => {
     parsedData = parseSceneDataCacheURLs(_.cloneDeep(defaultSceneSeed) as any, storageProvider.cacheDomain)
   })
 
-  // wait for initial project loading to occur in CI/CD
-  before(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 3000))
-  })
-
   describe("'scene-data' service", () => {
     describe('get', () => {
       it('should get default test scene', async function () {
         const { data } = await app.service('scene-data').get(
           {
             projectName: defaultProjectName,
-            metadataOnly: false,
-            internal: true
+            metadataOnly: false
           },
           params
         )

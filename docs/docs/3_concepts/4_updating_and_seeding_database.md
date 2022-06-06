@@ -1,4 +1,4 @@
-## Updating database models
+# Updating database models
 
 Tooling for automatically updating the database based on changes in models is included in
 [sequelize.ts](../packages/server-core/src/sequelize.ts). Most of it is controlled by setting

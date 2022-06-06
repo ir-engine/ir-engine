@@ -1,4 +1,6 @@
-# Create New Chart Version
+# Release Helm Chart
+
+### Create New Chart Version
 
 To create a new version from the chart you will need to install chartpress via:
 

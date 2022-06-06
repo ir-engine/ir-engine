@@ -1,9 +1,4 @@
----
-id: ecs
-title: Entity Component System Overview
-sidebar_label: Entity Component System Overview
-slug: /
----
+# Entity Component System
 
 ## What is an ECS?
 
