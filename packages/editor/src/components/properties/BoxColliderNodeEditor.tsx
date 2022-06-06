@@ -33,7 +33,7 @@ export const BoxColliderNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor {...props} description={t('editor:properties.boxCollider.description')}>
       <InputGroup name="Trigger" label={t('editor:properties.boxCollider.lbl-isTrigger')}>
-        <BooleanInput value={isTrigger} onChange={updateProperty(null!, 'isTrigger')} />
+        <BooleanInput value={isTrigger} onChange={updateProperty(ColliderComponent, 'isTrigger')} />
       </InputGroup>
     </NodeEditor>
   )

@@ -44,7 +44,7 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
   )
 
   const body = createBody(entity, { bodyType: 0 }, [shape])
-  addComponent(entity, ColliderComponent, { body })
+  addComponent(entity, ColliderComponent, { body, isTrigger: boxColliderProps.isTrigger })
   addComponent(entity, CollisionComponent, { collisions: [] })
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_BOX_COLLIDER)
