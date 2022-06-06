@@ -20,7 +20,7 @@ export const MaterialLibrary = {
   VoronoiClouds: VoronoiClouds
 }
 
-export const DefaultArgs = {
+export const DefaultArguments = {
   AliasVortex: AliasVortexDefaultArgs,
   Caustics: CausticsDefaultArgs,
   Circuits: CircuitsDefaultArgs,

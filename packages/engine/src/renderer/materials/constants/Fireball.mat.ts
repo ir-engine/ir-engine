@@ -36,7 +36,7 @@ const int _VolumeSteps = 128;
 const float _StepSize = 0.02; 
 const float _Density = 0.2;
 
-const float _SphereRadius = 0.5;
+const float _SphereRadius = 1.0;
 const float _NoiseFreq = 2.0;
 const float _NoiseAmp = 1.0;
 const vec3 _NoiseAnim = vec3(0, -1, 0);
@@ -85,10 +85,10 @@ float distanceFunc(vec3 p)
 
 // shade a point based on distance
 vec4 shade(float d)
-{	if(d > 3. && d <= 24.)
-        return mix(texture(iChannel1, vUv), vec4(1., 1., 0.7, 1.), smoothstep(24.,3., d));      
+{	if(d > 1. && d <= 5.)
+        return mix(vec4(1., 1., 0.7, 1.), texture(iChannel1, vUv), smoothstep(1.,5., d));      
     if(d <= 3.) 
-        return mix(vec4(1., 1., 0.7, 1.), vec4(1., 1., 1., 1.), smoothstep(3., 0., d));
+        return mix(vec4(1., 1., 1., 1.), vec4(1., 1., 0.7, 1.), smoothstep(0., 1., d));
     return texture(iChannel1, vUv);
 }
 
@@ -140,11 +140,17 @@ void main()
     // volume render
     vec3 hitPos;
     vec4 col = rayMarch(ro, rd*_StepSize, hitPos);
-    vec3 camdir = normalize(vPos - cameraPosition);
-    vec3 norm = normalize(vN);
-    gl_FragColor = col * (0.5 + 0.5 * (1.0 - dot(norm, camdir)));
+    //gl_FragColor = col;
+    gl_FragColor = vec4(texture(iChannel1, vUv).xyz, 1.);
 }
 `
+
+export const DefaultArgs = {
+  iTime: 0.0,
+  iResolution: [window.innerWidth * 2, window.innerHeight * 2, 1],
+  iChannel0: new Texture(),
+  iChannel1: new Texture()
+}
 
 export default async function Fireball(args?: {
   iTime?: number
@@ -152,15 +158,12 @@ export default async function Fireball(args?: {
   iChannel0?: Texture
   iChannel1?: Texture
 }): Promise<MaterialParms> {
-  const defaultImg = await AssetLoader.loadAsync(
-    'https://theoverlay-dev-static-resources.s3.amazonaws.com/projects/cave/assets/youngboy.jpg'
-  )
   const mat = new ShaderMaterial({
     uniforms: {
-      iTime: { value: args?.iTime ?? 0.0 },
-      iResolution: { value: args?.iResolution ?? [window.innerWidth * 2, window.innerHeight * 2, 1] },
-      iChannel0: { value: args?.iChannel0 ?? defaultImg },
-      iChannel1: { value: args?.iChannel1 ?? defaultImg }
+      iTime: { value: args?.iTime ?? DefaultArgs.iTime },
+      iResolution: { value: args?.iResolution ?? DefaultArgs.iResolution },
+      iChannel0: { value: args?.iChannel0 ?? DefaultArgs.iChannel0 },
+      iChannel1: { value: args?.iChannel1 ?? DefaultArgs.iChannel1 }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

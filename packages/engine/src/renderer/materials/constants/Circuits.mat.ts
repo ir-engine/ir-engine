@@ -77,7 +77,7 @@ export const vertexShader = `
 `
 
 export const DefaultArgs = {
-  tiling: new Vector2(1, 1),
+  tiling: [1.0, 1.0],
   iResolution: [window.innerWidth, window.innerHeight, 1],
   iChannel0: new Texture(),
   iChannel1: new Texture(),

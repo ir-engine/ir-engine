@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
-import { Texture } from 'three'
+import { Texture, Vector2, Vector3 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -13,6 +13,9 @@ import {
 } from '@xrengine/engine/src/scene/components/MaterialOverrideComponent'
 import { refreshMaterials } from '@xrengine/engine/src/scene/functions/loaders/MaterialOverrideFunctions'
 
+import { Box } from '@mui/system'
+
+import { AssetLoader } from '../../../../engine/src/assets/classes/AssetLoader'
 import { Button } from './Button'
 import InputGroup, { InputGroupContent, InputGroupVerticalContainerWide, InputGroupVerticalContent } from './InputGroup'
 import NumericInput from './NumericInput'
@@ -51,6 +54,10 @@ const ArrayInputGroupContent = (styled as any)(InputGroupContent)`
   }
 `*/
 
+function texKey(index, k) {
+  return `${index}-${k}`
+}
+
 export default function MaterialAssignment({ entity, node, modelComponent, values, onChange }) {
   let [count, setCount] = useState(values.length)
 
@@ -59,6 +66,17 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
       return { label: k, value: k }
     })
   )
+  const initialPaths: Map<string, string> = new Map(
+    values
+      .filter((entry) => entry.args !== undefined)
+      .flatMap((entry, index) => {
+        return Object.entries(entry.args)
+          .filter(([k, v]) => (v as Texture)?.isTexture)
+          .map(([k, v]) => [texKey(index, k), (v as Texture).source.data.src])
+      })
+  )
+  let [texturePaths, setTexturePaths] = useState<Map<string, string>>(initialPaths)
+
   const { t } = useTranslation()
 
   function onChangeSize(text, values, onChange) {
@@ -86,10 +104,22 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
   function onRemoveEntry(idx, values: any[], setCount, onChange) {
     return () => {
       const [removing] = values.splice(idx, 1) as MaterialOverrideComponentType[]
+      clearTexturePaths(removing.args, idx)
       removeComponent(removing.entity, MaterialOverrideComponent)
       setCount(values.length)
       onChange(values)
     }
+  }
+
+  function clearTexturePaths(args, index) {
+    if (!args) return
+    const removingPaths = new Map(
+      Object.entries(args)
+        .filter(([k, v]) => (v as Texture).isTexture)
+        .map(([k, v]) => [texKey(index, k), v])
+    )
+    const nuPaths = new Map([...texturePaths.entries()].filter(([k, v]) => !removingPaths.has(k)))
+    setTexturePaths(nuPaths)
   }
 
   function onAddEntry(values: any[], setCount, onChange) {
@@ -106,8 +136,20 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
 
   function onRefresh(onChange) {
     return async () => {
+      //for (const [assignmentKey, path] of texturePaths.entries()) {
+      await Promise.all(
+        [...texturePaths.entries()].map(async ([assignmentKey, path]) => {
+          const [_, assignmentIndex, prop] = /(\d+)\-(.*)/.exec(assignmentKey)!
+          const assignment = values[assignmentIndex]
+          if (!assignment) return
+          if (assignment.args === undefined) {
+            assignment.args = {}
+          }
+          values[assignmentIndex].args[prop] = await AssetLoader.loadAsync(path)
+        })
+      )
       await refreshMaterials(node.entity)
-      onChange(modelComponent.materialOverrides)
+      onChange(values)
     }
   }
 
@@ -120,44 +162,85 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
       }
     }
 
-    function clearArguments() {
-      document
-        .getElementsByName(`Material Arguments ${index}`)
-        .forEach((argElt) => argElt.childNodes.forEach((child) => argElt.removeChild(child)))
-    }
-
     function getArguments(materialID) {
-      const argStructure = DefaultArguments[materialID]
+      const argStructure = assignment.args ?? DefaultArguments[materialID]
+
+      function setArgsProp(prop) {
+        return (value) => {
+          if (!assignment.args) assignment.args = argStructure
+          assignment.args[prop] = value
+          onChange(values)
+        }
+      }
+
+      function setArgArrayProp(prop, arrayIndex) {
+        return (value) => {
+          if (!assignment.args) assignment.args = argStructure
+          assignment.args[prop][arrayIndex] = value
+          onChange(values)
+        }
+      }
+
+      if (argStructure === undefined) {
+        console.warn('no default arguments detected for material ' + materialID)
+        return (
+          <div>
+            <p>No Arguments Detected</p>
+          </div>
+        )
+      }
       function traverseArgs(args) {
         return (
           <div>
-            {Object.entries(argStructure).map(([k, v]) => {
+            {Object.entries(args).map(([k, v]) => {
+              let compKey = `${entity}-${index}-args-${k}`
               //number
               if (typeof v === 'number') {
                 return (
-                  <InputGroup name={k} label={k}>
-                    <NumericInput value={v} onChange={onChange} />
+                  <InputGroup key={compKey} name={k} label={k}>
+                    <NumericInput key={compKey} value={v} onChange={setArgsProp(k)} />
                   </InputGroup>
                 )
               }
               if (typeof v === 'object') {
-                if (v?.hasOwnProperty('length') && v.hasOwnProperty('map'))
+                if ((v as any[]).length !== undefined)
                   return (
                     <InputGroup name={k} label={k}>
-                      {(v as any[]).map((vChild) => traverseArgs(vChild))}
+                      {(v as number[]).map((arrayVal, idx) => {
+                        return (
+                          <NumericInput key={`${compKey}-${idx}`} value={arrayVal} onChange={setArgArrayProp(k, idx)} />
+                        )
+                      })}
                     </InputGroup>
                   )
-                if (typeof v === 'string' || (v as Texture).isTexture) {
-                  return (
-                    <InputGroup name={k} label={k}>
-                      <StringInput value={v} onChange={onChange} />
-                    </InputGroup>
-                  )
-                }
               }
-
-              //array
-              //texture
+              if (typeof v === 'string') {
+                return (
+                  <InputGroup key={compKey} name={k} label={k}>
+                    <StringInput key={compKey} value={v} onChange={setArgsProp(k)} />
+                  </InputGroup>
+                )
+              }
+              if ((v as Texture).isTexture) {
+                const argKey = texKey(index, k)
+                function onChangeTexturePath(prop) {
+                  return (value) => {
+                    const nuPaths = new Map(texturePaths.entries())
+                    nuPaths.set(argKey, value)
+                    setTexturePaths(nuPaths)
+                    if (assignment.args === undefined) assignment.args = argStructure
+                    onChange(values)
+                  }
+                }
+                return (
+                  <InputGroup key={compKey} name={k} label={k}>
+                    <StringInput key={compKey} value={texturePaths.get(argKey)} onChange={onChangeTexturePath(k)} />
+                    <Box>
+                      <img src={(v as Texture).source.data?.src} />
+                    </Box>
+                  </InputGroup>
+                )
+              }
             })}
           </div>
         )
@@ -165,15 +248,11 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
       return traverseArgs(argStructure)
     }
 
-    function onChangeMaterialID() {
-      const callback = setAssignmentProperty('materialID')
-      return (value) => {
-        clearArguments()
-        document
-          .getElementsByName(`Material Arguments ${index}`)[0]
-          .appendChild(ReactDOM.render(getArguments(value), Engine.instance))
-        callback(value)
-      }
+    function onChangeMaterialID(value) {
+      clearTexturePaths(assignment.args, index)
+      delete assignment.args
+      assignment.materialID = value
+      onChangeAssignment(assignment, index, values, onChange)
     }
 
     return (
@@ -185,14 +264,16 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
               error={t('editor:properties.materialAssignment.error-materialID')}
               placeholder={t('editor:properties.materialAssignment.placeholder-materialID')}
               value={assignment.materialID}
-              onChange={setAssignmentProperty('materialID')}
+              onChange={onChangeMaterialID}
               options={materialIDs}
             />
           </InputGroup>
           <InputGroup
             name={`Material Arguments ${index}`}
             label={t('editor:properties.materialAssignment.lbl-materialArguments')}
-          ></InputGroup>
+          >
+            {getArguments(assignment.materialID)}
+          </InputGroup>
           <InputGroup name={`Pattern Target`} label={t('editor:properties.materialAssignment.lbl-patternTarget')}>
             <SelectInput
               key={`${entity}-${index}-patternTarget`}
@@ -206,7 +287,11 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
             />
           </InputGroup>
           <InputGroup name="Pattern" label={t('editor:properties.materialAssignment.lbl-pattern')}>
-            <StringInput value={assignment.pattern} onChange={setAssignmentProperty('pattern')} />
+            <StringInput
+              key={`${entity}-${index}-pattern`}
+              value={assignment.pattern}
+              onChange={setAssignmentProperty('pattern')}
+            />
           </InputGroup>
         </span>
         <span>
@@ -231,7 +316,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
           {values &&
             values.map((value, idx) => {
               return (
-                <ArrayInputGroupContent key={`${entity}-${idx}`} style={{ margin: '4px 2px' }}>
+                <ArrayInputGroupContent key={`${entity}-${idx}-overrideEntry`} style={{ margin: '4px 2px' }}>
                   <label>{idx + 1}: </label>
                   {MaterialAssignmentEntry(idx)}
                 </ArrayInputGroupContent>

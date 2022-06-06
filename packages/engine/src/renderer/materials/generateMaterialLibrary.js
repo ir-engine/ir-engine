@@ -16,7 +16,7 @@ constMaterials.forEach((matID, i, arr) => {
 
 result += "}\n\n"
 
-result += "export const DefaultArgs = {\n"
+result += "export const DefaultArguments = {\n"
 
 constMaterials.forEach((matID, i, arr) => {
     result += `\t${matID}: ${matID}DefaultArgs${i + 1<arr.length ? ',' : ''}\n`
