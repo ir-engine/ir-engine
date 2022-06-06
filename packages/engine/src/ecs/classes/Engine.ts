@@ -1,5 +1,3 @@
-import { XRFrame } from 'three'
-
 import type { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { createHyperStore } from '@xrengine/hyperflux'
 import { HyperStore } from '@xrengine/hyperflux/functions/StoreFunctions'

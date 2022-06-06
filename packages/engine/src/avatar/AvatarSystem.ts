@@ -176,17 +176,20 @@ export default async function AvatarSystem(world: World) {
 
       const animation = getComponent(entity, AvatarAnimationComponent)
 
-      Object3DUtils.getWorldPosition(animation.rig.LeftShoulder, leftHint.position)
-      Object3DUtils.getWorldPosition(animation.rig.LeftArm, vec)
-      vec.subVectors(vec, leftHint.position).normalize()
-      leftHint.position.add(vec)
-      animation.rig.LeftShoulder.attach(leftHint)
+      // todo: load the avatar & rig on the server
+      if (isClient) {
+        Object3DUtils.getWorldPosition(animation.rig.LeftShoulder, leftHint.position)
+        Object3DUtils.getWorldPosition(animation.rig.LeftArm, vec)
+        vec.subVectors(vec, leftHint.position).normalize()
+        leftHint.position.add(vec)
+        animation.rig.LeftShoulder.attach(leftHint)
 
-      Object3DUtils.getWorldPosition(animation.rig.RightShoulder, rightHint.position)
-      Object3DUtils.getWorldPosition(animation.rig.RightArm, vec)
-      vec.subVectors(vec, rightHint.position).normalize()
-      rightHint.position.add(vec)
-      animation.rig.RightShoulder.attach(rightHint)
+        Object3DUtils.getWorldPosition(animation.rig.RightShoulder, rightHint.position)
+        Object3DUtils.getWorldPosition(animation.rig.RightArm, vec)
+        vec.subVectors(vec, rightHint.position).normalize()
+        rightHint.position.add(vec)
+        animation.rig.RightShoulder.attach(rightHint)
+      }
 
       addComponent(entity, AvatarHandsIKComponent, {
         leftTarget: xrInputSourceComponent.controllerGripLeftParent,

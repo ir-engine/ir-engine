@@ -46,11 +46,18 @@ function sortAlphabetical(a, b) {
 
 const OfficialProjectData = [
   {
-    id: '1570ae01-889a-11ec-886e-b126f7590685',
+    id: '1570ae00-889a-11ec-886e-b126f7590685',
     name: 'Development Test Suite',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-development-test-suite',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description: 'Assets and tests for xrengine core development'
+  },
+  {
+    id: '1570ae01-889a-11ec-886e-b126f7590685',
+    name: 'Translations',
+    repositoryPath: 'https://github.com/XRFoundation/XREngine-i18n',
+    thumbnail: '/static/xrengine_thumbnail.jpg',
+    description: 'Complete language translations in over 100 languages.'
   },
   {
     id: '1570ae02-889a-11ec-886e-b126f7590685',

@@ -40,7 +40,7 @@ process.on('unhandledRejection', (reason, p) => {
   process.exit(1)
 })
 
-if (globalThis.process?.env.APP_ENV === 'development') {
+if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {
   // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs - needed for local storage provider
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
