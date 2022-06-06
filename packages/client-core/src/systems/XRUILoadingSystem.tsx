@@ -64,15 +64,11 @@ export default async function XRUILoadingSystem(world: World) {
     const xrui = getComponent(ui.entity, XRUIComponent)
 
     if (xrui) {
-      const dist = 0.1
-      const ppu = xrui.container.options.manager.pixelsPerMeter
-      const contentWidth = ui.state.imageWidth.value / ppu
-      const contentHeight = ui.state.imageHeight.value / ppu
-
-      const scale = ObjectFitFunctions.computeContentFitScaleForCamera(dist, contentWidth, contentHeight, 'cover')
-      xrui.container.scale.x = xrui.container.scale.y = scale * 1.1
-      xrui.container.position.z = -dist
-      xrui.container.parent = Engine.instance.currentWorld.camera
+      ObjectFitFunctions.attachObjectInFrontOfCamera(
+        xrui.container,
+        ui.state.imageWidth.value,
+        ui.state.imageHeight.value
+      )
 
       transition.update(world, (opacity) => {
         if (opacity !== LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(opacity)

@@ -1,6 +1,11 @@
-import { MathUtils, Object3D, PerspectiveCamera } from 'three'
+import type { WebContainer3D } from '@etherealjs/web-layer/three'
+import { MathUtils, PerspectiveCamera } from 'three'
 
+import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { HALF_PI } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
+import { getEngineState } from '../../ecs/classes/EngineState'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const ObjectFitFunctions = {
   computeContentFitScale: (
@@ -44,5 +49,47 @@ export const ObjectFitFunctions = {
     const targetWidth = targetHeight * camera.aspect
 
     return ObjectFitFunctions.computeContentFitScale(contentWidth, contentHeight, targetWidth, targetHeight, fit)
+  },
+
+  attachObjectInFrontOfCamera: (container: WebContainer3D, scale: number, distance: number) => {
+    container.scale.x = container.scale.y = scale * 1.1
+    container.position.z = -distance
+    container.parent = Engine.instance.currentWorld.camera
+  },
+
+  attachObjectToHand: (container: WebContainer3D, scale: number, distance: number) => {
+    const userEntity = Engine.instance.currentWorld.localClientEntity
+    const avatarAnimationComponent = getComponent(userEntity, AvatarAnimationComponent)
+    if (avatarAnimationComponent) {
+      // todo: figure out how to scale this properly
+      container.scale.x = container.scale.y = 0.5
+      // todo: use handedness option to settings
+      container.parent = avatarAnimationComponent.rig.LeftHand
+      // container.position.z = 0.1
+      container.updateMatrixWorld(true)
+      container.rotation.z = HALF_PI
+      container.rotation.y = HALF_PI
+    }
+  },
+
+  attachObjectToPreferredTransform: (
+    container: WebContainer3D,
+    objectWidth: number,
+    objectHeight: number,
+    distance = 0.1,
+    scaleToView = 1
+  ) => {
+    const ppu = container.options.manager.pixelsPerMeter
+    const contentWidth = objectWidth / ppu
+    const contentHeight = objectHeight / ppu
+
+    const scale =
+      ObjectFitFunctions.computeContentFitScaleForCamera(distance, contentWidth, contentHeight, 'cover') * scaleToView
+
+    if (getEngineState().xrSessionStarted.value) {
+      ObjectFitFunctions.attachObjectToHand(container, scale, distance)
+    } else {
+      ObjectFitFunctions.attachObjectInFrontOfCamera(container, scale, distance)
+    }
   }
 }

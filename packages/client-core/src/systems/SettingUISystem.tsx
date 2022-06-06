@@ -1,7 +1,8 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 
 import { MainMenuButtonState } from './state/MainMenuButtonState'
 import { createSettingDetailView } from './ui/SettingDetailView'
@@ -16,22 +17,23 @@ export default async function SettingUISystem(world: World) {
     // actually display the real DOM elmeent since we are rendering it in 3D,
     // so we simply move it out the way
     el.style.visibility = 'visible'
-    el.style.top = MainMenuButtonState.settingMenuOpen.value ? '0px' : '-100000px'
+    el.style.top = '-100000px'
     ui.state.settingMenuOpen.set(MainMenuButtonState.settingMenuOpen.value)
   })
+
+  addComponent(ui.entity, PersistTagComponent, {})
 
   return () => {
     const settingXRUI = getComponent(ui.entity, XRUIComponent)
 
     if (settingXRUI) {
-      const container = settingXRUI.container
-      container.position.set(0, 0, -0.5)
-      container.quaternion.set(0, 0, 0, 1)
-      container.scale.setScalar(0.6)
-      container.matrix
-        .compose(container.position, container.quaternion, container.scale)
-        .premultiply(Engine.instance.currentWorld.camera.matrixWorld)
-      container.matrix.decompose(container.position, container.quaternion, container.scale)
+      const rootLayerElement = settingXRUI.container.rootLayer.element
+      ObjectFitFunctions.attachObjectToPreferredTransform(
+        settingXRUI.container,
+        rootLayerElement.clientWidth,
+        rootLayerElement.clientHeight,
+        0.1
+      )
     }
   }
 }
