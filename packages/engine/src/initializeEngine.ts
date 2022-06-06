@@ -34,6 +34,7 @@ export const createEngine = () => {
   EngineRenderer.instance = new EngineRenderer()
   registerState(EngineState)
   addActionReceptor(EngineEventReceptor)
+  Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
 }
 
 /**
@@ -42,7 +43,6 @@ export const createEngine = () => {
  * initializes everything for the browser context
  */
 export const initializeBrowser = () => {
-  EngineRenderer.instance.initialize()
   Engine.instance.publicPath = location.origin
   const world = Engine.instance.currentWorld
   world.audioListener = new AudioListener()
@@ -76,6 +76,9 @@ export const initializeBrowser = () => {
   matchActionOnce(EngineActions.connect.matches, (action: any) => {
     Engine.instance.userId = action.id
   })
+
+  EngineRenderer.instance.initialize()
+  Engine.instance.engineTimer.start()
 }
 
 const setupInitialClickListener = () => {
@@ -94,7 +97,7 @@ const setupInitialClickListener = () => {
  * initializes everything for the node context
  */
 export const initializeNode = () => {
-  // node currently does not need to initialize anything
+  Engine.instance.engineTimer.start()
 }
 
 const executeWorlds = (elapsedTime) => {
@@ -125,9 +128,6 @@ export const initializeMediaServerSystems = async () => {
   const world = Engine.instance.currentWorld
 
   await initSystems(world, coreSystems)
-
-  Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
-  Engine.instance.engineTimer.start()
 
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }
@@ -193,9 +193,6 @@ export const initializeCoreSystems = async () => {
 
   // load injected systems which may rely on core systems
   await initSystems(world, Engine.instance.injectedSystems)
-
-  Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
-  Engine.instance.engineTimer.start()
 
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }
