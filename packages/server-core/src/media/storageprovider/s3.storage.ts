@@ -90,7 +90,7 @@ export class S3Provider implements StorageProviderInterface {
 
   async getCachedObject(key: string): Promise<StorageObjectInterface> {
     const data = await fetch(getCachedURL(key, this.cacheDomain))
-    return { Body: (await data.arrayBuffer()) as Buffer, ContentType: (await data.blob()).type }
+    return { Body: Buffer.from(await data.arrayBuffer()), ContentType: (await data.headers.get('content-type')) || '' }
   }
 
   getObjectContentType = async (key: string): Promise<any> => {
