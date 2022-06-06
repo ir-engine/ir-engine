@@ -63,7 +63,7 @@ Host Demos
 
 Create composable plug-ins for XREngine scenes with XRModule Projects
 
-### [Create XRModule Projects](https://github.com/XRFoundation/XREngine/blob/dev/docs/docs/2_projects_editor_scenes/01_projects-api.md)
+### [Create XRModule Projects](/docs/docs/3_concepts/1_projects_api.md)
 
 XRModules are folders that contain all your custom code, assets and scenes. They are version controlled using git & github, and can be installed to any deployment with a single click. (more on that in the next chapter)
 
@@ -99,7 +99,7 @@ To install XREngine locally, the following pre-reqs are required.
 
 ### Getting Started
 
-See the [Installation instructions](/docs/docs/0_installation/readme.md)
+See the [Installation instructions](/docs/docs/1_installation/readme.md)
 for more details.
 
 ## Usage
@@ -109,7 +109,7 @@ for more details.
 * [General XREngine documentation](https://xrfoundation.github.io/xrengine-docs/docs)
 * [Auto-generated (tsdoc) API reference](https://xrfoundation.github.io/xrengine-docs/docs/generated/common/)
 * [Avatar, Scene & Asset Pipeline](https://github.com/XRFoundation/XREngine/wiki/Avatar,-Scene-&-Asset-Pipeline)
-* [Why are we building XREngine?](/docs/docs/0_start-here.md)
+* [Why are we building XREngine?](/docs/docs/0_start_here.md)
 
 ## Contributing
 
