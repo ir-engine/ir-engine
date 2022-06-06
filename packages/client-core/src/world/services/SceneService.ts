@@ -12,8 +12,9 @@ import {
 } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 
-const state = defineState({
+const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({
     currentScene: null as SceneData | null
@@ -21,10 +22,11 @@ const state = defineState({
 })
 
 export const registerSceneServiceActions = () => {
-  registerState(state)
+  registerState(SceneState)
 
+  // Register receptor
   addActionReceptor(function SceneServiceReceptor(action) {
-    getState(state).batch((s) => {
+    getState(SceneState).batch((s) => {
       matches(action).when(SceneAction.currentSceneChangedAction.matches, (action) => {
         return s.merge({
           currentScene: action.sceneData
@@ -36,13 +38,15 @@ export const registerSceneServiceActions = () => {
 
 registerSceneServiceActions()
 
-export const accessSceneState = () => getState(state)
+export const accessSceneState = () => getState(SceneState)
 
 export const useSceneState = () => useState(accessSceneState())
 
 export const SceneService = {
   fetchCurrentScene: async (projectName: string, sceneName: string) => {
     const sceneData = await client.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
+    // It should dispatch scene data
+
     dispatchAction(SceneAction.currentSceneChangedAction({ sceneData: sceneData.data }))
   }
 }
