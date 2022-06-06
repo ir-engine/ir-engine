@@ -40,9 +40,10 @@ export const deserializeModel: ComponentDeserializeFunction = (
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
   //add material override components
   if (model.materialOverrides.length > 0) {
-    model.materialOverrides = model.materialOverrides.map((override, i) => initializeOverride(entity, override))
+    Promise.all(model.materialOverrides.map((override, i) => initializeOverride(entity, override))).then(
+      (overrides) => (model.materialOverrides = overrides)
+    )
   }
-
   updateModel(entity, props)
 }
 
