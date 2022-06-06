@@ -59,13 +59,6 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
   meshObjs.forEach((mesh) => mesh.removeFromParent())
 }
 
-export const updateTrigger = function (entity: Entity, isTrigger: boolean) {
-  const data = serializeBoxCollider(entity) as any
-  data.props.isTrigger = isTrigger
-  const boxColliderProps = parseBoxColliderProperties(data.props)
-  updateBoxCollider(entity, boxColliderProps)
-}
-
 export const updateScaleTransform = function (entity: Entity) {
   //Todo: getting box collider props
   const data = serializeBoxCollider(entity) as any

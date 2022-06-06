@@ -5,7 +5,10 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { isTriggerShape } from '@xrengine/engine/src/physics/classes/Physics'
 import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
-import { updateScaleTransform, updateTrigger } from '@xrengine/engine/src/scene/functions/loaders/BoxColliderFunctions'
+import {
+  updateBoxCollider,
+  updateScaleTransform
+} from '@xrengine/engine/src/scene/functions/loaders/BoxColliderFunctions'
 
 import PanToolIcon from '@mui/icons-material/PanTool'
 
@@ -25,7 +28,7 @@ export const BoxColliderNodeEditor: EditorComponentType = (props) => {
   const [isTrigger, setIsTrigger] = useState(isTriggerShape(boxShape))
 
   const onUpdateTrigger = (value) => {
-    updateTrigger(props.node.entity, value)
+    updateBoxCollider(props.node.entity, { isTrigger: value })
     setIsTrigger(value)
   }
 
