@@ -1,7 +1,10 @@
+---
 name: Bug report
 about: Create a report to help us improve
 title: '[Bug]: '
 labels: '[bug]'
+assignees: ''
+
 body:
   - type: markdown
     attributes:
@@ -32,7 +35,7 @@ body:
     id: reproduce
     attributes:
       label: Steps to reproduce
-      description: We need to know how to reproduce this bug in order to solve it.
+      description: 
       render: shell
     validations:
       required: true
@@ -44,3 +47,5 @@ body:
       render: shell
     validations:
       required: false
+
+---
