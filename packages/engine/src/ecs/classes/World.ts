@@ -158,6 +158,10 @@ export class World {
   /** Map of user client IDs to numerical user index */
   userIdToUserIndex = new Map<UserId, number>()
 
+  /**
+   * The index to increment when a new user joins
+   * NOTE: Must only be updated by the host
+   */
   userIndexCount = 0
 
   /**
