@@ -65,7 +65,7 @@ Elastic Search and Grafana will be automatically launched with `npm run dev`.
 Elasticsearch & Grafana will be running on localhost port 9200 & 5601 respectively.
 
 This will automatically set up and run Redis/MariaDB docker
-containers, and XRengine client/server/game-server instances.
+containers, and XRengine client/server/instance-server instances.
 
 In a browser, navigate to https://127.0.0.1:3000/location/default
 

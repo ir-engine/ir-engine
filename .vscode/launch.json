@@ -46,8 +46,8 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Debug Gameserver",
-            "cwd": "${workspaceFolder}/packages/gameserver",
+            "name": "Debug Instanceserver",
+            "cwd": "${workspaceFolder}/packages/instanceserver",
             "runtimeArgs": [
                 "run-script",
                 "dev"

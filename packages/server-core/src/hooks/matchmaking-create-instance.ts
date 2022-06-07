@@ -5,7 +5,7 @@ import { Location as LocationType } from '@xrengine/common/src/interfaces/Locati
 
 import { Application } from '../../declarations'
 import logger from '../logger'
-import { getFreeGameserver } from '../networking/instance-provision/instance-provision.class'
+import { getFreeInstanceserver } from '../networking/instance-provision/instance-provision.class'
 
 export default (): Hook => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
@@ -34,7 +34,7 @@ export default (): Hook => {
       throw new Error(`Location for match type '${gameMode}'(${locationName}) is not found.`)
     }
 
-    const freeInstance = await getFreeGameserver(app, 0, location.data[0].id, null!)
+    const freeInstance = await getFreeInstanceserver(app, 0, location.data[0].id, null!)
     try {
       const existingInstance = (await app.service('instance').find({
         query: {
@@ -61,10 +61,10 @@ export default (): Hook => {
 
       // matchInstanceId
       await app.service('match-instance').patch(matchInstanceId, {
-        gameserver: instanceId
+        instanceserver: instanceId
       })
 
-      context.result.gameserver = instanceId
+      context.result.instanceserver = instanceId
     } catch (e) {
       logger.error(e, `Matchmaking instance create error: ${e.message || e.errors[0].message}`)
       // TODO: check error? skip?

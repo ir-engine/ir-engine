@@ -39,7 +39,7 @@ npm install -g cli aws-sdk
 bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL analytics $START_TIME $PRIVATE_ECR $AWS_REGION &
 bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL api $START_TIME $PRIVATE_ECR $AWS_REGION &
 bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL client $START_TIME $PRIVATE_ECR $AWS_REGION &
-bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL gameserver $START_TIME $PRIVATE_ECR $AWS_REGION &
+bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL instanceserver $START_TIME $PRIVATE_ECR $AWS_REGION &
 bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL testbot $START_TIME $PRIVATE_ECR $AWS_REGION &
 
 wait
@@ -54,7 +54,7 @@ then
   bash ./scripts/publish_dockerhub.sh ${TAG}__${START_TIME} $DOCKER_LABEL analytics &
   bash ./scripts/publish_dockerhub.sh ${TAG}__${START_TIME} $DOCKER_LABEL api &
   bash ./scripts/publish_dockerhub.sh ${TAG}__${START_TIME} $DOCKER_LABEL client &
-  bash ./scripts/publish_dockerhub.sh ${TAG}__${START_TIME} $DOCKER_LABEL gameserver &
+  bash ./scripts/publish_dockerhub.sh ${TAG}__${START_TIME} $DOCKER_LABEL instanceserver &
   bash ./scripts/publish_dockerhub.sh ${TAG}__${START_TIME} $DOCKER_LABEL testbot &
   wait
 fi

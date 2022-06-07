@@ -73,7 +73,7 @@ You'll need to edit your hostfile to point certain domains to minikube IP addres
 this is done by running `sudo gedit /etc/hosts`.
 
 Add the following lines:
-`<Output of 'minikube ip'>  local.theoverlay.io api-local.theoverlay.io gameserver-local.theoverlay.io 00000.gameserver-local.theoverlay.io 00001.gameserver-local.theoverlay.io 00002.gameserver-local.theoverlay.io 00003.gameserver-local.theoverlay.io`
+`<Output of 'minikube ip'>  local.theoverlay.io api-local.theoverlay.io instanceserver-local.theoverlay.io 00000.instanceserver-local.theoverlay.io 00001.instanceserver-local.theoverlay.io 00002.instanceserver-local.theoverlay.io 00003.instanceserver-local.theoverlay.io`
 `10.0.2.2   host.minikube.internal`
 
 The first line says to point several *-local.theoverlay.io domains internally to the minikube cluster,
@@ -146,8 +146,8 @@ The script also builds the full-repo Docker image using several build arguments.
 the client files, uses some information from the MariaDB database created for minikube deployments
 to fill in some variables, and needs database credentials. The script will supply default values
 for all of the MYSQL_* variables if they are not provided to the script, as well as VITE_CLIENT_HOST,
-VITE_SERVER_HOST, and VITE_GAMESERVER_HOST. The latter three will make your minikube deployment
-accessible on `(local/api-local/gameserver-local).theoverlay.io`; if you want to run it on a different
+VITE_SERVER_HOST, and VITE_INSTANCESERVER_HOST. The latter three will make your minikube deployment
+accessible on `(local/api-local/instanceserver-local).theoverlay.io`; if you want to run it on a different
 domain, then you'll have to set those three environment variables to what you want them to be (and also
 change the hostfile records you made pointing those subdomains to minikube's IP)
 
@@ -160,7 +160,7 @@ Run the following command: `helm install -f </path/to/local.values.yaml> --set a
 This will use a Helm config file titled 'local.values.yaml' to configure the deployment. There is
 a [template](../packages/ops/configs/local.template.values.yaml) for this file in packages/ops/configs
 
-After a minute or so, running `kubectl get pods` should show one or more gameservers, one or more api
+After a minute or so, running `kubectl get pods` should show one or more instanceservers, one or more api
 servers, and one client server in the Running state. Setting `FORCE_DB_REFRESH=true` made the api servers
 (re)initialize the database. Since you don't want that to happen every time a new api pod starts, run
 `helm upgrade --reuse-values --set api.extraEnv.FORCE_DB_REFRESH=false local xrengine/xrengine`.
@@ -176,5 +176,5 @@ the console and/or Network tab. There should be errors on https://api-local.theo
 in a new tab and accept the invalid certificate for that, too.
 
 When you go to https://local.theoverlay.io/location/default, you'll have to open the console again, find the
-erroring https://gameserver-local.theoverlay.io, open that link in a new tab, and accept the invalid certificate
+erroring https://instanceserver-local.theoverlay.io, open that link in a new tab, and accept the invalid certificate
 for that domain, as well.
