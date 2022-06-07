@@ -1,4 +1,3 @@
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
@@ -11,6 +10,7 @@ import {
   TransformSpace
 } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { EditorHistory } from '../classes/History'
 import { accessEditorHelperState, EditorHelperAction } from '../services/EditorHelperState'
@@ -38,16 +38,16 @@ export const setTransformMode = (mode: TransformModeType): void => {
   }
 
   if (mode !== TransformMode.Placement && mode !== TransformMode.Grab) {
-    useDispatch()(EditorHelperAction.changeTransformModeOnCancel(mode))
+    dispatchAction(EditorHelperAction.changeTransformModeOnCancel(mode))
   }
 
   EditorHistory.grabCheckPoint = undefined
   SceneState.transformGizmo.setTransformMode(mode)
-  useDispatch()(EditorHelperAction.changedTransformMode(mode))
+  dispatchAction(EditorHelperAction.changedTransformMode(mode))
 }
 
 export const toggleSnapMode = (): void => {
-  useDispatch()(
+  dispatchAction(
     EditorHelperAction.changedSnapMode(
       accessEditorHelperState().snapMode.value === SnapMode.Disabled ? SnapMode.Grid : SnapMode.Disabled
     )
@@ -55,22 +55,22 @@ export const toggleSnapMode = (): void => {
 }
 
 export const setTransformPivot = (pivot: TransformPivotType) => {
-  useDispatch()(EditorHelperAction.changedTransformPivotMode(pivot))
+  dispatchAction(EditorHelperAction.changedTransformPivotMode(pivot))
 }
 
 export const toggleTransformPivot = () => {
   const pivots = Object.keys(TransformPivot)
   const nextIndex = (pivots.indexOf(accessEditorHelperState().transformPivot.value) + 1) % pivots.length
 
-  useDispatch()(EditorHelperAction.changedTransformPivotMode(TransformPivot[pivots[nextIndex]]))
+  dispatchAction(EditorHelperAction.changedTransformPivotMode(TransformPivot[pivots[nextIndex]]))
 }
 
 export const setTransformSpace = (transformSpace: TransformSpace) => {
-  useDispatch()(EditorHelperAction.changedTransformSpaceMode(transformSpace))
+  dispatchAction(EditorHelperAction.changedTransformSpaceMode(transformSpace))
 }
 
 export const toggleTransformSpace = () => {
-  useDispatch()(
+  dispatchAction(
     EditorHelperAction.changedTransformSpaceMode(
       accessEditorHelperState().transformSpace.value === TransformSpace.World
         ? TransformSpace.LocalSelection

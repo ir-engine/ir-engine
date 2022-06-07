@@ -1,6 +1,5 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { store } from '@xrengine/client-core/src/store'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
@@ -32,7 +31,7 @@ const state = createState<SelectionServiceStateType>({
   transformPropertyChanged: false
 })
 
-store.receptors.push((action: SelectionActionType): any => {
+export const EditorSelectionReceptor = (action: SelectionActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'BEFORE_SELECTION_CHANGED':
@@ -54,7 +53,7 @@ store.receptors.push((action: SelectionActionType): any => {
         return s.merge({ sceneGraphChangeCounter: s.sceneGraphChangeCounter.value + 1 })
     }
   }, action.type)
-})
+}
 
 export const accessSelectionState = () => state
 
@@ -67,11 +66,13 @@ export const SelectionService = {}
 export const SelectionAction = {
   changedBeforeSelection: () => {
     return {
+      store: 'EDITOR' as const,
       type: 'BEFORE_SELECTION_CHANGED' as const
     }
   },
   changedObject: (objects, propertyName) => {
     return {
+      store: 'EDITOR' as const,
       type: 'OBJECT_CHANGED' as const,
       objects,
       propertyName
@@ -79,11 +80,13 @@ export const SelectionAction = {
   },
   changedSceneGraph: () => {
     return {
+      store: 'EDITOR' as const,
       type: 'SCENE_GRAPH_CHANGED' as const
     }
   },
   updateSelection: (selectedEntities: Entity[]) => {
     return {
+      store: 'EDITOR' as const,
       type: 'SELECTION_CHANGED' as const,
       selectedEntities
     }

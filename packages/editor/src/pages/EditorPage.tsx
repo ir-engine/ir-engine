@@ -2,24 +2,24 @@ import React, { useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
 import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { initializeCoreSystems, initializeSceneSystems } from '@xrengine/engine/src/initializeEngine'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
 import EditorContainer from '../components/EditorContainer'
-import { EditorAction, useEditorState } from '../services/EditorServices'
+import { EditorErrorReceptor } from '../services/EditorErrorServices'
+import { EditorHelperReceptor } from '../services/EditorHelperState'
+import { EditorAction, EditorReceptor, useEditorState } from '../services/EditorServices'
+import { EditorSelectionReceptor } from '../services/SelectionServices'
 
 export const EditorPage = (props: RouteComponentProps<{ sceneName: string; projectName: string }>) => {
   const editorState = useEditorState()
   const projectState = useProjectState()
   const authState = useAuthState()
-  const dispatch = useDispatch()
   const authUser = authState.authUser
   const user = authState.user
   const [clientInitialized, setClientInitialized] = useState(false)
@@ -74,8 +74,8 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
   useEffect(() => {
     if (engineReady) {
       const { projectName, sceneName } = props.match.params
-      dispatch(EditorAction.projectChanged(projectName ?? null))
-      dispatch(EditorAction.sceneChanged(sceneName ?? null))
+      dispatchAction(EditorAction.projectChanged(projectName ?? null))
+      dispatchAction(EditorAction.sceneChanged(sceneName ?? null))
     }
   }, [engineReady, props.match.params.projectName, props.match.params.sceneName])
 
@@ -85,6 +85,10 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
     Engine.instance.isEditor = true
     const world = Engine.instance.currentWorld
     initializeCoreSystems().then(async () => {
+      addActionReceptor(EditorReceptor)
+      addActionReceptor(EditorHelperReceptor)
+      addActionReceptor(EditorErrorReceptor)
+      addActionReceptor(EditorSelectionReceptor)
       initSystems(world, systems)
       await initializeSceneSystems()
       const projects = projectState.projects.value.map((project) => project.name)

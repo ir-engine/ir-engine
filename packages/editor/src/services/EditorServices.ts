@@ -1,7 +1,5 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { store } from '@xrengine/client-core/src/store'
-
 export enum TaskStatus {
   NOT_STARTED = 0,
   IN_PROGRESS = 1,
@@ -26,7 +24,7 @@ const state = createState<EditorServiceStateType>({
   rendererInitialized: false
 })
 
-store.receptors.push((action: EditorActionType): any => {
+export const EditorReceptor = (action: EditorActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'EDITOR_SCENE_CHANGED':
@@ -43,7 +41,7 @@ store.receptors.push((action: EditorActionType): any => {
         return s.merge({ rendererInitialized: action.initialized })
     }
   }, action.type)
-})
+}
 
 export const accessEditorState = () => state
 
@@ -56,36 +54,42 @@ export const EditorService = {}
 export const EditorAction = {
   projectChanged: (projectName: string | null) => {
     return {
+      store: 'EDITOR' as const,
       type: 'EDITOR_PROJECT_CHANGED' as const,
       projectName
     }
   },
   sceneChanged: (sceneName: string | null) => {
     return {
+      store: 'EDITOR' as const,
       type: 'EDITOR_SCENE_CHANGED' as const,
       sceneName
     }
   },
   sceneModified: (modified: boolean) => {
     return {
+      store: 'EDITOR' as const,
       type: 'EDITOR_SCENE_MODIFIED' as const,
       modified
     }
   },
   projectLoaded: (loaded: boolean) => {
     return {
+      store: 'EDITOR' as const,
       type: 'EDITOR_PROJECT_LOADED' as const,
       loaded
     }
   },
   rendererInitialized: (initialized: boolean) => {
     return {
+      store: 'EDITOR' as const,
       type: 'EDITOR_RENDERER_INITIALIZED' as const,
       initialized
     }
   },
   updatePreprojectLoadTask: (taskStatus: TaskStatus) => {
     return {
+      store: 'EDITOR' as const,
       type: 'UPDATE_PREPROJECT_TASK_STATUS' as const,
       taskStatus
     }

@@ -1,7 +1,5 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { store } from '@xrengine/client-core/src/store'
-
 type EditorErrorServiceStateType = {
   error: any
 }
@@ -10,14 +8,14 @@ const state = createState<EditorErrorServiceStateType>({
   error: null
 })
 
-store.receptors.push((action: EditorErrorActionType): any => {
+export const EditorErrorReceptor = (action: EditorErrorActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ERROR_THROWN':
         return s.merge({ error: action.error })
     }
   }, action.type)
-})
+}
 
 export const accessEditorErrorState = () => state
 
@@ -30,6 +28,7 @@ export const EditorErrorService = {}
 export const EditorErrorAction = {
   throwError: (error: any) => {
     return {
+      store: 'EDITOR' as const,
       type: 'ERROR_THROWN' as const,
       error
     }

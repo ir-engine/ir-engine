@@ -1,6 +1,5 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { store } from '@xrengine/client-core/src/store'
 import { ClientStorage } from '@xrengine/engine/src/common/classes/ClientStorage'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import {
@@ -12,6 +11,7 @@ import {
   TransformPivotType,
   TransformSpace
 } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { EditorHelperKeys } from '../constants/EditorHelperKeys'
 import { SceneState } from '../functions/sceneRenderFunctions'
@@ -77,7 +77,7 @@ export async function restoreEditorHelperData(): Promise<void> {
       })
     ])
 
-    store.dispatch(EditorHelperAction.restoreStorageData(s))
+    dispatchAction(EditorHelperAction.restoreStorageData(s))
   }
 }
 
@@ -86,7 +86,7 @@ function updateHelpers(): void {
   InfiniteGridHelper.instance.setSize(state.translationSnap.value)
 }
 
-store.receptors.push((action: EditorHelperActionType): any => {
+export const EditorHelperReceptor = (action: EditorHelperActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'PLAY_MODE_CHANGED':
@@ -133,7 +133,7 @@ store.receptors.push((action: EditorHelperActionType): any => {
 
     return s
   }, action.type)
-})
+}
 
 export const accessEditorHelperState = () => state
 
@@ -143,66 +143,77 @@ export const useEditorHelperState = () => useState(state) as any as typeof state
 export const EditorHelperAction = {
   restoreStorageData: (state: EditorHelperStateType) => {
     return {
+      store: 'EDITOR' as const,
       type: 'RESTORE_STORAGE_DATA' as const,
       state
     }
   },
   changedPlayMode: (isEnabled: boolean) => {
     return {
+      store: 'EDITOR' as const,
       type: 'PLAY_MODE_CHANGED' as const,
       isPlayModeEnabled: isEnabled
     }
   },
   changedFlyMode: (isEnabled: boolean) => {
     return {
+      store: 'EDITOR' as const,
       type: 'FLY_MODE_CHANGED' as const,
       isFlyModeEnabled: isEnabled
     }
   },
   changedTransformMode: (mode: TransformModeType) => {
     return {
+      store: 'EDITOR' as const,
       type: 'TRANSFORM_MODE_CHANGED' as const,
       mode
     }
   },
   changeTransformModeOnCancel: (mode: TransformModeType) => {
     return {
+      store: 'EDITOR' as const,
       type: 'TRANSFORM_MODE_ON_CANCEL_CHANGED' as const,
       mode
     }
   },
   changedTransformSpaceMode: (transformSpace: TransformSpace) => {
     return {
+      store: 'EDITOR' as const,
       type: 'TRANSFORM_SPACE_CHANGED' as const,
       transformSpace
     }
   },
   changedTransformPivotMode: (transformPivot: TransformPivotType) => {
     return {
+      store: 'EDITOR' as const,
       type: 'TRANSFORM_PIVOT_CHANGED' as const,
       transformPivot
     }
   },
   changedSnapMode: (snapMode: SnapModeType) => {
     return {
+      store: 'EDITOR' as const,
       type: 'SNAP_MODE_CHANGED' as const,
       snapMode
     }
   },
   changeTranslationSnap: (translationSnap: number) => {
     return {
+      store: 'EDITOR' as const,
       type: 'TRANSLATION_SNAP_CHANGED' as const,
       translationSnap
     }
   },
   changeRotationSnap: (rotationSnap: number) => {
     return {
+      store: 'EDITOR' as const,
       type: 'ROTATION_SNAP_CHANGED' as const,
       rotationSnap
     }
   },
   changeScaleSnap: (scaleSnap: number) => {
     return {
+      store: 'EDITOR' as const,
       type: 'SCALE_SNAP_CHANGED' as const,
       scaleSnap
     }
