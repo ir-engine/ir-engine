@@ -86,10 +86,6 @@ export const ObjectFitFunctions = {
     const scale =
       ObjectFitFunctions.computeContentFitScaleForCamera(distance, contentWidth, contentHeight, 'cover') * scaleToView
 
-    if (getEngineState().xrSessionStarted.value) {
-      ObjectFitFunctions.attachObjectToHand(container, scale, distance)
-    } else {
-      ObjectFitFunctions.attachObjectInFrontOfCamera(container, scale, distance)
-    }
+    ObjectFitFunctions.attachObjectInFrontOfCamera(container, scale, distance)
   }
 }

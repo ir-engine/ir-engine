@@ -295,21 +295,24 @@ const ShareLocationDetailView = () => {
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.headerTitle}>{t('user:usermenu.share.title')}</h1>
-        <div style={styles.inviteBox as {}}>
-          <div style={styles.inviteContainer as {}}>
+    <div style={styles.container} xr-layer="true">
+      <div style={styles.header} xr-layer="true">
+        <h1 style={styles.headerTitle} xr-layer="true">
+          {t('user:usermenu.share.title')}
+        </h1>
+        <div style={styles.inviteBox as {}} xr-layer="true">
+          <div style={styles.inviteContainer as {}} xr-layer="true">
             <input
               ref={refLink}
               aria-invalid="false"
               disabled={true}
+              xr-layer="true"
               type="text"
               style={styles.inviteLinkInput as {}}
               value={getInviteLink()}
             />
 
-            <div style={styles.copyInviteContainer as {}} onClick={() => copyLinkToClipboard()}>
+            <div style={styles.copyInviteContainer as {}} xr-layer="true" onClick={() => copyLinkToClipboard()}>
               <svg style={styles.copyIcon} aria-hidden="true" viewBox="0 0 24 24">
                 <path
                   fill="#ffffff"
@@ -318,20 +321,20 @@ const ShareLocationDetailView = () => {
               </svg>
             </div>
 
-            <fieldset aria-hidden="true" style={styles.linkFieldset as {}}>
-              <legend style={styles.linkLegend} />
+            <fieldset aria-hidden="true" style={styles.linkFieldset as {}} xr-layer="true">
+              <legend style={styles.linkLegend} xr-layer="true" />
             </fieldset>
           </div>
         </div>
 
-        <div style={styles.phoneEmailBox as {}}>
-          <fieldset aria-hidden="true" style={styles.phoneEmailFieldset as {}}>
-            <legend style={styles.phoneEmailLegend as {}}>
-              <span style={{ touchAction: 'auto' }}>​​</span>
+        <div style={styles.phoneEmailBox as {}} xr-layer="true">
+          <fieldset aria-hidden="true" style={styles.phoneEmailFieldset as {}} xr-layer="true">
+            <legend style={styles.phoneEmailLegend as {}} xr-layer="true">
+              <span style={{ touchAction: 'auto' }} xr-layer="true"></span>
             </legend>
           </fieldset>
           <input
-            xr-layer=""
+            xr-layer="true"
             aria-invalid="false"
             placeholder={t('user:usermenu.share.ph-phoneEmail')}
             type="text"
@@ -341,15 +344,15 @@ const ShareLocationDetailView = () => {
           />
         </div>
 
-        <div style={styles.sendInvitationContainer as {}}>
-          <button xr-layer="" onClick={packageInvite} style={styles.sendInvitationButton as {}} type="button">
+        <div style={styles.sendInvitationContainer as {}} xr-layer="true">
+          <button xr-layer="true" onClick={packageInvite} style={styles.sendInvitationButton as {}} type="button">
             {t('user:usermenu.share.lbl-send-invite')}
           </button>
         </div>
 
         {isShareAvailable ? (
-          <div style={styles.shareAppContainer as {}}>
-            <button xr-layer="" onClick={shareOnApps} style={styles.shareAppButton as {}} type="button">
+          <div style={styles.shareAppContainer as {}} xr-layer="true">
+            <button xr-layer="true" onClick={shareOnApps} style={styles.shareAppButton as {}} type="button">
               {t('user:usermenu.share.lbl-share')}
             </button>
           </div>

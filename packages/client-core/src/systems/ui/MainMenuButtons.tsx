@@ -109,17 +109,17 @@ const MainMenuButtons = () => {
   }
 
   return (
-    <div style={styles.container as {}}>
-      <div xr-layer="" style={styles.button} onClick={toggleEmoteMenu}>
+    <div style={styles.container as {}} xr-layer="true">
+      <div xr-layer="true" style={styles.button} onClick={toggleEmoteMenu}>
         <EmoteIcon />
       </div>
-      <div xr-layer="" style={styles.button} onClick={toggleShareMenu}>
+      <div xr-layer="true" style={styles.button} onClick={toggleShareMenu}>
         <LinkIcon />
       </div>
-      <div xr-layer="" style={styles.button} onClick={toggleSettingMenu}>
+      <div xr-layer="true" style={styles.button} onClick={toggleSettingMenu}>
         <SettingsIcon />
       </div>
-      <div xr-layer="" style={styles.button} onClick={toggleChatWindow}>
+      <div xr-layer="true" style={styles.button} onClick={toggleChatWindow}>
         <Badge
           color="primary"
           variant="dot"

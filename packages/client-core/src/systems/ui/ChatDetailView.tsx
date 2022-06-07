@@ -247,94 +247,93 @@ const ChatDetailView = () => {
   }
 
   return (
-    <>
-      <div
-        style={{
-          ...(styles.chatContainer as {}),
-          ...((detailState.chatMenuOpen.value ? {} : styles.hide) as {})
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', width: '500px' }}>
-          <div style={styles.messageList as {}}>
-            {activeChannel &&
-              activeChannel.messages &&
-              [...activeChannel.messages]
-                .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-                .slice(
-                  activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0,
-                  activeChannel.messages?.length
-                )
-                .map((message) => {
-                  if (!Engine.instance.isBot && isCommand(message.text)) return undefined
-                  const system = getChatMessageSystem(message.text)
-                  let chatMessage = message.text
+    <div
+      style={{
+        ...(styles.chatContainer as {}),
+        ...((detailState.chatMenuOpen.value ? {} : styles.hide) as {})
+      }}
+      xr-layer="true"
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', width: '500px' }} xr-layer="true">
+        <div style={styles.messageList as {}} xr-layer="true">
+          {activeChannel &&
+            activeChannel.messages &&
+            [...activeChannel.messages]
+              .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+              .slice(
+                activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0,
+                activeChannel.messages?.length
+              )
+              .map((message) => {
+                if (!Engine.instance.isBot && isCommand(message.text)) return undefined
+                const system = getChatMessageSystem(message.text)
+                let chatMessage = message.text
 
-                  if (system !== 'none') {
-                    if (Engine.instance.isBot || system === 'jl_system') {
-                      chatMessage = removeMessageSystem(message.text)
-                    } else {
-                      return undefined
-                    }
+                if (system !== 'none') {
+                  if (Engine.instance.isBot || system === 'jl_system') {
+                    chatMessage = removeMessageSystem(message.text)
+                  } else {
+                    return undefined
                   }
-                  return (
-                    <li
-                      key={message.id}
+                }
+                return (
+                  <li
+                    key={message.id}
+                    style={{
+                      ...(styles.messageItem as {}),
+                      ...((isMessageSentBySelf(message) ? styles.messageEnd : styles.messageStart) as {})
+                    }}
+                  >
+                    <div
                       style={{
-                        ...(styles.messageItem as {}),
+                        ...(styles.messageRow as {}),
                         ...((isMessageSentBySelf(message) ? styles.messageEnd : styles.messageStart) as {})
                       }}
                     >
-                      <div
-                        style={{
-                          ...(styles.messageRow as {}),
-                          ...((isMessageSentBySelf(message) ? styles.messageEnd : styles.messageStart) as {})
-                        }}
-                      >
-                        {!isMessageSentBySelf(message) && getAvatar(message)}
-                        <div style={styles.messageContent}>
-                          <span style={styles.messageChild}>
-                            <span>
-                              <span style={styles.senderName}>{getMessageUser(message)}</span>
-                              <p style={styles.senderMessage}>{chatMessage}</p>
-                            </span>
+                      {!isMessageSentBySelf(message) && getAvatar(message)}
+                      <div style={styles.messageContent}>
+                        <span style={styles.messageChild}>
+                          <span>
+                            <span style={styles.senderName}>{getMessageUser(message)}</span>
+                            <p style={styles.senderMessage}>{chatMessage}</p>
                           </span>
-                        </div>
-                        {isMessageSentBySelf(message) && getAvatar(message)}
+                        </span>
                       </div>
-                    </li>
-                  )
-                })}
-          </div>
-          <div style={styles.messageBoxContainer}>
-            <input
-              xr-layer=""
-              type="text"
-              placeholder={'World Chat...'}
-              value={composingMessage}
-              onChange={(evt) => handleComposingMessageChange(evt)}
-              style={{
-                ...(styles.messageInputBox as {}),
-                ...((detailState.chatMenuOpen.value ? {} : styles.hide) as {})
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && e.ctrlKey) {
-                  e.preventDefault()
-                  const selectionStart = (e.target as HTMLInputElement).selectionStart
+                      {isMessageSentBySelf(message) && getAvatar(message)}
+                    </div>
+                  </li>
+                )
+              })}
+        </div>
+        <div style={styles.messageBoxContainer}>
+          <input
+            xr-layer=""
+            type="text"
+            placeholder={'World Chat...'}
+            value={composingMessage}
+            onChange={(evt) => handleComposingMessageChange(evt)}
+            style={{
+              ...(styles.messageInputBox as {}),
+              ...((detailState.chatMenuOpen.value ? {} : styles.hide) as {})
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault()
+                const selectionStart = (e.target as HTMLInputElement).selectionStart
 
-                  setComposingMessage(
-                    composingMessage.substring(0, selectionStart || 0) +
-                      '\n' +
-                      composingMessage.substring(selectionStart || 0)
-                  )
-                } else if (e.key === 'Enter' && !e.ctrlKey) {
-                  e.preventDefault()
-                  packageMessage()
-                }
-              }}
-            />
-          </div>
+                setComposingMessage(
+                  composingMessage.substring(0, selectionStart || 0) +
+                    '\n' +
+                    composingMessage.substring(selectionStart || 0)
+                )
+              } else if (e.key === 'Enter' && !e.ctrlKey) {
+                e.preventDefault()
+                packageMessage()
+              }
+            }}
+          />
         </div>
       </div>
-    </>
+    </div>
   )
 }

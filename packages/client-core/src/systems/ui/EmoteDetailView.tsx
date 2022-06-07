@@ -269,11 +269,11 @@ const EmoteDetailView = () => {
   }
 
   return (
-    <section style={styles.container as {}}>
-      <div style={styles.itemContainer as {}}>
-        <div style={styles.itemContainerPrev as {}}>
+    <section style={styles.container as {}} xr-layer="true">
+      <div style={styles.itemContainer as {}} xr-layer="true">
+        <div style={styles.itemContainerPrev as {}} xr-layer="true">
           <button
-            xr-layer=""
+            xr-layer="true"
             type="button"
             style={
               {
@@ -301,13 +301,13 @@ const EmoteDetailView = () => {
             height: menuItemRadius,
             position: 'relative'
           }}
+          xr-layer="true"
         >
           {renderEmoteList()}
         </div>
-
-        <div style={styles.itemContainerNext as {}}>
+        <div style={styles.itemContainerNext as {}} xr-layer="true">
           <button
-            xr-layer=""
+            xr-layer="true"
             type="button"
             style={
               {
