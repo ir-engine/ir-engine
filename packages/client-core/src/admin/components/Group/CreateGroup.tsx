@@ -102,7 +102,7 @@ const CreateGroup = (props: Props) => {
               placeholder={t('admin:components.group.enterGroupName')}
               value={state.name}
               error={state.formErrors.name}
-              handleInputChange={handleChange}
+              onChange={handleChange}
             />
 
             <InputText
@@ -111,7 +111,7 @@ const CreateGroup = (props: Props) => {
               placeholder={t('admin:components.group.enterGroupDescription')}
               value={state.description}
               error={state.formErrors.description}
-              handleInputChange={handleChange}
+              onChange={handleChange}
             />
 
             <AutoComplete

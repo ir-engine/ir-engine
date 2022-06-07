@@ -215,7 +215,7 @@ const ViewLocation = (props: Props) => {
                 placeholder={t('admin:components.locationModal.enterName')}
                 value={state.name}
                 error={state.formErrors.name}
-                handleInputChange={handleInputChange}
+                onChange={handleInputChange}
               />
 
               <InputText
@@ -225,7 +225,7 @@ const ViewLocation = (props: Props) => {
                 value={state.maxUsers}
                 error={state.formErrors.maxUsers}
                 type="number"
-                handleInputChange={handleInputChange}
+                onChange={handleInputChange}
               />
 
               <label>{t('admin:components.locationModal.lbl-scene')}</label>

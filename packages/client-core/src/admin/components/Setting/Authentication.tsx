@@ -308,7 +308,7 @@ const Account = (props: Props) => {
                       />
                     </IconButton>
                   }
-                  handleInputChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.DISCORD)}
+                  onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.DISCORD)}
                 />
 
                 <InputText
@@ -324,7 +324,7 @@ const Account = (props: Props) => {
                       />
                     </IconButton>
                   }
-                  handleInputChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.DISCORD)}
+                  onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.DISCORD)}
                 />
 
                 <InputText
@@ -352,7 +352,7 @@ const Account = (props: Props) => {
                       />
                     </IconButton>
                   }
-                  handleInputChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.FACEBOOK)}
+                  onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.FACEBOOK)}
                 />
 
                 <InputText
@@ -368,7 +368,7 @@ const Account = (props: Props) => {
                       />
                     </IconButton>
                   }
-                  handleInputChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.FACEBOOK)}
+                  onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.FACEBOOK)}
                 />
 
                 <InputText
@@ -396,7 +396,7 @@ const Account = (props: Props) => {
                       />
                     </IconButton>
                   }
-                  handleInputChange={(e) => handleOnChangeAppId(e, OAUTH_TYPES.GITHUB)}
+                  onChange={(e) => handleOnChangeAppId(e, OAUTH_TYPES.GITHUB)}
                 />
 
                 <InputText
@@ -412,7 +412,7 @@ const Account = (props: Props) => {
                       />
                     </IconButton>
                   }
-                  handleInputChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GITHUB)}
+                  onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GITHUB)}
                 />
 
                 <InputText
@@ -428,7 +428,7 @@ const Account = (props: Props) => {
                       />
                     </IconButton>
                   }
-                  handleInputChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GITHUB)}
+                  onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GITHUB)}
                 />
 
                 <InputText
@@ -458,7 +458,7 @@ const Account = (props: Props) => {
                       />
                     </IconButton>
                   }
-                  handleInputChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GOOGLE)}
+                  onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GOOGLE)}
                 />
 
                 <InputText
@@ -474,7 +474,7 @@ const Account = (props: Props) => {
                       />
                     </IconButton>
                   }
-                  handleInputChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GOOGLE)}
+                  onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GOOGLE)}
                 />
 
                 <InputText
@@ -502,7 +502,7 @@ const Account = (props: Props) => {
                       />
                     </IconButton>
                   }
-                  handleInputChange={() => handleShowPassword('linkedin-key')}
+                  onChange={() => handleShowPassword('linkedin-key')}
                 />
 
                 <InputText
@@ -518,7 +518,7 @@ const Account = (props: Props) => {
                       />
                     </IconButton>
                   }
-                  handleInputChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.LINKEDIN)}
+                  onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.LINKEDIN)}
                 />
 
                 <InputText
@@ -546,7 +546,7 @@ const Account = (props: Props) => {
                       />
                     </IconButton>
                   }
-                  handleInputChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.TWITTER)}
+                  onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.TWITTER)}
                 />
 
                 <InputText
@@ -562,7 +562,7 @@ const Account = (props: Props) => {
                       />
                     </IconButton>
                   }
-                  handleInputChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.TWITTER)}
+                  onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.TWITTER)}
                 />
 
                 <InputText

@@ -155,7 +155,7 @@ const CreateLocation = (props: Props) => {
             placeholder={t('admin:components.locationModal.enterName')}
             value={state.name ?? ''}
             error={state.formErrors.name}
-            handleInputChange={handleChange}
+            onChange={handleChange}
           />
 
           <InputText
@@ -165,7 +165,7 @@ const CreateLocation = (props: Props) => {
             value={state.maxUsers}
             error={state.formErrors.maxUsers}
             type="number"
-            handleInputChange={handleChange}
+            onChange={handleChange}
           />
 
           <label>{t('admin:components.locationModal.lbl-scene')}</label>

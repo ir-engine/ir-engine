@@ -183,35 +183,35 @@ const Aws = (props: Props) => {
                   name="accessKeyId"
                   label={t('admin:components.setting.accessKeyId')}
                   value={sms?.accessKeyId || ''}
-                  handleInputChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.ACCESS_KEY_ID)}
+                  onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.ACCESS_KEY_ID)}
                 />
 
                 <InputText
                   name="applicationId"
                   label={t('admin:components.setting.applicationId')}
                   value={sms?.applicationId || ''}
-                  handleInputChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.APPLICATION_ID)}
+                  onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.APPLICATION_ID)}
                 />
 
                 <InputText
                   name="region"
                   label={t('admin:components.setting.region')}
                   value={sms?.region || ''}
-                  handleInputChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.REGION)}
+                  onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.REGION)}
                 />
 
                 <InputText
                   name="senderId"
                   label={t('admin:components.setting.senderId')}
                   value={sms?.senderId || ''}
-                  handleInputChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.SENDER_ID)}
+                  onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.SENDER_ID)}
                 />
 
                 <InputText
                   name="secretAccessKey"
                   label={t('admin:components.setting.secretAccessKey')}
                   value={sms?.secretAccessKey || ''}
-                  handleInputChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.SECRET_ACCESS_KEY)}
+                  onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.SECRET_ACCESS_KEY)}
                 />
               </Paper>
             </Grid>

@@ -174,7 +174,7 @@ const UpdateBot = (props: Props) => {
             label={t('admin:components.bot.name')}
             value={state.name}
             error={formErrors.name}
-            handleInputChange={handleInputChange}
+            onChange={handleInputChange}
           />
 
           <InputText
@@ -182,7 +182,7 @@ const UpdateBot = (props: Props) => {
             label={t('admin:components.bot.description')}
             value={state.description}
             error={formErrors.description}
-            handleInputChange={handleInputChange}
+            onChange={handleInputChange}
           />
 
           <InputSelect

@@ -34,7 +34,7 @@ const AddCommand = ({ command, handleChangeCommand, addCommandData, commandData,
             label={t('admin:components.bot:command')}
             placeholder={t('admin:components.bot:enterCommand')}
             value={command.name}
-            handleInputChange={handleChangeCommand}
+            onChange={handleChangeCommand}
           />
         </Grid>
         <Grid item xs={8}>
@@ -43,7 +43,7 @@ const AddCommand = ({ command, handleChangeCommand, addCommandData, commandData,
             label={t('admin:components.bot:description')}
             placeholder={t('admin:components.bot:enterDescription')}
             value={command.description ?? ''}
-            handleInputChange={handleChangeCommand}
+            onChange={handleChangeCommand}
           />
         </Grid>
       </Grid>

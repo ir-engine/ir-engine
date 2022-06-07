@@ -193,7 +193,7 @@ const CreateBot = () => {
           <InputText
             name="name"
             label={t('admin:components.bot.name')}
-            handleInputChange={handleInputChange}
+            onChange={handleInputChange}
             value={state.name}
             error={formErrors.name}
           />
@@ -203,7 +203,7 @@ const CreateBot = () => {
             label={t('admin:components.bot.description')}
             value={state.description}
             error={formErrors.description}
-            handleInputChange={handleInputChange}
+            onChange={handleInputChange}
           />
 
           <InputSelect

@@ -164,7 +164,7 @@ const CreateUser = (props: Props) => {
             label={t('admin:components.user.name')}
             value={state.name}
             error={state.formErrors.name}
-            handleInputChange={handleChange}
+            onChange={handleChange}
           />
           <InputSelect
             name="avatar"
@@ -172,7 +172,7 @@ const CreateUser = (props: Props) => {
             value={state.avatar}
             error={state.formErrors.avatar}
             menu={staticResourceMenu}
-            handleInputChange={handleChange}
+            onChange={handleChange}
           />
           <InputSelect
             name="userRole"
@@ -180,7 +180,7 @@ const CreateUser = (props: Props) => {
             value={state.userRole}
             error={state.formErrors.userRole}
             menu={userRoleData}
-            handleInputChange={handleChange}
+            onChange={handleChange}
           />
           <DialogContentText className={styles.mb15}>
             <span className={styles.select}>{t('admin:components.user.dontSeeUserRole')}</span>{' '}

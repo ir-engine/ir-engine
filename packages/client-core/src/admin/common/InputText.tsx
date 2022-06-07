@@ -15,20 +15,10 @@ interface Props {
   type?: string
   disabled?: boolean
   endAdornment?: React.ReactNode
-  handleInputChange?: (e: any) => void
+  onChange?: (e: any) => void
 }
 
-const InputText = ({
-  value,
-  name,
-  label,
-  placeholder,
-  error,
-  type,
-  disabled,
-  endAdornment,
-  handleInputChange
-}: Props) => {
+const InputText = ({ value, name, label, placeholder, error, type, disabled, endAdornment, onChange }: Props) => {
   return (
     <Box sx={{ mb: 2 }}>
       <TextField
@@ -42,7 +32,7 @@ const InputText = ({
         error={error ? true : false}
         disabled={disabled}
         size={'small'}
-        onChange={handleInputChange}
+        onChange={onChange}
         InputProps={{
           className: styles.input,
           endAdornment: endAdornment
