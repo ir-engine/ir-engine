@@ -1193,3 +1193,26 @@
 .tabpanelRoot {
   background-color: var(--panelCards);
 }
+
+.textField {
+  background: transparent;
+
+  :global(.MuiFormLabel-root) {
+    -webkit-text-fill-color: var(--textColor);
+    color: var(--textColor);
+    margin-left: 8px;
+  }
+
+  :global(.MuiInputBase-input) {
+    -webkit-text-fill-color: var(--textColor);
+    color: var(--textColor);
+  }
+
+  :global(.MuiInputBase-input.Mui-disabled) {
+    opacity: 0.5;
+  }
+
+  :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
+    border-color: var(--inputOutline);
+  }
+}
