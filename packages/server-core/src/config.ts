@@ -60,7 +60,7 @@ export const config = {
     // to set these appropriately for your network for the demo to
     // run anywhere but on 127.0.0.1
     webRtcTransport: {
-      listenIps: [{ ip: configFile.gameserver.hostname as string, announcedIp: null! as string }],
+      listenIps: [{ ip: configFile.instanceserver.hostname as string, announcedIp: null! as string }],
       initialAvailableOutgoingBitrate: 800000,
       maxIncomingBitrate: 150000
     }
@@ -71,8 +71,8 @@ export const localConfig = {
   httpPeerStale: 15000,
   mediasoup: {
     worker: {
-      rtcMinPort: configFile.gameserver.rtc_start_port,
-      rtcMaxPort: configFile.gameserver.rtc_end_port,
+      rtcMinPort: configFile.instanceserver.rtc_start_port,
+      rtcMaxPort: configFile.instanceserver.rtc_end_port,
       logLevel: 'info',
       logTags: ['info', 'ice', 'dtls', 'rtp', 'srtp', 'rtcp']
     },
@@ -119,7 +119,7 @@ export const localConfig = {
     // to set these appropriately for your network for the demo to
     // run anywhere but on 127.0.0.1
     webRtcTransport: {
-      listenIps: [{ ip: configFile.gameserver.hostname as string, announcedIp: null! as string }],
+      listenIps: [{ ip: configFile.instanceserver.hostname as string, announcedIp: null! as string }],
       initialAvailableOutgoingBitrate: 800000,
       maxIncomingBitrate: 150000
     }

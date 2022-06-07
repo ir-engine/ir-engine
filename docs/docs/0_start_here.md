@@ -59,7 +59,7 @@ changing any of the base repository code.
 ### common
 ### editor
 ### engine
-### gameserver
+### instanceserver
 ### matchmaking
 ### ops
 ### projects
