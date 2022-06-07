@@ -27,6 +27,7 @@
     "**/node_modules/**"
   ],
   "include": [
+    "../server-core/src/",
     "./**/*.ts",
     "./**/*.tsx",
     "../../PhysX.d.ts",
