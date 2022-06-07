@@ -4,7 +4,6 @@ import { AudioListener, PerspectiveCamera } from 'three'
 
 import { BotUserAgent } from '@xrengine/common/src/constants/BotUserAgent'
 import { addActionReceptor, dispatchAction, registerState } from '@xrengine/hyperflux'
-import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
@@ -244,10 +243,6 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./camera/systems/CameraSystem')
-      },
-      {
-        type: SystemUpdateType.FIXED,
-        systemModulePromise: import('./bot/systems/BotHookSystem')
       },
       {
         type: SystemUpdateType.FIXED,
