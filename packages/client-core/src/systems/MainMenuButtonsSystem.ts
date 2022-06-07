@@ -19,6 +19,8 @@ export default async function MainMenuButtonsSystem(world: World) {
 
   addComponent(ui.entity, PersistTagComponent, {})
 
+  ui.state.showButtons.set(MainMenuButtonState.showButtons.value)
+
   AvatarInputSchema.inputMap.set(GamepadButtons.X, BaseInput.TOGGLE_MENU_BUTTONS)
   AvatarInputSchema.inputMap.set('Escape', BaseInput.TOGGLE_MENU_BUTTONS)
   AvatarInputSchema.behaviorMap.set(BaseInput.TOGGLE_MENU_BUTTONS, (entity, inputKey, inputValue) => {
@@ -32,10 +34,6 @@ export default async function MainMenuButtonsSystem(world: World) {
 
   return () => {
     const xrui = getComponent(ui.entity, XRUIComponent)
-
-    ui.state.showButtons.set(MainMenuButtonState.showButtons.value)
-
-    console.log('Buttons', ui.entity, MainMenuButtonState.showButtons.value)
 
     if (xrui) {
       ObjectFitFunctions.attachObjectToHand(xrui.container, 1, 0.1)

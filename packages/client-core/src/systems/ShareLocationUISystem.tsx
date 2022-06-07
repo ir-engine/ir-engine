@@ -12,25 +12,21 @@ export default async function ShareLocationUISystem(world: World) {
   const ui = createShareLocationDetailView()
   const transitionPeriodSeconds = 1
 
-  // ui.container.then((container) => {
-  //   const el = container.containerElement as HTMLElement
-  //   // In this case, it's necessary to keep the element visible in the DOM,
-  //   // otherwise it will not receive text input; of course, we don't want to
-  //   // actually display the real DOM elmeent since we are rendering it in 3D,
-  //   // so we simply move it out the way
-  //   el.style.visibility = 'visible'
-  //   el.style.top = '-100000px'
-  //   ui.state.shareMenuOpen.set(MainMenuButtonState.shareMenuOpen.value)
-  // })
+  ui.container.then((container) => {
+    const el = container.containerElement as HTMLElement
+    // In this case, it's necessary to keep the element visible in the DOM,
+    // otherwise it will not receive text input; of course, we don't want to
+    // actually display the real DOM elmeent since we are rendering it in 3D,
+    // so we simply move it out the way
+    el.style.visibility = 'visible'
+    el.style.top = '-100000px'
+    ui.state.shareMenuOpen.set(MainMenuButtonState.shareMenuOpen.value)
+  })
 
   addComponent(ui.entity, PersistTagComponent, {})
 
   return () => {
     const xrui = getComponent(ui.entity, XRUIComponent)
-
-    ui.state.shareMenuOpen.set(MainMenuButtonState.shareMenuOpen.value)
-
-    console.log('Share', ui.entity, MainMenuButtonState.shareMenuOpen.value)
 
     if (xrui) {
       const rootLayerElement = xrui.container.rootLayer.element
