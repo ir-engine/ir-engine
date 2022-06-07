@@ -1,41 +1,55 @@
-import { createState, useState } from '@speigg/hookstate'
+import { useState } from '@speigg/hookstate'
+
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import {
+  addActionReceptor,
+  defineAction,
+  defineState,
+  dispatchAction,
+  getState,
+  registerState
+} from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
 
 //State
-const state = createState({
-  videos: [] as Array<PublicVideo>,
-  error: ''
+const VideoState = defineState({
+  name: 'VideoState',
+  initial: () => ({
+    videos: [] as Array<PublicVideo>,
+    error: ''
+  })
 })
 
-store.receptors.push((action: VideoActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'VIDEOS_FETCHED_SUCCESS': {
-        // combine existing videos with new videos given in action
-        const currentVideos = state.videos.value
-        const bothVideoSets = [...currentVideos, ...action.videos]
-        const uniqueVideos = Array.from(new Set(bothVideoSets.map((a) => a.id))).map((id) => {
-          return bothVideoSets.find((a) => a.id === id)!
+export const registerVideoServiceActions = () => {
+  registerState(VideoState)
+
+  addActionReceptor(function VideoServiceReceptor(action) {
+    getState(VideoState).batch((s) => {
+      matches(action)
+        .when(VideoAction.videosFetchedSuccessAction.matches, (action) => {
+          // combine existing videos with new videos given in action
+          const currentVideos = getState(VideoState).videos.value
+          const bothVideoSets = [...currentVideos, ...action.videos]
+          const uniqueVideos = Array.from(new Set(bothVideoSets.map((a) => a.id))).map((id) => {
+            return bothVideoSets.find((a) => a.id === id)!
+          })
+          return s.merge({ videos: uniqueVideos })
         })
-        return s.merge({ videos: uniqueVideos })
-      }
-      case 'VIDEOS_FETCHED_ERROR':
-        return s.merge({ error: action.message })
-    }
-  }, action.type)
-})
+        .when(VideoAction.videosFetchedErrorAction.matches, (action) => {
+          return s.merge({ error: action.message })
+        })
+    })
+  })
+}
 
-export const accessVideoState = () => state
+export const accessVideoState = () => getState(VideoState)
 
-export const useVideoState = () => useState(state) as any as typeof state
+export const useVideoState = () => useState(accessVideoState()) as any as typeof VideoState
 
 //Service
 export const VideoService = {
   fetchPublicVideos: async (pageOffset = 0) => {
-    const dispatch = useDispatch()
-
     // loads next pages videos +1
     // doesn't work with a lower number
     // must load next page and at least 1 video of page after that
@@ -49,9 +63,9 @@ export const VideoService = {
           video.metadata = JSON.parse(video.metadata)
         }
         const videos = res.data as PublicVideo[]
-        return dispatch(VideoAction.videosFetchedSuccess(videos))
+        return dispatchAction(VideoAction.videosFetchedSuccessAction({ videos }))
       })
-      .catch(() => dispatch(VideoAction.videosFetchedError('Failed to fetch videos')))
+      .catch(() => dispatchAction(VideoAction.videosFetchedErrorAction({ message: 'Failed to fetch videos' })))
   }
 }
 
@@ -89,19 +103,16 @@ export interface UploadAction {
   message?: string
 }
 
-export const VideoAction = {
-  videosFetchedSuccess: (videos: PublicVideo[]) => {
-    return {
-      type: 'VIDEOS_FETCHED_SUCCESS' as const,
-      videos: videos
-    }
-  },
-  videosFetchedError: (err: string) => {
-    return {
-      type: 'VIDEOS_FETCHED_ERROR' as const,
-      message: err
-    }
-  }
-}
+export class VideoAction {
+  static videosFetchedSuccessAction = defineAction({
+    store: 'ENGINE',
+    type: 'VIDEOS_FETCHED_SUCCESS' as const,
+    videos: matches.array as Validator<unknown, PublicVideo[]>
+  })
 
-export type VideoActionType = ReturnType<typeof VideoAction[keyof typeof VideoAction]>
+  static videosFetchedErrorAction = defineAction({
+    store: 'ENGINE',
+    type: 'VIDEOS_FETCHED_ERROR' as const,
+    message: matches.string
+  })
+}

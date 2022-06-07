@@ -15,7 +15,6 @@ import {
 } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
 
 //State
 const UserState = defineState({
@@ -105,6 +104,8 @@ export const registerUserServiceActions = () => {
     })
   })
 }
+
+registerUserServiceActions()
 
 export const accessUserState = () => getState(UserState)
 export const useUserState = () => useState(accessUserState()) as any as typeof UserState as unknown as typeof UserState
