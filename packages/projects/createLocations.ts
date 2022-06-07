@@ -6,18 +6,6 @@ import { v4 as generateUUID } from 'uuid'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 import { Application } from '@xrengine/server-core/declarations'
 
-const locationSettingsSeed = {
-  randomize: false,
-  path: 'location-settings',
-  templates: [] as any
-}
-
-const locationSeed = {
-  randomize: false,
-  path: 'location',
-  templates: [] as any
-}
-
 function toCapitalCase(str: string) {
   return str
     .split(' ')
