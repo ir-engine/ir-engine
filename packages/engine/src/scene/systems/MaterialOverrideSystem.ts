@@ -1,16 +1,10 @@
 import { Material, Mesh } from 'three'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getAllComponentsOfType, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { assignMaterial, MaterialParms } from '../../renderer/materials/MaterialParms'
-import UpdateableObject3D from '../classes/UpdateableObject3D'
-import { ImageComponent } from '../components/ImageComponent'
 import { MaterialOverrideComponent, MaterialOverrideComponentType } from '../components/MaterialOverrideComponent'
-import { ModelComponent } from '../components/ModelComponent'
-import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
-import { updateImage } from '../functions/loaders/ImageFunctions'
 
 export type MatRend = {
   mesh: Mesh

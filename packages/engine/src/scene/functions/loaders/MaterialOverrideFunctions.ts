@@ -25,8 +25,7 @@ export function initializeOverride(target: Entity, override: MaterialOverrideCom
       await Promise.all(
         Object.entries(nuOR.args).map(async ([k, v], idx) => {
           if (typeof v === 'string' && AssetLoader.getAssetClass(v) === AssetClass.Image) {
-            //const nuTxr = await AssetLoader.loadAsync(v) as Texture
-            const nuTxr = await new TextureLoader().loadAsync(v)
+            const nuTxr = (await AssetLoader.loadAsync(v)) as Texture
             nuOR.args[k] = nuTxr
           }
         })
