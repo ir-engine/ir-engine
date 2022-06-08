@@ -149,7 +149,7 @@ would be registering custom scene loader and editor prefabs.
 
 The `services` property is a relative path that points to a file which must 
 return type `((app: Application) => Promise<any>)[]` which is run on all 
-gameservers and api servers at startup. This allows users to expose custom 
+instanceservers and api servers at startup. This allows users to expose custom 
 Feathers services, or whatever other functionality they made need.
 
 ### Database Seeding

@@ -15,7 +15,7 @@ Chrome sometimes does not show a clickable option on the warning. If so, just
 type ```badidea``` or ```thisisunsafe``` when on that page. You don't enter that into the
 address bar or into a text box, Chrome is just passively listening for those commands.
 
-### Allow gameserver address connection via installing local Certificate Authority
+### Allow instanceserver address connection via installing local Certificate Authority
 For more detailed instructions check: https://github.com/FiloSottile/mkcert
 
 Short version (common for development process on Ubuntu):
@@ -33,9 +33,9 @@ red errors that say something like
 ```GET https://127.0.0.1:3030/socket.io/?EIO=3&transport=polling&t=NXlZLTa net::ERR_CERT_AUTHORITY_INVALID```,
 then right-click that URL, then select 'Open in new tab', and accept the invalid certificate.
 
-### Allow gameserver address connection with invalid certificate
+### Allow instanceserver address connection with invalid certificate
 
-The gameserver functionality is hosted on an address other than 127.0.0.1 in the local
+The instanceserver functionality is hosted on an address other than 127.0.0.1 in the local
 environment. Accepting an invalid certificate for 127.0.0.1 will not apply to this address.
 Open the dev console for Chrome/Firefox by pressing ```Ctrl+Shift+i``` simultaneously, and
 go to the Console or Network tabs. 
@@ -79,7 +79,7 @@ instead of ```https://127.0.0.1:3000```
 
 Try typing ```“thisisunsafe”``` or ```"iknowwhatiamdoing"``` then reload page
 
-### Gameserver or resource loading error?
+### Instanceserver or resource loading error?
 Open dev console, click on the GET link in new tab and  accept certificate by 
 typing ```thisisunsafe”``` or ```"iknowwhatiamdoing"``` then reload original page
 
