@@ -39,7 +39,7 @@
     "worldStore": "World Store",
     "engineStore": "Engine Store",
     "namedEntities": "Named Entities",
-    "networkObject": "Network Object",
+    "networks": "Networks",
     "networkClients": "Network Clients"
   },
   "recording": {
