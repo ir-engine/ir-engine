@@ -1,27 +1,26 @@
-// spawnPose is temporary - just so portals work for now - will be removed in favor of gameserver-gameserver communication
+// spawnPose is temporary - just so portals work for now - will be removed in favor of instanceserver-instanceserver communication
 import { Quaternion, Vector3 } from 'three'
 
 import { dispatchAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
-import { performance } from '../../common/functions/performance'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { AvatarProps } from '../interfaces/WorldState'
-import { NetworkWorldAction } from './NetworkWorldAction'
+import { WorldNetworkAction } from './WorldNetworkAction'
 
 export type JoinWorldProps = {
   highResTimeOrigin: number
   worldStartTime: number
   client: { name: string; index: number }
-  cachedActions: Required<Action<any>>[]
+  cachedActions: Required<Action>[]
   avatarDetail: AvatarProps
   avatarSpawnPose: { position: Vector3; rotation: Quaternion }
 }
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
   if (!props) {
-    dispatchAction(Engine.instance.store, EngineActions.connectToWorldTimeout({ instance: true }))
+    dispatchAction(EngineActions.connectToWorldTimeout({ instance: true }))
     return
   }
   const { highResTimeOrigin, worldStartTime, client, cachedActions, avatarDetail, avatarSpawnPose } = props
@@ -34,10 +33,8 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
     avatarDetail,
     avatarSpawnPose
   )
-  dispatchAction(Engine.instance.store, EngineActions.joinedWorld())
+  dispatchAction(EngineActions.joinedWorld())
   const world = Engine.instance.currentWorld
-
-  world.startTime = highResTimeOrigin - performance.timeOrigin + worldStartTime
 
   const engineState = getEngineState()
 
@@ -48,10 +45,9 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
       }
     : avatarSpawnPose
 
-  for (const action of cachedActions)
-    Engine.instance.currentWorld.store.actions.incoming.push({ ...action, $fromCache: true })
+  for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
-  dispatchAction(world.store, NetworkWorldAction.createClient(client))
-  dispatchAction(world.store, NetworkWorldAction.spawnAvatar({ parameters: spawnPose }))
-  dispatchAction(world.store, NetworkWorldAction.avatarDetails({ avatarDetail }))
+  dispatchAction(WorldNetworkAction.createClient(client), [world.worldNetwork.hostId])
+  dispatchAction(WorldNetworkAction.spawnAvatar({ parameters: spawnPose }), [world.worldNetwork.hostId])
+  dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }), [world.worldNetwork.hostId])
 }

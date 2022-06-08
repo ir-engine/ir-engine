@@ -10,7 +10,7 @@ import { EditorHelperAction } from '../services/EditorHelperState'
 import { ActionSets, EditorMapping, FlyMapping } from './input-mappings'
 
 export function enterPlayMode(): void {
-  executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
+  executeCommandWithHistory({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
   Engine.instance.currentWorld.camera.layers.set(ObjectLayers.Scene)
 
   EngineRenderer.instance.renderer.domElement.addEventListener('click', onClickCanvas)

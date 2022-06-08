@@ -61,7 +61,7 @@
       "col-userRole": "User Role",
       "col-partyId": "Party ID",
       "col-ip": "IP address",
-      "col-gameserverID": "Gameserver ID",
+      "col-instanceserverID": "Instanceserver ID",
       "col-publicAddress": "Public address",
       "col-currentUsers": "Current # of Users",
       "col-locationId": "Location ID",
@@ -289,7 +289,7 @@
       "group": "group",
       "party": "Party",
       "smsNameCharLimit": "SMS Name Character Limit",
-      "gameServer": "GAME SERVER",
+      "instanceServer": "INSTANCE SERVER",
       "clientHost": "Client Host",
       "rtcStartPort": "rtc_start_port",
       "rtcEndPort": "rtc_end_port",
@@ -315,7 +315,7 @@
       "githubPrivateKey": "Github Private Key",
       "project": "PROJECT",
       "selectProject": "Select Project",
-      "patchGameserver": "Patch Gameserver"
+      "patchInstanceserver": "Patch Instanceserver"
     },
     "avatar": {
       "fillRequiredFields": "Please fill all required field",
@@ -347,8 +347,9 @@
       "updatePersonalInfo": "Update personal Information",
       "name": "Name",
       "avatar": "Avatar",
+      "role": "Role",
       "selectAvatar": "Select avatar",
-      "userRole": "User role",
+      "userRole": "User Role",
       "grantScope": "Grant Scope",
       "personalInfo": "Personal Information",
       "location": "Location",

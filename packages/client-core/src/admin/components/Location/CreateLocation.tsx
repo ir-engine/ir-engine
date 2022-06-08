@@ -17,7 +17,6 @@ import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
 import Switch from '@mui/material/Switch'
 
-import { useAlertState } from '../../../common/services/AlertService'
 import AlertMessage from '../../common/AlertMessage'
 import { validateForm } from '../../common/validation/formValidation'
 import { LocationService, useLocationState } from '../../services/LocationService'
@@ -59,9 +58,6 @@ const CreateLocation = (props: Props) => {
   const locationTypes = adminLocationState.locationTypes
   const location = adminLocationState
   const adminScenes = useSceneState().scenes
-  const alertState = useAlertState()
-  const errorType = alertState.type
-  const errorMessage = alertState.message
 
   const clearState = () => {
     setState({
@@ -86,16 +82,6 @@ const CreateLocation = (props: Props) => {
       clearState()
     }
   }, [location.created])
-
-  React.useEffect(() => {
-    if (errorType.value === 'error') {
-      setError(errorMessage.value)
-      setOpenWarning(true)
-      setTimeout(() => {
-        setOpenWarning(false)
-      }, 5000)
-    }
-  }, [errorType, errorMessage])
 
   const handleCloseWarning = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {

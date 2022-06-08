@@ -15,10 +15,10 @@ import { resolveUser, resolveWalletUser, User, UserSeed, UserSetting } from '@xr
 import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { AlertService } from '../../common/services/AlertService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { accessLocationState } from '../../social/services/LocationService'
 import { accessPartyState } from '../../social/services/PartyService'
@@ -256,7 +256,7 @@ export const AuthService = {
         dispatch(AuthAction.loadedUserData(user))
       })
       .catch((err: any) => {
-        AlertService.dispatchAlertError(new Error(i18n.t('common:error.loading-error')))
+        NotificationService.dispatchNotify(i18n.t('common:error.loading-error'), { variant: 'error' })
       })
   },
   loginUserByPassword: async (form: EmailLoginForm) => {
@@ -264,7 +264,9 @@ export const AuthService = {
 
     // check email validation.
     if (!validateEmail(form.email)) {
-      AlertService.dispatchAlertError(new Error(i18n.t('common:error.validation-error', { type: 'email address' })))
+      NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'email address' }), {
+        variant: 'error'
+      })
 
       return
     }
@@ -292,7 +294,7 @@ export const AuthService = {
       })
       .catch((err: any) => {
         dispatch(AuthAction.loginUserError(i18n.t('common:error.login-error')))
-        AlertService.dispatchAlertError(err)
+        NotificationService.dispatchNotify(err.message, { variant: 'error' })
       })
       .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
@@ -315,7 +317,7 @@ export const AuthService = {
       dispatch(AuthAction.loadedUserData(walletUser))
     } catch (err) {
       dispatch(AuthAction.loginUserError(i18n.t('common:error.login-error')))
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     } finally {
       dispatch(AuthAction.actionProcessing(false))
     }
@@ -353,7 +355,7 @@ export const AuthService = {
       window.location.href = redirectSuccess
     } catch (err) {
       dispatch(AuthAction.loginUserError(i18n.t('common:error.login-error')))
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
       window.location.href = `${redirectError}?error=${err.message}`
       dispatch(AuthAction.actionProcessing(false))
     }
@@ -363,7 +365,7 @@ export const AuthService = {
       const res = await client.service('login').get(token)
       await AuthService.loginUserByJwt(res.token, '/', '/')
     } catch (err) {
-      AlertService.alertError(err.message)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     } finally {
       window.location.href = redirectSuccess
     }
@@ -399,7 +401,7 @@ export const AuthService = {
       .catch((err: any) => {
         console.log('error', err)
         dispatch(AuthAction.registerUserByEmailError(err.message))
-        AlertService.dispatchAlertError(err)
+        NotificationService.dispatchNotify(err.message, { variant: 'error' })
       })
       .finally(() => {
         console.log('4 finally', dispatch)
@@ -423,7 +425,7 @@ export const AuthService = {
       })
       .catch((err: any) => {
         dispatch(AuthAction.didVerifyEmail(false))
-        AlertService.dispatchAlertError(err)
+        NotificationService.dispatchNotify(err.message, { variant: 'error' })
       })
       .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
@@ -505,7 +507,9 @@ export const AuthService = {
       const stripped = emailPhone.replace(/-/g, '')
       if (validatePhoneNumber(stripped)) {
         if (!enableSmsMagicLink) {
-          AlertService.dispatchAlertError(new Error(i18n.t('common:error.validation-error', { type: 'email address' })))
+          NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'email address' }), {
+            variant: 'error'
+          })
 
           return
         }
@@ -514,15 +518,17 @@ export const AuthService = {
         emailPhone = '+1' + stripped
       } else if (validateEmail(emailPhone)) {
         if (!enableEmailMagicLink) {
-          AlertService.dispatchAlertError(new Error(i18n.t('common:error.validation-error', { type: 'phone number' })))
+          NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'phone number' }), {
+            variant: 'error'
+          })
 
           return
         }
         type = 'email'
       } else {
-        AlertService.dispatchAlertError(
-          new Error(i18n.t('common:error.validation-error', { type: 'email or phone number' }))
-        )
+        NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'email or phone number' }), {
+          variant: 'error'
+        })
 
         return
       }
@@ -537,11 +543,11 @@ export const AuthService = {
       .then((res: any) => {
         console.log(res)
         dispatch(AuthAction.didCreateMagicLink(true))
-        AlertService.dispatchAlertSuccess(i18n.t('user:auth.magiklink.success-msg'))
+        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.success-msg'), { variant: 'success' })
       })
       .catch((err: any) => {
         dispatch(AuthAction.didCreateMagicLink(false))
-        AlertService.dispatchAlertError(err)
+        NotificationService.dispatchNotify(err.message, { variant: 'error' })
       })
       .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
@@ -563,7 +569,7 @@ export const AuthService = {
         return AuthService.loadUserData(identityProvider.userId)
       })
       .catch((err: any) => {
-        AlertService.dispatchAlertError(err)
+        NotificationService.dispatchNotify(err.message, { variant: 'error' })
       })
       .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
@@ -581,12 +587,12 @@ export const AuthService = {
       .then((res: any) => {
         const identityProvider = res as IdentityProvider
         if (identityProvider.userId != null) {
-          AlertService.dispatchAlertSuccess(i18n.t('user:auth.magiklink.email-sent-msg'))
+          NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.email-sent-msg'), { variant: 'success' })
           return AuthService.loadUserData(identityProvider.userId)
         }
       })
       .catch((err: any) => {
-        AlertService.dispatchAlertError(err)
+        NotificationService.dispatchNotify(err.message, { variant: 'error' })
       })
       .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
@@ -610,12 +616,12 @@ export const AuthService = {
       .then((res: any) => {
         const identityProvider = res as IdentityProvider
         if (identityProvider.userId != null) {
-          AlertService.dispatchAlertSuccess(i18n.t('user:auth.magiklink.sms-sent-msg'))
+          NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.sms-sent-msg'), { variant: 'error' })
           return AuthService.loadUserData(identityProvider.userId)
         }
       })
       .catch((err: any) => {
-        AlertService.dispatchAlertError(err)
+        NotificationService.dispatchNotify(err.message, { variant: 'error' })
       })
       .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
@@ -637,7 +643,7 @@ export const AuthService = {
         return AuthService.loadUserData(userId)
       })
       .catch((err: any) => {
-        AlertService.dispatchAlertError(err)
+        NotificationService.dispatchNotify(err.message, { variant: 'error' })
       })
       .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
@@ -666,7 +672,7 @@ export const AuthService = {
       name: selfUser.name.value
     })
     const result = res.data
-    AlertService.dispatchAlertSuccess('Avatar updated')
+    NotificationService.dispatchNotify('Avatar updated', { variant: 'success' })
     dispatch(AuthAction.avatarUpdated(result))
   },
   uploadAvatarModel: async (avatar: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) => {
@@ -693,7 +699,7 @@ export const AuthService = {
         query: { keys }
       })
       .then((_) => {
-        AlertService.dispatchAlertSuccess(i18n.t('user:avatar.remove-success-msg'))
+        NotificationService.dispatchNotify(i18n.t('user:avatar.remove-success-msg'), { variant: 'success' })
         AuthService.fetchAvatarList()
       })
   },
@@ -722,7 +728,7 @@ export const AuthService = {
         name: name
       })
       .then((res: any) => {
-        AlertService.dispatchAlertSuccess(i18n.t('user:usermenu.profile.update-msg'))
+        NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
         dispatch(AuthAction.usernameUpdated(res))
       })
   },
@@ -739,13 +745,13 @@ export const AuthService = {
         // dispatchAlertSuccess(dispatch, 'User Avatar updated');
         dispatch(AuthAction.userAvatarIdUpdated(res.avatarId))
         dispatchAction(
-          world.store,
-          NetworkWorldAction.avatarDetails({
+          WorldNetworkAction.avatarDetails({
             avatarDetail: {
               avatarURL,
               thumbnailURL
             }
-          })
+          }),
+          [Engine.instance.currentWorld.worldNetwork.hostId]
         )
       })
   },

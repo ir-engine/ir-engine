@@ -44,7 +44,7 @@ import {
   unequipEntity
 } from '../interaction/functions/equippableFunctions'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
-import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
@@ -515,16 +515,13 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
   if (inputValue.lifecycleState !== LifecycleValue.Ended) return
   if (inputKey === PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE) {
     dispatchAction(
-      Engine.instance.currentWorld.store,
-      NetworkWorldAction.spawnDebugPhysicsObject({
+      WorldNetworkAction.spawnDebugPhysicsObject({
         config: boxDynamicConfig // Any custom config can be provided here
-      })
+      }),
+      [Engine.instance.currentWorld.worldNetwork.hostId]
     )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
-    dispatchAction(
-      Engine.instance.store,
-      EngineRendererAction.setPhysicsDebug(!accessEngineRendererState().physicsDebugEnable.value)
-    )
+    dispatchAction(EngineRendererAction.setPhysicsDebug(!accessEngineRendererState().physicsDebugEnable.value))
   }
 }
 

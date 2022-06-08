@@ -2,17 +2,19 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
 import { accessLocationState } from '../../social/services/LocationService'
 import { store, useDispatch } from '../../store'
-import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
+import { NetworkConnectionService } from './NetworkConnectionService'
 
 const logger = multiLogger.child({ component: 'client-core:service:media-instance' })
 
@@ -25,21 +27,23 @@ type InstanceState = {
   provisioned: boolean
   connected: boolean
   readyToConnect: boolean
-  updateNeeded: boolean
   connecting: boolean
 }
 
 //State
 const state = createState({
-  instances: {} as { [id: string]: InstanceState },
-  currentInstanceId: null as string | null
+  instances: {} as { [id: string]: InstanceState }
 })
 
 store.receptors.push((action: MediaLocationInstanceConnectionActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'MEDIA_INSTANCE_SERVER_PROVISIONED':
-        s.currentInstanceId.set(action.instanceId)
+        Engine.instance.currentWorld._mediaHostId = action.instanceId as UserId
+        Engine.instance.currentWorld.networks.set(
+          action.instanceId,
+          new SocketWebRTCClientNetwork(action.instanceId, NetworkTypes.media)
+        )
         return s.instances[action.instanceId].set({
           ipAddress: action.ipAddress,
           port: action.port,
@@ -48,7 +52,6 @@ store.receptors.push((action: MediaLocationInstanceConnectionActionType): any =>
           videoEnabled: false,
           provisioned: true,
           readyToConnect: true,
-          updateNeeded: true,
           connected: false,
           connecting: false
         })
@@ -58,7 +61,6 @@ store.receptors.push((action: MediaLocationInstanceConnectionActionType): any =>
         return s.instances[action.instanceId].merge({
           connected: true,
           connecting: false,
-          updateNeeded: false,
           readyToConnect: false
         })
       case 'MEDIA_INSTANCE_SERVER_VIDEO_ENABLED':
@@ -89,31 +91,28 @@ export const MediaInstanceConnectionService = {
     })
     if (provisionResult.ipAddress && provisionResult.port) {
       dispatch(
-        MediaLocationInstanceConnectionAction.serverProvisioned(
+        MediaInstanceConnectionAction.serverProvisioned(
           provisionResult,
           channelId,
           isWorldConnection ? 'instance' : 'channel'
         )
       )
     } else {
-      dispatchAction(
-        Engine.instance.store,
-        SocketWebRTCClientTransport.actions.noWorldServersAvailable({ instanceId: channelId! })
-      )
+      dispatchAction(NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: channelId! ?? '' }))
     }
   },
   connectToServer: async (instanceId: string, channelId: string) => {
     const dispatch = useDispatch()
-    dispatch(MediaLocationInstanceConnectionAction.serverConnecting(instanceId))
+    dispatch(MediaInstanceConnectionAction.serverConnecting(instanceId))
     const authState = accessAuthState()
     const user = authState.user.value
     const { ipAddress, port } = accessMediaInstanceConnectionState().instances.value[instanceId]
 
-    const transport = Network.instance.getTransport('media') as SocketWebRTCClientTransport
-    logger.info({ socket: !!transport.socket, transport }, 'Connect To Media Server.')
-    if (transport.socket) {
-      await endVideoChat(transport, { endConsumers: true })
-      await leave(transport, false)
+    const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    logger.info({ socket: !!network.socket, network }, 'Connect To Media Server.')
+    if (network.socket) {
+      await endVideoChat(network, { endConsumers: true })
+      await leaveNetwork(network, false)
     }
 
     const locationState = accessLocationState()
@@ -121,7 +120,7 @@ export const MediaInstanceConnectionService = {
     const sceneId = currentLocation?.sceneId?.value
 
     dispatch(
-      MediaLocationInstanceConnectionAction.enableVideo(
+      MediaInstanceConnectionAction.enableVideo(
         instanceId,
         currentLocation?.locationSetting?.videoEnabled?.value === true ||
           !(
@@ -132,12 +131,12 @@ export const MediaInstanceConnectionService = {
       )
     )
 
-    await transport.initialize({ sceneId, port, ipAddress, instanceId, channelId })
-    transport.left = false
+    await network.initialize({ sceneId, port, ipAddress, channelId })
+    network.left = false
   },
   resetServer: (instanceId: string) => {
     const dispatch = useDispatch()
-    dispatch(MediaLocationInstanceConnectionAction.disconnect(instanceId))
+    dispatch(MediaInstanceConnectionAction.disconnect(instanceId))
   }
 }
 
@@ -145,13 +144,13 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('instance-provision').on('created', (params) => {
     if (params.channelId != null) {
       const dispatch = useDispatch()
-      dispatch(MediaLocationInstanceConnectionAction.serverProvisioned(params, params.channelId))
+      dispatch(MediaInstanceConnectionAction.serverProvisioned(params, params.channelId))
     }
   })
 }
 
 //Action
-export const MediaLocationInstanceConnectionAction = {
+export const MediaInstanceConnectionAction = {
   serverProvisioned: (
     provisionResult: InstanceServerProvisionResult,
     channelId?: string,
@@ -194,5 +193,5 @@ export const MediaLocationInstanceConnectionAction = {
 }
 
 export type MediaLocationInstanceConnectionActionType = ReturnType<
-  typeof MediaLocationInstanceConnectionAction[keyof typeof MediaLocationInstanceConnectionAction]
+  typeof MediaInstanceConnectionAction[keyof typeof MediaInstanceConnectionAction]
 >

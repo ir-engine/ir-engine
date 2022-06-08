@@ -1,7 +1,11 @@
 import { Box3, Frustum, Matrix4, Mesh, Vector3 } from 'three'
 
+import { getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { interactiveReachDistance } from '../../avatar/functions/getInteractiveIsInReachDistance'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
@@ -35,7 +39,7 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]) => {
   const interactor = getComponent(entity, InteractorComponent)
   const transform = getComponent(entity, TransformComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
-
+  const availableInteractable = getEngineState().availableInteractable.value
   if (!controller) return
 
   if (!interactor) return
@@ -85,7 +89,13 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]) => {
     if (!interactor.subFocusedArray.includes(focussed)) {
       interactor.subFocusedArray.unshift(focussed)
     }
+    if (!availableInteractable) {
+      dispatchAction(EngineActions.availableInteractable({ availableInteractable: focussed }))
+    }
   } else {
     interactor.focusedInteractive = null
+    if (availableInteractable) {
+      dispatchAction(EngineActions.availableInteractable({ availableInteractable: null }))
+    }
   }
 }

@@ -100,7 +100,7 @@
   }
 
   .chat-view {
-    border-radius: 40px;
+    border-radius: 24px;
     background: transparent;
   }
 
@@ -118,7 +118,7 @@
     display: flex;
     flex-direction: row-reverse;
     width: auto;
-    align-items: center;
+    align-items: end;
     justify-content: space-between;
     transition: all 0.2s;
 
@@ -172,7 +172,7 @@
 
     .messageFieldContainer {
       margin: 0;
-      padding: 0 55px 0 20px;
+      padding: 0 5px 0 20px;
 
       label {
         padding-left: 20px;
@@ -201,6 +201,23 @@
       :global(.MuiInput-underline::before),
       :global(.MuiInput-underline::after) {
         border-bottom: none;
+      }
+
+      :global(.MuiInputBase-root) {
+        align-items: baseline;
+      }
+
+      .sendButton {
+        color: var(--textColor);
+        background: var(--iconButtonBackground);
+        padding: 0 0 0 3px;
+        width: 36px;
+        height: 36px;
+        justify-content: center;
+        align-items: center;
+
+        &:hover,
+        &:focus-visible { background: var(--iconButtonHoverColor); }
       }
     }
 
@@ -385,12 +402,12 @@
 }
 
 .animateTop {
-  animation: moveBottom 0.4s ease 0.4s;
+  animation: moveBottom 4s ease 4s;
   animation-fill-mode: backwards;
 }
 
 .animateLeft {
-  animation: moveLeft 0.4s ease 0.4s;
+  animation: moveLeft 4s ease 4s;
   animation-fill-mode: backwards;
 }
 
@@ -414,20 +431,32 @@
 
 @keyframes moveLeft {
   0% {
-    transform: translateX(-20rem);
+    flex-direction: row;
   }
 
   100% {
-    transform: translate(0);
+    flex-direction: row;
   }
 }
 
 @keyframes moveBottom {
   0% {
-    transform: translateY(-81vh);
+    top: -40px;
+  }
+
+  25% {
+    top: -30px;
+  }
+
+  50% {
+    top: -20px;
+  }
+
+  75% {
+    top: -10px;
   }
 
   100% {
-    transform: translate(0);
+    top: 0;
   }
 }

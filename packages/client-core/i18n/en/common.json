@@ -9,9 +9,6 @@
     "joined": "joined",
     "left": "left"
   },
-  "navUserWidget": {
-    "login": "Log In"
-  },
   "loader": {
     "connecting": "Connecting to world...",
     "entering": "Entering world...",
@@ -58,7 +55,7 @@
     "stopRecording": "Stop recording"
   },
   "typing": "Typing...",
-  "gameServer": {
+  "instanceServer": {
     "browserError": "Browser Error",
     "browserErrorMessage": "Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode.",
     "noAvailableServers": "No Available Servers",

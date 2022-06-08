@@ -1,7 +1,9 @@
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
-export default async function IncomingActionSystem(world) {
+import { World } from '../../ecs/classes/World'
+
+export default async function IncomingActionSystem(world: World) {
   return () => {
-    applyIncomingActions(world.store)
+    applyIncomingActions()
   }
 }

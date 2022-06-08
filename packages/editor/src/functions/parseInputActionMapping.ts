@@ -1,4 +1,4 @@
-import Mousetrap from 'mousetrap'
+import * as Mousetrap from 'mousetrap'
 
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
@@ -7,44 +7,47 @@ import { ActionKey, ActionSets, ActionState, InputActionMapping, InputMapping } 
 import { SceneState } from './sceneRenderFunctions'
 
 const _globalCallbacks = {}
-const _originalStopCallback = Mousetrap.prototype.stopCallback
+const _originalStopCallback = Mousetrap.prototype?.stopCallback
 
-Mousetrap.prototype.stopCallback = function (e, element, combo, sequence) {
-  const self = this
-  if (self.paused) {
-    return true
-  }
-  if (_globalCallbacks[combo] || _globalCallbacks[sequence]) {
-    return false
-  }
-  return _originalStopCallback.call(self, e, element, combo)
-}
-
-Mousetrap.prototype.bindGlobal = function (keys, callback, action) {
-  const self = this
-  self.bind(keys, callback, action)
-  if (keys instanceof Array) {
-    for (let i = 0; i < keys.length; i++) {
-      _globalCallbacks[keys[i]] = true
+// TODO: Need to check for tests to be passed
+if (Mousetrap.prototype) {
+  Mousetrap.prototype.stopCallback = function (e, element, combo, sequence) {
+    const self = this
+    if (self.paused) {
+      return true
     }
-    return
-  }
-  _globalCallbacks[keys] = true
-}
-
-Mousetrap.prototype.unbindGlobal = function (keys, callback, action) {
-  const self = this
-  self.unbind(keys, callback, action)
-  if (keys instanceof Array) {
-    for (let i = 0; i < keys.length; i++) {
-      delete _globalCallbacks[keys[i]]
+    if (_globalCallbacks[combo] || _globalCallbacks[sequence]) {
+      return false
     }
-    return
+    return _originalStopCallback.call(self, e, element, combo)
   }
-  delete _globalCallbacks[keys]
-}
 
-Mousetrap.init()
+  Mousetrap.prototype.bindGlobal = function (keys, callback, action) {
+    const self = this
+    self.bind(keys, callback, action)
+    if (keys instanceof Array) {
+      for (let i = 0; i < keys.length; i++) {
+        _globalCallbacks[keys[i]] = true
+      }
+      return
+    }
+    _globalCallbacks[keys] = true
+  }
+
+  Mousetrap.prototype.unbindGlobal = function (keys, callback, action) {
+    const self = this
+    self.unbind(keys, callback, action)
+    if (keys instanceof Array) {
+      for (let i = 0; i < keys.length; i++) {
+        delete _globalCallbacks[keys[i]]
+      }
+      return
+    }
+    delete _globalCallbacks[keys]
+  }
+
+  Mousetrap.init?.()
+}
 
 function mergeMappings(mappings: Map<ActionSets, InputActionMapping>): InputActionMapping {
   const output = {

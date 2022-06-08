@@ -35,7 +35,7 @@ const matchesUserId = matches.string as Validator<unknown, UserId>
 const matchesNetworkId = matches.number as Validator<unknown, NetworkId>
 
 const matchesHost = matches.guard<unknown, UserId | undefined>(($from): $from is UserId => {
-  return $from === Engine.instance.currentWorld.hostId
+  return $from === Engine.instance.currentWorld.worldNetwork.hostId
 })
 
 const matchesActionFromUser = (userId: UserId) => {

@@ -38,7 +38,7 @@
   "scripts": {
     "build-publish": "lerna run build-publish --parallel",
     "build-client": "cd packages/client && npm run build",
-    "check": "npm run lint && npm run check-errors && npm run test && npm run build-client",
+    "check": "npm run lint && npm run check-errors && npm run test && npm run test-e2e && npm run build-client",
     "check-db-exists": "cross-env ts-node --transpile-only scripts/check-db-exists.ts",
     "check-db-exists-only": "cross-env ts-node --transpile-only scripts/check-db-exists-only.ts",
     "check-errors": "lerna run check-errors --parallel",
@@ -61,7 +61,7 @@
     "init-db-production": "cross-env APP_ENV=production FORCE_DB_REFRESH=true EXIT_ON_DB_INIT=true ts-node --transpile-only packages/server/src/index.ts",
     "install-projects": "ts-node scripts/install-projects.js",
     "lint": "prettier --check \"packages/**/*.{ts,tsx}\"",
-    "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true concurrently -n agones,server,gameserver,mediaserver,client,files npm:dev-agones-silent \"cd packages/server && npm run start\" \"cd packages/gameserver && npm run start\" \"cd packages/gameserver && npm run start-channel\" \"cd packages/client && npm run local\" \"cd packages/server && npm run serve-local-files\"",
+    "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true LOCAL=true concurrently -n agones,server,instanceserver,mediaserver,client,files npm:dev-agones-silent \"cd packages/server && npm run start\" \"cd packages/isntanceserver && npm run start\" \"cd packages/instanceserver && npm run start-channel\" \"cd packages/client && npm run local\" \"cd packages/server && npm run serve-local-files\"",
     "make-user-admin": "ts-node scripts/make-user-admin.js",
     "precommit": "no-master-commits -b master",
     "prepare-database": "cross-env APP_ENV=production PREPARE_DATABASE=true EXIT_ON_DB_INIT=true ts-node --transpile-only packages/server/src/index.ts",

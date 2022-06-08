@@ -19,6 +19,8 @@ import {
   Vector3
 } from 'three'
 
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { AnimationManager } from '../../avatar/AnimationManager'
@@ -29,13 +31,13 @@ import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
+import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { Updatable } from '../../scene/interfaces/Updatable'
-import { AnimationState } from '../animation/AnimationState'
-import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
+import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import avatarBoneMatching, { BoneStructure, createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
@@ -62,8 +64,17 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   parent.add(root)
   parent.userData = scene.userData
 
-  // Enable shadow for avatars
-  parent.traverse((obj) => (obj.castShadow = true))
+  scene.traverse((obj) => {
+    //TODO: To avoid the changes of the source material
+    if (obj.material && obj.material.clone) {
+      obj.material = obj.material.clone()
+      //TODO: to fix alphablend issue of some models (mostly fbx converted models)
+      obj.material.depthWrite = true
+      obj.material.depthTest = true
+    }
+    // Enable shadow for avatars
+    obj.castShadow = true
+  })
   return SkeletonUtils.clone(parent)
 }
 
@@ -87,7 +98,7 @@ export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
   setupAvatarModel(entity)(model)
   setupAvatarHeight(entity, model)
 
-  const avatarMaterials = setupAvatarMaterials(model)
+  const avatarMaterials = setupAvatarMaterials(entity, model)
 
   // Materials only load on the client currently
   if (isClient) {
@@ -163,8 +174,7 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
   animationComponent.mixer = new AnimationMixer(sourceSkeleton.bones[0])
 
   if (avatarAnimationComponent)
-    (avatarAnimationComponent.animationGraph as AvatarAnimationGraph).initialize(
-      entity,
+    avatarAnimationComponent.animationGraph = createAvatarAnimationGraph(
       animationComponent.mixer,
       velocityComponent.linear,
       controllerComponent ?? {}
@@ -185,7 +195,7 @@ export const animateModel = (entity: Entity) => {
     .play()
 }
 
-export const setupAvatarMaterials = (root) => {
+export const setupAvatarMaterials = (entity, root) => {
   const materialList: Array<MaterialMap> = []
 
   setObjectLayers(root, ObjectLayers.Avatar)
@@ -193,7 +203,10 @@ export const setupAvatarMaterials = (root) => {
     if (object.isBone) object.visible = false
     if (object.material && object.material.clone) {
       const material = object.material.clone()
-      setupHeadDecap(root, material)
+      // If local player's avatar
+      if (entity === Engine.instance.currentWorld.localClientEntity) {
+        setupHeadDecap(root, material)
+      }
       materialList.push({
         id: object.uuid,
         material: material

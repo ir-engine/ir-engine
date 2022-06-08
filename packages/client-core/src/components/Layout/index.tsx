@@ -1,7 +1,5 @@
-import React, { Suspense, useCallback, useEffect, useState } from 'react'
-import { FullScreen, useFullScreenHandle } from 'react-full-screen'
+import React, { Suspense, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
-import { useLocation } from 'react-router-dom'
 
 import {
   ClientSettingService,
@@ -11,10 +9,7 @@ import {
   CoilSettingService,
   useCoilSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
-import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
-import UserToast from '@xrengine/client-core/src/common/components/Toast/UserToast'
-import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
@@ -24,23 +19,16 @@ import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp'
-import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
 
 import { useLoadingSystemState } from '../../systems/state/LoadingState'
 import Debug from '../Debug'
 import InstanceChat from '../InstanceChat'
-import Me from '../Me'
 import MediaIconsBox from '../MediaIconsBox'
 import PartyVideoWindows from '../PartyVideoWindows'
 import { useFullscreen } from '../useFullscreen'
 import styles from './index.module.scss'
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
-
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
 
 interface Props {
   useLoadingScreenOpacity?: boolean
@@ -49,12 +37,10 @@ interface Props {
   children?: JSX.Element | JSX.Element[]
   hideVideo?: boolean
   hideFullscreen?: boolean
-  theme?: any
 }
 
 const Layout = (props: Props): any => {
-  const path = useLocation().pathname
-  const { pageTitle, children, login } = props
+  const { pageTitle, children } = props
   const authUser = useAuthState().authUser
   const clientSettingState = useClientSettingState()
   const coilSettingState = useCoilSettingState()
@@ -137,113 +123,106 @@ const Layout = (props: Props): any => {
   // TODO: Uncomment alerts when we can fix issues
   return (
     <div style={{ pointerEvents: 'auto' }}>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={props.theme ?? defaultTheme}>
-          <section>
-            <Helmet>
-              <title>
-                {ctitle} | {pageTitle}
-              </title>
-              {description && <meta name="description" content={description}></meta>}
-              {paymentPointer && <meta name="monetization" content={paymentPointer} />}
-              {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
-              {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
-            </Helmet>
+      <section>
+        <Helmet>
+          <title>
+            {ctitle} | {pageTitle}
+          </title>
+          {description && <meta name="description" content={description}></meta>}
+          {paymentPointer && <meta name="monetization" content={paymentPointer} />}
+          {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
+          {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
+        </Helmet>
 
-            {children}
-            {
-              <UserMenu
-                animate={showBottomIcons ? styles.animateBottom : styles.fadeOutBottom}
-                fadeOutBottom={styles.fadeOutBottom}
-              />
-            }
-            <Debug />
+        {children}
+        {
+          <UserMenu
+            animate={showBottomIcons ? styles.animateBottom : styles.fadeOutBottom}
+            fadeOutBottom={styles.fadeOutBottom}
+          />
+        }
+        <Debug />
 
-            {/** Container for fading most stuff in and out depending on if the location is loaded or not  */}
-            <div style={{ opacity: layoutOpacity }}>
-              <button
-                type="button"
-                className={`${showMediaIcons ? styles.btn : styles.smBtn} ${
-                  showMediaIcons ? styles.rotate : styles.rotateBack
-                } ${styles.showIconMedia} `}
-                onClick={handleShowMediaIcons}
-              >
-                <MediaIconHider />
-              </button>
-              <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOutTop} />
-              <header className={showMediaIcons ? styles.animateTop : styles.fadeOutTop}>
-                {!props.hideVideo && (
-                  <>
-                    <section className={styles.locationUserMenu}>
-                      {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && <Me />}
-                      <PartyVideoWindows />
-                    </section>
-                    <UserToast />
-                  </>
-                )}
-              </header>
-              <button
-                type="button"
-                className={`${showBottomIcons ? styles.btn : styles.smBtn} ${
-                  showBottomIcons ? styles.rotate : styles.rotateBack
-                } ${styles.showIcon} `}
-                onClick={handleShowBottomIcons}
-              >
-                <BottomIconHider />
-              </button>
-              <UIDialog />
-              <Alerts />
-              {isTouchAvailable && showTouchPad && (
-                <Suspense fallback={<></>}>
-                  {' '}
-                  <TouchGamepad layout="default" />{' '}
-                </Suspense>
+        {/** Container for fading most stuff in and out depending on if the location is loaded or not  */}
+        <div style={{ opacity: layoutOpacity }}>
+          <button
+            type="button"
+            className={`${showMediaIcons ? styles.btn : styles.smBtn} ${
+              showMediaIcons ? styles.rotate : styles.rotateBack
+            } ${styles.showIconMedia} `}
+            onClick={handleShowMediaIcons}
+          >
+            <MediaIconHider />
+          </button>
+          <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOutTop} />
+          <header className={showMediaIcons ? styles.animateTop : styles.fadeOutTop}>
+            {!props.hideVideo && (
+              <>
+                <section className={styles.locationUserMenu}>
+                  <PartyVideoWindows />
+                </section>
+              </>
+            )}
+          </header>
+          <button
+            type="button"
+            className={`${showBottomIcons ? styles.btn : styles.smBtn} ${
+              showBottomIcons ? styles.rotate : styles.rotateBack
+            } ${styles.showIcon} `}
+            onClick={handleShowBottomIcons}
+          >
+            <BottomIconHider />
+          </button>
+          <UIDialog />
+          {isTouchAvailable && showTouchPad && (
+            <Suspense fallback={<></>}>
+              {' '}
+              <TouchGamepad layout="default" />{' '}
+            </Suspense>
+          )}
+
+          {!iOS() && (
+            <>
+              {props.hideFullscreen ? null : fullScreenActive ? (
+                <button
+                  type="button"
+                  className={`${styles.btn} ${styles.fullScreen} ${
+                    showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
+                  } `}
+                  onClick={() => setFullScreenActive(false)}
+                >
+                  <FullscreenExit />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className={`${styles.btn} ${styles.fullScreen} ${
+                    showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
+                  } `}
+                  onClick={() => setFullScreenActive(true)}
+                >
+                  <ZoomOutMap />
+                </button>
               )}
-
-              {!iOS() && (
-                <>
-                  {props.hideFullscreen ? null : fullScreenActive ? (
-                    <button
-                      type="button"
-                      className={`${styles.btn} ${styles.fullScreen} ${
-                        showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
-                      } `}
-                      onClick={() => setFullScreenActive(false)}
-                    >
-                      <FullscreenExit />
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className={`${styles.btn} ${styles.fullScreen} ${
-                        showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
-                      } `}
-                      onClick={() => setFullScreenActive(true)}
-                    >
-                      <ZoomOutMap />
-                    </button>
-                  )}
-                </>
-              )}
-              <button
-                type="button"
-                className={`${styles.btn} ${styles.respawn} ${
-                  showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
-                } ${!iOS() ? '' : styles.refreshBtn}`}
-                id="respawn"
-                onClick={respawnCallback}
-              >
-                <Refresh />
-              </button>
-              <InstanceChat
-                animate={styles.animateBottom}
-                hideOtherMenus={hideOtherMenus}
-                setShowTouchPad={setShowTouchPad}
-              />
-            </div>
-          </section>
-        </ThemeProvider>
-      </StyledEngineProvider>
+            </>
+          )}
+          <button
+            type="button"
+            className={`${styles.btn} ${styles.respawn} ${
+              showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
+            } ${!iOS() ? '' : styles.refreshBtn}`}
+            id="respawn"
+            onClick={respawnCallback}
+          >
+            <Refresh />
+          </button>
+          <InstanceChat
+            animate={styles.animateBottom}
+            hideOtherMenus={hideOtherMenus}
+            setShowTouchPad={setShowTouchPad}
+          />
+        </div>
+      </section>
     </div>
   )
 }

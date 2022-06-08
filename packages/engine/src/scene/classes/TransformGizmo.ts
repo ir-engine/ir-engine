@@ -357,8 +357,8 @@ export default class TransformGizmo extends Object3D {
     }
   }
 
-  clone() {
+  clone(): this {
     // You can only have one instance of TransformControls so return a dummy object when cloning.
-    return new Object3D().copy(this) as TransformGizmo
+    return new Object3D().copy(this) as this
   }
 }

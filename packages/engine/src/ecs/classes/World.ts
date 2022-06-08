@@ -1,5 +1,5 @@
 import * as bitecs from 'bitecs'
-import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene, XRFrame } from 'three'
+import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -44,7 +44,7 @@ const TimerConfig = {
 export const CreateWorld = Symbol('CreateWorld')
 export class World {
   private constructor() {
-    bitecs.createWorld(this)
+    bitecs.createWorld(this, 1000)
     Engine.instance.worlds.push(this)
 
     this.worldEntity = createEntity(this)
@@ -55,23 +55,25 @@ export class World {
 
     initializeEntityTree(this)
     this.scene.layers.set(ObjectLayers.Scene)
-
-    registerState(this.store, WorldState)
   }
 
   static [CreateWorld] = () => new World()
 
   /**
-   * The UserId of the host
+   *
    */
-  hostId = 'world' as UserId
-
-  /**
-   * Check if this user is hosting the world.
-   */
-  get isHosting() {
-    return Engine.instance.userId === this.hostId
+  get worldNetwork() {
+    return this.networks.get(this._worldHostId)!
   }
+
+  get mediaNetwork() {
+    return this.networks.get(this._mediaHostId)!
+  }
+
+  _worldHostId = null! as UserId
+  _mediaHostId = null! as UserId
+
+  networks = new Map<string, Network>()
 
   sceneMetadata = undefined as string | undefined
   worldMetadata = {} as { [key: string]: string }
@@ -107,14 +109,6 @@ export class World {
   fixedTick = 0
 
   _pipeline = [] as SystemModuleType<any>[]
-
-  store = createHyperStore({
-    name: 'WORLD',
-    getDispatchMode: () => (this.isHosting ? 'host' : 'peer'),
-    getDispatchId: () => Engine.instance.userId,
-    getDispatchTime: () => this.fixedTick,
-    defaultDispatchDelay: 1
-  })
 
   /**
    * Reference to the three.js scene object.
@@ -164,6 +158,10 @@ export class World {
   /** Map of user client IDs to numerical user index */
   userIdToUserIndex = new Map<UserId, number>()
 
+  /**
+   * The index to increment when a new user joins
+   * NOTE: Must only be updated by the host
+   */
   userIndexCount = 0
 
   /**
@@ -262,13 +260,6 @@ export class World {
     return ++this.#availableNetworkId as NetworkId
   }
 
-  /**
-   * @deprecated Use store.receptors
-   */
-  get receptors() {
-    return this.store.receptors
-  }
-
   LOD_DISTANCES = DEFAULT_LOD_DISTANCES
 
   /**
@@ -278,10 +269,7 @@ export class World {
    */
   execute(frameTime: number) {
     const start = nowMilliseconds()
-    const incomingActions = [...this.store.actions.incoming]
-    const incomingBufferLength = Network.instance
-      .getTransport('world')
-      ?.incomingMessageQueueUnreliable.getBufferLength()
+    const incomingActions = [...Engine.instance.store.actions.incoming]
 
     const worldElapsedSeconds = (frameTime - this.startTime) / 1000
     this.deltaSeconds = Math.max(0, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
@@ -296,14 +284,16 @@ export class World {
     const end = nowMilliseconds()
     const duration = end - start
     if (duration > 50) {
-      console.warn(
-        `Long frame execution detected. Duration: ${duration}. \n Incoming Buffer Length: ${incomingBufferLength} \n Incoming actions: `,
-        incomingActions
-      )
+      console.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: `, incomingActions)
     }
   }
 }
 
 export function createWorld() {
   return World[CreateWorld]()
+}
+
+export function destroyWorld(world: World) {
+  bitecs.resetWorld(world)
+  bitecs.deleteWorld(world)
 }

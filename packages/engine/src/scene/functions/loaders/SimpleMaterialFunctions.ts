@@ -356,6 +356,7 @@ export const useSimpleMaterial = (obj: Object3DWithEntity & Mesh<any, any>): voi
       uniforms: uniforms,
       vertexShader,
       fragmentShader,
+      // @ts-ignore
       fog: fogEnabled,
       lights: lightEnabled,
       transparent: true

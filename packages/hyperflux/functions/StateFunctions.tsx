@@ -2,12 +2,11 @@ import { createState, SetInitialStateAction, State } from '@speigg/hookstate'
 import React from 'react'
 import Reconciler from 'react-reconciler'
 
-import { HyperStore, StringLiteral } from './StoreFunctions'
+import { HyperFlux, HyperStore, StringLiteral } from './StoreFunctions'
 
 export * from '@speigg/hookstate'
 
 type StateDefinition<StoreName extends string, S> = {
-  store: StringLiteral<StoreName>
   name: string
   initial: SetInitialStateAction<S>
 }
@@ -17,8 +16,8 @@ function defineState<StoreName extends string, S>(definition: StateDefinition<St
 }
 
 function registerState<StoreName extends string, S>(
-  store: HyperStore<StoreName>,
-  StateDefinition: StateDefinition<StoreName, S>
+  StateDefinition: StateDefinition<StoreName, S>,
+  store = HyperFlux.store
 ) {
   if (StateDefinition.name in store.state)
     throw new Error(`State ${StateDefinition.name} has already been registered in Store`)
@@ -30,10 +29,10 @@ function registerState<StoreName extends string, S>(
 }
 
 function getState<StoreName extends string, S>(
-  store: HyperStore<StoreName>,
-  StateDefinition: StateDefinition<StoreName, S>
+  StateDefinition: StateDefinition<StoreName, S>,
+  store = HyperFlux.store
 ) {
-  if (!store.state[StateDefinition.name]) throw new Error(`State ${StateDefinition.name} is not registered in Store`)
+  if (!store.state[StateDefinition.name]) registerState(StateDefinition, store)
   return store.state[StateDefinition.name] as State<S>
 }
 
@@ -66,7 +65,7 @@ const ReactorReconciler = Reconciler({
   preparePortalMount: () => {}
 })
 
-function addStateReactor(store: HyperStore<any>, reactor: () => void) {
+function addStateReactor(reactor: () => void, store = HyperFlux.store) {
   let root = store.reactors.get(reactor)
   if (!root) {
     /**
@@ -75,6 +74,7 @@ function addStateReactor(store: HyperStore<any>, reactor: () => void) {
     // @ts-ignore
     root = ReactorReconciler.createContainer(reactor, 0, false, null)
     ReactorReconciler.updateContainer(
+      // @ts-ignore
       () => {
         reactor()
         return <></>
@@ -86,7 +86,7 @@ function addStateReactor(store: HyperStore<any>, reactor: () => void) {
   }
 }
 
-function removeStateReactor(store: HyperStore<any>, reactorComponent: () => void) {
+function removeStateReactor(reactorComponent: () => void, store = HyperFlux.store) {
   const root = store.reactors.get(reactorComponent)
   if (root) {
     ReactorReconciler.updateContainer(null, root, null)
