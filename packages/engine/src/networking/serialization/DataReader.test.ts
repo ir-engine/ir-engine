@@ -12,6 +12,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { XRHandBones } from '../../xr/types/XRHandBones'
@@ -22,6 +23,7 @@ import {
   createDataReader,
   readComponent,
   readComponentProp,
+  readCompressedVector3,
   readEntities,
   readEntity,
   readPosition,
@@ -33,6 +35,7 @@ import {
 } from './DataReader'
 import {
   createDataWriter,
+  writeCompressedVector3,
   writeEntities,
   writeEntity,
   writePosition,
@@ -268,6 +271,34 @@ describe('DataReader', () => {
     strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(y, 3))
     strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(z, 3))
     strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(w, 3))
+  })
+
+  it('should readCompressedVector3', () => {
+    const view = createViewCursor()
+    const entity = 42 as Entity
+    const rotation = TransformComponent.rotation
+
+    const [x, y, z] = [1.333, 2.333, 3.333]
+    VelocityComponent.linear.x[entity] = x
+    VelocityComponent.linear.y[entity] = y
+    VelocityComponent.linear.z[entity] = z
+
+    writeCompressedVector3(VelocityComponent.linear)(view, entity)
+
+    VelocityComponent.linear.x[entity] = 0
+    VelocityComponent.linear.y[entity] = 0
+    VelocityComponent.linear.z[entity] = 0
+
+    view.cursor = 0
+
+    readCompressedVector3(VelocityComponent.linear)(view, entity)
+
+    strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT + Float32Array.BYTES_PER_ELEMENT)
+
+    // Round values to 3 decimal places and compare
+    strictEqual(roundNumberToPlaces(VelocityComponent.linear.x[entity], 1), roundNumberToPlaces(x, 1))
+    strictEqual(roundNumberToPlaces(VelocityComponent.linear.y[entity], 1), roundNumberToPlaces(y, 1))
+    strictEqual(roundNumberToPlaces(VelocityComponent.linear.z[entity], 1), roundNumberToPlaces(z, 1))
   })
 
   it('should readTransform', () => {
