@@ -45,7 +45,7 @@ export const registerVideoServiceActions = () => {
 
 export const accessVideoState = () => getState(VideoState)
 
-export const useVideoState = () => useState(accessVideoState()) as any as typeof VideoState
+export const useVideoState = () => useState(accessVideoState())
 
 //Service
 export const VideoService = {

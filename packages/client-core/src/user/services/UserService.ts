@@ -108,7 +108,7 @@ export const registerUserServiceActions = () => {
 registerUserServiceActions()
 
 export const accessUserState = () => getState(UserState)
-export const useUserState = () => useState(accessUserState()) as any as typeof UserState as unknown as typeof UserState
+export const useUserState = () => useState(accessUserState())
 
 //Service
 export const UserService = {

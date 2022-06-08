@@ -117,7 +117,7 @@ registerPartyServiceactions()
 
 export const accessPartyState = () => getState(PartyState)
 
-export const usePartyState = () => useState(accessPartyState()) as any as typeof PartyState
+export const usePartyState = () => useState(accessPartyState())
 
 //Service
 export const PartyService = {

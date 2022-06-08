@@ -65,7 +65,7 @@ export const registerMediaServiceActions = () => {
 registerMediaServiceActions()
 
 export const accessMediaStreamState = () => getState(MediaState)
-export const useMediaStreamState = () => useState(accessMediaStreamState()) as any as typeof MediaState
+export const useMediaStreamState = () => useState(accessMediaStreamState())
 
 let updateConsumerTimeout
 
