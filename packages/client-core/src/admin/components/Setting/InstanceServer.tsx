@@ -2,10 +2,10 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Grid, Paper, Typography } from '@mui/material'
-import InputBase from '@mui/material/InputBase'
 import Switch from '@mui/material/Switch'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import InputText from '../../common/InputText'
 import { InstanceServerSettingService } from '../../services/Setting/InstanceServerSettingService'
 import { useInstanceServerSettingState } from '../../services/Setting/InstanceServerSettingService'
 import styles from '../../styles/settings.module.scss'
@@ -41,36 +41,40 @@ const InstanceServer = (props: instanceServerProps) => {
           <div className={styles.root} key={el?.id || ''}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6}>
-                <label> {t('admin:components.setting.clientHost')}</label>
-                <Paper component="div" className={styles.createInput}>
-                  <InputBase name="clientHost" className={styles.input} disabled value={el?.clientHost || ''} />
-                </Paper>
-                <label>{t('admin:components.setting.rtcStartPort')}</label>
-                <Paper component="div" className={styles.createInput}>
-                  <InputBase name="rtc_start_port" className={styles.input} disabled value={el?.rtc_start_port || ''} />
-                </Paper>
-                <label>{t('admin:components.setting.rtcEndPort')}</label>
-                <Paper component="div" className={styles.createInput}>
-                  <InputBase name="rtc_end_port" className={styles.input} disabled value={el?.rtc_end_port || ''} />
-                </Paper>
-                <label>{t('admin:components.setting.rtcPortBlockSize')}</label>
-                <Paper component="div" className={styles.createInput}>
-                  <InputBase
-                    name="rtc_port_block_size"
-                    className={styles.input}
-                    disabled
-                    value={el?.rtc_port_block_size || ''}
-                  />
-                </Paper>
-                <label>{t('admin:components.setting.identifierDigits')} </label>
-                <Paper component="div" className={styles.createInput}>
-                  <InputBase
-                    disabled
-                    name="identifierDigits"
-                    className={styles.input}
-                    value={el?.identifierDigits || ''}
-                  />
-                </Paper>
+                <InputText
+                  name="clientHost"
+                  label={t('admin:components.setting.clientHost')}
+                  value={el?.clientHost || ''}
+                  disabled
+                />
+
+                <InputText
+                  name="rtc_start_port"
+                  label={t('admin:components.setting.rtcStartPort')}
+                  value={el?.rtc_start_port || ''}
+                  disabled
+                />
+
+                <InputText
+                  name="rtc_end_port"
+                  label={t('admin:components.setting.rtcEndPort')}
+                  value={el?.rtc_end_port || ''}
+                  disabled
+                />
+
+                <InputText
+                  name="rtc_port_block_size"
+                  label={t('admin:components.setting.rtcPortBlockSize')}
+                  value={el?.rtc_port_block_size || ''}
+                  disabled
+                />
+
+                <InputText
+                  name="identifierDigits"
+                  label={t('admin:components.setting.identifierDigits')}
+                  value={el?.identifierDigits || ''}
+                  disabled
+                />
               </Grid>
 
               <Grid item xs={12} sm={6}>
@@ -85,26 +89,31 @@ const InstanceServer = (props: instanceServerProps) => {
                     inputProps={{ 'aria-label': 'primary checkbox' }}
                   />
                 </Paper>
-                <label> {t('admin:components.setting.domain')} </label>
-                <Paper component="div" className={styles.createInput}>
-                  <InputBase name="domain" className={styles.input} disabled value={el?.domain || ''} />
-                </Paper>
-                <label> {t('admin:components.setting.releaseName')} </label>
-                <Paper component="div" className={styles.createInput}>
-                  <InputBase name="releaseName" className={styles.input} disabled value={el?.releaseName || ''} />
-                </Paper>
-                <label> {t('admin:components.setting.port')} </label>
-                <Paper component="div" className={styles.createInput}>
-                  <InputBase name="port" className={styles.input} disabled value={el?.port || ''} />
-                </Paper>
-                <label> {t('admin:components.setting.mode')} </label>
-                <Paper component="div" className={styles.createInput}>
-                  <InputBase name="mode" className={styles.input} disabled value={el?.mode || ''} />
-                </Paper>
-                <label> {t('admin:components.setting.locationName')} </label>
-                <Paper component="div" className={styles.createInput}>
-                  <InputBase name="locationName" className={styles.input} disabled value={el?.locationName || ''} />
-                </Paper>
+
+                <InputText
+                  name="domain"
+                  label={t('admin:components.setting.domain')}
+                  value={el?.domain || ''}
+                  disabled
+                />
+
+                <InputText
+                  name="releaseName"
+                  label={t('admin:components.setting.releaseName')}
+                  value={el?.releaseName || ''}
+                  disabled
+                />
+
+                <InputText name="port" label={t('admin:components.setting.port')} value={el?.port || ''} disabled />
+
+                <InputText name="mode" label={t('admin:components.setting.mode')} value={el?.mode || ''} disabled />
+
+                <InputText
+                  name="locationName"
+                  label={t('admin:components.setting.locationName')}
+                  value={el?.locationName || ''}
+                  disabled
+                />
               </Grid>
             </Grid>
           </div>

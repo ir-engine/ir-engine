@@ -14,11 +14,23 @@ interface Props {
   error?: string
   type?: string
   disabled?: boolean
+  startAdornment?: React.ReactNode
   endAdornment?: React.ReactNode
   onChange?: (e: any) => void
 }
 
-const InputText = ({ value, name, label, placeholder, error, type, disabled, endAdornment, onChange }: Props) => {
+const InputText = ({
+  value,
+  name,
+  label,
+  placeholder,
+  error,
+  type,
+  disabled,
+  startAdornment,
+  endAdornment,
+  onChange
+}: Props) => {
   return (
     <Box sx={{ mb: 2 }}>
       <TextField
@@ -35,6 +47,7 @@ const InputText = ({ value, name, label, placeholder, error, type, disabled, end
         onChange={onChange}
         InputProps={{
           className: styles.input,
+          startAdornment: startAdornment,
           endAdornment: endAdornment
         }}
         fullWidth

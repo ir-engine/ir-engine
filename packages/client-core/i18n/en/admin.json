@@ -315,7 +315,10 @@
       "githubPrivateKey": "Github Private Key",
       "project": "PROJECT",
       "selectProject": "Select Project",
-      "patchInstanceserver": "Patch Instanceserver"
+      "patchInstanceserver": "Patch Instanceserver",
+      "hub": "Hub",
+      "paginateDefault": "Paginate Default",
+      "paginateMax": "Paginate Max"
     },
     "avatar": {
       "fillRequiredFields": "Please fill all required field",
