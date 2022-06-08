@@ -2,6 +2,7 @@ import { Group } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -12,7 +13,7 @@ import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { XRHandBones } from '../../xr/types/XRHandBones'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { compress, FLOAT_PRECISION_MULT, QUAT_MAX_RANGE } from './Utils'
+import { compress, QUAT_MAX_RANGE, QUAT_PRECISION_MULT, VEC3_MAX_RANGE, VEC3_PRECISION_MULT } from './Utils'
 import { flatten, getVector4IndexBasedComponentValue, Vector3SoA, Vector4SoA } from './Utils'
 import {
   createViewCursor,
@@ -71,6 +72,47 @@ export const writeVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Ent
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
+// Writes a compressed Vector3 value to the DataView.
+export const writeCompressedVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Entity) => {
+  const rewind = rewindViewCursor(v)
+  const writeChangeMask = spaceUint8(v)
+  const rewindUptoChageMask = rewindViewCursor(v)
+  let changeMask = 0
+  let b = 0
+
+  changeMask |= writePropIfChanged(v, vector3.x, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector3.y, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector3.z, entity) ? 1 << b++ : b++ && 0
+
+  if (changeMask > 0) {
+    rewindUptoChageMask()
+    let [x, y, z] = [vector3.x[entity], vector3.y[entity], vector3.z[entity]]
+
+    // Since avatar velocity values are too small and precison is lost when quantized
+    let offset_mult = 1
+    if (getComponent(entity, AvatarComponent)) offset_mult = 100
+
+    x *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
+    y *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
+    z *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
+
+    x = compress(x, 10)
+    y = compress(y, 10)
+    z = compress(z, 10)
+
+    let binaryData = 0
+    binaryData = binaryData | x
+    binaryData = binaryData << 10
+    binaryData = binaryData | y
+    binaryData = binaryData << 10
+    binaryData = binaryData | z
+
+    writeUint32(v, binaryData)
+  }
+
+  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
+}
+
 export const writeVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity) => {
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint8(v)
@@ -85,7 +127,7 @@ export const writeVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Ent
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
-// Writes a compressed Quaternion value to the network stream. This function uses the "smallest three"
+// Writes a compressed Quaternion value to the DataView. This function uses the "smallest three"
 // method, which is well summarized here: http://gafferongames.com/networked-physics/snapshot-compression/
 export const writeCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity) => {
   const rewind = rewindViewCursor(v)
@@ -151,15 +193,15 @@ export const writeCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, 
 
     // Multiply with QUAT_MAX_RANGE & FLOAT_PRECISION_MULT before compression so that values are
     // capped to required range([-0.707107,+0.707107]) and precision(three decimal places)
-    a *= sign * QUAT_MAX_RANGE * FLOAT_PRECISION_MULT
-    b *= sign * QUAT_MAX_RANGE * FLOAT_PRECISION_MULT
-    c *= sign * QUAT_MAX_RANGE * FLOAT_PRECISION_MULT
+    a *= sign * QUAT_MAX_RANGE * QUAT_PRECISION_MULT
+    b *= sign * QUAT_MAX_RANGE * QUAT_PRECISION_MULT
+    c *= sign * QUAT_MAX_RANGE * QUAT_PRECISION_MULT
 
     maxIndex = maxIndex | 0
 
-    a = compress(a)
-    b = compress(b)
-    c = compress(c)
+    a = compress(a, 10)
+    b = compress(b, 10)
+    c = compress(c, 10)
 
     let binaryData = maxIndex
     binaryData = binaryData << 10
@@ -202,7 +244,7 @@ export const writeVelocity = (v: ViewCursor, entity: Entity) => {
   let changeMask = 0
   let b = 0
 
-  changeMask |= writeLinearVelocity(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeCompressedVector3(VelocityComponent.linear)(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeAngularVelocity(v, entity) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
