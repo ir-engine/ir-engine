@@ -8,6 +8,7 @@ import { Button, Grid, InputBase, MenuItem, Paper, TextField, Typography } from 
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
+import InputText from '../../common/InputText'
 import { ProjectSettingService, useProjectSettingState } from '../../services/Setting/ProjectSettingService'
 import styles from '../../styles/settings.module.scss'
 
@@ -127,21 +128,15 @@ const Project = (props: Props) => {
                 settings.map((setting, index) => (
                   <Grid item container key={index} spacing={1} xs={12}>
                     <Grid item xs={6}>
-                      <label>Key Name</label>
-                      <Paper component="div" className={styles.createInput}>
-                        <InputBase name="key" disabled className={styles.input} value={setting.key} />
-                      </Paper>
+                      <InputText name="key" label="Key Name" value={setting.key || ''} disabled />
                     </Grid>
                     <Grid item xs={6}>
-                      <label>Value</label>
-                      <Paper component="div" className={styles.createInput}>
-                        <InputBase
-                          name="value"
-                          className={styles.input}
-                          value={setting.value}
-                          onChange={(e) => handleValueChange(index, e)}
-                        />
-                      </Paper>
+                      <InputText
+                        name="value"
+                        label="Value"
+                        value={setting.value || ''}
+                        onChange={(e) => handleValueChange(index, e)}
+                      />
                     </Grid>
                   </Grid>
                 ))
