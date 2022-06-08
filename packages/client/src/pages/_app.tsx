@@ -10,11 +10,12 @@ import {
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
 import { defaultAction } from '@xrengine/client-core/src/common/components/NotificationActions'
 import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
-import { store, useDispatch } from '@xrengine/client-core/src/store'
+import { store } from '@xrengine/client-core/src/store'
 import { theme } from '@xrengine/client-core/src/theme'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
 import { StoredLocalAction } from '@xrengine/client-core/src/util/StoredLocalState'
+import { dispatchAction } from '@xrengine/hyperflux'
 import { loadWebappInjection } from '@xrengine/projects/loadWebappInjection'
 
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
@@ -48,7 +49,6 @@ const App = (): any => {
   const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
   const [description, setDescription] = useState(clientSetting?.siteDescription)
   const [clientThemeSettings, setClientThemeSettings] = useState(clientSetting?.themeSettings)
-  const dispatch = useDispatch()
   const [projectComponents, setProjectComponents] = useState<Array<any>>(null!)
   const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
   const projectState = useProjectState()
@@ -60,7 +60,7 @@ const App = (): any => {
       ;(window as any).env = (window as any).env ?? ''
     }
 
-    dispatch(StoredLocalAction.restoreLocalData())
+    dispatchAction(StoredLocalAction.restoreLocalDataAction())
 
     initGA()
 

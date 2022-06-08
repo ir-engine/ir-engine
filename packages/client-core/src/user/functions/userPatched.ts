@@ -8,7 +8,6 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { _updateUsername } from '../../social/services/utils/chatSystem'
-import { useDispatch } from '../../store'
 import { accessAuthState, AuthAction } from '../services/AuthService'
 import { accessUserState, UserAction } from '../services/UserService'
 
@@ -16,7 +15,6 @@ import { accessUserState, UserAction } from '../services/UserService'
 
 export const userPatched = (params) => {
   console.log('USER PATCHED', params)
-  const dispatch = useDispatch()
 
   const selfUser = accessAuthState().user
   const userState = accessUserState()
@@ -40,7 +38,7 @@ export const userPatched = (params) => {
     if (selfUser.instanceId.value !== patchedUser.instanceId) dispatchAction(UserAction.clearLayerUsersAction())
     if (selfUser.channelInstanceId.value !== patchedUser.channelInstanceId)
       dispatchAction(UserAction.clearChannelLayerUsersAction())
-    dispatch(AuthAction.userUpdated(patchedUser))
+    dispatchAction(AuthAction.userUpdatedAction({ user: patchedUser }))
     // if (user.partyId) {
     //   setRelationship('party', user.partyId);
     // }
