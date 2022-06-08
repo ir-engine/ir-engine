@@ -12,6 +12,7 @@ import Noise_1, { DefaultArgs as Noise_1DefaultArgs } from './constants/Noise_1.
 import Phong, { DefaultArgs as PhongDefaultArgs } from './constants/Phong.mat'
 import Physical, { DefaultArgs as PhysicalDefaultArgs } from './constants/Physical.mat'
 import Standard, { DefaultArgs as StandardDefaultArgs } from './constants/Standard.mat'
+import Toon, { DefaultArgs as ToonDefaultArgs } from './constants/Toon.mat'
 import VoronoiClouds, { DefaultArgs as VoronoiCloudsDefaultArgs } from './constants/VoronoiClouds.mat'
 
 export const MaterialLibrary = {
@@ -29,6 +30,7 @@ export const MaterialLibrary = {
   Phong: Phong,
   Physical: Physical,
   Standard: Standard,
+  Toon: Toon,
   VoronoiClouds: VoronoiClouds
 }
 
@@ -47,5 +49,6 @@ export const DefaultArguments = {
   Phong: PhongDefaultArgs,
   Physical: PhysicalDefaultArgs,
   Standard: StandardDefaultArgs,
+  Toon: ToonDefaultArgs,
   VoronoiClouds: VoronoiCloudsDefaultArgs
 }
