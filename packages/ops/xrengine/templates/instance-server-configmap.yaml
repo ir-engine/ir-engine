@@ -1,0 +1,15 @@
+{{- if (.Values.instanceserver).enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "xrengine.instanceserver.fullname" . }}
+  labels:
+    {{- include "xrengine.instanceserver.labels" . | nindent 4 }}
+data:
+{{- if .Values.instanceserver.extraEnv }}
+{{ toYaml .Values.instanceserver.extraEnv | indent 2 }}
+{{- end }}
+{{- if .Values.instanceserver.config }}
+  NODE_CONFIG: '{{ mustToJson .Values.instanceserver.config }}'
+{{- end }}
+{{- end -}}
