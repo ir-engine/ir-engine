@@ -40,7 +40,7 @@ describe('AddObjectCommand', () => {
     addEntityNodeInTree(beforeNodes[0], parentNodes[0])
     addEntityNodeInTree(beforeNodes[1], parentNodes[1])
 
-    SelectionAction.updateSelection([beforeNodes[0].entity])
+    SelectionAction.updateSelection({ selectedEntities: [beforeNodes[0].entity] })
 
     command = {
       type: EditorCommands.ADD_OBJECTS,
