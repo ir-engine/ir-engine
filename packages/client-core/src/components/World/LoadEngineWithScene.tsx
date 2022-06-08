@@ -86,7 +86,7 @@ export const LoadEngineWithScene = () => {
       history.push('/location/' + world.activePortal.location)
       LocationService.getLocationByName(world.activePortal.location)
 
-      // shut down connection with existing GS
+      // shut down connection with existing IS
       await leaveNetwork(world.worldNetwork as SocketWebRTCClientNetwork)
 
       if (world.mediaNetwork) {
