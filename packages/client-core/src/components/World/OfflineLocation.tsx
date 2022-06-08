@@ -11,7 +11,7 @@ import { useHookEffect, useState } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
-import GameServerWarnings from './GameServerWarnings'
+import InstanceServerWarnings from './InstanceServerWarnings'
 
 export const OfflineLocation = () => {
   const engineState = useState(getEngineState())
@@ -58,7 +58,7 @@ export const OfflineLocation = () => {
     }
   }, [engineState.connectedWorld, engineState.sceneLoaded])
 
-  return <GameServerWarnings />
+  return <InstanceServerWarnings />
 }
 
 export default OfflineLocation

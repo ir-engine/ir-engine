@@ -27,7 +27,7 @@ export default {
         userId: {
           type: 'string'
         },
-        gameserver_subdomain_provision: {
+        instanceserver_subdomain_provision: {
           type: 'string'
         },
         bot: {

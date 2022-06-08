@@ -64,8 +64,8 @@ export default (): Hook => {
       logger.info('Server instance probably exists but not provisioned: ' + matchServerInstance)
     }
 
-    if (!matchServerInstance?.gameserver) {
-      for (let i = 0; i < 20 && !matchServerInstance?.gameserver; i++) {
+    if (!matchServerInstance?.instanceserver) {
+      for (let i = 0; i < 20 && !matchServerInstance?.instanceserver; i++) {
         // retry search
         await new Promise((resolve) => setTimeout(resolve, 10))
         matchServerInstance = (
@@ -77,8 +77,8 @@ export default (): Hook => {
         )[0]
       }
     }
-    if (!matchServerInstance?.gameserver) {
-      // say that no connection yet, on next query it will have gameserver and same connection
+    if (!matchServerInstance?.instanceserver) {
+      // say that no connection yet, on next query it will have instanceserver and same connection
       logger.info('Failed to find provisioned server. Need to retry again.')
       result.connection = ''
       return context
@@ -88,18 +88,18 @@ export default (): Hook => {
     const existingInstanceAuthorizedUser = await app.service('instance-authorized-user').find({
       query: {
         userId: userId,
-        instanceId: matchServerInstance.gameserver,
+        instanceId: matchServerInstance.instanceserver,
         $limit: 0
       }
     })
     if (existingInstanceAuthorizedUser.total === 0) {
       await app.service('instance-authorized-user').create({
         userId: userId,
-        instanceId: matchServerInstance.gameserver
+        instanceId: matchServerInstance.instanceserver
       })
     }
 
-    result.instanceId = matchServerInstance.gameserver
+    result.instanceId = matchServerInstance.instanceserver
     result.locationName = 'game-' + matchServerInstance.gamemode
 
     return context
