@@ -6,8 +6,10 @@ import Cubes, { DefaultArgs as CubesDefaultArgs } from './constants/Cubes.mat'
 import Fireball, { DefaultArgs as FireballDefaultArgs } from './constants/Fireball.mat'
 import Galaxy, { DefaultArgs as GalaxyDefaultArgs } from './constants/Galaxy.mat'
 import Generators, { DefaultArgs as GeneratorsDefaultArgs } from './constants/Generators.mat'
-import Matcap, { DefaultArgs as MatcapDefaultArgs } from './constants/Matcap'
+import Lambert, { DefaultArgs as LambertDefaultArgs } from './constants/Lambert.mat'
+import Matcap, { DefaultArgs as MatcapDefaultArgs } from './constants/Matcap.mat'
 import Noise_1, { DefaultArgs as Noise_1DefaultArgs } from './constants/Noise_1.mat'
+import Phong, { DefaultArgs as PhongDefaultArgs } from './constants/Phong.mat'
 import Physical, { DefaultArgs as PhysicalDefaultArgs } from './constants/Physical.mat'
 import Standard, { DefaultArgs as StandardDefaultArgs } from './constants/Standard.mat'
 import VoronoiClouds, { DefaultArgs as VoronoiCloudsDefaultArgs } from './constants/VoronoiClouds.mat'
@@ -21,8 +23,10 @@ export const MaterialLibrary = {
   Fireball: Fireball,
   Galaxy: Galaxy,
   Generators: Generators,
+  Lambert: Lambert,
   Matcap: Matcap,
   Noise_1: Noise_1,
+  Phong: Phong,
   Physical: Physical,
   Standard: Standard,
   VoronoiClouds: VoronoiClouds
@@ -37,8 +41,10 @@ export const DefaultArguments = {
   Fireball: FireballDefaultArgs,
   Galaxy: GalaxyDefaultArgs,
   Generators: GeneratorsDefaultArgs,
+  Lambert: LambertDefaultArgs,
   Matcap: MatcapDefaultArgs,
   Noise_1: Noise_1DefaultArgs,
+  Phong: PhongDefaultArgs,
   Physical: PhysicalDefaultArgs,
   Standard: StandardDefaultArgs,
   VoronoiClouds: VoronoiCloudsDefaultArgs
