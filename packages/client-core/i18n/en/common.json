@@ -9,9 +9,6 @@
     "joined": "joined",
     "left": "left"
   },
-  "navUserWidget": {
-    "login": "Log In"
-  },
   "loader": {
     "connecting": "Connecting to world...",
     "entering": "Entering world...",
