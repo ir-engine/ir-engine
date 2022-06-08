@@ -339,27 +339,25 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
           {values?.length > 0 &&
             (() => {
               return (
-                <Fragment>
-                  <Button onClick={onRefresh}>
-                    <p>Refresh</p>
-                  </Button>
-                  <ArrayInputGroupContent>
-                    <label> Count: </label>
-                    <ControlledStringInput value={count} onChange={onChangeSize} />
-                    <Button onClick={onAddEntry}>+</Button>
-                  </ArrayInputGroupContent>
-                  {values &&
-                    values.map((value, idx) => {
-                      return (
-                        <ArrayInputGroupContent key={`${entity}-${idx}-overrideEntry`} style={{ margin: '4px 2px' }}>
-                          <label>{idx + 1}: </label>
-                          {MaterialAssignmentEntry(idx)}
-                        </ArrayInputGroupContent>
-                      )
-                    })}
-                </Fragment>
+                <Button onClick={onRefresh}>
+                  <p>Refresh</p>
+                </Button>
               )
             })()}
+          <ArrayInputGroupContent>
+            <label> Count: </label>
+            <ControlledStringInput value={count} onChange={onChangeSize} />
+            <Button onClick={onAddEntry}>+</Button>
+          </ArrayInputGroupContent>
+          {values &&
+            values.map((value, idx) => {
+              return (
+                <ArrayInputGroupContent key={`${entity}-${idx}-overrideEntry`} style={{ margin: '4px 2px' }}>
+                  <label>{idx + 1}: </label>
+                  {MaterialAssignmentEntry(idx)}
+                </ArrayInputGroupContent>
+              )
+            })}
         </InputGroupVerticalContent>
       </InputGroupVerticalContainerWide>
     </GroupContainer>
