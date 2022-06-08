@@ -52,29 +52,29 @@ the appropriate Docker image has been installed onto them, and they are ready to
 the recent high traffic picking up again.
 
 #### Create launch template
-Go to EC2 -> Launch Templates and make a new one. Name it something like 'xrengine-production-gameserver'.
+Go to EC2 -> Launch Templates and make a new one. Name it something like 'xrengine-production-instanceserver'.
 Most settings can be left as-is, except for the following:
 * Storage -> Add a volume, set the size to ~20GB, and for Device name select '/dev/xvda'.
 * Network Interfaces -> Add one, and under 'Auto-assign public IP' select 'Enable'
 
-#### Create nodegroup for gameservers
+#### Create nodegroup for instanceservers
 Go to the AWS website, then go to EKS -> Clusters -> click on the cluster you just made -> Configuration -> Compute.
 You should see one managed nodegroup already there; clicking on its name will open up information
 and editing, though you can't change the instance type after it's been made.
 
-Back at the Compute tab, click on Add Node Group. Pick a name (something like ng-gameservers-1 is recommended),
+Back at the Compute tab, click on Add Node Group. Pick a name (something like ng-instanceservers-1 is recommended),
 select the IAM role that was created with the cluster (it should be something like ```eksctl-<cluster_name>-node-NodeInstanceRole-<jumble_of_characters>```),
 toggle the Use Launch Template toggle and select the launch template you made in the previous step,
 then click Next. On the second page, Choose the instance type(s) you'd like for the group,
 set the minimum/maximum/desired scaling sizes, and hit Next (t3(a).smalls are recommended). 
-There may be connection issues with gameserver instances in private subnets, so remove all of the private
+There may be connection issues with instanceserver instances in private subnets, so remove all of the private
 subnets from the list of subnets to use, and make sure that public subnets are being used (sometimes
 the workflow only selects private subnets by default). Hit Next, review everything, and click Create.
 
 ### Create nodegroup for redis
 
 redis should get its own nodegroup to isolate it from any other changes that might be made to your cluster.
-As with the gameserver nodegroup, it's not strictly necessary, but can prevent various other things from
+As with the instanceserver nodegroup, it's not strictly necessary, but can prevent various other things from
 going down due to the redis servers getting interrupted.
 
 Back at the Compute tab, click on Add Node Group. Pick a name (the default config in packages/ops/config assumes
@@ -126,8 +126,8 @@ repo and want to turn on Tag Immutability, that's fine. The image tags that are 
 will prevent any manual overwriting of a tag. Click Create Repository.
 
 You will need to make four more repos for each of the services that are deployed as part of the XREngine stack -
-`api`, `analytics`, `client`, and `gameserver`, which are also in the form `xrengine-<deployment_name>-<service_name>`.
-e.g. `xrengine-dev-api`, `xrengine-dev-analytics`, `xrengine-dev-client`, and `xrengine-dev-gameserver`.
+`api`, `analytics`, `client`, and `instanceserver`, which are also in the form `xrengine-<deployment_name>-<service_name>`.
+e.g. `xrengine-dev-api`, `xrengine-dev-analytics`, `xrengine-dev-client`, and `xrengine-dev-instanceserver`.
 Everything else can be left alone for those, too.
 
 On the [repositories page](https://us-west-1.console.aws.amazon.com/ecr/repositories), you should see both of 
@@ -221,8 +221,8 @@ Finally, click the Create Database button at the very bottom of the page.
 if you want to be very secure about this, or from anywhere (0.0.0.0/0) if you're less concerned about someone
 getting access.
 
-## Edit security group to allow gameserver traffic into VPC
-You'll need to edit the new cluster's main security group to allow gameserver traffic.
+## Edit security group to allow instanceserver traffic into VPC
+You'll need to edit the new cluster's main security group to allow instanceserver traffic.
 On the AWS web client, go to EC2 -> Security Groups. There should be three SGs that have
 the node's name somewhere in their name; look for the one that is in the form
 ```eks-cluster-sg-<cluster_name>-<random_numbers>```. It should NOT end with /ControlPlaneSecurityGroup
@@ -329,11 +329,11 @@ as that config makes redis pods run on a specific nodegroup.
 redis can be installed as part of the XREngine chart so long as the config file for the XREngine installation has 'redis.enabled' set to true.
 In that case, you should skip the above step of installing redis separately. This is not recommended for production
 environments, though, since upgrades to an XREngine installation will usually reboot the redis servers,
-leading all of the gameservers to crash due to their redis connections being severed.
+leading all of the instanceservers to crash due to their redis connections being severed.
 
-This breaks Agones' normal behavior of keeping Allocated gameservers running until every user has left and slowly replacing
-old Ready gameservers with new ones, maintaining an active pool of gameservers at all times. You will encounter a period
-of time where there are no active gameservers at all, which is not recommended, and all gameservers in use
+This breaks Agones' normal behavior of keeping Allocated instanceservers running until every user has left and slowly replacing
+old Ready instanceservers with new ones, maintaining an active pool of instanceservers at all times. You will encounter a period
+of time where there are no active instanceservers at all, which is not recommended, and all instanceservers in use
 will immediately go down.
 
 ### Install ingress-nginx
@@ -505,8 +505,8 @@ You should make the following 'A' records to the loadbalancer, substituting your
 * api-dev.xrengine.io
 * api.xrengine.io
 * dev.xrengine.io
-* gameserver.xrengine.io
-* gameserver-dev.xrengine.io
+* instanceserver.xrengine.io
+* instanceserver-dev.xrengine.io
 
 You also need to make an 'A' record pointing 'resources.xrengine.io' to the CloudFront distribution you made earlier.
 
@@ -590,7 +590,7 @@ using social login, for instance, you don't need credentials for Github/Google/F
 ### Configuration variables of note
 Here are some configuration variables that you'll probably need to change based on your specific setup
 #### <api/client/analytics>.affinity.nodeAffinity
-Within the sections of the config for the api, client, gameserver, etc., is a section that looks 
+Within the sections of the config for the api, client, instanceserver, etc., is a section that looks 
 something like this:
 ```
   affinity:
@@ -605,8 +605,8 @@ something like this:
 ```
 
 The value, `ng-1` in this example, must be changed to match whatever the name of the nodegroup that 
-that service will be running on, e.g. if you create a nodegroup for the gameservers called
-`abcd-gameservers-5`, then you'd use that value under `values:`
+that service will be running on, e.g. if you create a nodegroup for the instanceservers called
+`abcd-instanceservers-5`, then you'd use that value under `values:`
 
 If your EKS setup created a nodegroup for you, and you want to use that for the api, client, and
 analytics servers, make sure to change the affinity value for them to whatever EKS named the
@@ -646,10 +646,10 @@ The full build and deployment process works like this:
     for the database being seeded; if it does not exist, it seeds the database with the basic XREngine schema,
     seeds the default project into the database and storage provider, and seeds various types.
 6. The builder downloads any XREngine projects that the deployment has added.
-7. The builder builds the Docker image for each service concurrently using these projects, building them into the client files as well as copying them so that the api and gameservers have access to them.
+7. The builder builds the Docker image for each service concurrently using these projects, building them into the client files as well as copying them so that the api and instanceservers have access to them.
 8. The builder pushes these final Docker images to the repos `xrengine-<release>-<service>` in ECR
 9. The builder updates the main deployment to point to the final images it just created.
-10. The main deployment spins up the final Docker images for the api, analytics, client, and gameserver services.
+10. The main deployment spins up the final Docker images for the api, analytics, client, and instanceserver services.
 
 ## Install Elastic Search and Kibana using Helm for Server Logs
 
@@ -680,7 +680,7 @@ In order to connect logger with elasticsearch, update config file(values.yml) fo
 One of the features of Helm is being able to easily upgrade deployments with new values. The command to
 do this is very similar to the install command:
 
-```helm upgrade --reuse-values -f </path/to/*.values.yaml> --set api.image.tag=<latest_github_commit_SHA>,client.image.tag=<latest_github_commit_SHA>,gameserver.image.tag=<latest_github_commit_SHA> <stage_name> xrengine/xrengine```
+```helm upgrade --reuse-values -f </path/to/*.values.yaml> --set api.image.tag=<latest_github_commit_SHA>,client.image.tag=<latest_github_commit_SHA>,instanceserver.image.tag=<latest_github_commit_SHA> <stage_name> xrengine/xrengine```
 
 ```--reuse-values``` says to carry over all configuration values from the previous deployment. This is most important
 for tags, since they're usually set inline with the `helm install/upgrade` command, not a Helm config.
