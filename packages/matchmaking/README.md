@@ -23,7 +23,7 @@ hostname to the IP address of minikube.
 
 ### Point hostname in hostfile to minikube's IP
 Run `minikube ip`. This will give you minikube's IP address.
-Next, edit the file `/etc/hosts` (or whatever your hostfile is called if not on Linux); you may need to execute `sudo`
+Next, edit the file `hosts` in the folder `/etc` (or whatever your hostfile is called if not on Linux); you may need to execute `sudo`
 privileges to edit it. You'll need to add a line like this:
 
 `<minikube ip>  <hostname>`, e.g. 
