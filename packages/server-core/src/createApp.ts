@@ -50,14 +50,14 @@ export const configureOpenAPI = () => (app: Application) => {
 }
 
 export const configureSocketIO =
-  (gameserver = false, onSocket = (app: Application, socket: Socket) => {}) =>
+  (instanceserver = false, onSocket = (app: Application, socket: Socket) => {}) =>
   (app: Application) => {
     const origin = [
       'https://' + config.server.clientHost,
       'capacitor://' + config.server.clientHost,
       'ionic://' + config.server.clientHost
     ]
-    if (!gameserver) origin.push('https://localhost:3001')
+    if (!instanceserver) origin.push('https://localhost:3001')
     app.configure(
       socketio(
         {
@@ -66,7 +66,7 @@ export const configureSocketIO =
             origin,
             methods: ['OPTIONS', 'GET', 'POST'],
             allowedHeaders: '*',
-            preflightContinue: gameserver,
+            preflightContinue: instanceserver,
             credentials: true
           }
         },
