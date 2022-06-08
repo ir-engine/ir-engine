@@ -70,8 +70,8 @@ function undo(command: PositionCommandParams) {
 function emitEventAfter(command: PositionCommandParams) {
   if (command.preventEvents) return
 
-  dispatchAction(EditorAction.sceneModified(true))
-  dispatchAction(SelectionAction.changedObject(command.affectedNodes, 'position'))
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
+  dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: 'position' }))
 }
 
 function updatePosition(command: PositionCommandParams, isUndo?: boolean) {

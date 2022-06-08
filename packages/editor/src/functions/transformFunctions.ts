@@ -38,24 +38,24 @@ export const setTransformMode = (mode: TransformModeType): void => {
   }
 
   if (mode !== TransformMode.Placement && mode !== TransformMode.Grab) {
-    dispatchAction(EditorHelperAction.changeTransformModeOnCancel(mode))
+    dispatchAction(EditorHelperAction.changeTransformModeOnCancel({ mode }))
   }
 
   EditorHistory.grabCheckPoint = undefined
   SceneState.transformGizmo.setTransformMode(mode)
-  dispatchAction(EditorHelperAction.changedTransformMode(mode))
+  dispatchAction(EditorHelperAction.changedTransformMode({ mode }))
 }
 
 export const toggleSnapMode = (): void => {
   dispatchAction(
-    EditorHelperAction.changedSnapMode(
-      accessEditorHelperState().snapMode.value === SnapMode.Disabled ? SnapMode.Grid : SnapMode.Disabled
-    )
+    EditorHelperAction.changedSnapMode({
+      snapMode: accessEditorHelperState().snapMode.value === SnapMode.Disabled ? SnapMode.Grid : SnapMode.Disabled
+    })
   )
 }
 
-export const setTransformPivot = (pivot: TransformPivotType) => {
-  dispatchAction(EditorHelperAction.changedTransformPivotMode(pivot))
+export const setTransformPivot = (transformPivot: TransformPivotType) => {
+  dispatchAction(EditorHelperAction.changedTransformPivotMode({ transformPivot }))
 }
 
 export const toggleTransformPivot = () => {
@@ -66,15 +66,16 @@ export const toggleTransformPivot = () => {
 }
 
 export const setTransformSpace = (transformSpace: TransformSpace) => {
-  dispatchAction(EditorHelperAction.changedTransformSpaceMode(transformSpace))
+  dispatchAction(EditorHelperAction.changedTransformSpaceMode({ transformSpace }))
 }
 
 export const toggleTransformSpace = () => {
   dispatchAction(
-    EditorHelperAction.changedTransformSpaceMode(
-      accessEditorHelperState().transformSpace.value === TransformSpace.World
-        ? TransformSpace.LocalSelection
-        : TransformSpace.World
-    )
+    EditorHelperAction.changedTransformSpaceMode({
+      transformSpace:
+        accessEditorHelperState().transformSpace.value === TransformSpace.World
+          ? TransformSpace.LocalSelection
+          : TransformSpace.World
+    })
   )
 }

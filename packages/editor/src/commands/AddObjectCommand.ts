@@ -88,7 +88,7 @@ function emitEventAfter(command: AddObjectCommandParams) {
 
   if (command.updateSelection) updateOutlinePassSelection()
 
-  dispatchAction(EditorAction.sceneModified(true))
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph())
 }
 

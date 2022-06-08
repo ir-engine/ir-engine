@@ -45,24 +45,24 @@ const TransformSnapTool = () => {
 
   const onChangeTranslationSnap = (snapValue: number) => {
     InfiniteGridHelper.instance.setSize(snapValue)
-    dispatchAction(EditorHelperAction.changeTranslationSnap(snapValue))
+    dispatchAction(EditorHelperAction.changeTranslationSnap({ translationSnap: snapValue }))
 
     if (editorHelperState.snapMode.value !== SnapMode.Grid) {
-      dispatchAction(EditorHelperAction.changedSnapMode(SnapMode.Grid))
+      dispatchAction(EditorHelperAction.changedSnapMode({ snapMode: SnapMode.Grid }))
     }
   }
 
   const onChangeRotationSnap = (snapValue: number) => {
-    dispatchAction(EditorHelperAction.changeRotationSnap(snapValue))
+    dispatchAction(EditorHelperAction.changeRotationSnap({ rotationSnap: snapValue }))
     if (editorHelperState.snapMode.value !== SnapMode.Grid) {
-      dispatchAction(EditorHelperAction.changedSnapMode(SnapMode.Grid))
+      dispatchAction(EditorHelperAction.changedSnapMode({ snapMode: SnapMode.Grid }))
     }
   }
 
   // const onChangeScaleSnap = (snapValue: number) => {
-  //   dispatchAction(EditorHelperAction.changeScaleSnap(snapValue))
+  //   dispatchAction(EditorHelperAction.changeScaleSnap({ scaleSnap: snapValue }))
   //   if (editorHelperState.snapMode.value !== SnapMode.Grid) {
-  //     dispatchAction(EditorHelperAction.changedSnapMode(SnapMode.Grid))
+  //     dispatchAction(EditorHelperAction.changedSnapMode({ snapMode: SnapMode.Grid }))
   //   }
   // }
 

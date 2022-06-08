@@ -47,12 +47,12 @@ export default async function FlyControlSystem(world: World) {
           tempVec3.set(0, 0, -distance).applyMatrix3(normalMatrix.getNormalMatrix(cameraObject.value.matrix))
         )
 
-        dispatchAction(EditorHelperAction.changedFlyMode(false))
+        dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: false }))
       }
 
       if (getInput(EditorActionSet.flying)) {
         addInputActionMapping(ActionSets.FLY, FlyMapping)
-        dispatchAction(EditorHelperAction.changedFlyMode(true))
+        dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: true }))
       }
 
       if (!editorHelperState.isFlyModeEnabled.value) return

@@ -40,7 +40,7 @@ function execute(command: AddToSelectionCommandParams) {
     selectedEntities.push(object.entity)
   }
 
-  dispatchAction(SelectionAction.updateSelection(selectedEntities))
+  dispatchAction(SelectionAction.updateSelection({ selectedEntities }))
 
   emitEventAfter(command)
 }

@@ -89,7 +89,7 @@ function undo(command: RemoveObjectCommandParams) {
 function emitEventAfter(command: RemoveObjectCommandParams) {
   if (command.preventEvents) return
 
-  dispatchAction(EditorAction.sceneModified(true))
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph())
 }
 

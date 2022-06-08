@@ -45,7 +45,7 @@ function execute(command: ToggleSelectionCommandParams) {
     }
   }
 
-  dispatchAction(SelectionAction.updateSelection(selectedEntities))
+  dispatchAction(SelectionAction.updateSelection({ selectedEntities }))
 
   emitEventAfter(command)
 }

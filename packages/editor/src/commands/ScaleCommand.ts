@@ -75,8 +75,8 @@ function undo(command: ScaleCommandParams) {
 function emitEventAfter(command: ScaleCommandParams) {
   if (command.preventEvents) return
 
-  dispatchAction(EditorAction.sceneModified(true))
-  dispatchAction(SelectionAction.changedObject(command.affectedNodes, 'scale'))
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
+  dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: 'scale' }))
 }
 
 function updateScale(command: ScaleCommandParams, isUndo: boolean): void {

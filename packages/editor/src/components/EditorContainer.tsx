@@ -138,7 +138,7 @@ const EditorContainer = () => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     try {
       await loadProjectScene(sceneFile)
-      dispatchAction(EditorAction.sceneModified(true))
+      dispatchAction(EditorAction.sceneModified({ modified: true }))
       setDialogComponent(null)
     } catch (error) {
       console.error(error)
@@ -271,7 +271,7 @@ const EditorContainer = () => {
         if (result && projectName.value) {
           await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
           await saveScene(projectName.value, result.name, blob, abortController.signal)
-          dispatchAction(EditorAction.sceneModified(false))
+          dispatchAction(EditorAction.sceneModified({ modified: false }))
         }
       }
       setDialogComponent(null)
@@ -394,7 +394,7 @@ const EditorContainer = () => {
         await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
       }
 
-      dispatchAction(EditorAction.sceneModified(false))
+      dispatchAction(EditorAction.sceneModified({ modified: false }))
 
       setDialogComponent(null)
     } catch (error) {

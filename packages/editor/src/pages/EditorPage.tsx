@@ -7,14 +7,11 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { initializeCoreSystems, initializeSceneSystems } from '@xrengine/engine/src/initializeEngine'
-import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
 import EditorContainer from '../components/EditorContainer'
-import { EditorErrorReceptor } from '../services/EditorErrorServices'
-import { EditorHelperReceptor } from '../services/EditorHelperState'
-import { EditorAction, EditorReceptor, useEditorState } from '../services/EditorServices'
-import { EditorSelectionReceptor } from '../services/SelectionServices'
+import { EditorAction, useEditorState } from '../services/EditorServices'
 
 export const EditorPage = (props: RouteComponentProps<{ sceneName: string; projectName: string }>) => {
   const editorState = useEditorState()
@@ -74,8 +71,8 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
   useEffect(() => {
     if (engineReady) {
       const { projectName, sceneName } = props.match.params
-      dispatchAction(EditorAction.projectChanged(projectName ?? null))
-      dispatchAction(EditorAction.sceneChanged(sceneName ?? null))
+      dispatchAction(EditorAction.projectChanged({ projectName: projectName ?? null }))
+      dispatchAction(EditorAction.sceneChanged({ sceneName: sceneName ?? null }))
     }
   }, [engineReady, props.match.params.projectName, props.match.params.sceneName])
 
@@ -85,10 +82,6 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
     Engine.instance.isEditor = true
     const world = Engine.instance.currentWorld
     initializeCoreSystems().then(async () => {
-      addActionReceptor(EditorReceptor)
-      addActionReceptor(EditorHelperReceptor)
-      addActionReceptor(EditorErrorReceptor)
-      addActionReceptor(EditorSelectionReceptor)
       initSystems(world, systems)
       await initializeSceneSystems()
       const projects = projectState.projects.value.map((project) => project.name)

@@ -114,7 +114,7 @@ function updateProperty<C extends ComponentConstructor<any, any>>(
           result[finalProp] = value
         }
 
-        dispatchAction(SelectionAction.changedObject(command.affectedNodes[i], propertyName))
+        dispatchAction(SelectionAction.changedObject({ objects: [command.affectedNodes[i]], propertyName }))
       }
     }
 
@@ -124,7 +124,7 @@ function updateProperty<C extends ComponentConstructor<any, any>>(
     }
   }
 
-  dispatchAction(EditorAction.sceneModified(true))
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
 }
 
 function toString<C extends ComponentConstructor<any, any>>(command: ModifyPropertyCommandParams<C>) {

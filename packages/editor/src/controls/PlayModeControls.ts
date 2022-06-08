@@ -15,7 +15,7 @@ export function enterPlayMode(): void {
 
   EngineRenderer.instance.renderer.domElement.addEventListener('click', onClickCanvas)
   document.addEventListener('pointerlockchange', onPointerLockChange)
-  dispatchAction(EditorHelperAction.changedPlayMode(true))
+  dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: true }))
 }
 
 export function leavePlayMode(): void {
@@ -23,14 +23,14 @@ export function leavePlayMode(): void {
 
   addInputActionMapping(ActionSets.EDITOR, EditorMapping)
 
-  dispatchAction(EditorHelperAction.changedFlyMode(false))
+  dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: false }))
   removeInputActionMapping(ActionSets.FLY)
 
   EngineRenderer.instance.renderer.domElement.removeEventListener('click', onClickCanvas)
   document.removeEventListener('pointerlockchange', onPointerLockChange)
   document.exitPointerLock()
 
-  dispatchAction(EditorHelperAction.changedPlayMode(false))
+  dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: false }))
 }
 
 function onClickCanvas(): void {
@@ -39,14 +39,14 @@ function onClickCanvas(): void {
 
 function onPointerLockChange(): void {
   if (document.pointerLockElement === EngineRenderer.instance.renderer.domElement) {
-    dispatchAction(EditorHelperAction.changedFlyMode(true))
+    dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: true }))
     addInputActionMapping(ActionSets.FLY, FlyMapping)
 
     removeInputActionMapping(ActionSets.EDITOR)
   } else {
     addInputActionMapping(ActionSets.EDITOR, EditorMapping)
 
-    dispatchAction(EditorHelperAction.changedFlyMode(false))
+    dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: false }))
     removeInputActionMapping(ActionSets.FLY)
   }
 }

@@ -119,7 +119,7 @@ function emitEventAfter(command: ReparentCommandParams) {
 
   if (command.updateSelection) updateOutlinePassSelection()
 
-  dispatchAction(EditorAction.sceneModified(true))
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph())
 }
 

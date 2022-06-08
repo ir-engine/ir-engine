@@ -204,8 +204,8 @@ const ProjectsPage = () => {
     event.preventDefault()
     if (!isInstalled(project)) return
 
-    dispatchAction(EditorAction.sceneChanged(null))
-    dispatchAction(EditorAction.projectChanged(project.name))
+    dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
+    dispatchAction(EditorAction.projectChanged({ projectName: project.name }))
     history.push(`/editor/${project.name}`)
   }
 

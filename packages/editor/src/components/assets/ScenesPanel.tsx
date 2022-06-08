@@ -77,7 +77,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
     if (activeScene) {
       await deleteScene(editorState.projectName.value, activeScene.name)
       if (editorState.sceneName.value === activeScene.name) {
-        dispatchAction(EditorAction.sceneChanged(null))
+        dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
         dispatchAction(EngineActions.sceneUnloaded())
         disposeProject()
         history.push(`/editor/${editorState.projectName.value}`)
@@ -118,7 +118,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const finishRenaming = async () => {
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
-    dispatchAction(EditorAction.sceneChanged(newName))
+    dispatchAction(EditorAction.sceneChanged({ sceneName: newName }))
     history.push(`/editor/${editorState.projectName.value}/${newName}`)
     setNewName('')
     fetchItems()

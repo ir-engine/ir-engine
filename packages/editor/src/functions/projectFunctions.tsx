@@ -38,11 +38,11 @@ export async function runPreprojectLoadTasks(): Promise<void> {
   const editorState = accessEditorState()
 
   if (editorState.preprojectLoadTaskStatus.value === TaskStatus.NOT_STARTED) {
-    dispatchAction(EditorAction.updatePreprojectLoadTask(TaskStatus.IN_PROGRESS))
+    dispatchAction(EditorAction.updatePreprojectLoadTask({ taskStatus: TaskStatus.IN_PROGRESS }))
 
     await Promise.all([ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.loadDefaultAnimations()])
 
-    dispatchAction(EditorAction.updatePreprojectLoadTask(TaskStatus.COMPLETED))
+    dispatchAction(EditorAction.updatePreprojectLoadTask({ taskStatus: TaskStatus.COMPLETED }))
   }
 }
 
@@ -63,12 +63,12 @@ export async function loadProjectScene(projectFile: SceneJson) {
   disposePlayModeControls()
   const errors = await initializeScene(projectFile)
 
-  dispatchAction(EditorAction.projectLoaded(true))
+  dispatchAction(EditorAction.projectLoaded({ loaded: true }))
   dispatchAction(SelectionAction.changedSceneGraph())
 
   if (errors && errors.length > 0) {
     const error = new MultiError('Errors loading project', errors)
-    dispatchAction(EditorErrorAction.throwError(error))
+    dispatchAction(EditorErrorAction.throwError({ error }))
     throw error
   }
 
@@ -83,7 +83,7 @@ export function disposeProject() {
   disposeScene()
   removeInputEvents()
   disposePlayModeControls()
-  dispatchAction(EditorAction.projectLoaded(false))
+  dispatchAction(EditorAction.projectLoaded({ loaded: false }))
 
   window.addEventListener('copy', copy)
   window.addEventListener('paste', paste)

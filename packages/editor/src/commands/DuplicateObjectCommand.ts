@@ -96,7 +96,7 @@ function undo(command: DuplicateObjectCommandParams) {
 function emitEventAfter(command: DuplicateObjectCommandParams) {
   if (command.preventEvents) return
 
-  dispatchAction(EditorAction.sceneModified(true))
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph())
 }
 

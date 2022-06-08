@@ -139,7 +139,7 @@ function emitEventAfter(command: GroupCommandParams) {
 
   if (command.updateSelection) updateOutlinePassSelection()
 
-  dispatchAction(EditorAction.sceneModified(true))
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph())
 }
 

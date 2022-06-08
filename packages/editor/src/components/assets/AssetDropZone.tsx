@@ -72,7 +72,7 @@ export function AssetDropZone() {
             const transformComponent = getComponent(node.entity, TransformComponent)
             if (transformComponent) {
               getCursorSpawnPosition(mousePos, transformComponent.position)
-              dispatchAction(SelectionAction.changedObject([node], 'position'))
+              dispatchAction(SelectionAction.changedObject({ objects: [node], propertyName: 'position' }))
             }
           })
         })
@@ -82,7 +82,7 @@ export function AssetDropZone() {
         const transformComponent = getComponent(node.entity, TransformComponent)
         if (transformComponent) {
           getCursorSpawnPosition(mousePos, transformComponent.position)
-          dispatchAction(SelectionAction.changedObject([node], 'position'))
+          dispatchAction(SelectionAction.changedObject({ objects: [node], propertyName: 'position' }))
         }
       }
     },

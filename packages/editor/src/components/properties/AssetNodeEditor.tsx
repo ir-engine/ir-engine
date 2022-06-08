@@ -27,7 +27,7 @@ export const AssetNodeEditor: EditorComponentType = (props) => {
     unloadAsset(entity)
     setIsLoaded(LoadState.UNLOADED)
     await new Promise((resolve) => setTimeout(resolve, 1))
-    dispatchAction(EditorAction.sceneModified(true))
+    dispatchAction(EditorAction.sceneModified({ modified: true }))
     dispatchAction(SelectionAction.changedSceneGraph())
   }
 
@@ -35,7 +35,7 @@ export const AssetNodeEditor: EditorComponentType = (props) => {
     setIsLoaded(LoadState.LOADING)
     await loadAsset(entity)
     setIsLoaded(LoadState.LOADED)
-    dispatchAction(EditorAction.sceneModified(true))
+    dispatchAction(EditorAction.sceneModified({ modified: true }))
     dispatchAction(SelectionAction.changedSceneGraph())
   }
 

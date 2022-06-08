@@ -92,7 +92,7 @@ function replaceSelection(command: ReplaceSelectionCommandParams, isUndo: boolea
     }
   }
 
-  dispatchAction(SelectionAction.updateSelection(newlySelectedEntities))
+  dispatchAction(SelectionAction.updateSelection({ selectedEntities: newlySelectedEntities }))
 }
 
 function toString(command: ReplaceSelectionCommandParams) {

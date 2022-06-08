@@ -67,8 +67,8 @@ function undo(command: TagComponentCommandParams) {
 function emitEventAfter(command: TagComponentCommandParams) {
   if (command.preventEvents) return
 
-  dispatchAction(EditorAction.sceneModified(true))
-  dispatchAction(SelectionAction.changedObject(command.affectedNodes, undefined))
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
+  dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: '' }))
 }
 
 function update(command: TagComponentCommandParams, isUndo?: boolean) {

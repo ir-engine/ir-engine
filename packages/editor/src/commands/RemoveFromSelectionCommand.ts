@@ -42,7 +42,7 @@ function execute(command: RemoveFromSelectionCommandParams) {
     removeComponent(object.entity, SelectTagComponent)
   }
 
-  dispatchAction(SelectionAction.updateSelection(selectedEntities))
+  dispatchAction(SelectionAction.updateSelection({ selectedEntities }))
 
   emitEventAfter(command)
 }

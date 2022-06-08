@@ -70,8 +70,8 @@ function undo(command: RotateAroundCommandParams) {
 function emitEventAfter(command: RotateAroundCommandParams) {
   if (command.preventEvents) return
 
-  dispatchAction(EditorAction.sceneModified(true))
-  dispatchAction(SelectionAction.changedObject(command.affectedNodes, 'matrix'))
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
+  dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: 'matrix' }))
 }
 
 function rotateAround(command: RotateAroundCommandParams, isUndo?: boolean) {

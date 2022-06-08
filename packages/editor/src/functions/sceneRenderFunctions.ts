@@ -97,7 +97,7 @@ export async function initializeRenderer(): Promise<void> {
 
     addInputActionMapping(ActionSets.EDITOR, EditorMapping)
 
-    dispatchAction(EditorAction.rendererInitialized(true))
+    dispatchAction(EditorAction.rendererInitialized({ initialized: true }))
 
     accessEngineRendererState().automatic.set(false)
     await restoreEditorHelperData()
