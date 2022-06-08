@@ -9,6 +9,7 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { isClient } from '../../../common/functions/isClient'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -39,8 +40,8 @@ export const deserializeModel: ComponentDeserializeFunction = (
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
   //add material override components
-  if (model.materialOverrides.length > 0) {
-    Promise.all(model.materialOverrides.map((override, i) => initializeOverride(entity, override))).then(
+  if (isClient && model.materialOverrides.length > 0) {
+    Promise.all(model.materialOverrides.map((override, i) => initializeOverride(entity, override)())).then(
       (overrides) => (model.materialOverrides = overrides)
     )
   }

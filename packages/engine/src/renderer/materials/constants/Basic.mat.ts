@@ -1,16 +1,23 @@
-import { MeshBasicMaterial, MeshBasicMaterialParameters, Texture } from 'three'
+import { Color, MeshBasicMaterial, MeshBasicMaterialParameters, Texture } from 'three'
 
 import { MaterialParms } from '../MaterialParms'
 import { formatMaterialArgs as format } from '../Utilities'
 
-export const DefaultArgs: MeshBasicMaterialParameters = {
+export const BasicArgs = {
   alphaTest: 0.0,
   alphaMap: new Texture(),
   aoMap: new Texture(),
+  aoMapIntensity: 0.0,
   envMap: new Texture(),
   lightMap: new Texture(),
-  specularMap: new Texture(),
-  map: new Texture()
+  lightMapIntensity: 1.0,
+  map: new Texture(),
+  color: new Color(1, 1, 1)
+}
+
+export const DefaultArgs: MeshBasicMaterialParameters = {
+  ...BasicArgs,
+  specularMap: new Texture()
 }
 
 export default async function Basic(args?: MeshBasicMaterialParameters): Promise<MaterialParms> {

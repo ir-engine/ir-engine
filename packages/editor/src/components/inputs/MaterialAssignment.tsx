@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
-import { MathUtils, Texture, Vector2, Vector3 } from 'three'
+import { Color, MathUtils, Texture, Vector2, Vector3 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -19,6 +19,8 @@ import { AssetLoader } from '../../../../engine/src/assets/classes/AssetLoader'
 import { getAllComponents } from '../../../../engine/src/ecs/functions/ComponentFunctions'
 import BooleanInput from './BooleanInput'
 import { Button } from './Button'
+import ColorInput from './ColorInput'
+import { ImageInput } from './ImageInput'
 import InputGroup, { InputGroupContent, InputGroupVerticalContainerWide, InputGroupVerticalContent } from './InputGroup'
 import NumericInput from './NumericInput'
 import SelectInput from './SelectInput'
@@ -167,7 +169,9 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
     }
 
     function getArguments(materialID) {
-      const argStructure = assignment.args ?? DefaultArguments[materialID]
+      const argStructure = assignment.args
+        ? { ...DefaultArguments[materialID], ...assignment.args }
+        : DefaultArguments[materialID]
 
       function setArgsProp(prop) {
         return (value) => {
@@ -201,8 +205,15 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
               //number
               if (typeof v === 'number') {
                 return (
-                  <InputGroup name={k} label={k}>
+                  <InputGroup key={compKey} name={k} label={k}>
                     <NumericInput value={v} onChange={setArgsProp(k)} />
+                  </InputGroup>
+                )
+              }
+              if ((v as Color).isColor) {
+                return (
+                  <InputGroup key={compKey} name={k} label={k}>
+                    <ColorInput value={v} onChange={setArgsProp(k)} />
                   </InputGroup>
                 )
               }
@@ -220,21 +231,21 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
               }
               if (typeof v === 'string') {
                 return (
-                  <InputGroup name={k} label={k}>
+                  <InputGroup key={compKey} name={k} label={k}>
                     <StringInput value={v} onChange={setArgsProp(k)} />
                   </InputGroup>
                 )
               }
               if (typeof v === 'boolean') {
                 return (
-                  <InputGroup name={k} label={k}>
+                  <InputGroup key={compKey} name={k} label={k}>
                     <BooleanInput value={v} onChange={setArgsProp(k)} />
                   </InputGroup>
                 )
               }
               if ((v as Texture).isTexture) {
                 const argKey = texKey(index, k)
-                function onChangeTexturePath(prop) {
+                function onChangeTexturePath() {
                   return (value) => {
                     const nuPaths = new Map(texturePaths.entries())
                     nuPaths.set(argKey, value)
@@ -245,7 +256,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
                 }
                 return (
                   <InputGroup key={compKey} name={k} label={k}>
-                    <StringInput key={compKey} value={texturePaths.get(argKey)} onChange={onChangeTexturePath(k)} />
+                    <ImageInput value={texturePaths.get(argKey)} onChange={onChangeTexturePath()} />
                     <Box>
                       <img src={(v as Texture).source.data?.src} />
                     </Box>
@@ -280,7 +291,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
               value={assignment.materialID}
               onChange={onChangeMaterialID}
               options={materialIDs}
-              creatable={true}
+              creatable={false}
               isSearchable={true}
             />
           </InputGroup>
@@ -325,23 +336,30 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
     <GroupContainer>
       <InputGroupVerticalContainerWide>
         <InputGroupVerticalContent>
-          <Button onClick={onRefresh}>
-            <p>Refresh</p>
-          </Button>
-          <ArrayInputGroupContent>
-            <label> Count: </label>
-            <ControlledStringInput value={count} onChange={onChangeSize} />
-            <Button onClick={onAddEntry}>+</Button>
-          </ArrayInputGroupContent>
-          {values &&
-            values.map((value, idx) => {
+          {values?.length > 0 &&
+            (() => {
               return (
-                <ArrayInputGroupContent key={`${entity}-${idx}-overrideEntry`} style={{ margin: '4px 2px' }}>
-                  <label>{idx + 1}: </label>
-                  {MaterialAssignmentEntry(idx)}
-                </ArrayInputGroupContent>
+                <Fragment>
+                  <Button onClick={onRefresh}>
+                    <p>Refresh</p>
+                  </Button>
+                  <ArrayInputGroupContent>
+                    <label> Count: </label>
+                    <ControlledStringInput value={count} onChange={onChangeSize} />
+                    <Button onClick={onAddEntry}>+</Button>
+                  </ArrayInputGroupContent>
+                  {values &&
+                    values.map((value, idx) => {
+                      return (
+                        <ArrayInputGroupContent key={`${entity}-${idx}-overrideEntry`} style={{ margin: '4px 2px' }}>
+                          <label>{idx + 1}: </label>
+                          {MaterialAssignmentEntry(idx)}
+                        </ArrayInputGroupContent>
+                      )
+                    })}
+                </Fragment>
               )
-            })}
+            })()}
         </InputGroupVerticalContent>
       </InputGroupVerticalContainerWide>
     </GroupContainer>

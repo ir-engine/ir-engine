@@ -1,12 +1,9 @@
-import { Material, Mesh, Object3D } from 'three'
+import { Material, Mesh } from 'three'
 
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import UpdateableObject3D from '@xrengine/engine/src/scene/classes/UpdateableObject3D'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { UpdatableComponent } from '@xrengine/engine/src/scene/components/UpdatableComponent'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { MaterialOverrideComponentType } from '../../scene/components/MaterialOverrideComponent'
 import { MatRend } from '../../scene/systems/MaterialOverrideSystem'
 import { MaterialLibrary } from './MaterialLibrary'
@@ -87,8 +84,9 @@ export async function assignMaterial(override: MaterialOverrideComponentType): P
           break
       }
       if (!mesh) return
-      result.push({ mesh: mesh, material: mesh.material })
+      const oldMat = mesh.material
       mesh.material = matParm.material
+      result.push({ mesh: mesh, material: oldMat })
     }
   })
   return [result, matParm]
