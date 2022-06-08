@@ -199,7 +199,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
       }
       function traverseArgs(args) {
         return (
-          <div key={`${entity}-${index}-args`}>
+          <Fragment key={`${entity}-${index}-args`}>
             {Object.entries(args).map(([k, v]) => {
               let compKey = `${entity}-${index}-args-${k}`
               //number
@@ -264,7 +264,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
                 )
               }
             })}
-          </div>
+          </Fragment>
         )
       }
       return traverseArgs(argStructure)
@@ -278,7 +278,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
     }
 
     return (
-      <div key={`${entity}-${index}-entry`}>
+      <Fragment key={`${entity}-${index}-entry`}>
         <span>
           <InputGroup
             key={`${entity}-${index}-materialID`}
@@ -328,7 +328,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
         <span>
           <Button onClick={onRemoveEntry(index)}>Delete</Button>
         </span>
-      </div>
+      </Fragment>
     )
   }
 
