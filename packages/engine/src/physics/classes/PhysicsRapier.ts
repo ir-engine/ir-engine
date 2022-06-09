@@ -1,5 +1,5 @@
 // This file will be renamed to Physics.ts when we are ready to take out physx completely.
-import RAPIER, { RigidBodyDesc, World } from '@dimforge/rapier3d-compat'
+import RAPIER, { ColliderDesc, RigidBody, RigidBodyDesc, World } from '@dimforge/rapier3d-compat'
 
 export type Rapier = typeof RAPIER
 export type PhysicsWorld = World
@@ -19,8 +19,14 @@ function addBody(world: World, rigidBodyDesc: RigidBodyDesc) {
   return rigidBody
 }
 
+function createCollider(world: World, rigidBody: RigidBody, colliderDesc: ColliderDesc) {
+  const collider = world.createCollider(colliderDesc, rigidBody)
+  return collider
+}
+
 export const Physics = {
   load,
   createWorld,
-  addBody
+  addBody,
+  createCollider
 }
