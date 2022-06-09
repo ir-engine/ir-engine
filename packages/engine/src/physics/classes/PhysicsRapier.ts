@@ -1,20 +1,26 @@
 // This file will be renamed to Physics.ts when we are ready to take out physx completely.
-import { RigidBodyDesc, World } from '@dimforge/rapier3d-compat'
+import RAPIER, { RigidBodyDesc, World } from '@dimforge/rapier3d-compat'
 
-import { loadRapier } from '../rapier/loadRapier'
+export type Rapier = typeof RAPIER
+export type PhysicsWorld = World
 
-export class Physics {
-  world: World
+function load() {
+  // eslint-disable-next-line import/no-named-as-default-member
+  return RAPIER.init()
+}
 
-  gravity = { x: 0.0, y: -9.81, z: 0.0 }
+function createWorld(gravity = { x: 0.0, y: -9.81, z: 0.0 }) {
+  const world = new World(gravity)
+  return world
+}
 
-  async createWorld() {
-    await loadRapier()
-    this.world = new World(this.gravity)
-    return this.world
-  }
+function addBody(world: World, rigidBodyDesc: RigidBodyDesc) {
+  const rigidBody = world.createRigidBody(rigidBodyDesc)
+  return rigidBody
+}
 
-  addBody(rigidBodyDesc: RigidBodyDesc) {
-    let rigidBody = this.world.createRigidBody(rigidBodyDesc)
-  }
+export const Physics = {
+  load,
+  createWorld,
+  addBody
 }

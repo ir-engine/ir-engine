@@ -17,6 +17,7 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { WorldState } from '../../networking/interfaces/WorldState'
 import { Physics } from '../../physics/classes/Physics'
+import { PhysicsWorld } from '../../physics/classes/PhysicsRapier'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
@@ -116,6 +117,8 @@ export class World {
   scene = new Scene()
 
   physics = new Physics()
+
+  // physics: PhysicsWorld
 
   /**
    * Map of object lists by layer

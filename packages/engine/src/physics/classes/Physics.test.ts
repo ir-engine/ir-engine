@@ -4,18 +4,20 @@ import assert from 'assert'
 import { Physics } from './PhysicsRapier'
 
 describe('Physics', () => {
+  before(async () => {
+    await Physics.load()
+  })
+
   it('should create rapier world', async () => {
-    let physics = new Physics()
-    const world = physics.createWorld()
+    const world = Physics.createWorld()
     assert(world)
   })
 
   it('should create rigidBody', async () => {
-    let physics = new Physics()
-    const world = await physics.createWorld()
+    const world = Physics.createWorld()
 
-    let rigidBodyDesc = RigidBodyDesc.dynamic()
-    physics.addBody(rigidBodyDesc)
+    const rigidBodyDesc = RigidBodyDesc.dynamic()
+    Physics.addBody(world, rigidBodyDesc)
 
     assert.deepEqual(world.bodies.len(), 1)
   })

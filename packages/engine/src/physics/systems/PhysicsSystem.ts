@@ -17,6 +17,7 @@ import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isDynamicBody, isStaticBody } from '../classes/Physics'
+import { Physics } from '../classes/PhysicsRapier'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
@@ -210,6 +211,9 @@ export default async function PhysicsSystem(world: World) {
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
 
   await world.physics.createScene()
+
+  // await Physics.load()
+  // world.physics = Physics.createWorld()
 
   return () => {
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
