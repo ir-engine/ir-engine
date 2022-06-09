@@ -1221,11 +1221,16 @@
   :global(.MuiInputLabel-formControl) {
     -webkit-text-fill-color: var(--textColor);
     color: var(--textColor);
+    transform-origin: top left;
+    -webkit-transform: translate(14px, -9px) scale(0.75);
+    -ms-transform: translate(14px, -9px) scale(0.75);
+    transform: translate(14px, -9px) scale(0.75);
     background-color: var(--panelBackground);
     padding-left: 5px;
     padding-right: 5px;
     max-width: fit-content;
-    font-size: 12px;
+    font-size: 16px;
+    margin-left: -5px;
     margin-bottom: 7px;
   }
 

@@ -55,6 +55,7 @@ const InputSelect = ({
         className={className ?? styles.selectField}
         error={error ? true : false}
         disabled={disabled}
+        size="small"
         sx={{ flexGrow: 1 }}
       >
         <InputLabel>{_.upperFirst(label)}</InputLabel>
