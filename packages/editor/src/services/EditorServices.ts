@@ -59,8 +59,6 @@ export const registerEditorServiceActions = () => {
   })
 }
 
-registerEditorServiceActions()
-
 export const accessEditorState = () => getState(EditorState)
 
 export const useEditorState = () => useState(accessEditorState())

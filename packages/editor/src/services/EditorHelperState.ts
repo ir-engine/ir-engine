@@ -159,8 +159,6 @@ export const registerEditorHelperServiceActions = () => {
   })
 }
 
-registerEditorHelperServiceActions()
-
 export const accessEditorHelperState = () => getState(EditorHelperState)
 
 export const useEditorHelperState = () => useState(accessEditorHelperState())

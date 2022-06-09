@@ -12,10 +12,17 @@ import {
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { registerPrefabs, ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { HyperFlux } from '@xrengine/hyperflux/functions/StoreFunctions'
 
 import EditorCommands from '../constants/EditorCommands'
-import { accessEditorState } from '../services/EditorServices'
-import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
+import { registerEditorErrorServiceActions } from '../services/EditorErrorServices'
+import { registerEditorHelperServiceActions } from '../services/EditorHelperState'
+import { EditorAction, registerEditorServiceActions } from '../services/EditorServices'
+import {
+  accessSelectionState,
+  registerEditorSelectionServiceActions,
+  SelectionAction
+} from '../services/SelectionServices'
 import { AddObjectCommand, AddObjectCommandParams } from './AddObjectCommand'
 
 describe('AddObjectCommand', () => {
@@ -27,6 +34,12 @@ describe('AddObjectCommand', () => {
 
   beforeEach(() => {
     createEngine()
+
+    registerEditorSelectionServiceActions()
+    registerEditorErrorServiceActions()
+    registerEditorHelperServiceActions()
+    registerEditorServiceActions()
+
     registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
@@ -85,41 +98,39 @@ describe('AddObjectCommand', () => {
   describe('emitEventBefore function', async () => {
     it('will not emit any event if "preventEvents" is true', () => {
       command.preventEvents = true
-      const selectionState = accessSelectionState()
-      const beforeSelectionChangeCounter = selectionState.beforeSelectionChangeCounter.value
-
       AddObjectCommand.emitEventBefore?.(command)
-      assert.equal(beforeSelectionChangeCounter, selectionState.beforeSelectionChangeCounter.value)
+      assert(
+        !HyperFlux.store.actions.incoming.find((action) => action.type === SelectionAction.changedBeforeSelection.type)
+      )
     })
 
     it('will emit event if "preventEvents" is false', () => {
       command.preventEvents = false
-      const selectionState = accessSelectionState()
-      const beforeSelectionChangeCounter = selectionState.beforeSelectionChangeCounter.value
-
       AddObjectCommand.emitEventBefore?.(command)
-      assert.equal(beforeSelectionChangeCounter + 1, selectionState.beforeSelectionChangeCounter.value)
+      assert(
+        HyperFlux.store.actions.incoming.find((action) => action.type === SelectionAction.changedBeforeSelection.type)
+      )
     })
   })
 
   describe('emitEventAfter function', async () => {
     it('will not emit any event if "preventEvents" is true', () => {
       command.preventEvents = true
-      const selectionState = accessSelectionState()
-      const sceneGraphChangeCounter = selectionState.sceneGraphChangeCounter.value
-
       AddObjectCommand.emitEventAfter?.(command)
-      assert.equal(sceneGraphChangeCounter, selectionState.sceneGraphChangeCounter.value)
+      assert(
+        !HyperFlux.store.actions.incoming.find((action) => {
+          return (
+            action.type === EditorAction.sceneModified.type || action.type === SelectionAction.changedSceneGraph.type
+          )
+        })
+      )
     })
 
     it('will emit event if "preventEvents" is false', () => {
       command.preventEvents = false
-      const selectionState = accessSelectionState()
-      const sceneGraphChangeCounter = selectionState.sceneGraphChangeCounter.value
-
       AddObjectCommand.emitEventAfter?.(command)
-      assert.equal(sceneGraphChangeCounter + 1, selectionState.sceneGraphChangeCounter.value)
-      assert.equal(accessEditorState().sceneModified.value, true)
+      assert(HyperFlux.store.actions.incoming.find((action) => action.type === EditorAction.sceneModified.type))
+      assert(HyperFlux.store.actions.incoming.find((action) => action.type === SelectionAction.changedSceneGraph.type))
     })
   })
 
@@ -188,9 +199,7 @@ describe('AddObjectCommand', () => {
       assert.notEqual(parentNodes.length, 0)
       assert.notEqual(beforeNodes.length, 0)
 
-      command.affectedNodes.forEach((node) => {
-        assert(accessSelectionState().selectedEntities.value.includes(node.entity))
-      })
+      assert(HyperFlux.store.actions.incoming.find((action) => action.type === SelectionAction.updateSelection.type))
     })
 
     it('will create node from provided scenedata', () => {

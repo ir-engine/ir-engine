@@ -68,8 +68,6 @@ export const registerEditorSelectionServiceActions = () => {
   })
 }
 
-registerEditorSelectionServiceActions()
-
 export const accessSelectionState = () => getState(SelectionState)
 
 export const useSelectionState = () => useState(accessSelectionState())

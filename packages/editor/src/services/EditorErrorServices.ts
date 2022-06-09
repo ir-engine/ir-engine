@@ -26,8 +26,6 @@ export const registerEditorErrorServiceActions = () => {
   })
 }
 
-registerEditorErrorServiceActions()
-
 export const accessEditorErrorState = () => getState(EditorErrorState)
 
 export const useEditorErrorState = () => useState(accessEditorErrorState())
