@@ -1,22 +1,28 @@
 import React, { Fragment, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
-import { Color, MathUtils, Texture, Vector2, Vector3 } from 'three'
+import { Color, MathUtils, Texture } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { string } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { DefaultArguments, MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { PatternTarget } from '@xrengine/engine/src/renderer/materials/MaterialParms'
-import {
-  MaterialOverrideComponent,
-  MaterialOverrideComponentType
-} from '@xrengine/engine/src/scene/components/MaterialOverrideComponent'
+import { MaterialOverrideComponent } from '@xrengine/engine/src/scene/components/MaterialOverrideComponent'
 import { refreshMaterials } from '@xrengine/engine/src/scene/functions/loaders/MaterialOverrideFunctions'
 
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Collapse,
+  IconButton,
+  IconButtonProps,
+  Stack
+} from '@mui/material'
 import { Box } from '@mui/system'
 
 import { AssetLoader } from '../../../../engine/src/assets/classes/AssetLoader'
-import { getAllComponents } from '../../../../engine/src/ecs/functions/ComponentFunctions'
 import BooleanInput from './BooleanInput'
 import { Button } from './Button'
 import ColorInput from './ColorInput'
@@ -26,8 +32,33 @@ import NumericInput from './NumericInput'
 import SelectInput from './SelectInput'
 import StringInput, { ControlledStringInput } from './StringInput'
 
+const ExpandMore = styled((props: ExpandMoreProps) => {
+  const { expand, ...other } = props
+  return <IconButton {...other} />
+})(({ theme, expand }) => ({
+  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
+  marginLeft: 'auto',
+  transition: theme.transitions.create('transform', {
+    duration: theme.transitions.duration.shortest
+  })
+}))
+
+interface ExpandMoreProps extends IconButtonProps {
+  expand: boolean
+}
+
+const ImageContainer = (styled as any).div`
+  display: flex;
+  width: 100%;
+  border-width: 2px;
+  border: solid;
+  border-color: #FFFFFF;
+  margin: 8px;
+  padding: 4px;
+`
+
 const GroupContainer = (styled as any).label`
-  background-color: $transparent;
+  background-color: transparent;
   color: #9FA4B5;
   white-space: pre-wrap;
   padding: 0 8px 8px;
@@ -83,6 +114,20 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
     })
   )
   let [texturePaths, setTexturePaths] = useState<Map<string, string>>(initialPaths)
+
+  const [expanded, setExpanded] = useState<Map<string, boolean>>(
+    new Map(values.map((_, index) => [texKey(index, 'expanded'), false]))
+  )
+
+  function handleExpandClick(index) {
+    return () => {
+      const _expanded = new Map(expanded.entries())
+      const key = texKey(index, 'expanded')
+      const val = expanded.get(key)!
+      _expanded.set(key, !val)
+      setExpanded(_expanded)
+    }
+  }
 
   const { t } = useTranslation()
 
@@ -142,7 +187,6 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
   }
 
   async function onRefresh() {
-    //for (const [assignmentKey, path] of texturePaths.entries()) {
     await Promise.all(
       [...texturePaths.entries()].map(async ([assignmentKey, path]) => {
         const [_, uuid, prop] = /(.*)\-([\d\w]*)/.exec(assignmentKey)!
@@ -151,7 +195,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
         if (assignment.args === undefined) {
           assignment.args = {}
         }
-        assignment.args[prop] = await AssetLoader.loadAsync(path)
+        if (path !== '') assignment.args[prop] = await AssetLoader.loadAsync(path)
       })
     )
     const nuVals = await refreshMaterials(node.entity)
@@ -197,73 +241,93 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
           </div>
         )
       }
+
       function traverseArgs(args) {
+        const id = `${entity}-${index}-args`
+        const _expanded = expanded.get(texKey(index, 'expanded'))!
         return (
-          <Fragment key={`${entity}-${index}-args`}>
-            {Object.entries(args).map(([k, v]) => {
-              let compKey = `${entity}-${index}-args-${k}`
-              //number
-              if (typeof v === 'number') {
-                return (
-                  <InputGroup key={compKey} name={k} label={k}>
-                    <NumericInput value={v} onChange={setArgsProp(k)} />
-                  </InputGroup>
-                )
-              }
-              if ((v as Color).isColor) {
-                return (
-                  <InputGroup key={compKey} name={k} label={k}>
-                    <ColorInput value={v} onChange={setArgsProp(k)} />
-                  </InputGroup>
-                )
-              }
-              if (typeof v === 'object') {
-                if ((v as any[]).length !== undefined)
+          <Fragment key={id}>
+            <ExpandMore
+              expand={_expanded}
+              onClick={handleExpandClick(index)}
+              aria-expanded={_expanded}
+              aria-label="show more"
+            >
+              <ExpandMoreIcon />
+            </ExpandMore>
+            <label>Arguments</label>
+            <Collapse in={_expanded} timeout="auto" unmountOnExit>
+              {Object.entries(args).map(([k, v]) => {
+                let compKey = `${entity}-${index}-args-${k}`
+                //number
+                if (typeof v === 'number') {
                   return (
                     <InputGroup key={compKey} name={k} label={k}>
-                      {(v as number[]).map((arrayVal, idx) => {
-                        return (
-                          <NumericInput key={`${compKey}-${idx}`} value={arrayVal} onChange={setArgArrayProp(k, idx)} />
-                        )
-                      })}
+                      <NumericInput value={v} onChange={setArgsProp(k)} />
                     </InputGroup>
                   )
-              }
-              if (typeof v === 'string') {
-                return (
-                  <InputGroup key={compKey} name={k} label={k}>
-                    <StringInput value={v} onChange={setArgsProp(k)} />
-                  </InputGroup>
-                )
-              }
-              if (typeof v === 'boolean') {
-                return (
-                  <InputGroup key={compKey} name={k} label={k}>
-                    <BooleanInput value={v} onChange={setArgsProp(k)} />
-                  </InputGroup>
-                )
-              }
-              if ((v as Texture).isTexture) {
-                const argKey = texKey(index, k)
-                function onChangeTexturePath() {
-                  return (value) => {
-                    const nuPaths = new Map(texturePaths.entries())
-                    nuPaths.set(argKey, value)
-                    setTexturePaths(nuPaths)
-                    if (assignment.args === undefined) assignment.args = argStructure
-                    onChange(values)
-                  }
                 }
-                return (
-                  <InputGroup key={compKey} name={k} label={k}>
-                    <ImageInput value={texturePaths.get(argKey)} onChange={onChangeTexturePath()} />
-                    <Box>
-                      <img src={(v as Texture).source.data?.src} />
-                    </Box>
-                  </InputGroup>
-                )
-              }
-            })}
+                if ((v as Color).isColor) {
+                  return (
+                    <InputGroup key={compKey} name={k} label={k}>
+                      <ColorInput value={v} onChange={setArgsProp(k)} />
+                    </InputGroup>
+                  )
+                }
+                if (typeof v === 'object') {
+                  if ((v as any[]).length !== undefined)
+                    return (
+                      <InputGroup key={compKey} name={k} label={k}>
+                        {(v as number[]).map((arrayVal, idx) => {
+                          return (
+                            <NumericInput
+                              key={`${compKey}-${idx}`}
+                              value={arrayVal}
+                              onChange={setArgArrayProp(k, idx)}
+                            />
+                          )
+                        })}
+                      </InputGroup>
+                    )
+                }
+                if (typeof v === 'string') {
+                  return (
+                    <InputGroup key={compKey} name={k} label={k}>
+                      <StringInput value={v} onChange={setArgsProp(k)} />
+                    </InputGroup>
+                  )
+                }
+                if (typeof v === 'boolean') {
+                  return (
+                    <InputGroup key={compKey} name={k} label={k}>
+                      <BooleanInput value={v} onChange={setArgsProp(k)} />
+                    </InputGroup>
+                  )
+                }
+                if ((v as Texture).isTexture) {
+                  const argKey = texKey(index, k)
+                  function onChangeTexturePath() {
+                    return (value) => {
+                      const nuPaths = new Map(texturePaths.entries())
+                      nuPaths.set(argKey, value)
+                      setTexturePaths(nuPaths)
+                      if (assignment.args === undefined) assignment.args = argStructure
+                      onChange(values)
+                    }
+                  }
+                  return (
+                    <InputGroup key={compKey} name={k} label={k}>
+                      <ImageContainer>
+                        <Stack>
+                          <ImageInput value={texturePaths.get(argKey)} onChange={onChangeTexturePath()} />
+                          <img src={texturePaths.get(argKey)} />
+                        </Stack>
+                      </ImageContainer>
+                    </InputGroup>
+                  )
+                }
+              })}
+            </Collapse>
           </Fragment>
         )
       }
@@ -295,13 +359,9 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
               isSearchable={true}
             />
           </InputGroup>
-          <InputGroup
-            key={`${entity}-${index}-materialArguments`}
-            name={`Material Arguments ${index}`}
-            label={t('editor:properties.materialAssignment.lbl-materialArguments')}
-          >
-            {getArguments(assignment.materialID)}
-          </InputGroup>
+
+          {getArguments(assignment.materialID)}
+
           <InputGroup
             key={`${entity}-${index}-patternTarget`}
             name={`Pattern Target`}
@@ -335,15 +395,17 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
   return (
     <GroupContainer>
       <InputGroupVerticalContainerWide>
-        <InputGroupVerticalContent>
-          {values?.length > 0 &&
-            (() => {
-              return (
+        {values?.length > 0 &&
+          (() => {
+            return (
+              <Box component="div">
                 <Button onClick={onRefresh}>
                   <p>Refresh</p>
                 </Button>
-              )
-            })()}
+              </Box>
+            )
+          })()}
+        <InputGroupVerticalContent>
           <ArrayInputGroupContent>
             <label> Count: </label>
             <ControlledStringInput value={count} onChange={onChangeSize} />

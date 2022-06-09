@@ -25,8 +25,9 @@ export const DefaultArgs: MeshPhongMaterialParameters = {
 }
 
 export default async function Phong(args?: MeshPhongMaterialParameters): Promise<MaterialParms> {
+  const _args = args ? { ...format(DefaultArgs), ...args } : format(DefaultArgs)
   return {
-    material: new MeshPhongMaterial(args ? { ...format(DefaultArgs), ...args } : format(DefaultArgs)),
+    material: new MeshPhongMaterial(_args),
     update: (dt) => {}
   }
 }
