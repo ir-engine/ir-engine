@@ -15,7 +15,6 @@ import DialogActions from '@mui/material/DialogActions'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
-import InputBase from '@mui/material/InputBase'
 import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
@@ -26,6 +25,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
 import AutoComplete from '../../common/AutoComplete'
 import InputSelect, { InputSelectProps } from '../../common/InputSelect'
+import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import { SingleUserService, useSingleUserState } from '../../services/SingleUserService'
@@ -239,20 +239,16 @@ const ViewUser = (props: Props) => {
               <Typography variant="h4" component="h4" className={`${styles.mb10} ${styles.headingFont}`}>
                 {t('admin:components.user.updatePersonalInfo')}
               </Typography>
-              <label>{t('admin:components.user.name')}</label>
-              <Paper
-                component="div"
-                className={state.formErrors.name.length > 0 ? styles.redBorder : styles.createInput}
-              >
-                <InputBase
-                  className={styles.input}
-                  name="name"
-                  placeholder={t('admin:components.user.enterName')}
-                  autoComplete="off"
-                  value={state.name}
-                  onChange={handleInputChange}
-                />
-              </Paper>
+
+              <InputText
+                name="name"
+                label={t('admin:components.user.name')}
+                placeholder={t('admin:components.user.enterName')}
+                value={state.name}
+                error={state.formErrors.name}
+                onChange={handleInputChange}
+              />
+
               <label>{t('admin:components.user.avatar')}</label>
               <Paper
                 component="div"

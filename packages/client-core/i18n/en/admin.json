@@ -318,7 +318,8 @@
       "patchInstanceserver": "Patch Instanceserver",
       "hub": "Hub",
       "paginateDefault": "Paginate Default",
-      "paginateMax": "Paginate Max"
+      "paginateMax": "Paginate Max",
+      "placeholderText": "This is the input placeholder"
     },
     "avatar": {
       "fillRequiredFields": "Please fill all required field",

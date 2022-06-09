@@ -7,10 +7,11 @@ import TextField from '@mui/material/TextField'
 import styles from '../styles/admin.module.scss'
 
 interface Props {
-  name: string
+  className?: string
+  name?: string
   label?: string
+  value?: unknown
   placeholder?: string
-  value: unknown
   error?: string
   type?: string
   disabled?: boolean
@@ -20,9 +21,10 @@ interface Props {
 }
 
 const InputText = ({
-  value,
+  className,
   name,
   label,
+  value,
   placeholder,
   error,
   type,
@@ -34,7 +36,7 @@ const InputText = ({
   return (
     <Box sx={{ mb: 2 }}>
       <TextField
-        className={styles.textField}
+        className={className ?? styles.textField}
         variant="outlined"
         name={name}
         type={type}
