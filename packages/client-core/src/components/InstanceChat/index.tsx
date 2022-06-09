@@ -386,39 +386,31 @@ const InstanceChat = (props: Props): any => {
               </CardContent>
             </Card>
           </div>
-          {unreadMessages && (
-            <div
-              className={`${styles.iconCallChat} ${
-                isInitRender
-                  ? props.animate
-                  : !chatWindowOpen
-                  ? isMobile
-                    ? styles.animateTop
-                    : styles.animateLeft
-                  : ''
-              } ${!chatWindowOpen ? '' : styles.iconCallPos}`}
+          <div
+            className={`${styles.iconCallChat} ${
+              isInitRender ? props.animate : !chatWindowOpen ? (isMobile ? styles.animateTop : styles.animateLeft) : ''
+            } ${!chatWindowOpen ? '' : styles.iconCallPos}`}
+          >
+            <Badge
+              color="primary"
+              variant="dot"
+              invisible={noUnReadMessage}
+              anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             >
-              <Badge
-                color="primary"
-                variant="dot"
-                invisible={noUnReadMessage}
-                anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-              >
-                <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
-                  {!chatWindowOpen ? (
-                    <MessageButton />
-                  ) : (
-                    <CloseButton
-                      onClick={() => {
-                        toggleChatWindow()
-                        if (isMobile) setShowTouchPad(true)
-                      }}
-                    />
-                  )}
-                </Fab>
-              </Badge>
-            </div>
-          )}
+              <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
+                {!chatWindowOpen ? (
+                  <MessageButton />
+                ) : (
+                  <CloseButton
+                    onClick={() => {
+                      toggleChatWindow()
+                      if (isMobile) setShowTouchPad(true)
+                    }}
+                  />
+                )}
+              </Fab>
+            </Badge>
+          </div>
         </div>
       </div>
     </>
