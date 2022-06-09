@@ -17,7 +17,7 @@ describe('Physics', () => {
     const world = Physics.createWorld()
 
     const rigidBodyDesc = RigidBodyDesc.dynamic()
-    Physics.addBody(world, rigidBodyDesc)
+    Physics.createRigidBody(world, rigidBodyDesc)
 
     assert.deepEqual(world.bodies.len(), 1)
   })
@@ -26,7 +26,7 @@ describe('Physics', () => {
     const world = Physics.createWorld()
 
     const rigidBodyDesc = RigidBodyDesc.dynamic()
-    const rigidBody = Physics.addBody(world, rigidBodyDesc)
+    const rigidBody = Physics.createRigidBody(world, rigidBodyDesc)
 
     const colliderDesc = ColliderDesc.ball(1)
     Physics.createCollider(world, rigidBody, colliderDesc)

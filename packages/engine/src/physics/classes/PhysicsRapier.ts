@@ -14,7 +14,7 @@ function createWorld(gravity = { x: 0.0, y: -9.81, z: 0.0 }) {
   return world
 }
 
-function addBody(world: World, rigidBodyDesc: RigidBodyDesc) {
+function createRigidBody(world: World, rigidBodyDesc: RigidBodyDesc) {
   const rigidBody = world.createRigidBody(rigidBodyDesc)
   return rigidBody
 }
@@ -27,6 +27,6 @@ function createCollider(world: World, rigidBody: RigidBody, colliderDesc: Collid
 export const Physics = {
   load,
   createWorld,
-  addBody,
+  createRigidBody,
   createCollider
 }
