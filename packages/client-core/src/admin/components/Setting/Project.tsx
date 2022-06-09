@@ -4,10 +4,11 @@ import { useTranslation } from 'react-i18next'
 import { useHookEffect } from '@xrengine/hyperflux'
 import { loadConfigForProject } from '@xrengine/projects/loadConfigForProject'
 
-import { Button, Grid, InputBase, MenuItem, Paper, TextField, Typography } from '@mui/material'
+import { Button, Grid, Typography } from '@mui/material'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
+import InputSelect, { InputSelectProps } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { ProjectSettingService, useProjectSettingState } from '../../services/Setting/ProjectSettingService'
 import styles from '../../styles/settings.module.scss'
@@ -80,8 +81,9 @@ const Project = (props: Props) => {
     }
   }, [authState?.user?.id?.value, selectedProject])
 
-  const handleProjectChange = (projectId) => {
-    setSelectedProject(projectId)
+  const handleProjectChange = (e) => {
+    const { value } = e.target
+    setSelectedProject(value)
   }
 
   const handleValueChange = (index, e) => {
@@ -99,6 +101,13 @@ const Project = (props: Props) => {
     ProjectSettingService.updateProjectSetting(selectedProject, settings)
   }
 
+  const projectsMenu: InputSelectProps[] = projects.value.map((el) => {
+    return {
+      label: el.name,
+      value: el.id
+    }
+  })
+
   return (
     <div>
       <form>
@@ -108,21 +117,15 @@ const Project = (props: Props) => {
         <div className={styles.root}>
           <Grid container spacing={3}>
             <Grid item xs={6} sm={4}>
-              <label>{t('admin:components.setting.selectProject')}</label>
-              <TextField
-                select
+              <InputSelect
+                name="selectProject"
+                label={t('admin:components.setting.project')}
                 value={selectedProject}
-                className={styles.selectInput}
-                SelectProps={{ MenuProps: { classes: { paper: styles.selectPaper } } }}
-              >
-                {projects.value &&
-                  projects.value.map((proj, index) => (
-                    <MenuItem key={index} value={proj.id} onClick={() => handleProjectChange(proj.id)}>
-                      {proj.name}
-                    </MenuItem>
-                  ))}
-              </TextField>
+                menu={projectsMenu}
+                onChange={handleProjectChange}
+              />
             </Grid>
+
             <Grid item container xs={12}>
               {settings?.length > 0 ? (
                 settings.map((setting, index) => (

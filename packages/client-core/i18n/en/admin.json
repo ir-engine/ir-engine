@@ -313,7 +313,7 @@
       "certPath": "CertPath",
       "keyPath": "KeyPath",
       "githubPrivateKey": "Github Private Key",
-      "project": "PROJECT",
+      "project": "Project",
       "selectProject": "Select Project",
       "patchInstanceserver": "Patch Instanceserver",
       "hub": "Hub",

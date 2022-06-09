@@ -212,7 +212,7 @@ const CreateBot = () => {
             value={state.location}
             error={formErrors.location}
             menu={locationMenu}
-            handleInputChange={handleInputChange}
+            onChange={handleInputChange}
             endControl={
               <IconButton onClick={fetchAdminLocations} size="large">
                 <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
@@ -226,7 +226,7 @@ const CreateBot = () => {
             value={state.instance}
             error={formErrors.location}
             menu={instanceMenu}
-            handleInputChange={handleInputChange}
+            onChange={handleInputChange}
             endControl={
               <IconButton onClick={fetchAdminInstances} size="large">
                 <Autorenew style={{ color: 'var(--iconButtonColor)' }} />

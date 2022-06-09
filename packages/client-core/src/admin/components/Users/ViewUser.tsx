@@ -285,7 +285,7 @@ const ViewUser = (props: Props) => {
                   value={state.userRole}
                   error={state.formErrors.userRole}
                   menu={userRoleData}
-                  handleInputChange={handleInputChange}
+                  onChange={handleInputChange}
                 />
               )}
               <AutoComplete

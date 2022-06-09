@@ -191,7 +191,7 @@ const UpdateBot = (props: Props) => {
             value={state.location}
             error={formErrors.location}
             menu={locationsMenu}
-            handleInputChange={handleInputChange}
+            onChange={handleInputChange}
             endControl={
               <IconButton onClick={fetchAdminLocations} size="large">
                 <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
@@ -204,7 +204,7 @@ const UpdateBot = (props: Props) => {
             label={t('admin:components.bot.instance')}
             value={state.instance}
             menu={instancesMenu}
-            handleInputChange={handleInputChange}
+            onChange={handleInputChange}
             endControl={
               <IconButton onClick={fetchAdminInstances} size="large">
                 <Autorenew style={{ color: 'var(--iconButtonColor)' }} />

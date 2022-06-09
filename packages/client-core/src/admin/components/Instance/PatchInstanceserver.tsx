@@ -83,7 +83,7 @@ const PatchInstanceserver = (props: Props) => {
             value={state.location}
             error={state.locationError}
             menu={locationsMenu}
-            handleInputChange={handleChange}
+            onChange={handleChange}
           />
 
           <DialogActions>

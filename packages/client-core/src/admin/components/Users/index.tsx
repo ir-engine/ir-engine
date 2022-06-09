@@ -144,7 +144,7 @@ const Users = () => {
             label={t('admin:components.user.userRole')}
             value={role}
             menu={userRoleData}
-            handleInputChange={handleChangeRole}
+            onChange={handleChangeRole}
           />
         </MenuItem>
         <MenuItem>
