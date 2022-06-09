@@ -267,7 +267,7 @@ const InstanceChat = (props: Props): any => {
         }}
         className={styles.backdrop + ' ' + (!chatWindowOpen ? styles.hideBackDrop : '')}
       ></div>
-      <div className={styles['instance-chat-container']}>
+      <div className={styles['instance-chat-container'] + ' ' + (chatWindowOpen ? styles.open : '')}>
         <div ref={messageRef} className={styles['instance-chat-msg-container']}>
           <div className={styles['list-container']}>
             <Card square={true} elevation={0} className={styles['message-wrapper']}>
