@@ -860,8 +860,7 @@ export class AuthAction {
 
   static didLogoutAction = defineAction({
     store: 'ENGINE',
-    type: 'LOGOUT_USER' as const,
-    message: matches.string
+    type: 'LOGOUT_USER' as const
   })
 
   static registerUserByEmailSuccessAction = defineAction({

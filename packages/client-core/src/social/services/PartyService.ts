@@ -122,7 +122,6 @@ export const usePartyState = () => useState(accessPartyState())
 //Service
 export const PartyService = {
   getParty: async () => {
-    const dispatch = useDispatch()
     try {
       // console.log('CALLING GETPARTY()');
       const partyResult = (await client.service('party').get('')) as Party
