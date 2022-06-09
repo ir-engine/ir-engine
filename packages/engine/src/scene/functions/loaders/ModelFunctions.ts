@@ -71,7 +71,8 @@ export const updateModel: ComponentUpdateFunction = (entity: Entity, properties:
 export const serializeModel: ComponentSerializeFunction = (entity) => {
   const component = getComponent(entity, ModelComponent)
   if (!component) return
-  component.materialOverrides.forEach((override) => {
+  const overrides = component.materialOverrides.map((_override) => {
+    const override = { ..._override }
     if (override.args) {
       Object.entries(override.args)
         .filter(([k, v]) => (v as Texture)?.isTexture)
@@ -79,13 +80,17 @@ export const serializeModel: ComponentSerializeFunction = (entity) => {
           override.args[k] = (v as Texture).source.data?.src ?? ''
         })
     }
+    delete override.entity
+    delete override.targetEntity
+    delete override.uuid
+    return override
   })
   return {
     name: SCENE_COMPONENT_MODEL,
     props: {
       src: component.src,
       textureOverride: component.textureOverride,
-      materialOverrides: component.materialOverrides,
+      materialOverrides: overrides,
       matrixAutoUpdate: component.matrixAutoUpdate,
       isUsingGPUInstancing: component.isUsingGPUInstancing,
       isDynamicObject: component.isDynamicObject

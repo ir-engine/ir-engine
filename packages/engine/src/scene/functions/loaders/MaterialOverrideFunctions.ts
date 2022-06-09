@@ -47,7 +47,7 @@ export async function refreshMaterials(target: Entity) {
     model.materialOverrides
       .filter((override) => override.entity != -1)
       .map((override) => {
-        removeComponent(override.entity, MaterialOverrideComponent)
+        removeComponent(override.entity!, MaterialOverrideComponent)
       })
   )
   await new Promise((resolve) => {

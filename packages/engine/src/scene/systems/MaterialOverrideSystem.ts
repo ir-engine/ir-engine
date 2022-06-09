@@ -35,7 +35,7 @@ export default async function MaterialOverrideSystem(world: World) {
    * @param override
    */
   async function register(override: MaterialOverrideComponentType) {
-    const target = override.targetEntity
+    const target = override.targetEntity!
     if (!overrideTable.has(target)) overrideTable.set(target, new Map())
     const tableEntry = overrideTable.get(target)!
     if (tableEntry.has(override)) {
@@ -52,7 +52,7 @@ export default async function MaterialOverrideSystem(world: World) {
    * @param override
    */
   function remove(override: MaterialOverrideComponentType) {
-    const entEntry = overrideTable.get(override.targetEntity)!
+    const entEntry = overrideTable.get(override.targetEntity!)!
     const tableEntry = entEntry.get(override)
     tableEntry?.defaults.forEach((matRend) => {
       matRend.mesh.material = matRend.material
@@ -79,7 +79,7 @@ export default async function MaterialOverrideSystem(world: World) {
     await Promise.all(
       overrideQuery().map(async (entity) => {
         const override = getComponent(entity, MaterialOverrideComponent)
-        const entityEntry = overrideTable.get(override.targetEntity)!
+        const entityEntry = overrideTable.get(override.targetEntity!)!
         for (const overrideEntry of entityEntry.values()) {
           overrideEntry.matParm.update(world.fixedDeltaSeconds / 4)
         }

@@ -46,11 +46,11 @@ export async function assignMaterial(override: MaterialOverrideComponentType): P
   }
   const formattedArgs = formatMaterialArgs(override.args)
   const matParm: MaterialParms = await factory(formattedArgs)
-  const target = getComponent(override.targetEntity, Object3DComponent)?.value
+  const target = getComponent(override.targetEntity!, Object3DComponent)?.value
   if (!target) {
     console.error('Failed material override for override', override, ': target Object3D does not exist')
   }
-  const root = getComponent(override.targetEntity, Object3DComponent).value as UpdateableObject3D
+  const root = getComponent(override.targetEntity!, Object3DComponent).value as UpdateableObject3D
   root.traverse((obj3d) => {
     let isMatch = false
     switch (override.patternTarget) {

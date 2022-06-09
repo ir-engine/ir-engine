@@ -15,10 +15,10 @@ void main() {
 `
 export const fragmentShader = `
 #define TAU 6.28318530718
-
+#define MAX_ITER 4
 uniform float iTime;
 uniform vec3 iResolution;
-uniform int numIterations;
+
 varying vec2 vUv;
 
 
@@ -36,7 +36,7 @@ vec2 i = vec2(p);
 float c = 1.0;
 float inten = .005;
 
-for (int n = 0; n < numIterations; n++) 
+for (int n = 0; n < MAX_ITER; n++) 
 {
     float t = time * (1.0 - (3.5 / float(n+1)));
     i = p + vec2(cos(t - i.x) + sin(t + i.y), sin(t - i.y) + cos(t + i.x));
@@ -53,7 +53,6 @@ gl_FragColor = vec4(colour, 1.0);
 export const DefaultArgs = {
   iTime: 0.0,
   iResolution: [window.innerWidth * 2, window.innerHeight * 2, 1],
-  numIterations: 3,
   offsetScale: 0.5,
   offsetFrequency: 0.25
 }

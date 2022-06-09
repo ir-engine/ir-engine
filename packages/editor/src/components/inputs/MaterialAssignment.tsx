@@ -26,6 +26,7 @@ import { AssetLoader } from '../../../../engine/src/assets/classes/AssetLoader'
 import BooleanInput from './BooleanInput'
 import { Button } from './Button'
 import ColorInput from './ColorInput'
+import CompoundNumericInput from './CompoundNumericInput'
 import { ImageInput } from './ImageInput'
 import InputGroup, { InputGroupContent, InputGroupVerticalContainerWide, InputGroupVerticalContent } from './InputGroup'
 import NumericInput from './NumericInput'
@@ -263,7 +264,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
                 if (typeof v === 'number') {
                   return (
                     <InputGroup key={compKey} name={k} label={k}>
-                      <NumericInput value={v} onChange={setArgsProp(k)} />
+                      <CompoundNumericInput value={v} onChange={setArgsProp(k)} min={-1000} max={1000} step={0.1} />
                     </InputGroup>
                   )
                 }
@@ -385,9 +386,11 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
             <StringInput value={assignment.pattern} onChange={setAssignmentProperty('pattern')} />
           </InputGroup>
         </span>
-        <span>
-          <Button onClick={onRemoveEntry(index)}>Delete</Button>
-        </span>
+        <div>
+          <Button onClick={onRemoveEntry(index)} style={{ background: '#a21' }}>
+            Delete
+          </Button>
+        </div>
       </Fragment>
     )
   }
