@@ -15,7 +15,7 @@ interface Props {
   name?: string
   label?: string
   value?: unknown
-  menu: InputSelectProps[]
+  menu: InputMenuItem[]
   error?: string
   disabled?: boolean
   startAdornment?: React.ReactNode
@@ -24,7 +24,7 @@ interface Props {
   onChange?: (e: any) => void
 }
 
-export interface InputSelectProps {
+export interface InputMenuItem {
   value: string
   label: string
 }

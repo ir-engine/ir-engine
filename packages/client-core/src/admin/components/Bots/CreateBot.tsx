@@ -19,7 +19,7 @@ import AddCommand from '../../common/AddCommand'
 import AlertMessage from '../../common/AlertMessage'
 import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
-import InputSelect, { InputSelectProps } from '../../common/InputSelect'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { BotService } from '../../services/BotsService'
@@ -159,14 +159,14 @@ const CreateBot = () => {
     setState({ ...state, [names]: value })
   }
 
-  const locationMenu: InputSelectProps[] = locationData.value.map((el) => {
+  const locationMenu: InputMenuItem[] = locationData.value.map((el) => {
     return {
       value: el.id,
       label: el.name
     }
   })
 
-  const instanceMenu: InputSelectProps[] = currentInstance.map((el) => {
+  const instanceMenu: InputMenuItem[] = currentInstance.map((el) => {
     return {
       value: el.id,
       label: el.ipAddress

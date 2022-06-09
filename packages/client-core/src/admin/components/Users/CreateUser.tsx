@@ -16,7 +16,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
 import AutoComplete from '../../common/AutoComplete'
 import { useFetchScopeType, useFetchStaticResource, useFetchUserRole } from '../../common/hooks/User.hooks'
-import InputSelect, { InputSelectProps } from '../../common/InputSelect'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
@@ -138,14 +138,14 @@ const CreateUser = (props: Props) => {
     }
   })
 
-  const staticResourceMenu: InputSelectProps[] = staticResourceData.value.map((el) => {
+  const staticResourceMenu: InputMenuItem[] = staticResourceData.value.map((el) => {
     return {
       label: el.name,
       value: el.name
     }
   })
 
-  const userRoleData: InputSelectProps[] = userRole.userRole.value.map((el) => {
+  const userRoleData: InputMenuItem[] = userRole.userRole.value.map((el) => {
     return {
       value: el.role,
       label: el.role

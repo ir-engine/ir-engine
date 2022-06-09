@@ -9,7 +9,7 @@ import Drawer from '@mui/material/Drawer'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
-import InputSelect, { InputSelectProps } from '../../common/InputSelect'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { InstanceserverService } from '../../services/InstanceserverService'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
@@ -36,7 +36,7 @@ const PatchInstanceserver = (props: Props) => {
 
   useFetchAdminLocations(user, adminLocationState, LocationService)
 
-  const locationsMenu: InputSelectProps[] = adminLocations.value.map((el) => {
+  const locationsMenu: InputMenuItem[] = adminLocations.value.map((el) => {
     return {
       label: el.name,
       value: el.id

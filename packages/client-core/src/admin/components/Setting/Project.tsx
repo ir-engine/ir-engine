@@ -8,7 +8,7 @@ import { Button, Grid, Typography } from '@mui/material'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
-import InputSelect, { InputSelectProps } from '../../common/InputSelect'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { ProjectSettingService, useProjectSettingState } from '../../services/Setting/ProjectSettingService'
 import styles from '../../styles/settings.module.scss'
@@ -101,7 +101,7 @@ const Project = (props: Props) => {
     ProjectSettingService.updateProjectSetting(selectedProject, settings)
   }
 
-  const projectsMenu: InputSelectProps[] = projects.value.map((el) => {
+  const projectsMenu: InputMenuItem[] = projects.value.map((el) => {
     return {
       label: el.name,
       value: el.id

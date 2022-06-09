@@ -15,7 +15,7 @@ import IconButton from '@mui/material/IconButton'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
-import InputSelect, { InputSelectProps } from '../../common/InputSelect'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { BotService } from '../../services/BotsService'
@@ -64,14 +64,14 @@ const UpdateBot = (props: Props) => {
     }
   }, [bot])
 
-  const locationsMenu: InputSelectProps[] = locationData.value.map((el) => {
+  const locationsMenu: InputMenuItem[] = locationData.value.map((el) => {
     return {
       label: el.name,
       value: el.id
     }
   })
 
-  const instancesMenu: InputSelectProps[] = currentInstance.map((el) => {
+  const instancesMenu: InputMenuItem[] = currentInstance.map((el) => {
     return {
       label: el.ipAddress,
       value: el.id
