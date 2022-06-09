@@ -62,6 +62,7 @@ const InputSelect = ({
         <Select
           name={name}
           value={value}
+          label={_.upperFirst(label)}
           disabled={disabled}
           fullWidth
           MenuProps={{ classes: { paper: styles.selectPaper } }}
