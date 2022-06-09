@@ -1,4 +1,4 @@
-import { ColliderDesc, RigidBodyDesc } from '@dimforge/rapier3d-compat'
+import { ColliderDesc, RigidBodyDesc, RigidBodyType } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
 
 import { Physics } from './PhysicsRapier'
@@ -13,13 +13,29 @@ describe('Physics', () => {
     assert(world)
   })
 
-  it('should create rigidBody', async () => {
+  it('should create & remove rigidBody', async () => {
     const world = Physics.createWorld()
 
     const rigidBodyDesc = RigidBodyDesc.dynamic()
-    Physics.createRigidBody(world, rigidBodyDesc)
+    const rigidBody = Physics.createRigidBody(world, rigidBodyDesc)
 
     assert.deepEqual(world.bodies.len(), 1)
+
+    Physics.removeRigidBody(world, rigidBody)
+    assert.deepEqual(world.bodies.len(), 0)
+  })
+
+  it('should change rigidBody type', async () => {
+    const world = Physics.createWorld()
+
+    const rigidBodyDesc = RigidBodyDesc.dynamic()
+    const rigidBody = Physics.createRigidBody(world, rigidBodyDesc)
+
+    assert.deepEqual(world.bodies.len(), 1)
+    assert.deepEqual(rigidBody.bodyType(), RigidBodyType.Dynamic)
+
+    Physics.changeRigidbodyType(rigidBody, RigidBodyType.Fixed)
+    assert.deepEqual(rigidBody.bodyType(), RigidBodyType.Fixed)
   })
 
   it('should create collider', async () => {
