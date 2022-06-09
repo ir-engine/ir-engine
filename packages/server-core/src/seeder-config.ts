@@ -8,6 +8,7 @@ import { analyticsSeeds } from './analytics/seeder-config'
 import { mediaSeeds } from './media/seeder-config'
 import { networkingSeeds } from './networking/seeder-config'
 import { paymentSeeds } from './payments/seeder-config'
+import { projectSeeds } from './projects/seeder-config'
 import { routeSeeds } from './route/seeder-config'
 import { scopeSeeds } from './scope/seeder-config'
 import { settingSeeds } from './setting/seeder-config'
@@ -42,6 +43,7 @@ export const seeds: Array<ServicesSeedConfig> = [
   ...scopeSeeds,
   ...settingSeeds,
   ...analyticsSeeds,
+  ...projectSeeds,
   ...routeSeeds,
   ...installedProjects
 ]

@@ -1,4 +1,5 @@
 import * as authentication from '@feathersjs/authentication'
+import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
 import config from '../appconfig'
@@ -34,13 +35,15 @@ export default () => {
       return context
     }
     context = await authenticate('jwt')(context as any)
-    context.params.user = context.params[config.authentication.entity]
-      ? await context.app.service('user').Model.findOne({
-          where: {
-            id: context.params[config.authentication.entity].userId
-          }
-        })
-      : {}
+    // if (!context.params[config.authentication.entity]?.userId) throw new BadRequest('Must authenticate with valid JWT or login token')
+    context.params.user =
+      context.params[config.authentication.entity] && context.params[config.authentication.entity].userId
+        ? await context.app.service('user').Model.findOne({
+            where: {
+              id: context.params[config.authentication.entity].userId
+            }
+          })
+        : {}
     return context
   }
 }

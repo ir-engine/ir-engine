@@ -203,6 +203,13 @@
       "insertPublicUrl": "Please insert github public url",
       "urlRequired": "URL is required",
       "urlCantEmpty": "URL can't be empty",
+      "linkGithubRepo": "Link Project with GitHub Repo",
+      "updateLinkGithubRepo": "Update Project's GitHub Repo Link",
+      "editGithubRepo": "Edit Project's GitHub Repo link",
+      "linkGithubUrl": "GitHub repo URL",
+      "linkProject": "Link Project",
+      "updateLinkProject": "Update Project Link",
+      "unlinkProject": "Remove Project Link",
       "uploadProject": "Upload Project",
       "customPublicUrl": "Custom Public Url",
       "selectFromList": "Select From List",
@@ -211,7 +218,10 @@
       "confirmProjectsRebuild": "Do you want to rebuild projects?",
       "confirmProjectRebuild": "Do you want to rebuild project",
       "confirmProjectInvalidate": "Do you want to invalidate storage provider's cache of",
-      "confirmProjectDelete": "Do you want to delete project"
+      "confirmProjectDelete": "Do you want to delete project",
+      "confirmPushProjectToGithub": "Do you want to push this project to its associated GitHub repository",
+      "editProjectPermissions": "Edit User Access to Project",
+      "inviteCode": "Enter user invite code"
     },
     "scene": {
       "sceneInfo": "Scene Information",

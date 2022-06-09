@@ -431,6 +431,14 @@
     margin: 5px 2px;
   }
 
+  .secondaryText {
+    color: #808080;
+  }
+
+  .deleteButtons {
+    display: flex
+  }
+
   .processing {
     display: flex;
     flex-direction: column;

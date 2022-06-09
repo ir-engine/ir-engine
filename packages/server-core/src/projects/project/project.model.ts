@@ -37,7 +37,9 @@ export default (app: Application) => {
     }
   )
 
-  ;(Project as any).associate = (models: any): void => {}
+  ;(Project as any).associate = (models: any): void => {
+    ;(Project as any).hasMany(models.project_permission, { foreignKey: 'projectId' })
+  }
 
   return Project
 }

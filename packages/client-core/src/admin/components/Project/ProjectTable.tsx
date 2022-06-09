@@ -6,6 +6,10 @@ import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterfa
 import Cached from '@mui/icons-material/Cached'
 import Cross from '@mui/icons-material/Cancel'
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
+import Group from '@mui/icons-material/Group'
+import LinkIcon from '@mui/icons-material/Link'
+import LinkOffIcon from '@mui/icons-material/LinkOff'
+import Upload from '@mui/icons-material/Upload'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
@@ -16,6 +20,9 @@ import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { projectsColumns } from '../../common/variables/projects'
 import styles from '../../styles/admin.module.scss'
+import EditProjectPermissionsModal from './EditProjectPermissionsModal'
+import LinkGithubRepoModal from './LinkGithubRepoModal'
+import UpdateLinkGithubRepoModal from './UpdateLinkGithubRepoModal'
 import ViewProjectFiles from './ViewProjectFiles'
 
 interface Props {
@@ -28,6 +35,7 @@ const ProjectTable = ({ className }: Props) => {
   const [popupReuploadConfirmOpen, setPopupReuploadConfirmOpen] = useState(false)
   const [popupInvalidateConfirmOpen, setPopupInvalidateConfirmOpen] = useState(false)
   const [popupRemoveConfirmOpen, setPopupRemoveConfirmOpen] = useState(false)
+  const [popupPushToGithubOpen, setPopupPushToGithubOpen] = useState(false)
   const [project, setProject] = useState<ProjectInterface>(null!)
   const adminProjectState = useProjectState()
   const adminProjects = adminProjectState.projects
@@ -36,6 +44,9 @@ const ProjectTable = ({ className }: Props) => {
   const user = authState.user
   const [projectName, setProjectName] = useState('')
   const [showProjectFiles, setShowProjectFiles] = useState(false)
+  const [linkGithubRepoModalOpen, setLinkGithubRepoModalOpen] = useState(false)
+  const [updateLinkGithubRepoModalOpen, setUpdateLinkGithubRepoModalOpen] = useState(false)
+  const [editProjectPermissionsModalOpen, setEditProjectPermissionsModelOpen] = useState(false)
 
   const onRemoveProject = async () => {
     try {
@@ -60,7 +71,8 @@ const ProjectTable = ({ className }: Props) => {
         const existingProjects = adminProjects.value.find((p) => p.name === project.name)!
         setProcessing(true)
         await ProjectService.uploadProject(
-          project.name === 'default-project' ? 'default-project' : existingProjects.repositoryPath
+          project.name === 'default-project' ? 'default-project' : existingProjects.repositoryPath,
+          project.name
         )
         setProcessing(false)
         setProject(null!)
@@ -71,6 +83,24 @@ const ProjectTable = ({ className }: Props) => {
       console.log(err)
     }
   }
+
+  const tryPushProjectToGithub = async () => {
+    try {
+      if (project) {
+        if (!project.repositoryPath && project.name !== 'default-project') return
+        const existingProjects = adminProjects.value.find((p) => p.name === project.name)!
+        setProcessing(true)
+        await ProjectService.pushProject(project.id)
+        setProcessing(false)
+        setProject(null!)
+        setPopupPushToGithubOpen(false)
+      }
+    } catch (err) {
+      setProcessing(false)
+      console.log(err)
+    }
+  }
+
   const handleInvalidateCache = async () => {
     try {
       setPopupInvalidateConfirmOpen(false)
@@ -89,14 +119,19 @@ const ProjectTable = ({ className }: Props) => {
     if (user?.id.value != null && adminProjectState.updateNeeded.value === true) {
       ProjectService.fetchProjects()
     }
-  }, [adminProjectState.updateNeeded.value])
+  }, [user?.id.value, adminProjectState.updateNeeded.value])
 
   const handleOpenReuploadConfirmation = (row) => {
     setProject(row)
     setPopupReuploadConfirmOpen(true)
   }
 
-  const handleOpenInvaliateConfirmation = (row) => {
+  const handleOpenPushConfirmation = (row) => {
+    setProject(row)
+    setPopupPushToGithubOpen(true)
+  }
+
+  const handleOpenInvalidateConfirmation = (row) => {
     setProject(row)
     setPopupInvalidateConfirmOpen(true)
   }
@@ -105,6 +140,7 @@ const ProjectTable = ({ className }: Props) => {
     setProject(row)
     setPopupRemoveConfirmOpen(true)
   }
+
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
 
@@ -122,9 +158,45 @@ const ProjectTable = ({ className }: Props) => {
     setProject(null!)
     setPopupRemoveConfirmOpen(false)
   }
+
+  const handleClosePushModal = () => {
+    setProject(null!)
+    setPopupPushToGithubOpen(false)
+  }
+
   const handleViewProject = (name: string) => {
     setProjectName(name)
     setShowProjectFiles(true)
+  }
+
+  const handleLinkGithubModal = (row) => {
+    setProject(row)
+    setLinkGithubRepoModalOpen(true)
+  }
+
+  const handleCloseLinkGithubModal = () => {
+    setProject(null!)
+    setLinkGithubRepoModalOpen(false)
+  }
+
+  const handleUpdateLinkGithubModal = (row) => {
+    setProject(row)
+    setUpdateLinkGithubRepoModalOpen(true)
+  }
+
+  const handleCloseUpdateLinkGithubModal = () => {
+    setProject(null!)
+    setUpdateLinkGithubRepoModalOpen(false)
+  }
+
+  const handleOpenEditProjectPermissionsModal = (row) => {
+    setProject(row)
+    setEditProjectPermissionsModelOpen(true)
+  }
+
+  const handleCloseEditProjectPermissionsModal = () => {
+    setProject(null!)
+    setEditProjectPermissionsModelOpen(false)
   }
 
   const handlePageChange = (event: unknown, newPage: number) => {
@@ -137,7 +209,7 @@ const ProjectTable = ({ className }: Props) => {
     setPage(0)
   }
 
-  const createData = (el: any, name: string) => {
+  const createData = (el: ProjectInterface, name: string) => {
     return {
       el,
       name,
@@ -155,13 +227,54 @@ const ProjectTable = ({ className }: Props) => {
           )}
         </>
       ),
+      push: (
+        <>
+          {user.userRole.value === 'admin' && (
+            <IconButton
+              className={styles.iconButton}
+              name="update"
+              disabled={!el.hasWriteAccess}
+              onClick={() => handleOpenPushConfirmation(el)}
+            >
+              <Upload />
+            </IconButton>
+          )}
+        </>
+      ),
+      link: (
+        <>
+          {el.repositoryPath && el.repositoryPath !== '' && (
+            <IconButton className={styles.iconButton} name="update" onClick={() => handleUpdateLinkGithubModal(el)}>
+              <LinkOffIcon />
+            </IconButton>
+          )}
+          {(!el.repositoryPath || el.repositoryPath === '') && (
+            <IconButton className={styles.iconButton} name="update" onClick={() => handleLinkGithubModal(el)}>
+              <LinkIcon />
+            </IconButton>
+          )}
+        </>
+      ),
+      projectPermissions: (
+        <>
+          {user.userRole.value === 'admin' && (
+            <IconButton
+              className={styles.iconButton}
+              name="editProjectPermissions"
+              onClick={() => handleOpenEditProjectPermissionsModal(el)}
+            >
+              <Group />
+            </IconButton>
+          )}
+        </>
+      ),
       invalidate: (
         <>
           {user.userRole.value === 'admin' && (
             <IconButton
               className={styles.iconButton}
               name="invalidate"
-              onClick={() => handleOpenInvaliateConfirmation(el)}
+              onClick={() => handleOpenInvalidateConfirmation(el)}
             >
               <CleaningServicesIcon />
             </IconButton>
@@ -212,6 +325,28 @@ const ProjectTable = ({ className }: Props) => {
         onClose={handleCloseReuploadModal}
         onSubmit={tryReuploadProjects}
       />
+      <ConfirmModal
+        open={popupPushToGithubOpen}
+        description={`${t('admin:components.project.confirmPushProjectToGithub')}? ${project?.name} - ${
+          project?.repositoryPath
+        }`}
+        processing={processing}
+        onClose={handleClosePushModal}
+        onSubmit={tryPushProjectToGithub}
+      />
+      <LinkGithubRepoModal open={linkGithubRepoModalOpen} project={project} onClose={handleCloseLinkGithubModal} />
+      <UpdateLinkGithubRepoModal
+        open={updateLinkGithubRepoModalOpen}
+        project={project}
+        onClose={handleCloseUpdateLinkGithubModal}
+      />
+      {project && (
+        <EditProjectPermissionsModal
+          open={editProjectPermissionsModalOpen}
+          project={project}
+          onClose={handleCloseEditProjectPermissionsModal}
+        />
+      )}
       <ConfirmModal
         open={popupInvalidateConfirmOpen}
         description={`${t('admin:components.project.confirmProjectInvalidate')} '${project?.name}'?`}
