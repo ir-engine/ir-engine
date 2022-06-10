@@ -13,7 +13,7 @@ import MenuItem from '@mui/material/MenuItem'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { useFetchUserRole } from '../../common/hooks/User.hooks'
-import InputSelect, { InputSelectProps } from '../../common/InputSelect'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import Search from '../../common/Search'
 import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService } from '../../services/UserService'
@@ -73,7 +73,7 @@ const Users = () => {
     UserService.resetFilter()
   }
 
-  const userRoleData: InputSelectProps[] = userRole.userRole.value.map((el) => {
+  const userRoleData: InputMenuItem[] = userRole.userRole.value.map((el) => {
     return {
       value: el.role,
       label: el.role
@@ -144,7 +144,7 @@ const Users = () => {
             label={t('admin:components.user.userRole')}
             value={role}
             menu={userRoleData}
-            handleInputChange={handleChangeRole}
+            onChange={handleChangeRole}
           />
         </MenuItem>
         <MenuItem>
