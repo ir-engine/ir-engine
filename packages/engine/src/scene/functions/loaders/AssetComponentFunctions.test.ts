@@ -61,6 +61,7 @@ describe('AssetComponentFunctions', async () => {
     sandbox = Sinon.createSandbox()
     createEngine()
     initEntity()
+    Engine.instance.engineTimer.start()
 
     Engine.instance.publicPath = ''
     await initializeCoreSystems()
