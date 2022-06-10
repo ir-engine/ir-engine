@@ -70,7 +70,9 @@ const InputSelect = ({
                 marginLeft: 2
               }}
             >
-              {t('admin:components.common.select')} {label}
+              <em>
+                {t('admin:components.common.select')} {label}
+              </em>
             </Typography>
           )}
           <Select
