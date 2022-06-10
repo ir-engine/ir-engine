@@ -200,7 +200,8 @@
       "uploadProject": "Upload Project",
       "customPublicUrl": "Custom Public Url",
       "selectFromList": "Select From List",
-      "processing": "Processing"
+      "processing": "Processing",
+      "url": "URL"
     },
     "scene": {
       "sceneInfo": "Scene Information",

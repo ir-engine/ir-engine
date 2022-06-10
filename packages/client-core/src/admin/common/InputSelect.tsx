@@ -2,12 +2,12 @@ import _ from 'lodash'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Typography } from '@mui/material'
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
+import { SxProps, Theme } from '@mui/material/styles'
 
 import styles from '../styles/admin.module.scss'
 
@@ -22,6 +22,7 @@ interface Props {
   startAdornment?: React.ReactNode
   endAdornment?: React.ReactNode
   endControl?: React.ReactNode
+  sx?: SxProps<Theme>
   onChange?: (e: any) => void
 }
 
@@ -41,6 +42,7 @@ const InputSelect = ({
   startAdornment,
   endAdornment,
   endControl,
+  sx,
   onChange
 }: Props) => {
   const { t } = useTranslation()
@@ -50,7 +52,7 @@ const InputSelect = ({
   }
 
   return (
-    <Box sx={{ display: 'flex', mb: 2 }}>
+    <Box sx={{ display: 'flex', mb: 2, ...sx }}>
       <FormControl
         variant="outlined"
         className={className ?? styles.selectField}

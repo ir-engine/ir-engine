@@ -11,12 +11,10 @@ import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
 import Grid from '@mui/material/Grid'
-import MenuItem from '@mui/material/MenuItem'
-import Paper from '@mui/material/Paper'
-import Select from '@mui/material/Select'
 import Switch from '@mui/material/Switch'
 
 import AlertMessage from '../../common/AlertMessage'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { LocationService, useLocationState } from '../../services/LocationService'
@@ -134,6 +132,20 @@ const CreateLocation = (props: Props) => {
     }
   }
 
+  const sceneMenu: InputMenuItem[] = adminScenes.value.map((el) => {
+    return {
+      value: `${el.project}/${el.name}`,
+      label: `${el.name} (${el.project})`
+    }
+  })
+
+  const locationMenu: InputMenuItem[] = locationTypes.value.map((el) => {
+    return {
+      value: el.type,
+      label: el.type
+    }
+  })
+
   return (
     <React.Fragment>
       <Drawer
@@ -168,56 +180,23 @@ const CreateLocation = (props: Props) => {
             onChange={handleChange}
           />
 
-          <label>{t('admin:components.locationModal.lbl-scene')}</label>
-          <Paper component="div" className={state.formErrors.scene.length > 0 ? styles.redBorder : styles.createInput}>
-            <FormControl fullWidth>
-              <Select
-                labelId="demo-controlled-open-select-label"
-                id="demo-controlled-open-select"
-                value={state.scene}
-                fullWidth
-                displayEmpty
-                onChange={handleChange}
-                className={styles.select}
-                name="scene"
-                MenuProps={{ classes: { paper: styles.selectPaper } }}
-              >
-                <MenuItem value="" disabled>
-                  <em>{t('admin:components.locationModal.selectScene')}</em>
-                </MenuItem>
-                {adminScenes.value.map((el, i) => (
-                  <MenuItem value={`${el.project}/${el.name}`} key={i}>
-                    {el.name} ({el.project})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Paper>
-          <label>{t('admin:components.locationModal.private')}</label>
-          <Paper component="div" className={styles.createInput}>
-            <FormControl fullWidth>
-              <Select
-                labelId="demo-controlled-open-select-label"
-                id="demo-controlled-open-select"
-                value={state.type}
-                fullWidth
-                displayEmpty
-                onChange={handleChange}
-                className={styles.select}
-                name="type"
-                MenuProps={{ classes: { paper: styles.selectPaper } }}
-              >
-                <MenuItem value="" disabled>
-                  <em>{t('admin:components.locationModal.selectType')}</em>
-                </MenuItem>
-                {locationTypes.value.map((el) => (
-                  <MenuItem value={el.type} key={el.type}>
-                    {el.type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Paper>
+          <InputSelect
+            name="scene"
+            label={t('admin:components.locationModal.lbl-scene')}
+            value={state.scene}
+            error={state.formErrors.scene}
+            menu={sceneMenu}
+            onChange={handleChange}
+          />
+
+          <InputSelect
+            name="type"
+            label={t('admin:components.locationModal.type')}
+            value={state.type}
+            menu={locationMenu}
+            onChange={handleChange}
+          />
+
           <Grid container spacing={5} className={styles.mb15}>
             <Grid item xs={6}>
               <FormGroup>
