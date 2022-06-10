@@ -3,7 +3,7 @@ import { useState } from '@speigg/hookstate'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { addActionReceptor, defineAction, defineState, getState, registerState } from '@xrengine/hyperflux'
+import { defineAction, defineState, getState } from '@xrengine/hyperflux'
 
 import { filterParentEntities } from '../functions/filterParentEntities'
 
@@ -37,32 +37,30 @@ const SelectionState = defineState({
     } as SelectionServiceStateType)
 })
 
-export const registerEditorSelectionServiceActions = () => {
-  addActionReceptor((action) => {
-    getState(SelectionState).batch((s) => {
-      matches(action)
-        .when(SelectionAction.changedBeforeSelection.matches, (action) => {
-          return s.merge({ beforeSelectionChangeCounter: s.beforeSelectionChangeCounter.value + 1 })
+export const EditorSelectionServiceReceptor = (action) => {
+  getState(SelectionState).batch((s) => {
+    matches(action)
+      .when(SelectionAction.changedBeforeSelection.matches, (action) => {
+        return s.merge({ beforeSelectionChangeCounter: s.beforeSelectionChangeCounter.value + 1 })
+      })
+      .when(SelectionAction.updateSelection.matches, (action) => {
+        return s.merge({
+          selectionCounter: s.selectionCounter.value + 1,
+          selectedEntities: action.selectedEntities,
+          selectedParentEntities: filterParentEntities(action.selectedEntities)
         })
-        .when(SelectionAction.updateSelection.matches, (action) => {
-          return s.merge({
-            selectionCounter: s.selectionCounter.value + 1,
-            selectedEntities: action.selectedEntities,
-            selectedParentEntities: filterParentEntities(action.selectedEntities)
-          })
+      })
+      .when(SelectionAction.changedObject.matches, (action) => {
+        return s.merge({
+          objectChangeCounter: s.objectChangeCounter.value + 1,
+          affectedObjects: action.objects,
+          propertyName: action.propertyName,
+          transformPropertyChanged: transformProps.includes(action.propertyName)
         })
-        .when(SelectionAction.changedObject.matches, (action) => {
-          return s.merge({
-            objectChangeCounter: s.objectChangeCounter.value + 1,
-            affectedObjects: action.objects,
-            propertyName: action.propertyName,
-            transformPropertyChanged: transformProps.includes(action.propertyName)
-          })
-        })
-        .when(SelectionAction.changedSceneGraph.matches, (action) => {
-          return s.merge({ sceneGraphChangeCounter: s.sceneGraphChangeCounter.value + 1 })
-        })
-    })
+      })
+      .when(SelectionAction.changedSceneGraph.matches, (action) => {
+        return s.merge({ sceneGraphChangeCounter: s.sceneGraphChangeCounter.value + 1 })
+      })
   })
 }
 

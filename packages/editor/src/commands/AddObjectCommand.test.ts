@@ -12,17 +12,12 @@ import {
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { registerPrefabs, ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
-import { HyperFlux } from '@xrengine/hyperflux/functions/StoreFunctions'
+import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
-import { registerEditorErrorServiceActions } from '../services/EditorErrorServices'
-import { registerEditorHelperServiceActions } from '../services/EditorHelperState'
-import { EditorAction, registerEditorServiceActions } from '../services/EditorServices'
-import {
-  accessSelectionState,
-  registerEditorSelectionServiceActions,
-  SelectionAction
-} from '../services/SelectionServices'
+import { accessEditorState } from '../services/EditorServices'
+import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
+import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import { AddObjectCommand, AddObjectCommandParams } from './AddObjectCommand'
 
 describe('AddObjectCommand', () => {
@@ -34,12 +29,8 @@ describe('AddObjectCommand', () => {
 
   beforeEach(() => {
     createEngine()
-
-    registerEditorSelectionServiceActions()
-    registerEditorErrorServiceActions()
-    registerEditorHelperServiceActions()
-    registerEditorServiceActions()
-
+    registerEditorReceptors()
+    Engine.instance.store.defaultDispatchDelay = 0
     registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
@@ -98,39 +89,45 @@ describe('AddObjectCommand', () => {
   describe('emitEventBefore function', async () => {
     it('will not emit any event if "preventEvents" is true', () => {
       command.preventEvents = true
+      const selectionState = accessSelectionState()
+      const beforeSelectionChangeCounter = selectionState.beforeSelectionChangeCounter.value
+
       AddObjectCommand.emitEventBefore?.(command)
-      assert(
-        !HyperFlux.store.actions.incoming.find((action) => action.type === SelectionAction.changedBeforeSelection.type)
-      )
+      applyIncomingActions()
+      assert.equal(beforeSelectionChangeCounter, selectionState.beforeSelectionChangeCounter.value)
     })
 
     it('will emit event if "preventEvents" is false', () => {
       command.preventEvents = false
+      const selectionState = accessSelectionState()
+      const beforeSelectionChangeCounter = selectionState.beforeSelectionChangeCounter.value
+
       AddObjectCommand.emitEventBefore?.(command)
-      assert(
-        HyperFlux.store.actions.incoming.find((action) => action.type === SelectionAction.changedBeforeSelection.type)
-      )
+      applyIncomingActions()
+      assert.equal(beforeSelectionChangeCounter + 1, selectionState.beforeSelectionChangeCounter.value)
     })
   })
 
   describe('emitEventAfter function', async () => {
     it('will not emit any event if "preventEvents" is true', () => {
       command.preventEvents = true
+      const selectionState = accessSelectionState()
+      const sceneGraphChangeCounter = selectionState.sceneGraphChangeCounter.value
+
       AddObjectCommand.emitEventAfter?.(command)
-      assert(
-        !HyperFlux.store.actions.incoming.find((action) => {
-          return (
-            action.type === EditorAction.sceneModified.type || action.type === SelectionAction.changedSceneGraph.type
-          )
-        })
-      )
+      applyIncomingActions()
+      assert.equal(sceneGraphChangeCounter, selectionState.sceneGraphChangeCounter.value)
     })
 
     it('will emit event if "preventEvents" is false', () => {
       command.preventEvents = false
+      const selectionState = accessSelectionState()
+      const sceneGraphChangeCounter = selectionState.sceneGraphChangeCounter.value
+
       AddObjectCommand.emitEventAfter?.(command)
-      assert(HyperFlux.store.actions.incoming.find((action) => action.type === EditorAction.sceneModified.type))
-      assert(HyperFlux.store.actions.incoming.find((action) => action.type === SelectionAction.changedSceneGraph.type))
+      applyIncomingActions()
+      assert.equal(sceneGraphChangeCounter + 1, selectionState.sceneGraphChangeCounter.value)
+      assert.equal(accessEditorState().sceneModified.value, true)
     })
   })
 
@@ -194,12 +191,15 @@ describe('AddObjectCommand', () => {
       command.updateSelection = true
 
       AddObjectCommand.execute(command)
+      applyIncomingActions()
 
       assert.notEqual(nodes.length, 0)
       assert.notEqual(parentNodes.length, 0)
       assert.notEqual(beforeNodes.length, 0)
 
-      assert(HyperFlux.store.actions.incoming.find((action) => action.type === SelectionAction.updateSelection.type))
+      command.affectedNodes.forEach((node) => {
+        assert(accessSelectionState().selectedEntities.value.includes(node.entity))
+      })
     })
 
     it('will create node from provided scenedata', () => {
@@ -262,5 +262,6 @@ describe('AddObjectCommand', () => {
   afterEach(() => {
     emptyEntityTree(Engine.instance.currentWorld.entityTree)
     accessSelectionState().merge({ selectedEntities: [] })
+    deregisterEditorReceptors()
   })
 })

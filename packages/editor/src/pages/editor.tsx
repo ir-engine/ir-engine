@@ -3,12 +3,7 @@ import { Route, Switch, useHistory } from 'react-router-dom'
 
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@xrengine/client-core/src/user/userHasAccess'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
-import { registerEditorErrorServiceActions } from '../services/EditorErrorServices'
-import { registerEditorHelperServiceActions } from '../services/EditorHelperState'
-import { registerEditorServiceActions } from '../services/EditorServices'
-import { registerEditorSelectionServiceActions } from '../services/SelectionServices'
 import { EditorPage } from './EditorPage'
 import { ProjectPage } from './ProjectPage'
 import { SignInPage } from './SignInPage'
@@ -18,7 +13,6 @@ const EditorProtectedRoutes = () => {
   const history = useHistory()
   const user = authState.user
   const [isAuthorized, setAuthorized] = useState<boolean | null>(null)
-  const [isInitialized, setInitialized] = useState(false)
 
   useEffect(() => {
     if (user.scopes.value && user.userRole.value) {
@@ -29,16 +23,6 @@ const EditorProtectedRoutes = () => {
       } else setAuthorized(true)
     }
   }, [user.scopes, user.userRole])
-
-  useEffect(() => {
-    if (Engine.instance && !isInitialized) {
-      registerEditorSelectionServiceActions()
-      registerEditorErrorServiceActions()
-      registerEditorHelperServiceActions()
-      registerEditorServiceActions()
-      setInitialized(true)
-    }
-  }, [Engine.instance])
 
   if (isAuthorized == null) return <div>Authorizing...</div>
 

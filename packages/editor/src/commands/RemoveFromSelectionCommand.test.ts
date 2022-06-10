@@ -12,8 +12,10 @@ import {
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
 import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
+import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { accessSelectionState } from '../services/SelectionServices'
 import { RemoveFromSelectionCommand, RemoveFromSelectionCommandParams } from './RemoveFromSelectionCommand'
 
@@ -24,6 +26,8 @@ describe('RemoveFromSelectionCommand', () => {
 
   beforeEach(() => {
     createEngine()
+    registerEditorReceptors()
+    Engine.instance.store.defaultDispatchDelay = 0
     registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
@@ -71,6 +75,7 @@ describe('RemoveFromSelectionCommand', () => {
       const beforeSelectionChangeCounter = selectionState.beforeSelectionChangeCounter.value
 
       RemoveFromSelectionCommand.emitEventBefore?.(command)
+      applyIncomingActions()
       assert.equal(beforeSelectionChangeCounter, selectionState.beforeSelectionChangeCounter.value)
     })
 
@@ -80,6 +85,7 @@ describe('RemoveFromSelectionCommand', () => {
       const beforeSelectionChangeCounter = selectionState.beforeSelectionChangeCounter.value
 
       RemoveFromSelectionCommand.emitEventBefore?.(command)
+      applyIncomingActions()
       assert.equal(beforeSelectionChangeCounter + 1, selectionState.beforeSelectionChangeCounter.value)
     })
   })
@@ -91,12 +97,14 @@ describe('RemoveFromSelectionCommand', () => {
       const sceneGraphChangeCounter = selectionState.sceneGraphChangeCounter.value
 
       RemoveFromSelectionCommand.emitEventAfter?.(command)
+      applyIncomingActions()
       assert.equal(sceneGraphChangeCounter, selectionState.sceneGraphChangeCounter.value)
     })
 
     it('will emit event if "preventEvents" is false', () => {
       command.preventEvents = false
       RemoveFromSelectionCommand.emitEventAfter?.(command)
+      applyIncomingActions()
       assert(true)
     })
   })
@@ -105,6 +113,7 @@ describe('RemoveFromSelectionCommand', () => {
     it('removes objects to selection', () => {
       command.affectedNodes = nodes
       RemoveFromSelectionCommand.execute(command)
+      applyIncomingActions()
       command.affectedNodes.forEach((node) => {
         assert(!accessSelectionState().selectedEntities.value.includes(node.entity))
         assert(!hasComponent(node.entity, SelectTagComponent))
@@ -117,9 +126,11 @@ describe('RemoveFromSelectionCommand', () => {
       command.keepHistory = false
       RemoveFromSelectionCommand.prepare(command)
       RemoveFromSelectionCommand.execute(command)
+      applyIncomingActions()
       const selection = accessSelectionState().selectedEntities.value
 
       RemoveFromSelectionCommand.undo(command)
+      applyIncomingActions()
 
       assert.deepEqual(selection, accessSelectionState().selectedEntities.value)
     })
@@ -128,8 +139,10 @@ describe('RemoveFromSelectionCommand', () => {
       command.keepHistory = true
       RemoveFromSelectionCommand.prepare(command)
       RemoveFromSelectionCommand.execute(command)
+      applyIncomingActions()
 
       RemoveFromSelectionCommand.undo(command)
+      applyIncomingActions()
 
       command.undo?.selection.forEach((entity) => {
         assert(accessSelectionState().selectedEntities.value.includes(entity))
@@ -145,5 +158,6 @@ describe('RemoveFromSelectionCommand', () => {
   afterEach(() => {
     emptyEntityTree(Engine.instance.currentWorld.entityTree)
     accessSelectionState().merge({ selectedEntities: [] })
+    deregisterEditorReceptors()
   })
 })

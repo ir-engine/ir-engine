@@ -15,12 +15,10 @@ const EditorErrorState = defineState({
     } as EditorErrorServiceStateType)
 })
 
-export const registerEditorErrorServiceActions = () => {
-  addActionReceptor((action): any => {
-    getState(EditorErrorState).batch((s) => {
-      matches(action).when(EditorErrorAction.throwError.matches, (action) => {
-        return s.merge({ error: action.error })
-      })
+export const EditorErrorServiceReceptor = (action): any => {
+  getState(EditorErrorState).batch((s) => {
+    matches(action).when(EditorErrorAction.throwError.matches, (action) => {
+      return s.merge({ error: action.error })
     })
   })
 }

@@ -291,7 +291,6 @@ const InstanceChat = (props: Props): any => {
                             <div className={`${styles.selfEnd} ${styles.noMargin}`}>
                               <div className={styles.dFlex}>
                                 <div className={styles.msgWrapper}>
-                                  {console.debug(messages, sortedMessages)}
                                   {isLeftOrJoinText(messages[index - 1].text) ? (
                                     <h3 className={styles.sender}>{message.sender.name}</h3>
                                   ) : (

@@ -14,8 +14,10 @@ import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
+import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { accessSelectionState } from '../services/SelectionServices'
 import { ReparentCommand, ReparentCommandParams } from './ReparentCommand'
 
@@ -36,6 +38,8 @@ describe('ReparentCommand', () => {
 
   beforeEach(() => {
     createEngine()
+    registerEditorReceptors()
+    Engine.instance.store.defaultDispatchDelay = 0
     registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
@@ -113,6 +117,7 @@ describe('ReparentCommand', () => {
       const beforeSelectionChangeCounter = selectionState.beforeSelectionChangeCounter.value
 
       ReparentCommand.emitEventBefore?.(command)
+      applyIncomingActions()
       assert.equal(beforeSelectionChangeCounter, selectionState.beforeSelectionChangeCounter.value)
     })
 
@@ -122,6 +127,7 @@ describe('ReparentCommand', () => {
       const beforeSelectionChangeCounter = selectionState.beforeSelectionChangeCounter.value
 
       ReparentCommand.emitEventBefore?.(command)
+      applyIncomingActions()
       assert.equal(beforeSelectionChangeCounter + 1, selectionState.beforeSelectionChangeCounter.value)
     })
   })
@@ -133,6 +139,7 @@ describe('ReparentCommand', () => {
       const sceneGraphChangeCounter = selectionState.sceneGraphChangeCounter.value
 
       ReparentCommand.emitEventAfter?.(command)
+      applyIncomingActions()
       assert.equal(sceneGraphChangeCounter, selectionState.sceneGraphChangeCounter.value)
     })
 
@@ -142,6 +149,7 @@ describe('ReparentCommand', () => {
       const sceneGraphChangeCounter = selectionState.sceneGraphChangeCounter.value
 
       ReparentCommand.emitEventAfter?.(command)
+      applyIncomingActions()
       assert.equal(sceneGraphChangeCounter + 1, selectionState.sceneGraphChangeCounter.value)
     })
   })
@@ -151,6 +159,7 @@ describe('ReparentCommand', () => {
       command.parents = [parentNodes[0]]
       command.befores = [beforeNodes[0]]
       ReparentCommand.execute(command)
+      applyIncomingActions()
 
       command.affectedNodes.forEach((node, i) => {
         const parent = command.parents[i] ?? command.parents[0]
@@ -167,6 +176,7 @@ describe('ReparentCommand', () => {
       command.updateSelection = false
       const oldSelection = accessSelectionState().selectedEntities.value.slice(0)
       ReparentCommand.execute(command)
+      applyIncomingActions()
       const newSelection = accessSelectionState().selectedEntities.value
 
       assert.equal(oldSelection.length, newSelection.length)
@@ -176,6 +186,7 @@ describe('ReparentCommand', () => {
     it('will update selection state', () => {
       command.updateSelection = true
       ReparentCommand.execute(command)
+      applyIncomingActions()
       const selection = accessSelectionState().selectedEntities.value
 
       assert.equal(selection.length, command.affectedNodes.length)
@@ -190,6 +201,7 @@ describe('ReparentCommand', () => {
       })
 
       ReparentCommand.execute(command)
+      applyIncomingActions()
 
       assert.deepEqual(
         positions,
@@ -202,6 +214,7 @@ describe('ReparentCommand', () => {
     it('will update position', () => {
       command.positions = [getRandomTransform().position]
       ReparentCommand.execute(command)
+      applyIncomingActions()
 
       command.affectedNodes.forEach((node) => {
         assert.deepEqual(getComponent(node.entity, TransformComponent).position, command.positions![0])
@@ -215,8 +228,10 @@ describe('ReparentCommand', () => {
       command.parents = [parentNodes[0]]
       ReparentCommand.prepare(command)
       ReparentCommand.execute(command)
+      applyIncomingActions()
 
       ReparentCommand.undo(command)
+      applyIncomingActions()
 
       command.affectedNodes.forEach((node, i) => {
         assert.equal(node.parentEntity, (command.parents[i] ?? command.parents[0]).entity)
@@ -230,8 +245,10 @@ describe('ReparentCommand', () => {
       command.parents = [parentNodes[0]]
       ReparentCommand.prepare(command)
       ReparentCommand.execute(command)
+      applyIncomingActions()
 
       ReparentCommand.undo(command)
+      applyIncomingActions()
 
       assert(command.undo)
 
@@ -256,12 +273,14 @@ describe('ReparentCommand', () => {
       command.parents = [parentNodes[0]]
       ReparentCommand.prepare(command)
       ReparentCommand.execute(command)
+      applyIncomingActions()
 
       const positions = command.affectedNodes.map((node) => {
         getComponent(node.entity, TransformComponent).position
       })
 
       ReparentCommand.undo(command)
+      applyIncomingActions()
 
       assert.deepEqual(
         positions,
@@ -278,8 +297,10 @@ describe('ReparentCommand', () => {
       command.parents = [parentNodes[0]]
       ReparentCommand.prepare(command)
       ReparentCommand.execute(command)
+      applyIncomingActions()
 
       ReparentCommand.undo(command)
+      applyIncomingActions()
 
       command.affectedNodes.forEach((node, i) => {
         const pos = getComponent(node.entity, TransformComponent).position
@@ -297,5 +318,6 @@ describe('ReparentCommand', () => {
   afterEach(() => {
     emptyEntityTree(Engine.instance.currentWorld.entityTree)
     accessSelectionState().merge({ selectedEntities: [] })
+    deregisterEditorReceptors()
   })
 })
