@@ -2,8 +2,8 @@
 import RAPIER, { ColliderDesc, RigidBody, RigidBodyDesc, RigidBodyType, World } from '@dimforge/rapier3d-compat'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
-import { RigidBodyDynamicComponent } from '../components/RigidBodyDynamicComponent'
+import { addComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponentTypeForRigidBody } from '../functions/getComponentTypeForRigidBody'
 
 export type Rapier = typeof RAPIER
 export type PhysicsWorld = World
@@ -22,29 +22,20 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   const rigidBody = world.createRigidBody(rigidBodyDesc)
   const collider = world.createCollider(colliderDesc, rigidBody)
 
-  switch (rigidBody.bodyType()) {
-    case RigidBodyType.Dynamic:
-      addComponent(entity, RigidBodyDynamicComponent, {
-        rigidBody: rigidBody,
-        rigidBodyDesc: rigidBodyDesc,
-        collider: collider
-      })
-      break
-
-    case RigidBodyType.Fixed:
-      break
-
-    case RigidBodyType.KinematicPositionBased:
-      break
-
-    case RigidBodyType.KinematicVelocityBased:
-      break
-  }
+  const rigidBodyComponent = getComponentTypeForRigidBody(rigidBody)
+  addComponent(entity, rigidBodyComponent, {
+    rigidBody: rigidBody,
+    rigidBodyDesc: rigidBodyDesc,
+    collider: collider
+  })
 
   return rigidBody
 }
 
-function removeRigidBody(world: World, rigidBody: RigidBody) {
+function removeRigidBody(entity: Entity, world: World, rigidBody: RigidBody) {
+  const rigidBodyComponent = getComponentTypeForRigidBody(rigidBody)
+  removeComponent(entity, rigidBodyComponent)
+
   world.removeRigidBody(rigidBody)
 }
 
