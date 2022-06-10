@@ -18,7 +18,8 @@ import {
   Collapse,
   IconButton,
   IconButtonProps,
-  Stack
+  Stack,
+  Typography
 } from '@mui/material'
 import { Box } from '@mui/system'
 
@@ -248,15 +249,17 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
         const _expanded = expanded.get(texKey(index, 'expanded'))!
         return (
           <Fragment key={id}>
-            <ExpandMore
-              expand={_expanded}
-              onClick={handleExpandClick(index)}
-              aria-expanded={_expanded}
-              aria-label="show more"
-            >
-              <ExpandMoreIcon />
-            </ExpandMore>
-            <label>Arguments</label>
+            <Box sx={{ color: '#fff', marginTop: '4px', marginBottom: '4px' }}>
+              <ExpandMore
+                expand={_expanded}
+                onClick={handleExpandClick(index)}
+                aria-expanded={_expanded}
+                aria-label="show more"
+              >
+                <ExpandMoreIcon />
+              </ExpandMore>
+              <label>Arguments</label>
+            </Box>
             <Collapse in={_expanded} timeout="auto" unmountOnExit>
               {Object.entries(args).map(([k, v]) => {
                 let compKey = `${entity}-${index}-args-${k}`
@@ -397,6 +400,9 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
 
   return (
     <GroupContainer>
+      <div style={{ textAlign: 'center', color: '#fff', marginTop: '16px', marginBottom: '4px' }}>
+        <Typography>Material Overrides</Typography>
+      </div>
       <InputGroupVerticalContainerWide>
         {values?.length > 0 &&
           (() => {

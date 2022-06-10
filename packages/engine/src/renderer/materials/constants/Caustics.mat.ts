@@ -42,7 +42,7 @@ for (int n = 0; n < MAX_ITER; n++)
     i = p + vec2(cos(t - i.x) + sin(t + i.y), sin(t - i.y) + cos(t + i.x));
     c += 1.0/length(vec2(p.x / (sin(i.x+t)/inten),p.y / (cos(i.y+t)/inten)));
 }
-c /= float(numIterations);
+c /= float(MAX_ITER);
 c = 1.17-pow(c, 1.4);
 vec3 colour = vec3(pow(abs(c), 8.0));
 colour = clamp(colour + vec3(0.0, 0.35, 0.5), 0.0, 1.0);
@@ -52,13 +52,15 @@ gl_FragColor = vec4(colour, 1.0);
 
 export const DefaultArgs = {
   iTime: 0.0,
-  iResolution: [window.innerWidth * 2, window.innerHeight * 2, 1],
+  iResolution: [1, 1, 1],
   offsetScale: 0.5,
   offsetFrequency: 0.25
 }
 
 export default async function Caustics(args?): Promise<MaterialParms> {
-  const uniforms = args ? { ...DefaultArgs, ...args } : DefaultArgs
+  let uniforms = args ? { ...DefaultArgs, ...args } : DefaultArgs
+
+  uniforms = Object.fromEntries(Object.entries(uniforms).map(([k, v]) => [k, { value: v }]))
   const mat = new ShaderMaterial({
     uniforms,
     vertexShader,
