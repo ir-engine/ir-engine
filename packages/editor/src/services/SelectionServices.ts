@@ -38,8 +38,6 @@ const SelectionState = defineState({
 })
 
 export const registerEditorSelectionServiceActions = () => {
-  registerState(SelectionState)
-
   addActionReceptor((action) => {
     getState(SelectionState).batch((s) => {
       matches(action)
@@ -67,8 +65,6 @@ export const registerEditorSelectionServiceActions = () => {
     })
   })
 }
-
-registerEditorSelectionServiceActions()
 
 export const accessSelectionState = () => getState(SelectionState)
 

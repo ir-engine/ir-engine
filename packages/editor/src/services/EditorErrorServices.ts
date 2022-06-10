@@ -16,7 +16,6 @@ const EditorErrorState = defineState({
 })
 
 export const registerEditorErrorServiceActions = () => {
-  registerState(EditorErrorState)
   addActionReceptor((action): any => {
     getState(EditorErrorState).batch((s) => {
       matches(action).when(EditorErrorAction.throwError.matches, (action) => {
@@ -25,8 +24,6 @@ export const registerEditorErrorServiceActions = () => {
     })
   })
 }
-
-registerEditorErrorServiceActions()
 
 export const accessEditorErrorState = () => getState(EditorErrorState)
 

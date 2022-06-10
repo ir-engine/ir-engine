@@ -101,8 +101,6 @@ function updateHelpers(): void {
 }
 
 export const registerEditorHelperServiceActions = () => {
-  registerState(EditorHelperState)
-
   addActionReceptor((action): any => {
     getState(EditorHelperState).batch((s) => {
       matches(action)
@@ -158,8 +156,6 @@ export const registerEditorHelperServiceActions = () => {
     })
   })
 }
-
-registerEditorHelperServiceActions()
 
 export const accessEditorHelperState = () => getState(EditorHelperState)
 

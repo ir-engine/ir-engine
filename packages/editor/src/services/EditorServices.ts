@@ -32,8 +32,6 @@ const EditorState = defineState({
 })
 
 export const registerEditorServiceActions = () => {
-  registerState(EditorState)
-
   addActionReceptor((action) => {
     getState(EditorState).batch((s) => {
       matches(action)
@@ -58,8 +56,6 @@ export const registerEditorServiceActions = () => {
     })
   })
 }
-
-registerEditorServiceActions()
 
 export const accessEditorState = () => getState(EditorState)
 
