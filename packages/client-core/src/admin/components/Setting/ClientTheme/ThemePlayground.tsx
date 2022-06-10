@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import MenuIcon from '@mui/icons-material/Menu'
 import SettingIcon from '@mui/icons-material/Settings'
@@ -25,6 +26,7 @@ import {
   TableRow
 } from '@mui/material'
 
+import InputText from '../../../common/InputText'
 import styles from '../../../styles/settings.module.scss'
 
 const ThemePlayground = () => {
@@ -33,6 +35,8 @@ const ThemePlayground = () => {
   const [drawerValue, setDrawerValue] = useState(false)
   const [selectValue, setSelectValue] = useState('')
   const [anchorEl, setAnchorEl] = useState<any>(null)
+
+  const { t } = useTranslation()
 
   const openMenu = (e) => {
     setAnchorEl(e.target)
@@ -313,7 +317,7 @@ const ThemePlayground = () => {
               </div>
               <Divider variant="inset" component="div" className={styles.colorGridDivider} />
               <div className="textHeading">Input</div>
-              <InputBase className="input" placeholder="this is the input placeholder" />
+              <InputText placeholder={t('admin:components.setting.placeholderText')} />
               <Divider variant="inset" component="div" className={styles.colorGridDivider} />
               <div className="textHeading">Drawer</div>
               <Button variant="contained" className="filledButton" onClick={() => setDrawerValue(true)}>

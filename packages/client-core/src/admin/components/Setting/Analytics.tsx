@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Grid, Paper, Typography } from '@mui/material'
-import { InputBase } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import InputText from '../../common/InputText'
 import { SettingAnalyticsService, useSettingAnalyticsState } from '../../services/Setting/SettingAnalyticsService'
 import styles from '../../styles/settings.module.scss'
 
@@ -47,16 +47,15 @@ const Analytics = (props: AnalyticsProps) => {
         <div className={styles.root}>
           <Grid container spacing={3}>
             <Grid item xs={6} sm={4}>
-              <label> {t('admin:components.analytics.port')} </label>
-              <Paper component="div" className={styles.createInput}>
-                <InputBase name="port" className={styles.input} value={Data.port} disabled />
-              </Paper>
+              <InputText name="port" label={t('admin:components.analytics.port')} value={Data.port} disabled />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <label> {t('admin:components.analytics.processInterval')} </label>
-              <Paper component="div" className={styles.createInput}>
-                <InputBase name="processinterval" className={styles.input} value={Data.processInterval} disabled />
-              </Paper>
+              <InputText
+                name="processinterval"
+                label={t('admin:components.analytics.processInterval')}
+                value={Data.processInterval}
+                disabled
+              />
             </Grid>
           </Grid>
         </div>
