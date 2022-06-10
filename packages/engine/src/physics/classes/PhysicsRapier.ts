@@ -1,6 +1,10 @@
 // This file will be renamed to Physics.ts when we are ready to take out physx completely.
 import RAPIER, { ColliderDesc, RigidBody, RigidBodyDesc, RigidBodyType, World } from '@dimforge/rapier3d-compat'
 
+import { Entity } from '../../ecs/classes/Entity'
+import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { RigidBodyDynamicComponent } from '../components/RigidBodyDynamicComponent'
+
 export type Rapier = typeof RAPIER
 export type PhysicsWorld = World
 
@@ -27,8 +31,28 @@ function changeRigidbodyType(rigidBody: RigidBody, newType: RigidBodyType) {
   rigidBody.setBodyType(newType)
 }
 
-function createCollider(world: World, rigidBody: RigidBody, colliderDesc: ColliderDesc) {
+function createCollider(entity: Entity, world: World, rigidBodyDesc: RigidBodyDesc, colliderDesc: ColliderDesc) {
+  const rigidBody = createRigidBody(world, rigidBodyDesc)
   const collider = world.createCollider(colliderDesc, rigidBody)
+
+  switch (rigidBody.bodyType()) {
+    case RigidBodyType.Dynamic:
+      addComponent(entity, RigidBodyDynamicComponent, {
+        rigidBody: rigidBody,
+        rigidBodyDesc: rigidBodyDesc,
+        collider: collider
+      })
+      break
+
+    case RigidBodyType.Fixed:
+      break
+
+    case RigidBodyType.KinematicPositionBased:
+      break
+
+    case RigidBodyType.KinematicVelocityBased:
+      break
+  }
   return collider
 }
 
