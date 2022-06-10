@@ -1,6 +1,9 @@
 import { ColliderDesc, RigidBodyDesc, RigidBodyType } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
 
+import { Engine } from '../../ecs/classes/Engine'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEngine } from '../../initializeEngine'
 import { Physics } from './PhysicsRapier'
 
 describe('Physics', () => {
@@ -14,40 +17,40 @@ describe('Physics', () => {
   })
 
   it('should create & remove rigidBody', async () => {
-    const world = Physics.createWorld()
+    createEngine()
+    const world = Engine.instance.currentWorld
+    const entity = createEntity(world)
+
+    const physicsWorld = Physics.createWorld()
 
     const rigidBodyDesc = RigidBodyDesc.dynamic()
-    const rigidBody = Physics.createRigidBody(world, rigidBodyDesc)
+    const colliderDesc = ColliderDesc.ball(1)
 
-    assert.deepEqual(world.bodies.len(), 1)
+    const rigidBody = Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, colliderDesc)
 
-    Physics.removeRigidBody(world, rigidBody)
-    assert.deepEqual(world.bodies.len(), 0)
+    assert.deepEqual(physicsWorld.bodies.len(), 1)
+    assert.deepEqual(physicsWorld.colliders.len(), 1)
+
+    Physics.removeRigidBody(physicsWorld, rigidBody)
+    assert.deepEqual(physicsWorld.bodies.len(), 0)
   })
 
   it('should change rigidBody type', async () => {
-    const world = Physics.createWorld()
+    createEngine()
+    const world = Engine.instance.currentWorld
+    const entity = createEntity(world)
+
+    const physicsWorld = Physics.createWorld()
 
     const rigidBodyDesc = RigidBodyDesc.dynamic()
-    const rigidBody = Physics.createRigidBody(world, rigidBodyDesc)
+    const colliderDesc = ColliderDesc.ball(1)
 
-    assert.deepEqual(world.bodies.len(), 1)
+    const rigidBody = Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, colliderDesc)
+
+    assert.deepEqual(physicsWorld.bodies.len(), 1)
     assert.deepEqual(rigidBody.bodyType(), RigidBodyType.Dynamic)
 
     Physics.changeRigidbodyType(rigidBody, RigidBodyType.Fixed)
     assert.deepEqual(rigidBody.bodyType(), RigidBodyType.Fixed)
-  })
-
-  it('should create collider', async () => {
-    const world = Physics.createWorld()
-
-    const rigidBodyDesc = RigidBodyDesc.dynamic()
-    const rigidBody = Physics.createRigidBody(world, rigidBodyDesc)
-
-    const colliderDesc = ColliderDesc.ball(1)
-    Physics.createCollider(world, rigidBody, colliderDesc)
-
-    assert.deepEqual(world.bodies.len(), 1)
-    assert.deepEqual(world.colliders.len(), 1)
   })
 })

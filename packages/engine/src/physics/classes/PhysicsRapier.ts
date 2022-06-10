@@ -18,21 +18,8 @@ function createWorld(gravity = { x: 0.0, y: -9.81, z: 0.0 }) {
   return world
 }
 
-function createRigidBody(world: World, rigidBodyDesc: RigidBodyDesc) {
+function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyDesc, colliderDesc: ColliderDesc) {
   const rigidBody = world.createRigidBody(rigidBodyDesc)
-  return rigidBody
-}
-
-function removeRigidBody(world: World, rigidBody: RigidBody) {
-  world.removeRigidBody(rigidBody)
-}
-
-function changeRigidbodyType(rigidBody: RigidBody, newType: RigidBodyType) {
-  rigidBody.setBodyType(newType)
-}
-
-function createCollider(entity: Entity, world: World, rigidBodyDesc: RigidBodyDesc, colliderDesc: ColliderDesc) {
-  const rigidBody = createRigidBody(world, rigidBodyDesc)
   const collider = world.createCollider(colliderDesc, rigidBody)
 
   switch (rigidBody.bodyType()) {
@@ -53,7 +40,16 @@ function createCollider(entity: Entity, world: World, rigidBodyDesc: RigidBodyDe
     case RigidBodyType.KinematicVelocityBased:
       break
   }
-  return collider
+
+  return rigidBody
+}
+
+function removeRigidBody(world: World, rigidBody: RigidBody) {
+  world.removeRigidBody(rigidBody)
+}
+
+function changeRigidbodyType(rigidBody: RigidBody, newType: RigidBodyType) {
+  rigidBody.setBodyType(newType)
 }
 
 export const Physics = {
@@ -61,6 +57,5 @@ export const Physics = {
   createWorld,
   createRigidBody,
   removeRigidBody,
-  changeRigidbodyType,
-  createCollider
+  changeRigidbodyType
 }
