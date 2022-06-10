@@ -61,26 +61,13 @@ const InputSelect = ({
       >
         <InputLabel>{_.upperFirst(label)}</InputLabel>
         <Box>
-          {!value && (
-            <Typography
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                transform: 'translate(0%, -50%)',
-                marginLeft: 2
-              }}
-            >
-              <em>
-                {t('admin:components.common.select')} {label}
-              </em>
-            </Typography>
-          )}
           <Select
             name={name}
             value={value}
             label={_.upperFirst(label)}
             disabled={disabled}
             fullWidth
+            displayEmpty
             MenuProps={{ classes: { paper: styles.selectPaper } }}
             inputProps={{
               startAdornment: startAdornment,
