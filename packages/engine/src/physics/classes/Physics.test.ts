@@ -71,8 +71,11 @@ describe('Physics', () => {
 
     assert.deepEqual(physicsWorld.bodies.len(), 1)
     assert.deepEqual(rigidBody.bodyType(), RigidBodyType.Dynamic)
+    assert.deepEqual(hasComponent(entity, RigidBodyDynamicComponent), true)
 
-    Physics.changeRigidbodyType(rigidBody, RigidBodyType.Fixed)
+    Physics.changeRigidbodyType(entity, rigidBody, RigidBodyType.Fixed)
     assert.deepEqual(rigidBody.bodyType(), RigidBodyType.Fixed)
+    assert.deepEqual(hasComponent(entity, RigidBodyDynamicComponent), false)
+    assert.deepEqual(hasComponent(entity, RigidBodyFixedComponent), true)
   })
 })

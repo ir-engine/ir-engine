@@ -2,7 +2,7 @@
 import RAPIER, { ColliderDesc, RigidBody, RigidBodyDesc, RigidBodyType, World } from '@dimforge/rapier3d-compat'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { getComponentTypeForRigidBody } from '../functions/getComponentTypeForRigidBody'
 
 export type Rapier = typeof RAPIER
@@ -39,8 +39,23 @@ function removeRigidBody(entity: Entity, world: World, rigidBody: RigidBody) {
   world.removeRigidBody(rigidBody)
 }
 
-function changeRigidbodyType(rigidBody: RigidBody, newType: RigidBodyType) {
+function changeRigidbodyType(entity: Entity, rigidBody: RigidBody, newType: RigidBodyType) {
+  const currentRigidBodyComponent = getComponentTypeForRigidBody(rigidBody)
+  let rigidBodyComponent = getComponent(entity, currentRigidBodyComponent)
+
+  const collider = rigidBodyComponent.collider
+  const rigidBodyDesc = rigidBodyComponent.rigidBodyDesc
+
+  removeComponent(entity, currentRigidBodyComponent)
+
   rigidBody.setBodyType(newType)
+
+  const newRigidBodyComponent = getComponentTypeForRigidBody(rigidBody)
+  addComponent(entity, newRigidBodyComponent, {
+    rigidBody: rigidBody,
+    rigidBodyDesc: rigidBodyDesc,
+    collider: collider
+  })
 }
 
 export const Physics = {
