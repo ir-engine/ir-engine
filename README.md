@@ -139,7 +139,7 @@ you find who you need to talk to.
 ### [Sponsorship](https://opencollective.com/xrfoundation) [![Open Collective](https://opencollective.com/xrfoundation/tiers/badge.svg)](https://opencollective.com/xrfoundation)
 
 ## License
-[MIT](LICENSE) - Copyright (c) 2020-2022 XRFoundation
+[MIT](LICENSE) - Copyright (c) 2020-2022 HyperConstruct
 
 
 [Release History and Author Archive](/HISTORY.md)
