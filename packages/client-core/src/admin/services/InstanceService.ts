@@ -1,15 +1,15 @@
 import { Paginated } from '@feathersjs/feathers'
-import { useState } from '@speigg/hookstate'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import {
   addActionReceptor,
   defineAction,
   defineState,
   dispatchAction,
   getState,
-  registerState
+  matches,
+  useState,
+  Validator
 } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
@@ -32,34 +32,29 @@ export const AdminInstanceState = defineState({
   })
 })
 
-export const registerAdminInstanceServiceActions = () => {
-  registerState(AdminInstanceState)
-
-  // Register receptor
-  addActionReceptor(function AdminInstanceServiceReceptor(action) {
-    getState(AdminInstanceState).batch((s) => {
-      matches(action)
-        .when(AdminInstanceAction.instancesRetrievedAction.matches, (action) => {
-          return s.merge({
-            instances: action.instanceResult.data,
-            skip: action.instanceResult.skip,
-            limit: action.instanceResult.limit,
-            total: action.instanceResult.total,
-            retrieving: false,
-            fetched: true,
-            updateNeeded: false,
-            lastFetched: Date.now()
-          })
+export const AdminInstanceServiceReceptor = (action) => {
+  getState(AdminInstanceState).batch((s) => {
+    matches(action)
+      .when(AdminInstanceAction.instancesRetrievedAction.matches, (action) => {
+        return s.merge({
+          instances: action.instanceResult.data,
+          skip: action.instanceResult.skip,
+          limit: action.instanceResult.limit,
+          total: action.instanceResult.total,
+          retrieving: false,
+          fetched: true,
+          updateNeeded: false,
+          lastFetched: Date.now()
         })
-        .when(AdminInstanceAction.instancesRetrievedAction.matches, () => {
-          return s.merge({ updateNeeded: true })
-        })
-    })
+      })
+      .when(AdminInstanceAction.instancesRetrievedAction.matches, () => {
+        return s.merge({ updateNeeded: true })
+      })
   })
 }
 
 // temporary
-registerAdminInstanceServiceActions()
+addActionReceptor(AdminInstanceServiceReceptor)
 
 export const accessInstanceState = () => getState(AdminInstanceState)
 

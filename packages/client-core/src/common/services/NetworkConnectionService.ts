@@ -1,5 +1,4 @@
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction } from '@xrengine/hyperflux'
+import { defineAction, matches } from '@xrengine/hyperflux'
 
 export class NetworkConnectionService {
   static actions = {
