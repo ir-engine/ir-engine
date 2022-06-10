@@ -220,7 +220,7 @@ const EmoteDetailView = () => {
   }
 
   const renderEmoteList = () => {
-    const itemList = [] as JSX.Element[]
+    const itemList = [] as HTMLElement[]
     const startIndex = page * imgPerPage
     const endIndex = Math.min(startIndex + imgPerPage, items.length)
     let angle = 360 / imgPerPage
@@ -236,7 +236,7 @@ const EmoteDetailView = () => {
       y = effectiveRadius * Math.sin((itemAngle * Math.PI) / 280)
 
       itemList.push(
-        <div key={i}>
+        <div key={i} xr-layer="true">
           <Button
             {...emoticon.containerProps}
             style={
@@ -247,6 +247,7 @@ const EmoteDetailView = () => {
                 ...styles.menuItem
               } as {}
             }
+            xr-layer="true"
           >
             {emoticon.body}
           </Button>

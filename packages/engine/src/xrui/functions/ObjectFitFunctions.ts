@@ -4,7 +4,6 @@ import { MathUtils, PerspectiveCamera } from 'three'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { HALF_PI } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
-import { getEngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const ObjectFitFunctions = {
@@ -87,5 +86,9 @@ export const ObjectFitFunctions = {
       ObjectFitFunctions.computeContentFitScaleForCamera(distance, contentWidth, contentHeight, 'cover') * scaleToView
 
     ObjectFitFunctions.attachObjectInFrontOfCamera(container, scale, distance)
+  },
+
+  changeVisibilityOfRootLayer: (container: WebContainer3D, visibility: boolean) => {
+    container.rootLayer.visibility = visibility
   }
 }

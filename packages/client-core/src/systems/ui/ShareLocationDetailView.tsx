@@ -7,7 +7,6 @@ import { InviteService, useInviteState } from '@xrengine/client-core/src/social/
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
 const styles = {
   container: {
