@@ -11,7 +11,17 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
 import EditorContainer from '../components/EditorContainer'
-import { EditorAction, useEditorState } from '../services/EditorServices'
+import { registerEditorErrorServiceActions } from '../services/EditorErrorServices'
+import { registerEditorHelperServiceActions } from '../services/EditorHelperState'
+import { EditorAction, registerEditorServiceActions, useEditorState } from '../services/EditorServices'
+import { registerEditorSelectionServiceActions } from '../services/SelectionServices'
+
+const registerEditorState = () => {
+  registerEditorSelectionServiceActions()
+  registerEditorErrorServiceActions()
+  registerEditorServiceActions()
+  registerEditorHelperServiceActions()
+}
 
 export const EditorPage = (props: RouteComponentProps<{ sceneName: string; projectName: string }>) => {
   const editorState = useEditorState()
@@ -22,6 +32,10 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
   const [clientInitialized, setClientInitialized] = useState(false)
   const [engineReady, setEngineReady] = useState(false)
   const [isAuthenticated, setAuthenticated] = useState(false)
+
+  useEffect(() => {
+    registerEditorState()
+  }, [])
 
   const systems = [
     {

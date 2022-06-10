@@ -38,8 +38,6 @@ const SelectionState = defineState({
 })
 
 export const registerEditorSelectionServiceActions = () => {
-  registerState(SelectionState)
-
   addActionReceptor((action) => {
     getState(SelectionState).batch((s) => {
       matches(action)

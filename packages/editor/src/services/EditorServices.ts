@@ -32,8 +32,6 @@ const EditorState = defineState({
 })
 
 export const registerEditorServiceActions = () => {
-  registerState(EditorState)
-
   addActionReceptor((action) => {
     getState(EditorState).batch((s) => {
       matches(action)
