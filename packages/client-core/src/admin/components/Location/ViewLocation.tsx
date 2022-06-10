@@ -14,7 +14,6 @@ import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
 import Grid from '@mui/material/Grid'
-import InputBase from '@mui/material/InputBase'
 import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
@@ -23,6 +22,7 @@ import Typography from '@mui/material/Typography'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
+import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import { useSceneState } from '../../services/SceneService'
@@ -208,35 +208,26 @@ const ViewLocation = (props: Props) => {
               <Typography variant="h4" component="h4" className={`${styles.mb10} ${styles.headingFont}`}>
                 {t('admin:components.locationModal.updateLocationInfo')}{' '}
               </Typography>
-              <label>{t('admin:components.locationModal.lbl-name')}</label>
-              <Paper
-                component="div"
-                className={state.formErrors.name.length > 0 ? styles.redBorder : styles.createInput}
-              >
-                <InputBase
-                  className={styles.input}
-                  name="name"
-                  placeholder={t('admin:components.locationModal.enterName')}
-                  autoComplete="off"
-                  value={state.name}
-                  onChange={handleInputChange}
-                />
-              </Paper>
-              <label>{t('admin:components.locationModal.lbl-maxuser')}</label>
-              <Paper
-                component="div"
-                className={state.formErrors.maxUsers.length > 0 ? styles.redBorder : styles.createInput}
-              >
-                <InputBase
-                  className={styles.input}
-                  name="maxUsers"
-                  placeholder={t('admin:components.locationModal.enterMaxUsers')}
-                  autoComplete="off"
-                  type="number"
-                  value={state.maxUsers}
-                  onChange={handleInputChange}
-                />
-              </Paper>
+
+              <InputText
+                name="name"
+                label={t('admin:components.locationModal.lbl-name')}
+                placeholder={t('admin:components.locationModal.enterName')}
+                value={state.name}
+                error={state.formErrors.name}
+                onChange={handleInputChange}
+              />
+
+              <InputText
+                name="maxUsers"
+                label={t('admin:components.locationModal.lbl-maxuser')}
+                placeholder={t('admin:components.locationModal.enterMaxUsers')}
+                value={state.maxUsers}
+                error={state.formErrors.maxUsers}
+                type="number"
+                onChange={handleInputChange}
+              />
+
               <label>{t('admin:components.locationModal.lbl-scene')}</label>
               <Paper
                 component="div"

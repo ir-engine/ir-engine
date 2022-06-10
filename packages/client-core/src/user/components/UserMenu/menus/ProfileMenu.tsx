@@ -346,22 +346,28 @@ const ProfileMenu = (props: Props): JSX.Element => {
             <Grid container justifyContent="right" className={styles.justify}>
               <Grid item xs={userRole === 'guest' ? 6 : 4}>
                 <h2>
-                  {userRole === 'admin' ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}{' '}
+                  {userRole === 'admin' ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
                   <span id="user-role">{userRole}</span>.
                 </h2>
               </Grid>
               <Grid item container xs={userRole === 'guest' ? 6 : 4} alignItems="flex-start" direction="column">
-                <Tooltip title="Show User ID" placement="right">
+                <Tooltip
+                  title={showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
+                  placement="right"
+                >
                   <h2 className={styles.showUserId} id="show-user-id" onClick={() => setShowUserId(!showUserId)}>
-                    {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}{' '}
+                    {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
                   </h2>
                 </Tooltip>
               </Grid>
               {selfUser?.apiKey?.id && (
                 <Grid item container xs={4} alignItems="flex-start" direction="column">
-                  <Tooltip title="Show API key" placement="right">
+                  <Tooltip
+                    title={showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
+                    placement="right"
+                  >
                     <h2 className={styles.showUserId} onClick={() => setShowApiKey(!showApiKey)}>
-                      {showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}{' '}
+                      {showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
                     </h2>
                   </Tooltip>
                 </Grid>

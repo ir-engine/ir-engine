@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Paper, Typography } from '@mui/material'
-import InputBase from '@mui/material/InputBase'
+import { Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import InputText from '../../common/InputText'
 import { CoilSettingService, useCoilSettingState } from '../../services/Setting/CoilSettingService'
 import styles from '../../styles/settings.module.scss'
 
@@ -29,36 +29,27 @@ const Coil = (props: Props) => {
         <Typography component="h1" className={styles.settingsHeading}>
           {t('admin:components.setting.coil')}
         </Typography>
-        <Paper component="div" className={styles.createInput}>
-          <label>{t('admin:components.setting.coilPaymentPointer')}:</label>
-          <InputBase
-            value={coil?.paymentPointer || ''}
-            name="paymentPointer"
-            className={styles.input}
-            disabled
-            style={{ color: '#fff' }}
-          />
-        </Paper>
-        <Paper component="div" className={styles.createInput}>
-          <label>{t('admin:components.setting.clientId')}:</label>
-          <InputBase
-            value={coil?.clientId || ''}
-            name="clientId"
-            className={styles.input}
-            disabled
-            style={{ color: '#fff' }}
-          />
-        </Paper>
-        <Paper component="div" className={styles.createInput}>
-          <label>{t('admin:components.setting.clientSecret')}:</label>
-          <InputBase
-            value={coil?.clientSecret || ''}
-            name="clientSecret"
-            className={styles.input}
-            disabled
-            style={{ color: '#fff' }}
-          />
-        </Paper>
+
+        <InputText
+          name="paymentPointer"
+          label={t('admin:components.setting.coilPaymentPointer')}
+          value={coil?.paymentPointer || ''}
+          disabled
+        />
+
+        <InputText
+          name="clientId"
+          label={t('admin:components.setting.clientId')}
+          value={coil?.clientId || ''}
+          disabled
+        />
+
+        <InputText
+          name="clientSecret"
+          label={t('admin:components.setting.clientSecret')}
+          value={coil?.clientSecret || ''}
+          disabled
+        />
       </form>
     </div>
   )
