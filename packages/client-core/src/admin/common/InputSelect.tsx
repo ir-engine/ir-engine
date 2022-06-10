@@ -2,6 +2,7 @@ import _ from 'lodash'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Typography } from '@mui/material'
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
@@ -49,7 +50,7 @@ const InputSelect = ({
   }
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', mb: 2 }}>
       <FormControl
         variant="outlined"
         className={className ?? styles.selectField}
@@ -59,43 +60,57 @@ const InputSelect = ({
         sx={{ flexGrow: 1 }}
       >
         <InputLabel>{_.upperFirst(label)}</InputLabel>
-        <Select
-          name={name}
-          value={value}
-          label={_.upperFirst(label)}
-          disabled={disabled}
-          fullWidth
-          MenuProps={{ classes: { paper: styles.selectPaper } }}
-          inputProps={{
-            startAdornment: startAdornment,
-            endAdornment: endAdornment
-          }}
-          size={'small'}
-          onChange={onChange}
-        >
-          <MenuItem
-            value=""
-            disabled
-            classes={{
-              root: styles.menuItem
-            }}
-          >
-            <em>
+        <Box>
+          {!value && (
+            <Typography
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                transform: 'translate(0%, -50%)',
+                marginLeft: 2
+              }}
+            >
               {t('admin:components.common.select')} {label}
-            </em>
-          </MenuItem>
-          {menu.map((el, index) => (
+            </Typography>
+          )}
+          <Select
+            name={name}
+            value={value}
+            label={_.upperFirst(label)}
+            disabled={disabled}
+            fullWidth
+            MenuProps={{ classes: { paper: styles.selectPaper } }}
+            inputProps={{
+              startAdornment: startAdornment,
+              endAdornment: endAdornment
+            }}
+            size={'small'}
+            onChange={onChange}
+          >
             <MenuItem
-              value={el.value}
-              key={index}
+              value=""
+              disabled
               classes={{
                 root: styles.menuItem
               }}
             >
-              {el.label}
+              <em>
+                {t('admin:components.common.select')} {label}
+              </em>
             </MenuItem>
-          ))}
-        </Select>
+            {menu.map((el, index) => (
+              <MenuItem
+                value={el.value}
+                key={index}
+                classes={{
+                  root: styles.menuItem
+                }}
+              >
+                {el.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </Box>
       </FormControl>
 
       {endControl}
