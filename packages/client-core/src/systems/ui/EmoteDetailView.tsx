@@ -220,7 +220,7 @@ const EmoteDetailView = () => {
   }
 
   const renderEmoteList = () => {
-    const itemList = [] as HTMLElement[]
+    const itemList = [] as JSX.Element[]
     const startIndex = page * imgPerPage
     const endIndex = Math.min(startIndex + imgPerPage, items.length)
     let angle = 360 / imgPerPage
