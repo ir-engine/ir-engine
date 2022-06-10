@@ -89,6 +89,6 @@ export const ObjectFitFunctions = {
   },
 
   changeVisibilityOfRootLayer: (container: WebContainer3D, visibility: boolean) => {
-    container.rootLayer.visibility = visibility
+    container.rootLayer.visible = visibility
   }
 }

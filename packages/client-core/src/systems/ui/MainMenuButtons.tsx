@@ -28,7 +28,10 @@ const styles = {
     height: '50px',
     fontSize: '20px',
     backgroundColor: 'var(--iconButtonBackground)',
-    color: 'var(--iconButtonColor)'
+    color: 'var(--iconButtonColor)',
+    svg: {
+      color: 'var(--iconButtonColor)'
+    }
   }
 }
 
