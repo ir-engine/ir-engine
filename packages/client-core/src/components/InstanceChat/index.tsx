@@ -79,7 +79,6 @@ const InstanceChat = (props: Props): any => {
     locationInstanceConnectionState.instances[Engine.instance.currentWorld.worldNetwork?.hostId]
 
   const [isInitRender, setIsInitRender] = React.useState<Boolean>()
-  const [noUnReadMessage, setNoUnReadMessage] = React.useState<any>()
   const audioState = useAudioState()
   const [entity, setEntity] = React.useState<Entity>()
   const usersTyping = useEngineState().usersTyping[user?.id.value].value
@@ -154,7 +153,7 @@ const InstanceChat = (props: Props): any => {
       sortedMessages[sortedMessages.length - 1]?.senderId !== user?.id.value &&
       chatState.messageCreated.value
     ) {
-      setNoUnReadMessage(false)
+      setUnreadMessages(true)
       entity && toggleAudio(entity)
     }
   }, [chatState])
@@ -217,7 +216,6 @@ const InstanceChat = (props: Props): any => {
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
     setIsInitRender(false)
-    setNoUnReadMessage(true)
   }
   const [dimensions, setDimensions] = React.useState({
     height: window.innerHeight,
@@ -262,12 +260,12 @@ const InstanceChat = (props: Props): any => {
       <div
         onClick={() => {
           setChatWindowOpen(false)
-          setNoUnReadMessage(true)
+          setUnreadMessages(false)
           if (isMobile) setShowTouchPad(true)
         }}
-        className={styles['backdrop'] + ' ' + (!chatWindowOpen && styles['hideBackDrop'])}
+        className={styles.backdrop + ' ' + (!chatWindowOpen ? styles.hideBackDrop : '')}
       ></div>
-      <div className={styles['instance-chat-container'] + ' ' + (!chatWindowOpen && styles['messageContainerClosed'])}>
+      <div className={styles['instance-chat-container'] + ' ' + (chatWindowOpen ? styles.open : '')}>
         <div ref={messageRef} className={styles['instance-chat-msg-container']}>
           <div className={styles['list-container']}>
             <Card square={true} elevation={0} className={styles['message-wrapper']}>
@@ -291,9 +289,10 @@ const InstanceChat = (props: Props): any => {
                             <div className={`${styles.selfEnd} ${styles.noMargin}`}>
                               <div className={styles.dFlex}>
                                 <div className={styles.msgWrapper}>
-                                  {isLeftOrJoinText(messages[index - 1].text) ? (
+                                  {messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
                                     <h3 className={styles.sender}>{message.sender.name}</h3>
                                   ) : (
+                                    messages[index - 1] &&
                                     message.senderId !== messages[index - 1].senderId && (
                                       <h3 className={styles.sender}>{message.sender.name}</h3>
                                     )
@@ -306,9 +305,10 @@ const InstanceChat = (props: Props): any => {
                                     <p className={styles.text}>{message.text}</p>
                                   </div>
                                 </div>
-                                {index !== 0 && isLeftOrJoinText(messages[index - 1].text) ? (
+                                {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
                                   <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
                                 ) : (
+                                  messages[index - 1] &&
                                   message.senderId !== messages[index - 1].senderId && (
                                     <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
                                   )
@@ -335,11 +335,7 @@ const InstanceChat = (props: Props): any => {
             </Card>
           </div>
         </div>
-        <div
-          className={`${styles['bottom-box']} ${!chatWindowOpen ? styles.bttm : ''} ${
-            !chatWindowOpen ? styles.fixedPos : ''
-          } ${chatWindowOpen ? styles.mgBtm : ''}`}
-        >
+        <div className={`${styles['bottom-box']}`}>
           <div className={`${styles['chat-input']} ${chatWindowOpen ? '' : styles.invisible} `}>
             <Card className={styles['chat-view']} style={{ boxShadow: 'none' }}>
               <CardContent className={styles['chat-box']} style={{ boxShadow: 'none' }}>
@@ -386,39 +382,31 @@ const InstanceChat = (props: Props): any => {
               </CardContent>
             </Card>
           </div>
-          {unreadMessages && (
-            <div
-              className={`${styles.iconCallChat} ${
-                isInitRender
-                  ? props.animate
-                  : !chatWindowOpen
-                  ? isMobile
-                    ? styles.animateTop
-                    : styles.animateLeft
-                  : ''
-              } ${!chatWindowOpen ? '' : styles.iconCallPos}`}
+          <div
+            className={`${styles.iconCallChat} ${
+              isInitRender ? props.animate : !chatWindowOpen ? (isMobile ? styles.animateTop : styles.animateLeft) : ''
+            } ${!chatWindowOpen ? '' : styles.iconCallPos}`}
+          >
+            <Badge
+              color="primary"
+              variant="dot"
+              invisible={!unreadMessages}
+              anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             >
-              <Badge
-                color="primary"
-                variant="dot"
-                invisible={noUnReadMessage}
-                anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-              >
-                <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
-                  {!chatWindowOpen ? (
-                    <MessageButton />
-                  ) : (
-                    <CloseButton
-                      onClick={() => {
-                        toggleChatWindow()
-                        if (isMobile) setShowTouchPad(true)
-                      }}
-                    />
-                  )}
-                </Fab>
-              </Badge>
-            </div>
-          )}
+              <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
+                {!chatWindowOpen ? (
+                  <MessageButton />
+                ) : (
+                  <CloseButton
+                    onClick={() => {
+                      toggleChatWindow()
+                      if (isMobile) setShowTouchPad(true)
+                    }}
+                  />
+                )}
+              </Fab>
+            </Badge>
+          </div>
         </div>
       </div>
     </>

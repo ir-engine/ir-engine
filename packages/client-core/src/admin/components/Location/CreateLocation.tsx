@@ -11,13 +11,13 @@ import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
 import Grid from '@mui/material/Grid'
-import InputBase from '@mui/material/InputBase'
 import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
 import Switch from '@mui/material/Switch'
 
 import AlertMessage from '../../common/AlertMessage'
+import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import { useSceneState } from '../../services/SceneService'
@@ -148,32 +148,26 @@ const CreateLocation = (props: Props) => {
           <DialogTitle id="form-dialog-title" className={styles.textAlign}>
             {t('admin:components.locationModal.createNewLocation')}
           </DialogTitle>
-          <label>{t('admin:components.locationModal.lbl-name')}</label>
-          <Paper component="div" className={state.formErrors.name.length > 0 ? styles.redBorder : styles.createInput}>
-            <InputBase
-              className={styles.input}
-              name="name"
-              placeholder={t('admin:components.locationModal.enterName')}
-              autoComplete="off"
-              value={state.name}
-              onChange={handleChange}
-            />
-          </Paper>
-          <label>{t('admin:components.locationModal.lbl-maxuser')}</label>
-          <Paper
-            component="div"
-            className={state.formErrors.maxUsers.length > 0 ? styles.redBorder : styles.createInput}
-          >
-            <InputBase
-              className={styles.input}
-              name="maxUsers"
-              placeholder="Enter max users"
-              autoComplete="off"
-              type="number"
-              value={state.maxUsers}
-              onChange={handleChange}
-            />
-          </Paper>
+
+          <InputText
+            name="name"
+            label={t('admin:components.locationModal.lbl-name')}
+            placeholder={t('admin:components.locationModal.enterName')}
+            value={state.name ?? ''}
+            error={state.formErrors.name}
+            onChange={handleChange}
+          />
+
+          <InputText
+            name="maxUsers"
+            label={t('admin:components.locationModal.lbl-maxuser')}
+            placeholder={t('admin:components.group.enterMaxUsers')}
+            value={state.maxUsers}
+            error={state.formErrors.maxUsers}
+            type="number"
+            onChange={handleChange}
+          />
+
           <label>{t('admin:components.locationModal.lbl-scene')}</label>
           <Paper component="div" className={state.formErrors.scene.length > 0 ? styles.redBorder : styles.createInput}>
             <FormControl fullWidth>

@@ -109,8 +109,6 @@ export class World {
    */
   fixedTick = 0
 
-  _pipeline = [] as SystemModuleType<any>[]
-
   /**
    * Reference to the three.js scene object.
    */
