@@ -250,6 +250,7 @@ export const ChatService = {
         }
       })) as Channel[]
       if (!channelResult.length) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
+      if (channelResult[0].messages.length === 0) return setTimeout(() => ChatService.getInstanceChannel(), 500)
       dispatch(ChatAction.loadedChannel(channelResult[0], 'instance'))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

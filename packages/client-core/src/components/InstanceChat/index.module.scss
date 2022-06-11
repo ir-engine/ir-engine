@@ -1,244 +1,211 @@
-.iconCallChat {
-  display: flex;
-  align-items: center;
-  color: #000;
-
-  @media (max-width: 450px) {
-    margin: 5px 10px 20px;
-  }
-
-  &:hover {
-    cursor: pointer;
-  }
-
-  svg {
-    color: black;
-    margin: 0 2.5px;
-  }
-
-  button {
-    width: 48px;
-    height: 48px;
-    background-color: white;
-    opacity: 0.8;
-
-    &:hover {
-      opacity: 1;
-      background-color: white;
-    }
-
-    @media (max-width: 450px) {
-      width: 40px;
-      height: 40px;
-    }
-  }
-
-  .chatBadge {
-    border-radius: 50%;
-  }
-}
-
-.iconCallPos {
-  @media (max-width: 768px) {
-    position: absolute;
-    right: 0;
-    top: -50px;
-    margin-right: 10px;
-  }
-}
-
-.invisible {
-  display: none;
-}
-
-.instance-chat-msg-container {
-  max-height: 400px;
-  overflow-y: auto;
-  overflow-x: clip;
-  margin-bottom: 20px;
-
-  @media (max-width: 768px) {
-    max-height: 76vh;
-  }
-}
-
-.hideBackDrop {
-  display: none;
-}
-
 .backdrop {
   position: fixed;
   top: 0;
   right: 0;
   left: 0;
   bottom: 0;
-  width: 100vh;
+  width: 100vw;
   height: 100vh;
+  background: #00000091;
+  pointer-events: all;
+  z-index: 10;
+
+  &.hideBackDrop {
+    display: none;
+  }
+
+  @media (min-width: 1025px) {
+    display: none;
+  }
 }
 
 .instance-chat-container {
-  position: absolute;
+  position: fixed;
   bottom: 0;
-  display: grid;
-  flex-direction: row;
   right: 0;
+  display: grid;
   z-index: 10;
-  justify-content: flex-end;
-  margin: 5px 15px 20px 10px;
+  padding: 15px 15px 20px;
   transition: all 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
-  border-radius: 5px;
-  background-color: transparent;
+  overflow: hidden;
 
-  &.messageContainerClosed {
-    width: 0;
-    overflow: hidden;
-  }
-
-  @media (max-width: 768px) {
-    margin: 0;
-    width: 100vw;
-  }
-
-  .chat-view {
-    border-radius: 24px;
-    background: transparent;
-  }
-
-  .chat-input {
-    margin-left: 10px;
-  }
-
-  .fixedPos {
-    position: fixed;
+  &.open {
+    @media (max-width: 1024px) { width: 100%; }
   }
 
   .bottom-box {
-    bottom: 20px;
-    right: 20px;
     display: flex;
     flex-direction: row-reverse;
-    width: auto;
     align-items: end;
-    justify-content: space-between;
+    justify-content: end;
     transition: all 0.2s;
 
-    @media (max-width: 450px) {
-      max-width: 95%;
+    .chat-input {
+      margin-left: 10px;
+      transition: all 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+      width: 100%;
+
+      &.invisible {
+        margin-left: 0;
+        width: 0;
+      }
+
+      .chat-view {
+        border-radius: 24px;
+        background: transparent;
+
+        .chat-box {
+          display: flex;
+          padding: 0;
+          align-items: flex-end;
+          background: rgb(0 0 0 / 50%);
+          width: 300px;
+
+          input {
+            color: white;
+          }
+
+          .chat-box:last-child {
+            padding-bottom: 0;
+          }
+
+          .iconContainer {
+            display: flex;
+            height: inherit;
+            align-items: center;
+            padding: 0 10px;
+
+            &:hover {
+              cursor: pointer;
+            }
+
+            svg {
+              margin: 10px 0;
+            }
+          }
+
+          .messageFieldContainer {
+            margin: 0;
+            padding: 0 5px 0 20px;
+
+            label {
+              padding-left: 20px;
+            }
+
+            .PrivateNotchedOutline-root-1 {
+              border: 0;
+            }
+
+            :global(.MuiInputLabel-formControl) {
+              color: white;
+              transform: translate(0, 12px) scale(1);
+            }
+
+            :global(.MuiInput-root) {
+              margin-top: 8px;
+              margin-bottom: 8px;
+              color: #fff;
+            }
+
+            :global(.MuiFormLabel-root.Mui-focused):not(.MuiFormLabel-filled),
+            :global(.MuiFormLabel-root.MuiFormLabel-filled):not(.Mui-focused) {
+              display: none;
+            }
+
+            :global(.MuiInput-underline::before),
+            :global(.MuiInput-underline::after) {
+              border-bottom: none;
+            }
+
+            :global(.MuiInputBase-root) {
+              align-items: baseline;
+            }
+
+            .sendButton {
+              color: var(--textColor);
+              background: var(--iconButtonBackground);
+              padding: 0 0 0 3px;
+              width: 36px;
+              height: 36px;
+              justify-content: center;
+              align-items: center;
+
+              &:hover,
+              &:focus-visible {
+                background: var(--iconButtonHoverColor);
+              }
+            }
+          }
+
+          :global(.MuiButton-root).iconContainerSend {
+            display: flex;
+            height: 37px;
+            align-items: center;
+
+            // padding: 5px 10px;
+            width: 37px;
+            margin: 5px;
+            min-width: 0;
+            border-radius: 50px;
+
+            &:hover {
+              cursor: pointer;
+            }
+          }
+
+          @media (max-width: 1024px) {
+            width: initial;
+            background: rgb(0 0 0 / 85%);
+          }
+        }
+      }
     }
-  }
 
-  .mgBtm {
-    @media (max-width: 768px) {
-      margin-bottom: 10px;
-    }
-  }
-
-  .bttm {
-    @media (max-width: 450px) {
-      bottom: 0;
-    }
-  }
-
-  .chat-box {
-    display: flex;
-    flex-grow: 1;
-    padding: 0;
-    align-items: flex-end;
-    background: rgb(0 0 0 / 50%);
-    width: 300px;
-
-    input {
-      color: white;
-    }
-
-    .chat-box:last-child {
-      padding-bottom: 0;
-    }
-
-    .iconContainer {
+    .iconCallChat {
       display: flex;
-      height: inherit;
       align-items: center;
-      padding: 0 10px;
+      color: #000;
 
       &:hover {
         cursor: pointer;
       }
 
       svg {
-        margin: 10px 0;
+        color: black;
+        margin: 0 2.5px;
+      }
+
+      button {
+        width: 48px;
+        height: 48px;
+        background-color: white;
+        opacity: 0.8;
+
+        &:hover {
+          opacity: 1;
+          background-color: white;
+        }
+
+        @media (max-width: 450px) {
+          width: 40px;
+          height: 40px;
+        }
+      }
+
+      .chatBadge {
+        border-radius: 50%;
+        box-shadow: 0 3px 5px -1px rgb(0 0 0 / 20%);
       }
     }
+  }
 
-    .messageFieldContainer {
-      margin: 0;
-      padding: 0 5px 0 20px;
+  .instance-chat-msg-container {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: clip;
 
-      label {
-        padding-left: 20px;
-      }
-
-      .PrivateNotchedOutline-root-1 {
-        border: 0;
-      }
-
-      :global(.MuiInputLabel-formControl) {
-        color: white;
-        transform: translate(0, 12px) scale(1);
-      }
-
-      :global(.MuiInput-root) {
-        margin-top: 8px;
-        margin-bottom: 8px;
-        color: #fff;
-      }
-
-      :global(.MuiFormLabel-root.Mui-focused):not(.MuiFormLabel-filled),
-      :global(.MuiFormLabel-root.MuiFormLabel-filled):not(.Mui-focused) {
-        display: none;
-      }
-
-      :global(.MuiInput-underline::before),
-      :global(.MuiInput-underline::after) {
-        border-bottom: none;
-      }
-
-      :global(.MuiInputBase-root) {
-        align-items: baseline;
-      }
-
-      .sendButton {
-        color: var(--textColor);
-        background: var(--iconButtonBackground);
-        padding: 0 0 0 3px;
-        width: 36px;
-        height: 36px;
-        justify-content: center;
-        align-items: center;
-
-        &:hover,
-        &:focus-visible { background: var(--iconButtonHoverColor); }
-      }
-    }
-
-    :global(.MuiButton-root).iconContainerSend {
-      display: flex;
-      height: 37px;
-      align-items: center;
-
-      // padding: 5px 10px;
-      width: 37px;
-      margin: 5px;
-      min-width: 0;
-      border-radius: 50px;
-
-      &:hover {
-        cursor: pointer;
-      }
-    }
-
-    @media (max-width: 768px) {
-      background: rgb(0 0 0 / 85%);
+    @media (max-width: 1024px) {
+      max-height: 76vh;
     }
   }
 
@@ -247,13 +214,11 @@
     flex-direction: column;
     padding: 0 10px;
 
-    @media (max-width: 768px) {
-      width: 96vw;
+    @media (max-width: 1024px) {
       margin: 15px 15px 20px;
     }
 
     @media (max-width: 450px) {
-      width: 100vw;
       margin: 10px 10px 16px;
     }
   }
@@ -295,12 +260,9 @@
 :global(.MuiPaper-root).message-wrapper {
   display: flex;
   flex-direction: column;
-
-  // height: 30vh;
   background-color: transparent;
 
-  // margin-left: -55px;
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
     margin-left: 0;
   }
 
