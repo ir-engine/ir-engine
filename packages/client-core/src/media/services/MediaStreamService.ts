@@ -1,10 +1,9 @@
-import { useState } from '@speigg/hookstate'
 import mediasoup from 'mediasoup-client'
 
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { NearbyUser } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { addActionReceptor, defineAction, defineState, dispatchAction, getState } from '@xrengine/hyperflux'
+import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 //State
 const MediaState = defineState({
