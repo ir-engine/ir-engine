@@ -95,7 +95,6 @@ const setupInitialClickListener = () => {
  * initializes everything for the node context
  */
 export const initializeNode = () => {
-  // node currently does not need to initialize anything
   Engine.instance.engineTimer.start()
 }
 
