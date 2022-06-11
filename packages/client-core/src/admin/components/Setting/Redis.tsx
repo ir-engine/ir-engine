@@ -2,10 +2,10 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Paper, Typography } from '@mui/material'
-import InputBase from '@mui/material/InputBase'
 import Switch from '@mui/material/Switch'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import InputText from '../../common/InputText'
 import { useAdminRedisSettingState } from '../../services/Setting/AdminRedisSettingService'
 import { AdminRedisSettingService } from '../../services/Setting/AdminRedisSettingService'
 import styles from '../../styles/settings.module.scss'
@@ -51,18 +51,22 @@ const Redis = (props: Props) => {
           />
         </Paper>
         <br />
-        <Paper component="div" className={styles.createInput}>
-          <label>{t('admin:components.setting.address')}:</label>
-          <InputBase value={redisSetting?.address || ''} name="address" className={styles.input} disabled />
-        </Paper>
-        <Paper component="div" className={styles.createInput}>
-          <label>{t('admin:components.setting.port')}:</label>
-          <InputBase value={redisSetting?.port || ''} name="port" className={styles.input} disabled />
-        </Paper>
-        <Paper component="div" className={styles.createInput}>
-          <label>{t('admin:components.setting.password')}:</label>
-          <InputBase value={redisSetting?.password || ''} name="password" className={styles.input} disabled />
-        </Paper>
+
+        <InputText
+          name="address"
+          label={t('admin:components.setting.address')}
+          value={redisSetting?.address || ''}
+          disabled
+        />
+
+        <InputText name="port" label={t('admin:components.setting.port')} value={redisSetting?.port || ''} disabled />
+
+        <InputText
+          name="password"
+          label={t('admin:components.setting.password')}
+          value={redisSetting?.password || ''}
+          disabled
+        />
       </form>
     </div>
   )

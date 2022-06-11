@@ -2,6 +2,7 @@ import { Group } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -12,7 +13,8 @@ import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { XRHandBones } from '../../xr/types/XRHandBones'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { flatten, Vector3SoA, Vector4SoA } from './Utils'
+import { compress, QUAT_MAX_RANGE, QUAT_PRECISION_MULT, VEC3_MAX_RANGE, VEC3_PRECISION_MULT } from './Utils'
+import { flatten, getVector4IndexBasedComponentValue, Vector3SoA, Vector4SoA } from './Utils'
 import {
   createViewCursor,
   rewindViewCursor,
@@ -22,7 +24,10 @@ import {
   spaceUint32,
   spaceUint64,
   ViewCursor,
+  writeInt16,
   writePropIfChanged,
+  writeUint8,
+  writeUint16,
   writeUint32
 } from './ViewCursor'
 
@@ -67,6 +72,47 @@ export const writeVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Ent
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
+// Writes a compressed Vector3 value to the DataView.
+export const writeCompressedVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Entity) => {
+  const rewind = rewindViewCursor(v)
+  const writeChangeMask = spaceUint8(v)
+  const rewindUptoChageMask = rewindViewCursor(v)
+  let changeMask = 0
+  let b = 0
+
+  changeMask |= writePropIfChanged(v, vector3.x, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector3.y, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector3.z, entity) ? 1 << b++ : b++ && 0
+
+  if (changeMask > 0) {
+    rewindUptoChageMask()
+    let [x, y, z] = [vector3.x[entity], vector3.y[entity], vector3.z[entity]]
+
+    // Since avatar velocity values are too small and precison is lost when quantized
+    let offset_mult = 1
+    if (getComponent(entity, AvatarComponent)) offset_mult = 100
+
+    x *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
+    y *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
+    z *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
+
+    x = compress(x, 10)
+    y = compress(y, 10)
+    z = compress(z, 10)
+
+    let binaryData = 0
+    binaryData = binaryData | x
+    binaryData = binaryData << 10
+    binaryData = binaryData | y
+    binaryData = binaryData << 10
+    binaryData = binaryData | z
+
+    writeUint32(v, binaryData)
+  }
+
+  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
+}
+
 export const writeVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity) => {
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint8(v)
@@ -81,10 +127,100 @@ export const writeVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Ent
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
+// Writes a compressed Quaternion value to the DataView. This function uses the "smallest three"
+// method, which is well summarized here: http://gafferongames.com/networked-physics/snapshot-compression/
+export const writeCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity) => {
+  const rewind = rewindViewCursor(v)
+  const writeChangeMask = spaceUint8(v)
+  const rewindUptoChageMask = rewindViewCursor(v)
+  let changeMask = 0
+  let b = 0
+
+  // Todo: writeVector4 here? how to handle rewind than.
+  // Write to store
+  changeMask |= writePropIfChanged(v, vector4.x, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector4.y, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector4.z, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector4.w, entity) ? 1 << b++ : b++ && 0
+
+  // Write to ViewCursor
+  if (changeMask > 0) {
+    rewindUptoChageMask()
+    let maxIndex = 0
+    let maxValue = Number.MIN_VALUE
+    let sign = 1
+
+    // Determine the index of the largest (absolute value) element in the Quaternion.
+    // We will transmit only the three smallest elements, and reconstruct the largest
+    // element during decoding.
+    for (let i = 0; i < 4; i++) {
+      let element = getVector4IndexBasedComponentValue(vector4, entity, i) as number
+      let abs = Math.abs(element)
+      if (abs > maxValue) {
+        // We don't need to explicitly transmit the sign bit of the omitted element because you
+        // can make the omitted element always positive by negating the entire quaternion if
+        // the omitted element is negative (in quaternion space (x,y,z,w) and (-x,-y,-z,-w)
+        // represent the same rotation.), but we need to keep track of the sign for use below.
+        sign = element < 0 ? -1 : 1
+
+        // Keep track of the index of the largest element
+        maxIndex = i
+        maxValue = abs
+      }
+    }
+
+    let a = 0
+    let b = 0
+    let c = 0
+
+    if (maxIndex === 0) {
+      a = vector4.y[entity]
+      b = vector4.z[entity]
+      c = vector4.w[entity]
+    } else if (maxIndex === 1) {
+      a = vector4.x[entity]
+      b = vector4.z[entity]
+      c = vector4.w[entity]
+    } else if (maxIndex === 2) {
+      a = vector4.x[entity]
+      b = vector4.y[entity]
+      c = vector4.w[entity]
+    } else {
+      a = vector4.x[entity]
+      b = vector4.y[entity]
+      c = vector4.z[entity]
+    }
+
+    // Multiply with QUAT_MAX_RANGE & FLOAT_PRECISION_MULT before compression so that values are
+    // capped to required range([-0.707107,+0.707107]) and precision(three decimal places)
+    a *= sign * QUAT_MAX_RANGE * QUAT_PRECISION_MULT
+    b *= sign * QUAT_MAX_RANGE * QUAT_PRECISION_MULT
+    c *= sign * QUAT_MAX_RANGE * QUAT_PRECISION_MULT
+
+    maxIndex = maxIndex | 0
+
+    a = compress(a, 10)
+    b = compress(b, 10)
+    c = compress(c, 10)
+
+    let binaryData = maxIndex
+    binaryData = binaryData << 10
+    binaryData = binaryData | a
+    binaryData = binaryData << 10
+    binaryData = binaryData | b
+    binaryData = binaryData << 10
+    binaryData = binaryData | c
+
+    writeUint32(v, binaryData)
+  }
+
+  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
+}
+
 export const writePosition = writeVector3(TransformComponent.position)
 export const writeLinearVelocity = writeVector3(VelocityComponent.linear)
 export const writeAngularVelocity = writeVector3(VelocityComponent.angular)
-export const writeRotation = writeVector4(TransformComponent.rotation)
+export const writeRotation = writeCompressedRotation(TransformComponent.rotation)
 
 export const writeTransform = (v: ViewCursor, entity: Entity) => {
   if (!hasComponent(entity, TransformComponent)) return
@@ -95,7 +231,6 @@ export const writeTransform = (v: ViewCursor, entity: Entity) => {
   let b = 0
 
   changeMask |= writePosition(v, entity) ? 1 << b++ : b++ && 0
-  // todo: compress quaternion with custom writeQuaternion function
   changeMask |= writeRotation(v, entity) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
@@ -109,33 +244,37 @@ export const writeVelocity = (v: ViewCursor, entity: Entity) => {
   let changeMask = 0
   let b = 0
 
-  changeMask |= writeLinearVelocity(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeCompressedVector3(VelocityComponent.linear)(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeAngularVelocity(v, entity) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
 export const writeXRContainerPosition = writeVector3(XRInputSourceComponent.container.position)
-export const writeXRContainerRotation = writeVector4(XRInputSourceComponent.container.quaternion)
+export const writeXRContainerRotation = writeCompressedRotation(XRInputSourceComponent.container.quaternion)
 
 export const writeXRHeadPosition = writeVector3(XRInputSourceComponent.head.position)
-export const writeXRHeadRotation = writeVector4(XRInputSourceComponent.head.quaternion)
+export const writeXRHeadRotation = writeCompressedRotation(XRInputSourceComponent.head.quaternion)
 
 export const writeXRControllerLeftPosition = writeVector3(XRInputSourceComponent.controllerLeftParent.position)
-export const writeXRControllerLeftRotation = writeVector4(XRInputSourceComponent.controllerLeftParent.quaternion)
+export const writeXRControllerLeftRotation = writeCompressedRotation(
+  XRInputSourceComponent.controllerLeftParent.quaternion
+)
 
 export const writeXRControllerGripLeftPosition = writeVector3(XRInputSourceComponent.controllerGripLeftParent.position)
-export const writeXRControllerGripLeftRotation = writeVector4(
+export const writeXRControllerGripLeftRotation = writeCompressedRotation(
   XRInputSourceComponent.controllerGripLeftParent.quaternion
 )
 
 export const writeXRControllerRightPosition = writeVector3(XRInputSourceComponent.controllerRightParent.position)
-export const writeXRControllerRightRotation = writeVector4(XRInputSourceComponent.controllerRightParent.quaternion)
+export const writeXRControllerRightRotation = writeCompressedRotation(
+  XRInputSourceComponent.controllerRightParent.quaternion
+)
 
 export const writeXRControllerGripRightPosition = writeVector3(
   XRInputSourceComponent.controllerGripRightParent.position
 )
-export const writeXRControllerGripRightRotation = writeVector4(
+export const writeXRControllerGripRightRotation = writeCompressedRotation(
   XRInputSourceComponent.controllerGripRightParent.quaternion
 )
 
@@ -176,7 +315,9 @@ export const writeXRHandBoneJoints = (v: ViewCursor, entity: Entity, handedness,
 
   bone.forEach((jointName) => {
     changeMask |= writeVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity) ? 1 << b++ : b++ && 0
-    changeMask |= writeVector4(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity) ? 1 << b++ : b++ && 0
+    changeMask |= writeCompressedRotation(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity)
+      ? 1 << b++
+      : b++ && 0
   })
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()

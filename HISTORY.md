@@ -73,6 +73,8 @@ For various reasons we have decided to archive and reset XREngine Git History.
 
 # 2022
 
+June 9 2022 - Renamed to Ethereal Engine - etherealengine.org
+
 **v0.5.0**
 
 Feb, 1st, 2022
