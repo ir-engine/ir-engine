@@ -88,9 +88,7 @@ const InstanceChat = (props: Props): any => {
   const sortedMessages =
     activeChannel &&
     activeChannel.messages &&
-    [...(activeChannel?.messages as any).value].sort(
-      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    )
+    [...activeChannel?.messages].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
   const messageRef = React.useRef<any>()
   const messageEl = messageRef.current
   const isMobile = /Mobi/i.test(window.navigator.userAgent)
