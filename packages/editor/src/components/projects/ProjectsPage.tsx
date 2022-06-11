@@ -302,29 +302,29 @@ const ProjectsPage = () => {
 
     return (
       <ul className={styles.listContainer}>
-        {projects.map((project, index) => (
+        {projects.map((project: ProjectInterface, index) => (
           <li className={styles.itemContainer} key={index}>
             <a
               onClick={(e) => {
-                areInstalledProjects && onClickExisting(e, project)
+                areInstalledProjects ? onClickExisting(e, project) : window.open(project.repositoryPath)
               }}
             >
               <div className={styles.thumbnailContainer} style={{ backgroundImage: `url(${project.thumbnail})` }} />
-              <div className={styles.headerContainer}>
-                <h3 className={styles.header}>{project.name.replaceAll('-', ' ')}</h3>
-                {project.name !== 'default-project' && (
-                  <IconButton disableRipple onClick={(e: any) => openProjectContextMenu(e, project)}>
-                    <Settings />
-                  </IconButton>
-                )}
-              </div>
-              {!areInstalledProjects && isInstalled(project) && (
-                <span className={styles.installedIcon}>
-                  <DownloadDone />
-                </span>
-              )}
-              {project.description && <p className={styles.description}>{project.description}</p>}
             </a>
+            <div className={styles.headerContainer}>
+              <h3 className={styles.header}>{project.name.replaceAll('-', ' ')}</h3>
+              {project.name !== 'default-project' && (
+                <IconButton disableRipple onClick={(e: any) => openProjectContextMenu(e, project)}>
+                  <Settings />
+                </IconButton>
+              )}
+            </div>
+            {!areInstalledProjects && isInstalled(project) && (
+              <span className={styles.installedIcon}>
+                <DownloadDone />
+              </span>
+            )}
+            {project.description && <p className={styles.description}>{project.description}</p>}
           </li>
         ))}
       </ul>
