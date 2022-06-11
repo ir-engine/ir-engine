@@ -89,7 +89,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     if (node.entity === entity) return
 
     textureOverrideEntities.push({
-      label: getComponent(node.entity, NameComponent).name,
+      label: hasComponent(node.entity, NameComponent) ? getComponent(node.entity, NameComponent).name : node.uuid,
       value: node.uuid
     })
   })

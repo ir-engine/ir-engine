@@ -1,8 +1,8 @@
 import React from 'react'
 
-import { useDispatch } from '@xrengine/client-core/src/store'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import AttractionsIcon from '@mui/icons-material/Attractions'
 
@@ -42,28 +42,27 @@ const rotationSnapOptions = [
 
 const TransformSnapTool = () => {
   const editorHelperState = useEditorHelperState()
-  const dispatch = useDispatch()
 
   const onChangeTranslationSnap = (snapValue: number) => {
     InfiniteGridHelper.instance.setSize(snapValue)
-    dispatch(EditorHelperAction.changeTranslationSnap(snapValue))
+    dispatchAction(EditorHelperAction.changeTranslationSnap({ translationSnap: snapValue }))
 
     if (editorHelperState.snapMode.value !== SnapMode.Grid) {
-      dispatch(EditorHelperAction.changedSnapMode(SnapMode.Grid))
+      dispatchAction(EditorHelperAction.changedSnapMode({ snapMode: SnapMode.Grid }))
     }
   }
 
   const onChangeRotationSnap = (snapValue: number) => {
-    dispatch(EditorHelperAction.changeRotationSnap(snapValue))
+    dispatchAction(EditorHelperAction.changeRotationSnap({ rotationSnap: snapValue }))
     if (editorHelperState.snapMode.value !== SnapMode.Grid) {
-      dispatch(EditorHelperAction.changedSnapMode(SnapMode.Grid))
+      dispatchAction(EditorHelperAction.changedSnapMode({ snapMode: SnapMode.Grid }))
     }
   }
 
   // const onChangeScaleSnap = (snapValue: number) => {
-  //   dispatch(EditorHelperAction.changeScaleSnap(snapValue))
+  //   dispatchAction(EditorHelperAction.changeScaleSnap({ scaleSnap: snapValue }))
   //   if (editorHelperState.snapMode.value !== SnapMode.Grid) {
-  //     dispatch(EditorHelperAction.changedSnapMode(SnapMode.Grid))
+  //     dispatchAction(EditorHelperAction.changedSnapMode({ snapMode: SnapMode.Grid }))
   //   }
   // }
 

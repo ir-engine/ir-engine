@@ -2,9 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -13,7 +11,7 @@ import { ClickAwayListener } from '@mui/material'
 import { IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { disposeProject } from '../../functions/projectFunctions'
-import { deleteScene, getScenes, renameScene, saveScene } from '../../functions/sceneFunctions'
+import { deleteScene, getScenes, renameScene } from '../../functions/sceneFunctions'
 import { EditorAction, useEditorState } from '../../services/EditorServices'
 import ErrorDialog from '../dialogs/ErrorDialog'
 import { useDialog } from '../hooks/useDialog'
@@ -36,7 +34,6 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const [newName, setNewName] = useState('')
   const [isRenaming, setRenaming] = useState(false)
   const [activeScene, setActiveScene] = useState<SceneData | null>(null)
-  const dispatch = useDispatch()
   const history = useHistory()
   const editorState = useEditorState()
   const [DialogComponent, setDialogComponent] = useDialog()
@@ -80,7 +77,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
     if (activeScene) {
       await deleteScene(editorState.projectName.value, activeScene.name)
       if (editorState.sceneName.value === activeScene.name) {
-        dispatch(EditorAction.sceneChanged(null))
+        dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
         dispatchAction(EngineActions.sceneUnloaded())
         disposeProject()
         history.push(`/editor/${editorState.projectName.value}`)
@@ -121,7 +118,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const finishRenaming = async () => {
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
-    dispatch(EditorAction.sceneChanged(newName))
+    dispatchAction(EditorAction.sceneChanged({ sceneName: newName }))
     history.push(`/editor/${editorState.projectName.value}/${newName}`)
     setNewName('')
     fetchItems()
