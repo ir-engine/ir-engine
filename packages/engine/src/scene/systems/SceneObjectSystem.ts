@@ -70,7 +70,7 @@ const processObject3d = (entity: Entity) => {
 const sceneObjectQuery = defineQuery([Object3DComponent])
 const simpleMaterialsQuery = defineQuery([SimpleMaterialTagComponent])
 const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
-const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
+const visibleQuery = defineQuery([VisibleComponent])
 const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
 
 export default async function SceneObjectSystem(world: World) {

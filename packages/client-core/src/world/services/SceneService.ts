@@ -1,8 +1,6 @@
-import { useState } from '@speigg/hookstate'
-
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { addActionReceptor, defineAction, defineState, dispatchAction, getState } from '@xrengine/hyperflux'
+import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
 
@@ -40,7 +38,6 @@ export const SceneService = {
 
 export class SceneAction {
   static currentSceneChangedAction = defineAction({
-    store: 'ENGINE',
     type: 'location.CURRENT_SCENE_CHANGED',
     sceneData: matches.object as Validator<unknown, SceneData | null>
   })

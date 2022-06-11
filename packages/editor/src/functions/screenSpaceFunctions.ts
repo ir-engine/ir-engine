@@ -20,10 +20,10 @@ import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 export const getScreenSpacePosition = (() => {
   const raycaster = new Raycaster()
   const raycastTargets: Intersection<Object3D>[] = []
-  const editorHelperState = accessEditorHelperState()
 
   return (screenSpacePosition: Vector2, target = new Vector3()): Vector3 => {
     raycastTargets.length = 0
+    const editorHelperState = accessEditorHelperState()
     const closestTarget = getIntersectingNodeOnScreen(raycaster, screenSpacePosition, raycastTargets)
 
     if (closestTarget && closestTarget.distance < 1000) {
