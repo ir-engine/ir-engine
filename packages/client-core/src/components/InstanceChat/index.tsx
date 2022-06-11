@@ -291,9 +291,10 @@ const InstanceChat = (props: Props): any => {
                             <div className={`${styles.selfEnd} ${styles.noMargin}`}>
                               <div className={styles.dFlex}>
                                 <div className={styles.msgWrapper}>
-                                  {isLeftOrJoinText(messages[index - 1].text) ? (
+                                  {messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
                                     <h3 className={styles.sender}>{message.sender.name}</h3>
                                   ) : (
+                                    messages[index - 1] &&
                                     message.senderId !== messages[index - 1].senderId && (
                                       <h3 className={styles.sender}>{message.sender.name}</h3>
                                     )
@@ -306,9 +307,10 @@ const InstanceChat = (props: Props): any => {
                                     <p className={styles.text}>{message.text}</p>
                                   </div>
                                 </div>
-                                {index !== 0 && isLeftOrJoinText(messages[index - 1].text) ? (
+                                {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
                                   <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
                                 ) : (
+                                  messages[index - 1] &&
                                   message.senderId !== messages[index - 1].senderId && (
                                     <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
                                   )
