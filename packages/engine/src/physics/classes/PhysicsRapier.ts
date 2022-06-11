@@ -3,6 +3,7 @@ import RAPIER, { ColliderDesc, RigidBody, RigidBodyDesc, RigidBodyType, World } 
 
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { getComponentTypeForRigidBody } from '../functions/getComponentTypeForRigidBody'
 
 export type Rapier = typeof RAPIER
@@ -22,8 +23,10 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   const rigidBody = world.createRigidBody(rigidBodyDesc)
   const collider = world.createCollider(colliderDesc, rigidBody)
 
-  const rigidBodyComponent = getComponentTypeForRigidBody(rigidBody)
-  addComponent(entity, rigidBodyComponent, {
+  addComponent(entity, RigidBodyComponent, { rigidBody: rigidBody })
+
+  const rigidBodyTypeComponent = getComponentTypeForRigidBody(rigidBody)
+  addComponent(entity, rigidBodyTypeComponent, {
     rigidBody: rigidBody,
     rigidBodyDesc: rigidBodyDesc,
     collider: collider
@@ -32,21 +35,24 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   return rigidBody
 }
 
-function removeRigidBody(entity: Entity, world: World, rigidBody: RigidBody) {
-  const rigidBodyComponent = getComponentTypeForRigidBody(rigidBody)
-  removeComponent(entity, rigidBodyComponent)
+function removeRigidBody(entity: Entity, world: World) {
+  const rigidBody = getComponent(entity, RigidBodyComponent).rigidBody
+  const rigidBodyTypeComponent = getComponentTypeForRigidBody(rigidBody)
+  removeComponent(entity, rigidBodyTypeComponent)
+  removeComponent(entity, RigidBodyComponent)
 
   world.removeRigidBody(rigidBody)
 }
 
-function changeRigidbodyType(entity: Entity, rigidBody: RigidBody, newType: RigidBodyType) {
-  const currentRigidBodyComponent = getComponentTypeForRigidBody(rigidBody)
-  let rigidBodyComponent = getComponent(entity, currentRigidBodyComponent)
+function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
+  const rigidBody = getComponent(entity, RigidBodyComponent).rigidBody
+  const currentRigidBodyTypeComponent = getComponentTypeForRigidBody(rigidBody)
+  let rigidBodyTypeComponent = getComponent(entity, currentRigidBodyTypeComponent)
 
-  const collider = rigidBodyComponent.collider
-  const rigidBodyDesc = rigidBodyComponent.rigidBodyDesc
+  const collider = rigidBodyTypeComponent.collider
+  const rigidBodyDesc = rigidBodyTypeComponent.rigidBodyDesc
 
-  removeComponent(entity, currentRigidBodyComponent)
+  removeComponent(entity, currentRigidBodyTypeComponent)
 
   rigidBody.setBodyType(newType)
 
