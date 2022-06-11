@@ -4,14 +4,7 @@ import mediasoup from 'mediasoup-client'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { NearbyUser } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import {
-  addActionReceptor,
-  defineAction,
-  defineState,
-  dispatchAction,
-  getState,
-  registerState
-} from '@xrengine/hyperflux'
+import { addActionReceptor, defineAction, defineState, dispatchAction, getState } from '@xrengine/hyperflux'
 
 //State
 const MediaState = defineState({
@@ -118,49 +111,41 @@ export const MediaStreamService = {
 export type BooleanAction = { [key: string]: boolean }
 export class MediaStreamAction {
   static setCamVideoStateAction = defineAction({
-    store: 'ENGINE',
     type: 'CAM_VIDEO_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setCamAudioStateAction = defineAction({
-    store: 'ENGINE',
     type: 'CAM_AUDIO_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setScreenVideoStateAction = defineAction({
-    store: 'ENGINE',
     type: 'SCREEN_VIDEO_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setScreenAudioStateAction = defineAction({
-    store: 'ENGINE',
     type: 'SCREEN_AUDIO_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setFaceTrackingStateAction = defineAction({
-    store: 'ENGINE',
     type: 'FACE_TRACKING_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setMediaEnabledByDefaultAction = defineAction({
-    store: 'ENGINE',
     type: 'MEDIA_ENABLE_BY_DEFAULT' as const,
     isEnable: matches.boolean
   })
 
   static setConsumersAction = defineAction({
-    store: 'ENGINE',
     type: 'CONSUMERS_CHANGED' as const,
     consumers: matches.any
   })
 
   static setNearbyLayerUsersAction = defineAction({
-    store: 'ENGINE',
     type: 'NEARBY_LAYER_USERS_CHANGED' as const,
     users: matches.array as Validator<unknown, NearbyUser[]>
   })
