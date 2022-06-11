@@ -1,10 +1,10 @@
 import { Matrix4, Vector3 } from 'three'
 
-import { store } from '@xrengine/client-core/src/store'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CommandFuncType, CommandParams, TransformCommands } from '../constants/EditorCommands'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
@@ -75,8 +75,8 @@ function undo(command: ScaleCommandParams) {
 function emitEventAfter(command: ScaleCommandParams) {
   if (command.preventEvents) return
 
-  store.dispatch(EditorAction.sceneModified(true))
-  store.dispatch(SelectionAction.changedObject(command.affectedNodes, 'scale'))
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
+  dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: 'scale' }))
 }
 
 function updateScale(command: ScaleCommandParams, isUndo: boolean): void {

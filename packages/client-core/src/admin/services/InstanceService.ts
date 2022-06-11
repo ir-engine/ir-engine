@@ -33,8 +33,6 @@ export const AdminInstanceState = defineState({
 })
 
 export const registerAdminInstanceServiceActions = () => {
-  registerState(AdminInstanceState)
-
   // Register receptor
   addActionReceptor(function AdminInstanceServiceReceptor(action) {
     getState(AdminInstanceState).batch((s) => {

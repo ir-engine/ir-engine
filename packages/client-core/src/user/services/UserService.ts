@@ -1,18 +1,11 @@
 import { Paginated } from '@feathersjs/feathers'
-import { none, useState } from '@speigg/hookstate'
+import { none } from '@speigg/hookstate'
 
 import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
 import { RelationshipSeed } from '@xrengine/common/src/interfaces/Relationship'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import {
-  addActionReceptor,
-  defineAction,
-  defineState,
-  dispatchAction,
-  getState,
-  registerState
-} from '@xrengine/hyperflux'
+import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
 
@@ -210,70 +203,58 @@ function patchRelation(userId: string, relatedUserId: string, type: 'friend') {
 //Action
 export class UserAction {
   static userPatchedAction = defineAction({
-    store: 'ENGINE',
     type: 'USER_PATCHED' as const,
     user: matches.object
   })
 
   static loadedUserRelationshipAction = defineAction({
-    store: 'ENGINE',
     type: 'LOADED_RELATIONSHIP' as const,
     relationship: matches.object as Validator<unknown, Relationship>
   })
 
   static loadedUsersAction = defineAction({
-    store: 'ENGINE',
     type: 'ADMIN_LOADED_USERS' as const,
     users: matches.array as Validator<unknown, User[]>
   })
 
   static changedRelationAction = defineAction({
-    store: 'ENGINE',
     type: 'CHANGED_RELATION' as const
   })
 
   static loadedLayerUsersAction = defineAction({
-    store: 'ENGINE',
     type: 'LOADED_LAYER_USERS' as const,
     users: matches.array as Validator<unknown, User[]>
   })
 
   static clearLayerUsersAction = defineAction({
-    store: 'ENGINE',
     type: 'CLEAR_LAYER_USERS' as const
   })
 
   static addedLayerUserAction = defineAction({
-    store: 'ENGINE',
     type: 'ADDED_LAYER_USER' as const,
     user: matches.object as Validator<unknown, User>
   })
 
   static removedLayerUserAction = defineAction({
-    store: 'ENGINE',
     type: 'REMOVED_LAYER_USER' as const,
     user: matches.object as Validator<unknown, User>
   })
 
   static loadedChannelLayerUsersAction = defineAction({
-    store: 'ENGINE',
     type: 'LOADED_CHANNEL_LAYER_USERS' as const,
     users: matches.array as Validator<unknown, User[]>
   })
 
   static clearChannelLayerUsersAction = defineAction({
-    store: 'ENGINE',
     type: 'CLEAR_CHANNEL_LAYER_USERS' as const
   })
 
   static addedChannelLayerUserAction = defineAction({
-    store: 'ENGINE',
     type: 'ADDED_CHANNEL_LAYER_USER' as const,
     user: matches.object as Validator<unknown, User>
   })
 
   static removedChannelLayerUserAction = defineAction({
-    store: 'ENGINE',
     type: 'REMOVED_CHANNEL_LAYER_USER' as const,
     user: matches.object as Validator<unknown, User>
   })
