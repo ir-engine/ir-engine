@@ -308,9 +308,13 @@ const ProjectsPage = () => {
                 areInstalledProjects ? onClickExisting(e, project) : window.open(project.repositoryPath)
               }}
             >
-              <div className={styles.thumbnailContainer} style={{ backgroundImage: `url(${project.thumbnail})` }} />
+              <div
+                className={styles.thumbnailContainer}
+                style={{ backgroundImage: `url(${project.thumbnail})` }}
+                id={'open-' + project.name}
+              />
             </a>
-            <div className={styles.headerContainer}>
+            <div className={styles.headerContainer} id={'headerContainer-' + project.name}>
               <h3 className={styles.header}>{project.name.replaceAll('-', ' ')}</h3>
               {project.name !== 'default-project' && (
                 <IconButton disableRipple onClick={(e: any) => openProjectContextMenu(e, project)}>
@@ -323,7 +327,11 @@ const ProjectsPage = () => {
                 <DownloadDone />
               </span>
             )}
-            {project.description && <p className={styles.description}>{project.description}</p>}
+            {project.description && (
+              <p className={styles.description} id={'description-' + project.name}>
+                {project.description}
+              </p>
+            )}
           </li>
         ))}
       </ul>
