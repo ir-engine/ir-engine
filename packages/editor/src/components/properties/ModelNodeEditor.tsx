@@ -116,15 +116,13 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(ModelComponent, 'textureOverride')}
         />
       </InputGroup>
-      <InputGroup name="Material Override" label={t('editor:properties.model.lbl-materialOverride')}>
-        <MaterialAssignment
-          entity={entity}
-          node={props.node}
-          modelComponent={modelComponent}
-          values={modelComponent.materialOverrides}
-          onChange={updateProperty(ModelComponent, 'materialOverrides')}
-        />
-      </InputGroup>
+      <MaterialAssignment
+        entity={entity}
+        node={props.node}
+        modelComponent={modelComponent}
+        values={modelComponent.materialOverrides}
+        onChange={updateProperty(ModelComponent, 'materialOverrides')}
+      />
       <InputGroup name="MatrixAutoUpdate" label={t('editor:properties.model.lbl-matrixAutoUpdate')}>
         <BooleanInput
           value={modelComponent.matrixAutoUpdate}
