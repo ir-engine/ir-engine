@@ -82,7 +82,7 @@ export const LoadEngineWithScene = () => {
 
       const world = Engine.instance.currentWorld
 
-      dispatch(SceneAction.currentSceneChanged(null))
+      dispatchAction(SceneAction.currentSceneChangedAction({ sceneData: null }))
       history.push('/location/' + world.activePortal.location)
       LocationService.getLocationByName(world.activePortal.location)
 

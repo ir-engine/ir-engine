@@ -571,7 +571,9 @@
       "copyAsset": "Copy",
       "pasteAsset": "Paste",
       "renameAsset": "Rename",
-      "viewAssetProperties": "View Properties"
+      "viewAssetProperties": "View Properties",
+      "refresh": "Refresh",
+      "back": "Back"
     }
   },
   "hierarchy": {

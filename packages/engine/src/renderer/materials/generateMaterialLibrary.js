@@ -4,17 +4,25 @@ let result = ""
 
 const constMaterials = fs.readdirSync("./constants").map((matFile) => {
     const matID = matFile.split('.')[0]
-    result += `import ${matID} from './constants/${matFile.replace(/\.ts$/, '')}'\n`
+    result += `import ${matID}, { DefaultArgs as ${matID}DefaultArgs } from './constants/${matFile.replace(/\.ts$/, '')}'\n`
     return matID
 })
 
-result += "export const MaterialLibrary = {\n"
+result += "\nexport const MaterialLibrary = {\n"
 
 constMaterials.forEach((matID, i, arr) => {
     result += `\t${matID}: ${matID}${i + 1<arr.length ? ',' : ''}\n`
 })
 
-result += "}"
+result += "}\n\n"
+
+result += "export const DefaultArguments = {\n"
+
+constMaterials.forEach((matID, i, arr) => {
+    result += `\t${matID}: ${matID}DefaultArgs${i + 1<arr.length ? ',' : ''}\n`
+})
+
+result += "}\n"
 
 console.log(constMaterials)
 
