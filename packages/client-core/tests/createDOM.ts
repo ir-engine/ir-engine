@@ -8,6 +8,9 @@ export const createDOM = () => {
     </html>`,
     { url: 'http://localhost' }
   )
+  console.log(dom)
+  console.log(Object.keys(dom))
   globalThis.window = dom.window
   globalThis.document = dom.window.document
+  globalThis.Image = dom.window.Image
 }
