@@ -25,7 +25,7 @@ describe('Instance Chat Component', () => {
     rootContainer = null!
   })
 
-  it('Renders Hello World Title', () => {
+  it('displays chat message', () => {
     accessChatState().channels.channels.set([
       {
         id: 'id',
