@@ -285,11 +285,7 @@ const InstanceChat = (props: Props): any => {
                     return (
                       <React.Fragment key={message.id}>
                         {!isLeftOrJoinText(message.text) ? (
-                          <div
-                            id={'message-' + message.id}
-                            key={message.id}
-                            className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}
-                          >
+                          <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
                             <div className={`${styles.selfEnd} ${styles.noMargin}`}>
                               <div className={styles.dFlex}>
                                 <div className={styles.msgWrapper}>

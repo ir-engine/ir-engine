@@ -43,7 +43,8 @@ describe('Instance Chat Component', () => {
     act(() => {
       ReactDOM.render(<InstanceChat />, rootContainer)
     })
-    const message = document.getElementById('message-message id')!
-    assert(message.textContent, 'message text')
+    const message = rootContainer.querySelector('p')!
+    // const message = document.getElementById('message-message id')!
+    assert.equal(message.textContent, 'message text')
   })
 })
