@@ -1,5 +1,5 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const RigidBodyKinematicVelocityBasedTagComponent = createMappedComponent(
+export const RigidBodyKinematicVelocityBasedTagComponent = createMappedComponent<true>(
   'RigidBodyKinematicVelocityBasedTagComponent'
 )

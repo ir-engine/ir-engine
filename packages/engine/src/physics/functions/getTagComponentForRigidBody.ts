@@ -5,7 +5,13 @@ import { RigidBodyFixedTagComponent } from '../components/RigidBodyFixedTagCompo
 import { RigidBodyKinematicPositionBasedTagComponent } from '../components/RigidBodyKinematicPositionBasedTagComponent'
 import { RigidBodyKinematicVelocityBasedTagComponent } from '../components/RigidBodyKinematicVelocityBasedTagComponent'
 
-export const getTagComponentForRigidBody = (rigidBody: RigidBody) => {
+type RigidBodyTypes =
+  | typeof RigidBodyDynamicTagComponent
+  | typeof RigidBodyFixedTagComponent
+  | typeof RigidBodyKinematicPositionBasedTagComponent
+  | typeof RigidBodyKinematicVelocityBasedTagComponent
+
+export const getTagComponentForRigidBody = (rigidBody: RigidBody): RigidBodyTypes => {
   switch (rigidBody.bodyType()) {
     case RigidBodyType.Dynamic:
       return RigidBodyDynamicTagComponent

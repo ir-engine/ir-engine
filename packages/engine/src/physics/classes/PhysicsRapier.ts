@@ -6,7 +6,6 @@ import { addComponent, getComponent, removeComponent } from '../../ecs/functions
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
 
-export type Rapier = typeof RAPIER
 export type PhysicsWorld = World
 
 function load() {
@@ -25,8 +24,8 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
 
   addComponent(entity, RigidBodyComponent, rigidBody)
 
-  const rigidBodyTypeComponent = getTagComponentForRigidBody(rigidBody)
-  addComponent(entity, rigidBodyTypeComponent, rigidBody)
+  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
+  addComponent(entity, RigidBodyTypeTagComponent, true)
 
   return rigidBody
 }
@@ -49,7 +48,7 @@ function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
   rigidBody.setBodyType(newType)
 
   const newRigidBodyComponent = getTagComponentForRigidBody(rigidBody)
-  addComponent(entity, newRigidBodyComponent, {})
+  addComponent(entity, newRigidBodyComponent, true)
 }
 
 export const Physics = {
