@@ -21,7 +21,7 @@ export const SceneServiceReceptor = (action) => {
   })
 }
 
-addActionReceptor(SceneServiceReceptor)
+// addActionReceptor(SceneServiceReceptor)
 
 export const accessSceneState = () => getState(SceneState)
 
