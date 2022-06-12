@@ -4,7 +4,7 @@ import RAPIER, { ColliderDesc, RigidBody, RigidBodyDesc, RigidBodyType, World } 
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
-import { getComponentTypeForRigidBody } from '../functions/getComponentTypeForRigidBody'
+import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
 
 export type Rapier = typeof RAPIER
 export type PhysicsWorld = World
@@ -19,49 +19,37 @@ function createWorld(gravity = { x: 0.0, y: -9.81, z: 0.0 }) {
   return world
 }
 
-function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyDesc, colliderDesc: ColliderDesc) {
+function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyDesc, colliderDesc: ColliderDesc[]) {
   const rigidBody = world.createRigidBody(rigidBodyDesc)
-  const collider = world.createCollider(colliderDesc, rigidBody)
+  colliderDesc.forEach((desc) => world.createCollider(desc, rigidBody))
 
-  addComponent(entity, RigidBodyComponent, { rigidBody: rigidBody })
+  addComponent(entity, RigidBodyComponent, rigidBody)
 
-  const rigidBodyTypeComponent = getComponentTypeForRigidBody(rigidBody)
-  addComponent(entity, rigidBodyTypeComponent, {
-    rigidBody: rigidBody,
-    rigidBodyDesc: rigidBodyDesc,
-    collider: collider
-  })
+  const rigidBodyTypeComponent = getTagComponentForRigidBody(rigidBody)
+  addComponent(entity, rigidBodyTypeComponent, rigidBody)
 
   return rigidBody
 }
 
 function removeRigidBody(entity: Entity, world: World) {
-  const rigidBody = getComponent(entity, RigidBodyComponent).rigidBody
-  const rigidBodyTypeComponent = getComponentTypeForRigidBody(rigidBody)
-  removeComponent(entity, rigidBodyTypeComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
+  removeComponent(entity, RigidBodyTypeTagComponent)
   removeComponent(entity, RigidBodyComponent)
 
   world.removeRigidBody(rigidBody)
 }
 
 function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
-  const rigidBody = getComponent(entity, RigidBodyComponent).rigidBody
-  const currentRigidBodyTypeComponent = getComponentTypeForRigidBody(rigidBody)
-  let rigidBodyTypeComponent = getComponent(entity, currentRigidBodyTypeComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const currentRigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
 
-  const collider = rigidBodyTypeComponent.collider
-  const rigidBodyDesc = rigidBodyTypeComponent.rigidBodyDesc
-
-  removeComponent(entity, currentRigidBodyTypeComponent)
+  removeComponent(entity, currentRigidBodyTypeTagComponent)
 
   rigidBody.setBodyType(newType)
 
-  const newRigidBodyComponent = getComponentTypeForRigidBody(rigidBody)
-  addComponent(entity, newRigidBodyComponent, {
-    rigidBody: rigidBody,
-    rigidBodyDesc: rigidBodyDesc,
-    collider: collider
-  })
+  const newRigidBodyComponent = getTagComponentForRigidBody(rigidBody)
+  addComponent(entity, newRigidBodyComponent, {})
 }
 
 export const Physics = {
