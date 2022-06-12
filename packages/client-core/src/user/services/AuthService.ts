@@ -163,7 +163,6 @@ export const AuthService = {
       let accessToken =
         forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
 
-      console.log('accessToken', accessToken)
       if (forceClientAuthReset === true) await (client as any).authentication.reset()
       if (accessToken == null || accessToken.length === 0) {
         const newProvider = await client.service('identity-provider').create({
