@@ -10,6 +10,8 @@ import { createEngine } from '../../initializeEngine'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { RigidBodyDynamicTagComponent } from '../components/RigidBodyDynamicTagComponent'
 import { RigidBodyFixedTagComponent } from '../components/RigidBodyFixedTagComponent'
+import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
+import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
 import { RaycastHit, SceneQueryType } from '../types/PhysicsTypes'
 import { Physics } from './PhysicsRapier'
@@ -84,6 +86,14 @@ describe('Physics', () => {
     assert.deepEqual(hasComponent(entity, RigidBodyFixedTagComponent), true)
   })
 
+  it('should create accurate InteractionGroups', async () => {
+    const collisionGroup = 0x0001
+    const collisionMask = 0x0003
+    const interactionGroups = getInteractionGroups(collisionGroup, collisionMask)
+
+    assert.deepEqual(interactionGroups, 65539)
+  })
+
   it('should cast ray and hit rigidbody', async () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
@@ -91,7 +101,9 @@ describe('Physics', () => {
     const physicsWorld = Physics.createWorld()
 
     const rigidBodyDesc = RigidBodyDesc.dynamic().setTranslation(10, 0, 0)
-    const colliderDesc = ColliderDesc.cylinder(5, 5).setCollisionGroups(0x00010001)
+    const colliderDesc = ColliderDesc.cylinder(5, 5).setCollisionGroups(
+      getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
+    )
 
     const rigidBody = Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, [colliderDesc])
 
@@ -104,7 +116,7 @@ describe('Physics', () => {
       origin: new Vector3().set(0, 1, 0),
       direction: Direction.Right,
       maxDistance: 20,
-      flags: rigidBody.collider(0).collisionGroups()
+      flags: getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
     }
     Physics.castRay(physicsWorld, raycastComponentData)
 

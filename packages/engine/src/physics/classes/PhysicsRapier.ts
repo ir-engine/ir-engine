@@ -63,7 +63,7 @@ function castRay(world: World, raycastQuery: ComponentType<typeof RaycastCompone
   )
   const maxToi = raycastQuery.maxDistance
   const solid = true // TODO: Add option for this in RaycastComponent?
-  const groups = raycastQuery.flags //0xfffffffff
+  const groups = raycastQuery.flags
 
   raycastQuery.hits = []
   let hitWithNormal = world.castRayAndGetNormal(ray, maxToi, solid, groups)
