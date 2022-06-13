@@ -93,11 +93,10 @@ const SentInvite = (props: Props) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        popConfirmOpen={popConfirmOpen}
-        handleCloseModal={handleCloseModal}
-        submit={deleteInvite}
-        name={inviteName}
-        label={'invite'}
+        open={popConfirmOpen}
+        description={`${t('admin:components.invite.confirmInviteDelete')} '${inviteName}'?`}
+        onClose={handleCloseModal}
+        onSubmit={deleteInvite}
       />
     </React.Fragment>
   )

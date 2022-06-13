@@ -213,29 +213,24 @@ export default function ProjectTable() {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        popConfirmOpen={popupReuploadConfirmOpen}
-        handleCloseModal={handleCloseReuploadModal}
-        submit={tryReuploadProjects}
-        name={project?.name}
-        label={t('admin:components.project.project')}
-        type="rebuild"
+        open={popupReuploadConfirmOpen}
+        description={`${t('admin:components.project.confirmProjectRebuild')} '${project?.name}'?`}
         processing={processing}
+        onClose={handleCloseReuploadModal}
+        onSubmit={tryReuploadProjects}
       />
       <ConfirmModal
-        popConfirmOpen={popupInvalidateConfirmOpen}
-        handleCloseModal={handleCloseInvalidateModal}
-        submit={handleInvalidateCache}
-        name={project?.name}
-        label={t('admin:components.project.storageProvidersCacheOf')}
-        type="invalidates"
+        open={popupInvalidateConfirmOpen}
+        description={`${t('admin:components.project.confirmProjectInvalidate')} '${project?.name}'?`}
         processing={processing}
+        onClose={handleCloseInvalidateModal}
+        onSubmit={handleInvalidateCache}
       />
       <ConfirmModal
-        popConfirmOpen={popupRemoveConfirmOpen}
-        handleCloseModal={handleCloseRemoveModal}
-        submit={onRemoveProject}
-        name={project?.name}
-        label={t('admin:components.project.project')}
+        open={popupRemoveConfirmOpen}
+        description={`${t('admin:components.project.confirmProjectDelete')} '${project?.name}'?`}
+        onClose={handleCloseRemoveModal}
+        onSubmit={onRemoveProject}
       />
 
       {showProjectFiles && projectName && (
