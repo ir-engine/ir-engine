@@ -19,8 +19,6 @@ interface Props {
   menu: InputMenuItem[]
   error?: string
   disabled?: boolean
-  startAdornment?: React.ReactNode
-  endAdornment?: React.ReactNode
   endControl?: React.ReactNode
   sx?: SxProps<Theme>
   onChange?: (e: any) => void
@@ -31,20 +29,7 @@ export interface InputMenuItem {
   label: string
 }
 
-const InputSelect = ({
-  className,
-  name,
-  label,
-  value,
-  menu,
-  error,
-  disabled,
-  startAdornment,
-  endAdornment,
-  endControl,
-  sx,
-  onChange
-}: Props) => {
+const InputSelect = ({ className, name, label, value, menu, error, disabled, endControl, sx, onChange }: Props) => {
   const { t } = useTranslation()
 
   if (!disabled) {
@@ -71,10 +56,6 @@ const InputSelect = ({
             fullWidth
             displayEmpty
             MenuProps={{ classes: { paper: styles.selectPaper } }}
-            inputProps={{
-              startAdornment: startAdornment,
-              endAdornment: endAdornment
-            }}
             size={'small'}
             onChange={onChange}
           >
