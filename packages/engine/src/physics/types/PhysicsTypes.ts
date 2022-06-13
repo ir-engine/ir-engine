@@ -1,3 +1,5 @@
+import RAPIER from '@dimforge/rapier3d-compat'
+
 export type ColliderTypes = 'box' | 'ground' | 'sphere' | 'capsule' | 'cylinder' | 'convex' | 'trimesh'
 
 export interface PhysXConfig {
@@ -131,8 +133,8 @@ export interface RaycastHit {
   distance: number
   position: Vec3
   normal: Vec3
-  body?: RigidBody
-  _bodyID: number // internal
+  body?: RigidBody | RAPIER.RigidBody // Only keep Rapier.RigidBody when completely switching to Rapier
+  _bodyID?: number // Remove after completely switching to Rapier
 }
 
 export enum ControllerEvents {

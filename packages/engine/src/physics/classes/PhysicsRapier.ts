@@ -1,8 +1,10 @@
 // This file will be renamed to Physics.ts when we are ready to take out physx completely.
-import RAPIER, { ColliderDesc, RigidBody, RigidBodyDesc, RigidBodyType, World } from '@dimforge/rapier3d-compat'
+import RAPIER, { ColliderDesc, Ray, RigidBody, RigidBodyDesc, RigidBodyType, World } from '@dimforge/rapier3d-compat'
+import { Vector3 } from 'three'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentType, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
 
@@ -30,6 +32,10 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   return rigidBody
 }
 
+// TODO: Do we need dedicated functions for creating these type of colliders?
+// function createTrimesh() {}
+// function convexMesh() {}
+
 function removeRigidBody(entity: Entity, world: World) {
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
@@ -49,6 +55,27 @@ function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
 
   const newRigidBodyComponent = getTagComponentForRigidBody(rigidBody)
   addComponent(entity, newRigidBodyComponent, true)
+}
+
+function castRay(world: World, raycastQuery: ComponentType<typeof RaycastComponent>) {
+  const ray = new Ray(
+    { x: raycastQuery.origin.x, y: raycastQuery.origin.y, z: raycastQuery.origin.z },
+    { x: raycastQuery.direction.x, y: raycastQuery.direction.y, z: raycastQuery.direction.z }
+  )
+  const maxToi = raycastQuery.maxDistance
+  const solid = true
+  const groups = raycastQuery.flags //0xfffffffff
+
+  raycastQuery.hits = []
+  let hitWithNormal = world.castRayAndGetNormal(ray, maxToi, solid, groups)
+  if (hitWithNormal != null) {
+    raycastQuery.hits.push({
+      distance: hitWithNormal.toi,
+      position: ray.pointAt(hitWithNormal.toi),
+      normal: hitWithNormal.normal,
+      body: hitWithNormal.collider.parent() as RigidBody
+    })
+  }
 }
 
 export const Physics = {
