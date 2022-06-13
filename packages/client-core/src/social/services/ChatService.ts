@@ -386,9 +386,7 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
         } else if (isCommand(message.text)) return
       }
     }
-
-    const msg = ChatAction.createdMessageAction({ message: params.message, selfUser: selfUser })
-    if (msg != undefined) store.dispatch(msg)
+    dispatchAction(ChatAction.createdMessageAction({ message: params.message, selfUser: selfUser }))
   })
 
   client.service('message').on('patched', (params) => {
