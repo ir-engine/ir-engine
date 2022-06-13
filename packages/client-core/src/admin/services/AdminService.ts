@@ -8,6 +8,7 @@ import {
   VideoUpdatedResponse,
   VideoUpdateForm
 } from '@xrengine/common/src/interfaces/AdminService'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
@@ -91,9 +92,9 @@ export const AdminService = {
           video.metadata = JSON.parse(video.metadata)
         }
         const videos = res.data as PublicVideo[]
-        return dispatch(VideoAction.videosFetchedSuccess(videos))
+        return dispatchAction(VideoAction.videosFetchedSuccessAction({ videos }))
       })
-      .catch(() => dispatch(VideoAction.videosFetchedError('Failed to fetch videos')))
+      .catch(() => dispatchAction(VideoAction.videosFetchedErrorAction({ message: 'Failed to fetch videos' })))
   }
 }
 
