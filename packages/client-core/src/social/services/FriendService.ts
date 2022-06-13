@@ -30,9 +30,9 @@ const FriendState = defineState({
 
 export const FriendServiceReceptor = (action) => {
   getState(FriendState).batch((s) => {
-    let newValues, selfUser, otherUser, otherUserId
     matches(action)
       .when(FriendAction.loadedFriendsAction.matches, (action) => {
+        let newValues
         newValues = action
         if (s.updateNeeded.value === true) {
           s.friends.friends.set(newValues.friends.data)
@@ -46,11 +46,13 @@ export const FriendServiceReceptor = (action) => {
         return s.getFriendsInProgress.set(false)
       })
       .when(FriendAction.createdFriendAction.matches, (action) => {
+        let newValues
         newValues = action
         const createdUserRelationship = newValues.userRelationship
         return s.friends.friends.set([...s.friends.friends.value, createdUserRelationship])
       })
       .when(FriendAction.patchedFriendAction.matches, (action) => {
+        let newValues, selfUser, otherUser
         newValues = action
         const patchedUserRelationship = newValues.userRelationship
         selfUser = newValues.selfUser
@@ -69,6 +71,7 @@ export const FriendServiceReceptor = (action) => {
         }
       })
       .when(FriendAction.removedFriendAction.matches, (action) => {
+        let newValues, selfUser, otherUserId
         newValues = action
         const removedUserRelationship = newValues.userRelationship
         selfUser = newValues.selfUser
