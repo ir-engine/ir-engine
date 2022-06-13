@@ -13,13 +13,13 @@ export const getPortalDetails = () => {
       const portalDetails = await client.service('portal').get(portalComponent.linkedPortalId)
       if (portalDetails) {
         setRemoteLocationDetail(portalComponent, portalDetails.data.spawnPosition, portalDetails.data.spawnRotation)
-        // const cubemapBakeDetails = await (
-        //   await fetch(`${SERVER_URL}/cubemap/${portalDetails.data.cubemapBakeId}`, options)
+        // const envMapBakeDetails = await (
+        //   await fetch(`${SERVER_URL}/cubemap/${portalDetails.data.envMapBakeId}`, options)
         // ).json()
-        // // console.log('cubemapBakeDetails', cubemapBakeDetails)
-        // if (cubemapBakeDetails) {
+        // // console.log('envMapBakeDetails', envMapBakeDetails)
+        // if (envMapBakeDetails) {
         //   const textureLoader = new TextureLoader()
-        //   const texture = textureLoader.load(cubemapBakeDetails.data.options.envMapOrigin)
+        //   const texture = textureLoader.load(envMapBakeDetails.data.options.envMapOrigin)
         //   texture.mapping = EquirectangularRefractionMapping
 
         //   const portalMaterial = new MeshLambertMaterial({ envMap: texture, side: DoubleSide })

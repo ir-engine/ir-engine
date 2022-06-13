@@ -1,4 +1,4 @@
-import { Mesh, MeshBasicMaterial, sRGBEncoding, Texture, Vector3, WebGLRenderer } from 'three'
+import { Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -9,21 +9,20 @@ import {
   getComponent,
   hasComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { beforeMaterialCompile } from '@xrengine/engine/src/scene/classes/BPCEMShader'
 import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
 import { convertCubemapToEquiImageData } from '@xrengine/engine/src/scene/classes/ImageUtils'
-import { CubemapBakeComponent } from '@xrengine/engine/src/scene/components/CubemapBakeComponent'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
+import { EnvMapBakeComponent } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import {
-  parseCubemapBakeProperties,
-  SCENE_COMPONENT_CUBEMAP_BAKE,
-  SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES,
-  updateCubemapBake
-} from '@xrengine/engine/src/scene/functions/loaders/CubemapBakeFunctions'
+  parseEnvMapBakeProperties,
+  SCENE_COMPONENT_ENVMAP_BAKE,
+  SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES,
+  updateEnvMapBake
+} from '@xrengine/engine/src/scene/functions/loaders/EnvMapBakeFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { accessEditorState } from '../services/EditorServices'
@@ -48,7 +47,7 @@ const getScenePositionForBake = (world: World, entity: Entity | null) => {
 }
 
 /**
- * Uploads a cubemap for a specific entity to the current project
+ * Uploads a envmap for a specific entity to the current project
  * If the entity provided is the root node for the scene, it will set this as the environment map
  *
  * TODO: make this not the default behavior, instead we want an option in the envmap properties of the scene node,
@@ -59,22 +58,18 @@ const getScenePositionForBake = (world: World, entity: Entity | null) => {
  */
 
 export const uploadBakeToServer = async (entity: Entity) => {
-  const world = useWorld()
+  const world = Engine.instance.currentWorld
   const isSceneEntity = entity === world.entityTree.rootNode.entity
 
   if (isSceneEntity) {
-    if (!hasComponent(entity, CubemapBakeComponent)) {
-      addComponent(
-        entity,
-        CubemapBakeComponent,
-        parseCubemapBakeProperties(SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES)
-      )
-      getComponent(entity, EntityNodeComponent).components.push(SCENE_COMPONENT_CUBEMAP_BAKE)
-      updateCubemapBake(entity)
+    if (!hasComponent(entity, EnvMapBakeComponent)) {
+      addComponent(entity, EnvMapBakeComponent, parseEnvMapBakeProperties(SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES))
+      getComponent(entity, EntityNodeComponent).components.push(SCENE_COMPONENT_ENVMAP_BAKE)
+      updateEnvMapBake(entity)
     }
   }
 
-  const bakeComponent = getComponent(entity, CubemapBakeComponent)
+  const bakeComponent = getComponent(entity, EnvMapBakeComponent)
   const position = getScenePositionForBake(world, isSceneEntity ? null : entity)
 
   // inject bpcem logic into material
@@ -120,7 +115,7 @@ export const uploadBakeToServer = async (entity: Entity) => {
   const sceneName = accessEditorState().sceneName.value!
   const projectName = accessEditorState().projectName.value!
   const filename = isSceneEntity
-    ? `${sceneName}.cubemap.png`
+    ? `${sceneName}.envmap.png`
     : `${sceneName}-${nameComponent.name.replace(' ', '-')}.png`
 
   const value = await uploadProjectFile(projectName, [new File([blob], filename)])

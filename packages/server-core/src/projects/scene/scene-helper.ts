@@ -27,20 +27,20 @@ export const getPortal = (app: any): any => {
   }
 }
 
-export const getCubemapBake = (app: any): any => {
+export const getEnvMapBake = (app: any): any => {
   return async (req: express.Request, res: express.Response) => {
-    const cubemapBake = await getCubemapBakeById(app, req.params.entityId)
+    const envMapBake = await getEnvMapBakeById(app, req.params.entityId)
 
-    res.json(cubemapBake)
+    res.json(envMapBake)
   }
 }
 
-export const getCubemapBakeById = async (app, entityId: string) => {
+export const getEnvMapBakeById = async (app, entityId: string) => {
   // TODO: reimplement with new scene format
   // const models = app.get('sequelizeClient').models
   // return models.component.findOne({
   //   where: {
-  //     type: 'cubemapbake',
+  //     type: 'envmapbake',
   //     '$entity.entityId$': entityId
   //   },
   //   include: [

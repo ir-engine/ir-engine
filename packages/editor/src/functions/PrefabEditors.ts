@@ -8,8 +8,8 @@ import { SCENE_COMPONENT_AUDIO } from '@xrengine/engine/src/scene/functions/load
 import { SCENE_COMPONENT_BOX_COLLIDER } from '@xrengine/engine/src/scene/functions/loaders/BoxColliderFunctions'
 import { SCENE_COMPONENT_CAMERA_PROPERTIES } from '@xrengine/engine/src/scene/functions/loaders/CameraPropertiesFunctions'
 import { SCENE_COMPONENT_CLOUD } from '@xrengine/engine/src/scene/functions/loaders/CloudFunctions'
-import { SCENE_COMPONENT_CUBEMAP_BAKE } from '@xrengine/engine/src/scene/functions/loaders/CubemapBakeFunctions'
 import { SCENE_COMPONENT_DIRECTIONAL_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/DirectionalLightFunctions'
+import { SCENE_COMPONENT_ENVMAP_BAKE } from '@xrengine/engine/src/scene/functions/loaders/EnvMapBakeFunctions'
 import { SCENE_COMPONENT_GROUND_PLANE } from '@xrengine/engine/src/scene/functions/loaders/GroundPlaneFunctions'
 import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/functions/loaders/GroupFunctions'
 import { SCENE_COMPONENT_HEMISPHERE_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/HemisphereLightFunctions'
@@ -39,9 +39,9 @@ import AudioNodeEditor from '../components/properties/AudioNodeEditor'
 import BoxColliderNodeEditor from '../components/properties/BoxColliderNodeEditor'
 import CameraPropertiesNodeEditor from '../components/properties/CameraPropertiesNodeEditor'
 import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
-import CubemapBakeNodeEditor from '../components/properties/CubemapBakeNodeEditor'
 import { DefaultNodeEditor } from '../components/properties/DefaultNodeEditor'
 import DirectionalLightNodeEditor from '../components/properties/DirectionalLightNodeEditor'
+import EnvMapBakeNodeEditor from '../components/properties/EnvMapBakeNodeEditor'
 import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEditor'
 import GroupNodeEditor from '../components/properties/GroupNodeEditor'
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
@@ -109,7 +109,7 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_INTERIOR]: InteriorNodeEditor,
   [SCENE_COMPONENT_SYSTEM]: SystemNodeEditor,
   [SCENE_COMPONENT_SPLINE]: SplineNodeEditor,
-  [SCENE_COMPONENT_CUBEMAP_BAKE]: CubemapBakeNodeEditor
+  [SCENE_COMPONENT_ENVMAP_BAKE]: EnvMapBakeNodeEditor
 }
 
 export const prefabIcons = {
@@ -142,5 +142,5 @@ export const prefabIcons = {
   [ScenePrefabs.interior]: InteriorNodeEditor.iconComponent,
   [ScenePrefabs.system]: SystemNodeEditor.iconComponent,
   [ScenePrefabs.spline]: SplineNodeEditor.iconComponent,
-  [ScenePrefabs.cubemapbake]: CubemapBakeNodeEditor.iconComponent
+  [ScenePrefabs.envMapbake]: EnvMapBakeNodeEditor.iconComponent
 }

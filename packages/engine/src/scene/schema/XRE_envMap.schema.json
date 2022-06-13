@@ -26,7 +26,7 @@
       "type": "number",
       "default": 1.0
     },
-    "envMapCubemapBake": {
+    "envMapBake": {
       "type": "object",
       "default": {},
       "properties": {

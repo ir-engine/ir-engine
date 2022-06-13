@@ -60,7 +60,7 @@
             "envMapSourceColor": 16777215,
             "envMapSourceURL": "__$project$__/default-project/assets/skyboxsun25deg/",
             "envMapIntensity": 1,
-            "envMapCubemapBake": {
+            "envMapBake": {
               "bakeType": 1,
               "resolution": 2048,
               "refreshMode": 0,
@@ -86,13 +86,13 @@
           }
         },
         {
-          "name": "cubemapbake",
+          "name": "envmapbake",
           "props": {
             "options": {
               "bakeType": 1,
               "resolution": 2048,
               "refreshMode": 0,
-              "envMapOrigin": "__$project$__/default-project/default.cubemap.png",
+              "envMapOrigin": "__$project$__/default-project/default.envmap.png",
               "boxProjection": true,
               "bakePosition": {
                 "x": 0,

@@ -4,45 +4,42 @@
 import React from 'react'
 
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import {
-  CubemapBakeComponent,
-  CubemapBakeComponentType
-} from '@xrengine/engine/src/scene/components/CubemapBakeComponent'
-import { CubemapBakeRefreshTypes } from '@xrengine/engine/src/scene/types/CubemapBakeRefreshTypes'
-import { CubemapBakeTypes } from '@xrengine/engine/src/scene/types/CubemapBakeTypes'
+import { EnvMapBakeComponent, EnvMapBakeComponentType } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
+import { EnvMapBakeRefreshTypes } from '@xrengine/engine/src/scene/types/EnvMapBakeRefreshTypes'
+import { EnvMapBakeTypes } from '@xrengine/engine/src/scene/types/EnvMapBakeTypes'
 
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import Vector3Input from '../inputs/Vector3Input'
-import { BakePropertyTypes } from './CubemapBakeNodeEditor'
+import { BakePropertyTypes } from './EnvMapBakeNodeEditor'
 import { updateProperty } from './Util'
 
-type CubemapBakePropertyEditorProps = {
-  bakeComponent: CubemapBakeComponentType
+type EnvMapBakePropertyEditorProps = {
+  bakeComponent: EnvMapBakeComponentType
   element: any
   node: EntityTreeNode
 }
 
-const cubemapBakeSelectTypes = [
+const envMapBakeSelectTypes = [
   {
     label: 'Runtime',
-    value: CubemapBakeTypes.Realtime
+    value: EnvMapBakeTypes.Realtime
   },
   {
     label: 'Baked',
-    value: CubemapBakeTypes.Baked
+    value: EnvMapBakeTypes.Baked
   }
 ]
 
-const cubemapBakeRefreshSelectTypes = [
+const envMapBakeRefreshSelectTypes = [
   {
     label: 'On Awake',
-    value: CubemapBakeRefreshTypes.OnAwake
+    value: EnvMapBakeRefreshTypes.OnAwake
   }
   // {
   //     label:"Every Frame",
-  //     value:CubemapBakeRefreshTypes.EveryFrame,
+  //     value: EnvMapBakeRefreshTypes.EveryFrame,
   // }
 ]
 
@@ -69,23 +66,23 @@ const bakeResolutionTypes = [
   }
 ]
 
-export const CubemapBakeProperties = (props: CubemapBakePropertyEditorProps) => {
+export const EnvMapBakeProperties = (props: EnvMapBakePropertyEditorProps) => {
   const getPropertyValue = (option: string) => props.bakeComponent.options[option]
 
   let renderVal = <></>
   const label = props.element.label
   const propertyName = props.element.propertyName
-  const changehandler = updateProperty(CubemapBakeComponent, `options.${propertyName}` as any)
+  const changehandler = updateProperty(EnvMapBakeComponent, `options.${propertyName}` as any)
 
   switch (props.element.type) {
     case BakePropertyTypes.Boolean:
       renderVal = <BooleanInput value={getPropertyValue(propertyName)} onChange={changehandler} />
       break
-    case BakePropertyTypes.CubemapBakeType:
+    case BakePropertyTypes.BakeType:
       renderVal = (
         <SelectInput
           key={props.node.entity}
-          options={cubemapBakeSelectTypes}
+          options={envMapBakeSelectTypes}
           onChange={changehandler}
           value={getPropertyValue(propertyName)}
         />
@@ -96,7 +93,7 @@ export const CubemapBakeProperties = (props: CubemapBakePropertyEditorProps) => 
       renderVal = (
         <SelectInput
           key={props.node.entity}
-          options={cubemapBakeRefreshSelectTypes}
+          options={envMapBakeRefreshSelectTypes}
           onChange={changehandler}
           value={getPropertyValue(propertyName)}
         />

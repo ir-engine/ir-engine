@@ -2,7 +2,7 @@ import { Color } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
-import { CubemapBakeSettings } from '../types/CubemapBakeSettings'
+import { EnvMapBakeSettings } from '../types/EnvMapBakeSettings'
 
 export type EnvmapComponentType = {
   type: EnvMapSourceType
@@ -10,7 +10,7 @@ export type EnvmapComponentType = {
   envMapSourceColor: Color
   envMapSourceURL: string
   envMapIntensity: number
-  envMapCubemapBake: CubemapBakeSettings
+  envMapBake: EnvMapBakeSettings
   forModel: boolean
 }
 

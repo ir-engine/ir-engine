@@ -23,37 +23,37 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
-import { CubemapBakeComponent, CubemapBakeComponentType } from '../../components/CubemapBakeComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { EnvMapBakeComponent, EnvMapBakeComponentType } from '../../components/EnvMapBakeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
-import { CubemapBakeRefreshTypes } from '../../types/CubemapBakeRefreshTypes'
-import { CubemapBakeTypes } from '../../types/CubemapBakeTypes'
+import { EnvMapBakeRefreshTypes } from '../../types/EnvMapBakeRefreshTypes'
+import { EnvMapBakeTypes } from '../../types/EnvMapBakeTypes'
 import { setObjectLayers } from '../setObjectLayers'
 
 const quat = new Quaternion(0)
-export const SCENE_COMPONENT_CUBEMAP_BAKE = 'cubemapbake'
-export const SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES = {
+export const SCENE_COMPONENT_ENVMAP_BAKE = 'envmapbake'
+export const SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES = {
   options: {
     bakePosition: { x: 0, y: 0, z: 0 },
     bakePositionOffset: { x: 0, y: 0, z: 0 },
     bakeScale: { x: 1, y: 1, z: 1 },
-    bakeType: CubemapBakeTypes.Baked,
+    bakeType: EnvMapBakeTypes.Baked,
     resolution: 2048,
-    refreshMode: CubemapBakeRefreshTypes.OnAwake,
+    refreshMode: EnvMapBakeRefreshTypes.OnAwake,
     envMapOrigin: '',
     boxProjection: true
   }
 }
 
-export const deserializeCubemapBake: ComponentDeserializeFunction = (
+export const deserializeEnvMapBake: ComponentDeserializeFunction = (
   entity: Entity,
-  json: ComponentJson<CubemapBakeComponentType>
+  json: ComponentJson<EnvMapBakeComponentType>
 ) => {
-  const props = parseCubemapBakeProperties(json.props)
-  addComponent(entity, CubemapBakeComponent, props)
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CUBEMAP_BAKE)
+  const props = parseEnvMapBakeProperties(json.props)
+  addComponent(entity, EnvMapBakeComponent, props)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ENVMAP_BAKE)
 
   if (!Engine.instance.isEditor || entity === Engine.instance.currentWorld.entityTree.rootNode.entity) return
 
@@ -73,22 +73,22 @@ export const deserializeCubemapBake: ComponentDeserializeFunction = (
   obj3d.add(obj3d.userData.gizmo)
 
   setObjectLayers(obj3d, ObjectLayers.NodeHelper)
-  updateCubemapBake(entity)
+  updateEnvMapBake(entity)
 }
 
-export const updateCubemapBake: ComponentUpdateFunction = (entity: Entity) => {
+export const updateEnvMapBake: ComponentUpdateFunction = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent).value
-  const bakeComponent = getComponent(entity, CubemapBakeComponent)
+  const bakeComponent = getComponent(entity, EnvMapBakeComponent)
   if (obj3d.userData.gizmo)
     obj3d.userData.gizmo.matrix.compose(bakeComponent.options.bakePositionOffset, quat, bakeComponent.options.bakeScale)
 }
 
-export const serializeCubemapBake: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, CubemapBakeComponent) as CubemapBakeComponentType
+export const serializeEnvMapBake: ComponentSerializeFunction = (entity) => {
+  const component = getComponent(entity, EnvMapBakeComponent) as EnvMapBakeComponentType
   if (!component) return
 
   return {
-    name: SCENE_COMPONENT_CUBEMAP_BAKE,
+    name: SCENE_COMPONENT_ENVMAP_BAKE,
     props: {
       options: component.options
     }
@@ -120,24 +120,24 @@ export const prepareSceneForBake = (world = useWorld()): Scene => {
   return scene
 }
 
-export const parseCubemapBakeProperties = (props): CubemapBakeComponentType => {
+export const parseEnvMapBakeProperties = (props): EnvMapBakeComponentType => {
   const result = {
     options: {
-      bakeType: props.options.bakeType ?? SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES.options.bakeType,
-      resolution: props.options.resolution ?? SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES.options.resolution,
-      refreshMode: props.options.refreshMode ?? SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES.options.refreshMode,
-      envMapOrigin: props.options.envMapOrigin ?? SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES.options.envMapOrigin,
-      boxProjection: props.options.boxProjection ?? SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES.options.boxProjection
+      bakeType: props.options.bakeType ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.options.bakeType,
+      resolution: props.options.resolution ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.options.resolution,
+      refreshMode: props.options.refreshMode ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.options.refreshMode,
+      envMapOrigin: props.options.envMapOrigin ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.options.envMapOrigin,
+      boxProjection: props.options.boxProjection ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.options.boxProjection
     }
-  } as CubemapBakeComponentType
+  } as EnvMapBakeComponentType
 
-  let tempV3 = props.options.bakePosition ?? SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES.options.bakePosition
+  let tempV3 = props.options.bakePosition ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.options.bakePosition
   result.options.bakePosition = new Vector3(tempV3.x, tempV3.y, tempV3.z)
 
-  tempV3 = props.options.bakePositionOffset ?? SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES.options.bakePositionOffset
+  tempV3 = props.options.bakePositionOffset ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.options.bakePositionOffset
   result.options.bakePositionOffset = new Vector3(tempV3.x, tempV3.y, tempV3.z)
 
-  tempV3 = props.options.bakeScale ?? SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES.options.bakeScale
+  tempV3 = props.options.bakeScale ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.options.bakeScale
   result.options.bakeScale = new Vector3(tempV3.x, tempV3.y, tempV3.z)
 
   return result
