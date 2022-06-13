@@ -2,7 +2,7 @@ import { useState } from '@speigg/hookstate'
 import React, { useEffect } from 'react'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { ChatService, ChatServiceReceptor, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { notificationAlertURL } from '@xrengine/common/src/constants/URL'
@@ -25,7 +25,7 @@ import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioF
 import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
 import { IconButton, InputAdornment } from '@mui/material'
@@ -92,6 +92,10 @@ const InstanceChat = (props: Props): any => {
   const messageRef = React.useRef<any>()
   const messageEl = messageRef.current
   const isMobile = /Mobi/i.test(window.navigator.userAgent)
+
+  useEffect(() => {
+    addActionReceptor(ChatServiceReceptor)
+  }, [])
   useEffect(() => {
     if (!composingMessage || !usersTyping) return
     const delayDebounce = setTimeout(() => {
