@@ -11,9 +11,11 @@ import {
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
+import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
 import { accessEditorState } from '../services/EditorServices'
+import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import { RemoveObjectCommand, RemoveObjectCommandParams } from './RemoveObjectsCommand'
 
@@ -26,6 +28,8 @@ describe('RemoveObjectCommand', () => {
 
   beforeEach(() => {
     createEngine()
+    registerEditorReceptors()
+    Engine.instance.store.defaultDispatchDelay = 0
     registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
@@ -41,7 +45,7 @@ describe('RemoveObjectCommand', () => {
     addEntityNodeInTree(beforeNodes[0], parentNodes[0])
     addEntityNodeInTree(beforeNodes[1], parentNodes[1])
 
-    SelectionAction.updateSelection([beforeNodes[0].entity, nodes[0].entity, nodes[1].entity])
+    SelectionAction.updateSelection({ selectedEntities: [beforeNodes[0].entity, nodes[0].entity, nodes[1].entity] })
 
     command = {
       type: EditorCommands.REMOVE_OBJECTS,
@@ -105,6 +109,7 @@ describe('RemoveObjectCommand', () => {
       const sceneGraphChangeCounter = selectionState.sceneGraphChangeCounter.value
 
       RemoveObjectCommand.emitEventAfter?.(command)
+      applyIncomingActions()
       assert.equal(sceneGraphChangeCounter, selectionState.sceneGraphChangeCounter.value)
     })
 
@@ -114,6 +119,7 @@ describe('RemoveObjectCommand', () => {
       const sceneGraphChangeCounter = selectionState.sceneGraphChangeCounter.value
 
       RemoveObjectCommand.emitEventAfter?.(command)
+      applyIncomingActions()
       assert.equal(sceneGraphChangeCounter + 1, selectionState.sceneGraphChangeCounter.value)
       assert.equal(accessEditorState().sceneModified.value, true)
     })
@@ -122,6 +128,7 @@ describe('RemoveObjectCommand', () => {
   describe('execute function', async () => {
     it('Removes given nodes', () => {
       RemoveObjectCommand.execute(command)
+      applyIncomingActions()
 
       command.affectedNodes.forEach((node) => {
         assert(!Engine.instance.currentWorld.entityTree.entityNodeMap.get(node.entity))
@@ -136,6 +143,7 @@ describe('RemoveObjectCommand', () => {
     it('will not remove root node', () => {
       command.affectedNodes = [Engine.instance.currentWorld.entityTree.rootNode]
       RemoveObjectCommand.execute(command)
+      applyIncomingActions()
 
       command.affectedNodes.forEach((node) => {
         assert(Engine.instance.currentWorld.entityTree.entityNodeMap.get(node.entity))
@@ -147,6 +155,7 @@ describe('RemoveObjectCommand', () => {
       command.updateSelection = false
       const oldSelection = accessSelectionState().selectedEntities.value.slice(0)
       RemoveObjectCommand.execute(command)
+      applyIncomingActions()
       const newSelection = accessSelectionState().selectedEntities.value
 
       assert.equal(oldSelection.length, newSelection.length)
@@ -156,6 +165,7 @@ describe('RemoveObjectCommand', () => {
     it('will update selection state', () => {
       command.updateSelection = true
       RemoveObjectCommand.execute(command)
+      applyIncomingActions()
       const selection = accessSelectionState().selectedEntities.value
 
       command.affectedNodes.forEach((node) => {
@@ -169,8 +179,10 @@ describe('RemoveObjectCommand', () => {
       command.keepHistory = false
       RemoveObjectCommand.prepare(command)
       RemoveObjectCommand.execute(command)
+      applyIncomingActions()
 
       RemoveObjectCommand.undo(command)
+      applyIncomingActions()
 
       command.affectedNodes.forEach((node) => {
         assert(!Engine.instance.currentWorld.entityTree.entityNodeMap.has(node.entity))
@@ -181,8 +193,10 @@ describe('RemoveObjectCommand', () => {
       command.keepHistory = true
       RemoveObjectCommand.prepare(command)
       RemoveObjectCommand.execute(command)
+      applyIncomingActions()
 
       RemoveObjectCommand.undo(command)
+      applyIncomingActions()
 
       command.affectedNodes.forEach((node) => {
         assert(Engine.instance.currentWorld.entityTree.entityNodeMap.has(node.entity))
@@ -203,5 +217,6 @@ describe('RemoveObjectCommand', () => {
   afterEach(() => {
     emptyEntityTree(Engine.instance.currentWorld.entityTree)
     accessSelectionState().merge({ selectedEntities: [] })
+    deregisterEditorReceptors()
   })
 })

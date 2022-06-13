@@ -2,7 +2,7 @@ import { useState } from '@speigg/hookstate'
 import React, { useEffect } from 'react'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { ChatService, ChatServiceReceptor, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { notificationAlertURL } from '@xrengine/common/src/constants/URL'
@@ -25,7 +25,7 @@ import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioF
 import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
 import { IconButton, InputAdornment } from '@mui/material'
@@ -79,7 +79,6 @@ const InstanceChat = (props: Props): any => {
     locationInstanceConnectionState.instances[Engine.instance.currentWorld.worldNetwork?.hostId]
 
   const [isInitRender, setIsInitRender] = React.useState<Boolean>()
-  const [noUnReadMessage, setNoUnReadMessage] = React.useState<any>()
   const audioState = useAudioState()
   const [entity, setEntity] = React.useState<Entity>()
   const usersTyping = useEngineState().usersTyping[user?.id.value].value
@@ -93,6 +92,10 @@ const InstanceChat = (props: Props): any => {
   const messageRef = React.useRef<any>()
   const messageEl = messageRef.current
   const isMobile = /Mobi/i.test(window.navigator.userAgent)
+
+  useEffect(() => {
+    addActionReceptor(ChatServiceReceptor)
+  }, [])
   useEffect(() => {
     if (!composingMessage || !usersTyping) return
     const delayDebounce = setTimeout(() => {
@@ -154,7 +157,7 @@ const InstanceChat = (props: Props): any => {
       sortedMessages[sortedMessages.length - 1]?.senderId !== user?.id.value &&
       chatState.messageCreated.value
     ) {
-      setNoUnReadMessage(false)
+      setUnreadMessages(true)
       entity && toggleAudio(entity)
     }
   }, [chatState])
@@ -217,7 +220,6 @@ const InstanceChat = (props: Props): any => {
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
     setIsInitRender(false)
-    setNoUnReadMessage(true)
   }
   const [dimensions, setDimensions] = React.useState({
     height: window.innerHeight,
@@ -262,12 +264,12 @@ const InstanceChat = (props: Props): any => {
       <div
         onClick={() => {
           setChatWindowOpen(false)
-          setNoUnReadMessage(true)
+          setUnreadMessages(false)
           if (isMobile) setShowTouchPad(true)
         }}
-        className={styles['backdrop'] + ' ' + (!chatWindowOpen && styles['hideBackDrop'])}
+        className={styles.backdrop + ' ' + (!chatWindowOpen ? styles.hideBackDrop : '')}
       ></div>
-      <div className={styles['instance-chat-container'] + ' ' + (!chatWindowOpen && styles['messageContainerClosed'])}>
+      <div className={styles['instance-chat-container'] + ' ' + (chatWindowOpen ? styles.open : '')}>
         <div ref={messageRef} className={styles['instance-chat-msg-container']}>
           <div className={styles['list-container']}>
             <Card square={true} elevation={0} className={styles['message-wrapper']}>
@@ -291,9 +293,10 @@ const InstanceChat = (props: Props): any => {
                             <div className={`${styles.selfEnd} ${styles.noMargin}`}>
                               <div className={styles.dFlex}>
                                 <div className={styles.msgWrapper}>
-                                  {isLeftOrJoinText(messages[index - 1].text) ? (
+                                  {messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
                                     <h3 className={styles.sender}>{message.sender.name}</h3>
                                   ) : (
+                                    messages[index - 1] &&
                                     message.senderId !== messages[index - 1].senderId && (
                                       <h3 className={styles.sender}>{message.sender.name}</h3>
                                     )
@@ -306,9 +309,10 @@ const InstanceChat = (props: Props): any => {
                                     <p className={styles.text}>{message.text}</p>
                                   </div>
                                 </div>
-                                {index !== 0 && isLeftOrJoinText(messages[index - 1].text) ? (
+                                {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
                                   <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
                                 ) : (
+                                  messages[index - 1] &&
                                   message.senderId !== messages[index - 1].senderId && (
                                     <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
                                   )
@@ -335,11 +339,7 @@ const InstanceChat = (props: Props): any => {
             </Card>
           </div>
         </div>
-        <div
-          className={`${styles['bottom-box']} ${!chatWindowOpen ? styles.bttm : ''} ${
-            !chatWindowOpen ? styles.fixedPos : ''
-          } ${chatWindowOpen ? styles.mgBtm : ''}`}
-        >
+        <div className={`${styles['bottom-box']}`}>
           <div className={`${styles['chat-input']} ${chatWindowOpen ? '' : styles.invisible} `}>
             <Card className={styles['chat-view']} style={{ boxShadow: 'none' }}>
               <CardContent className={styles['chat-box']} style={{ boxShadow: 'none' }}>
@@ -394,7 +394,7 @@ const InstanceChat = (props: Props): any => {
             <Badge
               color="primary"
               variant="dot"
-              invisible={noUnReadMessage}
+              invisible={!unreadMessages}
               anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             >
               <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>

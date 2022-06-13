@@ -15,8 +15,10 @@ import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
+import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { accessSelectionState } from '../services/SelectionServices'
 import { getRandomTransform } from './ReparentCommand.test'
 import { ScaleCommand, ScaleCommandParams } from './ScaleCommand'
@@ -28,6 +30,8 @@ describe('ScaleCommand', () => {
 
   beforeEach(() => {
     createEngine()
+    registerEditorReceptors()
+    Engine.instance.store.defaultDispatchDelay = 0
     registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
@@ -96,12 +100,14 @@ describe('ScaleCommand', () => {
       const sceneGraphChangeCounter = selectionState.sceneGraphChangeCounter.value
 
       ScaleCommand.emitEventAfter?.(command)
+      applyIncomingActions()
       assert.equal(sceneGraphChangeCounter, selectionState.sceneGraphChangeCounter.value)
     })
 
     it('will emit event if "preventEvents" is false', () => {
       command.preventEvents = false
       ScaleCommand.emitEventAfter?.(command)
+      applyIncomingActions()
       assert(true)
     })
   })
@@ -155,6 +161,7 @@ describe('ScaleCommand', () => {
       }
 
       ScaleCommand.update?.(command, newCommand)
+      applyIncomingActions()
 
       assert.deepEqual(command.scales, newCommand.scales)
     })
@@ -171,6 +178,7 @@ describe('ScaleCommand', () => {
 
       const newScales = command.scales.map((scale, i) => scale.multiply(newCommand.scales[i]))
       ScaleCommand.update?.(command, newCommand)
+      applyIncomingActions()
       assert.deepEqual(command.scales, newScales)
     })
   })
@@ -186,6 +194,7 @@ describe('ScaleCommand', () => {
       })
 
       ScaleCommand.execute(command)
+      applyIncomingActions()
       command.affectedNodes.forEach((node, i) => {
         assert.deepEqual(getComponent(node.entity, TransformComponent).scale, newScales[i])
       })
@@ -197,6 +206,7 @@ describe('ScaleCommand', () => {
       command.overrideScale = true
 
       ScaleCommand.execute(command)
+      applyIncomingActions()
       command.affectedNodes.forEach((node, i) => {
         assert.deepEqual(getComponent(node.entity, TransformComponent).scale, command.scales[i])
       })
@@ -208,6 +218,7 @@ describe('ScaleCommand', () => {
       command.overrideScale = true
 
       ScaleCommand.execute(command)
+      applyIncomingActions()
       command.affectedNodes.forEach((node, i) => {
         const scale = getComponent(node.entity, TransformComponent).scale
         assert.equal(scale.x, Number.EPSILON)
@@ -222,6 +233,7 @@ describe('ScaleCommand', () => {
       command.overrideScale = true
 
       ScaleCommand.execute(command)
+      applyIncomingActions()
       command.affectedNodes.forEach((node, i) => {
         assert.deepEqual(getComponent(node.entity, TransformComponent).scale, command.scales[i])
       })
@@ -233,6 +245,7 @@ describe('ScaleCommand', () => {
       command.overrideScale = true
 
       ScaleCommand.execute(command)
+      applyIncomingActions()
       command.affectedNodes.forEach((node, i) => {
         const scale = getComponent(node.entity, TransformComponent).scale
         assert.equal(scale.x, Number.EPSILON)
@@ -247,6 +260,7 @@ describe('ScaleCommand', () => {
       command.overrideScale = true
 
       ScaleCommand.execute(command)
+      applyIncomingActions()
       command.affectedNodes.forEach((node, i) => {
         assert.deepEqual(getComponent(node.entity, TransformComponent).scale, command.scales[i])
       })
@@ -261,7 +275,9 @@ describe('ScaleCommand', () => {
 
       ScaleCommand.prepare(command)
       ScaleCommand.execute(command)
+      applyIncomingActions()
       ScaleCommand.undo(command)
+      applyIncomingActions()
       command.affectedNodes.forEach((node, i) => {
         assert.deepEqual(getComponent(node.entity, TransformComponent).scale, command.scales[i])
       })
@@ -275,7 +291,9 @@ describe('ScaleCommand', () => {
 
       ScaleCommand.prepare(command)
       ScaleCommand.execute(command)
+      applyIncomingActions()
       ScaleCommand.undo(command)
+      applyIncomingActions()
       command.affectedNodes.forEach((node, i) => {
         assert.deepEqual(getComponent(node.entity, TransformComponent).scale, command.undo?.scales[i])
       })
@@ -289,5 +307,6 @@ describe('ScaleCommand', () => {
   afterEach(() => {
     emptyEntityTree(Engine.instance.currentWorld.entityTree)
     accessSelectionState().merge({ selectedEntities: [] })
+    deregisterEditorReceptors()
   })
 })
