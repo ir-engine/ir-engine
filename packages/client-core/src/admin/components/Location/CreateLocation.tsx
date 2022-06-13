@@ -7,14 +7,11 @@ import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
-import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormGroup from '@mui/material/FormGroup'
 import Grid from '@mui/material/Grid'
-import Switch from '@mui/material/Switch'
 
 import AlertMessage from '../../common/AlertMessage'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
+import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { LocationService, useLocationState } from '../../services/LocationService'
@@ -199,114 +196,56 @@ const CreateLocation = (props: Props) => {
 
           <Grid container spacing={5} className={styles.mb15}>
             <Grid item xs={6}>
-              <FormGroup>
-                <FormControl>
-                  <FormControlLabel
-                    color="primary"
-                    control={
-                      <Switch
-                        checked={state.videoEnabled}
-                        onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
-                        name="videoEnabled"
-                      />
-                    }
-                    label={t('admin:components.locationModal.lbl-ve') as string}
-                  />
-                </FormControl>
-              </FormGroup>
-              <FormGroup>
-                <FormControl>
-                  <FormControlLabel
-                    color="primary"
-                    control={
-                      <Switch
-                        checked={state.audioEnabled}
-                        onChange={(e) => setState({ ...state, audioEnabled: e.target.checked })}
-                        name="audioEnabled"
-                      />
-                    }
-                    label={t('admin:components.locationModal.lbl-ae') as string}
-                  />
-                </FormControl>
-              </FormGroup>
-              <FormGroup>
-                <FormControl>
-                  <FormControlLabel
-                    color="primary"
-                    control={
-                      <Switch
-                        checked={state.globalMediaEnabled}
-                        onChange={(e) => setState({ ...state, globalMediaEnabled: e.target.checked })}
-                        name="globalMediaEnabled"
-                      />
-                    }
-                    label={t('admin:components.locationModal.lbl-gme') as string}
-                  />
-                </FormControl>
-              </FormGroup>
-              <FormGroup>
-                <FormControl>
-                  <FormControlLabel
-                    color="primary"
-                    control={
-                      <Switch
-                        checked={state.screenSharingEnabled}
-                        onChange={(e) => setState({ ...state, screenSharingEnabled: e.target.checked })}
-                        name="screenSharingEnabled"
-                      />
-                    }
-                    label={t('admin:components.locationModal.lbl-se') as string}
-                  />
-                </FormControl>
-              </FormGroup>
+              <InputSwitch
+                name="videoEnabled"
+                label={t('admin:components.locationModal.lbl-ve')}
+                checked={state.videoEnabled}
+                onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
+              />
+
+              <InputSwitch
+                name="audioEnabled"
+                label={t('admin:components.locationModal.lbl-ae')}
+                checked={state.audioEnabled}
+                onChange={(e) => setState({ ...state, audioEnabled: e.target.checked })}
+              />
+
+              <InputSwitch
+                name="globalMediaEnabled"
+                label={t('admin:components.locationModal.lbl-gme')}
+                checked={state.globalMediaEnabled}
+                onChange={(e) => setState({ ...state, globalMediaEnabled: e.target.checked })}
+              />
+
+              <InputSwitch
+                name="screenSharingEnabled"
+                label={t('admin:components.locationModal.lbl-se')}
+                checked={state.screenSharingEnabled}
+                onChange={(e) => setState({ ...state, screenSharingEnabled: e.target.checked })}
+              />
             </Grid>
             <Grid item xs={6} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
-                <FormGroup>
-                  <FormControl>
-                    <FormControlLabel
-                      color="primary"
-                      control={
-                        <Switch
-                          checked={state.faceStreamingEnabled}
-                          onChange={(e) => setState({ ...state, faceStreamingEnabled: e.target.checked })}
-                          name="faceStreamingEnabled"
-                        />
-                      }
-                      label={t('admin:components.locationModal.lbl-fe') as string}
-                    />
-                  </FormControl>
-                </FormGroup>
-                <FormGroup>
-                  <FormControl>
-                    <FormControlLabel
-                      color="primary"
-                      control={
-                        <Switch
-                          checked={state.isLobby}
-                          onChange={(e) => setState({ ...state, isLobby: e.target.checked })}
-                          name="isLobby"
-                        />
-                      }
-                      label={t('admin:components.locationModal.lbl-lobby') as string}
-                    />
-                  </FormControl>
-                </FormGroup>
-                <FormGroup>
-                  <FormControl>
-                    <FormControlLabel
-                      color="primary"
-                      control={
-                        <Switch
-                          checked={state.isFeatured}
-                          onChange={(e) => setState({ ...state, isFeatured: e.target.checked })}
-                          name="isFeatured"
-                        />
-                      }
-                      label={t('admin:components.locationModal.lbl-featured') as string}
-                    />
-                  </FormControl>
-                </FormGroup>
+                <InputSwitch
+                  name="faceStreamingEnabled"
+                  label={t('admin:components.locationModal.lbl-lobby')}
+                  checked={state.faceStreamingEnabled}
+                  onChange={(e) => setState({ ...state, faceStreamingEnabled: e.target.checked })}
+                />
+
+                <InputSwitch
+                  name="isLobby"
+                  label={t('admin:components.locationModal.lbl-fe')}
+                  checked={state.isLobby}
+                  onChange={(e) => setState({ ...state, isLobby: e.target.checked })}
+                />
+
+                <InputSwitch
+                  name="isFeatured"
+                  label={t('admin:components.locationModal.lbl-featured')}
+                  checked={state.isFeatured}
+                  onChange={(e) => setState({ ...state, isFeatured: e.target.checked })}
+                />
               </div>
             </Grid>
           </Grid>

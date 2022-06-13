@@ -1257,3 +1257,9 @@
     }
   }
 }
+
+.switchField {
+  :global(.MuiFormControlLabel-label.Mui-disabled) {
+    color: var(--textColor);
+  }
+}
