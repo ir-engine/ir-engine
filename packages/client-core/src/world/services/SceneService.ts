@@ -13,7 +13,7 @@ const SceneState = defineState({
 
 export const SceneServiceReceptor = (action) => {
   getState(SceneState).batch((s) => {
-    matches(action).when(SceneAction.currentSceneChangedAction.matches, (action) => {
+    matches(action).when(SceneActions.currentSceneChanged.matches, (action) => {
       return s.merge({
         currentScene: action.sceneData
       })
@@ -30,14 +30,12 @@ export const useSceneState = () => useState(accessSceneState())
 export const SceneService = {
   fetchCurrentScene: async (projectName: string, sceneName: string) => {
     const sceneData = await client.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
-    // It should dispatch scene data
-
-    dispatchAction(SceneAction.currentSceneChangedAction({ sceneData: sceneData.data }))
+    dispatchAction(SceneActions.currentSceneChanged({ sceneData: sceneData.data }))
   }
 }
 
-export class SceneAction {
-  static currentSceneChangedAction = defineAction({
+export class SceneActions {
+  static currentSceneChanged = defineAction({
     type: 'location.CURRENT_SCENE_CHANGED',
     sceneData: matches.object as Validator<unknown, SceneData | null>
   })
