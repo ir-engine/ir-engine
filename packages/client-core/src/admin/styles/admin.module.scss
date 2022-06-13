@@ -1259,6 +1259,10 @@
 }
 
 .switchField {
+  :global(.MuiFormControlLabel-label) {
+    color: var(--textColor);
+  }
+
   :global(.MuiFormControlLabel-label.Mui-disabled) {
     color: var(--textColor);
   }
