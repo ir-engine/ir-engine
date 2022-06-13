@@ -157,13 +157,6 @@ const Server = (props: serverProps) => {
             disabled
           />
 
-          <InputText
-            name="hub"
-            label={t('admin:components.setting.hub')}
-            value={serverSetting?.hub?.endpoint || ''}
-            disabled
-          />
-
           <InputText name="paginateDefault" label={t('admin:components.setting.paginateDefault')} value="10" disabled />
 
           <InputText
