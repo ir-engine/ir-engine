@@ -1,6 +1,5 @@
 // This file will be renamed to Physics.ts when we are ready to take out physx completely.
 import RAPIER, { ColliderDesc, Ray, RigidBody, RigidBodyDesc, RigidBodyType, World } from '@dimforge/rapier3d-compat'
-import { Vector3 } from 'three'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentType, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
@@ -63,7 +62,7 @@ function castRay(world: World, raycastQuery: ComponentType<typeof RaycastCompone
     { x: raycastQuery.direction.x, y: raycastQuery.direction.y, z: raycastQuery.direction.z }
   )
   const maxToi = raycastQuery.maxDistance
-  const solid = true
+  const solid = true // TODO: Add option for this in RaycastComponent?
   const groups = raycastQuery.flags //0xfffffffff
 
   raycastQuery.hits = []
@@ -83,5 +82,6 @@ export const Physics = {
   createWorld,
   createRigidBody,
   removeRigidBody,
-  changeRigidbodyType
+  changeRigidbodyType,
+  castRay
 }

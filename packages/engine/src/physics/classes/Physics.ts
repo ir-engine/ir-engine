@@ -508,7 +508,7 @@ export class Physics {
         raycastQuery.maxDistance,
         raycastQuery.flags,
         buffer,
-        raycastQuery.filterData
+        raycastQuery.filterData as PhysX.PxQueryFilterData
       )
       if (hasHit) {
         const shape = buffer.getShape()

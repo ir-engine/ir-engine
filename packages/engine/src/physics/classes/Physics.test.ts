@@ -1,6 +1,8 @@
 import { ColliderDesc, RigidBodyDesc, RigidBodyType } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
+import { Vector3 } from 'three'
 
+import { Direction } from '../../common/constants/Axis3D'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -9,6 +11,7 @@ import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { RigidBodyDynamicTagComponent } from '../components/RigidBodyDynamicTagComponent'
 import { RigidBodyFixedTagComponent } from '../components/RigidBodyFixedTagComponent'
 import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
+import { RaycastHit, SceneQueryType } from '../types/PhysicsTypes'
 import { Physics } from './PhysicsRapier'
 
 describe('Physics', () => {
@@ -79,5 +82,35 @@ describe('Physics', () => {
     assert.deepEqual(rigidBody.bodyType(), RigidBodyType.Fixed)
     assert.deepEqual(hasComponent(entity, RigidBodyDynamicTagComponent), false)
     assert.deepEqual(hasComponent(entity, RigidBodyFixedTagComponent), true)
+  })
+
+  it('should cast ray and hit rigidbody', async () => {
+    const world = Engine.instance.currentWorld
+    const entity = createEntity(world)
+
+    const physicsWorld = Physics.createWorld()
+
+    const rigidBodyDesc = RigidBodyDesc.dynamic().setTranslation(10, 0, 0)
+    const colliderDesc = ColliderDesc.cylinder(5, 5).setCollisionGroups(0x00010001)
+
+    const rigidBody = Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, [colliderDesc])
+
+    physicsWorld.step()
+
+    const raycastComponentData = {
+      filterData: null, // TODO
+      type: SceneQueryType.Closest,
+      hits: [] as RaycastHit[],
+      origin: new Vector3().set(0, 1, 0),
+      direction: Direction.Right,
+      maxDistance: 20,
+      flags: rigidBody.collider(0).collisionGroups()
+    }
+    Physics.castRay(physicsWorld, raycastComponentData)
+
+    assert.deepEqual(raycastComponentData.hits.length, 1)
+    assert.deepEqual(raycastComponentData.hits[0].normal.x, -1)
+    assert.deepEqual(raycastComponentData.hits[0].distance, 5)
+    assert.deepEqual(raycastComponentData.hits[0].body, rigidBody)
   })
 })

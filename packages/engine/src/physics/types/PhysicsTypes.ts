@@ -133,8 +133,8 @@ export interface RaycastHit {
   distance: number
   position: Vec3
   normal: Vec3
-  body?: RigidBody | RAPIER.RigidBody // Only keep Rapier.RigidBody when completely switching to Rapier
-  _bodyID?: number // Remove after completely switching to Rapier
+  body?: RigidBody | RAPIER.RigidBody // TODO: Only keep Rapier.RigidBody
+  _bodyID?: number // TODO: Remove
 }
 
 export enum ControllerEvents {
