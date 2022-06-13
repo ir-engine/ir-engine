@@ -1,4 +1,4 @@
 export enum EnvMapBakeTypes {
-  'Realtime',
-  'Baked'
+  Realtime = 'Realtime',
+  Baked = 'Baked'
 }

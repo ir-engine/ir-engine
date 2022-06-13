@@ -1,4 +1,4 @@
 export enum EnvMapBakeRefreshTypes {
-  'OnAwake',
-  'EveryFrame'
+  OnAwake = 'OnAwake',
+  EveryFrame = 'EveryFrame'
 }

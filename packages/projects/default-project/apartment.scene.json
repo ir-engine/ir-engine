@@ -55,15 +55,15 @@
         {
           "name": "envmap",
           "props": {
-            "type": 1,
-            "envMapTextureType": 1,
+            "type": "Texture",
+            "envMapTextureType": "Equirectangular",
             "envMapSourceColor": 16777215,
             "envMapSourceURL": "/hdr/city.jpg",
             "envMapIntensity": 1,
             "envMapBake": {
-              "bakeType": 1,
+              "bakeType": "Baked",
               "resolution": 2048,
-              "refreshMode": 0,
+              "refreshMode": "OnAwake",
               "envMapOrigin": "",
               "boxProjection": true,
               "bakePosition": {
@@ -89,9 +89,9 @@
           "name": "envmapbake",
           "props": {
             "options": {
-              "bakeType": 1,
+              "bakeType": "Baked",
               "resolution": 2048,
-              "refreshMode": 0,
+              "refreshMode": "OnAwake",
               "envMapOrigin": "__$project$__/default-project/apartment.envmap.png",
               "boxProjection": true,
               "bakePosition": {
@@ -529,15 +529,15 @@
         {
           "name": "envmap",
           "props": {
-            "type": 3,
-            "envMapTextureType": 0,
+            "type": "None",
+            "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
             "envMapIntensity": 1,
             "envMapBake": {
-              "bakeType": 1,
+              "bakeType": "Baked",
               "resolution": 2048,
-              "refreshMode": 0,
+              "refreshMode": "OnAwake",
               "envMapOrigin": "",
               "boxProjection": true,
               "bakePosition": {
@@ -890,9 +890,9 @@
           "name": "envmapbake",
           "props": {
             "options": {
-              "bakeType": 1,
+              "bakeType": "Baked",
               "resolution": 512,
-              "refreshMode": 0,
+              "refreshMode": "OnAwake",
               "envMapOrigin": "__$project$__/default-project/assets/apartment-CubemapBake.png",
               "boxProjection": true,
               "bakePosition": {
@@ -1031,15 +1031,15 @@
         {
           "name": "envmap",
           "props": {
-            "type": 3,
-            "envMapTextureType": 0,
+            "type": "None",
+            "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
             "envMapIntensity": 1,
             "envMapBake": {
-              "bakeType": 1,
+              "bakeType": "Baked",
               "resolution": 2048,
-              "refreshMode": 0,
+              "refreshMode": "OnAwake",
               "envMapOrigin": "",
               "boxProjection": true,
               "bakePosition": {

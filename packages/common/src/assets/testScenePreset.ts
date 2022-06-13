@@ -577,7 +577,7 @@ export const testScenePreset = {
             reflectionType: 1,
             intensity: 1,
             resolution: 512,
-            refreshMode: 0,
+            refreshMode: 'OnAwake',
             lookupName: 'EnvMap'
           },
           data: {
@@ -599,7 +599,7 @@ export const testScenePreset = {
             reflectionType: 1,
             intensity: 1,
             resolution: 512,
-            refreshMode: 0,
+            refreshMode: 'OnAwake',
             lookupName: 'EnvMap'
           },
           id: '09cc03c4-24e9-11eb-bc2e-e7e742fb069f',

@@ -38,7 +38,7 @@ import { parseEnvMapBakeProperties } from './EnvMapBakeFunctions'
 export const SCENE_COMPONENT_ENVMAP = 'envmap'
 export const SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES = {
   type: EnvMapSourceType.None,
-  envMapTextureType: 0,
+  envMapTextureType: EnvMapTextureType.Cubemap,
   envMapSourceColor: 0x123456,
   envMapSourceURL: '/hdr/cubemap/skyboxsun25deg/',
   envMapIntensity: 1,
