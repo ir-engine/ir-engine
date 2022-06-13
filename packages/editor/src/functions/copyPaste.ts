@@ -1,6 +1,6 @@
-import { store } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { executeCommandWithHistory } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
@@ -42,7 +42,7 @@ export function paste(event) {
   } else if ((data = event.clipboardData.getData('text')) !== '') {
     try {
       const url = new URL(data)
-      addMediaNode(url.href).catch((error) => store.dispatch(EditorErrorAction.throwError(error)))
+      addMediaNode(url.href).catch((error) => dispatchAction(EditorErrorAction.throwError({ error })))
     } catch (e) {
       console.warn('Clipboard contents did not contain a valid url')
     }

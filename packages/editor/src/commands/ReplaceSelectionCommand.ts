@@ -1,8 +1,8 @@
-import { store } from '@xrengine/client-core/src/store'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CommandFuncType, CommandParams, SelectionCommands } from '../constants/EditorCommands'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
@@ -41,7 +41,7 @@ function emitEventBefore(command: ReplaceSelectionCommandParams) {
   if (command.preventEvents) return
 
   cancelGrabOrPlacement()
-  store.dispatch(SelectionAction.changedBeforeSelection())
+  dispatchAction(SelectionAction.changedBeforeSelection())
 }
 
 function emitEventAfter(command: ReplaceSelectionCommandParams) {
@@ -92,7 +92,7 @@ function replaceSelection(command: ReplaceSelectionCommandParams, isUndo: boolea
     }
   }
 
-  store.dispatch(SelectionAction.updateSelection(newlySelectedEntities))
+  dispatchAction(SelectionAction.updateSelection({ selectedEntities: newlySelectedEntities }))
 }
 
 function toString(command: ReplaceSelectionCommandParams) {

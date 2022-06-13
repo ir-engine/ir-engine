@@ -1,6 +1,5 @@
 import { Vector3 } from 'three'
 
-import { store } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
@@ -11,6 +10,7 @@ import {
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { executeCommand } from '../classes/History'
 import EditorCommands, { CommandFuncType, CommandParams, ParentCommands } from '../constants/EditorCommands'
@@ -111,7 +111,7 @@ function emitEventBefore(command: ReparentCommandParams) {
   if (command.preventEvents) return
 
   cancelGrabOrPlacement()
-  store.dispatch(SelectionAction.changedBeforeSelection())
+  dispatchAction(SelectionAction.changedBeforeSelection())
 }
 
 function emitEventAfter(command: ReparentCommandParams) {
@@ -119,8 +119,8 @@ function emitEventAfter(command: ReparentCommandParams) {
 
   if (command.updateSelection) updateOutlinePassSelection()
 
-  store.dispatch(EditorAction.sceneModified(true))
-  store.dispatch(SelectionAction.changedSceneGraph())
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
+  dispatchAction(SelectionAction.changedSceneGraph())
 }
 
 function reparent(command: ReparentCommandParams, isUndo: boolean) {

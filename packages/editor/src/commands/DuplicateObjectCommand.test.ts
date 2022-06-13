@@ -10,8 +10,10 @@ import {
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
+import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { accessSelectionState } from '../services/SelectionServices'
 import { DuplicateObjectCommand, DuplicateObjectCommandParams } from './DuplicateObjectCommand'
 
@@ -24,6 +26,8 @@ describe('DuplicateObjectCommand', () => {
 
   beforeEach(() => {
     createEngine()
+    registerEditorReceptors()
+    Engine.instance.store.defaultDispatchDelay = 0
     registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
@@ -75,6 +79,7 @@ describe('DuplicateObjectCommand', () => {
       const sceneGraphChangeCounter = selectionState.sceneGraphChangeCounter.value
 
       DuplicateObjectCommand.emitEventAfter?.(command)
+      applyIncomingActions()
       assert.equal(sceneGraphChangeCounter, selectionState.sceneGraphChangeCounter.value)
     })
 
@@ -84,6 +89,7 @@ describe('DuplicateObjectCommand', () => {
       const sceneGraphChangeCounter = selectionState.sceneGraphChangeCounter.value
 
       DuplicateObjectCommand.emitEventAfter?.(command)
+      applyIncomingActions()
       assert.equal(sceneGraphChangeCounter + 1, selectionState.sceneGraphChangeCounter.value)
     })
   })
@@ -91,6 +97,7 @@ describe('DuplicateObjectCommand', () => {
   describe('execute function', async () => {
     it('duplicates objects', () => {
       DuplicateObjectCommand.execute(command)
+      applyIncomingActions()
 
       assert(command.duplicatedObjects)
       command.duplicatedObjects.forEach((node) => {
@@ -101,6 +108,7 @@ describe('DuplicateObjectCommand', () => {
     it('will update selection', () => {
       command.updateSelection = true
       DuplicateObjectCommand.execute(command)
+      applyIncomingActions()
 
       assert(command.duplicatedObjects)
       command.duplicatedObjects.forEach((node) => {
@@ -114,8 +122,10 @@ describe('DuplicateObjectCommand', () => {
       command.keepHistory = false
       DuplicateObjectCommand.prepare(command)
       DuplicateObjectCommand.execute(command)
+      applyIncomingActions()
 
       DuplicateObjectCommand.undo(command)
+      applyIncomingActions()
 
       assert(command.duplicatedObjects)
       command.duplicatedObjects.forEach((node) => {
@@ -127,8 +137,10 @@ describe('DuplicateObjectCommand', () => {
       command.keepHistory = true
       DuplicateObjectCommand.prepare(command)
       DuplicateObjectCommand.execute(command)
+      applyIncomingActions()
 
       DuplicateObjectCommand.undo(command)
+      applyIncomingActions()
 
       assert(command.duplicatedObjects)
       command.duplicatedObjects.forEach((node) => {
@@ -144,5 +156,6 @@ describe('DuplicateObjectCommand', () => {
   afterEach(() => {
     emptyEntityTree(Engine.instance.currentWorld.entityTree)
     accessSelectionState().merge({ selectedEntities: [] })
+    deregisterEditorReceptors()
   })
 })
