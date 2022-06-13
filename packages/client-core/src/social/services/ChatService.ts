@@ -12,14 +12,7 @@ import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
-import {
-  addActionReceptor,
-  defineAction,
-  defineState,
-  dispatchAction,
-  getState,
-  registerState
-} from '@xrengine/hyperflux'
+import { addActionReceptor, defineAction, defineState, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { accessLocationInstanceConnectionState } from '../../common/services/LocationInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -219,8 +212,6 @@ export const ChatServiceReceptor = (action) => {
       })
   })
 }
-
-addActionReceptor(ChatServiceReceptor)
 
 export const accessChatState = () => getState(ChatState)
 
