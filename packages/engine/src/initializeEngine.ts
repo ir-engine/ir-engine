@@ -75,7 +75,6 @@ export const initializeBrowser = () => {
   matchActionOnce(EngineActions.connect.matches, (action: any) => {
     Engine.instance.userId = action.id
   })
-
   EngineRenderer.instance.initialize()
   Engine.instance.engineTimer.start()
 }
