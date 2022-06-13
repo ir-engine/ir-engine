@@ -9,13 +9,16 @@ import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
 import { Box, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import { useAnalyticsState } from '../../services/AnalyticsService'
+import { AdminAnalyticsServiceReceptor, useAnalyticsState } from '../../services/AnalyticsService'
 import { AnalyticsService } from '../../services/AnalyticsService'
 import styles from '../../styles/admin.module.scss'
 import ActivityGraph from './ActivityGraph'
 import Card from './CardNumber'
 
 import './index.scss'
+
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import UserGraph from './UserGraph'
 
@@ -36,6 +39,13 @@ const Analytics = (props: Props) => {
 
   const [endDate, setEndDate] = useState(moment())
   const [startDate, setStartDate] = useState(moment().subtract(30, 'days'))
+
+  useEffect(() => {
+    addActionReceptor(AdminAnalyticsServiceReceptor)
+    return () => {
+      removeActionReceptor(AdminAnalyticsServiceReceptor)
+    }
+  }, [])
 
   const activeLocations = analyticsState.activeLocations.value.map((item) => {
     return [new Date(item.createdAt).getTime(), item.count]
