@@ -5,7 +5,7 @@ import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
 import { RelationshipSeed } from '@xrengine/common/src/interfaces/Relationship'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
 
@@ -42,22 +42,21 @@ export const UserServiceReceptor = (action) => {
         return s.merge({ layerUsers: action.users, layerUsersUpdateNeeded: false })
       })
       .when(UserAction.addedLayerUserAction.matches, (action) => {
-        const newUser = action.user
-        const idx = s.layerUsers.findIndex((layerUser) => {
-          return layerUser != null && layerUser.id.value === newUser.id
+        const index = s.layerUsers.findIndex((layerUser) => {
+          return layerUser != null && layerUser.id.value === action.user.id
         })
-        if (idx === -1) {
-          return s.layerUsers.merge([newUser])
+        if (index === -1) {
+          return s.layerUsers.merge([action.user])
         } else {
-          return s.layerUsers[idx].set(newUser)
+          return s.layerUsers[index].set(action.user)
         }
       })
       .when(UserAction.removedLayerUserAction.matches, (action) => {
         const layerUsers = s.layerUsers
-        const idx = layerUsers.findIndex((layerUser) => {
+        const index = layerUsers.findIndex((layerUser) => {
           return layerUser != null && layerUser.value.id === action.user.id
         })
-        return s.layerUsers[idx].set(none)
+        return s.layerUsers[index].set(none)
       })
       .when(UserAction.clearChannelLayerUsersAction.matches, () => {
         return s.merge({
@@ -72,29 +71,25 @@ export const UserServiceReceptor = (action) => {
         })
       })
       .when(UserAction.addedChannelLayerUserAction.matches, (action) => {
-        const newUser = action.user
-        const idx = s.channelLayerUsers.findIndex((layerUser) => {
-          return layerUser != null && layerUser.value.id === newUser.id
+        const index = s.channelLayerUsers.findIndex((layerUser) => {
+          return layerUser != null && layerUser.value.id === action.user.id
         })
-        if (idx === -1) {
-          return s.channelLayerUsers.merge([newUser])
+        if (index === -1) {
+          return s.channelLayerUsers.merge([action.user])
         } else {
-          return s.channelLayerUsers[idx].set(newUser)
+          return s.channelLayerUsers[index].set(action.user)
         }
       })
       .when(UserAction.removedChannelLayerUserAction.matches, (action) => {
-        const newUser = action.user
-        if (newUser) {
-          const idx = s.channelLayerUsers.findIndex((layerUser) => {
-            return layerUser != null && layerUser.value.id === newUser.id
+        if (action.user) {
+          const index = s.channelLayerUsers.findIndex((layerUser) => {
+            return layerUser != null && layerUser.value.id === action.user.id
           })
-          return s.channelLayerUsers[idx].set(none)
+          return s.channelLayerUsers[index].set(none)
         } else return s
       })
   })
 }
-
-addActionReceptor(UserServiceReceptor)
 
 export const accessUserState = () => getState(UserState)
 export const useUserState = () => useState(accessUserState())
