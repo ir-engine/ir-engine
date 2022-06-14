@@ -15,8 +15,8 @@ import {
   useAdminGithubAppState
 } from '../../services/GithubAppService'
 import styles from '../../styles/admin.module.scss'
+import AddProject from './AddProject'
 import ProjectTable from './ProjectTable'
-import UploadProjectModal from './UploadProjectModal'
 
 const Projects = () => {
   const authState = useAuthState()
@@ -88,7 +88,7 @@ const Projects = () => {
         onSubmit={onSubmitRebuild}
       />
 
-      <UploadProjectModal
+      <AddProject
         repos={githubAppRepos}
         open={uploadProjectsModalOpen}
         handleClose={() => setUploadProjectsModalOpen(false)}
