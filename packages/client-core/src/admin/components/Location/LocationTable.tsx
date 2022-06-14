@@ -6,19 +6,16 @@ import { Location } from '@xrengine/common/src/interfaces/Location'
 import Avatar from '@mui/material/Avatar'
 import Chip from '@mui/material/Chip'
 
-import { useErrorState } from '../../../common/services/ErrorService'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { locationColumns, LocationProps } from '../../common/variables/location'
-import { useAdminInstanceState } from '../../services/InstanceService'
 import { AdminLocationService, LOCATION_PAGE_LIMIT, useAdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 import ViewLocation from './ViewLocation'
 
 const LocationTable = (props: LocationProps) => {
   const { search } = props
-  const adminInstanceState = useAdminInstanceState()
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(LOCATION_PAGE_LIMIT)
@@ -31,7 +28,6 @@ const LocationTable = (props: LocationProps) => {
   const [locationAdmin, setLocationAdmin] = useState<Location>()
   const authState = useAuthState()
   const user = authState.user
-  const adminScopeReadErrMsg = useErrorState().readError.scopeErrorMessage
   const adminLocationState = useAdminLocationState()
   const adminLocations = adminLocationState.locations
   const adminLocationCount = adminLocationState.total

@@ -5,7 +5,7 @@ import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { ErrorAction } from '../../common/services/ErrorService'
+import { ErrorActions } from '../../common/services/ErrorService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 
@@ -123,7 +123,7 @@ export const AdminLocationService = {
       dispatchAction(AdminLocationActions.locationsRetrieved({ locations }))
     } catch (error) {
       console.error(error)
-      dispatchAction(ErrorAction.setReadScopeError(error.message, error.statusCode))
+      dispatchAction(ErrorActions.setReadScopeError({ message: error.message, statusCode: error.statusCode }))
     }
   },
   searchAdminLocations: async (value, orderBy = 'asc') => {
@@ -142,10 +142,8 @@ export const AdminLocationService = {
       locations.data.forEach((locationData) => {
         if (locationData.location_setting) locationData.locationSetting = locationData.location_setting
       })
-      dispatchAction(AdminLocationActions.locationsRetrieved({ locations }))
     } catch (error) {
       console.error(error)
-      dispatchAction(ErrorAction.setReadScopeError(error.message, error.statusCode))
     }
   }
 }
