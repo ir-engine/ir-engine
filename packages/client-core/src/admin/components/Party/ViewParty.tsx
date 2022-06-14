@@ -20,10 +20,10 @@ import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
 import { validateForm } from '../../common/validation/formValidation'
 import ViewDrawer from '../../common/ViewDrawer'
-import { useInstanceState } from '../../services/InstanceService'
-import { InstanceService } from '../../services/InstanceService'
-import { useLocationState } from '../../services/LocationService'
-import { LocationService } from '../../services/LocationService'
+import { useAdminInstanceState } from '../../services/InstanceService'
+import { AdminInstanceService } from '../../services/InstanceService'
+import { useADminLocationState } from '../../services/LocationService'
+import { AdminLocationService } from '../../services/LocationService'
 import { PartyService } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
 
@@ -47,15 +47,15 @@ export default function ViewParty(props: Props) {
   })
   const authState = useAuthState()
   const user = authState.user
-  const adminLocationState = useLocationState()
-  const adminInstanceState = useInstanceState()
+  const adminLocationState = useADminLocationState()
+  const adminInstanceState = useAdminInstanceState()
   const instanceData = adminInstanceState.instances
   const locationData = adminLocationState.locations
   const { t } = useTranslation()
 
   //Call custom hooks
-  useFetchAdminInstance(user, adminInstanceState, InstanceService)
-  useFetchAdminLocations(user, adminLocationState, LocationService)
+  useFetchAdminInstance(user, adminInstanceState, AdminInstanceService)
+  useFetchAdminLocations(user, adminLocationState, AdminLocationService)
 
   useEffect(() => {
     if (partyAdmin?.instance?.id || partyAdmin?.location?.name) {

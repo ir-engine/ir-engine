@@ -19,7 +19,7 @@ import Switch from '@mui/material/Switch'
 import AlertMessage from '../../common/AlertMessage'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { LocationService, useLocationState } from '../../services/LocationService'
+import { AdminLocationService, useADminLocationState } from '../../services/LocationService'
 import { useSceneState } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
 
@@ -54,7 +54,7 @@ const CreateLocation = (props: Props) => {
   })
 
   const { t } = useTranslation()
-  const adminLocationState = useLocationState()
+  const adminLocationState = useADminLocationState()
   const locationTypes = adminLocationState.locationTypes
   const location = adminLocationState
   const adminScenes = useSceneState().scenes
@@ -125,7 +125,7 @@ const CreateLocation = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
-      LocationService.createLocation(data)
+      AdminLocationService.createLocation(data)
       clearState()
       closeViewModal && closeViewModal(false)
     } else {

@@ -23,8 +23,8 @@ import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { BotService } from '../../services/BotsService'
-import { InstanceService, useInstanceState } from '../../services/InstanceService'
-import { LocationService, useLocationState } from '../../services/LocationService'
+import { AdminInstanceService, useAdminInstanceState } from '../../services/InstanceService'
+import { AdminLocationService, useADminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 const CreateBot = () => {
@@ -49,19 +49,19 @@ const CreateBot = () => {
     instance: '',
     location: ''
   })
-  const adminInstanceState = useInstanceState()
+  const adminInstanceState = useAdminInstanceState()
   const authState = useAuthState()
   const user = authState.user
   const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances
-  const adminLocationState = useLocationState()
+  const adminLocationState = useADminLocationState()
   const adminLocation = adminLocationState
   const locationData = adminLocation.locations
   const { t } = useTranslation()
 
   //Call custom hooks
-  useFetchAdminInstance(user, adminInstanceState, InstanceService)
-  useFetchAdminLocations(user, adminLocationState, LocationService)
+  useFetchAdminInstance(user, adminInstanceState, AdminInstanceService)
+  useFetchAdminLocations(user, adminLocationState, AdminLocationService)
   AddCommand
   const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target
@@ -138,11 +138,11 @@ const CreateBot = () => {
   }
 
   const fetchAdminInstances = () => {
-    InstanceService.fetchAdminInstances()
+    AdminInstanceService.fetchAdminInstances()
   }
 
   const fetchAdminLocations = () => {
-    LocationService.fetchAdminLocations()
+    AdminLocationService.fetchAdminLocations()
   }
 
   const removeCommand = (id: string) => {

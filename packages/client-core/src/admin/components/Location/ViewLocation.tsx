@@ -24,7 +24,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { LocationService, useLocationState } from '../../services/LocationService'
+import { AdminLocationService, useADminLocationState } from '../../services/LocationService'
 import { useSceneState } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
 
@@ -61,7 +61,7 @@ const ViewLocation = (props: Props) => {
   const [openWarning, setOpenWarning] = useState(false)
   const { t } = useTranslation()
   const adminScenes = useSceneState().scenes
-  const locationTypes = useLocationState().locationTypes
+  const locationTypes = useADminLocationState().locationTypes
   const user = useAuthState().user // user initialized by getting value from authState object.
   const scopes = user?.scopes?.value || []
   let isLocationWrite = false
@@ -147,7 +147,7 @@ const ViewLocation = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
-      LocationService.patchLocation(location.id, locationData)
+      AdminLocationService.patchLocation(location.id, locationData)
       setState({
         ...state,
         name: '',

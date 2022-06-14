@@ -8,7 +8,11 @@ import Grid from '@mui/material/Grid'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
-import { AdminGithubAppServiceReceptor, GithubAppService, useGithubAppState } from '../../services/GithubAppService'
+import {
+  AdminGithubAppServiceReceptor,
+  GithubAppService,
+  useAdminGithubAppState
+} from '../../services/GithubAppService'
 import styles from '../../styles/admin.module.scss'
 import ProjectTable from './ProjectTable'
 import UploadProjectModal from './UploadProjectModal'
@@ -17,7 +21,7 @@ const Projects = () => {
   const authState = useAuthState()
   const user = authState.user
   const adminProjectState = useProjectState()
-  const githubAppState = useGithubAppState()
+  const githubAppState = useAdminGithubAppState()
   const githubAppRepos = githubAppState.repos.value
   const { t } = useTranslation()
   const [uploadProjectsModalOpen, setUploadProjectsModalOpen] = useState(false)

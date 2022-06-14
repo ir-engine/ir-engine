@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
+import { AdminLocationServiceReceptor } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 import CreateLocation from './CreateLocation'
 import LocationTable from './LocationTable'
@@ -13,6 +16,13 @@ const Location = () => {
   const [locationModalOpen, setLocationModalOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
   const { t } = useTranslation()
+
+  useEffect(() => {
+    addActionReceptor(AdminLocationServiceReceptor)
+    return () => {
+      removeActionReceptor(AdminLocationServiceReceptor)
+    }
+  }, [])
 
   const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (

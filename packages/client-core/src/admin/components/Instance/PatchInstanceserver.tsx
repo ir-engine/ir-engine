@@ -11,7 +11,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { InstanceserverService } from '../../services/InstanceserverService'
-import { LocationService, useLocationState } from '../../services/LocationService'
+import { AdminLocationService, useADminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -30,11 +30,11 @@ const PatchInstanceserver = (props: Props) => {
   const { t } = useTranslation()
   const authState = useAuthState()
   const user = authState.user
-  const adminLocationState = useLocationState()
+  const adminLocationState = useADminLocationState()
   const location = adminLocationState
   const adminLocations = adminLocationState.locations
 
-  useFetchAdminLocations(user, adminLocationState, LocationService)
+  useFetchAdminLocations(user, adminLocationState, AdminLocationService)
 
   const locationsMenu: InputMenuItem[] = adminLocations.value.map((el) => {
     return {

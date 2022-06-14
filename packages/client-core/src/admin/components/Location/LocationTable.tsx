@@ -14,8 +14,8 @@ import { useFetchAdminScenes, useFetchLocation, useFetchLocationTypes } from '..
 import { useFetchUsersAsAdmin } from '../../common/hooks/User.hooks'
 import TableComponent from '../../common/Table'
 import { locationColumns, LocationProps } from '../../common/variables/location'
-import { InstanceService, useInstanceState } from '../../services/InstanceService'
-import { LOCATION_PAGE_LIMIT, LocationService, useLocationState } from '../../services/LocationService'
+import { AdminInstanceService, useAdminInstanceState } from '../../services/InstanceService'
+import { AdminLocationService, LOCATION_PAGE_LIMIT, useADminLocationState } from '../../services/LocationService'
 import { SceneService } from '../../services/SceneService'
 import { UserService, useUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
@@ -23,7 +23,7 @@ import ViewLocation from './ViewLocation'
 
 const LocationTable = (props: LocationProps) => {
   const { search } = props
-  const adminInstanceState = useInstanceState()
+  const adminInstanceState = useAdminInstanceState()
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(LOCATION_PAGE_LIMIT)
@@ -37,22 +37,22 @@ const LocationTable = (props: LocationProps) => {
   const authState = useAuthState()
   const user = authState.user
   const adminScopeReadErrMsg = useErrorState().readError.scopeErrorMessage
-  const adminLocationState = useLocationState()
+  const adminLocationState = useADminLocationState()
   const adminLocations = adminLocationState.locations
   const adminLocationCount = adminLocationState.total
 
   // Call custom hooks
   const { t } = useTranslation()
   const adminUserState = useUserState()
-  useFetchLocation(user, adminLocationState, adminScopeReadErrMsg, search, LocationService, sortField, fieldOrder)
+  useFetchLocation(user, adminLocationState, adminScopeReadErrMsg, search, AdminLocationService, sortField, fieldOrder)
   useFetchAdminScenes(user, SceneService)
-  useFetchLocationTypes(user, adminLocationState, LocationService)
+  useFetchLocationTypes(user, adminLocationState, AdminLocationService)
   useFetchUsersAsAdmin(user, adminUserState, UserService, '', 'name', fieldOrder)
-  useFetchAdminInstance(user, adminInstanceState, InstanceService)
+  useFetchAdminInstance(user, adminInstanceState, AdminInstanceService)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     //const incDec = page < newPage ? 'increment' : 'decrement'
-    LocationService.fetchAdminLocations(search, newPage, sortField, fieldOrder)
+    AdminLocationService.fetchAdminLocations(search, newPage, sortField, fieldOrder)
     setPage(newPage)
   }
 
@@ -62,12 +62,12 @@ const LocationTable = (props: LocationProps) => {
 
   useEffect(() => {
     if (adminLocationState.fetched.value) {
-      LocationService.fetchAdminLocations(search, page, sortField, fieldOrder)
+      AdminLocationService.fetchAdminLocations(search, page, sortField, fieldOrder)
     }
   }, [fieldOrder])
 
   const submitRemoveLocation = async () => {
-    await LocationService.removeLocation(locationId)
+    await AdminLocationService.removeLocation(locationId)
     setPopConfirmOpen(false)
   }
 

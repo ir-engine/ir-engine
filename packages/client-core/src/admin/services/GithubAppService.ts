@@ -23,9 +23,9 @@ export const AdminGithubAppServiceReceptor = (action) => {
   })
 }
 
-export const accessGithubAppState = () => getState(AdminGithubAppState)
+export const accessAdminGithubAppState = () => getState(AdminGithubAppState)
 
-export const useGithubAppState = () => useState(accessGithubAppState())
+export const useAdminGithubAppState = () => useState(accessAdminGithubAppState())
 
 export const GithubAppService = {
   fetchGithubAppRepos: async () => {

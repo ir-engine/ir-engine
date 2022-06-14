@@ -14,7 +14,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import AutoComplete from '../../common/AutoComplete'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { GroupService } from '../../services/GroupService'
+import { AdminGroupService } from '../../services/GroupService'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import styles from '../../styles/admin.module.scss'
 
@@ -66,7 +66,7 @@ const CreateGroup = (props: Props) => {
     temp.description = !state.description ? t('admin:components.group.descriptionCantEmpty') : ''
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
-      GroupService.createGroupByAdmin({ name, description, scopeTypes })
+      AdminGroupService.createGroupByAdmin({ name, description, scopeTypes })
       setState({
         ...state,
         name: '',

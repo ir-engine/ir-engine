@@ -59,7 +59,7 @@ export const accessAdminGroupState = () => getState(AdminGroupState)
 export const useAdminGroupState = () => useState(accessAdminGroupState())
 
 //Service
-export const GroupService = {
+export const AdminGroupService = {
   getGroupService: async (search: string | null = null, skip = 0, sortField = 'name', orderBy = 'asc') => {
     const limit = accessAdminGroupState().limit.value
     try {

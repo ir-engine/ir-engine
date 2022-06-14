@@ -32,39 +32,33 @@ export const AdminInstanceState = defineState({
   })
 })
 
-export const registerAdminInstanceServiceActions = () => {
-  // Register receptor
-  addActionReceptor(function AdminInstanceServiceReceptor(action) {
-    getState(AdminInstanceState).batch((s) => {
-      matches(action)
-        .when(AdminInstanceAction.instancesRetrievedAction.matches, (action) => {
-          return s.merge({
-            instances: action.instanceResult.data,
-            skip: action.instanceResult.skip,
-            limit: action.instanceResult.limit,
-            total: action.instanceResult.total,
-            retrieving: false,
-            fetched: true,
-            updateNeeded: false,
-            lastFetched: Date.now()
-          })
+export const AdminInstanceServiceReceptor = (action) => {
+  getState(AdminInstanceState).batch((s) => {
+    matches(action)
+      .when(AdminInstanceAction.instancesRetrievedAction.matches, (action) => {
+        return s.merge({
+          instances: action.instanceResult.data,
+          skip: action.instanceResult.skip,
+          limit: action.instanceResult.limit,
+          total: action.instanceResult.total,
+          retrieving: false,
+          fetched: true,
+          updateNeeded: false,
+          lastFetched: Date.now()
         })
-        .when(AdminInstanceAction.instancesRetrievedAction.matches, () => {
-          return s.merge({ updateNeeded: true })
-        })
-    })
+      })
+      .when(AdminInstanceAction.instancesRetrievedAction.matches, () => {
+        return s.merge({ updateNeeded: true })
+      })
   })
 }
 
-// temporary
-registerAdminInstanceServiceActions()
+export const accessAdminInstanceState = () => getState(AdminInstanceState)
 
-export const accessInstanceState = () => getState(AdminInstanceState)
-
-export const useInstanceState = () => useState(accessInstanceState())
+export const useAdminInstanceState = () => useState(accessAdminInstanceState())
 
 //Service
-export const InstanceService = {
+export const AdminInstanceService = {
   fetchAdminInstances: async (value: string | null = null, skip = 0, sortField = 'createdAt', orderBy = 'asc') => {
     const user = accessAuthState().user
     try {
