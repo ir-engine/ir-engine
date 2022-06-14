@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
@@ -7,16 +7,14 @@ import DialogContentText from '@mui/material/DialogContentText'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import CreateModal from '../../common/CreateModal'
-import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
-import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { validateForm } from '../../common/validation/formValidation'
 import { PartyProps } from '../../common/variables/party'
-import { InstanceService } from '../../services/InstanceService'
-import { useInstanceState } from '../../services/InstanceService'
-import { LocationService } from '../../services/LocationService'
-import { useLocationState } from '../../services/LocationService'
-import { PartyService } from '../../services/PartyService'
+import { AdminInstanceService } from '../../services/InstanceService'
+import { useAdminInstanceState } from '../../services/InstanceService'
+import { AdminLocationService } from '../../services/LocationService'
+import { useAdminLocationState } from '../../services/LocationService'
+import { AdminPartyService } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
 
 const CreateParty = (props: PartyProps) => {
@@ -35,14 +33,22 @@ const CreateParty = (props: PartyProps) => {
 
   const authState = useAuthState()
   const user = authState.user
-  const adminLocationState = useLocationState()
+  const adminLocationState = useAdminLocationState()
   const locationData = adminLocationState.locations
-  const adminInstanceState = useInstanceState()
+  const adminInstanceState = useAdminInstanceState()
   const instanceData = adminInstanceState.instances
 
-  //Call custom hooks
-  useFetchAdminInstance(user, adminInstanceState, InstanceService)
-  useFetchAdminLocations(user, adminLocationState, LocationService)
+  useEffect(() => {
+    if (user?.id.value && adminInstanceState.updateNeeded.value) {
+      AdminInstanceService.fetchAdminInstances()
+    }
+  }, [user?.id?.value, adminInstanceState.updateNeeded.value])
+
+  useEffect(() => {
+    if (user?.id.value && adminLocationState.updateNeeded.value) {
+      AdminLocationService.fetchAdminLocations()
+    }
+  }, [user?.id?.value, adminLocationState.updateNeeded.value])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -81,7 +87,7 @@ const CreateParty = (props: PartyProps) => {
     setNewParty({ ...newParty, formErrors: temp })
 
     if (validateForm(newParty, newParty.formErrors)) {
-      await PartyService.createAdminParty(data)
+      await AdminPartyService.createAdminParty(data)
       setNewParty({ ...newParty, location: '', instance: '' })
       handleClose()
     }

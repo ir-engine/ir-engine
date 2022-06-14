@@ -14,8 +14,8 @@ import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { LocationService, useLocationState } from '../../services/LocationService'
-import { useSceneState } from '../../services/SceneService'
+import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
+import { useAdminSceneState } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -49,10 +49,10 @@ const CreateLocation = (props: Props) => {
   })
 
   const { t } = useTranslation()
-  const adminLocationState = useLocationState()
+  const adminLocationState = useAdminLocationState()
   const locationTypes = adminLocationState.locationTypes
   const location = adminLocationState
-  const adminScenes = useSceneState().scenes
+  const adminScenes = useAdminSceneState().scenes
 
   const clearState = () => {
     setState({
@@ -120,7 +120,7 @@ const CreateLocation = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
-      LocationService.createLocation(data)
+      AdminLocationService.createLocation(data)
       clearState()
       closeViewModal && closeViewModal(false)
     } else {

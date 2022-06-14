@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, withRouter } from 'react-router-dom'
 
+import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
+import styles from './styles.module.scss'
 
 const FacebookCallbackComponent = (props): JSX.Element => {
   const { t } = useTranslation()
@@ -34,11 +36,17 @@ const FacebookCallbackComponent = (props): JSX.Element => {
     setState({ ...state, error, token })
   }, [])
 
+  function redirectToRoot() {
+    window.location.href = '/'
+  }
+
   return state.error && state.error !== '' ? (
-    <Container>
-      {t('user:oauth.authFailed', { service: 'Facebook' })}
-      <br />
-      {state.error}
+    <Container className={styles.oauthError}>
+      <div className={styles.title}>{t('user:oauth.authFailed', { service: 'Facebook' })}</div>
+      <div className={styles.message}>{state.error}</div>
+      <Button onClick={redirectToRoot} className={styles.submitButton}>
+        {t('user:oauth.redirectToRoot')}
+      </Button>
     </Container>
   ) : (
     <Container>{t('user:oauth.authenticating')}</Container>

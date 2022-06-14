@@ -13,16 +13,14 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
-import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { validateForm } from '../../common/validation/formValidation'
 import ViewDrawer from '../../common/ViewDrawer'
-import { useInstanceState } from '../../services/InstanceService'
-import { InstanceService } from '../../services/InstanceService'
-import { useLocationState } from '../../services/LocationService'
-import { LocationService } from '../../services/LocationService'
-import { PartyService } from '../../services/PartyService'
+import { useAdminInstanceState } from '../../services/InstanceService'
+import { AdminInstanceService } from '../../services/InstanceService'
+import { useAdminLocationState } from '../../services/LocationService'
+import { AdminLocationService } from '../../services/LocationService'
+import { AdminPartyService } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -45,15 +43,23 @@ export default function ViewParty(props: Props) {
   })
   const authState = useAuthState()
   const user = authState.user
-  const adminLocationState = useLocationState()
-  const adminInstanceState = useInstanceState()
+  const adminLocationState = useAdminLocationState()
+  const adminInstanceState = useAdminInstanceState()
   const instanceData = adminInstanceState.instances
   const locationData = adminLocationState.locations
   const { t } = useTranslation()
 
-  //Call custom hooks
-  useFetchAdminInstance(user, adminInstanceState, InstanceService)
-  useFetchAdminLocations(user, adminLocationState, LocationService)
+  useEffect(() => {
+    if (user?.id.value && adminInstanceState.updateNeeded.value) {
+      AdminInstanceService.fetchAdminInstances()
+    }
+  }, [user?.id?.value, adminInstanceState.updateNeeded.value])
+
+  useEffect(() => {
+    if (user?.id.value && adminLocationState.updateNeeded.value) {
+      AdminLocationService.fetchAdminLocations()
+    }
+  }, [user?.id?.value, adminLocationState.updateNeeded.value])
 
   useEffect(() => {
     if (partyAdmin?.instance?.id || partyAdmin?.location?.name) {
@@ -100,7 +106,7 @@ export default function ViewParty(props: Props) {
     setUpdateParty({ ...updateParty, formErrors: temp })
 
     if (validateForm(updateParty, updateParty.formErrors) && partyAdmin) {
-      await PartyService.patchParty(partyAdmin.id!, data)
+      await AdminPartyService.patchParty(partyAdmin.id!, data)
       setUpdateParty({ ...updateParty, location: '', instance: '' })
       closeViewModal()
     }

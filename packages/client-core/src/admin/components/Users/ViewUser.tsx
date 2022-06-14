@@ -24,11 +24,10 @@ import AutoComplete from '../../common/AutoComplete'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
-import { SingleUserService, useSingleUserState } from '../../services/SingleUserService'
-import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
-import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
-import { UserService, useUserState } from '../../services/UserService'
+import { AdminScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import { AdminStaticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
+import { AdminUserRoleService, useAdminUserRoleState } from '../../services/UserRoleService'
+import { AdminUserService, useUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -62,33 +61,31 @@ const ViewUser = (props: Props) => {
   const [openWarning, setOpenWarning] = useState(false)
   const user = useAuthState().user
   const adminUserState = useUserState()
-  const singleUser = useSingleUserState()
-  const singleUserData = singleUser.singleUser
+  const singleUserData = adminUserState.singleUser
   const staticResource = useStaticResourceState()
   const staticResourceData = staticResource.staticResource
   const adminScopeTypeState = useScopeTypeState()
-  const userRole = useUserRoleState()
+  const userRole = useAdminUserRoleState()
 
   useEffect(() => {
     const fetchData = async () => {
-      await UserRoleService.fetchUserRole()
+      await AdminUserRoleService.fetchUserRole()
     }
     if (userRole.updateNeeded.value === true && user.id.value) fetchData()
 
-    if ((user.id.value && singleUser.updateNeeded.value == true) || refetch) {
-      userAdmin.id && SingleUserService.fetchSingleUserAdmin(userAdmin.id)
+    if (user.id.value || refetch) {
+      userAdmin.id && AdminUserService.fetchSingleUserAdmin(userAdmin.id)
     }
     if (user.id.value && staticResource.updateNeeded.value) {
-      staticResourceService.fetchStaticResource()
+      AdminStaticResourceService.fetchStaticResource()
     }
     if (adminScopeTypeState.updateNeeded.value && user.id.value) {
-      ScopeTypeService.getScopeTypeService()
+      AdminScopeTypeService.getScopeTypeService()
     }
   }, [
     adminUserState.updateNeeded.value,
     user.id.value,
     refetch,
-    singleUser.updateNeeded.value,
     adminScopeTypeState.updateNeeded.value,
     userRole.updateNeeded.value
   ])
@@ -142,7 +139,7 @@ const ViewUser = (props: Props) => {
     temp.scopes = !state.scopes.length ? t('admin:components.user.scopeTypeCantEmpty') : ''
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors) && userAdmin.id) {
-      UserService.patchUser(userAdmin.id, data)
+      AdminUserService.patchUser(userAdmin.id, data)
       setState({ ...state, name: '', avatar: '', userRole: '', scopes: [] })
       setEditMode(false)
       closeViewModal && closeViewModal(false)
