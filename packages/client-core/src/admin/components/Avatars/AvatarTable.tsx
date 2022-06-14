@@ -2,18 +2,18 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import Drawer from '@mui/material/Drawer'
 
-import { useDispatch } from '../../../store'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { avatarColumns, AvatarData } from '../../common/variables/avatar'
-import { AVATAR_PAGE_LIMIT, AvatarAction } from '../../services/AvatarService'
-import { useAvatarState } from '../../services/AvatarService'
-import { AvatarService } from '../../services/AvatarService'
+import { AdminAvatarActions, AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
+import { useAdminAvatarState } from '../../services/AvatarService'
+import { AdminAvatarService } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -22,14 +22,13 @@ interface Props {
 }
 
 const AvatarTable = (props: Props) => {
-  const adminAvatarState = useAvatarState()
+  const adminAvatarState = useAdminAvatarState()
   const { search } = props
   const authState = useAuthState()
   const user = authState.user
   const adminAvatars = adminAvatarState.avatars
   const adminAvatarCount = adminAvatarState.total
   const { t } = useTranslation()
-  const dispatch = useDispatch()
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
@@ -42,13 +41,13 @@ const AvatarTable = (props: Props) => {
   const [avatarData, setViewAvatarData] = useState<AvatarInterface | null>(null)
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    AvatarService.fetchAdminAvatars(newPage, search, sortField, fieldOrder)
+    AdminAvatarService.fetchAdminAvatars(newPage, search, sortField, fieldOrder)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminAvatarState.fetched.value) {
-      AvatarService.fetchAdminAvatars(page, search, sortField, fieldOrder)
+      AdminAvatarService.fetchAdminAvatars(page, search, sortField, fieldOrder)
     }
   }, [fieldOrder])
 
@@ -62,7 +61,7 @@ const AvatarTable = (props: Props) => {
   }
 
   useEffect(() => {
-    AvatarService.fetchAdminAvatars(0, search, sortField, fieldOrder)
+    AdminAvatarService.fetchAdminAvatars(0, search, sortField, fieldOrder)
   }, [user?.id?.value, search, adminAvatarState.updateNeeded.value])
 
   const createData = (
@@ -109,7 +108,7 @@ const AvatarTable = (props: Props) => {
   })
 
   const submitRemoveAvatar = async () => {
-    await AvatarService.removeAdminAvatar(avatarId, avatarName)
+    await AdminAvatarService.removeAdminAvatar(avatarId, avatarName)
     setPopConfirmOpen(false)
   }
 
@@ -142,7 +141,7 @@ const AvatarTable = (props: Props) => {
         <Drawer anchor="right" open={viewModal} onClose={closeViewModal} classes={{ paper: styles.paperDrawer }}>
           <AvatarSelectMenu
             adminStyles={styles}
-            onAvatarUpload={() => dispatch(AvatarAction.avatarUpdated())}
+            onAvatarUpload={() => dispatchAction(AdminAvatarActions.avatarUpdated())}
             changeActiveMenu={closeViewModal}
             avatarData={avatarData}
           />

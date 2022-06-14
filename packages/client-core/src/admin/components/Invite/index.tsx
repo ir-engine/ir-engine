@@ -11,7 +11,7 @@ import Tabs from '@mui/material/Tabs'
 import { InviteService, useInviteState } from '../../../social/services/InviteService'
 import { useAuthState } from '../../../user/services/AuthService'
 import Search from '../../common/Search'
-import { UserService, useUserState } from '../../services/UserService'
+import { AdminUserService, useUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 import ReceivedInvite from './ReceivedInvite'
 import SentInvite from './SentInvite'
@@ -76,7 +76,7 @@ const InvitesConsole = () => {
 
   useEffect(() => {
     if (user?.id.value != null && (adminUserState.updateNeeded.value === true || refetch)) {
-      UserService.fetchUsersAsAdmin()
+      AdminUserService.fetchUsersAsAdmin()
     }
     setRefetch(false)
   }, [useAuthState(), adminUserState.updateNeeded.value, refetch])
