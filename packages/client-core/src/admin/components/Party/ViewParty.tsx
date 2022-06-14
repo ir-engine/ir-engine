@@ -8,16 +8,14 @@ import { Save } from '@mui/icons-material'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
-import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
-import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
-import Select from '@mui/material/Select'
 import Typography from '@mui/material/Typography'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { validateForm } from '../../common/validation/formValidation'
 import ViewDrawer from '../../common/ViewDrawer'
 import { useAdminInstanceState } from '../../services/InstanceService'
@@ -108,6 +106,20 @@ export default function ViewParty(props: Props) {
     }
   }
 
+  const instanceMenu: InputMenuItem[] = data.map((el) => {
+    return {
+      value: el?.id,
+      label: el?.ipAddress
+    }
+  })
+
+  const locationMenu: InputMenuItem[] = locationData.value.map((el) => {
+    return {
+      value: el?.id,
+      label: el?.name
+    }
+  })
+
   return (
     <ViewDrawer openView={openView} handleCloseDrawer={() => closeViewModal()}>
       <Paper elevation={0} className={styles.rootPaper}>
@@ -128,63 +140,23 @@ export default function ViewParty(props: Props) {
               {t('admin:components.party.updateParty')}
             </Typography>
 
-            <label>{t('admin:components.party.instance')}</label>
-            <Paper
-              component="div"
-              className={updateParty.formErrors.instance.length > 0 ? styles.redBorder : styles.createInput}
-            >
-              <FormControl fullWidth>
-                <Select
-                  labelId="demo-controlled-open-select-label"
-                  id="demo-controlled-open-select"
-                  value={updateParty.instance}
-                  fullWidth
-                  displayEmpty
-                  onChange={handleChange}
-                  className={styles.select}
-                  name="instance"
-                  MenuProps={{ classes: { paper: styles.selectPaper } }}
-                >
-                  <MenuItem value="" disabled>
-                    <em>{t('admin:components.party.selectInstance')}</em>
-                  </MenuItem>
-                  {data.map((el) => (
-                    <MenuItem value={el?.id} key={el?.id}>
-                      {el?.ipAddress}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Paper>
+            <InputSelect
+              name="instance"
+              label={t('admin:components.party.instance')}
+              value={updateParty.instance}
+              error={updateParty.formErrors.instance}
+              menu={instanceMenu}
+              onChange={handleChange}
+            />
 
-            <label>{t('admin:components.party.location')}</label>
-            <Paper
-              component="div"
-              className={updateParty.formErrors.location.length > 0 ? styles.redBorder : styles.createInput}
-            >
-              <FormControl fullWidth>
-                <Select
-                  labelId="demo-controlled-open-select-label"
-                  id="demo-controlled-open-select"
-                  value={updateParty.location}
-                  fullWidth
-                  displayEmpty
-                  onChange={handleChange}
-                  className={styles.select}
-                  name="location"
-                  MenuProps={{ classes: { paper: styles.selectPaper } }}
-                >
-                  <MenuItem value="" disabled>
-                    <em>{t('admin:components.party.selectLocation')}</em>
-                  </MenuItem>
-                  {locationData.value.map((el) => (
-                    <MenuItem value={el?.id} key={el?.id}>
-                      {el?.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Paper>
+            <InputSelect
+              name="location"
+              label={t('admin:components.party.location')}
+              value={updateParty.location}
+              error={updateParty.formErrors.location}
+              menu={locationMenu}
+              onChange={handleChange}
+            />
           </div>
         </Container>
       ) : (

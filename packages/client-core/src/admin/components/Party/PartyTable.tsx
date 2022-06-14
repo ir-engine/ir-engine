@@ -128,11 +128,10 @@ const PartyTable = (props: PartyPropsTable) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        popConfirmOpen={popConfirmOpen}
-        handleCloseModal={handleCloseModal}
-        submit={submitRemoveParty}
-        name={partyName}
-        label={t('admin:components.party.partyWithInstanceOf') as string}
+        open={popConfirmOpen}
+        description={`${t('admin:components.party.confirmPartyDelete')} '${partyName}'?`}
+        onClose={handleCloseModal}
+        onSubmit={submitRemoveParty}
       />
       <ViewParty
         openView={viewModal}

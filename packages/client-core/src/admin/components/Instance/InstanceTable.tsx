@@ -140,11 +140,10 @@ const InstanceTable = (props: Props) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        popConfirmOpen={popConfirmOpen}
-        handleCloseModal={handleCloseModal}
-        submit={submitRemoveInstance}
-        name={instanceName}
-        label={'instance'}
+        open={popConfirmOpen}
+        description={`${t('admin:components.instance.confirmInstanceDelete')} '${instanceName}'?`}
+        onClose={handleCloseModal}
+        onSubmit={submitRemoveInstance}
       />
     </React.Fragment>
   )
