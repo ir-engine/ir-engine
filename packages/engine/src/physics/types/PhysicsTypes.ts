@@ -1,4 +1,4 @@
-import RAPIER from '@dimforge/rapier3d-compat'
+import RAPIER, { ColliderHandle } from '@dimforge/rapier3d-compat'
 
 export type ColliderTypes = 'box' | 'ground' | 'sphere' | 'capsule' | 'cylinder' | 'convex' | 'trimesh'
 
@@ -135,6 +135,12 @@ export interface RaycastHit {
   normal: Vec3
   body?: RigidBody | RAPIER.RigidBody // TODO: Only keep Rapier.RigidBody
   _bodyID?: number // TODO: Remove
+}
+
+export interface CollisionEvent {
+  handle1: ColliderHandle
+  handle2: ColliderHandle
+  started: boolean
 }
 
 export enum ControllerEvents {

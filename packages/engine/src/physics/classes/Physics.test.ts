@@ -1,4 +1,10 @@
-import { ColliderDesc, RigidBodyDesc, RigidBodyType } from '@dimforge/rapier3d-compat'
+import {
+  ActiveCollisionTypes,
+  ActiveEvents,
+  ColliderDesc,
+  RigidBodyDesc,
+  RigidBodyType
+} from '@dimforge/rapier3d-compat'
 import assert from 'assert'
 import { Vector3 } from 'three'
 
@@ -22,9 +28,11 @@ describe('Physics', () => {
     await Physics.load()
   })
 
-  it('should create rapier world', async () => {
+  it('should create rapier world & event queue', async () => {
     const world = Physics.createWorld()
+    const eventQueue = Physics.createCollisionEventQueue()
     assert(world)
+    assert(eventQueue)
   })
 
   it('should create & remove rigidBody', async () => {
@@ -124,5 +132,31 @@ describe('Physics', () => {
     assert.deepEqual(raycastComponentData.hits[0].normal.x, -1)
     assert.deepEqual(raycastComponentData.hits[0].distance, 5)
     assert.deepEqual(raycastComponentData.hits[0].body, rigidBody)
+  })
+
+  it('should generate collision event', async () => {
+    const world = Engine.instance.currentWorld
+    const entity1 = createEntity(world)
+    const entity2 = createEntity(world)
+
+    const physicsWorld = Physics.createWorld()
+    const collisionEventQueue = Physics.createCollisionEventQueue()
+
+    const rigidBodyDesc = RigidBodyDesc.dynamic()
+    const colliderDesc = ColliderDesc.ball(1)
+      .setCollisionGroups(getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask))
+      .setActiveCollisionTypes(ActiveCollisionTypes.ALL)
+      .setActiveEvents(ActiveEvents.COLLISION_EVENTS)
+
+    const rigidBody1 = Physics.createRigidBody(entity1, physicsWorld, rigidBodyDesc, [colliderDesc])
+    const rigidBody2 = Physics.createRigidBody(entity2, physicsWorld, rigidBodyDesc, [colliderDesc])
+
+    physicsWorld.step(collisionEventQueue)
+
+    Physics.drainCollisoinEventQueue(collisionEventQueue, Physics.collisionEvents)
+
+    assert.deepEqual(Physics.collisionEvents.length, 1)
+    assert.deepEqual(Physics.collisionEvents[0].handle1, rigidBody1.collider(0).handle)
+    assert.deepEqual(Physics.collisionEvents[0].handle2, rigidBody2.collider(0).handle)
   })
 })

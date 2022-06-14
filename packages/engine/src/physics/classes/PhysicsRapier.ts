@@ -1,13 +1,23 @@
 // This file will be renamed to Physics.ts when we are ready to take out physx completely.
-import RAPIER, { ColliderDesc, Ray, RigidBody, RigidBodyDesc, RigidBodyType, World } from '@dimforge/rapier3d-compat'
+import RAPIER, {
+  ColliderDesc,
+  EventQueue,
+  Ray,
+  RigidBody,
+  RigidBodyDesc,
+  RigidBodyType,
+  World
+} from '@dimforge/rapier3d-compat'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentType, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
+import { CollisionEvent } from '../types/PhysicsTypes'
 
 export type PhysicsWorld = World
+const collisionEvents = [] as CollisionEvent[]
 
 function load() {
   // eslint-disable-next-line import/no-named-as-default-member
@@ -17,6 +27,11 @@ function load() {
 function createWorld(gravity = { x: 0.0, y: -9.81, z: 0.0 }) {
   const world = new World(gravity)
   return world
+}
+
+function createCollisionEventQueue() {
+  const collisionEventQueue = new EventQueue(true)
+  return collisionEventQueue
 }
 
 function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyDesc, colliderDesc: ColliderDesc[]) {
@@ -77,11 +92,20 @@ function castRay(world: World, raycastQuery: ComponentType<typeof RaycastCompone
   }
 }
 
+function drainCollisoinEventQueue(collisionEventQueue: EventQueue, collisionEventArrayToPopulate: CollisionEvent[]) {
+  collisionEventQueue.drainCollisionEvents(function (handle1: number, handle2: number, started: boolean) {
+    collisionEventArrayToPopulate.push({ handle1: handle1, handle2: handle2, started: started })
+  })
+}
+
 export const Physics = {
   load,
   createWorld,
   createRigidBody,
   removeRigidBody,
   changeRigidbodyType,
-  castRay
+  castRay,
+  collisionEvents,
+  createCollisionEventQueue,
+  drainCollisoinEventQueue
 }
