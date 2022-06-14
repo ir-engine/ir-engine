@@ -6,7 +6,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { addActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import Button from '@mui/material/Button'
 
@@ -106,6 +106,10 @@ const AvatarContextMenu = () => {
 
   useEffect(() => {
     addActionReceptor(PartyServiceReceptor)
+
+    return () => {
+      removeActionReceptor(PartyServiceReceptor)
+    }
   }, [])
 
   const blockUser = () => {

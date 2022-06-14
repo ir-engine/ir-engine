@@ -32,7 +32,7 @@ const PartyState = defineState({
 
 export const PartyServiceReceptor = (action) => {
   getState(PartyState).batch((s) => {
-    let newValues, updateMap, partyUser, updateMapPartyUsers
+    // let newValues, updateMap, partyUser, updateMapPartyUsers
     matches(action)
       .when(PartyAction.loadedPartyAction.matches, (action) => {
         return s.merge({ party: action.party, updateNeeded: false })
@@ -47,53 +47,43 @@ export const PartyServiceReceptor = (action) => {
         return s.updateNeeded.set(true)
       })
       .when(PartyAction.createdPartyUserAction.matches, (action) => {
-        newValues = action
-        partyUser = newValues.partyUser
-        updateMap = _.cloneDeep(s.party.value)
+        const updateMap = _.cloneDeep(s.party.value)
         if (updateMap != null) {
-          updateMapPartyUsers = updateMap.partyUsers
-          updateMapPartyUsers = Array.isArray(updateMapPartyUsers)
-            ? updateMapPartyUsers.find((pUser) => {
-                return pUser != null && pUser.id === partyUser.id
+          updateMap.partyUsers = Array.isArray(updateMap.partyUsers)
+            ? updateMap.partyUsers.find((pUser) => {
+                return pUser != null && pUser.id === action.partyUser.id
               }) == null
-              ? updateMapPartyUsers.concat([partyUser])
+              ? updateMap.partyUsers.concat([action.partyUser])
               : updateMap.partyUsers.map((pUser) => {
-                  return pUser != null && pUser.id === partyUser.id ? partyUser : pUser
+                  return pUser != null && pUser.id === action.partyUser.id ? action.partyUser : pUser
                 })
-            : [partyUser]
-          updateMap.partyUsers = updateMapPartyUsers
+            : [action.partyUser]
         }
         return s.merge({ party: updateMap, updateNeeded: true })
       })
       .when(PartyAction.patchedPartyUserAction.matches, (action) => {
-        newValues = action
-        partyUser = newValues.partyUser
-        logger.info({ partyUser }, 'Patched partyUser.')
-        updateMap = _.cloneDeep(s.party.value)
+        logger.info({ partyUser: action.partyUser }, 'Patched partyUser.')
+        const updateMap = _.cloneDeep(s.party.value)
         if (updateMap != null) {
-          updateMapPartyUsers = updateMap.partyUsers
-          updateMapPartyUsers = Array.isArray(updateMapPartyUsers)
-            ? updateMapPartyUsers.find((pUser) => {
-                return pUser != null && pUser.id === partyUser.id
+          updateMap.partyUsers = Array.isArray(updateMap.partyUsers)
+            ? updateMap.partyUsers.find((pUser) => {
+                return pUser != null && pUser.id === action.partyUser.id
               }) == null
-              ? updateMapPartyUsers.concat([partyUser])
+              ? updateMap.partyUsers.concat([action.partyUser])
               : updateMap.partyUsers.map((pUser) => {
-                  return pUser != null && pUser.id === partyUser.id ? partyUser : pUser
+                  return pUser != null && pUser.id === action.partyUser.id ? action.partyUser : pUser
                 })
-            : [partyUser]
-          updateMap.partyUsers = updateMapPartyUsers
+            : [action.partyUser]
         }
         return s.party.set(updateMap)
       })
       .when(PartyAction.removedPartyUserAction.matches, (action) => {
-        newValues = action
-        partyUser = newValues.partyUser
-        updateMap = _.cloneDeep(s.party.value)
+        const updateMap = _.cloneDeep(s.party.value)
         if (updateMap != null) {
-          updateMapPartyUsers = updateMap.partyUsers
-          _.remove(updateMapPartyUsers, (pUser: PartyUser) => {
-            return pUser != null && partyUser.id === pUser.id
-          })
+          updateMap.partyUsers &&
+            _.remove(updateMap.partyUsers, (pUser: PartyUser) => {
+              return pUser != null && action.partyUser.id === pUser.id
+            })
         }
         s.party.set(updateMap)
         return s.updateNeeded.set(true)
