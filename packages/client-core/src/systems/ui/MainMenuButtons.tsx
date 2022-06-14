@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
 import { Close as CloseIcon, Message as MessageIcon } from '@mui/icons-material'
 import LinkIcon from '@mui/icons-material/Link'
@@ -12,6 +11,7 @@ import { Badge } from '@mui/material'
 
 import { useChatState } from '../../social/services/ChatService'
 import { EmoteIcon } from '../../user/components/UserMenu'
+import { MainMenuButtonState, useMainMenuButtonState } from '../state/MainMenuButtonState'
 
 const styles = {
   container: {
@@ -40,21 +40,11 @@ export function createMainMenuButtonsView() {
 }
 
 function createMainMenuButtonsState() {
-  return createState({
-    showButtons: false
-  })
-}
-
-interface MainMenuButtonsState {
-  showButtons: boolean
-  chatMenuOpen: boolean
-  emoteMenuOpen: boolean
-  settingMenuOpen: boolean
-  shareMenuOpen: boolean
+  return createState({})
 }
 
 const MainMenuButtons = () => {
-  const detailState = useXRUIState<MainMenuButtonsState>()
+  const mainMenuState = useMainMenuButtonState()
 
   let activeChannel: Channel | null = null
   const chatState = useChatState()
@@ -70,45 +60,45 @@ const MainMenuButtons = () => {
     activeChannel &&
       activeChannel.messages &&
       activeChannel.messages.length > 0 &&
-      !detailState.chatMenuOpen.value &&
+      !MainMenuButtonState.chatMenuOpen.value &&
       setUnreadMessages(true)
   }, [activeChannel?.messages])
 
   const toggleChatWindow = () => {
-    if (!detailState.chatMenuOpen.value) {
-      detailState.emoteMenuOpen.set(false)
-      detailState.shareMenuOpen.set(false)
-      detailState.settingMenuOpen.set(false)
+    if (!MainMenuButtonState.chatMenuOpen.value) {
+      MainMenuButtonState.emoteMenuOpen.set(false)
+      MainMenuButtonState.shareMenuOpen.set(false)
+      MainMenuButtonState.settingMenuOpen.set(false)
     }
-    detailState.chatMenuOpen.set(!detailState.chatMenuOpen.value)
-    detailState.chatMenuOpen.value && setUnreadMessages(false)
+    MainMenuButtonState.chatMenuOpen.set(!MainMenuButtonState.chatMenuOpen.value)
+    MainMenuButtonState.chatMenuOpen.value && setUnreadMessages(false)
   }
 
   const toggleEmoteMenu = () => {
-    if (!detailState.emoteMenuOpen.value) {
-      detailState.chatMenuOpen.set(false)
-      detailState.shareMenuOpen.set(false)
-      detailState.settingMenuOpen.set(false)
+    if (!MainMenuButtonState.emoteMenuOpen.value) {
+      MainMenuButtonState.chatMenuOpen.set(false)
+      MainMenuButtonState.shareMenuOpen.set(false)
+      MainMenuButtonState.settingMenuOpen.set(false)
     }
-    detailState.emoteMenuOpen.set(!detailState.emoteMenuOpen.value)
+    MainMenuButtonState.emoteMenuOpen.set(!MainMenuButtonState.emoteMenuOpen.value)
   }
 
   const toggleShareMenu = () => {
-    if (!detailState.shareMenuOpen.value) {
-      detailState.emoteMenuOpen.set(false)
-      detailState.chatMenuOpen.set(false)
-      detailState.settingMenuOpen.set(false)
+    if (!MainMenuButtonState.shareMenuOpen.value) {
+      MainMenuButtonState.emoteMenuOpen.set(false)
+      MainMenuButtonState.chatMenuOpen.set(false)
+      MainMenuButtonState.settingMenuOpen.set(false)
     }
-    detailState.shareMenuOpen.set(!detailState.shareMenuOpen.value)
+    MainMenuButtonState.shareMenuOpen.set(!MainMenuButtonState.shareMenuOpen.value)
   }
 
   const toggleSettingMenu = () => {
-    if (!detailState.settingMenuOpen.value) {
-      detailState.emoteMenuOpen.set(false)
-      detailState.shareMenuOpen.set(false)
-      detailState.chatMenuOpen.set(false)
+    if (!MainMenuButtonState.settingMenuOpen.value) {
+      MainMenuButtonState.emoteMenuOpen.set(false)
+      MainMenuButtonState.shareMenuOpen.set(false)
+      MainMenuButtonState.chatMenuOpen.set(false)
     }
-    detailState.settingMenuOpen.set(!detailState.settingMenuOpen.value)
+    MainMenuButtonState.settingMenuOpen.set(!MainMenuButtonState.settingMenuOpen.value)
   }
 
   return (
@@ -129,7 +119,7 @@ const MainMenuButtons = () => {
           invisible={!unreadMessages}
           anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         >
-          {!detailState.chatMenuOpen.value ? <MessageIcon /> : <CloseIcon />}
+          {!mainMenuState.chatMenuOpen.value ? <MessageIcon /> : <CloseIcon />}
         </Badge>
       </div>
     </div>

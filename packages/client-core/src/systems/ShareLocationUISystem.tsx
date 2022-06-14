@@ -12,8 +12,6 @@ export default async function ShareLocationUISystem(world: World) {
 
   addComponent(ui.entity, PersistTagComponent, {})
 
-  ui.state.shareMenuOpen.set(MainMenuButtonState.shareMenuOpen.value)
-
   return () => {
     const xrui = getComponent(ui.entity, XRUIComponent)
 
@@ -23,6 +21,7 @@ export default async function ShareLocationUISystem(world: World) {
         xrui.container,
         rootLayerElement.clientWidth,
         rootLayerElement.clientHeight,
+        0.1,
         0.1
       )
 

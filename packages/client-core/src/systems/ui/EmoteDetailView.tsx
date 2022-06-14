@@ -102,9 +102,7 @@ export function createEmoteDetailView() {
 }
 
 function createEmoteDetailState() {
-  return createState({
-    emoteMenuOpen: false
-  })
+  return createState({})
 }
 
 const EmoteDetailView = () => {

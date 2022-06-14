@@ -130,9 +130,7 @@ export function createChatDetailView() {
 }
 
 function createChatDetailState() {
-  return createState({
-    chatMenuOpen: false
-  })
+  return createState({})
 }
 
 type ChatDetailState = ReturnType<typeof createChatDetailState>

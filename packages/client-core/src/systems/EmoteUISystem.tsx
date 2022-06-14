@@ -12,8 +12,6 @@ export default async function EmoteUISystem(world: World) {
 
   addComponent(ui.entity, PersistTagComponent, {})
 
-  ui.state.emoteMenuOpen.set(MainMenuButtonState.emoteMenuOpen.value)
-
   return () => {
     const xrui = getComponent(ui.entity, XRUIComponent)
 
@@ -23,9 +21,9 @@ export default async function EmoteUISystem(world: World) {
         xrui.container,
         rootLayerElement.clientWidth,
         rootLayerElement.clientHeight,
+        0.1,
         0.1
       )
-
       ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, MainMenuButtonState.emoteMenuOpen.value)
     }
   }

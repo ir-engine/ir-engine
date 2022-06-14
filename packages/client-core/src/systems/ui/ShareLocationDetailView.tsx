@@ -231,9 +231,7 @@ export function createShareLocationDetailView() {
 }
 
 function createShareLocationDetailState() {
-  return createState({
-    shareMenuOpen: false
-  })
+  return createState({})
 }
 
 const ShareLocationDetailView = () => {
