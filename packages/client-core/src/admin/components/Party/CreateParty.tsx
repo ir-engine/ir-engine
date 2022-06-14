@@ -15,8 +15,8 @@ import { PartyProps } from '../../common/variables/party'
 import { AdminInstanceService } from '../../services/InstanceService'
 import { useAdminInstanceState } from '../../services/InstanceService'
 import { AdminLocationService } from '../../services/LocationService'
-import { useADminLocationState } from '../../services/LocationService'
-import { PartyService } from '../../services/PartyService'
+import { useAdminLocationState } from '../../services/LocationService'
+import { AdminPartyService } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
 
 const CreateParty = (props: PartyProps) => {
@@ -35,7 +35,7 @@ const CreateParty = (props: PartyProps) => {
 
   const authState = useAuthState()
   const user = authState.user
-  const adminLocationState = useADminLocationState()
+  const adminLocationState = useAdminLocationState()
   const locationData = adminLocationState.locations
   const adminInstanceState = useAdminInstanceState()
   const instanceData = adminInstanceState.instances
@@ -81,7 +81,7 @@ const CreateParty = (props: PartyProps) => {
     setNewParty({ ...newParty, formErrors: temp })
 
     if (validateForm(newParty, newParty.formErrors)) {
-      await PartyService.createAdminParty(data)
+      await AdminPartyService.createAdminParty(data)
       setNewParty({ ...newParty, location: '', instance: '' })
       handleClose()
     }

@@ -20,9 +20,9 @@ import { validateForm } from '../../common/validation/formValidation'
 import ViewDrawer from '../../common/ViewDrawer'
 import { useAdminInstanceState } from '../../services/InstanceService'
 import { AdminInstanceService } from '../../services/InstanceService'
-import { useADminLocationState } from '../../services/LocationService'
+import { useAdminLocationState } from '../../services/LocationService'
 import { AdminLocationService } from '../../services/LocationService'
-import { PartyService } from '../../services/PartyService'
+import { AdminPartyService } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -45,7 +45,7 @@ export default function ViewParty(props: Props) {
   })
   const authState = useAuthState()
   const user = authState.user
-  const adminLocationState = useADminLocationState()
+  const adminLocationState = useAdminLocationState()
   const adminInstanceState = useAdminInstanceState()
   const instanceData = adminInstanceState.instances
   const locationData = adminLocationState.locations
@@ -100,7 +100,7 @@ export default function ViewParty(props: Props) {
     setUpdateParty({ ...updateParty, formErrors: temp })
 
     if (validateForm(updateParty, updateParty.formErrors) && partyAdmin) {
-      await PartyService.patchParty(partyAdmin.id!, data)
+      await AdminPartyService.patchParty(partyAdmin.id!, data)
       setUpdateParty({ ...updateParty, location: '', instance: '' })
       closeViewModal()
     }

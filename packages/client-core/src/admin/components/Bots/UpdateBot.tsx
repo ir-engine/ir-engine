@@ -20,7 +20,7 @@ import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminBotService } from '../../services/BotsService'
 import { AdminInstanceService, useAdminInstanceState } from '../../services/InstanceService'
-import { AdminLocationService, useADminLocationState } from '../../services/LocationService'
+import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -46,7 +46,7 @@ const UpdateBot = (props: Props) => {
   const [currentInstance, setCurrentIntance] = useState<Instance[]>([])
   const [openAlter, setOpenAlter] = useState(false)
   const [error, setError] = useState('')
-  const adminLocation = useADminLocationState()
+  const adminLocation = useAdminLocationState()
   const locationData = adminLocation.locations
   const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances

@@ -9,15 +9,10 @@ import Chip from '@mui/material/Chip'
 import { useErrorState } from '../../../common/services/ErrorService'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
-import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
-import { useFetchAdminScenes, useFetchLocation, useFetchLocationTypes } from '../../common/hooks/Location.hooks'
-import { useFetchUsersAsAdmin } from '../../common/hooks/User.hooks'
 import TableComponent from '../../common/Table'
 import { locationColumns, LocationProps } from '../../common/variables/location'
-import { AdminInstanceService, useAdminInstanceState } from '../../services/InstanceService'
-import { AdminLocationService, LOCATION_PAGE_LIMIT, useADminLocationState } from '../../services/LocationService'
-import { SceneService } from '../../services/SceneService'
-import { UserService, useUserState } from '../../services/UserService'
+import { useAdminInstanceState } from '../../services/InstanceService'
+import { AdminLocationService, LOCATION_PAGE_LIMIT, useAdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 import ViewLocation from './ViewLocation'
 
@@ -37,18 +32,16 @@ const LocationTable = (props: LocationProps) => {
   const authState = useAuthState()
   const user = authState.user
   const adminScopeReadErrMsg = useErrorState().readError.scopeErrorMessage
-  const adminLocationState = useADminLocationState()
+  const adminLocationState = useAdminLocationState()
   const adminLocations = adminLocationState.locations
   const adminLocationCount = adminLocationState.total
 
   // Call custom hooks
   const { t } = useTranslation()
-  const adminUserState = useUserState()
-  useFetchLocation(user, adminLocationState, adminScopeReadErrMsg, search, AdminLocationService, sortField, fieldOrder)
-  useFetchAdminScenes(user, SceneService)
-  useFetchLocationTypes(user, adminLocationState, AdminLocationService)
-  useFetchUsersAsAdmin(user, adminUserState, UserService, '', 'name', fieldOrder)
-  useFetchAdminInstance(user, adminInstanceState, AdminInstanceService)
+
+  useEffect(() => {
+    AdminLocationService.fetchAdminLocations(search, 0, sortField, fieldOrder)
+  }, [search, user?.id?.value, adminLocationState.updateNeeded.value])
 
   const handlePageChange = (event: unknown, newPage: number) => {
     //const incDec = page < newPage ? 'increment' : 'decrement'

@@ -20,8 +20,8 @@ import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminLocationService, useADminLocationState } from '../../services/LocationService'
-import { useSceneState } from '../../services/SceneService'
+import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
+import { AdminSceneService, useAdminSceneState } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -56,8 +56,8 @@ const ViewLocation = (props: Props) => {
   const [error, setError] = useState('')
   const [openWarning, setOpenWarning] = useState(false)
   const { t } = useTranslation()
-  const adminScenes = useSceneState().scenes
-  const locationTypes = useADminLocationState().locationTypes
+  const adminScenes = useAdminSceneState().scenes
+  const locationTypes = useAdminLocationState().locationTypes
   const user = useAuthState().user // user initialized by getting value from authState object.
   const scopes = user?.scopes?.value || []
   let isLocationWrite = false
@@ -68,6 +68,11 @@ const ViewLocation = (props: Props) => {
       break
     }
   }
+
+  useEffect(() => {
+    AdminSceneService.fetchAdminScenes()
+    AdminLocationService.fetchLocationTypes()
+  }, [])
 
   useEffect(() => {
     if (locationAdmin) {

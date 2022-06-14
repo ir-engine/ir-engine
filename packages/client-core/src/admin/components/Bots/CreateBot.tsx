@@ -24,7 +24,7 @@ import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminBotService } from '../../services/BotsService'
 import { AdminInstanceService, useAdminInstanceState } from '../../services/InstanceService'
-import { AdminLocationService, useADminLocationState } from '../../services/LocationService'
+import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 const CreateBot = () => {
@@ -54,7 +54,7 @@ const CreateBot = () => {
   const user = authState.user
   const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances
-  const adminLocationState = useADminLocationState()
+  const adminLocationState = useAdminLocationState()
   const adminLocation = adminLocationState
   const locationData = adminLocation.locations
   const { t } = useTranslation()

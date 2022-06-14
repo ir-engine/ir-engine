@@ -8,6 +8,7 @@ import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
 import { AdminLocationServiceReceptor } from '../../services/LocationService'
+import { AdminSceneServiceReceptor } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
 import CreateLocation from './CreateLocation'
 import LocationTable from './LocationTable'
@@ -18,8 +19,10 @@ const Location = () => {
   const { t } = useTranslation()
 
   useEffect(() => {
+    addActionReceptor(AdminSceneServiceReceptor)
     addActionReceptor(AdminLocationServiceReceptor)
     return () => {
+      removeActionReceptor(AdminSceneServiceReceptor)
       removeActionReceptor(AdminLocationServiceReceptor)
     }
   }, [])

@@ -53,8 +53,7 @@ export const staticResourceService = {
     } catch (error) {
       console.error(error)
     }
-  },
-  refetchSingleUserAdmin: async () => {}
+  }
 }
 
 //Action

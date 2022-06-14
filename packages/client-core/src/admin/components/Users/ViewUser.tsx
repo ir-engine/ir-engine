@@ -24,8 +24,7 @@ import AutoComplete from '../../common/AutoComplete'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
-import { SingleUserService, useSingleUserState } from '../../services/SingleUserService'
+import { AdminScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
 import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService, useUserState } from '../../services/UserService'
@@ -62,8 +61,7 @@ const ViewUser = (props: Props) => {
   const [openWarning, setOpenWarning] = useState(false)
   const user = useAuthState().user
   const adminUserState = useUserState()
-  const singleUser = useSingleUserState()
-  const singleUserData = singleUser.singleUser
+  const singleUserData = adminUserState.singleUser
   const staticResource = useStaticResourceState()
   const staticResourceData = staticResource.staticResource
   const adminScopeTypeState = useScopeTypeState()
@@ -75,20 +73,19 @@ const ViewUser = (props: Props) => {
     }
     if (userRole.updateNeeded.value === true && user.id.value) fetchData()
 
-    if ((user.id.value && singleUser.updateNeeded.value == true) || refetch) {
-      userAdmin.id && SingleUserService.fetchSingleUserAdmin(userAdmin.id)
+    if (user.id.value || refetch) {
+      userAdmin.id && UserService.fetchSingleUserAdmin(userAdmin.id)
     }
     if (user.id.value && staticResource.updateNeeded.value) {
       staticResourceService.fetchStaticResource()
     }
     if (adminScopeTypeState.updateNeeded.value && user.id.value) {
-      ScopeTypeService.getScopeTypeService()
+      AdminScopeTypeService.getScopeTypeService()
     }
   }, [
     adminUserState.updateNeeded.value,
     user.id.value,
     refetch,
-    singleUser.updateNeeded.value,
     adminScopeTypeState.updateNeeded.value,
     userRole.updateNeeded.value
   ])

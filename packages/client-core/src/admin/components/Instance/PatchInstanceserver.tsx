@@ -11,7 +11,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { InstanceserverService } from '../../services/InstanceserverService'
-import { AdminLocationService, useADminLocationState } from '../../services/LocationService'
+import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -30,7 +30,7 @@ const PatchInstanceserver = (props: Props) => {
   const { t } = useTranslation()
   const authState = useAuthState()
   const user = authState.user
-  const adminLocationState = useADminLocationState()
+  const adminLocationState = useAdminLocationState()
   const location = adminLocationState
   const adminLocations = adminLocationState.locations
 

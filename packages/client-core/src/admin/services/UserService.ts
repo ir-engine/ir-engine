@@ -1,7 +1,7 @@
 import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
-import { CreateEditUser, User } from '@xrengine/common/src/interfaces/User'
+import { CreateEditUser, User, UserSeed } from '@xrengine/common/src/interfaces/User'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
@@ -13,6 +13,7 @@ export const USER_PAGE_LIMIT = 100
 
 const state = createState({
   users: [] as Array<User>,
+  singleUser: UserSeed as User,
   skip: 0,
   limit: USER_PAGE_LIMIT,
   total: 0,
@@ -27,6 +28,8 @@ const state = createState({
 store.receptors.push((action: UserActionType): any => {
   state.batch((s) => {
     switch (action.type) {
+      case 'SINGLE_USER_ADMIN_LOADED':
+        return s.merge({ singleUser: action.data, updateNeeded: false })
       case 'ADMIN_LOADED_USERS':
         return s.merge({
           users: action.userResult.data,
@@ -81,6 +84,17 @@ export const useUserState = () => useState(state) as any as typeof state
 
 //Service
 export const UserService = {
+  fetchSingleUserAdmin: async (id: string) => {
+    const dispatch = useDispatch()
+
+    try {
+      const result = await client.service('user').get(id)
+      dispatch(UserAction.fetchedSingleUser(result))
+    } catch (err) {
+      console.log(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  },
   fetchUsersAsAdmin: async (value: string | null = null, skip = 0, sortField = 'name', orderBy = 'asc') => {
     const dispatch = useDispatch()
 
@@ -174,7 +188,6 @@ export const UserService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  refetchSingleUserAdmin: async () => {},
   setSkipGuests: async (value: boolean) => {
     const dispatch = useDispatch()
     dispatch(UserAction.setSkipGuests(value))
@@ -191,6 +204,12 @@ export const UserService = {
 
 //Action
 export const UserAction = {
+  fetchedSingleUser: (data: User) => {
+    return {
+      type: 'SINGLE_USER_ADMIN_LOADED' as const,
+      data: data
+    }
+  },
   loadedUsers: (userResult: Paginated<User>) => {
     return {
       type: 'ADMIN_LOADED_USERS' as const,

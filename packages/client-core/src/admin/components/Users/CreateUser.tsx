@@ -19,7 +19,7 @@ import { useFetchScopeType, useFetchStaticResource, useFetchUserRole } from '../
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import { AdminScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
 import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService } from '../../services/UserService'
@@ -62,7 +62,7 @@ const CreateUser = (props: Props) => {
   //Call custom hooks
   useFetchUserRole(UserRoleService, userRole, user)
   useFetchStaticResource(staticResourceService, staticResource, user)
-  useFetchScopeType(ScopeTypeService, adminScopeTypeState, user)
+  useFetchScopeType(AdminScopeTypeService, adminScopeTypeState, user)
 
   const clearState = () => {
     setState({

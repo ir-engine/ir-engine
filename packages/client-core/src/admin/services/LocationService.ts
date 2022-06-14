@@ -60,7 +60,7 @@ export const AdminLocationServiceReceptor = (action) => {
 
 export const accessAdminLocationState = () => getState(AdminLocationState)
 
-export const useADminLocationState = () => useState(accessAdminLocationState())
+export const useAdminLocationState = () => useState(accessAdminLocationState())
 
 //Service
 export const AdminLocationService = {

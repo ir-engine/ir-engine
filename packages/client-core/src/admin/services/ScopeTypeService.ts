@@ -1,54 +1,54 @@
 import { Paginated } from '@feathersjs/feathers'
-import { createState, useState } from '@speigg/hookstate'
 
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
 
 //State
 export const SCOPE_PAGE_LIMIT = 100
 
-const state = createState({
-  skip: 0,
-  limit: SCOPE_PAGE_LIMIT,
-  total: 0,
-  retrieving: false,
-  fetched: false,
-  updateNeeded: true,
-  lastFetched: Date.now(),
-  scopeTypes: [] as Array<AdminScopeType>,
-  fetching: false
+const AdminScopeTypeState = defineState({
+  name: 'AdminScopeTypeState',
+  initial: () => ({
+    skip: 0,
+    limit: SCOPE_PAGE_LIMIT,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true,
+    lastFetched: Date.now(),
+    scopeTypes: [] as Array<AdminScopeType>,
+    fetching: false
+  })
 })
 
-store.receptors.push((action: ScopeActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'SCOPE_TYPES_RETRIEVED':
-        return s.merge({
-          scopeTypes: action.adminScopeTypeResult.data,
-          skip: action.adminScopeTypeResult.skip,
-          limit: action.adminScopeTypeResult.limit,
-          total: action.adminScopeTypeResult.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
-        })
-    }
-  }, action.type)
-})
+export const AdminScopeTypeServiceReceptor = (action) => {
+  getState(AdminScopeTypeState).batch((s) => {
+    matches(action).when(AdminScopeTypeActions.getScopeTypes.matches, (action) => {
+      return s.merge({
+        scopeTypes: action.adminScopeTypeResult.data,
+        skip: action.adminScopeTypeResult.skip,
+        limit: action.adminScopeTypeResult.limit,
+        total: action.adminScopeTypeResult.total,
+        retrieving: false,
+        fetched: true,
+        updateNeeded: false,
+        lastFetched: Date.now()
+      })
+    })
+  })
+}
 
-export const accessScopeTypeState = () => state
+export const accessScopeTypeState = () => getState(AdminScopeTypeState)
 
-export const useScopeTypeState = () => useState(state) as any as typeof state
+export const useScopeTypeState = () => useState(accessScopeTypeState())
 
 //Service
-export const ScopeTypeService = {
+export const AdminScopeTypeService = {
   getScopeTypeService: async (incDec?: 'increment' | 'decrement') => {
-    const dispatch = useDispatch()
-
     const scopeState = accessScopeTypeState()
     const skip = scopeState.skip.value
     const limit = scopeState.limit.value
@@ -59,7 +59,7 @@ export const ScopeTypeService = {
           $limit: limit
         }
       })) as Paginated<AdminScopeType>
-      dispatch(ScopeTypeAction.getScopeTypes(result))
+      dispatchAction(AdminScopeTypeActions.getScopeTypes({ adminScopeTypeResult: result }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -67,13 +67,9 @@ export const ScopeTypeService = {
 }
 
 //Action
-export const ScopeTypeAction = {
-  getScopeTypes: (adminScopeTypeResult: Paginated<AdminScopeType>) => {
-    return {
-      type: 'SCOPE_TYPES_RETRIEVED' as const,
-      adminScopeTypeResult: adminScopeTypeResult
-    }
-  }
+export class AdminScopeTypeActions {
+  static getScopeTypes = defineAction({
+    type: 'SCOPE_TYPES_RETRIEVED' as const,
+    adminScopeTypeResult: matches.object as Validator<unknown, Paginated<AdminScopeType>>
+  })
 }
-
-export type ScopeActionType = ReturnType<typeof ScopeTypeAction[keyof typeof ScopeTypeAction]>

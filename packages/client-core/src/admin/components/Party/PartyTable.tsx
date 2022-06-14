@@ -8,7 +8,7 @@ import ConfirmModal from '../../common/ConfirmModal'
 import { useFetchAdminParty } from '../../common/hooks/party.hooks'
 import TableComponent from '../../common/Table'
 import { partyColumns, PartyData, PartyPropsTable } from '../../common/variables/party'
-import { PARTY_PAGE_LIMIT, PartyService, usePartyState } from '../../services/PartyService'
+import { AdminPartyService, PARTY_PAGE_LIMIT, usePartyState } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
 import ViewParty from './ViewParty'
 
@@ -34,16 +34,16 @@ const PartyTable = (props: PartyPropsTable) => {
   const adminPartyCount = adminParty.total.value
 
   //Call custom hooks
-  useFetchAdminParty(user, adminPartyState, PartyService, search, page, sortField, fieldOrder)
+  useFetchAdminParty(user, adminPartyState, AdminPartyService, search, page, sortField, fieldOrder)
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    PartyService.fetchAdminParty(search, page, sortField, fieldOrder)
+    AdminPartyService.fetchAdminParty(search, page, sortField, fieldOrder)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminParty.fetched.value) {
-      PartyService.fetchAdminParty(search, page, sortField, fieldOrder)
+      AdminPartyService.fetchAdminParty(search, page, sortField, fieldOrder)
     }
   }, [fieldOrder])
 
@@ -52,7 +52,7 @@ const PartyTable = (props: PartyPropsTable) => {
   }
 
   const submitRemoveParty = async () => {
-    await PartyService.removeParty(partyId)
+    await AdminPartyService.removeParty(partyId)
     setPopConfirmOpen(false)
   }
 
