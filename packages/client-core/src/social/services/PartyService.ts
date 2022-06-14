@@ -217,16 +217,20 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
       updatedPartyUser.user.channelInstanceId != null &&
       updatedPartyUser.user.channelInstanceId === selfUser.channelInstanceId.value
     )
-      store.dispatch(UserAction.addedChannelLayerUser(updatedPartyUser.user))
+      dispatchAction(UserAction.addedChannelLayerUserAction({ user: updatedPartyUser.user }))
     if (updatedPartyUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
-      store.dispatch(UserAction.removedChannelLayerUser(updatedPartyUser.user))
+      dispatchAction(
+        UserAction.removedChannelLayerUserAction({
+          user: updatedPartyUser.user
+        })
+      )
   })
 
   client.service('party-user').on('removed', (params) => {
     const deletedPartyUser = params.partyUser
     const selfUser = accessAuthState().user
     dispatchAction(PartyAction.removedPartyUserAction({ partyUser: deletedPartyUser }))
-    store.dispatch(UserAction.removedChannelLayerUser(deletedPartyUser.user))
+    dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedPartyUser.user }))
     if (params.partyUser.userId === selfUser.id) {
       ChatService.clearChatTargetIfCurrent('party', {
         id: params.partyUser.partyId
