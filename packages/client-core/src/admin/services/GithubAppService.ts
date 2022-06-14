@@ -1,45 +1,42 @@
-import { createState, useState } from '@speigg/hookstate'
-
 import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
-import { store } from '../../store'
 
-export const state = createState({
-  repos: [] as Array<GithubAppInterface>,
-  updateNeeded: true
+const AdminGithubAppState = defineState({
+  name: 'AdminGithubAppState',
+  initial: () => ({
+    repos: [] as Array<GithubAppInterface>,
+    updateNeeded: true
+  })
 })
 
-store.receptors.push((action: GithubAppActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'GITHUBAPP_RETRIEVED':
-        return s.merge({
-          repos: action.result,
-          updateNeeded: false
-        })
-    }
-  }, action.type)
-})
+export const AdminGithubAppServiceReceptor = (action) => {
+  getState(AdminGithubAppState).batch((s) => {
+    matches(action).when(GithubAppAction.GithubAppFetched.matches, (action) => {
+      return s.merge({
+        repos: action.result,
+        updateNeeded: false
+      })
+    })
+  })
+}
 
-export const accessGithubAppState = () => state
+export const accessGithubAppState = () => getState(AdminGithubAppState)
 
-export const useGithubAppState = () => useState(state) as any as typeof state
+export const useGithubAppState = () => useState(accessGithubAppState())
 
 export const GithubAppService = {
   fetchGithubAppRepos: async () => {
     const repos = await client.service('github-app').find()
-    store.dispatch(GithubAppAction.GithubAppFetched(repos))
+    dispatchAction(GithubAppAction.GithubAppFetched({ result: repos }))
   }
 }
 
-export const GithubAppAction = {
-  GithubAppFetched: (result: GithubAppInterface[]) => {
-    return {
-      type: 'GITHUBAPP_RETRIEVED' as const,
-      result: result
-    }
-  }
+export class GithubAppAction {
+  static GithubAppFetched = defineAction({
+    type: 'GITHUBAPP_RETRIEVED' as const,
+    result: matches.array as Validator<unknown, GithubAppInterface[]>
+  })
 }
-
-export type GithubAppActionType = ReturnType<typeof GithubAppAction[keyof typeof GithubAppAction]>

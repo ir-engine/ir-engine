@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
+
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
-import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
+import { AdminGithubAppServiceReceptor, GithubAppService, useGithubAppState } from '../../services/GithubAppService'
 import styles from '../../styles/admin.module.scss'
 import ProjectTable from './ProjectTable'
 import UploadProjectModal from './UploadProjectModal'
@@ -24,6 +26,13 @@ const Projects = () => {
     GithubAppService.fetchGithubAppRepos()
     setUploadProjectsModalOpen(true)
   }
+
+  useEffect(() => {
+    addActionReceptor(AdminGithubAppServiceReceptor)
+    return () => {
+      removeActionReceptor(AdminGithubAppServiceReceptor)
+    }
+  }, [])
 
   useEffect(() => {
     if (user?.id.value != null && adminProjectState.updateNeeded.value === true) {

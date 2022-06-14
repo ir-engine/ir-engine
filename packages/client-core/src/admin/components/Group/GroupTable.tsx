@@ -7,7 +7,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { columns, Data } from '../../common/variables/group'
-import { GROUP_PAGE_LIMIT, GroupService, useGroupState } from '../../services/GroupService'
+import { GROUP_PAGE_LIMIT, GroupService, useAdminGroupState } from '../../services/GroupService'
 import styles from '../../styles/admin.module.scss'
 import ViewGroup from './ViewGroup'
 
@@ -27,7 +27,7 @@ const GroupTable = (props: Props) => {
   const [orderBy, setOrderBy] = useState('asc')
   const [sortField, setSortField] = useState('name')
   const [showWarning, setShowWarning] = useState(false)
-  const adminGroupState = useGroupState()
+  const adminGroupState = useAdminGroupState()
   const adminGroups = adminGroupState.group
   const adminGroupCount = adminGroupState.total.value
   const { t } = useTranslation()

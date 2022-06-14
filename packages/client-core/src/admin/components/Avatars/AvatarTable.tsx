@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import Drawer from '@mui/material/Drawer'
 
-import { useDispatch } from '../../../store'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
@@ -29,7 +29,6 @@ const AvatarTable = (props: Props) => {
   const adminAvatars = adminAvatarState.avatars
   const adminAvatarCount = adminAvatarState.total
   const { t } = useTranslation()
-  const dispatch = useDispatch()
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
@@ -143,7 +142,7 @@ const AvatarTable = (props: Props) => {
         <Drawer anchor="right" open={viewModal} onClose={closeViewModal} classes={{ paper: styles.paperDrawer }}>
           <AvatarSelectMenu
             adminStyles={styles}
-            onAvatarUpload={() => dispatch(AvatarAction.avatarUpdated())}
+            onAvatarUpload={() => dispatchAction(AvatarAction.avatarUpdated())}
             changeActiveMenu={closeViewModal}
             avatarData={avatarData}
           />

@@ -1,5 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import { List } from '@mui/icons-material'
 import Card from '@mui/material/Card'
@@ -7,12 +9,23 @@ import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
+import { AdminBotsCommandServiceReceptor } from '../../services/BotsCommand'
+import { AdminBotServiceReceptor } from '../../services/BotsService'
 import styles from '../../styles/admin.module.scss'
 import CreateBot from './CreateBot'
 import DisplayBots from './DisplayBots'
 
 const Bots = () => {
   const { t } = useTranslation()
+
+  useEffect(() => {
+    addActionReceptor(AdminBotsCommandServiceReceptor)
+    addActionReceptor(AdminBotServiceReceptor)
+    return () => {
+      removeActionReceptor(AdminBotsCommandServiceReceptor)
+      removeActionReceptor(AdminBotServiceReceptor)
+    }
+  }, [])
 
   return (
     <div>
