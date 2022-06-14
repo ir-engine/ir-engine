@@ -151,11 +151,10 @@ const UserTable = (props: UserProps) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        popConfirmOpen={popConfirmOpen}
-        handleCloseModal={handleCloseModal}
-        submit={submitDeleteUser}
-        name={userName}
-        label={'user'}
+        open={popConfirmOpen}
+        description={`${t('admin:components.user.confirmUserDelete')} '${userName}'?`}
+        onClose={handleCloseModal}
+        onSubmit={submitDeleteUser}
       />
       {userAdmin && viewModal && (
         <ViewUser openView={viewModal} userAdmin={userAdmin} closeViewModal={closeViewModal} />

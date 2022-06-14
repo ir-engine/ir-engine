@@ -7,16 +7,11 @@ import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
-import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormGroup from '@mui/material/FormGroup'
 import Grid from '@mui/material/Grid'
-import MenuItem from '@mui/material/MenuItem'
-import Paper from '@mui/material/Paper'
-import Select from '@mui/material/Select'
-import Switch from '@mui/material/Switch'
 
 import AlertMessage from '../../common/AlertMessage'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
+import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { LocationService, useLocationState } from '../../services/LocationService'
@@ -134,6 +129,20 @@ const CreateLocation = (props: Props) => {
     }
   }
 
+  const sceneMenu: InputMenuItem[] = adminScenes.value.map((el) => {
+    return {
+      value: `${el.project}/${el.name}`,
+      label: `${el.name} (${el.project})`
+    }
+  })
+
+  const locationMenu: InputMenuItem[] = locationTypes.value.map((el) => {
+    return {
+      value: el.type,
+      label: el.type
+    }
+  })
+
   return (
     <React.Fragment>
       <Drawer
@@ -168,166 +177,75 @@ const CreateLocation = (props: Props) => {
             onChange={handleChange}
           />
 
-          <label>{t('admin:components.locationModal.lbl-scene')}</label>
-          <Paper component="div" className={state.formErrors.scene.length > 0 ? styles.redBorder : styles.createInput}>
-            <FormControl fullWidth>
-              <Select
-                labelId="demo-controlled-open-select-label"
-                id="demo-controlled-open-select"
-                value={state.scene}
-                fullWidth
-                displayEmpty
-                onChange={handleChange}
-                className={styles.select}
-                name="scene"
-                MenuProps={{ classes: { paper: styles.selectPaper } }}
-              >
-                <MenuItem value="" disabled>
-                  <em>{t('admin:components.locationModal.selectScene')}</em>
-                </MenuItem>
-                {adminScenes.value.map((el, i) => (
-                  <MenuItem value={`${el.project}/${el.name}`} key={i}>
-                    {el.name} ({el.project})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Paper>
-          <label>{t('admin:components.locationModal.private')}</label>
-          <Paper component="div" className={styles.createInput}>
-            <FormControl fullWidth>
-              <Select
-                labelId="demo-controlled-open-select-label"
-                id="demo-controlled-open-select"
-                value={state.type}
-                fullWidth
-                displayEmpty
-                onChange={handleChange}
-                className={styles.select}
-                name="type"
-                MenuProps={{ classes: { paper: styles.selectPaper } }}
-              >
-                <MenuItem value="" disabled>
-                  <em>{t('admin:components.locationModal.selectType')}</em>
-                </MenuItem>
-                {locationTypes.value.map((el) => (
-                  <MenuItem value={el.type} key={el.type}>
-                    {el.type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Paper>
+          <InputSelect
+            name="scene"
+            label={t('admin:components.locationModal.lbl-scene')}
+            value={state.scene}
+            error={state.formErrors.scene}
+            menu={sceneMenu}
+            onChange={handleChange}
+          />
+
+          <InputSelect
+            name="type"
+            label={t('admin:components.locationModal.type')}
+            value={state.type}
+            menu={locationMenu}
+            onChange={handleChange}
+          />
+
           <Grid container spacing={5} className={styles.mb15}>
             <Grid item xs={6}>
-              <FormGroup>
-                <FormControl>
-                  <FormControlLabel
-                    color="primary"
-                    control={
-                      <Switch
-                        checked={state.videoEnabled}
-                        onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
-                        name="videoEnabled"
-                      />
-                    }
-                    label={t('admin:components.locationModal.lbl-ve') as string}
-                  />
-                </FormControl>
-              </FormGroup>
-              <FormGroup>
-                <FormControl>
-                  <FormControlLabel
-                    color="primary"
-                    control={
-                      <Switch
-                        checked={state.audioEnabled}
-                        onChange={(e) => setState({ ...state, audioEnabled: e.target.checked })}
-                        name="audioEnabled"
-                      />
-                    }
-                    label={t('admin:components.locationModal.lbl-ae') as string}
-                  />
-                </FormControl>
-              </FormGroup>
-              <FormGroup>
-                <FormControl>
-                  <FormControlLabel
-                    color="primary"
-                    control={
-                      <Switch
-                        checked={state.globalMediaEnabled}
-                        onChange={(e) => setState({ ...state, globalMediaEnabled: e.target.checked })}
-                        name="globalMediaEnabled"
-                      />
-                    }
-                    label={t('admin:components.locationModal.lbl-gme') as string}
-                  />
-                </FormControl>
-              </FormGroup>
-              <FormGroup>
-                <FormControl>
-                  <FormControlLabel
-                    color="primary"
-                    control={
-                      <Switch
-                        checked={state.screenSharingEnabled}
-                        onChange={(e) => setState({ ...state, screenSharingEnabled: e.target.checked })}
-                        name="screenSharingEnabled"
-                      />
-                    }
-                    label={t('admin:components.locationModal.lbl-se') as string}
-                  />
-                </FormControl>
-              </FormGroup>
+              <InputSwitch
+                name="videoEnabled"
+                label={t('admin:components.locationModal.lbl-ve')}
+                checked={state.videoEnabled}
+                onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
+              />
+
+              <InputSwitch
+                name="audioEnabled"
+                label={t('admin:components.locationModal.lbl-ae')}
+                checked={state.audioEnabled}
+                onChange={(e) => setState({ ...state, audioEnabled: e.target.checked })}
+              />
+
+              <InputSwitch
+                name="globalMediaEnabled"
+                label={t('admin:components.locationModal.lbl-gme')}
+                checked={state.globalMediaEnabled}
+                onChange={(e) => setState({ ...state, globalMediaEnabled: e.target.checked })}
+              />
+
+              <InputSwitch
+                name="screenSharingEnabled"
+                label={t('admin:components.locationModal.lbl-se')}
+                checked={state.screenSharingEnabled}
+                onChange={(e) => setState({ ...state, screenSharingEnabled: e.target.checked })}
+              />
             </Grid>
             <Grid item xs={6} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
-                <FormGroup>
-                  <FormControl>
-                    <FormControlLabel
-                      color="primary"
-                      control={
-                        <Switch
-                          checked={state.faceStreamingEnabled}
-                          onChange={(e) => setState({ ...state, faceStreamingEnabled: e.target.checked })}
-                          name="faceStreamingEnabled"
-                        />
-                      }
-                      label={t('admin:components.locationModal.lbl-fe') as string}
-                    />
-                  </FormControl>
-                </FormGroup>
-                <FormGroup>
-                  <FormControl>
-                    <FormControlLabel
-                      color="primary"
-                      control={
-                        <Switch
-                          checked={state.isLobby}
-                          onChange={(e) => setState({ ...state, isLobby: e.target.checked })}
-                          name="isLobby"
-                        />
-                      }
-                      label={t('admin:components.locationModal.lbl-lobby') as string}
-                    />
-                  </FormControl>
-                </FormGroup>
-                <FormGroup>
-                  <FormControl>
-                    <FormControlLabel
-                      color="primary"
-                      control={
-                        <Switch
-                          checked={state.isFeatured}
-                          onChange={(e) => setState({ ...state, isFeatured: e.target.checked })}
-                          name="isFeatured"
-                        />
-                      }
-                      label={t('admin:components.locationModal.lbl-featured') as string}
-                    />
-                  </FormControl>
-                </FormGroup>
+                <InputSwitch
+                  name="faceStreamingEnabled"
+                  label={t('admin:components.locationModal.lbl-lobby')}
+                  checked={state.faceStreamingEnabled}
+                  onChange={(e) => setState({ ...state, faceStreamingEnabled: e.target.checked })}
+                />
+
+                <InputSwitch
+                  name="isLobby"
+                  label={t('admin:components.locationModal.lbl-fe')}
+                  checked={state.isLobby}
+                  onChange={(e) => setState({ ...state, isLobby: e.target.checked })}
+                />
+
+                <InputSwitch
+                  name="isFeatured"
+                  label={t('admin:components.locationModal.lbl-featured')}
+                  checked={state.isFeatured}
+                  onChange={(e) => setState({ ...state, isFeatured: e.target.checked })}
+                />
               </div>
             </Grid>
           </Grid>
