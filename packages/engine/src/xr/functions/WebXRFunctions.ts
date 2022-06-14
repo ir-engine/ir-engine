@@ -10,6 +10,7 @@ import { ParityValue } from '../../common/enums/ParityValue'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
+import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
@@ -96,13 +97,18 @@ const controllerRight = new Group()
 const controllerGripLeft = new Group()
 const controllerGripRight = new Group()
 
+export function setupXRCamera(world: World) {
+  removeComponent(world.localClientEntity, FollowCameraComponent)
+  container.add(Engine.instance.currentWorld.camera)
+}
+
 /**
  * Setup XRInputSourceComponent on entity, required for all input control types
  * @author Hamza Mushtaq <github.com/hamzzam>
  * @returns XRInputSourceComponentType
  */
 
-export const setupXRInputSourceComponent = (entity: Entity) => {
+export const setupXRInputSourceComponent = (entity: Entity): XRInputSourceComponentType => {
   const controllerLeftParent = controllerLeft.parent as Group,
     controllerGripLeftParent = controllerGripLeft.parent as Group,
     controllerRightParent = controllerRight.parent as Group,
@@ -191,18 +197,9 @@ export const bindXRHandEvents = () => {
 
 export const startWebXR = async (): Promise<void> => {
   const world = Engine.instance.currentWorld
-
-  removeComponent(world.localClientEntity, FollowCameraComponent)
-  container.add(Engine.instance.currentWorld.camera)
-
+  setupXRCamera(world)
   setupXRInputSourceComponent(world.localClientEntity)
-
-  const avatarInputState = accessAvatarInputSettingsState()
-  dispatchAction(
-    WorldNetworkAction.setXRMode({ enabled: true, avatarInputControllerType: avatarInputState.controlType.value }),
-    [Engine.instance.currentWorld.worldNetwork.hostId]
-  )
-
+  dispatchXRMode(true, accessAvatarInputSettingsState().controlType.value)
   bindXRControllers()
   bindXRHandEvents()
 }
@@ -223,9 +220,7 @@ export const endXR = (): void => {
   removeComponent(world.localClientEntity, XRInputSourceComponent)
   removeComponent(world.localClientEntity, XRHandsInputComponent)
 
-  dispatchAction(WorldNetworkAction.setXRMode({ enabled: false, avatarInputControllerType: '' }), [
-    Engine.instance.currentWorld.worldNetwork.hostId
-  ])
+  dispatchXRMode(false, '')
 }
 
 /**
@@ -346,4 +341,14 @@ export const getHeadTransform = (entity: Entity): { position: Vector3; rotation:
     rotation: cameraTransform.rotation,
     scale: uniformScale
   }
+}
+
+export function dispatchXRMode(enabled: boolean, avatarInputControllerType: string) {
+  dispatchAction(
+    WorldNetworkAction.setXRMode({
+      enabled,
+      avatarInputControllerType
+    }),
+    [Engine.instance.currentWorld.worldNetwork.hostId]
+  )
 }
