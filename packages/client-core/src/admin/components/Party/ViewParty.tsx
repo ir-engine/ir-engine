@@ -13,8 +13,6 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
-import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { validateForm } from '../../common/validation/formValidation'
 import ViewDrawer from '../../common/ViewDrawer'
