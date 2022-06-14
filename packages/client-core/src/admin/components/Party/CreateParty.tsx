@@ -4,15 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 import DialogContentText from '@mui/material/DialogContentText'
-import FormControl from '@mui/material/FormControl'
-import MenuItem from '@mui/material/MenuItem'
-import Paper from '@mui/material/Paper'
-import Select from '@mui/material/Select'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import CreateModal from '../../common/CreateModal'
 import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { validateForm } from '../../common/validation/formValidation'
 import { PartyProps } from '../../common/variables/party'
 import { InstanceService } from '../../services/InstanceService'
@@ -89,65 +86,40 @@ const CreateParty = (props: PartyProps) => {
       handleClose()
     }
   }
+
+  const instanceMenu: InputMenuItem[] = data.map((el) => {
+    return {
+      value: el?.id,
+      label: el?.ipAddress
+    }
+  })
+
+  const locationMenu: InputMenuItem[] = locationData.value.map((el) => {
+    return {
+      value: el?.id,
+      label: el?.name
+    }
+  })
+
   return (
     <CreateModal open={open} action="Create" text="party" handleClose={handleClose} submit={submitParty}>
-      <label>{t('admin:components.party.instance')}</label>
-      <Paper
-        component="div"
-        className={newParty.formErrors.instance.length > 0 ? styles.redBorder : styles.createInput}
-      >
-        <FormControl fullWidth>
-          <Select
-            labelId="demo-controlled-open-select-label"
-            id="demo-controlled-open-select"
-            value={newParty.instance}
-            fullWidth
-            displayEmpty
-            onChange={handleChange}
-            className={styles.select}
-            name="instance"
-            MenuProps={{ classes: { paper: styles.selectPaper } }}
-          >
-            <MenuItem value="" disabled>
-              <em>{t('admin:components.party.selectInstance')}</em>
-            </MenuItem>
-            {data.map((el) => (
-              <MenuItem value={el?.id} key={el?.id}>
-                {el?.ipAddress}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Paper>
+      <InputSelect
+        name="instance"
+        label={t('admin:components.party.instance')}
+        value={newParty.instance}
+        error={newParty.formErrors.instance}
+        menu={instanceMenu}
+        onChange={handleChange}
+      />
 
-      <label>{t('admin:components.party.location')}</label>
-      <Paper
-        component="div"
-        className={newParty.formErrors.location.length > 0 ? styles.redBorder : styles.createInput}
-      >
-        <FormControl fullWidth>
-          <Select
-            labelId="demo-controlled-open-select-label"
-            id="demo-controlled-open-select"
-            value={newParty.location}
-            fullWidth
-            displayEmpty
-            onChange={handleChange}
-            className={styles.select}
-            name="location"
-            MenuProps={{ classes: { paper: styles.selectPaper } }}
-          >
-            <MenuItem value="" disabled>
-              <em>{t('admin:components.party.selectLocation')}</em>
-            </MenuItem>
-            {locationData.value.map((el) => (
-              <MenuItem value={el?.id} key={el?.id}>
-                {el?.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Paper>
+      <InputSelect
+        name="location"
+        label={t('admin:components.party.location')}
+        value={newParty.location}
+        error={newParty.formErrors.location}
+        menu={locationMenu}
+        onChange={handleChange}
+      />
 
       <DialogContentText className={styles.mb15}>
         <span className={styles.spanWhite}>{t('admin:components.party.dontSeeLocation')}</span>

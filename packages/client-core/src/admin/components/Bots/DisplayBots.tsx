@@ -199,11 +199,10 @@ const DisplayBots = () => {
       <UpdateBot open={openModal} handleClose={handleCloseModal} bot={bot} />
 
       <ConfirmModal
-        popConfirmOpen={popConfirmOpen}
-        handleCloseModal={handleCloseConfirmModal}
-        submit={submitRemoveBot}
-        name={botName}
-        label={'bot'}
+        open={popConfirmOpen}
+        description={`${t('admin:components.bot.confirmBotDelete')} '${botName}'?`}
+        onClose={handleCloseConfirmModal}
+        onSubmit={submitRemoveBot}
       />
     </div>
   )

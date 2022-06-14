@@ -192,11 +192,10 @@ const LocationTable = (props: LocationProps) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        popConfirmOpen={popConfirmOpen}
-        handleCloseModal={handleCloseModal}
-        submit={submitRemoveLocation}
-        name={locationName}
-        label={'location'}
+        open={popConfirmOpen}
+        description={`${t('admin:components.location.confirmLocationDelete')} '${locationName}'?`}
+        onClose={handleCloseModal}
+        onSubmit={submitRemoveLocation}
       />
       <ViewLocation openView={viewModal} closeViewModal={closeViewModal} locationAdmin={locationAdmin} />
     </React.Fragment>
