@@ -29,6 +29,19 @@ const restrictUserPatch = (context: HookContext) => {
   return context
 }
 
+const restrictUserRemove = (context: HookContext) => {
+  if (context.params.isInternal) return context
+
+  // allow admins for all patch actions
+  const loggedInUser = context.params.user as UserDataType
+  if (loggedInUser.userRole === 'admin') return context
+
+  // only allow a user to patch it's own data
+  if (loggedInUser.id !== context.id) throw new Error('Must be an admin to delete another user')
+
+  return context
+}
+
 /**
  * This module used to declare and identify database relation
  * which will be used later in user service
@@ -142,7 +155,7 @@ export default {
       addScopeToUser()
     ],
     remove: [
-      iff(isProvider('external'), restrictUserRole('admin') as any),
+      iff(isProvider('external'), restrictUserRemove as any),
       async (context: HookContext): Promise<HookContext> => {
         try {
           const userId = context.id

@@ -140,7 +140,7 @@ export class User<T = UserDataType> extends Service<T> {
     return await super.create(data, params)
   }
 
-  patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
+  async patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
     return super.patch(id, data, params)
   }
 }
