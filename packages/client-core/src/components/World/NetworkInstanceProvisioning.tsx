@@ -22,8 +22,9 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { addActionReceptor, useHookEffect } from '@xrengine/hyperflux'
+import { addActionReceptor, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
+import { UserServiceReceptor } from '../../user/services/UserService'
 import { getSearchParamFromURL } from '../../util/getSearchParamFromURL'
 import InstanceServerWarnings from './InstanceServerWarnings'
 
@@ -53,6 +54,10 @@ export const NetworkInstanceProvisioning = () => {
         MediaStreamService.triggerUpdateConsumers
       )
     })
+    addActionReceptor(UserServiceReceptor)
+    return () => {
+      removeActionReceptor(UserServiceReceptor)
+    }
   }, [])
 
   /** if the instance that got provisioned is not the one that was entered into the URL, update the URL */
