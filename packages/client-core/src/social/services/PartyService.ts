@@ -62,7 +62,6 @@ export const PartyServiceReceptor = (action) => {
         return s.merge({ party: updateMap, updateNeeded: true })
       })
       .when(PartyAction.patchedPartyUserAction.matches, (action) => {
-        logger.info({ partyUser: action.partyUser }, 'Patched partyUser.')
         const updateMap = _.cloneDeep(s.party.value)
         if (updateMap != null) {
           updateMap.partyUsers = Array.isArray(updateMap.partyUsers)
@@ -109,27 +108,15 @@ export const PartyService = {
   // Temporary Method for arbitrary testing
   getParties: async (): Promise<void> => {
     let socketId: any
-    const parties = await client.service('party').find()
-    const userId = accessAuthState().user.id.value
     if (client.io && socketId === undefined) {
       client.io.emit('request-user-id', ({ id }: { id: number }) => {
-        logger.info('Socket-ID received: ' + id)
         socketId = id
       })
-      client.io.on('message-party', (data: any) => {
-        logger.info({ data }, 'Message received.')
-      })
       ;(window as any).joinParty = (userId: number, partyId: number) => {
-        client.io.emit(
-          'join-party',
-          {
-            userId,
-            partyId
-          },
-          (res) => {
-            logger.info({ res }, 'Join response.')
-          }
-        )
+        client.io.emit('join-party', {
+          userId,
+          partyId
+        })
       }
       ;(window as any).messageParty = (userId: number, partyId: number, message: string) => {
         client.io.emit('message-party-request', {
@@ -139,16 +126,11 @@ export const PartyService = {
         })
       }
       ;(window as any).partyInit = (userId: number) => {
-        client.io.emit('party-init', { userId }, (response: any) => {
-          response ? logger.info({ response }, 'Init success.') : logger.info('Init failed.')
-        })
+        client.io.emit('party-init', { userId })
       }
-    } else {
-      logger.info('Your socket id is: ' + socketId)
     }
   },
   createParty: async () => {
-    logger.info('CREATING PARTY')
     try {
       await client.service('party').create({})
     } catch (err) {
