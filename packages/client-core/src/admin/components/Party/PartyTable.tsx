@@ -5,10 +5,9 @@ import { Party } from '@xrengine/common/src/interfaces/Party'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
-import { useFetchAdminParty } from '../../common/hooks/party.hooks'
 import TableComponent from '../../common/Table'
 import { partyColumns, PartyData, PartyPropsTable } from '../../common/variables/party'
-import { PARTY_PAGE_LIMIT, PartyService, usePartyState } from '../../services/PartyService'
+import { AdminPartyService, PARTY_PAGE_LIMIT, usePartyState } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
 import ViewParty from './ViewParty'
 
@@ -33,17 +32,18 @@ const PartyTable = (props: PartyPropsTable) => {
   const adminPartyData = adminParty.parties?.value || []
   const adminPartyCount = adminParty.total.value
 
-  //Call custom hooks
-  useFetchAdminParty(user, adminPartyState, PartyService, search, page, sortField, fieldOrder)
+  useEffect(() => {
+    AdminPartyService.fetchAdminParty(search, page, sortField, fieldOrder)
+  }, [user?.id?.value, adminPartyState.updateNeeded.value, search])
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    PartyService.fetchAdminParty(search, page, sortField, fieldOrder)
+    AdminPartyService.fetchAdminParty(search, page, sortField, fieldOrder)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminParty.fetched.value) {
-      PartyService.fetchAdminParty(search, page, sortField, fieldOrder)
+      AdminPartyService.fetchAdminParty(search, page, sortField, fieldOrder)
     }
   }, [fieldOrder])
 
@@ -52,7 +52,7 @@ const PartyTable = (props: PartyPropsTable) => {
   }
 
   const submitRemoveParty = async () => {
-    await PartyService.removeParty(partyId)
+    await AdminPartyService.removeParty(partyId)
     setPopConfirmOpen(false)
   }
 
@@ -128,11 +128,10 @@ const PartyTable = (props: PartyPropsTable) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        popConfirmOpen={popConfirmOpen}
-        handleCloseModal={handleCloseModal}
-        submit={submitRemoveParty}
-        name={partyName}
-        label={t('admin:components.party.partyWithInstanceOf') as string}
+        open={popConfirmOpen}
+        description={`${t('admin:components.party.confirmPartyDelete')} '${partyName}'?`}
+        onClose={handleCloseModal}
+        onSubmit={submitRemoveParty}
       />
       <ViewParty
         openView={viewModal}

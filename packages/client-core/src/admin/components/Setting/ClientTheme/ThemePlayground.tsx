@@ -10,13 +10,11 @@ import {
   Divider,
   Drawer,
   IconButton,
-  InputBase,
   List,
   ListItem,
   ListItemText,
   Menu,
   MenuItem,
-  Select,
   Table,
   TableBody,
   TableCell,
@@ -26,6 +24,7 @@ import {
   TableRow
 } from '@mui/material'
 
+import InputSelect, { InputMenuItem } from '../../../common/InputSelect'
 import InputText from '../../../common/InputText'
 import styles from '../../../styles/settings.module.scss'
 
@@ -133,6 +132,13 @@ const ThemePlayground = () => {
       )
     }
   ]
+
+  const selectMenu: InputMenuItem[] = ['Option 1', 'Option 2', 'Option 3', 'Option 4'].map((el) => {
+    return {
+      value: el,
+      label: el
+    }
+  })
 
   return (
     <>
@@ -298,22 +304,12 @@ const ThemePlayground = () => {
                   ))}
                 </Menu>
                 <label className="textSubheading">Select Dropdown:</label>
-                <Select
-                  displayEmpty
+                <InputSelect
+                  name="dropdown"
                   value={selectValue}
-                  className="select"
-                  MenuProps={{ classes: { paper: 'selectPaper' } }}
+                  menu={selectMenu}
                   onChange={(e) => setSelectValue(e.target.value)}
-                >
-                  <MenuItem value="" key={-1} disabled classes={{ root: 'option', selected: 'optionSelected' }}>
-                    Select Option
-                  </MenuItem>
-                  {['Option 1', 'Option 2', 'Option 3', 'Option 4'].map((el, index) => (
-                    <MenuItem value={el} key={index} classes={{ root: 'option', selected: 'optionSelected' }}>
-                      {el}
-                    </MenuItem>
-                  ))}
-                </Select>
+                />
               </div>
               <Divider variant="inset" component="div" className={styles.colorGridDivider} />
               <div className="textHeading">Input</div>

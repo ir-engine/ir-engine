@@ -12,6 +12,7 @@ export const authenticationSeed = {
         { smsMagicLink: true },
         { emailMagicLink: true },
         { local: true },
+        { discord: true },
         { facebook: true },
         { github: true },
         { google: true },
@@ -29,6 +30,7 @@ export const authenticationSeed = {
         numBytes: 16
       }),
       callback: JSON.stringify({
+        discord: process.env.DISCORD_CALLBACK_URL || `${config.client.url}/auth/oauth/discord`,
         facebook: process.env.FACEBOOK_CALLBACK_URL || `${config.client.url}/auth/oauth/facebook`,
         github: process.env.GITHUB_CALLBACK_URL || `${config.client.url}/auth/oauth/github`,
         google: process.env.GOOGLE_CALLBACK_URL || `${config.client.url}/auth/oauth/google`,
@@ -42,6 +44,12 @@ export const authenticationSeed = {
               ? config.server.hostname
               : config.server.hostname + ':' + config.server.port,
           protocol: 'https'
+        }),
+        discord: JSON.stringify({
+          key: process.env.DISCORD_CLIENT_ID,
+          secret: process.env.DISCORD_CLIENT_SECRET,
+          scope: ['email', 'identify'],
+          custom_params: { prompt: 'none' }
         }),
         facebook: JSON.stringify({
           key: process.env.FACEBOOK_CLIENT_ID,

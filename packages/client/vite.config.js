@@ -71,7 +71,7 @@ export default defineConfig(async (command) => {
   const returned = {
     optimizeDeps: {
       include: getDependenciesToOptimize(),
-      exclude: ['volumetric']
+      exclude: ['@xrfoundation/volumetric']
     },
     plugins: [
       PkgConfig(),
