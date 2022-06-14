@@ -59,7 +59,7 @@ export const ObjectFitFunctions = {
   attachObjectToHand: (container: WebContainer3D, scale: number, distance: number) => {
     const userEntity = Engine.instance.currentWorld.localClientEntity
     const avatarAnimationComponent = getComponent(userEntity, AvatarAnimationComponent)
-    if (avatarAnimationComponent) {
+    if (avatarAnimationComponent && avatarAnimationComponent.rig.LeftHand) {
       // todo: figure out how to scale this properly
       container.scale.x = container.scale.y = 0.5
       // todo: use handedness option to settings
