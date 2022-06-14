@@ -6,7 +6,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import { useAuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { routeColumns } from '../../common/variables/route'
-import { ActiveRouteService, useActiveRouteState } from '../../services/ActiveRouteService'
+import { AdminActiveRouteService, useAdminActiveRouteState } from '../../services/ActiveRouteService'
 import { RouteService, useRouteState } from '../../services/RouteService'
 import styles from '../../styles/admin.module.scss'
 
@@ -28,7 +28,7 @@ const RouteTable = () => {
   const authState = useAuthState()
   const user = authState.user
   const adminRouteState = useRouteState()
-  const adminActiveRouteState = useActiveRouteState()
+  const adminActiveRouteState = useAdminActiveRouteState()
   const adminRoute = adminRouteState
   const activeRouteData = adminActiveRouteState.activeRoutes
   const installedRouteData = adminRoute.routes
@@ -37,20 +37,20 @@ const RouteTable = () => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    ActiveRouteService.fetchActiveRoutes(incDec)
+    AdminActiveRouteService.fetchActiveRoutes(incDec)
     RouteService.fetchInstalledRoutes(incDec)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (user?.id?.value && adminRoute.updateNeeded.value === true) {
-      ActiveRouteService.fetchActiveRoutes()
+      AdminActiveRouteService.fetchActiveRoutes()
       RouteService.fetchInstalledRoutes()
     }
   }, [authState.user?.id?.value, adminRouteState.updateNeeded.value])
 
   useEffect(() => {
-    ActiveRouteService.fetchActiveRoutes()
+    AdminActiveRouteService.fetchActiveRoutes()
     RouteService.fetchInstalledRoutes()
   }, [])
 
@@ -72,7 +72,7 @@ const RouteTable = () => {
   const activateCallback = (project: string, route: string, checked: boolean) => {
     // setProcessing(true)
     // setTimeout(() => {
-    ActiveRouteService.setRouteActive(project, route, checked)
+    AdminActiveRouteService.setRouteActive(project, route, checked)
     // }, 1000)
   }
 

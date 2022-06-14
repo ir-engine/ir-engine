@@ -1,11 +1,14 @@
 import React, { useEffect } from 'react'
 
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
+
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import AlertMessage from '../../common/AlertMessage'
 import Search from '../../common/Search'
-import { useInstanceserverState } from '../../services/InstanceserverService'
+import { AdminInstanceServerServiceReceptor, useInstanceserverState } from '../../services/InstanceserverService'
+import { AdminInstanceServiceReceptor } from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
 import InstanceTable from './InstanceTable'
 import PatchInstanceserver from './PatchInstanceserver'
@@ -16,6 +19,15 @@ const Instance = () => {
   const [openAlert, setOpenAlert] = React.useState(false)
   const instanceserverState = useInstanceserverState()
   const { patch } = instanceserverState.value
+
+  useEffect(() => {
+    addActionReceptor(AdminInstanceServerServiceReceptor)
+    addActionReceptor(AdminInstanceServiceReceptor)
+    return () => {
+      removeActionReceptor(AdminInstanceServerServiceReceptor)
+      removeActionReceptor(AdminInstanceServiceReceptor)
+    }
+  }, [])
 
   useEffect(() => {
     if (patch) {
