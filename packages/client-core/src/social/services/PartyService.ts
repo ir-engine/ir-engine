@@ -10,7 +10,7 @@ import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
 import { User } from '@xrengine/common/src/interfaces/User'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
@@ -100,8 +100,6 @@ export const PartyServiceReceptor = (action) => {
       })
   })
 }
-
-addActionReceptor(PartyServiceReceptor)
 
 export const accessPartyState = () => getState(PartyState)
 

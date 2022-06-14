@@ -6,10 +6,11 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+import { addActionReceptor } from '@xrengine/hyperflux'
 
 import Button from '@mui/material/Button'
 
-import { PartyService } from '../../social/services/PartyService'
+import { PartyService, PartyServiceReceptor } from '../../social/services/PartyService'
 import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
 import { useAuthState } from '../../user/services/AuthService'
 import { UserService, useUserState } from '../../user/services/UserService'
@@ -102,6 +103,10 @@ const AvatarContextMenu = () => {
   const authState = useAuthState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
   const { t } = useTranslation()
+
+  useEffect(() => {
+    addActionReceptor(PartyServiceReceptor)
+  }, [])
 
   const blockUser = () => {
     if (authState.user?.id?.value !== null && user) {
