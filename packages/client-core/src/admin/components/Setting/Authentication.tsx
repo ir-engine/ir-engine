@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next'
 
 import { Button, Grid, Paper, Typography } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
-import Switch from '@mui/material/Switch'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
 import { AuthSettingService, useAdminAuthSettingState } from '../../services/Setting/AuthSettingService'
 import styles from '../../styles/settings.module.scss'
@@ -229,21 +229,14 @@ const Account = (props: Props) => {
               {t('admin:components.setting.authStrategies')}
             </Typography>
             {Object.keys(state).map((strategyName, i) => (
-              <React.Fragment key={i}>
-                <Paper component="div" className={styles.createInput} style={{ height: '2.5rem' }}>
-                  <Grid container direction="row" justifyContent="space-between" alignItems="stretch">
-                    <label>{strategyName}</label>
-                    <Switch
-                      checked={state[strategyName]}
-                      color="primary"
-                      name={strategyName}
-                      disabled={strategyName === 'jwt'}
-                      onChange={onSwitchHandle}
-                      inputProps={{ 'aria-label': 'primary checkbox' }}
-                    />
-                  </Grid>
-                </Paper>
-              </React.Fragment>
+              <InputSwitch
+                key={i}
+                name={strategyName}
+                label={strategyName}
+                checked={state[strategyName]}
+                disabled={strategyName === 'jwt'}
+                onChange={onSwitchHandle}
+              />
             ))}
           </Grid>
           <Grid item xs={12} sm={6} md={4}>

@@ -649,7 +649,10 @@
       "header": "Need to report a problem?",
       "msg": "You can file a <1>GitHub Issue</1> or e-mail us for support at <3>{{mail}}</3>",
       "discord": "You can also find us on <1>Discord</1>"
-    }
+    },
+    "confirmContentDelete": "Do you want to delete this",
+    "file": "file",
+    "folder": "folder"
   },
   "sources": {
     "bingImage": {
