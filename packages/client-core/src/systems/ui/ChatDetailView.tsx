@@ -62,7 +62,7 @@ const styles = {
     background: 'transparent'
   },
   messageItem: {
-    color: '#fff',
+    color: 'var(--textColor)',
     display: 'flex',
     alignItems: 'center',
     position: 'relative',
@@ -91,7 +91,7 @@ const styles = {
     display: 'block'
   },
   senderName: {
-    color: '#fff',
+    color: 'var(--textColor)',
     fontWeight: '700'
   },
   senderMessage: {
