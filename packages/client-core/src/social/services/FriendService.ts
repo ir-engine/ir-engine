@@ -32,18 +32,15 @@ export const FriendServiceReceptor = (action) => {
   getState(FriendState).batch((s) => {
     matches(action)
       .when(FriendAction.loadedFriendsAction.matches, (action) => {
-        let newValues
-        newValues = action
-        if (s.updateNeeded.value === true) {
-          s.friends.friends.set(newValues.friends.data)
-        } else {
-          s.friends.friends.set([s.friends.friends.value, newValues.friends.data])
-        }
-        s.friends.skip.set(newValues.friends.skip)
-        s.friends.limit.set(newValues.friends.limit)
-        s.friends.total.set(newValues.friends.total)
+        s.friends.merge({
+          skip: action.friends.skip,
+          limit: action.friends.limit,
+          total: action.friends.total,
+          friends: action.friends.data
+        })
         s.updateNeeded.set(false)
-        return s.getFriendsInProgress.set(false)
+        s.getFriendsInProgress.set(false)
+        return
       })
       .when(FriendAction.createdFriendAction.matches, (action) => {
         let newValues
@@ -71,14 +68,10 @@ export const FriendServiceReceptor = (action) => {
         }
       })
       .when(FriendAction.removedFriendAction.matches, (action) => {
-        let newValues, selfUser, otherUserId
-        newValues = action
-        const removedUserRelationship = newValues.userRelationship
-        selfUser = newValues.selfUser
-        otherUserId =
-          removedUserRelationship.userId === selfUser.id
-            ? removedUserRelationship.relatedUserId
-            : removedUserRelationship.userId
+        const otherUserId =
+          action.userRelationship.userId === action.selfUser.id
+            ? action.userRelationship.relatedUserId
+            : action.userRelationship.userId
 
         const friendId = s.friends.friends.value.findIndex((friendItem) => {
           return friendItem != null && friendItem.id === otherUserId
