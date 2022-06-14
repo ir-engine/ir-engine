@@ -5,7 +5,6 @@ import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { ErrorActions } from '../../common/services/ErrorService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 
@@ -123,7 +122,6 @@ export const AdminLocationService = {
       dispatchAction(AdminLocationActions.locationsRetrieved({ locations }))
     } catch (error) {
       console.error(error)
-      dispatchAction(ErrorActions.setReadScopeError({ message: error.message, statusCode: error.statusCode }))
     }
   },
   searchAdminLocations: async (value, orderBy = 'asc') => {
