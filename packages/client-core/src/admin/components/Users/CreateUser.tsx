@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
@@ -15,14 +15,13 @@ import Drawer from '@mui/material/Drawer'
 import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
 import AutoComplete from '../../common/AutoComplete'
-import { useFetchScopeType, useFetchStaticResource, useFetchUserRole } from '../../common/hooks/User.hooks'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
-import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
-import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
-import { UserService } from '../../services/UserService'
+import { AdminScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import { AdminStaticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
+import { AdminUserRoleService, useAdminUserRoleState } from '../../services/UserRoleService'
+import { AdminUserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 import CreateUserRole from './CreateUserRole'
 
@@ -53,16 +52,31 @@ const CreateUser = (props: Props) => {
   const [error, setError] = useState('')
 
   const user = useAuthState().user
-  const userRole = useUserRoleState()
+  const userRole = useAdminUserRoleState()
   const staticResource = useStaticResourceState()
   const staticResourceData = staticResource.staticResource
 
   const adminScopeTypeState = useScopeTypeState()
 
-  //Call custom hooks
-  useFetchUserRole(UserRoleService, userRole, user)
-  useFetchStaticResource(staticResourceService, staticResource, user)
-  useFetchScopeType(ScopeTypeService, adminScopeTypeState, user)
+  useEffect(() => {
+    const fetchData = async () => {
+      AdminUserRoleService.fetchUserRole()
+    }
+    const role = userRole ? userRole.updateNeeded.value : false
+    if (role && user.id.value) fetchData()
+  }, [userRole.updateNeeded.value, user.value])
+
+  useEffect(() => {
+    if (user.id.value && staticResource.updateNeeded.value) {
+      AdminStaticResourceService.fetchStaticResource()
+    }
+  }, [staticResource.updateNeeded.value, user.value])
+
+  useEffect(() => {
+    if (adminScopeTypeState.updateNeeded.value && user.id.value) {
+      AdminScopeTypeService.getScopeTypeService()
+    }
+  }, [adminScopeTypeState.updateNeeded.value, user.value])
 
   const clearState = () => {
     setState({
@@ -114,7 +128,7 @@ const CreateUser = (props: Props) => {
     temp.scopes = !state.scopes.length ? t('admin:components.user.scopeTypeCantEmpty') : ''
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
-      UserService.createUser(data)
+      AdminUserService.createUser(data)
       closeViewModal(false)
       clearState()
     } else {

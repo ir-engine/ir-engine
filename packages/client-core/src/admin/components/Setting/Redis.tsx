@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Paper, Typography } from '@mui/material'
-import Switch from '@mui/material/Switch'
+import { Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
 import { useAdminRedisSettingState } from '../../services/Setting/AdminRedisSettingService'
 import { AdminRedisSettingService } from '../../services/Setting/AdminRedisSettingService'
@@ -39,18 +39,15 @@ const Redis = (props: Props) => {
         <Typography component="h1" className={styles.settingsHeading}>
           {t('admin:components.setting.redis')}
         </Typography>
-        <label>{t('admin:components.setting.enabled')}</label>
-        <Paper component="div" className={styles.createInput}>
-          <Switch
-            disabled
-            checked={enabled.checkedB}
-            onChange={handleEnable}
-            color="primary"
-            name="checkedB"
-            inputProps={{ 'aria-label': 'primary checkbox' }}
-          />
-        </Paper>
-        <br />
+
+        <InputSwitch
+          name="enabled"
+          sx={{ mb: 2 }}
+          label={t('admin:components.setting.enabled')}
+          checked={enabled.checkedB}
+          disabled
+          onChange={handleEnable}
+        />
 
         <InputText
           name="address"
