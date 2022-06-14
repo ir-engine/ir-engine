@@ -36,7 +36,7 @@ describe('Auth Service', () => {
         staticResourceType: 'avatar',
         userId: null
       } as any
-      const mockAction = AuthAction.updateAvatarList([mockData])
+      const mockAction = AuthAction.updateAvatarListAction({ avatarList: [mockData] })
 
       // logic
       avatarFetchedReceptor(mockAuthState, mockAction)
