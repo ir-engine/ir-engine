@@ -5,13 +5,15 @@ import { changeAvatarAnimationState } from '@xrengine/engine/src/avatar/animatio
 import { AvatarStates } from '@xrengine/engine/src/avatar/animation/Util'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createXRUI, XRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
 import Button from '@mui/material/Button'
 
 const styles = {
   actionImg: { opacity: '0.8', display: 'block', width: '100%' },
   container: {
+    width: '500px',
+    height: '500px',
+    display: 'flex',
     justifyContent: 'center',
     alignItems: 'center'
   },
@@ -24,8 +26,8 @@ const styles = {
     borderBottomColor: 'transparent',
     opacity: '0.9',
     position: 'relative',
-    width: '220px',
-    height: '220px',
+    width: '361.4px',
+    height: '361.4px',
     borderWidth: '70px'
   },
   itemContainerPrev: {
@@ -105,11 +107,7 @@ function createEmoteDetailState() {
   })
 }
 
-type EmoteDetailState = ReturnType<typeof createEmoteDetailState>
-
 const EmoteDetailView = () => {
-  const detailState = useXRUIState() as EmoteDetailState
-
   const MAX_EMOTE_PER_PAGE = 6
   const MIN_EMOTE_PER_PAGE = 5
 
@@ -117,10 +115,10 @@ const EmoteDetailView = () => {
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(getEmotePerPage())
 
-  let [menuRadius, setMenuRadius] = useState(window.innerWidth > 360 ? 182 : 150)
+  let [menuRadius, setMenuRadius] = useState(182)
 
-  let menuPadding = window.innerWidth > 360 ? 25 : 20
-  let menuThickness = menuRadius > 170 ? 70 : 60
+  let menuPadding = 25
+  let menuThickness = 70
   let menuItemWidth = menuThickness - menuPadding
   let menuItemRadius = menuItemWidth / 2
   let effectiveRadius = menuRadius - menuItemRadius - menuPadding / 2
@@ -189,14 +187,14 @@ const EmoteDetailView = () => {
     {
       body: <img src="/static/restart.svg" style={styles.actionImg as {}} key="restart" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.IDLE })
+        onClick: () => runAnimation(AvatarStates.LOCOMOTION)
       }
     }
   ])
 
   const calculateMenuRadius = () => {
     setImgPerPage(getEmotePerPage())
-    setMenuRadius(window.innerWidth > 360 ? 182 : 150)
+    setMenuRadius(182)
     calculateOtherValues()
   }
 
@@ -206,7 +204,7 @@ const EmoteDetailView = () => {
   }, [])
 
   const calculateOtherValues = (): void => {
-    menuThickness = menuRadius > 170 ? 70 : 60
+    menuThickness = 70
     menuItemWidth = menuThickness - menuPadding
     menuItemRadius = menuItemWidth / 2
     effectiveRadius = menuRadius - menuItemRadius - menuPadding / 2
@@ -215,8 +213,6 @@ const EmoteDetailView = () => {
   const runAnimation = (stateName: string) => {
     const entity = Engine.instance.currentWorld.localClientEntity
     changeAvatarAnimationState(entity, stateName)
-    // close Menu after playing animation
-    //props.changeActiveMenu(null)
   }
 
   const renderEmoteList = () => {
@@ -236,7 +232,7 @@ const EmoteDetailView = () => {
       y = effectiveRadius * Math.sin((itemAngle * Math.PI) / 280)
 
       itemList.push(
-        <div key={i} xr-layer="true">
+        <div key={i}>
           <Button
             {...emoticon.containerProps}
             style={
@@ -247,7 +243,6 @@ const EmoteDetailView = () => {
                 ...styles.menuItem
               } as {}
             }
-            xr-layer="true"
           >
             {emoticon.body}
           </Button>
@@ -271,10 +266,9 @@ const EmoteDetailView = () => {
 
   return (
     <section style={styles.container as {}} xr-layer="true">
-      <div style={styles.itemContainer as {}} xr-layer="true">
-        <div style={styles.itemContainerPrev as {}} xr-layer="true">
+      <div style={styles.itemContainer as {}}>
+        <div style={styles.itemContainerPrev as {}}>
           <button
-            xr-layer="true"
             type="button"
             style={
               {
@@ -302,13 +296,11 @@ const EmoteDetailView = () => {
             height: menuItemRadius,
             position: 'relative'
           }}
-          xr-layer="true"
         >
           {renderEmoteList()}
         </div>
-        <div style={styles.itemContainerNext as {}} xr-layer="true">
+        <div style={styles.itemContainerNext as {}}>
           <button
-            xr-layer="true"
             type="button"
             style={
               {
