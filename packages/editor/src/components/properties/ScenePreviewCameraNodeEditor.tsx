@@ -28,9 +28,10 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     const scale = new Vector3()
 
     updatedTransform.decompose(position, rotation, scale)
-    executeModifyPropertyCommand([props.node], {
+    executeModifyPropertyCommand({
+      affectedNodes: [props.node],
       component: TransformComponent,
-      properties: { position, rotation }
+      properties: [{ position, rotation }]
     })
   }
 

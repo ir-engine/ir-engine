@@ -1,97 +1,151 @@
-import { createState, useState } from '@speigg/hookstate'
+import mediasoup from 'mediasoup-client'
 
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { NearbyUser } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-
-import { store } from '../../store'
+import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 //State
-const state = createState({
-  isCamVideoEnabled: false,
-  isCamAudioEnabled: false,
-  isFaceTrackingEnabled: false,
-  enableBydefault: true,
-  nearbyLayerUsers: [] as NearbyUser[],
-  consumers: []
+const MediaState = defineState({
+  name: 'MediaState',
+  initial: () => ({
+    isCamVideoEnabled: false,
+    isCamAudioEnabled: false,
+    isScreenVideoEnabled: false,
+    isScreenAudioEnabled: false,
+    isFaceTrackingEnabled: false,
+    enableBydefault: true,
+    nearbyLayerUsers: [] as NearbyUser[],
+    consumers: [] as mediasoup.types.Consumer[]
+  })
 })
 
-store.receptors.push((action: MediaStreamActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'CAM_VIDEO_CHANGED':
+export const MediaServiceReceptor = (action) => {
+  getState(MediaState).batch((s) => {
+    matches(action)
+      .when(MediaStreamAction.setCamVideoStateAction.matches, (action) => {
         return s.isCamVideoEnabled.set(action.isEnable)
-      case 'CAM_AUDIO_CHANGED':
+      })
+      .when(MediaStreamAction.setCamAudioStateAction.matches, (action) => {
         return s.isCamAudioEnabled.set(action.isEnable)
-      case 'FACE_TRACKING_CHANGED':
+      })
+      .when(MediaStreamAction.setScreenVideoStateAction.matches, (action) => {
+        return s.isScreenVideoEnabled.set(action.isEnable)
+      })
+      .when(MediaStreamAction.setScreenAudioStateAction.matches, (action) => {
+        return s.isScreenAudioEnabled.set(action.isEnable)
+      })
+      .when(MediaStreamAction.setFaceTrackingStateAction.matches, (action) => {
         return s.isFaceTrackingEnabled.set(action.isEnable)
-      case 'MEDIA_ENABLE_BY_DEFAULT':
+      })
+      .when(MediaStreamAction.setMediaEnabledByDefaultAction.matches, (action) => {
         return s.enableBydefault.set(action.isEnable)
-      case 'CONSUMERS_CHANGED':
+      })
+      .when(MediaStreamAction.setConsumersAction.matches, (action) => {
         return s.consumers.set(action.consumers)
-      case 'NEARBY_LAYER_USERS_CHANGED':
+      })
+      .when(MediaStreamAction.setNearbyLayerUsersAction.matches, (action) => {
         return s.nearbyLayerUsers.set(action.users)
-    }
-  }, action.type)
-})
+      })
+  })
+}
 
-export const accessMediaStreamState = () => state
-export const useMediaStreamState = () => useState(state)
+addActionReceptor(MediaServiceReceptor)
+
+export const accessMediaStreamState = () => getState(MediaState)
+export const useMediaStreamState = () => useState(accessMediaStreamState())
 
 let updateConsumerTimeout
 
 //Service
 export const MediaStreamService = {
   updateCamVideoState: () => {
-    const ms = MediaStreams.instance
-    store.dispatch(MediaStreamAction.setCamVideoState(ms != null && ms.camVideoProducer != null && !ms.videoPaused))
+    dispatchAction(
+      MediaStreamAction.setCamVideoStateAction({
+        isEnable: MediaStreams.instance.camVideoProducer != null && !MediaStreams.instance.videoPaused
+      })
+    )
+  },
+  updateCamAudioState: () => {
+    dispatchAction(
+      MediaStreamAction.setCamAudioStateAction({
+        isEnable: MediaStreams.instance.camAudioProducer != null && !MediaStreams.instance.audioPaused
+      })
+    )
+  },
+  updateScreenVideoState: () => {
+    dispatchAction(
+      MediaStreamAction.setScreenVideoStateAction({
+        isEnable: MediaStreams.instance.screenVideoProducer != null && !MediaStreams.instance.screenShareVideoPaused
+      })
+    )
+  },
+  updateScreenAudioState: () => {
+    dispatchAction(
+      MediaStreamAction.setScreenAudioStateAction({
+        isEnable: MediaStreams.instance.screenAudioProducer != null && !MediaStreams.instance.screenShareAudioPaused
+      })
+    )
   },
   triggerUpdateConsumers: () => {
     if (!updateConsumerTimeout) {
       updateConsumerTimeout = setTimeout(() => {
-        const ms = MediaStreams.instance
-        store.dispatch(MediaStreamAction.setConsumers(ms != null ? ms.consumers : []))
+        dispatchAction(MediaStreamAction.setConsumersAction({ consumers: MediaStreams.instance.consumers }))
         updateConsumerTimeout = null
       }, 1000)
     }
   },
   triggerUpdateNearbyLayerUsers: () => {
-    const ms = MediaStreams.instance
-    store.dispatch(MediaStreamAction.setNearbyLayerUsers(ms != null ? ms.nearbyLayerUsers : []))
-  },
-  updateCamAudioState: () => {
-    const ms = MediaStreams.instance
-    store.dispatch(MediaStreamAction.setCamAudioState(ms != null && ms.camAudioProducer != null && !ms.audioPaused))
+    dispatchAction(MediaStreamAction.setNearbyLayerUsersAction({ users: MediaStreams.instance.nearbyLayerUsers }))
   },
   updateFaceTrackingState: () => {
-    const ms = MediaStreams.instance
-    store.dispatch(MediaStreamAction.setFaceTrackingState(ms != null && ms.faceTracking))
+    dispatchAction(MediaStreamAction.setFaceTrackingStateAction({ isEnable: MediaStreams.instance.faceTracking }))
   },
   updateEnableMediaByDefault: () => {
-    store.dispatch(MediaStreamAction.setMediaEnabledByDefault(false))
+    dispatchAction(MediaStreamAction.setMediaEnabledByDefaultAction({ isEnable: false }))
   }
 }
 
 //Action
 export type BooleanAction = { [key: string]: boolean }
-export const MediaStreamAction = {
-  setCamVideoState: (isEnable: boolean) => {
-    return { type: 'CAM_VIDEO_CHANGED' as const, isEnable: isEnable }
-  },
-  setCamAudioState: (isEnable: boolean) => {
-    return { type: 'CAM_AUDIO_CHANGED' as const, isEnable }
-  },
-  setFaceTrackingState: (isEnable: boolean) => {
-    return { type: 'FACE_TRACKING_CHANGED' as const, isEnable }
-  },
-  setMediaEnabledByDefault: (isEnable: boolean) => {
-    return { type: 'MEDIA_ENABLE_BY_DEFAULT' as const, isEnable }
-  },
-  setConsumers: (consumers: any[]): any => {
-    return { type: 'CONSUMERS_CHANGED' as const, consumers }
-  },
-  setNearbyLayerUsers: (users: NearbyUser[]): any => {
-    return { type: 'NEARBY_LAYER_USERS_CHANGED' as const, users }
-  }
-}
+export class MediaStreamAction {
+  static setCamVideoStateAction = defineAction({
+    type: 'CAM_VIDEO_CHANGED' as const,
+    isEnable: matches.boolean
+  })
 
-export type MediaStreamActionType = ReturnType<typeof MediaStreamAction[keyof typeof MediaStreamAction]>
+  static setCamAudioStateAction = defineAction({
+    type: 'CAM_AUDIO_CHANGED' as const,
+    isEnable: matches.boolean
+  })
+
+  static setScreenVideoStateAction = defineAction({
+    type: 'SCREEN_VIDEO_CHANGED' as const,
+    isEnable: matches.boolean
+  })
+
+  static setScreenAudioStateAction = defineAction({
+    type: 'SCREEN_AUDIO_CHANGED' as const,
+    isEnable: matches.boolean
+  })
+
+  static setFaceTrackingStateAction = defineAction({
+    type: 'FACE_TRACKING_CHANGED' as const,
+    isEnable: matches.boolean
+  })
+
+  static setMediaEnabledByDefaultAction = defineAction({
+    type: 'MEDIA_ENABLE_BY_DEFAULT' as const,
+    isEnable: matches.boolean
+  })
+
+  static setConsumersAction = defineAction({
+    type: 'CONSUMERS_CHANGED' as const,
+    consumers: matches.any
+  })
+
+  static setNearbyLayerUsersAction = defineAction({
+    type: 'NEARBY_LAYER_USERS_CHANGED' as const,
+    users: matches.array as Validator<unknown, NearbyUser[]>
+  })
+}

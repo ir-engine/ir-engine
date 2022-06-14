@@ -128,11 +128,10 @@ const GroupTable = (props: Props) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        popConfirmOpen={showWarning}
-        handleCloseModal={handleCloseWarning}
-        submit={deleteGroupHandler}
-        name={groupName}
-        label={'group'}
+        open={showWarning}
+        description={`${t('admin:components.group.confirmGroupDelete')} '${groupName}'?`}
+        onClose={handleCloseWarning}
+        onSubmit={deleteGroupHandler}
       />
       {singleGroup && viewModal && (
         <ViewGroup groupAdmin={singleGroup} openView={viewModal} closeViewModal={closeViewModal} />

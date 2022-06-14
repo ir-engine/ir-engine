@@ -13,19 +13,16 @@ import Chip from '@mui/material/Chip'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import Drawer from '@mui/material/Drawer'
-import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
-import InputBase from '@mui/material/InputBase'
-import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
-import Select from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
 import Typography from '@mui/material/Typography'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
 import AutoComplete from '../../common/AutoComplete'
-import InputSelect from '../../common/InputSelect'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
+import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import { SingleUserService, useSingleUserState } from '../../services/SingleUserService'
@@ -42,11 +39,6 @@ interface Props {
 
 interface ScopeData {
   type: string
-}
-
-interface InputSelectProps {
-  value: string
-  label: string
 }
 
 const ViewUser = (props: Props) => {
@@ -193,10 +185,17 @@ const ViewUser = (props: Props) => {
     }
   })
 
-  const userRoleData: InputSelectProps[] = userRole.userRole.value.map((el) => {
+  const userRoleData: InputMenuItem[] = userRole.userRole.value.map((el) => {
     return {
       value: el.role,
       label: el.role
+    }
+  })
+
+  const avatarMenu: InputMenuItem[] = staticResourceData.value.map((el) => {
+    return {
+      value: el.name,
+      label: el.name
     }
   })
 
@@ -244,56 +243,34 @@ const ViewUser = (props: Props) => {
               <Typography variant="h4" component="h4" className={`${styles.mb10} ${styles.headingFont}`}>
                 {t('admin:components.user.updatePersonalInfo')}
               </Typography>
-              <label>{t('admin:components.user.name')}</label>
-              <Paper
-                component="div"
-                className={state.formErrors.name.length > 0 ? styles.redBorder : styles.createInput}
-              >
-                <InputBase
-                  className={styles.input}
-                  name="name"
-                  placeholder={t('admin:components.user.enterName')}
-                  autoComplete="off"
-                  value={state.name}
-                  onChange={handleInputChange}
-                />
-              </Paper>
-              <label>{t('admin:components.user.avatar')}</label>
-              <Paper
-                component="div"
-                className={state.formErrors.avatar.length > 0 ? styles.redBorder : styles.createInput}
-              >
-                <FormControl fullWidth>
-                  <Select
-                    labelId="demo-controlled-open-select-label"
-                    id="demo-controlled-open-select"
-                    value={state.avatar}
-                    fullWidth
-                    displayEmpty
-                    onChange={handleInputChange}
-                    className={styles.select}
-                    name="avatar"
-                    MenuProps={{ classes: { paper: styles.selectPaper } }}
-                  >
-                    <MenuItem value="" disabled>
-                      <em>{t('admin:components.user.selectAvatar')}</em>
-                    </MenuItem>
-                    {staticResourceData.value.map((el) => (
-                      <MenuItem value={el.name} key={el.id}>
-                        {el.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Paper>
+
+              <InputText
+                name="name"
+                label={t('admin:components.user.name')}
+                placeholder={t('admin:components.user.enterName')}
+                value={state.name}
+                error={state.formErrors.name}
+                onChange={handleInputChange}
+              />
+
+              <InputSelect
+                name="avatar"
+                label={t('admin:components.user.avatar')}
+                value={state.avatar}
+                error={state.formErrors.avatar}
+                menu={avatarMenu}
+                onChange={handleInputChange}
+              />
+
               <label>{t('admin:components.user.userRole')}</label>
               {user.id.value !== userAdmin.id && (
                 <InputSelect
-                  handleInputChange={handleInputChange}
-                  value={state.userRole}
                   name="userRole"
+                  label={t('admin:components.user.userRole')}
+                  value={state.userRole}
+                  error={state.formErrors.userRole}
                   menu={userRoleData}
-                  formErrors={state.formErrors.userRole}
+                  onChange={handleInputChange}
                 />
               )}
               <AutoComplete

@@ -72,7 +72,7 @@ export default async function PositionalAudioSystem(world: World) {
         }
       })
   }
-  addActionReceptor(Engine.instance.store, audioReceptors)
+  addActionReceptor(audioReceptors)
 
   let positionalAudioSettings: PositionalAudioSettingsComponentType
 
@@ -101,7 +101,7 @@ export default async function PositionalAudioSystem(world: World) {
       const entityNetworkObject = getComponent(entity, NetworkObjectComponent)
       if (entityNetworkObject) {
         const peerId = entityNetworkObject.ownerId
-        const consumer = MediaStreams.instance?.consumers.find(
+        const consumer = MediaStreams.instance.consumers.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
         )
         if (consumer == null && avatarAudioStream.get(entity) != null) {
@@ -125,7 +125,7 @@ export default async function PositionalAudioSystem(world: World) {
       let consumer
       if (entityNetworkObject != null) {
         const peerId = entityNetworkObject.ownerId
-        consumer = MediaStreams.instance?.consumers.find(
+        consumer = MediaStreams.instance.consumers.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
         )
       }

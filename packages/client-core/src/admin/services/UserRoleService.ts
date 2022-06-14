@@ -4,7 +4,7 @@ import { createState, useState } from '@speigg/hookstate'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
 
-import { AlertService } from '../../common/services/AlertService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 
@@ -48,7 +48,7 @@ export const UserRoleService = {
       const userRole = (await client.service('user-role').find()) as Paginated<UserRole>
       dispatch(UserRoleAction.userRoleRetrieved(userRole))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   createUserRoleAction: async (data) => {
@@ -64,7 +64,7 @@ export const UserRoleService = {
       const userRole = (await client.service('user').patch(id, { userRole: role })) as User
       dispatch(UserRoleAction.userRoleUpdated(userRole))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }

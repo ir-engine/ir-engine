@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AnimationClip, Object3D } from 'three'
+import { Object3D } from 'three'
 
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
@@ -21,6 +21,7 @@ import {
   SCENE_COMPONENT_INTERACTABLE,
   SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES
 } from '@xrengine/engine/src/scene/functions/loaders/InteractableFunctions'
+import { playAnimationClip } from '@xrengine/engine/src/scene/functions/loaders/LoopAnimationFunctions'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
@@ -28,6 +29,7 @@ import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import InteractableGroup from '../inputs/InteractableGroup'
+import MaterialAssignment from '../inputs/MaterialAssignment'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import EnvMapEditor from './EnvMapEditor'
@@ -67,22 +69,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
 
   const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
   const onPlayAnimation = () => {
-    if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
-    if (!animationPlaying) {
-      if (
-        loopAnimationComponent.activeClipIndex >= 0 &&
-        animationComponent.animations[loopAnimationComponent.activeClipIndex]
-      ) {
-        loopAnimationComponent.action = animationComponent.mixer
-          .clipAction(
-            AnimationClip.findByName(
-              animationComponent.animations,
-              animationComponent.animations[loopAnimationComponent.activeClipIndex].name
-            )
-          )
-          .play()
-      }
-    }
+    if (!animationPlaying) playAnimationClip(animationComponent, loopAnimationComponent)
     setAnimationPlaying(!animationPlaying)
   }
 
@@ -102,7 +89,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     if (node.entity === entity) return
 
     textureOverrideEntities.push({
-      label: getComponent(node.entity, NameComponent).name,
+      label: hasComponent(node.entity, NameComponent) ? getComponent(node.entity, NameComponent).name : node.uuid,
       value: node.uuid
     })
   })
@@ -129,6 +116,13 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(ModelComponent, 'textureOverride')}
         />
       </InputGroup>
+      <MaterialAssignment
+        entity={entity}
+        node={props.node}
+        modelComponent={modelComponent}
+        values={modelComponent.materialOverrides}
+        onChange={updateProperty(ModelComponent, 'materialOverrides')}
+      />
       <InputGroup name="MatrixAutoUpdate" label={t('editor:properties.model.lbl-matrixAutoUpdate')}>
         <BooleanInput
           value={modelComponent.matrixAutoUpdate}

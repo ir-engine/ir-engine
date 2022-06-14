@@ -1,3 +1,5 @@
+import { Texture } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
@@ -7,19 +9,23 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { isClient } from '../../../common/functions/isClient'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import cloneObject3D from '../cloneObject3D'
 import { addError, removeError } from '../ErrorFunctions'
 import { overrideTexture, parseGLTFModel } from '../loadGLTFModel'
+import { initializeOverride } from './MaterialOverrideFunctions'
 
 export const SCENE_COMPONENT_MODEL = 'gltf-model'
 export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
   src: '',
   textureOverride: '',
+  materialOverrides: [] as MaterialOverrideComponentType[],
   matrixAutoUpdate: true,
   isUsingGPUInstancing: false,
   isDynamicObject: false
@@ -30,9 +36,15 @@ export const deserializeModel: ComponentDeserializeFunction = (
   component: ComponentJson<ModelComponentType>
 ) => {
   const props = parseModelProperties(component.props)
-  addComponent(entity, ModelComponent, props)
+  const model = addComponent(entity, ModelComponent, props)
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
+  //add material override components
+  if (isClient && model.materialOverrides.length > 0) {
+    Promise.all(model.materialOverrides.map((override, i) => initializeOverride(entity, override)())).then(
+      (overrides) => (model.materialOverrides = overrides)
+    )
+  }
   updateModel(entity, props)
 }
 
@@ -59,11 +71,26 @@ export const updateModel: ComponentUpdateFunction = (entity: Entity, properties:
 export const serializeModel: ComponentSerializeFunction = (entity) => {
   const component = getComponent(entity, ModelComponent)
   if (!component) return
+  const overrides = component.materialOverrides.map((_override) => {
+    const override = { ..._override }
+    if (override.args) {
+      Object.entries(override.args)
+        .filter(([k, v]) => (v as Texture)?.isTexture)
+        .forEach(([k, v]) => {
+          override.args[k] = (v as Texture).source.data?.src ?? ''
+        })
+    }
+    delete override.entity
+    delete override.targetEntity
+    delete override.uuid
+    return override
+  })
   return {
     name: SCENE_COMPONENT_MODEL,
     props: {
       src: component.src,
       textureOverride: component.textureOverride,
+      materialOverrides: overrides,
       matrixAutoUpdate: component.matrixAutoUpdate,
       isUsingGPUInstancing: component.isUsingGPUInstancing,
       isDynamicObject: component.isDynamicObject
@@ -75,6 +102,7 @@ const parseModelProperties = (props): ModelComponentType => {
   return {
     src: props.src ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.src,
     textureOverride: props.textureOverride ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.textureOverride,
+    materialOverrides: props.materialOverrides ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.materialOverrides,
     matrixAutoUpdate: props.matrixAutoUpdate ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.matrixAutoUpdate,
     isUsingGPUInstancing: props.isUsingGPUInstancing ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isUsingGPUInstancing,
     isDynamicObject: props.isDynamicObject ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isDynamicObject

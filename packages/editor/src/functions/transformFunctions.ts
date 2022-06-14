@@ -1,7 +1,6 @@
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import {
   SnapMode,
   TransformMode,
@@ -11,9 +10,9 @@ import {
   TransformSpace
 } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
 
-import { EditorHistory, executeCommand, executeCommandWithHistoryOnSelection, revertHistory } from '../classes/History'
-import EditorCommands from '../constants/EditorCommands'
+import { EditorHistory } from '../classes/History'
 import { accessEditorHelperState, EditorHelperAction } from '../services/EditorHelperState'
 import { accessSelectionState } from '../services/SelectionServices'
 import { SceneState } from './sceneRenderFunctions'
@@ -22,7 +21,7 @@ export const setTransformMode = (mode: TransformModeType): void => {
   if (mode === TransformMode.Placement || mode === TransformMode.Grab) {
     let stop = false
     const selectedEntities = accessSelectionState().selectedEntities.value
-    const tree = useWorld().entityTree
+    const tree = Engine.instance.currentWorld.entityTree
 
     // Dont allow grabbing / placing objects with transform disabled.
     for (const entity of selectedEntities) {
@@ -39,59 +38,44 @@ export const setTransformMode = (mode: TransformModeType): void => {
   }
 
   if (mode !== TransformMode.Placement && mode !== TransformMode.Grab) {
-    useDispatch()(EditorHelperAction.changeTransformModeOnCancel(mode))
+    dispatchAction(EditorHelperAction.changeTransformModeOnCancel({ mode }))
   }
 
   EditorHistory.grabCheckPoint = undefined
   SceneState.transformGizmo.setTransformMode(mode)
-  useDispatch()(EditorHelperAction.changedTransformMode(mode))
+  dispatchAction(EditorHelperAction.changedTransformMode({ mode }))
 }
 
 export const toggleSnapMode = (): void => {
-  useDispatch()(
-    EditorHelperAction.changedSnapMode(
-      accessEditorHelperState().snapMode.value === SnapMode.Disabled ? SnapMode.Grid : SnapMode.Disabled
-    )
+  dispatchAction(
+    EditorHelperAction.changedSnapMode({
+      snapMode: accessEditorHelperState().snapMode.value === SnapMode.Disabled ? SnapMode.Grid : SnapMode.Disabled
+    })
   )
 }
 
-export const setTransformPivot = (pivot: TransformPivotType) => {
-  useDispatch()(EditorHelperAction.changedTransformPivotMode(pivot))
+export const setTransformPivot = (transformPivot: TransformPivotType) => {
+  dispatchAction(EditorHelperAction.changedTransformPivotMode({ transformPivot }))
 }
 
 export const toggleTransformPivot = () => {
   const pivots = Object.keys(TransformPivot)
   const nextIndex = (pivots.indexOf(accessEditorHelperState().transformPivot.value) + 1) % pivots.length
 
-  useDispatch()(EditorHelperAction.changedTransformPivotMode(TransformPivot[pivots[nextIndex]]))
+  dispatchAction(EditorHelperAction.changedTransformPivotMode(TransformPivot[pivots[nextIndex]]))
 }
 
 export const setTransformSpace = (transformSpace: TransformSpace) => {
-  useDispatch()(EditorHelperAction.changedTransformSpaceMode(transformSpace))
+  dispatchAction(EditorHelperAction.changedTransformSpaceMode({ transformSpace }))
 }
 
 export const toggleTransformSpace = () => {
-  useDispatch()(
-    EditorHelperAction.changedTransformSpaceMode(
-      accessEditorHelperState().transformSpace.value === TransformSpace.World
-        ? TransformSpace.LocalSelection
-        : TransformSpace.World
-    )
-  )
-}
-
-export const cancelGrabOrPlacement = () => {
-  const editorHelperState = accessEditorHelperState()
-
-  if (editorHelperState.transformMode.value === TransformMode.Grab) {
-    setTransformMode(editorHelperState.transformModeOnCancel.value)
-    if (EditorHistory.grabCheckPoint) revertHistory(EditorHistory.grabCheckPoint)
-  } else if (editorHelperState.transformMode.value === TransformMode.Placement) {
-    setTransformMode(editorHelperState.transformModeOnCancel.value)
-    executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS, {
-      deselectObject: true
+  dispatchAction(
+    EditorHelperAction.changedTransformSpaceMode({
+      transformSpace:
+        accessEditorHelperState().transformSpace.value === TransformSpace.World
+          ? TransformSpace.LocalSelection
+          : TransformSpace.World
     })
-  }
-
-  executeCommand(EditorCommands.REPLACE_SELECTION, [])
+  )
 }

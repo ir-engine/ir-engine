@@ -7,6 +7,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -47,6 +48,7 @@ const processObject3d = (entity: Entity) => {
 
   const object3DComponent = getComponent(entity, Object3DComponent)
   const shadowComponent = getComponent(entity, ShadowComponent)
+  object3DComponent.value.name = getComponent(entity, NameComponent)?.name ?? ''
 
   object3DComponent.value.traverse((obj: Mesh<any, Material>) => {
     const material = obj.material
@@ -68,7 +70,7 @@ const processObject3d = (entity: Entity) => {
 const sceneObjectQuery = defineQuery([Object3DComponent])
 const simpleMaterialsQuery = defineQuery([SimpleMaterialTagComponent])
 const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
-const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
+const visibleQuery = defineQuery([VisibleComponent])
 const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
 
 export default async function SceneObjectSystem(world: World) {
@@ -87,6 +89,11 @@ export default async function SceneObjectSystem(world: World) {
 
       if (!obj3d.parent) console.warn('[Object3DComponent]: Scene object has been removed manually.')
       else obj3d.removeFromParent()
+
+      const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
+      for (const layer of layers) {
+        if (layer.has(obj3d)) layer.delete(obj3d)
+      }
     }
 
     for (const entity of sceneObjectQuery.enter()) {

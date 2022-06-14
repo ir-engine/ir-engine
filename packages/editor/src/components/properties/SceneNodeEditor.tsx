@@ -130,12 +130,15 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
   const entity = props.node.entity
 
   const onChangeUseSimpleMaterials = useCallback((value) => {
-    executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
-      operation: {
-        component: SimpleMaterialTagComponent,
-        sceneComponentName: SCENE_COMPONENT_SIMPLE_MATERIALS,
-        type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
-      }
+    executeCommandWithHistoryOnSelection({
+      type: EditorCommands.TAG_COMPONENT,
+      operations: [
+        {
+          component: SimpleMaterialTagComponent,
+          sceneComponentName: SCENE_COMPONENT_SIMPLE_MATERIALS,
+          type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
+        }
+      ]
     })
   }, [])
 

@@ -6,17 +6,15 @@ import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInt
 
 import GitHubIcon from '@mui/icons-material/GitHub'
 import GroupIcon from '@mui/icons-material/Group'
-import { Grid } from '@mui/material'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
-import MenuItem from '@mui/material/MenuItem'
 import Modal from '@mui/material/Modal'
-import Select from '@mui/material/Select'
-import TextField from '@mui/material/TextField'
 
 import { ProjectService } from '../../../common/services/ProjectService'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
+import InputText from '../../common/InputText'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -64,6 +62,13 @@ const UploadProjectModal = (props: Props): any => {
     handleClose()
   }
 
+  const projectMenu: InputMenuItem[] = repos.map((el) => {
+    return {
+      value: el.repositoryPath,
+      label: `${el.name} (${el.user})`
+    }
+  })
+
   return (
     <div>
       <Modal
@@ -85,40 +90,21 @@ const UploadProjectModal = (props: Props): any => {
               <FormControl>
                 <div className={styles.inputContainer}>
                   {!isPublicUrl && repos && repos.length != 0 ? (
-                    <Select
-                      labelId="demo-controlled-open-select-label"
-                      id="demo-controlled-open-select"
-                      value={projectURL}
-                      fullWidth
-                      displayEmpty
-                      onChange={(e) => setProjectURL(e.target.value)}
+                    <InputSelect
                       name="projectURL"
-                    >
-                      <MenuItem value="" disabled>
-                        <em>{t('admin:components.project.selectProject')}</em>
-                      </MenuItem>
-                      {repos &&
-                        repos.map((el: any, i) => (
-                          <MenuItem value={`${el.repositoryPath}`} key={i}>
-                            {el.name} ({el.user})
-                          </MenuItem>
-                        ))}
-                    </Select>
+                      label={t('admin:components.project.project')}
+                      value={projectURL}
+                      menu={projectMenu}
+                      onChange={(e) => setProjectURL(e.target.value)}
+                    />
                   ) : (
-                    <Grid container spacing={1} direction="column">
-                      <Grid item>
-                        <label>{t('admin:components.project.insertPublicUrl')}</label>
-                      </Grid>
-                      <Grid item>
-                        <TextField
-                          id="urlSelect"
-                          fullWidth
-                          value={projectURL}
-                          placeholder={'URL'}
-                          onChange={(e) => setProjectURL(e.target.value)}
-                        />
-                      </Grid>
-                    </Grid>
+                    <InputText
+                      name="urlSelect"
+                      label={t('admin:components.project.url')}
+                      placeholder={t('admin:components.project.insertPublicUrl')}
+                      value={projectURL}
+                      onChange={(e) => setProjectURL(e.target.value)}
+                    />
                   )}
                 </div>
                 <div className={styles.buttonContainer}>

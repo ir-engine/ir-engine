@@ -1,6 +1,5 @@
 import { Group, Object3D, Scene, Vector3, WebGLInfo } from 'three'
 
-import { store } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -98,12 +97,12 @@ export async function initializeRenderer(): Promise<void> {
 
     addInputActionMapping(ActionSets.EDITOR, EditorMapping)
 
-    store.dispatch(EditorAction.rendererInitialized(true))
+    dispatchAction(EditorAction.rendererInitialized({ initialized: true }))
 
     accessEngineRendererState().automatic.set(false)
     await restoreEditorHelperData()
     await restoreEngineRendererData()
-    dispatchAction(Engine.instance.store, EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
+    dispatchAction(EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
   } catch (error) {
     console.error(error)
   }
@@ -161,7 +160,7 @@ function removeUnusedObjects(object3d: Object3D) {
 export async function exportScene(options = {} as DefaultExportOptionsType) {
   const { shouldCombineMeshes, shouldRemoveUnusedObjects } = Object.assign({}, DefaultExportOptions, options)
 
-  executeCommand(EditorCommands.REPLACE_SELECTION, [])
+  executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
 
   if ((Engine.instance.currentWorld.scene as any).entity == undefined) {
     ;(Engine.instance.currentWorld.scene as any).entity = useWorld().entityTree.rootNode.entity

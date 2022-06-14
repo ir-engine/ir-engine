@@ -2,26 +2,17 @@ import { Icon } from '@iconify/react'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ExpandLess from '@mui/icons-material/ExpandLess'
-import ExpandMore from '@mui/icons-material/ExpandMore'
-import { Button, Grid, Paper, Typography } from '@mui/material'
-import Collapse from '@mui/material/Collapse'
-import IconButton from '@mui/material/IconButton'
-import InputBase from '@mui/material/InputBase'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import Switch from '@mui/material/Switch'
+import { Button, Grid, Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import InputSwitch from '../../common/InputSwitch'
+import InputText from '../../common/InputText'
 import { ServerSettingService, useServerSettingState } from '../../services/Setting/ServerSettingService'
 import styles from '../../styles/settings.module.scss'
 
 interface serverProps {}
 
 const Server = (props: serverProps) => {
-  const [open, setOpen] = useState(false)
-  const [openPaginate, setOpenPginate] = useState(false)
   const serverSettingState = useServerSettingState()
   const [serverSetting] = serverSettingState?.server?.value || []
   const id = serverSetting?.id
@@ -47,12 +38,6 @@ const Server = (props: serverProps) => {
 
   const authState = useAuthState()
   const user = authState.user
-  const handleClick = () => {
-    setOpen(!open)
-  }
-  const handleClickPaginate = () => {
-    setOpenPginate(!openPaginate)
-  }
 
   const handleDryRun = (event) => {
     setDryRun({ ...dryRun, [event.target.name]: event.target.checked })
@@ -85,144 +70,140 @@ const Server = (props: serverProps) => {
       </Typography>
       <Grid container spacing={3} key={serverSetting?.id || ''}>
         <Grid item xs={12} sm={6}>
-          <br />
-          <label>{t('admin:components.setting.mode')}</label>
-          <Paper component="div" className={styles.createInput}>
-            <InputBase name="mode" className={styles.input} disabled value={serverSetting?.mode || 'test'} />
-          </Paper>
-          <label> {t('admin:components.setting.hostName')}</label>
-          <Paper component="div" className={styles.createInput}>
-            <InputBase name="hostname" className={styles.input} disabled value={serverSetting?.hostname || 'test'} />
-          </Paper>
-          <label>{t('admin:components.setting.port')}</label>
-          <Paper component="div" className={styles.createInput}>
-            <InputBase name="port" className={styles.input} value={serverSetting?.port || ''} disabled />
-          </Paper>
-          <label> {t('admin:components.setting.clientHost')}</label>
-          <Paper component="div" className={styles.createInput}>
-            <InputBase name="clienthost" className={styles.input} disabled value={serverSetting?.clientHost || ''} />
-          </Paper>
-          <label>{t('admin:components.setting.rootDirectory')}</label>
-          <Paper component="div" className={styles.createInput}>
-            <InputBase name="rootDir" className={styles.input} disabled value={serverSetting?.rootDir || ''} />
-          </Paper>
-          <label>{t('admin:components.setting.publicDirectory')}</label>
-          <Paper component="div" className={styles.createInput}>
-            <InputBase name="publicDir" className={styles.input} disabled value={serverSetting?.publicDir || ''} />
-          </Paper>
-          <label>{t('admin:components.setting.nodeModulesDirectory')}</label>
-          <Paper component="div" className={styles.createInput}>
-            <InputBase
-              name="nodeModule"
-              className={styles.input}
-              disabled
-              value={serverSetting?.nodeModulesDir || ''}
-            />
-          </Paper>{' '}
-          <label>{t('admin:components.setting.localStorageProvider')} </label>
-          <Paper component="div" className={styles.createInput}>
-            <InputBase
-              name="localStorageProvider"
-              className={styles.input}
-              disabled
-              value={serverSetting?.localStorageProvider || ''}
-            />
-          </Paper>
-          <label> {t('admin:components.setting.performDryRun')}</label>
-          <Paper component="div" className={styles.createInput}>
-            <Switch
-              disabled
-              checked={dryRun.checkedB}
-              onChange={handleDryRun}
-              color="primary"
-              name="checkedB"
-              inputProps={{ 'aria-label': 'primary checkbox' }}
-            />
-          </Paper>
+          <InputText
+            name="mode"
+            label={t('admin:components.setting.mode')}
+            value={serverSetting?.mode || 'test'}
+            disabled
+          />
+
+          <InputText
+            name="hostName"
+            label={t('admin:components.setting.hostName')}
+            value={serverSetting?.hostname || 'test'}
+            disabled
+          />
+
+          <InputText
+            name="port"
+            label={t('admin:components.setting.port')}
+            value={serverSetting?.port || ''}
+            disabled
+          />
+
+          <InputText
+            name="clientHost"
+            label={t('admin:components.setting.clientHost')}
+            value={serverSetting?.clientHost || ''}
+            disabled
+          />
+
+          <InputText
+            name="rootDir"
+            label={t('admin:components.setting.rootDirectory')}
+            value={serverSetting?.rootDir || ''}
+            disabled
+          />
+
+          <InputText
+            name="publicDir"
+            label={t('admin:components.setting.publicDirectory')}
+            value={serverSetting?.publicDir || ''}
+            disabled
+          />
+
+          <InputText
+            name="nodeModulesDir"
+            label={t('admin:components.setting.nodeModulesDirectory')}
+            value={serverSetting?.nodeModulesDir || ''}
+            disabled
+          />
+
+          <InputText
+            name="localStorageProvider"
+            label={t('admin:components.setting.localStorageProvider')}
+            value={serverSetting?.localStorageProvider || ''}
+            disabled
+          />
+
+          <InputSwitch
+            name="performDryRun"
+            label={t('admin:components.setting.performDryRun')}
+            checked={dryRun.checkedB}
+            disabled
+            onChange={handleDryRun}
+          />
         </Grid>
         <Grid item xs={12} sm={6}>
-          <label>{t('admin:components.setting.storageProvider')} </label>
-          <Paper component="div" className={styles.createInput}>
-            <InputBase
-              name="StorageProvider"
-              className={styles.input}
-              disabled
-              value={serverSetting?.storageProvider || ''}
-            />
-          </Paper>
-          <label>{t('admin:components.setting.googleAnalyticsTrackingId')} </label>
-          <Paper component="div" className={styles.createInput}>
-            <IconButton size="large">
-              <Icon icon="emojione:key" />
-            </IconButton>
-            <InputBase
-              name="googleTrackingid"
-              className={styles.input}
-              value={gaTrackingId || ''}
-              onChange={(e) => setGaTrackingId(e.target.value)}
-            />
-          </Paper>
-          <ListItem button onClick={handleClick}>
-            <ListItemText primary="Hub" />
-            {open ? <ExpandLess /> : <ExpandMore />}
-          </ListItem>
-          <Collapse in={open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              <ListItem button className={styles.nested}>
-                <Paper component="div" className={styles.createInput}>
-                  <InputBase name="hub" className={styles.input} disabled value={serverSetting?.hub?.endpoint || ''} />
-                </Paper>
-              </ListItem>
-            </List>
-          </Collapse>
-          <ListItem button onClick={handleClickPaginate}>
-            <ListItemText primary="Paginate" />
-            {openPaginate ? <ExpandLess /> : <ExpandMore />}
-          </ListItem>
-          <Collapse in={openPaginate} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              <ListItem button className={styles.nested}>
-                <ListItemText primary="Default:10" />
-                <ListItemText primary={`Max: ${serverSetting?.paginate || ''}`} />
-              </ListItem>
-            </List>
-          </Collapse>
-          <label>{t('admin:components.setting.url')}</label>
-          <Paper component="div" className={styles.createInput}>
-            <InputBase name="url" className={styles.input} disabled value={serverSetting?.url || ''} />
-          </Paper>
-          <label> {t('admin:components.setting.certPath')} </label>
-          <Paper component="div" className={styles.createInput}>
-            <InputBase name="certPath" className={styles.input} disabled value={serverSetting?.certPath || ''} />
-          </Paper>
-          <label> {t('admin:components.setting.keyPath')} </label>
-          <Paper component="div" className={styles.createInput}>
-            <InputBase name="keyPath" className={styles.input} disabled value={serverSetting?.keyPath || ''} />
-          </Paper>
-          <label> {t('admin:components.setting.githubPrivateKey')} </label>
-          <Paper component="div" className={styles.createInput}>
-            <InputBase
-              name="GithubPrivateKey"
-              className={styles.input}
-              value={gitPem || ''}
-              onChange={(e) => setGitPem(e.target.value)}
-            />
-          </Paper>
-          <label> {t('admin:components.setting.local')} </label>
-          <Paper component="div" className={styles.createInput}>
-            <Switch
-              disabled
-              checked={local.checkedB}
-              onChange={handleLocal}
-              color="primary"
-              name="checkedB"
-              inputProps={{ 'aria-label': 'primary checkbox' }}
-            />
-          </Paper>
-          <label> {t('admin:components.setting.releaseName')} </label>
-          <Paper component="div" className={styles.createInput}>
-            <InputBase name="releaseName" className={styles.input} disabled value={serverSetting?.releaseName || ''} />
-          </Paper>
+          <InputText
+            name="storageProvider"
+            label={t('admin:components.setting.storageProvider')}
+            value={serverSetting?.storageProvider || ''}
+            disabled
+          />
+
+          <InputText
+            name="gaTrackingId"
+            label={t('admin:components.setting.googleAnalyticsTrackingId')}
+            value={gaTrackingId || ''}
+            startAdornment={<Icon style={{ marginRight: 8 }} fontSize={18} icon="emojione:key" />}
+            onChange={(e) => setGaTrackingId(e.target.value)}
+          />
+
+          <InputText
+            name="hub"
+            label={t('admin:components.setting.hub')}
+            value={serverSetting?.hub?.endpoint || ''}
+            disabled
+          />
+
+          <InputText name="paginateDefault" label={t('admin:components.setting.paginateDefault')} value="10" disabled />
+
+          <InputText
+            name="paginateMax"
+            label={t('admin:components.setting.paginateMax')}
+            value={serverSetting?.paginate || ''}
+            disabled
+          />
+
+          <InputText name="url" label={t('admin:components.setting.url')} value={serverSetting?.url || ''} disabled />
+
+          <InputText
+            name="certPath"
+            label={t('admin:components.setting.certPath')}
+            value={serverSetting?.certPath || ''}
+            disabled
+          />
+
+          <InputText
+            name="keyPath"
+            label={t('admin:components.setting.keyPath')}
+            value={serverSetting?.keyPath || ''}
+            disabled
+          />
+
+          <InputText
+            name="githubPrivateKey"
+            label={t('admin:components.setting.githubPrivateKey')}
+            value={gitPem || ''}
+            onChange={(e) => setGitPem(e.target.value)}
+          />
+
+          <InputSwitch
+            name="local"
+            sx={{ mb: 2 }}
+            label={t('admin:components.setting.local')}
+            checked={local.checkedB}
+            disabled
+            onChange={handleLocal}
+          />
+
+          <InputText
+            name="releaseName"
+            label={t('admin:components.setting.releaseName')}
+            value={serverSetting?.releaseName || ''}
+            disabled
+          />
         </Grid>
       </Grid>
       <Button sx={{ maxWidth: '100%' }} variant="outlined" className={styles.cancelButton} onClick={handleCancel}>

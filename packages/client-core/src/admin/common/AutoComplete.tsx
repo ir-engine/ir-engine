@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import * as React from 'react'
 
 import { AutocompleteGetTagProps, useAutocomplete } from '@mui/base/AutocompleteUnstyled'
@@ -24,7 +25,6 @@ function Tag(props: TagProps) {
 export default function AutoComplete({ data, label, handleChangeScopeType, scopes = [] }) {
   const {
     getRootProps,
-    getInputLabelProps,
     getInputProps,
     getTagProps,
     getListboxProps,
@@ -47,29 +47,29 @@ export default function AutoComplete({ data, label, handleChangeScopeType, scope
     isOptionEqualToValue: (option, value) => option.type === value.type
   })
   return (
-    <div className={styles.root}>
-      <div {...getRootProps()}>
-        <label className={styles.label} {...getInputLabelProps()}>
-          {label}
-        </label>
-        <div ref={setAnchorEl} className={`${styles.inputWrapper} ${focused ? 'focused' : ''}`}>
-          {value.map((option: DataType, index: number) => (
-            <Tag className={styles.tag} label={option.type} {...getTagProps({ index })} />
-          ))}
-          <input {...getInputProps()} />
+    <React.Fragment>
+      <label>{_.upperFirst(label)}</label>
+      <div className={styles.root}>
+        <div {...getRootProps()}>
+          <div ref={setAnchorEl} className={`${styles.inputWrapper} ${focused ? 'focused' : ''}`}>
+            {value.map((option: DataType, index: number) => (
+              <Tag className={styles.tag} label={option.type} {...getTagProps({ index })} />
+            ))}
+            <input {...getInputProps()} />
+          </div>
         </div>
+        {groupedOptions.length > 0 && (
+          <ul className={styles.listbox} {...getListboxProps()}>
+            {(groupedOptions as typeof data).map((option, index) => (
+              <li {...getOptionProps({ option, index })}>
+                <span>{option.type}</span>
+                <CheckIcon fontSize="small" />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-      {groupedOptions.length > 0 ? (
-        <ul className={styles.listbox} {...getListboxProps()}>
-          {(groupedOptions as typeof data).map((option, index) => (
-            <li {...getOptionProps({ option, index })}>
-              <span>{option.type}</span>
-              <CheckIcon fontSize="small" />
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
+    </React.Fragment>
   )
 }
 

@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { AdminScope } from '@xrengine/common/src/interfaces/AdminScope'
 
-import { AlertService } from '../../common/services/AlertService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 
@@ -65,7 +65,7 @@ export const ScopeService = {
       })) as AdminScope
       dispatch(ScopeAction.addAdminScope(newItem))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   getScopeService: async (incDec?: 'increment' | 'decrement') => {
@@ -84,7 +84,7 @@ export const ScopeService = {
       })) as Paginated<AdminScope>
       dispatch(ScopeAction.setAdminScope(list))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   updateScopeService: async (scopeId, scopeItem) => {
@@ -96,7 +96,7 @@ export const ScopeService = {
       })) as AdminScope
       dispatch(ScopeAction.updateAdminScope(updatedScope))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeScope: async (scopeId: string) => {
@@ -106,7 +106,7 @@ export const ScopeService = {
       await client.service('scope').remove(scopeId)
       dispatch(ScopeAction.removeScopeItem(scopeId))
     } catch (err) {
-      AlertService.dispatchAlertError(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }

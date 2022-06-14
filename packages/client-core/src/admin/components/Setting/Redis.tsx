@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Paper, Typography } from '@mui/material'
-import InputBase from '@mui/material/InputBase'
-import Switch from '@mui/material/Switch'
+import { Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import InputSwitch from '../../common/InputSwitch'
+import InputText from '../../common/InputText'
 import { useAdminRedisSettingState } from '../../services/Setting/AdminRedisSettingService'
 import { AdminRedisSettingService } from '../../services/Setting/AdminRedisSettingService'
 import styles from '../../styles/settings.module.scss'
@@ -39,30 +39,31 @@ const Redis = (props: Props) => {
         <Typography component="h1" className={styles.settingsHeading}>
           {t('admin:components.setting.redis')}
         </Typography>
-        <label>{t('admin:components.setting.enabled')}</label>
-        <Paper component="div" className={styles.createInput}>
-          <Switch
-            disabled
-            checked={enabled.checkedB}
-            onChange={handleEnable}
-            color="primary"
-            name="checkedB"
-            inputProps={{ 'aria-label': 'primary checkbox' }}
-          />
-        </Paper>
-        <br />
-        <Paper component="div" className={styles.createInput}>
-          <label>{t('admin:components.setting.address')}:</label>
-          <InputBase value={redisSetting?.address || ''} name="address" className={styles.input} disabled />
-        </Paper>
-        <Paper component="div" className={styles.createInput}>
-          <label>{t('admin:components.setting.port')}:</label>
-          <InputBase value={redisSetting?.port || ''} name="port" className={styles.input} disabled />
-        </Paper>
-        <Paper component="div" className={styles.createInput}>
-          <label>{t('admin:components.setting.password')}:</label>
-          <InputBase value={redisSetting?.password || ''} name="password" className={styles.input} disabled />
-        </Paper>
+
+        <InputSwitch
+          name="enabled"
+          sx={{ mb: 2 }}
+          label={t('admin:components.setting.enabled')}
+          checked={enabled.checkedB}
+          disabled
+          onChange={handleEnable}
+        />
+
+        <InputText
+          name="address"
+          label={t('admin:components.setting.address')}
+          value={redisSetting?.address || ''}
+          disabled
+        />
+
+        <InputText name="port" label={t('admin:components.setting.port')} value={redisSetting?.port || ''} disabled />
+
+        <InputText
+          name="password"
+          label={t('admin:components.setting.password')}
+          value={redisSetting?.password || ''}
+          disabled
+        />
       </form>
     </div>
   )

@@ -1,5 +1,6 @@
 import { Intersection, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
@@ -19,10 +20,10 @@ import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 export const getScreenSpacePosition = (() => {
   const raycaster = new Raycaster()
   const raycastTargets: Intersection<Object3D>[] = []
-  const editorHelperState = accessEditorHelperState()
 
   return (screenSpacePosition: Vector2, target = new Vector3()): Vector3 => {
     raycastTargets.length = 0
+    const editorHelperState = accessEditorHelperState()
     const closestTarget = getIntersectingNodeOnScreen(raycaster, screenSpacePosition, raycastTargets)
 
     if (closestTarget && closestTarget.distance < 1000) {
@@ -85,8 +86,10 @@ export function getCursorSpawnPosition(mousePos: Vector2, target = new Vector3()
 export function reparentToSceneAtCursorPosition(objects, mousePos) {
   const newPosition = new Vector3()
   getCursorSpawnPosition(mousePos, newPosition)
-  executeCommand(EditorCommands.REPARENT, objects, {
-    parents: useWorld().entityTree.rootNode,
-    positions: newPosition
+  executeCommand({
+    type: EditorCommands.REPARENT,
+    affectedNodes: objects,
+    parents: [Engine.instance.currentWorld.entityTree.rootNode],
+    positions: [newPosition]
   })
 }

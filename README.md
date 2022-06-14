@@ -1,16 +1,15 @@
-# XR Engine _(xrengine)_
+# Ethereal Engine _(XR Engine)_
 
-![xrengine black](https://user-images.githubusercontent.com/5104160/142821267-7e131891-0caa-496b-9cda-a82dee8a04b6.png)
-
-> Your own sandbox in the Metaverse. Take what you need, or launch the full stack.
+>  Manifest your dreams on the open social special web.
 
 ## Table of Contents
 
 - [Background](#background)
-  - [Demo](#demo)
-- [Install](#install)
+  - [Demos](#demos)
+- [Install](#advanced-development-install)
   - [Pre-Requisites](#pre-requisites)
   - [Getting Started](#getting-started)
+- [XRE XRModule](#xre-xrmodule)
 - [Usage](#usage)
 - [Contributing](#contributing)
   - [Let's build it together](#lets-build-it-together)
@@ -22,7 +21,7 @@
 
 https://user-images.githubusercontent.com/507127/142818955-51d7757f-a432-45da-8f8f-56037358ad58.mp4
 
-We ([XR Foundation](https://github.com/xrfoundation)) believe that the Metaverse, 
+We ([Ethereal Engine](https://github.com/xrfoundation)) believe that the Metaverse, 
 Web AR, VR, and XR should be easy.
 
 We want a Star Trek future where participating in immersive communication 
@@ -42,17 +41,45 @@ technology and shared simulations should be as easy and natural as making a webs
 - WebGL client deployable to iOS, Android and desktop
 - Free, open source, MIT and Apache 2.0-licensed
 
-### Demo
+## Demos
 
-We have better demos coming, but for now you can jump around this CC0 apartment 
-we got from Sketchfab:
-https://app.theoverlay.io/location/apartment
+Guest Demos
 
-## Install
+- ***[Apartment - CCO from Sketchfab](https://app.theoverlay.io/location/apartment)***
+- ***[Star Station - our dev coommunity hangout](https://app.theoverlay.io/location/sky-station)***
+- ***[Globe Concert Hall - collab with WildCapture.io](https://app.theoverlay.io/location/globe-theater)***
+
+
+Host Demos 
+
+- [XRE Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/admin)
+- [XRE XRModule Asset Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/edior)
+
+## XRE XRModule
+
+### [Library of XRModules](https://github.com/XRFoundation?q=xre-project)
+
+Create composable plug-ins for XREngine scenes with XRModule Projects
+
+### [Create XRModule Projects](/docs/docs/3_concepts/1_projects_api.md)
+
+XRModules are folders that contain all your custom code, assets and scenes. They are version controlled using git & github, and can be installed to any deployment with a single click. (more on that in the next chapter)
+
+Pictured below is an example of 4 projects installed. By default, only the default-project is installed, which in a production environment is read only. You can find the default project under /packages/projects/default-project/
+
+In a production environment, the builder process will install all projects according to the project database table and will download files from the storage provider. In a local development environment, the local file system is always the source of truth. Any project folders added or removed from the file system will be automatically added or removed from the database. This is to ensure there is no accidental loss of data, as these project folders are all git repositories.
+
+## Launch XREngine with Control Center Install - ***RECOMMENDED***
+
+### [Use Metaverse Control Plane Managment GUI](https://github.com/XRFoundation/XREngine-Control-Center)
+
+Best for simple self hosting, advanced editor content creation, and XRE Pack Project development.
+
+## Advanced Development Install
 
 ### Pre-Requisites
 
-To install XREngine locally, the following pre-reqs are required.
+To install Ethereal Engine locally, the following pre-reqs are required.
 
 * Linux (many of us develop on Ubuntu), Mac OS X, or Windows (we recommend WSL2)
 * Node.js v16 or later (we recommend installing via [`nvm`](https://github.com/nvm-sh/nvm)
@@ -70,7 +97,7 @@ To install XREngine locally, the following pre-reqs are required.
 
 ### Getting Started
 
-See the [Installation instructions](/docs/docs/0_installation/readme.md)
+See the [Installation instructions](/docs/docs/1_installation/readme.md)
 for more details.
 
 ## Usage
@@ -80,7 +107,7 @@ for more details.
 * [General XREngine documentation](https://xrfoundation.github.io/xrengine-docs/docs)
 * [Auto-generated (tsdoc) API reference](https://xrfoundation.github.io/xrengine-docs/docs/generated/common/)
 * [Avatar, Scene & Asset Pipeline](https://github.com/XRFoundation/XREngine/wiki/Avatar,-Scene-&-Asset-Pipeline)
-* [Why are we building XREngine?](/docs/docs/0_start-here.md)
+* [Why are we building XREngine?](/docs/docs/0_start_here.md)
 
 ## Contributing
 
@@ -112,7 +139,7 @@ you find who you need to talk to.
 ### [Sponsorship](https://opencollective.com/xrfoundation) [![Open Collective](https://opencollective.com/xrfoundation/tiers/badge.svg)](https://opencollective.com/xrfoundation)
 
 ## License
-[MIT](LICENSE) - Copyright (c) 2021-2022 XRFoundation
+[MIT](LICENSE) - Copyright (c) 2020-2022 HyperConstruct
 
 
-[Archive](/HISTORY.md)
+[Release History and Author Archive](/HISTORY.md)

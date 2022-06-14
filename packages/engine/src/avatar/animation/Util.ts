@@ -3,16 +3,13 @@ import {
   AnimationActionLoopStyles,
   AnimationClip,
   Bone,
+  KeyframeTrack,
   Quaternion,
   SkinnedMesh,
   Vector3
 } from 'three'
 
 import { matches, matchesVector3 } from '../../common/functions/MatchesUtils'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
-import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 
 /** State of the avatar animation */
 
@@ -153,7 +150,7 @@ export interface Animation {
   decorateAction: (action: AnimationAction) => void
 }
 
-export function mapPositionTrackToDistanceTrack(track, rot: Quaternion, scale: Vector3) {
+export function mapPositionTrackToDistanceTrack(track: KeyframeTrack, rot: Quaternion, scale: Vector3) {
   const { times, values } = track
 
   const distTrack = { times: times, values: new Float32Array(times.length) }
@@ -182,27 +179,27 @@ export function mapPositionTrackToDistanceTrack(track, rot: Quaternion, scale: V
   return distTrack
 }
 
-export function findAnimationClipTrack(animation, objName: string, attr: string) {
+export function findAnimationClipTrack(animation: AnimationClip, objName: string, attr: string) {
   const trackName = `${objName}.${attr}`
-  return animation.tracks.find((track) => track.name === trackName)
+  return animation.tracks.find((track) => track.name === trackName)!
 }
 
-export const computeRootAnimationVelocity = (track, quat: Quaternion, scale: Vector3) => {
+export const computeRootAnimationVelocity = (track: KeyframeTrack, quat: Quaternion, scale: Vector3) => {
   return computeRootAnimationDistance(track, quat, scale) / getTrackDuration(track)
 }
 
-const getTrackDuration = (track) => {
+const getTrackDuration = (track: KeyframeTrack) => {
   return track.times[track.times.length - 1]
 }
 
-const computeRootAnimationDistance = (track, quat, scale) => {
+const computeRootAnimationDistance = (track: KeyframeTrack, quat: Quaternion, scale: Vector3) => {
   const rootVec = computeRootMotionVector(track)
   rootVec.applyQuaternion(quat).multiply(scale)
   rootVec.y = 0
   return rootVec.length()
 }
 
-const computeRootMotionVector = (track) => {
+const computeRootMotionVector = (track: KeyframeTrack) => {
   const startPos = new Vector3(),
     endPos = new Vector3(),
     values = track.values,
@@ -232,12 +229,5 @@ export const processRootAnimation = (clip: AnimationClip, rootBone: Bone | undef
   return {
     velocity: velocity,
     distanceTrack: distTrack
-  }
-}
-
-export const changeAvatarAnimationState = (entity: Entity, newStateName: string) => {
-  if (isEntityLocalClient(entity)) {
-    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-    avatarAnimationComponent.animationGraph.changeState(newStateName)
   }
 }

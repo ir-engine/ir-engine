@@ -6,7 +6,7 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
 import { ShapeOptions } from '@xrengine/engine/src/physics/functions/createCollider'
@@ -167,18 +167,18 @@ export const generatePhysicsObject = (
   const body = collider.body as PhysX.PxRigidDynamic
   teleportRigidbody(body, transform.position, transform.rotation)
 
-  if (isNetworkObject && world.isHosting) {
+  if (isNetworkObject && world.worldNetwork.isHosting) {
     body.addTorque(defaultTorqueForce)
     console.info('spawning at:', transform.position.x, transform.position.y, transform.position.z)
 
     const node = world.entityTree.entityNodeMap.get(entity)
     if (node) {
       dispatchAction(
-        world.store,
-        NetworkWorldAction.spawnObject({
+        WorldNetworkAction.spawnObject({
           prefab: '',
           parameters: { sceneEntityId: node.uuid, position: transform.position }
-        })
+        }),
+        [Engine.instance.currentWorld.worldNetwork.hostId]
       )
     }
   }

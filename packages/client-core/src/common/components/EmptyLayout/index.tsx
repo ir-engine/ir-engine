@@ -1,6 +1,5 @@
 import React, { Fragment } from 'react'
 
-import { Alerts } from '../Alerts'
 import UIDialog from '../Dialog'
 
 interface Props {
@@ -11,7 +10,6 @@ interface Props {
 const EmptyLayout = ({ children, pageTitle }: Props): any => (
   <Fragment>
     <UIDialog />
-    <Alerts />
     {children}
   </Fragment>
 )

@@ -5,7 +5,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { EquippableAttachmentPoint } from '../enums/EquippedEnums'
@@ -34,22 +34,22 @@ export const unequipEntity = (equipperEntity: Entity): void => {
 
 const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
   const world = Engine.instance.currentWorld
-  if (Engine.instance.userId === world.hostId) return
+  if (Engine.instance.userId === world.worldNetwork.hostId) return
 
   const equippedComponent = getComponent(equippedEntity, EquippedComponent)
   const attachmentPoint = equippedComponent.attachmentPoint
   const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
 
   dispatchAction(
-    world.store,
-    NetworkWorldAction.setEquippedObject({
+    WorldNetworkAction.setEquippedObject({
       object: {
         ownerId: networkComponet.ownerId,
         networkId: networkComponet.networkId
       },
       attachmentPoint: attachmentPoint,
       equip: equip
-    })
+    }),
+    [Engine.instance.currentWorld.worldNetwork.hostId]
   )
 }
 

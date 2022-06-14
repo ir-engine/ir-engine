@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import JSONTree from 'react-json-tree'
 
+import { mapToObject } from '@xrengine/common/src/utils/mapToObject'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,
@@ -11,7 +12,6 @@ import {
   MappedComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import {
   accessEngineRendererState,
   EngineRendererAction,
@@ -40,7 +40,8 @@ export const Debug = () => {
   const showingStateRef = useRef(isShowing)
   const engineRendererState = useEngineRendererState()
   const { t } = useTranslation()
-  const networkTransport = Network.instance.getTransport('world')
+
+  const networks = mapToObject(Engine.instance.currentWorld.networks)
 
   function setupListener() {
     window.addEventListener('keydown', downHandler)
@@ -72,17 +73,11 @@ export const Debug = () => {
   }
 
   const togglePhysicsDebug = () => {
-    dispatchAction(
-      Engine.instance.store,
-      EngineRendererAction.setPhysicsDebug(!engineRendererState.physicsDebugEnable.value)
-    )
+    dispatchAction(EngineRendererAction.setPhysicsDebug(!engineRendererState.physicsDebugEnable.value))
   }
 
   const toggleAvatarDebug = () => {
-    dispatchAction(
-      Engine.instance.store,
-      EngineRendererAction.setAvatarDebug(!engineRendererState.avatarDebugEnable.value)
-    )
+    dispatchAction(EngineRendererAction.setAvatarDebug(!engineRendererState.avatarDebugEnable.value))
   }
 
   const renderNamedEntities = () => {
@@ -118,27 +113,20 @@ export const Debug = () => {
   const toggleNodeHelpers = () => {
     Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.NodeHelper)
     dispatchAction(
-      Engine.instance.store,
       EngineRendererAction.changeNodeHelperVisibility(!accessEngineRendererState().nodeHelperVisibility.value)
     )
   }
 
   const toggleGridHelper = () => {
     Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.Gizmos)
-    dispatchAction(
-      Engine.instance.store,
-      EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value)
-    )
+    dispatchAction(EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value))
   }
 
   const simpleMaterials = () => {
     if (hasComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent))
       removeComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent)
     else addComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent, {})
-    dispatchAction(
-      Engine.instance.store,
-      EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value)
-    )
+    dispatchAction(EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value))
   }
 
   if (isShowing)
@@ -195,7 +183,7 @@ export const Debug = () => {
               </button>
             </div>
             <div className={styles.refreshBlock}>
-              {networkTransport != null && <Tick />}
+              <Tick />
               <button type="submit" title={t('common:debug.refresh')} onClick={refresh} className={styles.refreshBtn}>
                 <RefreshIcon fontSize="small" />
               </button>
@@ -203,30 +191,22 @@ export const Debug = () => {
           </div>
         </div>
         <StatsPanel show={showingStateRef.current} resetCounter={resetStats} />
-        {networkTransport !== null && (
-          <>
-            <div className={styles.jsonPanel}>
-              <h1>{t('common:debug.engineStore')}</h1>
-              <JSONTree data={Engine.instance.store} />
-            </div>
-            <div className={styles.jsonPanel}>
-              <h1>{t('common:debug.worldStore')}</h1>
-              <JSONTree data={Engine.instance.currentWorld.store} />
-            </div>
-            <div className={styles.jsonPanel}>
-              <h1>{t('common:debug.namedEntities')}</h1>
-              <JSONTree data={renderNamedEntities()} />
-            </div>
-            <div className={styles.jsonPanel}>
-              <h1>{t('common:debug.networkObject')}</h1>
-              <JSONTree data={{ ...networkTransport }} />
-            </div>
-            <div className={styles.jsonPanel}>
-              <h1>{t('common:debug.networkClients')}</h1>
-              <JSONTree data={Object.fromEntries(Engine.instance.currentWorld.clients.entries())} />
-            </div>
-          </>
-        )}
+        <div className={styles.jsonPanel}>
+          <h1>{t('common:debug.engineStore')}</h1>
+          <JSONTree data={Engine.instance.store} />
+        </div>
+        <div className={styles.jsonPanel}>
+          <h1>{t('common:debug.namedEntities')}</h1>
+          <JSONTree data={renderNamedEntities()} />
+        </div>
+        <div className={styles.jsonPanel}>
+          <h1>{t('common:debug.networks')}</h1>
+          <JSONTree data={{ ...networks }} />
+        </div>
+        <div className={styles.jsonPanel}>
+          <h1>{t('common:debug.networkClients')}</h1>
+          <JSONTree data={Object.fromEntries(Engine.instance.currentWorld.clients.entries())} />
+        </div>
       </div>
     )
   else return null

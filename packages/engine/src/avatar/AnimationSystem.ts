@@ -1,16 +1,19 @@
 import { Bone, Euler, Vector3 } from 'three'
-import matches from 'ts-matches'
 
-import { addActionReceptor } from '@xrengine/hyperflux'
+import { createActionQueue } from '@xrengine/hyperflux'
 
+import { Axis } from '../common/constants/Axis3D'
+import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
-import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
+import { updateAnimationGraph } from './animation/AnimationGraph'
+import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
 import { getForwardVector, solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
 import { AnimationManager } from './AnimationManager'
@@ -32,27 +35,30 @@ const animationQuery = defineQuery([AnimationComponent])
 const forward = new Vector3()
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
 
-export default async function AnimationSystem(world: World) {
-  function animationActionReceptor(action) {
-    matches(action).when(NetworkWorldAction.avatarAnimation.matches, ({ $from }) => {
-      const avatarEntity = world.getUserAvatarEntity($from)
-      if (isEntityLocalClient(avatarEntity)) return // Only run on other clients
+export function animationActionReceptor(
+  action: ReturnType<typeof WorldNetworkAction.avatarAnimation>,
+  world = Engine.instance.currentWorld
+) {
+  const avatarEntity = world.getUserAvatarEntity(action.$from)
+  if (isEntityLocalClient(avatarEntity)) return // Only run on other clients
 
-      const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
-      if (!networkObject) {
-        return console.warn(`Avatar Entity for user id ${$from} does not exist! You should probably reconnect...`)
-      }
-
-      const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)
-      avatarAnimationComponent.animationGraph.changeState(action.newStateName)
-    })
+  const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
+  if (!networkObject) {
+    return console.warn(`Avatar Entity for user id ${action.$from} does not exist! You should probably reconnect...`)
   }
-  addActionReceptor(world.store, animationActionReceptor)
+
+  changeAvatarAnimationState(avatarEntity, action.newStateName)
+}
+
+export default async function AnimationSystem(world: World) {
+  const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
 
   await AnimationManager.instance.loadDefaultAnimations()
 
   return () => {
     const { deltaSeconds: delta } = world
+
+    for (const action of avatarAnimationQueue()) animationActionReceptor(action, world)
 
     for (const entity of desiredTransformQuery(world)) {
       const desiredTransform = getComponent(entity, DesiredTransformComponent)
@@ -94,7 +100,7 @@ export default async function AnimationSystem(world: World) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       const deltaTime = delta * animationComponent.animationSpeed
-      avatarAnimationComponent.animationGraph.update(deltaTime)
+      updateAnimationGraph(avatarAnimationComponent.animationGraph, deltaTime)
 
       const rootBone = animationComponent.mixer.getRoot() as Bone
       const rig = avatarAnimationComponent.rig
@@ -123,9 +129,16 @@ export default async function AnimationSystem(world: World) {
 
     for (const entity of vrIKQuery()) {
       const ik = getComponent(entity, AvatarHandsIKComponent)
-      const rig = getComponent(entity, AvatarAnimationComponent).rig
+      const { rig } = getComponent(entity, AvatarAnimationComponent)
 
       if (!rig) return
+
+      // Arms should not be straight for the solver to work properly
+      // TODO: Make this configurable
+      rig.LeftForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
+      rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
+      rig.LeftForeArm.updateWorldMatrix(false, true)
+      rig.RightForeArm.updateWorldMatrix(false, true)
 
       solveTwoBoneIK(
         rig.LeftArm,

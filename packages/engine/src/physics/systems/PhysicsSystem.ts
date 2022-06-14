@@ -1,9 +1,9 @@
 import { pipe } from 'bitecs'
 import { Box3, Mesh, Quaternion, Vector3 } from 'three'
-import matches from 'ts-matches'
 
-import { addActionReceptor } from '@xrengine/hyperflux'
+import { createActionQueue } from '@xrengine/hyperflux'
 
+import { teleportObjectReceptor } from '../../avatar/AvatarSystem'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -12,7 +12,7 @@ import { defineQuery, getComponent, hasComponent, removeComponent } from '../../
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObjectDirtyTag'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -24,16 +24,16 @@ import { VelocityComponent } from '../components/VelocityComponent'
 import { teleportRigidbody } from '../functions/teleportRigidbody'
 
 // Receptor
-function physicsActionReceptor(action: unknown) {
-  const world = Engine.instance.currentWorld
-  matches(action).when(NetworkWorldAction.teleportObject.matches, (a) => {
-    const [x, y, z, qX, qY, qZ, qW] = a.pose
-    const entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)!
-    const colliderComponent = getComponent(entity, ColliderComponent)
-    if (colliderComponent) {
-      teleportRigidbody(colliderComponent.body, new Vector3(x, y, z), new Quaternion(qX, qY, qZ, qW))
-    }
-  })
+export function physicsActionReceptor(
+  action: typeof WorldNetworkAction.teleportObject.matches._TYPE,
+  world = Engine.instance.currentWorld
+) {
+  const [x, y, z, qX, qY, qZ, qW] = action.pose
+  const entity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
+  const colliderComponent = getComponent(entity, ColliderComponent)
+  if (colliderComponent) {
+    teleportRigidbody(colliderComponent.body, new Vector3(x, y, z), new Quaternion(qX, qY, qZ, qW))
+  }
 }
 
 // Queries
@@ -91,6 +91,7 @@ const processNetworkBodies = (world: World) => {
     const collider = getComponent(entity, ColliderComponent)
     const transform = getComponent(entity, TransformComponent)
     const body = collider.body as PhysX.PxRigidDynamic
+    if (!isDynamicBody(body)) continue
 
     teleportRigidbody(body, transform.position, transform.rotation)
 
@@ -206,10 +207,13 @@ const processCollisions = (world: World) => {
 const simulationPipeline = pipe(processRaycasts, processNetworkBodies, processBodies, processCollisions)
 
 export default async function PhysicsSystem(world: World) {
-  addActionReceptor(world.store, physicsActionReceptor)
+  const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
+
   await world.physics.createScene()
 
   return () => {
+    for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
+
     for (const entity of boxQuery.enter()) {
       processBoundingBox(entity, true)
     }

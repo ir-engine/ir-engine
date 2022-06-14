@@ -37,10 +37,10 @@ export async function addMediaNode(
     prefabType = ScenePrefabs.asset
     updateFunc = () =>
       setPropertyOnEntityNode(
-        node,
         {
+          affectedNodes: [node],
           component: AssetComponent,
-          properties: { path: url }
+          properties: [{ path: url }]
         },
         false
       )
@@ -48,10 +48,10 @@ export async function addMediaNode(
     prefabType = ScenePrefabs.model
     updateFunc = () =>
       setPropertyOnEntityNode(
-        node,
         {
+          affectedNodes: [node],
           component: ModelComponent,
-          properties: { src: url }
+          properties: [{ src: url }]
         },
         false
       )
@@ -59,10 +59,10 @@ export async function addMediaNode(
     prefabType = ScenePrefabs.video
     updateFunc = () =>
       setPropertyOnEntityNode(
-        node,
         {
+          affectedNodes: [node],
           component: VideoComponent,
-          properties: { videoSource: url }
+          properties: [{ videoSource: url }]
         },
         false
       )
@@ -70,10 +70,10 @@ export async function addMediaNode(
     prefabType = ScenePrefabs.image
     updateFunc = () =>
       setPropertyOnEntityNode(
-        node,
         {
+          affectedNodes: [node],
           component: ImageComponent,
-          properties: { imageSource: url }
+          properties: [{ imageSource: url }]
         },
         false
       )
@@ -81,10 +81,10 @@ export async function addMediaNode(
     prefabType = ScenePrefabs.audio
     updateFunc = () =>
       setPropertyOnEntityNode(
-        node,
         {
+          affectedNodes: [node],
           component: AudioComponent,
-          properties: { audioSource: url }
+          properties: [{ audioSource: url }]
         },
         false
       )
@@ -92,10 +92,10 @@ export async function addMediaNode(
     prefabType = ScenePrefabs.volumetric
     updateFunc = () =>
       setPropertyOnEntityNode(
-        node,
         {
+          affectedNodes: [node],
           component: AudioComponent,
-          properties: { audioSource: url }
+          properties: [{ audioSource: url }]
         },
         false
       )
@@ -103,10 +103,10 @@ export async function addMediaNode(
     prefabType = ScenePrefabs.link
     updateFunc = () =>
       setPropertyOnEntityNode(
-        node,
         {
+          affectedNodes: [node],
           component: LinkComponent,
-          properties: { href: url }
+          properties: [{ href: url }]
         },
         false
       )
@@ -116,10 +116,12 @@ export async function addMediaNode(
   await AssetLoader.loadAsync(url)
 
   if (prefabType) {
-    executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, {
-      prefabTypes: prefabType,
-      parents: parent,
-      befores: before
+    executeCommandWithHistory({
+      type: EditorCommands.ADD_OBJECTS,
+      affectedNodes: [node],
+      prefabTypes: [prefabType],
+      parents: parent ? [parent] : undefined,
+      befores: before ? [before] : undefined
     })
 
     updateFunc()

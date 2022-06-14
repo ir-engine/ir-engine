@@ -11,7 +11,8 @@ import templateProjectJson from '@xrengine/projects/template-project/package.jso
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../logger'
-import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
+import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
+import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { cleanString } from '../../util/cleanString'
@@ -37,9 +38,6 @@ const getRemoteURLFromGitData = (project) => {
   return data.remote.origin.url
 }
 
-export const getStorageProviderPath = (projectName: string) =>
-  `https://${getStorageProvider().cacheDomain}/projects/${projectName}/`
-
 export const deleteProjectFilesInStorageProvider = async (projectName: string) => {
   const storageProvider = getStorageProvider()
   try {
@@ -61,11 +59,14 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string) =
  */
 export const uploadLocalProjectToProvider = async (projectName, remove = true) => {
   const storageProvider = getStorageProvider()
+  const cacheDomain = getCacheDomain(storageProvider, true)
+
   // remove exiting storage provider files
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" started at "${new Date()}".`)
   if (remove) {
     await deleteProjectFilesInStorageProvider(projectName)
   }
+
   // upload new files to storage provider
   const projectPath = path.resolve(projectsRootFolder, projectName)
   const files = getFilesRecursive(projectPath)
@@ -85,7 +86,7 @@ export const uploadLocalProjectToProvider = async (projectName, remove = true) =
               },
               { isDirectory: false }
             )
-            resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`, storageProvider.cacheDomain, true))
+            resolve(getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
           } catch (e) {
             logger.error(e)
             resolve(null)
@@ -129,7 +130,6 @@ export class Project extends Service {
     await super.create({
       thumbnail: projectConfig.thumbnail,
       name: projectName,
-      storageProviderPath: getStorageProviderPath(projectName),
       repositoryPath: getRemoteURLFromGitData(projectName)
     })
     // run project install script
@@ -214,7 +214,6 @@ export class Project extends Service {
       {
         thumbnail: packageData.thumbnail,
         name: projectName,
-        storageProviderPath: getStorageProviderPath(projectName),
         repositoryPath: null
       },
       params
@@ -272,7 +271,6 @@ export class Project extends Service {
       {
         thumbnail: projectConfig.thumbnail,
         name: projectName,
-        storageProviderPath: getStorageProviderPath(projectName),
         repositoryPath: data.url
       },
       params || {}
@@ -333,7 +331,7 @@ export class Project extends Service {
       query: {
         ...params?.query,
         $limit: params?.query?.$limit || 1000,
-        $select: params?.query?.$select || ['id', 'name', 'thumbnail', 'repositoryPath', 'storageProviderPath']
+        $select: params?.query?.$select || ['id', 'name', 'thumbnail', 'repositoryPath']
       }
     }
 

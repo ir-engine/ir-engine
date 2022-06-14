@@ -133,11 +133,10 @@ const AvatarTable = (props: Props) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        popConfirmOpen={popConfirmOpen}
-        handleCloseModal={handleCloseModal}
-        submit={submitRemoveAvatar}
-        name={avatarName}
-        label={'avatar'}
+        open={popConfirmOpen}
+        description={`${t('admin:components.avatar.confirmAvatarDelete')} '${avatarName}'?`}
+        onClose={handleCloseModal}
+        onSubmit={submitRemoveAvatar}
       />
       {avatarData && viewModal && (
         <Drawer anchor="right" open={viewModal} onClose={closeViewModal} classes={{ paper: styles.paperDrawer }}>

@@ -58,10 +58,12 @@ export const addPrefabElement = (
 ): EntityTreeNode | undefined => {
   const node = createEntityNode(createEntity())
 
-  executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, {
-    prefabTypes: item.prefabType,
-    parents: parent,
-    befores: before
+  executeCommandWithHistory({
+    type: EditorCommands.ADD_OBJECTS,
+    affectedNodes: [node],
+    prefabTypes: [item.prefabType],
+    parents: parent ? [parent] : undefined,
+    befores: before ? [before] : undefined
   })
 
   return node

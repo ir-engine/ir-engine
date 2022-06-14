@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 
 import { ProjectService } from '@xrengine/client-core/src/common/services/ProjectService'
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import {
   ArrowRightRounded,
@@ -46,18 +46,23 @@ function sortAlphabetical(a, b) {
 
 const OfficialProjectData = [
   {
-    id: '1570ae01-889a-11ec-886e-b126f7590685',
+    id: '1570ae00-889a-11ec-886e-b126f7590685',
     name: 'Development Test Suite',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-development-test-suite',
-    storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description: 'Assets and tests for xrengine core development'
+  },
+  {
+    id: '1570ae01-889a-11ec-886e-b126f7590685',
+    name: 'Translations',
+    repositoryPath: 'https://github.com/XRFoundation/XREngine-i18n',
+    thumbnail: '/static/xrengine_thumbnail.jpg',
+    description: 'Complete language translations in over 100 languages.'
   },
   {
     id: '1570ae02-889a-11ec-886e-b126f7590685',
     name: 'Test Bot',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-bot',
-    storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description: 'A test bot using puppeteer'
   },
@@ -65,7 +70,6 @@ const OfficialProjectData = [
     id: '1570ae11-889a-11ec-886e-b126f7590685',
     name: 'Maps',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-Maps',
-    storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description: 'Procedurally generated map tiles using geojson data with mapbox and turf.js'
   },
@@ -73,7 +77,6 @@ const OfficialProjectData = [
     id: '1570ae12-889a-11ec-886e-b126f7590685',
     name: 'Inventory',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-Inventory',
-    storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description:
       'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.'
@@ -82,7 +85,6 @@ const OfficialProjectData = [
     id: '1570ae14-889a-11ec-886e-b126f7590685',
     name: 'Digital Beings',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-Digital-Beings',
-    storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description: 'Enchance your virtual worlds with GPT-3 backed AI agents!'
   },
@@ -90,7 +92,6 @@ const OfficialProjectData = [
     id: '1570ae15-889a-11ec-886e-b126f7590685',
     name: 'Harmony Chat',
     repositoryPath: 'https://github.com/XRFoundation/Harmony-Chat',
-    storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description:
       'An elegant and minimalist messenger client with group text, audio, video and screensharing capabilities.'
@@ -141,7 +142,6 @@ const ProjectsPage = () => {
   const user = authState.user
 
   const { t } = useTranslation()
-  const dispatch = useDispatch()
   const history = useHistory()
 
   const fetchInstalledProjects = async () => {
@@ -204,8 +204,8 @@ const ProjectsPage = () => {
     event.preventDefault()
     if (!isInstalled(project)) return
 
-    dispatch(EditorAction.sceneChanged(null))
-    dispatch(EditorAction.projectChanged(project.name))
+    dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
+    dispatchAction(EditorAction.projectChanged({ projectName: project.name }))
     history.push(`/editor/${project.name}`)
   }
 
@@ -301,29 +301,37 @@ const ProjectsPage = () => {
 
     return (
       <ul className={styles.listContainer}>
-        {projects.map((project, index) => (
+        {projects.map((project: ProjectInterface, index) => (
           <li className={styles.itemContainer} key={index}>
             <a
               onClick={(e) => {
-                areInstalledProjects && onClickExisting(e, project)
+                areInstalledProjects ? onClickExisting(e, project) : window.open(project.repositoryPath)
               }}
             >
-              <div className={styles.thumbnailContainer} style={{ backgroundImage: `url(${project.thumbnail})` }} />
-              <div className={styles.headerContainer}>
-                <h3 className={styles.header}>{project.name.replaceAll('-', ' ')}</h3>
-                {project.name !== 'default-project' && (
-                  <IconButton disableRipple onClick={(e: any) => openProjectContextMenu(e, project)}>
-                    <Settings />
-                  </IconButton>
-                )}
-              </div>
-              {!areInstalledProjects && isInstalled(project) && (
-                <span className={styles.installedIcon}>
-                  <DownloadDone />
-                </span>
-              )}
-              {project.description && <p className={styles.description}>{project.description}</p>}
+              <div
+                className={styles.thumbnailContainer}
+                style={{ backgroundImage: `url(${project.thumbnail})` }}
+                id={'open-' + project.name}
+              />
             </a>
+            <div className={styles.headerContainer} id={'headerContainer-' + project.name}>
+              <h3 className={styles.header}>{project.name.replaceAll('-', ' ')}</h3>
+              {project.name !== 'default-project' && (
+                <IconButton disableRipple onClick={(e: any) => openProjectContextMenu(e, project)}>
+                  <Settings />
+                </IconButton>
+              )}
+            </div>
+            {!areInstalledProjects && isInstalled(project) && (
+              <span className={styles.installedIcon}>
+                <DownloadDone />
+              </span>
+            )}
+            {project.description && (
+              <p className={styles.description} id={'description-' + project.name}>
+                {project.description}
+              </p>
+            )}
           </li>
         ))}
       </ul>

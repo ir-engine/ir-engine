@@ -98,7 +98,7 @@ export async function restoreEngineRendererData(): Promise<void> {
 
     await Promise.all(promises)
 
-    dispatchAction(Engine.instance.store, EngineRendererAction.restoreStorageData(s))
+    dispatchAction(EngineRendererAction.restoreStorageData(s))
   }
 }
 
@@ -107,8 +107,8 @@ function updateState(): void {
   setUsePostProcessing(state.usePostProcessing.value)
   setUseShadows(state.useShadows.value)
 
-  dispatchAction(Engine.instance.store, EngineRendererAction.setPhysicsDebug(state.physicsDebugEnable.value))
-  dispatchAction(Engine.instance.store, EngineRendererAction.setAvatarDebug(state.avatarDebugEnable.value))
+  dispatchAction(EngineRendererAction.setPhysicsDebug(state.physicsDebugEnable.value))
+  dispatchAction(EngineRendererAction.setAvatarDebug(state.avatarDebugEnable.value))
 
   if (Engine.instance.isEditor) {
     changeRenderMode(state.renderMode.value)
@@ -175,8 +175,8 @@ export function EngineRendererReceptor(action: EngineRendererActionType) {
         ClientStorage.set(RenderSettingKeys.AVATAR_DEBUG_ENABLE, action.avatarDebugEnable)
         break
       case 'RENDER_MODE_CHANGED':
-        s.merge({ renderMode: action.renderMode })
         changeRenderMode(action.renderMode)
+        s.merge({ renderMode: action.renderMode })
         ClientStorage.set(RenderSettingKeys.RENDER_MODE, action.renderMode)
         break
       case 'NODE_HELPER_VISIBILITY_CHANGED':
