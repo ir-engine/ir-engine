@@ -51,9 +51,17 @@ export default function ViewParty(props: Props) {
   const locationData = adminLocationState.locations
   const { t } = useTranslation()
 
-  //Call custom hooks
-  useFetchAdminInstance(user, adminInstanceState, AdminInstanceService)
-  useFetchAdminLocations(user, adminLocationState, AdminLocationService)
+  useEffect(() => {
+    if (user?.id.value && adminInstanceState.updateNeeded.value) {
+      AdminInstanceService.fetchAdminInstances()
+    }
+  }, [user?.id?.value, adminInstanceState.updateNeeded.value])
+
+  useEffect(() => {
+    if (user?.id.value && adminLocationState.updateNeeded.value) {
+      AdminLocationService.fetchAdminLocations()
+    }
+  }, [user?.id?.value, adminLocationState.updateNeeded.value])
 
   useEffect(() => {
     if (partyAdmin?.instance?.id || partyAdmin?.location?.name) {

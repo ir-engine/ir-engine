@@ -17,8 +17,6 @@ import Typography from '@mui/material/Typography'
 import { useAuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
 import AlertMessage from '../../common/AlertMessage'
-import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
-import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
@@ -59,10 +57,18 @@ const CreateBot = () => {
   const locationData = adminLocation.locations
   const { t } = useTranslation()
 
-  //Call custom hooks
-  useFetchAdminInstance(user, adminInstanceState, AdminInstanceService)
-  useFetchAdminLocations(user, adminLocationState, AdminLocationService)
-  AddCommand
+  useEffect(() => {
+    if (user?.id.value && adminInstanceState.updateNeeded.value) {
+      AdminInstanceService.fetchAdminInstances()
+    }
+  }, [user?.id?.value, adminInstanceState.updateNeeded.value])
+
+  useEffect(() => {
+    if (user?.id.value && adminLocationState.updateNeeded.value) {
+      AdminLocationService.fetchAdminLocations()
+    }
+  }, [user?.id?.value, adminLocationState.updateNeeded.value])
+
   const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target
     setCommand({ ...command, id: uuidv4(), [name]: value })

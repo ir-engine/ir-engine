@@ -11,6 +11,7 @@ import Typography from '@mui/material/Typography'
 
 import { AdminBotsCommandServiceReceptor } from '../../services/BotsCommand'
 import { AdminBotServiceReceptor } from '../../services/BotsService'
+import { AdminTestBotServiceReceptor } from '../../services/TestBotService'
 import styles from '../../styles/admin.module.scss'
 import CreateBot from './CreateBot'
 import DisplayBots from './DisplayBots'
@@ -19,9 +20,11 @@ const Bots = () => {
   const { t } = useTranslation()
 
   useEffect(() => {
+    addActionReceptor(AdminTestBotServiceReceptor)
     addActionReceptor(AdminBotsCommandServiceReceptor)
     addActionReceptor(AdminBotServiceReceptor)
     return () => {
+      removeActionReceptor(AdminTestBotServiceReceptor)
       removeActionReceptor(AdminBotsCommandServiceReceptor)
       removeActionReceptor(AdminBotServiceReceptor)
     }

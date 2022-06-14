@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
@@ -7,8 +7,6 @@ import DialogContentText from '@mui/material/DialogContentText'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import CreateModal from '../../common/CreateModal'
-import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
-import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { validateForm } from '../../common/validation/formValidation'
 import { PartyProps } from '../../common/variables/party'
@@ -40,9 +38,17 @@ const CreateParty = (props: PartyProps) => {
   const adminInstanceState = useAdminInstanceState()
   const instanceData = adminInstanceState.instances
 
-  //Call custom hooks
-  useFetchAdminInstance(user, adminInstanceState, AdminInstanceService)
-  useFetchAdminLocations(user, adminLocationState, AdminLocationService)
+  useEffect(() => {
+    if (user?.id.value && adminInstanceState.updateNeeded.value) {
+      AdminInstanceService.fetchAdminInstances()
+    }
+  }, [user?.id?.value, adminInstanceState.updateNeeded.value])
+
+  useEffect(() => {
+    if (user?.id.value && adminLocationState.updateNeeded.value) {
+      AdminLocationService.fetchAdminLocations()
+    }
+  }, [user?.id?.value, adminLocationState.updateNeeded.value])
 
   const handleChange = (e) => {
     const { name, value } = e.target

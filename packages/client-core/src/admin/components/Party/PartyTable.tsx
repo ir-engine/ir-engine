@@ -5,7 +5,6 @@ import { Party } from '@xrengine/common/src/interfaces/Party'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
-import { useFetchAdminParty } from '../../common/hooks/party.hooks'
 import TableComponent from '../../common/Table'
 import { partyColumns, PartyData, PartyPropsTable } from '../../common/variables/party'
 import { AdminPartyService, PARTY_PAGE_LIMIT, usePartyState } from '../../services/PartyService'
@@ -33,8 +32,9 @@ const PartyTable = (props: PartyPropsTable) => {
   const adminPartyData = adminParty.parties?.value || []
   const adminPartyCount = adminParty.total.value
 
-  //Call custom hooks
-  useFetchAdminParty(user, adminPartyState, AdminPartyService, search, page, sortField, fieldOrder)
+  useEffect(() => {
+    AdminPartyService.fetchAdminParty(search, page, sortField, fieldOrder)
+  }, [user?.id?.value, adminPartyState.updateNeeded.value, search])
 
   const handlePageChange = (event: unknown, newPage: number) => {
     AdminPartyService.fetchAdminParty(search, page, sortField, fieldOrder)

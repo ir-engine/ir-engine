@@ -1,68 +1,67 @@
 import { Paginated } from '@feathersjs/feathers'
-import { createState, useState } from '@speigg/hookstate'
 
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
 
 //State
 export const USER_PAGE_LIMIT = 100
 
-const state = createState({
-  skip: 0,
-  limit: USER_PAGE_LIMIT,
-  total: 0,
-  retrieving: false,
-  fetched: false,
-  updateNeeded: true,
-  lastFetched: Date.now(),
-  userRole: [] as Array<UserRole>
+const AdminUserRoleState = defineState({
+  name: 'AdminUserRoleState',
+  initial: () => ({
+    skip: 0,
+    limit: USER_PAGE_LIMIT,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true,
+    lastFetched: Date.now(),
+    userRole: [] as Array<UserRole>
+  })
 })
 
-store.receptors.push((action: UserActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'USER_ROLE_RETRIEVED':
-        return s.merge({ userRole: action.types, updateNeeded: false })
-      case 'USER_ROLE_CREATED':
+export const AdminUserRoleServiceReceptor = (action) => {
+  getState(AdminUserRoleState).batch((s) => {
+    matches(action)
+      .when(AdminUserRoleActions.userRoleRetrieved.matches, (action) => {
+        return s.merge({ userRole: action.types.data, updateNeeded: false })
+      })
+      .when(AdminUserRoleActions.userRoleCreated.matches, (action) => {
         return s.merge({ updateNeeded: true })
-      case 'USER_ROLE_UPDATED':
+      })
+      .when(AdminUserRoleActions.userRoleUpdated.matches, (action) => {
         return s.merge({ updateNeeded: true })
-    }
-  }, action.type)
-})
+      })
+  })
+}
 
-export const accessUserRoleState = () => state
+export const accessAdminUserRoleState = () => getState(AdminUserRoleState)
 
-export const useUserRoleState = () => useState(state) as any as typeof state
+export const useAdminUserRoleState = () => useState(accessAdminUserRoleState())
 
 //Service
-export const UserRoleService = {
+export const AdminUserRoleService = {
   fetchUserRole: async () => {
-    const dispatch = useDispatch()
-
     try {
       const userRole = (await client.service('user-role').find()) as Paginated<UserRole>
-      dispatch(UserRoleAction.userRoleRetrieved(userRole))
+      dispatchAction(AdminUserRoleActions.userRoleRetrieved({ types: userRole }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   createUserRoleAction: async (data) => {
-    const dispatch = useDispatch()
-
     const result = (await client.service('user-role').create(data)) as UserRole
-    dispatch(UserRoleAction.userRoleCreated(result))
+    dispatchAction(AdminUserRoleActions.userRoleCreated({ types: result }))
   },
   updateUserRole: async (id: string, role: string) => {
-    const dispatch = useDispatch()
-
     try {
       const userRole = (await client.service('user').patch(id, { userRole: role })) as User
-      dispatch(UserRoleAction.userRoleUpdated(userRole))
+      dispatchAction(AdminUserRoleActions.userRoleUpdated({ data: userRole }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -70,25 +69,19 @@ export const UserRoleService = {
 }
 
 //Action
-export const UserRoleAction = {
-  userRoleRetrieved: (data: Paginated<UserRole>) => {
-    return {
-      type: 'USER_ROLE_RETRIEVED' as const,
-      types: data.data
-    }
-  },
-  userRoleCreated: (data: UserRole) => {
-    return {
-      type: 'USER_ROLE_CREATED' as const,
-      types: data
-    }
-  },
-  userRoleUpdated: (data: User) => {
-    return {
-      type: 'USER_ROLE_UPDATED' as const,
-      data: data
-    }
-  }
-}
+export class AdminUserRoleActions {
+  static userRoleRetrieved = defineAction({
+    type: 'USER_ROLE_RETRIEVED' as const,
+    types: matches.object as Validator<unknown, Paginated<UserRole>>
+  })
 
-export type UserActionType = ReturnType<typeof UserRoleAction[keyof typeof UserRoleAction]>
+  static userRoleCreated = defineAction({
+    type: 'USER_ROLE_CREATED' as const,
+    types: matches.object as Validator<unknown, UserRole>
+  })
+
+  static userRoleUpdated = defineAction({
+    type: 'USER_ROLE_UPDATED' as const,
+    data: matches.object as Validator<unknown, User>
+  })
+}
