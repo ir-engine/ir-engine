@@ -18,7 +18,7 @@ import AlertMessage from '../../common/AlertMessage'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { BotService } from '../../services/BotsService'
+import { AdminBotService } from '../../services/BotsService'
 import { AdminInstanceService, useAdminInstanceState } from '../../services/InstanceService'
 import { AdminLocationService, useADminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
@@ -134,7 +134,7 @@ const UpdateBot = (props: Props) => {
     }
     setFormErrors(temp)
     if (validateForm(state, formErrors) && bot) {
-      BotService.updateBotAsAdmin(bot.id, data)
+      AdminBotService.updateBotAsAdmin(bot.id, data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCurrentIntance([])
       handleClose()

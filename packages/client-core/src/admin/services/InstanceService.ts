@@ -35,7 +35,7 @@ export const AdminInstanceState = defineState({
 export const AdminInstanceServiceReceptor = (action) => {
   getState(AdminInstanceState).batch((s) => {
     matches(action)
-      .when(AdminInstanceAction.instancesRetrievedAction.matches, (action) => {
+      .when(AdminInstanceActions.instancesRetrievedAction.matches, (action) => {
         return s.merge({
           instances: action.instanceResult.data,
           skip: action.instanceResult.skip,
@@ -47,7 +47,7 @@ export const AdminInstanceServiceReceptor = (action) => {
           lastFetched: Date.now()
         })
       })
-      .when(AdminInstanceAction.instancesRetrievedAction.matches, () => {
+      .when(AdminInstanceActions.instancesRetrievedAction.matches, () => {
         return s.merge({ updateNeeded: true })
       })
   })
@@ -78,7 +78,7 @@ export const AdminInstanceService = {
             search: value
           }
         })) as Paginated<Instance>
-        dispatchAction(AdminInstanceAction.instancesRetrievedAction({ instanceResult: instances }))
+        dispatchAction(AdminInstanceActions.instancesRetrievedAction({ instanceResult: instances }))
       }
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -86,16 +86,16 @@ export const AdminInstanceService = {
   },
   removeInstance: async (id: string) => {
     const result = (await client.service('instance').patch(id, { ended: true })) as Instance
-    dispatchAction(AdminInstanceAction.instanceRemovedAction({ instance: result }))
+    dispatchAction(AdminInstanceActions.instanceRemovedAction({ instance: result }))
   }
 }
 
 if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('instance').on('removed', (params) => {
-    dispatchAction(AdminInstanceAction.instanceRemovedAction({ instance: params.instance }))
+    dispatchAction(AdminInstanceActions.instanceRemovedAction({ instance: params.instance }))
   })
 }
-export class AdminInstanceAction {
+export class AdminInstanceActions {
   static instancesRetrievedAction = defineAction({
     store: 'ENGINE',
     type: 'admin.INSTANCES_RETRIEVED',

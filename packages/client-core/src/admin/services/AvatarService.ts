@@ -25,7 +25,7 @@ const AdminAvatarState = defineState({
 export const AdminAvatarServiceReceptor = (action) => {
   getState(AdminAvatarState).batch((s) => {
     matches(action)
-      .when(AvatarAction.avatarsFetched.matches, (action) => {
+      .when(AdminAvatarActions.avatarsFetched.matches, (action) => {
         return s.merge({
           avatars: action.avatars.data,
           skip: action.avatars.skip,
@@ -37,30 +37,30 @@ export const AdminAvatarServiceReceptor = (action) => {
           lastFetched: Date.now()
         })
       })
-      .when(AvatarAction.avatarCreated.matches, (action) => {
+      .when(AdminAvatarActions.avatarCreated.matches, (action) => {
         return s.merge({ updateNeeded: true })
       })
-      .when(AvatarAction.avatarRemoved.matches, (action) => {
+      .when(AdminAvatarActions.avatarRemoved.matches, (action) => {
         return s.merge({ updateNeeded: true })
       })
-      .when(AvatarAction.avatarUpdated.matches, (action) => {
+      .when(AdminAvatarActions.avatarUpdated.matches, (action) => {
         return s.merge({ updateNeeded: true })
       })
   })
 }
 
-export const accessAvatarState = () => getState(AdminAvatarState)
+export const accessAdminAvatarState = () => getState(AdminAvatarState)
 
-export const useAvatarState = () => useState(accessAvatarState())
+export const useAdminAvatarState = () => useState(accessAdminAvatarState())
 
 //Service
-export const AvatarService = {
+export const AdminAvatarService = {
   fetchAdminAvatars: async (skip = 0, search: string | null = null, sortField = 'name', orderBy = 'asc') => {
     let sortData = {}
     if (sortField.length > 0) {
       sortData[sortField] = orderBy === 'desc' ? 0 : 1
     }
-    const adminAvatarState = accessAvatarState()
+    const adminAvatarState = accessAdminAvatarState()
     const limit = adminAvatarState.limit.value
     const avatars = await client.service('static-resource').find({
       query: {
@@ -76,7 +76,7 @@ export const AvatarService = {
         search: search
       }
     })
-    dispatchAction(AvatarAction.avatarsFetched({ avatars }))
+    dispatchAction(AdminAvatarActions.avatarsFetched({ avatars }))
   },
   removeAdminAvatar: async (id: string, name: string) => {
     try {
@@ -90,7 +90,7 @@ export const AvatarService = {
       })
       avatarThumbnail?.data?.length > 0 &&
         (await client.service('static-resource').remove(avatarThumbnail?.data[0]?.id))
-      dispatchAction(AvatarAction.avatarRemoved())
+      dispatchAction(AdminAvatarActions.avatarRemoved())
     } catch (err) {
       console.error(err)
     }
@@ -98,7 +98,7 @@ export const AvatarService = {
 }
 
 //Action
-export class AvatarAction {
+export class AdminAvatarActions {
   static avatarsFetched = defineAction({
     type: 'AVATARS_RETRIEVED' as const,
     avatars: matches.object as Validator<unknown, AvatarResult>

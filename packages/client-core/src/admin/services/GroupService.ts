@@ -27,10 +27,10 @@ const AdminGroupState = defineState({
 export const AdminGroupServiceReceptor = (action) => {
   getState(AdminGroupState).batch((s) => {
     matches(action)
-      .when(AdminGroupAction.fetchingGroup.matches, (action) => {
+      .when(AdminGroupActions.fetchingGroup.matches, (action) => {
         return s.merge({ fetching: true })
       })
-      .when(AdminGroupAction.setAdminGroup.matches, (action) => {
+      .when(AdminGroupActions.setAdminGroup.matches, (action) => {
         return s.merge({
           group: action.list.data,
           skip: action.list.skip,
@@ -42,13 +42,13 @@ export const AdminGroupServiceReceptor = (action) => {
           lastFetched: Date.now()
         })
       })
-      .when(AdminGroupAction.updateGroup.matches, (action) => {
+      .when(AdminGroupActions.updateGroup.matches, (action) => {
         return s.merge({ updateNeeded: true })
       })
-      .when(AdminGroupAction.removeGroupAction.matches, (action) => {
+      .when(AdminGroupActions.removeGroupAction.matches, (action) => {
         return s.merge({ updateNeeded: true })
       })
-      .when(AdminGroupAction.addAdminGroup.matches, (action) => {
+      .when(AdminGroupActions.addAdminGroup.matches, (action) => {
         return s.merge({ updateNeeded: true })
       })
   })
@@ -68,7 +68,7 @@ export const AdminGroupService = {
       if (sortField.length > 0) {
         sortData[sortField] = orderBy === 'desc' ? 0 : 1
       }
-      dispatchAction(AdminGroupAction.fetchingGroup())
+      dispatchAction(AdminGroupActions.fetchingGroup())
       const list = await client.service('group').find({
         query: {
           $sort: {
@@ -79,7 +79,7 @@ export const AdminGroupService = {
           search: search
         }
       })
-      dispatchAction(AdminGroupAction.setAdminGroup({ list }))
+      dispatchAction(AdminGroupActions.setAdminGroup({ list }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -87,7 +87,7 @@ export const AdminGroupService = {
   createGroupByAdmin: async (groupItem: CreateGroup) => {
     try {
       const newGroup = (await client.service('group').create({ ...groupItem })) as Group
-      dispatchAction(AdminGroupAction.addAdminGroup({ item: newGroup }))
+      dispatchAction(AdminGroupActions.addAdminGroup({ item: newGroup }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -95,7 +95,7 @@ export const AdminGroupService = {
   patchGroupByAdmin: async (groupId, groupItem) => {
     try {
       const group = (await client.service('group').patch(groupId, groupItem)) as Group
-      dispatchAction(AdminGroupAction.updateGroup({ item: group }))
+      dispatchAction(AdminGroupActions.updateGroup({ item: group }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -103,7 +103,7 @@ export const AdminGroupService = {
   deleteGroupByAdmin: async (groupId) => {
     try {
       await client.service('group').remove(groupId)
-      dispatchAction(AdminGroupAction.removeGroupAction({ item: groupId }))
+      dispatchAction(AdminGroupActions.removeGroupAction({ item: groupId }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -111,7 +111,7 @@ export const AdminGroupService = {
 }
 
 //Action
-export class AdminGroupAction {
+export class AdminGroupActions {
   static fetchingGroup = defineAction({
     type: 'GROUP_FETCHING' as const
   })

@@ -7,7 +7,7 @@ import Button from '@mui/material/Button'
 import Drawer from '@mui/material/Drawer'
 import Grid from '@mui/material/Grid'
 
-import { AdminAvatarServiceReceptor, AvatarAction } from '../../../admin/services/AvatarService'
+import { AdminAvatarActions, AdminAvatarServiceReceptor } from '../../../admin/services/AvatarService'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
@@ -56,7 +56,7 @@ const Avatar = () => {
         <Drawer anchor="right" open={open} onClose={handleClose} classes={{ paper: styles.paperDrawer }}>
           <AvatarSelectMenu
             adminStyles={styles}
-            onAvatarUpload={() => dispatchAction(AvatarAction.avatarUpdated())}
+            onAvatarUpload={() => dispatchAction(AdminAvatarActions.avatarUpdated())}
             changeActiveMenu={handleClose}
           />
         </Drawer>

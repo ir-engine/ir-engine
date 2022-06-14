@@ -24,42 +24,42 @@ const AdminAnalyticsState = defineState({
 export const AdminAnalyticsServiceReceptor = (action) => {
   getState(AdminAnalyticsState).batch((s) => {
     matches(action)
-      .when(AnalyticsAction.activeInstancesFetched.matches, (action) => {
+      .when(AdminAnalyticsActions.activeInstancesFetched.matches, (action) => {
         return s.merge({
           activeInstances: action.analytics.data.reverse()
         })
       })
-      .when(AnalyticsAction.activePartiesFetched.matches, (action) => {
+      .when(AdminAnalyticsActions.activePartiesFetched.matches, (action) => {
         return s.merge({
           activeParties: action.analytics.data.reverse()
         })
       })
-      .when(AnalyticsAction.activeLocationsFetched.matches, (action) => {
+      .when(AdminAnalyticsActions.activeLocationsFetched.matches, (action) => {
         return s.merge({
           activeLocations: action.analytics.data.reverse()
         })
       })
-      .when(AnalyticsAction.activeScenesFetched.matches, (action) => {
+      .when(AdminAnalyticsActions.activeScenesFetched.matches, (action) => {
         return s.merge({
           activeScenes: action.analytics.data.reverse()
         })
       })
-      .when(AnalyticsAction.channelUsersFetched.matches, (action) => {
+      .when(AdminAnalyticsActions.channelUsersFetched.matches, (action) => {
         return s.merge({
           channelUsers: action.analytics.data.reverse()
         })
       })
-      .when(AnalyticsAction.instanceUsersFetched.matches, (action) => {
+      .when(AdminAnalyticsActions.instanceUsersFetched.matches, (action) => {
         return s.merge({
           instanceUsers: action.analytics.data.reverse()
         })
       })
-      .when(AnalyticsAction.dailyNewUsersFetched.matches, (action) => {
+      .when(AdminAnalyticsActions.dailyNewUsersFetched.matches, (action) => {
         return s.merge({
           dailyNewUsers: action.analytics.data.reverse()
         })
       })
-      .when(AnalyticsAction.dailyUsersFetched.matches, (action) => {
+      .when(AdminAnalyticsActions.dailyUsersFetched.matches, (action) => {
         return s.merge({
           dailyUsers: action.analytics.data.reverse()
         })
@@ -67,12 +67,12 @@ export const AdminAnalyticsServiceReceptor = (action) => {
   })
 }
 
-export const accessAnalyticsState = () => getState(AdminAnalyticsState)
+export const accessAdminAnalyticsState = () => getState(AdminAnalyticsState)
 
-export const useAnalyticsState = () => useState(accessAnalyticsState())
+export const useAdminAnalyticsState = () => useState(accessAdminAnalyticsState())
 
 //Service
-export const AnalyticsService = {
+export const ADminAnalyticsService = {
   fetchActiveParties: async (startDate?: Date, endDate?: Date) => {
     try {
       const query = {
@@ -93,7 +93,7 @@ export const AnalyticsService = {
       const activeParties = await client.service('analytics').find({
         query: query
       })
-      dispatchAction(AnalyticsAction.activePartiesFetched({ analytics: activeParties }))
+      dispatchAction(AdminAnalyticsActions.activePartiesFetched({ analytics: activeParties }))
     } catch (err) {
       console.log(err)
     }
@@ -118,7 +118,7 @@ export const AnalyticsService = {
       const activeInstances = await client.service('analytics').find({
         query: query
       })
-      dispatchAction(AnalyticsAction.activeInstancesFetched({ analytics: activeInstances }))
+      dispatchAction(AdminAnalyticsActions.activeInstancesFetched({ analytics: activeInstances }))
     } catch (err) {
       console.log(err)
     }
@@ -143,7 +143,7 @@ export const AnalyticsService = {
       const activeLocations = await client.service('analytics').find({
         query: query
       })
-      dispatchAction(AnalyticsAction.activeLocationsFetched({ analytics: activeLocations }))
+      dispatchAction(AdminAnalyticsActions.activeLocationsFetched({ analytics: activeLocations }))
     } catch (err) {
       console.log(err)
     }
@@ -168,7 +168,7 @@ export const AnalyticsService = {
       const activeScenes = await client.service('analytics').find({
         query: query
       })
-      dispatchAction(AnalyticsAction.activeScenesFetched({ analytics: activeScenes }))
+      dispatchAction(AdminAnalyticsActions.activeScenesFetched({ analytics: activeScenes }))
     } catch (err) {
       console.log(err)
     }
@@ -193,7 +193,7 @@ export const AnalyticsService = {
       const channelUsers = await client.service('analytics').find({
         query: query
       })
-      dispatchAction(AnalyticsAction.channelUsersFetched({ analytics: channelUsers }))
+      dispatchAction(AdminAnalyticsActions.channelUsersFetched({ analytics: channelUsers }))
     } catch (err) {
       console.log(err)
     }
@@ -218,7 +218,7 @@ export const AnalyticsService = {
       const instanceUsers = await client.service('analytics').find({
         query: query
       })
-      dispatchAction(AnalyticsAction.instanceUsersFetched({ analytics: instanceUsers }))
+      dispatchAction(AdminAnalyticsActions.instanceUsersFetched({ analytics: instanceUsers }))
     } catch (err) {
       console.log(err)
     }
@@ -243,7 +243,7 @@ export const AnalyticsService = {
       const dailyUsers = await client.service('analytics').find({
         query: query
       })
-      dispatchAction(AnalyticsAction.dailyUsersFetched({ analytics: dailyUsers }))
+      dispatchAction(AdminAnalyticsActions.dailyUsersFetched({ analytics: dailyUsers }))
     } catch (error) {
       console.log(error)
     }
@@ -268,7 +268,7 @@ export const AnalyticsService = {
       const dailyNewUsers = await client.service('analytics').find({
         query: query
       })
-      dispatchAction(AnalyticsAction.dailyNewUsersFetched({ analytics: dailyNewUsers }))
+      dispatchAction(AdminAnalyticsActions.dailyNewUsersFetched({ analytics: dailyNewUsers }))
     } catch (err) {
       console.log(err)
     }
@@ -276,7 +276,7 @@ export const AnalyticsService = {
 }
 
 //Action
-export class AnalyticsAction {
+export class AdminAnalyticsActions {
   static activePartiesFetched = defineAction({
     type: 'ACTIVE_PARTIES_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>

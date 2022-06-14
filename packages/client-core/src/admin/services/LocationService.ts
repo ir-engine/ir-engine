@@ -31,7 +31,7 @@ const AdminLocationState = defineState({
 export const AdminLocationServiceReceptor = (action) => {
   getState(AdminLocationState).batch((s) => {
     matches(action)
-      .when(AdminLocationAction.locationsRetrieved.matches, (action) => {
+      .when(AdminLocationActions.locationsRetrieved.matches, (action) => {
         return s.merge({
           locations: action.locations.data,
           skip: action.locations.skip,
@@ -43,16 +43,16 @@ export const AdminLocationServiceReceptor = (action) => {
           lastFetched: Date.now()
         })
       })
-      .when(AdminLocationAction.locationCreated.matches, (action) => {
+      .when(AdminLocationActions.locationCreated.matches, (action) => {
         return s.merge({ updateNeeded: true, created: true })
       })
-      .when(AdminLocationAction.locationPatched.matches, (action) => {
+      .when(AdminLocationActions.locationPatched.matches, (action) => {
         return s.merge({ updateNeeded: true })
       })
-      .when(AdminLocationAction.locationRemoved.matches, (action) => {
+      .when(AdminLocationActions.locationRemoved.matches, (action) => {
         return s.merge({ updateNeeded: true })
       })
-      .when(AdminLocationAction.locationTypesRetrieved.matches, (action) => {
+      .when(AdminLocationActions.locationTypesRetrieved.matches, (action) => {
         return s.merge({ locationTypes: action.locationTypes.data, updateNeeded: false })
       })
   })
@@ -66,24 +66,24 @@ export const useADminLocationState = () => useState(accessAdminLocationState())
 export const AdminLocationService = {
   fetchLocationTypes: async () => {
     const locationTypes = (await client.service('location-type').find()) as Paginated<LocationType>
-    dispatchAction(AdminLocationAction.locationTypesRetrieved({ locationTypes }))
+    dispatchAction(AdminLocationActions.locationTypesRetrieved({ locationTypes }))
   },
   patchLocation: async (id: string, location: any) => {
     try {
       const result = await client.service('location').patch(id, location)
-      dispatchAction(AdminLocationAction.locationPatched({ location: result }))
+      dispatchAction(AdminLocationActions.locationPatched({ location: result }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeLocation: async (id: string) => {
     const result = await client.service('location').remove(id)
-    dispatchAction(AdminLocationAction.locationRemoved({ location: result }))
+    dispatchAction(AdminLocationActions.locationRemoved({ location: result }))
   },
   createLocation: async (location: any) => {
     try {
       const result = await client.service('location').create(location)
-      dispatchAction(AdminLocationAction.locationCreated({ location: result }))
+      dispatchAction(AdminLocationActions.locationCreated({ location: result }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -120,7 +120,7 @@ export const AdminLocationService = {
       locations.data.forEach((locationData) => {
         if (locationData.location_setting) locationData.locationSetting = locationData.location_setting
       })
-      dispatchAction(AdminLocationAction.locationsRetrieved({ locations }))
+      dispatchAction(AdminLocationActions.locationsRetrieved({ locations }))
     } catch (error) {
       console.error(error)
       dispatchAction(ErrorAction.setReadScopeError(error.message, error.statusCode))
@@ -142,7 +142,7 @@ export const AdminLocationService = {
       locations.data.forEach((locationData) => {
         if (locationData.location_setting) locationData.locationSetting = locationData.location_setting
       })
-      dispatchAction(AdminLocationAction.locationsRetrieved({ locations }))
+      dispatchAction(AdminLocationActions.locationsRetrieved({ locations }))
     } catch (error) {
       console.error(error)
       dispatchAction(ErrorAction.setReadScopeError(error.message, error.statusCode))
@@ -151,7 +151,7 @@ export const AdminLocationService = {
 }
 
 //Action
-export class AdminLocationAction {
+export class AdminLocationActions {
   static locationsRetrieved = defineAction({
     type: 'ADMIN_LOCATIONS_RETRIEVED' as const,
     locations: matches.object as Validator<unknown, Paginated<Location>>

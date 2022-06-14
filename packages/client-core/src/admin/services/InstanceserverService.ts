@@ -17,13 +17,13 @@ const AdminInstanceServerState = defineState({
 export const AdminInstanceServerServiceReceptor = (action) => {
   getState(AdminInstanceServerState).batch((s) => {
     matches(action)
-      .when(InstanceserverAction.patchInstanceserver.matches, (action) => {
+      .when(InstanceserverActions.patchInstanceserver.matches, (action) => {
         return s.merge({
           patch: undefined,
           fetched: false
         })
       })
-      .when(InstanceserverAction.patchedInstanceserver.matches, (action) => {
+      .when(InstanceserverActions.patchedInstanceserver.matches, (action) => {
         return s.merge({
           patch: action.patch,
           fetched: true,
@@ -41,9 +41,9 @@ export const useInstanceserverState = () => useState(accessInstanceserverState()
 export const InstanceserverService = {
   patchInstanceserver: async (locationId) => {
     try {
-      dispatchAction(InstanceserverAction.patchInstanceserver())
+      dispatchAction(InstanceserverActions.patchInstanceserver())
       const patch = await client.service('instanceserver-provision').patch({ locationId })
-      dispatchAction(InstanceserverAction.patchedInstanceserver({ patch }))
+      dispatchAction(InstanceserverActions.patchedInstanceserver({ patch }))
     } catch (error) {
       console.error(error)
     }
@@ -51,7 +51,7 @@ export const InstanceserverService = {
 }
 
 //Action
-export class InstanceserverAction {
+export class InstanceserverActions {
   static patchInstanceserver = defineAction({
     type: 'INSTANCESERVER_PATCH' as const
   })

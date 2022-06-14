@@ -25,24 +25,24 @@ const AdminActiveRouteState = defineState({
 
 export const AdminActiveRouteServiceReceptor = (action) => {
   getState(AdminActiveRouteState).batch((s) => {
-    matches(action).when(ActiveRouteActions.activeRoutesRetrievedAction.matches, (action) => {
+    matches(action).when(AdminActiveRouteActions.activeRoutesRetrievedAction.matches, (action) => {
       return s.merge({ activeRoutes: action.data, total: action.data.length, updateNeeded: false })
     })
   })
 }
 
-export const accessActiveRouteState = () => getState(AdminActiveRouteState)
+export const accessAdminActiveRouteState = () => getState(AdminActiveRouteState)
 
-export const useActiveRouteState = () => useState(accessActiveRouteState())
+export const useAdminActiveRouteState = () => useState(accessAdminActiveRouteState())
 
 //Service
-export const ActiveRouteService = {
+export const AdminActiveRouteService = {
   setRouteActive: async (project: string, route: string, activate: boolean) => {
     const user = accessAuthState().user
     try {
       if (user.userRole.value === 'admin') {
         await client.service('route-activate').create({ project, route, activate })
-        ActiveRouteService.fetchActiveRoutes()
+        AdminActiveRouteService.fetchActiveRoutes()
       }
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -54,7 +54,7 @@ export const ActiveRouteService = {
       if (user.userRole.value === 'admin') {
         const routes = await client.service('route').find({ paginate: false })
         dispatchAction(
-          ActiveRouteActions.activeRoutesRetrievedAction({ data: routes.data as Array<ActiveRoutesInterface> })
+          AdminActiveRouteActions.activeRoutesRetrievedAction({ data: routes.data as Array<ActiveRoutesInterface> })
         )
       }
     } catch (err) {
@@ -64,7 +64,7 @@ export const ActiveRouteService = {
 }
 
 //Action
-export class ActiveRouteActions {
+export class AdminActiveRouteActions {
   static activeRoutesRetrievedAction = defineAction({
     type: 'ADMIN_ROUTE_ACTIVE_RECEIVED' as const,
     data: matches.array as Validator<unknown, ActiveRoutesInterface[]>

@@ -22,7 +22,7 @@ import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { BotService } from '../../services/BotsService'
+import { AdminBotService } from '../../services/BotsService'
 import { AdminInstanceService, useAdminInstanceState } from '../../services/InstanceService'
 import { AdminLocationService, useADminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
@@ -127,7 +127,7 @@ const CreateBot = () => {
 
     setFormErrors(temp)
     if (validateForm(state, formErrors)) {
-      BotService.createBotAsAdmin(data)
+      AdminBotService.createBotAsAdmin(data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCommandData([])
       setCurrentIntance([])

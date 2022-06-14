@@ -14,7 +14,7 @@ const AdminGithubAppState = defineState({
 
 export const AdminGithubAppServiceReceptor = (action) => {
   getState(AdminGithubAppState).batch((s) => {
-    matches(action).when(GithubAppAction.GithubAppFetched.matches, (action) => {
+    matches(action).when(GithubAppActions.GithubAppFetched.matches, (action) => {
       return s.merge({
         repos: action.result,
         updateNeeded: false
@@ -30,11 +30,11 @@ export const useAdminGithubAppState = () => useState(accessAdminGithubAppState()
 export const GithubAppService = {
   fetchGithubAppRepos: async () => {
     const repos = await client.service('github-app').find()
-    dispatchAction(GithubAppAction.GithubAppFetched({ result: repos }))
+    dispatchAction(GithubAppActions.GithubAppFetched({ result: repos }))
   }
 }
 
-export class GithubAppAction {
+export class GithubAppActions {
   static GithubAppFetched = defineAction({
     type: 'GITHUBAPP_RETRIEVED' as const,
     result: matches.array as Validator<unknown, GithubAppInterface[]>

@@ -24,25 +24,25 @@ const AdminBotsCommandState = defineState({
 export const AdminBotsCommandServiceReceptor = (action) => {
   getState(AdminBotsCommandState).batch((s) => {
     matches(action)
-      .when(BotsCommandAction.botCammandCreated.matches, (action) => {
+      .when(AdminBotCommandActions.botCammandCreated.matches, (action) => {
         return s.merge({ updateNeeded: true })
       })
-      .when(BotsCommandAction.botCommandRemoved.matches, (action) => {
+      .when(AdminBotCommandActions.botCommandRemoved.matches, (action) => {
         return s.merge({ updateNeeded: true })
       })
   })
 }
 
-export const accessBotCommandState = () => getState(AdminBotsCommandState)
+export const accessAdminBotCommandState = () => getState(AdminBotsCommandState)
 
-export const useBotCommandState = () => useState(accessBotCommandState())
+export const useAdminBotCommandState = () => useState(accessAdminBotCommandState())
 
 //Service
-export const BotCommandService = {
+export const AdminBotCommandService = {
   createBotCammand: async (data: CreateBotCammand) => {
     try {
       const botCommand = (await client.service('bot-command').create(data)) as BotCommands
-      dispatchAction(BotsCommandAction.botCammandCreated({ botCommand }))
+      dispatchAction(AdminBotCommandActions.botCammandCreated({ botCommand }))
     } catch (error) {
       console.error(error)
     }
@@ -50,14 +50,14 @@ export const BotCommandService = {
   removeBotsCommand: async (id: string) => {
     try {
       const result = (await client.service('bot-command').remove(id)) as BotCommands
-      dispatchAction(BotsCommandAction.botCommandRemoved({ botCommand: result }))
+      dispatchAction(AdminBotCommandActions.botCommandRemoved({ botCommand: result }))
     } catch (error) {
       console.error(error)
     }
   }
 }
 //Action
-export class BotsCommandAction {
+export class AdminBotCommandActions {
   static botCammandCreated = defineAction({
     type: 'BOT_COMMAND_ADMIN_CREATE' as const,
     botCommand: matches.object as Validator<unknown, BotCommands>

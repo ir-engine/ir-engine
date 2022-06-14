@@ -27,7 +27,7 @@ const AdminBotState = defineState({
 export const AdminBotServiceReceptor = (action) => {
   getState(AdminBotState).batch((s) => {
     matches(action)
-      .when(BotsAction.fetchedBot.matches, (action) => {
+      .when(AdminBotsActions.fetchedBot.matches, (action) => {
         return s.merge({
           bots: action.bots.data,
           retrieving: false,
@@ -36,28 +36,28 @@ export const AdminBotServiceReceptor = (action) => {
           lastFetched: Date.now()
         })
       })
-      .when(BotsAction.botCreated.matches, (action) => {
+      .when(AdminBotsActions.botCreated.matches, (action) => {
         return s.merge({ updateNeeded: true })
       })
-      .when(BotsAction.botPatched.matches, (action) => {
+      .when(AdminBotsActions.botPatched.matches, (action) => {
         return s.merge({ updateNeeded: true })
       })
-      .when(BotsAction.botRemoved.matches, (action) => {
+      .when(AdminBotsActions.botRemoved.matches, (action) => {
         return s.merge({ updateNeeded: true })
       })
   })
 }
 
-export const accessBotState = () => getState(AdminBotState)
+export const accessAdminBotState = () => getState(AdminBotState)
 
-export const useBotState = () => useState(accessBotState())
+export const useAdminBotState = () => useState(accessAdminBotState())
 
 //Service
-export const BotService = {
+export const AdminBotService = {
   createBotAsAdmin: async (data: CreateBotAsAdmin) => {
     try {
       const bot = await client.service('bot').create(data)
-      dispatchAction(BotsAction.botCreated({ bot }))
+      dispatchAction(AdminBotsActions.botCreated({ bot }))
     } catch (error) {
       console.error(error)
     }
@@ -65,8 +65,8 @@ export const BotService = {
   fetchBotAsAdmin: async (incDec?: 'increment' | 'decrement') => {
     try {
       const user = accessAuthState().user
-      const skip = accessBotState().skip.value
-      const limit = accessBotState().limit.value
+      const skip = accessAdminBotState().skip.value
+      const limit = accessAdminBotState().limit.value
       if (user.userRole.value === 'admin') {
         const bots = (await client.service('bot').find({
           query: {
@@ -78,7 +78,7 @@ export const BotService = {
             action: 'admin'
           }
         })) as Paginated<AdminBot>
-        dispatchAction(BotsAction.fetchedBot({ bots }))
+        dispatchAction(AdminBotsActions.fetchedBot({ bots }))
       }
     } catch (error) {
       console.error(error)
@@ -87,7 +87,7 @@ export const BotService = {
   removeBots: async (id: string) => {
     try {
       const bot = (await client.service('bot').remove(id)) as AdminBot
-      dispatchAction(BotsAction.botRemoved({ bot }))
+      dispatchAction(AdminBotsActions.botRemoved({ bot }))
     } catch (error) {
       console.error(error)
     }
@@ -95,14 +95,14 @@ export const BotService = {
   updateBotAsAdmin: async (id: string, bot: CreateBotAsAdmin) => {
     try {
       const result = (await client.service('bot').patch(id, bot)) as AdminBot
-      dispatchAction(BotsAction.botPatched({ bot: result }))
+      dispatchAction(AdminBotsActions.botPatched({ bot: result }))
     } catch (error) {
       console.error(error)
     }
   }
 }
 //Action
-export class BotsAction {
+export class AdminBotsActions {
   static fetchedBot = defineAction({
     type: 'BOT_ADMIN_DISPLAY' as const,
     bots: matches.object as Validator<unknown, Paginated<AdminBot>>
