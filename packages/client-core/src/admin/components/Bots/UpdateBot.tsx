@@ -18,9 +18,9 @@ import AlertMessage from '../../common/AlertMessage'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { BotService } from '../../services/BotsService'
-import { InstanceService, useInstanceState } from '../../services/InstanceService'
-import { LocationService, useLocationState } from '../../services/LocationService'
+import { AdminBotService } from '../../services/BotsService'
+import { AdminInstanceService, useAdminInstanceState } from '../../services/InstanceService'
+import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -31,7 +31,7 @@ interface Props {
 
 const UpdateBot = (props: Props) => {
   const { open, handleClose, bot } = props
-  const adminInstanceState = useInstanceState()
+  const adminInstanceState = useAdminInstanceState()
   const [state, setState] = useState({
     name: '',
     description: '',
@@ -46,7 +46,7 @@ const UpdateBot = (props: Props) => {
   const [currentInstance, setCurrentIntance] = useState<Instance[]>([])
   const [openAlter, setOpenAlter] = useState(false)
   const [error, setError] = useState('')
-  const adminLocation = useLocationState()
+  const adminLocation = useAdminLocationState()
   const locationData = adminLocation.locations
   const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances
@@ -134,7 +134,7 @@ const UpdateBot = (props: Props) => {
     }
     setFormErrors(temp)
     if (validateForm(state, formErrors) && bot) {
-      BotService.updateBotAsAdmin(bot.id, data)
+      AdminBotService.updateBotAsAdmin(bot.id, data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCurrentIntance([])
       handleClose()
@@ -145,7 +145,7 @@ const UpdateBot = (props: Props) => {
   }
 
   const fetchAdminInstances = () => {
-    InstanceService.fetchAdminInstances()
+    AdminInstanceService.fetchAdminInstances()
   }
 
   const handleCloseAlter = (event?: React.SyntheticEvent | Event, reason?: string) => {
@@ -156,7 +156,7 @@ const UpdateBot = (props: Props) => {
   }
 
   const fetchAdminLocations = () => {
-    LocationService.fetchAdminLocations()
+    AdminLocationService.fetchAdminLocations()
   }
 
   return (
