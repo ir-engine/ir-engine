@@ -10,8 +10,8 @@ Q2
 - [x] Light & Dark Mode
 - [x] Better Logging System
 - [x] Hyperflux
-- [x] Unity Import pipeline tools
-- [x] unreal Dedicated Server alpha
+- [x] Unity Import Pipeline Tools
+- [x] Unreal Dedicated Server alpha
 - [x] Netcode Refactor & Optimization
 - [x] Editor Material Library
 - [x] Better i18n support
