@@ -7,6 +7,7 @@ import Cached from '@mui/icons-material/Cached'
 import Cross from '@mui/icons-material/Cancel'
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
 import VisibilityIcon from '@mui/icons-material/Visibility'
+import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 
 import { PROJECT_PAGE_LIMIT, ProjectService, useProjectState } from '../../../common/services/ProjectService'
@@ -17,7 +18,11 @@ import { projectsColumns } from '../../common/variables/projects'
 import styles from '../../styles/admin.module.scss'
 import ViewProjectFiles from './ViewProjectFiles'
 
-export default function ProjectTable() {
+interface Props {
+  className?: string
+}
+
+const ProjectTable = ({ className }: Props) => {
   const { t } = useTranslation()
   const [processing, setProcessing] = useState(false)
   const [popupReuploadConfirmOpen, setPopupReuploadConfirmOpen] = useState(false)
@@ -189,7 +194,7 @@ export default function ProjectTable() {
   })
 
   return (
-    <div>
+    <Box className={className}>
       <TableComponent
         allowSort={true}
         rows={rows}
@@ -224,6 +229,8 @@ export default function ProjectTable() {
       {showProjectFiles && projectName && (
         <ViewProjectFiles name={projectName} open={showProjectFiles} setShowProjectFiles={setShowProjectFiles} />
       )}
-    </div>
+    </Box>
   )
 }
+
+export default ProjectTable

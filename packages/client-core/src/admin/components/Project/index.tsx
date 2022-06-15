@@ -77,9 +77,8 @@ const Projects = () => {
           </Button>
         </Grid>
       </Grid>
-      <div className={styles.rootTable}>
-        <ProjectTable />
-      </div>
+
+      <ProjectTable className={styles.rootTable} />
 
       <ConfirmModal
         open={rebuildModalOpen}
