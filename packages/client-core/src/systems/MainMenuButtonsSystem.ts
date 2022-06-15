@@ -41,13 +41,7 @@ export default async function MainMenuButtonsSystem(world: World) {
 
     if (xrui) {
       const rootLayerElement = xrui.container.rootLayer.element
-      ObjectFitFunctions.attachObjectToPreferredTransform(
-        xrui.container,
-        rootLayerElement.clientWidth,
-        rootLayerElement.clientHeight,
-        1.5,
-        0.1
-      )
+      ObjectFitFunctions.attachObjectToPreferredTransform(xrui.container)
       ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, MainMenuButtonState.showButtons.value)
     }
   }

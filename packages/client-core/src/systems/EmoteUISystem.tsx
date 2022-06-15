@@ -16,14 +16,7 @@ export default async function EmoteUISystem(world: World) {
     const xrui = getComponent(ui.entity, XRUIComponent)
 
     if (xrui) {
-      const rootLayerElement = xrui.container.rootLayer.element
-      ObjectFitFunctions.attachObjectToPreferredTransform(
-        xrui.container,
-        rootLayerElement.clientWidth,
-        rootLayerElement.clientHeight,
-        0.1,
-        0.1
-      )
+      ObjectFitFunctions.attachObjectToPreferredTransform(xrui.container)
       ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, MainMenuButtonState.emoteMenuOpen.value)
     }
   }

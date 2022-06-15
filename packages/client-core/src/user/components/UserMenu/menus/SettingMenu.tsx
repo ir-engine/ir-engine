@@ -68,8 +68,9 @@ const SettingMenu = (): JSX.Element => {
 
   useEffect(() => {
     const world = Engine.instance.currentWorld
-    const entity = world.getUserAvatarEntity(user.id.value)
+    const entity = world.localClientEntity
     const avatar = getComponent(entity, AvatarComponent)
+    if (!avatar) return
     if (showAvatar) {
       if (avatar.modelContainer.visible) return
       avatar.modelContainer.visible = showAvatar

@@ -47,6 +47,7 @@ export const initializeBrowser = () => {
   world.audioListener = new AudioListener()
   world.audioListener.context.resume()
   world.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
+  world.scene.add(world.camera)
   world.camera.add(world.audioListener)
   world.camera.layers.disableAll()
   world.camera.layers.enable(ObjectLayers.Scene)
