@@ -298,6 +298,10 @@ const DemoStyle = (props: DemoStyleProps) => {
         color: var(--orange) !important;
       }
 
+      .spanWhite:hover, .spanDange:hover {
+        opacity: 0.7;
+      }
+
       .popupMainBackground {
         background: unset;
       }

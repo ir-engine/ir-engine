@@ -194,6 +194,10 @@
   position: fixed;
 }
 
+.spanDange:hover {
+  opacity: 0.8;
+}
+
 .invisible {
   display: none;
   color: var(--textColor);

@@ -753,6 +753,11 @@
   color: var(--textColor) !important;
 }
 
+.spanWhite:hover,
+.spanDange:hover {
+  opacity: 0.8;
+}
+
 .actionStyle {
   text-decoration: none;
   color: #000;

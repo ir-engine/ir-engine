@@ -31,3 +31,7 @@
 .spanWhite {
   color: var(--textColor) !important;
 }
+
+.spanWhite:hover {
+  opacity: 0.8;
+}
