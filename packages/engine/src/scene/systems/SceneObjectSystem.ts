@@ -171,7 +171,7 @@ export default async function SceneObjectSystem(world: World) {
       }
       if (!Engine.instance.simpleMaterials) {
         object3DComponent.value.traverse((obj: Object3DWithEntity) => {
-          if (typeof obj.entity === 'number' && hasComponent(obj, SimpleMaterialTagComponent)) return
+          if (typeof obj.entity === 'number' && hasComponent(obj as any, SimpleMaterialTagComponent)) return
           useStandardMaterial(obj as any)
         })
       }
