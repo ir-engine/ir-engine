@@ -91,7 +91,7 @@ const Projects = () => {
       <AddProject
         repos={githubAppRepos}
         open={uploadProjectsModalOpen}
-        handleClose={() => setUploadProjectsModalOpen(false)}
+        onClose={() => setUploadProjectsModalOpen(false)}
       />
     </div>
   )

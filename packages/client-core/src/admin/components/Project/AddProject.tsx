@@ -21,11 +21,11 @@ import styles from '../../styles/admin.module.scss'
 interface Props {
   open: boolean
   repos: GithubAppInterface[]
-  handleClose: () => void
+  onClose: () => void
 }
 
 const AddProject = (props: Props) => {
-  const { open, handleClose, repos } = props
+  const { open, repos, onClose } = props
   const [processing, setProcessing] = useState(false)
   const [projectURL, setProjectURL] = useState('')
   const [isPublicUrl, setIsPublicUrl] = useState(false)
@@ -51,7 +51,7 @@ const AddProject = (props: Props) => {
 
   const closeModal = () => {
     setProjectURL('')
-    handleClose()
+    onClose()
   }
 
   const projectMenu: InputMenuItem[] = repos.map((el) => {
@@ -63,7 +63,7 @@ const AddProject = (props: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer anchor="right" classes={{ paper: styles.paperDrawer }} open={open} onClose={handleClose}>
+      <Drawer anchor="right" classes={{ paper: styles.paperDrawer }} open={open} onClose={onClose}>
         <Container maxWidth="sm" className={styles.mt20}>
           <DialogTitle className={styles.textAlign}>{t('admin:components.project.addProject')}</DialogTitle>
 
@@ -104,7 +104,7 @@ const AddProject = (props: Props) => {
                       : t('admin:components.project.selectFromList')}
                   </Button>
                 )}
-                <Button className={styles.cancelButton} onClick={handleClose}>
+                <Button className={styles.cancelButton} onClick={onClose}>
                   {t('admin:components.setting.cancel')}
                 </Button>
               </>
