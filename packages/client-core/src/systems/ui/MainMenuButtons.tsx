@@ -13,7 +13,7 @@ import SettingsIcon from '@mui/icons-material/Settings'
 
 import { useChatState } from '../../social/services/ChatService'
 import { EmoteIcon } from '../../user/components/UserMenu'
-import { MainMenuButtonState, useMainMenuButtonState } from '../state/MainMenuButtonState'
+import { MainMenuButtonState } from '../state/MainMenuButtonState'
 
 const styles = {
   container: {
