@@ -96,13 +96,14 @@ store.receptors.push((action: AuthActionType): void => {
         return s.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
       case 'DID_VERIFY_EMAIL':
         return s.identityProvider.merge({ isVerified: action.result })
-      // case 'RESTORE': {
-      //   const stored = accessStoredLocalState().attach(Downgraded).authData.value
-      //   return s.merge({
-      //     authUser: stored.authUser,
-      //     identityProvider: stored.identityProvider
-      //   })
-      // }
+      case 'RESTORE' as any: {
+        // TODO: .when(StoredLocalAction.storedLocal.matches, (action) => {
+        const stored = accessStoredLocalState().attach(Downgraded).value
+        return s.merge({
+          authUser: stored.authUser,
+          identityProvider: stored.authUser?.identityProvider
+        })
+      }
       case 'AVATAR_UPDATED': {
         return s.user.merge({ avatarUrl: action.url })
       }
@@ -139,13 +140,11 @@ accessAuthState().attach(() => ({
   init: () => ({
     onSet(arg) {
       const state = accessAuthState().attach(Downgraded).value
-      const dispatch = useDispatch()
       if (state.isLoggedIn)
         dispatchAction(
           StoredLocalAction.storedLocal({
             newState: {
-              authUser: state.authUser,
-              identityProvider: state.identityProvider
+              authUser: state.authUser
             }
           })
         )
@@ -159,7 +158,7 @@ export const AuthService = {
     const dispatch = useDispatch()
     try {
       console.log(accessStoredLocalState().attach(Downgraded))
-      const authData = accessStoredLocalState().attach(Downgraded).authData.value
+      const authData = accessStoredLocalState().attach(Downgraded).value
       let accessToken =
         forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
 
