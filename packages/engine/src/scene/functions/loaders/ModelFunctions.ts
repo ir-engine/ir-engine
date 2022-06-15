@@ -1,4 +1,4 @@
-import { Texture } from 'three'
+import { Mesh, Texture } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -20,6 +20,7 @@ import cloneObject3D from '../cloneObject3D'
 import { addError, removeError } from '../ErrorFunctions'
 import { overrideTexture, parseGLTFModel } from '../loadGLTFModel'
 import { initializeOverride } from './MaterialOverrideFunctions'
+import { useSimpleMaterial, useStandardMaterial } from './SimpleMaterialFunctions'
 
 export const SCENE_COMPONENT_MODEL = 'gltf-model'
 export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
@@ -27,6 +28,7 @@ export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
   textureOverride: '',
   materialOverrides: [] as MaterialOverrideComponentType[],
   matrixAutoUpdate: true,
+  useBasicMaterial: false,
   isUsingGPUInstancing: false,
   isDynamicObject: false
 }
@@ -66,6 +68,15 @@ export const updateModel: ComponentUpdateFunction = (entity: Entity, properties:
   if (typeof properties.textureOverride !== 'undefined') {
     overrideTexture(entity)
   }
+
+  if (properties.useBasicMaterial !== undefined) {
+    const obj3d = getComponent(entity, Object3DComponent).value
+    obj3d.traverseVisible((child: Mesh) => {
+      if (child.isMesh) {
+        properties.useBasicMaterial ? useSimpleMaterial(child as any) : useStandardMaterial(child as any)
+      }
+    })
+  }
 }
 
 export const serializeModel: ComponentSerializeFunction = (entity) => {
@@ -104,6 +115,7 @@ const parseModelProperties = (props): ModelComponentType => {
     textureOverride: props.textureOverride ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.textureOverride,
     materialOverrides: props.materialOverrides ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.materialOverrides,
     matrixAutoUpdate: props.matrixAutoUpdate ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.matrixAutoUpdate,
+    useBasicMaterial: props.useBasicMaterial ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.useBasicMaterial,
     isUsingGPUInstancing: props.isUsingGPUInstancing ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isUsingGPUInstancing,
     isDynamicObject: props.isDynamicObject ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isDynamicObject
   }

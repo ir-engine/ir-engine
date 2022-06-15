@@ -11,7 +11,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../../../physics/components/ColliderComponent'
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
-import { createCollider } from '../../../physics/functions/createCollider'
+import { createCollider, removeCollider } from '../../../physics/functions/createCollider'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -24,6 +24,8 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<TriggerVolumeComponentType>
 ): void => {
+  const xform = getComponent(entity, TransformComponent)
+
   const boxMesh = new Mesh(new BoxBufferGeometry(), new MeshBasicMaterial())
   boxMesh.material.visible = false
   boxMesh.userData = {
@@ -33,7 +35,7 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
     collisionLayer: CollisionGroups.Trigger,
     collisionMask: CollisionGroups.Default
   }
-
+  boxMesh.scale.set(xform.scale.x, xform.scale.y, xform.scale.z)
   createCollider(entity, boxMesh)
 
   addComponent(entity, TriggerVolumeComponent, {
