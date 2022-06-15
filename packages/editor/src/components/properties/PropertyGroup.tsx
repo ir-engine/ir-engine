@@ -38,9 +38,9 @@ const PropertyGroupContent = (styled as any).div`
 `
 
 interface Props {
-  name: string
+  name?: string
   description?: string
-  children?: JSX.Element | JSX.Element[]
+  children?: React.ReactNode
 }
 
 // function to create property group view
