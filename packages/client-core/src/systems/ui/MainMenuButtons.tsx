@@ -3,12 +3,16 @@ import React, { useEffect, useState } from 'react'
 
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Message as MessageIcon } from '@mui/icons-material'
 import LinkIcon from '@mui/icons-material/Link'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import SettingsIcon from '@mui/icons-material/Settings'
 
 import { useChatState } from '../../social/services/ChatService'
@@ -19,7 +23,7 @@ const styles = {
   container: {
     display: 'grid',
     gridGap: '10px',
-    gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr'
+    gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr'
   },
   button: {
     margin: '5px 15px 10px 10px',
@@ -109,6 +113,10 @@ const MainMenuButtons = () => {
     }
   }
 
+  const handleRespawnAvatar = () => {
+    respawnAvatar(useWorld().localClientEntity)
+  }
+
   return (
     <div style={styles.container as {}} xr-layer="true">
       <style>{`
@@ -121,6 +129,9 @@ const MainMenuButtons = () => {
           fill: var(--iconButtonColor) !important;
         }
       `}</style>
+      <div style={styles.button} onClick={handleRespawnAvatar}>
+        <RefreshIcon className="svgIcon" />
+      </div>
       <div style={styles.button} onClick={toggleEmoteMenu}>
         <EmoteIcon />
       </div>

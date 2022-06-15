@@ -15,7 +15,8 @@ const styles = {
     height: '500px',
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    position: 'fixed'
   },
   itemContainer: {
     display: 'flex',
