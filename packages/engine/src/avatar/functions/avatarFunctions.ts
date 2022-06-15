@@ -69,7 +69,11 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
     if (obj.material && obj.material.clone) {
       obj.material = obj.material.clone()
       //TODO: to fix alphablend issue of some models (mostly fbx converted models)
-      obj.material.depthWrite = true
+      if (obj.material.opacity != 0) {
+        obj.material.depthWrite = true
+      } else {
+        obj.material.depthWrite = false
+      }
       obj.material.depthTest = true
     }
     // Enable shadow for avatars
@@ -199,13 +203,21 @@ export const setupAvatarMaterials = (entity, root) => {
   const materialList: Array<MaterialMap> = []
 
   setObjectLayers(root, ObjectLayers.Avatar)
+  const headBone = findHeadBone(root)
+
+  // TODO: Hide the head part
+  //  headBone.traverse(o => {
+  //   o.position.set(NaN, NaN, NaN);
+  //   o.matrixWorld.set(NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN);
+  // });
+
   root.traverse((object) => {
     if (object.isBone) object.visible = false
     if (object.material && object.material.clone) {
       const material = object.material.clone()
       // If local player's avatar
-      if (entity === Engine.instance.currentWorld.localClientEntity) {
-        setupHeadDecap(root, material)
+      if (object.isSkinnedMesh && headBone && entity === Engine.instance.currentWorld.localClientEntity) {
+        setupHeadDecap(object, headBone, material)
       }
       materialList.push({
         id: object.uuid,
@@ -316,38 +328,44 @@ export function makeSkinnedMeshFromBoneData(bonesData): SkinnedMesh {
 }
 
 /**
+ * Find the head bone
+ * @param root
+ */
+
+function findHeadBone(root: Object3D) {
+  let headBone = null
+  root.traverse((object) => {
+    if (!(object as any).isSkinnedMesh) return
+    const bones = (object as any).skeleton.bones
+    const sortedBone = bones.find((bone) => /head/i.test(bone.name))
+    if (!sortedBone) return
+    headBone = sortedBone
+  })
+  return headBone
+}
+
+/**
  * Adds required parameters to mesh's material
  * to enable avatar's head decapitation (opacity fade)
  * @param model
  * @param material
  */
-function setupHeadDecap(model: Object3D, material: Material) {
-  const mesh = model.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
-
-  if (!mesh) {
-    console.warn("Could not find object's SkinnedMesh", model)
-    return
-  }
-
-  const bones = mesh.skeleton.bones
-  const headBone = bones.find((bone) => /head/i.test(bone.name))
-
-  if (!headBone) {
-    console.warn("Could not find SkinnedMesh's head bone", mesh)
-    return
-  }
-
+function setupHeadDecap(object: any, headBone: any | undefined, material: Material) {
   // Create a copy of the mesh to hide 'internal' polygons when opacity is below 1
-  const skinnedMeshMask = SkeletonUtils.clone(model).getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
-  mesh.parent?.add(skinnedMeshMask)
-  skinnedMeshMask.skeleton = mesh.skeleton
-  skinnedMeshMask.bindMatrix = mesh.bindMatrix
-  skinnedMeshMask.bindMatrixInverse = mesh.bindMatrixInverse
-  skinnedMeshMask.material = new MeshBasicMaterial({ skinning: true, colorWrite: false } as any)
-  skinnedMeshMask.name = skinnedMeshMask.name + '_Mask'
-  skinnedMeshMask.renderOrder = 1
-  ;(mesh.material as any).depthWrite = false
+  if (material.opacity != 0) {
+    const mesh = object.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
+    const skinnedMeshMask = SkeletonUtils.clone(object).getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
+    mesh.parent?.add(skinnedMeshMask)
+    skinnedMeshMask.skeleton = mesh.skeleton
+    skinnedMeshMask.bindMatrix = mesh.bindMatrix
+    skinnedMeshMask.bindMatrixInverse = mesh.bindMatrixInverse
+    skinnedMeshMask.material = new MeshBasicMaterial({ skinning: true, colorWrite: false } as any)
+    skinnedMeshMask.name = skinnedMeshMask.name + '_Mask'
+    skinnedMeshMask.renderOrder = 1
+    ;(mesh.material as any).depthWrite = false
+  }
 
+  const bones = object.skeleton.bones
   const bonesIndexes = getBoneChildrenIndexes(bones, headBone)
   const bonesToFade = new Matrix4()
   bonesToFade.elements.fill(-1)
